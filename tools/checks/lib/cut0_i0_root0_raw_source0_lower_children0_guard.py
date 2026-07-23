@@ -40,7 +40,16 @@ def main() -> int:
         if forbidden in joined:
             raise AssertionError(f"forbidden CHILDREN0 widening: {forbidden}")
     children = (ROOT / "src/mir/compiler/raw_root_children.rs").read_text()
-    for required in ("prepare_children", "complete_all", "LexicalMethodName", "RawPreRootChildrenCompletionV1"):
+    for required in (
+        "prepare_children",
+        "complete_all",
+        "LexicalMethodName",
+        "RawPreRootChildrenCompletionV1",
+        "RawRootChildFailureSiteV1",
+        "successful_prefix_count",
+        "locator_drift_is_rejected_before_physical_effects",
+        "second_child_failure_keeps_successful_prefix_and_stops_siblings",
+    ):
         if required not in children:
             raise AssertionError(f"missing CHILDREN0 contract: {required}")
     print("[cut0-i0-root0-raw-source0-lower-children0-guard] ok below_800=1 production_consumer=0")

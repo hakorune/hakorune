@@ -119,6 +119,24 @@ pub(in crate::mir) enum RejectedRawRootChildrenInvocationV1 {
     },
 }
 
+impl RejectedRawRootChildrenInvocationV1 {
+    pub(in crate::mir) fn successful_prefix_count(&self) -> usize {
+        match self {
+            Self::Source { owner, .. } | Self::Physical { owner, .. } => owner.prefix.len(),
+        }
+    }
+
+    pub(in crate::mir) fn failed_ordinal(&self) -> Option<usize> {
+        match self {
+            Self::Source { failed, .. } | Self::Physical { failed, .. } => {
+                failed.as_ref().map(|site| site.ordinal)
+            }
+        }
+    }
+
+    pub(in crate::mir) fn discard(self) {}
+}
+
 impl RawRootInvocationV1 {
     pub(in crate::mir) fn prepare_children(
         self,
@@ -419,5 +437,66 @@ mod tests {
         let forged = RawSourceLocatorV1::for_test(0, "Main", "missing", "Main.missing/0", 0);
         let error = source.prepare_static_child(forged, 0).unwrap_err();
         assert_eq!(error, RawRootStaticChildWorkErrorV1::MethodNameMismatch);
+    }
+
+    #[test]
+    fn second_child_failure_keeps_successful_prefix_and_stops_siblings() {
+        let invocation = bound(app(&["alpha", "zeta"]));
+        let RawRootInvocationV1::App(app) = invocation else {
+            panic!("static Main must produce the App route")
+        };
+        let super::super::raw_root_eligibility::RawRootPhysicalCoreV1 {
+            token,
+            source,
+            continuation,
+            config,
+            module_name,
+            plan: original_plan,
+            session,
+            physical,
+            ..
+        } = app.core;
+        let (plan, locators) = original_plan.into_pre_root_children();
+        let forged = RawSourceLocatorV1::for_test(
+            locators[1].top_level_statement(),
+            "Main",
+            "missing",
+            "Main.missing/0",
+            0,
+        );
+        let pending = RawChildrenPendingInvocationV1 {
+            core: RawRootChildCoreV1 {
+                token,
+                source,
+                continuation,
+                config,
+                module_name,
+                plan,
+                session,
+                physical,
+            },
+            schedule: RawRootChildScheduleV1::new(
+                vec![locators[0].clone(), forged].into_boxed_slice(),
+            ),
+            prefix: Vec::new(),
+        };
+
+        let rejected = pending.complete_all().unwrap_err();
+        assert_eq!(rejected.successful_prefix_count(), 1);
+        assert_eq!(rejected.failed_ordinal(), Some(1));
+        let RejectedRawRootChildrenInvocationV1::Source {
+            owner,
+            failed: Some(failed),
+            error,
+        } = rejected
+        else {
+            panic!("second locator drift must be a source rejection")
+        };
+        assert_eq!(error, RawRootStaticChildWorkErrorV1::MethodNameMismatch);
+        assert_eq!(owner.prefix.len(), 1);
+        assert_eq!(owner.prefix[0].ordinal, 0);
+        assert_eq!(failed.ordinal, 1);
+        assert_eq!(failed.locator.method_name(), "missing");
+        assert!(owner.schedule.remaining.is_empty());
     }
 }
