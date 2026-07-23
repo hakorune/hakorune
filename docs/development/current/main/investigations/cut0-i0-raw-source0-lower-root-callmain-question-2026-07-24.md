@@ -45,6 +45,40 @@ No public ingress, production consumer, root-body lowering, Main/condition
 batch, drain, finalizer, postprocess, external commit, retry, or fallback is
 allowed by this consultation.
 
+## Existing API audit
+
+The read-only audit found the following evidence and constraints:
+
+```text
+RawSourceBindingV1
+  -> seals Omitted/Required before the token-bound package
+
+RawRootPhysicalStateV1
+  -> already owns token-branded shell, collector, ledger, tracker,
+     and the retained callable-Main disposition
+
+CHILDREN0 static-child terminal
+  -> accepts only StaticMethod work
+  -> uses one short-lived ModuleLoweringPort/RawInvocationChildPort loan
+  -> never opens MainPending/MainCaptured or a second physical owner
+
+RawExpansionReceiptLedgerV1
+  -> already has CallableMainCompatibility role and
+     Selected/NotSelected missing/unexpected-role validation
+
+Existing lower-level evidence
+  -> raw_expansion_receipt_ledger_p0.rs:
+     selected/not-selected disposition and exact callable receipt laws
+  -> module_lowering_invocation_legacyterm_tests.rs:
+     Primary/Cleanup/DuringCleanup preservation and parent restoration
+```
+
+The audit did not find a safe existing terminal that can lower the selected
+callable Main while preserving the CHILDREN0 owner. `RawDraftInvocationV1` and
+`ModuleLoweringInvocationStateV1` remain excluded because they mint a separate
+owner or carry the Main-only protocol. No fault adapter or production caller
+may be introduced merely to manufacture a CALLMAIN0 failure.
+
 ## Questions to decision-lock
 
 ### Q1 — selection authority
