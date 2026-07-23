@@ -39,18 +39,19 @@ def main() -> int:
 
     require(
         state,
-        'current_design_stop = "CUT0-I0-ATOMIC-CUTOVER-CONSULT0"',
-        "atomic design-stop pointer",
+        'current_design_stop = "RAW-SOURCE0-CONSULT0"',
+        "Raw source design-stop pointer",
     )
     require(
         state,
-        'latest_card = "cut0-i0-atomic-cutover-consultation-2026-07-23"',
-        "latest atomic consultation card",
+        'latest_card = "cut0-i0-raw-source0-consultation-2026-07-23"',
+        "latest Raw source consultation card",
     )
     for question in ("Q1 — atomic executor scope", "Q2 — Raw source authority", "Q3 — AST JSON"):
         require(card, question, f"consultation question {question}")
     for fragment in (
         "RAW-SOURCE0-CONSULT0",
+        "SOURCE-FIRST-prime-r1 closeout",
         "Program(JSON v0)",
         "production outer executor = 0",
         "BuilderInvocationConfigV1",
@@ -86,7 +87,7 @@ def main() -> int:
 
     print(
         "[cut0-i0-atomic-cutover-consult0-guard] ok "
-        "executor=0 raw_source_binding=0 direct_build_module_callers=2 "
+        "atomic_decision_locked=1 executor=0 raw_source_binding=0 direct_build_module_callers=2 "
         "program_v0_compat_lane=1 below_800=1"
     )
     return 0

@@ -1,6 +1,6 @@
 # CUT0-I0 Atomic CUT0/G0 Consultation
 
-Status: **Design stop — Raw authority and compatibility bridge ownership are undecided**
+Status: **Decision locked — Candidate SOURCE-FIRST-prime-r1 selected; RAW-SOURCE0-CONSULT0 next**
 Date: 2026-07-23
 Scope: decide the production authority boundary before wiring the single
 atomic CUT0 executor.
@@ -211,3 +211,37 @@ compiler-owned identity/token issuance point, the Raw source inventory and
 compatibility policy, and how the existing `BuilderInvocationConfigV1` is
 captured. It must not add a public executor, change the Program(JSON v0)
 compatibility lane, or retire `MirBuilder::build_module`.
+
+## SOURCE-FIRST-prime-r1 closeout
+
+The consultation is closed with the following decisions:
+
+```text
+Q1 = 3 for the current boundary.
+  Keep every production consumer disconnected. The only future production
+  executor is an all-five-family atomic cutover; canonical partial activation
+  is not permitted.
+
+Q2 = 1.
+  Add a compiler-owned Raw source-bound ingress as its own semantic row. The
+  test issuer is never promoted and no generic family-selected Raw token API
+  is introduced.
+
+Q3 = split.
+  AST JSON may join the Raw executor only after explicit parity. Program(JSON
+  v0) remains the existing explicit compatibility lane until a separate
+  PROGRAM-V0-SOURCE0 decision is closed.
+
+Q4 = 1.
+  Seal BuilderInvocationConfigV1 once at the outer ingress; live Builder
+  configuration is unchanged until external commit.
+
+Q5 = 1.
+  Atomic CUT0 requires measured zero non-test direct Builder callers and one
+  production owner for executor, finalizer, postprocessor, commit, token
+  issuance, and MirCompileResult construction.
+```
+
+The next row is `RAW-SOURCE0-CONSULT0`. It is Builder-side design and proof
+work only. It must not add an executor consumer, alter JSON semantics, or
+retire `MirBuilder::build_module`.

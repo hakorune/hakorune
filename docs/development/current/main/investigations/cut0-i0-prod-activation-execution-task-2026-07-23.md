@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Design stop — CUT0-I0-ATOMIC-CUTOVER-CONSULT0; POST-FAILURE0-NATURAL-P0 is closed; production ingress remains disconnected**
+Status: **Design stop — RAW-SOURCE0-CONSULT0; SOURCE-FIRST-prime-r1 is locked; production ingress remains disconnected**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -707,6 +707,29 @@ The dedicated consultation card
 production consumers disconnected, how Raw obtains compiler-owned identity,
 whether runtime AST-JSON is in CUT0 scope, and where configuration is sealed.
 Until Q1–Q5 close, no outer executor or public ingress is wired.
+
+## SOURCE-FIRST-prime-r1 closeout and next row
+
+The Atomic CUT0 consultation is closed with Candidate SOURCE-FIRST-prime-r1.
+The current boundary remains disconnected: Q1=3, Q2=1, Q3 split between AST
+JSON parity and the existing Program(JSON v0) compatibility lane, Q4=1, and
+Q5=1. The only future production executor is an all-five-family atomic
+cutover; canonical partial activation is not allowed.
+
+The next design row is `RAW-SOURCE0-CONSULT0`. It owns only the Builder-side
+Raw source authority:
+
+```text
+LegacyModuleLoweringInputV1
+-> RawIngressRequestV1
+-> source-only preflight
+-> SourceBoundRawPackageV1
+-> existing Raw session/collector/ledger/root chain
+```
+
+This row must not add a public executor, change runtime JSON behavior, or
+retire `MirBuilder::build_module`. Program(JSON v0) remains a later,
+independent `PROGRAM-V0-SOURCE0` design row.
 
 ## Required evidence per row
 
