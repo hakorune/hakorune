@@ -279,7 +279,7 @@ impl ModuleBuilderInvocationSessionV1 {
         self.brand
     }
 
-    pub(in crate::mir::builder) const fn family(&self) -> ModuleInvocationFamilyV1 {
+    pub(in crate::mir) const fn family(&self) -> ModuleInvocationFamilyV1 {
         self.family
     }
 

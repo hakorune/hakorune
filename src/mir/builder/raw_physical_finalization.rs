@@ -6,7 +6,7 @@
 
 use super::module_draft_collector::{CompletedDraftSignatureViewV1, ModuleDraftCollectorV1};
 use super::module_invocation_identity::{
-    ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
+    ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
 };
 use super::module_invocation_owner_chain::{BrandedCollectorV1, BrandedShellV1};
 use super::module_invocation_session::ModuleBuilderInvocationSessionV1;
@@ -305,5 +305,60 @@ mod tests {
             rejected.error,
             RawPhysicalFinalizationErrorV1::PublishedShell { count: 1 }
         ));
+    }
+
+    #[test]
+    fn raw_finalizer_consumes_physical_input_without_legacy_finalize() {
+        let (token, complete) = raw_complete();
+        let brand = token.brand();
+        let shell = InvocationBranded::from_test(
+            brand,
+            ModuleLoweringShellV1::from_empty_module(MirModule::new("raw".into())).unwrap(),
+        );
+        let active_session = session(&token);
+        let input = complete
+            .bind_physical(token, active_session, shell)
+            .unwrap()
+            .prepare_finalization()
+            .unwrap();
+        let prepared = crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::prepare(
+            input,
+        )
+        .expect("raw finalization readiness must close the candidate session");
+        assert_eq!(prepared.builder.brand(), brand);
+        assert_eq!(prepared.token.brand(), brand);
+        assert_eq!(prepared.module.functions.len(), 2);
+        let finalized = crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::finalize(
+            prepared,
+        );
+        assert_eq!(finalized.input.root.brand(), brand);
+    }
+
+    #[test]
+    fn raw_finalizer_retains_readiness_failure_owner() {
+        let (token, complete) = raw_complete();
+        let brand = token.brand();
+        let shell = InvocationBranded::from_test(
+            brand,
+            ModuleLoweringShellV1::from_empty_module(MirModule::new("raw".into())).unwrap(),
+        );
+        let mut active_session = session(&token);
+        active_session.builder_mut().current_module = Some(MirModule::new("open".into()));
+        let input = complete
+            .bind_physical(token, active_session, shell)
+            .unwrap()
+            .prepare_finalization()
+            .unwrap();
+        let rejected = crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::prepare(
+            input,
+        )
+        .expect_err("open Builder state must reject before finalization");
+        assert!(matches!(
+            rejected.error,
+            crate::mir::compiler::raw_finalization::RawFinalizationErrorV1::BuilderReadiness(
+                crate::mir::builder::BuilderCommitReadinessErrorV1::CurrentModuleOpen
+            )
+        ));
+        assert_eq!(rejected.owner.token.brand(), brand);
     }
 }

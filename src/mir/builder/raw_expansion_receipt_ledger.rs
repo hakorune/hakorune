@@ -278,7 +278,7 @@ pub(in crate::mir::builder) struct RawExpansionReceiptLedgerV1 {
 struct RawExpansionReceiptLedgerSealV1;
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct SealedRawExpansionReceiptLedgerV1 {
+pub(in crate::mir) struct SealedRawExpansionReceiptLedgerV1 {
     brand: ModuleInvocationBrandV1,
     events: Box<[RawExpansionCompletedEventV1]>,
     final_event_by_key: BTreeMap<FunctionDraftKeyV1, usize>,
@@ -656,7 +656,7 @@ impl RawExpansionReceiptLedgerV1 {
 }
 
 impl SealedRawExpansionReceiptLedgerV1 {
-    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
+    pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
         self.brand
     }
 

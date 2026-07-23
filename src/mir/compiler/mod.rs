@@ -24,6 +24,8 @@ pub(in crate::mir) mod canonical_physical_completion;
 #[allow(dead_code)]
 pub(in crate::mir) mod canonical_finalization;
 #[allow(dead_code)]
+pub(in crate::mir) mod raw_finalization;
+#[allow(dead_code)]
 pub(in crate::mir) mod module_postprocess;
 #[allow(dead_code)]
 mod canonical_drain_manifest;

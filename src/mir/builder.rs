@@ -164,6 +164,7 @@ mod module_wiring_parity_p0; // HEADERPORT0 WIRING-P0 disconnected parity
 mod module_wiring_route_matrix_p0e; // ROUTEINV-P0e test-only matrix closure
 #[allow(dead_code)]
 mod raw_expansion_receipt_ledger; // ROUTEINV-P0b-RAWLEDGER-S0 disconnected owner
+pub(in crate::mir) use raw_expansion_receipt_ledger::SealedRawExpansionReceiptLedgerV1;
 #[cfg(test)]
 mod raw_expansion_receipt_ledger_p0; // ROUTEINV-P0b-RAWLEDGER-P0 proof matrix
 #[cfg(test)]
@@ -175,6 +176,7 @@ mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
 mod raw_physical_finalization;
 #[allow(dead_code)]
 mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
+pub(in crate::mir) use raw_root_completion::RawInvocationRootWitnessV1;
 #[cfg(test)]
 mod resolved_owner_header_p0; // ROUTEINV-P0c-SINGLEHDR-P0 matrix
 #[allow(dead_code)]

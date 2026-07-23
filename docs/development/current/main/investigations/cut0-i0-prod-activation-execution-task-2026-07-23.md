@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Active — POST0 is the only executable row; FINAL0 closed**
+Status: **Active — POST0-RAW-POSTPROCESS0 is the only executable row; FINAL0 and Raw finalizer closed**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -169,10 +169,24 @@ The next boundary is **POST0-RAW-FINALIZER0**: consume the retained Raw
 finalization input into a route-specific finalized product and carry the
 reportable pre-transform verifier result into POST0's evidence type.
 
-## POST0-RAW-FINALIZER0 — Raw compiler finalization (next)
+## POST0-RAW-FINALIZER0 — Raw compiler finalization (closed)
 
-Add the compiler-side Raw finalization wrapper and its disconnected fixture.
-Do not connect Raw or canonical postprocess to public ingress yet.
+The compiler-side `RawModuleFinalizerV1` now consumes the retained Raw
+physical input by value, checks the Raw family plus token/session/ledger/root
+brand agreement, and consumes Builder readiness into a
+`RawFinalizationInputV1`. The success product is sealed as
+`RawFinalizedModuleInvocationV1`; readiness failures retain the unpublished
+Raw owner and preserve the typed error. This boundary never calls the legacy
+`MirBuilder::finalize_module`, never constructs `MirCompileResult`, and has no
+production consumer.
+
+Focused success and readiness-failure fixtures are green. The dedicated
+`POST0-RAW-FINALIZER0` census guard and pointer guard are green.
+
+The next executable row is **POST0-RAW-POSTPROCESS0**: carry Raw finalization
+through the existing family schedule while preserving reportable legacy
+pre-transform verifier errors. COMMIT0, P0-R1, and atomic CUT0/G0 remain
+disconnected.
 
 ## COMMIT0 — paired external commit
 

@@ -43,7 +43,7 @@ impl std::fmt::Display for RawRootCompletionErrorV1 {
 impl std::error::Error for RawRootCompletionErrorV1 {}
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct RawInvocationRootWitnessV1 {
+pub(in crate::mir) struct RawInvocationRootWitnessV1 {
     brand: ModuleInvocationBrandV1,
     root_body: CompletedRootBodyV1,
     main: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
@@ -56,7 +56,7 @@ pub(in crate::mir::builder) struct RawInvocationRootWitnessV1 {
 struct RawInvocationRootWitnessSealV1;
 
 impl RawInvocationRootWitnessV1 {
-    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
+    pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
         self.brand
     }
 
