@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Active — POST0-RAW-POSTPROCESS0 is the only executable row; FINAL0 and Raw finalizer closed**
+Status: **Active — COMMIT0 is the only executable row; FINAL0 and POST0 closed as disconnected proofs**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -86,7 +86,7 @@ guard, and pointer guard are green. No production finalizer consumer exists.
 Next executable row: **POST0**. COMMIT0, P0-R1, and atomic CUT0/G0 remain
 disconnected and forbidden.
 
-## POST0 — one postprocess owner (next)
+## POST0 — one postprocess owner (closed; production disconnected)
 
 Add compiler-private `ModulePostprocessOwnerV1` and derive its schedule only
 from `ModuleInvocationFamilyV1`:
@@ -187,6 +187,34 @@ The next executable row is **POST0-RAW-POSTPROCESS0**: carry Raw finalization
 through the existing family schedule while preserving reportable legacy
 pre-transform verifier errors. COMMIT0, P0-R1, and atomic CUT0/G0 remain
 disconnected.
+
+## POST0-RAW-POSTPROCESS0 — Raw family postprocess (closed)
+
+Extend the one compiler-private `ModulePostprocessOwnerV1` to consume the
+sealed Raw finalization product. Raw derives the existing family schedule
+(`RC Run`, `ReportPreTransformOnly`) and retains the pre-transform verifier
+result as `ModuleVerificationEvidenceV1::Raw`, including an `Err` without
+turning it into a fatal final-verifier failure. Canonical schedule and evidence
+semantics must remain unchanged.
+
+The row remains disconnected: no public ingress, external commit, retry, or
+legacy finalization caller is allowed.
+
+POST0-RAW-POSTPROCESS0 closeout (2026-07-23):
+
+```text
+ModulePostprocessOwnerV1 now consumes both canonical and Raw finalized
+products through one owner. Raw derives its schedule from the sealed Raw
+family, runs the existing RC-enabled stage order, and retains the exact
+pre-transform verifier Result as ModuleVerificationEvidenceV1::Raw; a
+verifier Err remains reportable rather than becoming a canonical final-barrier
+failure. The Raw success/evidence fixture, canonical POST0 fixtures, four
+POST0 guards, cargo check, and pointer guard are green. Production consumers
+remain zero.
+```
+
+The next executable row is **COMMIT0**: construct the paired Builder/module
+external-commit product without wiring public ingress or atomic CUT0 yet.
 
 ## COMMIT0 — paired external commit
 

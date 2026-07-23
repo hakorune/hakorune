@@ -5,6 +5,7 @@
 //! keeps the RC/verifier policy derived from the invocation family.
 
 use super::canonical_finalization::{CanonicalFinalizationInputV1, FinalizedModuleInvocationV1};
+use super::raw_finalization::{RawFinalizationInputV1, RawFinalizedModuleInvocationV1};
 use crate::mir::function::MirModule;
 use crate::mir::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
 use crate::mir::optimizer::MirOptimizer;
@@ -68,6 +69,9 @@ pub(in crate::mir) enum ModuleVerificationEvidenceV1 {
         pre_transform: Result<(), Box<[VerificationError]>>,
         final_verified: CanonicalFinalVerificationSealV1,
     },
+    Raw {
+        pre_transform: Result<(), Box<[VerificationError]>>,
+    },
 }
 
 #[derive(Debug)]
@@ -87,30 +91,51 @@ pub(in crate::mir) enum ModulePostprocessErrorV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) struct PostprocessedModuleInvocationV1<'a> {
-    pub(in crate::mir) input: CanonicalFinalizationInputV1<'a>,
+    pub(in crate::mir) input: ModulePostprocessInputV1<'a>,
     pub(in crate::mir) schedule: ModulePostprocessScheduleV1,
     pub(in crate::mir) verification: ModuleVerificationEvidenceV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) enum ModulePostprocessInputV1<'a> {
+    Canonical(CanonicalFinalizationInputV1<'a>),
+    Raw(RawFinalizationInputV1),
 }
 
 impl<'a> PostprocessedModuleInvocationV1<'a> {
     pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
         match &self.input {
-            CanonicalFinalizationInputV1::Single(input) => input.token.brand(),
-            CanonicalFinalizationInputV1::Callable(input) => input.token.brand(),
+            ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Single(input)) => {
+                input.token.brand()
+            }
+            ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Callable(input)) => {
+                input.token.brand()
+            }
+            ModulePostprocessInputV1::Raw(input) => input.token.brand(),
         }
     }
 
     pub(in crate::mir) const fn family(&self) -> ModuleInvocationFamilyV1 {
         match &self.input {
-            CanonicalFinalizationInputV1::Single(input) => input.token.family(),
-            CanonicalFinalizationInputV1::Callable(input) => input.token.family(),
+            ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Single(input)) => {
+                input.token.family()
+            }
+            ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Callable(input)) => {
+                input.token.family()
+            }
+            ModulePostprocessInputV1::Raw(input) => input.token.family(),
         }
     }
 
     pub(in crate::mir) fn module(&self) -> &MirModule {
         match &self.input {
-            CanonicalFinalizationInputV1::Single(input) => &input.physical.module,
-            CanonicalFinalizationInputV1::Callable(input) => &input.physical.module,
+            ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Single(input)) => {
+                &input.physical.module
+            }
+            ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Callable(input)) => {
+                &input.physical.module
+            }
+            ModulePostprocessInputV1::Raw(input) => &input.module,
         }
     }
 }
@@ -135,19 +160,43 @@ impl<'a> ModulePostprocessOwnerV1<'a> {
             CanonicalFinalizationInputV1::Callable(input) => input.token.family(),
         };
         let schedule = ModulePostprocessScheduleV1::for_family(family);
-        process_input(input, schedule, self.verifier, self.optimize)
+        process_input(
+            ModulePostprocessInputV1::Canonical(input),
+            schedule,
+            self.verifier,
+            self.optimize,
+        )
+    }
+
+    pub(in crate::mir) fn run_raw(
+        self,
+        finalized: RawFinalizedModuleInvocationV1,
+    ) -> Result<PostprocessedModuleInvocationV1<'static>, ModulePostprocessErrorV1> {
+        let RawFinalizedModuleInvocationV1 { input, .. } = finalized;
+        let family = input.token.family();
+        process_input(
+            ModulePostprocessInputV1::Raw(input),
+            ModulePostprocessScheduleV1::for_family(family),
+            self.verifier,
+            self.optimize,
+        )
     }
 }
 
 fn process_input<'a>(
-    mut input: CanonicalFinalizationInputV1<'a>,
+    mut input: ModulePostprocessInputV1<'a>,
     schedule: ModulePostprocessScheduleV1,
     verifier: &mut MirVerifier,
     optimize: bool,
 ) -> Result<PostprocessedModuleInvocationV1<'a>, ModulePostprocessErrorV1> {
     let module = match &mut input {
-        CanonicalFinalizationInputV1::Single(input) => &mut input.physical.module,
-        CanonicalFinalizationInputV1::Callable(input) => &mut input.physical.module,
+        ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Single(input)) => {
+            &mut input.physical.module
+        }
+        ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Callable(input)) => {
+            &mut input.physical.module
+        }
+        ModulePostprocessInputV1::Raw(input) => &mut input.module,
     };
 
     crate::mir::rune_plan_refresh::refresh_module_rune_plans(module);
@@ -178,10 +227,12 @@ fn process_input<'a>(
     if changed > 0 {
         refresh_module_semantic_metadata(module);
     }
-    let final_verified = match schedule.verifier() {
-        VerificationBarrierV1::ReportPreTransformOnly => CanonicalFinalVerificationSealV1 {
-            _seal: CanonicalFinalVerificationSealInnerV1,
-        },
+    let verification = match schedule.verifier() {
+        VerificationBarrierV1::ReportPreTransformOnly => {
+            ModuleVerificationEvidenceV1::Raw {
+                pre_transform,
+            }
+        }
         VerificationBarrierV1::RequireFinal => {
             let errors = verifier.verify_module(module);
             if let Err(errors) = errors {
@@ -189,17 +240,17 @@ fn process_input<'a>(
                     errors.into_boxed_slice(),
                 ));
             }
-            CanonicalFinalVerificationSealV1 {
-                _seal: CanonicalFinalVerificationSealInnerV1,
+            ModuleVerificationEvidenceV1::Canonical {
+                pre_transform,
+                final_verified: CanonicalFinalVerificationSealV1 {
+                    _seal: CanonicalFinalVerificationSealInnerV1,
+                },
             }
         }
     };
     Ok(PostprocessedModuleInvocationV1 {
         input,
         schedule,
-        verification: ModuleVerificationEvidenceV1::Canonical {
-            pre_transform,
-            final_verified,
-        },
+        verification,
     })
 }

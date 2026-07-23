@@ -13,6 +13,7 @@ FILES = {
     "tests": ROOT / "src/mir/compiler/module_postprocess_p0.rs",
     "mod": ROOT / "src/mir/compiler/mod.rs",
     "final": ROOT / "src/mir/compiler/canonical_finalization.rs",
+    "raw": ROOT / "src/mir/compiler/raw_finalization.rs",
 }
 
 
@@ -27,13 +28,20 @@ def main() -> int:
         if len(texts[name].splitlines()) >= 800:
             raise AssertionError(f"POST0 file must remain below 800 lines: {path}")
 
-    require(texts["task"], "## POST0 — one postprocess owner (next)", "POST0 boundary")
+    require(
+        texts["task"],
+        "## POST0 — one postprocess owner (closed; production disconnected)",
+        "POST0 boundary",
+    )
     require(texts["mod"], "mod module_postprocess;", "POST0 module registration")
     for fragment in (
         "ModulePostprocessScheduleV1",
         "ModulePostprocessOwnerV1",
         "ModuleVerificationEvidenceV1",
+        "ModulePostprocessInputV1",
         "PostprocessedModuleInvocationV1",
+        "run_raw(",
+        "ModuleVerificationEvidenceV1::Raw",
         "for_family(",
         "refresh_module_rune_plans",
         "optimize_module",
@@ -78,7 +86,7 @@ def main() -> int:
     production = [
         path.relative_to(ROOT)
         for path in ROOT.glob("src/**/*.rs")
-        if path not in (FILES["post"], FILES["final"])
+        if path not in (FILES["post"], FILES["final"], FILES["raw"], ROOT / "src/mir/builder/raw_physical_finalization.rs")
         and not path.name.endswith("_p0.rs")
         and not path.name.endswith("_tests.rs")
         and "tests" not in path.parts

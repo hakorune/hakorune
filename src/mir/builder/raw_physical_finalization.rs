@@ -332,6 +332,18 @@ mod tests {
             prepared,
         );
         assert_eq!(finalized.input.root.brand(), brand);
+        let mut verifier = crate::mir::verification::MirVerifier::new();
+        let postprocessed = crate::mir::compiler::module_postprocess::ModulePostprocessOwnerV1::new(
+            &mut verifier,
+            false,
+        )
+        .run_raw(finalized)
+        .expect("Raw postprocess must retain reportable verifier evidence");
+        assert_eq!(postprocessed.family(), ModuleInvocationFamilyV1::Raw);
+        assert!(matches!(
+            postprocessed.verification,
+            crate::mir::compiler::module_postprocess::ModuleVerificationEvidenceV1::Raw { .. }
+        ));
     }
 
     #[test]
