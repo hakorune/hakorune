@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT0 — CALLMAIN0-S0 execution task
 
-Status: **Ready for implementation; production consumers remain zero**  
+Status: **Closed; implementation and focused proof are green; production consumers remain zero**
 Date: 2026-07-24  
 Decision: **CALLMAIN-prime-r1**
 
@@ -225,6 +225,32 @@ public ingress/JSON behavior changes = 0
 production consumers = 0
 all modified/new source and check files < 800 lines
 ```
+
+## Closeout evidence
+
+Implementation is landed in `eed2345851` and the brand-continuity assertion
+is landed in `dbcec2b5a6` on `public-main`.
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q raw_root_callable_main --lib -- --test-threads=1
+  -> 3 passed
+
+cut0_i0_root0_raw_source0_lower_root_callmain0_guard.py
+  -> same_owner=1 selected_role=1 no_body=1 production_consumer=0 below_800=1
+
+cut0_i0_root0_raw_source0_lower_children0_guard.py
+  -> historical_closed, production_consumer=0, below_800=1
+
+current_state_pointer_guard.sh
+  -> ok
+git diff --check
+  -> ok
+```
+
+CALLMAIN0 is therefore closed as a disconnected owner proof. BODY0, root
+batching, drain/finalization/postprocess, external commit, public ingress,
+JSON behavior, retry/fallback, and CUT0 activation remain explicit
+non-claims and have no production consumer.
 
 The existing CHILDREN0 guard is a closed-row guard, not a required current
 row gate. It must be run with its historical-row mode or merged into the
