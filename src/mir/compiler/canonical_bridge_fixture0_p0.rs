@@ -661,3 +661,75 @@ fn p0_r1_real_authority_drain_failure_keeps_commit_zero() {
     ));
     assert!(compiler.builder.current_module.is_none());
 }
+
+#[test]
+fn p0_r1_callable_capability_mismatch_stops_before_commit() {
+    let mut compiler = MirCompiler::with_options(false);
+    let first_source = acyclic_source();
+    let first_plan = super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+        first_source.module(),
+    )
+    .unwrap();
+    let first_package = compiler
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(first_plan))
+        .unwrap();
+    let first_collected = compiler
+        .begin_canonical_invocation(first_package, Some("p0_r1_capability_a.hako"), "p0_r1_capability_a".into())
+        .unwrap()
+        .lower()
+        .unwrap()
+        .collect()
+        .unwrap();
+
+    let second_source = acyclic_source();
+    let second_plan =
+        super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+            second_source.module(),
+        )
+        .unwrap();
+    let second_package = compiler
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(second_plan))
+        .unwrap();
+    let second_collected = compiler
+        .begin_canonical_invocation(
+            second_package,
+            Some("p0_r1_capability_b.hako"),
+            "p0_r1_capability_b".into(),
+        )
+        .unwrap()
+        .lower()
+        .unwrap()
+        .collect()
+        .unwrap();
+
+    let super::source_bound_package::CollectedCanonicalPhysicalInvocationV1::Callable {
+        token,
+        continuation,
+        session,
+        capability: _,
+        physical,
+    } = first_collected
+    else {
+        panic!("P0-R1 capability fixture changed family")
+    };
+    let super::source_bound_package::CollectedCanonicalPhysicalInvocationV1::Callable {
+        capability,
+        ..
+    } = second_collected
+    else {
+        panic!("P0-R1 foreign capability fixture changed family")
+    };
+    let mixed = super::source_bound_package::CollectedCanonicalPhysicalInvocationV1::Callable {
+        token,
+        continuation,
+        session,
+        capability,
+        physical,
+    };
+    let rejected = mixed.complete().unwrap_err();
+    assert!(matches!(
+        rejected.error,
+        super::canonical_physical_completion::CanonicalPhysicalCompletionErrorV1::CapabilityMismatch
+    ));
+    assert!(compiler.builder.current_module.is_none());
+}
