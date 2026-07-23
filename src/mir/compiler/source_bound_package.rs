@@ -69,7 +69,7 @@ fn route_for_family(family: ModuleInvocationFamilyV1) -> CanonicalSourceRouteV1 
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum SourceBindingErrorV1 {
     DomainExhausted,
     OrdinalExhausted,
@@ -734,6 +734,20 @@ impl InvocationIdentityIssuerV1 {
         &mut self,
         route: CanonicalSourceRouteV1,
     ) -> Result<ModuleInvocationTokenV1, SourceBindingErrorV1> {
+        self.issue_family(family_for_route(route))
+    }
+
+    /// RAW-SOURCE0-BIND0: Raw may mint only after its source continuation has
+    /// been sealed by the compiler-owned binding terminal.  Callers cannot
+    /// select a generic family and this method is not a public issuer API.
+    pub(super) fn issue_raw(&mut self) -> Result<ModuleInvocationTokenV1, SourceBindingErrorV1> {
+        self.issue_family(ModuleInvocationFamilyV1::Raw)
+    }
+
+    fn issue_family(
+        &mut self,
+        family: ModuleInvocationFamilyV1,
+    ) -> Result<ModuleInvocationTokenV1, SourceBindingErrorV1> {
         let domain = match self.domain {
             Some(domain) => domain,
             None => {
@@ -756,7 +770,7 @@ impl InvocationIdentityIssuerV1 {
         Ok(ModuleInvocationTokenV1::from_issued(
             domain,
             ordinal,
-            family_for_route(route),
+            family,
         ))
     }
 }

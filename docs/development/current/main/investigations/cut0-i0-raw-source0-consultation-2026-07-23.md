@@ -1,6 +1,6 @@
 # CUT0-I0 RAW-SOURCE0 Consultation
 
-Status: **Active — RAW-SOURCE0-PLAN0 closed; RAW-SOURCE0-BIND0 next; production ingress remains disconnected**
+Status: **Active — RAW-SOURCE0-BIND0 closed; RAW-SOURCE0-LOWER0 next; production ingress remains disconnected**
 Date: 2026-07-23
 Scope: Builder-side Raw source authority only. No production executor,
 public-ingress wiring, runtime JSON change, or `MirBuilder::build_module`
@@ -240,3 +240,32 @@ The next row is `RAW-SOURCE0-BIND0`: compiler-owned Raw token issuance,
 source continuation sealing, and one `BuilderInvocationConfigV1` snapshot.
 Production outer executor, public ingress, AST-JSON behavior, and
 Program(JSON v0) behavior remain unchanged.
+
+## RAW-SOURCE0-BIND0 closeout
+
+The compiler-owned Raw binding slice is closed as a disconnected proof.
+
+```text
+LegacyModuleLoweringInputV1
+  -> source-only owned Raw projection
+  -> sealed BuilderInvocationConfigV1 snapshot
+  -> RawSourceContinuationV1
+  -> compiler-owned issue_raw
+  -> non-Clone SourceBoundRawPackageV1
+```
+
+The package retains the owned AST/projection, source origin, root policy,
+callable-Main disposition, config snapshot, and module name. Identity is
+minted only after source validation and continuation sealing. Program(JSON
+v0) is rejected before token issuance; a Required callable-Main selection is
+rejected for Script roots; duplicate Main and malformed roots remain source
+preflight failures. Rejected products retain the unpublished source/config
+owner and expose no retry or fallback terminal.
+
+This row does not open a Builder session, shell, collector, ledger, physical
+receipt, finalizer, postprocessor, external commit, public compile ingress, or
+JSON bridge. The existing test issuer is not promoted, and no generic
+family-selected Raw issuer was added.
+
+Focused BIND0 fixtures, `cargo check --lib`, the BIND0 guard, and the current
+pointer guard are green. The next row is `RAW-SOURCE0-LOWER0`.

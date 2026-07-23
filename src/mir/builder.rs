@@ -60,6 +60,10 @@ mod located_legacy_lowering;
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 #[allow(dead_code)]
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
+pub(in crate::mir) use raw_source_projection::{
+    OwnedRawRootProjectionV1, OwnedRawSourceV1, RawSourceLocatorV1, RawSourceOriginV1,
+    RawSourceProjectionErrorV1,
+};
 #[allow(dead_code)]
 mod main_pending_draft; // HEADERPORT0-I0-MAINPENDING0-S0 disconnected handoff
 #[cfg(test)]
@@ -171,7 +175,9 @@ mod module_wiring_parity_p0; // HEADERPORT0 WIRING-P0 disconnected parity
 mod module_wiring_route_matrix_p0e; // ROUTEINV-P0e test-only matrix closure
 #[allow(dead_code)]
 mod raw_expansion_receipt_ledger; // ROUTEINV-P0b-RAWLEDGER-S0 disconnected owner
-pub(in crate::mir) use raw_expansion_receipt_ledger::SealedRawExpansionReceiptLedgerV1;
+pub(in crate::mir) use raw_expansion_receipt_ledger::{
+    RawCallableMainCompatibilityDispositionV1, SealedRawExpansionReceiptLedgerV1,
+};
 #[cfg(test)]
 mod raw_expansion_receipt_ledger_p0; // ROUTEINV-P0b-RAWLEDGER-P0 proof matrix
 #[cfg(test)]

@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Active — RAW-SOURCE0-PLAN0 is closed; RAW-SOURCE0-BIND0 next; production ingress remains disconnected**
+Status: **Active — RAW-SOURCE0-BIND0 is closed; RAW-SOURCE0-LOWER0 next; production ingress remains disconnected**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -744,6 +744,18 @@ or module map.
 the projection is a one-way owned handoff and never a self-referential borrow.
 The focused projection tests and PLAN0 guard are green. The next row is
 `RAW-SOURCE0-BIND0`; production consumers remain zero.
+
+## RAW-SOURCE0-BIND0 closeout
+
+The disconnected compiler-owned Raw source-binding package is now green. It
+consumes only legacy BareAst/ReplCompatibility input, builds the owned source
+projection, snapshots Builder configuration once, seals the Raw continuation,
+and mints the shared compiler identity through the private `issue_raw`
+terminal. Program(JSON v0), generic family-selected issuance, test-issuer
+promotion, physical Builder owners, and public ingress remain outside the row.
+
+The next executable row is `RAW-SOURCE0-LOWER0`; production root capture,
+external commit, JSON behavior changes, and atomic CUT0 remain forbidden.
 
 ## Required evidence per row
 

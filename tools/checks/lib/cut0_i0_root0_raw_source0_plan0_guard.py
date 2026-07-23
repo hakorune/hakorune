@@ -52,7 +52,7 @@ def main() -> int:
     for path in ROOT.glob("src/**/*.rs"):
         if path == MODULE or "tests" in path.parts:
             continue
-        if "OwnedRawSourceV1::bind" in path.read_text():
+        if "OwnedRawSourceV1::bind(" in path.read_text():
             consumers.append(path.relative_to(ROOT))
     if consumers:
         raise AssertionError(f"PLAN0 has production projection consumers: {consumers}")

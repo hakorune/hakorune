@@ -26,6 +26,8 @@ pub(in crate::mir) mod canonical_finalization;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_finalization;
 #[allow(dead_code)]
+pub(in crate::mir) mod raw_source_binding;
+#[allow(dead_code)]
 pub(in crate::mir) mod module_postprocess;
 #[allow(dead_code)]
 pub(in crate::mir) mod external_commit;
@@ -92,12 +94,19 @@ mod resolved_callable_module_tests;
 mod sibling_call_tests;
 #[cfg(test)]
 mod source_view_tests;
+#[cfg(test)]
+mod raw_source_binding_p0;
 
 use capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
+use crate::mir::builder::BuilderInvocationConfigV1;
 use source_bound_package::{
     CanonicalPhysicalInvocationV1, ExactCanonicalPreflightPlanV1, InvocationIdentityIssuerV1,
     LoweredCanonicalPlanV1, RejectedCanonicalLoweringV1, RejectedCanonicalPhysicalOpenV1,
     RejectedCanonicalSourceBindingV1, SourceBoundCanonicalPackageV1,
+};
+use raw_source_binding::{
+    RawCallableMainSelectionV1, RawIngressRequestV1, RejectedRawSourceBindingV1,
+    SourceBoundRawPackageV1,
 };
 pub use lowering_input::{
     CanonicalLoweringErrorV1, LegacyModuleLoweringInputV1, ResolvedModuleLoweringInputV1,
@@ -227,6 +236,21 @@ impl MirCompiler {
         plan: ExactCanonicalPreflightPlanV1<'a>,
     ) -> Result<SourceBoundCanonicalPackageV1<'a>, RejectedCanonicalSourceBindingV1<'a>> {
         SourceBoundCanonicalPackageV1::bind(&mut self.invocation_identity, plan)
+    }
+
+    /// RAW-SOURCE0-BIND0 disconnected source-bound Raw ingress.  The config
+    /// snapshot is taken before binding effects, and no Builder/collector/
+    /// ledger/session consumer is opened by this terminal.
+    pub(in crate::mir) fn bind_raw_source(
+        &mut self,
+        input: LegacyModuleLoweringInputV1,
+        source_file: Option<&str>,
+        module_name: impl Into<Box<str>>,
+        callable_main: RawCallableMainSelectionV1,
+    ) -> Result<SourceBoundRawPackageV1, RejectedRawSourceBindingV1> {
+        let config = BuilderInvocationConfigV1::snapshot_for_raw(&self.builder, source_file);
+        let request = RawIngressRequestV1::new(input, config, module_name, callable_main);
+        SourceBoundRawPackageV1::bind(&mut self.invocation_identity, request)
     }
 
     /// OWNER0's compiler-owned physical bridge.  The package is consumed only

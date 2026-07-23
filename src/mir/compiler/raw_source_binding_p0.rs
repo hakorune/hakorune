@@ -1,0 +1,135 @@
+use super::raw_source_binding::{RawCallableMainSelectionV1, RawSourceBindingErrorV1};
+use super::{LegacyModuleLoweringInputV1, MirCompiler};
+use crate::ast::{ASTNode, DeclarationAttrs, Span};
+use crate::mir::module_invocation_identity::ModuleInvocationFamilyV1;
+use std::collections::HashMap;
+
+fn function(name: &str, arity: usize) -> ASTNode {
+    ASTNode::FunctionDeclaration {
+        name: name.into(),
+        params: (0..arity).map(|index| format!("p{index}")).collect(),
+        param_decls: Vec::new(),
+        return_type_name: None,
+        body: Vec::new(),
+        uses: Vec::new(),
+        contracts: Vec::new(),
+        is_static: true,
+        is_override: false,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    }
+}
+
+fn script() -> ASTNode {
+    ASTNode::Program {
+        statements: Vec::new(),
+        span: Span::unknown(),
+    }
+}
+
+fn app() -> ASTNode {
+    let mut methods = HashMap::new();
+    methods.insert("main".into(), function("main", 0));
+    ASTNode::Program {
+        statements: vec![ASTNode::BoxDeclaration {
+            name: "Main".into(),
+            methods,
+            is_static: true,
+            fields: Vec::new(),
+            field_decls: Vec::new(),
+            public_fields: Vec::new(),
+            private_fields: Vec::new(),
+            constructors: HashMap::new(),
+            init_fields: Vec::new(),
+            weak_fields: Vec::new(),
+            delegates: Vec::new(),
+            invariants: Vec::new(),
+            transitions: Vec::new(),
+            is_interface: false,
+            is_sync: false,
+            is_record: false,
+            type_parameters: Vec::new(),
+            extends: Vec::new(),
+            implements: Vec::new(),
+            static_init: None,
+            attrs: DeclarationAttrs::default(),
+            span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    }
+}
+
+#[test]
+fn raw_bind_mints_one_compiler_owned_raw_token_after_projection() {
+    let mut compiler = MirCompiler::new();
+    let package = compiler
+        .bind_raw_source(
+            LegacyModuleLoweringInputV1::bare_ast(script()),
+            Some("script.hako"),
+            "script",
+            RawCallableMainSelectionV1::Omitted,
+        )
+        .unwrap();
+    assert_eq!(package.family(), ModuleInvocationFamilyV1::Raw);
+    assert_eq!(
+        package.continuation().callable_main(),
+        super::super::builder::RawCallableMainCompatibilityDispositionV1::NotSelected
+    );
+    assert!(package.continuation().root_projection().is_script());
+    assert_eq!(package.config().source_file(), Some("script.hako"));
+    assert_eq!(package.module_name(), "script");
+    assert!(package.source().ast().to_string().starts_with("Program"));
+}
+
+#[test]
+fn raw_bind_selected_callable_main_requires_app_source() {
+    let mut compiler = MirCompiler::new();
+    let package = compiler
+        .bind_raw_source(
+            LegacyModuleLoweringInputV1::bare_ast(app()),
+            None,
+            "app",
+            RawCallableMainSelectionV1::Required,
+        )
+        .unwrap();
+    assert_eq!(package.family(), ModuleInvocationFamilyV1::Raw);
+    assert_eq!(
+        package.continuation().callable_main(),
+        super::super::builder::RawCallableMainCompatibilityDispositionV1::Selected
+    );
+}
+
+#[test]
+fn raw_bind_rejects_program_v0_before_token_issuance() {
+    let mut compiler = MirCompiler::new();
+    let rejected = compiler
+        .bind_raw_source(
+            LegacyModuleLoweringInputV1::program_v0_compatibility(script()),
+            None,
+            "program-v0",
+            RawCallableMainSelectionV1::Omitted,
+        )
+        .unwrap_err();
+    assert!(matches!(
+        rejected.error(),
+        RawSourceBindingErrorV1::ProgramV0OutsideRawSource0
+    ));
+    assert!(rejected.has_unpublished_source_owner());
+}
+
+#[test]
+fn raw_bind_rejects_required_callable_main_for_script() {
+    let mut compiler = MirCompiler::new();
+    let rejected = compiler
+        .bind_raw_source(
+            LegacyModuleLoweringInputV1::bare_ast(script()),
+            None,
+            "script",
+            RawCallableMainSelectionV1::Required,
+        )
+        .unwrap_err();
+    assert!(matches!(
+        rejected.error(),
+        RawSourceBindingErrorV1::CallableMainRequiredForScript
+    ));
+}

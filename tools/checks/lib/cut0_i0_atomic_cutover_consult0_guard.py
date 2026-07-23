@@ -61,7 +61,7 @@ def main() -> int:
         "BuilderInvocationConfigV1",
     ):
         require(card, fragment, f"consultation boundary {fragment}")
-    require(raw_card, "RAW-SOURCE0-BIND0", "next Raw source row")
+    require(raw_card, "The next row is `RAW-SOURCE0-LOWER0`", "next Raw source row")
 
     joined_prod = "\n".join(sources.values())
     if "execute_preflighted_module_invocation" in joined_prod:

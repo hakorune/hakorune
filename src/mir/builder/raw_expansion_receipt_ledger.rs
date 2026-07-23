@@ -25,7 +25,7 @@ pub(in crate::mir::builder) enum RawConditionDispositionV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum RawCallableMainCompatibilityDispositionV1 {
+pub(in crate::mir) enum RawCallableMainCompatibilityDispositionV1 {
     NotSelected,
     Selected,
 }

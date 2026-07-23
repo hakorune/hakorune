@@ -10,13 +10,13 @@ use crate::ast::ASTNode;
 use super::main_expansion::{VerifiedMainExpansionV1, VerifiedRawRootExpansionV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum RawSourceOriginV1 {
+pub(in crate::mir) enum RawSourceOriginV1 {
     BareAst,
     ReplCompatibility,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder) struct RawSourceLocatorV1 {
+pub(in crate::mir) struct RawSourceLocatorV1 {
     top_level_statement: usize,
     box_name: Box<str>,
     method_name: Box<str>,
@@ -25,29 +25,29 @@ pub(in crate::mir::builder) struct RawSourceLocatorV1 {
 }
 
 impl RawSourceLocatorV1 {
-    pub(in crate::mir::builder) fn top_level_statement(&self) -> usize {
+    pub(in crate::mir) fn top_level_statement(&self) -> usize {
         self.top_level_statement
     }
 
-    pub(in crate::mir::builder) fn box_name(&self) -> &str {
+    pub(in crate::mir) fn box_name(&self) -> &str {
         &self.box_name
     }
 
-    pub(in crate::mir::builder) fn method_name(&self) -> &str {
+    pub(in crate::mir) fn method_name(&self) -> &str {
         &self.method_name
     }
 
-    pub(in crate::mir::builder) fn symbol(&self) -> &str {
+    pub(in crate::mir) fn symbol(&self) -> &str {
         &self.symbol
     }
 
-    pub(in crate::mir::builder) const fn arity(&self) -> usize {
+    pub(in crate::mir) const fn arity(&self) -> usize {
         self.arity
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder) enum OwnedRawRootProjectionV1 {
+pub(in crate::mir) enum OwnedRawRootProjectionV1 {
     Script { statement_count: usize },
     App {
         main: RawSourceLocatorV1,
@@ -57,6 +57,10 @@ pub(in crate::mir::builder) enum OwnedRawRootProjectionV1 {
 }
 
 impl OwnedRawRootProjectionV1 {
+    pub(in crate::mir) const fn is_script(&self) -> bool {
+        matches!(self, Self::Script { .. })
+    }
+
     pub(in crate::mir::builder) fn from_verified(
         source: &ASTNode,
         expansion: &VerifiedRawRootExpansionV1<'_>,
@@ -135,7 +139,7 @@ impl OwnedRawRootProjectionV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder) enum RawSourceProjectionErrorV1 {
+pub(in crate::mir) enum RawSourceProjectionErrorV1 {
     RootMustBeProgram,
     MainBoxLocatorMissing,
     MainSourceMustBeFunction,
@@ -166,20 +170,32 @@ fn function_arity(source: &ASTNode) -> Result<usize, RawSourceProjectionErrorV1>
 }
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct OwnedRawSourceV1 {
+pub(in crate::mir) struct OwnedRawSourceV1 {
     ast: ASTNode,
     origin: RawSourceOriginV1,
     projection: OwnedRawRootProjectionV1,
 }
 
 impl OwnedRawSourceV1 {
-    pub(in crate::mir::builder) fn bind(
+    pub(in crate::mir) fn bind(
         ast: ASTNode,
         origin: RawSourceOriginV1,
     ) -> Result<Self, RawSourceProjectionErrorV1> {
-        let expansion = VerifiedRawRootExpansionV1::from_program(&ast)
-            .map_err(|_| RawSourceProjectionErrorV1::RootMustBeProgram)?;
-        let projection = OwnedRawRootProjectionV1::from_verified(&ast, &expansion)?;
+        Self::bind_with_owner(ast, origin).map_err(|(_, error)| error)
+    }
+
+    pub(in crate::mir) fn bind_with_owner(
+        ast: ASTNode,
+        origin: RawSourceOriginV1,
+    ) -> Result<Self, (ASTNode, RawSourceProjectionErrorV1)> {
+        let expansion = match VerifiedRawRootExpansionV1::from_program(&ast) {
+            Ok(expansion) => expansion,
+            Err(_) => return Err((ast, RawSourceProjectionErrorV1::RootMustBeProgram)),
+        };
+        let projection = match OwnedRawRootProjectionV1::from_verified(&ast, &expansion) {
+            Ok(projection) => projection,
+            Err(error) => return Err((ast, error)),
+        };
         Ok(Self {
             ast,
             origin,
@@ -187,15 +203,15 @@ impl OwnedRawSourceV1 {
         })
     }
 
-    pub(in crate::mir::builder) fn origin(&self) -> RawSourceOriginV1 {
+    pub(in crate::mir) fn origin(&self) -> RawSourceOriginV1 {
         self.origin
     }
 
-    pub(in crate::mir::builder) fn projection(&self) -> &OwnedRawRootProjectionV1 {
+    pub(in crate::mir) fn projection(&self) -> &OwnedRawRootProjectionV1 {
         &self.projection
     }
 
-    pub(in crate::mir::builder) fn ast(&self) -> &ASTNode {
+    pub(in crate::mir) fn ast(&self) -> &ASTNode {
         &self.ast
     }
 }
