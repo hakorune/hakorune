@@ -436,6 +436,36 @@ The guard must distinguish shell-empty invariant reads from forbidden
 expected-inventory reconstruction. Do not edit `canonical_root_completion.rs`;
 retain it only as disconnected legacy evidence until a later retirement row.
 
+## P0/G0 audit — 2026-07-23 (partial; not a closeout)
+
+The implementation slice is green, but the complete P0/G0 matrix is not yet
+closed. The following evidence is now present:
+
+```text
+canonical physical prepare/drain tests       = 4 passed
+canonical completion drain tests              = 5 passed
+keyed collector drain tests                  = 3 passed
+canonical condition_fn spelling fixture      = registered and green
+foreign manifest brand rejection              = registered and green
+physical guard / pointer guard / diff check   = green
+all touched PHYSICAL0 files                  < 800 lines
+```
+
+The remaining executable proof row is deliberately explicit:
+
+```text
+ROOT0-DRAIN0-P0b
+  -> receipt payload collector-brand mismatch fixture
+  -> drain-after-success receipt/capability retention assertions
+  -> deterministic reorder parity fixture at the physical boundary
+  -> prepare failure leaves the live Builder unchanged
+  -> measured callsite census for prepare_drain/drain and forbidden retry
+```
+
+Until P0b is green, do not claim ROOT0-DRAIN0-P0/G0 closed and do not wire
+canonical production ingress, finalization, external commit, Raw convergence,
+or atomic CUT0 activation.
+
 ## Failure and one-shot law
 
 Every preparation mismatch returns a rejected complete owner before shell
@@ -458,5 +488,6 @@ bash tools/checks/current_state_pointer_guard.sh
 RUSTFLAGS='-Awarnings' cargo check -q --lib
 RUSTFLAGS='-Awarnings' cargo test -q canonical_physical_completion_p0 --lib
 RUSTFLAGS='-Awarnings' cargo test -q module_draft_collector::drain::tests --lib
+RUSTFLAGS='-Awarnings' cargo test -q canonical_physical_drain::tests --lib
 python3 tools/checks/lib/cut0_i0_root0_drain0_physical0_guard.py
 ```
