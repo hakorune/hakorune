@@ -4,6 +4,10 @@ Status: **Closed; CHILDREN0 owner and exercised failure proof are green**
 Date: 2026-07-24
 Decision: **CHILD-prime-r1**
 
+The earlier BODY0 handoff wording is superseded by the locked CALLMAIN0 row:
+`cut0-i0-raw-source0-lower-root-callmain0-s0-execution-task-2026-07-24.md`
+must consume this completion before BODY0 may open.
+
 ## Boundary
 
 `RAW-SOURCE0-LOWER0-ROOT0-CHILDREN0-S0` consumes the already-closed
