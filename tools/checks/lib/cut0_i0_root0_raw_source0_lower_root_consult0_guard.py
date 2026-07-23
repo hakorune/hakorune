@@ -30,12 +30,20 @@ def require(text: str, fragment: str, label: str) -> None:
 def main() -> int:
     state = STATE.read_text()
     card = CARD.read_text()
-    if 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-PLAN0"' in state:
+    if (
+        "ROOT0-D0 closeout" in card
+        and 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT-CONSULT0"' not in state
+    ):
+        require(
+            state,
+            "RAW-SOURCE0-LOWER0-ROOT-CONSULT0",
+            "historical consultation pointer",
+        )
         require(card, "ROOT0-D0 closeout", "decision closeout")
         require(TASK.read_text(), "ROOT0-PLAN0", "next plan row")
         print(
             "[cut0-i0-root0-raw-source0-lower-root-consult0-guard] closed "
-            "next=RAW-SOURCE0-LOWER0-ROOT0-PLAN0"
+            "decision=RAW-ROOT-prime-r1"
         )
         return 0
     require(state, 'current_design_stop = "RAW-SOURCE0-LOWER0-ROOT-CONSULT0"', "design stop")

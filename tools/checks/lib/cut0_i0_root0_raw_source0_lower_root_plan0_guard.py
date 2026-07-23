@@ -32,7 +32,11 @@ def main() -> int:
         require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-PLAN0"', "execution row")
         require(state, 'latest_card = "cut0-i0-raw-source0-lower-root-plan0-execution-task-2026-07-23"', "latest card")
     else:
-        require(state, "RAW-SOURCE0-LOWER0-ROOT0-PLAN0 are closed", "historical closeout")
+        require(
+            state,
+            "RAW-SOURCE0-LOWER0-ROOT0-PLAN0",
+            "historical closeout pointer",
+        )
         require(task, "Status: **Closed", "task closeout status")
     for fragment in (
         "RawRootKindV1",

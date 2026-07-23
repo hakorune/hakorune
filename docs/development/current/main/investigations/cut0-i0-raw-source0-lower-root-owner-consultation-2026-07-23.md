@@ -1,6 +1,6 @@
 # CUT0-I0 RAW-SOURCE0 LOWER ROOT0 OWNER0 consultation
 
-Status: **Design stop — `RAW-SOURCE0-LOWER0-ROOT0-OWNER0-CONSULT0`**
+Status: **Closed — `Candidate RAW-OWNER-prime-r1` selected**
 Date: 2026-07-23
 Scope: decide the one-time handoff from the landed source-derived Root0 plan
 to a route-owned Script/App physical owner. No implementation or production
@@ -166,3 +166,91 @@ behavior, or CUT0 activation is changed by this consultation.
 
 The next executable row can be selected only after Q1–Q5 are decision-locked
 and the exact source/plan handoff is represented in the SSOT.
+
+## Decision closeout
+
+`Candidate RAW-OWNER-prime-r1` is selected.
+
+### Q1 — source handoff owner
+
+Option 1 is selected. One non-Clone `SourceBoundRawRootPackageV1` is the sole
+handoff owner. It retains the original token, `OwnedRawSourceV1`, sealed
+`RawSourceContinuationV1`, `BuilderInvocationConfigV1`, module name, and one
+source-derived `RawRootPlanV1`.
+
+The package is created by one consuming terminal from
+`SourceBoundRawPackageV1`. Planning happens by immutable borrow first; failure
+returns a discard-only rejected owner retaining the original bound package.
+Only after successful planning may the original package be destructured and
+co-sealed with the plan. Loose `(plan, package)` pairing, token re-issuance,
+post-hoc branding, public token getters, and replacement parts are forbidden.
+
+### Q2 — retained source
+
+Option 1 is selected. The exact `OwnedRawSourceV1` survives by value until
+later child/body lowering. PLAN0 does not copy every body and parameter into a
+parallel authority, and later rows do not re-resolve the AST.
+
+`RawRootPlanV1` becomes tokenless source facts only:
+
+```text
+physical root identity
+Script/App kind and locators
+environment/work projections
+explicit deferred dispositions
+```
+
+Identity remains owned only by the package token. Source origin remains owned
+by the retained source/continuation.
+
+### Q3 — callable Main
+
+The sealed continuation disposition is the sole selection authority. The
+`callable_main_selected` and callable-header `selected` booleans are retired.
+Locators describe identity only; they never select, repair, or downgrade the
+route.
+
+### Q4 — physical owner
+
+A route-specific `RawRootInvocationV1::{Script, App}` is selected. It will
+reuse the existing neutral active invocation/session/physical vocabulary
+rather than create a second shell/collector identity system. Raw ledger and
+root-body tracker remain route-owned and internally branded; no redundant
+outer brand wrapper is added.
+
+The Main-only `ModuleLoweringInvocationStateV1`, `MainPending`,
+`capture_main`, and `complete_root` are not Root0 authority.
+
+### Q5 — deferred capabilities
+
+Runtime inputs, unknown source classification, closure/static-data
+completeness, complete callable inventory, and process-global method-slot
+requirements remain explicit deferred facts. OWNER0 cannot repair them by
+ambient reads, current-module observation, global mutation, fallback, or
+retry.
+
+Because these facts are not yet eligible for physical effects, OWNER0 is
+implemented in the following rows:
+
+```text
+OWNER0-PACKAGE0
+  -> exact source/token/continuation/config/module-name/plan co-seal
+  -> copied callable-Main authority retirement
+  -> physical effects = 0
+
+OWNER0-ELIGIBILITY0
+  -> runtime-input and source-capability eligibility seal
+  -> unsupported global-slot/source shapes reject before physical effects
+
+OWNER0-PHYSICAL0
+  -> Script/App active owner
+  -> one session + empty shell/collector + ledger + tracker
+
+OWNER0-P0/G0
+  -> same-brand/empty-state/failure matrix and old seam census
+```
+
+The first executable row is
+`RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PACKAGE0`.
+Production child/root lowering, drain, finalization, postprocess, external
+commit, public ingress, JSON behavior, and CUT0 activation remain zero.
