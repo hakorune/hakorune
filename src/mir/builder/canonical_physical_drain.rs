@@ -6,6 +6,7 @@
 
 use crate::mir::canonical_physical_drain::CanonicalPhysicalDrainManifestV1;
 use crate::mir::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
+use crate::mir::MirModule;
 
 use super::module_draft_collector::{
     CanonicalCollectorDrainErrorV1, CanonicalCollectorReceiptViewV1,
@@ -16,9 +17,11 @@ use super::module_invocation_brand0::{
 };
 use super::module_invocation_owner_chain::{BrandedCollectorV1, BrandedShellV1, InvocationBranded};
 use super::module_draft_collector::CallableCollectorBatchReceiptV1;
-use super::module_lowering_shell::ModuleLoweringShellV1;
+use super::module_lowering_shell::{
+    ModuleLoweringShellDrainInventoryV1, ModuleLoweringShellV1,
+};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum CanonicalPhysicalDrainPrepareErrorV1 {
     ForeignBrand,
     WrongFamily { family: ModuleInvocationFamilyV1 },
@@ -43,6 +46,18 @@ pub(in crate::mir) struct RejectedCanonicalCallablePhysicalDrainV1 {
     error: CanonicalPhysicalDrainPrepareErrorV1,
 }
 
+impl RejectedCanonicalSinglePhysicalDrainV1 {
+    pub(in crate::mir) fn error(&self) -> &CanonicalPhysicalDrainPrepareErrorV1 {
+        &self.error
+    }
+}
+
+impl RejectedCanonicalCallablePhysicalDrainV1 {
+    pub(in crate::mir) fn error(&self) -> &CanonicalPhysicalDrainPrepareErrorV1 {
+        &self.error
+    }
+}
+
 #[derive(Debug)]
 pub(in crate::mir) struct PreparedCanonicalSinglePhysicalDrainV1 {
     brand: ModuleInvocationBrandV1,
@@ -50,6 +65,7 @@ pub(in crate::mir) struct PreparedCanonicalSinglePhysicalDrainV1 {
     shell: BrandedShellV1<ModuleLoweringShellV1>,
     collector: PreparedCanonicalCollectorDrainV1,
     receipt: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+    manifest: CanonicalPhysicalDrainManifestV1,
 }
 
 #[derive(Debug)]
@@ -59,12 +75,31 @@ pub(in crate::mir) struct PreparedCanonicalCallablePhysicalDrainV1 {
     shell: BrandedShellV1<ModuleLoweringShellV1>,
     collector: PreparedCanonicalCollectorDrainV1,
     receipt: InvocationBranded<CallableCollectorBatchReceiptV1>,
+    manifest: CanonicalPhysicalDrainManifestV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct CanonicalDrainedSinglePhysicalV1 {
+    pub(in crate::mir) brand: ModuleInvocationBrandV1,
+    pub(in crate::mir) family: ModuleInvocationFamilyV1,
+    pub(in crate::mir) module: MirModule,
+    pub(in crate::mir) receipt: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+    pub(in crate::mir) inventory: CanonicalPhysicalDrainManifestV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct CanonicalDrainedCallablePhysicalV1 {
+    pub(in crate::mir) brand: ModuleInvocationBrandV1,
+    pub(in crate::mir) family: ModuleInvocationFamilyV1,
+    pub(in crate::mir) module: MirModule,
+    pub(in crate::mir) receipt: InvocationBranded<CallableCollectorBatchReceiptV1>,
+    pub(in crate::mir) inventory: CanonicalPhysicalDrainManifestV1,
 }
 
 impl CollectedCanonicalSinglePhysicalV1 {
     pub(in crate::mir) fn prepare_drain(
         self,
-        manifest: &CanonicalPhysicalDrainManifestV1,
+        manifest: CanonicalPhysicalDrainManifestV1,
     ) -> Result<PreparedCanonicalSinglePhysicalDrainV1, RejectedCanonicalSinglePhysicalDrainV1>
     {
         let (shell, collector, receipt) = self.into_parts();
@@ -107,7 +142,7 @@ impl CollectedCanonicalSinglePhysicalV1 {
         }
         let prepared = prepare_collector(
             collector,
-            manifest,
+            &manifest,
             CanonicalCollectorReceiptViewV1::Single(&receipt),
             brand,
         );
@@ -118,6 +153,7 @@ impl CollectedCanonicalSinglePhysicalV1 {
                 shell,
                 collector,
                 receipt,
+                manifest,
             }),
             Err((collector, error)) => Err(reject_single(shell, collector, receipt, error)),
         }
@@ -127,7 +163,7 @@ impl CollectedCanonicalSinglePhysicalV1 {
 impl CollectedCanonicalCallablePhysicalV1 {
     pub(in crate::mir) fn prepare_drain(
         self,
-        manifest: &CanonicalPhysicalDrainManifestV1,
+        manifest: CanonicalPhysicalDrainManifestV1,
     ) -> Result<PreparedCanonicalCallablePhysicalDrainV1, RejectedCanonicalCallablePhysicalDrainV1>
     {
         let (shell, collector, receipt) = self.into_parts();
@@ -175,7 +211,7 @@ impl CollectedCanonicalCallablePhysicalV1 {
         }
         let prepared = prepare_collector(
             collector,
-            manifest,
+            &manifest,
             CanonicalCollectorReceiptViewV1::Callable(&receipt),
             brand,
         );
@@ -186,8 +222,75 @@ impl CollectedCanonicalCallablePhysicalV1 {
                 shell,
                 collector,
                 receipt,
+                manifest,
             }),
             Err((collector, error)) => Err(reject_callable(shell, collector, receipt, error)),
+        }
+    }
+}
+
+impl PreparedCanonicalSinglePhysicalDrainV1 {
+    /// The keyed collector proof has completed; this is the only physical
+    /// publication move and cannot fail.
+    pub(in crate::mir) fn drain(self) -> CanonicalDrainedSinglePhysicalV1 {
+        let Self {
+            brand,
+            family,
+            shell,
+            collector,
+            receipt,
+            manifest,
+        } = self;
+        let functions = collector.drain();
+        let symbols = functions
+            .iter()
+            .map(|function| function.signature.name.clone())
+            .collect::<Vec<_>>();
+        let inventory = ModuleLoweringShellDrainInventoryV1::from_symbols(symbols)
+            .expect("collector proof guarantees unique canonical symbols");
+        let module = shell
+            .into_payload()
+            .prepare_drain(inventory)
+            .commit_preflighted(functions);
+        CanonicalDrainedSinglePhysicalV1 {
+            brand,
+            family,
+            module,
+            receipt,
+            inventory: manifest,
+        }
+    }
+}
+
+impl PreparedCanonicalCallablePhysicalDrainV1 {
+    /// The keyed collector proof has completed; this is the only physical
+    /// publication move and cannot fail.
+    pub(in crate::mir) fn drain(self) -> CanonicalDrainedCallablePhysicalV1 {
+        let Self {
+            brand,
+            family,
+            shell,
+            collector,
+            receipt,
+            manifest,
+        } = self;
+        let functions = collector.drain();
+        let symbols = functions
+            .iter()
+            .map(|function| function.signature.name.clone())
+            .collect::<Vec<_>>();
+        let inventory = ModuleLoweringShellDrainInventoryV1::from_symbols(symbols)
+            .expect("collector proof guarantees unique canonical symbols");
+        let module = shell
+            .into_payload()
+            .prepare_drain(inventory)
+            .commit_preflighted(functions);
+        CanonicalDrainedCallablePhysicalV1 {
+            brand,
+            family,
+            module,
+            receipt,
+            inventory: manifest,
         }
     }
 }

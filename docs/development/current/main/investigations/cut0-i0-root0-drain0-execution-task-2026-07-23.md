@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-DRAIN0 実行タスク
 
-Status: **Active — ROOT0-DRAIN0-PHYSICAL0-I0 is next**
+Status: **Active — ROOT0-DRAIN0-PHYSICAL0-P0/G0 is next**
 
 Related:
 
@@ -298,7 +298,7 @@ Evidence:
 
 ```text
 RUSTFLAGS='-Awarnings' cargo check -q --lib                         green
-RUSTFLAGS='-Awarnings' cargo test -q canonical_physical_completion_p0 --lib  3 passed
+RUSTFLAGS='-Awarnings' cargo test -q canonical_physical_completion_p0 --lib  4 passed
 RUSTFLAGS='-Awarnings' cargo test -q module_draft_collector::drain::tests --lib  1 passed
 git diff --check                                                   green
 bash tools/checks/current_state_pointer_guard.sh                   green
@@ -370,6 +370,30 @@ The drained variants retain the original non-Clone token, Builder session,
 source continuation, opaque drained physical product, and callable
 acyclic/recursive capability witness. The collector is consumed and does not
 survive the drain, avoiding a second physical function owner.
+
+### I0 closeout — 2026-07-23
+
+`CanonicalPhysicalCompleteInvocationV1::prepare_drain(self)` now consumes the
+complete owner, projects the retained source manifest exactly once, converts
+it to the neutral physical contract, and calls the Builder-prepared terminal.
+`PreparedCanonicalDrainV1::drain(self)` is the sole infallible physical move.
+The resulting route-specific drained products retain the original token,
+session, continuation, capability witness, collector-issued receipt, and
+neutral inventory evidence; the collector itself is consumed.
+
+Evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo check -q --lib                         green
+RUSTFLAGS='-Awarnings' cargo test -q canonical_physical_completion_p0 --lib  4 passed
+RUSTFLAGS='-Awarnings' cargo test -q module_draft_collector::drain::tests --lib  1 passed
+git diff --check                                                   green
+bash tools/checks/current_state_pointer_guard.sh                   green
+```
+
+No finalizer, external commit, fallback, retry, Raw convergence, or atomic
+CUT0 activation was added. The remaining P0/G0 row is disconnected proof and
+census only.
 
 ## ROOT0-DRAIN0-P0 — focused proof matrix
 

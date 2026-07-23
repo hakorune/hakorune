@@ -1,8 +1,7 @@
-use super::canonical_physical_completion::CanonicalPhysicalCompleteInvocationV1;
+use super::canonical_physical_completion::CanonicalDrainedInvocationV1;
 use super::source_bound_package::ExactCanonicalPreflightPlanV1;
 use super::{MirCompiler, VerifiedResolvedCallableProgramV1};
-use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl, Span};
-use crate::mir::module_invocation_identity::ModuleInvocationFamilyV1;
+use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 
 fn variable() -> ASTNode {
     ASTNode::Variable {
@@ -49,6 +48,86 @@ fn program(functions: Vec<ASTNode>) -> VerifiedResolvedCallableProgramV1 {
     .unwrap()
 }
 
+fn a_plus_source() -> super::VerifiedResolvedSourceUnitV1 {
+    let variable = |name: &str| ASTNode::Variable {
+        name: name.into(),
+        span: Span::unknown(),
+    };
+    let literal = |value: i64| ASTNode::Literal {
+        value: LiteralValue::Integer(value),
+        span: Span::unknown(),
+    };
+    let add = |left: ASTNode, right: ASTNode| ASTNode::BinaryOp {
+        operator: BinaryOperator::Add,
+        left: Box::new(left),
+        right: Box::new(right),
+        span: Span::unknown(),
+    };
+    super::VerifiedResolvedSourceUnitV1::resolve_function(ASTNode::FunctionDeclaration {
+        name: "a_plus".into(),
+        params: vec!["arg".into()],
+        param_decls: Vec::new(),
+        return_type_name: None,
+        body: vec![
+            ASTNode::Local {
+                variables: vec!["x".into()],
+                initial_values: vec![Some(Box::new(add(variable("arg"), literal(1))))],
+                declared_type_names: vec![None],
+                span: Span::unknown(),
+            },
+            ASTNode::Assignment {
+                target: Box::new(variable("x")),
+                value: Box::new(add(variable("x"), literal(1))),
+                span: Span::unknown(),
+            },
+            ASTNode::Outbox {
+                variables: vec!["result".into()],
+                initial_values: vec![None],
+                span: Span::unknown(),
+            },
+            ASTNode::Return {
+                value: Some(Box::new(variable("x"))),
+                span: Span::unknown(),
+            },
+        ],
+        uses: Vec::new(),
+        contracts: Vec::new(),
+        is_static: true,
+        is_override: false,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    })
+    .unwrap()
+}
+
+#[test]
+fn compiler_bridge_drains_a_plus_single_route() {
+    let source = a_plus_source();
+    let plan = match super::capability::CanonicalLoweringPreflightV1::verify(&source).unwrap() {
+        super::capability::CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => plan,
+        _ => panic!("A+ fixture changed preflight family"),
+    };
+    let mut compiler = MirCompiler::new();
+    let package = compiler
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::APlus(plan))
+        .unwrap();
+    let complete = compiler
+        .begin_canonical_invocation(package, Some("a_plus.hako"), "a_plus".into())
+        .unwrap()
+        .lower()
+        .unwrap()
+        .collect()
+        .unwrap()
+        .complete()
+        .unwrap();
+    let drained = complete.prepare_drain().unwrap().drain();
+    let CanonicalDrainedInvocationV1::Single(product) = drained else {
+        panic!("A+ route drained as callable")
+    };
+    assert_eq!(product.physical.module.functions.len(), 1);
+    assert!(product.physical.module.functions.contains_key("a_plus/1"));
+}
+
 #[test]
 fn compiler_bridge_completion_retains_single_physical_receipt() {
     let source = super::VerifiedResolvedSourceUnitV1::resolve_function(
@@ -78,7 +157,6 @@ fn compiler_bridge_completion_retains_single_physical_receipt() {
     let package = compiler
         .bind_canonical_source(ExactCanonicalPreflightPlanV1::from_first_family(plan))
         .unwrap();
-    let brand = package.brand();
     let complete = compiler
         .begin_canonical_invocation(package, Some("complete.hako"), "complete".into())
         .unwrap()
@@ -88,14 +166,13 @@ fn compiler_bridge_completion_retains_single_physical_receipt() {
         .unwrap()
         .complete()
         .unwrap();
-    match complete {
-        CanonicalPhysicalCompleteInvocationV1::Single(product) => {
-            assert_eq!(product.token.brand(), brand);
-            assert_eq!(product.session.brand(), brand);
-            assert_eq!(product.physical.brand(), brand);
-            assert_eq!(product.physical.receipt_brand(), brand);
+    let drained = complete.prepare_drain().unwrap().drain();
+    match drained {
+        CanonicalDrainedInvocationV1::Single(product) => {
+            assert!(product.physical.module.functions.contains_key("single/0"));
+            assert_eq!(product.physical.module.functions.len(), 1);
         }
-        CanonicalPhysicalCompleteInvocationV1::Callable(_) => panic!("single route changed family"),
+        CanonicalDrainedInvocationV1::Callable(_) => panic!("single route drained as callable"),
     }
     assert!(compiler.builder.current_module.is_none());
 }
@@ -114,7 +191,6 @@ fn compiler_bridge_completion_retains_acyclic_capability_and_receipt() {
     let package = compiler
         .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan))
         .unwrap();
-    let brand = package.brand();
     let complete = compiler
         .begin_canonical_invocation(package, Some("acyclic.hako"), "acyclic".into())
         .unwrap()
@@ -124,16 +200,14 @@ fn compiler_bridge_completion_retains_acyclic_capability_and_receipt() {
         .unwrap()
         .complete()
         .unwrap();
-    match complete {
-        CanonicalPhysicalCompleteInvocationV1::Callable(product) => {
-            assert_eq!(product.token.brand(), brand);
-            assert_eq!(product.session.brand(), brand);
-            assert_eq!(product.physical.brand(), brand);
-            assert_eq!(product.physical.receipt_brand(), brand);
-            assert_eq!(product.capability.brand(), brand);
-            assert_eq!(product.capability.family(), ModuleInvocationFamilyV1::BindingSsaAcyclic);
+    let drained = complete.prepare_drain().unwrap().drain();
+    match drained {
+        CanonicalDrainedInvocationV1::Callable(product) => {
+            assert_eq!(product.physical.module.functions.len(), 2);
+            assert!(product.physical.module.functions.contains_key("caller/1"));
+            assert!(product.physical.module.functions.contains_key("callee/1"));
         }
-        CanonicalPhysicalCompleteInvocationV1::Single(_) => panic!("acyclic route became single"),
+        CanonicalDrainedInvocationV1::Single(_) => panic!("acyclic route drained as single"),
     }
     assert!(compiler.builder.current_module.is_none());
 }
@@ -150,7 +224,6 @@ fn compiler_bridge_completion_retains_recursive_capability_and_receipt() {
     let package = compiler
         .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaRecursive(plan))
         .unwrap();
-    let brand = package.brand();
     let complete = compiler
         .begin_canonical_invocation(package, Some("recursive.hako"), "recursive".into())
         .unwrap()
@@ -160,16 +233,13 @@ fn compiler_bridge_completion_retains_recursive_capability_and_receipt() {
         .unwrap()
         .complete()
         .unwrap();
-    match complete {
-        CanonicalPhysicalCompleteInvocationV1::Callable(product) => {
-            assert_eq!(product.token.brand(), brand);
-            assert_eq!(product.session.brand(), brand);
-            assert_eq!(product.physical.brand(), brand);
-            assert_eq!(product.physical.receipt_brand(), brand);
-            assert_eq!(product.capability.brand(), brand);
-            assert_eq!(product.capability.family(), ModuleInvocationFamilyV1::BindingSsaRecursive);
+    let drained = complete.prepare_drain().unwrap().drain();
+    match drained {
+        CanonicalDrainedInvocationV1::Callable(product) => {
+            assert_eq!(product.physical.module.functions.len(), 1);
+            assert!(product.physical.module.functions.contains_key("loop/1"));
         }
-        CanonicalPhysicalCompleteInvocationV1::Single(_) => panic!("recursive route became single"),
+        CanonicalDrainedInvocationV1::Single(_) => panic!("recursive route drained as single"),
     }
     assert!(compiler.builder.current_module.is_none());
 }

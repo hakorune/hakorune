@@ -325,7 +325,7 @@ cut0_i0_t_prime_r1_execution_task = "docs/development/current/main/investigation
 
 latest_card = "cut0-i0-root0-drain0-execution-task-2026-07-23"
 latest_card_path = "docs/development/current/main/investigations/cut0-i0-root0-drain0-execution-task-2026-07-23.md"
-latest_card_summary = """D-prime-r1, POLICY0, MANIFEST0, PHYSICAL0-BRIDGE0, PHYSICAL0-COLLECT0, and PHYSICAL0-PREP0 are closed. Mutation-free single/callable physical preflight retains rejected owners and separates capability mismatch diagnostics. I0 is next; completion-owned drain, finalization, and external commit remain disconnected."""
+latest_card_summary = """D-prime-r1, POLICY0, MANIFEST0, PHYSICAL0-BRIDGE0, PHYSICAL0-COLLECT0, PREP0, and I0 are closed. Completion-owned prepare_drain projects source authority once and performs one infallible route-specific drain for A+/trivial/acyclic/recursive fixtures. P0/G0 proof and census are next; finalization and external commit remain disconnected."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -527,7 +527,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-CUT0-I0-ROOT0-DRAIN0-PHYSICAL0-I0-20260723"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-CUT0-I0-ROOT0-DRAIN0-PHYSICAL0-P0-G0-20260723"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."

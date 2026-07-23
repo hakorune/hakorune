@@ -115,7 +115,8 @@ pub(in crate::mir) use module_invocation_brand0::{
 pub(in crate::mir) use canonical_physical_drain::{
     CanonicalPhysicalDrainPrepareErrorV1, PreparedCanonicalCallablePhysicalDrainV1,
     PreparedCanonicalSinglePhysicalDrainV1, RejectedCanonicalCallablePhysicalDrainV1,
-    RejectedCanonicalSinglePhysicalDrainV1,
+    RejectedCanonicalSinglePhysicalDrainV1, CanonicalDrainedCallablePhysicalV1,
+    CanonicalDrainedSinglePhysicalV1,
 };
 pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;
 #[allow(dead_code)]

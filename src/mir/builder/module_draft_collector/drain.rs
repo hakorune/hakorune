@@ -23,7 +23,7 @@ pub(in crate::mir::builder) enum CanonicalCollectorReceiptViewV1<'a> {
     Callable(&'a InvocationBranded<CallableCollectorBatchReceiptV1>),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CanonicalCollectorDrainErrorV1 {
     BrandMismatch,
     ReceiptCountMismatch { expected: usize, actual: usize },
