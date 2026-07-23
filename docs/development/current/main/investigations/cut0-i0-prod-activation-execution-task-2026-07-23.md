@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Active — P0-R1 is the only executable row; FINAL0, POST0, and COMMIT0 closed as disconnected proofs**
+Status: **Active — OWNER-RETENTION0 is the next executable row; P0-R1 bounded closeout is closed; FINAL0, POST0, and COMMIT0 remain disconnected proofs**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -362,7 +362,7 @@ current verifier accepts that shape. A final-verifier failure fixture must use
 a genuinely invalid MIR edge (for example, a jump to a non-existent block)
 and must be kept separate from the already-green success slice.
 
-## P0-R1-CLOSEOUT0 — bounded evidence freeze (next)
+## P0-R1-CLOSEOUT0 — bounded evidence freeze (closed)
 
 This row is guard/docs/evidence-only. It does not add a fault field, malformed
 plan route, outer `catch_unwind`, ambient failure switch, retry, fallback, or
@@ -393,6 +393,53 @@ POST-FAILURE0
 atomic CUT0/G0
   only after the above rows and the required caller census are green
 ```
+
+P0-R1-CLOSEOUT0 closeout (2026-07-23):
+
+```text
+The five success routes and six bounded failure categories are covered by
+focused tests and the P0-R1 guard. The guard reports production_consumers=0,
+all touched files below 800 lines, and the source-bound plan contract remains
+unchanged. This row claims publication-zero only for the observed fixtures;
+it does not claim universal rejected-owner retention, real-authority child or
+panic injection, or typed optimizer/contract/RC failure coverage.
+OWNER-RETENTION0 and POST-FAILURE0 remain mandatory before activation.
+```
+
+## OWNER-RETENTION0 — rejected-owner products (next)
+
+This is the next code-facing row. It must add no production consumer and must
+not change the source-bound plan contract. Split the work into three narrow
+terminals:
+
+```text
+OWNER-RETENTION0-ROOT
+  complete_raw_root and root-batch rejection retain the unpublished
+  collector/ledger/batch owner instead of returning only a bare error
+
+OWNER-RETENTION0-FINAL
+  canonical/raw finalizer validation and Builder-readiness failures retain
+  the exact drained owner until explicit discard
+
+OWNER-RETENTION0-POST
+  optimizer/contract/RC/final-verifier failures retain the postprocess owner;
+  no retry, replacement manifest, or recovery-to-complete terminal
+```
+
+Acceptance for each subrow:
+
+```text
+typed rejected owner contains the unpublished chain
+shell/collector/live Builder mutation before rejection = 0
+later sibling, drain, finalizer, postprocess, and external commit = 0
+retry/fallback/re-entry terminal = 0
+focused failure fixture + measured guard = green
+production consumer = 0
+all touched source/check files < 800 lines
+```
+
+Do not widen a generic `Rejected<Owner, Error>` API across unrelated layers;
+each terminal must retain only the route-specific owner it already controls.
 
 ## Atomic CUT0/G0
 
