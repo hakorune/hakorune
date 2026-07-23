@@ -66,6 +66,10 @@ impl SourceBoundRawRootPackageV1 {
         &self.plan
     }
 
+    pub(in crate::mir) const fn source(&self) -> &OwnedRawSourceV1 {
+        &self.source
+    }
+
     pub(in crate::mir) const fn continuation(&self) -> &RawSourceContinuationV1 {
         &self.continuation
     }

@@ -225,3 +225,11 @@ pub fn builder_carrier_phi_debug() -> bool {
 pub fn builder_safepoint_entry() -> bool {
     env_bool("NYASH_BUILDER_SAFEPOINT_ENTRY")
 }
+
+/// Raw source binding needs to distinguish an absent value from a present but
+/// malformed one.  Keep the raw spelling in the centralized env vocabulary;
+/// the Raw ingress owns strict validation and never reads the process env
+/// after token issuance.
+pub fn builder_safepoint_entry_raw_value() -> Option<String> {
+    env_string("NYASH_BUILDER_SAFEPOINT_ENTRY")
+}

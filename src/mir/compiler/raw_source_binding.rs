@@ -7,6 +7,7 @@
 
 use super::lowering_input::{LegacyModuleLoweringInputV1, LegacyModuleOriginV1};
 use super::source_bound_package::{InvocationIdentityIssuerV1, SourceBindingErrorV1};
+use super::raw_runtime_inputs::{RawRuntimeInputCaptureErrorV1, RawRuntimeInputSnapshotV1};
 use crate::ast::ASTNode;
 use crate::mir::builder::{
     BuilderInvocationConfigV1, OwnedRawSourceV1,
@@ -53,6 +54,7 @@ pub(in crate::mir) enum RawSourceBindingErrorV1 {
     Projection(RawSourceProjectionErrorV1),
     CallableMainRequiredForScript,
     Identity(SourceBindingErrorV1),
+    RuntimeInputs(RawRuntimeInputCaptureErrorV1),
 }
 
 #[derive(Debug)]
@@ -60,6 +62,7 @@ pub(in crate::mir) struct RawSourceContinuationV1 {
     origin: RawSourceOriginV1,
     callable_main: RawCallableMainCompatibilityDispositionV1,
     policy: ModuleInvocationPolicyV1,
+    runtime_inputs: RawRuntimeInputSnapshotV1,
 }
 
 impl RawSourceContinuationV1 {
@@ -73,6 +76,10 @@ impl RawSourceContinuationV1 {
 
     pub(in crate::mir) const fn policy(&self) -> ModuleInvocationPolicyV1 {
         self.policy
+    }
+
+    pub(in crate::mir) const fn runtime_inputs(&self) -> &RawRuntimeInputSnapshotV1 {
+        &self.runtime_inputs
     }
 
 }
@@ -91,6 +98,15 @@ impl SourceBoundRawPackageV1 {
         issuer: &mut InvocationIdentityIssuerV1,
         request: RawIngressRequestV1,
     ) -> Result<Self, RejectedRawSourceBindingV1> {
+        let runtime_inputs = match RawRuntimeInputSnapshotV1::capture() {
+            Ok(snapshot) => snapshot,
+            Err(error) => {
+                return Err(RejectedRawSourceBindingV1::with_request(
+                    request,
+                    RawSourceBindingErrorV1::RuntimeInputs(error),
+                ));
+            }
+        };
         let RawIngressRequestV1 {
             input,
             config,
@@ -145,6 +161,7 @@ impl SourceBoundRawPackageV1 {
             origin: source.origin(),
             callable_main: disposition,
             policy: ModuleInvocationPolicyV1::policy_for_family(ModuleInvocationFamilyV1::Raw),
+            runtime_inputs,
         };
         let token = match issuer.issue_raw() {
             Ok(token) => token,
@@ -257,6 +274,23 @@ impl RejectedRawSourceBindingV1 {
         Self {
             ast: ASTNodeOwnerV1::AlreadyProjected,
             source: Some(source),
+            config,
+            module_name,
+            error,
+        }
+    }
+
+    fn with_request(request: RawIngressRequestV1, error: RawSourceBindingErrorV1) -> Self {
+        let RawIngressRequestV1 {
+            input,
+            config,
+            module_name,
+            callable_main: _,
+        } = request;
+        let (ast, origin) = input.into_parts();
+        Self {
+            ast: ASTNodeOwnerV1::Original(ast, origin),
+            source: None,
             config,
             module_name,
             error,

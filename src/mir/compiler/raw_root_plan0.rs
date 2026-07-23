@@ -9,6 +9,7 @@
 use crate::ast::ASTNode;
 
 use super::raw_source_binding::SourceBoundRawPackageV1;
+use super::raw_root_eligibility_classifier::RawScalarControl0ClassifierV1;
 use crate::mir::builder::{OwnedRawRootProjectionV1, RawSourceLocatorV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -54,7 +55,8 @@ pub(in crate::mir) enum RawRootWorkKindV1 {
     TopLevelFunction,
     DeclarationFact,
     StaticData,
-    RuntimeStatement,
+    ScalarControl,
+    UnsupportedSurface,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -113,6 +115,12 @@ pub(in crate::mir) struct RawStaticDataSourceRowV1 {
     value_count: usize,
 }
 
+impl RawStaticDataSourceRowV1 {
+    pub(in crate::mir) const fn statement_index(&self) -> usize {
+        self.statement_index
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) struct RawStaticDataSourcePlanV1 {
     rows: Box<[RawStaticDataSourceRowV1]>,
@@ -127,32 +135,6 @@ impl RawStaticDataSourcePlanV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum RawClosureAccessDispositionV1 {
     UnsupportedUntilAccess0,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir) enum RawRuntimeInputDispositionV1 {
-    NotCapturedUntilRuntimeInput0,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir) struct RawRootRuntimeInputSnapshotV1 {
-    source_file: Option<Box<str>>,
-    script_args: RawRuntimeInputDispositionV1,
-    entry_safepoint: RawRuntimeInputDispositionV1,
-}
-
-impl RawRootRuntimeInputSnapshotV1 {
-    pub(in crate::mir) fn source_file(&self) -> Option<&str> {
-        self.source_file.as_deref()
-    }
-
-    pub(in crate::mir) const fn script_args(&self) -> RawRuntimeInputDispositionV1 {
-        self.script_args
-    }
-
-    pub(in crate::mir) const fn entry_safepoint(&self) -> RawRuntimeInputDispositionV1 {
-        self.entry_safepoint
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -185,7 +167,6 @@ pub(in crate::mir) struct RawRootEnvironmentPlanV1 {
     callable_headers: RawCallableHeaderPlanV1,
     static_data: RawStaticDataSourcePlanV1,
     access: RawRootAccessRequirementsV1,
-    runtime_inputs: RawRootRuntimeInputSnapshotV1,
 }
 
 impl RawRootEnvironmentPlanV1 {
@@ -209,9 +190,6 @@ impl RawRootEnvironmentPlanV1 {
         self.access
     }
 
-    pub(in crate::mir) const fn runtime_inputs(&self) -> &RawRootRuntimeInputSnapshotV1 {
-        &self.runtime_inputs
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -253,8 +231,6 @@ impl RawRootPlanV1 {
             return Err(RawRootPlanErrorV1::EmptyModuleName);
         }
         let source = package.source();
-        let config = package.config();
-        let source_file = config.source_file().map(str::to_owned).map(Into::into);
         let ast = source.ast();
         let projection = source.projection();
         let ASTNode::Program { statements, .. } = ast else {
@@ -278,11 +254,6 @@ impl RawRootPlanV1 {
             },
             static_data: RawStaticDataSourcePlanV1 {
                 rows: static_data.into_boxed_slice(),
-            },
-            runtime_inputs: RawRootRuntimeInputSnapshotV1 {
-                source_file,
-                script_args: RawRuntimeInputDispositionV1::NotCapturedUntilRuntimeInput0,
-                entry_safepoint: RawRuntimeInputDispositionV1::NotCapturedUntilRuntimeInput0,
             },
         };
         let kind = match projection {
@@ -369,7 +340,67 @@ fn build_schedule(statements: &[ASTNode]) -> Vec<RawRootWorkItemV1> {
                     RawRootWorkKindV1::StaticData,
                     Some(name.clone().into_boxed_str()),
                 ),
-                _ => (RawRootWorkKindV1::RuntimeStatement, None),
+                ASTNode::Literal { .. }
+                | ASTNode::Variable { .. }
+                | ASTNode::UnaryOp { .. }
+                | ASTNode::BinaryOp { .. }
+                | ASTNode::Print { .. }
+                | ASTNode::Assignment { .. }
+                | ASTNode::CompoundAssignment { .. }
+                | ASTNode::Local { .. }
+                | ASTNode::If { .. }
+                | ASTNode::Loop { .. }
+                | ASTNode::LoopRange { .. }
+                | ASTNode::Return { .. }
+                | ASTNode::Break { .. }
+                | ASTNode::Continue { .. }
+                | ASTNode::ScopeBox { .. } => {
+                    let kind = if RawScalarControl0ClassifierV1::classify_statements(
+                        std::slice::from_ref(statement),
+                    )
+                    .is_ok()
+                    {
+                        RawRootWorkKindV1::ScalarControl
+                    } else {
+                        RawRootWorkKindV1::UnsupportedSurface
+                    };
+                    (kind, None)
+                }
+                ASTNode::Program { .. }
+                | ASTNode::UsingStatement { .. }
+                | ASTNode::ImportStatement { .. }
+                | ASTNode::BuildGate { .. }
+                | ASTNode::TaskScope { .. }
+                | ASTNode::ContextScope { .. }
+                | ASTNode::FastMemRegion { .. }
+                | ASTNode::AwaitExpression { .. }
+                | ASTNode::QMarkPropagate { .. }
+                | ASTNode::Nowait { .. }
+                | ASTNode::MatchExpr { .. }
+                | ASTNode::EnumMatchExpr { .. }
+                | ASTNode::Lambda { .. }
+                | ASTNode::New { .. }
+                | ASTNode::FromCall { .. }
+                | ASTNode::ArrayLiteral { .. }
+                | ASTNode::MapLiteral { .. }
+                | ASTNode::RecordLiteral { .. }
+                | ASTNode::RecordUpdate { .. }
+                | ASTNode::CheckExpr { .. }
+                | ASTNode::GroupedAssignmentExpr { .. }
+                | ASTNode::BlockExpr { .. }
+                | ASTNode::TryCatch { .. }
+                | ASTNode::Throw { .. }
+                | ASTNode::Outbox { .. }
+                | ASTNode::Arrow { .. }
+                | ASTNode::MethodCall { .. }
+                | ASTNode::FunctionCall { .. }
+                | ASTNode::Call { .. }
+                | ASTNode::FieldAccess { .. }
+                | ASTNode::Index { .. }
+                | ASTNode::This { .. }
+                | ASTNode::Me { .. }
+                | ASTNode::ThisField { .. }
+                | ASTNode::MeField { .. } => (RawRootWorkKindV1::UnsupportedSurface, None),
             };
             RawRootWorkItemV1 {
                 statement_index,
@@ -555,10 +586,6 @@ mod tests {
         assert_eq!(plan.physical().condition_symbol(), "condition_fn");
         assert_eq!(plan.physical().condition_arity(), 1);
         assert_eq!(plan.environment().work_schedule().len(), 2);
-        assert_eq!(
-            plan.environment().runtime_inputs().source_file(),
-            Some("plan0.hako")
-        );
     }
 
     #[test]
