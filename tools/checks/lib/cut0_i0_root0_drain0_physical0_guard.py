@@ -121,6 +121,9 @@ def main() -> int:
         raise AssertionError("canonical completion must expose exactly one prepare_drain definition")
     if texts[COMPLETE].count("pub(in crate::mir) fn drain(self)") != 1:
         raise AssertionError("canonical completion must expose exactly one drain definition")
+    for path in (COMPLETE, PHYSICAL, COLLECTOR_DRAIN):
+        if "retry(" in texts[path] or "prepare_again(" in texts[path]:
+            raise AssertionError(f"canonical physical path exposes retry authority: {path}")
 
     for fixture in (
         "compiler_bridge_drains_a_plus_single_route",
