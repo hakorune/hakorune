@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Active — OWNER-RETENTION0-POST-P0 and POST-EVIDENCE0 are closed; POST-FAILURE0 is next; production ingress remains disconnected**
+Status: **Design stop — POST-FAILURE0-CONSULT0; OWNER-RETENTION0-POST-P0 and POST-EVIDENCE0 are closed; production ingress remains disconnected**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -597,6 +597,21 @@ COMMIT0/POST0 guards, cargo check, focused tests, and diff check are green.
 Production postprocess and external commit consumers remain zero. The next
 row is `POST-FAILURE0`; RC fault injection and universal optimizer/contract
 failure coverage remain explicitly deferred.
+
+## POST-FAILURE0-CONSULT0 — design stop (2026-07-23)
+
+The next row cannot be implemented safely by adding a generic fault field or
+ambient failure switch. Existing canonical final-verifier failure and Raw
+reportable verifier evidence are already covered; optimizer diagnostics depend
+on existing diagnostic policy, contract refresh needs a naturally invalid
+module-level fact, and RC insertion remains infallible.
+
+The dedicated consultation card
+`cut0-i0-prod-activation-post-failure-consultation-2026-07-23.md` asks which
+failure authority is allowed, which rows may remain non-claims, and whether a
+natural-fact fixture exists. Until Q1–Q4 are decided, production postprocess,
+outer executor, retry, fallback, RC fallibility refactoring, and atomic CUT0
+remain forbidden.
 
 ## Atomic CUT0/G0
 

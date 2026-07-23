@@ -1,6 +1,6 @@
 # CUT0-I0 OWNER-RETENTION0-POST Consultation
 
-Status: **Decision locked — Candidate PR-prime selected; OWNER-RETENTION0-POST-P0 next**
+Status: **Decision locked — Candidate PR-prime selected; POST-FAILURE0 consultation next**
 Date: 2026-07-23
 Scope: decide the postprocess owner boundary before any production outer
 executor or atomic CUT0 wiring.
