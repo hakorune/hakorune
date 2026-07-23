@@ -395,8 +395,6 @@ fn build_schedule(statements: &[ASTNode]) -> Vec<RawRootWorkItemV1> {
                 | ASTNode::MatchExpr { .. }
                 | ASTNode::EnumMatchExpr { .. }
                 | ASTNode::Lambda { .. }
-                | ASTNode::New { .. }
-                | ASTNode::FromCall { .. }
                 | ASTNode::ArrayLiteral { .. }
                 | ASTNode::MapLiteral { .. }
                 | ASTNode::RecordLiteral { .. }
@@ -417,6 +415,9 @@ fn build_schedule(statements: &[ASTNode]) -> Vec<RawRootWorkItemV1> {
                 | ASTNode::Me { .. }
                 | ASTNode::ThisField { .. }
                 | ASTNode::MeField { .. } => (RawRootWorkKindV1::UnsupportedSurface, None),
+                ASTNode::New { .. } | ASTNode::FromCall { .. } => {
+                    (RawRootWorkKindV1::UnsupportedProcessGlobalSlot, None)
+                }
             };
             RawRootWorkItemV1 {
                 statement_index,

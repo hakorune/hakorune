@@ -175,8 +175,7 @@ Do not grow the existing ~600-line `raw_root_plan0.rs`. Keep new files below
 raw_runtime_inputs.rs             pure capture/parser
 raw_root_eligibility.rs           products and consuming terminal
 raw_root_eligibility_classifier.rs ScalarControl0 recursive classifier
-raw_root_eligibility_p0.rs        positive fixtures
-raw_root_eligibility_rejection_p0.rs negative/retention fixtures
+raw_root_eligibility_p0.rs        positive/negative/retention fixtures
 one S0 guard and this task card
 ```
 
@@ -261,13 +260,14 @@ Verified evidence for the landed slice:
 
 ```text
 RUSTFLAGS='-Awarnings' cargo check -q --lib                         green
-RUSTFLAGS='-Awarnings' cargo test -q raw_ --lib -- --test-threads=1 green (172)
+RUSTFLAGS='-Awarnings' cargo test -q raw_ --lib -- --test-threads=1 green (176)
 bash tools/checks/current_state_pointer_guard.sh                  green
 python3 tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_owner0_eligibility0_s0_guard.py green
 ```
 
-Remaining S0 work is the explicit negative/retention fixture matrix and its
-final manifest guard. Physical OWNER0 opening remains zero.
+The explicit negative/retention fixture matrix and manifest guard are now
+landed in the same disconnected S0 boundary. Physical OWNER0 opening remains
+zero; only the final S0 closeout/pointer update remains.
 
 ## Non-claims and next row
 

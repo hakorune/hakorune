@@ -73,6 +73,11 @@ impl SourceBoundRawRootPackageV1 {
     pub(in crate::mir) const fn continuation(&self) -> &RawSourceContinuationV1 {
         &self.continuation
     }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn module_name(&self) -> &str {
+        &self.module_name
+    }
 }
 
 impl RejectedRawRootPlanningV1 {

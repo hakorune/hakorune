@@ -104,6 +104,8 @@ mod sibling_call_tests;
 mod source_view_tests;
 #[cfg(test)]
 mod raw_source_binding_p0;
+#[cfg(test)]
+mod raw_root_eligibility_p0;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_plan0;
 

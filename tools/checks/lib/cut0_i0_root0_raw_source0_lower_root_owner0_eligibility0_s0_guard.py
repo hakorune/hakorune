@@ -26,6 +26,10 @@ QUESTION = ROOT / (
     "cut0-i0-raw-source0-lower-root-owner0-eligibility-question-2026-07-23.md"
 )
 SOURCE = (
+    ROOT / "src/mir/compiler/raw_runtime_inputs.rs",
+    ROOT / "src/mir/compiler/raw_root_eligibility_classifier.rs",
+    ROOT / "src/mir/compiler/raw_root_eligibility.rs",
+    ROOT / "src/mir/compiler/raw_root_eligibility_p0.rs",
     ROOT / "src/mir/compiler/raw_root_package.rs",
     ROOT / "src/mir/compiler/raw_root_plan0.rs",
     ROOT / "src/mir/compiler/raw_source_binding.rs",
@@ -79,6 +83,28 @@ def main() -> int:
     require(consult, "Status: **Closed", "closed consultation")
     require(consult, "ELIGIBILITY-prime-r1", "consultation decision")
     require(question, "Required answer format", "historical question")
+
+    for path in SOURCE:
+        if not path.exists():
+            raise AssertionError(f"S0 manifest file is missing: {path}")
+
+    eligibility = (ROOT / "src/mir/compiler/raw_root_eligibility.rs").read_text()
+    classifier = (ROOT / "src/mir/compiler/raw_root_eligibility_classifier.rs").read_text()
+    require(eligibility, "pub(in crate::mir) struct RawRootEligibilityV1", "eligibility product")
+    require(
+        eligibility,
+        "pub(in crate::mir) struct EligibleSourceBoundRawRootPackageV1",
+        "eligible package product",
+    )
+    require(
+        eligibility,
+        "pub(in crate::mir) struct RejectedRawRootEligibilityV1",
+        "rejected package product",
+    )
+    require(eligibility, "prepare_eligibility(", "eligibility terminal")
+    require(classifier, "RawScalarControl0ClassifierV1", "ScalarControl0 classifier")
+    if "RuntimeStatement" in classifier or "RuntimeStatement" in SOURCE[5].read_text():
+        raise AssertionError("wildcard RuntimeStatement lane must remain absent")
 
     joined = "\n".join(path.read_text() for path in SOURCE)
     forbidden = (

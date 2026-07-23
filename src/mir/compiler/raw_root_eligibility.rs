@@ -212,6 +212,12 @@ fn verify_plain_static_main(
                 RawRootEligibilityErrorV1::InvalidCallableRow { statement_index: 0 },
             ));
         };
+        if method_name == "main" && !params.is_empty() {
+            return Err((
+                RawRootEligibilityStageV1::Slots,
+                RawRootEligibilityErrorV1::MainMustBeArityZero,
+            ));
+        }
         if method_name != declared_name
             || !*method_static
             || *is_override
@@ -224,14 +230,10 @@ fn verify_plain_static_main(
             ));
         }
         if method_name == "main" {
-            if !std::ptr::eq(method, main) || !params.is_empty() {
+            if !std::ptr::eq(method, main) {
                 return Err((
                     RawRootEligibilityStageV1::Catalog,
-                    if !params.is_empty() {
-                        RawRootEligibilityErrorV1::MainMustBeArityZero
-                    } else {
-                        RawRootEligibilityErrorV1::InvalidCallableRow { statement_index: 0 }
-                    },
+                    RawRootEligibilityErrorV1::InvalidCallableRow { statement_index: 0 },
                 ));
             }
         } else {
@@ -267,6 +269,21 @@ impl RejectedRawRootEligibilityV1 {
 
     pub(in crate::mir) const fn error(&self) -> &RawRootEligibilityErrorV1 {
         &self.error
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) const fn owner_brand(&self) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
+        self.owner.brand()
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) const fn owner_family(&self) -> crate::mir::module_invocation_identity::ModuleInvocationFamilyV1 {
+        self.owner.family()
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn owner_module_name(&self) -> &str {
+        self.owner.module_name()
     }
 
     pub(in crate::mir) fn discard(self) {}
