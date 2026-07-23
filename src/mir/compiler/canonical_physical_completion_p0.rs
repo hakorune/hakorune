@@ -187,6 +187,53 @@ fn compiler_bridge_completion_retains_single_physical_receipt() {
 }
 
 #[test]
+fn physical_drain_accepts_canonical_condition_fn_spelling() {
+    let source = super::VerifiedResolvedSourceUnitV1::resolve_function(
+        ASTNode::FunctionDeclaration {
+            name: "condition_fn".into(),
+            params: Vec::new(),
+            param_decls: Vec::new(),
+            return_type_name: None,
+            body: vec![ASTNode::Return {
+                value: Some(Box::new(ASTNode::Literal {
+                    value: crate::ast::LiteralValue::Integer(1),
+                    span: Span::unknown(),
+                })),
+                span: Span::unknown(),
+            }],
+            uses: Vec::new(),
+            contracts: Vec::new(),
+            is_static: true,
+            is_override: false,
+            attrs: DeclarationAttrs::default(),
+            span: Span::unknown(),
+        },
+    )
+    .unwrap();
+    let plan = super::capability::CanonicalLoweringPreflightV1::verify(&source).unwrap();
+    let mut compiler = MirCompiler::new();
+    let package = compiler
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::from_first_family(plan))
+        .unwrap();
+    let drained = compiler
+        .begin_canonical_invocation(package, Some("condition_fn.hako"), "condition_fn".into())
+        .unwrap()
+        .lower()
+        .unwrap()
+        .collect()
+        .unwrap()
+        .complete()
+        .unwrap()
+        .prepare_drain()
+        .unwrap()
+        .drain();
+    let CanonicalDrainedInvocationV1::Single(product) = drained else {
+        panic!("canonical condition_fn route drained as callable")
+    };
+    assert!(product.physical.module.functions.contains_key("condition_fn/0"));
+}
+
+#[test]
 fn physical_prepare_failure_leaves_live_builder_unchanged() {
     let source = super::VerifiedResolvedSourceUnitV1::resolve_function(
         ASTNode::FunctionDeclaration {

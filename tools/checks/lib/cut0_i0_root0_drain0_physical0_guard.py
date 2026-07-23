@@ -138,6 +138,7 @@ def main() -> int:
     for fixture in (
         "compiler_bridge_drains_a_plus_single_route",
         "compiler_bridge_completion_retains_single_physical_receipt",
+        "physical_drain_accepts_canonical_condition_fn_spelling",
         "physical_prepare_failure_leaves_live_builder_unchanged",
         "compiler_bridge_completion_retains_acyclic_capability_and_receipt",
         "compiler_bridge_completion_retains_recursive_capability_and_receipt",
@@ -154,6 +155,10 @@ def main() -> int:
     require(texts[PHYSICAL], "collector_payload_receipt_brand_mismatch_rejects_before_shell_mutation", "collector payload receipt-brand fixture")
     require(texts[PHYSICAL], "foreign_manifest_brand_rejects_before_collector_prepare", "foreign manifest brand fixture")
     require(texts[PHYSICAL], "callable_row_cardinality_rejects_missing_and_surplus_manifest_rows", "callable cardinality fixture")
+    for path in (PHYSICAL, COMPLETE):
+        for forbidden in ("FunctionDraftKeyV1::Main", "FunctionDraftKeyV1::SyntheticConditionFn"):
+            if forbidden in texts[path]:
+                raise AssertionError(f"canonical physical path exposes synthetic identity: {path} {forbidden}")
     require(texts[SESSION_P0], "dropping_failed_candidate_leaves_live_builder_unchanged", "live Builder failure fixture")
 
     forbidden_canonical = (
