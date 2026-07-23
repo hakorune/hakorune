@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Consultation
 
-Status: **Design Stop — decision required before production wiring**
+Status: **Closed — Candidate ACT-prime-r1 selected; FINAL0 is next**
 Date: 2026-07-23
 Scope: connect the closed canonical physical drain product to finalization,
 postprocess, external commit, and the eventual atomic CUT0 ingress.
@@ -194,3 +194,32 @@ route-specific evidence intact, preserves legacy/canonical verifier semantics,
 and lists the smallest executable rows before the atomic cutover. Do not add
 new production code while this card is a design stop.
 
+## ACT-prime-r1 decision closeout — 2026-07-23
+
+Candidate ACT-prime-r1 is selected for Q1–Q5.
+
+```text
+Q1  CanonicalDrainedInvocationV1::{Single, Callable}
+      -> direct route-specific finalization inputs
+Q2  compiler-private ModulePostprocessOwnerV1 is the sole postprocess owner
+Q3  PreparedModuleExternalCommitV1 pairs Builder readiness with the
+      postprocessed module, verification evidence, and the same token
+Q4  MirCompiler::execute_preflighted_module_invocation is the sole production
+      outer executor for Raw and all four canonical families
+Q5  the activation patch zeroes every old production caller atomically and
+      fixes the result with P0-R1 plus static caller census
+```
+
+The old Main-only `DrainedModuleCandidateV1`, bare `MirModule`, bare
+`MirCompileResult`, route-local fallback, retry through the old session, and
+partial production wiring are rejected. Raw and canonical routes use
+route-specific finalization first and converge only at the paired
+postprocess/commit boundary.
+
+The executable order is fixed in the linked task card:
+
+```text
+FINAL0 -> POST0 -> COMMIT0 -> P0-R1 -> atomic CUT0/G0
+```
+
+Production consumers remain zero until the atomic cutover row.
