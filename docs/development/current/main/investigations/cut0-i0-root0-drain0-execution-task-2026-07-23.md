@@ -455,14 +455,15 @@ The remaining executable proof row is deliberately explicit:
 
 ```text
 ROOT0-DRAIN0-P0b
-  -> deterministic reorder parity fixture at the physical boundary
   -> prepare failure leaves the live Builder unchanged
   -> measured callsite census for prepare_drain/drain and forbidden retry
 ```
 
 P0b progress: receipt payload collector-brand mismatch and drain-after-success
-receipt/capability retention are now green and committed. The three items
-above remain open.
+receipt/capability retention, source-to-physical reorder parity, and the
+no-retry structural guard are now green and committed. The two items above
+remain open; the existing disconnected Builder-session failure fixture is
+only a precursor, not yet proof of physical `prepare_drain` failure.
 
 Until P0b is green, do not claim ROOT0-DRAIN0-P0/G0 closed and do not wire
 canonical production ingress, finalization, external commit, Raw convergence,
