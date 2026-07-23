@@ -22,6 +22,8 @@ pub(in crate::mir) mod capability;
 #[allow(dead_code)]
 pub(in crate::mir) mod canonical_physical_completion;
 #[allow(dead_code)]
+pub(in crate::mir) mod canonical_finalization;
+#[allow(dead_code)]
 mod canonical_drain_manifest;
 pub(in crate::mir) mod function_input;
 #[allow(dead_code)]
@@ -62,6 +64,8 @@ mod resolved_callable_module_preflight_tests;
 mod source_bound_package_p0;
 #[cfg(test)]
 mod canonical_physical_completion_p0;
+#[cfg(test)]
+mod canonical_finalization_p0;
 #[cfg(test)]
 mod canonical_bridge_fixture0_p0;
 #[cfg(test)]

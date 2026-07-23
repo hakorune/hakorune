@@ -6,10 +6,10 @@
 
 use std::collections::HashMap;
 
-use super::MirBuilder;
 use super::module_invocation_identity::{
     ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
 };
+use super::MirBuilder;
 use crate::mir::MirType;
 use hakorune_mir_builder::CoreContext;
 
@@ -141,7 +141,9 @@ impl BuilderInvocationConfigV1 {
         &self.using_import_boxes
     }
 
-    pub(in crate::mir::builder) fn plugin_method_sigs(&self) -> &HashMap<(String, String), MirType> {
+    pub(in crate::mir::builder) fn plugin_method_sigs(
+        &self,
+    ) -> &HashMap<(String, String), MirType> {
         &self.plugin_method_sigs
     }
 
@@ -172,8 +174,8 @@ impl std::fmt::Debug for ModuleBuilderInvocationSessionV1 {
 #[derive(Debug)]
 struct ModuleBuilderInvocationSessionSealV1;
 
-#[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum BuilderCommitReadinessErrorV1 {
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir) enum BuilderCommitReadinessErrorV1 {
     CurrentModuleOpen,
     CurrentFunctionOpen,
     CurrentBlockOpen,
@@ -199,6 +201,34 @@ pub(in crate::mir::builder) struct PreparedBuilderExternalCommitV1 {
 
 #[derive(Debug)]
 struct PreparedBuilderExternalCommitSealV1;
+
+/// A closed Builder candidate ready to enter module finalization.
+///
+/// This is deliberately distinct from the external-commit capability.  The
+/// finalizer may still pair this owner with route-specific module evidence,
+/// but no mutable Builder access is available after this product exists.
+#[derive(Debug)]
+pub(in crate::mir) struct PreparedBuilderModuleSessionV1 {
+    brand: ModuleInvocationBrandV1,
+    family: ModuleInvocationFamilyV1,
+    session: ModuleBuilderInvocationSessionV1,
+    _seal: PreparedBuilderModuleSessionSealV1,
+}
+
+#[derive(Debug)]
+struct PreparedBuilderModuleSessionSealV1;
+
+/// Readiness failure retaining the unpublished session for the caller's
+/// rejected-owner chain.  No retry or recovery terminal is provided here.
+#[derive(Debug)]
+pub(in crate::mir) struct RejectedPreparedBuilderModuleSessionV1 {
+    session: ModuleBuilderInvocationSessionV1,
+    error: BuilderCommitReadinessErrorV1,
+    _seal: RejectedPreparedBuilderModuleSessionSealV1,
+}
+
+#[derive(Debug)]
+struct RejectedPreparedBuilderModuleSessionSealV1;
 
 impl ModuleBuilderInvocationSessionV1 {
     pub(in crate::mir) fn open_for_token(
@@ -253,9 +283,7 @@ impl ModuleBuilderInvocationSessionV1 {
         self.family
     }
 
-    pub(in crate::mir::builder) fn prepare_external_commit(
-        self,
-    ) -> Result<PreparedBuilderExternalCommitV1, BuilderCommitReadinessErrorV1> {
+    fn readiness_error(&self) -> Result<(), BuilderCommitReadinessErrorV1> {
         if self.candidate.current_module.is_some() {
             return Err(BuilderCommitReadinessErrorV1::CurrentModuleOpen);
         }
@@ -265,7 +293,11 @@ impl ModuleBuilderInvocationSessionV1 {
         if self.candidate.function_state.current_block.is_some() {
             return Err(BuilderCommitReadinessErrorV1::CurrentBlockOpen);
         }
-        if !self.candidate.function_state.is_closed_for_external_commit() {
+        if !self
+            .candidate
+            .function_state
+            .is_closed_for_external_commit()
+        {
             return Err(BuilderCommitReadinessErrorV1::FunctionStateOpen);
         }
         if self.candidate.comp_ctx.current_slot_registry.is_some() {
@@ -277,11 +309,84 @@ impl ModuleBuilderInvocationSessionV1 {
         if self.candidate.recursion_depth != 0 {
             return Err(BuilderCommitReadinessErrorV1::RecursionDepthOpen);
         }
-        Ok(PreparedBuilderExternalCommitV1 {
-            brand: self.brand,
+        Ok(())
+    }
+
+    /// Consume a candidate after all Builder-owned state is closed.
+    ///
+    /// A rejected result retains the original session, so an outer
+    /// finalization owner can discard the complete unpublished chain without
+    /// reconstructing Builder state.
+    pub(in crate::mir) fn prepare_module_session(
+        self,
+    ) -> Result<PreparedBuilderModuleSessionV1, RejectedPreparedBuilderModuleSessionV1> {
+        if let Err(error) = self.readiness_error() {
+            return Err(RejectedPreparedBuilderModuleSessionV1 {
+                session: self,
+                error,
+                _seal: RejectedPreparedBuilderModuleSessionSealV1,
+            });
+        }
+        let brand = self.brand;
+        let family = self.family;
+        Ok(PreparedBuilderModuleSessionV1 {
+            brand,
+            family,
             session: self,
+            _seal: PreparedBuilderModuleSessionSealV1,
+        })
+    }
+
+    pub(in crate::mir::builder) fn prepare_external_commit(
+        self,
+    ) -> Result<PreparedBuilderExternalCommitV1, BuilderCommitReadinessErrorV1> {
+        let prepared = self
+            .prepare_module_session()
+            .map_err(|rejected| rejected.into_parts().1)?;
+        let (brand, _family, session) = prepared.into_parts();
+        Ok(PreparedBuilderExternalCommitV1 {
+            brand,
+            session,
             _seal: PreparedBuilderExternalCommitSealV1,
         })
+    }
+}
+
+impl PreparedBuilderModuleSessionV1 {
+    pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.brand
+    }
+
+    pub(in crate::mir) const fn family(&self) -> ModuleInvocationFamilyV1 {
+        self.family
+    }
+
+    /// Consume the readiness product without exposing a mutable accessor on
+    /// the prepared type.  A later phase may choose how to consume the closed
+    /// session (finalization or external commit) exactly once.
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (
+        ModuleInvocationBrandV1,
+        ModuleInvocationFamilyV1,
+        ModuleBuilderInvocationSessionV1,
+    ) {
+        (self.brand, self.family, self.session)
+    }
+}
+
+impl RejectedPreparedBuilderModuleSessionV1 {
+    pub(in crate::mir) fn error(&self) -> &BuilderCommitReadinessErrorV1 {
+        &self.error
+    }
+
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (
+        ModuleBuilderInvocationSessionV1,
+        BuilderCommitReadinessErrorV1,
+    ) {
+        (self.session, self.error)
     }
 }
 

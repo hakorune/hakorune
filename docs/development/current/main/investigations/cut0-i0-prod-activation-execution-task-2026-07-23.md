@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Active — FINAL0 is the only executable row**
+Status: **Active — POST0 is the only executable row; FINAL0 closed**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -25,7 +25,7 @@ same non-Clone invocation token together. No old Main-only adapter, bare
 `MirModule`, bare `MirCompileResult`, retry, fallback, or `current_module`
 re-observation is allowed.
 
-## FINAL0 — route-specific finalization (next)
+## FINAL0 — route-specific finalization (closed)
 
 Add compiler-private finalization products that consume the closed DRAIN0
 products directly:
@@ -69,7 +69,24 @@ finalizer production consumer = 0
 all touched files < 800 lines
 ```
 
-## POST0 — one postprocess owner
+FINAL0 closeout (2026-07-23):
+
+```text
+PreparedBuilderModuleSessionV1 is a consuming readiness product with a
+rejected owner for all seven Builder closure checks. The real drained
+Single/Callable products now enter compiler-private
+CanonicalFinalizationInputV1 variants through prepare_finalization(self).
+CanonicalModuleFinalizerV1 performs route/family/brand validation without
+legacy Main-only finalization, synthetic root creation, or source/current-module
+re-observation. The disconnected Single and Callable fixtures, session
+readiness matrix, FINAL0 census guard, cargo check, focused tests, PHYSICAL0
+guard, and pointer guard are green. No production finalizer consumer exists.
+```
+
+Next executable row: **POST0**. COMMIT0, P0-R1, and atomic CUT0/G0 remain
+disconnected and forbidden.
+
+## POST0 — one postprocess owner (next)
 
 Add compiler-private `ModulePostprocessOwnerV1` and derive its schedule only
 from `ModuleInvocationFamilyV1`:
@@ -195,4 +212,3 @@ RUSTFLAGS='-Awarnings' cargo test -q <row-specific-tests> --lib
 All new or touched source/check files must remain below 800 lines. Update
 `CURRENT_STATE.toml` and this card only when a row closes; keep the pointer on
 the current row and do not claim CUT0 activation before atomic CUT0/G0.
-

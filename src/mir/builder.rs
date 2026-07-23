@@ -129,7 +129,8 @@ mod canonical_root_completion; // CUT0-I0-ROOT0-CANON0 route-specific completion
 #[allow(dead_code)]
 mod module_invocation_session; // CUT0-I0-SESSION0 disconnected Builder transaction
 pub(in crate::mir) use module_invocation_session::{
-    BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
+    BuilderCommitReadinessErrorV1, BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
+    PreparedBuilderModuleSessionV1, RejectedPreparedBuilderModuleSessionV1,
 };
 #[cfg(test)]
 mod module_invocation_session_p0; // CUT0-I0-SESSION0 fixtures

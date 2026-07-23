@@ -1,10 +1,13 @@
 //! CUT0-I0-SESSION0 fixtures for the disconnected Builder transaction.
 
 use super::module_invocation_session::{
-    BuilderCoreIdSeedV1, BuilderCoreSeedPolicyV1, BuilderInvocationConfigV1,
-    BuilderCommitReadinessErrorV1, ModuleBuilderInvocationSessionV1,
+    BuilderCommitReadinessErrorV1, BuilderCoreIdSeedV1, BuilderCoreSeedPolicyV1,
+    BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
 };
-use super::{MirBuilder, MirType};
+use super::{
+    BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirModule, MirType,
+};
+use hakorune_mir_builder::BoxCompilationContext;
 
 fn advanced_builder() -> MirBuilder {
     let mut builder = MirBuilder::new();
@@ -14,10 +17,10 @@ fn advanced_builder() -> MirBuilder {
         .comp_ctx
         .using_import_boxes
         .insert("Alias".into(), "Imported".into());
-    builder.comp_ctx.plugin_method_sigs.insert(
-        ("PluginBox".into(), "value/0".into()),
-        MirType::Integer,
-    );
+    builder
+        .comp_ctx
+        .plugin_method_sigs
+        .insert(("PluginBox".into(), "value/0".into()), MirType::Integer);
     builder.set_source_file_hint("session0.hako");
     builder.next_value_id();
     builder.next_value_id();
@@ -38,6 +41,106 @@ fn core_cursor(builder: &MirBuilder) -> (u32, u32, u32, u32, u32) {
     )
 }
 
+fn fresh_session() -> ModuleBuilderInvocationSessionV1 {
+    let live = MirBuilder::new();
+    let config =
+        BuilderInvocationConfigV1::snapshot_with_policy(&live, BuilderCoreSeedPolicyV1::Fresh);
+    ModuleBuilderInvocationSessionV1::open(&live, config)
+}
+
+fn assert_module_session_rejected(
+    session: ModuleBuilderInvocationSessionV1,
+    expected: BuilderCommitReadinessErrorV1,
+) {
+    let rejected = session
+        .prepare_module_session()
+        .expect_err("readiness failure must retain a rejected owner");
+    assert_eq!(rejected.error(), &expected);
+    let (_session, error) = rejected.into_parts();
+    assert_eq!(error, expected);
+}
+
+#[test]
+fn module_session_readiness_success_is_non_clone_and_consuming() {
+    let prepared = fresh_session()
+        .prepare_module_session()
+        .expect("fresh candidate is closed for finalization");
+    assert_eq!(
+        prepared.brand(),
+        super::module_invocation_identity::ModuleInvocationBrandV1::legacy_test()
+    );
+    assert_eq!(
+        prepared.family(),
+        super::module_invocation_identity::ModuleInvocationFamilyV1::Raw
+    );
+    let (_brand, _family, _session) = prepared.into_parts();
+}
+
+#[test]
+fn module_session_readiness_rejects_current_module() {
+    let mut session = fresh_session();
+    session.builder_mut().current_module = Some(MirModule::new("open".into()));
+    assert_module_session_rejected(session, BuilderCommitReadinessErrorV1::CurrentModuleOpen);
+}
+
+#[test]
+fn module_session_readiness_rejects_current_function() {
+    let mut session = fresh_session();
+    session.builder_mut().function_state.current_function = Some(MirFunction::new(
+        FunctionSignature {
+            name: "open/0".into(),
+            params: Vec::new(),
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    ));
+    assert_module_session_rejected(session, BuilderCommitReadinessErrorV1::CurrentFunctionOpen);
+}
+
+#[test]
+fn module_session_readiness_rejects_current_block() {
+    let mut session = fresh_session();
+    session.builder_mut().function_state.current_block = Some(BasicBlockId::new(3));
+    assert_module_session_rejected(session, BuilderCommitReadinessErrorV1::CurrentBlockOpen);
+}
+
+#[test]
+fn module_session_readiness_rejects_function_state() {
+    let mut session = fresh_session();
+    session
+        .builder_mut()
+        .function_state
+        .variable_ctx
+        .insert("stale".into(), super::ValueId::new(7));
+    assert_module_session_rejected(session, BuilderCommitReadinessErrorV1::FunctionStateOpen);
+}
+
+#[test]
+fn module_session_readiness_rejects_slot_registry() {
+    let mut session = fresh_session();
+    session.builder_mut().comp_ctx.current_slot_registry =
+        Some(crate::mir::region::function_slot_registry::FunctionSlotRegistry::new());
+    assert_module_session_rejected(session, BuilderCommitReadinessErrorV1::SlotRegistryOpen);
+}
+
+#[test]
+fn module_session_readiness_rejects_compilation_context() {
+    let mut session = fresh_session();
+    session.builder_mut().comp_ctx.compilation_context = Some(BoxCompilationContext::new());
+    assert_module_session_rejected(
+        session,
+        BuilderCommitReadinessErrorV1::CompilationContextOpen,
+    );
+}
+
+#[test]
+fn module_session_readiness_rejects_recursion_depth() {
+    let mut session = fresh_session();
+    session.builder_mut().recursion_depth = 1;
+    assert_module_session_rejected(session, BuilderCommitReadinessErrorV1::RecursionDepthOpen);
+}
+
 #[test]
 fn snapshot_installs_all_explicit_builder_inputs() {
     let live = advanced_builder();
@@ -49,10 +152,22 @@ fn snapshot_installs_all_explicit_builder_inputs() {
     let candidate = session.builder_mut();
 
     assert_eq!(config.repl_mode(), candidate.repl_mode);
-    assert_eq!(config.quiet_internal_logs(), candidate.comp_ctx.quiet_internal_logs);
-    assert_eq!(config.using_import_boxes(), &candidate.comp_ctx.using_import_boxes);
-    assert_eq!(config.plugin_method_sigs(), &candidate.comp_ctx.plugin_method_sigs);
-    assert_eq!(config.source_file(), candidate.current_source_file().as_deref());
+    assert_eq!(
+        config.quiet_internal_logs(),
+        candidate.comp_ctx.quiet_internal_logs
+    );
+    assert_eq!(
+        config.using_import_boxes(),
+        &candidate.comp_ctx.using_import_boxes
+    );
+    assert_eq!(
+        config.plugin_method_sigs(),
+        &candidate.comp_ctx.plugin_method_sigs
+    );
+    assert_eq!(
+        config.source_file(),
+        candidate.current_source_file().as_deref()
+    );
     assert!(matches!(
         config.core_id_seed(),
         BuilderCoreIdSeedV1::ContinueLive(_)
@@ -114,14 +229,11 @@ fn dropping_failed_candidate_leaves_live_builder_unchanged() {
 #[test]
 fn commit_readiness_rejects_open_slot_state_before_external_commit() {
     let mut live = MirBuilder::new();
-    let config = BuilderInvocationConfigV1::snapshot_with_policy(
-        &live,
-        BuilderCoreSeedPolicyV1::Fresh,
-    );
+    let config =
+        BuilderInvocationConfigV1::snapshot_with_policy(&live, BuilderCoreSeedPolicyV1::Fresh);
     let mut session = ModuleBuilderInvocationSessionV1::open(&live, config);
-    session.builder_mut().comp_ctx.current_slot_registry = Some(
-        crate::mir::region::function_slot_registry::FunctionSlotRegistry::new(),
-    );
+    session.builder_mut().comp_ctx.current_slot_registry =
+        Some(crate::mir::region::function_slot_registry::FunctionSlotRegistry::new());
     let error = match session.prepare_external_commit() {
         Ok(_) => panic!("open slot registry must block external commit"),
         Err(error) => error,
@@ -133,10 +245,8 @@ fn commit_readiness_rejects_open_slot_state_before_external_commit() {
 #[test]
 fn commit_readiness_rejects_function_owned_residue() {
     let live = MirBuilder::new();
-    let config = BuilderInvocationConfigV1::snapshot_with_policy(
-        &live,
-        BuilderCoreSeedPolicyV1::Fresh,
-    );
+    let config =
+        BuilderInvocationConfigV1::snapshot_with_policy(&live, BuilderCoreSeedPolicyV1::Fresh);
     let mut session = ModuleBuilderInvocationSessionV1::open(&live, config);
     session
         .builder_mut()
@@ -153,10 +263,8 @@ fn commit_readiness_rejects_function_owned_residue() {
 #[test]
 fn prepared_commit_moves_candidate_once_and_reuse_is_fresh() {
     let mut live = MirBuilder::new();
-    let config = BuilderInvocationConfigV1::snapshot_with_policy(
-        &live,
-        BuilderCoreSeedPolicyV1::Fresh,
-    );
+    let config =
+        BuilderInvocationConfigV1::snapshot_with_policy(&live, BuilderCoreSeedPolicyV1::Fresh);
     let mut session = ModuleBuilderInvocationSessionV1::open(&live, config);
     session.builder_mut().repl_mode = true;
     let prepared = session.prepare_external_commit().unwrap();
