@@ -81,6 +81,19 @@ impl CollectedCanonicalSinglePhysicalV1 {
     pub(in crate::mir) fn receipt_brand(&self) -> ModuleInvocationBrandV1 {
         self.collected.receipt_brand()
     }
+
+    /// The only sibling-terminal unpack authority for the collected physical
+    /// owner.  The shell, collector, and receipt remain one consuming move.
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        BrandedShellV1<ModuleLoweringShellV1>,
+        BrandedCollectorV1<ModuleDraftCollectorV1>,
+        InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+    ) {
+        let (collector, receipt) = self.collected.into_parts();
+        (self.shell, collector, receipt)
+    }
 }
 
 impl CollectedCanonicalCallablePhysicalV1 {
@@ -90,6 +103,19 @@ impl CollectedCanonicalCallablePhysicalV1 {
 
     pub(in crate::mir) fn receipt_brand(&self) -> ModuleInvocationBrandV1 {
         self.collected.receipt_brand()
+    }
+
+    /// The only sibling-terminal unpack authority for the collected physical
+    /// owner.  The shell, collector, and batch receipt move together.
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        BrandedShellV1<ModuleLoweringShellV1>,
+        BrandedCollectorV1<ModuleDraftCollectorV1>,
+        InvocationBranded<super::module_draft_collector::CallableCollectorBatchReceiptV1>,
+    ) {
+        let (collector, receipt) = self.collected.into_parts();
+        (self.shell, collector, receipt)
     }
 }
 

@@ -14,7 +14,13 @@ use super::module_invocation_owner_chain::InvocationBranded;
 mod receipt;
 mod callable_batch;
 mod collected_product;
+mod drain;
 mod root_batch;
+
+pub(in crate::mir::builder) use drain::{
+    CanonicalCollectorReceiptViewV1, CanonicalCollectorDrainErrorV1,
+    PreparedCanonicalCollectorDrainV1, RejectedCanonicalCollectorDrainV1,
+};
 
 pub(in crate::mir::builder) use callable_batch::{
     CallableCollectorBatchPrepareErrorV1, CallableCollectorDraftEntryV1,

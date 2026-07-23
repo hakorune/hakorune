@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-DRAIN0 実行タスク
 
-Status: **Active — ROOT0-DRAIN0-PHYSICAL0-BRIDGE0 is next**
+Status: **Active — ROOT0-DRAIN0-PHYSICAL0-PREP0 is next**
 
 Related:
 
@@ -247,6 +247,30 @@ consuming prepared extractor. It stores manifest-derived ordered keys and
 never falls back to `into_draft_functions()` as the correspondence proof.
 Add only narrow `pub(super) into_parts` methods to the collected physical
 wrappers; keep their fields private.
+
+### COLLECT0 closeout — 2026-07-23
+
+`module_draft_collector/drain.rs` now owns the keyed canonical collector
+preflight. It projects internal canonical keys from the neutral manifest,
+checks collector maps, draft signatures, receipt admissions, canonical
+inserted policy, and keyed symbol correspondence without mutating the
+collector, then emits a consuming prepared extractor whose `drain(self)`
+removes drafts in manifest order. The collected single/callable physical
+wrappers expose only narrow Builder-scoped consuming `into_parts` methods;
+their fields remain private.
+
+Evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo check -q --lib                         green
+RUSTFLAGS='-Awarnings' cargo test -q module_draft_collector::drain::tests --lib  1 passed
+git diff --check                                                   green
+bash tools/checks/current_state_pointer_guard.sh                   green
+```
+
+No shell mutation, completion-owned drain, production consumer, finalizer,
+external commit, retry, fallback, or Raw route change was added. Full
+brand/family/capability physical preflight remains the next `PREP0` row.
 
 ## ROOT0-DRAIN0-PHYSICAL0-PREP0 — physical preflight
 
