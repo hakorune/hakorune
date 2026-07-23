@@ -96,6 +96,18 @@ pub(in crate::mir) struct CanonicalDrainedCallablePhysicalV1 {
     pub(in crate::mir) inventory: CanonicalPhysicalDrainManifestV1,
 }
 
+impl CanonicalDrainedSinglePhysicalV1 {
+    pub(in crate::mir) fn receipt_brand(&self) -> ModuleInvocationBrandV1 {
+        self.receipt.brand()
+    }
+}
+
+impl CanonicalDrainedCallablePhysicalV1 {
+    pub(in crate::mir) fn receipt_brand(&self) -> ModuleInvocationBrandV1 {
+        self.receipt.brand()
+    }
+}
+
 impl CollectedCanonicalSinglePhysicalV1 {
     pub(in crate::mir) fn prepare_drain(
         self,

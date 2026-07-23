@@ -130,6 +130,8 @@ fn compiler_bridge_drains_a_plus_single_route() {
     };
     assert_eq!(product.physical.module.functions.len(), 1);
     assert!(product.physical.module.functions.contains_key("a_plus/1"));
+    assert_eq!(product.physical.receipt_brand(), product.token.brand());
+    assert_eq!(product.physical.brand, product.token.brand());
 }
 
 #[test]
@@ -175,6 +177,8 @@ fn compiler_bridge_completion_retains_single_physical_receipt() {
         CanonicalDrainedInvocationV1::Single(product) => {
             assert!(product.physical.module.functions.contains_key("single/0"));
             assert_eq!(product.physical.module.functions.len(), 1);
+            assert_eq!(product.physical.receipt_brand(), product.token.brand());
+            assert_eq!(product.physical.family, product.token.family());
         }
         CanonicalDrainedInvocationV1::Callable(_) => panic!("single route drained as callable"),
     }
@@ -210,6 +214,9 @@ fn compiler_bridge_completion_retains_acyclic_capability_and_receipt() {
             assert_eq!(product.physical.module.functions.len(), 2);
             assert!(product.physical.module.functions.contains_key("caller/1"));
             assert!(product.physical.module.functions.contains_key("callee/1"));
+            assert_eq!(product.physical.receipt_brand(), product.token.brand());
+            assert_eq!(product.capability.brand(), product.token.brand());
+            assert_eq!(product.capability.family(), product.token.family());
         }
         CanonicalDrainedInvocationV1::Single(_) => panic!("acyclic route drained as single"),
     }
@@ -242,6 +249,9 @@ fn compiler_bridge_completion_retains_recursive_capability_and_receipt() {
         CanonicalDrainedInvocationV1::Callable(product) => {
             assert_eq!(product.physical.module.functions.len(), 1);
             assert!(product.physical.module.functions.contains_key("loop/1"));
+            assert_eq!(product.physical.receipt_brand(), product.token.brand());
+            assert_eq!(product.capability.brand(), product.token.brand());
+            assert_eq!(product.capability.family(), product.token.family());
         }
         CanonicalDrainedInvocationV1::Single(_) => panic!("recursive route drained as single"),
     }
