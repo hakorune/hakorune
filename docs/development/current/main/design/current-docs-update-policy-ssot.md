@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-07-10
+Date: 2026-07-24
 Scope: current docs update policy for restart/current-lane pointers.
 Related:
   - AGENTS.md
@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/05-Restart-Quick-Resume.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md
+  - docs/development/current/main/design/current-docs-archive-policy-ssot.md
   - docs/development/current/main/workstreams/language-v1-convergence-current.md
   - tools/checks/current_state_pointer_guard.sh
 ---
@@ -105,6 +106,71 @@ Rules:
   not every one-off diagnostic probe;
 - no fast path lane opens unless current mimalloc perf evidence names a
   concrete owner family and a positive-net implementation path.
+
+## Ceremony Calibration and Proof Sunset Policy
+
+The cost of a row is approximately its ceremony cost multiplied by the number
+of route/stage cells. The project must reduce repeated cells without weakening
+source authority, fail-fast, or evidence requirements.
+
+Use the smallest ceremony tier that matches the novelty of the cell:
+
+- **T0 mechanical cell**: an already-selected owner-chain pattern is applied
+  to another route with no new authority, identity, failure stage, or policy.
+  Do not open a full consultation. Record the reused template, the
+  route-specific delta, one focused fixture, an existing batch/lane guard
+  assertion, and the sunset reference. A new per-cell guard is not allowed.
+- **T1 bounded extension**: an existing owner or policy gains a new field or
+  route-specific witness. Use a short design note and focused acceptance
+  evidence. Escalate to T2 if the extension changes who owns truth or failure.
+- **T2 new authority**: a new identity issuer, source authority, physical
+  owner, publication terminal, failure owner, or policy boundary. Require a
+  full design-stop brief before implementation.
+
+When the same owner-chain pattern appears in two routes, the next repeated
+route is a **batch-proof trigger**. Before adding a third hand-expanded cell,
+define one generic proof parameterized by a route specification. Preserve
+route-specific semantic witnesses; genericize transport and lifecycle only.
+Do not use a generic wrapper to hide a real policy difference.
+
+Every disconnected proof, parity fixture, compatibility adapter, or temporary
+guard must carry a sunset record with all four fields:
+
+```text
+sunset_id
+owner of the retirement decision
+retirement condition (normally production caller count = 0)
+target row/card and evidence required for deletion
+```
+
+“Delete later” without these fields is not a retirement plan. A proof-only
+addition may be accepted before its deletion row lands when production safety
+requires the scaffold, but the active card must reserve that deletion row and
+state the zero-consumer evidence. Repeated net additions with no retired
+scaffold are a cleanup/design-review trigger, not a reason to relax the
+contract.
+
+For every active card that changes proof scaffolding, record these fields:
+
+```text
+ceremony_tier
+sunset_id
+proof_inventory_before
+new_proofs
+retired_or_merged_proofs
+net_proof_delta
+sunset_budget
+sunset_row
+retire_when
+budget_repayment_evidence
+```
+
+The default target is `net_proof_delta <= 0`. A positive delta is allowed only
+for a T2 safety/ABI boundary and must name the sunset budget, repayment row,
+retirement condition, and evidence that will repay it. Mechanical cells may
+use the batch template and skip consultation, but they still need a focused
+fixture, an existing batch/lane guard assertion, and sunset metadata. A
+fast-path ceremony compresses repeated proof; it never waives proof.
 
 ## Active Docs Size Policy
 

@@ -154,7 +154,8 @@ steps:
 - keep reusable behavior guards, but move repeated row assertions into
   `manifest_runner.py` manifests;
 - delete a script only when active caller count is zero, durable proof ownership
-  has moved, and parity tests cover the manifest replacement;
+  has moved, and parity tests cover the manifest replacement; proof-sunset
+  budget repayment follows these H4/H5 retirement conditions;
 - retire the corresponding check-index row in the same commit.
 
 ### H5 - lifecycle enforcement

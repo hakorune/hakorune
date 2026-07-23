@@ -99,6 +99,19 @@ If a user-scoped Codex goal explicitly says to stop at design consultation, the
 goal should be considered complete at this stop point after the brief is ready
 and the worktree is clean.
 
+## Ceremony Tier Selection
+
+Before opening a new design consultation, classify the route/stage cell using
+the ceremony tiers, batch-proof trigger, and sunset requirements in
+`current-docs-update-policy-ssot.md`. In particular:
+
+1. reuse of an already-proven owner-chain pattern is mechanical fast-path work;
+2. a new source authority, identity issuer, physical owner, publication
+   terminal, failure owner, or policy boundary is a design-stop consultation;
+3. write the active card's proof-budget fields before adding scaffolding;
+4. every fast-path proof still needs a focused fixture, an existing batch/lane
+   guard assertion, and a sunset reference.
+
 ## Historical Sections
 
 Sections about these topics in `AGENTS.md` are historical unless the active
