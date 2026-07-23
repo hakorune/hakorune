@@ -48,7 +48,20 @@ impl RawSourceLocatorV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum OwnedRawRootProjectionV1 {
-    Script { statement_count: usize },
+    Script {
+        statement_count: usize,
+    },
+    App {
+        main: RawSourceLocatorV1,
+        static_children: Box<[RawSourceLocatorV1]>,
+        callable_main: RawSourceLocatorV1,
+    },
+}
+
+pub(in crate::mir) enum RawRootProjectionPartsV1 {
+    Script {
+        statement_count: usize,
+    },
     App {
         main: RawSourceLocatorV1,
         static_children: Box<[RawSourceLocatorV1]>,
@@ -57,6 +70,23 @@ pub(in crate::mir) enum OwnedRawRootProjectionV1 {
 }
 
 impl OwnedRawRootProjectionV1 {
+    pub(in crate::mir) fn into_plan_parts(self) -> RawRootProjectionPartsV1 {
+        match self {
+            Self::Script { statement_count } => {
+                RawRootProjectionPartsV1::Script { statement_count }
+            }
+            Self::App {
+                main,
+                static_children,
+                callable_main,
+            } => RawRootProjectionPartsV1::App {
+                main,
+                static_children,
+                callable_main,
+            },
+        }
+    }
+
     pub(in crate::mir) const fn is_script(&self) -> bool {
         matches!(self, Self::Script { .. })
     }
@@ -64,7 +94,32 @@ impl OwnedRawRootProjectionV1 {
     pub(in crate::mir::builder) fn first_static_child(&self) -> Option<&RawSourceLocatorV1> {
         match self {
             Self::Script { .. } => None,
-            Self::App { static_children, .. } => static_children.first(),
+            Self::App {
+                static_children, ..
+            } => static_children.first(),
+        }
+    }
+
+    pub(in crate::mir) fn main_locator(&self) -> Option<&RawSourceLocatorV1> {
+        match self {
+            Self::Script { .. } => None,
+            Self::App { main, .. } => Some(main),
+        }
+    }
+
+    pub(in crate::mir) fn static_child_locators(&self) -> &[RawSourceLocatorV1] {
+        match self {
+            Self::Script { .. } => &[],
+            Self::App {
+                static_children, ..
+            } => static_children,
+        }
+    }
+
+    pub(in crate::mir) fn callable_main_locator(&self) -> Option<&RawSourceLocatorV1> {
+        match self {
+            Self::Script { .. } => None,
+            Self::App { callable_main, .. } => Some(callable_main),
         }
     }
 
@@ -79,9 +134,7 @@ impl OwnedRawRootProjectionV1 {
             VerifiedRawRootExpansionV1::Script => Ok(Self::Script {
                 statement_count: statements.len(),
             }),
-            VerifiedRawRootExpansionV1::App(main) => {
-                Self::from_main_expansion(statements, main)
-            }
+            VerifiedRawRootExpansionV1::App(main) => Self::from_main_expansion(statements, main),
         }
     }
 
@@ -220,6 +273,12 @@ impl OwnedRawSourceV1 {
 
     pub(in crate::mir) fn ast(&self) -> &ASTNode {
         &self.ast
+    }
+
+    pub(in crate::mir) fn into_plan_parts(
+        self,
+    ) -> (ASTNode, RawSourceOriginV1, OwnedRawRootProjectionV1) {
+        (self.ast, self.origin, self.projection)
     }
 }
 

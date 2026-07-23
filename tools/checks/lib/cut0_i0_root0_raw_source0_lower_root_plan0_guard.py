@@ -16,6 +16,7 @@ PROD = (
     ROOT / "src/mir/compiler/mod.rs",
     ROOT / "src/runtime/mirbuilder_emit.rs",
 )
+PLAN = ROOT / "src/mir/compiler/raw_root_plan0.rs"
 
 
 def require(text: str, fragment: str, label: str) -> None:
@@ -48,6 +49,33 @@ def main() -> int:
     ):
         require(task, fragment, f"plan contract {fragment}")
     joined = "\n".join(path.read_text() for path in PROD)
+    compiler_mod = (ROOT / "src/mir/compiler/mod.rs").read_text()
+    require(
+        compiler_mod,
+        "pub(in crate::mir) mod raw_root_plan0;",
+        "source-only root plan registration",
+    )
+    plan = PLAN.read_text()
+    for fragment in (
+        "RawPhysicalRootIdentityV1",
+        "RawRootEnvironmentPlanV1",
+        "RawRootKindV1",
+        "script_plan_seals_physical_identity_and_schedule",
+        "app_plan_keeps_source_arity_separate_from_physical_root",
+    ):
+        require(plan, fragment, f"implementation {fragment}")
+    for fragment in (
+        "begin_raw_draft(",
+        "ModuleBuilderInvocationSessionV1",
+        "RawExpansionReceiptLedgerV1",
+        "capture_main(",
+        "complete_root(",
+        "finalize_module(",
+        "reserve_method_slot(",
+        "get_or_assign_type_id(",
+    ):
+        if fragment in plan:
+            raise AssertionError(f"forbidden PLAN0 effect/reference: {fragment}")
     if "execute_preflighted_module_invocation" in joined:
         raise AssertionError("outer executor is wired during ROOT0-PLAN0")
     if "begin_raw_draft(" in joined:
@@ -58,7 +86,7 @@ def main() -> int:
         ]
         if callers:
             raise AssertionError(f"unexpected Raw draft consumer: {callers}")
-    for path in (TASK, *PROD):
+    for path in (TASK, PLAN, *PROD):
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"file must remain below 800 lines: {path}")
     print(

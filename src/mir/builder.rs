@@ -61,8 +61,8 @@ mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 #[allow(dead_code)]
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
 pub(in crate::mir) use raw_source_projection::{
-    OwnedRawRootProjectionV1, OwnedRawSourceV1, RawSourceLocatorV1, RawSourceOriginV1,
-    RawSourceProjectionErrorV1,
+    OwnedRawRootProjectionV1, OwnedRawSourceV1, RawRootProjectionPartsV1, RawSourceLocatorV1,
+    RawSourceOriginV1, RawSourceProjectionErrorV1,
 };
 #[allow(dead_code)]
 mod main_pending_draft; // HEADERPORT0-I0-MAINPENDING0-S0 disconnected handoff
