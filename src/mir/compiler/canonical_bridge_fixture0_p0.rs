@@ -11,6 +11,8 @@ use super::source_bound_package::ExactCanonicalPreflightPlanV1;
 use super::{MirCompiler, VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1};
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 use crate::mir::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
+use crate::mir::verification::MirVerifier;
+use crate::mir::MirCompileResult;
 
 fn literal(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -237,6 +239,39 @@ fn assert_callable_completion(
     assert_eq!(product.physical.receipt_brand(), expected_brand);
     assert_eq!(product.capability.brand(), expected_brand);
     assert_eq!(product.capability.family(), expected_family);
+}
+
+fn finish_canonical_route<'a>(
+    compiler: &mut MirCompiler,
+    plan: ExactCanonicalPreflightPlanV1<'a>,
+    source_file: &str,
+    module_name: &str,
+) -> (ModuleInvocationBrandV1, MirCompileResult) {
+    let package = compiler.bind_canonical_source(plan).unwrap();
+    let brand = package.brand();
+    let finalized = compiler
+        .begin_canonical_invocation(package, Some(source_file), module_name.to_owned())
+        .unwrap()
+        .lower()
+        .unwrap()
+        .collect()
+        .unwrap()
+        .complete()
+        .unwrap()
+        .prepare_drain()
+        .unwrap()
+        .drain()
+        .prepare_finalization()
+        .unwrap();
+    let finalized = super::canonical_finalization::CanonicalModuleFinalizerV1::finalize(finalized)
+        .unwrap();
+    let mut verifier = MirVerifier::new();
+    let processed = super::module_postprocess::ModulePostprocessOwnerV1::new(&mut verifier, false)
+        .run(finalized)
+        .unwrap();
+    let prepared = compiler.prepare_module_external_commit(processed).unwrap();
+    let result = compiler.commit_prepared_module(prepared);
+    (brand, result)
 }
 
 #[test]
@@ -481,4 +516,78 @@ fn canonical_bridge_fixture0_recursive_acyclic_witness_parity() {
         recursive_product.capability.family(),
         ModuleInvocationFamilyV1::BindingSsaRecursive
     );
+}
+
+#[test]
+fn p0_r1_canonical_four_route_real_authority_chain() {
+    let mut compiler = MirCompiler::with_options(false);
+
+    let a_plus = a_plus_source();
+    let a_plus_plan = match CanonicalLoweringPreflightV1::verify(&a_plus).unwrap() {
+        CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {
+            ExactCanonicalPreflightPlanV1::APlus(plan)
+        }
+        _ => panic!("P0-R1 A+ route changed preflight family"),
+    };
+    let (a_plus_brand, a_plus_result) =
+        finish_canonical_route(&mut compiler, a_plus_plan, "p0_r1_a_plus.hako", "p0_r1_a_plus");
+    assert!(a_plus_result
+        .module
+        .functions
+        .contains_key("a_plus_fixture/1"));
+    assert!(a_plus_result.verification_result.is_ok());
+
+    let trivial = trivial_source();
+    let trivial_plan = match CanonicalLoweringPreflightV1::verify(&trivial).unwrap() {
+        CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {
+            ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan)
+        }
+        _ => panic!("P0-R1 trivial route changed preflight family"),
+    };
+    let (trivial_brand, trivial_result) = finish_canonical_route(
+        &mut compiler,
+        trivial_plan,
+        "p0_r1_trivial.hako",
+        "p0_r1_trivial",
+    );
+    assert!(trivial_result
+        .module
+        .functions
+        .contains_key("trivial_fixture/0"));
+    assert!(trivial_result.verification_result.is_ok());
+
+    let acyclic = acyclic_source();
+    let acyclic_plan = super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+        acyclic.module(),
+    )
+    .unwrap();
+    let (acyclic_brand, acyclic_result) = finish_canonical_route(
+        &mut compiler,
+        ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(acyclic_plan),
+        "p0_r1_acyclic.hako",
+        "p0_r1_acyclic",
+    );
+    assert!(acyclic_result.module.functions.contains_key("caller/1"));
+    assert!(acyclic_result.module.functions.contains_key("callee/1"));
+    assert!(acyclic_result.verification_result.is_ok());
+
+    let recursive = recursive_source();
+    let recursive_plan =
+        super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1::verify(
+            recursive.module(),
+        )
+        .unwrap();
+    let (recursive_brand, recursive_result) = finish_canonical_route(
+        &mut compiler,
+        ExactCanonicalPreflightPlanV1::BindingSsaRecursive(recursive_plan),
+        "p0_r1_recursive.hako",
+        "p0_r1_recursive",
+    );
+    assert!(recursive_result.module.functions.contains_key("loop/1"));
+    assert!(recursive_result.verification_result.is_ok());
+
+    assert_ne!(a_plus_brand, trivial_brand);
+    assert_ne!(trivial_brand, acyclic_brand);
+    assert_ne!(acyclic_brand, recursive_brand);
+    assert!(compiler.builder.current_module.is_none());
 }

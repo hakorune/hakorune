@@ -193,6 +193,9 @@ mod tests {
     use crate::mir::{
         BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
     };
+    use crate::mir::compiler::module_postprocess::ModulePostprocessOwnerV1;
+    use crate::mir::compiler::MirCompiler;
+    use crate::mir::verification::MirVerifier;
 
     fn draft(symbol: &str, arity: usize) -> MirFunction {
         MirFunction::new(
@@ -372,5 +375,45 @@ mod tests {
             )
         ));
         assert_eq!(rejected.owner.token.brand(), brand);
+    }
+
+    #[test]
+    fn p0_r1_raw_real_authority_chain() {
+        let (token, complete) = raw_complete();
+        let brand = token.brand();
+        let shell = InvocationBranded::from_test(
+            brand,
+            ModuleLoweringShellV1::from_empty_module(MirModule::new("p0_r1_raw".into()))
+                .unwrap(),
+        );
+        let active_session = session(&token);
+        let physical = complete.bind_physical(token, active_session, shell).unwrap();
+        let physical = physical.prepare_finalization().unwrap();
+        let finalized = crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::prepare(
+            physical,
+        )
+        .unwrap();
+        let finalized = crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::finalize(
+            finalized,
+        );
+        let mut verifier = MirVerifier::new();
+        let processed = ModulePostprocessOwnerV1::new(&mut verifier, false)
+            .run_raw(finalized)
+            .unwrap();
+        let mut compiler = MirCompiler::with_options(false);
+        let prepared = compiler.prepare_module_external_commit(processed).unwrap();
+        let result = compiler.commit_prepared_module(prepared);
+
+        assert!(result.verification_result.is_ok());
+        assert!(result
+            .module
+            .functions
+            .keys()
+            .any(|symbol| symbol.starts_with("main")));
+        assert!(result
+            .module
+            .functions
+            .keys()
+            .any(|symbol| symbol.starts_with("condition_fn")));
     }
 }

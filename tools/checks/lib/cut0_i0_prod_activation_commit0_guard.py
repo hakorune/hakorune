@@ -61,15 +61,20 @@ def main() -> int:
         if forbidden in texts["commit"]:
             raise AssertionError(f"COMMIT0 product leaks activation authority: {forbidden}")
 
-    production = [
-        path.relative_to(ROOT)
-        for path in ROOT.glob("src/**/*.rs")
-        if path not in (FILES["commit"], FILES["fixture"])
-        and not path.name.endswith("_p0.rs")
-        and not path.name.endswith("_tests.rs")
-        and "tests" not in path.parts
-        and "commit_prepared_module(" in path.read_text()
-    ]
+    production = []
+    raw_physical = ROOT / "src/mir/builder/raw_physical_finalization.rs"
+    for path in ROOT.glob("src/**/*.rs"):
+        if path in (FILES["commit"], FILES["fixture"]):
+            continue
+        if path.name.endswith("_p0.rs") or path.name.endswith("_tests.rs"):
+            continue
+        if "tests" in path.parts:
+            continue
+        text = path.read_text()
+        if path == raw_physical:
+            text = text.split("#[cfg(test)]", 1)[0]
+        if "commit_prepared_module(" in text:
+            production.append(path.relative_to(ROOT))
     if production:
         raise AssertionError(f"COMMIT0 has production consumers: {production}")
 

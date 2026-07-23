@@ -26,7 +26,14 @@ def main() -> int:
         if len(texts[name].splitlines()) >= 800:
             raise AssertionError(f"POST0-RAW-S0 file must remain below 800 lines: {path}")
 
-    require(texts["task"], "## POST0-RAW-S0 — Raw finalization input (next)", "Raw boundary")
+    if not any(
+        heading in texts["task"]
+        for heading in (
+            "## POST0-RAW-S0 — Raw finalization input (next)",
+            "## POST0-RAW-S0 — Raw finalization input (closed)",
+        )
+    ):
+        raise AssertionError("missing Raw boundary heading")
     for fragment in (
         "RawPhysicalCompleteInvocationV1",
         "RawFinalizationInputV1",

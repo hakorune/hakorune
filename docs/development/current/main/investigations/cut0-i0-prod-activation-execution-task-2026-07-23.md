@@ -280,6 +280,25 @@ panic failures. Every failure proves publication and retry remain zero.
 
 Production consumers stay zero while P0-R1 is disconnected.
 
+P0-R1 success slice (2026-07-23):
+
+```text
+The canonical A+, trivial, acyclic, and recursive fixtures now consume the
+real compiler-owned bridge through drain, route finalization, family-owned
+postprocess, and the paired external-commit terminal. A Raw fixture consumes
+the retained Raw root/physical owner through the same finalization,
+postprocess, and paired commit boundary. The Raw fixture uses the existing
+test-only Raw root issuer because no production Raw source-bound ingress exists
+yet; this is evidence only and does not authorize production wiring.
+
+The five success routes are green and the P0-R1 guard proves the complete
+disconnected chain with production consumers still at zero. Child/root/batch,
+typed failure, panic, and commit-zero outcome rows remain open under P0-R1.
+```
+
+Next P0-R1 slice: add the real-authority failure matrix and keep the outer
+executor/CUT0 activation boundary disconnected.
+
 ## Atomic CUT0/G0
 
 In one activation patch, route all public canonical and legacy ingress wrappers
