@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-DRAIN0 実行タスク
 
-Status: **Active — ROOT0-DRAIN0-PHYSICAL0-PREP0 is next**
+Status: **Active — ROOT0-DRAIN0-PHYSICAL0-I0 is next**
 
 Related:
 
@@ -279,6 +279,34 @@ admissions before any shell mutation. Reject foreign brand/family,
 missing/surplus/duplicate rows, identity/symbol/arity drift, legacy policy,
 replacement drift, and a published shell. Return a rejected owner with no
 retry or replacement-manifest terminal.
+
+### PREP0 closeout — 2026-07-23
+
+Builder now owns route-specific mutation-free physical preflight products for
+single and callable collections. Each terminal checks manifest/shell/collector/
+receipt brand, canonical family shape, empty shell, receipt collector-brand
+provenance, and delegates keyed identity/symbol/arity/policy/replacement and
+cardinality checks to the COLLECT0 prepared extractor. Rejected products retain
+the unpublished shell, collector, and receipt; no shell mutation or retry
+terminal is introduced.
+
+The completion guard now distinguishes a physical/session brand mismatch
+(`ForeignBrand`) from a callable capability brand/family mismatch
+(`CapabilityMismatch`) before the completion product is published.
+
+Evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo check -q --lib                         green
+RUSTFLAGS='-Awarnings' cargo test -q canonical_physical_completion_p0 --lib  3 passed
+RUSTFLAGS='-Awarnings' cargo test -q module_draft_collector::drain::tests --lib  1 passed
+git diff --check                                                   green
+bash tools/checks/current_state_pointer_guard.sh                   green
+```
+
+No completion-owned drain, shell publication, finalizer, external commit,
+retry, fallback, or Raw route change was added. The next executable row is
+`ROOT0-DRAIN0-PHYSICAL0-I0`.
 
 ## ROOT0-DRAIN0-PHYSICAL0-I0 — completion-owned drain
 

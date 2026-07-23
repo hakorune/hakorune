@@ -71,21 +71,33 @@ impl<'a> CollectedCanonicalPhysicalInvocationV1<'a> {
                 session,
                 physical,
                 ..
-            } if same_brand(token, session, physical.brand(), physical.receipt_brand()) => {}
+            } => {
+                if !same_brand(token, session, physical.brand(), physical.receipt_brand()) {
+                    return Err(RejectedCanonicalPhysicalCompletionV1 {
+                        owner: self,
+                        error: CanonicalPhysicalCompletionErrorV1::ForeignBrand,
+                    });
+                }
+            }
             Self::Callable {
                 token,
                 session,
                 capability,
                 physical,
                 ..
-            } if same_brand(token, session, physical.brand(), physical.receipt_brand())
-                && capability.brand() == token.brand()
-                && capability.family() == token.family() => {}
-            _ => {
-                return Err(RejectedCanonicalPhysicalCompletionV1 {
-                    owner: self,
-                    error: CanonicalPhysicalCompletionErrorV1::ForeignBrand,
-                })
+            } => {
+                if !same_brand(token, session, physical.brand(), physical.receipt_brand()) {
+                    return Err(RejectedCanonicalPhysicalCompletionV1 {
+                        owner: self,
+                        error: CanonicalPhysicalCompletionErrorV1::ForeignBrand,
+                    });
+                }
+                if capability.brand() != token.brand() || capability.family() != token.family() {
+                    return Err(RejectedCanonicalPhysicalCompletionV1 {
+                        owner: self,
+                        error: CanonicalPhysicalCompletionErrorV1::CapabilityMismatch,
+                    });
+                }
             }
         }
 
