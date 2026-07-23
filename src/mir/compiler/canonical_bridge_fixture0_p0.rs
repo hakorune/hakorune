@@ -12,7 +12,7 @@ use super::{MirCompiler, VerifiedResolvedCallableProgramV1, VerifiedResolvedSour
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 use crate::mir::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
 use crate::mir::verification::MirVerifier;
-use crate::mir::MirCompileResult;
+use crate::mir::{MirCompileResult, MirModule};
 
 fn literal(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -589,5 +589,42 @@ fn p0_r1_canonical_four_route_real_authority_chain() {
     assert_ne!(a_plus_brand, trivial_brand);
     assert_ne!(trivial_brand, acyclic_brand);
     assert_ne!(acyclic_brand, recursive_brand);
+    assert!(compiler.builder.current_module.is_none());
+}
+
+#[test]
+fn p0_r1_real_authority_readiness_failure_keeps_commit_zero() {
+    let source = trivial_source();
+    let plan = match CanonicalLoweringPreflightV1::verify(&source).unwrap() {
+        CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {
+            ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan)
+        }
+        _ => panic!("P0-R1 failure fixture must remain trivial SSA"),
+    };
+    let mut compiler = MirCompiler::with_options(false);
+    let package = compiler.bind_canonical_source(plan).unwrap();
+    let completion = compiler
+        .begin_canonical_invocation(package, Some("p0_r1_failure.hako"), "p0_r1_failure".into())
+        .unwrap()
+        .lower()
+        .unwrap()
+        .collect()
+        .unwrap()
+        .complete()
+        .unwrap();
+    let drained = completion.prepare_drain().unwrap().drain();
+    let super::canonical_physical_completion::CanonicalDrainedInvocationV1::Single(mut product) =
+        drained
+    else {
+        panic!("P0-R1 readiness fixture changed route shape")
+    };
+    product.session.builder_mut().current_module = Some(MirModule::new("open".into()));
+    let rejected = super::canonical_physical_completion::CanonicalDrainedInvocationV1::Single(product)
+        .prepare_finalization()
+        .expect_err("open candidate Builder must reject before commit");
+    assert!(matches!(
+        rejected.error,
+        super::canonical_finalization::CanonicalFinalizationErrorV1::BuilderReadiness(_)
+    ));
     assert!(compiler.builder.current_module.is_none());
 }
