@@ -102,6 +102,21 @@ impl CollectedCanonicalSinglePhysicalV1 {
     ) -> Self {
         Self { shell, collected }
     }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn publish_probe_for_test(&mut self) {
+        self.shell
+            .payload_mut()
+            .publish_function_for_test(crate::mir::MirFunction::new(
+                crate::mir::FunctionSignature {
+                    name: "published/0".to_owned(),
+                    params: Vec::new(),
+                    return_type: crate::mir::MirType::Integer,
+                    effects: crate::mir::EffectMask::PURE,
+                },
+                crate::mir::BasicBlockId::new(0),
+            ));
+    }
 }
 
 impl CollectedCanonicalCallablePhysicalV1 {

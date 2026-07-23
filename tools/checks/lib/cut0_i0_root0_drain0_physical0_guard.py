@@ -121,6 +121,16 @@ def main() -> int:
         raise AssertionError("canonical completion must expose exactly one prepare_drain definition")
     if texts[COMPLETE].count("pub(in crate::mir) fn drain(self)") != 1:
         raise AssertionError("canonical completion must expose exactly one drain definition")
+    physical_prepare_calls = texts[COMPLETE].count("physical.prepare_drain(manifest)")
+    if physical_prepare_calls != 2:
+        raise AssertionError(
+            f"canonical completion must have exactly two route physical prepare consumers: {physical_prepare_calls}"
+        )
+    physical_drain_calls = texts[COMPLETE].count("physical.drain()")
+    if physical_drain_calls != 2:
+        raise AssertionError(
+            f"canonical completion must have exactly two route physical drain consumers: {physical_drain_calls}"
+        )
     for path in (COMPLETE, PHYSICAL, COLLECTOR_DRAIN):
         if "retry(" in texts[path] or "prepare_again(" in texts[path]:
             raise AssertionError(f"canonical physical path exposes retry authority: {path}")
@@ -128,6 +138,7 @@ def main() -> int:
     for fixture in (
         "compiler_bridge_drains_a_plus_single_route",
         "compiler_bridge_completion_retains_single_physical_receipt",
+        "physical_prepare_failure_leaves_live_builder_unchanged",
         "compiler_bridge_completion_retains_acyclic_capability_and_receipt",
         "compiler_bridge_completion_retains_recursive_capability_and_receipt",
         "capability_brand_drift_is_not_misreported_as_foreign_physical_brand",
@@ -171,6 +182,7 @@ def main() -> int:
     print(
         "[cut0-i0-root0-drain0-physical0-guard] ok "
         "neutral=1 keyed_collect=1 prep=1 completion_drain=1 four_routes=1 "
+        f"physical_prepare_calls={physical_prepare_calls} physical_drain_calls={physical_drain_calls} "
         "legacy_callers=0 compiler_imports=0 below_800=1"
     )
     return 0

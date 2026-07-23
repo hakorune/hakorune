@@ -210,6 +210,14 @@ impl<'a> CollectedCanonicalPhysicalInvocationV1<'a> {
 }
 
 impl<'a> CanonicalPhysicalCompleteInvocationV1<'a> {
+    #[cfg(test)]
+    pub(in crate::mir) fn publish_single_shell_for_test(&mut self) {
+        match self {
+            Self::Single(product) => product.physical.publish_probe_for_test(),
+            Self::Callable(_) => panic!("single-shell test seam used for callable route"),
+        }
+    }
+
     /// Consume the complete invocation and perform all source/physical
     /// preparation before the one-shot Builder drain.  No shell mutation is
     /// reachable from this terminal.

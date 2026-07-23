@@ -1,5 +1,6 @@
 use super::canonical_physical_completion::{
-    CanonicalDrainedInvocationV1, CanonicalPhysicalCompletionErrorV1,
+    CanonicalDrainPrepareErrorV1, CanonicalDrainedInvocationV1,
+    CanonicalPhysicalCompletionErrorV1,
 };
 use super::source_bound_package::{
     CollectedCanonicalPhysicalInvocationV1, ExactCanonicalPreflightPlanV1,
@@ -183,6 +184,56 @@ fn compiler_bridge_completion_retains_single_physical_receipt() {
         CanonicalDrainedInvocationV1::Callable(_) => panic!("single route drained as callable"),
     }
     assert!(compiler.builder.current_module.is_none());
+}
+
+#[test]
+fn physical_prepare_failure_leaves_live_builder_unchanged() {
+    let source = super::VerifiedResolvedSourceUnitV1::resolve_function(
+        ASTNode::FunctionDeclaration {
+            name: "prepare_failure".into(),
+            params: Vec::new(),
+            param_decls: Vec::new(),
+            return_type_name: None,
+            body: vec![ASTNode::Return {
+                value: Some(Box::new(ASTNode::Literal {
+                    value: crate::ast::LiteralValue::Integer(1),
+                    span: Span::unknown(),
+                })),
+                span: Span::unknown(),
+            }],
+            uses: Vec::new(),
+            contracts: Vec::new(),
+            is_static: true,
+            is_override: false,
+            attrs: DeclarationAttrs::default(),
+            span: Span::unknown(),
+        },
+    )
+    .unwrap();
+    let plan = super::capability::CanonicalLoweringPreflightV1::verify(&source).unwrap();
+    let mut compiler = MirCompiler::new();
+    let package = compiler
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::from_first_family(plan))
+        .unwrap();
+    let mut complete = compiler
+        .begin_canonical_invocation(package, Some("prepare_failure.hako"), "prepare_failure".into())
+        .unwrap()
+        .lower()
+        .unwrap()
+        .collect()
+        .unwrap()
+        .complete()
+        .unwrap();
+    complete.publish_single_shell_for_test();
+    let live_before = compiler.builder.current_module.is_none();
+    let rejected = complete.prepare_drain().unwrap_err();
+    assert!(matches!(
+        rejected.error,
+        CanonicalDrainPrepareErrorV1::Physical(
+            crate::mir::builder::CanonicalPhysicalDrainPrepareErrorV1::PublishedShell { .. }
+        )
+    ));
+    assert_eq!(compiler.builder.current_module.is_none(), live_before);
 }
 
 #[test]
