@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT0 OWNER0 — ELIGIBILITY0-G0 evidence task
 
-Status: **Active — S0 implementation is green; evidence gaps only**  
+Status: **Closed — S0 evidence closeout green**
 Date: 2026-07-24
 
 ## Boundary

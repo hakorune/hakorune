@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT0 OWNER0 — ELIGIBILITY0-S0 execution task
 
-Status: **Closed — implementation green; S0-G0 evidence closeout active**
+Status: **Closed — implementation and S0-G0 evidence green**
 Date: 2026-07-24
 
 ## Decision
