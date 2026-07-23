@@ -317,10 +317,11 @@ preserving the legacy reportable-verifier contract. Canonical final-verifier
 failure remains fatal as recorded above.
 ```
 
-Next P0-R1 slice is paused at a design stop:
-`cut0-i0-prod-activation-p0-r1-failure-consultation-2026-07-23.md`.
-The outer executor/CUT0 activation boundary remains disconnected until the
-failure authority and rejected-owner policy are selected.
+The failure consultation is closed with Candidate F-prime-r1. The next row is
+**P0-R1-CLOSEOUT0** and is guard/docs/evidence-only. It must freeze the
+bounded publication-zero evidence and non-claims before the separate
+`OWNER-RETENTION0` and `POST-FAILURE0` rows. The outer executor/CUT0
+activation boundary remains disconnected.
 
 ### P0-R1 executable failure subrows
 
@@ -360,6 +361,38 @@ Do not add a verifier fixture that merely clears a function's block map: the
 current verifier accepts that shape. A final-verifier failure fixture must use
 a genuinely invalid MIR edge (for example, a jump to a non-existent block)
 and must be kept separate from the already-green success slice.
+
+## P0-R1-CLOSEOUT0 — bounded evidence freeze (next)
+
+This row is guard/docs/evidence-only. It does not add a fault field, malformed
+plan route, outer `catch_unwind`, ambient failure switch, retry, fallback, or
+production consumer.
+
+Acceptance:
+
+```text
+five success routes rerun = green
+readiness / published-shell / capability failures = green
+canonical final-verifier failure = green
+Raw reportable verifier error = green
+Raw root-batch admission failure = green
+production consumer census = 0
+source-bound plan contract remains unchanged
+non-claims are recorded in the consultation closeout
+```
+
+After this row, the remaining work is explicitly split:
+
+```text
+OWNER-RETENTION0
+  rejected-owner products for root/finalizer/postprocess failures
+
+POST-FAILURE0
+  deterministic optimizer/contract/RC failure evidence
+
+atomic CUT0/G0
+  only after the above rows and the required caller census are green
+```
 
 ## Atomic CUT0/G0
 

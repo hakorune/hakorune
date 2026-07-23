@@ -9,6 +9,7 @@ import pathlib
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 FILES = {
     "task": ROOT / "docs/development/current/main/investigations/cut0-i0-prod-activation-execution-task-2026-07-23.md",
+    "consultation": ROOT / "docs/development/current/main/investigations/cut0-i0-prod-activation-p0-r1-failure-consultation-2026-07-23.md",
     "canonical": ROOT / "src/mir/compiler/canonical_bridge_fixture0_p0.rs",
     "raw": ROOT / "src/mir/builder/raw_physical_finalization.rs",
     "raw_root": ROOT / "src/mir/builder/raw_root_completion.rs",
@@ -34,6 +35,14 @@ def main() -> int:
 
     require(texts["task"], "## P0-R1 — real-authority all-route proof", "P0-R1 row")
     require(texts["task"], "Production consumers stay zero", "disconnected stop line")
+    require(texts["task"], "## P0-R1-CLOSEOUT0", "closeout row")
+    require(texts["task"], "OWNER-RETENTION0", "owner-retention successor")
+    require(texts["task"], "POST-FAILURE0", "postprocess-failure successor")
+    require(texts["consultation"], "Candidate **F-prime-r1** is selected", "failure consultation closeout")
+    require(texts["consultation"], "Q1 CHILD                  = 2", "child decision")
+    require(texts["consultation"], "Q2 PANIC                  = 2", "panic decision")
+    require(texts["consultation"], "Q3 rejected-owner policy  = 3", "owner decision")
+    require(texts["consultation"], "Q4 postprocess failures   = 3", "postprocess decision")
     require(
         texts["canonical"],
         "p0_r1_canonical_four_route_real_authority_chain",

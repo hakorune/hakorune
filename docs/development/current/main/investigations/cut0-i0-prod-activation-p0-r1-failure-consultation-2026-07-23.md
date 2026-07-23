@@ -170,3 +170,35 @@ Select one candidate for Q1-Q4, identify which failure claims remain
 disconnected-only, and define the smallest next executable row. The decision
 must preserve the existing source-bound plan contract and must not introduce
 silent fallback, retry, or an ambient environment failure switch.
+
+## F-prime-r1 decision closeout — 2026-07-23
+
+Candidate **F-prime-r1** is selected:
+
+```text
+Q1 CHILD                  = 2  (existing lower-level owner/session proof)
+Q2 PANIC                  = 2  (disconnected outer-adapter proof)
+Q3 rejected-owner policy  = 3  (separate OWNER-RETENTION0 row)
+Q4 postprocess failures   = 3  (separate POST-FAILURE0 row)
+```
+
+P0-R1 closes only bounded publication-zero evidence observable at module
+terminals. It does not claim a real-authority child-failure or panic matrix,
+full rejected-owner retention, or typed optimizer/contract/RC failure matrix.
+
+The following are explicitly rejected before CUT0:
+
+```text
+fault disposition in verified source-bound plans
+malformed-plan injection route
+MirCompiler catch_unwind ingress
+route-specific panic terminals
+ambient environment failure switch
+retry or fallback after failure
+```
+
+The next executable row is **P0-R1-CLOSEOUT0** and is guard/docs/evidence
+only. It must re-run the five success routes and six bounded failure
+categories, verify production consumers remain zero, and freeze the non-claims
+above. `OWNER-RETENTION0` is mandatory before any production activation;
+`POST-FAILURE0` owns any later deterministic optimizer/contract/RC matrix.
