@@ -75,7 +75,7 @@ fn raw_bind_mints_one_compiler_owned_raw_token_after_projection() {
         package.continuation().callable_main(),
         super::super::builder::RawCallableMainCompatibilityDispositionV1::NotSelected
     );
-    assert!(package.continuation().root_projection().is_script());
+    assert!(package.source().projection().is_script());
     assert_eq!(package.config().source_file(), Some("script.hako"));
     assert_eq!(package.module_name(), "script");
     assert!(package.source().ast().to_string().starts_with("Program"));

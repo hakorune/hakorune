@@ -12,7 +12,7 @@ use super::calls::{
 };
 use super::function_signature_lookup::FunctionSignatureLookupV1;
 use super::module_draft_collector::{
-    CollectedDraftAdmissionReceiptV1, CompletedDraftSignatureViewV1, ModuleDraftCollectorV1,
+    CollectorReceiptBrandErrorV1, CompletedDraftSignatureViewV1, ModuleDraftCollectorV1,
 };
 use super::module_draft_collector::{
     DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftAdmissionErrorV1,
@@ -48,7 +48,7 @@ impl ResolvedChildDraftAdmissionV1 {
         }
     }
 
-    fn collector_parts(self) -> (FunctionDraftKeyV1, String, usize) {
+    pub(in crate::mir::builder) fn collector_parts(self) -> (FunctionDraftKeyV1, String, usize) {
         match self {
             Self::CanonicalResolvedOwner {
                 owner,
@@ -87,7 +87,7 @@ impl LegacyChildDraftAdmissionV1 {
         }
     }
 
-    fn collector_parts(self) -> (FunctionDraftKeyV1, String, usize) {
+    pub(in crate::mir::builder) fn collector_parts(self) -> (FunctionDraftKeyV1, String, usize) {
         let Self {
             symbol,
             arity,
@@ -106,6 +106,7 @@ impl LegacyChildDraftAdmissionV1 {
 pub(in crate::mir::builder) enum ModuleLoweringPortChildErrorV1 {
     Session(CanonicalFunctionSessionErrorV1),
     Admission(ModuleDraftAdmissionErrorV1),
+    ReceiptBrand(CollectorReceiptBrandErrorV1),
 }
 
 impl std::fmt::Display for ModuleLoweringPortChildErrorV1 {
@@ -113,6 +114,7 @@ impl std::fmt::Display for ModuleLoweringPortChildErrorV1 {
         match self {
             Self::Session(error) => error.fmt(formatter),
             Self::Admission(error) => error.fmt(formatter),
+            Self::ReceiptBrand(error) => error.fmt(formatter),
         }
     }
 }
@@ -201,7 +203,7 @@ impl ModuleLoweringPortV1<'_> {
         observe(&headers)
     }
 
-    fn prepare_draft_admission(
+    pub(in crate::mir::builder) fn prepare_draft_admission(
         &mut self,
         key: FunctionDraftKeyV1,
         expected_symbol: String,
@@ -245,38 +247,6 @@ impl ModuleLoweringPortV1<'_> {
         })
     }
 
-    /// Complete one legacy raw child through this invocation's collector.
-    ///
-    /// This disconnected terminal preserves the existing legacy whole-pair
-    /// replacement policy.  The port, rather than its caller, creates the
-    /// prepared admission so no foreign collector pairing can be supplied.
-    pub(in crate::mir::builder) fn complete_legacy_child(
-        &mut self,
-        builder: &mut MirBuilder,
-        body_snapshot: Vec<ASTNode>,
-        admission: LegacyChildDraftAdmissionV1,
-        lower: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
-    ) -> Result<CollectedDraftAdmissionReceiptV1, ModuleLoweringPortChildErrorV1> {
-        let (key, symbol, arity) = admission.collector_parts();
-        let pending = builder
-            .capture_legacy_function_pending_session_v1(&symbol, body_snapshot, lower)
-            .map_err(ModuleLoweringPortChildErrorV1::Session)?;
-        pending.complete_before_restore(|draft| {
-            let prepared = self
-                .prepare_draft_admission(
-                    key,
-                    symbol,
-                    arity,
-                    DraftPublicationPolicyV1::LegacyReplaceWholePair,
-                )
-                .map_err(ModuleLoweringPortChildErrorV1::Admission)?;
-            Ok(prepared
-                .seal(draft)
-                .map_err(ModuleLoweringPortChildErrorV1::Admission)?
-                .collect())
-        })
-    }
-
     /// Commit one already-captured resolved child after all body/header loans
     /// have ended.  S0 exposes the commit-only terminal but keeps it
     /// disconnected from production callers until the re-entrant cutover.
@@ -294,33 +264,6 @@ impl ModuleLoweringPortV1<'_> {
                     symbol,
                     arity,
                     DraftPublicationPolicyV1::CanonicalRejectDuplicate,
-                )
-                .map_err(ModuleLoweringPortChildErrorV1::Admission)?;
-            prepared
-                .seal(draft)
-                .map_err(ModuleLoweringPortChildErrorV1::Admission)?
-                .collect();
-            Ok(())
-        })
-    }
-
-    /// Commit one already-captured legacy child after all body/header loans
-    /// have ended.  No lowering closure or Builder is accepted here, so this
-    /// API is structurally commit-only.
-    #[allow(dead_code)]
-    pub(in crate::mir::builder) fn commit_legacy_pending(
-        &mut self,
-        pending: LegacyFunctionPendingSessionV1<'_>,
-        admission: LegacyChildDraftAdmissionV1,
-    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
-        let (key, symbol, arity) = admission.collector_parts();
-        pending.complete_before_restore(|draft| {
-            let prepared = self
-                .prepare_draft_admission(
-                    key,
-                    symbol,
-                    arity,
-                    DraftPublicationPolicyV1::LegacyReplaceWholePair,
                 )
                 .map_err(ModuleLoweringPortChildErrorV1::Admission)?;
             prepared
@@ -392,6 +335,14 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
             "disconnected-invocation".to_owned(),
         ))
         .expect("empty disconnected invocation shell");
+        Self::with_shell_collector(builder, shell, collector)
+    }
+
+    pub(in crate::mir::builder) fn with_shell_collector(
+        builder: &'builder mut MirBuilder,
+        shell: ModuleLoweringShellV1,
+        collector: ModuleDraftCollectorV1,
+    ) -> Self {
         Self {
             builder,
             state: ModuleLoweringInvocationStateV1::new(shell, collector),
@@ -458,6 +409,10 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
         self.state
             .collector_mut()
             .prepare_admission(key, expected_symbol, expected_arity, policy)
+    }
+
+    pub(in crate::mir::builder) fn into_state(self) -> ModuleLoweringInvocationStateV1 {
+        self.state
     }
 }
 

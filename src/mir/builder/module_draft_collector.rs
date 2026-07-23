@@ -88,6 +88,14 @@ pub(in crate::mir::builder) enum CollectorReceiptBrandErrorV1 {
     CollectorUnbranded,
 }
 
+impl std::fmt::Display for CollectorReceiptBrandErrorV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(formatter, "[freeze:contract][module_draft/receipt_brand] {self:?}")
+    }
+}
+
+impl std::error::Error for CollectorReceiptBrandErrorV1 {}
+
 impl std::fmt::Display for ModuleDraftAdmissionErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(

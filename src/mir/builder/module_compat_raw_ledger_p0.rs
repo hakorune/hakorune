@@ -104,7 +104,8 @@ fn abort_reason(error: &ModuleLoweringPortChildErrorV1) -> RawExpansionAbortReas
         ModuleLoweringPortChildErrorV1::Session(CanonicalFunctionSessionErrorV1::Publication(
             _,
         ))
-        | ModuleLoweringPortChildErrorV1::Admission(_) => RawExpansionAbortReasonV1::Admission,
+        | ModuleLoweringPortChildErrorV1::Admission(_)
+        | ModuleLoweringPortChildErrorV1::ReceiptBrand(_) => RawExpansionAbortReasonV1::Admission,
     }
 }
 

@@ -281,6 +281,36 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         Ok(pending)
     }
 
+    pub(in crate::mir::builder) fn complete_static_box_method_branded(
+        &mut self,
+        builder: &mut MirBuilder,
+        admission: LegacyChildDraftAdmissionV1,
+        function_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<
+        super::module_invocation_owner_chain::InvocationBranded<
+            super::module_draft_collector::CollectedDraftAdmissionReceiptV1,
+        >,
+        ModuleLoweringPortChildErrorV1,
+    > {
+        let pending = self.capture_static_box_method_pending_v1(
+            builder,
+            function_name,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )?;
+        self.module_port.commit_legacy_pending_branded(pending, admission)
+    }
+
     /// Instance counterpart of the port-aware capture seam.
     pub(in crate::mir::builder) fn capture_instance_box_method_pending_v1<'builder>(
         &mut self,

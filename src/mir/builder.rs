@@ -153,6 +153,7 @@ mod module_lowering_borrow_root_p0d; // HEADERPORT0 WIRING-I0-BORROW-P0-ROOT-P0d
 #[allow(dead_code)]
 mod module_lowering_borrow_schedule; // HEADERPORT0 WIRING-I0-BORROW-S0 passive schedule
 mod module_lowering_invocation;
+mod module_lowering_invocation_legacy_term;
 #[allow(dead_code)]
 mod module_lowering_invocation_access; // HEADERPORT0 WIRING-S0 live bundle
 #[cfg(test)]
@@ -178,6 +179,13 @@ mod raw_expansion_receipt_ledger; // ROUTEINV-P0b-RAWLEDGER-S0 disconnected owne
 pub(in crate::mir) use raw_expansion_receipt_ledger::{
     RawCallableMainCompatibilityDispositionV1, SealedRawExpansionReceiptLedgerV1,
 };
+#[allow(dead_code)]
+mod raw_draft_invocation; // RAW-SOURCE0-LOWER0-S0 disconnected child-draft owner
+pub(in crate::mir) use raw_draft_invocation::{
+    RawDraftInvocationV1, RejectedRawDraftInvocationV1,
+};
+#[cfg(test)]
+mod raw_draft_invocation_p0; // RAW-SOURCE0-LOWER0-S0 fixtures
 #[cfg(test)]
 mod raw_expansion_receipt_ledger_p0; // ROUTEINV-P0b-RAWLEDGER-P0 proof matrix
 #[cfg(test)]

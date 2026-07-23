@@ -9,7 +9,7 @@ use super::lowering_input::{LegacyModuleLoweringInputV1, LegacyModuleOriginV1};
 use super::source_bound_package::{InvocationIdentityIssuerV1, SourceBindingErrorV1};
 use crate::ast::ASTNode;
 use crate::mir::builder::{
-    BuilderInvocationConfigV1, OwnedRawRootProjectionV1, OwnedRawSourceV1,
+    BuilderInvocationConfigV1, OwnedRawSourceV1,
     RawCallableMainCompatibilityDispositionV1, RawSourceOriginV1, RawSourceProjectionErrorV1,
 };
 use crate::mir::module_invocation_identity::{
@@ -58,7 +58,6 @@ pub(in crate::mir) enum RawSourceBindingErrorV1 {
 #[derive(Debug)]
 pub(in crate::mir) struct RawSourceContinuationV1 {
     origin: RawSourceOriginV1,
-    root_projection: OwnedRawRootProjectionV1,
     callable_main: RawCallableMainCompatibilityDispositionV1,
     policy: ModuleInvocationPolicyV1,
 }
@@ -76,9 +75,6 @@ impl RawSourceContinuationV1 {
         self.policy
     }
 
-    pub(in crate::mir) const fn root_projection(&self) -> &OwnedRawRootProjectionV1 {
-        &self.root_projection
-    }
 }
 
 #[derive(Debug)]
@@ -147,7 +143,6 @@ impl SourceBoundRawPackageV1 {
         };
         let continuation = RawSourceContinuationV1 {
             origin: source.origin(),
-            root_projection: source.projection().clone(),
             callable_main: disposition,
             policy: ModuleInvocationPolicyV1::policy_for_family(ModuleInvocationFamilyV1::Raw),
         };
@@ -197,6 +192,27 @@ impl SourceBoundRawPackageV1 {
 
     pub(in crate::mir) fn module_name(&self) -> &str {
         &self.module_name
+    }
+
+    /// LOWER0's only source/package handoff.  The owned source retains the
+    /// projection; the continuation carries policy only, so locator authority
+    /// is not cloned into a second owner.
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (
+        ModuleInvocationTokenV1,
+        OwnedRawSourceV1,
+        RawSourceContinuationV1,
+        BuilderInvocationConfigV1,
+        Box<str>,
+    ) {
+        (
+            self.token,
+            self.source,
+            self.continuation,
+            self.config,
+            self.module_name,
+        )
     }
 }
 

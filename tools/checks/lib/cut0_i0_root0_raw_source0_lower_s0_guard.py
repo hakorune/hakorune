@@ -12,6 +12,9 @@ TASK = ROOT / (
     "docs/development/current/main/investigations/"
     "cut0-i0-raw-source0-lower-execution-task-2026-07-23.md"
 )
+OWNER = ROOT / "src/mir/builder/raw_draft_invocation.rs"
+OWNER_TEST = ROOT / "src/mir/builder/raw_draft_invocation_p0.rs"
+BRANDED_TERM = ROOT / "src/mir/builder/module_lowering_invocation_legacy_term.rs"
 CARD = ROOT / (
     "docs/development/current/main/investigations/"
     "cut0-i0-raw-source0-lower-consultation-2026-07-23.md"
@@ -54,6 +57,20 @@ def main() -> int:
         "below 800 lines",
     ):
         require(task, fragment, f"task boundary {fragment}")
+    for path, fragments in (
+        (
+            OWNER,
+            ("RawDraftInvocationV1", "RawChildWorkRequestV1", "lower_first_static_child"),
+        ),
+        (
+            BRANDED_TERM,
+            ("complete_legacy_child_branded", "commit_legacy_pending_branded"),
+        ),
+        (OWNER_TEST, ("raw_s0_child_uses_one_source_to_collector_to_ledger_chain",)),
+    ):
+        text = path.read_text()
+        for fragment in fragments:
+            require(text, fragment, f"implementation {path.name}:{fragment}")
     joined = "\n".join(path.read_text() for path in PROD)
     if "execute_preflighted_module_invocation" in joined:
         raise AssertionError("outer executor is wired during LOWER0-S0")
@@ -65,7 +82,7 @@ def main() -> int:
         ]
         if callers:
             raise AssertionError(f"unexpected Raw binding caller: {callers}")
-    for path in (TASK, CARD, *PROD):
+    for path in (TASK, CARD, OWNER, OWNER_TEST, BRANDED_TERM, *PROD):
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"file must remain below 800 lines: {path}")
     print(

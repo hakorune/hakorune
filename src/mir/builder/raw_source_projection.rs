@@ -61,6 +61,13 @@ impl OwnedRawRootProjectionV1 {
         matches!(self, Self::Script { .. })
     }
 
+    pub(in crate::mir::builder) fn first_static_child(&self) -> Option<&RawSourceLocatorV1> {
+        match self {
+            Self::Script { .. } => None,
+            Self::App { static_children, .. } => static_children.first(),
+        }
+    }
+
     pub(in crate::mir::builder) fn from_verified(
         source: &ASTNode,
         expansion: &VerifiedRawRootExpansionV1<'_>,

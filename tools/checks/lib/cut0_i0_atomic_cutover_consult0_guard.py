@@ -42,16 +42,24 @@ def main() -> int:
     compat = COMPAT.read_text()
     config = CONFIG.read_text()
 
-    require(
-        state,
-        'current_design_stop = "RAW-SOURCE0-LOWER0-CONSULT0"',
-        "Raw lowering design-stop pointer",
-    )
-    require(
-        state,
-        'latest_card = "cut0-i0-raw-source0-lower-consultation-2026-07-23"',
-        "latest Raw lowering consultation card",
-    )
+    if 'current_execution_row = "RAW-SOURCE0-LOWER0-S0"' in state:
+        require(
+            state,
+            'latest_card = "cut0-i0-raw-source0-lower-execution-task-2026-07-23"',
+            "latest Raw lowering execution card",
+        )
+        require(raw_card, "LOWER0-D0 closeout", "Raw lowering decision closeout")
+    else:
+        require(
+            state,
+            'current_design_stop = "RAW-SOURCE0-LOWER0-CONSULT0"',
+            "Raw lowering design-stop pointer",
+        )
+        require(
+            state,
+            'latest_card = "cut0-i0-raw-source0-lower-consultation-2026-07-23"',
+            "latest Raw lowering consultation card",
+        )
     for question in ("Q1 — atomic executor scope", "Q2 — Raw source authority", "Q3 — AST JSON"):
         require(card, question, f"consultation question {question}")
     for fragment in (
