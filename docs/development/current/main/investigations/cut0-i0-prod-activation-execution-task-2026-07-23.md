@@ -505,6 +505,22 @@ postprocess, and external commit consumers remain zero. ROOT-RETENTION0-COMMIT
 is the next executable row; TOKEN-HANDOFF remains separate.
 ```
 
+ROOT-RETENTION0-COMMIT closeout (2026-07-23):
+
+```text
+PreparedRawRootCompletionV1::commit(self) is now the only consuming mutation
+terminal. It moves the collector-issued Main/condition receipts, root-body
+witness, and sealed ledger into RawCompleteInvocationV1; all remaining error
+branches are invariant failures after the borrowed preflight, not semantic
+rejection paths. The focused commit fixture proves one complete root pair and
+the guard verifies the single commit terminal and zero production consumers.
+
+TOKEN-HANDOFF remains separate: RawCompleteInvocationV1 still exposes the
+existing brand-only physical bridge until the next row removes loose token
+re-entry. Production Raw ingress, finalizer, postprocess, and external commit
+remain disconnected.
+```
+
 OWNER-RETENTION0-FINAL progress (2026-07-23):
 
 ```text

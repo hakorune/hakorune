@@ -8,6 +8,28 @@ use super::super::raw_expansion_receipt_ledger::RawExpansionReservationV1;
 use super::{RawExpansionReceiptLedgerErrorV1, RawExpansionReceiptLedgerV1};
 
 impl RawExpansionReceiptLedgerV1 {
+    /// Commit a root pair after borrowed reservation/history validation. Any
+    /// error here is an internal proof break, not a recoverable root failure.
+    pub(in crate::mir::builder) fn commit_required_root_batch_preflighted(
+        &mut self,
+        main_reservation: RawExpansionReservationV1,
+        main: &super::super::module_invocation_owner_chain::InvocationBranded<
+            super::super::module_draft_collector::CollectedDraftAdmissionReceiptV1,
+        >,
+        condition_reservation: RawExpansionReservationV1,
+        condition: &super::super::module_invocation_owner_chain::InvocationBranded<
+            super::super::module_draft_collector::CollectedDraftAdmissionReceiptV1,
+        >,
+    ) {
+        self.complete_required_root_batch(
+            main_reservation,
+            main,
+            condition_reservation,
+            condition,
+        )
+        .unwrap_or_else(|_| unreachable!("root ledger preflight drifted before commit"));
+    }
+
     /// Borrow-only reservation/history validation for the required Raw root
     /// pair. No open reservation, event, or index is changed here; the
     /// retention preflight can return the complete ledger owner on failure.

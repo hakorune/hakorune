@@ -7,11 +7,12 @@
 use super::module_draft_collector::{ModuleDraftCollectorV1, RootCollectorBatchPrepareErrorV1};
 use super::module_invocation_identity::ModuleInvocationTokenV1;
 use super::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
-use super::module_invocation_owner_chain::BrandedCollectorV1;
+use super::module_invocation_owner_chain::{BrandedCollectorV1, InvocationBranded};
 use super::raw_expansion_receipt_ledger::{
     RawCallableMainCompatibilityDispositionV1, RawExpansionReceiptLedgerErrorV1,
     RawExpansionReceiptLedgerV1, RawExpansionReservationV1,
 };
+use super::raw_root_completion::RawCompleteInvocationV1;
 use super::root_draft_batch::PreparedRootDraftBatchV1;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -135,6 +136,63 @@ impl PreparedRawRootCompletionV1 {
     pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
         self.input.brand()
     }
+
+    /// The only mutation terminal after borrowed preflight. All fallible
+    /// branches below are invariant checks; semantic rejection happened in
+    /// `RawRootCompletionInputV1::prepare`.
+    pub(in crate::mir::builder) fn commit(self) -> RawCompleteInvocationV1 {
+        let RawRootCompletionInputV1 {
+            token,
+            collector,
+            ledger,
+            batch,
+            main_reservation,
+            condition_reservation,
+            callable_main,
+        } = self.input;
+        let brand = token.brand();
+        let prepared = collector
+            .into_payload()
+            .prepare_root_batch_preflighted(batch);
+        let (collector, branded_receipt) = prepared
+            .commit_branded()
+            .unwrap_or_else(|_| unreachable!("branded root collector proof drifted"));
+        let (admissions, root_body, receipt_brand) = branded_receipt.into_parts();
+        assert_eq!(receipt_brand, brand, "root receipt brand proof drifted");
+        let mut main = None;
+        let mut condition = None;
+        for receipt in admissions.into_vec() {
+            match receipt.payload().key() {
+                super::module_draft_collector::FunctionDraftKeyV1::Main => main = Some(receipt),
+                super::module_draft_collector::FunctionDraftKeyV1::SyntheticConditionFn => {
+                    condition = Some(receipt)
+                }
+                _ => unreachable!("raw root collector emitted a non-root receipt"),
+            }
+        }
+        let main = main.unwrap_or_else(|| unreachable!("raw root Main receipt disappeared"));
+        let condition =
+            condition.unwrap_or_else(|| unreachable!("raw root condition receipt disappeared"));
+        let mut ledger = ledger;
+        ledger.commit_required_root_batch_preflighted(
+            main_reservation,
+            &main,
+            condition_reservation,
+            &condition,
+        );
+        let ledger = ledger
+            .seal()
+            .unwrap_or_else(|_| unreachable!("raw root ledger proof drifted before seal"));
+        RawCompleteInvocationV1::from_committed_parts(
+            brand,
+            InvocationBranded::from_source(brand, collector),
+            ledger,
+            root_body,
+            main,
+            condition,
+            callable_main,
+        )
+    }
 }
 
 impl RejectedRawRootCompletionV1 {
@@ -229,6 +287,16 @@ mod tests {
         let brand = ModuleInvocationBrandV1::test_with_ordinal(1);
         let prepared = input(brand).prepare().unwrap();
         assert_eq!(prepared.brand(), brand);
+    }
+
+    #[test]
+    fn prepared_commit_publishes_one_root_pair() {
+        let brand = ModuleInvocationBrandV1::test_with_ordinal(1);
+        let complete = input(brand).prepare().unwrap().commit();
+        assert_eq!(complete.brand(), brand);
+        assert_eq!(complete.ledger().final_count(), 2);
+        assert_eq!(complete.collector().payload().symbol_count(), 2);
+        assert_eq!(complete.root().root_body().brand(), brand);
     }
 
     #[test]

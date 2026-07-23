@@ -112,6 +112,31 @@ impl RawCompleteInvocationV1 {
     ) {
         (self.brand, self.collector, self.ledger, self.root)
     }
+
+    pub(in crate::mir::builder) fn from_committed_parts(
+        brand: ModuleInvocationBrandV1,
+        collector: BrandedCollectorV1<ModuleDraftCollectorV1>,
+        ledger: SealedRawExpansionReceiptLedgerV1,
+        root_body: CompletedRootBodyV1,
+        main: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+        condition: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+        callable_main: RawCallableMainCompatibilityDispositionV1,
+    ) -> Self {
+        Self {
+            brand,
+            collector,
+            ledger,
+            root: RawInvocationRootWitnessV1 {
+                brand,
+                root_body,
+                main,
+                condition,
+                callable_main,
+                _seal: RawInvocationRootWitnessSealV1,
+            },
+            _seal: RawCompleteInvocationSealV1,
+        }
+    }
 }
 
 fn check_reservation(

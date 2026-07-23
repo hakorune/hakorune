@@ -163,6 +163,16 @@ impl RootCollectorBatchReceiptV1 {
 }
 
 impl ModuleDraftCollectorV1 {
+    /// Consume a batch after `validate_root_batch` has sealed all fallible
+    /// admission facts. The only remaining failures are invariant breaks.
+    pub(in crate::mir::builder) fn prepare_root_batch_preflighted(
+        self,
+        batch: PreparedRootDraftBatchV1,
+    ) -> PreparedRootCollectorBatchV1 {
+        self.prepare_root_batch(batch)
+            .unwrap_or_else(|_| unreachable!("root collector preflight drifted before commit"))
+    }
+
     /// Borrow-only root admission validation used by the retention preflight.
     ///
     /// The prepared batch and both collector indexes remain untouched.  The

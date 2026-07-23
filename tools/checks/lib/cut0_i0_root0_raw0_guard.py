@@ -45,7 +45,12 @@ def main() -> int:
     require(state, "CUT0-I0-ROOT0-RAW0 is closed", "state closeout")
     if not any(
         marker in state
-        for marker in ("ROOT0-CANON0 is next", "ROOT-RETENTION0-PREFLIGHT", "ROOT-RETENTION0-COMMIT")
+        for marker in (
+            "ROOT0-CANON0 is next",
+            "ROOT-RETENTION0-PREFLIGHT",
+            "ROOT-RETENTION0-COMMIT",
+            "ROOT-RETENTION0-TOKEN-HANDOFF",
+        )
     ):
         raise AssertionError("missing successor row: ROOT0-CANON0 or ROOT-RETENTION0")
     require(task, "Status: **closed — Candidate A implemented", "task closeout")
