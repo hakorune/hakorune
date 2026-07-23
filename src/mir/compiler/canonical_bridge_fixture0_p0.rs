@@ -628,3 +628,36 @@ fn p0_r1_real_authority_readiness_failure_keeps_commit_zero() {
     ));
     assert!(compiler.builder.current_module.is_none());
 }
+
+#[test]
+fn p0_r1_real_authority_drain_failure_keeps_commit_zero() {
+    let source = trivial_source();
+    let plan = match CanonicalLoweringPreflightV1::verify(&source).unwrap() {
+        CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {
+            ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan)
+        }
+        _ => panic!("P0-R1 drain fixture must remain trivial SSA"),
+    };
+    let mut compiler = MirCompiler::with_options(false);
+    let package = compiler.bind_canonical_source(plan).unwrap();
+    let mut completion = compiler
+        .begin_canonical_invocation(package, Some("p0_r1_drain_failure.hako"), "p0_r1_drain_failure".into())
+        .unwrap()
+        .lower()
+        .unwrap()
+        .collect()
+        .unwrap()
+        .complete()
+        .unwrap();
+    completion.publish_single_shell_for_test();
+    let rejected = completion
+        .prepare_drain()
+        .expect_err("published shell must reject before physical drain");
+    assert!(matches!(
+        rejected.error,
+        super::canonical_physical_completion::CanonicalDrainPrepareErrorV1::Physical(
+            crate::mir::builder::CanonicalPhysicalDrainPrepareErrorV1::PublishedShell { .. }
+        )
+    ));
+    assert!(compiler.builder.current_module.is_none());
+}

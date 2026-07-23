@@ -42,6 +42,11 @@ def main() -> int:
         "p0_r1_real_authority_readiness_failure_keeps_commit_zero",
         "readiness failure fixture",
     )
+    require(
+        texts["canonical"],
+        "p0_r1_real_authority_drain_failure_keeps_commit_zero",
+        "drain failure fixture",
+    )
     require(texts["raw"], "p0_r1_raw_real_authority_chain", "Raw aggregate fixture")
     for family in (
         "CanonicalAPlus",
@@ -106,6 +111,7 @@ def main() -> int:
     print(
         "[cut0-i0-prod-activation-p0-r1-guard] ok "
         "canonical_routes=4 raw_route=1 full_chain=5 readiness_failure=1 "
+        "drain_failure=1 "
         "production_consumers=0 below_800=1"
     )
     return 0

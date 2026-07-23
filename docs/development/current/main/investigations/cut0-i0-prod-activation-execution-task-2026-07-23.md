@@ -294,8 +294,9 @@ yet; this is evidence only and does not authorize production wiring.
 The five success routes are green, and a real-authority Builder-readiness
 failure now rejects before the external commit terminal. The P0-R1 guard
 proves the complete disconnected chain with production consumers still at
-zero. Child/root/batch, typed drain/postprocess failures, panic, and the rest
-of the commit-zero outcome rows remain open under P0-R1.
+zero. A published-shell drain failure is also rejected before commit. The
+remaining child/root/batch, typed postprocess failures, panic, and other
+commit-zero outcome rows remain open under P0-R1.
 ```
 
 Next P0-R1 slice: add the real-authority failure matrix and keep the outer
