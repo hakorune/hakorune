@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Active — POST-FAILURE0-NATURAL-P0 is closed; atomic CUT0/G0 is next; production ingress remains disconnected**
+Status: **Design stop — CUT0-I0-ATOMIC-CUTOVER-CONSULT0; POST-FAILURE0-NATURAL-P0 is closed; production ingress remains disconnected**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -686,6 +686,27 @@ old DrainedModuleCandidateV1/finalize_drained_module_once
 The census must also cover host-provider direct Builder bridges and live
 config pre-writes (`imports`, source-file hint, REPL/log settings). Staged
 disconnected proofs are allowed; staged production wiring is not.
+
+## CUT0-I0-ATOMIC-CUTOVER-CONSULT0 — design stop (2026-07-23)
+
+The worker census found that the accepted ACT-prime shape is not yet a wiring
+slice. No `execute_preflighted_module_invocation` exists; canonical public
+methods still open `CanonicalModuleLoweringSessionV1` and use the old module
+builders. Legacy lowering still mutates live Builder configuration before
+calling `MirBuilder::build_module`. `runtime/mirbuilder_emit.rs` has a real
+production AST-JSON direct Builder path.
+
+Most importantly, the Raw chain has no production source-bound issuer. The
+existing `VerifiedRawRootExpansionV1::from_program` and Raw root/ledger owner
+are reached through the legacy Builder path or test-only factories. Therefore
+an all-five-route atomic CUT0 claim would be false without a new Raw source
+binding row.
+
+The dedicated consultation card
+`cut0-i0-atomic-cutover-consultation-2026-07-23.md` asks whether to keep all
+production consumers disconnected, how Raw obtains compiler-owned identity,
+whether runtime AST-JSON is in CUT0 scope, and where configuration is sealed.
+Until Q1–Q5 close, no outer executor or public ingress is wired.
 
 ## Required evidence per row
 
