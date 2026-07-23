@@ -152,6 +152,11 @@ impl ModuleLoweringShellV1 {
         self.module.functions.len()
     }
 
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn publish_function_for_test(&mut self, function: MirFunction) {
+        self.module.add_function(function);
+    }
+
     pub(in crate::mir::builder) fn with_port<R>(
         &mut self,
         use_port: impl FnOnce(&mut ModuleLoweringShellPortV1<'_>) -> R,

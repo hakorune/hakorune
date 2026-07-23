@@ -16,6 +16,7 @@ COMPILER_MANIFEST = ROOT / "src/mir/compiler/canonical_drain_manifest.rs"
 COMPILER_MOD = ROOT / "src/mir/compiler/mod.rs"
 COMPLETE = ROOT / "src/mir/compiler/canonical_physical_completion.rs"
 FIXTURE = ROOT / "src/mir/compiler/canonical_physical_completion_p0.rs"
+BRIDGE_FIXTURE = ROOT / "src/mir/compiler/canonical_bridge_fixture0_p0.rs"
 BUILDER_MOD = ROOT / "src/mir/builder.rs"
 PHYSICAL = ROOT / "src/mir/builder/canonical_physical_drain.rs"
 COLLECTOR = ROOT / "src/mir/builder/module_draft_collector.rs"
@@ -29,6 +30,7 @@ MANIFEST = (
     COMPILER_MOD,
     COMPLETE,
     FIXTURE,
+    BRIDGE_FIXTURE,
     BUILDER_MOD,
     PHYSICAL,
     COLLECTOR,
@@ -120,8 +122,13 @@ def main() -> int:
         "capability_brand_drift_is_not_misreported_as_foreign_physical_brand",
     ):
         require(texts[FIXTURE], fixture, f"four-route drain fixture: {fixture}")
+    require(texts[BRIDGE_FIXTURE], "canonical_bridge_fixture0_condition_fn_spelling_is_canonical", "canonical condition_fn spelling fixture")
     require(texts[COLLECTOR_DRAIN], "keyed_prepare_rejects_index_drift_and_returns_the_collector", "index-drift rejection fixture")
     require(texts[COLLECTOR_DRAIN], "keyed_prepare_rejects_foreign_receipt_before_consuming_collector", "foreign-receipt rejection fixture")
+    require(texts[PHYSICAL], "published_shell_rejects_before_collector_prepare", "published-shell rejection fixture")
+    require(texts[PHYSICAL], "manifest_symbol_drift_rejects_before_shell_mutation", "physical row mismatch fixture")
+    require(texts[PHYSICAL], "foreign_manifest_brand_rejects_before_collector_prepare", "foreign manifest brand fixture")
+    require(texts[PHYSICAL], "callable_row_cardinality_rejects_missing_and_surplus_manifest_rows", "callable cardinality fixture")
 
     forbidden_canonical = (
         "InvocationDrainExpectationV1",

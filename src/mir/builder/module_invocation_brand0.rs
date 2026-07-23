@@ -94,6 +94,14 @@ impl CollectedCanonicalSinglePhysicalV1 {
         let (collector, receipt) = self.collected.into_parts();
         (self.shell, collector, receipt)
     }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn from_test(
+        shell: BrandedShellV1<ModuleLoweringShellV1>,
+        collected: CollectedDraftAdmissionProductV1,
+    ) -> Self {
+        Self { shell, collected }
+    }
 }
 
 impl CollectedCanonicalCallablePhysicalV1 {
@@ -116,6 +124,14 @@ impl CollectedCanonicalCallablePhysicalV1 {
     ) {
         let (collector, receipt) = self.collected.into_parts();
         (self.shell, collector, receipt)
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn from_test(
+        shell: BrandedShellV1<ModuleLoweringShellV1>,
+        collected: CollectedCallableCollectorBatchV1,
+    ) -> Self {
+        Self { shell, collected }
     }
 }
 

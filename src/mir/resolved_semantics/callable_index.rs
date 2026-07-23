@@ -30,6 +30,11 @@ impl CanonicalCallableKeyV1 {
         }
     }
 
+    #[cfg(test)]
+    pub(crate) fn free_static_for_test(name: &str, arity: u32) -> Self {
+        Self::free_static(name, arity)
+    }
+
     pub(crate) const fn namespace(&self) -> CallableNamespaceV1 {
         self.namespace
     }
