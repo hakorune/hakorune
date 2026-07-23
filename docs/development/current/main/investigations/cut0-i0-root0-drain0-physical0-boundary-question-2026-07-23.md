@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-DRAIN0-PHYSICAL0 境界相談
 
-Status: **DESIGN-STOP — neutral physical-manifest seam must be selected before implementation**
+Status: **Closed — Q1-1/Q2-1/Q3-1/Q4-1 selected; BRIDGE0 is next**
 
 Related:
 
@@ -112,3 +112,44 @@ Do not implement PHYSICAL0, add compiler-to-Builder imports, widen the old
 shell drain inventory, or connect production consumers until Q1–Q4 are
 selected. Raw, finalization, external commit, retry, fallback, and atomic
 CUT0 remain out of scope.
+
+## Decision closeout — 2026-07-23
+
+Q1–Q4 are closed as follows:
+
+```text
+Q1 physical row vocabulary = neutral src/mir contract
+Q2 source handoff          = consuming CanonicalDrainManifestV1::into_physical(self)
+Q3 collector extraction    = keyed Builder child terminal in module_draft_collector/drain.rs
+Q4 wrapper unpack          = narrow consuming into_parts plus Builder sibling module
+```
+
+The neutral contract carries only invocation brand, invocation family,
+canonical semantic identity, physical symbol, arity, and a type-sealed
+canonical inserted disposition. It does not carry `FunctionDraftKeyV1`,
+generic publication policy, `ModuleInvocationPolicyV1`, source headers, or
+callable-catalog references. The compiler manifest remains compiler-private;
+only its consuming conversion emits the neutral product.
+
+Preparation and drain are separate one-shot phases. Preparation is
+mutation-free and validates all brand, family, shell-empty, keyed collector,
+receipt, cardinality, identity, symbol, arity, policy, and replacement
+invariants. Only a prepared product may perform the infallible consuming
+drain. The old symbol-only drain owner is not widened.
+
+Before PHYSICAL0 wiring, capability mismatches remain distinguishable from
+foreign-brand mismatches: brand disagreement reports `ForeignBrand`, while
+capability brand/family disagreement reports `CapabilityMismatch`.
+
+The executable rows are intentionally split:
+
+```text
+PHYSICAL0-BRIDGE0  neutral physical manifest + compiler-private conversion
+PHYSICAL0-COLLECT0 keyed collector prepare/drain + wrapper into_parts
+PHYSICAL0-PREP0    mutation-free physical preflight + rejected-owner proof
+PHYSICAL0-I0       completion-owned prepare_drain + infallible drain
+PHYSICAL0-P0/G0    four-route fixtures, failure matrix, census guard
+```
+
+No production drain, finalizer, external commit, fallback, retry, Raw
+convergence, or atomic CUT0 activation is authorized by this closeout.

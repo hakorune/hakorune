@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-DRAIN0 実行タスク
 
-Status: **DESIGN-STOP — ROOT0-DRAIN0-PHYSICAL0 boundary consultation is required**
+Status: **Active — ROOT0-DRAIN0-PHYSICAL0-BRIDGE0 is next**
 
 Related:
 
@@ -173,20 +173,72 @@ files remain below 800 lines.
 
 The next executable row is `ROOT0-DRAIN0-PHYSICAL0`.
 
-## PHYSICAL0 design stop — 2026-07-23
+## PHYSICAL0 decision closeout — 2026-07-23
 
-The source manifest is compiler-owned, while the physical terminal is
-Builder-owned. The current code has no legal shared row vocabulary or keyed
-collector extraction seam between those layers. PHYSICAL0 is paused at a
-design boundary rather than importing the compiler manifest or reusing the old
-symbol-only drain.
+Q1–Q4 are locked to the neutral physical-manifest seam described in
+`cut0-i0-root0-drain0-physical0-boundary-question-2026-07-23.md`:
 
-Read and answer:
+```text
+Q1 = neutral src/mir physical row contract
+Q2 = consuming compiler-owned into_physical(self)
+Q3 = keyed Builder collector child terminal
+Q4 = narrow wrapper into_parts plus Builder sibling module
+```
 
-`cut0-i0-root0-drain0-physical0-boundary-question-2026-07-23.md`
+The source manifest is compiler-private and never imported by Builder. The
+neutral product has no generic Builder key/policy or source/catalog reference;
+it carries brand, family, canonical identity, symbol, arity, and sealed
+canonical inserted disposition. Preparation is mutation-free; only a
+prepared product may perform infallible drain. Capability mismatch diagnostics
+must be separated from foreign-brand diagnostics before physical wiring.
 
-No PHYSICAL0 implementation or production consumer is authorized until its
-Q1–Q4 choices are locked.
+The design stop is closed. Implementation starts at
+`ROOT0-DRAIN0-PHYSICAL0-BRIDGE0`; no production consumer is enabled.
+
+## ROOT0-DRAIN0-PHYSICAL0-BRIDGE0 — neutral handoff
+
+Add the small neutral physical manifest in `src/mir`, register it once, and
+add the compiler-private `CanonicalDrainManifestV1::into_physical(self)`
+conversion. Narrow source-manifest visibility so Builder cannot import the
+compiler product. Preserve compiler row order and ownership; do not touch
+collector extraction, shell mutation, completion wiring, or production paths.
+
+Acceptance:
+
+```text
+neutral product contains no FunctionDraftKeyV1, generic publication policy,
+ModuleInvocationPolicyV1, source header, or callable catalog reference
+neutral product contains brand + family + typed canonical identity + symbol
+  + arity + inserted-only disposition
+source manifest module is compiler-private
+into_physical consumes source manifest exactly once
+all touched files < 800 lines
+physical/collector/production consumers = 0
+```
+
+## ROOT0-DRAIN0-PHYSICAL0-COLLECT0 — keyed collector terminal
+
+Add `module_draft_collector/drain.rs` with mutation-free keyed preflight and a
+consuming prepared extractor. It stores manifest-derived ordered keys and
+never falls back to `into_draft_functions()` as the correspondence proof.
+Add only narrow `pub(super) into_parts` methods to the collected physical
+wrappers; keep their fields private.
+
+## ROOT0-DRAIN0-PHYSICAL0-PREP0 — physical preflight
+
+Validate neutral manifest, shell, collector payload, receipt wrappers and
+admissions before any shell mutation. Reject foreign brand/family,
+missing/surplus/duplicate rows, identity/symbol/arity drift, legacy policy,
+replacement drift, and a published shell. Return a rejected owner with no
+retry or replacement-manifest terminal.
+
+## ROOT0-DRAIN0-PHYSICAL0-I0 — completion-owned drain
+
+Connect only `CanonicalPhysicalCompleteInvocationV1::prepare_drain(self)` to
+the prepared Builder terminal. `PreparedCanonicalDrainV1::drain(self)` is the
+sole infallible physical commit and returns route-specific canonical drained
+products. The collector is consumed; no bare module or loose receipt is
+returned.
 
 ## ROOT0-DRAIN0-PHYSICAL0 — prepared physical terminal
 
