@@ -303,6 +303,45 @@ under P0-R1.
 Next P0-R1 slice: add the real-authority failure matrix and keep the outer
 executor/CUT0 activation boundary disconnected.
 
+### P0-R1 executable failure subrows
+
+Implement and prove these in order. Each subrow remains disconnected and must
+leave the live Builder unchanged on failure:
+
+```text
+P0-R1-CHILD
+  real child primary, cleanup, admission, and primary+cleanup failures
+  -> parent restore exactly once
+  -> failed draft is not collected
+  -> later sibling descent, root lowering, drain, retry, and commit = 0
+
+P0-R1-ROOT-BATCH
+  root completion failure and callable-batch late collision
+  -> collector/ledger delta = 0 for the rejected batch
+  -> no completion, drain, finalizer, or commit product
+
+P0-R1-POST
+  optimizer, contract/RC, pre-transform verifier, and canonical final
+  verifier failure evidence
+  -> Raw verifier Err remains reportable
+  -> canonical final-verifier failure is fatal and unpublished
+
+P0-R1-PANIC-COMMIT
+  panic unwind and external-commit readiness failure
+  -> candidate/session drops without live-Builder mutation
+  -> external commit = 0, fallback = 0, retry = 0
+
+P0-R1-G0
+  measured caller census, focused fixture registration, line-limit check,
+  pointer guard, cargo check, and row guard
+  -> all production consumers remain zero
+```
+
+Do not add a verifier fixture that merely clears a function's block map: the
+current verifier accepts that shape. A final-verifier failure fixture must use
+a genuinely invalid MIR edge (for example, a jump to a non-existent block)
+and must be kept separate from the already-green success slice.
+
 ## Atomic CUT0/G0
 
 In one activation patch, route all public canonical and legacy ingress wrappers

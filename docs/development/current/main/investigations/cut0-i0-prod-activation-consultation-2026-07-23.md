@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Consultation
 
-Status: **Closed — Candidate ACT-prime-r1 selected; FINAL0 is next**
+Status: **Closed — Candidate ACT-prime-r1 selected; P0-R1 is active**
 Date: 2026-07-23
 Scope: connect the closed canonical physical drain product to finalization,
 postprocess, external commit, and the eventual atomic CUT0 ingress.
