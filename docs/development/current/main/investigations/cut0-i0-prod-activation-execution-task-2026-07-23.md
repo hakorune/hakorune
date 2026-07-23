@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Active — RAW-SOURCE0-BIND0 is closed; RAW-SOURCE0-LOWER0 next; production ingress remains disconnected**
+Status: **Design stop — RAW-SOURCE0-LOWER0 draft-only seam consultation; production ingress remains disconnected**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -756,6 +756,21 @@ promotion, physical Builder owners, and public ingress remain outside the row.
 
 The next executable row is `RAW-SOURCE0-LOWER0`; production root capture,
 external commit, JSON behavior changes, and atomic CUT0 remain forbidden.
+
+## RAW-SOURCE0-LOWER0 design stop
+
+The next row cannot be implemented by adapting `MirBuilder::lower_root` or
+`finalize_module`. Those methods still own a direct current-module/current-
+function lifecycle and do not emit unpublished drafts into the Raw collector
+or reserve discovered work in the Raw ledger. The existing Raw root and
+physical products require those drafts and reservations before they can be
+consumed.
+
+The dedicated consultation card
+`cut0-i0-raw-source0-lower-consultation-2026-07-23.md` now owns Q1-Q5:
+draft-only Raw owner, root seam, discovery/admission order, source-derived
+Script/App policy, and rejected-owner failure law. Until those decisions are
+locked, no Raw lowering adapter or production consumer is allowed.
 
 ## Required evidence per row
 

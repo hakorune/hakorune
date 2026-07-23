@@ -18,7 +18,7 @@ CARD = ROOT / (
 )
 RAW_CARD = ROOT / (
     "docs/development/current/main/investigations/"
-    "cut0-i0-raw-source0-consultation-2026-07-23.md"
+    "cut0-i0-raw-source0-lower-consultation-2026-07-23.md"
 )
 PROD_SOURCES = (
     ROOT / "src/mir/compiler/mod.rs",
@@ -44,13 +44,13 @@ def main() -> int:
 
     require(
         state,
-        'current_design_stop = "none"',
-        "no open design-stop pointer",
+        'current_design_stop = "RAW-SOURCE0-LOWER0-CONSULT0"',
+        "Raw lowering design-stop pointer",
     )
     require(
         state,
-        'latest_card = "cut0-i0-raw-source0-consultation-2026-07-23"',
-        "latest Raw source consultation card",
+        'latest_card = "cut0-i0-raw-source0-lower-consultation-2026-07-23"',
+        "latest Raw lowering consultation card",
     )
     for question in ("Q1 — atomic executor scope", "Q2 — Raw source authority", "Q3 — AST JSON"):
         require(card, question, f"consultation question {question}")
@@ -61,7 +61,8 @@ def main() -> int:
         "BuilderInvocationConfigV1",
     ):
         require(card, fragment, f"consultation boundary {fragment}")
-    require(raw_card, "The next row is `RAW-SOURCE0-LOWER0`", "next Raw source row")
+    require(raw_card, "RAW-SOURCE0-LOWER0 Consultation", "Raw lowering consultation")
+    require(raw_card, "production Raw consumer = 0", "Raw lowering disconnected boundary")
 
     joined_prod = "\n".join(sources.values())
     if "execute_preflighted_module_invocation" in joined_prod:
