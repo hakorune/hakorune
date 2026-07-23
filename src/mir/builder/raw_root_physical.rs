@@ -13,6 +13,7 @@ use super::root_body_completion::RootBodyCompletionTrackerV1;
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 
 pub(in crate::mir) mod child_terminal;
+pub(in crate::mir) mod callable_main_terminal;
 
 #[derive(Debug)]
 enum RawRootLedgerStateV1 {

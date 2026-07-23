@@ -81,28 +81,28 @@ pub(in crate::mir) enum RawChildrenCompleteInvocationV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawScriptChildrenCompleteInvocationV1 {
-    core: RawRootChildCoreV1,
-    completion: RawPreRootChildrenCompletionV1,
-    receipts: Box<[RawRootChildReceiptV1]>,
+    pub(super) core: RawRootChildCoreV1,
+    pub(super) completion: RawPreRootChildrenCompletionV1,
+    pub(super) receipts: Box<[RawRootChildReceiptV1]>,
 }
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawAppChildrenCompleteInvocationV1 {
-    core: RawRootChildCoreV1,
-    completion: RawPreRootChildrenCompletionV1,
-    receipts: Box<[RawRootChildReceiptV1]>,
+    pub(super) core: RawRootChildCoreV1,
+    pub(super) completion: RawPreRootChildrenCompletionV1,
+    pub(super) receipts: Box<[RawRootChildReceiptV1]>,
 }
 
 #[derive(Debug)]
-struct RawRootChildCoreV1 {
-    token: crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
-    source: crate::mir::builder::OwnedRawSourceV1,
-    continuation: super::raw_source_binding::RawSourceContinuationV1,
-    config: crate::mir::builder::BuilderInvocationConfigV1,
-    module_name: Box<str>,
-    plan: RawRootPlanV1,
-    session: crate::mir::builder::ModuleBuilderInvocationSessionV1,
-    physical: crate::mir::builder::RawRootPhysicalStateV1,
+pub(super) struct RawRootChildCoreV1 {
+    pub(super) token: crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
+    pub(super) source: crate::mir::builder::OwnedRawSourceV1,
+    pub(super) continuation: super::raw_source_binding::RawSourceContinuationV1,
+    pub(super) config: crate::mir::builder::BuilderInvocationConfigV1,
+    pub(super) module_name: Box<str>,
+    pub(super) plan: RawRootPlanV1,
+    pub(super) session: crate::mir::builder::ModuleBuilderInvocationSessionV1,
+    pub(super) physical: crate::mir::builder::RawRootPhysicalStateV1,
 }
 
 #[derive(Debug)]

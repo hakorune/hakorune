@@ -65,6 +65,27 @@ pub(in crate::mir) struct RawSourceContinuationV1 {
     runtime_inputs: RawRuntimeInputSnapshotV1,
 }
 
+#[derive(Debug)]
+pub(in crate::mir) struct RawPostCallableMainContinuationV1 {
+    origin: RawSourceOriginV1,
+    policy: ModuleInvocationPolicyV1,
+    runtime_inputs: RawRuntimeInputSnapshotV1,
+}
+
+impl RawPostCallableMainContinuationV1 {
+    pub(in crate::mir) const fn origin(&self) -> RawSourceOriginV1 {
+        self.origin
+    }
+
+    pub(in crate::mir) const fn policy(&self) -> ModuleInvocationPolicyV1 {
+        self.policy
+    }
+
+    pub(in crate::mir) const fn runtime_inputs(&self) -> &RawRuntimeInputSnapshotV1 {
+        &self.runtime_inputs
+    }
+}
+
 impl RawSourceContinuationV1 {
     pub(in crate::mir) const fn origin(&self) -> RawSourceOriginV1 {
         self.origin
@@ -80,6 +101,28 @@ impl RawSourceContinuationV1 {
 
     pub(in crate::mir) const fn runtime_inputs(&self) -> &RawRuntimeInputSnapshotV1 {
         &self.runtime_inputs
+    }
+
+    pub(in crate::mir) fn into_callable_main_decision(
+        self,
+    ) -> (
+        RawPostCallableMainContinuationV1,
+        RawCallableMainCompatibilityDispositionV1,
+    ) {
+        let Self {
+            origin,
+            callable_main,
+            policy,
+            runtime_inputs,
+        } = self;
+        (
+            RawPostCallableMainContinuationV1 {
+                origin,
+                policy,
+                runtime_inputs,
+            },
+            callable_main,
+        )
     }
 }
 

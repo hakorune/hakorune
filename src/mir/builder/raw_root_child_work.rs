@@ -48,7 +48,7 @@ impl RawRootStaticChildWorkV1 {
         self.locator.arity()
     }
 
-    pub(in crate::mir::builder) fn into_lowering_parts(
+    pub(in crate::mir) fn into_lowering_parts(
         self,
     ) -> (
         String,
@@ -68,6 +68,34 @@ impl RawRootStaticChildWorkV1 {
             self.uses,
             self.attrs,
         )
+    }
+
+    pub(in crate::mir) fn into_callable_main(
+        self,
+    ) -> Result<RawCallableMainWorkV1, RawRootStaticChildWorkErrorV1> {
+        if self.locator.box_name() != "Main" || self.locator.method_name() != "main" {
+            return Err(RawRootStaticChildWorkErrorV1::MethodNameMismatch);
+        }
+        Ok(RawCallableMainWorkV1 { inner: self })
+    }
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RawCallableMainWorkV1 {
+    inner: RawRootStaticChildWorkV1,
+}
+
+impl RawCallableMainWorkV1 {
+    pub(in crate::mir) fn symbol(&self) -> &str {
+        self.inner.symbol()
+    }
+
+    pub(in crate::mir) const fn arity(&self) -> usize {
+        self.inner.arity()
+    }
+
+    pub(in crate::mir::builder) fn into_static(self) -> RawRootStaticChildWorkV1 {
+        self.inner
     }
 }
 

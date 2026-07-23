@@ -214,6 +214,26 @@ impl RawAppRootPlanV1 {
     }
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir) struct RawScriptPostCallableMainPlanV1 {
+    physical: RawPhysicalRootIdentityV1,
+    statement_count: usize,
+    environment: RawRootEnvironmentPlanV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir) struct RawAppPostCallableMainPlanV1 {
+    physical: RawPhysicalRootIdentityV1,
+    main: RawSourceLocatorV1,
+    environment: RawRootEnvironmentPlanV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir) enum RawPostCallableMainPlanV1 {
+    Script(RawScriptPostCallableMainPlanV1),
+    App(RawAppPostCallableMainPlanV1),
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum RawRootKindV1 {
     Script(RawScriptRootPlanV1),
@@ -325,6 +345,38 @@ impl RawRootPlanV1 {
                     environment,
                 },
                 static_children,
+            ),
+        }
+    }
+
+    pub(in crate::mir) fn into_post_callable_main(
+        self,
+    ) -> (RawPostCallableMainPlanV1, Option<RawSourceLocatorV1>) {
+        let Self {
+            physical,
+            kind,
+            environment,
+        } = self;
+        match kind {
+            RawRootKindV1::Script(RawScriptRootPlanV1 { statement_count }) => (
+                RawPostCallableMainPlanV1::Script(RawScriptPostCallableMainPlanV1 {
+                    physical,
+                    statement_count,
+                    environment,
+                }),
+                None,
+            ),
+            RawRootKindV1::App(RawAppRootPlanV1 {
+                main,
+                static_children: _,
+                callable_main,
+            }) => (
+                RawPostCallableMainPlanV1::App(RawAppPostCallableMainPlanV1 {
+                    physical,
+                    main,
+                    environment,
+                }),
+                Some(callable_main),
             ),
         }
     }

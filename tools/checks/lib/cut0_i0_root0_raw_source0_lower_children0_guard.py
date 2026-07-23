@@ -21,8 +21,10 @@ SOURCE = (
 def main() -> int:
     state = STATE.read_text()
     expected = "RAW-SOURCE0-LOWER0-ROOT0-CHILDREN0-S0"
-    if f'current_execution_row = "{expected}"' not in state:
-        raise AssertionError("active row moved beyond CHILDREN0-S0")
+    active = f'current_execution_row = "{expected}"'
+    closed = f"{expected}/G0 are closed"
+    if active not in state and closed not in state:
+        raise AssertionError("CHILDREN0-S0 is neither active nor recorded closed")
     for path in SOURCE:
         if not path.exists():
             raise AssertionError(f"missing CHILDREN0 source: {path}")
@@ -55,7 +57,11 @@ def main() -> int:
             raise AssertionError(f"missing CHILDREN0 contract: {required}")
     if "typed_child_causes_map_to_existing_coarse_abort_reasons" not in joined:
         raise AssertionError("missing CHILDREN0 coarse abort mapping fixture")
-    print("[cut0-i0-root0-raw-source0-lower-children0-guard] ok below_800=1 production_consumer=0")
+    row_state = "active" if active in state else "historical_closed"
+    print(
+        "[cut0-i0-root0-raw-source0-lower-children0-guard] ok "
+        f"row_state={row_state} below_800=1 production_consumer=0"
+    )
     return 0
 
 
