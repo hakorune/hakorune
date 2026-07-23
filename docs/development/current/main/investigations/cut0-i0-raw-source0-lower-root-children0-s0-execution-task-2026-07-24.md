@@ -34,9 +34,9 @@ zero.
 
 The disconnected CHILDREN0 owner, lexical schedule handoff, Builder-side
 short-lived child terminal, and Script/App completion products are now wired.
-The focused Script-zero-child and App-two-helper lexical-order fixtures pass;
-production consumers remain zero. Locator-drift, prefix-failure, and full
-typed-cause matrix fixtures are still required before this row can close.
+The focused Script-zero-child, App-two-helper lexical-order, and locator-drift
+fixtures pass; production consumers remain zero. Prefix-failure and the full
+typed-cause matrix are still required before this row can close.
 
 ## Locked decisions
 
@@ -154,6 +154,7 @@ sorted_method_entries calls in CHILDREN0 = 0
 HashMap method iteration in CHILDREN0 = 0
 compiler-side RawRootPhysicalStateV1::into_parts = 0
 compiler-side shell/collector/ledger tuple = 0
+RawRootPhysicalStateV1 raw into_parts terminal = 0
 RootBodyCompletionTracker begin/close/complete calls = 0
 rejected retry/resume/continue/into_owner = 0
 callable Main/root body lowering = 0

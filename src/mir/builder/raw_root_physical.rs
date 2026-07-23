@@ -71,14 +71,4 @@ impl RawRootPhysicalStateV1 {
     pub(in crate::mir) fn callable_main(&self) -> RawCallableMainCompatibilityDispositionV1 {
         self.callable_main
     }
-
-    pub(in crate::mir::builder) fn into_parts(
-        self,
-    ) -> (
-        InvocationPhysicalStateV1,
-        RawRootLedgerStateV1,
-        RootBodyCompletionTrackerV1,
-    ) {
-        (self.physical, self.ledger, self.tracker)
-    }
 }

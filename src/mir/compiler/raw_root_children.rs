@@ -55,6 +55,7 @@ pub(in crate::mir) struct RawPreRootChildrenCompletionV1 {
 #[derive(Debug)]
 pub(in crate::mir) struct RawRootChildReceiptV1 {
     ordinal: usize,
+    locator: RawSourceLocatorV1,
     symbol: Box<str>,
     receipt: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
 }
@@ -238,6 +239,7 @@ impl RawChildrenPendingInvocationV1 {
                 Ok(receipt) => {
                     self.prefix.push(RawRootChildReceiptV1 {
                         ordinal,
+                        locator: failed.locator.clone(),
                         symbol,
                         receipt,
                     });
@@ -403,5 +405,19 @@ mod tests {
         assert_eq!(complete.completion.successful_count, 2);
         assert_eq!(complete.receipts[0].symbol.as_ref(), "Main.alpha/0");
         assert_eq!(complete.receipts[1].symbol.as_ref(), "Main.zeta/0");
+        assert_eq!(complete.receipts[0].locator.method_name(), "alpha");
+        assert_eq!(complete.receipts[1].locator.method_name(), "zeta");
+    }
+
+    #[test]
+    fn locator_drift_is_rejected_before_physical_effects() {
+        let source = crate::mir::builder::OwnedRawSourceV1::bind(
+            app(&["alpha"]),
+            crate::mir::builder::RawSourceOriginV1::BareAst,
+        )
+        .unwrap();
+        let forged = RawSourceLocatorV1::for_test(0, "Main", "missing", "Main.missing/0", 0);
+        let error = source.prepare_static_child(forged, 0).unwrap_err();
+        assert_eq!(error, RawRootStaticChildWorkErrorV1::MethodNameMismatch);
     }
 }

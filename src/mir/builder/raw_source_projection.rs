@@ -44,6 +44,23 @@ impl RawSourceLocatorV1 {
     pub(in crate::mir) const fn arity(&self) -> usize {
         self.arity
     }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn for_test(
+        top_level_statement: usize,
+        box_name: &str,
+        method_name: &str,
+        symbol: &str,
+        arity: usize,
+    ) -> Self {
+        Self {
+            top_level_statement,
+            box_name: box_name.into(),
+            method_name: method_name.into(),
+            symbol: symbol.into(),
+            arity,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
