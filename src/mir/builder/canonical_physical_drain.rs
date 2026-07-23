@@ -437,6 +437,46 @@ mod tests {
     }
 
     #[test]
+    fn collector_payload_receipt_brand_mismatch_rejects_before_shell_mutation() {
+        let brand = ModuleInvocationBrandV1::test_with_ordinal(98);
+        let foreign = ModuleInvocationBrandV1::test_with_ordinal(99);
+        let (physical, manifest) = single_fixture(brand, false);
+        let (shell, collector, _receipt) = physical.into_parts();
+
+        // The wrapper carries the active invocation brand, while its payload
+        // receipt was issued by a different collector.  This is distinct from
+        // a foreign wrapper-brand mismatch and must fail before shell/collector
+        // mutation.
+        let mut owners = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+        let owner = owners.issue().unwrap();
+        let foreign_product = InvocationBranded::from_source(
+            foreign,
+            ModuleDraftCollectorV1::with_brand(foreign),
+        )
+        .collect_canonical_single(
+            FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
+            "owner/0".to_owned(),
+            0,
+            draft("owner/0"),
+        )
+        .unwrap();
+        let (_foreign_collector, foreign_receipt) = foreign_product.into_parts();
+        let mismatched_receipt = InvocationBranded::from_test(brand, foreign_receipt.into_payload());
+        let collected =
+            super::super::module_draft_collector::CollectedDraftAdmissionProductV1::from_test_parts(
+                collector,
+                mismatched_receipt,
+            );
+        let physical = CollectedCanonicalSinglePhysicalV1::from_test(shell, collected);
+
+        let rejected = physical.prepare_drain(manifest).unwrap_err();
+        assert!(matches!(
+            rejected.error(),
+            CanonicalPhysicalDrainPrepareErrorV1::ReceiptCollectorBrandMismatch
+        ));
+    }
+
+    #[test]
     fn foreign_manifest_brand_rejects_before_collector_prepare() {
         let (physical, manifest) = single_fixture(ModuleInvocationBrandV1::test_with_ordinal(96), false);
         let foreign_manifest = CanonicalPhysicalDrainManifestV1::single(

@@ -45,6 +45,17 @@ impl CollectedDraftAdmissionProductV1 {
     ) {
         (self.collector, self.receipt)
     }
+
+    /// Test-only seam for composing a physical owner with a deliberately
+    /// mismatched receipt payload.  The production collector/receipt product
+    /// remains inseparable and has no rebranding or replacement constructor.
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn from_test_parts(
+        collector: BrandedCollectorV1<ModuleDraftCollectorV1>,
+        receipt: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+    ) -> Self {
+        Self { collector, receipt }
+    }
 }
 
 impl RejectedCollectedDraftAdmissionV1 {

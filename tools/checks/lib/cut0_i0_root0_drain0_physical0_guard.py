@@ -127,6 +127,7 @@ def main() -> int:
     require(texts[COLLECTOR_DRAIN], "keyed_prepare_rejects_foreign_receipt_before_consuming_collector", "foreign-receipt rejection fixture")
     require(texts[PHYSICAL], "published_shell_rejects_before_collector_prepare", "published-shell rejection fixture")
     require(texts[PHYSICAL], "manifest_symbol_drift_rejects_before_shell_mutation", "physical row mismatch fixture")
+    require(texts[PHYSICAL], "collector_payload_receipt_brand_mismatch_rejects_before_shell_mutation", "collector payload receipt-brand fixture")
     require(texts[PHYSICAL], "foreign_manifest_brand_rejects_before_collector_prepare", "foreign manifest brand fixture")
     require(texts[PHYSICAL], "callable_row_cardinality_rejects_missing_and_surplus_manifest_rows", "callable cardinality fixture")
 
