@@ -323,9 +323,9 @@ module_draft_headerport_i0_task = "docs/development/current/main/investigations/
 headerport_hdr0_p0_execution_task = "docs/development/current/main/investigations/mirbuilder-headerport-i0-hdr0-p0-execution-task-2026-07-22.md"
 cut0_i0_t_prime_r1_execution_task = "docs/development/current/main/investigations/cut0-i0-t-prime-r1-execution-task-2026-07-22.md"
 
-latest_card = "cut0-i0-root0-drain0-execution-task-2026-07-23"
-latest_card_path = "docs/development/current/main/investigations/cut0-i0-root0-drain0-execution-task-2026-07-23.md"
-latest_card_summary = """D-prime-r1, POLICY0, MANIFEST0, PHYSICAL0-BRIDGE0, PHYSICAL0-COLLECT0, PREP0, and I0 are closed. Completion-owned prepare_drain projects source authority once and performs one infallible route-specific drain for A+/trivial/acyclic/recursive fixtures. P0/G0 proof and census are next; finalization and external commit remain disconnected."""
+latest_card = "cut0-i0-prod-activation-consultation-2026-07-23"
+latest_card_path = "docs/development/current/main/investigations/cut0-i0-prod-activation-consultation-2026-07-23.md"
+latest_card_summary = """ROOT0-DRAIN0-P0/G0 is closed as a disconnected canonical physical proof: neutral manifest handoff, keyed collector preflight, receipt provenance, route-specific completion-owned drain, four-route success, failure isolation, retention, reorder parity, and measured prepare/drain census are green. The next frontier is the CUT0-I0-PROD-ACTIVATION-CONSULT0 design stop for DRAIN0→POST0/finalizer/external-commit handoff; production ingress, Raw convergence, and atomic CUT0 remain forbidden."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -527,7 +527,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-CUT0-I0-ROOT0-DRAIN0-PHYSICAL0-P0-G0-20260723"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-CUT0-I0-PROD-ACTIVATION-CONSULT0-20260723"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
@@ -548,5 +548,5 @@ landed_tail = [
   "2026-07-22: CUT0-I0-ID0-S0 closes the disconnected identity/token vocabulary. The existing route matrix remains the five-family SSOT; one test-only issuer mints non-Clone IDs; a private token kind seals Raw, CanonicalAPlus, BindingSsaTrivial, BindingSsaAcyclic, and BindingSsaRecursive; foreign family/source pairing fails before token creation; fixtures and guards are green; production shell/collector/receipt/compiler consumers remain zero. CUT0-I0-ID0-P0 is next.",
   "2026-07-22: CUT0-I0-CONSULT0 closes with Candidate T-prime-r1. One invocation ID brands the full owner chain; callable batches preflight atomically before infallible collection; raw Main and canonical completion use distinct states; Builder config preserves route-specific CoreContext seed policy; postprocess and verifier behavior remain exact; and the first production child error aborts the outer invocation with no later sibling, retry, fallback, or publication. CUT0-I0-ID0-S0 is next; production capture/commit remains zero.",
   "2026-07-22: CUT0-P0 closes the disconnected all-route proof. One test-only outer adapter executes all nine route rows across success, primary, cleanup, admission, root, drain, finalizer, and panic outcomes. The candidate→complete→same-state drain→Builder-free finalizer→external commit probe succeeds only once; every failure and panic keeps external commit at zero and retry forbidden. Authority lanes are projected from the existing route-owned inventory; production consumers remain zero. CUT0-I0 is next.",
-  "2026-07-22: CUT0-S0-COMPAT0 closes the disconnected callable-Main receipt bridge. Required policy maps to a dedicated raw-ledger request; success performs capture→admission→seal→collect→ledger.complete exactly once; Primary/Cleanup/Admission/Panic paths consume ledger.abort and preserve typed child evidence plus the completed collector prefix. NotSelected performs no reservation or lowering. The adapter, fixtures, and guard remain test-only/disconnected, with production capture/commit and CUT0 activation still zero. CUT0-P0 is next.",
+  "2026-07-23: ROOT0-DRAIN0-PHYSICAL0 P0/G0 closes as a disconnected proof. The neutral compiler-to-Builder manifest, keyed mutation-free collector drain, receipt payload provenance, route-specific completion-owned prepare_drain/drain, four-route success, canonical condition_fn spelling, synthetic identity absence, reorder parity, live-Builder failure isolation, receipt/capability retention, and measured two-route prepare/drain census are green. Production ingress, finalizer, external commit, Raw convergence, and atomic CUT0 remain zero. CUT0-I0-PROD-ACTIVATION-CONSULT0 is the next design stop.",
 ]
