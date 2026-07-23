@@ -81,6 +81,8 @@ mod canonical_bridge_fixture0_p0;
 #[cfg(test)]
 mod canonical_drain_manifest_p0;
 #[cfg(test)]
+mod prod_activation_p0_r1;
+#[cfg(test)]
 mod drain_policy_p0;
 #[cfg(test)]
 mod resolved_callable_module_tests;

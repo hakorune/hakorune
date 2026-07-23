@@ -15,6 +15,7 @@ FILES = {
     "raw_finalizer": ROOT / "src/mir/compiler/raw_finalization.rs",
     "postprocess": ROOT / "src/mir/compiler/module_postprocess.rs",
     "commit": ROOT / "src/mir/compiler/external_commit.rs",
+    "failure": ROOT / "src/mir/compiler/prod_activation_p0_r1.rs",
     "mod": ROOT / "src/mir/compiler/mod.rs",
 }
 
@@ -53,6 +54,13 @@ def main() -> int:
         "capability failure fixture",
     )
     require(texts["canonical"], "CapabilityMismatch", "capability fail-fast")
+    require(
+        texts["failure"],
+        "p0_r1_final_verifier_failure_keeps_commit_zero",
+        "final verifier failure fixture",
+    )
+    require(texts["failure"], "BasicBlockId::new(9999)", "invalid CFG edge fixture")
+    require(texts["failure"], "ModulePostprocessErrorV1::FinalVerification", "final verifier error")
     require(texts["raw"], "p0_r1_raw_real_authority_chain", "Raw aggregate fixture")
     for family in (
         "CanonicalAPlus",
@@ -99,6 +107,7 @@ def main() -> int:
         FILES["raw_finalizer"],
         FILES["postprocess"],
         FILES["commit"],
+        FILES["failure"],
     }
     production = []
     for path in ROOT.glob("src/**/*.rs"):
@@ -118,6 +127,7 @@ def main() -> int:
         "[cut0-i0-prod-activation-p0-r1-guard] ok "
         "canonical_routes=4 raw_route=1 full_chain=5 readiness_failure=1 "
         "drain_failure=1 capability_failure=1 "
+        "post_failure=1 "
         "production_consumers=0 below_800=1"
     )
     return 0

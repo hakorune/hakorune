@@ -298,6 +298,12 @@ zero. A published-shell drain failure and a foreign callable capability are
 also rejected before commit. The remaining child/root/batch, typed
 postprocess failures, panic, and other commit-zero outcome rows remain open
 under P0-R1.
+
+The first POST failure slice is now fixed: a real canonical trivial route is
+mutated after finalization with a jump to a non-existent MIR block, and the
+canonical final-verifier barrier rejects before any external commit. This
+fixture is test-owned only; optimizer, contract/RC, pre-transform verifier,
+child/root-batch, and panic rows remain open.
 ```
 
 Next P0-R1 slice: add the real-authority failure matrix and keep the outer
