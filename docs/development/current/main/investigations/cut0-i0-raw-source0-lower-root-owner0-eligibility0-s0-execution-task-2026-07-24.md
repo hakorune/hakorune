@@ -242,6 +242,33 @@ RUSTFLAGS='-Awarnings' cargo test -q raw_root_runtime_inputs --lib -- --test-thr
 RUSTFLAGS='-Awarnings' cargo test -q raw_root_eligibility --lib -- --test-threads=1
 ```
 
+## Landed implementation slice (2026-07-24)
+
+The first buildable S0 slice is landed and pushed on `public-main`:
+
+```text
+a03ec16d6f  mir: add raw root eligibility boundary
+02fbfba892  mir: keep raw eligibility source-derived
+```
+
+It contains the strict runtime-input snapshot, the recursive wildcard-free
+ScalarControl0 classifier, and the consuming eligibility/rejection products.
+The source plan performs the classification once; eligibility inspects the
+sealed work dispositions and does not re-run the body classifier. No
+session/shell/collector/ledger/tracker is opened by this slice.
+
+Verified evidence for the landed slice:
+
+```text
+RUSTFLAGS='-Awarnings' cargo check -q --lib                         green
+RUSTFLAGS='-Awarnings' cargo test -q raw_ --lib -- --test-threads=1 green (172)
+bash tools/checks/current_state_pointer_guard.sh                  green
+python3 tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_owner0_eligibility0_s0_guard.py green
+```
+
+Remaining S0 work is the explicit negative/retention fixture matrix and its
+final manifest guard. Physical OWNER0 opening remains zero.
+
 ## Non-claims and next row
 
 S0 does not claim child traversal, callable-Main descent, root-body lowering,
