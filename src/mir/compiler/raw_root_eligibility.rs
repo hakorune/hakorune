@@ -3,7 +3,6 @@
 //! This is the last source-only gate before the future Raw physical owner.
 //! It consumes no Builder state and does not re-scan source after success.
 
-use super::raw_root_eligibility_classifier::RawScalarControl0ClassifierV1;
 use super::raw_root_package::SourceBoundRawRootPackageV1;
 use super::raw_root_plan0::RawStaticDataSourceRowV1;
 use crate::ast::ASTNode;
@@ -59,22 +58,41 @@ impl RawRootEligibilityV1 {
             ));
         };
 
+        for item in package.plan().environment().work_schedule() {
+            let failure = match item.kind() {
+                super::raw_root_plan0::RawRootWorkKindV1::UnsupportedClosure => Some((
+                    RawRootEligibilityStageV1::Access,
+                    RawRootEligibilityErrorV1::UnsupportedClosureAccess {
+                        statement_index: item.statement_index(),
+                    },
+                )),
+                super::raw_root_plan0::RawRootWorkKindV1::UnsupportedStaticData => Some((
+                    RawRootEligibilityStageV1::Access,
+                    RawRootEligibilityErrorV1::UnsupportedStaticDataAuthority {
+                        statement_index: item.statement_index(),
+                    },
+                )),
+                super::raw_root_plan0::RawRootWorkKindV1::UnsupportedProcessGlobalSlot => Some((
+                    RawRootEligibilityStageV1::Slots,
+                    RawRootEligibilityErrorV1::UnsupportedProcessGlobalSlot {
+                        statement_index: item.statement_index(),
+                    },
+                )),
+                super::raw_root_plan0::RawRootWorkKindV1::UnsupportedSurface => Some((
+                    RawRootEligibilityStageV1::Work,
+                    RawRootEligibilityErrorV1::UnsupportedWork {
+                        statement_index: item.statement_index(),
+                    },
+                )),
+                _ => None,
+            };
+            if let Some(failure) = failure {
+                return Err(failure);
+            }
+        }
+
         let catalog = match package.plan().kind() {
             super::raw_root_plan0::RawRootKindV1::Script(_) => {
-                if !statements.is_empty() {
-                    classify_body(statements, 0)?;
-                }
-                if package.plan().environment().work_schedule().iter().any(|item| {
-                    matches!(
-                        item.kind(),
-                        super::raw_root_plan0::RawRootWorkKindV1::UnsupportedSurface
-                    )
-                }) {
-                    return Err((
-                        RawRootEligibilityStageV1::Work,
-                        RawRootEligibilityErrorV1::UnsupportedWork { statement_index: 0 },
-                    ));
-                }
                 RawEligibleCatalogV1::EmptyScript
             }
             super::raw_root_plan0::RawRootKindV1::App(_) => {
@@ -104,46 +122,6 @@ impl RawRootEligibilityV1 {
 
     pub(in crate::mir) const fn catalog(&self) -> RawEligibleCatalogV1 {
         self.catalog
-    }
-}
-
-fn classify_body(
-    statements: &[ASTNode],
-    statement_index: usize,
-) -> Result<(), (RawRootEligibilityStageV1, RawRootEligibilityErrorV1)> {
-    match RawScalarControl0ClassifierV1::classify_statements(statements) {
-        Ok(_) => Ok(()),
-        Err(error) => {
-            let item = match error {
-                super::raw_root_eligibility_classifier::RawScalarControl0ErrorV1::UnsupportedSurface {
-                    surface,
-                    ..
-                } => match surface {
-                    super::raw_root_eligibility_classifier::RawScalarUnsupportedSurface0V1::Closure => {
-                        RawRootEligibilityErrorV1::UnsupportedClosureAccess { statement_index }
-                    }
-                    super::raw_root_eligibility_classifier::RawScalarUnsupportedSurface0V1::StaticData => {
-                        return Err((
-                            RawRootEligibilityStageV1::Access,
-                            RawRootEligibilityErrorV1::UnsupportedStaticDataAuthority {
-                                statement_index,
-                            },
-                        ));
-                    }
-                    super::raw_root_eligibility_classifier::RawScalarUnsupportedSurface0V1::ProcessGlobalSlot => {
-                        return Err((
-                            RawRootEligibilityStageV1::Slots,
-                            RawRootEligibilityErrorV1::UnsupportedProcessGlobalSlot {
-                                statement_index,
-                            },
-                        ));
-                    }
-                    _ => RawRootEligibilityErrorV1::UnsupportedBodyGrammar { statement_index },
-                },
-                _ => RawRootEligibilityErrorV1::UnsupportedBodyGrammar { statement_index },
-            };
-            Err((RawRootEligibilityStageV1::Work, item))
-        }
     }
 }
 
@@ -222,7 +200,7 @@ fn verify_plain_static_main(
             name: declared_name,
             params,
             param_decls,
-            body,
+            body: _,
             is_static: method_static,
             is_override,
             contracts,
@@ -245,7 +223,6 @@ fn verify_plain_static_main(
                 RawRootEligibilityErrorV1::InvalidCallableRow { statement_index: 0 },
             ));
         }
-        classify_body(body, 0)?;
         if method_name == "main" {
             if !std::ptr::eq(method, main) || !params.is_empty() {
                 return Err((
@@ -424,7 +401,7 @@ mod tests {
         }]))
         .prepare_eligibility()
         .unwrap_err();
-        assert_eq!(lambda.stage(), RawRootEligibilityStageV1::Work);
+        assert_eq!(lambda.stage(), RawRootEligibilityStageV1::Access);
         assert!(matches!(
             lambda.error(),
             RawRootEligibilityErrorV1::UnsupportedClosureAccess { .. }

@@ -9,7 +9,9 @@
 use crate::ast::ASTNode;
 
 use super::raw_source_binding::SourceBoundRawPackageV1;
-use super::raw_root_eligibility_classifier::RawScalarControl0ClassifierV1;
+use super::raw_root_eligibility_classifier::{
+    RawScalarControl0ClassifierV1, RawScalarControl0ErrorV1, RawScalarUnsupportedSurface0V1,
+};
 use crate::mir::builder::{OwnedRawRootProjectionV1, RawSourceLocatorV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -57,6 +59,9 @@ pub(in crate::mir) enum RawRootWorkKindV1 {
     StaticData,
     ScalarControl,
     UnsupportedSurface,
+    UnsupportedClosure,
+    UnsupportedStaticData,
+    UnsupportedProcessGlobalSlot,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -314,10 +319,24 @@ fn build_schedule(statements: &[ASTNode]) -> Vec<RawRootWorkItemV1> {
         .map(|(statement_index, statement)| {
             let (kind, name) = match statement {
                 ASTNode::BoxDeclaration {
-                    name, is_static, ..
+                    name,
+                    methods,
+                    is_static,
+                    ..
                 } => (
                     if name == "Main" && *is_static {
-                        RawRootWorkKindV1::MainRoot
+                        methods
+                            .values()
+                            .find_map(|method| {
+                                let ASTNode::FunctionDeclaration { body, .. } = method else {
+                                    return Some(RawRootWorkKindV1::UnsupportedSurface);
+                                };
+                                match RawScalarControl0ClassifierV1::classify_statements(body) {
+                                    Ok(_) => None,
+                                    Err(error) => Some(work_kind_for_scalar_error(&error)),
+                                }
+                            })
+                            .unwrap_or(RawRootWorkKindV1::MainRoot)
                     } else if *is_static {
                         RawRootWorkKindV1::StaticBox
                     } else {
@@ -355,14 +374,11 @@ fn build_schedule(statements: &[ASTNode]) -> Vec<RawRootWorkItemV1> {
                 | ASTNode::Break { .. }
                 | ASTNode::Continue { .. }
                 | ASTNode::ScopeBox { .. } => {
-                    let kind = if RawScalarControl0ClassifierV1::classify_statements(
+                    let kind = match RawScalarControl0ClassifierV1::classify_statements(
                         std::slice::from_ref(statement),
-                    )
-                    .is_ok()
-                    {
-                        RawRootWorkKindV1::ScalarControl
-                    } else {
-                        RawRootWorkKindV1::UnsupportedSurface
+                    ) {
+                        Ok(_) => RawRootWorkKindV1::ScalarControl,
+                        Err(error) => work_kind_for_scalar_error(&error),
                     };
                     (kind, None)
                 }
@@ -409,6 +425,22 @@ fn build_schedule(statements: &[ASTNode]) -> Vec<RawRootWorkItemV1> {
             }
         })
         .collect()
+}
+
+fn work_kind_for_scalar_error(error: &RawScalarControl0ErrorV1) -> RawRootWorkKindV1 {
+    match error {
+        RawScalarControl0ErrorV1::UnsupportedSurface { surface, .. } => match surface {
+            RawScalarUnsupportedSurface0V1::Closure => RawRootWorkKindV1::UnsupportedClosure,
+            RawScalarUnsupportedSurface0V1::StaticData => {
+                RawRootWorkKindV1::UnsupportedStaticData
+            }
+            RawScalarUnsupportedSurface0V1::ProcessGlobalSlot => {
+                RawRootWorkKindV1::UnsupportedProcessGlobalSlot
+            }
+            _ => RawRootWorkKindV1::UnsupportedSurface,
+        },
+        _ => RawRootWorkKindV1::UnsupportedSurface,
+    }
 }
 
 fn build_declarations(statements: &[ASTNode]) -> Vec<RawDeclarationFactRowV1> {
