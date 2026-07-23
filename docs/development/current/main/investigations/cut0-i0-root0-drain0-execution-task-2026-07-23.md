@@ -455,12 +455,14 @@ The remaining executable proof row is deliberately explicit:
 
 ```text
 ROOT0-DRAIN0-P0b
-  -> receipt payload collector-brand mismatch fixture
-  -> drain-after-success receipt/capability retention assertions
   -> deterministic reorder parity fixture at the physical boundary
   -> prepare failure leaves the live Builder unchanged
   -> measured callsite census for prepare_drain/drain and forbidden retry
 ```
+
+P0b progress: receipt payload collector-brand mismatch and drain-after-success
+receipt/capability retention are now green and committed. The three items
+above remain open.
 
 Until P0b is green, do not claim ROOT0-DRAIN0-P0/G0 closed and do not wire
 canonical production ingress, finalization, external commit, Raw convergence,
