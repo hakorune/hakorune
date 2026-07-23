@@ -325,17 +325,7 @@ fn build_schedule(statements: &[ASTNode]) -> Vec<RawRootWorkItemV1> {
                     ..
                 } => (
                     if name == "Main" && *is_static {
-                        methods
-                            .values()
-                            .find_map(|method| {
-                                let ASTNode::FunctionDeclaration { body, .. } = method else {
-                                    return Some(RawRootWorkKindV1::UnsupportedSurface);
-                                };
-                                match RawScalarControl0ClassifierV1::classify_statements(body) {
-                                    Ok(_) => None,
-                                    Err(error) => Some(work_kind_for_scalar_error(&error)),
-                                }
-                            })
+                        first_unsupported_main_method_kind(methods)
                             .unwrap_or(RawRootWorkKindV1::MainRoot)
                     } else if *is_static {
                         RawRootWorkKindV1::StaticBox
@@ -442,6 +432,23 @@ fn work_kind_for_scalar_error(error: &RawScalarControl0ErrorV1) -> RawRootWorkKi
         },
         _ => RawRootWorkKindV1::UnsupportedSurface,
     }
+}
+
+fn first_unsupported_main_method_kind(
+    methods: &std::collections::HashMap<String, ASTNode>,
+) -> Option<RawRootWorkKindV1> {
+    let mut names: Vec<&str> = methods.keys().map(String::as_str).collect();
+    names.sort_unstable();
+    names.into_iter().find_map(|name| {
+        let method = methods.get(name)?;
+        let ASTNode::FunctionDeclaration { body, .. } = method else {
+            return Some(RawRootWorkKindV1::UnsupportedSurface);
+        };
+        match RawScalarControl0ClassifierV1::classify_statements(body) {
+            Ok(_) => None,
+            Err(error) => Some(work_kind_for_scalar_error(&error)),
+        }
+    })
 }
 
 fn build_declarations(statements: &[ASTNode]) -> Vec<RawDeclarationFactRowV1> {
