@@ -9,6 +9,14 @@ closed with `BODY-prime-r1`; this card is the first executable Raw root-body
 slice. It may create a disconnected owner and exact proof products, but it
 must not wire a public ingress or any production executor.
 
+## Progress
+
+S0-A is implemented in the current worktree: the shared neutral recipe
+contract, LinearScalar0 conversion, App Main metadata seal, duplicate-site
+validation, and Return/ScopeBox source-path repair are green. S0-B (typed
+value lowerer) and S0-C (consuming BODY0 owner) remain unimplemented and
+production consumers remain zero.
+
 ## Decision lock
 
 ```text

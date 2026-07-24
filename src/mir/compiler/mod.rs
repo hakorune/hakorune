@@ -97,6 +97,8 @@ mod module_session_borrow_p0_tests;
 #[cfg(test)]
 mod prod_activation_p0_r1;
 #[cfg(test)]
+mod raw_root_body_p0;
+#[cfg(test)]
 mod raw_root_callable_main_p0;
 #[cfg(test)]
 mod raw_root_decl_access_p0;

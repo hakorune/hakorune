@@ -6,6 +6,10 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::builder::{RawSourceLocatorV1, VerifiedSameModuleCallableDeclarationCatalogV1};
+use crate::mir::raw_root_body_recipe::{
+    RawLinearScalarExprV1, RawLinearScalarStmtV1, RawLinearUnaryOperatorV1, RawRootBodyEntryV1,
+    RawRootBodyRecipeErrorV1, RawRootBodyRecipeV1, RawRootBodySourceSiteV1,
+};
 
 use super::raw_root_plan0::{RawPhysicalRootIdentityV1, RawRootKindV1, RawRootPlanV1};
 
@@ -231,11 +235,28 @@ impl RawRootSourceFactsV1 {
                 if name != "Main" || !*is_static {
                     return Err(RawRootSourceFactsErrorV1::MainLocatorDrift);
                 }
-                let Some(ASTNode::FunctionDeclaration { body, .. }) =
-                    methods.get(app.main().method_name())
+                let Some(ASTNode::FunctionDeclaration {
+                    body,
+                    params,
+                    param_decls,
+                    return_type_name,
+                    uses,
+                    contracts,
+                    attrs,
+                    ..
+                }) = methods.get(app.main().method_name())
                 else {
                     return Err(RawRootSourceFactsErrorV1::MainLocatorDrift);
                 };
+                if !params.is_empty()
+                    || !param_decls.is_empty()
+                    || return_type_name.is_some()
+                    || !uses.is_empty()
+                    || !contracts.is_empty()
+                    || !attrs.is_empty()
+                {
+                    return Err(RawRootSourceFactsErrorV1::AppMainMetadata);
+                }
                 Ok(Self {
                     route: RawRootSourceRouteV1::App,
                     physical: plan.physical(),
@@ -334,6 +355,28 @@ impl RawRootPostInstallFactsV1 {
     pub(in crate::mir) fn body(&self) -> &RawRootBodyFactV1 {
         &self.body
     }
+
+    pub(in crate::mir) fn into_linear_body_recipe(
+        self,
+    ) -> Result<RawRootBodyRecipeV1, RawRootBodyRecipeErrorV1> {
+        let (entry, body) = match self.body {
+            RawRootBodyFactV1::Script(program) => (RawRootBodyEntryV1::Script, program),
+            RawRootBodyFactV1::App { main, body } => (
+                RawRootBodyEntryV1::AppMain0Void {
+                    top_level_statement: main.top_level_statement(),
+                },
+                body,
+            ),
+        };
+        let statements = body
+            .statements
+            .into_vec()
+            .into_iter()
+            .map(linear_statement)
+            .collect::<Result<Vec<_>, _>>()?
+            .into_boxed_slice();
+        RawRootBodyRecipeV1::from_parts(entry, statements)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -342,6 +385,135 @@ pub(in crate::mir) enum RawRootSourceFactsErrorV1 {
     MainLocatorDrift,
     Catalog,
     Scalar { path: Box<[usize]> },
+    AppMainMetadata,
+}
+
+fn linear_statement(
+    statement: RawLocatedScalarStmtV1,
+) -> Result<RawLinearScalarStmtV1, RawRootBodyRecipeErrorV1> {
+    match statement {
+        RawLocatedScalarStmtV1::Expr { expression, site } => Ok(RawLinearScalarStmtV1::Expr {
+            expression: linear_expr(expression)?,
+            site: neutral_site(&site),
+        }),
+        RawLocatedScalarStmtV1::Print { expression, site } => Ok(RawLinearScalarStmtV1::Print {
+            expression: linear_expr(expression)?,
+            site: neutral_site(&site),
+        }),
+        RawLocatedScalarStmtV1::Assignment {
+            target,
+            value,
+            site,
+        } => Ok(RawLinearScalarStmtV1::Assignment {
+            target,
+            value: linear_expr(value)?,
+            site: neutral_site(&site),
+        }),
+        RawLocatedScalarStmtV1::CompoundAssignment {
+            target,
+            operator,
+            value,
+            site,
+        } if ordinary_operator(&operator) => Ok(RawLinearScalarStmtV1::CompoundAssignment {
+            target,
+            operator,
+            value: linear_expr(value)?,
+            site: neutral_site(&site),
+        }),
+        RawLocatedScalarStmtV1::Local {
+            variables,
+            initialized,
+            site,
+        } => Ok(RawLinearScalarStmtV1::Local {
+            variables,
+            initialized: initialized
+                .into_vec()
+                .into_iter()
+                .map(|value| value.map(linear_expr).transpose())
+                .collect::<Result<Vec<_>, _>>()?
+                .into_boxed_slice(),
+            site: neutral_site(&site),
+        }),
+        other => Err(RawRootBodyRecipeErrorV1::UnsupportedStatement {
+            path: statement_path(&other),
+        }),
+    }
+}
+
+fn linear_expr(
+    expression: RawLocatedScalarExprV1,
+) -> Result<RawLinearScalarExprV1, RawRootBodyRecipeErrorV1> {
+    match expression {
+        RawLocatedScalarExprV1::Literal { value, site } => Ok(RawLinearScalarExprV1::Literal {
+            value,
+            site: neutral_site(&site),
+        }),
+        RawLocatedScalarExprV1::Variable { name, site } => Ok(RawLinearScalarExprV1::Variable {
+            name,
+            site: neutral_site(&site),
+        }),
+        RawLocatedScalarExprV1::Unary {
+            operator,
+            operand,
+            site,
+        } => Ok(RawLinearScalarExprV1::Unary {
+            operator: match operator {
+                RawScalarUnaryOperatorV1::Minus => RawLinearUnaryOperatorV1::Minus,
+                RawScalarUnaryOperatorV1::Not => RawLinearUnaryOperatorV1::Not,
+                RawScalarUnaryOperatorV1::BitNot => RawLinearUnaryOperatorV1::BitNot,
+            },
+            operand: Box::new(linear_expr(*operand)?),
+            site: neutral_site(&site),
+        }),
+        RawLocatedScalarExprV1::Binary {
+            operator,
+            left,
+            right,
+            site,
+        } if ordinary_operator(&operator) => Ok(RawLinearScalarExprV1::Binary {
+            operator,
+            left: Box::new(linear_expr(*left)?),
+            right: Box::new(linear_expr(*right)?),
+            site: neutral_site(&site),
+        }),
+        other => Err(RawRootBodyRecipeErrorV1::UnsupportedOperator {
+            path: expr_path(&other),
+        }),
+    }
+}
+
+fn ordinary_operator(operator: &BinaryOperator) -> bool {
+    !matches!(operator, BinaryOperator::And | BinaryOperator::Or)
+}
+
+fn neutral_site(site: &RawSourceSiteV1) -> RawRootBodySourceSiteV1 {
+    RawRootBodySourceSiteV1::new(site.path(), site.span())
+}
+
+fn statement_path(statement: &RawLocatedScalarStmtV1) -> Box<[usize]> {
+    match statement {
+        RawLocatedScalarStmtV1::Expr { site, .. }
+        | RawLocatedScalarStmtV1::Print { site, .. }
+        | RawLocatedScalarStmtV1::Assignment { site, .. }
+        | RawLocatedScalarStmtV1::CompoundAssignment { site, .. }
+        | RawLocatedScalarStmtV1::Local { site, .. }
+        | RawLocatedScalarStmtV1::If { site, .. }
+        | RawLocatedScalarStmtV1::Loop { site, .. }
+        | RawLocatedScalarStmtV1::LoopRange { site, .. }
+        | RawLocatedScalarStmtV1::Return { site, .. }
+        | RawLocatedScalarStmtV1::Break { site }
+        | RawLocatedScalarStmtV1::Continue { site }
+        | RawLocatedScalarStmtV1::ScopeBox { site, .. } => site.path().into(),
+    }
+}
+
+fn expr_path(expression: &RawLocatedScalarExprV1) -> Box<[usize]> {
+    match expression {
+        RawLocatedScalarExprV1::Literal { site, .. }
+        | RawLocatedScalarExprV1::Variable { site, .. }
+        | RawLocatedScalarExprV1::Unary { site, .. }
+        | RawLocatedScalarExprV1::Binary { site, .. } => site.path().into(),
+    }
 }
 
 fn classify_program(
@@ -564,9 +736,11 @@ fn classify_stmt(
             })
         }
         ASTNode::Return { value, span } => {
+            let mut v = path.to_vec();
+            v.push(0);
             let value = value
                 .as_deref()
-                .map(|expr| classify_expr(expr, path))
+                .map(|expr| classify_expr(expr, &v))
                 .transpose()?;
             Ok(RawLocatedScalarStmtV1::Return {
                 value,
@@ -576,9 +750,15 @@ fn classify_stmt(
         ASTNode::Break { span } => Ok(RawLocatedScalarStmtV1::Break { site: site(*span) }),
         ASTNode::Continue { span } => Ok(RawLocatedScalarStmtV1::Continue { site: site(*span) }),
         ASTNode::ScopeBox { body, span } => Ok(RawLocatedScalarStmtV1::ScopeBox {
-            body: classify_program(body, path)?.statements,
+            body: classify_program(body, &path_with_child(path, 0))?.statements,
             site: site(*span),
         }),
         _ => Err(RawRootSourceFactsErrorV1::Scalar { path: path.into() }),
     }
+}
+
+fn path_with_child(path: &[usize], child: usize) -> Vec<usize> {
+    let mut nested = path.to_vec();
+    nested.push(child);
+    nested
 }
