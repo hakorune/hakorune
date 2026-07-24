@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINAL0-S0 through PUBLIC-INGRESS0-S0, CLOSEOUT-REPAIR0, and CONFIG0 are closed. RAW-PUBLIC-CUTOVER-prime-r1 is selected after four-worker audit. COVERAGE0 is next; normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
+status = "FINAL0-S0 through PUBLIC-INGRESS0-S0, CLOSEOUT-REPAIR0, and CONFIG0 are closed. COVERAGE0 implementation is held in WIP after worker audit found an authority/scope/guard design mismatch. COVERAGE0-REPAIR-CONSULT0 is the active design stop; normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
 date = "2026-07-24"
-current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-COVERAGE0-S0"
-current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-COVERAGE0-S0"
-current_execution_summary = "CONFIG0 is green: NarrowV1 selects one request-owned exact-empty import projection, live Builder imports remain unchanged, and focused reuse/failure gates pass. Next close exact-empty StaticHelper0 coverage before parity; normal/JSON/executor cutover remains unauthorized."
+current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-COVERAGE0-REPAIR-CONSULT0"
+current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-COVERAGE0-REPAIR-CONSULT0"
+current_execution_summary = "Worker audit found four unresolved COVERAGE0 boundaries: PLAN0 schedule authority versus witness schedule, public-only NarrowV1 scope versus general Raw eligibility, eligibility file growth, and non-rerunnable closeout guards. WIP is stashed; no parity or source promotion is authorized until the repair consultation is accepted."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -354,9 +354,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "cut0-i0-raw-source0-lower-root-post0-public-cutover-coverage0-s0-execution-task-2026-07-24"
-latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-coverage0-s0-execution-task-2026-07-24.md"
-latest_card_summary = """RAW-PUBLIC-CUTOVER-prime-r1 remains selected. CONFIG0 is closed with green no-import projection, live-import immutability, focused failure/reuse, cargo check, and pointer evidence. COVERAGE0 is now active: exact empty StaticHelper0 before physical effects; parity and normal cutover remain disconnected."""
+latest_card = "cut0-i0-raw-source0-lower-root-post0-public-cutover-coverage0-design-question-2026-07-24"
+latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-coverage0-design-question-2026-07-24.md"
+latest_card_summary = """COVERAGE0-REPAIR-CONSULT0 is active after worker audit. The useful StaticHelper0 WIP is stashed, but PLAN0 order authority, public NarrowV1 policy scope, eligibility-size boundary, and rerunnable guard lifecycle must be fixed before implementation resumes. PARITY0 remains parked."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -558,7 +558,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-POST0-PUBLIC-CUTOVER-COVERAGE0-S0-20260724"
+current_blocker_token = "RAW-POST0-PUBLIC-CUTOVER-COVERAGE0-REPAIR-CONSULT0-20260724"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
@@ -572,6 +572,7 @@ raw_post0_public_cutover_decision_task_map = "docs/development/current/main/inve
 raw_post0_public_ingress0_closeout_repair0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress0-closeout-repair0-s0-execution-task-2026-07-24.md"
 raw_post0_public_ingress_config0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress-config0-s0-execution-task-2026-07-24.md"
 raw_post0_public_cutover_coverage0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-coverage0-s0-execution-task-2026-07-24.md"
+raw_post0_public_cutover_coverage0_repair_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-coverage0-design-question-2026-07-24.md"
 raw_post0_public_cutover_parity0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-s0-execution-task-2026-07-24.md"
 raw_post0_old_raw_retire0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-old-raw-retire0-execution-task-2026-07-24.md"
 failure_outcome_semantic_manifest_maint0_task = "docs/development/current/main/investigations/failure-outcome-semantic-manifest-maint0-execution-task-2026-07-24.md"

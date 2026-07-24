@@ -2,7 +2,8 @@
 
 Decision: `RAW-PUBLIC-CUTOVER-prime-r1`
 
-Status: active execution after `PUBLIC-INGRESS-CONFIG0-S0` closeout.
+Status: held WIP after worker audit. The first implementation is stashed;
+`COVERAGE0-REPAIR-CONSULT0` must close before this card can become executable.
 
 ## Goal
 
