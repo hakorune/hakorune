@@ -20,6 +20,7 @@ mod builder_method_index;
 #[cfg(test)]
 mod builder_test_api;
 mod builder_value_kind;
+mod builder_publication_target; // PUBLICATION0 target quiescence/receipt
 mod call_resolution; // ChatGPT5 Pro: Type-safe call resolution utilities
 mod callable_declaration_catalog; // Complete same-module callable declaration authority
 #[cfg(test)]
@@ -67,6 +68,10 @@ mod raw_root_body_lowering_p0; // BODY0-S0-B disconnected lowerer fixtures
 #[allow(dead_code)]
 mod raw_root_environment_install;
 mod raw_root_physical; // RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PHYSICAL0 empty carrier
+pub(in crate::mir) use builder_publication_target::{
+    check_builder_external_commit_quiescence, BuilderPublicationReceiptV1,
+};
+pub(in crate::mir) use raw_root_physical::publication_terminal::RawPublishedModuleV1;
 #[allow(dead_code)]
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
 pub(in crate::mir) use raw_required_condition_draft::RawRequiredConditionDraftV1;

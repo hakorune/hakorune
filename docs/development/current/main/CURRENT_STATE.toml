@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINAL0-S0, POST0-S0, POST0-FAILURE0, and COMMIT0-S0 are closed. RAW-PUBLICATION-prime-r1 is selected and PUBLICATION0-S0 is the active executable row. Live RawDirect publication is scoped; MirCompileResult adaptation, public ingress, production executor, retirement, and CUT0 remain disconnected."
+status = "FINAL0-S0, POST0-S0, POST0-FAILURE0, COMMIT0-S0, and PUBLICATION0-S0 are closed. RAW-PUBLICATION-prime-r1 landed one shared live-Builder kernel and typed RawDirect publication proof. MirCompileResult adaptation, public ingress, production executor, retirement, and CUT0 remain disconnected; the next publication-adapter consultation is not opened."
 date = "2026-07-24"
 current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLICATION0-S0"
 current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLICATION0-S0"
-current_execution_summary = "RAW-PUBLICATION-prime-r1 is selected. PUBLICATION0-S0 adds one shared private live-Builder publication kernel, target quiescence preflight, opaque Raw module transition, typed Script/App published result, and reportable Raw verifier evidence. Public adapters and ingress remain later rows."
+current_execution_summary = "PUBLICATION0-S0 is closed. RAW-PUBLICATION-prime-r1 adds one shared private live-Builder publication kernel, target quiescence preflight, opaque Raw module transition, typed Script/App published result, and reportable Raw verifier evidence. Public adapters and ingress remain later rows and are not opened."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -356,7 +356,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "cut0-i0-raw-source0-lower-root-post0-publication0-s0-execution-task-2026-07-24"
 latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-publication0-s0-execution-task-2026-07-24.md"
-latest_card_summary = """RAW-PUBLICATION-prime-r1 is selected. PUBLICATION0-S0 owns one private live-Builder replacement kernel, target quiescence, opaque Raw publication, typed Script/App results, reportable Raw verifier evidence, and a strict public-ingress stop line."""
+latest_card_summary = """PUBLICATION0-S0 is closed. RAW-PUBLICATION-prime-r1 landed one private live-Builder replacement kernel, target quiescence, opaque Raw publication, typed Script/App results, reportable Raw verifier evidence, and a strict public-ingress stop line."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -574,7 +574,6 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-07-23: POST-FAILURE0-NATURAL-P0 closes with NF-prime-r1. A real canonical trivial route now proves optimizer rejection from one existing unlowered type-op Call under a serialized existing policy scope, and contract rejection from an orphan Static Table plan; both retain discard-only RejectedModulePostprocessV1 owners. RC/refresh and real-route panic remain explicit non-claims. The natural-failure guard, focused tests, cargo check, and pointer guard are green. Atomic CUT0/G0 is next; production ingress remains disconnected.",
   "2026-07-23: Atomic CUT0/G0 census opens a design stop. Canonical four-route disconnected execution exists but no production outer executor is wired; Raw has no compiler-issued source-bound ingress, runtime AST-JSON still has a direct Builder path, and Program(JSON v0) has a separate direct module builder. CUT0-I0-ATOMIC-CUTOVER-CONSULT0 is next; all production consumers remain disconnected.",
   "2026-07-23: SOURCE-FIRST-prime-r1 closes the Atomic CUT0 consultation. Q1=3 keeps all production consumers disconnected; Q2=1 selects a compiler-owned Raw source-bound ingress; Q3 splits AST-JSON parity from the existing Program(JSON v0) compatibility lane; Q4=1 seals BuilderInvocationConfig at outer ingress; Q5=1 requires measured zero direct Builder callers. RAW-SOURCE0-CONSULT0 is next; no executor, JSON behavior change, or MirBuilder::build_module retirement is allowed.",
   "2026-07-23: RAW-SOURCE0-PLAN0 closes as a disconnected owned-source projection proof. OwnedRawSourceV1 keeps the AST and origin while OwnedRawRootProjectionV1 stores only Script/App source locators; no token, session, collector, ledger, receipt, or module map is owned. PLAN0 guard, focused projection tests, cargo check, and pointer guard are green. RAW-SOURCE0-BIND0 is next; production Raw ingress remains disconnected.",
@@ -586,4 +585,5 @@ landed_tail = [
   "2026-07-23: RAW-OWNER-prime-r1 closes OWNER0-CONSULT0. Q1-Q5 select one non-Clone SourceBoundRawRootPackage retaining token/source/continuation/config/module-name/tokenless plan, retained OwnedRawSource, typed callable-Main disposition only, a future route owner over the existing neutral physical core, and explicit deferred capability seals. OWNER0-PACKAGE0 is next; physical effects and production consumers remain zero.",
   "2026-07-23: PACKAGE0 lands in 7fbab72456. SourceBoundRawRootPackageV1 now borrows the complete bound package for tokenless plan construction, retains the original package on typed planning rejection, and co-seals token/source/continuation/config/module-name/plan. Callable-Main selection booleans are retired; package tests, PLAN0 tests, cargo check, and guards are green. OWNER0-ELIGIBILITY0-CONSULT0 is next; physical effects remain zero.",
   "2026-07-24: ELIGIBILITY-prime-r1 closes OWNER0-ELIGIBILITY0-CONSULT0. Q1 CaptureOnce, Q2 recursive wildcard-free ScalarControl0, Q3 narrow complete Empty-Script/plain-static-Main catalog, Q4 closure/static typed rejection, and Q5 process-global-slot rejection are selected. The single S0 row is next; physical effects and production consumers remain zero.",
+  "2026-07-24: RAW-PUBLICATION-prime-r1 closes PUBLICATION0-S0. One private publish_once kernel now owns the single live-Builder replacement site; the shared target-quiescence checker is reused for candidate and live targets; RawExternalCommitModuleV1 is consumed into an opaque RawPublishedModuleV1 while the actual module enters the live Builder; Script/App published owners retain complete Raw evidence, and reportable Raw verifier Err remains success evidence. Focused Raw/publication tests, guard, cargo check, and semantic-manifest check are green. MirCompileResult adaptation, public ingress, executor, retirement, and CUT0 remain disconnected.",
 ]

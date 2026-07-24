@@ -6,6 +6,7 @@
 use super::module_postprocess::{
     ModuleVerificationEvidenceV1, PostprocessEvidenceInputV1, PostprocessedModuleInvocationV1,
 };
+use super::publication_kernel::PublishedModuleTransferV1;
 use super::MirCompileResult;
 use crate::mir::builder::{
     CanonicalCallableCapabilityWitnessV1, CommitCallableCollectorBatchReceiptV1,
@@ -15,6 +16,32 @@ use crate::mir::builder::{
 use crate::mir::canonical_physical_drain::CanonicalPhysicalDrainManifestV1;
 use crate::mir::compiler::source_bound_package::CanonicalSourceContinuationV1;
 use crate::mir::module_invocation_identity::{ModuleInvocationFamilyV1, ModuleInvocationTokenV1};
+
+struct LegacyPublicationPayload {
+    module: crate::mir::MirModule,
+    verification: ModuleVerificationEvidenceV1,
+}
+
+impl super::publication_kernel::SealedPublicationPayloadV1 for LegacyPublicationPayload {
+    type Published = MirCompileResult;
+
+    fn finish(
+        self,
+        _receipt: crate::mir::builder::BuilderPublicationReceiptV1,
+        _module: PublishedModuleTransferV1,
+    ) -> Self::Published {
+        let verification_result = match self.verification {
+            ModuleVerificationEvidenceV1::Canonical { pre_transform, .. }
+            | ModuleVerificationEvidenceV1::Raw { pre_transform } => {
+                pre_transform.map_err(|errors| errors.into_vec())
+            }
+        };
+        MirCompileResult {
+            module: self.module,
+            verification_result,
+        }
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum ExternalCommitPreparationErrorV1 {
@@ -110,17 +137,15 @@ impl<'a> PreparedModuleExternalCommitV1<'a> {
             evidence: _,
             _seal: _,
         } = self;
-        builder.commit(current);
-        let verification_result = match verification {
-            ModuleVerificationEvidenceV1::Canonical { pre_transform, .. }
-            | ModuleVerificationEvidenceV1::Raw { pre_transform } => {
-                pre_transform.map_err(|errors| errors.into_vec())
-            }
-        };
-        MirCompileResult {
-            module,
-            verification_result,
-        }
+        super::publication_kernel::publish_once(
+            current,
+            builder,
+            LegacyPublicationPayload {
+                module,
+                verification,
+            },
+            None,
+        )
     }
 }
 

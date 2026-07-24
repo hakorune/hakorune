@@ -331,32 +331,9 @@ impl ModuleBuilderInvocationSessionV1 {
     }
 
     fn readiness_error(&self) -> Result<(), BuilderCommitReadinessErrorV1> {
-        if self.candidate.current_module.is_some() {
-            return Err(BuilderCommitReadinessErrorV1::CurrentModuleOpen);
-        }
-        if self.candidate.function_state.current_function.is_some() {
-            return Err(BuilderCommitReadinessErrorV1::CurrentFunctionOpen);
-        }
-        if self.candidate.function_state.current_block.is_some() {
-            return Err(BuilderCommitReadinessErrorV1::CurrentBlockOpen);
-        }
-        if !self
-            .candidate
-            .function_state
-            .is_closed_for_external_commit()
-        {
-            return Err(BuilderCommitReadinessErrorV1::FunctionStateOpen);
-        }
-        if self.candidate.comp_ctx.current_slot_registry.is_some() {
-            return Err(BuilderCommitReadinessErrorV1::SlotRegistryOpen);
-        }
-        if self.candidate.comp_ctx.compilation_context.is_some() {
-            return Err(BuilderCommitReadinessErrorV1::CompilationContextOpen);
-        }
-        if self.candidate.recursion_depth != 0 {
-            return Err(BuilderCommitReadinessErrorV1::RecursionDepthOpen);
-        }
-        Ok(())
+        super::builder_publication_target::check_builder_external_commit_quiescence(
+            &self.candidate,
+        )
     }
 
     /// Consume a candidate after all Builder-owned state is closed.
@@ -457,7 +434,44 @@ impl PreparedBuilderExternalCommitV1 {
         self.family
     }
 
-    pub(in crate::mir) fn commit(self, current: &mut MirBuilder) {
-        *current = self.session.candidate;
+    pub(in crate::mir) fn commit(
+        self,
+        current: &mut MirBuilder,
+    ) -> super::builder_publication_target::BuilderPublicationReceiptV1 {
+        let brand = self.brand;
+        let family = self.family;
+        replace_live_builder(self.session.candidate, current);
+        super::builder_publication_target::BuilderPublicationReceiptV1 {
+            brand,
+            family,
+            _seal: super::builder_publication_target::BuilderPublicationReceiptSealV1,
+        }
     }
+
+    pub(in crate::mir) fn commit_raw_direct(
+        self,
+        current: &mut MirBuilder,
+        module: super::raw_root_physical::postprocess_terminal::RawExternalCommitModuleV1,
+    ) -> (
+        super::builder_publication_target::BuilderPublicationReceiptV1,
+        super::raw_root_physical::publication_terminal::RawPublishedModuleV1,
+    ) {
+        let brand = self.brand;
+        let family = self.family;
+        let mut candidate = self.session.candidate;
+        let published = module.install_into_candidate(&mut candidate);
+        replace_live_builder(candidate, current);
+        (
+            super::builder_publication_target::BuilderPublicationReceiptV1 {
+                brand,
+                family,
+                _seal: super::builder_publication_target::BuilderPublicationReceiptSealV1,
+            },
+            published,
+        )
+    }
+}
+
+fn replace_live_builder(candidate: MirBuilder, current: &mut MirBuilder) {
+    *current = candidate;
 }

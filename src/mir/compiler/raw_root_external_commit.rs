@@ -79,6 +79,88 @@ pub(in crate::mir) struct RejectedRawExternalCommitInvocationV1 {
     error: RawExternalCommitErrorV1,
 }
 
+pub(super) struct RawExternalCommitPublicationPartsV1 {
+    pub(super) token: crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
+    pub(super) builder: PreparedBuilderExternalCommitV1,
+    pub(super) module: RawExternalCommitModuleV1,
+    pub(super) evidence: RawPostprocessEvidenceV1,
+}
+
+pub(super) struct RawExternalCommitPublicationFactsV1 {
+    pub(super) token_brand: crate::mir::module_invocation_identity::ModuleInvocationBrandV1,
+    pub(super) token_family: ModuleInvocationFamilyV1,
+    pub(super) builder_brand: crate::mir::module_invocation_identity::ModuleInvocationBrandV1,
+    pub(super) builder_family: ModuleInvocationFamilyV1,
+    pub(super) witness_brand: crate::mir::module_invocation_identity::ModuleInvocationBrandV1,
+    pub(super) finalization_brand:
+        crate::mir::module_invocation_identity::ModuleInvocationBrandV1,
+    pub(super) postprocess_brand:
+        crate::mir::module_invocation_identity::ModuleInvocationBrandV1,
+    pub(super) progress: crate::mir::builder::RawPostprocessProgressV1,
+    pub(super) schedule: ModulePostprocessScheduleV1,
+    pub(super) verification_is_raw: bool,
+}
+
+impl PreparedRawExternalCommitV1 {
+    pub(super) fn publication_facts(&self) -> RawExternalCommitPublicationFactsV1 {
+        let core = match self {
+            Self::Script(wrapper) => &wrapper.core,
+            Self::App(wrapper) => &wrapper.core,
+        };
+        let physical = &core.physical;
+        RawExternalCommitPublicationFactsV1 {
+            token_brand: physical.token_brand(),
+            token_family: physical.token_family(),
+            builder_brand: physical.builder.brand(),
+            builder_family: physical.builder.family(),
+            witness_brand: core.evidence.witness.brand(),
+            finalization_brand: core.evidence.finalization_parity.brand(),
+            postprocess_brand: core.evidence.postprocess_parity.brand(),
+            progress: core.evidence.progress,
+            schedule: core.evidence.schedule,
+            verification_is_raw: matches!(
+                core.evidence.verification,
+                super::module_postprocess::ModuleVerificationEvidenceV1::Raw { .. }
+            ),
+        }
+    }
+
+    pub(super) fn into_publication_parts(
+        self,
+    ) -> (RawPostprocessRouteKindV1, RawExternalCommitPublicationPartsV1) {
+        let core = match self {
+            Self::Script(wrapper) => (RawPostprocessRouteKindV1::Script, wrapper.core),
+            Self::App(wrapper) => (RawPostprocessRouteKindV1::App, wrapper.core),
+        };
+        let (route, PreparedRawExternalCommitCoreV1 { physical, evidence }) = core;
+        let PreparedRawExternalCommitPhysicalV1 {
+            token,
+            builder,
+            module,
+            _seal: _,
+        } = physical;
+        (
+            route,
+            RawExternalCommitPublicationPartsV1 {
+                token,
+                builder,
+                module,
+                evidence,
+            },
+        )
+    }
+}
+
+impl PreparedRawExternalCommitPhysicalV1 {
+    fn token_brand(&self) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
+        self.token.brand()
+    }
+
+    fn token_family(&self) -> ModuleInvocationFamilyV1 {
+        self.token.family()
+    }
+}
+
 impl RejectedRawExternalCommitInvocationV1 {
     pub(in crate::mir) fn stage(&self) -> RawExternalCommitFailureStageV1 {
         self.stage

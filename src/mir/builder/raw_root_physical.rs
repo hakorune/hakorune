@@ -23,6 +23,7 @@ pub(in crate::mir) mod drain_terminal;
 pub(in crate::mir) mod environment_terminal;
 pub(in crate::mir) mod finalization_terminal;
 pub(in crate::mir) mod postprocess_terminal;
+pub(in crate::mir) mod publication_terminal;
 pub(in crate::mir) mod root_batch_terminal;
 
 #[derive(Debug)]

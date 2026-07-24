@@ -159,6 +159,13 @@ impl RawFinalizedModuleV1 {
         &self.module.name
     }
 
+    pub(in crate::mir::builder) fn install_into_candidate(
+        self,
+        candidate: &mut crate::mir::builder::MirBuilder,
+    ) {
+        candidate.current_module = Some(self.module);
+    }
+
     pub(in crate::mir) fn function_count(&self) -> usize {
         self.module.functions.len()
     }
@@ -213,6 +220,12 @@ impl RawFinalizedModuleV1 {
 }
 
 impl RawDrainWitnessV1 {
+    pub(in crate::mir) const fn brand(
+        &self,
+    ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
+        self.manifest.brand()
+    }
+
     pub(in crate::mir::builder) fn manifest(&self) -> &RawPhysicalDrainManifestV1 {
         &self.manifest
     }

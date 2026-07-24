@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT — POST0-PUBLICATION0-S0 execution task
 
-Status: **Active — decision selected; implementation not started**
+Status: **Closed — PUBLICATION0-S0 implementation and focused proof green**
 Date: 2026-07-24
 Decision: **RAW-PUBLICATION-prime-r1**
 Predecessor: `cut0-i0-raw-source0-lower-root-post0-publication-consultation-2026-07-24.md`
@@ -35,6 +35,12 @@ The normal AST production ingress still reaches legacy `build_module` through
 provider. The old Raw finalization bridge still contains the Main-only
 `condition_fn`/`main` inventory and bare-module construction, but it remains
 non-test-caller-zero. Neither concern belongs in PUBLICATION0.
+
+PUBLICATION0 implementation is now in progress: the shared assignment
+kernel, target-quiescence helper, opaque Raw published carrier, typed
+Script/App result, and focused publication/evidence fixtures are present.
+Public Raw ingress, `MirCompileResult` adaptation, executor wiring, old-chain
+retirement, and CUT0 remain disconnected as required by this card.
 
 The CI command below currently reports tracked-manifest drift:
 
