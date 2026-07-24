@@ -5,6 +5,7 @@
 //! keeps the RC/verifier policy derived from the invocation family.
 
 use super::canonical_finalization::{CanonicalFinalizationInputV1, FinalizedModuleInvocationV1};
+use super::module_postprocess_stages::{run_postprocess_stages, PostprocessStageTarget};
 use super::raw_finalization::{RawFinalizationInputV1, RawFinalizedModuleInvocationV1};
 use super::source_bound_package::CanonicalSourceContinuationV1;
 use crate::mir::builder::PreparedBuilderExternalCommitV1;
@@ -18,11 +19,6 @@ use crate::mir::canonical_physical_drain::CanonicalPhysicalDrainManifestV1;
 use crate::mir::function::MirModule;
 use crate::mir::module_invocation_identity::{
     ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
-};
-use crate::mir::optimizer::MirOptimizer;
-use crate::mir::passes::rc_insertion::insert_rc_instructions;
-use crate::mir::semantic_refresh::{
-    refresh_and_validate_for_boundary, refresh_module_semantic_metadata, ContractRefreshBoundary,
 };
 use crate::mir::verification::MirVerifier;
 use crate::mir::verification_types::VerificationError;
@@ -87,11 +83,11 @@ pub(in crate::mir) enum ModuleVerificationEvidenceV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) struct CanonicalFinalVerificationSealV1 {
-    _seal: CanonicalFinalVerificationSealInnerV1,
+    pub(in crate::mir) _seal: CanonicalFinalVerificationSealInnerV1,
 }
 
 #[derive(Debug)]
-struct CanonicalFinalVerificationSealInnerV1;
+pub(in crate::mir) struct CanonicalFinalVerificationSealInnerV1;
 
 #[derive(Debug)]
 pub(in crate::mir) enum ModulePostprocessErrorV1 {
@@ -118,6 +114,45 @@ pub(in crate::mir) struct PostprocessedModuleInvocationV1<'a> {
 pub(in crate::mir) enum ModulePostprocessInputV1<'a> {
     Canonical(CanonicalFinalizationInputV1<'a>),
     Raw(RawFinalizationInputV1),
+}
+
+impl PostprocessStageTarget for MirModule {
+    fn refresh_rune_plans(&mut self) {
+        crate::mir::rune_plan_refresh::refresh_module_rune_plans(self);
+    }
+
+    fn optimize(&mut self) -> crate::mir::optimizer_stats::OptimizationStats {
+        crate::mir::optimizer::MirOptimizer::new().optimize_module(self)
+    }
+
+    fn refresh_contracts(&mut self) -> Result<(), String> {
+        crate::mir::semantic_refresh::refresh_and_validate_for_boundary(
+            self,
+            crate::mir::semantic_refresh::ContractRefreshBoundary::Verifier,
+        )
+        .map(|_| ())
+    }
+
+    fn verify(&mut self, verifier: &mut MirVerifier) -> Result<(), Box<[VerificationError]>> {
+        verifier
+            .verify_module(self)
+            .map_err(|errors| errors.into_boxed_slice())
+    }
+
+    fn insert_rc(&mut self) {
+        crate::mir::passes::rc_insertion::insert_rc_instructions(self);
+    }
+
+    fn refresh_semantic_metadata(&mut self) {
+        crate::mir::semantic_refresh::refresh_module_semantic_metadata(self);
+    }
+
+    fn canonicalize_callsites(&mut self) -> usize {
+        crate::mir::passes::callsite_canonicalize::canonicalize_for_site(
+            self,
+            crate::mir::passes::callsite_canonicalize::CallsiteCanonicalizeScheduleSite::MirCompilerPostRc,
+        )
+    }
 }
 
 /// Route evidence extracted exactly once when the postprocessed owner is
@@ -300,6 +335,10 @@ impl<'a> ModulePostprocessOwnerV1<'a> {
         Self { verifier, optimize }
     }
 
+    pub(in crate::mir) fn into_stage_parts(self) -> (&'a mut MirVerifier, bool) {
+        (self.verifier, self.optimize)
+    }
+
     pub(in crate::mir) fn run(
         self,
         finalized: FinalizedModuleInvocationV1<'a>,
@@ -335,90 +374,30 @@ impl<'a> ModulePostprocessOwnerV1<'a> {
 }
 
 fn process_input<'a>(
-    mut input: ModulePostprocessInputV1<'a>,
+    input: ModulePostprocessInputV1<'a>,
     schedule: ModulePostprocessScheduleV1,
     verifier: &mut MirVerifier,
     optimize: bool,
 ) -> Result<PostprocessedModuleInvocationV1<'a>, RejectedModulePostprocessV1<'a>> {
-    crate::mir::rune_plan_refresh::refresh_module_rune_plans(module_mut(&mut input));
-    if optimize {
-        let stats = MirOptimizer::new().optimize_module(module_mut(&mut input));
-        if (crate::config::env::opt_diag_fail() || crate::config::env::opt_diag_forbid_legacy())
-            && stats.diagnostics_reported > 0
-        {
-            return Err(rejected(
-                input,
-                schedule,
-                PostprocessFailureStageV1::Optimizer,
-                ModulePostprocessErrorV1::OptimizerDiagnostics {
-                    count: stats.diagnostics_reported,
-                },
-            ));
-        }
-    }
-    if let Err(error) =
-        refresh_and_validate_for_boundary(module_mut(&mut input), ContractRefreshBoundary::Verifier)
-    {
-        return Err(rejected(
-            input,
-            schedule,
-            PostprocessFailureStageV1::ContractRefresh,
-            ModulePostprocessErrorV1::ContractRefresh(format!("{error:?}")),
-        ));
-    }
-    let pre_transform = verifier
-        .verify_module(module_mut(&mut input))
-        .map(|()| ())
-        .map_err(|errors| errors.into_boxed_slice());
-    if matches!(schedule.rc(), RcInsertionScheduleV1::Run) {
-        insert_rc_instructions(module_mut(&mut input));
-    }
-    refresh_module_semantic_metadata(module_mut(&mut input));
-    let changed = crate::mir::passes::callsite_canonicalize::canonicalize_for_site(
-        module_mut(&mut input),
-        crate::mir::passes::callsite_canonicalize::CallsiteCanonicalizeScheduleSite::MirCompilerPostRc,
-    );
-    if changed > 0 {
-        refresh_module_semantic_metadata(module_mut(&mut input));
-    }
-    let verification = match schedule.verifier() {
-        VerificationBarrierV1::ReportPreTransformOnly => {
-            ModuleVerificationEvidenceV1::Raw { pre_transform }
-        }
-        VerificationBarrierV1::RequireFinal => {
-            let errors = verifier.verify_module(module_mut(&mut input));
-            if let Err(errors) = errors {
-                return Err(rejected(
-                    input,
-                    schedule,
-                    PostprocessFailureStageV1::FinalVerification,
-                    ModulePostprocessErrorV1::FinalVerification(errors.into_boxed_slice()),
-                ));
-            }
-            ModuleVerificationEvidenceV1::Canonical {
-                pre_transform,
-                final_verified: CanonicalFinalVerificationSealV1 {
-                    _seal: CanonicalFinalVerificationSealInnerV1,
-                },
-            }
-        }
-    };
-    Ok(PostprocessedModuleInvocationV1 {
-        input,
-        schedule,
-        verification,
-    })
-}
-
-fn module_mut<'a, 'b>(input: &'a mut ModulePostprocessInputV1<'b>) -> &'a mut MirModule {
-    match input {
+    let mut input = input;
+    let verification = match &mut input {
         ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Single(input)) => {
-            &mut input.physical.module
+            run_postprocess_stages(&mut input.physical.module, schedule, verifier, optimize)
         }
         ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Callable(input)) => {
-            &mut input.physical.module
+            run_postprocess_stages(&mut input.physical.module, schedule, verifier, optimize)
         }
-        ModulePostprocessInputV1::Raw(input) => &mut input.module,
+        ModulePostprocessInputV1::Raw(input) => {
+            run_postprocess_stages(&mut input.module, schedule, verifier, optimize)
+        }
+    };
+    match verification {
+        Ok(verification) => Ok(PostprocessedModuleInvocationV1 {
+            input,
+            schedule,
+            verification,
+        }),
+        Err(failure) => Err(rejected(input, schedule, failure.stage, failure.error)),
     }
 }
 

@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINAL0-S0 is closed with direct RawDrainedInvocationV1 finalization and opaque Builder readiness. The next active boundary is POST0-RAW-DRAINED-CARRIER-CONSULT0; the new RawFinalizedInvocationV1 has no postprocess consumer yet. Legacy POST0 proofs remain disconnected and are not adapters. Production ingress, executor wiring, external commit activation, and CUT0 remain disconnected."
+status = "FINAL0-S0 is closed with direct RawDrainedInvocationV1 finalization and opaque Builder readiness. POST0-S0 is now the active implementation row: the new RawFinalizedInvocationV1 will enter the existing ModulePostprocessOwner through one private carrier loan and shared stage kernel. Legacy POST0 proofs remain disconnected and are not adapters. Production ingress, executor wiring, external commit activation, and CUT0 remain disconnected."
 date = "2026-07-24"
-current_design_stop = "POST0-RAW-DRAINED-CARRIER-CONSULT0"
-current_execution_row = "POST0-RAW-DRAINED-CARRIER-CONSULT0"
-current_execution_summary = "FINAL-DRAIN-prime-r1 is closed. The new RawFinalizedInvocationV1 cannot be forwarded to the legacy Raw postprocess product because its module remains opaque and the old owner expects a bare MirModule. POST0-RAW-DRAINED-CARRIER-CONSULT0 is the active design stop; no Rust implementation is authorized until the mutation/evidence owner is selected."
+current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-S0"
+current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-S0"
+current_execution_summary = "POST-CARRIER-prime-r1 is selected. The new RawFinalizedInvocationV1 enters ModulePostprocessOwnerV1 through one private RawPostprocessModuleLoanV1 and one shared stage kernel. Route evidence, RawDrainWitness, FINAL0 parity, and the mutated unpublished owner remain retained; external commit and production ingress remain disconnected."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -354,9 +354,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24"
-latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
-latest_card_summary = """FINAL0 is closed. POST0-RAW-DRAINED-CARRIER-CONSULT0 records the unresolved opaque-module mutation owner between the new direct Raw finalization product and the legacy postprocess owner. Rust implementation is paused at this design stop; old POST0 proofs remain disconnected."""
+latest_card = "cut0-i0-raw-source0-lower-root-post0-s0-execution-task-2026-07-24"
+latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-s0-execution-task-2026-07-24.md"
+latest_card_summary = """POST-CARRIER-prime-r1 is selected. POST0-S0 adds one RawFinalizedInvocationV1 -> RawPostprocessReadyInvocationV1 handoff, one private module loan, and one shared postprocess stage kernel. External commit, public ingress, and CUT0 remain disconnected."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -558,7 +558,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DESIGN-STOP-POST0-RAW-DRAINED-CARRIER-20260724"
+current_blocker_token = "DPRIME-POST0-RAW-DRAINED-CARRIER-S0-20260724"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

@@ -97,6 +97,28 @@ pub(in crate::mir) struct RawFinalizedPhysicalV1 {
 #[derive(Debug)]
 struct RawFinalizedPhysicalSealV1;
 
+impl RawFinalizedPhysicalV1 {
+    pub(in crate::mir) fn into_postprocess_parts(
+        self,
+    ) -> (
+        crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
+        PreparedBuilderModuleSessionV1,
+        RawFinalizedModuleV1,
+        RawDrainWitnessV1,
+        RawFinalizationParitySealV1,
+    ) {
+        let Self {
+            token,
+            builder,
+            module,
+            witness,
+            parity,
+            _seal: _,
+        } = self;
+        (token, builder, module, witness, parity)
+    }
+}
+
 impl RawDrainedPhysicalV1 {
     pub(in crate::mir) fn prepare_raw_finalization(
         self,

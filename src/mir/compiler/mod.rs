@@ -33,6 +33,7 @@ pub(in crate::mir) mod located;
 mod lowering_input;
 #[allow(dead_code)]
 pub(in crate::mir) mod module_postprocess;
+pub(in crate::mir) mod module_postprocess_stages;
 mod module_session;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_finalization;
@@ -52,6 +53,7 @@ pub(in crate::mir) mod raw_root_eligibility_classifier;
 pub(in crate::mir) mod raw_root_finalization;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_package;
+pub(in crate::mir) mod raw_root_postprocess;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_runtime_inputs;
 #[allow(dead_code)]
@@ -118,6 +120,8 @@ mod raw_root_finalization_p0;
 pub(in crate::mir) mod raw_root_manifest_package;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_plan0;
+#[cfg(test)]
+mod raw_root_postprocess_p0;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_source_facts;
 #[cfg(test)]

@@ -25,7 +25,7 @@ fn function(name: &str) -> ASTNode {
     }
 }
 
-fn app() -> ASTNode {
+pub(super) fn app() -> ASTNode {
     let mut methods = HashMap::new();
     methods.insert("main".into(), function("main"));
     ASTNode::Program {
@@ -57,7 +57,10 @@ fn app() -> ASTNode {
     }
 }
 
-fn drained(source: ASTNode, selection: RawCallableMainSelectionV1) -> RawDrainedInvocationV1 {
+pub(super) fn drained(
+    source: ASTNode,
+    selection: RawCallableMainSelectionV1,
+) -> RawDrainedInvocationV1 {
     let mut compiler = MirCompiler::new();
     compiler
         .bind_raw_source(

@@ -10,6 +10,7 @@ use super::raw_root_drain::{
     RawAppDrainedInvocationV1, RawDrainedInvocationCoreV1, RawDrainedInvocationV1,
     RawScriptDrainedInvocationV1,
 };
+use super::raw_root_postprocess::RawPostprocessReadyInvocationV1;
 use super::raw_runtime_inputs::RawRuntimeInputSnapshotV1;
 use super::raw_source_binding::RawPostCallableMainContinuationV1;
 use crate::mir::builder::{
@@ -90,6 +91,55 @@ impl RawDrainedInvocationV1 {
         match self {
             Self::Script(wrapper) => finalize_script(wrapper),
             Self::App(wrapper) => finalize_app(wrapper),
+        }
+    }
+}
+
+impl RawFinalizedInvocationV1 {
+    pub(in crate::mir) fn prepare_postprocess(self) -> RawPostprocessReadyInvocationV1 {
+        match self {
+            RawFinalizedInvocationV1::Script(wrapper) => {
+                let RawScriptFinalizedInvocationV1 { core } = wrapper;
+                let RawFinalizedInvocationCoreV1 {
+                    continuation,
+                    module_name,
+                    runtime_inputs,
+                    completion,
+                    helper_receipts,
+                    physical,
+                } = core;
+                RawPostprocessReadyInvocationV1::from_script(
+                    continuation,
+                    module_name,
+                    runtime_inputs,
+                    completion,
+                    helper_receipts,
+                    physical.begin_postprocess(),
+                )
+            }
+            RawFinalizedInvocationV1::App(wrapper) => {
+                let RawAppFinalizedInvocationV1 {
+                    core,
+                    callable_main,
+                } = wrapper;
+                let RawFinalizedInvocationCoreV1 {
+                    continuation,
+                    module_name,
+                    runtime_inputs,
+                    completion,
+                    helper_receipts,
+                    physical,
+                } = core;
+                RawPostprocessReadyInvocationV1::from_app(
+                    continuation,
+                    module_name,
+                    runtime_inputs,
+                    completion,
+                    helper_receipts,
+                    callable_main,
+                    physical.begin_postprocess(),
+                )
+            }
         }
     }
 }

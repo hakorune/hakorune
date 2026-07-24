@@ -154,6 +154,64 @@ impl RawUnfinalizedModuleV1 {
     }
 }
 
+impl RawFinalizedModuleV1 {
+    pub(in crate::mir) fn name(&self) -> &str {
+        &self.module.name
+    }
+
+    pub(in crate::mir) fn function_count(&self) -> usize {
+        self.module.functions.len()
+    }
+
+    pub(in crate::mir) fn symbols(&self) -> impl Iterator<Item = &String> {
+        self.module.functions.keys()
+    }
+
+    pub(in crate::mir) fn function(&self, symbol: &str) -> Option<&crate::mir::MirFunction> {
+        self.module.functions.get(symbol)
+    }
+
+    pub(in crate::mir) fn refresh_rune_plans(&mut self) {
+        crate::mir::rune_plan_refresh::refresh_module_rune_plans(&mut self.module);
+    }
+
+    pub(in crate::mir) fn optimize(&mut self) -> crate::mir::optimizer_stats::OptimizationStats {
+        crate::mir::optimizer::MirOptimizer::new().optimize_module(&mut self.module)
+    }
+
+    pub(in crate::mir) fn refresh_contracts(&mut self) -> Result<(), String> {
+        crate::mir::semantic_refresh::refresh_and_validate_for_boundary(
+            &mut self.module,
+            crate::mir::semantic_refresh::ContractRefreshBoundary::Verifier,
+        )
+        .map(|_| ())
+    }
+
+    pub(in crate::mir) fn verify(
+        &mut self,
+        verifier: &mut crate::mir::verification::MirVerifier,
+    ) -> Result<(), Box<[crate::mir::verification_types::VerificationError]>> {
+        verifier
+            .verify_module(&mut self.module)
+            .map_err(|errors| errors.into_boxed_slice())
+    }
+
+    pub(in crate::mir) fn insert_rc(&mut self) {
+        crate::mir::passes::rc_insertion::insert_rc_instructions(&mut self.module);
+    }
+
+    pub(in crate::mir) fn refresh_semantic_metadata(&mut self) {
+        crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut self.module);
+    }
+
+    pub(in crate::mir) fn canonicalize_callsites(&mut self) -> usize {
+        crate::mir::passes::callsite_canonicalize::canonicalize_for_site(
+            &mut self.module,
+            crate::mir::passes::callsite_canonicalize::CallsiteCanonicalizeScheduleSite::MirCompilerPostRc,
+        )
+    }
+}
+
 impl RawDrainWitnessV1 {
     pub(in crate::mir::builder) fn manifest(&self) -> &RawPhysicalDrainManifestV1 {
         &self.manifest
