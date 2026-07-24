@@ -47,6 +47,13 @@ baseline/reason inventory problem, not evidence that all 239 allowances are
 dead code. The last guard update predates the current disconnected RAW/CUT0
 proof rows.
 
+The later line-cap scan also found one test-only file above the hard cap:
+`src/mir/global_call_route_plan/tests/runtime_methods/collection_builders.rs`
+at 825 lines. Its final payload fixture was moved to the sibling
+`collection_builder_payload.rs` without changing production code or test
+semantics; the files are now 704 and 122 lines respectively. This is a
+behavior-neutral M1 refactor, not a source-shape or route-policy change.
+
 `Cargo.toml` currently defaults to `cli,plugins`; `vm-reference` is not a
 default feature. Historical notes claiming a default-on migration lane must
 not be treated as current policy.

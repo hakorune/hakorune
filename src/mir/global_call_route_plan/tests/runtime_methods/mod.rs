@@ -23,6 +23,7 @@ fn method_call(
     }
 }
 
+mod collection_builder_payload;
 mod collection_builders;
 mod mir_json_fields;
 mod runtime_data_string;
