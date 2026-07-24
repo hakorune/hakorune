@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT — POST0 publication consultation
 
-Status: **Design stop — COMMIT0-S0 closed; awaiting publication decision**  
+Status: **Closed — RAW-PUBLICATION-prime-r1 selected; execution task opened**
 Date: 2026-07-24  
 Predecessor: `cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md`
 
@@ -162,9 +162,15 @@ Q6 = 1
 Q7 = 1
 ```
 
-This is a new publication authority/result boundary, so implementation must
-stop until the candidate is selected. After selection, the first executable
-row is:
+Decision selected on 2026-07-24. The executable task is:
+
+```text
+cut0-i0-raw-source0-lower-root-post0-publication0-s0-execution-task-2026-07-24.md
+```
+
+This was a new publication authority/result boundary, so implementation
+stopped until the candidate was selected. The selected first executable row
+is:
 
 ```text
 RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLICATION0-S0

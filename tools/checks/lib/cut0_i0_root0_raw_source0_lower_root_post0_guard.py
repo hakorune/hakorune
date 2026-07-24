@@ -32,9 +32,13 @@ def main() -> int:
             'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-COMMIT-CONSULT0"',
             'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-COMMIT0-S0"',
             'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLICATION-CONSULT0"',
+            'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLICATION0-S0"',
         )
     ):
-        raise AssertionError("POST0 current row must be FAILURE0, COMMIT-CONSULT0, COMMIT0-S0, or PUBLICATION-CONSULT0")
+        raise AssertionError(
+            "POST0 current row must be FAILURE0, COMMIT-CONSULT0, COMMIT0-S0, "
+            "PUBLICATION-CONSULT0, or PUBLICATION0-S0"
+        )
     require(task, "POST-CARRIER-prime-r1", "decision lock")
     require(task, "RawFinalizedInvocationV1::prepare_postprocess(self)", "sole entry")
 
