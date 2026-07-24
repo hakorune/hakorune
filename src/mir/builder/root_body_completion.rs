@@ -134,7 +134,8 @@ impl RootBodyCompletionTrackerV1 {
     pub(in crate::mir::builder) fn begin_root_body(
         self,
     ) -> Result<ActiveRootBodyCompletionTrackerV1, RootBodyCompletionErrorV1> {
-        self.begin_root_body_preserving().map_err(|(_, error)| error)
+        self.begin_root_body_preserving()
+            .map_err(|(_, error)| error)
     }
 
     pub(in crate::mir::builder) fn begin_root_body_preserving(
@@ -310,7 +311,8 @@ impl ActiveRootBodyCompletionTrackerV1 {
         self,
         result: RootBodyResultV1,
     ) -> Result<CompletedRootBodyV1, RootBodyCompletionErrorV1> {
-        self.seal_root_body_preserving(result).map_err(|(_, error)| error)
+        self.seal_root_body_preserving(result)
+            .map_err(|(_, error)| error)
     }
 
     pub(in crate::mir::builder) fn seal_root_body_preserving(

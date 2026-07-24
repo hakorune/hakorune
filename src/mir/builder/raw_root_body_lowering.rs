@@ -5,19 +5,28 @@
 //! facts.  Publication to the shell/collector remains a later ROOTBATCH0
 //! responsibility.
 
+use crate::mir::builder::root_batch_slot::{RawRootBatchSlotContractV1, RawRootBatchSlotV1};
 use crate::mir::builder::root_body_completion::RootBodyResultV1;
 use crate::mir::raw_root_body_recipe::{
     RawLinearScalarExprV1, RawLinearScalarStmtV1, RawLinearUnaryOperatorV1, RawRootBodyRecipeV1,
 };
-use crate::mir::{Effect, EffectMask, FunctionSignature, MirBuilder, MirInstruction, MirType, UnaryOp, ValueId};
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
+use crate::mir::{
+    Effect, EffectMask, FunctionSignature, MirBuilder, MirInstruction, MirType, UnaryOp, ValueId,
+};
 
 impl MirBuilder {
     /// Create the unpublished physical root function without asking the AST
-    /// for a signature.  BODY0 admits only `main/0 -> Void`.
+    /// for a signature.  The caller must consume the Main root-slot contract;
+    /// BODY0 does not invent a second `main/0` spelling.
     pub(in crate::mir::builder) fn begin_raw_root_function_v1(
         &mut self,
+        slot: RawRootBatchSlotContractV1,
     ) -> Result<(), String> {
+        let expected = RawRootBatchSlotV1::Main.contract();
+        if slot != expected {
+            return Err("[freeze:contract][raw_root_body/root_slot_mismatch]".to_string());
+        }
         if self.function_state.current_function.is_some()
             || self.function_state.current_block.is_some()
         {
@@ -25,12 +34,13 @@ impl MirBuilder {
         }
         let entry = self.next_block_id();
         let signature = FunctionSignature {
-            name: "main/0".to_string(),
+            name: slot.symbol().to_owned(),
             params: Vec::new(),
             return_type: MirType::Void,
             effects: EffectMask::READ.add(Effect::ReadHeap),
         };
-        self.function_state.current_function = Some(self.new_function_with_metadata(signature, entry));
+        self.function_state.current_function =
+            Some(self.new_function_with_metadata(signature, entry));
         self.function_state.current_block = Some(entry);
         self.function_state.frag_emit_session.reset();
         self.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
@@ -71,7 +81,10 @@ impl MirBuilder {
         Ok(last)
     }
 
-    fn lower_linear_statement_v1(&mut self, statement: &RawLinearScalarStmtV1) -> Result<ValueId, String> {
+    fn lower_linear_statement_v1(
+        &mut self,
+        statement: &RawLinearScalarStmtV1,
+    ) -> Result<ValueId, String> {
         match statement {
             RawLinearScalarStmtV1::Expr { expression, .. }
             | RawLinearScalarStmtV1::Print { expression, .. } => {
@@ -117,11 +130,18 @@ impl MirBuilder {
         }
     }
 
-    fn lower_linear_expr_v1(&mut self, expression: &RawLinearScalarExprV1) -> Result<ValueId, String> {
+    fn lower_linear_expr_v1(
+        &mut self,
+        expression: &RawLinearScalarExprV1,
+    ) -> Result<ValueId, String> {
         match expression {
             RawLinearScalarExprV1::Literal { value, .. } => self.build_literal(value.clone()),
-            RawLinearScalarExprV1::Variable { name, .. } => self.build_variable_access(name.to_string()),
-            RawLinearScalarExprV1::Unary { operator, operand, .. } => {
+            RawLinearScalarExprV1::Variable { name, .. } => {
+                self.build_variable_access(name.to_string())
+            }
+            RawLinearScalarExprV1::Unary {
+                operator, operand, ..
+            } => {
                 let operand = self.lower_linear_expr_v1(operand)?;
                 self.emit_linear_unary_v1(*operator, operand)
             }
@@ -149,11 +169,13 @@ impl MirBuilder {
             RawLinearUnaryOperatorV1::BitNot => ("~", crate::mir::MirType::Integer),
         };
         let dst = self.next_value_id();
-        let op: UnaryOp = crate::mir::builder::ops::converters::convert_unary_operator(
-            operator.to_string(),
-        )?;
+        let op: UnaryOp =
+            crate::mir::builder::ops::converters::convert_unary_operator(operator.to_string())?;
         self.emit_instruction(MirInstruction::UnaryOp { dst, op, operand })?;
-        self.function_state.type_ctx.value_types.insert(dst, result_type);
+        self.function_state
+            .type_ctx
+            .value_types
+            .insert(dst, result_type);
         Ok(dst)
     }
 }

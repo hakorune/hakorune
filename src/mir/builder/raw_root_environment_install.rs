@@ -20,6 +20,7 @@ use super::raw_root_physical::RawRootPhysicalStateV1;
 use super::raw_root_physical::{
     RawRootBodyPhysicalDriveV1, RawRootBodyPhysicalErrorV1, RawRootPostBodyPhysicalStateV1,
 };
+use super::root_batch_slot::RawRootBatchSlotV1;
 use super::root_body_completion::{CompletedRootBodyV1, RootBodyResultV1};
 use crate::mir::raw_root_body_recipe::RawRootBodyRecipeV1;
 use crate::mir::MirFunction;
@@ -369,7 +370,9 @@ impl InstalledRawRootEnvironmentV1 {
         };
         let lower_result = {
             let builder = session.builder_mut();
-            if let Err(error) = builder.begin_raw_root_function_v1() {
+            if let Err(error) =
+                builder.begin_raw_root_function_v1(RawRootBatchSlotV1::Main.contract())
+            {
                 return Err(RejectedRawRootBodyPhysicalV1 {
                     owner: RawRootBodyRejectedOwnerV1::DuringDrive { session, physical },
                     error: RawRootBodyLoweringErrorV1::Lower(error),
@@ -645,7 +648,10 @@ mod tests {
         .unwrap();
         let completed = installed.drive_root_body(recipe).unwrap();
         let (_session, physical, draft, completion) = completed.into_parts();
-        assert_eq!(draft.signature.name, "main/0");
+        assert_eq!(
+            draft.signature.name,
+            RawRootBatchSlotV1::Main.contract().symbol()
+        );
         assert_eq!(completion.result(), RootBodyResultV1::NoValue);
         assert!(physical.shell_is_empty());
         assert!(physical.collector_and_ledger_untouched());

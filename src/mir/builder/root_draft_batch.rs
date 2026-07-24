@@ -5,8 +5,13 @@
 //! deliberately outside this slice.
 
 use super::main_pending_draft::PendingMainDraftV1;
+use super::main_pending_draft::{
+    MainCompletionRequestV1, MainDraftIdentityV1, MainHeaderLoanV1, MainHeaderSourceV1,
+};
 use super::module_draft_collector::{DraftPublicationPolicyV1, FunctionDraftKeyV1};
 use super::module_invocation_drain::ConditionFnPolicyV1;
+use super::raw_required_condition_draft::RawRequiredConditionDraftV1;
+use super::root_batch_slot::RawRootBatchSlotV1;
 use super::root_body_completion::CompletedRootBodyV1;
 use crate::mir::MirFunction;
 
@@ -106,6 +111,27 @@ pub(in crate::mir::builder) struct PreparedRootDraftBatchV1 {
 struct PreparedRootDraftBatchSealV1;
 
 impl PreparedRootDraftBatchV1 {
+    /// Raw-only constructor.  The caller cannot provide a condition body or
+    /// choose an optional/forbidden policy; the typed factory and Required
+    /// policy are fixed here before the generic collector batch is reached.
+    pub(in crate::mir::builder) fn prepare_raw_required(
+        main_draft: MirFunction,
+        root_body: CompletedRootBodyV1,
+        condition: RawRequiredConditionDraftV1,
+    ) -> Result<Self, RootDraftBatchErrorV1> {
+        let request = MainCompletionRequestV1::new(MainDraftIdentityV1::root(), root_body, false);
+        let headers = crate::mir::MirModule::new("raw-root-batch-headers".into());
+        let loan = MainHeaderLoanV1::new(&headers, MainHeaderSourceV1::InvocationCollector);
+        let pending = request
+            .finish(main_draft, loan)
+            .unwrap_or_else(|_| unreachable!("Raw root identity was preflighted"));
+        Self::prepare(
+            pending,
+            Some(condition.into_draft()),
+            ConditionFnPolicyV1::Required,
+        )
+    }
+
     pub(in crate::mir::builder) fn prepare(
         main: PendingMainDraftV1,
         condition_fn: Option<MirFunction>,
@@ -116,7 +142,8 @@ impl PreparedRootDraftBatchV1 {
             .take_root_body()
             .ok_or(RootDraftBatchErrorV1::MissingRootBody)?;
         let identity = main.identity();
-        if identity.symbol() != "main" || identity.arity() != 0 {
+        let main_slot = RawRootBatchSlotV1::Main.contract();
+        if identity.symbol() != main_slot.symbol() || identity.arity() != main_slot.arity() {
             return Err(RootDraftBatchErrorV1::MainIdentityMismatch);
         }
 
@@ -132,17 +159,18 @@ impl PreparedRootDraftBatchV1 {
         };
 
         let mut admissions = vec![RootDraftAdmissionPlanV1 {
-            key: FunctionDraftKeyV1::Main,
-            symbol: "main".into(),
-            arity: 0,
-            policy: DraftPublicationPolicyV1::LegacyReplaceWholePair,
+            key: main_slot.key().clone(),
+            symbol: main_slot.symbol().into(),
+            arity: main_slot.arity(),
+            policy: main_slot.policy(),
         }];
         if pending_condition.is_some() {
+            let condition_slot = RawRootBatchSlotV1::RequiredCondition.contract();
             admissions.push(RootDraftAdmissionPlanV1 {
-                key: FunctionDraftKeyV1::SyntheticConditionFn,
-                symbol: "condition_fn".into(),
-                arity: 1,
-                policy: DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+                key: condition_slot.key().clone(),
+                symbol: condition_slot.symbol().into(),
+                arity: condition_slot.arity(),
+                policy: condition_slot.policy(),
             });
         }
 

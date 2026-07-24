@@ -84,6 +84,12 @@ calls / source AST    = zero
 entry metadata        = false
 ```
 
+Implementation note (2026-07-24): S0a and S0b are now landed as disconnected
+Builder vocabulary, with the borrow-only two-slot ledger plan vocabulary
+prepared for S0c.  The focused identity/body/factory tests and `cargo check
+--lib` are green.  No compiler or production consumer is connected; S0c
+remains the next active implementation gate.
+
 ## S0c — mutation-free prepare
 
 The Builder terminal borrows the complete physical owner and constructs all

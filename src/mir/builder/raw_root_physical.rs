@@ -230,4 +230,29 @@ impl RawRootPostBodyPhysicalStateV1 {
     pub(in crate::mir::builder) fn collector_and_ledger_untouched(&self) -> bool {
         matches!(&self.ledger, RawRootLedgerStateV1::Open(ledger) if ledger.is_clean_open())
     }
+
+    pub(in crate::mir::builder) fn open_ledger(&self) -> Option<&RawExpansionReceiptLedgerV1> {
+        match &self.ledger {
+            RawRootLedgerStateV1::Open(ledger) => Some(ledger),
+            RawRootLedgerStateV1::Aborted(_) | RawRootLedgerStateV1::AbortedPlaceholder => None,
+        }
+    }
+
+    pub(in crate::mir::builder) fn collector(
+        &self,
+    ) -> &super::module_invocation_owner_chain::BrandedCollectorV1<
+        super::module_draft_collector::ModuleDraftCollectorV1,
+    > {
+        self.physical.collector()
+    }
+
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        InvocationPhysicalStateV1,
+        RawRootLedgerStateV1,
+        RawCallableMainCompatibilityDispositionV1,
+    ) {
+        (self.physical, self.ledger, self.callable_main)
+    }
 }

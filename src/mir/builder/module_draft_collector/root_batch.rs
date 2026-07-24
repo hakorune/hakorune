@@ -10,6 +10,7 @@ use super::{
 };
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::builder::module_invocation_owner_chain::InvocationBranded;
+use crate::mir::builder::raw_expansion_receipt_ledger::RawRootMainCommitDispositionV1;
 use crate::mir::builder::root_body_completion::CompletedRootBodyV1;
 use crate::mir::builder::root_draft_batch::PreparedRootDraftBatchV1;
 use crate::mir::MirFunction;
@@ -166,6 +167,35 @@ impl RootCollectorBatchReceiptV1 {
 }
 
 impl ModuleDraftCollectorV1 {
+    /// Borrow-only Main replacement fact used to co-seal collector and
+    /// ledger preparation before either owner is mutated.
+    pub(in crate::mir::builder) fn raw_root_main_disposition(
+        &self,
+    ) -> Result<RawRootMainCommitDispositionV1, ModuleDraftAdmissionErrorV1> {
+        match plan_admission_v1(
+            self,
+            &FunctionDraftKeyV1::Main,
+            "main",
+            DraftPublicationPolicyV1::LegacyReplaceWholePair,
+        )? {
+            PreparedCollectorReplacementV1::Legacy {
+                symbol_key: None,
+                key_symbol: None,
+            } => Ok(RawRootMainCommitDispositionV1::Insert),
+            PreparedCollectorReplacementV1::Legacy {
+                symbol_key: Some(previous_key),
+                key_symbol: Some(previous_symbol),
+            } => Ok(RawRootMainCommitDispositionV1::ReplaceExact {
+                previous_key,
+                previous_symbol: previous_symbol.into_boxed_str(),
+            }),
+            PreparedCollectorReplacementV1::Legacy { .. }
+            | PreparedCollectorReplacementV1::Canonical => {
+                unreachable!("legacy Main admission returned a canonical plan")
+            }
+        }
+    }
+
     /// Consume a batch after `validate_root_batch` has sealed all fallible
     /// admission facts. The only remaining failures are invariant breaks.
     pub(in crate::mir::builder) fn prepare_root_batch_preflighted(

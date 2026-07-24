@@ -2,6 +2,7 @@
 
 use super::MirBuilder;
 use crate::ast::{BinaryOperator, LiteralValue, Span};
+use crate::mir::builder::root_batch_slot::RawRootBatchSlotV1;
 use crate::mir::builder::root_body_completion::RootBodyResultV1;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::raw_root_body_recipe::{
@@ -38,7 +39,10 @@ fn linear_recipe_lowers_without_ast_reconstruction() {
     .unwrap();
 
     let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw/main/0".to_string());
+    builder.enter_function_for_test(format!(
+        "raw/{}",
+        RawRootBatchSlotV1::Main.contract().symbol()
+    ));
     let _scope = LexicalScopeGuard::new(&mut builder);
     let result = builder.lower_linear_scalar_recipe_v1(&recipe).unwrap();
     assert!(matches!(result, RootBodyResultV1::Value(_)));
@@ -82,11 +86,17 @@ fn linear_recipe_lowers_local_assignment_and_print() {
     .unwrap();
 
     let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw/main/0".to_string());
+    builder.enter_function_for_test(format!(
+        "raw/{}",
+        RawRootBatchSlotV1::Main.contract().symbol()
+    ));
     let _scope = LexicalScopeGuard::new(&mut builder);
     let result = builder.lower_linear_scalar_recipe_v1(&recipe).unwrap();
     assert!(matches!(result, RootBodyResultV1::Value(_)));
-    assert!(builder.variable_bindings().iter().any(|(name, _)| name == "x"));
+    assert!(builder
+        .variable_bindings()
+        .iter()
+        .any(|(name, _)| name == "x"));
     drop(_scope);
     builder.exit_function_for_test();
 }

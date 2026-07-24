@@ -58,28 +58,31 @@ mod function_state_transaction;
 mod located_legacy_lowering;
 #[allow(dead_code)]
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
-#[allow(dead_code)]
-mod raw_root_environment_install;
-mod raw_root_physical; // RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PHYSICAL0 empty carrier
+mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
+#[cfg(test)]
+mod raw_required_condition_draft_p0; // ROOTBATCH0-S0b exact factory contract
 mod raw_root_body_lowering; // RAW-SOURCE0-LOWER0-ROOT0-BODY0 recipe-only value lowerer
 #[cfg(test)]
 mod raw_root_body_lowering_p0; // BODY0-S0-B disconnected lowerer fixtures
 #[allow(dead_code)]
+mod raw_root_environment_install;
+mod raw_root_physical; // RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PHYSICAL0 empty carrier
+#[allow(dead_code)]
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
+pub(in crate::mir) use raw_required_condition_draft::RawRequiredConditionDraftV1;
 pub(in crate::mir) use raw_root_environment_install::{
     CompletedRawRootBodyPhysicalV1, InstalledRawRootEnvironmentV1,
-    PreparedRawRootEnvironmentInstallV1,
+    PreparedRawRootEnvironmentInstallV1, RawRootBodyLoweringErrorV1,
     RawRootEnvironmentInstallErrorV1, RawRootEnvironmentInstallOwnerV1,
     RawRootEnvironmentInstallRouteV1, RawRootEnvironmentProjectionV1,
-    RejectedRawRootEnvironmentInstallV1, RejectedRawRootBodyPhysicalV1,
-    RawRootBodyLoweringErrorV1,
+    RejectedRawRootBodyPhysicalV1, RejectedRawRootEnvironmentInstallV1,
 };
-pub(in crate::mir) use raw_root_physical::RawRootBodyPhysicalErrorV1;
 pub(in crate::mir) use raw_root_physical::callable_main_terminal::{
     CompletedRawCallableMainPhysicalV1, RawRootPhysicalCallableMainErrorV1,
     RejectedRawCallableMainPhysicalV1,
 };
 pub(in crate::mir) use raw_root_physical::child_terminal::RawRootPhysicalChildErrorV1;
+pub(in crate::mir) use raw_root_physical::RawRootBodyPhysicalErrorV1;
 pub(in crate::mir) use raw_root_physical::RawRootPhysicalStateV1;
 mod raw_root_child_work; // RAW-SOURCE0-LOWER0-ROOT0-CHILDREN0 source-bound helper work
 pub(in crate::mir) use raw_root_child_work::{
@@ -228,6 +231,8 @@ pub(in crate::mir) use raw_root_completion::RawInvocationRootWitnessV1;
 mod raw_root_completion_preflight; // ROOT-RETENTION0-PREFLIGHT borrowed owner checks
 #[cfg(test)]
 mod resolved_owner_header_p0; // ROUTEINV-P0c-SINGLEHDR-P0 matrix
+#[allow(dead_code)]
+mod root_batch_slot; // HEADERPORT0-I0-ROOTBATCH0-S0 identity SSOT
 #[allow(dead_code)]
 mod root_body_completion; // HEADERPORT0-I0-BODYDRAIN0-S0 disconnected witness
 #[cfg(test)]

@@ -5,6 +5,7 @@
 //! never stores a header view, Builder, collector, or fallback capability.
 
 use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
+use crate::mir::builder::root_batch_slot::RawRootBatchSlotV1;
 use crate::mir::builder::root_body_completion::CompletedRootBodyV1;
 use crate::mir::{FunctionSignature, MirFunction};
 
@@ -54,9 +55,10 @@ pub(in crate::mir::builder) struct MainDraftIdentityV1 {
 
 impl MainDraftIdentityV1 {
     pub(in crate::mir::builder) fn root() -> Self {
+        let contract = RawRootBatchSlotV1::Main.contract();
         Self {
-            symbol: "main".into(),
-            arity: 0,
+            symbol: contract.symbol().into(),
+            arity: contract.arity(),
         }
     }
 
