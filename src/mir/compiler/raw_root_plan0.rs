@@ -159,6 +159,16 @@ pub(in crate::mir) struct RawCallableHeaderPlanV1 {
     rows: Box<[RawCallableHeaderRowV1]>,
 }
 
+impl RawCallableHeaderRowV1 {
+    pub(in crate::mir) fn symbol(&self) -> &str {
+        &self.symbol
+    }
+
+    pub(in crate::mir) const fn arity(&self) -> usize {
+        self.arity
+    }
+}
+
 impl RawCallableHeaderPlanV1 {
     pub(in crate::mir) fn rows(&self) -> &[RawCallableHeaderRowV1] {
         &self.rows
@@ -201,6 +211,12 @@ pub(in crate::mir) struct RawScriptRootPlanV1 {
     statement_count: usize,
 }
 
+impl RawScriptRootPlanV1 {
+    pub(in crate::mir) const fn statement_count(&self) -> usize {
+        self.statement_count
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) struct RawAppRootPlanV1 {
     main: RawSourceLocatorV1,
@@ -211,6 +227,14 @@ pub(in crate::mir) struct RawAppRootPlanV1 {
 impl RawAppRootPlanV1 {
     pub(in crate::mir) const fn main(&self) -> &RawSourceLocatorV1 {
         &self.main
+    }
+
+    pub(in crate::mir) fn static_children(&self) -> &[RawSourceLocatorV1] {
+        &self.static_children
+    }
+
+    pub(in crate::mir) const fn callable_main(&self) -> &RawSourceLocatorV1 {
+        &self.callable_main
     }
 }
 

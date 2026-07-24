@@ -257,6 +257,10 @@ impl EligibleSourceBoundRawRootPackageV1 {
     pub(in crate::mir) const fn proof(&self) -> &RawRootEligibilityV1 {
         &self.proof
     }
+
+    pub(in crate::mir) const fn package(&self) -> &SourceBoundRawRootPackageV1 {
+        &self.package
+    }
 }
 
 #[derive(Debug)]
