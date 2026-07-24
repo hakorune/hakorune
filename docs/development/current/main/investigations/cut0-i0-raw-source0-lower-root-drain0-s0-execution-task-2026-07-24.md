@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT0 — DRAIN0-S0 実行タスク
 
-Status: **Open implementation row — DRAIN-prime-r1 selected**
+Status: **Closed — DRAIN-prime-r1 implemented and pushed as c470dc12d6**
 Date: 2026-07-24
 Question: `cut0-i0-raw-source0-lower-root-drain0-question-2026-07-24.md`
 
@@ -155,3 +155,11 @@ typed panic retention            = 0
 All modified/new source and check files must remain below 800 lines.  The
 next design boundary after this row is Raw finalization; it must consume only
 `RawDrainedInvocationV1` and must not reacquire source authority.
+
+## Closeout
+
+`DRAIN-MANIFEST0`, `DRAIN-COLLECTOR0`, `DRAIN-PHYSICAL0`, and `DRAIN-I0/G0`
+are closed. Focused Raw Script/App fixtures, `cargo check --lib`, the current
+state pointer guard, the DRAIN0 structural guard, rustfmt, and `git diff
+--check` are green. The next design stop is
+`RAW-SOURCE0-LOWER0-ROOT0-FINAL0-CONSULT0`.
