@@ -7,8 +7,9 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::builder::{RawSourceLocatorV1, VerifiedSameModuleCallableDeclarationCatalogV1};
 use crate::mir::raw_root_body_recipe::{
-    RawLinearScalarExprV1, RawLinearScalarStmtV1, RawLinearUnaryOperatorV1, RawRootBodyEntryV1,
-    RawRootBodyRecipeErrorV1, RawRootBodyRecipeV1, RawRootBodySourceSiteV1,
+    RawLinearScalarExprV1, RawLinearScalarStmtV1, RawLinearUnaryOperatorV1,
+    RawRootBodyEntryContractV1, RawRootBodyRecipeErrorV1, RawRootBodyRecipeV1,
+    RawRootBodySourceSiteV1,
 };
 
 use super::raw_root_plan0::{RawPhysicalRootIdentityV1, RawRootKindV1, RawRootPlanV1};
@@ -309,7 +310,6 @@ impl RawRootSourceFactsV1 {
     pub(in crate::mir) fn body(&self) -> &RawRootBodyFactV1 {
         &self.body
     }
-
 }
 
 impl RawRootPostInstallFactsV1 {
@@ -374,11 +374,9 @@ impl RawRootSourceFactsV1 {
         };
         let callable_count = callable_catalog.len();
         let (entry, body) = match body {
-            RawRootBodyFactV1::Script(program) => (RawRootBodyEntryV1::Script, program),
+            RawRootBodyFactV1::Script(program) => (RawRootBodyEntryContractV1::script(), program),
             RawRootBodyFactV1::App { main, body } => (
-                RawRootBodyEntryV1::AppMain0Void {
-                    top_level_statement: main.top_level_statement(),
-                },
+                RawRootBodyEntryContractV1::app_main0(main.top_level_statement()),
                 body,
             ),
         };

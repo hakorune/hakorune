@@ -8,15 +8,53 @@ use crate::ast::{BinaryOperator, LiteralValue, Span};
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct RawRootBodyRecipeV1 {
-    entry: RawRootBodyEntryV1,
+    entry: RawRootBodyEntryContractV1,
     statements: Box<[RawLinearScalarStmtV1]>,
     _seal: RawRootBodyRecipeSealV1,
 }
 
-#[derive(Debug, PartialEq)]
-pub(crate) enum RawRootBodyEntryV1 {
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum RawRootBodyRouteV1 {
     Script,
-    AppMain0Void { top_level_statement: usize },
+    AppMain0 { top_level_statement: usize },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum RawRootExitPolicyV1 {
+    ScriptLastValueOrVoid,
+    AppFixedVoid,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct RawRootBodyEntryContractV1 {
+    route: RawRootBodyRouteV1,
+    exit: RawRootExitPolicyV1,
+}
+
+impl RawRootBodyEntryContractV1 {
+    pub(crate) const fn script() -> Self {
+        Self {
+            route: RawRootBodyRouteV1::Script,
+            exit: RawRootExitPolicyV1::ScriptLastValueOrVoid,
+        }
+    }
+
+    pub(crate) const fn app_main0(top_level_statement: usize) -> Self {
+        Self {
+            route: RawRootBodyRouteV1::AppMain0 {
+                top_level_statement,
+            },
+            exit: RawRootExitPolicyV1::AppFixedVoid,
+        }
+    }
+
+    pub(crate) const fn route(&self) -> RawRootBodyRouteV1 {
+        self.route
+    }
+
+    pub(crate) const fn exit(&self) -> RawRootExitPolicyV1 {
+        self.exit
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -105,7 +143,7 @@ pub(crate) struct RawRootBodyRecipeSealV1;
 
 impl RawRootBodyRecipeV1 {
     pub(crate) fn from_parts(
-        entry: RawRootBodyEntryV1,
+        entry: RawRootBodyEntryContractV1,
         statements: Box<[RawLinearScalarStmtV1]>,
     ) -> Result<Self, RawRootBodyRecipeErrorV1> {
         let mut paths = std::collections::BTreeSet::new();
@@ -119,7 +157,7 @@ impl RawRootBodyRecipeV1 {
         })
     }
 
-    pub(crate) fn entry(&self) -> &RawRootBodyEntryV1 {
+    pub(crate) fn entry(&self) -> &RawRootBodyEntryContractV1 {
         &self.entry
     }
 

@@ -1,9 +1,24 @@
 # RAW public cutover PARITY0 Script body-return S0
 
-Decision: `RAW-PUBLIC-CUTOVER-PARITY0-BODY-RETURN-D0`
+Decision: `RAW-BODY-RETURN-prime-r1`
 
-Status: design-stop / queued. The current parity matrix is held at the green
-empty-Script row until Script return ownership is selected.
+Status: closed. The selected A′ owner chain is implemented and its focused
+Script/App/ROOTBATCH gates are green. App scalar parity remains parked in a
+separate design row.
+
+## Decision
+
+```text
+recipe = route + exit policy authority only
+Builder lowering = exact ValueId + MirType authority
+BODY = sole finalizer for signature, physical Return, completion, and
+       RawRootBodyExitWitnessV1
+ROOTBATCH0 = borrowed witness validation and retention only
+
+Script = ScriptLastValueOrVoid; provisional Unknown skeleton -> last-value-or-Void finalization
+App    = AppFixedVoid; fixed Void skeleton and Void completion (discarded tail retained)
+failure = typed discard-only owner; no retry, fallback, or postprocess repair
+```
 
 ## Evidence
 
@@ -23,7 +38,7 @@ last-value materialization and finalizer ownership
 failure retention before root batch publication
 ```
 
-## Audit refinement (design-stop remains active)
+## Audit refinement (decision is closed)
 
 The worker authority audit narrows the preferred design to A′:
 
@@ -35,16 +50,16 @@ BODY finalization: one owner emits Return(Value), updates signature, and
 ROOTBATCH0: borrowed witness validation only
 ```
 
-The original “recipe supplies exact return value/type before signature
-creation” wording is not accepted. The implementation must first answer the
-five owner questions in the design card, including the Legacy-App conflict:
-Legacy App currently reaches the common last-value finalizer, while the Raw
-recipe contract is `AppMain0Void`. Until that divergence is explicitly
-selected, App scalar parity remains parked with the Script scalar rows.
-
-No implementation is authorized by this card. In particular, do not add a
-provisional Void-to-scalar adapter, a second root lane, or a fallback to the
-Legacy builder.
+The implementation does not put `MirType` or `ValueId` into the recipe. A
+single BODY exit plan is prepared by borrowing the open Builder function and
+active tracker, then one private infallible commit emits all three physical
+facts and the paired witness. The old split `finish_raw_root_function_v1`
+terminal is absent. The Legacy-App last-value difference is explicit: Raw App
+uses FixedVoid for this row, and App scalar parity remains parked at
+`RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-BODY-RETURN-APP-D0`.
+The disconnected legacy completion fixture may carry a clearly marked
+`legacy_unverified` witness bridge; it is not a BODY0 producer and is not
+accepted by the new ROOTBATCH witness validator.
 
 ## Forbidden until decision
 
@@ -66,8 +81,21 @@ RootBatch Main/condition receipts remain exact
 source/check files remain below 800 lines
 ```
 
+## Closeout evidence
+
+```text
+Script empty/literal/string/binary parity = green
+App empty and non-empty FixedVoid routes = green
+ROOTBATCH Main/condition identity        = unchanged
+exit witness                             = retained through root witness
+ROOTBATCH witness validation              = before collector/ledger mutation
+old split root finalizer                  = zero production definitions/callers
+production consumers remain zero          = no new public cutover/adapter
+all modified source/check files           = below 800 lines
+```
+
 ## Next
 
 ```text
-RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-BODY-RETURN-D0
+RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-S0
 ```

@@ -16,6 +16,9 @@ use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCa
 use super::module_declaration_facts::SealedModuleDeclarationFactsV1;
 use super::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
 use super::module_invocation_session::ModuleBuilderInvocationSessionV1;
+use super::raw_root_body_exit::{
+    RawOpenRootFunctionV1, RawRootBodyExitSealErrorV1, RawRootBodyExitWitnessV1,
+};
 use super::raw_root_physical::RawRootPhysicalStateV1;
 use super::raw_root_physical::{
     RawRootBodyPhysicalDriveV1, RawRootBodyPhysicalErrorV1, RawRootPostBodyPhysicalStateV1,
@@ -316,6 +319,7 @@ pub(in crate::mir) struct CompletedRawRootBodyPhysicalV1 {
     physical: RawRootPostBodyPhysicalStateV1,
     draft: MirFunction,
     completion: CompletedRootBodyV1,
+    exit: RawRootBodyExitWitnessV1,
 }
 
 #[derive(Debug)]
@@ -323,10 +327,12 @@ enum RawRootBodyRejectedOwnerV1 {
     BeforeDrive {
         session: ModuleBuilderInvocationSessionV1,
         physical: RawRootPhysicalStateV1,
+        recipe: RawRootBodyRecipeV1,
     },
     DuringDrive {
         session: ModuleBuilderInvocationSessionV1,
         physical: RawRootBodyPhysicalDriveV1,
+        recipe: RawRootBodyRecipeV1,
     },
 }
 
@@ -334,7 +340,7 @@ enum RawRootBodyRejectedOwnerV1 {
 pub(in crate::mir) enum RawRootBodyLoweringErrorV1 {
     Physical(RawRootBodyPhysicalErrorV1),
     Lower(String),
-    Finalize(String),
+    ExitSeal(RawRootBodyExitSealErrorV1),
 }
 
 #[derive(Debug)]
@@ -363,21 +369,35 @@ impl InstalledRawRootEnvironmentV1 {
             Ok(physical) => physical,
             Err((physical, error)) => {
                 return Err(RejectedRawRootBodyPhysicalV1 {
-                    owner: RawRootBodyRejectedOwnerV1::BeforeDrive { session, physical },
+                    owner: RawRootBodyRejectedOwnerV1::BeforeDrive {
+                        session,
+                        physical,
+                        recipe,
+                    },
                     error: RawRootBodyLoweringErrorV1::Physical(error),
                 });
             }
         };
+        let open: RawOpenRootFunctionV1 = {
+            let builder = session.builder_mut();
+            match builder
+                .begin_raw_root_function_v1(RawRootBatchSlotV1::Main.contract(), *recipe.entry())
+            {
+                Ok(open) => open,
+                Err(error) => {
+                    return Err(RejectedRawRootBodyPhysicalV1 {
+                        owner: RawRootBodyRejectedOwnerV1::DuringDrive {
+                            session,
+                            physical,
+                            recipe,
+                        },
+                        error: RawRootBodyLoweringErrorV1::ExitSeal(error),
+                    });
+                }
+            }
+        };
         let lower_result = {
             let builder = session.builder_mut();
-            if let Err(error) =
-                builder.begin_raw_root_function_v1(RawRootBatchSlotV1::Main.contract())
-            {
-                return Err(RejectedRawRootBodyPhysicalV1 {
-                    owner: RawRootBodyRejectedOwnerV1::DuringDrive { session, physical },
-                    error: RawRootBodyLoweringErrorV1::Lower(error),
-                });
-            }
             let _scope = super::vars::lexical_scope::LexicalScopeGuard::new(builder);
             builder.lower_linear_scalar_recipe_v1(&recipe)
         };
@@ -385,25 +405,51 @@ impl InstalledRawRootEnvironmentV1 {
             Ok(result) => result,
             Err(error) => {
                 return Err(RejectedRawRootBodyPhysicalV1 {
-                    owner: RawRootBodyRejectedOwnerV1::DuringDrive { session, physical },
+                    owner: RawRootBodyRejectedOwnerV1::DuringDrive {
+                        session,
+                        physical,
+                        recipe,
+                    },
                     error: RawRootBodyLoweringErrorV1::Lower(error),
                 });
             }
         };
-        let draft = match session.builder_mut().finish_raw_root_function_v1() {
-            Ok(draft) => draft,
-            Err(error) => {
-                return Err(RejectedRawRootBodyPhysicalV1 {
-                    owner: RawRootBodyRejectedOwnerV1::DuringDrive { session, physical },
-                    error: RawRootBodyLoweringErrorV1::Finalize(error),
-                });
+        let plan =
+            match session
+                .builder()
+                .prepare_raw_root_exit_v1(&open, result, physical.tracker())
+            {
+                Ok(plan) => plan,
+                Err(error) => {
+                    return Err(RejectedRawRootBodyPhysicalV1 {
+                        owner: RawRootBodyRejectedOwnerV1::DuringDrive {
+                            session,
+                            physical,
+                            recipe,
+                        },
+                        error: RawRootBodyLoweringErrorV1::ExitSeal(error),
+                    });
+                }
+            };
+        let brand = physical.brand();
+        let (draft, exit) = session
+            .builder_mut()
+            .commit_raw_root_exit_v1(open, plan, brand);
+        let completion_result = match recipe.entry().exit() {
+            crate::mir::raw_root_body_recipe::RawRootExitPolicyV1::ScriptLastValueOrVoid => result,
+            crate::mir::raw_root_body_recipe::RawRootExitPolicyV1::AppFixedVoid => {
+                RootBodyResultV1::NoValue
             }
         };
-        let (physical, completion) = match physical.seal_root_body_preserving(result) {
+        let (physical, completion) = match physical.seal_root_body_preserving(completion_result) {
             Ok(done) => done,
             Err((physical, error)) => {
                 return Err(RejectedRawRootBodyPhysicalV1 {
-                    owner: RawRootBodyRejectedOwnerV1::DuringDrive { session, physical },
+                    owner: RawRootBodyRejectedOwnerV1::DuringDrive {
+                        session,
+                        physical,
+                        recipe,
+                    },
                     error: RawRootBodyLoweringErrorV1::Physical(error),
                 });
             }
@@ -413,6 +459,7 @@ impl InstalledRawRootEnvironmentV1 {
             physical,
             draft,
             completion,
+            exit,
         })
     }
     pub(in crate::mir) fn catalog_installed(&self) -> bool {
@@ -448,12 +495,13 @@ impl CompletedRawRootBodyPhysicalV1 {
     pub(in crate::mir) fn into_raw_root_batch_input(
         self,
     ) -> super::raw_root_physical::root_batch_terminal::RawRootBatchPhysicalInputV1 {
-        let (session, physical, draft, completion) = self.into_parts();
+        let (session, physical, draft, completion, exit) = self.into_parts();
         super::raw_root_physical::root_batch_terminal::RawRootBatchPhysicalInputV1 {
             session,
             physical,
             draft,
             completion,
+            exit,
         }
     }
 
@@ -464,8 +512,15 @@ impl CompletedRawRootBodyPhysicalV1 {
         RawRootPostBodyPhysicalStateV1,
         MirFunction,
         CompletedRootBodyV1,
+        RawRootBodyExitWitnessV1,
     ) {
-        (self.session, self.physical, self.draft, self.completion)
+        (
+            self.session,
+            self.physical,
+            self.draft,
+            self.completion,
+            self.exit,
+        )
     }
 }
 
@@ -543,6 +598,7 @@ pub(in crate::mir) enum RawRootEnvironmentInstallErrorV1 {
 
 #[cfg(test)]
 mod tests {
+    use super::super::root_body_completion::RootBodyResultV1;
     use super::*;
     use crate::mir::compiler::raw_root_source_facts::RawRootSourceRouteV1;
     use crate::mir::module_invocation_identity::ModuleInvocationTokenV1;
@@ -682,17 +738,21 @@ mod tests {
             .unwrap()
             .commit();
         let recipe = crate::mir::raw_root_body_recipe::RawRootBodyRecipeV1::from_parts(
-            crate::mir::raw_root_body_recipe::RawRootBodyEntryV1::Script,
+            crate::mir::raw_root_body_recipe::RawRootBodyEntryContractV1::script(),
             Vec::new().into_boxed_slice(),
         )
         .unwrap();
         let completed = installed.drive_root_body(recipe).unwrap();
-        let (_session, physical, draft, completion) = completed.into_parts();
+        let (_session, physical, draft, completion, exit) = completed.into_parts();
         assert_eq!(
             draft.signature.name,
             RawRootBatchSlotV1::Main.contract().symbol()
         );
         assert_eq!(completion.result(), RootBodyResultV1::NoValue);
+        assert_eq!(
+            exit.route(),
+            crate::mir::raw_root_body_recipe::RawRootBodyRouteV1::Script
+        );
         assert!(physical.shell_is_empty());
         assert!(physical.collector_and_ledger_untouched());
     }
@@ -702,7 +762,7 @@ mod tests {
         let (token, installed) = installed(RawRootSourceRouteV1::Script);
         let brand = token.brand();
         let recipe = crate::mir::raw_root_body_recipe::RawRootBodyRecipeV1::from_parts(
-            crate::mir::raw_root_body_recipe::RawRootBodyEntryV1::Script,
+            crate::mir::raw_root_body_recipe::RawRootBodyEntryContractV1::script(),
             Vec::new().into_boxed_slice(),
         )
         .unwrap();
@@ -718,7 +778,7 @@ mod tests {
     fn root_batch_rejects_legacy_main_slash_zero_before_any_commit() {
         let (token, installed) = installed(RawRootSourceRouteV1::Script);
         let recipe = crate::mir::raw_root_body_recipe::RawRootBodyRecipeV1::from_parts(
-            crate::mir::raw_root_body_recipe::RawRootBodyEntryV1::Script,
+            crate::mir::raw_root_body_recipe::RawRootBodyEntryContractV1::script(),
             Vec::new().into_boxed_slice(),
         )
         .unwrap();

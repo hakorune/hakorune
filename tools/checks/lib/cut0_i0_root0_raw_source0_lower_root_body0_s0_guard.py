@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 TASK = ROOT / (
     "docs/development/current/main/investigations/"
-    "cut0-i0-raw-source0-lower-root-body0-s0-execution-task-2026-07-24.md"
+    "cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-s0-execution-task-2026-07-25.md"
 )
 SOURCE = tuple(
     ROOT / path
@@ -18,7 +18,10 @@ SOURCE = tuple(
         "src/mir/compiler/raw_root_decl_access.rs",
         "src/mir/compiler/raw_root_decl_access_p0.rs",
         "src/mir/builder/raw_root_environment_install.rs",
+        "src/mir/builder/raw_root_body_exit.rs",
         "src/mir/builder/raw_root_physical.rs",
+        "src/mir/builder/raw_root_physical/root_batch_terminal.rs",
+        "src/mir/builder/raw_root_completion.rs",
         "src/mir/builder/raw_root_body_lowering.rs",
         "src/mir/builder/root_body_completion.rs",
     )
@@ -42,16 +45,16 @@ def main() -> int:
     if active:
         require(state, 'latest_card = "cut0-i0-raw-source0-lower-root-body0-s0-execution-task-2026-07-24"', "next card")
     for fragment in (
-        "Decision: **BODY-prime-r1**",
-        "DeclaredRawRootInvocationV1::begin_body(self)",
-        "RawRootBodyRecipeV1",
-        "LinearScalar0",
-        "InstalledRawRootEnvironmentV1",
-        "drive_root_body",
-        "RawRootBodyCompleteInvocationV1",
-        "collector admission",
+        "Decision: `RAW-BODY-RETURN-prime-r1`",
+        "Status: closed",
+        "Script empty/literal/string/binary parity = green",
+        "App empty and non-empty FixedVoid routes = green",
+        "ROOTBATCH Main/condition identity        = unchanged",
         "production consumers remain zero",
         "all modified source/check files",
+        "ScriptLastValueOrVoid",
+        "AppFixedVoid",
+        "RawRootBodyExitWitnessV1",
     ):
         require(task, fragment, f"task contract {fragment}")
 
@@ -63,6 +66,10 @@ def main() -> int:
         "seal_root_body_preserving",
         "collector_and_ledger_untouched",
         "body_entry_consumes_declared_script_into_unpublished_completion",
+        "begin_raw_root_function_v1",
+        "prepare_raw_root_exit_v1",
+        "commit_raw_root_exit_v1",
+        "RawRootBatchPhysicalErrorV1::ExitWitness",
     ):
         require(joined, fragment, f"implementation {fragment}")
 
@@ -104,6 +111,14 @@ def main() -> int:
         raise AssertionError("BODY0 must have one compiler begin_body terminal")
     if joined.count("fn drive_root_body(") != 1:
         raise AssertionError("BODY0 must have one paired drive_root_body terminal")
+    if joined.count("fn begin_raw_root_function_v1(") != 1:
+        raise AssertionError("BODY-RETURN must have one root skeleton producer")
+    if joined.count("fn prepare_raw_root_exit_v1(") != 1:
+        raise AssertionError("BODY-RETURN must have one exit prepare producer")
+    if joined.count("fn commit_raw_root_exit_v1(") != 1:
+        raise AssertionError("BODY-RETURN must have one exit commit producer")
+    if "finish_raw_root_function_v1" in joined:
+        raise AssertionError("legacy split root finalizer must be absent")
 
     for path in (ROOT / "docs/development/current/main/CURRENT_STATE.toml", TASK, *SOURCE):
         if len(path.read_text().splitlines()) >= 800:

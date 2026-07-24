@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINAL0-S0 through PUBLIC-INGRESS0-S0 and CLOSEOUT-REPAIR0 are closed. CONFIG0 and PARITY0-EFFECT-S0 are closed under their selected decisions. PARITY0 is at a Script body-return design stop after the next exact mismatch. Normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
+status = "FINAL0-S0 through PUBLIC-INGRESS0-S0 and CLOSEOUT-REPAIR0 are closed. CONFIG0, PARITY0-EFFECT-S0, and RAW-BODY-RETURN-prime-r1 are closed under their selected decisions. The next stop is the explicitly parked Raw App scalar-return parity consultation. Normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
 date = "2026-07-25"
-current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-BODY-RETURN-D0"
-current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-BODY-RETURN-D0"
-current_execution_summary = "PARITY0-EFFECT-prime-r1 is closed with green BODY0 and empty-Script parity. The next scalar Script row exposes a deeper ABI mismatch: Legacy returns the last value while Raw root main is Void. Worker audit narrows the preferred design to A′ (recipe owns route policy; Builder owns ValueId/type; one BODY finalizer owns Return/signature/exit witness) and exposes a separate Legacy-App last-value versus Raw-App-Void conflict. Snapshot weakening is forbidden; Script/App return ownership remains a design stop."
+current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-BODY-RETURN-APP-D0"
+current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-BODY-RETURN-APP-D0"
+current_execution_summary = "RAW-BODY-RETURN-prime-r1 is closed: Script empty/literal/string/binary rows use one BODY exit plan to co-seal ValueId, Builder type, physical Return, completion, and exit witness; App remains explicit FixedVoid with discarded-tail evidence. ROOTBATCH validates the borrowed witness before collector/ledger mutation. The next design stop is App scalar parity; no normal-entry cutover or fallback is authorized."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -356,7 +356,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-s0-execution-task-2026-07-25"
 latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-s0-execution-task-2026-07-25.md"
-latest_card_summary = """PARITY0-EFFECT-prime-r1 is closed with green BODY0 and empty-Script parity. Scalar Script parity is held at a body-return design stop: Legacy returns the last value while Raw root main is Void. No snapshot weakening or fallback is allowed."""
+latest_card_summary = """RAW-BODY-RETURN-prime-r1 is closed with green Script scalar and App FixedVoid focused parity. The next explicit stop is the parked App scalar-return consultation; no snapshot weakening or fallback is allowed."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -580,6 +580,7 @@ raw_post0_public_cutover_parity0_effect_repair_consultation = "docs/development/
 raw_post0_public_cutover_parity0_effect_repair_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-effect-repair-s0-execution-task-2026-07-25.md"
 raw_post0_public_cutover_parity0_body_return_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-design-question-2026-07-25.md"
 raw_post0_public_cutover_parity0_body_return_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-s0-execution-task-2026-07-25.md"
+raw_post0_public_cutover_parity0_body_return_app_design = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-app-d0-design-question-2026-07-25.md"
 raw_post0_old_raw_retire0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-old-raw-retire0-execution-task-2026-07-24.md"
 failure_outcome_semantic_manifest_maint0_task = "docs/development/current/main/investigations/failure-outcome-semantic-manifest-maint0-execution-task-2026-07-24.md"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"

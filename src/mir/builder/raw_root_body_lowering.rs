@@ -5,97 +5,13 @@
 //! facts.  Publication to the shell/collector remains a later ROOTBATCH0
 //! responsibility.
 
-use crate::mir::builder::root_batch_slot::{RawRootBatchSlotContractV1, RawRootBatchSlotV1};
 use crate::mir::builder::root_body_completion::RootBodyResultV1;
 use crate::mir::raw_root_body_recipe::{
     RawLinearScalarExprV1, RawLinearScalarStmtV1, RawLinearUnaryOperatorV1, RawRootBodyRecipeV1,
 };
-use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
-use crate::mir::{
-    EffectMask, FunctionSignature, MirBuilder, MirInstruction, MirType, UnaryOp, ValueId,
-};
+use crate::mir::{MirBuilder, MirInstruction, UnaryOp, ValueId};
 
 impl MirBuilder {
-    /// Create the unpublished physical root function without asking the AST
-    /// for a signature.  The caller must consume the Main root-slot contract;
-    /// BODY0 does not invent a second `main/0` spelling.
-    pub(in crate::mir::builder) fn begin_raw_root_function_v1(
-        &mut self,
-        slot: RawRootBatchSlotContractV1,
-    ) -> Result<(), String> {
-        let expected = RawRootBatchSlotV1::Main.contract();
-        if slot != expected {
-            return Err("[freeze:contract][raw_root_body/root_slot_mismatch]".to_string());
-        }
-        if self.function_state.current_function.is_some()
-            || self.function_state.current_block.is_some()
-        {
-            return Err("[freeze:contract][raw_root_body/function_state_open]".to_string());
-        }
-        let entry = self.next_block_id();
-        let signature = FunctionSignature {
-            name: slot.symbol().to_owned(),
-            params: Vec::new(),
-            return_type: MirType::Void,
-            effects: EffectMask::PURE,
-        };
-        self.function_state.current_function =
-            Some(self.new_function_with_metadata(signature, entry));
-        self.function_state.current_block = Some(entry);
-        self.function_state.frag_emit_session.reset();
-        self.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
-        self.ensure_block_exists(entry)?;
-        Ok(())
-    }
-
-    /// Close the unpublished root draft.  No collector/shell publication is
-    /// performed here; ROOTBATCH0 owns that later handoff.
-    pub(in crate::mir::builder) fn finish_raw_root_function_v1(
-        &mut self,
-    ) -> Result<crate::mir::MirFunction, String> {
-        if !self.is_current_block_terminated() {
-            let value = crate::mir::builder::emission::constant::emit_void(self)?;
-            self.emit_instruction(MirInstruction::Return { value: Some(value) })?;
-        }
-        let draft = self
-            .function_state
-            .current_function
-            .take()
-            .ok_or_else(|| "[freeze:contract][raw_root_body/no_function]".to_string())?;
-        self.function_state.current_block = None;
-        self.comp_ctx.current_slot_registry = None;
-        self.close_raw_root_function_state_v1();
-        Ok(draft)
-    }
-
-    /// Clear the function-owned scratch that was created while driving the
-    /// unpublished root draft.  The draft has already been moved out, so the
-    /// candidate session must return to the same closed state required by the
-    /// later FINAL0 readiness seal.
-    fn close_raw_root_function_state_v1(&mut self) {
-        self.function_state.variable_ctx = Default::default();
-        self.function_state.type_ctx = Default::default();
-        self.function_state.binding_ctx = Default::default();
-        self.function_state.resolved_binding_state = Default::default();
-        self.function_state.scope = Default::default();
-        self.function_state.compilation = Default::default();
-        self.function_state.value_origins = Default::default();
-        self.function_state.pending_phis.clear();
-        self.function_state.local_ssa_map.clear();
-        self.function_state.schedule_mat_map.clear();
-        self.function_state.pin_slot_names.clear();
-        self.function_state.frag_emit_session.reset();
-        self.function_state.return_defer_active = false;
-        self.function_state.return_defer_slot = None;
-        self.function_state.return_defer_target = None;
-        self.function_state.return_deferred_emitted = false;
-        self.function_state.in_cleanup_block = false;
-        self.function_state.cleanup_allow_return = false;
-        self.function_state.cleanup_allow_throw = false;
-        self.function_state.suppress_pin_entry_copy_next = false;
-        self.function_state.in_unified_boxcall_fallback = false;
-    }
-
     /// Lower one exact LinearScalar0 recipe into the current unpublished
     /// function.  The caller owns tracker/session lifecycle; this method only
     /// performs value lowering and returns the last-value disposition.

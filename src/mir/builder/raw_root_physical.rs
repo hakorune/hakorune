@@ -173,13 +173,8 @@ impl RawRootPhysicalStateV1 {
 }
 
 impl RawRootBodyPhysicalDriveV1 {
-    pub(in crate::mir::builder) fn seal_root_body(
-        self,
-        result: RootBodyResultV1,
-    ) -> Result<(RawRootPostBodyPhysicalStateV1, CompletedRootBodyV1), RawRootBodyPhysicalErrorV1>
-    {
-        self.seal_root_body_preserving(result)
-            .map_err(|(_, error)| error)
+    pub(in crate::mir::builder) fn tracker(&self) -> &ActiveRootBodyCompletionTrackerV1 {
+        &self.tracker
     }
 
     pub(in crate::mir::builder) fn seal_root_body_preserving(

@@ -1,6 +1,9 @@
 # RAW public cutover PARITY0 Script body-return design question
 
-Decision: `RAW-PUBLIC-CUTOVER-PARITY0-BODY-RETURN-D0`
+Decision: `RAW-BODY-RETURN-prime-r1`
+
+Status: closed. The A′ owner boundary below is selected and implemented in
+the paired S0 execution task.
 
 After the effect repair, the next exact parity row exposed a second mismatch
 in the admitted Script scalar slice:
@@ -68,26 +71,27 @@ A′:
   root signature, and emits one paired exit witness before state cleanup.
 ```
 
-The following decisions remain open and are prerequisites for implementation:
+The following decisions are now closed:
 
 ```text
-1. Does the root skeleton start with a route-aware provisional contract, or
-   does it remain open until the first BODY result is known?
-2. Which single BODY owner consumes RootBodyResultV1 and performs the paired
+1. Script starts with provisional `Unknown`; App starts with fixed `Void`.
+2. `InstalledRawRootEnvironmentV1::drive_root_body` is the single BODY owner
+   that consumes `RootBodyResultV1` and performs the paired
    Return/signature seal? `drive_root_body` and
-   `finish_raw_root_function_v1` must not remain competing authorities.
-3. Where is the co-seal checked that completion Value(v), physical Return(v),
+   `finish_raw_root_function_v1` is removed.
+3. BODY prepares one exit plan and emits completion Value(v), physical Return(v),
    and Builder type(v) are the same fact? BODY is the preferred boundary;
-   ROOTBATCH may only validate a borrowed witness.
-4. What is the exact fail-fast error and rejected-owner retention when type or
-   exit sealing fails after lowering?
+   ROOTBATCH validates only the borrowed witness.
+4. Missing/Unknown/unsupported type, undefined value, route drift, and tracker
+   non-closure are typed fail-fast errors retaining the unpublished owner.
 5. Legacy App also infers a last-value return through the common
    `finalize_module` path. Keeping App `Void` therefore requires an explicit
-   divergence/parked-row decision, or a separate App return-policy row.
+   divergence: Raw App is FixedVoid here and scalar App parity is parked in a
+   separate `BODY-RETURN-APP-D0` row.
 ```
 
-This is a design refinement, not an implementation authorization. No source
-or parity fixture may widen until these five owner questions are selected.
+Implementation authorization is limited to the paired S0 task. No App scalar
+parity, normal-entry cutover, or adapter repair is implied.
 
 ## Q3 — non-authorities
 

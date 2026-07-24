@@ -183,7 +183,7 @@ impl PreparedRawRootCompletionV1 {
         let ledger = ledger
             .seal()
             .unwrap_or_else(|_| unreachable!("raw root ledger proof drifted before seal"));
-        RawCompleteInvocationV1::from_committed_parts(
+        RawCompleteInvocationV1::from_legacy_committed_parts(
             token,
             InvocationBranded::from_source(brand, collector),
             ledger,

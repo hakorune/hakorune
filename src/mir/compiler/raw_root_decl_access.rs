@@ -24,7 +24,7 @@ use crate::mir::builder::{
     RejectedRawRootEnvironmentInstallV1,
 };
 use crate::mir::module_invocation_identity::ModuleInvocationTokenV1;
-use crate::mir::raw_root_body_recipe::RawRootBodyEntryV1;
+use crate::mir::raw_root_body_recipe::RawRootBodyRouteV1;
 
 #[derive(Debug)]
 pub(in crate::mir) enum DeclaredRawRootInvocationV1 {
@@ -402,7 +402,7 @@ fn begin_script_body(
         post_install_manifest,
     } = core;
     let (recipe, runtime_inputs) = post_install_manifest.into_body_parts();
-    if !matches!(recipe.entry(), RawRootBodyEntryV1::Script) {
+    if recipe.entry().route() != RawRootBodyRouteV1::Script {
         return Err(RejectedRawRootBodyInvocationV1 {
             owner: RejectedRawRootBodyOwnerV1::ScriptPreflight {
                 token,
@@ -464,7 +464,7 @@ fn begin_app_body(
         post_install_manifest,
     } = core;
     let (recipe, runtime_inputs) = post_install_manifest.into_body_parts();
-    if !matches!(recipe.entry(), RawRootBodyEntryV1::AppMain0Void { .. }) {
+    if !matches!(recipe.entry().route(), RawRootBodyRouteV1::AppMain0 { .. }) {
         return Err(RejectedRawRootBodyInvocationV1 {
             owner: RejectedRawRootBodyOwnerV1::AppPreflight {
                 token,
@@ -524,7 +524,7 @@ fn body_failure_stage(error: &RawRootBodyLoweringErrorV1) -> RawRootBodyFailureS
             crate::mir::builder::RawRootBodyPhysicalErrorV1::SealTracker(_),
         ) => RawRootBodyFailureStageV1::Seal,
         RawRootBodyLoweringErrorV1::Lower(_) => RawRootBodyFailureStageV1::Lower,
-        RawRootBodyLoweringErrorV1::Finalize(_) => RawRootBodyFailureStageV1::Finalize,
+        RawRootBodyLoweringErrorV1::ExitSeal(_) => RawRootBodyFailureStageV1::Finalize,
     }
 }
 

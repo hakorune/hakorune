@@ -2,8 +2,8 @@
 
 use super::raw_root_source_facts::{RawRootSourceFactsV1, RawRootSourceRouteV1};
 use crate::mir::raw_root_body_recipe::{
-    RawLinearScalarExprV1, RawLinearScalarStmtV1, RawRootBodyEntryV1, RawRootBodyRecipeErrorV1,
-    RawRootBodyRecipeV1, RawRootBodySourceSiteV1,
+    RawLinearScalarExprV1, RawLinearScalarStmtV1, RawRootBodyEntryContractV1,
+    RawRootBodyRecipeErrorV1, RawRootBodyRecipeV1, RawRootBodySourceSiteV1,
 };
 
 #[test]
@@ -11,7 +11,7 @@ fn empty_script_post_install_facts_produce_linear_recipe() {
     let facts = RawRootSourceFactsV1::empty_for_test(RawRootSourceRouteV1::Script);
     let (post_install, _) = facts.into_post_install_parts().unwrap();
     let recipe = post_install.into_linear_body_recipe();
-    assert!(matches!(recipe.entry(), RawRootBodyEntryV1::Script));
+    assert_eq!(recipe.entry(), &RawRootBodyEntryContractV1::script());
     assert!(recipe.statements().is_empty());
 }
 
@@ -35,8 +35,8 @@ fn recipe_rejects_duplicate_source_paths() {
         },
     ]
     .into_boxed_slice();
-    let error =
-        RawRootBodyRecipeV1::from_parts(RawRootBodyEntryV1::Script, statements).unwrap_err();
+    let error = RawRootBodyRecipeV1::from_parts(RawRootBodyEntryContractV1::script(), statements)
+        .unwrap_err();
     assert!(matches!(
         error,
         RawRootBodyRecipeErrorV1::DuplicateSourcePath { .. }

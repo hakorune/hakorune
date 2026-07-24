@@ -21,6 +21,9 @@ use crate::mir::builder::raw_expansion_receipt_ledger::{
     RawRootMainCommitDispositionV1,
 };
 use crate::mir::builder::raw_required_condition_draft::RawRequiredConditionDraftV1;
+use crate::mir::builder::raw_root_body_exit::{
+    RawRootBodyExitWitnessErrorV1, RawRootBodyExitWitnessV1,
+};
 use crate::mir::builder::raw_root_completion::RawCompleteInvocationV1;
 use crate::mir::builder::root_body_completion::CompletedRootBodyV1;
 use crate::mir::builder::root_draft_batch::PreparedRootDraftBatchV1;
@@ -34,6 +37,7 @@ pub(in crate::mir) struct RawRootBatchPhysicalInputV1 {
     pub(in crate::mir::builder) physical: RawRootPostBodyPhysicalStateV1,
     pub(in crate::mir::builder) draft: MirFunction,
     pub(in crate::mir::builder) completion: CompletedRootBodyV1,
+    pub(in crate::mir::builder) exit: RawRootBodyExitWitnessV1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -47,6 +51,7 @@ pub(in crate::mir) enum RawRootBatchPhysicalErrorV1 {
     Collector(String),
     MainDispositionMismatch,
     CallableDispositionMismatch,
+    ExitWitness(RawRootBodyExitWitnessErrorV1),
 }
 
 #[derive(Debug)]
@@ -56,11 +61,13 @@ enum RejectedRawRootBatchOwnerV1 {
         physical: RawRootPostBodyPhysicalStateV1,
         draft: MirFunction,
         completion: CompletedRootBodyV1,
+        exit: RawRootBodyExitWitnessV1,
     },
     Prepared {
         session: ModuleBuilderInvocationSessionV1,
         physical: RawRootPostBodyPhysicalStateV1,
         batch: PreparedRootDraftBatchV1,
+        exit: RawRootBodyExitWitnessV1,
     },
 }
 
@@ -96,9 +103,10 @@ impl RawRootBatchPhysicalInputV1 {
             physical,
             draft,
             completion,
+            exit,
         } = self;
         let brand = token.brand();
-        let reject = |token, session, physical, draft, completion, error| {
+        let reject = |token, session, physical, draft, completion, exit, error| {
             Err(RejectedRawRootBatchPhysicalV1 {
                 token,
                 owner: RejectedRawRootBatchOwnerV1::BeforePrepare {
@@ -106,6 +114,7 @@ impl RawRootBatchPhysicalInputV1 {
                     physical,
                     draft,
                     completion,
+                    exit,
                 },
                 error,
                 _seal: RejectedRawRootBatchPhysicalSealV1,
@@ -121,6 +130,7 @@ impl RawRootBatchPhysicalInputV1 {
                 physical,
                 draft,
                 completion,
+                exit,
                 RawRootBatchPhysicalErrorV1::NonRawFamily,
             );
         }
@@ -131,6 +141,7 @@ impl RawRootBatchPhysicalInputV1 {
                 physical,
                 draft,
                 completion,
+                exit,
                 RawRootBatchPhysicalErrorV1::ForeignBrand,
             );
         }
@@ -141,7 +152,19 @@ impl RawRootBatchPhysicalInputV1 {
                 physical,
                 draft,
                 completion,
+                exit,
                 RawRootBatchPhysicalErrorV1::CompletionBrandMismatch,
+            );
+        }
+        if let Err(error) = exit.validate(&draft, &completion, brand) {
+            return reject(
+                token,
+                session,
+                physical,
+                draft,
+                completion,
+                exit,
+                RawRootBatchPhysicalErrorV1::ExitWitness(error),
             );
         }
         let main_contract = super::super::root_batch_slot::RawRootBatchSlotV1::Main.contract();
@@ -156,6 +179,7 @@ impl RawRootBatchPhysicalInputV1 {
                 physical,
                 draft,
                 completion,
+                exit,
                 RawRootBatchPhysicalErrorV1::MainIdentityMismatch { symbol, arity },
             );
         }
@@ -167,6 +191,7 @@ impl RawRootBatchPhysicalInputV1 {
                 physical,
                 draft,
                 completion,
+                exit,
                 RawRootBatchPhysicalErrorV1::PublishedRootFunctions { count },
             );
         }
@@ -179,6 +204,7 @@ impl RawRootBatchPhysicalInputV1 {
                     physical,
                     draft,
                     completion,
+                    exit,
                     RawRootBatchPhysicalErrorV1::Ledger(
                         RawExpansionReceiptLedgerErrorV1::LedgerPoisoned,
                     ),
@@ -192,6 +218,7 @@ impl RawRootBatchPhysicalInputV1 {
                 physical,
                 draft,
                 completion,
+                exit,
                 RawRootBatchPhysicalErrorV1::CallableDispositionMismatch,
             );
         }
@@ -204,6 +231,7 @@ impl RawRootBatchPhysicalInputV1 {
                     physical,
                     draft,
                     completion,
+                    exit,
                     RawRootBatchPhysicalErrorV1::Ledger(error),
                 )
             }
@@ -218,6 +246,7 @@ impl RawRootBatchPhysicalInputV1 {
                     session,
                     physical,
                     batch,
+                    exit,
                 },
                 error: RawRootBatchPhysicalErrorV1::Collector(error.to_string()),
                 _seal: RejectedRawRootBatchPhysicalSealV1,
@@ -232,6 +261,7 @@ impl RawRootBatchPhysicalInputV1 {
                         session,
                         physical,
                         batch,
+                        exit,
                     },
                     error: RawRootBatchPhysicalErrorV1::Collector(error.to_string()),
                     _seal: RejectedRawRootBatchPhysicalSealV1,
@@ -245,6 +275,7 @@ impl RawRootBatchPhysicalInputV1 {
                     session,
                     physical,
                     batch,
+                    exit,
                 },
                 error: RawRootBatchPhysicalErrorV1::MainDispositionMismatch,
                 _seal: RejectedRawRootBatchPhysicalSealV1,
@@ -299,6 +330,7 @@ impl RawRootBatchPhysicalInputV1 {
             InvocationBranded::from_source(brand, collector),
             ledger,
             root_body,
+            exit,
             main,
             condition,
             callable_main,

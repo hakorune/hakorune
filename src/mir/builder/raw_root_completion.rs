@@ -14,6 +14,7 @@ use super::raw_expansion_receipt_ledger::{
     RawCallableMainCompatibilityDispositionV1, RawExpansionReceiptLedgerV1,
     RawExpansionReservationV1, SealedRawExpansionReceiptLedgerV1,
 };
+use super::raw_root_body_exit::RawRootBodyExitWitnessV1;
 use super::root_body_completion::CompletedRootBodyV1;
 use super::root_draft_batch::PreparedRootDraftBatchV1;
 
@@ -21,6 +22,7 @@ use super::root_draft_batch::PreparedRootDraftBatchV1;
 pub(in crate::mir) struct RawInvocationRootWitnessV1 {
     brand: ModuleInvocationBrandV1,
     root_body: CompletedRootBodyV1,
+    exit: RawRootBodyExitWitnessV1,
     main: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
     condition: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
     callable_main: RawCallableMainCompatibilityDispositionV1,
@@ -43,6 +45,10 @@ impl RawInvocationRootWitnessV1 {
         &self,
     ) -> RawCallableMainCompatibilityDispositionV1 {
         self.callable_main
+    }
+
+    pub(in crate::mir::builder) fn exit(&self) -> &RawRootBodyExitWitnessV1 {
+        &self.exit
     }
 
     pub(in crate::mir::builder) fn main_receipt(
@@ -109,6 +115,7 @@ impl RawCompleteInvocationV1 {
         collector: BrandedCollectorV1<ModuleDraftCollectorV1>,
         ledger: SealedRawExpansionReceiptLedgerV1,
         root_body: CompletedRootBodyV1,
+        exit: RawRootBodyExitWitnessV1,
         main: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
         condition: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
         callable_main: RawCallableMainCompatibilityDispositionV1,
@@ -121,6 +128,34 @@ impl RawCompleteInvocationV1 {
             root: RawInvocationRootWitnessV1 {
                 brand,
                 root_body,
+                exit,
+                main,
+                condition,
+                callable_main,
+                _seal: RawInvocationRootWitnessSealV1,
+            },
+            _seal: RawCompleteInvocationSealV1,
+        }
+    }
+
+    pub(in crate::mir::builder) fn from_legacy_committed_parts(
+        token: ModuleInvocationTokenV1,
+        collector: BrandedCollectorV1<ModuleDraftCollectorV1>,
+        ledger: SealedRawExpansionReceiptLedgerV1,
+        root_body: CompletedRootBodyV1,
+        main: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+        condition: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+        callable_main: RawCallableMainCompatibilityDispositionV1,
+    ) -> Self {
+        let brand = token.brand();
+        Self {
+            token,
+            collector,
+            ledger,
+            root: RawInvocationRootWitnessV1 {
+                brand,
+                root_body,
+                exit: RawRootBodyExitWitnessV1::legacy_unverified(brand),
                 main,
                 condition,
                 callable_main,

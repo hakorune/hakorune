@@ -315,6 +315,25 @@ impl ActiveRootBodyCompletionTrackerV1 {
             .map_err(|(_, error)| error)
     }
 
+    pub(in crate::mir::builder) fn prepare_seal(&self) -> Result<(), RootBodyCompletionErrorV1> {
+        if self.tracker.open_children != 0 {
+            return Err(RootBodyCompletionErrorV1::OpenChildScopes {
+                count: self.tracker.open_children,
+            });
+        }
+        if self.tracker.open_header_loans != 0 {
+            return Err(RootBodyCompletionErrorV1::OpenHeaderLoans {
+                count: self.tracker.open_header_loans,
+            });
+        }
+        if self.tracker.open_pending_terminals != 0 {
+            return Err(RootBodyCompletionErrorV1::OpenPendingTerminals {
+                count: self.tracker.open_pending_terminals,
+            });
+        }
+        Ok(())
+    }
+
     pub(in crate::mir::builder) fn seal_root_body_preserving(
         self,
         result: RootBodyResultV1,

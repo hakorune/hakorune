@@ -62,6 +62,7 @@ mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
 #[cfg(test)]
 mod raw_required_condition_draft_p0; // ROOTBATCH0-S0b exact factory contract
+mod raw_root_body_exit; // RAW-BODY-RETURN0 sole signature/Return/witness owner
 mod raw_root_body_lowering; // RAW-SOURCE0-LOWER0-ROOT0-BODY0 recipe-only value lowerer
 #[cfg(test)]
 mod raw_root_body_lowering_p0; // BODY0-S0-B disconnected lowerer fixtures

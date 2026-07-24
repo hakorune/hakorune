@@ -6,7 +6,7 @@ use crate::mir::builder::root_batch_slot::RawRootBatchSlotV1;
 use crate::mir::builder::root_body_completion::RootBodyResultV1;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::raw_root_body_recipe::{
-    RawLinearScalarExprV1, RawLinearScalarStmtV1, RawRootBodyEntryV1, RawRootBodyRecipeV1,
+    RawLinearScalarExprV1, RawLinearScalarStmtV1, RawRootBodyEntryContractV1, RawRootBodyRecipeV1,
     RawRootBodySourceSiteV1,
 };
 
@@ -29,7 +29,7 @@ fn linear_recipe_lowers_without_ast_reconstruction() {
         site: site(&[0]),
     };
     let recipe = RawRootBodyRecipeV1::from_parts(
-        RawRootBodyEntryV1::Script,
+        RawRootBodyEntryContractV1::script(),
         vec![RawLinearScalarStmtV1::Expr {
             expression: expr,
             site: site(&[0]),
@@ -55,7 +55,10 @@ fn linear_recipe_lowers_without_ast_reconstruction() {
 fn raw_root_main_skeleton_uses_the_legacy_pure_effect_contract() {
     let mut builder = MirBuilder::new();
     builder
-        .begin_raw_root_function_v1(RawRootBatchSlotV1::Main.contract())
+        .begin_raw_root_function_v1(
+            RawRootBatchSlotV1::Main.contract(),
+            RawRootBodyEntryContractV1::script(),
+        )
         .unwrap();
     let effect = builder
         .function_state
@@ -65,13 +68,12 @@ fn raw_root_main_skeleton_uses_the_legacy_pure_effect_contract() {
         .signature
         .effects;
     assert_eq!(effect, crate::mir::EffectMask::PURE);
-    builder.finish_raw_root_function_v1().unwrap();
 }
 
 #[test]
 fn linear_recipe_lowers_local_assignment_and_print() {
     let recipe = RawRootBodyRecipeV1::from_parts(
-        RawRootBodyEntryV1::Script,
+        RawRootBodyEntryContractV1::script(),
         vec![
             RawLinearScalarStmtV1::Local {
                 variables: vec!["x".into()].into_boxed_slice(),
