@@ -87,7 +87,7 @@ def main() -> int:
         "BuilderPublicationReceiptV1",
     ):
         require(target, fragment, f"target quiescence/receipt {fragment}")
-    require(carrier, "installed", "opaque module typestate")
+    require(carrier, "module: MirModule", "published module owner")
     require(session, "check_builder_external_commit_quiescence", "candidate quiescence reuse")
     require(session, "fn replace_live_builder", "single Builder assignment helper")
 

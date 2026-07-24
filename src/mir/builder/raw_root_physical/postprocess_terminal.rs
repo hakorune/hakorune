@@ -153,12 +153,12 @@ pub(in crate::mir) struct RawExternalCommitModuleV1 {
 struct RawExternalCommitModuleSealV1;
 
 impl RawExternalCommitModuleV1 {
-    pub(in crate::mir) fn install_into_candidate(
+    pub(in crate::mir) fn into_published_module(
         self,
-        candidate: &mut crate::mir::builder::MirBuilder,
     ) -> super::publication_terminal::RawPublishedModuleV1 {
-        self.module.module.module.install_into_candidate(candidate);
-        super::publication_terminal::RawPublishedModuleV1::installed()
+        super::publication_terminal::RawPublishedModuleV1::from_module(
+            self.module.module.module.into_postprocess_module(),
+        )
     }
 }
 

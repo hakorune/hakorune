@@ -47,7 +47,7 @@ fn raw_publication_replaces_live_builder_once() {
     let published = compiler.publish_raw_direct(prepared_script()).unwrap();
 
     assert!(matches!(published, RawPublishedInvocationV1::Script(_)));
-    assert!(compiler.builder.current_module.is_some());
+    assert!(compiler.builder.current_module.is_none());
 }
 
 #[test]
@@ -82,7 +82,7 @@ fn raw_app_not_selected_publishes_as_app_product() {
         .publish_raw_direct(prepared_app(RawCallableMainSelectionV1::Omitted))
         .unwrap();
     assert!(matches!(published, RawPublishedInvocationV1::App(_)));
-    assert!(compiler.builder.current_module.is_some());
+    assert!(compiler.builder.current_module.is_none());
 }
 
 #[test]
@@ -92,7 +92,7 @@ fn raw_app_selected_publishes_as_app_product() {
         .publish_raw_direct(prepared_app(RawCallableMainSelectionV1::Required))
         .unwrap();
     assert!(matches!(published, RawPublishedInvocationV1::App(_)));
-    assert!(compiler.builder.current_module.is_some());
+    assert!(compiler.builder.current_module.is_none());
 }
 
 #[test]

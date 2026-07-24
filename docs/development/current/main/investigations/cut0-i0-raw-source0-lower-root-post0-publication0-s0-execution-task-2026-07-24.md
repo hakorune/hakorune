@@ -62,8 +62,9 @@ Q1  Legacy and RawDirect retain separate payload/result types. Both use one
     the low-level live Builder replacement primitive.
 
 Q2  RawExternalCommitModuleV1 remains opaque through target preflight. The
-    publication kernel consumes it directly into RawPublishedModuleV1; no
-    bare MirModule crosses the compiler boundary.
+    publication kernel consumes it directly into RawPublishedModuleV1, whose
+    private field owns the published MirModule; no bare module accessor crosses
+    the compiler boundary.
 
 Q3  Success is RawPublishedInvocationV1::{Script, App}. It retains the token,
     opaque published module, complete RawPostprocessEvidenceV1, and a
@@ -200,10 +201,9 @@ RawExternalCommitModuleV1
   -> RawPublishedModuleV1
 ```
 
-Neither carrier exposes:
+Neither carrier exposes a public or mutable module accessor:
 
 ```text
-MirModule field
 module_mut / into_module
 Deref / DerefMut
 AsRef / AsMut<MirModule>

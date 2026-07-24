@@ -155,15 +155,12 @@ impl RawUnfinalizedModuleV1 {
 }
 
 impl RawFinalizedModuleV1 {
-    pub(in crate::mir) fn name(&self) -> &str {
-        &self.module.name
+    pub(in crate::mir::builder) fn into_postprocess_module(self) -> MirModule {
+        self.module
     }
 
-    pub(in crate::mir::builder) fn install_into_candidate(
-        self,
-        candidate: &mut crate::mir::builder::MirBuilder,
-    ) {
-        candidate.current_module = Some(self.module);
+    pub(in crate::mir) fn name(&self) -> &str {
+        &self.module.name
     }
 
     pub(in crate::mir) fn function_count(&self) -> usize {

@@ -458,9 +458,8 @@ impl PreparedBuilderExternalCommitV1 {
     ) {
         let brand = self.brand;
         let family = self.family;
-        let mut candidate = self.session.candidate;
-        let published = module.install_into_candidate(&mut candidate);
-        replace_live_builder(candidate, current);
+        let published = module.into_published_module();
+        replace_live_builder(self.session.candidate, current);
         (
             super::builder_publication_target::BuilderPublicationReceiptV1 {
                 brand,
