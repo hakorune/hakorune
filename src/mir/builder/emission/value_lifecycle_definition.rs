@@ -257,6 +257,11 @@ impl PreparedTransientStaleValueFactsV1 {
     fn values(&self) -> &[ValueId] {
         &self.values
     }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn len(&self) -> usize {
+        self.values.len()
+    }
 }
 
 #[cfg(test)]

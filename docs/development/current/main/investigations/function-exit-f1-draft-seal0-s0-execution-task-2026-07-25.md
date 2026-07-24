@@ -154,6 +154,11 @@ The shared `TypePropagationPipeline` now also runs against that private image
 only. Its failure remains a typed projection rejection; no live function or
 live type map is passed to the pipeline.
 
+The projection also carries a prepared stale-fact removal plan. Pending-PHI
+and pinned-value retention sets are observed from the live session, while the
+removal itself is not committed yet. The live type map remains byte-for-byte
+unchanged in the focused fixture.
+
 ## Acceptance gates
 
 ```text

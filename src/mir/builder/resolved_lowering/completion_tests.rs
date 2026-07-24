@@ -402,3 +402,43 @@ fn draft_seal_projection_skips_reserved_void_value_ids() {
         .terminator
         .is_none());
 }
+
+#[test]
+fn draft_seal_projection_prepares_stale_facts_without_live_map_mutation() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
+        "draft_seal_projection_stale",
+        Vec::new(),
+    ))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    let body = input.source().root_body().unwrap();
+    let target = input.function().lowering_roots().function_pair().region();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let ready = ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion)
+        .unwrap()
+        .finish(body.site(), body.statements().len() as u32, target)
+        .unwrap();
+
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("draft_seal_projection_stale/0".to_string());
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(ValueId::new(77), MirType::Integer);
+    let before = builder.function_state.type_ctx.value_types.clone();
+    let prepared = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(0))
+        .prepare()
+        .unwrap()
+        .project(&builder)
+        .unwrap()
+        .prepare_stale_facts(&builder)
+        .unwrap();
+
+    assert_eq!(prepared.stale_count(), 1);
+    assert_eq!(
+        prepared.projection().type_ctx().get_type(ValueId::new(77)),
+        Some(&MirType::Integer)
+    );
+    assert_eq!(builder.function_state.type_ctx.value_types, before);
+}

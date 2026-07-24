@@ -9,6 +9,9 @@
 
 use std::collections::HashSet;
 
+use crate::mir::builder::emission::value_lifecycle_definition::{
+    prepare_transient_stale_value_facts_v1, PreparedTransientStaleValueFactsV1,
+};
 use crate::mir::builder::type_context::TypeContext;
 use crate::mir::{
     BasicBlockId, ConstValue, MirBuilder, MirFunction, MirInstruction, MirType, ValueId,
@@ -62,6 +65,7 @@ pub(super) enum FunctionDraftSealProjectionErrorV1 {
     UnsupportedReturnValueType { value: ValueId, actual: MirType },
     ReturnSignatureMismatch { expected: MirType, actual: MirType },
     TypeAnalysisFailed(String),
+    StaleFacts(String),
     ValueIdOverflow,
 }
 
@@ -69,6 +73,12 @@ pub(super) enum FunctionDraftSealProjectionErrorV1 {
 pub(super) struct RejectedFunctionDraftProjectionV1 {
     owner: PreparedFunctionDraftSealV1,
     error: FunctionDraftSealProjectionErrorV1,
+}
+
+#[derive(Debug)]
+pub(super) struct PreparedFunctionStaleFactsV1 {
+    projection: FunctionDraftSealProjectionV1,
+    stale: PreparedTransientStaleValueFactsV1,
 }
 
 #[derive(Debug)]
@@ -277,6 +287,45 @@ impl FunctionDraftSealProjectionV1 {
         Ok(self)
     }
 
+    /// Prepare stale-fact removal against the private facts image. The
+    /// prepared removal is retained for the future commit and is not applied
+    /// to either the live Builder or this projection in this substep.
+    pub(super) fn prepare_stale_facts(
+        self,
+        builder: &MirBuilder,
+    ) -> Result<PreparedFunctionStaleFactsV1, (Self, FunctionDraftSealProjectionErrorV1)> {
+        let pending_phi_destinations = builder
+            .function_state
+            .pending_phis
+            .iter()
+            .map(|(_, value, _)| *value)
+            .collect();
+        let pinned_values = builder
+            .function_state
+            .pin_slot_names
+            .keys()
+            .copied()
+            .collect();
+        let stale = match prepare_transient_stale_value_facts_v1(
+            &self.function,
+            &self.type_ctx.value_types,
+            &pending_phi_destinations,
+            &pinned_values,
+        ) {
+            Ok(stale) => stale,
+            Err(error) => {
+                return Err((
+                    self,
+                    FunctionDraftSealProjectionErrorV1::StaleFacts(error.to_string()),
+                ))
+            }
+        };
+        Ok(PreparedFunctionStaleFactsV1 {
+            projection: self,
+            stale,
+        })
+    }
+
     #[cfg(test)]
     pub(super) fn function(&self) -> &MirFunction {
         &self.function
@@ -285,6 +334,18 @@ impl FunctionDraftSealProjectionV1 {
     #[cfg(test)]
     pub(super) fn type_ctx(&self) -> &TypeContext {
         &self.type_ctx
+    }
+}
+
+impl PreparedFunctionStaleFactsV1 {
+    #[cfg(test)]
+    pub(super) fn stale_count(&self) -> usize {
+        self.stale.len()
+    }
+
+    #[cfg(test)]
+    pub(super) fn projection(&self) -> &FunctionDraftSealProjectionV1 {
+        &self.projection
     }
 }
 
