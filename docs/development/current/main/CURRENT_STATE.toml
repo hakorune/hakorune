@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FUNCTION-EXIT-SEMANTICS-prime-r1 is accepted. The former BODY-RETURN-APP canonical S0 was superseded before implementation and is retained only as Legacy observation evidence. FUNCTION-EXIT-F1-RETURN0-S0 is active; normal-entry cutover, Script result activation, process-exit projection, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
+status = "FUNCTION-EXIT-SEMANTICS-prime-r1 is accepted. FUNCTION-EXIT-F1-RETURN0-S0 is closed with the exact pre-Builder completion contract and the next active row is FUNCTION-EXIT-F1-MATERIALIZE0-S0. The former BODY-RETURN-APP canonical S0 remains Legacy observation evidence; normal-entry cutover, Script result activation, process-exit projection, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
 date = "2026-07-25"
 current_design_stop = ""
-current_execution_row = "FUNCTION-EXIT-F1-RETURN0-S0"
-current_execution_summary = "Extend the existing VerifiedFunctionCompletionV1 producer in place so its exact 0-or-1 terminal-return topology is co-sealed with the declared result contract and F1 ExplicitReturnOnly disposition. Do not add a second AST walk or completion owner. Nested/multiple/all-path CFG coverage, Script tail classification, physical Main, process-exit projection, public entry, JSON, executor, and CUT0 remain later rows."
+current_execution_row = "FUNCTION-EXIT-F1-MATERIALIZE0-S0"
+current_execution_summary = "Consume the sealed F1 completion contract at the existing Builder completion owner and prepare one physical signature/Return/completion transition for the exact 0-or-1 root-terminal slice. Do not add a second AST walk, last-ValueId inference, or new physical completion owner. Nested/multiple/all-path CFG coverage, Script tail classification, physical Main, process-exit projection, public entry, JSON, executor, and CUT0 remain later rows."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "Language v1 function-exit semantics"
@@ -358,9 +358,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "function-exit-f1-return0-s0-execution-task-2026-07-25"
-latest_card_path = "docs/development/current/main/investigations/function-exit-f1-return0-s0-execution-task-2026-07-25.md"
-latest_card_summary = """FUNCTION-EXIT-F1-RETURN0-S0 is active. It strengthens the existing VerifiedFunctionCompletionV1 producer with the accepted ExplicitReturnOnly relation and declared-result evidence while preserving the current exact root-terminal 0/1 slice and keeping every physical/public activation disconnected."""
+latest_card = "function-exit-f1-materialize0-s0-execution-task-2026-07-25"
+latest_card_path = "docs/development/current/main/investigations/function-exit-f1-materialize0-s0-execution-task-2026-07-25.md"
+latest_card_summary = """FUNCTION-EXIT-F1-RETURN0-S0 is closed. FUNCTION-EXIT-F1-MATERIALIZE0-S0 is active: consume the sealed source completion contract at the existing Builder completion owner and prepare one physical signature/Return/completion transition without source re-observation or fallback."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -562,7 +562,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "FUNCTION-EXIT-F1-RETURN0-S0-20260725"
+current_blocker_token = "FUNCTION-EXIT-F1-MATERIALIZE0-S0-20260725"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

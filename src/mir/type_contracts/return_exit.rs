@@ -37,6 +37,18 @@ fn build_return_exit_contract(declared_type_name: Option<&str>) -> Option<Return
     })
 }
 
+/// Source-side relation used by the pre-Builder function-exit seal.
+///
+/// This is deliberately only a borrowed predicate. The executable
+/// `ReturnExitContract` remains produced by the existing MIR metadata owner
+/// after materialization; F1 must not create a second carrier.
+pub(crate) fn exact_numeric_return_exit_relation_expected(
+    declared_type_name: Option<&str>,
+) -> bool {
+    exact_numeric_return_exit_contract_is_active()
+        && build_return_exit_contract(declared_type_name).is_some()
+}
+
 pub(crate) fn validate_return_exit_contract(function: &MirFunction) -> Result<(), String> {
     let expected =
         build_return_exit_contract(function.metadata.declared_return_type_name.as_deref());

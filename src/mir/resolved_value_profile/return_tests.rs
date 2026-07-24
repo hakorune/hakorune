@@ -124,19 +124,25 @@ fn typed_return_requires_exact_spelling_and_inline_i64_terminal() {
             TrivialProfileStopReasonV1::TypedSignatureOutsideProfile
         );
     }
-    for body in [
-        vec![return_(Some(literal(LiteralValue::Bool(true))))],
-        vec![return_(None)],
-        Vec::new(),
+    for (body, expected_reason) in [
+        (
+            vec![return_(Some(literal(LiteralValue::Bool(true))))],
+            TrivialProfileStopReasonV1::TypedSignatureOutsideProfile,
+        ),
+        (
+            vec![return_(Some(literal(LiteralValue::Float(1.0))))],
+            TrivialProfileStopReasonV1::TypedSignatureOutsideProfile,
+        ),
+        (
+            vec![return_(Some(literal(LiteralValue::String("value".into()))))],
+            TrivialProfileStopReasonV1::StringRepresentationUnavailable,
+        ),
     ] {
         let root = function(&[], Some("i64"), body);
         let TrivialCanonicalOwnerAnalysisV1::NotAdmitted(stop) = analyze(root) else {
             panic!("expected non-i64 terminal to stop")
         };
-        assert_eq!(
-            stop.reason(),
-            TrivialProfileStopReasonV1::TypedSignatureOutsideProfile
-        );
+        assert_eq!(stop.reason(), expected_reason);
     }
 }
 

@@ -90,6 +90,19 @@ impl<'a> FunctionSourceViewV1<'a> {
         self.owner_root
     }
 
+    /// Borrow the declaration's source return annotation without opening a
+    /// second syntax-navigation path. The completion verifier is the sole
+    /// consumer of this source fact for the F1 function-exit contract.
+    pub(crate) fn declared_return_type_name(self) -> Option<&'a str> {
+        match self.owner_root {
+            ASTNode::FunctionDeclaration {
+                return_type_name, ..
+            } => return_type_name.as_deref(),
+            ASTNode::Lambda { .. } => None,
+            _ => None,
+        }
+    }
+
     pub(crate) fn root_body(self) -> Result<LocatedBodyV1<'a>, SourceNavigationErrorV1> {
         let kind = BodyChildRoleV1::FunctionBody
             .kind_for(self.owner_root)

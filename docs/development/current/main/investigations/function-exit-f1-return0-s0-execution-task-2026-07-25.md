@@ -161,7 +161,7 @@ pub(crate) struct SealedFunctionExitContractV1 {
     declared_result: DeclaredFunctionResultContractV1,
     disposition: SealedFunctionExitDispositionV1,
     coverage: FunctionExitCoverageV1,
-    return_contract_relation: ReturnExitCarrierRelationV1,
+    return_contract_relation: ReturnExitRelationV1,
     _seal: SealedFunctionExitContractSealV1,
 }
 
@@ -190,6 +190,7 @@ pub(crate) enum FunctionUnitOriginV1 {
     EmptyBody,
     ImplicitFallthrough,
     ExplicitVoid,
+    ExplicitNull,
     BareReturn,
 }
 
@@ -240,17 +241,18 @@ lowerer may later produce are not return authority.
 return <non-void expression>
   -> ExplicitValue
 
-return void
-  -> ExplicitUnit(origin = ExplicitVoid)
+return void/null
+  -> ExplicitUnit(origin = ExplicitVoid / ExplicitNull)
 
 bare return AST shape
   -> ExplicitUnit(origin = BareReturn)
   -> no parser/grammar activation claim
 ```
 
-Classification of `return void` must observe the exact source `void` form; it
-must not treat every `Some(expr)` as a value-return merely because the AST has
-a payload.
+Classification of `return void` and `return null` must observe the exact source
+form; both are Unit at this boundary, but their provenance remains distinct.
+It must not treat every `Some(expr)` as a value-return merely because the AST
+has a payload.
 
 ### Declared result relation
 
@@ -265,6 +267,9 @@ declared non-void + explicit void/bare Unit
 
 declared void + exact non-void literal Return
   -> ReturnContractMismatch
+
+declared void + non-literal Return expression
+  -> retain ExplicitValue and defer exact value/type checking
 
 unannotated + explicit value or Unit
   -> accepted source contract
@@ -296,7 +301,7 @@ New relation errors may include:
 DeclaredResultSourceMismatch
 MissingReturnValueOnPath
 ReturnContractMismatch
-ReturnExitCarrierRelationDrift
+ReturnExitRelationDrift
 UnsupportedCompletionCoverage
 ```
 
@@ -392,11 +397,20 @@ unannotated terminal return Integer
 unannotated terminal return void
   -> ExplicitUnit / ExplicitVoid
 
+unannotated terminal return null
+  -> ExplicitUnit / ExplicitNull
+
 declared void + empty/fallthrough
   -> Unit contract
 
 declared void + return void
   -> Unit contract
+
+declared void + return null
+  -> Unit contract
+
+declared void + non-literal return expression
+  -> ExplicitValue; exact relation deferred
 
 declared exact numeric + terminal value return
   -> value disposition

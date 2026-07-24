@@ -205,6 +205,13 @@ PY
     'function_control.rs:unreachable_suffix_count' \
     'function_control.rs:SourceBodySiteV1' \
     'function_control.rs:ResolvedControlTransferV1::Return' \
+    'function_control.rs:SealedFunctionExitContractV1' \
+    'function_control.rs:DeclaredFunctionResultContractV1' \
+    'function_control.rs:SealedFunctionExitDispositionV1' \
+    'function_control.rs:FunctionExitCoverageV1' \
+    'function_control.rs:ReturnExitRelationV1' \
+    'function_control.rs:function_exit_contract' \
+    'function_control.rs:ReturnClassificationInvariant' \
     'README.md:SSA-E0 function completion'; do
     local file="${spec%%:*}"
     local anchor="${spec#*:}"
@@ -238,6 +245,13 @@ PY
   fi
   if rg -n 'returns_value:\s*bool' "$compiler/capability.rs"; then
     guard_fail "$tag" "D′ SSA-E0 raw returns_value plan authority returned"
+  fi
+  if rg -n 'fn verify_function_completion_v1\(' "$flow" \
+    --glob '!function_control.rs' --glob '!function_control_tests.rs'; then
+    guard_fail "$tag" "F1 function-exit semantic seal gained a second completion producer"
+  fi
+  if rg -n 'CallableHeader|callable_header|catalog|ASTNode::FunctionDeclaration' "$completion"; then
+    guard_fail "$tag" "F1 completion must use the owner-closed source view, not a second header/catalog walk"
   fi
 
   local file lines
@@ -292,4 +306,8 @@ PY
   echo "resolved_control_flow_ssa_e0_exact_completion=explicit-or-implicit"
   echo "resolved_control_flow_ssa_e0_cleanup=explicit-empty-only"
   echo "resolved_control_flow_ssa_e0_grammar_delta=0"
+  echo "function_exit_f1_semantic_seal_producer=verify_function_completion_v1"
+  echo "function_exit_f1_return_carrier_owner=existing-mir-return-exit-contract"
+  echo "function_exit_f1_builder_materialization=0"
+  echo "function_exit_f1_parser_activation=0"
 }

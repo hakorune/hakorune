@@ -67,6 +67,7 @@ LocalStatement
 AssignmentStatement
 CompoundAssignmentStatement
 ExplicitVoid
+ExplicitNull
 BareReturn
 ```
 
@@ -225,9 +226,9 @@ omitted annotation != source-level static type-inference contract
 
 An unannotated function may use an explicit value return. An annotated
 non-Void function must not reach a normal Unit fallthrough, bare return,
-`return void`, or a mismatching value. An explicit `: void` function admits
-Unit fallthrough, bare return, and `return void`, but rejects a non-Unit return
-value.
+`return void`/`return null`, or a mismatching value. An explicit `: void`
+function admits Unit fallthrough, bare return, and `return void`/`return null`,
+but rejects a definite non-Unit return value.
 
 Physical signature planning may use a fresh verifier-backed proof derived from
 the sealed declaration and explicit return sites. `MirType`, `value_types`,

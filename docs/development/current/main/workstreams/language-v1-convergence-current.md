@@ -107,18 +107,19 @@ normative topic =
   docs/reference/language/function-exit-and-entry-result.md
 
 current executable row =
-  FUNCTION-EXIT-F1-RETURN0-S0
+  FUNCTION-EXIT-F1-MATERIALIZE0-S0
 
 execution card =
-  docs/development/current/main/investigations/function-exit-f1-return0-s0-execution-task-2026-07-25.md
+  docs/development/current/main/investigations/function-exit-f1-materialize0-s0-execution-task-2026-07-25.md
 ```
 
-The row extends the existing `VerifiedFunctionCompletionV1` producer in place
-for the exact zero-or-one root-terminal Return slice. It must not create a
-second completion analyzer or `ReturnExitContract` authority. Nested,
-multiple-return, and all-path coverage remain a separate D0; physical
-materialization, Script result, entry projection, and public activation remain
-later rows.
+The preceding RETURN0 row closed the existing `VerifiedFunctionCompletionV1`
+producer's exact zero-or-one root-terminal source contract. MATERIALIZE0 now
+consumes that sealed product at the existing Builder completion owner for one
+physical signature/Return/completion transition. It must not create a second
+source walk, last-ValueId inference, or physical completion authority.
+Nested, multiple-return, and all-path coverage remain a separate D0; Script
+result, entry projection, and public activation remain later rows.
 
 The durable function-exit queue is:
 
