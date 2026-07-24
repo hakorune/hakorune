@@ -20,6 +20,7 @@ pub(in crate::mir::builder) enum RootBodyCompletionErrorV1 {
     ForeignBrand,
     TokenKindMismatch,
     NoOpenToken,
+    AlreadyDriven,
 }
 
 impl std::fmt::Display for RootBodyCompletionErrorV1 {
@@ -73,6 +74,17 @@ pub(in crate::mir::builder) struct RootBodyCompletionTrackerV1 {
     _seal: RootBodyCompletionTrackerSealV1,
 }
 
+/// BODY0-only typestate: a fresh tracker must be consumed before root-body
+/// activity starts, and only this active wrapper may seal the final witness.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct ActiveRootBodyCompletionTrackerV1 {
+    tracker: RootBodyCompletionTrackerV1,
+    _seal: ActiveRootBodyCompletionTrackerSealV1,
+}
+
+#[derive(Debug)]
+struct ActiveRootBodyCompletionTrackerSealV1;
+
 #[derive(Debug)]
 struct RootBodyCompletionTrackerSealV1;
 
@@ -117,6 +129,18 @@ impl RootBodyCompletionTrackerV1 {
             completed_children: 0,
             _seal: RootBodyCompletionTrackerSealV1,
         }
+    }
+
+    pub(in crate::mir::builder) fn begin_root_body(
+        self,
+    ) -> Result<ActiveRootBodyCompletionTrackerV1, RootBodyCompletionErrorV1> {
+        if !self.is_fresh() {
+            return Err(RootBodyCompletionErrorV1::AlreadyDriven);
+        }
+        Ok(ActiveRootBodyCompletionTrackerV1 {
+            tracker: self,
+            _seal: ActiveRootBodyCompletionTrackerSealV1,
+        })
     }
 
     #[cfg(test)]
@@ -248,6 +272,23 @@ impl RootBodyCompletionTrackerV1 {
     }
 }
 
+impl ActiveRootBodyCompletionTrackerV1 {
+    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.tracker.brand
+    }
+
+    pub(in crate::mir::builder) fn tracker_mut(&mut self) -> &mut RootBodyCompletionTrackerV1 {
+        &mut self.tracker
+    }
+
+    pub(in crate::mir::builder) fn seal_root_body(
+        self,
+        result: RootBodyResultV1,
+    ) -> Result<CompletedRootBodyV1, RootBodyCompletionErrorV1> {
+        self.tracker.complete(result)
+    }
+}
+
 impl CompletedRootBodyV1 {
     pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
         self.brand
@@ -323,5 +364,14 @@ mod tests {
             RootBodyCompletionErrorV1::TokenKindMismatch
         );
         mismatch_tracker.close_child(mismatch_child).unwrap();
+    }
+
+    #[test]
+    fn body0_typestate_requires_begin_before_seal() {
+        let active = RootBodyCompletionTrackerV1::new()
+            .begin_root_body()
+            .unwrap();
+        let completed = active.seal_root_body(RootBodyResultV1::NoValue).unwrap();
+        assert_eq!(completed.result(), RootBodyResultV1::NoValue);
     }
 }

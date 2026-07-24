@@ -11,11 +11,12 @@ must not wire a public ingress or any production executor.
 
 ## Progress
 
-S0-A is implemented in the current worktree: the shared neutral recipe
-contract, LinearScalar0 conversion, App Main metadata seal, duplicate-site
-validation, and Return/ScopeBox source-path repair are green. S0-B (typed
-value lowerer) and S0-C (consuming BODY0 owner) remain unimplemented and
-production consumers remain zero.
+S0-A is implemented in `3648bad79f`: the shared neutral recipe contract,
+LinearScalar0 conversion, App Main metadata seal, duplicate-site validation,
+and Return/ScopeBox source-path repair are green. The fresh-tracker
+`begin_root_body -> seal_root_body` typestate is implemented and tested as a
+separate Builder-side slice. S0-B (typed value lowerer) and S0-C (consuming
+BODY0 owner) remain unimplemented and production consumers remain zero.
 
 ## Decision lock
 
