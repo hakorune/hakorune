@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINAL0-S0 through PUBLIC-INGRESS0-S0 and CLOSEOUT-REPAIR0 are closed. CONFIG0 and COVERAGE0-REPAIR-S0 are closed under their selected decisions. PARITY0 is at an effect-repair design stop after the first exact snapshot mismatch. Normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
-date = "2026-07-24"
-current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-EFFECT-REPAIR-S0"
-current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-EFFECT-REPAIR-S0"
-current_execution_summary = "PARITY0-S0a exposed an exact production mismatch: Raw BODY0 root main signature effects are READ while the Legacy root contract is PURE. Snapshot weakening is forbidden. The next row is the narrow Raw skeleton effect repair; JSON/executor/normal-entry cutover remains unauthorized."
+status = "FINAL0-S0 through PUBLIC-INGRESS0-S0 and CLOSEOUT-REPAIR0 are closed. CONFIG0, COVERAGE0-REPAIR-S0, and PARITY0-EFFECT-S0 are closed under their selected decisions. PARITY0 bounded test-only proof is active. Normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
+date = "2026-07-25"
+current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-S0"
+current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-S0"
+current_execution_summary = "PARITY0-EFFECT-prime-r1 closes the first exact parity repair: Raw BODY0 root main now uses the Legacy PURE signature contract, with focused BODY0 and empty-Script normalized parity green. PARITY0 may resume its bounded test-only matrix; JSON/executor/normal-entry cutover remains unauthorized."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -356,7 +356,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-s0-execution-task-2026-07-24"
 latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-s0-execution-task-2026-07-24.md"
-latest_card_summary = """COVERAGE0-REPAIR-prime-r1 is closed in 2d8da213f6 with green focused tests, coverage/config/ingress guards, cargo check, diff check, and pointer guard. PARITY0 is now active; normal/JSON/executor cutover remains disconnected."""
+latest_card_summary = """PARITY0-EFFECT-prime-r1 closes in the current repair commit: Raw BODY0 root main signature effects now match the Legacy PURE contract, and the focused BODY0 plus empty-Script normalized parity tests are green. PARITY0 resumes as a test-only bounded matrix; normal/JSON/executor cutover remains disconnected."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -589,6 +589,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-25: PARITY0-EFFECT-prime-r1 closes the first exact parity repair. Raw BODY0 root main now emits EffectMask::PURE like the Legacy root contract; the focused BODY0 skeleton witness, deterministic empty-Script Legacy-vs-Raw snapshot, cargo check, diff check, and pointer guard are green. PARITY0 resumes as test-only; normal/JSON/executor/old-Raw/CUT0 remain disconnected.",
   "2026-07-24: COVERAGE0-REPAIR-S0 closes in 2d8da213f6. PLAN0 remains the sole helper execution-order authority; StaticHelper0 is an exact public NarrowV1 witness with plan parity, pre-physical rejection, and a small eligibility handoff sibling. Zero/lexical/drift/metadata/instance/public-failure fixtures, focused tests, coverage/config/ingress guards, cargo check, diff check, and pointer guard are green. PARITY0 is next; normal/JSON/executor/CUT0 remain disconnected.",
   "2026-07-24: PUBLIC-INGRESS-CONFIG0-S0 closes the request-owned import boundary. NarrowV1 selects RawPublicImportDispositionV1::None once, projects exact-empty candidate imports without mutating live Builder imports, and preserves live imports across Raw failure. Focused CONFIG0 guard, session/import fixture, Raw failure isolation, cargo check, and pointer guard are green. Exact-empty StaticHelper0 coverage is next; normal/JSON/executor/CUT0 remain disconnected.",
   "2026-07-24: RAW-PUBLIC-CUTOVER-prime-r1 closes the normal-entry consultation after four read-only worker audits. Q1-Q6 select A with Q3 strengthened by request-owned import disposition and compiler-reuse immutability. The explicit Raw API has one definition and zero non-test callers; a normal switch would affect 14 runner leaves, mix no-import and import-aware lanes, and exceed the current LinearScalar0/unchecked-helper grammar. The fixed execution order is PUBLIC-INGRESS0-CLOSEOUT-REPAIR0 -> CONFIG0 -> COVERAGE0 -> PARITY0 -> OLD-RAW-RETIRE0. JSON, executor, selfhost, fastmem, fallback, normal cutover, and CUT0 remain zero.",
@@ -600,5 +601,4 @@ landed_tail = [
   "2026-07-23: RAW-ROOT-prime-r1 closes ROOT-CONSULT0. Q1-Q5 select route-owned Script/App root state, body-after atomic Main/condition batch, source-derived declaration/access plan, sealed callable-Main disposition, and discard-only full-owner failure. ROOT0-PLAN0 is next; Builder/session/collector/ledger effects and production consumers remain zero.",
   "2026-07-23: ROOT0-PLAN0 lands in 0268d46c9b. The disconnected source-derived Script/App plan seals physical root identity, ordered work facts, declaration/static/callable projections, runtime dispositions, and the compiler token; focused tests, cargo check, and guards are green. OWNER0 is now a design stop because source AST/body, RawSourceContinuation, Builder config, module name, and typed callable-Main selection must survive one exact handoff before any physical owner opens.",
   "2026-07-23: RAW-OWNER-prime-r1 closes OWNER0-CONSULT0. Q1-Q5 select one non-Clone SourceBoundRawRootPackage retaining token/source/continuation/config/module-name/tokenless plan, retained OwnedRawSource, typed callable-Main disposition only, a future route owner over the existing neutral physical core, and explicit deferred capability seals. OWNER0-PACKAGE0 is next; physical effects and production consumers remain zero.",
-  "2026-07-23: PACKAGE0 lands in 7fbab72456. SourceBoundRawRootPackageV1 now borrows the complete bound package for tokenless plan construction, retains the original package on typed planning rejection, and co-seals token/source/continuation/config/module-name/plan. Callable-Main selection booleans are retired; package tests, PLAN0 tests, cargo check, and guards are green. OWNER0-ELIGIBILITY0-CONSULT0 is next; physical effects remain zero.",
 ]

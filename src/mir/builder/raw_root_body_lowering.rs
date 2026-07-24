@@ -12,7 +12,7 @@ use crate::mir::raw_root_body_recipe::{
 };
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
 use crate::mir::{
-    Effect, EffectMask, FunctionSignature, MirBuilder, MirInstruction, MirType, UnaryOp, ValueId,
+    EffectMask, FunctionSignature, MirBuilder, MirInstruction, MirType, UnaryOp, ValueId,
 };
 
 impl MirBuilder {
@@ -37,7 +37,7 @@ impl MirBuilder {
             name: slot.symbol().to_owned(),
             params: Vec::new(),
             return_type: MirType::Void,
-            effects: EffectMask::READ.add(Effect::ReadHeap),
+            effects: EffectMask::PURE,
         };
         self.function_state.current_function =
             Some(self.new_function_with_metadata(signature, entry));

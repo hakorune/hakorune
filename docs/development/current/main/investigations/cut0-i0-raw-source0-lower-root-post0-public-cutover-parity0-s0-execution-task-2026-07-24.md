@@ -2,11 +2,8 @@
 
 Decision: `RAW-PUBLIC-CUTOVER-PARITY0-prime-r1`
 
-Status: held at the first exact effect mismatch. Resume only after the paired
-effect-repair task
-`cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-effect-repair-s0-execution-task-2026-07-25.md`
-closes. The original implementation remains authorized only after the paired
-design lock
+Status: active after the narrow effect-repair task closed. The original
+implementation remains authorized only after the paired design lock
 `cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-design-question-2026-07-24.md`.
 
 ## Goal

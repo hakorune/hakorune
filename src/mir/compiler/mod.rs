@@ -134,6 +134,8 @@ mod raw_root_publication_adapter_p0;
 #[cfg(test)]
 mod raw_public_ingress_p0;
 #[cfg(test)]
+mod raw_public_cutover_parity_success_p0;
+#[cfg(test)]
 mod raw_public_cutover_parity_snapshot;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_manifest_package;

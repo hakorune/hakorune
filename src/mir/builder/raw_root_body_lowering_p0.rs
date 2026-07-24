@@ -52,6 +52,23 @@ fn linear_recipe_lowers_without_ast_reconstruction() {
 }
 
 #[test]
+fn raw_root_main_skeleton_uses_the_legacy_pure_effect_contract() {
+    let mut builder = MirBuilder::new();
+    builder
+        .begin_raw_root_function_v1(RawRootBatchSlotV1::Main.contract())
+        .unwrap();
+    let effect = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("raw root function should be open")
+        .signature
+        .effects;
+    assert_eq!(effect, crate::mir::EffectMask::PURE);
+    builder.finish_raw_root_function_v1().unwrap();
+}
+
+#[test]
 fn linear_recipe_lowers_local_assignment_and_print() {
     let recipe = RawRootBodyRecipeV1::from_parts(
         RawRootBodyEntryV1::Script,

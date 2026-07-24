@@ -2,8 +2,8 @@
 
 Decision: `RAW-PUBLIC-CUTOVER-PARITY0-EFFECT-prime-r1`
 
-Status: design-stop / queued. Do not widen PARITY0 success fixtures until this
-repair is complete.
+Status: closed in the repair commit. This was the selected narrow repair; do not widen PARITY0
+success fixtures until this repair is complete.
 
 ## Scope
 
