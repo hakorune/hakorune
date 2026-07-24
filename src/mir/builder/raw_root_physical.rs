@@ -21,6 +21,7 @@ pub(in crate::mir) mod child_terminal;
 pub(in crate::mir) mod drain_manifest;
 pub(in crate::mir) mod drain_terminal;
 pub(in crate::mir) mod environment_terminal;
+pub(in crate::mir) mod finalization_terminal;
 pub(in crate::mir) mod root_batch_terminal;
 
 #[derive(Debug)]

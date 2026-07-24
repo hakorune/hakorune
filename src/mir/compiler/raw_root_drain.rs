@@ -24,23 +24,23 @@ pub(in crate::mir) enum RawDrainedInvocationV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawScriptDrainedInvocationV1 {
-    core: RawDrainedInvocationCoreV1,
+    pub(in crate::mir) core: RawDrainedInvocationCoreV1,
 }
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawAppDrainedInvocationV1 {
-    core: RawDrainedInvocationCoreV1,
-    callable_main: RawAppCallableMainOutcomeV1,
+    pub(in crate::mir) core: RawDrainedInvocationCoreV1,
+    pub(in crate::mir) callable_main: RawAppCallableMainOutcomeV1,
 }
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawDrainedInvocationCoreV1 {
-    continuation: RawPostCallableMainContinuationV1,
-    module_name: Box<str>,
-    runtime_inputs: RawRuntimeInputSnapshotV1,
-    completion: RawPreRootChildrenCompletionV1,
-    helper_receipts: Box<[RawRootChildReceiptV1]>,
-    physical: RawDrainedPhysicalV1,
+    pub(in crate::mir) continuation: RawPostCallableMainContinuationV1,
+    pub(in crate::mir) module_name: Box<str>,
+    pub(in crate::mir) runtime_inputs: RawRuntimeInputSnapshotV1,
+    pub(in crate::mir) completion: RawPreRootChildrenCompletionV1,
+    pub(in crate::mir) helper_receipts: Box<[RawRootChildReceiptV1]>,
+    pub(in crate::mir) physical: RawDrainedPhysicalV1,
 }
 
 #[derive(Debug)]

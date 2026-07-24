@@ -64,7 +64,36 @@ impl MirBuilder {
             .ok_or_else(|| "[freeze:contract][raw_root_body/no_function]".to_string())?;
         self.function_state.current_block = None;
         self.comp_ctx.current_slot_registry = None;
+        self.close_raw_root_function_state_v1();
         Ok(draft)
+    }
+
+    /// Clear the function-owned scratch that was created while driving the
+    /// unpublished root draft.  The draft has already been moved out, so the
+    /// candidate session must return to the same closed state required by the
+    /// later FINAL0 readiness seal.
+    fn close_raw_root_function_state_v1(&mut self) {
+        self.function_state.variable_ctx = Default::default();
+        self.function_state.type_ctx = Default::default();
+        self.function_state.binding_ctx = Default::default();
+        self.function_state.resolved_binding_state = Default::default();
+        self.function_state.scope = Default::default();
+        self.function_state.compilation = Default::default();
+        self.function_state.value_origins = Default::default();
+        self.function_state.pending_phis.clear();
+        self.function_state.local_ssa_map.clear();
+        self.function_state.schedule_mat_map.clear();
+        self.function_state.pin_slot_names.clear();
+        self.function_state.frag_emit_session.reset();
+        self.function_state.return_defer_active = false;
+        self.function_state.return_defer_slot = None;
+        self.function_state.return_defer_target = None;
+        self.function_state.return_deferred_emitted = false;
+        self.function_state.in_cleanup_block = false;
+        self.function_state.cleanup_allow_return = false;
+        self.function_state.cleanup_allow_throw = false;
+        self.function_state.suppress_pin_entry_copy_next = false;
+        self.function_state.in_unified_boxcall_fallback = false;
     }
 
     /// Lower one exact LinearScalar0 recipe into the current unpublished

@@ -44,6 +44,7 @@ pub(crate) mod canonical_direct_static_call_capability;
 pub(crate) mod canonical_physical_drain;
 pub(crate) mod raw_root_body_recipe;
 pub(crate) mod raw_physical_drain;
+pub(crate) mod raw_finalization_contract;
 pub(crate) mod canonical_recursive_callable_module_backend_capability;
 pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;

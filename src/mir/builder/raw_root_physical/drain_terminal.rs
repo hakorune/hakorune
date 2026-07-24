@@ -95,6 +95,15 @@ pub(in crate::mir) struct RawUnfinalizedModuleV1 {
 struct RawUnfinalizedModuleSealV1;
 
 #[derive(Debug)]
+pub(in crate::mir) struct RawFinalizedModuleV1 {
+    module: MirModule,
+    _seal: RawFinalizedModuleSealV1,
+}
+
+#[derive(Debug)]
+struct RawFinalizedModuleSealV1;
+
+#[derive(Debug)]
 pub(in crate::mir) struct RawDrainWitnessV1 {
     manifest: RawPhysicalDrainManifestV1,
     ledger: SealedRawExpansionReceiptLedgerV1,
@@ -111,11 +120,49 @@ pub(in crate::mir) struct RawDrainedPhysicalV1 {
     pub(in crate::mir) session: ModuleBuilderInvocationSessionV1,
     pub(in crate::mir) candidate: RawUnfinalizedModuleV1,
     pub(in crate::mir) witness: RawDrainWitnessV1,
-    _seal: RawDrainedPhysicalSealV1,
+    pub(in crate::mir::builder) _seal: RawDrainedPhysicalSealV1,
 }
 
 #[derive(Debug)]
-struct RawDrainedPhysicalSealV1;
+pub(in crate::mir::builder) struct RawDrainedPhysicalSealV1;
+
+impl RawUnfinalizedModuleV1 {
+    pub(in crate::mir::builder) fn name(&self) -> &str {
+        &self.module.name
+    }
+
+    pub(in crate::mir::builder) fn function_count(&self) -> usize {
+        self.module.functions.len()
+    }
+
+    pub(in crate::mir::builder) fn symbols(&self) -> impl Iterator<Item = &String> {
+        self.module.functions.keys()
+    }
+
+    pub(in crate::mir::builder) fn function(
+        &self,
+        symbol: &str,
+    ) -> Option<&crate::mir::MirFunction> {
+        self.module.functions.get(symbol)
+    }
+
+    pub(in crate::mir::builder) fn finalize(self) -> RawFinalizedModuleV1 {
+        RawFinalizedModuleV1 {
+            module: self.module,
+            _seal: RawFinalizedModuleSealV1,
+        }
+    }
+}
+
+impl RawDrainWitnessV1 {
+    pub(in crate::mir::builder) fn manifest(&self) -> &RawPhysicalDrainManifestV1 {
+        &self.manifest
+    }
+
+    pub(in crate::mir::builder) fn root(&self) -> &RawInvocationRootWitnessV1 {
+        &self.root
+    }
+}
 
 pub(in crate::mir::builder) fn prepare_from_parts(
     parts: RawDrainPhysicalPartsV1,

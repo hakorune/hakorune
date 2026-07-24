@@ -64,6 +64,9 @@ with the old `RawPhysicalCompleteInvocationV1` bridge left test-only and
 unconnected? A second finalization entry, generic candidate adapter, or bare
 `MirModule` ingress would create a competing publication owner.
 
+The selected direct entry spelling is `RawDrainedInvocationV1::prepare_finalization(self)`;
+the Script/App enum variants remain the route-specific input shapes.
+
 ### Q2 — finalization owner and module handoff
 
 Should a compiler-private Raw finalizer consume the complete drained owner,
@@ -115,6 +118,9 @@ later POST0 handoff? The product must not infer Script/App from physical
 symbols because an App with no helpers can look like a Script.
 
 ### Q7 — retirement and guard scope
+
+The guard-only prerequisite is named `FINAL0-GUARD-SCOPE0` and excludes
+`#[cfg(test)]`-registered modules before measuring production callers.
 
 Should FINAL0 close with these measured conditions?
 

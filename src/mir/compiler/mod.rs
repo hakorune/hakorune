@@ -49,6 +49,8 @@ pub(in crate::mir) mod raw_root_eligibility;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_eligibility_classifier;
 #[allow(dead_code)]
+pub(in crate::mir) mod raw_root_finalization;
+#[allow(dead_code)]
 pub(in crate::mir) mod raw_root_package;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_runtime_inputs;
@@ -110,6 +112,8 @@ mod raw_root_drain_p0;
 mod raw_root_eligibility_p0;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_environment_manifest;
+#[cfg(test)]
+mod raw_root_finalization_p0;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_manifest_package;
 #[allow(dead_code)]
