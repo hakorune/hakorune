@@ -3,6 +3,9 @@
 //! This module is disconnected from public compiler ingress.  It consumes a
 //! preflight package once, keeps the real BRAND0 shell/collector owner, and
 //! emits route-specific completion products without reusing Raw Main state.
+use super::canonical_root_completion_error::{
+    CanonicalCompletionErrorV1, CanonicalSourceBindingErrorV1,
+};
 use super::module_draft_collector::{
     CallableCollectorBatchPrepareErrorV1, CallableCollectorBatchReceiptV1,
     CallableCollectorDraftEntryV1, CollectedCallableCollectorBatchV1,
@@ -19,14 +22,11 @@ use super::module_invocation_session::{
     BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
 };
 use super::module_lowering_shell::{
-    AcyclicCapabilityAbsenceWitnessV1, ModuleLoweringShellErrorV1, ModuleLoweringShellV1,
-    RecursiveCapabilityInstallReceiptV1,
+    AcyclicCapabilityAbsenceWitnessV1, ModuleLoweringShellV1, RecursiveCapabilityInstallReceiptV1,
 };
 use super::route_owned_invocation_inventory::RouteOwnedInvocationInventoryV2;
-use crate::mir::builder::module_invocation_callable_batch::CallableBatchSourceErrorV1;
 use crate::mir::compiler::capability::{
-    CanonicalFirstFamilyPlanV1, ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1,
-    VerifiedResolvedOwnerHeaderV1,
+    CanonicalFirstFamilyPlanV1, ResolvedOwnerHeaderFamilyV1, VerifiedResolvedOwnerHeaderV1,
 };
 use crate::mir::compiler::resolved_callable_module::VerifiedResolvedCallableModuleV1;
 use crate::mir::compiler::{
@@ -34,26 +34,6 @@ use crate::mir::compiler::{
     recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1,
 };
 use crate::mir::function::MirFunction;
-use crate::mir::resolved_semantics::CanonicalCallableKeyV1;
-#[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum CanonicalSourceBindingErrorV1 {
-    FamilyMismatch {
-        expected: ModuleInvocationFamilyV1,
-        actual: ModuleInvocationFamilyV1,
-    },
-    Header(ResolvedOwnerHeaderSealErrorV1),
-    RoutePolicy,
-    CallablePlan(CallableBatchSourceErrorV1),
-}
-impl std::fmt::Display for CanonicalSourceBindingErrorV1 {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            formatter,
-            "[freeze:contract][canonical_source_binding] {self:?}"
-        )
-    }
-}
-impl std::error::Error for CanonicalSourceBindingErrorV1 {}
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct CanonicalSingleSourceContinuationV1 {
@@ -154,61 +134,6 @@ impl<'a> PreparedCanonicalSingleSourceV1<'a> {
         )
     }
 }
-#[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum CanonicalCompletionErrorV1 {
-    Shell(ModuleLoweringShellErrorV1),
-    ForeignBrand {
-        expected: u64,
-        actual: u64,
-    },
-    CollectorCardinality {
-        expected: usize,
-        actual: usize,
-    },
-    MissingReceipt,
-    SyntheticRoot(FunctionDraftKeyV1),
-    KeyMismatch,
-    SymbolMismatch {
-        expected: String,
-        actual: String,
-    },
-    ArityMismatch {
-        expected: usize,
-        actual: usize,
-    },
-    PolicyMismatch,
-    ReplacementForbidden,
-    CallableCardinality {
-        expected: usize,
-        actual: usize,
-    },
-    CallableMissing(CanonicalCallableKeyV1),
-    CallableKeyMismatch,
-    CallableSymbolMismatch,
-    CallableArityMismatch,
-    CallablePolicyMismatch,
-    CallableReplacementForbidden,
-    RecursiveCapability(&'static str),
-    CapabilityFamilyMismatch(ModuleInvocationFamilyV1),
-    CapabilityBrandMismatch {
-        expected: u64,
-        actual: u64,
-    },
-    CapabilityWitnessFamilyMismatch {
-        expected: ModuleInvocationFamilyV1,
-        actual: ModuleInvocationFamilyV1,
-    },
-}
-impl std::fmt::Display for CanonicalCompletionErrorV1 {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            formatter,
-            "[freeze:contract][canonical_completion] {self:?}"
-        )
-    }
-}
-impl std::error::Error for CanonicalCompletionErrorV1 {}
-
 #[derive(Debug)]
 pub(in crate::mir::builder) struct CanonicalSingleRootWitnessV1 {
     source: CanonicalSingleSourceContinuationV1,
