@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT0 — DECLACCESS0-S0 execution task
 
-Status: **In progress — compiler-side declaration terminal; production consumers remain zero**
+Status: **Closed — `DECLACCESS0-S0` (`e2fb0839f5`); production consumers remain zero**
 Date: 2026-07-24  
 Decision: **DECLACCESS-prime-r1**
 
@@ -242,3 +242,17 @@ git diff --check
 All listed commands pass before commit. The implementation remains
 disconnected: no BODY0, root batch, production executor, or public ingress
 consumer is introduced.
+
+## Closeout
+
+`DECLACCESS0-S0` is closed. The compiler-side `declare_environment(self)`
+terminal consumes the CALLMAIN-ready owner exactly once, derives the Builder
+and shell projections from the retained manifest, performs mutation-free
+preflight, and privately commits one installed environment. Success returns
+the route-specific declared owner; every preflight failure retains the exact
+unpublished chain in a discard-only rejected owner. BODY0, root batching,
+drain, finalization, postprocess, external commit, public ingress, JSON
+parity, and CUT0 activation remain zero.
+
+The next design stop is
+`RAW-SOURCE0-LOWER0-ROOT0-BODY0-CONSULT0`.

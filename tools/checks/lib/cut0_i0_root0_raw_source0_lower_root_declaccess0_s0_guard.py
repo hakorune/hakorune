@@ -35,7 +35,8 @@ def main() -> int:
     joined = "\n".join(path.read_text() for path in SOURCE)
     decl_access = (ROOT / "src/mir/compiler/raw_root_decl_access.rs").read_text()
 
-    require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-DECLACCESS0-S0"', "active row")
+    require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-BODY0-CONSULT0"', "next row")
+    require(state, 'latest_card = "cut0-i0-raw-source0-lower-root-body-question-2026-07-24"', "next card")
     require(task, "Decision: **DECLACCESS-prime-r1**", "decision lock")
     for fragment in (
         "RawCallableMainReadyEnvironmentPartsV1",
