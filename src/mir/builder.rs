@@ -61,6 +61,8 @@ mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 #[allow(dead_code)]
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
 mod raw_root_physical; // RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PHYSICAL0 empty carrier
+#[allow(dead_code)]
+mod raw_root_environment_install; // DECLACCESS-COINSTALL0 aggregate installer
 pub(in crate::mir) use raw_root_physical::RawRootPhysicalStateV1;
 pub(in crate::mir) use raw_root_physical::child_terminal::RawRootPhysicalChildErrorV1;
 pub(in crate::mir) use raw_root_physical::callable_main_terminal::{

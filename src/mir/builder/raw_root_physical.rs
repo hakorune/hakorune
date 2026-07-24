@@ -14,6 +14,7 @@ use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 
 pub(in crate::mir) mod child_terminal;
 pub(in crate::mir) mod callable_main_terminal;
+pub(in crate::mir) mod environment_terminal;
 
 #[derive(Debug)]
 enum RawRootLedgerStateV1 {
@@ -55,6 +56,10 @@ impl RawRootPhysicalStateV1 {
 
     pub(in crate::mir) fn shell_is_empty(&self) -> bool {
         !self.physical.shell().payload().has_published_functions()
+    }
+
+    pub(in crate::mir) fn published_function_count(&self) -> usize {
+        self.physical.shell().payload().published_function_count()
     }
 
     pub(in crate::mir) fn ledger_brand(&self) -> ModuleInvocationBrandV1 {

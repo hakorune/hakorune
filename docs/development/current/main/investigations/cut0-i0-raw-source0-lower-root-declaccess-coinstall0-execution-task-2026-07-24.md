@@ -1,15 +1,16 @@
 # DECLACCESS COINSTALL0 execution task
 
-Status: **Ready — design locked after worker inventory**  
+Status: **In progress — aggregate owner/preflight sub-slice**
 Date: 2026-07-24  
 Decision: **COINSTALL-prime-r1**  
 Prerequisite: `bfde427dd2` (`MANIFEST0-RUNTIME` sub-slice)
 
 ## Decision
 
-COINSTALL0 adds one Builder-owned aggregate installer. It installs the
-manifest-derived Builder index and shell declaration facts into the same
-candidate session/physical owner. It does not open a second session, expose
+COINSTALL0 first adds one Builder-owned aggregate installer owner and its
+mutation-free preflight. This sub-slice fixes the paired ownership and
+rejection algebra; the actual manifest-derived Builder/shell mutation is the
+following DECLACCESS-S0 sub-slice. It does not open a second session, expose
 raw parts, or publish a root function.
 
 ```text
@@ -20,7 +21,7 @@ ManifestBoundRawRootPackageV1
   -> private RawRootEnvironmentInstallOwnerV1
   -> RawRootEnvironmentInstallerV1::prepare(owner)
   -> PreparedRawRootEnvironmentInstallV1
-  -> private infallible commit
+  -> private handoff (installation deferred to DECLACCESS-S0)
   -> InstalledRawRootEnvironmentV1
 ```
 
@@ -89,10 +90,11 @@ replacement primitive as Builder-private seams where existing APIs are too
 narrow. Collector/ledger history from CHILDREN0/CALLMAIN0 is retained and is
 not treated as an empty destination.
 
-### Q4 — private infallible commit
+### Q4 — private infallible handoff
 
-After every fallible conversion and vacancy check succeeds, commit only
-preflighted assignments:
+After every fallible identity/vacancy check succeeds, the current sub-slice
+performs only a named, consuming handoff. The following DECLACCESS-S0 must
+commit only preflighted assignments:
 
 ```text
 candidate callable catalog install
@@ -100,9 +102,9 @@ candidate route/declaration facts install
 shell source-file/declaration-fact install
 ```
 
-The commit returns no `Result`, uses no `expect`, and performs no lookup or
-allocation. Existing `Result`-returning catalog installation must receive a
-preflighted Builder-private variant rather than being wrapped in `expect`.
+The future commit returns no `Result`, uses no `expect`, and performs no lookup
+or allocation. Existing `Result`-returning catalog installation must receive
+a preflighted Builder-private variant rather than being wrapped in `expect`.
 
 ### Q5 — failure and handoff
 
@@ -111,8 +113,9 @@ physical carrier, manifest/projections, runtime/body payload, and typed cause.
 No retry, parts extraction, partial commit, fallback, AST re-resolution, or
 BODY0 entry is exposed.
 
-Success returns `InstalledRawRootEnvironmentV1`; the next executable row is
-DECLACCESS S0, which alone may expose `declare_environment(self)` and produce
+Success returns `InstalledRawRootEnvironmentV1` without claiming that source
+facts have already been installed. The next executable row is DECLACCESS S0,
+which alone may expose `declare_environment(self)` and produce
 `DeclaredRawRootInvocationV1`. BODY0 is its only continuation.
 
 ## Required implementation files
@@ -152,7 +155,7 @@ BODY0/root batch/production consumer = 0
 all modified/new source/check files < 800 lines
 ```
 
-Required tests:
+Required tests for this sub-slice:
 
 ```text
 Script and App co-install success
@@ -161,7 +164,16 @@ shell metadata/function lane dirty -> rejection
 foreign brand/family/session -> rejection
 open/poisoned ledger or nonzero root tracker -> rejection
 all rejection snapshots: session/physical/manifest unchanged
-success: catalog/facts installed once, runtime/body payload retained once
+success: paired owner handoff retains session/physical/manifest once
+```
+
+The following installation tests belong to DECLACCESS-S0, not this owner
+sub-slice:
+
+```text
+catalog and declaration facts installed once
+shell source-file/declaration metadata installed once
+runtime/body payload retained once after projection split
 ```
 
 Known follow-up: runtime snapshot tests currently use module-local environment
