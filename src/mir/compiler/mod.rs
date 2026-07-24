@@ -308,6 +308,28 @@ impl MirCompiler {
         SourceBoundRawPackageV1::bind(&mut self.invocation_identity, request)
     }
 
+    /// PUBLIC-INGRESS-CONFIG0: the NarrowV1 public request owns exact empty
+    /// imports while disconnected Raw fixtures retain their legacy snapshot.
+    pub(in crate::mir) fn bind_raw_source_for_public(
+        &mut self,
+        input: LegacyModuleLoweringInputV1,
+        source_file: Option<&str>,
+        module_name: impl Into<Box<str>>,
+        callable_main: RawCallableMainSelectionV1,
+        disposition: crate::mir::compiler::raw_public_ingress::RawPublicImportDispositionV1,
+    ) -> Result<SourceBoundRawPackageV1, RejectedRawSourceBindingV1> {
+        let config = match disposition {
+            crate::mir::compiler::raw_public_ingress::RawPublicImportDispositionV1::None => {
+                BuilderInvocationConfigV1::snapshot_for_raw_without_imports(
+                    &self.builder,
+                    source_file,
+                )
+            }
+        };
+        let request = RawIngressRequestV1::new(input, config, module_name, callable_main);
+        SourceBoundRawPackageV1::bind(&mut self.invocation_identity, request)
+    }
+
     /// RAW-SOURCE0-LOWER0-S0 disconnected package-to-draft owner handoff.
     /// Public ingress and production execution remain intentionally absent.
     pub(in crate::mir) fn begin_raw_draft(

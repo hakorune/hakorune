@@ -118,10 +118,11 @@ def main() -> int:
     task = TASK.read_text()
     repair_task = REPAIR_TASK.read_text()
     caller_manifest = json.loads(CALLER_MANIFEST.read_text())
+    require(state, "CONFIG0 are closed", "closed closeout-repair/CONFIG0 rows")
     require(
         state,
-        "PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0 are closed",
-        "closed closeout-repair row",
+        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-COVERAGE0-S0"',
+        "advanced coverage row",
     )
     require(
         state,

@@ -96,6 +96,20 @@ impl BuilderInvocationConfigV1 {
         config
     }
 
+    /// PUBLIC-INGRESS-CONFIG0: Raw bare-source requests own no imports.
+    ///
+    /// This preserves the live Builder as-is while preventing a reused
+    /// compiler's ambient import aliases from entering the candidate.
+    pub(in crate::mir) fn snapshot_for_raw_without_imports(
+        current: &MirBuilder,
+        source_file: Option<&str>,
+    ) -> Self {
+        let mut config = Self::snapshot_with_policy(current, BuilderCoreSeedPolicyV1::ContinueLive);
+        config.using_import_boxes.clear();
+        config.source_file = source_file.map(str::to_owned);
+        config
+    }
+
     pub(in crate::mir::builder) fn snapshot(
         current: &MirBuilder,
         core_id_seed: BuilderCoreIdSeedV1,

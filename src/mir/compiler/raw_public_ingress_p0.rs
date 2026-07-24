@@ -69,3 +69,27 @@ fn raw_public_ingress_failure_is_discarded_before_reuse() {
         .expect("discarded Raw failure must not poison compiler reuse");
     assert!(compiler.builder.current_module.is_none());
 }
+
+#[test]
+fn raw_public_ingress_failure_preserves_live_imports() {
+    let mut compiler = MirCompiler::new();
+    compiler
+        .builder
+        .comp_ctx
+        .using_import_boxes
+        .insert("Alias".into(), "Imported".into());
+    let before = compiler.builder.comp_ctx.using_import_boxes.clone();
+    let failure = ASTNode::Program {
+        statements: vec![ASTNode::Variable {
+            name: "missing".into(),
+            span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    };
+
+    let error = compiler
+        .compile_raw_with_source(failure, None)
+        .expect_err("undefined variable must reject without mutating live imports");
+    assert!(error.starts_with("[raw-public/body/rejected]"));
+    assert_eq!(compiler.builder.comp_ctx.using_import_boxes, before);
+}

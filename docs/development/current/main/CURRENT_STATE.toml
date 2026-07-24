@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINAL0-S0 through PUBLIC-INGRESS0-S0 and PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0 are closed. RAW-PUBLIC-CUTOVER-prime-r1 is selected after four-worker audit. CONFIG0 is next; normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
+status = "FINAL0-S0 through PUBLIC-INGRESS0-S0, CLOSEOUT-REPAIR0, and CONFIG0 are closed. RAW-PUBLIC-CUTOVER-prime-r1 is selected after four-worker audit. COVERAGE0 is next; normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
 date = "2026-07-24"
-current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-INGRESS-CONFIG0-S0"
-current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-INGRESS-CONFIG0-S0"
-current_execution_summary = "Closeout repair is green: scoped caller manifest, cfg(test)-aware census, four focused ingress fixtures, and zero route delta. Next fix request-owned Raw import disposition, then COVERAGE0 -> PARITY0 -> OLD-RAW-RETIRE0; normal/JSON/executor cutover remains unauthorized."
+current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-COVERAGE0-S0"
+current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-COVERAGE0-S0"
+current_execution_summary = "CONFIG0 is green: NarrowV1 selects one request-owned exact-empty import projection, live Builder imports remain unchanged, and focused reuse/failure gates pass. Next close exact-empty StaticHelper0 coverage before parity; normal/JSON/executor cutover remains unauthorized."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -354,9 +354,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "cut0-i0-raw-source0-lower-root-post0-public-ingress-config0-s0-execution-task-2026-07-24"
-latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress-config0-s0-execution-task-2026-07-24.md"
-latest_card_summary = """RAW-PUBLIC-CUTOVER-prime-r1 remains selected. CLOSEOUT-REPAIR0 is closed with green evidence. CONFIG0 is the next implementation row: request-owned exact no-import disposition, no ambient import authority, and compiler reuse isolation."""
+latest_card = "cut0-i0-raw-source0-lower-root-post0-public-cutover-coverage0-s0-execution-task-2026-07-24"
+latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-coverage0-s0-execution-task-2026-07-24.md"
+latest_card_summary = """RAW-PUBLIC-CUTOVER-prime-r1 remains selected. CONFIG0 is closed with green no-import projection, live-import immutability, focused failure/reuse, cargo check, and pointer evidence. COVERAGE0 is now active: exact empty StaticHelper0 before physical effects; parity and normal cutover remain disconnected."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -558,7 +558,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-POST0-PUBLIC-INGRESS-CONFIG0-S0-20260724"
+current_blocker_token = "RAW-POST0-PUBLIC-CUTOVER-COVERAGE0-S0-20260724"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
@@ -584,6 +584,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-24: PUBLIC-INGRESS-CONFIG0-S0 closes the request-owned import boundary. NarrowV1 selects RawPublicImportDispositionV1::None once, projects exact-empty candidate imports without mutating live Builder imports, and preserves live imports across Raw failure. Focused CONFIG0 guard, session/import fixture, Raw failure isolation, cargo check, and pointer guard are green. Exact-empty StaticHelper0 coverage is next; normal/JSON/executor/CUT0 remain disconnected.",
   "2026-07-24: RAW-PUBLIC-CUTOVER-prime-r1 closes the normal-entry consultation after four read-only worker audits. Q1-Q6 select A with Q3 strengthened by request-owned import disposition and compiler-reuse immutability. The explicit Raw API has one definition and zero non-test callers; a normal switch would affect 14 runner leaves, mix no-import and import-aware lanes, and exceed the current LinearScalar0/unchecked-helper grammar. The fixed execution order is PUBLIC-INGRESS0-CLOSEOUT-REPAIR0 -> CONFIG0 -> COVERAGE0 -> PARITY0 -> OLD-RAW-RETIRE0. JSON, executor, selfhost, fastmem, fallback, normal cutover, and CUT0 remain zero.",
   "2026-07-23: SOURCE-FIRST-prime-r1 closes the Atomic CUT0 consultation. Q1=3 keeps all production consumers disconnected; Q2=1 selects a compiler-owned Raw source-bound ingress; Q3 splits AST-JSON parity from the existing Program(JSON v0) compatibility lane; Q4=1 seals BuilderInvocationConfig at outer ingress; Q5=1 requires measured zero direct Builder callers. RAW-SOURCE0-CONSULT0 is next; no executor, JSON behavior change, or MirBuilder::build_module retirement is allowed.",
   "2026-07-23: RAW-SOURCE0-PLAN0 closes as a disconnected owned-source projection proof. OwnedRawSourceV1 keeps the AST and origin while OwnedRawRootProjectionV1 stores only Script/App source locators; no token, session, collector, ledger, receipt, or module map is owned. PLAN0 guard, focused projection tests, cargo check, and pointer guard are green. RAW-SOURCE0-BIND0 is next; production Raw ingress remains disconnected.",
@@ -595,5 +596,4 @@ landed_tail = [
   "2026-07-23: RAW-OWNER-prime-r1 closes OWNER0-CONSULT0. Q1-Q5 select one non-Clone SourceBoundRawRootPackage retaining token/source/continuation/config/module-name/tokenless plan, retained OwnedRawSource, typed callable-Main disposition only, a future route owner over the existing neutral physical core, and explicit deferred capability seals. OWNER0-PACKAGE0 is next; physical effects and production consumers remain zero.",
   "2026-07-23: PACKAGE0 lands in 7fbab72456. SourceBoundRawRootPackageV1 now borrows the complete bound package for tokenless plan construction, retains the original package on typed planning rejection, and co-seals token/source/continuation/config/module-name/plan. Callable-Main selection booleans are retired; package tests, PLAN0 tests, cargo check, and guards are green. OWNER0-ELIGIBILITY0-CONSULT0 is next; physical effects remain zero.",
   "2026-07-24: ELIGIBILITY-prime-r1 closes OWNER0-ELIGIBILITY0-CONSULT0. Q1 CaptureOnce, Q2 recursive wildcard-free ScalarControl0, Q3 narrow complete Empty-Script/plain-static-Main catalog, Q4 closure/static typed rejection, and Q5 process-global-slot rejection are selected. The single S0 row is next; physical effects and production consumers remain zero.",
-  "2026-07-24: RAW-PUBLICATION-prime-r1 closes PUBLICATION0-S0. One private publish_once kernel now owns the single live-Builder replacement site; the shared target-quiescence checker is reused for candidate and live targets; RawExternalCommitModuleV1 is consumed into an opaque RawPublishedModuleV1 while the actual module enters the live Builder; Script/App published owners retain complete Raw evidence, and reportable Raw verifier Err remains success evidence. Focused Raw/publication tests, guard, cargo check, and semantic-manifest check are green. MirCompileResult adaptation, public ingress, executor, retirement, and CUT0 remain disconnected.",
 ]

@@ -2,7 +2,7 @@
 
 Decision: `RAW-PUBLIC-CUTOVER-prime-r1`
 
-Status: active execution after `PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0`.
+Status: closed. CONFIG0 implementation and focused evidence landed on 2026-07-24.
 
 ## Goal
 
@@ -64,6 +64,24 @@ helper coverage
 normal-entry cutover
 JSON/executor/selfhost/CUT0
 ```
+
+## Closeout evidence
+
+```text
+RawPublicImportDispositionV1::None producer = 1
+candidate using_import_boxes = exact empty
+live Builder imports unchanged on projection and Raw failure = 1
+explicit-import Raw capability = 0
+
+python3 tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_post0_public_ingress_config0_guard.py
+RUSTFLAGS='-Awarnings' cargo test -q --lib raw_public_ingress_p0 -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib module_invocation_session_p0 -- --test-threads=1
+cargo check -q --lib
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+Next row: `RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-COVERAGE0-S0`.
 
 ## Next row
 

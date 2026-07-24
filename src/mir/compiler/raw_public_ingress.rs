@@ -16,6 +16,11 @@ pub(in crate::mir) enum RawPublicIngressPolicyV1 {
     NarrowV1,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum RawPublicImportDispositionV1 {
+    None,
+}
+
 impl super::MirCompiler {
     /// Compile a narrow Raw source unit without touching the legacy ingress.
     ///
@@ -31,12 +36,14 @@ impl super::MirCompiler {
             return Err("[raw-public/source-binding/repl-unsupported] NarrowV1".to_owned());
         }
 
+        let import_disposition = RawPublicImportDispositionV1::None;
         let package = self
-            .bind_raw_source(
+            .bind_raw_source_for_public(
                 LegacyModuleLoweringInputV1::bare_ast(ast),
                 source_file,
                 "main",
                 RawCallableMainSelectionV1::Omitted,
+                import_disposition,
             )
             .map_err(|rejected| {
                 reject(
