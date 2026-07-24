@@ -222,6 +222,13 @@ impl ReadyFunctionDraftSealV1 {
 }
 
 impl OpenFunctionDraftSealV1<'_> {
+    /// Discard the unpublished owner and restore its captured caller context.
+    /// This is the only rejection terminal exposed before Open::prepare is
+    /// wired; retry and resume are intentionally absent.
+    pub(super) fn discard(self) {
+        self.session.discard_unpublished();
+    }
+
     #[cfg(test)]
     pub(super) fn builder(&self) -> &MirBuilder {
         self.session.builder_view()

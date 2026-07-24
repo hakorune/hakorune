@@ -260,6 +260,12 @@ seal planner or production lowerer supplies this payload yet. Owner-preserving
 planner errors and an explicit Open-owner discard terminal remain prerequisites
 for wiring `Open::prepare`.
 
+The explicit discard terminal is now present as
+`OpenFunctionDraftSealV1::discard`, backed by the session's one-shot
+`discard_unpublished` restore. It is still disconnected from production
+lowerers; it only makes the future rejection owner safe to drop without
+retry/resume semantics.
+
 ## Acceptance gates
 
 ```text

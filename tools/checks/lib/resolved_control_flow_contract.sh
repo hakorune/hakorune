@@ -282,13 +282,14 @@ PY
     'PreparedFunctionSessionCloseV1' \
     'PreparedFunctionSessionCommitInputV1' \
     'commit_projected' \
+    'discard_unpublished' \
     'RejectedFunctionSessionCloseV1'; do
     guard_expect_fixed_in_file "$tag" "$spec" "$session_terminal" \
       "F1 DRAFT-SEAL0 session-close seam drifted: $spec"
   done
   local session_prepare_count session_commit_count
   session_prepare_count="$(rg -n 'fn prepare_draft_seal_close\(' "$session_terminal" | wc -l | tr -d '[:space:]')"
-  session_commit_count="$(rg -n 'fn commit\(mut self\) -> MirFunction' "$session_terminal" | wc -l | tr -d '[:space:]')"
+  session_commit_count="$(rg -n 'fn commit\((mut )?self\) -> MirFunction' "$session_terminal" | wc -l | tr -d '[:space:]')"
   if [[ "$session_prepare_count" != "1" || "$session_commit_count" != "1" ]]; then
     guard_fail "$tag" "F1 DRAFT-SEAL0 session close must have one prepare and one infallible commit"
   fi

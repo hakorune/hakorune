@@ -71,6 +71,13 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
         self.builder
     }
 
+    /// Discard the unpublished function and restore the captured caller
+    /// context exactly once. This is the explicit rejection terminal for an
+    /// owner-preserving draft-seal prepare; callers cannot retry the session.
+    pub(in crate::mir::builder) fn discard_unpublished(mut self) {
+        self.restore_context();
+    }
+
     /// Run one child operation and retain its successful draft before restore.
     ///
     /// Existing production facades continue through `run()` and therefore do
@@ -221,7 +228,7 @@ impl PreparedFunctionSessionCloseV1<'_> {
     /// Consume the prepared close and return the unpublished function.  All
     /// checks have already happened, so extraction and caller restoration are
     /// deliberately infallible ownership transitions.
-    pub(in crate::mir::builder) fn commit(mut self) -> MirFunction {
+    pub(in crate::mir::builder) fn commit(self) -> MirFunction {
         self.commit_with_input(None)
     }
 
@@ -484,6 +491,16 @@ mod tests {
             .to_string()
             .contains("draft_seal_requires_resolved_authority"));
         rejected.discard();
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
+    }
+
+    #[test]
+    fn draft_seal_session_discard_restores_parent_context_once() {
+        let mut builder = MirBuilder::new();
+        let pending = builder.open_resolved_function_draft_seal_session_v1("discard/0");
+        pending.discard_unpublished();
+        assert_eq!(builder.next_value_id().0, 0);
         assert!(builder.function_state.current_function.is_none());
         assert!(builder.function_state.current_block.is_none());
     }
