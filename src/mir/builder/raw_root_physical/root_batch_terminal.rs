@@ -316,6 +316,31 @@ impl CompletedRawRootBatchPhysicalV1 {
     pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
         self.invocation.brand()
     }
+
+    pub(in crate::mir) fn prepare_raw_drain(
+        self,
+        route: crate::mir::raw_physical_drain::RawPhysicalDrainRouteV1,
+        callable_main: crate::mir::raw_physical_drain::RawPhysicalCallableMainDispositionV1,
+    ) -> Result<
+        super::drain_terminal::PreparedRawPhysicalDrainV1,
+        super::drain_terminal::RejectedRawPhysicalDrainV1,
+    > {
+        let Self {
+            session,
+            shell,
+            invocation,
+            _seal: _,
+        } = self;
+        super::drain_terminal::prepare_from_parts(
+            super::drain_terminal::RawDrainPhysicalPartsV1 {
+                session,
+                shell,
+                invocation,
+            },
+            route,
+            callable_main,
+        )
+    }
 }
 
 impl RejectedRawRootBatchPhysicalV1 {

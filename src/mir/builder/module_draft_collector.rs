@@ -14,12 +14,17 @@ use crate::mir::{FunctionSignature, MirFunction};
 mod callable_batch;
 mod collected_product;
 mod drain;
+mod raw_drain;
 mod receipt;
 mod root_batch;
 
 pub(in crate::mir::builder) use drain::{
     CanonicalCollectorDrainErrorV1, CanonicalCollectorReceiptViewV1,
     PreparedCanonicalCollectorDrainV1, RejectedCanonicalCollectorDrainV1,
+};
+pub(in crate::mir::builder) use raw_drain::{
+    raw_collector_from_branded, PreparedRawCollectorDrainV1, RawCollectorDrainErrorV1,
+    RejectedRawCollectorDrainV1,
 };
 
 pub(in crate::mir::builder) use callable_batch::{

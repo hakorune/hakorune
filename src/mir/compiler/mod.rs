@@ -43,6 +43,8 @@ pub(in crate::mir) mod raw_root_children;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_decl_access;
 #[allow(dead_code)]
+pub(in crate::mir) mod raw_root_drain;
+#[allow(dead_code)]
 pub(in crate::mir) mod raw_root_eligibility;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_eligibility_classifier;
@@ -102,6 +104,8 @@ mod raw_root_body_p0;
 mod raw_root_callable_main_p0;
 #[cfg(test)]
 mod raw_root_decl_access_p0;
+#[cfg(test)]
+mod raw_root_drain_p0;
 #[cfg(test)]
 mod raw_root_eligibility_p0;
 #[allow(dead_code)]

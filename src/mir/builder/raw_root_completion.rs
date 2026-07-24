@@ -44,6 +44,18 @@ impl RawInvocationRootWitnessV1 {
     ) -> RawCallableMainCompatibilityDispositionV1 {
         self.callable_main
     }
+
+    pub(in crate::mir::builder) fn main_receipt(
+        &self,
+    ) -> &InvocationBranded<CollectedDraftAdmissionReceiptV1> {
+        &self.main
+    }
+
+    pub(in crate::mir::builder) fn condition_receipt(
+        &self,
+    ) -> &InvocationBranded<CollectedDraftAdmissionReceiptV1> {
+        &self.condition
+    }
 }
 
 #[derive(Debug)]

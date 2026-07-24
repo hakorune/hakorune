@@ -683,6 +683,21 @@ impl SealedRawExpansionReceiptLedgerV1 {
         &self.events
     }
 
+    /// Return only the final event for each key in reservation order.  Older
+    /// replacement history remains in `events` for audit, but never becomes
+    /// a second drain expectation.
+    pub(in crate::mir::builder) fn final_events_in_ordinal_order(
+        &self,
+    ) -> Vec<&RawExpansionCompletedEventV1> {
+        let mut events = self
+            .final_event_by_key
+            .values()
+            .filter_map(|index| self.events.get(*index))
+            .collect::<Vec<_>>();
+        events.sort_by_key(|event| event.ordinal());
+        events
+    }
+
     pub(in crate::mir::builder) fn final_count(&self) -> usize {
         self.final_event_by_key.len()
     }

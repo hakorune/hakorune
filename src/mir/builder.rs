@@ -161,6 +161,10 @@ pub(in crate::mir) use module_invocation_brand0::{
 pub(in crate::mir) use module_invocation_owner_chain::InvocationBranded;
 pub(in crate::mir) use module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;
+pub(in crate::mir) use raw_root_physical::drain_terminal::{
+    PreparedRawPhysicalDrainV1, RawDrainedPhysicalV1, RawPhysicalDrainErrorV1,
+    RejectedRawPhysicalDrainV1,
+};
 mod canonical_root_completion; // CUT0-I0-ROOT0-CANON0 route-specific completion
 mod canonical_root_completion_error; // CUT0-I0-ROOT0-CANON0 shared error vocabulary
 #[allow(dead_code)]

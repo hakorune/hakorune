@@ -18,6 +18,8 @@ use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 
 pub(in crate::mir) mod callable_main_terminal;
 pub(in crate::mir) mod child_terminal;
+pub(in crate::mir) mod drain_manifest;
+pub(in crate::mir) mod drain_terminal;
 pub(in crate::mir) mod environment_terminal;
 pub(in crate::mir) mod root_batch_terminal;
 
