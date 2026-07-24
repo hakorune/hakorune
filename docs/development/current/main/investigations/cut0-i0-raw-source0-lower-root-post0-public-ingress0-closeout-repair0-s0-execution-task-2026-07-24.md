@@ -2,7 +2,7 @@
 
 Decision: `RAW-PUBLIC-CUTOVER-prime-r1`
 
-Status: active execution.
+Status: closed.
 
 This is a behavior-neutral evidence repair. It does not change Raw grammar,
 configuration ownership, normal compilation, JSON, or any production caller.

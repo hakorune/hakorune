@@ -2,7 +2,7 @@
 
 Decision: `RAW-PUBLIC-CUTOVER-prime-r1`
 
-Status: queued after `PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0`.
+Status: active execution after `PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0`.
 
 ## Goal
 

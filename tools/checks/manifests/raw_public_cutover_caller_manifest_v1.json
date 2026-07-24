@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "kind": "RawPublicCutoverCallerManifestV1",
+  "raw_public": {
+    "definition_file": "src/mir/compiler/raw_public_ingress.rs",
+    "definition_anchor": "pub fn compile_raw_with_source",
+    "non_test_callers": 0
+  },
+  "normal_source_hint": {
+    "no_import_callers": {
+      "src/runner/modes/bench.rs": 3,
+      "src/runner/keep/vm_fallback.rs": 1,
+      "src/runner/modes/mir.rs": 1,
+      "src/runner/stage1_bridge/direct_route/compile.rs": 1
+    },
+    "import_callers": {
+      "src/runner/modes/mir.rs": 1,
+      "src/runner/keep/vm.rs": 1,
+      "src/runner/modes/mir_interpreter.rs": 1,
+      "src/runner/reference/vm_hako/compile_bridge.rs": 1,
+      "src/runner/product/llvm/mir_compiler.rs": 1,
+      "src/runner/product/wasm.rs": 1
+    }
+  },
+  "normal_compile_adapters": {
+    "src/runner/modes/bench.rs": 1,
+    "src/runner/selfhost.rs": 1
+  },
+  "direct_build_module_production": {
+    "src/mir/compiler/mod.rs": 1,
+    "src/runtime/mirbuilder_emit.rs": 1
+  },
+  "direct_build_module_cfg_test": {
+    "src/host_providers/mir_builder/lowering/ast_json.rs": 1
+  },
+  "old_raw_non_test_callers": 0
+}

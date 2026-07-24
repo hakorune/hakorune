@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINAL0-S0 through PUBLIC-INGRESS0-S0 are closed. RAW-PUBLIC-CUTOVER-prime-r1 is selected after four-worker audit. PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0 is active; normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
+status = "FINAL0-S0 through PUBLIC-INGRESS0-S0 and PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0 are closed. RAW-PUBLIC-CUTOVER-prime-r1 is selected after four-worker audit. CONFIG0 is next; normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
 date = "2026-07-24"
-current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0"
-current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0"
-current_execution_summary = "Repair the landed ingress closeout evidence and cfg-test-aware caller census without route or grammar change. Then execute CONFIG0 -> COVERAGE0 -> PARITY0 -> OLD-RAW-RETIRE0; normal/JSON/executor cutover remains unauthorized."
+current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-INGRESS-CONFIG0-S0"
+current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-INGRESS-CONFIG0-S0"
+current_execution_summary = "Closeout repair is green: scoped caller manifest, cfg(test)-aware census, four focused ingress fixtures, and zero route delta. Next fix request-owned Raw import disposition, then COVERAGE0 -> PARITY0 -> OLD-RAW-RETIRE0; normal/JSON/executor cutover remains unauthorized."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -354,9 +354,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "cut0-i0-raw-source0-lower-root-post0-public-ingress0-closeout-repair0-s0-execution-task-2026-07-24"
-latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress0-closeout-repair0-s0-execution-task-2026-07-24.md"
-latest_card_summary = """RAW-PUBLIC-CUTOVER-prime-r1 is selected. The active behavior-neutral closeout repair fixes the stale landed-row guard, cfg-test-aware route census, and missing public reuse/failure fixtures. CONFIG0, COVERAGE0, PARITY0, and OLD-RAW-RETIRE0 follow without another consultation."""
+latest_card = "cut0-i0-raw-source0-lower-root-post0-public-ingress-config0-s0-execution-task-2026-07-24"
+latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress-config0-s0-execution-task-2026-07-24.md"
+latest_card_summary = """RAW-PUBLIC-CUTOVER-prime-r1 remains selected. CLOSEOUT-REPAIR0 is closed with green evidence. CONFIG0 is the next implementation row: request-owned exact no-import disposition, no ambient import authority, and compiler reuse isolation."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -558,7 +558,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-POST0-PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0-20260724"
+current_blocker_token = "RAW-POST0-PUBLIC-INGRESS-CONFIG0-S0-20260724"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
