@@ -5,7 +5,7 @@ status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0
 date = "2026-07-24"
 current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-ROOTBATCH0-S0"
 current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-ROOTBATCH0-S0"
-current_execution_summary = "ROOTBATCH-prime-r1 is selected. S0 owns one RawRootBatchSlotV1 identity contract, a typed RawRequiredConditionDraftV1 factory, mutation-free collector/ledger pair preparation, and one consuming BODY0-to-root-batch owner; DRAIN0 and production consumers remain zero."
+current_execution_summary = "ROOTBATCH-prime-r1 is selected. S0a/S0b now land one RawRootBatchSlotV1 identity contract and typed RawRequiredConditionDraftV1 factory; the borrow-only two-slot ledger plan vocabulary is prepared, while S0c/S0d still own the consuming collector/ledger handoff. DRAIN0 and production consumers remain zero."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
