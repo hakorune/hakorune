@@ -2,7 +2,8 @@
 
 Decision: `COVERAGE0-REPAIR-prime-r1`
 
-Status: active implementation.
+Status: closed. COVERAGE0-REPAIR-S0 landed in `2d8da213f6` and was pushed
+on 2026-07-24.
 
 ## Goal
 
@@ -89,6 +90,21 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Closeout
 
-On green evidence, mark this task closed, add a compact CURRENT_STATE landed
-entry, and advance the pointer to the already queued PARITY0 task. Do not
-delete the WIP stash until the repair commit is verified and pushed.
+Evidence:
+
+```text
+PLAN0 locators remain CHILDREN0 execution authority
+StaticHelper0 witness is exact parity corroboration
+NarrowV1 public profile is separate from general Raw eligibility
+eligibility orchestration moved to raw_root_eligibility_prepare.rs
+zero-helper, lexical two-helper, drift, instance, metadata, and body fixtures
+public non-empty-helper rejection before physical open
+helper/children/eligibility/ingress focused tests green
+coverage/config/ingress guards green
+cargo check --lib, diff check, and pointer guard green
+all touched source/check files < 800 lines
+```
+
+PARITY0 is now the next active row. The WIP stash can be removed only after
+the pushed commit has been verified; no normal/JSON/executor/CUT0 consumer is
+opened by this closeout.
