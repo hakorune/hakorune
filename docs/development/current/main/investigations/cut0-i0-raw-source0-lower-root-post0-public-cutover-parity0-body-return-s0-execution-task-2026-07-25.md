@@ -23,6 +23,29 @@ last-value materialization and finalizer ownership
 failure retention before root batch publication
 ```
 
+## Audit refinement (design-stop remains active)
+
+The worker authority audit narrows the preferred design to A′:
+
+```text
+recipe: route/exit policy only
+Builder lowering: exact ValueId and type authority
+BODY finalization: one owner emits Return(Value), updates signature, and
+                   emits the paired exit witness before cleanup
+ROOTBATCH0: borrowed witness validation only
+```
+
+The original “recipe supplies exact return value/type before signature
+creation” wording is not accepted. The implementation must first answer the
+five owner questions in the design card, including the Legacy-App conflict:
+Legacy App currently reaches the common last-value finalizer, while the Raw
+recipe contract is `AppMain0Void`. Until that divergence is explicitly
+selected, App scalar parity remains parked with the Script scalar rows.
+
+No implementation is authorized by this card. In particular, do not add a
+provisional Void-to-scalar adapter, a second root lane, or a fallback to the
+Legacy builder.
+
 ## Forbidden until decision
 
 ```text

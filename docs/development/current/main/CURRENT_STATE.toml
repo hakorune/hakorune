@@ -5,7 +5,7 @@ status = "FINAL0-S0 through PUBLIC-INGRESS0-S0 and CLOSEOUT-REPAIR0 are closed. 
 date = "2026-07-25"
 current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-BODY-RETURN-D0"
 current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-BODY-RETURN-D0"
-current_execution_summary = "PARITY0-EFFECT-prime-r1 is closed with green BODY0 and empty-Script parity. The next scalar Script row exposes a deeper ABI mismatch: Legacy returns the last value while Raw root main is Void. Snapshot weakening is forbidden; Script return ownership is now a design stop."
+current_execution_summary = "PARITY0-EFFECT-prime-r1 is closed with green BODY0 and empty-Script parity. The next scalar Script row exposes a deeper ABI mismatch: Legacy returns the last value while Raw root main is Void. Worker audit narrows the preferred design to A′ (recipe owns route policy; Builder owns ValueId/type; one BODY finalizer owns Return/signature/exit witness) and exposes a separate Legacy-App last-value versus Raw-App-Void conflict. Snapshot weakening is forbidden; Script/App return ownership remains a design stop."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
