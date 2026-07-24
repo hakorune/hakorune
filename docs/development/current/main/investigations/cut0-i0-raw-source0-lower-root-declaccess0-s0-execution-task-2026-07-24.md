@@ -1,12 +1,13 @@
 # RAW-SOURCE0 LOWER ROOT0 — DECLACCESS0-S0 execution task
 
-Status: **Ready for implementation; production consumers remain zero**  
+Status: **In progress — compiler-side declaration terminal; production consumers remain zero**
 Date: 2026-07-24  
 Decision: **DECLACCESS-prime-r1**
 
 ## Progress
 
-The behavior-neutral preparation slice is landed in `c3f286fdfe`:
+The behavior-neutral preparation slice is landed in `c3f286fdfe`, and the
+Builder-owned projection/co-install sub-slice is landed in `77983f2e95`:
 
 ```text
 RawRootPlanV1 exposes only the source-derived manifest inputs needed by the
@@ -14,9 +15,10 @@ next exact-manifest constructor (callable rows, Script statement count,
 App child/callable locators, and the eligible package view).
 ```
 
-No physical owner, Builder/shell installation, BODY0 consumer, or production
-consumer was added. The exact manifest and `declare_environment(self)` remain
-the next implementation slice.
+The exact manifest split, mutation-free Builder/shell preflight, and private
+infallible co-install are now covered by the disconnected guard and focused
+tests. The compiler-side `declare_environment(self)` owner remains the next
+implementation slice; BODY0 and production consumers remain zero.
 
 ## Boundary
 

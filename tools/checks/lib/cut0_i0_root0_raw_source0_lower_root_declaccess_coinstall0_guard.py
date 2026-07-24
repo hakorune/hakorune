@@ -40,7 +40,7 @@ def main() -> int:
         if path.name in {"raw_root_environment_install.rs", "raw_root_physical.rs"}
     )
 
-    require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-DECLACCESS-COINSTALL0"', "active row")
+    require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-DECLACCESS0-S0"', "next row")
     require(task, "Decision: **COINSTALL-prime-r1**", "decision lock")
     for fragment in (
         "RawRootEnvironmentInstallOwnerV1",
