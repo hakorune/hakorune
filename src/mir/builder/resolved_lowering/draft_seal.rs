@@ -15,6 +15,7 @@ use crate::mir::builder::calls::{
 use crate::mir::builder::emission::value_lifecycle_definition::{
     prepare_transient_stale_value_facts_v1, PreparedTransientStaleValueFactsV1,
 };
+use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::builder::type_context::TypeContext;
 use crate::mir::function::FunctionMetadata;
 use crate::mir::{
@@ -22,6 +23,7 @@ use crate::mir::{
 };
 
 use super::completion_consumption::ReadyFunctionCompletionV1;
+use super::draft_seal_owner::OpenFunctionDraftSealV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum PreparedFunctionExitV1 {
@@ -43,16 +45,10 @@ pub(super) struct ReadyFunctionDraftSealV1 {
     current_block: BasicBlockId,
 }
 
-/// Open owner for the future canonical draft-seal prepare/commit handoff.
-/// The session keeps the unpublished function and caller context alive while
-/// all plans are borrowed; no legacy closure may substitute for this owner.
-pub(super) struct OpenFunctionDraftSealV1<'builder> {
-    session: CanonicalFunctionLoweringSessionV1<'builder>,
-    ready: ReadyFunctionDraftSealV1,
-}
-
+/// Detached exit-only plan used by the PREPARE0 fixtures.  It owns no live
+/// Builder session and therefore cannot be the canonical draft-seal commit.
 #[derive(Debug)]
-pub(super) struct PreparedFunctionDraftSealV1 {
+pub(super) struct PreparedFunctionExitPlanV1 {
     completion: ReadyFunctionCompletionV1,
     exit: PreparedFunctionExitV1,
 }
@@ -88,7 +84,7 @@ pub(super) enum FunctionDraftSealProjectionErrorV1 {
 
 #[derive(Debug)]
 pub(super) struct RejectedFunctionDraftProjectionV1 {
-    owner: PreparedFunctionDraftSealV1,
+    owner: PreparedFunctionExitPlanV1,
     error: FunctionDraftSealProjectionErrorV1,
 }
 
@@ -147,21 +143,9 @@ pub(super) struct PreparedFunctionDraftSealPlanV1 {
     stale: PreparedTransientStaleValueFactsV1,
 }
 
-#[derive(Debug)]
-pub(super) struct CompletedFunctionDraftV1 {
-    completion: ReadyFunctionCompletionV1,
-    exit: PreparedFunctionExitV1,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum FunctionDraftSealPreparationErrorV1 {
     ExplicitValueOperandMissing,
-}
-
-#[derive(Debug)]
-pub(super) struct RejectedFunctionDraftSealV1 {
-    owner: ReadyFunctionDraftSealV1,
-    error: FunctionDraftSealPreparationErrorV1,
 }
 
 impl ReadyFunctionDraftSealV1 {
@@ -174,15 +158,13 @@ impl ReadyFunctionDraftSealV1 {
 
     pub(super) fn prepare(
         self,
-    ) -> Result<PreparedFunctionDraftSealV1, RejectedFunctionDraftSealV1> {
+    ) -> Result<PreparedFunctionExitPlanV1, FunctionDraftSealPreparationErrorV1> {
         let exit = match self.prepare_exit_borrowed() {
             Ok(exit) => exit,
-            Err(error) => {
-                return Err(RejectedFunctionDraftSealV1 { owner: self, error });
-            }
+            Err(error) => return Err(error),
         };
 
-        Ok(PreparedFunctionDraftSealV1 {
+        Ok(PreparedFunctionExitPlanV1 {
             completion: self.completion,
             exit,
         })
@@ -217,33 +199,15 @@ impl ReadyFunctionDraftSealV1 {
         self,
         session: CanonicalFunctionLoweringSessionV1<'builder>,
     ) -> OpenFunctionDraftSealV1<'builder> {
-        OpenFunctionDraftSealV1 {
-            session,
-            ready: self,
-        }
+        super::draft_seal_owner::OpenFunctionDraftSealV1::new(session, self)
+    }
+
+    pub(super) fn into_completion(self) -> ReadyFunctionCompletionV1 {
+        self.completion
     }
 }
 
-impl OpenFunctionDraftSealV1<'_> {
-    /// Discard the unpublished owner and restore its captured caller context.
-    /// This is the only rejection terminal exposed before Open::prepare is
-    /// wired; retry and resume are intentionally absent.
-    pub(super) fn discard(self) {
-        self.session.discard_unpublished();
-    }
-
-    #[cfg(test)]
-    pub(super) fn builder(&self) -> &MirBuilder {
-        self.session.builder_view()
-    }
-
-    #[cfg(test)]
-    pub(super) fn ready(&self) -> &ReadyFunctionDraftSealV1 {
-        &self.ready
-    }
-}
-
-impl PreparedFunctionDraftSealV1 {
+impl PreparedFunctionExitPlanV1 {
     /// Build the projected completed-draft image without mutating `builder`.
     ///
     /// This is the first real PREPARE0 seam.  The copied maps are a planning
@@ -254,29 +218,20 @@ impl PreparedFunctionDraftSealV1 {
         builder: &MirBuilder,
     ) -> Result<FunctionDraftSealProjectionV1, RejectedFunctionDraftProjectionV1> {
         let exit = self.exit;
-        FunctionDraftSealProjectionV1::project_from_builder(builder, exit).map_err(|error| {
-            RejectedFunctionDraftProjectionV1 { owner: self, error }
-        })
+        FunctionDraftSealProjectionV1::project_from_builder(builder, exit)
+            .map_err(|error| RejectedFunctionDraftProjectionV1 { owner: self, error })
     }
 
-    /// The DRAFT-SEAL0 commit is intentionally an ownership-only transition.
-    /// Physical Return/signature writes will be added here once the projected
-    /// type/session plans land; no fallible edge is allowed after this point.
-    pub(super) fn commit(self) -> CompletedFunctionDraftV1 {
-        CompletedFunctionDraftV1 {
-            completion: self.completion,
-            exit: self.exit,
-        }
-    }
-}
-
-impl RejectedFunctionDraftSealV1 {
-    pub(super) fn error(&self) -> FunctionDraftSealPreparationErrorV1 {
-        self.error
+    pub(super) fn project_exit(
+        builder: &MirBuilder,
+        exit: PreparedFunctionExitV1,
+    ) -> Result<FunctionDraftSealProjectionV1, FunctionDraftSealProjectionErrorV1> {
+        FunctionDraftSealProjectionV1::project_from_builder(builder, exit)
     }
 
-    pub(super) fn discard(self) {
-        let _ = self.owner;
+    #[cfg(test)]
+    pub(super) fn exit(&self) -> PreparedFunctionExitV1 {
+        self.exit
     }
 }
 
@@ -379,11 +334,25 @@ impl FunctionDraftSealProjectionV1 {
     /// Run the shared type propagation order on the private projection only.
     /// No live `TypeContext` or `MirFunction` is passed to this entry.
     pub(super) fn prepare_type_facts(mut self) -> Result<Self, FunctionDraftSealProjectionErrorV1> {
+        self.prepare_type_facts_with_lookup(None)
+    }
+
+    pub(super) fn prepare_type_facts_with_lookup(
+        mut self,
+        lookup: Option<&dyn FunctionSignatureLookupV1>,
+    ) -> Result<Self, FunctionDraftSealProjectionErrorV1> {
         crate::mir::type_propagation::TypePropagationPipeline::run(
             &mut self.function,
             &mut self.type_ctx.value_types,
         )
         .map_err(FunctionDraftSealProjectionErrorV1::TypeAnalysisFailed)?;
+        if let Some(lookup) = lookup {
+            crate::mir::builder::type_hint_providers::annotate_missing_result_types_from_calls_and_await_with_lookup(
+                &mut self.type_ctx,
+                &self.function,
+                lookup,
+            );
+        }
         Ok(self)
     }
 
@@ -470,7 +439,14 @@ impl PreparedFunctionPhiSealV1 {
     pub(super) fn prepare_type_facts(
         self,
     ) -> Result<PreparedFunctionTypeFactsV1, FunctionDraftSealProjectionErrorV1> {
-        let projection = self.projection.prepare_type_facts()?;
+        self.prepare_type_facts_with_lookup(None)
+    }
+
+    pub(super) fn prepare_type_facts_with_lookup(
+        self,
+        lookup: Option<&dyn FunctionSignatureLookupV1>,
+    ) -> Result<PreparedFunctionTypeFactsV1, FunctionDraftSealProjectionErrorV1> {
+        let projection = self.projection.prepare_type_facts_with_lookup(lookup)?;
         Ok(PreparedFunctionTypeFactsV1 {
             projection,
             phi: self.receipt,
@@ -626,6 +602,20 @@ impl PreparedFunctionDraftSealPlanV1 {
         PreparedFunctionSessionCommitInputV1::new(function, type_ctx)
     }
 
+    pub(super) fn into_commit_parts(
+        self,
+    ) -> (
+        PreparedFunctionSessionCommitInputV1,
+        super::draft_seal_owner::FunctionDraftSealReceiptV1,
+    ) {
+        let receipt = super::draft_seal_owner::FunctionDraftSealReceiptV1 {
+            signature: self.metadata.signature.clone(),
+            phi: self.metadata.phi,
+            stale_fact_count: self.stale.len(),
+        };
+        (self.into_session_commit_input(), receipt)
+    }
+
     #[cfg(test)]
     pub(super) fn metadata(&self) -> &FunctionMetadata {
         &self.metadata.metadata
@@ -634,16 +624,6 @@ impl PreparedFunctionDraftSealPlanV1 {
     #[cfg(test)]
     pub(super) fn projection(&self) -> &FunctionDraftSealProjectionV1 {
         &self.projection
-    }
-}
-
-impl CompletedFunctionDraftV1 {
-    pub(super) fn exit(&self) -> PreparedFunctionExitV1 {
-        self.exit
-    }
-
-    pub(super) fn completion(&self) -> &ReadyFunctionCompletionV1 {
-        &self.completion
     }
 }
 

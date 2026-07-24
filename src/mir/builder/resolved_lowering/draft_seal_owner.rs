@@ -1,0 +1,303 @@
+//! F1 draft-seal owner and its one-shot prepare/commit boundary.
+//!
+//! The planner in `draft_seal.rs` owns detached projections only.  This box
+//! owns the live canonical function session, so every planner failure can
+//! return the exact unpublished owner and `commit` is the only operation that
+//! extracts the function or restores the caller context.
+
+use crate::mir::builder::calls::{
+    CanonicalFunctionLoweringSessionV1, PreparedFunctionSessionCloseV1,
+};
+use crate::mir::{BasicBlockId, MirBuilder, MirFunction};
+
+use super::completion_consumption::ReadyFunctionCompletionV1;
+use super::draft_seal::{
+    FunctionDraftSealPreparationErrorV1, FunctionDraftSealProjectionErrorV1,
+    PreparedFunctionDraftSealPlanV1, PreparedFunctionExitPlanV1, PreparedFunctionExitV1,
+    ReadyFunctionDraftSealV1,
+};
+
+/// Live unpublished function owner.  It is intentionally not `Clone` and has
+/// no access path other than prepare or discard.
+pub(super) struct OpenFunctionDraftSealV1<'builder> {
+    session: CanonicalFunctionLoweringSessionV1<'builder>,
+    ready: ReadyFunctionDraftSealV1,
+}
+
+/// All fallible work is completed before this owner is issued.  Its commit is
+/// therefore an ownership-only terminal.
+pub(super) struct PreparedFunctionDraftSealV1<'builder> {
+    completion: ReadyFunctionCompletionV1,
+    exit: PreparedFunctionExitV1,
+    plan: PreparedFunctionDraftSealPlanV1,
+    close: PreparedFunctionSessionCloseV1<'builder>,
+}
+
+pub(super) struct CompletedFunctionDraftV1 {
+    draft: MirFunction,
+    completion: ReadyFunctionCompletionV1,
+    exit: PreparedFunctionExitV1,
+    receipt: FunctionDraftSealReceiptV1,
+}
+
+pub(super) struct FunctionDraftSealReceiptV1 {
+    pub(super) signature: super::draft_seal::PreparedFunctionSignatureV1,
+    pub(super) phi: super::draft_seal::PreparedFunctionPhiClosureReceiptV1,
+    pub(super) stale_fact_count: usize,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum FunctionDraftSealStageV1 {
+    Authority,
+    Exit,
+    PhiClosure,
+    TypeAnalysis,
+    StaleFacts,
+    Signature,
+    Metadata,
+    Verification,
+    SessionClose,
+}
+
+pub(super) enum FunctionDraftSealErrorV1 {
+    Exit(FunctionDraftSealPreparationErrorV1),
+    Projection(FunctionDraftSealProjectionErrorV1),
+    SessionClose(String),
+}
+
+pub(super) struct RejectedFunctionDraftSealV1<'builder> {
+    owner: OpenFunctionDraftSealV1<'builder>,
+    stage: FunctionDraftSealStageV1,
+    error: FunctionDraftSealErrorV1,
+}
+
+impl<'builder> OpenFunctionDraftSealV1<'builder> {
+    pub(super) fn new(
+        session: CanonicalFunctionLoweringSessionV1<'builder>,
+        ready: ReadyFunctionDraftSealV1,
+    ) -> Self {
+        Self { session, ready }
+    }
+
+    /// Prepare every detached plan while the live session remains borrowed.
+    /// No function slot, type context, or caller context is moved on failure.
+    pub(super) fn prepare(
+        self,
+    ) -> Result<PreparedFunctionDraftSealV1<'builder>, RejectedFunctionDraftSealV1<'builder>> {
+        let exit = match self.ready.prepare_exit_borrowed() {
+            Ok(exit) => exit,
+            Err(error) => return Err(self.reject(FunctionDraftSealStageV1::Exit, error.into())),
+        };
+
+        let plan_result = {
+            let builder = self.session.builder_view();
+            prepare_detached_plan(builder, exit)
+        };
+        let plan = match plan_result {
+            Ok(plan) => plan,
+            Err((stage, error)) => return Err(self.reject(stage, error)),
+        };
+
+        let function_name = match self.session.draft_seal_readiness() {
+            Ok(name) => name,
+            Err(error) => {
+                return Err(self.reject(
+                    FunctionDraftSealStageV1::SessionClose,
+                    FunctionDraftSealErrorV1::SessionClose(error.to_string()),
+                ))
+            }
+        };
+        if self.session.builder_view().function_state.current_block != Some(exit_block(exit)) {
+            return Err(self.reject(
+                FunctionDraftSealStageV1::SessionClose,
+                FunctionDraftSealErrorV1::SessionClose(
+                    "current block does not match the prepared exit block".to_string(),
+                ),
+            ));
+        }
+
+        let OpenFunctionDraftSealV1 { session, ready } = self;
+        let close = session.prepare_draft_seal_close_after_readiness(function_name);
+        Ok(PreparedFunctionDraftSealV1 {
+            completion: ready.into_completion(),
+            exit,
+            plan,
+            close,
+        })
+    }
+
+    pub(super) fn discard(self) {
+        self.session.discard_unpublished();
+    }
+
+    fn reject(
+        self,
+        stage: FunctionDraftSealStageV1,
+        error: FunctionDraftSealErrorV1,
+    ) -> RejectedFunctionDraftSealV1<'builder> {
+        RejectedFunctionDraftSealV1 {
+            owner: self,
+            stage,
+            error,
+        }
+    }
+
+    #[cfg(test)]
+    pub(super) fn builder(&self) -> &MirBuilder {
+        self.session.builder_view()
+    }
+
+    #[cfg(test)]
+    pub(super) fn builder_mut(&mut self) -> &mut MirBuilder {
+        self.session.builder_view_mut_for_test()
+    }
+
+    #[cfg(test)]
+    pub(super) fn ready(&self) -> &ReadyFunctionDraftSealV1 {
+        &self.ready
+    }
+}
+
+impl PreparedFunctionDraftSealV1<'_> {
+    pub(super) fn commit(self) -> CompletedFunctionDraftV1 {
+        let Self {
+            completion,
+            exit,
+            plan,
+            close,
+        } = self;
+        let (input, receipt) = plan.into_commit_parts();
+        let draft = close.commit_projected(input);
+        CompletedFunctionDraftV1 {
+            draft,
+            completion,
+            exit,
+            receipt,
+        }
+    }
+}
+
+impl CompletedFunctionDraftV1 {
+    pub(super) fn draft(&self) -> &MirFunction {
+        &self.draft
+    }
+
+    pub(super) fn exit(&self) -> PreparedFunctionExitV1 {
+        self.exit
+    }
+
+    pub(super) fn completion(&self) -> &ReadyFunctionCompletionV1 {
+        &self.completion
+    }
+
+    #[cfg(test)]
+    pub(super) fn receipt(&self) -> &FunctionDraftSealReceiptV1 {
+        &self.receipt
+    }
+}
+
+impl RejectedFunctionDraftSealV1<'_> {
+    pub(super) fn stage(&self) -> FunctionDraftSealStageV1 {
+        self.stage
+    }
+
+    pub(super) fn error(&self) -> &FunctionDraftSealErrorV1 {
+        &self.error
+    }
+
+    pub(super) fn discard(self) {
+        self.owner.discard();
+    }
+}
+
+fn exit_block(exit: PreparedFunctionExitV1) -> BasicBlockId {
+    match exit {
+        PreparedFunctionExitV1::ExplicitValue { block, .. }
+        | PreparedFunctionExitV1::ExplicitUnit { block }
+        | PreparedFunctionExitV1::ImplicitUnit { block } => block,
+    }
+}
+
+fn stage_for_projection_error(
+    error: &FunctionDraftSealProjectionErrorV1,
+) -> FunctionDraftSealStageV1 {
+    match error {
+        FunctionDraftSealProjectionErrorV1::PhiClosureFailed(_) => {
+            FunctionDraftSealStageV1::PhiClosure
+        }
+        FunctionDraftSealProjectionErrorV1::TypeAnalysisFailed(_)
+        | FunctionDraftSealProjectionErrorV1::ReturnValueTypeMissing { .. }
+        | FunctionDraftSealProjectionErrorV1::UnknownReturnValueType { .. }
+        | FunctionDraftSealProjectionErrorV1::UnsupportedReturnValueType { .. } => {
+            FunctionDraftSealStageV1::TypeAnalysis
+        }
+        FunctionDraftSealProjectionErrorV1::StaleFacts(_) => FunctionDraftSealStageV1::StaleFacts,
+        FunctionDraftSealProjectionErrorV1::MetadataContractFailed(_) => {
+            FunctionDraftSealStageV1::Metadata
+        }
+        FunctionDraftSealProjectionErrorV1::ProjectedVerificationFailed(_)
+        | FunctionDraftSealProjectionErrorV1::TypedValueVerificationFailed(_) => {
+            FunctionDraftSealStageV1::Verification
+        }
+        FunctionDraftSealProjectionErrorV1::ExitBlockMissing { .. }
+        | FunctionDraftSealProjectionErrorV1::ExitBlockAlreadyTerminated { .. }
+        | FunctionDraftSealProjectionErrorV1::CurrentFunctionMissing
+        | FunctionDraftSealProjectionErrorV1::ReturnSignatureMismatch { .. }
+        | FunctionDraftSealProjectionErrorV1::ValueIdOverflow => FunctionDraftSealStageV1::Exit,
+    }
+}
+
+impl From<FunctionDraftSealPreparationErrorV1> for FunctionDraftSealErrorV1 {
+    fn from(error: FunctionDraftSealPreparationErrorV1) -> Self {
+        Self::Exit(error)
+    }
+}
+
+fn prepare_detached_plan(
+    builder: &MirBuilder,
+    exit: PreparedFunctionExitV1,
+) -> Result<PreparedFunctionDraftSealPlanV1, (FunctionDraftSealStageV1, FunctionDraftSealErrorV1)> {
+    let projection = PreparedFunctionExitPlanV1::project_exit(builder, exit).map_err(|error| {
+        (
+            stage_for_projection_error(&error),
+            FunctionDraftSealErrorV1::Projection(error),
+        )
+    })?;
+    let phi = projection.prepare_phi_closure().map_err(|error| {
+        (
+            FunctionDraftSealStageV1::PhiClosure,
+            FunctionDraftSealErrorV1::Projection(error),
+        )
+    })?;
+    let lookup = builder.current_module.as_ref().map(|module| {
+        module as &dyn crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1
+    });
+    let type_facts = phi
+        .prepare_type_facts_with_lookup(lookup)
+        .map_err(|error| {
+            (
+                FunctionDraftSealStageV1::TypeAnalysis,
+                FunctionDraftSealErrorV1::Projection(error),
+            )
+        })?;
+    let metadata = type_facts.prepare_metadata().map_err(|error| {
+        (
+            stage_for_projection_error(&error),
+            FunctionDraftSealErrorV1::Projection(error),
+        )
+    })?;
+    let stale = metadata
+        .prepare_stale_facts(builder)
+        .map_err(|(_metadata, error)| {
+            (
+                FunctionDraftSealStageV1::StaleFacts,
+                FunctionDraftSealErrorV1::Projection(error),
+            )
+        })?;
+    stale.verify().map_err(|error| {
+        (
+            FunctionDraftSealStageV1::Verification,
+            FunctionDraftSealErrorV1::Projection(error),
+        )
+    })
+}

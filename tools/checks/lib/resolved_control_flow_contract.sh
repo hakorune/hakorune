@@ -15,6 +15,7 @@ guard_resolved_control_flow_contract() {
   local if_control_tests="$flow/if_control_tests.rs"
   local lowering="$root/src/mir/builder/resolved_lowering"
   local draft_seal="$lowering/draft_seal.rs"
+  local draft_seal_owner="$lowering/draft_seal_owner.rs"
   local session_terminal="$root/src/mir/builder/calls/function_session/terminal.rs"
   local helper="${BASH_SOURCE[0]}"
   local authority_guard="$root/tools/checks/resolved_region_flow_authority_guard.sh"
@@ -35,6 +36,7 @@ guard_resolved_control_flow_contract() {
     "$compiler/source_view.rs" \
     "$compiler/source_view_tests.rs" \
     "$draft_seal" \
+    "$draft_seal_owner" \
     "$session_terminal" \
     "$root/src/mir/mod.rs"
 
@@ -242,11 +244,7 @@ PY
   # direct Return-writer retirement is a later integration row.
   for spec in \
     'draft_seal.rs:ReadyFunctionDraftSealV1' \
-    'draft_seal.rs:OpenFunctionDraftSealV1' \
-    'draft_seal.rs:PreparedFunctionDraftSealV1' \
     'draft_seal.rs:PreparedFunctionDraftSealPlanV1' \
-    'draft_seal.rs:CompletedFunctionDraftV1' \
-    'draft_seal.rs:RejectedFunctionDraftSealV1' \
     'draft_seal.rs:FunctionDraftSealProjectionV1' \
     'draft_seal.rs:PreparedFunctionPhiSealV1' \
     'draft_seal.rs:PreparedFunctionPhiClosureReceiptV1' \
@@ -269,8 +267,22 @@ PY
     guard_expect_fixed_in_file "$tag" "$anchor" "$lowering/$file" \
       "F1 DRAFT-SEAL0 vocabulary drifted: $file:$anchor"
   done
+  for spec in \
+    'draft_seal_owner.rs:OpenFunctionDraftSealV1' \
+    'draft_seal_owner.rs:PreparedFunctionDraftSealV1' \
+    'draft_seal_owner.rs:CompletedFunctionDraftV1' \
+    'draft_seal_owner.rs:RejectedFunctionDraftSealV1' \
+    'draft_seal_owner.rs:FunctionDraftSealStageV1' \
+    'draft_seal_owner.rs:prepare' \
+    'draft_seal_owner.rs:commit' \
+    'draft_seal_owner.rs:discard'; do
+    local file="${spec%%:*}"
+    local anchor="${spec#*:}"
+    guard_expect_fixed_in_file "$tag" "$anchor" "$lowering/$file" \
+      "F1 DRAFT-SEAL0 owner boundary drifted: $file:$anchor"
+  done
   local draft_products
-  draft_products="$(rg -n 'struct (ReadyFunctionDraftSealV1|PreparedFunctionDraftSealV1|CompletedFunctionDraftV1|RejectedFunctionDraftSealV1)' "$draft_seal" | wc -l | tr -d '[:space:]')"
+  draft_products="$(rg -n 'struct (ReadyFunctionDraftSealV1|PreparedFunctionDraftSealV1|CompletedFunctionDraftV1|RejectedFunctionDraftSealV1)' "$draft_seal" "$draft_seal_owner" | wc -l | tr -d '[:space:]')"
   if [[ "$draft_products" != "4" ]]; then
     guard_fail "$tag" "F1 DRAFT-SEAL0 owner vocabulary must have four products, found $draft_products"
   fi
@@ -333,6 +345,7 @@ PY
     "$lowering/completion_consumption.rs" \
     "$lowering/completion_tests.rs" \
     "$draft_seal" \
+    "$draft_seal_owner" \
     "$session_terminal" \
     "$helper"; do
     lines="$(wc -l < "$file" | tr -d '[:space:]')"

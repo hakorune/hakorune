@@ -36,7 +36,7 @@ pub(in crate::mir) use function_session::CanonicalFunctionSessionErrorV1;
 pub(in crate::mir::builder) use function_session::FunctionSessionP0TerminalV1;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use function_session::{
-    LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1,
+    LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1, PreparedFunctionSessionCloseV1,
     PreparedFunctionSessionCommitInputV1,
 };
 #[cfg(test)]

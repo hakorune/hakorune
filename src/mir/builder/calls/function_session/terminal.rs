@@ -71,11 +71,26 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
         self.builder
     }
 
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn builder_view_mut_for_test(&mut self) -> &mut MirBuilder {
+        self.builder
+    }
+
     /// Discard the unpublished function and restore the captured caller
     /// context exactly once. This is the explicit rejection terminal for an
     /// owner-preserving draft-seal prepare; callers cannot retry the session.
     pub(in crate::mir::builder) fn discard_unpublished(mut self) {
         self.restore_context();
+    }
+
+    /// Borrow-only readiness used by the owner-preserving draft-seal path.
+    /// The session is not consumed, so a caller can return it unchanged when
+    /// a later planner rejects.
+    pub(in crate::mir::builder) fn draft_seal_readiness(
+        &self,
+    ) -> Result<String, CanonicalFunctionSessionErrorV1> {
+        self.validate_before_draft_seal()
+            .map_err(|error| CanonicalFunctionSessionErrorV1::Cleanup(error.to_string()))
     }
 
     /// Run one child operation and retain its successful draft before restore.
@@ -125,6 +140,19 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
                 owner: Some(self),
                 error: CanonicalFunctionSessionErrorV1::Cleanup(error),
             }),
+        }
+    }
+
+    /// Consume a session only after the caller has already completed the
+    /// borrow-only readiness check. This is the no-failure handoff used by
+    /// `OpenFunctionDraftSealV1::prepare`.
+    pub(in crate::mir::builder) fn prepare_draft_seal_close_after_readiness(
+        self,
+        function_name: String,
+    ) -> PreparedFunctionSessionCloseV1<'builder> {
+        PreparedFunctionSessionCloseV1 {
+            session: Some(self),
+            function_name,
         }
     }
 }

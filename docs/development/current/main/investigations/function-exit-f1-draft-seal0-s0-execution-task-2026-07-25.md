@@ -198,86 +198,26 @@ the projected function, after typed-value checks and stale-fact application.
 Any failure is a typed `ProjectedVerificationFailed` rejection; no verifier
 is run against live Builder state and no post-commit verification edge exists.
 
-## Next ownership seam before COMMIT0
+## DRAFT-SEAL0-S0 implementation checkpoint
 
-The existing `with_resolved_function_draft_session` closes and extracts the
-function inside its closure. That lifecycle cannot host a draft-seal prepare:
-the prepared owner must retain the open session, current function, and caller
-context while all plans are borrowed and before any Return/signature mutation.
-Therefore COMMIT0 must first add a dedicated open-session handoff (or an
-equivalent session-owned terminal) that hands an unpublished function session
-to the draft-seal owner. Reusing the legacy closure or adding a caller
-mutation closure is forbidden. Until that seam exists, the old canonical and
-trivial lowerer Return writers and `finalize_function_draft` callers remain
-unchanged and disconnected from the new products.
+The owner-preserving Open seam is now implemented as a separate
+`draft_seal_owner.rs` box so the planner remains below the 800-line boundary.
+`OpenFunctionDraftSealV1::prepare` performs exit, PHI, type/hint, metadata,
+stale-fact, projected-verification, and session-readiness checks while the
+canonical function session remains borrowed. Every failure returns the exact
+Open owner; `discard(self)` is the only rejection terminal.
 
-The isolated prepare helpers now converge on one
-`PreparedFunctionDraftSealPlanV1` that retains metadata, signature, PHI
-closure, stale facts, and verification together. Re-observing the projected
-function or rebuilding those plans in a later commit is forbidden. The plan
-still does not own the open Builder session; that handoff remains the next
-COMMIT0 seam.
+`PreparedFunctionDraftSealV1::commit` now consumes the typed session payload,
+installs the projected function/type facts, takes `current_function` exactly
+once, restores the caller context, and returns `CompletedFunctionDraftV1`.
+The commit has no `Result`, lookup, repair, fallback, or retry edge. The
+canonical lowerers and legacy finalizer remain disconnected; this row only
+closes the owner/prepare/commit seam.
 
-The projection order was tightened to match the accepted PREPARE0 law:
-explicit operands are materialized into the private image first, type
-propagation runs next, and only then does signature preparation resolve the
-exact supported result type. `Unknown` is therefore no longer rejected before
-the type plan has a chance to resolve it; missing/unknown/unsupported results
-still reject at signature preparation. The current isolated products now
-retain the metadata plan through stale-fact and verification ownership, while
-the outer aggregate remains a COMMIT0 task.
-
-The session boundary now has a dedicated disconnected handoff:
-`MirBuilder::open_resolved_function_draft_seal_session_v1` returns the open
-canonical session without extracting `current_function` or restoring the
-caller context. The session exposes only a borrow-only `builder_view()` for
-prepare, while `prepare_draft_seal_close` remains the sole later close
-terminal. This handoff is covered by the existing session terminal fixture;
-production lowerers still use the legacy closure until the full owner commit
-is wired.
-
-The next owner-preserving seam is now explicit: `ReadyFunctionDraftSealV1`
-offers `prepare_exit_borrowed(&self)`, while the existing consuming
-`prepare()` delegates to it. This keeps exit projection available for future
-Open-owner planning without consuming the completion witness before later
-stage failures can retain the exact session owner.
-
-The next implementation step is intentionally a design checkpoint, not an
-old-finalizer integration. `OpenFunctionDraftSealV1::prepare` needs a neutral
-typed commit payload carrying the projected function, final `TypeContext`,
-metadata/stale facts, and verification receipt into the session-owned commit
-terminal. That payload must preserve the original Open owner on every
-borrow-only stage failure and provide the sole path to `current_function.take()`.
-Until this payload and its rejection retention are fixed, wiring `Open::prepare`,
-the canonical lowerers, or a second mutable closure would violate the F1 owner
-boundary. This is the current design-stop seam for COMMIT0.
-
-The neutral session payload vocabulary is now present as a disconnected
-`PreparedFunctionSessionCommitInputV1`, and
-`PreparedFunctionSessionCloseV1::commit_projected` applies it before the sole
-extract/restore terminal. It is covered only by a session fixture; no draft
-seal planner or production lowerer supplies this payload yet. Owner-preserving
-planner errors and an explicit Open-owner discard terminal remain prerequisites
-for wiring `Open::prepare`.
-
-The explicit discard terminal is now present as
-`OpenFunctionDraftSealV1::discard`, backed by the session's one-shot
-`discard_unpublished` restore. It is still disconnected from production
-lowerers; it only makes the future rejection owner safe to drop without
-retry/resume semantics.
-
-The prepared plan now also owns the one-way `into_session_commit_input`
-projection. It copies stale-applied final type facts into the physical
-function metadata and merges the Builder's borrowed `value_origin_caller_rows`
-once. The neutral session payload remains limited to the final function and
-`TypeContext`; metadata/stale/verification receipts stay with the outer plan
-until the full prepared owner exists.
-
-Projection construction is now also detached as
-`FunctionDraftSealProjectionV1::project_from_builder(&MirBuilder, exit)`. The
-existing consuming `PreparedFunctionDraftSealV1::project` delegates to it for
-legacy test ownership, while a future Open orchestration can keep its session
-and completion witness intact when projection fails.
+Focused completion tests cover one projected exact-value success and one
+preterminated-return rejection with owner discard. The resolved-control-flow
+guard now counts the four draft-seal products across the planner and owner
+boxes and checks both files independently for the 800-line limit.
 
 ## Acceptance gates
 

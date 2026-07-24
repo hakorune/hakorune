@@ -5,7 +5,7 @@ status = "FUNCTION-EXIT-SEMANTICS-prime-r1 and FUNCTION-EXIT-F1-DRAFT-SEAL-prime
 date = "2026-07-25"
 current_design_stop = ""
 current_execution_row = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0"
-current_execution_summary = "Implement one PreparedFunctionDraftSealV1 owner for the exact 0-or-1 root-terminal slice. Preparation is borrow-only across exit, PHI closure, type/stale facts, signature, metadata, projected verification, extraction, and session close; commit is the sole physical Return writer and has no fallible edge."
+current_execution_summary = "DRAFT-SEAL0-S0 owner seam is landed: draft_seal_owner.rs now preserves the unpublished session across borrow-only exit/PHI/type/stale/metadata/verification/readiness planning, with discard-only rejection and one infallible projected commit. Canonical lowerer Return-writer integration remains the next slice."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "Language v1 function-exit semantics"
