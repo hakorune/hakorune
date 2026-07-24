@@ -123,11 +123,8 @@ fn app_selected_uses_callable_main_role_and_same_brand() {
 #[test]
 fn selected_failure_retains_prefix_and_blocks_body_entry() {
     let source = app(
-        vec![ASTNode::Return {
-            value: Some(Box::new(ASTNode::Variable {
-                name: "missing".into(),
-                span: Span::unknown(),
-            })),
+        vec![ASTNode::Variable {
+            name: "missing".into(),
             span: Span::unknown(),
         }],
         &["alpha"],

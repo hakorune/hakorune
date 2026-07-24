@@ -6,7 +6,7 @@
 
 use crate::ast::{BinaryOperator, LiteralValue, Span};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub(crate) struct RawRootBodyRecipeV1 {
     entry: RawRootBodyEntryV1,
     statements: Box<[RawLinearScalarStmtV1]>,
@@ -100,7 +100,7 @@ pub(crate) enum RawLinearScalarStmtV1 {
     },
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub(crate) struct RawRootBodyRecipeSealV1;
 
 impl RawRootBodyRecipeV1 {

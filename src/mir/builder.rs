@@ -74,6 +74,7 @@ pub(in crate::mir) use raw_root_environment_install::{
     RejectedRawRootEnvironmentInstallV1, RejectedRawRootBodyPhysicalV1,
     RawRootBodyLoweringErrorV1,
 };
+pub(in crate::mir) use raw_root_physical::RawRootBodyPhysicalErrorV1;
 pub(in crate::mir) use raw_root_physical::callable_main_terminal::{
     CompletedRawCallableMainPhysicalV1, RawRootPhysicalCallableMainErrorV1,
     RejectedRawCallableMainPhysicalV1,

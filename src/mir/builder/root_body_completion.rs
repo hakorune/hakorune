@@ -12,7 +12,7 @@ use super::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::ValueId;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder) enum RootBodyCompletionErrorV1 {
+pub(in crate::mir) enum RootBodyCompletionErrorV1 {
     OpenChildScopes { count: usize },
     OpenHeaderLoans { count: usize },
     OpenPendingTerminals { count: usize },

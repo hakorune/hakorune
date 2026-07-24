@@ -1,7 +1,10 @@
 //! Focused DECLACCESS0-S0 fixtures.
 
 use super::raw_root_callable_main::RawCallableMainReadyInvocationV1;
-use super::raw_root_decl_access::{DeclaredRawRootInvocationV1, RawRootEnvironmentErrorV1};
+use super::raw_root_decl_access::{
+    DeclaredRawRootInvocationV1, RawRootBodyCompleteInvocationV1, RawRootBodyFailureStageV1,
+    RawRootEnvironmentErrorV1,
+};
 use super::raw_source_binding::RawCallableMainSelectionV1;
 use super::{LegacyModuleLoweringInputV1, MirCompiler};
 use crate::ast::{ASTNode, DeclarationAttrs, Span};
@@ -132,5 +135,44 @@ fn dirty_builder_rejects_before_environment_commit() {
             crate::mir::builder::RawRootEnvironmentInstallErrorV1::BuilderEnvironmentNotVacant
         )
     ));
+    rejected.discard();
+}
+
+#[test]
+fn body_entry_consumes_declared_script_into_unpublished_completion() {
+    let completed = ready(
+        ASTNode::Program {
+            statements: Vec::new(),
+            span: Span::unknown(),
+        },
+        RawCallableMainSelectionV1::Omitted,
+    )
+    .declare_environment()
+    .unwrap()
+    .begin_body()
+    .unwrap();
+    assert!(matches!(
+        completed,
+        RawRootBodyCompleteInvocationV1::Script(_)
+    ));
+}
+
+#[test]
+fn body_entry_preserves_typed_lower_failure_without_retry() {
+    let rejected = ready(
+        ASTNode::Program {
+            statements: vec![ASTNode::Variable {
+                name: "missing".into(),
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        },
+        RawCallableMainSelectionV1::Omitted,
+    )
+    .declare_environment()
+    .unwrap()
+    .begin_body()
+    .expect_err("undefined recipe variable must reject after unpublished lowering");
+    assert_eq!(rejected.stage(), RawRootBodyFailureStageV1::Lower);
     rejected.discard();
 }

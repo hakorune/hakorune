@@ -9,7 +9,7 @@
 /// `Present([])` is intentionally distinct from `Absent`: the source of truth
 /// records that a valid, explicitly empty JSON array was supplied even though
 /// both dispositions materialize an empty runtime array.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum RawScriptArgsSnapshotV1 {
     Absent,
     Present(Box<[String]>),
@@ -38,7 +38,7 @@ impl RawEntrySafepointV1 {
 }
 
 /// One immutable ingress snapshot retained by the Raw source continuation.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) struct RawRuntimeInputSnapshotV1 {
     script_args: RawScriptArgsSnapshotV1,
     entry_safepoint: RawEntrySafepointV1,

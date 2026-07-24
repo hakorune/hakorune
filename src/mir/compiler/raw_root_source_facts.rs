@@ -171,7 +171,9 @@ pub(in crate::mir) struct RawRootPostInstallFactsV1 {
     physical: RawPhysicalRootIdentityV1,
     main: Option<RawSourceLocatorV1>,
     helper_schedule: Box<[RawSourceLocatorV1]>,
-    body: RawRootBodyFactV1,
+    body_recipe: RawRootBodyRecipeV1,
+    body_statement_count: usize,
+    callable_count: usize,
 }
 
 impl RawRootSourceFactsV1 {
@@ -308,31 +310,6 @@ impl RawRootSourceFactsV1 {
         &self.body
     }
 
-    pub(in crate::mir) fn into_post_install_parts(
-        self,
-    ) -> (
-        RawRootPostInstallFactsV1,
-        VerifiedSameModuleCallableDeclarationCatalogV1,
-    ) {
-        let Self {
-            route,
-            physical,
-            main,
-            helper_schedule,
-            callable_catalog,
-            body,
-        } = self;
-        (
-            RawRootPostInstallFactsV1 {
-                route,
-                physical,
-                main,
-                helper_schedule,
-                body,
-            },
-            callable_catalog,
-        )
-    }
 }
 
 impl RawRootPostInstallFactsV1 {
@@ -352,14 +329,51 @@ impl RawRootPostInstallFactsV1 {
         &self.helper_schedule
     }
 
-    pub(in crate::mir) fn body(&self) -> &RawRootBodyFactV1 {
-        &self.body
+    pub(in crate::mir) const fn helper_count(&self) -> usize {
+        self.helper_schedule.len()
     }
 
-    pub(in crate::mir) fn into_linear_body_recipe(
+    pub(in crate::mir) fn body_recipe(&self) -> &RawRootBodyRecipeV1 {
+        &self.body_recipe
+    }
+
+    pub(in crate::mir) fn body_statement_count(&self) -> usize {
+        self.body_statement_count
+    }
+
+    pub(in crate::mir) fn callable_count(&self) -> usize {
+        self.callable_count
+    }
+
+    pub(in crate::mir) fn into_linear_body_recipe(self) -> RawRootBodyRecipeV1 {
+        self.body_recipe
+    }
+}
+
+impl RawRootSourceFactsV1 {
+    pub(in crate::mir) fn into_post_install_parts(
         self,
-    ) -> Result<RawRootBodyRecipeV1, RawRootBodyRecipeErrorV1> {
-        let (entry, body) = match self.body {
+    ) -> Result<
+        (
+            RawRootPostInstallFactsV1,
+            VerifiedSameModuleCallableDeclarationCatalogV1,
+        ),
+        RawRootBodyRecipeErrorV1,
+    > {
+        let Self {
+            route,
+            physical,
+            main,
+            helper_schedule,
+            callable_catalog,
+            body,
+        } = self;
+        let body_statement_count = match &body {
+            RawRootBodyFactV1::Script(program) => program.statements().len(),
+            RawRootBodyFactV1::App { body, .. } => body.statements().len(),
+        };
+        let callable_count = callable_catalog.len();
+        let (entry, body) = match body {
             RawRootBodyFactV1::Script(program) => (RawRootBodyEntryV1::Script, program),
             RawRootBodyFactV1::App { main, body } => (
                 RawRootBodyEntryV1::AppMain0Void {
@@ -375,7 +389,19 @@ impl RawRootPostInstallFactsV1 {
             .map(linear_statement)
             .collect::<Result<Vec<_>, _>>()?
             .into_boxed_slice();
-        RawRootBodyRecipeV1::from_parts(entry, statements)
+        let body_recipe = RawRootBodyRecipeV1::from_parts(entry, statements)?;
+        Ok((
+            RawRootPostInstallFactsV1 {
+                route,
+                physical,
+                main,
+                helper_schedule,
+                body_recipe,
+                body_statement_count,
+                callable_count,
+            },
+            callable_catalog,
+        ))
     }
 }
 

@@ -14,11 +14,15 @@ use super::raw_root_plan0::RawPostCallableMainPlanV1;
 use super::raw_source_binding::RawPostCallableMainContinuationV1;
 use crate::mir::builder::OwnedRawSourceV1;
 use crate::mir::builder::{
+    CompletedRawRootBodyPhysicalV1, RejectedRawRootBodyPhysicalV1,
     InstalledRawRootEnvironmentV1, ModuleBuilderInvocationSessionV1,
+    RawRootBodyLoweringErrorV1,
     RawRootEnvironmentInstallErrorV1, RawRootEnvironmentInstallOwnerV1, RawRootPhysicalStateV1,
     RejectedRawRootEnvironmentInstallV1,
 };
 use crate::mir::module_invocation_identity::ModuleInvocationTokenV1;
+use crate::mir::raw_root_body_recipe::RawRootBodyEntryV1;
+use super::raw_runtime_inputs::RawRuntimeInputSnapshotV1;
 
 #[derive(Debug)]
 pub(in crate::mir) enum DeclaredRawRootInvocationV1 {
@@ -96,6 +100,261 @@ pub(in crate::mir) struct RejectedRawRootEnvironmentInvocationV1 {
     owner: RejectedRawRootEnvironmentOwnerV1,
     stage: RawRootEnvironmentFailureStageV1,
     error: RawRootEnvironmentErrorV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) enum RawRootBodyCompleteInvocationV1 {
+    Script(RawScriptRootBodyCompleteInvocationV1),
+    App(RawAppRootBodyCompleteInvocationV1),
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RawScriptRootBodyCompleteInvocationV1 {
+    core: RawRootBodyCompleteCoreV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RawAppRootBodyCompleteInvocationV1 {
+    core: RawRootBodyCompleteCoreV1,
+    callable_main: RawAppCallableMainOutcomeV1,
+}
+
+#[derive(Debug)]
+struct RawRootBodyCompleteCoreV1 {
+    token: ModuleInvocationTokenV1,
+    continuation: RawPostCallableMainContinuationV1,
+    module_name: Box<str>,
+    runtime_inputs: RawRuntimeInputSnapshotV1,
+    completion: RawPreRootChildrenCompletionV1,
+    helper_receipts: Box<[RawRootChildReceiptV1]>,
+    body: CompletedRawRootBodyPhysicalV1,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum RawRootBodyFailureStageV1 {
+    Preflight,
+    Lower,
+    Finalize,
+    Seal,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir) enum RawRootBodyErrorV1 {
+    RouteRecipeMismatch,
+    Physical(RawRootBodyLoweringErrorV1),
+}
+
+#[derive(Debug)]
+enum RejectedRawRootBodyOwnerV1 {
+    ScriptPreflight {
+        token: ModuleInvocationTokenV1,
+        continuation: RawPostCallableMainContinuationV1,
+        module_name: Box<str>,
+        runtime_inputs: RawRuntimeInputSnapshotV1,
+        completion: RawPreRootChildrenCompletionV1,
+        helper_receipts: Box<[RawRootChildReceiptV1]>,
+        physical: InstalledRawRootEnvironmentV1,
+    },
+    Script {
+        token: ModuleInvocationTokenV1,
+        continuation: RawPostCallableMainContinuationV1,
+        module_name: Box<str>,
+        runtime_inputs: RawRuntimeInputSnapshotV1,
+        completion: RawPreRootChildrenCompletionV1,
+        helper_receipts: Box<[RawRootChildReceiptV1]>,
+        physical: RejectedRawRootBodyPhysicalV1,
+    },
+    AppPreflight {
+        token: ModuleInvocationTokenV1,
+        continuation: RawPostCallableMainContinuationV1,
+        module_name: Box<str>,
+        runtime_inputs: RawRuntimeInputSnapshotV1,
+        completion: RawPreRootChildrenCompletionV1,
+        helper_receipts: Box<[RawRootChildReceiptV1]>,
+        callable_main: RawAppCallableMainOutcomeV1,
+        physical: InstalledRawRootEnvironmentV1,
+    },
+    App {
+        token: ModuleInvocationTokenV1,
+        continuation: RawPostCallableMainContinuationV1,
+        module_name: Box<str>,
+        runtime_inputs: RawRuntimeInputSnapshotV1,
+        completion: RawPreRootChildrenCompletionV1,
+        helper_receipts: Box<[RawRootChildReceiptV1]>,
+        callable_main: RawAppCallableMainOutcomeV1,
+        physical: RejectedRawRootBodyPhysicalV1,
+    },
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RejectedRawRootBodyInvocationV1 {
+    owner: RejectedRawRootBodyOwnerV1,
+    stage: RawRootBodyFailureStageV1,
+    error: RawRootBodyErrorV1,
+}
+
+impl DeclaredRawRootInvocationV1 {
+    /// The sole BODY0 compiler entry.  The recipe was sealed before physical
+    /// opening; this terminal only consumes it and the paired installed owner.
+    pub(in crate::mir) fn begin_body(
+        self,
+    ) -> Result<RawRootBodyCompleteInvocationV1, RejectedRawRootBodyInvocationV1> {
+        match self {
+            Self::Script(ready) => begin_script_body(ready.core),
+            Self::App(ready) => begin_app_body(ready.core, ready.callable_main),
+        }
+    }
+}
+
+fn begin_script_body(
+    core: DeclaredRawRootCoreV1,
+) -> Result<RawRootBodyCompleteInvocationV1, RejectedRawRootBodyInvocationV1> {
+    let DeclaredRawRootCoreV1 {
+        token,
+        continuation,
+        module_name,
+        completion,
+        helper_receipts,
+        installed,
+        post_install_manifest,
+    } = core;
+    let (recipe, runtime_inputs) = post_install_manifest.into_body_parts();
+    if !matches!(recipe.entry(), RawRootBodyEntryV1::Script) {
+        return Err(RejectedRawRootBodyInvocationV1 {
+            owner: RejectedRawRootBodyOwnerV1::ScriptPreflight {
+                token,
+                continuation,
+                module_name,
+                runtime_inputs,
+                completion,
+                helper_receipts,
+                physical: installed,
+            },
+            stage: RawRootBodyFailureStageV1::Preflight,
+            error: RawRootBodyErrorV1::RouteRecipeMismatch,
+        });
+    }
+    match installed.drive_root_body(recipe) {
+        Ok(body) => Ok(RawRootBodyCompleteInvocationV1::Script(
+            RawScriptRootBodyCompleteInvocationV1 {
+                core: RawRootBodyCompleteCoreV1 {
+                    token,
+                    continuation,
+                    module_name,
+                    runtime_inputs,
+                    completion,
+                    helper_receipts,
+                    body,
+                },
+            },
+        )),
+        Err(rejected) => {
+            let error = rejected.error().clone();
+            Err(RejectedRawRootBodyInvocationV1 {
+            owner: RejectedRawRootBodyOwnerV1::Script {
+                token,
+                continuation,
+                module_name,
+                runtime_inputs,
+                completion,
+                helper_receipts,
+                physical: rejected,
+            },
+            stage: body_failure_stage(&error),
+            error: RawRootBodyErrorV1::Physical(error),
+        })
+        }
+    }
+}
+
+fn begin_app_body(
+    core: DeclaredRawRootCoreV1,
+    callable_main: RawAppCallableMainOutcomeV1,
+) -> Result<RawRootBodyCompleteInvocationV1, RejectedRawRootBodyInvocationV1> {
+    let DeclaredRawRootCoreV1 {
+        token,
+        continuation,
+        module_name,
+        completion,
+        helper_receipts,
+        installed,
+        post_install_manifest,
+    } = core;
+    let (recipe, runtime_inputs) = post_install_manifest.into_body_parts();
+    if !matches!(recipe.entry(), RawRootBodyEntryV1::AppMain0Void { .. }) {
+        return Err(RejectedRawRootBodyInvocationV1 {
+            owner: RejectedRawRootBodyOwnerV1::AppPreflight {
+                token,
+                continuation,
+                module_name,
+                runtime_inputs,
+                completion,
+                helper_receipts,
+                callable_main,
+                physical: installed,
+            },
+            stage: RawRootBodyFailureStageV1::Preflight,
+            error: RawRootBodyErrorV1::RouteRecipeMismatch,
+        });
+    }
+    match installed.drive_root_body(recipe) {
+        Ok(body) => Ok(RawRootBodyCompleteInvocationV1::App(
+            RawAppRootBodyCompleteInvocationV1 {
+                core: RawRootBodyCompleteCoreV1 {
+                    token,
+                    continuation,
+                    module_name,
+                    runtime_inputs,
+                    completion,
+                    helper_receipts,
+                    body,
+                },
+                callable_main,
+            },
+        )),
+        Err(rejected) => {
+            let error = rejected.error().clone();
+            Err(RejectedRawRootBodyInvocationV1 {
+            owner: RejectedRawRootBodyOwnerV1::App {
+                token,
+                continuation,
+                module_name,
+                runtime_inputs,
+                completion,
+                helper_receipts,
+                callable_main,
+                physical: rejected,
+            },
+            stage: body_failure_stage(&error),
+            error: RawRootBodyErrorV1::Physical(error),
+        })
+        }
+    }
+}
+
+fn body_failure_stage(error: &RawRootBodyLoweringErrorV1) -> RawRootBodyFailureStageV1 {
+    match error {
+        RawRootBodyLoweringErrorV1::Physical(
+            crate::mir::builder::RawRootBodyPhysicalErrorV1::BeginTracker(_),
+        ) => RawRootBodyFailureStageV1::Preflight,
+        RawRootBodyLoweringErrorV1::Physical(
+            crate::mir::builder::RawRootBodyPhysicalErrorV1::SealTracker(_),
+        ) => RawRootBodyFailureStageV1::Seal,
+        RawRootBodyLoweringErrorV1::Lower(_) => RawRootBodyFailureStageV1::Lower,
+        RawRootBodyLoweringErrorV1::Finalize(_) => RawRootBodyFailureStageV1::Finalize,
+    }
+}
+
+impl RejectedRawRootBodyInvocationV1 {
+    pub(in crate::mir) const fn stage(&self) -> RawRootBodyFailureStageV1 {
+        self.stage
+    }
+
+    pub(in crate::mir) fn error(&self) -> &RawRootBodyErrorV1 {
+        &self.error
+    }
+
+    pub(in crate::mir) fn discard(self) {}
 }
 
 impl RawCallableMainReadyInvocationV1 {

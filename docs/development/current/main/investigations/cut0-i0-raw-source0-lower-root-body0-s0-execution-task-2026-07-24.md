@@ -24,7 +24,12 @@ an unpublished `main/0` draft, seals the fresh tracker, and returns a named
 post-body physical owner while collector/ledger/shell publication remains
 untouched. Compiler-side `DeclaredRawRootInvocationV1::begin_body(self)`
 handoff and the route-specific completion/rejection wrapper remain next;
-production consumers remain zero.
+the compiler-side consuming `DeclaredRawRootInvocationV1::begin_body(self)`
+handoff is now implemented and tested in `f2c58de981` plus the current
+working slice. It consumes the already-sealed recipe, preserves callable-Main
+evidence, and returns route-specific completion or discard-only rejection;
+production consumers remain zero. The final structural guard and full
+regression closeout remain next.
 
 ## Decision lock
 

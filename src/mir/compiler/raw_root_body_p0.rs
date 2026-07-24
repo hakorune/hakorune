@@ -9,8 +9,8 @@ use crate::mir::raw_root_body_recipe::{
 #[test]
 fn empty_script_post_install_facts_produce_linear_recipe() {
     let facts = RawRootSourceFactsV1::empty_for_test(RawRootSourceRouteV1::Script);
-    let (post_install, _) = facts.into_post_install_parts();
-    let recipe = post_install.into_linear_body_recipe().unwrap();
+    let (post_install, _) = facts.into_post_install_parts().unwrap();
+    let recipe = post_install.into_linear_body_recipe();
     assert!(matches!(recipe.entry(), RawRootBodyEntryV1::Script));
     assert!(recipe.statements().is_empty());
 }

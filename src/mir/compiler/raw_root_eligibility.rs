@@ -8,6 +8,7 @@ use super::raw_root_manifest_package::ManifestBoundRawRootPackageV1;
 use super::raw_root_package::SourceBoundRawRootPackageV1;
 use super::raw_root_plan0::RawStaticDataSourceRowV1;
 use super::raw_root_source_facts::RawRootSourceFactsErrorV1;
+use crate::mir::raw_root_body_recipe::RawRootBodyRecipeErrorV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::{
     MirBuilder, ModuleBuilderInvocationSessionV1, ModuleLoweringShellErrorV1,
@@ -40,6 +41,7 @@ pub(in crate::mir) enum RawRootEligibilityErrorV1 {
     UnsupportedBodyGrammar { statement_index: usize },
     InvalidCallableRow { statement_index: usize },
     Manifest(RawRootSourceFactsErrorV1),
+    BodyRecipe(RawRootBodyRecipeErrorV1),
 }
 
 impl std::fmt::Display for RawRootEligibilityErrorV1 {
@@ -468,10 +470,22 @@ impl SourceBoundRawRootPackageV1 {
                             });
                         }
                     };
-                let (token, source, continuation, runtime_inputs, config, module_name, plan) =
+                let manifest = match RawRootEnvironmentManifestV1::from_facts(
+                    facts,
+                    self.runtime_inputs().clone(),
+                    self.config().clone(),
+                ) {
+                    Ok(manifest) => manifest,
+                    Err(error) => {
+                        return Err(RejectedRawRootEligibilityV1 {
+                            owner: self,
+                            stage: RawRootEligibilityStageV1::Manifest,
+                            error: RawRootEligibilityErrorV1::BodyRecipe(error),
+                        });
+                    }
+                };
+                let (token, source, continuation, _runtime_inputs, _config, module_name, plan) =
                     self.into_manifest_parts();
-                let manifest =
-                    RawRootEnvironmentManifestV1::from_facts(facts, runtime_inputs, config);
                 Ok(ManifestBoundRawRootPackageV1::new(
                     token,
                     source,

@@ -83,6 +83,10 @@ impl SourceBoundRawRootPackageV1 {
         &self.runtime_inputs
     }
 
+    pub(in crate::mir) const fn config(&self) -> &BuilderInvocationConfigV1 {
+        &self.config
+    }
+
     pub(in crate::mir) fn module_name(&self) -> &str {
         &self.module_name
     }
