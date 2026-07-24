@@ -9,7 +9,9 @@
 
 use std::collections::HashSet;
 
-use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
+use crate::mir::builder::calls::{
+    CanonicalFunctionLoweringSessionV1, PreparedFunctionSessionCommitInputV1,
+};
 use crate::mir::builder::emission::value_lifecycle_definition::{
     prepare_transient_stale_value_facts_v1, PreparedTransientStaleValueFactsV1,
 };
@@ -63,6 +65,7 @@ pub(super) struct FunctionDraftSealProjectionV1 {
     function: MirFunction,
     type_ctx: TypeContext,
     exit: PreparedFunctionExitV1,
+    origin_caller_rows: Vec<(ValueId, String)>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -260,6 +263,7 @@ impl PreparedFunctionDraftSealV1 {
             }
         };
         let mut type_ctx = clone_type_context(&builder.function_state.type_ctx);
+        let origin_caller_rows = builder.value_origin_caller_rows();
         let exit = self.exit;
         let block = match exit {
             PreparedFunctionExitV1::ExplicitValue { block, .. }
@@ -321,6 +325,7 @@ impl PreparedFunctionDraftSealV1 {
             function,
             type_ctx,
             exit,
+            origin_caller_rows,
         })
     }
 
@@ -410,6 +415,12 @@ impl FunctionDraftSealProjectionV1 {
         crate::mir::type_contracts::return_exit::validate_return_exit_contract(&self.function)
             .map_err(FunctionDraftSealProjectionErrorV1::MetadataContractFailed)?;
         self.function.metadata.value_types = self.type_ctx.value_types.clone();
+        for (value, origin) in &self.origin_caller_rows {
+            self.function
+                .metadata
+                .value_origin_callers
+                .insert(*value, origin.clone());
+        }
         let metadata = self.function.metadata.clone();
         Ok(PreparedFunctionMetadataV1 {
             projection: self,
@@ -589,6 +600,7 @@ impl PreparedFunctionStaleFactsV1 {
                 function: self.metadata.projection.function.clone(),
                 type_ctx: verified_type_ctx,
                 exit: self.metadata.projection.exit,
+                origin_caller_rows: self.metadata.projection.origin_caller_rows.clone(),
             },
             metadata: self.metadata,
             stale: self.stale,
@@ -607,6 +619,16 @@ impl PreparedFunctionStaleFactsV1 {
 }
 
 impl PreparedFunctionDraftSealPlanV1 {
+    /// Move the final projected function/type facts into the neutral session
+    /// payload. Metadata/stale/verification receipts remain owned by the
+    /// outer draft-seal plan; this payload is only the physical apply input.
+    pub(super) fn into_session_commit_input(self) -> PreparedFunctionSessionCommitInputV1 {
+        let mut function = self.projection.function;
+        let type_ctx = self.projection.type_ctx;
+        function.metadata.value_types = type_ctx.value_types.clone();
+        PreparedFunctionSessionCommitInputV1::new(function, type_ctx)
+    }
+
     #[cfg(test)]
     pub(super) fn metadata(&self) -> &FunctionMetadata {
         &self.metadata.metadata

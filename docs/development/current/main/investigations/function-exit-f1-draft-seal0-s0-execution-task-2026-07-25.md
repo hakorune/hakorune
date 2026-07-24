@@ -266,6 +266,13 @@ The explicit discard terminal is now present as
 lowerers; it only makes the future rejection owner safe to drop without
 retry/resume semantics.
 
+The prepared plan now also owns the one-way `into_session_commit_input`
+projection. It copies stale-applied final type facts into the physical
+function metadata and merges the Builder's borrowed `value_origin_caller_rows`
+once. The neutral session payload remains limited to the final function and
+`TypeContext`; metadata/stale/verification receipts stay with the outer plan
+until the full prepared owner exists.
+
 ## Acceptance gates
 
 ```text
