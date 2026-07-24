@@ -19,8 +19,12 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
 - current active lane / blocker / latest-card pointer は `CURRENT_STATE.toml` を正本にする。`CURRENT_TASK.md` と thin mirrors は必要時だけそこへ誘導する。
 - Language v1 semantic coherence now precedes selfhost migration. The public
   seven-law contract is `docs/reference/language/semantic-contract-charter.md`;
-  Semantic Kernel implementation remains stopped at its explicit consultation
-  frontier.
+  current topic activation follows `CURRENT_STATE.toml`.
+- Function exit and entry-result semantics are accepted as
+  `FUNCTION-EXIT-SEMANTICS-prime-r1`: ordinary functions and `Main.main` use
+  ExplicitReturnOnly, Script evaluation has its own final-expression result,
+  and process termination is a separate projection. The normative owner is
+  `docs/reference/language/function-exit-and-entry-result.md`.
 - minimal MirBuilder execution path frontier review resolves the design stop to `MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001`; the older MirModule gap is already closed on current `public-main`.
 - the current selfhost roadmap now narrows the remaining work to family-by-family `HakoAdopted` decisions, Python SemanticProjector freeze, and consultation-gated ABI / syntax boundaries.
 - `stage2-mainline` への entry task pack は `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md` を正本にする。

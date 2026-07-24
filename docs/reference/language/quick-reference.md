@@ -111,9 +111,13 @@ Collections and failure values
 - `Result.Ok(v)` is not canonical; dot is object/member access
 
 Return type annotations
-- `name(args): Type { ... }` preserves the declared return type as metadata.
-- Return type annotation is optional. For ordinary no-value side-effect helpers,
-  omit it or write `: void` when the no-value contract should be explicit.
+- `name(args): Type { ... }` declares a semantic result contract and preserves
+  its source spelling in metadata.
+- Return type annotation is optional, but omission means an unannotated result
+  contract rather than implicit `void` or source-level type inference.
+- Write `: void` when the no-value contract should be explicit. Ordinary
+  function/method fallthrough is Unit; only explicit `return expr` returns a
+  value. See `function-exit-and-entry-result.md`.
 - `void` is valid inside generic annotations, e.g. `Result<void, Error>`.
 
 Declaration metadata

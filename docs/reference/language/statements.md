@@ -2,6 +2,9 @@
 
 Status: Adopted for Phase 15.3+; parser implementation is staged.
 
+Function, Script-result, and entry-result boundary semantics are owned by
+`docs/reference/language/function-exit-and-entry-result.md`.
+
 Policy
 - Newline as primary statement separator.
 - Semicolons are optional and only needed when multiple statements appear on one physical line.
@@ -14,7 +17,10 @@ Rules (minimal and predictable)
 - Newline does NOT end a statement when:
   - Inside any open grouping `(...)`, `[...]`, `{...}`; or
   - The previous token is a continuation token.
-- `return/break/continue` end the statement at newline unless the value is on the same line or grouped via parentheses.
+- Live `return expr`, plus `break` and `continue`, end the statement at
+  newline. A return expression must stay on the same line or be grouped.
+  Bare `return` has accepted target Unit semantics but is not live grammar
+  until its separate registry/parser row lands.
 - `if/else` (and similar paired constructs): do not insert a semicolon between a block and a following `else`.
 - One‑line multi‑statements are allowed with semicolons: `x = 1; y = 2; print(y)`.
 - Method chains can break across lines after a dot: `obj\n  .method()` (newline treated as whitespace).
@@ -73,7 +79,10 @@ Implementation notes (parser)
 - Error messages should suggest adding a continuation token or grouping when a newline unexpectedly ends a statement.
 
 Parser dev notes (Stage‑1/2)
-- return + newline: treat bare `return` as statement end. To return an expression on the next line, require grouping with parentheses.
+- Current grammar accepts `return expr`, not bare `return`. To return an
+  expression across newlines, require grouping with parentheses. A later bare-
+  return grammar row must preserve the accepted Unit semantics and may not be
+  activated from this ASI note alone.
 - if/else: never insert a semicolon between a closed block and `else` (ASI禁止箇所)。
 - Dot chains: treat `.` followed by newline as whitespace (line continuation)。
 - One‑line multi‑statements: accept `;` as statement separator, but formatter should prefer newlines.
@@ -87,6 +96,9 @@ Rules
 - `x = expr` は従来通り **代入文（statement）** として扱う。
 - `'(x = expr)'` のように **括弧で囲まれた代入** だけを、値を返す式（expression）として扱う。
   - 値と型は右辺 `expr` と同じになる（`(x = 1)` の値は `1`）。
+- Function/Script result boundaries therefore treat bare `x = expr` as Unit.
+  Only the grouped assignment expression can supply an expression value, for
+  example as an explicit return expression or a source-classified Script tail.
 - この拡張は syntax-3 パーサー surface のみで有効（Rust: `NYASH_FEATURES=stage3` / selfhost: `--syntax-3`、互換 alias `--stage3`、または `NYASH_NY_COMPILER_STAGE3=1`）。
 
 Examples

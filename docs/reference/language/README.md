@@ -6,6 +6,8 @@ Current canonical surface:
 
 - Semantic contract charter: reference/language/semantic-contract-charter.md
 - Semantic kernel: reference/language/semantic-kernel.md
+- Function exit, Script result, and entry/process-result boundaries:
+  reference/language/function-exit-and-entry-result.md
 - Grammar contract: reference/language/grammar-contract.md
 - Minimal surface policy: development/current/main/design/language-minimal-surface-ssot.md
 - Grammar and accepted rows: reference/language/EBNF.md

@@ -18,6 +18,12 @@ Nyash provides **two execution contexts** for the same language:
 
 **Key Principle**: Same parser, same language semantics. The difference is **binding rules** and **execution context**.
 
+The expression-versus-statement distinction below is also the source-level
+basis for Script result selection, but REPL auto-display and Script result
+transport are separate owners. Function, `Main.main`, Script, and process-entry
+result semantics are defined by
+`docs/reference/language/function-exit-and-entry-result.md`.
+
 This document defines Nyash REPL mode semantics. The primary design goal is:
 
 - **File mode** stays strict and box-oriented (no mutable globals at top-level).
@@ -157,6 +163,10 @@ REPL output distinguishes expressions vs statements:
 
 - If the input is an **expression**, print its value (pretty display) unless it is `void`.
 - If the input is a **statement**, do not auto-print.
+
+This classification is source-derived. The implementation detail that the
+current REPL inspects a synthetic `Main.main` wrapper is not authority for
+ordinary function fallthrough or Script result semantics.
 
 ### 3.1 Convenience binding `_`
 

@@ -2,8 +2,15 @@
 
 Decision: `RAW-BODY-RETURN-prime-r1`
 
-Status: closed. The A′ owner boundary below is selected and implemented in
-the paired S0 execution task.
+Status: closed as migration evidence. The A′ owner boundary below was
+implemented in the paired S0 task, but its Legacy any-statement-tail rule is
+not canonical language authority.
+
+`FUNCTION-EXIT-SEMANTICS-prime-r1` supersedes the semantic interpretation of
+this card. Canonical Script evaluation is `ScriptLastExpressionOrUnit`;
+`Print`, `Local`, `Assignment`, and `CompoundAssignment` remain Unit. The
+landed BODY owner/witness structure remains implementation evidence until
+`SCRIPT-RESULT-TAIL0-S0` replaces the Legacy tail classifier.
 
 After the effect repair, the next exact parity row exposed a second mismatch
 in the admitted Script scalar slice:

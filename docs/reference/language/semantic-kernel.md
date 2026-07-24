@@ -9,6 +9,7 @@ and sugar preservation for Language v1.
 Related:
 
 - `docs/reference/language/semantic-contract-charter.md`
+- `docs/reference/language/function-exit-and-entry-result.md`
 - `docs/reference/language/EBNF.md`
 - `docs/reference/language/scope-exit-semantics.md`
 - `docs/development/current/main/workstreams/language-v1-convergence-current.md`
@@ -29,6 +30,11 @@ Fault(reason)
 recoverable failure, and Canonical v1 provides no `catch` operation for it.
 Compatibility and FFI boundaries must use explicit value-level conversion if a
 future accepted row permits one.
+
+Function, Script, selected source-entry, physical-entry, and process-exit
+boundaries consume these Outcomes according to
+`function-exit-and-entry-result.md`. That topic does not add or redefine an
+Outcome variant.
 
 ## Evaluated Place
 

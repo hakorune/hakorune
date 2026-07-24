@@ -1,15 +1,19 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINAL0-S0 through PUBLIC-INGRESS0-S0 and CLOSEOUT-REPAIR0 are closed. CONFIG0, PARITY0-EFFECT-S0, and BODY-RETURN-APP-prime-r1 are closed under their selected decisions. The App scalar-return S0 implementation task is now active. Normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
+status = "FUNCTION-EXIT-SEMANTICS-prime-r1 is accepted. The former BODY-RETURN-APP canonical S0 was superseded before implementation and is retained only as Legacy observation evidence. FUNCTION-EXIT-F1-RETURN0-S0 is active; normal-entry cutover, Script result activation, process-exit projection, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
 date = "2026-07-25"
 current_design_stop = ""
-current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-BODY-RETURN-APP-S0"
-current_execution_summary = "BODY-RETURN-APP-prime-r1 selects a route-specific AppLastValueOrVoid policy. S0 must preserve existing LinearScalar0 tail semantics for Expr/Print/Local/Assignment/CompoundAssignment, split lowering tail from tracker completion, co-seal AppValue/AppEmptyVoid in one prepared commit, retire AppFixedVoid/discarded_tail production authority, and keep ROOTBATCH/normal-entry/JSON/executor/CUT0 disconnected."
+current_execution_row = "FUNCTION-EXIT-F1-RETURN0-S0"
+current_execution_summary = "Extend the existing VerifiedFunctionCompletionV1 producer in place so its exact 0-or-1 terminal-return topology is co-sealed with the declared result contract and F1 ExplicitReturnOnly disposition. Do not add a second AST walk or completion owner. Nested/multiple/all-path CFG coverage, Script tail classification, physical Main, process-exit projection, public entry, JSON, executor, and CUT0 remain later rows."
 raw_root_body0_s0_status = "closed"
 
-active_lane = "MIRBUILDER D′ Binding SSA Final Form"
-active_lane_status = """D′ is the current canonical control-lowering authority:
+active_lane = "Language v1 function-exit semantics"
+active_lane_status = """FUNCTION-EXIT-SEMANTICS-prime-r1 is the current semantic
+authority. FUNCTION-EXIT-F1-RETURN0-S0 extends the existing pre-Builder
+completion owner without changing Builder behavior. The D′/Raw history below
+is parked context and must not select a different current row.
+D′ is the current canonical control-lowering authority:
 pre-Builder products retain exact coverage/topology/ports/cleanup, while one
 function-owned Binding SSA becomes the only BindingRef-to-ValueId/PHI merge
 owner. B0-L4-S2′, SSA-P0's guarded 92-row inventory, behavior-neutral SSA-L0,
@@ -294,11 +298,11 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
-phase_status = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
-method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
-latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
+active_phase = "docs/development/current/main/investigations/function-exit-f1-return0-s0-execution-task-2026-07-25.md"
+phase_status = "docs/development/current/main/investigations/function-exit-f1-return0-s0-execution-task-2026-07-25.md"
+method_anchor = "docs/reference/language/function-exit-and-entry-result.md"
+taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
+latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 parked_loop_route_retirement_card = "docs/development/current/main/investigations/generic-loop-named-route-retirement-task-2026-07-19.md"
 mirbuilder_clean_architecture_card = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
 joinir_dprime_succession_task = "docs/development/current/main/investigations/mirbuilder-joinir-dprime-succession-task-2026-07-20.md"
@@ -354,9 +358,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-s0-execution-task-2026-07-25"
-latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-s0-execution-task-2026-07-25.md"
-latest_card_summary = """BODY-RETURN-APP-prime-r1 is selected. The active S0 task promotes App to route-specific LastValueOrVoid parity across the full admitted LinearScalar0 tail matrix; FixedVoid/discarded-tail production authority is retired, with no fallback or normal-entry cutover."""
+latest_card = "function-exit-f1-return0-s0-execution-task-2026-07-25"
+latest_card_path = "docs/development/current/main/investigations/function-exit-f1-return0-s0-execution-task-2026-07-25.md"
+latest_card_summary = """FUNCTION-EXIT-F1-RETURN0-S0 is active. It strengthens the existing VerifiedFunctionCompletionV1 producer with the accepted ExplicitReturnOnly relation and declared-result evidence while preserving the current exact root-terminal 0/1 slice and keeping every physical/public activation disconnected."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -558,7 +562,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-POST0-PUBLIC-CUTOVER-PARITY0-S0-20260724"
+current_blocker_token = "FUNCTION-EXIT-F1-RETURN0-S0-20260725"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
@@ -582,6 +586,11 @@ raw_post0_public_cutover_parity0_body_return_consultation = "docs/development/cu
 raw_post0_public_cutover_parity0_body_return_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-s0-execution-task-2026-07-25.md"
 raw_post0_public_cutover_parity0_body_return_app_design = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-app-d0-design-question-2026-07-25.md"
 raw_post0_public_cutover_parity0_body_return_app_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-app-s0-execution-task-2026-07-25.md"
+function_exit_semantics_ssot = "docs/reference/language/function-exit-and-entry-result.md"
+function_exit_f1_return0_task = "docs/development/current/main/investigations/function-exit-f1-return0-s0-execution-task-2026-07-25.md"
+raw_body_return_compat_p0_task = "docs/development/current/main/investigations/function-exit-raw-body-return-compat-p0-execution-task-2026-07-25.md"
+raw_body_return_compat_sunset_id = "RAW-BODY-RETURN-COMPAT-SUNSET-001"
+entry_exit_code_compat_sunset_id = "ENTRY-EXIT-CODE-COMPAT-SUNSET-001"
 raw_post0_old_raw_retire0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-old-raw-retire0-execution-task-2026-07-24.md"
 failure_outcome_semantic_manifest_maint0_task = "docs/development/current/main/investigations/failure-outcome-semantic-manifest-maint0-execution-task-2026-07-24.md"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"

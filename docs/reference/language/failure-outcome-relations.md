@@ -8,6 +8,10 @@ Failure/Outcome lane. It is a relation specification, not a runtime migration
 permission. Existing parser, MIR, VM, provider, and backend behavior remains
 unchanged until a later activation design stop accepts one boundary.
 
+Function, Script, selected-entry, and process boundaries consume these
+outcomes according to `function-exit-and-entry-result.md`; that topic does not
+redefine Unit, Result, or Fault.
+
 ## Canonical Vocabulary
 
 ```text

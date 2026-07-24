@@ -2,9 +2,14 @@
 
 Decision: `RAW-BODY-RETURN-prime-r1`
 
-Status: closed. The selected A′ owner chain is implemented and its focused
-Script/App/ROOTBATCH gates are green. App scalar parity remains parked in a
-separate design row.
+Status: closed implementation evidence. The selected A′ owner chain is
+implemented and its focused Script/App/ROOTBATCH gates are green.
+
+`FUNCTION-EXIT-SEMANTICS-prime-r1` now owns canonical meaning. This card's
+`ScriptLastValueOrVoid` behavior is a known migration gap, not a language
+contract: canonical Script result comes only from a source-classified final
+expression. The landed co-seal/witness mechanics remain valid evidence, while
+semantic replacement is reserved for `SCRIPT-RESULT-TAIL0-S0`.
 
 ## Decision
 

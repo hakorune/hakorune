@@ -2,11 +2,27 @@
 
 Decision: `BODY-RETURN-APP-prime-r1`
 
-Status: queued for implementation. The consultation is closed with Q1=A. This
-task changes only the disconnected explicit Raw App route; normal entry and
-all later publication/runtime cutovers remain closed.
+Status: superseded before implementation.
 
-## Selected contract
+This card is not executable. `FUNCTION-EXIT-SEMANTICS-prime-r1` rejects
+LegacyAnyStatementValue as canonical function/Main semantics. No code from
+this card landed; the repository still uses `AppFixedVoid`. The owner-chain
+shape below is retained only as historical input to a test-only Legacy
+observation/parity proof. It must not create a canonical or public production
+consumer.
+
+```text
+canonical successor =
+  FUNCTION-EXIT-F1-RETURN0-S0
+
+compatibility-evidence successor =
+  RAW-BODY-RETURN-COMPAT-P0
+
+sunset =
+  RAW-BODY-RETURN-COMPAT-SUNSET-001
+```
+
+## Historical compatibility proposal — not production authority
 
 ```text
 route policy = AppLastValueOrVoid
@@ -19,9 +35,11 @@ Unknown/Box/Array/Future/WeakRef = typed BODY exit rejection
 explicit Main return declaration = rejected by existing metadata preflight
 ```
 
-`AppFixedVoid` and production `discarded_tail` authority are retired by this
-row. The route remains a distinct `AppLastValueOrVoid` variant; it must not
-reuse Script policy by symbol/module inference.
+This superseded row does not retire `AppFixedVoid` and does not introduce a
+production `AppLastValueOrVoid` policy. A future disconnected compatibility
+proof may observe the historical any-statement tail relation through the
+test-only `LegacyObservationOracleV1`; it must not install that relation into
+a recipe, BODY policy, runtime mode, or public ingress.
 
 ## Owner chain
 
@@ -207,9 +225,10 @@ state, lowered tail when available, and exact cause. ROOTBATCH rejection must
 retain draft, completion, exit witness, session, physical state, and untouched
 collector/ledger. Inspection plus `discard(self)` are the only exits.
 
-## S0-F — promotion-blocking parity matrix
+## Historical parity matrix — input to private COMPAT-P0 only
 
-All rows below are required before App scalar parity is promoted:
+These rows are historical inputs for a bounded parity observation. They do
+not promote App scalar semantics:
 
 ```text
 empty App
@@ -233,25 +252,22 @@ verification evidence, and compiler reuse. ValueId equality is intra-invocation:
 tail = completion = Return operand = witness value; numeric IDs need not match
 Legacy across separate invocations.
 
-## S0-G — structural guard
+## Supersession guard
 
 ```text
-AppLastValueOrVoid producer                         = 1
-AppFixedVoid production producer                   = 0
-discarded_tail production occurrence               = 0
-RawLoweredRootTailV1 producer                      = 1
-BODY exit prepare                                  = 1
-PreparedRawRootBodyCommit consumer                 = 1
-post-commit fallible tracker seal                  = 0
-completion policy remap                            = 0
-AppValue/AppEmptyVoid witness producers            = 1 each
-ROOTBATCH witness validation                        = 1
-ROOTBATCH signature rewrite/second Return          = 0
-symbol/module route inference                      = 0
-return type in ledger/collector identity           = 0
-postprocess/adapter return repair                   = 0
-compile_with_source/JSON/executor/CUT0 consumers    = 0
-all modified/new source/check files                 < 800 lines
+AppLastValueOrVoid canonical producer                  = 0
+AppLastValueOrVoid public production consumer          = 0
+LegacyAnyStatementValueOrUnit implicit selector        = 0
+executable compatibility policy/profile                = 0
+LegacyObservationOracleV1 production consumer          = 0
+LegacyObservationOracleV1 normal-entry consumer        = 0
+LegacyObservationOracleV1 test-only parity consumer    <= 1
+current AppFixedVoid code rollback                     = 0
+canonical replacement owner                            = FUNCTION-EXIT-F1-RETURN0-S0
+compatibility-evidence replacement owner               = RAW-BODY-RETURN-COMPAT-P0
+postprocess/adapter return repair                       = 0
+Legacy fallback                                        = 0
+compile_with_source/JSON/executor/CUT0 consumers        = 0
 ```
 
 ## Non-claims
@@ -269,6 +285,11 @@ grammar expansion beyond LinearScalar0
 First executable row:
 
 ```text
-RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-
-PARITY0-BODY-RETURN-APP-S0
+none — superseded before implementation
+
+Canonical successor:
+  FUNCTION-EXIT-F1-RETURN0-S0
+
+Parked compatibility evidence:
+  RAW-BODY-RETURN-COMPAT-P0
 ```

@@ -80,3 +80,5 @@ JSON/executor/selfhost/fastmem/CUT0
 
 `RAW-PUBLICATION-SUNSET-001` closes only for the old Raw-specific chain.
 Generic Legacy and JSON compatibility authorities remain.
+It does not own or close function-exit compatibility evidence;
+`RAW-BODY-RETURN-COMPAT-SUNSET-001` owns that independent scaffold.

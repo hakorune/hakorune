@@ -36,6 +36,10 @@ The block expression's value is the value of `tail_expr`.
 
 Note: Empty blocks or blocks ending with a statement (without a trailing expression) are rejected at compile time. Use explicit `void` literal if needed.
 
+This explicit BlockExpr tail is an expression result, not an implicit ordinary
+function return. Function/Main fallthrough and Script result selection are
+owned by `function-exit-and-entry-result.md`.
+
 ### Lexical scope
 
 Every source-level block expression introduces one lexical scope.

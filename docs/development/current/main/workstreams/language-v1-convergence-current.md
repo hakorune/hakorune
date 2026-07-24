@@ -1,6 +1,6 @@
 ---
 Status: Active Taskboard
-Date: 2026-07-10
+Date: 2026-07-25
 Scope: Hakorune language v1 semantic convergence before selfhost migration.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -97,8 +97,58 @@ product proof:
 
 The charter, semantic kernel, and grammar contract are current truth. Card 3478
 closes the grammar registry, dual-parser recursive corpus, Canonical source
-migration, and bounded differential composition. Type guarantee design is the
-active macro row.
+migration, and bounded differential composition.
+
+`FUNCTION-EXIT-SEMANTICS-prime-r1` is the accepted function/Main/Script/entry
+boundary authority:
+
+```text
+normative topic =
+  docs/reference/language/function-exit-and-entry-result.md
+
+current executable row =
+  FUNCTION-EXIT-F1-RETURN0-S0
+
+execution card =
+  docs/development/current/main/investigations/function-exit-f1-return0-s0-execution-task-2026-07-25.md
+```
+
+The row extends the existing `VerifiedFunctionCompletionV1` producer in place
+for the exact zero-or-one root-terminal Return slice. It must not create a
+second completion analyzer or `ReturnExitContract` authority. Nested,
+multiple-return, and all-path coverage remain a separate D0; physical
+materialization, Script result, entry projection, and public activation remain
+later rows.
+
+The durable function-exit queue is:
+
+```text
+FUNCTION-EXIT-F1-RETURN0-S0
+  existing completion owner + declared-result relation, exact 0/1 slice
+
+-> FUNCTION-EXIT-F1-MATERIALIZE0-S0
+  sole physical signature/Return/completion consumer for the sealed slice
+
+-> SCRIPT-RESULT-TAIL0-S0
+  parser-neutral final-expression classifier; statement tails remain Unit
+
+-> ENTRY-RESULT-PROJECTION0-D0
+-> ENTRY-RESULT-PROJECTION0-S0
+  current VM/MIR-interpreter/LLVM inventory, then one shared target projection
+
+-> RAW-BODY-RETURN-COMPAT-P0
+  parked test-only Legacy observation; never an executable semantic profile
+
+-> FUNCTION-EXIT-APP-SCRIPT-PARITY0
+  canonical witnesses; Legacy difference stays explicit
+
+-> NORMAL-ENTRY-D0
+  explicit canonical profile selection before any default-route cutover
+```
+
+`FUNCTION-EXIT-F1-ALLPATH-D0` and `FUNCTION-EXIT-BARE-RETURN-GRAM0` are
+separate capability/grammar branches. Neither may be smuggled into the current
+exact slice.
 
 ## Confirmed Starting Gaps
 

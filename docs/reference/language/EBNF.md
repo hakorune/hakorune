@@ -34,6 +34,14 @@ Ownership grammar status (2026-07-15):
 - The accepted inactive grammar capsule and disambiguation laws live in
   `ownership.md`; support status is reported by `stage-profiles.md`.
 
+Function-exit semantic status:
+
+- `docs/reference/language/function-exit-and-entry-result.md` owns accepted
+  function, Main, Script-result, and process-entry semantics.
+- The live grammar below admits `return expr`; bare `return` has accepted
+  target Unit semantics but remains grammar-inactive until a separate registry
+  row and both parser witnesses land.
+
 program   := (cfg_item | static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | function_decl | stmt)* EOF
 
 cfg_item  := 'gate' build_predicate '{' program_item* '}' ('else' cfg_else)?
@@ -136,8 +144,9 @@ compound_assign_op := '+=' | '-=' | '*=' | '/='
 block     := '{' stmt* '}'
 
 function_decl := 'function' IDENT '(' params? ')' ( ':' TYPE_REF )? signature_clause* block
-               ; return annotation is optional. `: void` is accepted, and
-               ; omission is the usual spelling for ordinary no-value helpers.
+               ; return annotation is optional. `: void` is an explicit
+               ; no-value contract; omission is an unannotated result contract,
+               ; not implicit void or source-level result inference.
 
 signature_clause := uses_clause | contract_clause
 
@@ -810,8 +819,9 @@ birth_once_decl:= 'birth_once' IDENT ':' TYPE ( '=>' expr | block ) handler_tail
                   ; eager once. Computed during construction (before user birth), in declaration order.
 
 method_decl    := IDENT '(' params? ')' ( ':' TYPE_REF )? signature_clause* block handler_tail?
-                  ; return annotation is optional. `: void` is accepted, and
-                  ; omission is the usual spelling for ordinary no-value helpers.
+                  ; return annotation is optional. `: void` is an explicit
+                  ; no-value contract; omission is an unannotated result contract,
+                  ; not implicit void or source-level result inference.
 
 gate_member    := 'gate' build_predicate '{' member* '}' ('else' ('gate' build_predicate '{' member* '}' | '{' member* '}'))?
                   ; member-level build selection. Branches must preserve the

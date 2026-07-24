@@ -10,6 +10,7 @@ Related:
 
 - `docs/development/current/main/workstreams/language-v1-convergence-current.md`
 - `docs/reference/language/semantic-kernel.md`
+- `docs/reference/language/function-exit-and-entry-result.md`
 - `docs/reference/language/grammar-contract.md`
 - `docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md`
 - `docs/reference/language/EBNF.md`
@@ -70,8 +71,9 @@ The following order resolves conflicts.
    from the admitted registry rows. Registry generation never generates parser
    implementations.
 4. Topic SSOTs own their declared semantics: `types.md`, `ownership.md`,
-   `lifecycle.md`, `scope-exit-semantics.md`, `option.md`, and other named
-   topic owners.
+   `lifecycle.md`, `scope-exit-semantics.md`,
+   `function-exit-and-entry-result.md`, `option.md`, and other named topic
+   owners.
 5. Stage profiles and generated support views report acceptance/support; they
    never create semantics or override grammar/topic owners.
 6. Parser, verifier, runtime, and backend code are evidence of implementation.
@@ -123,6 +125,7 @@ sugar row must use the semantic-kernel contract once it is available.
 ```text
 charter = active and normative
 semantic kernel = accepted; evaluated-Place implementation active
+function/Script/entry-result contract = accepted target; activation queued
 grammar contract = accepted; substrate implementation active
 type contract activation = queued
 failure/null migration = queued

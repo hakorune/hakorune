@@ -22,7 +22,17 @@ Tracing
 Protocol
 - Input: MIR14 JSON（Rust 前段で Resolver/LoopForm 規約を満たした形）。
 - Output: `.o` オブジェクト（既定: `NYASH_AOT_OBJECT_OUT` または `NYASH_LLVM_OBJ_OUT`）。
-- 入口: `ny_main() -> i64`（戻り値は exit code 相当。必要時 handle 正規化を行う）。
+- Current compatibility entry: `ny_main() -> i64`. Existing handle
+  normalization is migration behavior, not the permanent source-result or
+  process-status contract.
+- Accepted target: `ny_main()` carries an already-checked, normalized process
+  status only; it does not transport or heuristically decode a generic source
+  value/handle. Function, Script, source-entry, and process-exit semantics are
+  owned by
+  `docs/reference/language/function-exit-and-entry-result.md`.
+- Current runner projection differences remain under the separate
+  `ENTRY-EXIT-CODE-COMPAT-SUNSET-001` compatibility sunset until the shared
+  process projection lands.
 
 Current ownership
 - `.hako` caller の official facade は `LlvmBackendBox`

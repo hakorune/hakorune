@@ -11,6 +11,9 @@ Unsupported ownership forms fail fast and never fall back to SharedV1.
 This page defines the scope-exit lifecycle model around canonical `cleanup`,
 legacy DropScope `fini`, postfix `catch/cleanup`, and object-level `box.fini()`.
 Source ownership/alias rules are owned by `ownership.md`.
+Function fallthrough, explicit-return materialization, Script results, and
+entry/process-result projection are owned by
+`function-exit-and-entry-result.md`.
 
 ## 0) Scope
 
@@ -22,6 +25,9 @@ This SSOT fixes:
 - failure policy when cleanup/finalization handlers fail
 - constructor (`birth`) partial-failure behavior
 - precedence vs `lifecycle.md`
+
+This SSOT does not decide whether an exiting source construct contributes a
+Value or Unit. It only orders cleanup around the already-selected Outcome.
 
 ## 1) Core Surfaces
 
@@ -151,5 +157,12 @@ Use **ownership transfer** or **owner forwarding** as terminology.
 - owner forwarding and Shared entry
 - scoped aliases and anchored views
 - parameter/result ownership ABI
+
+`function-exit-and-entry-result.md` is authoritative for:
+
+- ordinary function/method and `Main.main` fallthrough
+- explicit Return Value/Unit materialization
+- Script tail-expression results
+- source-entry to process-status projection
 
 When texts conflict, use this file for scope-exit behavior and transfer terminology.

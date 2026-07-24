@@ -1,5 +1,5 @@
 Status: Active
-Date: 2026-07-14
+Date: 2026-07-25
 Scope: restart in 2-5 minutes with a thin pointer surface.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -40,25 +40,23 @@ cargo check -q
 
 - handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
 - read `latest_card_path` before editing
-- D′ is accepted: exact coverage/topology/ports/cleanup stays pre-Builder and
-  one function-wide Binding SSA becomes canonical local value/PHI authority
-- B0-L4-S2′ through SSA-I0-PROFILE and the atomic SSA-I1-T trivial-owner
-  cutover are closed
-- one admitted whole owner uses production Binding SSA; production Ownership
-  SSA and Loop activation remain zero
+- function-exit meaning is owned by
+  `docs/reference/language/function-exit-and-entry-result.md`
+- ordinary function/Main uses ExplicitReturnOnly; Script result, physical
+  entry transport, and process termination remain distinct later owners
+- the former App any-statement-tail S0 is superseded before implementation and
+  may be read only as historical compatibility evidence
 - continue only the exact `current_blocker_token` and `latest_card_path` from
   `CURRENT_STATE.toml`; this mirror does not select or rename executable rows
-- old A+A2′ carrier S3/I1/I2 and effect-bearing V2 extraction are superseded;
-  do not revive them from historical cards
 - keep parser/source-carrier and unrelated parked stashes disconnected
-- LANGV1 conformance closeout and Failure/Outcome global migration remain
-  parked and must not be inferred complete
+- Script classification, process-exit projection, normal-entry cutover, JSON,
+  executor, old Raw retirement, and CUT0 remain parked
 
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - the current lane is the `active_lane` in `CURRENT_STATE.toml`
-- language-v1 convergence and ownership grammar remain parked unless
-  `CURRENT_STATE.toml` explicitly selects those lanes
+- other language-v1 and ownership rows remain parked unless
+  `CURRENT_STATE.toml` explicitly selects them
 - product/app validation now uses EXE/AOT as the primary route; VM work is a
   small semantic-reference subset only
 - if a future current blocker token names an explicit design-stop frontier,

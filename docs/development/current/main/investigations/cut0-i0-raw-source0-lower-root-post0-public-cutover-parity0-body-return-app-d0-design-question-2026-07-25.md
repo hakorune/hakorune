@@ -2,12 +2,28 @@
 
 Decision: `RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-BODY-RETURN-APP-D0`
 
-Status: closed. Decision `BODY-RETURN-APP-prime-r1` selects the Legacy-compatible
-physical wrapper `main` last-value ABI through a route-specific
-`AppLastValueOrVoid` policy. Source `Main.main/0` locator/receipt evidence stays
-separate and unchanged. The paired S0 task is now authorized.
+Status: superseded as canonical before implementation.
 
-## Selected decision
+`FUNCTION-EXIT-SEMANTICS-prime-r1` supersedes `BODY-RETURN-APP-prime-r1` as
+the language authority. The Legacy-compatible `AppLastValueOrVoid` selection
+below is retained only as historical parity evidence. It is not a canonical
+or public production policy, and the paired S0 task is not executable.
+
+```text
+superseded_by =
+  docs/reference/language/function-exit-and-entry-result.md
+
+canonical replacement =
+  FUNCTION-EXIT-F1-RETURN0-S0
+
+compatibility-evidence replacement =
+  RAW-BODY-RETURN-COMPAT-P0
+
+sunset =
+  RAW-BODY-RETURN-COMPAT-SUNSET-001
+```
+
+## Historical selected parity decision — not executable
 
 ```text
 Q1 = A
@@ -70,6 +86,13 @@ The decision must not be hidden in postprocess return inference, a public
 adapter repair, a module-symbol heuristic, or a fallback to `build_module`.
 
 ## Q1 — What is the public App compatibility authority?
+
+The A/B comparison below is migration history. Candidate A is not the
+accepted canonical function/Main semantics. Under
+`FUNCTION-EXIT-SEMANTICS-prime-r1`, its observed result relation may be
+recorded only by the test-only `LegacyObservationOracleV1` and parity
+witnesses. It must not become a recipe policy, runtime mode, public ingress
+option, or other executable compatibility profile.
 
 Choose exactly one authority:
 
@@ -229,6 +252,35 @@ promotion condition. Structural guards must keep App policy producer = 1,
 BODY exit prepare/commit = 1, old split finalizer = 0, symbol/module route
 inference = 0, return type in ledger identity = 0, postprocess/adapter repair
 = 0, and normal-entry/JSON/executor/CUT0 consumers = 0.
+
+The accepted later function-exit decision reclassifies that historical
+requirement as follows:
+
+```text
+historical parity behavior =
+  LegacyAnyStatementValueOrUnit
+
+evidence owner =
+  test-only LegacyObservationOracleV1 + parity witness
+
+executable compatibility policy/profile =
+  0
+
+canonical/public production consumers =
+  0
+
+promotion =
+  forbidden under accepted F1; reopening F3 requires a new language decision
+
+sunset_id =
+  RAW-BODY-RETURN-COMPAT-SUNSET-001
+
+owner of retirement decision =
+  FUNCTION-EXIT-COMPAT-RETIRE0
+
+target row/card =
+  RAW-BODY-RETURN-COMPAT-RETIRE0-S0
+```
 
 ## Required closeout output
 
