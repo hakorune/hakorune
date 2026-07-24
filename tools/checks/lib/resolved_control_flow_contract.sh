@@ -242,6 +242,7 @@ PY
   # direct Return-writer retirement is a later integration row.
   for spec in \
     'draft_seal.rs:ReadyFunctionDraftSealV1' \
+    'draft_seal.rs:OpenFunctionDraftSealV1' \
     'draft_seal.rs:PreparedFunctionDraftSealV1' \
     'draft_seal.rs:PreparedFunctionDraftSealPlanV1' \
     'draft_seal.rs:CompletedFunctionDraftV1' \
@@ -275,6 +276,8 @@ PY
   fi
   for spec in \
     'prepare_draft_seal_close' \
+    'open_resolved_function_draft_seal_session_v1' \
+    'builder_view' \
     'PreparedFunctionSessionCloseV1' \
     'RejectedFunctionSessionCloseV1'; do
     guard_expect_fixed_in_file "$tag" "$spec" "$session_terminal" \

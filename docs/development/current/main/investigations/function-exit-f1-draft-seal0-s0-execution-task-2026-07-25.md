@@ -227,6 +227,15 @@ still reject at signature preparation. The current isolated products now
 retain the metadata plan through stale-fact and verification ownership, while
 the outer aggregate remains a COMMIT0 task.
 
+The session boundary now has a dedicated disconnected handoff:
+`MirBuilder::open_resolved_function_draft_seal_session_v1` returns the open
+canonical session without extracting `current_function` or restoring the
+caller context. The session exposes only a borrow-only `builder_view()` for
+prepare, while `prepare_draft_seal_close` remains the sole later close
+terminal. This handoff is covered by the existing session terminal fixture;
+production lowerers still use the legacy closure until the full owner commit
+is wired.
+
 ## Acceptance gates
 
 ```text

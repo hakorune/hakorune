@@ -50,6 +50,12 @@ pub(in crate::mir::builder) struct RejectedFunctionSessionCloseV1<'builder> {
 }
 
 impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
+    /// Borrow the live Builder only for draft-seal preparation. No ownership
+    /// or mutable capability crosses this view.
+    pub(in crate::mir::builder) fn builder_view(&self) -> &MirBuilder {
+        self.builder
+    }
+
     /// Run one child operation and retain its successful draft before restore.
     ///
     /// Existing production facades continue through `run()` and therefore do
@@ -375,11 +381,7 @@ mod tests {
     #[test]
     fn draft_seal_close_extracts_once_then_restores_parent_context() {
         let mut builder = MirBuilder::new();
-        let pending = CanonicalFunctionLoweringSessionV1::open(
-            &mut builder,
-            "draft_seal/0",
-            FunctionBodyCaptureV1::CanonicalClosedFamily,
-        );
+        let pending = builder.open_resolved_function_draft_seal_session_v1("draft_seal/0");
         let product = resolved_product();
         let owner = product.owner();
         pending

@@ -9,6 +9,7 @@
 
 use std::collections::HashSet;
 
+use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
 use crate::mir::builder::emission::value_lifecycle_definition::{
     prepare_transient_stale_value_facts_v1, PreparedTransientStaleValueFactsV1,
 };
@@ -38,6 +39,14 @@ pub(super) enum PreparedFunctionExitV1 {
 pub(super) struct ReadyFunctionDraftSealV1 {
     completion: ReadyFunctionCompletionV1,
     current_block: BasicBlockId,
+}
+
+/// Open owner for the future canonical draft-seal prepare/commit handoff.
+/// The session keeps the unpublished function and caller context alive while
+/// all plans are borrowed; no legacy closure may substitute for this owner.
+pub(super) struct OpenFunctionDraftSealV1<'builder> {
+    session: CanonicalFunctionLoweringSessionV1<'builder>,
+    ready: ReadyFunctionDraftSealV1,
 }
 
 #[derive(Debug)]
@@ -187,6 +196,28 @@ impl ReadyFunctionDraftSealV1 {
             completion: self.completion,
             exit,
         })
+    }
+
+    pub(super) fn open<'builder>(
+        self,
+        session: CanonicalFunctionLoweringSessionV1<'builder>,
+    ) -> OpenFunctionDraftSealV1<'builder> {
+        OpenFunctionDraftSealV1 {
+            session,
+            ready: self,
+        }
+    }
+}
+
+impl OpenFunctionDraftSealV1<'_> {
+    #[cfg(test)]
+    pub(super) fn builder(&self) -> &MirBuilder {
+        self.session.builder_view()
+    }
+
+    #[cfg(test)]
+    pub(super) fn ready(&self) -> &ReadyFunctionDraftSealV1 {
+        &self.ready
     }
 }
 

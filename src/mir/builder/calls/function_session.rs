@@ -44,7 +44,7 @@ impl fmt::Display for FunctionSessionCleanupErrorV1 {
 ///
 /// Legacy and resolved entries share cleanup mechanics, but the captured mode
 /// fixes whether resolved authority must be absent or completed at success.
-pub(super) struct CanonicalFunctionLoweringSessionV1<'builder> {
+pub(in crate::mir::builder) struct CanonicalFunctionLoweringSessionV1<'builder> {
     builder: &'builder mut MirBuilder,
     context: Option<LoweringContext>,
     requires_resolved_authority: bool,
@@ -468,5 +468,19 @@ impl MirBuilder {
             FunctionBodyCaptureV1::CanonicalClosedFamily,
         )
         .capture(operation)
+    }
+
+    /// Open the canonical session without closing or extracting its
+    /// unpublished function. The draft-seal owner consumes this handoff after
+    /// all borrow-only plans have been prepared.
+    pub(in crate::mir::builder) fn open_resolved_function_draft_seal_session_v1(
+        &mut self,
+        function_name: &str,
+    ) -> CanonicalFunctionLoweringSessionV1<'_> {
+        CanonicalFunctionLoweringSessionV1::open(
+            self,
+            function_name,
+            FunctionBodyCaptureV1::CanonicalClosedFamily,
+        )
     }
 }
