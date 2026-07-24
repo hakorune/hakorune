@@ -61,6 +61,7 @@ pub(super) enum FunctionDraftSealProjectionErrorV1 {
     UnknownReturnValueType { value: ValueId },
     UnsupportedReturnValueType { value: ValueId, actual: MirType },
     ReturnSignatureMismatch { expected: MirType, actual: MirType },
+    TypeAnalysisFailed(String),
     ValueIdOverflow,
 }
 
@@ -265,6 +266,17 @@ impl RejectedFunctionDraftProjectionV1 {
 }
 
 impl FunctionDraftSealProjectionV1 {
+    /// Run the shared type propagation order on the private projection only.
+    /// No live `TypeContext` or `MirFunction` is passed to this entry.
+    pub(super) fn prepare_type_facts(mut self) -> Result<Self, FunctionDraftSealProjectionErrorV1> {
+        crate::mir::type_propagation::TypePropagationPipeline::run(
+            &mut self.function,
+            &mut self.type_ctx.value_types,
+        )
+        .map_err(FunctionDraftSealProjectionErrorV1::TypeAnalysisFailed)?;
+        Ok(self)
+    }
+
     #[cfg(test)]
     pub(super) fn function(&self) -> &MirFunction {
         &self.function

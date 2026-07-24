@@ -150,6 +150,10 @@ is unchanged. It is still not the full `DRAFT-SEAL-PREPARE0`: propagation,
 hints, stale-fact normalization, projected verification, and canonical
 session-close readiness remain pending.
 
+The shared `TypePropagationPipeline` now also runs against that private image
+only. Its failure remains a typed projection rejection; no live function or
+live type map is passed to the pipeline.
+
 ## Acceptance gates
 
 ```text

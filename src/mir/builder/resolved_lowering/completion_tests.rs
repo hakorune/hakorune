@@ -308,6 +308,8 @@ fn draft_seal_projection_materializes_without_mutating_live_function() {
         .prepare()
         .unwrap()
         .project(&builder)
+        .unwrap()
+        .prepare_type_facts()
         .unwrap();
     assert_eq!(projected.function().signature.return_type, MirType::Integer);
     assert!(matches!(
