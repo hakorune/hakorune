@@ -142,6 +142,14 @@ project `MirFunction`/`TypeContext`, run type or stale-fact planning, verify a
 projected draft, or close the canonical session. The legacy finalizer and its
 physical Return writers remain unchanged until those plans exist.
 
+The next projection substep is also present as an isolated, non-mutating
+helper: it copies the current function/type facts, validates the exact exit
+block and supported result type, materializes a planned `Return` (and a
+reserved-ID-safe synthetic `Void` when needed), and proves the live function
+is unchanged. It is still not the full `DRAFT-SEAL-PREPARE0`: propagation,
+hints, stale-fact normalization, projected verification, and canonical
+session-close readiness remain pending.
+
 ## Acceptance gates
 
 ```text

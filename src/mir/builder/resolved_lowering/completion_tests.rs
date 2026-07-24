@@ -2,7 +2,7 @@ use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
 use crate::mir::resolved_semantics::RegionId;
-use crate::mir::{BasicBlockId, MirCompiler, MirInstruction, ValueId};
+use crate::mir::{BasicBlockId, MirBuilder, MirCompiler, MirInstruction, MirType, ValueId};
 
 use super::completion_consumption::{
     emit_canonical_explicit_return, ResolvedFunctionCompletionConsumptionV1,
@@ -205,7 +205,7 @@ fn draft_seal_keeps_explicit_unit_distinct_from_implicit_unit() {
     let mut consumption =
         ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
     consumption
-        .claim_explicit_return(&site, target, BasicBlockId::new(0), ValueId::new(0))
+        .claim_explicit_return(&site, target, BasicBlockId::new(0), ValueId::new(1))
         .unwrap();
     let ready = consumption
         .finish(body.site(), body.statements().len() as u32, target)
@@ -250,4 +250,153 @@ fn draft_seal_marks_empty_completion_as_implicit_unit() {
             block: BasicBlockId::new(0)
         }
     );
+}
+
+#[test]
+fn draft_seal_projection_materializes_without_mutating_live_function() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
+        "draft_seal_projection",
+        vec![return_stmt(Some(literal(7)))],
+    ))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    let body = input.source().root_body().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let site = completion.explicit_site().unwrap().clone();
+    let target = input.function().lowering_roots().function_pair().region();
+    let mut consumption =
+        ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
+    consumption
+        .claim_explicit_return(&site, target, BasicBlockId::new(0), ValueId::new(1))
+        .unwrap();
+    let ready = consumption
+        .finish(body.site(), body.statements().len() as u32, target)
+        .unwrap();
+
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("draft_seal_projection/0".to_string());
+    let value = builder.alloc_value_for_test();
+    builder
+        .emit_for_test(MirInstruction::Const {
+            dst: value,
+            value: crate::mir::ConstValue::Integer(7),
+        })
+        .unwrap();
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(value, MirType::Integer);
+    let before = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks
+        .get(&BasicBlockId::new(0))
+        .unwrap()
+        .instructions
+        .len();
+    let before_next_value_id = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .next_value_id;
+
+    let projected = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(0))
+        .prepare()
+        .unwrap()
+        .project(&builder)
+        .unwrap();
+    assert_eq!(projected.function().signature.return_type, MirType::Integer);
+    assert!(matches!(
+        projected.function().get_block(BasicBlockId::new(0)).unwrap().terminator,
+        Some(MirInstruction::Return { value: Some(id) }) if id == value
+    ));
+    assert_eq!(
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .blocks
+            .get(&BasicBlockId::new(0))
+            .unwrap()
+            .instructions
+            .len(),
+        before
+    );
+    assert_eq!(
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .next_value_id,
+        before_next_value_id
+    );
+    assert!(builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .get_block(BasicBlockId::new(0))
+        .unwrap()
+        .terminator
+        .is_none());
+}
+
+#[test]
+fn draft_seal_projection_skips_reserved_void_value_ids() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
+        "draft_seal_projection_void",
+        Vec::new(),
+    ))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    let body = input.source().root_body().unwrap();
+    let target = input.function().lowering_roots().function_pair().region();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let ready = ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion)
+        .unwrap()
+        .finish(body.site(), body.statements().len() as u32, target)
+        .unwrap();
+
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("draft_seal_projection_void/0".to_string());
+    builder
+        .function_state
+        .compilation
+        .reserved_value_ids
+        .insert(ValueId::new(0));
+    let projected = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(0))
+        .prepare()
+        .unwrap()
+        .project(&builder)
+        .unwrap();
+    let returned = match projected
+        .function()
+        .get_block(BasicBlockId::new(0))
+        .unwrap()
+        .terminator
+        .as_ref()
+    {
+        Some(MirInstruction::Return { value: Some(value) }) => *value,
+        other => panic!("expected projected return, got {other:?}"),
+    };
+    assert_eq!(returned, ValueId::new(1));
+    assert_eq!(
+        projected.type_ctx().get_type(returned),
+        Some(&MirType::Void)
+    );
+    assert!(builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .get_block(BasicBlockId::new(0))
+        .unwrap()
+        .terminator
+        .is_none());
 }
