@@ -37,6 +37,7 @@ pub(in crate::mir::builder) use function_session::FunctionSessionP0TerminalV1;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use function_session::{
     LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1,
+    PreparedFunctionSessionCommitInputV1,
 };
 #[cfg(test)]
 mod finalize_value_lifecycle_tests;

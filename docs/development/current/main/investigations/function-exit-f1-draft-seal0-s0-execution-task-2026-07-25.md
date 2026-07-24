@@ -252,6 +252,14 @@ Until this payload and its rejection retention are fixed, wiring `Open::prepare`
 the canonical lowerers, or a second mutable closure would violate the F1 owner
 boundary. This is the current design-stop seam for COMMIT0.
 
+The neutral session payload vocabulary is now present as a disconnected
+`PreparedFunctionSessionCommitInputV1`, and
+`PreparedFunctionSessionCloseV1::commit_projected` applies it before the sole
+extract/restore terminal. It is covered only by a session fixture; no draft
+seal planner or production lowerer supplies this payload yet. Owner-preserving
+planner errors and an explicit Open-owner discard terminal remain prerequisites
+for wiring `Open::prepare`.
+
 ## Acceptance gates
 
 ```text

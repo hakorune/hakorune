@@ -280,6 +280,8 @@ PY
     'open_resolved_function_draft_seal_session_v1' \
     'builder_view' \
     'PreparedFunctionSessionCloseV1' \
+    'PreparedFunctionSessionCommitInputV1' \
+    'commit_projected' \
     'RejectedFunctionSessionCloseV1'; do
     guard_expect_fixed_in_file "$tag" "$spec" "$session_terminal" \
       "F1 DRAFT-SEAL0 session-close seam drifted: $spec"

@@ -5,6 +5,7 @@
 //! the existing production `run()` lifecycle observe a new collector.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::type_context::TypeContext;
 use crate::mir::function::MirFunction;
 use crate::mir::MirBuilder;
 
@@ -39,6 +40,20 @@ struct LegacyFunctionPendingSessionSealV1;
 pub(in crate::mir::builder) struct PreparedFunctionSessionCloseV1<'builder> {
     session: Option<CanonicalFunctionLoweringSessionV1<'builder>>,
     function_name: String,
+}
+
+/// Typed payload for the canonical draft-seal commit.  The session terminal
+/// applies the projected function and final type facts before it extracts the
+/// function; no caller mutation closure or bare Builder access is needed.
+pub(in crate::mir::builder) struct PreparedFunctionSessionCommitInputV1 {
+    function: MirFunction,
+    type_ctx: TypeContext,
+}
+
+impl PreparedFunctionSessionCommitInputV1 {
+    pub(in crate::mir::builder) fn new(function: MirFunction, type_ctx: TypeContext) -> Self {
+        Self { function, type_ctx }
+    }
 }
 
 /// Rejection from the canonical prepared close.  The original session stays
@@ -207,10 +222,32 @@ impl PreparedFunctionSessionCloseV1<'_> {
     /// checks have already happened, so extraction and caller restoration are
     /// deliberately infallible ownership transitions.
     pub(in crate::mir::builder) fn commit(mut self) -> MirFunction {
+        self.commit_with_input(None)
+    }
+
+    /// Apply one prepared projected function/type payload and then perform the
+    /// same infallible extraction/restore terminal.  This is the only session
+    /// path that may install a draft-seal projection into the live function
+    /// slot before `current_function.take()`.
+    pub(in crate::mir::builder) fn commit_projected(
+        self,
+        input: PreparedFunctionSessionCommitInputV1,
+    ) -> MirFunction {
+        self.commit_with_input(Some(input))
+    }
+
+    fn commit_with_input(
+        mut self,
+        input: Option<PreparedFunctionSessionCommitInputV1>,
+    ) -> MirFunction {
         let mut session = self
             .session
             .take()
             .expect("prepared function session close commits once");
+        if let Some(input) = input {
+            session.builder.function_state.current_function = Some(input.function);
+            session.builder.function_state.type_ctx = input.type_ctx;
+        }
         let draft = session
             .builder
             .function_state
@@ -277,7 +314,7 @@ mod tests {
     };
 
     use super::super::FunctionBodyCaptureV1;
-    use super::CanonicalFunctionLoweringSessionV1;
+    use super::{CanonicalFunctionLoweringSessionV1, PreparedFunctionSessionCommitInputV1};
 
     fn resolved_product() -> Arc<crate::mir::resolved_semantics::VerifiedResolvedFunctionV1> {
         let function = ASTNode::FunctionDeclaration {
@@ -414,8 +451,16 @@ mod tests {
             .current_function
             .is_some());
 
-        let draft = prepared.commit();
+        let mut projected = draft("draft_seal/0", 0);
+        projected.signature.return_type = MirType::Bool;
+        let mut projected_types = crate::mir::builder::type_context::TypeContext::new();
+        projected_types.set_type(crate::mir::ValueId::new(7), MirType::Bool);
+        let draft = prepared.commit_projected(PreparedFunctionSessionCommitInputV1::new(
+            projected,
+            projected_types,
+        ));
         assert_eq!(draft.signature.name, "draft_seal/0");
+        assert_eq!(draft.signature.return_type, MirType::Bool);
         assert!(builder.function_state.current_function.is_none());
         assert!(builder.function_state.current_block.is_none());
     }
