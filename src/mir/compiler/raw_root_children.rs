@@ -173,8 +173,30 @@ impl RawRootInvocationV1 {
             session,
             physical,
         } = core;
-        let (plan, locators) = original_plan.into_pre_root_children();
         let catalog = proof.catalog();
+        let helper_coverage = proof.into_helper_coverage();
+        let (plan, planned_locators) = original_plan.into_pre_root_children();
+        if let Some(helper_coverage) = helper_coverage {
+            let witness_locators = helper_coverage.into_locators();
+            if witness_locators.as_ref() != planned_locators.as_ref() {
+                return Err(RejectedRawRootChildrenInvocationV1::Source {
+                    owner: pending_from_parts(
+                        token,
+                        source,
+                        continuation,
+                        module_name,
+                        plan,
+                        manifest,
+                        session,
+                        physical,
+                        planned_locators,
+                    ),
+                    error: RawRootStaticChildWorkErrorV1::ScheduleMismatch,
+                    failed: None,
+                });
+            }
+        }
+        let locators = planned_locators;
         let helper_count = match (&catalog, &plan.kind()) {
             (
                 RawEligibleCatalogV1::EmptyScript,
@@ -337,6 +359,10 @@ mod tests {
     use crate::ast::{ASTNode, DeclarationAttrs, Span};
     use crate::mir::builder::MirBuilder;
     use crate::mir::compiler::lowering_input::LegacyModuleLoweringInputV1;
+    use crate::mir::compiler::raw_public_ingress::RawPublicImportDispositionV1;
+    use crate::mir::compiler::raw_root_helper_coverage::{
+        RawPublicEligibilityProfileV1, RawStaticHelperCoverageV1,
+    };
     use crate::mir::compiler::raw_source_binding::RawCallableMainSelectionV1;
     use crate::mir::MirCompiler;
     use std::collections::HashMap;
@@ -364,16 +390,17 @@ mod tests {
     fn bound(source: ASTNode) -> RawRootInvocationV1 {
         let mut compiler = MirCompiler::new();
         compiler
-            .bind_raw_source(
+            .bind_raw_source_for_public(
                 LegacyModuleLoweringInputV1::bare_ast(source),
                 None,
                 "children0",
                 RawCallableMainSelectionV1::Omitted,
+                RawPublicImportDispositionV1::None,
             )
             .unwrap()
             .into_root_package()
             .unwrap()
-            .prepare_eligibility()
+            .prepare_public_eligibility(RawPublicEligibilityProfileV1::narrow_v1())
             .unwrap()
             .open_physical(&MirBuilder::new())
             .unwrap()
@@ -452,6 +479,39 @@ mod tests {
     }
 
     #[test]
+    fn app_with_zero_helpers_keeps_a_typed_zero_child_schedule() {
+        let complete = bound(app(&[]))
+            .prepare_children()
+            .unwrap()
+            .complete_all()
+            .unwrap();
+        let RawChildrenCompleteInvocationV1::App(complete) = complete else {
+            panic!("static Main must produce App completion")
+        };
+        assert_eq!(complete.completion.expected_count, 0);
+        assert!(complete.receipts.is_empty());
+    }
+
+    #[test]
+    fn plan_and_witness_order_drift_rejects_before_child_descent() {
+        let invocation = bound(app(&["alpha"]));
+        let RawRootInvocationV1::App(mut invocation) = invocation else {
+            panic!("static Main must produce App route")
+        };
+        let forged = RawSourceLocatorV1::for_test(0, "Main", "drift", "Main.drift/0", 0);
+        invocation
+            .core
+            .proof
+            .replace_helper_coverage_for_test(RawStaticHelperCoverageV1::for_test(
+                vec![forged].into_boxed_slice(),
+            ));
+        let rejected = RawRootInvocationV1::App(invocation)
+            .prepare_children()
+            .unwrap_err();
+        assert_eq!(rejected.successful_prefix_count(), 0);
+    }
+
+    #[test]
     fn locator_drift_is_rejected_before_physical_effects() {
         let source = crate::mir::builder::OwnedRawSourceV1::bind(
             app(&["alpha"]),
@@ -525,7 +585,7 @@ mod tests {
     }
 
     #[test]
-    fn natural_primary_child_failure_aborts_after_successful_prefix() {
+    fn non_empty_helper_rejects_before_physical_effects() {
         let mut source = app(&["alpha", "zeta"]);
         if let ASTNode::Program { statements, .. } = &mut source {
             let ASTNode::BoxDeclaration { methods, .. } = statements.first_mut().unwrap() else {
@@ -545,23 +605,26 @@ mod tests {
                 ),
             );
         }
-        let invocation = bound(source);
-        let rejected = invocation
-            .prepare_children()
+        let mut compiler = MirCompiler::new();
+        let rejected = compiler
+            .bind_raw_source_for_public(
+                LegacyModuleLoweringInputV1::bare_ast(source),
+                None,
+                "children0",
+                RawCallableMainSelectionV1::Omitted,
+                RawPublicImportDispositionV1::None,
+            )
             .unwrap()
-            .complete_all()
+            .into_root_package()
+            .unwrap()
+            .prepare_public_eligibility(RawPublicEligibilityProfileV1::narrow_v1())
             .unwrap_err();
-        let RejectedRawRootChildrenInvocationV1::Physical {
-            owner,
-            error: RawRootPhysicalChildErrorV1::Child(error),
-            failed: Some(failed),
-        } = rejected
-        else {
-            panic!("undefined variable must be retained as a primary child failure")
-        };
-        assert!(error.is_primary_session());
-        assert_eq!(owner.prefix.len(), 1);
-        assert_eq!(failed.ordinal, 1);
-        assert_eq!(owner.core.physical.tracker_completed_children(), 0);
+        assert_eq!(rejected.stage(), super::super::raw_root_eligibility::RawRootEligibilityStageV1::Catalog);
+        assert!(matches!(
+            rejected.error(),
+            super::super::raw_root_eligibility::RawRootEligibilityErrorV1::HelperCoverage(
+                super::super::raw_root_helper_coverage::RawStaticHelper0CoverageErrorV1::BodyNotEmpty
+            )
+        ));
     }
 }

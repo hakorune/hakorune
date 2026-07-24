@@ -52,6 +52,10 @@ pub(in crate::mir) mod raw_root_eligibility;
 pub(in crate::mir) mod raw_root_eligibility_classifier;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_finalization;
+#[allow(dead_code)]
+pub(in crate::mir) mod raw_root_helper_coverage;
+#[allow(dead_code)]
+pub(in crate::mir) mod raw_root_eligibility_prepare;
 pub(in crate::mir) mod raw_root_external_commit;
 pub(in crate::mir) mod raw_root_publication;
 pub(in crate::mir) mod raw_root_publication_adapter;

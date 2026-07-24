@@ -13,7 +13,15 @@ source/check boundary.
 
 ## Required implementation
 
-1. Restore `stash@{0}` and keep its useful `StaticHelper0` source witness.
+The public profile remains exact:
+
+```text
+StaticHelper0: static, non-override, params = [], return_type_name = None,
+uses = [], attrs = empty, contracts = [], body = [], arity = 0.
+```
+
+1. Restore `stash@{0}` and keep its useful `StaticHelper0` source witness;
+   all profile rejection remains before physical effects.
 2. Keep PLAN0's ordered locators as the only CHILDREN0 execution schedule.
 3. Add an exact PLAN0↔coverage locator parity check before physical open.
 4. Carry `RawPublicIngressPolicyV1::NarrowV1` as a branded public profile;
@@ -35,6 +43,7 @@ override helper -> typed coverage failure before physical open
 non-empty helper -> typed pre-physical rejection
 metadata/params/uses/attrs/contracts helper -> typed pre-physical rejection
 every rejection -> Builder/physical/collector/ledger delta = 0
+HelperLinear0 activation = 0
 ```
 
 ## Non-claims
@@ -83,4 +92,3 @@ bash tools/checks/current_state_pointer_guard.sh
 On green evidence, mark this task closed, add a compact CURRENT_STATE landed
 entry, and advance the pointer to the already queued PARITY0 task. Do not
 delete the WIP stash until the repair commit is verified and pushed.
-

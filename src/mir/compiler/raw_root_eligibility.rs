@@ -3,7 +3,9 @@
 //! This is the last source-only gate before the future Raw physical owner.
 //! It consumes no Builder state and does not re-scan source after success.
 
-use super::raw_root_environment_manifest::RawRootEnvironmentManifestV1;
+use super::raw_root_helper_coverage::{
+    RawPublicEligibilityProfileV1, RawStaticHelper0CoverageErrorV1, RawStaticHelperCoverageV1,
+};
 use super::raw_root_manifest_package::ManifestBoundRawRootPackageV1;
 use super::raw_root_package::SourceBoundRawRootPackageV1;
 use super::raw_root_plan0::RawStaticDataSourceRowV1;
@@ -42,6 +44,9 @@ pub(in crate::mir) enum RawRootEligibilityErrorV1 {
     InvalidCallableRow { statement_index: usize },
     Manifest(RawRootSourceFactsErrorV1),
     BodyRecipe(RawRootBodyRecipeErrorV1),
+    HelperCoverage(RawStaticHelper0CoverageErrorV1),
+    HelperScheduleMismatch { expected: usize, actual: usize },
+    HelperScheduleOrderMismatch,
 }
 
 impl std::fmt::Display for RawRootEligibilityErrorV1 {
@@ -58,6 +63,7 @@ impl std::error::Error for RawRootEligibilityErrorV1 {}
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir) struct RawRootEligibilityV1 {
     pub(super) coverage: RawRootCoverageV1,
+    helper_coverage: Option<RawStaticHelperCoverageV1>,
 }
 
 /// Exact first-slice source coverage consumed by the future manifest.
@@ -144,7 +150,6 @@ impl RawRootEligibilityV1 {
             super::raw_root_plan0::RawRootKindV1::Script(_) => RawEligibleCatalogV1::EmptyScript,
             super::raw_root_plan0::RawRootKindV1::App(_) => verify_plain_static_main(statements)?,
         };
-
         if package.plan().environment().access().static_data {
             let index = package
                 .plan()
@@ -170,7 +175,58 @@ impl RawRootEligibilityV1 {
                 RawRootCoverageV1::PlainStaticMain { helper_count }
             }
         };
-        Ok(Self { coverage })
+        Ok(Self {
+            coverage,
+            helper_coverage: None,
+        })
+    }
+
+    pub(in crate::mir) fn verify_public(
+        package: &SourceBoundRawRootPackageV1,
+        _profile: RawPublicEligibilityProfileV1,
+    ) -> Result<Self, (RawRootEligibilityStageV1, RawRootEligibilityErrorV1)> {
+        let mut proof = Self::verify(package)?;
+        let helper_coverage = match package.plan().kind() {
+            super::raw_root_plan0::RawRootKindV1::Script(_) => {
+                RawStaticHelperCoverageV1::empty()
+            }
+            super::raw_root_plan0::RawRootKindV1::App(app) => {
+                RawStaticHelperCoverageV1::verify(package.source(), app.static_children())
+                    .map_err(|error| {
+                        (
+                            RawRootEligibilityStageV1::Catalog,
+                            RawRootEligibilityErrorV1::HelperCoverage(error),
+                        )
+                })?
+            }
+        };
+        let schedule_matches = match package.plan().kind() {
+            super::raw_root_plan0::RawRootKindV1::Script(_) => {
+                helper_coverage.matches_locators(&[])
+            }
+            super::raw_root_plan0::RawRootKindV1::App(app) => {
+                helper_coverage.matches_locators(app.static_children())
+            }
+        };
+        if !schedule_matches {
+            return Err((
+                RawRootEligibilityStageV1::Catalog,
+                RawRootEligibilityErrorV1::HelperScheduleOrderMismatch,
+            ));
+        }
+        if let RawEligibleCatalogV1::PlainStaticMain { helper_count } = proof.catalog() {
+            if helper_count != helper_coverage.len() {
+                return Err((
+                    RawRootEligibilityStageV1::Catalog,
+                    RawRootEligibilityErrorV1::HelperScheduleMismatch {
+                        expected: helper_count,
+                        actual: helper_coverage.len(),
+                    },
+                ));
+            }
+        }
+        proof.helper_coverage = Some(helper_coverage);
+        Ok(proof)
     }
 
     pub(in crate::mir) const fn catalog(&self) -> RawEligibleCatalogV1 {
@@ -184,6 +240,18 @@ impl RawRootEligibilityV1 {
 
     pub(in crate::mir) const fn coverage(&self) -> &RawRootCoverageV1 {
         &self.coverage
+    }
+
+    pub(in crate::mir) fn into_helper_coverage(self) -> Option<RawStaticHelperCoverageV1> {
+        self.helper_coverage
+    }
+
+    #[cfg(test)]
+    pub(super) fn replace_helper_coverage_for_test(
+        &mut self,
+        coverage: RawStaticHelperCoverageV1,
+    ) {
+        self.helper_coverage = Some(coverage);
     }
 }
 
@@ -309,9 +377,9 @@ pub(in crate::mir) type EligibleSourceBoundRawRootPackageV1 = ManifestBoundRawRo
 
 #[derive(Debug)]
 pub(in crate::mir) struct RejectedRawRootEligibilityV1 {
-    owner: SourceBoundRawRootPackageV1,
-    stage: RawRootEligibilityStageV1,
-    error: RawRootEligibilityErrorV1,
+    pub(super) owner: SourceBoundRawRootPackageV1,
+    pub(super) stage: RawRootEligibilityStageV1,
+    pub(super) error: RawRootEligibilityErrorV1,
 }
 
 #[derive(Debug)]
@@ -451,58 +519,6 @@ impl RejectedRawRootEligibilityV1 {
     }
 
     pub(in crate::mir) fn discard(self) {}
-}
-
-impl SourceBoundRawRootPackageV1 {
-    pub(in crate::mir) fn prepare_eligibility(
-        self,
-    ) -> Result<EligibleSourceBoundRawRootPackageV1, RejectedRawRootEligibilityV1> {
-        match RawRootEligibilityV1::verify(&self) {
-            Ok(proof) => {
-                let facts =
-                    match RawRootEnvironmentManifestV1::source_facts(self.source(), self.plan()) {
-                        Ok(facts) => facts,
-                        Err(error) => {
-                            return Err(RejectedRawRootEligibilityV1 {
-                                owner: self,
-                                stage: RawRootEligibilityStageV1::Manifest,
-                                error: RawRootEligibilityErrorV1::Manifest(error),
-                            });
-                        }
-                    };
-                let manifest = match RawRootEnvironmentManifestV1::from_facts(
-                    facts,
-                    self.runtime_inputs().clone(),
-                    self.config().clone(),
-                ) {
-                    Ok(manifest) => manifest,
-                    Err(error) => {
-                        return Err(RejectedRawRootEligibilityV1 {
-                            owner: self,
-                            stage: RawRootEligibilityStageV1::Manifest,
-                            error: RawRootEligibilityErrorV1::BodyRecipe(error),
-                        });
-                    }
-                };
-                let (token, source, continuation, _runtime_inputs, _config, module_name, plan) =
-                    self.into_manifest_parts();
-                Ok(ManifestBoundRawRootPackageV1::new(
-                    token,
-                    source,
-                    continuation,
-                    module_name,
-                    plan,
-                    proof,
-                    manifest,
-                ))
-            }
-            Err((stage, error)) => Err(RejectedRawRootEligibilityV1 {
-                owner: self,
-                stage,
-                error,
-            }),
-        }
-    }
 }
 
 #[cfg(test)]

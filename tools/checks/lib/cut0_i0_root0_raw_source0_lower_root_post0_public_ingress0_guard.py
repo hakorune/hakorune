@@ -113,17 +113,22 @@ def require(text: str, fragment: str, label: str) -> None:
         raise AssertionError(f"missing {label}: {fragment!r}")
 
 
+def require_successor_row(state: str) -> None:
+    rows = (
+        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-COVERAGE0-REPAIR-S0"',
+        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-S0"',
+    )
+    if not any(row in state for row in rows):
+        raise AssertionError("current pointer must remain on COVERAGE0 repair or its PARITY0 successor")
+
+
 def main() -> int:
     state = (ROOT / "docs/development/current/main/CURRENT_STATE.toml").read_text()
     task = TASK.read_text()
     repair_task = REPAIR_TASK.read_text()
     caller_manifest = json.loads(CALLER_MANIFEST.read_text())
     require(state, "CONFIG0 are closed", "closed closeout-repair/CONFIG0 rows")
-    require(
-        state,
-        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-COVERAGE0-S0"',
-        "advanced coverage row",
-    )
+    require_successor_row(state)
     require(
         state,
         "raw_post0_public_ingress0_closeout_repair0_task =",
@@ -159,7 +164,7 @@ def main() -> int:
         '"main"',
         "bind_raw_source",
         "into_root_package",
-        "prepare_eligibility",
+        "prepare_public_eligibility",
         "prepare_root_batch",
         "prepare_drain",
         "prepare_finalization",

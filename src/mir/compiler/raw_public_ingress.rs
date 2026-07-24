@@ -7,6 +7,7 @@
 use super::lowering_input::LegacyModuleLoweringInputV1;
 use super::module_postprocess::ModulePostprocessOwnerV1;
 use super::raw_source_binding::{RawCallableMainSelectionV1, RejectedRawSourceBindingV1};
+use super::raw_root_helper_coverage::RawPublicEligibilityProfileV1;
 use super::MirCompileResult;
 use crate::ast::ASTNode;
 use std::fmt::Debug;
@@ -56,7 +57,7 @@ impl super::MirCompiler {
             .into_root_package()
             .map_err(|rejected| reject("root-package", rejected, |owner| owner.discard()))?;
         let eligible = root_package
-            .prepare_eligibility()
+            .prepare_public_eligibility(RawPublicEligibilityProfileV1::narrow_v1())
             .map_err(|rejected| reject("eligibility", rejected, |owner| owner.discard()))?;
         let opened = eligible
             .open_physical(&self.builder)

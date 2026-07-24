@@ -79,6 +79,27 @@ normal-entry cutover
 JSON/executor/selfhost/CUT0
 ```
 
+## Closeout evidence
+
+```text
+StaticHelper0 producer = 1
+exact empty body/params/return/uses/attrs/contracts = sealed
+instance/override helper rejection = pre-physical
+CHILDREN0 consumes witness-owned lexical schedule = 1
+non-empty helper physical effects = 0
+HelperLinear0 activation = 0
+
+python3 tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_post0_public_cutover_coverage0_guard.py
+RUSTFLAGS='-Awarnings' cargo test -q --lib raw_root_helper_coverage -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib raw_root_children -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib raw_root_eligibility_p0 -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q --lib raw_public_ingress_p0 -- --test-threads=1
+cargo check -q --lib
+git diff --check
+```
+
+Next row: `RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-S0`.
+
 ## Next row
 
 ```text

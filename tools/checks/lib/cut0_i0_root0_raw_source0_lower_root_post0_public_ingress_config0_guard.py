@@ -27,6 +27,15 @@ def require(text: str, fragment: str, label: str) -> None:
         raise AssertionError(f"missing {label}: {fragment!r}")
 
 
+def require_successor_row(state: str) -> None:
+    rows = (
+        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-COVERAGE0-REPAIR-S0"',
+        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-S0"',
+    )
+    if not any(row in state for row in rows):
+        raise AssertionError("current pointer must remain on COVERAGE0 repair or its PARITY0 successor")
+
+
 def count(text: str, fragment: str, expected: int, label: str) -> None:
     actual = text.count(fragment)
     if actual != expected:
@@ -38,7 +47,7 @@ def main() -> int:
     task = TASK.read_text()
     texts = {path: path.read_text() for path in SOURCES}
 
-    require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-COVERAGE0-S0"', "advanced COVERAGE0 row")
+    require_successor_row(state)
     require(state, "CONFIG0 are closed", "closed CONFIG0 state")
     require(task, "Status: closed", "closed CONFIG0 task")
     require(task, "RawPublicImportDispositionV1::None", "disposition contract")
