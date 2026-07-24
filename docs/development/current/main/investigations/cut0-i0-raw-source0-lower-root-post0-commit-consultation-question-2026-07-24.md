@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT — POST0-COMMIT consultation question
 
-Status: **Design stop — awaiting decision**
+Status: **Closed — Candidate RAW-COMMIT-prime-r1 selected; COMMIT0-S0 is next**
 Date: 2026-07-24
 Predecessor: `RAW-SOURCE0-LOWER0-ROOT0-POST0-FAILURE0`
 
