@@ -13,6 +13,7 @@ use crate::mir::builder::emission::value_lifecycle_definition::{
     prepare_transient_stale_value_facts_v1, PreparedTransientStaleValueFactsV1,
 };
 use crate::mir::builder::type_context::TypeContext;
+use crate::mir::function::FunctionMetadata;
 use crate::mir::{
     BasicBlockId, ConstValue, MirBuilder, MirFunction, MirInstruction, MirType, ValueId,
 };
@@ -65,6 +66,7 @@ pub(super) enum FunctionDraftSealProjectionErrorV1 {
     UnsupportedReturnValueType { value: ValueId, actual: MirType },
     ReturnSignatureMismatch { expected: MirType, actual: MirType },
     TypeAnalysisFailed(String),
+    MetadataContractFailed(String),
     StaleFacts(String),
     TypedValueVerificationFailed(String),
     ValueIdOverflow,
@@ -80,6 +82,15 @@ pub(super) struct RejectedFunctionDraftProjectionV1 {
 pub(super) struct PreparedFunctionStaleFactsV1 {
     projection: FunctionDraftSealProjectionV1,
     stale: PreparedTransientStaleValueFactsV1,
+}
+
+/// Metadata and executable boundary contracts prepared on the projected
+/// function.  This is a private plan: the live function metadata remains
+/// untouched until the eventual draft-seal commit.
+#[derive(Debug)]
+pub(super) struct PreparedFunctionMetadataV1 {
+    projection: FunctionDraftSealProjectionV1,
+    metadata: FunctionMetadata,
 }
 
 #[derive(Debug)]
@@ -294,9 +305,36 @@ impl FunctionDraftSealProjectionV1 {
         Ok(self)
     }
 
-    /// Prepare stale-fact removal against the private facts image. The
-    /// prepared removal is retained for the future commit and is not applied
-    /// to either the live Builder or this projection in this substep.
+    /// Prepare the existing parameter/return contract carriers on the private
+    /// projection.  These helpers are the metadata SSOT; the draft seal only
+    /// snapshots their planned result and never invents a second contract.
+    pub(super) fn prepare_metadata(
+        mut self,
+    ) -> Result<PreparedFunctionMetadataV1, FunctionDraftSealProjectionErrorV1> {
+        crate::mir::type_contracts::parameter_entry::refresh_function_parameter_entry_contracts(
+            &mut self.function,
+        );
+        crate::mir::type_contracts::return_exit::refresh_function_return_exit_contract(
+            &mut self.function,
+        );
+        crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts(
+            &self.function,
+        )
+        .map_err(FunctionDraftSealProjectionErrorV1::MetadataContractFailed)?;
+        crate::mir::type_contracts::return_exit::validate_return_exit_contract(&self.function)
+            .map_err(FunctionDraftSealProjectionErrorV1::MetadataContractFailed)?;
+        self.function.metadata.value_types = self.type_ctx.value_types.clone();
+        let metadata = self.function.metadata.clone();
+        Ok(PreparedFunctionMetadataV1 {
+            projection: self,
+            metadata,
+        })
+    }
+}
+
+impl PreparedFunctionMetadataV1 {
+    /// Prepare stale-fact removal after metadata/contract planning.  The
+    /// planned metadata remains installed on the private projection.
     pub(super) fn prepare_stale_facts(
         self,
         builder: &MirBuilder,
@@ -314,8 +352,8 @@ impl FunctionDraftSealProjectionV1 {
             .copied()
             .collect();
         let stale = match prepare_transient_stale_value_facts_v1(
-            &self.function,
-            &self.type_ctx.value_types,
+            &self.projection.function,
+            &self.projection.type_ctx.value_types,
             &pending_phi_destinations,
             &pinned_values,
         ) {
@@ -328,11 +366,18 @@ impl FunctionDraftSealProjectionV1 {
             }
         };
         Ok(PreparedFunctionStaleFactsV1 {
-            projection: self,
+            projection: self.projection,
             stale,
         })
     }
 
+    #[cfg(test)]
+    pub(super) fn metadata(&self) -> &FunctionMetadata {
+        &self.metadata
+    }
+}
+
+impl FunctionDraftSealProjectionV1 {
     #[cfg(test)]
     pub(super) fn function(&self) -> &MirFunction {
         &self.function

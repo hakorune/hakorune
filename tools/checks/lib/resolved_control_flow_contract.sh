@@ -247,6 +247,8 @@ PY
     'draft_seal.rs:RejectedFunctionDraftSealV1' \
     'draft_seal.rs:FunctionDraftSealProjectionV1' \
     'draft_seal.rs:prepare_type_facts' \
+    'draft_seal.rs:prepare_metadata' \
+    'draft_seal.rs:MetadataContractFailed' \
     'draft_seal.rs:prepare_stale_facts' \
     'draft_seal.rs:TypedValueVerificationFailed'; do
     local file="${spec%%:*}"

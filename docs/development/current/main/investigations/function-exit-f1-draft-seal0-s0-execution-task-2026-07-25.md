@@ -172,6 +172,12 @@ original session and discards it exactly once. Legacy `run`/`capture` paths
 remain unchanged; this seam is not yet wired into the lowerers or the draft
 seal projection, so the full PREPARE0/COMMIT0 row remains open.
 
+The projection now has one metadata-plan step after type propagation:
+`prepare_metadata()` refreshes and validates the existing parameter-entry and
+return-exit carriers on the private image, snapshots final value types, and
+passes that image into stale-fact preparation. No live metadata or contract
+carrier is changed, and no second ReturnExit/parameter authority is created.
+
 ## Acceptance gates
 
 ```text

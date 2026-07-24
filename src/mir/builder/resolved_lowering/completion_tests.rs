@@ -427,13 +427,15 @@ fn draft_seal_projection_prepares_stale_facts_without_live_map_mutation() {
         .value_types
         .insert(ValueId::new(77), MirType::Integer);
     let before = builder.function_state.type_ctx.value_types.clone();
-    let prepared = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(0))
+    let metadata_plan = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(0))
         .prepare()
         .unwrap()
         .project(&builder)
         .unwrap()
-        .prepare_stale_facts(&builder)
+        .prepare_metadata()
         .unwrap();
+    assert!(metadata_plan.metadata().return_exit_contract.is_none());
+    let prepared = metadata_plan.prepare_stale_facts(&builder).unwrap();
 
     assert_eq!(prepared.stale_count(), 1);
     assert_eq!(
