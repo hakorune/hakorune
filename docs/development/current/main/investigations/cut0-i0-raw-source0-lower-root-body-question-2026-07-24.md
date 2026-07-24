@@ -1,8 +1,14 @@
 # RAW-SOURCE0 LOWER ROOT0 — BODY0 design question
 
-Status: **Design stop — BODY0 owner and payload boundary are not selected**  
+Status: **Closed — `BODY-prime-r1`; execution task opened**
 Date: 2026-07-24  
 Scope: the inline Raw Script/App root-body transition after DECLACCESS0.
+
+Decision: `BODY-prime-r1` selects one consuming `begin_body(self)` entry,
+one neutral non-Clone `RawRootBodyRecipeV1`, an InstalledRawRootEnvironmentV1
+paired terminal, LinearScalar0 as the first grammar, fresh-tracker one-way
+completion, discard-only failure, and a route-specific unpublished body
+product whose only next owner is ROOTBATCH0.
 
 `DECLACCESS0-S0` is closed in `e2fb0839f5`. Its compiler-side
 `declare_environment(self)` terminal now returns a route-specific

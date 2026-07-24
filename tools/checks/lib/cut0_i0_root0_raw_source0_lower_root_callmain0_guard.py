@@ -32,8 +32,8 @@ def main() -> int:
     task = TASK.read_text()
     joined = "\n".join(path.read_text() for path in SOURCE)
 
-    require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-BODY0-CONSULT0"', "next row")
-    require(state, 'latest_card = "cut0-i0-raw-source0-lower-root-body-question-2026-07-24"', "next card")
+    require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-BODY0-S0"', "next row")
+    require(state, 'latest_card = "cut0-i0-raw-source0-lower-root-body0-s0-execution-task-2026-07-24"', "next card")
     for fragment in (
         "Decision: **CALLMAIN-prime-r1**",
         "RawSourceContinuationV1::callable_main()",
