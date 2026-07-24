@@ -364,6 +364,8 @@ impl RejectedRawSourceBindingV1 {
         &self.error
     }
 
+    pub(in crate::mir) fn discard(self) {}
+
     #[cfg(test)]
     pub(in crate::mir) fn has_unpublished_source_owner(&self) -> bool {
         self.source.is_some() || matches!(self.ast, ASTNodeOwnerV1::Original(..))

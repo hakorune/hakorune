@@ -27,11 +27,14 @@ def require(text: str, fragment: str, label: str) -> None:
 def main() -> int:
     state = (ROOT / "docs/development/current/main/CURRENT_STATE.toml").read_text()
     task = TASK.read_text()
-    require(
-        state,
-        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLICATION-ADAPTER0-S0"',
-        "active adapter row",
-    )
+    if not any(
+        row in state
+        for row in (
+            'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLICATION-ADAPTER0-S0"',
+            'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-INGRESS0-S0"',
+        )
+    ):
+        raise AssertionError("adapter row is neither active nor its ingress successor")
     for fragment in (
         "RAW-PUBLIC-ADAPTER-prime-r1",
         "RawPublishedInvocationV1",

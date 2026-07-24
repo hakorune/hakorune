@@ -2,7 +2,7 @@
 
 Decision: `RAW-PUBLIC-ADAPTER-prime-r1`
 
-Status: active implementation. This row closes the compatibility adapter only;
+Status: closed in `8a70390621`. This row closes the compatibility adapter only;
 public Raw ingress remains the next disconnected row.
 
 ## Scope

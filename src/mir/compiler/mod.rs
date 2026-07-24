@@ -55,6 +55,7 @@ pub(in crate::mir) mod raw_root_finalization;
 pub(in crate::mir) mod raw_root_external_commit;
 pub(in crate::mir) mod raw_root_publication;
 pub(in crate::mir) mod raw_root_publication_adapter;
+pub(in crate::mir) mod raw_public_ingress;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_package;
 pub(in crate::mir) mod raw_root_postprocess;
@@ -126,6 +127,8 @@ mod raw_root_external_commit_p0;
 mod raw_root_publication_p0;
 #[cfg(test)]
 mod raw_root_publication_adapter_p0;
+#[cfg(test)]
+mod raw_public_ingress_p0;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_manifest_package;
 #[allow(dead_code)]
