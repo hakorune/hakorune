@@ -445,6 +445,18 @@ impl InstalledRawRootEnvironmentV1 {
 }
 
 impl CompletedRawRootBodyPhysicalV1 {
+    pub(in crate::mir) fn into_raw_root_batch_input(
+        self,
+    ) -> super::raw_root_physical::root_batch_terminal::RawRootBatchPhysicalInputV1 {
+        let (session, physical, draft, completion) = self.into_parts();
+        super::raw_root_physical::root_batch_terminal::RawRootBatchPhysicalInputV1 {
+            session,
+            physical,
+            draft,
+            completion,
+        }
+    }
+
     pub(in crate::mir) fn into_parts(
         self,
     ) -> (
@@ -567,6 +579,34 @@ mod tests {
         RawRootEnvironmentInstallOwnerV1::new(session, physical, projection)
     }
 
+    fn installed(
+        route: RawRootSourceRouteV1,
+    ) -> (ModuleInvocationTokenV1, InstalledRawRootEnvironmentV1) {
+        let token = token();
+        let current = MirBuilder::new();
+        let config =
+            super::super::module_invocation_session::BuilderInvocationConfigV1::snapshot_for_raw(
+                &current, None,
+            );
+        let source_file = config
+            .source_file()
+            .map(str::to_owned)
+            .map(String::into_boxed_str);
+        let session = ModuleBuilderInvocationSessionV1::open_for_token(&token, &current, config);
+        let physical = RawRootPhysicalStateV1::open(
+            &token,
+            "root-batch-test".to_owned(),
+            super::super::raw_expansion_receipt_ledger::RawCallableMainCompatibilityDispositionV1::NotSelected,
+        )
+        .unwrap();
+        let (projection, _post_install_manifest) = crate::mir::compiler::raw_root_environment_manifest::RawRootPhysicalManifestV1::from_test(route).into_install_parts(source_file.as_deref());
+        let installed = RawRootEnvironmentInstallOwnerV1::new(session, physical, projection)
+            .prepare()
+            .unwrap()
+            .commit();
+        (token, installed)
+    }
+
     fn dirty_builder_owner(route: RawRootSourceRouteV1) -> RawRootEnvironmentInstallOwnerV1 {
         let token = token();
         let current = MirBuilder::new();
@@ -655,5 +695,43 @@ mod tests {
         assert_eq!(completion.result(), RootBodyResultV1::NoValue);
         assert!(physical.shell_is_empty());
         assert!(physical.collector_and_ledger_untouched());
+    }
+
+    #[test]
+    fn root_batch_terminal_consumes_body_owner_without_publishing_shell() {
+        let (token, installed) = installed(RawRootSourceRouteV1::Script);
+        let brand = token.brand();
+        let recipe = crate::mir::raw_root_body_recipe::RawRootBodyRecipeV1::from_parts(
+            crate::mir::raw_root_body_recipe::RawRootBodyEntryV1::Script,
+            Vec::new().into_boxed_slice(),
+        )
+        .unwrap();
+        let body = installed.drive_root_body(recipe).unwrap();
+        let batch = body
+            .into_raw_root_batch_input()
+            .prepare_raw_root_batch(token)
+            .unwrap();
+        assert_eq!(batch.brand(), brand);
+    }
+
+    #[test]
+    fn root_batch_rejects_legacy_main_slash_zero_before_any_commit() {
+        let (token, installed) = installed(RawRootSourceRouteV1::Script);
+        let recipe = crate::mir::raw_root_body_recipe::RawRootBodyRecipeV1::from_parts(
+            crate::mir::raw_root_body_recipe::RawRootBodyEntryV1::Script,
+            Vec::new().into_boxed_slice(),
+        )
+        .unwrap();
+        let body = installed.drive_root_body(recipe).unwrap();
+        let mut input = body.into_raw_root_batch_input();
+        input.draft.signature.name = "main/0".to_owned();
+        let rejected = input
+            .prepare_raw_root_batch(token)
+            .expect_err("legacy slash-zero identity must be rejected");
+        assert!(matches!(
+            rejected.error(),
+            super::super::raw_root_physical::root_batch_terminal::RawRootBatchPhysicalErrorV1::MainIdentityMismatch { .. }
+        ));
+        rejected.discard();
     }
 }

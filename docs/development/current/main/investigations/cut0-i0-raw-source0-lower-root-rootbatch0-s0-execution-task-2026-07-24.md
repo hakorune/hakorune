@@ -130,6 +130,14 @@ return route-specific RawRootBatchCompleteInvocationV1
 No `Result` branch, callback, retry, fallback, or observer is allowed after
 the prepared product is issued.
 
+Implementation note (2026-07-24): S0c/S0d are now connected as a disconnected
+Builder sibling terminal.  `RawRootBatchPhysicalInputV1` consumes the BODY0
+owner, validates collector/ledger replacement parity, materializes the two
+reservations only after prepare, commits both admissions, seals the ledger,
+and returns a route-specific compiler product.  The compiler handoff test,
+ledger no-mutation tests, focused Raw root tests, and ROOTBATCH0 guard are
+green.  DRAIN0 and production ingress remain unconnected.
+
 ## Failure owner
 
 ```rust

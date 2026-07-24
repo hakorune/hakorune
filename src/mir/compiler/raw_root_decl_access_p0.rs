@@ -2,8 +2,8 @@
 
 use super::raw_root_callable_main::RawCallableMainReadyInvocationV1;
 use super::raw_root_decl_access::{
-    DeclaredRawRootInvocationV1, RawRootBodyCompleteInvocationV1, RawRootBodyFailureStageV1,
-    RawRootEnvironmentErrorV1,
+    DeclaredRawRootInvocationV1, RawRootBatchCompleteInvocationV1, RawRootBodyCompleteInvocationV1,
+    RawRootBodyFailureStageV1, RawRootEnvironmentErrorV1,
 };
 use super::raw_source_binding::RawCallableMainSelectionV1;
 use super::{LegacyModuleLoweringInputV1, MirCompiler};
@@ -154,6 +154,28 @@ fn body_entry_consumes_declared_script_into_unpublished_completion() {
     assert!(matches!(
         completed,
         RawRootBodyCompleteInvocationV1::Script(_)
+    ));
+}
+
+#[test]
+fn root_batch_entry_consumes_body_completion_into_route_product() {
+    let completed = ready(
+        ASTNode::Program {
+            statements: Vec::new(),
+            span: Span::unknown(),
+        },
+        RawCallableMainSelectionV1::Omitted,
+    )
+    .declare_environment()
+    .unwrap()
+    .begin_body()
+    .unwrap();
+    let batched = completed
+        .prepare_root_batch()
+        .expect("BODY0 completion should admit the required root pair");
+    assert!(matches!(
+        batched,
+        RawRootBatchCompleteInvocationV1::Script(_)
     ));
 }
 

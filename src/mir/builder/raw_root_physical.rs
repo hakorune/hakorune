@@ -19,6 +19,7 @@ use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 pub(in crate::mir) mod callable_main_terminal;
 pub(in crate::mir) mod child_terminal;
 pub(in crate::mir) mod environment_terminal;
+pub(in crate::mir) mod root_batch_terminal;
 
 #[derive(Debug)]
 enum RawRootLedgerStateV1 {
@@ -225,6 +226,16 @@ impl RawRootPostBodyPhysicalStateV1 {
 
     pub(in crate::mir::builder) fn shell_is_empty(&self) -> bool {
         !self.physical.shell().payload().has_published_functions()
+    }
+
+    pub(in crate::mir::builder) fn published_function_count(&self) -> usize {
+        self.physical.shell().payload().published_function_count()
+    }
+
+    pub(in crate::mir::builder) const fn callable_main(
+        &self,
+    ) -> RawCallableMainCompatibilityDispositionV1 {
+        self.callable_main
     }
 
     pub(in crate::mir::builder) fn collector_and_ledger_untouched(&self) -> bool {

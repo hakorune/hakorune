@@ -118,7 +118,7 @@ impl PreparedRootDraftBatchV1 {
         main_draft: MirFunction,
         root_body: CompletedRootBodyV1,
         condition: RawRequiredConditionDraftV1,
-    ) -> Result<Self, RootDraftBatchErrorV1> {
+    ) -> Self {
         let request = MainCompletionRequestV1::new(MainDraftIdentityV1::root(), root_body, false);
         let headers = crate::mir::MirModule::new("raw-root-batch-headers".into());
         let loan = MainHeaderLoanV1::new(&headers, MainHeaderSourceV1::InvocationCollector);
@@ -130,6 +130,7 @@ impl PreparedRootDraftBatchV1 {
             Some(condition.into_draft()),
             ConditionFnPolicyV1::Required,
         )
+        .unwrap_or_else(|_| unreachable!("Raw root batch contract was preflighted"))
     }
 
     pub(in crate::mir::builder) fn prepare(

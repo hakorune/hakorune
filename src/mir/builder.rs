@@ -82,6 +82,9 @@ pub(in crate::mir) use raw_root_physical::callable_main_terminal::{
     RejectedRawCallableMainPhysicalV1,
 };
 pub(in crate::mir) use raw_root_physical::child_terminal::RawRootPhysicalChildErrorV1;
+pub(in crate::mir) use raw_root_physical::root_batch_terminal::{
+    CompletedRawRootBatchPhysicalV1, RawRootBatchPhysicalErrorV1, RejectedRawRootBatchPhysicalV1,
+};
 pub(in crate::mir) use raw_root_physical::RawRootBodyPhysicalErrorV1;
 pub(in crate::mir) use raw_root_physical::RawRootPhysicalStateV1;
 mod raw_root_child_work; // RAW-SOURCE0-LOWER0-ROOT0-CHILDREN0 source-bound helper work
