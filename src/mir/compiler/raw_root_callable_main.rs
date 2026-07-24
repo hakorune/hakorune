@@ -10,7 +10,7 @@ use super::raw_root_children::{
     RawScriptChildrenCompleteInvocationV1,
 };
 use super::raw_root_eligibility::RawRootInvocationV1;
-use super::raw_root_environment_manifest::RawRootEnvironmentManifestV1;
+use super::raw_root_environment_manifest::RawRootPhysicalManifestV1;
 use super::raw_root_plan0::RawPostCallableMainPlanV1;
 use super::raw_source_binding::RawPostCallableMainContinuationV1;
 use crate::mir::builder::{
@@ -93,10 +93,9 @@ struct RawCallableMainCoreV1 {
     token: crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
     source: crate::mir::builder::OwnedRawSourceV1,
     continuation: RawPostCallableMainContinuationV1,
-    config: crate::mir::builder::BuilderInvocationConfigV1,
     module_name: Box<str>,
     plan: RawPostCallableMainPlanV1,
-    manifest: RawRootEnvironmentManifestV1,
+    manifest: RawRootPhysicalManifestV1,
     session: crate::mir::builder::ModuleBuilderInvocationSessionV1,
     physical: RawRootPhysicalStateV1,
 }
@@ -336,7 +335,6 @@ fn finish_app(
         token,
         source,
         continuation,
-        config,
         module_name,
         plan,
         manifest,
@@ -353,7 +351,6 @@ fn finish_app(
                         token,
                         source,
                         continuation,
-                        config,
                         module_name,
                         plan,
                         manifest,
@@ -375,7 +372,6 @@ fn finish_app(
                     token,
                     source,
                     continuation,
-                    config,
                     module_name,
                     plan,
                     manifest,
@@ -404,7 +400,6 @@ fn split_core(
         token,
         source,
         continuation,
-        config,
         module_name,
         plan,
         manifest,
@@ -422,7 +417,6 @@ fn split_core(
             token,
             source,
             continuation,
-            config,
             module_name,
             plan,
             manifest,

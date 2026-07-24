@@ -101,6 +101,8 @@ mod raw_root_eligibility_p0;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_environment_manifest;
 #[allow(dead_code)]
+pub(in crate::mir) mod raw_root_manifest_package;
+#[allow(dead_code)]
 pub(in crate::mir) mod raw_root_plan0;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_source_facts;

@@ -153,7 +153,8 @@ struct RejectedRawDraftInvocationSealV1;
 
 impl RawDraftInvocationV1 {
     pub(in crate::mir) fn open(package: SourceBoundRawPackageV1, current: &MirBuilder) -> Self {
-        let (token, source, continuation, config, module_name) = package.into_parts();
+        let (token, source, continuation, _runtime_inputs, config, module_name) =
+            package.into_parts();
         let session = ModuleBuilderInvocationSessionV1::open_for_token(&token, current, config);
         let shell =
             ModuleLoweringShellV1::from_empty_module(MirModule::new(module_name.to_string()))

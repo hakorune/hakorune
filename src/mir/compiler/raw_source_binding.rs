@@ -62,14 +62,50 @@ pub(in crate::mir) struct RawSourceContinuationV1 {
     origin: RawSourceOriginV1,
     callable_main: RawCallableMainCompatibilityDispositionV1,
     policy: ModuleInvocationPolicyV1,
-    runtime_inputs: RawRuntimeInputSnapshotV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RawRootContinuationV1 {
+    origin: RawSourceOriginV1,
+    callable_main: RawCallableMainCompatibilityDispositionV1,
+    policy: ModuleInvocationPolicyV1,
+}
+
+impl RawRootContinuationV1 {
+    pub(in crate::mir) const fn origin(&self) -> RawSourceOriginV1 {
+        self.origin
+    }
+
+    pub(in crate::mir) const fn callable_main(&self) -> RawCallableMainCompatibilityDispositionV1 {
+        self.callable_main
+    }
+
+    pub(in crate::mir) const fn policy(&self) -> ModuleInvocationPolicyV1 {
+        self.policy
+    }
+
+    pub(in crate::mir) fn into_callable_main_decision(
+        self,
+    ) -> (
+        RawPostCallableMainContinuationV1,
+        RawCallableMainCompatibilityDispositionV1,
+    ) {
+        let Self {
+            origin,
+            callable_main,
+            policy,
+        } = self;
+        (
+            RawPostCallableMainContinuationV1 { origin, policy },
+            callable_main,
+        )
+    }
 }
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawPostCallableMainContinuationV1 {
     origin: RawSourceOriginV1,
     policy: ModuleInvocationPolicyV1,
-    runtime_inputs: RawRuntimeInputSnapshotV1,
 }
 
 impl RawPostCallableMainContinuationV1 {
@@ -79,10 +115,6 @@ impl RawPostCallableMainContinuationV1 {
 
     pub(in crate::mir) const fn policy(&self) -> ModuleInvocationPolicyV1 {
         self.policy
-    }
-
-    pub(in crate::mir) const fn runtime_inputs(&self) -> &RawRuntimeInputSnapshotV1 {
-        &self.runtime_inputs
     }
 }
 
@@ -99,30 +131,12 @@ impl RawSourceContinuationV1 {
         self.policy
     }
 
-    pub(in crate::mir) const fn runtime_inputs(&self) -> &RawRuntimeInputSnapshotV1 {
-        &self.runtime_inputs
-    }
-
-    pub(in crate::mir) fn into_callable_main_decision(
-        self,
-    ) -> (
-        RawPostCallableMainContinuationV1,
-        RawCallableMainCompatibilityDispositionV1,
-    ) {
-        let Self {
-            origin,
-            callable_main,
-            policy,
-            runtime_inputs,
-        } = self;
-        (
-            RawPostCallableMainContinuationV1 {
-                origin,
-                policy,
-                runtime_inputs,
-            },
-            callable_main,
-        )
+    pub(in crate::mir) fn into_root_continuation(self) -> RawRootContinuationV1 {
+        RawRootContinuationV1 {
+            origin: self.origin,
+            callable_main: self.callable_main,
+            policy: self.policy,
+        }
     }
 }
 
@@ -131,6 +145,7 @@ pub(in crate::mir) struct SourceBoundRawPackageV1 {
     token: ModuleInvocationTokenV1,
     source: OwnedRawSourceV1,
     continuation: RawSourceContinuationV1,
+    runtime_inputs: RawRuntimeInputSnapshotV1,
     config: BuilderInvocationConfigV1,
     module_name: Box<str>,
 }
@@ -203,7 +218,6 @@ impl SourceBoundRawPackageV1 {
             origin: source.origin(),
             callable_main: disposition,
             policy: ModuleInvocationPolicyV1::policy_for_family(ModuleInvocationFamilyV1::Raw),
-            runtime_inputs,
         };
         let token = match issuer.issue_raw() {
             Ok(token) => token,
@@ -220,6 +234,7 @@ impl SourceBoundRawPackageV1 {
             token,
             source,
             continuation,
+            runtime_inputs,
             config,
             module_name,
         })
@@ -245,6 +260,10 @@ impl SourceBoundRawPackageV1 {
         &self.continuation
     }
 
+    pub(in crate::mir) const fn runtime_inputs(&self) -> &RawRuntimeInputSnapshotV1 {
+        &self.runtime_inputs
+    }
+
     pub(in crate::mir) const fn config(&self) -> &BuilderInvocationConfigV1 {
         &self.config
     }
@@ -262,6 +281,7 @@ impl SourceBoundRawPackageV1 {
         ModuleInvocationTokenV1,
         OwnedRawSourceV1,
         RawSourceContinuationV1,
+        RawRuntimeInputSnapshotV1,
         BuilderInvocationConfigV1,
         Box<str>,
     ) {
@@ -269,6 +289,7 @@ impl SourceBoundRawPackageV1 {
             self.token,
             self.source,
             self.continuation,
+            self.runtime_inputs,
             self.config,
             self.module_name,
         )

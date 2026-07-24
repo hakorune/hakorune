@@ -4,6 +4,7 @@
 //! It consumes no Builder state and does not re-scan source after success.
 
 use super::raw_root_environment_manifest::RawRootEnvironmentManifestV1;
+use super::raw_root_manifest_package::ManifestBoundRawRootPackageV1;
 use super::raw_root_package::SourceBoundRawRootPackageV1;
 use super::raw_root_plan0::RawStaticDataSourceRowV1;
 use super::raw_root_source_facts::RawRootSourceFactsErrorV1;
@@ -302,27 +303,7 @@ fn verify_plain_static_main(
     Ok(RawEligibleCatalogV1::PlainStaticMain { helper_count })
 }
 
-#[derive(Debug)]
-pub(in crate::mir) struct EligibleSourceBoundRawRootPackageV1 {
-    package: SourceBoundRawRootPackageV1,
-    proof: RawRootEligibilityV1,
-    manifest: RawRootEnvironmentManifestV1,
-}
-
-impl EligibleSourceBoundRawRootPackageV1 {
-    pub(in crate::mir) const fn proof(&self) -> &RawRootEligibilityV1 {
-        &self.proof
-    }
-
-    pub(in crate::mir) const fn package(&self) -> &SourceBoundRawRootPackageV1 {
-        &self.package
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir) const fn manifest(&self) -> &RawRootEnvironmentManifestV1 {
-        &self.manifest
-    }
-}
+pub(in crate::mir) type EligibleSourceBoundRawRootPackageV1 = ManifestBoundRawRootPackageV1;
 
 #[derive(Debug)]
 pub(in crate::mir) struct RejectedRawRootEligibilityV1 {
@@ -340,12 +321,11 @@ pub(in crate::mir) enum RawRootPhysicalOpenErrorV1 {
 pub(super) struct RawRootPhysicalCoreV1 {
     pub(super) token: crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
     pub(super) source: crate::mir::builder::OwnedRawSourceV1,
-    pub(super) continuation: super::raw_source_binding::RawSourceContinuationV1,
-    pub(super) config: crate::mir::builder::BuilderInvocationConfigV1,
+    pub(super) continuation: super::raw_source_binding::RawRootContinuationV1,
     pub(super) module_name: Box<str>,
     pub(super) plan: super::raw_root_plan0::RawRootPlanV1,
     pub(super) proof: RawRootEligibilityV1,
-    pub(super) manifest: RawRootEnvironmentManifestV1,
+    pub(super) manifest: super::raw_root_environment_manifest::RawRootPhysicalManifestV1,
     pub(super) session: ModuleBuilderInvocationSessionV1,
     pub(super) physical: RawRootPhysicalStateV1,
 }
@@ -388,9 +368,9 @@ impl EligibleSourceBoundRawRootPackageV1 {
         current: &MirBuilder,
     ) -> Result<RawRootInvocationV1, RejectedRawRootPhysicalOpenV1> {
         let physical = match RawRootPhysicalStateV1::open(
-            self.package.token(),
-            self.package.module_name().to_owned(),
-            self.package.continuation().callable_main(),
+            self.token(),
+            self.module_name().to_owned(),
+            self.continuation().callable_main(),
         ) {
             Ok(physical) => physical,
             Err(error) => {
@@ -400,21 +380,24 @@ impl EligibleSourceBoundRawRootPackageV1 {
                 });
             }
         };
-        let proof = self.proof;
-        let manifest = self.manifest;
-        let parts = self.package.into_physical_open_parts();
-        let session = ModuleBuilderInvocationSessionV1::open_for_token(
-            &parts.token,
-            current,
-            parts.config.clone(),
-        );
+        let parts = self.into_physical_open_parts();
+        let super::raw_root_manifest_package::ManifestBoundRawRootPartsV1 {
+            token,
+            source,
+            continuation,
+            module_name,
+            plan,
+            proof,
+            manifest,
+        } = parts;
+        let (manifest, config) = manifest.into_physical_parts();
+        let session = ModuleBuilderInvocationSessionV1::open_for_token(&token, current, config);
         let core = RawRootPhysicalCoreV1 {
-            token: parts.token,
-            source: parts.source,
-            continuation: parts.continuation,
-            config: parts.config,
-            module_name: parts.module_name,
-            plan: parts.plan,
+            token,
+            source,
+            continuation,
+            module_name,
+            plan,
             proof,
             manifest,
             session,
@@ -474,23 +457,30 @@ impl SourceBoundRawRootPackageV1 {
     ) -> Result<EligibleSourceBoundRawRootPackageV1, RejectedRawRootEligibilityV1> {
         match RawRootEligibilityV1::verify(&self) {
             Ok(proof) => {
-                let manifest_result =
-                    RawRootEnvironmentManifestV1::from_source(self.source(), self.plan());
-                let manifest = match manifest_result {
-                    Ok(manifest) => manifest,
-                    Err(error) => {
-                        return Err(RejectedRawRootEligibilityV1 {
-                            owner: self,
-                            stage: RawRootEligibilityStageV1::Manifest,
-                            error: RawRootEligibilityErrorV1::Manifest(error),
-                        });
-                    }
-                };
-                Ok(EligibleSourceBoundRawRootPackageV1 {
-                    package: self,
+                let facts =
+                    match RawRootEnvironmentManifestV1::source_facts(self.source(), self.plan()) {
+                        Ok(facts) => facts,
+                        Err(error) => {
+                            return Err(RejectedRawRootEligibilityV1 {
+                                owner: self,
+                                stage: RawRootEligibilityStageV1::Manifest,
+                                error: RawRootEligibilityErrorV1::Manifest(error),
+                            });
+                        }
+                    };
+                let (token, source, continuation, runtime_inputs, config, module_name, plan) =
+                    self.into_manifest_parts();
+                let manifest =
+                    RawRootEnvironmentManifestV1::from_facts(facts, runtime_inputs, config);
+                Ok(ManifestBoundRawRootPackageV1::new(
+                    token,
+                    source,
+                    continuation,
+                    module_name,
+                    plan,
                     proof,
                     manifest,
-                })
+                ))
             }
             Err((stage, error)) => Err(RejectedRawRootEligibilityV1 {
                 owner: self,

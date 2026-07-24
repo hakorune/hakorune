@@ -10,7 +10,7 @@ use super::raw_root_eligibility::{
     RawAppRootInvocationV1, RawEligibleCatalogV1, RawRootInvocationV1, RawRootPhysicalCoreV1,
     RawScriptRootInvocationV1,
 };
-use super::raw_root_environment_manifest::RawRootEnvironmentManifestV1;
+use super::raw_root_environment_manifest::RawRootPhysicalManifestV1;
 use super::raw_root_plan0::RawRootPlanV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::builder::{
@@ -98,11 +98,10 @@ pub(in crate::mir) struct RawAppChildrenCompleteInvocationV1 {
 pub(super) struct RawRootChildCoreV1 {
     pub(super) token: crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
     pub(super) source: crate::mir::builder::OwnedRawSourceV1,
-    pub(super) continuation: super::raw_source_binding::RawSourceContinuationV1,
-    pub(super) config: crate::mir::builder::BuilderInvocationConfigV1,
+    pub(super) continuation: super::raw_source_binding::RawRootContinuationV1,
     pub(super) module_name: Box<str>,
     pub(super) plan: RawRootPlanV1,
-    pub(super) manifest: RawRootEnvironmentManifestV1,
+    pub(super) manifest: RawRootPhysicalManifestV1,
     pub(super) session: crate::mir::builder::ModuleBuilderInvocationSessionV1,
     pub(super) physical: crate::mir::builder::RawRootPhysicalStateV1,
 }
@@ -151,7 +150,6 @@ impl RawRootInvocationV1 {
             token,
             source,
             continuation,
-            config,
             module_name,
             plan: original_plan,
             proof,
@@ -178,7 +176,6 @@ impl RawRootInvocationV1 {
                     token,
                     source,
                     continuation,
-                    config,
                     module_name,
                     plan,
                     manifest,
@@ -195,7 +192,6 @@ impl RawRootInvocationV1 {
                 token,
                 source,
                 continuation,
-                config,
                 module_name,
                 plan,
                 manifest,
@@ -211,11 +207,10 @@ impl RawRootInvocationV1 {
 fn pending_from_parts(
     token: crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
     source: crate::mir::builder::OwnedRawSourceV1,
-    continuation: super::raw_source_binding::RawSourceContinuationV1,
-    config: crate::mir::builder::BuilderInvocationConfigV1,
+    continuation: super::raw_source_binding::RawRootContinuationV1,
     module_name: Box<str>,
     plan: RawRootPlanV1,
-    manifest: RawRootEnvironmentManifestV1,
+    manifest: RawRootPhysicalManifestV1,
     session: crate::mir::builder::ModuleBuilderInvocationSessionV1,
     physical: crate::mir::builder::RawRootPhysicalStateV1,
     locators: Box<[RawSourceLocatorV1]>,
@@ -225,7 +220,6 @@ fn pending_from_parts(
             token,
             source,
             continuation,
-            config,
             module_name,
             plan,
             manifest,
@@ -463,7 +457,6 @@ mod tests {
             token,
             source,
             continuation,
-            config,
             module_name,
             plan: original_plan,
             session,
@@ -484,7 +477,6 @@ mod tests {
                 token,
                 source,
                 continuation,
-                config,
                 module_name,
                 plan,
                 manifest,

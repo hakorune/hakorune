@@ -103,7 +103,7 @@ located ScalarControl0 payload = owned exactly once
 existing callable catalog seal = one producer
 source-facts module = <800 lines
 production consumer = 0
-runtime/config snapshot handoff = not yet claimed
+runtime/config snapshot handoff = sealed and single-move
 Builder/shell co-install = not yet claimed
 ```
 
@@ -113,3 +113,24 @@ Current evidence for this interim slice:
 cargo check -q --lib = green
 cargo test -q raw_root --lib -- --test-threads=1 = green
 ```
+
+The runtime/config handoff is now a separate sealed transition:
+
+```text
+RawSourceContinuationV1 -> RawRootContinuationV1
+SourceBoundRawRootPackageV1
+  -> ManifestBoundRawRootPackageV1
+       manifest owns runtime inputs + Builder config
+  -> PHYSICAL0 consumes config once into the session
+       physical manifest retains runtime inputs
+```
+
+The legacy `RawDraftInvocationV1::open` consumer remains disconnected S0
+evidence. It is not part of the root MANIFEST0 lane and does not claim runtime
+input propagation; its package destructure intentionally discards the runtime
+snapshot until that legacy owner is retired or receives its own handoff row.
+The root lane has no such discard terminal.
+
+The remaining MANIFEST0 claim is the Builder/shell co-install and its
+mutation-free rejection matrix. No `declare_environment(self)` or production
+consumer is claimed yet.

@@ -130,7 +130,7 @@ fn raw_bind_selected_callable_main_requires_app_source() {
 }
 
 #[test]
-fn raw_bind_retains_one_runtime_snapshot_on_the_continuation() {
+fn raw_bind_retains_one_runtime_snapshot_on_the_source_package() {
     let _lock = ENV_LOCK.lock().unwrap();
     let _restore = EnvRestore::capture(&[
         "NYASH_SCRIPT_ARGS_JSON",
@@ -150,7 +150,7 @@ fn raw_bind_retains_one_runtime_snapshot_on_the_continuation() {
             RawCallableMainSelectionV1::Omitted,
         )
         .unwrap();
-    let runtime = package.continuation().runtime_inputs();
+    let runtime = package.runtime_inputs();
     assert_eq!(
         runtime.script_args().values(),
         Some(&["alpha".to_string(), "beta".to_string()][..])

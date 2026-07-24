@@ -7,10 +7,9 @@
 //! opened here.
 
 use super::raw_root_plan0::{RawRootPlanErrorV1, RawRootPlanV1};
-use super::raw_source_binding::{RawSourceContinuationV1, SourceBoundRawPackageV1};
-use crate::mir::builder::{
-    BuilderInvocationConfigV1, OwnedRawSourceV1,
-};
+use super::raw_runtime_inputs::RawRuntimeInputSnapshotV1;
+use super::raw_source_binding::{RawRootContinuationV1, SourceBoundRawPackageV1};
+use crate::mir::builder::{BuilderInvocationConfigV1, OwnedRawSourceV1};
 use crate::mir::module_invocation_identity::{
     ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
 };
@@ -19,23 +18,11 @@ use crate::mir::module_invocation_identity::{
 pub(in crate::mir) struct SourceBoundRawRootPackageV1 {
     token: ModuleInvocationTokenV1,
     source: OwnedRawSourceV1,
-    continuation: RawSourceContinuationV1,
+    continuation: RawRootContinuationV1,
+    runtime_inputs: RawRuntimeInputSnapshotV1,
     config: BuilderInvocationConfigV1,
     module_name: Box<str>,
     plan: RawRootPlanV1,
-}
-
-/// The only named consuming handoff after the physical carrier has opened.
-/// Keeping this as a product avoids exposing a loose tuple that callers could
-/// use to re-pair source and physical state.
-#[derive(Debug)]
-pub(in crate::mir::compiler) struct RawRootPhysicalOpenPartsV1 {
-    pub(in crate::mir::compiler) token: ModuleInvocationTokenV1,
-    pub(in crate::mir::compiler) source: OwnedRawSourceV1,
-    pub(in crate::mir::compiler) continuation: RawSourceContinuationV1,
-    pub(in crate::mir::compiler) config: BuilderInvocationConfigV1,
-    pub(in crate::mir::compiler) module_name: Box<str>,
-    pub(in crate::mir::compiler) plan: RawRootPlanV1,
 }
 
 #[derive(Debug)]
@@ -54,11 +41,12 @@ impl SourceBoundRawPackageV1 {
             Ok(plan) => plan,
             Err(error) => return Err(RejectedRawRootPlanningV1 { owner: self, error }),
         };
-        let (token, source, continuation, config, module_name) = self.into_parts();
+        let (token, source, continuation, runtime_inputs, config, module_name) = self.into_parts();
         Ok(SourceBoundRawRootPackageV1 {
             token,
             source,
-            continuation,
+            continuation: continuation.into_root_continuation(),
+            runtime_inputs,
             config,
             module_name,
             plan,
@@ -87,23 +75,38 @@ impl SourceBoundRawRootPackageV1 {
         &self.source
     }
 
-    pub(in crate::mir) const fn continuation(&self) -> &RawSourceContinuationV1 {
+    pub(in crate::mir) const fn continuation(&self) -> &RawRootContinuationV1 {
         &self.continuation
+    }
+
+    pub(in crate::mir) const fn runtime_inputs(&self) -> &RawRuntimeInputSnapshotV1 {
+        &self.runtime_inputs
     }
 
     pub(in crate::mir) fn module_name(&self) -> &str {
         &self.module_name
     }
 
-    pub(in crate::mir::compiler) fn into_physical_open_parts(self) -> RawRootPhysicalOpenPartsV1 {
-        RawRootPhysicalOpenPartsV1 {
-            token: self.token,
-            source: self.source,
-            continuation: self.continuation,
-            config: self.config,
-            module_name: self.module_name,
-            plan: self.plan,
-        }
+    pub(in crate::mir::compiler) fn into_manifest_parts(
+        self,
+    ) -> (
+        ModuleInvocationTokenV1,
+        OwnedRawSourceV1,
+        RawRootContinuationV1,
+        RawRuntimeInputSnapshotV1,
+        BuilderInvocationConfigV1,
+        Box<str>,
+        RawRootPlanV1,
+    ) {
+        (
+            self.token,
+            self.source,
+            self.continuation,
+            self.runtime_inputs,
+            self.config,
+            self.module_name,
+            self.plan,
+        )
     }
 }
 
@@ -121,9 +124,9 @@ impl RejectedRawRootPlanningV1 {
 mod tests {
     use super::*;
     use crate::ast::{ASTNode, DeclarationAttrs, Span};
+    use crate::mir::builder::RawCallableMainCompatibilityDispositionV1;
     use crate::mir::compiler::lowering_input::LegacyModuleLoweringInputV1;
     use crate::mir::compiler::raw_source_binding::RawCallableMainSelectionV1;
-    use crate::mir::builder::RawCallableMainCompatibilityDispositionV1;
     use crate::mir::MirCompiler;
     use std::collections::HashMap;
 
