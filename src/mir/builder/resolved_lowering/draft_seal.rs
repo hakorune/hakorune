@@ -128,9 +128,9 @@ pub(super) struct PreparedFunctionSignatureV1 {
 }
 
 #[derive(Debug)]
-pub(super) struct VerifiedFunctionDraftProjectionV1<'a> {
+pub(super) struct VerifiedFunctionDraftProjectionV1 {
     projection: FunctionDraftSealProjectionV1,
-    stale: &'a PreparedFunctionStaleFactsV1,
+    stale: PreparedTransientStaleValueFactsV1,
 }
 
 #[derive(Debug)]
@@ -546,8 +546,8 @@ impl PreparedFunctionStaleFactsV1 {
     /// removals to a second private facts map. The original plan remains
     /// available for the eventual commit terminal.
     pub(super) fn verify(
-        &self,
-    ) -> Result<VerifiedFunctionDraftProjectionV1<'_>, FunctionDraftSealProjectionErrorV1> {
+        self,
+    ) -> Result<VerifiedFunctionDraftProjectionV1, FunctionDraftSealProjectionErrorV1> {
         let mut verified_type_ctx = clone_type_context(&self.projection.type_ctx);
         self.stale.apply_to_type_context(&mut verified_type_ctx);
         crate::mir::builder::emission::value_lifecycle_definition::verify_completed_draft_typed_value_definitions_v1(
@@ -563,7 +563,7 @@ impl PreparedFunctionStaleFactsV1 {
                 type_ctx: verified_type_ctx,
                 exit: self.projection.exit,
             },
-            stale: self,
+            stale: self.stale,
         })
     }
 
@@ -578,7 +578,7 @@ impl PreparedFunctionStaleFactsV1 {
     }
 }
 
-impl<'a> VerifiedFunctionDraftProjectionV1<'a> {
+impl VerifiedFunctionDraftProjectionV1 {
     #[cfg(test)]
     pub(super) fn projection(&self) -> &FunctionDraftSealProjectionV1 {
         &self.projection
