@@ -61,6 +61,9 @@ mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 #[allow(dead_code)]
 mod raw_root_environment_install;
 mod raw_root_physical; // RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PHYSICAL0 empty carrier
+mod raw_root_body_lowering; // RAW-SOURCE0-LOWER0-ROOT0-BODY0 recipe-only value lowerer
+#[cfg(test)]
+mod raw_root_body_lowering_p0; // BODY0-S0-B disconnected lowerer fixtures
 #[allow(dead_code)]
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
 pub(in crate::mir) use raw_root_environment_install::{

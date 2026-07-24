@@ -32,7 +32,10 @@ impl MirBuilder {
     }
 
     /// Build a literal value
-    pub(super) fn build_literal(&mut self, literal: LiteralValue) -> Result<ValueId, String> {
+    pub(in crate::mir::builder) fn build_literal(
+        &mut self,
+        literal: LiteralValue,
+    ) -> Result<ValueId, String> {
         // Canonical Const emission publishes the transient type only after the
         // instruction succeeds. Literal dispatch must not duplicate that fact.
         Ok(match literal {
@@ -83,7 +86,10 @@ impl MirBuilder {
     }
 
     /// Build variable access
-    pub(super) fn build_variable_access(&mut self, name: String) -> Result<ValueId, String> {
+    pub(in crate::mir::builder) fn build_variable_access(
+        &mut self,
+        name: String,
+    ) -> Result<ValueId, String> {
         // Step 5-5-G: __pin$ variables should NEVER be accessed from variable_map
         // They are transient temporaries created during expression building and
         // should not persist across blocks. If we see one here, it's a compiler bug.
