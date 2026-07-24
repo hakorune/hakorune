@@ -5,7 +5,7 @@ status = "FUNCTION-EXIT-SEMANTICS-prime-r1 and FUNCTION-EXIT-F1-DRAFT-SEAL-prime
 date = "2026-07-25"
 current_design_stop = ""
 current_execution_row = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0"
-current_execution_summary = "DRAFT-SEAL0-S0 owner and I0 handoff are landed: canonical and trivial-SSA lowerers now defer physical Return emission to the prepared draft-seal projection, with discard-only rejection, one infallible commit, and guard coverage for zero live lowerer writers. Remaining work is S0-G0 closeout and milestone sync; legacy non-canonical finalizers remain disconnected."
+current_execution_summary = "DRAFT-SEAL0-S0 owner, I0 handoff, and G0 guard are green and pushed: canonical and trivial-SSA lowerers now defer physical Return emission to the prepared draft-seal projection, with discard-only rejection and one infallible commit. The row is closed for this slice; the next row needs an explicit card, while legacy non-canonical finalizers and public/cutover lanes remain disconnected."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "Language v1 function-exit semantics"
