@@ -2,8 +2,11 @@
 
 Decision: `RAW-PUBLIC-CUTOVER-PARITY0-prime-r1`
 
-Status: active after `COVERAGE0-REPAIR-S0`; implementation is authorized only
-after the paired design lock
+Status: held at the first exact effect mismatch. Resume only after the paired
+effect-repair task
+`cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-effect-repair-s0-execution-task-2026-07-25.md`
+closes. The original implementation remains authorized only after the paired
+design lock
 `cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-design-question-2026-07-24.md`.
 
 ## Goal
@@ -117,5 +120,5 @@ all modified source/check files < 800 lines
 ## Next row
 
 ```text
-RAW-SOURCE0-LOWER0-ROOT0-POST0-OLD-RAW-RETIRE0-R0a
+RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-EFFECT-REPAIR-S0
 ```

@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINAL0-S0 through PUBLIC-INGRESS0-S0 and CLOSEOUT-REPAIR0 are closed. CONFIG0 and COVERAGE0-REPAIR-S0 are closed under their selected decisions. PARITY0 is active as a test-only four-sibling proof. Normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
+status = "FINAL0-S0 through PUBLIC-INGRESS0-S0 and CLOSEOUT-REPAIR0 are closed. CONFIG0 and COVERAGE0-REPAIR-S0 are closed under their selected decisions. PARITY0 is at an effect-repair design stop after the first exact snapshot mismatch. Normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
 date = "2026-07-24"
-current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-S0"
-current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-S0"
-current_execution_summary = "COVERAGE0-REPAIR-prime-r1 is closed in 2d8da213f6: PLAN0 owns helper execution order, NarrowV1 is a public-only branded profile, coverage orchestration is a small sibling, and closeout guards survive pointer advancement. PARITY0 is now fixed as a test-only four-sibling proof: one deterministic snapshot authority, bounded success/failure/reuse matrix, no production policy delta. Normal/JSON/executor cutover remains unauthorized."
+current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-EFFECT-REPAIR-S0"
+current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-EFFECT-REPAIR-S0"
+current_execution_summary = "PARITY0-S0a exposed an exact production mismatch: Raw BODY0 root main signature effects are READ while the Legacy root contract is PURE. Snapshot weakening is forbidden. The next row is the narrow Raw skeleton effect repair; JSON/executor/normal-entry cutover remains unauthorized."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -576,6 +576,8 @@ raw_post0_public_cutover_coverage0_repair_consultation = "docs/development/curre
 raw_post0_public_cutover_coverage0_repair_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-coverage0-repair-s0-execution-task-2026-07-24.md"
 raw_post0_public_cutover_parity0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-s0-execution-task-2026-07-24.md"
 raw_post0_public_cutover_parity0_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-design-question-2026-07-24.md"
+raw_post0_public_cutover_parity0_effect_repair_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-effect-repair-design-question-2026-07-25.md"
+raw_post0_public_cutover_parity0_effect_repair_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-effect-repair-s0-execution-task-2026-07-25.md"
 raw_post0_old_raw_retire0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-old-raw-retire0-execution-task-2026-07-24.md"
 failure_outcome_semantic_manifest_maint0_task = "docs/development/current/main/investigations/failure-outcome-semantic-manifest-maint0-execution-task-2026-07-24.md"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
