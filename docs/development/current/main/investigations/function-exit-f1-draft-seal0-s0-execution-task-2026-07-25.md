@@ -236,6 +236,12 @@ terminal. This handoff is covered by the existing session terminal fixture;
 production lowerers still use the legacy closure until the full owner commit
 is wired.
 
+The next owner-preserving seam is now explicit: `ReadyFunctionDraftSealV1`
+offers `prepare_exit_borrowed(&self)`, while the existing consuming
+`prepare()` delegates to it. This keeps exit projection available for future
+Open-owner planning without consuming the completion witness before later
+stage failures can retain the exact session owner.
+
 ## Acceptance gates
 
 ```text

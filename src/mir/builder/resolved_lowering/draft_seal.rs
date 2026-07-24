@@ -172,29 +172,41 @@ impl ReadyFunctionDraftSealV1 {
     pub(super) fn prepare(
         self,
     ) -> Result<PreparedFunctionDraftSealV1, RejectedFunctionDraftSealV1> {
-        let exit = if self.completion.is_implicit_void() {
-            PreparedFunctionExitV1::ImplicitUnit {
-                block: self.current_block,
-            }
-        } else if self.completion.returns_value() {
-            let Some(witness) = self.completion.explicit_operand() else {
-                return Err(RejectedFunctionDraftSealV1 {
-                    owner: self,
-                    error: FunctionDraftSealPreparationErrorV1::ExplicitValueOperandMissing,
-                });
-            };
-            let block = witness.block();
-            let value = witness.value();
-            PreparedFunctionExitV1::ExplicitValue { block, value }
-        } else {
-            PreparedFunctionExitV1::ExplicitUnit {
-                block: self.current_block,
+        let exit = match self.prepare_exit_borrowed() {
+            Ok(exit) => exit,
+            Err(error) => {
+                return Err(RejectedFunctionDraftSealV1 { owner: self, error });
             }
         };
 
         Ok(PreparedFunctionDraftSealV1 {
             completion: self.completion,
             exit,
+        })
+    }
+
+    /// Borrow-only exit projection used by the owner-preserving Open seam.
+    /// No completion witness or session is consumed until every later plan
+    /// has passed its own borrow-only checks.
+    pub(super) fn prepare_exit_borrowed(
+        &self,
+    ) -> Result<PreparedFunctionExitV1, FunctionDraftSealPreparationErrorV1> {
+        if self.completion.is_implicit_void() {
+            return Ok(PreparedFunctionExitV1::ImplicitUnit {
+                block: self.current_block,
+            });
+        }
+        if self.completion.returns_value() {
+            let Some(witness) = self.completion.explicit_operand() else {
+                return Err(FunctionDraftSealPreparationErrorV1::ExplicitValueOperandMissing);
+            };
+            return Ok(PreparedFunctionExitV1::ExplicitValue {
+                block: witness.block(),
+                value: witness.value(),
+            });
+        }
+        Ok(PreparedFunctionExitV1::ExplicitUnit {
+            block: self.current_block,
         })
     }
 

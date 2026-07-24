@@ -177,10 +177,15 @@ fn draft_seal_prepares_the_exact_explicit_operand_without_reclassifying_it() {
         .finish(body.site(), body.statements().len() as u32, target)
         .unwrap();
 
-    let completed = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(4))
-        .prepare()
-        .unwrap()
-        .commit();
+    let ready = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(4));
+    assert_eq!(
+        ready.prepare_exit_borrowed().unwrap(),
+        PreparedFunctionExitV1::ExplicitValue {
+            block: BasicBlockId::new(4),
+            value: ValueId::new(23),
+        }
+    );
+    let completed = ready.prepare().unwrap().commit();
     assert_eq!(
         completed.exit(),
         PreparedFunctionExitV1::ExplicitValue {
