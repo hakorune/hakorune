@@ -253,79 +253,9 @@ impl PreparedFunctionDraftSealV1 {
         self,
         builder: &MirBuilder,
     ) -> Result<FunctionDraftSealProjectionV1, RejectedFunctionDraftProjectionV1> {
-        let mut function = match builder.function_state.current_function.as_ref() {
-            Some(function) => function.clone(),
-            None => {
-                return Err(RejectedFunctionDraftProjectionV1 {
-                    owner: self,
-                    error: FunctionDraftSealProjectionErrorV1::CurrentFunctionMissing,
-                })
-            }
-        };
-        let mut type_ctx = clone_type_context(&builder.function_state.type_ctx);
-        let origin_caller_rows = builder.value_origin_caller_rows();
         let exit = self.exit;
-        let block = match exit {
-            PreparedFunctionExitV1::ExplicitValue { block, .. }
-            | PreparedFunctionExitV1::ExplicitUnit { block }
-            | PreparedFunctionExitV1::ImplicitUnit { block } => block,
-        };
-        let Some(block_data) = function.blocks.get(&block) else {
-            return Err(RejectedFunctionDraftProjectionV1 {
-                owner: self,
-                error: FunctionDraftSealProjectionErrorV1::ExitBlockMissing { block },
-            });
-        };
-        if block_data.terminator.is_some() {
-            return Err(RejectedFunctionDraftProjectionV1 {
-                owner: self,
-                error: FunctionDraftSealProjectionErrorV1::ExitBlockAlreadyTerminated { block },
-            });
-        }
-
-        match exit {
-            PreparedFunctionExitV1::ExplicitValue { value, .. } => {
-                // The exact operand type is resolved after the private type
-                // propagation plan. Projection only records the physical
-                // operand and never makes an early signature decision.
-                function
-                    .blocks
-                    .get_mut(&block)
-                    .expect("validated exit block")
-                    .add_instruction(MirInstruction::Return { value: Some(value) });
-            }
-            PreparedFunctionExitV1::ExplicitUnit { .. }
-            | PreparedFunctionExitV1::ImplicitUnit { .. } => {
-                let value = match allocate_projected_void(
-                    &mut function,
-                    &builder.function_state.compilation.reserved_value_ids,
-                ) {
-                    Ok(value) => value,
-                    Err(error) => {
-                        return Err(RejectedFunctionDraftProjectionV1 { owner: self, error })
-                    }
-                };
-                type_ctx.value_types.insert(value, MirType::Void);
-                if let Err(error) = set_projected_return_type(&mut function, MirType::Void) {
-                    return Err(RejectedFunctionDraftProjectionV1 { owner: self, error });
-                }
-                let block_data = function
-                    .blocks
-                    .get_mut(&block)
-                    .expect("validated exit block");
-                block_data.add_instruction(MirInstruction::Const {
-                    dst: value,
-                    value: ConstValue::Void,
-                });
-                block_data.add_instruction(MirInstruction::Return { value: Some(value) });
-            }
-        }
-
-        Ok(FunctionDraftSealProjectionV1 {
-            function,
-            type_ctx,
-            exit,
-            origin_caller_rows,
+        FunctionDraftSealProjectionV1::project_from_builder(builder, exit).map_err(|error| {
+            RejectedFunctionDraftProjectionV1 { owner: self, error }
         })
     }
 
@@ -361,6 +291,73 @@ impl RejectedFunctionDraftProjectionV1 {
 }
 
 impl FunctionDraftSealProjectionV1 {
+    /// Construct a detached projection from a borrowed Builder and one
+    /// already-resolved exit. The caller keeps its outer owner intact when a
+    /// projection-stage error occurs.
+    pub(super) fn project_from_builder(
+        builder: &MirBuilder,
+        exit: PreparedFunctionExitV1,
+    ) -> Result<Self, FunctionDraftSealProjectionErrorV1> {
+        let mut function = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or(FunctionDraftSealProjectionErrorV1::CurrentFunctionMissing)?
+            .clone();
+        let mut type_ctx = clone_type_context(&builder.function_state.type_ctx);
+        let origin_caller_rows = builder.value_origin_caller_rows();
+        let block = match exit {
+            PreparedFunctionExitV1::ExplicitValue { block, .. }
+            | PreparedFunctionExitV1::ExplicitUnit { block }
+            | PreparedFunctionExitV1::ImplicitUnit { block } => block,
+        };
+        let block_data = function
+            .blocks
+            .get(&block)
+            .ok_or(FunctionDraftSealProjectionErrorV1::ExitBlockMissing { block })?;
+        if block_data.terminator.is_some() {
+            return Err(FunctionDraftSealProjectionErrorV1::ExitBlockAlreadyTerminated { block });
+        }
+
+        match exit {
+            PreparedFunctionExitV1::ExplicitValue { value, .. } => {
+                // The exact operand type is resolved after the private type
+                // propagation plan. Projection only records the physical
+                // operand and never makes an early signature decision.
+                function
+                    .blocks
+                    .get_mut(&block)
+                    .expect("validated exit block")
+                    .add_instruction(MirInstruction::Return { value: Some(value) });
+            }
+            PreparedFunctionExitV1::ExplicitUnit { .. }
+            | PreparedFunctionExitV1::ImplicitUnit { .. } => {
+                let value = allocate_projected_void(
+                    &mut function,
+                    &builder.function_state.compilation.reserved_value_ids,
+                )?;
+                type_ctx.value_types.insert(value, MirType::Void);
+                set_projected_return_type(&mut function, MirType::Void)?;
+                let block_data = function
+                    .blocks
+                    .get_mut(&block)
+                    .expect("validated exit block");
+                block_data.add_instruction(MirInstruction::Const {
+                    dst: value,
+                    value: ConstValue::Void,
+                });
+                block_data.add_instruction(MirInstruction::Return { value: Some(value) });
+            }
+        }
+
+        Ok(Self {
+            function,
+            type_ctx,
+            exit,
+            origin_caller_rows,
+        })
+    }
+
     /// Verify terminator-derived PHI/CFG closure on the private projection.
     /// This is the strict verifier only; legacy whole-function PHI repair is
     /// not a draft-seal responsibility.

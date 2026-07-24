@@ -259,6 +259,7 @@ PY
     'draft_seal.rs:prepare_signature' \
     'draft_seal.rs:prepare_exit_borrowed' \
     'draft_seal.rs:into_session_commit_input' \
+    'draft_seal.rs:project_from_builder' \
     'draft_seal.rs:MetadataContractFailed' \
     'draft_seal.rs:prepare_stale_facts' \
     'draft_seal.rs:TypedValueVerificationFailed' \

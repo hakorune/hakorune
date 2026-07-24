@@ -273,6 +273,12 @@ once. The neutral session payload remains limited to the final function and
 `TypeContext`; metadata/stale/verification receipts stay with the outer plan
 until the full prepared owner exists.
 
+Projection construction is now also detached as
+`FunctionDraftSealProjectionV1::project_from_builder(&MirBuilder, exit)`. The
+existing consuming `PreparedFunctionDraftSealV1::project` delegates to it for
+legacy test ownership, while a future Open orchestration can keep its session
+and completion witness intact when projection fails.
+
 ## Acceptance gates
 
 ```text
