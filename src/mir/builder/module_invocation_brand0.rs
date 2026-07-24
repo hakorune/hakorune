@@ -6,6 +6,7 @@
 
 use crate::mir::MirModule;
 
+use super::module_declaration_facts::SealedModuleDeclarationFactsV1;
 use super::module_draft_collector::{
     CallableCollectorBatchPrepareErrorV1, CollectedCallableCollectorBatchV1,
     CollectedDraftAdmissionProductErrorV1, CollectedDraftAdmissionProductV1,
@@ -17,13 +18,13 @@ use super::module_invocation_session::{
     BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
 };
 use super::module_lowering_invocation::{
-    LegacyChildDraftAdmissionV1, ModuleLoweringPortV1, ModuleLoweringPortChildErrorV1,
+    LegacyChildDraftAdmissionV1, ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1,
 };
-use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::module_lowering_shell::{
     AcyclicCapabilityAbsenceWitnessV1, RecursiveCapabilityInstallReceiptV1,
 };
 use super::module_lowering_shell::{ModuleLoweringShellErrorV1, ModuleLoweringShellV1};
+use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::MirBuilder;
 use crate::mir::builder::resolved_lowering::VerifiedUnpublishedCallableDraftSetV1;
 use crate::mir::compiler::capability::VerifiedResolvedOwnerHeaderV1;
@@ -216,6 +217,30 @@ impl InvocationPhysicalStateV1 {
         &self.shell
     }
 
+    pub(in crate::mir::builder) fn environment_lanes_are_vacant(&self) -> bool {
+        self.shell.payload().environment_lanes_are_vacant()
+    }
+
+    pub(in crate::mir::builder) fn install_environment_preflighted(
+        self,
+        facts: SealedModuleDeclarationFactsV1,
+        source_file: Option<Box<str>>,
+    ) -> Self {
+        let Self {
+            brand,
+            shell,
+            collector,
+        } = self;
+        let shell = shell.into_payload();
+        let prepared = shell.prepare_declaration_fact_commit_preflighted(facts);
+        let shell = prepared.commit_with_source_file(source_file);
+        Self {
+            brand,
+            shell: InvocationBranded::from_source(brand, shell),
+            collector,
+        }
+    }
+
     pub(in crate::mir::builder) fn collector(&self) -> &BrandedCollectorV1<ModuleDraftCollectorV1> {
         &self.collector
     }
@@ -224,11 +249,10 @@ impl InvocationPhysicalStateV1 {
         &mut self,
         builder: &mut MirBuilder,
         work: super::RawRootStaticChildWorkV1,
-    ) -> Result<InvocationBranded<CollectedDraftAdmissionReceiptV1>, ModuleLoweringPortChildErrorV1> {
-        let admission = LegacyChildDraftAdmissionV1::legacy_symbol(
-            work.symbol().to_owned(),
-            work.arity(),
-        );
+    ) -> Result<InvocationBranded<CollectedDraftAdmissionReceiptV1>, ModuleLoweringPortChildErrorV1>
+    {
+        let admission =
+            LegacyChildDraftAdmissionV1::legacy_symbol(work.symbol().to_owned(), work.arity());
         let (function_name, params, param_decls, return_type_name, body, uses, attrs) =
             work.into_lowering_parts();
         let mut port = ModuleLoweringPortV1::from_collector(self.collector.payload_mut());

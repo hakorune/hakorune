@@ -152,6 +152,21 @@ impl ModuleLoweringShellV1 {
         self.module.functions.len()
     }
 
+    pub(in crate::mir::builder) fn declaration_lanes_are_vacant(&self) -> bool {
+        self.module.metadata.user_box_decls.is_empty()
+            && self.module.metadata.user_box_field_decls.is_empty()
+            && self.module.metadata.record_decls.is_empty()
+            && self.module.metadata.enum_decls.is_empty()
+    }
+
+    pub(in crate::mir::builder) fn environment_lanes_are_vacant(&self) -> bool {
+        self.declaration_lanes_are_vacant() && self.module.metadata.source_file.is_none()
+    }
+
+    pub(in crate::mir::builder) fn source_file(&self) -> Option<&str> {
+        self.module.metadata.source_file.as_deref()
+    }
+
     #[cfg(test)]
     pub(in crate::mir::builder) fn publish_function_for_test(&mut self, function: MirFunction) {
         self.module.add_function(function);

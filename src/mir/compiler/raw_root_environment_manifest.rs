@@ -5,9 +5,13 @@
 //! CALLMAIN0 without reconstruction.
 
 use super::raw_root_plan0::RawRootPlanV1;
-use super::raw_root_source_facts::{RawRootSourceFactsErrorV1, RawRootSourceFactsV1};
+use super::raw_root_source_facts::{
+    RawRootPostInstallFactsV1, RawRootSourceFactsErrorV1, RawRootSourceFactsV1,
+    RawRootSourceRouteV1,
+};
 use super::raw_runtime_inputs::RawRuntimeInputSnapshotV1;
 use crate::mir::builder::{BuilderInvocationConfigV1, OwnedRawSourceV1};
+use crate::mir::builder::{RawRootEnvironmentInstallRouteV1, RawRootEnvironmentProjectionV1};
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawRootEnvironmentManifestV1 {
@@ -19,6 +23,15 @@ pub(in crate::mir) struct RawRootEnvironmentManifestV1 {
 #[derive(Debug)]
 pub(in crate::mir) struct RawRootPhysicalManifestV1 {
     facts: RawRootSourceFactsV1,
+    runtime_inputs: RawRuntimeInputSnapshotV1,
+}
+
+/// The source/body remainder after the Builder projection is consumed.
+/// Callable catalog and declaration facts live in the installed Builder/shell
+/// owner and are never duplicated here.
+#[derive(Debug, PartialEq)]
+pub(in crate::mir) struct RawRootPostInstallManifestV1 {
+    facts: RawRootPostInstallFactsV1,
     runtime_inputs: RawRuntimeInputSnapshotV1,
 }
 
@@ -69,7 +82,54 @@ impl RawRootEnvironmentManifestV1 {
 }
 
 impl RawRootPhysicalManifestV1 {
+    #[cfg(test)]
+    pub(in crate::mir) fn from_test(route: RawRootSourceRouteV1) -> Self {
+        Self {
+            facts: RawRootSourceFactsV1::empty_for_test(route),
+            runtime_inputs: RawRuntimeInputSnapshotV1::capture().expect("test env snapshot"),
+        }
+    }
+
     pub(in crate::mir) fn facts(&self) -> &RawRootSourceFactsV1 {
+        &self.facts
+    }
+
+    pub(in crate::mir) fn runtime_inputs(&self) -> &RawRuntimeInputSnapshotV1 {
+        &self.runtime_inputs
+    }
+
+    pub(in crate::mir) fn route(&self) -> RawRootSourceRouteV1 {
+        self.facts.route()
+    }
+
+    /// Consume the manifest once into the Builder projection and the exact
+    /// BODY/runtime remainder. No catalog clone or second source scan occurs.
+    pub(in crate::mir) fn into_install_parts(
+        self,
+        source_file: Option<&str>,
+    ) -> (RawRootEnvironmentProjectionV1, RawRootPostInstallManifestV1) {
+        let Self {
+            facts,
+            runtime_inputs,
+        } = self;
+        let (facts, catalog) = facts.into_post_install_parts();
+        let route = match facts.route() {
+            RawRootSourceRouteV1::Script => RawRootEnvironmentInstallRouteV1::Script,
+            RawRootSourceRouteV1::App => RawRootEnvironmentInstallRouteV1::App,
+        };
+        let projection = RawRootEnvironmentProjectionV1::from_manifest(route, source_file, catalog);
+        (
+            projection,
+            RawRootPostInstallManifestV1 {
+                facts,
+                runtime_inputs,
+            },
+        )
+    }
+}
+
+impl RawRootPostInstallManifestV1 {
+    pub(in crate::mir) fn facts(&self) -> &RawRootPostInstallFactsV1 {
         &self.facts
     }
 

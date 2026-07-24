@@ -81,6 +81,30 @@ pub(in crate::mir::builder) struct PreparedModuleDeclarationFactShellCommitV1 {
 struct PreparedModuleDeclarationFactShellCommitSealV1;
 
 impl ModuleLoweringShellV1 {
+    /// Builder-private variant used only after the aggregate environment
+    /// installer has checked every destination lane. It cannot fail or
+    /// perform a lookup.
+    pub(in crate::mir::builder) fn prepare_declaration_fact_commit_preflighted(
+        self,
+        facts: SealedModuleDeclarationFactsV1,
+    ) -> PreparedModuleDeclarationFactShellCommitV1 {
+        debug_assert!(self.module.metadata.user_box_decls.is_empty());
+        debug_assert!(self.module.metadata.user_box_field_decls.is_empty());
+        debug_assert!(self.module.metadata.record_decls.is_empty());
+        debug_assert!(self.module.metadata.enum_decls.is_empty());
+        let (user_box_decls, user_box_field_decls, record_decls, enum_decls) = facts.into_parts();
+        PreparedModuleDeclarationFactShellCommitV1 {
+            shell: self,
+            metadata: PreparedModuleDeclarationMetadataV1 {
+                user_box_decls: user_box_decls.into_iter().collect(),
+                user_box_field_decls: user_box_field_decls.into_iter().collect(),
+                record_decls,
+                enum_decls,
+            },
+            _seal: PreparedModuleDeclarationFactShellCommitSealV1,
+        }
+    }
+
     pub(in crate::mir::builder) fn prepare_declaration_fact_commit(
         self,
         facts: SealedModuleDeclarationFactsV1,
@@ -131,5 +155,13 @@ impl PreparedModuleDeclarationFactShellCommitV1 {
         target.record_decls = self.metadata.record_decls;
         target.enum_decls = self.metadata.enum_decls;
         self.shell
+    }
+
+    pub(in crate::mir::builder) fn commit_with_source_file(
+        mut self,
+        source_file: Option<Box<str>>,
+    ) -> ModuleLoweringShellV1 {
+        self.shell.module.metadata.source_file = source_file.map(Into::into);
+        self.commit()
     }
 }

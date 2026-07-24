@@ -235,6 +235,37 @@ impl CompilationContext {
         Ok(())
     }
 
+    pub(in crate::mir::builder) fn raw_root_environment_lanes_vacant(
+        &self,
+        route: super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1,
+    ) -> bool {
+        self.callable_declaration_catalog.is_none()
+            && self.user_defined_boxes.is_empty()
+            && match route {
+                super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1::Script
+                | super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1::App => {
+                    true
+                }
+            }
+    }
+
+    pub(in crate::mir::builder) fn install_raw_root_environment_preflighted(
+        &mut self,
+        route: super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1,
+        catalog: VerifiedSameModuleCallableDeclarationCatalogV1,
+    ) {
+        debug_assert!(self.callable_declaration_catalog.is_none());
+        debug_assert!(self.user_defined_boxes.is_empty());
+        self.callable_declaration_catalog = Some(catalog);
+        if matches!(
+            route,
+            super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1::App
+        ) {
+            self.user_defined_boxes
+                .insert("Main".to_owned(), Vec::new());
+        }
+    }
+
     pub(crate) fn callable_declaration_catalog(
         &self,
     ) -> Result<

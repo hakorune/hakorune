@@ -8,8 +8,8 @@
 #[cfg(test)]
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use crate::mir::ValueId;
 use super::module_invocation_identity::ModuleInvocationBrandV1;
+use crate::mir::ValueId;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RootBodyCompletionErrorV1 {
@@ -98,6 +98,13 @@ impl RootBodyCompletionTrackerV1 {
 
     pub(in crate::mir::builder) const fn completed_children(&self) -> usize {
         self.completed_children
+    }
+
+    pub(in crate::mir::builder) const fn is_fresh(&self) -> bool {
+        self.open_children == 0
+            && self.open_header_loans == 0
+            && self.open_pending_terminals == 0
+            && self.completed_children == 0
     }
 
     pub(in crate::mir::builder) fn new_for_brand(brand: ModuleInvocationBrandV1) -> Self {

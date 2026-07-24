@@ -111,11 +111,11 @@ fn map_abort_reason(error: &ModuleLoweringPortChildErrorV1) -> RawExpansionAbort
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::super::calls::CanonicalFunctionSessionErrorV1;
     use super::super::super::module_draft_collector::{
         CollectorReceiptBrandErrorV1, FunctionDraftKeyV1, ModuleDraftAdmissionErrorV1,
     };
+    use super::*;
 
     #[test]
     fn typed_child_causes_map_to_existing_coarse_abort_reasons() {

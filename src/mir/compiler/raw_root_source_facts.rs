@@ -2,7 +2,7 @@
 //!
 //! This is a source-only product. It owns the located ScalarControl0 payload
 //! needed by BODY0 and seals the existing complete callable catalog once. It
-//! never opens a Builder or reads `current_module`.
+//! never opens a Builder or reads ambient module state.
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::builder::{RawSourceLocatorV1, VerifiedSameModuleCallableDeclarationCatalogV1};
@@ -158,7 +158,48 @@ pub(in crate::mir) struct RawRootSourceFactsV1 {
     body: RawRootBodyFactV1,
 }
 
+/// Source facts that remain after the Builder-owned declaration/catalog
+/// projection has been consumed.  BODY0 keeps this product opaque until its
+/// own typed handoff; it is not a second classifier or catalog authority.
+#[derive(Debug, PartialEq)]
+pub(in crate::mir) struct RawRootPostInstallFactsV1 {
+    route: RawRootSourceRouteV1,
+    physical: RawPhysicalRootIdentityV1,
+    main: Option<RawSourceLocatorV1>,
+    helper_schedule: Box<[RawSourceLocatorV1]>,
+    body: RawRootBodyFactV1,
+}
+
 impl RawRootSourceFactsV1 {
+    #[cfg(test)]
+    pub(in crate::mir) fn empty_for_test(route: RawRootSourceRouteV1) -> Self {
+        let catalog =
+            VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&ASTNode::Program {
+                statements: Vec::new(),
+                span: Span::unknown(),
+            })
+            .expect("empty test catalog");
+        let body = match route {
+            RawRootSourceRouteV1::Script => RawRootBodyFactV1::Script(RawLocatedScalarProgramV1 {
+                statements: Box::new([]),
+            }),
+            RawRootSourceRouteV1::App => RawRootBodyFactV1::App {
+                main: RawSourceLocatorV1::for_test(0, "Main", "main", "Main.main/0", 0),
+                body: RawLocatedScalarProgramV1 {
+                    statements: Box::new([]),
+                },
+            },
+        };
+        Self {
+            route,
+            physical: RawPhysicalRootIdentityV1::fixed(),
+            main: None,
+            helper_schedule: Box::new([]),
+            callable_catalog: catalog,
+            body,
+        }
+    }
+
     pub(in crate::mir) fn from_source(
         source: &crate::mir::builder::OwnedRawSourceV1,
         plan: &RawRootPlanV1,
@@ -242,6 +283,54 @@ impl RawRootSourceFactsV1 {
     ) -> &VerifiedSameModuleCallableDeclarationCatalogV1 {
         &self.callable_catalog
     }
+    pub(in crate::mir) fn body(&self) -> &RawRootBodyFactV1 {
+        &self.body
+    }
+
+    pub(in crate::mir) fn into_post_install_parts(
+        self,
+    ) -> (
+        RawRootPostInstallFactsV1,
+        VerifiedSameModuleCallableDeclarationCatalogV1,
+    ) {
+        let Self {
+            route,
+            physical,
+            main,
+            helper_schedule,
+            callable_catalog,
+            body,
+        } = self;
+        (
+            RawRootPostInstallFactsV1 {
+                route,
+                physical,
+                main,
+                helper_schedule,
+                body,
+            },
+            callable_catalog,
+        )
+    }
+}
+
+impl RawRootPostInstallFactsV1 {
+    pub(in crate::mir) const fn route(&self) -> RawRootSourceRouteV1 {
+        self.route
+    }
+
+    pub(in crate::mir) const fn physical(&self) -> RawPhysicalRootIdentityV1 {
+        self.physical
+    }
+
+    pub(in crate::mir) fn main(&self) -> Option<&RawSourceLocatorV1> {
+        self.main.as_ref()
+    }
+
+    pub(in crate::mir) fn helper_schedule(&self) -> &[RawSourceLocatorV1] {
+        &self.helper_schedule
+    }
+
     pub(in crate::mir) fn body(&self) -> &RawRootBodyFactV1 {
         &self.body
     }

@@ -285,6 +285,35 @@ impl ModuleBuilderInvocationSessionV1 {
         &mut self.candidate
     }
 
+    pub(in crate::mir::builder) fn builder(&self) -> &MirBuilder {
+        &self.candidate
+    }
+
+    pub(in crate::mir::builder) fn environment_ready(
+        &self,
+    ) -> Result<(), BuilderCommitReadinessErrorV1> {
+        self.readiness_error()
+    }
+
+    pub(in crate::mir::builder) fn raw_root_environment_lanes_are_vacant(
+        &self,
+        route: super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1,
+    ) -> bool {
+        self.candidate
+            .comp_ctx
+            .raw_root_environment_lanes_vacant(route)
+    }
+
+    pub(in crate::mir::builder) fn install_raw_root_environment_preflighted(
+        &mut self,
+        route: super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1,
+        catalog: crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1,
+    ) {
+        self.candidate
+            .comp_ctx
+            .install_raw_root_environment_preflighted(route, catalog);
+    }
+
     pub(in crate::mir::builder) fn config(&self) -> &BuilderInvocationConfigV1 {
         &self.config
     }

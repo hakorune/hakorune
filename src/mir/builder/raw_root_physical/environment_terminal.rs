@@ -23,4 +23,3 @@ impl RawRootPhysicalStateV1 {
         RawRootPhysicalEnvironmentTerminalV1
     }
 }
-

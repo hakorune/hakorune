@@ -65,6 +65,9 @@ mod raw_root_physical; // RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PHYSICAL0 empty carrie
 mod raw_root_environment_install; // DECLACCESS-COINSTALL0 aggregate installer
 pub(in crate::mir) use raw_root_physical::RawRootPhysicalStateV1;
 pub(in crate::mir) use raw_root_physical::child_terminal::RawRootPhysicalChildErrorV1;
+pub(in crate::mir) use raw_root_environment_install::{
+    RawRootEnvironmentInstallRouteV1, RawRootEnvironmentProjectionV1,
+};
 pub(in crate::mir) use raw_root_physical::callable_main_terminal::{
     CompletedRawCallableMainPhysicalV1, RawRootPhysicalCallableMainErrorV1,
     RejectedRawCallableMainPhysicalV1,

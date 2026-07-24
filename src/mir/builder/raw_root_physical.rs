@@ -3,6 +3,7 @@
 //! This module opens only the empty physical carrier for an eligible Raw
 //! package. It deliberately does not lower a child or a root body.
 
+use super::module_declaration_facts::SealedModuleDeclarationFactsV1;
 use super::module_invocation_brand0::InvocationPhysicalStateV1;
 use super::module_invocation_identity::ModuleInvocationTokenV1;
 use super::module_lowering_shell::ModuleLoweringShellErrorV1;
@@ -12,8 +13,8 @@ use super::raw_expansion_receipt_ledger::{
 use super::root_body_completion::RootBodyCompletionTrackerV1;
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 
-pub(in crate::mir) mod child_terminal;
 pub(in crate::mir) mod callable_main_terminal;
+pub(in crate::mir) mod child_terminal;
 pub(in crate::mir) mod environment_terminal;
 
 #[derive(Debug)]
@@ -76,6 +77,31 @@ impl RawRootPhysicalStateV1 {
 
     pub(in crate::mir) fn tracker_completed_children(&self) -> usize {
         self.tracker.completed_children()
+    }
+
+    pub(in crate::mir::builder) fn environment_lanes_are_vacant(&self) -> bool {
+        matches!(&self.ledger, RawRootLedgerStateV1::Open(ledger) if ledger.is_clean_open())
+            && self.tracker.is_fresh()
+            && self.physical.environment_lanes_are_vacant()
+    }
+
+    pub(in crate::mir::builder) fn install_environment_preflighted(
+        self,
+        facts: SealedModuleDeclarationFactsV1,
+        source_file: Option<Box<str>>,
+    ) -> Self {
+        let Self {
+            physical,
+            ledger,
+            tracker,
+            callable_main,
+        } = self;
+        Self {
+            physical: physical.install_environment_preflighted(facts, source_file),
+            ledger,
+            tracker,
+            callable_main,
+        }
     }
 
     pub(in crate::mir) fn callable_main(&self) -> RawCallableMainCompatibilityDispositionV1 {

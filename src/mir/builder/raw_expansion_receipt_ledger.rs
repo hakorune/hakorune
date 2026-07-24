@@ -309,6 +309,9 @@ pub(in crate::mir::builder) struct AbortedRawExpansionReceiptLedgerV1 {
 struct AbortedRawExpansionReceiptLedgerSealV1;
 
 impl RawExpansionReceiptLedgerV1 {
+    pub(in crate::mir::builder) fn is_clean_open(&self) -> bool {
+        !self.poisoned && self.open.is_empty()
+    }
     pub(in crate::mir::builder) fn new_for_token(
         token: &ModuleInvocationTokenV1,
         callable_main: RawCallableMainCompatibilityDispositionV1,
@@ -373,9 +376,7 @@ impl RawExpansionReceiptLedgerV1 {
         self.brand
     }
 
-    pub(in crate::mir) const fn callable_main(
-        &self,
-    ) -> RawCallableMainCompatibilityDispositionV1 {
+    pub(in crate::mir) const fn callable_main(&self) -> RawCallableMainCompatibilityDispositionV1 {
         self.callable_main
     }
 
@@ -504,7 +505,8 @@ impl RawExpansionReceiptLedgerV1 {
         receipt: &InvocationBranded<CollectedDraftAdmissionReceiptV1>,
         main: bool,
     ) -> Result<(), RawExpansionReceiptLedgerErrorV1> {
-        if receipt.brand() != self.brand || receipt.payload().collector_brand() != Some(self.brand) {
+        if receipt.brand() != self.brand || receipt.payload().collector_brand() != Some(self.brand)
+        {
             return Err(RawExpansionReceiptLedgerErrorV1::ForeignReservation);
         }
         if reservation.brand != self.brand || !self.open.contains(&reservation.ordinal) {
