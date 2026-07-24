@@ -198,6 +198,27 @@ the projected function, after typed-value checks and stale-fact application.
 Any failure is a typed `ProjectedVerificationFailed` rejection; no verifier
 is run against live Builder state and no post-commit verification edge exists.
 
+## Next ownership seam before COMMIT0
+
+The existing `with_resolved_function_draft_session` closes and extracts the
+function inside its closure. That lifecycle cannot host a draft-seal prepare:
+the prepared owner must retain the open session, current function, and caller
+context while all plans are borrowed and before any Return/signature mutation.
+Therefore COMMIT0 must first add a dedicated open-session handoff (or an
+equivalent session-owned terminal) that hands an unpublished function session
+to the draft-seal owner. Reusing the legacy closure or adding a caller
+mutation closure is forbidden. Until that seam exists, the old canonical and
+trivial lowerer Return writers and `finalize_function_draft` callers remain
+unchanged and disconnected from the new products.
+
+The current isolated prepare helpers also still expose an intermediate seam:
+metadata/signature/PHI receipts are prepared before stale-fact verification,
+but the stale/verification products do not yet co-own every plan. Before a
+real COMMIT0 terminal is added, a single `PreparedFunctionDraftSealPlanV1`
+must retain metadata, signature, PHI closure, stale facts, and verification
+together. Re-observing the projected function or rebuilding those plans in a
+later commit is forbidden.
+
 ## Acceptance gates
 
 ```text
