@@ -2,10 +2,22 @@
 
 Decision: `RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-BODY-RETURN-APP-D0`
 
-Status: design-stop / parked. `RAW-BODY-RETURN-prime-r1` closed the Script
-last-value mismatch and the Raw App FixedVoid slice. The remaining question is
-whether admitted App `Main.main/0` scalar bodies should match Legacy's common
-last-value finalizer or remain an explicit Void ABI.
+Status: closed. Decision `BODY-RETURN-APP-prime-r1` selects the Legacy-compatible
+physical wrapper `main` last-value ABI through a route-specific
+`AppLastValueOrVoid` policy. Source `Main.main/0` locator/receipt evidence stays
+separate and unchanged. The paired S0 task is now authorized.
+
+## Selected decision
+
+```text
+Q1 = A
+Q2 = existing LinearScalar0, all admitted tail kinds, exact supported types
+Q3 = N/A; AppFixedVoid/discarded_tail production authority retires
+Q4 = one PreparedRawRootBodyCommitV1 inside drive_root_body
+Q5 = preflight all failures; private commit infallible; discard-only rejection
+Q6 = empty/scalar/helper/Print/Local/Assignment/Compound/reuse rows block promotion
+Q7 = normal entry, JSON, executor, selfhost, fastmem, old retirement, CUT0 unchanged
+```
 
 ## Evidence already fixed
 
@@ -82,12 +94,12 @@ adaptation are not selection authorities.
 
 ## Q2 — What exact route/recipe grammar is admitted?
 
-If Q1=A, fix all of these before code:
+The selected Q2 contract is fixed before code:
 
 ```text
 route policy                            = distinct AppLastValueOrVoid
-accepted statement/expression grammar   = existing LinearScalar0 only, or wider
-last-value rule                         = expression tail, Print, Local, assignment semantics
+accepted statement/expression grammar   = existing LinearScalar0 only
+last-value rule                         = Expr, Print, Local, Assignment, CompoundAssignment
 empty body disposition                  = NoValue/Void
 supported return types                  = Integer, Float, Bool, String, Void
 Unknown/Box/Array/Future/WeakRef        = typed reject or new capability row
@@ -99,11 +111,14 @@ assignment affect the returned value, and where a missing tail becomes
 `NoValue`. No inferred “whatever the lowerer happens to return” rule is
 allowed.
 
-If Q1=B, fix the public coverage witness before physical open. The exact
-parity-safe first slice is `Main.main` body == empty; helper boxes with an
-empty main may remain admitted.
+The selected route keeps the existing App metadata preflight: zero params,
+zero param declarations, no declared return type, no uses, contracts, or attrs.
+It infers the physical wrapper return type from the last lowered ValueId; it
+does not invent a source return declaration. `TypedInteger` and any result type
+outside Integer/Float/Bool/String/Void require an explicit capability decision
+or typed rejection before promotion.
 
-## Q3 — If B, is scalar App rejected or discarded?
+## Q3 — FixedVoid alternatives (rejected by the selected decision)
 
 FixedVoid has two materially different forms:
 
@@ -116,9 +131,9 @@ B2: reject scalar App before physical open with a typed eligibility/recipe
     error; no lowering, reservation, receipt, or BODY entry occurs.
 ```
 
-Select B1 or B2 explicitly. If the row claims exact public parity, B2 is
-required. A late BODY rejection after partial lowering is not equivalent to a
-pre-physical capability rejection.
+Neither B1 nor B2 is selected. B1 would preserve a deliberate non-parity
+success; B2 would narrow the already admitted Raw public capability. Both are
+parked alternatives, not implementation targets for this task.
 
 ## Q4 — Which owner co-seals App facts?
 
