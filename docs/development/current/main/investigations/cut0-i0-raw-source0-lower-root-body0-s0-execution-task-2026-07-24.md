@@ -22,14 +22,14 @@ physical owner or publish a draft. The Builder-side S0-C primitive now has a
 paired `InstalledRawRootEnvironmentV1::drive_root_body` terminal: it creates
 an unpublished `main/0` draft, seals the fresh tracker, and returns a named
 post-body physical owner while collector/ledger/shell publication remains
-untouched. Compiler-side `DeclaredRawRootInvocationV1::begin_body(self)`
-handoff and the route-specific completion/rejection wrapper remain next;
-the compiler-side consuming `DeclaredRawRootInvocationV1::begin_body(self)`
-handoff is now implemented and tested in `f2c58de981` plus the current
-working slice. It consumes the already-sealed recipe, preserves callable-Main
-evidence, and returns route-specific completion or discard-only rejection;
-production consumers remain zero. The final structural guard and full
-regression closeout remain next.
+untouched. Compiler-side consuming `DeclaredRawRootInvocationV1::begin_body(self)`
+handoff and the route-specific completion/rejection wrapper are implemented
+and tested in `69fb9ecc4d`. The BODY0 structural guard is now added and green;
+the targeted `raw_root` suite is 54/54 green, and production consumers remain
+zero. A full `cargo test --lib` run is not used as the BODY0 gate: it currently
+reports 5,152 passed and 83 unrelated failures across existing MIR/JoinIR,
+parser, and runtime suites. Those failures are recorded as separate
+regression debt and do not widen this row's claim.
 
 ## Decision lock
 
