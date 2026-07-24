@@ -7,7 +7,7 @@ use super::raw_root_package::SourceBoundRawRootPackageV1;
 use super::raw_root_plan0::RawStaticDataSourceRowV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::{
-    ModuleBuilderInvocationSessionV1, ModuleLoweringShellErrorV1, MirBuilder,
+    MirBuilder, ModuleBuilderInvocationSessionV1, ModuleLoweringShellErrorV1,
     RawRootPhysicalStateV1,
 };
 
@@ -39,7 +39,10 @@ pub(in crate::mir) enum RawRootEligibilityErrorV1 {
 
 impl std::fmt::Display for RawRootEligibilityErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(formatter, "[freeze:contract][raw_root_eligibility] {self:?}")
+        write!(
+            formatter,
+            "[freeze:contract][raw_root_eligibility] {self:?}"
+        )
     }
 }
 
@@ -47,7 +50,17 @@ impl std::error::Error for RawRootEligibilityErrorV1 {}
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir) struct RawRootEligibilityV1 {
-    pub(super) catalog: RawEligibleCatalogV1,
+    pub(super) coverage: RawRootCoverageV1,
+}
+
+/// Exact first-slice source coverage consumed by the future manifest.
+///
+/// This witness is deliberately not `Copy`/`Clone`: the accepted route shape
+/// must have one source authority rather than a freely duplicated summary.
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir) enum RawRootCoverageV1 {
+    EmptyScript { statement_count: usize },
+    PlainStaticMain { helper_count: usize },
 }
 
 impl RawRootEligibilityV1 {
@@ -62,6 +75,10 @@ impl RawRootEligibilityV1 {
             ));
         };
 
+        let is_script = matches!(
+            package.plan().kind(),
+            super::raw_root_plan0::RawRootKindV1::Script(_)
+        );
         for item in package.plan().environment().work_schedule() {
             let failure = match item.kind() {
                 super::raw_root_plan0::RawRootWorkKindV1::UnsupportedClosure => Some((
@@ -88,6 +105,27 @@ impl RawRootEligibilityV1 {
                         statement_index: item.statement_index(),
                     },
                 )),
+                super::raw_root_plan0::RawRootWorkKindV1::DeclarationFact
+                | super::raw_root_plan0::RawRootWorkKindV1::StaticBox
+                | super::raw_root_plan0::RawRootWorkKindV1::InstanceBox
+                | super::raw_root_plan0::RawRootWorkKindV1::TopLevelFunction
+                | super::raw_root_plan0::RawRootWorkKindV1::MainRoot
+                    if is_script =>
+                {
+                    Some((
+                        RawRootEligibilityStageV1::Work,
+                        RawRootEligibilityErrorV1::UnsupportedWork {
+                            statement_index: item.statement_index(),
+                        },
+                    ))
+                }
+                super::raw_root_plan0::RawRootWorkKindV1::StaticData => Some((
+                    RawRootEligibilityStageV1::Access,
+                    RawRootEligibilityErrorV1::UnsupportedStaticDataAuthority {
+                        statement_index: item.statement_index(),
+                    },
+                )),
+                super::raw_root_plan0::RawRootWorkKindV1::ScalarControl if is_script => None,
                 _ => None,
             };
             if let Some(failure) = failure {
@@ -96,12 +134,8 @@ impl RawRootEligibilityV1 {
         }
 
         let catalog = match package.plan().kind() {
-            super::raw_root_plan0::RawRootKindV1::Script(_) => {
-                RawEligibleCatalogV1::EmptyScript
-            }
-            super::raw_root_plan0::RawRootKindV1::App(_) => {
-                verify_plain_static_main(statements)?
-            }
+            super::raw_root_plan0::RawRootKindV1::Script(_) => RawEligibleCatalogV1::EmptyScript,
+            super::raw_root_plan0::RawRootKindV1::App(_) => verify_plain_static_main(statements)?,
         };
 
         if package.plan().environment().access().static_data {
@@ -121,11 +155,28 @@ impl RawRootEligibilityV1 {
             ));
         }
 
-        Ok(Self { catalog })
+        let coverage = match catalog {
+            RawEligibleCatalogV1::EmptyScript => RawRootCoverageV1::EmptyScript {
+                statement_count: statements.len(),
+            },
+            RawEligibleCatalogV1::PlainStaticMain { helper_count } => {
+                RawRootCoverageV1::PlainStaticMain { helper_count }
+            }
+        };
+        Ok(Self { coverage })
     }
 
     pub(in crate::mir) const fn catalog(&self) -> RawEligibleCatalogV1 {
-        self.catalog
+        match self.coverage {
+            RawRootCoverageV1::EmptyScript { .. } => RawEligibleCatalogV1::EmptyScript,
+            RawRootCoverageV1::PlainStaticMain { helper_count } => {
+                RawEligibleCatalogV1::PlainStaticMain { helper_count }
+            }
+        }
+    }
+
+    pub(in crate::mir) const fn coverage(&self) -> &RawRootCoverageV1 {
+        &self.coverage
     }
 }
 
@@ -356,7 +407,10 @@ impl EligibleSourceBoundRawRootPackageV1 {
             session,
             physical,
         };
-        let is_script = matches!(core.plan.kind(), super::raw_root_plan0::RawRootKindV1::Script(_));
+        let is_script = matches!(
+            core.plan.kind(),
+            super::raw_root_plan0::RawRootKindV1::Script(_)
+        );
         if is_script {
             Ok(RawRootInvocationV1::Script(RawScriptRootInvocationV1 {
                 core: RawRootPhysicalCoreV1 {
@@ -380,12 +434,16 @@ impl RejectedRawRootEligibilityV1 {
     }
 
     #[cfg(test)]
-    pub(in crate::mir) const fn owner_brand(&self) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
+    pub(in crate::mir) const fn owner_brand(
+        &self,
+    ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
         self.owner.brand()
     }
 
     #[cfg(test)]
-    pub(in crate::mir) const fn owner_family(&self) -> crate::mir::module_invocation_identity::ModuleInvocationFamilyV1 {
+    pub(in crate::mir) const fn owner_family(
+        &self,
+    ) -> crate::mir::module_invocation_identity::ModuleInvocationFamilyV1 {
         self.owner.family()
     }
 
@@ -419,9 +477,9 @@ impl SourceBoundRawRootPackageV1 {
 mod tests {
     use super::*;
     use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+    use crate::mir::builder::{MirBuilder, RawCallableMainCompatibilityDispositionV1};
     use crate::mir::compiler::lowering_input::LegacyModuleLoweringInputV1;
     use crate::mir::compiler::raw_source_binding::RawCallableMainSelectionV1;
-    use crate::mir::builder::{MirBuilder, RawCallableMainCompatibilityDispositionV1};
     use crate::mir::MirCompiler;
     use std::collections::HashMap;
 
@@ -512,7 +570,10 @@ mod tests {
         })
         .prepare_eligibility()
         .unwrap();
-        assert_eq!(eligible.proof().catalog(), RawEligibleCatalogV1::EmptyScript);
+        assert_eq!(
+            eligible.proof().catalog(),
+            RawEligibleCatalogV1::EmptyScript
+        );
     }
 
     #[test]
@@ -627,12 +688,11 @@ mod tests {
         );
         assert!(omitted.core.physical.shell_is_empty());
 
-        let selected = package_with_selection(app(Vec::new()), RawCallableMainSelectionV1::Required)
-            .prepare_eligibility()
-            .unwrap();
-        let selected = selected
-            .open_physical(&MirBuilder::new())
-            .unwrap();
+        let selected =
+            package_with_selection(app(Vec::new()), RawCallableMainSelectionV1::Required)
+                .prepare_eligibility()
+                .unwrap();
+        let selected = selected.open_physical(&MirBuilder::new()).unwrap();
         let RawRootInvocationV1::App(selected) = selected else {
             panic!("static Main must open the App physical route")
         };

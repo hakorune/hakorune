@@ -4,6 +4,19 @@ Status: **Ready**
 Date: 2026-07-24  
 Decision: **DECLACCESS-IMPLEMENTATION-prime-r1**
 
+## Progress
+
+The coverage witness slice is implemented locally and verified:
+
+```text
+RawRootCoverageV1 is the non-Clone route witness.
+Script declaration/work kinds are rejected explicitly.
+App plain-static-Main validation remains the sole App catalog authority.
+```
+
+The manifest and physical owners remain disconnected; this row adds no
+physical or production consumer.
+
 ## Goal
 
 Strengthen `RawRootEligibilityV1` with an exact first-slice coverage witness

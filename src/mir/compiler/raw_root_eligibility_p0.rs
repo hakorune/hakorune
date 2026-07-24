@@ -1,7 +1,7 @@
 //! Focused S0 acceptance matrix for the source-only Raw eligibility boundary.
 
 use super::raw_root_eligibility::{
-    RawEligibleCatalogV1, RawRootEligibilityErrorV1, RawRootEligibilityStageV1,
+    RawEligibleCatalogV1, RawRootCoverageV1, RawRootEligibilityErrorV1, RawRootEligibilityStageV1,
 };
 use super::raw_source_binding::RawCallableMainSelectionV1;
 use super::{LegacyModuleLoweringInputV1, MirCompiler};
@@ -151,6 +151,49 @@ fn unsupported_preprocessed_and_process_slot_shapes_reject() {
     assert!(matches!(
         new_expr.error(),
         RawRootEligibilityErrorV1::UnsupportedProcessGlobalSlot { .. }
+    ));
+}
+
+#[test]
+fn script_declarations_are_not_an_empty_script_coverage() {
+    let rejected = bind(
+        ASTNode::Program {
+            statements: vec![function("helper", Vec::new())],
+            span: Span::unknown(),
+        },
+        RawCallableMainSelectionV1::Omitted,
+    )
+    .prepare_eligibility()
+    .unwrap_err();
+    assert_eq!(rejected.stage(), RawRootEligibilityStageV1::Work);
+    assert!(matches!(
+        rejected.error(),
+        RawRootEligibilityErrorV1::UnsupportedWork { .. }
+    ));
+}
+
+#[test]
+fn coverage_witness_is_route_exact() {
+    let script = bind(
+        ASTNode::Program {
+            statements: Vec::new(),
+            span: Span::unknown(),
+        },
+        RawCallableMainSelectionV1::Omitted,
+    )
+    .prepare_eligibility()
+    .unwrap();
+    assert!(matches!(
+        script.proof().coverage(),
+        RawRootCoverageV1::EmptyScript { statement_count: 0 }
+    ));
+
+    let app = bind(app(Vec::new(), false), RawCallableMainSelectionV1::Omitted)
+        .prepare_eligibility()
+        .unwrap();
+    assert!(matches!(
+        app.proof().coverage(),
+        RawRootCoverageV1::PlainStaticMain { helper_count: 0 }
     ));
 }
 

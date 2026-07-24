@@ -157,7 +157,8 @@ impl RawRootInvocationV1 {
             physical,
         } = core;
         let (plan, locators) = original_plan.into_pre_root_children();
-        let helper_count = match (&proof.catalog, &plan.kind()) {
+        let catalog = proof.catalog();
+        let helper_count = match (&catalog, &plan.kind()) {
             (
                 RawEligibleCatalogV1::EmptyScript,
                 super::raw_root_plan0::RawRootKindV1::Script(_),
@@ -546,5 +547,4 @@ mod tests {
         assert_eq!(failed.ordinal, 1);
         assert_eq!(owner.core.physical.tracker_completed_children(), 0);
     }
-
 }
