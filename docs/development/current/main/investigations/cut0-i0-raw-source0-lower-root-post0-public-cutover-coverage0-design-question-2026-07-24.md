@@ -1,10 +1,28 @@
 # RAW public cutover COVERAGE0 repair design question
 
-Decision: `COVERAGE0-REPAIR-CONSULT0` (design stop)
+Decision: `COVERAGE0-REPAIR-prime-r1`
 
-Status: active consultation. The first COVERAGE0 implementation is preserved
-in `stash@{0}` as WIP and must not be promoted until the four authority and
-scope questions below are closed.
+Status: selected design. The first COVERAGE0 implementation is preserved in
+`stash@{0}` as WIP and may resume only through the bounded repair task after
+the decision lock below.
+
+## Decision lock
+
+All four recommended choices are accepted:
+
+```text
+Q1 = PLAN0 is the sole execution-order authority. The StaticHelper0 witness
+     corroborates exact locator parity and never replaces the PLAN0 schedule.
+Q2 = NarrowV1 is a public-only branded profile. General Raw eligibility and
+     internal fixtures do not inherit the public helper restriction.
+Q3 = helper coverage/profile handoff moves into a small sibling module;
+     raw_root_eligibility.rs does not receive further orchestration growth.
+Q4 = closeout guards validate durable closed markers and remain rerunnable
+     after the current pointer advances to PARITY0 or a later row.
+```
+
+The next executable task is `COVERAGE0-REPAIR-S0`; PARITY0 remains parked
+until its guard and focused evidence are green.
 
 ## Why this is a design stop
 
@@ -21,9 +39,9 @@ four contracts:
 4. The closeout guard requires an active row/status and cannot be rerun after
    the current pointer advances to PARITY0.
 
-No source implementation, fixture expansion, or parity claim is authorized
-until this card is decided. The WIP is stashed so the design boundary can be
-reviewed on a clean tree.
+The WIP was stashed so the design boundary could be reviewed on a clean tree.
+The repair row below is now authorized; normal-entry cutover, JSON, executor,
+old Raw retirement, and CUT0 remain out of scope.
 
 ## Q1 — order authority
 
@@ -157,4 +175,3 @@ After this consultation is accepted, the next executable card is a bounded
 `COVERAGE0-REPAIR-S0` row containing only the chosen authority/profile
 handoff, the small sibling extraction, the required fixtures, and a
 rerunnable guard. PARITY0 remains parked until that row is green.
-
