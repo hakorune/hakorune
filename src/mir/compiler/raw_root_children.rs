@@ -10,6 +10,7 @@ use super::raw_root_eligibility::{
     RawAppRootInvocationV1, RawEligibleCatalogV1, RawRootInvocationV1, RawRootPhysicalCoreV1,
     RawScriptRootInvocationV1,
 };
+use super::raw_root_environment_manifest::RawRootEnvironmentManifestV1;
 use super::raw_root_plan0::RawRootPlanV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::builder::{
@@ -101,6 +102,7 @@ pub(super) struct RawRootChildCoreV1 {
     pub(super) config: crate::mir::builder::BuilderInvocationConfigV1,
     pub(super) module_name: Box<str>,
     pub(super) plan: RawRootPlanV1,
+    pub(super) manifest: RawRootEnvironmentManifestV1,
     pub(super) session: crate::mir::builder::ModuleBuilderInvocationSessionV1,
     pub(super) physical: crate::mir::builder::RawRootPhysicalStateV1,
 }
@@ -153,6 +155,7 @@ impl RawRootInvocationV1 {
             module_name,
             plan: original_plan,
             proof,
+            manifest,
             session,
             physical,
         } = core;
@@ -178,6 +181,7 @@ impl RawRootInvocationV1 {
                     config,
                     module_name,
                     plan,
+                    manifest,
                     session,
                     physical,
                     locators,
@@ -194,6 +198,7 @@ impl RawRootInvocationV1 {
                 config,
                 module_name,
                 plan,
+                manifest,
                 session,
                 physical,
             },
@@ -210,6 +215,7 @@ fn pending_from_parts(
     config: crate::mir::builder::BuilderInvocationConfigV1,
     module_name: Box<str>,
     plan: RawRootPlanV1,
+    manifest: RawRootEnvironmentManifestV1,
     session: crate::mir::builder::ModuleBuilderInvocationSessionV1,
     physical: crate::mir::builder::RawRootPhysicalStateV1,
     locators: Box<[RawSourceLocatorV1]>,
@@ -222,6 +228,7 @@ fn pending_from_parts(
             config,
             module_name,
             plan,
+            manifest,
             session,
             physical,
         },
@@ -461,6 +468,7 @@ mod tests {
             plan: original_plan,
             session,
             physical,
+            manifest,
             ..
         } = app.core;
         let (plan, locators) = original_plan.into_pre_root_children();
@@ -479,6 +487,7 @@ mod tests {
                 config,
                 module_name,
                 plan,
+                manifest,
                 session,
                 physical,
             },

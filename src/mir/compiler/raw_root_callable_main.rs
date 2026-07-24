@@ -10,6 +10,7 @@ use super::raw_root_children::{
     RawScriptChildrenCompleteInvocationV1,
 };
 use super::raw_root_eligibility::RawRootInvocationV1;
+use super::raw_root_environment_manifest::RawRootEnvironmentManifestV1;
 use super::raw_root_plan0::RawPostCallableMainPlanV1;
 use super::raw_source_binding::RawPostCallableMainContinuationV1;
 use crate::mir::builder::{
@@ -95,6 +96,7 @@ struct RawCallableMainCoreV1 {
     config: crate::mir::builder::BuilderInvocationConfigV1,
     module_name: Box<str>,
     plan: RawPostCallableMainPlanV1,
+    manifest: RawRootEnvironmentManifestV1,
     session: crate::mir::builder::ModuleBuilderInvocationSessionV1,
     physical: RawRootPhysicalStateV1,
 }
@@ -337,6 +339,7 @@ fn finish_app(
         config,
         module_name,
         plan,
+        manifest,
         mut session,
         physical,
     } = core;
@@ -353,6 +356,7 @@ fn finish_app(
                         config,
                         module_name,
                         plan,
+                        manifest,
                         session,
                         physical,
                     },
@@ -374,6 +378,7 @@ fn finish_app(
                     config,
                     module_name,
                     plan,
+                    manifest,
                     session,
                     physical,
                 },
@@ -402,6 +407,7 @@ fn split_core(
         config,
         module_name,
         plan,
+        manifest,
         session,
         physical,
     } = core;
@@ -419,6 +425,7 @@ fn split_core(
             config,
             module_name,
             plan,
+            manifest,
             session,
             physical,
         },

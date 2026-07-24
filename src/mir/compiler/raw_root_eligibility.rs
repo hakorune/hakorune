@@ -3,8 +3,10 @@
 //! This is the last source-only gate before the future Raw physical owner.
 //! It consumes no Builder state and does not re-scan source after success.
 
+use super::raw_root_environment_manifest::RawRootEnvironmentManifestV1;
 use super::raw_root_package::SourceBoundRawRootPackageV1;
 use super::raw_root_plan0::RawStaticDataSourceRowV1;
+use super::raw_root_source_facts::RawRootSourceFactsErrorV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::{
     MirBuilder, ModuleBuilderInvocationSessionV1, ModuleLoweringShellErrorV1,
@@ -17,6 +19,7 @@ pub(in crate::mir) enum RawRootEligibilityStageV1 {
     Catalog,
     Access,
     Slots,
+    Manifest,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -25,7 +28,7 @@ pub(in crate::mir) enum RawEligibleCatalogV1 {
     PlainStaticMain { helper_count: usize },
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum RawRootEligibilityErrorV1 {
     UnsupportedWork { statement_index: usize },
     UnsupportedCatalog,
@@ -35,6 +38,7 @@ pub(in crate::mir) enum RawRootEligibilityErrorV1 {
     UnsupportedProcessGlobalSlot { statement_index: usize },
     UnsupportedBodyGrammar { statement_index: usize },
     InvalidCallableRow { statement_index: usize },
+    Manifest(RawRootSourceFactsErrorV1),
 }
 
 impl std::fmt::Display for RawRootEligibilityErrorV1 {
@@ -302,6 +306,7 @@ fn verify_plain_static_main(
 pub(in crate::mir) struct EligibleSourceBoundRawRootPackageV1 {
     package: SourceBoundRawRootPackageV1,
     proof: RawRootEligibilityV1,
+    manifest: RawRootEnvironmentManifestV1,
 }
 
 impl EligibleSourceBoundRawRootPackageV1 {
@@ -311,6 +316,11 @@ impl EligibleSourceBoundRawRootPackageV1 {
 
     pub(in crate::mir) const fn package(&self) -> &SourceBoundRawRootPackageV1 {
         &self.package
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) const fn manifest(&self) -> &RawRootEnvironmentManifestV1 {
+        &self.manifest
     }
 }
 
@@ -335,6 +345,7 @@ pub(super) struct RawRootPhysicalCoreV1 {
     pub(super) module_name: Box<str>,
     pub(super) plan: super::raw_root_plan0::RawRootPlanV1,
     pub(super) proof: RawRootEligibilityV1,
+    pub(super) manifest: RawRootEnvironmentManifestV1,
     pub(super) session: ModuleBuilderInvocationSessionV1,
     pub(super) physical: RawRootPhysicalStateV1,
 }
@@ -390,6 +401,7 @@ impl EligibleSourceBoundRawRootPackageV1 {
             }
         };
         let proof = self.proof;
+        let manifest = self.manifest;
         let parts = self.package.into_physical_open_parts();
         let session = ModuleBuilderInvocationSessionV1::open_for_token(
             &parts.token,
@@ -404,6 +416,7 @@ impl EligibleSourceBoundRawRootPackageV1 {
             module_name: parts.module_name,
             plan: parts.plan,
             proof,
+            manifest,
             session,
             physical,
         };
@@ -460,10 +473,25 @@ impl SourceBoundRawRootPackageV1 {
         self,
     ) -> Result<EligibleSourceBoundRawRootPackageV1, RejectedRawRootEligibilityV1> {
         match RawRootEligibilityV1::verify(&self) {
-            Ok(proof) => Ok(EligibleSourceBoundRawRootPackageV1 {
-                package: self,
-                proof,
-            }),
+            Ok(proof) => {
+                let manifest_result =
+                    RawRootEnvironmentManifestV1::from_source(self.source(), self.plan());
+                let manifest = match manifest_result {
+                    Ok(manifest) => manifest,
+                    Err(error) => {
+                        return Err(RejectedRawRootEligibilityV1 {
+                            owner: self,
+                            stage: RawRootEligibilityStageV1::Manifest,
+                            error: RawRootEligibilityErrorV1::Manifest(error),
+                        });
+                    }
+                };
+                Ok(EligibleSourceBoundRawRootPackageV1 {
+                    package: self,
+                    proof,
+                    manifest,
+                })
+            }
             Err((stage, error)) => Err(RejectedRawRootEligibilityV1 {
                 owner: self,
                 stage,

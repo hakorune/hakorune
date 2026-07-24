@@ -3,6 +3,7 @@
 use super::raw_root_eligibility::{
     RawEligibleCatalogV1, RawRootCoverageV1, RawRootEligibilityErrorV1, RawRootEligibilityStageV1,
 };
+use super::raw_root_source_facts::RawRootSourceRouteV1;
 use super::raw_source_binding::RawCallableMainSelectionV1;
 use super::{LegacyModuleLoweringInputV1, MirCompiler};
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
@@ -195,6 +196,34 @@ fn coverage_witness_is_route_exact() {
         app.proof().coverage(),
         RawRootCoverageV1::PlainStaticMain { helper_count: 0 }
     ));
+}
+
+#[test]
+fn manifest_retains_route_body_and_catalog_facts() {
+    let script = bind(
+        ASTNode::Program {
+            statements: vec![ASTNode::Print {
+                expression: Box::new(_literal_fixture()),
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        },
+        RawCallableMainSelectionV1::Omitted,
+    )
+    .prepare_eligibility()
+    .unwrap();
+    assert_eq!(script.manifest().route(), RawRootSourceRouteV1::Script);
+    assert_eq!(script.manifest().facts().helper_count(), 0);
+    assert_eq!(script.manifest().facts().body_statement_count(), 1);
+    assert_eq!(script.manifest().facts().callable_count(), 0);
+
+    let app = bind(app(Vec::new(), false), RawCallableMainSelectionV1::Omitted)
+        .prepare_eligibility()
+        .unwrap();
+    assert_eq!(app.manifest().route(), RawRootSourceRouteV1::App);
+    assert_eq!(app.manifest().facts().helper_count(), 0);
+    assert_eq!(app.manifest().facts().body_statement_count(), 0);
+    assert_eq!(app.manifest().facts().callable_count(), 1);
 }
 
 #[test]

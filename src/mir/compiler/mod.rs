@@ -37,11 +37,11 @@ mod module_session;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_finalization;
 #[allow(dead_code)]
-pub(in crate::mir) mod raw_root_eligibility;
+pub(in crate::mir) mod raw_root_callable_main;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_children;
 #[allow(dead_code)]
-pub(in crate::mir) mod raw_root_callable_main;
+pub(in crate::mir) mod raw_root_eligibility;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_eligibility_classifier;
 #[allow(dead_code)]
@@ -95,11 +95,15 @@ mod module_session_borrow_p0_tests;
 #[cfg(test)]
 mod prod_activation_p0_r1;
 #[cfg(test)]
-mod raw_root_eligibility_p0;
-#[cfg(test)]
 mod raw_root_callable_main_p0;
+#[cfg(test)]
+mod raw_root_eligibility_p0;
+#[allow(dead_code)]
+pub(in crate::mir) mod raw_root_environment_manifest;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_plan0;
+#[allow(dead_code)]
+pub(in crate::mir) mod raw_root_source_facts;
 #[cfg(test)]
 mod raw_source_binding_p0;
 #[cfg(test)]

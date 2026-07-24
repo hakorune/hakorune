@@ -1,6 +1,6 @@
 # DECLACCESS MANIFEST0 execution task
 
-Status: **Ready**  
+Status: **In progress — source-facts sub-slice**
 Date: 2026-07-24  
 Decision: **DECLACCESS-IMPLEMENTATION-prime-r1**  
 Prerequisite: `7cfde485f8` (`COVERAGE0`)
@@ -9,6 +9,12 @@ Prerequisite: `7cfde485f8` (`COVERAGE0`)
 
 Create one exact, non-Clone source manifest before PHYSICAL0 opens. The
 manifest is the only source authority later consumed by DECLACCESS and BODY0.
+
+The first implementation commit is intentionally limited to the source-facts
+authority. It must not be called a MANIFEST0 closeout until runtime/config
+ownership and the Builder/shell co-install terminal are also present. Those
+remain explicit follow-up slices; no physical or production consumer is
+claimed by this card yet.
 
 ## Owner transition
 
@@ -86,4 +92,24 @@ git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 cargo check -q --lib
 cargo test -q raw_root --lib -- --test-threads=1
+```
+
+## Interim source-facts acceptance
+
+The source-facts sub-slice may close only these items:
+
+```text
+located ScalarControl0 payload = owned exactly once
+existing callable catalog seal = one producer
+source-facts module = <800 lines
+production consumer = 0
+runtime/config snapshot handoff = not yet claimed
+Builder/shell co-install = not yet claimed
+```
+
+Current evidence for this interim slice:
+
+```text
+cargo check -q --lib = green
+cargo test -q raw_root --lib -- --test-threads=1 = green
 ```
