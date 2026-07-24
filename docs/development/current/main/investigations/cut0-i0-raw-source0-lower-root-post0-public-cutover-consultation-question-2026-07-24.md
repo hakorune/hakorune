@@ -1,5 +1,10 @@
 # RAW public cutover consultation
 
+Status: closed by `RAW-PUBLIC-CUTOVER-prime-r1`.
+
+Selected decision and fixed execution order:
+`cut0-i0-raw-source0-lower-root-post0-public-cutover-decision-task-map-2026-07-24.md`.
+
 Decision stop: `RAW-PUBLIC-CUTOVER-CONSULT0`
 
 `PUBLICATION-ADAPTER0-S0` and `PUBLIC-INGRESS0-S0` are implemented and
@@ -103,17 +108,18 @@ compile_with_source / compile_with_source_and_imports:
 
 direct build_module compatibility bridges:
   src/runtime/mirbuilder_emit.rs
-  src/host_providers/mir_builder/lowering/ast_json.rs
+  src/host_providers/mir_builder/lowering/ast_json.rs (cfg(test)-only)
 
 old Raw run_raw:
   source definitions remain in module_postprocess/raw_physical_finalization;
   observed run_raw fixtures are cfg(test)-scoped
 
 new Raw production entry:
-  src/mir/compiler/raw_public_ingress.rs::compile_raw_with_source = 1
+  src/mir/compiler/raw_public_ingress.rs::compile_raw_with_source definition = 1
+  non-test caller = 0
 ```
 
 This census confirms that a normal-entry switch would affect runner and
-interpreter-facing callers, while JSON bridges are a separate authority. It
-does not authorize the switch; Q1-Q6 remain open until the selected cutover
-contract is recorded.
+interpreter-facing callers, while JSON bridges are a separate authority. The
+selected decision keeps the normal entry Legacy and opens the bounded repair,
+configuration, coverage, parity, and retirement rows instead.

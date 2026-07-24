@@ -2,8 +2,10 @@
 
 Decision: `RAW-PUBLIC-ADAPTER-prime-r1` Q2/Q3/Q5
 
-Status: active implementation. This row adds one explicit Raw source entry;
-the normal `compile_with_source` route and JSON routes remain unchanged.
+Status: closed. This row added one explicit Raw source entry; the normal
+`compile_with_source` route and JSON routes remain unchanged. Extended
+reuse/failure closeout evidence is assigned to
+`PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0`.
 
 ## Scope
 

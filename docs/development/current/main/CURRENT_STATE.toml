@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINAL0-S0, POST0-S0, POST0-FAILURE0, COMMIT0-S0, PUBLICATION0-S0, PUBLICATION-ADAPTER0-S0, and PUBLIC-INGRESS0-S0 are closed. RAW-PUBLIC-CUTOVER-CONSULT0 is the active design stop. Normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
+status = "FINAL0-S0 through PUBLIC-INGRESS0-S0 are closed. RAW-PUBLIC-CUTOVER-prime-r1 is selected after four-worker audit. PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0 is active; normal-entry cutover, old-chain retirement, executor, JSON changes, and CUT0 remain disconnected."
 date = "2026-07-24"
-current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-CONSULT0"
-current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-CONSULT0"
-current_execution_summary = "PUBLIC-INGRESS0-S0 is closed. Normal compile cutover and old Raw-chain retirement now require explicit parity, failure, caller-census, JSON, and sunset decisions before code changes."
+current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0"
+current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0"
+current_execution_summary = "Repair the landed ingress closeout evidence and cfg-test-aware caller census without route or grammar change. Then execute CONFIG0 -> COVERAGE0 -> PARITY0 -> OLD-RAW-RETIRE0; normal/JSON/executor cutover remains unauthorized."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -354,9 +354,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "cut0-i0-raw-source0-lower-root-post0-public-cutover-consultation-question-2026-07-24"
-latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-consultation-question-2026-07-24.md"
-latest_card_summary = """RAW-PUBLIC-CUTOVER-CONSULT0 design stop. Decide normal-entry authority, admitted-grammar parity, failure/reuse gate, old-chain sunset, JSON boundary, and caller census before any cutover code."""
+latest_card = "cut0-i0-raw-source0-lower-root-post0-public-ingress0-closeout-repair0-s0-execution-task-2026-07-24"
+latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress0-closeout-repair0-s0-execution-task-2026-07-24.md"
+latest_card_summary = """RAW-PUBLIC-CUTOVER-prime-r1 is selected. The active behavior-neutral closeout repair fixes the stale landed-row guard, cfg-test-aware route census, and missing public reuse/failure fixtures. CONFIG0, COVERAGE0, PARITY0, and OLD-RAW-RETIRE0 follow without another consultation."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -558,7 +558,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-POST0-PUBLIC-CUTOVER-CONSULT0-DESIGN-STOP-20260724"
+current_blocker_token = "RAW-POST0-PUBLIC-INGRESS0-CLOSEOUT-REPAIR0-S0-20260724"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
@@ -568,6 +568,12 @@ raw_post0_publication_adapter_consultation = "docs/development/current/main/inve
 raw_post0_publication_adapter0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-publication-adapter0-s0-execution-task-2026-07-24.md"
 raw_post0_public_ingress0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress0-s0-execution-task-2026-07-24.md"
 raw_post0_public_cutover_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-consultation-question-2026-07-24.md"
+raw_post0_public_cutover_decision_task_map = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-decision-task-map-2026-07-24.md"
+raw_post0_public_ingress0_closeout_repair0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress0-closeout-repair0-s0-execution-task-2026-07-24.md"
+raw_post0_public_ingress_config0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress-config0-s0-execution-task-2026-07-24.md"
+raw_post0_public_cutover_coverage0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-coverage0-s0-execution-task-2026-07-24.md"
+raw_post0_public_cutover_parity0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-s0-execution-task-2026-07-24.md"
+raw_post0_old_raw_retire0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-old-raw-retire0-execution-task-2026-07-24.md"
 failure_outcome_semantic_manifest_maint0_task = "docs/development/current/main/investigations/failure-outcome-semantic-manifest-maint0-execution-task-2026-07-24.md"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -578,7 +584,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-07-23: Atomic CUT0/G0 census opens a design stop. Canonical four-route disconnected execution exists but no production outer executor is wired; Raw has no compiler-issued source-bound ingress, runtime AST-JSON still has a direct Builder path, and Program(JSON v0) has a separate direct module builder. CUT0-I0-ATOMIC-CUTOVER-CONSULT0 is next; all production consumers remain disconnected.",
+  "2026-07-24: RAW-PUBLIC-CUTOVER-prime-r1 closes the normal-entry consultation after four read-only worker audits. Q1-Q6 select A with Q3 strengthened by request-owned import disposition and compiler-reuse immutability. The explicit Raw API has one definition and zero non-test callers; a normal switch would affect 14 runner leaves, mix no-import and import-aware lanes, and exceed the current LinearScalar0/unchecked-helper grammar. The fixed execution order is PUBLIC-INGRESS0-CLOSEOUT-REPAIR0 -> CONFIG0 -> COVERAGE0 -> PARITY0 -> OLD-RAW-RETIRE0. JSON, executor, selfhost, fastmem, fallback, normal cutover, and CUT0 remain zero.",
   "2026-07-23: SOURCE-FIRST-prime-r1 closes the Atomic CUT0 consultation. Q1=3 keeps all production consumers disconnected; Q2=1 selects a compiler-owned Raw source-bound ingress; Q3 splits AST-JSON parity from the existing Program(JSON v0) compatibility lane; Q4=1 seals BuilderInvocationConfig at outer ingress; Q5=1 requires measured zero direct Builder callers. RAW-SOURCE0-CONSULT0 is next; no executor, JSON behavior change, or MirBuilder::build_module retirement is allowed.",
   "2026-07-23: RAW-SOURCE0-PLAN0 closes as a disconnected owned-source projection proof. OwnedRawSourceV1 keeps the AST and origin while OwnedRawRootProjectionV1 stores only Script/App source locators; no token, session, collector, ledger, receipt, or module map is owned. PLAN0 guard, focused projection tests, cargo check, and pointer guard are green. RAW-SOURCE0-BIND0 is next; production Raw ingress remains disconnected.",
   "2026-07-23: RAW-SOURCE0-BIND0 closes as a disconnected compiler-owned source-binding proof. BareAst/ReplCompatibility source is projected and validated, BuilderInvocationConfig is snapshotted once, RawSourceContinuation is sealed, and the private issue_raw terminal mints the shared token only after preflight. Program(JSON v0), physical owners, public ingress, and executor wiring remain zero. BIND0 guard, focused tests, cargo check, and pointer guard are green. RAW-SOURCE0-LOWER0 is next.",
