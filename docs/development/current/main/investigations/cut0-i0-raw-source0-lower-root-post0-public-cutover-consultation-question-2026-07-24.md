@@ -90,3 +90,30 @@ C. focused test caller census only
 No implementation should begin until Q1-Q6 and the normal-entry stop line are
 recorded. This consultation deliberately claims no normal-entry cutover,
 legacy deletion, executor wiring, JSON change, or CUT0 activation.
+
+## Census update (2026-07-24)
+
+The current production-facing source callers are still:
+
+```text
+compile_with_source / compile_with_source_and_imports:
+  src/mir/compiler/mod.rs
+  src/runner/modes/common_util/source_hint.rs
+  src/backend/mir_interpreter/strict_json_session.rs
+
+direct build_module compatibility bridges:
+  src/runtime/mirbuilder_emit.rs
+  src/host_providers/mir_builder/lowering/ast_json.rs
+
+old Raw run_raw:
+  source definitions remain in module_postprocess/raw_physical_finalization;
+  observed run_raw fixtures are cfg(test)-scoped
+
+new Raw production entry:
+  src/mir/compiler/raw_public_ingress.rs::compile_raw_with_source = 1
+```
+
+This census confirms that a normal-entry switch would affect runner and
+interpreter-facing callers, while JSON bridges are a separate authority. It
+does not authorize the switch; Q1-Q6 remain open until the selected cutover
+contract is recorded.
