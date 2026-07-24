@@ -12,8 +12,7 @@ use crate::mir::{MirInstruction, ValueId};
 use super::super::MirBuilder;
 use super::branch_transaction::{ResolvedActiveEffectStackV1, ResolvedEffectBindingClassV1};
 use super::completion_consumption::{
-    emit_canonical_explicit_return, ReadyFunctionCompletionV1,
-    ResolvedFunctionCompletionConsumptionV1,
+    ReadyFunctionCompletionV1, ResolvedFunctionCompletionConsumptionV1,
 };
 use super::flow_consumption::ResolvedFlowConsumptionV1;
 use super::identity::ResolvedIdentityStateV1;
@@ -175,29 +174,29 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
             ASTNode::Outbox { variables, .. } => self.lower_outbox(statement, variables),
             ASTNode::Assignment { .. } => self.lower_assignment(statement),
             ASTNode::If { .. } => self.lower_statement_if(statement),
-            ASTNode::Return { value, .. } => {
-                let return_value = if value.is_some() {
+            ASTNode::Return { .. } => {
+                if self.completion.returns_value() {
                     let value = self
                         .input
                         .source()
                         .child_expr_from_stmt(statement, ExprChildRoleV1::ReturnValue)
                         .map_err(|error| error.to_string())?;
-                    self.lower_expr(&value)?
+                    let return_value = self.lower_expr(&value)?;
+                    let block = self.builder.function_state.current_block.ok_or_else(|| {
+                        "[freeze:contract][canonical_completion/current_block_missing]".to_string()
+                    })?;
+                    self.completion.claim_explicit_return(
+                        statement.site(),
+                        self.semantics.function_region(),
+                        block,
+                        return_value,
+                    )?;
                 } else {
-                    crate::mir::builder::emission::constant::emit_void(self.builder)?
-                };
-                let block = self.builder.function_state.current_block.ok_or_else(|| {
-                    "[freeze:contract][canonical_completion/current_block_missing]".to_string()
-                })?;
-                self.completion.claim_explicit_return(
-                    statement.site(),
-                    self.semantics.function_region(),
-                    block,
-                    return_value,
-                )?;
+                    self.completion
+                        .claim_explicit_unit(statement.site(), self.semantics.function_region())?;
+                }
                 self.identity
                     .mark_return(ResolvedExitSiteV1::Statement(statement.site().clone()))?;
-                emit_canonical_explicit_return(self.builder, return_value)?;
                 Ok(())
             }
             _ => {

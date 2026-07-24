@@ -59,6 +59,7 @@ pub(super) enum FunctionDraftSealStageV1 {
     SessionClose,
 }
 
+#[derive(Debug)]
 pub(super) enum FunctionDraftSealErrorV1 {
     Exit(FunctionDraftSealPreparationErrorV1),
     Projection(FunctionDraftSealProjectionErrorV1),
@@ -178,6 +179,13 @@ impl PreparedFunctionDraftSealV1<'_> {
 }
 
 impl CompletedFunctionDraftV1 {
+    /// One-shot compatibility handoff into the existing module collector.
+    /// The completed owner never exposes a mutable draft or a second split
+    /// path; callers consume it immediately when admitting the function.
+    pub(super) fn into_draft(self) -> MirFunction {
+        self.draft
+    }
+
     pub(super) fn draft(&self) -> &MirFunction {
         &self.draft
     }

@@ -227,21 +227,21 @@ PY
   for spec in \
     'completion_consumption.rs:ReadyFunctionCompletionV1' \
     'completion_consumption.rs:claim_explicit_return' \
+    'completion_consumption.rs:claim_explicit_unit' \
+    'completion_consumption.rs:ExplicitReturnWitnessV1' \
     'completion_consumption.rs:implicit_body_end()' \
     'completion_consumption.rs:implicit_body_mismatch' \
-    'completion_consumption.rs:legacy_return_state_active' \
-    'completion_consumption.rs:finalize_ready_function_completion' \
     'lowerer.rs:canonical_completion/body_length_overflow' \
-    'mod.rs:finalize_ready_function_completion(builder, ready)'; do
+    'mod.rs:ReadyFunctionDraftSealV1::new(ready, current_block).open(session)'; do
     local file="${spec%%:*}"
     local anchor="${spec#*:}"
     guard_expect_fixed_in_file "$tag" "$anchor" "$lowering/$file" \
       "D′ SSA-E0 completion consumption drifted: $file:$anchor"
   done
 
-  # F1 DRAFT-SEAL0-S0 is still disconnected from the legacy finalizer.  This
-  # guard fixes the new owner vocabulary and its non-mutating projection now;
-  # direct Return-writer retirement is a later integration row.
+  # F1 DRAFT-SEAL0-S0 now owns canonical/trivial lowerer closure.  The
+  # projection image is the only planned Return image; live lowerers and the
+  # old completion finalizers must not write or close this route separately.
   for spec in \
     'draft_seal.rs:ReadyFunctionDraftSealV1' \
     'draft_seal.rs:PreparedFunctionDraftSealPlanV1' \
@@ -275,6 +275,7 @@ PY
     'draft_seal_owner.rs:FunctionDraftSealStageV1' \
     'draft_seal_owner.rs:prepare' \
     'draft_seal_owner.rs:commit' \
+    'draft_seal_owner.rs:into_draft' \
     'draft_seal_owner.rs:discard'; do
     local file="${spec%%:*}"
     local anchor="${spec#*:}"
@@ -286,8 +287,28 @@ PY
   if [[ "$draft_products" != "4" ]]; then
     guard_fail "$tag" "F1 DRAFT-SEAL0 owner vocabulary must have four products, found $draft_products"
   fi
+  if rg -n 'draft_mut|into_parts\(' "$draft_seal_owner"; then
+    guard_fail "$tag" "F1 DRAFT-SEAL0 completed draft must expose only the one-shot collector handoff"
+  fi
   if rg -n 'current_module\.take\(' "$draft_seal"; then
     guard_fail "$tag" "F1 DRAFT-SEAL0 must not extract current_module during projection"
+  fi
+  for file in \
+    "$lowering/lowerer.rs" \
+    "$lowering/trivial_ssa/lowerer.rs" \
+    "$lowering/completion_consumption.rs" \
+    "$lowering/mod.rs"; do
+    if rg -n 'emit_canonical_explicit_return|finalize_ready_function_completion|finalize_preterminated_function_completion' "$file"; then
+      guard_fail "$tag" "F1 DRAFT-SEAL0 left a legacy Return/finalizer writer in $file"
+    fi
+  done
+  if rg -n 'MirInstruction::Return|emit_canonical_explicit_return' "$lowering/lowerer.rs" "$lowering/trivial_ssa/lowerer.rs" "$lowering/completion_consumption.rs"; then
+    guard_fail "$tag" "F1 DRAFT-SEAL0 lowerers must defer physical Return emission to the draft-seal projection"
+  fi
+  local draft_commit_writer_count
+  draft_commit_writer_count="$(rg -n 'MirInstruction::Return' "$draft_seal" | wc -l | tr -d '[:space:]')"
+  if [[ "$draft_commit_writer_count" != "2" ]]; then
+    guard_fail "$tag" "F1 DRAFT-SEAL0 planned Return image must have exactly two route writes, found $draft_commit_writer_count"
   fi
   for spec in \
     'prepare_draft_seal_close' \
@@ -344,6 +365,11 @@ PY
     "$if_control_tests" \
     "$lowering/completion_consumption.rs" \
     "$lowering/completion_tests.rs" \
+    "$lowering/lowerer.rs" \
+    "$lowering/trivial_ssa/lowerer.rs" \
+    "$lowering/trivial_ssa/callable_abi.rs" \
+    "$lowering/trivial_ssa/mod.rs" \
+    "$lowering/mod.rs" \
     "$draft_seal" \
     "$draft_seal_owner" \
     "$session_terminal" \
@@ -386,12 +412,14 @@ PY
   echo "resolved_control_flow_ssa_e0_grammar_delta=0"
   echo "function_exit_f1_semantic_seal_producer=verify_function_completion_v1"
   echo "function_exit_f1_return_carrier_owner=existing-mir-return-exit-contract"
-  echo "function_exit_f1_builder_materialization=0"
+  echo "function_exit_f1_builder_materialization=canonical-trivial-draft-seal"
   echo "function_exit_f1_draft_seal_owner_vocabulary=4"
   echo "function_exit_f1_draft_seal_projection_live_mutation=0"
   echo "function_exit_f1_draft_seal_signature_plan=1"
   echo "function_exit_f1_draft_seal_legacy_writer_retirement=deferred"
   echo "function_exit_f1_draft_seal_session_close_prepare=1"
   echo "function_exit_f1_draft_seal_session_close_commit=1"
+  echo "function_exit_f1_draft_seal_live_lowerer_return_writers=0"
+  echo "function_exit_f1_draft_seal_planned_return_image_writers=2"
   echo "function_exit_f1_parser_activation=0"
 }

@@ -210,14 +210,18 @@ Open owner; `discard(self)` is the only rejection terminal.
 `PreparedFunctionDraftSealV1::commit` now consumes the typed session payload,
 installs the projected function/type facts, takes `current_function` exactly
 once, restores the caller context, and returns `CompletedFunctionDraftV1`.
-The commit has no `Result`, lookup, repair, fallback, or retry edge. The
-canonical lowerers and legacy finalizer remain disconnected; this row only
-closes the owner/prepare/commit seam.
+The commit has no `Result`, lookup, repair, fallback, or retry edge. Both
+canonical and trivial-SSA lowerers now hand their unpublished function
+session to this owner; their live Return writers and old completion-finalizer
+calls are removed from this route. The legacy finalizer remains only on
+unrelated legacy routes and is not widened by this row.
 
-Focused completion tests cover one projected exact-value success and one
-preterminated-return rejection with owner discard. The resolved-control-flow
-guard now counts the four draft-seal products across the planner and owner
-boxes and checks both files independently for the 800-line limit.
+Focused completion tests cover exact value, explicit unit, implicit unit,
+projected exact-value success, preterminated-return rejection, and owner
+discard. The resolved-control-flow guard checks the canonical/trivial
+handoff, zero live lowerer Return writers, two private planned Return-image
+writes, four draft-seal products across the planner and owner boxes, and the
+800-line limit.
 
 ## Acceptance gates
 

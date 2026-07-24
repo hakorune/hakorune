@@ -7,9 +7,7 @@ use crate::mir::resolved_semantics::RegionId;
 use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1};
 use crate::mir::{BasicBlockId, MirBuilder, MirCompiler, MirInstruction, MirType, ValueId};
 
-use super::completion_consumption::{
-    emit_canonical_explicit_return, ResolvedFunctionCompletionConsumptionV1,
-};
+use super::completion_consumption::ResolvedFunctionCompletionConsumptionV1;
 use super::draft_seal::{PreparedFunctionExitV1, ReadyFunctionDraftSealV1};
 
 fn resolved_product(name: &str) -> Arc<crate::mir::resolved_semantics::VerifiedResolvedFunctionV1> {
@@ -92,15 +90,6 @@ fn empty_and_nonempty_implicit_fallthrough_emit_one_return_each() {
     let nonempty = compile("completion_nonempty", vec![literal(1)]);
     assert_eq!(return_count(&empty), 1);
     assert_eq!(return_count(&nonempty), 1);
-}
-
-#[test]
-fn canonical_return_never_uses_active_legacy_defer_state() {
-    let mut builder = crate::mir::MirBuilder::new();
-    builder.function_state.return_defer_active = true;
-
-    let error = emit_canonical_explicit_return(&mut builder, ValueId::new(0)).unwrap_err();
-    assert!(error.contains("legacy_return_state_active"));
 }
 
 #[test]
@@ -221,9 +210,7 @@ fn draft_seal_keeps_explicit_unit_distinct_from_implicit_unit() {
     let target = input.function().lowering_roots().function_pair().region();
     let mut consumption =
         ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
-    consumption
-        .claim_explicit_return(&site, target, BasicBlockId::new(0), ValueId::new(1))
-        .unwrap();
+    consumption.claim_explicit_unit(&site, target).unwrap();
     let ready = consumption
         .finish(body.site(), body.statements().len() as u32, target)
         .unwrap();

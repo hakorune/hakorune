@@ -22,8 +22,7 @@ use crate::mir::resolved_value_profile::TrivialProfileConsumptionV1;
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
 use super::super::completion_consumption::{
-    emit_canonical_explicit_return, ReadyFunctionCompletionV1,
-    ResolvedFunctionCompletionConsumptionV1,
+    ReadyFunctionCompletionV1, ResolvedFunctionCompletionConsumptionV1,
 };
 use super::super::semantic_stack::{ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1};
 use super::super::MirBuilder;
@@ -120,8 +119,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         if self.completion_is_implicit() {
             self.profile
                 .claim_terminal_implicit_no_value(body.site(), body_end)?;
-            let value = crate::mir::builder::emission::constant::emit_void(self.builder)?;
-            emit_canonical_explicit_return(self.builder, value)?;
         }
         self.seal_current_if_needed()?;
 
@@ -185,8 +182,8 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                 ..
             } => self.lower_local(statement, variables, initial_values, coverage),
             ASTNode::Assignment { .. } => self.lower_assignment(statement, coverage),
-            ASTNode::Return { value, .. } => {
-                let return_value = if value.is_some() {
+            ASTNode::Return { .. } => {
+                if self.completion.returns_value() {
                     let value = self
                         .input
                         .source()
@@ -195,24 +192,24 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                     let (return_value, _) = self.lower_expr(&value, coverage.as_deref_mut())?;
                     self.profile
                         .claim_terminal_explicit_value(statement.site(), value.site())?;
-                    return_value
+                    let block = self.builder.function_state.current_block.ok_or_else(|| {
+                        "[freeze:contract][canonical_completion/current_block_missing]".to_string()
+                    })?;
+                    self.completion.claim_explicit_return(
+                        statement.site(),
+                        self.semantics.function_region(),
+                        block,
+                        return_value,
+                    )?;
                 } else {
                     self.profile
                         .claim_terminal_explicit_no_value(statement.site())?;
-                    crate::mir::builder::emission::constant::emit_void(self.builder)?
-                };
-                let block = self.builder.function_state.current_block.ok_or_else(|| {
-                    "[freeze:contract][canonical_completion/current_block_missing]".to_string()
-                })?;
-                self.completion.claim_explicit_return(
-                    statement.site(),
-                    self.semantics.function_region(),
-                    block,
-                    return_value,
-                )?;
+                    self.completion
+                        .claim_explicit_unit(statement.site(), self.semantics.function_region())?;
+                }
                 self.identity
                     .mark_return(ResolvedExitSiteV1::Statement(statement.site().clone()))?;
-                emit_canonical_explicit_return(self.builder, return_value)
+                Ok(())
             }
             ASTNode::Literal { .. }
             | ASTNode::Variable { .. }

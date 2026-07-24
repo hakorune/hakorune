@@ -9,7 +9,5 @@ mod operation;
 mod operation_type;
 mod parameter_entry;
 
-pub(super) use callable_abi::{
-    install_trivial_callable_abi_v1, refresh_trivial_callable_boundary_contracts_v1,
-};
+pub(super) use callable_abi::install_trivial_callable_abi_v1;
 pub(super) use lowerer::CanonicalTrivialSsaLowererV1;

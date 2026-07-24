@@ -71,9 +71,15 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
         self.builder
     }
 
+    /// Mutable lowering view used only before the draft-seal prepare begins.
+    /// The prepared owner never exposes this capability.
+    pub(in crate::mir::builder) fn builder_view_mut_for_lowering(&mut self) -> &mut MirBuilder {
+        self.builder
+    }
+
     #[cfg(test)]
     pub(in crate::mir::builder) fn builder_view_mut_for_test(&mut self) -> &mut MirBuilder {
-        self.builder
+        self.builder_view_mut_for_lowering()
     }
 
     /// Discard the unpublished function and restore the captured caller

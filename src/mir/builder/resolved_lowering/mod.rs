@@ -59,14 +59,10 @@ use crate::mir::{MirFunction, MirModule};
 
 use super::calls::CanonicalFunctionSessionErrorV1;
 use super::MirBuilder;
-use completion_consumption::{
-    finalize_preterminated_function_completion, finalize_ready_function_completion,
-};
+use draft_seal::ReadyFunctionDraftSealV1;
+use draft_seal_owner::RejectedFunctionDraftSealV1;
 use lowerer::CanonicalFunctionLowererV1;
-use trivial_ssa::{
-    install_trivial_callable_abi_v1, refresh_trivial_callable_boundary_contracts_v1,
-    CanonicalTrivialSsaLowererV1,
-};
+use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum CanonicalResolvedBuildErrorV1 {
@@ -132,37 +128,53 @@ impl MirBuilder {
         };
         let function_name = format!("{}/{}", name, params.len());
         let session_name = function_name.clone();
-        let draft = self.with_resolved_function_draft_session(&session_name, |builder| {
-            builder
-                .function_state
-                .resolved_binding_state
-                .install(input.function())?;
-            builder.create_function_skeleton(function_name, params, body)?;
-            builder.set_current_function_declared_signature(
-                params
-                    .iter()
-                    .map(|name| MirParamDecl {
-                        name: name.clone(),
-                        declared_type_name: None,
-                        implicit_receiver: false,
-                    })
-                    .collect(),
-                return_type_name.clone(),
-            );
-            builder.set_current_function_runes(attrs);
-            builder.set_current_function_declared_capability_uses(uses);
+        let mut session = self.open_resolved_function_draft_seal_session_v1(&session_name);
+        let lowering = {
+            let builder = session.builder_view_mut_for_lowering();
+            (|| {
+                builder
+                    .function_state
+                    .resolved_binding_state
+                    .install(input.function())?;
+                builder.create_function_skeleton(function_name, params, body)?;
+                builder.set_current_function_declared_signature(
+                    params
+                        .iter()
+                        .map(|name| MirParamDecl {
+                            name: name.clone(),
+                            declared_type_name: None,
+                            implicit_receiver: false,
+                        })
+                        .collect(),
+                    return_type_name.clone(),
+                );
+                builder.set_current_function_runes(attrs);
+                builder.set_current_function_declared_capability_uses(uses);
 
-            let ready = CanonicalFunctionLowererV1::new(
-                builder,
-                input,
-                flow,
-                completion,
-                block_expr_count,
-            )?
-            .lower()?;
-            finalize_ready_function_completion(builder, ready)
-        })?;
-        Ok(draft)
+                let ready = CanonicalFunctionLowererV1::new(
+                    builder,
+                    input,
+                    flow,
+                    completion,
+                    block_expr_count,
+                )?
+                .lower()?;
+                let current_block = builder.function_state.current_block.ok_or_else(|| {
+                    "[freeze:contract][f1_draft_seal/current_block_missing]".to_string()
+                })?;
+                Ok::<_, String>((ready, current_block))
+            })()
+        };
+        let (ready, current_block) = match lowering {
+            Ok(result) => result,
+            Err(error) => {
+                session.discard_unpublished();
+                return Err(error.into());
+            }
+        };
+        let open = ReadyFunctionDraftSealV1::new(ready, current_block).open(session);
+        let prepared = open.prepare().map_err(reject_draft_seal)?;
+        Ok(prepared.commit().into_draft())
     }
 
     pub(in crate::mir) fn build_resolved_trivial_function_module(
@@ -203,36 +215,54 @@ impl MirBuilder {
         };
         let function_name = format!("{}/{}", name, params.len());
         let session_name = function_name.clone();
-        let draft = self.with_resolved_function_draft_session(&session_name, |builder| {
-            builder
-                .function_state
-                .resolved_binding_state
-                .install(input.function())?;
-            builder.create_function_skeleton(function_name, params, body)?;
-            install_trivial_callable_abi_v1(builder, &profile);
-            builder.set_current_function_runes(attrs);
-            builder.set_current_function_declared_capability_uses(uses);
+        let mut session = self.open_resolved_function_draft_seal_session_v1(&session_name);
+        let lowering = {
+            let builder = session.builder_view_mut_for_lowering();
+            (|| {
+                builder
+                    .function_state
+                    .resolved_binding_state
+                    .install(input.function())?;
+                builder.create_function_skeleton(function_name, params, body)?;
+                install_trivial_callable_abi_v1(builder, &profile);
+                builder.set_current_function_runes(attrs);
+                builder.set_current_function_declared_capability_uses(uses);
 
-            let ready = CanonicalTrivialSsaLowererV1::new(
-                builder,
-                input,
-                if_control,
-                completion,
-                profile,
-                block_expr_count,
-            )?
-            .lower()?;
-            let mut draft = finalize_preterminated_function_completion(builder, ready)?;
-            refresh_trivial_callable_boundary_contracts_v1(&mut draft);
-            crate::mir::verification::MirVerifier::new()
-                .verify_function(&draft)
-                .map_err(|errors| {
-                    format!(
-                        "[freeze:contract][canonical_binding_ssa/function_verify] errors={errors:?}"
-                    )
+                let ready = CanonicalTrivialSsaLowererV1::new(
+                    builder,
+                    input,
+                    if_control,
+                    completion,
+                    profile,
+                    block_expr_count,
+                )?
+                .lower()?;
+                let current_block = builder.function_state.current_block.ok_or_else(|| {
+                    "[freeze:contract][f1_draft_seal/current_block_missing]".to_string()
                 })?;
-            Ok(draft)
-        })?;
-        Ok(draft)
+                Ok::<_, String>((ready, current_block))
+            })()
+        };
+        let (ready, current_block) = match lowering {
+            Ok(result) => result,
+            Err(error) => {
+                session.discard_unpublished();
+                return Err(error.into());
+            }
+        };
+        let open = ReadyFunctionDraftSealV1::new(ready, current_block).open(session);
+        let prepared = open.prepare().map_err(reject_draft_seal)?;
+        Ok(prepared.commit().into_draft())
     }
+}
+
+fn reject_draft_seal<'builder>(
+    rejected: RejectedFunctionDraftSealV1<'builder>,
+) -> CanonicalResolvedBuildErrorV1 {
+    let stage = rejected.stage();
+    let error = format!("{:?}", rejected.error());
+    rejected.discard();
+    CanonicalResolvedBuildErrorV1::BuilderContract(format!(
+        "[freeze:contract][f1_draft_seal/{stage:?}] {error}"
+    ))
 }
