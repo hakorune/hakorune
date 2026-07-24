@@ -107,10 +107,10 @@ normative topic =
   docs/reference/language/function-exit-and-entry-result.md
 
 current executable row =
-  FUNCTION-EXIT-F1-MATERIALIZE0-D0 (design stop)
+  FUNCTION-EXIT-F1-DRAFT-SEAL-D0 (design stop)
 
 execution card =
-  docs/development/current/main/investigations/function-exit-f1-materialize0-s0-design-stop-2026-07-25.md
+  docs/development/current/main/investigations/function-exit-f1-draft-seal-design-question-2026-07-25.md
 ```
 
 The preceding RETURN0 row closed the existing `VerifiedFunctionCompletionV1`
@@ -129,7 +129,7 @@ The durable function-exit queue is:
 FUNCTION-EXIT-F1-RETURN0-S0
   existing completion owner + declared-result relation, exact 0/1 slice
 
--> FUNCTION-EXIT-F1-MATERIALIZE0-D0
+-> FUNCTION-EXIT-F1-DRAFT-SEAL-D0
   design stop: decide the strict prepared/infallible draft-seal boundary
 
 -> SCRIPT-RESULT-TAIL0-S0
