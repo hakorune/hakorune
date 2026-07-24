@@ -7,6 +7,7 @@ use crate::mir::{BasicBlockId, MirCompiler, MirInstruction, ValueId};
 use super::completion_consumption::{
     emit_canonical_explicit_return, ResolvedFunctionCompletionConsumptionV1,
 };
+use super::draft_seal::{PreparedFunctionExitV1, ReadyFunctionDraftSealV1};
 
 fn literal(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -153,4 +154,100 @@ fn explicit_completion_retains_exact_lowered_operand_witness() {
     let witness = ready.explicit_operand().unwrap();
     assert_eq!(witness.block(), BasicBlockId::new(3));
     assert_eq!(witness.value(), ValueId::new(17));
+}
+
+#[test]
+fn draft_seal_prepares_the_exact_explicit_operand_without_reclassifying_it() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
+        "draft_seal_explicit_operand",
+        vec![return_stmt(Some(literal(7)))],
+    ))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    let body = input.source().root_body().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let site = completion.explicit_site().unwrap().clone();
+    let target = input.function().lowering_roots().function_pair().region();
+    let mut consumption =
+        ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
+    consumption
+        .claim_explicit_return(&site, target, BasicBlockId::new(4), ValueId::new(23))
+        .unwrap();
+    let ready = consumption
+        .finish(body.site(), body.statements().len() as u32, target)
+        .unwrap();
+
+    let completed = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(4))
+        .prepare()
+        .unwrap()
+        .commit();
+    assert_eq!(
+        completed.exit(),
+        PreparedFunctionExitV1::ExplicitValue {
+            block: BasicBlockId::new(4),
+            value: ValueId::new(23),
+        }
+    );
+}
+
+#[test]
+fn draft_seal_keeps_explicit_unit_distinct_from_implicit_unit() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
+        "draft_seal_explicit_unit",
+        vec![return_stmt(None)],
+    ))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    let body = input.source().root_body().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let site = completion.explicit_site().unwrap().clone();
+    let target = input.function().lowering_roots().function_pair().region();
+    let mut consumption =
+        ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
+    consumption
+        .claim_explicit_return(&site, target, BasicBlockId::new(0), ValueId::new(0))
+        .unwrap();
+    let ready = consumption
+        .finish(body.site(), body.statements().len() as u32, target)
+        .unwrap();
+
+    let completed = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(0))
+        .prepare()
+        .unwrap()
+        .commit();
+    assert_eq!(
+        completed.exit(),
+        PreparedFunctionExitV1::ExplicitUnit {
+            block: BasicBlockId::new(0)
+        }
+    );
+}
+
+#[test]
+fn draft_seal_marks_empty_completion_as_implicit_unit() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
+        "draft_seal_implicit_unit",
+        Vec::new(),
+    ))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    let body = input.source().root_body().unwrap();
+    let target = input.function().lowering_roots().function_pair().region();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let consumption =
+        ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
+    let ready = consumption
+        .finish(body.site(), body.statements().len() as u32, target)
+        .unwrap();
+
+    let completed = ReadyFunctionDraftSealV1::new(ready, BasicBlockId::new(0))
+        .prepare()
+        .unwrap()
+        .commit();
+    assert_eq!(
+        completed.exit(),
+        PreparedFunctionExitV1::ImplicitUnit {
+            block: BasicBlockId::new(0)
+        }
+    );
 }

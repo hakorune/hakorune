@@ -131,6 +131,17 @@ Keep each changed source/check file below 800 lines. Do not broaden the
 existing `finalize_function_draft` contract until the prepared owner has a
 typed plan for every operation it currently performs.
 
+## Landed substep
+
+`DRAFT-SEAL-CONTRACT0` is now fixed in the Builder vocabulary. The new
+`ReadyFunctionDraftSealV1 -> PreparedFunctionDraftSealV1 ->
+CompletedFunctionDraftV1` chain classifies explicit value, explicit unit, and
+implicit unit exits from the sealed completion plus the exact lowered operand
+witness. This substep is intentionally not `DRAFT-SEAL-PREPARE0`: it does not
+project `MirFunction`/`TypeContext`, run type or stale-fact planning, verify a
+projected draft, or close the canonical session. The legacy finalizer and its
+physical Return writers remain unchanged until those plans exist.
+
 ## Acceptance gates
 
 ```text

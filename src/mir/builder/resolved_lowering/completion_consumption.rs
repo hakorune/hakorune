@@ -26,6 +26,14 @@ impl ReadyFunctionCompletionV1 {
     pub(super) fn explicit_operand(&self) -> Option<ReturnOperandWitnessV1> {
         self.explicit_operand
     }
+
+    pub(super) fn returns_value(&self) -> bool {
+        self.completion.returns_value()
+    }
+
+    pub(super) fn is_implicit_void(&self) -> bool {
+        self.completion.is_implicit_void()
+    }
 }
 
 /// Builder-side evidence for the one explicit source exit accepted by F1.

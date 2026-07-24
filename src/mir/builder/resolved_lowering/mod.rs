@@ -8,6 +8,7 @@ mod branch_transaction;
 mod callable_module_transaction;
 pub(in crate::mir::builder) mod canonical_cfg;
 mod completion_consumption;
+mod draft_seal;
 mod flow_consumption;
 mod identity;
 pub(in crate::mir::builder) mod if_cfg_ready_bridge;
