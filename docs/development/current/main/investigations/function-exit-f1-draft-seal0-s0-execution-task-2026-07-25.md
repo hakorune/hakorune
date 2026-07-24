@@ -193,6 +193,11 @@ non-dominating edges. It does not call the legacy whole-function PHI repair;
 the receipt is retained in the prepared type/metadata plan for the future
 outer draft-seal owner.
 
+The verification-image step now also runs the existing function verifier on
+the projected function, after typed-value checks and stale-fact application.
+Any failure is a typed `ProjectedVerificationFailed` rejection; no verifier
+is run against live Builder state and no post-commit verification edge exists.
+
 ## Acceptance gates
 
 ```text

@@ -70,6 +70,7 @@ pub(super) enum FunctionDraftSealProjectionErrorV1 {
     MetadataContractFailed(String),
     StaleFacts(String),
     TypedValueVerificationFailed(String),
+    ProjectedVerificationFailed(String),
     ValueIdOverflow,
 }
 
@@ -557,6 +558,13 @@ impl PreparedFunctionStaleFactsV1 {
         .map_err(|error| {
             FunctionDraftSealProjectionErrorV1::TypedValueVerificationFailed(error.to_string())
         })?;
+        crate::mir::verification::MirVerifier::new()
+            .verify_function(&self.projection.function)
+            .map_err(|errors| {
+                FunctionDraftSealProjectionErrorV1::ProjectedVerificationFailed(format!(
+                    "{errors:?}"
+                ))
+            })?;
         Ok(VerifiedFunctionDraftProjectionV1 {
             projection: FunctionDraftSealProjectionV1 {
                 function: self.projection.function.clone(),

@@ -257,7 +257,8 @@ PY
     'draft_seal.rs:prepare_signature' \
     'draft_seal.rs:MetadataContractFailed' \
     'draft_seal.rs:prepare_stale_facts' \
-    'draft_seal.rs:TypedValueVerificationFailed'; do
+    'draft_seal.rs:TypedValueVerificationFailed' \
+    'draft_seal.rs:ProjectedVerificationFailed'; do
     local file="${spec%%:*}"
     local anchor="${spec#*:}"
     guard_expect_fixed_in_file "$tag" "$anchor" "$lowering/$file" \
