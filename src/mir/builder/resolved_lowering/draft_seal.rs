@@ -65,6 +65,7 @@ pub(super) enum FunctionDraftSealProjectionErrorV1 {
     UnknownReturnValueType { value: ValueId },
     UnsupportedReturnValueType { value: ValueId, actual: MirType },
     ReturnSignatureMismatch { expected: MirType, actual: MirType },
+    PhiClosureFailed(String),
     TypeAnalysisFailed(String),
     MetadataContractFailed(String),
     StaleFacts(String),
@@ -92,6 +93,24 @@ pub(super) struct PreparedFunctionMetadataV1 {
     projection: FunctionDraftSealProjectionV1,
     metadata: FunctionMetadata,
     signature: PreparedFunctionSignatureV1,
+    phi: PreparedFunctionPhiClosureReceiptV1,
+}
+
+/// Proof-only receipt for the strict PHI/CFG closure check. The draft seal
+/// never repairs PHI edges; repair-required functions reject before commit.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct PreparedFunctionPhiClosureReceiptV1;
+
+#[derive(Debug)]
+pub(super) struct PreparedFunctionPhiSealV1 {
+    projection: FunctionDraftSealProjectionV1,
+    receipt: PreparedFunctionPhiClosureReceiptV1,
+}
+
+#[derive(Debug)]
+pub(super) struct PreparedFunctionTypeFactsV1 {
+    projection: FunctionDraftSealProjectionV1,
+    phi: PreparedFunctionPhiClosureReceiptV1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -309,6 +328,24 @@ impl RejectedFunctionDraftProjectionV1 {
 }
 
 impl FunctionDraftSealProjectionV1 {
+    /// Verify terminator-derived PHI/CFG closure on the private projection.
+    /// This is the strict verifier only; legacy whole-function PHI repair is
+    /// not a draft-seal responsibility.
+    pub(super) fn prepare_phi_closure(
+        self,
+    ) -> Result<PreparedFunctionPhiSealV1, FunctionDraftSealProjectionErrorV1> {
+        crate::mir::builder::ssa::phi_input_materializer::edge_verifier::verify_phi_edges_v1(
+            &self.function,
+        )
+        .map_err(|errors| {
+            FunctionDraftSealProjectionErrorV1::PhiClosureFailed(format!("{errors:?}"))
+        })?;
+        Ok(PreparedFunctionPhiSealV1 {
+            projection: self,
+            receipt: PreparedFunctionPhiClosureReceiptV1,
+        })
+    }
+
     /// Run the shared type propagation order on the private projection only.
     /// No live `TypeContext` or `MirFunction` is passed to this entry.
     pub(super) fn prepare_type_facts(mut self) -> Result<Self, FunctionDraftSealProjectionErrorV1> {
@@ -345,6 +382,7 @@ impl FunctionDraftSealProjectionV1 {
             projection: self,
             metadata,
             signature,
+            phi: PreparedFunctionPhiClosureReceiptV1,
         })
     }
 
@@ -401,6 +439,36 @@ impl FunctionDraftSealProjectionV1 {
             }
         };
         Ok(PreparedFunctionSignatureV1 { result })
+    }
+}
+
+impl PreparedFunctionPhiSealV1 {
+    /// Continue PREPARE0 only after the pure PHI/CFG receipt exists.
+    pub(super) fn prepare_type_facts(
+        self,
+    ) -> Result<PreparedFunctionTypeFactsV1, FunctionDraftSealProjectionErrorV1> {
+        let projection = self.projection.prepare_type_facts()?;
+        Ok(PreparedFunctionTypeFactsV1 {
+            projection,
+            phi: self.receipt,
+        })
+    }
+}
+
+impl PreparedFunctionTypeFactsV1 {
+    /// Prepare metadata from the type-planned private image while retaining
+    /// the PHI closure receipt for the future outer draft-seal owner.
+    pub(super) fn prepare_metadata(
+        self,
+    ) -> Result<PreparedFunctionMetadataV1, FunctionDraftSealProjectionErrorV1> {
+        let mut metadata = self.projection.prepare_metadata()?;
+        metadata.phi = self.phi;
+        Ok(metadata)
+    }
+
+    #[cfg(test)]
+    pub(super) fn projection(&self) -> &FunctionDraftSealProjectionV1 {
+        &self.projection
     }
 }
 

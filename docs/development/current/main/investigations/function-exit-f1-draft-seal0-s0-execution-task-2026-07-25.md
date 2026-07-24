@@ -186,6 +186,13 @@ supported Integer/Bool/Float/Void operand carriers. A projected signature
 drift is rejected before any live function mutation; the live signature and
 physical Return writer remain deferred to COMMIT0.
 
+The projection path now has a strict PHI/CFG closure receipt before type-fact
+planning. It calls the existing terminator-derived PHI edge verifier on the
+private function image and rejects phantom, missing, duplicate, undefined, or
+non-dominating edges. It does not call the legacy whole-function PHI repair;
+the receipt is retained in the prepared type/metadata plan for the future
+outer draft-seal owner.
+
 ## Acceptance gates
 
 ```text

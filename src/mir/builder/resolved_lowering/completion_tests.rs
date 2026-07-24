@@ -309,11 +309,21 @@ fn draft_seal_projection_materializes_without_mutating_live_function() {
         .unwrap()
         .project(&builder)
         .unwrap()
+        .prepare_phi_closure()
+        .unwrap()
         .prepare_type_facts()
         .unwrap();
-    assert_eq!(projected.function().signature.return_type, MirType::Integer);
+    assert_eq!(
+        projected.projection().function().signature.return_type,
+        MirType::Integer
+    );
     assert!(matches!(
-        projected.function().get_block(BasicBlockId::new(0)).unwrap().terminator,
+        projected
+            .projection()
+            .function()
+            .get_block(BasicBlockId::new(0))
+            .unwrap()
+            .terminator,
         Some(MirInstruction::Return { value: Some(id) }) if id == value
     ));
     assert_eq!(
@@ -431,6 +441,10 @@ fn draft_seal_projection_prepares_stale_facts_without_live_map_mutation() {
         .prepare()
         .unwrap()
         .project(&builder)
+        .unwrap()
+        .prepare_phi_closure()
+        .unwrap()
+        .prepare_type_facts()
         .unwrap()
         .prepare_metadata()
         .unwrap();

@@ -246,6 +246,10 @@ PY
     'draft_seal.rs:CompletedFunctionDraftV1' \
     'draft_seal.rs:RejectedFunctionDraftSealV1' \
     'draft_seal.rs:FunctionDraftSealProjectionV1' \
+    'draft_seal.rs:PreparedFunctionPhiSealV1' \
+    'draft_seal.rs:PreparedFunctionPhiClosureReceiptV1' \
+    'draft_seal.rs:prepare_phi_closure' \
+    'draft_seal.rs:PhiClosureFailed' \
     'draft_seal.rs:prepare_type_facts' \
     'draft_seal.rs:prepare_metadata' \
     'draft_seal.rs:PreparedFunctionSignatureV1' \
