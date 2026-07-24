@@ -15,7 +15,8 @@ use super::context_lifecycle::LoweringContext;
 mod terminal;
 #[allow(unused_imports)] // RAWPORT0-S0 exposes the later invocation terminal without a caller.
 pub(in crate::mir::builder) use terminal::{
-    LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1,
+    LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1, PreparedFunctionSessionCloseV1,
+    RejectedFunctionSessionCloseV1,
 };
 
 #[derive(Debug)]
@@ -222,6 +223,33 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
         &self,
         operation_succeeded: bool,
     ) -> Result<(), FunctionSessionCleanupErrorV1> {
+        self.validate_session_state(operation_succeeded, false)
+    }
+
+    /// Validate the state that must already be closed before a canonical
+    /// draft-seal commit takes ownership of the unpublished function.
+    ///
+    /// Unlike `validate_before_restore(true)`, this intentionally requires
+    /// `current_function` to remain installed: the prepared draft-seal
+    /// terminal is the sole owner that takes it during its infallible commit.
+    pub(super) fn validate_before_draft_seal(&self) -> Result<String, String> {
+        self.validate_session_state(true, true)
+            .map(|()| {
+                self.builder
+                    .function_state
+                    .current_function
+                    .as_ref()
+                    .map(|function| function.signature.name.clone())
+                    .expect("draft-seal readiness requires one installed function")
+            })
+            .map_err(|error| error.to_string())
+    }
+
+    fn validate_session_state(
+        &self,
+        operation_succeeded: bool,
+        draft_seal_owns_extraction: bool,
+    ) -> Result<(), FunctionSessionCleanupErrorV1> {
         let context = self
             .context
             .as_ref()
@@ -242,7 +270,14 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
             imbalances.push("unified_boxcall_fallback");
         }
         if operation_succeeded {
-            if self.builder.function_state.current_function.is_some() {
+            if draft_seal_owns_extraction && !self.requires_resolved_authority {
+                imbalances.push("draft_seal_requires_resolved_authority");
+            }
+            if draft_seal_owns_extraction {
+                if self.builder.function_state.current_function.is_none() {
+                    imbalances.push("draft_not_installed");
+                }
+            } else if self.builder.function_state.current_function.is_some() {
                 imbalances.push("published_draft_still_installed");
             }
             if !self

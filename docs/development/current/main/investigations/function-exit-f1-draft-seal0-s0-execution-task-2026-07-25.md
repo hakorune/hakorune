@@ -163,6 +163,15 @@ Projected typed-value verification now applies that plan to a second private
 facts image and keeps the original plan available. This is verification-image
 work only; the live map, draft extraction, and session close remain untouched.
 
+The canonical session now also exposes a disconnected prepared-close seam:
+`prepare_draft_seal_close(self)` validates the resolved-family session while
+the unpublished function is still installed, and
+`PreparedFunctionSessionCloseV1::commit(self)` takes `current_function` and
+restores the caller context without a fallible edge. Rejection retains the
+original session and discards it exactly once. Legacy `run`/`capture` paths
+remain unchanged; this seam is not yet wired into the lowerers or the draft
+seal projection, so the full PREPARE0/COMMIT0 row remains open.
+
 ## Acceptance gates
 
 ```text

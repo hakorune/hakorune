@@ -14,6 +14,8 @@ guard_resolved_control_flow_contract() {
   local if_control="$flow/if_control.rs"
   local if_control_tests="$flow/if_control_tests.rs"
   local lowering="$root/src/mir/builder/resolved_lowering"
+  local draft_seal="$lowering/draft_seal.rs"
+  local session_terminal="$root/src/mir/builder/calls/function_session/terminal.rs"
   local helper="${BASH_SOURCE[0]}"
   local authority_guard="$root/tools/checks/resolved_region_flow_authority_guard.sh"
 
@@ -32,6 +34,8 @@ guard_resolved_control_flow_contract() {
     "$compiler/source_projection.rs" \
     "$compiler/source_view.rs" \
     "$compiler/source_view_tests.rs" \
+    "$draft_seal" \
+    "$session_terminal" \
     "$root/src/mir/mod.rs"
 
   local expected_manifest actual_manifest
@@ -232,6 +236,45 @@ PY
     guard_expect_fixed_in_file "$tag" "$anchor" "$lowering/$file" \
       "D′ SSA-E0 completion consumption drifted: $file:$anchor"
   done
+
+  # F1 DRAFT-SEAL0-S0 is still disconnected from the legacy finalizer.  This
+  # guard fixes the new owner vocabulary and its non-mutating projection now;
+  # direct Return-writer retirement is a later integration row.
+  for spec in \
+    'draft_seal.rs:ReadyFunctionDraftSealV1' \
+    'draft_seal.rs:PreparedFunctionDraftSealV1' \
+    'draft_seal.rs:CompletedFunctionDraftV1' \
+    'draft_seal.rs:RejectedFunctionDraftSealV1' \
+    'draft_seal.rs:FunctionDraftSealProjectionV1' \
+    'draft_seal.rs:prepare_type_facts' \
+    'draft_seal.rs:prepare_stale_facts' \
+    'draft_seal.rs:TypedValueVerificationFailed'; do
+    local file="${spec%%:*}"
+    local anchor="${spec#*:}"
+    guard_expect_fixed_in_file "$tag" "$anchor" "$lowering/$file" \
+      "F1 DRAFT-SEAL0 vocabulary drifted: $file:$anchor"
+  done
+  local draft_products
+  draft_products="$(rg -n 'struct (ReadyFunctionDraftSealV1|PreparedFunctionDraftSealV1|CompletedFunctionDraftV1|RejectedFunctionDraftSealV1)' "$draft_seal" | wc -l | tr -d '[:space:]')"
+  if [[ "$draft_products" != "4" ]]; then
+    guard_fail "$tag" "F1 DRAFT-SEAL0 owner vocabulary must have four products, found $draft_products"
+  fi
+  if rg -n 'current_module\.take\(' "$draft_seal"; then
+    guard_fail "$tag" "F1 DRAFT-SEAL0 must not extract current_module during projection"
+  fi
+  for spec in \
+    'prepare_draft_seal_close' \
+    'PreparedFunctionSessionCloseV1' \
+    'RejectedFunctionSessionCloseV1'; do
+    guard_expect_fixed_in_file "$tag" "$spec" "$session_terminal" \
+      "F1 DRAFT-SEAL0 session-close seam drifted: $spec"
+  done
+  local session_prepare_count session_commit_count
+  session_prepare_count="$(rg -n 'fn prepare_draft_seal_close\(' "$session_terminal" | wc -l | tr -d '[:space:]')"
+  session_commit_count="$(rg -n 'fn commit\(mut self\) -> MirFunction' "$session_terminal" | wc -l | tr -d '[:space:]')"
+  if [[ "$session_prepare_count" != "1" || "$session_commit_count" != "1" ]]; then
+    guard_fail "$tag" "F1 DRAFT-SEAL0 session close must have one prepare and one infallible commit"
+  fi
   if rg -n 'ValueId|BasicBlockId|MirBuilder|BindingRefV1|may_rebind|carrier|\bPHI\b' \
     "$completion" "$cleanup"; then
     guard_fail "$tag" "D′ SSA-E0 pre-Builder completion crossed the materialization/effect boundary"
@@ -269,6 +312,8 @@ PY
     "$if_control_tests" \
     "$lowering/completion_consumption.rs" \
     "$lowering/completion_tests.rs" \
+    "$draft_seal" \
+    "$session_terminal" \
     "$helper"; do
     lines="$(wc -l < "$file" | tr -d '[:space:]')"
     if (( lines >= 800 )); then
@@ -309,5 +354,10 @@ PY
   echo "function_exit_f1_semantic_seal_producer=verify_function_completion_v1"
   echo "function_exit_f1_return_carrier_owner=existing-mir-return-exit-contract"
   echo "function_exit_f1_builder_materialization=0"
+  echo "function_exit_f1_draft_seal_owner_vocabulary=4"
+  echo "function_exit_f1_draft_seal_projection_live_mutation=0"
+  echo "function_exit_f1_draft_seal_legacy_writer_retirement=deferred"
+  echo "function_exit_f1_draft_seal_session_close_prepare=1"
+  echo "function_exit_f1_draft_seal_session_close_commit=1"
   echo "function_exit_f1_parser_activation=0"
 }

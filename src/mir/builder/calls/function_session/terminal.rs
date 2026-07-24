@@ -33,6 +33,22 @@ pub(in crate::mir::builder) struct LegacyFunctionPendingSessionV1<'builder> {
 
 struct LegacyFunctionPendingSessionSealV1;
 
+/// A canonical-only close that has passed every session invariant while the
+/// child function is still installed.  The draft-seal owner consumes this
+/// product exactly once; no fallible session work remains after `commit`.
+pub(in crate::mir::builder) struct PreparedFunctionSessionCloseV1<'builder> {
+    session: Option<CanonicalFunctionLoweringSessionV1<'builder>>,
+    function_name: String,
+}
+
+/// Rejection from the canonical prepared close.  The original session stays
+/// owned so its unpublished function and caller snapshot can be discarded
+/// together, without a retry or partial restore path.
+pub(in crate::mir::builder) struct RejectedFunctionSessionCloseV1<'builder> {
+    owner: Option<CanonicalFunctionLoweringSessionV1<'builder>>,
+    error: CanonicalFunctionSessionErrorV1,
+}
+
 impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
     /// Run one child operation and retain its successful draft before restore.
     ///
@@ -62,6 +78,25 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
                     cleanup: cleanup.to_string(),
                 }),
             },
+        }
+    }
+
+    /// Prepare the canonical draft-seal session close without extracting or
+    /// mutating the unpublished function.  The sole commit terminal below
+    /// takes `current_function` and restores the caller context infallibly.
+    pub(in crate::mir::builder) fn prepare_draft_seal_close(
+        self,
+    ) -> Result<PreparedFunctionSessionCloseV1<'builder>, RejectedFunctionSessionCloseV1<'builder>>
+    {
+        match self.validate_before_draft_seal() {
+            Ok(function_name) => Ok(PreparedFunctionSessionCloseV1 {
+                session: Some(self),
+                function_name,
+            }),
+            Err(error) => Err(RejectedFunctionSessionCloseV1 {
+                owner: Some(self),
+                error: CanonicalFunctionSessionErrorV1::Cleanup(error),
+            }),
         }
     }
 }
@@ -161,6 +196,60 @@ impl LegacyFunctionPendingSessionV1<'_> {
     }
 }
 
+impl PreparedFunctionSessionCloseV1<'_> {
+    /// Consume the prepared close and return the unpublished function.  All
+    /// checks have already happened, so extraction and caller restoration are
+    /// deliberately infallible ownership transitions.
+    pub(in crate::mir::builder) fn commit(mut self) -> MirFunction {
+        let mut session = self
+            .session
+            .take()
+            .expect("prepared function session close commits once");
+        let draft = session
+            .builder
+            .function_state
+            .current_function
+            .take()
+            .expect("prepared close validated one installed function");
+        debug_assert_eq!(draft.signature.name, self.function_name);
+        session.restore_context();
+        draft
+    }
+
+    pub(in crate::mir::builder) fn function_name(&self) -> &str {
+        &self.function_name
+    }
+}
+
+impl RejectedFunctionSessionCloseV1<'_> {
+    pub(in crate::mir::builder) fn error(&self) -> &CanonicalFunctionSessionErrorV1 {
+        &self.error
+    }
+
+    /// Discard the unpublished function and restore the captured caller.
+    pub(in crate::mir::builder) fn discard(mut self) {
+        if let Some(mut owner) = self.owner.take() {
+            owner.restore_context();
+        }
+    }
+}
+
+impl Drop for PreparedFunctionSessionCloseV1<'_> {
+    fn drop(&mut self) {
+        if let Some(session) = self.session.as_mut() {
+            session.restore_context();
+        }
+    }
+}
+
+impl Drop for RejectedFunctionSessionCloseV1<'_> {
+    fn drop(&mut self) {
+        if let Some(owner) = self.owner.as_mut() {
+            owner.restore_context();
+        }
+    }
+}
+
 impl Drop for PendingFunctionSessionCloseV1<'_> {
     fn drop(&mut self) {
         self.draft.take();
@@ -170,16 +259,40 @@ impl Drop for PendingFunctionSessionCloseV1<'_> {
 
 #[cfg(test)]
 mod tests {
-    use crate::ast::ASTNode;
+    use std::sync::Arc;
+
+    use crate::ast::{ASTNode, DeclarationAttrs, Span};
     use crate::mir::builder::module_draft_collector::{
         CompletedDraftSignatureViewV1, ModuleDraftCollectorV1,
     };
+    use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1};
     use crate::mir::{
         BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirType,
     };
 
     use super::super::FunctionBodyCaptureV1;
     use super::CanonicalFunctionLoweringSessionV1;
+
+    fn resolved_product() -> Arc<crate::mir::resolved_semantics::VerifiedResolvedFunctionV1> {
+        let function = ASTNode::FunctionDeclaration {
+            name: "draft_seal/0".into(),
+            params: Vec::new(),
+            param_decls: Vec::new(),
+            return_type_name: None,
+            body: Vec::new(),
+            uses: Vec::new(),
+            contracts: Vec::new(),
+            is_static: true,
+            is_override: false,
+            attrs: DeclarationAttrs::default(),
+            span: Span::unknown(),
+        };
+        let view = FunctionSyntaxViewV1::from_ast(&function).unwrap();
+        FunctionSemanticResolverSessionV1::new(0)
+            .unwrap()
+            .resolve(view)
+            .unwrap()
+    }
 
     fn draft(symbol: &str, arity: usize) -> MirFunction {
         MirFunction::new(
@@ -257,5 +370,74 @@ mod tests {
             })
             .unwrap();
         assert_eq!(builder.next_value_id().0, 0);
+    }
+
+    #[test]
+    fn draft_seal_close_extracts_once_then_restores_parent_context() {
+        let mut builder = MirBuilder::new();
+        let pending = CanonicalFunctionLoweringSessionV1::open(
+            &mut builder,
+            "draft_seal/0",
+            FunctionBodyCaptureV1::CanonicalClosedFamily,
+        );
+        let product = resolved_product();
+        let owner = product.owner();
+        pending
+            .builder
+            .function_state
+            .resolved_binding_state
+            .install(&product)
+            .unwrap();
+        pending
+            .builder
+            .function_state
+            .resolved_binding_state
+            .finish(owner)
+            .unwrap();
+        pending
+            .builder
+            .enter_function_for_test("draft_seal/0".into());
+
+        let prepared = match pending.prepare_draft_seal_close() {
+            Ok(prepared) => prepared,
+            Err(_) => panic!("resolved canonical session should be seal-ready"),
+        };
+        assert_eq!(prepared.function_name(), "draft_seal/0");
+        assert!(prepared
+            .session
+            .as_ref()
+            .unwrap()
+            .builder
+            .function_state
+            .current_function
+            .is_some());
+
+        let draft = prepared.commit();
+        assert_eq!(draft.signature.name, "draft_seal/0");
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
+    }
+
+    #[test]
+    fn draft_seal_close_rejects_legacy_session_before_extracting() {
+        let mut builder = MirBuilder::new();
+        let pending = CanonicalFunctionLoweringSessionV1::open(
+            &mut builder,
+            "legacy/0",
+            FunctionBodyCaptureV1::Legacy(Vec::new()),
+        );
+        pending.builder.enter_function_for_test("legacy/0".into());
+
+        let rejected = match pending.prepare_draft_seal_close() {
+            Ok(_) => panic!("legacy session must not enter the canonical draft seal"),
+            Err(rejected) => rejected,
+        };
+        assert!(rejected
+            .error()
+            .to_string()
+            .contains("draft_seal_requires_resolved_authority"));
+        rejected.discard();
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
     }
 }
