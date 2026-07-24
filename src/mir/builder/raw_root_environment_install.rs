@@ -12,10 +12,6 @@
 //! paired owners.  It performs no semantic publication until the named
 //! projection primitives are available.
 
-use crate::mir::compiler::raw_root_environment_manifest::{
-    RawRootPhysicalManifestV1, RawRootPostInstallManifestV1,
-};
-
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::module_declaration_facts::SealedModuleDeclarationFactsV1;
 use super::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
@@ -62,7 +58,7 @@ pub(in crate::mir) struct RawAppEnvironmentProjectionV1 {
 struct RawRootEnvironmentProjectionSealV1;
 
 impl RawRootEnvironmentProjectionV1 {
-    pub(in crate::mir) fn from_manifest(
+    pub(in crate::mir) fn from_parts(
         route: RawRootEnvironmentInstallRouteV1,
         source_file: Option<&str>,
         catalog: VerifiedSameModuleCallableDeclarationCatalogV1,
@@ -110,7 +106,7 @@ impl RawRootEnvironmentProjectionV1 {
         }
     }
 
-    pub(in crate::mir) fn into_parts(
+    pub(in crate::mir::builder) fn into_parts(
         self,
     ) -> (
         RawRootEnvironmentInstallRouteV1,
@@ -196,7 +192,6 @@ impl RawAppEnvironmentProjectionV1 {
 pub(in crate::mir) struct RawRootEnvironmentInstallOwnerV1 {
     session: ModuleBuilderInvocationSessionV1,
     physical: RawRootPhysicalStateV1,
-    manifest: RawRootPostInstallManifestV1,
     projection: RawRootEnvironmentProjectionV1,
 }
 
@@ -204,14 +199,11 @@ impl RawRootEnvironmentInstallOwnerV1 {
     pub(in crate::mir) fn new(
         session: ModuleBuilderInvocationSessionV1,
         physical: RawRootPhysicalStateV1,
-        manifest: RawRootPhysicalManifestV1,
+        projection: RawRootEnvironmentProjectionV1,
     ) -> Self {
-        let source_file = session.config().source_file();
-        let (projection, manifest) = manifest.into_install_parts(source_file);
         Self {
             session,
             physical,
-            manifest,
             projection,
         }
     }
@@ -229,13 +221,11 @@ impl RawRootEnvironmentInstallOwnerV1 {
         let Self {
             session,
             physical,
-            manifest,
             projection,
         } = self;
         Ok(PreparedRawRootEnvironmentInstallV1 {
             session,
             physical,
-            manifest,
             projection,
             _seal: PreparedRawRootEnvironmentInstallSealV1,
         })
@@ -276,7 +266,7 @@ impl RawRootEnvironmentInstallOwnerV1 {
         if !self.physical.environment_lanes_are_vacant() {
             return Err(RawRootEnvironmentInstallErrorV1::PhysicalEnvironmentNotVacant);
         }
-        let route = route_from_manifest(&self.manifest);
+        let route = self.projection.route();
         if !self.session.raw_root_environment_lanes_are_vacant(route) {
             return Err(RawRootEnvironmentInstallErrorV1::BuilderEnvironmentNotVacant);
         }
@@ -297,7 +287,6 @@ impl RawRootEnvironmentInstallOwnerV1 {
 pub(in crate::mir) struct PreparedRawRootEnvironmentInstallV1 {
     session: ModuleBuilderInvocationSessionV1,
     physical: RawRootPhysicalStateV1,
-    manifest: RawRootPostInstallManifestV1,
     projection: RawRootEnvironmentProjectionV1,
     _seal: PreparedRawRootEnvironmentInstallSealV1,
 }
@@ -311,21 +300,49 @@ struct PreparedRawRootEnvironmentInstallSealV1;
 pub(in crate::mir) struct InstalledRawRootEnvironmentV1 {
     session: ModuleBuilderInvocationSessionV1,
     physical: RawRootPhysicalStateV1,
-    manifest: RawRootPostInstallManifestV1,
     _seal: InstalledRawRootEnvironmentSealV1,
 }
 
 #[derive(Debug)]
 struct InstalledRawRootEnvironmentSealV1;
 
+impl InstalledRawRootEnvironmentV1 {
+    pub(in crate::mir) fn catalog_installed(&self) -> bool {
+        self.session
+            .builder()
+            .comp_ctx
+            .callable_declaration_catalog()
+            .is_ok()
+    }
+
+    pub(in crate::mir) fn app_main_declaration_installed(&self) -> bool {
+        self.session.builder().comp_ctx.is_user_defined_box("Main")
+    }
+
+    pub(in crate::mir) fn tracker_completed_children(&self) -> usize {
+        self.physical.tracker_completed_children()
+    }
+
+    pub(in crate::mir) fn session_brand(
+        &self,
+    ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
+        self.session.brand()
+    }
+
+    pub(in crate::mir) fn physical_brand(
+        &self,
+    ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
+        self.physical.brand()
+    }
+}
+
 impl PreparedRawRootEnvironmentInstallV1 {
     /// Private infallible transition.  No lookup, allocation, retry, or
     /// fallback is permitted after preparation succeeds.
-    pub(in crate::mir::builder) fn commit(self) -> InstalledRawRootEnvironmentV1 {
+    pub(in crate::mir) fn commit(self) -> InstalledRawRootEnvironmentV1 {
         let Self {
             mut session,
             physical,
-            manifest,
             projection,
             _seal: _,
         } = self;
@@ -335,7 +352,6 @@ impl PreparedRawRootEnvironmentInstallV1 {
         InstalledRawRootEnvironmentV1 {
             session,
             physical,
-            manifest,
             _seal: InstalledRawRootEnvironmentSealV1,
         }
     }
@@ -384,19 +400,6 @@ pub(in crate::mir) enum RawRootEnvironmentInstallErrorV1 {
     SourceFileMismatch,
 }
 
-fn route_from_manifest(
-    manifest: &RawRootPostInstallManifestV1,
-) -> RawRootEnvironmentInstallRouteV1 {
-    match manifest.facts().route() {
-        crate::mir::compiler::raw_root_source_facts::RawRootSourceRouteV1::Script => {
-            RawRootEnvironmentInstallRouteV1::Script
-        }
-        crate::mir::compiler::raw_root_source_facts::RawRootSourceRouteV1::App => {
-            RawRootEnvironmentInstallRouteV1::App
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -420,6 +423,10 @@ mod tests {
             super::super::module_invocation_session::BuilderInvocationConfigV1::snapshot_for_raw(
                 &current, None,
             );
+        let source_file = config
+            .source_file()
+            .map(str::to_owned)
+            .map(String::into_boxed_str);
         let session = ModuleBuilderInvocationSessionV1::open_for_token(&token, &current, config);
         let physical = RawRootPhysicalStateV1::open(
             &token,
@@ -427,11 +434,8 @@ mod tests {
             super::super::raw_expansion_receipt_ledger::RawCallableMainCompatibilityDispositionV1::NotSelected,
         )
         .unwrap();
-        RawRootEnvironmentInstallOwnerV1::new(
-            session,
-            physical,
-            crate::mir::compiler::raw_root_environment_manifest::RawRootPhysicalManifestV1::from_test(route),
-        )
+        let (projection, _post_install_manifest) = crate::mir::compiler::raw_root_environment_manifest::RawRootPhysicalManifestV1::from_test(route).into_install_parts(source_file.as_deref());
+        RawRootEnvironmentInstallOwnerV1::new(session, physical, projection)
     }
 
     fn dirty_builder_owner(route: RawRootSourceRouteV1) -> RawRootEnvironmentInstallOwnerV1 {
@@ -441,6 +445,10 @@ mod tests {
             super::super::module_invocation_session::BuilderInvocationConfigV1::snapshot_for_raw(
                 &current, None,
             );
+        let source_file = config
+            .source_file()
+            .map(str::to_owned)
+            .map(String::into_boxed_str);
         let mut session =
             ModuleBuilderInvocationSessionV1::open_for_token(&token, &current, config);
         session
@@ -454,11 +462,8 @@ mod tests {
             super::super::raw_expansion_receipt_ledger::RawCallableMainCompatibilityDispositionV1::NotSelected,
         )
         .unwrap();
-        RawRootEnvironmentInstallOwnerV1::new(
-            session,
-            physical,
-            crate::mir::compiler::raw_root_environment_manifest::RawRootPhysicalManifestV1::from_test(route),
-        )
+        let (projection, _post_install_manifest) = crate::mir::compiler::raw_root_environment_manifest::RawRootPhysicalManifestV1::from_test(route).into_install_parts(source_file.as_deref());
+        RawRootEnvironmentInstallOwnerV1::new(session, physical, projection)
     }
 
     #[test]

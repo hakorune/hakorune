@@ -59,19 +59,22 @@ mod located_legacy_lowering;
 #[allow(dead_code)]
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 #[allow(dead_code)]
-mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
+mod raw_root_environment_install;
 mod raw_root_physical; // RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PHYSICAL0 empty carrier
 #[allow(dead_code)]
-mod raw_root_environment_install; // DECLACCESS-COINSTALL0 aggregate installer
-pub(in crate::mir) use raw_root_physical::RawRootPhysicalStateV1;
-pub(in crate::mir) use raw_root_physical::child_terminal::RawRootPhysicalChildErrorV1;
+mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
 pub(in crate::mir) use raw_root_environment_install::{
+    InstalledRawRootEnvironmentV1, PreparedRawRootEnvironmentInstallV1,
+    RawRootEnvironmentInstallErrorV1, RawRootEnvironmentInstallOwnerV1,
     RawRootEnvironmentInstallRouteV1, RawRootEnvironmentProjectionV1,
+    RejectedRawRootEnvironmentInstallV1,
 };
 pub(in crate::mir) use raw_root_physical::callable_main_terminal::{
     CompletedRawCallableMainPhysicalV1, RawRootPhysicalCallableMainErrorV1,
     RejectedRawCallableMainPhysicalV1,
 };
+pub(in crate::mir) use raw_root_physical::child_terminal::RawRootPhysicalChildErrorV1;
+pub(in crate::mir) use raw_root_physical::RawRootPhysicalStateV1;
 mod raw_root_child_work; // RAW-SOURCE0-LOWER0-ROOT0-CHILDREN0 source-bound helper work
 pub(in crate::mir) use raw_root_child_work::{
     RawCallableMainWorkV1, RawRootStaticChildWorkErrorV1, RawRootStaticChildWorkV1,
@@ -134,16 +137,16 @@ pub(in crate::mir) use canonical_physical_drain::{
     PreparedCanonicalSinglePhysicalDrainV1, RejectedCanonicalCallablePhysicalDrainV1,
     RejectedCanonicalSinglePhysicalDrainV1,
 };
+pub(in crate::mir) use module_draft_collector::{
+    CollectedDraftAdmissionReceiptV1, CommitCallableCollectorBatchReceiptV1,
+    CommitCollectedDraftAdmissionReceiptV1,
+};
 pub(in crate::mir) use module_invocation_brand0::{
     CanonicalCallableCapabilityWitnessV1, CanonicalPhysicalCollectionErrorV1,
     CollectedCanonicalCallablePhysicalV1, CollectedCanonicalSinglePhysicalV1,
     InvocationPhysicalStateV1, RejectedCanonicalPhysicalCollectionV1,
 };
 pub(in crate::mir) use module_invocation_owner_chain::InvocationBranded;
-pub(in crate::mir) use module_draft_collector::{
-    CollectedDraftAdmissionReceiptV1, CommitCallableCollectorBatchReceiptV1,
-    CommitCollectedDraftAdmissionReceiptV1,
-};
 pub(in crate::mir) use module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;
 mod canonical_root_completion; // CUT0-I0-ROOT0-CANON0 route-specific completion
@@ -171,7 +174,6 @@ mod module_lowering_borrow_root_p0d; // HEADERPORT0 WIRING-I0-BORROW-P0-ROOT-P0d
 #[allow(dead_code)]
 mod module_lowering_borrow_schedule; // HEADERPORT0 WIRING-I0-BORROW-S0 passive schedule
 mod module_lowering_invocation;
-mod module_lowering_invocation_legacy_term;
 #[allow(dead_code)]
 mod module_lowering_invocation_access; // HEADERPORT0 WIRING-S0 live bundle
 #[cfg(test)]
@@ -180,6 +182,8 @@ mod module_lowering_invocation_access_tests;
 mod module_lowering_invocation_candidate; // HEADERPORT0 CANDIDATE0-S0 disconnected abort owner
 #[allow(dead_code)]
 mod module_lowering_invocation_candidate_p0; // HEADERPORT0 CANDIDATE0-P0 route co-seal
+#[allow(dead_code)]
+mod module_lowering_invocation_legacy_term;
 #[cfg(test)]
 mod module_lowering_invocation_legacyterm_tests;
 #[cfg(test)]
@@ -199,9 +203,7 @@ pub(in crate::mir) use raw_expansion_receipt_ledger::{
 };
 #[allow(dead_code)]
 mod raw_draft_invocation; // RAW-SOURCE0-LOWER0-S0 disconnected child-draft owner
-pub(in crate::mir) use raw_draft_invocation::{
-    RawDraftInvocationV1, RejectedRawDraftInvocationV1,
-};
+pub(in crate::mir) use raw_draft_invocation::{RawDraftInvocationV1, RejectedRawDraftInvocationV1};
 #[cfg(test)]
 mod raw_draft_invocation_p0; // RAW-SOURCE0-LOWER0-S0 fixtures
 #[cfg(test)]

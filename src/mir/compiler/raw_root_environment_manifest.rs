@@ -117,7 +117,7 @@ impl RawRootPhysicalManifestV1 {
             RawRootSourceRouteV1::Script => RawRootEnvironmentInstallRouteV1::Script,
             RawRootSourceRouteV1::App => RawRootEnvironmentInstallRouteV1::App,
         };
-        let projection = RawRootEnvironmentProjectionV1::from_manifest(route, source_file, catalog);
+        let projection = RawRootEnvironmentProjectionV1::from_parts(route, source_file, catalog);
         (
             projection,
             RawRootPostInstallManifestV1 {

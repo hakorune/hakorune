@@ -57,6 +57,10 @@ impl PropertyRegistry {
             .map(|kind| kind.getter_method_name(prop_name))
     }
 
+    pub(crate) fn is_empty(&self) -> bool {
+        self.getters_by_box.is_empty()
+    }
+
     pub(crate) fn register_getter_method(&mut self, box_name: String, method_name: &str) -> bool {
         let Some((kind, prop_name)) = PropertyKind::from_getter_method_name(method_name) else {
             return false;

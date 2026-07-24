@@ -16,9 +16,12 @@ App child/callable locators, and the eligible package view).
 ```
 
 The exact manifest split, mutation-free Builder/shell preflight, and private
-infallible co-install are now covered by the disconnected guard and focused
-tests. The compiler-side `declare_environment(self)` owner remains the next
-implementation slice; BODY0 and production consumers remain zero.
+infallible co-install are covered by the disconnected guard and focused
+tests. The compiler-side `declare_environment(self)` owner is now implemented
+as the sole consuming terminal: it splits the ready owner once, derives the
+Builder/shell projections from the same manifest, and returns a route-specific
+declared owner or a discard-only rejected owner. Focused Script/App success
+and dirty-Builder rejection fixtures pass. BODY0 and production consumers remain zero.
 
 ## Boundary
 
@@ -221,3 +224,21 @@ all touched source/check files < 800 lines
 This row does not claim BODY0 lowering, root tracker completion,
 Main/condition batching, physical drain, finalization, postprocess, external
 commit, public ingress, JSON parity, legacy removal, or CUT0 activation.
+
+## Evidence
+
+```text
+RUSTFLAGS='-Awarnings' cargo check -q --lib
+RUSTFLAGS='-Awarnings' cargo test -q raw_root_decl_access --lib -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q raw_root --lib -- --test-threads=1
+RUSTFLAGS='-Awarnings' cargo test -q raw_source_binding --lib -- --test-threads=1
+bash tools/checks/current_state_pointer_guard.sh
+python3 tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_declaccess0_s0_guard.py
+python3 tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_declaccess_coinstall0_guard.py
+python3 tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_callmain0_guard.py
+git diff --check
+```
+
+All listed commands pass before commit. The implementation remains
+disconnected: no BODY0, root batch, production executor, or public ingress
+consumer is introduced.

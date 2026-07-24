@@ -318,6 +318,10 @@ impl ModuleBuilderInvocationSessionV1 {
         &self.config
     }
 
+    pub(in crate::mir) fn source_file(&self) -> Option<&str> {
+        self.config.source_file()
+    }
+
     pub(in crate::mir) fn brand(&self) -> ModuleInvocationBrandV1 {
         self.brand
     }

@@ -239,8 +239,26 @@ impl CompilationContext {
         &self,
         route: super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1,
     ) -> bool {
+        let prelude = prelude_enum_decls();
+        let prelude_keys_unchanged = self.enum_decls.len() == prelude.len()
+            && self
+                .enum_decls
+                .keys()
+                .all(|name| prelude.contains_key(name));
         self.callable_declaration_catalog.is_none()
             && self.user_defined_boxes.is_empty()
+            && self.brand_decls.is_empty()
+            && self.user_box_field_decls.is_empty()
+            && self.record_decls.is_empty()
+            && self.record_field_defaults.is_empty()
+            && prelude_keys_unchanged
+            && self.static_scalar_method_facts.is_empty()
+            && self.weak_fields_by_box.is_empty()
+            && self.property_registry.is_empty()
+            && self.field_origin_class.is_empty()
+            && self.field_origin_by_box.is_empty()
+            && self.method_tail_index.is_empty()
+            && self.method_tail_index_source_len == 0
             && match route {
                 super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1::Script
                 | super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1::App => {
@@ -256,6 +274,17 @@ impl CompilationContext {
     ) {
         debug_assert!(self.callable_declaration_catalog.is_none());
         debug_assert!(self.user_defined_boxes.is_empty());
+        debug_assert!(self.brand_decls.is_empty());
+        debug_assert!(self.user_box_field_decls.is_empty());
+        debug_assert!(self.record_decls.is_empty());
+        debug_assert!(self.record_field_defaults.is_empty());
+        debug_assert!(self.static_scalar_method_facts.is_empty());
+        debug_assert!(self.weak_fields_by_box.is_empty());
+        debug_assert!(self.property_registry.is_empty());
+        debug_assert!(self.field_origin_class.is_empty());
+        debug_assert!(self.field_origin_by_box.is_empty());
+        debug_assert!(self.method_tail_index.is_empty());
+        debug_assert_eq!(self.method_tail_index_source_len, 0);
         self.callable_declaration_catalog = Some(catalog);
         if matches!(
             route,

@@ -106,6 +106,37 @@ pub(in crate::mir) enum RawCallableMainReadyInvocationV1 {
     App(RawAppCallableMainReadyInvocationV1),
 }
 
+/// Compiler-private consuming handoff for DECLACCESS0.  Keeping this split in
+/// CALLMAIN0 avoids widening every ready-owner field to sibling modules while
+/// retaining the exact unpublished owner on declaration-install failure.
+pub(super) enum RawCallableMainReadyEnvironmentPartsV1 {
+    Script {
+        token: crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
+        source: crate::mir::builder::OwnedRawSourceV1,
+        continuation: RawPostCallableMainContinuationV1,
+        module_name: Box<str>,
+        plan: RawPostCallableMainPlanV1,
+        manifest: RawRootPhysicalManifestV1,
+        session: crate::mir::builder::ModuleBuilderInvocationSessionV1,
+        physical: RawRootPhysicalStateV1,
+        completion: RawPreRootChildrenCompletionV1,
+        helper_receipts: Box<[RawRootChildReceiptV1]>,
+    },
+    App {
+        token: crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
+        source: crate::mir::builder::OwnedRawSourceV1,
+        continuation: RawPostCallableMainContinuationV1,
+        module_name: Box<str>,
+        plan: RawPostCallableMainPlanV1,
+        manifest: RawRootPhysicalManifestV1,
+        session: crate::mir::builder::ModuleBuilderInvocationSessionV1,
+        physical: RawRootPhysicalStateV1,
+        completion: RawPreRootChildrenCompletionV1,
+        helper_receipts: Box<[RawRootChildReceiptV1]>,
+        outcome: RawAppCallableMainOutcomeV1,
+    },
+}
+
 #[derive(Debug)]
 pub(in crate::mir) struct RawScriptCallableMainReadyInvocationV1 {
     core: RawCallableMainCoreV1,
@@ -122,6 +153,97 @@ pub(in crate::mir) struct RawAppCallableMainReadyInvocationV1 {
 }
 
 impl RawCallableMainReadyInvocationV1 {
+    #[cfg(test)]
+    pub(in crate::mir::compiler) fn dirty_builder_for_decl_access(self) -> Self {
+        match self {
+            Self::Script(mut ready) => {
+                ready
+                    .core
+                    .session
+                    .builder_mut()
+                    .comp_ctx
+                    .user_defined_boxes
+                    .insert("DirtyBeforeDeclAccess".to_owned(), Vec::new());
+                Self::Script(ready)
+            }
+            Self::App(mut ready) => {
+                ready
+                    .core
+                    .session
+                    .builder_mut()
+                    .comp_ctx
+                    .user_defined_boxes
+                    .insert("DirtyBeforeDeclAccess".to_owned(), Vec::new());
+                Self::App(ready)
+            }
+        }
+    }
+
+    pub(in crate::mir) fn into_environment_parts(self) -> RawCallableMainReadyEnvironmentPartsV1 {
+        match self {
+            Self::Script(ready) => {
+                let RawScriptCallableMainReadyInvocationV1 {
+                    core:
+                        RawCallableMainCoreV1 {
+                            token,
+                            source,
+                            continuation,
+                            module_name,
+                            plan,
+                            manifest,
+                            session,
+                            physical,
+                        },
+                    completion,
+                    receipts,
+                } = ready;
+                RawCallableMainReadyEnvironmentPartsV1::Script {
+                    token,
+                    source,
+                    continuation,
+                    module_name,
+                    plan,
+                    manifest,
+                    session,
+                    physical,
+                    completion,
+                    helper_receipts: receipts,
+                }
+            }
+            Self::App(ready) => {
+                let RawAppCallableMainReadyInvocationV1 {
+                    core:
+                        RawCallableMainCoreV1 {
+                            token,
+                            source,
+                            continuation,
+                            module_name,
+                            plan,
+                            manifest,
+                            session,
+                            physical,
+                        },
+                    completion,
+                    helper_receipts,
+                    outcome,
+                } = ready;
+                RawCallableMainReadyEnvironmentPartsV1::App {
+                    token,
+                    source,
+                    continuation,
+                    module_name,
+                    plan,
+                    manifest,
+                    session,
+                    physical,
+                    completion,
+                    helper_receipts,
+                    outcome,
+                }
+            }
+        }
+    }
+
     pub(in crate::mir) fn app_outcome(&self) -> Option<&RawAppCallableMainOutcomeV1> {
         match self {
             Self::Script(_) => None,

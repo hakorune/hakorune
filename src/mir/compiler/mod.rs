@@ -41,6 +41,8 @@ pub(in crate::mir) mod raw_root_callable_main;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_children;
 #[allow(dead_code)]
+pub(in crate::mir) mod raw_root_decl_access;
+#[allow(dead_code)]
 pub(in crate::mir) mod raw_root_eligibility;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_eligibility_classifier;
@@ -96,6 +98,8 @@ mod module_session_borrow_p0_tests;
 mod prod_activation_p0_r1;
 #[cfg(test)]
 mod raw_root_callable_main_p0;
+#[cfg(test)]
+mod raw_root_decl_access_p0;
 #[cfg(test)]
 mod raw_root_eligibility_p0;
 #[allow(dead_code)]

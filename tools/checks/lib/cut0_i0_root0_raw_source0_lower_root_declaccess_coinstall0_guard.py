@@ -45,7 +45,7 @@ def main() -> int:
     for fragment in (
         "RawRootEnvironmentInstallOwnerV1",
         "into_install_parts(",
-        "RawRootEnvironmentProjectionV1::from_manifest",
+        "RawRootEnvironmentProjectionV1::from_parts",
         "install_raw_root_environment_preflighted",
         "install_environment_preflighted",
         "infallible manifest-derived Builder/shell co-install",
