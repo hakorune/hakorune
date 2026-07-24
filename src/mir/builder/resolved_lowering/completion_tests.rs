@@ -312,6 +312,8 @@ fn draft_seal_projection_materializes_without_mutating_live_function() {
         .prepare_phi_closure()
         .unwrap()
         .prepare_type_facts()
+        .unwrap()
+        .prepare_metadata()
         .unwrap();
     assert_eq!(
         projected.projection().function().signature.return_type,
@@ -461,6 +463,7 @@ fn draft_seal_projection_prepares_stale_facts_without_live_map_mutation() {
         Some(&MirType::Integer)
     );
     let verified = prepared.verify().unwrap();
+    assert!(verified.metadata().return_exit_contract.is_none());
     assert_eq!(
         verified.projection().type_ctx().get_type(ValueId::new(77)),
         None

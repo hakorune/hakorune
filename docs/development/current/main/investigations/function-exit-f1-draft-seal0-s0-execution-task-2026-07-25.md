@@ -219,6 +219,15 @@ must retain metadata, signature, PHI closure, stale facts, and verification
 together. Re-observing the projected function or rebuilding those plans in a
 later commit is forbidden.
 
+The projection order was tightened to match the accepted PREPARE0 law:
+explicit operands are materialized into the private image first, type
+propagation runs next, and only then does signature preparation resolve the
+exact supported result type. `Unknown` is therefore no longer rejected before
+the type plan has a chance to resolve it; missing/unknown/unsupported results
+still reject at signature preparation. The current isolated products now
+retain the metadata plan through stale-fact and verification ownership, while
+the outer aggregate remains a COMMIT0 task.
+
 ## Acceptance gates
 
 ```text

@@ -82,7 +82,7 @@ pub(super) struct RejectedFunctionDraftProjectionV1 {
 
 #[derive(Debug)]
 pub(super) struct PreparedFunctionStaleFactsV1 {
-    projection: FunctionDraftSealProjectionV1,
+    metadata: PreparedFunctionMetadataV1,
     stale: PreparedTransientStaleValueFactsV1,
 }
 
@@ -130,6 +130,7 @@ pub(super) struct PreparedFunctionSignatureV1 {
 
 #[derive(Debug)]
 pub(super) struct VerifiedFunctionDraftProjectionV1 {
+    metadata: PreparedFunctionMetadataV1,
     projection: FunctionDraftSealProjectionV1,
     stale: PreparedTransientStaleValueFactsV1,
 }
@@ -230,33 +231,9 @@ impl PreparedFunctionDraftSealV1 {
 
         match exit {
             PreparedFunctionExitV1::ExplicitValue { value, .. } => {
-                let Some(value_type) = type_ctx.value_types.get(&value).cloned() else {
-                    return Err(RejectedFunctionDraftProjectionV1 {
-                        owner: self,
-                        error: FunctionDraftSealProjectionErrorV1::ReturnValueTypeMissing { value },
-                    });
-                };
-                if value_type == MirType::Unknown {
-                    return Err(RejectedFunctionDraftProjectionV1 {
-                        owner: self,
-                        error: FunctionDraftSealProjectionErrorV1::UnknownReturnValueType { value },
-                    });
-                }
-                if !matches!(
-                    value_type,
-                    MirType::Integer | MirType::Bool | MirType::Float | MirType::Void
-                ) {
-                    return Err(RejectedFunctionDraftProjectionV1 {
-                        owner: self,
-                        error: FunctionDraftSealProjectionErrorV1::UnsupportedReturnValueType {
-                            value,
-                            actual: value_type,
-                        },
-                    });
-                }
-                if let Err(error) = set_projected_return_type(&mut function, value_type) {
-                    return Err(RejectedFunctionDraftProjectionV1 { owner: self, error });
-                }
+                // The exact operand type is resolved after the private type
+                // propagation plan. Projection only records the physical
+                // operand and never makes an early signature decision.
                 function
                     .blocks
                     .get_mut(&block)
@@ -365,6 +342,11 @@ impl FunctionDraftSealProjectionV1 {
         mut self,
     ) -> Result<PreparedFunctionMetadataV1, FunctionDraftSealProjectionErrorV1> {
         let signature = self.prepare_signature()?;
+        let return_type = match &signature.result {
+            PreparedFunctionResultV1::Unit => MirType::Void,
+            PreparedFunctionResultV1::ExactOperand { return_type, .. } => return_type.clone(),
+        };
+        set_projected_return_type(&mut self.function, return_type)?;
         crate::mir::type_contracts::parameter_entry::refresh_function_parameter_entry_contracts(
             &mut self.function,
         );
@@ -416,28 +398,10 @@ impl FunctionDraftSealProjectionV1 {
                         },
                     );
                 }
-                if self.function.signature.return_type != return_type {
-                    return Err(
-                        FunctionDraftSealProjectionErrorV1::ReturnSignatureMismatch {
-                            expected: self.function.signature.return_type.clone(),
-                            actual: return_type,
-                        },
-                    );
-                }
                 PreparedFunctionResultV1::ExactOperand { value, return_type }
             }
             PreparedFunctionExitV1::ExplicitUnit { .. }
-            | PreparedFunctionExitV1::ImplicitUnit { .. } => {
-                if self.function.signature.return_type != MirType::Void {
-                    return Err(
-                        FunctionDraftSealProjectionErrorV1::ReturnSignatureMismatch {
-                            expected: self.function.signature.return_type.clone(),
-                            actual: MirType::Void,
-                        },
-                    );
-                }
-                PreparedFunctionResultV1::Unit
-            }
+            | PreparedFunctionExitV1::ImplicitUnit { .. } => PreparedFunctionResultV1::Unit,
         };
         Ok(PreparedFunctionSignatureV1 { result })
     }
@@ -507,7 +471,7 @@ impl PreparedFunctionMetadataV1 {
             }
         };
         Ok(PreparedFunctionStaleFactsV1 {
-            projection: self.projection,
+            metadata: self,
             stale,
         })
     }
@@ -515,6 +479,11 @@ impl PreparedFunctionMetadataV1 {
     #[cfg(test)]
     pub(super) fn metadata(&self) -> &FunctionMetadata {
         &self.metadata
+    }
+
+    #[cfg(test)]
+    pub(super) fn projection(&self) -> &FunctionDraftSealProjectionV1 {
+        &self.projection
     }
 
     #[cfg(test)]
@@ -549,17 +518,17 @@ impl PreparedFunctionStaleFactsV1 {
     pub(super) fn verify(
         self,
     ) -> Result<VerifiedFunctionDraftProjectionV1, FunctionDraftSealProjectionErrorV1> {
-        let mut verified_type_ctx = clone_type_context(&self.projection.type_ctx);
+        let mut verified_type_ctx = clone_type_context(&self.metadata.projection.type_ctx);
         self.stale.apply_to_type_context(&mut verified_type_ctx);
         crate::mir::builder::emission::value_lifecycle_definition::verify_completed_draft_typed_value_definitions_v1(
-            &self.projection.function,
+            &self.metadata.projection.function,
             &verified_type_ctx.value_types,
         )
         .map_err(|error| {
             FunctionDraftSealProjectionErrorV1::TypedValueVerificationFailed(error.to_string())
         })?;
         crate::mir::verification::MirVerifier::new()
-            .verify_function(&self.projection.function)
+            .verify_function(&self.metadata.projection.function)
             .map_err(|errors| {
                 FunctionDraftSealProjectionErrorV1::ProjectedVerificationFailed(format!(
                     "{errors:?}"
@@ -567,10 +536,11 @@ impl PreparedFunctionStaleFactsV1 {
             })?;
         Ok(VerifiedFunctionDraftProjectionV1 {
             projection: FunctionDraftSealProjectionV1 {
-                function: self.projection.function.clone(),
+                function: self.metadata.projection.function.clone(),
                 type_ctx: verified_type_ctx,
-                exit: self.projection.exit,
+                exit: self.metadata.projection.exit,
             },
+            metadata: self.metadata,
             stale: self.stale,
         })
     }
@@ -582,11 +552,16 @@ impl PreparedFunctionStaleFactsV1 {
 
     #[cfg(test)]
     pub(super) fn projection(&self) -> &FunctionDraftSealProjectionV1 {
-        &self.projection
+        &self.metadata.projection
     }
 }
 
 impl VerifiedFunctionDraftProjectionV1 {
+    #[cfg(test)]
+    pub(super) fn metadata(&self) -> &FunctionMetadata {
+        &self.metadata.metadata
+    }
+
     #[cfg(test)]
     pub(super) fn projection(&self) -> &FunctionDraftSealProjectionV1 {
         &self.projection
