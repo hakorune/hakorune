@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINAL0-S0 and POST0-S0 are closed with direct Raw finalization and one shared opaque-carrier postprocess handoff. POST0-FAILURE0 is the active bounded extension: the unpublished Raw owner now retains monotone stage progress and any pre-transform verification evidence already produced before carrier-parity failure. External commit, production ingress, and CUT0 remain disconnected."
+status = "FINAL0-S0, POST0-S0, and POST0-FAILURE0 are closed with direct Raw finalization, one shared opaque-carrier postprocess handoff, monotone progress, and retained pre-transform evidence. The next boundary is POST0-COMMIT-CONSULT0: RawDirect evidence must be selected before any external-commit preparation. Public ingress, production executor, and CUT0 remain disconnected."
 date = "2026-07-24"
-current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-FAILURE0"
-current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-FAILURE0"
-current_execution_summary = "POST0-FAILURE0 is a T1 bounded extension of POST-CARRIER-prime-r1. RawPostprocessProgressV1 is monotone and retained by the physical owner, while carrier-parity rejection retains Raw pre-transform verification evidence when it already exists. No new authority, fault hook, rollback, retry, external commit, or production ingress is opened."
+current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-COMMIT-CONSULT0"
+current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-COMMIT-CONSULT0"
+current_execution_summary = "POST0-COMMIT-CONSULT0 is the active design stop. The existing external-commit owner accepts legacy Raw ledger/root evidence and a bare module, while the new Raw postprocessed owner retains opaque module, route evidence, RawDrainWitness, FINAL0/POST0 parity, and runtime evidence. Select one RawDirect handoff without opening external publication or production ingress."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -354,9 +354,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "cut0-i0-raw-source0-lower-root-post0-s0-execution-task-2026-07-24"
-latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-s0-execution-task-2026-07-24.md"
-latest_card_summary = """POST0-S0 is closed. POST0-FAILURE0 adds monotone RawPostprocessProgressV1 and retains pre-transform verification evidence on carrier-parity rejection; external commit, public ingress, and CUT0 remain disconnected."""
+latest_card = "cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24"
+latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
+latest_card_summary = """POST0-COMMIT-CONSULT0 is the active design stop. Choose the sole RawDirect external-commit evidence/opaque-carrier handoff; actual publication, public ingress, JSON bridges, and CUT0 remain zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -558,8 +558,9 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-POST0-FAILURE0-20260724"
+current_blocker_token = "DESIGN-STOP-POST0-COMMIT-20260724"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
+raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."

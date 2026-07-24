@@ -30,7 +30,7 @@ fn empty_script_runs_through_shared_raw_postprocess_kernel() {
         panic!("expected Script postprocess owner");
     };
     assert_eq!(
-        script.core.physical.progress,
+        script.core.physical.progress(),
         RawPostprocessProgressV1::ParitySealed
     );
 }

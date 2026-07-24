@@ -25,11 +25,14 @@ def require(text: str, fragment: str, label: str) -> None:
 def main() -> int:
     state = (ROOT / "docs/development/current/main/CURRENT_STATE.toml").read_text()
     task = TASK.read_text()
-    require(
-        state,
-        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-FAILURE0"',
-        "active row",
-    )
+    if not any(
+        row in state
+        for row in (
+            'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-FAILURE0"',
+            'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-COMMIT-CONSULT0"',
+        )
+    ):
+        raise AssertionError("POST0 current row must be FAILURE0 or COMMIT-CONSULT0")
     require(task, "POST-CARRIER-prime-r1", "decision lock")
     require(task, "RawFinalizedInvocationV1::prepare_postprocess(self)", "sole entry")
 
@@ -61,6 +64,7 @@ def main() -> int:
         "begin_postprocess",
         "prepare_parity",
         "ModuleNameMismatch",
+        "SignatureNameMismatch",
         "RawPostprocessedPhysicalV1",
     ):
         require(physical, fragment, f"opaque physical carrier {fragment}")

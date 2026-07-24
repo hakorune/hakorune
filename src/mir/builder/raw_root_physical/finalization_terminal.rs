@@ -86,11 +86,11 @@ struct RawFinalizationParitySealSealV1;
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawFinalizedPhysicalV1 {
-    pub(in crate::mir) token: crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
-    pub(in crate::mir) builder: PreparedBuilderModuleSessionV1,
-    pub(in crate::mir) module: RawFinalizedModuleV1,
-    pub(in crate::mir) witness: RawDrainWitnessV1,
-    pub(in crate::mir) parity: RawFinalizationParitySealV1,
+    token: crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
+    builder: PreparedBuilderModuleSessionV1,
+    module: RawFinalizedModuleV1,
+    witness: RawDrainWitnessV1,
+    parity: RawFinalizationParitySealV1,
     _seal: RawFinalizedPhysicalSealV1,
 }
 
@@ -98,7 +98,7 @@ pub(in crate::mir) struct RawFinalizedPhysicalV1 {
 struct RawFinalizedPhysicalSealV1;
 
 impl RawFinalizedPhysicalV1 {
-    pub(in crate::mir) fn into_postprocess_parts(
+    pub(in crate::mir::builder) fn into_postprocess_parts(
         self,
     ) -> (
         crate::mir::module_invocation_identity::ModuleInvocationTokenV1,

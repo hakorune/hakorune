@@ -21,6 +21,10 @@ pub(in crate::mir) enum RawPostprocessCarrierParityErrorV1 {
     MissingFunction {
         symbol: Box<str>,
     },
+    SignatureNameMismatch {
+        key: Box<str>,
+        signature: Box<str>,
+    },
     SurplusFunction {
         symbol: Box<str>,
     },
@@ -70,11 +74,11 @@ struct RawPostprocessParitySealInnerV1;
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawPostprocessPhysicalOwnerV1 {
-    pub(in crate::mir) token: ModuleInvocationTokenV1,
-    pub(in crate::mir) builder: PreparedBuilderModuleSessionV1,
+    token: ModuleInvocationTokenV1,
+    builder: PreparedBuilderModuleSessionV1,
     loan: RawPostprocessModuleLoanV1,
-    pub(in crate::mir) witness: RawDrainWitnessV1,
-    pub(in crate::mir) finalization_parity: RawFinalizationParitySealV1,
+    witness: RawDrainWitnessV1,
+    finalization_parity: RawFinalizationParitySealV1,
     _seal: RawPostprocessPhysicalOwnerSealV1,
 }
 
@@ -92,13 +96,13 @@ struct RawPostprocessedModuleSealV1;
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawPostprocessedPhysicalV1 {
-    pub(in crate::mir) token: ModuleInvocationTokenV1,
-    pub(in crate::mir) builder: PreparedBuilderModuleSessionV1,
-    pub(in crate::mir) module: RawPostprocessedModuleV1,
-    pub(in crate::mir) witness: RawDrainWitnessV1,
-    pub(in crate::mir) finalization_parity: RawFinalizationParitySealV1,
-    pub(in crate::mir) postprocess_parity: RawPostprocessParitySealV1,
-    pub(in crate::mir) progress: RawPostprocessProgressV1,
+    token: ModuleInvocationTokenV1,
+    builder: PreparedBuilderModuleSessionV1,
+    module: RawPostprocessedModuleV1,
+    witness: RawDrainWitnessV1,
+    finalization_parity: RawFinalizationParitySealV1,
+    postprocess_parity: RawPostprocessParitySealV1,
+    progress: RawPostprocessProgressV1,
     _seal: RawPostprocessedPhysicalSealV1,
 }
 
@@ -145,6 +149,13 @@ impl RawPostprocessPhysicalOwnerV1 {
             .module
             .function(symbol)
             .map(|function| function.signature.params.len())
+    }
+
+    pub(in crate::mir) fn function_signature_name(&self, symbol: &str) -> Option<&str> {
+        self.loan
+            .module
+            .function(symbol)
+            .map(|function| function.signature.name.as_str())
     }
 
     pub(in crate::mir) fn progress(&self) -> RawPostprocessProgressV1 {
@@ -224,6 +235,14 @@ impl RawPostprocessPhysicalOwnerV1 {
                     symbol: row.symbol().into(),
                 });
             };
+            if let Some(signature_name) = self.function_signature_name(row.symbol()) {
+                if signature_name != row.symbol() {
+                    return Err(RawPostprocessCarrierParityErrorV1::SignatureNameMismatch {
+                        key: row.symbol().into(),
+                        signature: signature_name.into(),
+                    });
+                }
+            }
             if actual_arity != row.arity() {
                 return Err(RawPostprocessCarrierParityErrorV1::FunctionArityMismatch {
                     symbol: row.symbol().into(),
@@ -279,5 +298,9 @@ impl RawPostprocessPhysicalOwnerV1 {
 impl RawPostprocessedPhysicalV1 {
     pub(in crate::mir) fn brand(&self) -> ModuleInvocationBrandV1 {
         self.token.brand()
+    }
+
+    pub(in crate::mir) fn progress(&self) -> RawPostprocessProgressV1 {
+        self.progress
     }
 }

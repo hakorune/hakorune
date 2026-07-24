@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT — POST0-S0 execution task
 
-Status: **Active implementation row — POST-CARRIER-prime-r1**
+Status: **Closed implementation row — POST-CARRIER-prime-r1 + POST0-FAILURE0**
 Date: 2026-07-24
 Decision source: `cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md`
 
@@ -127,6 +127,14 @@ sunset_row = RAW-SOURCE0-LOWER0-ROOT0-POST0-COMMIT0
 retire_when = RawDirect evidence is consumed by the sole external-commit preparation
 budget_repayment_evidence = one shared Raw lane guard and one route matrix
 ```
+
+## Closeout
+
+`POST0-S0` and the bounded `POST0-FAILURE0` evidence extension are landed.
+Focused Raw POST0/FINAL0/DRAIN0 and shared postprocess tests, `cargo check`,
+the current-state pointer guard, and both POST0 guard generations are green.
+The next owner is the separate design stop in
+`cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md`.
 
 ## Non-claims
 

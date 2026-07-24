@@ -10,6 +10,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[3]
 FILES = {
     "task": ROOT / "docs/development/current/main/investigations/cut0-i0-prod-activation-execution-task-2026-07-23.md",
     "post": ROOT / "src/mir/compiler/module_postprocess.rs",
+    "stages": ROOT / "src/mir/compiler/module_postprocess_stages.rs",
     "tests": ROOT / "src/mir/compiler/module_postprocess_p0.rs",
     "mod": ROOT / "src/mir/compiler/mod.rs",
     "final": ROOT / "src/mir/compiler/canonical_finalization.rs",
@@ -55,27 +56,31 @@ def main() -> int:
         "fn error(&self)",
         "fn stage(&self)",
         "run_raw(",
-        "ModuleVerificationEvidenceV1::Raw",
         "for_family(",
-        "refresh_module_rune_plans",
-        "optimize_module",
-        "refresh_and_validate_for_boundary",
-        "verify_module",
-        "insert_rc_instructions",
-        "canonicalize_for_site",
     ):
         require(texts["post"], fragment, f"postprocess owner: {fragment}")
+    for fragment in (
+        "ModuleVerificationEvidenceV1::Raw",
+        "refresh_rune_plans",
+        "optimize",
+        "refresh_contracts",
+        "verify",
+        "insert_rc",
+        "refresh_semantic_metadata",
+        "canonicalize_callsites",
+    ):
+        require(texts["stages"], fragment, f"shared stage kernel: {fragment}")
 
     order = [
-        "refresh_module_rune_plans(module_mut(&mut input))",
-        "MirOptimizer::new().optimize_module(module_mut(&mut input))",
-        "refresh_and_validate_for_boundary(module_mut(&mut input)",
-        "verify_module(module_mut(&mut input))",
-        "insert_rc_instructions(module_mut(&mut input))",
-        "refresh_module_semantic_metadata(module_mut(&mut input))",
-        "canonicalize_for_site",
+        "target.refresh_rune_plans()",
+        "target.optimize()",
+        "target.refresh_contracts()",
+        ".verify(verifier)",
+        "target.insert_rc()",
+        "target.refresh_semantic_metadata()",
+        "target.canonicalize_callsites()",
     ]
-    positions = [texts["post"].find(fragment) for fragment in order]
+    positions = [texts["stages"].find(fragment) for fragment in order]
     if any(position < 0 for position in positions) or positions != sorted(positions):
         raise AssertionError(f"POST0 stage order drift: {positions}")
 

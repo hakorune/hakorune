@@ -10,6 +10,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[3]
 FILES = {
     "task": ROOT / "docs/development/current/main/investigations/cut0-i0-prod-activation-execution-task-2026-07-23.md",
     "post": ROOT / "src/mir/compiler/module_postprocess.rs",
+    "stages": ROOT / "src/mir/compiler/module_postprocess_stages.rs",
     "raw_finalizer": ROOT / "src/mir/compiler/raw_finalization.rs",
     "raw_fixture": ROOT / "src/mir/builder/raw_physical_finalization.rs",
 }
@@ -22,6 +23,7 @@ def require(text: str, fragment: str, label: str) -> None:
 
 def main() -> int:
     texts = {name: path.read_text() for name, path in FILES.items()}
+    texts["post"] += texts["stages"]
     for name, path in FILES.items():
         if len(texts[name].splitlines()) >= 800:
             raise AssertionError(f"POST0-RAW-POSTPROCESS0 file must remain below 800 lines: {path}")
