@@ -1,8 +1,10 @@
 # RAW public cutover PARITY0 execution task
 
-Decision: `RAW-PUBLIC-CUTOVER-prime-r1`
+Decision: `RAW-PUBLIC-CUTOVER-PARITY0-prime-r1`
 
-Status: queued after `PUBLIC-CUTOVER-COVERAGE0-S0`.
+Status: active after `COVERAGE0-REPAIR-S0`; implementation is authorized only
+after the paired design lock
+`cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-design-question-2026-07-24.md`.
 
 ## Goal
 
@@ -24,16 +26,27 @@ source-file hint
 Raw -> Raw / Raw failure -> Raw / Raw -> Legacy / Legacy -> Raw reuse
 ```
 
-Compare normalized:
+Compare normalized using the sole test-only snapshot authority
+`raw_public_cutover_parity_snapshot.rs`:
 
 ```text
 function set
 signature / arity / return / effects
 CFG / value / op / constant relation
-backend-required metadata
+source_file, Main declaration facts, symbol, arity, return, effects,
+specialized-lane absence
 verification disposition
 VM-observable behavior where applicable
 ```
+
+The snapshot is deterministic: function symbol order, fixed entry/edge order,
+definition-order ValueId normalization, and an allowlisted MIR operation
+surface. Unknown shapes fail fast. `MirPrinter`, module JSON, parser output,
+and backend serializers are not parity authorities.
+
+The exact success counts are seven literals, three unary operators, and sixteen
+ordinary binary operators. `And`/`Or` are excluded; CompoundAssignment uses the
+same ordinary operator table and is not silently narrowed to arithmetic.
 
 ## Failure relation
 
@@ -62,6 +75,21 @@ subsequent reuse success
 POST0 natural fault injection is not added. Existing lower-level typed
 optimizer/contract-refresh fixtures are cross-evidence.
 
+## Test-only implementation boxes
+
+Production policy and lowering remain unchanged. Add only these siblings:
+
+```text
+raw_public_cutover_parity_snapshot.rs
+raw_public_cutover_parity_success_p0.rs
+raw_public_cutover_parity_failure_p0.rs
+raw_public_cutover_reuse_p0.rs
+```
+
+`compiler/mod.rs` receives test-module registration only. A snapshot mismatch
+is a PARITY0 stop and opens a separate repair/design row; it must not be fixed
+by changing production behavior in this task.
+
 ## Structure and gate
 
 Keep the normalized parity vocabulary in a test-only sibling module rather
@@ -78,8 +106,10 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ```text
 normal-entry Raw consumer = 0
-bounded matrix rows complete
-unsupported fallback = 0
+ bounded matrix rows complete: literal=7, unary=3, binary=16, reuse=4
+ normalizer producer=1; Legacy/Raw pair helper=1
+ MirPrinter/module_to_mir_json/parser parity authority=0
+ unsupported fallback = 0
 JSON/executor/selfhost/fastmem delta = 0
 all modified source/check files < 800 lines
 ```
