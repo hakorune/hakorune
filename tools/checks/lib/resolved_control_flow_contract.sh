@@ -248,6 +248,9 @@ PY
     'draft_seal.rs:FunctionDraftSealProjectionV1' \
     'draft_seal.rs:prepare_type_facts' \
     'draft_seal.rs:prepare_metadata' \
+    'draft_seal.rs:PreparedFunctionSignatureV1' \
+    'draft_seal.rs:PreparedFunctionResultV1' \
+    'draft_seal.rs:prepare_signature' \
     'draft_seal.rs:MetadataContractFailed' \
     'draft_seal.rs:prepare_stale_facts' \
     'draft_seal.rs:TypedValueVerificationFailed'; do
@@ -358,6 +361,7 @@ PY
   echo "function_exit_f1_builder_materialization=0"
   echo "function_exit_f1_draft_seal_owner_vocabulary=4"
   echo "function_exit_f1_draft_seal_projection_live_mutation=0"
+  echo "function_exit_f1_draft_seal_signature_plan=1"
   echo "function_exit_f1_draft_seal_legacy_writer_retirement=deferred"
   echo "function_exit_f1_draft_seal_session_close_prepare=1"
   echo "function_exit_f1_draft_seal_session_close_commit=1"

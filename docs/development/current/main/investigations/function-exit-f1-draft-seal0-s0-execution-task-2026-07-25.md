@@ -178,6 +178,14 @@ return-exit carriers on the private image, snapshots final value types, and
 passes that image into stale-fact preparation. No live metadata or contract
 carrier is changed, and no second ReturnExit/parameter authority is created.
 
+The metadata plan now also carries a prepared result/signature relation. It
+uses the sealed exit intent plus the projected exact value type, never a
+Return scan or last-ValueId heuristic. The S0 relation is `Unit` for explicit
+or implicit Unit exits and `ExactOperand { value, return_type }` for the
+supported Integer/Bool/Float/Void operand carriers. A projected signature
+drift is rejected before any live function mutation; the live signature and
+physical Return writer remain deferred to COMMIT0.
+
 ## Acceptance gates
 
 ```text

@@ -435,6 +435,10 @@ fn draft_seal_projection_prepares_stale_facts_without_live_map_mutation() {
         .prepare_metadata()
         .unwrap();
     assert!(metadata_plan.metadata().return_exit_contract.is_none());
+    assert_eq!(
+        metadata_plan.signature().result(),
+        super::draft_seal::PreparedFunctionResultV1::Unit
+    );
     let prepared = metadata_plan.prepare_stale_facts(&builder).unwrap();
 
     assert_eq!(prepared.stale_count(), 1);

@@ -91,6 +91,21 @@ pub(super) struct PreparedFunctionStaleFactsV1 {
 pub(super) struct PreparedFunctionMetadataV1 {
     projection: FunctionDraftSealProjectionV1,
     metadata: FunctionMetadata,
+    signature: PreparedFunctionSignatureV1,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) enum PreparedFunctionResultV1 {
+    Unit,
+    ExactOperand {
+        value: ValueId,
+        return_type: MirType,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct PreparedFunctionSignatureV1 {
+    result: PreparedFunctionResultV1,
 }
 
 #[derive(Debug)]
@@ -311,6 +326,7 @@ impl FunctionDraftSealProjectionV1 {
     pub(super) fn prepare_metadata(
         mut self,
     ) -> Result<PreparedFunctionMetadataV1, FunctionDraftSealProjectionErrorV1> {
+        let signature = self.prepare_signature()?;
         crate::mir::type_contracts::parameter_entry::refresh_function_parameter_entry_contracts(
             &mut self.function,
         );
@@ -328,7 +344,63 @@ impl FunctionDraftSealProjectionV1 {
         Ok(PreparedFunctionMetadataV1 {
             projection: self,
             metadata,
+            signature,
         })
+    }
+
+    /// Resolve the result/signature relation from the already projected exit
+    /// plan.  This deliberately does not scan Return instructions or infer
+    /// from the last produced ValueId.
+    pub(super) fn prepare_signature(
+        &self,
+    ) -> Result<PreparedFunctionSignatureV1, FunctionDraftSealProjectionErrorV1> {
+        let result = match self.exit {
+            PreparedFunctionExitV1::ExplicitValue { value, .. } => {
+                let Some(return_type) = self.type_ctx.value_types.get(&value).cloned() else {
+                    return Err(FunctionDraftSealProjectionErrorV1::ReturnValueTypeMissing {
+                        value,
+                    });
+                };
+                if return_type == MirType::Unknown {
+                    return Err(FunctionDraftSealProjectionErrorV1::UnknownReturnValueType {
+                        value,
+                    });
+                }
+                if !matches!(
+                    return_type,
+                    MirType::Integer | MirType::Bool | MirType::Float | MirType::Void
+                ) {
+                    return Err(
+                        FunctionDraftSealProjectionErrorV1::UnsupportedReturnValueType {
+                            value,
+                            actual: return_type,
+                        },
+                    );
+                }
+                if self.function.signature.return_type != return_type {
+                    return Err(
+                        FunctionDraftSealProjectionErrorV1::ReturnSignatureMismatch {
+                            expected: self.function.signature.return_type.clone(),
+                            actual: return_type,
+                        },
+                    );
+                }
+                PreparedFunctionResultV1::ExactOperand { value, return_type }
+            }
+            PreparedFunctionExitV1::ExplicitUnit { .. }
+            | PreparedFunctionExitV1::ImplicitUnit { .. } => {
+                if self.function.signature.return_type != MirType::Void {
+                    return Err(
+                        FunctionDraftSealProjectionErrorV1::ReturnSignatureMismatch {
+                            expected: self.function.signature.return_type.clone(),
+                            actual: MirType::Void,
+                        },
+                    );
+                }
+                PreparedFunctionResultV1::Unit
+            }
+        };
+        Ok(PreparedFunctionSignatureV1 { result })
     }
 }
 
@@ -374,6 +446,18 @@ impl PreparedFunctionMetadataV1 {
     #[cfg(test)]
     pub(super) fn metadata(&self) -> &FunctionMetadata {
         &self.metadata
+    }
+
+    #[cfg(test)]
+    pub(super) fn signature(&self) -> PreparedFunctionSignatureV1 {
+        self.signature.clone()
+    }
+}
+
+impl PreparedFunctionSignatureV1 {
+    #[cfg(test)]
+    pub(super) fn result(&self) -> PreparedFunctionResultV1 {
+        self.result.clone()
     }
 }
 
