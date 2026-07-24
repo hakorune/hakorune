@@ -107,19 +107,21 @@ normative topic =
   docs/reference/language/function-exit-and-entry-result.md
 
 current executable row =
-  FUNCTION-EXIT-F1-MATERIALIZE0-S0
+  FUNCTION-EXIT-F1-MATERIALIZE0-D0 (design stop)
 
 execution card =
-  docs/development/current/main/investigations/function-exit-f1-materialize0-s0-execution-task-2026-07-25.md
+  docs/development/current/main/investigations/function-exit-f1-materialize0-s0-design-stop-2026-07-25.md
 ```
 
 The preceding RETURN0 row closed the existing `VerifiedFunctionCompletionV1`
-producer's exact zero-or-one root-terminal source contract. MATERIALIZE0 now
-consumes that sealed product at the existing Builder completion owner for one
-physical signature/Return/completion transition. It must not create a second
-source walk, last-ValueId inference, or physical completion authority.
-Nested, multiple-return, and all-path coverage remain a separate D0; Script
-result, entry projection, and public activation remain later rows.
+producer's exact zero-or-one root-terminal source contract. MATERIALIZE0 is
+paused at a design stop: the existing Builder finalizer still combines exit
+materialization with fallible draft sealing and Return-operand signature
+inference, while trivial SSA has a competing synthetic Return writer. A
+strict prepared/infallible draft-seal owner must be designed before the
+physical signature/Return/completion transition can claim closure. Nested,
+multiple-return, and all-path coverage remain a separate D0; Script result,
+entry projection, and public activation remain later rows.
 
 The durable function-exit queue is:
 
@@ -127,8 +129,8 @@ The durable function-exit queue is:
 FUNCTION-EXIT-F1-RETURN0-S0
   existing completion owner + declared-result relation, exact 0/1 slice
 
--> FUNCTION-EXIT-F1-MATERIALIZE0-S0
-  sole physical signature/Return/completion consumer for the sealed slice
+-> FUNCTION-EXIT-F1-MATERIALIZE0-D0
+  design stop: decide the strict prepared/infallible draft-seal boundary
 
 -> SCRIPT-RESULT-TAIL0-S0
   parser-neutral final-expression classifier; statement tails remain Unit
