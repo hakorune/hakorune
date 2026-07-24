@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINAL0-S0, POST0-S0, and POST0-FAILURE0 are closed. RAW-COMMIT-prime-r1 is selected and COMMIT0-S0 is the active disconnected RawDirect external-commit preparation row. Publication, public ingress, production executor, and CUT0 remain disconnected."
+status = "FINAL0-S0, POST0-S0, POST0-FAILURE0, and COMMIT0-S0 are closed. The next boundary is a publication design stop for the typed RawDirect prepared owner; live publication, public ingress, production executor, and CUT0 remain disconnected."
 date = "2026-07-24"
-current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-COMMIT0-S0"
-current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-COMMIT0-S0"
-current_execution_summary = "RAW-COMMIT-prime-r1 is selected. COMMIT0-S0 prepares one typed Script/App RawDirect external-commit product with a complete retained evidence aggregate and opaque module handoff; actual publication, public ingress, and production consumers remain zero."
+current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLICATION-CONSULT0"
+current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLICATION-CONSULT0"
+current_execution_summary = "COMMIT0-S0 is closed with one typed Script/App RawDirect prepared owner, complete retained evidence, opaque module handoff, and zero live publication. The next design stop selects the sole publication authority, verifier-error policy, target preflight, and result contract."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -354,9 +354,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24"
-latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
-latest_card_summary = """RAW-COMMIT-prime-r1 is selected. COMMIT0-S0 prepares a typed RawDirect external-commit product only; actual commit, live Builder mutation, public ingress, JSON bridges, executor wiring, and CUT0 remain zero."""
+latest_card = "cut0-i0-raw-source0-lower-root-post0-publication-consultation-2026-07-24"
+latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-publication-consultation-2026-07-24.md"
+latest_card_summary = """COMMIT0-S0 is closed. Publication-CONSULT0 selects the one live Builder publication authority, Raw verifier-error handling, target preflight, typed result/evidence contract, and separate public-ingress boundary."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -558,10 +558,11 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "EXEC-RAW-POST0-COMMIT0-S0-20260724"
+current_blocker_token = "DESIGN-STOP-RAW-POST0-PUBLICATION-20260724"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
+raw_post0_publication_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-publication-consultation-2026-07-24.md"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."

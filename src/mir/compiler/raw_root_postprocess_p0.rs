@@ -48,7 +48,7 @@ fn app_selected_keeps_callable_main_route_evidence() {
         panic!("expected App postprocess owner");
     };
     let super::raw_root_postprocess::RawPostprocessRouteEvidenceV1::App { callable_main, .. } =
-        app.core.evidence.route
+        app.core.stage_evidence.route
     else {
         panic!("expected App route evidence");
     };

@@ -220,6 +220,10 @@ impl RawDrainWitnessV1 {
     pub(in crate::mir::builder) fn root(&self) -> &RawInvocationRootWitnessV1 {
         &self.root
     }
+
+    pub(in crate::mir) fn ledger(&self) -> &SealedRawExpansionReceiptLedgerV1 {
+        &self.ledger
+    }
 }
 
 pub(in crate::mir::builder) fn prepare_from_parts(

@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT — POST0-COMMIT0-S0 execution task
 
-Status: **In progress — RawDirect external-commit preparation only**  
+Status: **Closed — COMMIT0-S0 implementation and focused proof green; publication remains disconnected**
 Date: 2026-07-24  
 Decision: **RAW-COMMIT-prime-r1**  
 Predecessor: `cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md`
@@ -159,6 +159,34 @@ live Builder mutation/public ingress/executor/JSON/CUT0      = 0
 retry/resume/fallback/rollback/catch_unwind                  = 0
 ```
 
+## Implementation notes
+
+`COMMIT-EVIDENCE0` and `COMMIT-PHYSICAL0` are connected as a disconnected
+handoff. POST0 now keeps a stage-only evidence product; the compiler consumes
+it exactly once with the physical witness/parity/session product to issue the
+complete `RawPostprocessEvidenceV1`. The Builder sibling validates Raw family,
+brands, route, helper/callable correspondence, module name, parity, and sealed
+progress before calling only `PreparedBuilderModuleSessionV1::into_external_commit()`.
+
+`COMMIT-I0` is connected through the sole
+`RawPostprocessedInvocationV1::prepare_external_commit(self)` terminal. The
+focused suite covers Script, App Selected/NotSelected, complete evidence
+retention, and crossed-route discard-only rejection. Live publication remains
+disconnected.
+
+Required evidence already green:
+
+```text
+cargo check --lib
+raw_root_external_commit_p0 = 5/5
+raw_root_postprocess_p0      = 3/3
+raw_root_finalization_p0     = 4/4
+raw_root_drain_p0            = 3/3
+COMMIT0 guard                 = green
+POST0 guard                  = green
+current-state pointer guard  = green
+```
+
 ## Required fixtures
 
 ```text
@@ -232,4 +260,3 @@ COMMIT-EVIDENCE0 -> COMMIT-PHYSICAL0 -> COMMIT-I0 -> COMMIT-G0
 All modified/new source and check files must remain below 800 lines. The
 production consumer remains forbidden until a later explicit publication
 decision.
-

@@ -68,16 +68,96 @@ pub(in crate::mir) enum RawPostprocessRouteEvidenceV1 {
 }
 
 #[derive(Debug)]
+pub(in crate::mir) struct RawPostprocessStageEvidenceV1 {
+    pub(in crate::mir) route: RawPostprocessRouteEvidenceV1,
+    pub(in crate::mir) schedule: ModulePostprocessScheduleV1,
+    pub(in crate::mir) verification: ModuleVerificationEvidenceV1,
+    pub(in crate::mir) progress: RawPostprocessProgressV1,
+}
+
+#[derive(Debug)]
 pub(in crate::mir) struct RawPostprocessEvidenceV1 {
     pub(in crate::mir) route: RawPostprocessRouteEvidenceV1,
+    pub(in crate::mir) schedule: ModulePostprocessScheduleV1,
+    pub(in crate::mir) verification: ModuleVerificationEvidenceV1,
+    pub(in crate::mir) progress: RawPostprocessProgressV1,
+    pub(in crate::mir) witness: crate::mir::builder::RawDrainWitnessV1,
+    pub(in crate::mir) finalization_parity: crate::mir::builder::RawFinalizationParitySealV1,
+    pub(in crate::mir) postprocess_parity: crate::mir::builder::RawPostprocessParitySealV1,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum RawPostprocessRouteKindV1 {
+    Script,
+    App,
+}
+
+impl RawPostprocessStageEvidenceV1 {
+    pub(super) fn route_kind(&self) -> RawPostprocessRouteKindV1 {
+        match self.route {
+            RawPostprocessRouteEvidenceV1::Script { .. } => RawPostprocessRouteKindV1::Script,
+            RawPostprocessRouteEvidenceV1::App { .. } => RawPostprocessRouteKindV1::App,
+        }
+    }
+
+    pub(super) fn module_name(&self) -> &str {
+        match &self.route {
+            RawPostprocessRouteEvidenceV1::Script { module_name, .. }
+            | RawPostprocessRouteEvidenceV1::App { module_name, .. } => module_name,
+        }
+    }
+
+    pub(super) fn helper_count(&self) -> usize {
+        match &self.route {
+            RawPostprocessRouteEvidenceV1::Script { helpers, .. }
+            | RawPostprocessRouteEvidenceV1::App { helpers, .. } => helpers.len(),
+        }
+    }
+
+    pub(super) fn callable_main_selected(&self) -> bool {
+        match &self.route {
+            RawPostprocessRouteEvidenceV1::Script { .. } => false,
+            RawPostprocessRouteEvidenceV1::App { callable_main, .. } => {
+                callable_main.is_selected()
+            }
+        }
+    }
+
+    pub(super) fn brands_match(
+        &self,
+        brand: crate::mir::module_invocation_identity::ModuleInvocationBrandV1,
+    ) -> bool {
+        let (completion_brand, helper_brands, callable_brand) = match &self.route {
+            RawPostprocessRouteEvidenceV1::Script {
+                completion,
+                helpers,
+                ..
+            } => (
+                completion.brand(),
+                helpers.iter().map(|receipt| receipt.brand()).collect::<Vec<_>>(),
+                None,
+            ),
+            RawPostprocessRouteEvidenceV1::App {
+                completion,
+                helpers,
+                callable_main,
+                ..
+            } => (
+                completion.brand(),
+                helpers.iter().map(|receipt| receipt.brand()).collect::<Vec<_>>(),
+                callable_main.selected_receipt().map(|receipt| receipt.receipt_brand()),
+            ),
+        };
+        completion_brand == brand
+            && helper_brands.into_iter().all(|candidate| candidate == brand)
+            && callable_brand.map_or(true, |candidate| candidate == brand)
+    }
 }
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawPostprocessedInvocationCoreV1 {
     pub(in crate::mir) physical: RawPostprocessedPhysicalV1,
-    pub(in crate::mir) evidence: RawPostprocessEvidenceV1,
-    pub(in crate::mir) schedule: ModulePostprocessScheduleV1,
-    pub(in crate::mir) verification: ModuleVerificationEvidenceV1,
+    pub(in crate::mir) stage_evidence: RawPostprocessStageEvidenceV1,
 }
 
 #[derive(Debug)]
@@ -328,14 +408,17 @@ fn run_script_ready<'a>(
         helpers: helper_receipts,
     };
     let physical = physical.finish(postprocess_parity);
-    let evidence = RawPostprocessEvidenceV1 { route };
+    let stage_evidence = RawPostprocessStageEvidenceV1 {
+        route,
+        schedule,
+        verification,
+        progress: physical.progress(),
+    };
     Ok(RawPostprocessedInvocationV1::Script(
         RawScriptPostprocessedInvocationV1 {
             core: RawPostprocessedInvocationCoreV1 {
                 physical,
-                evidence,
-                schedule,
-                verification,
+                stage_evidence,
             },
         },
     ))
@@ -409,14 +492,17 @@ fn run_app_ready<'a>(
         callable_main,
     };
     let physical = physical.finish(postprocess_parity);
-    let evidence = RawPostprocessEvidenceV1 { route };
+    let stage_evidence = RawPostprocessStageEvidenceV1 {
+        route,
+        schedule,
+        verification,
+        progress: physical.progress(),
+    };
     Ok(RawPostprocessedInvocationV1::App(
         RawAppPostprocessedInvocationV1 {
             core: RawPostprocessedInvocationCoreV1 {
                 physical,
-                evidence,
-                schedule,
-                verification,
+                stage_evidence,
             },
         },
     ))

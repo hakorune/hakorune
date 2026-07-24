@@ -163,7 +163,7 @@ pub(in crate::mir) use module_lowering_invocation::ModuleLoweringPortChildErrorV
 pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;
 pub(in crate::mir) use raw_root_physical::drain_terminal::{
     PreparedRawPhysicalDrainV1, RawDrainedPhysicalV1, RawPhysicalDrainErrorV1,
-    RejectedRawPhysicalDrainV1,
+    RawDrainWitnessV1, RejectedRawPhysicalDrainV1,
 };
 pub(in crate::mir) use raw_root_physical::finalization_terminal::{
     PreparedRawDrainedPhysicalFinalizationV1, RawFinalizationParitySealV1, RawFinalizedPhysicalV1,
@@ -171,8 +171,10 @@ pub(in crate::mir) use raw_root_physical::finalization_terminal::{
     RejectedRawPhysicalFinalizationV1,
 };
 pub(in crate::mir) use raw_root_physical::postprocess_terminal::{
-    RawPostprocessCarrierParityErrorV1, RawPostprocessModuleLoanV1, RawPostprocessParitySealV1,
-    RawPostprocessPhysicalOwnerV1, RawPostprocessProgressV1, RawPostprocessedPhysicalV1,
+    RawExternalCommitModuleV1, RawExternalCommitPhysicalErrorV1,
+    RawExternalCommitPhysicalHandoffV1, RawPostprocessCarrierParityErrorV1,
+    RawPostprocessModuleLoanV1, RawPostprocessParitySealV1, RawPostprocessPhysicalOwnerV1,
+    RawPostprocessProgressV1, RawPostprocessedPhysicalV1,
 };
 mod canonical_root_completion; // CUT0-I0-ROOT0-CANON0 route-specific completion
 mod canonical_root_completion_error; // CUT0-I0-ROOT0-CANON0 shared error vocabulary

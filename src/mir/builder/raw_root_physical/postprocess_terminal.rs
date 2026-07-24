@@ -8,6 +8,9 @@ use super::super::module_invocation_identity::{ModuleInvocationBrandV1, ModuleIn
 use super::super::module_invocation_session::PreparedBuilderModuleSessionV1;
 use super::drain_terminal::{RawDrainWitnessV1, RawFinalizedModuleV1};
 use super::finalization_terminal::{RawFinalizationParitySealV1, RawFinalizedPhysicalV1};
+use crate::mir::raw_physical_drain::{
+    RawPhysicalCallableMainDispositionV1, RawPhysicalDrainRouteV1, RawPhysicalDrainRoleV1,
+};
 use crate::mir::optimizer_stats::OptimizationStats;
 use crate::mir::verification::MirVerifier;
 use crate::mir::verification_types::VerificationError;
@@ -69,6 +72,16 @@ pub(in crate::mir) struct RawPostprocessParitySealV1 {
     _seal: RawPostprocessParitySealInnerV1,
 }
 
+impl RawPostprocessParitySealV1 {
+    pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.brand
+    }
+
+    pub(in crate::mir) const fn function_count(&self) -> usize {
+        self.function_count
+    }
+}
+
 #[derive(Debug)]
 struct RawPostprocessParitySealInnerV1;
 
@@ -105,6 +118,39 @@ pub(in crate::mir) struct RawPostprocessedPhysicalV1 {
     progress: RawPostprocessProgressV1,
     _seal: RawPostprocessedPhysicalSealV1,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir) enum RawExternalCommitPhysicalErrorV1 {
+    NonRawFamily,
+    ForeignBrand,
+    ProgressNotSealed { actual: RawPostprocessProgressV1 },
+    ParityMismatch,
+    ModuleNameMismatch,
+    RouteMismatch,
+    HelperEvidenceMismatch,
+    CallableMainEvidenceMismatch,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RawExternalCommitPhysicalHandoffV1 {
+    pub(in crate::mir) token: ModuleInvocationTokenV1,
+    pub(in crate::mir) builder:
+        crate::mir::builder::PreparedBuilderExternalCommitV1,
+    pub(in crate::mir) module: RawExternalCommitModuleV1,
+    pub(in crate::mir) witness: RawDrainWitnessV1,
+    pub(in crate::mir) finalization_parity: RawFinalizationParitySealV1,
+    pub(in crate::mir) postprocess_parity: RawPostprocessParitySealV1,
+    pub(in crate::mir) progress: RawPostprocessProgressV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RawExternalCommitModuleV1 {
+    module: RawPostprocessedModuleV1,
+    _seal: RawExternalCommitModuleSealV1,
+}
+
+#[derive(Debug)]
+struct RawExternalCommitModuleSealV1;
 
 #[derive(Debug)]
 struct RawPostprocessedPhysicalSealV1;
@@ -302,5 +348,90 @@ impl RawPostprocessedPhysicalV1 {
 
     pub(in crate::mir) fn progress(&self) -> RawPostprocessProgressV1 {
         self.progress
+    }
+
+    pub(in crate::mir) fn module_name(&self) -> &str {
+        self.module.module.module.name()
+    }
+
+    pub(in crate::mir) fn validate_external_commit(
+        &self,
+        expected_module_name: &str,
+        expected_route: RawPhysicalDrainRouteV1,
+        expected_callable_main: RawPhysicalCallableMainDispositionV1,
+        expected_helper_count: usize,
+    ) -> Result<(), RawExternalCommitPhysicalErrorV1> {
+        let brand = self.token.brand();
+        if self.token.family() != crate::mir::module_invocation_identity::ModuleInvocationFamilyV1::Raw
+            || self.builder.family()
+                != crate::mir::module_invocation_identity::ModuleInvocationFamilyV1::Raw
+        {
+            return Err(RawExternalCommitPhysicalErrorV1::NonRawFamily);
+        }
+        if self.builder.brand() != brand
+            || self.witness.manifest().brand() != brand
+            || self.witness.ledger().brand() != brand
+            || self.witness.root().brand() != brand
+            || self.finalization_parity.brand() != brand
+            || self.postprocess_parity.brand() != brand
+        {
+            return Err(RawExternalCommitPhysicalErrorV1::ForeignBrand);
+        }
+        if self.progress != RawPostprocessProgressV1::ParitySealed {
+            return Err(RawExternalCommitPhysicalErrorV1::ProgressNotSealed {
+                actual: self.progress,
+            });
+        }
+        if self.finalization_parity.function_count() != self.postprocess_parity.function_count() {
+            return Err(RawExternalCommitPhysicalErrorV1::ParityMismatch);
+        }
+        if self.module_name() != expected_module_name {
+            return Err(RawExternalCommitPhysicalErrorV1::ModuleNameMismatch);
+        }
+        let manifest = self.witness.manifest();
+        if manifest.route() != expected_route {
+            return Err(RawExternalCommitPhysicalErrorV1::RouteMismatch);
+        }
+        if manifest.callable_main()
+            != expected_callable_main
+        {
+            return Err(RawExternalCommitPhysicalErrorV1::CallableMainEvidenceMismatch);
+        }
+        let helper_count = manifest
+            .rows()
+            .iter()
+            .filter(|row| row.role() == RawPhysicalDrainRoleV1::StaticHelper)
+            .count();
+        if helper_count != expected_helper_count {
+            return Err(RawExternalCommitPhysicalErrorV1::HelperEvidenceMismatch);
+        }
+        Ok(())
+    }
+
+    pub(in crate::mir) fn into_external_commit_preflighted(
+        self,
+    ) -> RawExternalCommitPhysicalHandoffV1 {
+        let Self {
+            token,
+            builder,
+            module,
+            witness,
+            finalization_parity,
+            postprocess_parity,
+            progress,
+            _seal: _,
+        } = self;
+        RawExternalCommitPhysicalHandoffV1 {
+            token,
+            builder: builder.into_external_commit(),
+            module: RawExternalCommitModuleV1 {
+                module,
+                _seal: RawExternalCommitModuleSealV1,
+            },
+            witness,
+            finalization_parity,
+            postprocess_parity,
+            progress,
+        }
     }
 }

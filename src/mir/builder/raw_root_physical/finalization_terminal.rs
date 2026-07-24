@@ -81,6 +81,16 @@ pub(in crate::mir) struct RawFinalizationParitySealV1 {
     _seal: RawFinalizationParitySealSealV1,
 }
 
+impl RawFinalizationParitySealV1 {
+    pub(in crate::mir) const fn brand(&self) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
+        self.brand
+    }
+
+    pub(in crate::mir) const fn function_count(&self) -> usize {
+        self.function_count
+    }
+}
+
 #[derive(Debug)]
 struct RawFinalizationParitySealSealV1;
 

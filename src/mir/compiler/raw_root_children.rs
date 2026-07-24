@@ -53,12 +53,28 @@ pub(in crate::mir) struct RawPreRootChildrenCompletionV1 {
     successful_count: usize,
 }
 
+impl RawPreRootChildrenCompletionV1 {
+    pub(super) const fn brand(
+        &self,
+    ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
+        self.brand
+    }
+}
+
 #[derive(Debug)]
 pub(in crate::mir) struct RawRootChildReceiptV1 {
     ordinal: usize,
     locator: RawSourceLocatorV1,
     symbol: Box<str>,
     receipt: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+}
+
+impl RawRootChildReceiptV1 {
+    pub(super) fn brand(
+        &self,
+    ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
+        self.receipt.brand()
+    }
 }
 
 #[derive(Debug)]

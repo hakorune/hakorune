@@ -51,6 +51,7 @@ pub(in crate::mir) mod raw_root_eligibility;
 pub(in crate::mir) mod raw_root_eligibility_classifier;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_finalization;
+pub(in crate::mir) mod raw_root_external_commit;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_package;
 pub(in crate::mir) mod raw_root_postprocess;
@@ -116,6 +117,8 @@ mod raw_root_eligibility_p0;
 pub(in crate::mir) mod raw_root_environment_manifest;
 #[cfg(test)]
 mod raw_root_finalization_p0;
+#[cfg(test)]
+mod raw_root_external_commit_p0;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_manifest_package;
 #[allow(dead_code)]
