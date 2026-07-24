@@ -10,7 +10,10 @@ use super::module_lowering_shell::ModuleLoweringShellErrorV1;
 use super::raw_expansion_receipt_ledger::{
     RawCallableMainCompatibilityDispositionV1, RawExpansionReceiptLedgerV1,
 };
-use super::root_body_completion::RootBodyCompletionTrackerV1;
+use super::root_body_completion::{
+    ActiveRootBodyCompletionTrackerV1, CompletedRootBodyV1, RootBodyCompletionErrorV1,
+    RootBodyCompletionTrackerV1, RootBodyResultV1,
+};
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 
 pub(in crate::mir) mod callable_main_terminal;
@@ -32,7 +35,61 @@ pub(in crate::mir) struct RawRootPhysicalStateV1 {
     callable_main: RawCallableMainCompatibilityDispositionV1,
 }
 
+/// BODY0-only physical transition.  The collector and ledger remain owned by
+/// this product but are never borrowed or mutated by the root-body driver.
+#[derive(Debug)]
+pub(in crate::mir) struct RawRootBodyPhysicalDriveV1 {
+    physical: InvocationPhysicalStateV1,
+    ledger: RawRootLedgerStateV1,
+    tracker: ActiveRootBodyCompletionTrackerV1,
+    callable_main: RawCallableMainCompatibilityDispositionV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RawRootPostBodyPhysicalStateV1 {
+    physical: InvocationPhysicalStateV1,
+    ledger: RawRootLedgerStateV1,
+    callable_main: RawCallableMainCompatibilityDispositionV1,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir) enum RawRootBodyPhysicalErrorV1 {
+    BeginTracker(RootBodyCompletionErrorV1),
+    SealTracker(RootBodyCompletionErrorV1),
+}
+
 impl RawRootPhysicalStateV1 {
+    pub(in crate::mir::builder) fn begin_root_body(
+        self,
+    ) -> Result<RawRootBodyPhysicalDriveV1, (Self, RawRootBodyPhysicalErrorV1)> {
+        let Self {
+            physical,
+            ledger,
+            tracker,
+            callable_main,
+        } = self;
+        let tracker = match tracker.begin_root_body_preserving() {
+            Ok(tracker) => tracker,
+            Err((tracker, error)) => {
+                return Err((
+                    Self {
+                        physical,
+                        ledger,
+                        tracker,
+                        callable_main,
+                    },
+                    RawRootBodyPhysicalErrorV1::BeginTracker(error),
+                ));
+            }
+        };
+        Ok(RawRootBodyPhysicalDriveV1 {
+            physical,
+            ledger,
+            tracker,
+            callable_main,
+        })
+    }
+
     pub(in crate::mir) fn open(
         token: &ModuleInvocationTokenV1,
         module_name: String,
@@ -106,5 +163,71 @@ impl RawRootPhysicalStateV1 {
 
     pub(in crate::mir) fn callable_main(&self) -> RawCallableMainCompatibilityDispositionV1 {
         self.callable_main
+    }
+}
+
+impl RawRootBodyPhysicalDriveV1 {
+    pub(in crate::mir::builder) fn seal_root_body(
+        self,
+        result: RootBodyResultV1,
+    ) -> Result<(RawRootPostBodyPhysicalStateV1, CompletedRootBodyV1), RawRootBodyPhysicalErrorV1>
+    {
+        self.seal_root_body_preserving(result)
+            .map_err(|(_, error)| error)
+    }
+
+    pub(in crate::mir::builder) fn seal_root_body_preserving(
+        self,
+        result: RootBodyResultV1,
+    ) -> Result<
+        (RawRootPostBodyPhysicalStateV1, CompletedRootBodyV1),
+        (Self, RawRootBodyPhysicalErrorV1),
+    > {
+        let Self {
+            physical,
+            ledger,
+            tracker,
+            callable_main,
+        } = self;
+        let completed = match tracker.seal_root_body_preserving(result) {
+            Ok(completed) => completed,
+            Err((_tracker, error)) => {
+                return Err((
+                    Self {
+                        physical,
+                        ledger,
+                        tracker: _tracker,
+                        callable_main,
+                    },
+                    RawRootBodyPhysicalErrorV1::SealTracker(error),
+                ));
+            }
+        };
+        Ok((
+            RawRootPostBodyPhysicalStateV1 {
+                physical,
+                ledger,
+                callable_main,
+            },
+            completed,
+        ))
+    }
+
+    pub(in crate::mir::builder) fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.physical.brand()
+    }
+}
+
+impl RawRootPostBodyPhysicalStateV1 {
+    pub(in crate::mir::builder) fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.physical.brand()
+    }
+
+    pub(in crate::mir::builder) fn shell_is_empty(&self) -> bool {
+        !self.physical.shell().payload().has_published_functions()
+    }
+
+    pub(in crate::mir::builder) fn collector_and_ledger_untouched(&self) -> bool {
+        matches!(&self.ledger, RawRootLedgerStateV1::Open(ledger) if ledger.is_clean_open())
     }
 }

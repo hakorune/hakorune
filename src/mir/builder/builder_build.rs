@@ -498,7 +498,7 @@ impl MirBuilder {
     }
 
     /// Check if the current basic block is terminated
-    pub(super) fn is_current_block_terminated(&self) -> bool {
+    pub(in crate::mir::builder) fn is_current_block_terminated(&self) -> bool {
         if let (Some(block_id), Some(ref function)) = (
             self.function_state.current_block,
             &self.function_state.current_function,

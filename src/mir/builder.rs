@@ -67,10 +67,12 @@ mod raw_root_body_lowering_p0; // BODY0-S0-B disconnected lowerer fixtures
 #[allow(dead_code)]
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
 pub(in crate::mir) use raw_root_environment_install::{
-    InstalledRawRootEnvironmentV1, PreparedRawRootEnvironmentInstallV1,
+    CompletedRawRootBodyPhysicalV1, InstalledRawRootEnvironmentV1,
+    PreparedRawRootEnvironmentInstallV1,
     RawRootEnvironmentInstallErrorV1, RawRootEnvironmentInstallOwnerV1,
     RawRootEnvironmentInstallRouteV1, RawRootEnvironmentProjectionV1,
-    RejectedRawRootEnvironmentInstallV1,
+    RejectedRawRootEnvironmentInstallV1, RejectedRawRootBodyPhysicalV1,
+    RawRootBodyLoweringErrorV1,
 };
 pub(in crate::mir) use raw_root_physical::callable_main_terminal::{
     CompletedRawCallableMainPhysicalV1, RawRootPhysicalCallableMainErrorV1,

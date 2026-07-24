@@ -53,7 +53,7 @@ impl MirBuilder {
     }
 
     /// Create a new MirFunction with source metadata applied.
-    pub(super) fn new_function_with_metadata(
+    pub(in crate::mir::builder) fn new_function_with_metadata(
         &self,
         signature: FunctionSignature,
         entry_block: BasicBlockId,

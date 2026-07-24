@@ -11,7 +11,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use super::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::ValueId;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RootBodyCompletionErrorV1 {
     OpenChildScopes { count: usize },
     OpenHeaderLoans { count: usize },
@@ -134,8 +134,14 @@ impl RootBodyCompletionTrackerV1 {
     pub(in crate::mir::builder) fn begin_root_body(
         self,
     ) -> Result<ActiveRootBodyCompletionTrackerV1, RootBodyCompletionErrorV1> {
+        self.begin_root_body_preserving().map_err(|(_, error)| error)
+    }
+
+    pub(in crate::mir::builder) fn begin_root_body_preserving(
+        self,
+    ) -> Result<ActiveRootBodyCompletionTrackerV1, (Self, RootBodyCompletionErrorV1)> {
         if !self.is_fresh() {
-            return Err(RootBodyCompletionErrorV1::AlreadyDriven);
+            return Err((self, RootBodyCompletionErrorV1::AlreadyDriven));
         }
         Ok(ActiveRootBodyCompletionTrackerV1 {
             tracker: self,
@@ -216,20 +222,39 @@ impl RootBodyCompletionTrackerV1 {
         self,
         result: RootBodyResultV1,
     ) -> Result<CompletedRootBodyV1, RootBodyCompletionErrorV1> {
-        if self.open_children != 0 {
-            return Err(RootBodyCompletionErrorV1::OpenChildScopes {
-                count: self.open_children,
-            });
+        self.complete_preserving(result).map_err(|(_, error)| error)
+    }
+
+    pub(in crate::mir::builder) fn complete_preserving(
+        self,
+        result: RootBodyResultV1,
+    ) -> Result<CompletedRootBodyV1, (Self, RootBodyCompletionErrorV1)> {
+        let open_children = self.open_children;
+        let open_header_loans = self.open_header_loans;
+        let open_pending_terminals = self.open_pending_terminals;
+        if open_children != 0 {
+            return Err((
+                self,
+                RootBodyCompletionErrorV1::OpenChildScopes {
+                    count: open_children,
+                },
+            ));
         }
-        if self.open_header_loans != 0 {
-            return Err(RootBodyCompletionErrorV1::OpenHeaderLoans {
-                count: self.open_header_loans,
-            });
+        if open_header_loans != 0 {
+            return Err((
+                self,
+                RootBodyCompletionErrorV1::OpenHeaderLoans {
+                    count: open_header_loans,
+                },
+            ));
         }
-        if self.open_pending_terminals != 0 {
-            return Err(RootBodyCompletionErrorV1::OpenPendingTerminals {
-                count: self.open_pending_terminals,
-            });
+        if open_pending_terminals != 0 {
+            return Err((
+                self,
+                RootBodyCompletionErrorV1::OpenPendingTerminals {
+                    count: open_pending_terminals,
+                },
+            ));
         }
         Ok(CompletedRootBodyV1 {
             brand: self.brand,
@@ -285,7 +310,24 @@ impl ActiveRootBodyCompletionTrackerV1 {
         self,
         result: RootBodyResultV1,
     ) -> Result<CompletedRootBodyV1, RootBodyCompletionErrorV1> {
-        self.tracker.complete(result)
+        self.seal_root_body_preserving(result).map_err(|(_, error)| error)
+    }
+
+    pub(in crate::mir::builder) fn seal_root_body_preserving(
+        self,
+        result: RootBodyResultV1,
+    ) -> Result<CompletedRootBodyV1, (Self, RootBodyCompletionErrorV1)> {
+        let ActiveRootBodyCompletionTrackerV1 { tracker, _seal: _ } = self;
+        match tracker.complete_preserving(result) {
+            Ok(completed) => Ok(completed),
+            Err((tracker, error)) => Err((
+                ActiveRootBodyCompletionTrackerV1 {
+                    tracker,
+                    _seal: ActiveRootBodyCompletionTrackerSealV1,
+                },
+                error,
+            )),
+        }
     }
 }
 

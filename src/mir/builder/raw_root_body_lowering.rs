@@ -9,9 +9,54 @@ use crate::mir::builder::root_body_completion::RootBodyResultV1;
 use crate::mir::raw_root_body_recipe::{
     RawLinearScalarExprV1, RawLinearScalarStmtV1, RawLinearUnaryOperatorV1, RawRootBodyRecipeV1,
 };
-use crate::mir::{MirBuilder, MirInstruction, UnaryOp, ValueId};
+use crate::mir::{Effect, EffectMask, FunctionSignature, MirBuilder, MirInstruction, MirType, UnaryOp, ValueId};
+use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
 
 impl MirBuilder {
+    /// Create the unpublished physical root function without asking the AST
+    /// for a signature.  BODY0 admits only `main/0 -> Void`.
+    pub(in crate::mir::builder) fn begin_raw_root_function_v1(
+        &mut self,
+    ) -> Result<(), String> {
+        if self.function_state.current_function.is_some()
+            || self.function_state.current_block.is_some()
+        {
+            return Err("[freeze:contract][raw_root_body/function_state_open]".to_string());
+        }
+        let entry = self.next_block_id();
+        let signature = FunctionSignature {
+            name: "main/0".to_string(),
+            params: Vec::new(),
+            return_type: MirType::Void,
+            effects: EffectMask::READ.add(Effect::ReadHeap),
+        };
+        self.function_state.current_function = Some(self.new_function_with_metadata(signature, entry));
+        self.function_state.current_block = Some(entry);
+        self.function_state.frag_emit_session.reset();
+        self.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
+        self.ensure_block_exists(entry)?;
+        Ok(())
+    }
+
+    /// Close the unpublished root draft.  No collector/shell publication is
+    /// performed here; ROOTBATCH0 owns that later handoff.
+    pub(in crate::mir::builder) fn finish_raw_root_function_v1(
+        &mut self,
+    ) -> Result<crate::mir::MirFunction, String> {
+        if !self.is_current_block_terminated() {
+            let value = crate::mir::builder::emission::constant::emit_void(self)?;
+            self.emit_instruction(MirInstruction::Return { value: Some(value) })?;
+        }
+        let draft = self
+            .function_state
+            .current_function
+            .take()
+            .ok_or_else(|| "[freeze:contract][raw_root_body/no_function]".to_string())?;
+        self.function_state.current_block = None;
+        self.comp_ctx.current_slot_registry = None;
+        Ok(draft)
+    }
+
     /// Lower one exact LinearScalar0 recipe into the current unpublished
     /// function.  The caller owns tracker/session lifecycle; this method only
     /// performs value lowering and returns the last-value disposition.

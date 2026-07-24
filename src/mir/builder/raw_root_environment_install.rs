@@ -17,6 +17,12 @@ use super::module_declaration_facts::SealedModuleDeclarationFactsV1;
 use super::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
 use super::module_invocation_session::ModuleBuilderInvocationSessionV1;
 use super::raw_root_physical::RawRootPhysicalStateV1;
+use super::raw_root_physical::{
+    RawRootBodyPhysicalDriveV1, RawRootBodyPhysicalErrorV1, RawRootPostBodyPhysicalStateV1,
+};
+use super::root_body_completion::{CompletedRootBodyV1, RootBodyResultV1};
+use crate::mir::raw_root_body_recipe::RawRootBodyRecipeV1;
+use crate::mir::MirFunction;
 
 /// Route vocabulary for the two Raw-root environment lanes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -304,9 +310,108 @@ pub(in crate::mir) struct InstalledRawRootEnvironmentV1 {
 }
 
 #[derive(Debug)]
+pub(in crate::mir) struct CompletedRawRootBodyPhysicalV1 {
+    session: ModuleBuilderInvocationSessionV1,
+    physical: RawRootPostBodyPhysicalStateV1,
+    draft: MirFunction,
+    completion: CompletedRootBodyV1,
+}
+
+#[derive(Debug)]
+enum RawRootBodyRejectedOwnerV1 {
+    BeforeDrive {
+        session: ModuleBuilderInvocationSessionV1,
+        physical: RawRootPhysicalStateV1,
+    },
+    DuringDrive {
+        session: ModuleBuilderInvocationSessionV1,
+        physical: RawRootBodyPhysicalDriveV1,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir) enum RawRootBodyLoweringErrorV1 {
+    Physical(RawRootBodyPhysicalErrorV1),
+    Lower(String),
+    Finalize(String),
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RejectedRawRootBodyPhysicalV1 {
+    owner: RawRootBodyRejectedOwnerV1,
+    error: RawRootBodyLoweringErrorV1,
+}
+
+#[derive(Debug)]
 struct InstalledRawRootEnvironmentSealV1;
 
 impl InstalledRawRootEnvironmentV1 {
+    /// BODY0 paired terminal.  It owns the candidate Builder session and
+    /// physical carrier together, while the physical subproduct keeps the
+    /// collector/ledger untouched and only advances the root-body tracker.
+    pub(in crate::mir) fn drive_root_body(
+        self,
+        recipe: RawRootBodyRecipeV1,
+    ) -> Result<CompletedRawRootBodyPhysicalV1, RejectedRawRootBodyPhysicalV1> {
+        let Self {
+            mut session,
+            physical,
+            _seal: _,
+        } = self;
+        let mut physical = match physical.begin_root_body() {
+            Ok(physical) => physical,
+            Err((physical, error)) => {
+                return Err(RejectedRawRootBodyPhysicalV1 {
+                    owner: RawRootBodyRejectedOwnerV1::BeforeDrive { session, physical },
+                    error: RawRootBodyLoweringErrorV1::Physical(error),
+                });
+            }
+        };
+        let lower_result = {
+            let builder = session.builder_mut();
+            if let Err(error) = builder.begin_raw_root_function_v1() {
+                return Err(RejectedRawRootBodyPhysicalV1 {
+                    owner: RawRootBodyRejectedOwnerV1::DuringDrive { session, physical },
+                    error: RawRootBodyLoweringErrorV1::Lower(error),
+                });
+            }
+            let _scope = super::vars::lexical_scope::LexicalScopeGuard::new(builder);
+            builder.lower_linear_scalar_recipe_v1(&recipe)
+        };
+        let result = match lower_result {
+            Ok(result) => result,
+            Err(error) => {
+                return Err(RejectedRawRootBodyPhysicalV1 {
+                    owner: RawRootBodyRejectedOwnerV1::DuringDrive { session, physical },
+                    error: RawRootBodyLoweringErrorV1::Lower(error),
+                });
+            }
+        };
+        let draft = match session.builder_mut().finish_raw_root_function_v1() {
+            Ok(draft) => draft,
+            Err(error) => {
+                return Err(RejectedRawRootBodyPhysicalV1 {
+                    owner: RawRootBodyRejectedOwnerV1::DuringDrive { session, physical },
+                    error: RawRootBodyLoweringErrorV1::Finalize(error),
+                });
+            }
+        };
+        let (physical, completion) = match physical.seal_root_body_preserving(result) {
+            Ok(done) => done,
+            Err((physical, error)) => {
+                return Err(RejectedRawRootBodyPhysicalV1 {
+                    owner: RawRootBodyRejectedOwnerV1::DuringDrive { session, physical },
+                    error: RawRootBodyLoweringErrorV1::Physical(error),
+                });
+            }
+        };
+        Ok(CompletedRawRootBodyPhysicalV1 {
+            session,
+            physical,
+            draft,
+            completion,
+        })
+    }
     pub(in crate::mir) fn catalog_installed(&self) -> bool {
         self.session
             .builder()
@@ -334,6 +439,27 @@ impl InstalledRawRootEnvironmentV1 {
     ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
         self.physical.brand()
     }
+}
+
+impl CompletedRawRootBodyPhysicalV1 {
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (
+        ModuleBuilderInvocationSessionV1,
+        RawRootPostBodyPhysicalStateV1,
+        MirFunction,
+        CompletedRootBodyV1,
+    ) {
+        (self.session, self.physical, self.draft, self.completion)
+    }
+}
+
+impl RejectedRawRootBodyPhysicalV1 {
+    pub(in crate::mir) fn error(&self) -> &RawRootBodyLoweringErrorV1 {
+        &self.error
+    }
+
+    pub(in crate::mir) fn discard(self) {}
 }
 
 impl PreparedRawRootEnvironmentInstallV1 {
@@ -504,5 +630,24 @@ mod tests {
             RawRootEnvironmentInstallErrorV1::BuilderEnvironmentNotVacant
         ));
         rejected.discard();
+    }
+
+    #[test]
+    fn body_terminal_keeps_root_draft_unpublished_and_collector_untouched() {
+        let installed = owner(RawRootSourceRouteV1::Script)
+            .prepare()
+            .unwrap()
+            .commit();
+        let recipe = crate::mir::raw_root_body_recipe::RawRootBodyRecipeV1::from_parts(
+            crate::mir::raw_root_body_recipe::RawRootBodyEntryV1::Script,
+            Vec::new().into_boxed_slice(),
+        )
+        .unwrap();
+        let completed = installed.drive_root_body(recipe).unwrap();
+        let (_session, physical, draft, completion) = completed.into_parts();
+        assert_eq!(draft.signature.name, "main/0");
+        assert_eq!(completion.result(), RootBodyResultV1::NoValue);
+        assert!(physical.shell_is_empty());
+        assert!(physical.collector_and_ledger_untouched());
     }
 }

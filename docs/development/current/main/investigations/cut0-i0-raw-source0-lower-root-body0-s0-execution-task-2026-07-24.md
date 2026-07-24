@@ -18,8 +18,13 @@ expression-statement provenance was corrected in `ca38ab81b`. The fresh
 tracker `begin_root_body -> seal_root_body` typestate is implemented in
 `589fa501df`. S0-B now has a disconnected AST-free value lowerer and fixtures
 for literal/binary and local/assignment/print recipes; it does not open a
-physical owner or publish a draft. S0-C (consuming BODY0 owner) remains
-unimplemented and production consumers remain zero.
+physical owner or publish a draft. The Builder-side S0-C primitive now has a
+paired `InstalledRawRootEnvironmentV1::drive_root_body` terminal: it creates
+an unpublished `main/0` draft, seals the fresh tracker, and returns a named
+post-body physical owner while collector/ledger/shell publication remains
+untouched. Compiler-side `DeclaredRawRootInvocationV1::begin_body(self)`
+handoff and the route-specific completion/rejection wrapper remain next;
+production consumers remain zero.
 
 ## Decision lock
 
