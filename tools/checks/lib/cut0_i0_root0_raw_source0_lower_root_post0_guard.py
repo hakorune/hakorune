@@ -25,7 +25,11 @@ def require(text: str, fragment: str, label: str) -> None:
 def main() -> int:
     state = (ROOT / "docs/development/current/main/CURRENT_STATE.toml").read_text()
     task = TASK.read_text()
-    require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-S0"', "active row")
+    require(
+        state,
+        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-FAILURE0"',
+        "active row",
+    )
     require(task, "POST-CARRIER-prime-r1", "decision lock")
     require(task, "RawFinalizedInvocationV1::prepare_postprocess(self)", "sole entry")
 
@@ -42,6 +46,7 @@ def main() -> int:
         "run_raw_ready",
         "RawPostprocessedInvocationV1",
         "RejectedRawPostprocessInvocationV1",
+        "RawPostprocessProgressV1",
         "RawPostprocessEvidenceV1",
     ):
         require(raw, fragment, f"Raw POST0 owner {fragment}")
@@ -59,6 +64,7 @@ def main() -> int:
         "RawPostprocessedPhysicalV1",
     ):
         require(physical, fragment, f"opaque physical carrier {fragment}")
+    require(raw, "verification: Option<ModuleVerificationEvidenceV1>", "failure verification evidence")
 
     forbidden = (
         "DerefMut",

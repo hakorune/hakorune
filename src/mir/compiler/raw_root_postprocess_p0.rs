@@ -5,6 +5,7 @@ use super::raw_root_finalization_p0::{app, drained};
 use super::raw_root_postprocess::RawPostprocessedInvocationV1;
 use super::raw_source_binding::RawCallableMainSelectionV1;
 use crate::ast::{ASTNode, Span};
+use crate::mir::builder::RawPostprocessProgressV1;
 use crate::mir::verification::MirVerifier;
 
 fn run(source: ASTNode, selection: RawCallableMainSelectionV1) -> RawPostprocessedInvocationV1 {
@@ -25,7 +26,13 @@ fn empty_script_runs_through_shared_raw_postprocess_kernel() {
         },
         RawCallableMainSelectionV1::Omitted,
     );
-    assert!(matches!(processed, RawPostprocessedInvocationV1::Script(_)));
+    let RawPostprocessedInvocationV1::Script(script) = processed else {
+        panic!("expected Script postprocess owner");
+    };
+    assert_eq!(
+        script.core.physical.progress,
+        RawPostprocessProgressV1::ParitySealed
+    );
 }
 
 #[test]

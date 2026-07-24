@@ -95,6 +95,39 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+## POST0-FAILURE0 bounded extension
+
+The next mechanical extension keeps the selected POST-CARRIER owner and adds
+no new authority. It fixes the failure evidence that is otherwise easy to
+lose while the opaque module is being mutated:
+
+```text
+RawPostprocessProgressV1 is monotone and retained by the physical owner.
+Carrier-parity rejection retains ModuleVerificationEvidenceV1 when the shared
+stage kernel has already produced the Raw pre-transform observation.
+The rejection exposes stage(), error(), verification(), progress(), and
+discard(self) only.
+```
+
+This extension does not add a fault-injection authority, rollback, retry, or
+external-commit consumer. Natural optimizer/contract failure fixtures remain
+the next evidence target; if the narrow Raw grammar cannot produce one
+naturally, that is recorded as a non-claim rather than solved with a test-only
+production hook.
+
+```text
+ceremony_tier = T1
+sunset_id = POST0-SUNSET-RAW-CARRIER-001
+proof_inventory_before = route/schedule/opaque-owner focused proof
+new_proofs = monotone progress + retained pre-transform evidence
+retired_or_merged_proofs = none
+net_proof_delta = +1 bounded safety witness
+sunset_budget = repay at POST0 external-commit handoff
+sunset_row = RAW-SOURCE0-LOWER0-ROOT0-POST0-COMMIT0
+retire_when = RawDirect evidence is consumed by the sole external-commit preparation
+budget_repayment_evidence = one shared Raw lane guard and one route matrix
+```
+
 ## Non-claims
 
 ```text

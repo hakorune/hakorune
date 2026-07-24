@@ -35,9 +35,23 @@ pub(in crate::mir) enum RawPostprocessCarrierParityErrorV1 {
     },
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum RawPostprocessProgressV1 {
+    Ready,
+    RunePlansRefreshed,
+    Optimized,
+    ContractsRefreshed,
+    PreTransformObserved,
+    RcInserted,
+    SemanticMetadataRefreshed,
+    CallsitesCanonicalized,
+    ParitySealed,
+}
+
 #[derive(Debug)]
 pub(in crate::mir) struct RawPostprocessModuleLoanV1 {
     module: RawFinalizedModuleV1,
+    progress: RawPostprocessProgressV1,
     _seal: RawPostprocessModuleLoanSealV1,
 }
 
@@ -84,6 +98,7 @@ pub(in crate::mir) struct RawPostprocessedPhysicalV1 {
     pub(in crate::mir) witness: RawDrainWitnessV1,
     pub(in crate::mir) finalization_parity: RawFinalizationParitySealV1,
     pub(in crate::mir) postprocess_parity: RawPostprocessParitySealV1,
+    pub(in crate::mir) progress: RawPostprocessProgressV1,
     _seal: RawPostprocessedPhysicalSealV1,
 }
 
@@ -104,6 +119,7 @@ impl RawPostprocessPhysicalOwnerV1 {
             builder,
             loan: RawPostprocessModuleLoanV1 {
                 module,
+                progress: RawPostprocessProgressV1::Ready,
                 _seal: RawPostprocessModuleLoanSealV1,
             },
             witness,
@@ -131,43 +147,60 @@ impl RawPostprocessPhysicalOwnerV1 {
             .map(|function| function.signature.params.len())
     }
 
+    pub(in crate::mir) fn progress(&self) -> RawPostprocessProgressV1 {
+        self.loan.progress
+    }
+
     pub(in crate::mir) fn symbols(&self) -> impl Iterator<Item = &String> {
         self.loan.module.symbols()
     }
 
     pub(in crate::mir) fn refresh_rune_plans(&mut self) {
         self.loan.module.refresh_rune_plans();
+        self.loan.progress = RawPostprocessProgressV1::RunePlansRefreshed;
     }
 
     pub(in crate::mir) fn optimize(&mut self) -> OptimizationStats {
-        self.loan.module.optimize()
+        let stats = self.loan.module.optimize();
+        self.loan.progress = RawPostprocessProgressV1::Optimized;
+        stats
     }
 
     pub(in crate::mir) fn refresh_contracts(&mut self) -> Result<(), String> {
-        self.loan.module.refresh_contracts()
+        let result = self.loan.module.refresh_contracts();
+        if result.is_ok() {
+            self.loan.progress = RawPostprocessProgressV1::ContractsRefreshed;
+        }
+        result
     }
 
     pub(in crate::mir) fn verify(
         &mut self,
         verifier: &mut MirVerifier,
     ) -> Result<(), Box<[VerificationError]>> {
-        self.loan.module.verify(verifier)
+        let result = self.loan.module.verify(verifier);
+        self.loan.progress = RawPostprocessProgressV1::PreTransformObserved;
+        result
     }
 
     pub(in crate::mir) fn insert_rc(&mut self) {
         self.loan.module.insert_rc();
+        self.loan.progress = RawPostprocessProgressV1::RcInserted;
     }
 
     pub(in crate::mir) fn refresh_semantic_metadata(&mut self) {
         self.loan.module.refresh_semantic_metadata();
+        self.loan.progress = RawPostprocessProgressV1::SemanticMetadataRefreshed;
     }
 
     pub(in crate::mir) fn canonicalize_callsites(&mut self) -> usize {
-        self.loan.module.canonicalize_callsites()
+        let changed = self.loan.module.canonicalize_callsites();
+        self.loan.progress = RawPostprocessProgressV1::CallsitesCanonicalized;
+        changed
     }
 
     pub(in crate::mir) fn prepare_parity(
-        &self,
+        &mut self,
         expected_module_name: &str,
     ) -> Result<RawPostprocessParitySealV1, RawPostprocessCarrierParityErrorV1> {
         if self.module_name() != expected_module_name {
@@ -206,6 +239,7 @@ impl RawPostprocessPhysicalOwnerV1 {
                 });
             }
         }
+        self.loan.progress = RawPostprocessProgressV1::ParitySealed;
         Ok(RawPostprocessParitySealV1 {
             brand: self.brand(),
             function_count: actual,
@@ -225,6 +259,7 @@ impl RawPostprocessPhysicalOwnerV1 {
             finalization_parity,
             _seal: _,
         } = self;
+        let progress = loan.progress;
         RawPostprocessedPhysicalV1 {
             token,
             builder,
@@ -235,6 +270,7 @@ impl RawPostprocessPhysicalOwnerV1 {
             witness,
             finalization_parity,
             postprocess_parity,
+            progress,
             _seal: RawPostprocessedPhysicalSealV1,
         }
     }

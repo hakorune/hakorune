@@ -172,7 +172,7 @@ pub(in crate::mir) use raw_root_physical::finalization_terminal::{
 };
 pub(in crate::mir) use raw_root_physical::postprocess_terminal::{
     RawPostprocessCarrierParityErrorV1, RawPostprocessModuleLoanV1, RawPostprocessParitySealV1,
-    RawPostprocessPhysicalOwnerV1, RawPostprocessedPhysicalV1,
+    RawPostprocessPhysicalOwnerV1, RawPostprocessProgressV1, RawPostprocessedPhysicalV1,
 };
 mod canonical_root_completion; // CUT0-I0-ROOT0-CANON0 route-specific completion
 mod canonical_root_completion_error; // CUT0-I0-ROOT0-CANON0 shared error vocabulary

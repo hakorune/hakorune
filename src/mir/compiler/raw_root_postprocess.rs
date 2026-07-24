@@ -16,7 +16,8 @@ use super::raw_root_children::{RawPreRootChildrenCompletionV1, RawRootChildRecei
 use super::raw_runtime_inputs::RawRuntimeInputSnapshotV1;
 use super::raw_source_binding::RawPostCallableMainContinuationV1;
 use crate::mir::builder::{
-    RawPostprocessCarrierParityErrorV1, RawPostprocessPhysicalOwnerV1, RawPostprocessedPhysicalV1,
+    RawPostprocessCarrierParityErrorV1, RawPostprocessPhysicalOwnerV1, RawPostprocessProgressV1,
+    RawPostprocessedPhysicalV1,
 };
 use crate::mir::verification_types::VerificationError;
 
@@ -116,6 +117,7 @@ pub(in crate::mir) struct RejectedRawPostprocessInvocationV1 {
     owner: RawPostprocessReadyInvocationV1,
     stage: RawPostprocessFailureStageV1,
     error: RawPostprocessErrorV1,
+    verification: Option<ModuleVerificationEvidenceV1>,
 }
 
 impl RejectedRawPostprocessInvocationV1 {
@@ -125,6 +127,17 @@ impl RejectedRawPostprocessInvocationV1 {
 
     pub(in crate::mir) fn error(&self) -> &RawPostprocessErrorV1 {
         &self.error
+    }
+
+    pub(in crate::mir) fn verification(&self) -> Option<&ModuleVerificationEvidenceV1> {
+        self.verification.as_ref()
+    }
+
+    pub(in crate::mir) fn progress(&self) -> RawPostprocessProgressV1 {
+        match &self.owner {
+            RawPostprocessReadyInvocationV1::Script(ready) => ready.core.physical.progress(),
+            RawPostprocessReadyInvocationV1::App(ready) => ready.core.physical.progress(),
+        }
     }
 
     pub(in crate::mir) fn discard(self) {}
@@ -285,6 +298,7 @@ fn run_script_ready<'a>(
                 ),
                 stage,
                 error,
+                verification: None,
             });
         }
     };
@@ -302,6 +316,7 @@ fn run_script_ready<'a>(
                 ),
                 stage: RawPostprocessFailureStageV1::CarrierParity,
                 error: RawPostprocessErrorV1::CarrierParity(error),
+                verification: Some(verification),
             });
         }
     };
@@ -362,6 +377,7 @@ fn run_app_ready<'a>(
                 ),
                 stage,
                 error,
+                verification: None,
             });
         }
     };
@@ -380,6 +396,7 @@ fn run_app_ready<'a>(
                 ),
                 stage: RawPostprocessFailureStageV1::CarrierParity,
                 error: RawPostprocessErrorV1::CarrierParity(error),
+                verification: Some(verification),
             });
         }
     };
