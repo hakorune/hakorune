@@ -159,6 +159,10 @@ and pinned-value retention sets are observed from the live session, while the
 removal itself is not committed yet. The live type map remains byte-for-byte
 unchanged in the focused fixture.
 
+Projected typed-value verification now applies that plan to a second private
+facts image and keeps the original plan available. This is verification-image
+work only; the live map, draft extraction, and session close remain untouched.
+
 ## Acceptance gates
 
 ```text

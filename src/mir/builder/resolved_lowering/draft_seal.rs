@@ -66,6 +66,7 @@ pub(super) enum FunctionDraftSealProjectionErrorV1 {
     ReturnSignatureMismatch { expected: MirType, actual: MirType },
     TypeAnalysisFailed(String),
     StaleFacts(String),
+    TypedValueVerificationFailed(String),
     ValueIdOverflow,
 }
 
@@ -79,6 +80,12 @@ pub(super) struct RejectedFunctionDraftProjectionV1 {
 pub(super) struct PreparedFunctionStaleFactsV1 {
     projection: FunctionDraftSealProjectionV1,
     stale: PreparedTransientStaleValueFactsV1,
+}
+
+#[derive(Debug)]
+pub(super) struct VerifiedFunctionDraftProjectionV1<'a> {
+    projection: FunctionDraftSealProjectionV1,
+    stale: &'a PreparedFunctionStaleFactsV1,
 }
 
 #[derive(Debug)]
@@ -338,11 +345,43 @@ impl FunctionDraftSealProjectionV1 {
 }
 
 impl PreparedFunctionStaleFactsV1 {
+    /// Verify the projected completed-draft image after applying stale-fact
+    /// removals to a second private facts map. The original plan remains
+    /// available for the eventual commit terminal.
+    pub(super) fn verify(
+        &self,
+    ) -> Result<VerifiedFunctionDraftProjectionV1<'_>, FunctionDraftSealProjectionErrorV1> {
+        let mut verified_type_ctx = clone_type_context(&self.projection.type_ctx);
+        self.stale.apply_to_type_context(&mut verified_type_ctx);
+        crate::mir::builder::emission::value_lifecycle_definition::verify_completed_draft_typed_value_definitions_v1(
+            &self.projection.function,
+            &verified_type_ctx.value_types,
+        )
+        .map_err(|error| {
+            FunctionDraftSealProjectionErrorV1::TypedValueVerificationFailed(error.to_string())
+        })?;
+        Ok(VerifiedFunctionDraftProjectionV1 {
+            projection: FunctionDraftSealProjectionV1 {
+                function: self.projection.function.clone(),
+                type_ctx: verified_type_ctx,
+                exit: self.projection.exit,
+            },
+            stale: self,
+        })
+    }
+
     #[cfg(test)]
     pub(super) fn stale_count(&self) -> usize {
         self.stale.len()
     }
 
+    #[cfg(test)]
+    pub(super) fn projection(&self) -> &FunctionDraftSealProjectionV1 {
+        &self.projection
+    }
+}
+
+impl<'a> VerifiedFunctionDraftProjectionV1<'a> {
     #[cfg(test)]
     pub(super) fn projection(&self) -> &FunctionDraftSealProjectionV1 {
         &self.projection

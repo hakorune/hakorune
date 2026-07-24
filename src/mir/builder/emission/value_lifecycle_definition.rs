@@ -240,17 +240,24 @@ pub(in crate::mir::builder) struct PreparedTransientStaleValueFactsV1 {
 struct TransientStaleValueFactsSealV1;
 
 impl PreparedTransientStaleValueFactsV1 {
+    /// Apply the planned removals to a private facts image without consuming
+    /// the plan. The canonical draft seal uses this for projected verification;
+    /// the consuming `commit` remains the only live-state terminal.
+    pub(in crate::mir::builder) fn apply_to_type_context(&self, type_ctx: &mut TypeContext) {
+        for value in &self.values {
+            type_ctx.value_types.remove(value);
+            type_ctx.value_kinds.remove(value);
+            type_ctx.value_origin_newbox.remove(value);
+        }
+    }
+
     /// Commits only the three existing transient stale-row removals.
     ///
     /// The candidate is prepared before metadata publication and consumed once
     /// after all retention checks have succeeded.  It cannot mutate MIR or
     /// allocate a ValueId.
     pub(in crate::mir::builder) fn commit(self, type_ctx: &mut TypeContext) {
-        for value in self.values {
-            type_ctx.value_types.remove(&value);
-            type_ctx.value_kinds.remove(&value);
-            type_ctx.value_origin_newbox.remove(&value);
-        }
+        self.apply_to_type_context(type_ctx);
     }
 
     #[cfg(test)]

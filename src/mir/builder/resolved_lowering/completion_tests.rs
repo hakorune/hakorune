@@ -440,5 +440,10 @@ fn draft_seal_projection_prepares_stale_facts_without_live_map_mutation() {
         prepared.projection().type_ctx().get_type(ValueId::new(77)),
         Some(&MirType::Integer)
     );
+    let verified = prepared.verify().unwrap();
+    assert_eq!(
+        verified.projection().type_ctx().get_type(ValueId::new(77)),
+        None
+    );
     assert_eq!(builder.function_state.type_ctx.value_types, before);
 }
