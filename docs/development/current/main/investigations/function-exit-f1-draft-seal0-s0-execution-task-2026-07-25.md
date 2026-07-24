@@ -242,6 +242,16 @@ offers `prepare_exit_borrowed(&self)`, while the existing consuming
 Open-owner planning without consuming the completion witness before later
 stage failures can retain the exact session owner.
 
+The next implementation step is intentionally a design checkpoint, not an
+old-finalizer integration. `OpenFunctionDraftSealV1::prepare` needs a neutral
+typed commit payload carrying the projected function, final `TypeContext`,
+metadata/stale facts, and verification receipt into the session-owned commit
+terminal. That payload must preserve the original Open owner on every
+borrow-only stage failure and provide the sole path to `current_function.take()`.
+Until this payload and its rejection retention are fixed, wiring `Open::prepare`,
+the canonical lowerers, or a second mutable closure would violate the F1 owner
+boundary. This is the current design-stop seam for COMMIT0.
+
 ## Acceptance gates
 
 ```text
