@@ -211,13 +211,12 @@ mutation closure is forbidden. Until that seam exists, the old canonical and
 trivial lowerer Return writers and `finalize_function_draft` callers remain
 unchanged and disconnected from the new products.
 
-The current isolated prepare helpers also still expose an intermediate seam:
-metadata/signature/PHI receipts are prepared before stale-fact verification,
-but the stale/verification products do not yet co-own every plan. Before a
-real COMMIT0 terminal is added, a single `PreparedFunctionDraftSealPlanV1`
-must retain metadata, signature, PHI closure, stale facts, and verification
-together. Re-observing the projected function or rebuilding those plans in a
-later commit is forbidden.
+The isolated prepare helpers now converge on one
+`PreparedFunctionDraftSealPlanV1` that retains metadata, signature, PHI
+closure, stale facts, and verification together. Re-observing the projected
+function or rebuilding those plans in a later commit is forbidden. The plan
+still does not own the open Builder session; that handoff remains the next
+COMMIT0 seam.
 
 The projection order was tightened to match the accepted PREPARE0 law:
 explicit operands are materialized into the private image first, type

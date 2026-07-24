@@ -129,7 +129,7 @@ pub(super) struct PreparedFunctionSignatureV1 {
 }
 
 #[derive(Debug)]
-pub(super) struct VerifiedFunctionDraftProjectionV1 {
+pub(super) struct PreparedFunctionDraftSealPlanV1 {
     metadata: PreparedFunctionMetadataV1,
     projection: FunctionDraftSealProjectionV1,
     stale: PreparedTransientStaleValueFactsV1,
@@ -517,7 +517,7 @@ impl PreparedFunctionStaleFactsV1 {
     /// available for the eventual commit terminal.
     pub(super) fn verify(
         self,
-    ) -> Result<VerifiedFunctionDraftProjectionV1, FunctionDraftSealProjectionErrorV1> {
+    ) -> Result<PreparedFunctionDraftSealPlanV1, FunctionDraftSealProjectionErrorV1> {
         let mut verified_type_ctx = clone_type_context(&self.metadata.projection.type_ctx);
         self.stale.apply_to_type_context(&mut verified_type_ctx);
         crate::mir::builder::emission::value_lifecycle_definition::verify_completed_draft_typed_value_definitions_v1(
@@ -534,7 +534,7 @@ impl PreparedFunctionStaleFactsV1 {
                     "{errors:?}"
                 ))
             })?;
-        Ok(VerifiedFunctionDraftProjectionV1 {
+        Ok(PreparedFunctionDraftSealPlanV1 {
             projection: FunctionDraftSealProjectionV1 {
                 function: self.metadata.projection.function.clone(),
                 type_ctx: verified_type_ctx,
@@ -556,7 +556,7 @@ impl PreparedFunctionStaleFactsV1 {
     }
 }
 
-impl VerifiedFunctionDraftProjectionV1 {
+impl PreparedFunctionDraftSealPlanV1 {
     #[cfg(test)]
     pub(super) fn metadata(&self) -> &FunctionMetadata {
         &self.metadata.metadata

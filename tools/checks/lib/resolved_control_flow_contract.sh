@@ -243,6 +243,7 @@ PY
   for spec in \
     'draft_seal.rs:ReadyFunctionDraftSealV1' \
     'draft_seal.rs:PreparedFunctionDraftSealV1' \
+    'draft_seal.rs:PreparedFunctionDraftSealPlanV1' \
     'draft_seal.rs:CompletedFunctionDraftV1' \
     'draft_seal.rs:RejectedFunctionDraftSealV1' \
     'draft_seal.rs:FunctionDraftSealProjectionV1' \
