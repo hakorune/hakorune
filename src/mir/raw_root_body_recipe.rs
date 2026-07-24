@@ -140,13 +140,19 @@ fn collect_statement_paths(
     paths: &mut std::collections::BTreeSet<Box<[usize]>>,
 ) -> Result<(), RawRootBodyRecipeErrorV1> {
     let site = match statement {
-        RawLinearScalarStmtV1::Expr { site, .. }
-        | RawLinearScalarStmtV1::Print { site, .. }
+        // An expression statement and its expression are the same source AST
+        // node.  The expression site is the canonical provenance; inserting
+        // the wrapper site as a second path would reject every literal-only
+        // statement as a false duplicate.
+        RawLinearScalarStmtV1::Expr { .. } => None,
+        RawLinearScalarStmtV1::Print { site, .. }
         | RawLinearScalarStmtV1::Assignment { site, .. }
         | RawLinearScalarStmtV1::CompoundAssignment { site, .. }
-        | RawLinearScalarStmtV1::Local { site, .. } => site,
+        | RawLinearScalarStmtV1::Local { site, .. } => Some(site),
     };
-    insert_path(site, paths)?;
+    if let Some(site) = site {
+        insert_path(site, paths)?;
+    }
     match statement {
         RawLinearScalarStmtV1::Expr { expression, .. }
         | RawLinearScalarStmtV1::Print { expression, .. } => collect_expr_paths(expression, paths),

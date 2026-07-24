@@ -29,7 +29,7 @@ fn recipe_rejects_duplicate_source_paths() {
         RawLinearScalarStmtV1::Expr {
             expression: RawLinearScalarExprV1::Literal {
                 value: crate::ast::LiteralValue::Integer(2),
-                site: RawRootBodySourceSiteV1::new(&[1], crate::ast::Span::unknown()),
+                site: site(),
             },
             site: site(),
         },
