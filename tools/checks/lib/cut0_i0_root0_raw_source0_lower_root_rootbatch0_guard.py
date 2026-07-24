@@ -38,7 +38,10 @@ def main() -> int:
             raise AssertionError(f"missing ROOTBATCH0 source: {path}")
     joined = "\n".join(path.read_text() for path in SOURCES)
 
-    require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-ROOTBATCH0-S0"', "active row")
+    active_row = 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-ROOTBATCH0-S0"'
+    closed_row = "ROOTBATCH-prime-r1 S0a/S0b/S0c/S0d/G0 are closed"
+    if active_row not in state and closed_row not in state:
+        raise AssertionError("ROOTBATCH0 must be active or explicitly closed")
     require(task, "Decision: **ROOTBATCH-prime-r1**", "decision lock")
     for fragment in (
         "RawRootBatchSlotV1",
