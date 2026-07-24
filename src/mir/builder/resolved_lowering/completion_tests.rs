@@ -2,7 +2,7 @@ use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
 use crate::mir::resolved_semantics::RegionId;
-use crate::mir::{MirCompiler, MirInstruction, ValueId};
+use crate::mir::{BasicBlockId, MirCompiler, MirInstruction, ValueId};
 
 use super::completion_consumption::{
     emit_canonical_explicit_return, ResolvedFunctionCompletionConsumptionV1,
@@ -124,7 +124,33 @@ fn explicit_completion_rejects_wrong_target_before_emission() {
         ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
 
     let error = consumption
-        .claim_explicit_return(&site, wrong_target)
+        .claim_explicit_return(&site, wrong_target, BasicBlockId::new(0), ValueId::new(0))
         .unwrap_err();
     assert!(error.contains("target_mismatch"));
+}
+
+#[test]
+fn explicit_completion_retains_exact_lowered_operand_witness() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(
+        "completion_operand_witness",
+        vec![return_stmt(Some(literal(7)))],
+    ))
+    .unwrap();
+    let input = unit.root_function_input().unwrap();
+    let body = input.source().root_body().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let site = completion.explicit_site().unwrap().clone();
+    let target = input.function().lowering_roots().function_pair().region();
+    let mut consumption =
+        ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion).unwrap();
+
+    consumption
+        .claim_explicit_return(&site, target, BasicBlockId::new(3), ValueId::new(17))
+        .unwrap();
+    let ready = consumption
+        .finish(body.site(), body.statements().len() as u32, target)
+        .unwrap();
+    let witness = ready.explicit_operand().unwrap();
+    assert_eq!(witness.block(), BasicBlockId::new(3));
+    assert_eq!(witness.value(), ValueId::new(17));
 }

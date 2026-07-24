@@ -186,8 +186,15 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
                 } else {
                     crate::mir::builder::emission::constant::emit_void(self.builder)?
                 };
-                self.completion
-                    .claim_explicit_return(statement.site(), self.semantics.function_region())?;
+                let block = self.builder.function_state.current_block.ok_or_else(|| {
+                    "[freeze:contract][canonical_completion/current_block_missing]".to_string()
+                })?;
+                self.completion.claim_explicit_return(
+                    statement.site(),
+                    self.semantics.function_region(),
+                    block,
+                    return_value,
+                )?;
                 self.identity
                     .mark_return(ResolvedExitSiteV1::Statement(statement.site().clone()))?;
                 emit_canonical_explicit_return(self.builder, return_value)?;

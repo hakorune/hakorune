@@ -9,6 +9,7 @@ use crate::mir::{BasicBlockId, MirBuilder, MirFunction, MirInstruction, ValueId}
 pub(super) struct ResolvedFunctionCompletionConsumptionV1 {
     completion: VerifiedFunctionCompletionV1,
     explicit_consumed: bool,
+    explicit_operand: Option<ReturnOperandWitnessV1>,
 }
 
 /// Temporal witness minted only after every current canonical Lower finish.
@@ -18,6 +19,38 @@ pub(super) struct ResolvedFunctionCompletionConsumptionV1 {
 #[derive(Debug)]
 pub(super) struct ReadyFunctionCompletionV1 {
     completion: VerifiedFunctionCompletionV1,
+    explicit_operand: Option<ReturnOperandWitnessV1>,
+}
+
+impl ReadyFunctionCompletionV1 {
+    pub(super) fn explicit_operand(&self) -> Option<ReturnOperandWitnessV1> {
+        self.explicit_operand
+    }
+}
+
+/// Builder-side evidence for the one explicit source exit accepted by F1.
+///
+/// The source completion contract decides whether the operand is a return;
+/// this witness records only the exact already-lowered physical operand and
+/// block so draft sealing never rediscovers it by scanning MIR.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct ReturnOperandWitnessV1 {
+    block: BasicBlockId,
+    value: ValueId,
+}
+
+impl ReturnOperandWitnessV1 {
+    pub(super) fn new(block: BasicBlockId, value: ValueId) -> Self {
+        Self { block, value }
+    }
+
+    pub(super) fn block(self) -> BasicBlockId {
+        self.block
+    }
+
+    pub(super) fn value(self) -> ValueId {
+        self.value
+    }
 }
 
 impl ResolvedFunctionCompletionConsumptionV1 {
@@ -37,6 +70,7 @@ impl ResolvedFunctionCompletionConsumptionV1 {
         Ok(Self {
             completion,
             explicit_consumed: false,
+            explicit_operand: None,
         })
     }
 
@@ -44,6 +78,8 @@ impl ResolvedFunctionCompletionConsumptionV1 {
         &mut self,
         site: &SourceStmtSiteV1,
         target_function: RegionId,
+        block: BasicBlockId,
+        value: ValueId,
     ) -> Result<(), String> {
         if self.explicit_consumed {
             return Err("[freeze:contract][canonical_completion/explicit_reconsumed]".to_string());
@@ -57,6 +93,7 @@ impl ResolvedFunctionCompletionConsumptionV1 {
             return Err("[freeze:contract][canonical_completion/target_mismatch]".to_string());
         }
         self.explicit_consumed = true;
+        self.explicit_operand = Some(ReturnOperandWitnessV1::new(block, value));
         Ok(())
     }
 
@@ -74,6 +111,11 @@ impl ResolvedFunctionCompletionConsumptionV1 {
         if self.completion.explicit_site().is_some() != self.explicit_consumed {
             return Err("[freeze:contract][canonical_completion/consumption_mismatch]".to_string());
         }
+        if self.completion.explicit_site().is_some() != self.explicit_operand.is_some() {
+            return Err(
+                "[freeze:contract][canonical_completion/operand_witness_missing]".to_string(),
+            );
+        }
         if let Some((expected_body, expected_end)) = self.completion.implicit_body_end() {
             if expected_body != root_body || expected_end != root_body_end {
                 return Err(
@@ -83,6 +125,7 @@ impl ResolvedFunctionCompletionConsumptionV1 {
         }
         Ok(ReadyFunctionCompletionV1 {
             completion: self.completion,
+            explicit_operand: self.explicit_operand,
         })
     }
 }
