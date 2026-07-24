@@ -4,6 +4,20 @@ Status: **Ready for implementation; production consumers remain zero**
 Date: 2026-07-24  
 Decision: **DECLACCESS-prime-r1**
 
+## Progress
+
+The behavior-neutral preparation slice is landed in `c3f286fdfe`:
+
+```text
+RawRootPlanV1 exposes only the source-derived manifest inputs needed by the
+next exact-manifest constructor (callable rows, Script statement count,
+App child/callable locators, and the eligible package view).
+```
+
+No physical owner, Builder/shell installation, BODY0 consumer, or production
+consumer was added. The exact manifest and `declare_environment(self)` remain
+the next implementation slice.
+
 ## Boundary
 
 DECLACCESS0 consumes one `RawCallableMainReadyInvocationV1` and installs the
