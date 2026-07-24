@@ -107,21 +107,20 @@ normative topic =
   docs/reference/language/function-exit-and-entry-result.md
 
 current executable row =
-  FUNCTION-EXIT-F1-DRAFT-SEAL-D0 (design stop)
+  FUNCTION-EXIT-F1-DRAFT-SEAL0-S0
 
 execution card =
-  docs/development/current/main/investigations/function-exit-f1-draft-seal-design-question-2026-07-25.md
+  docs/development/current/main/investigations/function-exit-f1-draft-seal0-s0-execution-task-2026-07-25.md
 ```
 
 The preceding RETURN0 row closed the existing `VerifiedFunctionCompletionV1`
-producer's exact zero-or-one root-terminal source contract. MATERIALIZE0 is
-paused at a design stop: the existing Builder finalizer still combines exit
-materialization with fallible draft sealing and Return-operand signature
-inference, while trivial SSA has a competing synthetic Return writer. A
-strict prepared/infallible draft-seal owner must be designed before the
-physical signature/Return/completion transition can claim closure. Nested,
-multiple-return, and all-path coverage remain a separate D0; Script result,
-entry projection, and public activation remain later rows.
+producer's exact zero-or-one root-terminal source contract. The accepted
+DRAFT-SEAL decision absorbs MATERIALIZE0 into one prepared/infallible owner:
+exit materialization, PHI closure verification, type/stale facts, signature,
+metadata, projected verification, extraction, and session close. The exact
+0-or-1 slice is now authorized; nested, multiple-return, and all-path
+coverage remain separate D0 rows. Script result, entry projection, and public
+activation remain later rows.
 
 The durable function-exit queue is:
 
@@ -129,8 +128,8 @@ The durable function-exit queue is:
 FUNCTION-EXIT-F1-RETURN0-S0
   existing completion owner + declared-result relation, exact 0/1 slice
 
--> FUNCTION-EXIT-F1-DRAFT-SEAL-D0
-  design stop: decide the strict prepared/infallible draft-seal boundary
+-> FUNCTION-EXIT-F1-DRAFT-SEAL0-S0
+  one prepared/infallible canonical draft-seal owner for exact 0/1 exits
 
 -> SCRIPT-RESULT-TAIL0-S0
   parser-neutral final-expression classifier; statement tails remain Unit
