@@ -96,9 +96,9 @@ No stage reopens source AST, route symbols, module inventory, or status policy.
 
 Current evidence (partial closeout): actual execution tests now cover empty
 Script, empty App Main, integer 0/255, integer range faults, Bool/Float/String
-unsupported process results, Print-as-Unit, and compiler reuse after success.
-The full matrix, rejection-then-success reuse, VM-fault fixture, decoy-entry
-census, and final caller census remain open under this row.
+unsupported process results, Print-as-Unit, division VM faults, and compiler
+reuse after success or entry rejection. The full matrix, decode ABI mismatch,
+decoy-entry census, and final caller census remain open under this row.
 
 ## Failure law
 

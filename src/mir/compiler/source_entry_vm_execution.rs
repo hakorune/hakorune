@@ -153,6 +153,9 @@ impl super::MirCompiler {
         ast: crate::ast::ASTNode,
         source_file: Option<&str>,
     ) -> Result<RawVmReferenceRunReportV1, String> {
+        if self.builder.repl_mode {
+            return Err("[raw-vm-reference/source-binding/repl-unsupported] NarrowV1".to_owned());
+        }
         let published = self
             .compile_raw_published_v1(ast, source_file)
             .map_err(|rejected| rejected.into_public_string())?;
@@ -251,7 +254,7 @@ fn vm_error_to_source_fault(error: VMError) -> SourceEntryResultV1 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{ASTNode, DeclarationAttrs, Span};
+    use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, Span};
     use std::collections::HashMap;
     use crate::mir::compiler::source_entry_result::UnitOriginV1;
 
@@ -266,6 +269,28 @@ mod tests {
         ASTNode::Program {
             statements: vec![ASTNode::Literal {
                 value,
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        }
+    }
+
+    fn binary_script(
+        left: crate::ast::LiteralValue,
+        operator: BinaryOperator,
+        right: crate::ast::LiteralValue,
+    ) -> ASTNode {
+        ASTNode::Program {
+            statements: vec![ASTNode::BinaryOp {
+                operator,
+                left: Box::new(ASTNode::Literal {
+                    value: left,
+                    span: Span::unknown(),
+                }),
+                right: Box::new(ASTNode::Literal {
+                    value: right,
+                    span: Span::unknown(),
+                }),
                 span: Span::unknown(),
             }],
             span: Span::unknown(),
@@ -450,6 +475,23 @@ mod tests {
     }
 
     #[test]
+    fn raw_vm_entry_maps_division_fault_to_source_diagnostic() {
+        let mut compiler = crate::mir::compiler::MirCompiler::new();
+        let report = compiler
+            .run_raw_vm_reference(
+                binary_script(
+                    crate::ast::LiteralValue::Integer(1),
+                    BinaryOperator::Divide,
+                    crate::ast::LiteralValue::Integer(0),
+                ),
+                Some("raw-vm-div-zero.hako"),
+            )
+            .expect("division fault should be a typed process fault");
+        assert_eq!(report.status_code(), 70);
+        assert_eq!(report.diagnostic_tag(), Some("[process/source-fault]"));
+    }
+
+    #[test]
     fn raw_vm_reference_reuses_compiler_after_success() {
         let mut compiler = crate::mir::compiler::MirCompiler::new();
         for source_file in ["raw-vm-reuse-1.hako", "raw-vm-reuse-2.hako"] {
@@ -459,5 +501,20 @@ mod tests {
             assert_eq!(report.status_code(), 0);
             assert_eq!(report.diagnostic_tag(), None);
         }
+    }
+
+    #[test]
+    fn raw_vm_reference_reuses_compiler_after_entry_rejection() {
+        let mut compiler = crate::mir::compiler::MirCompiler::new();
+        compiler.builder.repl_mode = true;
+        assert!(compiler
+            .run_raw_vm_reference(empty_script(), Some("raw-vm-rejected.hako"))
+            .is_err());
+        compiler.builder.repl_mode = false;
+        let report = compiler
+            .run_raw_vm_reference(empty_script(), Some("raw-vm-recovered.hako"))
+            .expect("entry rejection must not poison the compiler");
+        assert_eq!(report.status_code(), 0);
+        assert_eq!(report.diagnostic_tag(), None);
     }
 }
