@@ -30,11 +30,14 @@ def main() -> int:
     state = STATE.read_text()
     task = TASK.read_text()
     source = "\n".join(path.read_text() for path in SOURCES)
-    require(
-        state,
-        'current_execution_row = "ENTRY-RESULT-PROJECTION0-PARITY-G0"',
-        "active row",
-    )
+    if not any(
+        row in state
+        for row in (
+            'current_execution_row = "ENTRY-RESULT-PROJECTION0-PARITY-G0"',
+            'current_execution_row = "ENTRY-RESULT-PROJECTION0-S1-DESIGN-STOP"',
+        )
+    ):
+        raise AssertionError("missing active or retained parity row")
     for fragment in (
         "PARITY-G0",
         "one projection owner",

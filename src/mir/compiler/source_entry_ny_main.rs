@@ -29,7 +29,7 @@ impl NyMainCapabilityAdapterV1 {
 
 impl NyMainStatusV1 {
     /// The normalized status consumed by a later native ABI adapter.
-    pub(in crate::mir) const fn normalized_i64(self) -> i64 {
+    pub(in crate::mir) fn normalized_i64(self) -> i64 {
         self.code.normalized_i64()
     }
 
