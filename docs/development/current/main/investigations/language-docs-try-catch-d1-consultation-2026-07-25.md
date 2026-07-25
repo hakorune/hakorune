@@ -103,6 +103,11 @@ availability    = live | guarded | transport | pending | deferred |
                    prohibited | historical
 ```
 
+The navigation index may additionally use `topic_owned`, `scaffold`, and
+`status_conflict` while a feature has no Language v1 registry row or while
+this decision is open. These are index-only sentinels, not parser statuses or
+runtime gates.
+
 For every selected row, specify the profile owner, gate/reject tag, allowed
 backend set, and whether the feature is permitted in source, metadata, or
 transport only. A feature cannot be both unconditional canonical and guarded
