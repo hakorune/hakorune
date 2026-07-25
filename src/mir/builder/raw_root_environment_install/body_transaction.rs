@@ -16,7 +16,7 @@ use super::super::raw_root_physical::{
 use super::super::root_batch_slot::RawRootBatchSlotV1;
 use super::super::root_body_completion::{CompletedRootBodyV1, RootBodyResultV1};
 use super::InstalledRawRootEnvironmentV1;
-use crate::mir::raw_root_body_recipe::RawRootBodyRecipeV1;
+use crate::mir::raw_root_body_recipe::{RawRootBodyRecipeV1, RawScriptTerminalRecipeV1};
 use crate::mir::MirFunction;
 
 #[derive(Debug)]
@@ -140,11 +140,16 @@ impl InstalledRawRootEnvironmentV1 {
                 });
             }
         };
-        let plan =
-            match session
-                .builder()
-                .prepare_raw_root_exit_v1(&open, result, physical.tracker())
-            {
+        let plan = match recipe.script().and_then(|script| match script.terminal() {
+            RawScriptTerminalRecipeV1::UnitExpression { origin, .. } => Some(*origin),
+            _ => None,
+        }) {
+            Some(origin) => match session.builder().prepare_raw_script_unit_exit_v1(
+                &open,
+                result,
+                physical.tracker(),
+                origin,
+            ) {
                 Ok(plan) => plan,
                 Err(error) => {
                     return Err(RejectedRawRootBodyPhysicalV1 {
@@ -156,7 +161,26 @@ impl InstalledRawRootEnvironmentV1 {
                         error: RawRootBodyLoweringErrorV1::ExitSeal(error),
                     });
                 }
-            };
+            },
+            None => {
+                match session
+                    .builder()
+                    .prepare_raw_root_exit_v1(&open, result, physical.tracker())
+                {
+                    Ok(plan) => plan,
+                    Err(error) => {
+                        return Err(RejectedRawRootBodyPhysicalV1 {
+                            owner: RawRootBodyRejectedOwnerV1::DuringDrive {
+                                session,
+                                physical,
+                                recipe,
+                            },
+                            error: RawRootBodyLoweringErrorV1::ExitSeal(error),
+                        });
+                    }
+                }
+            }
+        };
         let brand = physical.brand();
         let (draft, exit) = session
             .builder_mut()

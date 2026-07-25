@@ -11,7 +11,7 @@ use super::root_body_completion::{
     RootBodyResultV1,
 };
 use crate::mir::raw_root_body_recipe::{
-    RawRootBodyEntryContractV1, RawRootBodyRouteV1, RawRootExitPolicyV1,
+    RawRootBodyEntryContractV1, RawRootBodyRouteV1, RawRootExitPolicyV1, RawScriptUnitOriginV1,
 };
 use crate::mir::{
     BasicBlockId, ConstValue, MirBuilder, MirFunction, MirInstruction, MirType, ValueId,
@@ -58,6 +58,12 @@ pub(in crate::mir::builder) enum PreparedRawRootExitPlanV1 {
         value: ValueId,
         ty: MirType,
     },
+    ScriptUnitValue {
+        block: BasicBlockId,
+        value: ValueId,
+        ty: MirType,
+        origin: RawScriptUnitOriginV1,
+    },
     ScriptEmpty {
         block: BasicBlockId,
     },
@@ -81,6 +87,12 @@ enum RawRootBodyExitDispositionV1 {
         block: BasicBlockId,
         value: ValueId,
         ty: MirType,
+    },
+    ScriptUnitValue {
+        block: BasicBlockId,
+        value: ValueId,
+        ty: MirType,
+        origin: RawScriptUnitOriginV1,
     },
     ScriptEmptyVoid {
         block: BasicBlockId,
@@ -245,6 +257,26 @@ impl MirBuilder {
         }
     }
 
+    pub(in crate::mir::builder) fn prepare_raw_script_unit_exit_v1(
+        &self,
+        open: &RawOpenRootFunctionV1,
+        result: RootBodyResultV1,
+        tracker: &ActiveRootBodyCompletionTrackerV1,
+        origin: RawScriptUnitOriginV1,
+    ) -> Result<PreparedRawRootExitPlanV1, RawRootBodyExitSealErrorV1> {
+        match self.prepare_raw_root_exit_v1(open, result, tracker)? {
+            PreparedRawRootExitPlanV1::ScriptValue { block, value, ty } => {
+                Ok(PreparedRawRootExitPlanV1::ScriptUnitValue {
+                    block,
+                    value,
+                    ty,
+                    origin,
+                })
+            }
+            plan => Ok(plan),
+        }
+    }
+
     pub(in crate::mir::builder) fn commit_raw_root_exit_v1(
         &mut self,
         open: RawOpenRootFunctionV1,
@@ -287,6 +319,28 @@ impl MirBuilder {
                             returned_void: void_value,
                         },
                         Some(void_value),
+                    )
+                }
+                PreparedRawRootExitPlanV1::ScriptUnitValue {
+                    block,
+                    value,
+                    ty,
+                    origin,
+                } => {
+                    let function = self.function_state.current_function.as_mut().unwrap();
+                    function.signature.return_type = ty.clone();
+                    function
+                        .get_block_mut(block)
+                        .unwrap()
+                        .add_instruction(MirInstruction::Return { value: Some(value) });
+                    (
+                        RawRootBodyExitDispositionV1::ScriptUnitValue {
+                            block,
+                            value,
+                            ty,
+                            origin,
+                        },
+                        None,
                     )
                 }
                 PreparedRawRootExitPlanV1::AppVoid {
@@ -399,6 +453,14 @@ impl RawRootBodyExitWitnessV1 {
                 }
                 (*block, ty.clone(), Some(*value), None)
             }
+            RawRootBodyExitDispositionV1::ScriptUnitValue {
+                block, value, ty, ..
+            } => {
+                if completion.result() != RootBodyResultV1::Value(*value) {
+                    return Err(RawRootBodyExitWitnessErrorV1::CompletionMismatch);
+                }
+                (*block, ty.clone(), Some(*value), None)
+            }
             RawRootBodyExitDispositionV1::ScriptEmptyVoid {
                 block,
                 returned_void,
@@ -424,6 +486,7 @@ impl RawRootBodyExitWitnessV1 {
         };
         let route_matches = match (&self.route, &self.disposition) {
             (RawRootBodyRouteV1::Script, RawRootBodyExitDispositionV1::ScriptValue { .. })
+            | (RawRootBodyRouteV1::Script, RawRootBodyExitDispositionV1::ScriptUnitValue { .. })
             | (RawRootBodyRouteV1::Script, RawRootBodyExitDispositionV1::ScriptEmptyVoid { .. })
             | (RawRootBodyRouteV1::AppMain0 { .. }, RawRootBodyExitDispositionV1::AppVoid { .. }) => {
                 true
