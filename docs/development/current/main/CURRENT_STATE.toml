@@ -406,7 +406,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "result-carrier-normal-capability0-s0-execution-task-2026-07-26"
 latest_card_path = "docs/development/current/main/investigations/result-carrier-normal-capability0-s0-execution-task-2026-07-26.md"
-latest_card_summary = """RESULT-CARRIER-NORMAL-CAPABILITY0-S0 is active: preserve existing Raw metadata/body/work rejection facts and provide typed VM-reference run evidence for the accepted Scalar-and-Unit-only normal profile. Front-door result/annotation/MirType classification, dynamic carriers, normal/default activation, and production callers remain zero."""
+latest_card_summary = """RESULT-CARRIER-NORMAL-CAPABILITY0-S0 is active: FACTS0 and REJECTION0 are closed; FORGE-SEMANTIC0-S2 is next for the accepted Scalar-and-Unit-only normal profile. Front-door result/annotation/MirType classification, dynamic carriers, normal/default activation, and production callers remain zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is

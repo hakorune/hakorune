@@ -141,6 +141,16 @@ RESULT-CARRIER-NORMAL-CAPABILITY0-S0-FACTS0
   -> NORMAL-ENTRY-CUTOVER-D2
 ```
 
+### Progress ledger
+
+```text
+FACTS0      = closed by 8ce104f119
+REJECTION0  = closed by 6da5853965
+FORGE-S2    = next
+REUSE0/S1   = pending after S2
+FORGE-G0    = pending after reuse evidence
+```
+
 Use 3–5 buildable commits. Every modified/new source or check file remains
 below 800 lines.
 
