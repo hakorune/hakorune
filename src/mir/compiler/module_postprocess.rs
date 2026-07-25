@@ -6,14 +6,12 @@
 
 use super::canonical_finalization::{CanonicalFinalizationInputV1, FinalizedModuleInvocationV1};
 use super::module_postprocess_stages::{run_postprocess_stages, PostprocessStageTarget};
-use super::raw_finalization::{RawFinalizationInputV1, RawFinalizedModuleInvocationV1};
 use super::source_bound_package::CanonicalSourceContinuationV1;
 use crate::mir::builder::PreparedBuilderExternalCommitV1;
 use crate::mir::builder::{
     CanonicalCallableCapabilityWitnessV1, CanonicalDrainedCallablePhysicalV1,
     CanonicalDrainedSinglePhysicalV1, CommitCallableCollectorBatchReceiptV1,
-    CommitCollectedDraftAdmissionReceiptV1, InvocationBranded, RawInvocationRootWitnessV1,
-    SealedRawExpansionReceiptLedgerV1,
+    CommitCollectedDraftAdmissionReceiptV1, InvocationBranded,
 };
 use crate::mir::canonical_physical_drain::CanonicalPhysicalDrainManifestV1;
 use crate::mir::function::MirModule;
@@ -113,7 +111,6 @@ pub(in crate::mir) struct PostprocessedModuleInvocationV1<'a> {
 #[derive(Debug)]
 pub(in crate::mir) enum ModulePostprocessInputV1<'a> {
     Canonical(CanonicalFinalizationInputV1<'a>),
-    Raw(RawFinalizationInputV1),
 }
 
 impl PostprocessStageTarget for MirModule {
@@ -172,10 +169,6 @@ pub(in crate::mir) enum PostprocessEvidenceInputV1<'a> {
         inventory: CanonicalPhysicalDrainManifestV1,
         capability: CanonicalCallableCapabilityWitnessV1,
     },
-    Raw {
-        ledger: SealedRawExpansionReceiptLedgerV1,
-        root: RawInvocationRootWitnessV1,
-    },
 }
 
 /// Rejected postprocess keeps the unpublished invocation at the exact stage
@@ -218,7 +211,6 @@ impl<'a> PostprocessedModuleInvocationV1<'a> {
             ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Callable(input)) => {
                 input.token.brand()
             }
-            ModulePostprocessInputV1::Raw(input) => input.token.brand(),
         }
     }
 
@@ -230,7 +222,6 @@ impl<'a> PostprocessedModuleInvocationV1<'a> {
             ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Callable(input)) => {
                 input.token.family()
             }
-            ModulePostprocessInputV1::Raw(input) => input.token.family(),
         }
     }
 
@@ -242,7 +233,6 @@ impl<'a> PostprocessedModuleInvocationV1<'a> {
             ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Callable(input)) => {
                 &input.physical.module
             }
-            ModulePostprocessInputV1::Raw(input) => &input.module,
         }
     }
 
@@ -304,23 +294,6 @@ impl<'a> PostprocessedModuleInvocationV1<'a> {
                     },
                 )
             }
-            ModulePostprocessInputV1::Raw(input) => {
-                let builder = input.builder.into_external_commit();
-                let RawFinalizationInputV1 {
-                    token,
-                    module,
-                    ledger,
-                    root,
-                    builder: _,
-                } = input;
-                (
-                    token,
-                    builder,
-                    module,
-                    verification,
-                    PostprocessEvidenceInputV1::Raw { ledger, root },
-                )
-            }
         }
     }
 }
@@ -356,21 +329,6 @@ impl<'a> ModulePostprocessOwnerV1<'a> {
             self.optimize,
         )
     }
-
-    pub(in crate::mir) fn run_raw(
-        self,
-        finalized: RawFinalizedModuleInvocationV1,
-    ) -> Result<PostprocessedModuleInvocationV1<'static>, RejectedModulePostprocessV1<'static>>
-    {
-        let RawFinalizedModuleInvocationV1 { input, .. } = finalized;
-        let family = input.token.family();
-        process_input(
-            ModulePostprocessInputV1::Raw(input),
-            ModulePostprocessScheduleV1::for_family(family),
-            self.verifier,
-            self.optimize,
-        )
-    }
 }
 
 fn process_input<'a>(
@@ -386,9 +344,6 @@ fn process_input<'a>(
         }
         ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Callable(input)) => {
             run_postprocess_stages(&mut input.physical.module, schedule, verifier, optimize)
-        }
-        ModulePostprocessInputV1::Raw(input) => {
-            run_postprocess_stages(&mut input.module, schedule, verifier, optimize)
         }
     };
     match verification {

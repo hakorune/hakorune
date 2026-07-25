@@ -16,6 +16,19 @@ FILES = {
     "mod": ROOT / "src/mir/compiler/mod.rs",
     "final": ROOT / "src/mir/compiler/canonical_finalization.rs",
 }
+OLD_FILES = (
+    ROOT / "src/mir/builder/raw_physical_finalization.rs",
+    ROOT / "src/mir/compiler/raw_finalization.rs",
+)
+OLD_SYMBOLS = (
+    "RawPhysicalCompleteInvocationV1",
+    "RawModuleFinalizerV1",
+    "RawFinalizationInputV1",
+    "RawFinalizedModuleInvocationV1",
+    "ModulePostprocessInputV1::Raw",
+    "PostprocessEvidenceInputV1::Raw",
+    "PostprocessEvidenceSealV1::Raw",
+)
 
 _RUST_IGNORED = re.compile(
     r"(?P<raw>r(?P<hash>#*)\".*?\"(?P=hash))"
@@ -67,6 +80,9 @@ def production_code(path: pathlib.Path) -> str:
 
 def main() -> int:
     texts = {name: path.read_text() for name, path in FILES.items()}
+    for path in OLD_FILES:
+        if path.exists():
+            raise AssertionError(f"retired Raw source still exists: {path}")
     for name, path in FILES.items():
         if len(texts[name].splitlines()) >= 800:
             raise AssertionError(f"POST0 file must remain below 800 lines: {path}")
@@ -97,7 +113,7 @@ def main() -> int:
         "fn discard(self)",
         "fn error(&self)",
         "fn stage(&self)",
-        "run_raw(",
+        "ModulePostprocessInputV1::Canonical",
         "for_family(",
     ):
         require(texts["post"], fragment, f"postprocess owner: {fragment}")
@@ -161,9 +177,18 @@ def main() -> int:
     if production:
         raise AssertionError(f"POST0 has production consumers: {production}")
 
+    leaked = []
+    for path in ROOT.glob("src/**/*.rs"):
+        text = production_code(path)
+        for symbol in OLD_SYMBOLS:
+            if symbol in text:
+                leaked.append((path.relative_to(ROOT), symbol))
+    if leaked:
+        raise AssertionError(f"retired Raw symbols remain: {leaked}")
+
     print(
         "[cut0-i0-prod-activation-post0-guard] ok "
-        "schedule=1 stage_order=1 family_policy=1 production_consumers=0 below_800=1"
+        "schedule=1 stage_order=1 family_policy=1 old_chain=0 production_consumers=0 below_800=1"
     )
     return 0
 

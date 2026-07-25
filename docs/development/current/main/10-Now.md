@@ -21,8 +21,9 @@ Related:
   `docs/reference/language/function-exit-and-entry-result.md`
 - priority: follow the exact active task. Do not reopen the superseded App
   any-statement-tail S0 as canonical work.
-- next row: delete the caller-zero old Raw finalizer/run_raw/evidence source
-  chain; R0A proof migration and old-only guard retirement are closed
+- next row: NORMAL-ENTRY-PROFILE0-S0 — add only the passive typed
+  RawVmReferenceProductionRequestV1 profile; no production runner caller or
+  default-route widening
 - after retirement: passive Canonical/NarrowV1/VM-reference profile, then one
   explicit early `--backend raw-vm-reference` canary
 - parked: normal-entry cutover, general VM/LLVM, JSON, executor, selfhost,

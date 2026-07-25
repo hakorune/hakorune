@@ -2,7 +2,7 @@
 
 Decision: `RAW-PUBLIC-CUTOVER-prime-r1`
 
-Status: R0A complete; R0B selected as the next post-S3 executable row. The former
+Status: R0B and G0 complete; `NORMAL-ENTRY-PROFILE0-S0` is the next row. The former
 `PUBLIC-CUTOVER-PARITY0-S0` prerequisite is superseded by the guarded S3
 typed Raw compile plus exact VM parity and the measured zero non-test caller
 census.
@@ -20,8 +20,8 @@ shared DRAIN0/FINAL0/POST0/COMMIT0/PUBLICATION0 guards -> reusable across rows
 cfg(test) caller counting -> brace-aware production-scope filtering
 ```
 
-The old source files remain intentionally for R0B; this closeout only removes
-their proof ownership and historical guard coupling.
+The old source files were intentionally retained for R0B and are now removed;
+this card records the retirement boundary before the next runner-profile row.
 
 One BoxShape semantic row uses Refactor Series Mode. Each commit must build.
 
@@ -80,7 +80,21 @@ raw_finalization_contract.rs / raw_root_finalization.rs
 canonical publication authority
 ```
 
-## G0 — closeout
+## R0B closeout — 2026-07-25
+
+```text
+old source files = absent
+old module registrations/re-exports = absent
+ModulePostprocessInputV1::Raw = absent
+ModulePostprocessOwnerV1::run_raw = absent
+ledger/root-only Raw evidence variants = absent
+legacy external-commit Raw acceptance = absent
+new run_raw_ready / RawDirect evidence / Raw schedule = retained
+old final0/root-retention guards = retired
+public/default/JSON/backend behavior delta = 0
+```
+
+## G0 — closeout — closed 2026-07-25
 
 ```text
 old source files = absent
@@ -90,6 +104,12 @@ new DRAIN0/FINAL0/POST0/COMMIT0/PUBLICATION/INGRESS guards = green
 normal/JSON/compiler legacy authorities = unchanged
 all modified source/check files < 800 lines
 ```
+
+G0 evidence is green: the scoped old files/symbols/callers are absent, all
+new Raw-chain and S3 guards pass, default and `vm-reference` library checks
+pass, focused Raw/VM execution tests pass, and `RAW-PUBLICATION-SUNSET-001`
+is closed. The next row may add only the passive profile request; it may not
+add a production runner caller or widen the default route.
 
 ## Required gates
 

@@ -23,6 +23,7 @@ SOURCES = (
     ROOT / "src/mir/compiler/raw_public_ingress.rs",
     ROOT / "src/mir/compiler/raw_public_ingress_p0.rs",
     ROOT / "src/mir/compiler/raw_root_publication_adapter.rs",
+    ROOT / "src/mir/compiler/raw_published_compile.rs",
 )
 
 _RUST_IGNORED = re.compile(
@@ -113,27 +114,10 @@ def require(text: str, fragment: str, label: str) -> None:
         raise AssertionError(f"missing {label}: {fragment!r}")
 
 
-def require_successor_row(state: str) -> None:
-    rows = (
-        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-COVERAGE0-REPAIR-S0"',
-        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLIC-CUTOVER-PARITY0-S0"',
-    )
-    if not any(row in state for row in rows):
-        raise AssertionError("current pointer must remain on COVERAGE0 repair or its PARITY0 successor")
-
-
 def main() -> int:
-    state = (ROOT / "docs/development/current/main/CURRENT_STATE.toml").read_text()
     task = TASK.read_text()
     repair_task = REPAIR_TASK.read_text()
     caller_manifest = json.loads(CALLER_MANIFEST.read_text())
-    require(state, "CONFIG0 are closed", "closed closeout-repair/CONFIG0 rows")
-    require_successor_row(state)
-    require(
-        state,
-        "raw_post0_public_ingress0_closeout_repair0_task =",
-        "closeout-repair pointer",
-    )
     require(task, "Status: closed", "landed ingress row")
     require(repair_task, "Status: closed", "closed closeout-repair task")
     for fragment in (
@@ -157,12 +141,16 @@ def main() -> int:
     ingress = texts[SOURCES[0]]
     tests = texts[SOURCES[1]]
     adapter = texts[SOURCES[2]]
+    compile_kernel = texts[SOURCES[3]]
     for fragment in (
         "compile_raw_with_source",
         "RawPublicIngressPolicyV1",
-        "RawCallableMainSelectionV1::Omitted",
-        '"main"',
-        "bind_raw_source",
+        "RawPublicImportDispositionV1",
+    ):
+        require(ingress, fragment, f"ingress contract {fragment}")
+    for fragment in (
+        "compile_raw_published_v1",
+        "bind_raw_source_for_public",
         "into_root_package",
         "prepare_public_eligibility",
         "prepare_root_batch",
@@ -170,11 +158,12 @@ def main() -> int:
         "prepare_finalization",
         "prepare_external_commit",
         "publish_raw_direct",
-        "into_compatibility_envelope",
-        "fn reject<",
-        "discard(rejection)",
     ):
-        require(ingress, fragment, f"ingress chain {fragment}")
+        require(compile_kernel, fragment, f"compiled Raw chain {fragment}")
+    for fragment in ("into_compatibility_envelope", "map_err(|rejected|"):
+        require(ingress, fragment, f"ingress compatibility/error boundary {fragment}")
+    for fragment in ("fn into_public_string", "self.discard()"):
+        require(compile_kernel, fragment, f"typed rejection boundary {fragment}")
     require(tests, "raw_public_ingress_compiles_empty_script_without_legacy_fallback", "success fixture")
     require(tests, "raw_public_ingress_rejects_repl_before_source_binding", "REPL fixture")
     require(tests, "raw_public_ingress_reuses_one_compiler_for_two_successes", "reuse fixture")
@@ -233,8 +222,6 @@ def main() -> int:
 
     old_calls = []
     old_definitions = {
-        ROOT / "src/mir/builder/raw_physical_finalization.rs",
-        ROOT / "src/mir/compiler/raw_finalization.rs",
         ROOT / "src/mir/compiler/module_postprocess.rs",
         ROOT / "src/mir/compiler/external_commit.rs",
     }

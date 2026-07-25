@@ -51,8 +51,10 @@ cargo check -q
 - keep parser/source-carrier and unrelated parked stashes disconnected
 - Script classification through the complete S3 Raw VM-reference activation
   row are closed. R0A migrated the two unique old-Raw proofs and retired
-  old-only guards; the selected next row deletes the caller-zero old Raw source
-  and evidence chain before any new runner caller.
+  old-only guards; R0B now also deletes the caller-zero old Raw source and
+  evidence chain. G0 is now closed by the scoped zero/cargo/guard evidence;
+  the selected next row adds only the passive profile before any new runner
+  caller.
   Production VM/LLVM, normal-entry cutover, JSON, executor, and CUT0 remain
   parked; the passive profile and explicit VM-reference canary follow the
   retirement row.

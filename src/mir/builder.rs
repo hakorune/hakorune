@@ -250,8 +250,6 @@ mod raw_expression_dispatch; // single raw AST expression dispatcher
 #[allow(dead_code)]
 mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
 #[allow(dead_code)]
-mod raw_physical_finalization;
-#[allow(dead_code)]
 mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
 pub(in crate::mir) use raw_root_completion::RawInvocationRootWitnessV1;
 #[allow(dead_code)]
@@ -267,10 +265,6 @@ mod root_body_completion; // HEADERPORT0-I0-BODYDRAIN0-S0 disconnected witness
 mod root_body_completion_p0; // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures
 #[allow(dead_code)]
 mod root_draft_batch; // HEADERPORT0-I0-ROOTBATCH0-S0 disconnected batch // CUT0-I0-POST0-RAW-S0 physical retention
-pub(in crate::mir) use raw_physical_finalization::{
-    RawFinalizationInputV1, RawPhysicalCompleteInvocationV1, RawPhysicalFinalizationErrorV1,
-    RejectedRawFinalizationV1,
-};
 #[cfg(test)]
 mod root_draft_batch_commit_p0; // HEADERPORT0 BORROW-P0-ROOT-P0b proof
 #[cfg(test)]

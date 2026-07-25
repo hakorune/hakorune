@@ -37,8 +37,6 @@ pub(in crate::mir) mod module_postprocess_stages;
 pub(in crate::mir) mod publication_kernel;
 mod module_session;
 #[allow(dead_code)]
-pub(in crate::mir) mod raw_finalization;
-#[allow(dead_code)]
 pub(in crate::mir) mod raw_root_callable_main;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_children;

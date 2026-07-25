@@ -11,7 +11,7 @@ use super::MirCompileResult;
 use crate::mir::builder::{
     CanonicalCallableCapabilityWitnessV1, CommitCallableCollectorBatchReceiptV1,
     CommitCollectedDraftAdmissionReceiptV1, InvocationBranded, MirBuilder,
-    PreparedBuilderExternalCommitV1, RawInvocationRootWitnessV1, SealedRawExpansionReceiptLedgerV1,
+    PreparedBuilderExternalCommitV1,
 };
 use crate::mir::canonical_physical_drain::CanonicalPhysicalDrainManifestV1;
 use crate::mir::compiler::source_bound_package::CanonicalSourceContinuationV1;
@@ -31,9 +31,11 @@ impl super::publication_kernel::SealedPublicationPayloadV1 for LegacyPublication
         _module: PublishedModuleTransferV1,
     ) -> Self::Published {
         let verification_result = match self.verification {
-            ModuleVerificationEvidenceV1::Canonical { pre_transform, .. }
-            | ModuleVerificationEvidenceV1::Raw { pre_transform } => {
+            ModuleVerificationEvidenceV1::Canonical { pre_transform, .. } => {
                 pre_transform.map_err(|errors| errors.into_vec())
+            }
+            ModuleVerificationEvidenceV1::Raw { .. } => {
+                unreachable!("Raw evidence is owned by the RawDirect publication path")
             }
         };
         MirCompileResult {
@@ -61,10 +63,6 @@ pub(in crate::mir) enum PostprocessEvidenceSealV1<'a> {
         receipt: InvocationBranded<CommitCallableCollectorBatchReceiptV1>,
         inventory: CanonicalPhysicalDrainManifestV1,
         capability: CanonicalCallableCapabilityWitnessV1,
-    },
-    Raw {
-        ledger: SealedRawExpansionReceiptLedgerV1,
-        root: RawInvocationRootWitnessV1,
     },
 }
 
@@ -95,7 +93,6 @@ impl<'a> PreparedModuleExternalCommitV1<'a> {
             return Err(ExternalCommitPreparationErrorV1::ForeignBrand);
         }
         let evidence_matches = match (&token.family(), &verification) {
-            (ModuleInvocationFamilyV1::Raw, ModuleVerificationEvidenceV1::Raw { .. }) => true,
             (
                 ModuleInvocationFamilyV1::CanonicalAPlus,
                 ModuleVerificationEvidenceV1::Canonical { .. },
@@ -202,15 +199,6 @@ impl<'a> PostprocessEvidenceSealV1<'a> {
                     inventory,
                     capability,
                 })
-            }
-            PostprocessEvidenceInputV1::Raw { ledger, root } => {
-                if family != ModuleInvocationFamilyV1::Raw
-                    || ledger.brand() != brand
-                    || root.brand() != brand
-                {
-                    return Err(ExternalCommitPreparationErrorV1::EvidenceMismatch);
-                }
-                Ok(Self::Raw { ledger, root })
             }
         }
     }

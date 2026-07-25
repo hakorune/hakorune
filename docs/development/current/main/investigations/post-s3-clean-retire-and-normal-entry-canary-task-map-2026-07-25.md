@@ -3,11 +3,11 @@
 Decision: `POST-S3-CLEAN-CANARY-prime-r1`
 
 Status: accepted task order. `NORMAL-ENTRY-D0` is closed by this card.
-R0A is closed; implementation authorization now follows the exact current
-pointer into R0B:
+R0A, R0B, and G0 are closed; implementation authorization now follows the
+exact current pointer into the passive profile row:
 
 ```text
-OLD-RAW-RETIRE0-R0B-SOURCE-EVIDENCE0
+NORMAL-ENTRY-PROFILE0-S0
 ```
 
 ## Outcome
@@ -320,7 +320,7 @@ remove old-file exceptions from shared guards
 behavior/grammar/public caller delta = 0
 ```
 
-### 1. `OLD-RAW-RETIRE0-R0B-SOURCE-EVIDENCE0`
+### 1. `OLD-RAW-RETIRE0-R0B-SOURCE-EVIDENCE0` — closed 2026-07-25
 
 ```text
 delete the two old source files
@@ -331,7 +331,11 @@ remove legacy external-commit Raw acceptance
 preserve new run_raw_ready and complete Raw evidence
 ```
 
-### 2. `OLD-RAW-RETIRE0-G0`
+Closeout: both caller-zero legacy source files and their module/evidence
+registrations are gone. The canonical RawDirect chain remains the only Raw
+production vocabulary; no public/default/JSON/backend route was widened.
+
+### 2. `OLD-RAW-RETIRE0-G0` — closed 2026-07-25
 
 ```text
 old scoped symbols/callers/files = 0
@@ -341,7 +345,11 @@ focused Raw/canonical tests green
 close RAW-PUBLICATION-SUNSET-001
 ```
 
-### 3. `NORMAL-ENTRY-PROFILE0-S0`
+Closeout: all scoped symbols/files/callers are zero; the new Raw chain,
+focused VM-reference execution, and both cargo library lanes are green. No
+default, JSON, legacy-runner, or backend route changed.
+
+### 3. `NORMAL-ENTRY-PROFILE0-S0` — selected
 
 ```text
 add passive RawVmReferenceProductionRequestV1
