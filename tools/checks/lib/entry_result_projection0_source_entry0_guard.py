@@ -31,6 +31,7 @@ def main() -> int:
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-EXE-AOT0"',
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-PARITY-G0"',
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-S1-PROJECTION-CONSUME0"',
+            'current_execution_row = "ENTRY-RESULT-PROJECTION0-S2-DESIGN-STOP"',
         )
     ):
         raise AssertionError("missing active or retained source-entry row")

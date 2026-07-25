@@ -22,11 +22,14 @@ def main() -> int:
     state = STATE.read_text()
     task = TASK.read_text()
     source = SOURCE.read_text()
-    require(
-        state,
-        'current_execution_row = "ENTRY-RESULT-PROJECTION0-S1-PROJECTION-CONSUME0"',
-        "active row",
-    )
+    if not any(
+        row in state
+        for row in (
+            'current_execution_row = "ENTRY-RESULT-PROJECTION0-S1-PROJECTION-CONSUME0"',
+            'current_execution_row = "ENTRY-RESULT-PROJECTION0-S2-DESIGN-STOP"',
+        )
+    ):
+        raise AssertionError("missing active or retained S1 projection row")
     for fragment in (
         "S1-PROJECTION-CONSUME0",
         "backend-neutral prepared",
