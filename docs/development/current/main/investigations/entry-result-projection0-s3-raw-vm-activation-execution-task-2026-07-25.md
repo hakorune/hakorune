@@ -94,6 +94,12 @@ No stage reopens source AST, route symbols, module inventory, or status policy.
 - Add structural guard and exact caller census.
 - Keep every modified/new source and check file below 800 lines.
 
+Current evidence (partial closeout): actual execution tests now cover empty
+Script, empty App Main, integer 0/255, integer range faults, Bool/Float/String
+unsupported process results, Print-as-Unit, and compiler reuse after success.
+The full matrix, rejection-then-success reuse, VM-fault fixture, decoy-entry
+census, and final caller census remain open under this row.
+
 ## Failure law
 
 ```text
@@ -114,6 +120,7 @@ legacy re-entry exists on either path.
 ```text
 compile_raw_published_v1 definition                 = 1
 compatibility adapter authority erasure             = 1
+run_raw_vm_reference production entry               = 1
 selected-entry continuation producer                = 1
 exact execute_function_with_args caller              = 1
 VmReferenceProcessOutcomeV1 production consumer      = 1

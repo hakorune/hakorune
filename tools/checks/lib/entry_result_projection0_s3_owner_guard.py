@@ -36,16 +36,20 @@ def main() -> int:
         require(kernel, fragment, f"owner kernel {fragment}")
     require(ingress, ".compile_raw_published_v1(", "compatibility ingress consumer")
     require(execution, ".compile_raw_published_v1(", "VM-reference ingress consumer")
+    require(execution, "pub fn run_raw_vm_reference(", "explicit VM-reference entry")
 
     if ingress.count("compile_raw_published_v1(") != 1:
         raise AssertionError("compatibility ingress must have one typed-kernel consumer")
     if execution.count("compile_raw_published_v1(") != 1:
         raise AssertionError("VM-reference ingress must have one typed-kernel consumer")
+    if execution.count("pub fn run_raw_vm_reference(") != 1:
+        raise AssertionError("VM-reference production entry must be unique")
 
     for forbidden in (
         "bind_raw_source_for_public(",
         "prepare_public_eligibility(",
         "execute_module(",
+        "run_vm_compiled_module(",
         "NYASH_ENTRY",
         "build_module(",
     ):

@@ -251,12 +251,81 @@ fn vm_error_to_source_fault(error: VMError) -> SourceEntryResultV1 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{ASTNode, Span};
+    use crate::ast::{ASTNode, DeclarationAttrs, Span};
+    use std::collections::HashMap;
     use crate::mir::compiler::source_entry_result::UnitOriginV1;
 
     fn empty_script() -> ASTNode {
         ASTNode::Program {
             statements: Vec::new(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn literal_script(value: crate::ast::LiteralValue) -> ASTNode {
+        ASTNode::Program {
+            statements: vec![ASTNode::Literal {
+                value,
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        }
+    }
+
+    fn print_script() -> ASTNode {
+        ASTNode::Program {
+            statements: vec![ASTNode::Print {
+                expression: Box::new(ASTNode::Literal {
+                    value: crate::ast::LiteralValue::Integer(1),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        }
+    }
+
+    fn empty_app() -> ASTNode {
+        let main = ASTNode::FunctionDeclaration {
+            name: "main".into(),
+            params: Vec::new(),
+            param_decls: Vec::new(),
+            return_type_name: None,
+            body: Vec::new(),
+            uses: Vec::new(),
+            contracts: Vec::new(),
+            is_static: true,
+            is_override: false,
+            attrs: DeclarationAttrs::default(),
+            span: Span::unknown(),
+        };
+        let mut methods = HashMap::new();
+        methods.insert("main".into(), main);
+        ASTNode::Program {
+            statements: vec![ASTNode::BoxDeclaration {
+                name: "Main".into(),
+                fields: Vec::new(),
+                field_decls: Vec::new(),
+                public_fields: Vec::new(),
+                private_fields: Vec::new(),
+                methods,
+                constructors: HashMap::new(),
+                init_fields: Vec::new(),
+                weak_fields: Vec::new(),
+                delegates: Vec::new(),
+                invariants: Vec::new(),
+                transitions: Vec::new(),
+                is_interface: false,
+                is_record: false,
+                extends: Vec::new(),
+                implements: Vec::new(),
+                type_parameters: Vec::new(),
+                is_sync: false,
+                is_static: true,
+                static_init: None,
+                attrs: DeclarationAttrs::default(),
+                span: Span::unknown(),
+            }],
             span: Span::unknown(),
         }
     }
@@ -305,5 +374,90 @@ mod tests {
         assert_eq!(report.status_code(), 0);
         assert_eq!(report.diagnostic_tag(), None);
         assert!(compiler.builder.current_module.is_none());
+    }
+
+    #[test]
+    fn raw_vm_entry_preserves_integer_process_status_boundaries() {
+        for value in [0, 255] {
+            let mut compiler = crate::mir::compiler::MirCompiler::new();
+            let report = compiler
+                .run_raw_vm_reference(
+                    literal_script(crate::ast::LiteralValue::Integer(value)),
+                    Some("raw-vm-integer.hako"),
+                )
+                .expect("integer Raw VM-reference entry should execute");
+            assert_eq!(report.status_code(), value as u8);
+            assert_eq!(report.diagnostic_tag(), None);
+        }
+    }
+
+    #[test]
+    fn raw_vm_entry_reports_out_of_range_integer_without_zero_fallback() {
+        for value in [-1, 256] {
+            let mut compiler = crate::mir::compiler::MirCompiler::new();
+            let report = compiler
+                .run_raw_vm_reference(
+                    literal_script(crate::ast::LiteralValue::Integer(value)),
+                    Some("raw-vm-range.hako"),
+                )
+                .expect("out-of-range result should be a typed process fault");
+            assert_eq!(report.status_code(), 70);
+            assert_eq!(
+                report.diagnostic_tag(),
+                Some("[process/exit-code-out-of-range]")
+            );
+        }
+    }
+
+    #[test]
+    fn raw_vm_entry_reports_unsupported_process_result_kinds() {
+        let cases = [
+            (crate::ast::LiteralValue::Bool(true), "Bool"),
+            (crate::ast::LiteralValue::Float(1.5), "Float"),
+            (crate::ast::LiteralValue::String("raw".into()), "String"),
+        ];
+        for (value, _kind) in cases {
+            let mut compiler = crate::mir::compiler::MirCompiler::new();
+            let report = compiler
+                .run_raw_vm_reference(literal_script(value), Some("raw-vm-kind.hako"))
+                .expect("unsupported process result should remain a typed fault");
+            assert_eq!(report.status_code(), 70);
+            assert_eq!(
+                report.diagnostic_tag(),
+                Some("[process/unsupported-result]")
+            );
+        }
+    }
+
+    #[test]
+    fn raw_vm_entry_keeps_print_statement_as_unit() {
+        let mut compiler = crate::mir::compiler::MirCompiler::new();
+        let report = compiler
+            .run_raw_vm_reference(print_script(), Some("raw-vm-print.hako"))
+            .expect("Print statement should execute as a Unit source result");
+        assert_eq!(report.status_code(), 0);
+        assert_eq!(report.diagnostic_tag(), None);
+    }
+
+    #[test]
+    fn raw_vm_entry_executes_empty_app_main_without_symbol_discovery() {
+        let mut compiler = crate::mir::compiler::MirCompiler::new();
+        let report = compiler
+            .run_raw_vm_reference(empty_app(), Some("raw-vm-app.hako"))
+            .expect("empty App Main should execute through the sealed target");
+        assert_eq!(report.status_code(), 0);
+        assert_eq!(report.diagnostic_tag(), None);
+    }
+
+    #[test]
+    fn raw_vm_reference_reuses_compiler_after_success() {
+        let mut compiler = crate::mir::compiler::MirCompiler::new();
+        for source_file in ["raw-vm-reuse-1.hako", "raw-vm-reuse-2.hako"] {
+            let report = compiler
+                .run_raw_vm_reference(empty_script(), Some(source_file))
+                .expect("fresh Raw VM-reference execution should remain reusable");
+            assert_eq!(report.status_code(), 0);
+            assert_eq!(report.diagnostic_tag(), None);
+        }
     }
 }
