@@ -28,6 +28,7 @@ Related:
 | current `vm-hako` | semantic witness / debug / bootstrap-proof artifact | internal reference lane |
 | `rust-vm` | bootstrap / recovery / compat artifact | engineering keep |
 | `wasm` | experimental compile/distribution target | explicit experimental lane |
+| `raw-vm-reference` | source-to-VM semantic reference/conformance lane | supported opt-in, feature-gated, not a product/distribution artifact |
 
 The `mainline bundle` daily lane is the operational artifact reading for `stage2-mainline`; `stage2+` stays the umbrella / end-state stage label.
 
@@ -39,6 +40,9 @@ Operational rules:
 - current `vm-hako` LLVM/exe bridge proofs are manual monitor evidence only, not mainline acceptance.
 - `rust-vm` may remain as bootstrap/recovery residue without affecting product-main reading.
 - `wasm` remains experimental until an independent test matrix and promotion gate exist.
+- `raw-vm-reference` is a supported opt-in reference/conformance lane. It is
+  default-off, feature-gated, and does not own the default `mir` route,
+  product/native publication, or distribution artifacts.
 - `llvmlite` keep/probe suites are compat evidence only; they do not promote `llvm/exe` or act as product-mainline acceptance.
 
 ## 2. Owner Proof Boundary

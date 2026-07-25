@@ -16,7 +16,7 @@ pub(in crate::mir) struct RawPublicEligibilityProfileV1 {
 struct RawPublicEligibilityProfileSealV1;
 
 impl RawPublicEligibilityProfileV1 {
-    pub(super) const fn narrow_v1() -> Self {
+    pub(in crate::mir) const fn narrow_v1() -> Self {
         Self {
             _seal: RawPublicEligibilityProfileSealV1,
         }

@@ -22,9 +22,8 @@ builtin-core = []
 builtin-filebox = []  # Enable built-in FileBox provider (SSOT)
 ## Silence check-cfg warnings for historical cfg guards (kept off by default)
 vm-legacy = []
-## Rust MIR interpreter semantic-reference engine. Default ON during the
-## migration; later rows may remove it from default after runner/tests are
-## classified.
+## Optional Raw VM-reference semantic/conformance lane. Default-off; enable
+## explicitly for the supported `--backend raw-vm-reference` route.
 vm-reference = []
 phi-legacy = []
 ## JIT-direct only mode: disable legacy VM-arg fallback and plugin-builtins branches

@@ -14,6 +14,7 @@ use super::source_entry_vm_reference::{
     RawVmReferenceRunReportV1, VmReferenceProcessOutcomeV1, VmSourceEntryDecodePlanV1,
 };
 use crate::backend::vm_types::{VMError, VMValue};
+use crate::mir::RawVmReferenceInvocationV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum RawVmReferenceActivationStageV1 {
@@ -125,6 +126,15 @@ impl CompletedRawVmReferenceExecutionV1 {
     pub(in crate::mir) fn complete_source_entry(
         self,
     ) -> Result<VmReferenceProcessOutcomeV1, RawVmReferenceActivationErrorV1> {
+        self.complete_source_entry_with_profile(
+            ProcessExitProfileV1::Canonical(CanonicalProcessExitV1::V1),
+        )
+    }
+
+    pub(in crate::mir) fn complete_source_entry_with_profile(
+        self,
+        process_profile: ProcessExitProfileV1,
+    ) -> Result<VmReferenceProcessOutcomeV1, RawVmReferenceActivationErrorV1> {
         let Self {
             published,
             source_result,
@@ -132,7 +142,7 @@ impl CompletedRawVmReferenceExecutionV1 {
         } = self;
         let termination = ProcessExitProjectionV1::project_borrowed(
             &source_result,
-            ProcessExitProfileV1::Canonical(CanonicalProcessExitV1::V1),
+            process_profile,
         )
         .map_err(|_| RawVmReferenceActivationErrorV1::NonRawTarget)?;
         // The published owner is consumed only here and remains inside the
@@ -146,25 +156,38 @@ impl CompletedRawVmReferenceExecutionV1 {
 }
 
 impl super::MirCompiler {
-    /// Explicit Raw VM-reference production entry.  It is available only in
-    /// the VM-reference feature and never widens the general VM runner.
+    /// Test-only compatibility helper for the fixed NarrowV1 profile.
+    #[cfg(test)]
     pub(crate) fn run_raw_vm_reference(
         &mut self,
         ast: crate::ast::ASTNode,
         source_file: Option<&str>,
     ) -> Result<RawVmReferenceRunReportV1, String> {
+        self.run_raw_vm_reference_v1(RawVmReferenceInvocationV1::narrow_v1(
+            ast,
+            source_file,
+        ))
+    }
+
+    /// Supported opt-in Raw VM-reference production entry.  The invocation
+    /// owns the selected compile and execution profiles; this owner does not
+    /// reconstruct NarrowV1 or the process policy.
+    pub(crate) fn run_raw_vm_reference_v1(
+        &mut self,
+        invocation: RawVmReferenceInvocationV1,
+    ) -> Result<RawVmReferenceRunReportV1, String> {
         if self.builder.repl_mode {
             return Err("[raw-vm-reference/source-binding/repl-unsupported] NarrowV1".to_owned());
         }
         let published = self
-            .compile_raw_published_v1(ast, source_file)
+            .compile_raw_published_v1(invocation.compile)
             .map_err(|rejected| rejected.into_public_string())?;
         let prepared = published
             .prepare_vm_reference_activation()
             .map_err(|rejected| rejected.into_public_string())?;
         let outcome = prepared
             .execute()
-            .complete_source_entry()
+            .complete_source_entry_with_profile(invocation.execution.process_profile())
             .map_err(|error| format!("[raw-vm-reference/source-entry/rejected] {error:?}"))?;
         Ok(outcome.into_run_report())
     }

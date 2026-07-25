@@ -1,7 +1,6 @@
 pub(crate) mod raw_vm_reference;
 pub mod vm_hako;
-// PROFILE0 vocabulary is retained while CANARY0 consumes only the selected
-// fields; remove or narrow this allowance when the profile vocabulary is
-// retired after normal-entry cutover.
+// SUPPORT0 keeps the request vocabulary at the runner/MIR boundary while the
+// supported opt-in lane remains separate from normal/default routing.
 #[allow(dead_code)]
 pub(crate) mod raw_vm_reference_request;

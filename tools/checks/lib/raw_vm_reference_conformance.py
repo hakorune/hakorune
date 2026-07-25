@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the one real-binary Raw VM-reference canary matrix.
+"""Run the one real-binary Raw VM-reference conformance matrix.
 
 The script is a proof fixture family, not a second selector or a per-row
 guard.  The feature-enabled binary must already be built by the caller.
@@ -16,7 +16,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-FIXTURES = ROOT / "tools" / "checks" / "fixtures" / "raw_vm_reference_canary"
+FIXTURES = ROOT / "tools" / "checks" / "fixtures" / "raw_vm_reference_conformance"
 
 
 @dataclass(frozen=True)
@@ -156,7 +156,7 @@ def main() -> int:
         raise AssertionError(f"feature rejection did not precede file I/O: {disabled_result!r}")
 
     print(
-        f"[entry-result-projection0-s3-canary-parity] ok cases={len(CASES)} "
+        f"[raw-vm-reference-conformance] ok cases={len(CASES)} "
         "decoy=1 conflict=2 default=1 disabled=1"
     )
     return 0
@@ -166,5 +166,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except AssertionError as error:
-        print(f"[entry-result-projection0-s3-canary-parity] fail: {error}", file=sys.stderr)
+        print(f"[raw-vm-reference-conformance] fail: {error}", file=sys.stderr)
         raise SystemExit(1)

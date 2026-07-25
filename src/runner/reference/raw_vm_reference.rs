@@ -1,4 +1,4 @@
-//! The one explicit `raw-vm-reference` canary consumer.
+//! The one explicit `raw-vm-reference` supported opt-in consumer.
 //!
 //! This module is entered from the first statement of `run_refactored`. A
 //! `NotSelected` result falls through to the existing runner unchanged. The
@@ -49,7 +49,7 @@ fn write_stderr_line(line: &str) {
     let _ = writeln!(stderr, "{line}");
 }
 
-/// Select and run the canary exactly once. `None` is the byte-for-byte
+/// Select and run the supported reference lane exactly once. `None` is the byte-for-byte
 /// default-route fallthrough; `Some` is terminal and must call `finish`.
 pub(crate) fn select_and_run(config: &CliConfig) -> Option<RawVmReferenceRunOutcome> {
     let selection = match RawVmReferenceProductionRequestV1::select_from_cli(config) {
@@ -76,8 +76,8 @@ pub(crate) fn select_and_run(config: &CliConfig) -> Option<RawVmReferenceRunOutc
 
     #[cfg(feature = "vm-reference")]
     {
-        let source_file = request.source_file();
-        let source = match std::fs::read_to_string(source_file) {
+        let source_file = request.source_file().to_owned();
+        let source = match std::fs::read_to_string(&source_file) {
             Ok(source) => source,
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
                 return Some(RawVmReferenceRunOutcome::Usage(format!(
@@ -110,8 +110,10 @@ pub(crate) fn select_and_run(config: &CliConfig) -> Option<RawVmReferenceRunOutc
                 )))
             }
         };
-        let mut compiler = crate::mir::MirCompiler::with_options(request.optimize());
-        match compiler.run_raw_vm_reference(ast, Some(source_file)) {
+        let optimize = request.optimize();
+        let invocation = request.into_invocation(ast);
+        let mut compiler = crate::mir::MirCompiler::with_options(optimize);
+        match compiler.run_raw_vm_reference_v1(invocation) {
             Ok(report) => Some(RawVmReferenceRunOutcome::Program(report)),
             Err(error) => Some(RawVmReferenceRunOutcome::Invocation(format!(
                 "[raw-vm-reference/invocation] {error}"

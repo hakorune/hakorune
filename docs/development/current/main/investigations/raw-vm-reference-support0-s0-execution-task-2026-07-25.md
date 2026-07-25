@@ -58,6 +58,22 @@ NORMAL-ENTRY-CANARY-SUNSET-001 remains open
 These are BoxShape and support-contract issues. This row must not expand the
 accepted language or connect another caller.
 
+## Progress ledger
+
+Completed in the current implementation series:
+
+```text
+SUPPORT-PROFILE0       = typed neutral profile handoff; one compile kernel
+SUPPORT-DIAGNOSTIC0    = bounded stage/code/detail report; owner graph hidden
+SUPPORT-SURFACE0       = CLI/Cargo/README/artifact role contract updated
+SUPPORT-PROOF0         = existing proof mechanically reclassified to
+                          raw_vm_reference_conformance (fixture count unchanged)
+```
+
+Remaining closeout work is verification only: run the renamed real-binary
+conformance proof, update the current-state closeout mirrors, and record the
+support-lane sunset transition without changing the default route.
+
 ## Target owner chain
 
 ```text

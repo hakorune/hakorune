@@ -98,6 +98,8 @@ Current Backend Roles
   - `--backend vm` (legacy keep/debug/proof override for selfhost, recovery, plugin, macro, and tooling proof paths; explicit only)
 - Reference / conformance
   - `--backend vm-hako` (explicit reference lane)
+- Raw VM-reference / conformance
+  - `--backend raw-vm-reference` (supported opt-in; build with `--features vm-reference`; default-off)
 - Experimental / monitor-only
   - `wasm` / browser lane
 - Historical / sealed
@@ -317,6 +319,7 @@ Important current reading:
 - Product/native override: LLVM AOT (`--backend llvm`, `ny-llvmc`)
 - Compatibility/proof keep override: Rust VM (`--backend vm`)
 - Reference/conformance: `vm-hako`
+- Raw VM-reference/conformance: `raw-vm-reference` (supported opt-in, feature-gated)
 - Experimental / monitor-only: WASM
 
 Phase‑15 (Self‑Hosting): legacy routes are feature-gated or historical notes only
@@ -325,6 +328,8 @@ Phase‑15 (Self‑Hosting): legacy routes are feature-gated or historical notes
 - `--backend vm` is an explicit Rust VM keep/debug override, not a mainline ownership claim.
 - `--backend llvm` is the product native object/EXE lane.
 - `--backend vm-hako` is an explicit reference/conformance lane.
+- `--backend raw-vm-reference` is a supported opt-in Raw reference/conformance lane; build with `--features vm-reference`.
+- The Raw VM-reference lane is default-off, source/VM focused, and does not change the default `mir` route.
 - PyVM route is historical/direct-only and delegates to `tools/historical/pyvm/pyvm_runner.py`.
 - To enable legacy Rust VM/Interpreter, build with:
   ```bash

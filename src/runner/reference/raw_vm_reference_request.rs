@@ -1,10 +1,15 @@
-//! Passive request boundary for the explicit Raw VM-reference profile.
+//! Request boundary for the supported opt-in Raw VM-reference profile.
 //!
-//! This module converts already-parsed CLI facts into one typed request.  It
-//! The profile is consumed exactly once by the explicit canary runner; normal
-//! and default routes remain disconnected until a later cutover decision.
+//! This module converts already-parsed CLI facts into one typed request.  The
+//! profile is consumed exactly once by the explicit reference runner; normal
+//! and default routes remain disconnected by the accepted cutover decision.
 
 use crate::cli::CliConfig;
+use crate::ast::ASTNode;
+use crate::mir::{
+    RawPublishedCompileProfileV1, RawPublishedCompileRequestV1,
+    RawVmReferenceExecutionProfileV1, RawVmReferenceInvocationV1,
+};
 use hakorune_frontend_parser::parser::GrammarProfile;
 
 const RAW_VM_REFERENCE_BACKEND: &str = "raw-vm-reference";
@@ -13,31 +18,6 @@ const DEFAULT_DEBUG_FUEL: usize = 100_000;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum RawVmReferenceGrammarV1 {
     Canonical,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum RawVmReferenceSourceProfileV1 {
-    NarrowV1,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum RawVmReferenceImportProfileV1 {
-    None,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum RawVmReferenceCallableMainProfileV1 {
-    Omitted,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum RawVmReferenceBackendV1 {
-    VmReference,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum RawVmReferenceProcessProfileV1 {
-    CanonicalV1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -89,11 +69,8 @@ impl RawVmReferenceProfileErrorV1 {
 pub(crate) struct RawVmReferenceProductionRequestV1 {
     source_file: Box<str>,
     grammar: RawVmReferenceGrammarV1,
-    source: RawVmReferenceSourceProfileV1,
-    imports: RawVmReferenceImportProfileV1,
-    callable_main: RawVmReferenceCallableMainProfileV1,
-    backend: RawVmReferenceBackendV1,
-    process: RawVmReferenceProcessProfileV1,
+    compile_profile: RawPublishedCompileProfileV1,
+    execution_profile: RawVmReferenceExecutionProfileV1,
     optimize: bool,
 }
 
@@ -172,11 +149,8 @@ impl RawVmReferenceProductionRequestV1 {
         Ok(Self {
             source_file,
             grammar: RawVmReferenceGrammarV1::Canonical,
-            source: RawVmReferenceSourceProfileV1::NarrowV1,
-            imports: RawVmReferenceImportProfileV1::None,
-            callable_main: RawVmReferenceCallableMainProfileV1::Omitted,
-            backend: RawVmReferenceBackendV1::VmReference,
-            process: RawVmReferenceProcessProfileV1::CanonicalV1,
+            compile_profile: RawPublishedCompileProfileV1::narrow_v1(),
+            execution_profile: RawVmReferenceExecutionProfileV1::CanonicalV1,
             optimize: !config.no_optimize,
         })
     }
@@ -189,28 +163,24 @@ impl RawVmReferenceProductionRequestV1 {
         self.grammar
     }
 
-    pub(crate) const fn source(&self) -> RawVmReferenceSourceProfileV1 {
-        self.source
-    }
-
-    pub(crate) const fn imports(&self) -> RawVmReferenceImportProfileV1 {
-        self.imports
-    }
-
-    pub(crate) const fn callable_main(&self) -> RawVmReferenceCallableMainProfileV1 {
-        self.callable_main
-    }
-
-    pub(crate) const fn backend(&self) -> RawVmReferenceBackendV1 {
-        self.backend
-    }
-
-    pub(crate) const fn process(&self) -> RawVmReferenceProcessProfileV1 {
-        self.process
-    }
-
     pub(crate) const fn optimize(&self) -> bool {
         self.optimize
+    }
+
+    pub(crate) fn into_invocation(self, ast: ASTNode) -> RawVmReferenceInvocationV1 {
+        let Self {
+            source_file,
+            compile_profile,
+            execution_profile,
+            ..
+        } = self;
+        let compile = RawPublishedCompileRequestV1::new(
+            ast,
+            Some(source_file),
+            "main",
+            compile_profile,
+        );
+        RawVmReferenceInvocationV1::new(compile, execution_profile)
     }
 }
 
@@ -337,16 +307,9 @@ mod tests {
 
         assert_eq!(request.source_file(), "profile0.hako");
         assert_eq!(request.grammar(), RawVmReferenceGrammarV1::Canonical);
-        assert_eq!(request.source(), RawVmReferenceSourceProfileV1::NarrowV1);
-        assert_eq!(request.imports(), RawVmReferenceImportProfileV1::None);
         assert_eq!(
-            request.callable_main(),
-            RawVmReferenceCallableMainProfileV1::Omitted
-        );
-        assert_eq!(request.backend(), RawVmReferenceBackendV1::VmReference);
-        assert_eq!(
-            request.process(),
-            RawVmReferenceProcessProfileV1::CanonicalV1
+            request.compile_profile,
+            RawPublishedCompileProfileV1::narrow_v1()
         );
         assert!(request.optimize());
     }

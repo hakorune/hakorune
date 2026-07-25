@@ -11,14 +11,14 @@ TASK = ROOT / (
 )
 PROFILE_TASK = ROOT / (
     "docs/development/current/main/investigations/"
-    "post-s3-clean-retire-and-normal-entry-canary-task-map-2026-07-25.md"
+    "raw-vm-reference-support0-s0-execution-task-2026-07-25.md"
 )
 KERNEL = ROOT / "src/mir/compiler/raw_published_compile.rs"
 INGRESS = ROOT / "src/mir/compiler/raw_public_ingress.rs"
 EXEC = ROOT / "src/mir/compiler/source_entry_vm_execution.rs"
 PROFILE = ROOT / "src/runner/reference/raw_vm_reference_request.rs"
-CANARY = ROOT / "src/runner/reference/raw_vm_reference.rs"
-PARITY_PROOF = ROOT / "tools/checks/lib/entry_result_projection0_s3_canary_parity.py"
+REFERENCE_RUNNER = ROOT / "src/runner/reference/raw_vm_reference.rs"
+PARITY_PROOF = ROOT / "tools/checks/lib/raw_vm_reference_conformance.py"
 CLI = ROOT / "src/cli/mod.rs"
 CLI_ARGS = ROOT / "src/cli/args.rs"
 DISPATCH = ROOT / "src/runner/dispatch.rs"
@@ -45,7 +45,7 @@ def main() -> int:
     ingress = INGRESS.read_text()
     execution = EXEC.read_text()
     profile = PROFILE.read_text()
-    canary = CANARY.read_text()
+    reference_runner = REFERENCE_RUNNER.read_text()
     parity_proof = PARITY_PROOF.read_text()
     cli = CLI.read_text()
     cli_args = CLI_ARGS.read_text()
@@ -63,26 +63,24 @@ def main() -> int:
         require(kernel, fragment, f"owner kernel {fragment}")
     require(ingress, ".compile_raw_published_v1(", "compatibility ingress consumer")
     require(execution, ".compile_raw_published_v1(", "VM-reference ingress consumer")
-    require(execution, "pub(crate) fn run_raw_vm_reference(", "explicit VM-reference entry")
-    require(parity_proof, "entry-result-projection0-s3-canary-parity", "real-binary parity proof")
+    require(execution, "pub(crate) fn run_raw_vm_reference_v1(", "explicit VM-reference entry")
+    require(parity_proof, "raw-vm-reference-conformance", "real-binary conformance proof")
     require(cli_args, '.default_value("mir")', "default backend remains mir")
     if "raw-vm-reference" in dispatch:
-        raise AssertionError("general dispatch must not own the Raw VM-reference canary")
+        raise AssertionError("general dispatch must not own the Raw VM-reference lane")
     for frozen in FROZEN_ROUTES:
         if "RawVmReference" in frozen.read_text() or "raw-vm-reference" in frozen.read_text():
             raise AssertionError(f"frozen route widened into Raw VM-reference: {frozen}")
-    require(profile_task, "NORMAL-ENTRY-PROFILE0-S0", "passive profile task")
+    require(profile_task, "SUPPORT-PROFILE0", "support profile task")
     for fragment in (
         "RawVmReferenceProductionRequestV1",
         "select_from_cli",
         "RawVmReferenceGrammarV1::Canonical",
-        "RawVmReferenceSourceProfileV1::NarrowV1",
-        "RawVmReferenceImportProfileV1::None",
-        "RawVmReferenceCallableMainProfileV1::Omitted",
-        "RawVmReferenceBackendV1::VmReference",
-        "RawVmReferenceProcessProfileV1::CanonicalV1",
+        "RawPublishedCompileProfileV1::narrow_v1()",
+        "RawVmReferenceExecutionProfileV1::CanonicalV1",
+        "into_invocation",
     ):
-        require(profile, fragment, f"passive profile {fragment}")
+        require(profile, fragment, f"support profile {fragment}")
     for fragment in (
         "pub macro_preexpand: bool",
         "pub macro_preexpand_auto: bool",
@@ -95,40 +93,40 @@ def main() -> int:
 
     profile_callers = []
     for path in (ROOT / "src/runner").rglob("*.rs"):
-        if path in (PROFILE, CANARY):
+        if path in (PROFILE, REFERENCE_RUNNER):
             continue
         if "RawVmReferenceProductionRequestV1" in path.read_text():
             profile_callers.append(path.relative_to(ROOT))
     if profile_callers:
         raise AssertionError(f"profile has duplicate production callers: {profile_callers}")
-    require(canary, "RawVmReferenceProductionRequestV1", "canary profile consumer")
-    require(canary, "select_from_cli", "canary selector consumer")
-    require(canary, "pub(crate) fn select_and_run(", "canary runner entry")
-    require(canary, "read_to_string(source_file)", "canary source read")
-    require(canary, "parse_from_string_with_build_config", "canary canonical parse")
+    require(reference_runner, "RawVmReferenceProductionRequestV1", "support profile consumer")
+    require(reference_runner, "select_from_cli", "support selector consumer")
+    require(reference_runner, "pub(crate) fn select_and_run(", "support runner entry")
+    require(reference_runner, "read_to_string(&source_file)", "support source read")
+    require(reference_runner, "parse_from_string_with_build_config", "support canonical parse")
     runner = (ROOT / "src/runner/mod.rs").read_text()
-    require(runner, "reference::raw_vm_reference::select_and_run", "early canary selector")
+    require(runner, "reference::raw_vm_reference::select_and_run", "early reference selector")
     if runner.index("reference::raw_vm_reference::select_and_run") > runner.index(
         "// Early: macro child"
     ):
-        raise AssertionError("canary selector must precede compatibility runner effects")
+        raise AssertionError("reference selector must precede compatibility runner effects")
 
     if ingress.count("compile_raw_published_v1(") != 1:
         raise AssertionError("compatibility ingress must have one typed-kernel consumer")
     if execution.count("compile_raw_published_v1(") != 1:
         raise AssertionError("VM-reference ingress must have one typed-kernel consumer")
-    if canary.count("select_from_cli") != 1:
-        raise AssertionError("canary must have one profile selector consumer")
-    if canary.count("run_raw_vm_reference(") != 1:
-        raise AssertionError("canary must have one VM-reference report consumer")
-    if canary.count("read_to_string(source_file)") != 1:
-        raise AssertionError("canary must have one source-file read")
-    if canary.count("parse_from_string_with_build_config") != 1:
-        raise AssertionError("canary must have one canonical parse")
-    if canary.count("std::process::exit") != 1:
-        raise AssertionError("canary must have one process terminal")
-    if "Program(RawVmReferenceRunReportV1)" not in canary or "Program {" in canary:
-        raise AssertionError("canary must retain the Raw process report until its terminal")
+    if reference_runner.count("select_from_cli") != 1:
+        raise AssertionError("support lane must have one profile selector consumer")
+    if reference_runner.count("run_raw_vm_reference_v1(") != 1:
+        raise AssertionError("support lane must have one VM-reference report consumer")
+    if reference_runner.count("read_to_string(&source_file)") != 1:
+        raise AssertionError("support lane must have one source-file read")
+    if reference_runner.count("parse_from_string_with_build_config") != 1:
+        raise AssertionError("support lane must have one canonical parse")
+    if reference_runner.count("std::process::exit") != 1:
+        raise AssertionError("support lane must have one process terminal")
+    if "Program(RawVmReferenceRunReportV1)" not in reference_runner or "Program {" in reference_runner:
+        raise AssertionError("support lane must retain the Raw process report until its terminal")
     for forbidden in (
         "compile_raw_with_source",
         "compile_with_source",
@@ -137,19 +135,19 @@ def main() -> int:
         "NYASH_ENTRY",
         "fallback",
     ):
-        if forbidden in canary:
-            raise AssertionError(f"canary must not own legacy/fallback behavior: {forbidden}")
+        if forbidden in reference_runner:
+            raise AssertionError(f"support lane must not own legacy/fallback behavior: {forbidden}")
     runner_raw_callers = []
     for path in (ROOT / "src/runner").rglob("*.rs"):
-        if path == CANARY:
+        if path == REFERENCE_RUNNER:
             continue
-        if "compile_raw_with_source" in path.read_text() or "run_raw_vm_reference" in path.read_text():
+        if "compile_raw_with_source" in path.read_text() or "run_raw_vm_reference_v1" in path.read_text():
             runner_raw_callers.append(path.relative_to(ROOT))
     if runner_raw_callers:
         raise AssertionError(f"runner has unexpected Raw production callers: {runner_raw_callers}")
-    if "run_raw_vm_reference_status(" in execution or "run_raw_vm_reference_status(" in canary:
+    if "run_raw_vm_reference_status(" in execution or "run_raw_vm_reference_status(" in reference_runner:
         raise AssertionError("untyped VM-reference status adapter must remain absent")
-    if execution.count("pub(crate) fn run_raw_vm_reference(") != 1:
+    if execution.count("pub(crate) fn run_raw_vm_reference_v1(") != 1:
         raise AssertionError("VM-reference production entry must be unique")
 
     for forbidden in (
@@ -170,7 +168,7 @@ def main() -> int:
         INGRESS,
         EXEC,
         PROFILE,
-        CANARY,
+        REFERENCE_RUNNER,
         ROOT / "src/runner/mod.rs",
         CLI,
         CLI_ARGS,
@@ -182,7 +180,7 @@ def main() -> int:
             raise AssertionError(f"file must remain below 800 lines: {path}")
     print(
         "[entry-result-projection0-s3-owner-guard] ok "
-        "typed_kernel=1 profile=1 canary=1 duplicate_profile_callers=0 "
+        "typed_kernel=1 profile=1 supported_reference=1 duplicate_profile_callers=0 "
         "legacy_duplication=0 below_800=1"
     )
     return 0

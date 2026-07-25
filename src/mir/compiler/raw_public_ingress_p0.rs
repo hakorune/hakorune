@@ -121,6 +121,10 @@ fn raw_public_ingress_failure_is_discarded_before_reuse() {
         .compile_raw_with_source(failure, None)
         .expect_err("undefined Raw variable should reject");
     assert!(error.starts_with("[raw-public/body/rejected]"));
+    assert!(error.contains("body-rejected: typed body rejection"));
+    assert!(error.len() < 160);
+    assert!(!error.contains("RejectedRawPublishedCompileV1"));
+    assert!(!error.contains("current_function"));
     assert!(compiler.builder.current_module.is_none());
 
     compiler
@@ -150,6 +154,7 @@ fn raw_public_ingress_failure_preserves_live_imports() {
         .compile_raw_with_source(failure, None)
         .expect_err("undefined variable must reject without mutating live imports");
     assert!(error.starts_with("[raw-public/body/rejected]"));
+    assert!(!error.contains("owner:"));
     assert_eq!(compiler.builder.comp_ctx.using_import_boxes, before);
 }
 

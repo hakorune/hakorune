@@ -22,10 +22,9 @@ use super::raw_root_postprocess::RejectedRawPostprocessInvocationV1;
 use super::raw_root_publication::{
     RejectedRawPublicationInvocationV1, RawPublishedInvocationV1,
 };
-use super::raw_source_binding::{RawCallableMainSelectionV1, RejectedRawSourceBindingV1};
-use super::raw_root_helper_coverage::RawPublicEligibilityProfileV1;
+use super::raw_source_binding::RejectedRawSourceBindingV1;
 use super::lowering_input::LegacyModuleLoweringInputV1;
-use crate::ast::ASTNode;
+use crate::mir::RawPublishedCompileRequestV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum RawPublishedCompileStageV1 {
@@ -119,32 +118,101 @@ impl RejectedRawPublishedCompileV1 {
             RawPublishedCompileStageV1::ExternalCommit => "external-commit-preparation",
             RawPublishedCompileStageV1::Publication => "publication",
         };
-        let detail = format!("{:?}", self);
+        let report = RawPublishedCompileFailureReportV1::from_stage(self.stage());
         self.discard();
-        format!("[raw-public/{stage}/rejected] {detail}")
+        // Keep the established public prefix stable while exposing a bounded
+        // stage/code/detail report instead of formatting the owner graph.
+        format!(
+            "[raw-public/{stage}/rejected] {}: {}",
+            report.code,
+            report.detail()
+        )
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct RawPublishedCompileFailureReportV1 {
+    code: &'static str,
+    detail: &'static str,
+}
+
+impl RawPublishedCompileFailureReportV1 {
+    const fn from_stage(stage: RawPublishedCompileStageV1) -> Self {
+        let (code, detail) = match stage {
+            RawPublishedCompileStageV1::SourceBinding => {
+                ("source-binding-rejected", "typed source binding rejection")
+            }
+            RawPublishedCompileStageV1::RootPackage => {
+                ("root-package-rejected", "typed root package rejection")
+            }
+            RawPublishedCompileStageV1::Eligibility => {
+                ("eligibility-rejected", "typed eligibility rejection")
+            }
+            RawPublishedCompileStageV1::PhysicalOpen => {
+                ("physical-open-rejected", "typed physical-open rejection")
+            }
+            RawPublishedCompileStageV1::Children => {
+                ("children-rejected", "typed children rejection")
+            }
+            RawPublishedCompileStageV1::CallableMain => {
+                ("callable-main-rejected", "typed callable-main rejection")
+            }
+            RawPublishedCompileStageV1::DeclarationAccess => {
+                ("declaration-access-rejected", "typed declaration-access rejection")
+            }
+            RawPublishedCompileStageV1::Body => ("body-rejected", "typed body rejection"),
+            RawPublishedCompileStageV1::RootBatch => {
+                ("root-batch-rejected", "typed root-batch rejection")
+            }
+            RawPublishedCompileStageV1::Drain => ("drain-rejected", "typed drain rejection"),
+            RawPublishedCompileStageV1::Finalization => {
+                ("finalization-rejected", "typed finalization rejection")
+            }
+            RawPublishedCompileStageV1::Postprocess => {
+                ("postprocess-rejected", "typed postprocess rejection")
+            }
+            RawPublishedCompileStageV1::ExternalCommit => (
+                "external-commit-rejected",
+                "typed external-commit rejection",
+            ),
+            RawPublishedCompileStageV1::Publication => {
+                ("publication-rejected", "typed publication rejection")
+            }
+        };
+        Self { code, detail }
+    }
+
+    const fn detail(self) -> &'static str {
+        self.detail
     }
 }
 
 impl super::MirCompiler {
     pub(in crate::mir) fn compile_raw_published_v1(
         &mut self,
-        ast: ASTNode,
-        source_file: Option<&str>,
+        request: RawPublishedCompileRequestV1,
     ) -> Result<RawPublishedInvocationV1, RejectedRawPublishedCompileV1> {
+        let RawPublishedCompileRequestV1 {
+            ast,
+            source_file,
+            module_name,
+            profile,
+        } = request;
+        let (eligibility, imports, callable_main) = profile.into_parts();
         let package = self
             .bind_raw_source_for_public(
                 LegacyModuleLoweringInputV1::bare_ast(ast),
-                source_file,
-                "main",
-                RawCallableMainSelectionV1::Omitted,
-                super::raw_public_ingress::RawPublicImportDispositionV1::None,
+                source_file.as_deref(),
+                module_name,
+                callable_main,
+                imports,
             )
             .map_err(|error| RejectedRawPublishedCompileV1::SourceBinding(Box::new(error)))?;
         let root_package = package
             .into_root_package()
             .map_err(|error| RejectedRawPublishedCompileV1::RootPackage(Box::new(error)))?;
         let eligible = root_package
-            .prepare_public_eligibility(RawPublicEligibilityProfileV1::narrow_v1())
+            .prepare_public_eligibility(eligibility)
             .map_err(|error| RejectedRawPublishedCompileV1::Eligibility(Box::new(error)))?;
         let opened = eligible
             .open_physical(&self.builder)

@@ -45,11 +45,18 @@ pub(crate) mod canonical_physical_drain;
 pub(crate) mod raw_root_body_recipe;
 pub(crate) mod raw_physical_drain;
 pub(crate) mod raw_finalization_contract;
+pub(crate) mod raw_vm_reference_contract;
 pub(crate) mod canonical_recursive_callable_module_backend_capability;
 pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
 mod compiler;
 pub(crate) use compiler::source_entry_vm_reference::RawVmReferenceRunReportV1;
+pub(crate) use raw_vm_reference_contract::{
+    RawPublishedCompileProfileV1, RawPublishedCompileRequestV1,
+    RawVmReferenceCallableMainProfileV1, RawVmReferenceExecutionProfileV1,
+    RawVmReferenceImportProfileV1, RawVmReferenceInvocationV1,
+    RawVmReferenceSourceProfileV1,
+};
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
 pub mod constructor_call_route_plan; // MIR-owned constructor call route plans
 pub mod contracts; // backend-core instruction contracts (SSOT)
