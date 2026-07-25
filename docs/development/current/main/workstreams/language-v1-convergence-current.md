@@ -215,19 +215,33 @@ FUNCTION-EXIT-F1-RETURN0-S0
   six plain source-hint sites are benchmark, artifact-only, Stage-1, or legacy
   fallback routes; none matches the fixed normal VM-reference contract.
 
--> NORMAL-FILE-VM0-FAMILY-D0-FORGE-FRONTDOOR (accepted; active)
+-> NORMAL-FILE-VM0-FAMILY-D0-FORGE-FRONTDOOR (accepted; parked during docs closeout)
   create NormalFileVmFrontDoorV1 with no legacy caller mapping. The first forge
   row keeps production caller=0 and reuses the closed Raw VM-reference kernel.
   See [normal-file-vm0-frontdoor-forge-task-2026-07-26.md](../investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md).
 
--> NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0
+-> LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 (accepted; short preemption)
+  source try/throw are rejected in both language profiles; postfix catch is
+  the canonical protected-region target; Fault remains non-catchable; the
+  distinct RecoverableFailure producer/ABI remains a later D0.
+  See [language-tryless-postfix-catch-task-order-2026-07-26.md](../investigations/language-tryless-postfix-catch-task-order-2026-07-26.md).
+
+-> LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT (active; docs-only)
+  synchronize the accepted target while registry/parser/AST/MIR/runtime/
+  backend behavior remains unchanged, then resume Forge0.
+
+-> NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 (accepted; parked resume)
+  -> FORGE-CONTRACT0
+  -> FORGE-SOURCE0
+  -> FORGE-HANDOFF0
+  -> FORGE-CORRESPONDENCE0
+  -> FORGE-SEMANTIC0
+  -> FORGE-REUSE0
+  -> FORGE-G0
   -> NORMAL-ENTRY-CUTOVER-D2
-  -> NORMAL-FILE-VM0-SOURCE-PROFILE-D0
-  -> NORMAL-FILE-VM0-CORRESPONDENCE-P0
-  -> NORMAL-FILE-VM0-SEMANTIC-MATRIX-P0
-  -> NORMAL-FILE-VM0-CALLER-G0
-  -> NORMAL-ENTRY-CUTOVER-D2
-  (reopens only after the follow-up decision)
+  The former SOURCE-PROFILE-D0/CORRESPONDENCE-P0/SEMANTIC-MATRIX-P0/
+  CALLER-G0 names are historical planning aliases, not a second executable
+  queue.
 
 -> NORMAL-FILE-VM0-REQUEST0-S0 (D2 accepted only)
   one typed normal-file caller, then exact source/compile/entry/result/parity

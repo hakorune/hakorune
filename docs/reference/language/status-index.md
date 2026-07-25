@@ -21,6 +21,11 @@ they describe ownership or unresolved availability, not additional parser
 acceptance. A row may use `status_conflict` on either axis while the decision
 stop is open.
 
+During an accepted authority migration, prose such as `canonical target` or
+`authority_sync_pending` records the selected destination while
+`status_conflict` continues to describe the unsynchronized physical
+registry/parser/docs. Those annotations never mean `live`.
+
 Only bracketed values such as `[freeze:contract][parser/throw_reserved]` are
 existing implementation tags. Other gate/reject values in the table are
 `index:` labels for this documentation stop and must not be passed to a parser
@@ -51,13 +56,13 @@ not inherit permission from that snapshot.
 
 | Feature | Grammar status | Availability/profile | Authority / evidence | Gate/reject tag | Promotion/retirement | Current note |
 | --- | --- | --- | --- | --- | --- | --- |
-| `throw` | `reserved`/`rejected` | `prohibited` | [scope-exit](scope-exit-semantics.md), [option](option.md), EBNF | `[freeze:contract][parser/throw_reserved]` | New language decision required; no implicit promotion | Parser rejects, including handler bodies; no activation row. |
-| statement `try` | `status_conflict` | `status_conflict` | [grammar contract](grammar-contract.md), EBNF, registry | `[freeze:contract][parser/try_reserved]` or named compat profile | [LANGUAGE-DOCS-TRY-CATCH-D1](../../development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md) | SSOT says reserved/rejected; EBNF describes gated compatibility acceptance. |
-| postfix `catch` | `canonical` / `status_conflict` | `status_conflict` | [grammar contract](grammar-contract.md), [semantic kernel](semantic-kernel.md), [scope-exit](scope-exit-semantics.md) | `NYASH_CATCH_NEW=1` and `NYASH_PARSER_STAGE3=1`; block/method productions additionally use their named gate | D1 must choose canonical outcome or compat-only retirement | Grammar calls it canonical while canonical Fault is non-catchable; handler boundary is unresolved. |
-| postfix `cleanup` | `canonical` | `status_conflict` | [scope-exit](scope-exit-semantics.md), EBNF, registry | `NYASH_PARSER_STAGE3=1`; exact handler gate remains production-specific and unresolved | D1 must list exact productions and gate owner | Semantic channel is named, but EBNF support is Stage-3 gated and standalone/local productions are incomplete. |
-| standalone `cleanup { ... }` | `status_conflict` | `pending` | [scope-exit](scope-exit-semantics.md), EBNF, registry | `index:cleanup-production-missing` | D1 decides canonical production or rejection | Scope SSOT names it; EBNF has no complete standalone row. |
-| `local x = e cleanup { ... }` | `status_conflict` | `pending` | [scope-exit](scope-exit-semantics.md), EBNF, registry | `index:local-cleanup-production-missing` | D1 decides canonical production or rejection | Local cleanup is described semantically but not fully represented in EBNF. |
-| `fini { ... }` / `local ... fini` | `status_conflict` | `status_conflict` | [scope-exit](scope-exit-semantics.md), [lifecycle](lifecycle.md), grammar contract, registry | `index:fini-alias-status-unresolved` | D1 chooses canonical spelling or Compat2025 sunset | Grammar labels it canonical; scope/lifecycle describe it as legacy DropScope compatibility. |
+| `throw` | `status_conflict` | `prohibited` | [scope-exit](scope-exit-semantics.md), [option](option.md), EBNF; [target decision](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md) | `[freeze:contract][parser/throw_reserved]` | source/parser producers must remain zero; generated/internal shapes are fenced separately | Accepted target rejects both profiles; internal/generated shapes still require authority sync and are not source permission. |
+| statement `try` | `status_conflict` | `status_conflict` | [grammar contract](grammar-contract.md), EBNF, registry; [target decision](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md) | `[freeze:contract][parser/try_reserved]` | target rejects both language profiles; registry/parser sync pending | Accepted target has no source `try`; current Compat parser acceptance remains implementation drift, not permission. |
+| postfix `catch` | `status_conflict` | `pending` | [semantic kernel](semantic-kernel.md), [failure/outcome relations](failure-outcome-relations.md), grammar contract; [target decision](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md) | current ambient gates are evidence only | `RecoverableFailure` producer/ABI D0, then grammar/runtime rows | Accepted target is canonical, protects the preceding region, and never catches terminal `Fault`; physical authority sync is pending. |
+| postfix `cleanup` | `status_conflict` | `pending` | [scope-exit](scope-exit-semantics.md), EBNF, registry; [target decision](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md) | current Stage-3 gates are evidence only | exact grammar/profile/backend rows required | Accepted target is canonical and independent of catch/object lifecycle; no broad live claim. |
+| standalone `cleanup { ... }` | `status_conflict` | `pending` | [scope-exit](scope-exit-semantics.md), EBNF, registry; [target decision](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md) | `index:cleanup-production-missing` | registry/parser/runtime rows required | Accepted target is canonical; physical standalone production is not yet synchronized. |
+| `local x = e cleanup { ... }` | `status_conflict` | `pending` | [scope-exit](scope-exit-semantics.md), EBNF, registry; [target decision](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md) | `index:local-cleanup-production-missing` | registry/parser/runtime rows required | Accepted target is canonical; physical local-cleanup production is not yet synchronized. |
+| `fini { ... }` / `local ... fini` | `status_conflict` | `status_conflict` | [scope-exit](scope-exit-semantics.md), [lifecycle](lifecycle.md), grammar contract, registry; [target decision](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md) | `index:fini-alias-authority-sync-pending` | `LANGUAGE-FINI-SCOPE-ALIAS-SUNSET-001` | Accepted target rejects Canonical and keeps a bounded Compat2025 cleanup alias; current CatchClause marker is legacy representation. |
 | `box.fini()` | `canonical` | `guarded`/`status_conflict` | [lifecycle](lifecycle.md), [scope-exit](scope-exit-semantics.md) | `index:lifecycle-owner-check` | Lifecycle owner must name the supported profile | Semantic target is distinct from scope cleanup; production support is not claimed for every backend. |
 | `co` / `nowait` / `await` | `topic_owned` | `guarded` concurrency profile | [concurrency semantics](../concurrency/semantics.md), stage profiles | `concurrency-profile-required` | Separate concurrency decision | Not a general Stage1/selfhost promise; no Language v1 registry row currently. |
 | `Channel<T>` | `topic_owned` | `scaffold`/`deferred` by route | [concurrency semantics](../concurrency/semantics.md), stage profiles | `channel-route-gated` | Separate concurrency decision | Reference queue surface; broad Program/MIR/LLVM use remains gated. |
@@ -68,19 +73,24 @@ not inherit permission from that snapshot.
 
 ## Known conflict set
 
-The following are intentionally not resolved by this index:
+The accepted target is now fixed, while physical authority pages and
+implementation rows remain intentionally unsynchronized:
 
 ```text
-try profile and default acceptance
-catch versus canonical Fault
-cleanup/fini grammar naming and Stage-3 gates
+source try rejected in both profiles versus current Compat parser row
+postfix catch RecoverableFailure target versus the five-Outcome kernel
+cleanup/fini target naming versus current registry/AST encoding and Stage-3 gates
+external source-try migration records are tool/evidence only, outside grammar
 concurrency topic rows versus Language v1 registry rows
 EBNF exception/rethrow/finally pseudo-lowering and no-op backend wording
 ```
 
-Resolution owner: [LANGUAGE-DOCS-TRY-CATCH-D1](../../development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md), followed by a coordinated
-grammar/registry/EBNF/profile update. No parser, runtime, backend, or grammar
-registry implementation change is authorized by this index row.
+Resolution owner:
+[LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md).
+`LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT` synchronizes the authority prose;
+later rows own grammar/registry/parser/runtime changes. No parser, runtime,
+backend, or grammar-registry implementation change is authorized by this
+index update.
 
 The EBNF exception/rethrow/finally lowering text is evidence of an older or
 compatibility route, not permission to degrade an unsupported handler to a

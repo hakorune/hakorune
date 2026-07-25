@@ -1,20 +1,27 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 is the active typed front-door forge row. The NoBoundedCallerFamily evidence and accepted forge decision are sealed; no production caller or normal/default cutover is authorized in this row."
+status = "LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is the active docs-only row. The accepted tryless decision rejects source try in both profiles, makes postfix catch the protected-region target, keeps Fault non-catchable, and parks RecoverableFailure production/ABI for a later D0. Forge0 resumes immediately after this closeout."
 date = "2026-07-26"
 current_design_stop = "none"
-current_execution_row = "NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0"
-current_execution_summary = "The accepted forge decision creates one typed NormalFileNoImportVmReferenceV1 front door over the closed Raw VM-reference kernel. This row covers contracts, one-read/one-parse source preparation, exact Raw handoff, correspondence/reuse proofs, and caller-zero guards. No production caller or normal/default cutover is authorized."
+current_execution_row = "LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT"
+current_execution_summary = "Synchronize the accepted tryless postfix-catch target across language authority and entry docs without changing the registry, parser, AST, MIR, runtime, backend, or JSON behavior. Record RecoverableFailure as a pending distinct Outcome target, not as a current producer. Then restore NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
-active_lane = "Language v1 function-exit semantics"
-active_lane_status = """NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 is the current typed front-door
-forge row after the docs status-index slice and NoBoundedCallerFamily D0
-evidence. The function-exit semantics and
-Raw VM-reference history below remain accepted context; no parser/runtime/backend
-behavior is reopened. FUNCTION-EXIT-SEMANTICS-prime-r1 is the current semantic
+active_lane = "Language v1 semantic convergence"
+active_lane_status = """LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is a short
+docs-only preemption. LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 closes the D1
+surface decision: source try and throw are rejected in both language profiles;
+postfix catch is the canonical protected-region target; Fault remains terminal
+and non-catchable; cleanup and object fini retain separate owners. The exact
+RecoverableFailure producer, payload, callable/source-entry propagation, and
+top-level projection remain parked for LANGUAGE-RECOVERABLE-FAILURE-D0.
+Registry/parser/AST/MIR/runtime/backend behavior does not change in this
+closeout. NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 remains accepted and resumes
+immediately after the closeout with production caller=0. The function-exit
+semantics and Raw VM-reference history below remain accepted context.
+FUNCTION-EXIT-SEMANTICS-prime-r1 remains the function-exit semantic
 authority. FUNCTION-EXIT-F1-RETURN0-S0, DRAFT-SEAL0-S0,
 SCRIPT-RESULT-TAIL0-S0, and ENTRY-RESULT-PROJECTION0-D0 are closed.
 ENTRY-RESULT-PROJECTION0-S0 and S1 projection consume are closed. The next
@@ -317,9 +324,9 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
-phase_status = "docs/development/current/main/investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
-method_anchor = "docs/reference/language/function-exit-and-entry-result.md"
+active_phase = "docs/development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md"
+phase_status = "docs/development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md"
+method_anchor = "docs/development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 normal_entry_cutover_decision = "docs/development/current/main/investigations/normal-entry-cutover-d0-consultation-2026-07-25.md"
@@ -331,6 +338,8 @@ normal_file_vm0_frontdoor_forge_task = "docs/development/current/main/investigat
 normal_file_vm0_d2_decision = "pending: NORMAL-ENTRY-CUTOVER-D2 card not opened"
 language_docs_status_task = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
 language_docs_try_catch_task = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
+language_tryless_postfix_catch_task = "docs/development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md"
+postfix_catch_closeout_resume = "NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0"
 raw_vm_reference_support0_task = "docs/development/current/main/investigations/raw-vm-reference-support0-s0-execution-task-2026-07-25.md"
 parked_loop_route_retirement_card = "docs/development/current/main/investigations/generic-loop-named-route-retirement-task-2026-07-19.md"
 mirbuilder_clean_architecture_card = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
@@ -387,9 +396,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "normal-file-vm0-frontdoor-forge-task-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
-latest_card_summary = """NORMAL-FILE-VM0-FAMILY-D0-FORGE-FRONTDOOR is accepted: forge one typed NormalFileNoImportVmReferenceV1 front door over the closed Raw VM-reference kernel. The first row keeps production caller=0 and normal/default cutover=0 until D2."""
+latest_card = "language-tryless-postfix-catch-task-order-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md"
+latest_card_summary = """LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 is accepted: no source try in either language profile, postfix catch owns the protected region, terminal Fault is not catchable, and a distinct RecoverableFailure remains pending its exact producer/ABI D0. The active closeout is docs-only and then resumes Forge0."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -591,7 +600,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0"
+current_blocker_token = "LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

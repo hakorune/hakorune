@@ -1,7 +1,7 @@
 # CURRENT_TASK
 
 Status: SSOT pointer
-Date: 2026-07-25
+Date: 2026-07-26
 Scope: root restart anchor only. Do not store landed history here.
 
 ## Quick Restart
@@ -27,27 +27,25 @@ row, follow only the `latest_card_path` contract.
 
 ## Handoff
 
-Read `latest_card_path` and `latest_workstream_card` before editing. The
-accepted function-exit topic SSOT now separates ordinary function/Main
-completion, Script evaluation results, physical entry transport, and process
-termination. The former App any-statement-tail task is not executable
-canonical work; it is historical compatibility evidence only.
-
 Continue only the exact `current_blocker_token` and `latest_card_path` named by
-`CURRENT_STATE.toml`. The active row is `NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0`;
-read `normal-file-vm0-frontdoor-forge-task-2026-07-26.md`. This row creates
-the typed front door and proof products over the existing Raw VM-reference
-kernel, but keeps production caller=0 and normal/default cutover=0. Do not
-map an existing legacy caller or add fallback. D0, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0,
-PHYSICAL-THUNK0, VM-REFERENCE0, EXE-AOT0, S1 projection consume, S2
-VM-reference consume, the complete S3 Raw VM-reference activation row, old
-Raw retirement, PROFILE0, CANARY0, and CANARY-PARITY0/G0 are closed. The
-accepted cutover decision selects only the existing explicit Raw VM-reference
-route as a supported opt-in lane. `RAW-VM-REFERENCE-SUPPORT0-S0` is closed;
-`NORMAL-ENTRY-CUTOVER-D1` is the active design stop and
-`NORMAL-ENTRY-CUTOVER0-S0` remains parked pending its decision. Do not infer implementation authority from Legacy
-mirrors or invent a new executable owner from historical mirrors.
-keep the goal open until the frontier names a concrete next implementation row.
-snapshots, Builder-returned `ValueId`s, or superseded App parity cards. Keep
-normal/default cutover, general VM/LLVM, JSON, executor, and CUT0 parked. Keep
-every new or modified source/check file below 800 lines.
+`CURRENT_STATE.toml`.
+
+The active row is the docs-only
+`LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT`. It records the accepted tryless
+surface without changing registry, parser, AST, MIR, runtime, backend, or JSON
+behavior:
+
+```text
+source try / throw       = rejected in both language profiles
+postfix catch            = canonical protected-region target
+catchable target Outcome = RecoverableFailure
+Fault                    = terminal and non-catchable
+cleanup                  = separate scope-exit owner
+box.fini()               = separate lifecycle owner
+```
+
+Do not invent a `RecoverableFailure` producer or ABI during the closeout; that
+belongs to `LANGUAGE-RECOVERABLE-FAILURE-D0`. When the closeout is complete,
+restore the current pointer to `NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0`. Forge0
+remains accepted with production caller=0, fallback=0, and normal/default
+cutover=0.

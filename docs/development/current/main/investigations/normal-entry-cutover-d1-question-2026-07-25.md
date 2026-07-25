@@ -1,10 +1,15 @@
 # NORMAL-ENTRY-CUTOVER-D1 consultation question
 
-- Status: Consultation Question
+- Status: Historical / superseded before implementation
 - Date: 2026-07-25
 - Related decision stop: `NORMAL-ENTRY-CUTOVER-D1-DESIGN-STOP-20260725`
 - Related card: `normal-entry-cutover-d1-consultation-2026-07-25.md`
+- Accepted successor: `normal-file-vm0-frontdoor-forge-task-2026-07-26.md`
 - Purpose: freeze the admissible normal-entry family and its cutover contract before implementation
+
+> Historical question only. The accepted successor for normal-file work is
+> `NORMAL-FILE-VM0-FAMILY-D0-FORGE-FRONTDOOR`; it creates a new typed front
+> door with no legacy caller mapping and no production caller before D2.
 
 ## Question for ChatGPT Pro
 

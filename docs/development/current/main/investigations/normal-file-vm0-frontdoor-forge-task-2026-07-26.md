@@ -4,7 +4,7 @@ Date: 2026-07-26
 Decision: NORMAL-FILE-VM0-FAMILY-D0-FORGE-FRONTDOOR
 Scope: forge one typed normal-file front door over the closed Raw VM-reference kernel
 ceremony_tier: T2 new source/front-door authority (no production caller)
-sunset_id: reserved until D2; bind NORMAL-FILE-VM0-LEGACY-CALLER-SUNSET-001 only if D2 maps an old caller
+sunset_id: NORMAL-FILE-VM0-FORGE-PROOF-SUNSET-001; bind NORMAL-FILE-VM0-LEGACY-CALLER-SUNSET-001 only if D2 maps an old caller
 proof_inventory_before: NoBoundedCallerFamily D0 evidence + closed Raw VM-reference compile/execution proofs
 new_proofs: fixed profile, one-read source receipt, typed handoff, correspondence ledger, semantic matrix, reuse matrix, caller-zero guard
 retired_or_merged_proofs: none; prior D0 evidence remains historical input
@@ -25,6 +25,11 @@ Supersedes:
 ---
 
 # NormalFileNoImportVmReferenceV1 front-door forge
+
+> Accepted and parked only while
+> `LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT` performs a short docs-only
+> preemption. Resume this exact Forge0 row afterward; its scope and
+> production-caller-zero law are unchanged.
 
 ## Decision
 

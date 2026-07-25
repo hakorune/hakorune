@@ -1,9 +1,10 @@
 ---
-Status: Design consultation stop / no implementation authorization
+Status: Historical consultation / superseded by accepted tryless postfix-catch decision
 Date: 2026-07-25
-Decision: LANGUAGE-DOCS-TRY-CATCH-D1 (questions fixed; semantics unresolved)
+Decision: LANGUAGE-DOCS-TRY-CATCH-D1 (questions superseded by LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1; authority-prose closeout pending)
 Scope: reconcile language-level exception, scope-cleanup, and compatibility status
 Related:
+  - docs/development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md
   - docs/reference/language/status-index.md
   - docs/reference/language/grammar-contract.md
   - docs/reference/language/semantic-kernel.md
@@ -15,6 +16,13 @@ Related:
 ---
 
 # LANGUAGE-DOCS-TRY-CATCH-D1 consultation
+
+> Historical consultation only. The accepted authority is
+> [LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1](language-tryless-postfix-catch-task-order-2026-07-26.md):
+> source `try` is rejected in both language profiles, postfix `catch` is the
+> canonical protected-region spelling, terminal `Fault` remains non-catchable,
+> and the distinct `RecoverableFailure` producer/ABI is a later mandatory
+> design row. Do not execute the candidates below.
 
 This card fixes the questions that must be answered before any grammar,
 parser, runtime, backend, or registry edit. It intentionally does not select
