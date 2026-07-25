@@ -112,6 +112,13 @@ process profile          = CanonicalProcessExitV1::V1
 fallback / retry         = zero
 ```
 
+`fresh Rust MirInterpreter` is a temporary reference-backend selection for
+this forge, not an interpreter-retirement decision. The final
+semantic-reference owner is the `.hako` MIR interpreter under
+`vm-active-lane-retirement-ssot.md`; a normal-file route may select it only in
+a later explicit HMI-parity-backed backend cutover. The forge must not add a
+silent Rust-to-Hako fallback, or keep Rust as a fallback after that cutover.
+
 The sealed profile is a closed variant, not a bag of caller booleans:
 
 ```rust

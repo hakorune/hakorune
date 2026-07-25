@@ -42,6 +42,54 @@ Rust MirInterpreter
   -> exact caller-zero retirement after `.hako` cutover
 ```
 
+## Non-negotiable cutover and retirement law
+
+The temporary Rust interpreter is not a permanent compatibility fallback. The
+only valid end state is:
+
+```text
+canonical MIR semantic-reference subset
+  -> `.hako` MIR interpreter
+
+product/app execution
+  -> EXE/AOT
+
+Rust MirInterpreter semantic callers
+  -> zero
+  -> source deletion
+```
+
+The transition is deliberately staged:
+
+```text
+HMI-P0/S0/S1/I0/P1
+  -> sealed ingress + portable subset + independent normalized parity
+
+HMI-C0
+  -> `.hako` becomes the default semantic-reference runner for that closed
+     subset; Rust fallback is forbidden
+
+HMI-X0
+  -> expand one named MIR instruction family at a time, each with parity and
+     fail-fast unsupported-instruction behavior
+
+HMI-R1/R2
+  -> classify every remaining Rust caller, move or delete it, prove Rust
+     semantic-reference caller count is zero, then delete the retired code
+```
+
+No row may keep a hidden Rust retry after HMI-C0. A `.hako` capability gap is a
+typed fail-fast result until its named HMI-X0 expansion closes; it is never a
+reason to execute the same module in Rust.
+
+The current `RawVmReference`/normal-file forge is intentionally not this
+cutover. It uses a fresh Rust `MirInterpreter` only as the temporary reference
+backend while it seals compiler, source-entry, and process-result semantics.
+It must be included in HMI-R1's caller census before any Rust retirement, and
+a future normal-file backend selection may target `.hako` only after the HMI
+subset that covers that route has completed HMI-C0/P1 parity. This prevents an
+implicit backend switch or a second entry/result authority.
+
 This is an implementation-owner migration, not an AST-interpreter decision.
 The `.hako` interpreter consumes canonical MIR and must not recover source
 semantics from AST, ProgramV0, names, or backend behavior.
