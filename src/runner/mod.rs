@@ -129,6 +129,9 @@ impl NyashRunner {
 impl NyashRunner {
     /// New behavior-preserving refactor of run(): structured into smaller helpers
     fn run_refactored(&self) {
+        if let Some(outcome) = reference::raw_vm_reference::select_and_run(&self.config) {
+            outcome.finish();
+        }
         // Early: macro child
         if let Some(ref macro_file) = self.config.macro_expand_child {
             crate::runner::modes::macro_child::run_macro_child(macro_file);

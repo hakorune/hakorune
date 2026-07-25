@@ -5,13 +5,13 @@
 //! process outcome.
 
 use super::raw_root_publication::RawPublishedInvocationV1;
-use super::source_entry_vm_diagnostic::{
-    VmReferenceProcessDiagnosticAdapterV1, VmReferenceProcessDiagnosticReportV1,
-};
 use super::source_entry_projection::ProjectedSourceEntryV1;
 use super::source_entry_result::{
     ProcessExitCodeV1, ProcessFaultV1, ProcessTerminationV1, SourceEntryResultKindV1,
     SourceEntryResultV1, UnitOriginV1,
+};
+use super::source_entry_vm_diagnostic::{
+    VmReferenceProcessDiagnosticAdapterV1, VmReferenceProcessDiagnosticReportV1,
 };
 use crate::mir::builder::RawVmSourceEntryDecodeKindV1;
 
@@ -84,20 +84,26 @@ pub(in crate::mir) struct VmReferenceProcessOutcomeV1 {
 }
 
 #[derive(Debug)]
-pub struct RawVmReferenceRunReportV1 {
+pub(crate) struct RawVmReferenceRunReportV1 {
     status: ProcessExitCodeV1,
     diagnostic: Option<VmReferenceProcessDiagnosticReportV1>,
 }
 
 impl RawVmReferenceRunReportV1 {
-    pub fn status_code(&self) -> u8 {
+    pub(crate) fn status_code(&self) -> u8 {
         self.status.value()
     }
 
-    pub fn diagnostic_tag(&self) -> Option<&'static str> {
+    pub(crate) fn diagnostic_tag(&self) -> Option<&'static str> {
         self.diagnostic
             .as_ref()
             .map(VmReferenceProcessDiagnosticAdapterV1::tag)
+    }
+
+    pub(crate) fn diagnostic_line(&self) -> Option<String> {
+        self.diagnostic
+            .as_ref()
+            .map(VmReferenceProcessDiagnosticAdapterV1::line)
     }
 }
 

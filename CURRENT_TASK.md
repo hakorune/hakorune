@@ -32,10 +32,13 @@ termination. The former App any-statement-tail task is not executable
 canonical work; it is historical compatibility evidence only.
 
 Continue only the exact `current_blocker_token` and `latest_card_path` named by
-`CURRENT_STATE.toml`. D0, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0, PHYSICAL-THUNK0, VM-REFERENCE0, EXE-AOT0, S1 projection consume, S2 VM-reference consume, and the complete S3 Raw VM-reference activation row are closed; the selected next row is caller-zero old Raw proof migration and retirement. Do not infer implementation authority from Legacy
-snapshots, Builder-returned `ValueId`s, or superseded App parity cards. Keep
-production VM/LLVM, normal-entry cutover, JSON, executor, and CUT0 parked.
-The selected first post-S3 row is the caller-zero old Raw proof migration and
-retirement named by `current_blocker_token`; only after it closes may the
-passive normal-entry profile and explicit VM-reference canary start. Keep every
-new or modified source/check file below 800 lines.
+`CURRENT_STATE.toml`. D0, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0,
+PHYSICAL-THUNK0, VM-REFERENCE0, EXE-AOT0, S1 projection consume, S2
+VM-reference consume, the complete S3 Raw VM-reference activation row, old
+Raw retirement, PROFILE0, CANARY0, and CANARY-PARITY0/G0 are closed. The
+selected frontier is the fresh `NORMAL-ENTRY-CUTOVER-D0` design stop. Do not
+infer implementation authority from Legacy snapshots, Builder-returned
+`ValueId`s, or superseded App parity cards. Keep production VM/LLVM,
+normal-entry cutover, JSON, executor, and CUT0 parked until D0 names one exact
+target and grants a new executable row. Keep every new or modified
+source/check file below 800 lines.

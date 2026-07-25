@@ -3,11 +3,11 @@
 Decision: `POST-S3-CLEAN-CANARY-prime-r1`
 
 Status: accepted task order. `NORMAL-ENTRY-D0` is closed by this card.
-R0A, R0B, G0, and PROFILE0 are closed; implementation authorization now
-follows the exact current pointer into the canary row:
+R0A, R0B, G0, PROFILE0, CANARY0, and CANARY-PARITY0/G0 are closed;
+implementation authorization now stops at the fresh cutover design frontier:
 
 ```text
-NORMAL-ENTRY-CANARY0-S0
+NORMAL-ENTRY-CUTOVER-D0
 ```
 
 ## Outcome
@@ -47,7 +47,7 @@ compile_raw_published_v1
 
 run_raw_vm_reference
   definition             = 1
-  non-test runner caller = 0
+  non-test runner caller = 1 (CANARY0; pre-canary inventory was 0)
   same-file test callers = 15
 
 compile_raw_with_source
@@ -385,7 +385,7 @@ This row also consolidates the admitted Script/App witness matrix into the
 existing entry-result proof family. The parked Legacy any-statement
 observation is not materialized as an executable profile.
 
-### 4. `NORMAL-ENTRY-CANARY0-S0`
+### 4. `NORMAL-ENTRY-CANARY0-S0` — closed
 
 Internal order:
 
@@ -405,7 +405,19 @@ CANARY-I0
   feature-disabled and conflicting-mode fail-fast
 ```
 
-### 5. `NORMAL-ENTRY-CANARY-PARITY0/G0`
+Closeout evidence:
+
+```text
+run_refactored first selector                    = PASS
+default backend NotSelected fallthrough          = PASS
+feature-disabled canary before file read         = status 2
+feature-enabled Script `0`                       = status 0
+feature-enabled Integer `-1`                     = status 70 + range report
+profile/diagnostic/runner structural guard       = PASS
+canonical/source-entry focused tests              = PASS
+```
+
+### 5. `NORMAL-ENTRY-CANARY-PARITY0/G0` — closed 2026-07-25
 
 Run the real binary and cover:
 
@@ -443,8 +455,42 @@ status reconstruction                         = 0
 fallback                                      = 0
 ```
 
-Do not add a new per-row shell guard. Extend the reusable entry-result lane
-proof and use one subprocess fixture family.
+Closeout evidence:
+
+```text
+CARGO_TARGET_DIR=/tmp/hakorune-canary-default cargo build --bin hakorune
+CARGO_TARGET_DIR=/tmp/hakorune-canary-feature cargo build --features vm-reference --bin hakorune
+
+python3 tools/checks/lib/entry_result_projection0_s3_canary_parity.py \
+  --binary /tmp/hakorune-canary-feature/debug/hakorune \
+  --disabled-binary /tmp/hakorune-canary-default/debug/hakorune
+  = PASS: cases=16 decoy=1 conflict=2 default=1 disabled=1
+
+entry_result_projection0_s3_owner_guard.py = PASS
+raw-vm-reference focused tests = PASS
+default and vm-reference cargo checks = PASS
+```
+
+The proof family also covers parse/compile rejection status 1, missing-source
+status 2, feature-disabled pre-I/O status 2, exact typed diagnostics, and
+default `mir` preservation using an out-of-range legacy probe. No new per-row
+shell guard was added; the reusable proof script and owner guard are the sole
+subprocess/structural evidence.
+
+The next row is a fresh design stop, not an implementation row:
+
+```text
+NORMAL-ENTRY-CUTOVER-D0
+docs/development/current/main/investigations/
+  normal-entry-cutover-d0-consultation-2026-07-25.md
+```
+
+### 6. `NORMAL-ENTRY-CUTOVER-D0`
+
+Disambiguate whether cutover means opt-in canary support, one bounded caller
+family, `compile_with_source`, the default CLI backend, or an explicit park.
+Do not create `NORMAL-ENTRY-CUTOVER0-S0` until a new decision names one exact
+target and grants implementation authorization.
 
 ## Task-map closeout repair
 

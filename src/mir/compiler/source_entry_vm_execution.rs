@@ -148,7 +148,7 @@ impl CompletedRawVmReferenceExecutionV1 {
 impl super::MirCompiler {
     /// Explicit Raw VM-reference production entry.  It is available only in
     /// the VM-reference feature and never widens the general VM runner.
-    pub fn run_raw_vm_reference(
+    pub(crate) fn run_raw_vm_reference(
         &mut self,
         ast: crate::ast::ASTNode,
         source_file: Option<&str>,
@@ -162,9 +162,10 @@ impl super::MirCompiler {
         let prepared = published
             .prepare_vm_reference_activation()
             .map_err(|rejected| rejected.into_public_string())?;
-        let outcome = prepared.execute().complete_source_entry().map_err(|error| {
-            format!("[raw-vm-reference/source-entry/rejected] {error:?}")
-        })?;
+        let outcome = prepared
+            .execute()
+            .complete_source_entry()
+            .map_err(|error| format!("[raw-vm-reference/source-entry/rejected] {error:?}"))?;
         Ok(outcome.into_run_report())
     }
 }

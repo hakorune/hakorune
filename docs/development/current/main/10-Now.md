@@ -21,11 +21,11 @@ Related:
   `docs/reference/language/function-exit-and-entry-result.md`
 - priority: follow the exact active task. Do not reopen the superseded App
   any-statement-tail S0 as canonical work.
-- next row: NORMAL-ENTRY-CANARY0-S0 — add one explicit default-off
-  `--backend raw-vm-reference` canary; profile selection is already sealed,
-  and no normal-entry or default-route widening is allowed
-- after retirement: passive Canonical/NarrowV1/VM-reference profile, then one
-  explicit early `--backend raw-vm-reference` canary
+- next row: NORMAL-ENTRY-CUTOVER-D0 — fresh design stop after the real-binary
+  canary matrix; choose one exact target or explicitly park cutover
+- closed immediately before this frontier: passive Canonical/NarrowV1/
+  VM-reference profile, explicit early `--backend raw-vm-reference` canary,
+  and the mandatory feature-enabled/disabled parity family
 - parked: normal-entry cutover, general VM/LLVM, JSON, executor, selfhost,
   fastmem, and CUT0
 

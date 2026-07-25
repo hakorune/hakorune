@@ -1,9 +1,8 @@
 //! Passive request boundary for the explicit Raw VM-reference profile.
 //!
 //! This module converts already-parsed CLI facts into one typed request.  It
-//! deliberately has no runner caller yet: `NORMAL-ENTRY-PROFILE0-S0` seals the
-//! profile and its rejection boundary before the later canary row opens a
-//! production route.
+//! The profile is consumed exactly once by the explicit canary runner; normal
+//! and default routes remain disconnected until a later cutover decision.
 
 use crate::cli::CliConfig;
 use hakorune_frontend_parser::parser::GrammarProfile;
@@ -60,6 +59,30 @@ pub(crate) enum RawVmReferenceProfileErrorV1 {
     DevelopmentRouteRequested,
     TestRouteRequested,
     ScriptArgsRequested,
+}
+
+impl RawVmReferenceProfileErrorV1 {
+    pub(crate) const fn code(&self) -> &'static str {
+        match self {
+            Self::SourceFileRequired => "source-file-required",
+            Self::EmptySourceFile => "empty-source-file",
+            Self::NonCanonicalGrammar => "non-canonical-grammar",
+            Self::UsingRequested => "using-requested",
+            Self::ReplRequested => "repl-requested",
+            Self::JsonRouteRequested => "json-route-requested",
+            Self::EmitRouteRequested => "emit-route-requested",
+            Self::BuildRouteRequested => "build-route-requested",
+            Self::DiagnosticRouteRequested => "diagnostic-route-requested",
+            Self::MacroRouteRequested => "macro-route-requested",
+            Self::PluginRequested => "plugin-requested",
+            Self::JitRequested => "jit-requested",
+            Self::GcModeRequested => "gc-mode-requested",
+            Self::NonDefaultDebugFuel => "non-default-debug-fuel",
+            Self::DevelopmentRouteRequested => "development-route-requested",
+            Self::TestRouteRequested => "test-route-requested",
+            Self::ScriptArgsRequested => "script-args-requested",
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -338,6 +361,19 @@ mod tests {
             panic!("raw-vm-reference must be selected");
         };
         assert!(!request.optimize());
+    }
+
+    #[test]
+    fn default_backend_families_are_not_selected() {
+        for backend in ["mir", "vm", "vm-hako", "llvm"] {
+            let mut config = CliConfig::default();
+            config.backend = backend.to_owned();
+            assert_eq!(
+                RawVmReferenceProductionRequestV1::select_from_cli(&config),
+                Ok(RawVmReferenceProfileSelectionV1::NotSelected),
+                "default backend {backend} must fall through"
+            );
+        }
     }
 
     #[test]

@@ -26,9 +26,7 @@ pub(in crate::mir) enum VmReferenceProcessDiagnosticReportV1 {
 pub(in crate::mir) struct VmReferenceProcessDiagnosticAdapterV1;
 
 impl VmReferenceProcessDiagnosticAdapterV1 {
-    pub(in crate::mir) fn project(
-        fault: &ProcessFaultV1,
-    ) -> VmReferenceProcessDiagnosticReportV1 {
+    pub(in crate::mir) fn project(fault: &ProcessFaultV1) -> VmReferenceProcessDiagnosticReportV1 {
         match fault.diagnostic_fields() {
             ProcessFaultDiagnosticFieldsV1::ExitCodeOutOfRange { value } => {
                 VmReferenceProcessDiagnosticReportV1::ExitCodeOutOfRange {
@@ -57,11 +55,38 @@ impl VmReferenceProcessDiagnosticAdapterV1 {
             VmReferenceProcessDiagnosticReportV1::UnsupportedProcessResult { .. } => {
                 "[process/unsupported-result]"
             }
-            VmReferenceProcessDiagnosticReportV1::SourceFault { .. } => {
-                "[process/source-fault]"
-            }
+            VmReferenceProcessDiagnosticReportV1::SourceFault { .. } => "[process/source-fault]",
         }
     }
+
+    pub(in crate::mir) fn line(report: &VmReferenceProcessDiagnosticReportV1) -> String {
+        match report {
+            VmReferenceProcessDiagnosticReportV1::ExitCodeOutOfRange {
+                value,
+                accepted_min,
+                accepted_max,
+            } => format!(
+                "{} value={} accepted={}..={}",
+                Self::tag(report),
+                value,
+                accepted_min,
+                accepted_max
+            ),
+            VmReferenceProcessDiagnosticReportV1::UnsupportedProcessResult { kind } => {
+                format!("{} kind={}", Self::tag(report), kind.stable_name())
+            }
+            VmReferenceProcessDiagnosticReportV1::SourceFault { code, detail } => format!(
+                "{} code={} detail={}",
+                Self::tag(report),
+                code,
+                sanitize_detail(detail)
+            ),
+        }
+    }
+}
+
+fn sanitize_detail(detail: &str) -> String {
+    detail.replace(['\r', '\n'], " ")
 }
 
 #[cfg(test)]
@@ -75,7 +100,10 @@ mod tests {
             detail: "bad opcode".into(),
         };
         let report = VmReferenceProcessDiagnosticAdapterV1::project(&fault);
-        assert_eq!(VmReferenceProcessDiagnosticAdapterV1::tag(&report), "[process/source-fault]");
+        assert_eq!(
+            VmReferenceProcessDiagnosticAdapterV1::tag(&report),
+            "[process/source-fault]"
+        );
         assert_eq!(
             report,
             VmReferenceProcessDiagnosticReportV1::SourceFault {
@@ -105,5 +133,18 @@ mod tests {
                 kind: SourceEntryResultKindV1::Bool
             }
         ));
+    }
+
+    #[test]
+    fn diagnostic_line_is_single_line_and_keeps_fault_identity() {
+        let fault = ProcessFaultV1::SourceFault {
+            code: "vm-fault",
+            detail: "first\nsecond\rthird".into(),
+        };
+        let report = VmReferenceProcessDiagnosticAdapterV1::project(&fault);
+        assert_eq!(
+            VmReferenceProcessDiagnosticAdapterV1::line(&report),
+            "[process/source-fault] code=vm-fault detail=first second third"
+        );
     }
 }

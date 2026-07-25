@@ -3,9 +3,9 @@
 
 status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0 through complete S3 Raw VM-reference activation are closed. POST-S3-CLEAN-CANARY-prime-r1 fixes the next order: retire the caller-zero old Raw authority first, then materialize one passive canonical NarrowV1 VM-reference profile and one explicit early CLI canary. General runner/LLVM/native/normal-entry cutover/JSON/executor/selfhost/fastmem/CUT0 remain disconnected."
 date = "2026-07-25"
-current_design_stop = "POST-S3-CLEAN-CANARY-ACCEPTED-20260725"
-current_execution_row = "NORMAL-ENTRY-CANARY0-S0"
-current_execution_summary = "R0A/R0B/G0 and PROFILE0 are closed: the caller-zero old Raw authority is retired, and one passive RawVmReferenceProductionRequestV1 selector now seals canonical NarrowV1 CLI facts exactly once. Non-target backends return NotSelected; conflicting modes and script arguments reject before file I/O; production profile callers remain zero. Next is the explicit default-off canary only; no normal-entry or default-route widening."
+current_design_stop = "NORMAL-ENTRY-CUTOVER-D0-OPEN-20260725"
+current_execution_row = "NORMAL-ENTRY-CUTOVER-D0"
+current_execution_summary = "R0A/R0B/G0, PROFILE0, CANARY0, and CANARY-PARITY0/G0 are closed: the explicit raw-vm-reference selector is the first run_refactored owner, the real-binary matrix is green, and the default route remains unchanged. The next frontier is a fresh cutover design stop; no normal/default/backend/JSON/executor implementation is authorized."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -17,9 +17,10 @@ ENTRY-RESULT-PROJECTION0-S0 and S1 projection consume are closed. The next
 ENTRY-RESULT-PROJECTION0-S2 closed one disconnected VM-reference consumer.
 S3 accepted one explicit Raw VM-reference owner; S3-ENTRY-CARRY0,
 S3-EXECUTION0, S3-OWNER0, and S3-PARITY0/G0 are closed with a guarded
-route-scoped caller census. POST-S3-CLEAN-CANARY-prime-r1 selects caller-zero
-old Raw retirement before one passive production profile and explicit early
-VM-reference canary; no general/default/backend widening is authorized. The D′/Raw
+route-scoped caller census. POST-S3-CLEAN-CANARY-prime-r1 has now closed the
+caller-zero retirement, passive profile, explicit early canary, and real-binary
+canary parity rows; the current blocker is the fresh NORMAL-ENTRY-CUTOVER-D0
+design stop, with no general/default/backend widening authorized. The D′/Raw
 history below is parked context and must not select a different current row.
 D′ is the current canonical control-lowering authority:
 pre-Builder products retain exact coverage/topology/ports/cleanup, while one
@@ -306,8 +307,8 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/script-result-tail0-s0-execution-task-2026-07-25.md"
-phase_status = "docs/development/current/main/investigations/script-result-tail0-s0-execution-task-2026-07-25.md"
+active_phase = "docs/development/current/main/investigations/normal-entry-cutover-d0-consultation-2026-07-25.md"
+phase_status = "docs/development/current/main/investigations/normal-entry-cutover-d0-consultation-2026-07-25.md"
 method_anchor = "docs/reference/language/function-exit-and-entry-result.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -366,9 +367,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "post-s3-clean-retire-and-normal-entry-canary-task-map-2026-07-25"
-latest_card_path = "docs/development/current/main/investigations/post-s3-clean-retire-and-normal-entry-canary-task-map-2026-07-25.md"
-latest_card_summary = """Post-S3 task order is fixed: close RAW-PUBLICATION-SUNSET-001 by retiring the caller-zero old Raw chain, then add one passive Canonical/NarrowV1/VM-reference profile and one explicit early raw-vm-reference CLI canary. Normal/default, JSON, LLVM/native, executor, selfhost, fastmem, and CUT0 remain separate."""
+latest_card = "normal-entry-cutover-d0-consultation-2026-07-25"
+latest_card_path = "docs/development/current/main/investigations/normal-entry-cutover-d0-consultation-2026-07-25.md"
+latest_card_summary = """Post-S3 cleanup, passive profile, explicit canary, and real-binary canary parity are closed. The next frontier is NORMAL-ENTRY-CUTOVER-D0: choose one exact cutover target or explicitly park it; normal/default, JSON, LLVM/native, executor, selfhost, fastmem, and CUT0 remain disconnected."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -570,7 +571,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-ENTRY-CANARY0-S0-20260725"
+current_blocker_token = "NORMAL-ENTRY-CUTOVER-D0-DESIGN-STOP-20260725"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

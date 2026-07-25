@@ -72,6 +72,20 @@ pub(in crate::mir) enum SourceEntryResultKindV1 {
     Fault,
 }
 
+impl SourceEntryResultKindV1 {
+    pub(in crate::mir) const fn stable_name(self) -> &'static str {
+        match self {
+            Self::Unit => "Unit",
+            Self::Integer => "Integer",
+            Self::Bool => "Bool",
+            Self::Float => "Float",
+            Self::String => "String",
+            Self::Object => "Object",
+            Self::Fault => "Fault",
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub(in crate::mir) enum SourceEntryResultV1 {
     Unit(UnitOriginV1),

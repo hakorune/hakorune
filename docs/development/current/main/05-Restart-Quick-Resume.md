@@ -50,12 +50,11 @@ cargo check -q
   `CURRENT_STATE.toml`; this mirror does not select or rename executable rows
 - keep parser/source-carrier and unrelated parked stashes disconnected
 - Script classification through the complete S3 Raw VM-reference activation
-  row are closed. R0A migrated the two unique old-Raw proofs and retired
-  old-only guards; R0B now also deletes the caller-zero old Raw source and
-  evidence chain. G0 and PROFILE0 are closed by scoped zero/cargo/guard
-  evidence; the next row is the one explicit default-off canary caller.
-  Production VM/LLVM, normal-entry cutover, JSON, executor, and CUT0 remain
-  parked.
+  row are closed. R0A/R0B migrated and retired the caller-zero old-Raw
+  authority; G0, PROFILE0, CANARY0, and CANARY-PARITY0/G0 are closed by
+  scoped zero/cargo/guard plus real-binary evidence. The next frontier is the
+  fresh NORMAL-ENTRY-CUTOVER-D0 design stop. Production VM/LLVM,
+  normal-entry cutover, JSON, executor, and CUT0 remain parked.
 
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
