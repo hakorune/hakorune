@@ -12,8 +12,9 @@ use crate::mir::raw_root_body_recipe::{
 };
 
 use super::{
-    RawLocatedScalarExprV1, RawLocatedScalarStmtV1, RawRootBodyFactV1, RawRootPostInstallFactsV1,
-    RawRootSourceFactsV1, RawScalarUnaryOperatorV1, RawSourceSiteV1,
+    RawLocatedScalarExprV1, RawLocatedScalarStmtV1, RawLocatedScriptTerminalV1, RawRootBodyFactV1,
+    RawRootPostInstallFactsV1, RawRootSourceFactsV1, RawScalarUnaryOperatorV1,
+    RawScriptResultContractV1, RawSourceSiteV1,
 };
 
 impl RawRootSourceFactsV1 {
@@ -73,9 +74,41 @@ impl RawRootSourceFactsV1 {
 fn script_recipe(
     program: super::RawLocatedScalarProgramV1,
 ) -> Result<RawRootBodyRecipeV1, RawRootBodyRecipeErrorV1> {
+    let contract = script_contract(program)?;
+    let prelude = contract
+        .prelude
+        .into_vec()
+        .into_iter()
+        .map(linear_statement)
+        .collect::<Result<Vec<_>, _>>()?
+        .into_boxed_slice();
+    let terminal = match contract.terminal {
+        RawLocatedScriptTerminalV1::EmptyUnit => RawScriptTerminalRecipeV1::EmptyUnit,
+        RawLocatedScriptTerminalV1::ValueExpression { expression } => {
+            RawScriptTerminalRecipeV1::ValueExpression(linear_expr(expression)?)
+        }
+        RawLocatedScriptTerminalV1::UnitExpression { expression, origin } => {
+            RawScriptTerminalRecipeV1::UnitExpression {
+                expression: linear_expr(expression)?,
+                origin,
+            }
+        }
+        RawLocatedScriptTerminalV1::UnitStatement { statement, origin } => {
+            RawScriptTerminalRecipeV1::UnitStatement {
+                statement: linear_statement(statement)?,
+                origin,
+            }
+        }
+    };
+    RawRootBodyRecipeV1::from_script_parts(RawRootBodyEntryContractV1::script(), prelude, terminal)
+}
+
+fn script_contract(
+    program: super::RawLocatedScalarProgramV1,
+) -> Result<RawScriptResultContractV1, RawRootBodyRecipeErrorV1> {
     let mut statements = program.statements.into_vec();
     let terminal = match statements.pop() {
-        None => RawScriptTerminalRecipeV1::EmptyUnit,
+        None => RawLocatedScriptTerminalV1::EmptyUnit,
         Some(statement @ RawLocatedScalarStmtV1::Expr { .. }) => {
             let expression = match statement {
                 RawLocatedScalarStmtV1::Expr { expression, .. } => expression,
@@ -89,33 +122,32 @@ fn script_recipe(
                 }
                 _ => None,
             };
-            let expression = linear_expr(expression)?;
             match unit_origin {
-                Some(origin) => RawScriptTerminalRecipeV1::UnitExpression { expression, origin },
-                None => RawScriptTerminalRecipeV1::ValueExpression(expression),
+                Some(origin) => RawLocatedScriptTerminalV1::UnitExpression { expression, origin },
+                None => RawLocatedScriptTerminalV1::ValueExpression { expression },
             }
         }
         Some(statement @ RawLocatedScalarStmtV1::Print { .. }) => {
-            RawScriptTerminalRecipeV1::UnitStatement {
-                statement: linear_statement(statement)?,
+            RawLocatedScriptTerminalV1::UnitStatement {
+                statement,
                 origin: RawScriptUnitOriginV1::PrintStatement,
             }
         }
         Some(statement @ RawLocatedScalarStmtV1::Local { .. }) => {
-            RawScriptTerminalRecipeV1::UnitStatement {
-                statement: linear_statement(statement)?,
+            RawLocatedScriptTerminalV1::UnitStatement {
+                statement,
                 origin: RawScriptUnitOriginV1::LocalStatement,
             }
         }
         Some(statement @ RawLocatedScalarStmtV1::Assignment { .. }) => {
-            RawScriptTerminalRecipeV1::UnitStatement {
-                statement: linear_statement(statement)?,
+            RawLocatedScriptTerminalV1::UnitStatement {
+                statement,
                 origin: RawScriptUnitOriginV1::AssignmentStatement,
             }
         }
         Some(statement @ RawLocatedScalarStmtV1::CompoundAssignment { .. }) => {
-            RawScriptTerminalRecipeV1::UnitStatement {
-                statement: linear_statement(statement)?,
+            RawLocatedScriptTerminalV1::UnitStatement {
+                statement,
                 origin: RawScriptUnitOriginV1::CompoundAssignmentStatement,
             }
         }
@@ -125,12 +157,10 @@ fn script_recipe(
             })
         }
     };
-    let prelude = statements
-        .into_iter()
-        .map(linear_statement)
-        .collect::<Result<Vec<_>, _>>()?
-        .into_boxed_slice();
-    RawRootBodyRecipeV1::from_script_parts(RawRootBodyEntryContractV1::script(), prelude, terminal)
+    Ok(RawScriptResultContractV1 {
+        prelude: statements.into_boxed_slice(),
+        terminal,
+    })
 }
 
 fn linear_statement(

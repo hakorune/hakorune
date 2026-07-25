@@ -154,6 +154,30 @@ pub(in crate::mir) enum RawRootBodyFactV1 {
     },
 }
 
+/// Source-owned Script result boundary.  It is deliberately located and
+/// structural; no Builder ValueId or physical Return is present here.
+#[derive(Debug, PartialEq)]
+pub(in crate::mir) struct RawScriptResultContractV1 {
+    pub(in crate::mir) prelude: Box<[RawLocatedScalarStmtV1]>,
+    pub(in crate::mir) terminal: RawLocatedScriptTerminalV1,
+}
+
+#[derive(Debug, PartialEq)]
+pub(in crate::mir) enum RawLocatedScriptTerminalV1 {
+    EmptyUnit,
+    ValueExpression {
+        expression: RawLocatedScalarExprV1,
+    },
+    UnitExpression {
+        expression: RawLocatedScalarExprV1,
+        origin: crate::mir::raw_root_body_recipe::RawScriptUnitOriginV1,
+    },
+    UnitStatement {
+        statement: RawLocatedScalarStmtV1,
+        origin: crate::mir::raw_root_body_recipe::RawScriptUnitOriginV1,
+    },
+}
+
 #[derive(Debug)]
 pub(in crate::mir) struct RawRootSourceFactsV1 {
     route: RawRootSourceRouteV1,
