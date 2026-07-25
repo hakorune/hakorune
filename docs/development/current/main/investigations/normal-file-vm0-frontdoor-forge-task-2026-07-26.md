@@ -353,6 +353,28 @@ This is a correspondence proof, not a normal-route activation or a full
 reuse claim. Next internal row: `FORGE-SEMANTIC0`. `FORGE-REUSE0`, D2, and
 every production caller remain open.
 
+### Closed 2026-07-26: `FORGE-SEMANTIC0-S0`
+
+The front-door source-text fixture now proves the first bounded Script matrix
+through one file read, one canonical parse, the opaque handoff, and the
+existing Raw VM-reference terminal:
+
+```text
+empty / Void                       -> Unit, status 0
+Integer 0 / 255                    -> exact status
+Bool / Float / String              -> unsupported-result Fault, status 70
+Print / Local / Assignment / CompoundAssignment
+                                   -> Unit, status 0
+Integer 256                         -> range Fault, status 70
+```
+
+The same compiler executes the matrix, but this row does not close the
+separate reuse proof: its ordered fixture is semantic evidence, not the
+named rejection/fault-after-success matrix required by `FORGE-REUSE0`.
+`null` remains an explicitly uncredited observation because current Raw
+source facts collapse it with Void. Next internal row:
+`FORGE-SEMANTIC0-S1`.
+
 ### `FORGE-CORRESPONDENCE0` (closed)
 
 Prove that the forge uses the existing Raw compile/publication and exact

@@ -374,6 +374,28 @@ mod tests {
         path
     }
 
+    #[cfg(feature = "vm-reference")]
+    fn run_file_source(
+        compiler: &mut crate::mir::MirCompiler,
+        dir: &Path,
+        name: &str,
+        source: &str,
+    ) -> crate::mir::RawVmReferenceRunReportV1 {
+        let path = write_source(dir, name, source);
+        let invocation = request(path)
+            .prepare()
+            .expect("profile")
+            .read_once()
+            .expect("read")
+            .parse_once()
+            .expect("parse")
+            .prepare_raw_vm_handoff()
+            .into_raw_vm_reference_invocation();
+        compiler
+            .run_raw_vm_reference_v1(invocation)
+            .expect("existing Raw VM-reference terminal should execute handoff")
+    }
+
     #[test]
     fn empty_path_rejects_before_file_read() {
         let rejected = request(PathBuf::new()).prepare().expect_err("empty path rejects");
@@ -463,25 +485,56 @@ mod tests {
     #[test]
     fn handoff_reuses_the_existing_raw_vm_reference_execution_terminal() {
         let dir = tempdir().expect("tempdir");
-        let first = write_source(dir.path(), "first.hako", "42");
-        let second = write_source(dir.path(), "second.hako", "255");
         let mut compiler = crate::mir::MirCompiler::new();
 
-        for (path, expected_status) in [(first, 42), (second, 255)] {
-            let invocation = request(path)
-                .prepare()
-                .expect("profile")
-                .read_once()
-                .expect("read")
-                .parse_once()
-                .expect("parse")
-                .prepare_raw_vm_handoff()
-                .into_raw_vm_reference_invocation();
-            let report = compiler
-                .run_raw_vm_reference_v1(invocation)
-                .expect("existing Raw VM-reference terminal should execute handoff");
+        for (name, source, expected_status) in
+            [("first.hako", "42", 42), ("second.hako", "255", 255)]
+        {
+            let report = run_file_source(&mut compiler, dir.path(), name, source);
             assert_eq!(report.status_code(), expected_status);
             assert_eq!(report.diagnostic_tag(), None);
+        }
+    }
+
+    #[cfg(feature = "vm-reference")]
+    #[test]
+    fn script_source_text_matrix_uses_the_front_door() {
+        let dir = tempdir().expect("tempdir");
+        let mut compiler = crate::mir::MirCompiler::new();
+        let cases = [
+            ("empty.hako", "", 0, None),
+            ("void.hako", "void", 0, None),
+            ("integer-zero.hako", "0", 0, None),
+            ("integer-max.hako", "255", 255, None),
+            ("bool.hako", "true", 70, Some("[process/unsupported-result]")),
+            (
+                "float.hako",
+                "1.5",
+                70,
+                Some("[process/unsupported-result]"),
+            ),
+            (
+                "string.hako",
+                "\"raw\"",
+                70,
+                Some("[process/unsupported-result]"),
+            ),
+            ("print.hako", "print(1)", 0, None),
+            ("local.hako", "local x = 3", 0, None),
+            ("assignment.hako", "local x = 1\nx = 3", 0, None),
+            ("compound.hako", "local x = 1\nx += 2", 0, None),
+            (
+                "out-of-range.hako",
+                "256",
+                70,
+                Some("[process/exit-code-out-of-range]"),
+            ),
+        ];
+
+        for (name, source, expected_status, expected_diagnostic) in cases {
+            let report = run_file_source(&mut compiler, dir.path(), name, source);
+            assert_eq!(report.status_code(), expected_status, "{name}");
+            assert_eq!(report.diagnostic_tag(), expected_diagnostic, "{name}");
         }
     }
 }
