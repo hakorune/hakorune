@@ -598,3 +598,7 @@ mod tests {
         assert_eq!(helper.diagnostic_tag(), None);
     }
 }
+
+#[cfg(test)]
+#[path = "normal_file_vm_frontdoor/result_carrier_p0.rs"]
+mod result_carrier_p0;
