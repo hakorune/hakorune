@@ -1,18 +1,19 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FUNCTION-EXIT-SEMANTICS-prime-r1 and FUNCTION-EXIT-F1-DRAFT-SEAL-prime-r1 are accepted. FUNCTION-EXIT-F1-RETURN0-S0 is closed with the exact pre-Builder completion contract. The next authorized row is FUNCTION-EXIT-F1-DRAFT-SEAL0-S0: one prepared/infallible draft-seal owner must absorb exit materialization, final facts, verification, extraction, and session close. The former BODY-RETURN-APP canonical S0 remains Legacy observation evidence; normal-entry cutover, Script result activation, process-exit projection, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
+status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0 is closed. SCRIPT-RESULT-TAIL-prime-r1 is accepted and SCRIPT-RESULT-TAIL0-S0 is the sole authorized row: one source-owned prelude/terminal contract replaces Builder-last-ValueId Script result inference, and one prepared BODY commit closes Return, completion, and witness atomically. Parser grammar, App policy, entry-result projection, normal-entry cutover, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
 date = "2026-07-25"
 current_design_stop = ""
-current_execution_row = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0"
-current_execution_summary = "DRAFT-SEAL0-S0 owner, I0 handoff, and G0 guard are green and pushed: canonical and trivial-SSA lowerers now defer physical Return emission to the prepared draft-seal projection, with discard-only rejection and one infallible commit. The row is closed for this slice; the next row needs an explicit card, while legacy non-canonical finalizers and public/cutover lanes remain disconnected."
+current_execution_row = "SCRIPT-RESULT-TAIL0-S0"
+current_execution_summary = "SCRIPT-RESULT-TAIL-prime-r1 is accepted and the S0 implementation card is authorized. The row starts with behavior-neutral child-module extraction for the two near-800-line parents, then seals one source-classified prelude/terminal contract, removes ScriptLastValueOrVoid and Builder-last-ValueId authority, and aggregates exit plus tracker completion into one infallible BODY commit."
 raw_root_body0_s0_status = "closed"
 
 active_lane = "Language v1 function-exit semantics"
 active_lane_status = """FUNCTION-EXIT-SEMANTICS-prime-r1 is the current semantic
-authority. FUNCTION-EXIT-F1-RETURN0-S0 extends the existing pre-Builder
-completion owner without changing Builder behavior. The D′/Raw history below
-is parked context and must not select a different current row.
+authority. FUNCTION-EXIT-F1-RETURN0-S0 and DRAFT-SEAL0-S0 are closed.
+SCRIPT-RESULT-TAIL-prime-r1 now selects one source-owned prelude/terminal
+contract and one prepared BODY commit as the only executable row. The D′/Raw
+history below is parked context and must not select a different current row.
 D′ is the current canonical control-lowering authority:
 pre-Builder products retain exact coverage/topology/ports/cleanup, while one
 function-owned Binding SSA becomes the only BindingRef-to-ValueId/PHI merge
@@ -298,8 +299,8 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/function-exit-f1-return0-s0-execution-task-2026-07-25.md"
-phase_status = "docs/development/current/main/investigations/function-exit-f1-return0-s0-execution-task-2026-07-25.md"
+active_phase = "docs/development/current/main/investigations/script-result-tail0-s0-execution-task-2026-07-25.md"
+phase_status = "docs/development/current/main/investigations/script-result-tail0-s0-execution-task-2026-07-25.md"
 method_anchor = "docs/reference/language/function-exit-and-entry-result.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -358,9 +359,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "function-exit-f1-draft-seal0-s0-execution-task-2026-07-25"
-latest_card_path = "docs/development/current/main/investigations/function-exit-f1-draft-seal0-s0-execution-task-2026-07-25.md"
-latest_card_summary = """FUNCTION-EXIT-F1-DRAFT-SEAL-prime-r1 is accepted. DRAFT-SEAL0-S0 is authorized for the exact 0-or-1 root-terminal slice: one prepared owner covers exit materialization, type/stale facts, metadata, projected verification, extraction, and session close; commit is infallible and the sole Return writer."""
+latest_card = "script-result-tail0-s0-execution-task-2026-07-25"
+latest_card_path = "docs/development/current/main/investigations/script-result-tail0-s0-execution-task-2026-07-25.md"
+latest_card_summary = """SCRIPT-RESULT-TAIL-prime-r1 is accepted. SCRIPT-RESULT-TAIL0-S0 is authorized: a source-owned prelude/terminal contract is the sole Script-result authority, existing LinearScalar0 is unchanged, Builder-last-ValueId policy is retired, and exit plus tracker completion must commit infallibly."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -562,7 +563,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0-20260725"
+current_blocker_token = "SCRIPT-RESULT-TAIL0-S0-20260725"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

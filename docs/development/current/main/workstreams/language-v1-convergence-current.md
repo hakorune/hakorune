@@ -107,20 +107,26 @@ normative topic =
   docs/reference/language/function-exit-and-entry-result.md
 
 current executable row =
-  FUNCTION-EXIT-F1-DRAFT-SEAL0-S0
+  SCRIPT-RESULT-TAIL0-S0
 
 execution card =
-  docs/development/current/main/investigations/function-exit-f1-draft-seal0-s0-execution-task-2026-07-25.md
+  docs/development/current/main/investigations/script-result-tail0-s0-execution-task-2026-07-25.md
 ```
 
 The preceding RETURN0 row closed the existing `VerifiedFunctionCompletionV1`
 producer's exact zero-or-one root-terminal source contract. The accepted
 DRAFT-SEAL decision absorbs MATERIALIZE0 into one prepared/infallible owner:
 exit materialization, PHI closure verification, type/stale facts, signature,
-metadata, projected verification, extraction, and session close. The exact
-0-or-1 slice is now authorized; nested, multiple-return, and all-path
-coverage remain separate D0 rows. Script result, entry projection, and public
-activation remain later rows.
+metadata, projected verification, extraction, and session close. That exact
+0-or-1 slice is closed.
+
+`SCRIPT-RESULT-TAIL-prime-r1` now activates the accepted
+`ScriptLastExpressionOrUnit` target without a parser grammar change. One
+source-owned prelude/terminal contract replaces the old
+`ScriptLastValueOrVoid` and Builder-last-`ValueId` policy. The same row also
+closes the remaining Raw BODY temporal gap by preparing exit plus tracker
+completion before one infallible commit. App policy, entry projection, and
+public activation remain later rows.
 
 The durable function-exit queue is:
 
@@ -132,11 +138,16 @@ FUNCTION-EXIT-F1-RETURN0-S0
   one prepared/infallible canonical draft-seal owner for exact 0/1 exits
 
 -> SCRIPT-RESULT-TAIL0-S0
-  parser-neutral final-expression classifier; statement tails remain Unit
+  source-owned prelude/terminal classifier; statement tails remain Unit
+  existing LinearScalar0 only; parser/grammar behavior delta zero
+  one prepared BODY exit/completion commit
 
 -> ENTRY-RESULT-PROJECTION0-D0
 -> ENTRY-RESULT-PROJECTION0-S0
-  current VM/MIR-interpreter/LLVM inventory, then one shared target projection
+  T2 design stop, then one macro row:
+  CONTRACT0 -> ENTRY-SELECTION0 -> SOURCE-ENTRY0 -> PHYSICAL-THUNK0
+  -> VM-REFERENCE0 -> EXE-AOT0 -> PARITY-G0
+  source evaluation result and process status remain separate
 
 -> RAW-BODY-RETURN-COMPAT-P0
   parked test-only Legacy observation; never an executable semantic profile
@@ -145,8 +156,44 @@ FUNCTION-EXIT-F1-RETURN0-S0
   canonical witnesses; Legacy difference stays explicit
 
 -> NORMAL-ENTRY-D0
-  explicit canonical profile selection before any default-route cutover
+  T2 design stop for complete production semantic-profile selection
+
+-> NORMAL-ENTRY-PROFILE0-S0
+  passive typed profile selection; default route unchanged
+
+-> NORMAL-ENTRY-CANARY0-S0
+  one explicit controlled production consumer; fallback zero
+
+-> NORMAL-ENTRY-CUTOVER0-S0
+  separate explicit authorization required for the default-route change
+
+-> ENTRY-EXIT-CODE-COMPAT-RETIRE0-S0
+  sunset_id = ENTRY-EXIT-CODE-COMPAT-SUNSET-001
+-> RAW-BODY-RETURN-COMPAT-RETIRE0-S0
+  sunset_id = RAW-BODY-RETURN-COMPAT-SUNSET-001
+-> OLD-RAW-RETIRE0
+  sunset_id = RAW-PUBLICATION-SUNSET-001
 ```
+
+`ENTRY-RESULT-PROJECTION0-D0` must inventory all current process-status
+producers before selecting an implementation owner. At minimum this includes
+the common `vm_execution.rs` adapter, standalone MIR interpreter, quiet-MIR
+modulo/Float exit adapter, JoinIR bridge, HV1 inline runner, native
+`ny_main`/NyRT positive-handle heuristic, LLVM harness, LLVM mock 42/0
+fallback, and historical PyVM status transport. It must also inventory the
+duplicated entry-selection logic in `entry_selection.rs` and
+`MirInterpreter::execute_module`. It must not begin with a generic
+`Box -> exit code` helper: source results are sealed first, the pure process
+policy consumes that typed result, and backend adapters transport only the
+normalized status.
+
+`NORMAL-ENTRY-D0` is distinct from publication plumbing. An existing explicit
+Raw ingress does not authorize changing `compile_with_source`. The design stop
+must include an exact direct-caller census and select grammar, function/Main
+completion, Script result, process projection, and backend capability before a
+canary or cutover row can start. Grammar profile and semantic/process profile
+must not be collapsed into one boolean even if a later typed envelope carries
+both.
 
 `FUNCTION-EXIT-F1-ALLPATH-D0` and `FUNCTION-EXIT-BARE-RETURN-GRAM0` are
 separate capability/grammar branches. Neither may be smuggled into the current
