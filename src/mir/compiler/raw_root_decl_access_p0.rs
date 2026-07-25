@@ -275,6 +275,28 @@ fn root_batch_entry_consumes_body_completion_into_route_product() {
 }
 
 #[test]
+fn root_batch_accepts_source_scalar_exit_witness_before_collector() {
+    let completed = ready(
+        script(vec![ASTNode::Literal {
+            value: crate::ast::LiteralValue::Integer(9),
+            span: Span::unknown(),
+        }]),
+        RawCallableMainSelectionV1::Omitted,
+    )
+    .declare_environment()
+    .unwrap()
+    .begin_body()
+    .unwrap();
+    let batched = completed
+        .prepare_root_batch()
+        .expect("scalar exit witness should validate before root pair commit");
+    assert!(matches!(
+        batched,
+        RawRootBatchCompleteInvocationV1::Script(_)
+    ));
+}
+
+#[test]
 fn body_entry_preserves_typed_lower_failure_without_retry() {
     let rejected = ready(
         ASTNode::Program {
