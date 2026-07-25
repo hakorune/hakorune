@@ -121,8 +121,10 @@ current blocker = read CURRENT_STATE.current_blocker_token
 current card = read CURRENT_STATE.latest_card_path
 ```
 
-The active docs-only row is
-`DOCS-POINTER-ALIGNMENT0`; it does not reopen Script or normal-entry code.
+The active docs-only design stop is
+`LANGUAGE-DOCS-TRY-CATCH-D1`; it does not reopen Script or normal-entry code.
+Read the consultation card named by `CURRENT_STATE.latest_card_path` before
+changing any grammar, parser, runtime, backend, or registry document.
 ```
 
 The preceding RETURN0 row closed the existing `VerifiedFunctionCompletionV1`
