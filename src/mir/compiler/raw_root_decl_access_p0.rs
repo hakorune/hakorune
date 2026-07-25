@@ -59,6 +59,13 @@ fn app() -> ASTNode {
     }
 }
 
+fn script(statements: Vec<ASTNode>) -> ASTNode {
+    ASTNode::Program {
+        statements,
+        span: Span::unknown(),
+    }
+}
+
 fn ready(
     source: ASTNode,
     selection: RawCallableMainSelectionV1,
@@ -151,6 +158,47 @@ fn body_entry_consumes_declared_script_into_unpublished_completion() {
     .unwrap()
     .begin_body()
     .unwrap();
+    assert!(matches!(
+        completed,
+        RawRootBodyCompleteInvocationV1::Script(_)
+    ));
+}
+
+#[test]
+fn script_scalar_tail_uses_source_terminal_and_commits_body() {
+    let completed = ready(
+        script(vec![ASTNode::Literal {
+            value: crate::ast::LiteralValue::Integer(7),
+            span: Span::unknown(),
+        }]),
+        RawCallableMainSelectionV1::Omitted,
+    )
+    .declare_environment()
+    .unwrap()
+    .begin_body()
+    .expect("source-classified scalar terminal should lower");
+    assert!(matches!(
+        completed,
+        RawRootBodyCompleteInvocationV1::Script(_)
+    ));
+}
+
+#[test]
+fn script_statement_tail_commits_unit_result() {
+    let completed = ready(
+        script(vec![ASTNode::Print {
+            expression: Box::new(ASTNode::Literal {
+                value: crate::ast::LiteralValue::Integer(7),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        }]),
+        RawCallableMainSelectionV1::Omitted,
+    )
+    .declare_environment()
+    .unwrap()
+    .begin_body()
+    .expect("statement terminal should become Unit");
     assert!(matches!(
         completed,
         RawRootBodyCompleteInvocationV1::Script(_)
