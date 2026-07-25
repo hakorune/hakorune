@@ -71,7 +71,8 @@ REQUEST0-S0
 REQUEST0-S0 = closed by 520986b38a
 REPORT0-S0  = closed by 1ab9c8aad5
 PARITY0-P0a = closed by f5028112ca
-CALLER0-I0  = next
+CALLER0-I0  = closed by 906592cb54
+PARITY0-P0b = active
 ```
 
 ### REQUEST0-S0 — request and single selector
@@ -156,7 +157,7 @@ Invocation outcomes, followed by a successful normal run. The pre-existing
 front-door reuse matrix remains the same-compiler proof; this run owner is
 intentionally fresh per invocation.
 
-### CALLER0-I0 — one production connection
+### CALLER0-I0 — one production connection (closed)
 
 Only here replace the first `run_refactored` branch with one central call:
 
@@ -169,7 +170,11 @@ if let Some(outcome) = reference::select_and_run(&self.config) {
 The selector may return Raw or normal request outcomes.  Do not add ordered
 independent `if let` selectors.  Update CLI help and one reference document.
 
-### PARITY0-P0b — real binary evidence
+Closed evidence: `906592cb54` adds one central `reference::select_and_run`
+caller, dispatches Raw and NormalFile requests through the shared terminal,
+keeps the default route untouched, and adds CLI/reference documentation.
+
+### PARITY0-P0b — real binary evidence (active)
 
 With `vm-reference`, verify the exact matrix in the built binary, including
 one-line diagnostics and default/raw route isolation.  Without the feature,

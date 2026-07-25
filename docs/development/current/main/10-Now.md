@@ -32,9 +32,10 @@ Related:
 - accepted target: postfix `catch` protects the immediately preceding region
   and handles only the pending `RecoverableFailure` Outcome; terminal `Fault`
   remains non-catchable
-- active row: RESULT-CARRIER-NORMAL-CAPABILITY0-S0 — Q1/Q2/Q3=A fixed the
-  Scalar-and-Unit-only carrier boundary; preserve Raw facts and add typed run
-  rejection evidence before Forge S2, with production caller=0
+- active row: NORMAL-FILE-VM0-PARITY0-P0b — the explicit default-off
+  normal-file VM-reference caller is connected through one central selector;
+  now prove real-binary status, diagnostic, feature-gated, Raw-route, and
+  default-route isolation
 - closed immediately before this frontier: passive Canonical/NarrowV1/
   VM-reference profile, explicit early `--backend raw-vm-reference` canary,
   mandatory feature-enabled/disabled parity family, and the D0 decision that

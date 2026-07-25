@@ -45,8 +45,9 @@ box.fini()               = separate lifecycle owner
 
 `RecoverableFailure` producer and ABI remain parked for
 `LANGUAGE-RECOVERABLE-FAILURE-D0`. The active row is now
-`NORMAL-FILE-VM0-CALLER0-I0`: connect exactly one explicit,
+`NORMAL-FILE-VM0-PARITY0-P0b`: run the connected explicit,
 default-off `normal-file-vm-reference` CLI request through the central
-reference selector. The existing Raw reference route must remain unchanged;
-the normal/default route, `compile_with_source`, and every legacy caller remain
-untouched. After this row, run real-binary `PARITY0-P0b`, then G0.
+reference selector in real binaries, with and without `vm-reference`. The
+existing Raw reference route must remain unchanged; the normal/default route,
+`compile_with_source`, and every legacy caller remain untouched. After this
+row, run `G0`, then the core-complete proof.

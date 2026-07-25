@@ -47,9 +47,9 @@ cargo check -q
   target, and terminal `Fault` remains non-catchable
 - `RecoverableFailure` remains a named pending Outcome target; its producer
   and boundary ABI belong to `LANGUAGE-RECOVERABLE-FAILURE-D0`
-- the active row is `NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0`; forge the typed
-  front door with production caller, fallback, and normal/default cutover all
-  still zero
+- the active row is `NORMAL-FILE-VM0-PARITY0-P0b`; exercise the connected
+  explicit normal-file VM-reference CLI route in real binaries. The default
+  route, `compile_with_source`, and legacy callers remain unchanged.
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - the current lane is the `active_lane` in `CURRENT_STATE.toml`
