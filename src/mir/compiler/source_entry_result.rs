@@ -223,15 +223,12 @@ pub(in crate::mir) enum ProcessExitProjectionErrorV1 {
 pub(in crate::mir) struct ProcessExitProjectionV1;
 
 impl ProcessExitProjectionV1 {
-    pub(in crate::mir) fn project_borrowed(
+    /// Canonical projection is total for every sealed source result.  The
+    /// disconnected legacy profile remains represented by `project_borrowed`.
+    pub(in crate::mir) fn project_canonical(
         result: &SourceEntryResultV1,
-        profile: ProcessExitProfileV1,
-    ) -> Result<ProcessTerminationV1, ProcessExitProjectionErrorV1> {
-        let ProcessExitProfileV1::Canonical(CanonicalProcessExitV1::V1) = profile else {
-            return Err(ProcessExitProjectionErrorV1::LegacyProfileDisconnected);
-        };
-
-        let termination = match result {
+    ) -> ProcessTerminationV1 {
+        match result {
             SourceEntryResultV1::Unit(_) => ProcessTerminationV1::Exit(ProcessExitCodeV1::zero()),
             SourceEntryResultV1::Integer(value) => {
                 match ProcessExitCodeV1::try_from_integer(*value) {
@@ -276,8 +273,18 @@ impl ProcessExitProjectionV1 {
                     detail: fault.detail().into(),
                 },
             },
+        }
+    }
+
+    pub(in crate::mir) fn project_borrowed(
+        result: &SourceEntryResultV1,
+        profile: ProcessExitProfileV1,
+    ) -> Result<ProcessTerminationV1, ProcessExitProjectionErrorV1> {
+        let ProcessExitProfileV1::Canonical(CanonicalProcessExitV1::V1) = profile else {
+            return Err(ProcessExitProjectionErrorV1::LegacyProfileDisconnected);
         };
-        Ok(termination)
+
+        Ok(Self::project_canonical(result))
     }
 
     pub(in crate::mir) fn project(

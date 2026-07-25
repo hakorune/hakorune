@@ -5,16 +5,16 @@
 //! process projection.  It never discovers an entry from the module or
 //! reconstructs a status from a VM value.
 
+use super::raw_published_compile::RejectedRawPublishedCompileV1;
 use super::raw_root_publication::RawPublishedInvocationV1;
 use super::source_entry_result::{
-    CanonicalProcessExitV1, ProcessExitProfileV1, ProcessExitProjectionV1, SealedSourceFaultV1,
-    SourceEntryResultV1,
+    ProcessExitProfileV1, ProcessExitProjectionV1, SealedSourceFaultV1, SourceEntryResultV1,
 };
 use super::source_entry_vm_reference::{
     RawVmReferenceRunReportV1, VmReferenceProcessOutcomeV1, VmSourceEntryDecodePlanV1,
 };
 use crate::backend::vm_types::{VMError, VMValue};
-use crate::mir::RawVmReferenceInvocationV1;
+use crate::mir::{RawVmReferenceExecutionProfileV1, RawVmReferenceInvocationV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum RawVmReferenceActivationStageV1 {
@@ -55,6 +55,55 @@ impl RejectedRawVmReferenceActivationV1 {
         let detail = format!("{:?}", self.error);
         self.discard();
         format!("[raw-vm-reference/{stage}/rejected] {detail}")
+    }
+}
+
+/// The only typed failures after a Raw VM-reference invocation owns a Raw
+/// compile request. Runtime faults intentionally become source results.
+#[derive(Debug)]
+pub(in crate::mir) enum RejectedRawVmReferenceRunV1 {
+    Compile(Box<RejectedRawPublishedCompileV1>),
+    Activation(Box<RejectedRawVmReferenceActivationV1>),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum RawVmReferenceRunStageV1 {
+    Compile,
+    Activation,
+}
+
+pub(in crate::mir) enum RawVmReferenceRunEvidenceV1<'a> {
+    Compile(&'a RejectedRawPublishedCompileV1),
+    Activation(&'a RejectedRawVmReferenceActivationV1),
+}
+
+impl RejectedRawVmReferenceRunV1 {
+    pub(in crate::mir) const fn stage(&self) -> RawVmReferenceRunStageV1 {
+        match self {
+            Self::Compile(_) => RawVmReferenceRunStageV1::Compile,
+            Self::Activation(_) => RawVmReferenceRunStageV1::Activation,
+        }
+    }
+
+    pub(in crate::mir) fn evidence(&self) -> RawVmReferenceRunEvidenceV1<'_> {
+        match self {
+            Self::Compile(rejected) => RawVmReferenceRunEvidenceV1::Compile(rejected),
+            Self::Activation(rejected) => RawVmReferenceRunEvidenceV1::Activation(rejected),
+        }
+    }
+
+    pub(in crate::mir) fn discard(self) {
+        match self {
+            Self::Compile(rejected) => rejected.discard(),
+            Self::Activation(rejected) => rejected.discard(),
+        }
+    }
+
+    pub(in crate::mir) fn into_public_string(self) -> String {
+        match self {
+            Self::Compile(rejected) => rejected.into_public_string(),
+            Self::Activation(rejected) => rejected.into_public_string(),
+        }
     }
 }
 
@@ -123,12 +172,20 @@ impl PreparedRawVmReferenceActivationV1 {
 }
 
 impl CompletedRawVmReferenceExecutionV1 {
+    pub(in crate::mir) fn complete_canonical_source_entry(self) -> VmReferenceProcessOutcomeV1 {
+        let Self {
+            published,
+            source_result,
+            ..
+        } = self;
+        let termination = ProcessExitProjectionV1::project_canonical(&source_result);
+        VmReferenceProcessOutcomeV1::from_raw_vm_reference(published, source_result, termination)
+    }
+
     pub(in crate::mir) fn complete_source_entry(
         self,
     ) -> Result<VmReferenceProcessOutcomeV1, RawVmReferenceActivationErrorV1> {
-        self.complete_source_entry_with_profile(
-            ProcessExitProfileV1::Canonical(CanonicalProcessExitV1::V1),
-        )
+        Ok(self.complete_canonical_source_entry())
     }
 
     pub(in crate::mir) fn complete_source_entry_with_profile(
@@ -179,17 +236,26 @@ impl super::MirCompiler {
         if self.builder.repl_mode {
             return Err("[raw-vm-reference/source-binding/repl-unsupported] NarrowV1".to_owned());
         }
+        self.run_raw_vm_reference_owned_v1(invocation)
+            .map_err(RejectedRawVmReferenceRunV1::into_public_string)
+    }
+
+    pub(in crate::mir) fn run_raw_vm_reference_owned_v1(
+        &mut self,
+        invocation: RawVmReferenceInvocationV1,
+    ) -> Result<RawVmReferenceRunReportV1, RejectedRawVmReferenceRunV1> {
+        let RawVmReferenceInvocationV1 { compile, execution } = invocation;
+        let RawVmReferenceExecutionProfileV1::CanonicalV1 = execution;
         let published = self
-            .compile_raw_published_v1(invocation.compile)
-            .map_err(|rejected| rejected.into_public_string())?;
-        let prepared = published
-            .prepare_vm_reference_activation()
-            .map_err(|rejected| rejected.into_public_string())?;
-        let outcome = prepared
+            .compile_raw_published_v1(compile)
+            .map_err(|rejected| RejectedRawVmReferenceRunV1::Compile(Box::new(rejected)))?;
+        let prepared = published.prepare_vm_reference_activation().map_err(|rejected| {
+            RejectedRawVmReferenceRunV1::Activation(Box::new(rejected))
+        })?;
+        Ok(prepared
             .execute()
-            .complete_source_entry_with_profile(invocation.execution.process_profile())
-            .map_err(|error| format!("[raw-vm-reference/source-entry/rejected] {error:?}"))?;
-        Ok(outcome.into_run_report())
+            .complete_canonical_source_entry()
+            .into_run_report())
     }
 }
 
@@ -676,5 +742,30 @@ mod tests {
             .expect("entry rejection must not poison the compiler");
         assert_eq!(report.status_code(), 0);
         assert_eq!(report.diagnostic_tag(), None);
+    }
+
+    #[test]
+    fn owned_run_retains_compile_rejection_evidence() {
+        let mut compiler = crate::mir::compiler::MirCompiler::new();
+        let rejected = compiler
+            .run_raw_vm_reference_owned_v1(RawVmReferenceInvocationV1::narrow_v1(
+                app_with_body(vec![ASTNode::Return {
+                    value: Some(Box::new(ASTNode::Literal {
+                        value: crate::ast::LiteralValue::Integer(1),
+                        span: Span::unknown(),
+                    })),
+                    span: Span::unknown(),
+                }]),
+                Some("raw-vm-owned-rejection.hako"),
+            ))
+            .expect_err("unsupported Main return stays a compile rejection");
+        assert_eq!(rejected.stage(), RawVmReferenceRunStageV1::Compile);
+        assert!(matches!(
+            rejected.evidence(),
+            RawVmReferenceRunEvidenceV1::Compile(compile)
+                if compile.stage()
+                    == crate::mir::compiler::raw_published_compile::RawPublishedCompileStageV1::Eligibility
+        ));
+        rejected.discard();
     }
 }
