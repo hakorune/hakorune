@@ -253,6 +253,52 @@ fn script_prelude_value_does_not_become_terminal_result() {
 }
 
 #[test]
+fn script_string_tail_has_an_exact_string_return_carrier() {
+    let completed = ready(
+        script(vec![ASTNode::Literal {
+            value: crate::ast::LiteralValue::String("tail".into()),
+            span: Span::unknown(),
+        }]),
+        RawCallableMainSelectionV1::Omitted,
+    )
+    .declare_environment()
+    .unwrap()
+    .begin_body()
+    .expect("String terminal should use its exact Builder type");
+    assert!(matches!(
+        completed,
+        RawRootBodyCompleteInvocationV1::Script(_)
+    ));
+}
+
+#[test]
+fn script_binary_tail_has_one_source_selected_result() {
+    let completed = ready(
+        script(vec![ASTNode::BinaryOp {
+            operator: crate::ast::BinaryOperator::Add,
+            left: Box::new(ASTNode::Literal {
+                value: crate::ast::LiteralValue::Integer(1),
+                span: Span::unknown(),
+            }),
+            right: Box::new(ASTNode::Literal {
+                value: crate::ast::LiteralValue::Integer(2),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        }]),
+        RawCallableMainSelectionV1::Omitted,
+    )
+    .declare_environment()
+    .unwrap()
+    .begin_body()
+    .expect("binary terminal should return the lowered result ValueId");
+    assert!(matches!(
+        completed,
+        RawRootBodyCompleteInvocationV1::Script(_)
+    ));
+}
+
+#[test]
 fn root_batch_entry_consumes_body_completion_into_route_product() {
     let completed = ready(
         ASTNode::Program {
