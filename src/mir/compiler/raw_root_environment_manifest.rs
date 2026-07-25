@@ -40,6 +40,21 @@ pub(in crate::mir) struct RawRootPostInstallManifestV1 {
 }
 
 impl RawRootEnvironmentManifestV1 {
+    #[cfg(test)]
+    pub(in crate::mir) fn from_test(route: RawRootSourceRouteV1) -> Self {
+        let (facts, catalog) = RawRootSourceFactsV1::empty_for_test(route)
+            .into_post_install_parts()
+            .expect("test body recipe");
+        let current = crate::mir::builder::MirBuilder::new();
+        let config = BuilderInvocationConfigV1::snapshot_for_raw(&current, None);
+        Self {
+            facts,
+            catalog,
+            runtime_inputs: RawRuntimeInputSnapshotV1::capture().expect("test env snapshot"),
+            config,
+        }
+    }
+
     pub(in crate::mir) fn from_facts(
         facts: RawRootSourceFactsV1,
         runtime_inputs: RawRuntimeInputSnapshotV1,

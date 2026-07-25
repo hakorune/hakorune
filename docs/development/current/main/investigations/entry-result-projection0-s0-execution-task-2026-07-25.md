@@ -188,3 +188,23 @@ python3 tools/checks/lib/entry_result_projection0_contract0_guard.py
 `ENTRY-SELECTION0` is the next implementation sub-row. It must consume sealed
 route evidence once and must not re-use the backend-local selection helpers as
 a new authority.
+
+## ENTRY-SELECTION0 closeout
+
+`SelectedSourceEntryV1` now consumes `RawRootEnvironmentManifestV1` once and
+seals exactly `Script` or `AppMain0`. The manifest remains inside the selected
+owner for the next thunk handoff. No module scan, `NYASH_ENTRY`, backend entry
+helper, or process exit is reachable from this producer.
+
+Focused evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib source_entry_selection -- --test-threads=1
+  2 passed
+
+python3 tools/checks/lib/entry_result_projection0_selection0_guard.py
+  one_producer=1 sealed_manifest=1 no_backend_scan=1 no_exit=1 below_800=1
+```
+
+`SOURCE-ENTRY0` is the next implementation sub-row. It must transport this
+typed selection to a source result without reopening route selection.
