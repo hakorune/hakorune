@@ -2,7 +2,7 @@
 
 Decision: `ENTRY-RESULT-PROJECTION0-S0`
 
-Status: execution task opened after `ENTRY-RESULT-PROJECTION0-D0-CLOSEOUT-20260725`
+Status: `CONTRACT0` closed; next sub-row is `ENTRY-SELECTION0`
 
 ## Objective
 
@@ -64,8 +64,9 @@ Bool/Float/String/obj  -> Fault(UnsupportedProcessResult)
 source Fault           -> Fault(reserved=70, diagnostic retained)
 ```
 
-The legacy runner profile is an explicitly named compatibility fixture only;
-it is never selected implicitly by the new seam.
+The legacy runner profile is `LegacyRunnerExitProjectionV1`, an explicitly
+named compatibility fixture only; it is never selected implicitly by the new
+seam.
 
 ## S0 implementation order
 
@@ -169,3 +170,21 @@ dynamic result carrier activation
 native OS ABI rewrite
 CUT0
 ```
+
+## CONTRACT0 closeout
+
+Implemented in `src/mir/compiler/source_entry_result.rs` with the module
+registration in `src/mir/compiler/mod.rs`. The pure projection has no process
+exit or backend caller. Focused evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib source_entry_result -- --test-threads=1
+  5 passed
+
+python3 tools/checks/lib/entry_result_projection0_contract0_guard.py
+  one_projection=1 typed_faults=1 no_exit=1 legacy_callers=0 below_800=1
+```
+
+`ENTRY-SELECTION0` is the next implementation sub-row. It must consume sealed
+route evidence once and must not re-use the backend-local selection helpers as
+a new authority.

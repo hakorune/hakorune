@@ -64,6 +64,8 @@ pub(in crate::mir) mod raw_public_ingress;
 pub(in crate::mir) mod raw_root_package;
 pub(in crate::mir) mod raw_root_postprocess;
 #[allow(dead_code)]
+pub(in crate::mir) mod source_entry_result;
+#[allow(dead_code)]
 pub(in crate::mir) mod raw_runtime_inputs;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_source_binding;

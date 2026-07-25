@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0, SCRIPT-RESULT-TAIL0-S0, and ENTRY-RESULT-PROJECTION0-D0 are closed. The next executable row is ENTRY-RESULT-PROJECTION0-S0: introduce the typed source-result/process-status contract and disconnected thunk seam. Parser grammar, App policy, normal-entry cutover, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
+status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0, SCRIPT-RESULT-TAIL0-S0, ENTRY-RESULT-PROJECTION0-D0, and CONTRACT0 are closed. The next executable sub-row is ENTRY-SELECTION0: seal source-entry identity once before any backend transport. Parser grammar, App policy, normal-entry cutover, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
 date = "2026-07-25"
 current_design_stop = "ENTRY-RESULT-PROJECTION0-D0-CLOSED-20260725"
-current_execution_row = "ENTRY-RESULT-PROJECTION0-S0"
-current_execution_summary = "ENTRY-RESULT-PROJECTION0-D0 is closed with an observed caller census, CanonicalProcessExitV1 profile, and one typed SourceEntryThunkV1 boundary. S0 is authorized only for CONTRACT0 -> ENTRY-SELECTION0 -> SOURCE-ENTRY0 -> PHYSICAL-THUNK0 -> VM-REFERENCE0 -> EXE-AOT0 -> PARITY-G0; no public or legacy route cutover."
+current_execution_row = "ENTRY-RESULT-PROJECTION0-ENTRY-SELECTION0"
+current_execution_summary = "ENTRY-RESULT-PROJECTION0-D0 and CONTRACT0 are closed. The next sub-row is ENTRY-SELECTION0: produce one compiler-internal SelectedSourceEntryV1 from sealed route evidence; backend-local NYASH_ENTRY/module-symbol selection remains legacy and disconnected."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -13,8 +13,8 @@ active_lane = "Language v1 function-exit semantics"
 active_lane_status = """FUNCTION-EXIT-SEMANTICS-prime-r1 is the current semantic
 authority. FUNCTION-EXIT-F1-RETURN0-S0, DRAFT-SEAL0-S0,
 SCRIPT-RESULT-TAIL0-S0, and ENTRY-RESULT-PROJECTION0-D0 are closed.
-ENTRY-RESULT-PROJECTION0-S0 is the next executable row; only its disconnected
-contract/thunk slice is authorized. The D′/Raw
+ENTRY-RESULT-PROJECTION0-S0 is active at ENTRY-SELECTION0; only its
+disconnected selection/contract/thunk slice is authorized. The D′/Raw
 history below is parked context and must not select a different current row.
 D′ is the current canonical control-lowering authority:
 pre-Builder products retain exact coverage/topology/ports/cleanup, while one
@@ -565,7 +565,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "ENTRY-RESULT-PROJECTION0-S0-CONTRACT0-20260725"
+current_blocker_token = "ENTRY-RESULT-PROJECTION0-ENTRY-SELECTION0-20260725"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
