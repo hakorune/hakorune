@@ -23,10 +23,10 @@ Related:
   any-statement-tail S0 as canonical work.
 - closed row: RAW-VM-REFERENCE-SUPPORT0-S0 — typed profile handoff, bounded
   diagnostics, supported opt-in surface, and renamed conformance proof
-- active design stop: NORMAL-FILE-VM0-FAMILY-D0-NO-BOUNDED-CALLER — all six
-  plain source-hint sites are benchmark, artifact, Stage-1, or legacy fallback
-  routes; none matches the fixed NormalFileNoImportVmReferenceV1 contract
-- next row: D0 follow-up decision; normal production caller remains 0
+- active docs row: DOCS-POINTER-ALIGNMENT0 — language status/authority is not
+  discoverable from the reference entry points; try/catch/fini/concurrency drift
+  is recorded without semantic resolution
+- next row: LANGUAGE-DOCS-STATUS-SSOT-D0; normal-entry remains parked and caller=0
 - closed immediately before this frontier: passive Canonical/NarrowV1/
   VM-reference profile, explicit early `--backend raw-vm-reference` canary,
   mandatory feature-enabled/disabled parity family, and the D0 decision that

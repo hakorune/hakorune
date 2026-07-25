@@ -99,18 +99,30 @@ The charter, semantic kernel, and grammar contract are current truth. Card 3478
 closes the grammar registry, dual-parser recursive corpus, Canonical source
 migration, and bounded differential composition.
 
-`FUNCTION-EXIT-SEMANTICS-prime-r1` is the accepted function/Main/Script/entry
-boundary authority:
+`FUNCTION-EXIT-SEMANTICS-prime-r1` remains the accepted function/Main/Script/entry
+boundary authority. Its implementation queue is closed history, not the current
+frontier:
 
 ```text
 normative topic =
   docs/reference/language/function-exit-and-entry-result.md
 
 current executable row =
-  SCRIPT-RESULT-TAIL0-S0
+  read CURRENT_STATE.current_execution_row
 
 execution card =
-  docs/development/current/main/investigations/script-result-tail0-s0-execution-task-2026-07-25.md
+  docs/development/current/main/investigations/script-result-tail0-s0-execution-task-2026-07-25.md (closed history)
+
+Current docs frontier:
+
+```text
+current row = read CURRENT_STATE.current_execution_row
+current blocker = read CURRENT_STATE.current_blocker_token
+current card = read CURRENT_STATE.latest_card_path
+```
+
+The active docs-only row is
+`DOCS-POINTER-ALIGNMENT0`; it does not reopen Script or normal-entry code.
 ```
 
 The preceding RETURN0 row closed the existing `VerifiedFunctionCompletionV1`

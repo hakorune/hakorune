@@ -66,6 +66,6 @@ cargo check -q
   `CURRENT_STATE.toml` explicitly selects them
 - product/app validation now uses EXE/AOT as the primary route; VM work is a
   small semantic-reference subset only
-- D0 is closed as `NoBoundedCallerFamily`. Read the latest D0 follow-up
-  question; keep the normal production caller at zero until a future front-door
-  owner, artifact lane, or continued park is explicitly selected.
+- The active row is `DOCS-POINTER-ALIGNMENT0`; read the language docs status
+  cleanup task. It is docs-only and must not resolve try/catch or change parser,
+  runtime, backend, or normal-entry behavior. Normal D0 remains parked.

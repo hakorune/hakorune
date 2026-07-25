@@ -1,16 +1,19 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-FILE-VM0-FAMILY-D0 is closed as NoBoundedCallerFamily: all six plain source-hint sites are heterogeneous legacy/artifact/fallback routes. A follow-up design stop must choose a future front-door owner, separate artifact lane, or continued park; no normal production caller is authorized."
+status = "LANGUAGE-DOCS-STATUS-SSOT-D0 is the active docs-only row: language feature status is not discoverable from the current reference entry points, and try/catch/fini/concurrency documents contain confirmed drift. No parser/runtime/backend behavior change is authorized."
 date = "2026-07-25"
-current_design_stop = "NORMAL-FILE-VM0-FAMILY-D0-NO-BOUNDED-CALLER-20260725"
-current_execution_row = "NORMAL-FILE-VM0-FAMILY-D0-NO-BOUNDED-CALLER-DESIGN-STOP"
-current_execution_summary = "D0 read-only census closed with NoBoundedCallerFamily. bench_vm/bench_jit/verify_outputs_match are benchmark-only; execute_mir_json_minimal is artifact-only; Stage-1 direct and VM compatibility fallback are explicit legacy routes. No existing caller matches NormalFileNoImportVmReferenceV1. Await the follow-up choice: forge a new front door, separate MIR-JSON artifact lane, or continue park."
+current_design_stop = "LANGUAGE-DOCS-STATUS-SSOT-D0"
+current_execution_row = "DOCS-POINTER-ALIGNMENT0"
+current_execution_summary = "Docs audit confirms the language reference entry surface cannot answer live/guarded/pending/deferred/rejected status. The active row aligns thin current pointers and prepares one status inventory; try/catch/fini/concurrency contradictions remain a design stop. Parser/runtime/backend changes are zero. NORMAL-FILE-VM0 remains parked behind its own follow-up question."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "Language v1 function-exit semantics"
-active_lane_status = """FUNCTION-EXIT-SEMANTICS-prime-r1 is the current semantic
+active_lane_status = """DOCS-POINTER-ALIGNMENT0 is the current docs-only frontier
+for language status/authority discoverability. The function-exit semantics and
+Raw VM-reference history below remain accepted context; no parser/runtime/backend
+behavior is reopened. FUNCTION-EXIT-SEMANTICS-prime-r1 is the current semantic
 authority. FUNCTION-EXIT-F1-RETURN0-S0, DRAFT-SEAL0-S0,
 SCRIPT-RESULT-TAIL0-S0, and ENTRY-RESULT-PROJECTION0-D0 are closed.
 ENTRY-RESULT-PROJECTION0-S0 and S1 projection consume are closed. The next
@@ -26,7 +29,8 @@ NORMAL-FILE-VM0-FAMILY-D0 now closes as NoBoundedCallerFamily: all six plain
 source-hint sites are heterogeneous legacy/artifact/fallback routes. A fresh
 follow-up design stop must choose a future front-door owner, separate artifact
 lane, or continued park; no normal production caller or general/default/backend/
-JSON widening is authorized. The D′/Raw
+JSON widening is authorized. NORMAL-FILE-VM0 remains parked behind its
+NoBoundedCallerFamily follow-up question. The D′/Raw
 history below is parked context and must not select a different current row.
 D′ is the current canonical control-lowering authority:
 pre-Builder products retain exact coverage/topology/ports/cleanup, while one
@@ -313,8 +317,8 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/normal-file-vm0-family-d0-no-candidate-question-2026-07-25.md"
-phase_status = "docs/development/current/main/investigations/normal-file-vm0-family-d0-no-candidate-question-2026-07-25.md"
+active_phase = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
+phase_status = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
 method_anchor = "docs/reference/language/function-exit-and-entry-result.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -322,6 +326,7 @@ normal_entry_cutover_decision = "docs/development/current/main/investigations/no
 normal_entry_cutover_d1_decision = "docs/development/current/main/investigations/normal-entry-cutover-d1-consultation-2026-07-25.md"
 normal_file_vm0_task = "docs/development/current/main/investigations/normal-file-vm0-forge-task-2026-07-25.md"
 normal_file_vm0_d0_question = "docs/development/current/main/investigations/normal-file-vm0-family-d0-no-candidate-question-2026-07-25.md"
+language_docs_status_task = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
 raw_vm_reference_support0_task = "docs/development/current/main/investigations/raw-vm-reference-support0-s0-execution-task-2026-07-25.md"
 parked_loop_route_retirement_card = "docs/development/current/main/investigations/generic-loop-named-route-retirement-task-2026-07-19.md"
 mirbuilder_clean_architecture_card = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
@@ -378,9 +383,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "normal-file-vm0-family-d0-no-candidate-question-2026-07-25"
-latest_card_path = "docs/development/current/main/investigations/normal-file-vm0-family-d0-no-candidate-question-2026-07-25.md"
-latest_card_summary = """D0 closed as NoBoundedCallerFamily: six plain source-hint sites are heterogeneous benchmark, artifact, Stage-1, or legacy fallback routes. Choose a future front-door owner, separate artifact lane, or continued park before any normal implementation."""
+latest_card = "language-docs-status-ssot-cleanup-task-2026-07-25"
+latest_card_path = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
+latest_card_summary = """Docs audit found no discoverable status index and confirmed try/catch/fini/cleanup/concurrency drift. DOCS-POINTER-ALIGNMENT0 is docs-only; the next semantic decision is LANGUAGE-DOCS-TRY-CATCH-D1. Normal-entry remains parked."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -582,7 +587,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-FILE-VM0-FAMILY-D0-NO-BOUNDED-CALLER-20260725"
+current_blocker_token = "LANGUAGE-DOCS-STATUS-SSOT-D0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
