@@ -88,6 +88,9 @@ selection remain disconnected compatibility paths.
 Create a source-entry thunk contract that transports the selected callable's
 sealed result as `SourceEntryResultV1`. The thunk must not infer route from
 `main`, `Main.main`, module name, or Box shape. No public ingress is added.
+It must transport this typed selection to a source result without reopening
+route selection, and must not infer route from a module, backend helper, or
+process status.
 
 ### PHYSICAL-THUNK0
 
@@ -208,3 +211,24 @@ python3 tools/checks/lib/entry_result_projection0_selection0_guard.py
 
 `SOURCE-ENTRY0` is the next implementation sub-row. It must transport this
 typed selection to a source result without reopening route selection.
+
+## SOURCE-ENTRY0 closeout
+
+`SourceEntryThunkV1` now consumes `SelectedSourceEntryV1` once and seals one
+`SourceEntryResultV1` in `CompletedSourceEntryV1`. The selected route and
+manifest remain owned by the completed carrier; no process projection, module
+scan, backend helper, or public ingress is involved.
+
+Focused evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib source_entry_thunk -- --test-threads=1
+  2 passed
+
+python3 tools/checks/lib/entry_result_projection0_source_entry0_guard.py
+  one_handoff=1 typed_result=1 no_backend_scan=1 no_exit=1 below_800=1
+```
+
+`PHYSICAL-THUNK0` is the next implementation sub-row. It must remain
+Builder/backend-neutral and must not expose a bare mutable `MirModule` or a
+process status before the later projection row.

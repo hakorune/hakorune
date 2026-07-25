@@ -21,8 +21,9 @@ Related:
   `docs/reference/language/function-exit-and-entry-result.md`
 - priority: follow the exact active task. Do not reopen the superseded App
   any-statement-tail S0 as canonical work.
-- next executable sub-row: `ENTRY-RESULT-PROJECTION0-ENTRY-SELECTION0`
-  (`CONTRACT0` is closed; selection remains disconnected)
+- next executable sub-row: `ENTRY-RESULT-PROJECTION0-SOURCE-ENTRY0`
+  (`CONTRACT0` and `ENTRY-SELECTION0` are closed; source-result transport
+  remains disconnected)
 - parked: normal-entry cutover, JSON, executor, old-chain retirement, and CUT0
 
 ## Rule

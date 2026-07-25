@@ -22,11 +22,14 @@ def main() -> int:
     state = STATE.read_text()
     task = TASK.read_text()
     source = SOURCE.read_text()
-    require(
-        state,
-        'current_execution_row = "ENTRY-RESULT-PROJECTION0-ENTRY-SELECTION0"',
-        "active row",
-    )
+    if not any(
+        row in state
+        for row in (
+            'current_execution_row = "ENTRY-RESULT-PROJECTION0-ENTRY-SELECTION0"',
+            'current_execution_row = "ENTRY-RESULT-PROJECTION0-SOURCE-ENTRY0"',
+        )
+    ):
+        raise AssertionError("missing active or retained selection row")
     for fragment in (
         "ENTRY-SELECTION0",
         "one compiler-internal producer of `SelectedSourceEntryV1`",
