@@ -32,9 +32,9 @@ Related:
 - accepted target: postfix `catch` protects the immediately preceding region
   and handles only the pending `RecoverableFailure` Outcome; terminal `Fault`
   remains non-catchable
-- active row: MIRBUILDER-CORE-COMPLETE0-P0 — real-binary parity and G0 are
-  green for the explicit default-off normal-file VM-reference caller; now run
-  the read-only proof that the bounded MirBuilder core has one authority chain
+- active row: NORMAL-SOURCE-PLAN0-D0 design stop — the bounded MirBuilder core
+  proof is closed; source-plan authority must be accepted before adding normal
+  function/callable capability or changing any route
 - closed immediately before this frontier: passive Canonical/NarrowV1/
   VM-reference profile, explicit early `--backend raw-vm-reference` canary,
   mandatory feature-enabled/disabled parity family, and the D0 decision that

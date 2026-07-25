@@ -45,9 +45,11 @@ box.fini()               = separate lifecycle owner
 
 `RecoverableFailure` producer and ABI remain parked for
 `LANGUAGE-RECOVERABLE-FAILURE-D0`. The active row is now
-`MIRBUILDER-CORE-COMPLETE0-P0`: run the read-only core boundary proof after
-the normal-file VM-reference route reached G0. Confirm one function-exit owner,
-one Script result owner, one entry/result projection, atomic Raw publication,
-the supported Raw VM lane, one bounded normal-file lane, zero default cutover,
-and the below-800-line boundary. Do not migrate imports, JSON, REPL, LLVM,
-selfhost, or legacy callers in this row.
+`NORMAL-SOURCE-PLAN0-D0` is a design stop. The bounded core proof is closed:
+one function-exit owner, one Script result owner, one entry/result projection,
+atomic Raw publication, the supported Raw VM lane, one bounded normal-file
+lane, zero default cutover, and the below-800-line boundary. Before any new
+normal capability is implemented, answer the source-plan authority, profile
+relation, function/callable handoff, Script relation, failure retention, and
+promotion-boundary questions in the active card. Do not edit parser, Builder,
+backend, default route, or legacy callers at this stop.

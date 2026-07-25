@@ -47,10 +47,10 @@ cargo check -q
   target, and terminal `Fault` remains non-catchable
 - `RecoverableFailure` remains a named pending Outcome target; its producer
   and boundary ABI belong to `LANGUAGE-RECOVERABLE-FAILURE-D0`
-- the active row is `MIRBUILDER-CORE-COMPLETE0-P0`; the connected explicit
-  normal-file VM-reference CLI has passed real-binary parity and G0. Run the
-  read-only bounded core proof while keeping default routing,
-  `compile_with_source`, and legacy callers unchanged.
+- the active row is the design stop `NORMAL-SOURCE-PLAN0-D0`; the bounded
+  MirBuilder core proof is closed. Do not implement new source capability until
+  the source-plan authority, profile relation, callable handoff, Script result,
+  and failure-retention questions in the active card are accepted.
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - the current lane is the `active_lane` in `CURRENT_STATE.toml`

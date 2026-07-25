@@ -253,7 +253,8 @@ FUNCTION-EXIT-F1-RETURN0-S0
   -> CALLER0-I0 (closed: 906592cb54; one central production selector)
   -> PARITY0-P0b (closed: real binary status/diagnostic/feature parity)
   -> G0 (closed: central selector/route guard)
-  -> MIRBUILDER-CORE-COMPLETE0-P0 (active)
+  -> MIRBUILDER-CORE-COMPLETE0-P0 (closed: aggregate proof guard)
+  -> NORMAL-SOURCE-PLAN0-D0 (active design stop)
   One new CLI-visible, default-off request is added; no existing caller is
   replaced, so no legacy sunset is issued in this series.
 

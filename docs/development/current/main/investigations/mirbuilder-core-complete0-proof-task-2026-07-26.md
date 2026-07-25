@@ -1,5 +1,5 @@
 ---
-Status: active proof task
+Status: closed proof task
 Date: 2026-07-26
 Decision: MIRBUILDER-CORE-COMPLETE0-P0
 ---
@@ -62,3 +62,7 @@ bash tools/checks/current_state_pointer_guard.sh
 
 This row must not add function capability, imports, dynamic carriers, JSON,
 REPL, LLVM/native, selfhost, executor, fastmem, or default-route cutover.
+
+Closed evidence: `mirbuilder_core_complete0_guard.py` and the route/S3 guards
+are green on 2026-07-26. The next boundary is the docs-only
+`NORMAL-SOURCE-PLAN0-D0` design stop.
