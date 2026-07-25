@@ -82,6 +82,20 @@ pub(in crate::mir::builder) struct ActiveRootBodyCompletionTrackerV1 {
     _seal: ActiveRootBodyCompletionTrackerSealV1,
 }
 
+/// Borrow-only completion plan.  Once issued, the active tracker is still
+/// unpublished; the plan is consumed together with that tracker only by the
+/// BODY commit terminal.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct PreparedRootBodyCompletionV1 {
+    brand: ModuleInvocationBrandV1,
+    result: RootBodyResultV1,
+    completed_children: usize,
+    _seal: PreparedRootBodyCompletionSealV1,
+}
+
+#[derive(Debug)]
+struct PreparedRootBodyCompletionSealV1;
+
 #[derive(Debug)]
 struct ActiveRootBodyCompletionTrackerSealV1;
 
@@ -332,6 +346,33 @@ impl ActiveRootBodyCompletionTrackerV1 {
             });
         }
         Ok(())
+    }
+
+    pub(in crate::mir::builder) fn prepare_completion(
+        &self,
+        result: RootBodyResultV1,
+    ) -> Result<PreparedRootBodyCompletionV1, RootBodyCompletionErrorV1> {
+        self.prepare_seal()?;
+        Ok(PreparedRootBodyCompletionV1 {
+            brand: self.tracker.brand,
+            result,
+            completed_children: self.tracker.completed_children,
+            _seal: PreparedRootBodyCompletionSealV1,
+        })
+    }
+
+    pub(in crate::mir::builder) fn commit_prepared_completion(
+        self,
+        prepared: PreparedRootBodyCompletionV1,
+    ) -> CompletedRootBodyV1 {
+        debug_assert_eq!(self.tracker.brand, prepared.brand);
+        debug_assert_eq!(self.tracker.completed_children, prepared.completed_children);
+        CompletedRootBodyV1 {
+            brand: self.tracker.brand,
+            result: prepared.result,
+            completed_children: self.tracker.completed_children,
+            _seal: CompletedRootBodySealV1,
+        }
     }
 
     pub(in crate::mir::builder) fn seal_root_body_preserving(

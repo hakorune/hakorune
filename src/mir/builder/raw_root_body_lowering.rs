@@ -8,10 +8,34 @@
 use crate::mir::builder::root_body_completion::RootBodyResultV1;
 use crate::mir::raw_root_body_recipe::{
     RawLinearScalarExprV1, RawLinearScalarStmtV1, RawLinearUnaryOperatorV1, RawRootBodyRecipeV1,
+    RawScriptBodyRecipeV1, RawScriptTerminalRecipeV1,
 };
 use crate::mir::{MirBuilder, MirInstruction, UnaryOp, ValueId};
 
 impl MirBuilder {
+    /// Lower the source-owned Script prelude and terminal contract.  The
+    /// terminal classification is authoritative: Builder ValueIds are only
+    /// physical operands for the already-selected source disposition.
+    pub(in crate::mir::builder) fn lower_script_body_recipe_v1(
+        &mut self,
+        recipe: &RawScriptBodyRecipeV1,
+    ) -> Result<RootBodyResultV1, String> {
+        for statement in recipe.prelude() {
+            self.lower_linear_statement_v1(statement)?;
+        }
+        match recipe.terminal() {
+            RawScriptTerminalRecipeV1::EmptyUnit => Ok(RootBodyResultV1::NoValue),
+            RawScriptTerminalRecipeV1::ValueExpression(expression)
+            | RawScriptTerminalRecipeV1::UnitExpression { expression, .. } => Ok(
+                RootBodyResultV1::Value(self.lower_linear_expr_v1(expression)?),
+            ),
+            RawScriptTerminalRecipeV1::UnitStatement { statement, .. } => {
+                self.lower_linear_statement_v1(statement)?;
+                Ok(RootBodyResultV1::NoValue)
+            }
+        }
+    }
+
     /// Lower one exact LinearScalar0 recipe into the current unpublished
     /// function.  The caller owns tracker/session lifecycle; this method only
     /// performs value lowering and returns the last-value disposition.

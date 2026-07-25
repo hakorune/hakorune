@@ -11,8 +11,8 @@ use super::raw_expansion_receipt_ledger::{
     RawCallableMainCompatibilityDispositionV1, RawExpansionReceiptLedgerV1,
 };
 use super::root_body_completion::{
-    ActiveRootBodyCompletionTrackerV1, CompletedRootBodyV1, RootBodyCompletionErrorV1,
-    RootBodyCompletionTrackerV1, RootBodyResultV1,
+    ActiveRootBodyCompletionTrackerV1, CompletedRootBodyV1, PreparedRootBodyCompletionV1,
+    RootBodyCompletionErrorV1, RootBodyCompletionTrackerV1, RootBodyResultV1,
 };
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 
@@ -175,6 +175,34 @@ impl RawRootPhysicalStateV1 {
 impl RawRootBodyPhysicalDriveV1 {
     pub(in crate::mir::builder) fn tracker(&self) -> &ActiveRootBodyCompletionTrackerV1 {
         &self.tracker
+    }
+
+    pub(in crate::mir::builder) fn prepare_root_body_completion(
+        &self,
+        result: RootBodyResultV1,
+    ) -> Result<PreparedRootBodyCompletionV1, RootBodyCompletionErrorV1> {
+        self.tracker.prepare_completion(result)
+    }
+
+    pub(in crate::mir::builder) fn seal_root_body_prepared(
+        self,
+        prepared: PreparedRootBodyCompletionV1,
+    ) -> (RawRootPostBodyPhysicalStateV1, CompletedRootBodyV1) {
+        let Self {
+            physical,
+            ledger,
+            tracker,
+            callable_main,
+        } = self;
+        let completed = tracker.commit_prepared_completion(prepared);
+        (
+            RawRootPostBodyPhysicalStateV1 {
+                physical,
+                ledger,
+                callable_main,
+            },
+            completed,
+        )
     }
 
     pub(in crate::mir::builder) fn seal_root_body_preserving(

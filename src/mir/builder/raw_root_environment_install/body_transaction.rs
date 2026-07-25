@@ -102,7 +102,10 @@ impl InstalledRawRootEnvironmentV1 {
         let lower_result = {
             let builder = session.builder_mut();
             let _scope = super::super::vars::lexical_scope::LexicalScopeGuard::new(builder);
-            builder.lower_linear_scalar_recipe_v1(&recipe)
+            match recipe.script() {
+                Some(script) => builder.lower_script_body_recipe_v1(script),
+                None => builder.lower_linear_scalar_recipe_v1(&recipe),
+            }
         };
         let result = match lower_result {
             Ok(result) => result,
@@ -114,6 +117,26 @@ impl InstalledRawRootEnvironmentV1 {
                         recipe,
                     },
                     error: RawRootBodyLoweringErrorV1::Lower(error),
+                });
+            }
+        };
+        let completion_result = if recipe.script().is_some() {
+            result
+        } else {
+            RootBodyResultV1::NoValue
+        };
+        let completion_plan = match physical.prepare_root_body_completion(completion_result) {
+            Ok(plan) => plan,
+            Err(error) => {
+                return Err(RejectedRawRootBodyPhysicalV1 {
+                    owner: RawRootBodyRejectedOwnerV1::DuringDrive {
+                        session,
+                        physical,
+                        recipe,
+                    },
+                    error: RawRootBodyLoweringErrorV1::Physical(
+                        RawRootBodyPhysicalErrorV1::SealTracker(error),
+                    ),
                 });
             }
         };
@@ -138,25 +161,7 @@ impl InstalledRawRootEnvironmentV1 {
         let (draft, exit) = session
             .builder_mut()
             .commit_raw_root_exit_v1(open, plan, brand);
-        let completion_result = match recipe.entry().exit() {
-            crate::mir::raw_root_body_recipe::RawRootExitPolicyV1::ScriptSourceTailOrUnit => result,
-            crate::mir::raw_root_body_recipe::RawRootExitPolicyV1::AppFixedVoid => {
-                RootBodyResultV1::NoValue
-            }
-        };
-        let (physical, completion) = match physical.seal_root_body_preserving(completion_result) {
-            Ok(done) => done,
-            Err((physical, error)) => {
-                return Err(RejectedRawRootBodyPhysicalV1 {
-                    owner: RawRootBodyRejectedOwnerV1::DuringDrive {
-                        session,
-                        physical,
-                        recipe,
-                    },
-                    error: RawRootBodyLoweringErrorV1::Physical(error),
-                });
-            }
-        };
+        let (physical, completion) = physical.seal_root_body_prepared(completion_plan);
         Ok(CompletedRawRootBodyPhysicalV1 {
             session,
             physical,
