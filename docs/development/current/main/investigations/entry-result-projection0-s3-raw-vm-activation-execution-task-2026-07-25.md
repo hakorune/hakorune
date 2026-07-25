@@ -100,7 +100,10 @@ unsupported process results, Print-as-Unit, division VM faults, and compiler
 reuse after success or entry rejection. Local/assignment/compound-assignment
 statement Unit cases are also green. The full matrix, decode ABI mismatch,
 and final caller census remain open under this row. A decoy `NYASH_ENTRY`
-environment test now confirms the sealed Main target is selected instead.
+environment test now confirms the sealed Main target is selected instead;
+decoder-level ABI mismatch tests cover the typed rejection path without
+opening a mutable published module. App scalar fallthrough is also verified
+to remain Unit under the current route policy.
 
 Route-scoped G0 census snapshot (2026-07-25): the typed compile kernel has one
 definition and exactly two consumers (compatibility ingress plus the explicit

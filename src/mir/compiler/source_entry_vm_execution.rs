@@ -370,13 +370,13 @@ mod tests {
         }
     }
 
-    fn empty_app() -> ASTNode {
+    fn app_with_body(body: Vec<ASTNode>) -> ASTNode {
         let main = ASTNode::FunctionDeclaration {
             name: "main".into(),
             params: Vec::new(),
             param_decls: Vec::new(),
             return_type_name: None,
-            body: Vec::new(),
+            body,
             uses: Vec::new(),
             contracts: Vec::new(),
             is_static: true,
@@ -413,6 +413,17 @@ mod tests {
             }],
             span: Span::unknown(),
         }
+    }
+
+    fn empty_app() -> ASTNode {
+        app_with_body(Vec::new())
+    }
+
+    fn scalar_app() -> ASTNode {
+        app_with_body(vec![ASTNode::Literal {
+            value: crate::ast::LiteralValue::Integer(9),
+            span: Span::unknown(),
+        }])
     }
 
     #[test]
@@ -572,6 +583,16 @@ mod tests {
             None => std::env::remove_var("NYASH_ENTRY"),
         }
         let report = result.expect("sealed Main target must ignore NYASH_ENTRY");
+        assert_eq!(report.status_code(), 0);
+        assert_eq!(report.diagnostic_tag(), None);
+    }
+
+    #[test]
+    fn raw_vm_entry_keeps_app_scalar_fallthrough_as_unit() {
+        let mut compiler = crate::mir::compiler::MirCompiler::new();
+        let report = compiler
+            .run_raw_vm_reference(scalar_app(), Some("raw-vm-app-scalar.hako"))
+            .expect("App scalar fallthrough should follow the sealed App Unit plan");
         assert_eq!(report.status_code(), 0);
         assert_eq!(report.diagnostic_tag(), None);
     }
