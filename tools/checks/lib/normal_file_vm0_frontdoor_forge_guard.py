@@ -12,6 +12,7 @@ TASK = ROOT / (
 FRONTDOOR = ROOT / "src/runner/reference/normal_file_vm_frontdoor.rs"
 NORMAL_REQUEST = ROOT / "src/runner/reference/normal_file_vm_request.rs"
 NORMAL_REPORT_RUNNER = ROOT / "src/runner/reference/normal_file_vm.rs"
+PARITY_P0A = ROOT / "src/runner/reference/normal_file_vm/parity_p0a.rs"
 TEST_ONLY_RAW_TERMINAL_CONSUMERS = (
     ROOT / "src/runner/reference/normal_file_vm_frontdoor/result_carrier_p0.rs",
 )
@@ -44,6 +45,7 @@ def main() -> int:
     production = frontdoor.split("#[cfg(test)]", 1)[0]
     normal_request = NORMAL_REQUEST.read_text()
     normal_report_runner = NORMAL_REPORT_RUNNER.read_text()
+    parity_p0a = PARITY_P0A.read_text()
     reference_mod = REFERENCE_MOD.read_text()
     raw_contract = RAW_CONTRACT.read_text()
 
@@ -127,6 +129,16 @@ def main() -> int:
     ):
         if forbidden in normal_report_runner:
             raise AssertionError(f"REPORT0 must not select or widen the normal route: {forbidden}")
+    for fragment in (
+        "NORMAL-FILE-VM0 PARITY0-P0a",
+        "normal_program_projection_matches_raw_in_the_common_scalar_unit_subset",
+        "normal_run_preserves_usage_invocation_and_program_boundaries_without_retry",
+        "raw_vm_reference::select_and_run",
+        "run(request)",
+    ):
+        require(parity_p0a, fragment, f"caller-zero parity evidence {fragment}")
+    if "std::process::exit" in parity_p0a or "select_from_cli" in parity_p0a:
+        raise AssertionError("PARITY0-P0a must exercise owners directly, not select or terminate")
 
     if production.count("std::fs::read_to_string(&source_file)") != 1:
         raise AssertionError("Forge0 must read its source file exactly once")
@@ -182,6 +194,7 @@ def main() -> int:
         FRONTDOOR,
         NORMAL_REQUEST,
         NORMAL_REPORT_RUNNER,
+        PARITY_P0A,
         *TEST_ONLY_RAW_TERMINAL_CONSUMERS,
         RAW_CONTRACT,
         Path(__file__),

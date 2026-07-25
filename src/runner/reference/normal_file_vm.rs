@@ -137,3 +137,7 @@ mod tests {
         assert!(report.line().contains("file-not-found"));
     }
 }
+
+#[cfg(all(test, feature = "vm-reference"))]
+#[path = "normal_file_vm/parity_p0a.rs"]
+mod parity_p0a;
