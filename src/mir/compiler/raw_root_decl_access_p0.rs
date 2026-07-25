@@ -206,6 +206,53 @@ fn script_statement_tail_commits_unit_result() {
 }
 
 #[test]
+fn script_void_tail_reuses_evaluated_unit_operand() {
+    let completed = ready(
+        script(vec![ASTNode::Literal {
+            value: crate::ast::LiteralValue::Void,
+            span: Span::unknown(),
+        }]),
+        RawCallableMainSelectionV1::Omitted,
+    )
+    .declare_environment()
+    .unwrap()
+    .begin_body()
+    .expect("Void expression is a Unit-valued Script terminal");
+    assert!(matches!(
+        completed,
+        RawRootBodyCompleteInvocationV1::Script(_)
+    ));
+}
+
+#[test]
+fn script_prelude_value_does_not_become_terminal_result() {
+    let completed = ready(
+        script(vec![
+            ASTNode::Literal {
+                value: crate::ast::LiteralValue::Integer(1),
+                span: Span::unknown(),
+            },
+            ASTNode::Print {
+                expression: Box::new(ASTNode::Literal {
+                    value: crate::ast::LiteralValue::Integer(2),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            },
+        ]),
+        RawCallableMainSelectionV1::Omitted,
+    )
+    .declare_environment()
+    .unwrap()
+    .begin_body()
+    .expect("prelude values are evaluated but not returned");
+    assert!(matches!(
+        completed,
+        RawRootBodyCompleteInvocationV1::Script(_)
+    ));
+}
+
+#[test]
 fn root_batch_entry_consumes_body_completion_into_route_product() {
     let completed = ready(
         ASTNode::Program {
