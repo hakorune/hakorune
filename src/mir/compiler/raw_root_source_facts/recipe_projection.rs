@@ -50,7 +50,7 @@ impl RawRootSourceFactsV1 {
                     .map(linear_statement)
                     .collect::<Result<Vec<_>, _>>()?
                     .into_boxed_slice();
-                RawRootBodyRecipeV1::from_parts(
+                RawRootBodyRecipeV1::from_app_parts(
                     RawRootBodyEntryContractV1::app_main0(main.top_level_statement()),
                     statements,
                 )?

@@ -181,7 +181,25 @@ pub(crate) enum RawLinearScalarStmtV1 {
 pub(crate) struct RawRootBodyRecipeSealV1;
 
 impl RawRootBodyRecipeV1 {
+    #[cfg(test)]
     pub(crate) fn from_parts(
+        entry: RawRootBodyEntryContractV1,
+        statements: Box<[RawLinearScalarStmtV1]>,
+    ) -> Result<Self, RawRootBodyRecipeErrorV1> {
+        Self::from_parts_impl(entry, statements)
+    }
+
+    pub(crate) fn from_app_parts(
+        entry: RawRootBodyEntryContractV1,
+        statements: Box<[RawLinearScalarStmtV1]>,
+    ) -> Result<Self, RawRootBodyRecipeErrorV1> {
+        if !matches!(entry.route(), RawRootBodyRouteV1::AppMain0 { .. }) {
+            return Err(RawRootBodyRecipeErrorV1::AppRouteMismatch);
+        }
+        Self::from_parts_impl(entry, statements)
+    }
+
+    fn from_parts_impl(
         entry: RawRootBodyEntryContractV1,
         statements: Box<[RawLinearScalarStmtV1]>,
     ) -> Result<Self, RawRootBodyRecipeErrorV1> {
@@ -252,6 +270,7 @@ impl RawScriptBodyRecipeV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum RawRootBodyRecipeErrorV1 {
     ScriptRouteMismatch,
+    AppRouteMismatch,
     DuplicateSourcePath { path: Box<[usize]> },
     UnsupportedStatement { path: Box<[usize]> },
     UnsupportedOperator { path: Box<[usize]> },
