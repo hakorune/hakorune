@@ -45,10 +45,9 @@ box.fini()               = separate lifecycle owner
 
 `RecoverableFailure` producer and ABI remain parked for
 `LANGUAGE-RECOVERABLE-FAILURE-D0`. The active row is now
-`NORMAL-FILE-VM0-G0`: promote the Forge guard into the production route guard.
-The connected explicit, default-off `normal-file-vm-reference` CLI has already
-passed real-binary status/diagnostic and feature-gated parity. Prove one
-central selector, one Raw caller, one normal caller, default-route isolation,
-shared authorities, no fallback, and the below-800-line boundary. The existing
-Raw reference route, normal/default route, `compile_with_source`, and every
-legacy caller remain untouched. After this row, run the core-complete proof.
+`MIRBUILDER-CORE-COMPLETE0-P0`: run the read-only core boundary proof after
+the normal-file VM-reference route reached G0. Confirm one function-exit owner,
+one Script result owner, one entry/result projection, atomic Raw publication,
+the supported Raw VM lane, one bounded normal-file lane, zero default cutover,
+and the below-800-line boundary. Do not migrate imports, JSON, REPL, LLVM,
+selfhost, or legacy callers in this row.

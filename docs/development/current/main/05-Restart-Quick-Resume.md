@@ -47,9 +47,9 @@ cargo check -q
   target, and terminal `Fault` remains non-catchable
 - `RecoverableFailure` remains a named pending Outcome target; its producer
   and boundary ABI belong to `LANGUAGE-RECOVERABLE-FAILURE-D0`
-- the active row is `NORMAL-FILE-VM0-G0`; the connected explicit normal-file
-  VM-reference CLI has passed real-binary parity. Promote the Forge proof into
-  the production route guard while keeping the default route,
+- the active row is `MIRBUILDER-CORE-COMPLETE0-P0`; the connected explicit
+  normal-file VM-reference CLI has passed real-binary parity and G0. Run the
+  read-only bounded core proof while keeping default routing,
   `compile_with_source`, and legacy callers unchanged.
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope

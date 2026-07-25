@@ -73,7 +73,8 @@ REPORT0-S0  = closed by 1ab9c8aad5
 PARITY0-P0a = closed by f5028112ca
 CALLER0-I0  = closed by 906592cb54
 PARITY0-P0b = closed by real-binary matrix on 2026-07-26
-G0          = active
+G0          = closed by route guard on 2026-07-26
+MIRBUILDER-CORE-COMPLETE0-P0 = next
 ```
 
 ### REQUEST0-S0 — request and single selector
@@ -196,13 +197,17 @@ feature-disabled normal route     -> status 2, feature-unavailable before I/O
 The fixture source was temporary and removed after the run. No default route,
 Raw route, or `compile_with_source` behavior changed.
 
-### G0 — route guard and proof repayment (active)
+### G0 — route guard and proof repayment (closed)
 
 Promote the existing Forge guard into the reusable route guard.  It must prove
 one central selector, Raw caller=1, normal caller=1, default delta=0,
 fallback/retry=0, one terminal, existing compile/execution/result authority,
 and all touched source/check files below 800 lines.  Do not add per-row shell
 guards.
+
+Closed evidence: `normal_file_vm0_frontdoor_forge_guard.py` reports
+`central_selector=1 normal_caller=1 default_delta=0 alternate_policy=0`;
+the S3 owner/execution guards and current-state pointer guard are green.
 
 ## File budget
 
