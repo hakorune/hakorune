@@ -232,3 +232,23 @@ python3 tools/checks/lib/entry_result_projection0_source_entry0_guard.py
 `PHYSICAL-THUNK0` is the next implementation sub-row. It must remain
 Builder/backend-neutral and must not expose a bare mutable `MirModule` or a
 process status before the later projection row.
+
+## PHYSICAL-THUNK0 closeout
+
+`PhysicalSourceEntryCarrierV1` now consumes `CompletedSourceEntryV1` once and
+retains its typed route/result under the `SourceResultThunk` role. The carrier
+is Builder/backend-neutral, has no bare mutable `MirModule`, and does not hold
+or project a process status.
+
+Focused evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib source_entry_physical -- --test-threads=1
+  2 passed
+
+python3 tools/checks/lib/entry_result_projection0_physical_thunk0_guard.py
+  one_handoff=1 backend_neutral=1 no_module=1 no_status=1 below_800=1
+```
+
+`VM-REFERENCE0` is the next implementation sub-row. It may consume the pure
+projection only and must not replace the existing VM execution path.
