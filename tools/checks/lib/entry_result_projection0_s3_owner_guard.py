@@ -149,7 +149,8 @@ def main() -> int:
     for path in (ROOT / "src/runner").rglob("*.rs"):
         if path == REFERENCE_RUNNER:
             continue
-        if "compile_raw_with_source" in path.read_text() or "run_raw_vm_reference_v1" in path.read_text():
+        production = path.read_text().split("#[cfg(test)]", 1)[0]
+        if "compile_raw_with_source" in production or "run_raw_vm_reference_v1" in production:
             runner_raw_callers.append(path.relative_to(ROOT))
     if runner_raw_callers:
         raise AssertionError(f"runner has unexpected Raw production callers: {runner_raw_callers}")

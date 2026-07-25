@@ -328,10 +328,32 @@ cargo test -q --lib runner::reference::normal_file_vm_frontdoor
 cargo test -q --lib runner::reference::normal_file_vm_frontdoor --features vm-reference
 ```
 
-Next internal row: `FORGE-CORRESPONDENCE0`. `FORGE-SEMANTIC0`,
-`FORGE-REUSE0`, D2, and every production caller remain open.
+### Closed 2026-07-26: `FORGE-CORRESPONDENCE0`
 
-### `FORGE-CORRESPONDENCE0`
+The front door's sole test-only correspondence consumer moves the opaque
+`RawVmReferenceInvocationV1` into the existing
+`MirCompiler::run_raw_vm_reference_v1` terminal. It neither opens the Raw
+published owner nor adds a front-door execution method. Two source files run
+through one `MirCompiler` as `42 -> 255`, proving that the handoff reaches the
+existing typed compile/publication, exact-target execution, process projection,
+and diagnostic terminal without a second compiler, entry selector, or status
+adapter.
+
+The proof records the existing legacy-result deltas rather than normalizing
+them away:
+
+```text
+legacy quiet runner: modulo/widening and non-numeric fallback mappings
+legacy MIR interpreter: independent integer/bool/non-numeric mapping
+legacy VM execution helper: independent cast/status mapping
+canonical Raw lane: exact 0..255 integers, Unit=0, typed status-70 faults
+```
+
+This is a correspondence proof, not a normal-route activation or a full
+reuse claim. Next internal row: `FORGE-SEMANTIC0`. `FORGE-REUSE0`, D2, and
+every production caller remain open.
+
+### `FORGE-CORRESPONDENCE0` (closed)
 
 Prove that the forge uses the existing Raw compile/publication and exact
 VM-reference execution chain, including source-entry continuation, route

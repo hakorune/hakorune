@@ -458,4 +458,30 @@ mod tests {
             crate::mir::RawPublishedCompileProfileV1::narrow_v1()
         );
     }
+
+    #[cfg(feature = "vm-reference")]
+    #[test]
+    fn handoff_reuses_the_existing_raw_vm_reference_execution_terminal() {
+        let dir = tempdir().expect("tempdir");
+        let first = write_source(dir.path(), "first.hako", "42");
+        let second = write_source(dir.path(), "second.hako", "255");
+        let mut compiler = crate::mir::MirCompiler::new();
+
+        for (path, expected_status) in [(first, 42), (second, 255)] {
+            let invocation = request(path)
+                .prepare()
+                .expect("profile")
+                .read_once()
+                .expect("read")
+                .parse_once()
+                .expect("parse")
+                .prepare_raw_vm_handoff()
+                .into_raw_vm_reference_invocation();
+            let report = compiler
+                .run_raw_vm_reference_v1(invocation)
+                .expect("existing Raw VM-reference terminal should execute handoff");
+            assert_eq!(report.status_code(), expected_status);
+            assert_eq!(report.diagnostic_tag(), None);
+        }
+    }
 }
