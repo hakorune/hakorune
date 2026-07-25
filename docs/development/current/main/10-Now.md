@@ -32,10 +32,9 @@ Related:
 - accepted target: postfix `catch` protects the immediately preceding region
   and handles only the pending `RecoverableFailure` Outcome; terminal `Fault`
   remains non-catchable
-- active design stop: RESULT-CARRIER-NORMAL-CAPABILITY0-D0 — Forge0 has closed
-  its front door, Script matrix, and Main/function classification with
-  production caller=0; select carrier/rejection/Null-Void authority before
-  annotation and result-carrier S2 resumes
+- active row: RESULT-CARRIER-NORMAL-CAPABILITY0-S0 — Q1/Q2/Q3=A fixed the
+  Scalar-and-Unit-only carrier boundary; preserve Raw facts and add typed run
+  rejection evidence before Forge S2, with production caller=0
 - closed immediately before this frontier: passive Canonical/NarrowV1/
   VM-reference profile, explicit early `--backend raw-vm-reference` canary,
   mandatory feature-enabled/disabled parity family, and the D0 decision that

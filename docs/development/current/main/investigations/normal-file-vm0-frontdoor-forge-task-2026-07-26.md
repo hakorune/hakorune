@@ -485,9 +485,10 @@ before this forge resumes.
 
 ### `FORGE-SEMANTIC0-S2` — Annotation and result-carrier matrix
 
-Blocked pending `RESULT-CARRIER-NORMAL-CAPABILITY0-D0`. The front door may not
-classify annotations or composite results until that decision selects the
-source/profile rejection authority.
+`RESULT-CARRIER-NORMAL-CAPABILITY0-prime-r1` is accepted with Q1/Q2/Q3 = A.
+`RESULT-CARRIER-NORMAL-CAPABILITY0-S0` now preserves existing Raw rejection
+facts and typed run evidence; the front door still may not classify annotations
+or composite results.
 
 Keep annotations and result carriers separate from S0/S1:
 

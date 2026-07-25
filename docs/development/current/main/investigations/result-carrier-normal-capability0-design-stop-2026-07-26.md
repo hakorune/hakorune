@@ -1,8 +1,8 @@
 ---
-Status: design stop
+Status: accepted decision
 Date: 2026-07-26
-Decision required: RESULT-CARRIER-NORMAL-CAPABILITY0-D0
-Blocks: FORGE-SEMANTIC0-S2, FORGE-REUSE0, NORMAL-ENTRY-CUTOVER-D2
+Decision: RESULT-CARRIER-NORMAL-CAPABILITY0-prime-r1
+Superseded by execution: RESULT-CARRIER-NORMAL-CAPABILITY0-S0
 Related:
   - docs/development/current/main/investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md
   - docs/reference/language/function-exit-and-entry-result.md
@@ -70,11 +70,11 @@ Forge0:
   may not add a dynamic carrier, source rewrite, fallback, or result repair
 ```
 
-## Questions
+## Resolved questions
 
 ### Q1 — first normal-profile carrier boundary
 
-Choose one.
+Chosen: **A — Scalar-and-Unit only.**
 
 ```text
 A (recommended): Scalar-and-Unit only.
@@ -100,7 +100,7 @@ C: Treat composite results as process faults after execution.
 
 ### Q2 — annotation rejection authority in the narrow profile
 
-Choose one.
+Chosen: **A — Keep annotations outside NarrowV1.**
 
 ```text
 A (recommended): Keep annotations outside NarrowV1.
@@ -124,7 +124,7 @@ C: Admit `: void` only in NarrowV1 now.
 
 ### Q3 — Null and Void evidence
 
-Choose one.
+Chosen: **A — Keep both out of normal-admission credit.**
 
 ```text
 A (recommended): Keep both out of normal-admission credit until a source
@@ -141,9 +141,9 @@ C: Preserve separate Unit origins through Script result, entry result, and
 `B` changes the language/type SSOT; `C` changes source-result evidence and
 possibly the VM decode plan. Neither is a safe front-door-only edit.
 
-## Recommended decision
+## Accepted decision
 
-Choose **Q1-A, Q2-A, Q3-A**.
+**Q1-A, Q2-A, and Q3-A are accepted.**
 
 This keeps the first normal profile narrowly honest:
 
@@ -155,11 +155,11 @@ SCRIPT-RESULT capability = owns Null/Void source provenance
 RESULT-CARRIER capability = owns any composite/owner-bearing result transport
 ```
 
-## Task order after a decision
+## Execution handoff
 
 ```text
 RESULT-CARRIER-NORMAL-CAPABILITY0-S0
-  selected rejection taxonomy / fixture matrix only
+  preserve already-classified Raw rejection facts and issue typed run evidence
 
 -> FORGE-SEMANTIC0-S2
   observe every annotation/carrier row through the front door
@@ -170,9 +170,10 @@ RESULT-CARRIER-NORMAL-CAPABILITY0-S0
 -> NORMAL-ENTRY-CUTOVER-D2
 ```
 
-If Q1-B, Q2-C, or Q3-C is selected, replace the first row with the exact
-FunctionExit, ScriptResult, or dynamic-carrier capability design; do not
-continue Forge0 by adding an ad-hoc adapter.
+The accepted S0 task is
+`result-carrier-normal-capability0-s0-execution-task-2026-07-26.md`. Dynamic
+carrier, annotation admission, and Null/Void provenance remain separate future
+capability rows; Forge0 must not add an ad-hoc adapter.
 
 ## Non-claims
 

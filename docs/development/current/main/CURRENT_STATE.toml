@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed. The accepted tryless decision rejects source try in both profiles, makes postfix catch the protected-region target, keeps Fault non-catchable, and parks RecoverableFailure production/ABI for a later D0. NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 has closed contract/source/handoff/correspondence and Script/Main evidence; RESULT-CARRIER-NORMAL-CAPABILITY0-D0 is the active design stop before Forge S2."
+status = "LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed. The accepted tryless decision rejects source try in both profiles, makes postfix catch the protected-region target, keeps Fault non-catchable, and parks RecoverableFailure production/ABI for a later D0. NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 has closed contract/source/handoff/correspondence and Script/Main evidence; RESULT-CARRIER-NORMAL-CAPABILITY0-prime-r1 selects Scalar-and-Unit-only, annotation exclusion, and uncredited Null/Void before Forge S2."
 date = "2026-07-26"
-current_design_stop = "RESULT-CARRIER-NORMAL-CAPABILITY0-D0"
-current_execution_row = "RESULT-CARRIER-NORMAL-CAPABILITY0-D0"
-current_execution_summary = "Select the first NormalFile result-carrier/rejection authority before Forge S2: do not add front-door semantic classification, a dynamic carrier, Null/Void equivalence, normal/default routing, a legacy caller mapping, or a production caller."
+current_design_stop = "none"
+current_execution_row = "RESULT-CARRIER-NORMAL-CAPABILITY0-S0"
+current_execution_summary = "Preserve existing Raw rejection facts and add typed VM-reference rejection evidence for the Scalar-and-Unit-only normal profile. Do not add front-door semantic classification, dynamic carriers, Null/Void equivalence, normal/default routing, a legacy caller mapping, or a production caller."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -20,9 +20,11 @@ remain parked for LANGUAGE-RECOVERABLE-FAILURE-D0. Registry/parser/AST/MIR/
 runtime/backend behavior did not change in that closeout.
 NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 has closed its typed no-import front door,
 Raw-terminal correspondence, Script matrix, and Main/function boundary
-classification with production caller=0. RESULT-CARRIER-NORMAL-CAPABILITY0-D0
-is now the design stop before annotation/carrier S2; it must choose the
-result-carrier/rejection authority without changing a normal or default route.
+classification with production caller=0. RESULT-CARRIER-NORMAL-CAPABILITY0-
+prime-r1 selects Scalar-and-Unit-only, Raw/function-exit annotation rejection,
+and uncredited Null/Void evidence. S0 now preserves existing Raw facts and
+adds typed rejection evidence before annotation/carrier S2, without changing a
+normal or default route.
 The function-exit
 semantics and Raw VM-reference history below remain accepted context.
 FUNCTION-EXIT-SEMANTICS-prime-r1 remains the function-exit semantic
@@ -340,6 +342,7 @@ normal_file_vm0_historical_roadmap = "docs/development/current/main/investigatio
 normal_file_vm0_d0_question = "docs/development/current/main/investigations/normal-file-vm0-family-d0-no-candidate-question-2026-07-25.md"
 normal_file_vm0_frontdoor_forge_task = "docs/development/current/main/investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
 result_carrier_normal_capability_design_stop = "docs/development/current/main/investigations/result-carrier-normal-capability0-design-stop-2026-07-26.md"
+result_carrier_normal_capability_s0_task = "docs/development/current/main/investigations/result-carrier-normal-capability0-s0-execution-task-2026-07-26.md"
 normal_file_vm0_d2_decision = "pending: NORMAL-ENTRY-CUTOVER-D2 card not opened"
 language_docs_status_task = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
 language_docs_try_catch_task = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
@@ -401,9 +404,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "result-carrier-normal-capability0-design-stop-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/result-carrier-normal-capability0-design-stop-2026-07-26.md"
-latest_card_summary = """RESULT-CARRIER-NORMAL-CAPABILITY0-D0 is active: Forge0 has proved its no-import front door and bounded Script/Main evidence with production caller zero. Select scalar-and-Unit-only versus a new result carrier, annotation authority, and Null/Void evidence policy before Forge S2. No front-door semantic repair or normal/default activation is authorized."""
+latest_card = "result-carrier-normal-capability0-s0-execution-task-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/result-carrier-normal-capability0-s0-execution-task-2026-07-26.md"
+latest_card_summary = """RESULT-CARRIER-NORMAL-CAPABILITY0-S0 is active: preserve existing Raw metadata/body/work rejection facts and provide typed VM-reference run evidence for the accepted Scalar-and-Unit-only normal profile. Front-door result/annotation/MirType classification, dynamic carriers, normal/default activation, and production callers remain zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -605,7 +608,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RESULT-CARRIER-NORMAL-CAPABILITY0-D0"
+current_blocker_token = "RESULT-CARRIER-NORMAL-CAPABILITY0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
