@@ -21,8 +21,9 @@ Related:
   `docs/reference/language/function-exit-and-entry-result.md`
 - priority: follow the exact active task. Do not reopen the superseded App
   any-statement-tail S0 as canonical work.
-- parked: Script result activation, process-exit projection, normal-entry
-  cutover, JSON, executor, old-chain retirement, and CUT0
+- next executable row: `ENTRY-RESULT-PROJECTION0-S0` (disconnected
+  `CONTRACT0 -> ENTRY-SELECTION0 -> SOURCE-ENTRY0 -> PHYSICAL-THUNK0`)
+- parked: normal-entry cutover, JSON, executor, old-chain retirement, and CUT0
 
 ## Rule
 

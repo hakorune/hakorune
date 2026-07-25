@@ -1,19 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0 and SCRIPT-RESULT-TAIL0-S0 are closed. The next frontier is the ENTRY-RESULT-PROJECTION0-D0 design stop: inventory source-entry/process-status callers and select the typed result/projection/thunk boundaries before any S0 code. Parser grammar, App policy, normal-entry cutover, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
+status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0, SCRIPT-RESULT-TAIL0-S0, and ENTRY-RESULT-PROJECTION0-D0 are closed. The next executable row is ENTRY-RESULT-PROJECTION0-S0: introduce the typed source-result/process-status contract and disconnected thunk seam. Parser grammar, App policy, normal-entry cutover, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
 date = "2026-07-25"
-current_design_stop = "ENTRY-RESULT-PROJECTION0-D0-20260725"
-current_execution_row = "ENTRY-RESULT-PROJECTION0-D0"
-current_execution_summary = "SCRIPT-RESULT-TAIL0-S0 is closed: source-owned Script prelude/terminal classification, LinearScalar0 lowering, Unit provenance, pre-commit tracker seal, one BODY Return/completion/witness commit, ROOTBATCH witness validation, focused fixtures, family guard, pointer guard, and cargo check are green. No implementation is authorized at the ENTRY-RESULT-PROJECTION0-D0 design stop."
+current_design_stop = "ENTRY-RESULT-PROJECTION0-D0-CLOSED-20260725"
+current_execution_row = "ENTRY-RESULT-PROJECTION0-S0"
+current_execution_summary = "ENTRY-RESULT-PROJECTION0-D0 is closed with an observed caller census, CanonicalProcessExitV1 profile, and one typed SourceEntryThunkV1 boundary. S0 is authorized only for CONTRACT0 -> ENTRY-SELECTION0 -> SOURCE-ENTRY0 -> PHYSICAL-THUNK0 -> VM-REFERENCE0 -> EXE-AOT0 -> PARITY-G0; no public or legacy route cutover."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "Language v1 function-exit semantics"
 active_lane_status = """FUNCTION-EXIT-SEMANTICS-prime-r1 is the current semantic
-authority. FUNCTION-EXIT-F1-RETURN0-S0, DRAFT-SEAL0-S0, and
-SCRIPT-RESULT-TAIL0-S0 are closed. ENTRY-RESULT-PROJECTION0-D0 is the active
-design stop; no process-result implementation is authorized yet. The D′/Raw
+authority. FUNCTION-EXIT-F1-RETURN0-S0, DRAFT-SEAL0-S0,
+SCRIPT-RESULT-TAIL0-S0, and ENTRY-RESULT-PROJECTION0-D0 are closed.
+ENTRY-RESULT-PROJECTION0-S0 is the next executable row; only its disconnected
+contract/thunk slice is authorized. The D′/Raw
 history below is parked context and must not select a different current row.
 D′ is the current canonical control-lowering authority:
 pre-Builder products retain exact coverage/topology/ports/cleanup, while one
@@ -360,9 +361,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "entry-result-projection0-d0-design-stop-2026-07-25"
-latest_card_path = "docs/development/current/main/investigations/entry-result-projection0-d0-design-stop-2026-07-25.md"
-latest_card_summary = """ENTRY-RESULT-PROJECTION0-D0 is the next T2 design stop. It inventories every source-entry/process-status producer, keeps SourceEntryResult separate from ProcessTermination, and selects the physical thunk/profile boundary before any S0 implementation."""
+latest_card = "entry-result-projection0-s0-execution-task-2026-07-25"
+latest_card_path = "docs/development/current/main/investigations/entry-result-projection0-s0-execution-task-2026-07-25.md"
+latest_card_summary = """ENTRY-RESULT-PROJECTION0-D0 is closed: the caller census names duplicated entry/status producers, CanonicalProcessExitV1 is selected, and one typed SourceEntryThunkV1 boundary is fixed. ENTRY-RESULT-PROJECTION0-S0 is authorized only as a disconnected contract/thunk task."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -564,7 +565,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "ENTRY-RESULT-PROJECTION0-D0-20260725"
+current_blocker_token = "ENTRY-RESULT-PROJECTION0-S0-CONTRACT0-20260725"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
