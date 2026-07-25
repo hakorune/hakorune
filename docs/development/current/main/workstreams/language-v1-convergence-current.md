@@ -230,7 +230,7 @@ FUNCTION-EXIT-F1-RETURN0-S0
   synchronize the accepted target while registry/parser/AST/MIR/runtime/
   backend behavior remains unchanged, then resume Forge0.
 
--> NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 (active; production caller=0)
+-> NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 (closed; production caller=0)
   -> FORGE-CONTRACT0
   -> FORGE-SOURCE0
   -> FORGE-HANDOFF0
@@ -238,20 +238,24 @@ FUNCTION-EXIT-F1-RETURN0-S0
   -> FORGE-SEMANTIC0-S0 (closed: Script source-text matrix)
   -> FORGE-SEMANTIC0-S1 (closed: Function/Main capability boundary)
   -> RESULT-CARRIER-NORMAL-CAPABILITY0-D0 (closed: Q1/Q2/Q3 = A)
-  -> RESULT-CARRIER-NORMAL-CAPABILITY0-S0 (active: facts + typed rejection evidence)
-  -> FORGE-SEMANTIC0-S2 (after selected carrier/annotation policy)
-  -> FORGE-REUSE0-S0 (pre-compiler rejection non-poisoning)
-  -> FORGE-REUSE0-S1 (compiler/process/VM fault reuse)
-  -> FORGE-G0
-  -> NORMAL-ENTRY-CUTOVER-D2
+  -> RESULT-CARRIER-NORMAL-CAPABILITY0-S0 (closed)
+  -> FORGE-SEMANTIC0-S2 (closed)
+  -> FORGE-REUSE0-S0/S1 (closed)
+  -> FORGE-G0 (closed)
+  -> NORMAL-ENTRY-CUTOVER-D2 (accepted A: explicit new caller)
   The former SOURCE-PROFILE-D0/CORRESPONDENCE-P0/SEMANTIC-MATRIX-P0/
   CALLER-G0 names are historical planning aliases, not a second executable
   queue.
 
--> NORMAL-FILE-VM0-REQUEST0-S0 (D2 accepted only)
-  one typed normal-file caller, then exact source/compile/entry/result/parity
-  rows and selected-family legacy caller retirement. The first caller's old
-  edge retires before any new language/carrier family opens.
+-> NORMAL-FILE-VM0-REQUEST0-S0 (active)
+  -> REPORT0-S0
+  -> PARITY0-P0a
+  -> CALLER0-I0
+  -> PARITY0-P0b
+  -> G0
+  -> MIRBUILDER-CORE-COMPLETE0-P0
+  One new CLI-visible, default-off request is added; no existing caller is
+  replaced, so no legacy sunset is issued in this series.
 
 -> NORMAL-FILE-VM0-FRONTDOOR-HARDEN0-S0 (after first caller retirement)
   behavior-neutral BoxShape series: receipt typestate, typed parser rejection,

@@ -1,14 +1,15 @@
 ---
-Status: active design consultation
+Status: accepted design
 Date: 2026-07-26
-Decision needed: NORMAL-ENTRY-CUTOVER-D2
-Scope: choose exactly one production consumer for the proven normal-file forge
+Decision: NORMAL-ENTRY-CUTOVER-D2-EXPLICIT-NORMAL-FILE-VM0
+Choice: A — one explicit, CLI-visible, default-off production request
+Scope: authorize exactly one production consumer for the proven normal-file forge
 Prerequisite:
   - RESULT-CARRIER-NORMAL-CAPABILITY0-S0 closed
   - production caller remains zero
 ---
 
-# NORMAL-ENTRY-CUTOVER-D2
+# NORMAL-ENTRY-CUTOVER-D2-EXPLICIT-NORMAL-FILE-VM0
 
 ## Decision boundary
 
@@ -60,9 +61,9 @@ profile/source/parse/compile/process-fault/VM-fault -> later success
 normal/default caller remains zero
 ```
 
-## Choices
+## Closed decision
 
-### A — recommended: forge one explicit opt-in production request
+### A — accepted: forge one explicit opt-in production request
 
 Create one new, default-off runner request whose only semantic work is:
 
@@ -79,42 +80,39 @@ authority.  The request is not `compile_with_source`, is not the default
 compiler route, and does not replace an existing caller.  It has no legacy
 caller sunset because no old caller is displaced.
 
-### B — map a later, newly audited existing caller
+### B — rejected: map a later, newly audited existing caller
 
 Do not choose this unless a fresh caller census overturns the sealed D0
 finding.  This requires a new design row; D2 must not silently relabel one of
 the six rejected sites.
 
-### C — retire the forge proof and keep caller zero
+### C — rejected: retire the forge proof and keep caller zero
 
 Use only if the explicit opt-in request is no longer desired.  This consumes
 the reserved `NORMAL-FILE-VM0-FORGE-PROOF-RETIRE0-S0` path and does not widen
 any legacy route.
 
-## Recommendation
-
-Choose A.  It is the accepted forge-front-door direction and gives the new
-compiler a real file execution entry without widening the default route or
-pretending a legacy caller was migrated.
-
-## Required D2 answers
+## Fixed D2 contract
 
 ```text
-Q1 exact request owner:
-  Which one new explicit runner request owns the file path and sealed profile?
+request owner = NormalFileVmReferenceProductionRequestV1
+CLI selector  = --backend normal-file-vm-reference
+visibility    = CLI-visible, default-off, vm-reference feature-gated
+embedding API = zero
 
-Q2 request visibility:
-  Is the first entry CLI-visible default-off, or an embedding-only production API?
+usage/profile/feature failure = status 2
+read/parse/source/compile/activation failure = status 1
+executed program result/Fault = existing RawVmReferenceRunReportV1 status
 
-Q3 user-facing failure classes:
-  Keep profile/source/parse/compile invocation failures separate from
-  program Fault status 70?  (Recommended: yes, unchanged.)
-
-Q4 promotion rule:
-  What measured parity and caller-census evidence is required before this
-  explicit request may replace any normal/default caller?
-  (Recommended: a separate later cutover decision.)
+automatic promotion = forbidden
+promotion owner = NORMAL-ENTRY-PROMOTION-D3
 ```
+
+The request owns one `NormalFileRequestV1`; it exposes no source-path, AST,
+or profile accessor.  `--no-optimize` is a normal-profile rejection before
+file I/O.  Existing `raw-vm-reference` may retain its separate typed optimize
+snapshot.  No existing caller is replaced, so this decision issues no legacy
+sunset.
 
 ## If A is accepted
 
