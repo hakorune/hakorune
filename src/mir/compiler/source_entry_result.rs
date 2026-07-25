@@ -36,7 +36,7 @@ impl SealedObjectResultV1 {
         Self { kind }
     }
 
-    fn kind_name(&self) -> &str {
+    pub(in crate::mir) fn kind_name(&self) -> &str {
         &self.kind
     }
 }
@@ -52,11 +52,11 @@ impl SealedSourceFaultV1 {
         Self { code, detail }
     }
 
-    fn code(&self) -> &'static str {
+    pub(in crate::mir) fn code(&self) -> &'static str {
         self.code
     }
 
-    fn detail(&self) -> &str {
+    pub(in crate::mir) fn detail(&self) -> &str {
         &self.detail
     }
 }
@@ -84,7 +84,7 @@ pub(in crate::mir) enum SourceEntryResultV1 {
 }
 
 impl SourceEntryResultV1 {
-    fn kind(&self) -> SourceEntryResultKindV1 {
+    pub(in crate::mir) fn kind(&self) -> SourceEntryResultKindV1 {
         match self {
             Self::Unit(_) => SourceEntryResultKindV1::Unit,
             Self::Integer(_) => SourceEntryResultKindV1::Integer,
@@ -151,6 +151,30 @@ pub(in crate::mir) enum ProcessFaultV1 {
         code: &'static str,
         detail: Box<str>,
     },
+}
+
+impl ProcessFaultV1 {
+    pub(in crate::mir) fn diagnostic_fields(&self) -> ProcessFaultDiagnosticFieldsV1<'_> {
+        match self {
+            Self::ExitCodeOutOfRange { value } => {
+                ProcessFaultDiagnosticFieldsV1::ExitCodeOutOfRange { value: *value }
+            }
+            Self::UnsupportedProcessResult { kind } => {
+                ProcessFaultDiagnosticFieldsV1::UnsupportedProcessResult { kind: *kind }
+            }
+            Self::SourceFault { code, detail } => ProcessFaultDiagnosticFieldsV1::SourceFault {
+                code,
+                detail,
+            },
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum ProcessFaultDiagnosticFieldsV1<'a> {
+    ExitCodeOutOfRange { value: i64 },
+    UnsupportedProcessResult { kind: SourceEntryResultKindV1 },
+    SourceFault { code: &'static str, detail: &'a str },
 }
 
 #[derive(Debug, PartialEq)]

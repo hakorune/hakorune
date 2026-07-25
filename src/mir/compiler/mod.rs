@@ -79,6 +79,7 @@ pub(in crate::mir) mod source_entry_ny_main;
 pub(in crate::mir) mod source_entry_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_entry_vm_reference;
+pub(in crate::mir) mod source_entry_vm_diagnostic;
 #[cfg(test)]
 mod source_entry_vm_reference_p0;
 #[allow(dead_code)]
