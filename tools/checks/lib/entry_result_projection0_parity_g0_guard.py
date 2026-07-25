@@ -37,6 +37,7 @@ def main() -> int:
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-S1-DESIGN-STOP"',
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-S1-PROJECTION-CONSUME0"',
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-S2-FAULT-STATUS0"',
+            'current_execution_row = "ENTRY-RESULT-PROJECTION0-S3-RUNTIME-ACTIVATION-DESIGN-STOP"',
         )
     ):
         raise AssertionError("missing active or retained parity row")

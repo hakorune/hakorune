@@ -1,8 +1,8 @@
 # ENTRY-RESULT-PROJECTION0-S2 VM-reference consume execution task
 
 Decision: `ENTRY-RESULT-PROJECTION0-S2-VM-REFERENCE-CONSUME-prime-r1`
-Status: implementation authorized for one disconnected compiler-internal
-VM-reference carrier; production activation remains forbidden
+Status: closed; one disconnected compiler-internal VM-reference carrier is
+green and production activation remains forbidden
 
 ## Objective
 
@@ -131,7 +131,16 @@ all modified/new source/check files               < 800
 
 ## Closeout
 
-After S2 is green, advance to:
+S2 closed with:
+
+```text
+focused source-entry tests = 23/23
+S2 carrier fixtures        = 4/4
+entry-result guards        = green
+production consumers       = 0
+```
+
+The current frontier is:
 
 ```text
 ENTRY-RESULT-PROJECTION0-S3-RUNTIME-ACTIVATION-DESIGN-STOP

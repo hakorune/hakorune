@@ -78,6 +78,10 @@ pub(in crate::mir) mod source_entry_ny_main;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_entry_projection;
 #[allow(dead_code)]
+pub(in crate::mir) mod source_entry_vm_reference;
+#[cfg(test)]
+mod source_entry_vm_reference_p0;
+#[allow(dead_code)]
 pub(in crate::mir) mod raw_runtime_inputs;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_source_binding;
