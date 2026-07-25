@@ -256,6 +256,9 @@ mod tests {
     use super::*;
     use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, Span};
     use std::collections::HashMap;
+    use std::sync::{Mutex, OnceLock};
+
+    static ENTRY_ENV_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
     use crate::mir::compiler::source_entry_result::UnitOriginV1;
 
     fn empty_script() -> ASTNode {
@@ -550,6 +553,25 @@ mod tests {
         let report = compiler
             .run_raw_vm_reference(empty_app(), Some("raw-vm-app.hako"))
             .expect("empty App Main should execute through the sealed target");
+        assert_eq!(report.status_code(), 0);
+        assert_eq!(report.diagnostic_tag(), None);
+    }
+
+    #[test]
+    fn raw_vm_entry_ignores_decoy_nyash_entry_environment() {
+        let _lock = ENTRY_ENV_LOCK
+            .get_or_init(|| Mutex::new(()))
+            .lock()
+            .expect("entry environment lock");
+        let previous = std::env::var_os("NYASH_ENTRY");
+        std::env::set_var("NYASH_ENTRY", "Decoy.main/0");
+        let mut compiler = crate::mir::compiler::MirCompiler::new();
+        let result = compiler.run_raw_vm_reference(empty_app(), Some("raw-vm-decoy.hako"));
+        match previous {
+            Some(value) => std::env::set_var("NYASH_ENTRY", value),
+            None => std::env::remove_var("NYASH_ENTRY"),
+        }
+        let report = result.expect("sealed Main target must ignore NYASH_ENTRY");
         assert_eq!(report.status_code(), 0);
         assert_eq!(report.diagnostic_tag(), None);
     }

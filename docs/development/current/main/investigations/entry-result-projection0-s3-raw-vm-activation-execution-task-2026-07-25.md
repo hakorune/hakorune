@@ -99,7 +99,8 @@ Script, empty App Main, integer 0/255, integer range faults, Bool/Float/String
 unsupported process results, Print-as-Unit, division VM faults, and compiler
 reuse after success or entry rejection. Local/assignment/compound-assignment
 statement Unit cases are also green. The full matrix, decode ABI mismatch,
-decoy-entry census, and final caller census remain open under this row.
+and final caller census remain open under this row. A decoy `NYASH_ENTRY`
+environment test now confirms the sealed Main target is selected instead.
 
 Route-scoped G0 census snapshot (2026-07-25): the typed compile kernel has one
 definition and exactly two consumers (compatibility ingress plus the explicit

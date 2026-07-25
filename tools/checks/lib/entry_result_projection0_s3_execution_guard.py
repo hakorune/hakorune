@@ -22,6 +22,7 @@ def require(text: str, fragment: str, label: str) -> None:
 def main() -> int:
     task = TASK.read_text()
     execution = EXEC.read_text()
+    execution_production = execution.split("#[cfg(test)]", 1)[0]
     publication = PUB.read_text()
     reference = REF.read_text()
 
@@ -52,7 +53,7 @@ def main() -> int:
         "as_integer(",
         "as_bool(",
     ):
-        if forbidden in execution:
+        if forbidden in execution_production:
             raise AssertionError(f"S3 execution must not use legacy discovery/coercion: {forbidden}")
 
     for path in (TASK, EXEC, PUB, REF, Path(__file__)):

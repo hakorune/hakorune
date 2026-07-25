@@ -24,6 +24,7 @@ def main() -> int:
     kernel = KERNEL.read_text()
     ingress = INGRESS.read_text()
     execution = EXEC.read_text()
+    execution_production = execution.split("#[cfg(test)]", 1)[0]
 
     require(task, "S3-OWNER0", "task contract")
     require(task, "compile_raw_published_v1", "typed compile kernel contract")
@@ -53,7 +54,7 @@ def main() -> int:
         "NYASH_ENTRY",
         "build_module(",
     ):
-        if forbidden in ingress or forbidden in execution:
+        if forbidden in ingress or forbidden in execution_production:
             raise AssertionError(f"new ingress must not duplicate/discover legacy work: {forbidden}")
 
     for path in (TASK, KERNEL, INGRESS, EXEC, Path(__file__)):
