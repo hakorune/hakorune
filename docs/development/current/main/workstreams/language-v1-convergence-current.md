@@ -235,8 +235,11 @@ FUNCTION-EXIT-F1-RETURN0-S0
   -> FORGE-SOURCE0
   -> FORGE-HANDOFF0
   -> FORGE-CORRESPONDENCE0
-  -> FORGE-SEMANTIC0
-  -> FORGE-REUSE0
+  -> FORGE-SEMANTIC0-S0 (Script source-text matrix)
+  -> FORGE-SEMANTIC0-S1 (Function/Main capability boundary)
+  -> FORGE-SEMANTIC0-S2 (annotation/result-carrier matrix)
+  -> FORGE-REUSE0-S0 (pre-compiler rejection non-poisoning)
+  -> FORGE-REUSE0-S1 (compiler/process/VM fault reuse)
   -> FORGE-G0
   -> NORMAL-ENTRY-CUTOVER-D2
   The former SOURCE-PROFILE-D0/CORRESPONDENCE-P0/SEMANTIC-MATRIX-P0/

@@ -375,52 +375,130 @@ canonical Raw lane: exact 0..255 integers, Unit=0, typed status-70 faults
 This is a difference ledger, not a parity claim. D2 requires the selected
 front-door behavior to use the canonical Raw projection only.
 
-### `FORGE-SEMANTIC0`
+### `FORGE-SEMANTIC0-S0` — Script source-text matrix
 
-Build a matrix where every row is accepted or a typed profile/capability
-rejection before the relevant effects:
+The first executable semantic slice uses only source text through the
+front-door path:
 
 ```text
-ordinary function: explicit value, explicit Unit, Unit fallthrough
-Main.main/0: explicit return, Unit fallthrough, no implicit final-expression return
-Script: final expression=Value; Print/Local/Assignment/CompoundAssignment=Unit
-empty body; void/null; annotated and unannotated results
-Integer / Bool / Float / String
-Object / Box / Array / Future / WeakRef = typed first-profile rejection
-helper plus Main; non-Main entry candidates never scanned or retried
+file source
+  -> one-read / one-parse front door
+  -> opaque Raw VM-reference invocation
+  -> existing exact Raw terminal
 ```
+
+It may add no source semantic repair. Its rows are:
+
+```text
+Script empty / explicit Void                 -> Unit, status 0
+Script final Integer 0 / 255                 -> exact process status
+Script final Bool / Float / String            -> typed process Fault, status 70
+Script final Print                            -> Unit, status 0
+Script final Local                            -> Unit, status 0
+Script final Assignment / CompoundAssignment -> Unit, status 0
+out-of-range Integer                          -> typed range Fault, status 70
+```
+
+Every row is credited only when it is observed through the front door. Direct
+AST Raw fixtures remain downstream regressions, not normal-file evidence.
+
+`null` is deliberately not included as a successful Unit row: the current
+Raw recipe folds Null and Void into one origin. `FORGE-SEMANTIC0-S0` records
+that observation but cannot claim the normative Null-versus-Void distinction.
+It must stop at `SCRIPT-RESULT-NORMAL-CAPABILITY0-D0` before adding a
+successful Null claim.
+
+### `FORGE-SEMANTIC0-S1` — Function/Main boundary matrix
+
+This row is an evidence-and-routing boundary, not permission to broaden Raw.
+It classifies:
+
+```text
+Main empty/fallthrough and final expression
+Main explicit return value / Unit
+helper inventory plus Main and non-Main entry decoys
+ordinary function explicit value / Unit / fallthrough
+```
+
+Current Raw NarrowV1 admits only an empty helper plus an `AppFixedVoid` Main
+route. It does not admit Main explicit Return or ordinary callable bodies.
+The row therefore records those as named pre-physical capability rejections;
+it must not translate them into a last lowered ValueId or repair them in the
+front door.
+
+Any D2-required admission gap returns to:
+
+```text
+FUNCTION-EXIT-F1-NORMAL-CAPABILITY0-D0
+```
+
+before this forge resumes.
+
+### `FORGE-SEMANTIC0-S2` — Annotation and result-carrier matrix
+
+Keep annotations and result carriers separate from S0/S1:
+
+```text
+: void + Unit                         -> current admitted behavior or named reject
+: void + non-Unit                     -> named contract/capability reject
+non-Void annotation + fallthrough     -> named missing-result reject
+unannotated Integer/Bool/Float/String -> source-result observation
+Object/Box/Array/Future/WeakRef        -> precise first-profile rejection
+```
+
+If the current lane cannot name the required rejection before publication,
+stop at `RESULT-CARRIER-NORMAL-CAPABILITY0-D0`; do not use a front-door
+fallback or a dynamic carrier workaround.
 
 Canonical authorities remain `ExplicitReturnOnly`,
 `ScriptLastExpressionOrUnit`, and `ProcessExitProjectionV1`; a Builder-last
 `ValueId` is never source return authority.
 
-The following are not credited by existing Raw fixtures and must be either
-proven by forge-specific fixtures or recorded as typed NarrowV1 rejection:
+### `FORGE-REUSE0-S0` — pre-compiler rejection non-poisoning
+
+Use one already-created `MirCompiler`, perform each front-door rejection, then
+run a known success through the same compiler:
 
 ```text
-Main explicit return
-ordinary non-empty helper-function result
-Null-versus-Void source/result distinction
-process-fault -> same-compiler success
-VM-execution-fault -> same-compiler success
-front-door profile/source/parse rejection -> same-compiler success
+empty-path profile rejection -> success
+using/import source-profile rejection -> success
+parse rejection -> success
 ```
 
-### `FORGE-REUSE0`
+These cases do not consume the compiler. The claim is intentionally named
+*front-door rejection does not poison a pre-existing compiler*, not compiler
+reuse by an unused compiler.
 
-Prove same-`MirCompiler` reuse for:
+### `FORGE-REUSE0-S1` — compiler and execution reuse
+
+The actual compiler/VM reuse rows are:
 
 ```text
-success -> success
-profile/source/parse rejection -> success
-compile rejection -> success
+Raw compile rejection -> success
 canonical process Fault -> success
 VM execution Fault -> success
 ```
 
-Existing Raw tests are not credited automatically. Forge-specific fixtures
-must prove the profile/source rejection and process/VM-fault reuse rows; until
-those fixtures are green, the reuse section is incomplete.
+All cases must use the front-door opaque handoff and the existing Raw terminal.
+Existing Raw-only tests are downstream regression evidence but do not close
+Forge-specific rows.
+
+### `FORGE-G0`
+
+Extend the existing Forge guard once, after the matrix is complete. It owns
+only structural facts:
+
+```text
+front-door production execution method        = 0
+front-door production runner/default caller   = 0
+test-only existing Raw terminal consumer      = 1
+source-text semantic harness                  = 1
+all semantic/reuse cases use the front-door path = 1
+all touched source/check files                < 800 lines
+```
+
+The fixture matrix, not a count of source spellings in a Python guard, is the
+semantic SSOT.
 
 ### `FORGE-G0`
 
@@ -440,24 +518,40 @@ second compiler/finalizer/status    = 0
 all touched source/check files      < 800 lines
 ```
 
-## Proof product for D2
+## Proof bundle for D2
 
-```rust
-struct VerifiedNormalFileVmForgeV1 {
-    profile: SealedNormalEntryProfileV1,
-    source: VerifiedNormalFileSourceContractV1,
-    correspondence: VerifiedRawVmCorrespondenceV1,
-    semantics: VerifiedNormalFileSemanticMatrixV1,
-    reuse: VerifiedCompilerReuseMatrixV1,
-    callers: ZeroProductionCallerReceiptV1,
-    _seal: VerifiedNormalFileVmForgeSealV1,
-}
+Forge0 deliberately creates no production Rust proof carrier. Its D2 input is
+one documented evidence bundle, backed by focused front-door fixtures and the
+existing structural guard:
+
+```text
+sealed fixed profile
++ source receipt
++ Raw-terminal correspondence
++ complete semantic matrix (accepted or named rejection)
++ reuse matrix
++ zero-production-caller receipt
 ```
 
-`NORMAL-ENTRY-CUTOVER-D2` consumes this single proof product. D2 may authorize
-one production caller only after the proof is complete. D2 must not implement
-missing language or result capabilities; incomplete rows return to their
-exact capability owner instead.
+The bundle has three separately reported states:
+
+```text
+matrix_complete:
+  every row is observed as an accepted outcome or a named rejection
+
+required_normal_admission:
+  every D2-required Function/Main/Script row is green
+
+production_activation:
+  false until D2
+```
+
+`NORMAL-ENTRY-CUTOVER-D2` consumes this evidence bundle and may authorize one
+production caller only after its required rows are green. It must not implement
+missing language or result capabilities; incomplete rows return to their exact
+capability owner instead. Real-binary parity belongs after D2, in
+`NORMAL-FILE-VM0-PARITY0-P0`, because caller-zero Forge0 cannot prove a normal
+production route.
 
 ## Retirement and sunset
 
