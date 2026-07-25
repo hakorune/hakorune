@@ -74,6 +74,8 @@ pub(in crate::mir) mod source_entry_physical;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_entry_reference;
 #[allow(dead_code)]
+pub(in crate::mir) mod source_entry_ny_main;
+#[allow(dead_code)]
 pub(in crate::mir) mod raw_runtime_inputs;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_source_binding;

@@ -120,6 +120,10 @@ impl ProcessExitCodeV1 {
     pub(in crate::mir) const fn value(self) -> u8 {
         self.0
     }
+
+    pub(in crate::mir) const fn normalized_i64(self) -> i64 {
+        i64::from(self.0)
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

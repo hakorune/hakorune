@@ -32,8 +32,8 @@ termination. The former App any-statement-tail task is not executable
 canonical work; it is historical compatibility evidence only.
 
 Continue only the exact `current_blocker_token` and `latest_card_path` named by
-`CURRENT_STATE.toml`. D0, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0, and PHYSICAL-THUNK0 are closed; the next exact task is
-the disconnected `ENTRY-RESULT-PROJECTION0-VM-REFERENCE0` slice. Do not infer implementation authority from Legacy
+`CURRENT_STATE.toml`. D0, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0, PHYSICAL-THUNK0, and VM-REFERENCE0 are closed; the next exact task is
+the disconnected `ENTRY-RESULT-PROJECTION0-EXE-AOT0` slice. Do not infer implementation authority from Legacy
 snapshots, Builder-returned `ValueId`s, or superseded App parity cards. Keep
 normal-entry cutover, JSON, executor, old-chain retirement, and CUT0 parked
 unless the current state explicitly selects them. Keep every new or modified source/check file below

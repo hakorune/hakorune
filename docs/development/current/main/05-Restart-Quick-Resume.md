@@ -49,8 +49,8 @@ cargo check -q
 - continue only the exact `current_blocker_token` and `latest_card_path` from
   `CURRENT_STATE.toml`; this mirror does not select or rename executable rows
 - keep parser/source-carrier and unrelated parked stashes disconnected
-- Script classification, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0, and PHYSICAL-THUNK0 are closed. The next exact task is the
-  disconnected `ENTRY-RESULT-PROJECTION0-VM-REFERENCE0` slice. Normal-entry cutover,
+- Script classification, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0, PHYSICAL-THUNK0, and VM-REFERENCE0 are closed. The next exact task is the
+  disconnected `ENTRY-RESULT-PROJECTION0-EXE-AOT0` slice. Normal-entry cutover,
   JSON, executor, old Raw retirement, and CUT0 remain parked.
 
 - do not paste landed chronology into restart docs

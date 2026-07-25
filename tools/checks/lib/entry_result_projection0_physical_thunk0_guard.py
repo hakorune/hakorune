@@ -27,6 +27,7 @@ def main() -> int:
         for row in (
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-PHYSICAL-THUNK0"',
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-VM-REFERENCE0"',
+            'current_execution_row = "ENTRY-RESULT-PROJECTION0-EXE-AOT0"',
         )
     ):
         raise AssertionError("missing active or retained physical-thunk row")

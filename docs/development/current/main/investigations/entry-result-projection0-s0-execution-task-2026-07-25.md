@@ -273,3 +273,24 @@ python3 tools/checks/lib/entry_result_projection0_vm_reference0_guard.py
 `EXE-AOT0` is the next implementation sub-row. It must accept only a
 normalized `ProcessExitCodeV1`/status at the `ny_main` capability boundary;
 legacy mock/status behavior remains documented and disconnected.
+
+## EXE-AOT0 closeout
+
+`NyMainCapabilityAdapterV1` now accepts only normalized `ProcessExitCodeV1` and
+produces an opaque `NyMainStatusV1` whose only numeric view is normalized
+`i64`. Existing `ensure_ny_main` and LLVM 42/0 behavior remain legacy and
+disconnected; no native or LLVM caller was changed.
+
+Focused evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib source_entry_ny_main -- --test-threads=1
+  1 passed
+
+python3 tools/checks/lib/entry_result_projection0_exe_aot0_guard.py
+  status_only=1 normalized=1 no_legacy_helper=1 no_mock=1 below_800=1
+```
+
+`PARITY-G0` is the next implementation sub-row. It must close the structural
+matrix and keep normal-entry, JSON, executor, legacy retirement, and CUT0
+callers at zero.
