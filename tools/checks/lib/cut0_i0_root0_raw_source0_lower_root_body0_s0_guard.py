@@ -14,10 +14,12 @@ SOURCE = tuple(
     for path in (
         "src/mir/raw_root_body_recipe.rs",
         "src/mir/compiler/raw_root_source_facts.rs",
+        "src/mir/compiler/raw_root_source_facts/recipe_projection.rs",
         "src/mir/compiler/raw_root_environment_manifest.rs",
         "src/mir/compiler/raw_root_decl_access.rs",
         "src/mir/compiler/raw_root_decl_access_p0.rs",
         "src/mir/builder/raw_root_environment_install.rs",
+        "src/mir/builder/raw_root_environment_install/body_transaction.rs",
         "src/mir/builder/raw_root_body_exit.rs",
         "src/mir/builder/raw_root_physical.rs",
         "src/mir/builder/raw_root_physical/root_batch_terminal.rs",
