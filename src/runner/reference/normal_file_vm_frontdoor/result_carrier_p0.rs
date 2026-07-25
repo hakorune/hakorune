@@ -95,3 +95,84 @@ fn owner_bearing_source_is_rejected_before_vm_result_decoding() {
         "{error}"
     );
 }
+
+#[cfg(feature = "vm-reference")]
+#[test]
+fn front_door_rejections_leave_the_compiler_reusable() {
+    let dir = tempdir().expect("tempdir");
+    let mut compiler = crate::mir::MirCompiler::new();
+
+    let profile_rejection = request(PathBuf::new())
+        .prepare()
+        .expect_err("empty path rejects before file read");
+    profile_rejection.discard();
+    assert_eq!(
+        run_source(&mut compiler, dir.path(), "after-profile.hako", "42")
+            .expect("profile rejection must not poison compiler")
+            .status_code(),
+        42
+    );
+
+    for (name, source) in [("parse.hako", "@"), ("using.hako", "using foo")] {
+        let rejected = request(write_source(dir.path(), name, source))
+            .prepare()
+            .expect("profile")
+            .read_once()
+            .expect("one read")
+            .parse_once()
+            .expect_err("source must reject before Raw handoff");
+        rejected.discard();
+        assert_eq!(
+            run_source(&mut compiler, dir.path(), "after-source.hako", "255")
+                .expect("source rejection must not poison compiler")
+                .status_code(),
+            255
+        );
+    }
+
+    run_source(
+        &mut compiler,
+        dir.path(),
+        "rejected-main-return.hako",
+        "static box Main { main() { return 1 } }",
+    )
+    .expect_err("Raw compile rejection remains a rejection");
+    assert_eq!(
+        run_source(&mut compiler, dir.path(), "after-compile.hako", "1")
+            .expect("Raw rejection must not poison compiler")
+            .status_code(),
+        1
+    );
+}
+
+#[cfg(feature = "vm-reference")]
+#[test]
+fn canonical_process_and_vm_faults_leave_the_compiler_reusable() {
+    let dir = tempdir().expect("tempdir");
+    let mut compiler = crate::mir::MirCompiler::new();
+
+    let unsupported = run_source(&mut compiler, dir.path(), "bool.hako", "true")
+        .expect("Bool is a source result and faults only at process projection");
+    assert_eq!(unsupported.status_code(), 70);
+    assert_eq!(
+        unsupported.diagnostic_tag(),
+        Some("[process/unsupported-result]")
+    );
+    assert_eq!(
+        run_source(&mut compiler, dir.path(), "after-process-fault.hako", "42")
+            .expect("canonical process fault must not poison compiler")
+            .status_code(),
+        42
+    );
+
+    let division = run_source(&mut compiler, dir.path(), "division.hako", "1 / 0")
+        .expect("VM fault remains a normal process terminal");
+    assert_eq!(division.status_code(), 70);
+    assert_eq!(division.diagnostic_tag(), Some("[process/source-fault]"));
+    assert_eq!(
+        run_source(&mut compiler, dir.path(), "after-vm-fault.hako", "")
+            .expect("VM execution fault must not poison compiler")
+            .status_code(),
+        0
+    );
+}
