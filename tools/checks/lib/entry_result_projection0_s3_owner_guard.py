@@ -23,6 +23,7 @@ REFERENCE_SELECTOR = ROOT / "src/runner/reference/request.rs"
 REFERENCE_TERMINAL = ROOT / "src/runner/reference/terminal.rs"
 FRONTDOOR_TEST_CONSUMERS = (
     ROOT / "src/runner/reference/normal_file_vm_frontdoor/result_carrier_p0.rs",
+    ROOT / "src/runner/reference/normal_file_vm/parity_p0a.rs",
 )
 PARITY_PROOF = ROOT / "tools/checks/lib/raw_vm_reference_conformance.py"
 CLI = ROOT / "src/cli/mod.rs"
@@ -82,7 +83,6 @@ def main() -> int:
     require(profile_task, "SUPPORT-PROFILE0", "support profile task")
     for fragment in (
         "RawVmReferenceProductionRequestV1",
-        "select_from_cli",
         "RawVmReferenceGrammarV1::Canonical",
         "RawVmReferenceSupportProfileV1",
         "RawVmReferenceSupportProfileV1::canonical_v1()",
@@ -107,7 +107,7 @@ def main() -> int:
 
     profile_callers = []
     for path in (ROOT / "src/runner").rglob("*.rs"):
-        if path in (PROFILE, REFERENCE_RUNNER, REFERENCE_SELECTOR):
+        if path in (PROFILE, REFERENCE_RUNNER, REFERENCE_SELECTOR, *FRONTDOOR_TEST_CONSUMERS):
             continue
         if "RawVmReferenceProductionRequestV1" in path.read_text():
             profile_callers.append(path.relative_to(ROOT))
@@ -119,6 +119,7 @@ def main() -> int:
     for fragment in (
         "ExplicitReferenceRunnerRequestV1",
         "ExplicitReferenceRunnerSelectionV1",
+        "pub(crate) fn select_from_cli(",
         "NormalFileVmReferenceProductionRequestV1",
         "RawVmReferenceProductionRequestV1",
     ):

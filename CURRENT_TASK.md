@@ -45,9 +45,10 @@ box.fini()               = separate lifecycle owner
 
 `RecoverableFailure` producer and ABI remain parked for
 `LANGUAGE-RECOVERABLE-FAILURE-D0`. The active row is now
-`NORMAL-FILE-VM0-PARITY0-P0b`: run the connected explicit,
-default-off `normal-file-vm-reference` CLI request through the central
-reference selector in real binaries, with and without `vm-reference`. The
-existing Raw reference route must remain unchanged; the normal/default route,
-`compile_with_source`, and every legacy caller remain untouched. After this
-row, run `G0`, then the core-complete proof.
+`NORMAL-FILE-VM0-G0`: promote the Forge guard into the production route guard.
+The connected explicit, default-off `normal-file-vm-reference` CLI has already
+passed real-binary status/diagnostic and feature-gated parity. Prove one
+central selector, one Raw caller, one normal caller, default-route isolation,
+shared authorities, no fallback, and the below-800-line boundary. The existing
+Raw reference route, normal/default route, `compile_with_source`, and every
+legacy caller remain untouched. After this row, run the core-complete proof.

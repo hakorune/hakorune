@@ -72,7 +72,8 @@ REQUEST0-S0 = closed by 520986b38a
 REPORT0-S0  = closed by 1ab9c8aad5
 PARITY0-P0a = closed by f5028112ca
 CALLER0-I0  = closed by 906592cb54
-PARITY0-P0b = active
+PARITY0-P0b = closed by real-binary matrix on 2026-07-26
+G0          = active
 ```
 
 ### REQUEST0-S0 — request and single selector
@@ -174,13 +175,28 @@ Closed evidence: `906592cb54` adds one central `reference::select_and_run`
 caller, dispatches Raw and NormalFile requests through the shared terminal,
 keeps the default route untouched, and adds CLI/reference documentation.
 
-### PARITY0-P0b — real binary evidence (active)
+### PARITY0-P0b — real binary evidence (closed)
 
 With `vm-reference`, verify the exact matrix in the built binary, including
 one-line diagnostics and default/raw route isolation.  Without the feature,
 verify feature-unavailable status 2 with no file read.
 
-### G0 — route guard and proof repayment
+Closed evidence from `target/release/hakorune`:
+
+```text
+normal-file-vm-reference 42       -> status 42, no diagnostic
+raw-vm-reference 42               -> status 42, no diagnostic
+default mir 42                     -> status 42, no diagnostic
+normal Bool                       -> status 70, [process/unsupported-result] kind=Bool
+normal missing file               -> status 1, file-not-found
+normal --no-optimize              -> status 2, non-default-optimization-requested
+feature-disabled normal route     -> status 2, feature-unavailable before I/O
+```
+
+The fixture source was temporary and removed after the run. No default route,
+Raw route, or `compile_with_source` behavior changed.
+
+### G0 — route guard and proof repayment (active)
 
 Promote the existing Forge guard into the reusable route guard.  It must prove
 one central selector, Raw caller=1, normal caller=1, default delta=0,

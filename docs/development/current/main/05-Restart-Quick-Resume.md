@@ -47,9 +47,10 @@ cargo check -q
   target, and terminal `Fault` remains non-catchable
 - `RecoverableFailure` remains a named pending Outcome target; its producer
   and boundary ABI belong to `LANGUAGE-RECOVERABLE-FAILURE-D0`
-- the active row is `NORMAL-FILE-VM0-PARITY0-P0b`; exercise the connected
-  explicit normal-file VM-reference CLI route in real binaries. The default
-  route, `compile_with_source`, and legacy callers remain unchanged.
+- the active row is `NORMAL-FILE-VM0-G0`; the connected explicit normal-file
+  VM-reference CLI has passed real-binary parity. Promote the Forge proof into
+  the production route guard while keeping the default route,
+  `compile_with_source`, and legacy callers unchanged.
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - the current lane is the `active_lane` in `CURRENT_STATE.toml`
