@@ -101,6 +101,13 @@ reuse after success or entry rejection. Local/assignment/compound-assignment
 statement Unit cases are also green. The full matrix, decode ABI mismatch,
 decoy-entry census, and final caller census remain open under this row.
 
+Route-scoped G0 census snapshot (2026-07-25): the typed compile kernel has one
+definition and exactly two consumers (compatibility ingress plus the explicit
+VM-reference entry); `run_raw_vm_reference` has one definition; the new route
+has one exact `execute_function_with_args` caller and zero `execute_module`,
+`NYASH_ENTRY`, or `run_vm_compiled_module` references. Repository-wide legacy
+runner callers are intentionally outside this row and remain non-claims.
+
 ## Failure law
 
 ```text
