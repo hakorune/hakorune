@@ -10,7 +10,46 @@ use crate::ast::{BinaryOperator, LiteralValue, Span};
 pub(crate) struct RawRootBodyRecipeV1 {
     entry: RawRootBodyEntryContractV1,
     statements: Box<[RawLinearScalarStmtV1]>,
+    script: Option<RawScriptBodyRecipeV1>,
     _seal: RawRootBodyRecipeSealV1,
+}
+
+/// Source-owned Script result contract after the located source facts have
+/// been projected into the neutral LinearScalar0 vocabulary.  `prelude` is
+/// always statement-only; the terminal is classified by source form rather
+/// than by whichever ValueId the Builder happens to produce last.
+#[derive(Debug, PartialEq)]
+pub(crate) struct RawScriptBodyRecipeV1 {
+    prelude: Box<[RawLinearScalarStmtV1]>,
+    terminal: RawScriptTerminalRecipeV1,
+    _seal: RawScriptBodyRecipeSealV1,
+}
+
+#[derive(Debug, PartialEq)]
+pub(crate) struct RawScriptBodyRecipeSealV1;
+
+#[derive(Debug, PartialEq)]
+pub(crate) enum RawScriptTerminalRecipeV1 {
+    EmptyUnit,
+    ValueExpression(RawLinearScalarExprV1),
+    UnitExpression {
+        expression: RawLinearScalarExprV1,
+        origin: RawScriptUnitOriginV1,
+    },
+    UnitStatement {
+        statement: RawLinearScalarStmtV1,
+        origin: RawScriptUnitOriginV1,
+    },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum RawScriptUnitOriginV1 {
+    EmptyBody,
+    VoidExpression,
+    PrintStatement,
+    LocalStatement,
+    AssignmentStatement,
+    CompoundAssignmentStatement,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -21,7 +60,7 @@ pub(crate) enum RawRootBodyRouteV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum RawRootExitPolicyV1 {
-    ScriptLastValueOrVoid,
+    ScriptSourceTailOrUnit,
     AppFixedVoid,
 }
 
@@ -35,7 +74,7 @@ impl RawRootBodyEntryContractV1 {
     pub(crate) const fn script() -> Self {
         Self {
             route: RawRootBodyRouteV1::Script,
-            exit: RawRootExitPolicyV1::ScriptLastValueOrVoid,
+            exit: RawRootExitPolicyV1::ScriptSourceTailOrUnit,
         }
     }
 
@@ -57,7 +96,7 @@ impl RawRootBodyEntryContractV1 {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) struct RawRootBodySourceSiteV1 {
     path: Box<[usize]>,
     span: Span,
@@ -87,7 +126,7 @@ pub(crate) enum RawLinearUnaryOperatorV1 {
     BitNot,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) enum RawLinearScalarExprV1 {
     Literal {
         value: LiteralValue,
@@ -110,7 +149,7 @@ pub(crate) enum RawLinearScalarExprV1 {
     },
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) enum RawLinearScalarStmtV1 {
     Expr {
         expression: RawLinearScalarExprV1,
@@ -153,6 +192,32 @@ impl RawRootBodyRecipeV1 {
         Ok(Self {
             entry,
             statements,
+            script: None,
+            _seal: RawRootBodyRecipeSealV1,
+        })
+    }
+
+    pub(crate) fn from_script_parts(
+        entry: RawRootBodyEntryContractV1,
+        prelude: Box<[RawLinearScalarStmtV1]>,
+        terminal: RawScriptTerminalRecipeV1,
+    ) -> Result<Self, RawRootBodyRecipeErrorV1> {
+        if entry.route() != RawRootBodyRouteV1::Script {
+            return Err(RawRootBodyRecipeErrorV1::ScriptRouteMismatch);
+        }
+        let mut paths = std::collections::BTreeSet::new();
+        for statement in &prelude {
+            collect_statement_paths(statement, &mut paths)?;
+        }
+        collect_terminal_paths(&terminal, &mut paths)?;
+        Ok(Self {
+            entry,
+            statements: prelude.clone(),
+            script: Some(RawScriptBodyRecipeV1 {
+                prelude,
+                terminal,
+                _seal: RawScriptBodyRecipeSealV1,
+            }),
             _seal: RawRootBodyRecipeSealV1,
         })
     }
@@ -164,13 +229,44 @@ impl RawRootBodyRecipeV1 {
     pub(crate) fn statements(&self) -> &[RawLinearScalarStmtV1] {
         &self.statements
     }
+
+    pub(crate) fn script(&self) -> Option<&RawScriptBodyRecipeV1> {
+        self.script.as_ref()
+    }
+}
+
+impl RawScriptBodyRecipeV1 {
+    pub(crate) fn prelude(&self) -> &[RawLinearScalarStmtV1] {
+        &self.prelude
+    }
+
+    pub(crate) fn terminal(&self) -> &RawScriptTerminalRecipeV1 {
+        &self.terminal
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum RawRootBodyRecipeErrorV1 {
+    ScriptRouteMismatch,
     DuplicateSourcePath { path: Box<[usize]> },
     UnsupportedStatement { path: Box<[usize]> },
     UnsupportedOperator { path: Box<[usize]> },
+}
+
+fn collect_terminal_paths(
+    terminal: &RawScriptTerminalRecipeV1,
+    paths: &mut std::collections::BTreeSet<Box<[usize]>>,
+) -> Result<(), RawRootBodyRecipeErrorV1> {
+    match terminal {
+        RawScriptTerminalRecipeV1::EmptyUnit => Ok(()),
+        RawScriptTerminalRecipeV1::ValueExpression(expression)
+        | RawScriptTerminalRecipeV1::UnitExpression { expression, .. } => {
+            collect_expr_paths(expression, paths)
+        }
+        RawScriptTerminalRecipeV1::UnitStatement { statement, .. } => {
+            collect_statement_paths(statement, paths)
+        }
+    }
 }
 
 fn collect_statement_paths(

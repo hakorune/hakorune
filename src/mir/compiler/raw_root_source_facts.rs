@@ -12,6 +12,9 @@ use super::raw_root_plan0::{RawPhysicalRootIdentityV1, RawRootKindV1, RawRootPla
 
 mod recipe_projection;
 
+#[cfg(test)]
+mod script_result_p0;
+
 #[derive(Debug, PartialEq)]
 pub(in crate::mir) struct RawSourceSiteV1 {
     path: Box<[usize]>,

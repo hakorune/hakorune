@@ -130,7 +130,7 @@ impl MirBuilder {
         }
         let entry_block = self.next_block_id();
         let provisional_return = match entry.exit() {
-            RawRootExitPolicyV1::ScriptLastValueOrVoid => RawProvisionalReturnV1::Unknown,
+            RawRootExitPolicyV1::ScriptSourceTailOrUnit => RawProvisionalReturnV1::Unknown,
             RawRootExitPolicyV1::AppFixedVoid => RawProvisionalReturnV1::FixedVoid,
         };
         let return_type = match provisional_return {
@@ -194,7 +194,7 @@ impl MirBuilder {
             return Err(RawRootBodyExitSealErrorV1::BlockAlreadyTerminated { block });
         }
         match (open.exit, result) {
-            (RawRootExitPolicyV1::ScriptLastValueOrVoid, RootBodyResultV1::Value(value)) => {
+            (RawRootExitPolicyV1::ScriptSourceTailOrUnit, RootBodyResultV1::Value(value)) => {
                 if !crate::mir::verification::utils::compute_def_blocks(function)
                     .contains_key(&value)
                 {
@@ -222,7 +222,7 @@ impl MirBuilder {
                 }
                 Ok(PreparedRawRootExitPlanV1::ScriptValue { block, value, ty })
             }
-            (RawRootExitPolicyV1::ScriptLastValueOrVoid, RootBodyResultV1::NoValue) => {
+            (RawRootExitPolicyV1::ScriptSourceTailOrUnit, RootBodyResultV1::NoValue) => {
                 Ok(PreparedRawRootExitPlanV1::ScriptEmpty { block })
             }
             (RawRootExitPolicyV1::AppFixedVoid, RootBodyResultV1::Value(value)) => {

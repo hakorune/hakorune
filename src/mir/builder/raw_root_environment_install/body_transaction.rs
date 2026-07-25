@@ -139,7 +139,7 @@ impl InstalledRawRootEnvironmentV1 {
             .builder_mut()
             .commit_raw_root_exit_v1(open, plan, brand);
         let completion_result = match recipe.entry().exit() {
-            crate::mir::raw_root_body_recipe::RawRootExitPolicyV1::ScriptLastValueOrVoid => result,
+            crate::mir::raw_root_body_recipe::RawRootExitPolicyV1::ScriptSourceTailOrUnit => result,
             crate::mir::raw_root_body_recipe::RawRootExitPolicyV1::AppFixedVoid => {
                 RootBodyResultV1::NoValue
             }

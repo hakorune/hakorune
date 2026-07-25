@@ -3,12 +3,12 @@
 //! This child module owns only the existing located-to-neutral conversion.
 //! Script-result policy remains unchanged until its dedicated semantic row.
 
-use crate::ast::BinaryOperator;
+use crate::ast::{BinaryOperator, LiteralValue};
 use crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1;
 use crate::mir::raw_root_body_recipe::{
     RawLinearScalarExprV1, RawLinearScalarStmtV1, RawLinearUnaryOperatorV1,
     RawRootBodyEntryContractV1, RawRootBodyRecipeErrorV1, RawRootBodyRecipeV1,
-    RawRootBodySourceSiteV1,
+    RawRootBodySourceSiteV1, RawScriptTerminalRecipeV1, RawScriptUnitOriginV1,
 };
 
 use super::{
@@ -39,21 +39,22 @@ impl RawRootSourceFactsV1 {
             RawRootBodyFactV1::App { body, .. } => body.statements().len(),
         };
         let callable_count = callable_catalog.len();
-        let (entry, body) = match body {
-            RawRootBodyFactV1::Script(program) => (RawRootBodyEntryContractV1::script(), program),
-            RawRootBodyFactV1::App { main, body } => (
-                RawRootBodyEntryContractV1::app_main0(main.top_level_statement()),
-                body,
-            ),
+        let body_recipe = match body {
+            RawRootBodyFactV1::Script(program) => script_recipe(program)?,
+            RawRootBodyFactV1::App { main, body } => {
+                let statements = body
+                    .statements
+                    .into_vec()
+                    .into_iter()
+                    .map(linear_statement)
+                    .collect::<Result<Vec<_>, _>>()?
+                    .into_boxed_slice();
+                RawRootBodyRecipeV1::from_parts(
+                    RawRootBodyEntryContractV1::app_main0(main.top_level_statement()),
+                    statements,
+                )?
+            }
         };
-        let statements = body
-            .statements
-            .into_vec()
-            .into_iter()
-            .map(linear_statement)
-            .collect::<Result<Vec<_>, _>>()?
-            .into_boxed_slice();
-        let body_recipe = RawRootBodyRecipeV1::from_parts(entry, statements)?;
         Ok((
             RawRootPostInstallFactsV1 {
                 route,
@@ -67,6 +68,69 @@ impl RawRootSourceFactsV1 {
             callable_catalog,
         ))
     }
+}
+
+fn script_recipe(
+    program: super::RawLocatedScalarProgramV1,
+) -> Result<RawRootBodyRecipeV1, RawRootBodyRecipeErrorV1> {
+    let mut statements = program.statements.into_vec();
+    let terminal = match statements.pop() {
+        None => RawScriptTerminalRecipeV1::EmptyUnit,
+        Some(statement @ RawLocatedScalarStmtV1::Expr { .. }) => {
+            let expression = match statement {
+                RawLocatedScalarStmtV1::Expr { expression, .. } => expression,
+                _ => unreachable!("matched expression statement"),
+            };
+            let unit_origin = match &expression {
+                RawLocatedScalarExprV1::Literal { value, .. }
+                    if matches!(value, LiteralValue::Null | LiteralValue::Void) =>
+                {
+                    Some(RawScriptUnitOriginV1::VoidExpression)
+                }
+                _ => None,
+            };
+            let expression = linear_expr(expression)?;
+            match unit_origin {
+                Some(origin) => RawScriptTerminalRecipeV1::UnitExpression { expression, origin },
+                None => RawScriptTerminalRecipeV1::ValueExpression(expression),
+            }
+        }
+        Some(statement @ RawLocatedScalarStmtV1::Print { .. }) => {
+            RawScriptTerminalRecipeV1::UnitStatement {
+                statement: linear_statement(statement)?,
+                origin: RawScriptUnitOriginV1::PrintStatement,
+            }
+        }
+        Some(statement @ RawLocatedScalarStmtV1::Local { .. }) => {
+            RawScriptTerminalRecipeV1::UnitStatement {
+                statement: linear_statement(statement)?,
+                origin: RawScriptUnitOriginV1::LocalStatement,
+            }
+        }
+        Some(statement @ RawLocatedScalarStmtV1::Assignment { .. }) => {
+            RawScriptTerminalRecipeV1::UnitStatement {
+                statement: linear_statement(statement)?,
+                origin: RawScriptUnitOriginV1::AssignmentStatement,
+            }
+        }
+        Some(statement @ RawLocatedScalarStmtV1::CompoundAssignment { .. }) => {
+            RawScriptTerminalRecipeV1::UnitStatement {
+                statement: linear_statement(statement)?,
+                origin: RawScriptUnitOriginV1::CompoundAssignmentStatement,
+            }
+        }
+        Some(statement) => {
+            return Err(RawRootBodyRecipeErrorV1::UnsupportedStatement {
+                path: statement_path(&statement),
+            })
+        }
+    };
+    let prelude = statements
+        .into_iter()
+        .map(linear_statement)
+        .collect::<Result<Vec<_>, _>>()?
+        .into_boxed_slice();
+    RawRootBodyRecipeV1::from_script_parts(RawRootBodyEntryContractV1::script(), prelude, terminal)
 }
 
 fn linear_statement(
