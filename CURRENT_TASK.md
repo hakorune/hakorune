@@ -44,12 +44,7 @@ box.fini()               = separate lifecycle owner
 ```
 
 `RecoverableFailure` producer and ABI remain parked for
-`LANGUAGE-RECOVERABLE-FAILURE-D0`. The active row is now
-`NORMAL-SOURCE-PLAN0-D0` is a design stop. The bounded core proof is closed:
-one function-exit owner, one Script result owner, one entry/result projection,
-atomic Raw publication, the supported Raw VM lane, one bounded normal-file
-lane, zero default cutover, and the below-800-line boundary. Before any new
-normal capability is implemented, answer the source-plan authority, profile
-relation, function/callable handoff, Script relation, failure retention, and
-promotion-boundary questions in the active card. Do not edit parser, Builder,
-backend, default route, or legacy callers at this stop.
+`LANGUAGE-RECOVERABLE-FAILURE-D0`. `NORMAL-SOURCE-PLAN0-prime-r1` is accepted;
+the active row is the disconnected `NORMAL-SOURCE-PLAN0-S0` classifier.
+Follow `latest_card_path`: profile admission, Builder/MIR/backend/runner
+consumers, default routing, and legacy callers remain outside S0.

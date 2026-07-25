@@ -254,9 +254,34 @@ FUNCTION-EXIT-F1-RETURN0-S0
   -> PARITY0-P0b (closed: real binary status/diagnostic/feature parity)
   -> G0 (closed: central selector/route guard)
   -> MIRBUILDER-CORE-COMPLETE0-P0 (closed: aggregate proof guard)
-  -> NORMAL-SOURCE-PLAN0-D0 (active design stop)
+  -> NORMAL-SOURCE-PLAN0-D0 (closed: NORMAL-SOURCE-PLAN0-prime-r1)
+  -> NORMAL-SOURCE-PLAN0-S0 (active: disconnected source-family classifier)
   One new CLI-visible, default-off request is added; no existing caller is
   replaced, so no legacy sunset is issued in this series.
+  The accepted classifier keeps the narrow profile frozen, separates profile
+  admission, and seals exactly Script/Main0/CallableModule. The durable
+  corrected task order is in
+  [normal-source-plan0-design-stop-2026-07-26.md](../investigations/normal-source-plan0-design-stop-2026-07-26.md);
+  the exact active slice is in
+  [normal-source-plan0-s0-execution-task-2026-07-26.md](../investigations/normal-source-plan0-s0-execution-task-2026-07-26.md).
+
+-> NORMAL-CANONICAL-CORE0
+  source-plan S0/INPUT/G0, Main F1 plus one shared canonical module
+  transaction, neutral VM-reference adapters, exact-site callable source,
+  singleton/acyclic helpers, sole dispatch, and a separate default-off
+  canonical-core profile. Recursive SCC capability follows initial G0 and is
+  not a first-production blocker.
+
+-> MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
+  requires one source classifier, Script/Main/helper results, one exact entry
+  thunk, atomic publication, one shared VM/process terminal, one explicit
+  canonical-core caller, and fallback zero.
+
+-> NORMAL-ENTRY-PRODUCT-BACKEND-D0
+  -> NORMAL-DEFAULT-CALLER-CENSUS0-P0
+  -> NORMAL-ENTRY-PROMOTION-D3
+  No canonical-core proof automatically changes the default backend or an
+  existing caller.
 
 -> NORMAL-FILE-VM0-FRONTDOOR-HARDEN0-S0 (after first caller retirement)
   behavior-neutral BoxShape series: receipt typestate, typed parser rejection,

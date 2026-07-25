@@ -25,6 +25,12 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
   ExplicitReturnOnly, Script evaluation has its own final-expression result,
   and process termination is a separate projection. The normative owner is
   `docs/reference/language/function-exit-and-entry-result.md`.
+- Normal source planning is accepted as `NORMAL-SOURCE-PLAN0-prime-r1`: one
+  source-owned classifier seals Script, Main0, or CallableModule exactly once;
+  profile admission is separate, the existing narrow VM-reference profile is
+  frozen, and canonical-core activation uses a separately named profile.
+  The durable task order is
+  `docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md`.
 - Tryless postfix-catch semantics are accepted as
   `LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1`: source `try` and `throw` are
   rejected in both language profiles; postfix `catch` is the protected-region
