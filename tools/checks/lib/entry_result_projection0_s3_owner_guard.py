@@ -19,6 +19,7 @@ EXEC = ROOT / "src/mir/compiler/source_entry_vm_execution.rs"
 PROFILE = ROOT / "src/runner/reference/raw_vm_reference_request.rs"
 RAW_CONTRACT = ROOT / "src/mir/raw_vm_reference_contract.rs"
 REFERENCE_RUNNER = ROOT / "src/runner/reference/raw_vm_reference.rs"
+REFERENCE_SELECTOR = ROOT / "src/runner/reference/request.rs"
 FRONTDOOR_TEST_CONSUMERS = (
     ROOT / "src/runner/reference/normal_file_vm_frontdoor/result_carrier_p0.rs",
 )
@@ -104,7 +105,7 @@ def main() -> int:
 
     profile_callers = []
     for path in (ROOT / "src/runner").rglob("*.rs"):
-        if path in (PROFILE, REFERENCE_RUNNER):
+        if path in (PROFILE, REFERENCE_RUNNER, REFERENCE_SELECTOR):
             continue
         if "RawVmReferenceProductionRequestV1" in path.read_text():
             profile_callers.append(path.relative_to(ROOT))
@@ -113,6 +114,14 @@ def main() -> int:
     require(reference_runner, "RawVmReferenceProductionRequestV1", "support profile consumer")
     require(reference_runner, "select_from_cli", "support selector consumer")
     require(reference_runner, "pub(crate) fn select_and_run(", "support runner entry")
+    selector = REFERENCE_SELECTOR.read_text()
+    for fragment in (
+        "ExplicitReferenceRunnerRequestV1",
+        "ExplicitReferenceRunnerSelectionV1",
+        "NormalFileVmReferenceProductionRequestV1",
+        "RawVmReferenceProductionRequestV1",
+    ):
+        require(selector, fragment, f"central reference selector {fragment}")
     require(reference_runner, "read_to_string(&source_file)", "support source read")
     require(reference_runner, "parse_from_string_with_build_config", "support canonical parse")
     runner = (ROOT / "src/runner/mod.rs").read_text()

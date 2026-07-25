@@ -10,6 +10,7 @@ TASK = ROOT / (
     "normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
 )
 FRONTDOOR = ROOT / "src/runner/reference/normal_file_vm_frontdoor.rs"
+NORMAL_REQUEST = ROOT / "src/runner/reference/normal_file_vm_request.rs"
 TEST_ONLY_RAW_TERMINAL_CONSUMERS = (
     ROOT / "src/runner/reference/normal_file_vm_frontdoor/result_carrier_p0.rs",
 )
@@ -40,6 +41,7 @@ def main() -> int:
     task = TASK.read_text()
     frontdoor = FRONTDOOR.read_text()
     production = frontdoor.split("#[cfg(test)]", 1)[0]
+    normal_request = NORMAL_REQUEST.read_text()
     reference_mod = REFERENCE_MOD.read_text()
     raw_contract = RAW_CONTRACT.read_text()
 
@@ -95,6 +97,15 @@ def main() -> int:
             "canonical_process_and_vm_faults_leave_the_compiler_reusable",
         ):
             require(text, fragment, f"test-only Forge evidence {fragment}")
+    for fragment in (
+        "NormalFileVmReferenceProductionRequestV1",
+        "NormalFileNoImportVmReferenceV1",
+        "into_frontdoor_request(self)",
+        "NonDefaultOptimizationRequested",
+    ):
+        require(normal_request, fragment, f"unconnected normal request {fragment}")
+    if ".prepare()" in normal_request or "run_raw_vm_reference" in normal_request:
+        raise AssertionError("REQUEST0 must not execute the NormalFile front door")
 
     if production.count("std::fs::read_to_string(&source_file)") != 1:
         raise AssertionError("Forge0 must read its source file exactly once")
@@ -137,7 +148,7 @@ def main() -> int:
             if token in text:
                 raise AssertionError(f"frozen route widened into Forge0: {path.relative_to(ROOT)}")
     for path in (ROOT / "src/runner").rglob("*.rs"):
-        if path == FRONTDOOR or path in TEST_ONLY_RAW_TERMINAL_CONSUMERS:
+        if path in (FRONTDOOR, NORMAL_REQUEST) or path in TEST_ONLY_RAW_TERMINAL_CONSUMERS:
             continue
         text = path.read_text()
         if "NormalFileVmFrontDoorV1" in text or "PreparedNormalFileVmHandoffV1" in text:
@@ -148,6 +159,7 @@ def main() -> int:
     for path in (
         TASK,
         FRONTDOOR,
+        NORMAL_REQUEST,
         *TEST_ONLY_RAW_TERMINAL_CONSUMERS,
         RAW_CONTRACT,
         Path(__file__),
