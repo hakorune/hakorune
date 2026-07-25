@@ -33,7 +33,9 @@ pub fn parse() -> CliConfig {
         let matches = build_command()
             .try_get_matches_from(&argv[..pos])
             .unwrap_or_else(|e| e.exit());
-        from_matches(&matches)
+        let mut config = from_matches(&matches);
+        config.script_args = script_args;
+        config
     } else {
         let matches = build_command().get_matches();
         from_matches(&matches)
@@ -319,7 +321,11 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
         .get_one::<hakorune_frontend_parser::parser::GrammarProfile>("grammar-profile")
         .copied();
     let cfg = CliConfig {
+        dev: matches.get_flag("dev"),
+        stage3: matches.get_flag("stage3"),
+        ny_compiler_args: matches.get_one::<String>("ny-compiler-args").cloned(),
         file: matches.get_one::<String>("file").cloned(),
+        script_args: Vec::new(),
         debug_fuel: parse_debug_fuel(matches.get_one::<String>("debug-fuel").unwrap()),
         dump_ast: matches.get_flag("dump-ast"),
         dump_mir: matches.get_flag("dump-mir"),
@@ -362,6 +368,10 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
         cli_verbose: matches.get_flag("verbose"),
         run_task: matches.get_one::<String>("run-task").cloned(),
         load_ny_plugins: matches.get_flag("load-ny-plugins"),
+        run_tests: matches.get_flag("run-tests"),
+        test_filter: matches.get_one::<String>("test-filter").cloned(),
+        test_entry: matches.get_one::<String>("test-entry").cloned(),
+        test_return: matches.get_one::<String>("test-return").cloned(),
         gc_mode: matches.get_one::<String>("gc").cloned(),
         ny_parser_pipe: matches.get_flag("ny-parser-pipe"),
         json_file: matches.get_one::<String>("json-file").cloned(),
@@ -395,6 +405,10 @@ pub fn from_matches(matches: &ArgMatches) -> CliConfig {
         emit_exe_nyrt: matches.get_one::<String>("emit-exe-nyrt").cloned(),
         emit_exe_libs: matches.get_one::<String>("emit-exe-libs").cloned(),
         macro_expand_child: matches.get_one::<String>("macro-expand-child").cloned(),
+        macro_preexpand: matches.get_flag("macro-preexpand"),
+        macro_preexpand_auto: matches.get_flag("macro-preexpand-auto"),
+        macro_top_level_allow: matches.get_flag("macro-top-level-allow"),
+        macro_profile: matches.get_one::<String>("macro-profile").cloned(),
         dump_expanded_ast_json: matches.get_flag("dump-expanded-ast-json"),
         macro_ctx_json: matches.get_one::<String>("macro-ctx-json").cloned(),
         allocator_hook_dry_run: matches.get_flag("allocator-hook-dry-run"),

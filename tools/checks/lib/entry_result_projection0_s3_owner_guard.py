@@ -9,9 +9,16 @@ TASK = ROOT / (
     "docs/development/current/main/investigations/"
     "entry-result-projection0-s3-raw-vm-activation-execution-task-2026-07-25.md"
 )
+PROFILE_TASK = ROOT / (
+    "docs/development/current/main/investigations/"
+    "post-s3-clean-retire-and-normal-entry-canary-task-map-2026-07-25.md"
+)
 KERNEL = ROOT / "src/mir/compiler/raw_published_compile.rs"
 INGRESS = ROOT / "src/mir/compiler/raw_public_ingress.rs"
 EXEC = ROOT / "src/mir/compiler/source_entry_vm_execution.rs"
+PROFILE = ROOT / "src/runner/reference/raw_vm_reference_request.rs"
+CLI = ROOT / "src/cli/mod.rs"
+CLI_ARGS = ROOT / "src/cli/args.rs"
 
 
 def require(text: str, fragment: str, label: str) -> None:
@@ -21,9 +28,13 @@ def require(text: str, fragment: str, label: str) -> None:
 
 def main() -> int:
     task = TASK.read_text()
+    profile_task = PROFILE_TASK.read_text()
     kernel = KERNEL.read_text()
     ingress = INGRESS.read_text()
     execution = EXEC.read_text()
+    profile = PROFILE.read_text()
+    cli = CLI.read_text()
+    cli_args = CLI_ARGS.read_text()
     execution_production = execution.split("#[cfg(test)]", 1)[0]
 
     require(task, "S3-OWNER0", "task contract")
@@ -38,6 +49,36 @@ def main() -> int:
     require(ingress, ".compile_raw_published_v1(", "compatibility ingress consumer")
     require(execution, ".compile_raw_published_v1(", "VM-reference ingress consumer")
     require(execution, "pub fn run_raw_vm_reference(", "explicit VM-reference entry")
+    require(profile_task, "NORMAL-ENTRY-PROFILE0-S0", "passive profile task")
+    for fragment in (
+        "RawVmReferenceProductionRequestV1",
+        "select_from_cli",
+        "RawVmReferenceGrammarV1::Canonical",
+        "RawVmReferenceSourceProfileV1::NarrowV1",
+        "RawVmReferenceImportProfileV1::None",
+        "RawVmReferenceCallableMainProfileV1::Omitted",
+        "RawVmReferenceBackendV1::VmReference",
+        "RawVmReferenceProcessProfileV1::CanonicalV1",
+    ):
+        require(profile, fragment, f"passive profile {fragment}")
+    for fragment in (
+        "pub macro_preexpand: bool",
+        "pub macro_preexpand_auto: bool",
+        "pub macro_top_level_allow: bool",
+        "pub macro_profile: Option<String>",
+        "pub script_args: Vec<String>",
+    ):
+        require(cli, fragment, f"CLI fact retention {fragment}")
+        require(cli_args, fragment.split(":", 1)[0].replace("pub ", ""), f"CLI parser fact {fragment}")
+
+    profile_callers = []
+    for path in (ROOT / "src/runner").rglob("*.rs"):
+        if path == PROFILE:
+            continue
+        if "RawVmReferenceProductionRequestV1" in path.read_text():
+            profile_callers.append(path.relative_to(ROOT))
+    if profile_callers:
+        raise AssertionError(f"passive profile has production callers: {profile_callers}")
 
     if ingress.count("compile_raw_published_v1(") != 1:
         raise AssertionError("compatibility ingress must have one typed-kernel consumer")
@@ -57,12 +98,12 @@ def main() -> int:
         if forbidden in ingress or forbidden in execution_production:
             raise AssertionError(f"new ingress must not duplicate/discover legacy work: {forbidden}")
 
-    for path in (TASK, KERNEL, INGRESS, EXEC, Path(__file__)):
+    for path in (TASK, PROFILE_TASK, KERNEL, INGRESS, EXEC, PROFILE, CLI, CLI_ARGS, Path(__file__)):
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"file must remain below 800 lines: {path}")
     print(
         "[entry-result-projection0-s3-owner-guard] ok "
-        "typed_kernel=1 ingress_consumers=2 legacy_duplication=0 below_800=1"
+        "typed_kernel=1 profile=1 production_profile_callers=0 legacy_duplication=0 below_800=1"
     )
     return 0
 

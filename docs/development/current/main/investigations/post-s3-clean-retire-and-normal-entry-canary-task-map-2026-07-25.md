@@ -3,11 +3,11 @@
 Decision: `POST-S3-CLEAN-CANARY-prime-r1`
 
 Status: accepted task order. `NORMAL-ENTRY-D0` is closed by this card.
-R0A, R0B, and G0 are closed; implementation authorization now follows the
-exact current pointer into the passive profile row:
+R0A, R0B, G0, and PROFILE0 are closed; implementation authorization now
+follows the exact current pointer into the canary row:
 
 ```text
-NORMAL-ENTRY-PROFILE0-S0
+NORMAL-ENTRY-CANARY0-S0
 ```
 
 ## Outcome
@@ -199,6 +199,9 @@ using/imports    = forbidden
 macro expansion  = forbidden
 REPL             = forbidden
 JSON/MIR JSON    = forbidden
+diagnostic flags = forbidden (`--verbose`, dump/verify/stats)
+development/test = forbidden (`--dev`, `--stage3`, compiler args, test flags)
+script arguments  = forbidden (arguments after `--` are retained as facts)
 callable Main    = Omitted
 backend          = vm-reference
 process policy   = CanonicalProcessExitV1::V1
@@ -349,15 +352,33 @@ Closeout: all scoped symbols/files/callers are zero; the new Raw chain,
 focused VM-reference execution, and both cargo library lanes are green. No
 default, JSON, legacy-runner, or backend route changed.
 
-### 3. `NORMAL-ENTRY-PROFILE0-S0` — selected
+### 3. `NORMAL-ENTRY-PROFILE0-S0` — closed
 
 ```text
-add passive RawVmReferenceProductionRequestV1
-convert CLI facts to the request exactly once
+add passive RawVmReferenceProductionRequestV1 and one selector
+convert CLI facts to the request exactly once; non-target backend = NotSelected
 reject conflicting modes before file I/O/source effects
 canonical grammar and NarrowV1 remain independent typed fields
-production runner caller = 0
+request is move-only; production runner caller = 0
 default route delta = 0
+```
+
+The passive selector also retains the arguments after `--` as `CliConfig`
+facts and rejects them for NarrowV1 before any source-file effect. This keeps
+profile selection pure: the selector does not read, parse, compile, run, or
+modify process state. `--verbose` is treated as a diagnostic-route conflict,
+not as an implicit profile setting.
+
+Closeout evidence:
+
+```text
+cargo check --lib                                      = PASS
+cargo check --lib --features vm-reference              = PASS
+cargo test --lib raw_vm_reference_request              = 5/5 PASS
+entry_result_projection0_s3_owner_guard.py             = PASS
+current_state_pointer_guard.sh                         = PASS
+production profile callers                             = 0
+default route behavior                                 = unchanged
 ```
 
 This row also consolidates the admitted Script/App witness matrix into the

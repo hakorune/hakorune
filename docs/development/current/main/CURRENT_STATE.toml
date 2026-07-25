@@ -4,8 +4,8 @@
 status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0 through complete S3 Raw VM-reference activation are closed. POST-S3-CLEAN-CANARY-prime-r1 fixes the next order: retire the caller-zero old Raw authority first, then materialize one passive canonical NarrowV1 VM-reference profile and one explicit early CLI canary. General runner/LLVM/native/normal-entry cutover/JSON/executor/selfhost/fastmem/CUT0 remain disconnected."
 date = "2026-07-25"
 current_design_stop = "POST-S3-CLEAN-CANARY-ACCEPTED-20260725"
-current_execution_row = "NORMAL-ENTRY-PROFILE0-S0"
-current_execution_summary = "R0A/R0B/G0 are closed: the caller-zero old Raw files, registrations, run_raw/evidence variants, legacy external-commit acceptance, and old guard dependencies are gone; scoped symbols/callers are zero and default/vm-reference cargo plus focused Raw VM tests are green. Next is the passive RawVmReferenceProductionRequestV1 profile only; no production runner caller or default-route widening."
+current_execution_row = "NORMAL-ENTRY-CANARY0-S0"
+current_execution_summary = "R0A/R0B/G0 and PROFILE0 are closed: the caller-zero old Raw authority is retired, and one passive RawVmReferenceProductionRequestV1 selector now seals canonical NarrowV1 CLI facts exactly once. Non-target backends return NotSelected; conflicting modes and script arguments reject before file I/O; production profile callers remain zero. Next is the explicit default-off canary only; no normal-entry or default-route widening."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -570,7 +570,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-ENTRY-PROFILE0-S0-20260725"
+current_blocker_token = "NORMAL-ENTRY-CANARY0-S0-20260725"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

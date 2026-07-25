@@ -52,12 +52,10 @@ cargo check -q
 - Script classification through the complete S3 Raw VM-reference activation
   row are closed. R0A migrated the two unique old-Raw proofs and retired
   old-only guards; R0B now also deletes the caller-zero old Raw source and
-  evidence chain. G0 is now closed by the scoped zero/cargo/guard evidence;
-  the selected next row adds only the passive profile before any new runner
-  caller.
+  evidence chain. G0 and PROFILE0 are closed by scoped zero/cargo/guard
+  evidence; the next row is the one explicit default-off canary caller.
   Production VM/LLVM, normal-entry cutover, JSON, executor, and CUT0 remain
-  parked; the passive profile and explicit VM-reference canary follow the
-  retirement row.
+  parked.
 
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope

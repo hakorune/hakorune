@@ -21,9 +21,9 @@ Related:
   `docs/reference/language/function-exit-and-entry-result.md`
 - priority: follow the exact active task. Do not reopen the superseded App
   any-statement-tail S0 as canonical work.
-- next row: NORMAL-ENTRY-PROFILE0-S0 — add only the passive typed
-  RawVmReferenceProductionRequestV1 profile; no production runner caller or
-  default-route widening
+- next row: NORMAL-ENTRY-CANARY0-S0 — add one explicit default-off
+  `--backend raw-vm-reference` canary; profile selection is already sealed,
+  and no normal-entry or default-route widening is allowed
 - after retirement: passive Canonical/NarrowV1/VM-reference profile, then one
   explicit early `--backend raw-vm-reference` canary
 - parked: normal-entry cutover, general VM/LLVM, JSON, executor, selfhost,

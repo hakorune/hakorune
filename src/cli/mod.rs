@@ -33,7 +33,13 @@ pub use provider_package_selected_binary_build::maybe_run_provider_package_selec
 /// Command-line configuration structure
 #[derive(Debug, Clone)]
 pub struct CliConfig {
+    pub dev: bool,
+    pub stage3: bool,
+    pub ny_compiler_args: Option<String>,
     pub file: Option<String>,
+    /// Arguments after `--`, retained as a CLI fact for typed profile selection.
+    /// Runtime consumers may interpret them only after an explicit route is selected.
+    pub script_args: Vec<String>,
     pub debug_fuel: Option<usize>,
     pub dump_ast: bool,
     pub dump_mir: bool,
@@ -74,6 +80,10 @@ pub struct CliConfig {
     pub cli_verbose: bool,
     pub run_task: Option<String>,
     pub load_ny_plugins: bool,
+    pub run_tests: bool,
+    pub test_filter: Option<String>,
+    pub test_entry: Option<String>,
+    pub test_return: Option<String>,
     pub ny_parser_pipe: bool,
     pub json_file: Option<String>,
     pub mir_json_file: Option<String>,
@@ -95,6 +105,10 @@ pub struct CliConfig {
     pub emit_exe_nyrt: Option<String>,
     pub emit_exe_libs: Option<String>,
     pub macro_expand_child: Option<String>,
+    pub macro_preexpand: bool,
+    pub macro_preexpand_auto: bool,
+    pub macro_top_level_allow: bool,
+    pub macro_profile: Option<String>,
     pub dump_expanded_ast_json: bool,
     pub macro_ctx_json: Option<String>,
     pub allocator_hook_dry_run: bool,
@@ -216,7 +230,11 @@ impl CliConfig {
 impl Default for CliConfig {
     fn default() -> Self {
         Self {
+            dev: false,
+            stage3: false,
+            ny_compiler_args: None,
             file: None,
+            script_args: Vec::new(),
             debug_fuel: Some(100000),
             dump_ast: false,
             dump_mir: false,
@@ -256,6 +274,10 @@ impl Default for CliConfig {
             cli_verbose: false,
             run_task: None,
             load_ny_plugins: false,
+            run_tests: false,
+            test_filter: None,
+            test_entry: None,
+            test_return: None,
             gc_mode: None,
             ny_parser_pipe: false,
             json_file: None,
@@ -277,6 +299,10 @@ impl Default for CliConfig {
             emit_exe_nyrt: None,
             emit_exe_libs: None,
             macro_expand_child: None,
+            macro_preexpand: false,
+            macro_preexpand_auto: false,
+            macro_top_level_allow: false,
+            macro_profile: None,
             dump_expanded_ast_json: false,
             macro_ctx_json: None,
             allocator_hook_dry_run: false,
