@@ -68,6 +68,14 @@ impl RawRootBatchSlotContractV1 {
     }
 }
 
+/// Narrow identity consumed by the explicit VM-reference entry.  The values
+/// still come from the complete Main slot contract above; callers do not
+/// re-spell the runtime symbol or arity.
+pub(in crate::mir) fn raw_main_entry_target() -> (Box<str>, usize) {
+    let contract = RawRootBatchSlotV1::Main.contract();
+    (contract.symbol().into(), contract.arity())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -258,6 +258,7 @@ mod raw_root_completion_preflight; // ROOT-RETENTION0-PREFLIGHT borrowed owner c
 mod resolved_owner_header_p0; // ROUTEINV-P0c-SINGLEHDR-P0 matrix
 #[allow(dead_code)]
 mod root_batch_slot; // HEADERPORT0-I0-ROOTBATCH0-S0 identity SSOT
+pub(in crate::mir) use root_batch_slot::raw_main_entry_target;
 #[allow(dead_code)]
 mod root_body_completion; // HEADERPORT0-I0-BODYDRAIN0-S0 disconnected witness
 #[cfg(test)]

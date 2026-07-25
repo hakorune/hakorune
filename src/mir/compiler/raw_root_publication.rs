@@ -8,6 +8,7 @@ use super::raw_root_external_commit::{
     PreparedRawExternalCommitV1, RawExternalCommitPublicationFactsV1,
     RawExternalCommitPublicationPartsV1,
 };
+use super::source_entry_selection::SelectedSourceEntryContinuationV1;
 use crate::mir::builder::{
     check_builder_external_commit_quiescence, BuilderCommitReadinessErrorV1,
     BuilderPublicationReceiptV1, MirBuilder, PreparedBuilderExternalCommitV1,
@@ -49,6 +50,12 @@ pub(in crate::mir) struct RawPublishedInvocationCoreV1 {
     pub(in crate::mir) module: RawPublishedModuleV1,
     pub(in crate::mir) evidence: super::raw_root_postprocess::RawPostprocessEvidenceV1,
     pub(in crate::mir) publication: RawPublicationSealV1,
+}
+
+impl RawPublishedInvocationCoreV1 {
+    pub(in crate::mir) fn selected_entry(&self) -> &SelectedSourceEntryContinuationV1 {
+        self.evidence.selected_entry()
+    }
 }
 
 #[derive(Debug)]

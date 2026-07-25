@@ -8,6 +8,7 @@
 use super::lowering_input::{LegacyModuleLoweringInputV1, LegacyModuleOriginV1};
 use super::raw_runtime_inputs::{RawRuntimeInputCaptureErrorV1, RawRuntimeInputSnapshotV1};
 use super::source_bound_package::{InvocationIdentityIssuerV1, SourceBindingErrorV1};
+use super::source_entry_selection::SelectedSourceEntryContinuationV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::{
     BuilderInvocationConfigV1, OwnedRawSourceV1, RawCallableMainCompatibilityDispositionV1,
@@ -62,6 +63,7 @@ pub(in crate::mir) struct RawSourceContinuationV1 {
     origin: RawSourceOriginV1,
     callable_main: RawCallableMainCompatibilityDispositionV1,
     policy: ModuleInvocationPolicyV1,
+    selected_entry: SelectedSourceEntryContinuationV1,
 }
 
 #[derive(Debug)]
@@ -69,6 +71,7 @@ pub(in crate::mir) struct RawRootContinuationV1 {
     origin: RawSourceOriginV1,
     callable_main: RawCallableMainCompatibilityDispositionV1,
     policy: ModuleInvocationPolicyV1,
+    selected_entry: SelectedSourceEntryContinuationV1,
 }
 
 impl RawRootContinuationV1 {
@@ -94,9 +97,14 @@ impl RawRootContinuationV1 {
             origin,
             callable_main,
             policy,
+            selected_entry,
         } = self;
         (
-            RawPostCallableMainContinuationV1 { origin, policy },
+            RawPostCallableMainContinuationV1 {
+                origin,
+                policy,
+                selected_entry,
+            },
             callable_main,
         )
     }
@@ -106,6 +114,7 @@ impl RawRootContinuationV1 {
 pub(in crate::mir) struct RawPostCallableMainContinuationV1 {
     origin: RawSourceOriginV1,
     policy: ModuleInvocationPolicyV1,
+    selected_entry: SelectedSourceEntryContinuationV1,
 }
 
 impl RawPostCallableMainContinuationV1 {
@@ -115,6 +124,10 @@ impl RawPostCallableMainContinuationV1 {
 
     pub(in crate::mir) const fn policy(&self) -> ModuleInvocationPolicyV1 {
         self.policy
+    }
+
+    pub(in crate::mir) fn selected_entry(&self) -> &SelectedSourceEntryContinuationV1 {
+        &self.selected_entry
     }
 }
 
@@ -136,6 +149,7 @@ impl RawSourceContinuationV1 {
             origin: self.origin,
             callable_main: self.callable_main,
             policy: self.policy,
+            selected_entry: self.selected_entry,
         }
     }
 }
@@ -214,11 +228,6 @@ impl SourceBoundRawPackageV1 {
                 RawCallableMainCompatibilityDispositionV1::Selected
             }
         };
-        let continuation = RawSourceContinuationV1 {
-            origin: source.origin(),
-            callable_main: disposition,
-            policy: ModuleInvocationPolicyV1::policy_for_family(ModuleInvocationFamilyV1::Raw),
-        };
         let token = match issuer.issue_raw() {
             Ok(token) => token,
             Err(error) => {
@@ -229,6 +238,15 @@ impl SourceBoundRawPackageV1 {
                     RawSourceBindingErrorV1::Identity(error),
                 ));
             }
+        };
+        let continuation = RawSourceContinuationV1 {
+            origin: source.origin(),
+            callable_main: disposition,
+            policy: ModuleInvocationPolicyV1::policy_for_family(ModuleInvocationFamilyV1::Raw),
+            selected_entry: SelectedSourceEntryContinuationV1::from_projection(
+                token.brand(),
+                source.projection().is_script(),
+            ),
         };
         Ok(Self {
             token,

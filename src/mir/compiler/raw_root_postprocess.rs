@@ -15,6 +15,7 @@ use super::raw_root_callable_main::RawAppCallableMainOutcomeV1;
 use super::raw_root_children::{RawPreRootChildrenCompletionV1, RawRootChildReceiptV1};
 use super::raw_runtime_inputs::RawRuntimeInputSnapshotV1;
 use super::raw_source_binding::RawPostCallableMainContinuationV1;
+use super::source_entry_selection::SelectedSourceEntryContinuationV1;
 use crate::mir::builder::{
     RawPostprocessCarrierParityErrorV1, RawPostprocessPhysicalOwnerV1, RawPostprocessProgressV1,
     RawPostprocessedPhysicalV1,
@@ -84,6 +85,20 @@ pub(in crate::mir) struct RawPostprocessEvidenceV1 {
     pub(in crate::mir) witness: crate::mir::builder::RawDrainWitnessV1,
     pub(in crate::mir) finalization_parity: crate::mir::builder::RawFinalizationParitySealV1,
     pub(in crate::mir) postprocess_parity: crate::mir::builder::RawPostprocessParitySealV1,
+}
+
+impl RawPostprocessEvidenceV1 {
+    /// The selected source-entry identity is nested in the move-only route
+    /// continuation.  Later runtime lanes borrow this proof; they never
+    /// reconstruct it from the published module or a backend entry helper.
+    pub(in crate::mir) fn selected_entry(&self) -> &SelectedSourceEntryContinuationV1 {
+        match &self.route {
+            RawPostprocessRouteEvidenceV1::Script { continuation, .. }
+            | RawPostprocessRouteEvidenceV1::App { continuation, .. } => {
+                continuation.selected_entry()
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
