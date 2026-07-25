@@ -124,6 +124,41 @@ If no plain caller satisfies the family, record `NoBoundedCallerFamily` and
 keep the lane parked. Do not broaden the grammar, add a fallback, or select all
 six source-hint callers together.
 
+### D0 closeout — `NoBoundedCallerFamily` (2026-07-25)
+
+The read-only census inspected every plain `compile_with_source_hint` production
+site. No site is an admissible NormalFileNoImportVmReferenceV1 caller:
+
+| Site | Observable contract | D0 result |
+| --- | --- | --- |
+| `bench_vm` | inline benchmark source, result discarded, timing only | reject |
+| `bench_jit` | inline benchmark source, JIT env, result discarded | reject |
+| `verify_outputs_match` | mixed legacy compile paths, string comparison | reject |
+| `execute_mir_json_minimal` | one file read, MIR JSON artifact, no execution result | reject; separate artifact lane |
+| Stage-1 direct route | explicit compatibility bridge, bare MIR/artifact or legacy exit | reject |
+| VM compatibility fallback | using/preexpand/plugins and independent legacy status mapping | reject |
+
+All six ultimately enter the legacy `compile_with_source` / `build_module`
+chain; none consumes `compile_raw_published_v1`, a sealed normal profile, an
+exact source-entry continuation, or `ProcessExitProjectionV1`. The closest
+shape is `--emit-mir-json-minimal`, but it is artifact-only and remains the
+independent `RAW-MINIMAL-MIR-JSON-PROFILE-D0` lane.
+
+Therefore D0 closes with:
+
+```text
+candidate family                  = 0
+NoBoundedCallerFamily             = sealed evidence
+new normal production caller      = 0
+fallback / retry                  = 0
+normal-file D2 activation         = blocked by owner-selection decision
+```
+
+This is a source-evidence update, not permission to create a caller in the D0
+row. The next decision must choose whether the named family is a future new
+front-door owner (with no existing caller mapped), an artifact-only lane, or a
+continued park. It must not silently reinterpret one of the six legacy sites.
+
 ## P0 — proof before activation
 
 P0 is one proof package with four sections; it is not permission to cut over.

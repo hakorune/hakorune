@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-ENTRY-CUTOVER-D1 is accepted: immediate normal cutover remains parked, and the next bounded family is NormalFileNoImportVmReferenceV1. The next row is read-only NORMAL-FILE-VM0-FAMILY-D0; no normal production caller is authorized until D2 accepts the complete proof package."
+status = "NORMAL-FILE-VM0-FAMILY-D0 is closed as NoBoundedCallerFamily: all six plain source-hint sites are heterogeneous legacy/artifact/fallback routes. A follow-up design stop must choose a future front-door owner, separate artifact lane, or continued park; no normal production caller is authorized."
 date = "2026-07-25"
-current_design_stop = "NORMAL-ENTRY-CUTOVER-D1-PARK-AND-FORGE-NORMAL-FILE-VM0"
-current_execution_row = "NORMAL-FILE-VM0-FAMILY-D0"
-current_execution_summary = "D1 is accepted with C: park immediate normal cutover and forge NormalFileNoImportVmReferenceV1. The next row is read-only caller/profile/output evidence; production caller=0. Continue through source/profile D0, correspondence/semantic/caller P0, then D2. Only D2 acceptance may authorize one normal production caller."
+current_design_stop = "NORMAL-FILE-VM0-FAMILY-D0-NO-BOUNDED-CALLER-20260725"
+current_execution_row = "NORMAL-FILE-VM0-FAMILY-D0-NO-BOUNDED-CALLER-DESIGN-STOP"
+current_execution_summary = "D0 read-only census closed with NoBoundedCallerFamily. bench_vm/bench_jit/verify_outputs_match are benchmark-only; execute_mir_json_minimal is artifact-only; Stage-1 direct and VM compatibility fallback are explicit legacy routes. No existing caller matches NormalFileNoImportVmReferenceV1. Await the follow-up choice: forge a new front door, separate MIR-JSON artifact lane, or continue park."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -21,11 +21,12 @@ route-scoped caller census. POST-S3-CLEAN-CANARY-prime-r1 has now closed the
 caller-zero retirement, passive profile, explicit early canary, and real-binary
 canary parity rows. NORMAL-ENTRY-CUTOVER-prime-r1 selects A-prime: the explicit
 route becomes a supported opt-in reference lane while normal/default cutover
-stays parked. RAW-VM-REFERENCE-SUPPORT0-S0 is closed. D1 now accepts C:
-immediate normal cutover remains parked while
-NormalFileNoImportVmReferenceV1 is forged through D0/P0/D2. The next row is
-NORMAL-FILE-VM0-FAMILY-D0; no normal production caller is authorized before
-D2, and no general/default/backend/JSON widening is authorized. The D′/Raw
+stays parked. RAW-VM-REFERENCE-SUPPORT0-S0 is closed. D1 accepted C, but
+NORMAL-FILE-VM0-FAMILY-D0 now closes as NoBoundedCallerFamily: all six plain
+source-hint sites are heterogeneous legacy/artifact/fallback routes. A fresh
+follow-up design stop must choose a future front-door owner, separate artifact
+lane, or continued park; no normal production caller or general/default/backend/
+JSON widening is authorized. The D′/Raw
 history below is parked context and must not select a different current row.
 D′ is the current canonical control-lowering authority:
 pre-Builder products retain exact coverage/topology/ports/cleanup, while one
@@ -312,14 +313,15 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/normal-file-vm0-forge-task-2026-07-25.md"
-phase_status = "docs/development/current/main/investigations/normal-file-vm0-forge-task-2026-07-25.md"
+active_phase = "docs/development/current/main/investigations/normal-file-vm0-family-d0-no-candidate-question-2026-07-25.md"
+phase_status = "docs/development/current/main/investigations/normal-file-vm0-family-d0-no-candidate-question-2026-07-25.md"
 method_anchor = "docs/reference/language/function-exit-and-entry-result.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 normal_entry_cutover_decision = "docs/development/current/main/investigations/normal-entry-cutover-d0-consultation-2026-07-25.md"
 normal_entry_cutover_d1_decision = "docs/development/current/main/investigations/normal-entry-cutover-d1-consultation-2026-07-25.md"
 normal_file_vm0_task = "docs/development/current/main/investigations/normal-file-vm0-forge-task-2026-07-25.md"
+normal_file_vm0_d0_question = "docs/development/current/main/investigations/normal-file-vm0-family-d0-no-candidate-question-2026-07-25.md"
 raw_vm_reference_support0_task = "docs/development/current/main/investigations/raw-vm-reference-support0-s0-execution-task-2026-07-25.md"
 parked_loop_route_retirement_card = "docs/development/current/main/investigations/generic-loop-named-route-retirement-task-2026-07-19.md"
 mirbuilder_clean_architecture_card = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
@@ -376,9 +378,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "normal-file-vm0-forge-task-2026-07-25"
-latest_card_path = "docs/development/current/main/investigations/normal-file-vm0-forge-task-2026-07-25.md"
-latest_card_summary = """D1 is accepted with C: immediate normal cutover remains parked while NormalFileNoImportVmReferenceV1 is forged. NORMAL-FILE-VM0-FAMILY-D0 is the next read-only evidence row; D0/P0/D2 must close before one normal production caller is authorized."""
+latest_card = "normal-file-vm0-family-d0-no-candidate-question-2026-07-25"
+latest_card_path = "docs/development/current/main/investigations/normal-file-vm0-family-d0-no-candidate-question-2026-07-25.md"
+latest_card_summary = """D0 closed as NoBoundedCallerFamily: six plain source-hint sites are heterogeneous benchmark, artifact, Stage-1, or legacy fallback routes. Choose a future front-door owner, separate artifact lane, or continued park before any normal implementation."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -580,7 +582,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-FILE-VM0-FAMILY-D0"
+current_blocker_token = "NORMAL-FILE-VM0-FAMILY-D0-NO-BOUNDED-CALLER-20260725"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

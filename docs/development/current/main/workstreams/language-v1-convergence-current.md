@@ -198,15 +198,20 @@ FUNCTION-EXIT-F1-RETURN0-S0
   NormalFileNoImportVmReferenceV1. The full task order is in
   normal-file-vm0-forge-task-2026-07-25.md.
 
--> NORMAL-FILE-VM0-FAMILY-D0 (next executable row)
-  select one plain source-hint caller family and seal the file/profile/output
-  correspondence. This is read-only evidence; new normal production caller=0.
+-> NORMAL-FILE-VM0-FAMILY-D0 (closed: NoBoundedCallerFamily)
+  six plain source-hint sites are benchmark, artifact-only, Stage-1, or legacy
+  fallback routes; none matches the fixed normal VM-reference contract.
+
+-> NORMAL-FILE-VM0-FAMILY-D0-NO-BOUNDED-CALLER (design stop)
+  choose a future new front-door owner, a separate MIR-JSON artifact lane, or
+  continued park. Do not reinterpret an existing legacy caller.
 
 -> NORMAL-FILE-VM0-SOURCE-PROFILE-D0
   -> NORMAL-FILE-VM0-CORRESPONDENCE-P0
   -> NORMAL-FILE-VM0-SEMANTIC-MATRIX-P0
   -> NORMAL-FILE-VM0-CALLER-G0
   -> NORMAL-ENTRY-CUTOVER-D2
+  (reopens only after the follow-up decision)
 
 -> NORMAL-FILE-VM0-REQUEST0-S0 (D2 accepted only)
   one typed normal-file caller, then exact source/compile/entry/result/parity
