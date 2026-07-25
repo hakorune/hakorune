@@ -3,7 +3,7 @@ Status: Accepted decision and task order
 Date: 2026-07-26
 Decision: LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1
 Supersedes: LANGUAGE-DOCS-TRY-CATCH-D1 unresolved consultation
-Authority-prose closeout: LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT remains active
+Authority-prose closeout: LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT closed 2026-07-26; implementation authority remains parked
 Scope: remove source `try`, give postfix `catch` one protected-region owner, and keep terminal Fault non-catchable
 ceremony_tier: T2 semantic target and grammar/profile boundary; no Outcome implementation
 sunset_id: none for the durable decision; compatibility surfaces use the three stable sunset IDs below
@@ -12,8 +12,8 @@ new_proofs: one accepted target matrix; no executable semantic or implementation
 retired_or_merged_proofs: the unresolved D1 consultation is superseded; physical conflict sentinels remain until closeout
 net_proof_delta: 0 executable proofs
 sunset_budget: 0; no new per-row shell guard
-sunset_row: LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT for D1 conflict scaffolding
-retire_when: accepted target matrix is synchronized without claiming parser/runtime/backend activation
+sunset_row: LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT closed the D1 conflict-scaffolding prose
+retire_when: accepted target matrix synchronized without claiming parser/runtime/backend activation (closed 2026-07-26)
 budget_repayment_evidence: current-state pointer guard + existing docs/status and grammar/profile guards
 Related:
   - docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md
@@ -158,13 +158,13 @@ postfix catch availability             = pending
 unsupported route                      = typed pre-effect rejection
 ```
 
-## Immediate active row: docs-only closeout
+## Docs-only closeout record
 
 ```text
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT
 ```
 
-This is a short preemption of the accepted NormalFile Forge row. It records
+This was a short preemption of the accepted NormalFile Forge row. It recorded
 the accepted target without pretending the physical registry/parser/runtime
 already matches it.
 
@@ -201,12 +201,14 @@ CLOSEOUT-G0
   no new one-off shell guard
 ```
 
-The status index must use an explicit `authority_sync_pending` note (or retain
-the conflict sentinel with this decision link) until physical registry and
+The status index uses an explicit `authority_sync_pending` note and retains
+the conflict sentinel with this decision link until physical registry and
 parser rows are synchronized. It must not label the feature live merely
 because the target decision is accepted.
 
-On closeout completion, resume exactly:
+Closeout result: completed on 2026-07-26 with authority/docs changes only;
+registry, parser, AST, MIR, runtime, backend, JSON, and environment-gate
+behavior remain unchanged. The active execution row now resumes exactly:
 
 ```text
 NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0

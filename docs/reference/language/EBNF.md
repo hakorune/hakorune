@@ -1,15 +1,19 @@
 # Hakorune Grammar Reference
 
-Status: Living reference for the current Hakorune language-minimal surface.
-Parser implementations (Rust / selfhost) should conform to the accepted rows
-listed in this document. Historical Stage-2 notes remain for compatibility
-where explicitly labeled. Practical bootstrap / phase-1 support status is tracked
-in `docs/reference/language/stage-profiles.md`.
+Status: Living target grammar reference plus explicitly labeled implementation
+evidence. The exception/cleanup target below is accepted, but its registry and
+parser synchronization remains pending; parser acceptance alone is not grammar
+authority. Practical bootstrap / phase-1 support status is tracked in
+`docs/reference/language/stage-profiles.md`.
 
 Design SSOT note (Scope Exit Semantics):
 - `throw` is prohibited in surface language design.
 - parser は `throw` を常時 reject する（`[freeze:contract][parser/throw_reserved]`）。
-- DropScope surface (`fini {}` / `local ... fini {}`) is part of Stage‑3 parser syntax.
+- source `try` is rejected in Canonical and Compat2025 language profiles.
+- postfix `catch` is the accepted protected-region spelling, pending the
+  distinct `RecoverableFailure` producer/ABI; terminal `Fault` bypasses it.
+- canonical scope spelling is `cleanup`; `fini {}` / `local ... fini {}` are
+  Compat2025 aliases only and never object finalization.
 - Rune declaration metadata is active on both Rust and `.hako` parsers; canonical syntax is `@rune`, optimization families (`Inline` / `Hint` / `Contract` / `Profile` / `IntrinsicCandidate`) are part of the same metadata lane, and legacy `@hint` / `@contract` / `@intrinsic_candidate` plus compat `Lowering(inline_required)` remain migration aliases. Program(JSON v0) is not widened for Rune metadata.
 - SSOT:
   - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
@@ -83,7 +87,7 @@ type_alias_decl := 'type' IDENT '=' TYPE_REF
 
 stmt      := 'return' expr
            | local_stmt
-           | fini_stmt
+           | cleanup_stmt
            | assign_stmt
            | guard_stmt
            | gate_stmt
@@ -99,11 +103,13 @@ loop_range_head := IDENT 'in' expr '..' expr
 
 local_stmt := 'local' IDENT local_type_opt local_tail
 local_type_opt := (':' TYPE_REF)?
-local_tail := '=' expr local_fini_opt
+local_tail := '=' expr local_cleanup_opt
            | (',' IDENT)+
-           | local_fini_opt
-local_fini_opt := ('fini' block)?
-fini_stmt  := 'fini' block
+           | local_cleanup_opt
+local_cleanup_opt := ('cleanup' block)?
+cleanup_stmt  := 'cleanup' block
+           ; accepted target grammar; registry/parser rows remain pending.
+           ; Compat2025 `fini` aliases normalize to these shapes later.
 
 guard_stmt := 'guard' expr 'else' block
            | 'guard' 'let' qualified_variant_pattern '=' expr 'else' block
@@ -841,10 +847,10 @@ block_as_role  := block 'as' ( 'once' | 'birth_once' )? IDENT ':' TYPE
 
 handler_tail   := ( catch_block )? ( cleanup_block )?
 catch_block    := 'catch' ( '(' ( IDENT IDENT | IDENT )? ')' )? block
+                ; postfix protected-region handler; RecoverableFailure only.
 cleanup_block  := 'cleanup' block
 
-; Stage‑3 (Phase 1 via normalization gate NYASH_CATCH_NEW=1)
-; Postfix handlers for expressions and calls (cleanup may appear without catch)
+; Accepted target postfix forms. Grammar/profile implementation remains pending.
 postfix_catch      := primary_expr 'catch' ( '(' ( IDENT IDENT | IDENT )? ')' )? block
 postfix_cleanup    := primary_expr 'cleanup' block
 ```
@@ -853,16 +859,18 @@ Semantics (summary)
 - stored: O(1) slot read; write via assignment. Bare stored fields are dynamic/untyped. Typed stored fields keep declared-type metadata for optimizers/verifiers and typed-object planning, but ordinary field writes are not type-enforced by this syntax.
 - stored initializers: `name = expr` and `name: Type = expr` are accepted and lower to constructor prologue assignments equivalent to `me.name = expr`. The prologue runs before the user `birth` body, in field declaration order. Initializer expressions are evaluated for each construction, so `field: ArrayBox = new ArrayBox()` creates a per-instance value rather than a shared static default.
 - computed/get: read‑only; each read evaluates the block; assignment is an error unless a setter is explicitly defined.
-- once: first read evaluates the block and caches the value; subsequent reads return the cached value. On exception without a `catch`, the property becomes poisoned and rethrows on later reads (no retries).
-- birth_once: evaluated before the user `birth` body, in declaration order; exceptions without a `catch` abort construction; cycles between `birth_once` members are an error.
-- handlers: `catch/cleanup` are permitted for computed/once/birth_once/method blocks (Stage‑3), not for stored.
+- once/birth_once poison and exception behavior in existing implementations is
+  compatibility evidence, not canonical postfix-catch semantics.
+- handlers are accepted target protected-region/cleanup syntax for computed,
+  once, birth_once, and method bodies; semantic activation awaits
+  `LANGUAGE-RECOVERABLE-FAILURE-D0` and later grammar/runtime rows.
 
-Lowering (no JSON v0 change)
+Target lowering boundary (no JSON v0 change)
 - stored → slot; declared type, when present, is copied into field-declaration metadata
-- computed/get → synthesize `__get_name():T { try body; catch; finally }`; reads of `obj.name` become `obj.__get_name()`
-- once → add `__name: Option<T>` and emit `__get_name()` with first‑read initialization; on uncaught exception mark poisoned and rethrow on subsequent reads
-- birth_once → add `__name: T` and insert initialization just before user `birth` in declaration order; handlers apply to each initializer
-- method → existing method forms; optional postfix handlers lower to try/catch/finally
+- computed/get, once, birth_once, and method handlers require the one
+  ProtectedRegion/Cleanup owner; they must not synthesize source `try`, generic
+  Catch/Throw, or a backend no-op fallback.
+- unsupported routes reject before protected-body effects. JSON v0 is unchanged.
 
 ## Legacy: `init { ... }` field list (compatibility)
 
@@ -896,40 +904,29 @@ Notes:
 - multi-payload variants and block-bodied record shorthand arms are not part of this cut yet
 - `qualified_ctor` is the narrow constructor surface used by enum values; this does not imply a general `::` static-method migration
 
-## Stage‑3 (Gated) Additions
+## Historical Parser-Gate Evidence (not grammar authority)
 
-Enabled when `NYASH_PARSER_STAGE3=1` for the Rust parser (and via `--syntax-3` with compatibility alias `--stage3`, or `NYASH_NY_COMPILER_STAGE3=1`, for the selfhost parser):
+Existing Rust/Hako parsers and compatibility fixtures still contain Stage-3 and
+environment-gated handler spellings, including Compat source `try`, ambient
+`NYASH_*` gates, and `TryCatch`-shaped transport. They are implementation
+evidence for the migration inventory only.
 
-- Legacy (compat): `try` statement (deprecated)
-  - Surface SSOT is postfix `catch/cleanup` + DropScope `fini`. `try_stmt` is legacy only; avoid in new code.
-  - Some parser paths may still accept `try_stmt` for compatibility.
-  - To enforce no-`try` surface in parser, use `NYASH_FEATURES=no-try-compat` (fail-fast tag: `[freeze:contract][parser/try_reserved]`).
-  - Legacy syntax (if accepted): `try_stmt := 'try' block ('catch' '(' (IDENT IDENT | IDENT | ε) ')' block)? ('cleanup' block)?`
+The accepted target is instead:
 
-- Block‑postfix catch/cleanup（Phase 15.5）
-  - `block_catch := '{' stmt* '}' ('catch' '(' (IDENT IDENT | IDENT | ε) ')' block)? ('cleanup' block)?`
-  - Applies to standalone block statements. Do not attach to `if/else/loop` structural blocks (wrap with a standalone block when needed).
-  - Gate: `NYASH_BLOCK_CATCH=1` (or `NYASH_PARSER_STAGE3=1`).
-- throw（design target）
-  - prohibited in surface language SSOT and parser rejects it unconditionally.
-  - freeze tag: `[freeze:contract][parser/throw_reserved]`
+```text
+source try / throw                  = rejected in both language profiles
+postfix catch                       = protected preceding region only
+catch target                        = RecoverableFailure only; never Fault
+canonical scope spelling            = cleanup
+scope fini                          = Compat2025 alias to cleanup
+unsupported parser/backend route    = fail before protected-body effects
+```
 
-- Method‑level postfix catch/cleanup（Phase 15.6, gated）
-  - `method_decl := IDENT '(' params? ')' ( ':' TYPE )? block ('catch' '(' (IDENT IDENT | IDENT | ε) ')' block)? ('cleanup' block)?`
-  - Gate: `NYASH_METHOD_CATCH=1`（または `NYASH_PARSER_STAGE3=1` と同梱）
-
-- DropScope / fini（Stage‑3）
-  - `fini_stmt := 'fini' block`
-  - `local_fini_stmt := 'local' IDENT ( '=' expr )? 'fini' block`
-  - `local_fini_stmt` は単一束縛のみ（`,` 併用禁止）。
-  - `fini` ブロック内の `return` / `break` / `continue` / `throw` は禁止（Fail-Fast）。
-  - 同一スコープの複数 `fini` は scope exit で LIFO 実行。
-
-- Member‑level postfix catch/cleanup（Phase 15.6, gated）
-  - Applies to computed/once/birth_once in the unified member model: see “Box Members”.
-  - Gate: `NYASH_PARSER_STAGE3=1` (shared). Stored members do not accept handlers.
-
-These constructs remain experimental; behaviour may degrade to no‑op in some backends until runtime support lands, as tracked in CURRENT_TASK.md.
+No environment variable is a language-semantic profile owner. A later explicit
+`GrammarProfileV1` row owns parser selection; the current gates must be retired
+under `LANGUAGE-STAGE3-ENV-GATES-SUNSET-001`. The legacy parser evidence does
+not authorize source `try`, generic Catch/Throw lowering, source-to-`try`
+rewriting, or a backend no-op degradation.
 
 ## Rune Declaration Metadata (docs-locked)
 

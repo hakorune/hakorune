@@ -71,7 +71,10 @@ Variables and scope
 - See: [lifecycle.md](lifecycle.md) — Box object residency (strong/weak),
   Alive/Dead/Freed, and finalization (`fini`) SSOT.
 - See: [constructor-birth-new-lifecycle-ssot.md](../../development/current/main/design/constructor-birth-new-lifecycle-ssot.md) — `new` / field initializer / `birth` construction order, direct `birth` call rejection, and explicit reuse method policy.
-- See: [scope-exit-semantics.md](scope-exit-semantics.md) — SSOT for DropScope (`fini {}` / `local ... fini {}`), `catch`/`cleanup` exit ordering, and accepted `move`/`share` transfer terminology. Parser-live status remains owned by EBNF/grammar rows.
+- See: [scope-exit-semantics.md](scope-exit-semantics.md) — SSOT for canonical
+  `cleanup`, Compat2025 scope-`fini` aliases, postfix protected-region/cleanup
+  ordering, and accepted `move`/`share` transfer terminology. Parser-live
+  status remains owned by EBNF/grammar rows.
 - See: [repl.md](repl.md) — REPL mode semantics (file mode vs REPL binding rules).
   Current interactive implementation work is parked by
   [vm-active-lane-retirement-ssot.md](../../development/current/main/design/vm-active-lane-retirement-ssot.md) and
@@ -101,8 +104,12 @@ Grammar (EBNF)
   It is not a second grammar.
 - Unified Members (stored/computed/once/birth_once): see [EBNF.md](EBNF.md) “Box Members (Phase 15)” and the Language Reference section. Stored fields use `name` for simple dynamic slots and `name: Type` when declared-type metadata helps typed-object planning / optimization / verification. Canonical computed syntax is `get name: Type { ... }`; legacy `name: Type { ... }` remains accepted. Default ON (disable with `NYASH_ENABLE_UNIFIED_MEMBERS=0`).
 
-Member exceptions and handlers (Stage‑3)
-- Postfix `catch/cleanup` may be attached to computed/once/birth_once/method blocks when Stage‑3 is enabled. Stored members (`name` or `name: Type`) do not support handlers.
+Member protected regions and cleanup
+- The accepted target is postfix `catch`/`cleanup` on computed/once/birth_once/
+  method bodies. `catch` handles only pending `RecoverableFailure`, never
+  terminal `Fault`; activation remains pending the explicit grammar and outcome
+  rows. Legacy Stage-3 gates are implementation evidence, not a profile owner.
+  Stored members (`name` or `name: Type`) do not support handlers.
 
 Related implementation notes
 - Frontend AST schema: crates/hakorune_frontend_ast/src/

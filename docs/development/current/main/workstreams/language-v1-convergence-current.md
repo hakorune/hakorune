@@ -215,7 +215,7 @@ FUNCTION-EXIT-F1-RETURN0-S0
   six plain source-hint sites are benchmark, artifact-only, Stage-1, or legacy
   fallback routes; none matches the fixed normal VM-reference contract.
 
--> NORMAL-FILE-VM0-FAMILY-D0-FORGE-FRONTDOOR (accepted; parked during docs closeout)
+-> NORMAL-FILE-VM0-FAMILY-D0-FORGE-FRONTDOOR (accepted; active after docs closeout)
   create NormalFileVmFrontDoorV1 with no legacy caller mapping. The first forge
   row keeps production caller=0 and reuses the closed Raw VM-reference kernel.
   See [normal-file-vm0-frontdoor-forge-task-2026-07-26.md](../investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md).
@@ -226,11 +226,11 @@ FUNCTION-EXIT-F1-RETURN0-S0
   distinct RecoverableFailure producer/ABI remains a later D0.
   See [language-tryless-postfix-catch-task-order-2026-07-26.md](../investigations/language-tryless-postfix-catch-task-order-2026-07-26.md).
 
--> LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT (active; docs-only)
+-> LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT (closed 2026-07-26; docs-only)
   synchronize the accepted target while registry/parser/AST/MIR/runtime/
   backend behavior remains unchanged, then resume Forge0.
 
--> NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 (accepted; parked resume)
+-> NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 (active; production caller=0)
   -> FORGE-CONTRACT0
   -> FORGE-SOURCE0
   -> FORGE-HANDOFF0

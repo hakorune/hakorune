@@ -28,7 +28,10 @@ Result::Ok(T):
   ordinary successful value-level result
 
 Result::Err(E):
-  ordinary recoverable failure represented as a value
+  ordinary value-level error result; never an implicit control outcome
+
+RecoverableFailure(reason):
+  accepted target catchable evaluation outcome; producer and boundary ABI pending
 
 Fault:
   unrecoverable violated contract represented as an evaluation outcome,
@@ -72,7 +75,8 @@ pointer, or missing payload buffer.
 | successful no-result | `Unit` / `void` | `Option::None`, `Result::Err`, `Fault` |
 | optional absence | `Option::None` | `Unit`, `Result::Err`, `Fault` |
 | optional presence | `Option::Some(T)` | `Unit`, `Option::None` |
-| recoverable failure | `Result::Err(E)` | `Option::None`, `Fault`, `Unit` |
+| value-level error result | `Result::Err(E)` | `Option::None`, `RecoverableFailure`, `Fault`, `Unit` |
+| catchable control failure | `RecoverableFailure(reason)` target Outcome | `Result::Err`, `CompatFailure`, `Fault`, every ordinary value |
 | successful value result | `Result::Ok(T)` | `Unit`, `Result::Err` |
 | violated contract | `Fault` outcome | every ordinary value carrier |
 | uninitialized local | `UninitializedSlot` | every language value |
@@ -89,6 +93,9 @@ Fault -> Result::Err
 Fault -> Option::None
 Fault -> Unit
 Result::Err -> Fault
+Result::Err -> RecoverableFailure
+RecoverableFailure -> Result::Err
+RecoverableFailure -> Fault
 Result::Err -> Option::None
 Option::None -> Unit
 Unit -> Option::None
@@ -113,13 +120,21 @@ Normal(value_or_unit)
 Return(value_or_unit)
 Break
 Continue
+RecoverableFailure(reason)  ; accepted target only
 Fault(fault_record)
 ```
 
-`Fault` is not catchable in Canonical v1. `Result::Err` and `Option::None`
-must be handled as values with `match` or another explicit enum operation.
+`Fault` is not catchable in Canonical v1. A postfix catch target handles only
+`RecoverableFailure`, never `Fault`; `Result::Err` and `Option::None` remain
+values handled with `match` or another explicit enum operation. The exact
+producer, handler result, callable/entry propagation, and unhandled-boundary
+law for `RecoverableFailure` are pending
+`LANGUAGE-RECOVERABLE-FAILURE-D0`; no current runtime producer exists.
+
 Cleanup runs after the body outcome becomes pending; the first cleanup Fault
 becomes the final Fault and later cleanup faults are suppressed diagnostics.
+Whether cleanup may issue `RecoverableFailure` is also pending that D0 and may
+not be inferred as Fault or `Result::Err`.
 
 ## Uninitialized Locals
 
@@ -151,10 +166,13 @@ document does not change it.
 
 ## Profiles and Activation
 
-`null`, postfix `catch`, and compatibility throw/catch paths remain governed
-by their current grammar/profile registries in this slice. The relation target
-is not permission to flip those rows. `CompatNull` is permitted only under the
-named Compat2025 boundary after a future migration decision.
+`null`, postfix `catch`, and legacy exception-shaped paths remain governed by
+their current grammar/profile registries in this slice. The accepted target is
+source-`try` rejection in both language profiles, postfix catch over the
+pending `RecoverableFailure` Outcome, and no implicit `Result::Err` lift. The
+relation target is not permission to flip those rows. `CompatNull` is
+permitted only under the named Compat2025 boundary after a future migration
+decision.
 
 ```text
 runtime_activation = 0
@@ -162,4 +180,6 @@ canonical_null_migration = 0
 weak_upgrade_option_activation = 0
 uninitialized_local_activation = 0
 catch_profile_change = 0
+recoverable_failure_producer = 0
+recoverable_failure_boundary_abi = 0
 ```

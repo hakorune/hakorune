@@ -23,18 +23,33 @@ Normal(value_or_unit)
 Return(value_or_unit)
 Break
 Continue
+RecoverableFailure(reason)  ; accepted target; producer and ABI remain pending
 Fault(reason)
 ```
 
 `Fault` is an unrecoverable canonical semantic outcome. It is not absence or
-recoverable failure, and Canonical v1 provides no `catch` operation for it.
-Compatibility and FFI boundaries must use explicit value-level conversion if a
-future accepted row permits one.
+recoverable failure and no `catch` operation handles it.
+
+`RecoverableFailure` is the distinct, catchable target Outcome for a postfix
+protected region. It is not `Result::Err`, `CompatFailure`, or a legacy MIR
+`Catch` instruction. The accepted target transition is:
+
+```text
+protected Normal / Return / Break / Continue -> propagate unchanged
+protected RecoverableFailure                 -> enter the postfix catch handler
+protected Fault                              -> bypass catch and remain terminal
+```
+
+No canonical producer, handler-result law, callable/source-entry propagation,
+or runtime/backend ABI exists yet. `LANGUAGE-RECOVERABLE-FAILURE-D0` owns those
+choices. Until it closes, a route that needs this Outcome fails before effects;
+it must not reinterpret `Result::Err` or a legacy exception carrier.
 
 Function, Script, selected source-entry, physical-entry, and process-exit
 boundaries consume these Outcomes according to
 `function-exit-and-entry-result.md`. That topic does not add or redefine an
-Outcome variant.
+Outcome variant and does not yet project `RecoverableFailure` across a
+callable or entry boundary.
 
 ## Evaluated Place
 
@@ -113,9 +128,12 @@ runtime/backend fallback.
 
 ```text
 semantic_kernel_owner_count = 1
-outcome_variant_count = 5
+current_physical_outcome_variant_count = 5
+target_outcome_variant_count = 6
 evaluated_place_variant_count = 3
 canonical_fault_catchable = 0
+canonical_recoverable_failure_producer = 0
+canonical_catch_runtime_consumer = 0
 cleanup_always_runs = 1
 cleanup_fault_precedence = 1
 guard_else_requires_no_fallthrough = 1

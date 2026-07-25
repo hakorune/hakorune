@@ -13,8 +13,9 @@ remain unclaimed/fail-fast until their taskboard rows close.
 Design note:
 - Source-level owner forwarding, scoped aliases, anchored views, and explicit
   Shared entry are owned by `docs/reference/language/ownership.md` (SSOT).
-- For normative exit-order, canonical `cleanup`, legacy DropScope
-  (`fini {}` / `local ... fini {}`), `catch/cleanup` routing, and
+- For normative exit-order, canonical `cleanup`, Compat2025 DropScope
+  aliases (`fini {}` / `local ... fini {}`), postfix protected-region/cleanup
+  routing, and
   ownership-transfer terminology, see
   `docs/reference/language/scope-exit-semantics.md` (SSOT).
 - This file remains authoritative for object states (Alive/Dead/Freed), weak refs, and memory policy.
@@ -337,8 +338,8 @@ Language guarantee (deterministic):
 - Supported scope-exit surfaces are:
   - `cleanup { ... }` (canonical DropScope registration; parser rollout is phased)
   - `local x ... cleanup { ... }` (canonical single-binding sugar; parser rollout is phased)
-  - `fini { ... }` (legacy DropScope registration alias)
-  - `local x ... fini { ... }` (legacy single-binding sugar)
+- `fini { ... }` (Compat2025 legacy DropScope registration alias)
+- `local x ... fini { ... }` (Compat2025 legacy single-binding sugar)
   - postfix `cleanup { ... }` (finally surface)
 
 Recommended SSOT surface:
@@ -368,16 +369,15 @@ SSOT semantics:
 - Multiple cleanup handlers in the same scope run in LIFO order.
 - `local ... cleanup` is declaration sugar and must target exactly one local binding.
 - Cleanup handlers execute before that scope's locals are dropped.
-- Current live sources may still spell the same DropScope handler as `fini`.
+- `fini` spelling is a bounded compatibility alias; new Canonical source uses
+  `cleanup` and the alias does not create an independent semantic owner.
 
-### `cleanup` (block-postfix) — finally surface
+### `cleanup` (block-postfix) — pending cleanup surface
 
 ```nyash
 {
   local f = open(path)
   do_work(f)
-} catch (e) {
-  log(e)
 } cleanup {
   f.close()
 }
@@ -385,8 +385,10 @@ SSOT semantics:
 
 SSOT semantics:
 - The `cleanup` block runs exactly once on every exit path from the attached block.
-- `cleanup` may appear with or without `catch`.
-- With `catch`, `cleanup` runs after the matching `catch` body in the same wrapper.
+- `cleanup` may attach to an independently selected protected region.
+- A future postfix catch handles only `RecoverableFailure`; terminal Fault
+  bypasses catch and still drains cleanup. Handler ordering and producer/ABI
+  are pending `LANGUAGE-RECOVERABLE-FAILURE-D0`.
 
 ## 4.2) Weak references (surface model)
 

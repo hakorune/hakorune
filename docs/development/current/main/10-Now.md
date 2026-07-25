@@ -26,15 +26,14 @@ Related:
 - closed docs row: DOCS-POINTER-ALIGNMENT0 + LANGUAGE-DOCS-STATUS-SSOT-D0 — the
   status index and entry-point navigation are landed; no semantic conflict was
   silently resolved
-- active row: LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT — docs-only alignment of
-  the accepted no-source-try/postfix-catch target; physical grammar, parser,
-  MIR, runtime, backend, and JSON behavior remain unchanged
+- closed context: LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT aligned the accepted
+  no-source-try/postfix-catch target without grammar, parser, MIR, runtime,
+  backend, or JSON changes
 - accepted target: postfix `catch` protects the immediately preceding region
   and handles only the pending `RecoverableFailure` Outcome; terminal `Fault`
   remains non-catchable
-- parked resume: NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 — the accepted typed
-  NormalFile front-door forge resumes immediately after the closeout with
-  production caller=0 and normal/default cutover=0
+- active row: NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 — forge the accepted typed
+  NormalFile front door with production caller=0 and normal/default cutover=0
 - closed immediately before this frontier: passive Canonical/NarrowV1/
   VM-reference profile, explicit early `--backend raw-vm-reference` canary,
   mandatory feature-enabled/disabled parity family, and the D0 decision that

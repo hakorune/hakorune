@@ -25,6 +25,12 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
   ExplicitReturnOnly, Script evaluation has its own final-expression result,
   and process termination is a separate projection. The normative owner is
   `docs/reference/language/function-exit-and-entry-result.md`.
+- Tryless postfix-catch semantics are accepted as
+  `LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1`: source `try` and `throw` are
+  rejected in both language profiles; postfix `catch` is the protected-region
+  target for a distinct pending `RecoverableFailure`; terminal `Fault` remains
+  non-catchable. The task order and activation boundary are
+  `docs/development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md`.
 - minimal MirBuilder execution path frontier review resolves the design stop to `MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001`; the older MirModule gap is already closed on current `public-main`.
 - the current selfhost roadmap now narrows the remaining work to family-by-family `HakoAdopted` decisions, Python SemanticProjector freeze, and consultation-gated ABI / syntax boundaries.
 - `stage2-mainline` への entry task pack は `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md` を正本にする。

@@ -32,14 +32,19 @@ language contract.
 
 ## Four-Family Status
 
+The table is the accepted target contract. The registry, generated parser
+projections, and both parser witnesses are still physically unsynchronized for
+the exception/cleanup rows; that drift is tracked in `status-index.md` and is
+not permission to treat a target row as live.
+
 | Spelling | Canonical | Compat2025 | Normalization |
 | --- | --- | --- | --- |
 | `guard expr else { ... }` | canonical | canonical | `GuardElse` |
 | `guard let PAT = EXPR else { ... }` | canonical | canonical | `GuardLetElse`; else requires `NoFallthrough` |
-| postfix `catch` | canonical | canonical | `PostfixCatch`; not Fault catch |
+| postfix `catch` | canonical | canonical | `PostfixCatch`; protects the preceding region and handles only pending `RecoverableFailure`, never Fault |
 | postfix `cleanup` | canonical | canonical | `PostfixCleanup` |
-| `fini` | canonical | canonical | canonical cleanup/finalizer shape |
-| statement `try` | reserved and rejected | compatibility_only | lossless closed subset aliases to postfix catch/cleanup/fini |
+| scope `fini` / `local ... fini` | rejected | compatibility_only | immediate alias to canonical cleanup; object `box.fini()` is separate lifecycle syntax |
+| statement `try` | reserved and rejected | reserved and rejected | none; historical migration reading is outside language grammar |
 | `match` | canonical | canonical | `Match` |
 | `peek` | rejected | compatibility_only | lossless closed subset aliases to `Match` |
 | `delegate field exposes { ... }` | canonical | canonical | `DelegateExposes` |
@@ -49,6 +54,11 @@ language contract.
 Compatibility transport is not language execution acceptance. It may produce a
 migration witness, but it has no semantic owner and cannot enter canonical MIR,
 runtime, or backend lowering. Attempted semantic entry fails fast.
+
+Historical source `try` is not a Compat2025 language row. If a migration tool
+preserves it, the tool owns a non-semantic record outside both grammar profiles;
+it cannot use a parser retry or a compatibility alias to reach canonical AST,
+MIR, runtime, or backend lowering.
 
 ## Normalization Modes
 
@@ -138,6 +148,7 @@ corpus. Batched raw ProgramJSON remains non-authority evidence.
 ```text
 parser/compat_profile_required
 parser/try_reserved
+parser/throw_reserved
 parser/try_compat_not_normalizable
 parser/peek_legacy_replaced_by_match
 parser/peek_compat_not_normalizable

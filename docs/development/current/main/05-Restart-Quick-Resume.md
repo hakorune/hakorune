@@ -42,18 +42,14 @@ cargo check -q
 - read `latest_card_path` before editing
 - continue only the exact `current_blocker_token` and `latest_card_path` from
   `CURRENT_STATE.toml`; this mirror does not select or rename executable rows
-- the active row is docs-only
-  `LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT`
-- source `try` and `throw` remain rejected; postfix `catch` is the accepted
-  protected-region target; terminal `Fault` remains non-catchable
-- `RecoverableFailure` is a named pending Outcome target, not a current
-  parser/MIR/runtime producer; its producer and boundary ABI belong to
-  `LANGUAGE-RECOVERABLE-FAILURE-D0`
-- registry, parser, AST, MIR, runtime, backend, JSON, and environment-gate
-  behavior must not change in this closeout
-- after closeout, resume exactly
-  `NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0`; its production caller, fallback, and
-  normal/default cutover remain zero
+- `LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT` is closed: source `try` and
+  `throw` remain rejected, postfix `catch` is a pending protected-region
+  target, and terminal `Fault` remains non-catchable
+- `RecoverableFailure` remains a named pending Outcome target; its producer
+  and boundary ABI belong to `LANGUAGE-RECOVERABLE-FAILURE-D0`
+- the active row is `NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0`; forge the typed
+  front door with production caller, fallback, and normal/default cutover all
+  still zero
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - the current lane is the `active_lane` in `CURRENT_STATE.toml`

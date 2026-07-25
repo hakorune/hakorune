@@ -2,8 +2,10 @@
 
 Status: Normative (2026-07; B′ lifecycle and sparse-ownership decisions applied).
 
-Decision/availability: cleanup/fini clauses apply according to their existing
-parser/runtime rows. Sparse owner-token, `move`, and `share` clauses describe
+Decision/availability: canonical cleanup and postfix catch are accepted target
+surfaces but remain pending their exact grammar/runtime rows. Scope `fini` is
+Compat2025-only cleanup alias; source `try` is rejected in both language
+profiles. Sparse owner-token, `move`, and `share` clauses describe
 the accepted target ownership contract; source ownership production remains 0
 and the spellings remain parser-inactive until their grammar/profile rows land.
 Unsupported ownership forms fail fast and never fall back to SharedV1.
@@ -20,7 +22,7 @@ entry/process-result projection are owned by
 This SSOT fixes:
 
 - DropScope registration and execution order
-- failure routing (`catch` / `cleanup`)
+- protected-region and cleanup routing
 - relation between scope cleanup and object finalization
 - failure policy when cleanup/finalization handlers fail
 - constructor (`birth`) partial-failure behavior
@@ -32,16 +34,17 @@ Value or Unit. It only orders cleanup around the already-selected Outcome.
 ## 1) Core Surfaces
 
 - Standalone `cleanup { ... }`: canonical scope-exit handler spelling for the
-  current DropScope. Parser support is phased; until the parser row lands, use
-  the legacy alias below in live source.
+  current DropScope. Parser support is phased; Canonical source must not rely
+  on any spelling until its parser/profile row lands.
 - `local x = e cleanup { ... }`: canonical declaration sugar that registers
   cleanup at the declaration point. Parser support is phased.
-- `fini { ... }`: legacy compatibility alias for a scope-exit cleanup handler.
-- `local x = e fini { ... }`: legacy declaration sugar that registers cleanup
-  at the declaration point.
+- `fini { ... }`: Compat2025-only legacy alias for a scope-exit cleanup handler.
+- `local x = e fini { ... }`: Compat2025-only legacy declaration sugar that
+  registers cleanup at the declaration point.
 - Postfix `cleanup { ... }`: always-run handler attached to a protected
   expression/block/member handler.
-- `catch (...) { ... }`: failure handler.
+- postfix `catch (...) { ... }`: protected-region handler for pending
+  `RecoverableFailure` only; it never catches terminal `Fault`.
 - `box.fini()`: explicit object-level logical finalization. This is not a
   scope-exit handler and is not implied by ownership ending.
 
@@ -60,8 +63,9 @@ fini()  = what an object does when finalized
 
 ## 2) Unified Cleanup Model
 
-Canonical `cleanup`, legacy DropScope `fini`, and postfix `cleanup` all lower to
-the same finally-style execution channel.
+Canonical `cleanup`, legacy DropScope `fini`, and postfix `cleanup` all target
+the same cleanup channel. That target does not authorize a `TryCatch` AST/MIR
+encoding, source `try`, or backend fallback.
 
 - Handlers run once per scope exit.
 - Multiple DropScope registrations in the same scope run in LIFO order.
@@ -69,15 +73,18 @@ the same finally-style execution channel.
 
 ## 3) Exit Ordering
 
-On normal exit, `return`, `break`, `continue`, or failure:
+On normal exit, `return`, `break`, `continue`, or an already-selected Outcome:
 
-1. evaluate the scope body and route failures to nearest `catch` in lexical context
+1. a postfix protected region may route only `RecoverableFailure` to its
+   immediately attached catch handler; terminal `Fault` bypasses catch
 2. run scope-exit handlers (`cleanup`, including legacy `fini` aliases) for the exiting scope
 3. destroy the ownership tokens held by owning local bindings of that scope;
    scoped aliases and anchored views carry no token and add no destroy
 4. if the last strong token disappeared, run structural payload drop/reclaim;
    this does not call user `box.fini()`
-5. propagate unhandled failure outward (fatal at top level)
+5. propagate the resulting Outcome outward; unhandled `RecoverableFailure`
+   boundary behavior is pending `LANGUAGE-RECOVERABLE-FAILURE-D0` and may not
+   silently become Unit, `Result::Err`, or Fault
 
 A cleanup handler that needs deterministic resource finalization must call
 `box.fini()` explicitly before its binding token is destroyed. Scope exit,
@@ -142,7 +149,8 @@ Use **ownership transfer** or **owner forwarding** as terminology.
 
 - DropScope cleanup surfaces (`cleanup`, legacy `fini` aliases, postfix `cleanup`)
 - exit ordering
-- `catch` routing
+- protected-region/cleanup ordering (the RecoverableFailure producer and
+  boundary ABI remain owned by the later D0)
 - cleanup/finalization failure policy
 - ownership-transfer terminology
 

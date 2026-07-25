@@ -30,10 +30,9 @@ row, follow only the `latest_card_path` contract.
 Continue only the exact `current_blocker_token` and `latest_card_path` named by
 `CURRENT_STATE.toml`.
 
-The active row is the docs-only
-`LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT`. It records the accepted tryless
-surface without changing registry, parser, AST, MIR, runtime, backend, or JSON
-behavior:
+`LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT` is closed. It recorded the accepted
+tryless surface without changing registry, parser, AST, MIR, runtime, backend,
+or JSON behavior:
 
 ```text
 source try / throw       = rejected in both language profiles
@@ -44,8 +43,8 @@ cleanup                  = separate scope-exit owner
 box.fini()               = separate lifecycle owner
 ```
 
-Do not invent a `RecoverableFailure` producer or ABI during the closeout; that
-belongs to `LANGUAGE-RECOVERABLE-FAILURE-D0`. When the closeout is complete,
-restore the current pointer to `NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0`. Forge0
-remains accepted with production caller=0, fallback=0, and normal/default
-cutover=0.
+`RecoverableFailure` producer and ABI remain parked for
+`LANGUAGE-RECOVERABLE-FAILURE-D0`. The active row is now
+`NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0`: forge its production-caller-zero typed
+front door only. Production/default cutover and legacy caller selection remain
+zero until D2.

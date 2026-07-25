@@ -78,11 +78,11 @@ implementation rows remain intentionally unsynchronized:
 
 ```text
 source try rejected in both profiles versus current Compat parser row
-postfix catch RecoverableFailure target versus the five-Outcome kernel
+postfix catch RecoverableFailure target versus no canonical producer/boundary ABI
 cleanup/fini target naming versus current registry/AST encoding and Stage-3 gates
 external source-try migration records are tool/evidence only, outside grammar
 concurrency topic rows versus Language v1 registry rows
-EBNF exception/rethrow/finally pseudo-lowering and no-op backend wording
+legacy EBNF/parser exception-shaped evidence versus the protected-region target
 ```
 
 Resolution owner:
@@ -92,10 +92,10 @@ later rows own grammar/registry/parser/runtime changes. No parser, runtime,
 backend, or grammar-registry implementation change is authorized by this
 index update.
 
-The EBNF exception/rethrow/finally lowering text is evidence of an older or
-compatibility route, not permission to degrade an unsupported handler to a
-no-op. Until D1 closes the route, unsupported handler/backend combinations
-must reject before user-visible effects.
+Legacy parser/transport evidence is not permission to degrade an unsupported
+handler to a no-op. The D1 decision is accepted; until the later grammar and
+runtime rows close, unsupported handler/backend combinations must reject before
+user-visible effects.
 
 ## Historical rule
 

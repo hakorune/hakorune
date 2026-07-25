@@ -24,9 +24,11 @@ Feature status and gates
   separate axes.
 - `throw` is prohibited and parser-rejected with a stable freeze tag. It is not
   a feature that can be enabled by a compatibility toggle.
-- statement `try` and postfix `catch` currently have a documented status
-  conflict between the grammar contract, EBNF gates, and Fault semantics. Do
-  not infer acceptance; follow [LANGUAGE-DOCS-TRY-CATCH-D1](../../development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md).
+- source `try` is rejected in both language profiles. Postfix `catch` is the
+  accepted protected-region target but remains pending its distinct
+  `RecoverableFailure` producer/ABI; it never catches terminal `Fault`. Do not
+  infer parser/runtime availability from legacy Stage-3 gates; follow the
+  [tryless task order](../../development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md).
 - `cleanup` / `fini` / `box.fini()` have different scope-cleanup and
   object-finalization owners. See [scope-exit-semantics.md](scope-exit-semantics.md)
   and [lifecycle.md](lifecycle.md).
