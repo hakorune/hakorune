@@ -193,6 +193,11 @@ FUNCTION-EXIT-F1-RETURN0-S0
   one consuming profile handoff, bounded diagnostic report, supported surface,
   proof reclassification, and NORMAL-ENTRY-CANARY-SUNSET-001 closeout
 
+-> NORMAL-ENTRY-CUTOVER-D1 (design stop; no implementation)
+  worker census finds no bounded normal caller family. Select one exact
+  caller/profile/output family or keep the normal cutover parked; require
+  complete source/function/Main/Script/result/backend parity before any code.
+
 -> NORMAL-ENTRY-CUTOVER0-S0 (parked)
   no executable row; a fresh D1 decision is required after one exact normal
   caller family has full source/backend/result parity
