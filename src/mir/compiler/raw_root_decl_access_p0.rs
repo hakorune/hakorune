@@ -299,6 +299,43 @@ fn script_binary_tail_has_one_source_selected_result() {
 }
 
 #[test]
+fn script_assignment_tail_is_a_unit_statement() {
+    let completed = ready(
+        script(vec![
+            ASTNode::Local {
+                variables: vec!["x".into()],
+                initial_values: vec![Some(Box::new(ASTNode::Literal {
+                    value: crate::ast::LiteralValue::Integer(1),
+                    span: Span::unknown(),
+                }))],
+                declared_type_names: vec![None],
+                span: Span::unknown(),
+            },
+            ASTNode::Assignment {
+                target: Box::new(ASTNode::Variable {
+                    name: "x".into(),
+                    span: Span::unknown(),
+                }),
+                value: Box::new(ASTNode::Literal {
+                    value: crate::ast::LiteralValue::Integer(3),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            },
+        ]),
+        RawCallableMainSelectionV1::Omitted,
+    )
+    .declare_environment()
+    .unwrap()
+    .begin_body()
+    .expect("assignment terminal should complete as Unit");
+    assert!(matches!(
+        completed,
+        RawRootBodyCompleteInvocationV1::Script(_)
+    ));
+}
+
+#[test]
 fn root_batch_entry_consumes_body_completion_into_route_product() {
     let completed = ready(
         ASTNode::Program {
