@@ -17,6 +17,7 @@ KERNEL = ROOT / "src/mir/compiler/raw_published_compile.rs"
 INGRESS = ROOT / "src/mir/compiler/raw_public_ingress.rs"
 EXEC = ROOT / "src/mir/compiler/source_entry_vm_execution.rs"
 PROFILE = ROOT / "src/runner/reference/raw_vm_reference_request.rs"
+RAW_CONTRACT = ROOT / "src/mir/raw_vm_reference_contract.rs"
 REFERENCE_RUNNER = ROOT / "src/runner/reference/raw_vm_reference.rs"
 PARITY_PROOF = ROOT / "tools/checks/lib/raw_vm_reference_conformance.py"
 CLI = ROOT / "src/cli/mod.rs"
@@ -45,6 +46,7 @@ def main() -> int:
     ingress = INGRESS.read_text()
     execution = EXEC.read_text()
     profile = PROFILE.read_text()
+    raw_contract = RAW_CONTRACT.read_text()
     reference_runner = REFERENCE_RUNNER.read_text()
     parity_proof = PARITY_PROOF.read_text()
     cli = CLI.read_text()
@@ -76,11 +78,17 @@ def main() -> int:
         "RawVmReferenceProductionRequestV1",
         "select_from_cli",
         "RawVmReferenceGrammarV1::Canonical",
-        "RawPublishedCompileProfileV1::narrow_v1()",
-        "RawVmReferenceExecutionProfileV1::CanonicalV1",
+        "RawVmReferenceSupportProfileV1",
+        "RawVmReferenceSupportProfileV1::canonical_v1()",
         "into_invocation",
     ):
         require(profile, fragment, f"support profile {fragment}")
+    for fragment in (
+        "struct RawVmReferenceSupportProfileV1",
+        "RawPublishedCompileProfileV1::narrow_v1()",
+        "RawVmReferenceExecutionProfileV1::CanonicalV1",
+    ):
+        require(raw_contract, fragment, f"neutral Raw support profile {fragment}")
     for fragment in (
         "pub macro_preexpand: bool",
         "pub macro_preexpand_auto: bool",
@@ -168,6 +176,7 @@ def main() -> int:
         INGRESS,
         EXEC,
         PROFILE,
+        RAW_CONTRACT,
         REFERENCE_RUNNER,
         ROOT / "src/runner/mod.rs",
         CLI,

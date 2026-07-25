@@ -1,0 +1,145 @@
+#!/usr/bin/env python3
+"""Forge0 guard for the disconnected NormalFile VM-reference front door."""
+
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[3]
+TASK = ROOT / (
+    "docs/development/current/main/investigations/"
+    "normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
+)
+FRONTDOOR = ROOT / "src/runner/reference/normal_file_vm_frontdoor.rs"
+REFERENCE_MOD = ROOT / "src/runner/reference/mod.rs"
+RAW_CONTRACT = ROOT / "src/mir/raw_vm_reference_contract.rs"
+RUNNER = ROOT / "src/runner/mod.rs"
+FROZEN_ROUTES = (
+    ROOT / "src/runner/dispatch.rs",
+    ROOT / "src/runner/route_orchestrator.rs",
+    ROOT / "src/runner/core_executor.rs",
+    ROOT / "src/runner/mir_json_v0.rs",
+    ROOT / "src/runtime/mirbuilder_emit.rs",
+)
+S3_GUARDS = (
+    ROOT / "tools/checks/lib/entry_result_projection0_s3_owner_guard.py",
+    ROOT / "tools/checks/lib/entry_result_projection0_s3_execution_guard.py",
+    ROOT / "tools/checks/lib/entry_result_projection0_s3_entry_carry_guard.py",
+    ROOT / "tools/checks/lib/raw_vm_reference_conformance.py",
+)
+
+
+def require(text: str, fragment: str, label: str) -> None:
+    if fragment not in text:
+        raise AssertionError(f"missing {label}: {fragment!r}")
+
+
+def main() -> int:
+    task = TASK.read_text()
+    frontdoor = FRONTDOOR.read_text()
+    production = frontdoor.split("#[cfg(test)]", 1)[0]
+    reference_mod = REFERENCE_MOD.read_text()
+    raw_contract = RAW_CONTRACT.read_text()
+
+    for fragment in (
+        "NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0",
+        "new normal production caller = 0",
+        "one UTF-8 file read",
+        "one canonical parse",
+        "fallback / retry         = zero",
+        "< 800 lines",
+    ):
+        require(task, fragment, f"Forge0 task contract {fragment}")
+    for fragment in (
+        "NormalFileVmFrontDoorV1",
+        "NormalEntryProfileV1",
+        "FileNoImportVmReferenceV1",
+        "SealedNormalEntryProfileV1",
+        "NormalFileRequestV1",
+        "PreparedNormalFileRequestV1",
+        "LoadedNormalFileSourceV1",
+        "PreparedNormalFileSourceV1",
+        "NormalFileSourceReceiptV1",
+        "PreparedNormalFileVmHandoffV1",
+        "RejectedNormalFileSourceV1",
+        "fn prepare_raw_vm_handoff(self)",
+        "fn into_raw_vm_reference_invocation(self)",
+        "std::fs::read_to_string(&source_file)",
+        "parse_from_string_with_build_config",
+        "GrammarProfile::Canonical",
+        "find_no_import_violation",
+        "ASTNode::UsingStatement",
+        "ASTNode::ImportStatement",
+    ):
+        require(production, fragment, f"front-door owner {fragment}")
+    for fragment in (
+        "RawVmReferenceSupportProfileV1",
+        "fn into_invocation(",
+    ):
+        require(raw_contract, fragment, f"downstream Raw contract {fragment}")
+    require(
+        reference_mod,
+        "pub(crate) mod normal_file_vm_frontdoor;",
+        "disconnected front-door module declaration",
+    )
+
+    if production.count("std::fs::read_to_string(&source_file)") != 1:
+        raise AssertionError("Forge0 must read its source file exactly once")
+    if production.count("parse_from_string_with_build_config") != 1:
+        raise AssertionError("Forge0 must invoke the canonical parser exactly once")
+    for forbidden in (
+        "RawPublishedCompileProfileV1::narrow_v1",
+        "RawVmReferenceSourceProfileV1",
+        "RawVmReferenceImportProfileV1",
+        "RawVmReferenceCallableMainProfileV1",
+        "RawVmReferenceExecutionProfileV1::CanonicalV1",
+        "compile_raw_with_source",
+        "compile_with_source",
+        "compile_legacy",
+        "build_module",
+        "run_raw_vm_reference_v1",
+        "run_raw_vm_reference(",
+        "execute_module(",
+        "NYASH_ENTRY",
+        "ProcessExitProjectionV1",
+        "std::process::exit",
+        "prepare_source_with_imports",
+        "prepare_source_minimal",
+        "fallback",
+        "retry",
+        "preexpand",
+        "strip_",
+        "merge",
+    ):
+        if forbidden in production:
+            raise AssertionError(f"Forge0 must not own alternate policy/work: {forbidden}")
+
+    for path in FROZEN_ROUTES:
+        text = path.read_text()
+        for token in (
+            "NormalFileVmFrontDoorV1",
+            "NormalFileRequestV1",
+            "PreparedNormalFileVmHandoffV1",
+        ):
+            if token in text:
+                raise AssertionError(f"frozen route widened into Forge0: {path.relative_to(ROOT)}")
+    for path in (ROOT / "src/runner").rglob("*.rs"):
+        if path == FRONTDOOR:
+            continue
+        text = path.read_text()
+        if "NormalFileVmFrontDoorV1" in text or "PreparedNormalFileVmHandoffV1" in text:
+            raise AssertionError(f"Forge0 has an external production caller: {path.relative_to(ROOT)}")
+    if "normal_file_vm_frontdoor" in RUNNER.read_text():
+        raise AssertionError("normal/default runner must not select Forge0")
+
+    for path in (TASK, FRONTDOOR, RAW_CONTRACT, Path(__file__), *S3_GUARDS):
+        if len(path.read_text().splitlines()) >= 800:
+            raise AssertionError(f"file must remain below 800 lines: {path.relative_to(ROOT)}")
+    print(
+        "[normal-file-vm0-frontdoor-forge-guard] ok "
+        "profile=1 read=1 parse=1 handoff=1 caller_zero=1 alternate_policy=0 below_800=1"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

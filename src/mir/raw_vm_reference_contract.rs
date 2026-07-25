@@ -113,6 +113,37 @@ impl RawVmReferenceExecutionProfileV1 {
     }
 }
 
+/// The closed downstream profile shared by supported Raw consumers.
+///
+/// This owner keeps compile and execution policy paired until a source owner
+/// has produced one exact AST. Consumers may issue an invocation from it, but
+/// may not reconstruct NarrowV1, entry, VM freshness, or process policy.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct RawVmReferenceSupportProfileV1 {
+    compile: RawPublishedCompileProfileV1,
+    execution: RawVmReferenceExecutionProfileV1,
+}
+
+impl RawVmReferenceSupportProfileV1 {
+    pub(crate) const fn canonical_v1() -> Self {
+        Self {
+            compile: RawPublishedCompileProfileV1::narrow_v1(),
+            execution: RawVmReferenceExecutionProfileV1::CanonicalV1,
+        }
+    }
+
+    pub(crate) fn into_invocation(
+        self,
+        ast: ASTNode,
+        source_file: Option<Box<str>>,
+    ) -> RawVmReferenceInvocationV1 {
+        RawVmReferenceInvocationV1::new(
+            RawPublishedCompileRequestV1::new(ast, source_file, "main", self.compile),
+            self.execution,
+        )
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct RawVmReferenceInvocationV1 {
     pub(crate) compile: RawPublishedCompileRequestV1,
@@ -121,10 +152,10 @@ pub(crate) struct RawVmReferenceInvocationV1 {
 
 impl RawVmReferenceInvocationV1 {
     pub(crate) fn narrow_v1(ast: ASTNode, source_file: Option<&str>) -> Self {
-        Self {
-            compile: RawPublishedCompileRequestV1::narrow_v1(ast, source_file),
-            execution: RawVmReferenceExecutionProfileV1::CanonicalV1,
-        }
+        RawVmReferenceSupportProfileV1::canonical_v1().into_invocation(
+            ast,
+            source_file.map(str::to_owned).map(String::into_boxed_str),
+        )
     }
 
     pub(crate) fn new(

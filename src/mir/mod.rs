@@ -55,7 +55,7 @@ pub(crate) use raw_vm_reference_contract::{
     RawPublishedCompileProfileV1, RawPublishedCompileRequestV1,
     RawVmReferenceCallableMainProfileV1, RawVmReferenceExecutionProfileV1,
     RawVmReferenceImportProfileV1, RawVmReferenceInvocationV1,
-    RawVmReferenceSourceProfileV1,
+    RawVmReferenceSourceProfileV1, RawVmReferenceSupportProfileV1,
 };
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
 pub mod constructor_call_route_plan; // MIR-owned constructor call route plans

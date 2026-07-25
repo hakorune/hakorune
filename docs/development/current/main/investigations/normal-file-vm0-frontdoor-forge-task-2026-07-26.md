@@ -165,19 +165,24 @@ struct PreparedNormalFileSourceV1 {
 }
 
 struct PreparedNormalFileVmHandoffV1 {
-    compile: RawPublishedCompileRequestV1,
-    execution: RawVmReferenceExecutionProfileV1,
+    invocation: RawVmReferenceInvocationV1,
     source: NormalFileSourceReceiptV1,
     _seal: PreparedNormalFileVmHandoffSealV1,
 }
 ```
+
+The implementation keeps the compile and execution fields opaque inside the
+existing `RawVmReferenceInvocationV1`. This is a deliberate visibility
+preservation: `compile_raw_published_v1` remains MIR-internal, while the
+front door consumes one already-paired Raw support profile into that invocation.
+It does not widen the Raw compile kernel or reconstruct its policies.
 
 The handoff is issued by one consuming adapter owned by the existing Raw
 contract, not by a normal-side `narrow_v1` policy reconstruction:
 
 ```rust
 impl PreparedNormalFileVmHandoffV1 {
-    fn into_raw_request(self) -> RawPublishedCompileRequestV1;
+    fn into_raw_vm_reference_invocation(self) -> RawVmReferenceInvocationV1;
 }
 ```
 
@@ -298,6 +303,33 @@ the exact request/source owner and expose `stage`, typed `error`, and
 
 Consume the existing Raw support profile by value and issue exactly one
 `RawPublishedCompileRequestV1`. Do not duplicate Raw policy or execution.
+
+## Execution ledger
+
+### Closed 2026-07-26: `FORGE-CONTRACT0` -> `FORGE-SOURCE0` -> `FORGE-HANDOFF0`
+
+The disconnected owner now lives in
+`src/runner/reference/normal_file_vm_frontdoor.rs` and remains below the
+source-file boundary. It seals one fixed no-import profile, performs one
+UTF-8 read and one canonical parse, rejects parsed `using`/`import` before a
+Raw handoff, and consumes the paired Raw support profile into one opaque
+`RawVmReferenceInvocationV1`.
+
+The neutral `RawVmReferenceSupportProfileV1` is the one compile/execution
+pairing owner for both the existing supported reference request and this
+forge. The front door has no execution call and no production runner caller.
+
+Focused evidence:
+
+```text
+python3 tools/checks/lib/entry_result_projection0_s3_owner_guard.py
+python3 tools/checks/lib/normal_file_vm0_frontdoor_forge_guard.py
+cargo test -q --lib runner::reference::normal_file_vm_frontdoor
+cargo test -q --lib runner::reference::normal_file_vm_frontdoor --features vm-reference
+```
+
+Next internal row: `FORGE-CORRESPONDENCE0`. `FORGE-SEMANTIC0`,
+`FORGE-REUSE0`, D2, and every production caller remain open.
 
 ### `FORGE-CORRESPONDENCE0`
 

@@ -7,8 +7,7 @@
 use crate::cli::CliConfig;
 use crate::ast::ASTNode;
 use crate::mir::{
-    RawPublishedCompileProfileV1, RawPublishedCompileRequestV1,
-    RawVmReferenceExecutionProfileV1, RawVmReferenceInvocationV1,
+    RawVmReferenceInvocationV1, RawVmReferenceSupportProfileV1,
 };
 use hakorune_frontend_parser::parser::GrammarProfile;
 
@@ -69,8 +68,7 @@ impl RawVmReferenceProfileErrorV1 {
 pub(crate) struct RawVmReferenceProductionRequestV1 {
     source_file: Box<str>,
     grammar: RawVmReferenceGrammarV1,
-    compile_profile: RawPublishedCompileProfileV1,
-    execution_profile: RawVmReferenceExecutionProfileV1,
+    support_profile: RawVmReferenceSupportProfileV1,
     optimize: bool,
 }
 
@@ -149,8 +147,7 @@ impl RawVmReferenceProductionRequestV1 {
         Ok(Self {
             source_file,
             grammar: RawVmReferenceGrammarV1::Canonical,
-            compile_profile: RawPublishedCompileProfileV1::narrow_v1(),
-            execution_profile: RawVmReferenceExecutionProfileV1::CanonicalV1,
+            support_profile: RawVmReferenceSupportProfileV1::canonical_v1(),
             optimize: !config.no_optimize,
         })
     }
@@ -170,17 +167,10 @@ impl RawVmReferenceProductionRequestV1 {
     pub(crate) fn into_invocation(self, ast: ASTNode) -> RawVmReferenceInvocationV1 {
         let Self {
             source_file,
-            compile_profile,
-            execution_profile,
+            support_profile,
             ..
         } = self;
-        let compile = RawPublishedCompileRequestV1::new(
-            ast,
-            Some(source_file),
-            "main",
-            compile_profile,
-        );
-        RawVmReferenceInvocationV1::new(compile, execution_profile)
+        support_profile.into_invocation(ast, Some(source_file))
     }
 }
 
@@ -308,8 +298,8 @@ mod tests {
         assert_eq!(request.source_file(), "profile0.hako");
         assert_eq!(request.grammar(), RawVmReferenceGrammarV1::Canonical);
         assert_eq!(
-            request.compile_profile,
-            RawPublishedCompileProfileV1::narrow_v1()
+            request.support_profile,
+            RawVmReferenceSupportProfileV1::canonical_v1()
         );
         assert!(request.optimize());
     }
