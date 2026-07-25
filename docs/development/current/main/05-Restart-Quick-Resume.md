@@ -50,7 +50,7 @@ cargo check -q
   `CURRENT_STATE.toml`; this mirror does not select or rename executable rows
 - keep parser/source-carrier and unrelated parked stashes disconnected
 - Script classification, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0, PHYSICAL-THUNK0, VM-REFERENCE0, EXE-AOT0, S1 projection consume, and S2 VM-reference consume are closed. The next exact frontier is
-  `ENTRY-RESULT-PROJECTION0-S3-RUNTIME-ACTIVATION-DESIGN-STOP`. Production VM/LLVM, normal-entry cutover,
+  `ENTRY-RESULT-PROJECTION0-S3-ENTRY-CARRY0`. Production VM/LLVM, normal-entry cutover,
   JSON, executor, old Raw retirement, and CUT0 remain parked.
 
 - do not paste landed chronology into restart docs

@@ -21,9 +21,9 @@ Related:
   `docs/reference/language/function-exit-and-entry-result.md`
 - priority: follow the exact active task. Do not reopen the superseded App
   any-statement-tail S0 as canonical work.
-- next frontier: `ENTRY-RESULT-PROJECTION0-S3-RUNTIME-ACTIVATION-DESIGN-STOP`
-  (S2 closed normalized status and one opaque VM-reference carrier;
-  production owner selection requires a separate decision)
+- next frontier: `ENTRY-RESULT-PROJECTION0-S3-ENTRY-CARRY0`
+  (S3 selected the explicit Raw VM-reference owner; preserve narrow entry
+  identity through publication before exact VM execution)
 - parked: normal-entry cutover, JSON, executor, old-chain retirement, and CUT0
 
 ## Rule

@@ -45,6 +45,7 @@ def main() -> int:
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-S1-PROJECTION-CONSUME0"',
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-S2-FAULT-STATUS0"',
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-S3-RUNTIME-ACTIVATION-DESIGN-STOP"',
+            'current_execution_row = "ENTRY-RESULT-PROJECTION0-S3-ENTRY-CARRY0"',
         )
     ):
         raise AssertionError("CONTRACT0 row is not active or retained")

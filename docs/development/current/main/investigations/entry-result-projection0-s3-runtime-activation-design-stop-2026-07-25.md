@@ -1,8 +1,8 @@
 # ENTRY-RESULT-PROJECTION0-S3 runtime activation design stop
 
-Decision: `ENTRY-RESULT-PROJECTION0-S3-RUNTIME-ACTIVATION-DESIGN-STOP`
-Status: design consultation required; S2 is complete and no production
-runtime caller is authorized
+Decision: `ENTRY-RESULT-PROJECTION0-S3-RAW-VM-ACTIVATION-prime-r1`
+Status: accepted; implementation is authorized only through the staged
+explicit Raw VM-reference route below
 
 ## Closed input
 
@@ -39,11 +39,11 @@ normal compiler entry legacy route still selected
 Connecting any one of them changes observable production behavior and cannot
 be inferred from S2’s disconnected semantic proof.
 
-## Questions to close
+## Accepted decisions
 
 ### Q1 — first production owner
 
-Choose exactly one:
+Q1 selects exactly one:
 
 ```text
 A (recommended): explicit Raw VM-reference production entry
@@ -52,30 +52,31 @@ C: LLVM/native ny_main activation
 D: normal compile_with_source cutover
 ```
 
-Recommendation: A. A named Raw entry can select the canonical projection
+Decision: A. A named Raw entry selects the canonical projection
 without silently changing legacy callers. B mixes compatibility status laws,
 C requires ABI parity first, and D combines route cutover with result
 activation.
 
 ### Q2 — execution input
 
-Must the production owner consume `VmReferenceProcessOutcomeV1` by value, or
+Q2: the production owner must consume `VmReferenceProcessOutcomeV1` by value;
 may it reconstruct status from a module/interpreter result?
 
-Recommendation: consume the typed outcome by value. Module result,
+Decision: consume the typed outcome by value. Module result,
 `SourceEntryResultV1`, Box downcast, and symbol lookup remain non-authority.
 
 ### Q3 — fault reporting
 
-Who owns conversion of typed `ProcessFaultV1` into user-visible diagnostics?
+Q3: `VmReferenceProcessDiagnosticAdapterV1` owns conversion of typed
+`ProcessFaultV1` into a stable structured diagnostic report.
 
-Recommendation: one named runtime diagnostic adapter after the typed outcome.
+Decision: one named runtime diagnostic adapter after the typed outcome.
 It may format code/detail but must not change status, retry execution, or
 flatten unsupported results to success zero.
 
 ### Q4 — activation parity
 
-Before the first production caller, require:
+Q4 requires the following before the first production caller:
 
 ```text
 canonical outcome fixture parity
@@ -86,8 +87,30 @@ exact caller census
 one selected entry only
 ```
 
-Recommendation: yes. VM, LLVM, public Raw, and normal-entry caller counts must
+Decision: yes. VM, LLVM, public Raw, and normal-entry caller counts must
 be measured separately.
+
+## Required design correction
+
+The existing S2 carrier is post-projection; it is not an execution engine.
+S3 therefore includes these mandatory subrows:
+
+```text
+S3-ENTRY-CARRY0
+  selected source-entry identity is co-sealed once and moved to publication
+
+S3-EXECUTION0
+  exact Main/main/0 VM execution produces SourceEntryResultV1 once
+```
+
+The full manifest is not carried. A narrow continuation owns only the same
+brand, selected Script/App route, Main key/symbol/arity target, and pairing
+seal. The decode plan is derived from the retained root exit witness, so a
+VM payload cannot turn `print(1)`, Local, or assignment into an integer source
+result.
+
+The typed execution terminal lives in `src/mir/compiler`; a runner shell may
+consume only the final public report/status and never receives a bare module.
 
 ## Candidate executable row after acceptance
 
@@ -98,18 +121,32 @@ ENTRY-RESULT-PROJECTION0-S3-RAW-VM-ACTIVATION0-S0
 Suggested internal order:
 
 ```text
+S3-ENTRY-CARRY0
+  manifest -> narrow selected-entry continuation -> publication evidence
+
 S3-DIAGNOSTIC0
   typed fault -> stable diagnostic report
 
+S3-EXECUTION0
+  published Raw owner -> exact Main/main/0 target
+  -> fresh MirInterpreter -> VMValue/VMError
+  -> sealed decode plan -> SourceEntryResultV1
+
 S3-OWNER0
-  exact production owner and one consuming entry
+  typed compile kernel + explicit Raw VM production entry
 
 S3-PARITY0
-  status/diagnostic/reuse/caller census
+  actual Raw compile + VM execution + status/diagnostic/caller census
 
 S3-G0
   no fallback, no legacy widening, no other backend/public caller
 ```
+
+Exact execution is only `MirInterpreter::execute_function_with_args` with
+`&[]`. `execute_module`, `NYASH_ENTRY`, module scans, Box coercion, and legacy
+status helpers are forbidden in the new route. VM implementation is feature
+gated; an unavailable VM-reference feature is a typed unsupported-capability
+rejection, never a fallback.
 
 ## Non-authority
 
