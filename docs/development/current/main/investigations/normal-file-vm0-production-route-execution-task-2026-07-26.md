@@ -70,8 +70,8 @@ REQUEST0-S0
 ```text
 REQUEST0-S0 = closed by 520986b38a
 REPORT0-S0  = closed by 1ab9c8aad5
-PARITY0-P0a = next
-CALLER0-I0  = pending after caller-zero parity
+PARITY0-P0a = closed by f5028112ca
+CALLER0-I0  = next
 ```
 
 ### REQUEST0-S0 — request and single selector
@@ -148,6 +148,13 @@ Exercise only the normal request/run owner.  Require the existing forge matrix
 plus usage=2, invocation=1, program fault=70, status/diagnostic parity with
 the Raw reference in their common subset, and `rejection -> success` reuse.
 This is not a Legacy parity claim.
+
+Closed evidence: `f5028112ca` runs the normal owner directly and compares the
+common scalar/unit process snapshots against the supported Raw reference lane.
+It also fixes missing/read, parse/using, and Raw compile rejection as
+Invocation outcomes, followed by a successful normal run. The pre-existing
+front-door reuse matrix remains the same-compiler proof; this run owner is
+intentionally fresh per invocation.
 
 ### CALLER0-I0 — one production connection
 

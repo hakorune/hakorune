@@ -249,8 +249,8 @@ FUNCTION-EXIT-F1-RETURN0-S0
 
 -> NORMAL-FILE-VM0-REQUEST0-S0 (closed)
   -> REPORT0-S0 (closed)
-  -> PARITY0-P0a (active)
-  -> CALLER0-I0
+  -> PARITY0-P0a (closed)
+  -> CALLER0-I0 (active)
   -> PARITY0-P0b
   -> G0
   -> MIRBUILDER-CORE-COMPLETE0-P0
