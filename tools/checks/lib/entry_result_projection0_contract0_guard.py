@@ -37,6 +37,9 @@ def main() -> int:
         for row in (
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-S0"',
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-ENTRY-SELECTION0"',
+            'current_execution_row = "ENTRY-RESULT-PROJECTION0-SOURCE-ENTRY0"',
+            'current_execution_row = "ENTRY-RESULT-PROJECTION0-PHYSICAL-THUNK0"',
+            'current_execution_row = "ENTRY-RESULT-PROJECTION0-VM-REFERENCE0"',
         )
     ):
         raise AssertionError("CONTRACT0 row is not active or retained")

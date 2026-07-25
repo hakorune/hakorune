@@ -28,6 +28,7 @@ def main() -> int:
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-ENTRY-SELECTION0"',
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-SOURCE-ENTRY0"',
             'current_execution_row = "ENTRY-RESULT-PROJECTION0-PHYSICAL-THUNK0"',
+            'current_execution_row = "ENTRY-RESULT-PROJECTION0-VM-REFERENCE0"',
         )
     ):
         raise AssertionError("missing active or retained selection row")

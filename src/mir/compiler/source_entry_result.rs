@@ -101,6 +101,10 @@ impl SourceEntryResultV1 {
 pub(in crate::mir) struct ProcessExitCodeV1(u8);
 
 impl ProcessExitCodeV1 {
+    pub(in crate::mir) const fn from_byte(value: u8) -> Self {
+        Self(value)
+    }
+
     pub(in crate::mir) const fn zero() -> Self {
         Self(0)
     }

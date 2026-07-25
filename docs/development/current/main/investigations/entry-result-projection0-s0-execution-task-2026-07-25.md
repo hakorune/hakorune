@@ -252,3 +252,24 @@ python3 tools/checks/lib/entry_result_projection0_physical_thunk0_guard.py
 
 `VM-REFERENCE0` is the next implementation sub-row. It may consume the pure
 projection only and must not replace the existing VM execution path.
+
+## VM-REFERENCE0 closeout
+
+`source_entry_reference.rs` now records Unit, byte-range Integer, range fault,
+unsupported scalar/object, and source Fault fixtures against the pure
+`ProcessExitProjectionV1`. The fixtures do not invoke `run_vm_compiled_module`
+or change any VM execution route.
+
+Focused evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q --lib source_entry_reference -- --test-threads=1
+  4 passed
+
+python3 tools/checks/lib/entry_result_projection0_vm_reference0_guard.py
+  pure_projection=1 typed_matrix=1 no_vm_execution=1 no_exit=1 below_800=1
+```
+
+`EXE-AOT0` is the next implementation sub-row. It must accept only a
+normalized `ProcessExitCodeV1`/status at the `ny_main` capability boundary;
+legacy mock/status behavior remains documented and disconnected.
