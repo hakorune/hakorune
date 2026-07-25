@@ -250,7 +250,16 @@ FUNCTION-EXIT-F1-RETURN0-S0
 
 -> NORMAL-FILE-VM0-REQUEST0-S0 (D2 accepted only)
   one typed normal-file caller, then exact source/compile/entry/result/parity
-  rows and selected-family legacy caller retirement.
+  rows and selected-family legacy caller retirement. The first caller's old
+  edge retires before any new language/carrier family opens.
+
+-> NORMAL-FILE-VM0-FRONTDOOR-HARDEN0-S0 (after first caller retirement)
+  behavior-neutral BoxShape series: receipt typestate, typed parser rejection,
+  and Raw request-constructor visibility tightening.
+
+-> MIR-COMPILER-MODULE-LAYOUT0-D0/S0 (after bounded normal caller is live)
+  classify production/proof/scaffold/legacy modules, then perform a separate
+  buildable behavior-neutral physical-layout series.
 
 -> NORMAL-IMPORT-BUNDLE-D0 (after no-import family)
   import-aware source authority is a separate bundle/profile family.

@@ -3,6 +3,8 @@
 
 status = "LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed. The accepted tryless decision rejects source try in both profiles, makes postfix catch the protected-region target, keeps Fault non-catchable, and parks RecoverableFailure production/ABI for a later D0. NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 has closed contract/source/handoff/correspondence and Script/Main evidence; RESULT-CARRIER-NORMAL-CAPABILITY0-prime-r1 selects Scalar-and-Unit-only, annotation exclusion, and uncredited Null/Void before Forge S2."
 date = "2026-07-26"
+development_branch_ssot = "main"
+development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
 current_execution_row = "RESULT-CARRIER-NORMAL-CAPABILITY0-S0"
 current_execution_summary = "Preserve existing Raw rejection facts and add typed VM-reference rejection evidence for the Scalar-and-Unit-only normal profile. Do not add front-door semantic classification, dynamic carriers, Null/Void equivalence, normal/default routing, a legacy caller mapping, or a production caller."

@@ -621,6 +621,109 @@ retirement row     = NORMAL-FILE-VM0-LEGACY-CALLER-RETIRE0-S0
 `compile_with_source` retirement remains a separate `MIRBUILDER-LEGACY-FENCE0`
 decision. Do not require repo-wide token zero.
 
+## Post-D2 hardening queue
+
+This queue records the remaining cleanliness findings without widening the
+pre-D2 critical path. None of these items may preempt `FORGE-SEMANTIC0-S2`,
+reuse evidence, `FORGE-G0`, or the D2 caller decision.
+
+### 1. Activate one caller, then retire its old edge
+
+```text
+NORMAL-ENTRY-CUTOVER-D2
+  -> NORMAL-FILE-VM0-REQUEST0-S0
+  -> NORMAL-FILE-VM0-PARITY0-P0
+  -> NORMAL-FILE-VM0-CALLER0-I0
+  -> NORMAL-FILE-VM0-LEGACY-CALLER-RETIRE0-S0
+```
+
+After D2, an exact replacement caller and its retirement take precedence over
+new language capabilities, result carriers, or additional normal families.
+The first normal lane may keep Box/Array/Future/annotations as typed rejects.
+
+### 2. Seal the front-door boundary as one BoxShape series
+
+```text
+NORMAL-FILE-VM0-FRONTDOOR-HARDEN0-S0
+```
+
+Use one behavior-neutral 2–5 commit refactor series after the first caller and
+its legacy edge are green:
+
+```text
+receipt typestate:
+  replace read_count / parse_count state encoding with
+  OneReadReceiptV1 -> OneParseReceiptV1
+
+parse rejection:
+  retain parser reject code / source position / grammar profile / typed cause
+  inside the owner; format String only at the external diagnostic boundary
+
+Raw request visibility:
+  RawVmReferenceSupportProfileV1::into_invocation is the external constructor
+  RawPublishedCompileRequestV1::new, RawVmReferenceInvocationV1::new, and
+  their fields become MIR-internal or definition-module private
+```
+
+This series changes no grammar, accepted source, runtime result, backend,
+caller count, or process status. Keep one-read/one-parse and paired-profile
+fixtures green throughout.
+
+### 3. Make the compiler module graph readable
+
+```text
+MIR-COMPILER-MODULE-LAYOUT0-D0
+  -> MIR-COMPILER-MODULE-LAYOUT0-S0
+```
+
+Start only after the bounded normal caller is live and its selected legacy
+edge is retired. D0 performs a route/caller inventory; S0 may use a buildable
+Refactor Series to converge toward:
+
+```text
+compiler/canonical/
+compiler/raw/
+compiler/entry/
+compiler/legacy/
+compiler/test_support/
+```
+
+The move is behavior-neutral. It must classify production authority,
+disconnected proof, migration scaffold, and legacy modules before physical
+relocation. Do not combine it with grammar, carrier, backend, or caller work.
+
+### 4. Fence the remaining Legacy API
+
+```text
+MIRBUILDER-LEGACY-FENCE0-S0
+```
+
+`compile_with_source`, direct `MirBuilder::build_module`, and other remaining
+legacy entrances must become either a typed canonical facade or an explicitly
+named `LegacyCompatibility` profile. The completion condition is
+unclassified production caller zero, not repository-wide token zero.
+
+### Owner-growth stop rule
+
+After D2, add a production owner type only when it introduces at least one of:
+
+```text
+independent authority
+independent failure boundary
+independent consuming terminal
+```
+
+Test classifications, task progress, and evidence aggregation stay test/docs
+vocabulary. Every new owner must either remove one old authority or enable one
+production caller; otherwise park it behind the existing typed rejection.
+
+### Closed repository-operation finding
+
+The former branch-SSOT split is closed: `public-main` was fast-forwarded into
+`main` at `3e410872ad`, and local `main` now tracks `hakorune/main`.
+`public-main` is retained only as a safety/history pointer and is not a second
+current-state authority.
+
 ## Non-claims
 
 ```text
