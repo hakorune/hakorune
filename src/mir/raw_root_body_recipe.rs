@@ -272,8 +272,25 @@ pub(crate) enum RawRootBodyRecipeErrorV1 {
     ScriptRouteMismatch,
     AppRouteMismatch,
     DuplicateSourcePath { path: Box<[usize]> },
-    UnsupportedStatement { path: Box<[usize]> },
+    UnsupportedStatement {
+        path: Box<[usize]>,
+        kind: RawUnsupportedBodyStatementKindV1,
+    },
     UnsupportedOperator { path: Box<[usize]> },
+}
+
+/// Existing source classifier variants that the LinearScalar0 BODY recipe
+/// deliberately does not admit.  This is rejection evidence, not a new
+/// grammar or lowering policy.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum RawUnsupportedBodyStatementKindV1 {
+    If,
+    Loop,
+    LoopRange,
+    Return,
+    Break,
+    Continue,
+    ScopeBox,
 }
 
 fn collect_terminal_paths(

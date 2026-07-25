@@ -9,6 +9,7 @@ use crate::mir::raw_root_body_recipe::{
     RawLinearScalarExprV1, RawLinearScalarStmtV1, RawLinearUnaryOperatorV1,
     RawRootBodyEntryContractV1, RawRootBodyRecipeErrorV1, RawRootBodyRecipeV1,
     RawRootBodySourceSiteV1, RawScriptTerminalRecipeV1, RawScriptUnitOriginV1,
+    RawUnsupportedBodyStatementKindV1,
 };
 
 use super::{
@@ -151,11 +152,7 @@ fn script_contract(
                 origin: RawScriptUnitOriginV1::CompoundAssignmentStatement,
             }
         }
-        Some(statement) => {
-            return Err(RawRootBodyRecipeErrorV1::UnsupportedStatement {
-                path: statement_path(&statement),
-            })
-        }
+        Some(statement) => return Err(unsupported_statement_error(&statement)),
     };
     Ok(RawScriptResultContractV1 {
         prelude: statements.into_boxed_slice(),
@@ -209,9 +206,7 @@ fn linear_statement(
                 .into_boxed_slice(),
             site: neutral_site(&site),
         }),
-        other => Err(RawRootBodyRecipeErrorV1::UnsupportedStatement {
-            path: statement_path(&other),
-        }),
+        other => Err(unsupported_statement_error(&other)),
     }
 }
 
@@ -259,6 +254,31 @@ fn linear_expr(
 
 fn ordinary_operator(operator: &BinaryOperator) -> bool {
     !matches!(operator, BinaryOperator::And | BinaryOperator::Or)
+}
+
+fn unsupported_statement_error(
+    statement: &RawLocatedScalarStmtV1,
+) -> RawRootBodyRecipeErrorV1 {
+    let kind = match statement {
+        RawLocatedScalarStmtV1::If { .. } => RawUnsupportedBodyStatementKindV1::If,
+        RawLocatedScalarStmtV1::Loop { .. } => RawUnsupportedBodyStatementKindV1::Loop,
+        RawLocatedScalarStmtV1::LoopRange { .. } => RawUnsupportedBodyStatementKindV1::LoopRange,
+        RawLocatedScalarStmtV1::Return { .. } => RawUnsupportedBodyStatementKindV1::Return,
+        RawLocatedScalarStmtV1::Break { .. } => RawUnsupportedBodyStatementKindV1::Break,
+        RawLocatedScalarStmtV1::Continue { .. } => RawUnsupportedBodyStatementKindV1::Continue,
+        RawLocatedScalarStmtV1::ScopeBox { .. } => RawUnsupportedBodyStatementKindV1::ScopeBox,
+        RawLocatedScalarStmtV1::Expr { .. }
+        | RawLocatedScalarStmtV1::Print { .. }
+        | RawLocatedScalarStmtV1::Assignment { .. }
+        | RawLocatedScalarStmtV1::CompoundAssignment { .. }
+        | RawLocatedScalarStmtV1::Local { .. } => {
+            unreachable!("only rejected located statements reach this helper")
+        }
+    };
+    RawRootBodyRecipeErrorV1::UnsupportedStatement {
+        path: statement_path(statement),
+        kind,
+    }
 }
 
 fn neutral_site(site: &RawSourceSiteV1) -> RawRootBodySourceSiteV1 {

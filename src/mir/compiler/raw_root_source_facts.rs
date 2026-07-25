@@ -276,14 +276,16 @@ impl RawRootSourceFactsV1 {
                 else {
                     return Err(RawRootSourceFactsErrorV1::MainLocatorDrift);
                 };
-                if !params.is_empty()
-                    || !param_decls.is_empty()
-                    || return_type_name.is_some()
-                    || !uses.is_empty()
-                    || !contracts.is_empty()
-                    || !attrs.is_empty()
-                {
-                    return Err(RawRootSourceFactsErrorV1::AppMainMetadata);
+                let metadata = RawAppMainMetadataFactsV1 {
+                    parameter_count: params.len(),
+                    parameter_decl_count: param_decls.len(),
+                    return_annotation_present: return_type_name.is_some(),
+                    uses_count: uses.len(),
+                    contract_count: contracts.len(),
+                    rune_count: attrs.runes.len(),
+                };
+                if !metadata.is_empty() {
+                    return Err(RawRootSourceFactsErrorV1::AppMainMetadata { metadata });
                 }
                 Ok(Self {
                     route: RawRootSourceRouteV1::App,
@@ -381,7 +383,54 @@ pub(in crate::mir) enum RawRootSourceFactsErrorV1 {
     MainLocatorDrift,
     Catalog,
     Scalar { path: Box<[usize]> },
-    AppMainMetadata,
+    AppMainMetadata { metadata: RawAppMainMetadataFactsV1 },
+}
+
+/// Source facts already observed while checking the narrow `Main.main/0`
+/// contract.  Keeping them in the rejection avoids a second AST inspection.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) struct RawAppMainMetadataFactsV1 {
+    parameter_count: usize,
+    parameter_decl_count: usize,
+    return_annotation_present: bool,
+    uses_count: usize,
+    contract_count: usize,
+    rune_count: usize,
+}
+
+impl RawAppMainMetadataFactsV1 {
+    pub(in crate::mir) const fn parameter_count(self) -> usize {
+        self.parameter_count
+    }
+
+    pub(in crate::mir) const fn parameter_decl_count(self) -> usize {
+        self.parameter_decl_count
+    }
+
+    pub(in crate::mir) const fn return_annotation_present(self) -> bool {
+        self.return_annotation_present
+    }
+
+    pub(in crate::mir) const fn uses_count(self) -> usize {
+        self.uses_count
+    }
+
+    pub(in crate::mir) const fn contract_count(self) -> usize {
+        self.contract_count
+    }
+
+    pub(in crate::mir) const fn rune_count(self) -> usize {
+        self.rune_count
+    }
+
+    const fn is_empty(self) -> bool {
+        self.parameter_count == 0
+            && self.parameter_decl_count == 0
+            && !self.return_annotation_present
+            && self.uses_count == 0
+            && self.contract_count == 0
+            && self.rune_count == 0
+    }
 }
 
 fn classify_program(

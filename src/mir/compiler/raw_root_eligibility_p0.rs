@@ -3,6 +3,7 @@
 use super::raw_root_eligibility::{
     RawEligibleCatalogV1, RawRootCoverageV1, RawRootEligibilityErrorV1, RawRootEligibilityStageV1,
 };
+use super::raw_root_plan0::RawRootWorkKindV1;
 use super::raw_root_source_facts::RawRootSourceRouteV1;
 use super::raw_source_binding::RawCallableMainSelectionV1;
 use super::{LegacyModuleLoweringInputV1, MirCompiler};
@@ -130,7 +131,10 @@ fn unsupported_preprocessed_and_process_slot_shapes_reject() {
     assert_eq!(using.stage(), RawRootEligibilityStageV1::Work);
     assert!(matches!(
         using.error(),
-        RawRootEligibilityErrorV1::UnsupportedWork { .. }
+        RawRootEligibilityErrorV1::UnsupportedWork {
+            work_kind: RawRootWorkKindV1::UnsupportedSurface,
+            ..
+        }
     ));
 
     let new_expr = bind(
@@ -169,7 +173,10 @@ fn script_declarations_are_not_an_empty_script_coverage() {
     assert_eq!(rejected.stage(), RawRootEligibilityStageV1::Work);
     assert!(matches!(
         rejected.error(),
-        RawRootEligibilityErrorV1::UnsupportedWork { .. }
+        RawRootEligibilityErrorV1::UnsupportedWork {
+            work_kind: RawRootWorkKindV1::TopLevelFunction,
+            ..
+        }
     ));
 }
 

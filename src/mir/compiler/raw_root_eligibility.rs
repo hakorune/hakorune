@@ -8,7 +8,7 @@ use super::raw_root_helper_coverage::{
 };
 use super::raw_root_manifest_package::ManifestBoundRawRootPackageV1;
 use super::raw_root_package::SourceBoundRawRootPackageV1;
-use super::raw_root_plan0::RawStaticDataSourceRowV1;
+use super::raw_root_plan0::{RawRootWorkKindV1, RawStaticDataSourceRowV1};
 use super::raw_root_source_facts::RawRootSourceFactsErrorV1;
 use crate::mir::raw_root_body_recipe::RawRootBodyRecipeErrorV1;
 use crate::ast::ASTNode;
@@ -34,7 +34,10 @@ pub(in crate::mir) enum RawEligibleCatalogV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum RawRootEligibilityErrorV1 {
-    UnsupportedWork { statement_index: usize },
+    UnsupportedWork {
+        statement_index: usize,
+        work_kind: RawRootWorkKindV1,
+    },
     UnsupportedCatalog,
     MainMustBeArityZero,
     UnsupportedClosureAccess { statement_index: usize },
@@ -84,7 +87,10 @@ impl RawRootEligibilityV1 {
         let ASTNode::Program { statements, .. } = source.ast() else {
             return Err((
                 RawRootEligibilityStageV1::Work,
-                RawRootEligibilityErrorV1::UnsupportedWork { statement_index: 0 },
+                RawRootEligibilityErrorV1::UnsupportedWork {
+                    statement_index: 0,
+                    work_kind: RawRootWorkKindV1::UnsupportedSurface,
+                },
             ));
         };
 
@@ -112,10 +118,11 @@ impl RawRootEligibilityV1 {
                         statement_index: item.statement_index(),
                     },
                 )),
-                super::raw_root_plan0::RawRootWorkKindV1::UnsupportedSurface => Some((
+                RawRootWorkKindV1::UnsupportedSurface => Some((
                     RawRootEligibilityStageV1::Work,
                     RawRootEligibilityErrorV1::UnsupportedWork {
                         statement_index: item.statement_index(),
+                        work_kind: item.kind(),
                     },
                 )),
                 super::raw_root_plan0::RawRootWorkKindV1::DeclarationFact
@@ -129,6 +136,7 @@ impl RawRootEligibilityV1 {
                         RawRootEligibilityStageV1::Work,
                         RawRootEligibilityErrorV1::UnsupportedWork {
                             statement_index: item.statement_index(),
+                            work_kind: item.kind(),
                         },
                     ))
                 }
