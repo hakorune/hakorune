@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed. The accepted tryless decision rejects source try in both profiles, makes postfix catch the protected-region target, keeps Fault non-catchable, and parks RecoverableFailure production/ABI for a later D0. NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 has closed contract/source/handoff/correspondence and Script/Main evidence; RESULT-CARRIER-NORMAL-CAPABILITY0-prime-r1 selects Scalar-and-Unit-only, annotation exclusion, and uncredited Null/Void before Forge S2."
+status = "LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed. The accepted tryless decision rejects source try in both profiles, makes postfix catch the protected-region target, keeps Fault non-catchable, and parks RecoverableFailure production/ABI for a later D0. NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 and RESULT-CARRIER-NORMAL-CAPABILITY0-S0 are closed: the Scalar-and-Unit normal-file forge is proven with production caller=0. NORMAL-ENTRY-CUTOVER-D2 is the active design stop."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "RESULT-CARRIER-NORMAL-CAPABILITY0-S0"
-current_execution_summary = "Preserve existing Raw rejection facts and add typed VM-reference rejection evidence for the Scalar-and-Unit-only normal profile. Do not add front-door semantic classification, dynamic carriers, Null/Void equivalence, normal/default routing, a legacy caller mapping, or a production caller."
+current_design_stop = "NORMAL-ENTRY-CUTOVER-D2"
+current_execution_row = "NORMAL-ENTRY-CUTOVER-D2"
+current_execution_summary = "Choose whether the proven NormalFileNoImportVmReferenceV1 forge gains one new explicit default-off production request, remains caller-zero, or is retired. Do not reinterpret an existing caller, alter normal/default routing, or implement a production entry before the decision."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -406,9 +406,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "result-carrier-normal-capability0-s0-execution-task-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/result-carrier-normal-capability0-s0-execution-task-2026-07-26.md"
-latest_card_summary = """RESULT-CARRIER-NORMAL-CAPABILITY0-S0 is active: FACTS0 and REJECTION0 are closed; FORGE-SEMANTIC0-S2 is next for the accepted Scalar-and-Unit-only normal profile. Front-door result/annotation/MirType classification, dynamic carriers, normal/default activation, and production callers remain zero."""
+latest_card = "normal-entry-cutover-d2-consultation-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/normal-entry-cutover-d2-consultation-2026-07-26.md"
+latest_card_summary = """RESULT-CARRIER-NORMAL-CAPABILITY0-S0 is closed: FACTS0, REJECTION0, FORGE-SEMANTIC0-S2, FORGE-REUSE0-S0/S1, and FORGE-G0 are green for the accepted Scalar-and-Unit-only normal profile. NORMAL-ENTRY-CUTOVER-D2 is the active decision: choose one new explicit default-off production request, retain caller-zero, or retire the forge; normal/default activation and legacy-caller reinterpretation remain forbidden."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is

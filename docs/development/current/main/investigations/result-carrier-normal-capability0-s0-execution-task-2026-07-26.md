@@ -146,9 +146,10 @@ RESULT-CARRIER-NORMAL-CAPABILITY0-S0-FACTS0
 ```text
 FACTS0      = closed by 8ce104f119
 REJECTION0  = closed by 6da5853965
-FORGE-S2    = next
-REUSE0/S1   = pending after S2
-FORGE-G0    = pending after reuse evidence
+FORGE-S2    = closed by f76e5bc739
+REUSE0/S1   = closed by 766a00edef
+FORGE-G0    = closed by 125ae76d5c
+NEXT        = NORMAL-ENTRY-CUTOVER-D2 design gate
 ```
 
 Use 3–5 buildable commits. Every modified/new source or check file remains
