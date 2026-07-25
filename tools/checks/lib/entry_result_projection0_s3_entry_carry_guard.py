@@ -5,7 +5,6 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-STATE = ROOT / "docs/development/current/main/CURRENT_STATE.toml"
 TASK = ROOT / (
     "docs/development/current/main/investigations/"
     "entry-result-projection0-s3-raw-vm-activation-execution-task-2026-07-25.md"
@@ -23,7 +22,6 @@ def require(text: str, fragment: str, label: str) -> None:
 
 
 def main() -> int:
-    state = STATE.read_text()
     task = TASK.read_text()
     bind = BIND.read_text()
     select = SELECT.read_text()
@@ -31,13 +29,6 @@ def main() -> int:
     post = POST.read_text()
     pub = PUB.read_text()
 
-    if (
-        'current_execution_row = "ENTRY-RESULT-PROJECTION0-S3-ENTRY-CARRY0"' not in state
-        and 'current_execution_row = "ENTRY-RESULT-PROJECTION0-S3-EXECUTION0"' not in state
-        and 'current_execution_row = "ENTRY-RESULT-PROJECTION0-S3-PARITY0"' not in state
-        and 'current_execution_row = "ENTRY-RESULT-PROJECTION0-S3-CLOSEOUT0"' not in state
-    ):
-        raise AssertionError("S3 carry must be active or a later S3 closeout row")
     for fragment in (
         "S3-ENTRY-CARRY0",
         "SelectedSourceEntryContinuationV1",
@@ -66,7 +57,7 @@ def main() -> int:
     for forbidden in ("NYASH_ENTRY", "execute_module", "module.functions"):
         if forbidden in select or forbidden in pub:
             raise AssertionError(f"entry carry must not use backend discovery: {forbidden}")
-    for path in (STATE, TASK, BIND, SELECT, SLOT, POST, PUB, Path(__file__)):
+    for path in (TASK, BIND, SELECT, SLOT, POST, PUB, Path(__file__)):
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"file must remain below 800 lines: {path}")
     print(

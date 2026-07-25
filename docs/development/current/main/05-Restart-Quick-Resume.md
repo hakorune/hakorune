@@ -49,8 +49,12 @@ cargo check -q
 - continue only the exact `current_blocker_token` and `latest_card_path` from
   `CURRENT_STATE.toml`; this mirror does not select or rename executable rows
 - keep parser/source-carrier and unrelated parked stashes disconnected
-- Script classification, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0, PHYSICAL-THUNK0, VM-REFERENCE0, EXE-AOT0, S1 projection consume, S2 VM-reference consume, and the complete S3 Raw VM-reference activation row are closed. The next frontier is a separately designed backend/public activation. Production VM/LLVM, normal-entry cutover,
-  JSON, executor, old Raw retirement, and CUT0 remain parked.
+- Script classification through the complete S3 Raw VM-reference activation
+  row are closed. The selected next row migrates the two unique old-Raw proofs
+  and retires the caller-zero old Raw authority before any new runner caller.
+  Production VM/LLVM, normal-entry cutover, JSON, executor, and CUT0 remain
+  parked; the passive profile and explicit VM-reference canary follow the
+  retirement row.
 
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope

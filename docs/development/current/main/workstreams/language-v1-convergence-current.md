@@ -149,20 +149,39 @@ FUNCTION-EXIT-F1-RETURN0-S0
   -> VM-REFERENCE0 -> EXE-AOT0 -> PARITY-G0
   source evaluation result and process status remain separate
 
+-> ENTRY-RESULT-PROJECTION0-S1/S2/S3
+  typed projection consume, VM-reference consume, and exact Raw compile/VM
+  execution are closed
+
 -> RAW-BODY-RETURN-COMPAT-P0
-  parked test-only Legacy observation; never an executable semantic profile
+  parked historical observation only; do not materialize a new executable
+  profile or a positive proof delta
 
 -> FUNCTION-EXIT-APP-SCRIPT-PARITY0
-  canonical witnesses; Legacy difference stays explicit
+  merge the admitted canonical witness matrix into the reusable entry-result
+  proof family; Legacy difference stays explicit
+
+-> OLD-RAW-RETIRE0
+  cleanliness-first caller-zero retirement before a new runner consumer
+  sunset_id = RAW-PUBLICATION-SUNSET-001
 
 -> NORMAL-ENTRY-D0
-  T2 design stop for complete production semantic-profile selection
+  closed by POST-S3-CLEAN-CANARY-prime-r1:
+  Canonical grammar + Raw NarrowV1 + no imports/macros/REPL
+  + VM-reference + Canonical process projection
 
 -> NORMAL-ENTRY-PROFILE0-S0
-  passive typed profile selection; default route unchanged
+  passive typed RawVmReferenceProductionRequestV1; default route unchanged
 
 -> NORMAL-ENTRY-CANARY0-S0
-  one explicit controlled production consumer; fallback zero
+  one early explicit `--backend raw-vm-reference` consumer; fallback zero
+  Stage-1/using/plugin/general dispatch are not entered first
+
+-> NORMAL-ENTRY-CANARY-PARITY0/G0
+  real-binary status/diagnostic/route isolation proof
+
+-> NORMAL-ENTRY-CUTOVER-D0
+  fresh T2 caller/profile/capability decision
 
 -> NORMAL-ENTRY-CUTOVER0-S0
   separate explicit authorization required for the default-route change
@@ -171,8 +190,6 @@ FUNCTION-EXIT-F1-RETURN0-S0
   sunset_id = ENTRY-EXIT-CODE-COMPAT-SUNSET-001
 -> RAW-BODY-RETURN-COMPAT-RETIRE0-S0
   sunset_id = RAW-BODY-RETURN-COMPAT-SUNSET-001
--> OLD-RAW-RETIRE0
-  sunset_id = RAW-PUBLICATION-SUNSET-001
 ```
 
 `ENTRY-RESULT-PROJECTION0-D0` must inventory all current process-status

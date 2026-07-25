@@ -21,10 +21,12 @@ Related:
   `docs/reference/language/function-exit-and-entry-result.md`
 - priority: follow the exact active task. Do not reopen the superseded App
   any-statement-tail S0 as canonical work.
-- next frontier: separately designed backend/public activation
-  (complete S3 Raw VM-reference activation now has exact compile/VM parity,
-  decoy-entry isolation, compiler reuse, and route-scoped caller census)
-- parked: normal-entry cutover, JSON, executor, old-chain retirement, and CUT0
+- next row: migrate the old PublishedShell and BuilderReadiness retention
+  proofs, then retire the caller-zero old Raw finalizer/run_raw/evidence chain
+- after retirement: passive Canonical/NarrowV1/VM-reference profile, then one
+  explicit early `--backend raw-vm-reference` canary
+- parked: normal-entry cutover, general VM/LLVM, JSON, executor, selfhost,
+  fastmem, and CUT0
 
 ## Rule
 
