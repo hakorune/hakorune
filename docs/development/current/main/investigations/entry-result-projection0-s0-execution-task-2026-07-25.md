@@ -294,3 +294,26 @@ python3 tools/checks/lib/entry_result_projection0_exe_aot0_guard.py
 `PARITY-G0` is the next implementation sub-row. It must close the structural
 matrix and keep normal-entry, JSON, executor, legacy retirement, and CUT0
 callers at zero.
+
+## PARITY-G0 closeout
+
+The authority chain is now structurally guarded as one disconnected slice:
+pure projection, sealed route selection, source-result thunk, physical carrier,
+reference fixtures, and normalized `ny_main` status adapter. The guard proves
+zero new normal-entry/JSON/backend callers, zero unsupported-result fallback,
+and the below-800-line boundary. Publication, public ingress, and legacy
+retirement remain explicitly unclaimed.
+
+Focused evidence:
+
+```text
+python3 tools/checks/lib/entry_result_projection0_parity_g0_guard.py
+  one_projection=1 one_selection=1 no_new_callers=1 no_fallback=1 below_800=1
+
+bash tools/checks/current_state_pointer_guard.sh
+  ok
+```
+
+`ENTRY-RESULT-PROJECTION0-S0` is now complete as a disconnected contract and
+evidence slice. The next work requires a new design/authorization row before
+any production publication, public ingress, or backend cutover.

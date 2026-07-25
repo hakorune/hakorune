@@ -121,7 +121,7 @@ impl ProcessExitCodeV1 {
         self.0
     }
 
-    pub(in crate::mir) const fn normalized_i64(self) -> i64 {
+    pub(in crate::mir) fn normalized_i64(self) -> i64 {
         i64::from(self.0)
     }
 }
