@@ -162,8 +162,8 @@ pub(in crate::mir) enum ProcessExitProjectionErrorV1 {
 pub(in crate::mir) struct ProcessExitProjectionV1;
 
 impl ProcessExitProjectionV1 {
-    pub(in crate::mir) fn project(
-        result: SourceEntryResultV1,
+    pub(in crate::mir) fn project_borrowed(
+        result: &SourceEntryResultV1,
         profile: ProcessExitProfileV1,
     ) -> Result<ProcessTerminationV1, ProcessExitProjectionErrorV1> {
         let ProcessExitProfileV1::Canonical(CanonicalProcessExitV1::V1) = profile else {
@@ -175,7 +175,7 @@ impl ProcessExitProjectionV1 {
                 ProcessTerminationV1::Exit(ProcessExitCodeV1::zero())
             }
             SourceEntryResultV1::Integer(value) => {
-                match ProcessExitCodeV1::try_from_integer(value) {
+                match ProcessExitCodeV1::try_from_integer(*value) {
                     Ok(code) => ProcessTerminationV1::Exit(code),
                     Err(fault) => ProcessTerminationV1::Fault(fault),
                 }
@@ -210,6 +210,13 @@ impl ProcessExitProjectionV1 {
             ),
         };
         Ok(termination)
+    }
+
+    pub(in crate::mir) fn project(
+        result: SourceEntryResultV1,
+        profile: ProcessExitProfileV1,
+    ) -> Result<ProcessTerminationV1, ProcessExitProjectionErrorV1> {
+        Self::project_borrowed(&result, profile)
     }
 }
 

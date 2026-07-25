@@ -1,7 +1,8 @@
 # ENTRY-RESULT-PROJECTION0-S1 design stop
 
-Decision: `ENTRY-RESULT-PROJECTION0-S1-DESIGN-STOP`
-Status: design consultation required; no implementation authorized
+Decision: `ENTRY-RESULT-PROJECTION0-S1-PROJECTION-CONSUME-prime-r1`
+Status: accepted design; implementation authorized for the disconnected
+`ENTRY-RESULT-PROJECTION0-S1-PROJECTION-CONSUME0` row only
 
 `ENTRY-RESULT-PROJECTION0-S0` is complete as a disconnected contract and
 evidence slice. The repository now has one pure source-result projection,
@@ -87,6 +88,38 @@ source AST/catalog re-observation
 current Builder state after carrier creation
 ```
 
+## Accepted decision
+
+Q1 = A: one compiler-internal, backend-neutral prepared projection consumer.
+
+Q2 = retain the non-Clone physical carrier/evidence beside the projected
+`ProcessTerminationV1` until a later authority-erasure terminal.
+
+Q3 = typed discard-only rejection retaining the exact physical carrier. The
+projection profile is canonical only; no status-zero fallback, retry, legacy
+converter, or partial publication is allowed.
+
+Q4 = disconnected projection fixtures only. VM execution, LLVM/native
+`ny_main` wiring, public ingress, normal `compile_with_source`, JSON, executor,
+legacy retirement, and CUT0 remain zero.
+
+The carrier therefore gets one consuming boundary:
+
+```text
+PhysicalSourceEntryCarrierV1
+  -> prepare_process_projection(self)
+  -> PreparedSourceEntryProjectionV1
+  -> project(self)
+  -> ProjectedSourceEntryV1 {
+       carrier: PhysicalSourceEntryCarrierV1,
+       termination: ProcessTerminationV1,
+     }
+```
+
+Projection failures happen before the carrier is consumed into the prepared
+owner. The successful `project(self)` terminal is infallible and does not
+publish a module, call a backend, or invoke `process::exit`.
+
 ## Candidate next row after acceptance
 
 ```text
@@ -97,5 +130,6 @@ Its minimum acceptance matrix is Unit, Integer 0/255, range fault,
 unsupported scalar/object, source Fault, Script/App route retention, exact
 rejection owner retention, and zero backend/public callers.
 
-Until Q1–Q4 are accepted, do not add a production consumer or change the
-normal entry. This card is a design stop, not an implementation authorization.
+The Q1–Q4 decision above is now accepted. The implementation authorization is
+limited to the disconnected projection-consume row and its focused guards;
+production consumers and normal-entry changes remain forbidden.
