@@ -10,6 +10,9 @@ TASK = ROOT / (
     "normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
 )
 FRONTDOOR = ROOT / "src/runner/reference/normal_file_vm_frontdoor.rs"
+TEST_ONLY_RAW_TERMINAL_CONSUMERS = (
+    ROOT / "src/runner/reference/normal_file_vm_frontdoor/result_carrier_p0.rs",
+)
 REFERENCE_MOD = ROOT / "src/runner/reference/mod.rs"
 RAW_CONTRACT = ROOT / "src/mir/raw_vm_reference_contract.rs"
 RUNNER = ROOT / "src/runner/mod.rs"
@@ -81,6 +84,17 @@ def main() -> int:
         "pub(crate) mod normal_file_vm_frontdoor;",
         "disconnected front-door module declaration",
     )
+    for path in TEST_ONLY_RAW_TERMINAL_CONSUMERS:
+        text = path.read_text()
+        for fragment in (
+            "//! RESULT-CARRIER-NORMAL-CAPABILITY0 S2 source-text evidence.",
+            "prepare_raw_vm_handoff()",
+            "into_raw_vm_reference_invocation()",
+            "run_raw_vm_reference_v1",
+            "front_door_rejections_leave_the_compiler_reusable",
+            "canonical_process_and_vm_faults_leave_the_compiler_reusable",
+        ):
+            require(text, fragment, f"test-only Forge evidence {fragment}")
 
     if production.count("std::fs::read_to_string(&source_file)") != 1:
         raise AssertionError("Forge0 must read its source file exactly once")
@@ -123,7 +137,7 @@ def main() -> int:
             if token in text:
                 raise AssertionError(f"frozen route widened into Forge0: {path.relative_to(ROOT)}")
     for path in (ROOT / "src/runner").rglob("*.rs"):
-        if path == FRONTDOOR:
+        if path == FRONTDOOR or path in TEST_ONLY_RAW_TERMINAL_CONSUMERS:
             continue
         text = path.read_text()
         if "NormalFileVmFrontDoorV1" in text or "PreparedNormalFileVmHandoffV1" in text:
@@ -131,7 +145,14 @@ def main() -> int:
     if "normal_file_vm_frontdoor" in RUNNER.read_text():
         raise AssertionError("normal/default runner must not select Forge0")
 
-    for path in (TASK, FRONTDOOR, RAW_CONTRACT, Path(__file__), *S3_GUARDS):
+    for path in (
+        TASK,
+        FRONTDOOR,
+        *TEST_ONLY_RAW_TERMINAL_CONSUMERS,
+        RAW_CONTRACT,
+        Path(__file__),
+        *S3_GUARDS,
+    ):
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"file must remain below 800 lines: {path.relative_to(ROOT)}")
     print(

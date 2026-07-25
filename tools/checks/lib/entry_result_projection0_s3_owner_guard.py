@@ -19,6 +19,9 @@ EXEC = ROOT / "src/mir/compiler/source_entry_vm_execution.rs"
 PROFILE = ROOT / "src/runner/reference/raw_vm_reference_request.rs"
 RAW_CONTRACT = ROOT / "src/mir/raw_vm_reference_contract.rs"
 REFERENCE_RUNNER = ROOT / "src/runner/reference/raw_vm_reference.rs"
+FRONTDOOR_TEST_CONSUMERS = (
+    ROOT / "src/runner/reference/normal_file_vm_frontdoor/result_carrier_p0.rs",
+)
 PARITY_PROOF = ROOT / "tools/checks/lib/raw_vm_reference_conformance.py"
 CLI = ROOT / "src/cli/mod.rs"
 CLI_ARGS = ROOT / "src/cli/args.rs"
@@ -147,7 +150,7 @@ def main() -> int:
             raise AssertionError(f"support lane must not own legacy/fallback behavior: {forbidden}")
     runner_raw_callers = []
     for path in (ROOT / "src/runner").rglob("*.rs"):
-        if path == REFERENCE_RUNNER:
+        if path == REFERENCE_RUNNER or path in FRONTDOOR_TEST_CONSUMERS:
             continue
         production = path.read_text().split("#[cfg(test)]", 1)[0]
         if "compile_raw_with_source" in production or "run_raw_vm_reference_v1" in production:
@@ -179,6 +182,7 @@ def main() -> int:
         PROFILE,
         RAW_CONTRACT,
         REFERENCE_RUNNER,
+        *FRONTDOOR_TEST_CONSUMERS,
         ROOT / "src/runner/mod.rs",
         CLI,
         CLI_ARGS,
