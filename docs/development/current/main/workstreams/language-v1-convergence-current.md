@@ -235,9 +235,10 @@ FUNCTION-EXIT-F1-RETURN0-S0
   -> FORGE-SOURCE0
   -> FORGE-HANDOFF0
   -> FORGE-CORRESPONDENCE0
-  -> FORGE-SEMANTIC0-S0 (Script source-text matrix)
-  -> FORGE-SEMANTIC0-S1 (Function/Main capability boundary)
-  -> FORGE-SEMANTIC0-S2 (annotation/result-carrier matrix)
+  -> FORGE-SEMANTIC0-S0 (closed: Script source-text matrix)
+  -> FORGE-SEMANTIC0-S1 (closed: Function/Main capability boundary)
+  -> RESULT-CARRIER-NORMAL-CAPABILITY0-D0 (active design stop)
+  -> FORGE-SEMANTIC0-S2 (after selected carrier/annotation policy)
   -> FORGE-REUSE0-S0 (pre-compiler rejection non-poisoning)
   -> FORGE-REUSE0-S1 (compiler/process/VM fault reuse)
   -> FORGE-G0
