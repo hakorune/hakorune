@@ -165,7 +165,7 @@ FUNCTION-EXIT-F1-RETURN0-S0
   PublishedShell/BuilderReadiness proofs migrated and old-only guards retired
   before opening a new runner consumer
 
--> OLD-RAW-RETIRE0-R0B
+-> OLD-RAW-RETIRE0-R0B (closed)
   delete the caller-zero old Raw source/finalizer/run_raw/evidence chain
   before a new runner consumer
   sunset_id = RAW-PUBLICATION-SUNSET-001
@@ -175,21 +175,27 @@ FUNCTION-EXIT-F1-RETURN0-S0
   Canonical grammar + Raw NarrowV1 + no imports/macros/REPL
   + VM-reference + Canonical process projection
 
--> NORMAL-ENTRY-PROFILE0-S0
+-> NORMAL-ENTRY-PROFILE0-S0 (closed)
   passive typed RawVmReferenceProductionRequestV1; default route unchanged
 
--> NORMAL-ENTRY-CANARY0-S0
+-> NORMAL-ENTRY-CANARY0-S0 (closed)
   one early explicit `--backend raw-vm-reference` consumer; fallback zero
   Stage-1/using/plugin/general dispatch are not entered first
 
--> NORMAL-ENTRY-CANARY-PARITY0/G0
+-> NORMAL-ENTRY-CANARY-PARITY0/G0 (closed)
   real-binary status/diagnostic/route isolation proof
 
--> NORMAL-ENTRY-CUTOVER-D0
-  fresh T2 caller/profile/capability decision
+-> NORMAL-ENTRY-CUTOVER-D0 (closed)
+  A-prime selects the existing explicit route as a supported opt-in
+  reference/conformance lane; no safe bounded normal caller exists
 
--> NORMAL-ENTRY-CUTOVER0-S0
-  separate explicit authorization required for the default-route change
+-> RAW-VM-REFERENCE-SUPPORT0-S0
+  one consuming profile handoff, bounded diagnostic report, supported surface,
+  proof reclassification, and NORMAL-ENTRY-CANARY-SUNSET-001 closeout
+
+-> NORMAL-ENTRY-CUTOVER0-S0 (parked)
+  no executable row; a fresh D1 decision is required after one exact normal
+  caller family has full source/backend/result parity
 
 -> ENTRY-EXIT-CODE-COMPAT-RETIRE0-S0
   sunset_id = ENTRY-EXIT-CODE-COMPAT-SUNSET-001

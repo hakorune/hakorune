@@ -21,7 +21,9 @@ Run heavier gates only when the active card requires them. Current scope,
 acceptance, parked items, and non-claims belong in the active card and the
 workstream SSOT, not this pointer.
 
-When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executable owner from historical mirrors. To keep the goal open until the frontier names a concrete next owner, wait at the frontier.
+When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new
+executable owner from historical mirrors. When it names an implementation
+row, follow only the `latest_card_path` contract.
 
 ## Handoff
 
@@ -36,9 +38,9 @@ Continue only the exact `current_blocker_token` and `latest_card_path` named by
 PHYSICAL-THUNK0, VM-REFERENCE0, EXE-AOT0, S1 projection consume, S2
 VM-reference consume, the complete S3 Raw VM-reference activation row, old
 Raw retirement, PROFILE0, CANARY0, and CANARY-PARITY0/G0 are closed. The
-selected frontier is the fresh `NORMAL-ENTRY-CUTOVER-D0` design stop. Do not
-infer implementation authority from Legacy snapshots, Builder-returned
-`ValueId`s, or superseded App parity cards. Keep production VM/LLVM,
-normal-entry cutover, JSON, executor, and CUT0 parked until D0 names one exact
-target and grants a new executable row. Keep every new or modified
-source/check file below 800 lines.
+accepted cutover decision selects only the existing explicit Raw VM-reference
+route as a supported opt-in lane. `RAW-VM-REFERENCE-SUPPORT0-S0` is the exact
+next implementation row. Do not infer implementation authority from Legacy
+snapshots, Builder-returned `ValueId`s, or superseded App parity cards. Keep
+normal/default cutover, general VM/LLVM, JSON, executor, and CUT0 parked. Keep
+every new or modified source/check file below 800 lines.

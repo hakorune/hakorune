@@ -21,12 +21,14 @@ Related:
   `docs/reference/language/function-exit-and-entry-result.md`
 - priority: follow the exact active task. Do not reopen the superseded App
   any-statement-tail S0 as canonical work.
-- next row: NORMAL-ENTRY-CUTOVER-D0 — fresh design stop after the real-binary
-  canary matrix; choose one exact target or explicitly park cutover
+- next row: RAW-VM-REFERENCE-SUPPORT0-S0 — consume one typed profile,
+  stabilize the supported opt-in reference surface and diagnostics, reclassify
+  the existing proof, and close the temporary canary sunset
 - closed immediately before this frontier: passive Canonical/NarrowV1/
   VM-reference profile, explicit early `--backend raw-vm-reference` canary,
-  and the mandatory feature-enabled/disabled parity family
-- parked: normal-entry cutover, general VM/LLVM, JSON, executor, selfhost,
+  mandatory feature-enabled/disabled parity family, and the D0 decision that
+  found no safe bounded normal caller
+- parked: normal/default cutover, general VM/LLVM, JSON, executor, selfhost,
   fastmem, and CUT0
 
 ## Rule

@@ -23,7 +23,7 @@ S3 closeout
   -> NORMAL-ENTRY-PROFILE0-S0
   -> NORMAL-ENTRY-CANARY0-S0
   -> NORMAL-ENTRY-CANARY-PARITY0/G0
-  -> fresh NORMAL-ENTRY-CUTOVER-D0 decision
+  -> NORMAL-ENTRY-CUTOVER-D0 decision (closed; A-prime)
 ```
 
 The old Raw chain is removed first because it has zero non-test callers and
@@ -485,12 +485,22 @@ docs/development/current/main/investigations/
   normal-entry-cutover-d0-consultation-2026-07-25.md
 ```
 
-### 6. `NORMAL-ENTRY-CUTOVER-D0`
+### 6. `NORMAL-ENTRY-CUTOVER-D0` — closed 2026-07-25
 
-Disambiguate whether cutover means opt-in canary support, one bounded caller
-family, `compile_with_source`, the default CLI backend, or an explicit park.
-Do not create `NORMAL-ENTRY-CUTOVER0-S0` until a new decision names one exact
-target and grants implementation authorization.
+`NORMAL-ENTRY-CUTOVER-prime-r1` selects A-prime: the existing explicit route
+becomes a supported opt-in reference/conformance lane. Six read-only audits
+found no safe bounded normal caller, so `compile_with_source`, the default CLI
+backend, and all normal/default cutover remain parked.
+
+The next executable row is:
+
+```text
+RAW-VM-REFERENCE-SUPPORT0-S0
+```
+
+`NORMAL-ENTRY-CUTOVER0-S0` is not an executable row. A future normal/default
+cutover requires a fresh D1 decision after one exact caller family has complete
+source/backend/result parity.
 
 ## Task-map closeout repair
 
@@ -534,13 +544,13 @@ retire_when =
   + new Raw/canonical gates green
 ```
 
-### Explicit canary
+### Explicit Raw VM-reference support transition
 
 ```text
 ceremony_tier = T2 production policy boundary
 sunset_id = NORMAL-ENTRY-CANARY-SUNSET-001
-retirement_owner = NORMAL-ENTRY-CUTOVER0
-sunset_row = NORMAL-ENTRY-CANARY-RETIRE0
+retirement_owner = RAW-VM-REFERENCE-SUPPORT0
+sunset_row = RAW-VM-REFERENCE-SUPPORT0-S0 / CANARY-SUNSET0
 
 proof_inventory_before =
   S3 in-process compile/VM parity family
@@ -559,13 +569,16 @@ sunset_budget =
   one explicit canary selector, one runner shell, one subprocess family
 
 retire_when =
-  normal-entry cutover is explicitly accepted and green
-  + default route owns the same typed profile
-  + explicit canary has no unique diagnostic/capability role
+  NORMAL-ENTRY-CUTOVER-prime-r1 accepts the route as a supported opt-in
+  reference/conformance lane
+  + all temporary canary wording is removed from production surfaces
+  + the existing proof is reclassified without duplication
+  + default mir and fallback zero remain proven
 
 budget_repayment_evidence =
-  selector/runner/subprocess consumers zero and deleted,
-  or a new accepted reference-runner decision removes them from canary status
+  accepted reference-runner decision removes temporary canary status;
+  selector/runner/subprocess proof remain as durable supported conformance
+  surfaces with net proof delta zero
 ```
 
 ## First executable row
