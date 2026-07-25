@@ -34,9 +34,9 @@ termination. The former App any-statement-tail task is not executable
 canonical work; it is historical compatibility evidence only.
 
 Continue only the exact `current_blocker_token` and `latest_card_path` named by
-`CURRENT_STATE.toml`. The active row is `DOCS-POINTER-ALIGNMENT0`; read
+`CURRENT_STATE.toml`. The active row is `LANGUAGE-DOCS-TRY-CATCH-D1`; read
 `language-docs-status-ssot-cleanup-task-2026-07-25.md`. This is docs-only:
-align pointers and status authority, but do not resolve try/catch or add parser,
+resolve the try/catch/fini authority boundary in docs only, but do not add parser,
 runtime, backend, or normal-entry behavior. The normal D0 follow-up remains
 parked. D0, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0,
 PHYSICAL-THUNK0, VM-REFERENCE0, EXE-AOT0, S1 projection consume, S2

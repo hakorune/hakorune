@@ -1,96 +1,105 @@
 # Hakorune Language Reference – Index
 
 This is the entry point for the current Hakorune language reference.
+Status: Current navigation index. Feature availability is defined in the
+[language feature status index](status-index.md); this page does not infer
+parser support from examples or historical prose.
+
+Start with the [language feature status index](status-index.md). It separates
+grammar status from Stage0/Stage1/concurrency availability and records known
+conflicts without making parser support guesses.
 
 Current canonical surface:
 
-- Semantic contract charter: reference/language/semantic-contract-charter.md
-- Semantic kernel: reference/language/semantic-kernel.md
+- Semantic contract charter: [semantic-contract-charter.md](semantic-contract-charter.md)
+- Semantic kernel: [semantic-kernel.md](semantic-kernel.md)
 - Function exit, Script result, and entry/process-result boundaries:
-  reference/language/function-exit-and-entry-result.md
-- Grammar contract: reference/language/grammar-contract.md
-- Minimal surface policy: development/current/main/design/language-minimal-surface-ssot.md
-- Grammar and accepted rows: reference/language/EBNF.md
+  [function-exit-and-entry-result.md](function-exit-and-entry-result.md)
+- Grammar contract: [grammar-contract.md](grammar-contract.md)
+- Minimal surface policy: [language-minimal-surface-ssot.md](../../development/current/main/design/language-minimal-surface-ssot.md)
+- Grammar and accepted rows: [EBNF.md](EBNF.md)
 - Bootstrap / phase-1 usable surface profiles: see the profile manual below.
-- Practical syntax summary: reference/language/quick-reference.md
+- Feature status: [status-index.md](status-index.md)
+- Practical syntax summary: [quick-reference.md](quick-reference.md)
 - Ownership / aliasing / explicit Shared boundary:
-  reference/language/ownership.md
-- Type and enum surface: reference/language/types.md
-- Record vs Box / Object Storage: reference/language/types.md “Record vs Box”,
-  development/current/main/design/record-box-two-surface-one-substrate-ssot.md,
-  and development/current/main/design/object-storage-plan-boundary-ssot.md
-- Option / Result enum prelude: reference/language/option.md
-- Failure/Outcome relations: reference/language/failure-outcome-relations.md
-- Rune declaration metadata: reference/language/runes.md
-- Build conditional `gate`: reference/language/build-conditional-gate.md
-- Low-level language surface: reference/language/low-level-capabilities.md
-- Concurrency / Thread Boundary: reference/concurrency/semantics.md,
-  reference/concurrency/boundary-model.md, and reference/runtime/threading.md
-- Delegation and no-inheritance rule: reference/language/field-visibility-and-delegation.md
+  [ownership.md](ownership.md)
+- Type and enum surface: [types.md](types.md)
+- Record vs Box / Object Storage: [types.md](types.md) “Record vs Box”,
+  [record-box-two-surface-one-substrate-ssot.md](../../development/current/main/design/record-box-two-surface-one-substrate-ssot.md),
+  and [object-storage-plan-boundary-ssot.md](../../development/current/main/design/object-storage-plan-boundary-ssot.md)
+- Option / Result enum prelude: [option.md](option.md)
+- Failure/Outcome relations: [failure-outcome-relations.md](failure-outcome-relations.md)
+- Rune declaration metadata: [runes.md](runes.md)
+- Build conditional `gate`: [build-conditional-gate.md](build-conditional-gate.md)
+- Low-level language surface: [low-level-capabilities.md](low-level-capabilities.md)
+- Concurrency / Thread Boundary: [semantics.md](../concurrency/semantics.md),
+  [boundary-model.md](../concurrency/boundary-model.md), and
+  [threading.md](../runtime/threading.md)
+- Delegation and no-inheritance rule: [field-visibility-and-delegation.md](field-visibility-and-delegation.md)
 - Language v1 execution order:
-  development/current/main/workstreams/language-v1-convergence-current.md
+  [language-v1-convergence-current.md](../../development/current/main/workstreams/language-v1-convergence-current.md)
 
 Historical references:
 
-- reference/language/LANGUAGE_REFERENCE_2025.md is a historical snapshot. It is
+- [LANGUAGE_REFERENCE_2025.md](LANGUAGE_REFERENCE_2025.md) is a historical snapshot. It is
   useful for old Phase 12/15 context, but it is not the current canonical source
   when it conflicts with the files above.
-- quick-reference/syntax-cheatsheet.md is a historical stub that redirects to
-  reference/language/quick-reference.md.
-- guides/language-guide.md and guides/language-core-and-sugar.md are historical
+- [syntax-cheatsheet.md](../../quick-reference/syntax-cheatsheet.md) is a historical stub that redirects to
+  [quick-reference.md](quick-reference.md).
+- [language-guide.md](../../guides/language-guide.md) and [language-core-and-sugar.md](../../guides/language-core-and-sugar.md) are historical
   stubs. They are not permission to use legacy sugar or inheritance surfaces.
 - Phase 12.7 Grammar Specs (ternary, sugar; peek → match に統合):
-  - Overview: archive/roadmap/phases/phase-12.7/grammar-specs/README.md
-  - Token/Grammar: archive/roadmap/phases/phase-12.7/ancp-specs/ANCP-Token-Specification-v1.md
-- Legacy sugar notes (?., ??, |> and friends): parser/sugar.rs (source) and tools/nyfmt/NYFMT_POC_ROADMAP.md.
+  - Overview: [grammar-specs/README.md](../../archive/roadmap/phases/phase-12.7/grammar-specs/README.md)
+  - Token/Grammar: [ANCP-Token-Specification-v1.md](../../archive/roadmap/phases/phase-12.7/ancp-specs/ANCP-Token-Specification-v1.md)
+- Legacy sugar notes (?., ??, |> and friends): `parser/sugar.rs` (source) and `tools/nyfmt/NYFMT_POC_ROADMAP.md`.
   These are not permission to add new canonical surfaces.
 - Match Expression (pattern matching): see the Language Reference and EBNF (peek was replaced by match)
 
 Statement separation and semicolons
-- See: reference/language/statements.md — newline as primary separator; semicolons optional for multiple statements on one line; minimal ASI rules.
+- See: [statements.md](statements.md) — newline as primary separator; semicolons optional for multiple statements on one line; minimal ASI rules.
 
 Imports and namespaces
-- See: reference/language/using.md — `using` syntax, runner resolution, and style guidance.
+- See: [using.md](using.md) — `using` syntax, runner resolution, and style guidance.
 
 Variables and scope
-- See: reference/language/variables-and-scope.md — Block-scoped locals,
+- See: [variables-and-scope.md](variables-and-scope.md) — Block-scoped locals,
   assignment resolution, and owner/alias/weak binding guidance.
-- See: reference/language/ownership.md — SSOT for ordinary scoped aliases,
+- See: [ownership.md](ownership.md) — SSOT for ordinary scoped aliases,
   owner forwarding, anchored `view` results, explicit `share`, and callable
   ownership ABI. Its target spellings are phased and become parser-live only
   when EBNF/registry rows land.
-- See: reference/language/lifecycle.md — Box object residency (strong/weak),
+- See: [lifecycle.md](lifecycle.md) — Box object residency (strong/weak),
   Alive/Dead/Freed, and finalization (`fini`) SSOT.
-- See: development/current/main/design/constructor-birth-new-lifecycle-ssot.md — `new` / field initializer / `birth` construction order, direct `birth` call rejection, and explicit reuse method policy.
-- See: reference/language/scope-exit-semantics.md — SSOT for DropScope (`fini {}` / `local ... fini {}`), `catch`/`cleanup` exit ordering, and accepted `move`/`share` transfer terminology. Parser-live status remains owned by EBNF/grammar rows.
-- See: reference/language/repl.md — REPL mode semantics (file mode vs REPL binding rules).
+- See: [constructor-birth-new-lifecycle-ssot.md](../../development/current/main/design/constructor-birth-new-lifecycle-ssot.md) — `new` / field initializer / `birth` construction order, direct `birth` call rejection, and explicit reuse method policy.
+- See: [scope-exit-semantics.md](scope-exit-semantics.md) — SSOT for DropScope (`fini {}` / `local ... fini {}`), `catch`/`cleanup` exit ordering, and accepted `move`/`share` transfer terminology. Parser-live status remains owned by EBNF/grammar rows.
+- See: [repl.md](repl.md) — REPL mode semantics (file mode vs REPL binding rules).
   Current interactive implementation work is parked by
-  development/current/main/design/vm-active-lane-retirement-ssot.md and
-  development/current/main/design/repl-mir-interpreter-interactive-session-ssot.md.
+  [vm-active-lane-retirement-ssot.md](../../development/current/main/design/vm-active-lane-retirement-ssot.md) and
+  [repl-mir-interpreter-interactive-session-ssot.md](../../development/current/main/design/repl-mir-interpreter-interactive-session-ssot.md).
 
 Type system (SSOT)
-- See: reference/language/types.md — runtime truthiness, `+`/compare/equality semantics, and the role/limits of MIR type facts.
-- See: reference/language/option.md — current `Option<T>` / `Result<T,E>`
+- See: [types.md](types.md) — runtime truthiness, `+`/compare/equality semantics, and the role/limits of MIR type facts.
+- See: [option.md](option.md) — current `Option<T>` / `Result<T,E>`
   enum prelude surface and why bootstrap compiler helper no-match must not use
   Option.
-- Static const table declarations, reads, and narrow integer initializer const expressions are live for the M11b `u16[]` row. Const fn remains reserved. See reference/language/types.md “Static Const Tables (M11b live)” and `docs/development/current/main/design/static-const-table-syntax-ssot.md`.
+- Static const table declarations, reads, and narrow integer initializer const expressions are live for the M11b `u16[]` row. Const fn remains reserved. See [types.md](types.md) “Static Const Tables (M11b live)” and [static-const-table-syntax-ssot.md](../../development/current/main/design/static-const-table-syntax-ssot.md).
 - Low-level allocator-grade `.hako` code uses explicit capability modules,
   static tables, and Rune metadata rather than broad `unsafe` blocks. See:
-  reference/language/low-level-capabilities.md and reference/language/runes.md.
+  [low-level-capabilities.md](low-level-capabilities.md) and [runes.md](runes.md).
 - Build-time conditional code uses `gate Build... { ... }`, not C-style
   token preprocessing. Member-level `gate` is accepted inside box bodies for
   paired declaration branches with the same public signature, and
   statement-level `gate` is accepted inside method bodies as a build-time
   branch selector. `@rune Gate(...)` is accepted as top-level single-
-  declaration sugar only. See reference/language/build-conditional-gate.md.
+  declaration sugar only. See [build-conditional-gate.md](build-conditional-gate.md).
 
 Grammar (EBNF)
-- See: reference/language/EBNF.md — living grammar reference used by parser
+- See: [EBNF.md](EBNF.md) — living grammar reference used by parser
   implementations.
-- See: reference/language/stage-profiles.md — practical support manual for
+- See: [stage-profiles.md](stage-profiles.md) — practical support manual for
   what bootstrap readers may carry and what phase-1/selfhost code may rely on.
   It is not a second grammar.
-- Unified Members (stored/computed/once/birth_once): see reference/language/EBNF.md “Box Members (Phase 15)” and the Language Reference section. Stored fields use `name` for simple dynamic slots and `name: Type` when declared-type metadata helps typed-object planning / optimization / verification. Canonical computed syntax is `get name: Type { ... }`; legacy `name: Type { ... }` remains accepted. Default ON (disable with `NYASH_ENABLE_UNIFIED_MEMBERS=0`).
+- Unified Members (stored/computed/once/birth_once): see [EBNF.md](EBNF.md) “Box Members (Phase 15)” and the Language Reference section. Stored fields use `name` for simple dynamic slots and `name: Type` when declared-type metadata helps typed-object planning / optimization / verification. Canonical computed syntax is `get name: Type { ... }`; legacy `name: Type { ... }` remains accepted. Default ON (disable with `NYASH_ENABLE_UNIFIED_MEMBERS=0`).
 
 Member exceptions and handlers (Stage‑3)
 - Postfix `catch/cleanup` may be attached to computed/once/birth_once/method blocks when Stage‑3 is enabled. Stored members (`name` or `name: Type`) do not support handlers.

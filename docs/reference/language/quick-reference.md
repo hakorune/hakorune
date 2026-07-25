@@ -1,5 +1,8 @@
 # Hakorune Quick Reference
 
+Status: Current syntax summary. Check the [language status index](status-index.md)
+before treating any example or gate as live support.
+
 Purpose
 - One-page practical summary for writing and implementing current Hakorune.
 - Keep grammar minimal; clarify rules that often cause confusion.
@@ -14,6 +17,22 @@ Ownership note
 - Do not write inactive lookalike results such as `: view T` or `: share T`;
   the current scanners may coalesce them into ordinary type names until the
   parked `OWN-GRAM-REJECT0` fail-fast row lands.
+
+Feature status and gates
+- Check the [language status index](status-index.md) before treating an example
+  or parser path as live support. Grammar status and profile availability are
+  separate axes.
+- `throw` is prohibited and parser-rejected with a stable freeze tag. It is not
+  a feature that can be enabled by a compatibility toggle.
+- statement `try` and postfix `catch` currently have a documented status
+  conflict between the grammar contract, EBNF gates, and Fault semantics. Do
+  not infer acceptance; follow [LANGUAGE-DOCS-TRY-CATCH-D1](../../development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md).
+- `cleanup` / `fini` / `box.fini()` have different scope-cleanup and
+  object-finalization owners. See [scope-exit-semantics.md](scope-exit-semantics.md)
+  and [lifecycle.md](lifecycle.md).
+- `co` / `nowait` / `await`, `Channel<T>`, and `sync box` are
+  concurrency-profile surfaces, not a general Stage1/selfhost promise. See
+  [the concurrency status](../concurrency/semantics.md).
 
 Selected current reserved keywords
 - control: `if`, `else`, `guard`, `loop`, `match`, `break`, `continue`, `return`
@@ -131,7 +150,7 @@ Declaration metadata
 - Compat spellings such as `@hint(inline)` and
   `@rune Lowering(inline_required)` are accepted during migration but are not
   the preferred source surface.
-- See: reference/language/runes.md.
+- See: [runes.md](runes.md).
 
 MIR observability (`__mir__`, dev-only)
 - `__mir__.log("label", v1, v2, ...)` records MIR-level debug values.
@@ -176,4 +195,4 @@ current carrier policy.
 Bootstrap/profile readers must not desugar this shape to
 `local i; loop i < end; i += 1`. For the full bootstrap / phase-1 support
 manual, see
-`docs/reference/language/stage-profiles.md`.
+[stage-profiles.md](stage-profiles.md).
