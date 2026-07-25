@@ -212,7 +212,9 @@ impl RawRootBodyRecipeV1 {
         collect_terminal_paths(&terminal, &mut paths)?;
         Ok(Self {
             entry,
-            statements: prelude.clone(),
+            // Script consumers must go through the source-classified payload;
+            // the legacy statement slot is intentionally empty on this route.
+            statements: Box::new([]),
             script: Some(RawScriptBodyRecipeV1 {
                 prelude,
                 terminal,
@@ -227,7 +229,9 @@ impl RawRootBodyRecipeV1 {
     }
 
     pub(crate) fn statements(&self) -> &[RawLinearScalarStmtV1] {
-        &self.statements
+        self.script
+            .as_ref()
+            .map_or(&self.statements, |script| script.prelude())
     }
 
     pub(crate) fn script(&self) -> Option<&RawScriptBodyRecipeV1> {
