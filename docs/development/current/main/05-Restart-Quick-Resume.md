@@ -66,6 +66,6 @@ cargo check -q
   `CURRENT_STATE.toml` explicitly selects them
 - product/app validation now uses EXE/AOT as the primary route; VM work is a
   small semantic-reference subset only
-- if a future current blocker token names an explicit design-stop frontier,
-  pause the goal-driven execution loop here and review the frontier card before
-  naming a new executable owner
+- D1 is accepted with immediate normal cutover parked. The current executable
+  frontier is `NORMAL-FILE-VM0-FAMILY-D0`; read the latest card and keep the
+  new normal production caller at zero until D2 accepts the proof package.

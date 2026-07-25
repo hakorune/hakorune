@@ -23,10 +23,11 @@ Related:
   any-statement-tail S0 as canonical work.
 - closed row: RAW-VM-REFERENCE-SUPPORT0-S0 — typed profile handoff, bounded
   diagnostics, supported opt-in surface, and renamed conformance proof
-- active design stop: NORMAL-ENTRY-CUTOVER-D1 — no bounded normal caller family
-  exists yet; choose one exact family/profile/output contract or keep parked
-- next executable row: none until D1 is accepted; NORMAL-ENTRY-CUTOVER0-S0 is
-  parked behind the design stop
+- active decision: NORMAL-ENTRY-CUTOVER-D1-PARK-AND-FORGE-NORMAL-FILE-VM0 —
+  immediate cutover is parked; NormalFileNoImportVmReferenceV1 is the one
+  bounded family to forge
+- next executable row: NORMAL-FILE-VM0-FAMILY-D0 (read-only evidence); D2 must
+  accept before any normal production caller is added
 - closed immediately before this frontier: passive Canonical/NarrowV1/
   VM-reference profile, explicit early `--backend raw-vm-reference` canary,
   mandatory feature-enabled/disabled parity family, and the D0 decision that

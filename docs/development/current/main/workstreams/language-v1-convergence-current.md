@@ -193,14 +193,31 @@ FUNCTION-EXIT-F1-RETURN0-S0
   one consuming profile handoff, bounded diagnostic report, supported surface,
   proof reclassification, and NORMAL-ENTRY-CANARY-SUNSET-001 closeout
 
--> NORMAL-ENTRY-CUTOVER-D1 (design stop; no implementation)
-  worker census finds no bounded normal caller family. Select one exact
-  caller/profile/output family or keep the normal cutover parked; require
-  complete source/function/Main/Script/result/backend parity before any code.
+-> NORMAL-ENTRY-CUTOVER-D1 (accepted 2026-07-25)
+  C parks immediate cutover and fixes the next family as
+  NormalFileNoImportVmReferenceV1. The full task order is in
+  normal-file-vm0-forge-task-2026-07-25.md.
 
--> NORMAL-ENTRY-CUTOVER0-S0 (parked)
-  no executable row; a fresh D1 decision is required after one exact normal
-  caller family has full source/backend/result parity
+-> NORMAL-FILE-VM0-FAMILY-D0 (next executable row)
+  select one plain source-hint caller family and seal the file/profile/output
+  correspondence. This is read-only evidence; new normal production caller=0.
+
+-> NORMAL-FILE-VM0-SOURCE-PROFILE-D0
+  -> NORMAL-FILE-VM0-CORRESPONDENCE-P0
+  -> NORMAL-FILE-VM0-SEMANTIC-MATRIX-P0
+  -> NORMAL-FILE-VM0-CALLER-G0
+  -> NORMAL-ENTRY-CUTOVER-D2
+
+-> NORMAL-FILE-VM0-REQUEST0-S0 (D2 accepted only)
+  one typed normal-file caller, then exact source/compile/entry/result/parity
+  rows and selected-family legacy caller retirement.
+
+-> NORMAL-IMPORT-BUNDLE-D0 (after no-import family)
+  import-aware source authority is a separate bundle/profile family.
+
+-> MIRBUILDER-LEGACY-FENCE0-S0
+  direct build_module is retained only inside named LegacyCompatibility
+  profiles; unclassified normal caller zero is required before completion.
 
 -> ENTRY-EXIT-CODE-COMPAT-RETIRE0-S0
   sunset_id = ENTRY-EXIT-CODE-COMPAT-SUNSET-001

@@ -1,5 +1,5 @@
 ---
-Status: Design Stop / No Implementation
+Status: Accepted design; execution delegated to NormalFileNoImportVmReferenceV1 task
 Date: 2026-07-25
 Scope: Fresh D1 decision for a possible normal-source entry cutover.
 Related:
@@ -11,8 +11,10 @@ Related:
 
 # NORMAL-ENTRY-CUTOVER-D1 consultation
 
-This is a design stop. It authorizes no source, runner, backend, JSON, or
-executor implementation. The previous D0 decision only promoted the explicit
+This was the D1 design stop. Its accepted decision authorizes only the
+documentation/read-only D0 row in
+`normal-file-vm0-forge-task-2026-07-25.md`; it still authorizes no normal
+production caller, default cutover, backend, JSON, or executor widening. The previous D0 decision only promoted the explicit
 `raw-vm-reference` lane; it did not identify a safe normal caller.
 
 ## Read-only worker inventory
