@@ -20,6 +20,7 @@ PROFILE = ROOT / "src/runner/reference/raw_vm_reference_request.rs"
 RAW_CONTRACT = ROOT / "src/mir/raw_vm_reference_contract.rs"
 REFERENCE_RUNNER = ROOT / "src/runner/reference/raw_vm_reference.rs"
 REFERENCE_SELECTOR = ROOT / "src/runner/reference/request.rs"
+REFERENCE_TERMINAL = ROOT / "src/runner/reference/terminal.rs"
 FRONTDOOR_TEST_CONSUMERS = (
     ROOT / "src/runner/reference/normal_file_vm_frontdoor/result_carrier_p0.rs",
 )
@@ -52,6 +53,7 @@ def main() -> int:
     profile = PROFILE.read_text()
     raw_contract = RAW_CONTRACT.read_text()
     reference_runner = REFERENCE_RUNNER.read_text()
+    reference_terminal = REFERENCE_TERMINAL.read_text()
     parity_proof = PARITY_PROOF.read_text()
     cli = CLI.read_text()
     cli_args = CLI_ARGS.read_text()
@@ -143,9 +145,11 @@ def main() -> int:
         raise AssertionError("support lane must have one source-file read")
     if reference_runner.count("parse_from_string_with_build_config") != 1:
         raise AssertionError("support lane must have one canonical parse")
-    if reference_runner.count("std::process::exit") != 1:
-        raise AssertionError("support lane must have one process terminal")
-    if "Program(RawVmReferenceRunReportV1)" not in reference_runner or "Program {" in reference_runner:
+    if "std::process::exit" in reference_runner:
+        raise AssertionError("support lane must delegate process termination to the shared terminal")
+    if reference_terminal.count("std::process::exit") != 1:
+        raise AssertionError("explicit reference lanes must have one shared process terminal")
+    if "ReferenceRunOutcomeV1::Program(report)" not in reference_runner or "Program {" in reference_runner:
         raise AssertionError("support lane must retain the Raw process report until its terminal")
     for forbidden in (
         "compile_raw_with_source",
@@ -191,6 +195,7 @@ def main() -> int:
         PROFILE,
         RAW_CONTRACT,
         REFERENCE_RUNNER,
+        REFERENCE_TERMINAL,
         *FRONTDOOR_TEST_CONSUMERS,
         ROOT / "src/runner/mod.rs",
         CLI,

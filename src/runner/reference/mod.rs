@@ -1,6 +1,7 @@
 pub(crate) mod raw_vm_reference;
 pub(crate) mod cli_profile;
 pub(crate) mod normal_file_vm_request;
+pub(crate) mod normal_file_vm;
 #[allow(dead_code)]
 pub(crate) mod normal_file_vm_frontdoor;
 pub mod vm_hako;
@@ -9,3 +10,4 @@ pub mod vm_hako;
 #[allow(dead_code)]
 pub(crate) mod raw_vm_reference_request;
 pub(crate) mod request;
+pub(crate) mod terminal;

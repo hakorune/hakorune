@@ -11,6 +11,7 @@ TASK = ROOT / (
 )
 FRONTDOOR = ROOT / "src/runner/reference/normal_file_vm_frontdoor.rs"
 NORMAL_REQUEST = ROOT / "src/runner/reference/normal_file_vm_request.rs"
+NORMAL_REPORT_RUNNER = ROOT / "src/runner/reference/normal_file_vm.rs"
 TEST_ONLY_RAW_TERMINAL_CONSUMERS = (
     ROOT / "src/runner/reference/normal_file_vm_frontdoor/result_carrier_p0.rs",
 )
@@ -42,6 +43,7 @@ def main() -> int:
     frontdoor = FRONTDOOR.read_text()
     production = frontdoor.split("#[cfg(test)]", 1)[0]
     normal_request = NORMAL_REQUEST.read_text()
+    normal_report_runner = NORMAL_REPORT_RUNNER.read_text()
     reference_mod = REFERENCE_MOD.read_text()
     raw_contract = RAW_CONTRACT.read_text()
 
@@ -106,6 +108,25 @@ def main() -> int:
         require(normal_request, fragment, f"unconnected normal request {fragment}")
     if ".prepare()" in normal_request or "run_raw_vm_reference" in normal_request:
         raise AssertionError("REQUEST0 must not execute the NormalFile front door")
+    for fragment in (
+        "NormalFileVmReferenceProductionRequestV1",
+        "into_frontdoor_request().prepare()",
+        "run_raw_vm_reference_for_runner_v1",
+        "ReferenceRunOutcomeV1",
+    ):
+        require(normal_report_runner, fragment, f"REPORT0 bounded runner {fragment}")
+    for forbidden in (
+        "select_from_cli",
+        "std::process::exit",
+        "compile_raw_with_source",
+        "compile_with_source",
+        "compile_legacy",
+        "build_module",
+        "fallback",
+        "retry",
+    ):
+        if forbidden in normal_report_runner:
+            raise AssertionError(f"REPORT0 must not select or widen the normal route: {forbidden}")
 
     if production.count("std::fs::read_to_string(&source_file)") != 1:
         raise AssertionError("Forge0 must read its source file exactly once")
@@ -148,7 +169,7 @@ def main() -> int:
             if token in text:
                 raise AssertionError(f"frozen route widened into Forge0: {path.relative_to(ROOT)}")
     for path in (ROOT / "src/runner").rglob("*.rs"):
-        if path in (FRONTDOOR, NORMAL_REQUEST) or path in TEST_ONLY_RAW_TERMINAL_CONSUMERS:
+        if path in (FRONTDOOR, NORMAL_REQUEST, NORMAL_REPORT_RUNNER) or path in TEST_ONLY_RAW_TERMINAL_CONSUMERS:
             continue
         text = path.read_text()
         if "NormalFileVmFrontDoorV1" in text or "PreparedNormalFileVmHandoffV1" in text:
@@ -160,6 +181,7 @@ def main() -> int:
         TASK,
         FRONTDOOR,
         NORMAL_REQUEST,
+        NORMAL_REPORT_RUNNER,
         *TEST_ONLY_RAW_TERMINAL_CONSUMERS,
         RAW_CONTRACT,
         Path(__file__),

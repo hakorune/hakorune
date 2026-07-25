@@ -80,6 +80,8 @@ pub(in crate::mir) mod source_entry_projection;
 pub(in crate::mir) mod source_entry_vm_reference;
 #[cfg(feature = "vm-reference")]
 pub(in crate::mir) mod source_entry_vm_execution;
+#[cfg(feature = "vm-reference")]
+pub(in crate::mir) mod source_entry_vm_runner_adapter;
 pub(in crate::mir) mod source_entry_vm_diagnostic;
 #[cfg(test)]
 mod source_entry_vm_reference_p0;

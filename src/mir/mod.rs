@@ -51,6 +51,8 @@ pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
 mod compiler;
 pub(crate) use compiler::source_entry_vm_reference::RawVmReferenceRunReportV1;
+#[cfg(feature = "vm-reference")]
+pub(crate) use compiler::source_entry_vm_runner_adapter::RawVmReferenceInvocationFailureReportV1;
 pub(crate) use raw_vm_reference_contract::{
     RawPublishedCompileProfileV1, RawPublishedCompileRequestV1,
     RawVmReferenceCallableMainProfileV1, RawVmReferenceExecutionProfileV1,
