@@ -66,7 +66,7 @@ cargo check -q
   `CURRENT_STATE.toml` explicitly selects them
 - product/app validation now uses EXE/AOT as the primary route; VM work is a
   small semantic-reference subset only
-- The active row is `LANGUAGE-DOCS-TRY-CATCH-D1`; read the language docs status
-  cleanup task. This is a design stop: resolve the try/catch/fini authority
+- The active row is `LANGUAGE-DOCS-TRY-CATCH-D1`; read the
+  `language-docs-try-catch-d1-consultation-2026-07-25.md` card. This is a design stop: resolve the try/catch/fini authority
   boundary in docs only, with no parser, runtime, backend, or normal-entry
   behavior change. Normal D0 remains parked.

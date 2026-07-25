@@ -35,7 +35,8 @@ canonical work; it is historical compatibility evidence only.
 
 Continue only the exact `current_blocker_token` and `latest_card_path` named by
 `CURRENT_STATE.toml`. The active row is `LANGUAGE-DOCS-TRY-CATCH-D1`; read
-`language-docs-status-ssot-cleanup-task-2026-07-25.md`. This is docs-only:
+`language-docs-try-catch-d1-consultation-2026-07-25.md`. This is a docs-only
+design stop:
 resolve the try/catch/fini authority boundary in docs only, but do not add parser,
 runtime, backend, or normal-entry behavior. The normal D0 follow-up remains
 parked. D0, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0,

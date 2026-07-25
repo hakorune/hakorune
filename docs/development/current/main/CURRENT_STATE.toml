@@ -3,7 +3,7 @@
 
 status = "LANGUAGE-DOCS-STATUS-SSOT-D0 is closed for the discoverability slice: the language status index and entry-point links are now present. LANGUAGE-DOCS-TRY-CATCH-D1 is the active semantic design stop; no parser/runtime/backend behavior change is authorized."
 date = "2026-07-25"
-current_design_stop = "LANGUAGE-DOCS-STATUS-SSOT-D0"
+current_design_stop = "LANGUAGE-DOCS-TRY-CATCH-D1"
 current_execution_row = "LANGUAGE-DOCS-TRY-CATCH-D1"
 current_execution_summary = "The docs-only discoverability slice is closed: status-index.md, README navigation, and quick-reference status/gate pointers are landed. The next stop is the explicit try/catch/fini design decision; contradictions remain recorded and unresolved. Parser/runtime/backend changes are zero. NORMAL-FILE-VM0 remains parked behind its own follow-up question."
 raw_root_body0_s0_status = "closed"
@@ -318,8 +318,8 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
-phase_status = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
+active_phase = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
+phase_status = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
 method_anchor = "docs/reference/language/function-exit-and-entry-result.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -328,6 +328,7 @@ normal_entry_cutover_d1_decision = "docs/development/current/main/investigations
 normal_file_vm0_task = "docs/development/current/main/investigations/normal-file-vm0-forge-task-2026-07-25.md"
 normal_file_vm0_d0_question = "docs/development/current/main/investigations/normal-file-vm0-family-d0-no-candidate-question-2026-07-25.md"
 language_docs_status_task = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
+language_docs_try_catch_task = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
 raw_vm_reference_support0_task = "docs/development/current/main/investigations/raw-vm-reference-support0-s0-execution-task-2026-07-25.md"
 parked_loop_route_retirement_card = "docs/development/current/main/investigations/generic-loop-named-route-retirement-task-2026-07-19.md"
 mirbuilder_clean_architecture_card = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
@@ -384,9 +385,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "language-docs-status-ssot-cleanup-task-2026-07-25"
-latest_card_path = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
-latest_card_summary = """Docs audit found no discoverable status index and confirmed try/catch/fini/cleanup/concurrency drift. DOCS-POINTER-ALIGNMENT0 is docs-only; the next semantic decision is LANGUAGE-DOCS-TRY-CATCH-D1. Normal-entry remains parked."""
+latest_card = "language-docs-try-catch-d1-consultation-2026-07-25"
+latest_card_path = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
+latest_card_summary = """The docs-only status/index slice is landed. LANGUAGE-DOCS-TRY-CATCH-D1 now fixes the semantic questions for statement try, postfix catch/cleanup, fini aliases, box.fini(), and throw; conflicts remain unresolved and no implementation is authorized. Normal-entry remains parked."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is

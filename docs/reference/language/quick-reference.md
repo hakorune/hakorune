@@ -26,7 +26,7 @@ Feature status and gates
   a feature that can be enabled by a compatibility toggle.
 - statement `try` and postfix `catch` currently have a documented status
   conflict between the grammar contract, EBNF gates, and Fault semantics. Do
-  not infer acceptance; follow [LANGUAGE-DOCS-TRY-CATCH-D1](../../development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md).
+  not infer acceptance; follow [LANGUAGE-DOCS-TRY-CATCH-D1](../../development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md).
 - `cleanup` / `fini` / `box.fini()` have different scope-cleanup and
   object-finalization owners. See [scope-exit-semantics.md](scope-exit-semantics.md)
   and [lifecycle.md](lifecycle.md).
