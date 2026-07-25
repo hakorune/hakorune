@@ -375,6 +375,26 @@ named rejection/fault-after-success matrix required by `FORGE-REUSE0`.
 source facts collapse it with Void. Next internal row:
 `FORGE-SEMANTIC0-S1`.
 
+### Closed 2026-07-26: `FORGE-SEMANTIC0-S1`
+
+The front-door Function/Main boundary fixture records the current NarrowV1
+contract without broadening it:
+
+```text
+Main final expression / fallthrough -> AppFixedVoid, status 0
+empty static helper plus Main       -> admitted, status 0
+Main explicit return value / Unit   -> eligibility rejection
+ordinary top-level function         -> eligibility rejection
+non-Main static-box candidate       -> eligibility rejection; no entry retry
+```
+
+This is not an `ExplicitReturnOnly` implementation claim. `AppFixedVoid` is
+current Raw compatibility evidence only. A normal-profile requirement for
+Main explicit Return or ordinary callable bodies must stop at
+`FUNCTION-EXIT-F1-NORMAL-CAPABILITY0-D0`; the front door may not repair the
+result from a lowered value or select a replacement entry. Next internal row:
+`FORGE-SEMANTIC0-S2`.
+
 ### `FORGE-CORRESPONDENCE0` (closed)
 
 Prove that the forge uses the existing Raw compile/publication and exact

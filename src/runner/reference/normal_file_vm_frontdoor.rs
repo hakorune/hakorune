@@ -381,6 +381,17 @@ mod tests {
         name: &str,
         source: &str,
     ) -> crate::mir::RawVmReferenceRunReportV1 {
+        run_file_source_result(compiler, dir, name, source)
+            .expect("existing Raw VM-reference terminal should execute handoff")
+    }
+
+    #[cfg(feature = "vm-reference")]
+    fn run_file_source_result(
+        compiler: &mut crate::mir::MirCompiler,
+        dir: &Path,
+        name: &str,
+        source: &str,
+    ) -> Result<crate::mir::RawVmReferenceRunReportV1, String> {
         let path = write_source(dir, name, source);
         let invocation = request(path)
             .prepare()
@@ -391,9 +402,7 @@ mod tests {
             .expect("parse")
             .prepare_raw_vm_handoff()
             .into_raw_vm_reference_invocation();
-        compiler
-            .run_raw_vm_reference_v1(invocation)
-            .expect("existing Raw VM-reference terminal should execute handoff")
+        compiler.run_raw_vm_reference_v1(invocation)
     }
 
     #[test]
@@ -536,5 +545,56 @@ mod tests {
             assert_eq!(report.status_code(), expected_status, "{name}");
             assert_eq!(report.diagnostic_tag(), expected_diagnostic, "{name}");
         }
+    }
+
+    #[cfg(feature = "vm-reference")]
+    #[test]
+    fn function_and_main_shapes_are_observed_before_normal_admission() {
+        let dir = tempdir().expect("tempdir");
+        let mut compiler = crate::mir::MirCompiler::new();
+        let cases = [
+            (
+                "main-explicit-return.hako",
+                "static box Main { main() { return 1 } }",
+            ),
+            (
+                "main-explicit-unit.hako",
+                "static box Main { main() { return void } }",
+            ),
+            (
+                "ordinary-function.hako",
+                "function f() { return 1 }",
+            ),
+            (
+                "non-main-entry.hako",
+                "static box Decoy { main() {} }",
+            ),
+        ];
+        for (name, source) in cases {
+            let error = run_file_source_result(&mut compiler, dir.path(), name, source)
+                .expect_err("current NarrowV1 must not admit this normal boundary");
+            assert!(
+                error.starts_with("[raw-public/eligibility/rejected]"),
+                "{name}: {error}"
+            );
+        }
+
+        let report = run_file_source(
+            &mut compiler,
+            dir.path(),
+            "main-fallthrough.hako",
+            "static box Main { main() { 1 } }",
+        );
+        assert_eq!(report.status_code(), 0);
+        assert_eq!(report.diagnostic_tag(), None);
+
+        let helper = run_file_source(
+            &mut compiler,
+            dir.path(),
+            "helper-main.hako",
+            "static box Main { helper() {} main() {} }",
+        );
+        assert_eq!(helper.status_code(), 0);
+        assert_eq!(helper.diagnostic_tag(), None);
     }
 }
