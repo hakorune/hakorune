@@ -234,6 +234,18 @@ impl RawDrainWitnessV1 {
     pub(in crate::mir) fn ledger(&self) -> &SealedRawExpansionReceiptLedgerV1 {
         &self.ledger
     }
+
+    pub(in crate::mir) fn vm_decode_plan(
+        &self,
+    ) -> Result<super::super::raw_root_body_exit::RawVmSourceEntryDecodeKindV1, ()> {
+        self.root.exit().vm_decode_plan()
+    }
+
+    pub(in crate::mir) fn main_entry_target(
+        &self,
+    ) -> &super::super::root_batch_slot::RawMainEntryTargetV1 {
+        self.root.main_entry_target()
+    }
 }
 
 pub(in crate::mir::builder) fn prepare_from_parts(

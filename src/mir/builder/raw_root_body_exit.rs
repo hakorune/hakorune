@@ -81,6 +81,29 @@ pub(in crate::mir) struct RawRootBodyExitWitnessV1 {
     _seal: RawRootBodyExitWitnessSealV1,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum RawVmUnitOriginV1 {
+    EmptyBody,
+    ImplicitFallthrough,
+    PrintStatement,
+    LocalStatement,
+    AssignmentStatement,
+    CompoundAssignmentStatement,
+    ExplicitVoid,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum RawVmSourceEntryDecodeKindV1 {
+    Unit {
+        origin: RawVmUnitOriginV1,
+        requires_void: bool,
+    },
+    Integer,
+    Bool,
+    Float,
+    String,
+}
+
 #[derive(Debug)]
 enum RawRootBodyExitDispositionV1 {
     ScriptValue {
@@ -420,6 +443,53 @@ fn close_raw_root_function_state_v1(builder: &mut MirBuilder) {
 }
 
 impl RawRootBodyExitWitnessV1 {
+    pub(in crate::mir) fn vm_decode_plan(&self) -> Result<RawVmSourceEntryDecodeKindV1, ()> {
+        match &self.disposition {
+            RawRootBodyExitDispositionV1::ScriptValue { ty, .. } => match ty {
+                MirType::Integer => Ok(RawVmSourceEntryDecodeKindV1::Integer),
+                MirType::Bool => Ok(RawVmSourceEntryDecodeKindV1::Bool),
+                MirType::Float => Ok(RawVmSourceEntryDecodeKindV1::Float),
+                MirType::String => Ok(RawVmSourceEntryDecodeKindV1::String),
+                MirType::Void => Ok(RawVmSourceEntryDecodeKindV1::Unit {
+                    origin: RawVmUnitOriginV1::ExplicitVoid,
+                    requires_void: true,
+                }),
+                _ => Err(()),
+            },
+            RawRootBodyExitDispositionV1::ScriptUnitValue { origin, .. } => {
+                let origin = match origin {
+                    RawScriptUnitOriginV1::EmptyBody => RawVmUnitOriginV1::EmptyBody,
+                    RawScriptUnitOriginV1::VoidExpression => RawVmUnitOriginV1::ExplicitVoid,
+                    RawScriptUnitOriginV1::PrintStatement => RawVmUnitOriginV1::PrintStatement,
+                    RawScriptUnitOriginV1::LocalStatement => RawVmUnitOriginV1::LocalStatement,
+                    RawScriptUnitOriginV1::AssignmentStatement => {
+                        RawVmUnitOriginV1::AssignmentStatement
+                    }
+                    RawScriptUnitOriginV1::CompoundAssignmentStatement => {
+                        RawVmUnitOriginV1::CompoundAssignmentStatement
+                    }
+                };
+                Ok(RawVmSourceEntryDecodeKindV1::Unit {
+                    origin,
+                    requires_void: false,
+                })
+            }
+            RawRootBodyExitDispositionV1::ScriptEmptyVoid { .. } => {
+                Ok(RawVmSourceEntryDecodeKindV1::Unit {
+                    origin: RawVmUnitOriginV1::EmptyBody,
+                    requires_void: true,
+                })
+            }
+            RawRootBodyExitDispositionV1::AppVoid { .. } => {
+                Ok(RawVmSourceEntryDecodeKindV1::Unit {
+                    origin: RawVmUnitOriginV1::ImplicitFallthrough,
+                    requires_void: true,
+                })
+            }
+            RawRootBodyExitDispositionV1::LegacyUnverified => Err(()),
+        }
+    }
+
     pub(in crate::mir::builder) fn legacy_unverified(brand: ModuleInvocationBrandV1) -> Self {
         Self {
             brand,

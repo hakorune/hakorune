@@ -99,6 +99,19 @@ impl RawPostprocessEvidenceV1 {
             }
         }
     }
+
+    pub(in crate::mir) fn vm_decode_plan(
+        &self,
+    ) -> Result<super::source_entry_vm_reference::VmSourceEntryDecodePlanV1, ()> {
+        self.witness
+            .vm_decode_plan()
+            .map(super::source_entry_vm_reference::VmSourceEntryDecodePlanV1::from_builder)
+    }
+
+    pub(in crate::mir) fn main_entry_target_matches(&self) -> bool {
+        self.selected_entry()
+            .target_matches(self.witness.main_entry_target())
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0, SCRIPT-RESULT-TAIL0-S0, ENTRY-RESULT-PROJECTION0-S0, S1-PROJECTION-CONSUME0, and S2-VM-REFERENCE-CONSUME0 are closed. S3 selected the explicit Raw VM-reference owner; the active subrow is S3-ENTRY-CARRY0. Parser grammar, legacy/general VM widening, LLVM/native, normal-entry cutover, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
+status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0, SCRIPT-RESULT-TAIL0-S0, ENTRY-RESULT-PROJECTION0-S0, S1-PROJECTION-CONSUME0, and S2-VM-REFERENCE-CONSUME0 are closed. S3-ENTRY-CARRY0 is closed; S3-EXECUTION0 is active for exact Main VM execution and source-result decode. Parser grammar, legacy/general VM widening, LLVM/native, normal-entry cutover, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
 date = "2026-07-25"
 current_design_stop = "ENTRY-RESULT-PROJECTION0-S3-RAW-VM-ACTIVATION-ACCEPTED-20260725"
-current_execution_row = "ENTRY-RESULT-PROJECTION0-S3-ENTRY-CARRY0"
-current_execution_summary = "S3 selected the explicit Raw VM-reference owner. First co-seal a narrow source-entry continuation through publication; then execute exact Main/main/0 with a sealed decode plan and connect the typed diagnostic terminal."
+current_execution_row = "ENTRY-RESULT-PROJECTION0-S3-EXECUTION0"
+current_execution_summary = "S3-ENTRY-CARRY0 co-sealed the Main key/symbol/arity target through the root witness and publication owner. The active row executes exact Main/main/0 with a sealed decode plan, retains the published owner, and converts VM faults to typed source faults before process projection."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -15,7 +15,8 @@ authority. FUNCTION-EXIT-F1-RETURN0-S0, DRAFT-SEAL0-S0,
 SCRIPT-RESULT-TAIL0-S0, and ENTRY-RESULT-PROJECTION0-D0 are closed.
 ENTRY-RESULT-PROJECTION0-S0 and S1 projection consume are closed. The next
 ENTRY-RESULT-PROJECTION0-S2 closed one disconnected VM-reference consumer.
-S3 accepted one explicit Raw VM-reference owner; S3-ENTRY-CARRY0 is active and
+S3 accepted one explicit Raw VM-reference owner; S3-ENTRY-CARRY0 is closed and
+S3-EXECUTION0 is active, with
 no legacy/backend/public widening is authorized. The D′/Raw
 history below is parked context and must not select a different current row.
 D′ is the current canonical control-lowering authority:
@@ -365,7 +366,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "entry-result-projection0-s3-raw-vm-activation-execution-task-2026-07-25"
 latest_card_path = "docs/development/current/main/investigations/entry-result-projection0-s3-raw-vm-activation-execution-task-2026-07-25.md"
-latest_card_summary = """S3 selected an explicit Raw VM-reference owner. S3-ENTRY-CARRY0 is the first subrow: preserve narrow selected-entry identity through publication before exact VM execution, typed decode, and diagnostic reporting."""
+latest_card_summary = """S3 selected an explicit Raw VM-reference owner. S3-ENTRY-CARRY0 is closed with a co-sealed Main target; S3-EXECUTION0 now owns exact VM execution, sealed VMValue decoding, and typed source-fault conversion before process projection."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -567,7 +568,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "ENTRY-RESULT-PROJECTION0-S3-ENTRY-CARRY0-20260725"
+current_blocker_token = "ENTRY-RESULT-PROJECTION0-S3-EXECUTION0-20260725"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

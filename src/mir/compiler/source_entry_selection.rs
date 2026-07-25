@@ -18,8 +18,7 @@ pub(in crate::mir) enum SelectedSourceEntryRouteV1 {
 pub(in crate::mir) struct SelectedSourceEntryContinuationV1 {
     brand: ModuleInvocationBrandV1,
     route: SelectedSourceEntryRouteV1,
-    symbol: Box<str>,
-    arity: usize,
+    target: crate::mir::builder::RawMainEntryTargetV1,
     _seal: SelectedSourceEntryContinuationSealV1,
 }
 
@@ -36,12 +35,11 @@ impl SelectedSourceEntryContinuationV1 {
         } else {
             SelectedSourceEntryRouteV1::AppMain0
         };
-        let (symbol, arity) = crate::mir::builder::raw_main_entry_target();
+        let target = crate::mir::builder::raw_main_entry_target();
         Self {
             brand,
             route,
-            symbol,
-            arity,
+            target,
             _seal: SelectedSourceEntryContinuationSealV1,
         }
     }
@@ -55,11 +53,22 @@ impl SelectedSourceEntryContinuationV1 {
     }
 
     pub(in crate::mir) fn symbol(&self) -> &str {
-        &self.symbol
+        self.target.symbol()
     }
 
     pub(in crate::mir) const fn arity(&self) -> usize {
-        self.arity
+        self.target.arity()
+    }
+
+    pub(in crate::mir) fn is_main_target(&self) -> bool {
+        self.target.is_main()
+    }
+
+    pub(in crate::mir) fn target_matches(
+        &self,
+        target: &crate::mir::builder::RawMainEntryTargetV1,
+    ) -> bool {
+        &self.target == target
     }
 }
 

@@ -58,6 +58,48 @@ impl RawPublishedInvocationCoreV1 {
     }
 }
 
+impl RawPublishedInvocationV1 {
+    pub(in crate::mir) fn selected_entry(&self) -> &SelectedSourceEntryContinuationV1 {
+        match self {
+            Self::Script(value) => value.core.selected_entry(),
+            Self::App(value) => value.core.selected_entry(),
+        }
+    }
+
+    #[cfg(feature = "vm-reference")]
+    pub(in crate::mir) fn execute_exact_vm_entry(
+        self,
+        symbol: &str,
+    ) -> (
+        Self,
+        Result<crate::backend::vm_types::VMValue, crate::backend::vm_types::VMError>,
+    ) {
+        let result = match &self {
+            Self::Script(value) => value.core.module.execute_exact_vm_entry(symbol),
+            Self::App(value) => value.core.module.execute_exact_vm_entry(symbol),
+        };
+        (self, result)
+    }
+
+    #[cfg(feature = "vm-reference")]
+    pub(in crate::mir) fn vm_decode_plan(
+        &self,
+    ) -> Result<super::source_entry_vm_reference::VmSourceEntryDecodePlanV1, ()> {
+        match self {
+            Self::Script(value) => value.core.evidence.vm_decode_plan(),
+            Self::App(value) => value.core.evidence.vm_decode_plan(),
+        }
+    }
+
+    #[cfg(feature = "vm-reference")]
+    pub(in crate::mir) fn main_entry_target_matches(&self) -> bool {
+        match self {
+            Self::Script(value) => value.core.evidence.main_entry_target_matches(),
+            Self::App(value) => value.core.evidence.main_entry_target_matches(),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub(in crate::mir) struct RawScriptPublishedInvocationV1 {
     pub(in crate::mir) core: RawPublishedInvocationCoreV1,

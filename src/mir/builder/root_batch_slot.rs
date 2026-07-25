@@ -68,12 +68,37 @@ impl RawRootBatchSlotContractV1 {
     }
 }
 
-/// Narrow identity consumed by the explicit VM-reference entry.  The values
-/// still come from the complete Main slot contract above; callers do not
-/// re-spell the runtime symbol or arity.
-pub(in crate::mir) fn raw_main_entry_target() -> (Box<str>, usize) {
+/// Narrow identity consumed by the explicit VM-reference entry.  The key is
+/// retained behind this carrier; callers do not re-spell Main, its symbol, or
+/// its arity.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir) struct RawMainEntryTargetV1 {
+    key: FunctionDraftKeyV1,
+    symbol: Box<str>,
+    arity: usize,
+}
+
+impl RawMainEntryTargetV1 {
+    pub(in crate::mir) fn symbol(&self) -> &str {
+        &self.symbol
+    }
+
+    pub(in crate::mir) const fn arity(&self) -> usize {
+        self.arity
+    }
+
+    pub(in crate::mir) fn is_main(&self) -> bool {
+        self.key == FunctionDraftKeyV1::Main
+    }
+}
+
+pub(in crate::mir) fn raw_main_entry_target() -> RawMainEntryTargetV1 {
     let contract = RawRootBatchSlotV1::Main.contract();
-    (contract.symbol().into(), contract.arity())
+    RawMainEntryTargetV1 {
+        key: contract.key().clone(),
+        symbol: contract.symbol().into(),
+        arity: contract.arity(),
+    }
 }
 
 #[cfg(test)]

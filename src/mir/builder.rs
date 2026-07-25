@@ -63,6 +63,7 @@ mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
 #[cfg(test)]
 mod raw_required_condition_draft_p0; // ROOTBATCH0-S0b exact factory contract
 mod raw_root_body_exit; // RAW-BODY-RETURN0 sole signature/Return/witness owner
+pub(in crate::mir) use raw_root_body_exit::{RawVmSourceEntryDecodeKindV1, RawVmUnitOriginV1};
 mod raw_root_body_lowering; // RAW-SOURCE0-LOWER0-ROOT0-BODY0 recipe-only value lowerer
 #[cfg(test)]
 mod raw_root_body_lowering_p0; // BODY0-S0-B disconnected lowerer fixtures
@@ -73,6 +74,7 @@ pub(in crate::mir) use builder_publication_target::{
     check_builder_external_commit_quiescence, BuilderPublicationReceiptV1,
 };
 pub(in crate::mir) use raw_root_physical::publication_terminal::RawPublishedModuleV1;
+pub(in crate::mir) use root_batch_slot::RawMainEntryTargetV1;
 #[allow(dead_code)]
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
 pub(in crate::mir) use raw_required_condition_draft::RawRequiredConditionDraftV1;

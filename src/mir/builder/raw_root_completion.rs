@@ -17,12 +17,14 @@ use super::raw_expansion_receipt_ledger::{
 use super::raw_root_body_exit::RawRootBodyExitWitnessV1;
 use super::root_body_completion::CompletedRootBodyV1;
 use super::root_draft_batch::PreparedRootDraftBatchV1;
+use super::root_batch_slot::{raw_main_entry_target, RawMainEntryTargetV1};
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawInvocationRootWitnessV1 {
     brand: ModuleInvocationBrandV1,
     root_body: CompletedRootBodyV1,
     exit: RawRootBodyExitWitnessV1,
+    entry_target: RawMainEntryTargetV1,
     main: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
     condition: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
     callable_main: RawCallableMainCompatibilityDispositionV1,
@@ -49,6 +51,10 @@ impl RawInvocationRootWitnessV1 {
 
     pub(in crate::mir::builder) fn exit(&self) -> &RawRootBodyExitWitnessV1 {
         &self.exit
+    }
+
+    pub(in crate::mir) fn main_entry_target(&self) -> &RawMainEntryTargetV1 {
+        &self.entry_target
     }
 
     pub(in crate::mir::builder) fn main_receipt(
@@ -129,6 +135,7 @@ impl RawCompleteInvocationV1 {
                 brand,
                 root_body,
                 exit,
+                entry_target: raw_main_entry_target(),
                 main,
                 condition,
                 callable_main,
@@ -156,6 +163,7 @@ impl RawCompleteInvocationV1 {
                 brand,
                 root_body,
                 exit: RawRootBodyExitWitnessV1::legacy_unverified(brand),
+                entry_target: raw_main_entry_target(),
                 main,
                 condition,
                 callable_main,

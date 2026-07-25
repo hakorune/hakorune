@@ -13,9 +13,8 @@ RawPublishedInvocationV1
   -> execute(self)
   -> CompletedRawVmReferenceExecutionV1
        exact SourceEntryResultV1 sealed once
-  -> prepare_process_projection(Canonical V1)
-  -> ProjectedSourceEntryV1
-  -> consume_vm_reference(self)
+  -> complete_source_entry(self)
+  -> ProcessExitProjectionV1 (Canonical V1)
   -> VmReferenceProcessOutcomeV1
   -> prepare_diagnostic(self)
   -> typed RawVmReferenceRunReportV1
@@ -61,6 +60,8 @@ No stage reopens source AST, route symbols, module inventory, or status policy.
   remain Unit even when the physical payload is an Integer.
 - Convert VM errors to typed `SourceEntryResultV1::Fault`; process status is
   assigned only later by `ProcessExitProjectionV1`.
+- Exhaustively classify `VMError` variants into stable source-fault codes;
+  do not flatten execution faults into a legacy status.
 - Gate backend implementation on `vm-reference`; unavailable capability is a
   typed rejection with no fallback.
 
