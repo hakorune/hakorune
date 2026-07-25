@@ -247,9 +247,9 @@ FUNCTION-EXIT-F1-RETURN0-S0
   CALLER-G0 names are historical planning aliases, not a second executable
   queue.
 
--> NORMAL-FILE-VM0-REQUEST0-S0 (active)
-  -> REPORT0-S0
-  -> PARITY0-P0a
+-> NORMAL-FILE-VM0-REQUEST0-S0 (closed)
+  -> REPORT0-S0 (closed)
+  -> PARITY0-P0a (active)
   -> CALLER0-I0
   -> PARITY0-P0b
   -> G0

@@ -69,8 +69,8 @@ REQUEST0-S0
 
 ```text
 REQUEST0-S0 = closed by 520986b38a
-REPORT0-S0  = next
-PARITY0-P0a = pending after REPORT0
+REPORT0-S0  = closed by 1ab9c8aad5
+PARITY0-P0a = next
 CALLER0-I0  = pending after caller-zero parity
 ```
 
@@ -136,6 +136,11 @@ owner, leak AST/Builder state, or infer status from a String prefix.
 `normal_file_vm.rs` consumes the request once, runs the existing front door,
 constructs a fresh compiler, calls the typed adapter, and returns an outcome.
 It is not yet selected by CLI in this row.
+
+Closed evidence: `1ab9c8aad5` adds the bounded adapter, a shared terminal
+used by the existing Raw lane without changing its status law, and the
+unconnected normal run owner. Focused feature-on/off tests and existing
+S3/Forge guards are green; the normal CLI caller remains zero.
 
 ### PARITY0-P0a — production-shaped, caller-zero proof
 
