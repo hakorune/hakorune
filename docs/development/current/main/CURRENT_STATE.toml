@@ -1,18 +1,19 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0 is closed. SCRIPT-RESULT-TAIL-prime-r1 is accepted and SCRIPT-RESULT-TAIL0-S0 is the sole authorized row: one source-owned prelude/terminal contract replaces Builder-last-ValueId Script result inference, and one prepared BODY commit closes Return, completion, and witness atomically. Parser grammar, App policy, entry-result projection, normal-entry cutover, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
+status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0 and SCRIPT-RESULT-TAIL0-S0 are closed. The next frontier is the ENTRY-RESULT-PROJECTION0-D0 design stop: inventory source-entry/process-status callers and select the typed result/projection/thunk boundaries before any S0 code. Parser grammar, App policy, normal-entry cutover, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
 date = "2026-07-25"
-current_design_stop = ""
-current_execution_row = "SCRIPT-RESULT-TAIL0-S0"
-current_execution_summary = "SCRIPT-RESULT-TAIL-prime-r1 is accepted and the S0 implementation card is authorized. The row starts with behavior-neutral child-module extraction for the two near-800-line parents, then seals one source-classified prelude/terminal contract, removes ScriptLastValueOrVoid and Builder-last-ValueId authority, and aggregates exit plus tracker completion into one infallible BODY commit."
+current_design_stop = "ENTRY-RESULT-PROJECTION0-D0-20260725"
+current_execution_row = "ENTRY-RESULT-PROJECTION0-D0"
+current_execution_summary = "SCRIPT-RESULT-TAIL0-S0 is closed: source-owned Script prelude/terminal classification, LinearScalar0 lowering, Unit provenance, pre-commit tracker seal, one BODY Return/completion/witness commit, ROOTBATCH witness validation, focused fixtures, family guard, pointer guard, and cargo check are green. No implementation is authorized at the ENTRY-RESULT-PROJECTION0-D0 design stop."
 raw_root_body0_s0_status = "closed"
+script_result_tail0_s0_status = "closed"
 
 active_lane = "Language v1 function-exit semantics"
 active_lane_status = """FUNCTION-EXIT-SEMANTICS-prime-r1 is the current semantic
-authority. FUNCTION-EXIT-F1-RETURN0-S0 and DRAFT-SEAL0-S0 are closed.
-SCRIPT-RESULT-TAIL-prime-r1 now selects one source-owned prelude/terminal
-contract and one prepared BODY commit as the only executable row. The D′/Raw
+authority. FUNCTION-EXIT-F1-RETURN0-S0, DRAFT-SEAL0-S0, and
+SCRIPT-RESULT-TAIL0-S0 are closed. ENTRY-RESULT-PROJECTION0-D0 is the active
+design stop; no process-result implementation is authorized yet. The D′/Raw
 history below is parked context and must not select a different current row.
 D′ is the current canonical control-lowering authority:
 pre-Builder products retain exact coverage/topology/ports/cleanup, while one
@@ -359,9 +360,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "script-result-tail0-s0-execution-task-2026-07-25"
-latest_card_path = "docs/development/current/main/investigations/script-result-tail0-s0-execution-task-2026-07-25.md"
-latest_card_summary = """SCRIPT-RESULT-TAIL-prime-r1 is accepted. SCRIPT-RESULT-TAIL0-S0 is authorized: a source-owned prelude/terminal contract is the sole Script-result authority, existing LinearScalar0 is unchanged, Builder-last-ValueId policy is retired, and exit plus tracker completion must commit infallibly."""
+latest_card = "entry-result-projection0-d0-design-stop-2026-07-25"
+latest_card_path = "docs/development/current/main/investigations/entry-result-projection0-d0-design-stop-2026-07-25.md"
+latest_card_summary = """ENTRY-RESULT-PROJECTION0-D0 is the next T2 design stop. It inventories every source-entry/process-status producer, keeps SourceEntryResult separate from ProcessTermination, and selects the physical thunk/profile boundary before any S0 implementation."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -563,7 +564,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "SCRIPT-RESULT-TAIL0-S0-20260725"
+current_blocker_token = "ENTRY-RESULT-PROJECTION0-D0-20260725"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
