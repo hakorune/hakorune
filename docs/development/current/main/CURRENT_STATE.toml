@@ -3,7 +3,7 @@
 
 status = "RAW-VM-REFERENCE-SUPPORT0-S0 is closed: the explicit raw-vm-reference route is now a supported opt-in reference/conformance lane with one typed profile handoff, bounded diagnostics, renamed conformance proof, and default-off surface. No normal/default/backend/JSON/executor/CUT0 widening is selected."
 date = "2026-07-25"
-current_design_stop = "NORMAL-ENTRY-CUTOVER-D0-CLOSED-20260725"
+current_design_stop = "NORMAL-ENTRY-CUTOVER-D1-DESIGN-STOP-20260725"
 current_execution_row = "NORMAL-ENTRY-CUTOVER-D1-DESIGN-STOP"
 current_execution_summary = "The support row is closed by commit 6e1aa8f035. A fresh D1 consultation now records that no bounded normal caller family exists: plain source-hint=6, import-aware=6, adapters=2, direct build_module=2, plus heterogeneous REPL/JSON/Stage1/VM/LLVM/WASM routes. No normal implementation row is authorized until one exact family, source/profile owner, result scope, parity matrix, failure law, and retirement owner are accepted."
 raw_root_body0_s0_status = "closed"
