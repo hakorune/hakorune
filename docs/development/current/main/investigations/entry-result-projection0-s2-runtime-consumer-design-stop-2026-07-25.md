@@ -1,8 +1,8 @@
 # ENTRY-RESULT-PROJECTION0-S2 runtime consumer design stop
 
-Decision: `ENTRY-RESULT-PROJECTION0-S2-DESIGN-STOP`
-Status: design consultation required; no runtime/backend implementation
-authorized
+Decision: `ENTRY-RESULT-PROJECTION0-S2-VM-REFERENCE-CONSUME-prime-r1`
+Status: accepted; implementation is authorized only through the disconnected
+VM-reference consumer described below
 
 `ENTRY-RESULT-PROJECTION0-S1-PROJECTION-CONSUME0` is complete as a
 disconnected carrier-retaining projection. `ProjectedSourceEntryV1` now owns
@@ -19,11 +19,11 @@ one as the first consumer changes activation authority and requires a parity
 contract; wiring one opportunistically would create a second process-status
 policy.
 
-## Questions to close
+## Accepted answers
 
 ### Q1 — first runtime consumer
 
-Choose exactly one:
+Q1 selects exactly one:
 
 ```text
 A (recommended): VM/reference-only adapter consuming ProcessTerminationV1
@@ -32,31 +32,31 @@ C: explicit public Raw ingress
 D: normal compile_with_source cutover
 ```
 
-Recommendation: A. It provides a semantic reference without changing native
+Decision: A. It provides a semantic reference without changing native
 ABI or public routing. B and C require backend/public parity gates first; D is
 the broadest migration and must not be the first consumer.
 
 ### Q2 — legacy mapping boundary
 
-Does the selected runtime adapter consume only `ProcessTerminationV1`, with
+Q2: the selected runtime adapter consumes only `ProcessTerminationV1`, with
 legacy status converters remaining disconnected, or may it inspect
 `SourceEntryResultV1` again?
 
-Recommendation: status-only. Route, source result, object handles, and module
+Decision: status-only. Route, source result, object handles, and module
 symbols must not be reinterpreted after projection.
 
 ### Q3 — fault transport
 
-Choose whether a typed `ProcessTerminationV1::Fault` reaches the reference
-runner as a structured diagnostic/status pair or is flattened to legacy zero.
+Q3: a typed `ProcessTerminationV1::Fault` reaches the reference consumer as a
+structured diagnostic/status pair and is never flattened to legacy zero.
 
-Recommendation: structured fault with reserved status 70. Silent zero is
+Decision: structured fault with reserved status 70. Silent zero is
 forbidden in the canonical adapter; legacy zero remains a named compatibility
 path only.
 
 ### Q4 — activation scope
 
-Choose the first permitted caller:
+Q4 permits only:
 
 ```text
 S2 disconnected VM fixture/adapter only (recommended)
@@ -65,9 +65,47 @@ LLVM/native harness
 public Raw ingress
 ```
 
-Recommendation: disconnected fixture/adapter only. Production callers,
+Decision: disconnected fixture/adapter only. Production callers,
 JSON, executor, selfhost, legacy retirement, and CUT0 remain zero until a
 separate parity/cutover decision.
+
+## Normalized fault-status authority
+
+The adapter must not invent status 70. `ProcessExitProjectionV1` remains the
+sole projection authority and issues a normalized termination:
+
+```text
+Exit {
+  status
+}
+
+Fault {
+  status = reserved process-fault status 70
+  fault  = exact typed ProcessFaultV1
+}
+```
+
+Every fault kind carries a normalized status at the termination layer:
+out-of-range integer, unsupported process result, and retained source fault.
+`ProcessFaultV1` retains diagnostic facts only; it does not independently own
+process-status policy.
+
+## One-shot carrier boundary
+
+```text
+ProjectedSourceEntryV1
+  -> consume_vm_reference(self)
+  -> VmReferenceProcessOutcomeV1
+       owns the complete ProjectedSourceEntryV1 by value
+       exposes normalized status by borrow
+       exposes typed fault by borrow
+       exposes discard(self)
+```
+
+The VM-reference outcome is not an execution engine and has no retry,
+fallback, module access, source-result access, or public publication terminal.
+`Fault` is a terminal outcome, not an adapter rejection, so the consuming
+transition is infallible.
 
 ## Non-authority
 
@@ -80,11 +118,19 @@ normal compile_with_source
 JSON/Program(JSON v0)
 ```
 
-Candidate row after acceptance:
+Accepted execution row:
 
 ```text
 ENTRY-RESULT-PROJECTION0-S2-VM-REFERENCE-CONSUME0
 ```
 
-This card is a design stop. Do not add a runtime caller until Q1–Q4 are
-accepted and the fault/parity matrix is written.
+Implementation order:
+
+```text
+S2-FAULT-STATUS0
+  -> S2-VM-CARRIER0
+  -> S2-P0/G0
+  -> S3-RUNTIME-ACTIVATION-DESIGN-STOP
+```
+
+No production runtime caller may be added in S2.

@@ -21,9 +21,9 @@ Related:
   `docs/reference/language/function-exit-and-entry-result.md`
 - priority: follow the exact active task. Do not reopen the superseded App
   any-statement-tail S0 as canonical work.
-- next frontier: `ENTRY-RESULT-PROJECTION0-S2-DESIGN-STOP`
-  (S1 projection consume is closed; the first runtime consumer needs design
-  acceptance before VM/LLVM/public wiring)
+- next frontier: `ENTRY-RESULT-PROJECTION0-S2-FAULT-STATUS0`
+  (S2 selected one disconnected VM-reference carrier; normalize the
+  projection-owned fault status before issuing that carrier)
 - parked: normal-entry cutover, JSON, executor, old-chain retirement, and CUT0
 
 ## Rule

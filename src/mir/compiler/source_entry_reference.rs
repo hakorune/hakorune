@@ -6,10 +6,9 @@
 #[cfg(test)]
 mod tests {
     use super::super::source_entry_result::{
-        CanonicalProcessExitV1, ProcessExitCodeV1, ProcessExitProfileV1,
-        ProcessExitProjectionV1, ProcessFaultV1, ProcessTerminationV1,
-        SealedObjectResultV1, SealedSourceFaultV1, SourceEntryResultV1,
-        SourceEntryResultKindV1, UnitOriginV1,
+        CanonicalProcessExitV1, ProcessExitCodeV1, ProcessExitProfileV1, ProcessExitProjectionV1,
+        ProcessFaultV1, ProcessTerminationV1, SealedObjectResultV1, SealedSourceFaultV1,
+        SourceEntryResultKindV1, SourceEntryResultV1, UnitOriginV1,
     };
 
     fn canonical(result: SourceEntryResultV1) -> ProcessTerminationV1 {
@@ -37,7 +36,10 @@ mod tests {
         for value in [-1, 256] {
             assert_eq!(
                 canonical(SourceEntryResultV1::Integer(value)),
-                ProcessTerminationV1::Fault(ProcessFaultV1::ExitCodeOutOfRange { value }),
+                ProcessTerminationV1::Fault {
+                    status: ProcessExitCodeV1::reserved_fault(),
+                    fault: ProcessFaultV1::ExitCodeOutOfRange { value },
+                },
             );
         }
     }
@@ -52,12 +54,15 @@ mod tests {
         ] {
             assert!(matches!(
                 canonical(result),
-                ProcessTerminationV1::Fault(ProcessFaultV1::UnsupportedProcessResult {
-                    kind: SourceEntryResultKindV1::Bool
-                        | SourceEntryResultKindV1::Float
-                        | SourceEntryResultKindV1::String
-                        | SourceEntryResultKindV1::Object,
-                })
+                ProcessTerminationV1::Fault {
+                    status,
+                    fault: ProcessFaultV1::UnsupportedProcessResult {
+                        kind: SourceEntryResultKindV1::Bool
+                            | SourceEntryResultKindV1::Float
+                            | SourceEntryResultKindV1::String
+                            | SourceEntryResultKindV1::Object,
+                    },
+                } if status == ProcessExitCodeV1::reserved_fault()
             ));
         }
     }
@@ -70,11 +75,13 @@ mod tests {
         )));
         assert!(matches!(
             termination,
-            ProcessTerminationV1::Fault(ProcessFaultV1::SourceFault {
+            ProcessTerminationV1::Fault {
                 status,
-                code: "source-fault",
-                ..
-            }) if status == ProcessExitCodeV1::reserved_fault()
+                fault: ProcessFaultV1::SourceFault {
+                    code: "source-fault",
+                    ..
+                },
+            } if status == ProcessExitCodeV1::reserved_fault()
         ));
     }
 }

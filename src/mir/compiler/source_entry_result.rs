@@ -114,7 +114,9 @@ impl ProcessExitCodeV1 {
     }
 
     fn try_from_integer(value: i64) -> Result<Self, ProcessFaultV1> {
-        u8::try_from(value).map(Self).map_err(|_| ProcessFaultV1::ExitCodeOutOfRange { value })
+        u8::try_from(value)
+            .map(Self)
+            .map_err(|_| ProcessFaultV1::ExitCodeOutOfRange { value })
     }
 
     pub(in crate::mir) const fn value(self) -> u8 {
@@ -139,10 +141,13 @@ pub(in crate::mir) enum ProcessExitProfileV1 {
 
 #[derive(Debug, PartialEq)]
 pub(in crate::mir) enum ProcessFaultV1 {
-    ExitCodeOutOfRange { value: i64 },
-    UnsupportedProcessResult { kind: SourceEntryResultKindV1 },
+    ExitCodeOutOfRange {
+        value: i64,
+    },
+    UnsupportedProcessResult {
+        kind: SourceEntryResultKindV1,
+    },
     SourceFault {
-        status: ProcessExitCodeV1,
         code: &'static str,
         detail: Box<str>,
     },
@@ -151,7 +156,25 @@ pub(in crate::mir) enum ProcessFaultV1 {
 #[derive(Debug, PartialEq)]
 pub(in crate::mir) enum ProcessTerminationV1 {
     Exit(ProcessExitCodeV1),
-    Fault(ProcessFaultV1),
+    Fault {
+        status: ProcessExitCodeV1,
+        fault: ProcessFaultV1,
+    },
+}
+
+impl ProcessTerminationV1 {
+    pub(in crate::mir) const fn status_code(&self) -> ProcessExitCodeV1 {
+        match self {
+            Self::Exit(status) | Self::Fault { status, .. } => *status,
+        }
+    }
+
+    pub(in crate::mir) const fn fault(&self) -> Option<&ProcessFaultV1> {
+        match self {
+            Self::Exit(_) => None,
+            Self::Fault { fault, .. } => Some(fault),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -171,43 +194,50 @@ impl ProcessExitProjectionV1 {
         };
 
         let termination = match result {
-            SourceEntryResultV1::Unit(_) => {
-                ProcessTerminationV1::Exit(ProcessExitCodeV1::zero())
-            }
+            SourceEntryResultV1::Unit(_) => ProcessTerminationV1::Exit(ProcessExitCodeV1::zero()),
             SourceEntryResultV1::Integer(value) => {
                 match ProcessExitCodeV1::try_from_integer(*value) {
                     Ok(code) => ProcessTerminationV1::Exit(code),
-                    Err(fault) => ProcessTerminationV1::Fault(fault),
+                    Err(fault) => ProcessTerminationV1::Fault {
+                        status: ProcessExitCodeV1::reserved_fault(),
+                        fault,
+                    },
                 }
             }
-            SourceEntryResultV1::Bool(_) => ProcessTerminationV1::Fault(
-                ProcessFaultV1::UnsupportedProcessResult {
+            SourceEntryResultV1::Bool(_) => ProcessTerminationV1::Fault {
+                status: ProcessExitCodeV1::reserved_fault(),
+                fault: ProcessFaultV1::UnsupportedProcessResult {
                     kind: SourceEntryResultKindV1::Bool,
                 },
-            ),
-            SourceEntryResultV1::Float(_) => ProcessTerminationV1::Fault(
-                ProcessFaultV1::UnsupportedProcessResult {
+            },
+            SourceEntryResultV1::Float(_) => ProcessTerminationV1::Fault {
+                status: ProcessExitCodeV1::reserved_fault(),
+                fault: ProcessFaultV1::UnsupportedProcessResult {
                     kind: SourceEntryResultKindV1::Float,
                 },
-            ),
-            SourceEntryResultV1::String(_) => ProcessTerminationV1::Fault(
-                ProcessFaultV1::UnsupportedProcessResult {
+            },
+            SourceEntryResultV1::String(_) => ProcessTerminationV1::Fault {
+                status: ProcessExitCodeV1::reserved_fault(),
+                fault: ProcessFaultV1::UnsupportedProcessResult {
                     kind: SourceEntryResultKindV1::String,
                 },
-            ),
+            },
             SourceEntryResultV1::Object(object) => {
                 let _object_kind = object.kind_name();
-                ProcessTerminationV1::Fault(ProcessFaultV1::UnsupportedProcessResult {
-                    kind: SourceEntryResultKindV1::Object,
-                })
-            }
-            SourceEntryResultV1::Fault(fault) => ProcessTerminationV1::Fault(
-                ProcessFaultV1::SourceFault {
+                ProcessTerminationV1::Fault {
                     status: ProcessExitCodeV1::reserved_fault(),
+                    fault: ProcessFaultV1::UnsupportedProcessResult {
+                        kind: SourceEntryResultKindV1::Object,
+                    },
+                }
+            }
+            SourceEntryResultV1::Fault(fault) => ProcessTerminationV1::Fault {
+                status: ProcessExitCodeV1::reserved_fault(),
+                fault: ProcessFaultV1::SourceFault {
                     code: fault.code(),
                     detail: fault.detail().into(),
                 },
-            ),
+            },
         };
         Ok(termination)
     }
@@ -253,7 +283,10 @@ mod tests {
         for value in [-1, 256] {
             assert_eq!(
                 canonical(SourceEntryResultV1::Integer(value)),
-                ProcessTerminationV1::Fault(ProcessFaultV1::ExitCodeOutOfRange { value })
+                ProcessTerminationV1::Fault {
+                    status: ProcessExitCodeV1::reserved_fault(),
+                    fault: ProcessFaultV1::ExitCodeOutOfRange { value },
+                }
             );
         }
     }
@@ -268,7 +301,10 @@ mod tests {
         ] {
             assert!(matches!(
                 canonical(result),
-                ProcessTerminationV1::Fault(ProcessFaultV1::UnsupportedProcessResult { .. })
+                ProcessTerminationV1::Fault {
+                    status,
+                    fault: ProcessFaultV1::UnsupportedProcessResult { .. },
+                } if status == ProcessExitCodeV1::reserved_fault()
             ));
         }
     }
@@ -281,11 +317,13 @@ mod tests {
         )));
         assert_eq!(
             result,
-            ProcessTerminationV1::Fault(ProcessFaultV1::SourceFault {
+            ProcessTerminationV1::Fault {
                 status: ProcessExitCodeV1::reserved_fault(),
-                code: "body-fault",
-                detail: "failed body".into(),
-            })
+                fault: ProcessFaultV1::SourceFault {
+                    code: "body-fault",
+                    detail: "failed body".into(),
+                },
+            }
         );
     }
 

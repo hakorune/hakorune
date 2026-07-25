@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0, SCRIPT-RESULT-TAIL0-S0, ENTRY-RESULT-PROJECTION0-S0, and S1-PROJECTION-CONSUME0 are closed. The lane is now at ENTRY-RESULT-PROJECTION0-S2-DESIGN-STOP: choose the first runtime consumer of ProjectedSourceEntryV1 before VM/LLVM/public wiring. Parser grammar, normal-entry cutover, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
+status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0, SCRIPT-RESULT-TAIL0-S0, ENTRY-RESULT-PROJECTION0-S0, and S1-PROJECTION-CONSUME0 are closed. S2 selected one disconnected VM-reference consumer. The active subrow is S2-FAULT-STATUS0: normalize every ProcessTerminationV1 fault status before the opaque carrier is connected. Parser grammar, production VM/LLVM, normal-entry cutover, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
 date = "2026-07-25"
-current_design_stop = "ENTRY-RESULT-PROJECTION0-S2-DESIGN-STOP-20260725"
-current_execution_row = "ENTRY-RESULT-PROJECTION0-S2-DESIGN-STOP"
-current_execution_summary = "S1 projection consume is closed. S2 is stopped for design: choose one runtime consumer, status-only handoff, structured fault transport, and activation scope for ProjectedSourceEntryV1."
+current_design_stop = "ENTRY-RESULT-PROJECTION0-S2-DESIGN-ACCEPTED-20260725"
+current_execution_row = "ENTRY-RESULT-PROJECTION0-S2-FAULT-STATUS0"
+current_execution_summary = "S2 accepted a disconnected VM-reference carrier. First normalize all ProcessTerminationV1 faults to one projection-owned status/diagnostic pair; then add the one-shot carrier with production callers zero."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -14,8 +14,9 @@ active_lane_status = """FUNCTION-EXIT-SEMANTICS-prime-r1 is the current semantic
 authority. FUNCTION-EXIT-F1-RETURN0-S0, DRAFT-SEAL0-S0,
 SCRIPT-RESULT-TAIL0-S0, and ENTRY-RESULT-PROJECTION0-D0 are closed.
 ENTRY-RESULT-PROJECTION0-S0 and S1 projection consume are closed. The next
-ENTRY-RESULT-PROJECTION0-S2-DESIGN-STOP requires runtime-consumer design before
-any backend/public caller is authorized. The D′/Raw
+ENTRY-RESULT-PROJECTION0-S2 selected one disconnected VM-reference consumer;
+S2-FAULT-STATUS0 is active before the carrier and no backend/public caller is
+authorized. The D′/Raw
 history below is parked context and must not select a different current row.
 D′ is the current canonical control-lowering authority:
 pre-Builder products retain exact coverage/topology/ports/cleanup, while one
@@ -362,9 +363,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "entry-result-projection0-s2-runtime-consumer-design-stop-2026-07-25"
-latest_card_path = "docs/development/current/main/investigations/entry-result-projection0-s2-runtime-consumer-design-stop-2026-07-25.md"
-latest_card_summary = """S1 projection consume is closed with carrier/evidence retention. S2 is a design stop for choosing the first runtime consumer and structured fault/parity boundary."""
+latest_card = "entry-result-projection0-s2-vm-reference-consume-execution-task-2026-07-25"
+latest_card_path = "docs/development/current/main/investigations/entry-result-projection0-s2-vm-reference-consume-execution-task-2026-07-25.md"
+latest_card_summary = """S2 selected a disconnected compiler-internal VM-reference carrier. Normalize every fault status in ProcessTerminationV1, retain the complete projected owner, expose status/fault by borrow, and keep production consumers zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -566,7 +567,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "ENTRY-RESULT-PROJECTION0-S2-DESIGN-STOP-20260725"
+current_blocker_token = "ENTRY-RESULT-PROJECTION0-S2-FAULT-STATUS0-20260725"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

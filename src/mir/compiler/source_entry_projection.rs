@@ -44,8 +44,7 @@ impl PhysicalSourceEntryCarrierV1 {
         self,
         profile: ProcessExitProfileV1,
     ) -> Result<PreparedSourceEntryProjectionV1, RejectedSourceEntryProjectionV1> {
-        let termination = match ProcessExitProjectionV1::project_borrowed(self.result(), profile)
-        {
+        let termination = match ProcessExitProjectionV1::project_borrowed(self.result(), profile) {
             Ok(termination) => termination,
             Err(ProcessExitProjectionErrorV1::LegacyProfileDisconnected) => {
                 return Err(RejectedSourceEntryProjectionV1 {
@@ -110,7 +109,10 @@ mod tests {
     use super::super::source_entry_selection::select_source_entry;
     use super::*;
 
-    fn carrier(route: RawRootSourceRouteV1, result: SourceEntryResultV1) -> PhysicalSourceEntryCarrierV1 {
+    fn carrier(
+        route: RawRootSourceRouteV1,
+        result: SourceEntryResultV1,
+    ) -> PhysicalSourceEntryCarrierV1 {
         select_source_entry(RawRootEnvironmentManifestV1::from_test(route))
             .begin_thunk()
             .complete(result)
@@ -130,8 +132,14 @@ mod tests {
         .prepare_process_projection(canonical())
         .expect("canonical profile")
         .project();
-        assert_eq!(projected.carrier().role(), PhysicalEntryRoleV1::SourceResultThunk);
-        assert_eq!(projected.carrier().route(), super::super::source_entry_selection::SelectedSourceEntryRouteV1::Script);
+        assert_eq!(
+            projected.carrier().role(),
+            PhysicalEntryRoleV1::SourceResultThunk
+        );
+        assert_eq!(
+            projected.carrier().route(),
+            super::super::source_entry_selection::SelectedSourceEntryRouteV1::Script
+        );
         assert_eq!(
             projected.termination(),
             &ProcessTerminationV1::Exit(ProcessExitCodeV1::zero())
@@ -147,10 +155,16 @@ mod tests {
         .prepare_process_projection(canonical())
         .expect("canonical profile")
         .project();
-        assert_eq!(projected.carrier().route(), super::super::source_entry_selection::SelectedSourceEntryRouteV1::AppMain0);
+        assert_eq!(
+            projected.carrier().route(),
+            super::super::source_entry_selection::SelectedSourceEntryRouteV1::AppMain0
+        );
         assert!(matches!(
             projected.termination(),
-            ProcessTerminationV1::Fault(ProcessFaultV1::SourceFault { .. })
+            ProcessTerminationV1::Fault {
+                status,
+                fault: ProcessFaultV1::SourceFault { .. },
+            } if *status == ProcessExitCodeV1::reserved_fault()
         ));
     }
 
@@ -167,7 +181,10 @@ mod tests {
             rejected.error(),
             SourceEntryProjectionErrorV1::LegacyProfileDisconnected
         );
-        assert_eq!(rejected.carrier().route(), super::super::source_entry_selection::SelectedSourceEntryRouteV1::Script);
+        assert_eq!(
+            rejected.carrier().route(),
+            super::super::source_entry_selection::SelectedSourceEntryRouteV1::Script
+        );
         rejected.discard();
     }
 }
