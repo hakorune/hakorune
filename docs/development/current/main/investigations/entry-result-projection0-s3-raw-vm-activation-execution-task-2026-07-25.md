@@ -1,8 +1,9 @@
 # ENTRY-RESULT-PROJECTION0-S3 Raw VM activation execution task
 
 Decision: `ENTRY-RESULT-PROJECTION0-S3-RAW-VM-ACTIVATION-prime-r1`
-Status: implementation authorized; production route is explicit, typed, and
-isolated from legacy VM/LLVM/public callers
+Status: S3-ENTRY-CARRY0, S3-EXECUTION0, and S3-OWNER0 implemented and guarded;
+S3-PARITY0/G0 is the active closeout row. The production route remains
+explicit, typed, and isolated from legacy VM/LLVM/public callers.
 
 ## Owner chain
 
@@ -81,7 +82,8 @@ No stage reopens source AST, route symbols, module inventory, or status policy.
 
 ### S3-PARITY0/G0
 
-- Run actual Raw compile plus fresh exact VM execution for Script/App.
+- Run actual Raw compile plus fresh exact VM execution for Script/App through
+  the shared `compile_raw_published_v1` owner.
 - Cover empty, explicit void, integer 0/255, out-of-range integer, Bool,
   Float, String, Print, Local, assignment, compound assignment, VM faults,
   and decode ABI mismatch.

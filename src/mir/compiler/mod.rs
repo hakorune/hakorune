@@ -59,6 +59,7 @@ pub(in crate::mir) mod raw_root_eligibility_prepare;
 pub(in crate::mir) mod raw_root_external_commit;
 pub(in crate::mir) mod raw_root_publication;
 pub(in crate::mir) mod raw_root_publication_adapter;
+pub(in crate::mir) mod raw_published_compile;
 pub(in crate::mir) mod raw_public_ingress;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_package;

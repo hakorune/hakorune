@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0, SCRIPT-RESULT-TAIL0-S0, ENTRY-RESULT-PROJECTION0-S0, S1-PROJECTION-CONSUME0, and S2-VM-REFERENCE-CONSUME0 are closed. S3-ENTRY-CARRY0 is closed; S3-EXECUTION0 is active for exact Main VM execution and source-result decode. Parser grammar, legacy/general VM widening, LLVM/native, normal-entry cutover, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
+status = "FUNCTION-EXIT-F1-DRAFT-SEAL0-S0, SCRIPT-RESULT-TAIL0-S0, ENTRY-RESULT-PROJECTION0-S0, S1-PROJECTION-CONSUME0, and S2-VM-REFERENCE-CONSUME0 are closed. S3-ENTRY-CARRY0, S3-EXECUTION0, and S3-OWNER0 are closed; S3-PARITY0/G0 is active for actual Raw compile plus exact Main VM execution and caller census. Parser grammar, legacy/general VM widening, LLVM/native, normal-entry cutover, JSON, executor, old-chain retirement, and CUT0 remain disconnected."
 date = "2026-07-25"
 current_design_stop = "ENTRY-RESULT-PROJECTION0-S3-RAW-VM-ACTIVATION-ACCEPTED-20260725"
-current_execution_row = "ENTRY-RESULT-PROJECTION0-S3-EXECUTION0"
-current_execution_summary = "S3-ENTRY-CARRY0 co-sealed the Main key/symbol/arity target through the root witness and publication owner. The active row executes exact Main/main/0 with a sealed decode plan, retains the published owner, and converts VM faults to typed source faults before process projection."
+current_execution_row = "ENTRY-RESULT-PROJECTION0-S3-PARITY0"
+current_execution_summary = "S3-ENTRY-CARRY0 carried the sealed Main target; S3-EXECUTION0 now runs exact Main/main/0 with a sealed decode plan and typed VM-fault conversion; S3-OWNER0 factors one typed compile kernel shared by compatibility and explicit VM-reference consumers. The active row is actual compile/VM parity plus caller census, with no general runner or public normal-entry widening."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -15,8 +15,8 @@ authority. FUNCTION-EXIT-F1-RETURN0-S0, DRAFT-SEAL0-S0,
 SCRIPT-RESULT-TAIL0-S0, and ENTRY-RESULT-PROJECTION0-D0 are closed.
 ENTRY-RESULT-PROJECTION0-S0 and S1 projection consume are closed. The next
 ENTRY-RESULT-PROJECTION0-S2 closed one disconnected VM-reference consumer.
-S3 accepted one explicit Raw VM-reference owner; S3-ENTRY-CARRY0 is closed and
-S3-EXECUTION0 is active, with
+S3 accepted one explicit Raw VM-reference owner; S3-ENTRY-CARRY0,
+S3-EXECUTION0, and S3-OWNER0 are closed and S3-PARITY0/G0 is active, with
 no legacy/backend/public widening is authorized. The D′/Raw
 history below is parked context and must not select a different current row.
 D′ is the current canonical control-lowering authority:

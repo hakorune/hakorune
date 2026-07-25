@@ -34,8 +34,9 @@ def main() -> int:
     if (
         'current_execution_row = "ENTRY-RESULT-PROJECTION0-S3-ENTRY-CARRY0"' not in state
         and 'current_execution_row = "ENTRY-RESULT-PROJECTION0-S3-EXECUTION0"' not in state
+        and 'current_execution_row = "ENTRY-RESULT-PROJECTION0-S3-PARITY0"' not in state
     ):
-        raise AssertionError("S3 carry must be active or the next execution row")
+        raise AssertionError("S3 carry must be active or a later S3 closeout row")
     for fragment in (
         "S3-ENTRY-CARRY0",
         "SelectedSourceEntryContinuationV1",

@@ -10,7 +10,9 @@ use super::source_entry_result::{
     CanonicalProcessExitV1, ProcessExitProfileV1, ProcessExitProjectionV1, SealedSourceFaultV1,
     SourceEntryResultV1,
 };
-use super::source_entry_vm_reference::{VmReferenceProcessOutcomeV1, VmSourceEntryDecodePlanV1};
+use super::source_entry_vm_reference::{
+    RawVmReferenceRunReportV1, VmReferenceProcessOutcomeV1, VmSourceEntryDecodePlanV1,
+};
 use crate::backend::vm_types::{VMError, VMValue};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -43,6 +45,16 @@ impl RejectedRawVmReferenceActivationV1 {
     }
 
     pub(in crate::mir) fn discard(self) {}
+
+    pub(in crate::mir) fn into_public_string(self) -> String {
+        let stage = match self.stage {
+            RawVmReferenceActivationStageV1::Target => "target",
+            RawVmReferenceActivationStageV1::DecodePlan => "decode-plan",
+        };
+        let detail = format!("{:?}", self.error);
+        self.discard();
+        format!("[raw-vm-reference/{stage}/rejected] {detail}")
+    }
 }
 
 #[derive(Debug)]
@@ -133,6 +145,27 @@ impl CompletedRawVmReferenceExecutionV1 {
     }
 }
 
+impl super::MirCompiler {
+    /// Explicit Raw VM-reference production entry.  It is available only in
+    /// the VM-reference feature and never widens the general VM runner.
+    pub fn run_raw_vm_reference(
+        &mut self,
+        ast: crate::ast::ASTNode,
+        source_file: Option<&str>,
+    ) -> Result<RawVmReferenceRunReportV1, String> {
+        let published = self
+            .compile_raw_published_v1(ast, source_file)
+            .map_err(|rejected| rejected.into_public_string())?;
+        let prepared = published
+            .prepare_vm_reference_activation()
+            .map_err(|rejected| rejected.into_public_string())?;
+        let outcome = prepared.execute().complete_source_entry().map_err(|error| {
+            format!("[raw-vm-reference/source-entry/rejected] {error:?}")
+        })?;
+        Ok(outcome.into_run_report())
+    }
+}
+
 fn decode_vm_value(plan: VmSourceEntryDecodePlanV1, value: VMValue) -> SourceEntryResultV1 {
     match plan {
         VmSourceEntryDecodePlanV1::Unit {
@@ -218,7 +251,15 @@ fn vm_error_to_source_fault(error: VMError) -> SourceEntryResultV1 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ast::{ASTNode, Span};
     use crate::mir::compiler::source_entry_result::UnitOriginV1;
+
+    fn empty_script() -> ASTNode {
+        ASTNode::Program {
+            statements: Vec::new(),
+            span: Span::unknown(),
+        }
+    }
 
     #[test]
     fn unit_plan_does_not_promote_print_payload_to_a_value() {
@@ -253,5 +294,16 @@ mod tests {
             VMValue::Integer(0),
         );
         assert!(matches!(result, SourceEntryResultV1::Fault(_)));
+    }
+
+    #[test]
+    fn raw_vm_entry_executes_published_empty_script() {
+        let mut compiler = crate::mir::compiler::MirCompiler::new();
+        let report = compiler
+            .run_raw_vm_reference(empty_script(), Some("raw-vm-empty.hako"))
+            .expect("explicit Raw VM-reference entry should execute empty Script");
+        assert_eq!(report.status_code(), 0);
+        assert_eq!(report.diagnostic_tag(), None);
+        assert!(compiler.builder.current_module.is_none());
     }
 }

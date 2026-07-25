@@ -5,6 +5,9 @@
 //! process outcome.
 
 use super::raw_root_publication::RawPublishedInvocationV1;
+use super::source_entry_vm_diagnostic::{
+    VmReferenceProcessDiagnosticAdapterV1, VmReferenceProcessDiagnosticReportV1,
+};
 use super::source_entry_projection::ProjectedSourceEntryV1;
 use super::source_entry_result::{
     ProcessExitCodeV1, ProcessFaultV1, ProcessTerminationV1, SourceEntryResultKindV1,
@@ -81,6 +84,24 @@ pub(in crate::mir) struct VmReferenceProcessOutcomeV1 {
 }
 
 #[derive(Debug)]
+pub struct RawVmReferenceRunReportV1 {
+    status: ProcessExitCodeV1,
+    diagnostic: Option<VmReferenceProcessDiagnosticReportV1>,
+}
+
+impl RawVmReferenceRunReportV1 {
+    pub fn status_code(&self) -> u8 {
+        self.status.value()
+    }
+
+    pub fn diagnostic_tag(&self) -> Option<&'static str> {
+        self.diagnostic
+            .as_ref()
+            .map(VmReferenceProcessDiagnosticAdapterV1::tag)
+    }
+}
+
+#[derive(Debug)]
 enum VmReferenceProjectedOwnerV1 {
     Existing(ProjectedSourceEntryV1),
     Raw {
@@ -138,6 +159,16 @@ impl VmReferenceProcessOutcomeV1 {
     }
 
     pub(in crate::mir) fn discard(self) {}
+
+    #[cfg(feature = "vm-reference")]
+    pub(in crate::mir) fn into_run_report(self) -> RawVmReferenceRunReportV1 {
+        let status = self.status();
+        let diagnostic = self
+            .fault()
+            .map(VmReferenceProcessDiagnosticAdapterV1::project);
+        self.discard();
+        RawVmReferenceRunReportV1 { status, diagnostic }
+    }
 
     #[cfg(test)]
     pub(in crate::mir) fn route_for_test(
