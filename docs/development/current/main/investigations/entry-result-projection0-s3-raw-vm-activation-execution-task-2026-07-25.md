@@ -1,9 +1,9 @@
 # ENTRY-RESULT-PROJECTION0-S3 Raw VM activation execution task
 
 Decision: `ENTRY-RESULT-PROJECTION0-S3-RAW-VM-ACTIVATION-prime-r1`
-Status: S3-ENTRY-CARRY0, S3-EXECUTION0, and S3-OWNER0 implemented and guarded;
-S3-PARITY0/G0 is the active closeout row. The production route remains
-explicit, typed, and isolated from legacy VM/LLVM/public callers.
+Status: S3-ENTRY-CARRY0, S3-EXECUTION0, S3-OWNER0, and S3-PARITY0/G0 are
+closed and guarded. The production route remains explicit, typed, and
+isolated from legacy VM/LLVM/public callers.
 
 ## Owner chain
 
@@ -94,16 +94,16 @@ No stage reopens source AST, route symbols, module inventory, or status policy.
 - Add structural guard and exact caller census.
 - Keep every modified/new source and check file below 800 lines.
 
-Current evidence (partial closeout): actual execution tests now cover empty
+Closeout evidence: actual execution tests cover empty
 Script, empty App Main, integer 0/255, integer range faults, Bool/Float/String
 unsupported process results, Print-as-Unit, division VM faults, and compiler
 reuse after success or entry rejection. Local/assignment/compound-assignment
-statement Unit cases are also green. The full matrix, decode ABI mismatch,
-and final caller census remain open under this row. A decoy `NYASH_ENTRY`
+statement Unit cases, decoder-level ABI mismatch, and compiler reuse are green.
+A decoy `NYASH_ENTRY`
 environment test now confirms the sealed Main target is selected instead;
-decoder-level ABI mismatch tests cover the typed rejection path without
-opening a mutable published module. App scalar fallthrough is also verified
-to remain Unit under the current route policy.
+the mismatch tests exercise the typed rejection path without opening a
+mutable published module. App scalar fallthrough is also verified to remain
+Unit under the current route policy.
 
 Route-scoped G0 census snapshot (2026-07-25): the typed compile kernel has one
 definition and exactly two consumers (compatibility ingress plus the explicit

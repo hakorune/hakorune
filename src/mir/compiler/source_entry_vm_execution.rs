@@ -488,6 +488,19 @@ mod tests {
     }
 
     #[test]
+    fn raw_vm_entry_keeps_explicit_void_as_unit() {
+        let mut compiler = crate::mir::compiler::MirCompiler::new();
+        let report = compiler
+            .run_raw_vm_reference(
+                literal_script(crate::ast::LiteralValue::Void),
+                Some("raw-vm-void.hako"),
+            )
+            .expect("explicit Void should execute as Unit");
+        assert_eq!(report.status_code(), 0);
+        assert_eq!(report.diagnostic_tag(), None);
+    }
+
+    #[test]
     fn raw_vm_entry_reports_out_of_range_integer_without_zero_fallback() {
         for value in [-1, 256] {
             let mut compiler = crate::mir::compiler::MirCompiler::new();

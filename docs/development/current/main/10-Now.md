@@ -21,10 +21,9 @@ Related:
   `docs/reference/language/function-exit-and-entry-result.md`
 - priority: follow the exact active task. Do not reopen the superseded App
   any-statement-tail S0 as canonical work.
-- next frontier: `ENTRY-RESULT-PROJECTION0-S3-PARITY0`
-  (S3 EXECUTION0 now executes exact Main/main/0 with the retained decode plan;
-  S3 OWNER0 shares one typed compile kernel; run actual compile/VM parity and
-  caller census before any broader activation)
+- next frontier: separately designed backend/public activation
+  (complete S3 Raw VM-reference activation now has exact compile/VM parity,
+  decoy-entry isolation, compiler reuse, and route-scoped caller census)
 - parked: normal-entry cutover, JSON, executor, old-chain retirement, and CUT0
 
 ## Rule
