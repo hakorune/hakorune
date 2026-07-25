@@ -66,7 +66,7 @@ cargo check -q
   `CURRENT_STATE.toml` explicitly selects them
 - product/app validation now uses EXE/AOT as the primary route; VM work is a
   small semantic-reference subset only
-- The active row is `LANGUAGE-DOCS-TRY-CATCH-D1`; read the
-  `language-docs-try-catch-d1-consultation-2026-07-25.md` card. This is a design stop: resolve the try/catch/fini authority
-  boundary in docs only, with no parser, runtime, backend, or normal-entry
-  behavior change. Normal D0 remains parked.
+- The active row is `NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0`; read the
+  `normal-file-vm0-frontdoor-forge-task-2026-07-26.md` card. It may create
+  typed front-door contracts and proof fixtures over the existing Raw kernel,
+  but production caller=0, fallback=0, and normal/default cutover=0 until D2.

@@ -121,10 +121,11 @@ current blocker = read CURRENT_STATE.current_blocker_token
 current card = read CURRENT_STATE.latest_card_path
 ```
 
-The active docs-only design stop is
-`LANGUAGE-DOCS-TRY-CATCH-D1`; it does not reopen Script or normal-entry code.
-Read the consultation card named by `CURRENT_STATE.latest_card_path` before
-changing any grammar, parser, runtime, backend, or registry document.
+The active row is the typed front-door forge named by
+`CURRENT_STATE.current_execution_row`; it does not map a legacy caller or
+reopen normal/default cutover. Read the card named by
+`CURRENT_STATE.latest_card_path` before changing code or adding a production
+consumer.
 ```
 
 The preceding RETURN0 row closed the existing `VerifiedFunctionCompletionV1`
@@ -208,19 +209,20 @@ FUNCTION-EXIT-F1-RETURN0-S0
   proof reclassification, and NORMAL-ENTRY-CANARY-SUNSET-001 closeout
 
 -> NORMAL-ENTRY-CUTOVER-D1 (accepted 2026-07-25)
-  C parks immediate cutover and fixes the next family as
-  NormalFileNoImportVmReferenceV1. The full task order is in
-  normal-file-vm0-forge-task-2026-07-25.md.
+  historical C park decision; its D0 family evidence is retained below.
 
 -> NORMAL-FILE-VM0-FAMILY-D0 (closed: NoBoundedCallerFamily)
   six plain source-hint sites are benchmark, artifact-only, Stage-1, or legacy
   fallback routes; none matches the fixed normal VM-reference contract.
 
--> NORMAL-FILE-VM0-FAMILY-D0-NO-BOUNDED-CALLER (design stop)
-  choose a future new front-door owner, a separate MIR-JSON artifact lane, or
-  continued park. Do not reinterpret an existing legacy caller.
+-> NORMAL-FILE-VM0-FAMILY-D0-FORGE-FRONTDOOR (accepted; active)
+  create NormalFileVmFrontDoorV1 with no legacy caller mapping. The first forge
+  row keeps production caller=0 and reuses the closed Raw VM-reference kernel.
+  See [normal-file-vm0-frontdoor-forge-task-2026-07-26.md](../investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md).
 
--> NORMAL-FILE-VM0-SOURCE-PROFILE-D0
+-> NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0
+  -> NORMAL-ENTRY-CUTOVER-D2
+  -> NORMAL-FILE-VM0-SOURCE-PROFILE-D0
   -> NORMAL-FILE-VM0-CORRESPONDENCE-P0
   -> NORMAL-FILE-VM0-SEMANTIC-MATRIX-P0
   -> NORMAL-FILE-VM0-CALLER-G0

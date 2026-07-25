@@ -1,18 +1,18 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "LANGUAGE-DOCS-STATUS-SSOT-D0 is closed for the discoverability slice: the language status index and entry-point links are now present. LANGUAGE-DOCS-TRY-CATCH-D1 is the active semantic design stop; no parser/runtime/backend behavior change is authorized."
-date = "2026-07-25"
-current_design_stop = "LANGUAGE-DOCS-TRY-CATCH-D1"
-current_execution_row = "LANGUAGE-DOCS-TRY-CATCH-D1"
-current_execution_summary = "The docs-only discoverability slice is closed: status-index.md, README navigation, and quick-reference status/gate pointers are landed. The next stop is the explicit try/catch/fini design decision; contradictions remain recorded and unresolved. Parser/runtime/backend changes are zero. NORMAL-FILE-VM0 remains parked behind its own follow-up question."
+status = "NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 is the active typed front-door forge row. The NoBoundedCallerFamily evidence and accepted forge decision are sealed; no production caller or normal/default cutover is authorized in this row."
+date = "2026-07-26"
+current_design_stop = "none"
+current_execution_row = "NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0"
+current_execution_summary = "The accepted forge decision creates one typed NormalFileNoImportVmReferenceV1 front door over the closed Raw VM-reference kernel. This row covers contracts, one-read/one-parse source preparation, exact Raw handoff, correspondence/reuse proofs, and caller-zero guards. No production caller or normal/default cutover is authorized."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "Language v1 function-exit semantics"
-active_lane_status = """LANGUAGE-DOCS-TRY-CATCH-D1 is the current docs-only design stop
-after DOCS-POINTER-ALIGNMENT0 and LANGUAGE-DOCS-STATUS-SSOT-D0 landed the
-status index and entry navigation. The function-exit semantics and
+active_lane_status = """NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 is the current typed front-door
+forge row after the docs status-index slice and NoBoundedCallerFamily D0
+evidence. The function-exit semantics and
 Raw VM-reference history below remain accepted context; no parser/runtime/backend
 behavior is reopened. FUNCTION-EXIT-SEMANTICS-prime-r1 is the current semantic
 authority. FUNCTION-EXIT-F1-RETURN0-S0, DRAFT-SEAL0-S0,
@@ -25,13 +25,12 @@ route-scoped caller census. POST-S3-CLEAN-CANARY-prime-r1 has now closed the
 caller-zero retirement, passive profile, explicit early canary, and real-binary
 canary parity rows. NORMAL-ENTRY-CUTOVER-prime-r1 selects A-prime: the explicit
 route becomes a supported opt-in reference lane while normal/default cutover
-stays parked. RAW-VM-REFERENCE-SUPPORT0-S0 is closed. D1 accepted C, but
+stays parked. RAW-VM-REFERENCE-SUPPORT0-S0 is closed. D1 accepted C, and the
 NORMAL-FILE-VM0-FAMILY-D0 now closes as NoBoundedCallerFamily: all six plain
-source-hint sites are heterogeneous legacy/artifact/fallback routes. A fresh
-follow-up design stop must choose a future front-door owner, separate artifact
-lane, or continued park; no normal production caller or general/default/backend/
-JSON widening is authorized. NORMAL-FILE-VM0 remains parked behind its
-NoBoundedCallerFamily follow-up question. The D′/Raw
+source-hint sites are heterogeneous legacy/artifact/fallback routes. The
+accepted forge row creates a new front door with no legacy caller mapping; no
+normal production caller or general/default/backend/JSON widening is authorized
+until D2. The D′/Raw
 history below is parked context and must not select a different current row.
 D′ is the current canonical control-lowering authority:
 pre-Builder products retain exact coverage/topology/ports/cleanup, while one
@@ -318,15 +317,18 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
-phase_status = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
+active_phase = "docs/development/current/main/investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
+phase_status = "docs/development/current/main/investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
 method_anchor = "docs/reference/language/function-exit-and-entry-result.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 normal_entry_cutover_decision = "docs/development/current/main/investigations/normal-entry-cutover-d0-consultation-2026-07-25.md"
 normal_entry_cutover_d1_decision = "docs/development/current/main/investigations/normal-entry-cutover-d1-consultation-2026-07-25.md"
-normal_file_vm0_task = "docs/development/current/main/investigations/normal-file-vm0-forge-task-2026-07-25.md"
+normal_file_vm0_task = "docs/development/current/main/investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
+normal_file_vm0_historical_roadmap = "docs/development/current/main/investigations/normal-file-vm0-forge-task-2026-07-25.md"
 normal_file_vm0_d0_question = "docs/development/current/main/investigations/normal-file-vm0-family-d0-no-candidate-question-2026-07-25.md"
+normal_file_vm0_frontdoor_forge_task = "docs/development/current/main/investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
+normal_file_vm0_d2_decision = "pending: NORMAL-ENTRY-CUTOVER-D2 card not opened"
 language_docs_status_task = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
 language_docs_try_catch_task = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
 raw_vm_reference_support0_task = "docs/development/current/main/investigations/raw-vm-reference-support0-s0-execution-task-2026-07-25.md"
@@ -385,9 +387,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "language-docs-try-catch-d1-consultation-2026-07-25"
-latest_card_path = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
-latest_card_summary = """The docs-only status/index slice is landed. LANGUAGE-DOCS-TRY-CATCH-D1 now fixes the semantic questions for statement try, postfix catch/cleanup, fini aliases, box.fini(), and throw; conflicts remain unresolved and no implementation is authorized. Normal-entry remains parked."""
+latest_card = "normal-file-vm0-frontdoor-forge-task-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
+latest_card_summary = """NORMAL-FILE-VM0-FAMILY-D0-FORGE-FRONTDOOR is accepted: forge one typed NormalFileNoImportVmReferenceV1 front door over the closed Raw VM-reference kernel. The first row keeps production caller=0 and normal/default cutover=0 until D2."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -589,7 +591,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "LANGUAGE-DOCS-TRY-CATCH-D1"
+current_blocker_token = "NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

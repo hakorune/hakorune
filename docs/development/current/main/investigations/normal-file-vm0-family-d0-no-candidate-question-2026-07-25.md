@@ -1,8 +1,9 @@
 ---
-Status: Design Stop / D0 evidence contradiction
+Status: Closed historical / superseded by accepted forge decision
 Date: 2026-07-25
 Decision needed: NORMAL-FILE-VM0-FAMILY-D0-NO-BOUNDED-CALLER
 Related task: normal-file-vm0-forge-task-2026-07-25.md
+Superseded by: normal-file-vm0-frontdoor-forge-task-2026-07-26.md
 ---
 
 # D0 follow-up: no existing caller satisfies the fixed family

@@ -26,9 +26,9 @@ Related:
 - closed docs row: DOCS-POINTER-ALIGNMENT0 + LANGUAGE-DOCS-STATUS-SSOT-D0 — the
   status index and entry-point navigation are landed; no semantic conflict was
   silently resolved
-- active design stop: LANGUAGE-DOCS-TRY-CATCH-D1 — try/catch/fini authority and
-  gate policy must be decided before any implementation; normal-entry remains
-  parked and caller=0
+- active row: NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 — forge one typed
+  NormalFileNoImportVmReferenceV1 front door over the closed Raw VM-reference
+  kernel; production caller=0 and normal/default cutover=0 until D2
 - closed immediately before this frontier: passive Canonical/NarrowV1/
   VM-reference profile, explicit early `--backend raw-vm-reference` canary,
   mandatory feature-enabled/disabled parity family, and the D0 decision that

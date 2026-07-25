@@ -34,12 +34,11 @@ termination. The former App any-statement-tail task is not executable
 canonical work; it is historical compatibility evidence only.
 
 Continue only the exact `current_blocker_token` and `latest_card_path` named by
-`CURRENT_STATE.toml`. The active row is `LANGUAGE-DOCS-TRY-CATCH-D1`; read
-`language-docs-try-catch-d1-consultation-2026-07-25.md`. This is a docs-only
-design stop:
-resolve the try/catch/fini authority boundary in docs only, but do not add parser,
-runtime, backend, or normal-entry behavior. The normal D0 follow-up remains
-parked. D0, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0,
+`CURRENT_STATE.toml`. The active row is `NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0`;
+read `normal-file-vm0-frontdoor-forge-task-2026-07-26.md`. This row creates
+the typed front door and proof products over the existing Raw VM-reference
+kernel, but keeps production caller=0 and normal/default cutover=0. Do not
+map an existing legacy caller or add fallback. D0, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0,
 PHYSICAL-THUNK0, VM-REFERENCE0, EXE-AOT0, S1 projection consume, S2
 VM-reference consume, the complete S3 Raw VM-reference activation row, old
 Raw retirement, PROFILE0, CANARY0, and CANARY-PARITY0/G0 are closed. The

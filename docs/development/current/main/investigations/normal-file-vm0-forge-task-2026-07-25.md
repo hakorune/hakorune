@@ -1,8 +1,9 @@
 ---
-Status: Accepted execution task order
+Status: Closed historical; superseded by NORMAL-FILE-VM0-FAMILY-D0-FORGE-FRONTDOOR
 Date: 2026-07-25
 Decision: NORMAL-ENTRY-CUTOVER-D1-PARK-AND-FORGE-NORMAL-FILE-VM0
 Scope: one bounded normal-file VM-reference family, from D0 evidence to one-caller cutover
+Superseded by: normal-file-vm0-frontdoor-forge-task-2026-07-26.md
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
   - docs/development/current/main/workstreams/language-v1-convergence-current.md

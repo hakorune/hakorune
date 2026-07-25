@@ -1,7 +1,8 @@
 ---
-Status: Accepted design; execution delegated to NormalFileNoImportVmReferenceV1 task
+Status: Closed historical; superseded by NORMAL-FILE-VM0-FAMILY-D0-FORGE-FRONTDOOR
 Date: 2026-07-25
 Scope: Fresh D1 decision for a possible normal-source entry cutover.
+Superseded by: normal-file-vm0-frontdoor-forge-task-2026-07-26.md
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
   - docs/development/current/main/workstreams/language-v1-convergence-current.md
@@ -15,7 +16,9 @@ This was the D1 design stop. Its accepted decision authorizes only the
 documentation/read-only D0 row in
 `normal-file-vm0-forge-task-2026-07-25.md`; it still authorizes no normal
 production caller, default cutover, backend, JSON, or executor widening. The previous D0 decision only promoted the explicit
-`raw-vm-reference` lane; it did not identify a safe normal caller.
+`raw-vm-reference` lane; it did not identify a safe normal caller. A later
+accepted forge decision creates a new front door without mapping any legacy
+caller; this card remains historical evidence for the earlier park decision.
 
 ## Read-only worker inventory
 

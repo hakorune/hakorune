@@ -93,7 +93,9 @@ Align the thin current pointers first:
 CURRENT_STATE.current_execution_row/current_blocker_token = authority
 CURRENT_TASK / 05-Restart / 10-Now = thin mirrors only
 workstream old “current executable row” text = historical/closed pointer
-normal-file D0 A/B/C choice = still pending; no caller selection
+  historical normal-file D0 A/B/C choice = superseded by the accepted
+  NORMAL-FILE-VM0-FAMILY-D0-FORGE-FRONTDOOR decision; no legacy caller is
+  selected and the forge row remains caller=0 until D2
 ```
 
 Use the existing pointer guard. Do not create a per-row shell guard, move
