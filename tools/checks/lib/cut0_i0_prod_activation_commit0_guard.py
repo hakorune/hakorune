@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import pathlib
+import re
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
@@ -21,6 +22,49 @@ def require(text: str, fragment: str, label: str) -> None:
         raise AssertionError(f"missing {label}: {fragment!r}")
 
 
+_RUST_IGNORED = re.compile(
+    r"(?P<raw>r(?P<hash>#*)\".*?\"(?P=hash))"
+    r"|(?P<string>(?:b|c)?\"(?:\\.|[^\"\\])*\")"
+    r"|(?P<block>/\*.*?\*/)"
+    r"|(?P<line>//[^\n]*)",
+    re.S,
+)
+_CFG_TEST_MODULE = re.compile(r"#\[cfg\(test\)\]\s*mod\s+\w+")
+
+
+def production_code(path: pathlib.Path) -> str:
+    text = _RUST_IGNORED.sub(
+        lambda match: "".join("\n" if char == "\n" else " " for char in match.group()),
+        path.read_text(),
+    )
+    cursor = 0
+    output: list[str] = []
+    while True:
+        match = _CFG_TEST_MODULE.search(text, cursor)
+        if match is None:
+            output.append(text[cursor:])
+            return "".join(output)
+        output.append(text[cursor : match.start()])
+        brace = text.find("{", match.start())
+        semicolon = text.find(";", match.start())
+        if semicolon >= 0 and (brace < 0 or semicolon < brace):
+            cursor = semicolon + 1
+            continue
+        if brace < 0:
+            raise AssertionError(f"cfg(test) module without body: {path}")
+        depth = 0
+        for end in range(brace, len(text)):
+            if text[end] == "{":
+                depth += 1
+            elif text[end] == "}":
+                depth -= 1
+                if depth == 0:
+                    cursor = end + 1
+                    break
+        else:
+            raise AssertionError(f"unterminated cfg(test) module: {path}")
+
+
 def main() -> int:
     texts = {name: path.read_text() for name, path in FILES.items()}
     for name, path in FILES.items():
@@ -36,7 +80,7 @@ def main() -> int:
         "ModuleVerificationEvidenceV1",
         "commit_prepared_module",
         "MirCompileResult",
-        "builder.commit(current)",
+        "publish_once(",
         "token.family() != builder.family()",
         "evidence: PostprocessEvidenceSealV1<'a>",
         "PostprocessEvidenceSealV1::seal",
@@ -66,7 +110,6 @@ def main() -> int:
             raise AssertionError(f"COMMIT0 product leaks activation authority: {forbidden}")
 
     production = []
-    raw_physical = ROOT / "src/mir/builder/raw_physical_finalization.rs"
     for path in ROOT.glob("src/**/*.rs"):
         if path in (FILES["commit"], FILES["fixture"]):
             continue
@@ -74,9 +117,7 @@ def main() -> int:
             continue
         if "tests" in path.parts:
             continue
-        text = path.read_text()
-        if path == raw_physical:
-            text = text.split("#[cfg(test)]", 1)[0]
+        text = production_code(path)
         if "commit_prepared_module(" in text:
             production.append(path.relative_to(ROOT))
     if production:

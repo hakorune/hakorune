@@ -161,8 +161,13 @@ FUNCTION-EXIT-F1-RETURN0-S0
   merge the admitted canonical witness matrix into the reusable entry-result
   proof family; Legacy difference stays explicit
 
--> OLD-RAW-RETIRE0
-  cleanliness-first caller-zero retirement before a new runner consumer
+-> OLD-RAW-RETIRE0-R0A (closed)
+  PublishedShell/BuilderReadiness proofs migrated and old-only guards retired
+  before opening a new runner consumer
+
+-> OLD-RAW-RETIRE0-R0B
+  delete the caller-zero old Raw source/finalizer/run_raw/evidence chain
+  before a new runner consumer
   sunset_id = RAW-PUBLICATION-SUNSET-001
 
 -> NORMAL-ENTRY-D0

@@ -24,16 +24,7 @@ def require(text: str, fragment: str, label: str) -> None:
 
 
 def main() -> int:
-    state = (ROOT / "docs/development/current/main/CURRENT_STATE.toml").read_text()
     task = TASK.read_text()
-    if not any(
-        row in state
-        for row in (
-            'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLICATION0-S0"',
-            'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLICATION-ADAPTER-CONSULT0"',
-        )
-    ):
-        raise AssertionError("PUBLICATION0-S0 is not the current execution row")
 
     for fragment in (
         "RAW-PUBLICATION-prime-r1",

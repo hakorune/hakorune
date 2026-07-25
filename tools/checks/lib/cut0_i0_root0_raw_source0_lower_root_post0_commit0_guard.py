@@ -22,19 +22,7 @@ def require(text: str, fragment: str, label: str) -> None:
 
 
 def main() -> int:
-    state = (ROOT / "docs/development/current/main/CURRENT_STATE.toml").read_text()
     task = TASK.read_text()
-    if not any(
-        row in state
-        for row in (
-            'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-COMMIT0-S0"',
-            'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLICATION-CONSULT0"',
-            'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-POST0-PUBLICATION0-S0"',
-        )
-    ):
-        raise AssertionError(
-            "missing COMMIT0, publication consultation, or PUBLICATION0 row"
-        )
     for fragment in (
         "RAW-COMMIT-prime-r1",
         "RawPostprocessedInvocationV1::prepare_external_commit(self)",

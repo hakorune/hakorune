@@ -2,10 +2,26 @@
 
 Decision: `RAW-PUBLIC-CUTOVER-prime-r1`
 
-Status: selected as the first post-S3 executable row. The former
+Status: R0A complete; R0B selected as the next post-S3 executable row. The former
 `PUBLIC-CUTOVER-PARITY0-S0` prerequisite is superseded by the guarded S3
 typed Raw compile plus exact VM parity and the measured zero non-test caller
 census.
+
+## R0A closeout — 2026-07-25
+
+The proof-migration slice is closed without Rust behavior or public-route
+change:
+
+```text
+PublishedShell rejection -> new DRAIN0 focused fixture
+BuilderReadiness/retention -> new FINAL0 focused fixture
+old-only production guards and P0-R1 guard -> removed
+shared DRAIN0/FINAL0/POST0/COMMIT0/PUBLICATION0 guards -> reusable across rows
+cfg(test) caller counting -> brace-aware production-scope filtering
+```
+
+The old source files remain intentionally for R0B; this closeout only removes
+their proof ownership and historical guard coupling.
 
 One BoxShape semantic row uses Refactor Series Mode. Each commit must build.
 

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import pathlib
+import re
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
@@ -14,13 +15,54 @@ FILES = {
     "tests": ROOT / "src/mir/compiler/module_postprocess_p0.rs",
     "mod": ROOT / "src/mir/compiler/mod.rs",
     "final": ROOT / "src/mir/compiler/canonical_finalization.rs",
-    "raw": ROOT / "src/mir/compiler/raw_finalization.rs",
 }
+
+_RUST_IGNORED = re.compile(
+    r"(?P<raw>r(?P<hash>#*)\".*?\"(?P=hash))"
+    r"|(?P<string>(?:b|c)?\"(?:\\.|[^\"\\])*\")"
+    r"|(?P<block>/\*.*?\*/)"
+    r"|(?P<line>//[^\n]*)",
+    re.S,
+)
+_CFG_TEST_MODULE = re.compile(r"#\[cfg\(test\)\]\s*mod\s+\w+")
 
 
 def require(text: str, fragment: str, label: str) -> None:
     if fragment not in text:
         raise AssertionError(f"missing {label}: {fragment!r}")
+
+
+def production_code(path: pathlib.Path) -> str:
+    text = _RUST_IGNORED.sub(
+        lambda match: "".join("\n" if char == "\n" else " " for char in match.group()),
+        path.read_text(),
+    )
+    cursor = 0
+    output: list[str] = []
+    while True:
+        match = _CFG_TEST_MODULE.search(text, cursor)
+        if match is None:
+            output.append(text[cursor:])
+            return "".join(output)
+        output.append(text[cursor : match.start()])
+        brace = text.find("{", match.start())
+        semicolon = text.find(";", match.start())
+        if semicolon >= 0 and (brace < 0 or semicolon < brace):
+            cursor = semicolon + 1
+            continue
+        if brace < 0:
+            raise AssertionError(f"cfg(test) module without body: {path}")
+        depth = 0
+        for end in range(brace, len(text)):
+            if text[end] == "{":
+                depth += 1
+            elif text[end] == "}":
+                depth -= 1
+                if depth == 0:
+                    cursor = end + 1
+                    break
+        else:
+            raise AssertionError(f"unterminated cfg(test) module: {path}")
 
 
 def main() -> int:
@@ -103,17 +145,19 @@ def main() -> int:
     ):
         require(texts["tests"], fixture, f"POST0 fixture: {fixture}")
 
-    production = [
-        path.relative_to(ROOT)
-        for path in ROOT.glob("src/**/*.rs")
-        if path not in (FILES["post"], FILES["final"], FILES["raw"], ROOT / "src/mir/builder/raw_physical_finalization.rs")
-        and not path.name.endswith("_p0.rs")
-        and path.name != "prod_activation_p0_r1.rs"
-        and not path.name.endswith("_tests.rs")
-        and "tests" not in path.parts
-        and ("ModulePostprocessOwnerV1::new" in path.read_text()
-             or "run(finalized)" in path.read_text())
-    ]
+    production = []
+    for path in ROOT.glob("src/**/*.rs"):
+        if path in (FILES["post"], FILES["final"]):
+            continue
+        if path.name.endswith("_p0.rs") or path.name.endswith("_tests.rs"):
+            continue
+        if path.name == "prod_activation_p0_r1.rs":
+            continue
+        if "tests" in path.parts:
+            continue
+        text = production_code(path)
+        if "run_raw(" in text or "run(finalized)" in text:
+            production.append(path.relative_to(ROOT))
     if production:
         raise AssertionError(f"POST0 has production consumers: {production}")
 

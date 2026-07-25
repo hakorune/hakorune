@@ -7,6 +7,7 @@ use super::raw_source_binding::RawCallableMainSelectionV1;
 use super::{LegacyModuleLoweringInputV1, MirCompiler};
 use crate::ast::{ASTNode, DeclarationAttrs, Span};
 use crate::mir::builder::{MirBuilder, RawRootPhysicalFinalizationErrorV1};
+use crate::mir::MirModule;
 use std::collections::HashMap;
 
 fn function(name: &str) -> ASTNode {
@@ -151,5 +152,34 @@ fn module_name_drift_rejects_and_retains_the_drained_owner() {
             RawRootPhysicalFinalizationErrorV1::ModuleNameMismatch { .. }
         )
     ));
+    rejected.discard();
+}
+
+#[test]
+fn builder_readiness_rejection_retains_the_new_final0_owner() {
+    let RawDrainedInvocationV1::Script(mut script) = drained(
+        ASTNode::Program {
+            statements: Vec::new(),
+            span: Span::unknown(),
+        },
+        RawCallableMainSelectionV1::Omitted,
+    ) else {
+        panic!("expected Script drained owner");
+    };
+    script.core.physical.session.builder_mut().current_module = Some(MirModule::new("open".into()));
+
+    let rejected = RawDrainedInvocationV1::Script(script)
+        .prepare_finalization()
+        .expect_err("FINAL0 must retain an open Builder owner as a typed rejection");
+    assert!(matches!(
+        rejected.error(),
+        RawFinalizationErrorV1::Physical(RawRootPhysicalFinalizationErrorV1::BuilderReadiness(
+            crate::mir::builder::BuilderCommitReadinessErrorV1::CurrentModuleOpen
+        ))
+    ));
+    assert_eq!(
+        rejected.stage(),
+        super::raw_root_finalization::RawFinalizationFailureStageV1::Physical
+    );
     rejected.discard();
 }

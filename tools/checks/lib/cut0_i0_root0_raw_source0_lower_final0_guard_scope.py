@@ -15,6 +15,13 @@ TASK = ROOT / (
     "docs/development/current/main/investigations/"
     "cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 )
+_RUST_IGNORED = re.compile(
+    r"(?P<raw>r(?P<hash>#*)\".*?\"(?P=hash))"
+    r"|(?P<string>(?:b|c)?\"(?:\\.|[^\"\\])*\")"
+    r"|(?P<block>/\*.*?\*/)"
+    r"|(?P<line>//[^\n]*)",
+    re.S,
+)
 
 
 def test_only_modules() -> set[str]:
@@ -33,6 +40,40 @@ def production_rust_files() -> list[Path]:
             continue
         files.append(path)
     return files
+
+
+def production_code(path: Path) -> str:
+    text = _RUST_IGNORED.sub(
+        lambda match: "".join("\n" if char == "\n" else " " for char in match.group()),
+        path.read_text(),
+    )
+    cursor = 0
+    output: list[str] = []
+    pattern = re.compile(r"#\[cfg\(test\)\]\s*mod\s+\w+")
+    while True:
+        match = pattern.search(text, cursor)
+        if match is None:
+            output.append(text[cursor:])
+            return "".join(output)
+        output.append(text[cursor : match.start()])
+        brace = text.find("{", match.start())
+        semicolon = text.find(";", match.start())
+        if semicolon >= 0 and (brace < 0 or semicolon < brace):
+            cursor = semicolon + 1
+            continue
+        if brace < 0:
+            raise AssertionError(f"cfg(test) module without body: {path}")
+        depth = 0
+        for end in range(brace, len(text)):
+            if text[end] == "{":
+                depth += 1
+            elif text[end] == "}":
+                depth -= 1
+                if depth == 0:
+                    cursor = end + 1
+                    break
+        else:
+            raise AssertionError(f"unterminated cfg(test) module: {path}")
 
 
 def require(text: str, fragment: str, label: str) -> None:
@@ -61,10 +102,9 @@ def main() -> int:
     production = production_rust_files()
     old_bridge_callers = []
     for path in production:
-        if path in (FINALIZER, PHYSICAL, ROOT / "src/mir/builder/raw_physical_finalization.rs",
-                    ROOT / "src/mir/compiler/raw_finalization.rs"):
+        if path in (FINALIZER, PHYSICAL):
             continue
-        text = path.read_text()
+        text = production_code(path)
         if (
             "RawModuleFinalizerV1::prepare(" in text
             or ("RawPhysicalCompleteInvocationV1" in text and ".prepare_finalization(" in text)

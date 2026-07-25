@@ -5,7 +5,6 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-STATE = ROOT / "docs/development/current/main/CURRENT_STATE.toml"
 TASK = ROOT / (
     "docs/development/current/main/investigations/"
     "cut0-i0-raw-source0-lower-root-drain0-s0-execution-task-2026-07-24.md"
@@ -29,14 +28,12 @@ def require(text: str, fragment: str, label: str) -> None:
 
 
 def main() -> int:
-    state = STATE.read_text()
     task = TASK.read_text()
     for path in SOURCES:
         if not path.exists():
             raise AssertionError(f"missing DRAIN0 source: {path}")
     joined = "\n".join(path.read_text() for path in SOURCES)
 
-    require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-DRAIN0-S0"', "active row")
     require(task, "DRAIN-prime-r1", "decision lock")
     for fragment in (
         "RawPhysicalDrainManifestV1",
@@ -75,7 +72,7 @@ def main() -> int:
     if "into_draft_functions" in collector:
         raise AssertionError("Raw DRAIN0 must retain keyed collector order")
 
-    for path in (STATE, TASK, *SOURCES):
+    for path in (TASK, *SOURCES):
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"file must remain below 800 lines: {path}")
 

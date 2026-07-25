@@ -26,9 +26,7 @@ def require(text: str, fragment: str, label: str) -> None:
 
 
 def main() -> int:
-    state = (ROOT / "docs/development/current/main/CURRENT_STATE.toml").read_text()
     task = TASK.read_text()
-    require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-FINAL0-S0"', "active row")
     require(task, "FINAL-DRAIN-prime-r1", "decision lock")
     require(task, "RawDrainedInvocationV1::prepare_finalization(self)", "direct entry")
 
@@ -67,6 +65,7 @@ def main() -> int:
         "empty_script_finalizes_directly_from_drain",
         "app_not_selected_finalizes_without_callable_row",
         "app_selected_finalizes_with_callable_evidence",
+        "builder_readiness_rejection_retains_the_new_final0_owner",
     ):
         require(fixture, fixture_name, f"fixture {fixture_name}")
 

@@ -3,10 +3,11 @@
 Decision: `POST-S3-CLEAN-CANARY-prime-r1`
 
 Status: accepted task order. `NORMAL-ENTRY-D0` is closed by this card.
-Implementation authorization is limited to the first executable row:
+R0A is closed; implementation authorization now follows the exact current
+pointer into R0B:
 
 ```text
-OLD-RAW-RETIRE0-R0A-PROOF-MIGRATION0
+OLD-RAW-RETIRE0-R0B-SOURCE-EVIDENCE0
 ```
 
 ## Outcome
@@ -306,6 +307,11 @@ that it retained Raw entry/result authority.
 
 ### 0. `OLD-RAW-RETIRE0-R0A-PROOF-MIGRATION0`
 
+Status: closed on 2026-07-25. The two unique rejection/retention proofs now
+live in the new DRAIN0/FINAL0 test modules, old-only guards (including the
+merged P0-R1 dependency) are removed, and shared guards no longer require a
+historical active execution row.
+
 ```text
 move PublishedShell rejection to new DRAIN0 fixture
 move BuilderReadiness/retention to new FINAL0 fixture
@@ -490,7 +496,7 @@ budget_repayment_evidence =
 ## First executable row
 
 ```text
-OLD-RAW-RETIRE0-R0A-PROOF-MIGRATION0
+OLD-RAW-RETIRE0-R0B-SOURCE-EVIDENCE0
 ```
 
 ## Non-claims

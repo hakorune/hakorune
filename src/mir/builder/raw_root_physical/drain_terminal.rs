@@ -447,3 +447,118 @@ fn receipt_matches(
         && payload.arity() == row.arity()
         && payload.policy() == expected_policy
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::builder::main_pending_draft::{
+        MainCompletionRequestV1, MainDraftIdentityV1, MainHeaderLoanV1, MainHeaderSourceV1,
+    };
+    use crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1;
+    use crate::mir::builder::module_invocation_identity::{
+        ModuleInvocationBrandV1, TestInvocationPreflightFactoryV1,
+    };
+    use crate::mir::builder::module_invocation_owner_chain::InvocationBranded;
+    use crate::mir::builder::module_invocation_session::{
+        BuilderCoreSeedPolicyV1, BuilderInvocationConfigV1,
+    };
+    use crate::mir::builder::module_lowering_shell::ModuleLoweringShellV1;
+    use crate::mir::builder::raw_expansion_receipt_ledger::{
+        RawCallableMainCompatibilityDispositionV1, RawExpansionDraftRequestV1,
+        RawExpansionReceiptLedgerV1,
+    };
+    use crate::mir::builder::raw_root_completion::complete_raw_root;
+    use crate::mir::builder::raw_root_completion_preflight::RawRootCompletionInputV1;
+    use crate::mir::builder::root_body_completion::{
+        RootBodyCompletionTrackerV1, RootBodyResultV1,
+    };
+    use crate::mir::builder::MirBuilder;
+    use crate::mir::{
+        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
+    };
+
+    fn draft(symbol: &str, arity: usize) -> MirFunction {
+        MirFunction::new(
+            FunctionSignature {
+                name: symbol.to_owned(),
+                params: vec![MirType::Integer; arity],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        )
+    }
+
+    fn raw_complete() -> (ModuleInvocationBrandV1, RawCompleteInvocationV1) {
+        let mut factory = TestInvocationPreflightFactoryV1::new();
+        let token = factory.mint(ModuleInvocationFamilyV1::Raw).unwrap();
+        let brand = token.brand();
+        let root_body = RootBodyCompletionTrackerV1::new_for_brand(brand)
+            .complete(RootBodyResultV1::NoValue)
+            .unwrap();
+        let headers = MirModule::new("headers".into());
+        let main = MainCompletionRequestV1::new(MainDraftIdentityV1::root(), root_body, false)
+            .finish(
+                draft("main", 0),
+                MainHeaderLoanV1::new(&headers, MainHeaderSourceV1::InvocationCollector),
+            )
+            .unwrap();
+        let batch = crate::mir::builder::root_draft_batch::PreparedRootDraftBatchV1::prepare(
+            main,
+            Some(draft("condition_fn", 1)),
+            crate::mir::builder::module_invocation_drain::ConditionFnPolicyV1::Required,
+        )
+        .unwrap();
+        let mut ledger = RawExpansionReceiptLedgerV1::new_for_token(
+            &token,
+            RawCallableMainCompatibilityDispositionV1::NotSelected,
+        );
+        let main_reservation = ledger
+            .reserve(RawExpansionDraftRequestV1::root_main())
+            .unwrap();
+        let condition_reservation = ledger
+            .reserve(RawExpansionDraftRequestV1::required_condition_fn())
+            .unwrap();
+        let complete = complete_raw_root(RawRootCompletionInputV1::new(
+            token,
+            InvocationBranded::from_test(brand, ModuleDraftCollectorV1::with_brand(brand)),
+            ledger,
+            batch,
+            main_reservation,
+            condition_reservation,
+            RawCallableMainCompatibilityDispositionV1::NotSelected,
+        ))
+        .unwrap();
+        (brand, complete)
+    }
+
+    fn session(complete: &RawCompleteInvocationV1) -> ModuleBuilderInvocationSessionV1 {
+        let live = MirBuilder::new();
+        let config =
+            BuilderInvocationConfigV1::snapshot_with_policy(&live, BuilderCoreSeedPolicyV1::Fresh);
+        ModuleBuilderInvocationSessionV1::open_for_token(complete.token(), &live, config)
+    }
+
+    #[test]
+    fn published_shell_rejection_is_owned_by_drain0() {
+        let (brand, invocation) = raw_complete();
+        let mut shell =
+            ModuleLoweringShellV1::from_empty_module(MirModule::new("raw".into())).unwrap();
+        shell.publish_function_for_test(draft("already/0", 0));
+        let rejected = prepare_from_parts(
+            RawDrainPhysicalPartsV1 {
+                session: session(&invocation),
+                shell: InvocationBranded::from_test(brand, shell),
+                invocation,
+            },
+            RawPhysicalDrainRouteV1::Script,
+            RawPhysicalCallableMainDispositionV1::NotSelected,
+        )
+        .expect_err("DRAIN0 must reject a published shell before projection");
+        assert!(matches!(
+            rejected.error(),
+            RawPhysicalDrainErrorV1::PublishedShell { count: 1 }
+        ));
+        rejected.discard();
+    }
+}
