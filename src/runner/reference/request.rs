@@ -6,6 +6,7 @@ use super::normal_file_vm_request::{
 use super::raw_vm_reference_request::{
     RawVmReferenceProductionRequestV1, RawVmReferenceProfileErrorV1,
 };
+use super::terminal::ReferenceUsageReportV1;
 use crate::cli::CliConfig;
 
 #[derive(Debug)]
@@ -27,10 +28,16 @@ pub(crate) enum ExplicitReferenceRunnerSelectionErrorV1 {
 }
 
 impl ExplicitReferenceRunnerSelectionErrorV1 {
-    pub(crate) const fn code(&self) -> &'static str {
+    pub(crate) fn into_usage_report(self) -> ReferenceUsageReportV1 {
         match self {
-            Self::RawVmReference(error) => error.code(),
-            Self::NormalFileVmReference(error) => error.code(),
+            Self::RawVmReference(error) => ReferenceUsageReportV1::new(format!(
+                "[raw-vm-reference/profile/rejected] {}",
+                error.code()
+            )),
+            Self::NormalFileVmReference(error) => ReferenceUsageReportV1::new(format!(
+                "[normal-file-vm-reference/profile/rejected] {}",
+                error.code()
+            )),
         }
     }
 }

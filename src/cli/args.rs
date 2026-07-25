@@ -244,7 +244,7 @@ pub fn build_command() -> Command {
             Arg::new("backend")
                 .long("backend")
                 .value_name("BACKEND")
-                .help("Backend selection. Default: mainline MIR route (mir). Explicit overrides: product/native (llvm), legacy keep/debug (vm), reference/conformance (vm-hako), supported opt-in Raw VM-reference (raw-vm-reference; build with --features vm-reference), or historical interpreter")
+                .help("Backend selection. Default: mainline MIR route (mir). Explicit overrides: product/native (llvm), legacy keep/debug (vm), reference/conformance (vm-hako), supported opt-in Raw VM-reference (raw-vm-reference) or normal-file VM-reference (normal-file-vm-reference; both require --features vm-reference), or historical interpreter")
                 .default_value("mir"),
         )
         .arg(Arg::new("verbose").long("verbose").short('v').help("Verbose CLI output (sets NYASH_CLI_VERBOSE=1)").action(clap::ArgAction::SetTrue))

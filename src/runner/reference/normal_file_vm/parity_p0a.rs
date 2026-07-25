@@ -6,6 +6,7 @@
 use super::*;
 use crate::cli::CliConfig;
 use crate::runner::reference::raw_vm_reference;
+use crate::runner::reference::raw_vm_reference_request::RawVmReferenceProductionRequestV1;
 use crate::runner::reference::terminal::ReferenceRunOutcomeV1;
 use std::path::{Path, PathBuf};
 use tempfile::tempdir;
@@ -29,8 +30,9 @@ fn raw_outcome(path: &Path) -> ReferenceRunOutcomeV1 {
     let mut config = CliConfig::default();
     config.backend = "raw-vm-reference".to_owned();
     config.file = Some(path.to_string_lossy().into_owned());
-    raw_vm_reference::select_and_run(&config)
-        .expect("raw-vm-reference should select its exact backend")
+    let request = RawVmReferenceProductionRequestV1::try_from_selected_cli(&config)
+        .expect("raw profile should seal");
+    raw_vm_reference::run(request)
 }
 
 fn program_snapshot(outcome: ReferenceRunOutcomeV1) -> (u8, Option<&'static str>) {

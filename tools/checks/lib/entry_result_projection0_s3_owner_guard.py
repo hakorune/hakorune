@@ -114,8 +114,7 @@ def main() -> int:
     if profile_callers:
         raise AssertionError(f"profile has duplicate production callers: {profile_callers}")
     require(reference_runner, "RawVmReferenceProductionRequestV1", "support profile consumer")
-    require(reference_runner, "select_from_cli", "support selector consumer")
-    require(reference_runner, "pub(crate) fn select_and_run(", "support runner entry")
+    require(reference_runner, "pub(crate) fn run(", "support runner entry")
     selector = REFERENCE_SELECTOR.read_text()
     for fragment in (
         "ExplicitReferenceRunnerRequestV1",
@@ -127,8 +126,8 @@ def main() -> int:
     require(reference_runner, "read_to_string(&source_file)", "support source read")
     require(reference_runner, "parse_from_string_with_build_config", "support canonical parse")
     runner = (ROOT / "src/runner/mod.rs").read_text()
-    require(runner, "reference::raw_vm_reference::select_and_run", "early reference selector")
-    if runner.index("reference::raw_vm_reference::select_and_run") > runner.index(
+    require(runner, "reference::select_and_run", "early central reference selector")
+    if runner.index("reference::select_and_run") > runner.index(
         "// Early: macro child"
     ):
         raise AssertionError("reference selector must precede compatibility runner effects")
@@ -137,8 +136,10 @@ def main() -> int:
         raise AssertionError("compatibility ingress must have one typed-kernel consumer")
     if execution.count("compile_raw_published_v1(") != 1:
         raise AssertionError("VM-reference ingress must have one typed-kernel consumer")
-    if reference_runner.count("select_from_cli") != 1:
-        raise AssertionError("support lane must have one profile selector consumer")
+    if "select_from_cli" in reference_runner:
+        raise AssertionError("support runner must consume a request from the central selector")
+    if selector.count("pub(crate) fn select_from_cli(") != 1:
+        raise AssertionError("explicit reference lanes must have one central profile selector")
     if reference_runner.count("run_raw_vm_reference_v1(") != 1:
         raise AssertionError("support lane must have one VM-reference report consumer")
     if reference_runner.count("read_to_string(&source_file)") != 1:

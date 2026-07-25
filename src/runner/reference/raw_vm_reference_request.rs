@@ -34,17 +34,6 @@ impl RawVmReferenceProductionRequestV1 {
         RAW_VM_REFERENCE_BACKEND
     }
 
-    /// Select and seal CLI facts exactly once.  A non-target backend is
-    /// explicitly not selected, so the default runner remains unchanged.
-    pub(crate) fn select_from_cli(
-        config: &CliConfig,
-    ) -> Result<RawVmReferenceProfileSelectionV1, RawVmReferenceProfileErrorV1> {
-        if config.backend != RAW_VM_REFERENCE_BACKEND {
-            return Ok(RawVmReferenceProfileSelectionV1::NotSelected);
-        }
-        Self::try_from_selected_cli(config).map(RawVmReferenceProfileSelectionV1::Selected)
-    }
-
     /// Seal selected CLI facts exactly once.  This is a pure check/copy operation:
     /// it does not read the source file, initialize plugins, mutate env, or
     /// call any compiler/runner entry.
@@ -83,12 +72,6 @@ impl RawVmReferenceProductionRequestV1 {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) enum RawVmReferenceProfileSelectionV1 {
-    NotSelected,
-    Selected(RawVmReferenceProductionRequestV1),
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -103,11 +86,8 @@ mod tests {
 
     #[test]
     fn seals_independent_canonical_narrow_profile_fields_once() {
-        let selection = RawVmReferenceProductionRequestV1::select_from_cli(&canonical_config())
+        let request = RawVmReferenceProductionRequestV1::try_from_selected_cli(&canonical_config())
             .expect("canonical profile facts should seal");
-        let RawVmReferenceProfileSelectionV1::Selected(request) = selection else {
-            panic!("raw-vm-reference must be selected");
-        };
 
         assert_eq!(request.source_file(), "profile0.hako");
         assert_eq!(request.grammar(), RawVmReferenceGrammarV1::Canonical);
@@ -122,25 +102,9 @@ mod tests {
     fn preserves_no_optimize_as_a_typed_snapshot() {
         let mut config = canonical_config();
         config.no_optimize = true;
-        let selection = RawVmReferenceProductionRequestV1::select_from_cli(&config)
+        let request = RawVmReferenceProductionRequestV1::try_from_selected_cli(&config)
             .expect("no-optimize is the only retained tuning fact");
-        let RawVmReferenceProfileSelectionV1::Selected(request) = selection else {
-            panic!("raw-vm-reference must be selected");
-        };
         assert!(!request.optimize());
-    }
-
-    #[test]
-    fn default_backend_families_are_not_selected() {
-        for backend in ["mir", "vm", "vm-hako", "llvm"] {
-            let mut config = CliConfig::default();
-            config.backend = backend.to_owned();
-            assert_eq!(
-                RawVmReferenceProductionRequestV1::select_from_cli(&config),
-                Ok(RawVmReferenceProfileSelectionV1::NotSelected),
-                "default backend {backend} must fall through"
-            );
-        }
     }
 
     #[test]
@@ -148,84 +112,84 @@ mod tests {
         let mut config = canonical_config();
         config.cli_usings.push("pkg".to_owned());
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::UsingRequested)
         );
 
         let mut config = canonical_config();
         config.json_file = Some("program.json".to_owned());
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::JsonRouteRequested)
         );
 
         let mut config = canonical_config();
         config.macro_preexpand = true;
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::MacroRouteRequested)
         );
 
         let mut config = canonical_config();
         config.emit_mir_json = Some("out.json".to_owned());
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::EmitRouteRequested)
         );
 
         let mut config = canonical_config();
         config.build_path = Some("hako.toml".to_owned());
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::BuildRouteRequested)
         );
 
         let mut config = canonical_config();
         config.dump_mir = true;
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::DiagnosticRouteRequested)
         );
 
         let mut config = canonical_config();
         config.load_ny_plugins = true;
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::PluginRequested)
         );
 
         let mut config = canonical_config();
         config.dev = true;
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::DevelopmentRouteRequested)
         );
 
         let mut config = canonical_config();
         config.run_tests = true;
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::TestRouteRequested)
         );
 
         let mut config = canonical_config();
         config.jit_stats = true;
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::JitRequested)
         );
 
         let mut config = canonical_config();
         config.gc_mode = Some("rc".to_owned());
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::GcModeRequested)
         );
 
         let mut config = canonical_config();
         config.debug_fuel = Some(1);
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::NonDefaultDebugFuel)
         );
     }
@@ -235,31 +199,23 @@ mod tests {
         let mut config = CliConfig::default();
         config.backend = RAW_VM_REFERENCE_BACKEND.to_owned();
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::SourceFileRequired)
         );
 
         let mut config = canonical_config();
         config.grammar_profile = GrammarProfile::Compat2025;
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::NonCanonicalGrammar)
         );
 
         let mut config = canonical_config();
         config.script_args.push("runtime-arg".to_owned());
         assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&config),
+            RawVmReferenceProductionRequestV1::try_from_selected_cli(&config),
             Err(RawVmReferenceProfileErrorV1::ScriptArgsRequested)
         );
     }
 
-    #[test]
-    fn default_backend_is_not_selected_and_has_no_profile_side_effect() {
-        assert_eq!(
-            RawVmReferenceProductionRequestV1::select_from_cli(&CliConfig::default())
-                .expect("non-target backend is not an error"),
-            RawVmReferenceProfileSelectionV1::NotSelected
-        );
-    }
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Forge0 guard for the disconnected NormalFile VM-reference front door."""
+"""NormalFile VM-reference route guard from Forge0 through one explicit caller."""
 
 from pathlib import Path
 
@@ -51,7 +51,6 @@ def main() -> int:
 
     for fragment in (
         "NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0",
-        "new normal production caller = 0",
         "one UTF-8 file read",
         "one canonical parse",
         "fallback / retry         = zero",
@@ -133,10 +132,10 @@ def main() -> int:
         "NORMAL-FILE-VM0 PARITY0-P0a",
         "normal_program_projection_matches_raw_in_the_common_scalar_unit_subset",
         "normal_run_preserves_usage_invocation_and_program_boundaries_without_retry",
-        "raw_vm_reference::select_and_run",
+        "raw_vm_reference::run(request)",
         "run(request)",
     ):
-        require(parity_p0a, fragment, f"caller-zero parity evidence {fragment}")
+        require(parity_p0a, fragment, f"pre-caller parity evidence {fragment}")
     if "std::process::exit" in parity_p0a or "select_from_cli" in parity_p0a:
         raise AssertionError("PARITY0-P0a must exercise owners directly, not select or terminate")
 
@@ -185,9 +184,21 @@ def main() -> int:
             continue
         text = path.read_text()
         if "NormalFileVmFrontDoorV1" in text or "PreparedNormalFileVmHandoffV1" in text:
-            raise AssertionError(f"Forge0 has an external production caller: {path.relative_to(ROOT)}")
-    if "normal_file_vm_frontdoor" in RUNNER.read_text():
-        raise AssertionError("normal/default runner must not select Forge0")
+                raise AssertionError(f"front-door type escaped its one production owner: {path.relative_to(ROOT)}")
+    for fragment in (
+        "pub(crate) fn select_and_run(config: &CliConfig)",
+        "ExplicitReferenceRunnerRequestV1::RawVmReference(request)",
+        "ExplicitReferenceRunnerRequestV1::NormalFileVmReference(request)",
+        "Some(raw_vm_reference::run(request))",
+        "Some(normal_file_vm::run(request))",
+    ):
+        require(reference_mod, fragment, f"one central explicit selector {fragment}")
+    runner = RUNNER.read_text()
+    require(runner, "reference::select_and_run(&self.config)", "one production route caller")
+    if runner.count("reference::select_and_run(&self.config)") != 1:
+        raise AssertionError("normal-file VM route must have exactly one production caller")
+    if "normal_file_vm_frontdoor" in runner:
+        raise AssertionError("default runner must not reach through the typed front door")
 
     for path in (
         TASK,
@@ -204,7 +215,8 @@ def main() -> int:
             raise AssertionError(f"file must remain below 800 lines: {path.relative_to(ROOT)}")
     print(
         "[normal-file-vm0-frontdoor-forge-guard] ok "
-        "profile=1 read=1 parse=1 handoff=1 caller_zero=1 alternate_policy=0 below_800=1"
+        "profile=1 read=1 parse=1 handoff=1 central_selector=1 normal_caller=1 "
+        "default_delta=0 alternate_policy=0 below_800=1"
     )
     return 0
 

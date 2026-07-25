@@ -45,6 +45,8 @@ box.fini()               = separate lifecycle owner
 
 `RecoverableFailure` producer and ABI remain parked for
 `LANGUAGE-RECOVERABLE-FAILURE-D0`. The active row is now
-`NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0`: forge its production-caller-zero typed
-front door only. Production/default cutover and legacy caller selection remain
-zero until D2.
+`NORMAL-FILE-VM0-CALLER0-I0`: connect exactly one explicit,
+default-off `normal-file-vm-reference` CLI request through the central
+reference selector. The existing Raw reference route must remain unchanged;
+the normal/default route, `compile_with_source`, and every legacy caller remain
+untouched. After this row, run real-binary `PARITY0-P0b`, then G0.

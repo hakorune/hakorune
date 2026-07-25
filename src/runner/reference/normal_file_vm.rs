@@ -1,4 +1,4 @@
-//! Unconnected production-shaped runner for the normal-file VM-reference lane.
+//! Production runner owner for the explicit normal-file VM-reference lane.
 
 use super::normal_file_vm_frontdoor::{
     NormalFileReadErrorV1, NormalFileSourceErrorV1, NormalFileSourceProfileErrorV1,
