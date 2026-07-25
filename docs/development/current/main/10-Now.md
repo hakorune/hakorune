@@ -21,9 +21,10 @@ Related:
   `docs/reference/language/function-exit-and-entry-result.md`
 - priority: follow the exact active task. Do not reopen the superseded App
   any-statement-tail S0 as canonical work.
-- next row: RAW-VM-REFERENCE-SUPPORT0-S0 — consume one typed profile,
-  stabilize the supported opt-in reference surface and diagnostics, reclassify
-  the existing proof, and close the temporary canary sunset
+- closed row: RAW-VM-REFERENCE-SUPPORT0-S0 — typed profile handoff, bounded
+  diagnostics, supported opt-in surface, and renamed conformance proof
+- next row: NORMAL-ENTRY-CUTOVER0-S0 (parked) — requires a fresh D1 design and
+  full normal-caller source/backend/result parity before implementation
 - closed immediately before this frontier: passive Canonical/NarrowV1/
   VM-reference profile, explicit early `--backend raw-vm-reference` canary,
   mandatory feature-enabled/disabled parity family, and the D0 decision that

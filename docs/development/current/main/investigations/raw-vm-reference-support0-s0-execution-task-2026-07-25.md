@@ -1,5 +1,5 @@
 ---
-Status: Active Execution Task
+Status: Closed Execution Task
 Date: 2026-07-25
 Scope: harden and promote the existing explicit Raw VM-reference route.
 Related:
@@ -70,9 +70,20 @@ SUPPORT-PROOF0         = existing proof mechanically reclassified to
                           raw_vm_reference_conformance (fixture count unchanged)
 ```
 
-Remaining closeout work is verification only: run the renamed real-binary
-conformance proof, update the current-state closeout mirrors, and record the
-support-lane sunset transition without changing the default route.
+Closeout evidence:
+
+```text
+commit                         = 6e1aa8f035
+real-binary conformance        = 16 cases green
+feature-disabled pre-I/O      = green
+owner guard                    = green
+default route                  = unchanged
+new production caller          = 0
+accepted grammar/shape delta   = 0
+```
+
+The next normal-entry cutover remains parked behind a fresh design decision;
+this row does not authorize normal/default/backend/JSON/executor widening.
 
 ## Target owner chain
 

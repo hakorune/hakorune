@@ -189,7 +189,7 @@ FUNCTION-EXIT-F1-RETURN0-S0
   A-prime selects the existing explicit route as a supported opt-in
   reference/conformance lane; no safe bounded normal caller exists
 
--> RAW-VM-REFERENCE-SUPPORT0-S0
+-> RAW-VM-REFERENCE-SUPPORT0-S0 (closed; commit 6e1aa8f035)
   one consuming profile handoff, bounded diagnostic report, supported surface,
   proof reclassification, and NORMAL-ENTRY-CANARY-SUNSET-001 closeout
 

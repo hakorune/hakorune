@@ -34,13 +34,17 @@ termination. The former App any-statement-tail task is not executable
 canonical work; it is historical compatibility evidence only.
 
 Continue only the exact `current_blocker_token` and `latest_card_path` named by
-`CURRENT_STATE.toml`. D0, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0,
+`CURRENT_STATE.toml`. The current blocker is
+`NORMAL-ENTRY-CUTOVER0-S0-PARKED-DESIGN-STOP-20260725`; do not implement it
+without a fresh D1 decision. D0, CONTRACT0, ENTRY-SELECTION0, SOURCE-ENTRY0,
 PHYSICAL-THUNK0, VM-REFERENCE0, EXE-AOT0, S1 projection consume, S2
 VM-reference consume, the complete S3 Raw VM-reference activation row, old
 Raw retirement, PROFILE0, CANARY0, and CANARY-PARITY0/G0 are closed. The
 accepted cutover decision selects only the existing explicit Raw VM-reference
-route as a supported opt-in lane. `RAW-VM-REFERENCE-SUPPORT0-S0` is the exact
-next implementation row. Do not infer implementation authority from Legacy
+route as a supported opt-in lane. `RAW-VM-REFERENCE-SUPPORT0-S0` is closed;
+`NORMAL-ENTRY-CUTOVER0-S0` is parked pending design. Do not infer implementation authority from Legacy
+mirrors or invent a new executable owner from historical mirrors.
+keep the goal open until the frontier names a concrete next implementation row.
 snapshots, Builder-returned `ValueId`s, or superseded App parity cards. Keep
 normal/default cutover, general VM/LLVM, JSON, executor, and CUT0 parked. Keep
 every new or modified source/check file below 800 lines.

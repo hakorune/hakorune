@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-ENTRY-CUTOVER-prime-r1 selects the existing explicit raw-vm-reference route as a supported opt-in reference/conformance lane. The next code-facing row is RAW-VM-REFERENCE-SUPPORT0-S0; normal/default cutover, general runner, LLVM/native, JSON, executor, selfhost, fastmem, and CUT0 remain parked."
+status = "RAW-VM-REFERENCE-SUPPORT0-S0 is closed: the explicit raw-vm-reference route is now a supported opt-in reference/conformance lane with one typed profile handoff, bounded diagnostics, renamed conformance proof, and default-off surface. No normal/default/backend/JSON/executor/CUT0 widening is selected."
 date = "2026-07-25"
 current_design_stop = "NORMAL-ENTRY-CUTOVER-D0-CLOSED-20260725"
-current_execution_row = "RAW-VM-REFERENCE-SUPPORT0-S0"
-current_execution_summary = "Six read-only audits found no safe existing bounded normal caller. A-prime promotes the already-green explicit Raw VM-reference route to a supported opt-in lane, closes its temporary canary status with net proof delta zero, and keeps normal/default/JSON/backend widening parked. SUPPORT0 must consume one typed profile, bound diagnostics, reclassify the existing proof, and add no caller or accepted shape."
+current_execution_row = "NORMAL-ENTRY-CUTOVER0-S0-PARKED"
+current_execution_summary = "RAW-VM-REFERENCE-SUPPORT0-S0 is closed by commit 6e1aa8f035: one consuming profile handoff, bounded stage/code/detail diagnostics, supported opt-in docs, and mechanical proof reclassification with the existing 16-case matrix. The next normal-entry cutover row is parked pending a fresh D1 decision and full caller/parity evidence."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -21,7 +21,8 @@ route-scoped caller census. POST-S3-CLEAN-CANARY-prime-r1 has now closed the
 caller-zero retirement, passive profile, explicit early canary, and real-binary
 canary parity rows. NORMAL-ENTRY-CUTOVER-prime-r1 selects A-prime: the explicit
 route becomes a supported opt-in reference lane while normal/default cutover
-stays parked. RAW-VM-REFERENCE-SUPPORT0-S0 is the current code-facing row; no
+stays parked. RAW-VM-REFERENCE-SUPPORT0-S0 is closed; the next
+NORMAL-ENTRY-CUTOVER0-S0 row is parked at a fresh design stop, and no
 general/default/backend/JSON widening is authorized. The D′/Raw
 history below is parked context and must not select a different current row.
 D′ is the current canonical control-lowering authority:
@@ -373,7 +374,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "raw-vm-reference-support0-s0-execution-task-2026-07-25"
 latest_card_path = "docs/development/current/main/investigations/raw-vm-reference-support0-s0-execution-task-2026-07-25.md"
-latest_card_summary = """NORMAL-ENTRY-CUTOVER-prime-r1 selects A-prime: promote the already-public and proven raw-vm-reference route to a supported opt-in reference/conformance lane. RAW-VM-REFERENCE-SUPPORT0-S0 is next; it consumes one typed profile, stabilizes diagnostics and surface vocabulary, reclassifies the existing proof, and closes NORMAL-ENTRY-CANARY-SUNSET-001 with no new caller or accepted shape. Normal/default cutover remains parked."""
+latest_card_summary = """RAW-VM-REFERENCE-SUPPORT0-S0 is closed by 6e1aa8f035: one typed profile handoff, bounded diagnostics, supported opt-in surface, and the existing 16-case real-binary proof reclassified as conformance with no new caller or accepted shape. NORMAL-ENTRY-CUTOVER0-S0 remains parked behind a fresh D1 design stop."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -575,7 +576,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-VM-REFERENCE-SUPPORT0-S0-IMPLEMENTATION-20260725"
+current_blocker_token = "NORMAL-ENTRY-CUTOVER0-S0-PARKED-DESIGN-STOP-20260725"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

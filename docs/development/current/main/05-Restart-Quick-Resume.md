@@ -54,8 +54,10 @@ cargo check -q
   authority; G0, PROFILE0, CANARY0, and CANARY-PARITY0/G0 are closed by
   scoped zero/cargo/guard plus real-binary evidence. The accepted cutover
   decision promotes only this explicit route to a supported opt-in reference
-  lane. RAW-VM-REFERENCE-SUPPORT0-S0 is next; normal/default cutover,
-  general VM/LLVM, JSON, executor, and CUT0 remain parked.
+  lane. RAW-VM-REFERENCE-SUPPORT0-S0 is closed; the next
+  NORMAL-ENTRY-CUTOVER0-S0 row is parked behind a fresh D1 design stop.
+  Normal/default cutover, general VM/LLVM, JSON, executor, and CUT0 remain
+  parked.
 
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
