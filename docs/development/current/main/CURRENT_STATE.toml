@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed. The accepted tryless decision rejects source try in both profiles, makes postfix catch the protected-region target, keeps Fault non-catchable, and parks RecoverableFailure production/ABI for a later D0. NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 and RESULT-CARRIER-NORMAL-CAPABILITY0-S0 are closed. D2 accepts one explicit default-off normal-file VM-reference production route; REQUEST0-S0 is active."
+status = "LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed. The accepted tryless decision rejects source try in both profiles, makes postfix catch the protected-region target, keeps Fault non-catchable, and parks RecoverableFailure production/ABI for a later D0. NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0, RESULT-CARRIER-NORMAL-CAPABILITY0-S0, and REQUEST0-S0 are closed. D2 authorizes one explicit default-off normal-file VM-reference route; REPORT0-S0 is active."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "NORMAL-FILE-VM0-REQUEST0-S0"
-current_execution_summary = "Create the typed NormalFileVmReferenceProductionRequestV1 and one central explicit-reference selector without a runner connection. Preserve caller=0, default-route isolation, one sealed NormalFileRequestV1 per selected request, and no file I/O during selection."
+current_execution_row = "NORMAL-FILE-VM0-REPORT0-S0"
+current_execution_summary = "Create one shared ReferenceRunOutcomeV1/ReferenceRunTerminalV1 plus a bounded MIR-to-runner failure adapter and an unconnected normal run owner. Preserve caller=0, private rejection ownership, no String-based failure classification, and default-route isolation."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -408,7 +408,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "normal-file-vm0-production-route-execution-task-2026-07-26"
 latest_card_path = "docs/development/current/main/investigations/normal-file-vm0-production-route-execution-task-2026-07-26.md"
-latest_card_summary = """NORMAL-ENTRY-CUTOVER-D2-EXPLICIT-NORMAL-FILE-VM0 is accepted: one CLI-visible, default-off normal-file VM-reference route is authorized. NORMAL-FILE-VM0-REQUEST0-S0 is active and creates only the typed request plus central selector; runner/default activation remains zero until CALLER0-I0."""
+latest_card_summary = """NORMAL-ENTRY-CUTOVER-D2-EXPLICIT-NORMAL-FILE-VM0 is accepted. NORMAL-FILE-VM0-REQUEST0-S0 closed the shared explicit-reference CLI admission, typed normal request, and central selector with caller=0. REPORT0-S0 next adds the bounded failure adapter and shared terminal; runner/default activation remains zero until CALLER0-I0."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is

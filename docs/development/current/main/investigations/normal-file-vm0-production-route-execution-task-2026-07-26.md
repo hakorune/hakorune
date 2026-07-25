@@ -65,6 +65,15 @@ REQUEST0-S0
   -> MIRBUILDER-CORE-COMPLETE0-P0
 ```
 
+## Progress ledger
+
+```text
+REQUEST0-S0 = closed by 520986b38a
+REPORT0-S0  = next
+PARITY0-P0a = pending after REPORT0
+CALLER0-I0  = pending after caller-zero parity
+```
+
 ### REQUEST0-S0 — request and single selector
 
 Create only the typed request/selection vocabulary:
