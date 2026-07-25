@@ -310,6 +310,63 @@ mod tests {
         }
     }
 
+    fn assignment_script() -> ASTNode {
+        ASTNode::Program {
+            statements: vec![
+                ASTNode::Local {
+                    variables: vec!["x".into()],
+                    initial_values: vec![Some(Box::new(ASTNode::Literal {
+                        value: crate::ast::LiteralValue::Integer(1),
+                        span: Span::unknown(),
+                    }))],
+                    declared_type_names: vec![None],
+                    span: Span::unknown(),
+                },
+                ASTNode::Assignment {
+                    target: Box::new(ASTNode::Variable {
+                        name: "x".into(),
+                        span: Span::unknown(),
+                    }),
+                    value: Box::new(ASTNode::Literal {
+                        value: crate::ast::LiteralValue::Integer(3),
+                        span: Span::unknown(),
+                    }),
+                    span: Span::unknown(),
+                },
+            ],
+            span: Span::unknown(),
+        }
+    }
+
+    fn compound_assignment_script() -> ASTNode {
+        ASTNode::Program {
+            statements: vec![
+                ASTNode::Local {
+                    variables: vec!["x".into()],
+                    initial_values: vec![Some(Box::new(ASTNode::Literal {
+                        value: crate::ast::LiteralValue::Integer(1),
+                        span: Span::unknown(),
+                    }))],
+                    declared_type_names: vec![None],
+                    span: Span::unknown(),
+                },
+                ASTNode::CompoundAssignment {
+                    target: Box::new(ASTNode::Variable {
+                        name: "x".into(),
+                        span: Span::unknown(),
+                    }),
+                    operator: BinaryOperator::Add,
+                    value: Box::new(ASTNode::Literal {
+                        value: crate::ast::LiteralValue::Integer(2),
+                        span: Span::unknown(),
+                    }),
+                    span: Span::unknown(),
+                },
+            ],
+            span: Span::unknown(),
+        }
+    }
+
     fn empty_app() -> ASTNode {
         let main = ASTNode::FunctionDeclaration {
             name: "main".into(),
@@ -460,6 +517,29 @@ mod tests {
         let report = compiler
             .run_raw_vm_reference(print_script(), Some("raw-vm-print.hako"))
             .expect("Print statement should execute as a Unit source result");
+        assert_eq!(report.status_code(), 0);
+        assert_eq!(report.diagnostic_tag(), None);
+    }
+
+    #[test]
+    fn raw_vm_entry_keeps_assignment_statement_as_unit() {
+        let mut compiler = crate::mir::compiler::MirCompiler::new();
+        let report = compiler
+            .run_raw_vm_reference(assignment_script(), Some("raw-vm-assignment.hako"))
+            .expect("assignment statement should execute as Unit");
+        assert_eq!(report.status_code(), 0);
+        assert_eq!(report.diagnostic_tag(), None);
+    }
+
+    #[test]
+    fn raw_vm_entry_keeps_compound_assignment_statement_as_unit() {
+        let mut compiler = crate::mir::compiler::MirCompiler::new();
+        let report = compiler
+            .run_raw_vm_reference(
+                compound_assignment_script(),
+                Some("raw-vm-compound-assignment.hako"),
+            )
+            .expect("compound assignment statement should execute as Unit");
         assert_eq!(report.status_code(), 0);
         assert_eq!(report.diagnostic_tag(), None);
     }
