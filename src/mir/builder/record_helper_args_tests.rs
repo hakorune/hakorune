@@ -178,6 +178,63 @@ fn helper_setter_completion_bypasses_generic_terminal() {
 }
 
 #[test]
+fn prepared_setter_has_no_builder_effect_until_execution() {
+    let source = r#"
+        box HakoAllocObjectLifecycleAllocResult {
+            recordAttempt() { return 1 }
+        }
+    "#;
+    let root = NyashParser::parse_from_string(source).unwrap();
+    let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root).unwrap();
+    let mut builder = MirBuilder::new();
+    builder
+        .comp_ctx
+        .install_callable_declaration_catalog(catalog)
+        .unwrap();
+    builder.enter_function_for_test("prepared_record_setter/0".to_string());
+
+    let prepared = builder
+        .prepare_same_module_helper_setter_inline(
+            "HakoAllocObjectLifecycleAllocResult",
+            "recordAttempt",
+            &[],
+        )
+        .unwrap()
+        .expect("allowlisted setter must prepare");
+    let instruction_count = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks
+        .values()
+        .map(|block| block.instructions.len())
+        .sum::<usize>();
+    assert_eq!(instruction_count, 0, "prepare must not emit MIR");
+
+    let mut descent = LegacyMethodCallArgumentsV1::new(&[]);
+    let result = builder
+        .execute_prepared_same_module_helper_setter_inline(prepared, &[], None, &mut descent)
+        .unwrap();
+    let instructions = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks
+        .values()
+        .flat_map(|block| &block.instructions)
+        .collect::<Vec<_>>();
+    assert!(instructions.iter().any(|instruction| matches!(
+        instruction,
+        MirInstruction::Const {
+            dst,
+            value: crate::mir::ConstValue::Integer(1),
+        } if *dst == result
+    )));
+}
+
+#[test]
 fn infer_same_module_helper_receiver_box_name_follows_phi_inputs_without_hint() {
     let signature = FunctionSignature {
         name: "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1".to_string(),

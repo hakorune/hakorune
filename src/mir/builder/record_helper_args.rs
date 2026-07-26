@@ -58,11 +58,27 @@ struct HelperArgBinding {
 /// Consumer-local snapshot used only to end the immutable catalog borrow
 /// before expression lowering mutates the Builder. It is not a declaration
 /// store and is never retained in Builder state.
+#[derive(Debug)]
 struct PreparedHelperDeclarationV1 {
     function_name: String,
     params: Vec<String>,
     param_decls: Vec<ParamDecl>,
     body: Vec<ASTNode>,
+}
+
+/// Read-only eligibility evidence for the record-helper inline path. It owns
+/// no lowered arguments or Builder effect; execution remains a separate step.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct PreparedRecordHelperInlineV1 {
+    helper: PreparedHelperDeclarationV1,
+    record_arg_indices: Vec<usize>,
+}
+
+/// Read-only eligibility evidence for the allowlisted setter inline path.
+/// It cannot lower an argument or emit the helper body by itself.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct PreparedSameModuleHelperSetterInlineV1 {
+    helper: PreparedHelperDeclarationV1,
 }
 
 impl MirBuilder {
@@ -75,30 +91,11 @@ impl MirBuilder {
         receiver: Option<ValueId>,
         descent: &mut dyn MethodCallArgumentDescentV1,
     ) -> Result<Option<ValueId>, String> {
-        let Some(helper) =
-            self.prepare_same_module_helper_declaration(namespace, owner, method, args.len())?
+        let Some(prepared) = self.prepare_record_helper_inline(namespace, owner, method, args)?
         else {
             return Ok(None);
         };
-        if helper.params.len() != args.len() {
-            return Ok(None);
-        }
-
-        let record_args = self.collect_record_helper_arg_indices(args);
-        if record_args.is_empty() {
-            return Ok(None);
-        }
-
-        let bindings = self.build_record_helper_arg_bindings(
-            &helper.function_name,
-            args,
-            &helper.params,
-            &helper.param_decls,
-            &record_args,
-            descent,
-        )?;
-
-        self.inline_record_helper_body(&helper.function_name, receiver, bindings, &helper.body)
+        self.execute_prepared_record_helper_inline(prepared, args, receiver, descent)
             .map(Some)
     }
 
@@ -128,6 +125,68 @@ impl MirBuilder {
         receiver: Option<ValueId>,
         descent: &mut dyn MethodCallArgumentDescentV1,
     ) -> Result<Option<ValueId>, String> {
+        let Some(prepared) = self.prepare_same_module_helper_setter_inline(owner, method, args)?
+        else {
+            return Ok(None);
+        };
+        self.execute_prepared_same_module_helper_setter_inline(prepared, args, receiver, descent)
+            .map(Some)
+    }
+
+    pub(in crate::mir::builder) fn prepare_record_helper_inline(
+        &self,
+        namespace: SameModuleCallableNamespaceV1,
+        owner: &str,
+        method: &str,
+        args: &[ASTNode],
+    ) -> Result<Option<PreparedRecordHelperInlineV1>, String> {
+        let Some(helper) =
+            self.prepare_same_module_helper_declaration(namespace, owner, method, args.len())?
+        else {
+            return Ok(None);
+        };
+        if helper.params.len() != args.len() {
+            return Ok(None);
+        }
+        let record_arg_indices = self.collect_record_helper_arg_indices(args);
+        if record_arg_indices.is_empty() {
+            return Ok(None);
+        }
+        Ok(Some(PreparedRecordHelperInlineV1 {
+            helper,
+            record_arg_indices,
+        }))
+    }
+
+    pub(in crate::mir::builder) fn execute_prepared_record_helper_inline(
+        &mut self,
+        prepared: PreparedRecordHelperInlineV1,
+        args: &[ASTNode],
+        receiver: Option<ValueId>,
+        descent: &mut dyn MethodCallArgumentDescentV1,
+    ) -> Result<ValueId, String> {
+        let bindings = self.build_record_helper_arg_bindings(
+            &prepared.helper.function_name,
+            args,
+            &prepared.helper.params,
+            &prepared.helper.param_decls,
+            &prepared.record_arg_indices,
+            descent,
+        )?;
+        self.inline_record_helper_body(
+            &prepared.helper.function_name,
+            receiver,
+            bindings,
+            &prepared.helper.body,
+        )
+    }
+
+    pub(in crate::mir::builder) fn prepare_same_module_helper_setter_inline(
+        &self,
+        owner: &str,
+        method: &str,
+        args: &[ASTNode],
+    ) -> Result<Option<PreparedSameModuleHelperSetterInlineV1>, String> {
         if !is_inlineable_same_module_helper_key(owner, method, args.len()) {
             if crate::config::env::builder_static_call_trace() {
                 crate::runtime::get_global_ring0().log.info(&format!(
@@ -178,6 +237,17 @@ impl MirBuilder {
             return Ok(None);
         }
 
+        Ok(Some(PreparedSameModuleHelperSetterInlineV1 { helper }))
+    }
+
+    pub(in crate::mir::builder) fn execute_prepared_same_module_helper_setter_inline(
+        &mut self,
+        prepared: PreparedSameModuleHelperSetterInlineV1,
+        args: &[ASTNode],
+        receiver: Option<ValueId>,
+        descent: &mut dyn MethodCallArgumentDescentV1,
+    ) -> Result<ValueId, String> {
+        let helper = prepared.helper;
         let mut bindings = Vec::with_capacity(args.len());
         for (index, param_name) in helper.params.iter().enumerate() {
             let value = descent.lower_index(self, index)?;
@@ -196,7 +266,6 @@ impl MirBuilder {
             ));
         }
         self.inline_record_helper_body(&helper.function_name, receiver, bindings, &helper.body)
-            .map(Some)
     }
 
     pub(in crate::mir::builder) fn try_inline_same_module_helper_setter_call_from_receiver_with_descent(
@@ -206,6 +275,29 @@ impl MirBuilder {
         args: &[ASTNode],
         descent: &mut dyn MethodCallArgumentDescentV1,
     ) -> Result<Option<ValueId>, String> {
+        let Some(prepared) = self.prepare_same_module_helper_setter_inline_from_receiver(
+            object_value,
+            method,
+            args,
+        )?
+        else {
+            return Ok(None);
+        };
+        self.execute_prepared_same_module_helper_setter_inline(
+            prepared,
+            args,
+            Some(object_value),
+            descent,
+        )
+        .map(Some)
+    }
+
+    pub(in crate::mir::builder) fn prepare_same_module_helper_setter_inline_from_receiver(
+        &self,
+        object_value: ValueId,
+        method: &str,
+        args: &[ASTNode],
+    ) -> Result<Option<PreparedSameModuleHelperSetterInlineV1>, String> {
         let Some(box_name) = self.infer_same_module_helper_receiver_box_name(object_value) else {
             if crate::config::env::builder_static_call_trace() {
                 crate::runtime::get_global_ring0().log.info(&format!(
@@ -224,13 +316,7 @@ impl MirBuilder {
                 args.len()
             ));
         }
-        self.try_inline_same_module_helper_setter_call_with_descent(
-            &box_name,
-            method,
-            args,
-            Some(object_value),
-            descent,
-        )
+        self.prepare_same_module_helper_setter_inline(&box_name, method, args)
     }
 
     fn prepare_same_module_helper_declaration(

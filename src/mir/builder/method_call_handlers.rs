@@ -17,6 +17,21 @@ use crate::mir::builder::me_call_header_observation::{
 use crate::mir::builder::{MirBuilder, ValueId};
 use crate::mir::TypeOpKind;
 
+use super::record_helper_args::{
+    PreparedRecordHelperInlineV1, PreparedSameModuleHelperSetterInlineV1,
+};
+
+/// Read-only standard-method route decision.  It carries helper eligibility
+/// evidence, but cannot descend through arguments or emit MIR by itself.
+#[derive(Debug)]
+enum PreparedStandardMethodExecutionV1 {
+    WeakLoad,
+    UpgradeRejected,
+    RecordHelper(PreparedRecordHelperInlineV1),
+    Setter(PreparedSameModuleHelperSetterInlineV1),
+    Unified,
+}
+
 /// Me-call 専用のポリシー箱。
 ///
 /// - 責務:
@@ -281,9 +296,11 @@ impl MirBuilder {
         arguments: &[ASTNode],
     ) -> Result<ValueId, String> {
         let mut descent = LegacyMethodCallArgumentsV1::new(arguments);
-        if let Some(result) = self.try_complete_standard_method_preflight(
+        let prepared =
+            self.prepare_standard_method_execution_v1(object_value, &method, arguments)?;
+        if let Some(result) = self.execute_prepared_standard_method_execution_v1(
+            prepared,
             object_value,
-            &method,
             arguments,
             &mut descent,
         )? {
@@ -303,22 +320,26 @@ impl MirBuilder {
     where
         Port: MethodCallDescentPortV1 + MethodCallValueTerminalPortV1,
     {
-        if let Some(result) =
-            self.try_complete_standard_method_preflight(object_value, &method, arguments, descent)?
-        {
+        let prepared =
+            self.prepare_standard_method_execution_v1(object_value, &method, arguments)?;
+        if let Some(result) = self.execute_prepared_standard_method_execution_v1(
+            prepared,
+            object_value,
+            arguments,
+            descent,
+        )? {
             return Ok(result);
         }
         let arg_values = descent.lower_all(self)?;
         descent.finish_standard_value_terminal(self, object_value, method, arg_values)
     }
 
-    fn try_complete_standard_method_preflight(
-        &mut self,
+    fn prepare_standard_method_execution_v1(
+        &self,
         object_value: ValueId,
         method: &str,
         arguments: &[ASTNode],
-        descent: &mut dyn MethodCallArgumentDescentV1,
-    ) -> Result<Option<ValueId>, String> {
+    ) -> Result<PreparedStandardMethodExecutionV1, String> {
         if crate::config::env::joinir_dev::debug_enabled() {
             crate::runtime::get_global_ring0().log.debug(&format!(
                 "[handle_standard_method_call] ENTRY: method={} object=%{}",
@@ -329,12 +350,12 @@ impl MirBuilder {
         // Phase 285A0.1: WeakRef.weak_to_strong() → WeakRef(Load)
         // SSOT: docs/reference/language/lifecycle.md:179 - weak_to_strong() returns Box | null
         if method == "weak_to_strong" && arguments.is_empty() {
-            return self.emit_weak_load(object_value).map(Some);
+            return Ok(PreparedStandardMethodExecutionV1::WeakLoad);
         }
 
         // Phase 285A0.1: upgrade() is deprecated - Fail-Fast
         if method == "upgrade" && arguments.is_empty() {
-            return Err("WeakRef uses weak_to_strong(), not upgrade()".to_string());
+            return Ok(PreparedStandardMethodExecutionV1::UpgradeRejected);
         }
 
         // RECORD-VALUE-HELPER-001 follow-up:
@@ -351,29 +372,58 @@ impl MirBuilder {
             .is_some_and(|me| me == object_value)
         {
             if let Some(cls) = current_enclosing_box_name(self) {
-                if let Some(result) = self.try_inline_record_helper_call_with_descent(
+                if let Some(prepared) = self.prepare_record_helper_inline(
                     SameModuleCallableNamespaceV1::InstanceBoxMethod,
                     &cls,
                     method,
                     arguments,
-                    Some(object_value),
-                    descent,
                 )? {
-                    return Ok(Some(result));
+                    return Ok(PreparedStandardMethodExecutionV1::RecordHelper(prepared));
                 }
             }
         }
 
-        if let Some(result) = self
-            .try_inline_same_module_helper_setter_call_from_receiver_with_descent(
-                object_value,
-                method,
-                arguments,
-                descent,
-            )?
-        {
-            return Ok(Some(result));
+        if let Some(prepared) = self.prepare_same_module_helper_setter_inline_from_receiver(
+            object_value,
+            method,
+            arguments,
+        )? {
+            return Ok(PreparedStandardMethodExecutionV1::Setter(prepared));
         }
-        Ok(None)
+        Ok(PreparedStandardMethodExecutionV1::Unified)
+    }
+
+    fn execute_prepared_standard_method_execution_v1(
+        &mut self,
+        prepared: PreparedStandardMethodExecutionV1,
+        object_value: ValueId,
+        arguments: &[ASTNode],
+        descent: &mut dyn MethodCallArgumentDescentV1,
+    ) -> Result<Option<ValueId>, String> {
+        match prepared {
+            PreparedStandardMethodExecutionV1::WeakLoad => {
+                self.emit_weak_load(object_value).map(Some)
+            }
+            PreparedStandardMethodExecutionV1::UpgradeRejected => {
+                Err("WeakRef uses weak_to_strong(), not upgrade()".to_string())
+            }
+            PreparedStandardMethodExecutionV1::RecordHelper(prepared) => self
+                .execute_prepared_record_helper_inline(
+                    prepared,
+                    arguments,
+                    Some(object_value),
+                    descent,
+                )
+                .map(Some),
+            PreparedStandardMethodExecutionV1::Setter(prepared) => self
+                .execute_prepared_same_module_helper_setter_inline(
+                    prepared,
+                    arguments,
+                    Some(object_value),
+                    descent,
+                )
+                .map(Some),
+            PreparedStandardMethodExecutionV1::Unified => Ok(None),
+        }
     }
 }

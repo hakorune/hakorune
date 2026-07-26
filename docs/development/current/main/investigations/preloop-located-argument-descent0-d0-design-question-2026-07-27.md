@@ -519,6 +519,22 @@ STANDARD-METHOD-EXECUTION-PREP0-S0
 Extract behavior-neutral standard prepare/execute products. Preserve weak
 load, upgrade rejection, record/setter inline, and unified fallback.
 
+#### Closeout (2026-07-27)
+
+Closed. `PreparedStandardMethodExecutionV1` is now the only decision product
+for the Standard method route: weak load, deprecated-upgrade rejection,
+record-helper inline, allowlisted setter inline, or unified fallback. Its
+prepare step borrows only existing Builder facts and callable declarations;
+argument descent and MIR effects begin exclusively in the shared execute step.
+Both the Legacy and associated descent callers consume that same product.
+Focused prepare/execute coverage fixes the no-MIR-before-execute boundary.
+
+Next executable row:
+
+```text
+ME-CALL-EXECUTION-PREP0-S0
+```
+
 ### 4b. `ME-CALL-EXECUTION-PREP0-S0`
 
 Extract behavior-neutral Me prepare/execute products and use the prepared
