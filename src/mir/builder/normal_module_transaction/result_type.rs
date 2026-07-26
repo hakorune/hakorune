@@ -5,7 +5,7 @@ use crate::mir::MirType;
 
 pub(super) fn normal_main_result_mir_type(result: VerifiedNormalMainThunkResultV1) -> MirType {
     match result {
-        VerifiedNormalMainThunkResultV1::Unit => MirType::Void,
+        VerifiedNormalMainThunkResultV1::Unit { .. } => MirType::Void,
         VerifiedNormalMainThunkResultV1::Integer => MirType::Integer,
         VerifiedNormalMainThunkResultV1::Bool => MirType::Bool,
         VerifiedNormalMainThunkResultV1::Float => MirType::Float,

@@ -4,6 +4,7 @@ use crate::mir::builder::module_draft_collector::FunctionDraftKeyV1;
 use crate::mir::compiler::normal_source_plan::{
     with_main_thunk_for_test, VerifiedNormalMainThunkResultV1,
 };
+use crate::mir::resolved_control_flow::FunctionUnitOriginV1;
 use std::collections::HashMap;
 
 fn literal(value: LiteralValue) -> ASTNode {
@@ -68,7 +69,12 @@ fn main_program(body: Vec<ASTNode>) -> ASTNode {
 #[test]
 fn main_only_batch_seals_unit_and_scalar_manifests() {
     for (body, expected) in [
-        (Vec::new(), VerifiedNormalMainThunkResultV1::Unit),
+        (
+            Vec::new(),
+            VerifiedNormalMainThunkResultV1::Unit {
+                origin: FunctionUnitOriginV1::EmptyBody,
+            },
+        ),
         (
             vec![return_(LiteralValue::Integer(7))],
             VerifiedNormalMainThunkResultV1::Integer,

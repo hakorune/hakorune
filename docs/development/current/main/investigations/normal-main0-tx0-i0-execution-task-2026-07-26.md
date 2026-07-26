@@ -405,3 +405,67 @@ imports/using
 JSON/LLVM/native
 Legacy retirement
 ```
+
+## Closeout
+
+```text
+Status:
+  closed
+
+Landed owner chain:
+  PreparedNormalCanonicalModuleBatchV1
+    -> fallible source-draft preparation
+    -> exact physical-thunk preparation
+    -> two-row correspondence and empty-shell preflight
+    -> PreparedNormalMainModuleTransactionV1
+    -> infallible ownership-only commit
+    -> CompletedNormalMainModuleCandidateV1
+
+Failure retention:
+  SourceDraft =
+    exact semantic evidence + Builder restoration
+
+  PhysicalThunk =
+    source draft + exact semantic evidence + Builder restoration
+
+  BatchCorrespondence / CandidateVerification =
+    source and physical drafts + exact semantic evidence
+    + Builder restoration
+
+  retry / resume / fallback / plan reconstruction =
+    zero
+
+Regression repaired:
+  explicit `return void` / `return null` now consumes the already-sealed
+  return-expression subject before claiming ExplicitNoValueTerminal.
+  This changes no admission or return authority.
+
+Result/decode evidence:
+  Unit retains exact FunctionUnitOriginV1 through the thunk plan and
+  completed candidate; no later VM adapter needs AST re-observation or
+  an ImplicitFallthrough fallback.
+
+Candidate publication:
+  zero
+
+VM / process / runner consumers:
+  zero
+```
+
+Acceptance evidence:
+
+```text
+cargo check --lib                                      = green
+mir::compiler::normal_source_plan                      = 30/30
+mir::builder::normal_module_transaction                = 11/11
+normal-source-plan0 row guard                          = green
+mir-root-facade guard                                  = green
+current-state pointer guard                            = green
+all modified/new source/check files below 800 lines    = green
+```
+
+Next row:
+
+```text
+SOURCE-ENTRY-VMREF-NEUTRAL0-L0
+```

@@ -66,7 +66,7 @@ impl VerifiedNormalMainPhysicalThunkDraftV1 {
             },
             entry_block,
         );
-        let returned = if result == VerifiedNormalMainThunkResultV1::Unit {
+        let returned = if matches!(result, VerifiedNormalMainThunkResultV1::Unit { .. }) {
             None
         } else {
             let value = draft.next_value_id();

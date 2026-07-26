@@ -291,6 +291,43 @@ impl RejectedNormalMainModuleTransactionV1<'_> {
     pub(in crate::mir) fn discard(self) {
         drop(self);
     }
+
+    #[cfg(test)]
+    pub(super) fn retained_source_owner(&self) -> FunctionOwnerIdV1 {
+        let _ = self.evidence.source_unit;
+        self.evidence.source_header.owner()
+    }
+
+    #[cfg(test)]
+    pub(super) fn prepared_kind(&self) -> RetainedNormalMainPreparedDraftKindV1 {
+        match &self.prepared {
+            RetainedNormalMainPreparedDraftsV1::None => RetainedNormalMainPreparedDraftKindV1::None,
+            RetainedNormalMainPreparedDraftsV1::UnsealedSource(_) => {
+                RetainedNormalMainPreparedDraftKindV1::UnsealedSource
+            }
+            RetainedNormalMainPreparedDraftsV1::Source(_) => {
+                RetainedNormalMainPreparedDraftKindV1::Source
+            }
+            RetainedNormalMainPreparedDraftsV1::SourceAndPhysical { .. } => {
+                RetainedNormalMainPreparedDraftKindV1::SourceAndPhysical
+            }
+        }
+    }
+
+    #[cfg(test)]
+    pub(super) fn has_restoration_receipt(&self) -> bool {
+        let _ = &self.restoration;
+        true
+    }
+}
+
+#[cfg(test)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum RetainedNormalMainPreparedDraftKindV1 {
+    None,
+    UnsealedSource,
+    Source,
+    SourceAndPhysical,
 }
 
 impl CompletedNormalMainModuleCandidateV1 {
@@ -394,5 +431,90 @@ fn reject<'unit>(
         restoration: NormalMainBuilderRestorationReceiptV1 {
             _seal: NormalMainBuilderRestorationReceiptSealV1,
         },
+    }
+}
+
+#[cfg(test)]
+pub(super) fn reject_normal_main_batch_at_stage_for_test<'unit>(
+    builder: &mut MirBuilder,
+    batch: PreparedNormalCanonicalModuleBatchV1<'unit>,
+    stage: NormalMainModuleTransactionStageV1,
+) -> RejectedNormalMainModuleTransactionV1<'unit> {
+    let (thunk, schema) = batch.into_parts();
+    let (source_plan, source_header, result, entry) = thunk.into_parts();
+    let source_unit = source_plan.source_unit();
+    let evidence = RetainedNormalMainTransactionEvidenceV1 {
+        source_unit,
+        schema,
+        source_header,
+        result,
+        entry,
+    };
+    if stage == NormalMainModuleTransactionStageV1::SourceDraft {
+        return reject(
+            evidence,
+            stage,
+            NormalMainModuleTransactionErrorV1::SourceLowering(
+                CanonicalResolvedBuildErrorV1::BuilderContract(
+                    "[test/normal-main/source-draft]".to_owned(),
+                ),
+            ),
+            RetainedNormalMainPreparedDraftsV1::None,
+        );
+    }
+
+    let source_draft = builder
+        .lower_resolved_trivial_function_draft(source_plan.into_lowering())
+        .expect("test failure injection requires a valid source draft");
+    let source = VerifiedNormalMainSourceDraftV1::seal(
+        source_draft,
+        evidence.source_header.symbol().as_mir_name(),
+        evidence.source_header.arity(),
+        evidence.result,
+    )
+    .expect("test failure injection requires exact source correspondence");
+    if stage == NormalMainModuleTransactionStageV1::PhysicalThunk {
+        return reject(
+            evidence,
+            stage,
+            NormalMainModuleTransactionErrorV1::PhysicalThunk(
+                NormalMainPhysicalThunkErrorV1::PhysicalArityMismatch { actual: 1 },
+            ),
+            RetainedNormalMainPreparedDraftsV1::Source(source),
+        );
+    }
+
+    let physical = VerifiedNormalMainPhysicalThunkDraftV1::prepare(
+        &evidence.source_header,
+        evidence.result,
+        &evidence.entry,
+    )
+    .expect("test failure injection requires a valid physical draft");
+    let prepared = RetainedNormalMainPreparedDraftsV1::SourceAndPhysical { source, physical };
+    match stage {
+        NormalMainModuleTransactionStageV1::BatchCorrespondence => reject(
+            evidence,
+            stage,
+            NormalMainModuleTransactionErrorV1::BatchCorrespondence(
+                NormalMainBatchCorrespondenceErrorV1::SourceSymbolMismatch,
+            ),
+            prepared,
+        ),
+        NormalMainModuleTransactionStageV1::CandidateVerification => reject(
+            evidence,
+            stage,
+            NormalMainModuleTransactionErrorV1::CandidateVerification(
+                vec![VerificationError::ControlFlowError {
+                    block: crate::mir::BasicBlockId::new(0),
+                    reason: "injected candidate verification failure".to_owned(),
+                }]
+                .into_boxed_slice(),
+            ),
+            prepared,
+        ),
+        NormalMainModuleTransactionStageV1::SourceDraft
+        | NormalMainModuleTransactionStageV1::PhysicalThunk => {
+            unreachable!("earlier injected stages already returned")
+        }
     }
 }

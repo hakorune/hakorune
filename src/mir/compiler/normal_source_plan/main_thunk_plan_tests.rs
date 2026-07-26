@@ -1,7 +1,7 @@
 use super::*;
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::builder::CanonicalNormalMainEntryTargetV1;
-use crate::mir::resolved_control_flow::SealedFunctionExitDispositionV1;
+use crate::mir::resolved_control_flow::{FunctionUnitOriginV1, SealedFunctionExitDispositionV1};
 use crate::mir::resolved_value_profile::product::{
     TrivialRepresentationV1, TrivialTerminalProfileV1,
 };
@@ -96,21 +96,33 @@ fn with_plan<R>(
 #[test]
 fn thunk_seals_unit_origins_and_scalar_results() {
     for (result, body, expected) in [
-        (None, Vec::new(), VerifiedNormalMainThunkResultV1::Unit),
+        (
+            None,
+            Vec::new(),
+            VerifiedNormalMainThunkResultV1::Unit {
+                origin: FunctionUnitOriginV1::EmptyBody,
+            },
+        ),
         (
             None,
             vec![return_(None)],
-            VerifiedNormalMainThunkResultV1::Unit,
+            VerifiedNormalMainThunkResultV1::Unit {
+                origin: FunctionUnitOriginV1::BareReturn,
+            },
         ),
         (
             None,
             vec![return_(Some(LiteralValue::Void))],
-            VerifiedNormalMainThunkResultV1::Unit,
+            VerifiedNormalMainThunkResultV1::Unit {
+                origin: FunctionUnitOriginV1::ExplicitVoid,
+            },
         ),
         (
             None,
             vec![return_(Some(LiteralValue::Null))],
-            VerifiedNormalMainThunkResultV1::Unit,
+            VerifiedNormalMainThunkResultV1::Unit {
+                origin: FunctionUnitOriginV1::ExplicitNull,
+            },
         ),
         (
             None,
@@ -130,7 +142,9 @@ fn thunk_seals_unit_origins_and_scalar_results() {
         (
             Some("void"),
             vec![return_(Some(LiteralValue::Void))],
-            VerifiedNormalMainThunkResultV1::Unit,
+            VerifiedNormalMainThunkResultV1::Unit {
+                origin: FunctionUnitOriginV1::ExplicitVoid,
+            },
         ),
         (
             Some("i64"),

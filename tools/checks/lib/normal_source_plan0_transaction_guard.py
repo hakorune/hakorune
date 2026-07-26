@@ -23,10 +23,15 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
     physical_path = directory / "physical_thunk.rs"
     source_path = directory / "source_draft.rs"
     tests_path = directory / "main_transaction_tests.rs"
+    thunk_plan_path = (
+        root
+        / "src/mir/compiler/normal_source_plan/main_thunk_plan.rs"
+    )
     transaction = transaction_path.read_text()
     physical = physical_path.read_text()
     source = source_path.read_text()
     tests = tests_path.read_text()
+    thunk_plan = thunk_plan_path.read_text()
     production = "\n".join(
         path.read_text()
         for path in (
@@ -90,6 +95,14 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
     ):
         require(physical, fragment, f"physical thunk contract {fragment}")
 
+    for fragment in (
+        "Unit { origin: FunctionUnitOriginV1 }",
+        "ExplicitUnit { origin, .. }",
+        "ImplicitUnit { origin, .. }",
+        "Unit { origin: *origin }",
+    ):
+        require(thunk_plan, fragment, f"lossless Main Unit evidence {fragment}")
+
     for forbidden in (
         "ASTNode",
         "NYASH_ENTRY",
@@ -125,10 +138,13 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
     for fragment in (
         "fn transaction_commits_exact_source_main_and_physical_thunk(",
         "fn same_builder_can_prepare_successive_normal_main_candidates(",
+        "fn transaction_admits_exact_unit_spelling_and_annotation_matrix(",
+        "fn every_rejection_stage_retains_exact_progress_and_builder_reuse(",
         'module.get_function("main/0")',
         'module.get_function("main")',
         'Callee::Global("main/0".to_owned())',
         "assert_eq!(dst, value)",
+        "rejected.has_restoration_receipt()",
     ):
         require(tests, fragment, f"TX0 fixture {fragment}")
 
@@ -146,6 +162,7 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
         source_path,
         tests_path,
         directory / "result_type.rs",
+        thunk_plan_path,
         Path(__file__),
     ):
         if len(path.read_text().splitlines()) >= 800:

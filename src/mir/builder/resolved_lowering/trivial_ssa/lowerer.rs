@@ -202,6 +202,14 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                         return_value,
                     )?;
                 } else {
+                    if matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) {
+                        let value = self
+                            .input
+                            .source()
+                            .child_expr_from_stmt(statement, ExprChildRoleV1::ReturnValue)
+                            .map_err(|error| error.to_string())?;
+                        self.lower_expr(&value, coverage.as_deref_mut())?;
+                    }
                     self.profile
                         .claim_terminal_explicit_no_value(statement.site())?;
                     self.completion

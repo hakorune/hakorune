@@ -6,7 +6,7 @@ use crate::mir::builder::{canonical_normal_main_entry_target, CanonicalNormalMai
 use crate::mir::compiler::capability::{
     ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
-use crate::mir::resolved_control_flow::SealedFunctionExitDispositionV1;
+use crate::mir::resolved_control_flow::{FunctionUnitOriginV1, SealedFunctionExitDispositionV1};
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::resolved_value_profile::product::{
     TrivialRepresentationV1, TrivialTerminalProfileV1,
@@ -16,7 +16,7 @@ use super::main_function_plan::VerifiedNormalMainFunctionPlanV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum VerifiedNormalMainThunkResultV1 {
-    Unit,
+    Unit { origin: FunctionUnitOriginV1 },
     Integer,
     Bool,
     Float,
@@ -185,13 +185,13 @@ fn seal_result(
 ) -> Result<VerifiedNormalMainThunkResultV1, NormalMainThunkPlanErrorV1> {
     match (disposition, terminal) {
         (
-            SealedFunctionExitDispositionV1::ExplicitUnit { .. },
+            SealedFunctionExitDispositionV1::ExplicitUnit { origin, .. },
             TrivialTerminalProfileV1::ExplicitNoValue { .. },
-        )
-        | (
-            SealedFunctionExitDispositionV1::ImplicitUnit { .. },
+        ) => Ok(VerifiedNormalMainThunkResultV1::Unit { origin: *origin }),
+        (
+            SealedFunctionExitDispositionV1::ImplicitUnit { origin, .. },
             TrivialTerminalProfileV1::ImplicitNoValue { .. },
-        ) => Ok(VerifiedNormalMainThunkResultV1::Unit),
+        ) => Ok(VerifiedNormalMainThunkResultV1::Unit { origin: *origin }),
         (
             SealedFunctionExitDispositionV1::ExplicitValue { .. },
             TrivialTerminalProfileV1::ExplicitValue { representation, .. },
