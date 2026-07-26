@@ -16,6 +16,7 @@ mod physical_thunk;
 mod rejection;
 mod result_type;
 mod schema;
+mod script_transaction;
 mod source_draft;
 
 #[cfg(test)]
@@ -63,6 +64,10 @@ pub(in crate::mir::builder) use rejection::{
 pub(in crate::mir::builder) use schema::{
     NormalModuleDraftExpectationV1, NormalModuleDraftRoleV1, NormalModuleEntryRelationV1,
     NormalModuleTransactionDraftV1, NormalModuleTransactionSchemaV1,
+};
+pub(in crate::mir) use script_transaction::{
+    CompletedNormalScriptModuleCandidateV1, NormalScriptModuleTransactionErrorV1,
+    PreparedNormalScriptModuleTransactionV1, RejectedNormalScriptModuleTransactionV1,
 };
 
 #[cfg(test)]
