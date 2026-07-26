@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-SOURCE-PLAN0-prime-r1 is accepted. The narrow NormalFileNoImportVmReferenceV1 profile remains frozen, a later canonical-core profile is separate, and one source-owned classifier seals Script, Main0, or CallableModule without profile routing or retry. NORMAL-SOURCE-PLAN0-S0 is active as a disconnected Builder/MIR/backend/runner-free implementation row."
+status = "NORMAL-SOURCE-PLAN0-S0 is closed: one source-owned classifier seals Script, Main0, or CallableModule with deterministic Main sites, retained typed rejection, zero profile/Builder/MIR/backend/runner authority, zero production consumers, and all files below 800 lines. NORMAL-SOURCE-PLAN0-INPUT0-S0 is active to add one disconnected consuming front-door request without changing the narrow production route."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "NORMAL-SOURCE-PLAN0-S0"
-current_execution_summary = "Implement one disconnected source-owned normal family classifier. It owns the parsed AST and seals ScalarRoot::Script, ScalarRoot::Main0, or CallableModule; profile admission, Builder/MIR/backend/runner consumers, and route changes remain zero."
+current_execution_row = "NORMAL-SOURCE-PLAN0-INPUT0-S0"
+current_execution_summary = "Move one already parsed PreparedNormalFileSourceV1 into a disconnected source-plan request retaining the sealed profile and one-read/one-parse receipt. No bare AST accessor, profile match, production consumer, Raw-route change, retry, or second read/parse is allowed."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -332,8 +332,8 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/normal-source-plan0-s0-execution-task-2026-07-26.md"
-phase_status = "docs/development/current/main/investigations/normal-source-plan0-s0-execution-task-2026-07-26.md"
+active_phase = "docs/development/current/main/investigations/normal-source-plan0-input0-s0-execution-task-2026-07-26.md"
+phase_status = "docs/development/current/main/investigations/normal-source-plan0-input0-s0-execution-task-2026-07-26.md"
 method_anchor = "docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -348,6 +348,7 @@ result_carrier_normal_capability_s0_task = "docs/development/current/main/invest
 normal_file_vm0_d2_decision = "docs/development/current/main/investigations/normal-entry-cutover-d2-consultation-2026-07-26.md"
 normal_source_plan0_decision = "docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md"
 normal_source_plan0_s0_task = "docs/development/current/main/investigations/normal-source-plan0-s0-execution-task-2026-07-26.md"
+normal_source_plan0_input0_task = "docs/development/current/main/investigations/normal-source-plan0-input0-s0-execution-task-2026-07-26.md"
 language_docs_status_task = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
 language_docs_try_catch_task = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
 language_tryless_postfix_catch_task = "docs/development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md"
@@ -408,9 +409,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "normal-source-plan0-s0-execution-task-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/normal-source-plan0-s0-execution-task-2026-07-26.md"
-latest_card_summary = """NORMAL-SOURCE-PLAN0-prime-r1 is accepted. S0 implements one disconnected source-owned classifier with exactly Script, Main0, and CallableModule outcomes; profile admission, Builder/MIR/backend/runner consumers, fallback, and existing route changes remain zero."""
+latest_card = "normal-source-plan0-input0-s0-execution-task-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/normal-source-plan0-input0-s0-execution-task-2026-07-26.md"
+latest_card_summary = """NORMAL-SOURCE-PLAN0-S0 is closed. INPUT0 adds one disconnected consuming PreparedNormalFileSourceV1-to-source-plan request retaining the sealed profile and read/parse receipt, while the existing narrow production handoff, profile admission, and all compiler/runtime routes remain unchanged."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -612,7 +613,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-SOURCE-PLAN0-S0"
+current_blocker_token = "NORMAL-SOURCE-PLAN0-INPUT0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

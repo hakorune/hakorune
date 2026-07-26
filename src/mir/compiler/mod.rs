@@ -32,6 +32,8 @@ pub(in crate::mir) mod function_input;
 pub(in crate::mir) mod located;
 mod lowering_input;
 #[allow(dead_code)]
+pub(in crate::mir) mod normal_source_plan;
+#[allow(dead_code)]
 pub(in crate::mir) mod module_postprocess;
 pub(in crate::mir) mod module_postprocess_stages;
 pub(in crate::mir) mod publication_kernel;

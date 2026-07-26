@@ -19,8 +19,8 @@ Related:
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
 - current decision authority:
   `normal-source-plan0-design-stop-2026-07-26.md`
-- current execution authority:
-  `normal-source-plan0-s0-execution-task-2026-07-26.md`
+- current execution authority: read `latest_card_path` in
+  `CURRENT_STATE.toml`
 - priority: follow the exact active task. Do not reopen the superseded App
   any-statement-tail S0 as canonical work.
 - closed row: RAW-VM-REFERENCE-SUPPORT0-S0 — typed profile handoff, bounded
@@ -34,9 +34,8 @@ Related:
 - accepted target: postfix `catch` protects the immediately preceding region
   and handles only the pending `RecoverableFailure` Outcome; terminal `Fault`
   remains non-catchable
-- active row: NORMAL-SOURCE-PLAN0-S0 — one disconnected source-owned
-  Script/Main0/CallableModule classifier; profile admission, lowering,
-  execution, and route changes remain zero
+- active row: read `current_execution_row` in `CURRENT_STATE.toml`; continue
+  only its bounded source-plan contract and non-claims
 - closed immediately before this frontier: passive Canonical/NarrowV1/
   VM-reference profile, explicit early `--backend raw-vm-reference` canary,
   mandatory feature-enabled/disabled parity family, and the D0 decision that

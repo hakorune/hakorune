@@ -44,7 +44,7 @@ box.fini()               = separate lifecycle owner
 ```
 
 `RecoverableFailure` producer and ABI remain parked for
-`LANGUAGE-RECOVERABLE-FAILURE-D0`. `NORMAL-SOURCE-PLAN0-prime-r1` is accepted;
-the active row is the disconnected `NORMAL-SOURCE-PLAN0-S0` classifier.
-Follow `latest_card_path`: profile admission, Builder/MIR/backend/runner
-consumers, default routing, and legacy callers remain outside S0.
+`LANGUAGE-RECOVERABLE-FAILURE-D0`. `NORMAL-SOURCE-PLAN0-prime-r1` is accepted.
+Follow `current_execution_row` and `latest_card_path` in `CURRENT_STATE.toml`;
+profile admission, default routing, and legacy callers remain outside the
+active bounded source-plan series until explicitly selected there.

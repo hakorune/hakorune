@@ -255,7 +255,8 @@ FUNCTION-EXIT-F1-RETURN0-S0
   -> G0 (closed: central selector/route guard)
   -> MIRBUILDER-CORE-COMPLETE0-P0 (closed: aggregate proof guard)
   -> NORMAL-SOURCE-PLAN0-D0 (closed: NORMAL-SOURCE-PLAN0-prime-r1)
-  -> NORMAL-SOURCE-PLAN0-S0 (active: disconnected source-family classifier)
+  -> NORMAL-SOURCE-PLAN0-S0 (closed: disconnected source-family classifier)
+  -> NORMAL-SOURCE-PLAN0-INPUT0-S0 (active source-plan series; exact row is in CURRENT_STATE)
   One new CLI-visible, default-off request is added; no existing caller is
   replaced, so no legacy sunset is issued in this series.
   The accepted classifier keeps the narrow profile frozen, separates profile

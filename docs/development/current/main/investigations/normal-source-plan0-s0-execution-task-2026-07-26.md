@@ -1,5 +1,5 @@
 ---
-Status: active execution task
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Row: NORMAL-SOURCE-PLAN0-S0
@@ -20,6 +20,29 @@ Related:
 ---
 
 # NORMAL-SOURCE-PLAN0-S0
+
+## Closeout
+
+```text
+source-owned classifier                = 1
+Script / Main0 / CallableModule        = green
+source-only retained rejection         = green
+deterministic Main method inventory    = green
+profile/Builder/MIR/backend/runner     = 0
+production consumer                    = 0
+AST/source rewrite                     = 0
+all touched source/check files         < 800 lines
+```
+
+Implemented under:
+
+```text
+src/mir/compiler/normal_source_plan/
+tools/checks/run_row_guard.sh --only normal-source-plan0
+```
+
+Focused unit tests are 9/9 green. `cargo check --lib`, the reusable family
+guard, and the current-state pointer guard are green.
 
 ## Outcome
 
@@ -201,8 +224,8 @@ bash tools/checks/current_state_pointer_guard.sh
 ## Immediate continuation
 
 ```text
-NORMAL-SOURCE-PLAN0-S0
--> NORMAL-SOURCE-PLAN0-INPUT0-S0
+NORMAL-SOURCE-PLAN0-S0 (closed)
+-> NORMAL-SOURCE-PLAN0-INPUT0-S0 (active)
 -> NORMAL-SOURCE-PLAN0-G0
 ```
 

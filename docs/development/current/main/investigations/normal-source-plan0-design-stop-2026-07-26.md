@@ -301,6 +301,13 @@ NORMAL-SOURCE-PLAN0-ADMISSION0-S0
 The dispatcher consumes one admitted plan and selects exactly one already
 sealed owner. It never tries Raw, then canonical, then Legacy.
 
+Current progress:
+
+```text
+NORMAL-SOURCE-PLAN0-S0        = closed
+NORMAL-SOURCE-PLAN0-INPUT0-S0 = active
+```
+
 ### F. Promotion and completion
 
 ```text

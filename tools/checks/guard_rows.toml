@@ -169,3 +169,9 @@ id = "mirbuilder-type-fact-partition"
 label = "FACT0 exact-fact producer partition guard"
 profiles = ["pilot"]
 cmd = ["tools/checks/lib/mirbuilder_type_fact_partition_guard.py", "."]
+
+[[rows]]
+id = "normal-source-plan0"
+label = "NORMAL-SOURCE-PLAN0 source-family authority guard"
+profiles = ["pilot"]
+cmd = ["tools/checks/lib/normal_source_plan0_guard.py"]

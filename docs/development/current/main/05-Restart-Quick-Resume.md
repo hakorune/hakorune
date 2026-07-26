@@ -47,10 +47,9 @@ cargo check -q
   target, and terminal `Fault` remains non-catchable
 - `RecoverableFailure` remains a named pending Outcome target; its producer
   and boundary ABI belong to `LANGUAGE-RECOVERABLE-FAILURE-D0`
-- `NORMAL-SOURCE-PLAN0-prime-r1` is accepted; the active row is the
-  disconnected `NORMAL-SOURCE-PLAN0-S0` source-family classifier. Read
-  `latest_card_path` before editing; profile admission and every
-  Builder/MIR/backend/runner consumer remain outside S0.
+- `NORMAL-SOURCE-PLAN0-prime-r1` is accepted. Read `current_execution_row` and
+  `latest_card_path` before editing; the active source-plan slice must retain
+  its exact profile, lowering, execution, and route non-claims.
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - the current lane is the `active_lane` in `CURRENT_STATE.toml`
