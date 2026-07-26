@@ -15,6 +15,34 @@ mod recipe_projection;
 #[cfg(test)]
 mod script_result_p0;
 
+/// Source-only rejection emitted while projecting the shared Script recipe.
+///
+/// This projection deliberately has no Raw root-plan, Builder, publication,
+/// or invocation-brand input. Raw and canonical Script candidates share the
+/// same source result classification through this boundary.
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir) enum RawScriptRecipeProjectionErrorV1 {
+    RootNotProgram,
+    SourceFacts(RawRootSourceFactsErrorV1),
+    Recipe(RawRootBodyRecipeErrorV1),
+}
+
+/// Project one parsed Script program into the shared source-classified body
+/// recipe. This is intentionally narrower than `RawRootSourceFactsV1`: it
+/// does not select a physical root, open a Raw invocation, or seal a
+/// publication route.
+pub(in crate::mir) fn project_raw_script_body_recipe_v1(
+    source: &ASTNode,
+) -> Result<RawRootBodyRecipeV1, RawScriptRecipeProjectionErrorV1> {
+    let ASTNode::Program { statements, .. } = source else {
+        return Err(RawScriptRecipeProjectionErrorV1::RootNotProgram);
+    };
+    let program = classify_program(statements, &[])
+        .map_err(RawScriptRecipeProjectionErrorV1::SourceFacts)?;
+    recipe_projection::project_script_recipe(program)
+        .map_err(RawScriptRecipeProjectionErrorV1::Recipe)
+}
+
 #[derive(Debug, PartialEq)]
 pub(in crate::mir) struct RawSourceSiteV1 {
     path: Box<[usize]>,

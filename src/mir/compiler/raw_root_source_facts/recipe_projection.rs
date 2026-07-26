@@ -42,7 +42,7 @@ impl RawRootSourceFactsV1 {
         };
         let callable_count = callable_catalog.len();
         let body_recipe = match body {
-            RawRootBodyFactV1::Script(program) => script_recipe(program)?,
+            RawRootBodyFactV1::Script(program) => project_script_recipe(program)?,
             RawRootBodyFactV1::App { main, body } => {
                 let statements = body
                     .statements
@@ -72,7 +72,7 @@ impl RawRootSourceFactsV1 {
     }
 }
 
-fn script_recipe(
+pub(in crate::mir) fn project_script_recipe(
     program: super::RawLocatedScalarProgramV1,
 ) -> Result<RawRootBodyRecipeV1, RawRootBodyRecipeErrorV1> {
     let contract = script_contract(program)?;

@@ -10,6 +10,27 @@ fn site(index: usize) -> RawRootBodySourceSiteV1 {
 }
 
 #[test]
+fn shared_script_projection_has_no_raw_root_or_publication_input() {
+    let source = ASTNode::Program {
+        statements: vec![ASTNode::Literal {
+            value: LiteralValue::Integer(7),
+            span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    };
+
+    let recipe = project_raw_script_body_recipe_v1(&source).expect("shared Script recipe");
+
+    assert!(matches!(
+        recipe.script().expect("script payload").terminal(),
+        RawScriptTerminalRecipeV1::ValueExpression(RawLinearScalarExprV1::Literal {
+            value: LiteralValue::Integer(7),
+            ..
+        })
+    ));
+}
+
+#[test]
 fn script_terminal_recipe_keeps_value_expression_source_owned() {
     let expression = RawLinearScalarExprV1::Literal {
         value: LiteralValue::Integer(7),
