@@ -73,7 +73,7 @@ pub(in crate::mir) struct PreparedScriptPhysicalExitCoreV1 {
 }
 
 #[derive(Debug)]
-enum PreparedScriptPhysicalResultV1 {
+pub(in crate::mir) enum PreparedScriptPhysicalResultV1 {
     ExistingOperand {
         value: ValueId,
         ty: MirType,
@@ -320,5 +320,21 @@ impl CompletedScriptBodyCompletionV1 {
 
     pub(in crate::mir::builder) fn physical(&self) -> &ScriptPhysicalResultV1 {
         &self.physical
+    }
+}
+
+impl PreparedScriptBodyCompletionV1 {
+    pub(in crate::mir::builder) const fn source(&self) -> ScriptSourceCompletionV1 {
+        self.source
+    }
+
+    pub(in crate::mir::builder) fn physical(&self) -> &PreparedScriptPhysicalResultV1 {
+        &self.physical
+    }
+}
+
+impl PreparedScriptPhysicalExitCoreV1 {
+    pub(in crate::mir::builder) fn completion(&self) -> &PreparedScriptBodyCompletionV1 {
+        &self.completion
     }
 }

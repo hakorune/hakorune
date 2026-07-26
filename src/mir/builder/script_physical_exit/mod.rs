@@ -10,9 +10,9 @@ mod terminal;
 
 pub(in crate::mir) use exit::{
     CompletedScriptBodyCompletionV1, CompletedScriptPhysicalExitCoreV1,
-    PreparedScriptBodyCompletionV1, PreparedScriptPhysicalExitCoreV1, ScriptPhysicalExitCommitV1,
-    ScriptPhysicalExitErrorV1, ScriptPhysicalExitOpenContractV1, ScriptPhysicalResultV1,
-    ScriptSourceCompletionV1,
+    PreparedScriptBodyCompletionV1, PreparedScriptPhysicalExitCoreV1,
+    PreparedScriptPhysicalResultV1, ScriptPhysicalExitCommitV1, ScriptPhysicalExitErrorV1,
+    ScriptPhysicalExitOpenContractV1, ScriptPhysicalResultV1, ScriptSourceCompletionV1,
 };
 pub(in crate::mir) use terminal::{
     LoweredScriptTerminalV1, LoweredScriptUnitPayloadV1, ScriptRecipeLoweringErrorV1,

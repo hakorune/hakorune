@@ -11,7 +11,8 @@ use super::root_body_completion::{
     RootBodyResultV1,
 };
 use super::script_physical_exit::{
-    CompletedScriptPhysicalExitCoreV1, ScriptPhysicalResultV1, ScriptSourceCompletionV1,
+    CompletedScriptPhysicalExitCoreV1, PreparedScriptBodyCompletionV1,
+    PreparedScriptPhysicalResultV1, ScriptPhysicalResultV1, ScriptSourceCompletionV1,
 };
 use crate::mir::raw_root_body_recipe::{
     RawRootBodyEntryContractV1, RawRootBodyRouteV1, RawRootExitPolicyV1, RawScriptUnitOriginV1,
@@ -53,6 +54,7 @@ pub(in crate::mir) enum RawRootBodyExitSealErrorV1 {
     UnsupportedReturnType { value: ValueId, actual: MirType },
     TrackerNotSealable(RootBodyCompletionErrorV1),
     ScriptExitMustUseSharedKernel,
+    ScriptCompletionRelationMismatch,
 }
 
 #[derive(Debug)]
@@ -61,6 +63,14 @@ pub(in crate::mir::builder) enum PreparedRawRootExitPlanV1 {
         block: BasicBlockId,
         discarded_tail: Option<ValueId>,
     },
+}
+
+/// Raw-only bridge from the shared prepared Script completion relation to the
+/// existing brand-bound completion tracker. It has no physical Return or
+/// source-result authority and is consumed before the shared commit begins.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) struct PreparedRawScriptCompletionAdapterV1 {
+    tracker_result: RootBodyResultV1,
 }
 
 #[derive(Debug)]
@@ -357,6 +367,33 @@ impl MirBuilder {
     }
 }
 
+impl PreparedRawScriptCompletionAdapterV1 {
+    pub(in crate::mir::builder) fn prepare(
+        completion: &PreparedScriptBodyCompletionV1,
+    ) -> Result<Self, RawRootBodyExitSealErrorV1> {
+        let tracker_result = match (completion.source(), completion.physical()) {
+            (
+                ScriptSourceCompletionV1::Value,
+                PreparedScriptPhysicalResultV1::ExistingOperand { value, .. },
+            )
+            | (
+                ScriptSourceCompletionV1::Unit { .. },
+                PreparedScriptPhysicalResultV1::ExistingOperand { value, .. },
+            ) => RootBodyResultV1::Value(*value),
+            (
+                ScriptSourceCompletionV1::Unit { .. },
+                PreparedScriptPhysicalResultV1::SyntheticVoid { .. },
+            ) => RootBodyResultV1::NoValue,
+            _ => return Err(RawRootBodyExitSealErrorV1::ScriptCompletionRelationMismatch),
+        };
+        Ok(Self { tracker_result })
+    }
+
+    pub(in crate::mir::builder) const fn tracker_result(self) -> RootBodyResultV1 {
+        self.tracker_result
+    }
+}
+
 fn close_raw_root_function_state_v1(builder: &mut MirBuilder) {
     builder.function_state.variable_ctx = Default::default();
     builder.function_state.type_ctx = Default::default();
@@ -559,5 +596,80 @@ impl RawRootBodyExitWitnessV1 {
             }
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::builder::script_physical_exit::{
+        LoweredScriptTerminalV1, LoweredScriptUnitPayloadV1, PreparedScriptPhysicalExitCoreV1,
+        ScriptPhysicalExitCommitV1, ScriptPhysicalExitOpenContractV1,
+    };
+
+    fn unit_decode(origin: RawScriptUnitOriginV1) -> RawVmSourceEntryDecodeKindV1 {
+        let mut builder = MirBuilder::new();
+        let open = builder
+            .begin_raw_root_function_v1(
+                RawRootBatchSlotV1::Main.contract(),
+                RawRootBodyEntryContractV1::script(),
+            )
+            .expect("open raw Script root");
+        let prepared = PreparedScriptPhysicalExitCoreV1::prepare(
+            &builder,
+            LoweredScriptTerminalV1::Unit {
+                origin,
+                payload: LoweredScriptUnitPayloadV1::SyntheticVoid,
+            },
+            ScriptPhysicalExitOpenContractV1::ProvisionalUnknown,
+        )
+        .expect("prepare shared Script exit");
+        assert_eq!(
+            PreparedRawScriptCompletionAdapterV1::prepare(prepared.completion())
+                .expect("prepare Raw tracker adapter")
+                .tracker_result(),
+            RootBodyResultV1::NoValue,
+        );
+        let completed = ScriptPhysicalExitCommitV1::commit_projected(&mut builder, prepared);
+        let (_, witness) = builder.commit_raw_script_exit_v1(
+            open,
+            completed,
+            ModuleInvocationBrandV1::legacy_test(),
+        );
+        witness.vm_decode_plan().expect("Script decode plan")
+    }
+
+    #[test]
+    fn raw_script_exit_adapter_preserves_exact_synthetic_unit_origin() {
+        for (source, expected) in [
+            (
+                RawScriptUnitOriginV1::EmptyBody,
+                RawVmUnitOriginV1::EmptyBody,
+            ),
+            (
+                RawScriptUnitOriginV1::PrintStatement,
+                RawVmUnitOriginV1::PrintStatement,
+            ),
+            (
+                RawScriptUnitOriginV1::LocalStatement,
+                RawVmUnitOriginV1::LocalStatement,
+            ),
+            (
+                RawScriptUnitOriginV1::AssignmentStatement,
+                RawVmUnitOriginV1::AssignmentStatement,
+            ),
+            (
+                RawScriptUnitOriginV1::CompoundAssignmentStatement,
+                RawVmUnitOriginV1::CompoundAssignmentStatement,
+            ),
+        ] {
+            assert_eq!(
+                unit_decode(source),
+                RawVmSourceEntryDecodeKindV1::Unit {
+                    origin: expected,
+                    requires_void: true,
+                }
+            );
+        }
     }
 }

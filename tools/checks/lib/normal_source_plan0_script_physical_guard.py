@@ -107,16 +107,27 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
         3,
         "exact Script Unit lowering paths",
     )
-    _require(raw_adapter_text, "legacy_root_body_result_from_script_terminal", "temporary Raw adapter")
+    _require(
+        raw_adapter_text,
+        "legacy_script_terminal_from_root_result",
+        "legacy Raw recipe to exact terminal bridge",
+    )
     _require(
         raw_adapter_text,
         "RAW-SCRIPT-EXIT-ADAPTER0",
-        "temporary adapter retirement marker",
+        "legacy bridge retirement marker",
     )
     _require(
         raw_adapter_text,
         "commit_raw_script_exit_v1",
         "Raw lifecycle-only Script exit adapter",
+    )
+    if "legacy_root_body_result_from_script_terminal" in raw_adapter_text:
+        raise AssertionError("Raw Script terminal must not project directly to RootBodyResultV1")
+    _require(
+        (builder / "raw_root_body_exit.rs").read_text(),
+        "PreparedRawScriptCompletionAdapterV1",
+        "Raw tracker-only completion adapter",
     )
     for prefix in (
         "script_terminal_kernel_classifies",
@@ -127,6 +138,11 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
         "script_physical_exit_kernel_rejects",
     ):
         _require(terminal_test_text, prefix, f"terminal fixture {prefix}")
+    _require(
+        (builder / "raw_root_body_exit.rs").read_text(),
+        "raw_script_exit_adapter_preserves",
+        "Raw decode-origin adapter fixture",
+    )
 
     files = (
         recipe_handoff,

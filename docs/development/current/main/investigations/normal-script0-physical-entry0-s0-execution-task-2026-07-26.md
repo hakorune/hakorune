@@ -395,6 +395,14 @@ Raw Script status/module/target delta    = 0
 Raw App delta                            = 0
 ```
 
+Status: closed on 2026-07-26. Raw no longer projects
+`LoweredScriptTerminalV1` into `RootBodyResultV1`. A Raw-only prepared
+completion adapter reads the shared prepared completion receipt solely to
+satisfy the existing brand-bound tracker before commit; it writes neither a
+Return nor a source-result policy. The Raw witness now retains exact synthetic
+Unit origins through its decode plan, with focused coverage for EmptyBody,
+Print, Local, Assignment, and CompoundAssignment.
+
 ### Commit 4 — `NORMAL-SCRIPT0-PHYSICAL0`
 
 Add the compiler-owned outer transaction:

@@ -7,7 +7,8 @@
 
 use super::super::module_invocation_session::ModuleBuilderInvocationSessionV1;
 use super::super::raw_root_body_exit::{
-    RawOpenRootFunctionV1, RawRootBodyExitSealErrorV1, RawRootBodyExitWitnessV1,
+    PreparedRawScriptCompletionAdapterV1, RawOpenRootFunctionV1, RawRootBodyExitSealErrorV1,
+    RawRootBodyExitWitnessV1,
 };
 use super::super::raw_root_physical::{
     RawRootBodyPhysicalDriveV1, RawRootBodyPhysicalErrorV1, RawRootPhysicalStateV1,
@@ -143,29 +144,8 @@ impl InstalledRawRootEnvironmentV1 {
                 });
             }
         };
-        let completion_result = match &lowered {
-            RawBodyLoweringResultV1::Script(terminal) => {
-                legacy_root_body_result_from_script_terminal(terminal)
-            }
-            RawBodyLoweringResultV1::App(_) => RootBodyResultV1::NoValue,
-        };
-        let completion_plan = match physical.prepare_root_body_completion(completion_result) {
-            Ok(plan) => plan,
-            Err(error) => {
-                return Err(RejectedRawRootBodyPhysicalV1 {
-                    owner: RawRootBodyRejectedOwnerV1::DuringDrive {
-                        session,
-                        physical,
-                        recipe,
-                    },
-                    error: RawRootBodyLoweringErrorV1::Physical(
-                        RawRootBodyPhysicalErrorV1::SealTracker(error),
-                    ),
-                });
-            }
-        };
         let brand = physical.brand();
-        let (draft, exit) = match lowered {
+        let (draft, exit, completion_plan) = match lowered {
             RawBodyLoweringResultV1::Script(terminal) => {
                 let prepared = match PreparedScriptPhysicalExitCoreV1::prepare(
                     session.builder(),
@@ -184,13 +164,61 @@ impl InstalledRawRootEnvironmentV1 {
                         });
                     }
                 };
+                let completion_adapter =
+                    match PreparedRawScriptCompletionAdapterV1::prepare(prepared.completion()) {
+                        Ok(adapter) => adapter,
+                        Err(error) => {
+                            return Err(RejectedRawRootBodyPhysicalV1 {
+                                owner: RawRootBodyRejectedOwnerV1::DuringDrive {
+                                    session,
+                                    physical,
+                                    recipe,
+                                },
+                                error: RawRootBodyLoweringErrorV1::ExitSeal(error),
+                            });
+                        }
+                    };
+                let completion_plan = match physical
+                    .prepare_root_body_completion(completion_adapter.tracker_result())
+                {
+                    Ok(plan) => plan,
+                    Err(error) => {
+                        return Err(RejectedRawRootBodyPhysicalV1 {
+                            owner: RawRootBodyRejectedOwnerV1::DuringDrive {
+                                session,
+                                physical,
+                                recipe,
+                            },
+                            error: RawRootBodyLoweringErrorV1::Physical(
+                                RawRootBodyPhysicalErrorV1::SealTracker(error),
+                            ),
+                        });
+                    }
+                };
                 let completed =
                     ScriptPhysicalExitCommitV1::commit_projected(session.builder_mut(), prepared);
-                session
+                let (draft, exit) = session
                     .builder_mut()
-                    .commit_raw_script_exit_v1(open, completed, brand)
+                    .commit_raw_script_exit_v1(open, completed, brand);
+                (draft, exit, completion_plan)
             }
             RawBodyLoweringResultV1::App(result) => {
+                let completion_plan =
+                    match physical.prepare_root_body_completion(RootBodyResultV1::NoValue) {
+                        Ok(plan) => plan,
+                        Err(error) => {
+                            return Err(RejectedRawRootBodyPhysicalV1 {
+                                owner: RawRootBodyRejectedOwnerV1::DuringDrive {
+                                    session,
+                                    physical,
+                                    recipe,
+                                },
+                                error: RawRootBodyLoweringErrorV1::Physical(
+                                    RawRootBodyPhysicalErrorV1::SealTracker(error),
+                                ),
+                            });
+                        }
+                    };
                 let plan = match session.builder().prepare_raw_root_exit_v1(
                     &open,
                     result,
@@ -208,9 +236,10 @@ impl InstalledRawRootEnvironmentV1 {
                         });
                     }
                 };
-                session
+                let (draft, exit) = session
                     .builder_mut()
-                    .commit_raw_root_exit_v1(open, plan, brand)
+                    .commit_raw_root_exit_v1(open, plan, brand);
+                (draft, exit, completion_plan)
             }
         };
         let (physical, completion) = physical.seal_root_body_prepared(completion_plan);
@@ -221,26 +250,6 @@ impl InstalledRawRootEnvironmentV1 {
             completion,
             exit,
         })
-    }
-}
-
-/// Temporary Raw-only adaptation retained until RAW-SCRIPT-EXIT-ADAPTER0.
-/// It carries no Return authority; the exact terminal remains the shared
-/// Script kernel product and Raw still owns its brand-bound tracker here.
-fn legacy_root_body_result_from_script_terminal(
-    terminal: &LoweredScriptTerminalV1,
-) -> RootBodyResultV1 {
-    match terminal {
-        LoweredScriptTerminalV1::Value { value }
-        | LoweredScriptTerminalV1::Unit {
-            payload:
-                super::super::script_physical_exit::LoweredScriptUnitPayloadV1::ExistingVoid { value },
-            ..
-        } => RootBodyResultV1::Value(*value),
-        LoweredScriptTerminalV1::Unit {
-            payload: super::super::script_physical_exit::LoweredScriptUnitPayloadV1::SyntheticVoid,
-            ..
-        } => RootBodyResultV1::NoValue,
     }
 }
 
