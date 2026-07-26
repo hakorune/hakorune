@@ -12,6 +12,7 @@ use super::callable_graph_inventory::{
     CallableGraphInventoryErrorV1, VerifiedCallableGraphEdgeV1, VerifiedCallableGraphInventoryV1,
     VerifiedCallableGraphSiteV1,
 };
+use super::callable_scc_partition::VerifiedCallableSccPartitionV1;
 use super::resolved_callable_module::VerifiedResolvedCallableModuleV1;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -27,6 +28,15 @@ impl VerifiedAcyclicCallableGraphV1 {
         let inventory = VerifiedCallableGraphInventoryV1::verify(module)
             .map_err(AcyclicCallableGraphErrorV1::Inventory)?;
         verify_inventory(inventory)
+    }
+
+    pub(in crate::mir) fn from_nonrecursive_partition(
+        partition: VerifiedCallableSccPartitionV1,
+    ) -> Result<Self, AcyclicCallableGraphErrorV1> {
+        if partition.recursive_component_count() != 0 {
+            return Err(AcyclicCallableGraphErrorV1::PartitionContainsRecursion);
+        }
+        verify_inventory(partition.into_inventory())
     }
 
     pub(crate) fn nodes(&self) -> &[CanonicalCallableKeyV1] {
@@ -59,6 +69,7 @@ pub(crate) enum AcyclicCallableGraphErrorV1 {
         residual_nodes: Box<[CanonicalCallableKeyV1]>,
         witness_sites: Box<[VerifiedCallableGraphSiteV1]>,
     },
+    PartitionContainsRecursion,
 }
 
 fn verify_inventory(

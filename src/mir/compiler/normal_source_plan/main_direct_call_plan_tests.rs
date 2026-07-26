@@ -5,6 +5,7 @@ use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamD
 use super::super::{
     NormalAcyclicCallableModuleErrorV1, NormalMainHelperResolutionStageV1,
     NormalSourcePlanClassifierV1, PreparedNormalSourcePlanInputV1, SealedNormalSourcePlanV1,
+    VerifiedNormalHelperTopologyPlanV1,
 };
 use super::*;
 
@@ -330,4 +331,80 @@ fn helper_resolution_rejection_retains_owner_and_later_sources_still_resolve() {
             .resolve()
             .unwrap();
     assert_eq!(later.prepare_acyclic_plan().unwrap().helper_count(), 1);
+}
+
+#[test]
+fn one_shot_topology_selector_keeps_zero_edge_helpers_acyclic() {
+    let completed =
+        NormalMainDirectCallPreflightV1::seal(source(vec![main_box(None), helper("leaf")]))
+            .unwrap()
+            .prepare_helper_resolution()
+            .resolve()
+            .unwrap();
+
+    let VerifiedNormalHelperTopologyPlanV1::Acyclic(plan) =
+        completed.prepare_topology_plan().unwrap()
+    else {
+        panic!("zero-edge helper graph must select Acyclic")
+    };
+    assert_eq!(plan.helper_count(), 1);
+    assert_eq!(plan.helper_edge_count(), 0);
+}
+
+#[test]
+fn one_shot_topology_selector_selects_recursive_without_acyclic_retry() {
+    for helpers in [
+        vec![
+            helper_with_result(
+                "selfish",
+                call(
+                    "selfish",
+                    ASTNode::Variable {
+                        name: "n".to_owned(),
+                        span: Span::unknown(),
+                    },
+                ),
+            ),
+            helper("leaf"),
+        ],
+        vec![
+            helper_with_result(
+                "left",
+                call(
+                    "right",
+                    ASTNode::Variable {
+                        name: "n".to_owned(),
+                        span: Span::unknown(),
+                    },
+                ),
+            ),
+            helper_with_result(
+                "right",
+                call(
+                    "left",
+                    ASTNode::Variable {
+                        name: "n".to_owned(),
+                        span: Span::unknown(),
+                    },
+                ),
+            ),
+        ],
+    ] {
+        let helper_count = helpers.len();
+        let mut statements = vec![main_box(None)];
+        statements.extend(helpers);
+        let completed = NormalMainDirectCallPreflightV1::seal(source(statements))
+            .unwrap()
+            .prepare_helper_resolution()
+            .resolve()
+            .unwrap();
+        let VerifiedNormalHelperTopologyPlanV1::Recursive(plan) =
+            completed.prepare_topology_plan().unwrap()
+        else {
+            panic!("recursive evidence must select Recursive directly")
+        };
+        assert_eq!(plan.helper_count(), helper_count);
+        assert_eq!(plan.recursive_component_count(), 1);
+        assert_eq!(plan.main_direct_call_count(), 0);
+    }
 }

@@ -27,6 +27,10 @@ def check_callable_source(
         "docs/development/current/main/investigations/"
         "normal-callable-module0-a0-s0-execution-task-2026-07-26.md"
     )
+    recursive_task_path = root / (
+        "docs/development/current/main/investigations/"
+        "normal-callable-module0-r0-s0-execution-task-2026-07-26.md"
+    )
     callable_source_path = source_dir / "callable_source.rs"
     callable_source_tests_path = source_dir / "callable_source_tests.rs"
     callable_catalog_source_path = source_dir / "callable_catalog_source.rs"
@@ -42,6 +46,8 @@ def check_callable_source(
     analyzer_policy_path = (
         root / "src/mir/resolved_value_profile/analyzer_policy.rs"
     )
+    acyclic_graph_path = root / "src/mir/compiler/acyclic_callable_graph.rs"
+    scc_partition_path = root / "src/mir/compiler/callable_scc_partition.rs"
     header_source_path = (
         root / "src/mir/resolved_semantics/callable_header_source_unit.rs"
     )
@@ -55,6 +61,7 @@ def check_callable_source(
         task_path,
         direct_call_task_path,
         acyclic_task_path,
+        recursive_task_path,
         callable_source_path,
         callable_source_tests_path,
         callable_catalog_source_path,
@@ -66,6 +73,8 @@ def check_callable_source(
         capability_path,
         function_role_policy_path,
         analyzer_policy_path,
+        acyclic_graph_path,
+        scc_partition_path,
         header_source_path,
         header_source_tests_path,
         header_view_path,
@@ -75,6 +84,7 @@ def check_callable_source(
     task = task_path.read_text()
     direct_call_task = direct_call_task_path.read_text()
     acyclic_task = acyclic_task_path.read_text()
+    recursive_task = recursive_task_path.read_text()
     callable_source = callable_source_path.read_text()
     callable_source_tests = callable_source_tests_path.read_text()
     callable_catalog_source = callable_catalog_source_path.read_text()
@@ -83,6 +93,8 @@ def check_callable_source(
     direct_call_plan = direct_call_plan_path.read_text()
     direct_call_plan_tests = direct_call_plan_tests_path.read_text()
     normal_acyclic_plan = normal_acyclic_plan_path.read_text()
+    acyclic_graph = acyclic_graph_path.read_text()
+    scc_partition = scc_partition_path.read_text()
     capability = capability_path.read_text()
     function_role_policy = function_role_policy_path.read_text()
     header_source = header_source_path.read_text()
@@ -154,6 +166,54 @@ def check_callable_source(
             header_source_tests,
             f"fn {test_name}(",
             f"exact-site source fixture {test_name}",
+        )
+
+    for fragment in (
+        "NORMAL-CALLABLE-MODULE0-R0-S0",
+        "VerifiedCallableGraphInventoryV1 exactly once",
+        "VerifiedCallableSccPartitionV1 exactly once",
+        "select acyclic or recursive helper topology once",
+    ):
+        require(recursive_task, fragment, f"normal recursive task {fragment}")
+    for definition in (
+        "enum VerifiedNormalHelperTopologyPlanV1",
+        "struct VerifiedNormalRecursiveCallableModulePlanV1",
+    ):
+        require_count(
+            normal_acyclic_plan,
+            definition,
+            1,
+            f"sole normal topology owner {definition}",
+        )
+    for fragment in (
+        "VerifiedCallableGraphInventoryV1::verify(&self.helpers)",
+        "VerifiedCallableSccPartitionV1::verify(inventory)",
+        "partition.recursive_component_count() == 0",
+        "VerifiedAcyclicCallableGraphV1::from_nonrecursive_partition(partition)",
+    ):
+        require(
+            normal_acyclic_plan,
+            fragment,
+            f"one-shot normal topology selection {fragment}",
+        )
+    require(
+        acyclic_graph,
+        "fn from_nonrecursive_partition(",
+        "non-recursive partition consuming acyclic seam",
+    )
+    require(
+        scc_partition,
+        "fn into_inventory(self)",
+        "single inventory consuming SCC seam",
+    )
+    for test_name in (
+        "one_shot_topology_selector_keeps_zero_edge_helpers_acyclic",
+        "one_shot_topology_selector_selects_recursive_without_acyclic_retry",
+    ):
+        require(
+            direct_call_plan_tests,
+            f"fn {test_name}(",
+            f"normal topology fixture {test_name}",
         )
 
     for fragment in (

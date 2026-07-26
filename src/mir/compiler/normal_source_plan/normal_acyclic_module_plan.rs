@@ -5,6 +5,12 @@ use std::collections::BTreeMap;
 use crate::mir::compiler::acyclic_callable_graph::{
     AcyclicCallableGraphErrorV1, VerifiedAcyclicCallableGraphV1,
 };
+use crate::mir::compiler::callable_graph_inventory::{
+    CallableGraphInventoryErrorV1, VerifiedCallableGraphInventoryV1, VerifiedCallableGraphSiteV1,
+};
+use crate::mir::compiler::callable_scc_partition::{
+    CallableSccPartitionErrorV1, VerifiedCallableSccPartitionV1,
+};
 use crate::mir::compiler::capability::{
     CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1, CanonicalTrivialBindingSsaPlanV1,
 };
@@ -123,6 +129,8 @@ impl PreparedNormalMainHelperResolutionV1 {
 
 #[derive(Debug)]
 pub(crate) enum NormalAcyclicCallableModuleErrorV1 {
+    Inventory(CallableGraphInventoryErrorV1),
+    Partition(CallableSccPartitionErrorV1),
     Graph(AcyclicCallableGraphErrorV1),
     MissingFunction(CanonicalCallableKeyV1),
     FunctionPreflight {
@@ -153,37 +161,86 @@ pub(crate) struct VerifiedNormalAcyclicCallableModulePlanV1<'a> {
     helper_plans: BTreeMap<CanonicalCallableKeyV1, CanonicalTrivialBindingSsaPlanV1<'a>>,
 }
 
+#[derive(Debug)]
+pub(crate) struct VerifiedNormalRecursiveCallableModulePlanV1<'a> {
+    owner: &'a CompletedNormalMainHelperResolutionV1,
+    partition: VerifiedCallableSccPartitionV1,
+    helper_plans: BTreeMap<CanonicalCallableKeyV1, CanonicalTrivialBindingSsaPlanV1<'a>>,
+}
+
+#[derive(Debug)]
+pub(crate) enum VerifiedNormalHelperTopologyPlanV1<'a> {
+    Acyclic(VerifiedNormalAcyclicCallableModulePlanV1<'a>),
+    Recursive(VerifiedNormalRecursiveCallableModulePlanV1<'a>),
+}
+
 impl CompletedNormalMainHelperResolutionV1 {
+    pub(crate) fn prepare_topology_plan(
+        &self,
+    ) -> Result<VerifiedNormalHelperTopologyPlanV1<'_>, NormalAcyclicCallableModuleErrorV1> {
+        let inventory = VerifiedCallableGraphInventoryV1::verify(&self.helpers)
+            .map_err(NormalAcyclicCallableModuleErrorV1::Inventory)?;
+        let partition = VerifiedCallableSccPartitionV1::verify(inventory)
+            .map_err(NormalAcyclicCallableModuleErrorV1::Partition)?;
+        let helper_plans = self.prepare_helper_plans(
+            partition.inventory().nodes(),
+            partition.inventory().call_sites(),
+        )?;
+        self.verify_main_correspondence()?;
+        if partition.recursive_component_count() == 0 {
+            let graph = VerifiedAcyclicCallableGraphV1::from_nonrecursive_partition(partition)
+                .map_err(NormalAcyclicCallableModuleErrorV1::Graph)?;
+            Ok(VerifiedNormalHelperTopologyPlanV1::Acyclic(
+                VerifiedNormalAcyclicCallableModulePlanV1 {
+                    owner: self,
+                    graph,
+                    helper_plans,
+                },
+            ))
+        } else {
+            Ok(VerifiedNormalHelperTopologyPlanV1::Recursive(
+                VerifiedNormalRecursiveCallableModulePlanV1 {
+                    owner: self,
+                    partition,
+                    helper_plans,
+                },
+            ))
+        }
+    }
+
     pub(crate) fn prepare_acyclic_plan(
         &self,
     ) -> Result<VerifiedNormalAcyclicCallableModulePlanV1<'_>, NormalAcyclicCallableModuleErrorV1>
     {
         let graph = VerifiedAcyclicCallableGraphV1::verify(&self.helpers)
             .map_err(NormalAcyclicCallableModuleErrorV1::Graph)?;
-        if graph.nodes().iter().any(|key| key.name() == "main") {
+        let helper_plans = self.prepare_helper_plans(graph.nodes(), graph.call_sites())?;
+        self.verify_main_correspondence()?;
+        Ok(VerifiedNormalAcyclicCallableModulePlanV1 {
+            owner: self,
+            graph,
+            helper_plans,
+        })
+    }
+
+    fn prepare_helper_plans<'a>(
+        &'a self,
+        nodes: &[CanonicalCallableKeyV1],
+        call_sites: &[VerifiedCallableGraphSiteV1],
+    ) -> Result<
+        BTreeMap<CanonicalCallableKeyV1, CanonicalTrivialBindingSsaPlanV1<'a>>,
+        NormalAcyclicCallableModuleErrorV1,
+    > {
+        if nodes.iter().any(|key| key.name() == "main") {
             return Err(NormalAcyclicCallableModuleErrorV1::MainCatalogMembership);
         }
-        let main_owner = self.main.completion.owner();
-        for &site in self.helpers.source().declaration_sites() {
-            let declaration = self
-                .helpers
-                .source()
-                .catalog()
-                .declaration(site)
-                .ok_or(NormalAcyclicCallableModuleErrorV1::MissingHelperDeclaration)?;
-            if main_owner.compilation_brand() != declaration.callable().owner().compilation_brand()
-            {
-                return Err(NormalAcyclicCallableModuleErrorV1::CompilationBrandMismatch);
-            }
-        }
         let mut helper_plans = BTreeMap::new();
-        for key in graph.nodes() {
+        for key in nodes {
             let input = self
                 .helpers
                 .function_input(key)
                 .map_err(|_| NormalAcyclicCallableModuleErrorV1::MissingFunction(key.clone()))?;
-            let call_count = input.function().direct_call_targets().count();
-            let plan = if call_count == 0 {
+            let plan = if input.function().direct_call_targets().next().is_none() {
                 CanonicalLoweringPreflightV1::verify_function(input)
             } else {
                 CanonicalLoweringPreflightV1::verify_function_with_finite_direct_calls_v1(input)
@@ -199,11 +256,7 @@ impl CompletedNormalMainHelperResolutionV1 {
                     key.clone(),
                 ));
             };
-            let graph_calls = graph
-                .call_sites()
-                .iter()
-                .filter(|row| row.caller() == key)
-                .count();
+            let graph_calls = call_sites.iter().filter(|row| row.caller() == key).count();
             if graph_calls != plan.direct_call_count() {
                 return Err(NormalAcyclicCallableModuleErrorV1::CallCountMismatch {
                     key: key.clone(),
@@ -213,16 +266,33 @@ impl CompletedNormalMainHelperResolutionV1 {
             }
             helper_plans.insert(key.clone(), plan);
         }
-        if graph.nodes().len() != self.helpers.functions_by_key().len()
+        if nodes.len() != self.helpers.functions_by_key().len()
             || helper_plans.len() != self.helpers.functions_by_key().len()
         {
             return Err(
                 NormalAcyclicCallableModuleErrorV1::HelperCardinalityMismatch {
-                    graph: graph.nodes().len(),
+                    graph: nodes.len(),
                     functions: self.helpers.functions_by_key().len(),
                     plans: helper_plans.len(),
                 },
             );
+        }
+        Ok(helper_plans)
+    }
+
+    fn verify_main_correspondence(&self) -> Result<(), NormalAcyclicCallableModuleErrorV1> {
+        let main_owner = self.main.completion.owner();
+        for &site in self.helpers.source().declaration_sites() {
+            let declaration = self
+                .helpers
+                .source()
+                .catalog()
+                .declaration(site)
+                .ok_or(NormalAcyclicCallableModuleErrorV1::MissingHelperDeclaration)?;
+            if main_owner.compilation_brand() != declaration.callable().owner().compilation_brand()
+            {
+                return Err(NormalAcyclicCallableModuleErrorV1::CompilationBrandMismatch);
+            }
         }
         for call in self.main.profile.direct_calls() {
             let target = call.target().callable();
@@ -240,11 +310,7 @@ impl CompletedNormalMainHelperResolutionV1 {
                 return Err(NormalAcyclicCallableModuleErrorV1::CompilationBrandMismatch);
             }
         }
-        Ok(VerifiedNormalAcyclicCallableModulePlanV1 {
-            owner: self,
-            graph,
-            helper_plans,
-        })
+        Ok(())
     }
 }
 
@@ -259,5 +325,19 @@ impl VerifiedNormalAcyclicCallableModulePlanV1<'_> {
 
     pub(crate) fn helper_edge_count(&self) -> usize {
         self.graph.unique_edges().len()
+    }
+}
+
+impl VerifiedNormalRecursiveCallableModulePlanV1<'_> {
+    pub(crate) fn helper_count(&self) -> usize {
+        self.helper_plans.len()
+    }
+
+    pub(crate) fn recursive_component_count(&self) -> usize {
+        self.partition.recursive_component_count()
+    }
+
+    pub(crate) fn main_direct_call_count(&self) -> usize {
+        self.owner.main.profile.direct_calls().len()
     }
 }

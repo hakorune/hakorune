@@ -116,6 +116,10 @@ impl VerifiedCallableSccPartitionV1 {
             })
             .count()
     }
+
+    pub(in crate::mir) fn into_inventory(self) -> VerifiedCallableGraphInventoryV1 {
+        self.inventory
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
