@@ -1,5 +1,9 @@
 use super::*;
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, Span};
+use crate::backend::vm_types::VMValue;
+use crate::mir::compiler::source_entry_result::SourceEntryResultV1;
+use crate::mir::compiler::source_entry_vm_invocation::decode_vm_value;
+use crate::mir::compiler::source_entry_vm_reference::VmSourceEntryDecodePlanV1;
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
 

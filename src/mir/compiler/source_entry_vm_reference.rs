@@ -110,11 +110,16 @@ impl RawVmReferenceRunReportV1 {
 #[derive(Debug)]
 enum VmReferenceProjectedOwnerV1 {
     Existing(ProjectedSourceEntryV1),
-    Raw {
-        published: RawPublishedInvocationV1,
+    Published {
+        published: VmReferencePublishedOwnerV1,
         source_result: SourceEntryResultV1,
         termination: ProcessTerminationV1,
     },
+}
+
+#[derive(Debug)]
+pub(in crate::mir) enum VmReferencePublishedOwnerV1 {
+    Raw(RawPublishedInvocationV1),
 }
 
 #[derive(Debug)]
@@ -131,13 +136,13 @@ impl ProjectedSourceEntryV1 {
 }
 
 impl VmReferenceProcessOutcomeV1 {
-    pub(in crate::mir) fn from_raw_vm_reference(
-        published: RawPublishedInvocationV1,
+    pub(in crate::mir) fn from_published_vm_reference(
+        published: VmReferencePublishedOwnerV1,
         source_result: SourceEntryResultV1,
         termination: ProcessTerminationV1,
     ) -> Self {
         Self {
-            projected: VmReferenceProjectedOwnerV1::Raw {
+            projected: VmReferenceProjectedOwnerV1::Published {
                 published,
                 source_result,
                 termination,
@@ -153,14 +158,14 @@ impl VmReferenceProcessOutcomeV1 {
             VmReferenceProjectedOwnerV1::Existing(projected) => {
                 projected.termination().status_code()
             }
-            VmReferenceProjectedOwnerV1::Raw { termination, .. } => termination.status_code(),
+            VmReferenceProjectedOwnerV1::Published { termination, .. } => termination.status_code(),
         }
     }
 
     pub(in crate::mir) fn fault(&self) -> Option<&ProcessFaultV1> {
         match &self.projected {
             VmReferenceProjectedOwnerV1::Existing(projected) => projected.termination().fault(),
-            VmReferenceProjectedOwnerV1::Raw { termination, .. } => termination.fault(),
+            VmReferenceProjectedOwnerV1::Published { termination, .. } => termination.fault(),
         }
     }
 
@@ -182,9 +187,9 @@ impl VmReferenceProcessOutcomeV1 {
     ) -> super::source_entry_selection::SelectedSourceEntryRouteV1 {
         match &self.projected {
             VmReferenceProjectedOwnerV1::Existing(projected) => projected.carrier().route(),
-            VmReferenceProjectedOwnerV1::Raw { published, .. } => {
-                published.selected_entry().route()
-            }
+            VmReferenceProjectedOwnerV1::Published { published, .. } => match published {
+                VmReferencePublishedOwnerV1::Raw(published) => published.selected_entry().route(),
+            },
         }
     }
 }

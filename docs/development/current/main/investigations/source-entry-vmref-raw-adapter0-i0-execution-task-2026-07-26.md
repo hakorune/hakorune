@@ -1,5 +1,5 @@
 ---
-Status: active execution task
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Row: SOURCE-ENTRY-VMREF-RAW-ADAPTER0-I0
@@ -40,6 +40,38 @@ RawPublishedInvocationV1
 
 Behavior, status, diagnostic spelling, CLI selection, and Raw compile policy
 must remain unchanged.
+
+## Closeout
+
+Landed implementation:
+
+```text
+RawPublishedInvocationV1
+  -> RejectedRawPublishedVmAdapterV1-or-neutral projection
+  -> PreparedVmReferenceSourceEntryInvocationV1
+  -> CompletedVmReferenceSourceEntryInvocationV1
+  -> ProcessExitProjectionV1
+  -> existing RawVmReferenceRunReportV1
+```
+
+The VM execution, VM-value decoding, VM-error classification, and canonical
+process projection now live only in `source_entry_vm_invocation.rs`. The Raw
+adapter transports brand, route, exact target, and decode evidence only.
+
+Verification:
+
+```text
+source_entry_vm_execution                         = 18/18
+source_entry_vm_raw_adapter                       = 1/1
+entry_result_projection0_s3_execution_guard       = green
+entry_result_projection0_s3_owner_guard           = green
+cargo check --lib --features vm-reference         = green
+old Raw-direct activation/execution symbols       = 0
+all touched source/check files                    < 800 lines
+```
+
+Production behavior, CLI selection, diagnostics, default routing, and
+canonical Main callers remain unchanged.
 
 ## Mandatory first edit
 

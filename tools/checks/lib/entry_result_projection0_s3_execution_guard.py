@@ -49,16 +49,15 @@ def main() -> int:
     ):
         require(task, fragment, f"task contract {fragment}")
     for fragment in (
-        "prepare_vm_reference_activation",
-        "execute_exact_vm_entry",
-        "VmSourceEntryDecodePlanV1",
-        "ProcessExitProjectionV1::project_borrowed",
-        "vm_error_to_source_fault",
-        "source_result: SourceEntryResultV1",
+        "prepare_neutral_vm_reference",
+        ".execute()",
+        "complete_canonical_source_entry()",
+        "RejectedRawPublishedVmAdapterV1",
     ):
         require(execution, fragment, f"execution owner {fragment}")
     require(publication, "fn execute_exact_vm_entry(", "consuming publication terminal")
-    require(reference, "published: RawPublishedInvocationV1", "retained published owner")
+    require(reference, "enum VmReferencePublishedOwnerV1", "published owner family")
+    require(reference, "Raw(RawPublishedInvocationV1)", "retained Raw published owner")
 
     for fragment in (
         "SOURCE-ENTRY-VMREF-NEUTRAL0-L0",
@@ -99,20 +98,25 @@ def main() -> int:
             raise AssertionError(
                 f"backend-neutral published owner gained runtime policy: {forbidden}"
             )
+    for fragment in (
+        "trait VmReferenceExecutablePublishedOwnerV1",
+        "struct CompletedVmReferenceSourceEntryInvocationV1<O>",
+        "fn execute(self)",
+        "decode_vm_value",
+        "vm_error_to_source_fault",
+        "ProcessExitProjectionV1::project_canonical",
+        "from_published_vm_reference",
+    ):
+        require(vm_invocation_production, fragment, f"sole neutral VM executor {fragment}")
     for forbidden in (
-        "VMValue",
-        "MirInterpreter",
-        "ProcessExitProjection",
-        "ProcessExitCode",
-        "Diagnostic",
         "NYASH_ENTRY",
         "execute_module",
         "module.functions",
+        "as_integer(",
+        "as_bool(",
     ):
         if forbidden in vm_invocation_production:
-            raise AssertionError(
-                f"passive VM projection gained execution/process policy: {forbidden}"
-            )
+            raise AssertionError(f"neutral VM executor gained discovery/coercion: {forbidden}")
 
     external_rust = "\n".join(
         path.read_text()
@@ -137,9 +141,10 @@ def main() -> int:
     ):
         require(raw_adapter_production, fragment, f"Raw neutral adapter {fragment}")
     for forbidden in (
-        "VMValue",
         "MirInterpreter",
         "ProcessExitProjection",
+        "decode_vm_value",
+        "vm_error_to_source_fault",
         "execute_module",
         "NYASH_ENTRY",
         "into_compatibility_module",
@@ -148,6 +153,16 @@ def main() -> int:
     ):
         if forbidden in raw_adapter_production:
             raise AssertionError(f"Raw neutral adapter gained runtime policy: {forbidden}")
+    for retired in (
+        "PreparedRawVmReferenceActivationV1",
+        "CompletedRawVmReferenceExecutionV1",
+        "prepare_vm_reference_activation",
+        "from_raw_vm_reference",
+        "VmReferenceProjectedOwnerV1::Raw",
+    ):
+        combined = execution_production + vm_invocation_production + reference
+        if retired in combined:
+            raise AssertionError(f"old Raw-direct VM authority remains: {retired}")
 
     for forbidden in (
         "execute_module(",
@@ -175,8 +190,8 @@ def main() -> int:
     print(
         "[entry-result-projection0-s3-execution-guard] ok "
         "exact_target=1 decode_plan=1 source_fault=1 owner_retained=1 "
-        "neutral_owner=1 passive_vm_projection=1 raw_adapter=1 "
-        "neutral_runtime_policy=0 below_800=1"
+        "neutral_owner=1 sole_vm_executor=1 raw_adapter=1 "
+        "old_raw_direct=0 neutral_discovery=0 below_800=1"
     )
     return 0
 

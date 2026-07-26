@@ -11,7 +11,8 @@ use super::source_entry_published_invocation::{
 };
 use super::source_entry_selection::SelectedSourceEntryRouteV1;
 use super::source_entry_vm_invocation::PreparedVmReferenceSourceEntryInvocationV1;
-use super::source_entry_vm_reference::VmSourceEntryDecodePlanV1;
+use super::source_entry_vm_invocation::VmReferenceExecutablePublishedOwnerV1;
+use super::source_entry_vm_reference::{VmReferencePublishedOwnerV1, VmSourceEntryDecodePlanV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum RawPublishedVmAdapterStageV1 {
@@ -49,6 +50,33 @@ impl RejectedRawPublishedVmAdapterV1 {
 
     pub(in crate::mir) fn discard(self) {
         drop(self);
+    }
+
+    pub(in crate::mir) fn into_public_string(self) -> String {
+        let stage = match self.stage {
+            RawPublishedVmAdapterStageV1::Membership => "membership",
+            RawPublishedVmAdapterStageV1::Route => "route",
+            RawPublishedVmAdapterStageV1::Target => "target",
+            RawPublishedVmAdapterStageV1::ResultContract => "result-contract",
+        };
+        let detail = format!("{:?}", self.error);
+        self.discard();
+        format!("[raw-vm-reference/{stage}/rejected] {detail}")
+    }
+}
+
+impl VmReferenceExecutablePublishedOwnerV1 for RawPublishedInvocationV1 {
+    fn execute_exact_vm_entry(
+        &self,
+        symbol: &str,
+    ) -> Result<crate::backend::vm_types::VMValue, crate::backend::vm_types::VMError> {
+        RawPublishedInvocationV1::execute_exact_vm_entry(self, symbol)
+    }
+}
+
+impl From<RawPublishedInvocationV1> for VmReferencePublishedOwnerV1 {
+    fn from(owner: RawPublishedInvocationV1) -> Self {
+        Self::Raw(owner)
     }
 }
 

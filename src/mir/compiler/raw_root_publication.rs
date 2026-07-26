@@ -75,17 +75,13 @@ impl RawPublishedInvocationV1 {
 
     #[cfg(feature = "vm-reference")]
     pub(in crate::mir) fn execute_exact_vm_entry(
-        self,
+        &self,
         symbol: &str,
-    ) -> (
-        Self,
-        Result<crate::backend::vm_types::VMValue, crate::backend::vm_types::VMError>,
-    ) {
-        let result = match &self {
+    ) -> Result<crate::backend::vm_types::VMValue, crate::backend::vm_types::VMError> {
+        match self {
             Self::Script(value) => value.core.module.execute_exact_vm_entry(symbol),
             Self::App(value) => value.core.module.execute_exact_vm_entry(symbol),
-        };
-        (self, result)
+        }
     }
 
     #[cfg(feature = "vm-reference")]
