@@ -95,21 +95,36 @@ fn canonical_core_handoff_moves_only_the_sealed_plan_and_receipt() {
         .into_canonical_core_compile_request()
         .expect("canonical-core handoff");
     let mut compiler = crate::mir::MirCompiler::new();
-    let rejected = compiler
+    let candidate = compiler
         .compile_canonical_core_source_plan(request)
-        .expect_err("Script candidate remains pending in Main-only S0");
-    assert_eq!(
-        rejected.stage(),
-        crate::mir::CanonicalCoreDispatchStageV1::FamilyCapability
-    );
-    assert!(matches!(
-        rejected.cause(),
-        crate::mir::CanonicalCoreDispatchErrorV1::FamilyCapabilityPending(
-            crate::mir::CanonicalCorePendingFamilyV1::Script
-        )
-    ));
-    assert_eq!(rejected.receipt_counts(), (1, 1));
-    rejected.discard();
+        .expect("Script candidate through the canonical physical entry");
+    assert!(candidate.is_script());
+    assert_eq!(candidate.receipt_counts(), (1, 1));
+}
+
+#[test]
+fn canonical_core_script_candidate_preserves_compiler_reuse_for_main() {
+    let dir = tempdir().expect("tempdir");
+    let script = classify_canonical_core(dir.path(), "script-reuse.hako", "42")
+        .into_canonical_core_compile_request()
+        .expect("canonical Script handoff");
+    let main = classify_canonical_core(
+        dir.path(),
+        "main-reuse.hako",
+        "static box Main { main() {} }",
+    )
+    .into_canonical_core_compile_request()
+    .expect("canonical Main handoff");
+
+    let mut compiler = crate::mir::MirCompiler::new();
+    let script_candidate = compiler
+        .compile_canonical_core_source_plan(script)
+        .expect("unpublished Script candidate");
+    assert!(script_candidate.is_script());
+    let main_candidate = compiler
+        .compile_canonical_core_source_plan(main)
+        .expect("unpublished Main candidate after Script");
+    assert!(main_candidate.is_main());
 }
 
 #[test]

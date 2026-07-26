@@ -36,6 +36,7 @@ pub(in crate::mir) struct NormalScriptModuleTransactionSchemaV1 {
     expected_row_count: usize,
 }
 
+#[derive(Debug)]
 pub(in crate::mir) struct RejectedNormalScriptModuleTransactionV1 {
     draft: MirFunction,
     stage: NormalScriptModuleTransactionStageV1,
@@ -49,6 +50,7 @@ pub(in crate::mir) struct PreparedNormalScriptModuleTransactionV1 {
     verification: NormalScriptCandidateVerificationReceiptV1,
 }
 
+#[derive(Debug)]
 pub(in crate::mir) struct CompletedNormalScriptModuleCandidateV1 {
     module: MirModule,
     schema: NormalScriptModuleTransactionSchemaV1,

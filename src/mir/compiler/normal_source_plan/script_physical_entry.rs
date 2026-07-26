@@ -107,3 +107,13 @@ impl RejectedNormalScriptPhysicalEntryV1 {
         drop(self);
     }
 }
+
+impl std::fmt::Debug for RejectedNormalScriptPhysicalEntryV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("RejectedNormalScriptPhysicalEntryV1")
+            .field("stage", &self.stage)
+            .field("cause", &self.cause)
+            .finish_non_exhaustive()
+    }
+}

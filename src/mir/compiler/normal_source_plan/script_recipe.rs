@@ -106,6 +106,12 @@ impl RetainedNormalScriptSourceV1 {
 }
 
 impl RejectedNormalScriptRecipeV1 {
+    pub(crate) fn into_parts(
+        self,
+    ) -> (SealedNormalScriptSourceV1, RawScriptRecipeProjectionErrorV1) {
+        (self.source, self.error)
+    }
+
     pub(crate) const fn stage(&self) -> NormalScriptRecipeStageV1 {
         self.stage
     }

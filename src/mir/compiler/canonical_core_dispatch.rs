@@ -8,12 +8,15 @@
 use crate::mir::builder::{
     CompletedNormalMainModuleCandidateV1, NormalCanonicalModuleBatchErrorV1,
     NormalCanonicalModuleBatchV1, NormalMainModuleTransactionErrorV1,
+    PreparedNormalScriptModuleTransactionV1,
 };
 use crate::mir::compiler::normal_source_plan::{
     NormalMainFunctionPlanErrorV1, NormalMainFunctionPreflightV1, NormalMainFunctionSourceErrorV1,
     NormalMainResolvedSourceErrorV1, NormalMainThunkPlanErrorV1, SealedNormalMainSourceV1,
-    SealedNormalScalarRootV1, SealedNormalSourcePlanV1, VerifiedNormalMainThunkPlanV1,
+    OpenScriptPhysicalEntryV1, RejectedNormalScriptPhysicalEntryV1, SealedNormalScalarRootV1,
+    SealedNormalSourcePlanV1, VerifiedNormalMainThunkPlanV1,
 };
+use crate::mir::compiler::raw_root_source_facts::RawScriptRecipeProjectionErrorV1;
 
 use super::MirCompiler;
 
@@ -115,6 +118,9 @@ pub(crate) enum CanonicalCoreDispatchStageV1 {
     MainThunk,
     MainBatch,
     MainCandidate,
+    ScriptRecipe,
+    ScriptPhysical,
+    ScriptCandidate,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -132,14 +138,29 @@ pub(crate) enum CanonicalCoreDispatchErrorV1 {
     MainThunk(NormalMainThunkPlanErrorV1),
     MainBatch(NormalCanonicalModuleBatchErrorV1),
     MainCandidate(NormalMainModuleTransactionErrorV1),
+    ScriptRecipe(RawScriptRecipeProjectionErrorV1),
+    ScriptPhysical,
+    ScriptCandidate,
 }
 
 /// The complete source/profile/receipt owner retained by a dispatch rejection.
 #[derive(Debug)]
-pub(crate) struct RetainedCanonicalCoreSourcePlanOwnerV1 {
-    plan: SealedNormalSourcePlanV1,
-    admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
-    receipt: NormalSourcePlanReceiptV1,
+pub(crate) enum RetainedCanonicalCoreSourcePlanOwnerV1 {
+    Plan {
+        plan: SealedNormalSourcePlanV1,
+        admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
+        receipt: NormalSourcePlanReceiptV1,
+    },
+    ScriptPhysical {
+        rejected: RejectedNormalScriptPhysicalEntryV1,
+        admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
+        receipt: NormalSourcePlanReceiptV1,
+    },
+    ScriptCandidate {
+        rejected: crate::mir::builder::RejectedNormalScriptModuleTransactionV1,
+        admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
+        receipt: NormalSourcePlanReceiptV1,
+    },
 }
 
 #[derive(Debug)]
@@ -164,13 +185,20 @@ impl RejectedCanonicalCoreNormalDispatchV1 {
 
     #[cfg(test)]
     pub(crate) fn receipt_counts(&self) -> (u8, u8) {
-        self.owner.receipt.counts()
+        match &self.owner {
+            RetainedCanonicalCoreSourcePlanOwnerV1::Plan { receipt, .. }
+            | RetainedCanonicalCoreSourcePlanOwnerV1::ScriptPhysical { receipt, .. }
+            | RetainedCanonicalCoreSourcePlanOwnerV1::ScriptCandidate { receipt, .. } => {
+                receipt.counts()
+            }
+        }
     }
 }
 
 #[derive(Debug)]
 pub(crate) enum CompletedCanonicalCoreSourceEntryFamilyV1 {
     Main(CompletedNormalMainModuleCandidateV1),
+    Script(crate::mir::builder::CompletedNormalScriptModuleCandidateV1),
 }
 
 /// A complete but unpublished source-entry candidate.
@@ -199,6 +227,14 @@ impl CompletedCanonicalCoreSourceEntryCandidateV1 {
     }
 
     #[cfg(test)]
+    pub(crate) fn is_script(&self) -> bool {
+        matches!(
+            self.family,
+            CompletedCanonicalCoreSourceEntryFamilyV1::Script(_)
+        )
+    }
+
+    #[cfg(test)]
     pub(crate) fn receipt_counts(&self) -> (u8, u8) {
         self.receipt.counts()
     }
@@ -217,15 +253,7 @@ impl NormalCanonicalCoreSourcePlanCompilerV1 {
                 Self::compile_main0(compiler, main, admission, receipt)
             }
             SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)) => {
-                Err(reject(
-                    SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)),
-                    admission,
-                    receipt,
-                    CanonicalCoreDispatchStageV1::FamilyCapability,
-                    CanonicalCoreDispatchErrorV1::FamilyCapabilityPending(
-                        CanonicalCorePendingFamilyV1::Script,
-                    ),
-                ))
+                Self::compile_script(compiler, script, admission, receipt)
             }
             SealedNormalSourcePlanV1::CallableModule(callable) => Err(reject(
                 SealedNormalSourcePlanV1::CallableModule(callable),
@@ -334,6 +362,46 @@ impl NormalCanonicalCoreSourcePlanCompilerV1 {
             _seal: CompletedCanonicalCoreSourceEntryCandidateSealV1,
         })
     }
+
+    fn compile_script(
+        compiler: &MirCompiler,
+        script: crate::mir::compiler::normal_source_plan::SealedNormalScriptSourceV1,
+        admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
+        receipt: NormalSourcePlanReceiptV1,
+    ) -> Result<CompletedCanonicalCoreSourceEntryCandidateV1, RejectedCanonicalCoreNormalDispatchV1>
+    {
+        let recipe = match script.prepare_script_recipe() {
+            Ok(recipe) => recipe,
+            Err(rejected) => {
+                let (script, error) = rejected.into_parts();
+                return Err(reject(
+                    SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)),
+                    admission,
+                    receipt,
+                    CanonicalCoreDispatchStageV1::ScriptRecipe,
+                    CanonicalCoreDispatchErrorV1::ScriptRecipe(error),
+                ));
+            }
+        };
+        let entry = match OpenScriptPhysicalEntryV1::open(compiler, recipe) {
+            Ok(entry) => entry,
+            Err(rejected) => return Err(reject_script_physical(rejected, admission, receipt)),
+        };
+        let exit = match entry.prepare() {
+            Ok(exit) => exit,
+            Err(rejected) => return Err(reject_script_physical(rejected, admission, receipt)),
+        };
+        let transaction = match PreparedNormalScriptModuleTransactionV1::prepare(exit) {
+            Ok(transaction) => transaction,
+            Err(rejected) => return Err(reject_script_candidate(rejected, admission, receipt)),
+        };
+        Ok(CompletedCanonicalCoreSourceEntryCandidateV1 {
+            family: CompletedCanonicalCoreSourceEntryFamilyV1::Script(transaction.commit()),
+            admission,
+            receipt,
+            _seal: CompletedCanonicalCoreSourceEntryCandidateSealV1,
+        })
+    }
 }
 
 impl MirCompiler {
@@ -378,12 +446,44 @@ fn reject(
     cause: CanonicalCoreDispatchErrorV1,
 ) -> RejectedCanonicalCoreNormalDispatchV1 {
     RejectedCanonicalCoreNormalDispatchV1 {
-        owner: RetainedCanonicalCoreSourcePlanOwnerV1 {
+        owner: RetainedCanonicalCoreSourcePlanOwnerV1::Plan {
             plan,
             admission,
             receipt,
         },
         stage,
         cause,
+    }
+}
+
+fn reject_script_physical(
+    rejected: RejectedNormalScriptPhysicalEntryV1,
+    admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
+    receipt: NormalSourcePlanReceiptV1,
+) -> RejectedCanonicalCoreNormalDispatchV1 {
+    RejectedCanonicalCoreNormalDispatchV1 {
+        owner: RetainedCanonicalCoreSourcePlanOwnerV1::ScriptPhysical {
+            rejected,
+            admission,
+            receipt,
+        },
+        stage: CanonicalCoreDispatchStageV1::ScriptPhysical,
+        cause: CanonicalCoreDispatchErrorV1::ScriptPhysical,
+    }
+}
+
+fn reject_script_candidate(
+    rejected: crate::mir::builder::RejectedNormalScriptModuleTransactionV1,
+    admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
+    receipt: NormalSourcePlanReceiptV1,
+) -> RejectedCanonicalCoreNormalDispatchV1 {
+    RejectedCanonicalCoreNormalDispatchV1 {
+        owner: RetainedCanonicalCoreSourcePlanOwnerV1::ScriptCandidate {
+            rejected,
+            admission,
+            receipt,
+        },
+        stage: CanonicalCoreDispatchStageV1::ScriptCandidate,
+        cause: CanonicalCoreDispatchErrorV1::ScriptCandidate,
     }
 }

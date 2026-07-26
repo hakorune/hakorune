@@ -37,6 +37,7 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
     raw_adapter = builder / "raw_root_environment_install/body_transaction.rs"
     canonical_owner = source_plan / "script_physical_entry.rs"
     transaction = builder / "normal_module_transaction/script_transaction.rs"
+    dispatch = root / "src/mir/compiler/canonical_core_dispatch.rs"
 
     handoff = recipe_handoff.read_text()
     terminal_text = terminal.read_text()
@@ -48,6 +49,7 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
     raw_adapter_text = raw_adapter.read_text()
     canonical_owner_text = canonical_owner.read_text()
     transaction_text = transaction.read_text()
+    dispatch_text = dispatch.read_text()
 
     _require(handoff, "source: RetainedNormalScriptSourceV1", "opaque Script source retention")
     _require(handoff, "recipe: RawScriptBodyRecipeV1", "exact Script recipe")
@@ -185,6 +187,28 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
     for forbidden in ("ModuleInvocationBrandV1", "RawPublished", "SourceMain", "fn retry"):
         if forbidden in transaction_text:
             raise AssertionError(f"Script transaction gained forbidden authority: {forbidden}")
+
+    _require_count(
+        dispatch_text,
+        "CompletedCanonicalCoreSourceEntryFamilyV1::Script",
+        2,
+        "one Script family dispatch and one test observation",
+    )
+    _require(
+        dispatch_text,
+        "fn compile_script(",
+        "sole canonical Script dispatch consumer",
+    )
+    _require(
+        dispatch_text,
+        "PreparedNormalScriptModuleTransactionV1::prepare(exit)",
+        "Script candidate transaction handoff",
+    )
+    if "FamilyCapabilityPending(\n                        CanonicalCorePendingFamilyV1::Script" in dispatch_text:
+        raise AssertionError("canonical Script must not remain a pending dispatch family")
+    for forbidden in ("RawPublished", "ModuleInvocationBrandV1", "compile_with_source", "fn retry"):
+        if forbidden in dispatch_text:
+            raise AssertionError(f"canonical Script dispatch gained forbidden authority: {forbidden}")
     for prefix in (
         "script_terminal_kernel_classifies",
         "script_terminal_kernel_preserves",
@@ -212,6 +236,7 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
         raw_adapter,
         canonical_owner,
         transaction,
+        dispatch,
     )
     for path in files:
         if len(path.read_text().splitlines()) >= 800:
