@@ -1,5 +1,5 @@
 ---
-Status: active proof task
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Row: NORMAL-MAIN0-VMREF0-P0
@@ -37,6 +37,26 @@ source Main.main/0
 
 No new compiler, executor, process projection, diagnostic adapter, or source
 classifier is allowed.
+
+## Closeout
+
+The canonical Main proof is green:
+
+```text
+canonical Main VM-reference tests            = 3/3
+matrix rows                                  = 12
+reuse sequence                               = 7 terminals
+existing Raw execution matrix                = 18/18
+normal module transaction fixtures           = 11/11
+neutral execution/owner guards               = green
+cargo check --lib --features vm-reference    = green
+canonical Main runner/CLI caller             = 0
+```
+
+The matrix includes actual division-by-zero VM Fault, range faults, unsupported
+Bool/Float process results, every admitted Unit origin, and later-success
+Builder reuse. Status and diagnostic tags come only from the existing shared
+projection/adapter.
 
 ## Required matrix
 

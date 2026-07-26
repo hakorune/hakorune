@@ -155,7 +155,7 @@ fn reject(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+    use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
     use crate::mir::builder::MirBuilder;
     use crate::mir::compiler::normal_source_plan::with_main_thunk_for_test;
     use crate::mir::compiler::source_entry_vm_reference::VmSourceEntryDecodePlanV1;
@@ -173,6 +173,22 @@ mod tests {
             value: value.map(literal).map(Box::new),
             span: Span::unknown(),
         }
+    }
+
+    fn return_expr(value: ASTNode) -> ASTNode {
+        ASTNode::Return {
+            value: Some(Box::new(value)),
+            span: Span::unknown(),
+        }
+    }
+
+    fn divide_by_zero() -> ASTNode {
+        return_expr(ASTNode::BinaryOp {
+            operator: BinaryOperator::Divide,
+            left: Box::new(literal(LiteralValue::Integer(1))),
+            right: Box::new(literal(LiteralValue::Integer(0))),
+            span: Span::unknown(),
+        })
     }
 
     fn main_program(body: Vec<ASTNode>) -> ASTNode {
@@ -285,6 +301,79 @@ mod tests {
                     crate::mir::compiler::source_entry_selection::SelectedSourceEntryRouteV1::AppMain0
                 );
             });
+        }
+    }
+
+    fn run_main(
+        builder: &mut MirBuilder,
+        body: Vec<ASTNode>,
+    ) -> super::super::source_entry_vm_reference::RawVmReferenceRunReportV1 {
+        with_main_thunk_for_test(main_program(body), |thunk| {
+            builder
+                .complete_normal_main_candidate_for_test(thunk)
+                .publish()
+                .prepare_neutral_vm_reference()
+                .expect("canonical Main neutral adapter")
+                .execute()
+                .complete_canonical_source_entry()
+                .into_run_report()
+        })
+    }
+
+    #[test]
+    fn canonical_main_process_matrix_uses_shared_status_and_diagnostic_authorities() {
+        let mut builder = MirBuilder::new();
+        let cases = [
+            (Vec::new(), 0, None),
+            (vec![literal(LiteralValue::Integer(3))], 0, None),
+            (vec![return_(None)], 0, None),
+            (vec![return_(Some(LiteralValue::Void))], 0, None),
+            (vec![return_(Some(LiteralValue::Null))], 0, None),
+            (vec![return_(Some(LiteralValue::Integer(0)))], 0, None),
+            (vec![return_(Some(LiteralValue::Integer(255)))], 255, None),
+            (
+                vec![return_(Some(LiteralValue::Integer(-1)))],
+                70,
+                Some("[process/exit-code-out-of-range]"),
+            ),
+            (
+                vec![return_(Some(LiteralValue::Integer(256)))],
+                70,
+                Some("[process/exit-code-out-of-range]"),
+            ),
+            (
+                vec![return_(Some(LiteralValue::Bool(true)))],
+                70,
+                Some("[process/unsupported-result]"),
+            ),
+            (
+                vec![return_(Some(LiteralValue::Float(1.5)))],
+                70,
+                Some("[process/unsupported-result]"),
+            ),
+            (vec![divide_by_zero()], 70, Some("[process/source-fault]")),
+        ];
+        for (body, status, tag) in cases {
+            let report = run_main(&mut builder, body);
+            assert_eq!(report.status_code(), status);
+            assert_eq!(report.diagnostic_tag(), tag);
+        }
+    }
+
+    #[test]
+    fn canonical_main_builder_reuses_after_process_and_vm_faults() {
+        let mut builder = MirBuilder::new();
+        let sequence = [
+            (vec![return_(Some(LiteralValue::Integer(7)))], 7),
+            (vec![return_(Some(LiteralValue::Integer(256)))], 70),
+            (Vec::new(), 0),
+            (vec![return_(Some(LiteralValue::Bool(false)))], 70),
+            (vec![return_(Some(LiteralValue::Integer(1)))], 1),
+            (vec![divide_by_zero()], 70),
+            (vec![return_(Some(LiteralValue::Integer(2)))], 2),
+        ];
+        for (body, status) in sequence {
+            assert_eq!(run_main(&mut builder, body).status_code(), status);
         }
     }
 }
