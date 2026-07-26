@@ -8,7 +8,8 @@ use crate::mir::builder::callable_declaration_catalog::SameModuleCallableNamespa
 use crate::mir::builder::calls::function_lowering;
 use crate::mir::builder::calls::{
     emit_standard_value_terminal_raw_v1, AssociatedMethodCallArgumentsV1,
-    LegacyMethodCallArgumentsV1, MethodCallArgumentDescentV1, MethodCallValueTerminalPortV1,
+    LegacyMethodCallArgumentsV1, MethodCallArgumentDescentV1, MethodCallDescentPortV1,
+    MethodCallValueTerminalPortV1,
 };
 use crate::mir::builder::me_call_header_observation::{
     prepare_me_lowered_call_v1, MethodCallLoweringPortV1, PreparedMeReceiverV1,
@@ -185,7 +186,7 @@ impl MirBuilder {
         descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
     ) -> Result<ValueId, String>
     where
-        Port: MethodCallValueTerminalPortV1,
+        Port: MethodCallDescentPortV1 + MethodCallValueTerminalPortV1,
     {
         if crate::config::env::joinir_dev::debug_enabled() {
             crate::runtime::get_global_ring0().log.debug(&format!(
@@ -248,7 +249,7 @@ impl MirBuilder {
         completion: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
     ) -> Result<ValueId, String>
     where
-        Port: MethodCallValueTerminalPortV1,
+        Port: MethodCallDescentPortV1 + MethodCallValueTerminalPortV1,
     {
         let mir_ty = Self::parse_type_name_to_mir(type_name);
         let op = if method == "is" {
@@ -300,7 +301,7 @@ impl MirBuilder {
         descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
     ) -> Result<ValueId, String>
     where
-        Port: MethodCallValueTerminalPortV1,
+        Port: MethodCallDescentPortV1 + MethodCallValueTerminalPortV1,
     {
         if let Some(result) =
             self.try_complete_standard_method_preflight(object_value, &method, arguments, descent)?

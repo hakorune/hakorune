@@ -135,8 +135,8 @@ where
         Self { port, input }
     }
 
-    pub(super) fn terminal_parts(&mut self) -> (&mut Port, &Port::MethodCallInput) {
-        (self.port, self.input)
+    pub(super) fn terminal_port(&mut self) -> &mut Port {
+        self.port
     }
 }
 

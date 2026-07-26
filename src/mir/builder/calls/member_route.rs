@@ -9,7 +9,6 @@ use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{
     lower_method_call_receiver_v1, AssociatedMethodCallArgumentsV1, MethodCallArgumentDescentV1,
 };
-use super::method_call_terminal::MethodCallValueTerminalPortV1;
 use super::receiver_binding::ReceiverNormalizationPlan;
 use crate::ast::ASTNode;
 

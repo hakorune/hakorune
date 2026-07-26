@@ -7,6 +7,7 @@
 //! module draft/fact capture remains a separate cutover.
 
 use super::calls::MethodCallValueTerminalPortV1;
+use super::calls::MethodCallDescentPortV1;
 use super::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::{MirBuilder, MirType, ValueId};
 
@@ -104,12 +105,12 @@ pub(in crate::mir::builder) trait MeCallHeaderObservationPortV1 {
 /// Capability bundle used by the shared method-call policy.  Terminal lookup
 /// and pre-argument header observation remain separate authorities.
 pub(in crate::mir::builder) trait MethodCallLoweringPortV1:
-    MethodCallValueTerminalPortV1 + MeCallHeaderObservationPortV1
+    MethodCallDescentPortV1 + MethodCallValueTerminalPortV1 + MeCallHeaderObservationPortV1
 {
 }
 
 impl<T> MethodCallLoweringPortV1 for T where
-    T: MethodCallValueTerminalPortV1 + MeCallHeaderObservationPortV1
+    T: MethodCallDescentPortV1 + MethodCallValueTerminalPortV1 + MeCallHeaderObservationPortV1
 {
 }
 

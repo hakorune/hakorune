@@ -549,7 +549,6 @@ impl MethodCallValueTerminalPortV1 for LocatedLegacyLoweringSessionV1<'_> {
     fn emit_typeop_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         value: ValueId,
         op: TypeOpKind,
         ty: MirType,
@@ -560,7 +559,6 @@ impl MethodCallValueTerminalPortV1 for LocatedLegacyLoweringSessionV1<'_> {
     fn emit_static_global_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         owner: &str,
         method: &str,
         checked_source_arity: u32,
@@ -573,7 +571,6 @@ impl MethodCallValueTerminalPortV1 for LocatedLegacyLoweringSessionV1<'_> {
     fn emit_me_lowered_global_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         owner: &str,
         method: &str,
         checked_source_arity: u32,
@@ -593,7 +590,6 @@ impl MethodCallValueTerminalPortV1 for LocatedLegacyLoweringSessionV1<'_> {
     fn emit_env_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         spec: &EnvMethodSpec,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String> {
@@ -603,7 +599,6 @@ impl MethodCallValueTerminalPortV1 for LocatedLegacyLoweringSessionV1<'_> {
     fn emit_standard_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         receiver: ValueId,
         method: String,
         arguments: Vec<ValueId>,

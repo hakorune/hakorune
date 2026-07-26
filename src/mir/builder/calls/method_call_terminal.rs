@@ -13,13 +13,10 @@ use crate::mir::builder::recursive_child_lowering::{
 };
 use crate::mir::{MirBuilder, MirInstruction, MirType, TypeOpKind, ValueId};
 
-pub(in crate::mir::builder) trait MethodCallValueTerminalPortV1:
-    MethodCallDescentPortV1
-{
+pub(in crate::mir::builder) trait MethodCallValueTerminalPortV1 {
     fn emit_typeop_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        input: &Self::MethodCallInput,
         value: ValueId,
         op: TypeOpKind,
         ty: MirType,
@@ -28,7 +25,6 @@ pub(in crate::mir::builder) trait MethodCallValueTerminalPortV1:
     fn emit_static_global_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        input: &Self::MethodCallInput,
         owner: &str,
         method: &str,
         checked_source_arity: u32,
@@ -38,7 +34,6 @@ pub(in crate::mir::builder) trait MethodCallValueTerminalPortV1:
     fn emit_me_lowered_global_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        input: &Self::MethodCallInput,
         owner: &str,
         method: &str,
         checked_source_arity: u32,
@@ -48,7 +43,6 @@ pub(in crate::mir::builder) trait MethodCallValueTerminalPortV1:
     fn emit_env_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        input: &Self::MethodCallInput,
         spec: &EnvMethodSpec,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String>;
@@ -56,7 +50,6 @@ pub(in crate::mir::builder) trait MethodCallValueTerminalPortV1:
     fn emit_standard_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        input: &Self::MethodCallInput,
         receiver: ValueId,
         method: String,
         arguments: Vec<ValueId>,
@@ -70,7 +63,6 @@ where
     fn emit_typeop_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         value: ValueId,
         op: TypeOpKind,
         ty: MirType,
@@ -81,7 +73,6 @@ where
     fn emit_static_global_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         owner: &str,
         method: &str,
         checked_source_arity: u32,
@@ -103,7 +94,6 @@ where
     fn emit_me_lowered_global_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         owner: &str,
         method: &str,
         checked_source_arity: u32,
@@ -135,7 +125,6 @@ where
     fn emit_env_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         spec: &EnvMethodSpec,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String> {
@@ -145,7 +134,6 @@ where
     fn emit_standard_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         receiver: ValueId,
         method: String,
         arguments: Vec<ValueId>,
@@ -160,7 +148,7 @@ where
 
 impl<Port> AssociatedMethodCallArgumentsV1<'_, '_, Port>
 where
-    Port: MethodCallValueTerminalPortV1,
+    Port: MethodCallDescentPortV1 + MethodCallValueTerminalPortV1,
 {
     pub(in crate::mir::builder) fn finish_typeop_value_terminal(
         &mut self,
@@ -169,8 +157,8 @@ where
         op: TypeOpKind,
         ty: MirType,
     ) -> Result<ValueId, String> {
-        let (port, input) = self.terminal_parts();
-        port.emit_typeop_value_terminal(builder, input, value, op, ty)
+        self.terminal_port()
+            .emit_typeop_value_terminal(builder, value, op, ty)
     }
 
     pub(in crate::mir::builder) fn finish_static_global_value_terminal(
@@ -181,10 +169,8 @@ where
         checked_source_arity: u32,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String> {
-        let (port, input) = self.terminal_parts();
-        port.emit_static_global_value_terminal(
+        self.terminal_port().emit_static_global_value_terminal(
             builder,
-            input,
             owner,
             method,
             checked_source_arity,
@@ -200,10 +186,8 @@ where
         checked_source_arity: u32,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String> {
-        let (port, input) = self.terminal_parts();
-        port.emit_me_lowered_global_value_terminal(
+        self.terminal_port().emit_me_lowered_global_value_terminal(
             builder,
-            input,
             owner,
             method,
             checked_source_arity,
@@ -217,8 +201,8 @@ where
         spec: &EnvMethodSpec,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String> {
-        let (port, input) = self.terminal_parts();
-        port.emit_env_value_terminal(builder, input, spec, arguments)
+        self.terminal_port()
+            .emit_env_value_terminal(builder, spec, arguments)
     }
 
     pub(in crate::mir::builder) fn finish_standard_value_terminal(
@@ -228,8 +212,8 @@ where
         method: String,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String> {
-        let (port, input) = self.terminal_parts();
-        port.emit_standard_value_terminal(builder, input, receiver, method, arguments)
+        self.terminal_port()
+            .emit_standard_value_terminal(builder, receiver, method, arguments)
     }
 }
 

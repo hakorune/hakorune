@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and NESTED-INSTANCE-RESULT-CONTRACT0-S0 are closed. NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1 accepts A-double-prime: only pre-loop MeStandardUnified stays on the near path; loop-refresh remains parked with its existing publisher. RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-prime-r1 fixes the source owner to the same declaration-catalog allocation as the nested contract, reuses the existing SourcePath/site/child-role navigation authority, and forbids a second cursor engine. RAW-SOURCE-CURSOR0-S0, RAW-EXPRESSION-DISPATCH-CURSOR0-I0, and RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0 are closed. I0-A seals the selected pre-loop source association and rejects the parked loop site before lowering. PRELOOP-LOCATED-ARGUMENT-DESCENT0-prime-r1 accepts A-prime-Port. RELATION0-S0 is closed: one self-reference-free outer MethodCall/CallArgument relation co-seals with the exact pre-loop association, while Builder, candidate Port, receipt, and type authority remain zero. METHOD-CALL-TERMINAL-NEUTRAL0-S0 is next. OWN-GRAM-REJECT0-HAKO0 remains parked until the post-type Stage-B guard selects it."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and NESTED-INSTANCE-RESULT-CONTRACT0-S0 are closed. NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1 accepts A-double-prime: only pre-loop MeStandardUnified stays on the near path; loop-refresh remains parked with its existing publisher. RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-prime-r1 fixes the source owner to the same declaration-catalog allocation as the nested contract, reuses the existing SourcePath/site/child-role navigation authority, and forbids a second cursor engine. RAW-SOURCE-CURSOR0-S0, RAW-EXPRESSION-DISPATCH-CURSOR0-I0, and RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0 are closed. I0-A seals the selected pre-loop source association and rejects the parked loop site before lowering. PRELOOP-LOCATED-ARGUMENT-DESCENT0-prime-r1 accepts A-prime-Port. RELATION0-S0 and TERMINAL-NEUTRAL0-S0 are closed: the source relation is self-reference-free, and value terminals are source-neutral. CALL-ARGUMENT-ONE-SHOT-SEAM0-S0 is next; candidate Port, receipt, and type authority remain zero. OWN-GRAM-REJECT0-HAKO0 remains parked until the post-type Stage-B guard selects it."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "METHOD-CALL-TERMINAL-NEUTRAL0-S0"
-current_execution_summary = "Remove the unused source MethodCall input from the value-terminal capability and update only the existing Raw, LocatedLegacy, and route-test implementations mechanically. Preserve terminal behavior, MIR, error tags, ordered descent, candidate connection, Call receipt, type publication, loop-refresh route, fallback, and production caller at zero."
+current_execution_row = "CALL-ARGUMENT-ONE-SHOT-SEAM0-S0"
+current_execution_summary = "Allow one-shot mutable expression-input projection only through the existing drive_call_arguments_v1 ordered driver. Do not add a second driver or copy any preflight; preserve default-route parity. Candidate Port, Call receipt, result receipt, type publication, loop-refresh route, fallback, and production caller remain zero."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -435,7 +435,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "preloop-located-argument-descent0-d0-design-question-2026-07-27"
 latest_card_path = "docs/development/current/main/investigations/preloop-located-argument-descent0-d0-design-question-2026-07-27.md"
-latest_card_summary = """PRELOOP-LOCATED-ARGUMENT-DESCENT0-prime-r1 accepts A-prime-Port. RELATION0-S0 is closed: the existing source-path/projector authority now issues a self-reference-free outer MethodCall/CallArgument relation, which co-seals only the exact pre-loop nested association. The next row removes the unused terminal source-input coupling mechanically. The candidate Port, physical/nested receipt, Integer publication, loop-refresh activation, and production caller remain zero."""
+latest_card_summary = """PRELOOP-LOCATED-ARGUMENT-DESCENT0-prime-r1 accepts A-prime-Port. RELATION0-S0 and TERMINAL-NEUTRAL0-S0 are closed: structural source identity is self-reference-free, and the value-terminal capability is source-neutral. The next row permits one-shot mutable expression-input projection solely through the existing ordered driver. Candidate Port, physical/nested receipt, Integer publication, loop-refresh activation, and production caller remain zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "METHOD-CALL-TERMINAL-NEUTRAL0-S0"
+current_blocker_token = "CALL-ARGUMENT-ONE-SHOT-SEAM0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

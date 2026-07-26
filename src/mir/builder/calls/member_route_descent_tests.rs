@@ -15,7 +15,7 @@ use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::call_argument_descent::CallArgumentDescentPortV1;
 use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{
-    MethodCallDescentPortV1, MethodCallSyntaxViewV1, RawLegacyMethodCallInputV1,
+    MethodCallDescentPortV1, MethodCallSyntaxViewV1,
 };
 use super::method_call_terminal::MethodCallValueTerminalPortV1;
 
@@ -183,28 +183,22 @@ impl MeCallHeaderObservationPortV1 for RoutePort {
     }
 }
 
-fn raw_terminal_input() -> RawLegacyMethodCallInputV1 {
-    RawLegacyMethodCallInputV1::new(integer(0), "terminal".to_string(), Vec::new())
-}
-
 impl MethodCallValueTerminalPortV1 for RoutePort {
     fn emit_typeop_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         value: ValueId,
         op: TypeOpKind,
         ty: MirType,
     ) -> Result<ValueId, String> {
         self.events.push("terminal:typeop".to_string());
         let mut raw = RawLegacyChildLoweringPortV1;
-        raw.emit_typeop_value_terminal(builder, &raw_terminal_input(), value, op, ty)
+        raw.emit_typeop_value_terminal(builder, value, op, ty)
     }
 
     fn emit_static_global_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         owner: &str,
         method: &str,
         checked_source_arity: u32,
@@ -214,7 +208,6 @@ impl MethodCallValueTerminalPortV1 for RoutePort {
         let mut raw = RawLegacyChildLoweringPortV1;
         raw.emit_static_global_value_terminal(
             builder,
-            &raw_terminal_input(),
             owner,
             method,
             checked_source_arity,
@@ -225,7 +218,6 @@ impl MethodCallValueTerminalPortV1 for RoutePort {
     fn emit_me_lowered_global_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         owner: &str,
         method: &str,
         checked_source_arity: u32,
@@ -235,7 +227,6 @@ impl MethodCallValueTerminalPortV1 for RoutePort {
         let mut raw = RawLegacyChildLoweringPortV1;
         raw.emit_me_lowered_global_value_terminal(
             builder,
-            &raw_terminal_input(),
             owner,
             method,
             checked_source_arity,
@@ -246,19 +237,17 @@ impl MethodCallValueTerminalPortV1 for RoutePort {
     fn emit_env_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         spec: &EnvMethodSpec,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String> {
         self.events.push("terminal:env".to_string());
         let mut raw = RawLegacyChildLoweringPortV1;
-        raw.emit_env_value_terminal(builder, &raw_terminal_input(), spec, arguments)
+        raw.emit_env_value_terminal(builder, spec, arguments)
     }
 
     fn emit_standard_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::MethodCallInput,
         receiver: ValueId,
         method: String,
         arguments: Vec<ValueId>,
@@ -270,7 +259,6 @@ impl MethodCallValueTerminalPortV1 for RoutePort {
         let mut raw = RawLegacyChildLoweringPortV1;
         raw.emit_standard_value_terminal(
             builder,
-            &raw_terminal_input(),
             receiver,
             method,
             arguments,

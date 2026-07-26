@@ -5,7 +5,6 @@ use crate::mir::{Callee, ConstValue, EffectMask, MirBuilder, MirInstruction, Mir
 use crate::parser::NyashParser;
 
 use super::extern_calls::EnvMethodSpec;
-use super::method_call_descent::RawLegacyMethodCallInputV1;
 use super::method_call_terminal::MethodCallValueTerminalPortV1;
 
 fn integer(value: i64) -> ASTNode {
@@ -13,10 +12,6 @@ fn integer(value: i64) -> ASTNode {
         value: LiteralValue::Integer(value),
         span: Span::unknown(),
     }
-}
-
-fn input() -> RawLegacyMethodCallInputV1 {
-    RawLegacyMethodCallInputV1::new(integer(0), "terminal".to_string(), Vec::new())
 }
 
 fn builder(name: &str) -> MirBuilder {
@@ -119,7 +114,6 @@ fn disconnected_typeop_terminals_preserve_check_cast_value_type_and_destination(
     let check = port
         .emit_typeop_value_terminal(
             &mut builder,
-            &input(),
             value,
             crate::mir::TypeOpKind::Check,
             MirType::Integer,
@@ -128,7 +122,6 @@ fn disconnected_typeop_terminals_preserve_check_cast_value_type_and_destination(
     let cast = port
         .emit_typeop_value_terminal(
             &mut builder,
-            &input(),
             value,
             crate::mir::TypeOpKind::Cast,
             MirType::Integer,
@@ -171,7 +164,6 @@ fn disconnected_static_and_me_global_terminals_preserve_semantic_target_and_argu
     let static_result = port
         .emit_static_global_value_terminal(
             &mut builder,
-            &input(),
             "TerminalCatalogOwner",
             "call",
             2,
@@ -181,7 +173,6 @@ fn disconnected_static_and_me_global_terminals_preserve_semantic_target_and_argu
     let me_result = port
         .emit_me_lowered_global_value_terminal(
             &mut builder,
-            &input(),
             "TerminalCatalogOwner",
             "call",
             2,
@@ -249,11 +240,11 @@ fn disconnected_env_terminals_preserve_returning_and_no_result_laws() {
     let returning_cursor = next_value_cursor(&builder);
 
     let returning_value = port
-        .emit_env_value_terminal(&mut builder, &input(), &returning, vec![argument])
+        .emit_env_value_terminal(&mut builder, &returning, vec![argument])
         .unwrap();
     let no_result_cursor = next_value_cursor(&builder);
     let void_value = port
-        .emit_env_value_terminal(&mut builder, &input(), &no_result, vec![argument])
+        .emit_env_value_terminal(&mut builder, &no_result, vec![argument])
         .unwrap();
 
     let emitted = instructions(&builder);
@@ -323,7 +314,6 @@ fn disconnected_standard_terminal_preserves_method_identity_and_completed_destin
     let result = port
         .emit_standard_value_terminal(
             &mut builder,
-            &input(),
             receiver,
             "terminalMethod".to_string(),
             vec![argument],

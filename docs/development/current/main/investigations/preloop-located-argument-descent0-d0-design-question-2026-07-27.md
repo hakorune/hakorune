@@ -471,6 +471,21 @@ MIR delta               = 0
 error-tag delta         = 0
 ```
 
+#### Closeout (2026-07-27)
+
+Closed. `MethodCallValueTerminalPortV1` is now source-neutral and receives
+only already-materialized terminal operands. `MethodCallLoweringPortV1`
+explicitly carries the separate descent capability needed by route handlers.
+The Raw blanket implementation, LocatedLegacy session, and route-test port
+were updated mechanically; targeted terminal, route-descent, and descent tests
+remain green.
+
+Next executable row:
+
+```text
+CALL-ARGUMENT-ONE-SHOT-SEAM0-S0
+```
+
 ### 3. `CALL-ARGUMENT-ONE-SHOT-SEAM0-S0`
 
 Permit one-shot mutable expression-input projection while keeping
