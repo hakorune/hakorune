@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: NORMAL-FILE-CANONICAL-CORE0-REUSE0-P0
+Active executable row: NORMAL-FILE-CANONICAL-CORE0-REQUEST0-S0
 ```
 
 ## Boundary
@@ -249,6 +249,31 @@ owner remains the only execution path.
 focused direct-call case to a single compiler sequence covering Script/Main/
 Callable success, callable catalog/preflight rejection, and VM process Fault.
 It changes no accepted source shape.
+
+### `NORMAL-FILE-CANONICAL-CORE0-REUSE0-P0`
+
+Status: closed by this commit.
+
+One compiler instance now proves the complete bounded sequence:
+
+```text
+Script success
+  -> Main success
+  -> Callable success
+  -> Callable direct-call MainPlan rejection
+  -> Script VM Fault 70
+  -> Callable success
+```
+
+No failure changes the fixed profile, retries another family, or leaves a
+published partial module.
+
+## Next row
+
+`NORMAL-FILE-CANONICAL-CORE0-REQUEST0-S0` creates the one explicit,
+default-off, crate-private normal-file canonical-core VM-reference request.
+Selection is CLI-shaped but has no production caller yet; it owns one existing
+normal-file request and accepts no backend/optimization/profile reconstruction.
 
 ## Acceptance gates
 

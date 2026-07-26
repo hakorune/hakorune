@@ -235,6 +235,7 @@ def main() -> int:
         "canonical_core_dispatch_connects_callable_to_the_shared_publication_path",
         "canonical_core_callable_direct_call_rejects_at_its_existing_preflight_and_reuses_compiler",
         "canonical_core_vm_reference_executes_admitted_callable_module",
+        "canonical_core_reuses_one_compiler_after_callable_rejection_and_program_fault",
     ):
         require(normal_source_plan_tests, fragment, f"callable dispatch parity fixture {fragment}")
     for retired in (

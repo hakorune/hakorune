@@ -330,7 +330,10 @@ fn canonical_core_callable_direct_call_rejects_at_its_existing_preflight_and_reu
     let rejected = compiler
         .compile_canonical_core_source_plan(direct_call)
         .expect_err("Main direct calls remain outside the first callable slice");
-    assert_eq!(rejected.stage(), crate::mir::CanonicalCoreDispatchStageV1::Callable);
+    assert_eq!(
+        rejected.stage(),
+        crate::mir::CanonicalCoreDispatchStageV1::Callable
+    );
     assert!(matches!(
         rejected.cause(),
         crate::mir::CanonicalCoreDispatchErrorV1::Callable(
@@ -363,6 +366,74 @@ fn canonical_core_vm_reference_executes_admitted_callable_module() {
     assert_eq!(outcome.status, 0);
     assert_eq!(outcome.fault_tag, None);
     assert_eq!(outcome.route, "main");
+}
+
+#[cfg(feature = "vm-reference")]
+#[test]
+fn canonical_core_reuses_one_compiler_after_callable_rejection_and_program_fault() {
+    let dir = tempdir().expect("tempdir");
+    let request = |name, source| {
+        classify_canonical_core(dir.path(), name, source)
+            .into_canonical_core_compile_request()
+            .expect("canonical-core handoff")
+    };
+    let callable =
+        "static function helper(x: i64): i64 { return x }\nstatic box Main { main() {} }";
+    let direct_call = "static function helper(x: i64): i64 { return x }\nstatic box Main { main() { helper(42) } }";
+    let mut compiler = crate::mir::MirCompiler::new();
+
+    let script = compiler
+        .run_canonical_core_source_plan_vm_reference_summary_for_test(request(
+            "reuse-script.hako",
+            "42",
+        ))
+        .expect("Script success");
+    assert_eq!(script.status, 42);
+
+    let main = compiler
+        .run_canonical_core_source_plan_vm_reference_summary_for_test(request(
+            "reuse-main.hako",
+            "static box Main { main() {} }",
+        ))
+        .expect("Main success");
+    assert_eq!(main.status, 0);
+
+    let first_callable = compiler
+        .run_canonical_core_source_plan_vm_reference_summary_for_test(request(
+            "reuse-callable-first.hako",
+            callable,
+        ))
+        .expect("Callable success");
+    assert_eq!(first_callable.status, 0);
+
+    let rejected = compiler
+        .compile_canonical_core_source_plan(request("reuse-direct-call.hako", direct_call))
+        .expect_err("direct call remains a typed capability rejection");
+    assert!(matches!(
+        rejected.cause(),
+        crate::mir::CanonicalCoreDispatchErrorV1::Callable(
+            crate::mir::CanonicalCallableDispatchStageV1::MainPlan
+        )
+    ));
+    rejected.discard();
+
+    let fault = compiler
+        .run_canonical_core_source_plan_vm_reference_summary_for_test(request(
+            "reuse-fault.hako",
+            "1 / 0",
+        ))
+        .expect("program Fault remains a terminal result, not a compile rejection");
+    assert_eq!(fault.status, 70);
+    assert_eq!(fault.fault_tag, Some("vm-division-by-zero"));
+
+    let later_callable = compiler
+        .run_canonical_core_source_plan_vm_reference_summary_for_test(request(
+            "reuse-callable-later.hako",
+            callable,
+        ))
+        .expect("later Callable success");
+    assert_eq!(later_callable.status, 0);
+    assert_eq!(later_callable.route, "main");
 }
 
 #[test]
