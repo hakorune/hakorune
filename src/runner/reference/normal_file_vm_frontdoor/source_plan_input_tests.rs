@@ -191,10 +191,17 @@ fn canonical_core_script_vm_reference_preserves_unit_and_fault_projection() {
     let dir = tempdir().expect("tempdir");
     let cases = [
         ("empty.hako", "", 0, None),
+        ("void.hako", "void", 0, None),
+        ("null.hako", "null", 0, None),
         ("print.hako", "print(1)", 0, None),
+        ("local.hako", "local x = 3", 0, None),
+        ("assignment.hako", "local x = 1\nx = 3", 0, None),
+        ("compound.hako", "local x = 1\nx += 2", 0, None),
         ("range.hako", "256", 70, Some("exit-code-out-of-range")),
         ("bool.hako", "true", 70, Some("unsupported-result")),
+        ("float.hako", "1.5", 70, Some("unsupported-result")),
         ("string.hako", "\"nyan\"", 70, Some("unsupported-result")),
+        ("division.hako", "1 / 0", 70, Some("vm-division-by-zero")),
     ];
     let mut compiler = crate::mir::MirCompiler::new();
 
