@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-FILE-CANONICAL-CORE0-DISPATCH-prime-r1 is accepted. The sole family match belongs to a compiler-layer consuming dispatcher; it produces a complete unpublished candidate before one canonical publication boundary and the existing neutral VM-reference terminal. Main0 is connected. Script source semantics now share one recipe handoff, but canonical Script physical entry is paused at NORMAL-SCRIPT0-PHYSICAL-ENTRY-D0: Raw publication/brand/fallback are forbidden and the brand-free materialization owner is undecided. Alias/View remain scheduled after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and before product/default promotion."
+status = "NORMAL-SCRIPT0-PHYSICAL-ENTRY-prime-r1 accepts A-prime: one Script-specific unbranded outer transaction plus one shared brand-free Script lowering/result/Return kernel consumed by Raw and canonical Script. The first executable cell retains the complete opaque Script source owner, narrows the handoff to the exact Script recipe, and introduces the exact terminal vocabulary. Raw brand/tracker/witness/ledger remain outside the kernel; canonical Script has a candidate-only session, one PhysicalEntry-row schema, no SourceMain/thunk, no Raw publication/fallback, and production caller zero. Alias/View remain scheduled after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and before product/default promotion."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "NORMAL-SCRIPT0-PHYSICAL-ENTRY-D0"
-current_execution_row = "NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0"
-current_execution_summary = "Main0 dispatch candidate and one-shot shared Script recipe handoff are closed. Stop before Script physical materialization: choose the unbranded Script entry session, completion/exit owner, one-function candidate transaction, and Raw adapter relation. Production caller remains zero."
+current_design_stop = "none"
+current_execution_row = "NORMAL-SCRIPT0-PHYSICAL-ENTRY0-S0"
+current_execution_summary = "Execute the six-buildable-commit Script physical-entry series: exact terminal, shared sole Return writer, Raw adapter plus Unit-origin correction, candidate-only canonical physical session, one-row module transaction, then Script dispatch G0. Publication and production caller remain zero."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -332,8 +332,8 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26.md"
-phase_status = "docs/development/current/main/investigations/normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26.md"
+active_phase = "docs/development/current/main/investigations/normal-script0-physical-entry0-s0-execution-task-2026-07-26.md"
+phase_status = "docs/development/current/main/investigations/normal-script0-physical-entry0-s0-execution-task-2026-07-26.md"
 method_anchor = "docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -365,6 +365,8 @@ normal_callable_module0_tx0_drafts0_helper_prefix0_task = "docs/development/curr
 normal_callable_module0_tx0_drafts0_main_physical0_task = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-main-physical0-s0-execution-task-2026-07-26.md"
 normal_file_canonical_core_dispatch_decision = "docs/development/current/main/investigations/normal-file-canonical-core0-dispatch-d0-design-question-2026-07-26.md"
 normal_file_canonical_core_dispatch_task = "docs/development/current/main/investigations/normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26.md"
+normal_script0_physical_entry_decision = "docs/development/current/main/investigations/normal-script0-physical-entry-d0-design-question-2026-07-26.md"
+normal_script0_physical_entry_task = "docs/development/current/main/investigations/normal-script0-physical-entry0-s0-execution-task-2026-07-26.md"
 ownership_sparse_surface_task = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
 ownership_sparse_resume_after = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0"
 ownership_sparse_first_resume_row = "OWNERSHIP-SPARSE-RESUME-D0"
@@ -430,9 +432,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "normal-script0-physical-entry-d0-design-question-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/normal-script0-physical-entry-d0-design-question-2026-07-26.md"
-latest_card_summary = """NORMAL-SCRIPT0-PHYSICAL-ENTRY-D0 asks for the canonical brand-free Script main/0 materialization owner. Shared Script recipe semantics are closed; Raw publication, invocation brand, fallback, and a synthetic callable authority remain forbidden."""
+latest_card = "normal-script0-physical-entry0-s0-execution-task-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/normal-script0-physical-entry0-s0-execution-task-2026-07-26.md"
+latest_card_summary = """NORMAL-SCRIPT0-PHYSICAL-ENTRY-prime-r1 accepts one Script-specific unbranded outer transaction and one shared brand-free Script lowering/result/Return kernel. SCRIPT-TERMINAL-KERNEL0 is first; the series then moves the sole writer, corrects Raw statement-Unit origins, builds a candidate-only Script draft and one-row module candidate, and connects Script dispatch with production caller zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -634,7 +636,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-SCRIPT0-PHYSICAL-ENTRY-D0"
+current_blocker_token = "SCRIPT-TERMINAL-KERNEL0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

@@ -1,14 +1,18 @@
 ---
-Status: consultation requested
+Status: accepted
 Date: 2026-07-26
-Decision: pending
+Decision: NORMAL-SCRIPT0-PHYSICAL-ENTRY-prime-r1
 Row: NORMAL-SCRIPT0-PHYSICAL-ENTRY-D0
 Scope: select the canonical, brand-free physical-entry materialization owner
 for a source-classified Script candidate
 ceremony_tier: T2 new physical/session/completion authority
 Blocks: NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0 / SCRIPT0
+Accepted: A-prime Script-specific unbranded outer transaction plus one shared
+brand-free Script exit kernel
+First executable row: NORMAL-SCRIPT0-PHYSICAL-ENTRY0-S0
 Related:
   - normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26.md
+  - normal-script0-physical-entry0-s0-execution-task-2026-07-26.md
   - normal-file-canonical-core0-dispatch-d0-design-question-2026-07-26.md
   - docs/reference/language/function-exit-and-entry-result.md
   - docs/reference/language/semantic-kernel.md
@@ -16,10 +20,53 @@ Related:
 
 # External Consultation: Canonical Script Physical Entry
 
-## Decision needed
+## Accepted resolution
 
-Choose the owner chain that turns an already source-classified Script recipe
-into one unpublished canonical `main/0` candidate.
+```text
+outer lifecycle owner =
+  Script-specific and unbranded
+
+shared inner owner =
+  brand-free Script lowering / completion / result / Return kernel
+
+Raw relation =
+  Raw Script consumes the same inner kernel
+  Raw brand / tracker / witness / ledger remain in a post-kernel adapter
+
+module relation =
+  one PhysicalEntry row
+  no SourceMain row
+  no synthetic callable owner
+  no Main-to-main thunk
+```
+
+Implementation audit adds five mandatory refinements without changing the
+accepted semantics:
+
+1. `VerifiedNormalScriptRecipeV1` retains the sealed Script source opaquely so
+   every rejection can retain the complete classified owner. Only the exact
+   Script recipe is a lowering authority.
+2. The outer transaction owns a candidate-only
+   `ScriptPhysicalEntrySessionV1`; it does not receive a terminal that can
+   replace the live compiler Builder.
+3. The shared kernel emits one `VerifiedScriptEntryResultContractV1`, so Raw
+   and canonical adapters cannot reconstruct result/origin policy separately.
+4. Raw `Print` / `Local` / assignment Unit origins are an intentional
+   conformance correction. Status and physical Void behavior remain unchanged.
+5. The Script schema is a thin one-row wrapper over shared canonical row-set
+   validation; Main schema validation is not copied.
+
+Options B and C are rejected. The executable owner chain and commit order are
+fixed in the related execution task.
+
+## Original decision question
+
+The consultation question below is retained as decision evidence. It is no
+longer an active design stop.
+
+The consultation asked which owner chain should turn an already
+source-classified Script recipe into one unpublished canonical `main/0`
+candidate.
 
 ```text
 SealedNormalScriptSourceV1
