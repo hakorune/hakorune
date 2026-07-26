@@ -335,6 +335,40 @@ budget_repayment_evidence =
 Repair and consolidate the existing ARG0/ROUTE0/V0 guards. Do not add a new
 row wrapper or extend the near-800-line catalog guard.
 
+#### G0 closeout
+
+```text
+Status:
+  closed
+
+ARG0:
+  now inspects the candidate CallArgumentDescentPortV1 adapter
+  selected token projection = 1
+  ordinary delegation = 1
+  second ordered driver = 0
+  Builder source-site map = 0
+
+ROUTE0:
+  removed exprs.rs dependency = 0
+  raw-compatible blanket MethodCallDescentPortV1 = 1
+  candidate MethodCallDescentPortV1 adapter = 1
+  candidate RawLegacy constructor = 0
+  candidate second route planner = 0
+
+V0:
+  raw-compatible blanket MethodCallValueTerminalPortV1 = 1
+  source-neutral MethodCallLoweringPortV1 bundle = 1
+  candidate terminal adapter = 1
+  candidate direct MIR / unified emitter / type publication = 0
+
+new row guard = 0
+catalog guard modification = 0
+```
+
+All three repaired guards and the unchanged catalog guard are green. The
+repairs follow current capability ownership rather than preserving stale
+concrete-type or removed-file expectations.
+
 ### 5. `UNIFIED-CALL-PHYSICAL-RECEIPT0-S0/P0/G0`
 
 Add a small sibling `unified_emitter/physical_receipt.rs`. Move terminal code

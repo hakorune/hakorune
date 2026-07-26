@@ -40,6 +40,10 @@ def main() -> None:
     tests = read(root, "src/mir/builder/calls/method_call_terminal_tests.rs")
     readme = read(root, "src/mir/builder/calls/README.md")
     calls_mod = read(root, "src/mir/builder/calls/mod.rs")
+    candidate = read(
+        root, "src/mir/builder/calls/preloop_located_argument_port.rs"
+    )
+    capability = read(root, "src/mir/builder/me_call_header_observation.rs")
 
     require_count(
         terminal,
@@ -49,9 +53,9 @@ def main() -> None:
     )
     require_count(
         terminal,
-        "impl MethodCallValueTerminalPortV1 for RawLegacyChildLoweringPortV1",
+        "impl<Port> MethodCallValueTerminalPortV1 for Port",
         1,
-        "raw terminal implementation",
+        "single raw-compatible terminal implementation",
     )
     require_count(
         terminal,
@@ -82,8 +86,20 @@ def main() -> None:
     require_count(
         terminal,
         "emit_global_value_terminal_raw_v1(",
-        3,
-        "shared static/me global helper",
+        1,
+        "raw global compatibility facade",
+    )
+    require_definition_count(
+        terminal,
+        "emit_global_value_terminal_with_lookup_v1",
+        1,
+        "shared static/me global helper definition",
+    )
+    require_count(
+        terminal,
+        "emit_global_value_terminal_with_lookup_v1",
+        4,
+        "shared static/me global helper uses",
     )
     require_count(calls_mod, "mod method_call_terminal;", 1, "private terminal module")
     if "pub mod method_call_terminal;" in calls_mod:
@@ -103,8 +119,20 @@ def main() -> None:
         "finish_env_value_terminal",
         "finish_standard_value_terminal",
     )
+    finish_counts = {
+        "finish_typeop_value_terminal": 1,
+        "finish_static_global_value_terminal": 1,
+        "finish_me_lowered_global_value_terminal": 1,
+        "finish_env_value_terminal": 1,
+        "finish_standard_value_terminal": 2,
+    }
     for name in finish_methods:
-        require_count(production, f".{name}(", 1, f"I0 production consumer {name}")
+        require_count(
+            production,
+            f".{name}(",
+            finish_counts[name],
+            f"I0 production consumer {name}",
+        )
     require_count(
         production,
         "emit_standard_value_terminal_raw_v1(",
@@ -129,7 +157,24 @@ def main() -> None:
     require_count(handlers, "emit_unified_call(", 0, "ordinary direct call emission")
     require_count(handlers, "MirInstruction::TypeOp", 0, "ordinary direct TypeOp emission")
     require_count(property_reads, "RawLegacyMethodCallInputV1", 0, "property fake source input")
-    require_count(build, "MethodCallValueTerminalPortV1", 2, "source terminal port bounds")
+    require_count(
+        build,
+        "MethodCallValueTerminalPortV1",
+        0,
+        "retired direct source terminal bounds",
+    )
+    require_count(
+        capability,
+        "MethodCallValueTerminalPortV1",
+        3,
+        "source-neutral capability bundle",
+    )
+    require_count(
+        capability,
+        "trait MethodCallLoweringPortV1",
+        1,
+        "method-call capability owner",
+    )
 
     for needle, expected, label in (
         ("static_scalar_method_fact(&func_name)", 1, "static scalar selector"),
@@ -139,21 +184,64 @@ def main() -> None:
         ('method == "upgrade"', 1, "deprecated upgrade preflight"),
         (
             "try_inline_record_helper_call_with_descent(",
-            3,
-            "record helper selectors",
+            1,
+            "retired prepared record helper compatibility selector",
+        ),
+        (
+            "prepare_record_helper_inline",
+            2,
+            "prepared record helper selectors",
+        ),
+        (
+            "execute_prepared_record_helper_inline",
+            2,
+            "prepared record helper executors",
         ),
         (
             "try_inline_same_module_helper_setter_call_with_descent(",
-            1,
-            "direct setter selector",
+            0,
+            "retired direct setter selector",
         ),
         (
             "try_inline_same_module_helper_setter_call_from_receiver_with_descent(",
+            0,
+            "retired receiver setter selector",
+        ),
+        (
+            "prepare_same_module_helper_setter_inline(",
             1,
-            "receiver setter selector",
+            "prepared direct setter selector",
+        ),
+        (
+            "prepare_same_module_helper_setter_inline_from_receiver(",
+            1,
+            "prepared receiver setter selector",
+        ),
+        (
+            "execute_prepared_same_module_helper_setter_inline",
+            2,
+            "prepared setter executors",
         ),
     ):
         require_count(handlers, needle, expected, label)
+
+    require_count(
+        candidate,
+        "impl<'site, 'view, 'catalog, Port> MethodCallValueTerminalPortV1",
+        1,
+        "candidate terminal adapter",
+    )
+    for name in terminal_methods:
+        require_definition_count(candidate, name, 1, f"candidate terminal method {name}")
+    for forbidden in (
+        "MirInstruction",
+        "emit_unified_call",
+        "next_value_id",
+        "type_ctx",
+        "value_types",
+    ):
+        if forbidden in candidate:
+            fail(f"candidate terminal adapter owns forbidden authority: {forbidden}")
 
     custom_owners = "\n".join(
         (static_scalar, weak_ref, record_helper, reserved, debug_routes, fastmem_calls)
@@ -262,10 +350,12 @@ def main() -> None:
         "src/mir/builder/calls/method_call_terminal.rs",
         "src/mir/builder/calls/method_call_terminal_tests.rs",
         "src/mir/builder/calls/method_call_descent.rs",
+        "src/mir/builder/calls/preloop_located_argument_port.rs",
         "src/mir/builder/calls/build.rs",
         "src/mir/builder/calls/member_route.rs",
         "src/mir/builder/calls/member_route_descent_tests.rs",
         "src/mir/builder/method_call_handlers.rs",
+        "src/mir/builder/me_call_header_observation.rs",
         "src/mir/builder/record_helper_args_tests.rs",
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_v0.py",
     )

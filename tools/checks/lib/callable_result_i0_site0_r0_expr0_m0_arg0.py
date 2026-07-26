@@ -31,6 +31,9 @@ def main() -> None:
     build = read(root, "src/mir/builder/calls/build.rs")
     child = read(root, "src/mir/builder/recursive_child_lowering.rs")
     readme = read(root, "src/mir/builder/calls/README.md")
+    candidate = read(
+        root, "src/mir/builder/calls/preloop_located_argument_port.rs"
+    )
 
     require_count(port, "trait CallArgumentDescentPortV1", 1, "argument port owner")
     require_count(port, "type ArgumentsInput: ?Sized;", 1, "associated input owner")
@@ -53,6 +56,37 @@ def main() -> None:
     require_count(build, "drive_raw_call_arguments_v1(self, args)", 1, "selected raw facade")
     require_count(build, "fn enforce_moved_same_call_args_contract", 0, "retired build-local preflight")
     require_count(child, "impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1", 1, "single raw child impl")
+    require_count(
+        candidate,
+        "impl<'site, 'view, 'catalog, Port> CallArgumentDescentPortV1",
+        1,
+        "candidate argument port impl",
+    )
+    require_count(
+        candidate,
+        "return self.arm_selected_token().map(|token|",
+        1,
+        "candidate selected one-shot projection",
+    )
+    require_count(
+        candidate,
+        "self.ordinary\n            .argument_expression_input(input, index)",
+        1,
+        "candidate ordinary argument delegation",
+    )
+    require_count(
+        candidate,
+        "drive_call_arguments_v1",
+        0,
+        "candidate second ordered argument driver",
+    )
+    for forbidden in (
+        "HashMap<SourceExprSiteV1",
+        "BTreeMap<SourceExprSiteV1",
+        "source_site_to_value",
+    ):
+        if forbidden in candidate:
+            fail(f"candidate stores forbidden source association map: {forbidden}")
 
     builder_sources = "\n".join(
         path.read_text(encoding="utf-8")
@@ -113,6 +147,7 @@ def main() -> None:
         "src/mir/builder/calls/build.rs",
         "src/mir/builder/calls/call_argument_descent.rs",
         "src/mir/builder/calls/call_argument_descent_tests.rs",
+        "src/mir/builder/calls/preloop_located_argument_port.rs",
         "src/mir/builder/calls/mod.rs",
         "src/mir/builder/recursive_child_lowering.rs",
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_arg0.py",

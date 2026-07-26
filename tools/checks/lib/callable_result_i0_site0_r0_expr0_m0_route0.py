@@ -40,7 +40,10 @@ def main() -> None:
     handlers = read(root, "src/mir/builder/method_call_handlers.rs")
     helpers = read(root, "src/mir/builder/record_helper_args.rs")
     helper_tests = read(root, "src/mir/builder/record_helper_args_tests.rs")
-    exprs = read(root, "src/mir/builder/exprs.rs")
+    raw_dispatch = read(root, "src/mir/builder/raw_expression_dispatch/mod.rs")
+    candidate = read(
+        root, "src/mir/builder/calls/preloop_located_argument_port.rs"
+    )
     property_reads = read(root, "src/mir/builder/property_reads.rs")
     reserved_tests = read(root, "src/mir/builder/calls/reserved_method_route_tests.rs")
 
@@ -50,9 +53,9 @@ def main() -> None:
     require_count(port, "struct RawLegacyMethodCallInputV1", 1, "raw stack carrier")
     require_count(
         port,
-        "impl MethodCallDescentPortV1 for RawLegacyChildLoweringPortV1",
+        "impl<Port> MethodCallDescentPortV1 for Port",
         1,
-        "raw method port impl",
+        "single raw-compatible method port impl",
     )
     require_count(
         port,
@@ -80,22 +83,87 @@ def main() -> None:
     if re.search(r"#\[derive\([^]]*Clone[^]]*\)\]\s*pub\(in crate::mir::builder\) enum MethodCallChildDemandV1", port):
         fail("stage vocabulary must remain non-Clone")
 
-    production = "\n".join(
+    ordinary_production = "\n".join(
         path.read_text(encoding="utf-8")
         for path in (root / "src/mir/builder").rglob("*.rs")
-        if path.name != "method_call_descent.rs" and not path.name.endswith("_tests.rs")
+        if path.name not in {
+            "method_call_descent.rs",
+            "preloop_located_argument_port.rs",
+        }
+        and not path.name.endswith("_tests.rs")
     )
-    require_count(production, "lower_method_call_receiver_v1(", 2, "M0 receiver consumers")
-    require_count(production, "lower_method_call_arguments_v1(", 1, "R0 REPL ARG0 consumer")
-    require_count(production, "lower_method_call_argument_v1(", 2, "R0 indexed E0 consumers")
-    require_count(production, "RawLegacyMethodCallInputV1::new(", 1, "R0 raw selector")
-    require_count(production, ".method_call_syntax(", 6, "M0 syntax-view consumers")
-    require_count(production, ".receiver_expression_input(", 0, "R0 receiver-input consumers")
     require_count(
-        production,
+        ordinary_production,
+        "lower_method_call_receiver_v1(",
+        2,
+        "M0 receiver consumers",
+    )
+    require_count(
+        ordinary_production,
+        "lower_method_call_arguments_v1(",
+        1,
+        "R0 REPL ARG0 consumer",
+    )
+    require_count(
+        ordinary_production,
+        "lower_method_call_argument_v1(",
+        2,
+        "R0 indexed E0 consumers",
+    )
+    require_count(
+        ordinary_production,
+        ".method_call_syntax(",
+        7,
+        "ordinary M0 syntax-view consumers",
+    )
+    require_count(
+        ordinary_production,
+        ".receiver_expression_input(",
+        0,
+        "ordinary R0 receiver-input consumers",
+    )
+    require_count(
+        ordinary_production,
         "impl MethodCallDescentPortV1 for",
         0,
         "external method-port implementations",
+    )
+    require_count(build, "RawLegacyMethodCallInputV1::new(", 1, "build raw selector")
+    require_count(
+        raw_dispatch,
+        "RawLegacyMethodCallInputV1::new(",
+        1,
+        "raw dispatcher selector",
+    )
+    require_count(
+        candidate,
+        "RawLegacyMethodCallInputV1::new(",
+        0,
+        "candidate selected RawLegacy conversion",
+    )
+    require_count(
+        candidate,
+        "impl<'site, 'view, 'catalog, Port> MethodCallDescentPortV1",
+        1,
+        "candidate method port impl",
+    )
+    require_count(
+        candidate,
+        ".method_call_syntax(",
+        1,
+        "candidate method syntax delegation",
+    )
+    require_count(
+        candidate,
+        ".receiver_expression_input(",
+        1,
+        "candidate receiver delegation",
+    )
+    require_count(
+        candidate,
+        "plan_member_call_route(",
+        0,
+        "candidate second route planner",
     )
     require_count(calls_mod, "mod method_call_descent;", 1, "private method port module")
     if "pub mod method_call_descent;" in calls_mod:
@@ -114,7 +182,12 @@ def main() -> None:
     require_count(build, "RawLegacyMethodCallInputV1::new(", 1, "production raw MethodCall selector")
     require_count(build, "build_member_method_call_v1(port, input)", 1, "ordinary member driver")
     require_count(build, "is_typeop_method(", 1, "source TypeOp decision owner")
-    require_count(exprs, "is_typeop_method(", 0, "retired expression TypeOp decision")
+    require_count(
+        raw_dispatch,
+        "is_typeop_method(",
+        0,
+        "retired raw-dispatch TypeOp decision",
+    )
     require_count(member, "is_typeop_method(", 0, "retired member TypeOp reprobe")
     require_count(member, "build_expression(object.clone())", 0, "raw receiver bypass")
     require_count(member, "AssociatedMethodCallArgumentsV1::new(", 5, "route argument adapters")
@@ -122,7 +195,7 @@ def main() -> None:
     require_count(
         handlers,
         "descent.lower_all(",
-        4,
+        5,
         "static me source/property standard ARG0 demand",
     )
     require_count(member, "descent.lower_all(self)?", 1, "env ARG0 demand")
@@ -225,6 +298,7 @@ def main() -> None:
         "src/mir/builder/calls/README.md",
         "src/mir/builder/calls/method_call_descent.rs",
         "src/mir/builder/calls/method_call_descent_tests.rs",
+        "src/mir/builder/calls/preloop_located_argument_port.rs",
         "src/mir/builder/calls/mod.rs",
         "src/mir/builder/calls/build.rs",
         "src/mir/builder/calls/member_route.rs",
@@ -233,6 +307,7 @@ def main() -> None:
         "src/mir/builder/calls/reserved_method_route_tests.rs",
         "src/mir/builder/calls/debug_method_routing.rs",
         "src/mir/builder/fastmem/calls.rs",
+        "src/mir/builder/raw_expression_dispatch/mod.rs",
         "src/mir/builder/method_call_handlers.rs",
         "src/mir/builder/record_helper_args.rs",
         "src/mir/builder/record_helper_args_tests.rs",
