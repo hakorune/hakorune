@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-CANONICAL-MODULE-BATCH0-S0 is closed: one consumed Main thunk plan now seals a deterministic two-row source-Main/physical-entry transaction manifest with retained typed rejection and zero draft/MIR/module mutation. NORMAL-MAIN0-TX0-I0 is active to prepare both verified drafts and commit one unpublished candidate atomically."
+status = "NORMAL-CANONICAL-MODULE-BATCH0-S0 is closed. The TX0 audit accepted NORMAL-MAIN0-TX0-RETENTION-prime-r1: source-draft failure retains exact semantic evidence and a Builder-restoration receipt rather than reconstructing the consumed non-Clone lowering plan. NORMAL-MAIN0-TX0-I0 remains active to prepare both verified drafts and commit one unpublished candidate atomically."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
 current_execution_row = "NORMAL-MAIN0-TX0-I0"
-current_execution_summary = "Consume one prepared canonical Main batch, lower and seal the source Main plus exact physical thunk as unpublished drafts, and commit the exact two-row candidate atomically. No VM execution, process projection, runner publication, profile admission, default route, helper, import, or Legacy fallback is allowed."
+current_execution_summary = "Consume one prepared canonical Main batch, wrap the existing verified detached source draft, prepare the exact physical thunk, retain exact semantic evidence on failure, and use the preflighted empty-shell pattern for one infallible two-row candidate commit. No recoverable plan reconstruction, VM execution, process projection, runner publication, profile admission, default route, helper, import, or Legacy fallback is allowed."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -332,8 +332,8 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/normal-main0-thunk0-s0-execution-task-2026-07-26.md"
-phase_status = "docs/development/current/main/investigations/normal-main0-thunk0-s0-execution-task-2026-07-26.md"
+active_phase = "docs/development/current/main/investigations/normal-main0-tx0-i0-execution-task-2026-07-26.md"
+phase_status = "docs/development/current/main/investigations/normal-main0-tx0-i0-execution-task-2026-07-26.md"
 method_anchor = "docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -415,7 +415,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "normal-main0-tx0-i0-execution-task-2026-07-26"
 latest_card_path = "docs/development/current/main/investigations/normal-main0-tx0-i0-execution-task-2026-07-26.md"
-latest_card_summary = """NORMAL-CANONICAL-MODULE-BATCH0-S0 is closed with one deterministic two-row passive manifest, Unit/Integer/Bool/Float coverage, retained schema rejection, and zero mutation. NORMAL-MAIN0-TX0-I0 is the sole activation row for source Main and physical thunk draft preparation plus one atomic unpublished candidate commit."""
+latest_card_summary = """NORMAL-CANONICAL-MODULE-BATCH0-S0 is closed. The TX0 audit fixed the failure law: retain exact source/schema/header/result/entry evidence, prepared drafts by stage, and Builder restoration; do not reconstruct the consumed lowering plan. NORMAL-MAIN0-TX0-I0 now proceeds as EVIDENCE0 -> PHYSICAL0 -> PREPARE0 -> COMMIT0 -> FAILURE-REUSE0 -> G0."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is

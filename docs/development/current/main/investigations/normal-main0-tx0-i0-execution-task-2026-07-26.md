@@ -8,6 +8,15 @@ ceremony_tier: T2 activation inside accepted NORMAL-CANONICAL-CORE0
 series_mode: one atomic two-draft materialization/commit authority
 sunset_id: NORMAL-CANONICAL-CORE0-PROOF-SUNSET-001
 sunset_row: NORMAL-FILE-CANONICAL-CORE0-G0
+proof_inventory_before: passive two-row batch schema plus existing function-draft and module-shell proofs
+new_proofs: one normal Main transaction fixture family plus one reusable Python transaction-guard helper
+retired_or_merged_proofs: none in I0; merge into canonical-core route proof at G0
+net_proof_delta: +2 bounded T2 proofs
+sunset_budget: repay both additions in NORMAL-FILE-CANONICAL-CORE0-G0
+retire_when: canonical-core production route owns the same two-draft correspondence, failure, reuse, and caller evidence
+budget_repayment_evidence: route guard absorbs the transaction helper and disconnected-only fixtures have zero consumers
+docs_only_closeout: forbidden
+code_or_artifact_delta_required: 1
 Related:
   - docs/development/current/main/investigations/normal-main0-f1-plan0-s0-execution-task-2026-07-26.md
   - docs/development/current/main/investigations/normal-main0-thunk0-s0-execution-task-2026-07-26.md
@@ -16,6 +25,52 @@ Related:
 ---
 
 # NORMAL-MAIN0-TX0-I0
+
+## Audit clarification
+
+```text
+Decision:
+  NORMAL-MAIN0-TX0-RETENTION-prime-r1
+
+Status:
+  accepted
+
+Choice:
+  retained semantic evidence + restored Builder
+  no recoverable source-plan owner
+```
+
+The pre-I0 audit found one real mismatch between the first card wording and
+the existing canonical lowerer:
+
+```text
+CanonicalTrivialBindingSsaPlanV1
+  -> consumed lowering parts
+  -> success: verified unpublished MirFunction
+  -> failure: restored/discarded function session + typed build error
+```
+
+The existing lowerer cannot return the original non-Clone plan after a
+`SourceDraft` failure. Adding a recoverable/retryable lowering owner only to
+reconstruct that plan would conflict with this card's own prohibition on
+retry, resume, and source-plan recovery.
+
+I0 therefore retains the durable evidence required to diagnose and discard a
+failed transaction:
+
+```text
+exact source unit identity
+two-row schema
+source header
+sealed result and entry relation
+typed stage and nested cause
+Builder/session restoration receipt
+every draft already completed before the failure
+```
+
+It does not retain or reconstruct the consumed lowering plan. This is the
+only weakened sentence; atomicity, no fallback, no retry, and same-Builder
+reuse remain mandatory.
 
 ## Outcome
 
@@ -48,7 +103,7 @@ PreparedNormalCanonicalModuleBatchV1
 OpenNormalMainModuleTransactionV1
   ↓ fallible preparation only
 PreparedNormalMainModuleTransactionV1
-  - CompletedFunctionDraftV1 source Main
+  - opaque VerifiedNormalMainSourceDraftV1
   - verified physical thunk draft
   - exact two-row schema correspondence
   - collision/cardinality preflight
@@ -72,10 +127,15 @@ VerifiedNormalMainFunctionPlanV1
   -> existing resolved lowering
   -> PreparedFunctionDraftSealV1
   -> CompletedFunctionDraftV1
+  -> verified detached MirFunction
+  -> opaque VerifiedNormalMainSourceDraftV1
 ```
 
 The I0 owner does not re-read AST, return annotation, terminal profile, or
-completion coverage. It consumes the already sealed plan.
+completion coverage. It consumes the already sealed plan. The outer
+transaction does not widen or expose `CompletedFunctionDraftV1`; it
+immediately wraps the existing verified detached result in a normal-specific
+opaque owner with no mutable draft escape.
 
 Accepted source result carriers remain:
 
@@ -160,14 +220,18 @@ pub(in crate::mir) enum NormalMainModuleTransactionStageV1 {
 }
 
 pub(in crate::mir) struct RejectedNormalMainModuleTransactionV1<'unit> {
-    owner: OpenNormalMainModuleTransactionV1<'unit>,
+    evidence: RetainedNormalMainTransactionEvidenceV1<'unit>,
     stage: NormalMainModuleTransactionStageV1,
     error: NormalMainModuleTransactionErrorV1,
+    prepared: RetainedNormalMainPreparedDraftsV1,
+    restoration: NormalMainBuilderRestorationReceiptV1,
 }
 ```
 
-Every rejection retains the complete open batch plus any unpublished prepared
-drafts. Public terminals are inspection and `discard(self)` only.
+Every rejection retains exact semantic evidence plus any unpublished prepared
+drafts that existed before the failing stage. A `SourceDraft` rejection
+retains no recoverable lowering plan; all later stages retain the completed
+source draft. Public terminals are inspection and `discard(self)` only.
 
 Forbidden:
 
@@ -240,7 +304,52 @@ all modified/new source/check files         < 800 lines
 ```
 
 Extend the existing `normal-source-plan0` guard; do not add a row-specific
-shell wrapper.
+shell wrapper. The existing guard is already near the 800-line boundary, so
+TX0 checks belong in one imported reusable Python helper rather than another
+shell entry.
+
+## Internal implementation order
+
+```text
+TX0-A EVIDENCE0
+  consuming batch/thunk splits
+  retained semantic evidence
+  opaque verified source-draft wrapper
+
+TX0-B PHYSICAL0
+  exact one-block physical thunk
+  sealed header/result/entry only
+  completed typed-definition verification + full MirVerifier
+
+TX0-C PREPARE0
+  source draft then physical draft
+  schema/key/symbol/arity/entry correspondence
+  collision/cardinality and empty-shell drain preflight
+
+TX0-D COMMIT0
+  PreparedModuleLoweringShellDrainV1::commit_preflighted pattern
+  ownership-only infallible candidate commit
+
+TX0-E FAILURE-REUSE0
+  four typed failure stages
+  retained evidence/drafts by stage
+  rejection -> later success on the same Builder
+
+TX0-F G0
+  focused fixture family
+  imported Python transaction guard helper
+  current pointer and proof-budget closeout
+```
+
+The following existing routes remain forbidden:
+
+```text
+root_batch / LegacyReplaceWholePair
+Raw main pending draft
+callable collector rejection that drops input drafts
+DrainedModuleCandidateV1 root/condition policy
+try_add_functions_atomic inside commit
+```
 
 ## Acceptance
 
