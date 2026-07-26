@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: CANONICAL-CORE-DISPATCH-PUBLICATION0-S0
+Active executable row: NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0a
 ```
 
 ## Boundary
@@ -170,6 +170,62 @@ confirms its published target/result/family projection.
 this publication core. It replaces only the current typed
 `FamilyCapabilityPending(CallableModule)` rejection; no second dispatcher,
 publication owner, VM executor, or retry path is permitted.
+
+### Dispatch policy
+
+`NormalFileCanonicalCoreVmReferenceV1` owns exactly one source file and
+admits no imports. Its sole callable-catalog compilation-unit identity is
+therefore the named canonical-core single-file ordinal `0`. This is source
+identity issuance only: it is not a caller option, ambient value, retry key,
+or backend selection.
+
+The dispatch sequence is fixed:
+
+```text
+CallableModule source
+  -> callable-source validation
+  -> helper catalog (single-file ordinal 0)
+  -> Main-with-catalog resolution
+  -> Main direct-call preflight
+  -> helper graph resolution
+  -> helper draft prefix
+  -> Main + physical main transaction
+  -> callable candidate commit
+  -> existing shared canonical publication
+```
+
+Every intermediate typed rejection retains its exact existing owner. The
+outer dispatch only classifies that rejection as `Callable`; it neither
+rebuilds a source plan nor tries another family.
+
+The first dispatch slice admits a Main fallthrough plus top-level static
+`i64 -> i64` helpers. A Main direct call remains the existing typed
+first-family rejection until `NORMAL-MAIN-DIRECT-CALL0-S0`; dispatch must not
+broaden that capability incidentally.
+
+### `CANONICAL-CORE-DISPATCH-PUBLICATION0-S0`
+
+Status: closed by this commit.
+
+The sole `CallableModule` dispatch now consumes the fixed sequence through
+callable-source validation, catalog, Main preflight, helper resolution, draft
+transaction, candidate commit, and shared publication. Every rejection
+retains the exact owner returned by that existing layer; the outer dispatch
+only records the `Callable` stage.
+
+```text
+second source classification = 0
+second publication owner     = 0
+family-specific VM executor  = 0
+CallableModule pending reject = 0
+```
+
+## Next row
+
+`NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0a` runs the real VM-reference matrix
+over the admitted Script, Main, and callable-first-family forms. It must
+separately prove the expected pre-execution typed rejection for Main direct
+calls, rather than widening that capability or falling back.
 
 ## Acceptance gates
 

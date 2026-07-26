@@ -6,6 +6,7 @@
 //! boundaries.
 
 pub(in crate::mir) mod publication;
+mod callable;
 
 use crate::mir::builder::{
     CompletedNormalCallableCandidateV1, CompletedNormalMainModuleCandidateV1,
@@ -118,7 +119,6 @@ impl CanonicalCoreSourcePlanCompileRequestV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CanonicalCoreDispatchStageV1 {
-    FamilyCapability,
     MainSource,
     MainResolution,
     MainFunction,
@@ -128,17 +128,11 @@ pub(crate) enum CanonicalCoreDispatchStageV1 {
     ScriptRecipe,
     ScriptPhysical,
     ScriptCandidate,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum CanonicalCorePendingFamilyV1 {
-    Script,
-    CallableModule,
+    Callable,
 }
 
 #[derive(Debug)]
 pub(crate) enum CanonicalCoreDispatchErrorV1 {
-    FamilyCapabilityPending(CanonicalCorePendingFamilyV1),
     MainSource(NormalMainFunctionSourceErrorV1),
     MainResolution(NormalMainResolvedSourceErrorV1),
     MainFunction(NormalMainFunctionPlanErrorV1),
@@ -148,6 +142,7 @@ pub(crate) enum CanonicalCoreDispatchErrorV1 {
     ScriptRecipe(RawScriptRecipeProjectionErrorV1),
     ScriptPhysical,
     ScriptCandidate,
+    Callable,
 }
 
 /// The complete source/profile/receipt owner retained by a dispatch rejection.
@@ -165,6 +160,11 @@ pub(crate) enum RetainedCanonicalCoreSourcePlanOwnerV1 {
     },
     ScriptCandidate {
         rejected: crate::mir::builder::RejectedNormalScriptModuleTransactionV1,
+        admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
+        receipt: NormalSourcePlanReceiptV1,
+    },
+    Callable {
+        rejected: callable::RejectedCanonicalCallableDispatchV1,
         admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
         receipt: NormalSourcePlanReceiptV1,
     },
@@ -198,6 +198,7 @@ impl RejectedCanonicalCoreNormalDispatchV1 {
             | RetainedCanonicalCoreSourcePlanOwnerV1::ScriptCandidate { receipt, .. } => {
                 receipt.counts()
             }
+            RetainedCanonicalCoreSourcePlanOwnerV1::Callable { receipt, .. } => receipt.counts(),
         }
     }
 }
@@ -253,6 +254,14 @@ impl CompletedCanonicalCoreSourceEntryCandidateV1 {
         matches!(
             self.family,
             CompletedCanonicalCoreSourceEntryFamilyV1::Script(_)
+        )
+    }
+
+    #[cfg(test)]
+    pub(crate) fn is_callable(&self) -> bool {
+        matches!(
+            self.family,
+            CompletedCanonicalCoreSourceEntryFamilyV1::Callable(_)
         )
     }
 
@@ -325,15 +334,13 @@ impl NormalCanonicalCoreSourcePlanCompilerV1 {
             SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)) => {
                 Self::compile_script(compiler, script, admission, receipt)
             }
-            SealedNormalSourcePlanV1::CallableModule(callable) => Err(reject(
-                SealedNormalSourcePlanV1::CallableModule(callable),
+            SealedNormalSourcePlanV1::CallableModule(source) => callable::compile(
+                compiler,
+                source,
                 admission,
                 receipt,
-                CanonicalCoreDispatchStageV1::FamilyCapability,
-                CanonicalCoreDispatchErrorV1::FamilyCapabilityPending(
-                    CanonicalCorePendingFamilyV1::CallableModule,
-                ),
-            )),
+            )
+            .map_err(reject_callable),
         }
     }
 
@@ -628,5 +635,20 @@ fn reject_script_candidate(
         },
         stage: CanonicalCoreDispatchStageV1::ScriptCandidate,
         cause: CanonicalCoreDispatchErrorV1::ScriptCandidate,
+    }
+}
+
+fn reject_callable(
+    rejected: callable::RejectedCanonicalCallableDispatchWithContextV1,
+) -> RejectedCanonicalCoreNormalDispatchV1 {
+    let (rejected, admission, receipt) = rejected.into_parts();
+    RejectedCanonicalCoreNormalDispatchV1 {
+        owner: RetainedCanonicalCoreSourcePlanOwnerV1::Callable {
+            rejected,
+            admission,
+            receipt,
+        },
+        stage: CanonicalCoreDispatchStageV1::Callable,
+        cause: CanonicalCoreDispatchErrorV1::Callable,
     }
 }

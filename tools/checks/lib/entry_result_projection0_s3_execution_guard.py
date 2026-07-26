@@ -23,6 +23,9 @@ CANONICAL_PUBLICATION = (
     ROOT / "src/mir/compiler/canonical_core_dispatch/publication.rs"
 )
 CANONICAL_DISPATCH = ROOT / "src/mir/compiler/canonical_core_dispatch.rs"
+CANONICAL_CALLABLE_DISPATCH = (
+    ROOT / "src/mir/compiler/canonical_core_dispatch/callable.rs"
+)
 NORMAL_MAIN_TX = (
     ROOT / "src/mir/builder/normal_module_transaction/main_transaction.rs"
 )
@@ -48,6 +51,7 @@ def main() -> int:
     raw_adapter_production = raw_adapter.split("#[cfg(test)]", 1)[0]
     canonical_publication = CANONICAL_PUBLICATION.read_text()
     canonical_dispatch = CANONICAL_DISPATCH.read_text()
+    canonical_callable_dispatch = CANONICAL_CALLABLE_DISPATCH.read_text()
     normal_main_tx = NORMAL_MAIN_TX.read_text()
     normal_main_tx_production = normal_main_tx
 
@@ -187,6 +191,7 @@ def main() -> int:
         "enum PublishedCanonicalFamilyEvidenceV1",
         "CanonicalPublishedSourceEntryMembershipV1::Main",
         "CanonicalPublishedSourceEntryMembershipV1::Script",
+        "CanonicalPublishedSourceEntryMembershipV1::Callable",
         "fn commit(self) -> PublishedCanonicalSourceEntryInvocationV1",
     ):
         require(canonical_publication, fragment, f"shared canonical publication {fragment}")
@@ -209,6 +214,19 @@ def main() -> int:
         "execute_function_with_args(self.module(), symbol, &[])",
     ):
         require(reference, fragment, f"sole canonical VM owner {fragment}")
+    for fragment in (
+        "const CANONICAL_CORE_SINGLE_FILE_UNIT_ORDINAL: u32 = 0;",
+        "RejectedCanonicalCallableDispatchV1",
+        "prepare_normal_helper_draft_prefix_v1",
+        "prepare_normal_callable_main_physical_v1",
+        "prepare_normal_callable_commit_v1",
+    ):
+        require(canonical_callable_dispatch, fragment, f"sole callable dispatch {fragment}")
+    for forbidden in ("compile_with_source", "fallback", "retry", "RawPublished"):
+        if forbidden in canonical_callable_dispatch:
+            raise AssertionError(f"callable dispatch gained forbidden authority: {forbidden}")
+    if "FamilyCapabilityPending(\n                        CanonicalCorePendingFamilyV1::CallableModule" in canonical_dispatch:
+        raise AssertionError("canonical CallableModule must not remain a pending dispatch family")
     for retired in (
         "PublishedNormalMainInvocationV1",
         "CanonicalMain(",
@@ -239,6 +257,7 @@ def main() -> int:
         RAW_ADAPTER,
         CANONICAL_PUBLICATION,
         CANONICAL_DISPATCH,
+        CANONICAL_CALLABLE_DISPATCH,
         NORMAL_MAIN_TX,
         Path(__file__),
     ):

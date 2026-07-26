@@ -186,6 +186,8 @@ pub(in crate::mir) use normal_module_transaction::{
     NormalCanonicalModuleBatchErrorV1, NormalCanonicalModuleBatchV1,
     NormalCallableCandidateVerificationReceiptV1, NormalMainCandidateVerificationReceiptV1,
     NormalMainModuleTransactionErrorV1,
+    RejectedNormalCallableBatchV1, RejectedNormalCallableCommitV1,
+    RejectedNormalCallableMainPhysicalV1, RejectedNormalHelperDraftPrefixV1,
     NormalScriptCandidateVerificationReceiptV1, PreparedNormalScriptModuleTransactionV1,
     RejectedNormalScriptModuleTransactionV1, VerifiedScriptEntryResultContractV1,
 };

@@ -276,31 +276,36 @@ fn canonical_core_dispatch_builds_only_main0_candidate_in_s0() {
 }
 
 #[test]
-fn canonical_core_dispatch_rejects_callable_before_builder_effects() {
+fn canonical_core_dispatch_connects_callable_to_the_shared_publication_path() {
     let dir = tempdir().expect("tempdir");
     let request = classify_canonical_core(
         dir.path(),
         "callable-dispatch.hako",
-        "function helper() {}\nstatic box Main { main() {} }",
+        "static function helper(x: i64): i64 { return x }\nstatic box Main { main() {} }",
     )
     .into_canonical_core_compile_request()
     .expect("canonical-core handoff");
     let mut compiler = crate::mir::MirCompiler::new();
-    let rejected = compiler
+    let candidate = compiler
         .compile_canonical_core_source_plan(request)
-        .expect_err("Callable candidate remains pending in Main-only S0");
-    assert_eq!(
-        rejected.stage(),
-        crate::mir::CanonicalCoreDispatchStageV1::FamilyCapability
-    );
-    assert!(matches!(
-        rejected.cause(),
-        crate::mir::CanonicalCoreDispatchErrorV1::FamilyCapabilityPending(
-            crate::mir::CanonicalCorePendingFamilyV1::CallableModule
-        )
-    ));
-    assert_eq!(rejected.receipt_counts(), (1, 1));
-    rejected.discard();
+        .expect("Callable candidate through its sealed transaction");
+    assert!(candidate.is_callable());
+    assert_eq!(candidate.receipt_counts(), (1, 1));
+
+    let published = classify_canonical_core(
+        dir.path(),
+        "callable-publication.hako",
+        "static function helper(x: i64): i64 { return x }\nstatic box Main { main() {} }",
+    )
+    .into_canonical_core_compile_request()
+    .expect("canonical-core callable handoff");
+    let published = compiler
+        .compile_canonical_core_source_plan_publication_summary_for_test(published)
+        .expect("Callable publication through the shared core");
+    assert_eq!(published.family, "callable");
+    assert_eq!(published.target_symbol, "main");
+    assert_eq!(published.target_arity, 0);
+    assert_eq!(published.result_kind, "unit");
 }
 
 #[test]
