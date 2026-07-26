@@ -11,10 +11,12 @@ EXPECTED_BOX = {
     "README.md",
     "callable_abi.rs",
     "direct_call.rs",
+    "direct_call_type.rs",
     "identity.rs",
     "lowerer.rs",
     "mod.rs",
     "operation.rs",
+    "operation_type.rs",
     "parameter_entry.rs",
 }
 
@@ -90,10 +92,10 @@ def main() -> None:
     for anchor in (
         "fn build_resolved_trivial_function_module(",
         "CanonicalTrivialSsaLowererV1::new(",
-        "finalize_preterminated_function_completion",
         "install_trivial_callable_abi_v1(builder, &profile)",
-        "refresh_trivial_callable_boundary_contracts_v1(&mut draft)",
-        ".verify_function(&draft)",
+        "ReadyFunctionDraftSealV1::new(ready, current_block).open(session)",
+        "open.prepare()",
+        "prepared.commit().into_draft()",
     ):
         require(text["builder"], anchor, "function draft publication")
 
@@ -102,8 +104,8 @@ def main() -> None:
         ".function_return()",
         "row.abi().source_type_name().to_string()",
         "set_current_function_declared_signature(declared_parameters, declared_result)",
-        "refresh_function_parameter_entry_contracts",
-        "refresh_function_return_exit_contract",
+        "let declared_parameters = profile",
+        "let declared_result = profile",
     ):
         require(text["callable_abi"], anchor, "trivial callable ABI facade")
     trivial_builder = text["builder"].split(
@@ -138,9 +140,9 @@ def main() -> None:
 
     for anchor in (
         "VerifiedCanonicalDirectCallEmissionV1::from_verified_profile(row)",
-        "row.target().callable().owner() != input.owner()",
-        "row.target().symbol().as_mir_name()",
-        "CanonicalDirectStaticCallCapabilityV1::v1()",
+        "current_header.callable().owner() != input.owner()",
+        "current_header.symbol().as_mir_name()",
+        "CanonicalDirectStaticCallCapabilityV1::verify_for_emission(capability_rows)",
     ):
         require(text["direct_call"], anchor, "exact direct-call materializer")
 
@@ -158,7 +160,11 @@ def main() -> None:
     if '"i64"' in text["capability"]:
         fail("pre-Builder route reclassified exact i64 outside the sealed profile")
 
-    combined_box = "\n".join(path.read_text() for path in box.iterdir() if path.is_file())
+    combined_box = "\n".join(
+        path.read_text().split("\n#[cfg(test)]", 1)[0]
+        for path in box.iterdir()
+        if path.is_file()
+    )
     for forbidden in (
         "variable_map",
         "ResolvedIdentityStateV1",

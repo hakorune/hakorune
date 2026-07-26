@@ -281,8 +281,15 @@ def main() -> None:
     expected_split_manifest = {
         "edge_rematerialization.rs",
         "edge_rematerialization_tests.rs",
+        "edge_verifier.rs",
+        "edge_verifier_p0_tests.rs",
         "function_repair.rs",
         "function_repair_tests.rs",
+        "legacy_candidate.rs",
+        "legacy_candidate_cfg.rs",
+        "legacy_candidate_tests.rs",
+        "remat_fact.rs",
+        "remat_fact_tests.rs",
         "test_support.rs",
     }
     actual_split_manifest = {path.name for path in split_dir.iterdir() if path.is_file()}
@@ -295,7 +302,10 @@ def main() -> None:
     facade_text = facade.read_text()
     for anchor in (
         "mod edge_rematerialization;",
+        "pub(in crate::mir::builder) mod edge_verifier;",
         "mod function_repair;",
+        "pub(in crate::mir::builder) mod legacy_candidate;",
+        "pub(in crate::mir::builder) mod remat_fact;",
         "use edge_rematerialization::for_pred;",
         "use function_repair::materialize_all_phi_inputs;",
     ):

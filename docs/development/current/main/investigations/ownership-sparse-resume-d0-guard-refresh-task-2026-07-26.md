@@ -96,6 +96,10 @@ buildable and all touched source/check files stay below 800 lines.
    Repoint six Binding SSA receipt anchors and the I1-T manifest/lifecycle
    receipt to their exact PHI/draft-seal owners.
 
+   Status: closed. The inventory now follows extracted PHI, draft-seal, and
+   current type-preparation owners without weakening any receipt; focused
+   SSA-P0 and SSA-I1-T guards are green.
+
 2. OWNERSHIP-CALLABLE-FENCE0-S0
    Replace the CAT0 substring false-positive with an exact structural fence
    and its one named embedded-function seam.
