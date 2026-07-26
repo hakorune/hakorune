@@ -1,9 +1,9 @@
 ---
-Status: active design stop
+Status: accepted; design stop closed
 Date: 2026-07-26
 Decision input: NORMAL-SOURCE-PLAN0-prime-r1
 Stop: NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-D0
-Blocks: NORMAL-CALLABLE-MODULE0-TX0-S0
+Unblocks: NORMAL-CALLABLE-MODULE0-TX0-HANDOFF0-S0
 Scope: exact rejection retention boundary after a function lowering plan has been consumed inside an unpublished Builder session
 Related:
   - docs/development/current/main/investigations/normal-callable-module0-tx0-s0-execution-task-2026-07-26.md
@@ -13,6 +13,46 @@ Related:
 ---
 
 # NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-D0
+
+## Accepted decision
+
+```text
+Decision:
+  NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1
+
+Q1:
+  B — source authority + consumed-operation receipt
+
+Q2:
+  typed TX0-private lowering failure adapter = required
+  existing compatibility facade             = unchanged
+
+Q3:
+  exact prepared helper-prefix retention = required
+
+Q4:
+  all fallible work before commit
+  commit remains infallible
+
+First executable row:
+  NORMAL-CALLABLE-MODULE0-TX0-HANDOFF0-S0
+```
+
+The accepted distinction is:
+
+```text
+durable source/semantic authority
+  = retained exactly
+
+single-use lowering capability
+  = consumed once and represented by a non-resumable receipt
+```
+
+The rejection owner does not reconstruct
+`CanonicalTrivialBindingSsaPlanV1`, does not expose a retry terminal, and does
+not weaken atomic publication. Option A remains a possible repository-wide
+lowerer refactor, but it is not required by TX0 and is not authorized here.
+Option C remains rejected.
 
 ## Why this stop exists
 

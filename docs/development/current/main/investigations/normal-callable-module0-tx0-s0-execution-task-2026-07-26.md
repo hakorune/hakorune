@@ -1,7 +1,8 @@
 ---
-Status: paused at NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-D0
+Status: active series; Decision B accepted
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
+Failure decision: NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1
 Row: NORMAL-CALLABLE-MODULE0-TX0-S0
 Scope: prepare and commit one atomic canonical normal module containing source Main, all helper drafts, and one physical main thunk
 ceremony_tier: T1 bounded composition and activation of existing function-draft, helper-topology, normal-schema, shell-drain, and thunk owners
@@ -22,29 +23,37 @@ Related:
 
 # NORMAL-CALLABLE-MODULE0-TX0-S0
 
-## Implementation stop discovered after activation
+## Accepted failure boundary
 
 The current lowering terminal consumes
 `CanonicalTrivialBindingSsaPlanV1` and discards its unpublished function
 session on body-lowering failure. Draft-seal rejection is also flattened and
 discarded by the current facade.
 
-Therefore the active card's stronger statement,
+The accepted decision does not require rollback of that single-use
+operational capability. TX0 retains:
 
 ```text
-the original CompletedNormalMainHelperResolutionV1 remains present
-on every failure
+RetainedNormalCallableSourceAuthorityV1
++ exact owned topology receipt
++ exact successfully prepared draft prefix
++ ConsumedNormalLoweringCapabilityReceiptV1
++ typed lowering stage/cause
++ Builder restoration receipt
 ```
 
-cannot be implemented by composition of the current APIs. The exact decision
-is isolated in:
+It does not recreate or expose:
 
 ```text
-NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-D0
+consumed CanonicalTrivialBindingSsaPlanV1
+resume/retry capability
+restorable unpublished Builder session
 ```
 
-No TX0 source implementation proceeds until that retention boundary is
-accepted. Existing R0 code and production behavior remain unchanged.
+The existing `lower_resolved_trivial_function_draft` remains a
+String-compatible facade. A new TX0-private typed terminal records the stage
+at the failure site and issues a restoration receipt only after the
+unpublished function session has been closed or discarded.
 
 ## Outcome
 
@@ -54,7 +63,7 @@ CompletedNormalMainHelperResolutionV1
 OpenNormalCallableModuleTransactionV1
   ↓ borrow-only topology and lowering preparation
 PreparedNormalCallableModuleTransactionV1
-  - original completed source/catalog owner
+  - retained source/catalog authority
   - Acyclic or Recursive topology receipt
   - source Main draft
   - canonical-key ordered helper drafts
@@ -99,10 +108,11 @@ own CompletedNormalMainHelperResolutionV1
 -> issue PreparedNormalCallableModuleTransactionV1
 ```
 
-The original completed owner stays owned by the outer transaction throughout
-fallible preparation. Ephemeral lowering views may be consumed; the source,
-catalog, resolver evidence, Main evidence, and selected family are not
-reconstructed.
+The durable Program/catalog/source-site authority stays owned by the outer
+transaction throughout fallible preparation. Ephemeral lowering plans are
+single-use operational capabilities. Their consumption is recorded, not
+reversed. The source, catalog, Main identity, selected family, and topology
+are not reconstructed.
 
 Forbidden:
 
@@ -115,9 +125,9 @@ try Acyclic then Recursive
 retry another source family/profile
 ```
 
-If an implementation API requires consuming the original completed owner
-before all fallible preparation is complete, stop and repair that API. Do not
-weaken failure retention or introduce clone rollback.
+The implementation must split durable authority from operational plans through
+one consuming TX0 handoff. It must not keep an owner and a plan borrowing that
+owner in one self-referential product.
 
 ## Reused authorities
 
@@ -288,10 +298,11 @@ Module publication before step 3 is zero.
 
 ```rust
 struct RejectedNormalCallableModuleTransactionV1 {
-    owner: CompletedNormalMainHelperResolutionV1,
+    source: RetainedNormalCallableSourceAuthorityV1,
     stage: NormalCallableModuleTransactionStageV1,
     error: NormalCallableModuleTransactionErrorV1,
     prepared: RetainedNormalCallableDraftPrefixV1,
+    consumed: Option<ConsumedNormalLoweringCapabilityReceiptV1>,
     restoration: NormalCallableBuilderRestorationReceiptV1,
 }
 ```
@@ -319,8 +330,10 @@ helpers plus source Main
 helpers plus source Main plus physical thunk
 ```
 
-The original completed semantic owner remains present on every failure.
-Inspection plus `discard(self)` are the only exits.
+The exact Program/catalog/source identity and selected topology authority
+remain present on every failure. A consumed lowering plan is represented only
+by a non-resumable receipt. Inspection plus `discard(self)` are the only
+exits.
 
 Forbidden:
 
@@ -332,18 +345,21 @@ Legacy fallback
 partial module publication
 drop prepared helper prefix before reporting
 String-only internal error flattening
+consumed lowering plan reconstruction
 ```
 
 ## Buildable commit series
 
 ```text
 TX0-A HANDOFF0
+  split durable source authority from consumable operational proofs
   OpenNormalCallableModuleTransactionV1
-  scoped topology/Main views
-  owned topology receipt
+  one owned topology receipt and canonical-key helper schedule
   no Builder behavior delta
 
 TX0-B DRAFTS0
+  typed retaining function-draft lowering terminal
+  existing String-compatible facade unchanged
   retaining common helper draft facade
   source Main draft
   physical thunk
@@ -362,7 +378,7 @@ TX0-D COMMIT0
 
 TX0-E G0
   focused success/failure/reorder/reuse fixtures
-  existing normal-source-plan lane guard extension
+  existing normal-source-plan transaction guard extension
   docs/current closeout
 ```
 
