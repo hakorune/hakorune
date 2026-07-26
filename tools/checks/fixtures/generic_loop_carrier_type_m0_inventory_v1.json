@@ -33,18 +33,19 @@
       "src/mir/builder/control_flow/plan/recipe_tree/generic_loop_composer.rs": 2
     },
     "definition_and_caller_rows": {
+      "src/mir/builder/control_flow/plan/features/generic_loop_located_composer.rs": 1,
       "src/mir/builder/control_flow/plan/generic_loop/normalizer.rs": 1,
       "src/mir/builder/control_flow/plan/recipe_tree/generic_loop_composer.rs": 2,
       "src/mir/builder/control_flow/plan/skeletons/generic_loop.rs": 1
     },
-    "direct_caller_count": 3,
+    "direct_caller_count": 4,
     "init_before_block_allocation": true,
     "integer_slot_allocations": 0
   },
   "slots": {
     "v0_header_phi_rows": 1,
     "v0_next_effect_rows": 2,
-    "v1_header_phi_rows": 2,
+    "v1_header_phi_rows": 3,
     "v1_independent_carrier_unknown_fallbacks": 1,
     "v1_selected_step_phi_unknown_fallbacks": 0
   },
