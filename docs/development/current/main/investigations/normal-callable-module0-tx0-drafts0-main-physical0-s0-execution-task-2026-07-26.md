@@ -40,6 +40,22 @@ source Main lowerer = existing F1 prepared draft-seal chain
 physical thunk      = existing normal physical-thunk owner
 ```
 
+Two bounded bridges are required before the lowerer is called:
+
+```text
+consumed Main proof + borrowed exact Main input
+  -> one CanonicalTrivialBindingSsaPlanV1
+  (bind already-sealed facts; do not rerun CanonicalLoweringPreflightV1)
+
+sealed Main header + completion + terminal profile
+  -> reusable physical relation
+  (factor the existing thunk-plan relation; do not rederive result/entry facts
+   inside the transaction)
+```
+
+The Main-only legacy transaction is not a reusable owner here because it also
+owns schema, shell, candidate verification, and publication preparation.
+
 No second Main classifier, function completion verifier, entry selector,
 signature inference, or physical-symbol inference may be introduced. The
 already-sealed Main-to-physical relation is the only entry authority.
