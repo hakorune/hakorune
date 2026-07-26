@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 is closed: Script, Main F1, and admitted top-level static helpers flow through one source-owned plan, family-private candidate evidence, one shared canonical publication core, one neutral exact VM executor, and ProcessExitProjectionV1. OWNERSHIP-SPARSE-RESUME-D0 is also closed as an inventory: Alias/View semantics did not drift, but stale Binding/Ownership SSA proof receipts prevent a readiness claim. OWNERSHIP-SPARSE-RESUME-D0-GUARD-REFRESH0 is the active behavior-neutral BoxShape series; production ownership caller and SharedV1 fallback remain zero."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 is closed: Script, Main F1, and admitted top-level static helpers flow through one source-owned plan, family-private candidate evidence, one shared canonical publication core, one neutral exact VM executor, and ProcessExitProjectionV1. OWNERSHIP-SPARSE-RESUME-D0 and its behavior-neutral GUARD-REFRESH0 series are closed: refreshed Binding/Ownership SSA receipts are green, production ownership caller and SharedV1 fallback remain zero. OWN-GRAM-REJECT0 is the active narrow fail-fast grammar row."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "OWNERSHIP-PROFILE-RECEIPT0-S0"
-current_execution_summary = "Refresh the receiver multi-anchor, deterministic ReleaseStrong ledger, and versioned current trivial-owner profile receipt; ownership grammar, behavior, caller counts, and fallback remain unchanged."
+current_execution_row = "OWN-GRAM-REJECT0"
+current_execution_summary = "Make both current parser paths reject inactive result lookalikes `: view T` and `: share T` with the stable ownership-syntax-inactive tag; grammar activation, AST/resolver/MIR/runtime changes, caller widening, and fallback remain zero."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -435,7 +435,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "ownership-sparse-resume-d0-guard-refresh-task-2026-07-26"
 latest_card_path = "docs/development/current/main/investigations/ownership-sparse-resume-d0-guard-refresh-task-2026-07-26.md"
-latest_card_summary = """OWNERSHIP-SPARSE-RESUME-D0-GUARD-REFRESH0 is active after the D0 inventory found no ownership semantic mismatch but multiple stale prerequisite receipts. It refreshes exact SSA/draft-seal anchors, the callable catalog structural fence, and versioned ownership receipts without grammar, AST, resolver, MIR, runtime, backend, caller, or fallback changes. OWN-GRAM-REJECT0 remains locked until the refreshed receipt suite is green."""
+latest_card_summary = """OWNERSHIP-SPARSE-RESUME-D0-GUARD-REFRESH0 is closed. Exact SSA/draft-seal anchors, the callable catalog structural fence, versioned current ownership receipts, and the ReleaseStrong ledger are green without grammar, AST, resolver, MIR, runtime, backend, caller, or fallback changes. OWN-GRAM-REJECT0 is unlocked as the current narrow fail-fast row."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
