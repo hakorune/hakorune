@@ -8,6 +8,10 @@ mod legacy_facade;
 #[cfg(test)]
 mod tests;
 
+pub(in crate::mir::builder) use input_view::{
+    RawBodyInputViewV1, RawLegacyBodyInputV1, RawLegacyStatementInputV1, RawStatementInputViewV1,
+};
+
 use super::calls::{MethodCallDescentPortV1, RawLegacyMethodCallInputV1};
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
 use super::me_call_header_observation::MethodCallLoweringPortV1;

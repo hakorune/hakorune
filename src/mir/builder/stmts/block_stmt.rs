@@ -21,6 +21,9 @@
 
 use super::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
 use crate::ast::ASTNode;
+use crate::mir::builder::raw_expression_dispatch::{
+    RawBodyInputViewV1, RawLegacyBodyInputV1, RawLegacyStatementInputV1, RawStatementInputViewV1,
+};
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, drive_legacy_statement_v1, RawLegacyChildLoweringPortV1,
     RecursiveChildLoweringPortV1,
@@ -50,7 +53,24 @@ pub(in crate::mir::builder) fn build_block(
     statements: Vec<ASTNode>,
 ) -> Result<ValueId, String> {
     let mut child = RawLegacyChildLoweringPortV1;
-    build_block_with_port_v1(builder, &mut child, statements)
+    build_block_input_view_with_port_v1(builder, &mut child, RawLegacyBodyInputV1::new(statements))
+}
+
+/// Thin body-input facade over the existing sequential block driver.
+///
+/// The legacy body is one input-view implementation. Located raw body inputs
+/// will enter at this boundary only after their structural child descent is
+/// implemented; this facade owns no source-site reconstruction.
+pub(in crate::mir::builder) fn build_block_input_view_with_port_v1<Port, Input>(
+    builder: &mut MirBuilder,
+    child: &mut Port,
+    input: Input,
+) -> Result<ValueId, String>
+where
+    Port: RecursiveChildLoweringPortV1<StatementInput = ASTNode>,
+    Input: RawBodyInputViewV1,
+{
+    build_block_with_port_v1(builder, child, input.into_legacy_body())
 }
 
 /// Run the existing sequential block driver while retaining one child port.
@@ -117,7 +137,32 @@ pub(in crate::mir::builder) fn build_statement(
     node: ASTNode,
 ) -> Result<ValueId, String> {
     let mut child = RawLegacyChildLoweringPortV1;
-    build_statement_with_port_v1(builder, &mut child, node)
+    build_statement_input_view_with_port_v1(
+        builder,
+        &mut child,
+        RawLegacyStatementInputV1::new(node),
+    )
+}
+
+/// Thin statement-input facade over the existing statement dispatcher.
+///
+/// It deliberately keeps the recursive child port unchanged. The selected
+/// located pre-loop lineage will receive its own structural descent adapter
+/// rather than widening every raw recursive port at once.
+pub(in crate::mir::builder) fn build_statement_input_view_with_port_v1<Port, Input>(
+    builder: &mut MirBuilder,
+    child: &mut Port,
+    input: Input,
+) -> Result<ValueId, String>
+where
+    Port: RecursiveChildLoweringPortV1<
+        BodyInput = Vec<ASTNode>,
+        StatementInput = ASTNode,
+        ExpressionInput = ASTNode,
+    >,
+    Input: RawStatementInputViewV1,
+{
+    build_statement_with_port_v1(builder, child, input.into_legacy_statement())
 }
 
 /// Run the existing statement dispatcher while retaining one raw child port.
