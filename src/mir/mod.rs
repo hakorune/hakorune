@@ -184,6 +184,7 @@ pub mod same_module_fusion_plan; // MIR-owned same-module fusion window plans
 pub mod semantic_refresh; // MIR semantic metadata refresh owner (SSOT)
 pub mod slot_registry; // Phase 9.79b.1: method slot resolution (IDs)
 pub(crate) mod source_call_target; // pre-Builder canonical source-call target proofs
+pub(crate) mod source_instance_result_contract; // bounded current-owner instance result proof
 pub(crate) mod source_core_receiver; // bounded source-only Core receiver representation proof
 mod spanned_instruction;
 pub mod static_data_plan; // MIR-owned static readonly table rows for backend emission

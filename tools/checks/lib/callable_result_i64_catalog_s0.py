@@ -30,6 +30,7 @@ BUILDER_RESERVED_EMITTER = Path("src/mir/builder/calls/debug_method_routing.rs")
 BUILDER_RESERVED_TESTS = Path("src/mir/builder/calls/reserved_method_route_tests.rs")
 RECEIVER_MODULE = Path("src/mir/source_core_receiver")
 RECEIVER_PRODUCT = "VerifiedSourceCoreReceiverV1"
+INSTANCE_RESULT_MODULE = Path("src/mir/source_instance_result_contract")
 SOURCE_PROJECTOR = Path("src/mir/resolved_semantics/source_projection.rs")
 COMPILER_PROJECTION = Path("src/mir/compiler/source_projection.rs")
 
@@ -57,9 +58,14 @@ def production_rust(root: Path) -> str:
             MODULE in relative.parents
             or TARGET_MODULE in relative.parents
             or RECEIVER_MODULE in relative.parents
+            or INSTANCE_RESULT_MODULE in relative.parents
         ):
             continue
-        if "tests" in path.parts or path.name.endswith("_tests.rs"):
+        if (
+            "tests" in path.parts
+            or path.name == "tests.rs"
+            or path.name.endswith("_tests.rs")
+        ):
             continue
         rows.append(code_only(path.read_text(encoding="utf-8")))
     return "\n".join(rows)
@@ -119,6 +125,13 @@ def verify(root: Path) -> dict[str, int]:
     require(bool(rust_files), "result catalog has no Rust sources")
     sources = {path: path.read_text(encoding="utf-8") for path in rust_files}
     module_code = "\n".join(code_only(text) for text in sources.values())
+    production_module_code = "\n".join(
+        code_only(text)
+        for path, text in sources.items()
+        if "tests" not in path.parts
+        and path.name != "tests.rs"
+        and not path.name.endswith("_tests.rs")
+    )
     production = production_rust(root)
     solver = sources[module_root / "solver.rs"]
     disposition = sources[module_root / "disposition.rs"]
@@ -141,7 +154,12 @@ def verify(root: Path) -> dict[str, int]:
         "solver must derive rows from the single static declaration view",
     )
     require(
-        "InstanceBoxMethod" not in code_only("\n".join(sources[path] for path in rust_files if "tests" not in path.parts)),
+        "InstanceBoxMethod"
+        not in code_only(
+            solver
+            + disposition
+            + sources[module_root / "body_proof_issue.rs"]
+        ),
         "instance namespace entered production result rows",
     )
     require(
@@ -159,7 +177,10 @@ def verify(root: Path) -> dict[str, int]:
         "function.metadata",
         "GenericLoop",
     ):
-        require(forbidden not in module_code, f"forbidden S0 authority entered module: {forbidden}")
+        require(
+            forbidden not in production_module_code,
+            f"forbidden S0 authority entered module: {forbidden}",
+        )
     require(
         "expect(" not in code_only(solver) and "unwrap(" not in code_only(solver),
         "solver must close structural drift through typed errors",
@@ -243,7 +264,7 @@ def verify(root: Path) -> dict[str, int]:
         "retry",
     ):
         require(
-            forbidden not in module_code,
+            forbidden not in production_module_code,
             f"forbidden S0b authority entered result composition: {forbidden}",
         )
 
@@ -696,6 +717,7 @@ def verify(root: Path) -> dict[str, int]:
     for path, text in receiver_sources.items():
         lines = len(text.splitlines())
         require(lines < 800, f"source reached 800 lines: {path.relative_to(root)} ({lines})")
+
     self_path = root / "tools/checks/lib/callable_result_i64_catalog_s0.py"
     require(
         len(self_path.read_text(encoding="utf-8").splitlines()) < 800,

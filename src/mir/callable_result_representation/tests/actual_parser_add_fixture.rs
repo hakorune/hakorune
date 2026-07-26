@@ -19,7 +19,8 @@ use super::super::{
     VerifiedCallableResultActivationPlanV1, VerifiedCallableResultActivationRowsV1,
 };
 use super::support::{
-    declarations, instance_key, qualified_targets, seal_with_targets, site, CallSiteSpecV1,
+    declarations, extend_current_owner_targets, instance_key, qualified_targets, seal_with_targets,
+    site, CallSiteSpecV1,
 };
 
 pub(crate) fn source() -> String {
@@ -37,6 +38,39 @@ pub(crate) fn source() -> String {
         "static box ParserStringUtilsBox {{ skip_ws(text, pos) {{ return pos }} }}\nbox ParserBox {{ {}\n}}",
         &parser[start..end],
     )
+}
+
+fn instance_result_contract_source() -> String {
+    let parser = include_str!(concat!(
+        "../../../../lang/src/compiler/parser/",
+        "parser_box.hako"
+    ));
+    let eval_pos = method_slice(
+        parser,
+        "\n  static_const_eval_pos(ret) {",
+        "\n  static_const_bitand(lhs, rhs) {",
+    );
+    let parse_add = method_slice(
+        parser,
+        "\n  static_const_parse_add(text, pos) {",
+        "\n  static_const_parse_mul(text, pos) {",
+    );
+    let string_helpers = include_str!(concat!(
+        "../../../../lang/src/shared/common/",
+        "string_helpers.hako"
+    ));
+    format!(
+        "{string_helpers}\nstatic box ParserStringUtilsBox {{ skip_ws(text, pos) {{ return pos }} }}\nbox ParserBox {{{eval_pos}{parse_add}\n}}"
+    )
+}
+
+fn method_slice<'source>(source: &'source str, start: &str, end: &str) -> &'source str {
+    let start = source.find(start).expect("actual ParserBox method start");
+    let end = source[start..]
+        .find(end)
+        .map(|offset| start + offset)
+        .expect("actual ParserBox method end");
+    &source[start..end]
 }
 
 /// Returns the exact parsed instance-method declaration used by this fixture.
@@ -181,6 +215,68 @@ pub(crate) fn with_source_gate_inputs<R>(
         .map(|(site, _)| site)
         .collect::<Vec<_>>();
 
+    f(&declarations, &caller, &sites, &targets, &results)
+}
+
+/// Supplies the exact source-only inputs for the nested instance-result proof.
+///
+/// This extends the sole actual ParserBox fixture without changing its
+/// 15-row activation source or plan. The static result catalog contains only
+/// actual StringHelpers dependency rows; the two ParserBox instance call sites
+/// are deliberately absent from that static target catalog.
+pub(crate) fn with_instance_result_contract_inputs<R>(
+    f: impl FnOnce(
+        &VerifiedSameModuleCallableDeclarationCatalogV1,
+        &CanonicalSameModuleCallableKeyV1,
+        &[SourceExprSiteV1; 2],
+        &VerifiedSourceStaticCallTargetCatalogV1<'_>,
+        &super::super::VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
+    ) -> R,
+) -> R {
+    let source = instance_result_contract_source();
+    let declarations = declarations(&source);
+    let dependency_targets = qualified_targets(
+        &declarations,
+        &[("StringHelpers", "StringHelpers")],
+        &[CallSiteSpecV1 {
+            caller_owner: "ParserBox",
+            caller_name: "static_const_eval_pos",
+            caller_arity: 1,
+            site: site(vec![
+                SourcePathSegmentV1::Body(3),
+                SourcePathSegmentV1::Value,
+            ]),
+        }],
+    );
+    let targets = extend_current_owner_targets(
+        dependency_targets,
+        &declarations,
+        &[CallSiteSpecV1 {
+            caller_owner: "StringHelpers",
+            caller_name: "to_i64",
+            caller_arity: 1,
+            site: site(vec![
+                SourcePathSegmentV1::Body(12),
+                SourcePathSegmentV1::LoopBody(2),
+                SourcePathSegmentV1::Initializer(0),
+            ]),
+        }],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let caller = instance_key(&declarations, "ParserBox", "static_const_parse_add", 2);
+    let sites = [
+        site(vec![
+            SourcePathSegmentV1::Body(3),
+            SourcePathSegmentV1::Value,
+            SourcePathSegmentV1::Argument(1),
+        ]),
+        site(vec![
+            SourcePathSegmentV1::Body(4),
+            SourcePathSegmentV1::LoopBody(5),
+            SourcePathSegmentV1::Value,
+            SourcePathSegmentV1::Argument(1),
+        ]),
+    ];
     f(&declarations, &caller, &sites, &targets, &results)
 }
 

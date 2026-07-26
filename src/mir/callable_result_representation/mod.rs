@@ -3,6 +3,7 @@
 mod activation;
 mod activation_error;
 mod activation_source_gate;
+mod body_proof_issue;
 mod call_proof;
 mod call_row;
 mod call_substitution;
@@ -25,6 +26,10 @@ pub(crate) use disposition::{
     CallableResultUnavailableReasonV1, VerifiedCallableResultDispositionV1,
 };
 pub(crate) use error::CallableResultCatalogErrorV1;
+pub(crate) use body_proof_issue::{
+    CallableBodyProofIssueErrorV1, VerifiedUnannotatedCallableBodyResultOutcomeV1,
+    VerifiedUnannotatedCallableBodyResultProofV1,
+};
 pub(crate) use solver::VerifiedSameModuleCallableResultCatalogV1;
 
 #[cfg(test)]
