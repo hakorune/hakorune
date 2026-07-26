@@ -11,8 +11,8 @@ use crate::mir::verification_types::VerificationError;
 use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirType};
 
 use super::{
-    PreparedScriptPhysicalExitCoreV1, ScriptPhysicalExitCommitV1, ScriptPhysicalExitErrorV1,
-    ScriptPhysicalExitOpenContractV1,
+    CompletedScriptPhysicalExitCoreV1, PreparedScriptPhysicalExitCoreV1,
+    ScriptPhysicalExitCommitV1, ScriptPhysicalExitErrorV1, ScriptPhysicalExitOpenContractV1,
 };
 
 #[derive(Debug)]
@@ -40,6 +40,7 @@ struct OpenScriptPhysicalEntrySessionSealV1;
 pub(in crate::mir) struct CompletedScriptPhysicalFunctionV1 {
     draft: MirFunction,
     target: CanonicalNormalMainEntryTargetV1,
+    exit: CompletedScriptPhysicalExitCoreV1,
     _seal: CompletedScriptPhysicalFunctionSealV1,
 }
 
@@ -126,8 +127,7 @@ impl OpenScriptPhysicalEntrySessionV1 {
             Ok(prepared) => prepared,
             Err(error) => return Err((self, ScriptPhysicalEntrySessionErrorV1::Exit(error))),
         };
-        let _completed =
-            ScriptPhysicalExitCommitV1::commit_projected(&mut self.candidate, prepared);
+        let completed = ScriptPhysicalExitCommitV1::commit_projected(&mut self.candidate, prepared);
         let verification = {
             let function = self
                 .candidate
@@ -143,7 +143,7 @@ impl OpenScriptPhysicalEntrySessionV1 {
                 ScriptPhysicalEntrySessionErrorV1::Verification(errors.into_boxed_slice()),
             ));
         }
-        self.finish().map_err(|session| {
+        self.finish(completed).map_err(|session| {
             (
                 session,
                 ScriptPhysicalEntrySessionErrorV1::MissingCompletedFunction,
@@ -151,7 +151,10 @@ impl OpenScriptPhysicalEntrySessionV1 {
         })
     }
 
-    pub(in crate::mir) fn finish(self) -> Result<CompletedScriptPhysicalFunctionV1, Self> {
+    fn finish(
+        self,
+        exit: CompletedScriptPhysicalExitCoreV1,
+    ) -> Result<CompletedScriptPhysicalFunctionV1, Self> {
         let Self {
             mut candidate,
             target,
@@ -169,6 +172,7 @@ impl OpenScriptPhysicalEntrySessionV1 {
         Ok(CompletedScriptPhysicalFunctionV1 {
             draft,
             target,
+            exit,
             _seal: CompletedScriptPhysicalFunctionSealV1,
         })
     }
@@ -179,11 +183,21 @@ impl CompletedScriptPhysicalFunctionV1 {
         &self.draft
     }
 
-    pub(in crate::mir) fn into_draft(self) -> MirFunction {
-        self.draft
-    }
-
     pub(in crate::mir) fn target(&self) -> &CanonicalNormalMainEntryTargetV1 {
         &self.target
+    }
+
+    pub(in crate::mir) fn exit(&self) -> &CompletedScriptPhysicalExitCoreV1 {
+        &self.exit
+    }
+
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (
+        MirFunction,
+        CanonicalNormalMainEntryTargetV1,
+        CompletedScriptPhysicalExitCoreV1,
+    ) {
+        (self.draft, self.target, self.exit)
     }
 }

@@ -89,8 +89,13 @@ impl CompletedScriptPhysicalExitV1 {
         self.draft.draft()
     }
 
-    pub(crate) fn into_draft(self) -> crate::mir::MirFunction {
-        self.draft.into_draft()
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (
+        RetainedNormalScriptSourceV1,
+        CompletedScriptPhysicalFunctionV1,
+    ) {
+        (self.source, self.draft)
     }
 }
 

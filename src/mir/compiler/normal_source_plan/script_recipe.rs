@@ -103,6 +103,10 @@ impl RetainedNormalScriptSourceV1 {
             _seal: RetainedNormalScriptSourceSealV1,
         }
     }
+
+    pub(in crate::mir) fn source_identity(&self) -> &str {
+        self.input.identity().display_name()
+    }
 }
 
 impl RejectedNormalScriptRecipeV1 {

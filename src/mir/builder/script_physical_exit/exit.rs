@@ -296,29 +296,29 @@ impl ScriptPhysicalExitCommitV1 {
 }
 
 impl CompletedScriptPhysicalExitCoreV1 {
-    pub(in crate::mir::builder) const fn block(&self) -> BasicBlockId {
+    pub(in crate::mir) const fn block(&self) -> BasicBlockId {
         self.block
     }
 
-    pub(in crate::mir::builder) const fn source(&self) -> ScriptSourceCompletionV1 {
+    pub(in crate::mir) const fn source(&self) -> ScriptSourceCompletionV1 {
         self.completion.source
     }
 
-    pub(in crate::mir::builder) fn physical(&self) -> &ScriptPhysicalResultV1 {
+    pub(in crate::mir) fn physical(&self) -> &ScriptPhysicalResultV1 {
         &self.completion.physical
     }
 
-    pub(in crate::mir::builder) fn completion(&self) -> &CompletedScriptBodyCompletionV1 {
+    pub(in crate::mir) fn completion(&self) -> &CompletedScriptBodyCompletionV1 {
         &self.completion
     }
 }
 
 impl CompletedScriptBodyCompletionV1 {
-    pub(in crate::mir::builder) const fn source(&self) -> ScriptSourceCompletionV1 {
+    pub(in crate::mir) const fn source(&self) -> ScriptSourceCompletionV1 {
         self.source
     }
 
-    pub(in crate::mir::builder) fn physical(&self) -> &ScriptPhysicalResultV1 {
+    pub(in crate::mir) fn physical(&self) -> &ScriptPhysicalResultV1 {
         &self.physical
     }
 }

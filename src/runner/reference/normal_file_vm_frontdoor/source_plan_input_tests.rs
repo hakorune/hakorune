@@ -103,6 +103,30 @@ fn canonical_core_dispatch_script_handoff_moves_only_the_sealed_plan_and_receipt
 }
 
 #[test]
+fn canonical_core_script_candidate_retains_sealed_publication_evidence() {
+    let dir = tempdir().expect("tempdir");
+    let request = classify_canonical_core(dir.path(), "evidence.hako", "42")
+        .into_canonical_core_compile_request()
+        .expect("canonical-core Script handoff");
+    let mut compiler = crate::mir::MirCompiler::new();
+    let candidate = compiler
+        .compile_canonical_core_source_plan(request)
+        .expect("unpublished Script candidate");
+    let evidence = candidate
+        .script_candidate_evidence_for_test()
+        .expect("Script evidence");
+
+    assert!(evidence.target_is_main);
+    assert_eq!(evidence.target_symbol, "main");
+    assert_eq!(evidence.target_arity, 0);
+    assert!(evidence.source_identity.ends_with("evidence.hako"));
+    assert_eq!(evidence.schema_row_count, 1);
+    assert_eq!(evidence.result_kind, "integer");
+    assert_eq!(evidence.verification_function_count, 1);
+    assert_eq!(evidence.module_function_count, 1);
+}
+
+#[test]
 fn canonical_core_dispatch_script_candidate_preserves_compiler_reuse_for_main() {
     let dir = tempdir().expect("tempdir");
     let script = classify_canonical_core(dir.path(), "script-reuse.hako", "42")

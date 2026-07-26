@@ -238,6 +238,53 @@ impl CompletedCanonicalCoreSourceEntryCandidateV1 {
     pub(crate) fn receipt_counts(&self) -> (u8, u8) {
         self.receipt.counts()
     }
+
+    #[cfg(test)]
+    pub(crate) fn script_candidate_evidence_for_test(
+        &self,
+    ) -> Option<ScriptCandidateEvidenceTestV1> {
+        match &self.family {
+            CompletedCanonicalCoreSourceEntryFamilyV1::Script(candidate) => {
+                let evidence = candidate.evidence();
+                Some(ScriptCandidateEvidenceTestV1 {
+                    target_is_main: evidence.target().is_main(),
+                    target_symbol: evidence.target().symbol().to_owned(),
+                    target_arity: evidence.target().arity(),
+                    source_identity: evidence.source_identity().to_owned(),
+                    schema_row_count: evidence.schema_row_count(),
+                    result_kind: match evidence.result() {
+                        crate::mir::builder::VerifiedScriptEntryResultContractV1::Unit {
+                            ..
+                        } => "unit",
+                        crate::mir::builder::VerifiedScriptEntryResultContractV1::Integer => {
+                            "integer"
+                        }
+                        crate::mir::builder::VerifiedScriptEntryResultContractV1::Bool => "bool",
+                        crate::mir::builder::VerifiedScriptEntryResultContractV1::Float => "float",
+                        crate::mir::builder::VerifiedScriptEntryResultContractV1::String => {
+                            "string"
+                        }
+                    },
+                    verification_function_count: candidate.verification().function_count(),
+                    module_function_count: candidate.module().functions.len(),
+                })
+            }
+            CompletedCanonicalCoreSourceEntryFamilyV1::Main(_) => None,
+        }
+    }
+}
+
+#[cfg(test)]
+#[derive(Debug)]
+pub(crate) struct ScriptCandidateEvidenceTestV1 {
+    pub(crate) target_is_main: bool,
+    pub(crate) target_symbol: String,
+    pub(crate) target_arity: usize,
+    pub(crate) source_identity: String,
+    pub(crate) schema_row_count: usize,
+    pub(crate) result_kind: &'static str,
+    pub(crate) verification_function_count: usize,
+    pub(crate) module_function_count: usize,
 }
 
 impl NormalCanonicalCoreSourcePlanCompilerV1 {
