@@ -209,6 +209,50 @@ The selected inner MethodCall is handled directly from its located owner.
 Its ordinary receiver/argument children use the wrapped ordinary Port. No raw
 dispatcher re-entry or RawLegacy conversion is allowed.
 
+#### B2 closeout
+
+```text
+Status:
+  closed
+
+source retention:
+  Armed(source)
+  -> InFlight(source)
+  -> Reached(source + requested destination)
+     or Rejected(source + typed cause)
+
+selected projection:
+  privately sealed one-shot token only
+  caller-supplied source payload = 0
+
+inner route:
+  existing member planner
+  -> ReceiverNormalized(MeCall)
+  -> existing effect-free Me preparation
+  -> Standard(Unified)
+  -> existing ordered argument driver on wrapped ordinary Raw Port
+  -> existing standard terminal
+
+configured positive proof:
+  outer existing StaticReceiver plan = 1
+  inner Method Call = 1
+  outer Global Call = 1
+  retained requested destination = inner Call dst
+
+still zero:
+  typed physical receipt
+  final physical destination authority
+  nested result receipt
+  new nested Integer publication
+  Raw dispatcher re-entry for selected inner
+  fallback / retry / production caller
+```
+
+The outer compatibility transport exists only inside the bounded configured
+proof. It does not convert the selected inner located MethodCall. An outer
+terminal failure after inner success moves the retained reached owner into the
+typed rejection state before the fixture Builder is discarded.
+
 ### 3. `PRELOOP-LOCATED-ARGUMENT-INGRESS0-P0`
 
 Use the existing real ParserBox source/catalog fixture and a private configured

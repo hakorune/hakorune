@@ -103,6 +103,19 @@ reach into route-specific plan internals. The current boundary SSOT is
   - Existing helper recursion remains an explicit raw leaf. Located inputs,
     caller ledgers, MethodCall route splitting, and result publication remain
     disconnected until their later SITE0-R0 rows.
+  - `calls/preloop_located_argument_port.rs` is one proof-only Raw candidate
+    Port for the selected pre-loop `CallArgument(1)`. The exact source owner
+    stays inside `Armed` / `InFlight` / `Reached` / `Rejected`; projection
+    exposes only a privately sealed one-shot token.
+  - `calls/preloop_located_argument_ingress.rs` consumes that retained owner
+    directly, accepts only the existing `Me -> Standard(Unified)` prepared
+    route, and delegates inner children plus terminal emission to the wrapped
+    ordinary Raw Port. It does not re-enter the Raw dispatcher or issue a
+    physical Call receipt, final-destination authority, or type fact.
+  - The configured ParserBox proof alone transports the outer call through
+    the existing Raw facade, requires its existing `StaticReceiver` plan, and
+    discards the whole fixture Builder. This is not a production located-call
+    entry or a general Builder transaction.
 - legacy block descent boundary
   - `src/mir/builder/stmts/block_driver.rs` alone owns scope lifetime, the
     existing suffix-router call, termination checks, last-value selection, and

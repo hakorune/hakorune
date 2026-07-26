@@ -2,12 +2,12 @@
 //!
 //! This PORT0 vocabulary wraps the existing `MethodCallLoweringPortV1`
 //! capability without changing the ordinary port or creating a second ordered
-//! argument driver. Its selected argument is deliberately fail-closed until
-//! the later I0 ingress owns the isolated candidate transaction.
+//! argument driver. The exact selected source owner always remains inside this
+//! Port; argument projection releases only an unforgeable one-shot token.
 
 use crate::ast::ASTNode;
 use crate::mir::builder::me_call_header_observation::{
-    MeCallHeaderObservationPortV1, MeCallParameterObservationV1,
+    MeCallHeaderObservationPortV1, MeCallParameterObservationV1, MethodCallLoweringPortV1,
 };
 use crate::mir::builder::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use crate::mir::source_instance_result_contract::PreparedPreloopLocatedArgumentV1;
@@ -16,43 +16,66 @@ use crate::mir::{MirBuilder, MirType, TypeOpKind, ValueId};
 use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{MethodCallDescentPortV1, MethodCallSyntaxViewV1};
 use super::method_call_terminal::MethodCallValueTerminalPortV1;
-use super::{CallArgumentDescentPortV1, PreloopLocatedArgumentPortErrorV1};
+use super::preloop_located_argument_ingress::{
+    lower_selected_preloop_located_argument_v1, ReachedPreloopUnifiedMethodRequestV1,
+    RejectedPreloopLocatedArgumentIngressV1,
+};
+use super::preloop_located_argument_rejection::PreloopLocatedArgumentPortErrorV1;
+use super::CallArgumentDescentPortV1;
 
 /// One-shot state is retained in the candidate Port, not in `MirBuilder`.
-/// S0-B1 preserves the exact source owner across every terminal transition.
+/// `Transitioning` is a private synchronous move slot only; every externally
+/// observable non-terminal or terminal state retains the exact source owner.
 #[derive(Debug)]
-pub(in crate::mir::builder) enum PreloopSelectedArgumentStateV1<'site, 'view, 'catalog> {
+pub(super) enum PreloopSelectedArgumentStateV1<'site, 'view, 'catalog> {
     Armed(PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>),
-    InFlight,
-    Rejected {
-        source: PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>,
-        cause: PreloopLocatedArgumentPortErrorV1,
-    },
+    InFlight(PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>),
+    Transitioning,
+    Reached(ReachedPreloopUnifiedMethodRequestV1<'site, 'view, 'catalog>),
+    Rejected(RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog>),
+}
+
+/// The private seal prevents a caller from supplying a different source owner
+/// after the Port has armed its exact structural `CallArgument` relation.
+#[derive(Debug)]
+pub(super) struct PreloopSelectedArgumentTokenV1 {
+    _seal: PreloopSelectedArgumentTokenSealV1,
+}
+
+#[derive(Debug)]
+struct PreloopSelectedArgumentTokenSealV1(());
+
+impl PreloopSelectedArgumentTokenV1 {
+    fn new() -> Self {
+        Self {
+            _seal: PreloopSelectedArgumentTokenSealV1(()),
+        }
+    }
 }
 
 /// Expression input carried by the candidate-only Port.
 ///
 /// The wrapper prevents the generic Raw AST blanket from claiming this Port.
 /// Ordinary expressions retain their existing input; the selected relation
-/// stays source-located until the later candidate ingress consumes it.
+/// stays in the Port until the candidate ingress consumes it.
 #[derive(Debug)]
-pub(in crate::mir::builder) enum PreloopLocatedExpressionInputV1<
-    'site,
-    'view,
-    'catalog,
-    ExpressionInput,
-> {
+pub(super) enum PreloopLocatedExpressionInputV1<'site, 'view, 'catalog, ExpressionInput> {
     Ordinary(ExpressionInput),
-    Selected(PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>),
+    Selected {
+        token: PreloopSelectedArgumentTokenV1,
+        _lifetime:
+            std::marker::PhantomData<PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>>,
+    },
 }
 
 /// Stack-scoped candidate wrapper. Its ordinary port remains the sole owner
 /// of ordinary syntax, ordered descent, terminal emission, and header facts.
-/// The selected source relation is only an opaque future ingress capability.
+/// The selected source relation is consumed only by the bounded located
+/// ingress and remains retained through success and rejection.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
+pub(super) struct PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
 where
-    Port: MethodCallDescentPortV1,
+    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
 {
     ordinary: Port,
     selected_index: u32,
@@ -61,9 +84,9 @@ where
 
 impl<'site, 'view, 'catalog, Port> PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
 where
-    Port: MethodCallDescentPortV1,
+    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
 {
-    pub(in crate::mir::builder) fn new(
+    pub(super) fn new(
         ordinary: Port,
         selected: PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>,
     ) -> Self {
@@ -74,25 +97,26 @@ where
         }
     }
 
-    pub(in crate::mir::builder) const fn selected_index(&self) -> u32 {
+    pub(super) const fn selected_index(&self) -> u32 {
         self.selected_index
     }
 
-    pub(in crate::mir::builder) fn selected_state(
-        &self,
-    ) -> &PreloopSelectedArgumentStateV1<'site, 'view, 'catalog> {
+    pub(super) fn selected_state(&self) -> &PreloopSelectedArgumentStateV1<'site, 'view, 'catalog> {
         &self.selected
     }
 
-    pub(in crate::mir::builder) fn discard(self) {}
+    pub(super) fn discard(self) {}
 
-    fn take_selected(
-        &mut self,
-    ) -> Result<PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>, String> {
-        let selected =
-            std::mem::replace(&mut self.selected, PreloopSelectedArgumentStateV1::InFlight);
+    fn arm_selected_token(&mut self) -> Result<PreloopSelectedArgumentTokenV1, String> {
+        let selected = std::mem::replace(
+            &mut self.selected,
+            PreloopSelectedArgumentStateV1::Transitioning,
+        );
         match selected {
-            PreloopSelectedArgumentStateV1::Armed(selected) => Ok(selected),
+            PreloopSelectedArgumentStateV1::Armed(source) => {
+                self.selected = PreloopSelectedArgumentStateV1::InFlight(source);
+                Ok(PreloopSelectedArgumentTokenV1::new())
+            }
             terminal => {
                 self.selected = terminal;
                 Err(
@@ -109,7 +133,7 @@ where
 impl<'site, 'view, 'catalog, Port> RecursiveChildLoweringPortV1
     for PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
 where
-    Port: MethodCallDescentPortV1,
+    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
 {
     type BodyInput = Port::BodyInput;
     type StatementInput = Port::StatementInput;
@@ -141,22 +165,35 @@ where
             PreloopLocatedExpressionInputV1::Ordinary(input) => {
                 self.ordinary.lower_expression(builder, input)
             }
-            PreloopLocatedExpressionInputV1::Selected(selected) => {
-                let previous =
-                    std::mem::replace(&mut self.selected, PreloopSelectedArgumentStateV1::InFlight);
+            PreloopLocatedExpressionInputV1::Selected {
+                token: _token,
+                _lifetime: _,
+            } => {
+                let previous = std::mem::replace(
+                    &mut self.selected,
+                    PreloopSelectedArgumentStateV1::Transitioning,
+                );
                 match previous {
-                    PreloopSelectedArgumentStateV1::InFlight => {
-                        let cause = PreloopLocatedArgumentPortErrorV1::CandidateIngressPending;
-                        let report = cause.bounded_message();
-                        self.selected = PreloopSelectedArgumentStateV1::Rejected {
-                            source: selected,
-                            cause,
-                        };
-                        Err(report)
+                    PreloopSelectedArgumentStateV1::InFlight(source) => {
+                        match lower_selected_preloop_located_argument_v1(
+                            builder,
+                            &mut self.ordinary,
+                            source,
+                        ) {
+                            Ok(reached) => {
+                                let requested_destination = reached.requested_destination();
+                                self.selected = PreloopSelectedArgumentStateV1::Reached(reached);
+                                Ok(requested_destination)
+                            }
+                            Err(rejected) => {
+                                let report = rejected.bounded_report();
+                                self.selected = PreloopSelectedArgumentStateV1::Rejected(rejected);
+                                Err(report)
+                            }
+                        }
                     }
                     terminal => {
                         self.selected = terminal;
-                        selected.discard();
                         Err(
                             PreloopLocatedArgumentPortErrorV1::SelectedArgumentUnavailable {
                                 index: self.selected_index,
@@ -173,7 +210,7 @@ where
 impl<'site, 'view, 'catalog, Port> CallArgumentDescentPortV1
     for PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
 where
-    Port: MethodCallDescentPortV1,
+    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
 {
     type ArgumentsInput = Port::ArgumentsInput;
 
@@ -195,9 +232,12 @@ where
         index: usize,
     ) -> Result<Self::ExpressionInput, String> {
         if u32::try_from(index).ok() == Some(self.selected_index) {
-            return self
-                .take_selected()
-                .map(PreloopLocatedExpressionInputV1::Selected);
+            return self.arm_selected_token().map(|token| {
+                PreloopLocatedExpressionInputV1::Selected {
+                    token,
+                    _lifetime: std::marker::PhantomData,
+                }
+            });
         }
 
         self.ordinary
@@ -209,7 +249,7 @@ where
 impl<'site, 'view, 'catalog, Port> MethodCallDescentPortV1
     for PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
 where
-    Port: MethodCallDescentPortV1,
+    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
 {
     type MethodCallInput = Port::MethodCallInput;
 
@@ -240,7 +280,7 @@ where
 impl<'site, 'view, 'catalog, Port> MeCallHeaderObservationPortV1
     for PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
 where
-    Port: MethodCallDescentPortV1 + MeCallHeaderObservationPortV1,
+    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
 {
     fn observe_me_call_parameters(
         &mut self,
@@ -254,7 +294,7 @@ where
 impl<'site, 'view, 'catalog, Port> MethodCallValueTerminalPortV1
     for PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
 where
-    Port: MethodCallDescentPortV1 + MethodCallValueTerminalPortV1,
+    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
 {
     fn emit_typeop_value_terminal(
         &mut self,
@@ -275,13 +315,28 @@ where
         checked_source_arity: u32,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String> {
-        self.ordinary.emit_static_global_value_terminal(
+        let result = self.ordinary.emit_static_global_value_terminal(
             builder,
             owner,
             method,
             checked_source_arity,
             arguments,
-        )
+        );
+        if let Err(detail) = &result {
+            let previous = std::mem::replace(
+                &mut self.selected,
+                PreloopSelectedArgumentStateV1::Transitioning,
+            );
+            self.selected = match previous {
+                PreloopSelectedArgumentStateV1::Reached(reached) => {
+                    PreloopSelectedArgumentStateV1::Rejected(
+                        reached.reject_outer_terminal(detail.clone()),
+                    )
+                }
+                other => other,
+            };
+        }
+        result
     }
 
     fn emit_me_lowered_global_value_terminal(

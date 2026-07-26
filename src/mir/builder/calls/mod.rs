@@ -61,6 +61,7 @@ pub mod materializer;
 pub mod member_route; // Member call route plan + emit handoff
 mod method_call_descent;
 mod method_call_terminal;
+mod preloop_located_argument_ingress;
 mod preloop_located_argument_port;
 mod preloop_located_argument_rejection;
 pub(in crate::mir::builder) use method_call_descent::{
@@ -73,12 +74,6 @@ pub(in crate::mir::builder) use method_call_terminal::{
     emit_env_value_terminal_raw_v1, emit_global_value_terminal_raw_v1,
     emit_standard_value_terminal_raw_v1, emit_typeop_value_terminal_raw_v1,
 };
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use preloop_located_argument_port::{
-    PreloopLocatedArgumentPortV1, PreloopSelectedArgumentStateV1,
-};
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use preloop_located_argument_rejection::PreloopLocatedArgumentPortErrorV1;
 #[cfg(test)]
 mod member_route_descent_tests;
 #[cfg(test)]
@@ -86,6 +81,8 @@ mod method_call_descent_tests;
 #[cfg(test)]
 mod method_call_terminal_tests;
 pub mod parameter_setup; // Step 3: Parameter setup and binding (static/instance methods)
+#[cfg(test)]
+mod preloop_located_argument_ingress_tests;
 #[cfg(test)]
 mod preloop_located_argument_port_tests;
 pub mod receiver_binding; // Step 4: Receiver ('me'/'this') normalization and binding

@@ -15,11 +15,14 @@ use crate::mir::source_instance_result_contract::{
 };
 use crate::mir::MirBuilder;
 
-use super::preloop_located_argument_port::PreloopLocatedExpressionInputV1;
-use super::{
-    CallArgumentDescentPortV1, PreloopLocatedArgumentPortErrorV1, PreloopLocatedArgumentPortV1,
-    PreloopSelectedArgumentStateV1,
+use super::preloop_located_argument_ingress::{
+    PreloopLocatedArgumentIngressErrorV1, PreloopLocatedArgumentIngressStageV1,
+    PreloopObservedMeRouteV1,
 };
+use super::preloop_located_argument_port::{
+    PreloopLocatedArgumentPortV1, PreloopLocatedExpressionInputV1, PreloopSelectedArgumentStateV1,
+};
+use super::CallArgumentDescentPortV1;
 
 fn assert_method_call_lowering_port<Port: MethodCallLoweringPortV1>() {}
 
@@ -31,7 +34,7 @@ fn candidate_port_preserves_the_existing_method_call_capability_bundle() {
 }
 
 #[test]
-fn candidate_pending_rejection_retains_the_exact_selected_source_owner() {
+fn candidate_rejection_retains_the_exact_selected_source_owner() {
     actual_parser_add_fixture::with_instance_result_contract_inputs(
         |catalog, caller, sites, _targets, results| {
             let call = VerifiedSourceMethodCallSiteV1::verify(catalog, caller, sites[0].clone())
@@ -90,7 +93,8 @@ fn candidate_pending_rejection_retains_the_exact_selected_source_owner() {
                 .expect("selected Argument(1)");
             assert!(matches!(
                 port.selected_state(),
-                PreloopSelectedArgumentStateV1::InFlight
+                PreloopSelectedArgumentStateV1::InFlight(source)
+                    if source.selected().child().site() == &sites[0]
             ));
 
             let duplicate = port
@@ -99,21 +103,28 @@ fn candidate_pending_rejection_retains_the_exact_selected_source_owner() {
             assert!(duplicate.contains("selected-argument-unavailable"));
             assert!(matches!(
                 port.selected_state(),
-                PreloopSelectedArgumentStateV1::InFlight
+                PreloopSelectedArgumentStateV1::InFlight(source)
+                    if source.selected().child().site() == &sites[0]
             ));
 
             let mut builder = MirBuilder::new();
-            let pending = port
+            let rejected_report = port
                 .lower_expression(&mut builder, selected_input)
-                .expect_err("B1 keeps the candidate ingress fail-closed");
-            assert!(pending.contains("candidate-ingress-pending"));
+                .expect_err("unconfigured candidate must reject before child descent");
+            assert!(rejected_report.contains("alternate-me-route"));
             match port.selected_state() {
-                PreloopSelectedArgumentStateV1::Rejected { source, cause } => {
-                    assert_eq!(source.selected().index(), 1);
-                    assert_eq!(source.selected().child().site(), &sites[0]);
+                PreloopSelectedArgumentStateV1::Rejected(rejected) => {
+                    assert_eq!(rejected.selected_index(), 1);
+                    assert_eq!(rejected.selected_site(), &sites[0]);
                     assert_eq!(
-                        *cause,
-                        PreloopLocatedArgumentPortErrorV1::CandidateIngressPending
+                        rejected.stage(),
+                        PreloopLocatedArgumentIngressStageV1::MeRoute
+                    );
+                    assert_eq!(
+                        rejected.cause(),
+                        &PreloopLocatedArgumentIngressErrorV1::AlternateMeRoute(
+                            PreloopObservedMeRouteV1::NotApplicable
+                        )
                     );
                 }
                 other => panic!("expected payload-retaining rejection, got {other:?}"),
@@ -125,8 +136,8 @@ fn candidate_pending_rejection_retains_the_exact_selected_source_owner() {
             assert!(duplicate.contains("selected-argument-unavailable"));
             assert!(matches!(
                 port.selected_state(),
-                PreloopSelectedArgumentStateV1::Rejected { source, .. }
-                    if source.selected().child().site() == &sites[0]
+                PreloopSelectedArgumentStateV1::Rejected(rejected)
+                    if rejected.selected_site() == &sites[0]
             ));
             port.discard();
         },
