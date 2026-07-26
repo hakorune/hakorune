@@ -58,7 +58,10 @@ fn normal_program_projection_matches_raw_in_the_common_scalar_unit_subset() {
         ("assignment.hako", "local x = 1\nx = 3"),
         ("compound.hako", "local x = 1\nx += 2"),
         ("main-fallthrough.hako", "static box Main { main() { 1 } }"),
-        ("helper-main.hako", "static box Main { helper() {} main() {} }"),
+        (
+            "helper-main.hako",
+            "static box Main { helper() {} main() {} }",
+        ),
     ];
 
     for (name, source) in cases {
@@ -94,7 +97,11 @@ fn normal_run_preserves_usage_invocation_and_program_boundaries_without_retry() 
         let ReferenceRunOutcomeV1::Invocation(report) = outcome else {
             panic!("{name} must not execute as a program result");
         };
-        assert!(report.line().contains(expected_code), "{name}: {}", report.line());
+        assert!(
+            report.line().contains(expected_code),
+            "{name}: {}",
+            report.line()
+        );
     }
 
     let succeeding = normal_outcome(&write_source(dir.path(), "after-rejection.hako", "1"));
