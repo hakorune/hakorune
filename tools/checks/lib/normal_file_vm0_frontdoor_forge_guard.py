@@ -17,6 +17,9 @@ CANONICAL_CORE_REQUEST = (
 CANONICAL_CORE_REPORT_RUNNER = (
     ROOT / "src/runner/reference/normal_file_canonical_core_vm.rs"
 )
+CANONICAL_CORE_PARITY_P0A = (
+    ROOT / "src/runner/reference/normal_file_canonical_core_vm/parity_p0a.rs"
+)
 NORMAL_REPORT_RUNNER = ROOT / "src/runner/reference/normal_file_vm.rs"
 PARITY_P0A = ROOT / "src/runner/reference/normal_file_vm/parity_p0a.rs"
 TEST_ONLY_RAW_TERMINAL_CONSUMERS = (
@@ -209,6 +212,13 @@ def main() -> int:
     for forbidden in ("select_from_cli", "process::exit", "compile_with_source", "run_raw_vm_reference"):
         if forbidden in canonical_core_report:
             raise AssertionError(f"canonical-core REPORT0 must not contain {forbidden}")
+    canonical_core_parity = CANONICAL_CORE_PARITY_P0A.read_text()
+    for fragment in (
+        "canonical_core_report_preserves_script_result_and_fault_projection",
+        "canonical_core_report_reaches_main_and_admitted_callable_slice",
+        "canonical_core_report_keeps_pre_execution_rejections_out_of_program_results",
+    ):
+        require(canonical_core_parity, fragment, f"canonical-core P0a {fragment}")
     if ".prepare()" in normal_request or "run_raw_vm_reference" in normal_request:
         raise AssertionError("REQUEST0 must not execute the NormalFile front door")
     for fragment in (
@@ -288,6 +298,7 @@ def main() -> int:
                 NORMAL_REQUEST,
                 CANONICAL_CORE_REQUEST,
                 CANONICAL_CORE_REPORT_RUNNER,
+                CANONICAL_CORE_PARITY_P0A,
                 NORMAL_REPORT_RUNNER,
             )
             or path in TEST_ONLY_RAW_TERMINAL_CONSUMERS
@@ -321,6 +332,7 @@ def main() -> int:
         NORMAL_REQUEST,
         CANONICAL_CORE_REQUEST,
         CANONICAL_CORE_REPORT_RUNNER,
+        CANONICAL_CORE_PARITY_P0A,
         NORMAL_REPORT_RUNNER,
         PARITY_P0A,
         *TEST_ONLY_RAW_TERMINAL_CONSUMERS,

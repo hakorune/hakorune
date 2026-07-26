@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0a
+Active executable row: NORMAL-FILE-CANONICAL-CORE0-REUSE0-P0
 ```
 
 ## Boundary
@@ -318,6 +318,22 @@ fallback / Raw re-entry                                   = 0
 `NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0a` adds the production-shaped matrix
 for Script, Main, and the admitted callable slice before any CLI selection or
 production caller is connected.
+
+### `NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0a`
+
+Status: closed by this commit.
+
+The report-shaped matrix covers Script Unit/scalar results, range and
+unsupported-result process Faults, VM division fault, Main fallthrough, the
+admitted helper-plus-Main callable slice, parse/using rejection, and the
+existing typed direct-call rejection. No case reaches CLI selection or a
+process terminal.
+
+## Next row
+
+`NORMAL-FILE-CANONICAL-CORE0-REUSE0-P0` records the compiler reuse evidence
+for success, rejection, and program Fault before the explicit selector is
+allowed to gain a production caller.
 
 ## Acceptance gates
 

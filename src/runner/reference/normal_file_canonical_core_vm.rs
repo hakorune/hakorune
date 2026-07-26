@@ -149,3 +149,7 @@ mod tests {
         assert!(dispatch.line().contains("canonical-core-dispatch-rejected"));
     }
 }
+
+#[cfg(all(test, feature = "vm-reference"))]
+#[path = "normal_file_canonical_core_vm/parity_p0a.rs"]
+mod parity_p0a;
