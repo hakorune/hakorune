@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-MAIN-DIRECT-CALL0-S0 is closed with one Program, one helper catalog, one resolver continuation, and call-free/finite Main capability proofs. NORMAL-CALLABLE-MODULE0-A0-S0 is active to resolve helper bodies and seal one deterministic zero-edge-capable acyclic whole-normal-source plan before Builder effects."
+status = "NORMAL-CALLABLE-MODULE0-A0-S0 is closed with one Program, exact Main/helper correspondence, zero-edge-capable acyclic helper planning, typed cycle rejection, and owner-preserving helper resolution. NORMAL-CALLABLE-MODULE0-R0-S0 is active to select acyclic or recursive topology once from one inventory/SCC partition without retry."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "NORMAL-CALLABLE-MODULE0-A0-S0"
-current_execution_summary = "Consume the closed Main/helper plan through the existing helper resolver continuation, retain one original Program, seal a zero-edge-capable deterministic helper DAG plus exact helper function plans, and co-seal Main/helper brand, target, and cardinality correspondence. Builder/MIR/publication/backend/runner effects, second catalogs/resolvers, AST rewrite, and fallback remain zero."
+current_execution_row = "NORMAL-CALLABLE-MODULE0-R0-S0"
+current_execution_summary = "Verify one helper graph inventory and one deterministic SCC partition, select Acyclic or Recursive exactly once from recursive-component evidence, reuse call-free/finite helper preflights and shared Main/helper correspondence, and retain the complete owner on every rejection. Acyclic-error-to-recursive retry, second graphs/catalogs/resolvers, Builder/MIR/backend/runner changes, and fallback remain zero."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -333,7 +333,7 @@ LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
 active_phase = "docs/development/current/main/investigations/normal-main-direct-call0-s0-execution-task-2026-07-26.md"
-phase_status = "docs/development/current/main/investigations/normal-callable-module0-a0-s0-execution-task-2026-07-26.md"
+phase_status = "docs/development/current/main/investigations/normal-callable-module0-r0-s0-execution-task-2026-07-26.md"
 method_anchor = "docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -417,9 +417,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "normal-callable-module0-a0-s0-execution-task-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/normal-callable-module0-a0-s0-execution-task-2026-07-26.md"
-latest_card_summary = """NORMAL-MAIN-DIRECT-CALL0-S0 is closed with one Program, helper catalog, resolver continuation, and call-free/finite Main plan. NORMAL-CALLABLE-MODULE0-A0-S0 now composes that owner with existing helper resolution and acyclic graph/function preflights; one-helper/zero-edge modules are admitted without widening the frozen historical acyclic-module proof."""
+latest_card = "normal-callable-module0-r0-s0-execution-task-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/normal-callable-module0-r0-s0-execution-task-2026-07-26.md"
+latest_card_summary = """NORMAL-CALLABLE-MODULE0-A0-S0 is closed with one Program, owner-preserving helper resolution, zero-edge-capable DAG planning, Main/helper correspondence, cycle rejection, and no fallback. R0 now replaces variant retry with one inventory -> SCC partition -> Acyclic/Recursive selection and reuses one shared helper-plan correspondence."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -621,7 +621,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-CALLABLE-MODULE0-A0-S0"
+current_blocker_token = "NORMAL-CALLABLE-MODULE0-R0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
@@ -661,6 +661,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-26: NORMAL-CALLABLE-MODULE0-A0-S0 closes in 9a42606151 and 1e8a8dfde5. One original Program and catalog continuation resolve helper bodies; the normal-specific borrowed plan admits one-helper/zero-edge and finite DAGs, rejects self/cycles, retains owner evidence after helper failure, and co-seals Main/helper brand/target/cardinality without widening the frozen historical acyclic proof. R0 is next and must select topology once without Acyclic-to-Recursive retry.",
   "2026-07-26: NORMAL-MAIN-DIRECT-CALL0-S0 closes in 043274ac6c and 8cf87877be. Borrow-only catalog preparation keeps the complete Program until infallible commits; one resolver continuation issues helper and Main owners under one brand; call-free and finite exact Main calls use the borrowed helper index and existing F1/value-profile owners. Main catalog membership, AST rewrite, retry/fallback, Builder/MIR/backend callers, and files >=800 lines remain zero. NORMAL-CALLABLE-MODULE0-A0-S0 is next.",
   "2026-07-25: PARITY0-EFFECT-prime-r1 closes the first exact parity repair. Raw BODY0 root main now emits EffectMask::PURE like the Legacy root contract; the focused BODY0 skeleton witness, deterministic empty-Script Legacy-vs-Raw snapshot, cargo check, diff check, and pointer guard are green. PARITY0 resumes as test-only; normal/JSON/executor/old-Raw/CUT0 remain disconnected.",
   "2026-07-24: COVERAGE0-REPAIR-S0 closes in 2d8da213f6. PLAN0 remains the sole helper execution-order authority; StaticHelper0 is an exact public NarrowV1 witness with plan parity, pre-physical rejection, and a small eligibility handoff sibling. Zero/lexical/drift/metadata/instance/public-failure fixtures, focused tests, coverage/config/ingress guards, cargo check, diff check, and pointer guard are green. PARITY0 is next; normal/JSON/executor/CUT0 remain disconnected.",
@@ -672,5 +673,4 @@ landed_tail = [
   "2026-07-23: LOWER0-D0 closes with LOWER0-prime-r1 after worker audit. Q1-Q5 select one Builder-owned RawDraftInvocationV1, an unpublished draft-only seam, source-derived reserve/capture/collect/ledger order, sealed Script/App policy, and a discard-only rejected owner. RAW-SOURCE0-LOWER0-S0 is next: one disconnected child-draft proof; root/App inventory and all production consumers remain zero.",
   "2026-07-23: RAW-SOURCE0-LOWER0-S0 closes. Commit 433392d918 lands one disconnected RawDraftInvocationV1 child chain: owned source locator, reserve-before-descent, function-local capture/lower/restore, branded collector admission, and matching ledger completion. Focused tests, cargo check, diff check, S0 guard, and pointer guard are green. RAW-SOURCE0-LOWER0-ROOT-CONSULT0 is next; Root/App lowering and all production consumers remain zero.",
   "2026-07-23: RAW-ROOT-prime-r1 closes ROOT-CONSULT0. Q1-Q5 select route-owned Script/App root state, body-after atomic Main/condition batch, source-derived declaration/access plan, sealed callable-Main disposition, and discard-only full-owner failure. ROOT0-PLAN0 is next; Builder/session/collector/ledger effects and production consumers remain zero.",
-  "2026-07-23: ROOT0-PLAN0 lands in 0268d46c9b. The disconnected source-derived Script/App plan seals physical root identity, ordered work facts, declaration/static/callable projections, runtime dispositions, and the compiler token; focused tests, cargo check, and guards are green. OWNER0 is now a design stop because source AST/body, RawSourceContinuation, Builder config, module name, and typed callable-Main selection must survive one exact handoff before any physical owner opens.",
 ]

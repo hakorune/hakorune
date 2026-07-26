@@ -236,3 +236,46 @@ nested/multiple/all-path Return
 cleanup activation
 Legacy retirement
 ```
+
+## Closeout
+
+```text
+Status:
+  closed
+
+Landed:
+  9a42606151 feat: prepare normal acyclic module plan
+  1e8a8dfde5 test: close normal acyclic module plan
+
+Accepted normal acyclic surface:
+  one call-free helper
+  multiple independent helpers
+  finite acyclic helper calls
+  call-free or finite Main calls
+
+Rejected:
+  helper self edge
+  helper cycle
+  unresolved helper call
+
+Structural result:
+  original Program owner       = 1
+  helper catalog               = 1
+  helper resolver continuation = 1 consumed once
+  acyclic graph owner          = existing owner
+  Main catalog membership      = 0
+  second resolver/catalog      = 0
+  retry/fallback               = 0
+  Builder/MIR/backend caller   = 0
+
+Evidence:
+  normal_source_plan tests     = 47 green
+  resolved callable tests      = 9 green
+  normal source-plan guard     = green
+  vm-reference library check  = green
+  pointer guard                = green
+  touched source/check files   < 800 lines
+
+Next:
+  NORMAL-CALLABLE-MODULE0-R0-S0
+```
