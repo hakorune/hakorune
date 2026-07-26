@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and NESTED-INSTANCE-RESULT-CONTRACT0-S0 are closed. NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1 accepts A-double-prime: only pre-loop MeStandardUnified stays on the near path; loop-refresh remains parked with its existing publisher. RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-prime-r1 fixes the source owner to the same declaration-catalog allocation as the nested contract, reuses the existing SourcePath/site/child-role navigation authority, and forbids a second cursor engine. RAW-SOURCE-CURSOR0-S0, RAW-EXPRESSION-DISPATCH-CURSOR0-I0, and RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0 are closed. I0-A now seals the selected pre-loop source association and rejects the parked loop site before lowering. PRELOOP-LOCATED-ARGUMENT-DESCENT0-D0 is the active design stop: the real MeStandardUnified route currently erases Argument(1) into legacy AST before descent, so an explicit bounded capability decision is required before Call-adjacent wiring. OWN-GRAM-REJECT0-HAKO0 remains parked until the post-type Stage-B guard selects it."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and NESTED-INSTANCE-RESULT-CONTRACT0-S0 are closed. NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1 accepts A-double-prime: only pre-loop MeStandardUnified stays on the near path; loop-refresh remains parked with its existing publisher. RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-prime-r1 fixes the source owner to the same declaration-catalog allocation as the nested contract, reuses the existing SourcePath/site/child-role navigation authority, and forbids a second cursor engine. RAW-SOURCE-CURSOR0-S0, RAW-EXPRESSION-DISPATCH-CURSOR0-I0, and RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0 are closed. I0-A seals the selected pre-loop source association and rejects the parked loop site before lowering. PRELOOP-LOCATED-ARGUMENT-DESCENT0-prime-r1 now accepts A-prime-Port: one self-reference-free parent/argument relation feeds a candidate-only MethodCall port, while the ordinary owner gains no optional override, no new completion trait, and no second ordered driver. The first code-facing row is PRELOOP-LOCATED-ARGUMENT-RELATION0-S0; physical Call receipt and Integer publication remain later owners. OWN-GRAM-REJECT0-HAKO0 remains parked until the post-type Stage-B guard selects it."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "PRELOOP-LOCATED-ARGUMENT-DESCENT0-D0"
-current_execution_row = "PRELOOP-LOCATED-ARGUMENT-DESCENT0-D0"
-current_execution_summary = "Choose the single bounded descent capability that carries the selected pre-loop located Argument(1) through the real MeStandardUnified route without legacy-site erasure. No implementation is authorized while this design stop is active; physical Call receipts and Integer publication remain later rows."
+current_design_stop = "none"
+current_execution_row = "PRELOOP-LOCATED-ARGUMENT-RELATION0-S0"
+current_execution_summary = "Implement the self-reference-free, Builder-free outer-MethodCall/CallArgument relation and co-seal it with the exact pre-loop nested-result association. Use only the existing SourcePath/ExprChildRole/projector authority. Do not add the candidate Port, Call receipt, result receipt, type publication, loop-refresh route, fallback, or production caller in this row."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -435,7 +435,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "preloop-located-argument-descent0-d0-design-question-2026-07-27"
 latest_card_path = "docs/development/current/main/investigations/preloop-located-argument-descent0-d0-design-question-2026-07-27.md"
-latest_card_summary = """PRELOOP-LOCATED-ARGUMENT-DESCENT0-D0 is active. I0-A closed the source-only association for the selected pre-loop MethodCall, with same catalog allocation/declaration/caller/site/node checks and loop-refresh rejection before lowering. The real MeStandardUnified route then erases arguments through RawLegacyMethodCallInputV1, so D0 must select one bounded source-neutral or candidate-only descent capability before Call-adjacent wiring. No physical receipt, type publication, default route change, or loop-refresh activation is authorized."""
+latest_card_summary = """PRELOOP-LOCATED-ARGUMENT-DESCENT0-prime-r1 accepts A-prime-Port. The existing MethodCall port bundle remains the sole completion capability; a candidate-only Port will consume the selected located argument through the existing ordered driver. The ordinary Associated owner gains no optional override, no MethodCallCompletionV1 trait is added, the unused terminal source-input coupling is removed, and Me/standard subroutes are prepared before effects. The first executable row is the Builder-free PRELOOP-LOCATED-ARGUMENT-RELATION0-S0. This series may prove only an exact MeStandardUnified request; physical Call receipt, nested receipt, Integer publication, loop-refresh activation, and production caller remain zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-EXPRESSION-DISPATCH-CURSOR0-I0"
+current_blocker_token = "PRELOOP-LOCATED-ARGUMENT-RELATION0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
