@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: NORMAL-FILE-CANONICAL-CORE0-REPORT0-S0
+Active executable row: NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0a
 ```
 
 ## Boundary
@@ -296,6 +296,28 @@ non-default optimization                  = typed usage rejection
 existing front door, canonical-core compiler dispatch, shared publication,
 and VM terminal. It returns the common reference outcome vocabulary and does
 not yet connect the CLI selector.
+
+### `NORMAL-FILE-CANONICAL-CORE0-REPORT0-S0`
+
+Status: closed by this commit.
+
+The runner-neutral report owner consumes the sealed canonical-core request
+through one file read, one canonical parse, one source-plan classification,
+the shared canonical compiler/publication/VM chain, and the existing common
+reference terminal vocabulary. It owns neither selector nor process exit.
+
+```text
+pre-execution source/plan/dispatch/publication rejection = Invocation
+executed program result / Fault                           = Program
+status reconstruction                                     = 0
+fallback / Raw re-entry                                   = 0
+```
+
+## Next row
+
+`NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0a` adds the production-shaped matrix
+for Script, Main, and the admitted callable slice before any CLI selection or
+production caller is connected.
 
 ## Acceptance gates
 

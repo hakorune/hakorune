@@ -14,6 +14,9 @@ NORMAL_REQUEST = ROOT / "src/runner/reference/normal_file_vm_request.rs"
 CANONICAL_CORE_REQUEST = (
     ROOT / "src/runner/reference/normal_file_canonical_core_request.rs"
 )
+CANONICAL_CORE_REPORT_RUNNER = (
+    ROOT / "src/runner/reference/normal_file_canonical_core_vm.rs"
+)
 NORMAL_REPORT_RUNNER = ROOT / "src/runner/reference/normal_file_vm.rs"
 PARITY_P0A = ROOT / "src/runner/reference/normal_file_vm/parity_p0a.rs"
 TEST_ONLY_RAW_TERMINAL_CONSUMERS = (
@@ -194,6 +197,18 @@ def main() -> int:
         require(canonical_core_request, fragment, f"unconnected canonical-core request {fragment}")
     if ".prepare()" in canonical_core_request or "select_from_cli" in canonical_core_request:
         raise AssertionError("REQUEST0 must not select or execute the canonical-core front door")
+    canonical_core_report = CANONICAL_CORE_REPORT_RUNNER.read_text()
+    for fragment in (
+        "into_frontdoor_request().prepare()",
+        "prepare_source_plan_request().classify()",
+        "into_canonical_core_compile_request()",
+        "run_canonical_core_source_plan_for_runner_v1",
+        "ReferenceRunOutcomeV1::Program",
+    ):
+        require(canonical_core_report, fragment, f"canonical-core report {fragment}")
+    for forbidden in ("select_from_cli", "process::exit", "compile_with_source", "run_raw_vm_reference"):
+        if forbidden in canonical_core_report:
+            raise AssertionError(f"canonical-core REPORT0 must not contain {forbidden}")
     if ".prepare()" in normal_request or "run_raw_vm_reference" in normal_request:
         raise AssertionError("REQUEST0 must not execute the NormalFile front door")
     for fragment in (
@@ -268,7 +283,13 @@ def main() -> int:
                 raise AssertionError(f"frozen route widened into Forge0: {path.relative_to(ROOT)}")
     for path in (ROOT / "src/runner").rglob("*.rs"):
         if (
-            path in (FRONTDOOR, NORMAL_REQUEST, CANONICAL_CORE_REQUEST, NORMAL_REPORT_RUNNER)
+            path in (
+                FRONTDOOR,
+                NORMAL_REQUEST,
+                CANONICAL_CORE_REQUEST,
+                CANONICAL_CORE_REPORT_RUNNER,
+                NORMAL_REPORT_RUNNER,
+            )
             or path in TEST_ONLY_RAW_TERMINAL_CONSUMERS
             or path in SOURCE_PLAN_PROOF_CONSUMERS
         ):
@@ -299,6 +320,7 @@ def main() -> int:
         FRONTDOOR,
         NORMAL_REQUEST,
         CANONICAL_CORE_REQUEST,
+        CANONICAL_CORE_REPORT_RUNNER,
         NORMAL_REPORT_RUNNER,
         PARITY_P0A,
         *TEST_ONLY_RAW_TERMINAL_CONSUMERS,

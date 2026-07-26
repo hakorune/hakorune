@@ -24,7 +24,9 @@ use crate::mir::compiler::raw_root_source_facts::RawScriptRecipeProjectionErrorV
 #[cfg(feature = "vm-reference")]
 use crate::mir::compiler::source_entry_vm_invocation::PreparedVmReferenceSourceEntryInvocationV1;
 #[cfg(feature = "vm-reference")]
-use crate::mir::compiler::source_entry_vm_reference::VmReferenceProcessOutcomeV1;
+use crate::mir::compiler::source_entry_vm_reference::{
+    RawVmReferenceRunReportV1, VmReferenceProcessOutcomeV1,
+};
 
 use super::MirCompiler;
 
@@ -239,6 +241,64 @@ pub(crate) struct CompletedCanonicalCoreSourceEntryCandidateV1 {
 pub(crate) enum RejectedCanonicalCorePublishedSourceEntryV1 {
     Dispatch(RejectedCanonicalCoreNormalDispatchV1),
     Publication(publication::RejectedCanonicalSourceEntryPublicationV1),
+}
+
+/// Bounded MIR-to-runner rejection report for the canonical-core lane.
+///
+/// This adapter consumes retained compiler owners without exposing them to the
+/// runner. Executed program faults never use this report.
+#[derive(Debug)]
+pub(crate) struct CanonicalCoreInvocationFailureReportV1 {
+    stage: CanonicalCoreInvocationFailureStageV1,
+    code: &'static str,
+    detail: Box<str>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CanonicalCoreInvocationFailureStageV1 {
+    Dispatch,
+    Publication,
+}
+
+impl CanonicalCoreInvocationFailureReportV1 {
+    pub(crate) const fn stage(&self) -> CanonicalCoreInvocationFailureStageV1 {
+        self.stage
+    }
+
+    pub(crate) const fn code(&self) -> &'static str {
+        self.code
+    }
+
+    pub(crate) fn detail(&self) -> &str {
+        &self.detail
+    }
+}
+
+impl From<RejectedCanonicalCorePublishedSourceEntryV1>
+    for CanonicalCoreInvocationFailureReportV1
+{
+    fn from(rejected: RejectedCanonicalCorePublishedSourceEntryV1) -> Self {
+        match rejected {
+            RejectedCanonicalCorePublishedSourceEntryV1::Dispatch(rejected) => {
+                let detail = format!("stage={:?}", rejected.stage()).into_boxed_str();
+                rejected.discard();
+                Self {
+                    stage: CanonicalCoreInvocationFailureStageV1::Dispatch,
+                    code: "canonical-core-dispatch-rejected",
+                    detail,
+                }
+            }
+            RejectedCanonicalCorePublishedSourceEntryV1::Publication(rejected) => {
+                let detail = format!("stage={:?}", rejected.stage()).into_boxed_str();
+                rejected.discard();
+                Self {
+                    stage: CanonicalCoreInvocationFailureStageV1::Publication,
+                    code: "canonical-core-publication-rejected",
+                    detail,
+                }
+            }
+        }
+    }
 }
 
 impl RejectedCanonicalCorePublishedSourceEntryV1 {
@@ -536,6 +596,19 @@ impl MirCompiler {
             .compile_canonical_core_source_plan_to_published(request)?
             .prepare_vm_reference();
         Ok(prepared.execute().complete_canonical_source_entry())
+    }
+
+    /// Runner-facing terminal for one already classified canonical-core plan.
+    /// It preserves the canonical process outcome and bounds only pre-execution
+    /// compiler rejection into a neutral report.
+    #[cfg(feature = "vm-reference")]
+    pub(crate) fn run_canonical_core_source_plan_for_runner_v1(
+        &mut self,
+        request: CanonicalCoreSourcePlanCompileRequestV1,
+    ) -> Result<RawVmReferenceRunReportV1, CanonicalCoreInvocationFailureReportV1> {
+        self.run_canonical_core_source_plan_vm_reference(request)
+            .map(|outcome| outcome.into_run_report())
+            .map_err(CanonicalCoreInvocationFailureReportV1::from)
     }
 
     #[cfg(test)]

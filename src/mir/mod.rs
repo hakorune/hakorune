@@ -53,7 +53,8 @@ mod compiler;
 #[allow(unused_imports)]
 pub(crate) use compiler::canonical_core_dispatch::{
     CanonicalCallableDispatchStageV1, CanonicalCoreDispatchErrorV1, CanonicalCoreDispatchStageV1,
-    CanonicalCoreSourcePlanCompileRequestV1, NormalSourcePlanReceiptV1,
+    CanonicalCoreInvocationFailureReportV1, CanonicalCoreSourcePlanCompileRequestV1,
+    NormalSourcePlanReceiptV1,
     VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };
 pub(crate) use compiler::normal_source_plan;

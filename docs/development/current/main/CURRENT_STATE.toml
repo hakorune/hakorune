@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1: Script publication evidence, the Main/Script shared canonical publication core, Main-only adapter retirement, Script published-owner connection, actual Script/Main VM-reference parity, and the integrated structural guard are closed. Neutral PublishedSourceEntryInvocationV1 remains the sole target/result/membership owner; canonical published owners retain only module, family evidence, admission, source receipt, and verification, with one canonical VM executor implementation. Callable evidence retention, shared-publication projection, dispatch, P0a parity, and reuse are closed: the one-source plan uses the named unit ordinal 0, retains every intermediate rejection owner, and reaches the existing candidate/publication/VM chain without a second dispatcher or VM executor. Its admitted first slice is Main fallthrough plus top-level static i64 helpers; Main direct calls remain typed MainPlan rejects and compiler reuse is green after rejection and VM Fault. NORMAL-FILE-CANONICAL-CORE0-REQUEST0-S0 is closed: an explicit default-off request owns one canonical-core front-door request but has no selector/caller. REPORT0 now connects it to the common terminal. Raw remains separate; production caller and default route remain zero. Alias/View remain scheduled after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and before product/default promotion."
+status = "CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1: Script publication evidence, the Main/Script shared canonical publication core, Main-only adapter retirement, Script published-owner connection, actual Script/Main VM-reference parity, and the integrated structural guard are closed. Neutral PublishedSourceEntryInvocationV1 remains the sole target/result/membership owner; canonical published owners retain only module, family evidence, admission, source receipt, and verification, with one canonical VM executor implementation. Callable evidence retention, shared-publication projection, dispatch, P0a parity, and reuse are closed: the one-source plan uses the named unit ordinal 0, retains every intermediate rejection owner, and reaches the existing candidate/publication/VM chain without a second dispatcher or VM executor. Its admitted first slice is Main fallthrough plus top-level static i64 helpers; Main direct calls remain typed MainPlan rejects and compiler reuse is green after rejection and VM Fault. NORMAL-FILE-CANONICAL-CORE0-REQUEST0-S0 and REPORT0-S0 are closed: the default-off request reaches the shared compiler/publication/VM terminal with bounded invocation failures and no selector/caller. P0a now proves its production-shaped matrix. Raw remains separate; production caller and default route remain zero. Alias/View remain scheduled after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and before product/default promotion."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "NORMAL-FILE-CANONICAL-CORE0-REPORT0-S0"
-current_execution_summary = "Consume the canonical-core request through front door, shared compiler/publication/VM owners, and the common reference outcome vocabulary; selector/caller remains zero."
+current_execution_row = "NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0a"
+current_execution_summary = "Prove production-shaped canonical-core script/Main/callable outcome, diagnostic, and rejection classification before selector/caller activation."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-FILE-CANONICAL-CORE0-REPORT0-S0"
+current_blocker_token = "NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0a"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
