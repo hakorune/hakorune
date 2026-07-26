@@ -45,9 +45,77 @@ pub(crate) struct VerifiedOwnerFreeCallableCatalogSourceUnitV1 {
     site_by_symbol: BTreeMap<CanonicalCallableSymbolV1, SourceCallableDeclarationSiteV1>,
 }
 
+#[derive(Debug)]
+pub(crate) struct PreparedOwnerFreeCallableCatalogV1 {
+    candidates_by_site:
+        BTreeMap<SourceCallableDeclarationSiteV1, VerifiedOwnerFreeCallableHeaderV1>,
+    site_by_key: BTreeMap<CanonicalCallableKeyV1, SourceCallableDeclarationSiteV1>,
+    site_by_symbol: BTreeMap<CanonicalCallableSymbolV1, SourceCallableDeclarationSiteV1>,
+}
+
 impl VerifiedOwnerFreeCallableCatalogSourceUnitV1 {
     pub(crate) fn seal(
         source: VerifiedCallableHeaderSourceUnitV1,
+    ) -> Result<Self, CallableCatalogCandidateSealErrorV1> {
+        let prepared = PreparedOwnerFreeCallableCatalogV1::prepare(&source)?;
+        Ok(prepared.commit(source))
+    }
+
+    pub(crate) fn candidates(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            SourceCallableDeclarationSiteV1,
+            &VerifiedOwnerFreeCallableHeaderV1,
+        ),
+    > {
+        self.candidates_by_site
+            .iter()
+            .map(|(site, candidate)| (*site, candidate))
+    }
+
+    pub(crate) fn candidate_count(&self) -> usize {
+        self.candidates_by_site.len()
+    }
+
+    pub(crate) fn candidate(
+        &self,
+        site: SourceCallableDeclarationSiteV1,
+    ) -> Option<&VerifiedOwnerFreeCallableHeaderV1> {
+        self.candidates_by_site.get(&site)
+    }
+
+    pub(crate) fn source(&self) -> &VerifiedCallableHeaderSourceUnitV1 {
+        &self.source
+    }
+
+    pub(super) fn into_parts(
+        self,
+    ) -> (
+        VerifiedCallableHeaderSourceUnitV1,
+        BTreeMap<SourceCallableDeclarationSiteV1, VerifiedOwnerFreeCallableHeaderV1>,
+    ) {
+        (self.source, self.candidates_by_site)
+    }
+
+    pub(crate) fn source_site_for_key(
+        &self,
+        key: &CanonicalCallableKeyV1,
+    ) -> Option<SourceCallableDeclarationSiteV1> {
+        self.site_by_key.get(key).copied()
+    }
+
+    pub(crate) fn source_site_for_symbol(
+        &self,
+        symbol: &CanonicalCallableSymbolV1,
+    ) -> Option<SourceCallableDeclarationSiteV1> {
+        self.site_by_symbol.get(symbol).copied()
+    }
+}
+
+impl PreparedOwnerFreeCallableCatalogV1 {
+    pub(crate) fn prepare(
+        source: &VerifiedCallableHeaderSourceUnitV1,
     ) -> Result<Self, CallableCatalogCandidateSealErrorV1> {
         let mut candidates_by_site = BTreeMap::new();
         let mut site_by_key = BTreeMap::new();
@@ -87,48 +155,21 @@ impl VerifiedOwnerFreeCallableCatalogSourceUnitV1 {
         }
 
         Ok(Self {
-            source,
             candidates_by_site,
             site_by_key,
             site_by_symbol,
         })
     }
 
-    pub(crate) fn candidate_count(&self) -> usize {
-        self.candidates_by_site.len()
-    }
-
-    pub(crate) fn candidate(
-        &self,
-        site: SourceCallableDeclarationSiteV1,
-    ) -> Option<&VerifiedOwnerFreeCallableHeaderV1> {
-        self.candidates_by_site.get(&site)
-    }
-
-    pub(crate) fn source(&self) -> &VerifiedCallableHeaderSourceUnitV1 {
-        &self.source
-    }
-
-    pub(super) fn into_parts(
+    pub(crate) fn commit(
         self,
-    ) -> (
-        VerifiedCallableHeaderSourceUnitV1,
-        BTreeMap<SourceCallableDeclarationSiteV1, VerifiedOwnerFreeCallableHeaderV1>,
-    ) {
-        (self.source, self.candidates_by_site)
-    }
-
-    pub(crate) fn source_site_for_key(
-        &self,
-        key: &CanonicalCallableKeyV1,
-    ) -> Option<SourceCallableDeclarationSiteV1> {
-        self.site_by_key.get(key).copied()
-    }
-
-    pub(crate) fn source_site_for_symbol(
-        &self,
-        symbol: &CanonicalCallableSymbolV1,
-    ) -> Option<SourceCallableDeclarationSiteV1> {
-        self.site_by_symbol.get(symbol).copied()
+        source: VerifiedCallableHeaderSourceUnitV1,
+    ) -> VerifiedOwnerFreeCallableCatalogSourceUnitV1 {
+        VerifiedOwnerFreeCallableCatalogSourceUnitV1 {
+            source,
+            candidates_by_site: self.candidates_by_site,
+            site_by_key: self.site_by_key,
+            site_by_symbol: self.site_by_symbol,
+        }
     }
 }

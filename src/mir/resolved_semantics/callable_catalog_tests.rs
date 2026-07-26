@@ -104,6 +104,31 @@ fn continuation_preserves_next_origin_and_same_owner_brand() {
 }
 
 #[test]
+fn prepared_owner_seal_borrows_catalog_until_infallible_commit() {
+    let owner_free = owner_free(vec![function("first", 1), function("second", 1)]);
+    let prepared = PreparedCallableCatalogSealV1::prepare(&owner_free, 12).unwrap();
+
+    assert_eq!(owner_free.candidate_count(), 2);
+    let outcome = prepared.commit(owner_free);
+    let (unit, continuation) = outcome.into_parts();
+    assert_eq!(unit.catalog().len(), 2);
+
+    let first_owner = unit
+        .catalog()
+        .declaration(unit.declaration_sites()[0])
+        .unwrap()
+        .callable()
+        .owner();
+    let mut resolver = continuation.into_resolver();
+    let (_, next_owner) = resolver.issue_owner().unwrap();
+    assert_eq!(
+        next_owner.compilation_brand(),
+        first_owner.compilation_brand()
+    );
+    assert_eq!(next_owner.slot(), 2);
+}
+
+#[test]
 fn one_entry_catalog_preserves_exact_callable_header_contract() {
     let outcome =
         CallableCatalogSealOutcomeV1::seal(owner_free(vec![function("only", 1)]), 0).unwrap();

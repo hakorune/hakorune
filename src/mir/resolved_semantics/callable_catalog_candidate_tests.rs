@@ -109,3 +109,25 @@ fn reports_profile_failure_at_the_exact_source_site() {
     assert_eq!(site.statement_index(), 1);
     assert_eq!(reason, CallableIndexSealErrorV1::StaticRequired);
 }
+
+#[test]
+fn prepared_catalog_borrows_source_until_infallible_commit() {
+    let source = source(vec![function("first", 1), function("second", 2)]);
+    let prepared = PreparedOwnerFreeCallableCatalogV1::prepare(&source).unwrap();
+
+    assert_eq!(source.declaration_sites().len(), 2);
+    let unit = prepared.commit(source);
+    assert_eq!(unit.candidate_count(), 2);
+}
+
+#[test]
+fn preparation_rejection_leaves_the_source_available() {
+    let invalid = source(vec![function("f", 1), function("f", 1)]);
+    let error = PreparedOwnerFreeCallableCatalogV1::prepare(&invalid).unwrap_err();
+
+    assert!(matches!(
+        error,
+        CallableCatalogCandidateSealErrorV1::DuplicateSourceKey { .. }
+    ));
+    assert_eq!(invalid.declaration_sites().len(), 2);
+}

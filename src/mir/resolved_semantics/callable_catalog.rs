@@ -138,6 +138,12 @@ impl CatalogSealedResolverContinuationV1 {
 }
 
 #[derive(Debug)]
+pub(crate) struct PreparedCallableCatalogSealV1 {
+    catalog: VerifiedCallableCatalogV1,
+    resolver: FunctionSemanticResolverSessionV1,
+}
+
+#[derive(Debug)]
 pub(crate) struct CallableCatalogSealOutcomeV1 {
     source_unit: VerifiedCallableCatalogSourceUnitV1,
     continuation: CatalogSealedResolverContinuationV1,
@@ -146,6 +152,26 @@ pub(crate) struct CallableCatalogSealOutcomeV1 {
 impl CallableCatalogSealOutcomeV1 {
     pub(crate) fn seal(
         owner_free: VerifiedOwnerFreeCallableCatalogSourceUnitV1,
+        compilation_unit_ordinal: u32,
+    ) -> Result<Self, CallableCatalogOwnerSealErrorV1> {
+        let prepared =
+            PreparedCallableCatalogSealV1::prepare(&owner_free, compilation_unit_ordinal)?;
+        Ok(prepared.commit(owner_free))
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedCallableCatalogSourceUnitV1,
+        CatalogSealedResolverContinuationV1,
+    ) {
+        (self.source_unit, self.continuation)
+    }
+}
+
+impl PreparedCallableCatalogSealV1 {
+    pub(crate) fn prepare(
+        owner_free: &VerifiedOwnerFreeCallableCatalogSourceUnitV1,
         compilation_unit_ordinal: u32,
     ) -> Result<Self, CallableCatalogOwnerSealErrorV1> {
         let first_site = owner_free
@@ -166,15 +192,15 @@ impl CallableCatalogSealOutcomeV1 {
                     reason,
                 },
             )?;
-        let (source, mut candidates_by_site) = owner_free.into_parts();
-        let sites = source.declaration_sites().to_vec();
+        let sites = owner_free.source().declaration_sites();
         let mut headers = Vec::with_capacity(sites.len());
         let mut declarations_by_site = BTreeMap::new();
         let mut compilation_brand = None;
 
-        for site in sites {
-            let candidate = candidates_by_site
-                .remove(&site)
+        for &site in sites {
+            let candidate = owner_free
+                .candidate(site)
+                .cloned()
                 .ok_or(CallableCatalogOwnerSealErrorV1::MissingOwnerFreeCandidate { site })?;
             let (origin, owner) = resolver.issue_owner().map_err(|reason| {
                 CallableCatalogOwnerSealErrorV1::OwnerIssueExhausted { site, reason }
@@ -200,7 +226,9 @@ impl CallableCatalogSealOutcomeV1 {
 
         let index = VerifiedCallableIndexV1::seal_many(headers)
             .map_err(CallableCatalogOwnerSealErrorV1::CallableIndex)?;
-        if !candidates_by_site.is_empty() || declarations_by_site.len() != index.len() {
+        if declarations_by_site.len() != owner_free.candidate_count()
+            || declarations_by_site.len() != index.len()
+        {
             return Err(
                 CallableCatalogOwnerSealErrorV1::CatalogCardinalityMismatch {
                     declarations: declarations_by_site.len(),
@@ -210,23 +238,27 @@ impl CallableCatalogSealOutcomeV1 {
         }
 
         Ok(Self {
-            source_unit: VerifiedCallableCatalogSourceUnitV1 {
-                source,
-                catalog: VerifiedCallableCatalogV1 {
-                    index,
-                    declarations_by_site,
-                },
+            catalog: VerifiedCallableCatalogV1 {
+                index,
+                declarations_by_site,
             },
-            continuation: CatalogSealedResolverContinuationV1 { resolver },
+            resolver,
         })
     }
 
-    pub(crate) fn into_parts(
+    pub(crate) fn commit(
         self,
-    ) -> (
-        VerifiedCallableCatalogSourceUnitV1,
-        CatalogSealedResolverContinuationV1,
-    ) {
-        (self.source_unit, self.continuation)
+        owner_free: VerifiedOwnerFreeCallableCatalogSourceUnitV1,
+    ) -> CallableCatalogSealOutcomeV1 {
+        let (source, _) = owner_free.into_parts();
+        CallableCatalogSealOutcomeV1 {
+            source_unit: VerifiedCallableCatalogSourceUnitV1 {
+                source,
+                catalog: self.catalog,
+            },
+            continuation: CatalogSealedResolverContinuationV1 {
+                resolver: self.resolver,
+            },
+        }
     }
 }

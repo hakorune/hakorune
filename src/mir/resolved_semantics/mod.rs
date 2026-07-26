@@ -36,11 +36,12 @@ mod verifier;
 
 pub(crate) use callable_catalog::{
     CallableCatalogOwnerSealErrorV1, CallableCatalogSealOutcomeV1,
-    CatalogSealedResolverContinuationV1, VerifiedCallableCatalogSourceUnitV1,
-    VerifiedCallableCatalogV1, VerifiedCallableDeclarationV1,
+    CatalogSealedResolverContinuationV1, PreparedCallableCatalogSealV1,
+    VerifiedCallableCatalogSourceUnitV1, VerifiedCallableCatalogV1, VerifiedCallableDeclarationV1,
 };
 pub(crate) use callable_catalog_candidate::{
-    CallableCatalogCandidateSealErrorV1, VerifiedOwnerFreeCallableCatalogSourceUnitV1,
+    CallableCatalogCandidateSealErrorV1, PreparedOwnerFreeCallableCatalogV1,
+    VerifiedOwnerFreeCallableCatalogSourceUnitV1,
 };
 pub(in crate::mir) use callable_catalog_resolution_source::locate_catalog_function_v1;
 pub(crate) use callable_header_source_unit::VerifiedCallableHeaderSourceUnitV1;
