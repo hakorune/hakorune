@@ -18,6 +18,7 @@ sunset_row: NORMAL-FILE-CANONICAL-CORE0-G0
 retire_when: canonical-core caller equals one, all three family routes use the sole dispatcher, fallback equals zero, and the disconnected Main-only consumer is zero
 Related:
   - normal-file-canonical-core0-dispatch-d0-design-question-2026-07-26.md
+  - normal-script0-physical-entry-d0-design-question-2026-07-26.md
   - normal-file-canonical-core0-profile0-s0-execution-task-2026-07-26.md
   - normal-callable-module0-tx0-s0-execution-task-2026-07-26.md
   - hakorune-sparse-ownership-surface-task-2026-07-15.md
@@ -188,6 +189,9 @@ Raw invocation brand                 = 0
 
 The Script candidate carries exact entry target, source result, and physical
 result evidence before publication.
+
+Implementation is paused at `NORMAL-SCRIPT0-PHYSICAL-ENTRY-D0`: the existing
+Raw root body transaction is branded and cannot become this canonical owner.
 
 ### S0-D — `CALLABLE0`
 

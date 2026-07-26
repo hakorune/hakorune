@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-FILE-CANONICAL-CORE0-DISPATCH-prime-r1 is accepted. The sole family match belongs to a compiler-layer consuming dispatcher; it produces a complete unpublished candidate before one canonical publication boundary and the existing neutral VM-reference terminal. Initial S0 connects Main0 only, while Script and Callable retain typed pre-Builder capability rejection until their canonical publication evidence is complete. Raw Script result semantics may be reused, but Raw publication/brand/fallback are forbidden. Alias/View remain scheduled after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and before product/default promotion."
+status = "NORMAL-FILE-CANONICAL-CORE0-DISPATCH-prime-r1 is accepted. The sole family match belongs to a compiler-layer consuming dispatcher; it produces a complete unpublished candidate before one canonical publication boundary and the existing neutral VM-reference terminal. Main0 is connected. Script source semantics now share one recipe handoff, but canonical Script physical entry is paused at NORMAL-SCRIPT0-PHYSICAL-ENTRY-D0: Raw publication/brand/fallback are forbidden and the brand-free materialization owner is undecided. Alias/View remain scheduled after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and before product/default promotion."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
+current_design_stop = "NORMAL-SCRIPT0-PHYSICAL-ENTRY-D0"
 current_execution_row = "NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0"
-current_execution_summary = "Implement the compiler-neutral consuming handoff and sole compiler-layer family dispatcher. The first buildable slice connects Main0 to an unpublished canonical candidate; Script and Callable remain typed pre-Builder pending until their candidate/publication evidence cells land. Production caller remains zero."
+current_execution_summary = "Main0 dispatch candidate and one-shot shared Script recipe handoff are closed. Stop before Script physical materialization: choose the unbranded Script entry session, completion/exit owner, one-function candidate transaction, and Raw adapter relation. Production caller remains zero."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -430,9 +430,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26.md"
-latest_card_summary = """NORMAL-FILE-CANONICAL-CORE0-DISPATCH-prime-r1 accepts one compiler-layer consuming dispatcher, candidate-first publication, Script semantic-recipe reuse without Raw publication, and a Main0-only first connection. NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0 begins with a compiler-neutral handoff and Main candidate; production caller remains zero."""
+latest_card = "normal-script0-physical-entry-d0-design-question-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/normal-script0-physical-entry-d0-design-question-2026-07-26.md"
+latest_card_summary = """NORMAL-SCRIPT0-PHYSICAL-ENTRY-D0 asks for the canonical brand-free Script main/0 materialization owner. Shared Script recipe semantics are closed; Raw publication, invocation brand, fallback, and a synthetic callable authority remain forbidden."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -634,7 +634,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0"
+current_blocker_token = "NORMAL-SCRIPT0-PHYSICAL-ENTRY-D0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
