@@ -444,6 +444,22 @@ foreign equal-looking view rejects
 loop-refresh Argument(1) mismatches the pre-loop association
 ```
 
+#### Closeout (2026-07-27)
+
+Closed. `VerifiedRawLocatedCallArgumentV1` consumes its parent input and owns
+the projected child, avoiding a self-referential owner. The final
+`PreparedPreloopLocatedArgumentV1` co-seals that relation with the existing
+pre-loop association by exact source-view identity, child site, and child AST
+pointer. Its focused matrix covers the five fixtures above. No Builder,
+candidate Port, physical Call receipt, `ValueId`, or type publication was
+added.
+
+Next executable row:
+
+```text
+METHOD-CALL-TERMINAL-NEUTRAL0-S0
+```
+
 ### 2. `METHOD-CALL-TERMINAL-NEUTRAL0-S0`
 
 Remove the unused source input from the value terminal and update the Raw,

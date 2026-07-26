@@ -38,8 +38,9 @@ pub(crate) use qualified_route_facts::{
 };
 #[allow(unused_imports)]
 pub(crate) use raw_callable_source_view::{
-    RawLocatedBodyInputV1, RawLocatedExprInputV1, RawLocatedMethodCallInputV1,
-    RawLocatedStmtInputV1, VerifiedRawCallableSourceViewV1,
+    RawLocatedBodyInputV1, RawLocatedCallArgumentStageV1, RawLocatedExprInputV1,
+    RawLocatedMethodCallInputV1, RawLocatedStmtInputV1, RejectedRawLocatedCallArgumentV1,
+    VerifiedRawCallableSourceViewV1, VerifiedRawLocatedCallArgumentV1,
 };
 #[allow(unused_imports)]
 pub(crate) use raw_source_cursor_error::RawSourceCursorErrorV1;

@@ -58,10 +58,46 @@ pub(crate) struct RawLocatedMethodCallInputV1<'view, 'catalog> {
     node: &'catalog ASTNode,
 }
 
+/// One structural MethodCall argument relation issued by the same Raw source
+/// view that owns its parent. Both carrier inputs borrow only that external
+/// view, so this product is not self-referential.
+#[derive(Debug)]
+pub(crate) struct VerifiedRawLocatedCallArgumentV1<'view, 'catalog> {
+    parent: RawLocatedMethodCallInputV1<'view, 'catalog>,
+    index: u32,
+    child: RawLocatedExprInputV1<'view, 'catalog>,
+    _seal: RawLocatedCallArgumentSealV1,
+}
+
+/// A source-only argument rejection retains its consumed parent. No caller can
+/// retry from a bare parent input or reconstruct a child by ordinal.
+#[derive(Debug)]
+pub(crate) struct RejectedRawLocatedCallArgumentV1<'view, 'catalog> {
+    parent: RawLocatedMethodCallInputV1<'view, 'catalog>,
+    stage: RawLocatedCallArgumentStageV1,
+    cause: RawSourceCursorErrorV1,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum RawLocatedCallArgumentStageV1 {
+    ParentView,
+    ArgumentIndex,
+    ChildProjection,
+}
+
 #[derive(Debug)]
 struct RawCallableSourceViewSealV1(());
 
+#[derive(Debug)]
+struct RawLocatedCallArgumentSealV1(());
+
 impl RawCallableSourceViewSealV1 {
+    const fn new() -> Self {
+        Self(())
+    }
+}
+
+impl RawLocatedCallArgumentSealV1 {
     const fn new() -> Self {
         Self(())
     }
@@ -214,6 +250,84 @@ impl<'catalog> VerifiedRawCallableSourceViewV1<'catalog> {
             view: self,
             site: expression.site().clone(),
             node: expression.node(),
+        })
+    }
+
+    /// Consume one located MethodCall and derive exactly one argument child
+    /// through the shared path/projector authority. This is intentionally not
+    /// an accessor returning a bare AST argument.
+    pub(crate) fn method_call_argument<'view>(
+        &'view self,
+        parent: RawLocatedMethodCallInputV1<'view, 'catalog>,
+        index: usize,
+    ) -> Result<
+        VerifiedRawLocatedCallArgumentV1<'view, 'catalog>,
+        RejectedRawLocatedCallArgumentV1<'view, 'catalog>,
+    > {
+        if !ptr::eq(self, parent.view()) {
+            return Err(RejectedRawLocatedCallArgumentV1 {
+                parent,
+                stage: RawLocatedCallArgumentStageV1::ParentView,
+                cause: RawSourceCursorErrorV1::ForeignView {
+                    caller: self.caller.clone(),
+                },
+            });
+        }
+
+        let index = match self.checked_index(index, "method_call_argument_index") {
+            Ok(index) => index,
+            Err(cause) => {
+                return Err(reject_call_argument(
+                    parent,
+                    RawLocatedCallArgumentStageV1::ArgumentIndex,
+                    cause,
+                ))
+            }
+        };
+        let len = match self.checked_index(parent.arguments().len(), "method_call_argument_length")
+        {
+            Ok(len) => len,
+            Err(cause) => {
+                return Err(reject_call_argument(
+                    parent,
+                    RawLocatedCallArgumentStageV1::ArgumentIndex,
+                    cause,
+                ))
+            }
+        };
+        if index >= len {
+            let site = parent.site().clone();
+            return Err(reject_call_argument(
+                parent,
+                RawLocatedCallArgumentStageV1::ArgumentIndex,
+                RawSourceCursorErrorV1::MethodCallArgumentIndexOutOfBounds {
+                    caller: self.caller.clone(),
+                    site,
+                    index,
+                    len,
+                },
+            ));
+        }
+
+        let child = match self.child_expr(
+            parent.site().node(),
+            parent.node(),
+            ExprChildRoleV1::CallArgument(index),
+        ) {
+            Ok(child) => child,
+            Err(cause) => {
+                return Err(reject_call_argument(
+                    parent,
+                    RawLocatedCallArgumentStageV1::ChildProjection,
+                    cause,
+                ))
+            }
+        };
+        Ok(VerifiedRawLocatedCallArgumentV1 {
+            parent,
+            index,
+            child,
+            _seal: RawLocatedCallArgumentSealV1::new(),
         })
     }
 
@@ -392,5 +506,45 @@ impl<'view, 'catalog> RawLocatedMethodCallInputV1<'view, 'catalog> {
             unreachable!("RawLocatedMethodCallInputV1 seals only MethodCall syntax")
         };
         arguments
+    }
+}
+
+impl<'view, 'catalog> VerifiedRawLocatedCallArgumentV1<'view, 'catalog> {
+    pub(crate) const fn parent(&self) -> &RawLocatedMethodCallInputV1<'view, 'catalog> {
+        &self.parent
+    }
+
+    pub(crate) const fn index(&self) -> u32 {
+        self.index
+    }
+
+    pub(crate) const fn child(&self) -> &RawLocatedExprInputV1<'view, 'catalog> {
+        &self.child
+    }
+
+    pub(crate) fn discard(self) {}
+}
+
+impl<'view, 'catalog> RejectedRawLocatedCallArgumentV1<'view, 'catalog> {
+    pub(crate) const fn stage(&self) -> RawLocatedCallArgumentStageV1 {
+        self.stage
+    }
+
+    pub(crate) const fn cause(&self) -> &RawSourceCursorErrorV1 {
+        &self.cause
+    }
+
+    pub(crate) fn discard(self) {}
+}
+
+fn reject_call_argument<'view, 'catalog>(
+    parent: RawLocatedMethodCallInputV1<'view, 'catalog>,
+    stage: RawLocatedCallArgumentStageV1,
+    cause: RawSourceCursorErrorV1,
+) -> RejectedRawLocatedCallArgumentV1<'view, 'catalog> {
+    RejectedRawLocatedCallArgumentV1 {
+        parent,
+        stage,
+        cause,
     }
 }

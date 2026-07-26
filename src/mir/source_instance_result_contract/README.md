@@ -23,3 +23,14 @@ This bridge is not a Builder or Call owner. It does not convert to a legacy
 input, select a route, emit a Call, retain a destination, or publish a type.
 The later physical-receipt row is the only allowed consumer toward the actual
 unified Call success boundary.
+
+## Located outer argument
+
+`PreparedPreloopLocatedArgumentV1` adds the structural outer
+`CallArgument(1)` relation to that association. The Raw source view issues the
+relation through the shared source-path/projector vocabulary; the co-seal then
+requires the same source view, child site, and child syntax pointer. It retains
+both source owners on rejection and exposes inspection plus `discard` only.
+
+This is still source-only. It does not own ordered argument descent, route
+selection, a Builder, a physical Call receipt, a `ValueId`, or a `MirType`.

@@ -31,6 +31,12 @@ pub(crate) enum RawSourceCursorErrorV1 {
         caller: CanonicalSameModuleCallableKeyV1,
         site: SourceExprSiteV1,
     },
+    MethodCallArgumentIndexOutOfBounds {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+        index: u32,
+        len: u32,
+    },
     ExpressionRoleParentMismatch {
         caller: CanonicalSameModuleCallableKeyV1,
         site: SourceNodeSiteV1,
