@@ -192,3 +192,11 @@ physical receipt = 0
 type publication = 0
 production caller = 0
 ```
+
+## Supersession note
+
+`PRELOOP-LOCATED-ARGUMENT-INGRESS0-S0-B` is not authorized yet. The existing
+standard and static terminals emit Calls, whereas a non-emitting inner request
+cannot supply the outer argument ValueId. The active
+`PRELOOP-LOCATED-ARGUMENT-REQUEST-BOUNDARY0-D0` decision supersedes the S0-B
+execution step below until it selects this boundary.
