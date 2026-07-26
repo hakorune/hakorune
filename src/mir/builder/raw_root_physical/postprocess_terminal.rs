@@ -8,10 +8,10 @@ use super::super::module_invocation_identity::{ModuleInvocationBrandV1, ModuleIn
 use super::super::module_invocation_session::PreparedBuilderModuleSessionV1;
 use super::drain_terminal::{RawDrainWitnessV1, RawFinalizedModuleV1};
 use super::finalization_terminal::{RawFinalizationParitySealV1, RawFinalizedPhysicalV1};
-use crate::mir::raw_physical_drain::{
-    RawPhysicalCallableMainDispositionV1, RawPhysicalDrainRouteV1, RawPhysicalDrainRoleV1,
-};
 use crate::mir::optimizer_stats::OptimizationStats;
+use crate::mir::raw_physical_drain::{
+    RawPhysicalCallableMainDispositionV1, RawPhysicalDrainRoleV1, RawPhysicalDrainRouteV1,
+};
 use crate::mir::verification::MirVerifier;
 use crate::mir::verification_types::VerificationError;
 
@@ -134,8 +134,7 @@ pub(in crate::mir) enum RawExternalCommitPhysicalErrorV1 {
 #[derive(Debug)]
 pub(in crate::mir) struct RawExternalCommitPhysicalHandoffV1 {
     pub(in crate::mir) token: ModuleInvocationTokenV1,
-    pub(in crate::mir) builder:
-        crate::mir::builder::PreparedBuilderExternalCommitV1,
+    pub(in crate::mir) builder: crate::mir::builder::PreparedBuilderExternalCommitV1,
     pub(in crate::mir) module: RawExternalCommitModuleV1,
     pub(in crate::mir) witness: RawDrainWitnessV1,
     pub(in crate::mir) finalization_parity: RawFinalizationParitySealV1,
@@ -372,7 +371,8 @@ impl RawPostprocessedPhysicalV1 {
         expected_helper_count: usize,
     ) -> Result<(), RawExternalCommitPhysicalErrorV1> {
         let brand = self.token.brand();
-        if self.token.family() != crate::mir::module_invocation_identity::ModuleInvocationFamilyV1::Raw
+        if self.token.family()
+            != crate::mir::module_invocation_identity::ModuleInvocationFamilyV1::Raw
             || self.builder.family()
                 != crate::mir::module_invocation_identity::ModuleInvocationFamilyV1::Raw
         {
@@ -402,9 +402,7 @@ impl RawPostprocessedPhysicalV1 {
         if manifest.route() != expected_route {
             return Err(RawExternalCommitPhysicalErrorV1::RouteMismatch);
         }
-        if manifest.callable_main()
-            != expected_callable_main
-        {
+        if manifest.callable_main() != expected_callable_main {
             return Err(RawExternalCommitPhysicalErrorV1::CallableMainEvidenceMismatch);
         }
         let helper_count = manifest

@@ -42,10 +42,7 @@ impl SourceEntryThunkV1 {
     }
 
     /// Seal exactly one source result; this does not project a process status.
-    pub(in crate::mir) fn complete(
-        self,
-        result: SourceEntryResultV1,
-    ) -> CompletedSourceEntryV1 {
+    pub(in crate::mir) fn complete(self, result: SourceEntryResultV1) -> CompletedSourceEntryV1 {
         CompletedSourceEntryV1 {
             selected: self.selected,
             result,
@@ -63,9 +60,7 @@ impl CompletedSourceEntryV1 {
         &self.result
     }
 
-    pub(in crate::mir) fn into_parts(
-        self,
-    ) -> (SelectedSourceEntryV1, SourceEntryResultV1) {
+    pub(in crate::mir) fn into_parts(self) -> (SelectedSourceEntryV1, SourceEntryResultV1) {
         (self.selected, self.result)
     }
 }
@@ -99,7 +94,10 @@ mod tests {
             .begin_thunk()
             .complete(SourceEntryResultV1::Integer(42));
         assert_eq!(completed.route(), SelectedSourceEntryRouteV1::AppMain0);
-        assert!(matches!(completed.result(), SourceEntryResultV1::Integer(42)));
+        assert!(matches!(
+            completed.result(),
+            SourceEntryResultV1::Integer(42)
+        ));
         let (selected, _result) = completed.into_parts();
         assert_eq!(selected.route(), SelectedSourceEntryRouteV1::AppMain0);
     }

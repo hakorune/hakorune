@@ -10,12 +10,12 @@ use super::raw_root_manifest_package::ManifestBoundRawRootPackageV1;
 use super::raw_root_package::SourceBoundRawRootPackageV1;
 use super::raw_root_plan0::{RawRootWorkKindV1, RawStaticDataSourceRowV1};
 use super::raw_root_source_facts::RawRootSourceFactsErrorV1;
-use crate::mir::raw_root_body_recipe::RawRootBodyRecipeErrorV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::{
     MirBuilder, ModuleBuilderInvocationSessionV1, ModuleLoweringShellErrorV1,
     RawRootPhysicalStateV1,
 };
+use crate::mir::raw_root_body_recipe::RawRootBodyRecipeErrorV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum RawRootEligibilityStageV1 {
@@ -40,15 +40,28 @@ pub(in crate::mir) enum RawRootEligibilityErrorV1 {
     },
     UnsupportedCatalog,
     MainMustBeArityZero,
-    UnsupportedClosureAccess { statement_index: usize },
-    UnsupportedStaticDataAuthority { statement_index: usize },
-    UnsupportedProcessGlobalSlot { statement_index: usize },
-    UnsupportedBodyGrammar { statement_index: usize },
-    InvalidCallableRow { statement_index: usize },
+    UnsupportedClosureAccess {
+        statement_index: usize,
+    },
+    UnsupportedStaticDataAuthority {
+        statement_index: usize,
+    },
+    UnsupportedProcessGlobalSlot {
+        statement_index: usize,
+    },
+    UnsupportedBodyGrammar {
+        statement_index: usize,
+    },
+    InvalidCallableRow {
+        statement_index: usize,
+    },
     Manifest(RawRootSourceFactsErrorV1),
     BodyRecipe(RawRootBodyRecipeErrorV1),
     HelperCoverage(RawStaticHelper0CoverageErrorV1),
-    HelperScheduleMismatch { expected: usize, actual: usize },
+    HelperScheduleMismatch {
+        expected: usize,
+        actual: usize,
+    },
     HelperScheduleOrderMismatch,
 }
 
@@ -195,17 +208,16 @@ impl RawRootEligibilityV1 {
     ) -> Result<Self, (RawRootEligibilityStageV1, RawRootEligibilityErrorV1)> {
         let mut proof = Self::verify(package)?;
         let helper_coverage = match package.plan().kind() {
-            super::raw_root_plan0::RawRootKindV1::Script(_) => {
-                RawStaticHelperCoverageV1::empty()
-            }
+            super::raw_root_plan0::RawRootKindV1::Script(_) => RawStaticHelperCoverageV1::empty(),
             super::raw_root_plan0::RawRootKindV1::App(app) => {
-                RawStaticHelperCoverageV1::verify(package.source(), app.static_children())
-                    .map_err(|error| {
+                RawStaticHelperCoverageV1::verify(package.source(), app.static_children()).map_err(
+                    |error| {
                         (
                             RawRootEligibilityStageV1::Catalog,
                             RawRootEligibilityErrorV1::HelperCoverage(error),
                         )
-                })?
+                    },
+                )?
             }
         };
         let schedule_matches = match package.plan().kind() {
@@ -255,10 +267,7 @@ impl RawRootEligibilityV1 {
     }
 
     #[cfg(test)]
-    pub(super) fn replace_helper_coverage_for_test(
-        &mut self,
-        coverage: RawStaticHelperCoverageV1,
-    ) {
+    pub(super) fn replace_helper_coverage_for_test(&mut self, coverage: RawStaticHelperCoverageV1) {
         self.helper_coverage = Some(coverage);
     }
 }

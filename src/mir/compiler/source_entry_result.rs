@@ -176,10 +176,9 @@ impl ProcessFaultV1 {
             Self::UnsupportedProcessResult { kind } => {
                 ProcessFaultDiagnosticFieldsV1::UnsupportedProcessResult { kind: *kind }
             }
-            Self::SourceFault { code, detail } => ProcessFaultDiagnosticFieldsV1::SourceFault {
-                code,
-                detail,
-            },
+            Self::SourceFault { code, detail } => {
+                ProcessFaultDiagnosticFieldsV1::SourceFault { code, detail }
+            }
         }
     }
 }
@@ -225,9 +224,7 @@ pub(in crate::mir) struct ProcessExitProjectionV1;
 impl ProcessExitProjectionV1 {
     /// Canonical projection is total for every sealed source result.  The
     /// disconnected legacy profile remains represented by `project_borrowed`.
-    pub(in crate::mir) fn project_canonical(
-        result: &SourceEntryResultV1,
-    ) -> ProcessTerminationV1 {
+    pub(in crate::mir) fn project_canonical(result: &SourceEntryResultV1) -> ProcessTerminationV1 {
         match result {
             SourceEntryResultV1::Unit(_) => ProcessTerminationV1::Exit(ProcessExitCodeV1::zero()),
             SourceEntryResultV1::Integer(value) => {

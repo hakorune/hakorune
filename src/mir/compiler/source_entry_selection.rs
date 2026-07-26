@@ -26,10 +26,7 @@ pub(in crate::mir) struct SelectedSourceEntryContinuationV1 {
 struct SelectedSourceEntryContinuationSealV1;
 
 impl SelectedSourceEntryContinuationV1 {
-    pub(in crate::mir) fn from_projection(
-        brand: ModuleInvocationBrandV1,
-        is_script: bool,
-    ) -> Self {
+    pub(in crate::mir) fn from_projection(brand: ModuleInvocationBrandV1, is_script: bool) -> Self {
         let route = if is_script {
             SelectedSourceEntryRouteV1::Script
         } else {
@@ -83,9 +80,7 @@ pub(in crate::mir) struct SelectedSourceEntryV1 {
 struct SelectedSourceEntrySealV1;
 
 impl SelectedSourceEntryV1 {
-    pub(in crate::mir) fn select(
-        manifest: RawRootEnvironmentManifestV1,
-    ) -> Self {
+    pub(in crate::mir) fn select(manifest: RawRootEnvironmentManifestV1) -> Self {
         let route = match manifest.route() {
             RawRootSourceRouteV1::Script => SelectedSourceEntryRouteV1::Script,
             RawRootSourceRouteV1::App => SelectedSourceEntryRouteV1::AppMain0,

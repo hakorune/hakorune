@@ -6,9 +6,7 @@
 
 use crate::ast::ASTNode;
 use crate::cli::CliConfig;
-use crate::mir::{
-    RawVmReferenceInvocationV1, RawVmReferenceSupportProfileV1,
-};
+use crate::mir::{RawVmReferenceInvocationV1, RawVmReferenceSupportProfileV1};
 
 use super::cli_profile::seal_reference_cli_profile;
 
@@ -217,5 +215,4 @@ mod tests {
             Err(RawVmReferenceProfileErrorV1::ScriptArgsRequested)
         );
     }
-
 }

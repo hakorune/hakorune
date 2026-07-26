@@ -345,9 +345,7 @@ impl ModuleBuilderInvocationSessionV1 {
     }
 
     fn readiness_error(&self) -> Result<(), BuilderCommitReadinessErrorV1> {
-        super::builder_publication_target::check_builder_external_commit_quiescence(
-            &self.candidate,
-        )
+        super::builder_publication_target::check_builder_external_commit_quiescence(&self.candidate)
     }
 
     /// Consume a candidate after all Builder-owned state is closed.

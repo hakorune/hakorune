@@ -70,9 +70,7 @@ pub(in crate::mir) struct RawRootChildReceiptV1 {
 }
 
 impl RawRootChildReceiptV1 {
-    pub(super) fn brand(
-        &self,
-    ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
+    pub(super) fn brand(&self) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
         self.receipt.brand()
     }
 }
@@ -499,12 +497,9 @@ mod tests {
             panic!("static Main must produce App route")
         };
         let forged = RawSourceLocatorV1::for_test(0, "Main", "drift", "Main.drift/0", 0);
-        invocation
-            .core
-            .proof
-            .replace_helper_coverage_for_test(RawStaticHelperCoverageV1::for_test(
-                vec![forged].into_boxed_slice(),
-            ));
+        invocation.core.proof.replace_helper_coverage_for_test(
+            RawStaticHelperCoverageV1::for_test(vec![forged].into_boxed_slice()),
+        );
         let rejected = RawRootInvocationV1::App(invocation)
             .prepare_children()
             .unwrap_err();
@@ -619,7 +614,10 @@ mod tests {
             .unwrap()
             .prepare_public_eligibility(RawPublicEligibilityProfileV1::narrow_v1())
             .unwrap_err();
-        assert_eq!(rejected.stage(), super::super::raw_root_eligibility::RawRootEligibilityStageV1::Catalog);
+        assert_eq!(
+            rejected.stage(),
+            super::super::raw_root_eligibility::RawRootEligibilityStageV1::Catalog
+        );
         assert!(matches!(
             rejected.error(),
             super::super::raw_root_eligibility::RawRootEligibilityErrorV1::HelperCoverage(

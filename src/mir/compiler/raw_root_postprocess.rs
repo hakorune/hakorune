@@ -145,9 +145,7 @@ impl RawPostprocessStageEvidenceV1 {
     pub(super) fn callable_main_selected(&self) -> bool {
         match &self.route {
             RawPostprocessRouteEvidenceV1::Script { .. } => false,
-            RawPostprocessRouteEvidenceV1::App { callable_main, .. } => {
-                callable_main.is_selected()
-            }
+            RawPostprocessRouteEvidenceV1::App { callable_main, .. } => callable_main.is_selected(),
         }
     }
 
@@ -162,7 +160,10 @@ impl RawPostprocessStageEvidenceV1 {
                 ..
             } => (
                 completion.brand(),
-                helpers.iter().map(|receipt| receipt.brand()).collect::<Vec<_>>(),
+                helpers
+                    .iter()
+                    .map(|receipt| receipt.brand())
+                    .collect::<Vec<_>>(),
                 None,
             ),
             RawPostprocessRouteEvidenceV1::App {
@@ -172,12 +173,19 @@ impl RawPostprocessStageEvidenceV1 {
                 ..
             } => (
                 completion.brand(),
-                helpers.iter().map(|receipt| receipt.brand()).collect::<Vec<_>>(),
-                callable_main.selected_receipt().map(|receipt| receipt.receipt_brand()),
+                helpers
+                    .iter()
+                    .map(|receipt| receipt.brand())
+                    .collect::<Vec<_>>(),
+                callable_main
+                    .selected_receipt()
+                    .map(|receipt| receipt.receipt_brand()),
             ),
         };
         completion_brand == brand
-            && helper_brands.into_iter().all(|candidate| candidate == brand)
+            && helper_brands
+                .into_iter()
+                .all(|candidate| candidate == brand)
             && callable_brand.map_or(true, |candidate| candidate == brand)
     }
 }

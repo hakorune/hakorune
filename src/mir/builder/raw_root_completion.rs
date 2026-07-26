@@ -15,9 +15,9 @@ use super::raw_expansion_receipt_ledger::{
     RawExpansionReservationV1, SealedRawExpansionReceiptLedgerV1,
 };
 use super::raw_root_body_exit::RawRootBodyExitWitnessV1;
+use super::root_batch_slot::{raw_main_entry_target, RawMainEntryTargetV1};
 use super::root_body_completion::CompletedRootBodyV1;
 use super::root_draft_batch::PreparedRootDraftBatchV1;
-use super::root_batch_slot::{raw_main_entry_target, RawMainEntryTargetV1};
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawInvocationRootWitnessV1 {

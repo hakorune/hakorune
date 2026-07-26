@@ -82,7 +82,9 @@ pub(in crate::mir) struct RawFinalizationParitySealV1 {
 }
 
 impl RawFinalizationParitySealV1 {
-    pub(in crate::mir) const fn brand(&self) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
+    pub(in crate::mir) const fn brand(
+        &self,
+    ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
         self.brand
     }
 

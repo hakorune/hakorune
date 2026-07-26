@@ -34,10 +34,7 @@ impl super::MirCompiler {
         }
 
         let published = self
-            .compile_raw_published_v1(RawPublishedCompileRequestV1::narrow_v1(
-                ast,
-                source_file,
-            ))
+            .compile_raw_published_v1(RawPublishedCompileRequestV1::narrow_v1(ast, source_file))
             .map_err(|rejected| rejected.into_public_string())?;
         Ok(published.into_compatibility_envelope().into_compatibility())
     }

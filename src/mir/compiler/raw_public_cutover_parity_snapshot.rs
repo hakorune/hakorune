@@ -60,15 +60,47 @@ pub(super) enum ConstSnapshotV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum InstructionSnapshotV1 {
-    Const { dst: u32, value: ConstSnapshotV1 },
-    BinOp { dst: u32, op: &'static str, lhs: u32, rhs: u32 },
-    UnaryOp { dst: u32, op: &'static str, operand: u32 },
-    Compare { dst: u32, op: &'static str, lhs: u32, rhs: u32 },
-    Copy { dst: u32, src: u32 },
-    Phi { dst: u32, inputs: Vec<(usize, u32)> },
-    Jump { target: usize, args: Vec<u32> },
-    Branch { condition: u32, then_bb: usize, else_bb: usize },
-    Return { value: Option<u32> },
+    Const {
+        dst: u32,
+        value: ConstSnapshotV1,
+    },
+    BinOp {
+        dst: u32,
+        op: &'static str,
+        lhs: u32,
+        rhs: u32,
+    },
+    UnaryOp {
+        dst: u32,
+        op: &'static str,
+        operand: u32,
+    },
+    Compare {
+        dst: u32,
+        op: &'static str,
+        lhs: u32,
+        rhs: u32,
+    },
+    Copy {
+        dst: u32,
+        src: u32,
+    },
+    Phi {
+        dst: u32,
+        inputs: Vec<(usize, u32)>,
+    },
+    Jump {
+        target: usize,
+        args: Vec<u32>,
+    },
+    Branch {
+        condition: u32,
+        then_bb: usize,
+        else_bb: usize,
+    },
+    Return {
+        value: Option<u32>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -105,16 +137,25 @@ fn snapshot_function(function: &MirFunction) -> Result<FunctionSnapshotV1, Snaps
     let mut next_value = function.params.len() as u32;
     let mut blocks = Vec::with_capacity(order.len());
     for (index, block_id) in order.iter().copied().enumerate() {
-        let block = function.blocks.get(&block_id).ok_or_else(|| {
-            SnapshotErrorV1::UnknownBlock { function: function.signature.name.clone(), block: block_id.0 }
-        })?;
+        let block =
+            function
+                .blocks
+                .get(&block_id)
+                .ok_or_else(|| SnapshotErrorV1::UnknownBlock {
+                    function: function.signature.name.clone(),
+                    block: block_id.0,
+                })?;
         let successors = block
             .successors
             .iter()
             .map(|target| {
-                block_indexes.get(target).copied().ok_or_else(|| {
-                    SnapshotErrorV1::UnknownBlock { function: function.signature.name.clone(), block: target.0 }
-                })
+                block_indexes
+                    .get(target)
+                    .copied()
+                    .ok_or_else(|| SnapshotErrorV1::UnknownBlock {
+                        function: function.signature.name.clone(),
+                        block: target.0,
+                    })
             })
             .collect::<Result<Vec<_>, _>>()?;
         let instructions = block
@@ -145,11 +186,21 @@ fn snapshot_function(function: &MirFunction) -> Result<FunctionSnapshotV1, Snaps
                 )
             })
             .transpose()?;
-        blocks.push(BlockSnapshotV1 { index, successors, instructions, terminator });
+        blocks.push(BlockSnapshotV1 {
+            index,
+            successors,
+            instructions,
+            terminator,
+        });
     }
     Ok(FunctionSnapshotV1 {
         name: function.signature.name.clone(),
-        params: function.signature.params.iter().map(type_snapshot).collect(),
+        params: function
+            .signature
+            .params
+            .iter()
+            .map(type_snapshot)
+            .collect(),
         return_type: type_snapshot(&function.signature.return_type),
         effects: function.signature.effects.bits(),
         locals: function.locals.iter().map(type_snapshot).collect(),
@@ -187,10 +238,13 @@ fn snapshot_instruction(
     next_value: &mut u32,
 ) -> Result<InstructionSnapshotV1, SnapshotErrorV1> {
     let input = |value: ValueId, values: &HashMap<ValueId, u32>| {
-        values.get(&value).copied().ok_or_else(|| SnapshotErrorV1::UnknownValue {
-            function: function.to_owned(),
-            value: value.0,
-        })
+        values
+            .get(&value)
+            .copied()
+            .ok_or_else(|| SnapshotErrorV1::UnknownValue {
+                function: function.to_owned(),
+                value: value.0,
+            })
     };
     let output = |value: ValueId, values: &mut HashMap<ValueId, u32>, next: &mut u32| {
         let canonical = *next;
@@ -199,10 +253,13 @@ fn snapshot_instruction(
         canonical
     };
     let edge = |target: BasicBlockId| {
-        block_indexes.get(&target).copied().ok_or_else(|| SnapshotErrorV1::UnknownBlock {
-            function: function.to_owned(),
-            block: target.0,
-        })
+        block_indexes
+            .get(&target)
+            .copied()
+            .ok_or_else(|| SnapshotErrorV1::UnknownBlock {
+                function: function.to_owned(),
+                block: target.0,
+            })
     };
     match instruction {
         MirInstruction::Const { dst, value } => Ok(InstructionSnapshotV1::Const {
@@ -241,11 +298,21 @@ fn snapshot_instruction(
             target: edge(*target)?,
             args: edge_args
                 .as_ref()
-                .map(|args| args.values.iter().map(|value| input(*value, values)).collect())
+                .map(|args| {
+                    args.values
+                        .iter()
+                        .map(|value| input(*value, values))
+                        .collect()
+                })
                 .transpose()?
                 .unwrap_or_default(),
         }),
-        MirInstruction::Branch { condition, then_bb, else_bb, .. } => Ok(InstructionSnapshotV1::Branch {
+        MirInstruction::Branch {
+            condition,
+            then_bb,
+            else_bb,
+            ..
+        } => Ok(InstructionSnapshotV1::Branch {
             condition: input(*condition, values)?,
             then_bb: edge(*then_bb)?,
             else_bb: edge(*else_bb)?,

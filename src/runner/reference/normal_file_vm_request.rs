@@ -48,9 +48,9 @@ impl NormalFileVmReferenceProductionRequestV1 {
             return Err(NormalFileVmReferenceProfileErrorV1::NonDefaultOptimizationRequested);
         }
         Ok(Self {
-            request: NormalFileVmFrontDoorV1::file_no_import_request(PathBuf::from(
-                String::from(source_file),
-            )),
+            request: NormalFileVmFrontDoorV1::file_no_import_request(PathBuf::from(String::from(
+                source_file,
+            ))),
             _seal: NormalFileVmReferenceProductionRequestSealV1,
         })
     }

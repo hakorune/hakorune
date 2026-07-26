@@ -5,8 +5,8 @@
 //! without hiding that policy inside the general verifier.
 
 use super::raw_root_eligibility::{
-    EligibleSourceBoundRawRootPackageV1, RawRootEligibilityErrorV1,
-    RawRootEligibilityStageV1, RawRootEligibilityV1, RejectedRawRootEligibilityV1,
+    EligibleSourceBoundRawRootPackageV1, RawRootEligibilityErrorV1, RawRootEligibilityStageV1,
+    RawRootEligibilityV1, RejectedRawRootEligibilityV1,
 };
 use super::raw_root_environment_manifest::RawRootEnvironmentManifestV1;
 use super::raw_root_helper_coverage::RawPublicEligibilityProfileV1;
@@ -31,23 +31,24 @@ impl SourceBoundRawRootPackageV1 {
         self,
         verify: impl FnOnce(
             &SourceBoundRawRootPackageV1,
-        ) -> Result<RawRootEligibilityV1, (RawRootEligibilityStageV1, RawRootEligibilityErrorV1)>,
+        ) -> Result<
+            RawRootEligibilityV1,
+            (RawRootEligibilityStageV1, RawRootEligibilityErrorV1),
+        >,
     ) -> Result<EligibleSourceBoundRawRootPackageV1, RejectedRawRootEligibilityV1> {
         match verify(&self) {
             Ok(proof) => {
-                let facts = match RawRootEnvironmentManifestV1::source_facts(
-                    self.source(),
-                    self.plan(),
-                ) {
-                    Ok(facts) => facts,
-                    Err(error) => {
-                        return Err(RejectedRawRootEligibilityV1 {
-                            owner: self,
-                            stage: RawRootEligibilityStageV1::Manifest,
-                            error: RawRootEligibilityErrorV1::Manifest(error),
-                        });
-                    }
-                };
+                let facts =
+                    match RawRootEnvironmentManifestV1::source_facts(self.source(), self.plan()) {
+                        Ok(facts) => facts,
+                        Err(error) => {
+                            return Err(RejectedRawRootEligibilityV1 {
+                                owner: self,
+                                stage: RawRootEligibilityStageV1::Manifest,
+                                error: RawRootEligibilityErrorV1::Manifest(error),
+                            });
+                        }
+                    };
                 let manifest = match RawRootEnvironmentManifestV1::from_facts(
                     facts,
                     self.runtime_inputs().clone(),

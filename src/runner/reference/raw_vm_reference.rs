@@ -4,9 +4,7 @@
 //! Raw request. It owns only source-file read, canonical parse, and the
 //! already-sealed Raw VM-reference compiler entry.
 
-use super::raw_vm_reference_request::{
-    RawVmReferenceGrammarV1, RawVmReferenceProductionRequestV1,
-};
+use super::raw_vm_reference_request::{RawVmReferenceGrammarV1, RawVmReferenceProductionRequestV1};
 use super::terminal::{ReferenceInvocationReportV1, ReferenceRunOutcomeV1, ReferenceUsageReportV1};
 
 /// Run the supported reference lane from its one sealed request.
@@ -25,16 +23,14 @@ pub(crate) fn run(request: RawVmReferenceProductionRequestV1) -> ReferenceRunOut
         let source = match std::fs::read_to_string(&source_file) {
             Ok(source) => source,
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
-                return ReferenceRunOutcomeV1::Usage(ReferenceUsageReportV1::new(
-                    format!("[raw-vm-reference/source/missing] file={source_file} error={error}"),
-                ));
+                return ReferenceRunOutcomeV1::Usage(ReferenceUsageReportV1::new(format!(
+                    "[raw-vm-reference/source/missing] file={source_file} error={error}"
+                )));
             }
             Err(error) => {
-                return ReferenceRunOutcomeV1::Invocation(
-                    ReferenceInvocationReportV1::new(format!(
-                        "[raw-vm-reference/source/read] file={source_file} error={error}"
-                    )),
-                );
+                return ReferenceRunOutcomeV1::Invocation(ReferenceInvocationReportV1::new(
+                    format!("[raw-vm-reference/source/read] file={source_file} error={error}"),
+                ));
             }
         };
         let grammar_profile = match request.grammar() {
@@ -52,11 +48,9 @@ pub(crate) fn run(request: RawVmReferenceProductionRequestV1) -> ReferenceRunOut
         ) {
             Ok(ast) => ast,
             Err(error) => {
-                return ReferenceRunOutcomeV1::Invocation(
-                    ReferenceInvocationReportV1::new(format!(
-                        "[raw-vm-reference/source/parse] {error:?}"
-                    )),
-                );
+                return ReferenceRunOutcomeV1::Invocation(ReferenceInvocationReportV1::new(
+                    format!("[raw-vm-reference/source/parse] {error:?}"),
+                ));
             }
         };
         let optimize = request.optimize();
@@ -64,9 +58,9 @@ pub(crate) fn run(request: RawVmReferenceProductionRequestV1) -> ReferenceRunOut
         let mut compiler = crate::mir::MirCompiler::with_options(optimize);
         match compiler.run_raw_vm_reference_v1(invocation) {
             Ok(report) => ReferenceRunOutcomeV1::Program(report),
-            Err(error) => ReferenceRunOutcomeV1::Invocation(
-                ReferenceInvocationReportV1::new(format!("[raw-vm-reference/invocation] {error}")),
-            ),
+            Err(error) => ReferenceRunOutcomeV1::Invocation(ReferenceInvocationReportV1::new(
+                format!("[raw-vm-reference/invocation] {error}"),
+            )),
         }
     }
 }

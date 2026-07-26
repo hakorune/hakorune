@@ -18,7 +18,10 @@ fn prepared_script() -> PreparedRawExternalCommitV1 {
         },
         RawCallableMainSelectionV1::Omitted,
     );
-    let ready = drained.prepare_finalization().unwrap().prepare_postprocess();
+    let ready = drained
+        .prepare_finalization()
+        .unwrap()
+        .prepare_postprocess();
     let mut verifier = MirVerifier::new();
     ModulePostprocessOwnerV1::new(&mut verifier, false)
         .run_raw_ready(ready)
@@ -107,5 +110,8 @@ fn non_quiescent_target_rejects_without_consuming_prepared_owner() {
         super::raw_root_publication::RawPublicationFailureStageV1::Target
     );
     rejected.discard();
-    assert_eq!(compiler.builder.current_module.as_ref().unwrap().name, "dirty");
+    assert_eq!(
+        compiler.builder.current_module.as_ref().unwrap().name,
+        "dirty"
+    );
 }

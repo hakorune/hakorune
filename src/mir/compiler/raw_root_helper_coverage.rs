@@ -361,7 +361,10 @@ mod tests {
                 args: Vec::new(),
             });
         }
-        assert_error(attrs_method, RawStaticHelper0CoverageErrorV1::AttributesPresent);
+        assert_error(
+            attrs_method,
+            RawStaticHelper0CoverageErrorV1::AttributesPresent,
+        );
 
         let mut contracts_method = function("helper", Vec::new());
         if let ASTNode::FunctionDeclaration { contracts, .. } = &mut contracts_method {
@@ -395,6 +398,9 @@ mod tests {
         if let ASTNode::FunctionDeclaration { is_override, .. } = &mut override_method {
             *is_override = true;
         }
-        assert_error(override_method, RawStaticHelper0CoverageErrorV1::MethodOverride);
+        assert_error(
+            override_method,
+            RawStaticHelper0CoverageErrorV1::MethodOverride,
+        );
     }
 }

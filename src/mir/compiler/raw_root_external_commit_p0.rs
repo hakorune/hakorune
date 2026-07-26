@@ -1,16 +1,16 @@
 //! Focused COMMIT0 RawDirect preparation fixtures.
 
 use super::module_postprocess::ModulePostprocessOwnerV1;
-use super::raw_root_finalization_p0::{app, drained};
 use super::raw_root_external_commit::{
     PreparedRawExternalCommitV1, RawExternalCommitFailureStageV1,
 };
-use super::raw_root_postprocess::RawPostprocessedInvocationV1;
+use super::raw_root_finalization_p0::{app, drained};
 use super::raw_root_postprocess::RawAppPostprocessedInvocationV1;
+use super::raw_root_postprocess::RawPostprocessedInvocationV1;
 use super::raw_source_binding::RawCallableMainSelectionV1;
 use crate::ast::{ASTNode, Span};
-use crate::mir::verification::MirVerifier;
 use crate::mir::builder::RawPostprocessProgressV1;
+use crate::mir::verification::MirVerifier;
 
 fn run(source: ASTNode, selection: RawCallableMainSelectionV1) -> RawPostprocessedInvocationV1 {
     let finalized = drained(source, selection).prepare_finalization().unwrap();
@@ -32,10 +32,7 @@ fn script_prepares_typed_raw_external_commit() {
     )
     .prepare_external_commit()
     .unwrap();
-    assert!(matches!(
-        prepared,
-        PreparedRawExternalCommitV1::Script(_)
-    ));
+    assert!(matches!(prepared, PreparedRawExternalCommitV1::Script(_)));
 }
 
 #[test]
@@ -65,13 +62,15 @@ fn crossed_route_is_rejected_with_the_complete_owner() {
     ) else {
         panic!("expected Script postprocess owner");
     };
-    let crossed = RawPostprocessedInvocationV1::App(RawAppPostprocessedInvocationV1 {
-        core: script.core,
-    });
+    let crossed =
+        RawPostprocessedInvocationV1::App(RawAppPostprocessedInvocationV1 { core: script.core });
     let rejected = crossed
         .prepare_external_commit()
         .expect_err("crossed route must reject before handoff");
-    assert_eq!(rejected.stage(), RawExternalCommitFailureStageV1::RouteEvidence);
+    assert_eq!(
+        rejected.stage(),
+        RawExternalCommitFailureStageV1::RouteEvidence
+    );
     rejected.discard();
 }
 

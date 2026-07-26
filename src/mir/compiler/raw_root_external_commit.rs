@@ -6,13 +6,13 @@
 
 use super::module_postprocess::ModulePostprocessScheduleV1;
 use super::raw_root_postprocess::{
-    RawPostprocessEvidenceV1, RawPostprocessRouteKindV1, RawPostprocessStageEvidenceV1,
-    RawPostprocessedInvocationCoreV1, RawPostprocessedInvocationV1,
-    RawScriptPostprocessedInvocationV1, RawAppPostprocessedInvocationV1,
+    RawAppPostprocessedInvocationV1, RawPostprocessEvidenceV1, RawPostprocessRouteKindV1,
+    RawPostprocessStageEvidenceV1, RawPostprocessedInvocationCoreV1, RawPostprocessedInvocationV1,
+    RawScriptPostprocessedInvocationV1,
 };
 use crate::mir::builder::{
-    RawExternalCommitModuleV1, RawExternalCommitPhysicalErrorV1,
-    RawExternalCommitPhysicalHandoffV1, PreparedBuilderExternalCommitV1,
+    PreparedBuilderExternalCommitV1, RawExternalCommitModuleV1, RawExternalCommitPhysicalErrorV1,
+    RawExternalCommitPhysicalHandoffV1,
 };
 use crate::mir::module_invocation_identity::ModuleInvocationFamilyV1;
 use crate::mir::raw_physical_drain::{
@@ -92,10 +92,8 @@ pub(super) struct RawExternalCommitPublicationFactsV1 {
     pub(super) builder_brand: crate::mir::module_invocation_identity::ModuleInvocationBrandV1,
     pub(super) builder_family: ModuleInvocationFamilyV1,
     pub(super) witness_brand: crate::mir::module_invocation_identity::ModuleInvocationBrandV1,
-    pub(super) finalization_brand:
-        crate::mir::module_invocation_identity::ModuleInvocationBrandV1,
-    pub(super) postprocess_brand:
-        crate::mir::module_invocation_identity::ModuleInvocationBrandV1,
+    pub(super) finalization_brand: crate::mir::module_invocation_identity::ModuleInvocationBrandV1,
+    pub(super) postprocess_brand: crate::mir::module_invocation_identity::ModuleInvocationBrandV1,
     pub(super) progress: crate::mir::builder::RawPostprocessProgressV1,
     pub(super) schedule: ModulePostprocessScheduleV1,
     pub(super) verification_is_raw: bool,
@@ -127,7 +125,10 @@ impl PreparedRawExternalCommitV1 {
 
     pub(super) fn into_publication_parts(
         self,
-    ) -> (RawPostprocessRouteKindV1, RawExternalCommitPublicationPartsV1) {
+    ) -> (
+        RawPostprocessRouteKindV1,
+        RawExternalCommitPublicationPartsV1,
+    ) {
         let core = match self {
             Self::Script(wrapper) => (RawPostprocessRouteKindV1::Script, wrapper.core),
             Self::App(wrapper) => (RawPostprocessRouteKindV1::App, wrapper.core),
@@ -176,10 +177,7 @@ impl RejectedRawExternalCommitInvocationV1 {
 impl RawPostprocessedInvocationV1 {
     pub(in crate::mir) fn prepare_external_commit(
         self,
-    ) -> Result<
-        PreparedRawExternalCommitV1,
-        RejectedRawExternalCommitInvocationV1,
-    > {
+    ) -> Result<PreparedRawExternalCommitV1, RejectedRawExternalCommitInvocationV1> {
         if let Err((stage, error)) = validate_invocation(&self) {
             return Err(RejectedRawExternalCommitInvocationV1 {
                 owner: self,
@@ -216,9 +214,7 @@ fn validate_core(
     expected_route: RawPostprocessRouteKindV1,
 ) -> Result<(), (RawExternalCommitFailureStageV1, RawExternalCommitErrorV1)> {
     let stage = &core.stage_evidence;
-    if stage.route_kind() != expected_route
-        || !stage.brands_match(core.physical.brand())
-    {
+    if stage.route_kind() != expected_route || !stage.brands_match(core.physical.brand()) {
         return Err((
             RawExternalCommitFailureStageV1::RouteEvidence,
             RawExternalCommitErrorV1::RouteEvidenceMismatch,
@@ -285,9 +281,7 @@ fn prepare_script(
     }
 }
 
-fn prepare_app(
-    wrapper: RawAppPostprocessedInvocationV1,
-) -> PreparedRawAppExternalCommitV1 {
+fn prepare_app(wrapper: RawAppPostprocessedInvocationV1) -> PreparedRawAppExternalCommitV1 {
     let RawAppPostprocessedInvocationV1 { core } = wrapper;
     PreparedRawAppExternalCommitV1 {
         core: prepare_core(core),

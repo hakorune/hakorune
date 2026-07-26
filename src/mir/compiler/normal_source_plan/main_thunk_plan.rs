@@ -208,7 +208,10 @@ impl<'unit> RejectedNormalMainThunkPlanV1<'unit> {
 
     pub(in crate::mir) fn into_parts(
         self,
-    ) -> (VerifiedNormalMainFunctionPlanV1<'unit>, NormalMainThunkPlanErrorV1) {
+    ) -> (
+        VerifiedNormalMainFunctionPlanV1<'unit>,
+        NormalMainThunkPlanErrorV1,
+    ) {
         (self.owner, self.error)
     }
 

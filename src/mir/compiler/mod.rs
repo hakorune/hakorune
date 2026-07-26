@@ -34,12 +34,14 @@ pub(in crate::mir) mod function_input;
 pub(in crate::mir) mod located;
 mod lowering_input;
 #[allow(dead_code)]
-pub(crate) mod normal_source_plan;
-#[allow(dead_code)]
 pub(in crate::mir) mod module_postprocess;
 pub(in crate::mir) mod module_postprocess_stages;
-pub(in crate::mir) mod publication_kernel;
 mod module_session;
+#[allow(dead_code)]
+pub(crate) mod normal_source_plan;
+pub(in crate::mir) mod publication_kernel;
+pub(in crate::mir) mod raw_public_ingress;
+pub(in crate::mir) mod raw_published_compile;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_callable_main;
 #[allow(dead_code)]
@@ -53,48 +55,17 @@ pub(in crate::mir) mod raw_root_eligibility;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_eligibility_classifier;
 #[allow(dead_code)]
+pub(in crate::mir) mod raw_root_eligibility_prepare;
+pub(in crate::mir) mod raw_root_external_commit;
+#[allow(dead_code)]
 pub(in crate::mir) mod raw_root_finalization;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_helper_coverage;
 #[allow(dead_code)]
-pub(in crate::mir) mod raw_root_eligibility_prepare;
-pub(in crate::mir) mod raw_root_external_commit;
-pub(in crate::mir) mod raw_root_publication;
-pub(in crate::mir) mod raw_root_publication_adapter;
-pub(in crate::mir) mod raw_published_compile;
-pub(in crate::mir) mod raw_public_ingress;
-#[allow(dead_code)]
 pub(in crate::mir) mod raw_root_package;
 pub(in crate::mir) mod raw_root_postprocess;
-#[allow(dead_code)]
-pub(in crate::mir) mod source_entry_result;
-#[allow(dead_code)]
-pub(in crate::mir) mod source_entry_selection;
-#[allow(dead_code)]
-pub(in crate::mir) mod source_entry_thunk;
-#[allow(dead_code)]
-pub(in crate::mir) mod source_entry_physical;
-#[allow(dead_code)]
-pub(in crate::mir) mod source_entry_reference;
-#[allow(dead_code)]
-pub(in crate::mir) mod source_entry_ny_main;
-#[allow(dead_code)]
-pub(in crate::mir) mod source_entry_projection;
-#[allow(dead_code)]
-pub(in crate::mir) mod source_entry_published_invocation;
-#[allow(dead_code)]
-pub(in crate::mir) mod source_entry_vm_reference;
-#[cfg(feature = "vm-reference")]
-pub(in crate::mir) mod source_entry_vm_execution;
-#[cfg(feature = "vm-reference")]
-pub(in crate::mir) mod source_entry_vm_runner_adapter;
-pub(in crate::mir) mod source_entry_vm_diagnostic;
-#[cfg(test)]
-mod source_entry_vm_reference_p0;
-#[allow(dead_code)]
-pub(in crate::mir) mod source_entry_vm_invocation;
-#[cfg(feature = "vm-reference")]
-pub(in crate::mir) mod source_entry_vm_raw_adapter;
+pub(in crate::mir) mod raw_root_publication;
+pub(in crate::mir) mod raw_root_publication_adapter;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_runtime_inputs;
 #[allow(dead_code)]
@@ -108,6 +79,35 @@ mod resolved_callable_module_input;
 pub(in crate::mir) mod resolved_callable_module_preflight;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_bound_package;
+#[allow(dead_code)]
+pub(in crate::mir) mod source_entry_ny_main;
+#[allow(dead_code)]
+pub(in crate::mir) mod source_entry_physical;
+#[allow(dead_code)]
+pub(in crate::mir) mod source_entry_projection;
+#[allow(dead_code)]
+pub(in crate::mir) mod source_entry_published_invocation;
+#[allow(dead_code)]
+pub(in crate::mir) mod source_entry_reference;
+#[allow(dead_code)]
+pub(in crate::mir) mod source_entry_result;
+#[allow(dead_code)]
+pub(in crate::mir) mod source_entry_selection;
+#[allow(dead_code)]
+pub(in crate::mir) mod source_entry_thunk;
+pub(in crate::mir) mod source_entry_vm_diagnostic;
+#[cfg(feature = "vm-reference")]
+pub(in crate::mir) mod source_entry_vm_execution;
+#[allow(dead_code)]
+pub(in crate::mir) mod source_entry_vm_invocation;
+#[cfg(feature = "vm-reference")]
+pub(in crate::mir) mod source_entry_vm_raw_adapter;
+#[allow(dead_code)]
+pub(in crate::mir) mod source_entry_vm_reference;
+#[cfg(test)]
+mod source_entry_vm_reference_p0;
+#[cfg(feature = "vm-reference")]
+pub(in crate::mir) mod source_entry_vm_runner_adapter;
 #[allow(dead_code)]
 mod source_projection;
 #[allow(dead_code)]
@@ -144,6 +144,12 @@ mod module_session_borrow_p0_tests;
 #[cfg(test)]
 mod prod_activation_p0_r1;
 #[cfg(test)]
+mod raw_public_cutover_parity_snapshot;
+#[cfg(test)]
+mod raw_public_cutover_parity_success_p0;
+#[cfg(test)]
+mod raw_public_ingress_p0;
+#[cfg(test)]
 mod raw_root_body_p0;
 #[cfg(test)]
 mod raw_root_callable_main_p0;
@@ -156,25 +162,19 @@ mod raw_root_eligibility_p0;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_environment_manifest;
 #[cfg(test)]
-mod raw_root_finalization_p0;
-#[cfg(test)]
 mod raw_root_external_commit_p0;
 #[cfg(test)]
-mod raw_root_publication_p0;
-#[cfg(test)]
-mod raw_root_publication_adapter_p0;
-#[cfg(test)]
-mod raw_public_ingress_p0;
-#[cfg(test)]
-mod raw_public_cutover_parity_success_p0;
-#[cfg(test)]
-mod raw_public_cutover_parity_snapshot;
+mod raw_root_finalization_p0;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_manifest_package;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_plan0;
 #[cfg(test)]
 mod raw_root_postprocess_p0;
+#[cfg(test)]
+mod raw_root_publication_adapter_p0;
+#[cfg(test)]
+mod raw_root_publication_p0;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_source_facts;
 #[cfg(test)]

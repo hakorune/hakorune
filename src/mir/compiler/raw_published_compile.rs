@@ -4,6 +4,7 @@
 //! owner chain.  Only the final caller decides whether to erase the published
 //! owner into `MirCompileResult` or continue to exact VM execution.
 
+use super::lowering_input::LegacyModuleLoweringInputV1;
 use super::module_postprocess::ModulePostprocessOwnerV1;
 use super::raw_root_callable_main::RejectedRawCallableMainInvocationV1;
 use super::raw_root_children::RejectedRawRootChildrenInvocationV1;
@@ -12,18 +13,13 @@ use super::raw_root_decl_access::{
     RejectedRawRootEnvironmentInvocationV1,
 };
 use super::raw_root_drain::RejectedRawDrainInvocationV1;
-use super::raw_root_eligibility::{
-    RejectedRawRootEligibilityV1, RejectedRawRootPhysicalOpenV1,
-};
+use super::raw_root_eligibility::{RejectedRawRootEligibilityV1, RejectedRawRootPhysicalOpenV1};
 use super::raw_root_external_commit::RejectedRawExternalCommitInvocationV1;
 use super::raw_root_finalization::RejectedRawDrainFinalizationInvocationV1;
 use super::raw_root_package::RejectedRawRootPlanningV1;
 use super::raw_root_postprocess::RejectedRawPostprocessInvocationV1;
-use super::raw_root_publication::{
-    RejectedRawPublicationInvocationV1, RawPublishedInvocationV1,
-};
+use super::raw_root_publication::{RawPublishedInvocationV1, RejectedRawPublicationInvocationV1};
 use super::raw_source_binding::RejectedRawSourceBindingV1;
-use super::lowering_input::LegacyModuleLoweringInputV1;
 use crate::mir::RawPublishedCompileRequestV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -157,9 +153,10 @@ impl RawPublishedCompileFailureReportV1 {
             RawPublishedCompileStageV1::CallableMain => {
                 ("callable-main-rejected", "typed callable-main rejection")
             }
-            RawPublishedCompileStageV1::DeclarationAccess => {
-                ("declaration-access-rejected", "typed declaration-access rejection")
-            }
+            RawPublishedCompileStageV1::DeclarationAccess => (
+                "declaration-access-rejected",
+                "typed declaration-access rejection",
+            ),
             RawPublishedCompileStageV1::Body => ("body-rejected", "typed body rejection"),
             RawPublishedCompileStageV1::RootBatch => {
                 ("root-batch-rejected", "typed root-batch rejection")
