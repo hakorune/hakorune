@@ -82,7 +82,7 @@ def resolve_repo_path(root: pathlib.Path, path_text: str) -> pathlib.Path:
 
 
 def command_target(root: pathlib.Path, cmd: list[str]) -> pathlib.Path:
-    if len(cmd) >= 2 and cmd[0] in {"bash", "sh"}:
+    if len(cmd) >= 2 and cmd[0] in {"bash", "sh", "python", "python3"}:
         for arg in cmd[1:]:
             if not arg.startswith("-"):
                 return resolve_repo_path(root, arg)
