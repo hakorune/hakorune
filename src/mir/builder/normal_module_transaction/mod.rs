@@ -5,6 +5,7 @@
 //! exposes one consuming opaque publication terminal. Source-entry selection,
 //! VM result decoding, process projection, and runner policy remain outside.
 
+mod callable_draft_prefix;
 mod canonical_batch;
 mod entry_target;
 mod main_transaction;
@@ -14,6 +15,12 @@ mod result_type;
 mod schema;
 mod source_draft;
 
+pub(in crate::mir) use callable_draft_prefix::{
+    ConsumedNormalHelperLoweringReceiptV1, NormalHelperDraftCorrespondenceErrorV1,
+    NormalHelperDraftPrefixFailureV1, PreparedNormalHelperDraftPrefixV1,
+    RejectedNormalHelperDraftPrefixV1, RetainedNormalHelperDraftPrefixV1,
+    VerifiedNormalHelperDraftV1,
+};
 pub(in crate::mir::builder) use canonical_batch::{
     NormalCanonicalModuleBatchErrorV1, NormalCanonicalModuleBatchV1,
     PreparedNormalCanonicalModuleBatchV1, RejectedNormalCanonicalModuleBatchV1,

@@ -71,9 +71,9 @@ pub(crate) use normal_acyclic_module_plan::{
 #[allow(unused_imports)]
 pub(crate) use normal_callable_transaction_handoff::{
     ConsumableNormalMainLoweringProofV1, NormalCallableHandoffStageV1,
-    OpenNormalCallableModuleTransactionV1, OwnedNormalHelperLoweringScheduleV1,
-    PreparedNormalHelperTopologyReceiptV1, RejectedNormalCallableHandoffV1,
-    RetainedNormalCallableSourceAuthorityV1,
+    NormalHelperDraftAbiExpectationErrorV1, OpenNormalCallableModuleTransactionV1,
+    OwnedNormalHelperLoweringScheduleV1, PreparedNormalHelperTopologyReceiptV1,
+    RejectedNormalCallableHandoffV1, RetainedNormalCallableSourceAuthorityV1,
 };
 #[allow(unused_imports)]
 pub(crate) use product::{

@@ -50,6 +50,29 @@ pub(crate) struct RetainedNormalCallableSourceAuthorityV1 {
     main: RetainedNormalMainSourceAuthorityV1,
 }
 
+/// One catalog-derived helper ABI expectation. This is source evidence only;
+/// draft correspondence remains a Builder-side responsibility.
+#[derive(Debug)]
+pub(crate) struct NormalHelperDraftAbiExpectationV1 {
+    symbol: Box<str>,
+    arity: usize,
+}
+
+impl NormalHelperDraftAbiExpectationV1 {
+    pub(crate) const fn symbol(&self) -> &str {
+        &self.symbol
+    }
+
+    pub(crate) const fn arity(&self) -> usize {
+        self.arity
+    }
+}
+
+#[derive(Debug)]
+pub(crate) enum NormalHelperDraftAbiExpectationErrorV1 {
+    MissingHeader(CanonicalCallableKeyV1),
+}
+
 impl RetainedNormalCallableSourceAuthorityV1 {
     pub(crate) fn source_identity(&self) -> &str {
         self.main.identity.display_name()
@@ -61,6 +84,23 @@ impl RetainedNormalCallableSourceAuthorityV1 {
 
     pub(crate) fn helper_count(&self) -> usize {
         self.helpers.functions_by_key().len()
+    }
+
+    pub(crate) fn helper_draft_abi(
+        &self,
+        key: &CanonicalCallableKeyV1,
+    ) -> Result<NormalHelperDraftAbiExpectationV1, NormalHelperDraftAbiExpectationErrorV1> {
+        let header = self
+            .helpers
+            .source()
+            .catalog()
+            .index()
+            .lookup(key)
+            .ok_or_else(|| NormalHelperDraftAbiExpectationErrorV1::MissingHeader(key.clone()))?;
+        Ok(NormalHelperDraftAbiExpectationV1 {
+            symbol: header.symbol().as_mir_name().into(),
+            arity: header.signature().arity(),
+        })
     }
 
     pub(crate) fn borrow_main_input(

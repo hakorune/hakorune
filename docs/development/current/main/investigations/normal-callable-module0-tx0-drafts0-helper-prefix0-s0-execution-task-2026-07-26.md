@@ -1,5 +1,5 @@
 ---
-Status: active executable row
+Status: closed executable row
 Date: 2026-07-26
 Decision: NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1
 Row: NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-HELPER-PREFIX0-S0
@@ -15,6 +15,19 @@ Related:
 ---
 
 # NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-HELPER-PREFIX0-S0
+
+## Closeout
+
+Closed on 2026-07-26. The Builder-side prefix owner consumes the existing
+HANDOFF0 `BTreeMap` once in canonical-key order, verifies each completed draft
+against the retained catalog ABI before admission, and retains only completed
+drafts plus the exact failing key/ordinal/stage. The schedule borrow ends
+before the open transaction is bound into a success or rejection owner. Main,
+physical thunk, batch, publication, caller, and backend behavior remain
+unchanged.
+
+The next row is
+`NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-MAIN-PHYSICAL0-S0`.
 
 ## Outcome
 
@@ -75,8 +88,10 @@ one selected topology receipt
   -> append the completed draft to the prefix
 ```
 
-The existing topology owner remains the only ordering authority.  Do not add
-another sort, declaration-order loop, or a second helper inventory.
+The existing HANDOFF0 schedule's `BTreeMap` remains the sole execution-order
+authority; its consuming iteration is canonical-key order. The retained
+topology is correspondence evidence, not a second execution-order algorithm.
+Do not add another sort, declaration-order loop, or a second helper inventory.
 
 ## Failure law
 
@@ -137,7 +152,7 @@ environment gate, or fallback.
 
 ```text
 one helper schedule consumer                    = 1
-canonical-key order authority                   = existing topology only
+canonical-key order authority                   = existing HANDOFF0 BTreeMap only
 typed retaining lowerer consumer                = 1
 consumed-plan reconstruction                    = 0
 helper prefix owner                             = 1
