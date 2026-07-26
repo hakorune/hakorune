@@ -20,6 +20,14 @@ CANONICAL_CORE_REPORT_RUNNER = (
 CANONICAL_CORE_PARITY_P0A = (
     ROOT / "src/runner/reference/normal_file_canonical_core_vm/parity_p0a.rs"
 )
+CANONICAL_CORE_REFERENCE_DOC = (
+    ROOT / "docs/reference/execution-backend/normal-file-canonical-core-vm-reference.md"
+)
+CANONICAL_CORE_P0B_FIXTURES = (
+    ROOT / "tests/reference/normal_file_canonical_core_vm/exit_42.hako",
+    ROOT / "tests/reference/normal_file_canonical_core_vm/main_empty.hako",
+)
+CLI_ARGS = ROOT / "src/cli/args.rs"
 NORMAL_REPORT_RUNNER = ROOT / "src/runner/reference/normal_file_vm.rs"
 PARITY_P0A = ROOT / "src/runner/reference/normal_file_vm/parity_p0a.rs"
 TEST_ONLY_RAW_TERMINAL_CONSUMERS = (
@@ -266,6 +274,25 @@ def main() -> int:
     if "std::process::exit" in parity_p0a or "select_from_cli" in parity_p0a:
         raise AssertionError("PARITY0-P0a must exercise owners directly, not select or terminate")
 
+    canonical_core_reference_doc = CANONICAL_CORE_REFERENCE_DOC.read_text()
+    for fragment in (
+        "normal-file-canonical-core-vm-reference",
+        "default-off",
+        "NORMAL-ENTRY-PROMOTION-D3",
+        "Usage or unavailable feature: `2`.",
+        "File, parse, source-plan, compile, or activation rejection: `1`.",
+        "executed program Fault or unsupported process result: `70`.",
+    ):
+        require(canonical_core_reference_doc, fragment, f"canonical-core reference contract {fragment}")
+    for path, expected in zip(CANONICAL_CORE_P0B_FIXTURES, ("42\n", "static box Main")):
+        fixture = path.read_text()
+        require(fixture, expected, f"canonical-core P0b fixture {path.name}")
+    require(
+        CLI_ARGS.read_text(),
+        "normal-file-canonical-core-vm-reference",
+        "CLI backend help spelling",
+    )
+
     if production.count("std::fs::read_to_string(&source_file)") != 1:
         raise AssertionError("Forge0 must read its source file exactly once")
     if production.count("parse_from_string_with_build_config") != 1:
@@ -330,8 +357,10 @@ def main() -> int:
         "pub(crate) fn select_and_run(config: &CliConfig)",
         "ExplicitReferenceRunnerRequestV1::RawVmReference(request)",
         "ExplicitReferenceRunnerRequestV1::NormalFileVmReference(request)",
+        "ExplicitReferenceRunnerRequestV1::NormalFileCanonicalCoreVmReference(request)",
         "Some(raw_vm_reference::run(request))",
         "Some(normal_file_vm::run(request))",
+        "Some(normal_file_canonical_core_vm::run(request))",
     ):
         require(reference_mod, fragment, f"one central explicit selector {fragment}")
     runner = RUNNER.read_text()
@@ -348,6 +377,9 @@ def main() -> int:
         CANONICAL_CORE_REQUEST,
         CANONICAL_CORE_REPORT_RUNNER,
         CANONICAL_CORE_PARITY_P0A,
+        CANONICAL_CORE_REFERENCE_DOC,
+        *CANONICAL_CORE_P0B_FIXTURES,
+        CLI_ARGS,
         NORMAL_REPORT_RUNNER,
         PARITY_P0A,
         *TEST_ONLY_RAW_TERMINAL_CONSUMERS,

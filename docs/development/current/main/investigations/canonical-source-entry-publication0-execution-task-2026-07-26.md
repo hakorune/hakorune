@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0b
+Active executable row: MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
 ```
 
 ## Boundary
@@ -366,6 +366,43 @@ change.
 `NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0b` runs the feature-enabled and
 feature-disabled real binaries to verify the CLI spelling, status classes,
 diagnostic delivery, and default-route isolation.
+
+### `NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0b`
+
+Status: closed by real-binary evidence.
+
+With `cargo build --release --features vm-reference --bin hakorune`, the
+canonical-core selector returned status `42` for the tracked Script fixture
+and status `0` for the empty `Main` fixture. A missing source returned the
+typed invocation status `1` and its stable `source-rejected/file-not-found`
+diagnostic. The unchanged default `mir` route returned `42` for the same
+Script fixture. With `cargo build --release --bin hakorune`, selecting the
+canonical-core backend for a missing path returned feature-unavailable usage
+status `2` before file I/O. No route fell back to Raw, legacy VM, or default
+MIR handling.
+
+## Next row
+
+`NORMAL-FILE-CANONICAL-CORE0-G0` integrates the existing structural guard so
+the one selector, one report owner, one shared terminal, default-off profile,
+and no-fallback boundary remain mechanically checked.
+
+### `NORMAL-FILE-CANONICAL-CORE0-G0`
+
+Status: closed by the integrated front-door guard.
+
+The guard now covers the canonical-core request, report owner, central selector,
+CLI spelling, P0b fixtures, reference contract, one read/one parse front door,
+and the existing Raw/default isolation constraints. It rejects a second
+selector, a direct route through the front door, alternate compiler/status
+owners, and files at or above the 800-line boundary.
+
+## Next row
+
+`MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0` is a proof-and-closeout row. It must
+verify that the completed canonical core is a bounded reference lane, not a
+default product cutover, before scheduling product-backend selection or legacy
+caller retirement.
 
 ## Acceptance gates
 
