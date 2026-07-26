@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and NESTED-INSTANCE-RESULT-CONTRACT0-S0 are closed. NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1 accepts A-double-prime: only pre-loop MeStandardUnified stays on the near path; loop-refresh remains parked with its existing publisher. RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-prime-r1 fixes the source owner to the same declaration-catalog allocation as the nested contract, reuses the existing SourcePath/site/child-role navigation authority, forbids a second cursor engine, and selects one explicit isolated candidate ingress. RAW-SOURCE-CURSOR0-S0 and RAW-EXPRESSION-DISPATCH-CURSOR0-I0 are closed with source-only, legacy-facade parity. RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0 is closed: the Raw view alone seals an exact borrowed MethodCall with same catalog/view/caller/site identity; it still has no Builder, ValueId, type, Call, or route authority. The next row is RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-I0. OWN-GRAM-REJECT0-HAKO0 remains parked until the post-type Stage-B guard selects it."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and NESTED-INSTANCE-RESULT-CONTRACT0-S0 are closed. NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1 accepts A-double-prime: only pre-loop MeStandardUnified stays on the near path; loop-refresh remains parked with its existing publisher. RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-prime-r1 fixes the source owner to the same declaration-catalog allocation as the nested contract, reuses the existing SourcePath/site/child-role navigation authority, and forbids a second cursor engine. RAW-SOURCE-CURSOR0-S0, RAW-EXPRESSION-DISPATCH-CURSOR0-I0, and RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0 are closed. I0-A now seals the selected pre-loop source association and rejects the parked loop site before lowering. PRELOOP-LOCATED-ARGUMENT-DESCENT0-D0 is the active design stop: the real MeStandardUnified route currently erases Argument(1) into legacy AST before descent, so an explicit bounded capability decision is required before Call-adjacent wiring. OWN-GRAM-REJECT0-HAKO0 remains parked until the post-type Stage-B guard selects it."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-I0"
-current_execution_summary = "Connect exactly the pre-loop source descent through one isolated candidate-only stack owner, preserving the same catalog/view/caller/site identity until the existing actual generic unified MethodCall boundary. Do not alter the default raw route or activate LocatedLegacy/loop-refresh; do not write type_ctx, emit a second Call, use a Builder source map, rescan AST, match by name, retry, or fall back. Physical-call receipts remain a later row."
+current_design_stop = "PRELOOP-LOCATED-ARGUMENT-DESCENT0-D0"
+current_execution_row = "PRELOOP-LOCATED-ARGUMENT-DESCENT0-D0"
+current_execution_summary = "Choose the single bounded descent capability that carries the selected pre-loop located Argument(1) through the real MeStandardUnified route without legacy-site erasure. No implementation is authorized while this design stop is active; physical Call receipts and Integer publication remain later rows."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -433,9 +433,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "raw-instance-method-source-site-carry0-d0-design-question-2026-07-27"
-latest_card_path = "docs/development/current/main/investigations/raw-instance-method-source-site-carry0-d0-design-question-2026-07-27.md"
-latest_card_summary = """RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-prime-r1 closes D0. RAW-SOURCE-CURSOR0-S0 and RAW-EXPRESSION-DISPATCH-CURSOR0-I0 are closed with one catalog-backed cursor and one legacy-compatible matcher authority. RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0 is closed: only that cursor seals a source-only MethodCall input from the same declaration-catalog allocation, caller, and site. RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-I0 next adds only the pre-loop candidate descent; default raw, LocatedLegacy, loop-refresh, physical receipt, and type publication remain unchanged."""
+latest_card = "preloop-located-argument-descent0-d0-design-question-2026-07-27"
+latest_card_path = "docs/development/current/main/investigations/preloop-located-argument-descent0-d0-design-question-2026-07-27.md"
+latest_card_summary = """PRELOOP-LOCATED-ARGUMENT-DESCENT0-D0 is active. I0-A closed the source-only association for the selected pre-loop MethodCall, with same catalog allocation/declaration/caller/site/node checks and loop-refresh rejection before lowering. The real MeStandardUnified route then erases arguments through RawLegacyMethodCallInputV1, so D0 must select one bounded source-neutral or candidate-only descent capability before Call-adjacent wiring. No physical receipt, type publication, default route change, or loop-refresh activation is authorized."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
