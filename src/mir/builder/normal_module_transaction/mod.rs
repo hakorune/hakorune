@@ -55,8 +55,8 @@ pub(in crate::mir) use main_transaction::{
     CompletedNormalMainModuleCandidateV1, CompletedNormalMainModuleEvidenceV1,
     NormalMainBatchCorrespondenceErrorV1, NormalMainCandidateVerificationReceiptV1,
     NormalMainModuleTransactionErrorV1, NormalMainModuleTransactionStageV1,
-    PreparedNormalMainModuleTransactionV1, PublishedNormalMainInvocationV1,
-    RejectedNormalMainModuleTransactionV1, RetainedNormalMainPreparedDraftsV1,
+    PreparedNormalMainModuleTransactionV1, RejectedNormalMainModuleTransactionV1,
+    RetainedNormalMainPreparedDraftsV1,
     RetainedNormalMainTransactionEvidenceV1,
 };
 pub(in crate::mir::builder) use rejection::{

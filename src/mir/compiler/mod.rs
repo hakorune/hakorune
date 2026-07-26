@@ -95,8 +95,6 @@ mod source_entry_vm_reference_p0;
 pub(in crate::mir) mod source_entry_vm_invocation;
 #[cfg(feature = "vm-reference")]
 pub(in crate::mir) mod source_entry_vm_raw_adapter;
-#[cfg(feature = "vm-reference")]
-pub(in crate::mir) mod source_entry_vm_normal_main_adapter;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_runtime_inputs;
 #[allow(dead_code)]
