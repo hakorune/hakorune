@@ -274,6 +274,62 @@ unified-disabled fail-fast
 failure -> fresh fixture success
 ```
 
+#### P0 closeout
+
+```text
+Status:
+  closed
+
+positive:
+  outer existing StaticReceiver plan = 1
+  Argument(0) ordinary descent = 1
+  Argument(1) selected located descent = 1
+  inner Method Call = 1
+  outer Global Call = 1
+  outer argument consumes the inner terminal value through ordinary Copy normalization
+
+fail-fast:
+  outer route drift stops before argument descent
+  inner header drift to LoweredGlobal rejects before Call emission
+  unified-disabled rejects before selected inner argument effects and Call emission
+  missing inner binding retains exact source rejection
+  inner success then outer terminal failure retains exact source rejection
+
+reuse:
+  rejection -> fresh configured fixture success = green
+
+still zero:
+  typed physical Call receipt
+  final physical destination authority
+  nested result receipt
+  new nested Integer publication
+  loop-refresh activation
+  fallback / retry / production caller
+```
+
+The candidate now samples unified-Call availability before selected inner
+argument descent. This is a candidate-only fail-fast boundary; the ordinary
+Raw route retains its existing compatibility behavior.
+
+Proof budget:
+
+```text
+ceremony_tier = T1 bounded extension
+sunset_id = PRELOOP-LOCATED-ARGUMENT-PROOF-SUNSET-001
+proof_inventory_before = configured positive ingress + one-shot Port fixtures
+new_proofs = one sibling P0 failure/reuse matrix
+retired_or_merged_proofs = 0
+net_proof_delta = +1
+sunset_budget = 1
+sunset_row = CALLABLE-RESULT-NESTED-PRELOOP-PROOF-RETIRE0-S0
+retire_when =
+  actual Stage-B owner consumes the exact source association and physical
+  receipt once, and this P0 matrix is migrated to that production-shaped
+  route without losing the negative/reuse cases
+budget_repayment_evidence =
+  zero standalone ingress-proof consumers after the production-shaped matrix
+```
+
 ### 4. `PRELOOP-LOCATED-ARGUMENT-INGRESS0-G0`
 
 Repair and consolidate the existing ARG0/ROUTE0/V0 guards. Do not add a new

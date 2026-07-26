@@ -40,6 +40,7 @@ pub(super) enum PreloopLocatedArgumentIngressStageV1 {
     MemberRoute,
     MePreparation,
     MeRoute,
+    UnifiedCapability,
     ArgumentDescent,
     UnifiedTerminal,
     OuterTerminal,
@@ -73,6 +74,7 @@ pub(super) enum PreloopLocatedArgumentIngressErrorV1 {
     AlternateMemberRoute(PreloopObservedMemberRouteV1),
     MePreparation { detail: Box<str> },
     AlternateMeRoute(PreloopObservedMeRouteV1),
+    UnifiedCallDisabled,
     ArgumentDescent { detail: Box<str> },
     UnifiedTerminal { detail: Box<str> },
     OuterTerminal { detail: Box<str> },
@@ -157,6 +159,10 @@ impl<'site, 'view, 'catalog> RejectedPreloopLocatedArgumentIngressV1<'site, 'vie
             }
             PreloopLocatedArgumentIngressErrorV1::AlternateMeRoute(observed) => {
                 format!("[preloop-ingress/alternate-me-route] observed={observed:?}")
+            }
+            PreloopLocatedArgumentIngressErrorV1::UnifiedCallDisabled => {
+                "[preloop-ingress/unified-call-disabled] candidate requires the unified Call terminal"
+                    .to_string()
             }
             PreloopLocatedArgumentIngressErrorV1::ArgumentDescent { detail } => {
                 format!("[preloop-ingress/argument-descent] {detail}")
@@ -263,6 +269,18 @@ where
             ))
         }
     };
+
+    // The ordinary Raw terminal may intentionally use its compatibility Call
+    // route when unified Call is disabled. This candidate cannot: its next
+    // row needs the one generic physical Call seam, so reject before lowering
+    // any inner argument or emitting any MIR.
+    if !super::call_unified::is_unified_call_enabled() {
+        return Err(reject(
+            source,
+            PreloopLocatedArgumentIngressStageV1::UnifiedCapability,
+            PreloopLocatedArgumentIngressErrorV1::UnifiedCallDisabled,
+        ));
+    }
 
     let argument_values = {
         let input = source.association().input();

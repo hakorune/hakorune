@@ -82,6 +82,8 @@ mod method_call_descent_tests;
 mod method_call_terminal_tests;
 pub mod parameter_setup; // Step 3: Parameter setup and binding (static/instance methods)
 #[cfg(test)]
+mod preloop_located_argument_ingress_p0_tests;
+#[cfg(test)]
 mod preloop_located_argument_ingress_tests;
 #[cfg(test)]
 mod preloop_located_argument_port_tests;

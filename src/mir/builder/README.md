@@ -110,8 +110,10 @@ reach into route-specific plan internals. The current boundary SSOT is
   - `calls/preloop_located_argument_ingress.rs` consumes that retained owner
     directly, accepts only the existing `Me -> Standard(Unified)` prepared
     route, and delegates inner children plus terminal emission to the wrapped
-    ordinary Raw Port. It does not re-enter the Raw dispatcher or issue a
-    physical Call receipt, final-destination authority, or type fact.
+    ordinary Raw Port. A disabled unified-Call capability rejects before
+    selected inner argument descent instead of entering the ordinary Raw
+    compatibility route. The ingress does not re-enter the Raw dispatcher or
+    issue a physical Call receipt, final-destination authority, or type fact.
   - The configured ParserBox proof alone transports the outer call through
     the existing Raw facade, requires its existing `StaticReceiver` plan, and
     discards the whole fixture Builder. This is not a production located-call
