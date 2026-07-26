@@ -1,5 +1,5 @@
 ---
-Status: active executable row
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1
 Row: NORMAL-CALLABLE-MODULE0-TX0-COMMIT0-S0
