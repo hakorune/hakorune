@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1: Script publication evidence, the Main/Script shared canonical publication core, and the Main-specific published/VM adapter retirement are closed. Neutral PublishedSourceEntryInvocationV1 remains the sole target/result/membership owner; canonical published owners retain only module, family evidence, admission, source receipt, and verification, with one canonical VM executor implementation. NORMAL-SCRIPT0-PUBLISHED-OWNER0-S0 is active to connect the completed Script candidate through exact Canonical(Script) membership. Raw remains separate; Callable waits for evidence completion; production caller and default route remain zero. Alias/View remain scheduled after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and before product/default promotion."
+status = "CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1: Script publication evidence, the Main/Script shared canonical publication core, Main-only adapter retirement, and Script published-owner connection are closed. Neutral PublishedSourceEntryInvocationV1 remains the sole target/result/membership owner; canonical published owners retain only module, family evidence, admission, source receipt, and verification, with one canonical VM executor implementation. NORMAL-SCRIPT0-VMREF0-P0 is active for actual Script VM/process parity and the unchanged Main regression through the same core. Raw remains separate; Callable waits for evidence completion; production caller and default route remain zero. Alias/View remain scheduled after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and before product/default promotion."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "NORMAL-SCRIPT0-PUBLISHED-OWNER0-S0"
-current_execution_summary = "Consume the completed Script candidate through the shared canonical publication core with exact Canonical(Script) membership. Keep VM execution and production callers disconnected until the following parity row."
+current_execution_row = "NORMAL-SCRIPT0-VMREF0-P0"
+current_execution_summary = "Run actual VM-reference execution and canonical process projection for published Script candidates, then regress Main through the same canonical owner. Keep production callers disconnected."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-SCRIPT0-PUBLISHED-OWNER0-S0"
+current_blocker_token = "NORMAL-SCRIPT0-VMREF0-P0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

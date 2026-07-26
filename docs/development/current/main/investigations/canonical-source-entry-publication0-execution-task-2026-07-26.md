@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: NORMAL-SCRIPT0-PUBLISHED-OWNER0-S0
+Active executable row: NORMAL-SCRIPT0-VMREF0-P0
 ```
 
 ## Boundary
@@ -102,12 +102,14 @@ executor implementation. Raw remains unchanged.
 
 ### 4. `NORMAL-SCRIPT0-PUBLISHED-OWNER0-S0`
 
-Status: active.
+Status: closed by `74875d16fa`.
 
 Connect the completed Script candidate to the shared core with exact
 `Canonical(Script)` membership. Production callers remain zero.
 
 ### 5. `NORMAL-SCRIPT0-VMREF0-P0`
+
+Status: active.
 
 Run actual Script VM/process parity for Unit origins, scalar results,
 unsupported process results, and VM faults; run the unchanged Main matrix
