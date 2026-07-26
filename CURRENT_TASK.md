@@ -48,3 +48,10 @@ box.fini()               = separate lifecycle owner
 Follow `current_execution_row` and `latest_card_path` in `CURRENT_STATE.toml`;
 profile admission, default routing, and legacy callers remain outside the
 active bounded source-plan series until explicitly selected there.
+
+`OWN-GRAM-REJECT0` has its Rust parser half landed. Its Hako transport half is
+not committed: the required Stage-B return-type guard fails unchanged in a
+clean worktree before the candidate runs, after plugin discovery, at
+`[mir/main-expansion/preflight] StaticChildMustBeStatic { method: "equals" }`.
+Restore that guard's baseline first; do not bypass it or commit the parked Hako
+freeze-tag WIP while the fast gate is red.
