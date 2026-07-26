@@ -20,7 +20,7 @@ use terminal::ReferenceRunOutcomeV1;
 
 /// Select one explicit reference request, or leave the default runner untouched.
 ///
-/// This is the sole CLI selector for the Raw and NormalFile VM-reference lanes.
+/// This is the sole CLI selector for the explicit VM-reference lanes.
 pub(crate) fn select_and_run(config: &CliConfig) -> Option<ReferenceRunOutcomeV1> {
     let selection = match request::select_from_cli(config) {
         Ok(selection) => selection,
@@ -34,6 +34,9 @@ pub(crate) fn select_and_run(config: &CliConfig) -> Option<ReferenceRunOutcomeV1
         ExplicitReferenceRunnerSelectionV1::Selected(
             ExplicitReferenceRunnerRequestV1::NormalFileVmReference(request),
         ) => Some(normal_file_vm::run(request)),
+        ExplicitReferenceRunnerSelectionV1::Selected(
+            ExplicitReferenceRunnerRequestV1::NormalFileCanonicalCoreVmReference(request),
+        ) => Some(normal_file_canonical_core_vm::run(request)),
     }
 }
 
@@ -73,5 +76,21 @@ mod tests {
             panic!("central selector must dispatch normal source to its program outcome");
         };
         assert_eq!(report.status_code(), 42);
+    }
+
+    #[cfg(feature = "vm-reference")]
+    #[test]
+    fn central_selector_dispatches_the_canonical_core_request_once() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let path = dir.path().join("canonical-core.hako");
+        std::fs::write(&path, "static box Main { main() {} }").expect("write source");
+        let mut config = CliConfig::default();
+        config.backend = "normal-file-canonical-core-vm-reference".to_owned();
+        config.file = Some(path.to_string_lossy().into_owned());
+
+        let Some(ReferenceRunOutcomeV1::Program(report)) = select_and_run(&config) else {
+            panic!("central selector must dispatch canonical-core source once");
+        };
+        assert_eq!(report.status_code(), 0);
     }
 }

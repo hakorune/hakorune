@@ -9,7 +9,9 @@ use super::normal_file_vm_frontdoor::{
     NormalFileReadErrorV1, NormalFileSourceErrorV1, NormalFileSourceProfileErrorV1,
     NormalFileSourceStageV1, RejectedNormalFileSourceV1,
 };
-use super::terminal::{ReferenceInvocationReportV1, ReferenceRunOutcomeV1, ReferenceUsageReportV1};
+use super::terminal::{ReferenceInvocationReportV1, ReferenceRunOutcomeV1};
+#[cfg(not(feature = "vm-reference"))]
+use super::terminal::ReferenceUsageReportV1;
 
 pub(crate) fn run(
     request: NormalFileCanonicalCoreVmReferenceProductionRequestV1,

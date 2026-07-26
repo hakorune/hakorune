@@ -1,5 +1,9 @@
 //! One typed selector for explicit reference runner requests.
 
+use super::normal_file_canonical_core_request::{
+    NormalFileCanonicalCoreVmReferenceProductionRequestV1,
+    NormalFileCanonicalCoreVmReferenceProfileErrorV1,
+};
 use super::normal_file_vm_request::{
     NormalFileVmReferenceProductionRequestV1, NormalFileVmReferenceProfileErrorV1,
 };
@@ -13,6 +17,7 @@ use crate::cli::CliConfig;
 pub(crate) enum ExplicitReferenceRunnerRequestV1 {
     RawVmReference(RawVmReferenceProductionRequestV1),
     NormalFileVmReference(NormalFileVmReferenceProductionRequestV1),
+    NormalFileCanonicalCoreVmReference(NormalFileCanonicalCoreVmReferenceProductionRequestV1),
 }
 
 #[derive(Debug)]
@@ -25,6 +30,7 @@ pub(crate) enum ExplicitReferenceRunnerSelectionV1 {
 pub(crate) enum ExplicitReferenceRunnerSelectionErrorV1 {
     RawVmReference(RawVmReferenceProfileErrorV1),
     NormalFileVmReference(NormalFileVmReferenceProfileErrorV1),
+    NormalFileCanonicalCoreVmReference(NormalFileCanonicalCoreVmReferenceProfileErrorV1),
 }
 
 impl ExplicitReferenceRunnerSelectionErrorV1 {
@@ -38,6 +44,12 @@ impl ExplicitReferenceRunnerSelectionErrorV1 {
                 "[normal-file-vm-reference/profile/rejected] {}",
                 error.code()
             )),
+            Self::NormalFileCanonicalCoreVmReference(error) => ReferenceUsageReportV1::new(
+                format!(
+                    "[normal-file-canonical-core-vm-reference/profile/rejected] {}",
+                    error.code()
+                ),
+            ),
         }
     }
 }
@@ -60,6 +72,12 @@ pub(crate) fn select_from_cli(
                 .map(ExplicitReferenceRunnerSelectionV1::Selected)
                 .map_err(ExplicitReferenceRunnerSelectionErrorV1::NormalFileVmReference)
         }
+        backend if backend == NormalFileCanonicalCoreVmReferenceProductionRequestV1::backend_name() => {
+            NormalFileCanonicalCoreVmReferenceProductionRequestV1::try_from_selected_cli(config)
+                .map(ExplicitReferenceRunnerRequestV1::NormalFileCanonicalCoreVmReference)
+                .map(ExplicitReferenceRunnerSelectionV1::Selected)
+                .map_err(ExplicitReferenceRunnerSelectionErrorV1::NormalFileCanonicalCoreVmReference)
+        }
         _ => Ok(ExplicitReferenceRunnerSelectionV1::NotSelected),
     }
 }
@@ -80,11 +98,21 @@ mod tests {
             ))
         ));
 
+        config.backend = NormalFileCanonicalCoreVmReferenceProductionRequestV1::backend_name()
+            .to_owned();
+        assert!(matches!(
+            select_from_cli(&config),
+            Ok(ExplicitReferenceRunnerSelectionV1::Selected(
+                ExplicitReferenceRunnerRequestV1::NormalFileCanonicalCoreVmReference(_)
+            ))
+        ));
+
         config.backend = "mir".to_owned();
         assert!(matches!(
             select_from_cli(&config),
             Ok(ExplicitReferenceRunnerSelectionV1::NotSelected)
         ));
+
     }
 
     #[test]
@@ -104,9 +132,22 @@ mod tests {
         config.backend = NormalFileVmReferenceProductionRequestV1::backend_name().to_owned();
         assert!(matches!(
             select_from_cli(&config),
-            Err(ExplicitReferenceRunnerSelectionErrorV1::NormalFileVmReference(
-                NormalFileVmReferenceProfileErrorV1::NonDefaultOptimizationRequested
-            ))
+            Err(
+                ExplicitReferenceRunnerSelectionErrorV1::NormalFileVmReference(
+                    NormalFileVmReferenceProfileErrorV1::NonDefaultOptimizationRequested
+                )
+            )
+        ));
+
+        config.backend = NormalFileCanonicalCoreVmReferenceProductionRequestV1::backend_name()
+            .to_owned();
+        assert!(matches!(
+            select_from_cli(&config),
+            Err(
+                ExplicitReferenceRunnerSelectionErrorV1::NormalFileCanonicalCoreVmReference(
+                    NormalFileCanonicalCoreVmReferenceProfileErrorV1::NonDefaultOptimizationRequested
+                )
+            )
         ));
     }
 }

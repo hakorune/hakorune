@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: NORMAL-FILE-CANONICAL-CORE0-CALLER0-I0
+Active executable row: NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0b
 ```
 
 ## Boundary
@@ -351,6 +351,21 @@ reuse beyond that compiler boundary.
 `normal-file-canonical-core-vm-reference` selector variant to the existing
 central reference selector. It must reuse the common terminal, add no second
 `if let`, and leave every default route untouched.
+
+### `NORMAL-FILE-CANONICAL-CORE0-CALLER0-I0`
+
+Status: closed by this commit.
+
+The existing selector owns exactly one new canonical-core request variant and
+dispatches it to the existing report owner. There is still one call to
+`select_from_cli`, one terminal, no public embedding API, and no default-route
+change.
+
+## Next row
+
+`NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0b` runs the feature-enabled and
+feature-disabled real binaries to verify the CLI spelling, status classes,
+diagnostic delivery, and default-route isolation.
 
 ## Acceptance gates
 

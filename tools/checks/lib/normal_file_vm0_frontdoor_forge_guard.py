@@ -219,6 +219,21 @@ def main() -> int:
         "canonical_core_report_keeps_pre_execution_rejections_out_of_program_results",
     ):
         require(canonical_core_parity, fragment, f"canonical-core P0a {fragment}")
+    reference_selector = (ROOT / "src/runner/reference/request.rs").read_text()
+    reference_dispatch = (ROOT / "src/runner/reference/mod.rs").read_text()
+    for fragment in (
+        "NormalFileCanonicalCoreVmReferenceProductionRequestV1",
+        "NormalFileCanonicalCoreVmReference",
+        "normal-file-canonical-core-vm-reference",
+    ):
+        require(reference_selector, fragment, f"canonical-core selector {fragment}")
+    require(
+        reference_dispatch,
+        "normal_file_canonical_core_vm::run(request)",
+        "canonical-core central dispatch",
+    )
+    if reference_dispatch.count("select_from_cli(config)") != 1:
+        raise AssertionError("explicit reference selection must remain centralized")
     if ".prepare()" in normal_request or "run_raw_vm_reference" in normal_request:
         raise AssertionError("REQUEST0 must not execute the NormalFile front door")
     for fragment in (
