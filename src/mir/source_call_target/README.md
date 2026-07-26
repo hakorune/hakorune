@@ -2,6 +2,25 @@
 
 This module owns disconnected, pre-Builder source-call target proofs.
 
+## RAW-SOURCE-CURSOR0-S0 catalog-backed Raw navigation
+
+`VerifiedRawCallableSourceViewV1` is the Raw route's thin, catalog-branded
+source-navigation adapter. It retains the exact declaration-catalog allocation,
+the embedded canonical caller key, and that declaration row. Its body,
+statement, and expression carriers are stack-scoped borrows of this one view.
+
+It does **not** introduce a second source-navigation engine. Child paths use
+the existing `SourcePathV1` and `ExprChildRoleV1` vocabularies, while every
+node projection delegates to `project_source_body_node_v1`. The canonical
+`FunctionSourceViewV1` remains independent because its carriers are branded by
+`FunctionOwnerIdV1`; Raw uses the declaration catalog's allocation identity
+instead.
+
+S0 is Builder-free and disconnected: it owns no raw dispatcher change, call
+route activation, `ValueId`, `MirType`, type publication, or runtime behavior.
+Later association must co-seal catalog allocation, embedded caller key, and
+exact `SourceExprSiteV1`; equal-looking catalogs or keys are not authority.
+
 ## AST-BIND0-S0 exact source site
 
 `VerifiedSourceMethodCallSiteV1` is the sole exact caller/body/site co-seal.

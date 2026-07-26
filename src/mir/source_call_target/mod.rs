@@ -11,6 +11,8 @@ mod model;
 mod qualified;
 mod qualified_receiver_lexical;
 mod qualified_route_facts;
+mod raw_callable_source_view;
+mod raw_source_cursor_error;
 mod source_method_call_site;
 
 #[allow(unused_imports)]
@@ -35,6 +37,13 @@ pub(crate) use qualified_route_facts::{
     QualifiedReceiverAdmissionV1, VerifiedQualifiedCallRouteFactsV1,
 };
 #[allow(unused_imports)]
+pub(crate) use raw_callable_source_view::{
+    RawLocatedBodyInputV1, RawLocatedExprInputV1, RawLocatedStmtInputV1,
+    VerifiedRawCallableSourceViewV1,
+};
+#[allow(unused_imports)]
+pub(crate) use raw_source_cursor_error::RawSourceCursorErrorV1;
+#[allow(unused_imports)]
 pub(crate) use source_method_call_site::VerifiedSourceMethodCallSiteV1;
 
 #[cfg(test)]
@@ -43,6 +52,8 @@ mod current_owner_tests;
 mod qualified_receiver_lexical_tests;
 #[cfg(test)]
 mod qualified_route_facts_tests;
+#[cfg(test)]
+mod raw_callable_source_view_tests;
 #[cfg(test)]
 mod source_method_call_site_tests;
 #[cfg(test)]
