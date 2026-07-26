@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1: Script publication evidence, the Main/Script shared canonical publication core, Main-only adapter retirement, Script published-owner connection, actual Script/Main VM-reference parity, and the integrated structural guard are closed. Neutral PublishedSourceEntryInvocationV1 remains the sole target/result/membership owner; canonical published owners retain only module, family evidence, admission, source receipt, and verification, with one canonical VM executor implementation. NORMAL-CALLABLE0-PUBLICATION-EVIDENCE0-S0 is closed: the callable candidate now retains exact entry/result, schema, topology, source identity, and verification evidence without publication-side re-inference. NORMAL-CALLABLE0-CANONICAL-PUBLICATION0-S0 is active to add Callable to the same core. Raw remains separate; production caller and default route remain zero. Alias/View remain scheduled after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and before product/default promotion."
+status = "CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1: Script publication evidence, the Main/Script shared canonical publication core, Main-only adapter retirement, Script published-owner connection, actual Script/Main VM-reference parity, and the integrated structural guard are closed. Neutral PublishedSourceEntryInvocationV1 remains the sole target/result/membership owner; canonical published owners retain only module, family evidence, admission, source receipt, and verification, with one canonical VM executor implementation. Callable evidence retention and the Callable shared-publication projection are closed: exact entry/result, schema, topology, source identity, and verification evidence cross into Canonical(Callable { source_owner }) without publication-side re-inference. CANONICAL-CORE-DISPATCH-PUBLICATION0-S0 is active to replace only the CallableModule pending rejection with the existing callable transaction. Raw remains separate; production caller and default route remain zero. Alias/View remain scheduled after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and before product/default promotion."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "NORMAL-CALLABLE0-CANONICAL-PUBLICATION0-S0"
-current_execution_summary = "Project the retained callable candidate evidence into the existing shared canonical publication core; add no second publication owner or VM executor."
+current_execution_row = "CANONICAL-CORE-DISPATCH-PUBLICATION0-S0"
+current_execution_summary = "Replace only CallableModule's pending dispatch rejection with its existing sealed callable transaction and the existing shared publication core."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-CALLABLE0-CANONICAL-PUBLICATION0-S0"
+current_blocker_token = "CANONICAL-CORE-DISPATCH-PUBLICATION0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

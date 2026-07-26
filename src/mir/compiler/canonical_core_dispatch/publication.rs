@@ -9,9 +9,11 @@ use super::{
     NormalSourcePlanReceiptV1, VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };
 use crate::mir::builder::{
+    CompletedNormalCallableCandidateV1, CompletedNormalCallableModuleEvidenceV1,
     CompletedNormalMainModuleCandidateV1, CompletedNormalMainModuleEvidenceV1,
     CompletedNormalScriptModuleCandidateV1, CompletedNormalScriptModuleEvidenceV1,
-    NormalMainCandidateVerificationReceiptV1, NormalScriptCandidateVerificationReceiptV1,
+    NormalCallableCandidateVerificationReceiptV1, NormalMainCandidateVerificationReceiptV1,
+    NormalScriptCandidateVerificationReceiptV1,
     VerifiedScriptEntryResultContractV1,
 };
 use crate::mir::compiler::normal_source_plan::VerifiedNormalMainThunkResultV1;
@@ -29,6 +31,7 @@ use crate::mir::resolved_control_flow::FunctionUnitOriginV1;
 pub(in crate::mir) enum CanonicalPublishedFamilyKindV1 {
     Main,
     Script,
+    Callable,
 }
 
 /// Complete family-specific evidence retained after canonical publication.
@@ -41,6 +44,10 @@ pub(in crate::mir) enum PublishedCanonicalFamilyEvidenceV1 {
     Script {
         evidence: CompletedNormalScriptModuleEvidenceV1,
         verification: NormalScriptCandidateVerificationReceiptV1,
+    },
+    Callable {
+        evidence: CompletedNormalCallableModuleEvidenceV1,
+        verification: NormalCallableCandidateVerificationReceiptV1,
     },
 }
 
@@ -105,6 +112,7 @@ pub(in crate::mir) enum CanonicalSourceEntryPublicationStageV1 {
 pub(in crate::mir) enum CanonicalSourceEntryPublicationErrorV1 {
     MainEvidenceMismatch,
     ScriptEvidenceMismatch,
+    CallableEvidenceMismatch,
     Target(PublishedSourceEntryTargetErrorV1),
 }
 
@@ -187,6 +195,9 @@ impl PublishedCanonicalSourceEntryInvocationV1 {
                 PublishedSourceEntryMembershipV1::Canonical(
                     CanonicalPublishedSourceEntryMembershipV1::Script,
                 ) => "script",
+                PublishedSourceEntryMembershipV1::Canonical(
+                    CanonicalPublishedSourceEntryMembershipV1::Callable { .. },
+                ) => "callable",
             },
         }
     }
@@ -230,6 +241,9 @@ fn prepare(
         }
         CompletedCanonicalCoreSourceEntryFamilyV1::Script(candidate) => {
             prepare_script(candidate, admission, receipt)
+        }
+        CompletedCanonicalCoreSourceEntryFamilyV1::Callable(candidate) => {
+            prepare_callable(candidate, admission, receipt)
         }
     }
 }
@@ -365,6 +379,74 @@ fn prepare_script(
     })
 }
 
+fn prepare_callable(
+    candidate: CompletedNormalCallableCandidateV1,
+    admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
+    receipt: NormalSourcePlanReceiptV1,
+) -> Result<PreparedCanonicalSourceEntryPublicationV1, RejectedCanonicalSourceEntryPublicationV1> {
+    let evidence = candidate.evidence();
+    let target = match PendingPublishedSourceEntryTargetV1::new(
+        evidence.physical_symbol(),
+        evidence.physical_arity(),
+    )
+    .seal()
+    {
+        Ok(target) => target,
+        Err(rejected) => {
+            let cause = rejected.error().clone();
+            rejected.discard();
+            return Err(reject_callable(
+                candidate,
+                admission,
+                receipt,
+                CanonicalSourceEntryPublicationStageV1::TargetProjection,
+                CanonicalSourceEntryPublicationErrorV1::Target(cause),
+            ));
+        }
+    };
+    if evidence.schema_row_count() != candidate.verification().schema_row_count()
+        || candidate.verification().function_count() != candidate.module().functions.len()
+        || evidence.schema_row_count() != candidate.module().functions.len()
+        || evidence.helper_count() + 2 != evidence.schema_row_count()
+    {
+        return Err(reject_callable(
+            candidate,
+            admission,
+            receipt,
+            CanonicalSourceEntryPublicationStageV1::Pairing,
+            CanonicalSourceEntryPublicationErrorV1::CallableEvidenceMismatch,
+        ));
+    }
+    let result = project_main_result(evidence.source_result());
+    let membership = PublishedSourceEntryMembershipV1::Canonical(
+        CanonicalPublishedSourceEntryMembershipV1::Callable {
+            source_owner: evidence.source_owner(),
+        },
+    );
+    let (module, evidence, verification) = candidate.into_publication_parts();
+    let function_count = verification.function_count();
+    Ok(PreparedCanonicalSourceEntryPublicationV1 {
+        owner: PreparedCanonicalPublishedOwnerV1 {
+            module,
+            family: PublishedCanonicalFamilyEvidenceV1::Callable {
+                evidence,
+                verification,
+            },
+            admission,
+            source_receipt: receipt,
+        },
+        target,
+        result,
+        membership,
+        verification: CanonicalPublicationVerificationReceiptV1 {
+            family: CanonicalPublishedFamilyKindV1::Callable,
+            candidate_function_count: function_count,
+            _seal: CanonicalPublicationVerificationReceiptSealV1,
+        },
+        _seal: PreparedCanonicalSourceEntryPublicationSealV1,
+    })
+}
+
 fn reject_main(
     candidate: CompletedNormalMainModuleCandidateV1,
     admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
@@ -390,6 +472,22 @@ fn reject_script(
 ) -> RejectedCanonicalSourceEntryPublicationV1 {
     reject_candidate(
         CompletedCanonicalCoreSourceEntryFamilyV1::Script(candidate),
+        admission,
+        receipt,
+        stage,
+        cause,
+    )
+}
+
+fn reject_callable(
+    candidate: CompletedNormalCallableCandidateV1,
+    admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
+    receipt: NormalSourcePlanReceiptV1,
+    stage: CanonicalSourceEntryPublicationStageV1,
+    cause: CanonicalSourceEntryPublicationErrorV1,
+) -> RejectedCanonicalSourceEntryPublicationV1 {
+    reject_candidate(
+        CompletedCanonicalCoreSourceEntryFamilyV1::Callable(candidate),
         admission,
         receipt,
         stage,
@@ -457,5 +555,48 @@ fn project_script_result(
         VerifiedScriptEntryResultContractV1::Bool => PublishedSourceEntryResultContractV1::Bool,
         VerifiedScriptEntryResultContractV1::Float => PublishedSourceEntryResultContractV1::Float,
         VerifiedScriptEntryResultContractV1::String => PublishedSourceEntryResultContractV1::String,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::builder::{completed_for_main_physical, MirBuilder};
+
+    #[test]
+    fn callable_candidate_projects_only_its_retained_evidence() {
+        let mut builder = MirBuilder::new();
+        let prefix = builder
+            .prepare_normal_helper_draft_prefix_v1(
+                completed_for_main_physical(&["helper"]).into_tx0_handoff(),
+            )
+            .expect("prepared helper prefix");
+        let callable = builder
+            .prepare_normal_callable_main_physical_v1(prefix)
+            .expect("prepared Main and physical entry")
+            .seal_normal_callable_batch_v1()
+            .expect("sealed callable schema")
+            .prepare_normal_callable_commit_v1()
+            .expect("verified callable candidate")
+            .commit();
+        let candidate = CompletedCanonicalCoreSourceEntryCandidateV1 {
+            family: CompletedCanonicalCoreSourceEntryFamilyV1::Callable(callable),
+            admission: VerifiedCanonicalCoreSourcePlanAdmissionV1::seal_from_frontdoor_profile(),
+            receipt: NormalSourcePlanReceiptV1::one_read_one_parse(
+                "callable-publication-test".into(),
+                0,
+                1,
+                1,
+            ),
+            _seal: super::super::CompletedCanonicalCoreSourceEntryCandidateSealV1,
+        };
+
+        let summary = candidate
+            .canonical_publication_summary_for_test()
+            .expect("callable publication projection");
+        assert_eq!(summary.family, "callable");
+        assert_eq!(summary.target_symbol, "main");
+        assert_eq!(summary.target_arity, 0);
+        assert_eq!(summary.result_kind, "unit");
     }
 }

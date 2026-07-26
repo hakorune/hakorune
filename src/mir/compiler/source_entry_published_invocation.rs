@@ -30,6 +30,7 @@ pub(in crate::mir) enum PublishedSourceEntryResultContractV1 {
 pub(in crate::mir) enum CanonicalPublishedSourceEntryMembershipV1 {
     Main { source_owner: FunctionOwnerIdV1 },
     Script,
+    Callable { source_owner: FunctionOwnerIdV1 },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

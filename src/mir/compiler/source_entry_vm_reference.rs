@@ -219,6 +219,9 @@ impl VmReferenceProcessOutcomeV1 {
                     CanonicalPublishedFamilyKindV1::Script => {
                         super::source_entry_selection::SelectedSourceEntryRouteV1::Script
                     }
+                    CanonicalPublishedFamilyKindV1::Callable => {
+                        super::source_entry_selection::SelectedSourceEntryRouteV1::AppMain0
+                    }
                 },
             },
         }

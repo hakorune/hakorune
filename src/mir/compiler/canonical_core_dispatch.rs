@@ -8,7 +8,8 @@
 pub(in crate::mir) mod publication;
 
 use crate::mir::builder::{
-    CompletedNormalMainModuleCandidateV1, NormalCanonicalModuleBatchErrorV1,
+    CompletedNormalCallableCandidateV1, CompletedNormalMainModuleCandidateV1,
+    NormalCanonicalModuleBatchErrorV1,
     NormalCanonicalModuleBatchV1, NormalMainModuleTransactionErrorV1,
     PreparedNormalScriptModuleTransactionV1,
 };
@@ -205,6 +206,7 @@ impl RejectedCanonicalCoreNormalDispatchV1 {
 pub(crate) enum CompletedCanonicalCoreSourceEntryFamilyV1 {
     Main(CompletedNormalMainModuleCandidateV1),
     Script(crate::mir::builder::CompletedNormalScriptModuleCandidateV1),
+    Callable(CompletedNormalCallableCandidateV1),
 }
 
 /// A complete but unpublished source-entry candidate.
@@ -289,7 +291,8 @@ impl CompletedCanonicalCoreSourceEntryCandidateV1 {
                     module_function_count: candidate.module().functions.len(),
                 })
             }
-            CompletedCanonicalCoreSourceEntryFamilyV1::Main(_) => None,
+            CompletedCanonicalCoreSourceEntryFamilyV1::Main(_)
+            | CompletedCanonicalCoreSourceEntryFamilyV1::Callable(_) => None,
         }
     }
 }

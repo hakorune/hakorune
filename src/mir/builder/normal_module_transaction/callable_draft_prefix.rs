@@ -274,4 +274,4 @@ fn verify_helper_draft(
 #[path = "callable_draft_prefix_tests.rs"]
 mod tests;
 #[cfg(test)]
-pub(super) use tests::completed_for_main_physical;
+pub(in crate::mir) use tests::completed_for_main_physical;

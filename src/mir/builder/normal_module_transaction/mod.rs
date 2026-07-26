@@ -38,6 +38,8 @@ pub(in crate::mir) use callable_draft_prefix::{
     VerifiedNormalHelperDraftV1,
 };
 #[cfg(test)]
+pub(in crate::mir) use callable_draft_prefix::completed_for_main_physical;
+#[cfg(test)]
 pub(super) use callable_main_physical::{
     reject_normal_callable_main_physical_at_stage_for_test, NormalCallableMainPhysicalTestStageV1,
 };

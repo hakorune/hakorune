@@ -77,6 +77,19 @@ impl CompletedNormalCallableCandidateV1 {
     pub(in crate::mir) const fn verification(&self) -> &NormalCallableCandidateVerificationReceiptV1 {
         &self.verification
     }
+
+    /// Consuming candidate split for the shared canonical publication owner.
+    /// Target and result remain sealed in `evidence`; publication must project
+    /// them rather than inspect this module.
+    pub(in crate::mir) fn into_publication_parts(
+        self,
+    ) -> (
+        MirModule,
+        CompletedNormalCallableModuleEvidenceV1,
+        NormalCallableCandidateVerificationReceiptV1,
+    ) {
+        (self.module, self.evidence, self.verification)
+    }
 }
 
 impl CompletedNormalCallableModuleEvidenceV1 {

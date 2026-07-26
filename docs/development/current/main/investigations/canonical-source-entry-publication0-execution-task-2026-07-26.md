@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: NORMAL-CALLABLE0-CANONICAL-PUBLICATION0-S0
+Active executable row: CANONICAL-CORE-DISPATCH-PUBLICATION0-S0
 ```
 
 ## Boundary
@@ -145,10 +145,31 @@ module, Return instructions, signatures, source AST, or callable graph.
 
 ## Next row
 
-`NORMAL-CALLABLE0-CANONICAL-PUBLICATION0-S0` may project this retained
-candidate evidence into the existing shared canonical publication core. It
-must add one Callable family/membership projection only; a second publication
-owner or VM executor is forbidden.
+### `NORMAL-CALLABLE0-CANONICAL-PUBLICATION0-S0`
+
+Status: closed by this commit.
+
+Callable now projects its retained candidate evidence into the existing shared
+canonical publication core:
+
+```text
+Canonical(Callable { source_owner }) membership = 1
+shared publication prepare / infallible commit  = unchanged
+canonical VM executor                           = unchanged, still 1
+```
+
+The projection checks retained schema, topology, candidate verification, and
+exact physical entry facts. It never scans the module or AST. The focused
+proof constructs a callable candidate through the normal transaction and
+confirms its published target/result/family projection.
+
+## Next row
+
+`CANONICAL-CORE-DISPATCH-PUBLICATION0-S0` must connect the already-sealed
+`CallableModule` source plan to its existing callable transaction and then to
+this publication core. It replaces only the current typed
+`FamilyCapabilityPending(CallableModule)` rejection; no second dispatcher,
+publication owner, VM executor, or retry path is permitted.
 
 ## Acceptance gates
 
