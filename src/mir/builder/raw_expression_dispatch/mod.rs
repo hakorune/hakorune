@@ -5,6 +5,7 @@
 //! with the invocation child port rather than adding a second matcher.
 mod input_view;
 mod legacy_facade;
+mod statement_surface;
 #[cfg(test)]
 mod tests;
 
@@ -21,26 +22,17 @@ use super::ops::{
     ShortCircuitExpressionDescentPortV1,
 };
 use super::recursive_child_lowering::{
-    drive_legacy_body_v1, drive_legacy_expression_v1, drive_legacy_statement_v1,
-    RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1, RawLoopChildEntryPortV1,
-    RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, drive_legacy_statement_v1, RawBoxMethodChildPortV1,
+    RawFunctionHeaderLookupPortV1, RawLoopChildEntryPortV1, RecursiveChildLoweringPortV1,
 };
 use super::stmts::{
-    drive_local_statement_v1, drive_value_return_statement_v1, drive_variable_assignment_v1,
-    LocalStatementDescentPortV1, RawLegacyLocalInputV1, RawLegacyValueReturnInputV1,
-    RawLegacyVariableAssignmentInputV1, ReturnStatementDescentPortV1,
+    drive_variable_assignment_v1, LocalStatementDescentPortV1, RawLegacyLocalInputV1,
+    RawLegacyValueReturnInputV1, RawLegacyVariableAssignmentInputV1, ReturnStatementDescentPortV1,
     VariableAssignmentDescentPortV1,
 };
 use super::ValueId;
-use crate::ast::{
-    ASTNode, AssignStmt, BinaryExpr, CallExpr, FieldAccessExpr, MethodCallExpr, ReturnStmt,
-};
+use crate::ast::{ASTNode, BinaryExpr, CallExpr, FieldAccessExpr, MethodCallExpr};
 use hakorune_mir_builder::BoxCompilationContext;
-
-enum StatementSurfaceDispatch {
-    Lowered(ValueId),
-    RegularExpression(ASTNode),
-}
 
 /// Capability set consumed by the one raw AST expression match tree.
 ///
@@ -86,229 +78,6 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
 }
 
 impl super::MirBuilder {
-    fn try_build_statement_surface_expression_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        ast: ASTNode,
-    ) -> Result<StatementSurfaceDispatch, String>
-    where
-        Port: RawExpressionDispatchPortV1,
-    {
-        match ast {
-            ASTNode::Program { statements, .. } => {
-                Ok(StatementSurfaceDispatch::Lowered(drive_legacy_body_v1(
-                    self, port, statements,
-                )?))
-            }
-            ASTNode::ScopeBox { body, .. } => {
-                if let Some(value) = self.try_build_guard_let_scopebox_with_port_v1(port, body.clone())? {
-                    Ok(StatementSurfaceDispatch::Lowered(value))
-                } else {
-                    Ok(StatementSurfaceDispatch::Lowered(drive_legacy_body_v1(
-                        self, port, body,
-                    )?))
-                }
-            }
-            ASTNode::TaskScope {
-                body,
-                source_keyword,
-                ..
-            } => Ok(StatementSurfaceDispatch::Lowered(
-                super::stmts::task_scope_stmt::build_task_scope_statement_with_port_v1(
-                    self,
-                    port,
-                    body.clone(),
-                    source_keyword.clone(),
-                )?,
-            )),
-            ASTNode::ContextScope {
-                source_keyword,
-                name,
-                ..
-            } => Err(format!(
-                "[freeze:contract][mir_builder/context_scope_lowering_missing] spelling={} name={} context propagation is owned by CONC-CONTEXT-002",
-                source_keyword, name
-            )),
-            ASTNode::Print { expression, .. } => Ok(StatementSurfaceDispatch::Lowered(
-                super::stmts::print_stmt::build_print_statement_with_port_v1(
-                    self,
-                    port,
-                    *expression,
-                )?,
-            )),
-            ASTNode::If {
-                condition,
-                then_body,
-                else_body,
-                ..
-            } => {
-                use crate::ast::Span;
-                let then_node = ASTNode::Program {
-                    statements: then_body,
-                    span: Span::unknown(),
-                };
-                let else_node = else_body.map(|b| ASTNode::Program {
-                    statements: b,
-                    span: Span::unknown(),
-                });
-                Ok(StatementSurfaceDispatch::Lowered(self.cf_if_with_port_v1(
-                    port,
-                    *condition,
-                    then_node,
-                    else_node,
-                )?))
-            }
-            ASTNode::Loop {
-                condition, body, ..
-            } => {
-                if crate::config::env::builder_loopform_debug() {
-                    let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug("[exprs.rs] statement surface Loop route matched");
-                }
-                Ok(StatementSurfaceDispatch::Lowered(
-                    port.lower_loop(self, *condition, body)?,
-                ))
-            }
-            ASTNode::TryCatch {
-                try_body,
-                catch_clauses,
-                finally_body,
-                ..
-            } => Ok(StatementSurfaceDispatch::Lowered(
-                super::control_flow::exception::cf_try_catch_with_port_v1(
-                    self,
-                    port,
-                try_body,
-                catch_clauses,
-                finally_body,
-                )?,
-            )),
-            ASTNode::Throw { expression, .. } => Ok(StatementSurfaceDispatch::Lowered(
-                super::control_flow::exception::cf_throw_with_port_v1(self, port, *expression)?,
-            )),
-            node @ ASTNode::Assignment { .. } => {
-                let stmt = AssignStmt::try_from(node).expect("ASTNode::Assignment must convert");
-                Ok(StatementSurfaceDispatch::Lowered(
-                    self.build_assignment_statement_expression_with_port_v1(port, stmt)?,
-                ))
-            }
-            ASTNode::CompoundAssignment {
-                target,
-                operator,
-                value,
-                ..
-            } => Ok(StatementSurfaceDispatch::Lowered(
-                self.build_compound_assignment_statement_with_port_v1(
-                    port,
-                    *target,
-                    operator,
-                    *value,
-                )?,
-            )),
-            node @ ASTNode::Return { .. } => {
-                let stmt = ReturnStmt::try_from(node).expect("ASTNode::Return must convert");
-                Ok(StatementSurfaceDispatch::Lowered(
-                    self.build_return_statement_expression_with_port_v1(port, stmt)?,
-                ))
-            }
-            ASTNode::Local {
-                variables,
-                initial_values,
-                declared_type_names,
-                ..
-            } => Ok(StatementSurfaceDispatch::Lowered(
-                drive_local_statement_v1(
-                    self,
-                    port,
-                    &RawLegacyLocalInputV1::new(
-                        variables,
-                        initial_values,
-                        declared_type_names,
-                    ),
-                )?,
-            )),
-            ASTNode::Outbox { variables, .. } => Ok(StatementSurfaceDispatch::Lowered(
-                super::stmts::variable_stmt::build_outbox_statement(self, variables.clone())?,
-            )),
-            ASTNode::Nowait {
-                variable,
-                expression,
-                ..
-            } => Ok(StatementSurfaceDispatch::Lowered(
-                self.build_nowait_statement_expression_with_port_v1(
-                    port,
-                    variable,
-                    *expression,
-                )?,
-            )),
-            ASTNode::UsingStatement { .. } => Ok(StatementSurfaceDispatch::Lowered(
-                crate::mir::builder::emission::constant::emit_void(self)?,
-            )),
-            ast => Ok(StatementSurfaceDispatch::RegularExpression(ast)),
-        }
-    }
-
-    fn build_nowait_statement_expression_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        variable: String,
-        expression: ASTNode,
-    ) -> Result<ValueId, String>
-    where
-        Port: RawExpressionDispatchPortV1,
-    {
-        super::stmts::async_stmt::build_nowait_statement_with_port_v1(
-            self, port, variable, expression,
-        )
-    }
-
-    fn build_assignment_statement_expression_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        stmt: AssignStmt,
-    ) -> Result<ValueId, String>
-    where
-        Port: RawExpressionDispatchPortV1,
-    {
-        if let ASTNode::FieldAccess { object, field, .. } = stmt.target.as_ref() {
-            self.build_field_assignment_with_port_v1(
-                port,
-                *object.clone(),
-                field.clone(),
-                *stmt.value.clone(),
-            )
-        } else if let ASTNode::Index { target, index, .. } = stmt.target.as_ref() {
-            self.build_index_assignment_with_port_v1(
-                port,
-                *target.clone(),
-                *index.clone(),
-                *stmt.value.clone(),
-            )
-        } else if let ASTNode::Variable { name, .. } = stmt.target.as_ref() {
-            let input = RawLegacyVariableAssignmentInputV1::new(name.clone(), *stmt.value);
-            drive_variable_assignment_v1(self, port, &input)
-        } else {
-            Err("Complex assignment targets not yet supported".to_string())
-        }
-    }
-
-    fn build_return_statement_expression_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        stmt: ReturnStmt,
-    ) -> Result<ValueId, String>
-    where
-        Port: RawExpressionDispatchPortV1,
-    {
-        match stmt.value {
-            Some(value) => {
-                let input = RawLegacyValueReturnInputV1::new(*value);
-                drive_value_return_statement_v1(self, port, &input)
-            }
-            None => super::stmts::return_stmt::build_return_statement(self, None),
-        }
-    }
-
     /// The sole raw AST match tree, parameterized by its child descent.
     pub(in crate::mir::builder) fn build_expression_impl_with_port_v1<Port>(
         &mut self,
@@ -328,9 +97,9 @@ impl super::MirBuilder {
                 ));
             }
         }
-        let ast = match self.try_build_statement_surface_expression_with_port_v1(port, ast)? {
-            StatementSurfaceDispatch::Lowered(value) => return Ok(value),
-            StatementSurfaceDispatch::RegularExpression(ast) => ast,
+        let ast = match statement_surface::try_build_with_port_v1(self, port, ast)? {
+            statement_surface::StatementSurfaceDispatch::Lowered(value) => return Ok(value),
+            statement_surface::StatementSurfaceDispatch::RegularExpression(ast) => ast,
         };
         match ast {
             // Regular expressions
