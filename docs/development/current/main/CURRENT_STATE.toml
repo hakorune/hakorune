@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-MAIN0-F1-PLAN0-S0 is closed: one Program-owned embedded Main.main/0 semantic owner now consumes the existing F1 completion and trivial value-profile authorities through an explicit sealed Main role, while the ordinary function entry continues to reject main. NORMAL-MODULE-TX0-L0 is active to define one disconnected heterogeneous canonical normal-module transaction schema for source Main, helpers, and the future physical entry thunk."
+status = "NORMAL-MODULE-TX0-L0 is closed: one builder-private passive schema now validates and deterministically orders exactly one source Main, zero or more helpers, and exactly one physical entry under canonical-only identity and retained typed rejection. NORMAL-MAIN0-THUNK0-S0 is active to seal one disconnected exact relation from the existing Main F1 plan/header/result authority to one future physical main thunk."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "NORMAL-MODULE-TX0-L0"
-current_execution_summary = "Define one passive move-only schema for a future atomic normal-module batch containing exactly one source Main draft, zero or more canonical helper drafts, and exactly one physical entry thunk. Reuse existing FunctionDraftKey, canonical admission, collector, and atomic module authorities; do not lower, mutate, publish, execute, select a profile, or add a caller."
+current_execution_row = "NORMAL-MAIN0-THUNK0-S0"
+current_execution_summary = "Consume the existing Program-owned Main F1 plan and resolved-owner header to seal one exact source-Main/physical-entry thunk plan for Unit/Integer/Bool/Float. No AST/MIR/runtime inference, lowering, module mutation, publication, VM execution, profile admission, or caller activation is allowed."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -332,8 +332,8 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/normal-module-tx0-l0-execution-task-2026-07-26.md"
-phase_status = "docs/development/current/main/investigations/normal-module-tx0-l0-execution-task-2026-07-26.md"
+active_phase = "docs/development/current/main/investigations/normal-main0-thunk0-s0-execution-task-2026-07-26.md"
+phase_status = "docs/development/current/main/investigations/normal-main0-thunk0-s0-execution-task-2026-07-26.md"
 method_anchor = "docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -352,6 +352,7 @@ normal_source_plan0_input0_task = "docs/development/current/main/investigations/
 normal_main0_source0_task = "docs/development/current/main/investigations/normal-main0-source0-s0-execution-task-2026-07-26.md"
 normal_main0_f1_plan0_task = "docs/development/current/main/investigations/normal-main0-f1-plan0-s0-execution-task-2026-07-26.md"
 normal_module_tx0_l0_task = "docs/development/current/main/investigations/normal-module-tx0-l0-execution-task-2026-07-26.md"
+normal_main0_thunk0_task = "docs/development/current/main/investigations/normal-main0-thunk0-s0-execution-task-2026-07-26.md"
 language_docs_status_task = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
 language_docs_try_catch_task = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
 language_tryless_postfix_catch_task = "docs/development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md"
@@ -412,9 +413,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "normal-module-tx0-l0-execution-task-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/normal-module-tx0-l0-execution-task-2026-07-26.md"
-latest_card_summary = """NORMAL-MAIN0-F1-PLAN0-S0 is closed with one Program-owned Main role consuming the existing completion and trivial value-profile authorities while ordinary main admission remains zero. NORMAL-MODULE-TX0-L0 now defines the passive heterogeneous canonical transaction schema shared by Main-only and Main-plus-helper modules, with mutation/publication/runtime/profile/caller authority still zero."""
+latest_card = "normal-main0-thunk0-s0-execution-task-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/normal-main0-thunk0-s0-execution-task-2026-07-26.md"
+latest_card_summary = """NORMAL-MODULE-TX0-L0 is closed with one deterministic canonical-only source-Main/helpers/physical-entry schema and zero mutation/publication consumers. NORMAL-MAIN0-THUNK0-S0 now seals the exact source Main header/result to future physical entry relation without AST/MIR/runtime inference or route activation."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -616,7 +617,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-MODULE-TX0-L0"
+current_blocker_token = "NORMAL-MAIN0-THUNK0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

@@ -309,7 +309,8 @@ NORMAL-SOURCE-PLAN0-INPUT0-S0 = closed
 NORMAL-SOURCE-PLAN0-G0        = closed
 NORMAL-MAIN0-SOURCE0-S0       = closed
 NORMAL-MAIN0-F1-PLAN0-S0      = closed
-NORMAL-MODULE-TX0-L0          = active
+NORMAL-MODULE-TX0-L0          = closed
+NORMAL-MAIN0-THUNK0-S0        = active
 ```
 
 ### F. Promotion and completion

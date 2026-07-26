@@ -1,5 +1,5 @@
 ---
-Status: active execution task
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Row: NORMAL-MODULE-TX0-L0
@@ -17,6 +17,36 @@ Related:
 ---
 
 # NORMAL-MODULE-TX0-L0
+
+## Closeout
+
+Closed on `main` with one builder-private passive schema:
+
+```text
+source Main row       = exactly 1
+helper rows           = zero or more, canonical-key sorted
+physical entry row    = exactly 1
+entry relation        = exact row correspondence
+canonical disposition = structurally sealed
+Legacy policy         = unrepresentable
+
+lowering/mutation/publication/runtime consumer = 0
+```
+
+Preparation owns and normalizes the proposed rows only after cardinality,
+role/key, arity, key/symbol uniqueness, and entry-relation verification.
+Failure retains the complete draft plus typed cause and exposes inspection plus
+`discard(self)` only.
+
+Evidence:
+
+```text
+mir::builder::normal_module_transaction = 4/4
+cargo check --lib                       = green
+normal-source-plan0 row guard           = green
+current pointer / MIR root / VM0 route  = green
+all touched source/check files          < 800 lines
+```
 
 ## Outcome
 
@@ -120,6 +150,16 @@ all publication policy= CanonicalRejectDuplicate
 deterministic order   = source Main, helpers by canonical key, physical entry
 Raw replacement policy= zero
 ```
+
+The landed L0 vocabulary remains `builder`-private because
+`FunctionDraftKeyV1` is itself a builder-private authority. Widening that key
+only to expose a disconnected schema would create a private-interface drift.
+The later activation row must expose a consuming facade, not the raw schema or
+key vocabulary.
+
+The schema carries `CanonicalInsertedDispositionV1`; therefore
+`LegacyReplaceWholePair` is unrepresentable rather than accepted and rejected
+at runtime.
 
 The entry relation may initially be a passive exact identity product if its
 later `NORMAL-MAIN0-THUNK0-S0` producer does not yet exist. It must not be

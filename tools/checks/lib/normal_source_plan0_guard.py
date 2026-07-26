@@ -23,6 +23,10 @@ MAIN_F1_TASK = ROOT / (
     "docs/development/current/main/investigations/"
     "normal-main0-f1-plan0-s0-execution-task-2026-07-26.md"
 )
+NORMAL_MODULE_TX_TASK = ROOT / (
+    "docs/development/current/main/investigations/"
+    "normal-module-tx0-l0-execution-task-2026-07-26.md"
+)
 MIR_ROOT = ROOT / "src/mir/mod.rs"
 FRONTDOOR = ROOT / "src/runner/reference/normal_file_vm_frontdoor.rs"
 FRONTDOOR_INPUT = (
@@ -46,6 +50,12 @@ MAIN_FUNCTION_PLAN_TESTS = SOURCE_DIR / "main_function_plan_tests.rs"
 CAPABILITY = ROOT / "src/mir/compiler/capability.rs"
 VALUE_PROFILE_ANALYZER = ROOT / "src/mir/resolved_value_profile/analyzer.rs"
 VALUE_PROFILE_MOD = ROOT / "src/mir/resolved_value_profile/mod.rs"
+BUILDER_MOD = ROOT / "src/mir/builder.rs"
+NORMAL_MODULE_TX_DIR = ROOT / "src/mir/builder/normal_module_transaction"
+NORMAL_MODULE_TX_FILES = tuple(
+    NORMAL_MODULE_TX_DIR / name
+    for name in ("mod.rs", "schema.rs", "rejection.rs", "tests.rs")
+)
 ALL_FILES = (
     *PRODUCTION_FILES,
     MAIN_SOURCE,
@@ -76,6 +86,7 @@ def main() -> int:
     input_task = INPUT_TASK.read_text()
     main_task = MAIN_TASK.read_text()
     main_f1_task = MAIN_F1_TASK.read_text()
+    normal_module_tx_task = NORMAL_MODULE_TX_TASK.read_text()
     production = "\n".join(path.read_text() for path in PRODUCTION_FILES)
     classifier = (SOURCE_DIR / "classifier.rs").read_text()
     tests = (SOURCE_DIR / "tests.rs").read_text()
@@ -93,6 +104,9 @@ def main() -> int:
     capability = CAPABILITY.read_text()
     value_profile_analyzer = VALUE_PROFILE_ANALYZER.read_text()
     value_profile_mod = VALUE_PROFILE_MOD.read_text()
+    builder_mod = BUILDER_MOD.read_text()
+    normal_module_tx = "\n".join(path.read_text() for path in NORMAL_MODULE_TX_FILES)
+    normal_module_tx_tests = (NORMAL_MODULE_TX_DIR / "tests.rs").read_text()
 
     for fragment in (
         "NORMAL-SOURCE-PLAN0-S0",
@@ -132,6 +146,17 @@ def main() -> int:
         "all modified/new source and check files        < 800 lines",
     ):
         require(main_f1_task, fragment, f"MAIN F1 task contract {fragment}")
+
+    for fragment in (
+        "NORMAL-MODULE-TX0-L0",
+        "disconnected heterogeneous canonical normal-module transaction schema",
+        "source Main role                           = 1",
+        "helper role                                = 1",
+        "physical entry role                        = 1",
+        "production consumer                         = 0",
+        "all modified/new source/check files         < 800 lines",
+    ):
+        require(normal_module_tx_task, fragment, f"normal-module TX task {fragment}")
 
     definitions = (
         "struct PreparedNormalSourcePlanInputV1",
@@ -233,6 +258,70 @@ def main() -> int:
             f"fn {test_name}(",
             f"INPUT0 fixture {test_name}",
         )
+
+    for definition in (
+        "enum NormalModuleDraftRoleV1",
+        "struct NormalModuleDraftExpectationV1",
+        "struct NormalModuleEntryRelationV1",
+        "struct NormalModuleTransactionDraftV1",
+        "struct NormalModuleTransactionSchemaV1",
+        "enum NormalModuleTransactionSchemaErrorV1",
+        "struct RejectedNormalModuleTransactionSchemaV1",
+    ):
+        require_count(
+            normal_module_tx,
+            definition,
+            1,
+            f"sole normal-module transaction definition {definition}",
+        )
+    for fragment in (
+        "SourceMain { owner: FunctionOwnerIdV1 }",
+        "Helper { key: CanonicalCallableKeyV1 }",
+        "PhysicalEntry",
+        "FunctionDraftKeyV1::CanonicalResolvedOwner(owner)",
+        "FunctionDraftKeyV1::CanonicalCallable(key)",
+        "FunctionDraftKeyV1::Main",
+        "CanonicalInsertedDispositionV1::from_canonical_source()",
+        "rows.sort_by(compare_rows)",
+        "pub(in crate::mir::builder) fn seal(",
+        "pub(in crate::mir::builder) fn error(&self)",
+        "pub(in crate::mir::builder) fn discard(self)",
+    ):
+        require(normal_module_tx, fragment, f"normal-module transaction law {fragment}")
+    require_count(
+        builder_mod,
+        "mod normal_module_transaction;",
+        1,
+        "normal-module transaction module declaration",
+    )
+    for test_name in (
+        "main_only_and_helper_batches_seal_in_deterministic_role_order",
+        "missing_and_duplicate_required_roles_are_typed_and_retained",
+        "duplicate_key_and_symbol_are_rejected_before_any_mutation",
+        "role_key_arity_and_entry_relation_drift_are_typed",
+    ):
+        require(
+            normal_module_tx_tests,
+            f"fn {test_name}(",
+            f"normal-module transaction fixture {test_name}",
+        )
+    for forbidden in (
+        "LegacyReplaceWholePair",
+        "MirBuilder",
+        "MirInstruction",
+        "MirModule",
+        "ModuleDraftCollectorV1",
+        "try_add_functions_atomic",
+        "process::exit",
+        "crate::runner",
+        "crate::runtime",
+        "retry",
+        "fallback",
+    ):
+        if forbidden in normal_module_tx:
+            raise AssertionError(
+                f"passive normal-module schema gained forbidden authority: {forbidden}"
+            )
 
     for definition in (
         "struct VerifiedNormalMainResolvedSourceUnitV1",
@@ -436,6 +525,7 @@ def main() -> int:
         "VerifiedNormalMainFunctionSourceUnitV1",
         "VerifiedNormalMainResolvedSourceUnitV1",
         "VerifiedNormalMainFunctionPlanV1",
+        "NormalModuleTransactionSchemaV1",
     )
     allowed = set(ALL_FILES) | {
         COMPILER_MOD,
@@ -446,6 +536,8 @@ def main() -> int:
         CAPABILITY,
         VALUE_PROFILE_ANALYZER,
         VALUE_PROFILE_MOD,
+        BUILDER_MOD,
+        *NORMAL_MODULE_TX_FILES,
     }
     for path in (ROOT / "src").rglob("*.rs"):
         if path in allowed:
@@ -464,6 +556,8 @@ def main() -> int:
         CAPABILITY,
         VALUE_PROFILE_ANALYZER,
         VALUE_PROFILE_MOD,
+        BUILDER_MOD,
+        *NORMAL_MODULE_TX_FILES,
         Path(__file__),
     ):
         if len(path.read_text().splitlines()) >= 800:
@@ -477,6 +571,7 @@ def main() -> int:
         "frontdoor_input=1 disconnected_consumer=1 production_consumer=0 "
         "main_source=1 reclassification=0 second_read_parse=0 "
         "main_role=1 main_f1=1 ordinary_main_admission=0 "
+        "normal_module_schema=1 mutation=0 "
         "raw_route_delta=0 rewrite=0 below_800=1"
     )
     return 0

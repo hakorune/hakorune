@@ -17,10 +17,10 @@ mod builder_emit;
 mod builder_init;
 mod builder_metadata;
 mod builder_method_index;
+mod builder_publication_target; // PUBLICATION0 target quiescence/receipt
 #[cfg(test)]
 mod builder_test_api;
 mod builder_value_kind;
-mod builder_publication_target; // PUBLICATION0 target quiescence/receipt
 mod call_resolution; // ChatGPT5 Pro: Type-safe call resolution utilities
 mod callable_declaration_catalog; // Complete same-module callable declaration authority
 #[cfg(test)]
@@ -150,7 +150,9 @@ mod module_invocation_identity_p0; // CUT0-I0-ID0-S0 fixtures
 #[allow(dead_code)]
 mod module_invocation_owner_chain; // CUT0-I0-ID0-P0 disconnected brand chain
 #[allow(dead_code)]
-mod module_invocation_route_matrix; // HEADERPORT0 I0-SHELL-I0-P0 disconnected matrix // ROOT0-DRAIN0-PHYSICAL0-PREP0
+mod module_invocation_route_matrix;
+#[allow(dead_code)]
+mod normal_module_transaction; // NORMAL-MODULE-TX0-L0 disconnected schema
 pub(in crate::mir) use canonical_physical_drain::{
     CanonicalDrainedCallablePhysicalV1, CanonicalDrainedSinglePhysicalV1,
     CanonicalPhysicalDrainPrepareErrorV1, PreparedCanonicalCallablePhysicalDrainV1,
@@ -170,8 +172,8 @@ pub(in crate::mir) use module_invocation_owner_chain::InvocationBranded;
 pub(in crate::mir) use module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;
 pub(in crate::mir) use raw_root_physical::drain_terminal::{
-    PreparedRawPhysicalDrainV1, RawDrainedPhysicalV1, RawPhysicalDrainErrorV1,
-    RawDrainWitnessV1, RejectedRawPhysicalDrainV1,
+    PreparedRawPhysicalDrainV1, RawDrainWitnessV1, RawDrainedPhysicalV1, RawPhysicalDrainErrorV1,
+    RejectedRawPhysicalDrainV1,
 };
 pub(in crate::mir) use raw_root_physical::finalization_terminal::{
     PreparedRawDrainedPhysicalFinalizationV1, RawFinalizationParitySealV1, RawFinalizedPhysicalV1,
