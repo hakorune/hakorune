@@ -24,6 +24,8 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
     source_path = directory / "source_draft.rs"
     callable_main_physical_path = directory / "callable_main_physical.rs"
     callable_main_physical_tests_path = directory / "callable_main_physical_tests.rs"
+    callable_batch_path = directory / "callable_batch.rs"
+    callable_batch_tests_path = directory / "callable_batch_tests.rs"
     tests_path = directory / "main_transaction_tests.rs"
     thunk_plan_path = (
         root
@@ -33,6 +35,7 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
     physical = physical_path.read_text()
     source = source_path.read_text()
     callable_main_physical = callable_main_physical_path.read_text()
+    callable_batch = callable_batch_path.read_text()
     tests = tests_path.read_text()
     thunk_plan = thunk_plan_path.read_text()
     production = "\n".join(
@@ -166,6 +169,8 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
         source_path,
         callable_main_physical_path,
         callable_main_physical_tests_path,
+        callable_batch_path,
+        callable_batch_tests_path,
         tests_path,
         directory / "result_type.rs",
         thunk_plan_path,
@@ -205,3 +210,27 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
         "fn injected_main_stages_retain_helpers_and_restore_builder_for_later_success(",
         "MAIN-PHYSICAL0 failure/reuse fixture",
     )
+
+    for fragment in (
+        "struct PreparedNormalCallableBatchV1",
+        "struct RejectedNormalCallableBatchV1",
+        "NormalModuleTransactionSchemaV1::seal(draft)",
+    ):
+        require(callable_batch, fragment, f"BATCH0 owner {fragment}")
+    for forbidden in (
+        "MirModule",
+        "try_add_function",
+        "commit_preflighted",
+        "compile_with_source",
+        "build_module",
+        "fallback",
+        "retry",
+    ):
+        if forbidden in callable_batch:
+            raise AssertionError(f"BATCH0 gained forbidden authority: {forbidden}")
+    batch_tests = callable_batch_tests_path.read_text()
+    for fragment in (
+        "fn batch_seals_helpers_source_main_and_physical_entry_in_one_schema(",
+        "fn schema_rejection_retains_prepared_drafts_and_builder_reuses(",
+    ):
+        require(batch_tests, fragment, f"BATCH0 fixture {fragment}")
