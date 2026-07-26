@@ -18,6 +18,7 @@ NEUTRAL_TASK = ROOT / (
 )
 PUBLISHED = ROOT / "src/mir/compiler/source_entry_published_invocation.rs"
 VM_INVOCATION = ROOT / "src/mir/compiler/source_entry_vm_invocation.rs"
+RAW_ADAPTER = ROOT / "src/mir/compiler/source_entry_vm_raw_adapter.rs"
 
 
 def require(text: str, fragment: str, label: str) -> None:
@@ -36,6 +37,8 @@ def main() -> int:
     published_production = published.split("#[cfg(test)]", 1)[0]
     vm_invocation = VM_INVOCATION.read_text()
     vm_invocation_production = vm_invocation.split("#[cfg(test)]", 1)[0]
+    raw_adapter = RAW_ADAPTER.read_text()
+    raw_adapter_production = raw_adapter.split("#[cfg(test)]", 1)[0]
 
     for fragment in (
         "S3-EXECUTION0",
@@ -114,7 +117,7 @@ def main() -> int:
     external_rust = "\n".join(
         path.read_text()
         for path in (ROOT / "src").rglob("*.rs")
-        if path not in (PUBLISHED, VM_INVOCATION)
+        if path not in (PUBLISHED, VM_INVOCATION, RAW_ADAPTER)
     )
     for fragment in (
         "PublishedSourceEntryInvocationV1::from_verified_parts(",
@@ -124,6 +127,27 @@ def main() -> int:
             raise AssertionError(
                 f"neutral L0 gained a production/test consumer outside its fixture: {fragment}"
             )
+    for fragment in (
+        "fn prepare_neutral_vm_reference(",
+        "PublishedSourceEntryInvocationV1::from_verified_parts(",
+        ".prepare_vm_reference()",
+        "self.invocation_brand() != self.selected_entry().brand()",
+        "self.main_entry_target_matches()",
+        "DecodeRoundTripMismatch",
+    ):
+        require(raw_adapter_production, fragment, f"Raw neutral adapter {fragment}")
+    for forbidden in (
+        "VMValue",
+        "MirInterpreter",
+        "ProcessExitProjection",
+        "execute_module",
+        "NYASH_ENTRY",
+        "into_compatibility_module",
+        "fallback",
+        "retry",
+    ):
+        if forbidden in raw_adapter_production:
+            raise AssertionError(f"Raw neutral adapter gained runtime policy: {forbidden}")
 
     for forbidden in (
         "execute_module(",
@@ -143,6 +167,7 @@ def main() -> int:
         NEUTRAL_TASK,
         PUBLISHED,
         VM_INVOCATION,
+        RAW_ADAPTER,
         Path(__file__),
     ):
         if len(path.read_text().splitlines()) >= 800:
@@ -150,7 +175,8 @@ def main() -> int:
     print(
         "[entry-result-projection0-s3-execution-guard] ok "
         "exact_target=1 decode_plan=1 source_fault=1 owner_retained=1 "
-        "neutral_owner=1 passive_vm_projection=1 neutral_runtime_policy=0 below_800=1"
+        "neutral_owner=1 passive_vm_projection=1 raw_adapter=1 "
+        "neutral_runtime_policy=0 below_800=1"
     )
     return 0
 

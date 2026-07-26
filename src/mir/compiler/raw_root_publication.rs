@@ -14,9 +14,7 @@ use crate::mir::builder::{
     BuilderPublicationReceiptV1, MirBuilder, PreparedBuilderExternalCommitV1,
     RawExternalCommitModuleV1, RawPublishedModuleV1,
 };
-use crate::mir::module_invocation_identity::{
-    ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
-};
+use crate::mir::module_invocation_identity::{ModuleInvocationFamilyV1, ModuleInvocationTokenV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum RawPublicationFailureStageV1 {
@@ -59,6 +57,15 @@ impl RawPublishedInvocationCoreV1 {
 }
 
 impl RawPublishedInvocationV1 {
+    pub(in crate::mir) fn invocation_brand(
+        &self,
+    ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
+        match self {
+            Self::Script(value) => value.core.token.brand(),
+            Self::App(value) => value.core.token.brand(),
+        }
+    }
+
     pub(in crate::mir) fn selected_entry(&self) -> &SelectedSourceEntryContinuationV1 {
         match self {
             Self::Script(value) => value.core.selected_entry(),
