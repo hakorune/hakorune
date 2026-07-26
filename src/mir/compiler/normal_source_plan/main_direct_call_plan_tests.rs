@@ -5,9 +5,10 @@ use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamD
 use super::super::{
     NormalAcyclicCallableModuleErrorV1, NormalMainHelperResolutionStageV1,
     NormalSourcePlanClassifierV1, PreparedNormalSourcePlanInputV1, SealedNormalSourcePlanV1,
-    VerifiedNormalHelperTopologyPlanV1,
+    VerifiedNormalHelperTopologyPlanV1, VerifiedNormalRecursiveCallableModulePlanV1,
 };
 use super::*;
+use crate::mir::compiler::callable_scc_partition::CallableSccRecursionKindV1;
 
 fn literal(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -126,6 +127,36 @@ fn source(statements: Vec<ASTNode>) -> super::super::VerifiedNormalMainDirectCal
         .unwrap()
         .prepare_main_with_helper_catalog()
         .unwrap()
+}
+
+fn recursive_partition_snapshot(
+    plan: &VerifiedNormalRecursiveCallableModulePlanV1<'_>,
+) -> (
+    Vec<(String, Vec<String>, CallableSccRecursionKindV1)>,
+    Vec<String>,
+) {
+    let partition = plan.partition();
+    let components = partition
+        .components()
+        .iter()
+        .map(|component| {
+            (
+                component.id().anchor().name().to_owned(),
+                component
+                    .members()
+                    .iter()
+                    .map(|member| member.name().to_owned())
+                    .collect(),
+                component.recursion_kind(),
+            )
+        })
+        .collect();
+    let order = partition
+        .condensation_order()
+        .iter()
+        .map(|component| component.anchor().name().to_owned())
+        .collect();
+    (components, order)
 }
 
 #[test]
@@ -407,4 +438,159 @@ fn one_shot_topology_selector_selects_recursive_without_acyclic_retry() {
         assert_eq!(plan.recursive_component_count(), 1);
         assert_eq!(plan.main_direct_call_count(), 0);
     }
+}
+
+#[test]
+fn recursive_scc_and_independent_leaf_share_one_recursive_plan() {
+    let completed = NormalMainDirectCallPreflightV1::seal(source(vec![
+        main_box(None),
+        helper_with_result(
+            "looping",
+            call(
+                "looping",
+                ASTNode::Variable {
+                    name: "n".to_owned(),
+                    span: Span::unknown(),
+                },
+            ),
+        ),
+        helper("leaf"),
+    ]))
+    .unwrap()
+    .prepare_helper_resolution()
+    .resolve()
+    .unwrap();
+    let VerifiedNormalHelperTopologyPlanV1::Recursive(plan) =
+        completed.prepare_topology_plan().unwrap()
+    else {
+        panic!("one recursive SCC plus a leaf must select Recursive")
+    };
+
+    assert_eq!(plan.helper_count(), 2);
+    assert_eq!(plan.partition().components().len(), 2);
+    assert_eq!(plan.recursive_component_count(), 1);
+}
+
+#[test]
+fn main_call_into_recursive_helper_keeps_main_outside_helper_partition() {
+    let completed = NormalMainDirectCallPreflightV1::seal(source(vec![
+        main_box(Some(call("looping", literal(1)))),
+        helper_with_result(
+            "looping",
+            call(
+                "looping",
+                ASTNode::Variable {
+                    name: "n".to_owned(),
+                    span: Span::unknown(),
+                },
+            ),
+        ),
+    ]))
+    .unwrap()
+    .prepare_helper_resolution()
+    .resolve()
+    .unwrap();
+    let VerifiedNormalHelperTopologyPlanV1::Recursive(plan) =
+        completed.prepare_topology_plan().unwrap()
+    else {
+        panic!("Main target recursion must select Recursive")
+    };
+
+    assert_eq!(plan.helper_count(), 1);
+    assert_eq!(plan.main_direct_call_count(), 1);
+    assert!(plan
+        .partition()
+        .inventory()
+        .nodes()
+        .iter()
+        .all(|key| key.name() != "main"));
+}
+
+#[test]
+fn recursive_declaration_reorder_preserves_normalized_partition() {
+    let left = || {
+        helper_with_result(
+            "left",
+            call(
+                "right",
+                ASTNode::Variable {
+                    name: "n".to_owned(),
+                    span: Span::unknown(),
+                },
+            ),
+        )
+    };
+    let right = || {
+        helper_with_result(
+            "right",
+            call(
+                "left",
+                ASTNode::Variable {
+                    name: "n".to_owned(),
+                    span: Span::unknown(),
+                },
+            ),
+        )
+    };
+    let mut snapshots = Vec::new();
+    for statements in [
+        vec![main_box(None), left(), right(), helper("leaf")],
+        vec![helper("leaf"), right(), main_box(None), left()],
+    ] {
+        let completed = NormalMainDirectCallPreflightV1::seal(source(statements))
+            .unwrap()
+            .prepare_helper_resolution()
+            .resolve()
+            .unwrap();
+        let VerifiedNormalHelperTopologyPlanV1::Recursive(plan) =
+            completed.prepare_topology_plan().unwrap()
+        else {
+            panic!("mutual recursion must select Recursive")
+        };
+        snapshots.push(recursive_partition_snapshot(&plan));
+    }
+
+    assert_eq!(snapshots[0], snapshots[1]);
+}
+
+#[test]
+fn topology_profile_rejection_borrows_owner_and_reuse_stays_green() {
+    let success = || {
+        let completed =
+            NormalMainDirectCallPreflightV1::seal(source(vec![main_box(None), helper("healthy")]))
+                .unwrap()
+                .prepare_helper_resolution()
+                .resolve()
+                .unwrap();
+        assert!(matches!(
+            completed.prepare_topology_plan().unwrap(),
+            VerifiedNormalHelperTopologyPlanV1::Acyclic(_)
+        ));
+    };
+    success();
+
+    let rejected = NormalMainDirectCallPreflightV1::seal(source(vec![
+        main_box(None),
+        helper_with_result(
+            "wrong_type",
+            ASTNode::Literal {
+                value: LiteralValue::String("not-i64".to_owned()),
+                span: Span::unknown(),
+            },
+        ),
+    ]))
+    .unwrap()
+    .prepare_helper_resolution()
+    .resolve()
+    .unwrap();
+    assert!(matches!(
+        rejected.prepare_topology_plan(),
+        Err(NormalAcyclicCallableModuleErrorV1::FunctionPreflight { .. })
+    ));
+    assert!(matches!(
+        rejected.prepare_topology_plan(),
+        Err(NormalAcyclicCallableModuleErrorV1::FunctionPreflight { .. })
+    ));
+
+    success();
 }

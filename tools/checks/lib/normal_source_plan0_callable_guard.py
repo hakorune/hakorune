@@ -209,6 +209,10 @@ def check_callable_source(
     for test_name in (
         "one_shot_topology_selector_keeps_zero_edge_helpers_acyclic",
         "one_shot_topology_selector_selects_recursive_without_acyclic_retry",
+        "recursive_scc_and_independent_leaf_share_one_recursive_plan",
+        "main_call_into_recursive_helper_keeps_main_outside_helper_partition",
+        "recursive_declaration_reorder_preserves_normalized_partition",
+        "topology_profile_rejection_borrows_owner_and_reuse_stays_green",
     ):
         require(
             direct_call_plan_tests,

@@ -16,8 +16,7 @@ use crate::mir::compiler::capability::{
 };
 use crate::mir::compiler::lowering_input::CanonicalLoweringErrorV1;
 use crate::mir::compiler::resolved_callable_module::{
-    RejectedResolvedCallableModuleV1, ResolveCallableModuleErrorV1,
-    VerifiedResolvedCallableModuleV1,
+    ResolveCallableModuleErrorV1, VerifiedResolvedCallableModuleV1,
 };
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
@@ -329,6 +328,10 @@ impl VerifiedNormalAcyclicCallableModulePlanV1<'_> {
 }
 
 impl VerifiedNormalRecursiveCallableModulePlanV1<'_> {
+    pub(crate) const fn partition(&self) -> &VerifiedCallableSccPartitionV1 {
+        &self.partition
+    }
+
     pub(crate) fn helper_count(&self) -> usize {
         self.helper_plans.len()
     }
