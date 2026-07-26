@@ -117,6 +117,9 @@ def main() -> None:
                 fail(f"{row_id}: {field} must be non-empty")
 
     capability = (root / "src/mir/compiler/capability.rs").read_text()
+    function_role_policy = (
+        root / "src/mir/compiler/capability/function_role_policy.rs"
+    ).read_text()
     storage = (root / "src/mir/storage_class.rs").read_text()
     representation = (root / "src/mir/value_representation_fact.rs").read_text()
     instruction = (root / "src/mir/instruction.rs").read_text()
@@ -179,12 +182,15 @@ def main() -> None:
 
     required_capability_anchors = (
         "typed_signature_not_activated",
-        "owner_kind_not_first_family",
         "expression_not_in_first_family",
     )
     for anchor in required_capability_anchors:
         if anchor not in capability:
             fail(f"canonical capability boundary lost {anchor!r}")
+    if "SourceBindingSiteV1::Receiver" not in capability:
+        fail("canonical capability product lost its receiver-defense boundary")
+    if "Self::OrdinaryFirstFamily => \"owner_kind_not_first_family\"" not in function_role_policy:
+        fail("canonical function-role policy lost its first-family receiver rejection")
 
     if "no-behavior-change inventory" not in storage:
         fail("StorageClass stopped declaring itself non-authoritative inventory")

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-# Private SSA-I0-PROFILE helper. The sealed Rust product owns representation
-# acceptance; bounded production consumers may materialize only its rows.
+# Private SSA-I0-PROFILE helper. V1 remains a historical receipt; V2 records
+# the current split analyzer surface without widening profile semantics.
 
 guard_resolved_trivial_owner_profile_contract() {
   local tag="$1"
   local root="$2"
-  local profile="$root/tools/checks/fixtures/canonical_trivial_owner_profile_v1.json"
-  local validator="$root/tools/checks/lib/resolved_trivial_owner_profile.py"
+  local profile="$root/tools/checks/fixtures/canonical_trivial_owner_profile_v2.json"
+  local validator="$root/tools/checks/lib/resolved_trivial_owner_profile_v2.py"
   local owner="$root/src/mir/resolved_value_profile"
   local helper="${BASH_SOURCE[0]}"
   local files=(
@@ -15,6 +15,7 @@ guard_resolved_trivial_owner_profile_contract() {
     "$validator"
     "$owner/README.md"
     "$owner/analyzer.rs"
+    "$owner/analyzer_policy.rs"
     "$owner/consumption.rs"
     "$owner/coverage.rs"
     "$owner/direct_call.rs"
@@ -28,6 +29,7 @@ guard_resolved_trivial_owner_profile_contract() {
     "$owner/product.rs"
     "$owner/return_tests.rs"
     "$owner/tests.rs"
+    "$root/tools/checks/fixtures/canonical_trivial_owner_profile_v1.json"
     "$helper"
   )
 

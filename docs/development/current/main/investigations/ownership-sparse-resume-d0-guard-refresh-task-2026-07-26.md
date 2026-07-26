@@ -114,6 +114,11 @@ buildable and all touched source/check files stay below 800 lines.
    Refresh the receiver multi-anchor, deterministic legacy ledger, and
    versioned current trivial-owner profile receipt.
 
+   Progress: receiver/literal/PHI/Return anchors now name their current
+   owners, and `CurrentTrivialOwnerProfileReceiptV2` records the split
+   analyzer surface while retaining V1 as historical. The remaining work in
+   this row is the deterministic ReleaseStrong ledger regeneration.
+
 4. OWNERSHIP-SPARSE-RESUME-D0-G0
    Run the complete prerequisite receipts and either issue readiness or retain
    one exact inventory blocker. Only a green closeout unlocks OWN-GRAM-REJECT0.

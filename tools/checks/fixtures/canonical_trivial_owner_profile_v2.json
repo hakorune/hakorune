@@ -1,0 +1,37 @@
+{
+  "schema": "CurrentTrivialOwnerProfileReceiptV2",
+  "decision": "current_split_profile_receipt_without_semantic_widening",
+  "historical_v1": {
+    "path": "tools/checks/fixtures/canonical_trivial_owner_profile_v1.json",
+    "schema": "VerifiedTrivialCanonicalOwnerProfileContractV1"
+  },
+  "current_ssa_seam": {
+    "path": "tools/checks/fixtures/canonical_ssa_seam_inventory_v1.json",
+    "schema": "CanonicalSsaSeamInventoryV1",
+    "rows": 92
+  },
+  "ownership_profile": {
+    "path": "tools/checks/fixtures/canonical_ownership_production_profile_v1.json",
+    "schema": "CanonicalOwnershipProductionProfileV1",
+    "rows": 18
+  },
+  "claims": {
+    "profile_manifest_entries": 16,
+    "profile_production_rust_files": 11,
+    "profile_test_rust_files": 4,
+    "profile_entry_definitions": 4,
+    "profile_entry_consumer": "src/mir/compiler/capability.rs",
+    "binding_ssa_production_callers": 1,
+    "ownership_ssa_production_callers": 0,
+    "ownership_ssa_witness_installers": 0,
+    "production_ownership_opcode_callers": 0,
+    "exact_boxref_source_producers": 0,
+    "semantic_widening": 0
+  },
+  "entries": [
+    "analyze_trivial_canonical_owner_v1",
+    "analyze_trivial_canonical_main_owner_v1",
+    "analyze_trivial_canonical_main_owner_with_finite_direct_calls_v1",
+    "analyze_trivial_canonical_owner_with_finite_direct_calls_v1"
+  ]
+}
