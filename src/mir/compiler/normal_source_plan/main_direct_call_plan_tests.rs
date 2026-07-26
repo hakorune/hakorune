@@ -183,3 +183,34 @@ fn call_free_main_uses_the_same_combined_plan_without_dummy_calls() {
 
     assert_eq!(plan.direct_call_count(), 0);
 }
+
+#[test]
+fn one_call_free_helper_forms_a_zero_edge_normal_dag() {
+    let main = NormalMainDirectCallPreflightV1::seal(source(vec![
+        main_box(Some(call("helper", literal(1)))),
+        helper("helper"),
+    ]))
+    .unwrap();
+    let completed = main.prepare_helper_resolution().resolve().unwrap();
+    let plan = completed.prepare_acyclic_plan().unwrap();
+
+    assert_eq!(plan.helper_count(), 1);
+    assert_eq!(plan.helper_edge_count(), 0);
+    assert_eq!(plan.main_direct_call_count(), 1);
+}
+
+#[test]
+fn independent_helpers_keep_one_zero_edge_graph() {
+    let main = NormalMainDirectCallPreflightV1::seal(source(vec![
+        main_box(None),
+        helper("left"),
+        helper("right"),
+    ]))
+    .unwrap();
+    let completed = main.prepare_helper_resolution().resolve().unwrap();
+    let plan = completed.prepare_acyclic_plan().unwrap();
+
+    assert_eq!(plan.helper_count(), 2);
+    assert_eq!(plan.helper_edge_count(), 0);
+    assert_eq!(plan.main_direct_call_count(), 0);
+}

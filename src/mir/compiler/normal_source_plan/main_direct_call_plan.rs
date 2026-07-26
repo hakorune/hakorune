@@ -56,6 +56,24 @@ impl VerifiedNormalMainDirectCallPlanV1 {
     pub(crate) const fn block_expr_count(&self) -> usize {
         self.block_expr_count
     }
+
+    pub(super) fn into_parts(
+        self,
+    ) -> (
+        VerifiedNormalMainDirectCallSourceUnitV1,
+        VerifiedResolvedFunctionIfControlV1,
+        VerifiedFunctionCompletionV1,
+        VerifiedTrivialCanonicalOwnerV1,
+        usize,
+    ) {
+        (
+            self.source,
+            self.if_control,
+            self.completion,
+            self.profile,
+            self.block_expr_count,
+        )
+    }
 }
 
 #[derive(Debug)]

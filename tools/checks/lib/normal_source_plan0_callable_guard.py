@@ -23,6 +23,10 @@ def check_callable_source(
         "docs/development/current/main/investigations/"
         "normal-main-direct-call0-s0-execution-task-2026-07-26.md"
     )
+    acyclic_task_path = root / (
+        "docs/development/current/main/investigations/"
+        "normal-callable-module0-a0-s0-execution-task-2026-07-26.md"
+    )
     callable_source_path = source_dir / "callable_source.rs"
     callable_source_tests_path = source_dir / "callable_source_tests.rs"
     callable_catalog_source_path = source_dir / "callable_catalog_source.rs"
@@ -30,6 +34,7 @@ def check_callable_source(
     direct_call_source_tests_path = source_dir / "main_direct_call_source_tests.rs"
     direct_call_plan_path = source_dir / "main_direct_call_plan.rs"
     direct_call_plan_tests_path = source_dir / "main_direct_call_plan_tests.rs"
+    normal_acyclic_plan_path = source_dir / "normal_acyclic_module_plan.rs"
     capability_path = root / "src/mir/compiler/capability.rs"
     function_role_policy_path = (
         root / "src/mir/compiler/capability/function_role_policy.rs"
@@ -49,6 +54,7 @@ def check_callable_source(
     files = (
         task_path,
         direct_call_task_path,
+        acyclic_task_path,
         callable_source_path,
         callable_source_tests_path,
         callable_catalog_source_path,
@@ -56,6 +62,7 @@ def check_callable_source(
         direct_call_source_tests_path,
         direct_call_plan_path,
         direct_call_plan_tests_path,
+        normal_acyclic_plan_path,
         capability_path,
         function_role_policy_path,
         analyzer_policy_path,
@@ -67,6 +74,7 @@ def check_callable_source(
 
     task = task_path.read_text()
     direct_call_task = direct_call_task_path.read_text()
+    acyclic_task = acyclic_task_path.read_text()
     callable_source = callable_source_path.read_text()
     callable_source_tests = callable_source_tests_path.read_text()
     callable_catalog_source = callable_catalog_source_path.read_text()
@@ -74,6 +82,7 @@ def check_callable_source(
     direct_call_source_tests = direct_call_source_tests_path.read_text()
     direct_call_plan = direct_call_plan_path.read_text()
     direct_call_plan_tests = direct_call_plan_tests_path.read_text()
+    normal_acyclic_plan = normal_acyclic_plan_path.read_text()
     capability = capability_path.read_text()
     function_role_policy = function_role_policy_path.read_text()
     header_source = header_source_path.read_text()
@@ -242,6 +251,48 @@ def check_callable_source(
             raise AssertionError(
                 f"Main direct-call owner gained duplicate/lowering authority: {forbidden}"
             )
+
+    for fragment in (
+        "NORMAL-CALLABLE-MODULE0-A0-S0",
+        "zero-edge-capable normal helper DAG plan",
+        "second helper catalog/index",
+        "retry/fallback",
+    ):
+        require(acyclic_task, fragment, f"normal acyclic task {fragment}")
+    for definition in (
+        "struct PreparedNormalMainHelperResolutionV1",
+        "struct CompletedNormalMainHelperResolutionV1",
+        "struct RejectedNormalMainHelperResolutionV1",
+        "struct VerifiedNormalAcyclicCallableModulePlanV1",
+        "enum NormalAcyclicCallableModuleErrorV1",
+    ):
+        require_count(
+            normal_acyclic_plan,
+            definition,
+            1,
+            f"sole normal acyclic owner {definition}",
+        )
+    for fragment in (
+        "VerifiedResolvedCallableModuleV1::resolve_retaining(",
+        "VerifiedAcyclicCallableGraphV1::verify(",
+        "CanonicalLoweringPreflightV1::verify_function(input)",
+        "verify_function_with_finite_direct_calls_v1(input)",
+        "header_for_callable(target)",
+    ):
+        require(
+            normal_acyclic_plan,
+            fragment,
+            f"normal acyclic composition law {fragment}",
+        )
+    for test_name in (
+        "one_call_free_helper_forms_a_zero_edge_normal_dag",
+        "independent_helpers_keep_one_zero_edge_graph",
+    ):
+        require(
+            direct_call_plan_tests,
+            f"fn {test_name}(",
+            f"normal acyclic fixture {test_name}",
+        )
 
     for forbidden in (
         "MirBuilder",

@@ -7,8 +7,9 @@ use std::collections::BTreeMap;
 
 use crate::mir::resolved_semantics::{
     CallableCatalogSealOutcomeV1, CallableLookupErrorV1, CanonicalCallableKeyV1,
-    ResolveOwnerForestErrorV1, SourceCallableDeclarationSiteV1,
-    VerifiedCallableCatalogSourceUnitV1, VerifiedSemanticOwnerForestV1,
+    CatalogSealedResolverContinuationV1, ResolveOwnerForestErrorV1,
+    SourceCallableDeclarationSiteV1, VerifiedCallableCatalogSourceUnitV1,
+    VerifiedSemanticOwnerForestV1,
 };
 
 use super::source_projection::{SourceNavigationErrorV1, VerifiedSourceProjectionV1};
@@ -73,64 +74,111 @@ pub(crate) struct VerifiedResolvedCallableModuleV1 {
     functions_by_key: BTreeMap<CanonicalCallableKeyV1, VerifiedResolvedFunctionUnitV1>,
 }
 
+#[derive(Debug)]
+pub(crate) struct RejectedResolvedCallableModuleV1 {
+    owner: CallableCatalogSealOutcomeV1,
+    error: ResolveCallableModuleErrorV1,
+}
+
+impl RejectedResolvedCallableModuleV1 {
+    pub(crate) const fn error(&self) -> &ResolveCallableModuleErrorV1 {
+        &self.error
+    }
+
+    pub(crate) fn discard(self) {
+        drop(self);
+    }
+
+    fn into_error(self) -> ResolveCallableModuleErrorV1 {
+        self.error
+    }
+
+    pub(in crate::mir) fn into_normal_composition_parts(
+        self,
+    ) -> (CallableCatalogSealOutcomeV1, ResolveCallableModuleErrorV1) {
+        (self.owner, self.error)
+    }
+}
+
 impl VerifiedResolvedCallableModuleV1 {
     pub(crate) fn resolve(
         catalog_outcome: CallableCatalogSealOutcomeV1,
     ) -> Result<Self, ResolveCallableModuleErrorV1> {
+        Self::resolve_retaining(catalog_outcome)
+            .map_err(RejectedResolvedCallableModuleV1::into_error)
+    }
+
+    pub(crate) fn resolve_retaining(
+        catalog_outcome: CallableCatalogSealOutcomeV1,
+    ) -> Result<Self, RejectedResolvedCallableModuleV1> {
         let (source_unit, continuation) = catalog_outcome.into_parts();
         let source = source_unit.into_resolution_source();
         let sites = source.declaration_sites().to_vec();
         let mut resolver = continuation.into_resolver();
-        let mut functions_by_key = BTreeMap::new();
+        let resolved = (|| {
+            let mut functions_by_key = BTreeMap::new();
+            for site in sites {
+                let declaration = source
+                    .catalog()
+                    .declaration(site)
+                    .ok_or(ResolveCallableModuleErrorV1::MissingDeclaration(site))?;
+                let header = source
+                    .catalog()
+                    .index()
+                    .header_for_callable(declaration.callable())
+                    .map_err(|error| {
+                        ResolveCallableModuleErrorV1::MissingCallableHeader(site, error)
+                    })?;
+                let key = header.source_key().clone();
+                let located = source
+                    .located_function(site)
+                    .ok_or(ResolveCallableModuleErrorV1::MissingFunctionSyntax(site))?;
+                if located.site() != site {
+                    return Err(ResolveCallableModuleErrorV1::SiteMismatch {
+                        expected: site,
+                        actual: located.site(),
+                    });
+                }
+                let forest = resolver
+                    .resolve_forest_with_reserved_root(
+                        located.function(),
+                        declaration.origin(),
+                        declaration.callable().owner(),
+                        source.catalog().index(),
+                    )
+                    .map_err(|error| ResolveCallableModuleErrorV1::OwnerForest(site, error))?;
+                if forest.roots() != [declaration.callable().owner()] {
+                    return Err(ResolveCallableModuleErrorV1::RootOwnerMismatch(site));
+                }
+                let projection = VerifiedSourceProjectionV1::seal(located.root(), &forest)
+                    .map_err(|error| ResolveCallableModuleErrorV1::Projection(site, error))?;
+                let unit = VerifiedResolvedFunctionUnitV1::new(site, forest, projection);
+                if functions_by_key.insert(key.clone(), unit).is_some() {
+                    return Err(ResolveCallableModuleErrorV1::DuplicateCanonicalKey(key));
+                }
+            }
 
-        for site in sites {
-            let declaration = source
-                .catalog()
-                .declaration(site)
-                .ok_or(ResolveCallableModuleErrorV1::MissingDeclaration(site))?;
-            let header = source
-                .catalog()
-                .index()
-                .header_for_callable(declaration.callable())
-                .map_err(|error| {
-                    ResolveCallableModuleErrorV1::MissingCallableHeader(site, error)
-                })?;
-            let key = header.source_key().clone();
-            let located = source
-                .located_function(site)
-                .ok_or(ResolveCallableModuleErrorV1::MissingFunctionSyntax(site))?;
-            if located.site() != site {
-                return Err(ResolveCallableModuleErrorV1::SiteMismatch {
-                    expected: site,
-                    actual: located.site(),
+            let declarations = source.catalog().len();
+            if declarations != functions_by_key.len() {
+                return Err(ResolveCallableModuleErrorV1::CardinalityMismatch {
+                    declarations,
+                    functions: functions_by_key.len(),
                 });
             }
-            let forest = resolver
-                .resolve_forest_with_reserved_root(
-                    located.function(),
-                    declaration.origin(),
-                    declaration.callable().owner(),
-                    source.catalog().index(),
-                )
-                .map_err(|error| ResolveCallableModuleErrorV1::OwnerForest(site, error))?;
-            if forest.roots() != [declaration.callable().owner()] {
-                return Err(ResolveCallableModuleErrorV1::RootOwnerMismatch(site));
+            Ok(functions_by_key)
+        })();
+        let functions_by_key = match resolved {
+            Ok(functions) => functions,
+            Err(error) => {
+                return Err(RejectedResolvedCallableModuleV1 {
+                    owner: CallableCatalogSealOutcomeV1::restore(
+                        source.finish(),
+                        CatalogSealedResolverContinuationV1::restore(resolver),
+                    ),
+                    error,
+                })
             }
-            let projection = VerifiedSourceProjectionV1::seal(located.root(), &forest)
-                .map_err(|error| ResolveCallableModuleErrorV1::Projection(site, error))?;
-            let unit = VerifiedResolvedFunctionUnitV1::new(site, forest, projection);
-            if functions_by_key.insert(key.clone(), unit).is_some() {
-                return Err(ResolveCallableModuleErrorV1::DuplicateCanonicalKey(key));
-            }
-        }
-
-        let declarations = source.catalog().len();
-        if declarations != functions_by_key.len() {
-            return Err(ResolveCallableModuleErrorV1::CardinalityMismatch {
-                declarations,
-                functions: functions_by_key.len(),
-            });
-        }
+        };
         Ok(Self {
             source: source.finish(),
             functions_by_key,

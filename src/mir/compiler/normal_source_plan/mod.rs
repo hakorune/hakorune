@@ -13,6 +13,7 @@ mod main_function_plan;
 mod main_resolved_source;
 mod main_source;
 mod main_thunk_plan;
+mod normal_acyclic_module_plan;
 mod product;
 mod rejection;
 #[cfg(test)]
@@ -58,6 +59,12 @@ pub(crate) use main_source::{
 pub(crate) use main_thunk_plan::{
     NormalMainThunkPlanErrorV1, RejectedNormalMainThunkPlanV1, VerifiedNormalMainEntryRelationV1,
     VerifiedNormalMainThunkPlanV1, VerifiedNormalMainThunkResultV1,
+};
+#[allow(unused_imports)]
+pub(crate) use normal_acyclic_module_plan::{
+    CompletedNormalMainHelperResolutionV1, NormalAcyclicCallableModuleErrorV1,
+    PreparedNormalMainHelperResolutionV1, RejectedNormalMainHelperResolutionV1,
+    VerifiedNormalAcyclicCallableModulePlanV1,
 };
 #[allow(unused_imports)]
 pub(crate) use product::{
