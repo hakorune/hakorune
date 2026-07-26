@@ -31,9 +31,12 @@ pub struct UnifiedCallEmitterBox;
 mod array_write_timing_tests;
 #[cfg(test)]
 mod map_write_timing_tests;
+mod physical_terminal;
 mod post_success;
 #[cfg(test)]
 mod temporal_witness_tests;
+
+use physical_terminal::{UnifiedCallAlternateRouteV1, UnifiedCallEmissionOutcomeV1};
 
 impl UnifiedCallEmitterBox {
     /// Unified call emission - replaces all emit_*_call methods
@@ -175,6 +178,27 @@ impl UnifiedCallEmitterBox {
             crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
         >,
     ) -> Result<(), String> {
+        Self::emit_unified_call_outcome_impl_with_lookup_and_map_replay(
+            builder,
+            dst,
+            target,
+            args,
+            lookup,
+            map_write_replay,
+        )
+        .map(drop)
+    }
+
+    fn emit_unified_call_outcome_impl_with_lookup_and_map_replay(
+        builder: &mut MirBuilder,
+        dst: Option<ValueId>,
+        target: CallTarget,
+        args: Vec<ValueId>,
+        lookup: Option<&dyn FunctionSignatureLookupV1>,
+        map_write_replay: Option<
+            crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
+        >,
+    ) -> Result<UnifiedCallEmissionOutcomeV1, String> {
         // Phase 287 P4: Debug trace to see what CallTarget is passed
         if crate::config::env::builder_static_call_trace() {
             let ring0 = crate::runtime::get_global_ring0();
@@ -279,7 +303,9 @@ impl UnifiedCallEmitterBox {
                 args.len(),
             ) {
                 res?;
-                return Ok(());
+                return Ok(UnifiedCallEmissionOutcomeV1::Alternate(
+                    UnifiedCallAlternateRouteV1::EarlyStringLikeRewrite,
+                ));
             }
             // equals/1
             if let Some(res) =
@@ -294,7 +320,9 @@ impl UnifiedCallEmitterBox {
                 )
             {
                 res?;
-                return Ok(());
+                return Ok(UnifiedCallEmissionOutcomeV1::Alternate(
+                    UnifiedCallAlternateRouteV1::SpecialEqualsRewrite,
+                ));
             }
             // Known or unique
             if let Some(res) =
@@ -309,7 +337,9 @@ impl UnifiedCallEmitterBox {
                 )
             {
                 res?;
-                return Ok(());
+                return Ok(UnifiedCallEmissionOutcomeV1::Alternate(
+                    UnifiedCallAlternateRouteV1::KnownOrUniqueRewrite,
+                ));
             }
         }
 
@@ -332,12 +362,14 @@ impl UnifiedCallEmitterBox {
                         },
                         super::materializer::GlobalPresenceAuthorityV1::InvocationHeader,
                     );
-                    if let Some(result) =
+                    if let Some(_result) =
                         super::materializer::CallMaterializerBox::try_global_additional_resolvers_with_authority(
                             builder, dst, name, &args, authority,
                         )?
                     {
-                        return Ok(result);
+                        return Ok(UnifiedCallEmissionOutcomeV1::Alternate(
+                            UnifiedCallAlternateRouteV1::AdditionalGlobalResolver,
+                        ));
                     }
                 }
                 return Err(e);
@@ -424,7 +456,9 @@ impl UnifiedCallEmitterBox {
                     super::super::types::array_element::observe_array_write_call(
                         builder, &callee, &args,
                     );
-                    return Ok(());
+                    return Ok(UnifiedCallEmissionOutcomeV1::Alternate(
+                        UnifiedCallAlternateRouteV1::KnownArrayWrite,
+                    ));
                 }
             }
         }
@@ -556,7 +590,9 @@ impl UnifiedCallEmitterBox {
                 let res =
                     builder.emit_box_or_plugin_call(dst, *r, method.clone(), None, args, effects);
                 builder.function_state.in_unified_boxcall_fallback = prev_flag;
-                return res;
+                return res.map(|()| {
+                    UnifiedCallEmissionOutcomeV1::Alternate(UnifiedCallAlternateRouteV1::BoxCall)
+                });
             }
         }
 
@@ -653,26 +689,13 @@ impl UnifiedCallEmitterBox {
             }
         }
 
-        let prepared_post_success = post_success::PreparedUnifiedCallPostSuccessV1::prepare(
-            mir_call.dst,
-            &callee,
-            &args_local,
+        physical_terminal::emit_finalized_generic_call_v1(
+            builder,
+            mir_call,
             map_write_replay,
             lookup,
-        );
-
-        // Build the MIR Call instruction with a concrete Callee and finalized operands.
-        let call_inst = MirInstruction::Call {
-            dst: mir_call.dst,
-            func: ValueId::INVALID, // Compatibility field; Callee is the call target SSOT.
-            callee: Some(callee),
-            args: args_local,
-            effects: mir_call.effects,
-        };
-
-        builder.emit_instruction(call_inst)?;
-        prepared_post_success.commit_after_success(builder);
-        Ok(())
+        )
+        .map(UnifiedCallEmissionOutcomeV1::Generic)
     }
 
     /// Emit global call with name constant (public compatibility entry).
