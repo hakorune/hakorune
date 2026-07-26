@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-MAIN0-TX0-I0 is closed with one atomic two-draft candidate commit, lossless FunctionUnitOriginV1 evidence, four-stage failure retention, and same-Builder reuse. SOURCE-ENTRY-VMREF-NEUTRAL0-L0 is active to separate one backend-neutral published source-entry owner from its passive VM-reference projection before either Raw or canonical production adapter is connected."
+status = "SOURCE-ENTRY-VMREF-NEUTRAL0-L0 is closed with one move-only backend-neutral published-entry owner, one passive VM-reference projection, exact target/result/membership evidence, and zero production consumers. SOURCE-ENTRY-VMREF-RAW-ADAPTER0-I0 is active to cut the existing supported Raw reference lane over without changing its behavior."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "SOURCE-ENTRY-VMREF-NEUTRAL0-L0"
-current_execution_summary = "Add one disconnected source-family-neutral published-entry vocabulary and a separate passive VM-reference projection. Preserve complete family owners, exact entry target, exact result contract including all Unit origins, and typed rejection retention. Production adapters, VM execution, process projection, runner publication, default route, fallback, and Legacy retirement remain zero."
+current_execution_row = "SOURCE-ENTRY-VMREF-RAW-ADAPTER0-I0"
+current_execution_summary = "First split the near-limit Raw execution test module, then consume one complete Raw published owner into the neutral published-entry and VM projection chain. Preserve exact target, result, status, diagnostic, decoy-entry, and reuse behavior while retiring the parallel Raw-only execution authority. Canonical Main, default/product backend, fallback, and Legacy changes remain zero."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -332,7 +332,7 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/source-entry-vmref-neutral0-l0-execution-task-2026-07-26.md"
+active_phase = "docs/development/current/main/investigations/source-entry-vmref-raw-adapter0-i0-execution-task-2026-07-26.md"
 phase_status = "docs/development/current/main/investigations/normal-main0-tx0-i0-execution-task-2026-07-26.md"
 method_anchor = "docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -413,9 +413,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "source-entry-vmref-neutral0-l0-execution-task-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/source-entry-vmref-neutral0-l0-execution-task-2026-07-26.md"
-latest_card_summary = """NORMAL-MAIN0-TX0-I0 is closed. SOURCE-ENTRY-VMREF-NEUTRAL0-L0 now separates a backend-neutral published source-entry owner from a VM-reference-specific passive projection, keeps Raw and canonical publication evidence intact, and forbids execution/status/diagnostic authority until the later adapters."""
+latest_card = "source-entry-vmref-raw-adapter0-i0-execution-task-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/source-entry-vmref-raw-adapter0-i0-execution-task-2026-07-26.md"
+latest_card_summary = """SOURCE-ENTRY-VMREF-NEUTRAL0-L0 is closed with production consumers zero. SOURCE-ENTRY-VMREF-RAW-ADAPTER0-I0 now moves the existing Raw production reference lane through that owner, proves exact behavior parity, and retires the parallel Raw-only execution authority before canonical Main connects."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -617,7 +617,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "SOURCE-ENTRY-VMREF-NEUTRAL0-L0"
+current_blocker_token = "SOURCE-ENTRY-VMREF-RAW-ADAPTER0-I0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

@@ -79,6 +79,8 @@ pub(in crate::mir) mod source_entry_ny_main;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_entry_projection;
 #[allow(dead_code)]
+pub(in crate::mir) mod source_entry_published_invocation;
+#[allow(dead_code)]
 pub(in crate::mir) mod source_entry_vm_reference;
 #[cfg(feature = "vm-reference")]
 pub(in crate::mir) mod source_entry_vm_execution;
@@ -87,6 +89,8 @@ pub(in crate::mir) mod source_entry_vm_runner_adapter;
 pub(in crate::mir) mod source_entry_vm_diagnostic;
 #[cfg(test)]
 mod source_entry_vm_reference_p0;
+#[allow(dead_code)]
+pub(in crate::mir) mod source_entry_vm_invocation;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_runtime_inputs;
 #[allow(dead_code)]

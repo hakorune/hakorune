@@ -95,13 +95,8 @@ pub(in crate::mir) enum PublishedSourceEntryResultContractV1 {
     String,
 }
 
-pub(in crate::mir) enum PublishedSourceEntryFamilyV1 {
-    Raw(RawPublishedInvocationV1),
-    CanonicalNormal(CanonicalNormalPublishedSourceEntryV1),
-}
-
-pub(in crate::mir) struct PublishedSourceEntryInvocationV1 {
-    family: PublishedSourceEntryFamilyV1,
+pub(in crate::mir) struct PublishedSourceEntryInvocationV1<O> {
+    owner: O,
     target: VerifiedPublishedSourceEntryTargetV1,
     result: PublishedSourceEntryResultContractV1,
     membership: PublishedSourceEntryMembershipV1,
@@ -109,10 +104,12 @@ pub(in crate::mir) struct PublishedSourceEntryInvocationV1 {
 }
 ```
 
-The family variants retain their complete published owner. A marker-only
-family enum is insufficient. `CanonicalNormalPublishedSourceEntryV1` has no
-L0 production constructor; the later canonical adapter may issue it only by
+The generic parameter is always the complete published family owner, never a
+marker or evidence summary. The Raw adapter instantiates it with the complete
+Raw published owner. The canonical adapter may instantiate it only after
 consuming the completed candidate through the publication transition below.
+Any later VM-specific type erasure must remain a closed enum whose variants
+still retain those complete owners.
 
 The Raw and canonical adapters are the only eventual producers. L0 adds no
 production constructor or consumer.
@@ -237,9 +234,9 @@ status construction
 ## L0 implementation order
 
 ```text
-L0-A FILE-SPLIT0
-  move the cfg(test) body out of source_entry_vm_execution.rs
-  behavior and caller delta zero
+L0-A FILE-BUDGET0
+  keep source_entry_vm_execution.rs unchanged and below 800 in L0
+  reserve its cfg(test) extraction as the mandatory first Raw-adapter edit
 
 L0-B PUBLISHED0
   backend-neutral target/result/membership/family vocabulary
@@ -268,9 +265,12 @@ passive success:
   Integer / Bool / Float / String result contracts
 
 passive rejection:
-  family/membership mismatch
   target mismatch
   arity mismatch
+  empty target symbol
+
+adapter rejection reserved for later rows:
+  family/membership mismatch
   result/physical relation mismatch
 
 structural:
@@ -317,6 +317,9 @@ Raw adapter cutover must prove the existing exact target, status, diagnostic,
 decoy-entry, and reuse matrix before retiring:
 
 ```text
+RAW-ADAPTER0-A FILE-SPLIT0
+  extract source_entry_vm_execution.rs cfg(test) body before adapter edits
+
 PreparedRawVmReferenceActivationV1
 CompletedRawVmReferenceExecutionV1
 VmReferenceProjectedOwnerV1::Raw
@@ -387,4 +390,51 @@ helper/direct-call support
 imports/using
 JSON/LLVM/native
 Legacy retirement
+```
+
+## Closeout
+
+```text
+Status:
+  closed
+
+Backend-neutral owner:
+  PublishedSourceEntryInvocationV1<O>
+
+Passive VM projection:
+  PreparedVmReferenceSourceEntryInvocationV1<O>
+
+Production producers / consumers:
+  zero / zero
+
+Execution / process / diagnostic authority:
+  zero / zero / zero
+
+Exact evidence:
+  target symbol + arity
+  complete owner by value
+  Raw-brand or canonical-owner membership
+  Unit physical relation
+  Unit five canonical origins
+  Integer / Bool / Float / String
+```
+
+Acceptance:
+
+```text
+cargo check --lib                                      = green
+source_entry_published_invocation                      = 2/2
+source_entry_vm_invocation                             = 1/1
+normal Main transaction regression                     = 11/11
+S3 execution/neutral guard                             = green
+S3 owner guard                                         = green
+normal-source-plan0 row guard                          = green
+current-state pointer guard                            = green
+all source/check files below 800                       = green
+```
+
+Next row:
+
+```text
+SOURCE-ENTRY-VMREF-RAW-ADAPTER0-I0
 ```
