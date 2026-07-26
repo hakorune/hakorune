@@ -217,7 +217,7 @@ def check_callable_source(
         "finite_main_plan_seals_exact_helper_call",
         "multiple_nested_main_calls_preserve_child_before_parent_rows",
         "helper_declaration_order_does_not_change_main_call_meaning",
-        "call_free_main_does_not_enter_the_direct_call_plan",
+        "call_free_main_uses_the_same_combined_plan_without_dummy_calls",
     ):
         require(
             direct_call_plan_tests,

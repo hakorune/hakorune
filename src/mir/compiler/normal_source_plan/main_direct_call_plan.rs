@@ -81,10 +81,17 @@ impl NormalMainDirectCallPreflightV1 {
         source: VerifiedNormalMainDirectCallSourceUnitV1,
     ) -> Result<VerifiedNormalMainDirectCallPlanV1, RejectedNormalMainDirectCallPlanV1> {
         let plan = match source.borrow_function_input().and_then(|input| {
-            CanonicalLoweringPreflightV1::verify_normal_main0_function_with_finite_direct_calls_v1(
-                input,
-                source.role(),
-            )
+            if input.function().direct_call_targets().next().is_some() {
+                CanonicalLoweringPreflightV1::verify_normal_main0_function_with_finite_direct_calls_v1(
+                    input,
+                    source.role(),
+                )
+            } else {
+                CanonicalLoweringPreflightV1::verify_normal_main0_function_v1(
+                    input,
+                    source.role(),
+                )
+            }
         }) {
             Ok(plan) => plan,
             Err(error) => {

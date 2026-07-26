@@ -290,3 +290,43 @@ String/object/dynamic carrier
 runner/default/product cutover
 Legacy or Raw retirement
 ```
+
+## Closeout
+
+```text
+Status:
+  closed
+
+Landed:
+  043274ac6c refactor: prepare callable catalog seals
+  8cf87877be feat: seal normal Main direct call plan
+
+Owner chain:
+  one Program-owned normal callable source
+  -> borrow-only owner-free helper candidate preparation
+  -> borrow-only helper owner/catalog preparation
+  -> infallible catalog commit
+  -> same resolver continuation issues Main owner
+  -> complete helper index resolves Main FunctionCall sites
+  -> call-free or finite direct-call Main capability proof
+
+Structural result:
+  helper catalog count        = 1
+  Main catalog membership     = 0
+  resolver session count      = 1
+  AST clone/rewrite           = 0
+  call-free retry             = 0
+  Builder/MIR/backend caller  = 0
+
+Focused evidence:
+  normal_source_plan tests    = green
+  Main direct-call plan       = 4 green
+  callable catalog tests      = 15 green
+  normal source-plan guard    = green
+  vm-reference library check  = green
+  current-state pointer guard = green
+  touched source/check files  < 800 lines
+
+Next:
+  NORMAL-CALLABLE-MODULE0-A0-S0
+```

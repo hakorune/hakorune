@@ -176,14 +176,10 @@ fn helper_declaration_order_does_not_change_main_call_meaning() {
 }
 
 #[test]
-fn call_free_main_does_not_enter_the_direct_call_plan() {
-    let rejected =
+fn call_free_main_uses_the_same_combined_plan_without_dummy_calls() {
+    let plan =
         NormalMainDirectCallPreflightV1::seal(source(vec![main_box(None), helper("helper")]))
-            .unwrap_err();
+            .unwrap();
 
-    assert!(matches!(
-        rejected.error(),
-        NormalMainDirectCallPlanErrorV1::CanonicalPreflight(_)
-    ));
-    rejected.discard();
+    assert_eq!(plan.direct_call_count(), 0);
 }
