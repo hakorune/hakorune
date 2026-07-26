@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1 accepts B. The complete normal source-to-candidate chain is closed: neutral entry L0, Raw/Main adapters, Main VM parity, callable source/direct-call/A0/R0, and TX0 HANDOFF0 through G0 all retain sealed source identity, exact entry/result evidence, atomic unpublished candidate construction, typed failure retention, and zero default-route consumers. NORMAL-FILE-CANONICAL-CORE0-PROFILE0-S0 is closed: the canonical-core profile is distinct, survives one read/parse/source-plan boundary, and cannot construct a Raw handoff. NORMAL-FILE-CANONICAL-CORE0-DISPATCH-D0 is the active design stop."
+status = "NORMAL-FILE-CANONICAL-CORE0-DISPATCH-prime-r1 is accepted. The sole family match belongs to a compiler-layer consuming dispatcher; it produces a complete unpublished candidate before one canonical publication boundary and the existing neutral VM-reference terminal. Initial S0 connects Main0 only, while Script and Callable retain typed pre-Builder capability rejection until their canonical publication evidence is complete. Raw Script result semantics may be reused, but Raw publication/brand/fallback are forbidden. Alias/View remain scheduled after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and before product/default promotion."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "NORMAL-FILE-CANONICAL-CORE0-DISPATCH-D0"
-current_execution_row = "NORMAL-FILE-CANONICAL-CORE0-DISPATCH-D0"
-current_execution_summary = "Choose the sole compiler-layer consuming dispatcher from the sealed canonical-core source plan to existing Script/Main/callable owners. Do not implement dispatch, execution, or a caller before the decision."
+current_design_stop = "none"
+current_execution_row = "NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0"
+current_execution_summary = "Implement the compiler-neutral consuming handoff and sole compiler-layer family dispatcher. The first buildable slice connects Main0 to an unpublished canonical candidate; Script and Callable remain typed pre-Builder pending until their candidate/publication evidence cells land. Production caller remains zero."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -332,8 +332,8 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-main-physical0-s0-execution-task-2026-07-26.md"
-phase_status = "docs/development/current/main/investigations/normal-callable-module0-tx0-s0-execution-task-2026-07-26.md"
+active_phase = "docs/development/current/main/investigations/normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26.md"
+phase_status = "docs/development/current/main/investigations/normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26.md"
 method_anchor = "docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -363,6 +363,8 @@ normal_callable_module0_tx0_handoff0_task = "docs/development/current/main/inves
 normal_callable_module0_tx0_drafts0_lowerer0_task = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-lowerer0-s0-execution-task-2026-07-26.md"
 normal_callable_module0_tx0_drafts0_helper_prefix0_task = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-helper-prefix0-s0-execution-task-2026-07-26.md"
 normal_callable_module0_tx0_drafts0_main_physical0_task = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-main-physical0-s0-execution-task-2026-07-26.md"
+normal_file_canonical_core_dispatch_decision = "docs/development/current/main/investigations/normal-file-canonical-core0-dispatch-d0-design-question-2026-07-26.md"
+normal_file_canonical_core_dispatch_task = "docs/development/current/main/investigations/normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26.md"
 ownership_sparse_surface_task = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
 ownership_sparse_resume_after = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0"
 ownership_sparse_first_resume_row = "OWNERSHIP-SPARSE-RESUME-D0"
@@ -428,9 +430,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "normal-file-canonical-core0-dispatch-d0-design-question-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/normal-file-canonical-core0-dispatch-d0-design-question-2026-07-26.md"
-latest_card_summary = """NORMAL-FILE-CANONICAL-CORE0-PROFILE0-S0 is closed: a separate canonical-core profile survives the one-read/one-parse/source-plan boundary and rejects Raw handoff while retaining its source owner. The next connection needs a new one-shot dispatch authority, so NORMAL-FILE-CANONICAL-CORE0-DISPATCH-D0 is active; no dispatch, execution, or caller is authorized."""
+latest_card = "normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26.md"
+latest_card_summary = """NORMAL-FILE-CANONICAL-CORE0-DISPATCH-prime-r1 accepts one compiler-layer consuming dispatcher, candidate-first publication, Script semantic-recipe reuse without Raw publication, and a Main0-only first connection. NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0 begins with a compiler-neutral handoff and Main candidate; production caller remains zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -632,7 +634,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-FILE-CANONICAL-CORE0-DISPATCH-D0"
+current_blocker_token = "NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

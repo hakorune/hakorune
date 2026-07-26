@@ -122,14 +122,18 @@ all modified/new source/check files                         < 800 lines
 
 ```text
 NORMAL-FILE-CANONICAL-CORE0-PROFILE0-S0
+-> NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0
+-> NORMAL-FILE-CANONICAL-CORE0-REQUEST0-S0
+-> NORMAL-FILE-CANONICAL-CORE0-REPORT0-S0
 -> NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0a
 -> NORMAL-FILE-CANONICAL-CORE0-REUSE0-P0
 -> NORMAL-FILE-CANONICAL-CORE0-CALLER0-I0
 ```
 
-`PARITY0-P0a` may connect only the already-sealed source-plan families to
-their existing candidate/publication/neutral-entry owners. A missing source
-family capability is a typed rejection, never a profile fallback.
+`DISPATCH0-S0` owns the sole family match and candidate-first publication
+series. `PARITY0-P0a` begins only after Script, Main, and Callable all reach
+the neutral entry owner through that dispatcher. A missing source-family
+capability is a typed rejection, never a profile fallback.
 
 ## Non-claims
 

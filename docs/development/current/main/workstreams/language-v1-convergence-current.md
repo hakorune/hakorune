@@ -258,15 +258,17 @@ FUNCTION-EXIT-F1-RETURN0-S0
   -> NORMAL-SOURCE-PLAN0-S0 (closed: disconnected source-family classifier)
   -> NORMAL-SOURCE-PLAN0-INPUT0-S0 / G0 (closed)
   -> NORMAL-MAIN0-SOURCE0-S0 (closed: Program-owned exact Main source)
-  -> NORMAL-MAIN0-F1-PLAN0-S0 (active canonical Main series; exact row is in CURRENT_STATE)
+  -> Main F1/thunk/TX0, neutral VM adapters, callable A0/R0/TX0 (closed)
+  -> NORMAL-FILE-CANONICAL-CORE0-PROFILE0-S0 (closed)
+  -> NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0 (exact cell is in CURRENT_STATE)
   One new CLI-visible, default-off request is added; no existing caller is
   replaced, so no legacy sunset is issued in this series.
   The accepted classifier keeps the narrow profile frozen, separates profile
   admission, and seals exactly Script/Main0/CallableModule. The durable
   corrected task order is in
   [normal-source-plan0-design-stop-2026-07-26.md](../investigations/normal-source-plan0-design-stop-2026-07-26.md);
-  the exact active slice is in
-  [normal-main0-f1-plan0-s0-execution-task-2026-07-26.md](../investigations/normal-main0-f1-plan0-s0-execution-task-2026-07-26.md).
+  the exact active slice is in the card named by
+  `CURRENT_STATE.latest_card_path`.
 
 -> NORMAL-CANONICAL-CORE0
   source-plan S0/INPUT/G0, Main F1 plus one shared canonical module
@@ -279,6 +281,19 @@ FUNCTION-EXIT-F1-RETURN0-S0
   requires one source classifier, Script/Main/helper results, one exact entry
   thunk, atomic publication, one shared VM/process terminal, one explicit
   canonical-core caller, and fallback zero.
+
+-> OWNERSHIP-SPARSE-RESUME-D0
+  -> syntax safety/evidence
+  -> passive ownership grammar and Loan Flow
+  -> first Unique Box substrate
+  -> first ScopedAlias
+  -> callable ownership ABI
+  -> first Anchored View
+  -> OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
+  The exact Pack A-E rows are owned by
+  [hakorune-sparse-ownership-surface-task-2026-07-15.md](../investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md).
+  Ownership does not block canonical-core completion, but product/default
+  promotion does not bypass its readiness gate.
 
 -> NORMAL-ENTRY-PRODUCT-BACKEND-D0
   -> NORMAL-DEFAULT-CALLER-CENSUS0-P0

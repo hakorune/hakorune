@@ -1,17 +1,64 @@
 ---
-Status: active design stop
+Status: closed; accepted design
 Date: 2026-07-26
-Decision: pending
+Decision: NORMAL-FILE-CANONICAL-CORE0-DISPATCH-prime-r1
 Row: NORMAL-FILE-CANONICAL-CORE0-DISPATCH-D0
 Scope: choose the sole consuming dispatch owner from a sealed canonical-core normal-file source plan to the existing Script, Main, and callable-candidate owners
 ceremony_tier: T2 new authority
+Next executable row: NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0
 Related:
   - docs/development/current/main/investigations/normal-file-canonical-core0-profile0-s0-execution-task-2026-07-26.md
   - docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md
   - docs/development/current/main/investigations/normal-callable-module0-tx0-s0-execution-task-2026-07-26.md
+  - docs/development/current/main/investigations/normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26.md
 ---
 
 # NORMAL-FILE-CANONICAL-CORE0-DISPATCH-D0
+
+## Accepted decision
+
+```text
+Q1:
+  A — compiler-layer consuming dispatcher
+
+Q2:
+  family evidenceを保持したunpublished candidateを先に作る
+  -> one canonical publication boundary
+  -> existing neutral VM-reference terminal
+
+Q3:
+  existing RawScriptBodyRecipeV1 remains the Script semantic owner
+  RawPublishedInvocationV1 / Raw invocation brand are forbidden
+  canonical-core Script waits for a canonical candidate/publication adapter
+
+Q4:
+  initial connection = Main0 only
+  Script / CallableModule = typed pre-Builder FamilyCapabilityPending
+  all three families must be connected before full PARITY0-P0a and a caller
+```
+
+The runner/front door may issue one consuming compiler-neutral handoff, but it
+does not inspect the source-plan variant. The sole family match lives in the
+compiler layer.
+
+```text
+ClassifiedNormalFileSourcePlanV1
+  -> CanonicalCoreSourcePlanCompileRequestV1
+  -> NormalCanonicalCoreSourcePlanCompilerV1
+  -> CompletedCanonicalCoreSourceEntryCandidateV1
+  -> PreparedCanonicalCorePublicationV1
+  -> PublishedSourceEntryInvocationV1
+  -> existing neutral VM-reference terminal
+```
+
+The candidate is unpublished so compilation, publication, execution, and
+process projection remain separate authorities.
+
+The first executable row is tracked in:
+
+```text
+normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26.md
+```
 
 ## Why this is a design stop
 
@@ -43,11 +90,11 @@ Adding ad-hoc `match plan()` logic in the runner, a second front door, or a
 fallback from canonical to Raw would create competing route authorities. This
 is therefore not a test-only P0a gap.
 
-## Required decision
+## Options considered
 
 Choose one owner for the one-shot dispatch.
 
-### A — compiler-layer consuming dispatcher (recommended)
+### A — compiler-layer consuming dispatcher (accepted)
 
 ```rust
 PreparedCanonicalCoreNormalDispatchV1
@@ -72,13 +119,13 @@ It owns only plan consumption, family-to-owner selection, and typed rejection
 retention. Function result, callable graph, physical entry, VM execution, and
 process status remain owned by their existing layers.
 
-### B — runner-layer dispatch
+### B — runner-layer dispatch (rejected)
 
 The runner consumes `ClassifiedNormalFileSourcePlanV1` and chooses a compiler
 entry. This is not recommended: runner configuration would become semantic
 route authority and would have to retain compiler failures/source ownership.
 
-### C — profile-specific separate front doors
+### C — profile-specific separate front doors (rejected)
 
 Create Script/Main/Callable canonical-core request types. This is rejected
 unless new evidence proves the source plan cannot retain its single Program
@@ -128,3 +175,21 @@ Raw fallback
 callable result-carrier widening
 imports/using
 ```
+
+## Closeout evidence
+
+The code audit found two mandatory connection gaps:
+
+```text
+Script:
+  source-result semantics can reuse RawScriptBodyRecipeV1
+  canonical publication owner is absent
+
+CallableModule:
+  CompletedNormalCallableCandidateV1 currently retains only MirModule
+  exact schema / entry / result / verification evidence must survive commit
+  before a publication terminal may exist
+```
+
+Neither gap may be repaired by a module scan, symbol inference, Raw handoff,
+or result reconstruction.

@@ -288,9 +288,16 @@ It follows canonical-core G0 as a separate capability/parity row.
 ### E. Sole dispatch and separate profile
 
 ```text
-NORMAL-SOURCE-PLAN0-ADMISSION0-S0
--> NORMAL-SOURCE-PLAN0-DISPATCH0-I0
--> NORMAL-FILE-CANONICAL-CORE0-PROFILE0-S0
+NORMAL-FILE-CANONICAL-CORE0-PROFILE0-S0
+-> NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0
+   - INPUT/ADMISSION
+   - MAIN0
+   - SCRIPT0 canonical candidate
+   - CALLABLE0 retained publication evidence
+   - one PUBLICATION/DISPATCH terminal
+   - FIXTURE/G0
+-> NORMAL-FILE-CANONICAL-CORE0-REQUEST0-S0
+-> NORMAL-FILE-CANONICAL-CORE0-REPORT0-S0
 -> NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0a
 -> NORMAL-FILE-CANONICAL-CORE0-REUSE0-P0
 -> NORMAL-FILE-CANONICAL-CORE0-CALLER0-I0
@@ -302,24 +309,24 @@ NORMAL-SOURCE-PLAN0-ADMISSION0-S0
 The dispatcher consumes one admitted plan and selects exactly one already
 sealed owner. It never tries Raw, then canonical, then Legacy.
 
-Current progress:
-
-```text
-NORMAL-SOURCE-PLAN0-S0        = closed
-NORMAL-SOURCE-PLAN0-INPUT0-S0 = closed
-NORMAL-SOURCE-PLAN0-G0        = closed
-NORMAL-MAIN0-SOURCE0-S0       = closed
-NORMAL-MAIN0-F1-PLAN0-S0      = closed
-NORMAL-MODULE-TX0-L0          = closed
-NORMAL-MAIN0-THUNK0-S0        = closed
-NORMAL-CANONICAL-MODULE-BATCH0-S0 = closed
-NORMAL-MAIN0-TX0-I0           = active
-```
+The exact current cell and landed progress are selected only by
+`CURRENT_STATE.toml`. The accepted dispatch boundary is
+`NORMAL-FILE-CANONICAL-CORE0-DISPATCH-prime-r1`.
 
 ### F. Promotion and completion
 
 ```text
-NORMAL-CALLABLE-MODULE0-R0-S0
+MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
+
+-> OWNERSHIP-SPARSE-RESUME-D0
+-> OWN-GRAM-REJECT0
+-> ownership evidence / passive grammar / Loan Flow
+-> first Unique Box substrate
+-> first ScopedAlias
+-> callable ownership ABI
+-> first Anchored View
+-> OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
+
 -> NORMAL-ENTRY-PRODUCT-BACKEND-D0
 -> NORMAL-DEFAULT-CALLER-CENSUS0-P0
 -> NORMAL-ENTRY-PROMOTION-D3
@@ -396,10 +403,10 @@ owners merely to record progress.
 | `NORMAL-HELPER-MODULE-PLAN0-S0` | BoxShape | singleton/call-free helper plan | exact catalog/plan cardinality |
 | `NORMAL-CALLABLE-MODULE0-A0-S0` | composition | Main plan plus deterministic acyclic helper graph | every call target sealed before Builder |
 | `NORMAL-CALLABLE-MODULE0-TX0-I0` | activation | one atomic Main/helpers/thunk module | late helper/Main/thunk failure publishes zero |
-| `NORMAL-SOURCE-PLAN0-ADMISSION0-S0` | policy | profile capability over an already sealed family | source reclassification zero |
-| `NORMAL-SOURCE-PLAN0-DISPATCH0-I0` | activation | sole consuming family dispatch | one selected owner, retry/fallback zero |
+| `NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0` | activation | compiler-layer consuming family dispatch plus candidate-first publication | one selected owner, Raw handoff/retry/fallback zero |
 | `NORMAL-FILE-CANONICAL-CORE0-*` | profile/proof | separate default-off canonical-core CLI lane | real binary, reuse, caller=1, fallback=0 |
 | `MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0` | milestone | canonical Script/Main/helper core completion receipt | no default/product claim |
+| ownership sparse packs | capability | syntax safety, ScopedAlias, callable ABI, Anchored View | product promotion waits for readiness; ownership runtime inference zero |
 | `NORMAL-ENTRY-PRODUCT-BACKEND-D0` | decision | one named product engine/profile | reference lane does not choose it implicitly |
 | `NORMAL-ENTRY-PROMOTION-D3` | decision | exact old/new caller pair, budgets, sunset | real corpus and performance evidence fixed |
 | `NORMAL-PRODUCT-*` and default cutover | activation | one product caller then one default caller | fallback zero and selected old caller zero |

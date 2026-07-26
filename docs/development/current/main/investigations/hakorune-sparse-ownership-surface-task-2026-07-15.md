@@ -181,7 +181,8 @@ NORMAL-CALLABLE-MODULE0-TX0-*
 -> OWNERSHIP-SPARSE-RESUME-D0
 -> OWN-GRAM-REJECT0
 -> ownership evidence / passive grammar / Loan Flow
--> first Box ScopedAlias
+-> first Unique Box substrate
+-> first ScopedAlias
 -> structured Alias + callable ABI
 -> Anchored View
 -> OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
@@ -418,6 +419,25 @@ Constraints:
   row is activated.
 - unsupported backends/routes fail before effects.
 
+The result/View boundary is split once:
+
+```text
+GRAM-RESULT0:
+  grammar registry
+  Rust and Hako parser
+  frontend AST syntax carrier
+  macro AST transport
+  EBNF and ParseWitness fixtures
+
+PROJ-S0:
+  consume the already-admitted syntax carrier
+  -> resolved callable ownership schema
+  parser / frontend AST / macro schema mutation = 0
+```
+
+`PROJ-S0` must not create or reinterpret source syntax. `GRAM-RESULT0` must not
+derive a verified anchor, loan, or result ABI.
+
 Existing bindings passed to consuming/owning destinations use `move`; fresh
 Owned rvalues and terminal `return` do not repeat it. Local `owned`/`borrow`
 annotations and mandatory `clone` spelling do not belong to the baseline.
@@ -544,18 +564,43 @@ ownership lowering, or runtime behavior.
 The debug oracle is non-owning. It may count loan records or poison/quarantine
 retired cells, but it must never retain the object or change reclamation time.
 
-## 8. First real Box — UBOX-P0 / UBOX-M0 / UBOX-I0
+## 8. First real Box substrate — UBOX-P0 / UBOX-M0 / UBOX-I0
 
-First production grammar:
+The UBOX series activates only one exact Unique Box owner substrate:
 
 ```text
 one exact BoxRef representation
 straight-line local owner
-whole-root ScopedAlias
-read/write through owner and alias
-alias last-use before explicit owner move/drop
+read/write through owner
+explicit owner move/drop after no-live-loan proof
+ScopedAlias production = 0
 no call escape, projection, Shared, resource, weak, dyn, plugin, FFI, task,
 or suspension
+```
+
+Required claims:
+
+```text
+Unique owner token lifecycle = exact
+Move ownership runtime opcode = 0
+loan verifier + ownership verifier = green
+unsupported representation/backend preflight = before Builder effects
+```
+
+The UBOX family activates atomically without making ordinary assignment an
+alias. A failed sparse-ownership route never retries SharedV1.
+
+### 8.1 First ScopedAlias — ALIAS-I0
+
+`ALIAS-I0` adds one source capability only:
+
+```text
+local b = a
+whole-root exact Box only
+straight-line
+same task / noescape
+read/write through owner and alias
+alias last-use before explicit owner move/drop
 ```
 
 Required claims:
@@ -564,14 +609,13 @@ Required claims:
 ScopedAlias owner-token delta = 0
 ScopedAlias CopyOwned = 0
 ScopedAlias DestroyOwned = 0
-Move ownership runtime opcode = 0
 owner/alias sequential mutation parity = green
-loan verifier + ownership verifier = green
-unsupported representation/backend preflight = before Builder effects
+projection / reassignment / PHI / capture / await = reject
 ```
 
-The family activates atomically. A failed sparse-ownership route never retries
-SharedV1.
+`ALIAS-CFG0` is the separate next row for dominating aliases,
+branch/loop-local aliases, and cleanup/error last-use edges. Alias PHIs and
+alias reassignment remain zero.
 
 ## 9. Structured aliases and callable ABI — ALIAS-CFG0 / ABI0
 
