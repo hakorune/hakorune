@@ -29,6 +29,7 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
     recipe_handoff = source_plan / "script_recipe.rs"
     terminal_dir = builder / "script_physical_exit"
     terminal = terminal_dir / "terminal.rs"
+    exit_kernel = terminal_dir / "exit.rs"
     terminal_mod = terminal_dir / "mod.rs"
     terminal_tests = terminal_dir / "tests.rs"
     lowering = builder / "raw_root_body_lowering.rs"
@@ -36,6 +37,7 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
 
     handoff = recipe_handoff.read_text()
     terminal_text = terminal.read_text()
+    exit_text = exit_kernel.read_text()
     terminal_module = terminal_mod.read_text()
     terminal_test_text = terminal_tests.read_text()
     lowering_text = lowering.read_text()
@@ -70,6 +72,29 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
         if forbidden in terminal_text:
             raise AssertionError(f"terminal kernel gained non-terminal authority: {forbidden}")
     _require(terminal_module, "mod terminal;", "terminal module registration")
+    _require(terminal_module, "mod exit;", "physical exit module registration")
+
+    _require_count(
+        exit_text,
+        "struct ScriptPhysicalExitCommitV1",
+        1,
+        "sole Script physical exit commit owner",
+    )
+    _require_count(
+        exit_text,
+        "fn commit_projected(",
+        1,
+        "sole Script physical Return commit terminal",
+    )
+    _require_count(
+        exit_text,
+        "MirInstruction::Return",
+        1,
+        "sole Script physical Return writer",
+    )
+    for forbidden in ("ModuleInvocationBrandV1", "RawRootBody", "RawPublished"):
+        if forbidden in exit_text:
+            raise AssertionError(f"shared Script exit kernel gained Raw authority: {forbidden}")
 
     _require(
         lowering_text,
@@ -88,14 +113,30 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
         "RAW-SCRIPT-EXIT-ADAPTER0",
         "temporary adapter retirement marker",
     )
+    _require(
+        raw_adapter_text,
+        "commit_raw_script_exit_v1",
+        "Raw lifecycle-only Script exit adapter",
+    )
     for prefix in (
         "script_terminal_kernel_classifies",
         "script_terminal_kernel_preserves",
         "script_terminal_kernel_reports",
+        "script_physical_exit_kernel_commits",
+        "script_physical_exit_kernel_materializes",
+        "script_physical_exit_kernel_rejects",
     ):
         _require(terminal_test_text, prefix, f"terminal fixture {prefix}")
 
-    files = (recipe_handoff, terminal_mod, terminal, terminal_tests, lowering, raw_adapter)
+    files = (
+        recipe_handoff,
+        terminal_mod,
+        terminal,
+        exit_kernel,
+        terminal_tests,
+        lowering,
+        raw_adapter,
+    )
     for path in files:
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"file must remain below 800 lines: {path.relative_to(root)}")

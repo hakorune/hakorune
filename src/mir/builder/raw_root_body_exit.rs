@@ -10,6 +10,9 @@ use super::root_body_completion::{
     ActiveRootBodyCompletionTrackerV1, CompletedRootBodyV1, RootBodyCompletionErrorV1,
     RootBodyResultV1,
 };
+use super::script_physical_exit::{
+    CompletedScriptPhysicalExitCoreV1, ScriptPhysicalResultV1, ScriptSourceCompletionV1,
+};
 use crate::mir::raw_root_body_recipe::{
     RawRootBodyEntryContractV1, RawRootBodyRouteV1, RawRootExitPolicyV1, RawScriptUnitOriginV1,
 };
@@ -49,24 +52,11 @@ pub(in crate::mir) enum RawRootBodyExitSealErrorV1 {
     UnknownReturnType { value: ValueId },
     UnsupportedReturnType { value: ValueId, actual: MirType },
     TrackerNotSealable(RootBodyCompletionErrorV1),
+    ScriptExitMustUseSharedKernel,
 }
 
 #[derive(Debug)]
 pub(in crate::mir::builder) enum PreparedRawRootExitPlanV1 {
-    ScriptValue {
-        block: BasicBlockId,
-        value: ValueId,
-        ty: MirType,
-    },
-    ScriptUnitValue {
-        block: BasicBlockId,
-        value: ValueId,
-        ty: MirType,
-        origin: RawScriptUnitOriginV1,
-    },
-    ScriptEmpty {
-        block: BasicBlockId,
-    },
     AppVoid {
         block: BasicBlockId,
         discarded_tail: Option<ValueId>,
@@ -117,9 +107,10 @@ enum RawRootBodyExitDispositionV1 {
         ty: MirType,
         origin: RawScriptUnitOriginV1,
     },
-    ScriptEmptyVoid {
+    ScriptSyntheticUnit {
         block: BasicBlockId,
         returned_void: ValueId,
+        origin: RawScriptUnitOriginV1,
     },
     AppVoid {
         block: BasicBlockId,
@@ -229,36 +220,8 @@ impl MirBuilder {
             return Err(RawRootBodyExitSealErrorV1::BlockAlreadyTerminated { block });
         }
         match (open.exit, result) {
-            (RawRootExitPolicyV1::ScriptSourceTailOrUnit, RootBodyResultV1::Value(value)) => {
-                if !crate::mir::verification::utils::compute_def_blocks(function)
-                    .contains_key(&value)
-                {
-                    return Err(RawRootBodyExitSealErrorV1::UndefinedReturnValue { value });
-                }
-                let ty = self
-                    .value_type(value)
-                    .cloned()
-                    .ok_or(RawRootBodyExitSealErrorV1::MissingReturnType { value })?;
-                if ty == MirType::Unknown {
-                    return Err(RawRootBodyExitSealErrorV1::UnknownReturnType { value });
-                }
-                if !matches!(
-                    ty,
-                    MirType::Integer
-                        | MirType::Float
-                        | MirType::Bool
-                        | MirType::String
-                        | MirType::Void
-                ) {
-                    return Err(RawRootBodyExitSealErrorV1::UnsupportedReturnType {
-                        value,
-                        actual: ty,
-                    });
-                }
-                Ok(PreparedRawRootExitPlanV1::ScriptValue { block, value, ty })
-            }
-            (RawRootExitPolicyV1::ScriptSourceTailOrUnit, RootBodyResultV1::NoValue) => {
-                Ok(PreparedRawRootExitPlanV1::ScriptEmpty { block })
+            (RawRootExitPolicyV1::ScriptSourceTailOrUnit, _) => {
+                Err(RawRootBodyExitSealErrorV1::ScriptExitMustUseSharedKernel)
             }
             (RawRootExitPolicyV1::AppFixedVoid, RootBodyResultV1::Value(value)) => {
                 if !crate::mir::verification::utils::compute_def_blocks(function)
@@ -280,127 +243,103 @@ impl MirBuilder {
         }
     }
 
-    pub(in crate::mir::builder) fn prepare_raw_script_unit_exit_v1(
-        &self,
-        open: &RawOpenRootFunctionV1,
-        result: RootBodyResultV1,
-        tracker: &ActiveRootBodyCompletionTrackerV1,
-        origin: RawScriptUnitOriginV1,
-    ) -> Result<PreparedRawRootExitPlanV1, RawRootBodyExitSealErrorV1> {
-        match self.prepare_raw_root_exit_v1(open, result, tracker)? {
-            PreparedRawRootExitPlanV1::ScriptValue { block, value, ty } => {
-                Ok(PreparedRawRootExitPlanV1::ScriptUnitValue {
-                    block,
-                    value,
-                    ty,
-                    origin,
-                })
-            }
-            plan => Ok(plan),
-        }
-    }
-
     pub(in crate::mir::builder) fn commit_raw_root_exit_v1(
         &mut self,
         open: RawOpenRootFunctionV1,
         plan: PreparedRawRootExitPlanV1,
         brand: ModuleInvocationBrandV1,
     ) -> (MirFunction, RawRootBodyExitWitnessV1) {
-        let (disposition, returned_void) =
-            match plan {
-                PreparedRawRootExitPlanV1::ScriptValue { block, value, ty } => {
-                    let function = self.function_state.current_function.as_mut().unwrap();
-                    function.signature.return_type = ty.clone();
-                    function
-                        .get_block_mut(block)
-                        .unwrap()
-                        .add_instruction(MirInstruction::Return { value: Some(value) });
-                    (
-                        RawRootBodyExitDispositionV1::ScriptValue { block, value, ty },
-                        None,
-                    )
-                }
-                PreparedRawRootExitPlanV1::ScriptEmpty { block } => {
-                    let function = self.function_state.current_function.as_mut().unwrap();
-                    let void_value = function.next_value_id();
-                    function.signature.return_type = MirType::Void;
-                    function
-                        .get_block_mut(block)
-                        .unwrap()
-                        .add_instruction(MirInstruction::Const {
-                            dst: void_value,
-                            value: ConstValue::Void,
-                        });
-                    function.get_block_mut(block).unwrap().add_instruction(
-                        MirInstruction::Return {
-                            value: Some(void_value),
-                        },
-                    );
-                    (
-                        RawRootBodyExitDispositionV1::ScriptEmptyVoid {
-                            block,
-                            returned_void: void_value,
-                        },
-                        Some(void_value),
-                    )
-                }
-                PreparedRawRootExitPlanV1::ScriptUnitValue {
-                    block,
-                    value,
-                    ty,
-                    origin,
-                } => {
-                    let function = self.function_state.current_function.as_mut().unwrap();
-                    function.signature.return_type = ty.clone();
-                    function
-                        .get_block_mut(block)
-                        .unwrap()
-                        .add_instruction(MirInstruction::Return { value: Some(value) });
-                    (
-                        RawRootBodyExitDispositionV1::ScriptUnitValue {
-                            block,
-                            value,
-                            ty,
-                            origin,
-                        },
-                        None,
-                    )
-                }
-                PreparedRawRootExitPlanV1::AppVoid {
-                    block,
-                    discarded_tail,
-                } => {
-                    let function = self.function_state.current_function.as_mut().unwrap();
-                    let void_value = function.next_value_id();
-                    function.signature.return_type = MirType::Void;
-                    function
-                        .get_block_mut(block)
-                        .unwrap()
-                        .add_instruction(MirInstruction::Const {
-                            dst: void_value,
-                            value: ConstValue::Void,
-                        });
-                    function.get_block_mut(block).unwrap().add_instruction(
-                        MirInstruction::Return {
-                            value: Some(void_value),
-                        },
-                    );
-                    (
-                        RawRootBodyExitDispositionV1::AppVoid {
-                            block,
-                            returned_void: void_value,
-                            discarded_tail,
-                        },
-                        Some(void_value),
-                    )
-                }
-            };
+        let (disposition, returned_void) = match plan {
+            PreparedRawRootExitPlanV1::AppVoid {
+                block,
+                discarded_tail,
+            } => {
+                let function = self.function_state.current_function.as_mut().unwrap();
+                let void_value = function.next_value_id();
+                function.signature.return_type = MirType::Void;
+                function
+                    .get_block_mut(block)
+                    .unwrap()
+                    .add_instruction(MirInstruction::Const {
+                        dst: void_value,
+                        value: ConstValue::Void,
+                    });
+                function
+                    .get_block_mut(block)
+                    .unwrap()
+                    .add_instruction(MirInstruction::Return {
+                        value: Some(void_value),
+                    });
+                (
+                    RawRootBodyExitDispositionV1::AppVoid {
+                        block,
+                        returned_void: void_value,
+                        discarded_tail,
+                    },
+                    Some(void_value),
+                )
+            }
+        };
         if let Some(void_value) = returned_void {
             self.function_state
                 .type_ctx
                 .value_types
                 .insert(void_value, MirType::Void);
         }
+        let route = open.route;
+        let draft = self.function_state.current_function.take().unwrap();
+        self.function_state.current_block = None;
+        self.comp_ctx.current_slot_registry = None;
+        close_raw_root_function_state_v1(self);
+        (
+            draft,
+            RawRootBodyExitWitnessV1 {
+                brand,
+                route,
+                disposition,
+                _seal: RawRootBodyExitWitnessSealV1,
+            },
+        )
+    }
+
+    /// Raw lifecycle adapter after the shared Script exit kernel has already
+    /// committed the only physical Return/signature. It only consumes the
+    /// current Raw session and brands the resulting witness.
+    pub(in crate::mir::builder) fn commit_raw_script_exit_v1(
+        &mut self,
+        open: RawOpenRootFunctionV1,
+        completed: CompletedScriptPhysicalExitCoreV1,
+        brand: ModuleInvocationBrandV1,
+    ) -> (MirFunction, RawRootBodyExitWitnessV1) {
+        let block = completed.block();
+        let disposition = match (completed.source(), completed.physical()) {
+            (
+                ScriptSourceCompletionV1::Value,
+                ScriptPhysicalResultV1::ExistingOperand { value, ty },
+            ) => RawRootBodyExitDispositionV1::ScriptValue {
+                block,
+                value: *value,
+                ty: ty.clone(),
+            },
+            (
+                ScriptSourceCompletionV1::Unit { origin },
+                ScriptPhysicalResultV1::ExistingOperand { value, ty },
+            ) => RawRootBodyExitDispositionV1::ScriptUnitValue {
+                block,
+                value: *value,
+                ty: ty.clone(),
+                origin,
+            },
+            (
+                ScriptSourceCompletionV1::Unit { origin },
+                ScriptPhysicalResultV1::SyntheticVoid { value },
+            ) => RawRootBodyExitDispositionV1::ScriptSyntheticUnit {
+                block,
+                returned_void: *value,
+                origin,
+            },
+            _ => unreachable!("shared Script exit core emitted an invalid source/physical pair"),
+        };
         let route = open.route;
         let draft = self.function_state.current_function.take().unwrap();
         self.function_state.current_block = None;
@@ -474,9 +413,21 @@ impl RawRootBodyExitWitnessV1 {
                     requires_void: false,
                 })
             }
-            RawRootBodyExitDispositionV1::ScriptEmptyVoid { .. } => {
+            RawRootBodyExitDispositionV1::ScriptSyntheticUnit { origin, .. } => {
+                let origin = match origin {
+                    RawScriptUnitOriginV1::EmptyBody => RawVmUnitOriginV1::EmptyBody,
+                    RawScriptUnitOriginV1::VoidExpression => RawVmUnitOriginV1::ExplicitVoid,
+                    RawScriptUnitOriginV1::PrintStatement => RawVmUnitOriginV1::PrintStatement,
+                    RawScriptUnitOriginV1::LocalStatement => RawVmUnitOriginV1::LocalStatement,
+                    RawScriptUnitOriginV1::AssignmentStatement => {
+                        RawVmUnitOriginV1::AssignmentStatement
+                    }
+                    RawScriptUnitOriginV1::CompoundAssignmentStatement => {
+                        RawVmUnitOriginV1::CompoundAssignmentStatement
+                    }
+                };
                 Ok(RawVmSourceEntryDecodeKindV1::Unit {
-                    origin: RawVmUnitOriginV1::EmptyBody,
+                    origin,
                     requires_void: true,
                 })
             }
@@ -531,9 +482,10 @@ impl RawRootBodyExitWitnessV1 {
                 }
                 (*block, ty.clone(), Some(*value), None)
             }
-            RawRootBodyExitDispositionV1::ScriptEmptyVoid {
+            RawRootBodyExitDispositionV1::ScriptSyntheticUnit {
                 block,
                 returned_void,
+                ..
             } => {
                 if completion.result() != RootBodyResultV1::NoValue {
                     return Err(RawRootBodyExitWitnessErrorV1::CompletionMismatch);
@@ -557,7 +509,10 @@ impl RawRootBodyExitWitnessV1 {
         let route_matches = match (&self.route, &self.disposition) {
             (RawRootBodyRouteV1::Script, RawRootBodyExitDispositionV1::ScriptValue { .. })
             | (RawRootBodyRouteV1::Script, RawRootBodyExitDispositionV1::ScriptUnitValue { .. })
-            | (RawRootBodyRouteV1::Script, RawRootBodyExitDispositionV1::ScriptEmptyVoid { .. })
+            | (
+                RawRootBodyRouteV1::Script,
+                RawRootBodyExitDispositionV1::ScriptSyntheticUnit { .. },
+            )
             | (RawRootBodyRouteV1::AppMain0 { .. }, RawRootBodyExitDispositionV1::AppVoid { .. }) => {
                 true
             }

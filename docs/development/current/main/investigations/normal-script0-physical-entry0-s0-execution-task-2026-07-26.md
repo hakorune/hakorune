@@ -333,9 +333,12 @@ In this same commit, every existing Raw Script exit branch delegates to the
 shared writer. `AppVoid` remains in the Raw owner. Do not land a commit in
 which an old direct Script writer and the new writer coexist.
 
-All type propagation, final type facts, metadata projection, and function
-verification are prepared before the infallible function-state close. Reuse
-the existing `TypePropagationPipeline` and `MirVerifier`.
+This shared kernel is deliberately smaller than the later canonical candidate
+transaction: it validates the exact existing operand/type relation, reserves a
+synthetic Void ID during preparation, and performs no fallible work in commit.
+Full type propagation, metadata projection, and `MirVerifier` ownership remain
+with the canonical candidate transaction in Commit 4/5; Raw retains its
+existing later verification path. The kernel does not duplicate either owner.
 
 Focused proof:
 
@@ -352,6 +355,13 @@ Raw Script exit branches delegate       = 1
 Raw App exit writer delta               = 0
 fallible function mutation after close  = 0
 ```
+
+Status: closed on 2026-07-26. `PreparedScriptBodyCompletionV1` and
+`CompletedScriptBodyCompletionV1` seal the source/physical relation without a
+brand; `ScriptPhysicalExitCommitV1` is the one Script Return/signature writer.
+Raw Script now delegates to it, while Raw App keeps its own fixed-Void writer.
+The legacy unclassified Raw recipe bridge is explicitly temporary and carries
+no Return authority; Commit 3 removes its old `RootBodyResultV1` projection.
 
 ### Commit 3 — `RAW-SCRIPT-EXIT-ADAPTER0`
 

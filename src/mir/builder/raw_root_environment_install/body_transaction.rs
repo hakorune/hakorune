@@ -15,10 +15,15 @@ use super::super::raw_root_physical::{
 };
 use super::super::root_batch_slot::RawRootBatchSlotV1;
 use super::super::root_body_completion::{CompletedRootBodyV1, RootBodyResultV1};
-use super::super::script_physical_exit::LoweredScriptTerminalV1;
+use super::super::script_physical_exit::{
+    LoweredScriptTerminalV1, PreparedScriptPhysicalExitCoreV1, ScriptPhysicalExitCommitV1,
+    ScriptPhysicalExitErrorV1, ScriptPhysicalExitOpenContractV1,
+};
 use super::InstalledRawRootEnvironmentV1;
-use crate::mir::raw_root_body_recipe::{RawRootBodyRecipeV1, RawScriptTerminalRecipeV1};
-use crate::mir::MirFunction;
+use crate::mir::raw_root_body_recipe::{
+    RawRootBodyRecipeV1, RawRootBodyRouteV1, RawScriptUnitOriginV1,
+};
+use crate::mir::{MirBuilder, MirFunction, MirType};
 
 #[derive(Debug)]
 pub(in crate::mir) struct CompletedRawRootBodyPhysicalV1 {
@@ -47,6 +52,7 @@ enum RawRootBodyRejectedOwnerV1 {
 pub(in crate::mir) enum RawRootBodyLoweringErrorV1 {
     Physical(RawRootBodyPhysicalErrorV1),
     Lower(String),
+    ScriptExit(ScriptPhysicalExitErrorV1),
     ExitSeal(RawRootBodyExitSealErrorV1),
 }
 
@@ -54,6 +60,12 @@ pub(in crate::mir) enum RawRootBodyLoweringErrorV1 {
 pub(in crate::mir) struct RejectedRawRootBodyPhysicalV1 {
     owner: RawRootBodyRejectedOwnerV1,
     error: RawRootBodyLoweringErrorV1,
+}
+
+#[derive(Debug)]
+enum RawBodyLoweringResultV1 {
+    Script(LoweredScriptTerminalV1),
+    App(RootBodyResultV1),
 }
 
 impl InstalledRawRootEnvironmentV1 {
@@ -106,13 +118,20 @@ impl InstalledRawRootEnvironmentV1 {
             match recipe.script() {
                 Some(script) => builder
                     .lower_script_body_recipe_v1(script)
-                    .map(legacy_root_body_result_from_script_terminal)
+                    .map(RawBodyLoweringResultV1::Script)
                     .map_err(|error| error.to_string()),
-                None => builder.lower_linear_scalar_recipe_v1(&recipe),
+                None => builder
+                    .lower_linear_scalar_recipe_v1(&recipe)
+                    .map(|result| match recipe.entry().route() {
+                        RawRootBodyRouteV1::Script => RawBodyLoweringResultV1::Script(
+                            legacy_script_terminal_from_root_result(builder, result),
+                        ),
+                        RawRootBodyRouteV1::AppMain0 { .. } => RawBodyLoweringResultV1::App(result),
+                    }),
             }
         };
-        let result = match lower_result {
-            Ok(result) => result,
+        let lowered = match lower_result {
+            Ok(lowered) => lowered,
             Err(error) => {
                 return Err(RejectedRawRootBodyPhysicalV1 {
                     owner: RawRootBodyRejectedOwnerV1::DuringDrive {
@@ -124,10 +143,11 @@ impl InstalledRawRootEnvironmentV1 {
                 });
             }
         };
-        let completion_result = if recipe.script().is_some() {
-            result
-        } else {
-            RootBodyResultV1::NoValue
+        let completion_result = match &lowered {
+            RawBodyLoweringResultV1::Script(terminal) => {
+                legacy_root_body_result_from_script_terminal(terminal)
+            }
+            RawBodyLoweringResultV1::App(_) => RootBodyResultV1::NoValue,
         };
         let completion_plan = match physical.prepare_root_body_completion(completion_result) {
             Ok(plan) => plan,
@@ -144,33 +164,38 @@ impl InstalledRawRootEnvironmentV1 {
                 });
             }
         };
-        let plan = match recipe.script().and_then(|script| match script.terminal() {
-            RawScriptTerminalRecipeV1::UnitExpression { origin, .. } => Some(*origin),
-            _ => None,
-        }) {
-            Some(origin) => match session.builder().prepare_raw_script_unit_exit_v1(
-                &open,
-                result,
-                physical.tracker(),
-                origin,
-            ) {
-                Ok(plan) => plan,
-                Err(error) => {
-                    return Err(RejectedRawRootBodyPhysicalV1 {
-                        owner: RawRootBodyRejectedOwnerV1::DuringDrive {
-                            session,
-                            physical,
-                            recipe,
-                        },
-                        error: RawRootBodyLoweringErrorV1::ExitSeal(error),
-                    });
-                }
-            },
-            None => {
-                match session
-                    .builder()
-                    .prepare_raw_root_exit_v1(&open, result, physical.tracker())
-                {
+        let brand = physical.brand();
+        let (draft, exit) = match lowered {
+            RawBodyLoweringResultV1::Script(terminal) => {
+                let prepared = match PreparedScriptPhysicalExitCoreV1::prepare(
+                    session.builder(),
+                    terminal,
+                    ScriptPhysicalExitOpenContractV1::ProvisionalUnknown,
+                ) {
+                    Ok(prepared) => prepared,
+                    Err(error) => {
+                        return Err(RejectedRawRootBodyPhysicalV1 {
+                            owner: RawRootBodyRejectedOwnerV1::DuringDrive {
+                                session,
+                                physical,
+                                recipe,
+                            },
+                            error: RawRootBodyLoweringErrorV1::ScriptExit(error),
+                        });
+                    }
+                };
+                let completed =
+                    ScriptPhysicalExitCommitV1::commit_projected(session.builder_mut(), prepared);
+                session
+                    .builder_mut()
+                    .commit_raw_script_exit_v1(open, completed, brand)
+            }
+            RawBodyLoweringResultV1::App(result) => {
+                let plan = match session.builder().prepare_raw_root_exit_v1(
+                    &open,
+                    result,
+                    physical.tracker(),
+                ) {
                     Ok(plan) => plan,
                     Err(error) => {
                         return Err(RejectedRawRootBodyPhysicalV1 {
@@ -182,13 +207,12 @@ impl InstalledRawRootEnvironmentV1 {
                             error: RawRootBodyLoweringErrorV1::ExitSeal(error),
                         });
                     }
-                }
+                };
+                session
+                    .builder_mut()
+                    .commit_raw_root_exit_v1(open, plan, brand)
             }
         };
-        let brand = physical.brand();
-        let (draft, exit) = session
-            .builder_mut()
-            .commit_raw_root_exit_v1(open, plan, brand);
         let (physical, completion) = physical.seal_root_body_prepared(completion_plan);
         Ok(CompletedRawRootBodyPhysicalV1 {
             session,
@@ -204,7 +228,7 @@ impl InstalledRawRootEnvironmentV1 {
 /// It carries no Return authority; the exact terminal remains the shared
 /// Script kernel product and Raw still owns its brand-bound tracker here.
 fn legacy_root_body_result_from_script_terminal(
-    terminal: LoweredScriptTerminalV1,
+    terminal: &LoweredScriptTerminalV1,
 ) -> RootBodyResultV1 {
     match terminal {
         LoweredScriptTerminalV1::Value { value }
@@ -212,11 +236,36 @@ fn legacy_root_body_result_from_script_terminal(
             payload:
                 super::super::script_physical_exit::LoweredScriptUnitPayloadV1::ExistingVoid { value },
             ..
-        } => RootBodyResultV1::Value(value),
+        } => RootBodyResultV1::Value(*value),
         LoweredScriptTerminalV1::Unit {
             payload: super::super::script_physical_exit::LoweredScriptUnitPayloadV1::SyntheticVoid,
             ..
         } => RootBodyResultV1::NoValue,
+    }
+}
+
+/// Legacy Raw recipes without a source-classified Script payload still enter
+/// the shared physical exit kernel. This bridge preserves the old root result
+/// only until RAW-SCRIPT-EXIT-ADAPTER0 removes the unclassified recipe shape.
+fn legacy_script_terminal_from_root_result(
+    builder: &MirBuilder,
+    result: RootBodyResultV1,
+) -> LoweredScriptTerminalV1 {
+    match result {
+        RootBodyResultV1::Value(value) if builder.value_type(value) == Some(&MirType::Void) => {
+            LoweredScriptTerminalV1::Unit {
+                origin: RawScriptUnitOriginV1::EmptyBody,
+                payload:
+                    super::super::script_physical_exit::LoweredScriptUnitPayloadV1::ExistingVoid {
+                        value,
+                    },
+            }
+        }
+        RootBodyResultV1::Value(value) => LoweredScriptTerminalV1::Value { value },
+        RootBodyResultV1::NoValue => LoweredScriptTerminalV1::Unit {
+            origin: RawScriptUnitOriginV1::EmptyBody,
+            payload: super::super::script_physical_exit::LoweredScriptUnitPayloadV1::SyntheticVoid,
+        },
     }
 }
 

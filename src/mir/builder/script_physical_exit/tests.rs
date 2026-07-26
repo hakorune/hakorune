@@ -1,11 +1,19 @@
-use super::{LoweredScriptTerminalV1, LoweredScriptUnitPayloadV1, ScriptRecipeLoweringOperationV1};
+use super::{
+    LoweredScriptTerminalV1, LoweredScriptUnitPayloadV1, PreparedScriptPhysicalExitCoreV1,
+    ScriptPhysicalExitCommitV1, ScriptPhysicalExitErrorV1, ScriptPhysicalExitOpenContractV1,
+    ScriptPhysicalResultV1, ScriptRecipeLoweringOperationV1, ScriptSourceCompletionV1,
+};
 use crate::ast::{BinaryOperator, LiteralValue, Span};
+use crate::mir::builder::raw_root_body_exit::RawOpenRootFunctionV1;
+use crate::mir::builder::root_batch_slot::RawRootBatchSlotV1;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::builder::MirBuilder;
 use crate::mir::raw_root_body_recipe::{
-    RawLinearScalarExprV1, RawLinearScalarStmtV1, RawRootBodySourceSiteV1, RawScriptBodyRecipeV1,
-    RawScriptTerminalRecipeV1, RawScriptUnitOriginV1,
+    RawLinearScalarExprV1, RawLinearScalarStmtV1, RawRootBodyEntryContractV1,
+    RawRootBodySourceSiteV1, RawScriptBodyRecipeV1, RawScriptTerminalRecipeV1,
+    RawScriptUnitOriginV1,
 };
+use crate::mir::{ConstValue, MirInstruction, MirType};
 
 fn site(path: &[usize]) -> RawRootBodySourceSiteV1 {
     RawRootBodySourceSiteV1::new(path, Span::unknown())
@@ -31,6 +39,27 @@ fn lower(recipe: &RawScriptBodyRecipeV1) -> Result<LoweredScriptTerminalV1, Stri
     };
     builder.exit_function_for_test();
     result
+}
+
+fn lower_in_open_script_root(
+    recipe: &RawScriptBodyRecipeV1,
+) -> (MirBuilder, RawOpenRootFunctionV1, LoweredScriptTerminalV1) {
+    let mut builder = MirBuilder::new();
+    let open = builder
+        .begin_raw_root_function_v1(
+            RawRootBatchSlotV1::Main.contract(),
+            RawRootBodyEntryContractV1::script(),
+        )
+        .expect("open Script root");
+    let terminal = {
+        let scope = LexicalScopeGuard::new(&mut builder);
+        let terminal = builder
+            .lower_script_body_recipe_v1(recipe)
+            .expect("lower Script recipe");
+        drop(scope);
+        terminal
+    };
+    (builder, open, terminal)
 }
 
 #[test]
@@ -176,4 +205,115 @@ fn script_terminal_kernel_reports_exact_terminal_failure() {
     );
     assert_eq!(error.site().path(), &[7]);
     assert!(!error.detail().is_empty());
+}
+
+#[test]
+fn script_physical_exit_kernel_commits_existing_scalar_return_once() {
+    let recipe = RawScriptBodyRecipeV1::from_parts(
+        Box::new([]),
+        RawScriptTerminalRecipeV1::ValueExpression(integer(42, &[0])),
+    )
+    .expect("scalar Script recipe");
+    let (mut builder, _open, terminal) = lower_in_open_script_root(&recipe);
+
+    let prepared = PreparedScriptPhysicalExitCoreV1::prepare(
+        &builder,
+        terminal,
+        ScriptPhysicalExitOpenContractV1::ProvisionalUnknown,
+    )
+    .expect("prepare scalar exit");
+    let completed = ScriptPhysicalExitCommitV1::commit_projected(&mut builder, prepared);
+
+    assert_eq!(completed.source(), ScriptSourceCompletionV1::Value);
+    let ScriptPhysicalResultV1::ExistingOperand { value, ty } = completed.physical() else {
+        panic!("scalar Script must preserve its exact lowered operand");
+    };
+    assert_eq!(*ty, MirType::Integer);
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("open function after core commit");
+    assert_eq!(function.signature.return_type, MirType::Integer);
+    assert!(matches!(
+        function.get_block(completed.block()).and_then(|block| block.terminator.as_ref()),
+        Some(MirInstruction::Return { value: Some(actual) }) if actual == value
+    ));
+}
+
+#[test]
+fn script_physical_exit_kernel_materializes_exact_synthetic_unit() {
+    let recipe =
+        RawScriptBodyRecipeV1::from_parts(Box::new([]), RawScriptTerminalRecipeV1::EmptyUnit)
+            .expect("empty Script recipe");
+    let (mut builder, _open, terminal) = lower_in_open_script_root(&recipe);
+
+    let prepared = PreparedScriptPhysicalExitCoreV1::prepare(
+        &builder,
+        terminal,
+        ScriptPhysicalExitOpenContractV1::ProvisionalUnknown,
+    )
+    .expect("prepare Unit exit");
+    let completed = ScriptPhysicalExitCommitV1::commit_projected(&mut builder, prepared);
+
+    assert_eq!(
+        completed.source(),
+        ScriptSourceCompletionV1::Unit {
+            origin: RawScriptUnitOriginV1::EmptyBody,
+        }
+    );
+    let ScriptPhysicalResultV1::SyntheticVoid { value } = completed.physical() else {
+        panic!("empty Script must use one synthetic Void");
+    };
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("open function after core commit");
+    let block = function.get_block(completed.block()).expect("entry block");
+    assert_eq!(function.signature.return_type, MirType::Void);
+    assert!(block.instructions.iter().any(|instruction| {
+        matches!(
+            instruction,
+            MirInstruction::Const {
+                dst,
+                value: ConstValue::Void,
+            } if dst == value
+        )
+    }));
+    assert!(matches!(
+        block.terminator.as_ref(),
+        Some(MirInstruction::Return { value: Some(actual) }) if actual == value
+    ));
+}
+
+#[test]
+fn script_physical_exit_kernel_rejects_void_value_before_commit() {
+    let recipe = RawScriptBodyRecipeV1::from_parts(
+        Box::new([]),
+        RawScriptTerminalRecipeV1::ValueExpression(RawLinearScalarExprV1::Literal {
+            value: LiteralValue::Null,
+            site: site(&[0]),
+        }),
+    )
+    .expect("drift fixture recipe");
+    let (builder, _open, terminal) = lower_in_open_script_root(&recipe);
+
+    assert!(matches!(
+        PreparedScriptPhysicalExitCoreV1::prepare(
+            &builder,
+            terminal,
+            ScriptPhysicalExitOpenContractV1::ProvisionalUnknown,
+        ),
+        Err(ScriptPhysicalExitErrorV1::ValueExpressionCannotBeVoid { .. })
+    ));
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("open function after rejected preparation");
+    let block = function
+        .get_block(builder.function_state.current_block.expect("current block"))
+        .expect("entry block");
+    assert!(block.terminator.is_none());
 }

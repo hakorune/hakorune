@@ -524,6 +524,7 @@ fn body_failure_stage(error: &RawRootBodyLoweringErrorV1) -> RawRootBodyFailureS
             crate::mir::builder::RawRootBodyPhysicalErrorV1::SealTracker(_),
         ) => RawRootBodyFailureStageV1::Seal,
         RawRootBodyLoweringErrorV1::Lower(_) => RawRootBodyFailureStageV1::Lower,
+        RawRootBodyLoweringErrorV1::ScriptExit(_) => RawRootBodyFailureStageV1::Finalize,
         RawRootBodyLoweringErrorV1::ExitSeal(_) => RawRootBodyFailureStageV1::Finalize,
     }
 }
