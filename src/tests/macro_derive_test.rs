@@ -1,39 +1,74 @@
-use nyash_rust::parser::NyashParser;
+use nyash_rust::{parser::NyashParser, ASTNode};
+
+fn expanded_box_method_names(code: &str, box_name: &str, derive_all: Option<&str>) -> Vec<String> {
+    let expanded = crate::test_support::with_env_vars(
+        &[
+            ("NYASH_MACRO_ENABLE", Some("1")),
+            ("NYASH_MACRO_TRACE", Some("0")),
+            ("NYASH_MACRO_DERIVE", None),
+            ("NYASH_MACRO_DERIVE_ALL", derive_all),
+        ],
+        || {
+            let ast = NyashParser::parse_from_string(code).expect("parse ok");
+            crate::r#macro::maybe_expand_and_dump(&ast, false)
+        },
+    );
+
+    let ASTNode::Program { statements, .. } = expanded else {
+        panic!("expected expanded program");
+    };
+    let Some(ASTNode::BoxDeclaration { methods, .. }) = statements.into_iter().find(
+        |statement| matches!(statement, ASTNode::BoxDeclaration { name, .. } if name == box_name),
+    ) else {
+        panic!("{box_name} declaration not found after expansion");
+    };
+    methods.into_keys().collect()
+}
 
 #[test]
 fn macro_derive_injects_equals_and_tostring() {
-    // Enable macro engine and default derives
-    std::env::set_var("NYASH_MACRO_ENABLE", "1");
-    std::env::set_var("NYASH_MACRO_TRACE", "0");
-    std::env::remove_var("NYASH_MACRO_DERIVE");
-
-    let code = r#"
+    let methods = expanded_box_method_names(
+        r#"
 box UserBox {
   name: StringBox
   age: IntegerBox
 }
-"#;
-    let ast = NyashParser::parse_from_string(code).expect("parse ok");
-    let ast2 = crate::r#macro::maybe_expand_and_dump(&ast, false);
+"#,
+        "UserBox",
+        None,
+    );
+    assert!(methods.iter().any(|method| method == "equals"));
+    assert!(methods.iter().any(|method| method == "toString"));
+}
 
-    // Find UserBox and check methods
-    let mut found = false;
-    if let nyash_rust::ASTNode::Program { statements, .. } = ast2 {
-        for st in statements {
-            if let nyash_rust::ASTNode::BoxDeclaration { name, methods, .. } = st {
-                if name == "UserBox" {
-                    assert!(
-                        methods.contains_key("equals"),
-                        "equals method should be generated"
-                    );
-                    assert!(
-                        methods.contains_key("toString"),
-                        "toString method should be generated"
-                    );
-                    found = true;
-                }
-            }
-        }
-    }
-    assert!(found, "UserBox declaration not found after expansion");
+#[test]
+fn macro_derive_skips_receiver_methods_for_static_box() {
+    let methods = expanded_box_method_names(
+        r#"
+static box Utility {
+  ping() { return 0 }
+}
+"#,
+        "Utility",
+        Some("1"),
+    );
+    assert!(methods.iter().any(|method| method == "ping"));
+    assert!(!methods.iter().any(|method| method == "equals"));
+    assert!(!methods.iter().any(|method| method == "toString"));
+}
+
+#[test]
+fn macro_derive_preserves_static_main_without_receiver_methods() {
+    let methods = expanded_box_method_names(
+        r#"
+static box Main {
+  main() { return 0 }
+}
+"#,
+        "Main",
+        None,
+    );
+    assert!(methods.iter().any(|method| method == "main"));
+    assert!(!methods.iter().any(|method| method == "equals"));
+    assert!(!methods.iter().any(|method| method == "toString"));
 }

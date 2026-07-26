@@ -234,3 +234,27 @@ parser / AST / resolver / MIR / runtime / backend change
 default route change
 fallback
 ```
+
+## S0 closeout evidence
+
+```text
+source change:
+  MacroEngine checks is_static once before selecting either receiver-based
+  default derive
+
+focused fixtures:
+  ordinary box              = equals / toString present
+  static utility + deriveAll= no receiver methods
+  static Main               = main retained; no receiver methods
+
+verification:
+  cargo test -q --lib macro_derive                  = green
+  cargo build --release --bin hakorune              = green
+  Stage-B guard after the fresh release build:
+    StaticChildMustBeStatic { equals }              = absent
+    next exact blocker = MissingTransientType { init: ValueId(28) }
+```
+
+The Stage-B rerun therefore proves the macro-policy correction and moves the
+active stop to `STAGEB-GENERIC-LOOP-TRANSIENT-TYPE-D0`. The Hako ownership
+transport remains parked; it was not staged or changed by S0.

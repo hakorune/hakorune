@@ -49,9 +49,11 @@ Follow `current_execution_row` and `latest_card_path` in `CURRENT_STATE.toml`;
 profile admission, default routing, and legacy callers remain outside the
 active bounded source-plan series until explicitly selected there.
 
-`STATIC-BOX-DERIVE-COMPAT-D0` accepts A. Follow its active
-`STATIC-BOX-DERIVE-COMPAT0-S0` contract: static boxes receive no
+`STATIC-BOX-DERIVE-COMPAT0-S0` is closed: static boxes receive no
 receiver-based default `equals` / `toString`, ordinary boxes remain unchanged,
-and Main expansion stays strict. `OWN-GRAM-REJECT0` has its Rust parser half
-landed; keep the Hako freeze-tag WIP parked until a fresh Stage-B rerun reaches
-that candidate or names the next exact baseline blocker.
+and Main expansion stays strict. The fresh Stage-B rerun reaches
+`STAGEB-GENERIC-LOOP-TRANSIENT-TYPE-D0`: its exact nested instance-call result
+has no lowering-time transient type. Do not backfill that type in GenericLoop,
+from metadata, names, annotations, runtime, or a fallback. `OWN-GRAM-REJECT0`
+has its Rust parser half landed; its Hako freeze-tag WIP remains parked until
+this new design stop selects an exact result-representation owner.

@@ -157,8 +157,13 @@ impl MacroEngine {
                         derive_set
                     );
                 }
-                let want_equals = derive_all || derive_set.contains("Equals");
-                let want_tostring = derive_all || derive_set.contains("ToString");
+                // Default derives are instance methods. A static box has no
+                // receiver, so it cannot own receiver-based generated methods.
+                let receiver_based_default_derives_allowed = !is_static;
+                let want_equals = receiver_based_default_derives_allowed
+                    && (derive_all || derive_set.contains("Equals"));
+                let want_tostring = receiver_based_default_derives_allowed
+                    && (derive_all || derive_set.contains("ToString"));
                 // Philosophy-2: respect box independence — operate on public interface only
                 let field_view: &Vec<String> = &public_fields;
                 if want_equals && !methods.contains_key("equals") {

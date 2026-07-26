@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 is closed. OWNERSHIP-SPARSE-RESUME-D0 and its behavior-neutral GUARD-REFRESH0 series are closed. OWN-GRAM-REJECT0 remains the active narrow fail-fast grammar row. STATIC-BOX-DERIVE-COMPAT-D0 accepts option A; its bounded S0 now removes receiver-based default derives from static boxes without weakening Main expansion."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 is closed. OWNERSHIP-SPARSE-RESUME-D0 and its behavior-neutral GUARD-REFRESH0 series are closed. OWN-GRAM-REJECT0 remains the active narrow fail-fast grammar row. STATIC-BOX-DERIVE-COMPAT0-S0 is closed: static boxes no longer receive receiver-based default derives, ordinary boxes are unchanged, and Main expansion remains strict."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "STATIC-BOX-DERIVE-COMPAT0-S0"
-current_execution_summary = "Apply accepted option A at the sole MacroEngine BoxDeclaration derive decision: static boxes emit no receiver-based default Equals/ToString, ordinary boxes remain unchanged, and Main expansion stays strict. The parked Hako OWN-GRAM row resumes only after the Stage-B baseline reaches its candidate."
+current_design_stop = "STAGEB-GENERIC-LOOP-TRANSIENT-TYPE-D0"
+current_execution_row = "STAGEB-GENERIC-LOOP-TRANSIENT-TYPE-D0"
+current_execution_summary = "Decide the exact lowering-time type authority for the nested instance-call result that the Stage-B GenericLoop carrier requires. GenericLoop remains a pure Missing/Unknown verifier; no type backfill, metadata recovery, retry, or Hako ownership transport is authorized."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -433,9 +433,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "static-box-derive-compat-d0-design-question-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/static-box-derive-compat-d0-design-question-2026-07-26.md"
-latest_card_summary = """STATIC-BOX-DERIVE-COMPAT-D0 accepts A. STATIC-BOX-DERIVE-COMPAT0-S0 is active: the sole MacroEngine BoxDeclaration policy must suppress receiver-based default Equals/ToString for static boxes, preserve ordinary boxes and explicit methods, and keep Main expansion strict. A fresh Stage-B rerun selects either the parked OWN-GRAM Hako transport or the next exact baseline blocker."""
+latest_card = "stageb-generic-loop-transient-type-d0-design-question-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/stageb-generic-loop-transient-type-d0-design-question-2026-07-26.md"
+latest_card_summary = """STAGEB-GENERIC-LOOP-TRANSIENT-TYPE-D0 is active. The refreshed Stage-B guard now passes static Main macro expansion and rejects MissingTransientType for an exact nested instance-call result before GenericLoop effects. The decision must select a new exact result-representation owner or retain typed rejection; GenericLoop inference and fallback are forbidden."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "STATIC-BOX-DERIVE-COMPAT0-S0"
+current_blocker_token = "STAGEB-GENERIC-LOOP-TRANSIENT-TYPE-D0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
