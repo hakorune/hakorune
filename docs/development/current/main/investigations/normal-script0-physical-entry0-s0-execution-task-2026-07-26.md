@@ -476,6 +476,13 @@ PhysicalEntry row         = 1
 publication               = 0
 ```
 
+Status: closed on 2026-07-26. The Script-only transaction now seals a
+PhysicalEntry-only schema (`main/0`, one row), verifies the detached draft,
+prepares the existing shell drain, and commits exactly one unpublished module
+only after those checks. The completed candidate retains its schema and
+verification receipt; it has no SourceMain row, helper row, publication
+terminal, or Raw lifecycle authority.
+
 ### Commit 6 — `DISPATCH-SCRIPT0-G0`
 
 Replace only the current Script pending branch:
