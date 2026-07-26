@@ -1,5 +1,5 @@
 ---
-Status: active executable row
+Status: closed executable row
 Date: 2026-07-26
 Decision: NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1
 Row: NORMAL-CALLABLE-MODULE0-TX0-HANDOFF0-S0
@@ -326,6 +326,37 @@ git diff --check
 ```
 
 Do not add a new per-row shell guard.
+
+## Closeout evidence
+
+Implemented without Builder, MIR, backend, runner, or caller changes:
+
+```text
+CompletedNormalMainHelperResolutionV1
+  -> OpenNormalCallableModuleTransactionV1
+  -> scoped OwnedNormalHelperLoweringScheduleV1
+  -> same Open owner after the schedule borrow ends
+```
+
+The concrete topology receipt consumes the existing Acyclic graph or SCC
+partition exactly once. The schedule is a canonical-keyed `BTreeMap`; no
+second catalog, resolver, graph inventory, SCC partition, AST clone, or source
+rewrite was added. Rejection retains the durable source authority and the one
+Main lowering proof, and the callback is not entered.
+
+Focused proof is green:
+
+```bash
+cargo check --lib --features vm-reference
+cargo test -q --lib normal_callable_transaction_handoff --features vm-reference
+python3 tools/checks/lib/normal_source_plan0_guard.py
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+The next active row is the Builder-facing typed lowerer adapter only. Helper
+prefix retention and Main/physical draft composition remain later DRAFTS0
+subrows; they must not be mixed into that adapter.
 
 ## Fixed continuation
 

@@ -3,9 +3,9 @@
 //! This module observes one owned parsed source exactly once. It does not
 //! select a profile, lower MIR, choose a backend, or execute a program.
 
-mod classifier;
 mod callable_catalog_source;
 mod callable_source;
+mod classifier;
 mod inventory;
 mod main_direct_call_plan;
 mod main_direct_call_source;
@@ -14,6 +14,7 @@ mod main_resolved_source;
 mod main_source;
 mod main_thunk_plan;
 mod normal_acyclic_module_plan;
+mod normal_callable_transaction_handoff;
 mod product;
 mod rejection;
 #[cfg(test)]
@@ -66,6 +67,13 @@ pub(crate) use normal_acyclic_module_plan::{
     NormalMainHelperResolutionStageV1, PreparedNormalMainHelperResolutionV1,
     RejectedNormalMainHelperResolutionV1, VerifiedNormalAcyclicCallableModulePlanV1,
     VerifiedNormalHelperTopologyPlanV1, VerifiedNormalRecursiveCallableModulePlanV1,
+};
+#[allow(unused_imports)]
+pub(crate) use normal_callable_transaction_handoff::{
+    ConsumableNormalMainLoweringProofV1, NormalCallableHandoffStageV1,
+    OpenNormalCallableModuleTransactionV1, OwnedNormalHelperLoweringScheduleV1,
+    PreparedNormalHelperTopologyReceiptV1, RejectedNormalCallableHandoffV1,
+    RetainedNormalCallableSourceAuthorityV1,
 };
 #[allow(unused_imports)]
 pub(crate) use product::{

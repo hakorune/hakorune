@@ -174,6 +174,49 @@ pub(crate) enum VerifiedNormalHelperTopologyPlanV1<'a> {
 }
 
 impl CompletedNormalMainHelperResolutionV1 {
+    pub(super) fn into_tx0_parts(
+        self,
+    ) -> (
+        VerifiedResolvedCallableModuleV1,
+        NormalSourceIdentityV1,
+        NormalTopLevelSiteV1,
+        NormalMainMethodSiteV1,
+        VerifiedSemanticOwnerForestV1,
+        VerifiedSourceProjectionV1,
+        VerifiedNormalMainRoleV1,
+        VerifiedResolvedFunctionIfControlV1,
+        VerifiedFunctionCompletionV1,
+        VerifiedTrivialCanonicalOwnerV1,
+        usize,
+    ) {
+        let Self { helpers, main } = self;
+        let NormalMainSemanticEvidenceV1 {
+            identity,
+            main_box,
+            main_method,
+            forest,
+            projection,
+            if_control,
+            completion,
+            profile,
+            block_expr_count,
+            role,
+        } = main;
+        (
+            helpers,
+            identity,
+            main_box,
+            main_method,
+            forest,
+            projection,
+            role,
+            if_control,
+            completion,
+            profile,
+            block_expr_count,
+        )
+    }
+
     pub(crate) fn prepare_topology_plan(
         &self,
     ) -> Result<VerifiedNormalHelperTopologyPlanV1<'_>, NormalAcyclicCallableModuleErrorV1> {

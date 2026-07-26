@@ -35,6 +35,10 @@ def check_callable_source(
         "docs/development/current/main/investigations/"
         "normal-callable-module0-tx0-s0-execution-task-2026-07-26.md"
     )
+    handoff_task_path = root / (
+        "docs/development/current/main/investigations/"
+        "normal-callable-module0-tx0-handoff0-s0-execution-task-2026-07-26.md"
+    )
     callable_source_path = source_dir / "callable_source.rs"
     callable_source_tests_path = source_dir / "callable_source_tests.rs"
     callable_catalog_source_path = source_dir / "callable_catalog_source.rs"
@@ -43,6 +47,8 @@ def check_callable_source(
     direct_call_plan_path = source_dir / "main_direct_call_plan.rs"
     direct_call_plan_tests_path = source_dir / "main_direct_call_plan_tests.rs"
     normal_acyclic_plan_path = source_dir / "normal_acyclic_module_plan.rs"
+    handoff_path = source_dir / "normal_callable_transaction_handoff.rs"
+    handoff_tests_path = source_dir / "normal_callable_transaction_handoff_tests.rs"
     capability_path = root / "src/mir/compiler/capability.rs"
     function_role_policy_path = (
         root / "src/mir/compiler/capability/function_role_policy.rs"
@@ -67,6 +73,7 @@ def check_callable_source(
         acyclic_task_path,
         recursive_task_path,
         transaction_task_path,
+        handoff_task_path,
         callable_source_path,
         callable_source_tests_path,
         callable_catalog_source_path,
@@ -75,6 +82,8 @@ def check_callable_source(
         direct_call_plan_path,
         direct_call_plan_tests_path,
         normal_acyclic_plan_path,
+        handoff_path,
+        handoff_tests_path,
         capability_path,
         function_role_policy_path,
         analyzer_policy_path,
@@ -91,6 +100,7 @@ def check_callable_source(
     acyclic_task = acyclic_task_path.read_text()
     recursive_task = recursive_task_path.read_text()
     transaction_task = transaction_task_path.read_text()
+    handoff_task = handoff_task_path.read_text()
     callable_source = callable_source_path.read_text()
     callable_source_tests = callable_source_tests_path.read_text()
     callable_catalog_source = callable_catalog_source_path.read_text()
@@ -99,6 +109,8 @@ def check_callable_source(
     direct_call_plan = direct_call_plan_path.read_text()
     direct_call_plan_tests = direct_call_plan_tests_path.read_text()
     normal_acyclic_plan = normal_acyclic_plan_path.read_text()
+    handoff = handoff_path.read_text()
+    handoff_tests = handoff_tests_path.read_text()
     acyclic_graph = acyclic_graph_path.read_text()
     scc_partition = scc_partition_path.read_text()
     capability = capability_path.read_text()
@@ -192,6 +204,53 @@ def check_callable_source(
         "all modified/new source/check files                    < 800 lines",
     ):
         require(transaction_task, fragment, f"normal callable transaction task {fragment}")
+    for fragment in (
+        "NORMAL-CALLABLE-MODULE0-TX0-HANDOFF0-S0",
+        "one durable source-authority owner",
+        "one owned topology receipt",
+        "stored owner-plus-borrowed-plan self-reference    = 0",
+        "Builder/MIR/module/publication reference           = 0",
+    ):
+        require(handoff_task, fragment, f"TX0 handoff task {fragment}")
+    for definition in (
+        "struct RetainedNormalCallableSourceAuthorityV1",
+        "struct ConsumableNormalMainLoweringProofV1",
+        "struct OpenNormalCallableModuleTransactionV1",
+        "enum PreparedNormalHelperTopologyReceiptV1",
+        "struct OwnedNormalHelperLoweringScheduleV1",
+        "struct RejectedNormalCallableHandoffV1",
+        "enum NormalCallableHandoffStageV1",
+    ):
+        require_count(handoff, definition, 1, f"sole TX0 handoff definition {definition}")
+    for fragment in (
+        "pub(crate) fn into_tx0_handoff(self)",
+        "pub(crate) fn with_helper_plans<R>(",
+        "VerifiedCallableGraphInventoryV1::verify(&self.source.helpers)",
+        "VerifiedCallableSccPartitionV1::verify(inventory)",
+        "BTreeMap<CanonicalCallableKeyV1, CanonicalTrivialBindingSsaPlanV1<'source>>",
+        "fn reject_schedule(",
+    ):
+        require(handoff, fragment, f"TX0 handoff ownership law {fragment}")
+    for test_name in (
+        "handoff_consumes_completed_resolution_and_seals_acyclic_schedule",
+        "handoff_schedule_uses_canonical_key_order_not_declaration_order",
+        "handoff_keeps_recursive_scc_receipt_with_independent_leaf",
+        "schedule_rejection_retains_authority_without_running_callback",
+        "success_rejection_then_success_preserves_one_shot_handoff_boundary",
+    ):
+        require(handoff_tests, f"fn {test_name}(", f"TX0 handoff fixture {test_name}")
+    for forbidden in (
+        "MirBuilder",
+        "MirInstruction",
+        "MirModule",
+        "ValueId",
+        "MirCompiler",
+        "execute",
+        "retry",
+        "fallback",
+    ):
+        if forbidden in handoff:
+            raise AssertionError(f"TX0 handoff gained lowering/retry authority: {forbidden}")
     for definition in (
         "enum VerifiedNormalHelperTopologyPlanV1",
         "struct VerifiedNormalRecursiveCallableModulePlanV1",
