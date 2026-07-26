@@ -2,6 +2,7 @@
 """NORMAL-SOURCE-PLAN0 reusable source-family authority guard."""
 
 from pathlib import Path
+from normal_source_plan0_transaction_guard import check_transaction
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -58,7 +59,7 @@ VALUE_PROFILE_ANALYZER = ROOT / "src/mir/resolved_value_profile/analyzer.rs"
 VALUE_PROFILE_MOD = ROOT / "src/mir/resolved_value_profile/mod.rs"
 BUILDER_MOD = ROOT / "src/mir/builder.rs"
 NORMAL_MODULE_TX_DIR = ROOT / "src/mir/builder/normal_module_transaction"
-NORMAL_MODULE_TX_FILES = tuple(
+NORMAL_MODULE_TX_PASSIVE_FILES = tuple(
     NORMAL_MODULE_TX_DIR / name
     for name in (
         "mod.rs",
@@ -69,6 +70,20 @@ NORMAL_MODULE_TX_FILES = tuple(
         "canonical_batch_tests.rs",
         "tests.rs",
     )
+)
+NORMAL_MODULE_TX_ACTIVATION_FILES = tuple(
+    NORMAL_MODULE_TX_DIR / name
+    for name in (
+        "main_transaction.rs",
+        "main_transaction_tests.rs",
+        "physical_thunk.rs",
+        "result_type.rs",
+        "source_draft.rs",
+    )
+)
+NORMAL_MODULE_TX_FILES = (
+    *NORMAL_MODULE_TX_PASSIVE_FILES,
+    *NORMAL_MODULE_TX_ACTIVATION_FILES,
 )
 ALL_FILES = (
     *PRODUCTION_FILES,
@@ -125,12 +140,23 @@ def main() -> int:
     value_profile_analyzer = VALUE_PROFILE_ANALYZER.read_text()
     value_profile_mod = VALUE_PROFILE_MOD.read_text()
     builder_mod = BUILDER_MOD.read_text()
-    normal_module_tx = "\n".join(path.read_text() for path in NORMAL_MODULE_TX_FILES)
+    normal_module_tx = "\n".join(
+        path.read_text() for path in NORMAL_MODULE_TX_PASSIVE_FILES
+    )
     normal_module_tx_tests = (NORMAL_MODULE_TX_DIR / "tests.rs").read_text()
     canonical_batch = (NORMAL_MODULE_TX_DIR / "canonical_batch.rs").read_text()
     canonical_batch_tests = (
         NORMAL_MODULE_TX_DIR / "canonical_batch_tests.rs"
     ).read_text()
+    check_transaction(
+        ROOT,
+        NORMAL_MODULE_TX_DIR,
+        ROOT
+        / (
+            "docs/development/current/main/investigations/"
+            "normal-main0-tx0-i0-execution-task-2026-07-26.md"
+        ),
+    )
 
     for fragment in (
         "NORMAL-SOURCE-PLAN0-S0",
@@ -707,6 +733,7 @@ def main() -> int:
         BUILDER_MOD,
         *NORMAL_MODULE_TX_FILES,
         Path(__file__),
+        ROOT / "tools/checks/lib/normal_source_plan0_transaction_guard.py",
     ):
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(

@@ -80,7 +80,16 @@ fn prepare_draft<'unit>(
     }
 }
 
-impl PreparedNormalCanonicalModuleBatchV1<'_> {
+impl<'unit> PreparedNormalCanonicalModuleBatchV1<'unit> {
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        VerifiedNormalMainThunkPlanV1<'unit>,
+        NormalModuleTransactionSchemaV1,
+    ) {
+        (self.thunk, self.schema)
+    }
+
     #[cfg(test)]
     pub(super) fn thunk(&self) -> &VerifiedNormalMainThunkPlanV1<'_> {
         &self.thunk

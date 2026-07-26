@@ -49,7 +49,8 @@ fn materializes_exact_callee_without_legacy_resolution() {
         VerifiedDirectCallEffectV1::ConservativeBarrier
     );
 
-    let expected_effects = materialize_effect(VerifiedDirectCallEffectV1::ConservativeBarrier);
+    let expected_effects =
+        materialize_direct_call_effect_v1(VerifiedDirectCallEffectV1::ConservativeBarrier);
     let instruction = emission
         .materialize(ValueId::new(9), vec![ValueId::new(3)])
         .unwrap();

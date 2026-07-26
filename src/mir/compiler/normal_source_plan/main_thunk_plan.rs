@@ -105,6 +105,22 @@ impl<'unit> VerifiedNormalMainThunkPlanV1<'unit> {
     pub(crate) fn into_source(self) -> VerifiedNormalMainFunctionPlanV1<'unit> {
         self.source
     }
+
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (
+        VerifiedNormalMainFunctionPlanV1<'unit>,
+        VerifiedResolvedOwnerHeaderV1,
+        VerifiedNormalMainThunkResultV1,
+        VerifiedNormalMainEntryRelationV1,
+    ) {
+        (
+            self.source,
+            self.source_header,
+            self.source_result,
+            self.entry,
+        )
+    }
 }
 
 #[derive(Debug)]

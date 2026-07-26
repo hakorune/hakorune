@@ -59,6 +59,10 @@ impl NormalMainFunctionPreflightV1 {
 }
 
 impl<'unit> VerifiedNormalMainFunctionPlanV1<'unit> {
+    pub(crate) const fn source_unit(&self) -> &'unit VerifiedNormalMainResolvedSourceUnitV1 {
+        self.unit
+    }
+
     pub(crate) fn completion(&self) -> &VerifiedFunctionCompletionV1 {
         self.lowering.completion()
     }

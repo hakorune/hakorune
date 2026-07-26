@@ -11,7 +11,7 @@ use crate::mir::resolved_semantics::VerifiedCallableHeaderV1;
 use crate::mir::resolved_value_profile::VerifiedTrivialDirectCallV1;
 use crate::mir::{Callee, Effect, EffectMask, MirInstruction, ValueId};
 
-fn materialize_effect(effect: VerifiedDirectCallEffectV1) -> EffectMask {
+pub(crate) fn materialize_direct_call_effect_v1(effect: VerifiedDirectCallEffectV1) -> EffectMask {
     match effect {
         VerifiedDirectCallEffectV1::ConservativeBarrier => EffectMask::MUT
             .union(EffectMask::IO)
@@ -82,7 +82,7 @@ impl VerifiedCanonicalDirectCallEmissionV1 {
                 self.target.symbol().as_mir_name().to_string(),
             )),
             args,
-            effects: materialize_effect(self.effect),
+            effects: materialize_direct_call_effect_v1(self.effect),
         })
     }
 }

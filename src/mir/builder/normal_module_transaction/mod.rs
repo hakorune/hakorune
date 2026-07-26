@@ -5,8 +5,12 @@
 
 mod canonical_batch;
 mod entry_target;
+mod main_transaction;
+mod physical_thunk;
 mod rejection;
+mod result_type;
 mod schema;
+mod source_draft;
 
 pub(in crate::mir::builder) use canonical_batch::{
     NormalCanonicalModuleBatchErrorV1, NormalCanonicalModuleBatchV1,
@@ -14,6 +18,12 @@ pub(in crate::mir::builder) use canonical_batch::{
 };
 pub(in crate::mir) use entry_target::{
     canonical_normal_main_entry_target, CanonicalNormalMainEntryTargetV1,
+};
+pub(in crate::mir) use main_transaction::{
+    CompletedNormalMainModuleCandidateV1, NormalMainBatchCorrespondenceErrorV1,
+    NormalMainModuleTransactionErrorV1, NormalMainModuleTransactionStageV1,
+    PreparedNormalMainModuleTransactionV1, RejectedNormalMainModuleTransactionV1,
+    RetainedNormalMainPreparedDraftsV1, RetainedNormalMainTransactionEvidenceV1,
 };
 pub(in crate::mir::builder) use rejection::{
     NormalModuleTransactionSchemaErrorV1, RejectedNormalModuleTransactionSchemaV1,
@@ -25,5 +35,7 @@ pub(in crate::mir::builder) use schema::{
 
 #[cfg(test)]
 mod canonical_batch_tests;
+#[cfg(test)]
+mod main_transaction_tests;
 #[cfg(test)]
 mod tests;
