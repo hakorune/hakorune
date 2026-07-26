@@ -158,6 +158,59 @@ fn canonical_core_publication_projects_main_and_script_without_reobservation() {
     assert_eq!(main.family, "main");
 }
 
+#[cfg(feature = "vm-reference")]
+#[test]
+fn canonical_core_vm_reference_executes_script_and_main_through_one_published_owner() {
+    let dir = tempdir().expect("tempdir");
+    let script = classify_canonical_core(dir.path(), "vm-script.hako", "42")
+        .into_canonical_core_compile_request()
+        .expect("canonical Script handoff");
+    let main = classify_canonical_core(dir.path(), "vm-main.hako", "static box Main { main() {} }")
+        .into_canonical_core_compile_request()
+        .expect("canonical Main handoff");
+    let mut compiler = crate::mir::MirCompiler::new();
+
+    let script = compiler
+        .run_canonical_core_source_plan_vm_reference_summary_for_test(script)
+        .expect("Script VM execution");
+    assert_eq!(script.status, 42);
+    assert_eq!(script.fault_tag, None);
+    assert_eq!(script.route, "script");
+
+    let main = compiler
+        .run_canonical_core_source_plan_vm_reference_summary_for_test(main)
+        .expect("Main VM execution");
+    assert_eq!(main.status, 0);
+    assert_eq!(main.fault_tag, None);
+    assert_eq!(main.route, "main");
+}
+
+#[cfg(feature = "vm-reference")]
+#[test]
+fn canonical_core_script_vm_reference_preserves_unit_and_fault_projection() {
+    let dir = tempdir().expect("tempdir");
+    let cases = [
+        ("empty.hako", "", 0, None),
+        ("print.hako", "print(1)", 0, None),
+        ("range.hako", "256", 70, Some("exit-code-out-of-range")),
+        ("bool.hako", "true", 70, Some("unsupported-result")),
+        ("string.hako", "\"nyan\"", 70, Some("unsupported-result")),
+    ];
+    let mut compiler = crate::mir::MirCompiler::new();
+
+    for (name, source, expected_status, expected_fault) in cases {
+        let request = classify_canonical_core(dir.path(), name, source)
+            .into_canonical_core_compile_request()
+            .expect("canonical Script handoff");
+        let outcome = compiler
+            .run_canonical_core_source_plan_vm_reference_summary_for_test(request)
+            .expect("Script VM execution");
+        assert_eq!(outcome.status, expected_status, "{name}");
+        assert_eq!(outcome.fault_tag, expected_fault, "{name}");
+        assert_eq!(outcome.route, "script", "{name}");
+    }
+}
+
 #[test]
 fn canonical_core_dispatch_script_candidate_preserves_compiler_reuse_for_main() {
     let dir = tempdir().expect("tempdir");

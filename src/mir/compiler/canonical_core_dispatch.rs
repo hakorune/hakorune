@@ -14,11 +14,15 @@ use crate::mir::builder::{
 };
 use crate::mir::compiler::normal_source_plan::{
     NormalMainFunctionPlanErrorV1, NormalMainFunctionPreflightV1, NormalMainFunctionSourceErrorV1,
-    NormalMainResolvedSourceErrorV1, NormalMainThunkPlanErrorV1, SealedNormalMainSourceV1,
-    OpenScriptPhysicalEntryV1, RejectedNormalScriptPhysicalEntryV1, SealedNormalScalarRootV1,
+    NormalMainResolvedSourceErrorV1, NormalMainThunkPlanErrorV1, OpenScriptPhysicalEntryV1,
+    RejectedNormalScriptPhysicalEntryV1, SealedNormalMainSourceV1, SealedNormalScalarRootV1,
     SealedNormalSourcePlanV1, VerifiedNormalMainThunkPlanV1,
 };
 use crate::mir::compiler::raw_root_source_facts::RawScriptRecipeProjectionErrorV1;
+#[cfg(feature = "vm-reference")]
+use crate::mir::compiler::source_entry_vm_invocation::PreparedVmReferenceSourceEntryInvocationV1;
+#[cfg(feature = "vm-reference")]
+use crate::mir::compiler::source_entry_vm_reference::VmReferenceProcessOutcomeV1;
 
 use super::MirCompiler;
 
@@ -404,7 +408,10 @@ impl NormalCanonicalCoreSourcePlanCompilerV1 {
                 ));
             }
         };
-        let transaction = match compiler.builder.prepare_normal_main_module_transaction(batch) {
+        let transaction = match compiler
+            .builder
+            .prepare_normal_main_module_transaction(batch)
+        {
             Ok(transaction) => transaction,
             Err(rejected) => {
                 let error = rejected.into_error();
@@ -471,10 +478,8 @@ impl MirCompiler {
     pub(crate) fn compile_canonical_core_source_plan(
         &mut self,
         request: CanonicalCoreSourcePlanCompileRequestV1,
-    ) -> Result<
-        CompletedCanonicalCoreSourceEntryCandidateV1,
-        RejectedCanonicalCoreNormalDispatchV1,
-    > {
+    ) -> Result<CompletedCanonicalCoreSourceEntryCandidateV1, RejectedCanonicalCoreNormalDispatchV1>
+    {
         NormalCanonicalCoreSourcePlanCompilerV1::consume(self, request)
     }
 
@@ -496,6 +501,19 @@ impl MirCompiler {
             .map_err(RejectedCanonicalCorePublishedSourceEntryV1::Publication)
     }
 
+    /// The canonical-core VM-reference seam consumes the shared published
+    /// invocation. It owns no entry selection or process-status policy.
+    #[cfg(feature = "vm-reference")]
+    pub(in crate::mir) fn run_canonical_core_source_plan_vm_reference(
+        &mut self,
+        request: CanonicalCoreSourcePlanCompileRequestV1,
+    ) -> Result<VmReferenceProcessOutcomeV1, RejectedCanonicalCorePublishedSourceEntryV1> {
+        let prepared: PreparedVmReferenceSourceEntryInvocationV1<_> = self
+            .compile_canonical_core_source_plan_to_published(request)?
+            .prepare_vm_reference();
+        Ok(prepared.execute().complete_canonical_source_entry())
+    }
+
     #[cfg(test)]
     pub(crate) fn compile_canonical_core_source_plan_publication_summary_for_test(
         &mut self,
@@ -507,6 +525,35 @@ impl MirCompiler {
         self.compile_canonical_core_source_plan_to_published(request)
             .map(|published| published.publication_summary_for_test())
     }
+
+    #[cfg(all(test, feature = "vm-reference"))]
+    pub(crate) fn run_canonical_core_source_plan_vm_reference_summary_for_test(
+        &mut self,
+        request: CanonicalCoreSourcePlanCompileRequestV1,
+    ) -> Result<CanonicalCoreVmReferenceSummaryForTestV1, RejectedCanonicalCorePublishedSourceEntryV1>
+    {
+        let outcome = self.run_canonical_core_source_plan_vm_reference(request)?;
+        Ok(CanonicalCoreVmReferenceSummaryForTestV1 {
+            status: outcome.status().value(),
+            fault_tag: outcome.fault().map(|fault| match fault {
+                crate::mir::compiler::source_entry_result::ProcessFaultV1::ExitCodeOutOfRange { .. } => "exit-code-out-of-range",
+                crate::mir::compiler::source_entry_result::ProcessFaultV1::UnsupportedProcessResult { .. } => "unsupported-result",
+                crate::mir::compiler::source_entry_result::ProcessFaultV1::SourceFault { code, .. } => code,
+            }),
+            route: match outcome.route_for_test() {
+                crate::mir::compiler::source_entry_selection::SelectedSourceEntryRouteV1::Script => "script",
+                crate::mir::compiler::source_entry_selection::SelectedSourceEntryRouteV1::AppMain0 => "main",
+            },
+        })
+    }
+}
+
+#[cfg(all(test, feature = "vm-reference"))]
+#[derive(Debug)]
+pub(crate) struct CanonicalCoreVmReferenceSummaryForTestV1 {
+    pub(crate) status: u8,
+    pub(crate) fault_tag: Option<&'static str>,
+    pub(crate) route: &'static str,
 }
 
 fn restore_main_source(
