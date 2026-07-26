@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: CANONICAL-SOURCE-ENTRY-PUBLICATION0-G0
+Active executable row: NORMAL-CALLABLE0-PUBLICATION-EVIDENCE0-S0
 ```
 
 ## Boundary
@@ -117,10 +117,17 @@ through the same core.
 
 ### 6. `CANONICAL-SOURCE-ENTRY-PUBLICATION0-G0`
 
-Status: active.
+Status: closed by `e38e064629`.
 
 Merge the structural assertions into existing canonical-core/source-entry
 guards. Do not add a per-cell shell wrapper.
+
+## Next row
+
+`NORMAL-CALLABLE0-PUBLICATION-EVIDENCE0-S0` must retain the callable module's
+entry relation, source-result contract, topology, and candidate verification
+receipt before it can join this shared publication core. No second publication
+or VM executor is permitted.
 
 ## Acceptance gates
 
