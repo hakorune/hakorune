@@ -9,6 +9,7 @@ use crate::mir::builder::{MirBuilder, MirInstruction, ValueId};
 use crate::mir::definitions::call_unified::MirCall;
 
 use super::post_success::PreparedUnifiedCallPostSuccessV1;
+use super::UnifiedValueCallReceiptErrorV1;
 
 /// One successful generic physical Call with an exact final destination.
 ///
@@ -38,7 +39,8 @@ pub(super) enum CompletedUnifiedCallEmissionV1 {
 
 /// A successful unified-emitter route which is not the generic Call terminal.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum UnifiedCallAlternateRouteV1 {
+pub(in crate::mir::builder) enum UnifiedCallAlternateRouteV1 {
+    LegacyCompatibility,
     EarlyStringLikeRewrite,
     SpecialEqualsRewrite,
     KnownOrUniqueRewrite,
@@ -52,6 +54,20 @@ pub(super) enum UnifiedCallAlternateRouteV1 {
 pub(super) enum UnifiedCallEmissionOutcomeV1 {
     Alternate(UnifiedCallAlternateRouteV1),
     Generic(CompletedUnifiedCallEmissionV1),
+}
+
+impl UnifiedCallEmissionOutcomeV1 {
+    pub(super) fn into_required_value_receipt(
+        self,
+    ) -> Result<CompletedUnifiedValueCallEmissionV1, UnifiedValueCallReceiptErrorV1> {
+        match self {
+            Self::Generic(CompletedUnifiedCallEmissionV1::Value(receipt)) => Ok(receipt),
+            Self::Generic(CompletedUnifiedCallEmissionV1::NoDestination) => {
+                Err(UnifiedValueCallReceiptErrorV1::FinalDestinationMissing)
+            }
+            Self::Alternate(route) => Err(UnifiedValueCallReceiptErrorV1::AlternateRoute { route }),
+        }
+    }
 }
 
 /// Emit the already-finalized generic Call and commit its existing

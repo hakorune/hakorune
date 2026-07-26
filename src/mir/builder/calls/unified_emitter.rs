@@ -31,12 +31,20 @@ pub struct UnifiedCallEmitterBox;
 mod array_write_timing_tests;
 #[cfg(test)]
 mod map_write_timing_tests;
+#[cfg(test)]
+mod physical_receipt_tests;
 mod physical_terminal;
 mod post_success;
+mod request_boundary;
 #[cfg(test)]
 mod temporal_witness_tests;
 
-use physical_terminal::{UnifiedCallAlternateRouteV1, UnifiedCallEmissionOutcomeV1};
+use physical_terminal::UnifiedCallEmissionOutcomeV1;
+pub(in crate::mir::builder) use physical_terminal::{
+    CompletedUnifiedValueCallEmissionV1, UnifiedCallAlternateRouteV1,
+};
+pub(in crate::mir::builder) use request_boundary::UnifiedValueCallReceiptErrorV1;
+use request_boundary::{UnifiedCallAttemptErrorV1, UnifiedCompatibilityDispositionV1};
 
 impl UnifiedCallEmitterBox {
     /// Unified call emission - replaces all emit_*_call methods
@@ -93,6 +101,30 @@ impl UnifiedCallEmitterBox {
             crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
         >,
     ) -> Result<(), String> {
+        Self::emit_unified_call_outcome_with_lookup_and_map_replay(
+            builder,
+            dst,
+            target,
+            args,
+            lookup,
+            map_write_replay,
+            UnifiedCompatibilityDispositionV1::PermitLegacy,
+        )
+        .map(drop)
+        .map_err(UnifiedCallAttemptErrorV1::into_ordinary_string)
+    }
+
+    fn emit_unified_call_outcome_with_lookup_and_map_replay(
+        builder: &mut MirBuilder,
+        dst: Option<ValueId>,
+        target: CallTarget,
+        args: Vec<ValueId>,
+        lookup: Option<&dyn FunctionSignatureLookupV1>,
+        map_write_replay: Option<
+            crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
+        >,
+        compatibility: UnifiedCompatibilityDispositionV1,
+    ) -> Result<UnifiedCallEmissionOutcomeV1, UnifiedCallAttemptErrorV1> {
         // Debug: Check recursion depth
         const MAX_EMIT_DEPTH: usize = 100;
         builder.recursion_depth += 1;
@@ -107,25 +139,34 @@ impl UnifiedCallEmitterBox {
                 builder.recursion_depth
             ));
             ring0.log.error(&format!("[FATAL] Target: {:?}", target));
-            return Err(format!(
+            return Err(UnifiedCallAttemptErrorV1::Emission(format!(
                 "emit_unified_call recursion depth exceeded: {}",
                 builder.recursion_depth
-            ));
+            )));
         }
 
         // Check environment variable for unified call usage
         let result = if !call_unified::is_unified_call_enabled() {
-            if lookup.is_some() {
-                Err(
+            if compatibility == UnifiedCompatibilityDispositionV1::RequireGenericReceipt {
+                Err(UnifiedCallAttemptErrorV1::UnifiedDisabledForReceipt)
+            } else if lookup.is_some() {
+                Err(UnifiedCallAttemptErrorV1::Emission(
                     "[freeze:contract][headerport/unified_call_disabled] explicit header lookup cannot retry through legacy emission"
                         .to_owned(),
-                )
+                ))
             } else {
                 // Use the compatibility call entry when unified calls are disabled.
-                builder.emit_legacy_call(dst, target, args)
+                builder
+                    .emit_legacy_call(dst, target, args)
+                    .map(|()| {
+                        UnifiedCallEmissionOutcomeV1::Alternate(
+                            UnifiedCallAlternateRouteV1::LegacyCompatibility,
+                        )
+                    })
+                    .map_err(UnifiedCallAttemptErrorV1::Emission)
             }
         } else {
-            Self::emit_unified_call_impl_with_lookup_and_map_replay(
+            Self::emit_unified_call_outcome_impl_with_lookup_and_map_replay(
                 builder,
                 dst,
                 target,
@@ -133,6 +174,7 @@ impl UnifiedCallEmitterBox {
                 lookup,
                 map_write_replay,
             )
+            .map_err(UnifiedCallAttemptErrorV1::Emission)
         };
         builder.recursion_depth -= 1;
         result

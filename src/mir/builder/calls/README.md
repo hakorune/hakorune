@@ -26,6 +26,14 @@ It exposes one borrowed syntax view plus reusable E0 receiver and ARG0 argument
 descent primitives. It does not select routes or emit calls, effects, types,
 or results, and it is never stored in `MirBuilder`.
 
+`unified_emitter/physical_terminal.rs` is the sole generic physical
+`MirInstruction::Call` writer. It issues a non-Clone value receipt only after
+the finalized Call succeeds and the existing post-success facts commit.
+Compatibility, rewrite, BoxCall, no-destination, and failed-emission routes
+never issue that receipt. `unified_emitter/request_boundary.rs` owns the
+receipt-required sibling API; it rejects alternate and legacy routes without
+retry and owns no source classification or result-type publication.
+
 `preloop_located_argument_port.rs` is the disconnected candidate-only wrapper
 for one source-sealed pre-loop argument. It delegates every ordinary trait
 capability to the wrapped `MethodCallLoweringPortV1` and leaves the selected
