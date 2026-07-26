@@ -207,7 +207,8 @@ fn vm_error_to_source_fault(error: VMError) -> SourceEntryResultV1 {
 mod tests {
     use super::*;
     use crate::mir::compiler::source_entry_published_invocation::{
-        PendingPublishedSourceEntryTargetV1, PublishedSourceEntryMembershipV1,
+        CanonicalPublishedSourceEntryMembershipV1, PendingPublishedSourceEntryTargetV1,
+        PublishedSourceEntryMembershipV1,
     };
     use crate::mir::compiler::source_entry_result::UnitOriginV1;
     use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
@@ -222,12 +223,14 @@ mod tests {
             "owner",
             target,
             result,
-            PublishedSourceEntryMembershipV1::CanonicalMain {
-                source_owner: FunctionOwnerIssuerV1::new_for_compilation()
-                    .expect("test owner issuer")
-                    .issue()
-                    .expect("test owner"),
-            },
+            PublishedSourceEntryMembershipV1::Canonical(
+                CanonicalPublishedSourceEntryMembershipV1::Main {
+                    source_owner: FunctionOwnerIssuerV1::new_for_compilation()
+                        .expect("test owner issuer")
+                        .issue()
+                        .expect("test owner"),
+                },
+            ),
         )
         .prepare_vm_reference()
     }

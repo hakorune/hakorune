@@ -374,6 +374,32 @@ impl CompletedNormalMainModuleCandidateV1 {
         self.verification.function_count
     }
 
+    pub(in crate::mir) fn schema_row_count(&self) -> usize {
+        self.evidence.schema.rows().len()
+    }
+
+    pub(in crate::mir) fn physical_symbol(&self) -> &str {
+        self.evidence.entry.physical_symbol()
+    }
+
+    pub(in crate::mir) const fn physical_arity(&self) -> usize {
+        self.evidence.entry.physical_arity()
+    }
+
+    pub(in crate::mir) fn entry_source_owner(&self) -> FunctionOwnerIdV1 {
+        self.evidence.entry.source_owner()
+    }
+
+    pub(in crate::mir) fn into_publication_parts(
+        self,
+    ) -> (
+        MirModule,
+        CompletedNormalMainModuleEvidenceV1,
+        NormalMainCandidateVerificationReceiptV1,
+    ) {
+        (self.module, self.evidence, self.verification)
+    }
+
     pub(in crate::mir) fn publish(self) -> PublishedNormalMainInvocationV1 {
         PublishedNormalMainInvocationV1 {
             module: self.module,

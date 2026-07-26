@@ -127,6 +127,42 @@ fn canonical_core_script_candidate_retains_sealed_publication_evidence() {
 }
 
 #[test]
+fn canonical_core_publication_projects_main_and_script_without_reobservation() {
+    let dir = tempdir().expect("tempdir");
+    let script = classify_canonical_core(dir.path(), "published-script.hako", "42")
+        .into_canonical_core_compile_request()
+        .expect("canonical Script handoff");
+    let main = classify_canonical_core(
+        dir.path(),
+        "published-main.hako",
+        "static box Main { main() {} }",
+    )
+    .into_canonical_core_compile_request()
+    .expect("canonical Main handoff");
+    let mut compiler = crate::mir::MirCompiler::new();
+
+    let script = compiler
+        .compile_canonical_core_source_plan(script)
+        .expect("Script candidate")
+        .canonical_publication_summary_for_test()
+        .expect("Script publication pairing");
+    assert_eq!(script.target_symbol, "main");
+    assert_eq!(script.target_arity, 0);
+    assert_eq!(script.result_kind, "integer");
+    assert_eq!(script.family, "script");
+
+    let main = compiler
+        .compile_canonical_core_source_plan(main)
+        .expect("Main candidate")
+        .canonical_publication_summary_for_test()
+        .expect("Main publication pairing");
+    assert_eq!(main.target_symbol, "main");
+    assert_eq!(main.target_arity, 0);
+    assert_eq!(main.result_kind, "unit");
+    assert_eq!(main.family, "main");
+}
+
+#[test]
 fn canonical_core_dispatch_script_candidate_preserves_compiler_reuse_for_main() {
     let dir = tempdir().expect("tempdir");
     let script = classify_canonical_core(dir.path(), "script-reuse.hako", "42")

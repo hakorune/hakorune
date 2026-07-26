@@ -365,6 +365,16 @@ impl CompletedNormalScriptModuleCandidateV1 {
     pub(in crate::mir) fn verification(&self) -> &NormalScriptCandidateVerificationReceiptV1 {
         &self.verification
     }
+
+    pub(in crate::mir) fn into_publication_parts(
+        self,
+    ) -> (
+        MirModule,
+        CompletedNormalScriptModuleEvidenceV1,
+        NormalScriptCandidateVerificationReceiptV1,
+    ) {
+        (self.module, self.evidence, self.verification)
+    }
 }
 
 impl CompletedNormalScriptModuleEvidenceV1 {

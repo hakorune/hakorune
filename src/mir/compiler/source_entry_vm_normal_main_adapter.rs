@@ -4,9 +4,10 @@
 //! It transports sealed membership, target, and result evidence only.
 
 use super::source_entry_published_invocation::{
-    PendingPublishedSourceEntryTargetV1, PublishedSourceEntryInvocationV1,
-    PublishedSourceEntryMembershipV1, PublishedSourceEntryResultContractV1,
-    PublishedSourceEntryTargetErrorV1, PublishedUnitPhysicalContractV1,
+    CanonicalPublishedSourceEntryMembershipV1, PendingPublishedSourceEntryTargetV1,
+    PublishedSourceEntryInvocationV1, PublishedSourceEntryMembershipV1,
+    PublishedSourceEntryResultContractV1, PublishedSourceEntryTargetErrorV1,
+    PublishedUnitPhysicalContractV1,
 };
 use super::source_entry_result::UnitOriginV1;
 use super::source_entry_vm_invocation::{
@@ -106,9 +107,11 @@ impl PublishedNormalMainInvocationV1 {
             }
         };
         let result = project_result(self.result());
-        let membership = PublishedSourceEntryMembershipV1::CanonicalMain {
-            source_owner: self.source_owner(),
-        };
+        let membership = PublishedSourceEntryMembershipV1::Canonical(
+            CanonicalPublishedSourceEntryMembershipV1::Main {
+                source_owner: self.source_owner(),
+            },
+        );
         Ok(
             PublishedSourceEntryInvocationV1::from_verified_parts(self, target, result, membership)
                 .prepare_vm_reference(),

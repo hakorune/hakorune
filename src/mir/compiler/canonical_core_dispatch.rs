@@ -5,6 +5,8 @@
 //! returns an unpublished candidate; publication and VM execution remain later
 //! boundaries.
 
+pub(in crate::mir) mod publication;
+
 use crate::mir::builder::{
     CompletedNormalMainModuleCandidateV1, NormalCanonicalModuleBatchErrorV1,
     NormalCanonicalModuleBatchV1, NormalMainModuleTransactionErrorV1,

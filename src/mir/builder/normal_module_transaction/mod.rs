@@ -52,7 +52,8 @@ pub(in crate::mir) use entry_target::{
     canonical_normal_main_entry_target, CanonicalNormalMainEntryTargetV1,
 };
 pub(in crate::mir) use main_transaction::{
-    CompletedNormalMainModuleCandidateV1, NormalMainBatchCorrespondenceErrorV1,
+    CompletedNormalMainModuleCandidateV1, CompletedNormalMainModuleEvidenceV1,
+    NormalMainBatchCorrespondenceErrorV1, NormalMainCandidateVerificationReceiptV1,
     NormalMainModuleTransactionErrorV1, NormalMainModuleTransactionStageV1,
     PreparedNormalMainModuleTransactionV1, PublishedNormalMainInvocationV1,
     RejectedNormalMainModuleTransactionV1, RetainedNormalMainPreparedDraftsV1,

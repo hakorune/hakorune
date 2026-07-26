@@ -27,9 +27,15 @@ pub(in crate::mir) enum PublishedSourceEntryResultContractV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum CanonicalPublishedSourceEntryMembershipV1 {
+    Main { source_owner: FunctionOwnerIdV1 },
+    Script,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum PublishedSourceEntryMembershipV1 {
     Raw { brand: ModuleInvocationBrandV1 },
-    CanonicalMain { source_owner: FunctionOwnerIdV1 },
+    Canonical(CanonicalPublishedSourceEntryMembershipV1),
 }
 
 #[derive(Debug)]
@@ -209,9 +215,11 @@ mod tests {
 
     #[test]
     fn invocation_retains_complete_owner_target_result_and_membership() {
-        let membership = PublishedSourceEntryMembershipV1::CanonicalMain {
-            source_owner: owner(),
-        };
+        let membership = PublishedSourceEntryMembershipV1::Canonical(
+            CanonicalPublishedSourceEntryMembershipV1::Main {
+                source_owner: owner(),
+            },
+        );
         let result = PublishedSourceEntryResultContractV1::Unit {
             origin: UnitOriginV1::ExplicitNull,
             physical: PublishedUnitPhysicalContractV1::ExactVoid,
