@@ -19,6 +19,10 @@ MAIN_TASK = ROOT / (
     "docs/development/current/main/investigations/"
     "normal-main0-source0-s0-execution-task-2026-07-26.md"
 )
+MAIN_F1_TASK = ROOT / (
+    "docs/development/current/main/investigations/"
+    "normal-main0-f1-plan0-s0-execution-task-2026-07-26.md"
+)
 MIR_ROOT = ROOT / "src/mir/mod.rs"
 FRONTDOOR = ROOT / "src/runner/reference/normal_file_vm_frontdoor.rs"
 FRONTDOOR_INPUT = (
@@ -35,11 +39,22 @@ PRODUCTION_FILES = tuple(
 )
 MAIN_SOURCE = SOURCE_DIR / "main_source.rs"
 MAIN_SOURCE_TESTS = SOURCE_DIR / "main_source_tests.rs"
+MAIN_RESOLVED_SOURCE = SOURCE_DIR / "main_resolved_source.rs"
+MAIN_RESOLVED_SOURCE_TESTS = SOURCE_DIR / "main_resolved_source_tests.rs"
+MAIN_FUNCTION_PLAN = SOURCE_DIR / "main_function_plan.rs"
+MAIN_FUNCTION_PLAN_TESTS = SOURCE_DIR / "main_function_plan_tests.rs"
+CAPABILITY = ROOT / "src/mir/compiler/capability.rs"
+VALUE_PROFILE_ANALYZER = ROOT / "src/mir/resolved_value_profile/analyzer.rs"
+VALUE_PROFILE_MOD = ROOT / "src/mir/resolved_value_profile/mod.rs"
 ALL_FILES = (
     *PRODUCTION_FILES,
     MAIN_SOURCE,
     SOURCE_DIR / "tests.rs",
     MAIN_SOURCE_TESTS,
+    MAIN_RESOLVED_SOURCE,
+    MAIN_RESOLVED_SOURCE_TESTS,
+    MAIN_FUNCTION_PLAN,
+    MAIN_FUNCTION_PLAN_TESTS,
 )
 
 
@@ -60,6 +75,7 @@ def main() -> int:
     task = TASK.read_text()
     input_task = INPUT_TASK.read_text()
     main_task = MAIN_TASK.read_text()
+    main_f1_task = MAIN_F1_TASK.read_text()
     production = "\n".join(path.read_text() for path in PRODUCTION_FILES)
     classifier = (SOURCE_DIR / "classifier.rs").read_text()
     tests = (SOURCE_DIR / "tests.rs").read_text()
@@ -70,6 +86,13 @@ def main() -> int:
     frontdoor_input_tests = FRONTDOOR_INPUT_TESTS.read_text()
     main_source = MAIN_SOURCE.read_text()
     main_source_tests = MAIN_SOURCE_TESTS.read_text()
+    main_resolved_source = MAIN_RESOLVED_SOURCE.read_text()
+    main_resolved_source_tests = MAIN_RESOLVED_SOURCE_TESTS.read_text()
+    main_function_plan = MAIN_FUNCTION_PLAN.read_text()
+    main_function_plan_tests = MAIN_FUNCTION_PLAN_TESTS.read_text()
+    capability = CAPABILITY.read_text()
+    value_profile_analyzer = VALUE_PROFILE_ANALYZER.read_text()
+    value_profile_mod = VALUE_PROFILE_MOD.read_text()
 
     for fragment in (
         "NORMAL-SOURCE-PLAN0-S0",
@@ -99,6 +122,16 @@ def main() -> int:
         "production consumer                    = 0",
     ):
         require(main_task, fragment, f"MAIN SOURCE0 task contract {fragment}")
+
+    for fragment in (
+        "NORMAL-MAIN0-F1-PLAN0-S0",
+        "Program-owned embedded resolved Main.main/0 function plan",
+        "ordinary callable main admission               = 0",
+        "Builder / MirInstruction / publication         = 0",
+        "fallback/retry                                 = 0",
+        "all modified/new source and check files        < 800 lines",
+    ):
+        require(main_f1_task, fragment, f"MAIN F1 task contract {fragment}")
 
     definitions = (
         "struct PreparedNormalSourcePlanInputV1",
@@ -199,6 +232,86 @@ def main() -> int:
             frontdoor_input_tests,
             f"fn {test_name}(",
             f"INPUT0 fixture {test_name}",
+        )
+
+    for definition in (
+        "struct VerifiedNormalMainResolvedSourceUnitV1",
+        "struct VerifiedNormalMainRoleV1",
+        "struct VerifiedNormalMainFunctionPlanV1",
+        "struct RejectedNormalMainFunctionPlanV1",
+    ):
+        require_count(
+            main_resolved_source + main_function_plan,
+            definition,
+            1,
+            f"sole Main F1 definition {definition}",
+        )
+    for fragment in (
+        "FunctionSemanticResolverSessionV1::new(0)",
+        "VerifiedSourceProjectionV1::seal(function.function(), &forest)",
+        "ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(",
+        "pub(crate) fn prepare_embedded_resolved_main(",
+        "pub(crate) fn borrow_function_input(",
+        "pub(crate) const fn role(&self)",
+    ):
+        require(main_resolved_source, fragment, f"Main resolved-source boundary {fragment}")
+    for fragment in (
+        "CanonicalLoweringPreflightV1::verify_normal_main0_function_v1(",
+        "pub(crate) fn seal(",
+        "pub(crate) fn completion(&self)",
+        "pub(crate) fn into_lowering(self)",
+        "pub(crate) fn error(&self)",
+        "pub(crate) fn discard(self)",
+    ):
+        require(main_function_plan, fragment, f"Main F1 plan boundary {fragment}")
+    for fragment in (
+        "analyze_trivial_canonical_main_owner_v1",
+        "CanonicalFunctionRolePolicyV1::OrdinaryFirstFamily",
+        "CanonicalFunctionRolePolicyV1::NormalMain0",
+        "name == \"main\"",
+        "name != \"main\"",
+        "function_role_capability_mismatch",
+    ):
+        require(capability, fragment, f"role-scoped canonical capability {fragment}")
+    for fragment in (
+        "RootProfilePolicyV1::OrdinaryFirstFamily",
+        "RootProfilePolicyV1::NormalMain0",
+        "name == \"main\"",
+        "name != \"main\"",
+        "TrivialRepresentationV1::ExplicitVoidValue",
+        "TrivialRepresentationV1::NullSentinel",
+    ):
+        require(value_profile_analyzer, fragment, f"role-scoped value profile {fragment}")
+    require(
+        value_profile_mod,
+        "pub(crate) fn analyze_trivial_canonical_main_owner_v1(",
+        "sole Main value-profile facade",
+    )
+
+    for test_name in (
+        "embedded_main_resolution_keeps_exact_program_owned_function_identity",
+        "embedded_main_resolution_reuses_nested_owner_forest_and_source_projection",
+    ):
+        require(
+            main_resolved_source_tests,
+            f"fn {test_name}(",
+            f"Main resolved-source fixture {test_name}",
+        )
+    for test_name in (
+        "main_f1_seals_empty_fallthrough_and_expression_statement_as_unit",
+        "main_f1_preserves_explicit_unit_origins",
+        "main_f1_admits_exact_scalar_value_carriers",
+        "main_f1_admits_void_and_exact_i64_declared_contracts",
+        "main_f1_rejects_contract_mismatch_and_unsupported_carrier_before_lowering",
+        "main_f1_rejects_multiple_nested_and_nonterminal_returns",
+        "main_f1_rejects_direct_call_and_nested_owner_before_lowering",
+        "ordinary_preflight_still_rejects_standalone_main",
+        "main_plan_retains_exact_role_unit_and_consumable_trivial_plan",
+    ):
+        require(
+            main_function_plan_tests,
+            f"fn {test_name}(",
+            f"Main F1 fixture {test_name}",
         )
 
     for definition in (
@@ -321,6 +434,8 @@ def main() -> int:
         "SealedNormalSourcePlanV1",
         "PreparedNormalSourcePlanInputV1",
         "VerifiedNormalMainFunctionSourceUnitV1",
+        "VerifiedNormalMainResolvedSourceUnitV1",
+        "VerifiedNormalMainFunctionPlanV1",
     )
     allowed = set(ALL_FILES) | {
         COMPILER_MOD,
@@ -328,6 +443,9 @@ def main() -> int:
         FRONTDOOR,
         FRONTDOOR_INPUT,
         FRONTDOOR_INPUT_TESTS,
+        CAPABILITY,
+        VALUE_PROFILE_ANALYZER,
+        VALUE_PROFILE_MOD,
     }
     for path in (ROOT / "src").rglob("*.rs"):
         if path in allowed:
@@ -343,6 +461,9 @@ def main() -> int:
         FRONTDOOR,
         FRONTDOOR_INPUT,
         FRONTDOOR_INPUT_TESTS,
+        CAPABILITY,
+        VALUE_PROFILE_ANALYZER,
+        VALUE_PROFILE_MOD,
         Path(__file__),
     ):
         if len(path.read_text().splitlines()) >= 800:
@@ -355,6 +476,7 @@ def main() -> int:
         "classifier=1 script=1 main0=1 callable=1 profile=0 "
         "frontdoor_input=1 disconnected_consumer=1 production_consumer=0 "
         "main_source=1 reclassification=0 second_read_parse=0 "
+        "main_role=1 main_f1=1 ordinary_main_admission=0 "
         "raw_route_delta=0 rewrite=0 below_800=1"
     )
     return 0

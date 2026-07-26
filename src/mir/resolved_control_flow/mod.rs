@@ -16,4 +16,8 @@ mod if_control_tests;
 #[cfg(test)]
 mod source_coverage_tests;
 
-pub(crate) use function_control::{verify_function_completion_v1, VerifiedFunctionCompletionV1};
+pub(crate) use function_control::{
+    verify_function_completion_v1, DeclaredFunctionResultContractV1, FunctionExitCoverageV1,
+    FunctionUnitOriginV1, SealedFunctionExitContractV1, SealedFunctionExitDispositionV1,
+    VerifiedFunctionCompletionV1,
+};

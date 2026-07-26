@@ -15,7 +15,7 @@ use crate::mir::resolved_semantics::{
     ResolvedLexicalRefV1, ScopeKindV1, SourceBindingSiteV1,
 };
 use crate::mir::resolved_value_profile::{
-    analyze_trivial_canonical_owner_v1,
+    analyze_trivial_canonical_main_owner_v1, analyze_trivial_canonical_owner_v1,
     analyze_trivial_canonical_owner_with_finite_direct_calls_v1,
     product::VerifiedTrivialCanonicalOwnerV1, TrivialCanonicalOwnerAnalysisV1,
 };
@@ -86,6 +86,10 @@ impl<'a> CanonicalTrivialBindingSsaPlanV1<'a> {
 
     pub(crate) fn direct_call_count(&self) -> usize {
         self.profile.direct_calls().len()
+    }
+
+    pub(crate) fn completion(&self) -> &VerifiedFunctionCompletionV1 {
+        &self.completion
     }
 
     pub(crate) fn into_parts(
@@ -162,7 +166,12 @@ impl CanonicalLoweringPreflightV1 {
     pub(crate) fn verify_function<'a>(
         function: ResolvedFunctionLoweringInputV1<'a>,
     ) -> Result<CanonicalFirstFamilyPlanV1<'a>, CanonicalLoweringErrorV1> {
-        Self::verify_function_with_call_admission(function, DirectCallAdmissionV1::Forbidden)
+        Self::verify_function_with_policy(
+            function,
+            DirectCallAdmissionV1::Forbidden,
+            CanonicalFunctionRolePolicyV1::OrdinaryFirstFamily,
+            None,
+        )
     }
 
     /// Disconnected P0c-F-DX0a facade. Production module admission remains on
@@ -170,12 +179,41 @@ impl CanonicalLoweringPreflightV1 {
     pub(crate) fn verify_function_with_finite_direct_calls_v1<'a>(
         function: ResolvedFunctionLoweringInputV1<'a>,
     ) -> Result<CanonicalFirstFamilyPlanV1<'a>, CanonicalLoweringErrorV1> {
-        Self::verify_function_with_call_admission(function, DirectCallAdmissionV1::FiniteOneOrMore)
+        Self::verify_function_with_policy(
+            function,
+            DirectCallAdmissionV1::FiniteOneOrMore,
+            CanonicalFunctionRolePolicyV1::OrdinaryFirstFamily,
+            None,
+        )
     }
 
-    fn verify_function_with_call_admission<'a>(
+    pub(crate) fn verify_normal_main0_function_v1<'a>(
+        function: ResolvedFunctionLoweringInputV1<'a>,
+        role: super::normal_source_plan::VerifiedNormalMainRoleV1,
+    ) -> Result<CanonicalTrivialBindingSsaPlanV1<'a>, CanonicalLoweringErrorV1> {
+        match Self::verify_function_with_policy(
+            function,
+            DirectCallAdmissionV1::Forbidden,
+            CanonicalFunctionRolePolicyV1::NormalMain0,
+            Some(role),
+        )? {
+            CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Ok(plan),
+            CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {
+                let (function, ..) = plan.into_parts();
+                unsupported(
+                    "root",
+                    function.source().root(),
+                    "normal_main_requires_trivial_binding_ssa",
+                )
+            }
+        }
+    }
+
+    fn verify_function_with_policy<'a>(
         function: ResolvedFunctionLoweringInputV1<'a>,
         direct_call_admission: DirectCallAdmissionV1,
+        role: CanonicalFunctionRolePolicyV1,
+        main_role: Option<super::normal_source_plan::VerifiedNormalMainRoleV1>,
     ) -> Result<CanonicalFirstFamilyPlanV1<'a>, CanonicalLoweringErrorV1> {
         if function.forest().owner_count() != 1 || !function.forest().upvars().is_empty() {
             return unsupported(
@@ -200,12 +238,16 @@ impl CanonicalLoweringPreflightV1 {
         else {
             return unsupported("root", function.source().root(), "root_is_not_function");
         };
-        if !*is_static || *is_override || name == "main" {
-            return unsupported(
-                "root",
-                function.source().root(),
-                "owner_kind_not_first_family",
-            );
+        let role_error = match role {
+            CanonicalFunctionRolePolicyV1::OrdinaryFirstFamily => {
+                !*is_static || *is_override || name == "main"
+            }
+            CanonicalFunctionRolePolicyV1::NormalMain0 => {
+                !*is_static || *is_override || name != "main" || !params.is_empty()
+            }
+        };
+        if role_error {
+            return unsupported("root", function.source().root(), role.rejection_reason());
         }
         if !uses.is_empty() || !contracts.is_empty() || !attrs.is_empty() {
             return unsupported(
@@ -284,11 +326,27 @@ impl CanonicalLoweringPreflightV1 {
             block_expr_count,
         )?;
 
-        let profile = match expression_policy {
-            FirstFamilyExpressionPolicyV1::Closed => {
-                analyze_trivial_canonical_owner_v1(function, &completion, &if_control)
-            }
-            FirstFamilyExpressionPolicyV1::ExactDirectCall => {
+        let profile = match (role, expression_policy, main_role) {
+            (
+                CanonicalFunctionRolePolicyV1::NormalMain0,
+                FirstFamilyExpressionPolicyV1::Closed,
+                Some(main_role),
+            ) => analyze_trivial_canonical_main_owner_v1(
+                function,
+                &completion,
+                &if_control,
+                main_role,
+            ),
+            (
+                CanonicalFunctionRolePolicyV1::OrdinaryFirstFamily,
+                FirstFamilyExpressionPolicyV1::Closed,
+                None,
+            ) => analyze_trivial_canonical_owner_v1(function, &completion, &if_control),
+            (
+                CanonicalFunctionRolePolicyV1::OrdinaryFirstFamily,
+                FirstFamilyExpressionPolicyV1::ExactDirectCall,
+                None,
+            ) => {
                 debug_assert_eq!(
                     direct_call_admission,
                     DirectCallAdmissionV1::FiniteOneOrMore
@@ -297,6 +355,13 @@ impl CanonicalLoweringPreflightV1 {
                     function,
                     &completion,
                     &if_control,
+                )
+            }
+            _ => {
+                return unsupported(
+                    "root",
+                    function.source().root(),
+                    "function_role_capability_mismatch",
                 )
             }
         }
@@ -372,6 +437,21 @@ enum FirstFamilyExpressionPolicyV1 {
 enum DirectCallAdmissionV1 {
     Forbidden,
     FiniteOneOrMore,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum CanonicalFunctionRolePolicyV1 {
+    OrdinaryFirstFamily,
+    NormalMain0,
+}
+
+impl CanonicalFunctionRolePolicyV1 {
+    const fn rejection_reason(self) -> &'static str {
+        match self {
+            Self::OrdinaryFirstFamily => "owner_kind_not_first_family",
+            Self::NormalMain0 => "owner_kind_not_normal_main0",
+        }
+    }
 }
 
 fn verify_body(

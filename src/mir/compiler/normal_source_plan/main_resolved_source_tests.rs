@@ -90,7 +90,12 @@ fn embedded_main_resolution_reuses_nested_owner_forest_and_source_projection() {
         body: vec![literal(1)],
         span: Span::unknown(),
     };
-    let resolved = resolved_main(vec![lambda]);
+    let resolved = resolved_main(vec![ASTNode::Local {
+        variables: vec!["f".to_owned()],
+        initial_values: vec![Some(Box::new(lambda))],
+        declared_type_names: vec![None],
+        span: Span::unknown(),
+    }]);
     let input = resolved.borrow_function_input().expect("function input");
 
     assert_eq!(input.forest().owner_count(), 2);

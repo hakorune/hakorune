@@ -1,5 +1,5 @@
 ---
-Status: active execution task
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Row: NORMAL-MAIN0-F1-PLAN0-S0
@@ -23,6 +23,37 @@ Related:
 ---
 
 # NORMAL-MAIN0-F1-PLAN0-S0
+
+## Closeout
+
+Closed on `main` with:
+
+```text
+Program-owned embedded semantic resolution = 1
+sealed Main role                            = 1
+shared F1 completion authority              = 1
+shared trivial value-profile authority      = 1
+
+Main Unit/scalar/annotation matrix           = green
+ordinary callable main admission            = 0
+Builder/MIR/publication/runtime consumer     = 0
+fallback/retry                               = 0
+```
+
+The role token is required by both canonical preflight and value-profile
+analysis. The ordinary function entry still rejects `name == "main"`;
+Main-only `void`/`null` terminal values are co-sealed as Unit without changing
+the ordinary profile.
+
+Focused evidence:
+
+```text
+mir::compiler::normal_source_plan = 26/26
+mir::compiler::capability_tests   = 8/8
+mir::resolved_value_profile       = 28/28
+cargo check --lib                 = green
+normal-source-plan0 guard         = green
+```
 
 ## Outcome
 

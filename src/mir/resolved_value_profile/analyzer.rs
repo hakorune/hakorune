@@ -5,6 +5,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
+use crate::mir::compiler::normal_source_plan::VerifiedNormalMainRoleV1;
 use crate::mir::compiler::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
@@ -36,7 +37,28 @@ pub(super) fn analyze_trivial_canonical_owner_impl_v1(
     completion: &VerifiedFunctionCompletionV1,
     if_control: &VerifiedResolvedFunctionIfControlV1,
 ) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
-    analyze_with_call_policy(input, completion, if_control, DirectCallPolicyV1::Forbidden)
+    analyze_with_policy(
+        input,
+        completion,
+        if_control,
+        DirectCallPolicyV1::Forbidden,
+        RootProfilePolicyV1::OrdinaryFirstFamily,
+    )
+}
+
+pub(super) fn analyze_trivial_canonical_main_owner_impl_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    completion: &VerifiedFunctionCompletionV1,
+    if_control: &VerifiedResolvedFunctionIfControlV1,
+    _role: VerifiedNormalMainRoleV1,
+) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
+    analyze_with_policy(
+        input,
+        completion,
+        if_control,
+        DirectCallPolicyV1::Forbidden,
+        RootProfilePolicyV1::NormalMain0,
+    )
 }
 
 pub(super) fn analyze_trivial_canonical_owner_with_finite_direct_calls_impl_v1(
@@ -44,21 +66,23 @@ pub(super) fn analyze_trivial_canonical_owner_with_finite_direct_calls_impl_v1(
     completion: &VerifiedFunctionCompletionV1,
     if_control: &VerifiedResolvedFunctionIfControlV1,
 ) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
-    analyze_with_call_policy(
+    analyze_with_policy(
         input,
         completion,
         if_control,
         DirectCallPolicyV1::FiniteOneOrMore,
+        RootProfilePolicyV1::OrdinaryFirstFamily,
     )
 }
 
-fn analyze_with_call_policy(
+fn analyze_with_policy(
     input: ResolvedFunctionLoweringInputV1<'_>,
     completion: &VerifiedFunctionCompletionV1,
     if_control: &VerifiedResolvedFunctionIfControlV1,
     direct_call_policy: DirectCallPolicyV1,
+    root_profile_policy: RootProfilePolicyV1,
 ) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
-    match AnalyzerV1::new(input, if_control, direct_call_policy)
+    match AnalyzerV1::new(input, if_control, direct_call_policy, root_profile_policy)
         .and_then(|analyzer| analyzer.analyze(completion))
     {
         Ok(product) => Ok(TrivialCanonicalOwnerAnalysisV1::Admitted(product)),
@@ -82,6 +106,12 @@ enum DirectCallPolicyV1 {
     FiniteOneOrMore,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum RootProfilePolicyV1 {
+    OrdinaryFirstFamily,
+    NormalMain0,
+}
+
 struct AnalyzerV1<'a> {
     input: ResolvedFunctionLoweringInputV1<'a>,
     draft: TrivialProfileDraftV1,
@@ -90,6 +120,7 @@ struct AnalyzerV1<'a> {
     expected_if_sites: BTreeSet<SourceStmtSiteV1>,
     visited_if_sites: BTreeSet<SourceStmtSiteV1>,
     direct_call_policy: DirectCallPolicyV1,
+    root_profile_policy: RootProfilePolicyV1,
     direct_call_count: u32,
 }
 
@@ -98,6 +129,7 @@ impl<'a> AnalyzerV1<'a> {
         input: ResolvedFunctionLoweringInputV1<'a>,
         if_control: &VerifiedResolvedFunctionIfControlV1,
         direct_call_policy: DirectCallPolicyV1,
+        root_profile_policy: RootProfilePolicyV1,
     ) -> AnalysisResultV1<Self> {
         if if_control.owner() != input.owner() {
             return Err(TrivialProfileContractErrorV1::IfControlOwnerMismatch.into());
@@ -110,6 +142,7 @@ impl<'a> AnalyzerV1<'a> {
             expected_if_sites: if_control.exact_if_sites().cloned().collect(),
             visited_if_sites: BTreeSet::new(),
             direct_call_policy,
+            root_profile_policy,
             direct_call_count: 0,
         })
     }
@@ -215,7 +248,13 @@ impl<'a> AnalyzerV1<'a> {
             return Err(TrivialProfileContractErrorV1::InvalidFunctionRoot.into());
         };
         let owner_site = TrivialProfileStopSiteV1::Owner(self.input.owner());
-        if !*is_static || *is_override || name == "main" {
+        let role_mismatch = match self.root_profile_policy {
+            RootProfilePolicyV1::OrdinaryFirstFamily => {
+                !*is_static || *is_override || name == "main"
+            }
+            RootProfilePolicyV1::NormalMain0 => !*is_static || *is_override || name != "main",
+        };
+        if role_mismatch {
             return stop(
                 owner_site,
                 TrivialProfileStopReasonV1::OwnerFamilyOutsideProfile,
@@ -227,9 +266,10 @@ impl<'a> AnalyzerV1<'a> {
                 TrivialProfileStopReasonV1::FunctionMetadataOutsideProfile,
             );
         }
-        match return_type_name.as_deref() {
-            None => Ok(None),
-            Some(source_type_name) => ExactTrivialReturnAbiV1::classify(source_type_name)
+        match (self.root_profile_policy, return_type_name.as_deref()) {
+            (RootProfilePolicyV1::NormalMain0, Some("void")) => Ok(None),
+            (_, None) => Ok(None),
+            (_, Some(source_type_name)) => ExactTrivialReturnAbiV1::classify(source_type_name)
                 .map(Some)
                 .ok_or_else(|| {
                     AnalysisFailureV1::Stop(super::error::TrivialProfileStopV1::new(
@@ -452,22 +492,40 @@ impl<'a> AnalyzerV1<'a> {
                         .child_expr_from_stmt(statement, ExprChildRoleV1::ReturnValue)
                         .map_err(|error| self.source_navigation(error))?;
                     let representation = self.analyze_expr(&value, environment, writes)?;
-                    if representation == TrivialRepresentationV1::NullSentinel {
+                    let main_unit_value = self.root_profile_policy
+                        == RootProfilePolicyV1::NormalMain0
+                        && matches!(
+                            representation,
+                            TrivialRepresentationV1::ExplicitVoidValue
+                                | TrivialRepresentationV1::NullSentinel
+                        );
+                    if representation == TrivialRepresentationV1::NullSentinel && !main_unit_value {
                         return stop_expression(
                             &value,
                             TrivialProfileStopReasonV1::NullRepresentationUnavailable,
                         );
                     }
-                    self.draft.record_subject(
-                        TrivialProfileCoverageSubjectV1::ExplicitValueTerminal(
-                            statement.site().clone(),
-                        ),
-                    )?;
-                    self.terminal = Some(TrivialTerminalProfileV1::ExplicitValue {
-                        statement: statement.site().clone(),
-                        value: value.site().clone(),
-                        representation,
-                    });
+                    if main_unit_value {
+                        self.draft.record_subject(
+                            TrivialProfileCoverageSubjectV1::ExplicitNoValueTerminal(
+                                statement.site().clone(),
+                            ),
+                        )?;
+                        self.terminal = Some(TrivialTerminalProfileV1::ExplicitNoValue {
+                            statement: statement.site().clone(),
+                        });
+                    } else {
+                        self.draft.record_subject(
+                            TrivialProfileCoverageSubjectV1::ExplicitValueTerminal(
+                                statement.site().clone(),
+                            ),
+                        )?;
+                        self.terminal = Some(TrivialTerminalProfileV1::ExplicitValue {
+                            statement: statement.site().clone(),
+                            value: value.site().clone(),
+                            representation,
+                        });
+                    }
                 } else {
                     self.draft.record_subject(
                         TrivialProfileCoverageSubjectV1::ExplicitNoValueTerminal(

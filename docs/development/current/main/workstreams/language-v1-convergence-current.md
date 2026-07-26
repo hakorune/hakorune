@@ -121,11 +121,11 @@ current blocker = read CURRENT_STATE.current_blocker_token
 current card = read CURRENT_STATE.latest_card_path
 ```
 
-The active row is the typed front-door forge named by
-`CURRENT_STATE.current_execution_row`; it does not map a legacy caller or
-reopen normal/default cutover. Read the card named by
-`CURRENT_STATE.latest_card_path` before changing code or adding a production
-consumer.
+The active row is the bounded canonical-core row named by
+`CURRENT_STATE.current_execution_row`. The current Main/source-plan series
+does not map a legacy caller or reopen normal/default cutover. Read the card
+named by `CURRENT_STATE.latest_card_path` before changing code or adding a
+production consumer.
 ```
 
 The preceding RETURN0 row closed the existing `VerifiedFunctionCompletionV1`
