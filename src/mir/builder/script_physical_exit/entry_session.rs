@@ -5,14 +5,25 @@
 //! yield one detached completed function or be dropped.
 
 use crate::mir::builder::normal_module_transaction::CanonicalNormalMainEntryTargetV1;
+use crate::mir::raw_root_body_recipe::RawScriptBodyRecipeV1;
+use crate::mir::verification::MirVerifier;
+use crate::mir::verification_types::VerificationError;
 use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirType};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+use super::{
+    PreparedScriptPhysicalExitCoreV1, ScriptPhysicalExitCommitV1, ScriptPhysicalExitErrorV1,
+    ScriptPhysicalExitOpenContractV1,
+};
+
+#[derive(Debug)]
 pub(in crate::mir) enum ScriptPhysicalEntrySessionErrorV1 {
     TargetIsNotMain,
     TargetArityMismatch { actual: usize },
     CandidateFunctionAlreadyOpen,
     MissingCompletedFunction,
+    Lowering(String),
+    Exit(ScriptPhysicalExitErrorV1),
+    Verification(Box<[VerificationError]>),
 }
 
 pub(in crate::mir) struct OpenScriptPhysicalEntrySessionV1 {
@@ -86,6 +97,58 @@ impl OpenScriptPhysicalEntrySessionV1 {
 
     pub(in crate::mir) const fn entry_block(&self) -> BasicBlockId {
         self.entry_block
+    }
+
+    /// Complete one Script recipe inside the detached candidate. No Raw
+    /// lifecycle owner or live compiler Builder participates in this path.
+    pub(in crate::mir) fn lower_and_complete(
+        mut self,
+        recipe: &RawScriptBodyRecipeV1,
+    ) -> Result<CompletedScriptPhysicalFunctionV1, (Self, ScriptPhysicalEntrySessionErrorV1)> {
+        let terminal = {
+            let scope =
+                super::super::vars::lexical_scope::LexicalScopeGuard::new(&mut self.candidate);
+            let lowered = self
+                .candidate
+                .lower_script_body_recipe_v1(recipe)
+                .map_err(|error| ScriptPhysicalEntrySessionErrorV1::Lowering(error.to_string()));
+            drop(scope);
+            match lowered {
+                Ok(terminal) => terminal,
+                Err(error) => return Err((self, error)),
+            }
+        };
+        let prepared = match PreparedScriptPhysicalExitCoreV1::prepare(
+            &self.candidate,
+            terminal,
+            ScriptPhysicalExitOpenContractV1::ProvisionalUnknown,
+        ) {
+            Ok(prepared) => prepared,
+            Err(error) => return Err((self, ScriptPhysicalEntrySessionErrorV1::Exit(error))),
+        };
+        let _completed =
+            ScriptPhysicalExitCommitV1::commit_projected(&mut self.candidate, prepared);
+        let verification = {
+            let function = self
+                .candidate
+                .function_state
+                .current_function
+                .as_ref()
+                .expect("Script physical session keeps its candidate function open");
+            MirVerifier::new().verify_function(function)
+        };
+        if let Err(errors) = verification {
+            return Err((
+                self,
+                ScriptPhysicalEntrySessionErrorV1::Verification(errors.into_boxed_slice()),
+            ));
+        }
+        self.finish().map_err(|session| {
+            (
+                session,
+                ScriptPhysicalEntrySessionErrorV1::MissingCompletedFunction,
+            )
+        })
     }
 
     pub(in crate::mir) fn finish(self) -> Result<CompletedScriptPhysicalFunctionV1, Self> {

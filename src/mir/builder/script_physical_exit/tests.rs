@@ -337,6 +337,24 @@ fn normal_script_physical_session_opens_one_detached_unknown_main() {
     assert_eq!(session.entry_block(), builder_current_block(&session));
 }
 
+#[test]
+fn normal_script_physical_session_completes_detached_empty_draft() {
+    let recipe =
+        RawScriptBodyRecipeV1::from_parts(Box::new([]), RawScriptTerminalRecipeV1::EmptyUnit)
+            .expect("empty Script recipe");
+    let live = MirBuilder::new();
+    let session =
+        OpenScriptPhysicalEntrySessionV1::open(&live, canonical_normal_main_entry_target())
+            .expect("open detached Script session");
+    let completed = match session.lower_and_complete(&recipe) {
+        Ok(completed) => completed,
+        Err((_session, error)) => panic!("complete detached Script draft: {error:?}"),
+    };
+    assert_eq!(completed.draft().signature.name, "main");
+    assert_eq!(completed.draft().signature.return_type, MirType::Void);
+    assert!(live.function_state.current_function.is_none());
+}
+
 fn builder_current_block(session: &OpenScriptPhysicalEntrySessionV1) -> crate::mir::BasicBlockId {
     session
         .builder()
