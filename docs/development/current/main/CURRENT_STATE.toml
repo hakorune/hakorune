@@ -433,9 +433,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "nested-instance-result-contract0-d0-design-question-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/nested-instance-result-contract0-d0-design-question-2026-07-26.md"
-latest_card_summary = """NESTED-INSTANCE-RESULT-CONTRACT0-prime-r1 accepts A-prime: one route-disjoint source-only owner seals the exact unannotated current-owner instance target and reuses the existing branded callable body-result proof with an empty required-argument set. The static result catalog remains static-only. S0 first refreshes the stale GenericLoop inventory fixture in a behavior-neutral commit, then implements the bounded contract. Physical Call/result publication remains a later emission-handoff decision."""
+latest_card = "nested-instance-result-emission-handoff0-d0-design-question-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/nested-instance-result-emission-handoff0-d0-design-question-2026-07-26.md"
+latest_card_summary = """NESTED-INSTANCE-RESULT-EMISSION-HANDOFF0-D0 asks for the one exact source-associated handoff from the sealed nested instance Integer contract to a successfully emitted Stage-B Call destination. It forbids builder-wide source maps, persistent source-site-to-ValueId maps, generic emitter source policy, pre-success type writes, fallback, and retry. The decision may select an existing reachable terminal, a narrow call wrapper, or reject both with new evidence."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
