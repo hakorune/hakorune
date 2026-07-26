@@ -49,10 +49,9 @@ Follow `current_execution_row` and `latest_card_path` in `CURRENT_STATE.toml`;
 profile admission, default routing, and legacy callers remain outside the
 active bounded source-plan series until explicitly selected there.
 
-`OWN-GRAM-REJECT0` has its Rust parser half landed. Its Hako transport half is
-parked by `STATIC-BOX-DERIVE-COMPAT-D0`: the required Stage-B return-type guard
-fails unchanged in a clean worktree before the candidate runs because default
-macro derive injects receiver-based `equals` into `static box Main`. Follow
-the design stop at
-`docs/development/current/main/investigations/static-box-derive-compat-d0-design-question-2026-07-26.md`;
-do not bypass Main expansion or commit the parked Hako freeze-tag WIP.
+`STATIC-BOX-DERIVE-COMPAT-D0` accepts A. Follow its active
+`STATIC-BOX-DERIVE-COMPAT0-S0` contract: static boxes receive no
+receiver-based default `equals` / `toString`, ordinary boxes remain unchanged,
+and Main expansion stays strict. `OWN-GRAM-REJECT0` has its Rust parser half
+landed; keep the Hako freeze-tag WIP parked until a fresh Stage-B rerun reaches
+that candidate or names the next exact baseline blocker.
