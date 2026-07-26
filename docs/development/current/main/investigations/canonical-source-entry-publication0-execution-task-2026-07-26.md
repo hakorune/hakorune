@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: NORMAL-FILE-CANONICAL-CORE0-REUSE0-P0
+Active executable row: NORMAL-FILE-CANONICAL-CORE0-CALLER0-I0
 ```
 
 ## Boundary
@@ -334,6 +334,23 @@ process terminal.
 `NORMAL-FILE-CANONICAL-CORE0-REUSE0-P0` records the compiler reuse evidence
 for success, rejection, and program Fault before the explicit selector is
 allowed to gain a production caller.
+
+### `NORMAL-FILE-CANONICAL-CORE0-REUSE0-P0`
+
+Status: closed by existing focused compiler evidence.
+
+`canonical_core_reuses_one_compiler_after_callable_rejection_and_program_fault`
+already proves Script/Main/Callable success, typed callable rejection, program
+Fault 70, and later success within one `MirCompiler`. REPORT0 deliberately
+creates a fresh compiler per run, so it must not claim interpreter/session
+reuse beyond that compiler boundary.
+
+## Next row
+
+`NORMAL-FILE-CANONICAL-CORE0-CALLER0-I0` adds exactly one
+`normal-file-canonical-core-vm-reference` selector variant to the existing
+central reference selector. It must reuse the common terminal, add no second
+`if let`, and leave every default route untouched.
 
 ## Acceptance gates
 
