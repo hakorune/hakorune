@@ -75,6 +75,7 @@ pub(in crate::mir) use builder_publication_target::{
 };
 pub(in crate::mir) use normal_module_transaction::{
     canonical_normal_main_entry_target, CanonicalNormalMainEntryTargetV1,
+    PublishedNormalMainInvocationV1,
 };
 pub(in crate::mir) use raw_root_physical::publication_terminal::RawPublishedModuleV1;
 pub(in crate::mir) use root_batch_slot::RawMainEntryTargetV1;

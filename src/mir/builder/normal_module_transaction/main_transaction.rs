@@ -132,6 +132,17 @@ pub(in crate::mir) struct CompletedNormalMainModuleCandidateV1 {
 #[derive(Debug)]
 struct CompletedNormalMainModuleCandidateSealV1;
 
+#[derive(Debug)]
+pub(in crate::mir) struct PublishedNormalMainInvocationV1 {
+    module: MirModule,
+    evidence: CompletedNormalMainModuleEvidenceV1,
+    verification: NormalMainCandidateVerificationReceiptV1,
+    _seal: PublishedNormalMainInvocationSealV1,
+}
+
+#[derive(Debug)]
+struct PublishedNormalMainInvocationSealV1;
+
 impl MirBuilder {
     pub(in crate::mir) fn prepare_normal_main_module_transaction<'unit>(
         &mut self,
@@ -252,6 +263,18 @@ impl MirBuilder {
             _seal: PreparedNormalMainModuleTransactionSealV1,
         })
     }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn complete_normal_main_candidate_for_test<'unit>(
+        &mut self,
+        thunk: crate::mir::compiler::normal_source_plan::VerifiedNormalMainThunkPlanV1<'unit>,
+    ) -> CompletedNormalMainModuleCandidateV1 {
+        let batch = super::canonical_batch::NormalCanonicalModuleBatchV1::prepare(thunk)
+            .expect("test Main batch");
+        self.prepare_normal_main_module_transaction(batch)
+            .expect("test Main transaction")
+            .commit()
+    }
 }
 
 impl<'unit> PreparedNormalMainModuleTransactionV1<'unit> {
@@ -341,6 +364,56 @@ impl CompletedNormalMainModuleCandidateV1 {
 
     pub(in crate::mir) fn source_owner(&self) -> FunctionOwnerIdV1 {
         self.evidence.source_header.owner()
+    }
+
+    pub(in crate::mir) const fn verification_count(&self) -> usize {
+        self.verification.function_count
+    }
+
+    pub(in crate::mir) fn publish(self) -> PublishedNormalMainInvocationV1 {
+        PublishedNormalMainInvocationV1 {
+            module: self.module,
+            evidence: self.evidence,
+            verification: self.verification,
+            _seal: PublishedNormalMainInvocationSealV1,
+        }
+    }
+}
+
+impl PublishedNormalMainInvocationV1 {
+    #[cfg(feature = "vm-reference")]
+    pub(in crate::mir) fn execute_exact_vm_entry(
+        &self,
+        symbol: &str,
+    ) -> Result<crate::backend::vm_types::VMValue, crate::backend::vm_types::VMError> {
+        let mut interpreter = crate::backend::mir_interpreter::MirInterpreter::new();
+        interpreter.execute_function_with_args(&self.module, symbol, &[])
+    }
+
+    pub(in crate::mir) fn result(&self) -> VerifiedNormalMainThunkResultV1 {
+        self.evidence.result
+    }
+
+    pub(in crate::mir) fn source_owner(&self) -> FunctionOwnerIdV1 {
+        self.evidence.source_header.owner()
+    }
+
+    pub(in crate::mir) fn entry_source_owner(&self) -> FunctionOwnerIdV1 {
+        self.evidence.entry.source_owner()
+    }
+
+    pub(in crate::mir) fn physical_symbol(&self) -> &str {
+        self.evidence.entry.physical_symbol()
+    }
+
+    pub(in crate::mir) const fn physical_arity(&self) -> usize {
+        self.evidence.entry.physical_arity()
+    }
+
+    pub(in crate::mir) fn has_exact_membership(&self) -> bool {
+        self.verification.function_count == 2
+            && self.evidence.schema.rows().len() == 2
+            && self.module.functions.len() == 2
     }
 
     pub(in crate::mir) const fn verification_count(&self) -> usize {

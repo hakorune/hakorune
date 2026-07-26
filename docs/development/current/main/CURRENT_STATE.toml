@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "SOURCE-ENTRY-VMREF-RAW-ADAPTER0-I0 is closed: the supported Raw reference lane now uses the sole neutral exact VM executor and canonical process projection, with old Raw-direct execution authority zero. NORMAL-MAIN0-VMREF-ADAPTER0-I0 is active to publish one completed canonical Main candidate into the same neutral owner without adding a runner caller."
+status = "NORMAL-MAIN0-VMREF-ADAPTER0-I0 is closed: one completed canonical Main candidate now publishes opaquely, preserves all Unit origins exhaustively, and reaches the sole neutral VM executor with runner callers zero. NORMAL-MAIN0-VMREF0-P0 is active to close Main status, diagnostic, Fault, and reuse parity."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "NORMAL-MAIN0-VMREF-ADAPTER0-I0"
-current_execution_summary = "Consume one completed canonical Main candidate through an explicit opaque publication transition, project its exact retained source owner, main/0 target, scalar result, and exhaustive Unit provenance into the shared neutral VM-reference owner, and keep runner/CLI production callers zero. Module clone/escape, entry scan, result inference, fallback, Raw behavior changes, and default/product routing remain forbidden."
+current_execution_row = "NORMAL-MAIN0-VMREF0-P0"
+current_execution_summary = "Prove the actual canonical Main matrix through the sole neutral executor and process projection: all Unit origins, Integer byte/range law, Bool/Float rejection diagnostics, optional already-admitted VM Fault, and later-success reuse. Add no runner caller, status reconstruction, source-result inference, fallback, or default/product route change."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -332,7 +332,7 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/normal-main0-vmref-adapter0-i0-execution-task-2026-07-26.md"
+active_phase = "docs/development/current/main/investigations/normal-main0-vmref0-p0-execution-task-2026-07-26.md"
 phase_status = "docs/development/current/main/investigations/normal-main0-tx0-i0-execution-task-2026-07-26.md"
 method_anchor = "docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -354,6 +354,7 @@ normal_main0_f1_plan0_task = "docs/development/current/main/investigations/norma
 normal_module_tx0_l0_task = "docs/development/current/main/investigations/normal-module-tx0-l0-execution-task-2026-07-26.md"
 normal_main0_thunk0_task = "docs/development/current/main/investigations/normal-main0-thunk0-s0-execution-task-2026-07-26.md"
 normal_main0_vmref_adapter0_task = "docs/development/current/main/investigations/normal-main0-vmref-adapter0-i0-execution-task-2026-07-26.md"
+normal_main0_vmref0_p0_task = "docs/development/current/main/investigations/normal-main0-vmref0-p0-execution-task-2026-07-26.md"
 language_docs_status_task = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
 language_docs_try_catch_task = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
 language_tryless_postfix_catch_task = "docs/development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md"
@@ -414,9 +415,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "normal-main0-vmref-adapter0-i0-execution-task-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/normal-main0-vmref-adapter0-i0-execution-task-2026-07-26.md"
-latest_card_summary = """SOURCE-ENTRY-VMREF-RAW-ADAPTER0-I0 is closed with one neutral production executor and old Raw-direct execution authority zero. NORMAL-MAIN0-VMREF-ADAPTER0-I0 now publishes one completed canonical Main candidate, exhaustively preserves Unit provenance, and issues the same neutral entry/VM owner with runner callers still zero."""
+latest_card = "normal-main0-vmref0-p0-execution-task-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/normal-main0-vmref0-p0-execution-task-2026-07-26.md"
+latest_card_summary = """NORMAL-MAIN0-VMREF-ADAPTER0-I0 is closed with one opaque publication terminal, exhaustive Unit provenance, one neutral executor, and canonical Main runner callers zero. NORMAL-MAIN0-VMREF0-P0 now proves actual status, diagnostic, Fault, and later-success reuse parity before callable-module work."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -618,7 +619,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-MAIN0-VMREF-ADAPTER0-I0"
+current_blocker_token = "NORMAL-MAIN0-VMREF0-P0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

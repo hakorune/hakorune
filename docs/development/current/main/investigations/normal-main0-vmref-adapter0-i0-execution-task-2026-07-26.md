@@ -1,5 +1,5 @@
 ---
-Status: active execution task
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Row: NORMAL-MAIN0-VMREF-ADAPTER0-I0
@@ -38,6 +38,34 @@ CompletedNormalMainModuleCandidateV1
 This row has one disconnected production-shaped fixture and zero runner/CLI
 callers. Actual Main execution parity belongs to the immediately following
 `NORMAL-MAIN0-VMREF0-P0`.
+
+## Closeout
+
+Landed structure:
+
+```text
+CompletedNormalMainModuleCandidateV1
+  -> PublishedNormalMainInvocationV1
+  -> canonical Main neutral adapter
+  -> PreparedVmReferenceSourceEntryInvocationV1
+  -> sole neutral VM executor
+```
+
+Evidence:
+
+```text
+canonical Main adapter fixture              = 1/1
+normal module transaction fixtures          = 11/11
+existing Raw execution matrix               = 18/18
+neutral execution/owner guards              = green
+cargo check --lib --features vm-reference   = green
+runner/CLI production caller                = 0
+all touched source/check files              < 800 lines
+```
+
+The fixture covers EmptyBody, ImplicitFallthrough, BareReturn, ExplicitVoid,
+ExplicitNull, Integer, Bool, and Float projection through actual neutral VM
+execution. Status/diagnostic/reuse parity remains the next P0 authority.
 
 ## Structure first
 

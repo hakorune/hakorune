@@ -1,7 +1,9 @@
-//! Passive schema for one future heterogeneous canonical normal-module batch.
+//! Canonical normal-module transaction boundary.
 //!
-//! This module owns no function lowering, collector mutation, module
-//! publication, entry execution, or process projection.
+//! The schema remains Builder-free. The Main transaction prepares every
+//! fallible draft/verification step before one atomic candidate commit, then
+//! exposes one consuming opaque publication terminal. Source-entry selection,
+//! VM result decoding, process projection, and runner policy remain outside.
 
 mod canonical_batch;
 mod entry_target;
@@ -22,8 +24,9 @@ pub(in crate::mir) use entry_target::{
 pub(in crate::mir) use main_transaction::{
     CompletedNormalMainModuleCandidateV1, NormalMainBatchCorrespondenceErrorV1,
     NormalMainModuleTransactionErrorV1, NormalMainModuleTransactionStageV1,
-    PreparedNormalMainModuleTransactionV1, RejectedNormalMainModuleTransactionV1,
-    RetainedNormalMainPreparedDraftsV1, RetainedNormalMainTransactionEvidenceV1,
+    PreparedNormalMainModuleTransactionV1, PublishedNormalMainInvocationV1,
+    RejectedNormalMainModuleTransactionV1, RetainedNormalMainPreparedDraftsV1,
+    RetainedNormalMainTransactionEvidenceV1,
 };
 pub(in crate::mir::builder) use rejection::{
     NormalModuleTransactionSchemaErrorV1, RejectedNormalModuleTransactionSchemaV1,

@@ -19,6 +19,12 @@ NEUTRAL_TASK = ROOT / (
 PUBLISHED = ROOT / "src/mir/compiler/source_entry_published_invocation.rs"
 VM_INVOCATION = ROOT / "src/mir/compiler/source_entry_vm_invocation.rs"
 RAW_ADAPTER = ROOT / "src/mir/compiler/source_entry_vm_raw_adapter.rs"
+NORMAL_MAIN_ADAPTER = (
+    ROOT / "src/mir/compiler/source_entry_vm_normal_main_adapter.rs"
+)
+NORMAL_MAIN_TX = (
+    ROOT / "src/mir/builder/normal_module_transaction/main_transaction.rs"
+)
 
 
 def require(text: str, fragment: str, label: str) -> None:
@@ -39,6 +45,10 @@ def main() -> int:
     vm_invocation_production = vm_invocation.split("#[cfg(test)]", 1)[0]
     raw_adapter = RAW_ADAPTER.read_text()
     raw_adapter_production = raw_adapter.split("#[cfg(test)]", 1)[0]
+    normal_main_adapter = NORMAL_MAIN_ADAPTER.read_text()
+    normal_main_adapter_production = normal_main_adapter.split("#[cfg(test)]", 1)[0]
+    normal_main_tx = NORMAL_MAIN_TX.read_text()
+    normal_main_tx_production = normal_main_tx
 
     for fragment in (
         "S3-EXECUTION0",
@@ -121,7 +131,7 @@ def main() -> int:
     external_rust = "\n".join(
         path.read_text()
         for path in (ROOT / "src").rglob("*.rs")
-        if path not in (PUBLISHED, VM_INVOCATION, RAW_ADAPTER)
+        if path not in (PUBLISHED, VM_INVOCATION, RAW_ADAPTER, NORMAL_MAIN_ADAPTER)
     )
     for fragment in (
         "PublishedSourceEntryInvocationV1::from_verified_parts(",
@@ -164,6 +174,43 @@ def main() -> int:
         if retired in combined:
             raise AssertionError(f"old Raw-direct VM authority remains: {retired}")
 
+    for fragment in (
+        "struct PublishedNormalMainInvocationV1",
+        "pub(in crate::mir) fn publish(",
+        "fn execute_exact_vm_entry(",
+    ):
+        require(normal_main_tx_production, fragment, f"canonical Main publication {fragment}")
+    for fragment in (
+        "fn prepare_neutral_vm_reference(",
+        "PublishedSourceEntryMembershipV1::CanonicalMain",
+        "PublishedUnitPhysicalContractV1::ExactVoid",
+        "FunctionUnitOriginV1::EmptyBody => UnitOriginV1::EmptyBody",
+        "FunctionUnitOriginV1::ImplicitFallthrough => UnitOriginV1::ImplicitFallthrough",
+        "FunctionUnitOriginV1::ExplicitVoid => UnitOriginV1::ExplicitVoid",
+        "FunctionUnitOriginV1::ExplicitNull => UnitOriginV1::ExplicitNull",
+        "FunctionUnitOriginV1::BareReturn => UnitOriginV1::BareReturn",
+    ):
+        require(
+            normal_main_adapter_production,
+            fragment,
+            f"canonical Main neutral adapter {fragment}",
+        )
+    for forbidden in (
+        "NYASH_ENTRY",
+        "execute_module",
+        "module.functions",
+        "VMValue::",
+        "MirType",
+        "MirInstruction::Return",
+        "ASTNode",
+        "fallback",
+        "retry",
+    ):
+        if forbidden in normal_main_adapter_production:
+            raise AssertionError(
+                f"canonical Main adapter gained inference/fallback policy: {forbidden}"
+            )
+
     for forbidden in (
         "execute_module(",
         "NYASH_ENTRY",
@@ -183,6 +230,8 @@ def main() -> int:
         PUBLISHED,
         VM_INVOCATION,
         RAW_ADAPTER,
+        NORMAL_MAIN_ADAPTER,
+        NORMAL_MAIN_TX,
         Path(__file__),
     ):
         if len(path.read_text().splitlines()) >= 800:
@@ -191,7 +240,7 @@ def main() -> int:
         "[entry-result-projection0-s3-execution-guard] ok "
         "exact_target=1 decode_plan=1 source_fault=1 owner_retained=1 "
         "neutral_owner=1 sole_vm_executor=1 raw_adapter=1 "
-        "old_raw_direct=0 neutral_discovery=0 below_800=1"
+        "canonical_main_adapter=1 old_raw_direct=0 neutral_discovery=0 below_800=1"
     )
     return 0
 

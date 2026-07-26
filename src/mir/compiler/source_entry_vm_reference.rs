@@ -13,6 +13,7 @@ use super::source_entry_result::{
 use super::source_entry_vm_diagnostic::{
     VmReferenceProcessDiagnosticAdapterV1, VmReferenceProcessDiagnosticReportV1,
 };
+use crate::mir::builder::PublishedNormalMainInvocationV1;
 use crate::mir::builder::RawVmSourceEntryDecodeKindV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -120,6 +121,7 @@ enum VmReferenceProjectedOwnerV1 {
 #[derive(Debug)]
 pub(in crate::mir) enum VmReferencePublishedOwnerV1 {
     Raw(RawPublishedInvocationV1),
+    CanonicalMain(PublishedNormalMainInvocationV1),
 }
 
 #[derive(Debug)]
@@ -189,6 +191,9 @@ impl VmReferenceProcessOutcomeV1 {
             VmReferenceProjectedOwnerV1::Existing(projected) => projected.carrier().route(),
             VmReferenceProjectedOwnerV1::Published { published, .. } => match published {
                 VmReferencePublishedOwnerV1::Raw(published) => published.selected_entry().route(),
+                VmReferencePublishedOwnerV1::CanonicalMain(_) => {
+                    super::source_entry_selection::SelectedSourceEntryRouteV1::AppMain0
+                }
             },
         }
     }
