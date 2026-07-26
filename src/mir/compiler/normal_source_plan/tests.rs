@@ -102,6 +102,25 @@ fn empty_and_scalar_programs_are_scripts() {
 }
 
 #[test]
+fn sealed_script_source_consumes_into_the_shared_recipe_once() {
+    let SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)) =
+        seal(program(vec![literal(42)])).expect("Script source plan")
+    else {
+        panic!("expected Script source family")
+    };
+
+    let recipe = script
+        .prepare_script_recipe()
+        .expect("shared Script recipe");
+
+    assert_eq!(recipe.source_identity(), "normal-source-plan0-test");
+    assert!(matches!(
+        recipe.recipe().script().expect("Script payload").terminal(),
+        crate::mir::raw_root_body_recipe::RawScriptTerminalRecipeV1::ValueExpression(_)
+    ));
+}
+
+#[test]
 fn main_zero_only_is_a_scalar_main_root() {
     assert!(matches!(
         seal(program(vec![main_only()])).unwrap(),

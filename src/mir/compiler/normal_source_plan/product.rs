@@ -127,6 +127,26 @@ impl SealedNormalScriptSourceV1 {
             _seal: NormalScriptSourceSealV1,
         }
     }
+
+    /// Consume the exact Script source family into the shared source-result
+    /// recipe. The recipe owns all Script-tail classification; this source
+    /// plan never exposes a bare AST for a second classifier.
+    pub(crate) fn prepare_script_recipe(
+        self,
+    ) -> Result<
+        super::script_recipe::VerifiedNormalScriptRecipeV1,
+        super::script_recipe::RejectedNormalScriptRecipeV1,
+    > {
+        super::script_recipe::prepare(self)
+    }
+
+    pub(super) fn into_input(self) -> PreparedNormalSourcePlanInputV1 {
+        self.input
+    }
+
+    pub(super) fn source_ast(&self) -> &ASTNode {
+        self.input.source()
+    }
 }
 
 #[derive(Debug)]

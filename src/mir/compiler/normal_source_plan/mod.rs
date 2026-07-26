@@ -17,6 +17,7 @@ mod normal_acyclic_module_plan;
 mod normal_callable_transaction_handoff;
 mod product;
 mod rejection;
+mod script_recipe;
 #[cfg(test)]
 mod test_support;
 
@@ -85,6 +86,10 @@ pub(crate) use product::{
 };
 pub(crate) use rejection::{
     NormalSourcePlanErrorV1, NormalSourcePlanStageV1, RejectedNormalSourcePlanV1,
+};
+#[allow(unused_imports)]
+pub(crate) use script_recipe::{
+    NormalScriptRecipeStageV1, RejectedNormalScriptRecipeV1, VerifiedNormalScriptRecipeV1,
 };
 #[cfg(test)]
 pub(crate) use test_support::with_main_thunk_for_test;
