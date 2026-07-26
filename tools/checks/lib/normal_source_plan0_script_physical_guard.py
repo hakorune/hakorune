@@ -181,7 +181,7 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
     )
     _require(
         transaction_text,
-        "commit_preflighted(vec![self.draft])",
+        "commit_preflighted(vec![function])",
         "infallible one-draft shell commit",
     )
     for forbidden in ("ModuleInvocationBrandV1", "RawPublished", "SourceMain", "fn retry"):
@@ -191,8 +191,8 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
     _require_count(
         dispatch_text,
         "CompletedCanonicalCoreSourceEntryFamilyV1::Script",
-        2,
-        "one Script family dispatch and one test observation",
+        3,
+        "one Script family predicate, dispatch, and test observation",
     )
     _require(
         dispatch_text,

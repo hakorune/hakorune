@@ -1,10 +1,10 @@
 ---
-Status: Accepted parked taskboard; production activation 0
+Status: Active readiness taskboard; production activation 0
 Date: 2026-07-15
 Decision: Explicit-move/share, owner-anchored sparse ownership surface
 Source semantics SSOT: ../../../../reference/language/ownership.md
-Current lane: unchanged; follow CURRENT_STATE.toml
-First executable ownership row when selected: OWN-GRAM-REJECT0 exact inactive-syntax fail-fast
+Current lane: OWNERSHIP-SPARSE-RESUME-D0; follow CURRENT_STATE.toml
+First code-facing ownership row after readiness: OWN-GRAM-REJECT0 exact inactive-syntax fail-fast
 Integration resume checkpoint: MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
 Related:
   - hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md
@@ -40,9 +40,9 @@ call-result View branch details:
 ```
 
 `CURRENT_STATE.toml`, `CURRENT_TASK.md`, `05-Restart-Quick-Resume.md`, and
-`10-Now.md` remain unchanged while this board is parked. Selection of an O2 row
-requires an explicit current-lane decision. Canonical failure must never retry
-the current SharedV1 route.
+`10-Now.md` point here for the bounded readiness check. Selection of an O2 row
+after `OWN-GRAM-REJECT0` still requires its explicit current-lane decision.
+Canonical failure must never retry the current SharedV1 route.
 
 The 7,000-line design registry is not extended by this work. Its existing
 sharded-manifest task owns cleanup and begins with `CLEAN0`; only after that

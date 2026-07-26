@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1: Script publication evidence, the Main/Script shared canonical publication core, Main-only adapter retirement, Script published-owner connection, actual Script/Main VM-reference parity, and the integrated structural guard are closed. Neutral PublishedSourceEntryInvocationV1 remains the sole target/result/membership owner; canonical published owners retain only module, family evidence, admission, source receipt, and verification, with one canonical VM executor implementation. Callable evidence retention, shared-publication projection, dispatch, P0a parity, and reuse are closed: the one-source plan uses the named unit ordinal 0, retains every intermediate rejection owner, and reaches the existing candidate/publication/VM chain without a second dispatcher or VM executor. Its admitted first slice is Main fallthrough plus top-level static i64 helpers; Main direct calls remain typed MainPlan rejects and compiler reuse is green after rejection and VM Fault. NORMAL-FILE-CANONICAL-CORE0 REQUEST0/REPORT0/P0a/REUSE0/CALLER0 are closed: the default-off request has exactly one central selector variant and shared terminal; Raw remains separate and every default route is unchanged. P0b now proves actual binary behavior. Alias/View remain scheduled after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and before product/default promotion."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 is closed: Script, Main F1, and admitted top-level static helpers flow through one source-owned plan, family-private candidate evidence, one shared canonical publication core, one neutral exact VM executor, and ProcessExitProjectionV1. The feature-gated default-off canonical-core CLI lane has real-binary Script/Main/invocation/default-isolation parity; it neither selects a product backend nor changes default routing. OWNERSHIP-SPARSE-RESUME-D0 is the next bounded readiness check for Alias/View work; it must verify prerequisites and preserve production ownership caller=0 and fallback=0."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0"
-current_execution_summary = "Verify and declare the canonical-core milestone: one source plan, Script/Main/Callable candidate families, shared canonical publication and VM/process terminal, one default-off CLI caller, and no fallback/default cutover."
+current_execution_row = "OWNERSHIP-SPARSE-RESUME-D0"
+current_execution_summary = "Read-only readiness check before Ownership Alias/View execution: verify canonical-core, result-contract, Binding/Ownership SSA, parser-reject, SharedV1 fence, caller-zero, and fallback-zero prerequisites."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -332,8 +332,8 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/canonical-source-entry-publication0-execution-task-2026-07-26.md"
-phase_status = "docs/development/current/main/investigations/canonical-source-entry-publication0-execution-task-2026-07-26.md"
+active_phase = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
+phase_status = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
 method_anchor = "docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -433,9 +433,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "canonical-source-entry-publication0-execution-task-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/canonical-source-entry-publication0-execution-task-2026-07-26.md"
-latest_card_summary = """CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1 accepts A-prime. Main and Script will first share one canonical candidate-to-published typestate core; Callable waits for candidate-evidence completion. PublishedSourceEntryInvocationV1 remains the sole target/result/membership owner, while the canonical published owner retains only complete module/family/admission/receipt/verification evidence. Script never becomes CanonicalMain and canonical Script never carries Raw identity. NORMAL-SCRIPT0-PUBLICATION-EVIDENCE0-S0 is active; shared publication, VM execution, production caller, and default routing are still zero."""
+latest_card = "hakorune-sparse-ownership-surface-task-2026-07-15"
+latest_card_path = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
+latest_card_summary = """OWNERSHIP-SPARSE-RESUME-D0 is active after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0. It is a read-only prerequisite inventory before OWN-GRAM-REJECT0: canonical Script/Main/helper result contracts, Binding/Ownership SSA receipts, parser-reject assumptions, SharedV1 fencing, production ownership caller=0, and fallback=0 must all remain true. No ownership grammar, parser, MIR, runtime, backend, product/default, or caller activation is authorized in D0."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0b"
+current_blocker_token = "OWNERSHIP-SPARSE-RESUME-D0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

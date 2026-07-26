@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
+Status: completed through `MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0`
 ```
 
 ## Boundary
@@ -403,6 +403,44 @@ owners, and files at or above the 800-line boundary.
 verify that the completed canonical core is a bounded reference lane, not a
 default product cutover, before scheduling product-backend selection or legacy
 caller retirement.
+
+### `MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0`
+
+Status: closed.
+
+The following independent checks are green together:
+
+```text
+mirbuilder_core_complete0_guard.py
+  canonical function/Script/entry-result authority = 1
+  atomic Raw publication + bounded normal-file lane = 1
+  default cutover = 0
+
+normal_source_plan0_guard.py
+  Script / Main0 / CallableModule classifier = 1 each
+  exact candidate schema, thunk, result authority = 1
+  reclassification, second read/parse, Raw route delta = 0
+
+entry_result_projection0_s3_execution_guard.py
+  one shared canonical publication + one neutral VM executor
+  old direct Raw/canonical per-family execution = 0
+
+normal_file_vm0_frontdoor_forge_guard.py
+  one central selector + one canonical-core caller
+  profile/read/parse/handoff and default isolation = green
+```
+
+P0b additionally proved the feature-enabled and feature-disabled real binary
+boundary. This milestone declares a completed canonical-core *reference lane*
+only. It does not select the product backend, migrate a default caller, retire
+Legacy compilation, or activate ownership semantics.
+
+## Handoff
+
+The active row is now `OWNERSHIP-SPARSE-RESUME-D0` in
+`hakorune-sparse-ownership-surface-task-2026-07-15.md`. It is a read-only
+readiness check before the Alias/View packs; its failure path is a typed
+inventory blocker, not a patch to the normal-entry route.
 
 ## Acceptance gates
 
