@@ -3,6 +3,11 @@
 //! RAWPORT0 keeps exactly one AST match tree here. The legacy facade still
 //! owns production behavior; later M0 commits parameterize this dispatcher
 //! with the invocation child port rather than adding a second matcher.
+mod input_view;
+mod legacy_facade;
+#[cfg(test)]
+mod tests;
+
 use super::calls::{MethodCallDescentPortV1, RawLegacyMethodCallInputV1};
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
 use super::me_call_header_observation::MethodCallLoweringPortV1;
@@ -13,8 +18,8 @@ use super::ops::{
 };
 use super::recursive_child_lowering::{
     drive_legacy_body_v1, drive_legacy_expression_v1, drive_legacy_statement_v1,
-    RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1, RawLegacyChildLoweringPortV1,
-    RawLoopChildEntryPortV1, RecursiveChildLoweringPortV1,
+    RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1, RawLoopChildEntryPortV1,
+    RecursiveChildLoweringPortV1,
 };
 use super::stmts::{
     drive_local_statement_v1, drive_value_return_statement_v1, drive_variable_assignment_v1,
@@ -298,16 +303,6 @@ impl super::MirBuilder {
             }
             None => super::stmts::return_stmt::build_return_statement(self, None),
         }
-    }
-
-    /// Legacy facade for the one generic raw AST dispatcher.
-    //
-    // It deliberately creates its raw child port only at the legacy root. A
-    // recursive descent receives that same port from the generic core instead
-    // of rebuilding it at every Binary/MethodCall/Weak/BlockExpr boundary.
-    pub(super) fn build_expression_impl(&mut self, ast: ASTNode) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_expression_impl_with_port_v1(&mut port, ast)
     }
 
     /// The sole raw AST match tree, parameterized by its child descent.
