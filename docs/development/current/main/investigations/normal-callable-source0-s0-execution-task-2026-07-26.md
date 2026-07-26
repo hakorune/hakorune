@@ -1,5 +1,5 @@
 ---
-Status: active execution task
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Row: NORMAL-CALLABLE-SOURCE0-S0
@@ -40,6 +40,33 @@ pub(crate) struct VerifiedNormalCallableSourceUnitV1 {
 
 The Program is not split, cloned, rewritten, or normalized. Main and helpers
 remain views into one immutable owner.
+
+## Closeout
+
+Landed:
+
+```text
+SealedNormalCallableModuleSourceV1
+  -> VerifiedNormalCallableSourceUnitV1
+  -> one generalized exact-site helper header source unit
+```
+
+Evidence:
+
+```text
+normal source-plan family                     = 33/33
+exact-site callable header source             = 6/6
+normal callable source                        = 3/3
+normal_source_plan0_guard                     = green
+function-only header facade behavior          = unchanged
+Main-box helper                               = typed pre-catalog reject
+AST clone/rewrite                             = 0
+catalog/Builder/MIR/runtime caller             = 0
+all source/check files                        < 800 lines
+```
+
+The existing guard remains the sole entry and delegates the callable checks to
+one child helper so both files remain below the repository boundary.
 
 ## First profile boundary
 

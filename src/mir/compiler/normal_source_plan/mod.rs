@@ -4,6 +4,7 @@
 //! select a profile, lower MIR, choose a backend, or execute a program.
 
 mod classifier;
+mod callable_source;
 mod inventory;
 mod main_function_plan;
 mod main_resolved_source;
@@ -14,6 +15,11 @@ mod rejection;
 #[cfg(test)]
 mod test_support;
 
+#[allow(unused_imports)]
+pub(crate) use callable_source::{
+    NormalCallableSourceErrorV1, NormalCallableSourceStageV1, RejectedNormalCallableSourceV1,
+    VerifiedNormalCallableSourceUnitV1,
+};
 pub(crate) use classifier::NormalSourcePlanClassifierV1;
 #[allow(unused_imports)]
 pub(crate) use main_function_plan::{

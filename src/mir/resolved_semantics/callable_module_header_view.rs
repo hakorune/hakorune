@@ -14,6 +14,17 @@ pub(crate) struct SourceCallableDeclarationSiteV1 {
 }
 
 impl SourceCallableDeclarationSiteV1 {
+    pub(crate) fn from_statement_index(
+        statement_index: usize,
+    ) -> Result<Self, CallableModuleHeaderSyntaxErrorV1> {
+        let statement_index = u32::try_from(statement_index).map_err(|_| {
+            CallableModuleHeaderSyntaxErrorV1::StatementIndexOverflow {
+                index: statement_index,
+            }
+        })?;
+        Ok(Self { statement_index })
+    }
+
     pub(crate) const fn statement_index(self) -> u32 {
         self.statement_index
     }
@@ -31,6 +42,12 @@ pub(crate) enum CallableModuleHeaderSyntaxErrorV1 {
     UnsupportedProgramStatement {
         site: SourceCallableDeclarationSiteV1,
         actual: &'static str,
+    },
+    MissingProgramStatement {
+        site: SourceCallableDeclarationSiteV1,
+    },
+    DuplicateDeclarationSite {
+        site: SourceCallableDeclarationSiteV1,
     },
 }
 

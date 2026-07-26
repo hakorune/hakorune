@@ -115,3 +115,70 @@ fn does_not_validate_callable_profile_or_issue_owners_in_s0() {
     assert_eq!(header.header().name(), "main");
     assert!(!header.header().is_static());
 }
+
+#[test]
+fn exact_sites_keep_one_mixed_program_owner_without_reclassifying_main() {
+    let source = program(vec![
+        ASTNode::Literal {
+            value: crate::ast::LiteralValue::Integer(1),
+            span: Span::unknown(),
+        },
+        function("helper", Vec::new()),
+    ]);
+    let helper = SourceCallableDeclarationSiteV1::from_statement_index(1).unwrap();
+    let unit =
+        VerifiedCallableHeaderSourceUnitV1::seal_exact_sites(source, vec![helper].into()).unwrap();
+
+    assert_eq!(unit.declaration_sites(), [helper]);
+    assert_eq!(
+        unit.located_header(helper).unwrap().header().name(),
+        "helper"
+    );
+}
+
+#[test]
+fn exact_sites_reject_empty_duplicate_missing_and_non_function_rows() {
+    assert_eq!(
+        VerifiedCallableHeaderSourceUnitV1::seal_exact_sites(
+            program(vec![function("f", Vec::new())]),
+            Vec::new().into(),
+        )
+        .unwrap_err(),
+        CallableModuleHeaderSyntaxErrorV1::EmptyCatalog
+    );
+
+    let site = SourceCallableDeclarationSiteV1::from_statement_index(0).unwrap();
+    assert_eq!(
+        VerifiedCallableHeaderSourceUnitV1::seal_exact_sites(
+            program(vec![function("f", Vec::new())]),
+            vec![site, site].into(),
+        )
+        .unwrap_err(),
+        CallableModuleHeaderSyntaxErrorV1::DuplicateDeclarationSite { site }
+    );
+
+    let missing = SourceCallableDeclarationSiteV1::from_statement_index(1).unwrap();
+    assert_eq!(
+        VerifiedCallableHeaderSourceUnitV1::seal_exact_sites(
+            program(vec![function("f", Vec::new())]),
+            vec![missing].into(),
+        )
+        .unwrap_err(),
+        CallableModuleHeaderSyntaxErrorV1::MissingProgramStatement { site: missing }
+    );
+
+    assert_eq!(
+        VerifiedCallableHeaderSourceUnitV1::seal_exact_sites(
+            program(vec![ASTNode::Literal {
+                value: crate::ast::LiteralValue::Integer(1),
+                span: Span::unknown(),
+            }]),
+            vec![site].into(),
+        )
+        .unwrap_err(),
+        CallableModuleHeaderSyntaxErrorV1::UnsupportedProgramStatement {
+            site,
+            actual: "Literal",
+        }
+    );
+}

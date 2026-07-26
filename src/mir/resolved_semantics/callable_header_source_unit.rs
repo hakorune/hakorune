@@ -7,8 +7,9 @@
 use crate::ast::ASTNode;
 
 use super::{
-    CallableModuleHeaderSyntaxErrorV1, CallableModuleHeaderSyntaxViewV1,
-    LocatedCallableHeaderSyntaxViewV1, SourceCallableDeclarationSiteV1,
+    CallableHeaderSyntaxViewV1, CallableModuleHeaderSyntaxErrorV1,
+    CallableModuleHeaderSyntaxViewV1, LocatedCallableHeaderSyntaxViewV1,
+    SourceCallableDeclarationSiteV1,
 };
 
 #[derive(Debug)]
@@ -31,10 +32,57 @@ impl VerifiedCallableHeaderSourceUnitV1 {
             .declaration_sites()
             .collect::<Vec<_>>()
             .into_boxed_slice();
+        Self::seal_exact_sites(program, declaration_sites)
+    }
+
+    pub(crate) fn seal_exact_sites(
+        program: ASTNode,
+        declaration_sites: Box<[SourceCallableDeclarationSiteV1]>,
+    ) -> Result<Self, CallableModuleHeaderSyntaxErrorV1> {
+        Self::validate_exact_sites(&program, &declaration_sites)?;
+        let mut declaration_sites = declaration_sites.into_vec();
+        declaration_sites.sort_unstable();
         Ok(Self {
             syntax: CanonicalProgramSyntaxOwnerV1 { program },
-            declaration_sites,
+            declaration_sites: declaration_sites.into_boxed_slice(),
         })
+    }
+
+    pub(crate) fn validate_exact_sites(
+        program: &ASTNode,
+        declaration_sites: &[SourceCallableDeclarationSiteV1],
+    ) -> Result<(), CallableModuleHeaderSyntaxErrorV1> {
+        let ASTNode::Program { statements, .. } = program else {
+            return Err(CallableModuleHeaderSyntaxErrorV1::RootMustBeProgram {
+                actual: program.node_type(),
+            });
+        };
+        if declaration_sites.is_empty() {
+            return Err(CallableModuleHeaderSyntaxErrorV1::EmptyCatalog);
+        }
+        let mut declaration_sites = declaration_sites.to_vec();
+        declaration_sites.sort_unstable();
+        for sites in declaration_sites.windows(2) {
+            if sites[0] == sites[1] {
+                return Err(
+                    CallableModuleHeaderSyntaxErrorV1::DuplicateDeclarationSite { site: sites[0] },
+                );
+            }
+        }
+        for &site in &declaration_sites {
+            let Some(statement) = statements.get(site.statement_index() as usize) else {
+                return Err(CallableModuleHeaderSyntaxErrorV1::MissingProgramStatement { site });
+            };
+            if CallableHeaderSyntaxViewV1::from_function_ast(statement).is_none() {
+                return Err(
+                    CallableModuleHeaderSyntaxErrorV1::UnsupportedProgramStatement {
+                        site,
+                        actual: statement.node_type(),
+                    },
+                );
+            }
+        }
+        Ok(())
     }
 
     pub(crate) fn declaration_sites(&self) -> &[SourceCallableDeclarationSiteV1] {

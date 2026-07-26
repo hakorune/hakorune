@@ -111,9 +111,14 @@ impl RejectedNormalMainFunctionSourceV1 {
 pub(super) fn verify_main_source_relation(
     source: &SealedNormalMainSourceV1,
 ) -> Result<(), NormalMainFunctionSourceErrorV1> {
-    let input = source.input();
-    let main_box = source.main_box();
-    let main_method = source.main_method();
+    verify_main_source_parts(source.input(), source.main_box(), source.main_method())
+}
+
+pub(super) fn verify_main_source_parts(
+    input: &PreparedNormalSourcePlanInputV1,
+    main_box: &NormalTopLevelSiteV1,
+    main_method: &NormalMainMethodSiteV1,
+) -> Result<(), NormalMainFunctionSourceErrorV1> {
     let ASTNode::Program { statements, .. } = input.source() else {
         return Err(NormalMainFunctionSourceErrorV1::RootNotProgram);
     };

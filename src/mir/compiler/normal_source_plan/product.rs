@@ -12,6 +12,10 @@ impl NormalSourceIdentityV1 {
             display_name: display_name.into(),
         }
     }
+
+    pub(crate) fn display_name(&self) -> &str {
+        &self.display_name
+    }
 }
 
 /// The sole input consumed by normal source-family classification.
@@ -31,6 +35,10 @@ impl PreparedNormalSourcePlanInputV1 {
 
     pub(super) fn source(&self) -> &ASTNode {
         &self.source
+    }
+
+    pub(super) fn into_parts(self) -> (ASTNode, NormalSourceIdentityV1) {
+        (self.source, self.identity)
     }
 }
 
@@ -201,9 +209,45 @@ impl SealedNormalCallableModuleSourceV1 {
         }
     }
 
-    #[cfg(test)]
+    pub(crate) fn prepare_callable_source(
+        self,
+    ) -> Result<
+        super::callable_source::VerifiedNormalCallableSourceUnitV1,
+        super::callable_source::RejectedNormalCallableSourceV1,
+    > {
+        super::callable_source::prepare(self)
+    }
+
     pub(super) fn additional_callables(&self) -> &[NormalAdditionalCallableSiteV1] {
         &self.additional_callables
+    }
+
+    pub(super) fn input(&self) -> &PreparedNormalSourcePlanInputV1 {
+        &self.input
+    }
+
+    pub(super) fn main_box(&self) -> &NormalTopLevelSiteV1 {
+        &self.main_box
+    }
+
+    pub(super) fn main_method(&self) -> &NormalMainMethodSiteV1 {
+        &self.main_method
+    }
+
+    pub(super) fn into_parts(
+        self,
+    ) -> (
+        PreparedNormalSourcePlanInputV1,
+        NormalTopLevelSiteV1,
+        NormalMainMethodSiteV1,
+        Box<[NormalAdditionalCallableSiteV1]>,
+    ) {
+        (
+            self.input,
+            self.main_box,
+            self.main_method,
+            self.additional_callables,
+        )
     }
 }
 

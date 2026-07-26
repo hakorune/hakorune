@@ -2,6 +2,7 @@
 """NORMAL-SOURCE-PLAN0 reusable source-family authority guard."""
 
 from pathlib import Path
+from normal_source_plan0_callable_guard import check_callable_source
 from normal_source_plan0_transaction_guard import check_transaction
 
 
@@ -157,6 +158,9 @@ def main() -> int:
             "normal-main0-tx0-i0-execution-task-2026-07-26.md"
         ),
     )
+    callable_source_files = check_callable_source(
+        ROOT, SOURCE_DIR, require, require_count
+    )
 
     for fragment in (
         "NORMAL-SOURCE-PLAN0-S0",
@@ -217,6 +221,7 @@ def main() -> int:
         "all modified/new source/check files      < 800 lines",
     ):
         require(main_thunk_task, fragment, f"Main THUNK0 task contract {fragment}")
+
 
     definitions = (
         "struct PreparedNormalSourcePlanInputV1",
@@ -611,6 +616,7 @@ def main() -> int:
             f"Main source fixture {test_name}",
         )
 
+
     forbidden_classifier_authority = (
         "SealedNormalEntryProfileV1",
         "NormalFileNoImportVmReferenceV1",
@@ -697,6 +703,7 @@ def main() -> int:
         "VerifiedNormalMainResolvedSourceUnitV1",
         "VerifiedNormalMainFunctionPlanV1",
         "VerifiedNormalMainThunkPlanV1",
+        "VerifiedNormalCallableSourceUnitV1",
         "CanonicalNormalMainEntryTargetV1",
         "PreparedNormalCanonicalModuleBatchV1",
         "NormalModuleTransactionSchemaV1",
@@ -712,6 +719,7 @@ def main() -> int:
         VALUE_PROFILE_MOD,
         BUILDER_MOD,
         *NORMAL_MODULE_TX_FILES,
+        *callable_source_files,
     }
     for path in (ROOT / "src").rglob("*.rs"):
         if path in allowed:
@@ -732,6 +740,7 @@ def main() -> int:
         VALUE_PROFILE_MOD,
         BUILDER_MOD,
         *NORMAL_MODULE_TX_FILES,
+        *callable_source_files,
         Path(__file__),
         ROOT / "tools/checks/lib/normal_source_plan0_transaction_guard.py",
     ):
