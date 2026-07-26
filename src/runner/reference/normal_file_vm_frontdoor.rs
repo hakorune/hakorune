@@ -10,6 +10,14 @@ use hakorune_frontend_parser::parser::{GrammarProfile, ParserBuildConfig};
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 
+mod source_plan_input;
+
+#[allow(unused_imports)]
+pub(crate) use source_plan_input::{
+    ClassifiedNormalFileSourcePlanV1, PreparedNormalFileSourcePlanRequestV1,
+    RejectedNormalFileSourcePlanningV1,
+};
+
 #[derive(Debug)]
 pub(crate) struct NormalFileVmFrontDoorV1;
 

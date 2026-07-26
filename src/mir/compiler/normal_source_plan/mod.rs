@@ -8,13 +8,13 @@ mod inventory;
 mod product;
 mod rejection;
 
-pub(in crate::mir) use classifier::NormalSourcePlanClassifierV1;
+pub(crate) use classifier::NormalSourcePlanClassifierV1;
 #[allow(unused_imports)]
-pub(in crate::mir) use product::{
+pub(crate) use product::{
     PreparedNormalSourcePlanInputV1, SealedNormalCallableModuleSourceV1, SealedNormalScalarRootV1,
     SealedNormalSourcePlanV1,
 };
-pub(in crate::mir) use rejection::{
+pub(crate) use rejection::{
     NormalSourcePlanErrorV1, NormalSourcePlanStageV1, RejectedNormalSourcePlanV1,
 };
 

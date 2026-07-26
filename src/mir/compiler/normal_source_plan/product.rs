@@ -2,7 +2,7 @@ use crate::ast::ASTNode;
 
 /// Invocation-neutral identity retained beside one owned parsed source.
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir) struct NormalSourceIdentityV1 {
+pub(crate) struct NormalSourceIdentityV1 {
     display_name: Box<str>,
 }
 
@@ -16,13 +16,13 @@ impl NormalSourceIdentityV1 {
 
 /// The sole input consumed by normal source-family classification.
 #[derive(Debug)]
-pub(in crate::mir) struct PreparedNormalSourcePlanInputV1 {
+pub(crate) struct PreparedNormalSourcePlanInputV1 {
     source: ASTNode,
     identity: NormalSourceIdentityV1,
 }
 
 impl PreparedNormalSourcePlanInputV1 {
-    pub(in crate::mir) fn new(source: ASTNode, display_name: impl Into<Box<str>>) -> Self {
+    pub(crate) fn new(source: ASTNode, display_name: impl Into<Box<str>>) -> Self {
         Self {
             source,
             identity: NormalSourceIdentityV1::new(display_name),
@@ -36,7 +36,7 @@ impl PreparedNormalSourcePlanInputV1 {
 
 /// A source-only top-level location.
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir) struct NormalTopLevelSiteV1 {
+pub(crate) struct NormalTopLevelSiteV1 {
     statement_index: usize,
 }
 
@@ -52,7 +52,7 @@ impl NormalTopLevelSiteV1 {
 
 /// A source-only method location inside the unique Main declaration.
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir) struct NormalMainMethodSiteV1 {
+pub(crate) struct NormalMainMethodSiteV1 {
     main_statement_index: usize,
     method_key: Box<str>,
     arity: usize,
@@ -82,13 +82,13 @@ impl NormalMainMethodSiteV1 {
 
 /// One additional callable site without callable-catalog identity.
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir) enum NormalAdditionalCallableSiteV1 {
+pub(crate) enum NormalAdditionalCallableSiteV1 {
     TopLevel(NormalTopLevelSiteV1),
     MainMethod(NormalMainMethodSiteV1),
 }
 
 #[derive(Debug)]
-pub(in crate::mir) struct SealedNormalScriptSourceV1 {
+pub(crate) struct SealedNormalScriptSourceV1 {
     input: PreparedNormalSourcePlanInputV1,
     statements: Box<[NormalTopLevelSiteV1]>,
     _seal: NormalScriptSourceSealV1,
@@ -111,7 +111,7 @@ impl SealedNormalScriptSourceV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::mir) struct SealedNormalMainSourceV1 {
+pub(crate) struct SealedNormalMainSourceV1 {
     input: PreparedNormalSourcePlanInputV1,
     main_box: NormalTopLevelSiteV1,
     main_method: NormalMainMethodSiteV1,
@@ -137,7 +137,7 @@ impl SealedNormalMainSourceV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::mir) struct SealedNormalCallableModuleSourceV1 {
+pub(crate) struct SealedNormalCallableModuleSourceV1 {
     input: PreparedNormalSourcePlanInputV1,
     main_box: NormalTopLevelSiteV1,
     main_method: NormalMainMethodSiteV1,
@@ -171,13 +171,13 @@ impl SealedNormalCallableModuleSourceV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::mir) enum SealedNormalScalarRootV1 {
+pub(crate) enum SealedNormalScalarRootV1 {
     Script(SealedNormalScriptSourceV1),
     Main0(SealedNormalMainSourceV1),
 }
 
 #[derive(Debug)]
-pub(in crate::mir) enum SealedNormalSourcePlanV1 {
+pub(crate) enum SealedNormalSourcePlanV1 {
     ScalarRoot(SealedNormalScalarRootV1),
     CallableModule(SealedNormalCallableModuleSourceV1),
 }

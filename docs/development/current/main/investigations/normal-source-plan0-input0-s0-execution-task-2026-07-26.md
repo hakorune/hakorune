@@ -1,5 +1,5 @@
 ---
-Status: active execution task
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Row: NORMAL-SOURCE-PLAN0-INPUT0-S0
@@ -44,11 +44,13 @@ Existing `normal-file-vm-reference` continues to use
 
 ## Boundary law
 
-The MIR root facade exposes only the source-plan boundary products required by
-the front door. The runner does not import `mir::compiler` internals.
+The MIR root exposes only the source-plan owner module required by the front
+door. It does not flatten plan/proof vocabulary into the MIR root facade, in
+accordance with `mir-root-facade-contract-ssot.md`. The runner does not import
+`mir::compiler` internals.
 
 ```text
-crate::mir facade:
+crate::mir::normal_source_plan owner facade:
   PreparedNormalSourcePlanInputV1
   SealedNormalSourcePlanV1
   RejectedNormalSourcePlanV1
@@ -68,6 +70,9 @@ The path already owned by `PreparedNormalFileSourceV1` becomes the source-plan
 display identity by move. The AST is moved exactly once. The read/parse receipt
 is retained in the outer request; no path read, source read, parse, AST clone,
 or source-text reconstruction occurs.
+
+Direct `pub use` additions to the MIR root vocabulary and changes to
+`mir_root_facade_allowlist.txt` remain zero.
 
 ## Failure law
 
@@ -171,6 +176,43 @@ NORMAL-SOURCE-PLAN0-INPUT0-S0
 
 G0 fixes one classifier, one front-door input producer, zero production
 consumer, zero reclassification, and the proof sunset handoff.
+
+## Closeout
+
+`NORMAL-SOURCE-PLAN0-INPUT0-S0` and its immediate
+`NORMAL-SOURCE-PLAN0-G0` are closed.
+
+```text
+PreparedNormalFileSourceV1 consuming producer = 1
+source-plan classifier consumer                = 1 disconnected
+source-plan production consumer                = 0
+profile match / admission                      = 0
+second file read / parse                       = 0
+bare AST / source-text accessor                = 0
+Raw handoff caller delta                       = 0
+default/normal route delta                     = 0
+MIR root direct plan-vocabulary export         = 0
+```
+
+The runner reaches the classifier only through the owner module
+`crate::mir::normal_source_plan`; `mir::compiler` remains private and the MIR
+root export allowlist is unchanged.
+
+Evidence:
+
+```text
+cargo check --lib                                      = green
+cargo check --lib --features vm-reference              = green
+normal_file_vm_frontdoor focused tests                 = 11/11 green
+normal_file_vm_frontdoor vm-reference tests            = 19/19 green
+mir::compiler::normal_source_plan focused tests        = 9/9 green
+normal-source-plan0 manifest row guard                 = green
+existing normal-file-vm0 route guard                   = green
+MIR root facade/import-hygiene guards                  = green
+all modified/new source and check files                < 800 lines
+```
+
+The next row is `NORMAL-MAIN0-SOURCE0-S0`.
 
 ## Non-claims
 

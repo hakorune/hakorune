@@ -1,14 +1,14 @@
 use super::product::PreparedNormalSourcePlanInputV1;
 
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir) enum NormalSourcePlanStageV1 {
+pub(crate) enum NormalSourcePlanStageV1 {
     RootSurface,
     SourceEntry,
     FamilyClosure,
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir) enum NormalUnsupportedTopLevelKindV1 {
+pub(crate) enum NormalUnsupportedTopLevelKindV1 {
     NestedProgram,
     Using,
     Import,
@@ -22,7 +22,7 @@ pub(in crate::mir) enum NormalUnsupportedTopLevelKindV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir) enum NormalSourcePlanErrorV1 {
+pub(crate) enum NormalSourcePlanErrorV1 {
     RootNotProgram,
     MissingSourceEntry,
     DuplicateMain,
@@ -73,7 +73,7 @@ impl NormalSourcePlanErrorV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::mir) struct RejectedNormalSourcePlanV1 {
+pub(crate) struct RejectedNormalSourcePlanV1 {
     owner: PreparedNormalSourcePlanInputV1,
     stage: NormalSourcePlanStageV1,
     error: NormalSourcePlanErrorV1,
@@ -92,15 +92,15 @@ impl RejectedNormalSourcePlanV1 {
         }
     }
 
-    pub(in crate::mir) fn stage(&self) -> &NormalSourcePlanStageV1 {
+    pub(crate) fn stage(&self) -> &NormalSourcePlanStageV1 {
         &self.stage
     }
 
-    pub(in crate::mir) fn error(&self) -> &NormalSourcePlanErrorV1 {
+    pub(crate) fn error(&self) -> &NormalSourcePlanErrorV1 {
         &self.error
     }
 
-    pub(in crate::mir) fn discard(self) {
+    pub(crate) fn discard(self) {
         drop(self);
     }
 }

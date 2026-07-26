@@ -16,6 +16,10 @@ PARITY_P0A = ROOT / "src/runner/reference/normal_file_vm/parity_p0a.rs"
 TEST_ONLY_RAW_TERMINAL_CONSUMERS = (
     ROOT / "src/runner/reference/normal_file_vm_frontdoor/result_carrier_p0.rs",
 )
+SOURCE_PLAN_PROOF_CONSUMERS = (
+    ROOT
+    / "src/runner/reference/normal_file_vm_frontdoor/source_plan_input_tests.rs",
+)
 REFERENCE_MOD = ROOT / "src/runner/reference/mod.rs"
 RAW_CONTRACT = ROOT / "src/mir/raw_vm_reference_contract.rs"
 RUNNER = ROOT / "src/runner/mod.rs"
@@ -180,11 +184,18 @@ def main() -> int:
             if token in text:
                 raise AssertionError(f"frozen route widened into Forge0: {path.relative_to(ROOT)}")
     for path in (ROOT / "src/runner").rglob("*.rs"):
-        if path in (FRONTDOOR, NORMAL_REQUEST, NORMAL_REPORT_RUNNER) or path in TEST_ONLY_RAW_TERMINAL_CONSUMERS:
+        if (
+            path in (FRONTDOOR, NORMAL_REQUEST, NORMAL_REPORT_RUNNER)
+            or path in TEST_ONLY_RAW_TERMINAL_CONSUMERS
+            or path in SOURCE_PLAN_PROOF_CONSUMERS
+        ):
             continue
         text = path.read_text()
         if "NormalFileVmFrontDoorV1" in text or "PreparedNormalFileVmHandoffV1" in text:
-                raise AssertionError(f"front-door type escaped its one production owner: {path.relative_to(ROOT)}")
+            raise AssertionError(
+                "front-door type escaped its one production owner: "
+                f"{path.relative_to(ROOT)}"
+            )
     for fragment in (
         "pub(crate) fn select_and_run(config: &CliConfig)",
         "ExplicitReferenceRunnerRequestV1::RawVmReference(request)",
@@ -207,6 +218,7 @@ def main() -> int:
         NORMAL_REPORT_RUNNER,
         PARITY_P0A,
         *TEST_ONLY_RAW_TERMINAL_CONSUMERS,
+        *SOURCE_PLAN_PROOF_CONSUMERS,
         RAW_CONTRACT,
         Path(__file__),
         *S3_GUARDS,

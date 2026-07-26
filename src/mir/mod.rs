@@ -50,6 +50,7 @@ pub(crate) mod canonical_recursive_callable_module_backend_capability;
 pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
 mod compiler;
+pub(crate) use compiler::normal_source_plan;
 pub(crate) use compiler::source_entry_vm_reference::RawVmReferenceRunReportV1;
 #[cfg(feature = "vm-reference")]
 pub(crate) use compiler::source_entry_vm_runner_adapter::RawVmReferenceInvocationFailureReportV1;

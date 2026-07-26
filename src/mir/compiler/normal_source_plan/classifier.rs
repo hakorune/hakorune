@@ -8,10 +8,10 @@ use super::product::{
 };
 use super::rejection::{NormalSourcePlanErrorV1, RejectedNormalSourcePlanV1};
 
-pub(in crate::mir) struct NormalSourcePlanClassifierV1;
+pub(crate) struct NormalSourcePlanClassifierV1;
 
 impl NormalSourcePlanClassifierV1 {
-    pub(in crate::mir) fn seal(
+    pub(crate) fn seal(
         input: PreparedNormalSourcePlanInputV1,
     ) -> Result<SealedNormalSourcePlanV1, RejectedNormalSourcePlanV1> {
         let inventory = NormalSourceSurfaceInventoryV1::collect(input)?;
