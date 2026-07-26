@@ -51,9 +51,10 @@ active bounded source-plan series until explicitly selected there.
 
 `STATIC-BOX-DERIVE-COMPAT0-S0` is closed: static boxes receive no
 receiver-based default `equals` / `toString`, ordinary boxes remain unchanged,
-and Main expansion stays strict. The fresh Stage-B rerun reaches
-`STAGEB-GENERIC-LOOP-TRANSIENT-TYPE-D0`: its exact nested instance-call result
-has no lowering-time transient type. Do not backfill that type in GenericLoop,
-from metadata, names, annotations, runtime, or a fallback. `OWN-GRAM-REJECT0`
-has its Rust parser half landed; its Hako freeze-tag WIP remains parked until
-this new design stop selects an exact result-representation owner.
+and Main expansion stays strict. `STAGEB-GENERIC-LOOP-TRANSIENT-TYPE-D0`
+accepted `CALLABLE-RESULT-NESTED-REP0`; the active S0 must seal one exact
+nested instance-call source contract without MIR emission or a type write.
+Only the later successful-call receipt may publish its final transient
+`Integer` type. Do not backfill it in GenericLoop, from metadata, names,
+annotations, runtime, or a fallback. `OWN-GRAM-REJECT0` has its Rust parser
+half landed; its Hako freeze-tag WIP remains parked until this series closes.
