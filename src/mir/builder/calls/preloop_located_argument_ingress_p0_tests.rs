@@ -49,7 +49,12 @@ fn integer(value: i64) -> ASTNode {
     }
 }
 
-fn configured_builder(bind_ret: bool) -> MirBuilder {
+/// Lower-level rejection harness only.
+///
+/// It deliberately binds `me` to an Integer and is therefore forbidden as
+/// physical-route evidence. Successful physical-route proof uses the
+/// production-shaped prefix harness below.
+fn synthetic_rejection_builder(bind_ret: bool) -> MirBuilder {
     let mut builder = MirBuilder::new();
     builder
         .comp_ctx
@@ -144,38 +149,12 @@ fn call_count(builder: &MirBuilder) -> usize {
         .count()
 }
 
-fn assert_configured_success() {
-    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
-        with_prepared_preloop(
-            |prepared, outer_input, outer_receiver, outer_method, selected_site| {
-                let mut builder = configured_builder(true);
-                let route = builder
-                    .plan_member_call_route(&outer_receiver, &outer_method)
-                    .expect("existing outer route");
-                assert!(matches!(route, MemberCallRoutePlan::StaticReceiver { .. }));
-                let mut port =
-                    PreloopLocatedArgumentPortV1::new(RawLegacyChildLoweringPortV1, prepared);
-                builder
-                    .execute_prepared_member_call_route_v1(&mut port, &outer_input, route)
-                    .expect("fresh configured candidate");
-                assert!(matches!(
-                    port.selected_state(),
-                    PreloopSelectedArgumentStateV1::Reached(reached)
-                        if reached.selected_site() == &selected_site
-                ));
-                assert_eq!(call_count(&builder), 2);
-                port.discard();
-            },
-        );
-    });
-}
-
 #[test]
 fn outer_route_drift_stops_before_candidate_argument_descent() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         with_prepared_preloop(
             |prepared, _outer_input, outer_receiver, outer_method, selected_site| {
-                let mut builder = configured_builder(true);
+                let mut builder = synthetic_rejection_builder(true);
                 let shadow = builder
                     .build_expression(integer(99))
                     .expect("shadow receiver value");
@@ -207,7 +186,7 @@ fn candidate_rejects_unified_disabled_before_the_selected_inner_call() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "off", || {
         with_prepared_preloop(
             |prepared, outer_input, outer_receiver, outer_method, selected_site| {
-                let mut builder = configured_builder(true);
+                let mut builder = synthetic_rejection_builder(true);
                 let route = builder
                     .plan_member_call_route(&outer_receiver, &outer_method)
                     .expect("existing outer route");
@@ -231,8 +210,6 @@ fn candidate_rejects_unified_disabled_before_the_selected_inner_call() {
             },
         );
     });
-
-    assert_configured_success();
 }
 
 #[test]
@@ -240,7 +217,7 @@ fn configured_header_drift_rejects_lowered_global_before_call_emission() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         with_prepared_preloop(
             |prepared, _outer_input, _outer_receiver, _outer_method, selected_site| {
-                let mut builder = configured_builder(true);
+                let mut builder = synthetic_rejection_builder(true);
                 let signature = FunctionSignature {
                     name: "ParserBox.static_const_eval_pos/1".to_string(),
                     params: vec![MirType::Integer],
@@ -277,11 +254,11 @@ fn configured_header_drift_rejects_lowered_global_before_call_emission() {
 }
 
 #[test]
-fn missing_inner_argument_retains_source_and_a_fresh_fixture_still_succeeds() {
+fn missing_inner_argument_retains_source_in_the_synthetic_rejection_harness() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         with_prepared_preloop(
             |prepared, _outer_input, _outer_receiver, _outer_method, selected_site| {
-                let mut builder = configured_builder(false);
+                let mut builder = synthetic_rejection_builder(false);
                 let mut ordinary = RawLegacyChildLoweringPortV1;
                 let rejected = lower_selected_preloop_located_argument_v1(
                     &mut builder,
@@ -303,8 +280,6 @@ fn missing_inner_argument_retains_source_and_a_fresh_fixture_still_succeeds() {
             },
         );
     });
-
-    assert_configured_success();
 }
 
 /// Test-only ordinary port that preserves every existing Raw child/terminal
@@ -411,7 +386,7 @@ fn outer_terminal_failure_retains_the_completed_inner_source_owner() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         with_prepared_preloop(
             |prepared, outer_input, outer_receiver, outer_method, selected_site| {
-                let mut builder = configured_builder(true);
+                let mut builder = synthetic_rejection_builder(true);
                 let route = builder
                     .plan_member_call_route(&outer_receiver, &outer_method)
                     .expect("existing outer route");

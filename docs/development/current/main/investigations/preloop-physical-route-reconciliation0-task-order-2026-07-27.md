@@ -251,8 +251,8 @@ src/mir/builder/calls/member_route_descent_tests.rs
 
 ### 1. `PRELOOP-PRODUCTION-PREFIX-FIXTURE0-S0`
 
-Replace the synthetic configured Builder in the selected positive/failure
-proofs with:
+Replace the synthetic configured Builder in the successful physical-route
+proof with:
 
 ```rust
 lower_instance_method_prefix_for_test(
@@ -277,7 +277,10 @@ current function/block/scope are live
 ```
 
 It then prepares the existing outer `StaticReceiver` route and executes the
-candidate Port. No test helper may write the receiver type or origin.
+candidate Port. No successful physical-route helper may write the receiver
+type or origin. Synthetic Integer-receiver fixtures may remain only for
+lower-level rejection boundaries and must state that they are not route
+evidence.
 
 Because the production prefix may already emit Calls, fixtures compare deltas:
 
@@ -313,6 +316,39 @@ if the production-shaped candidate does not reach Generic:
   retain the observed exact route
   open PRELOOP-PHYSICAL-ROUTE-MISMATCH0-D0
   do not add a receipt or change Router policy automatically
+```
+
+### S0 closeout
+
+`PRELOOP-PRODUCTION-PREFIX-FIXTURE0-S0` is closed.
+
+The positive ingress proof now owns a fresh `MirModule` and uses the existing
+production prefix harness at `prefix_len = 3`. It verifies the exact Body(3)
+continuation, `me = parameter 0`, `MirType::Box("ParserBox")`, ParserBox
+origin, live bindings/scope, and continuation-relative two-Call delta. The
+selected inner physical Call is `ParserBox.static_const_eval_pos` with a
+`Known` receiver whose Copy chain roots at that canonical `me`; the outer
+`ParserStringUtilsBox.skip_ws/2` Call consumes the selected result.
+
+The legacy hand-built Builder remains only for lower-level rejection tests and
+is renamed `synthetic_rejection_builder`. It deliberately binds Integer `me`,
+is documented as non-route evidence, and no longer supplies a successful
+physical-route or fresh-success assertion. Those lower-level reject tests are
+not a substitute for the production prefix proof.
+
+The row made no receipt, Router, type-publication, production-caller, or
+fallback change. The red REP0 WIP remains quarantined; recover only its four
+semantic patches during the next row and rebuild tests against this prefix
+harness.
+
+Verification:
+
+```bash
+RUSTFLAGS=-Awarnings cargo test -q --lib \
+  configured_preloop_ingress_reaches_existing_inner_and_outer_call_terminals
+RUSTFLAGS=-Awarnings cargo test -q --lib preloop_located_argument_ingress \
+  -- --test-threads=1
+bash tools/checks/current_state_pointer_guard.sh
 ```
 
 ### 2. `CALLABLE-RESULT-NESTED-PRELOOP-REP0-I0`
