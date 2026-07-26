@@ -1,5 +1,5 @@
 ---
-Status: active execution task
+Status: paused at NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-D0
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Row: NORMAL-CALLABLE-MODULE0-TX0-S0
@@ -21,6 +21,30 @@ Related:
 ---
 
 # NORMAL-CALLABLE-MODULE0-TX0-S0
+
+## Implementation stop discovered after activation
+
+The current lowering terminal consumes
+`CanonicalTrivialBindingSsaPlanV1` and discards its unpublished function
+session on body-lowering failure. Draft-seal rejection is also flattened and
+discarded by the current facade.
+
+Therefore the active card's stronger statement,
+
+```text
+the original CompletedNormalMainHelperResolutionV1 remains present
+on every failure
+```
+
+cannot be implemented by composition of the current APIs. The exact decision
+is isolated in:
+
+```text
+NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-D0
+```
+
+No TX0 source implementation proceeds until that retention boundary is
+accepted. Existing R0 code and production behavior remain unchanged.
 
 ## Outcome
 

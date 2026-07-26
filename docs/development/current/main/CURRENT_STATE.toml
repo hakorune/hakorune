@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-CALLABLE-MODULE0-R0-S0 is closed with one inventory/SCC partition, direct Acyclic/Recursive selection, recursive/reorder/rejection/reuse evidence, and no retry. NORMAL-CALLABLE-MODULE0-TX0-S0 is active to prepare source Main, all helper drafts, and one physical main thunk for one atomic normal-module commit."
+status = "NORMAL-CALLABLE-MODULE0-R0-S0 is closed. TX0 inspection proved that current function lowering consumes and discards operational proofs on failure, conflicting with the active card's exact-original-owner rejection law. NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-D0 is the active design stop; TX0 code remains unchanged."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "NORMAL-CALLABLE-MODULE0-TX0-S0"
-current_execution_summary = "Consume the completed Main/helper semantic owner into one outer transaction, prepare Acyclic or Recursive helper drafts, source Main, the physical main thunk, the heterogeneous schema, capability/correspondence/full-candidate verification, then perform one infallible shell-drain commit. Variant-specific transactions, self-referential plan storage, Raw brands, partial publication, retry, fallback, and caller changes remain zero."
+current_design_stop = "NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-D0"
+current_execution_row = "NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-D0"
+current_execution_summary = "Select the rejection retention authority after a one-shot function lowering plan has been consumed. Recommended B retains the exact Program/catalog/source authority, selected topology receipt, all prepared draft prefixes, typed lowering stage/cause, and Builder restoration receipt, while treating the consumed preflight plan as a non-resumable operational capability. A requires a lowerer-wide prepare/commit refactor. C String-only discard is rejected."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -417,9 +417,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "normal-callable-module0-tx0-s0-execution-task-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/normal-callable-module0-tx0-s0-execution-task-2026-07-26.md"
-latest_card_summary = """NORMAL-CALLABLE-MODULE0-R0-S0 is closed with direct one-shot Acyclic/Recursive selection and recursive/reorder/rejection/reuse evidence. TX0 now owns one complete semantic owner through borrow-only draft preparation and one infallible Main/helpers/physical-thunk candidate commit; Raw brands, variant-specific transactions, retry, fallback, and production callers remain zero."""
+latest_card = "normal-callable-module0-tx0-draft-failure-d0-design-question-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/normal-callable-module0-tx0-draft-failure-d0-design-question-2026-07-26.md"
+latest_card_summary = """TX0 implementation inspection found a real retention mismatch: lower_resolved_trivial_function_draft consumes the preflight plan and discards failed unpublished sessions, so the exact original completed owner cannot survive every failure through composition alone. The active stop asks whether to refactor the whole lowerer for exact rollback (A) or retain source authority + consumed-operation receipt + exact draft prefix with no resume/retry (recommended B)."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -621,7 +621,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-CALLABLE-MODULE0-TX0-S0"
+current_blocker_token = "NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-D0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
