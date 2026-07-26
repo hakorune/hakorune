@@ -1,5 +1,5 @@
 ---
-Status: active execution task
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Row: NORMAL-MAIN0-TX0-I0

@@ -1,5 +1,5 @@
 ---
-Status: active series; Decision B accepted
+Status: closed; Decision B accepted
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Failure decision: NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1
