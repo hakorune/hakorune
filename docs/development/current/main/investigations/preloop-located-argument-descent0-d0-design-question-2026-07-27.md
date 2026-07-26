@@ -546,6 +546,22 @@ candidate connection = 0
 argument/Call effects during prepare = 0
 ```
 
+#### Closeout (2026-07-27)
+
+Closed. `PreparedMeCallExecutionV1` seals the existing precedence as inline
+record helper, inline setter, lowered global, Standard, static fallback, or
+not-applicable. Its Standard variant retains the existing
+`PreparedStandardMethodExecutionV1`, so `Standard(Unified)` is observable
+before lowering while ordinary execution still consumes every disposition.
+The focused bound-`me` fixture proves preparation emits no MIR and execution
+alone reaches the existing Standard terminal.
+
+Next executable row:
+
+```text
+PRELOOP-LOCATED-ARGUMENT-PORT0-S0
+```
+
 ### 5. `PRELOOP-LOCATED-ARGUMENT-PORT0-S0`
 
 Add small sibling modules:
