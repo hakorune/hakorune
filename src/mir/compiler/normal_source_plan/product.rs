@@ -74,9 +74,20 @@ impl NormalMainMethodSiteV1 {
         }
     }
 
-    #[cfg(test)]
     pub(super) fn method_key(&self) -> &str {
         &self.method_key
+    }
+
+    pub(super) fn main_statement_index(&self) -> usize {
+        self.main_statement_index
+    }
+
+    pub(super) fn arity(&self) -> usize {
+        self.arity
+    }
+
+    pub(super) fn is_static(&self) -> bool {
+        self.is_static
     }
 }
 
@@ -133,6 +144,32 @@ impl SealedNormalMainSourceV1 {
             main_method,
             _seal: NormalMainSourceSealV1,
         }
+    }
+
+    pub(crate) fn prepare_function_source(
+        self,
+    ) -> Result<
+        super::main_source::VerifiedNormalMainFunctionSourceUnitV1,
+        super::main_source::RejectedNormalMainFunctionSourceV1,
+    > {
+        match super::main_source::verify_main_source_relation(&self) {
+            Ok(()) => Ok(super::main_source::VerifiedNormalMainFunctionSourceUnitV1::seal(self)),
+            Err(error) => Err(super::main_source::RejectedNormalMainFunctionSourceV1::new(
+                self, error,
+            )),
+        }
+    }
+
+    pub(super) fn input(&self) -> &PreparedNormalSourcePlanInputV1 {
+        &self.input
+    }
+
+    pub(super) fn main_box(&self) -> &NormalTopLevelSiteV1 {
+        &self.main_box
+    }
+
+    pub(super) fn main_method(&self) -> &NormalMainMethodSiteV1 {
+        &self.main_method
     }
 }
 

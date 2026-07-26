@@ -5,10 +5,16 @@
 
 mod classifier;
 mod inventory;
+mod main_source;
 mod product;
 mod rejection;
 
 pub(crate) use classifier::NormalSourcePlanClassifierV1;
+#[allow(unused_imports)]
+pub(crate) use main_source::{
+    NormalMainFunctionSourceErrorV1, NormalMainFunctionSourceViewV1,
+    RejectedNormalMainFunctionSourceV1, VerifiedNormalMainFunctionSourceUnitV1,
+};
 #[allow(unused_imports)]
 pub(crate) use product::{
     PreparedNormalSourcePlanInputV1, SealedNormalCallableModuleSourceV1, SealedNormalScalarRootV1,

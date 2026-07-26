@@ -1,5 +1,5 @@
 ---
-Status: active execution task
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Row: NORMAL-MAIN0-SOURCE0-S0
@@ -107,6 +107,9 @@ sealed site facts equal observed exact-site facts
 ```
 
 This is relation verification, not source-family reclassification.
+After the exact method-map lookup, generic function header/body shape is
+borrowed through the existing `CallableFunctionSyntaxViewV1`; SOURCE0 does not
+introduce a second function-declaration parser.
 
 ## Product and rejection
 
@@ -114,9 +117,7 @@ Suggested owner vocabulary:
 
 ```rust
 pub(crate) struct VerifiedNormalMainFunctionSourceUnitV1 {
-    input: PreparedNormalSourcePlanInputV1,
-    main_box: NormalTopLevelSiteV1,
-    main_method: NormalMainMethodSiteV1,
+    source: SealedNormalMainSourceV1,
     _seal: VerifiedNormalMainFunctionSourceUnitSealV1,
 }
 
@@ -159,8 +160,9 @@ src/mir/compiler/normal_source_plan/
   main_source_tests.rs
 ```
 
-`product.rs` may add one consuming delegation and the minimum site accessors
-needed by `main_source.rs`. It must not return loose AST/site parts.
+`product.rs` may add one consuming delegation and the minimum borrowed site
+accessors needed by `main_source.rs`. The new unit wraps the original sealed
+Main product whole; it must not return or reconstruct loose AST/site parts.
 
 Do not put this implementation in `compiler/mod.rs`,
 `normal_file_vm_frontdoor.rs`, or `builder/main_expansion.rs`.
@@ -176,8 +178,11 @@ second parser path:
 static Main.main/0
   -> one verified embedded function view
 
-Main site with unrelated top-level source retained
-  -> original Program remains owned
+Main box with non-function declaration fields retained
+  -> original Program/Main declaration remains owned
+
+private forged Program with an unrelated statement before Main
+  -> exact sealed Main site succeeds without family reclassification
 
 main body / annotation / explicit Return
   -> source view preserves syntax without classifying it
@@ -240,6 +245,38 @@ F1-PLAN0 is where the embedded Main view must enter the existing function
 semantic/completion owners. If evidence proves that the original Program
 cannot remain owned while entering that projection, stop at the accepted
 reconsult blocker instead of cloning or rewriting the function AST.
+
+## Closeout
+
+```text
+Program-owned Main source unit             = 1
+exact-site borrow terminal                 = 1
+existing CallableFunctionSyntaxView reuse  = 1
+source-family reclassification             = 0
+VerifiedMainExpansion / Raw re-entry       = 0
+AST clone / rewrite                        = 0
+semantic resolution / Builder / MIR        = 0
+backend / runner / route delta             = 0
+production consumer                        = 0
+```
+
+Evidence:
+
+```text
+cargo check --lib                                          = green
+normal_source_plan unit tests                              = 15/15
+normal_file_vm_frontdoor --features vm-reference           = 19/19
+normal-source-plan0 family guard                           = green
+normal-file VM0 front-door guard                           = green
+MIR root facade guard                                      = green
+current-state pointer guard                                = green
+all modified/new source and check files                    < 800 lines
+```
+
+The verified owner wraps `SealedNormalMainSourceV1` whole. Repeated exact
+borrows resolve to the same immutable AST identity, and retained typed
+rejections cover root, statement, method, name, static, shape, and arity
+drift.
 
 ## Non-claims
 

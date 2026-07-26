@@ -307,7 +307,8 @@ Current progress:
 NORMAL-SOURCE-PLAN0-S0        = closed
 NORMAL-SOURCE-PLAN0-INPUT0-S0 = closed
 NORMAL-SOURCE-PLAN0-G0        = closed
-NORMAL-MAIN0-SOURCE0-S0       = active
+NORMAL-MAIN0-SOURCE0-S0       = closed
+NORMAL-MAIN0-F1-PLAN0-S0      = active
 ```
 
 ### F. Promotion and completion
@@ -317,14 +318,135 @@ NORMAL-CALLABLE-MODULE0-R0-S0
 -> NORMAL-ENTRY-PRODUCT-BACKEND-D0
 -> NORMAL-DEFAULT-CALLER-CENSUS0-P0
 -> NORMAL-ENTRY-PROMOTION-D3
--> NORMAL-IMPORT-BUNDLE0
--> MIRBUILDER-LEGACY-FENCE0
--> MIRBUILDER-NORMAL-COMPLETE0
+-> NORMAL-PRODUCT-ENTRY0-I0
+-> NORMAL-PRODUCT-PARITY0-P0
+-> NORMAL-DEFAULT-CALLER0-I0
+-> NORMAL-SELECTED-LEGACY-CALLER-RETIRE0-S0
+
+-> NORMAL-IMPORT-BUNDLE-D0
+-> NORMAL-IMPORT-BUNDLE0-S0
+-> NORMAL-FILE-IMPORT0-PROFILE0-S0
+-> NORMAL-FILE-IMPORT0-PARITY0-P0
+-> NORMAL-FILE-IMPORT0-CALLER0-I0
+-> NORMAL-FILE-IMPORT0-RETIRE0-S0
+
+-> MIRBUILDER-LEGACY-FENCE0-S0
+-> MIRBUILDER-NORMAL-CALLER-CENSUS0-P0
+-> MIRBUILDER-NORMAL-COMPLETE0-P0
 -> MIRBUILDER-COMPLETE0-G0
 ```
 
 Canonical-core green never automatically changes the default backend or an
 existing caller.
+
+`NORMAL-ENTRY-PRODUCT-BACKEND-D0` must name the actual product execution
+engine. The current VM-reference lanes already execute through the Rust
+`MirInterpreter`; they are semantic-reference requests, not an implicit
+product/default selection. If the product choice is the MIR interpreter, the
+follow-up is a separately named product profile and request:
+
+```text
+NORMAL-PRODUCT-MIR-INTERPRETER0-PROFILE0-S0
+-> NORMAL-PRODUCT-MIR-INTERPRETER0-PARITY0-P0
+-> NORMAL-PRODUCT-ENTRY0-I0
+```
+
+It reuses the neutral exact-entry execution owner. It does not call the
+reference CLI route, reparse source, reconstruct process status, or fall back
+to a Legacy VM runner.
+
+After the product/default caller is green, explicitly decide the fate of each
+reference lane:
+
+```text
+VM-REFERENCE-LANE-RETIRE0-D0
+  keep as named conformance lane
+  or retire exact CLI caller
+```
+
+There is no automatic aliasing. If retired, remove the exact caller, request,
+help text, and route-only proof after product parity has absorbed their durable
+semantic assertions. The shared interpreter/exact-entry/process owners remain;
+only the reference front door is removed.
+
+## Buildable task ledger
+
+The macro order above is authoritative. Each row below has one bounded output
+and one promotion gate; implementation must not invent intermediate semantic
+owners merely to record progress.
+
+| Row family | Kind | Durable output | Gate to next family |
+| --- | --- | --- | --- |
+| `NORMAL-MAIN0-F1-PLAN0-S0` | BoxShape | Program-owned resolved Main plus existing F1 plan | completion/result matrix and retained rejection green |
+| `NORMAL-MODULE-TX0-L0` | BoxShape | common unpublished normal-module transaction schema | no publication/consumer; Main and helpers can share it |
+| `NORMAL-MAIN0-THUNK0-S0` | BoxCount | exact source-Main to physical-main thunk relation | one thunk, no symbol/entry inference |
+| `NORMAL-CANONICAL-MODULE-BATCH0-S0` | BoxShape | heterogeneous Main/helpers/thunk manifest and drain | exact cardinality, collision, and rollback proofs |
+| `NORMAL-MAIN0-TX0-I0` | activation | atomic Main draft plus thunk candidate module | late failure publishes zero |
+| `SOURCE-ENTRY-VMREF-NEUTRAL0-L0` | BoxShape | backend-neutral published source-entry invocation | execution/process/diagnostic authority remains singular |
+| `SOURCE-ENTRY-VMREF-RAW-ADAPTER0-I0` | parity | existing Raw owner adapted to neutral contract | Raw status/diagnostic/target parity exact |
+| `NORMAL-MAIN0-VMREF-ADAPTER0-I0` | activation | canonical Main publication adapter | no Raw evidence forgery or entry scan |
+| `NORMAL-MAIN0-VMREF0-P0` | proof | actual Main Unit/scalar/Fault execution matrix | fresh-interpreter and later-success reuse green |
+| `NORMAL-CALLABLE-SOURCE0-S0` | BoxShape | one Program plus exact helper-site catalog input | no helper Program clone or second catalog |
+| `NORMAL-MAIN-DIRECT-CALL0-S0` | BoxCount | Main-role-only sealed helper call rows | ordinary zero-parameter call fence unchanged |
+| `NORMAL-HELPER-MODULE-PLAN0-S0` | BoxShape | singleton/call-free helper plan | exact catalog/plan cardinality |
+| `NORMAL-CALLABLE-MODULE0-A0-S0` | composition | Main plan plus deterministic acyclic helper graph | every call target sealed before Builder |
+| `NORMAL-CALLABLE-MODULE0-TX0-I0` | activation | one atomic Main/helpers/thunk module | late helper/Main/thunk failure publishes zero |
+| `NORMAL-SOURCE-PLAN0-ADMISSION0-S0` | policy | profile capability over an already sealed family | source reclassification zero |
+| `NORMAL-SOURCE-PLAN0-DISPATCH0-I0` | activation | sole consuming family dispatch | one selected owner, retry/fallback zero |
+| `NORMAL-FILE-CANONICAL-CORE0-*` | profile/proof | separate default-off canonical-core CLI lane | real binary, reuse, caller=1, fallback=0 |
+| `MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0` | milestone | canonical Script/Main/helper core completion receipt | no default/product claim |
+| `NORMAL-ENTRY-PRODUCT-BACKEND-D0` | decision | one named product engine/profile | reference lane does not choose it implicitly |
+| `NORMAL-ENTRY-PROMOTION-D3` | decision | exact old/new caller pair, budgets, sunset | real corpus and performance evidence fixed |
+| `NORMAL-PRODUCT-*` and default cutover | activation | one product caller then one default caller | fallback zero and selected old caller zero |
+| import bundle series | capability | one sealed root/import/alias source bundle | one-read/parse identities and exact import parity |
+| Legacy fence series | retirement | all remaining production callers classified | unclassified direct `build_module` caller zero |
+| final completion rows | milestone | normal and repository compiler completion receipts | default, imports, failure/result law, fallback-zero green |
+
+### Commit discipline
+
+```text
+BoxShape row:
+  2-5 buildable commits allowed
+  accepted source surface delta = 0
+
+BoxCount row:
+  one admitted shape
+  + focused fixture
+  + existing family guard
+  = one commit where practical
+
+activation row:
+  production caller count changes only in the named I0
+  preceding P0 stays disconnected
+
+retirement row:
+  exact caller identity only
+  repo-wide token zero is not a substitute for caller evidence
+```
+
+### Milestone meanings
+
+```text
+MIRBUILDER-CORE-COMPLETE0:
+  already closed; narrow explicit normal-file reference lane exists
+
+MIRBUILDER-CANONICAL-CORE-COMPLETE0:
+  Script + Main F1 + top-level helpers + exact entry + shared interpreter
+  are available through one separate default-off canonical-core lane
+
+MIRBUILDER-NORMAL-COMPLETE0:
+  selected plain/default and import-aware normal families are migrated;
+  remaining normal callers are canonical or explicitly named Legacy
+
+MIRBUILDER-COMPLETE0-G0:
+  default/product route is explicit, unclassified normal callers are zero,
+  direct Legacy Builder entrances are fenced, and fallback is zero
+```
+
+JSON, REPL, Stage1, WASM, LLVM/AOT expansion, executor, selfhost, fastmem,
+dynamic/object entry results, and cleanup backend expansion remain integration
+migrations after these MirBuilder completion receipts unless a later accepted
+decision promotes one into the critical path.
 
 ## Reconsult only on three contradictions
 

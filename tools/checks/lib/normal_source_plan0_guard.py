@@ -15,6 +15,10 @@ INPUT_TASK = ROOT / (
     "docs/development/current/main/investigations/"
     "normal-source-plan0-input0-s0-execution-task-2026-07-26.md"
 )
+MAIN_TASK = ROOT / (
+    "docs/development/current/main/investigations/"
+    "normal-main0-source0-s0-execution-task-2026-07-26.md"
+)
 MIR_ROOT = ROOT / "src/mir/mod.rs"
 FRONTDOOR = ROOT / "src/runner/reference/normal_file_vm_frontdoor.rs"
 FRONTDOOR_INPUT = (
@@ -29,7 +33,14 @@ PRODUCTION_FILES = tuple(
     SOURCE_DIR / name
     for name in ("mod.rs", "product.rs", "inventory.rs", "classifier.rs", "rejection.rs")
 )
-ALL_FILES = (*PRODUCTION_FILES, SOURCE_DIR / "tests.rs")
+MAIN_SOURCE = SOURCE_DIR / "main_source.rs"
+MAIN_SOURCE_TESTS = SOURCE_DIR / "main_source_tests.rs"
+ALL_FILES = (
+    *PRODUCTION_FILES,
+    MAIN_SOURCE,
+    SOURCE_DIR / "tests.rs",
+    MAIN_SOURCE_TESTS,
+)
 
 
 def require(text: str, fragment: str, label: str) -> None:
@@ -48,6 +59,7 @@ def require_count(text: str, fragment: str, expected: int, label: str) -> None:
 def main() -> int:
     task = TASK.read_text()
     input_task = INPUT_TASK.read_text()
+    main_task = MAIN_TASK.read_text()
     production = "\n".join(path.read_text() for path in PRODUCTION_FILES)
     classifier = (SOURCE_DIR / "classifier.rs").read_text()
     tests = (SOURCE_DIR / "tests.rs").read_text()
@@ -56,6 +68,8 @@ def main() -> int:
     frontdoor = FRONTDOOR.read_text()
     frontdoor_input = FRONTDOOR_INPUT.read_text()
     frontdoor_input_tests = FRONTDOOR_INPUT_TESTS.read_text()
+    main_source = MAIN_SOURCE.read_text()
+    main_source_tests = MAIN_SOURCE_TESTS.read_text()
 
     for fragment in (
         "NORMAL-SOURCE-PLAN0-S0",
@@ -75,6 +89,16 @@ def main() -> int:
         "Direct `pub use` additions to the MIR root vocabulary",
     ):
         require(input_task, fragment, f"INPUT0 task contract {fragment}")
+
+    for fragment in (
+        "NORMAL-MAIN0-SOURCE0-S0",
+        "Program-owned embedded Main.main/0 source unit",
+        "source-family reclassification         = 0",
+        "VerifiedMainExpansion re-entry         = 0",
+        "AST clone/rewrite                      = 0",
+        "production consumer                    = 0",
+    ):
+        require(main_task, fragment, f"MAIN SOURCE0 task contract {fragment}")
 
     definitions = (
         "struct PreparedNormalSourcePlanInputV1",
@@ -177,6 +201,43 @@ def main() -> int:
             f"INPUT0 fixture {test_name}",
         )
 
+    for definition in (
+        "struct VerifiedNormalMainFunctionSourceUnitV1",
+        "struct NormalMainFunctionSourceViewV1",
+        "struct RejectedNormalMainFunctionSourceV1",
+        "enum NormalMainFunctionSourceErrorV1",
+    ):
+        require_count(main_source, definition, 1, f"sole Main source definition {definition}")
+    for fragment in (
+        "source: SealedNormalMainSourceV1",
+        "fn borrow_exact_function(&self)",
+        "CallableFunctionSyntaxViewV1::from_function_ast(function)",
+        "fn verify_main_source_relation(",
+        "fn error(&self)",
+        "fn discard(self)",
+        "[normal-main-source/invariant]",
+    ):
+        require(main_source, fragment, f"Main source boundary {fragment}")
+    require_count(
+        production,
+        "fn prepare_function_source(",
+        1,
+        "one sealed Main consuming delegation",
+    )
+    for test_name in (
+        "exact_private_site_does_not_reclassify_unrelated_program_statements",
+        "main_zero_seals_one_borrowed_exact_function_without_clone",
+        "main_body_annotation_and_program_owned_box_fields_survive_source_sealing",
+        "missing_or_drifted_main_statement_is_typed_and_retained",
+        "root_and_missing_method_are_typed_and_retained",
+        "method_key_name_shape_static_and_arity_drift_are_typed",
+    ):
+        require(
+            main_source_tests,
+            f"fn {test_name}(",
+            f"Main source fixture {test_name}",
+        )
+
     forbidden_classifier_authority = (
         "SealedNormalEntryProfileV1",
         "NormalFileNoImportVmReferenceV1",
@@ -228,6 +289,29 @@ def main() -> int:
                 f"INPUT0 gained forbidden route/profile/I/O authority: {forbidden}"
             )
 
+    for forbidden in (
+        "VerifiedMainExpansionV1",
+        "VerifiedRawRootExpansionV1",
+        "::from_program",
+        "OwnedRawSourceV1",
+        "RawSourceLocatorV1",
+        "MirBuilder",
+        "MirInstruction",
+        "ValueId",
+        "MirType",
+        "crate::runner",
+        "crate::runtime",
+        ".clone()",
+        "into_ast",
+        "rewrite",
+        "retry",
+        "fallback",
+    ):
+        if forbidden in main_source:
+            raise AssertionError(
+                f"Main source owner gained reclassification/lowering authority: {forbidden}"
+            )
+
     for marker in ("#[derive(Debug, Clone", "#[derive(Clone", "#[derive(Debug, Copy"):
         if marker in production:
             raise AssertionError(f"move-only source product became duplicable: {marker}")
@@ -236,6 +320,7 @@ def main() -> int:
         "NormalSourcePlanClassifierV1",
         "SealedNormalSourcePlanV1",
         "PreparedNormalSourcePlanInputV1",
+        "VerifiedNormalMainFunctionSourceUnitV1",
     )
     allowed = set(ALL_FILES) | {
         COMPILER_MOD,
@@ -269,7 +354,8 @@ def main() -> int:
         "[normal-source-plan0-guard] ok "
         "classifier=1 script=1 main0=1 callable=1 profile=0 "
         "frontdoor_input=1 disconnected_consumer=1 production_consumer=0 "
-        "second_read_parse=0 raw_route_delta=0 rewrite=0 below_800=1"
+        "main_source=1 reclassification=0 second_read_parse=0 "
+        "raw_route_delta=0 rewrite=0 below_800=1"
     )
     return 0
 
