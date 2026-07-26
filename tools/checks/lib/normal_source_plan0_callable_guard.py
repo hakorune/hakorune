@@ -31,6 +31,10 @@ def check_callable_source(
         "docs/development/current/main/investigations/"
         "normal-callable-module0-r0-s0-execution-task-2026-07-26.md"
     )
+    transaction_task_path = root / (
+        "docs/development/current/main/investigations/"
+        "normal-callable-module0-tx0-s0-execution-task-2026-07-26.md"
+    )
     callable_source_path = source_dir / "callable_source.rs"
     callable_source_tests_path = source_dir / "callable_source_tests.rs"
     callable_catalog_source_path = source_dir / "callable_catalog_source.rs"
@@ -62,6 +66,7 @@ def check_callable_source(
         direct_call_task_path,
         acyclic_task_path,
         recursive_task_path,
+        transaction_task_path,
         callable_source_path,
         callable_source_tests_path,
         callable_catalog_source_path,
@@ -85,6 +90,7 @@ def check_callable_source(
     direct_call_task = direct_call_task_path.read_text()
     acyclic_task = acyclic_task_path.read_text()
     recursive_task = recursive_task_path.read_text()
+    transaction_task = transaction_task_path.read_text()
     callable_source = callable_source_path.read_text()
     callable_source_tests = callable_source_tests_path.read_text()
     callable_catalog_source = callable_catalog_source_path.read_text()
@@ -175,6 +181,17 @@ def check_callable_source(
         "select acyclic or recursive helper topology once",
     ):
         require(recursive_task, fragment, f"normal recursive task {fragment}")
+    for fragment in (
+        "NORMAL-CALLABLE-MODULE0-TX0-S0",
+        "OpenNormalCallableModuleTransactionV1",
+        "PreparedNormalCallableModuleTransactionV1",
+        "CompletedNormalCallableModuleCandidateV1",
+        "one infallible commit",
+        "Acyclic-specific transaction terminal                 = 0",
+        "Recursive-specific transaction terminal               = 0",
+        "all modified/new source/check files                    < 800 lines",
+    ):
+        require(transaction_task, fragment, f"normal callable transaction task {fragment}")
     for definition in (
         "enum VerifiedNormalHelperTopologyPlanV1",
         "struct VerifiedNormalRecursiveCallableModulePlanV1",

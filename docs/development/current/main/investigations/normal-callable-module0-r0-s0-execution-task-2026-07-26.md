@@ -210,3 +210,49 @@ dynamic/object result carrier
 cleanup activation
 Legacy retirement
 ```
+
+## Closeout
+
+```text
+Status:
+  closed
+
+Landed:
+  26d714da0c feat: select normal helper topology once
+  3670b7f14f test: close normal recursive module plan
+
+Selection:
+  one graph inventory
+  -> one deterministic SCC partition
+  -> recursive component count
+  -> Acyclic or Recursive exactly once
+
+Accepted:
+  zero-edge helpers
+  finite helper DAG
+  self recursion
+  mutual recursion
+  recursive SCC plus independent leaf
+  Main call into a recursive helper
+
+Evidence:
+  declaration reorder keeps the normalized partition
+  profile rejection leaves the completed owner borrowable
+  success -> rejection -> success is green
+  Main is absent from the helper partition
+  acyclic-error-to-recursive retry = 0
+  second inventory/partition       = 0
+  fallback                         = 0
+
+Verification:
+  normal_source_plan tests         = 53 green
+  callable_scc_partition tests     = 4 green
+  acyclic_callable_graph tests     = 3 green
+  normal source-plan guard         = green
+  vm-reference library check       = green
+  pointer guard                    = green
+  touched source/check files       < 800 lines
+
+Next:
+  NORMAL-CALLABLE-MODULE0-TX0-S0
+```
