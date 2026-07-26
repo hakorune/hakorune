@@ -11,6 +11,13 @@ Related:
 
 # Pre-loop Located Argument Request Boundary D0
 
+> Execution refinement (2026-07-27): the generic physical-receipt decision
+> remains valid, but the later REP0 configured fixture used a manually bound
+> Integer `me` and therefore observed `UnknownBox -> BoxCall`. The executable
+> fixture is replaced by the production-shaped instance-method prefix in
+> `preloop-physical-route-reconciliation0-task-order-2026-07-27.md`. Do not
+> execute the manual receiver setup or add a BoxCall receipt from that evidence.
+
 ## Decision
 
 ```text
