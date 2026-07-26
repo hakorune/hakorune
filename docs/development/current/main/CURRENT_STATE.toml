@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 is closed. OWNERSHIP-SPARSE-RESUME-D0 and its behavior-neutral GUARD-REFRESH0 series are closed. OWN-GRAM-REJECT0 remains the active narrow fail-fast grammar row. STATIC-BOX-DERIVE-COMPAT0-S0 is closed: static boxes no longer receive receiver-based default derives, ordinary boxes are unchanged, and Main expansion remains strict."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 is closed. NESTED-INSTANCE-RESULT-CONTRACT0-prime-r1 selects one bounded, source-only, unannotated current-owner instance Integer contract without widening the static result catalog. Its S0 starts with a behavior-neutral refresh of the already-drifted GenericLoop inventory fixture, then adds the one exact contract owner. OWN-GRAM-REJECT0-HAKO0 remains parked until the same Stage-B guard reaches the ownership syntax boundary."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "NESTED-INSTANCE-RESULT-CONTRACT0-D0"
-current_execution_row = "NESTED-INSTANCE-RESULT-CONTRACT0-D0"
-current_execution_summary = "Decide the source-only Integer result-contract authority for one exact current-owner instance call. Its source site is sealed, but the existing static result catalog deliberately has no instance result row; GenericLoop remains a pure Missing/Unknown verifier."
+current_design_stop = "none"
+current_execution_row = "NESTED-INSTANCE-RESULT-CONTRACT0-S0"
+current_execution_summary = "First restore the existing GenericLoop carrier inventory guard by refreshing only its stale reference fixture (live direct callers 4 and v1 header PHI rows 3). Then seal one exact unannotated current-owner instance Integer result contract by reusing the existing branded callable body proof. Static result rows, GenericLoop type production, MIR/type_ctx publication, fallback, and the parked Hako WIP remain unchanged."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -435,7 +435,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "nested-instance-result-contract0-d0-design-question-2026-07-26"
 latest_card_path = "docs/development/current/main/investigations/nested-instance-result-contract0-d0-design-question-2026-07-26.md"
-latest_card_summary = """CALLABLE-RESULT-NESTED-REP0 S0 preflight sealed the exact ParserBox nested current-owner call site but found no existing Integer result contract for its unannotated instance target. NESTED-INSTANCE-RESULT-CONTRACT0-D0 must select a bounded new proof, a separately accepted catalog widening, or typed Unselected. GenericLoop inference and fallback remain forbidden."""
+latest_card_summary = """NESTED-INSTANCE-RESULT-CONTRACT0-prime-r1 accepts A-prime: one route-disjoint source-only owner seals the exact unannotated current-owner instance target and reuses the existing branded callable body-result proof with an empty required-argument set. The static result catalog remains static-only. S0 first refreshes the stale GenericLoop inventory fixture in a behavior-neutral commit, then implements the bounded contract. Physical Call/result publication remains a later emission-handoff decision."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NESTED-INSTANCE-RESULT-CONTRACT0-D0"
+current_blocker_token = "NESTED-INSTANCE-RESULT-CONTRACT0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

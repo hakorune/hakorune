@@ -49,14 +49,7 @@ Follow `current_execution_row` and `latest_card_path` in `CURRENT_STATE.toml`;
 profile admission, default routing, and legacy callers remain outside the
 active bounded source-plan series until explicitly selected there.
 
-`STATIC-BOX-DERIVE-COMPAT0-S0` is closed: static boxes receive no
-receiver-based default `equals` / `toString`, ordinary boxes remain unchanged,
-and Main expansion stays strict. `STAGEB-GENERIC-LOOP-TRANSIENT-TYPE-D0`
-accepted `CALLABLE-RESULT-NESTED-REP0`, but its S0 preflight found that the
-exact current-owner source site has no existing Integer result contract:
-the result catalog is static-only and the target instance method is
-unannotated. `NESTED-INSTANCE-RESULT-CONTRACT0-D0` must choose a bounded
-source-only proof, a separately accepted catalog widening, or typed
-Unselected. Do not backfill it in GenericLoop, from metadata, names,
-annotations, runtime, or a fallback. `OWN-GRAM-REJECT0` has its Rust parser
-half landed; its Hako freeze-tag WIP remains parked.
+The active row may move without another edit to this mirror. Read
+`current_execution_row`, `current_blocker_token`, and `latest_card_path` from
+`CURRENT_STATE.toml`, then follow only that card's scope, gate order, and WIP
+instructions. Do not pop a parked stash based on historical text here.
