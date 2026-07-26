@@ -197,9 +197,9 @@ current selected-loop Integer publisher =
 ```
 
 The loop publisher is not a consumer of the pre-loop receipt and is not
-retired in this series.  A behavior-neutral split of that disconnected
+retired in this series. A behavior-neutral split of that disconnected
 publisher would have no production payoff, so it remains parked with the
-route.  Its future sequence is:
+route. The following is a parked candidate order, not a mandatory schedule:
 
 ```text
 GENERIC-LOOP-NESTED-RESULT-ACTIVATION0-D0
@@ -218,36 +218,48 @@ GENERIC-LOOP-RESULT-PUBLISHER0-I0
   -> only after the publisher decision
 ```
 
-No loop task is on the pre-loop critical path.
+No loop task is on the pre-loop critical path. After the pre-loop type row,
+rerun the real Stage-B guard. Open this loop decision only if loop-refresh is
+still the next blocker; if the guard reaches the ownership syntax boundary,
+resume `OWN-GRAM-REJECT0-HAKO0` instead.
 
 ## Executable umbrella order
 
 ### Umbrella A — raw source-site carry
 
 ```text
-RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-D0
+RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-prime-r1
 ```
 
-This remains a design row because the current raw matcher consumes owned
-`ASTNode` values and does not expose a truthful site-carrying input.  The row
-must choose:
+This D0 is now closed. The source owner is the same declaration-catalog
+allocation retained by the nested contract. Source navigation delegates to
+the existing `SourcePathV1` / site / child-role machinery through a thin
+catalog-backed raw view; a second navigation engine is forbidden.
 
 ```text
-one source-owned body/caller/root-site authority
-one structural child-site cursor
-one explicit candidate ingress
-one isolated failure/discard boundary
-```
+source owner =
+  same declaration catalog allocation
+  + exact caller
+  + exact declaration
 
-After that D0 closes:
+navigation =
+  existing SourcePath/site/ExprChildRole/BodyChildRole authority
+
+candidate ingress =
+  one explicit crate-private request
+  + one isolated unpublished draft
+```
 
 ```text
 RAW-SOURCE-CURSOR0-S0
-  -> Builder-free body/statement/expression cursor products
+  -> Builder-free common navigation kernel
+  -> thin catalog-backed raw source view
+  -> body/statement/expression cursor products
 
-RAW-EXPRESSION-DISPATCH-CURSOR0-S0..S3
-  -> behavior-neutral refactor of the sole raw matcher
-  -> legacy AST facade remains unchanged
+RAW-EXPRESSION-DISPATCH-CURSOR0-I0
+  -> one 3-5 commit behavior-neutral refactor series
+  -> input-view-generic sole matcher
+  -> legacy AST facade unchanged
 
 RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0
   -> exact site-aware MethodCall input
@@ -279,8 +291,21 @@ UNIFIED-CALL-PHYSICAL-RECEIPT0-G0
   -> one Call writer; source policy zero
 ```
 
-The receipt is source-neutral and non-Clone.  It is issued only after the
-existing `MirInstruction::Call` succeeds.  Existing
+The receipt is source-neutral and non-Clone. It is issued only by the actual
+generic physical `MirInstruction::Call` branch, after instruction emission
+and the existing post-success commit. An outer `emit_unified_call() -> Ok` is
+not sufficient because special rewrites, BoxCall, and compatibility routes are
+not physical generic Call receipts.
+
+The value-result product is:
+
+```text
+CompletedUnifiedValueCallEmissionV1
+  - exact finalized ValueId destination only
+```
+
+Call-without-destination, special rewrite, BoxCall, legacy emission, and failed
+`emit_instruction` produce no receipt. Existing
 `PreparedUnifiedCallPostSuccessV1` behavior remains in the same order.
 Ordinary callers consume and discard the receipt; the later bounded adapter
 may retain it.
@@ -327,6 +352,25 @@ CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-D0
 ```
 
 Only that later decision may select a receipt consumer that publishes Integer.
+It must fix the pre-existing fact conflict law before implementation:
+
+```text
+type_ctx[dst] == None:
+  publish Integer once
+
+type_ctx[dst] == Integer:
+  decide exact same-authority idempotence or typed duplicate rejection
+  blind overwrite = forbidden
+
+type_ctx[dst] == Unknown:
+  decide typed conflict or explicit Unknown replacement
+
+type_ctx[dst] == any other type:
+  typed conflict
+
+Call failure or missing receipt:
+  publication = 0
+```
 
 ## Failure law
 
@@ -366,6 +410,8 @@ persistent source-site -> ValueId map                = 0
 
 physical Call writer                                 = existing 1
 neutral completed-Call receipt producer              = 1 after receipt G0
+receipt-producing route                              = actual generic Call only
+special/BoxCall/legacy/no-destination receipt         = 0
 generic emitter source lookup/classification         = 0
 
 pre-loop nested association adapter                  = exact 1 after REP0 I0
@@ -409,5 +455,5 @@ Type publication:
   separate CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-D0
 
 First next design row:
-  RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-D0
+  RAW-SOURCE-CURSOR0-S0
 ```

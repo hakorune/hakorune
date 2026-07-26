@@ -1,10 +1,11 @@
 ---
-Status: accepted design / execution handoff
+Status: accepted historical decision; execution scope superseded
 Date: 2026-07-27
 Decision: NESTED-INSTANCE-RESULT-EMISSION-HANDOFF0-prime-r1
 Closes: NESTED-INSTANCE-RESULT-EMISSION-HANDOFF0-D0
 Selected bridge: constrained C-prime
 First executable row: NESTED-INSTANCE-RESULT-EMISSION-CORRESPONDENCE0-P0
+Execution scope superseded by: NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1
 Precondition: NESTED-INSTANCE-RESULT-CONTRACT0-S0 closed
 Blocked umbrella: CALLABLE-RESULT-NESTED-REP0-P0
 Related:
@@ -16,6 +17,11 @@ Related:
 ---
 
 # Nested instance-result emission handoff
+
+> The two-site P0 sequence below is historical and must not be executed.
+> Read-only correspondence preserved the physical-success idea but disproved
+> the route assumptions. The active execution owner is
+> `NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1`.
 
 ## Accepted decision
 

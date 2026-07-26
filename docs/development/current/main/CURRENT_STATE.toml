@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and NESTED-INSTANCE-RESULT-CONTRACT0-S0 are closed. NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1 accepts A-double-prime: only the real pre-loop MeStandardUnified route stays on the near critical path, split into raw source-site carry, a neutral physical Call receipt, and a pre-loop nested receipt. Loop-refresh remains a disconnected proof with its existing Integer publisher unchanged. RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-D0 must now select the exact source-owned structural cursor and explicit candidate ingress before code. OWN-GRAM-REJECT0-HAKO0 remains parked until the same Stage-B guard reaches the ownership syntax boundary."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and NESTED-INSTANCE-RESULT-CONTRACT0-S0 are closed. NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1 accepts A-double-prime: only pre-loop MeStandardUnified stays on the near path; loop-refresh remains parked with its existing publisher. RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-prime-r1 now fixes the source owner to the same declaration-catalog allocation as the nested contract, reuses the existing SourcePath/site/child-role navigation authority, forbids a second cursor engine, and selects one explicit isolated candidate ingress. The first executable row is RAW-SOURCE-CURSOR0-S0. OWN-GRAM-REJECT0-HAKO0 remains parked until the post-type Stage-B guard selects it."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-D0"
-current_execution_row = "RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-D0"
-current_execution_summary = "Select one source-owned callable-body/root-site cursor, one structural child-site transport through the sole raw matcher, one explicit candidate ingress, and one isolated failure boundary. AST re-walk, ordinal/name reconstruction, Builder source maps, LocatedLegacy activation, Call/result/type changes, fallback, and retry remain forbidden."
+current_design_stop = "none"
+current_execution_row = "RAW-SOURCE-CURSOR0-S0"
+current_execution_summary = "Extract or delegate one owner-neutral SourceCursorCoreV1 from the existing FunctionSourceViewV1 path/site calculations, then add one thin catalog-backed VerifiedRawCallableSourceViewV1 over the exact existing declaration-catalog allocation. Builder, raw matcher, Call, result/type publication, route activation, second navigation logic, fallback, and retry remain zero."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -435,7 +435,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "raw-instance-method-source-site-carry0-d0-design-question-2026-07-27"
 latest_card_path = "docs/development/current/main/investigations/raw-instance-method-source-site-carry0-d0-design-question-2026-07-27.md"
-latest_card_summary = """NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1 accepts A-double-prime. The near path is pre-loop MeStandardUnified only and is split into three independent owners: raw structural source-site carry, a neutral successful-Call destination receipt, and the bounded pre-loop nested result receipt. Loop-refresh remains a disconnected future family and its direct Integer publisher is unchanged. RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-D0 must now choose the exact source-owned cursor and explicit candidate ingress before implementation."""
+latest_card_summary = """RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-prime-r1 closes D0. The raw cursor borrows the same VerifiedSameModuleCallableDeclarationCatalogV1 allocation, exact caller, and declaration retained by the nested source contract. Existing SourcePath/site/ExprChildRole/BodyChildRole navigation remains the only path engine; a thin catalog-backed raw wrapper is allowed, a second navigation engine is forbidden. One explicit isolated candidate ingress follows later while the default raw and LocatedLegacy routes remain unchanged. The first executable row is RAW-SOURCE-CURSOR0-S0."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-D0"
+current_blocker_token = "RAW-SOURCE-CURSOR0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

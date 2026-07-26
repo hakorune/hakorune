@@ -1,10 +1,12 @@
 # Raw instance MethodCall source-site carry D0
 
 ```text
-Decision: RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-D0
-Status: design stop
+Decision: RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-prime-r1
+Closes: RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-D0
+Status: accepted design
 Opened: 2026-07-27
 Parent: NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1
+First executable row: RAW-SOURCE-CURSOR0-S0
 ```
 
 ## Current gap
@@ -63,13 +65,24 @@ LocatedLegacyLoweringSessionV1 production activation as a shortcut
 
 ## Recommended shape
 
-Create a source-owned, stack-scoped structural cursor family:
+Create a catalog-backed, stack-scoped raw wrapper over the existing source
+navigation kernel:
 
 ```text
-VerifiedRawCallableBodyCursorV1
-  - exact canonical caller
-  - exact owned/borrowed callable body authority
-  - root SourceNodeSiteV1
+SourceCursorCoreV1
+  - existing SourcePathV1
+  - existing SourceNode/Body/Stmt/Expr site vocabulary
+  - existing ExprChildRoleV1 / BodyChildRoleV1
+  - child node/site correspondence only
+
+  ├─ existing FunctionSourceViewV1
+  │    owner = FunctionOwnerIdV1
+  │
+  └─ VerifiedRawCallableSourceViewV1
+       owner =
+         exact VerifiedSameModuleCallableDeclarationCatalogV1 allocation
+         + exact CanonicalSameModuleCallableKeyV1
+         + exact declaration row
 
 RawLocatedBodyInputV1
 RawLocatedStmtInputV1
@@ -93,19 +106,86 @@ parent input + ExprChildRoleV1 / statement index
 
 No second traversal reconstructs the path.
 
-## Decision questions
+`SourceCursorCoreV1` is not a new source identity issuer. It extracts the
+already-existing parent-relative path/site calculation from
+`FunctionSourceViewV1`; the canonical view and the new raw view delegate to
+that one calculation. Canonical and raw owner identities remain distinct.
 
-1. Which existing source owner supplies the exact callable body, canonical
-   caller, and root source site to the first production candidate cursor?
-2. Should the sole `raw_expression_dispatch` matcher become generic over a
-   raw input view, with the existing AST-only route retained as a thin facade?
-3. What is the minimum expression/statement surface that must carry the cursor
-   to reach `Body(3).Value.Argument(1)` without delegating through an unlocated
-   subtree?
-4. Where is the isolated candidate draft boundary so cursor/lowering failure
-   leaves the live Builder and publication unchanged?
-5. What exact explicit production request selects the candidate cursor route
-   while the default legacy raw route remains unchanged?
+If extracting the full core would widen the first commit excessively, the raw
+wrapper may delegate directly to the existing `SourcePathV1`,
+`ExprChildRoleV1`, `BodyChildRoleV1`, and
+`project_source_body_node_v1` operations. It may not implement another role,
+path, or AST-location algorithm.
+
+## Accepted answers
+
+### Q1 source owner
+
+```text
+exact allocation =
+  the same VerifiedSameModuleCallableDeclarationCatalogV1
+  already retained by VerifiedSourceMethodCallSiteV1
+  and SealedNestedInstanceResultContractV1
+
+exact row =
+  catalog.declaration(caller)
+```
+
+The raw view holds the catalog, canonical caller key from that catalog, and
+exact declaration row by reference:
+
+```rust
+struct VerifiedRawCallableSourceViewV1<'catalog> {
+    catalog: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
+    caller: &'catalog CanonicalSameModuleCallableKeyV1,
+    declaration: &'catalog VerifiedSameModuleCallableDeclarationV1,
+}
+```
+
+Only this view issues the raw body root. An equal-looking catalog, caller, or
+source path is foreign. Final association requires:
+
+```text
+same declaration-catalog allocation
+same canonical caller key
+same SourceExprSiteV1
+```
+
+### Q2 navigation
+
+The sole raw matcher becomes input-view generic. The AST-only legacy route is
+a thin facade over that matcher. Source navigation is delegated to the
+existing path/site/child-role machinery; no second navigation engine is
+created.
+
+### Q3 bounded surface
+
+The first route carries exact located inputs only through the admitted
+pre-loop prefix needed to reach:
+
+```text
+Body(3).Value.Argument(1)
+```
+
+Every parent/child transition in that prefix uses the same structural child
+selection to derive both node and site. A subtree containing a selected site
+may not delegate through an unlocated input. Other raw surfaces continue
+through the unchanged legacy facade.
+
+### Q4 failure boundary
+
+The explicit candidate ingress lowers into an isolated unpublished draft.
+Cursor/navigation/lowering failure retains or discards that candidate and
+leaves the live Builder and module publication unchanged. Commit is allowed
+only after source-cursor coverage, raw-lowering completion, and draft
+verification are green.
+
+### Q5 route selection
+
+One crate-private explicit candidate request owns the verified raw source view
+and selects the cursor route once. It does not modify
+`lower_method_as_function`, the default legacy raw route, or
+`LocatedLegacyLoweringSessionV1`. Failure never retries another route.
 
 ## Recommended task order after acceptance
 
@@ -113,17 +193,12 @@ No second traversal reconstructs the path.
 RAW-SOURCE-CURSOR0-S0
   source-only cursor/input/rejection vocabulary
 
-RAW-EXPRESSION-DISPATCH-CURSOR0-S0
-  split the current near-limit matcher into a module folder
-
-RAW-EXPRESSION-DISPATCH-CURSOR0-S1
-  generic body/statement/expression input view
-
-RAW-EXPRESSION-DISPATCH-CURSOR0-S2
-  structural child-site propagation for the admitted pre-loop prefix
-
-RAW-EXPRESSION-DISPATCH-CURSOR0-S3
-  legacy AST facade parity and single matcher guard
+RAW-EXPRESSION-DISPATCH-CURSOR0-I0
+  one 3-5 commit BoxShape refactor series:
+    split the current near-limit matcher into a module folder
+    generic body/statement/expression input view
+    structural child-site propagation for the admitted pre-loop prefix
+    legacy AST facade parity and single matcher guard
 
 RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0
   exact site-aware MethodCall input and private association factory
@@ -157,7 +232,7 @@ new source-location transport owner:
   1
 
 commit budget after D0:
-  3-5 buildable commits
+  3-5 buildable commits for the complete carry umbrella
 
 new per-row shell guard:
   0
@@ -193,4 +268,41 @@ loop selected-call publisher migration
 general all-AST located lowering completion
 default raw route cutover
 parser, grammar, runtime, backend change
+```
+
+## Required closeout
+
+```text
+Decision:
+  RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-prime-r1
+
+Status:
+  accepted
+
+source owner:
+  same VerifiedSameModuleCallableDeclarationCatalogV1 allocation
+  + exact caller
+  + exact declaration
+
+source navigation:
+  existing SourcePath/site/child-role machinery
+  one extracted/delegated SourceCursorCoreV1
+
+raw owner:
+  thin catalog-backed VerifiedRawCallableSourceViewV1
+
+second source navigation engine:
+  forbidden
+
+raw matcher:
+  one input-view-generic matcher
+  existing legacy AST facade preserved
+
+candidate route:
+  one explicit crate-private request
+  isolated unpublished draft
+  default raw route unchanged
+
+first executable row:
+  RAW-SOURCE-CURSOR0-S0
 ```
