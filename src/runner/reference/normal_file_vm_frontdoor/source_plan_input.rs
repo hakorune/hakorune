@@ -101,6 +101,11 @@ impl ClassifiedNormalFileSourcePlanV1 {
     fn retained_source_identity(&self) -> &str {
         &self.receipt.source_identity
     }
+
+    #[cfg(test)]
+    pub(crate) fn is_canonical_core_profile_for_test(&self) -> bool {
+        self.profile.is_canonical_core()
+    }
 }
 
 impl RejectedNormalFileSourcePlanningV1 {

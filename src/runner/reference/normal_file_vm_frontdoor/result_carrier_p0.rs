@@ -31,6 +31,7 @@ fn run_source(
         .parse_once()
         .expect("one canonical parse")
         .prepare_raw_vm_handoff()
+        .expect("frozen Raw profile must prepare Raw handoff")
         .into_raw_vm_reference_invocation();
     compiler.run_raw_vm_reference_v1(invocation)
 }
@@ -82,13 +83,8 @@ fn annotations_and_callable_returns_remain_raw_capability_rejections() {
 fn owner_bearing_source_is_rejected_before_vm_result_decoding() {
     let dir = tempdir().expect("tempdir");
     let mut compiler = crate::mir::MirCompiler::new();
-    let error = run_source(
-        &mut compiler,
-        dir.path(),
-        "new-map.hako",
-        "new MapBox()",
-    )
-    .expect_err("the first normal profile has no owner-bearing result carrier");
+    let error = run_source(&mut compiler, dir.path(), "new-map.hako", "new MapBox()")
+        .expect_err("the first normal profile has no owner-bearing result carrier");
 
     assert!(
         error.starts_with("[raw-public/eligibility/rejected]"),

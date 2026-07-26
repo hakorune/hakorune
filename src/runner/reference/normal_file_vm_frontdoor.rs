@@ -28,17 +28,26 @@ impl NormalFileVmFrontDoorV1 {
             profile: SealedNormalEntryProfileV1::file_no_import_vm_reference(),
         }
     }
+
+    pub(crate) fn file_canonical_core_request(source_file: PathBuf) -> NormalFileRequestV1 {
+        NormalFileRequestV1 {
+            source_file: source_file.into_boxed_path(),
+            profile: SealedNormalEntryProfileV1::file_canonical_core_vm_reference(),
+        }
+    }
 }
 
 #[derive(Debug)]
 enum NormalEntryProfileV1 {
-    FileNoImportVmReferenceV1,
+    FileNoImportVmReferenceV1 {
+        downstream: RawVmReferenceSupportProfileV1,
+    },
+    FileCanonicalCoreVmReferenceV1,
 }
 
 #[derive(Debug)]
 pub(crate) struct SealedNormalEntryProfileV1 {
     profile: NormalEntryProfileV1,
-    downstream: RawVmReferenceSupportProfileV1,
     _seal: SealedNormalEntryProfileSealV1,
 }
 
@@ -48,20 +57,32 @@ struct SealedNormalEntryProfileSealV1;
 impl SealedNormalEntryProfileV1 {
     fn file_no_import_vm_reference() -> Self {
         Self {
-            profile: NormalEntryProfileV1::FileNoImportVmReferenceV1,
-            downstream: RawVmReferenceSupportProfileV1::canonical_v1(),
+            profile: NormalEntryProfileV1::FileNoImportVmReferenceV1 {
+                downstream: RawVmReferenceSupportProfileV1::canonical_v1(),
+            },
             _seal: SealedNormalEntryProfileSealV1,
         }
     }
 
-    fn into_downstream(self) -> RawVmReferenceSupportProfileV1 {
-        let Self {
-            profile,
-            downstream,
-            _seal: _,
-        } = self;
+    fn file_canonical_core_vm_reference() -> Self {
+        Self {
+            profile: NormalEntryProfileV1::FileCanonicalCoreVmReferenceV1,
+            _seal: SealedNormalEntryProfileSealV1,
+        }
+    }
+
+    fn into_raw_downstream(
+        self,
+    ) -> Result<RawVmReferenceSupportProfileV1, SealedNormalEntryProfileV1> {
+        let Self { profile, _seal: _ } = self;
         match profile {
-            NormalEntryProfileV1::FileNoImportVmReferenceV1 => downstream,
+            NormalEntryProfileV1::FileNoImportVmReferenceV1 { downstream } => Ok(downstream),
+            profile @ NormalEntryProfileV1::FileCanonicalCoreVmReferenceV1 => {
+                Err(SealedNormalEntryProfileV1 {
+                    profile,
+                    _seal: SealedNormalEntryProfileSealV1,
+                })
+            }
         }
     }
 }
@@ -205,10 +226,27 @@ pub(crate) struct PreparedNormalFileVmHandoffV1 {
 #[derive(Debug)]
 struct PreparedNormalFileVmHandoffSealV1;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum NormalFileVmHandoffErrorV1 {
+    ProfileExcludesRawVmReference,
+}
+
+#[derive(Debug)]
+pub(crate) struct RejectedNormalFileVmHandoffV1 {
+    source: PreparedNormalFileSourceV1,
+    error: NormalFileVmHandoffErrorV1,
+}
+
+impl RejectedNormalFileVmHandoffV1 {
+    pub(crate) const fn error(&self) -> NormalFileVmHandoffErrorV1 {
+        self.error
+    }
+
+    pub(crate) fn discard(self) {}
+}
+
 impl NormalFileRequestV1 {
-    pub(crate) fn prepare(
-        self,
-    ) -> Result<PreparedNormalFileRequestV1, RejectedNormalFileSourceV1> {
+    pub(crate) fn prepare(self) -> Result<PreparedNormalFileRequestV1, RejectedNormalFileSourceV1> {
         if self.source_file.as_os_str().is_empty() {
             return Err(RejectedNormalFileSourceV1::Profile {
                 request: self,
@@ -223,9 +261,7 @@ impl NormalFileRequestV1 {
 }
 
 impl PreparedNormalFileRequestV1 {
-    pub(crate) fn read_once(
-        self,
-    ) -> Result<LoadedNormalFileSourceV1, RejectedNormalFileSourceV1> {
+    pub(crate) fn read_once(self) -> Result<LoadedNormalFileSourceV1, RejectedNormalFileSourceV1> {
         let Self {
             source_file,
             profile,
@@ -318,7 +354,9 @@ impl LoadedNormalFileSourceV1 {
 }
 
 impl PreparedNormalFileSourceV1 {
-    pub(crate) fn prepare_raw_vm_handoff(self) -> PreparedNormalFileVmHandoffV1 {
+    pub(crate) fn prepare_raw_vm_handoff(
+        self,
+    ) -> Result<PreparedNormalFileVmHandoffV1, RejectedNormalFileVmHandoffV1> {
         let Self {
             source_file,
             ast,
@@ -326,11 +364,25 @@ impl PreparedNormalFileSourceV1 {
             receipt,
             _seal: _,
         } = self;
-        let source_file = source_file.to_string_lossy().into_owned().into_boxed_str();
-        PreparedNormalFileVmHandoffV1 {
-            invocation: profile.into_downstream().into_invocation(ast, Some(source_file)),
-            source: receipt,
-            _seal: PreparedNormalFileVmHandoffSealV1,
+        match profile.into_raw_downstream() {
+            Ok(downstream) => {
+                let source_identity = source_file.to_string_lossy().into_owned().into_boxed_str();
+                Ok(PreparedNormalFileVmHandoffV1 {
+                    invocation: downstream.into_invocation(ast, Some(source_identity)),
+                    source: receipt,
+                    _seal: PreparedNormalFileVmHandoffSealV1,
+                })
+            }
+            Err(profile) => Err(RejectedNormalFileVmHandoffV1 {
+                source: PreparedNormalFileSourceV1 {
+                    source_file,
+                    ast,
+                    profile,
+                    receipt,
+                    _seal: PreparedNormalFileSourceSealV1,
+                },
+                error: NormalFileVmHandoffErrorV1::ProfileExcludesRawVmReference,
+            }),
         }
     }
 }
@@ -368,12 +420,26 @@ fn find_no_import_violation(node: &ASTNode) -> Option<NormalFileSourceProfileErr
 }
 
 #[cfg(test)]
+impl SealedNormalEntryProfileV1 {
+    fn is_canonical_core(&self) -> bool {
+        matches!(
+            self.profile,
+            NormalEntryProfileV1::FileCanonicalCoreVmReferenceV1
+        )
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use tempfile::tempdir;
 
     fn request(path: PathBuf) -> NormalFileRequestV1 {
         NormalFileVmFrontDoorV1::file_no_import_request(path)
+    }
+
+    fn canonical_core_request(path: PathBuf) -> NormalFileRequestV1 {
+        NormalFileVmFrontDoorV1::file_canonical_core_request(path)
     }
 
     fn write_source(dir: &Path, name: &str, source: &str) -> PathBuf {
@@ -409,13 +475,16 @@ mod tests {
             .parse_once()
             .expect("parse")
             .prepare_raw_vm_handoff()
+            .expect("frozen Raw profile must prepare Raw handoff")
             .into_raw_vm_reference_invocation();
         compiler.run_raw_vm_reference_v1(invocation)
     }
 
     #[test]
     fn empty_path_rejects_before_file_read() {
-        let rejected = request(PathBuf::new()).prepare().expect_err("empty path rejects");
+        let rejected = request(PathBuf::new())
+            .prepare()
+            .expect_err("empty path rejects");
         assert_eq!(rejected.stage(), NormalFileSourceStageV1::Profile);
         assert!(matches!(
             rejected.error(),
@@ -487,7 +556,8 @@ mod tests {
             .expect("read")
             .parse_once()
             .expect("parse")
-            .prepare_raw_vm_handoff();
+            .prepare_raw_vm_handoff()
+            .expect("frozen Raw profile must prepare Raw handoff");
         assert_eq!(handoff.source.read_count, 1);
         assert_eq!(handoff.source.parse_count, 1);
         let invocation = handoff.into_raw_vm_reference_invocation();
@@ -496,6 +566,29 @@ mod tests {
             invocation.compile.profile,
             crate::mir::RawPublishedCompileProfileV1::narrow_v1()
         );
+    }
+
+    #[test]
+    fn canonical_core_profile_rejects_raw_handoff_without_losing_source_owner() {
+        let dir = tempdir().expect("tempdir");
+        let path = write_source(dir.path(), "canonical-core.hako", "42");
+        let rejected = canonical_core_request(path)
+            .prepare()
+            .expect("profile")
+            .read_once()
+            .expect("read")
+            .parse_once()
+            .expect("parse")
+            .prepare_raw_vm_handoff()
+            .expect_err("canonical-core must not construct a Raw invocation");
+        assert_eq!(
+            rejected.error(),
+            NormalFileVmHandoffErrorV1::ProfileExcludesRawVmReference
+        );
+        assert!(rejected.source.profile.is_canonical_core());
+        assert_eq!(rejected.source.receipt.read_count, 1);
+        assert_eq!(rejected.source.receipt.parse_count, 1);
+        rejected.discard();
     }
 
     #[cfg(feature = "vm-reference")]
@@ -523,7 +616,12 @@ mod tests {
             ("void.hako", "void", 0, None),
             ("integer-zero.hako", "0", 0, None),
             ("integer-max.hako", "255", 255, None),
-            ("bool.hako", "true", 70, Some("[process/unsupported-result]")),
+            (
+                "bool.hako",
+                "true",
+                70,
+                Some("[process/unsupported-result]"),
+            ),
             (
                 "float.hako",
                 "1.5",
@@ -569,14 +667,8 @@ mod tests {
                 "main-explicit-unit.hako",
                 "static box Main { main() { return void } }",
             ),
-            (
-                "ordinary-function.hako",
-                "function f() { return 1 }",
-            ),
-            (
-                "non-main-entry.hako",
-                "static box Decoy { main() {} }",
-            ),
+            ("ordinary-function.hako", "function f() { return 1 }"),
+            ("non-main-entry.hako", "static box Decoy { main() {} }"),
         ];
         for (name, source) in cases {
             let error = run_file_source_result(&mut compiler, dir.path(), name, source)

@@ -1,5 +1,5 @@
 ---
-Status: active executable row
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Row: NORMAL-FILE-CANONICAL-CORE0-PROFILE0-S0
@@ -143,3 +143,28 @@ imports/using support
 dynamic/object result carrier
 Legacy retirement
 ```
+
+## Closeout
+
+```text
+cargo check --lib --features vm-reference                  = green
+normal_file_vm_frontdoor focused tests (21)                = green
+normal_file_vm focused tests (26)                          = green
+normal_file_vm0_frontdoor_forge_guard.py                   = green
+current_state_pointer_guard.sh                             = green
+```
+
+Landed boundary:
+
+```text
+frozen Raw profile
+  -> existing Raw handoff only
+
+canonical-core profile
+  -> one-read/one-parse/source-plan boundary
+  -> Raw handoff typed reject with the full source owner retained
+```
+
+The next connection requires a new sole source-plan dispatch owner. It is not
+a parity-only extension, so implementation stops at
+`NORMAL-FILE-CANONICAL-CORE0-DISPATCH-D0`.

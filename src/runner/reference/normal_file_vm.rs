@@ -32,9 +32,10 @@ pub(crate) fn run(request: NormalFileVmReferenceProductionRequestV1) -> Referenc
             Ok(source) => source,
             Err(rejected) => return invocation_from_source_rejection(rejected),
         };
-        let invocation = source
-            .prepare_raw_vm_handoff()
-            .into_raw_vm_reference_invocation();
+        let invocation = match source.prepare_raw_vm_handoff() {
+            Ok(handoff) => handoff.into_raw_vm_reference_invocation(),
+            Err(rejected) => return invocation_from_handoff_rejection(rejected),
+        };
         let mut compiler = crate::mir::MirCompiler::new();
         match compiler.run_raw_vm_reference_for_runner_v1(invocation) {
             Ok(report) => ReferenceRunOutcomeV1::Program(report),
@@ -63,6 +64,20 @@ fn invocation_from_source_rejection(rejected: RejectedNormalFileSourceV1) -> Ref
     rejected.discard();
     ReferenceRunOutcomeV1::Invocation(ReferenceInvocationReportV1::new(format!(
         "[normal-file-vm-reference/source/rejected] {code}"
+    )))
+}
+
+fn invocation_from_handoff_rejection(
+    rejected: super::normal_file_vm_frontdoor::RejectedNormalFileVmHandoffV1,
+) -> ReferenceRunOutcomeV1 {
+    let code = match rejected.error() {
+        super::normal_file_vm_frontdoor::NormalFileVmHandoffErrorV1::ProfileExcludesRawVmReference => {
+            "profile-excludes-raw-vm-reference"
+        }
+    };
+    rejected.discard();
+    ReferenceRunOutcomeV1::Invocation(ReferenceInvocationReportV1::new(format!(
+        "[normal-file-vm-reference/handoff/rejected] {code}"
     )))
 }
 

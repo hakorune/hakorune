@@ -10,6 +10,10 @@ fn request(path: PathBuf) -> super::super::NormalFileRequestV1 {
     super::super::NormalFileVmFrontDoorV1::file_no_import_request(path)
 }
 
+fn canonical_core_request(path: PathBuf) -> super::super::NormalFileRequestV1 {
+    super::super::NormalFileVmFrontDoorV1::file_canonical_core_request(path)
+}
+
 fn write_source(dir: &Path, name: &str, source: &str) -> PathBuf {
     let path = dir.join(name);
     std::fs::write(&path, source).expect("write source-plan fixture");
@@ -44,6 +48,27 @@ fn parsed_empty_and_scalar_sources_become_script_plans_once() {
         assert_eq!(classified.receipt_counts(), (1, 1));
         assert!(classified.retained_source_identity().ends_with(name));
     }
+}
+
+#[test]
+fn canonical_core_profile_reaches_the_same_one_read_one_parse_source_plan_boundary() {
+    let dir = tempdir().expect("tempdir");
+    let classified = canonical_core_request(write_source(dir.path(), "core-script.hako", "42"))
+        .prepare()
+        .expect("profile")
+        .read_once()
+        .expect("one read")
+        .parse_once()
+        .expect("one canonical parse")
+        .prepare_source_plan_request()
+        .classify()
+        .expect("Script source plan");
+    assert!(matches!(
+        classified.plan(),
+        SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(_))
+    ));
+    assert_eq!(classified.receipt_counts(), (1, 1));
+    assert!(classified.is_canonical_core_profile_for_test());
 }
 
 #[test]
