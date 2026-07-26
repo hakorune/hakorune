@@ -31,8 +31,8 @@ pub(crate) struct NormalMainFunctionSourceViewV1<'src> {
     method_key: &'src str,
 }
 
-impl NormalMainFunctionSourceViewV1<'_> {
-    pub(crate) fn function(&self) -> &ASTNode {
+impl<'src> NormalMainFunctionSourceViewV1<'src> {
+    pub(crate) fn function(&self) -> &'src ASTNode {
         self.function
     }
 
@@ -40,7 +40,7 @@ impl NormalMainFunctionSourceViewV1<'_> {
         self.main_statement_index
     }
 
-    pub(crate) fn method_key(&self) -> &str {
+    pub(crate) fn method_key(&self) -> &'src str {
         self.method_key
     }
 }

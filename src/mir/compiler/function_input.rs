@@ -8,6 +8,7 @@ use crate::mir::resolved_semantics::{
 
 use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
 use super::resolved_callable_module::VerifiedResolvedCallableModuleV1;
+use super::source_projection::VerifiedSourceProjectionV1;
 use super::source_view::FunctionSourceViewV1;
 
 #[derive(Debug, Clone, Copy)]
@@ -24,29 +25,11 @@ impl VerifiedResolvedSourceUnitV1 {
     pub(crate) fn root_function_input(
         &self,
     ) -> Result<ResolvedFunctionLoweringInputV1<'_>, CanonicalLoweringErrorV1> {
-        let [owner] = self.forest().roots() else {
-            return Err(CanonicalLoweringErrorV1::SourceUnitResolution {
-                detail: "verified_forest_root_count_is_not_one".to_string(),
-            });
-        };
-        let function = self.forest().owner(*owner).ok_or_else(|| {
-            CanonicalLoweringErrorV1::SourceUnitResolution {
-                detail: "verified_forest_root_product_missing".to_string(),
-            }
-        })?;
-        let source = self.function_source_view(*owner).map_err(|error| {
-            CanonicalLoweringErrorV1::SourceNavigation {
-                detail: error.to_string(),
-            }
-        })?;
-        Ok(ResolvedFunctionLoweringInputV1 {
-            owner: *owner,
-            source,
-            function,
-            forest: self.forest(),
-            callable_index: None,
-            callable_header: None,
-        })
+        ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+            self.syntax_root(),
+            self.forest(),
+            self.projection(),
+        )
     }
 }
 
@@ -96,6 +79,37 @@ impl VerifiedResolvedCallableModuleV1 {
 }
 
 impl<'a> ResolvedFunctionLoweringInputV1<'a> {
+    pub(super) fn from_exact_parts_without_callable(
+        syntax_root: &'a crate::ast::ASTNode,
+        forest: &'a VerifiedSemanticOwnerForestV1,
+        projection: &'a VerifiedSourceProjectionV1,
+    ) -> Result<Self, CanonicalLoweringErrorV1> {
+        let [owner] = forest.roots() else {
+            return Err(CanonicalLoweringErrorV1::SourceUnitResolution {
+                detail: "verified_forest_root_count_is_not_one".to_string(),
+            });
+        };
+        let function =
+            forest
+                .owner(*owner)
+                .ok_or_else(|| CanonicalLoweringErrorV1::SourceUnitResolution {
+                    detail: "verified_forest_root_product_missing".to_string(),
+                })?;
+        let source =
+            FunctionSourceViewV1::from_exact_parts(syntax_root, *owner, forest, projection)
+                .map_err(|error| CanonicalLoweringErrorV1::SourceNavigation {
+                    detail: error.to_string(),
+                })?;
+        Ok(Self {
+            owner: *owner,
+            source,
+            function,
+            forest,
+            callable_index: None,
+            callable_header: None,
+        })
+    }
+
     pub(crate) const fn owner(self) -> FunctionOwnerIdV1 {
         self.owner
     }
