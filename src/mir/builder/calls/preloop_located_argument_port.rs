@@ -19,13 +19,15 @@ use super::method_call_terminal::MethodCallValueTerminalPortV1;
 use super::{CallArgumentDescentPortV1, PreloopLocatedArgumentPortErrorV1};
 
 /// One-shot state is retained in the candidate Port, not in `MirBuilder`.
-/// PORT0 creates only the armed state; I0 will own the consuming transition.
+/// S0-B1 preserves the exact source owner across every terminal transition.
 #[derive(Debug)]
 pub(in crate::mir::builder) enum PreloopSelectedArgumentStateV1<'site, 'view, 'catalog> {
     Armed(PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>),
     InFlight,
-    Consumed,
-    Poisoned,
+    Rejected {
+        source: PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>,
+        cause: PreloopLocatedArgumentPortErrorV1,
+    },
 }
 
 /// Expression input carried by the candidate-only Port.
@@ -44,16 +46,6 @@ pub(in crate::mir::builder) enum PreloopLocatedExpressionInputV1<
     Selected(PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>),
 }
 
-/// Route state is separate from source association state. The later ingress
-/// may only select an exact prepared `MeStandardUnified` route; PORT0 has no
-/// execution consumer.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum PreloopLocatedArgumentRouteStateV1 {
-    Unconnected,
-    MeStandardUnified,
-    AlternateRejected,
-}
-
 /// Stack-scoped candidate wrapper. Its ordinary port remains the sole owner
 /// of ordinary syntax, ordered descent, terminal emission, and header facts.
 /// The selected source relation is only an opaque future ingress capability.
@@ -65,7 +57,6 @@ where
     ordinary: Port,
     selected_index: u32,
     selected: PreloopSelectedArgumentStateV1<'site, 'view, 'catalog>,
-    route: PreloopLocatedArgumentRouteStateV1,
 }
 
 impl<'site, 'view, 'catalog, Port> PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
@@ -80,16 +71,11 @@ where
             selected_index: selected.selected().index(),
             ordinary,
             selected: PreloopSelectedArgumentStateV1::Armed(selected),
-            route: PreloopLocatedArgumentRouteStateV1::Unconnected,
         }
     }
 
     pub(in crate::mir::builder) const fn selected_index(&self) -> u32 {
         self.selected_index
-    }
-
-    pub(in crate::mir::builder) const fn route(&self) -> PreloopLocatedArgumentRouteStateV1 {
-        self.route
     }
 
     pub(in crate::mir::builder) fn selected_state(
@@ -107,10 +93,8 @@ where
             std::mem::replace(&mut self.selected, PreloopSelectedArgumentStateV1::InFlight);
         match selected {
             PreloopSelectedArgumentStateV1::Armed(selected) => Ok(selected),
-            PreloopSelectedArgumentStateV1::InFlight
-            | PreloopSelectedArgumentStateV1::Consumed
-            | PreloopSelectedArgumentStateV1::Poisoned => {
-                self.selected = PreloopSelectedArgumentStateV1::Poisoned;
+            terminal => {
+                self.selected = terminal;
                 Err(
                     PreloopLocatedArgumentPortErrorV1::SelectedArgumentUnavailable {
                         index: self.selected_index,
@@ -158,9 +142,29 @@ where
                 self.ordinary.lower_expression(builder, input)
             }
             PreloopLocatedExpressionInputV1::Selected(selected) => {
-                self.selected = PreloopSelectedArgumentStateV1::Poisoned;
-                selected.discard();
-                Err(PreloopLocatedArgumentPortErrorV1::CandidateIngressPending.bounded_message())
+                let previous =
+                    std::mem::replace(&mut self.selected, PreloopSelectedArgumentStateV1::InFlight);
+                match previous {
+                    PreloopSelectedArgumentStateV1::InFlight => {
+                        let cause = PreloopLocatedArgumentPortErrorV1::CandidateIngressPending;
+                        let report = cause.bounded_message();
+                        self.selected = PreloopSelectedArgumentStateV1::Rejected {
+                            source: selected,
+                            cause,
+                        };
+                        Err(report)
+                    }
+                    terminal => {
+                        self.selected = terminal;
+                        selected.discard();
+                        Err(
+                            PreloopLocatedArgumentPortErrorV1::SelectedArgumentUnavailable {
+                                index: self.selected_index,
+                            }
+                            .bounded_message(),
+                        )
+                    }
+                }
             }
         }
     }

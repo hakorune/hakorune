@@ -30,6 +30,10 @@ or results, and it is never stored in `MirBuilder`.
 for one source-sealed pre-loop argument. It delegates every ordinary trait
 capability to the wrapped `MethodCallLoweringPortV1` and leaves the selected
 structural argument fail-closed until its later isolated candidate ingress.
+Its one typestate retains the exact source association in the current rejected
+terminal; payloadless consumed/poisoned states and a separate route-state
+field are forbidden. The concrete reached/request product is introduced only
+when the later ingress has a real success boundary.
 It never stores state in `MirBuilder`, creates no second ordered argument
 driver, does not convert the selected input to RawLegacy syntax, and owns no
 Call receipt or type publication.

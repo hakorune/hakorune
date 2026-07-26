@@ -75,8 +75,7 @@ pub(in crate::mir::builder) use method_call_terminal::{
 };
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use preloop_located_argument_port::{
-    PreloopLocatedArgumentPortV1, PreloopLocatedArgumentRouteStateV1,
-    PreloopSelectedArgumentStateV1,
+    PreloopLocatedArgumentPortV1, PreloopSelectedArgumentStateV1,
 };
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use preloop_located_argument_rejection::PreloopLocatedArgumentPortErrorV1;

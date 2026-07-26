@@ -154,12 +154,46 @@ Repair the Port typestate only.
 ```text
 Armed(source)
 -> InFlight
--> Reached(source + requested destination)
-or Rejected(source + stage + cause)
+-> Rejected(source + cause)
 ```
 
-Remove payloadless `Consumed` / `Poisoned` and the separate route state. Do
-not connect a fixture caller in B1.
+Remove payloadless `Consumed` / `Poisoned` and the separate route state. B1
+materializes only the currently reachable fail-closed prefix. The concrete
+reached/request owner and requested destination belong to B2, where the
+success boundary first exists. Do not connect a fixture caller in B1.
+
+#### B1 closeout
+
+```text
+Status:
+  closed
+
+reachable typestate:
+  Armed(source)
+  -> InFlight
+  -> Rejected(source + CandidateIngressPending)
+
+duplicate projection:
+  restores the exact InFlight or Rejected state
+  payload loss = 0
+
+removed:
+  payloadless Consumed
+  payloadless Poisoned
+  separate route-state field
+
+deferred to B2:
+  reached/request owner
+  requested destination
+  located ingress
+```
+
+The focused actual-ParserBox fixture proves that unselected `Argument(0)`
+leaves the source owner armed, the first selected `Argument(1)` moves it to
+`InFlight`, duplicate projection preserves that state, and the current
+fail-closed terminal retains the exact selected site and index. No Builder
+instruction, receipt, type fact, loop-refresh route, or production caller is
+added by B1.
 
 ### 2. `PRELOOP-LOCATED-ARGUMENT-INGRESS0-S0-B2`
 
