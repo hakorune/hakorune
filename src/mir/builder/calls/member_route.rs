@@ -45,13 +45,31 @@ impl MirBuilder {
     where
         Port: MethodCallLoweringPortV1,
     {
-        let (route_plan, method, arguments) = {
+        let route_plan = {
             let syntax = port.method_call_syntax(input)?;
-            (
-                self.plan_member_call_route(syntax.receiver(), syntax.method())?,
-                syntax.method().to_string(),
-                syntax.arguments(),
-            )
+            self.plan_member_call_route(syntax.receiver(), syntax.method())?
+        };
+
+        self.execute_prepared_member_call_route_v1(port, input, route_plan)
+    }
+
+    /// Executes exactly one existing member-route plan without re-planning.
+    ///
+    /// The split lets candidate-only callers inspect an already-selected
+    /// route, while the ordinary facade preserves the existing plan-once then
+    /// execute-once behavior.
+    pub(in crate::mir::builder) fn execute_prepared_member_call_route_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        input: &Port::MethodCallInput,
+        route_plan: MemberCallRoutePlan,
+    ) -> Result<ValueId, String>
+    where
+        Port: MethodCallLoweringPortV1,
+    {
+        let (method, arguments) = {
+            let syntax = port.method_call_syntax(input)?;
+            (syntax.method().to_string(), syntax.arguments())
         };
 
         match route_plan {

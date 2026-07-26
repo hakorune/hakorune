@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and NESTED-INSTANCE-RESULT-CONTRACT0-S0 are closed. NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1 accepts A-double-prime: only pre-loop MeStandardUnified stays on the near path; loop-refresh remains parked with its existing publisher. RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-prime-r1 fixes the source owner to the same declaration-catalog allocation as the nested contract, reuses the existing SourcePath/site/child-role navigation authority, and forbids a second cursor engine. RAW-SOURCE-CURSOR0-S0, RAW-EXPRESSION-DISPATCH-CURSOR0-I0, and RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0 are closed. I0-A seals the selected pre-loop source association and rejects the parked loop site before lowering. PRELOOP-LOCATED-ARGUMENT-DESCENT0-prime-r1 accepts A-prime-Port. RELATION0-S0, TERMINAL-NEUTRAL0-S0, ONE-SHOT-SEAM0-S0, STANDARD-METHOD-EXECUTION-PREP0-S0, ME-CALL-EXECUTION-PREP0-S0, and PORT0-S0 are closed: source identity is self-reference-free, value terminals are source-neutral, the sole ordered argument driver owns mutable one-shot projection, Standard/Me preparation is effect-free before shared execution, and one candidate-only Port carries the selected relation through a non-Raw expression wrapper. I0 audit found that the accepted card's assumed isolated module transaction cannot preserve the required current function/me/static-box context, while the raw dispatcher fixes legacy AST inputs. PRELOOP-LOCATED-ARGUMENT-INGRESS0-D0 is the active design stop; no ingress, receipt, type publication, loop-refresh, or production caller is authorized. OWN-GRAM-REJECT0-HAKO0 remains parked until the post-type Stage-B guard selects it."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and NESTED-INSTANCE-RESULT-CONTRACT0-S0 are closed. NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1 accepts A-double-prime: only pre-loop MeStandardUnified stays on the near path; loop-refresh remains parked with its existing publisher. RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-prime-r1 fixes the source owner to the same declaration-catalog allocation as the nested contract, reuses the existing SourcePath/site/child-role navigation authority, and forbids a second cursor engine. RAW-SOURCE-CURSOR0-S0, RAW-EXPRESSION-DISPATCH-CURSOR0-I0, and RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0 are closed. I0-A seals the selected pre-loop source association and rejects the parked loop site before lowering. PRELOOP-LOCATED-ARGUMENT-DESCENT0-prime-r1 accepts A-prime-Port. RELATION0-S0, TERMINAL-NEUTRAL0-S0, ONE-SHOT-SEAM0-S0, STANDARD-METHOD-EXECUTION-PREP0-S0, ME-CALL-EXECUTION-PREP0-S0, and PORT0-S0 are closed: source identity is self-reference-free, value terminals are source-neutral, the sole ordered argument driver owns mutable one-shot projection, Standard/Me preparation is effect-free before shared execution, and one candidate-only Port carries the selected relation through a non-Raw expression wrapper. PRELOOP-LOCATED-ARGUMENT-INGRESS0-prime-r1 accepts candidate-only located ingress: no Builder clone/snapshot, ingress transaction, second planner, or RawLegacy conversion. One bounded fixture owns the configured Builder; selected success/failure retain source association. S0-A route prepare/execute seam is next. OWN-GRAM-REJECT0-HAKO0 remains parked until the post-type Stage-B guard selects it."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "PRELOOP-LOCATED-ARGUMENT-INGRESS0-D0"
-current_execution_row = "PRELOOP-LOCATED-ARGUMENT-INGRESS0-D0"
-current_execution_summary = "Decide the only safe I0 ingress after audit: preserve RawLocated identity without entering the legacy-typed raw dispatcher, use existing route preparation without a second planner, and state the bounded proof fixture's effect law. No code is authorized while this design stop is active."
+current_design_stop = "none"
+current_execution_row = "PRELOOP-LOCATED-ARGUMENT-INGRESS0-S0-A"
+current_execution_summary = "Split existing member-route preparation from execution and expose the existing effect-free Me preparation through a source-neutral observer seam. Preserve ordinary route behavior exactly; no candidate ingress, receipt, type publication, loop-refresh, or production caller yet."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -433,9 +433,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "preloop-located-argument-ingress0-d0-design-question-2026-07-27"
+latest_card = "preloop-located-argument-ingress0-prime-r1"
 latest_card_path = "docs/development/current/main/investigations/preloop-located-argument-ingress0-d0-design-question-2026-07-27.md"
-latest_card_summary = """PRELOOP-LOCATED-ARGUMENT-INGRESS0-D0 is active. PORT0 is closed, but audit disproved its assumed reusable isolated module transaction: blank candidate sessions lose the current function/me/static-box context, and the raw dispatcher fixes RawLegacy AST inputs. Select a candidate-only located ingress and bounded proof-fixture effect law before any I0 code, receipt, type publication, loop-refresh activation, or production caller."""
+latest_card_summary = """PRELOOP-LOCATED-ARGUMENT-INGRESS0-prime-r1 accepts A-prime. A candidate-only located ingress uses only existing prepared member/Me/Standard route owners, carries no Builder transaction, and never converts selected RawLocated input to RawLegacy. A bounded proof fixture owns its configured Builder. S0-A now splits existing route preparation from execution; candidate ingress, receipt, type publication, loop-refresh activation, and production caller remain zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-LOCATED-ARGUMENT-INGRESS0-D0"
+current_blocker_token = "PRELOOP-LOCATED-ARGUMENT-INGRESS0-S0-A"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

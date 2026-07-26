@@ -135,7 +135,7 @@ where
         Self { port, input }
     }
 
-    pub(super) fn terminal_port(&mut self) -> &mut Port {
+    pub(in crate::mir::builder) fn terminal_port(&mut self) -> &mut Port {
         self.port
     }
 }

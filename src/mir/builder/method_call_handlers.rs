@@ -12,7 +12,8 @@ use crate::mir::builder::calls::{
     MethodCallValueTerminalPortV1,
 };
 use crate::mir::builder::me_call_header_observation::{
-    prepare_me_lowered_call_v1, MethodCallLoweringPortV1, PreparedMeReceiverV1,
+    prepare_me_lowered_call_v1, MeCallHeaderObservationPortV1, MethodCallLoweringPortV1,
+    PreparedMeReceiverV1,
 };
 use crate::mir::builder::{MirBuilder, ValueId};
 use crate::mir::TypeOpKind;
@@ -96,6 +97,52 @@ fn current_enclosing_box_name(builder: &MirBuilder) -> Option<String> {
     builder.comp_ctx.current_static_box.clone()
 }
 
+/// Effect-free `me.method(...)` route preparation shared by ordinary and
+/// candidate-only callers. It owns no argument descent or MIR emission.
+pub(in crate::mir::builder) fn prepare_me_call_execution_v1<Observer>(
+    builder: &MirBuilder,
+    method: &str,
+    arguments: &[ASTNode],
+    observer: &mut Observer,
+) -> Result<PreparedMeCallExecutionV1, String>
+where
+    Observer: MeCallHeaderObservationPortV1,
+{
+    let Some(owner) = current_enclosing_box_name(builder) else {
+        return Ok(PreparedMeCallExecutionV1::NotApplicable);
+    };
+    let me = current_bound_me_value(builder);
+
+    if let Some(receiver) = me {
+        if let Some(prepared) = builder.prepare_record_helper_inline(
+            SameModuleCallableNamespaceV1::InstanceBoxMethod,
+            &owner,
+            method,
+            arguments,
+        )? {
+            return Ok(PreparedMeCallExecutionV1::InlineRecord { receiver, prepared });
+        }
+        if let Some(prepared) =
+            builder.prepare_same_module_helper_setter_inline(&owner, method, arguments)?
+        {
+            return Ok(PreparedMeCallExecutionV1::InlineSetter { receiver, prepared });
+        }
+    }
+
+    let symbol = function_lowering::generate_method_function_name(&owner, method, arguments.len());
+    let observation = observer.observe_me_call_parameters(builder, &symbol);
+    if let Some(prepared) = prepare_me_lowered_call_v1(observation, me) {
+        return Ok(PreparedMeCallExecutionV1::LoweredGlobal { owner, prepared });
+    }
+
+    if let Some(receiver) = me {
+        let prepared = builder.prepare_standard_method_execution_v1(receiver, method, arguments)?;
+        return Ok(PreparedMeCallExecutionV1::Standard { receiver, prepared });
+    }
+
+    Ok(PreparedMeCallExecutionV1::StaticFallback { owner })
+}
+
 impl MeCallPolicyBox {
     fn resolve_me_call<Port>(
         builder: &mut MirBuilder,
@@ -119,41 +166,7 @@ impl MeCallPolicyBox {
     where
         Port: MethodCallLoweringPortV1,
     {
-        let Some(owner) = current_enclosing_box_name(builder) else {
-            return Ok(PreparedMeCallExecutionV1::NotApplicable);
-        };
-        let me = current_bound_me_value(builder);
-
-        if let Some(receiver) = me {
-            if let Some(prepared) = builder.prepare_record_helper_inline(
-                SameModuleCallableNamespaceV1::InstanceBoxMethod,
-                &owner,
-                method,
-                arguments,
-            )? {
-                return Ok(PreparedMeCallExecutionV1::InlineRecord { receiver, prepared });
-            }
-            if let Some(prepared) =
-                builder.prepare_same_module_helper_setter_inline(&owner, method, arguments)?
-            {
-                return Ok(PreparedMeCallExecutionV1::InlineSetter { receiver, prepared });
-            }
-        }
-
-        let symbol =
-            function_lowering::generate_method_function_name(&owner, method, arguments.len());
-        let observation = descent.observe_me_call_parameters(builder, &symbol);
-        if let Some(prepared) = prepare_me_lowered_call_v1(observation, me) {
-            return Ok(PreparedMeCallExecutionV1::LoweredGlobal { owner, prepared });
-        }
-
-        if let Some(receiver) = me {
-            let prepared =
-                builder.prepare_standard_method_execution_v1(receiver, method, arguments)?;
-            return Ok(PreparedMeCallExecutionV1::Standard { receiver, prepared });
-        }
-
-        Ok(PreparedMeCallExecutionV1::StaticFallback { owner })
+        prepare_me_call_execution_v1(builder, method, arguments, descent.terminal_port())
     }
 
     fn execute<Port>(
@@ -363,10 +376,8 @@ mod tests {
             .insert("me".to_string(), me);
         let before = instruction_count(&builder);
         let mut port = RawLegacyChildLoweringPortV1;
-        let mut descent = AssociatedMethodCallArgumentsV1::new(&mut port, &input);
-
         let prepared =
-            MeCallPolicyBox::prepare(&builder, "routeMethod", &arguments, &mut descent).unwrap();
+            prepare_me_call_execution_v1(&builder, "routeMethod", &arguments, &mut port).unwrap();
         assert!(prepared.is_standard_unified());
         assert_eq!(
             instruction_count(&builder),
@@ -374,6 +385,7 @@ mod tests {
             "prepare must not emit MIR"
         );
 
+        let mut descent = AssociatedMethodCallArgumentsV1::new(&mut port, &input);
         let result = MeCallPolicyBox::execute(
             &mut builder,
             "routeMethod",

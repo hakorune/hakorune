@@ -1,7 +1,7 @@
 ---
-Status: consultation required
+Status: accepted design
 Date: 2026-07-27
-Decision: PRELOOP-LOCATED-ARGUMENT-INGRESS0-D0
+Decision: PRELOOP-LOCATED-ARGUMENT-INGRESS0-prime-r1
 Scope: the exact pre-loop proof-only ingress after PORT0
 Related:
   - preloop-located-argument-descent0-d0-design-question-2026-07-27.md
@@ -9,7 +9,27 @@ Related:
   - src/mir/source_instance_result_contract/preloop_located_argument.rs
 ---
 
-# Pre-loop Located Argument Ingress D0
+# Pre-loop Located Argument Ingress
+
+## Accepted decision
+
+```text
+Choice:
+  A-prime — candidate-only located ingress
+
+Builder transaction:
+  no clone / snapshot
+  no ingress-owned transaction
+  one bounded proof fixture owns and discards its configured Builder
+
+Route authority:
+  existing member planner
+  existing Me and Standard prepared-route owners
+```
+
+The source-sealed selected argument reaches one unified Method request only.
+The request is not evidence of a successfully emitted physical Call, a final
+destination, a nested-result receipt, or type publication.
 
 ## Why execution stopped
 
@@ -58,11 +78,9 @@ receipt / type publication:
   later rows only
 ```
 
-## Required decision
+## Considered choices
 
-Choose the I0 ingress and effect boundary.
-
-### A — candidate-only located ingress (recommended)
+### A — candidate-only located ingress (accepted)
 
 Add a small `calls/preloop_located_argument_ingress.rs`.
 
@@ -124,22 +142,24 @@ fallback / retry / route reselection = 0
 production caller = 0
 ```
 
-## Required closeout for an accepted A
+## Executable series
 
 ```text
 Decision:
-  PRELOOP-LOCATED-ARGUMENT-INGRESS0-D0
+  PRELOOP-LOCATED-ARGUMENT-INGRESS0-prime-r1
 
 Choice:
-  A
+  A-prime
 
 First executable row:
-  PRELOOP-LOCATED-ARGUMENT-INGRESS0-S0
+  PRELOOP-LOCATED-ARGUMENT-INGRESS0-S0-A
 
 Implementation:
-  one candidate-only located ingress
-  + one narrow existing-route prepare seam
-  + one bounded proof fixture
+  route prepare / execute seam
+  -> candidate-only ingress and payload-retaining typestate
+  -> bounded configured proof fixture
+  -> G0
+  -> UNIFIED-CALL-PHYSICAL-RECEIPT0-S0
 
 Proof:
   selected Argument(1) reaches a unified Method request
@@ -149,4 +169,26 @@ Proof:
   candidate rejection is isolated to its proof fixture
 ```
 
-No implementation is authorized by this consultation document.
+The selected state must retain the exact source association after either
+success or failure. A payloadless `Consumed` or `Poisoned` state is forbidden.
+
+Implementation is authorized only for the executable series above.
+
+## S0-A closeout
+
+Closed. `plan_member_call_route()` remains the sole member-route planner.
+`build_member_method_call_v1()` now plans once and delegates the preselected
+route to `execute_prepared_member_call_route_v1()` without a second probe.
+
+`prepare_me_call_execution_v1()` is the source-neutral, effect-free Me
+preparation seam. The ordinary Me policy delegates to it and retains its
+existing execution owner. The focused test proves preparation emits no MIR
+before the ordinary executor runs.
+
+```text
+ordinary route behavior = unchanged
+candidate ingress = 0
+physical receipt = 0
+type publication = 0
+production caller = 0
+```
