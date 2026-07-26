@@ -263,3 +263,5 @@ fn verify_helper_draft(
 #[cfg(test)]
 #[path = "callable_draft_prefix_tests.rs"]
 mod tests;
+#[cfg(test)]
+pub(super) use tests::completed_for_main_physical;

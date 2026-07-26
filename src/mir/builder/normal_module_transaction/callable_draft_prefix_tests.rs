@@ -86,7 +86,7 @@ fn main_box() -> ASTNode {
     }
 }
 
-fn completed(names: &[&str]) -> CompletedNormalMainHelperResolutionV1 {
+pub(crate) fn completed_for_main_physical(names: &[&str]) -> CompletedNormalMainHelperResolutionV1 {
     let mut statements = vec![main_box()];
     statements.extend(names.iter().map(|name| helper(name)));
     let plan = NormalSourcePlanClassifierV1::seal(PreparedNormalSourcePlanInputV1::new(
@@ -118,7 +118,9 @@ fn completed(names: &[&str]) -> CompletedNormalMainHelperResolutionV1 {
 fn prefix_lowers_helpers_once_in_canonical_key_order() {
     let mut builder = MirBuilder::new();
     let prepared = builder
-        .prepare_normal_helper_draft_prefix_v1(completed(&["beta", "alpha"]).into_tx0_handoff())
+        .prepare_normal_helper_draft_prefix_v1(
+            completed_for_main_physical(&["beta", "alpha"]).into_tx0_handoff(),
+        )
         .unwrap();
     let prefix = prepared.prefix();
     let keys: Vec<_> = prefix
@@ -146,7 +148,7 @@ fn prefix_lowers_helpers_once_in_canonical_key_order() {
 #[test]
 fn injected_middle_failure_retains_exact_prefix_and_allows_later_success() {
     let mut builder = MirBuilder::new();
-    let transaction = completed(&["beta", "alpha", "gamma"]).into_tx0_handoff();
+    let transaction = completed_for_main_physical(&["beta", "alpha", "gamma"]).into_tx0_handoff();
     let (transaction, outcome) = transaction
         .with_helper_plans(|source, schedule| {
             let mut ordinal = 0;
@@ -184,7 +186,9 @@ fn injected_middle_failure_retains_exact_prefix_and_allows_later_success() {
     assert!(builder.function_state.current_block.is_none());
 
     let later = builder
-        .prepare_normal_helper_draft_prefix_v1(completed(&["later"]).into_tx0_handoff())
+        .prepare_normal_helper_draft_prefix_v1(
+            completed_for_main_physical(&["later"]).into_tx0_handoff(),
+        )
         .unwrap();
     assert_eq!(later.prefix().drafts()[0].key().name(), "later");
 }
@@ -192,7 +196,7 @@ fn injected_middle_failure_retains_exact_prefix_and_allows_later_success() {
 #[test]
 fn catalog_correspondence_rejects_before_a_draft_enters_the_prefix() {
     let mut builder = MirBuilder::new();
-    let transaction = completed(&["alpha"]).into_tx0_handoff();
+    let transaction = completed_for_main_physical(&["alpha"]).into_tx0_handoff();
     let (_transaction, outcome) = transaction
         .with_helper_plans(|source, schedule| {
             lower_helper_schedule_with_v1(source, schedule, |plan| {

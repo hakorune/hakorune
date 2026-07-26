@@ -75,7 +75,8 @@ pub(crate) use normal_callable_transaction_handoff::{
     ConsumableNormalMainLoweringProofV1, NormalCallableHandoffStageV1,
     NormalHelperDraftAbiExpectationErrorV1, OpenNormalCallableModuleTransactionV1,
     OwnedNormalHelperLoweringScheduleV1, PreparedNormalHelperTopologyReceiptV1,
-    RejectedNormalCallableHandoffV1, RetainedNormalCallableSourceAuthorityV1,
+    RejectedNormalCallableHandoffV1, RejectedNormalMainProofBindingV1,
+    RetainedNormalCallableSourceAuthorityV1,
 };
 #[allow(unused_imports)]
 pub(crate) use product::{

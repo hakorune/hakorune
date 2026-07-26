@@ -6,6 +6,7 @@
 //! VM result decoding, process projection, and runner policy remain outside.
 
 mod callable_draft_prefix;
+mod callable_main_physical;
 mod canonical_batch;
 mod entry_target;
 mod main_transaction;
@@ -20,6 +21,10 @@ pub(in crate::mir) use callable_draft_prefix::{
     NormalHelperDraftPrefixFailureV1, PreparedNormalHelperDraftPrefixV1,
     RejectedNormalHelperDraftPrefixV1, RetainedNormalHelperDraftPrefixV1,
     VerifiedNormalHelperDraftV1,
+};
+pub(in crate::mir) use callable_main_physical::{
+    NormalCallableMainPhysicalStageV1, PreparedNormalCallableMainPhysicalV1,
+    RejectedNormalCallableMainPhysicalV1,
 };
 pub(in crate::mir::builder) use canonical_batch::{
     NormalCanonicalModuleBatchErrorV1, NormalCanonicalModuleBatchV1,
@@ -43,6 +48,8 @@ pub(in crate::mir::builder) use schema::{
     NormalModuleTransactionDraftV1, NormalModuleTransactionSchemaV1,
 };
 
+#[cfg(test)]
+mod callable_main_physical_tests;
 #[cfg(test)]
 mod canonical_batch_tests;
 #[cfg(test)]
