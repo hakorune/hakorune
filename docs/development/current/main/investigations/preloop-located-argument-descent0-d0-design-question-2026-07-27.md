@@ -707,6 +707,27 @@ all modified/new source/check files                  < 800 lines
 
 ## Proof inventory and sunset
 
+## PORT0-S0 closeout
+
+`PreloopLocatedArgumentPortV1` is now the only candidate-only wrapper over
+the existing `MethodCallLoweringPortV1` bundle. It keeps the selected
+`PreparedPreloopLocatedArgumentV1` as a one-shot stack owner and delegates
+ordinary syntax, ordered descent, header observation, and value terminals to
+the wrapped ordinary Port.
+
+The selected expression uses a dedicated wrapper input. This deliberately
+prevents the Raw-AST blanket facade from claiming the candidate Port while
+leaving the ordinary facade unchanged. The selected wrapper currently reaches
+only the typed `candidate-ingress-pending` rejection: I0 alone may install the
+isolated located ingress. There is no production caller, physical Call
+receipt, nested receipt, type publication, loop-refresh change, or fallback.
+
+Next executable row:
+
+```text
+PRELOOP-LOCATED-ARGUMENT-DESCENT0-I0
+```
+
 ```text
 ceremony_tier:
   T2 new source-to-lowering boundary

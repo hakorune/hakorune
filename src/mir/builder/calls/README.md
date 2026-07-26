@@ -25,6 +25,14 @@ fallback policy. The port is never stored in `MirBuilder`.
 It exposes one borrowed syntax view plus reusable E0 receiver and ARG0 argument
 descent primitives. It does not select routes or emit calls, effects, types,
 or results, and it is never stored in `MirBuilder`.
+
+`preloop_located_argument_port.rs` is the disconnected candidate-only wrapper
+for one source-sealed pre-loop argument. It delegates every ordinary trait
+capability to the wrapped `MethodCallLoweringPortV1` and leaves the selected
+structural argument fail-closed until its later isolated candidate ingress.
+It never stores state in `MirBuilder`, creates no second ordered argument
+driver, does not convert the selected input to RawLegacy syntax, and owns no
+Call receipt or type publication.
 S0 production consumers = 0. Exact route demand remains owned by the later
 R0/M0 rows; inactive raw terminals will require the existing ledger's
 inactive-prefix proof before located lowering may delegate to them.
