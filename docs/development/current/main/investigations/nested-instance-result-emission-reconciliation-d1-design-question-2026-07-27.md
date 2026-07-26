@@ -1,10 +1,25 @@
 # Nested Instance Result Emission: route reconciliation D1
 
 ```text
-Decision: NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1
-Status: design stop
+Decision: NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1
+Closes: NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1
+Status: accepted design
 Opened: 2026-07-27
 Predecessor: NESTED-INSTANCE-RESULT-EMISSION-CORRESPONDENCE0-P0
+```
+
+```text
+Selected:
+  A-double-prime
+
+Near-term family:
+  pre-loop standard unified Method route only
+
+Loop-refresh:
+  parked as a disconnected proof family
+
+First next design row:
+  RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-D0
 ```
 
 ## Why this stop exists
@@ -129,4 +144,270 @@ raw MethodCall source-site carry implementation
 Builder-wide source map
 persistent source-site -> ValueId map
 fallback, retry, source-policy lookup in unified emitter
+```
+
+## Accepted closeout
+
+The four independent audits converge on A-double-prime.  The old two-site
+series is not resumed.  The work is split into three owner series:
+
+```text
+raw source-site carry
+  -> source-location transport only
+
+unified physical Call receipt
+  -> physical success/final destination only
+
+pre-loop nested result receipt
+  -> exact source contract + exact carried site + successful physical receipt
+```
+
+The first two are BoxShape work.  The third is one BoxCount semantic slice.
+They must not be combined in one refactor series.
+
+### Route correction
+
+```text
+accepted pre-loop route =
+  MeStandardUnified
+
+rejected prediction =
+  MeLoweredGlobal
+
+current pre-loop source-site authority =
+  none in the production raw descent
+```
+
+The raw route may not derive a site from a call ordinal, source spelling,
+callee name, AST rescan, or emitted MIR.  The location must enter before raw
+syntax is destructured and advance with the same structural child descent.
+
+### Loop-refresh disposition
+
+```text
+located GenericLoop composer =
+  durable disconnected proof
+
+production caller =
+  0
+
+current selected-loop Integer publisher =
+  emit_selected_exact_i64
+  retained unchanged
+```
+
+The loop publisher is not a consumer of the pre-loop receipt and is not
+retired in this series.  A behavior-neutral split of that disconnected
+publisher would have no production payoff, so it remains parked with the
+route.  Its future sequence is:
+
+```text
+GENERIC-LOOP-NESTED-RESULT-ACTIVATION0-D0
+  -> choose one exact production ingress
+
+GENERIC-LOOP-LOCATED-CLAIM-ROUTE0-S0
+  -> one production claim/session caller
+
+GENERIC-LOOP-FINAL-DST-CORRESPONDENCE0-P0
+  -> requested dst / finalized dst / emitted Call.dst
+
+GENERIC-LOOP-RESULT-PUBLISHER-D0
+  -> retain or replace the direct Integer publisher
+
+GENERIC-LOOP-RESULT-PUBLISHER0-I0
+  -> only after the publisher decision
+```
+
+No loop task is on the pre-loop critical path.
+
+## Executable umbrella order
+
+### Umbrella A — raw source-site carry
+
+```text
+RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-D0
+```
+
+This remains a design row because the current raw matcher consumes owned
+`ASTNode` values and does not expose a truthful site-carrying input.  The row
+must choose:
+
+```text
+one source-owned body/caller/root-site authority
+one structural child-site cursor
+one explicit candidate ingress
+one isolated failure/discard boundary
+```
+
+After that D0 closes:
+
+```text
+RAW-SOURCE-CURSOR0-S0
+  -> Builder-free body/statement/expression cursor products
+
+RAW-EXPRESSION-DISPATCH-CURSOR0-S0..S3
+  -> behavior-neutral refactor of the sole raw matcher
+  -> legacy AST facade remains unchanged
+
+RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0
+  -> exact site-aware MethodCall input
+
+RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-I0
+  -> one explicit candidate raw route
+
+RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-P0
+  -> real-route location/behavior/failure parity
+
+RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-G0
+  -> source reconstruction/map/fallback zero
+```
+
+Commit budget after D0: 3-5 buildable commits.  This umbrella changes no
+accepted source shape, Call instruction, result type, or process behavior.
+
+### Umbrella B — neutral physical Call receipt
+
+```text
+UNIFIED-CALL-PHYSICAL-RECEIPT0-S0
+  -> one private common physical Call terminal
+  -> CompletedUnifiedCallEmissionV1(final destination)
+
+UNIFIED-CALL-PHYSICAL-RECEIPT0-P0
+  -> success/failure timing and ordinary API parity
+
+UNIFIED-CALL-PHYSICAL-RECEIPT0-G0
+  -> one Call writer; source policy zero
+```
+
+The receipt is source-neutral and non-Clone.  It is issued only after the
+existing `MirInstruction::Call` succeeds.  Existing
+`PreparedUnifiedCallPostSuccessV1` behavior remains in the same order.
+Ordinary callers consume and discard the receipt; the later bounded adapter
+may retain it.
+
+Commit budget: 2-3 buildable commits.  `unified_emitter.rs` is already near
+the source-file limit, so preparation/receipt/tests belong in small sibling
+files.
+
+### Umbrella C — pre-loop nested receipt
+
+Preconditions:
+
+```text
+RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-G0 = green
+UNIFIED-CALL-PHYSICAL-RECEIPT0-G0          = green
+```
+
+Then:
+
+```text
+CALLABLE-RESULT-NESTED-PRELOOP-REP0-S0
+  -> exact contract/site/caller association
+  -> physical Call consumer zero
+
+CALLABLE-RESULT-NESTED-PRELOOP-REP0-I0
+  -> one actual MeStandardUnified adapter
+  -> successful Call creates one EmittedNestedInstanceCallV1
+
+CALLABLE-RESULT-NESTED-PRELOOP-REP0-P0
+  -> selected success, foreign/unselected reject, failed Call, fresh reuse
+
+CALLABLE-RESULT-NESTED-PRELOOP-REP0-G0
+  -> exactly one adapter and receipt producer
+```
+
+This receipt stores the final destination only.  The bridge itself has zero
+`MirType` and `type_ctx` writes.  Existing unrelated annotation policy is not
+redefined as globally absent.
+
+The next semantic stop is separate:
+
+```text
+CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-D0
+```
+
+Only that later decision may select a receipt consumer that publishes Integer.
+
+## Failure law
+
+```text
+source cursor seal failure:
+  Builder effects = 0
+
+cursor/descent failure:
+  exact source owner retained
+  reclassification/retry/fallback = 0
+
+Call preparation/emission failure:
+  completed physical receipt = 0
+  nested receipt = 0
+  new type write = 0
+
+successful Call:
+  completed physical receipt = 1
+  nested receipt = 1 only for the selected pre-loop association
+  new type write = 0 until the later type I0 decision
+```
+
+Rejected owners expose inspection, bounded report, and `discard(self)` only.
+They do not expose `into_owner`, resume, retry, or an alternate route.
+
+## Structural gate
+
+```text
+pre-loop accepted physical route                     = MeStandardUnified
+MeLoweredGlobal forced activation                    = 0
+
+raw exact structural source-site carry owner         = 1 after carry G0
+raw AST/source re-walk                               = 0
+source-site/call-ordinal reconstruction              = 0
+Builder source-site registry                         = 0
+persistent source-site -> ValueId map                = 0
+
+physical Call writer                                 = existing 1
+neutral completed-Call receipt producer              = 1 after receipt G0
+generic emitter source lookup/classification         = 0
+
+pre-loop nested association adapter                  = exact 1 after REP0 I0
+loop-refresh nested association adapter              = 0
+new bridge MirType/type_ctx write                     = 0
+
+located GenericLoop production caller                = 0
+existing emit_selected_exact_i64 publisher delta     = 0
+LocatedLegacyLoweringSession production activation   = 0
+
+fallback / retry / profile reselection               = 0
+all modified/new source/check files                  < 800 lines
+```
+
+## Required closeout
+
+```text
+Decision:
+  NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1-prime-r1
+
+Status:
+  accepted
+
+Choice:
+  A-double-prime
+
+Near-term:
+  pre-loop MeStandardUnified only
+
+Owner sequence:
+  raw source-site carry
+  -> neutral physical Call receipt
+  -> pre-loop nested result receipt
+
+Loop-refresh:
+  parked behind GENERIC-LOOP-NESTED-RESULT-ACTIVATION0-D0
+  existing Integer publisher unchanged
+
+Type publication:
+  zero in all three near-term umbrellas
+  separate CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-D0
+
+First next design row:
+  RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-D0
 ```
