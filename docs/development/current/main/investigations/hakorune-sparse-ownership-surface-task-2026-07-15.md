@@ -5,6 +5,7 @@ Decision: Explicit-move/share, owner-anchored sparse ownership surface
 Source semantics SSOT: ../../../../reference/language/ownership.md
 Current lane: unchanged; follow CURRENT_STATE.toml
 First executable ownership row when selected: OWN-GRAM-REJECT0 exact inactive-syntax fail-fast
+Integration resume checkpoint: MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
 Related:
   - hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md
   - hakorune-ownership-v2-anchored-view-return-abi-task-2026-07-15.md
@@ -149,6 +150,133 @@ parked independent rows:
 
 No row after a branch point may start merely because its type names exist.
 Every activation row consumes the sealed products from its prerequisites.
+
+### 2.1 MirBuilder integration order
+
+```text
+Decision:
+  MIRBUILDER-OWNERSHIP-RESUME-ORDER-prime-r1
+
+Status:
+  accepted scheduling
+
+current TX0 / canonical-core series:
+  remains first
+
+ownership activation:
+  begins after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
+
+default product promotion:
+  remains separate
+  NORMAL-ENTRY-PROMOTION-D3 does not silently activate ownership
+```
+
+The global order is:
+
+```text
+NORMAL-CALLABLE-MODULE0-TX0-*
+-> NORMAL-FILE-CANONICAL-CORE0-*
+-> MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
+
+-> OWNERSHIP-SPARSE-RESUME-D0
+-> OWN-GRAM-REJECT0
+-> ownership evidence / passive grammar / Loan Flow
+-> first Box ScopedAlias
+-> structured Alias + callable ABI
+-> Anchored View
+-> OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
+
+-> NORMAL-ENTRY-PRODUCT-BACKEND-D0
+-> NORMAL-DEFAULT-CALLER-CENSUS0-P0
+-> NORMAL-ENTRY-PROMOTION-D3
+```
+
+`OWNERSHIP-SPARSE-RESUME-D0` is a bounded readiness check, not a new source
+semantics consultation. It verifies:
+
+```text
+canonical callable core complete
+exact function/Main/Script result contracts available
+Binding SSA and Ownership SSA prerequisite receipts available
+current parser status still matches OWN-GRAM-REJECT0 assumptions
+SharedV1 compatibility behavior still named and fenced
+production ownership caller = 0
+fallback = 0
+```
+
+If a prerequisite has drifted, resume stops with a typed inventory blocker.
+It does not patch the ownership task inside the normal-entry route.
+
+### 2.2 Execution packs
+
+The detailed rows below remain authoritative. For scheduling and commits, group
+them into five bounded packs:
+
+```text
+Pack A — syntax safety and evidence
+  OWN-GRAM-REJECT0
+  O2-P0a
+  O2-P0r
+  O2-P0b1
+  O2-P0c
+
+Pack B — passive ownership contract
+  GRAM-MOVE0
+  GRAM-SHARE0
+  GRAM-PARAM0
+  GRAM-RESULT0
+  REF-GRAM0
+  O2-A0
+  O2-L0
+  O2-M0
+  O2-DIAG0
+
+Pack C — first real ScopedAlias
+  UBOX-P0
+  UBOX-M0
+  UBOX-I0
+  ALIAS-I0
+  ALIAS-CFG0
+
+Pack D — callable ownership ABI
+  ABI0
+  UCALL-B0
+
+Pack E — first Anchored View
+  VIEW0 branch selection
+  PROJ-S0
+  PROJ-ABI0
+  PROJ-R0
+  PROJ-CALL0
+  PROJ-DIAG0
+  PROJ-I0
+```
+
+Pack boundaries are buildable milestones. Within each pack, preserve one
+semantic slice per commit. Do not combine BoxCount activation with unrelated
+BoxShape cleanup.
+
+The initial product-readiness gate requires:
+
+```text
+whole-root ScopedAlias production green
+structured Alias CFG green
+exact callable ownership ABI green
+first receiver-anchored WholeObject View green
+SharedV1 fallback from the sparse profile = 0
+unsupported representation/backend fails before effects
+```
+
+It does not require:
+
+```text
+projection aliases
+alias PHIs or reassignment
+field/named-domain/temporary View
+ViewPhi
+dynamic/plugin/FFI ownership ABI
+Shared/resource/weak/sync expansion
+```
 
 ## 3. Documentation closeout — OWN-REF-D0 / OWN-REF-D1
 

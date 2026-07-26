@@ -17,6 +17,7 @@ retire_when: canonical-core caller equals one, fallback equals zero, and no Acyc
 Related:
   - docs/development/current/main/investigations/normal-callable-module0-r0-s0-execution-task-2026-07-26.md
   - docs/development/current/main/investigations/normal-module-tx0-l0-execution-task-2026-07-26.md
+  - docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md
   - src/mir/compiler/normal_source_plan/normal_acyclic_module_plan.rs
   - src/mir/builder/normal_module_transaction/
 ---
@@ -514,6 +515,15 @@ default product backend.
 
 ```text
 MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
+-> OWNERSHIP-SPARSE-RESUME-D0
+-> OWN-GRAM-REJECT0
+-> ownership evidence / passive grammar / Loan Flow
+-> UBOX-I0
+-> ALIAS-I0 / ALIAS-CFG0
+-> ABI0 / UCALL-B0
+-> VIEW0 / PROJ-S0..PROJ-I0
+-> OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
+
 -> NORMAL-ENTRY-PRODUCT-BACKEND-D0
    recommended first candidate: the maintained MIR interpreter product lane
    required evidence: source/result/status/diagnostic parity and performance
@@ -547,6 +557,16 @@ compile_with_source/direct build_module:
 
 fallback:
   always zero
+```
+
+The ownership sequence is not part of TX0 and does not block
+`MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0`. It is the selected bridge between
+canonical-core completion and product/default promotion. Its detailed
+authority is:
+
+```text
+docs/development/current/main/investigations/
+  hakorune-sparse-ownership-surface-task-2026-07-15.md
 ```
 
 JSON, REPL, Stage1, WASM, LLVM/AOT, executor, selfhost, and fastmem remain
