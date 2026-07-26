@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 
 use super::super::{
+    NormalAcyclicCallableModuleErrorV1, NormalMainHelperResolutionStageV1,
     NormalSourcePlanClassifierV1, PreparedNormalSourcePlanInputV1, SealedNormalSourcePlanV1,
 };
 use super::*;
@@ -23,6 +24,16 @@ fn call(name: &str, argument: ASTNode) -> ASTNode {
 }
 
 fn helper(name: &str) -> ASTNode {
+    helper_with_result(
+        name,
+        ASTNode::Variable {
+            name: "n".to_owned(),
+            span: Span::unknown(),
+        },
+    )
+}
+
+fn helper_with_result(name: &str, result: ASTNode) -> ASTNode {
     ASTNode::FunctionDeclaration {
         name: name.to_owned(),
         params: vec!["n".to_owned()],
@@ -32,10 +43,7 @@ fn helper(name: &str) -> ASTNode {
         }],
         return_type_name: Some("i64".to_owned()),
         body: vec![ASTNode::Return {
-            value: Some(Box::new(ASTNode::Variable {
-                name: "n".to_owned(),
-                span: Span::unknown(),
-            })),
+            value: Some(Box::new(result)),
             span: Span::unknown(),
         }],
         uses: Vec::new(),
@@ -213,4 +221,113 @@ fn independent_helpers_keep_one_zero_edge_graph() {
     assert_eq!(plan.helper_count(), 2);
     assert_eq!(plan.helper_edge_count(), 0);
     assert_eq!(plan.main_direct_call_count(), 0);
+}
+
+#[test]
+fn helper_calls_form_the_existing_deterministic_dag() {
+    let main = NormalMainDirectCallPreflightV1::seal(source(vec![
+        main_box(Some(call("root", literal(1)))),
+        helper_with_result(
+            "root",
+            call(
+                "leaf",
+                ASTNode::Variable {
+                    name: "n".to_owned(),
+                    span: Span::unknown(),
+                },
+            ),
+        ),
+        helper("leaf"),
+    ]))
+    .unwrap();
+    let completed = main.prepare_helper_resolution().resolve().unwrap();
+    let plan = completed.prepare_acyclic_plan().unwrap();
+
+    assert_eq!(plan.helper_count(), 2);
+    assert_eq!(plan.helper_edge_count(), 1);
+    assert_eq!(plan.main_direct_call_count(), 1);
+}
+
+#[test]
+fn helper_self_edge_and_cycle_reject_without_recursive_retry() {
+    for helpers in [
+        vec![
+            helper_with_result(
+                "selfish",
+                call(
+                    "selfish",
+                    ASTNode::Variable {
+                        name: "n".to_owned(),
+                        span: Span::unknown(),
+                    },
+                ),
+            ),
+            helper("leaf"),
+        ],
+        vec![
+            helper_with_result(
+                "left",
+                call(
+                    "right",
+                    ASTNode::Variable {
+                        name: "n".to_owned(),
+                        span: Span::unknown(),
+                    },
+                ),
+            ),
+            helper_with_result(
+                "right",
+                call(
+                    "left",
+                    ASTNode::Variable {
+                        name: "n".to_owned(),
+                        span: Span::unknown(),
+                    },
+                ),
+            ),
+        ],
+    ] {
+        let mut statements = vec![main_box(None)];
+        statements.extend(helpers);
+        let main = NormalMainDirectCallPreflightV1::seal(source(statements)).unwrap();
+        let completed = main.prepare_helper_resolution().resolve().unwrap();
+        assert!(matches!(
+            completed.prepare_acyclic_plan(),
+            Err(NormalAcyclicCallableModuleErrorV1::Graph(_))
+        ));
+    }
+}
+
+#[test]
+fn helper_resolution_rejection_retains_owner_and_later_sources_still_resolve() {
+    let rejected = NormalMainDirectCallPreflightV1::seal(source(vec![
+        main_box(None),
+        helper_with_result(
+            "broken",
+            call(
+                "missing",
+                ASTNode::Variable {
+                    name: "n".to_owned(),
+                    span: Span::unknown(),
+                },
+            ),
+        ),
+    ]))
+    .unwrap()
+    .prepare_helper_resolution()
+    .resolve()
+    .unwrap_err();
+    assert_eq!(
+        rejected.stage(),
+        NormalMainHelperResolutionStageV1::HelperSemanticResolution
+    );
+    rejected.discard();
+
+    let later =
+        NormalMainDirectCallPreflightV1::seal(source(vec![main_box(None), helper("healthy")]))
+            .unwrap()
+            .prepare_helper_resolution()
+            .resolve()
+            .unwrap();
+    assert_eq!(later.prepare_acyclic_plan().unwrap().helper_count(), 1);
 }

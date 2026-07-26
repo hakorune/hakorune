@@ -263,6 +263,7 @@ def check_callable_source(
         "struct PreparedNormalMainHelperResolutionV1",
         "struct CompletedNormalMainHelperResolutionV1",
         "struct RejectedNormalMainHelperResolutionV1",
+        "enum NormalMainHelperResolutionStageV1",
         "struct VerifiedNormalAcyclicCallableModulePlanV1",
         "enum NormalAcyclicCallableModuleErrorV1",
     ):
@@ -287,6 +288,9 @@ def check_callable_source(
     for test_name in (
         "one_call_free_helper_forms_a_zero_edge_normal_dag",
         "independent_helpers_keep_one_zero_edge_graph",
+        "helper_calls_form_the_existing_deterministic_dag",
+        "helper_self_edge_and_cycle_reject_without_recursive_retry",
+        "helper_resolution_rejection_retains_owner_and_later_sources_still_resolve",
     ):
         require(
             direct_call_plan_tests,

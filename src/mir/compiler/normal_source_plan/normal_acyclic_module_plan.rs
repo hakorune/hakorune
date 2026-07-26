@@ -58,7 +58,16 @@ pub(crate) struct RejectedNormalMainHelperResolutionV1 {
     error: ResolveCallableModuleErrorV1,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum NormalMainHelperResolutionStageV1 {
+    HelperSemanticResolution,
+}
+
 impl RejectedNormalMainHelperResolutionV1 {
+    pub(crate) const fn stage(&self) -> NormalMainHelperResolutionStageV1 {
+        NormalMainHelperResolutionStageV1::HelperSemanticResolution
+    }
+
     pub(crate) const fn error(&self) -> &ResolveCallableModuleErrorV1 {
         &self.error
     }
@@ -126,6 +135,13 @@ pub(crate) enum NormalAcyclicCallableModuleErrorV1 {
         graph: usize,
         profile: usize,
     },
+    HelperCardinalityMismatch {
+        graph: usize,
+        functions: usize,
+        plans: usize,
+    },
+    MissingHelperDeclaration,
+    MainCatalogMembership,
     MainTargetMissing,
     CompilationBrandMismatch,
 }
@@ -144,6 +160,22 @@ impl CompletedNormalMainHelperResolutionV1 {
     {
         let graph = VerifiedAcyclicCallableGraphV1::verify(&self.helpers)
             .map_err(NormalAcyclicCallableModuleErrorV1::Graph)?;
+        if graph.nodes().iter().any(|key| key.name() == "main") {
+            return Err(NormalAcyclicCallableModuleErrorV1::MainCatalogMembership);
+        }
+        let main_owner = self.main.completion.owner();
+        for &site in self.helpers.source().declaration_sites() {
+            let declaration = self
+                .helpers
+                .source()
+                .catalog()
+                .declaration(site)
+                .ok_or(NormalAcyclicCallableModuleErrorV1::MissingHelperDeclaration)?;
+            if main_owner.compilation_brand() != declaration.callable().owner().compilation_brand()
+            {
+                return Err(NormalAcyclicCallableModuleErrorV1::CompilationBrandMismatch);
+            }
+        }
         let mut helper_plans = BTreeMap::new();
         for key in graph.nodes() {
             let input = self
@@ -181,7 +213,17 @@ impl CompletedNormalMainHelperResolutionV1 {
             }
             helper_plans.insert(key.clone(), plan);
         }
-        let main_owner = self.main.completion.owner();
+        if graph.nodes().len() != self.helpers.functions_by_key().len()
+            || helper_plans.len() != self.helpers.functions_by_key().len()
+        {
+            return Err(
+                NormalAcyclicCallableModuleErrorV1::HelperCardinalityMismatch {
+                    graph: graph.nodes().len(),
+                    functions: self.helpers.functions_by_key().len(),
+                    plans: helper_plans.len(),
+                },
+            );
+        }
         for call in self.main.profile.direct_calls() {
             let target = call.target().callable();
             if self

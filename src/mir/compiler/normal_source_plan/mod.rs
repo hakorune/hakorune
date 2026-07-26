@@ -63,8 +63,8 @@ pub(crate) use main_thunk_plan::{
 #[allow(unused_imports)]
 pub(crate) use normal_acyclic_module_plan::{
     CompletedNormalMainHelperResolutionV1, NormalAcyclicCallableModuleErrorV1,
-    PreparedNormalMainHelperResolutionV1, RejectedNormalMainHelperResolutionV1,
-    VerifiedNormalAcyclicCallableModulePlanV1,
+    NormalMainHelperResolutionStageV1, PreparedNormalMainHelperResolutionV1,
+    RejectedNormalMainHelperResolutionV1, VerifiedNormalAcyclicCallableModulePlanV1,
 };
 #[allow(unused_imports)]
 pub(crate) use product::{
