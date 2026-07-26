@@ -10,3 +10,16 @@ for `ExactI64([])`.
 It must not borrow or name the static result catalog type; infer from names,
 annotations, MIR, runtime, or metadata; emit a Call; write a `ValueId` or
 `MirType`; change GenericLoop; retry; fall back; or retain a source-site map.
+
+## Pre-loop association
+
+`PreparedPreloopNestedResultAssociationV1` is the source-only bridge for the
+selected pre-loop occurrence. It consumes the sealed Integer contract and the
+catalog-backed `RawLocatedMethodCallInputV1`, then co-seals the same catalog
+allocation, declaration row, caller, structural site, and borrowed MethodCall
+node. The parked loop-refresh occurrence is rejected before lowering.
+
+This bridge is not a Builder or Call owner. It does not convert to a legacy
+input, select a route, emit a Call, retain a destination, or publish a type.
+The later physical-receipt row is the only allowed consumer toward the actual
+unified Call success boundary.
