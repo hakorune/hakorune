@@ -147,6 +147,15 @@ impl ConsumableNormalMainLoweringProofV1 {
     pub(crate) fn direct_call_count(&self) -> usize {
         self.profile.direct_calls().len()
     }
+
+    fn validates_input(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
+        let owner = input.owner();
+        self.if_control.owner() == owner
+            && self.completion.owner() == owner
+            && self.profile.owner() == owner
+            && input.function().owner() == owner
+            && input.source().owner() == owner
+    }
 }
 
 /// The sole TX0 source owner before any Builder effect.
@@ -219,6 +228,23 @@ pub(crate) struct RejectedNormalCallableHandoffV1 {
     error: NormalAcyclicCallableModuleErrorV1,
 }
 
+#[derive(Debug)]
+pub(crate) struct RejectedNormalMainProofBindingV1 {
+    owner: OpenNormalCallableModuleTransactionV1,
+    proof: ConsumableNormalMainLoweringProofV1,
+    error: CanonicalLoweringErrorV1,
+}
+
+impl RejectedNormalMainProofBindingV1 {
+    pub(crate) fn error(&self) -> &CanonicalLoweringErrorV1 {
+        &self.error
+    }
+
+    pub(crate) fn discard(self) {
+        drop(self);
+    }
+}
+
 impl RejectedNormalCallableHandoffV1 {
     pub(crate) const fn stage(&self) -> NormalCallableHandoffStageV1 {
         self.stage
@@ -288,6 +314,47 @@ impl OpenNormalCallableModuleTransactionV1 {
         self.main_lowering
             .take()
             .expect("TX0 handoff seals exactly one Main lowering proof")
+    }
+
+    /// Binds the already-sealed Main proof to one exact borrowed input. The
+    /// callback must consume the plan; it cannot escape beside this owner.
+    pub(crate) fn with_main_lowering_plan<R>(
+        mut self,
+        consume: impl for<'source> FnOnce(
+            &'source RetainedNormalCallableSourceAuthorityV1,
+            CanonicalTrivialBindingSsaPlanV1<'source>,
+        ) -> R,
+    ) -> Result<(Self, R), RejectedNormalMainProofBindingV1> {
+        let proof = self.take_main_lowering_proof();
+        let input = match self.source.borrow_main_input() {
+            Ok(input) => input,
+            Err(error) => {
+                return Err(RejectedNormalMainProofBindingV1 {
+                    owner: self,
+                    proof,
+                    error,
+                })
+            }
+        };
+        if !proof.validates_input(input) {
+            return Err(RejectedNormalMainProofBindingV1 {
+                owner: self,
+                proof,
+                error: CanonicalLoweringErrorV1::SourceUnitResolution {
+                    detail: "normal_main_sealed_fact_owner_mismatch".to_owned(),
+                },
+            });
+        }
+        let plan = CanonicalTrivialBindingSsaPlanV1::bind_sealed_normal_main_parts_v1(
+            input,
+            proof.if_control,
+            proof.completion,
+            proof.profile,
+            proof.block_expr_count,
+        )
+        .expect("validated Main proof binds without reclassification");
+        let result = consume(&self.source, plan);
+        Ok((self, result))
     }
 
     /// Consumes every helper plan inside `consume`, then returns this open
