@@ -23,6 +23,13 @@ fn commit_consumes_the_preflighted_batch_into_an_opaque_candidate() {
     assert!(candidate.module().get_function("helper/1").is_some());
     assert!(candidate.module().get_function("main/0").is_some());
     assert!(candidate.module().get_function("main").is_some());
+    assert_eq!(candidate.evidence().physical_symbol(), "main");
+    assert_eq!(candidate.evidence().physical_arity(), 0);
+    assert_eq!(candidate.evidence().schema_row_count(), 3);
+    assert_eq!(candidate.evidence().helper_count(), 1);
+    assert_eq!(candidate.verification().function_count(), 3);
+    assert_eq!(candidate.verification().schema_row_count(), 3);
+    assert!(!candidate.evidence().source_identity().is_empty());
 }
 
 #[test]

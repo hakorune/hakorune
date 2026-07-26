@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: NORMAL-CALLABLE0-PUBLICATION-EVIDENCE0-S0
+Active executable row: NORMAL-CALLABLE0-CANONICAL-PUBLICATION0-S0
 ```
 
 ## Boundary
@@ -122,12 +122,33 @@ Status: closed by `e38e064629`.
 Merge the structural assertions into existing canonical-core/source-entry
 guards. Do not add a per-cell shell wrapper.
 
+## Callable evidence row
+
+### `NORMAL-CALLABLE0-PUBLICATION-EVIDENCE0-S0`
+
+Status: closed by this commit.
+
+The callable candidate now retains the facts sealed before candidate commit:
+
+```text
+source-Main to physical main/0 relation
+sealed source-result contract
+complete normal-module schema
+prepared helper topology receipt
+source identity
+candidate function/schema verification receipt
+MirModule
+```
+
+The commit consumes the existing prepared batch once. It does not rescan the
+module, Return instructions, signatures, source AST, or callable graph.
+
 ## Next row
 
-`NORMAL-CALLABLE0-PUBLICATION-EVIDENCE0-S0` must retain the callable module's
-entry relation, source-result contract, topology, and candidate verification
-receipt before it can join this shared publication core. No second publication
-or VM executor is permitted.
+`NORMAL-CALLABLE0-CANONICAL-PUBLICATION0-S0` may project this retained
+candidate evidence into the existing shared canonical publication core. It
+must add one Callable family/membership projection only; a second publication
+owner or VM executor is forbidden.
 
 ## Acceptance gates
 

@@ -27,7 +27,8 @@ pub(in crate::mir) use callable_batch::{
 #[cfg(test)]
 pub(super) use callable_commit::reject_normal_callable_commit_for_test;
 pub(in crate::mir) use callable_commit::{
-    CompletedNormalCallableCandidateV1, NormalCallableCommitErrorV1,
+    CompletedNormalCallableCandidateV1, CompletedNormalCallableModuleEvidenceV1,
+    NormalCallableCandidateVerificationReceiptV1, NormalCallableCommitErrorV1,
     PreparedNormalCallableCommitV1, RejectedNormalCallableCommitV1,
 };
 pub(in crate::mir) use callable_draft_prefix::{

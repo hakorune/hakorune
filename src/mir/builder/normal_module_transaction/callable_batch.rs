@@ -28,8 +28,10 @@ impl PreparedNormalCallableBatchV1 {
         &self.schema
     }
 
-    pub(in crate::mir) fn into_drafts(self) -> PreparedNormalCallableMainPhysicalV1 {
-        self.drafts
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (PreparedNormalCallableMainPhysicalV1, NormalModuleTransactionSchemaV1) {
+        (self.drafts, self.schema)
     }
 }
 

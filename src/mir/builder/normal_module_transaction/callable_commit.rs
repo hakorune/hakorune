@@ -6,6 +6,10 @@ use crate::mir::builder::module_lowering_shell::{
 };
 use crate::mir::verification::MirVerifier;
 use crate::mir::verification_types::VerificationError;
+use crate::mir::compiler::normal_source_plan::{
+    PreparedNormalHelperTopologyReceiptV1, VerifiedNormalMainPhysicalRelationV1,
+    VerifiedNormalMainThunkResultV1,
+};
 use crate::mir::{MirFunction, MirModule};
 
 use super::callable_batch::PreparedNormalCallableBatchV1;
@@ -37,16 +41,83 @@ impl RejectedNormalCallableCommitV1 {
 pub(in crate::mir) struct PreparedNormalCallableCommitV1 {
     batch: PreparedNormalCallableBatchV1,
     shell: PreparedModuleLoweringShellDrainV1,
+    verification: NormalCallableCandidateVerificationReceiptV1,
 }
 
 #[derive(Debug)]
 pub(in crate::mir) struct CompletedNormalCallableCandidateV1 {
     module: MirModule,
+    evidence: CompletedNormalCallableModuleEvidenceV1,
+    verification: NormalCallableCandidateVerificationReceiptV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct CompletedNormalCallableModuleEvidenceV1 {
+    schema: super::NormalModuleTransactionSchemaV1,
+    relation: VerifiedNormalMainPhysicalRelationV1,
+    topology: PreparedNormalHelperTopologyReceiptV1,
+    source_identity: Box<str>,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct NormalCallableCandidateVerificationReceiptV1 {
+    function_count: usize,
+    schema_row_count: usize,
 }
 
 impl CompletedNormalCallableCandidateV1 {
     pub(in crate::mir) fn module(&self) -> &MirModule {
         &self.module
+    }
+
+    pub(in crate::mir) const fn evidence(&self) -> &CompletedNormalCallableModuleEvidenceV1 {
+        &self.evidence
+    }
+
+    pub(in crate::mir) const fn verification(&self) -> &NormalCallableCandidateVerificationReceiptV1 {
+        &self.verification
+    }
+}
+
+impl CompletedNormalCallableModuleEvidenceV1 {
+    pub(in crate::mir) fn source_identity(&self) -> &str {
+        &self.source_identity
+    }
+
+    pub(in crate::mir) fn source_owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.relation.entry().source_owner()
+    }
+
+    /// This is sealed before candidate commit. Publication projects it and
+    /// never infers a source result from the module or its physical Return.
+    pub(in crate::mir) const fn source_result(&self) -> VerifiedNormalMainThunkResultV1 {
+        self.relation.source_result()
+    }
+
+    pub(in crate::mir) fn physical_symbol(&self) -> &str {
+        self.relation.entry().physical_symbol()
+    }
+
+    pub(in crate::mir) fn physical_arity(&self) -> usize {
+        self.relation.entry().physical_arity()
+    }
+
+    pub(in crate::mir) fn schema_row_count(&self) -> usize {
+        self.schema.rows().len()
+    }
+
+    pub(in crate::mir) fn helper_count(&self) -> usize {
+        self.topology.helper_count()
+    }
+}
+
+impl NormalCallableCandidateVerificationReceiptV1 {
+    pub(in crate::mir) const fn function_count(&self) -> usize {
+        self.function_count
+    }
+
+    pub(in crate::mir) const fn schema_row_count(&self) -> usize {
+        self.schema_row_count
     }
 }
 
@@ -103,15 +174,23 @@ impl PreparedNormalCallableBatchV1 {
                     })
                 }
             };
-        Ok(PreparedNormalCallableCommitV1 { batch: self, shell })
+        Ok(PreparedNormalCallableCommitV1 {
+            verification: NormalCallableCandidateVerificationReceiptV1 {
+                function_count: functions.len(),
+                schema_row_count: self.schema().rows().len(),
+            },
+            batch: self,
+            shell,
+        })
     }
 }
 
 impl PreparedNormalCallableCommitV1 {
     pub(in crate::mir) fn commit(self) -> CompletedNormalCallableCandidateV1 {
-        let (helpers, source, physical) = self.batch.into_drafts().into_drafts();
+        let (drafts, schema) = self.batch.into_parts();
+        let source_identity = drafts.source_identity().into();
+        let (topology, helpers, source, physical, relation) = drafts.into_evidence_parts();
         let mut functions = helpers
-            .into_drafts()
             .into_iter()
             .map(|helper| helper.into_draft())
             .collect::<Vec<_>>();
@@ -119,6 +198,13 @@ impl PreparedNormalCallableCommitV1 {
         functions.push(physical.into_draft());
         CompletedNormalCallableCandidateV1 {
             module: self.shell.commit_preflighted(functions),
+            evidence: CompletedNormalCallableModuleEvidenceV1 {
+                schema,
+                relation,
+                topology,
+                source_identity,
+            },
+            verification: self.verification,
         }
     }
 }

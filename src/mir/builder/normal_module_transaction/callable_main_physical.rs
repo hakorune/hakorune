@@ -8,14 +8,15 @@ use crate::mir::builder::resolved_lowering::{
 };
 use crate::mir::compiler::normal_source_plan::{
     seal_normal_main_physical_relation_v1, NormalMainThunkPlanErrorV1,
-    OpenNormalCallableModuleTransactionV1, RejectedNormalMainProofBindingV1,
-    VerifiedNormalMainPhysicalRelationV1,
+    OpenNormalCallableModuleTransactionV1, PreparedNormalHelperTopologyReceiptV1,
+    RejectedNormalMainProofBindingV1, VerifiedNormalMainPhysicalRelationV1,
 };
 use crate::mir::MirFunction;
 
 use super::super::MirBuilder;
 use super::callable_draft_prefix::{
     PreparedNormalHelperDraftPrefixV1, RetainedNormalHelperDraftPrefixV1,
+    VerifiedNormalHelperDraftV1,
 };
 use super::physical_thunk::{
     NormalMainPhysicalThunkErrorV1, VerifiedNormalMainPhysicalThunkDraftV1,
@@ -55,14 +56,21 @@ impl PreparedNormalCallableMainPhysicalV1 {
         &self.relation
     }
 
-    pub(in crate::mir) fn into_drafts(
+    pub(in crate::mir) fn source_identity(&self) -> &str {
+        self.transaction.source().source_identity()
+    }
+
+    pub(in crate::mir) fn into_evidence_parts(
         self,
     ) -> (
-        RetainedNormalHelperDraftPrefixV1,
+        PreparedNormalHelperTopologyReceiptV1,
+        Vec<VerifiedNormalHelperDraftV1>,
         VerifiedNormalMainSourceDraftV1,
         VerifiedNormalMainPhysicalThunkDraftV1,
+        VerifiedNormalMainPhysicalRelationV1,
     ) {
-        (self.helpers, self.source, self.physical)
+        let (topology, helpers) = self.helpers.into_parts();
+        (topology, helpers, self.source, self.physical, self.relation)
     }
 }
 

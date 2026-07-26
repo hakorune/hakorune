@@ -60,8 +60,10 @@ impl RetainedNormalHelperDraftPrefixV1 {
         &self.drafts
     }
 
-    pub(in crate::mir) fn into_drafts(self) -> Vec<VerifiedNormalHelperDraftV1> {
-        self.drafts
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (PreparedNormalHelperTopologyReceiptV1, Vec<VerifiedNormalHelperDraftV1>) {
+        (self.topology, self.drafts)
     }
 }
 
