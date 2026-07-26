@@ -6,9 +6,13 @@
 //! responsibility.
 
 use crate::mir::builder::root_body_completion::RootBodyResultV1;
+use crate::mir::builder::script_physical_exit::{
+    LoweredScriptTerminalV1, LoweredScriptUnitPayloadV1, ScriptRecipeLoweringErrorV1,
+    ScriptRecipeLoweringOperationV1,
+};
 use crate::mir::raw_root_body_recipe::{
     RawLinearScalarExprV1, RawLinearScalarStmtV1, RawLinearUnaryOperatorV1, RawRootBodyRecipeV1,
-    RawScriptBodyRecipeV1, RawScriptTerminalRecipeV1,
+    RawRootBodySourceSiteV1, RawScriptBodyRecipeV1, RawScriptTerminalRecipeV1,
 };
 use crate::mir::{MirBuilder, MirInstruction, UnaryOp, ValueId};
 
@@ -19,19 +23,58 @@ impl MirBuilder {
     pub(in crate::mir::builder) fn lower_script_body_recipe_v1(
         &mut self,
         recipe: &RawScriptBodyRecipeV1,
-    ) -> Result<RootBodyResultV1, String> {
+    ) -> Result<LoweredScriptTerminalV1, ScriptRecipeLoweringErrorV1> {
         for statement in recipe.prelude() {
-            self.lower_linear_statement_v1(statement)?;
+            self.lower_linear_statement_v1(statement)
+                .map_err(|detail| {
+                    ScriptRecipeLoweringErrorV1::new(
+                        ScriptRecipeLoweringOperationV1::PreludeStatement,
+                        statement_site(statement).clone(),
+                        detail,
+                    )
+                })?;
         }
         match recipe.terminal() {
-            RawScriptTerminalRecipeV1::EmptyUnit => Ok(RootBodyResultV1::NoValue),
-            RawScriptTerminalRecipeV1::ValueExpression(expression)
-            | RawScriptTerminalRecipeV1::UnitExpression { expression, .. } => Ok(
-                RootBodyResultV1::Value(self.lower_linear_expr_v1(expression)?),
-            ),
-            RawScriptTerminalRecipeV1::UnitStatement { statement, .. } => {
-                self.lower_linear_statement_v1(statement)?;
-                Ok(RootBodyResultV1::NoValue)
+            RawScriptTerminalRecipeV1::EmptyUnit => Ok(LoweredScriptTerminalV1::Unit {
+                origin: crate::mir::raw_root_body_recipe::RawScriptUnitOriginV1::EmptyBody,
+                payload: LoweredScriptUnitPayloadV1::SyntheticVoid,
+            }),
+            RawScriptTerminalRecipeV1::ValueExpression(expression) => {
+                let value = self.lower_linear_expr_v1(expression).map_err(|detail| {
+                    ScriptRecipeLoweringErrorV1::new(
+                        ScriptRecipeLoweringOperationV1::TerminalValueExpression,
+                        expression_site(expression).clone(),
+                        detail,
+                    )
+                })?;
+                Ok(LoweredScriptTerminalV1::Value { value })
+            }
+            RawScriptTerminalRecipeV1::UnitExpression { expression, origin } => {
+                let value = self.lower_linear_expr_v1(expression).map_err(|detail| {
+                    ScriptRecipeLoweringErrorV1::new(
+                        ScriptRecipeLoweringOperationV1::TerminalUnitExpression,
+                        expression_site(expression).clone(),
+                        detail,
+                    )
+                })?;
+                Ok(LoweredScriptTerminalV1::Unit {
+                    origin: *origin,
+                    payload: LoweredScriptUnitPayloadV1::ExistingVoid { value },
+                })
+            }
+            RawScriptTerminalRecipeV1::UnitStatement { statement, origin } => {
+                self.lower_linear_statement_v1(statement)
+                    .map_err(|detail| {
+                        ScriptRecipeLoweringErrorV1::new(
+                            ScriptRecipeLoweringOperationV1::TerminalUnitStatement,
+                            statement_site(statement).clone(),
+                            detail,
+                        )
+                    })?;
+                Ok(LoweredScriptTerminalV1::Unit {
+                    origin: *origin,
+                    payload: LoweredScriptUnitPayloadV1::SyntheticVoid,
+                })
             }
         }
     }
@@ -146,5 +189,24 @@ impl MirBuilder {
             .value_types
             .insert(dst, result_type);
         Ok(dst)
+    }
+}
+
+fn statement_site(statement: &RawLinearScalarStmtV1) -> &RawRootBodySourceSiteV1 {
+    match statement {
+        RawLinearScalarStmtV1::Expr { site, .. }
+        | RawLinearScalarStmtV1::Print { site, .. }
+        | RawLinearScalarStmtV1::Assignment { site, .. }
+        | RawLinearScalarStmtV1::CompoundAssignment { site, .. }
+        | RawLinearScalarStmtV1::Local { site, .. } => site,
+    }
+}
+
+fn expression_site(expression: &RawLinearScalarExprV1) -> &RawRootBodySourceSiteV1 {
+    match expression {
+        RawLinearScalarExprV1::Literal { site, .. }
+        | RawLinearScalarExprV1::Variable { site, .. }
+        | RawLinearScalarExprV1::Unary { site, .. }
+        | RawLinearScalarExprV1::Binary { site, .. } => site,
     }
 }

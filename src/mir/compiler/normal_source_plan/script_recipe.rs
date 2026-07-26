@@ -7,9 +7,11 @@
 use crate::mir::compiler::raw_root_source_facts::{
     project_raw_script_body_recipe_v1, RawScriptRecipeProjectionErrorV1,
 };
-use crate::mir::raw_root_body_recipe::RawRootBodyRecipeV1;
+use crate::mir::raw_root_body_recipe::RawScriptBodyRecipeV1;
 
-use super::product::SealedNormalScriptSourceV1;
+use super::product::{
+    NormalTopLevelSiteV1, PreparedNormalSourcePlanInputV1, SealedNormalScriptSourceV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum NormalScriptRecipeStageV1 {
@@ -18,13 +20,26 @@ pub(crate) enum NormalScriptRecipeStageV1 {
 
 #[derive(Debug)]
 pub(crate) struct VerifiedNormalScriptRecipeV1 {
-    recipe: RawRootBodyRecipeV1,
-    source_identity: Box<str>,
+    source: RetainedNormalScriptSourceV1,
+    recipe: RawScriptBodyRecipeV1,
     _seal: VerifiedNormalScriptRecipeSealV1,
 }
 
 #[derive(Debug)]
 struct VerifiedNormalScriptRecipeSealV1;
+
+/// Opaque source retention paired with the exact Script recipe. It has no AST
+/// accessor or reclassification terminal: source observation ended before the
+/// recipe was issued.
+#[derive(Debug)]
+struct RetainedNormalScriptSourceV1 {
+    input: PreparedNormalSourcePlanInputV1,
+    statements: Box<[NormalTopLevelSiteV1]>,
+    _seal: RetainedNormalScriptSourceSealV1,
+}
+
+#[derive(Debug)]
+struct RetainedNormalScriptSourceSealV1;
 
 #[derive(Debug)]
 pub(crate) struct RejectedNormalScriptRecipeV1 {
@@ -46,27 +61,41 @@ pub(super) fn prepare(
             })
         }
     };
-    let input = source.into_input();
-    let (source, identity) = input.into_parts();
-    drop(source);
+    let source = RetainedNormalScriptSourceV1::from_sealed(source);
     Ok(VerifiedNormalScriptRecipeV1 {
         recipe,
-        source_identity: identity.display_name().into(),
+        source,
         _seal: VerifiedNormalScriptRecipeSealV1,
     })
 }
 
 impl VerifiedNormalScriptRecipeV1 {
-    pub(in crate::mir) fn recipe(&self) -> &RawRootBodyRecipeV1 {
+    pub(in crate::mir) fn recipe(&self) -> &RawScriptBodyRecipeV1 {
         &self.recipe
     }
 
     pub(in crate::mir) fn source_identity(&self) -> &str {
-        &self.source_identity
+        self.source.input.identity().display_name()
     }
 
-    pub(in crate::mir) fn into_recipe(self) -> RawRootBodyRecipeV1 {
+    pub(in crate::mir) fn into_recipe(self) -> RawScriptBodyRecipeV1 {
         self.recipe
+    }
+
+    #[cfg(test)]
+    pub(crate) fn retained_source_statement_count(&self) -> usize {
+        self.source.statements.len()
+    }
+}
+
+impl RetainedNormalScriptSourceV1 {
+    fn from_sealed(source: SealedNormalScriptSourceV1) -> Self {
+        let (input, statements) = source.into_parts();
+        Self {
+            input,
+            statements,
+            _seal: RetainedNormalScriptSourceSealV1,
+        }
     }
 }
 

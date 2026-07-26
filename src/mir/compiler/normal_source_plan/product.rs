@@ -37,6 +37,10 @@ impl PreparedNormalSourcePlanInputV1 {
         &self.source
     }
 
+    pub(super) fn identity(&self) -> &NormalSourceIdentityV1 {
+        &self.identity
+    }
+
     pub(super) fn into_parts(self) -> (ASTNode, NormalSourceIdentityV1) {
         (self.source, self.identity)
     }
@@ -140,8 +144,10 @@ impl SealedNormalScriptSourceV1 {
         super::script_recipe::prepare(self)
     }
 
-    pub(super) fn into_input(self) -> PreparedNormalSourcePlanInputV1 {
-        self.input
+    pub(super) fn into_parts(
+        self,
+    ) -> (PreparedNormalSourcePlanInputV1, Box<[NormalTopLevelSiteV1]>) {
+        (self.input, self.statements)
     }
 
     pub(super) fn source_ast(&self) -> &ASTNode {

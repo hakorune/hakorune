@@ -3,6 +3,7 @@
 
 from pathlib import Path
 from normal_source_plan0_callable_guard import check_callable_source
+from normal_source_plan0_script_physical_guard import check_script_physical
 from normal_source_plan0_transaction_guard import check_transaction
 
 
@@ -162,6 +163,7 @@ def main() -> int:
     callable_source_files = check_callable_source(
         ROOT, SOURCE_DIR, require, require_count
     )
+    script_physical_files = check_script_physical(ROOT)
 
     for fragment in (
         "NORMAL-SOURCE-PLAN0-S0",
@@ -723,6 +725,7 @@ def main() -> int:
         CANONICAL_CORE_DISPATCH,
         *NORMAL_MODULE_TX_FILES,
         *callable_source_files,
+        *script_physical_files,
     }
     for path in (ROOT / "src").rglob("*.rs"):
         if path in allowed:

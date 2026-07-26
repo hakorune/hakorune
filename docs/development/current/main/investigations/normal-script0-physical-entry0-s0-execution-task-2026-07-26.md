@@ -310,6 +310,11 @@ terminal origin retained                             = 1
 Return writer delta                                  = 0
 ```
 
+Status: closed on 2026-07-26. The retained source owner is opaque, the
+normal handoff now owns only `RawScriptBodyRecipeV1`, and the typed terminal
+kernel preserves value versus Unit plus exact Unit origin. Raw uses only a
+temporary result-shape adapter; it has not gained a second Return writer.
+
 ### Commit 2 — `SCRIPT-PHYSICAL-EXIT-KERNEL0`
 
 Add the brand-free preparation, result contract, completion witnesses, and

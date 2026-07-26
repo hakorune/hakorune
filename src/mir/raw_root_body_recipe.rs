@@ -220,24 +220,25 @@ impl RawRootBodyRecipeV1 {
         prelude: Box<[RawLinearScalarStmtV1]>,
         terminal: RawScriptTerminalRecipeV1,
     ) -> Result<Self, RawRootBodyRecipeErrorV1> {
+        let script = RawScriptBodyRecipeV1::from_parts(prelude, terminal)?;
+        Self::from_script_recipe(entry, script)
+    }
+
+    /// Wrap an already validated Script-only recipe for the legacy Raw root
+    /// carrier. Canonical Script consumers retain the inner recipe directly.
+    pub(crate) fn from_script_recipe(
+        entry: RawRootBodyEntryContractV1,
+        script: RawScriptBodyRecipeV1,
+    ) -> Result<Self, RawRootBodyRecipeErrorV1> {
         if entry.route() != RawRootBodyRouteV1::Script {
             return Err(RawRootBodyRecipeErrorV1::ScriptRouteMismatch);
         }
-        let mut paths = std::collections::BTreeSet::new();
-        for statement in &prelude {
-            collect_statement_paths(statement, &mut paths)?;
-        }
-        collect_terminal_paths(&terminal, &mut paths)?;
         Ok(Self {
             entry,
             // Script consumers must go through the source-classified payload;
             // the legacy statement slot is intentionally empty on this route.
             statements: Box::new([]),
-            script: Some(RawScriptBodyRecipeV1 {
-                prelude,
-                terminal,
-                _seal: RawScriptBodyRecipeSealV1,
-            }),
+            script: Some(script),
             _seal: RawRootBodyRecipeSealV1,
         })
     }
@@ -258,6 +259,24 @@ impl RawRootBodyRecipeV1 {
 }
 
 impl RawScriptBodyRecipeV1 {
+    /// Construct one exact Script prelude/terminal contract without attaching
+    /// a Raw root route or publication lifecycle.
+    pub(crate) fn from_parts(
+        prelude: Box<[RawLinearScalarStmtV1]>,
+        terminal: RawScriptTerminalRecipeV1,
+    ) -> Result<Self, RawRootBodyRecipeErrorV1> {
+        let mut paths = std::collections::BTreeSet::new();
+        for statement in &prelude {
+            collect_statement_paths(statement, &mut paths)?;
+        }
+        collect_terminal_paths(&terminal, &mut paths)?;
+        Ok(Self {
+            prelude,
+            terminal,
+            _seal: RawScriptBodyRecipeSealV1,
+        })
+    }
+
     pub(crate) fn prelude(&self) -> &[RawLinearScalarStmtV1] {
         &self.prelude
     }
@@ -271,12 +290,16 @@ impl RawScriptBodyRecipeV1 {
 pub(crate) enum RawRootBodyRecipeErrorV1 {
     ScriptRouteMismatch,
     AppRouteMismatch,
-    DuplicateSourcePath { path: Box<[usize]> },
+    DuplicateSourcePath {
+        path: Box<[usize]>,
+    },
     UnsupportedStatement {
         path: Box<[usize]>,
         kind: RawUnsupportedBodyStatementKindV1,
     },
-    UnsupportedOperator { path: Box<[usize]> },
+    UnsupportedOperator {
+        path: Box<[usize]>,
+    },
 }
 
 /// Existing source classifier variants that the LinearScalar0 BODY recipe

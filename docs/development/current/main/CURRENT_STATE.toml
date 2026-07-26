@@ -434,7 +434,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "normal-script0-physical-entry0-s0-execution-task-2026-07-26"
 latest_card_path = "docs/development/current/main/investigations/normal-script0-physical-entry0-s0-execution-task-2026-07-26.md"
-latest_card_summary = """NORMAL-SCRIPT0-PHYSICAL-ENTRY-prime-r1 accepts one Script-specific unbranded outer transaction and one shared brand-free Script lowering/result/Return kernel. SCRIPT-TERMINAL-KERNEL0 is first; the series then moves the sole writer, corrects Raw statement-Unit origins, builds a candidate-only Script draft and one-row module candidate, and connects Script dispatch with production caller zero."""
+latest_card_summary = """NORMAL-SCRIPT0-PHYSICAL-ENTRY-prime-r1 accepts one Script-specific unbranded outer transaction and one shared brand-free Script lowering/result/Return kernel. SCRIPT-TERMINAL-KERNEL0 is closed: the opaque normal source owner is retained, the handoff is exact RawScriptBodyRecipeV1, and LoweredScriptTerminalV1 preserves value versus Unit plus exact Unit origin without changing the Raw Return writer. SCRIPT-PHYSICAL-EXIT-KERNEL0 is next."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -636,7 +636,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "SCRIPT-TERMINAL-KERNEL0"
+current_blocker_token = "SCRIPT-PHYSICAL-EXIT-KERNEL0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

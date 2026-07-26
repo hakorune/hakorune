@@ -8,8 +8,8 @@ use crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1;
 use crate::mir::raw_root_body_recipe::{
     RawLinearScalarExprV1, RawLinearScalarStmtV1, RawLinearUnaryOperatorV1,
     RawRootBodyEntryContractV1, RawRootBodyRecipeErrorV1, RawRootBodyRecipeV1,
-    RawRootBodySourceSiteV1, RawScriptTerminalRecipeV1, RawScriptUnitOriginV1,
-    RawUnsupportedBodyStatementKindV1,
+    RawRootBodySourceSiteV1, RawScriptBodyRecipeV1, RawScriptTerminalRecipeV1,
+    RawScriptUnitOriginV1, RawUnsupportedBodyStatementKindV1,
 };
 
 use super::{
@@ -42,7 +42,10 @@ impl RawRootSourceFactsV1 {
         };
         let callable_count = callable_catalog.len();
         let body_recipe = match body {
-            RawRootBodyFactV1::Script(program) => project_script_recipe(program)?,
+            RawRootBodyFactV1::Script(program) => RawRootBodyRecipeV1::from_script_recipe(
+                RawRootBodyEntryContractV1::script(),
+                project_script_recipe(program)?,
+            )?,
             RawRootBodyFactV1::App { main, body } => {
                 let statements = body
                     .statements
@@ -74,7 +77,7 @@ impl RawRootSourceFactsV1 {
 
 pub(in crate::mir) fn project_script_recipe(
     program: super::RawLocatedScalarProgramV1,
-) -> Result<RawRootBodyRecipeV1, RawRootBodyRecipeErrorV1> {
+) -> Result<RawScriptBodyRecipeV1, RawRootBodyRecipeErrorV1> {
     let contract = script_contract(program)?;
     let prelude = contract
         .prelude
@@ -101,7 +104,7 @@ pub(in crate::mir) fn project_script_recipe(
             }
         }
     };
-    RawRootBodyRecipeV1::from_script_parts(RawRootBodyEntryContractV1::script(), prelude, terminal)
+    RawScriptBodyRecipeV1::from_parts(prelude, terminal)
 }
 
 fn script_contract(
@@ -256,9 +259,7 @@ fn ordinary_operator(operator: &BinaryOperator) -> bool {
     !matches!(operator, BinaryOperator::And | BinaryOperator::Or)
 }
 
-fn unsupported_statement_error(
-    statement: &RawLocatedScalarStmtV1,
-) -> RawRootBodyRecipeErrorV1 {
+fn unsupported_statement_error(statement: &RawLocatedScalarStmtV1) -> RawRootBodyRecipeErrorV1 {
     let kind = match statement {
         RawLocatedScalarStmtV1::If { .. } => RawUnsupportedBodyStatementKindV1::If,
         RawLocatedScalarStmtV1::Loop { .. } => RawUnsupportedBodyStatementKindV1::Loop,

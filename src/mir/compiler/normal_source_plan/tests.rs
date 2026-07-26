@@ -114,8 +114,9 @@ fn sealed_script_source_consumes_into_the_shared_recipe_once() {
         .expect("shared Script recipe");
 
     assert_eq!(recipe.source_identity(), "normal-source-plan0-test");
+    assert_eq!(recipe.retained_source_statement_count(), 1);
     assert!(matches!(
-        recipe.recipe().script().expect("Script payload").terminal(),
+        recipe.recipe().terminal(),
         crate::mir::raw_root_body_recipe::RawScriptTerminalRecipeV1::ValueExpression(_)
     ));
 }

@@ -22,7 +22,7 @@ fn shared_script_projection_has_no_raw_root_or_publication_input() {
     let recipe = project_raw_script_body_recipe_v1(&source).expect("shared Script recipe");
 
     assert!(matches!(
-        recipe.script().expect("script payload").terminal(),
+        recipe.terminal(),
         RawScriptTerminalRecipeV1::ValueExpression(RawLinearScalarExprV1::Literal {
             value: LiteralValue::Integer(7),
             ..

@@ -15,6 +15,7 @@ use super::super::raw_root_physical::{
 };
 use super::super::root_batch_slot::RawRootBatchSlotV1;
 use super::super::root_body_completion::{CompletedRootBodyV1, RootBodyResultV1};
+use super::super::script_physical_exit::LoweredScriptTerminalV1;
 use super::InstalledRawRootEnvironmentV1;
 use crate::mir::raw_root_body_recipe::{RawRootBodyRecipeV1, RawScriptTerminalRecipeV1};
 use crate::mir::MirFunction;
@@ -103,7 +104,10 @@ impl InstalledRawRootEnvironmentV1 {
             let builder = session.builder_mut();
             let _scope = super::super::vars::lexical_scope::LexicalScopeGuard::new(builder);
             match recipe.script() {
-                Some(script) => builder.lower_script_body_recipe_v1(script),
+                Some(script) => builder
+                    .lower_script_body_recipe_v1(script)
+                    .map(legacy_root_body_result_from_script_terminal)
+                    .map_err(|error| error.to_string()),
                 None => builder.lower_linear_scalar_recipe_v1(&recipe),
             }
         };
@@ -193,6 +197,26 @@ impl InstalledRawRootEnvironmentV1 {
             completion,
             exit,
         })
+    }
+}
+
+/// Temporary Raw-only adaptation retained until RAW-SCRIPT-EXIT-ADAPTER0.
+/// It carries no Return authority; the exact terminal remains the shared
+/// Script kernel product and Raw still owns its brand-bound tracker here.
+fn legacy_root_body_result_from_script_terminal(
+    terminal: LoweredScriptTerminalV1,
+) -> RootBodyResultV1 {
+    match terminal {
+        LoweredScriptTerminalV1::Value { value }
+        | LoweredScriptTerminalV1::Unit {
+            payload:
+                super::super::script_physical_exit::LoweredScriptUnitPayloadV1::ExistingVoid { value },
+            ..
+        } => RootBodyResultV1::Value(value),
+        LoweredScriptTerminalV1::Unit {
+            payload: super::super::script_physical_exit::LoweredScriptUnitPayloadV1::SyntheticVoid,
+            ..
+        } => RootBodyResultV1::NoValue,
     }
 }
 

@@ -6,7 +6,9 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::builder::{RawSourceLocatorV1, VerifiedSameModuleCallableDeclarationCatalogV1};
-use crate::mir::raw_root_body_recipe::{RawRootBodyRecipeErrorV1, RawRootBodyRecipeV1};
+use crate::mir::raw_root_body_recipe::{
+    RawRootBodyRecipeErrorV1, RawRootBodyRecipeV1, RawScriptBodyRecipeV1,
+};
 
 use super::raw_root_plan0::{RawPhysicalRootIdentityV1, RawRootKindV1, RawRootPlanV1};
 
@@ -33,12 +35,12 @@ pub(in crate::mir) enum RawScriptRecipeProjectionErrorV1 {
 /// publication route.
 pub(in crate::mir) fn project_raw_script_body_recipe_v1(
     source: &ASTNode,
-) -> Result<RawRootBodyRecipeV1, RawScriptRecipeProjectionErrorV1> {
+) -> Result<RawScriptBodyRecipeV1, RawScriptRecipeProjectionErrorV1> {
     let ASTNode::Program { statements, .. } = source else {
         return Err(RawScriptRecipeProjectionErrorV1::RootNotProgram);
     };
-    let program = classify_program(statements, &[])
-        .map_err(RawScriptRecipeProjectionErrorV1::SourceFacts)?;
+    let program =
+        classify_program(statements, &[]).map_err(RawScriptRecipeProjectionErrorV1::SourceFacts)?;
     recipe_projection::project_script_recipe(program)
         .map_err(RawScriptRecipeProjectionErrorV1::Recipe)
 }
