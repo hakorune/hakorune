@@ -4,7 +4,8 @@ Date: 2026-07-26
 Decision: STAGEB-GENERIC-LOOP-TRANSIENT-TYPE-D0
 Classification: BoxCount / T2 interprocedural result-representation authority
 Selected owner: CALLABLE-RESULT-NESTED-REP0
-First executable row: CALLABLE-RESULT-NESTED-REP0-S0
+S0 preflight: exact site available; exact instance-result contract absent
+Next design stop: NESTED-INSTANCE-RESULT-CONTRACT0-D0
 Blocked row: OWN-GRAM-REJECT0 Hako transport half (parked until this exact
 result-representation boundary reaches its closeout)
 Related:
@@ -184,6 +185,32 @@ exact current-owner MethodCall route
 S0 does not allocate a `ValueId`, write `type_ctx`, emit a call, or broaden the
 existing proof-only callable catalog.  It retains the source owner on failure
 and exposes only `stage()`, `cause()`, and `discard(self)`.
+
+#### S0 preflight result
+
+The exact source-site half is available:
+
+```text
+caller                  = ParserBox.static_const_parse_add/2
+caller role             = instance method
+pre-loop nested site    = Body(3).Value.Argument(1)
+loop-refresh nested site= Body(4).LoopBody(5).Value.Argument(1)
+receiver                = CurrentOwner / canonical me
+target                  = ParserBox.static_const_eval_pos/1
+```
+
+`VerifiedSourceMethodCallSiteV1` and the shadow receiver observation co-seal
+these facts without Builder or MIR effects.
+
+The required result-contract half is not currently available.  The existing
+`VerifiedSameModuleCallableResultCatalogV1` deliberately contains static
+declarations only; its current-owner route deliberately rejects instance
+callers.  `static_const_eval_pos` has no return annotation, and the actual
+Parser fixture explicitly classifies its nested instance results as
+Unselected.  Therefore S0 may not manufacture `ExactI64` from this evidence.
+
+No code row is authorized from this preflight.  The next stop is
+`NESTED-INSTANCE-RESULT-CONTRACT0-D0`.
 
 ### CALLABLE-RESULT-NESTED-REP0-P0 — emission-local receipt
 

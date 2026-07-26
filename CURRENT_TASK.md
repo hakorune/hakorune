@@ -52,9 +52,11 @@ active bounded source-plan series until explicitly selected there.
 `STATIC-BOX-DERIVE-COMPAT0-S0` is closed: static boxes receive no
 receiver-based default `equals` / `toString`, ordinary boxes remain unchanged,
 and Main expansion stays strict. `STAGEB-GENERIC-LOOP-TRANSIENT-TYPE-D0`
-accepted `CALLABLE-RESULT-NESTED-REP0`; the active S0 must seal one exact
-nested instance-call source contract without MIR emission or a type write.
-Only the later successful-call receipt may publish its final transient
-`Integer` type. Do not backfill it in GenericLoop, from metadata, names,
+accepted `CALLABLE-RESULT-NESTED-REP0`, but its S0 preflight found that the
+exact current-owner source site has no existing Integer result contract:
+the result catalog is static-only and the target instance method is
+unannotated. `NESTED-INSTANCE-RESULT-CONTRACT0-D0` must choose a bounded
+source-only proof, a separately accepted catalog widening, or typed
+Unselected. Do not backfill it in GenericLoop, from metadata, names,
 annotations, runtime, or a fallback. `OWN-GRAM-REJECT0` has its Rust parser
-half landed; its Hako freeze-tag WIP remains parked until this series closes.
+half landed; its Hako freeze-tag WIP remains parked.

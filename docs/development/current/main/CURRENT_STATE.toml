@@ -5,9 +5,9 @@ status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 is closed. OWNERSHIP-SPARSE-RES
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "CALLABLE-RESULT-NESTED-REP0-S0"
-current_execution_summary = "Implement the selected T2 source-only owner for one exact nested instance-call result. It must seal the existing source contract without emitting MIR or publishing a transient type; GenericLoop remains a pure Missing/Unknown verifier."
+current_design_stop = "NESTED-INSTANCE-RESULT-CONTRACT0-D0"
+current_execution_row = "NESTED-INSTANCE-RESULT-CONTRACT0-D0"
+current_execution_summary = "Decide the source-only Integer result-contract authority for one exact current-owner instance call. Its source site is sealed, but the existing static result catalog deliberately has no instance result row; GenericLoop remains a pure Missing/Unknown verifier."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -433,9 +433,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "stageb-generic-loop-transient-type-d0-design-question-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/stageb-generic-loop-transient-type-d0-design-question-2026-07-26.md"
-latest_card_summary = """STAGEB-GENERIC-LOOP-TRANSIENT-TYPE-D0 is accepted as CALLABLE-RESULT-NESTED-REP0. The refreshed Stage-B guard passes static Main macro expansion and exposes one exact nested instance result with no lowering-time transient type. S0 must seal that source contract without MIR/type publication; P0/I0 later bind it to a successful physical Call destination. GenericLoop inference and fallback remain forbidden."""
+latest_card = "nested-instance-result-contract0-d0-design-question-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/nested-instance-result-contract0-d0-design-question-2026-07-26.md"
+latest_card_summary = """CALLABLE-RESULT-NESTED-REP0 S0 preflight sealed the exact ParserBox nested current-owner call site but found no existing Integer result contract for its unannotated instance target. NESTED-INSTANCE-RESULT-CONTRACT0-D0 must select a bounded new proof, a separately accepted catalog widening, or typed Unselected. GenericLoop inference and fallback remain forbidden."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "CALLABLE-RESULT-NESTED-REP0-S0"
+current_blocker_token = "NESTED-INSTANCE-RESULT-CONTRACT0-D0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
