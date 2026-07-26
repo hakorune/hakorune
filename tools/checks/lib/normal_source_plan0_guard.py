@@ -43,6 +43,7 @@ FRONTDOOR_INPUT_TESTS = (
     ROOT
     / "src/runner/reference/normal_file_vm_frontdoor/source_plan_input_tests.rs"
 )
+CANONICAL_CORE_DISPATCH = ROOT / "src/mir/compiler/canonical_core_dispatch.rs"
 PRODUCTION_FILES = tuple(
     SOURCE_DIR / name
     for name in ("mod.rs", "product.rs", "inventory.rs", "classifier.rs", "rejection.rs")
@@ -82,10 +83,10 @@ NORMAL_MODULE_TX_ACTIVATION_FILES = tuple(
         "source_draft.rs",
     )
 )
-NORMAL_MODULE_TX_FILES = (
-    *NORMAL_MODULE_TX_PASSIVE_FILES,
-    *NORMAL_MODULE_TX_ACTIVATION_FILES,
-)
+# The transaction is a closed Builder boundary. Its callable files are valid
+# consumers of its schema/evidence, while every consumer outside this directory
+# still has to be named explicitly below.
+NORMAL_MODULE_TX_FILES = tuple(NORMAL_MODULE_TX_DIR.glob("*.rs"))
 ALL_FILES = (
     *PRODUCTION_FILES,
     MAIN_SOURCE,
@@ -305,7 +306,7 @@ def main() -> int:
     )
     require_count(
         frontdoor,
-        "fn prepare_raw_vm_handoff(self)",
+        "fn prepare_raw_vm_handoff(",
         1,
         "unchanged narrow handoff terminal",
     )
@@ -544,7 +545,8 @@ def main() -> int:
         require_count(main_thunk_plan, definition, 1, f"sole Main thunk definition {definition}")
     for fragment in (
         ".seal_source_header()",
-        "source.completion().function_exit_contract()",
+        "source.completion(),",
+        "let contract = completion.function_exit_contract();",
         "source.terminal_profile()",
         "source_header.owner() != contract.owner()",
         "canonical_normal_main_entry_target()",
@@ -718,6 +720,7 @@ def main() -> int:
         VALUE_PROFILE_ANALYZER,
         VALUE_PROFILE_MOD,
         BUILDER_MOD,
+        CANONICAL_CORE_DISPATCH,
         *NORMAL_MODULE_TX_FILES,
         *callable_source_files,
     }
@@ -739,6 +742,7 @@ def main() -> int:
         VALUE_PROFILE_ANALYZER,
         VALUE_PROFILE_MOD,
         BUILDER_MOD,
+        CANONICAL_CORE_DISPATCH,
         *NORMAL_MODULE_TX_FILES,
         *callable_source_files,
         Path(__file__),

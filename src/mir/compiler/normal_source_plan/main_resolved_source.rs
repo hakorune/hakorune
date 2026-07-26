@@ -89,6 +89,10 @@ impl VerifiedNormalMainResolvedSourceUnitV1 {
         self.role
     }
 
+    pub(in crate::mir) fn into_source(self) -> VerifiedNormalMainFunctionSourceUnitV1 {
+        self.source
+    }
+
     #[cfg(test)]
     fn source_function_for_test(&self) -> &crate::ast::ASTNode {
         self.source.borrow_exact_function().function()
@@ -108,6 +112,15 @@ impl RejectedNormalMainResolvedSourceV1 {
 
     pub(crate) fn discard(self) {
         drop(self);
+    }
+
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (
+        VerifiedNormalMainFunctionSourceUnitV1,
+        NormalMainResolvedSourceErrorV1,
+    ) {
+        (self.owner, self.error)
     }
 }
 

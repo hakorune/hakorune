@@ -197,13 +197,19 @@ pub(crate) struct RejectedNormalMainThunkPlanV1<'unit> {
     error: NormalMainThunkPlanErrorV1,
 }
 
-impl RejectedNormalMainThunkPlanV1<'_> {
+impl<'unit> RejectedNormalMainThunkPlanV1<'unit> {
     pub(crate) fn error(&self) -> &NormalMainThunkPlanErrorV1 {
         &self.error
     }
 
     pub(crate) fn discard(self) {
         drop(self);
+    }
+
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (VerifiedNormalMainFunctionPlanV1<'unit>, NormalMainThunkPlanErrorV1) {
+        (self.owner, self.error)
     }
 
     #[cfg(test)]

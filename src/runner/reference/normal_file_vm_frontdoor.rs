@@ -14,7 +14,8 @@ mod source_plan_input;
 
 #[allow(unused_imports)]
 pub(crate) use source_plan_input::{
-    ClassifiedNormalFileSourcePlanV1, PreparedNormalFileSourcePlanRequestV1,
+    CanonicalCoreSourcePlanHandoffErrorV1, ClassifiedNormalFileSourcePlanV1,
+    PreparedNormalFileSourcePlanRequestV1, RejectedCanonicalCoreSourcePlanHandoffV1,
     RejectedNormalFileSourcePlanningV1,
 };
 
@@ -419,7 +420,6 @@ fn find_no_import_violation(node: &ASTNode) -> Option<NormalFileSourceProfileErr
     found
 }
 
-#[cfg(test)]
 impl SealedNormalEntryProfileV1 {
     fn is_canonical_core(&self) -> bool {
         matches!(

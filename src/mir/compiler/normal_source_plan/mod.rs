@@ -80,8 +80,8 @@ pub(crate) use normal_callable_transaction_handoff::{
 };
 #[allow(unused_imports)]
 pub(crate) use product::{
-    PreparedNormalSourcePlanInputV1, SealedNormalCallableModuleSourceV1, SealedNormalScalarRootV1,
-    SealedNormalSourcePlanV1,
+    PreparedNormalSourcePlanInputV1, SealedNormalCallableModuleSourceV1, SealedNormalMainSourceV1,
+    SealedNormalScalarRootV1, SealedNormalSourcePlanV1,
 };
 pub(crate) use rejection::{
     NormalSourcePlanErrorV1, NormalSourcePlanStageV1, RejectedNormalSourcePlanV1,

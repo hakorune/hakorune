@@ -315,6 +315,10 @@ impl RejectedNormalMainModuleTransactionV1<'_> {
         drop(self);
     }
 
+    pub(in crate::mir) fn into_error(self) -> NormalMainModuleTransactionErrorV1 {
+        self.error
+    }
+
     #[cfg(test)]
     pub(super) fn retained_source_owner(&self) -> FunctionOwnerIdV1 {
         let _ = self.evidence.source_unit;

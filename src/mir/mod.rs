@@ -50,6 +50,12 @@ pub(crate) mod canonical_recursive_callable_module_backend_capability;
 pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
 mod compiler;
+#[allow(unused_imports)]
+pub(crate) use compiler::canonical_core_dispatch::{
+    CanonicalCoreDispatchErrorV1, CanonicalCoreDispatchStageV1, CanonicalCorePendingFamilyV1,
+    CanonicalCoreSourcePlanCompileRequestV1, NormalSourcePlanReceiptV1,
+    VerifiedCanonicalCoreSourcePlanAdmissionV1,
+};
 pub(crate) use compiler::normal_source_plan;
 pub(crate) use compiler::source_entry_vm_reference::RawVmReferenceRunReportV1;
 #[cfg(feature = "vm-reference")]

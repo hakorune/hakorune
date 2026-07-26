@@ -20,6 +20,11 @@ SOURCE_PLAN_PROOF_CONSUMERS = (
     ROOT
     / "src/runner/reference/normal_file_vm_frontdoor/source_plan_input_tests.rs",
 )
+CANONICAL_CORE_DISPATCH = ROOT / "src/mir/compiler/canonical_core_dispatch.rs"
+CANONICAL_CORE_DISPATCH_CARD = ROOT / (
+    "docs/development/current/main/investigations/"
+    "normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26.md"
+)
 REFERENCE_MOD = ROOT / "src/runner/reference/mod.rs"
 RAW_CONTRACT = ROOT / "src/mir/raw_vm_reference_contract.rs"
 RUNNER = ROOT / "src/runner/mod.rs"
@@ -52,6 +57,11 @@ def main() -> int:
     parity_p0a = PARITY_P0A.read_text()
     reference_mod = REFERENCE_MOD.read_text()
     raw_contract = RAW_CONTRACT.read_text()
+    frontdoor_input = (
+        ROOT / "src/runner/reference/normal_file_vm_frontdoor/source_plan_input.rs"
+    ).read_text()
+    canonical_dispatch = CANONICAL_CORE_DISPATCH.read_text()
+    canonical_dispatch_card = CANONICAL_CORE_DISPATCH_CARD.read_text()
 
     for fragment in (
         "NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0",
@@ -108,6 +118,61 @@ def main() -> int:
             "canonical_process_and_vm_faults_leave_the_compiler_reusable",
         ):
             require(text, fragment, f"test-only Forge evidence {fragment}")
+    for fragment in (
+        "NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0",
+        "runner family match             = 0",
+        "compiler -> runner import       = 0",
+        "Script / CallableModule",
+    ):
+        require(canonical_dispatch_card, fragment, f"canonical dispatch contract {fragment}")
+    for fragment in (
+        "into_canonical_core_compile_request",
+        "CanonicalCoreSourcePlanCompileRequestV1",
+        "VerifiedCanonicalCoreSourcePlanAdmissionV1",
+    ):
+        require(frontdoor_input, fragment, f"canonical front-door handoff {fragment}")
+    for forbidden in (
+        "SealedNormalScalarRootV1::",
+        "SealedNormalSourcePlanV1::CallableModule",
+        "compile_raw_with_source",
+        "compile_with_source",
+        "build_module",
+        "fallback",
+        "retry",
+    ):
+        if forbidden in frontdoor_input:
+            raise AssertionError(f"front door must not select source family or fallback: {forbidden}")
+    for fragment in (
+        "CanonicalCoreSourcePlanCompileRequestV1",
+        "NormalCanonicalCoreSourcePlanCompilerV1",
+        "CompletedCanonicalCoreSourceEntryCandidateV1",
+        "FamilyCapabilityPending",
+        "compile_canonical_core_source_plan",
+        "compile_main0",
+    ):
+        require(canonical_dispatch, fragment, f"canonical compiler dispatch {fragment}")
+    if canonical_dispatch.count("match plan") != 1:
+        raise AssertionError("canonical-core source family must have one compiler-layer match")
+    if (
+        canonical_dispatch.count("seal_from_frontdoor_profile") != 1
+        or frontdoor_input.count("seal_from_frontdoor_profile") != 1
+    ):
+        raise AssertionError("canonical-core admission must have one front-door producer")
+    if frontdoor_input.count("CanonicalCoreSourcePlanCompileRequestV1::new") != 1:
+        raise AssertionError("canonical-core request must have one front-door producer")
+    for forbidden in (
+        "crate::runner",
+        "RawPublishedCompileRequestV1",
+        "RawPublishedInvocationV1",
+        "RawVmReferenceInvocationV1",
+        "NYASH_ENTRY",
+        "execute_module(",
+        "ProcessExitProjectionV1",
+        "fallback",
+        "retry",
+    ):
+        if forbidden in canonical_dispatch:
+            raise AssertionError(f"canonical dispatch must stay unpublished and Raw-free: {forbidden}")
     for fragment in (
         "NormalFileVmReferenceProductionRequestV1",
         "NormalFileNoImportVmReferenceV1",
@@ -224,6 +289,8 @@ def main() -> int:
         *TEST_ONLY_RAW_TERMINAL_CONSUMERS,
         *SOURCE_PLAN_PROOF_CONSUMERS,
         RAW_CONTRACT,
+        CANONICAL_CORE_DISPATCH,
+        CANONICAL_CORE_DISPATCH_CARD,
         Path(__file__),
         *S3_GUARDS,
     ):

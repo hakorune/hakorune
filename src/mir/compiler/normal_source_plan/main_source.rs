@@ -79,6 +79,10 @@ impl VerifiedNormalMainFunctionSourceUnitV1 {
         }
     }
 
+    pub(in crate::mir) fn into_source(self) -> SealedNormalMainSourceV1 {
+        self.source
+    }
+
     #[cfg(test)]
     fn owned_program_for_test(&self) -> &ASTNode {
         self.source.input().source()
@@ -105,6 +109,12 @@ impl RejectedNormalMainFunctionSourceV1 {
 
     pub(crate) fn discard(self) {
         drop(self);
+    }
+
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (SealedNormalMainSourceV1, NormalMainFunctionSourceErrorV1) {
+        (self.owner, self.error)
     }
 }
 

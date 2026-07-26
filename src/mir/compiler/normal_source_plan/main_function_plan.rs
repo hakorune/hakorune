@@ -106,6 +106,10 @@ impl RejectedNormalMainFunctionPlanV1<'_> {
         drop(self);
     }
 
+    pub(in crate::mir) fn into_error(self) -> NormalMainFunctionPlanErrorV1 {
+        self.error
+    }
+
     #[cfg(test)]
     fn owner_for_test(&self) -> &VerifiedNormalMainResolvedSourceUnitV1 {
         self.owner

@@ -43,7 +43,7 @@ pub(in crate::mir) use callable_main_physical::{
     NormalCallableMainPhysicalStageV1, PreparedNormalCallableMainPhysicalV1,
     RejectedNormalCallableMainPhysicalV1,
 };
-pub(in crate::mir::builder) use canonical_batch::{
+pub(in crate::mir) use canonical_batch::{
     NormalCanonicalModuleBatchErrorV1, NormalCanonicalModuleBatchV1,
     PreparedNormalCanonicalModuleBatchV1, RejectedNormalCanonicalModuleBatchV1,
 };

@@ -19,6 +19,8 @@ pub(in crate::mir) mod callable_graph_inventory;
 #[allow(dead_code)]
 pub(in crate::mir) mod callable_scc_partition;
 #[allow(dead_code)]
+pub(crate) mod canonical_core_dispatch;
+#[allow(dead_code)]
 mod canonical_drain_manifest;
 #[allow(dead_code)]
 pub(in crate::mir) mod canonical_finalization;

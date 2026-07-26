@@ -8,15 +8,15 @@ use super::schema::{
     NormalModuleTransactionSchemaV1,
 };
 
-pub(in crate::mir::builder) struct NormalCanonicalModuleBatchV1;
+pub(in crate::mir) struct NormalCanonicalModuleBatchV1;
 
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum NormalCanonicalModuleBatchErrorV1 {
+pub(in crate::mir) enum NormalCanonicalModuleBatchErrorV1 {
     Schema(NormalModuleTransactionSchemaErrorV1),
 }
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct PreparedNormalCanonicalModuleBatchV1<'unit> {
+pub(in crate::mir) struct PreparedNormalCanonicalModuleBatchV1<'unit> {
     thunk: VerifiedNormalMainThunkPlanV1<'unit>,
     schema: NormalModuleTransactionSchemaV1,
     _seal: PreparedNormalCanonicalModuleBatchSealV1,
@@ -26,13 +26,13 @@ pub(in crate::mir::builder) struct PreparedNormalCanonicalModuleBatchV1<'unit> {
 struct PreparedNormalCanonicalModuleBatchSealV1;
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct RejectedNormalCanonicalModuleBatchV1<'unit> {
+pub(in crate::mir) struct RejectedNormalCanonicalModuleBatchV1<'unit> {
     owner: VerifiedNormalMainThunkPlanV1<'unit>,
     error: NormalCanonicalModuleBatchErrorV1,
 }
 
 impl NormalCanonicalModuleBatchV1 {
-    pub(in crate::mir::builder) fn prepare(
+    pub(in crate::mir) fn prepare(
         thunk: VerifiedNormalMainThunkPlanV1<'_>,
     ) -> Result<PreparedNormalCanonicalModuleBatchV1<'_>, RejectedNormalCanonicalModuleBatchV1<'_>>
     {
@@ -101,13 +101,22 @@ impl<'unit> PreparedNormalCanonicalModuleBatchV1<'unit> {
     }
 }
 
-impl RejectedNormalCanonicalModuleBatchV1<'_> {
+impl<'unit> RejectedNormalCanonicalModuleBatchV1<'unit> {
     pub(in crate::mir::builder) fn error(&self) -> &NormalCanonicalModuleBatchErrorV1 {
         &self.error
     }
 
     pub(in crate::mir::builder) fn discard(self) {
         drop(self);
+    }
+
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (
+        VerifiedNormalMainThunkPlanV1<'unit>,
+        NormalCanonicalModuleBatchErrorV1,
+    ) {
+        (self.owner, self.error)
     }
 
     #[cfg(test)]

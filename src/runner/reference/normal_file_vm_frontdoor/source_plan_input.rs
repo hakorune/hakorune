@@ -12,6 +12,10 @@ use crate::mir::normal_source_plan::{
     NormalSourcePlanClassifierV1, NormalSourcePlanErrorV1, NormalSourcePlanStageV1,
     PreparedNormalSourcePlanInputV1, RejectedNormalSourcePlanV1, SealedNormalSourcePlanV1,
 };
+use crate::mir::{
+    CanonicalCoreSourcePlanCompileRequestV1, NormalSourcePlanReceiptV1,
+    VerifiedCanonicalCoreSourcePlanAdmissionV1,
+};
 
 #[derive(Debug)]
 pub(crate) struct PreparedNormalFileSourcePlanRequestV1 {
@@ -40,6 +44,20 @@ pub(crate) struct RejectedNormalFileSourcePlanningV1 {
     rejected: RejectedNormalSourcePlanV1,
     profile: SealedNormalEntryProfileV1,
     receipt: NormalFileSourceReceiptV1,
+}
+
+/// The canonical-core front door rejected a classified plan before compiler
+/// dispatch. The original classified owner remains intact for inspection or
+/// one consuming discard; this terminal never retries another profile.
+#[derive(Debug)]
+pub(crate) struct RejectedCanonicalCoreSourcePlanHandoffV1 {
+    owner: ClassifiedNormalFileSourcePlanV1,
+    error: CanonicalCoreSourcePlanHandoffErrorV1,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CanonicalCoreSourcePlanHandoffErrorV1 {
+    ProfileExcludesCanonicalCore,
 }
 
 impl PreparedNormalFileSourceV1 {
@@ -92,6 +110,37 @@ impl ClassifiedNormalFileSourcePlanV1 {
         &self.plan
     }
 
+    /// Move a canonical-core classified plan into the compiler without
+    /// inspecting whether it is Script, Main, or a callable module.
+    pub(crate) fn into_canonical_core_compile_request(
+        self,
+    ) -> Result<CanonicalCoreSourcePlanCompileRequestV1, RejectedCanonicalCoreSourcePlanHandoffV1>
+    {
+        if !self.profile.is_canonical_core() {
+            return Err(RejectedCanonicalCoreSourcePlanHandoffV1 {
+                owner: self,
+                error: CanonicalCoreSourcePlanHandoffErrorV1::ProfileExcludesCanonicalCore,
+            });
+        }
+        let Self {
+            plan,
+            profile: _,
+            receipt,
+            _seal: _,
+        } = self;
+        let receipt = NormalSourcePlanReceiptV1::one_read_one_parse(
+            receipt.source_identity,
+            receipt.utf8_len,
+            receipt.read_count,
+            receipt.parse_count,
+        );
+        Ok(CanonicalCoreSourcePlanCompileRequestV1::new(
+            plan,
+            VerifiedCanonicalCoreSourcePlanAdmissionV1::seal_from_frontdoor_profile(),
+            receipt,
+        ))
+    }
+
     #[cfg(test)]
     fn receipt_counts(&self) -> (u8, u8) {
         (self.receipt.read_count, self.receipt.parse_count)
@@ -105,6 +154,16 @@ impl ClassifiedNormalFileSourcePlanV1 {
     #[cfg(test)]
     pub(crate) fn is_canonical_core_profile_for_test(&self) -> bool {
         self.profile.is_canonical_core()
+    }
+}
+
+impl RejectedCanonicalCoreSourcePlanHandoffV1 {
+    pub(crate) const fn error(&self) -> CanonicalCoreSourcePlanHandoffErrorV1 {
+        self.error
+    }
+
+    pub(crate) fn discard(self) {
+        drop(self);
     }
 }
 

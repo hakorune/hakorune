@@ -36,6 +36,23 @@ fn classify(
         .classify()
 }
 
+fn classify_canonical_core(
+    dir: &Path,
+    name: &str,
+    source: &str,
+) -> ClassifiedNormalFileSourcePlanV1 {
+    canonical_core_request(write_source(dir, name, source))
+        .prepare()
+        .expect("profile")
+        .read_once()
+        .expect("one read")
+        .parse_once()
+        .expect("one canonical parse")
+        .prepare_source_plan_request()
+        .classify()
+        .expect("canonical-core source plan")
+}
+
 #[test]
 fn parsed_empty_and_scalar_sources_become_script_plans_once() {
     let dir = tempdir().expect("tempdir");
@@ -69,6 +86,90 @@ fn canonical_core_profile_reaches_the_same_one_read_one_parse_source_plan_bounda
     ));
     assert_eq!(classified.receipt_counts(), (1, 1));
     assert!(classified.is_canonical_core_profile_for_test());
+}
+
+#[test]
+fn canonical_core_handoff_moves_only_the_sealed_plan_and_receipt() {
+    let dir = tempdir().expect("tempdir");
+    let request = classify_canonical_core(dir.path(), "handoff.hako", "42")
+        .into_canonical_core_compile_request()
+        .expect("canonical-core handoff");
+    let mut compiler = crate::mir::MirCompiler::new();
+    let rejected = compiler
+        .compile_canonical_core_source_plan(request)
+        .expect_err("Script candidate remains pending in Main-only S0");
+    assert_eq!(
+        rejected.stage(),
+        crate::mir::CanonicalCoreDispatchStageV1::FamilyCapability
+    );
+    assert!(matches!(
+        rejected.cause(),
+        crate::mir::CanonicalCoreDispatchErrorV1::FamilyCapabilityPending(
+            crate::mir::CanonicalCorePendingFamilyV1::Script
+        )
+    ));
+    assert_eq!(rejected.receipt_counts(), (1, 1));
+    rejected.discard();
+}
+
+#[test]
+fn narrow_profile_cannot_enter_the_canonical_core_dispatch_handoff() {
+    let dir = tempdir().expect("tempdir");
+    let rejected = classify(dir.path(), "narrow-handoff.hako", "42")
+        .expect("narrow source plan")
+        .into_canonical_core_compile_request()
+        .expect_err("narrow profile is not canonical-core");
+    assert_eq!(
+        rejected.error(),
+        CanonicalCoreSourcePlanHandoffErrorV1::ProfileExcludesCanonicalCore
+    );
+    rejected.discard();
+}
+
+#[test]
+fn canonical_core_dispatch_builds_only_main0_candidate_in_s0() {
+    let dir = tempdir().expect("tempdir");
+    let request = classify_canonical_core(
+        dir.path(),
+        "main-dispatch.hako",
+        "static box Main { main() {} }",
+    )
+    .into_canonical_core_compile_request()
+    .expect("canonical-core handoff");
+    let mut compiler = crate::mir::MirCompiler::new();
+    let candidate = compiler
+        .compile_canonical_core_source_plan(request)
+        .expect("unpublished Main candidate");
+    assert!(candidate.is_main());
+    assert_eq!(candidate.receipt_counts(), (1, 1));
+}
+
+#[test]
+fn canonical_core_dispatch_rejects_callable_before_builder_effects() {
+    let dir = tempdir().expect("tempdir");
+    let request = classify_canonical_core(
+        dir.path(),
+        "callable-dispatch.hako",
+        "function helper() {}\nstatic box Main { main() {} }",
+    )
+    .into_canonical_core_compile_request()
+    .expect("canonical-core handoff");
+    let mut compiler = crate::mir::MirCompiler::new();
+    let rejected = compiler
+        .compile_canonical_core_source_plan(request)
+        .expect_err("Callable candidate remains pending in Main-only S0");
+    assert_eq!(
+        rejected.stage(),
+        crate::mir::CanonicalCoreDispatchStageV1::FamilyCapability
+    );
+    assert!(matches!(
+        rejected.cause(),
+        crate::mir::CanonicalCoreDispatchErrorV1::FamilyCapabilityPending(
+            crate::mir::CanonicalCorePendingFamilyV1::CallableModule
+        )
+    ));
+    assert_eq!(rejected.receipt_counts(), (1, 1));
+    rejected.discard();
 }
 
 #[test]
