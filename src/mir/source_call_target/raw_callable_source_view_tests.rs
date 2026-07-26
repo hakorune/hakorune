@@ -29,9 +29,19 @@ fn raw_cursor_reaches_preloop_nested_instance_argument_with_exact_catalog_identi
             let nested = view
                 .child_expr_from_expr(&outer, ExprChildRoleV1::CallArgument(1))
                 .expect("Body(3).Value.Argument(1)");
+            let input = view
+                .method_call_input(&nested)
+                .expect("exact nested MethodCall input");
 
             assert_eq!(nested.site(), &sites[0]);
             assert!(ptr::eq(nested.node(), exact_call.expression()));
+            assert!(ptr::eq(input.view(), &view));
+            assert!(ptr::eq(input.caller(), exact_call.caller()));
+            assert_eq!(input.site(), &sites[0]);
+            assert!(ptr::eq(input.node(), exact_call.expression()));
+            assert!(matches!(input.receiver(), ASTNode::Me { .. }));
+            assert_eq!(input.method(), "static_const_eval_pos");
+            assert_eq!(input.arguments().len(), 1);
             assert!(matches!(
                 nested.node(),
                 ASTNode::MethodCall { method, .. } if method == "static_const_eval_pos"
@@ -53,9 +63,19 @@ fn raw_cursor_rejects_wrong_role_and_out_of_bounds_before_lowering() {
             ));
 
             let statement = view.body_stmt(&body, 3).expect("Body(3)");
+            let outer = view
+                .child_expr_from_stmt(&statement, ExprChildRoleV1::AssignmentValue)
+                .expect("Body(3).Value");
+            let receiver = view
+                .child_expr_from_expr(&outer, ExprChildRoleV1::Receiver)
+                .expect("Body(3).Value.Receiver");
             assert!(matches!(
                 view.child_expr_from_stmt(&statement, ExprChildRoleV1::ReturnValue),
                 Err(RawSourceCursorErrorV1::ExpressionRoleParentMismatch { .. })
+            ));
+            assert!(matches!(
+                view.method_call_input(&receiver),
+                Err(RawSourceCursorErrorV1::MethodCallRequired { .. })
             ));
         },
     );
@@ -106,6 +126,19 @@ fn raw_cursor_rejects_foreign_view_even_when_catalog_source_looks_equal() {
                     let foreign_body = right.root_body();
                     assert!(matches!(
                         left.body_stmt(&foreign_body, 3),
+                        Err(RawSourceCursorErrorV1::ForeignView { .. })
+                    ));
+
+                    let right_body = right.root_body();
+                    let right_statement = right.body_stmt(&right_body, 3).expect("Body(3)");
+                    let right_outer = right
+                        .child_expr_from_stmt(&right_statement, ExprChildRoleV1::AssignmentValue)
+                        .expect("Body(3).Value");
+                    let right_nested = right
+                        .child_expr_from_expr(&right_outer, ExprChildRoleV1::CallArgument(1))
+                        .expect("Body(3).Value.Argument(1)");
+                    assert!(matches!(
+                        left.method_call_input(&right_nested),
                         Err(RawSourceCursorErrorV1::ForeignView { .. })
                     ));
                 },

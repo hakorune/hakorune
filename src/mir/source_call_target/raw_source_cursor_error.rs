@@ -1,5 +1,5 @@
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
-use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourceStmtSiteV1};
+use crate::mir::resolved_semantics::{SourceExprSiteV1, SourceNodeSiteV1, SourceStmtSiteV1};
 
 /// Rejections while structurally navigating one catalog-owned Raw callable.
 ///
@@ -26,6 +26,10 @@ pub(crate) enum RawSourceCursorErrorV1 {
     StatementExpressionRequired {
         caller: CanonicalSameModuleCallableKeyV1,
         site: SourceStmtSiteV1,
+    },
+    MethodCallRequired {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
     },
     ExpressionRoleParentMismatch {
         caller: CanonicalSameModuleCallableKeyV1,

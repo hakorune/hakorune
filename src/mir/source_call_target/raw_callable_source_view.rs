@@ -48,6 +48,16 @@ pub(crate) struct RawLocatedExprInputV1<'view, 'catalog> {
     node: &'catalog ASTNode,
 }
 
+/// One exact MethodCall syntax input borrowed from the catalog-backed Raw
+/// cursor. This is source-only: it carries neither lowering state nor a
+/// physical result destination.
+#[derive(Debug)]
+pub(crate) struct RawLocatedMethodCallInputV1<'view, 'catalog> {
+    view: &'view VerifiedRawCallableSourceViewV1<'catalog>,
+    site: SourceExprSiteV1,
+    node: &'catalog ASTNode,
+}
+
 #[derive(Debug)]
 struct RawCallableSourceViewSealV1(());
 
@@ -182,6 +192,29 @@ impl<'catalog> VerifiedRawCallableSourceViewV1<'catalog> {
     ) -> Result<RawLocatedBodyInputV1<'view, 'catalog>, RawSourceCursorErrorV1> {
         self.require_view(parent.view)?;
         self.child_body(parent.site.node(), parent.node, role)
+    }
+
+    /// Seal an exact borrowed MethodCall from one located expression input.
+    ///
+    /// The view identity check prevents an equal-looking expression produced
+    /// by another declaration-catalog allocation from becoming this Raw
+    /// route's authority.
+    pub(crate) fn method_call_input<'view>(
+        &'view self,
+        expression: &RawLocatedExprInputV1<'view, 'catalog>,
+    ) -> Result<RawLocatedMethodCallInputV1<'view, 'catalog>, RawSourceCursorErrorV1> {
+        self.require_view(expression.view())?;
+        if !matches!(expression.node(), ASTNode::MethodCall { .. }) {
+            return Err(RawSourceCursorErrorV1::MethodCallRequired {
+                caller: self.caller.clone(),
+                site: expression.site().clone(),
+            });
+        }
+        Ok(RawLocatedMethodCallInputV1 {
+            view: self,
+            site: expression.site().clone(),
+            node: expression.node(),
+        })
     }
 
     fn child_expr<'view>(
@@ -320,5 +353,44 @@ impl<'view, 'catalog> RawLocatedExprInputV1<'view, 'catalog> {
 
     pub(crate) const fn node(&self) -> &'catalog ASTNode {
         self.node
+    }
+}
+
+impl<'view, 'catalog> RawLocatedMethodCallInputV1<'view, 'catalog> {
+    pub(crate) const fn view(&self) -> &'view VerifiedRawCallableSourceViewV1<'catalog> {
+        self.view
+    }
+
+    pub(crate) const fn caller(&self) -> &'catalog CanonicalSameModuleCallableKeyV1 {
+        self.view.caller()
+    }
+
+    pub(crate) const fn site(&self) -> &SourceExprSiteV1 {
+        &self.site
+    }
+
+    pub(crate) const fn node(&self) -> &'catalog ASTNode {
+        self.node
+    }
+
+    pub(crate) fn receiver(&self) -> &'catalog ASTNode {
+        let ASTNode::MethodCall { object, .. } = self.node else {
+            unreachable!("RawLocatedMethodCallInputV1 seals only MethodCall syntax")
+        };
+        object
+    }
+
+    pub(crate) fn method(&self) -> &'catalog str {
+        let ASTNode::MethodCall { method, .. } = self.node else {
+            unreachable!("RawLocatedMethodCallInputV1 seals only MethodCall syntax")
+        };
+        method
+    }
+
+    pub(crate) fn arguments(&self) -> &'catalog [ASTNode] {
+        let ASTNode::MethodCall { arguments, .. } = self.node else {
+            unreachable!("RawLocatedMethodCallInputV1 seals only MethodCall syntax")
+        };
+        arguments
     }
 }

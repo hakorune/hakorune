@@ -21,6 +21,19 @@ route activation, `ValueId`, `MirType`, type publication, or runtime behavior.
 Later association must co-seal catalog allocation, embedded caller key, and
 exact `SourceExprSiteV1`; equal-looking catalogs or keys are not authority.
 
+## RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0
+
+`RawLocatedMethodCallInputV1` is the next source-only boundary. Only the
+same `VerifiedRawCallableSourceViewV1` that issued a located expression may
+seal it, and only when that exact borrowed expression is `ASTNode::MethodCall`.
+It retains the view, embedded caller, exact `SourceExprSiteV1`, and borrowed
+receiver/method/argument syntax from the same catalog allocation.
+
+It is deliberately not `RawLegacyMethodCallInputV1`: it owns no Builder,
+`ValueId`, `MirType`, `type_ctx`, physical Call, result contract, or route
+selection. The later candidate-only descent will consume this input without
+re-scanning or matching by name; the default raw route remains unchanged.
+
 ## AST-BIND0-S0 exact source site
 
 `VerifiedSourceMethodCallSiteV1` is the sole exact caller/body/site co-seal.
