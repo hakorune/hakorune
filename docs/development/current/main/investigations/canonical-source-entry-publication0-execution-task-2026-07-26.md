@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: NORMAL-SCRIPT0-PUBLICATION-EVIDENCE0-S0
+Active executable row: CANONICAL-SOURCE-ENTRY-PUBLICATION0-S0-B
 ```
 
 ## Boundary
@@ -74,6 +74,8 @@ Canonical(Main { source_owner } | Script)
 
 ### 1. `NORMAL-SCRIPT0-PUBLICATION-EVIDENCE0-S0`
 
+Status: closed by `dec19959af`.
+
 Preserve existing Script exit evidence through physical function, detached
 exit, and one-row module candidate. Seal a total Script-entry result contract
 from the completed receipt and draft correspondence.
@@ -84,11 +86,15 @@ publication / VM execution / AST re-observation = 0
 
 ### 2. `CANONICAL-SOURCE-ENTRY-PUBLICATION0-S0-A`
 
+Status: closed by `49e9e2c3e3`.
+
 Create shared Main+Script publication prepare/commit owners. Every fallible
 pairing check completes before one infallible move into the existing neutral
 invocation.
 
 ### 3. `CANONICAL-SOURCE-ENTRY-PUBLICATION0-S0-B`
+
+Status: active.
 
 Move Main to the shared core. Replace flat canonical Main membership and the
 Main-specific VM-owner variant with a canonical family owner. Raw remains
