@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and NESTED-INSTANCE-RESULT-CONTRACT0-S0 are closed. NESTED-INSTANCE-RESULT-EMISSION-HANDOFF0-prime-r1 selects constrained C-prime: an opaque exact source association may join finalized mir_call.dst only at the existing unified Call success seam. The correspondence/P0 series may create a success-only receipt but must not publish MirType or write type_ctx. OWN-GRAM-REJECT0-HAKO0 remains parked until the same Stage-B guard reaches the ownership syntax boundary."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 and NESTED-INSTANCE-RESULT-CONTRACT0-S0 are closed. NESTED-INSTANCE-RESULT-EMISSION-HANDOFF0-prime-r1 selected constrained C-prime, but correspondence/P0 stopped before implementation: the pre-loop route is standard unified Method rather than MeLoweredGlobal and carries no SourceExprSiteV1, while loop-refresh is disconnected and already writes Integer after Call success. NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1 must choose raw source-site carry, real route ownership, and the existing loop result publisher before any bridge code. OWN-GRAM-REJECT0-HAKO0 remains parked until the same Stage-B guard reaches the ownership syntax boundary."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
+current_design_stop = "NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1"
 current_execution_row = "NESTED-INSTANCE-RESULT-EMISSION-CORRESPONDENCE0-P0"
-current_execution_summary = "Prove read-only correspondence for the actual pre-loop and loop-refresh source sites through their real Stage-B routes to finalized mir_call.dst and emitted Call.dst. Production behavior, prepared emission constructors, receipts, MirType/type_ctx publication, generic emitter source policy, fallback, and retry remain zero."
+current_execution_summary = "Closed read-only correspondence with a fail-fast mismatch before P0-A: pre-loop is a standard unified Method route, not MeLoweredGlobal, and its raw descent has no SourceExprSiteV1; loop-refresh is a disconnected located proof route whose selected-call lowerer already publishes Integer after Call success. Choose raw source-site carry, exact production route ownership, and the loop publisher disposition before changing code."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -433,9 +433,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "nested-instance-result-emission-handoff0-d0-design-question-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/nested-instance-result-emission-handoff0-d0-design-question-2026-07-26.md"
-latest_card_summary = """NESTED-INSTANCE-RESULT-EMISSION-HANDOFF0-prime-r1 accepts constrained C-prime. An exact non-Clone source association may be carried stack-locally into a specialized unified-emitter entry, paired only with finalized mir_call.dst, and committed to an EmittedNestedInstanceCallV1 only after the existing Call writer succeeds. The first row is read-only correspondence; all P0 rows retain type_ctx write zero, and I0 requires a later design decision."""
+latest_card = "nested-instance-result-emission-reconciliation-d1-design-question-2026-07-27"
+latest_card_path = "docs/development/current/main/investigations/nested-instance-result-emission-reconciliation-d1-design-question-2026-07-27.md"
+latest_card_summary = """NESTED-INSTANCE-RESULT-EMISSION-CORRESPONDENCE0-P0 stopped before P0-A. The pre-loop source site reaches a standard unified Method Call rather than the predicted MeLoweredGlobal terminal, but its production raw descent has no SourceExprSiteV1; loop-refresh reaches a disconnected located GenericLoop proof route whose selected-call lowerer already writes Integer after Call success. NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1 must choose an exact raw source-site carry, the real production route(s), and the existing loop result-publication owner before any receipt bridge, emitter API, or type publication work."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NESTED-INSTANCE-RESULT-EMISSION-CORRESPONDENCE0-P0"
+current_blocker_token = "NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

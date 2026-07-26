@@ -172,6 +172,56 @@ cannot expose the exact final destination
 already receives an unrelated Integer type authority
 ```
 
+## P0 correspondence outcome — 2026-07-27
+
+**Stopped before P0-A.**  The required correspondence does not hold in the
+current tree, so no association, receipt, emitter API, or type publication was
+implemented.
+
+| Exact source site | Observed route | Status | Type authority after successful Call |
+| --- | --- | --- | --- |
+| `Body(3).Value.Argument(1)` | raw statement descent -> standard unified `Method` Call | production-shaped prefix harness; not the predicted `MeLoweredGlobal` terminal | none in this fixture because the raw port has no function-header lookup |
+| `Body(4).LoopBody(5).Value.Argument(1)` | located GenericLoop claim -> unified `Global` Call | explicitly disconnected; no production route or claim consumer | `emit_selected_exact_i64` immediately writes `type_ctx[dst] = Integer` |
+
+The first route reaches the existing unified Call seam, but it is a distinct
+route family from the card's `MeLoweredGlobal` prediction.  The second route
+does reach the seam in focused tests, but
+`generic_loop_located_composer.rs` explicitly states that it has no production
+route or claim consumer.  Its selected-call emitter also performs the exact
+type publication that this series forbids.
+
+The pre-loop route has a separate authority failure: its production raw
+MethodCall input carries receiver/method/arguments but **no
+`SourceExprSiteV1`**.  The existing location-carrying method input belongs to
+the explicitly disconnected `LocatedLegacyLoweringSessionV1`.  Consequently,
+P0-A cannot truthfully construct the planned exact `{ caller, site }`
+association from the real route without forbidden source re-walk/ordinal
+reconstruction or a separately designed location-carrying raw descent
+contract.
+
+The P0 structural stop has therefore fired:
+
+```text
+one actual production Stage-B route for each selected site = not proven
+pre-loop exact route-owned SourceExprSiteV1                = absent
+loop-refresh type_ctx write                               = existing 1
+P0 type_ctx write zero                                    = false
+P0-A / P0-B / P0-C / P0-G0 authorization                  = 0
+```
+
+The unified emitter itself remains a valid physical-success observation point:
+it creates `mir_call`, prepares `PreparedUnifiedCallPostSuccessV1` from
+`mir_call.dst`, emits `MirInstruction::Call`, then commits existing
+post-success work only after emission succeeds.  That fact does not authorize
+putting source policy in the emitter or activating a disconnected loop route.
+
+The next owner is the explicit design stop
+`NESTED-INSTANCE-RESULT-EMISSION-RECONCILIATION-D1`.  Its question must choose
+the real Stage-B route(s) and the owner of the pre-existing loop result write
+before this handoff series can resume.  It must not silently relabel the
+located proof route as production, move the existing type write, or force the
+pre-loop route through the header-aware global terminal.
+
 ### Commit 2 — exact source association
 
 ```text
