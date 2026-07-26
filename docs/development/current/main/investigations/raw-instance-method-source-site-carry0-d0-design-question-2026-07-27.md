@@ -197,11 +197,16 @@ RAW-EXPRESSION-DISPATCH-CURSOR0-I0
   one 3-5 commit BoxShape refactor series:
     split the current near-limit matcher into a module folder
     generic body/statement/expression input view
-    structural child-site propagation for the admitted pre-loop prefix
     legacy AST facade parity and single matcher guard
 
+  closed:
+    the source-only Raw cursor remains the sole located child-site carrier.
+    RawLocated inputs must not implement the legacy transport views because
+    `into_legacy_*` intentionally erases their sites. The candidate-only
+    physical descent belongs after an exact located MethodCall input exists.
+
 RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0
-  exact site-aware MethodCall input and private association factory
+  exact site-aware MethodCall input and private source-only factory
 
 RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-I0
   one explicit source-owned candidate route
