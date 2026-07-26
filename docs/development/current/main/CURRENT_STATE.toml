@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 is closed: Script, Main F1, and admitted top-level static helpers flow through one source-owned plan, family-private candidate evidence, one shared canonical publication core, one neutral exact VM executor, and ProcessExitProjectionV1. The feature-gated default-off canonical-core CLI lane has real-binary Script/Main/invocation/default-isolation parity; it neither selects a product backend nor changes default routing. OWNERSHIP-SPARSE-RESUME-D0 is the next bounded readiness check for Alias/View work; it must verify prerequisites and preserve production ownership caller=0 and fallback=0."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 is closed: Script, Main F1, and admitted top-level static helpers flow through one source-owned plan, family-private candidate evidence, one shared canonical publication core, one neutral exact VM executor, and ProcessExitProjectionV1. OWNERSHIP-SPARSE-RESUME-D0 is also closed as an inventory: Alias/View semantics did not drift, but stale Binding/Ownership SSA proof receipts prevent a readiness claim. OWNERSHIP-SPARSE-RESUME-D0-GUARD-REFRESH0 is the active behavior-neutral BoxShape series; production ownership caller and SharedV1 fallback remain zero."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "OWNERSHIP-SPARSE-RESUME-D0"
-current_execution_summary = "Read-only readiness check before Ownership Alias/View execution: verify canonical-core, result-contract, Binding/Ownership SSA, parser-reject, SharedV1 fence, caller-zero, and fallback-zero prerequisites."
+current_execution_row = "OWNERSHIP-SSA-RECEIPT-ANCHOR0-S0"
+current_execution_summary = "Refresh stale Binding SSA and I1-T receipt anchors to their exact PHI/draft-seal owners; grammar, ownership behavior, caller counts, and fallback remain unchanged."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -332,7 +332,7 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
+active_phase = "docs/development/current/main/investigations/ownership-sparse-resume-d0-guard-refresh-task-2026-07-26.md"
 phase_status = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
 method_anchor = "docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -433,9 +433,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "hakorune-sparse-ownership-surface-task-2026-07-15"
-latest_card_path = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
-latest_card_summary = """OWNERSHIP-SPARSE-RESUME-D0 is active after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0. It is a read-only prerequisite inventory before OWN-GRAM-REJECT0: canonical Script/Main/helper result contracts, Binding/Ownership SSA receipts, parser-reject assumptions, SharedV1 fencing, production ownership caller=0, and fallback=0 must all remain true. No ownership grammar, parser, MIR, runtime, backend, product/default, or caller activation is authorized in D0."""
+latest_card = "ownership-sparse-resume-d0-guard-refresh-task-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/ownership-sparse-resume-d0-guard-refresh-task-2026-07-26.md"
+latest_card_summary = """OWNERSHIP-SPARSE-RESUME-D0-GUARD-REFRESH0 is active after the D0 inventory found no ownership semantic mismatch but multiple stale prerequisite receipts. It refreshes exact SSA/draft-seal anchors, the callable catalog structural fence, and versioned ownership receipts without grammar, AST, resolver, MIR, runtime, backend, caller, or fallback changes. OWN-GRAM-REJECT0 remains locked until the refreshed receipt suite is green."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "OWNERSHIP-SPARSE-RESUME-D0"
+current_blocker_token = "OWNERSHIP-SPARSE-RESUME-D0-GUARD-REFRESH0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

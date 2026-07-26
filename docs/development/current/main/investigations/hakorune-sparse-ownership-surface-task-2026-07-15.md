@@ -1,9 +1,9 @@
 ---
-Status: Active readiness taskboard; production activation 0
+Status: Accepted taskboard; D0 inventory closed; production activation 0
 Date: 2026-07-15
 Decision: Explicit-move/share, owner-anchored sparse ownership surface
 Source semantics SSOT: ../../../../reference/language/ownership.md
-Current lane: OWNERSHIP-SPARSE-RESUME-D0; follow CURRENT_STATE.toml
+Current lane: follow CURRENT_STATE.toml
 First code-facing ownership row after readiness: OWN-GRAM-REJECT0 exact inactive-syntax fail-fast
 Integration resume checkpoint: MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
 Related:
@@ -40,9 +40,9 @@ call-result View branch details:
 ```
 
 `CURRENT_STATE.toml`, `CURRENT_TASK.md`, `05-Restart-Quick-Resume.md`, and
-`10-Now.md` point here for the bounded readiness check. Selection of an O2 row
-after `OWN-GRAM-REJECT0` still requires its explicit current-lane decision.
-Canonical failure must never retry the current SharedV1 route.
+`10-Now.md` select the active row. Selection of an O2 row after
+`OWN-GRAM-REJECT0` still requires its explicit current-lane decision. Canonical
+failure must never retry the current SharedV1 route.
 
 The 7,000-line design registry is not extended by this work. Its existing
 sharded-manifest task owns cleanup and begins with `CLEAN0`; only after that
@@ -207,6 +207,14 @@ fallback = 0
 
 If a prerequisite has drifted, resume stops with a typed inventory blocker.
 It does not patch the ownership task inside the normal-entry route.
+
+### D0 closeout
+
+The 2026-07-26 D0 inventory found no ownership semantic drift. It did find
+stale Binding/Ownership SSA proof anchors after accepted F1/draft-seal and
+normal-callable structure work. The active follow-up is the behavior-neutral
+`OWNERSHIP-SPARSE-RESUME-D0-GUARD-REFRESH0` card. `OWN-GRAM-REJECT0` remains
+locked until that receipt series is green.
 
 ### 2.2 Execution packs
 
