@@ -15,7 +15,9 @@ use crate::mir::resolved_semantics::{
     ResolvedLexicalRefV1, ScopeKindV1, SourceBindingSiteV1,
 };
 use crate::mir::resolved_value_profile::{
-    analyze_trivial_canonical_main_owner_v1, analyze_trivial_canonical_owner_v1,
+    analyze_trivial_canonical_main_owner_v1,
+    analyze_trivial_canonical_main_owner_with_finite_direct_calls_v1,
+    analyze_trivial_canonical_owner_v1,
     analyze_trivial_canonical_owner_with_finite_direct_calls_v1,
     product::VerifiedTrivialCanonicalOwnerV1, TrivialCanonicalOwnerAnalysisV1,
 };
@@ -26,6 +28,8 @@ use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnit
 use super::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 
 mod resolved_owner_header;
+mod function_role_policy;
+use function_role_policy::{CanonicalFunctionRolePolicyV1, DirectCallAdmissionV1};
 pub(crate) use resolved_owner_header::{
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
@@ -215,6 +219,28 @@ impl CanonicalLoweringPreflightV1 {
         }
     }
 
+    pub(crate) fn verify_normal_main0_function_with_finite_direct_calls_v1<'a>(
+        function: ResolvedFunctionLoweringInputV1<'a>,
+        role: super::normal_source_plan::VerifiedNormalMainRoleV1,
+    ) -> Result<CanonicalTrivialBindingSsaPlanV1<'a>, CanonicalLoweringErrorV1> {
+        match Self::verify_function_with_policy(
+            function,
+            DirectCallAdmissionV1::FiniteOneOrMore,
+            CanonicalFunctionRolePolicyV1::NormalMainDirectCall0,
+            Some(role),
+        )? {
+            CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Ok(plan),
+            CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {
+                let (function, ..) = plan.into_parts();
+                unsupported(
+                    "root",
+                    function.source().root(),
+                    "normal_main_direct_call_requires_trivial_binding_ssa",
+                )
+            }
+        }
+    }
+
     fn verify_function_with_policy<'a>(
         function: ResolvedFunctionLoweringInputV1<'a>,
         direct_call_admission: DirectCallAdmissionV1,
@@ -248,7 +274,8 @@ impl CanonicalLoweringPreflightV1 {
             CanonicalFunctionRolePolicyV1::OrdinaryFirstFamily => {
                 !*is_static || *is_override || name == "main"
             }
-            CanonicalFunctionRolePolicyV1::NormalMain0 => {
+            CanonicalFunctionRolePolicyV1::NormalMain0
+            | CanonicalFunctionRolePolicyV1::NormalMainDirectCall0 => {
                 !*is_static || *is_override || name != "main" || !params.is_empty()
             }
         };
@@ -292,7 +319,9 @@ impl CanonicalLoweringPreflightV1 {
                 )
             }
         };
-        if expression_policy == FirstFamilyExpressionPolicyV1::ExactDirectCall && params.is_empty()
+        if expression_policy == FirstFamilyExpressionPolicyV1::ExactDirectCall
+            && params.is_empty()
+            && !role.allows_zero_parameter_direct_call()
         {
             return unsupported(
                 "root",
@@ -338,6 +367,16 @@ impl CanonicalLoweringPreflightV1 {
                 FirstFamilyExpressionPolicyV1::Closed,
                 Some(main_role),
             ) => analyze_trivial_canonical_main_owner_v1(
+                function,
+                &completion,
+                &if_control,
+                main_role,
+            ),
+            (
+                CanonicalFunctionRolePolicyV1::NormalMainDirectCall0,
+                FirstFamilyExpressionPolicyV1::ExactDirectCall,
+                Some(main_role),
+            ) => analyze_trivial_canonical_main_owner_with_finite_direct_calls_v1(
                 function,
                 &completion,
                 &if_control,
@@ -437,27 +476,6 @@ enum ReturnPolicyV1 {
 enum FirstFamilyExpressionPolicyV1 {
     Closed,
     ExactDirectCall,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum DirectCallAdmissionV1 {
-    Forbidden,
-    FiniteOneOrMore,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum CanonicalFunctionRolePolicyV1 {
-    OrdinaryFirstFamily,
-    NormalMain0,
-}
-
-impl CanonicalFunctionRolePolicyV1 {
-    const fn rejection_reason(self) -> &'static str {
-        match self {
-            Self::OrdinaryFirstFamily => "owner_kind_not_first_family",
-            Self::NormalMain0 => "owner_kind_not_normal_main0",
-        }
-    }
 }
 
 fn verify_body(

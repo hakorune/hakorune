@@ -7,10 +7,10 @@
 use std::collections::BTreeMap;
 
 use super::{
-    CallableIndexSealErrorV1, FunctionOriginV1, FunctionSemanticResolverSessionV1,
-    LocatedCallableHeaderSyntaxViewV1, ResolveFunctionErrorV1, ResolvedCallableRefV1,
-    SourceCallableDeclarationSiteV1, VerifiedCallableHeaderSourceUnitV1, VerifiedCallableIndexV1,
-    VerifiedOwnerFreeCallableCatalogSourceUnitV1,
+    CallableIndexSealErrorV1, EmbeddedCallableFunctionSyntaxViewV1, FunctionOriginV1,
+    FunctionSemanticResolverSessionV1, LocatedCallableHeaderSyntaxViewV1, ResolveFunctionErrorV1,
+    ResolvedCallableRefV1, SourceCallableDeclarationSiteV1, VerifiedCallableHeaderSourceUnitV1,
+    VerifiedCallableIndexV1, VerifiedOwnerFreeCallableCatalogSourceUnitV1,
 };
 
 use super::callable_catalog_resolution_source::CallableCatalogResolutionSourceV1;
@@ -101,6 +101,14 @@ impl VerifiedCallableCatalogSourceUnitV1 {
         &self.catalog
     }
 
+    pub(in crate::mir) fn embedded_function(
+        &self,
+        statement_index: usize,
+        method_key: &str,
+    ) -> Option<EmbeddedCallableFunctionSyntaxViewV1<'_>> {
+        self.source.embedded_function(statement_index, method_key)
+    }
+
     pub(super) const fn resolution_syntax(&self) -> &VerifiedCallableHeaderSourceUnitV1 {
         &self.source
     }
@@ -135,6 +143,10 @@ impl CatalogSealedResolverContinuationV1 {
     pub(in crate::mir) fn into_resolver(self) -> FunctionSemanticResolverSessionV1 {
         self.resolver
     }
+
+    pub(in crate::mir) fn restore(resolver: FunctionSemanticResolverSessionV1) -> Self {
+        Self { resolver }
+    }
 }
 
 #[derive(Debug)]
@@ -166,6 +178,16 @@ impl CallableCatalogSealOutcomeV1 {
         CatalogSealedResolverContinuationV1,
     ) {
         (self.source_unit, self.continuation)
+    }
+
+    pub(in crate::mir) fn restore(
+        source_unit: VerifiedCallableCatalogSourceUnitV1,
+        continuation: CatalogSealedResolverContinuationV1,
+    ) -> Self {
+        Self {
+            source_unit,
+            continuation,
+        }
     }
 }
 

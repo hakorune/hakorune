@@ -1,4 +1,5 @@
 use super::super::{
+    NormalCallableCatalogSourceErrorV1, NormalCallableCatalogSourceStageV1,
     NormalSourcePlanClassifierV1, PreparedNormalSourcePlanInputV1, SealedNormalSourcePlanV1,
 };
 use super::*;
@@ -153,5 +154,47 @@ fn main_box_helpers_reject_before_catalog_sealing() {
             method_key: "helper".into()
         }
     );
+    rejected.discard();
+}
+
+#[test]
+fn one_program_owner_commits_one_complete_helper_catalog() {
+    let unit = callable_source(program(vec![
+        main_box(None),
+        function("first", 1),
+        function("second", 2),
+    ]))
+    .unwrap()
+    .prepare_helper_catalog(17)
+    .unwrap();
+
+    assert_eq!(unit.source_identity(), "normal-callable-source0-test");
+    assert_eq!(unit.main_statement_index(), 0);
+    assert_eq!(unit.main_method_key(), "main");
+}
+
+#[test]
+fn helper_catalog_rejection_retains_the_complete_source_owner() {
+    let rejected = callable_source(program(vec![
+        main_box(None),
+        function("same", 1),
+        function("same", 1),
+    ]))
+    .unwrap()
+    .prepare_helper_catalog(0)
+    .unwrap_err();
+
+    assert_eq!(
+        rejected.stage(),
+        NormalCallableCatalogSourceStageV1::OwnerFreeCandidates
+    );
+    assert!(matches!(
+        rejected.error(),
+        NormalCallableCatalogSourceErrorV1::OwnerFreeCandidates(
+            crate::mir::resolved_semantics::CallableCatalogCandidateSealErrorV1::DuplicateSourceKey {
+                ..
+            }
+        )
+    ));
     rejected.discard();
 }

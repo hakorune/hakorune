@@ -30,6 +30,10 @@ impl VerifiedNormalMainRoleV1 {
             _seal: VerifiedNormalMainRoleSealV1,
         }
     }
+
+    pub(super) fn seal_for_direct_call() -> Self {
+        Self::seal()
+    }
 }
 
 #[derive(Debug)]

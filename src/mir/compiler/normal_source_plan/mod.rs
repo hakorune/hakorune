@@ -4,8 +4,11 @@
 //! select a profile, lower MIR, choose a backend, or execute a program.
 
 mod classifier;
+mod callable_catalog_source;
 mod callable_source;
 mod inventory;
+mod main_direct_call_plan;
+mod main_direct_call_source;
 mod main_function_plan;
 mod main_resolved_source;
 mod main_source;
@@ -16,11 +19,26 @@ mod rejection;
 mod test_support;
 
 #[allow(unused_imports)]
+pub(crate) use callable_catalog_source::{
+    NormalCallableCatalogSourceErrorV1, NormalCallableCatalogSourceStageV1,
+    RejectedNormalCallableCatalogSourceV1, VerifiedNormalCallableCatalogSourceUnitV1,
+};
+#[allow(unused_imports)]
 pub(crate) use callable_source::{
     NormalCallableSourceErrorV1, NormalCallableSourceStageV1, RejectedNormalCallableSourceV1,
     VerifiedNormalCallableSourceUnitV1,
 };
 pub(crate) use classifier::NormalSourcePlanClassifierV1;
+#[allow(unused_imports)]
+pub(crate) use main_direct_call_plan::{
+    NormalMainDirectCallPlanErrorV1, NormalMainDirectCallPreflightV1,
+    RejectedNormalMainDirectCallPlanV1, VerifiedNormalMainDirectCallPlanV1,
+};
+#[allow(unused_imports)]
+pub(crate) use main_direct_call_source::{
+    NormalMainDirectCallSourceErrorV1, NormalMainDirectCallSourceStageV1,
+    RejectedNormalMainDirectCallSourceV1, VerifiedNormalMainDirectCallSourceUnitV1,
+};
 #[allow(unused_imports)]
 pub(crate) use main_function_plan::{
     NormalMainFunctionPlanErrorV1, NormalMainFunctionPreflightV1, RejectedNormalMainFunctionPlanV1,

@@ -60,6 +60,17 @@ impl VerifiedNormalCallableSourceUnitV1 {
     pub(crate) fn source_identity(&self) -> &str {
         self.identity.display_name()
     }
+
+    pub(super) fn into_parts(
+        self,
+    ) -> (
+        VerifiedCallableHeaderSourceUnitV1,
+        NormalSourceIdentityV1,
+        NormalTopLevelSiteV1,
+        NormalMainMethodSiteV1,
+    ) {
+        (self.source, self.identity, self.main_box, self.main_method)
+    }
 }
 
 #[derive(Debug)]

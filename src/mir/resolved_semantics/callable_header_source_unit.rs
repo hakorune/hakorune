@@ -7,10 +7,26 @@
 use crate::ast::ASTNode;
 
 use super::{
-    CallableHeaderSyntaxViewV1, CallableModuleHeaderSyntaxErrorV1,
+    CallableFunctionSyntaxViewV1, CallableHeaderSyntaxViewV1, CallableModuleHeaderSyntaxErrorV1,
     CallableModuleHeaderSyntaxViewV1, LocatedCallableHeaderSyntaxViewV1,
     SourceCallableDeclarationSiteV1,
 };
+
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct EmbeddedCallableFunctionSyntaxViewV1<'a> {
+    function_ast: &'a ASTNode,
+    function: CallableFunctionSyntaxViewV1<'a>,
+}
+
+impl<'a> EmbeddedCallableFunctionSyntaxViewV1<'a> {
+    pub(crate) const fn function_ast(self) -> &'a ASTNode {
+        self.function_ast
+    }
+
+    pub(crate) const fn function(self) -> CallableFunctionSyntaxViewV1<'a> {
+        self.function
+    }
+}
 
 #[derive(Debug)]
 struct CanonicalProgramSyntaxOwnerV1 {
@@ -98,6 +114,25 @@ impl VerifiedCallableHeaderSourceUnitV1 {
         };
         let statement = statements.get(site.statement_index() as usize)?;
         LocatedCallableHeaderSyntaxViewV1::from_statement(site, statement)
+    }
+
+    pub(in crate::mir) fn embedded_function(
+        &self,
+        statement_index: usize,
+        method_key: &str,
+    ) -> Option<EmbeddedCallableFunctionSyntaxViewV1<'_>> {
+        let ASTNode::Program { statements, .. } = &self.syntax.program else {
+            return None;
+        };
+        let ASTNode::BoxDeclaration { methods, .. } = statements.get(statement_index)? else {
+            return None;
+        };
+        let function_ast = methods.get(method_key)?;
+        let function = CallableFunctionSyntaxViewV1::from_function_ast(function_ast)?;
+        Some(EmbeddedCallableFunctionSyntaxViewV1 {
+            function_ast,
+            function,
+        })
     }
 
     pub(super) fn function_ast(&self, site: SourceCallableDeclarationSiteV1) -> Option<&ASTNode> {

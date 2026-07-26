@@ -44,6 +44,25 @@ impl FunctionSemanticResolverSessionV1 {
             .map_err(ResolveOwnerForestErrorV1::Verification)
     }
 
+    pub(in crate::mir) fn resolve_forest_with_callable_index(
+        &mut self,
+        root: FunctionSyntaxViewV1<'_>,
+        callable_index: &VerifiedCallableIndexV1,
+    ) -> Result<VerifiedSemanticOwnerForestV1, ResolveOwnerForestErrorV1> {
+        let mut draft = SemanticOwnerForestDraftV1::new();
+        self.resolve_owner_recursive(
+            root,
+            &BTreeMap::new(),
+            None,
+            None,
+            Some(callable_index),
+            &mut draft,
+        )?;
+        draft
+            .seal()
+            .map_err(ResolveOwnerForestErrorV1::Verification)
+    }
+
     pub(in crate::mir) fn resolve_forest_with_reserved_root(
         &mut self,
         root: FunctionSyntaxViewV1<'_>,

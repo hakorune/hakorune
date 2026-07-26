@@ -110,6 +110,17 @@ impl<'a> ResolvedFunctionLoweringInputV1<'a> {
         })
     }
 
+    pub(super) fn from_exact_parts_with_callable_index(
+        syntax_root: &'a crate::ast::ASTNode,
+        forest: &'a VerifiedSemanticOwnerForestV1,
+        projection: &'a VerifiedSourceProjectionV1,
+        callable_index: &'a VerifiedCallableIndexV1,
+    ) -> Result<Self, CanonicalLoweringErrorV1> {
+        let mut input = Self::from_exact_parts_without_callable(syntax_root, forest, projection)?;
+        input.callable_index = Some(callable_index);
+        Ok(input)
+    }
+
     pub(crate) const fn owner(self) -> FunctionOwnerIdV1 {
         self.owner
     }

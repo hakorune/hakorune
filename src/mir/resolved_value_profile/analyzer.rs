@@ -12,6 +12,7 @@ use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfCon
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{BindingRefV1, SourceBindingSiteV1, SourceStmtSiteV1};
 
+use super::analyzer_policy::{DirectCallPolicyV1, ReturnPolicyV1, RootProfilePolicyV1};
 use super::coverage::{
     verify_terminal_completion_co_seal_v1, ResolvedFactCoverageDraftV1, TrivialProfileDraftV1,
 };
@@ -61,6 +62,21 @@ pub(super) fn analyze_trivial_canonical_main_owner_impl_v1(
     )
 }
 
+pub(super) fn analyze_trivial_canonical_main_owner_with_finite_direct_calls_impl_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    completion: &VerifiedFunctionCompletionV1,
+    if_control: &VerifiedResolvedFunctionIfControlV1,
+    _role: VerifiedNormalMainRoleV1,
+) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
+    analyze_with_policy(
+        input,
+        completion,
+        if_control,
+        DirectCallPolicyV1::FiniteOneOrMore,
+        RootProfilePolicyV1::NormalMain0,
+    )
+}
+
 pub(super) fn analyze_trivial_canonical_owner_with_finite_direct_calls_impl_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     completion: &VerifiedFunctionCompletionV1,
@@ -94,23 +110,6 @@ fn analyze_with_policy(
 }
 
 type ValueEnvironmentV1 = BTreeMap<BindingRefV1, TrivialRepresentationV1>;
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum ReturnPolicyV1 {
-    RootFinalOnly,
-    Forbidden,
-}
-
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum DirectCallPolicyV1 {
-    Forbidden,
-    FiniteOneOrMore,
-}
-
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum RootProfilePolicyV1 {
-    OrdinaryFirstFamily,
-    NormalMain0,
-}
 
 struct AnalyzerV1<'a> {
     input: ResolvedFunctionLoweringInputV1<'a>,
