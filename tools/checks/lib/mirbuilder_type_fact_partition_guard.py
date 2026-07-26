@@ -110,9 +110,14 @@ ACTIVE_CUTOVER_WRITER_REPLACEMENTS = {
     "src/mir/builder/resolved_lowering/trivial_ssa/direct_call_type.rs": 1,
     "src/mir/builder/emission/compare.rs": None,
     "src/mir/builder/emission/compare_type.rs": 1,
+    "src/mir/builder/emission/value_lifecycle_definition.rs": 1,
     "src/mir/builder/fields.rs": None,
     "src/mir/builder/fields/post_success.rs": 1,
     "src/mir/builder/fastmem/field_load.rs": 2,
+    "src/mir/builder/raw_root_body_exit.rs": 1,
+    "src/mir/builder/raw_root_body_lowering.rs": 1,
+    "src/mir/builder/resolved_lowering/draft_seal.rs": 1,
+    "src/mir/builder/script_physical_exit/exit.rs": 1,
 }
 
 
@@ -317,7 +322,7 @@ def validate_literal_postemit_retirement_v1(root: Path) -> None:
     resolved_lowerer = read(root / "src/mir/builder/resolved_lowering/lowerer.rs")
     unary = read(root / "src/mir/builder/ops/unary.rs")
 
-    literal_dispatch = literal_builder.split("pub(super) fn build_literal", 1)[1].split(
+    literal_dispatch = literal_builder.split("fn build_literal", 1)[1].split(
         "pub(in crate::mir::builder) fn emit_typed_integer_literal", 1
     )[0]
     resolved_literal = resolved_lowerer.split("fn lower_literal", 1)[1]
@@ -434,43 +439,70 @@ def validate_call_receipt0_authority_v1(root: Path) -> None:
     emitter = strip_cfg_test_modules(
         code_only(read(root / "src/mir/builder/calls/unified_emitter.rs"))
     )
-    receipt = strip_cfg_test_modules(
+    physical = code_only(
+        read(root / "src/mir/builder/calls/unified_emitter/physical_terminal.rs")
+    )
+    request = code_only(
+        read(root / "src/mir/builder/calls/unified_emitter/request_boundary.rs")
+    )
+    post_success = strip_cfg_test_modules(
         code_only(read(root / "src/mir/builder/calls/unified_emitter/post_success.rs"))
     )
 
-    canonical = emitter.split("fn emit_unified_call_impl", 1)[1].split(
-        "pub fn emit_global_unified", 1
-    )[0]
-    if canonical.count("PreparedUnifiedCallPostSuccessV1::prepare") != 1:
+    if emitter.count("physical_terminal::emit_finalized_generic_call_v1") != 1:
+        fail("CALL-RECEIPT0 requires one generic physical terminal consumer")
+    if physical.count("pub(super) fn emit_finalized_generic_call_v1") != 1:
+        fail("CALL-RECEIPT0 requires one generic physical Call writer")
+    if physical.count("MirInstruction::Call") != 1:
+        fail("CALL-RECEIPT0 physical terminal must own one Call instruction")
+    if physical.count("PreparedUnifiedCallPostSuccessV1::prepare") != 1:
         fail("CALL-RECEIPT0 requires one canonical payload preparation consumer")
-    if canonical.count("prepared_post_success.commit_after_success(builder)") != 1:
+    if physical.count("prepared_post_success.commit_after_success(builder)") != 1:
         fail("CALL-RECEIPT0 requires one canonical post-success payload consumer")
-    if canonical.find("prepared_post_success.commit_after_success(builder)") < canonical.find(
-        "builder.emit_instruction(call_inst)?"
-    ):
-        fail("CALL-RECEIPT0 payload consumption must follow successful Call emission")
+    constructor = (
+        "CompletedUnifiedCallEmissionV1::Value("
+        "CompletedUnifiedValueCallEmissionV1 {"
+    )
+    if physical.count(constructor) != 1:
+        fail("CALL-RECEIPT0 requires one value receipt constructor")
+    emit_at = physical.find("builder.emit_instruction(call_inst)?")
+    commit_at = physical.find("prepared_post_success.commit_after_success(builder)")
+    receipt_at = physical.find(constructor)
+    if not emit_at < commit_at < receipt_at:
+        fail("CALL-RECEIPT0 requires Call success -> post-success -> receipt order")
+    if request.count("fn emit_unified_value_call_with_lookup_receipt_v1") != 1:
+        fail("CALL-RECEIPT0 requires one receipt-required request boundary")
+    if "emit_legacy_call" in request:
+        fail("CALL-RECEIPT0 receipt request must not retry through legacy emission")
     for forbidden in (
+        "ASTNode",
+        "MirType",
+        "type_ctx",
         "annotate_call_result_from_func_name",
         "annotate_array_element_result",
         "annotate_map_get_result",
         "verify_after_call",
     ):
-        if forbidden in canonical:
-            fail(f"CALL-RECEIPT0 direct post-success effect survived in emitter: {forbidden}")
+        if forbidden in physical:
+            fail(f"CALL-RECEIPT0 forbidden physical-terminal authority: {forbidden}")
 
-    if receipt.count("fn commit_after_success") != 1:
+    if post_success.count("fn commit_after_success") != 1:
         fail("CALL-RECEIPT0 requires one post-success commit owner")
-    for required in (
-        "annotate_call_result_from_func_name",
-        "annotate_array_element_result",
-        "annotate_map_get_result",
-        "verify_after_call",
+    for required, expected in (
+        ("annotate_call_result_from_func_name_with_lookup(", 1),
+        ("annotate_call_result_from_func_name(", 1),
+        ("annotate_array_element_result(", 1),
+        ("annotate_map_get_result(", 1),
+        ("verify_after_call(", 1),
     ):
-        if receipt.count(required) != 1:
+        if post_success.count(required) != expected:
             fail(f"CALL-RECEIPT0 post-success owner drift: {required}")
     for path in (
         root / "src/mir/builder/calls/unified_emitter.rs",
+        root / "src/mir/builder/calls/unified_emitter/physical_terminal.rs",
         root / "src/mir/builder/calls/unified_emitter/post_success.rs",
+        root / "src/mir/builder/calls/unified_emitter/request_boundary.rs",
+        root / "src/mir/builder/calls/unified_emitter/physical_receipt_tests.rs",
         root / "src/mir/builder/calls/unified_emitter/temporal_witness_tests.rs",
         Path(__file__),
     ):
@@ -720,10 +752,13 @@ def check(root: Path) -> None:
         if not isinstance(row, dict):
             fail("FACT0 fixture primary matrix row is invalid")
         require_anchor(root, row)
+    active_inventory = writer_counts(root)
     print(
         "[mirbuilder-type-fact-partition-guard] ok "
         "baseline_writer_paths=47 baseline_writer_occurrences=99 "
-        "active_writer_paths=49 active_writer_occurrences=95 slices=58 profiles=38 "
+        f"active_writer_paths={len(active_inventory)} "
+        f"active_writer_occurrences={sum(active_inventory.values())} "
+        "slices=58 profiles=38 "
         "shared_slices=2 const0=closed staticload0=closed checkselect0=closed "
         "literal_postemit_ret0=closed resolved_trivial_op0=closed "
         "resolved_direct_call0=closed compareemit0=closed call_receipt0=closed "

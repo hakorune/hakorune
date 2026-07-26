@@ -191,7 +191,7 @@
     },
     {
       "id": "call",
-      "source_file": "src/mir/builder/calls/unified_emitter.rs",
+      "source_file": "src/mir/builder/calls/unified_emitter/physical_terminal.rs",
       "anchor": "builder.emit_instruction(call_inst)?;",
       "timing": "prepared_annotation_after_successful_call_receipt"
     },

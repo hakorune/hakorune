@@ -386,6 +386,49 @@ finalized mir_call.dst
 Existing APIs discard the source-neutral receipt. One receipt-required sibling
 retains it. No source lookup or nested policy enters the emitter.
 
+#### Implementation closeout
+
+```text
+Status:
+  S0 / P0 / G0 closed
+
+sole generic Call writer:
+  unified_emitter/physical_terminal.rs
+
+receipt-required request boundary:
+  unified_emitter/request_boundary.rs
+
+receipt:
+  CompletedUnifiedValueCallEmissionV1
+  stores final_destination only
+
+constructor order:
+  successful MirInstruction::Call emission
+  -> existing post-success commit
+  -> receipt
+```
+
+`b5fa232463` first isolated the generic physical terminal.
+`1ec85e5933` then added the typed request boundary and the six focused
+success/failure/no-destination/alternate/legacy witnesses. Existing temporal,
+Array, and Map Call suites remain green.
+
+The existing FACT0 partition guard now follows the moved primary Call timing
+anchor and checks the terminal/request split. Its immutable P1 partition
+remains unchanged; the active cutover overlay also records the already-landed
+value-lifecycle, Raw-body, draft-seal, and Script-exit writers. The full guard
+and its unit suite are green. A new row guard was not added.
+
+```text
+source lookup / nested policy / MirType / type_ctx in terminal = 0
+second generic Call writer                                    = 0
+legacy retry from receipt-required request                    = 0
+production caller                                             = 0
+
+next:
+  CALLABLE-RESULT-NESTED-PRELOOP-REP0-S0
+```
+
 ### 6. `CALLABLE-RESULT-NESTED-PRELOOP-REP0-S0/I0/P0/G0`
 
 Consume the exact retained source association and one physical receipt to
