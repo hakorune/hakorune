@@ -142,20 +142,16 @@ fn canonical_core_publication_projects_main_and_script_without_reobservation() {
     let mut compiler = crate::mir::MirCompiler::new();
 
     let script = compiler
-        .compile_canonical_core_source_plan(script)
-        .expect("Script candidate")
-        .canonical_publication_summary_for_test()
-        .expect("Script publication pairing");
+        .compile_canonical_core_source_plan_publication_summary_for_test(script)
+        .expect("Script publication");
     assert_eq!(script.target_symbol, "main");
     assert_eq!(script.target_arity, 0);
     assert_eq!(script.result_kind, "integer");
     assert_eq!(script.family, "script");
 
     let main = compiler
-        .compile_canonical_core_source_plan(main)
-        .expect("Main candidate")
-        .canonical_publication_summary_for_test()
-        .expect("Main publication pairing");
+        .compile_canonical_core_source_plan_publication_summary_for_test(main)
+        .expect("Main publication");
     assert_eq!(main.target_symbol, "main");
     assert_eq!(main.target_arity, 0);
     assert_eq!(main.result_kind, "unit");

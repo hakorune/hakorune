@@ -212,6 +212,20 @@ pub(crate) struct CompletedCanonicalCoreSourceEntryCandidateV1 {
     _seal: CompletedCanonicalCoreSourceEntryCandidateSealV1,
 }
 
+/// The sole canonical-core terminal that crosses from family dispatch into
+/// shared publication. It never selects another family after rejection.
+#[derive(Debug)]
+pub(crate) enum RejectedCanonicalCorePublishedSourceEntryV1 {
+    Dispatch(RejectedCanonicalCoreNormalDispatchV1),
+    Publication(publication::RejectedCanonicalSourceEntryPublicationV1),
+}
+
+impl RejectedCanonicalCorePublishedSourceEntryV1 {
+    pub(crate) fn discard(self) {
+        drop(self);
+    }
+}
+
 /// The only owner allowed to select a canonical-core source family.
 #[derive(Debug)]
 pub(crate) struct NormalCanonicalCoreSourcePlanCompilerV1;
@@ -462,6 +476,36 @@ impl MirCompiler {
         RejectedCanonicalCoreNormalDispatchV1,
     > {
         NormalCanonicalCoreSourcePlanCompilerV1::consume(self, request)
+    }
+
+    /// Consume one sealed source plan through its sole family dispatch and
+    /// the shared canonical publication core. VM execution remains later.
+    pub(crate) fn compile_canonical_core_source_plan_to_published(
+        &mut self,
+        request: CanonicalCoreSourcePlanCompileRequestV1,
+    ) -> Result<
+        publication::PublishedCanonicalSourceEntryInvocationV1,
+        RejectedCanonicalCorePublishedSourceEntryV1,
+    > {
+        let candidate = self
+            .compile_canonical_core_source_plan(request)
+            .map_err(RejectedCanonicalCorePublishedSourceEntryV1::Dispatch)?;
+        candidate
+            .prepare_canonical_publication()
+            .map(|prepared| prepared.commit())
+            .map_err(RejectedCanonicalCorePublishedSourceEntryV1::Publication)
+    }
+
+    #[cfg(test)]
+    pub(crate) fn compile_canonical_core_source_plan_publication_summary_for_test(
+        &mut self,
+        request: CanonicalCoreSourcePlanCompileRequestV1,
+    ) -> Result<
+        publication::CanonicalPublicationSummaryForTestV1,
+        RejectedCanonicalCorePublishedSourceEntryV1,
+    > {
+        self.compile_canonical_core_source_plan_to_published(request)
+            .map(|published| published.publication_summary_for_test())
     }
 }
 
