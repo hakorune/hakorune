@@ -42,6 +42,57 @@ pub(crate) struct VerifiedNormalMainEntryRelationV1 {
     _seal: VerifiedNormalMainEntryRelationSealV1,
 }
 
+/// Reusable source-Main to physical-entry relation. It contains only facts
+/// already sealed by the F1 plan and never owns a source-lowering plan.
+#[derive(Debug)]
+pub(crate) struct VerifiedNormalMainPhysicalRelationV1 {
+    source_header: VerifiedResolvedOwnerHeaderV1,
+    source_result: VerifiedNormalMainThunkResultV1,
+    entry: VerifiedNormalMainEntryRelationV1,
+    _seal: VerifiedNormalMainPhysicalRelationSealV1,
+}
+
+#[derive(Debug)]
+struct VerifiedNormalMainPhysicalRelationSealV1;
+
+impl VerifiedNormalMainPhysicalRelationV1 {
+    pub(crate) fn source_header(&self) -> &VerifiedResolvedOwnerHeaderV1 {
+        &self.source_header
+    }
+
+    pub(crate) const fn source_result(&self) -> VerifiedNormalMainThunkResultV1 {
+        self.source_result
+    }
+
+    pub(crate) fn entry(&self) -> &VerifiedNormalMainEntryRelationV1 {
+        &self.entry
+    }
+
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (
+        VerifiedResolvedOwnerHeaderV1,
+        VerifiedNormalMainThunkResultV1,
+        VerifiedNormalMainEntryRelationV1,
+    ) {
+        (self.source_header, self.source_result, self.entry)
+    }
+}
+
+/// Seals the sole Main-to-physical relation from already-verified F1 facts.
+pub(crate) fn seal_normal_main_physical_relation_v1(
+    source_header: VerifiedResolvedOwnerHeaderV1,
+    completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+    terminal: &TrivialTerminalProfileV1,
+) -> Result<VerifiedNormalMainPhysicalRelationV1, NormalMainThunkPlanErrorV1> {
+    seal_relation(
+        source_header,
+        completion,
+        terminal,
+        canonical_normal_main_entry_target(),
+    )
+}
+
 #[derive(Debug)]
 struct VerifiedNormalMainEntryRelationSealV1;
 
@@ -75,14 +126,31 @@ impl<'unit> VerifiedNormalMainThunkPlanV1<'unit> {
     pub(crate) fn seal(
         source: VerifiedNormalMainFunctionPlanV1<'unit>,
     ) -> Result<Self, RejectedNormalMainThunkPlanV1<'unit>> {
-        match prepare(&source, canonical_normal_main_entry_target()) {
-            Ok((source_header, source_result, entry)) => Ok(Self {
-                source,
-                source_header,
-                source_result,
-                entry,
-                _seal: VerifiedNormalMainThunkPlanSealV1,
-            }),
+        let source_header = match source.seal_source_header() {
+            Ok(header) => header,
+            Err(error) => {
+                return Err(RejectedNormalMainThunkPlanV1 {
+                    owner: source,
+                    error: NormalMainThunkPlanErrorV1::Header(error),
+                })
+            }
+        };
+        match seal_relation(
+            source_header,
+            source.completion(),
+            source.terminal_profile(),
+            canonical_normal_main_entry_target(),
+        ) {
+            Ok(relation) => {
+                let (source_header, source_result, entry) = relation.into_parts();
+                Ok(Self {
+                    source,
+                    source_header,
+                    source_result,
+                    entry,
+                    _seal: VerifiedNormalMainThunkPlanSealV1,
+                })
+            }
             Err(error) => Err(RejectedNormalMainThunkPlanV1 {
                 owner: source,
                 error,
@@ -144,30 +212,22 @@ impl RejectedNormalMainThunkPlanV1<'_> {
     }
 }
 
-fn prepare(
-    source: &VerifiedNormalMainFunctionPlanV1<'_>,
+fn seal_relation(
+    source_header: VerifiedResolvedOwnerHeaderV1,
+    completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+    terminal: &TrivialTerminalProfileV1,
     physical: CanonicalNormalMainEntryTargetV1,
-) -> Result<
-    (
-        VerifiedResolvedOwnerHeaderV1,
-        VerifiedNormalMainThunkResultV1,
-        VerifiedNormalMainEntryRelationV1,
-    ),
-    NormalMainThunkPlanErrorV1,
-> {
-    let source_header = source
-        .seal_source_header()
-        .map_err(NormalMainThunkPlanErrorV1::Header)?;
+) -> Result<VerifiedNormalMainPhysicalRelationV1, NormalMainThunkPlanErrorV1> {
     if source_header.arity() != 0 {
         return Err(NormalMainThunkPlanErrorV1::SourceArityMismatch {
             actual: source_header.arity(),
         });
     }
-    let contract = source.completion().function_exit_contract();
+    let contract = completion.function_exit_contract();
     if source_header.owner() != contract.owner() {
         return Err(NormalMainThunkPlanErrorV1::EntryRelationMismatch);
     }
-    let source_result = seal_result(contract.disposition(), source.terminal_profile())?;
+    let source_result = seal_result(contract.disposition(), terminal)?;
     if !physical.is_main() || physical.arity() != 0 {
         return Err(NormalMainThunkPlanErrorV1::EntryRelationMismatch);
     }
@@ -176,7 +236,12 @@ fn prepare(
         physical,
         _seal: VerifiedNormalMainEntryRelationSealV1,
     };
-    Ok((source_header, source_result, entry))
+    Ok(VerifiedNormalMainPhysicalRelationV1 {
+        source_header,
+        source_result,
+        entry,
+        _seal: VerifiedNormalMainPhysicalRelationSealV1,
+    })
 }
 
 fn seal_result(
@@ -215,14 +280,31 @@ pub(super) fn prepare_with_physical_for_test<'unit>(
     source: VerifiedNormalMainFunctionPlanV1<'unit>,
     physical: CanonicalNormalMainEntryTargetV1,
 ) -> Result<VerifiedNormalMainThunkPlanV1<'unit>, RejectedNormalMainThunkPlanV1<'unit>> {
-    match prepare(&source, physical) {
-        Ok((source_header, source_result, entry)) => Ok(VerifiedNormalMainThunkPlanV1 {
-            source,
-            source_header,
-            source_result,
-            entry,
-            _seal: VerifiedNormalMainThunkPlanSealV1,
-        }),
+    let source_header = match source.seal_source_header() {
+        Ok(header) => header,
+        Err(error) => {
+            return Err(RejectedNormalMainThunkPlanV1 {
+                owner: source,
+                error: NormalMainThunkPlanErrorV1::Header(error),
+            })
+        }
+    };
+    match seal_relation(
+        source_header,
+        source.completion(),
+        source.terminal_profile(),
+        physical,
+    ) {
+        Ok(relation) => {
+            let (source_header, source_result, entry) = relation.into_parts();
+            Ok(VerifiedNormalMainThunkPlanV1 {
+                source,
+                source_header,
+                source_result,
+                entry,
+                _seal: VerifiedNormalMainThunkPlanSealV1,
+            })
+        }
         Err(error) => Err(RejectedNormalMainThunkPlanV1 {
             owner: source,
             error,

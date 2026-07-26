@@ -58,8 +58,10 @@ pub(crate) use main_source::{
 };
 #[allow(unused_imports)]
 pub(crate) use main_thunk_plan::{
-    NormalMainThunkPlanErrorV1, RejectedNormalMainThunkPlanV1, VerifiedNormalMainEntryRelationV1,
-    VerifiedNormalMainThunkPlanV1, VerifiedNormalMainThunkResultV1,
+    seal_normal_main_physical_relation_v1, NormalMainThunkPlanErrorV1,
+    RejectedNormalMainThunkPlanV1, VerifiedNormalMainEntryRelationV1,
+    VerifiedNormalMainPhysicalRelationV1, VerifiedNormalMainThunkPlanV1,
+    VerifiedNormalMainThunkResultV1,
 };
 #[allow(unused_imports)]
 pub(crate) use normal_acyclic_module_plan::{
