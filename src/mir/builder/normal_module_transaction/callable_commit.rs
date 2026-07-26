@@ -24,6 +24,10 @@ pub(in crate::mir) struct RejectedNormalCallableCommitV1 {
 }
 
 impl RejectedNormalCallableCommitV1 {
+    pub(in crate::mir) fn error(&self) -> &NormalCallableCommitErrorV1 {
+        &self.error
+    }
+
     pub(in crate::mir) fn discard(self) {
         drop(self);
     }
@@ -130,4 +134,14 @@ fn draft_views(batch: &PreparedNormalCallableBatchV1) -> Vec<&MirFunction> {
     functions.push(batch.drafts().source().draft());
     functions.push(batch.drafts().physical().draft());
     functions
+}
+
+#[cfg(test)]
+pub(crate) fn reject_normal_callable_commit_for_test(
+    batch: PreparedNormalCallableBatchV1,
+) -> RejectedNormalCallableCommitV1 {
+    RejectedNormalCallableCommitV1 {
+        batch,
+        error: NormalCallableCommitErrorV1::Correspondence,
+    }
 }

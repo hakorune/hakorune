@@ -26,6 +26,8 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
     callable_main_physical_tests_path = directory / "callable_main_physical_tests.rs"
     callable_batch_path = directory / "callable_batch.rs"
     callable_batch_tests_path = directory / "callable_batch_tests.rs"
+    callable_commit_path = directory / "callable_commit.rs"
+    callable_commit_tests_path = directory / "callable_commit_tests.rs"
     tests_path = directory / "main_transaction_tests.rs"
     thunk_plan_path = (
         root
@@ -36,6 +38,7 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
     source = source_path.read_text()
     callable_main_physical = callable_main_physical_path.read_text()
     callable_batch = callable_batch_path.read_text()
+    callable_commit = callable_commit_path.read_text()
     tests = tests_path.read_text()
     thunk_plan = thunk_plan_path.read_text()
     production = "\n".join(
@@ -171,6 +174,8 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
         callable_main_physical_tests_path,
         callable_batch_path,
         callable_batch_tests_path,
+        callable_commit_path,
+        callable_commit_tests_path,
         tests_path,
         directory / "result_type.rs",
         thunk_plan_path,
@@ -234,3 +239,19 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
         "fn schema_rejection_retains_prepared_drafts_and_builder_reuses(",
     ):
         require(batch_tests, fragment, f"BATCH0 fixture {fragment}")
+
+    for fragment in (
+        "struct PreparedNormalCallableCommitV1",
+        "struct CompletedNormalCallableCandidateV1",
+        "ModuleLoweringShellV1::from_empty_module",
+        "commit_preflighted(functions)",
+    ):
+        require(callable_commit, fragment, f"COMMIT0 owner {fragment}")
+    for forbidden in ("publish", "compile_with_source", "build_module", "fallback", "retry"):
+        if forbidden in callable_commit:
+            raise AssertionError(f"COMMIT0 gained forbidden authority: {forbidden}")
+    require(
+        callable_commit_tests_path.read_text(),
+        "fn precommit_rejection_keeps_publication_zero_and_builder_reusable(",
+        "COMMIT0 failure/reuse fixture",
+    )

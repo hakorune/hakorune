@@ -23,6 +23,8 @@ pub(super) use callable_batch::reject_normal_callable_batch_for_test;
 pub(in crate::mir) use callable_batch::{
     NormalCallableBatchErrorV1, PreparedNormalCallableBatchV1, RejectedNormalCallableBatchV1,
 };
+#[cfg(test)]
+pub(super) use callable_commit::reject_normal_callable_commit_for_test;
 pub(in crate::mir) use callable_commit::{
     CompletedNormalCallableCandidateV1, NormalCallableCommitErrorV1,
     PreparedNormalCallableCommitV1, RejectedNormalCallableCommitV1,
