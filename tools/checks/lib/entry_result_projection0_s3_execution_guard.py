@@ -19,9 +19,10 @@ NEUTRAL_TASK = ROOT / (
 PUBLISHED = ROOT / "src/mir/compiler/source_entry_published_invocation.rs"
 VM_INVOCATION = ROOT / "src/mir/compiler/source_entry_vm_invocation.rs"
 RAW_ADAPTER = ROOT / "src/mir/compiler/source_entry_vm_raw_adapter.rs"
-NORMAL_MAIN_ADAPTER = (
-    ROOT / "src/mir/compiler/source_entry_vm_normal_main_adapter.rs"
+CANONICAL_PUBLICATION = (
+    ROOT / "src/mir/compiler/canonical_core_dispatch/publication.rs"
 )
+CANONICAL_DISPATCH = ROOT / "src/mir/compiler/canonical_core_dispatch.rs"
 NORMAL_MAIN_TX = (
     ROOT / "src/mir/builder/normal_module_transaction/main_transaction.rs"
 )
@@ -45,8 +46,8 @@ def main() -> int:
     vm_invocation_production = vm_invocation.split("#[cfg(test)]", 1)[0]
     raw_adapter = RAW_ADAPTER.read_text()
     raw_adapter_production = raw_adapter.split("#[cfg(test)]", 1)[0]
-    normal_main_adapter = NORMAL_MAIN_ADAPTER.read_text()
-    normal_main_adapter_production = normal_main_adapter.split("#[cfg(test)]", 1)[0]
+    canonical_publication = CANONICAL_PUBLICATION.read_text()
+    canonical_dispatch = CANONICAL_DISPATCH.read_text()
     normal_main_tx = NORMAL_MAIN_TX.read_text()
     normal_main_tx_production = normal_main_tx
 
@@ -131,7 +132,13 @@ def main() -> int:
     external_rust = "\n".join(
         path.read_text()
         for path in (ROOT / "src").rglob("*.rs")
-        if path not in (PUBLISHED, VM_INVOCATION, RAW_ADAPTER, NORMAL_MAIN_ADAPTER)
+        if path not in (
+            PUBLISHED,
+            VM_INVOCATION,
+            RAW_ADAPTER,
+            CANONICAL_PUBLICATION,
+            CANONICAL_DISPATCH,
+        )
     )
     for fragment in (
         "PublishedSourceEntryInvocationV1::from_verified_parts(",
@@ -175,41 +182,41 @@ def main() -> int:
             raise AssertionError(f"old Raw-direct VM authority remains: {retired}")
 
     for fragment in (
-        "struct PublishedNormalMainInvocationV1",
-        "pub(in crate::mir) fn publish(",
-        "fn execute_exact_vm_entry(",
+        "struct PreparedCanonicalSourceEntryPublicationV1",
+        "struct PublishedCanonicalSourceEntryOwnerV1",
+        "enum PublishedCanonicalFamilyEvidenceV1",
+        "CanonicalPublishedSourceEntryMembershipV1::Main",
+        "CanonicalPublishedSourceEntryMembershipV1::Script",
+        "fn commit(self) -> PublishedCanonicalSourceEntryInvocationV1",
     ):
-        require(normal_main_tx_production, fragment, f"canonical Main publication {fragment}")
-    for fragment in (
-        "fn prepare_neutral_vm_reference(",
-        "PublishedSourceEntryMembershipV1::CanonicalMain",
-        "PublishedUnitPhysicalContractV1::ExactVoid",
-        "FunctionUnitOriginV1::EmptyBody => UnitOriginV1::EmptyBody",
-        "FunctionUnitOriginV1::ImplicitFallthrough => UnitOriginV1::ImplicitFallthrough",
-        "FunctionUnitOriginV1::ExplicitVoid => UnitOriginV1::ExplicitVoid",
-        "FunctionUnitOriginV1::ExplicitNull => UnitOriginV1::ExplicitNull",
-        "FunctionUnitOriginV1::BareReturn => UnitOriginV1::BareReturn",
-    ):
-        require(
-            normal_main_adapter_production,
-            fragment,
-            f"canonical Main neutral adapter {fragment}",
-        )
+        require(canonical_publication, fragment, f"shared canonical publication {fragment}")
     for forbidden in (
+        "ASTNode",
+        "MirInstruction::Return",
         "NYASH_ENTRY",
         "execute_module",
-        "module.functions",
-        "VMValue::",
-        "MirType",
-        "MirInstruction::Return",
-        "ASTNode",
+        "module.functions.get",
         "fallback",
         "retry",
     ):
-        if forbidden in normal_main_adapter_production:
+        if forbidden in canonical_publication:
             raise AssertionError(
-                f"canonical Main adapter gained inference/fallback policy: {forbidden}"
+                f"canonical publication gained re-inference/fallback policy: {forbidden}"
             )
+    for fragment in (
+        "VmReferencePublishedOwnerV1::Canonical",
+        "impl VmReferenceExecutablePublishedOwnerV1 for PublishedCanonicalSourceEntryOwnerV1",
+        "execute_function_with_args(self.module(), symbol, &[])",
+    ):
+        require(reference, fragment, f"sole canonical VM owner {fragment}")
+    for retired in (
+        "PublishedNormalMainInvocationV1",
+        "CanonicalMain(",
+        "source_entry_vm_normal_main_adapter",
+    ):
+        combined = reference + canonical_publication + normal_main_tx_production
+        if retired in combined:
+            raise AssertionError(f"retired Main-specific publication owner remains: {retired}")
 
     for forbidden in (
         "execute_module(",
@@ -230,7 +237,8 @@ def main() -> int:
         PUBLISHED,
         VM_INVOCATION,
         RAW_ADAPTER,
-        NORMAL_MAIN_ADAPTER,
+        CANONICAL_PUBLICATION,
+        CANONICAL_DISPATCH,
         NORMAL_MAIN_TX,
         Path(__file__),
     ):
@@ -240,7 +248,7 @@ def main() -> int:
         "[entry-result-projection0-s3-execution-guard] ok "
         "exact_target=1 decode_plan=1 source_fault=1 owner_retained=1 "
         "neutral_owner=1 sole_vm_executor=1 raw_adapter=1 "
-        "canonical_main_adapter=1 old_raw_direct=0 neutral_discovery=0 below_800=1"
+        "canonical_publication=1 old_raw_direct=0 neutral_discovery=0 below_800=1"
     )
     return 0
 
