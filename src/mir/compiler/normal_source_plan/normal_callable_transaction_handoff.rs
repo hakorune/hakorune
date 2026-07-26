@@ -12,7 +12,8 @@ use crate::mir::compiler::callable_graph_inventory::{
 };
 use crate::mir::compiler::callable_scc_partition::VerifiedCallableSccPartitionV1;
 use crate::mir::compiler::capability::{
-    CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1, CanonicalTrivialBindingSsaPlanV1,
+    bind_sealed_normal_main_parts_v1, CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1,
+    CanonicalTrivialBindingSsaPlanV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::lowering_input::CanonicalLoweringErrorV1;
@@ -345,7 +346,7 @@ impl OpenNormalCallableModuleTransactionV1 {
                 },
             });
         }
-        let plan = CanonicalTrivialBindingSsaPlanV1::bind_sealed_normal_main_parts_v1(
+        let plan = bind_sealed_normal_main_parts_v1(
             input,
             proof.if_control,
             proof.completion,

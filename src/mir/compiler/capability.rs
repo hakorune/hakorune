@@ -28,8 +28,10 @@ use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnit
 use super::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 
 mod function_role_policy;
+mod normal_main_binding;
 mod resolved_owner_header;
 use function_role_policy::{CanonicalFunctionRolePolicyV1, DirectCallAdmissionV1};
+pub(in crate::mir) use normal_main_binding::bind_sealed_normal_main_parts_v1;
 pub(crate) use resolved_owner_header::{
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
@@ -79,35 +81,6 @@ pub(crate) struct CanonicalTrivialBindingSsaPlanV1<'a> {
 }
 
 impl<'a> CanonicalTrivialBindingSsaPlanV1<'a> {
-    /// Binds already-sealed canonical facts to one fresh exact input without
-    /// rerunning source classification or canonical preflight.
-    pub(in crate::mir) fn bind_sealed_normal_main_parts_v1(
-        function: ResolvedFunctionLoweringInputV1<'a>,
-        if_control: crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1,
-        completion: VerifiedFunctionCompletionV1,
-        profile: VerifiedTrivialCanonicalOwnerV1,
-        block_expr_count: usize,
-    ) -> Result<Self, CanonicalLoweringErrorV1> {
-        let owner = function.owner();
-        if if_control.owner() != owner
-            || completion.owner() != owner
-            || profile.owner() != owner
-            || function.function().owner() != owner
-            || function.source().owner() != owner
-        {
-            return Err(CanonicalLoweringErrorV1::SourceUnitResolution {
-                detail: "normal_main_sealed_fact_owner_mismatch".to_owned(),
-            });
-        }
-        Ok(Self {
-            function,
-            if_control,
-            completion,
-            profile,
-            block_expr_count,
-        })
-    }
-
     pub(crate) fn seal_resolved_owner_header_v1(
         &self,
     ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
