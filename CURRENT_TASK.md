@@ -50,8 +50,9 @@ profile admission, default routing, and legacy callers remain outside the
 active bounded source-plan series until explicitly selected there.
 
 `OWN-GRAM-REJECT0` has its Rust parser half landed. Its Hako transport half is
-not committed: the required Stage-B return-type guard fails unchanged in a
-clean worktree before the candidate runs, after plugin discovery, at
-`[mir/main-expansion/preflight] StaticChildMustBeStatic { method: "equals" }`.
-Restore that guard's baseline first; do not bypass it or commit the parked Hako
-freeze-tag WIP while the fast gate is red.
+parked by `STATIC-BOX-DERIVE-COMPAT-D0`: the required Stage-B return-type guard
+fails unchanged in a clean worktree before the candidate runs because default
+macro derive injects receiver-based `equals` into `static box Main`. Follow
+the design stop at
+`docs/development/current/main/investigations/static-box-derive-compat-d0-design-question-2026-07-26.md`;
+do not bypass Main expansion or commit the parked Hako freeze-tag WIP.

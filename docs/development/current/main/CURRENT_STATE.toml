@@ -5,9 +5,9 @@ status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 is closed: Script, Main F1, and
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "OWN-GRAM-REJECT0"
-current_execution_summary = "Make both current parser paths reject inactive result lookalikes `: view T` and `: share T` with the stable ownership-syntax-inactive tag; grammar activation, AST/resolver/MIR/runtime changes, caller widening, and fallback remain zero."
+current_design_stop = "STATIC-BOX-DERIVE-COMPAT-D0"
+current_execution_row = "STATIC-BOX-DERIVE-COMPAT-D0"
+current_execution_summary = "Decide the default macro-derive disposition for static boxes. The Hako OWN-GRAM-REJECT0 transport half is parked because its Stage-B guard fails before the candidate when an instance-only generated `equals` enters static Main expansion."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -433,9 +433,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "ownership-sparse-resume-d0-guard-refresh-task-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/ownership-sparse-resume-d0-guard-refresh-task-2026-07-26.md"
-latest_card_summary = """OWNERSHIP-SPARSE-RESUME-D0-GUARD-REFRESH0 is closed. Exact SSA/draft-seal anchors, the callable catalog structural fence, versioned current ownership receipts, and the ReleaseStrong ledger are green without grammar, AST, resolver, MIR, runtime, backend, caller, or fallback changes. OWN-GRAM-REJECT0 is unlocked as the current narrow fail-fast row."""
+latest_card = "static-box-derive-compat-d0-design-question-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/static-box-derive-compat-d0-design-question-2026-07-26.md"
+latest_card_summary = """STATIC-BOX-DERIVE-COMPAT-D0 is active. The Stage-B return-type guard reaches Main expansion before its ownership-syntax candidate because MacroEngine injects receiver-based default derives into static Main. The decision must keep Main expansion strict and select the static-box macro policy before OWN-GRAM-REJECT0 Hako transport resumes."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "OWN-GRAM-REJECT0"
+current_blocker_token = "STATIC-BOX-DERIVE-COMPAT-D0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
