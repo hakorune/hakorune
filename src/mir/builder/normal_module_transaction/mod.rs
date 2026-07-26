@@ -66,8 +66,10 @@ pub(in crate::mir::builder) use schema::{
     NormalModuleTransactionDraftV1, NormalModuleTransactionSchemaV1,
 };
 pub(in crate::mir) use script_transaction::{
-    CompletedNormalScriptModuleCandidateV1, NormalScriptModuleTransactionErrorV1,
-    PreparedNormalScriptModuleTransactionV1, RejectedNormalScriptModuleTransactionV1,
+    CompletedNormalScriptModuleCandidateV1, NormalScriptCandidateVerificationReceiptV1,
+    NormalScriptModuleSchemaErrorV1, NormalScriptModuleTransactionErrorV1,
+    NormalScriptModuleTransactionSchemaV1, PreparedNormalScriptModuleTransactionV1,
+    RejectedNormalScriptModuleTransactionV1,
 };
 
 #[cfg(test)]

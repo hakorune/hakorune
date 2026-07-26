@@ -18,9 +18,22 @@ pub(in crate::mir) enum NormalScriptModuleTransactionStageV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) enum NormalScriptModuleTransactionErrorV1 {
-    Schema { symbol: Box<str>, arity: usize },
+    Schema(NormalScriptModuleSchemaErrorV1),
     Verification(Box<[VerificationError]>),
     Shell(ModuleLoweringShellErrorV1),
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir) enum NormalScriptModuleSchemaErrorV1 {
+    PhysicalEntry { symbol: Box<str>, arity: usize },
+}
+
+/// The Script candidate has exactly one physical entry and no source-Main row.
+#[derive(Debug)]
+pub(in crate::mir) struct NormalScriptModuleTransactionSchemaV1 {
+    expected_symbol: &'static str,
+    expected_arity: usize,
+    expected_row_count: usize,
 }
 
 pub(in crate::mir) struct RejectedNormalScriptModuleTransactionV1 {
@@ -32,11 +45,24 @@ pub(in crate::mir) struct RejectedNormalScriptModuleTransactionV1 {
 pub(in crate::mir) struct PreparedNormalScriptModuleTransactionV1 {
     draft: MirFunction,
     shell: PreparedModuleLoweringShellDrainV1,
+    schema: NormalScriptModuleTransactionSchemaV1,
+    verification: NormalScriptCandidateVerificationReceiptV1,
 }
 
 pub(in crate::mir) struct CompletedNormalScriptModuleCandidateV1 {
     module: MirModule,
+    schema: NormalScriptModuleTransactionSchemaV1,
+    verification: NormalScriptCandidateVerificationReceiptV1,
 }
+
+#[derive(Debug)]
+pub(in crate::mir) struct NormalScriptCandidateVerificationReceiptV1 {
+    function_count: usize,
+    _seal: NormalScriptCandidateVerificationReceiptSealV1,
+}
+
+#[derive(Debug)]
+struct NormalScriptCandidateVerificationReceiptSealV1;
 
 impl PreparedNormalScriptModuleTransactionV1 {
     pub(in crate::mir) fn prepare(
@@ -46,13 +72,12 @@ impl PreparedNormalScriptModuleTransactionV1 {
     }
 
     fn prepare_draft(draft: MirFunction) -> Result<Self, RejectedNormalScriptModuleTransactionV1> {
-        if draft.signature.name != "main" || !draft.signature.params.is_empty() {
-            let symbol = draft.signature.name.clone().into_boxed_str();
-            let arity = draft.signature.params.len();
+        let schema = NormalScriptModuleTransactionSchemaV1::physical_entry_only();
+        if let Err(error) = schema.validate_draft(&draft) {
             return Err(RejectedNormalScriptModuleTransactionV1 {
                 draft,
                 stage: NormalScriptModuleTransactionStageV1::Schema,
-                cause: NormalScriptModuleTransactionErrorV1::Schema { symbol, arity },
+                cause: NormalScriptModuleTransactionErrorV1::Schema(error),
             });
         }
         if let Err(errors) = MirVerifier::new().verify_function(&draft) {
@@ -86,12 +111,23 @@ impl PreparedNormalScriptModuleTransactionV1 {
                     })
                 }
             };
-        Ok(Self { draft, shell })
+        let function_count = schema.expected_row_count;
+        Ok(Self {
+            draft,
+            shell,
+            schema,
+            verification: NormalScriptCandidateVerificationReceiptV1 {
+                function_count,
+                _seal: NormalScriptCandidateVerificationReceiptSealV1,
+            },
+        })
     }
 
     pub(in crate::mir) fn commit(self) -> CompletedNormalScriptModuleCandidateV1 {
         CompletedNormalScriptModuleCandidateV1 {
             module: self.shell.commit_preflighted(vec![self.draft]),
+            schema: self.schema,
+            verification: self.verification,
         }
     }
 
@@ -100,6 +136,29 @@ impl PreparedNormalScriptModuleTransactionV1 {
         draft: MirFunction,
     ) -> Result<Self, RejectedNormalScriptModuleTransactionV1> {
         Self::prepare_draft(draft)
+    }
+}
+
+impl NormalScriptModuleTransactionSchemaV1 {
+    fn physical_entry_only() -> Self {
+        Self {
+            expected_symbol: "main",
+            expected_arity: 0,
+            expected_row_count: 1,
+        }
+    }
+
+    fn validate_draft(&self, draft: &MirFunction) -> Result<(), NormalScriptModuleSchemaErrorV1> {
+        if draft.signature.name == self.expected_symbol
+            && draft.signature.params.len() == self.expected_arity
+        {
+            Ok(())
+        } else {
+            Err(NormalScriptModuleSchemaErrorV1::PhysicalEntry {
+                symbol: draft.signature.name.clone().into_boxed_str(),
+                arity: draft.signature.params.len(),
+            })
+        }
     }
 }
 
@@ -121,6 +180,16 @@ impl CompletedNormalScriptModuleCandidateV1 {
     }
     pub(in crate::mir) fn into_module(self) -> MirModule {
         self.module
+    }
+
+    pub(in crate::mir) fn verification(&self) -> &NormalScriptCandidateVerificationReceiptV1 {
+        &self.verification
+    }
+}
+
+impl NormalScriptCandidateVerificationReceiptV1 {
+    pub(in crate::mir) const fn function_count(&self) -> usize {
+        self.function_count
     }
 }
 
@@ -158,6 +227,7 @@ mod tests {
             Err(rejected) => panic!("prepare one-row Script transaction: {:?}", rejected.cause()),
         };
         let candidate = prepared.commit();
+        assert_eq!(candidate.verification().function_count(), 1);
         assert_eq!(candidate.module().functions.len(), 1);
         assert!(candidate.module().functions.contains_key("main"));
     }

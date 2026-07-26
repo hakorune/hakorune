@@ -36,6 +36,7 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
     lowering = builder / "raw_root_body_lowering.rs"
     raw_adapter = builder / "raw_root_environment_install/body_transaction.rs"
     canonical_owner = source_plan / "script_physical_entry.rs"
+    transaction = builder / "normal_module_transaction/script_transaction.rs"
 
     handoff = recipe_handoff.read_text()
     terminal_text = terminal.read_text()
@@ -46,6 +47,7 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
     lowering_text = lowering.read_text()
     raw_adapter_text = raw_adapter.read_text()
     canonical_owner_text = canonical_owner.read_text()
+    transaction_text = transaction.read_text()
 
     _require(handoff, "source: RetainedNormalScriptSourceV1", "opaque Script source retention")
     _require(handoff, "recipe: RawScriptBodyRecipeV1", "exact Script recipe")
@@ -157,6 +159,32 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
     for forbidden in ("ModuleInvocationBrandV1", "RawPublished", "compile_with_source", "fn retry"):
         if forbidden in canonical_owner_text:
             raise AssertionError(f"canonical Script outer owner gained forbidden authority: {forbidden}")
+
+    _require_count(
+        transaction_text,
+        "struct NormalScriptModuleTransactionSchemaV1",
+        1,
+        "one-row Script transaction schema",
+    )
+    _require_count(
+        transaction_text,
+        "struct CompletedNormalScriptModuleCandidateV1",
+        1,
+        "one Script candidate owner",
+    )
+    _require(
+        transaction_text,
+        "expected_row_count: 1",
+        "Script transaction exact one-row schema",
+    )
+    _require(
+        transaction_text,
+        "commit_preflighted(vec![self.draft])",
+        "infallible one-draft shell commit",
+    )
+    for forbidden in ("ModuleInvocationBrandV1", "RawPublished", "SourceMain", "fn retry"):
+        if forbidden in transaction_text:
+            raise AssertionError(f"Script transaction gained forbidden authority: {forbidden}")
     for prefix in (
         "script_terminal_kernel_classifies",
         "script_terminal_kernel_preserves",
@@ -183,6 +211,7 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
         lowering,
         raw_adapter,
         canonical_owner,
+        transaction,
     )
     for path in files:
         if len(path.read_text().splitlines()) >= 800:
