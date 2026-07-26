@@ -1,5 +1,5 @@
 ---
-Status: active
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-FILE-CANONICAL-CORE0-DISPATCH-prime-r1
 Row: NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0

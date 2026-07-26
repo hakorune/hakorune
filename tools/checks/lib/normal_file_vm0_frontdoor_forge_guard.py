@@ -11,6 +11,9 @@ TASK = ROOT / (
 )
 FRONTDOOR = ROOT / "src/runner/reference/normal_file_vm_frontdoor.rs"
 NORMAL_REQUEST = ROOT / "src/runner/reference/normal_file_vm_request.rs"
+CANONICAL_CORE_REQUEST = (
+    ROOT / "src/runner/reference/normal_file_canonical_core_request.rs"
+)
 NORMAL_REPORT_RUNNER = ROOT / "src/runner/reference/normal_file_vm.rs"
 PARITY_P0A = ROOT / "src/runner/reference/normal_file_vm/parity_p0a.rs"
 TEST_ONLY_RAW_TERMINAL_CONSUMERS = (
@@ -146,9 +149,9 @@ def main() -> int:
         "CanonicalCoreSourcePlanCompileRequestV1",
         "NormalCanonicalCoreSourcePlanCompilerV1",
         "CompletedCanonicalCoreSourceEntryCandidateV1",
-        "FamilyCapabilityPending",
         "compile_canonical_core_source_plan",
         "compile_main0",
+        "CompletedCanonicalCoreSourceEntryFamilyV1::Callable",
     ):
         require(canonical_dispatch, fragment, f"canonical compiler dispatch {fragment}")
     if canonical_dispatch.count("match plan") != 1:
@@ -180,6 +183,17 @@ def main() -> int:
         "NonDefaultOptimizationRequested",
     ):
         require(normal_request, fragment, f"unconnected normal request {fragment}")
+    canonical_core_request = CANONICAL_CORE_REQUEST.read_text()
+    for fragment in (
+        "NormalFileCanonicalCoreVmReferenceProductionRequestV1",
+        "normal-file-canonical-core-vm-reference",
+        "file_canonical_core_request",
+        "into_frontdoor_request(self)",
+        "NonDefaultOptimizationRequested",
+    ):
+        require(canonical_core_request, fragment, f"unconnected canonical-core request {fragment}")
+    if ".prepare()" in canonical_core_request or "select_from_cli" in canonical_core_request:
+        raise AssertionError("REQUEST0 must not select or execute the canonical-core front door")
     if ".prepare()" in normal_request or "run_raw_vm_reference" in normal_request:
         raise AssertionError("REQUEST0 must not execute the NormalFile front door")
     for fragment in (
@@ -254,7 +268,7 @@ def main() -> int:
                 raise AssertionError(f"frozen route widened into Forge0: {path.relative_to(ROOT)}")
     for path in (ROOT / "src/runner").rglob("*.rs"):
         if (
-            path in (FRONTDOOR, NORMAL_REQUEST, NORMAL_REPORT_RUNNER)
+            path in (FRONTDOOR, NORMAL_REQUEST, CANONICAL_CORE_REQUEST, NORMAL_REPORT_RUNNER)
             or path in TEST_ONLY_RAW_TERMINAL_CONSUMERS
             or path in SOURCE_PLAN_PROOF_CONSUMERS
         ):
@@ -284,6 +298,7 @@ def main() -> int:
         TASK,
         FRONTDOOR,
         NORMAL_REQUEST,
+        CANONICAL_CORE_REQUEST,
         NORMAL_REPORT_RUNNER,
         PARITY_P0A,
         *TEST_ONLY_RAW_TERMINAL_CONSUMERS,

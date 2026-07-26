@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: NORMAL-FILE-CANONICAL-CORE0-REQUEST0-S0
+Active executable row: NORMAL-FILE-CANONICAL-CORE0-REPORT0-S0
 ```
 
 ## Boundary
@@ -274,6 +274,28 @@ published partial module.
 default-off, crate-private normal-file canonical-core VM-reference request.
 Selection is CLI-shaped but has no production caller yet; it owns one existing
 normal-file request and accepts no backend/optimization/profile reconstruction.
+
+### `NORMAL-FILE-CANONICAL-CORE0-REQUEST0-S0`
+
+Status: closed by this commit.
+
+`NormalFileCanonicalCoreVmReferenceProductionRequestV1` now owns exactly one
+existing canonical-core front-door request. Its selector spelling is
+`normal-file-canonical-core-vm-reference`, but this row does not add it to the
+central selector or any production caller.
+
+```text
+file I/O / parse / compile / VM execution = 0
+profile reconstruction                     = 0
+non-default optimization                  = typed usage rejection
+```
+
+## Next row
+
+`NORMAL-FILE-CANONICAL-CORE0-REPORT0-S0` consumes this request through the
+existing front door, canonical-core compiler dispatch, shared publication,
+and VM terminal. It returns the common reference outcome vocabulary and does
+not yet connect the CLI selector.
 
 ## Acceptance gates
 
