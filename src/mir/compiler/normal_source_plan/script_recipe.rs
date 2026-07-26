@@ -32,7 +32,7 @@ struct VerifiedNormalScriptRecipeSealV1;
 /// accessor or reclassification terminal: source observation ended before the
 /// recipe was issued.
 #[derive(Debug)]
-struct RetainedNormalScriptSourceV1 {
+pub(crate) struct RetainedNormalScriptSourceV1 {
     input: PreparedNormalSourcePlanInputV1,
     statements: Box<[NormalTopLevelSiteV1]>,
     _seal: RetainedNormalScriptSourceSealV1,
@@ -80,6 +80,12 @@ impl VerifiedNormalScriptRecipeV1 {
 
     pub(in crate::mir) fn into_recipe(self) -> RawScriptBodyRecipeV1 {
         self.recipe
+    }
+
+    pub(crate) fn into_physical_parts(
+        self,
+    ) -> (RetainedNormalScriptSourceV1, RawScriptBodyRecipeV1) {
+        (self.source, self.recipe)
     }
 
     #[cfg(test)]

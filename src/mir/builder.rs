@@ -71,7 +71,6 @@ mod raw_root_body_lowering_p0; // BODY0-S0-B disconnected lowerer fixtures
 mod raw_root_environment_install;
 mod raw_root_physical; // RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PHYSICAL0 empty carrier
 mod script_physical_exit; // NORMAL-SCRIPT0 brand-free Script terminal kernel
-pub(in crate::mir) use script_physical_exit::OpenScriptPhysicalEntrySessionV1;
 pub(in crate::mir) use builder_publication_target::{
     check_builder_external_commit_quiescence, BuilderPublicationReceiptV1,
 };
@@ -81,6 +80,10 @@ pub(in crate::mir) use normal_module_transaction::{
 };
 pub(in crate::mir) use raw_root_physical::publication_terminal::RawPublishedModuleV1;
 pub(in crate::mir) use root_batch_slot::RawMainEntryTargetV1;
+pub(in crate::mir) use script_physical_exit::{
+    CompletedScriptPhysicalFunctionV1, OpenScriptPhysicalEntrySessionV1,
+    ScriptPhysicalEntrySessionErrorV1,
+};
 #[allow(dead_code)]
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
 pub(in crate::mir) use raw_required_condition_draft::RawRequiredConditionDraftV1;

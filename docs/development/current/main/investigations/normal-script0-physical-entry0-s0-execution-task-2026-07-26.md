@@ -439,7 +439,10 @@ Progress: the detached `OpenScriptPhysicalEntrySessionV1` foundation is
 landed. It opens only a fresh physical `main/0` with a provisional Unknown
 signature, lowers one exact Script recipe through the shared exit core,
 verifies the detached draft, and has no live-Builder commit terminal. The
-remaining C4 work is the compiler-owned retained recipe/rejection owner.
+compiler-owned `OpenScriptPhysicalEntryV1` now retains the opaque source and
+exact recipe across open/lowering failure, exposing only typed inspection and
+`discard`. C4 is ready for the later one-row transaction; it does not create a
+module candidate itself.
 
 ### Commit 5 — `NORMAL-SCRIPT0-TX0`
 
