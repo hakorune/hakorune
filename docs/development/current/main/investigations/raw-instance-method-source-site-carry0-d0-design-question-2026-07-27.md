@@ -206,7 +206,8 @@ RAW-EXPRESSION-DISPATCH-CURSOR0-I0
     physical descent belongs after an exact located MethodCall input exists.
 
 RAW-LOCATED-INSTANCE-METHOD-INPUT0-S0
-  exact site-aware MethodCall input and private source-only factory
+  closed: exact site-aware MethodCall input and source-only view factory;
+  the input co-seals same view/catalog allocation, caller, site, and borrowed syntax
 
 RAW-INSTANCE-METHOD-SOURCE-SITE-CARRY0-I0
   one explicit source-owned candidate route
