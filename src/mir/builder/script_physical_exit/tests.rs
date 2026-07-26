@@ -8,6 +8,7 @@ use crate::mir::builder::raw_root_body_exit::RawOpenRootFunctionV1;
 use crate::mir::builder::root_batch_slot::RawRootBatchSlotV1;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::builder::MirBuilder;
+use crate::mir::builder::{canonical_normal_main_entry_target, OpenScriptPhysicalEntrySessionV1};
 use crate::mir::raw_root_body_recipe::{
     RawLinearScalarExprV1, RawLinearScalarStmtV1, RawRootBodyEntryContractV1,
     RawRootBodySourceSiteV1, RawScriptBodyRecipeV1, RawScriptTerminalRecipeV1,
@@ -316,4 +317,30 @@ fn script_physical_exit_kernel_rejects_void_value_before_commit() {
         .get_block(builder.function_state.current_block.expect("current block"))
         .expect("entry block");
     assert!(block.terminator.is_none());
+}
+
+#[test]
+fn normal_script_physical_session_opens_one_detached_unknown_main() {
+    let live = MirBuilder::new();
+    let session =
+        OpenScriptPhysicalEntrySessionV1::open(&live, canonical_normal_main_entry_target())
+            .expect("open detached Script session");
+    let function = session
+        .builder()
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("candidate function");
+    assert_eq!(function.signature.name, "main");
+    assert_eq!(function.signature.return_type, MirType::Unknown);
+    assert!(live.function_state.current_function.is_none());
+    assert_eq!(session.entry_block(), builder_current_block(&session));
+}
+
+fn builder_current_block(session: &OpenScriptPhysicalEntrySessionV1) -> crate::mir::BasicBlockId {
+    session
+        .builder()
+        .function_state
+        .current_block
+        .expect("candidate current block")
 }

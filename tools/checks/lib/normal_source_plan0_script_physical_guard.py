@@ -30,6 +30,7 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
     terminal_dir = builder / "script_physical_exit"
     terminal = terminal_dir / "terminal.rs"
     exit_kernel = terminal_dir / "exit.rs"
+    entry_session = terminal_dir / "entry_session.rs"
     terminal_mod = terminal_dir / "mod.rs"
     terminal_tests = terminal_dir / "tests.rs"
     lowering = builder / "raw_root_body_lowering.rs"
@@ -38,6 +39,7 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
     handoff = recipe_handoff.read_text()
     terminal_text = terminal.read_text()
     exit_text = exit_kernel.read_text()
+    entry_session_text = entry_session.read_text()
     terminal_module = terminal_mod.read_text()
     terminal_test_text = terminal_tests.read_text()
     lowering_text = lowering.read_text()
@@ -95,6 +97,15 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
     for forbidden in ("ModuleInvocationBrandV1", "RawRootBody", "RawPublished"):
         if forbidden in exit_text:
             raise AssertionError(f"shared Script exit kernel gained Raw authority: {forbidden}")
+    _require_count(
+        entry_session_text,
+        "struct OpenScriptPhysicalEntrySessionV1",
+        1,
+        "sole detached canonical Script session",
+    )
+    for forbidden in ("ModuleInvocationBrandV1", "RawRoot", "fn commit(", "MirModule"):
+        if forbidden in entry_session_text:
+            raise AssertionError(f"Script entry session gained forbidden authority: {forbidden}")
 
     _require(
         lowering_text,
@@ -136,6 +147,7 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
         "script_physical_exit_kernel_commits",
         "script_physical_exit_kernel_materializes",
         "script_physical_exit_kernel_rejects",
+        "normal_script_physical_session_opens",
     ):
         _require(terminal_test_text, prefix, f"terminal fixture {prefix}")
     _require(
@@ -149,6 +161,7 @@ def check_script_physical(root: Path) -> tuple[Path, ...]:
         terminal_mod,
         terminal,
         exit_kernel,
+        entry_session,
         terminal_tests,
         lowering,
         raw_adapter,

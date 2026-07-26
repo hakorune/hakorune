@@ -435,6 +435,12 @@ detached verified Script draft               = 1
 publication                                 = 0
 ```
 
+Progress: the detached `OpenScriptPhysicalEntrySessionV1` foundation is
+landed. It opens only a fresh physical `main/0` with a provisional Unknown
+signature and has no live-Builder commit terminal. The remaining C4 work is
+to lower the retained recipe through the shared exit core, verify the detached
+draft, and retain a typed rejection owner.
+
 ### Commit 5 — `NORMAL-SCRIPT0-TX0`
 
 Add:
