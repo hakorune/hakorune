@@ -6,6 +6,7 @@
 //! VM result decoding, process projection, and runner policy remain outside.
 
 mod callable_batch;
+mod callable_commit;
 mod callable_draft_prefix;
 mod callable_main_physical;
 mod canonical_batch;
@@ -21,6 +22,10 @@ mod source_draft;
 pub(super) use callable_batch::reject_normal_callable_batch_for_test;
 pub(in crate::mir) use callable_batch::{
     NormalCallableBatchErrorV1, PreparedNormalCallableBatchV1, RejectedNormalCallableBatchV1,
+};
+pub(in crate::mir) use callable_commit::{
+    CompletedNormalCallableCandidateV1, NormalCallableCommitErrorV1,
+    PreparedNormalCallableCommitV1, RejectedNormalCallableCommitV1,
 };
 pub(in crate::mir) use callable_draft_prefix::{
     ConsumedNormalHelperLoweringReceiptV1, NormalHelperDraftCorrespondenceErrorV1,
@@ -60,6 +65,8 @@ pub(in crate::mir::builder) use schema::{
 
 #[cfg(test)]
 mod callable_batch_tests;
+#[cfg(test)]
+mod callable_commit_tests;
 #[cfg(test)]
 mod callable_main_physical_tests;
 #[cfg(test)]

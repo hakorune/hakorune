@@ -27,6 +27,10 @@ impl PreparedNormalCallableBatchV1 {
     pub(in crate::mir) const fn schema(&self) -> &NormalModuleTransactionSchemaV1 {
         &self.schema
     }
+
+    pub(in crate::mir) fn into_drafts(self) -> PreparedNormalCallableMainPhysicalV1 {
+        self.drafts
+    }
 }
 
 /// Schema rejection retains every already-prepared helper/Main/physical draft.

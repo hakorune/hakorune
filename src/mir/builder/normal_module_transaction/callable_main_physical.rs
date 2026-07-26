@@ -54,6 +54,16 @@ impl PreparedNormalCallableMainPhysicalV1 {
     pub(in crate::mir) const fn relation(&self) -> &VerifiedNormalMainPhysicalRelationV1 {
         &self.relation
     }
+
+    pub(in crate::mir) fn into_drafts(
+        self,
+    ) -> (
+        RetainedNormalHelperDraftPrefixV1,
+        VerifiedNormalMainSourceDraftV1,
+        VerifiedNormalMainPhysicalThunkDraftV1,
+    ) {
+        (self.helpers, self.source, self.physical)
+    }
 }
 
 /// All rejection variants retain every completed earlier draft. Main's

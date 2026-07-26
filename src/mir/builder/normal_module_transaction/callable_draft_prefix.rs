@@ -38,6 +38,10 @@ impl VerifiedNormalHelperDraftV1 {
     pub(in crate::mir) const fn draft(&self) -> &MirFunction {
         &self.draft
     }
+
+    pub(in crate::mir) fn into_draft(self) -> MirFunction {
+        self.draft
+    }
 }
 
 /// The complete, unpublished helper prefix that later TX0 rows may extend.
@@ -54,6 +58,10 @@ impl RetainedNormalHelperDraftPrefixV1 {
 
     pub(in crate::mir) fn drafts(&self) -> &[VerifiedNormalHelperDraftV1] {
         &self.drafts
+    }
+
+    pub(in crate::mir) fn into_drafts(self) -> Vec<VerifiedNormalHelperDraftV1> {
+        self.drafts
     }
 }
 
