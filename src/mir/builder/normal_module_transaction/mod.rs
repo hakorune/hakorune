@@ -3,9 +3,13 @@
 //! This module owns no function lowering, collector mutation, module
 //! publication, entry execution, or process projection.
 
+mod entry_target;
 mod rejection;
 mod schema;
 
+pub(in crate::mir) use entry_target::{
+    canonical_normal_main_entry_target, CanonicalNormalMainEntryTargetV1,
+};
 pub(in crate::mir::builder) use rejection::{
     NormalModuleTransactionSchemaErrorV1, RejectedNormalModuleTransactionSchemaV1,
 };

@@ -8,6 +8,7 @@ mod inventory;
 mod main_function_plan;
 mod main_resolved_source;
 mod main_source;
+mod main_thunk_plan;
 mod product;
 mod rejection;
 
@@ -26,6 +27,11 @@ pub(crate) use main_resolved_source::{
 pub(crate) use main_source::{
     NormalMainFunctionSourceErrorV1, NormalMainFunctionSourceViewV1,
     RejectedNormalMainFunctionSourceV1, VerifiedNormalMainFunctionSourceUnitV1,
+};
+#[allow(unused_imports)]
+pub(crate) use main_thunk_plan::{
+    NormalMainThunkPlanErrorV1, RejectedNormalMainThunkPlanV1, VerifiedNormalMainEntryRelationV1,
+    VerifiedNormalMainThunkPlanV1, VerifiedNormalMainThunkResultV1,
 };
 #[allow(unused_imports)]
 pub(crate) use product::{

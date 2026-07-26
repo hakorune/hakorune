@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-MODULE-TX0-L0 is closed: one builder-private passive schema now validates and deterministically orders exactly one source Main, zero or more helpers, and exactly one physical entry under canonical-only identity and retained typed rejection. NORMAL-MAIN0-THUNK0-S0 is active to seal one disconnected exact relation from the existing Main F1 plan/header/result authority to one future physical main thunk."
+status = "NORMAL-MAIN0-THUNK0-S0 is closed: one disconnected plan now co-seals the existing Main F1 completion and trivial terminal profile with the existing resolved-owner header and one opaque canonical physical main/0 identity. NORMAL-CANONICAL-MODULE-BATCH0-S0 is active to consume that plan into the existing passive transaction schema without creating drafts or mutating a collector/module."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "NORMAL-MAIN0-THUNK0-S0"
-current_execution_summary = "Consume the existing Program-owned Main F1 plan and resolved-owner header to seal one exact source-Main/physical-entry thunk plan for Unit/Integer/Bool/Float. No AST/MIR/runtime inference, lowering, module mutation, publication, VM execution, profile admission, or caller activation is allowed."
+current_execution_row = "NORMAL-CANONICAL-MODULE-BATCH0-S0"
+current_execution_summary = "Consume one verified Main thunk plan into one builder-private deterministic source-Main/physical-entry pre-draft batch manifest using the closed passive transaction schema. No source/MIR/runtime reclassification, function lowering, draft creation, collector/module mutation, publication, VM execution, profile admission, or caller activation is allowed."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -413,9 +413,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "normal-main0-thunk0-s0-execution-task-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/normal-main0-thunk0-s0-execution-task-2026-07-26.md"
-latest_card_summary = """NORMAL-MODULE-TX0-L0 is closed with one deterministic canonical-only source-Main/helpers/physical-entry schema and zero mutation/publication consumers. NORMAL-MAIN0-THUNK0-S0 now seals the exact source Main header/result to future physical entry relation without AST/MIR/runtime inference or route activation."""
+latest_card = "normal-canonical-module-batch0-s0-execution-task-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/normal-canonical-module-batch0-s0-execution-task-2026-07-26.md"
+latest_card_summary = """NORMAL-MAIN0-THUNK0-S0 is closed with one exact Unit/Integer/Bool/Float source-Main result relation and one opaque canonical physical main/0 identity, with Raw/Legacy target reuse zero. NORMAL-CANONICAL-MODULE-BATCH0-S0 now seals one deterministic pre-draft transaction manifest and keeps all lowering, mutation, publication, VM, profile, and caller authority at zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -617,7 +617,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-MAIN0-THUNK0-S0"
+current_blocker_token = "NORMAL-CANONICAL-MODULE-BATCH0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

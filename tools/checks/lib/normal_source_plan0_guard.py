@@ -27,6 +27,10 @@ NORMAL_MODULE_TX_TASK = ROOT / (
     "docs/development/current/main/investigations/"
     "normal-module-tx0-l0-execution-task-2026-07-26.md"
 )
+MAIN_THUNK_TASK = ROOT / (
+    "docs/development/current/main/investigations/"
+    "normal-main0-thunk0-s0-execution-task-2026-07-26.md"
+)
 MIR_ROOT = ROOT / "src/mir/mod.rs"
 FRONTDOOR = ROOT / "src/runner/reference/normal_file_vm_frontdoor.rs"
 FRONTDOOR_INPUT = (
@@ -47,6 +51,8 @@ MAIN_RESOLVED_SOURCE = SOURCE_DIR / "main_resolved_source.rs"
 MAIN_RESOLVED_SOURCE_TESTS = SOURCE_DIR / "main_resolved_source_tests.rs"
 MAIN_FUNCTION_PLAN = SOURCE_DIR / "main_function_plan.rs"
 MAIN_FUNCTION_PLAN_TESTS = SOURCE_DIR / "main_function_plan_tests.rs"
+MAIN_THUNK_PLAN = SOURCE_DIR / "main_thunk_plan.rs"
+MAIN_THUNK_PLAN_TESTS = SOURCE_DIR / "main_thunk_plan_tests.rs"
 CAPABILITY = ROOT / "src/mir/compiler/capability.rs"
 VALUE_PROFILE_ANALYZER = ROOT / "src/mir/resolved_value_profile/analyzer.rs"
 VALUE_PROFILE_MOD = ROOT / "src/mir/resolved_value_profile/mod.rs"
@@ -54,7 +60,7 @@ BUILDER_MOD = ROOT / "src/mir/builder.rs"
 NORMAL_MODULE_TX_DIR = ROOT / "src/mir/builder/normal_module_transaction"
 NORMAL_MODULE_TX_FILES = tuple(
     NORMAL_MODULE_TX_DIR / name
-    for name in ("mod.rs", "schema.rs", "rejection.rs", "tests.rs")
+    for name in ("mod.rs", "entry_target.rs", "schema.rs", "rejection.rs", "tests.rs")
 )
 ALL_FILES = (
     *PRODUCTION_FILES,
@@ -65,6 +71,8 @@ ALL_FILES = (
     MAIN_RESOLVED_SOURCE_TESTS,
     MAIN_FUNCTION_PLAN,
     MAIN_FUNCTION_PLAN_TESTS,
+    MAIN_THUNK_PLAN,
+    MAIN_THUNK_PLAN_TESTS,
 )
 
 
@@ -87,6 +95,7 @@ def main() -> int:
     main_task = MAIN_TASK.read_text()
     main_f1_task = MAIN_F1_TASK.read_text()
     normal_module_tx_task = NORMAL_MODULE_TX_TASK.read_text()
+    main_thunk_task = MAIN_THUNK_TASK.read_text()
     production = "\n".join(path.read_text() for path in PRODUCTION_FILES)
     classifier = (SOURCE_DIR / "classifier.rs").read_text()
     tests = (SOURCE_DIR / "tests.rs").read_text()
@@ -101,6 +110,8 @@ def main() -> int:
     main_resolved_source_tests = MAIN_RESOLVED_SOURCE_TESTS.read_text()
     main_function_plan = MAIN_FUNCTION_PLAN.read_text()
     main_function_plan_tests = MAIN_FUNCTION_PLAN_TESTS.read_text()
+    main_thunk_plan = MAIN_THUNK_PLAN.read_text()
+    main_thunk_plan_tests = MAIN_THUNK_PLAN_TESTS.read_text()
     capability = CAPABILITY.read_text()
     value_profile_analyzer = VALUE_PROFILE_ANALYZER.read_text()
     value_profile_mod = VALUE_PROFILE_MOD.read_text()
@@ -157,6 +168,16 @@ def main() -> int:
         "all modified/new source/check files         < 800 lines",
     ):
         require(normal_module_tx_task, fragment, f"normal-module TX task {fragment}")
+
+    for fragment in (
+        "NORMAL-MAIN0-THUNK0-S0",
+        "disconnected exact source-Main to physical-main thunk plan",
+        "existing VerifiedResolvedOwnerHeaderV1",
+        "existing F1/result authority consumer    = 1",
+        "MIR writer / VM consumer = 0",
+        "all modified/new source/check files      < 800 lines",
+    ):
+        require(main_thunk_task, fragment, f"Main THUNK0 task contract {fragment}")
 
     definitions = (
         "struct PreparedNormalSourcePlanInputV1",
@@ -274,6 +295,23 @@ def main() -> int:
             1,
             f"sole normal-module transaction definition {definition}",
         )
+    for definition in (
+        "struct CanonicalNormalMainEntryTargetV1",
+        "fn canonical_normal_main_entry_target()",
+    ):
+        require_count(
+            normal_module_tx,
+            definition,
+            1,
+            f"sole canonical physical-entry identity {definition}",
+        )
+    for fragment in (
+        "FunctionDraftKeyV1::Main",
+        "CanonicalInsertedDispositionV1::from_canonical_source()",
+        'symbol: "main".into()',
+        "arity: 0",
+    ):
+        require(normal_module_tx, fragment, f"canonical physical-entry law {fragment}")
     for fragment in (
         "SourceMain { owner: FunctionOwnerIdV1 }",
         "Helper { key: CanonicalCallableKeyV1 }",
@@ -404,6 +442,51 @@ def main() -> int:
         )
 
     for definition in (
+        "enum VerifiedNormalMainThunkResultV1",
+        "enum NormalMainThunkPlanErrorV1",
+        "struct VerifiedNormalMainEntryRelationV1",
+        "struct VerifiedNormalMainThunkPlanV1",
+        "struct RejectedNormalMainThunkPlanV1",
+    ):
+        require_count(main_thunk_plan, definition, 1, f"sole Main thunk definition {definition}")
+    for fragment in (
+        ".seal_source_header()",
+        "source.completion().function_exit_contract()",
+        "source.terminal_profile()",
+        "source_header.owner() != contract.owner()",
+        "canonical_normal_main_entry_target()",
+        "fn error(&self)",
+        "fn discard(self)",
+    ):
+        require(main_thunk_plan, fragment, f"Main thunk boundary {fragment}")
+    for test_name in (
+        "thunk_seals_unit_origins_and_scalar_results",
+        "thunk_rejects_physical_entry_relation_drift_and_retains_source",
+        "thunk_rejects_completion_profile_disagreement",
+        "thunk_rejects_no_value_representation_on_explicit_value_route",
+    ):
+        require(
+            main_thunk_plan_tests,
+            f"fn {test_name}(",
+            f"Main thunk fixture {test_name}",
+        )
+    for forbidden in (
+        "ASTNode",
+        "MirBuilder",
+        "MirInstruction",
+        "ValueId",
+        "MirType",
+        "NYASH_ENTRY",
+        "module.functions",
+        "RawMainEntryTargetV1",
+        "LegacyReplaceWholePair",
+        "retry",
+        "fallback",
+    ):
+        if forbidden in main_thunk_plan:
+            raise AssertionError(f"Main thunk gained forbidden authority: {forbidden}")
+
+    for definition in (
         "struct VerifiedNormalMainFunctionSourceUnitV1",
         "struct NormalMainFunctionSourceViewV1",
         "struct RejectedNormalMainFunctionSourceV1",
@@ -525,6 +608,8 @@ def main() -> int:
         "VerifiedNormalMainFunctionSourceUnitV1",
         "VerifiedNormalMainResolvedSourceUnitV1",
         "VerifiedNormalMainFunctionPlanV1",
+        "VerifiedNormalMainThunkPlanV1",
+        "CanonicalNormalMainEntryTargetV1",
         "NormalModuleTransactionSchemaV1",
     )
     allowed = set(ALL_FILES) | {
@@ -572,6 +657,7 @@ def main() -> int:
         "main_source=1 reclassification=0 second_read_parse=0 "
         "main_role=1 main_f1=1 ordinary_main_admission=0 "
         "normal_module_schema=1 mutation=0 "
+        "main_thunk=1 result_authority=1 physical_entry_identity=1 "
         "raw_route_delta=0 rewrite=0 below_800=1"
     )
     return 0

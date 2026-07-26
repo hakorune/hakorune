@@ -244,9 +244,10 @@ NORMAL-MAIN0-SOURCE0-S0
 ```
 
 `NORMAL-MODULE-TX0-L0` defines one common transaction schema.
-`NORMAL-CANONICAL-MODULE-BATCH0-S0` adds the canonical heterogeneous
-Main/helpers/thunk manifest, receipt, and drain. Main-only is its two-draft
-specialization; callable modules later consume the same owner.
+`NORMAL-CANONICAL-MODULE-BATCH0-S0` first seals the canonical heterogeneous
+Main/helpers/thunk pre-draft manifest against the passive schema. Main-only is
+its two-row specialization; the later I0 terminal alone materializes and
+commits drafts, and callable modules later consume the same owner.
 
 ### C. Shared VM-reference terminal
 
@@ -310,7 +311,8 @@ NORMAL-SOURCE-PLAN0-G0        = closed
 NORMAL-MAIN0-SOURCE0-S0       = closed
 NORMAL-MAIN0-F1-PLAN0-S0      = closed
 NORMAL-MODULE-TX0-L0          = closed
-NORMAL-MAIN0-THUNK0-S0        = active
+NORMAL-MAIN0-THUNK0-S0        = closed
+NORMAL-CANONICAL-MODULE-BATCH0-S0 = active
 ```
 
 ### F. Promotion and completion

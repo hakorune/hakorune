@@ -1,5 +1,5 @@
 ---
-Status: active execution task
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Row: NORMAL-MAIN0-THUNK0-S0
@@ -223,15 +223,50 @@ NORMAL-MAIN0-THUNK0-S0
 -> NORMAL-MAIN0-TX0-I0
 ```
 
-`NORMAL-CANONICAL-MODULE-BATCH0-S0` connects completed source/thunk drafts to
-the already closed passive transaction schema. It remains unpublished until
-the later atomic I0 terminal.
+`NORMAL-CANONICAL-MODULE-BATCH0-S0` projects this complete semantic thunk plan
+into the already closed passive transaction schema. Actual source/thunk draft
+materialization remains solely in the later atomic I0 terminal.
 
 ## Reconsult boundary
 
 Reopen design only if the existing sealed Main F1/value-profile products cannot
 determine the physical result relation without inspecting AST, MIR, or runtime
 values. A missing accessor is an implementation seam, not a design conflict.
+
+## Implementation closeout
+
+Closed on 2026-07-26.
+
+```text
+source header authority =
+  existing VerifiedResolvedOwnerHeaderV1
+
+source result authority =
+  existing SealedFunctionExitDispositionV1
+  + existing TrivialTerminalProfileV1
+
+physical entry authority =
+  CanonicalNormalMainEntryTargetV1
+  key=Main / symbol=main / arity=0 / canonical disposition
+
+Raw Main slot/policy reuse =
+  0
+
+supported result relation =
+  Unit / Integer / Bool / Float
+
+AST / MIR / VMValue re-observation =
+  0
+
+lowering / module mutation / publication / VM consumer =
+  0
+```
+
+The Main role and source/header owner relation are structurally unforgeable
+through the sealed upstream products. No unchecked production constructor or
+redundant role-mismatch runtime branch was added. The focused family is 30/30
+green; `cargo check --lib`, the reusable row guard, MIR root facade guard, and
+current-state pointer guard are green.
 
 ## Non-claims
 

@@ -73,6 +73,9 @@ mod raw_root_physical; // RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PHYSICAL0 empty carrie
 pub(in crate::mir) use builder_publication_target::{
     check_builder_external_commit_quiescence, BuilderPublicationReceiptV1,
 };
+pub(in crate::mir) use normal_module_transaction::{
+    canonical_normal_main_entry_target, CanonicalNormalMainEntryTargetV1,
+};
 pub(in crate::mir) use raw_root_physical::publication_terminal::RawPublishedModuleV1;
 pub(in crate::mir) use root_batch_slot::RawMainEntryTargetV1;
 #[allow(dead_code)]

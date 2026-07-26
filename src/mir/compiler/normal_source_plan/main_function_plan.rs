@@ -1,10 +1,12 @@
 //! Explicit Main-role entry into the shared canonical F1 preflight.
 
 use crate::mir::compiler::capability::{
-    CanonicalLoweringPreflightV1, CanonicalTrivialBindingSsaPlanV1,
+    CanonicalLoweringPreflightV1, CanonicalTrivialBindingSsaPlanV1, ResolvedOwnerHeaderSealErrorV1,
+    VerifiedResolvedOwnerHeaderV1,
 };
 use crate::mir::compiler::lowering_input::CanonicalLoweringErrorV1;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
+use crate::mir::resolved_value_profile::product::TrivialTerminalProfileV1;
 
 use super::main_resolved_source::{
     VerifiedNormalMainResolvedSourceUnitV1, VerifiedNormalMainRoleV1,
@@ -63,6 +65,16 @@ impl<'unit> VerifiedNormalMainFunctionPlanV1<'unit> {
 
     pub(crate) const fn role(&self) -> VerifiedNormalMainRoleV1 {
         self.role
+    }
+
+    pub(crate) fn seal_source_header(
+        &self,
+    ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
+        self.lowering.seal_resolved_owner_header_v1()
+    }
+
+    pub(crate) fn terminal_profile(&self) -> &TrivialTerminalProfileV1 {
+        self.lowering.terminal_profile()
     }
 
     pub(crate) fn into_lowering(self) -> CanonicalTrivialBindingSsaPlanV1<'unit> {

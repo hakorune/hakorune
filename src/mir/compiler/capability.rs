@@ -92,6 +92,12 @@ impl<'a> CanonicalTrivialBindingSsaPlanV1<'a> {
         &self.completion
     }
 
+    pub(crate) fn terminal_profile(
+        &self,
+    ) -> &crate::mir::resolved_value_profile::product::TrivialTerminalProfileV1 {
+        self.profile.terminal()
+    }
+
     pub(crate) fn into_parts(
         self,
     ) -> (
