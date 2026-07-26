@@ -52,7 +52,7 @@ pub(crate) mod compile_timing;
 mod compiler;
 #[allow(unused_imports)]
 pub(crate) use compiler::canonical_core_dispatch::{
-    CanonicalCoreDispatchErrorV1, CanonicalCoreDispatchStageV1,
+    CanonicalCallableDispatchStageV1, CanonicalCoreDispatchErrorV1, CanonicalCoreDispatchStageV1,
     CanonicalCoreSourcePlanCompileRequestV1, NormalSourcePlanReceiptV1,
     VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };

@@ -309,6 +309,63 @@ fn canonical_core_dispatch_connects_callable_to_the_shared_publication_path() {
 }
 
 #[test]
+fn canonical_core_callable_direct_call_rejects_at_its_existing_preflight_and_reuses_compiler() {
+    let dir = tempdir().expect("tempdir");
+    let direct_call = classify_canonical_core(
+        dir.path(),
+        "callable-direct-call.hako",
+        "static function helper(x: i64): i64 { return x }\nstatic box Main { main() { helper(42) } }",
+    )
+    .into_canonical_core_compile_request()
+    .expect("canonical-core callable handoff");
+    let later = classify_canonical_core(
+        dir.path(),
+        "callable-later.hako",
+        "static function helper(x: i64): i64 { return x }\nstatic box Main { main() {} }",
+    )
+    .into_canonical_core_compile_request()
+    .expect("canonical-core callable handoff");
+    let mut compiler = crate::mir::MirCompiler::new();
+
+    let rejected = compiler
+        .compile_canonical_core_source_plan(direct_call)
+        .expect_err("Main direct calls remain outside the first callable slice");
+    assert_eq!(rejected.stage(), crate::mir::CanonicalCoreDispatchStageV1::Callable);
+    assert!(matches!(
+        rejected.cause(),
+        crate::mir::CanonicalCoreDispatchErrorV1::Callable(
+            crate::mir::CanonicalCallableDispatchStageV1::MainPlan
+        )
+    ));
+    assert_eq!(rejected.receipt_counts(), (1, 1));
+    rejected.discard();
+
+    let later = compiler
+        .compile_canonical_core_source_plan(later)
+        .expect("typed direct-call rejection leaves compiler reusable");
+    assert!(later.is_callable());
+}
+
+#[cfg(feature = "vm-reference")]
+#[test]
+fn canonical_core_vm_reference_executes_admitted_callable_module() {
+    let dir = tempdir().expect("tempdir");
+    let request = classify_canonical_core(
+        dir.path(),
+        "callable-vm.hako",
+        "static function helper(x: i64): i64 { return x }\nstatic box Main { main() {} }",
+    )
+    .into_canonical_core_compile_request()
+    .expect("canonical-core callable handoff");
+    let outcome = crate::mir::MirCompiler::new()
+        .run_canonical_core_source_plan_vm_reference_summary_for_test(request)
+        .expect("Callable VM-reference execution");
+    assert_eq!(outcome.status, 0);
+    assert_eq!(outcome.fault_tag, None);
+    assert_eq!(outcome.route, "main");
+}
+
+#[test]
 fn parsed_main_zero_becomes_scalar_main_plan_once() {
     let dir = tempdir().expect("tempdir");
     let classified = classify(dir.path(), "main.hako", "static box Main { main() {} }")

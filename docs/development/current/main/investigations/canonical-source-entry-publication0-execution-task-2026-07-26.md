@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0a
+Active executable row: NORMAL-FILE-CANONICAL-CORE0-REUSE0-P0
 ```
 
 ## Boundary
@@ -226,6 +226,29 @@ CallableModule pending reject = 0
 over the admitted Script, Main, and callable-first-family forms. It must
 separately prove the expected pre-execution typed rejection for Main direct
 calls, rather than widening that capability or falling back.
+
+### `NORMAL-FILE-CANONICAL-CORE0-PARITY0-P0a`
+
+Status: closed by this commit.
+
+The focused canonical-core matrix now proves:
+
+```text
+Script / Main existing VM parity                  = green
+Callable: static i64 helper + Main fallthrough    = VM status 0 / AppMain0
+Callable: Main direct call                         = MainPlan typed rejection
+direct-call rejection -> later callable success    = green
+```
+
+No fallback or profile reselection occurs. The one shared publication and VM
+owner remains the only execution path.
+
+## Next row
+
+`NORMAL-FILE-CANONICAL-CORE0-REUSE0-P0` expands reuse evidence from the
+focused direct-call case to a single compiler sequence covering Script/Main/
+Callable success, callable catalog/preflight rejection, and VM process Fault.
+It changes no accepted source shape.
 
 ## Acceptance gates
 

@@ -15,6 +15,7 @@ use crate::mir::compiler::normal_source_plan::{
 };
 
 use super::{
+    CanonicalCallableDispatchStageV1,
     CompletedCanonicalCoreSourceEntryCandidateSealV1, CompletedCanonicalCoreSourceEntryCandidateV1,
     CompletedCanonicalCoreSourceEntryFamilyV1, NormalSourcePlanReceiptV1,
     VerifiedCanonicalCoreSourcePlanAdmissionV1,
@@ -35,6 +36,22 @@ pub(super) enum RejectedCanonicalCallableDispatchV1 {
     MainPhysical(RejectedNormalCallableMainPhysicalV1),
     Batch(RejectedNormalCallableBatchV1),
     Commit(RejectedNormalCallableCommitV1),
+}
+
+impl RejectedCanonicalCallableDispatchV1 {
+    pub(super) const fn stage(&self) -> CanonicalCallableDispatchStageV1 {
+        match self {
+            Self::Source(_) => CanonicalCallableDispatchStageV1::Source,
+            Self::Catalog(_) => CanonicalCallableDispatchStageV1::Catalog,
+            Self::MainCatalog(_) => CanonicalCallableDispatchStageV1::MainCatalog,
+            Self::MainPlan(_) => CanonicalCallableDispatchStageV1::MainPlan,
+            Self::HelperResolution(_) => CanonicalCallableDispatchStageV1::HelperResolution,
+            Self::HelperDraft(_) => CanonicalCallableDispatchStageV1::HelperDraft,
+            Self::MainPhysical(_) => CanonicalCallableDispatchStageV1::MainPhysical,
+            Self::Batch(_) => CanonicalCallableDispatchStageV1::Batch,
+            Self::Commit(_) => CanonicalCallableDispatchStageV1::Commit,
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -76,6 +93,10 @@ impl OpenCanonicalCallableDispatchContextV1 {
 }
 
 impl RejectedCanonicalCallableDispatchWithContextV1 {
+    pub(super) const fn stage(&self) -> CanonicalCallableDispatchStageV1 {
+        self.rejected.stage()
+    }
+
     pub(super) fn into_parts(
         self,
     ) -> (

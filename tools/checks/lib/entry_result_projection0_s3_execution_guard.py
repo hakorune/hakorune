@@ -29,6 +29,9 @@ CANONICAL_CALLABLE_DISPATCH = (
 NORMAL_MAIN_TX = (
     ROOT / "src/mir/builder/normal_module_transaction/main_transaction.rs"
 )
+NORMAL_SOURCE_PLAN_TESTS = (
+    ROOT / "src/runner/reference/normal_file_vm_frontdoor/source_plan_input_tests.rs"
+)
 
 
 def require(text: str, fragment: str, label: str) -> None:
@@ -53,6 +56,7 @@ def main() -> int:
     canonical_dispatch = CANONICAL_DISPATCH.read_text()
     canonical_callable_dispatch = CANONICAL_CALLABLE_DISPATCH.read_text()
     normal_main_tx = NORMAL_MAIN_TX.read_text()
+    normal_source_plan_tests = NORMAL_SOURCE_PLAN_TESTS.read_text()
     normal_main_tx_production = normal_main_tx
 
     for fragment in (
@@ -227,6 +231,12 @@ def main() -> int:
             raise AssertionError(f"callable dispatch gained forbidden authority: {forbidden}")
     if "FamilyCapabilityPending(\n                        CanonicalCorePendingFamilyV1::CallableModule" in canonical_dispatch:
         raise AssertionError("canonical CallableModule must not remain a pending dispatch family")
+    for fragment in (
+        "canonical_core_dispatch_connects_callable_to_the_shared_publication_path",
+        "canonical_core_callable_direct_call_rejects_at_its_existing_preflight_and_reuses_compiler",
+        "canonical_core_vm_reference_executes_admitted_callable_module",
+    ):
+        require(normal_source_plan_tests, fragment, f"callable dispatch parity fixture {fragment}")
     for retired in (
         "PublishedNormalMainInvocationV1",
         "CanonicalMain(",
@@ -259,6 +269,7 @@ def main() -> int:
         CANONICAL_DISPATCH,
         CANONICAL_CALLABLE_DISPATCH,
         NORMAL_MAIN_TX,
+        NORMAL_SOURCE_PLAN_TESTS,
         Path(__file__),
     ):
         if len(path.read_text().splitlines()) >= 800:

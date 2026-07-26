@@ -131,6 +131,20 @@ pub(crate) enum CanonicalCoreDispatchStageV1 {
     Callable,
 }
 
+/// Exact substage for the sole CallableModule dispatch sequence.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CanonicalCallableDispatchStageV1 {
+    Source,
+    Catalog,
+    MainCatalog,
+    MainPlan,
+    HelperResolution,
+    HelperDraft,
+    MainPhysical,
+    Batch,
+    Commit,
+}
+
 #[derive(Debug)]
 pub(crate) enum CanonicalCoreDispatchErrorV1 {
     MainSource(NormalMainFunctionSourceErrorV1),
@@ -142,7 +156,7 @@ pub(crate) enum CanonicalCoreDispatchErrorV1 {
     ScriptRecipe(RawScriptRecipeProjectionErrorV1),
     ScriptPhysical,
     ScriptCandidate,
-    Callable,
+    Callable(CanonicalCallableDispatchStageV1),
 }
 
 /// The complete source/profile/receipt owner retained by a dispatch rejection.
@@ -641,6 +655,7 @@ fn reject_script_candidate(
 fn reject_callable(
     rejected: callable::RejectedCanonicalCallableDispatchWithContextV1,
 ) -> RejectedCanonicalCoreNormalDispatchV1 {
+    let callable_stage = rejected.stage();
     let (rejected, admission, receipt) = rejected.into_parts();
     RejectedCanonicalCoreNormalDispatchV1 {
         owner: RetainedCanonicalCoreSourcePlanOwnerV1::Callable {
@@ -649,6 +664,6 @@ fn reject_callable(
             receipt,
         },
         stage: CanonicalCoreDispatchStageV1::Callable,
-        cause: CanonicalCoreDispatchErrorV1::Callable,
+        cause: CanonicalCoreDispatchErrorV1::Callable(callable_stage),
     }
 }
