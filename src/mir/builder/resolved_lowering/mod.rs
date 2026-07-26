@@ -39,6 +39,8 @@ mod if_materialization_tests;
 #[cfg(test)]
 mod if_tests;
 #[cfg(test)]
+mod normal_function_draft_lowering_tests;
+#[cfg(test)]
 mod null_tests;
 #[cfg(test)]
 mod parameter_tests;
@@ -60,7 +62,7 @@ use crate::mir::{MirFunction, MirModule};
 use super::calls::CanonicalFunctionSessionErrorV1;
 use super::MirBuilder;
 use draft_seal::ReadyFunctionDraftSealV1;
-use draft_seal_owner::RejectedFunctionDraftSealV1;
+use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
 use lowerer::CanonicalFunctionLowererV1;
 use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1};
 
@@ -83,6 +85,76 @@ impl From<CanonicalFunctionSessionErrorV1> for CanonicalResolvedBuildErrorV1 {
                 function_name: function_name.to_string(),
             },
             None => Self::BuilderContract(error.to_string()),
+        }
+    }
+}
+
+/// Exact failure boundary for the TX0 retaining draft-lowering terminal.
+///
+/// The outer stage is issued at the operation that failed; callers never
+/// classify a formatted legacy diagnostic to recover it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum NormalFunctionDraftLoweringStageV1 {
+    SessionOpen,
+    BindingInstall,
+    Skeleton,
+    BodyLowering,
+    DraftSeal(FunctionDraftSealStageV1),
+    SessionRestore,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) enum NormalFunctionDraftLoweringCauseV1 {
+    BuilderContract(Box<str>),
+    DraftSeal(Box<str>),
+}
+
+/// Sealed evidence that the unpublished child session was discarded and its
+/// caller context restored before the typed rejection was issued.
+#[derive(Debug)]
+pub(in crate::mir) struct NormalFunctionDraftBuilderRestorationReceiptV1 {
+    session: super::calls::CanonicalFunctionSessionRestorationReceiptV1,
+    _seal: NormalFunctionDraftBuilderRestorationReceiptSealV1,
+}
+
+#[derive(Debug)]
+struct NormalFunctionDraftBuilderRestorationReceiptSealV1;
+
+#[derive(Debug)]
+pub(in crate::mir) struct RejectedNormalFunctionDraftLoweringV1 {
+    stage: NormalFunctionDraftLoweringStageV1,
+    cause: NormalFunctionDraftLoweringCauseV1,
+    restoration: NormalFunctionDraftBuilderRestorationReceiptV1,
+}
+
+impl RejectedNormalFunctionDraftLoweringV1 {
+    pub(in crate::mir) const fn stage(&self) -> NormalFunctionDraftLoweringStageV1 {
+        self.stage
+    }
+
+    pub(in crate::mir) const fn cause(&self) -> &NormalFunctionDraftLoweringCauseV1 {
+        &self.cause
+    }
+
+    pub(in crate::mir) const fn has_restoration_receipt(&self) -> bool {
+        let _ = &self.restoration.session;
+        true
+    }
+
+    pub(in crate::mir) fn into_compatibility_error(self) -> CanonicalResolvedBuildErrorV1 {
+        match self.cause {
+            NormalFunctionDraftLoweringCauseV1::BuilderContract(detail) => {
+                CanonicalResolvedBuildErrorV1::BuilderContract(detail.into())
+            }
+            NormalFunctionDraftLoweringCauseV1::DraftSeal(detail) => {
+                let NormalFunctionDraftLoweringStageV1::DraftSeal(stage) = self.stage else {
+                    unreachable!("draft-seal cause keeps one draft-seal stage")
+                };
+                CanonicalResolvedBuildErrorV1::BuilderContract(format!(
+                    "[freeze:contract][f1_draft_seal/{:?}] {detail}",
+                    stage
+                ))
+            }
         }
     }
 }
@@ -201,6 +273,17 @@ impl MirBuilder {
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
     ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
+        self.lower_resolved_trivial_function_draft_retaining_failure_v1(plan)
+            .map_err(RejectedNormalFunctionDraftLoweringV1::into_compatibility_error)
+    }
+
+    /// TX0-private typed terminal. It consumes the preflight plan once and
+    /// either yields the exact draft or a typed failure after the child
+    /// session's discard terminal has restored the caller context.
+    pub(in crate::mir) fn lower_resolved_trivial_function_draft_retaining_failure_v1(
+        &mut self,
+        plan: CanonicalTrivialBindingSsaPlanV1<'_>,
+    ) -> Result<MirFunction, RejectedNormalFunctionDraftLoweringV1> {
         let (input, if_control, completion, profile, block_expr_count) = plan.into_parts();
         let crate::ast::ASTNode::FunctionDeclaration {
             name,
@@ -218,12 +301,20 @@ impl MirBuilder {
         let mut session = self.open_resolved_function_draft_seal_session_v1(&session_name);
         let lowering = {
             let builder = session.builder_view_mut_for_lowering();
-            (|| {
+            (|| -> Result<_, (NormalFunctionDraftLoweringStageV1, String)> {
                 builder
                     .function_state
                     .resolved_binding_state
-                    .install(input.function())?;
-                builder.create_function_skeleton(function_name, params, body)?;
+                    .install(input.function())
+                    .map_err(|error| {
+                        (
+                            NormalFunctionDraftLoweringStageV1::BindingInstall,
+                            error.to_string(),
+                        )
+                    })?;
+                builder
+                    .create_function_skeleton(function_name, params, body)
+                    .map_err(|error| (NormalFunctionDraftLoweringStageV1::Skeleton, error))?;
                 install_trivial_callable_abi_v1(builder, &profile);
                 builder.set_current_function_runes(attrs);
                 builder.set_current_function_declared_capability_uses(uses);
@@ -235,24 +326,61 @@ impl MirBuilder {
                     completion,
                     profile,
                     block_expr_count,
-                )?
-                .lower()?;
+                )
+                .map_err(|error| (NormalFunctionDraftLoweringStageV1::BodyLowering, error))?
+                .lower()
+                .map_err(|error| (NormalFunctionDraftLoweringStageV1::BodyLowering, error))?;
                 let current_block = builder.function_state.current_block.ok_or_else(|| {
-                    "[freeze:contract][f1_draft_seal/current_block_missing]".to_string()
+                    (
+                        NormalFunctionDraftLoweringStageV1::BodyLowering,
+                        "[freeze:contract][f1_draft_seal/current_block_missing]".to_string(),
+                    )
                 })?;
-                Ok::<_, String>((ready, current_block))
+                Ok((ready, current_block))
             })()
         };
         let (ready, current_block) = match lowering {
             Ok(result) => result,
-            Err(error) => {
-                session.discard_unpublished();
-                return Err(error.into());
-            }
+            Err((stage, error)) => return Err(reject_after_session_discard(session, stage, error)),
         };
         let open = ReadyFunctionDraftSealV1::new(ready, current_block).open(session);
-        let prepared = open.prepare().map_err(reject_draft_seal)?;
+        let prepared = match open.prepare() {
+            Ok(prepared) => prepared,
+            Err(rejected) => return Err(reject_draft_seal_typed(rejected)),
+        };
         Ok(prepared.commit().into_draft())
+    }
+}
+
+fn reject_after_session_discard(
+    session: super::calls::CanonicalFunctionLoweringSessionV1<'_>,
+    stage: NormalFunctionDraftLoweringStageV1,
+    detail: String,
+) -> RejectedNormalFunctionDraftLoweringV1 {
+    let session = session.discard_unpublished();
+    RejectedNormalFunctionDraftLoweringV1 {
+        stage,
+        cause: NormalFunctionDraftLoweringCauseV1::BuilderContract(detail.into_boxed_str()),
+        restoration: NormalFunctionDraftBuilderRestorationReceiptV1 {
+            session,
+            _seal: NormalFunctionDraftBuilderRestorationReceiptSealV1,
+        },
+    }
+}
+
+fn reject_draft_seal_typed(
+    rejected: RejectedFunctionDraftSealV1<'_>,
+) -> RejectedNormalFunctionDraftLoweringV1 {
+    let stage = rejected.stage();
+    let detail = format!("{:?}", rejected.error()).into_boxed_str();
+    let session = rejected.discard_with_restoration_receipt();
+    RejectedNormalFunctionDraftLoweringV1 {
+        stage: NormalFunctionDraftLoweringStageV1::DraftSeal(stage),
+        cause: NormalFunctionDraftLoweringCauseV1::DraftSeal(detail),
+        restoration: NormalFunctionDraftBuilderRestorationReceiptV1 {
+            session,
+            _seal: NormalFunctionDraftBuilderRestorationReceiptSealV1,
+        },
     }
 }
 

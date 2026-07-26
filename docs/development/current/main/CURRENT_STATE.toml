@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1 accepts B. TX0 retains the exact Program/catalog/source authority, selected verified topology, successful draft prefix, typed consumed-operation failure, and Builder restoration receipt without reconstructing a consumed lowering plan. HANDOFF0 is closed: one retained source authority and callback-scoped owned topology/schedule prevent self-reference. NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-LOWERER0-S0 is active; it adds the typed retaining lowerer only."
+status = "NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1 accepts B. TX0 retains the exact Program/catalog/source authority, selected verified topology, successful draft prefix, typed consumed-operation failure, and Builder restoration receipt without reconstructing a consumed lowering plan. HANDOFF0 and DRAFTS0-LOWERER0 are closed: one retained source authority and callback-scoped owned topology/schedule prevent self-reference, while the lowerer now preserves an exact typed failure stage and a neutral session-restoration receipt. NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-HELPER-PREFIX0-S0 is active; it alone consumes the helper schedule and retains its exact successful draft prefix."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-LOWERER0-S0"
-current_execution_summary = "Add one typed retaining resolved-function lowerer that carries an exact failure stage and Builder restoration receipt while preserving the existing compatibility facade. Do not yet consume the helper schedule, bind Main, build a thunk, create a batch, publish a module, or change caller/backend behavior."
+current_execution_row = "NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-HELPER-PREFIX0-S0"
+current_execution_summary = "Consume the already-selected helper schedule once, lower each helper through the typed retaining terminal, and retain only the verified successful prefix plus the exact consumed-operation failure. Do not yet bind Main, build a thunk, create a batch, publish a module, or change caller/backend behavior."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -332,7 +332,7 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-lowerer0-s0-execution-task-2026-07-26.md"
+active_phase = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-helper-prefix0-s0-execution-task-2026-07-26.md"
 phase_status = "docs/development/current/main/investigations/normal-callable-module0-tx0-s0-execution-task-2026-07-26.md"
 method_anchor = "docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
@@ -361,6 +361,7 @@ normal_callable_module0_tx0_task = "docs/development/current/main/investigations
 normal_callable_module0_tx0_draft_failure_decision = "docs/development/current/main/investigations/normal-callable-module0-tx0-draft-failure-d0-design-question-2026-07-26.md"
 normal_callable_module0_tx0_handoff0_task = "docs/development/current/main/investigations/normal-callable-module0-tx0-handoff0-s0-execution-task-2026-07-26.md"
 normal_callable_module0_tx0_drafts0_lowerer0_task = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-lowerer0-s0-execution-task-2026-07-26.md"
+normal_callable_module0_tx0_drafts0_helper_prefix0_task = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-helper-prefix0-s0-execution-task-2026-07-26.md"
 ownership_sparse_surface_task = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
 ownership_sparse_resume_after = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0"
 ownership_sparse_first_resume_row = "OWNERSHIP-SPARSE-RESUME-D0"
@@ -426,9 +427,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "normal-callable-module0-tx0-drafts0-lowerer0-s0-execution-task-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-lowerer0-s0-execution-task-2026-07-26.md"
-latest_card_summary = """NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1 accepts B. HANDOFF0 splits exact Program/catalog/Main source authority from single-use Main/helper lowering proofs, owns the existing verified graph or SCC partition as the topology receipt, and consumes helper plans in one scoped canonical-key schedule. It adds no Builder, MIR, backend, publication, or caller behavior. DRAFTS0 then adds a typed retaining lowerer terminal and exact draft-prefix rejection without reconstructing consumed plans."""
+latest_card = "normal-callable-module0-tx0-drafts0-helper-prefix0-s0-execution-task-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-helper-prefix0-s0-execution-task-2026-07-26.md"
+latest_card_summary = """NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1 accepts B. HANDOFF0 splits exact Program/catalog/Main source authority from single-use Main/helper lowering proofs and owns the existing verified graph or SCC partition as the topology receipt. DRAFTS0-LOWERER0 is closed: one typed retaining lowerer preserves exact operation and draft-seal stages plus a neutral session-restoration receipt, while the historical facade remains unchanged. HELPER-PREFIX0 alone may now consume the scoped canonical-key schedule, retain completed helper drafts, and report the exact consumed-operation failure; Main, thunk, batch, publication, caller, and backend behavior remain zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -630,7 +631,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-LOWERER0-S0"
+current_blocker_token = "NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-HELPER-PREFIX0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

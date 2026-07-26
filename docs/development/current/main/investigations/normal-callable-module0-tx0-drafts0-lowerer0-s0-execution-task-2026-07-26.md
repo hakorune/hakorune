@@ -1,5 +1,5 @@
 ---
-Status: active executable row
+Status: closed executable row
 Date: 2026-07-26
 Decision: NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1
 Row: NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-LOWERER0-S0
@@ -15,6 +15,19 @@ Related:
 ---
 
 # NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-LOWERER0-S0
+
+## Closeout
+
+Closed on 2026-07-26. The retaining terminal now issues its outer stage at
+the exact operation, preserves a nested `FunctionDraftSealStageV1` without
+String parsing, and receives a neutral session-restoration receipt only after
+the unpublished child session is discarded. The historical
+`lower_resolved_trivial_function_draft` remains a compatibility facade over
+this terminal. No helper schedule, Main, thunk, batch, publication, caller,
+or backend behavior changed.
+
+The next row is
+`NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-HELPER-PREFIX0-S0`.
 
 ## Outcome
 

@@ -11,6 +11,16 @@ use crate::mir::MirBuilder;
 
 use super::{CanonicalFunctionLoweringSessionV1, CanonicalFunctionSessionErrorV1};
 
+/// Receipt issued only after an unpublished canonical child has restored its
+/// captured caller context. It carries no retry, Builder, or draft access.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct CanonicalFunctionSessionRestorationReceiptV1 {
+    _seal: CanonicalFunctionSessionRestorationReceiptSealV1,
+}
+
+#[derive(Debug)]
+struct CanonicalFunctionSessionRestorationReceiptSealV1;
+
 /// One successful child draft whose parent context is still captured.
 ///
 /// It cannot be cloned. Dropping it aborts the draft and restores the parent,
@@ -85,8 +95,13 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
     /// Discard the unpublished function and restore the captured caller
     /// context exactly once. This is the explicit rejection terminal for an
     /// owner-preserving draft-seal prepare; callers cannot retry the session.
-    pub(in crate::mir::builder) fn discard_unpublished(mut self) {
+    pub(in crate::mir::builder) fn discard_unpublished(
+        mut self,
+    ) -> CanonicalFunctionSessionRestorationReceiptV1 {
         self.restore_context();
+        CanonicalFunctionSessionRestorationReceiptV1 {
+            _seal: CanonicalFunctionSessionRestorationReceiptSealV1,
+        }
     }
 
     /// Borrow-only readiness used by the owner-preserving draft-seal path.

@@ -127,8 +127,14 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
         })
     }
 
+    pub(super) fn discard_with_restoration_receipt(
+        self,
+    ) -> crate::mir::builder::calls::CanonicalFunctionSessionRestorationReceiptV1 {
+        self.session.discard_unpublished()
+    }
+
     pub(super) fn discard(self) {
-        self.session.discard_unpublished();
+        let _ = self.discard_with_restoration_receipt();
     }
 
     fn reject(
@@ -213,8 +219,14 @@ impl RejectedFunctionDraftSealV1<'_> {
         &self.error
     }
 
+    pub(super) fn discard_with_restoration_receipt(
+        self,
+    ) -> crate::mir::builder::calls::CanonicalFunctionSessionRestorationReceiptV1 {
+        self.owner.discard_with_restoration_receipt()
+    }
+
     pub(super) fn discard(self) {
-        self.owner.discard();
+        let _ = self.discard_with_restoration_receipt();
     }
 }
 
