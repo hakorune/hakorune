@@ -5,7 +5,7 @@ Decision: NESTED-INSTANCE-RESULT-CONTRACT0-prime-r1
 Closes: NESTED-INSTANCE-RESULT-CONTRACT0-D0
 Classification: BoxCount / T2 source result-contract authority
 Choice: A-prime — bounded unannotated current-owner instance body proof
-First executable row: NESTED-INSTANCE-RESULT-CONTRACT0-S0
+First executable row: NESTED-INSTANCE-RESULT-CONTRACT0-S0 (closed)
 Blocked umbrella: CALLABLE-RESULT-NESTED-REP0-S0
 Related:
   - docs/development/current/main/investigations/stageb-generic-loop-transient-type-d0-design-question-2026-07-26.md
@@ -571,6 +571,23 @@ exact current-owner instance target
 ```
 
 No other source shape is admitted.
+
+## Verification
+
+## S0 closeout
+
+`NESTED-INSTANCE-RESULT-CONTRACT0-S0` closed in two commits:
+
+```text
+b3c48482b9  refreshes only the stale GenericLoop inventory fixture
+7085a31cd2  seals the bounded source-only nested instance Integer contract
+```
+
+The actual ParserBox pre-loop and loop-refresh sites both seal through the
+same current-owner target and opaque unannotated body-proof path. The static
+catalog remains static-only; no ValueId, MirType, type_ctx, MIR emission, or
+production caller was added. The next required work is the separate
+`NESTED-INSTANCE-RESULT-EMISSION-HANDOFF0-D0` design stop.
 
 ## Verification
 

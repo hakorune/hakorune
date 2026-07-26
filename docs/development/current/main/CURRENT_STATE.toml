@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 is closed. NESTED-INSTANCE-RESULT-CONTRACT0-prime-r1 selects one bounded, source-only, unannotated current-owner instance Integer contract without widening the static result catalog. Its S0 starts with a behavior-neutral refresh of the already-drifted GenericLoop inventory fixture, then adds the one exact contract owner. OWN-GRAM-REJECT0-HAKO0 remains parked until the same Stage-B guard reaches the ownership syntax boundary."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0 is closed. NESTED-INSTANCE-RESULT-CONTRACT0-S0 is closed: the GenericLoop inventory refresh and one bounded, source-only, unannotated current-owner instance Integer contract landed without widening the static result catalog. NESTED-INSTANCE-RESULT-EMISSION-HANDOFF0-D0 is now the active design stop; it must select the exact one-shot associated-source handoff before any ValueId, MirType, type_ctx, or physical Call publication work. OWN-GRAM-REJECT0-HAKO0 remains parked until the same Stage-B guard reaches the ownership syntax boundary."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "NESTED-INSTANCE-RESULT-CONTRACT0-S0"
-current_execution_summary = "First restore the existing GenericLoop carrier inventory guard by refreshing only its stale reference fixture (live direct callers 4 and v1 header PHI rows 3). Then seal one exact unannotated current-owner instance Integer result contract by reusing the existing branded callable body proof. Static result rows, GenericLoop type production, MIR/type_ctx publication, fallback, and the parked Hako WIP remain unchanged."
+current_design_stop = "NESTED-INSTANCE-RESULT-EMISSION-HANDOFF0-D0"
+current_execution_row = "NESTED-INSTANCE-RESULT-EMISSION-HANDOFF0-D0"
+current_execution_summary = "Select one exact one-shot associated-source input terminal that can carry the sealed nested instance Integer contract to the actual Stage-B physical Call destination. Builder-stored source maps, persistent source-site-to-ValueId maps, generic emitter widening, result publication before Call success, fallback, and retry remain forbidden."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NESTED-INSTANCE-RESULT-CONTRACT0-S0"
+current_blocker_token = "NESTED-INSTANCE-RESULT-EMISSION-HANDOFF0-D0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
