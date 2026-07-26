@@ -64,6 +64,7 @@ mod method_call_terminal;
 mod preloop_located_argument_ingress;
 mod preloop_located_argument_port;
 mod preloop_located_argument_rejection;
+mod preloop_nested_result_receipt;
 pub(in crate::mir::builder) use method_call_descent::{
     lower_method_call_argument_v1, AssociatedMethodCallArgumentsV1, LegacyMethodCallArgumentsV1,
     MethodCallArgumentDescentV1, MethodCallDescentPortV1, MethodCallSyntaxViewV1,

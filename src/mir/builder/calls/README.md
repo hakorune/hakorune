@@ -34,6 +34,12 @@ never issue that receipt. `unified_emitter/request_boundary.rs` owns the
 receipt-required sibling API; it rejects alternate and legacy routes without
 retry and owns no source classification or result-type publication.
 
+`preloop_nested_result_receipt.rs` owns the later one-shot correspondence
+between that physical value receipt and the exact retained pre-loop Integer
+source association. It keeps both until the containing outer call succeeds,
+then emits a destination-only nested result receipt. It owns no type-fact
+publication, MIR scan, persistent source map, retry, or loop-refresh policy.
+
 `preloop_located_argument_port.rs` is the disconnected candidate-only wrapper
 for one source-sealed pre-loop argument. It delegates every ordinary trait
 capability to the wrapped `MethodCallLoweringPortV1` and leaves the selected
