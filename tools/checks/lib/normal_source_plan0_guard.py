@@ -60,7 +60,15 @@ BUILDER_MOD = ROOT / "src/mir/builder.rs"
 NORMAL_MODULE_TX_DIR = ROOT / "src/mir/builder/normal_module_transaction"
 NORMAL_MODULE_TX_FILES = tuple(
     NORMAL_MODULE_TX_DIR / name
-    for name in ("mod.rs", "entry_target.rs", "schema.rs", "rejection.rs", "tests.rs")
+    for name in (
+        "mod.rs",
+        "entry_target.rs",
+        "schema.rs",
+        "rejection.rs",
+        "canonical_batch.rs",
+        "canonical_batch_tests.rs",
+        "tests.rs",
+    )
 )
 ALL_FILES = (
     *PRODUCTION_FILES,
@@ -73,6 +81,7 @@ ALL_FILES = (
     MAIN_FUNCTION_PLAN_TESTS,
     MAIN_THUNK_PLAN,
     MAIN_THUNK_PLAN_TESTS,
+    SOURCE_DIR / "test_support.rs",
 )
 
 
@@ -118,6 +127,10 @@ def main() -> int:
     builder_mod = BUILDER_MOD.read_text()
     normal_module_tx = "\n".join(path.read_text() for path in NORMAL_MODULE_TX_FILES)
     normal_module_tx_tests = (NORMAL_MODULE_TX_DIR / "tests.rs").read_text()
+    canonical_batch = (NORMAL_MODULE_TX_DIR / "canonical_batch.rs").read_text()
+    canonical_batch_tests = (
+        NORMAL_MODULE_TX_DIR / "canonical_batch_tests.rs"
+    ).read_text()
 
     for fragment in (
         "NORMAL-SOURCE-PLAN0-S0",
@@ -343,6 +356,55 @@ def main() -> int:
             f"fn {test_name}(",
             f"normal-module transaction fixture {test_name}",
         )
+    for definition in (
+        "struct NormalCanonicalModuleBatchV1",
+        "struct PreparedNormalCanonicalModuleBatchV1",
+        "struct RejectedNormalCanonicalModuleBatchV1",
+        "enum NormalCanonicalModuleBatchErrorV1",
+    ):
+        require_count(
+            canonical_batch,
+            definition,
+            1,
+            f"sole canonical batch definition {definition}",
+        )
+    for fragment in (
+        "VerifiedNormalMainThunkPlanV1",
+        "NormalModuleDraftExpectationV1::source_main(",
+        "NormalModuleDraftExpectationV1::physical_entry(",
+        "NormalModuleEntryRelationV1::new(",
+        "NormalModuleTransactionSchemaV1::seal(draft)",
+        "fn error(&self)",
+        "fn discard(self)",
+    ):
+        require(canonical_batch, fragment, f"canonical batch law {fragment}")
+    for test_name in (
+        "main_only_batch_seals_unit_and_scalar_manifests",
+        "batch_projection_uses_thunk_identity_without_raw_policy",
+        "malformed_batch_retains_complete_thunk_owner",
+    ):
+        require(
+            canonical_batch_tests,
+            f"fn {test_name}(",
+            f"canonical batch fixture {test_name}",
+        )
+    for forbidden in (
+        "ASTNode",
+        "MirBuilder",
+        "MirFunction",
+        "MirInstruction",
+        "ValueId",
+        "MirType",
+        "NYASH_ENTRY",
+        "RawMainEntryTargetV1",
+        "RawRootBatchSlotV1",
+        "LegacyReplaceWholePair",
+        "ModuleDraftCollectorV1",
+        "retry",
+        "fallback",
+    ):
+        if forbidden in canonical_batch:
+            raise AssertionError(f"canonical batch gained forbidden authority: {forbidden}")
     for forbidden in (
         "LegacyReplaceWholePair",
         "MirBuilder",
@@ -610,6 +672,7 @@ def main() -> int:
         "VerifiedNormalMainFunctionPlanV1",
         "VerifiedNormalMainThunkPlanV1",
         "CanonicalNormalMainEntryTargetV1",
+        "PreparedNormalCanonicalModuleBatchV1",
         "NormalModuleTransactionSchemaV1",
     )
     allowed = set(ALL_FILES) | {
@@ -658,6 +721,7 @@ def main() -> int:
         "main_role=1 main_f1=1 ordinary_main_admission=0 "
         "normal_module_schema=1 mutation=0 "
         "main_thunk=1 result_authority=1 physical_entry_identity=1 "
+        "canonical_batch=1 batch_mutation=0 "
         "raw_route_delta=0 rewrite=0 below_800=1"
     )
     return 0

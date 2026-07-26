@@ -1,5 +1,5 @@
 ---
-Status: active execution task
+Status: closed
 Date: 2026-07-26
 Decision: NORMAL-SOURCE-PLAN0-prime-r1
 Row: NORMAL-CANONICAL-MODULE-BATCH0-S0
@@ -247,6 +247,38 @@ or inventing a second batch/collector transaction
 
 A missing narrow accessor on the sealed thunk plan or passive schema is an
 implementation seam, not a design conflict.
+
+## Implementation closeout
+
+Closed on 2026-07-26.
+
+```text
+canonical batch producer =
+  1
+
+input =
+  one consumed VerifiedNormalMainThunkPlanV1
+
+output =
+  one PreparedNormalCanonicalModuleBatchV1
+  + one sealed two-row NormalModuleTransactionSchemaV1
+
+row order =
+  source Main
+  physical entry
+
+result coverage =
+  Unit / Integer / Bool / Float
+
+retained malformed-schema rejection =
+  green
+
+MirFunction / collector / module mutation / publication / VM =
+  0
+```
+
+Focused passive transaction fixtures are 7/7 green. The reusable family guard,
+`cargo check --lib`, and the below-800 boundary are green.
 
 ## Non-claims
 

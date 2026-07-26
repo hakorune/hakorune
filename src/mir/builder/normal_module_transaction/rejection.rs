@@ -31,6 +31,10 @@ impl RejectedNormalModuleTransactionSchemaV1 {
         drop(self);
     }
 
+    pub(super) fn into_error(self) -> NormalModuleTransactionSchemaErrorV1 {
+        self.error
+    }
+
     #[cfg(test)]
     pub(super) fn owner(&self) -> &NormalModuleTransactionDraftV1 {
         &self.owner

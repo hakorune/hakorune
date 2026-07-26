@@ -11,6 +11,8 @@ mod main_source;
 mod main_thunk_plan;
 mod product;
 mod rejection;
+#[cfg(test)]
+mod test_support;
 
 pub(crate) use classifier::NormalSourcePlanClassifierV1;
 #[allow(unused_imports)]
@@ -41,6 +43,8 @@ pub(crate) use product::{
 pub(crate) use rejection::{
     NormalSourcePlanErrorV1, NormalSourcePlanStageV1, RejectedNormalSourcePlanV1,
 };
+#[cfg(test)]
+pub(crate) use test_support::with_main_thunk_for_test;
 
 #[cfg(test)]
 mod tests;
