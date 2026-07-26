@@ -1,5 +1,5 @@
 ---
-Status: active executable row
+Status: closed executable row
 Date: 2026-07-26
 Decision: NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1
 Row: NORMAL-CALLABLE-MODULE0-TX0-BATCH0-S0
@@ -63,3 +63,10 @@ NORMAL-CALLABLE-MODULE0-TX0-BATCH0-S0
   -> NORMAL-CALLABLE-MODULE0-TX0-COMMIT0-S0
   -> NORMAL-CALLABLE-MODULE0-TX0-G0
 ```
+
+## Closeout
+
+The adapter emits one source-Main row, canonical-key helper rows, and one
+physical-entry row into the existing schema. Both success and injected schema
+rejection retain the prepared drafts; no candidate module or publication owner
+was added.
