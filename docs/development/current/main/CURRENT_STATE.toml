@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1 accepts B. TX0 retains the exact Program/catalog/source authority, selected verified topology, successful draft prefix, typed consumed-operation failure, and Builder restoration receipt without reconstructing a consumed lowering plan. HANDOFF0, DRAFTS0-LOWERER0, and DRAFTS0-HELPER-PREFIX0 are closed: one retained source authority and callback-scoped schedule prevent self-reference; the lowerer preserves typed failure and restoration evidence; the prefix owner consumes the existing canonical-key schedule once and retains only completed helper drafts. NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-MAIN-PHYSICAL0-S0 is active."
+status = "NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1 accepts B. TX0 retains the exact Program/catalog/source authority, selected verified topology, successful draft prefix, typed consumed-operation failure, and Builder restoration receipt without reconstructing a consumed lowering plan. HANDOFF0, DRAFTS0-LOWERER0, HELPER-PREFIX0, and MAIN-PHYSICAL0 are closed: one retained source authority and callback-scoped schedule prevent self-reference; Main proof binding plus a reusable physical relation extend the helper prefix without a batch. NORMAL-CALLABLE-MODULE0-TX0-BATCH0-S0 is active."
 date = "2026-07-26"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-MAIN-PHYSICAL0-S0"
-current_execution_summary = "Consume the retained Main proof once, prepare the exact source Main and physical thunk drafts while retaining every earlier helper draft on failure. Do not yet form a batch, publish a module, or change caller/backend behavior."
+current_execution_row = "NORMAL-CALLABLE-MODULE0-TX0-BATCH0-S0"
+current_execution_summary = "Seal one schema/correspondence batch from completed helpers, source Main, and physical thunk drafts. Do not build a candidate module, publish a module, or change caller/backend behavior."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -428,9 +428,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "normal-callable-module0-tx0-drafts0-main-physical0-s0-execution-task-2026-07-26"
-latest_card_path = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-main-physical0-s0-execution-task-2026-07-26.md"
-latest_card_summary = """NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1 accepts B. HANDOFF0 separates durable Program/catalog/Main authority from callback-scoped plans. DRAFTS0-LOWERER0 and HELPER-PREFIX0 are closed: the retaining lowerer preserves exact typed failures plus neutral restoration evidence, and one Builder-side prefix owner consumes the existing `BTreeMap` schedule once in canonical-key order, checks catalog ABI before admission, and retains only completed helpers. MAIN-PHYSICAL0 alone may consume the Main proof and extend that prefix with source Main plus physical thunk drafts; batch, publication, caller, and backend behavior remain zero."""
+latest_card = "normal-callable-module0-tx0-batch0-s0-execution-task-2026-07-26"
+latest_card_path = "docs/development/current/main/investigations/normal-callable-module0-tx0-batch0-s0-execution-task-2026-07-26.md"
+latest_card_summary = """NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1 accepts B. HANDOFF0, LOWERER0, HELPER-PREFIX0, and MAIN-PHYSICAL0 are closed: the retaining lowerer preserves typed failure/restoration evidence, helpers lower once in canonical-key order, and one consumed Main proof extends that prefix with source Main plus physical thunk drafts. BATCH0 alone seals the existing schema/correspondence owner; candidate modules, publication, caller, and backend behavior remain zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -632,7 +632,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-MAIN-PHYSICAL0-S0"
+current_blocker_token = "NORMAL-CALLABLE-MODULE0-TX0-BATCH0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

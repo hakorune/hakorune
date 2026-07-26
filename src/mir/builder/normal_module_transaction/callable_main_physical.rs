@@ -91,6 +91,24 @@ impl RejectedNormalCallableMainPhysicalV1 {
     pub(in crate::mir) fn discard(self) {
         drop(self);
     }
+
+    #[cfg(test)]
+    pub(super) fn retained_helper_count(&self) -> usize {
+        match self {
+            Self::Binding(_) => 0,
+            Self::PhysicalRelation { helpers, .. }
+            | Self::SourceLowering { helpers, .. }
+            | Self::SourceDraft { helpers, .. }
+            | Self::PhysicalThunk { helpers, .. } => helpers.drafts().len(),
+        }
+    }
+}
+
+#[cfg(test)]
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum NormalCallableMainPhysicalTestStageV1 {
+    SourceLowering,
+    PhysicalThunk,
 }
 
 impl MirBuilder {
@@ -185,4 +203,62 @@ fn discard_rejected_lowering(
     debug_assert!(rejected.has_restoration_receipt());
     drop(rejected);
     NormalCallableMainPhysicalStageV1::SourceLowering(stage)
+}
+
+#[cfg(test)]
+pub(crate) fn reject_normal_callable_main_physical_at_stage_for_test(
+    builder: &mut MirBuilder,
+    prefix: PreparedNormalHelperDraftPrefixV1,
+    stage: NormalCallableMainPhysicalTestStageV1,
+) -> RejectedNormalCallableMainPhysicalV1 {
+    let (transaction, helpers) = prefix.into_parts();
+    let (transaction, outcome) = transaction
+        .with_main_lowering_plan(|_, plan| {
+            if matches!(stage, NormalCallableMainPhysicalTestStageV1::SourceLowering) {
+                return Err(NormalCallableMainPhysicalStageV1::SourceLowering(
+                    NormalFunctionDraftLoweringStageV1::BodyLowering,
+                ));
+            }
+            let header = plan
+                .seal_resolved_owner_header_v1()
+                .expect("test injection requires sealed Main header");
+            let relation = seal_normal_main_physical_relation_v1(
+                header,
+                plan.completion(),
+                plan.terminal_profile(),
+            )
+            .expect("test injection requires sealed Main relation");
+            let draft = builder
+                .lower_resolved_trivial_function_draft_retaining_failure_v1(plan)
+                .expect("test injection requires source Main draft");
+            let source = VerifiedNormalMainSourceDraftV1::seal(
+                draft,
+                relation.source_header().symbol().as_mir_name(),
+                relation.source_header().arity(),
+                relation.source_result(),
+            )
+            .expect("test injection requires source Main correspondence");
+            Ok((relation, source))
+        })
+        .expect("test injection requires Main proof binding");
+    match (stage, outcome) {
+        (
+            NormalCallableMainPhysicalTestStageV1::SourceLowering,
+            Err(NormalCallableMainPhysicalStageV1::SourceLowering(stage)),
+        ) => RejectedNormalCallableMainPhysicalV1::SourceLowering {
+            transaction,
+            helpers,
+            stage,
+        },
+        (NormalCallableMainPhysicalTestStageV1::PhysicalThunk, Ok((relation, source))) => {
+            RejectedNormalCallableMainPhysicalV1::PhysicalThunk {
+                transaction,
+                helpers,
+                relation,
+                source,
+                error: NormalMainPhysicalThunkErrorV1::PhysicalArityMismatch { actual: 1 },
+            }
+        }
+        _ => unreachable!("test stage must retain its exact prepared prefix"),
+    }
 }

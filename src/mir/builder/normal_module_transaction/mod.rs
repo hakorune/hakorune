@@ -22,6 +22,10 @@ pub(in crate::mir) use callable_draft_prefix::{
     RejectedNormalHelperDraftPrefixV1, RetainedNormalHelperDraftPrefixV1,
     VerifiedNormalHelperDraftV1,
 };
+#[cfg(test)]
+pub(super) use callable_main_physical::{
+    reject_normal_callable_main_physical_at_stage_for_test, NormalCallableMainPhysicalTestStageV1,
+};
 pub(in crate::mir) use callable_main_physical::{
     NormalCallableMainPhysicalStageV1, PreparedNormalCallableMainPhysicalV1,
     RejectedNormalCallableMainPhysicalV1,

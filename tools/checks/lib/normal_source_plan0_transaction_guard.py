@@ -200,3 +200,8 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
         "fn main_and_physical_extend_the_completed_helper_prefix_without_a_batch(",
         "MAIN-PHYSICAL0 success fixture",
     )
+    require(
+        callable_main_physical_tests_path.read_text(),
+        "fn injected_main_stages_retain_helpers_and_restore_builder_for_later_success(",
+        "MAIN-PHYSICAL0 failure/reuse fixture",
+    )

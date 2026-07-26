@@ -1,5 +1,5 @@
 ---
-Status: active executable row
+Status: closed executable row
 Date: 2026-07-26
 Decision: NORMAL-CALLABLE-MODULE0-TX0-DRAFT-FAILURE-prime-r1
 Row: NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-MAIN-PHYSICAL0-S0
@@ -135,3 +135,11 @@ NORMAL-CALLABLE-MODULE0-TX0-DRAFTS0-MAIN-PHYSICAL0-S0
   -> NORMAL-CALLABLE-MODULE0-TX0-COMMIT0-S0
   -> NORMAL-CALLABLE-MODULE0-TX0-G0
 ```
+
+## Closeout
+
+The source-Main proof is bound once without rerunning canonical preflight; the
+factored Main-to-physical relation feeds the existing physical-thunk owner.
+Focused success and injected source-lowering/physical-thunk failures retain the
+helper prefix and leave the Builder session reusable. No batch or publication
+owner was introduced.
