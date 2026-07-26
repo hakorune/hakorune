@@ -28,8 +28,11 @@ pub(in crate::mir::builder) trait CallArgumentDescentPortV1:
         index: usize,
     ) -> Option<&'input ASTNode>;
 
+    /// Projects one argument exactly once after the shared list preflight.
+    /// Implementations may consume stack-scoped candidate state here, but
+    /// must not add a second ordered driver or copy the preflight.
     fn argument_expression_input(
-        &self,
+        &mut self,
         input: &Self::ArgumentsInput,
         index: usize,
     ) -> Result<Self::ExpressionInput, String>;
@@ -183,7 +186,7 @@ where
     }
 
     fn argument_expression_input(
-        &self,
+        &mut self,
         input: &Self::ArgumentsInput,
         index: usize,
     ) -> Result<Self::ExpressionInput, String> {

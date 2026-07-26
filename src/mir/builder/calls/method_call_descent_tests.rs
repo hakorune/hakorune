@@ -153,7 +153,7 @@ impl CallArgumentDescentPortV1 for DistinctMethodCallPort {
     }
 
     fn argument_expression_input(
-        &self,
+        &mut self,
         input: &Self::ArgumentsInput,
         index: usize,
     ) -> Result<Self::ExpressionInput, String> {

@@ -481,7 +481,7 @@ impl<'plan> CallArgumentDescentPortV1 for LocatedLegacyLoweringSessionV1<'plan> 
     }
 
     fn argument_expression_input(
-        &self,
+        &mut self,
         input: &Self::ArgumentsInput,
         index: usize,
     ) -> Result<Self::ExpressionInput, String> {

@@ -499,6 +499,21 @@ default parity   = green
 
 Repair the existing ARG0 guard before using it as acceptance evidence.
 
+#### Closeout (2026-07-27)
+
+Closed. `CallArgumentDescentPortV1::argument_expression_input` is now mutable,
+but it remains callable only from the existing `drive_call_arguments_v1`
+driver after whole-list and per-argument preflight. The Raw-compatible,
+LocatedLegacy, and focused test ports preserve their existing projection
+behavior. The existing ARG0 guard now recognizes the generic Raw-compatible
+implementation and the current two production raw-facade references.
+
+Next executable row:
+
+```text
+STANDARD-METHOD-EXECUTION-PREP0-S0
+```
+
 ### 4a. `STANDARD-METHOD-EXECUTION-PREP0-S0`
 
 Extract behavior-neutral standard prepare/execute products. Preserve weak

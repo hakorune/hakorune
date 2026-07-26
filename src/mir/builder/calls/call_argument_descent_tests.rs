@@ -46,6 +46,7 @@ struct ExpressionTokenV1 {
 #[derive(Default)]
 struct CountingArgumentPortV1 {
     lowered: Vec<usize>,
+    projected: Vec<usize>,
     fail_at: Option<usize>,
 }
 
@@ -99,10 +100,11 @@ impl CallArgumentDescentPortV1 for CountingArgumentPortV1 {
     }
 
     fn argument_expression_input(
-        &self,
+        &mut self,
         input: &Self::ArgumentsInput,
         index: usize,
     ) -> Result<Self::ExpressionInput, String> {
+        self.projected.push(index);
         input
             .get(index)
             .map(|argument| ExpressionTokenV1 {
@@ -134,6 +136,7 @@ fn associated_inputs_descend_once_in_source_order() {
     let values = drive_call_arguments_v1(&mut builder, &mut port, &inputs(&[4, 5, 6])).unwrap();
 
     assert_eq!(port.lowered, vec![0, 1, 2]);
+    assert_eq!(port.projected, vec![0, 1, 2]);
     assert_eq!(values.len(), 3);
     assert!(values.windows(2).all(|pair| pair[0].0 < pair[1].0));
 }
@@ -164,6 +167,7 @@ fn argument_failure_stops_later_descent_without_retry() {
         "argument-failure-1"
     );
     assert_eq!(port.lowered, vec![0, 1]);
+    assert_eq!(port.projected, vec![0, 1]);
 }
 
 #[test]

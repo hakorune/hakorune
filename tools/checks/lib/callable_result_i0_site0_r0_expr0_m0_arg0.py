@@ -36,9 +36,15 @@ def main() -> None:
     require_count(port, "type ArgumentsInput: ?Sized;", 1, "associated input owner")
     require_count(
         port,
-        "impl CallArgumentDescentPortV1 for RawLegacyChildLoweringPortV1",
+        "impl<Port> CallArgumentDescentPortV1 for Port",
         1,
-        "raw argument port impl",
+        "single raw-compatible argument port impl",
+    )
+    require_count(
+        port,
+        "fn argument_expression_input(\n        &mut self,",
+        2,
+        "one-shot mutable expression-input seam",
     )
     require_count(port, "drive_legacy_expression_v1(builder, port, expression_input)", 1, "E0 child consumer")
     require_count(port, "enforce_moved_same_call_args_contract(port, input)?;", 1, "whole-list moved preflight")
@@ -53,11 +59,11 @@ def main() -> None:
         for path in (root / "src/mir/builder").rglob("*.rs")
         if not path.name.endswith("_tests.rs")
     )
-    # ROUTE0-M0 moves static/env/me/standard source calls to the associated
-    # MethodCall adapter. Seven legacy non-MethodCall/already-materialized
-    # facade surfaces remain; the route guard fixes the four associated ARG0
-    # demand owners separately.
-    require_count(builder_sources, "build_call_args(", 7, "raw ARG0 facade surface")
+    # Current source routes use the associated MethodCall adapter. The only
+    # production raw facade references are its definition and the
+    # already-materialized legacy adapter; route-specific demand is checked by
+    # ROUTE0 rather than duplicated here.
+    require_count(builder_sources, "build_call_args(", 2, "raw ARG0 facade surface")
 
     for forbidden in (
         "MemberCallRoutePlan",
