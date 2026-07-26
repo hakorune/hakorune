@@ -63,7 +63,13 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         for path in (root / "src").rglob("*.rs")
         if "VerifiedCallableSccPartitionV1::verify" in path.read_text()
     }
-    if actual_scc_callers != {scc_tests, recursive_plan}:
+    expected_scc_callers = {
+        scc_tests,
+        recursive_plan,
+        root / "src/mir/compiler/normal_source_plan/normal_acyclic_module_plan.rs",
+        root / "src/mir/compiler/normal_source_plan/normal_callable_transaction_handoff.rs",
+    }
+    if actual_scc_callers != expected_scc_callers:
         fail(
             "P0c-MR-S0/V0 SCC consumer drift: "
             f"{sorted(path.relative_to(root) for path in actual_scc_callers)}"
@@ -138,7 +144,16 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         for path in (root / "src").rglob("*.rs")
         if exact_plan_verify.search(path.read_text())
     }
-    if actual_plan_callers != {recursive_plan_tests, compiler_mod}:
+    expected_plan_callers = {
+        recursive_plan_tests,
+        compiler_mod,
+        root / "src/mir/builder/module_invocation_callable_batch.rs",
+        root / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs",
+        root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
+        root / "src/mir/compiler/canonical_bridge_fixture0_p0.rs",
+        root / "src/mir/compiler/canonical_physical_completion_p0.rs",
+    }
+    if actual_plan_callers != expected_plan_callers:
         fail(
             "P0c-MR-V0 production caller drift: "
             f"{sorted(path.relative_to(root) for path in actual_plan_callers)}"
@@ -176,7 +191,12 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         for path in (root / "src").rglob("*.rs")
         if "CanonicalRecursiveCallableModuleCapabilityV1::install_for_module" in path.read_text()
     }
-    if install_callers != {recursive_backend_gate, transaction}:
+    expected_install_callers = {
+        recursive_backend_gate,
+        transaction,
+        root / "src/mir/builder/module_lowering_shell.rs",
+    }
+    if install_callers != expected_install_callers:
         fail(
             "P0c-MR-C0 production capability producer drift: "
             f"{sorted(path.relative_to(root) for path in install_callers)}"

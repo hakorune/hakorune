@@ -104,6 +104,12 @@ buildable and all touched source/check files stay below 800 lines.
    Replace the CAT0 substring false-positive with an exact structural fence
    and its one named embedded-function seam.
 
+   Status: closed. Direct `FunctionSyntaxViewV1` remains forbidden in the
+   header/catalog surfaces; the embedded callable view has one construction
+   seam and only the named normal-source forwarding consumers. The current
+   callable/graph receipt census is explicit and `resolved_callable_l0.py` is
+   green.
+
 3. OWNERSHIP-PROFILE-RECEIPT0-S0
    Refresh the receiver multi-anchor, deterministic legacy ledger, and
    versioned current trivial-owner profile receipt.

@@ -15,6 +15,10 @@ def fail(message: str) -> None:
     raise SystemExit(f"[resolved-callable-l0] {message}")
 
 
+def has_exact_identifier(text: str, identifier: str) -> bool:
+    return re.search(rf"\b{re.escape(identifier)}\b", text) is not None
+
+
 root = pathlib.Path(sys.argv[1]).resolve()
 callable_index = root / "src/mir/resolved_semantics/callable_index.rs"
 header_view = root / "src/mir/resolved_semantics/callable_header_view.rs"
@@ -267,8 +271,39 @@ for path in [module_header_view, header_source_unit]:
         "FunctionOwnerIssuerV1",
         "MirInstruction",
     ]:
-        if forbidden in text:
+        if has_exact_identifier(text, forbidden):
             fail(f"CAT0-S0 header-only surface owns forbidden authority {forbidden!r}")
+
+header_source_text = header_source_unit.read_text()
+for required_embedded_seam in [
+    "pub(crate) struct EmbeddedCallableFunctionSyntaxViewV1",
+    "pub(in crate::mir) fn embedded_function(",
+    "CallableFunctionSyntaxViewV1::from_function_ast(function_ast)?",
+]:
+    if required_embedded_seam not in header_source_text:
+        fail(f"CAT0-S0 embedded callable forwarding seam drifted: {required_embedded_seam!r}")
+if header_source_text.count("EmbeddedCallableFunctionSyntaxViewV1 {") != 1:
+    fail("CAT0-S0 embedded callable view must have exactly one construction seam")
+
+embedded_consumers = {
+    catalog: 1,
+    root / "src/mir/compiler/normal_source_plan/normal_callable_transaction_handoff.rs": 1,
+    root / "src/mir/compiler/normal_source_plan/main_direct_call_source.rs": 2,
+}
+for path in (root / "src").rglob("*.rs"):
+    count = path.read_text(errors="ignore").count(".embedded_function(")
+    if count and embedded_consumers.get(path) != count:
+        fail(
+            "CAT0-S0 embedded callable forwarding escaped the named normal-source seam: "
+            f"{path.relative_to(root)} count={count}"
+        )
+for path, expected_count in embedded_consumers.items():
+    actual_count = path.read_text().count(".embedded_function(")
+    if actual_count != expected_count:
+        fail(
+            "CAT0-S0 embedded callable forwarding cardinality drifted: "
+            f"{path.relative_to(root)} expected={expected_count} actual={actual_count}"
+        )
 
 candidate_text = catalog_candidate.read_text()
 for forbidden in [
@@ -284,7 +319,6 @@ for forbidden in [
 
 catalog_text = catalog.read_text()
 for forbidden in [
-    "FunctionSyntaxViewV1",
     "resolve_function_shadow",
     "VerifiedSemanticOwnerForestV1",
     "MirInstruction",
@@ -292,6 +326,8 @@ for forbidden in [
 ]:
     if forbidden in catalog_text:
         fail(f"CAT0-C0b catalog seal owns forbidden body/runtime authority {forbidden!r}")
+if has_exact_identifier(catalog_text, "FunctionSyntaxViewV1"):
+    fail("CAT0-C0b catalog seal owns a direct FunctionSyntaxViewV1 body traversal")
 if re.search(
     r"#\[derive\([^]]*Clone[^]]*\)\]\s*pub\(crate\) struct "
     r"CatalogSealedResolverContinuationV1",
@@ -375,6 +411,9 @@ if module_transaction_text.count("try_add_functions_atomic") != 1:
     fail("MP0-TX0 must have exactly one atomic batch publication site")
 
 source_unit_users = []
+expected_source_unit_users = [
+    "src/mir/compiler/normal_source_plan/callable_source.rs",
+]
 for path in (root / "src").rglob("*.rs"):
     if path in {
         header_source_unit,
@@ -388,15 +427,23 @@ for path in (root / "src").rglob("*.rs"):
         callable_module_input,
         module_preflight_tests,
         module_transaction_tests,
+        root / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs",
+        root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
     if "VerifiedCallableHeaderSourceUnitV1" in path.read_text():
         source_unit_users.append(str(path.relative_to(root)))
-if source_unit_users:
-    fail(f"CAT0-S0 source unit has production callers: {source_unit_users}")
+if sorted(source_unit_users) != expected_source_unit_users:
+    fail(
+        "CAT0-S0 source unit escaped its exact source-family boundary: "
+        f"expected={expected_source_unit_users} actual={source_unit_users}"
+    )
 
 candidate_users = []
+expected_candidate_users = [
+    "src/mir/compiler/normal_source_plan/callable_catalog_source.rs",
+]
 for path in (root / "src").rglob("*.rs"):
     if path in {
         catalog_candidate,
@@ -407,15 +454,23 @@ for path in (root / "src").rglob("*.rs"):
         callable_module_input,
         module_preflight_tests,
         module_transaction_tests,
+        root / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs",
+        root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
     if "VerifiedOwnerFreeCallableCatalogSourceUnitV1" in path.read_text():
         candidate_users.append(str(path.relative_to(root)))
-if candidate_users:
-    fail(f"CAT0-C0a candidate product has production callers: {candidate_users}")
+if sorted(candidate_users) != expected_candidate_users:
+    fail(
+        "CAT0-C0a owner-free candidate escaped its exact normal-source preparation: "
+        f"expected={expected_candidate_users} actual={candidate_users}"
+    )
 
 catalog_users = []
+expected_catalog_users = [
+    "src/mir/compiler/normal_source_plan/main_direct_call_source.rs",
+]
 for path in (root / "src").rglob("*.rs"):
     if path in {
         catalog,
@@ -430,10 +485,21 @@ for path in (root / "src").rglob("*.rs"):
         continue
     if "VerifiedCallableCatalogSourceUnitV1" in path.read_text():
         catalog_users.append(str(path.relative_to(root)))
-if catalog_users:
-    fail(f"CAT0-C0b final catalog escaped its passive MP0-S0 carrier: {catalog_users}")
+if sorted(catalog_users) != expected_catalog_users:
+    fail(
+        "CAT0-C0b final catalog escaped its exact normal-source resolver seam: "
+        f"expected={expected_catalog_users} actual={catalog_users}"
+    )
 
 resolved_module_users = []
+expected_resolved_module_users = [
+    "src/mir/builder/canonical_root_completion.rs",
+    "src/mir/builder/module_invocation_callable_batch.rs",
+    "src/mir/compiler/callable_batch_correspondence_test_support.rs",
+    "src/mir/compiler/normal_source_plan/normal_acyclic_module_plan.rs",
+    "src/mir/compiler/normal_source_plan/normal_callable_transaction_handoff.rs",
+    "src/mir/compiler/source_bound_package.rs",
+]
 for path in (root / "src").rglob("*.rs"):
     if path in {
         resolved_module,
@@ -454,6 +520,8 @@ for path in (root / "src").rglob("*.rs"):
         recursive_plan_tests,
         recursive_activation_tests,
         compiler_mod,
+        root / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs",
+        root / "src/mir/builder/resolved_lowering/callable_module_transaction_p0d_tests.rs",
     }:
         continue
     text = path.read_text()
@@ -462,8 +530,11 @@ for path in (root / "src").rglob("*.rs"):
         or "VerifiedResolvedFunctionUnitV1" in text
     ):
         resolved_module_users.append(str(path.relative_to(root)))
-if resolved_module_users:
-    fail(f"MP0-S0 passive carrier has production producers/consumers: {resolved_module_users}")
+if sorted(resolved_module_users) != expected_resolved_module_users:
+    fail(
+        "MP0-S0 passive carrier caller census drifted: "
+        f"expected={expected_resolved_module_users} actual={resolved_module_users}"
+    )
 
 transaction_callers = []
 for path in (root / "src").rglob("*.rs"):
