@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: CANONICAL-SOURCE-ENTRY-PUBLICATION0-S0-B
+Active executable row: NORMAL-SCRIPT0-PUBLISHED-OWNER0-S0
 ```
 
 ## Boundary
@@ -94,13 +94,15 @@ invocation.
 
 ### 3. `CANONICAL-SOURCE-ENTRY-PUBLICATION0-S0-B`
 
-Status: active.
+Status: closed by `8dcb939543`.
 
 Move Main to the shared core. Replace flat canonical Main membership and the
-Main-specific VM-owner variant with a canonical family owner. Raw remains
-unchanged.
+Main-specific VM-owner variant with one canonical family owner and one VM
+executor implementation. Raw remains unchanged.
 
 ### 4. `NORMAL-SCRIPT0-PUBLISHED-OWNER0-S0`
+
+Status: active.
 
 Connect the completed Script candidate to the shared core with exact
 `Canonical(Script)` membership. Production callers remain zero.
