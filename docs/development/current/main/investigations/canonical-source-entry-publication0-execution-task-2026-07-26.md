@@ -4,7 +4,7 @@
 Decision: CANONICAL-SOURCE-ENTRY-PUBLICATION0-prime-r1
 Status: accepted
 Ceremony tier: T2
-Active executable row: NORMAL-SCRIPT0-VMREF0-P0
+Active executable row: CANONICAL-SOURCE-ENTRY-PUBLICATION0-G0
 ```
 
 ## Boundary
@@ -109,13 +109,15 @@ Connect the completed Script candidate to the shared core with exact
 
 ### 5. `NORMAL-SCRIPT0-VMREF0-P0`
 
-Status: active.
+Status: closed by `2fbf5a722a` and `1c470bc017`.
 
 Run actual Script VM/process parity for Unit origins, scalar results,
 unsupported process results, and VM faults; run the unchanged Main matrix
 through the same core.
 
 ### 6. `CANONICAL-SOURCE-ENTRY-PUBLICATION0-G0`
+
+Status: active.
 
 Merge the structural assertions into existing canonical-core/source-entry
 guards. Do not add a per-cell shell wrapper.
