@@ -434,7 +434,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "normal-script0-physical-entry0-s0-execution-task-2026-07-26"
 latest_card_path = "docs/development/current/main/investigations/normal-script0-physical-entry0-s0-execution-task-2026-07-26.md"
-latest_card_summary = """NORMAL-SCRIPT0-PHYSICAL-ENTRY-prime-r1 accepts one Script-specific unbranded outer transaction and one shared brand-free Script lowering/result/Return kernel. SCRIPT-TERMINAL-KERNEL0, SCRIPT-PHYSICAL-EXIT-KERNEL0, and RAW-SCRIPT-EXIT-ADAPTER0 are closed: exact source recipes retain value versus Unit with exact Unit origin, ScriptPhysicalExitCommitV1 is the sole Script Return/signature writer, and Raw delegates through a lifecycle-only adapter while Raw App remains unchanged. NORMAL-SCRIPT0-PHYSICAL0 and NORMAL-SCRIPT0-TX0 are closed: canonical Script retains an opaque source plus detached verified physical main/0 draft, then seals a PhysicalEntry-only one-row transaction with verification before an unpublished module commit. Raw lifecycle/publication authority and SourceMain/helper rows remain absent. DISPATCH-SCRIPT0-G0 is next."""
+latest_card_summary = """NORMAL-SCRIPT0-PHYSICAL-ENTRY-prime-r1 is closed through DISPATCH-SCRIPT0-G0. The opaque normal Script source is narrowed once to the exact recipe; the brand-free shared Script exit kernel is the sole Script Return/signature writer, consumed by Raw through a lifecycle-only adapter and by canonical Script through a detached physical main/0 session. The canonical Script transaction is PhysicalEntry-only (one row, no SourceMain/helper), fully verified before its unpublished module commit. The compiler-owned family match now emits CompletedCanonicalCoreSourceEntryFamilyV1::Script; CallableModule remains pending. Script-to-Main reuse and source-plan guards are green. Raw lifecycle/publication, VM activation, production caller, and default-route authority remain absent. NORMAL-SCRIPT0-PUBLICATION0-S0 is next."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -636,7 +636,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DISPATCH-SCRIPT0-G0"
+current_blocker_token = "NORMAL-SCRIPT0-PUBLICATION0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

@@ -89,7 +89,7 @@ fn canonical_core_profile_reaches_the_same_one_read_one_parse_source_plan_bounda
 }
 
 #[test]
-fn canonical_core_handoff_moves_only_the_sealed_plan_and_receipt() {
+fn canonical_core_dispatch_script_handoff_moves_only_the_sealed_plan_and_receipt() {
     let dir = tempdir().expect("tempdir");
     let request = classify_canonical_core(dir.path(), "handoff.hako", "42")
         .into_canonical_core_compile_request()
@@ -103,7 +103,7 @@ fn canonical_core_handoff_moves_only_the_sealed_plan_and_receipt() {
 }
 
 #[test]
-fn canonical_core_script_candidate_preserves_compiler_reuse_for_main() {
+fn canonical_core_dispatch_script_candidate_preserves_compiler_reuse_for_main() {
     let dir = tempdir().expect("tempdir");
     let script = classify_canonical_core(dir.path(), "script-reuse.hako", "42")
         .into_canonical_core_compile_request()

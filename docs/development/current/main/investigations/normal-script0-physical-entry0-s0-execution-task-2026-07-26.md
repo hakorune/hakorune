@@ -516,6 +516,13 @@ production caller                           = 0
 publication                                = 0
 ```
 
+Status: closed on 2026-07-26. The compiler-owned sole family match now sends
+Script through its retained recipe, detached physical entry, and one-row
+candidate transaction. Its completed candidate is unpublished and is recorded
+as `CompletedCanonicalCoreSourceEntryFamilyV1::Script`; CallableModule remains
+pending. Script-to-Main reuse and the row guard are green, while publication,
+VM activation, production callers, and the default route remain zero.
+
 ## Failure law
 
 ```rust
