@@ -1,5 +1,6 @@
 use crate::ast::{ASTNode, ParamDecl};
 use crate::r#macro::ast_json::{ast_to_json_roundtrip, json_to_ast};
+use crate::parser::NyashParser;
 use crate::tests::helpers::parser::{find_box, find_method_decl, find_method_params, parse_ok};
 
 fn param(name: &str, ty: Option<&str>) -> ParamDecl {
@@ -226,4 +227,64 @@ box Worker {
         panic!("expected FunctionDeclaration wrap");
     };
     assert_eq!(return_type_name.as_deref(), Some("Result<void,Error>"));
+}
+
+#[test]
+fn parser_rejects_inactive_ownership_result_lookalikes_without_banning_type_names() {
+    for source in [
+        r#"
+static box Main {
+  main(): view Node { return 0 }
+}
+"#,
+        r#"
+static box Main {
+  main(): share Service { return 0 }
+}
+"#,
+        r#"
+box Worker {
+  run(): view Node { return 0 }
+}
+"#,
+        r#"
+box Worker {
+  run(): share Service { return 0 }
+}
+"#,
+    ] {
+        let error = NyashParser::parse_from_string(source)
+            .expect_err("inactive ownership result lookalike must fail fast");
+        assert!(
+            error
+                .to_string()
+                .contains("[freeze:contract][parser/ownership_syntax_inactive]"),
+            "{error}"
+        );
+    }
+
+    let ast = parse_ok(
+        r#"
+box Worker {
+  view(): view { return 0 }
+  share(): share { return 0 }
+  qualified(): view.Node { return 0 }
+  generic(): share<Node> { return 0 }
+}
+"#,
+    );
+    for (method, expected_type) in [
+        ("view", "view"),
+        ("share", "share"),
+        ("qualified", "view.Node"),
+        ("generic", "share<Node>"),
+    ] {
+        let ASTNode::FunctionDeclaration {
+            return_type_name, ..
+        } = find_method_decl(&ast, "Worker", method)
+        else {
+            panic!("expected FunctionDeclaration");
+        };
+        assert_eq!(return_type_name.as_deref(), Some(expected_type));
+    }
 }

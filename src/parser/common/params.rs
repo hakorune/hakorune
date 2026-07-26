@@ -71,10 +71,22 @@ fn parse_optional_type_annotation(
     let mut generic_depth: i32 = 0;
     let mut array_depth: i32 = 0;
     let mut type_text = String::new();
+    let mut inactive_ownership_result_prefix = false;
 
     while !p.is_at_end() {
         match &p.current_token().token_type {
             TokenType::IDENTIFIER(name) => {
+                if matches!(site, TypeAnnotationSite::Return)
+                    && inactive_ownership_result_prefix
+                    && generic_depth == 0
+                    && array_depth == 0
+                {
+                    return Err(ParseError::UnexpectedToken {
+                        found: p.current_token().token_type.clone(),
+                        expected: "[freeze:contract][parser/ownership_syntax_inactive] inactive ownership result syntax is not a type annotation".to_string(),
+                        line: p.current_token().line,
+                    });
+                }
                 if matches!(site, TypeAnnotationSite::Return)
                     && consumed_any
                     && generic_depth == 0
@@ -84,6 +96,11 @@ fn parse_optional_type_annotation(
                     break;
                 }
                 consumed_any = true;
+                inactive_ownership_result_prefix = matches!(
+                    site,
+                    TypeAnnotationSite::Return
+                ) && type_text.is_empty()
+                    && (name == "view" || name == "share");
                 type_text.push_str(name);
                 p.advance();
             }
@@ -94,11 +111,13 @@ fn parse_optional_type_annotation(
             }
             TokenType::DOT => {
                 consumed_any = true;
+                inactive_ownership_result_prefix = false;
                 type_text.push('.');
                 p.advance();
             }
             TokenType::LESS => {
                 consumed_any = true;
+                inactive_ownership_result_prefix = false;
                 generic_depth += 1;
                 type_text.push('<');
                 p.advance();
@@ -131,6 +150,7 @@ fn parse_optional_type_annotation(
             }
             TokenType::LBRACK => {
                 consumed_any = true;
+                inactive_ownership_result_prefix = false;
                 array_depth += 1;
                 type_text.push('[');
                 p.advance();
