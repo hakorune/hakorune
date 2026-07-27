@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Guard the F6-3 unpublished Stage-B instance-function session."""
+"""Guard the F6 session and F7 stack-scoped instance-method capture seam."""
 
 from __future__ import annotations
 
@@ -37,12 +37,16 @@ def check_stageb_session(root: Path) -> None:
     tests_path = f"{base}/session_tests.rs"
     ingress_path = "src/mir/preloop_stageb_carrier/function_ingress.rs"
     completion_path = "src/mir/builder/port_aware_function_draft_impl.rs"
+    lifecycle_path = "src/mir/builder/module_lifecycle.rs"
+    lifecycle_tests_path = "src/mir/builder/module_lifecycle_capture_tests.rs"
 
     session = read(root, session_path)
     rejection = read(root, rejection_path)
     tests = read(root, tests_path)
     ingress = read(root, ingress_path)
     completion = read(root, completion_path)
+    lifecycle = read(root, lifecycle_path)
+    lifecycle_tests = read(root, lifecycle_tests_path)
     session_code = code(session)
     rejection_code = code(rejection)
 
@@ -153,12 +157,36 @@ def check_stageb_session(root: Path) -> None:
         if evidence not in tests:
             fail(f"missing F6-3/F6-4 evidence: {evidence}")
 
+    for needle, label in (
+        ("trait InstanceMethodCapturePortV1", "F7 capture capability"),
+        (
+            "struct OrdinaryInstanceMethodCapturePortV1",
+            "F7 ordinary adapter",
+        ),
+        (
+            "fn lower_root_after_callable_catalog_install_with_instance_port_v1",
+            "F7 shared root kernel",
+        ),
+        (
+            "instance_methods.lower_instance_method(",
+            "F7 sole instance-method terminal",
+        ),
+    ):
+        require_count(lifecycle, needle, 1, label)
+    if (
+        "shared_root_kernel_lends_each_instance_method_to_one_stack_port"
+        not in lifecycle_tests
+    ):
+        fail("missing F7 behavior-neutral capture-seam proof")
+
     touched = (
         session_path,
         rejection_path,
         tests_path,
         ingress_path,
         completion_path,
+        lifecycle_path,
+        lifecycle_tests_path,
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_v0_stageb_session.py",
     )
     oversized = [relative for relative in touched if len(read(root, relative).splitlines()) >= 800]

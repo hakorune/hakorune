@@ -722,6 +722,32 @@ inventory without a Builder field, source map, name scan, or second method
 lowering orchestration
 ```
 
+F7-1 status: closed
+
+Landed evidence:
+
+```text
+InstanceMethodCapturePortV1                         = 1
+shared post-catalog root kernel                     = 1
+ordinary adapter                                    = 1
+ordinary terminal                                   = existing lower_method_as_function
+source-order instance-method terminal               = 1
+
+focused real root:
+  observed method                                   = Worker.run/1
+  observation count                                 = 1
+  resulting function                                = Worker.run/1
+
+selected policy / catalog lookup                    = 0
+ledger transition                                   = 0
+collector admission                                 = 0
+compile_request consumer                            = 0
+retry / fallback / catalog reseal                   = 0
+```
+
+The sole next row is
+`PRELOOP-STAGEB-FUNCTION-ACTIVATION-LEDGER0-I0`.
+
 ### F8 — compile-request production ingress
 
 ```text

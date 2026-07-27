@@ -67,6 +67,56 @@ use super::phi_type_inference;
 // Phase 29bq+: Type hint provision extracted to dedicated module
 use super::type_hint_providers;
 
+/// One source-order instance-method terminal in the shared root-lowering
+/// kernel.
+///
+/// The request keeps syntax transport only.  A selected Stage-B adapter may
+/// resolve its exact canonical key from the already-installed catalog; the
+/// ordinary adapter preserves the existing legacy terminal.
+pub(in crate::mir::builder) struct InstanceMethodCaptureRequestV1 {
+    pub(in crate::mir::builder) owner: String,
+    pub(in crate::mir::builder) method: String,
+    pub(in crate::mir::builder) function_name: String,
+    pub(in crate::mir::builder) params: Vec<String>,
+    pub(in crate::mir::builder) param_decls: Vec<crate::ast::ParamDecl>,
+    pub(in crate::mir::builder) return_type_name: Option<String>,
+    pub(in crate::mir::builder) body: Vec<ASTNode>,
+    pub(in crate::mir::builder) uses: Vec<String>,
+    pub(in crate::mir::builder) attrs: crate::ast::DeclarationAttrs,
+}
+
+/// Stack-scoped instance-method completion capability for one root descent.
+///
+/// It owns no Builder field, source map, catalog, or route policy.
+pub(in crate::mir::builder) trait InstanceMethodCapturePortV1 {
+    fn lower_instance_method(
+        &mut self,
+        builder: &mut super::MirBuilder,
+        request: InstanceMethodCaptureRequestV1,
+    ) -> Result<(), String>;
+}
+
+struct OrdinaryInstanceMethodCapturePortV1;
+
+impl InstanceMethodCapturePortV1 for OrdinaryInstanceMethodCapturePortV1 {
+    fn lower_instance_method(
+        &mut self,
+        builder: &mut super::MirBuilder,
+        request: InstanceMethodCaptureRequestV1,
+    ) -> Result<(), String> {
+        builder.lower_method_as_function(
+            request.function_name,
+            request.owner,
+            request.params,
+            request.param_decls,
+            request.return_type_name,
+            request.body,
+            request.uses,
+            request.attrs,
+        )
+    }
+}
+
 impl super::MirBuilder {
     pub(super) fn prepare_module(&mut self) -> Result<(), String> {
         self.comp_ctx.clear_callable_declaration_catalog();
@@ -212,6 +262,23 @@ impl super::MirBuilder {
         ast: ASTNode,
         snapshot: &ASTNode,
     ) -> Result<ValueId, String> {
+        let mut port = OrdinaryInstanceMethodCapturePortV1;
+        self.lower_root_after_callable_catalog_install_with_instance_port_v1(
+            ast, snapshot, &mut port,
+        )
+    }
+
+    pub(in crate::mir::builder) fn lower_root_after_callable_catalog_install_with_instance_port_v1<
+        Port,
+    >(
+        &mut self,
+        ast: ASTNode,
+        snapshot: &ASTNode,
+        instance_methods: &mut Port,
+    ) -> Result<ValueId, String>
+    where
+        Port: InstanceMethodCapturePortV1,
+    {
         // Phase A: collect the remaining non-callable declaration facts.
         declaration_indexer::index_declarations(self, snapshot);
         if let Some(module) = self.current_module.as_mut() {
@@ -330,15 +397,19 @@ impl super::MirBuilder {
                                             mname,
                                             format!("/{}", params.len())
                                         );
-                                        self.lower_method_as_function(
-                                            func_name,
-                                            name.clone(),
-                                            params.clone(),
-                                            param_decls.clone(),
-                                            return_type_name.clone(),
-                                            body.clone(),
-                                            uses.clone(),
-                                            attrs.clone(),
+                                        instance_methods.lower_instance_method(
+                                            self,
+                                            InstanceMethodCaptureRequestV1 {
+                                                owner: name.clone(),
+                                                method: mname.to_owned(),
+                                                function_name: func_name,
+                                                params: params.clone(),
+                                                param_decls: param_decls.clone(),
+                                                return_type_name: return_type_name.clone(),
+                                                body: body.clone(),
+                                                uses: uses.clone(),
+                                                attrs: attrs.clone(),
+                                            },
                                         )?;
                                     }
                                 }
@@ -689,3 +760,7 @@ impl super::MirBuilder {
 
 // Phase 279 P0: OperandTypeClass enum removed
 // Moved to TypePropagationPipeline (SSOT)
+
+#[cfg(test)]
+#[path = "module_lifecycle_capture_tests.rs"]
+mod capture_tests;
