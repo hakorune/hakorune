@@ -34,9 +34,8 @@ MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT
 exact Void leafが本番selectorを分有し、旧Option/raw facadesは物理削除済み。
 第七production edgeは未選択。Binaryの一つのsource selector/dead
 predecessor chainを一cellで数えるか、Ordinary/ShortCircuitの二semantic
-ownerへ分けるかをD0で決める前に、generated observation、closed-world
-classification、mechanically derived envelopeを二commitで閉じる。四つの
-final Xを受理するまでproduction source editへ進まない。
+ownerへ分けるかをD0で決める前に、二つの固定rootを四つの`find | wc`値で
+測る最小ratchetを一commitで閉じる。大型checkerや意味分類台帳は作らない。
 
 ## First three replacements
 
@@ -123,18 +122,16 @@ replacement_ledger_remaining       = 0 scheduled production rows
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
-structural_budget_status           = accepted two-commit execution task
-builder_Rust_files_baseline        = 1081
-builder_total_Rust_LOC_baseline    = 221957
-final_X_files                      = pending
-final_X_builder_LOC                = pending
-final_X_check_files                = pending
-final_X_check_LOC                  = pending
+structural_budget_status           = accepted minimal ratchet task
+source_files_ceiling               = 952
+source_LOC_ceiling                 = 182452
+test_files_ceiling                 = 139
+test_LOC_ceiling                   = 40826
 ```
 
-Semantic evidence and structural budget are joint completion authority. The
-five-cell rolling production Rust LOC budget remains non-positive, while total
-builder files/LOC and MirBuilder-owned check LOC are charged separately.
+Semantic evidence remains completion authority. The four ratchet values are
+result metrics that fail on growth; five-cell production Rust LOC also remains
+non-positive.
 
 ## Active replacement cell
 
@@ -147,11 +144,10 @@ none
 ```text
 MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT
 
-Commit A:
-  generated footprint/checker substrate
-
-Commit B:
-  closed-world classification + four accepted caps
+one commit:
+  four find/wc measurements
+  one TSV ceiling row
+  one shared-guard comparison
 
 production source edit         = 0
 seventh replacement row        = 0

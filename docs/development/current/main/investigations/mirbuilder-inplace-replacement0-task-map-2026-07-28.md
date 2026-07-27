@@ -429,28 +429,27 @@ It does not select a manifest row. Binary has one live source selector and one
 dead predecessor chain but two semantic owners; D0 must choose source-partition
 or split semantic accounting before execution resumes.
 
-## Structural completion budget
+## Structural footprint ratchet
 
-The replacement product now requires semantic and structural completion:
+Structural size is a result metric, not replacement completion authority:
 
 ```text
 docs/development/current/main/investigations/
 mirbuilder-structural-budget-d0-consultation-2026-07-28.md
 ```
 
-Frozen observation baseline:
+Fixed roots and frozen observation:
 
 ```text
-builder Rust files       = 1,081
-builder total Rust LOC   = 221,957
-baseline commit          = f0256073d5
-```
+roots:
+  src/mir/builder
+  crates/hakorune_mir_builder
 
-These are high-water ceilings, not acceptable final X. D0 classifies every
-owned source/check file as Keep/Merge/Delete/Proof and fixes final
-`X_files`, `X_builder_loc`, `X_check_files`, and `X_check_loc`. The Binary
-consultation remains parked and no seventh manifest row is selected until that
-budget is accepted.
+source files = 952
+source LOC   = 182452
+test files   = 139
+test LOC     = 40826
+```
 
 Accepted execution:
 
@@ -459,10 +458,9 @@ docs/development/current/main/investigations/
 mirbuilder-structural-budget0-closeout-task-2026-07-28.md
 ```
 
-The closeout uses two adjacent commits: generated observation/checker
-substrate, then closed-world classification and four mechanically derived caps.
-The fourth cap is `X_check_files`; exact external-owned Rust paths are included
-so responsibility cannot escape by moving outside `src/mir/builder`.
+The closeout is one small commit: one TSV ceiling row plus four measurements in
+the existing shared guard. No Python checker, path digest, disposition ledger,
+or final-X derivation is added. After it lands, Binary D0 resumes immediately.
 
 ## Macro pack order
 

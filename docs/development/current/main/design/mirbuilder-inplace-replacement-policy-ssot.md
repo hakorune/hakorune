@@ -282,42 +282,40 @@ T0 cell detached_asset_delta            <= 0
 five-cell rolling production Rust LOC   <= 0
 new per-cell shell guards                = 0
 
-closed-cell builder Rust files           <= current structural ceiling
-closed-cell builder total Rust LOC       <= current structural ceiling
-MirBuilder-owned check files / LOC       = measured from structural manifest
+measured source files / LOC              <= ratchet ceiling
+measured test files / LOC                <= ratchet ceiling
 ```
 
 T1で一時的にproduction LOCが増える場合、同じpack内のrepayment cellと削除
 対象を先に予約する。名前だけのsunsetは認めない。
 
-production Rust LOCだけを分母にしない。`src/mir/builder/**/*.rs`は
-`cfg(test)`を含めて全file／全LOCを数え、MirBuilder専用checkはstructural
-manifestから数える。MirBuilder責務を主契約とするrepository内のexact external
-Rust pathもmanifestへ登録し、directory外へ移して予算から外してはならない。
-各cell closeoutはproduction deltaに加えてsource files/LOCとcheck files/LOC
-のbefore／after／deltaを記録する。
-
-2026-07-28の凍結baselineは次である。
+Structural sizeはsemantic authorityではなく増殖検知用の結果指標である。
+次の二rootを固定して、`*test*.rs`とそれ以外を機械的に分ける。
 
 ```text
-baseline commit            = f0256073d5
-builder Rust files         = 1,081
-builder total Rust LOC     = 221,957
+src/mir/builder
+crates/hakorune_mir_builder
 ```
 
-最終Xではない。最終`X_files`／`X_builder_loc`／`X_check_files`／
-`X_check_loc`は
-`MIRBUILDER-STRUCTURAL-BUDGET-D0`のKeep／Merge／Delete／Proof censusで
-固定する。capを上げるにはT2が必要である。
+2026-07-28の凍結ratchetは次である。
+
+```text
+source files = 952
+source LOC   = 182452
+test files   = 139
+test LOC     = 40826
+```
+
+既存shared guardは一行のratchet dataと比較し、いずれかが増えたら失敗する。
+pack close時だけ各ceilingを`min(previous, measured)`へ下げる。新しいchecker、
+path manifest、意味分類台帳は作らない。外部MirBuilder責務のrootが増える場合
+は、この固定root listを明示更新する。
 
 ## Completion
 
 `MIRBUILDER-INPLACE-REPLACEMENT0`は次がすべて成立したときだけ完了する。
 
 ```text
-semantic completion                              = all green
-structural completion                            = all green
-
 macro packs closed                              = 8 / 8
 replacement ledger remaining                   = 0
 accepted AST vocabulary classified              = 57 / 57
@@ -334,14 +332,10 @@ direct build_module caller families reconciled    = all
 Legacy-named orchestration/facade consumers        = 0
 proof-only assets classified and settled          = all
 full accepted corpus/backend parity                = green
-
-owned source/check files classified                = all
-builder Rust files                                 <= accepted X_files
-builder total Rust LOC                             <= accepted X_builder_loc
-MirBuilder-owned check files                       <= accepted X_check_files
-MirBuilder-owned check LOC                         <= accepted X_check_loc
-all source/check files                             < 800 lines
 ```
+
+四つのratchet値は上記semantic completionを置き換えない。作り替えの結果として
+source/test footprintが増えていないことだけを保証する。
 
 `Legacy`という語が互換data formatやdiagnostic名に残る場合は、production
 orchestrationではないことをledgerへ明記する。

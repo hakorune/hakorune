@@ -37,8 +37,9 @@ docs/development/current/main/investigations/
 mirbuilder-structural-budget-d0-consultation-2026-07-28.md
 ```
 
-Binary selection resumes only after the final owned-footprint caps are
-accepted. The cap may change which accounting option is structurally valid.
+Binary selection resumes immediately after the minimal four-metric ratchet is
+installed. Structural size is a result metric and does not decide the semantic
+cell-accounting answer.
 
 Execution authority for that prerequisite:
 

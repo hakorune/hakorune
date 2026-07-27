@@ -2,14 +2,9 @@
 Status: accepted execution task
 Date: 2026-07-28
 Decision: MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT
-Ceremony: policy D0 closeout; not a production replacement cell
-BoxShape:
-  - generated observation facts
-  - authored closed-world classification
-  - mechanically derived final envelope
+Ceremony: policy housekeeping; not a production replacement cell
 Commits:
-  - one footprint/checker substrate commit
-  - one immediately-following classification/cap acceptance commit
+  - one minimal ratchet commit
 Parent:
   - docs/development/current/main/investigations/mirbuilder-structural-budget-d0-consultation-2026-07-28.md
 Policy:
@@ -22,547 +17,235 @@ Workstream:
 
 ## Decision
 
-Close `MIRBUILDER-STRUCTURAL-BUDGET-D0` by introducing:
+Implement Structural Budget as a small result metric:
 
 ```text
-ObservedOwnedFootprintV1
-  generated filesystem facts only
-
-ClassifiedOwnedFootprintV1
-  authored closed-world ownership/classification authority
-
-AcceptedStructuralEnvelopeV1
-  mechanically derived four-dimensional final caps and ratchet
+four find/wc measurements
++ one ratchet row
++ one shared-guard comparison
 ```
 
-Observation, classification, and budget are separate products. Do not resume
-Binary or create the seventh replacement row during this task.
+Do not build a structural planning system. Semantic completion remains the
+authority for whether MirBuilder replacement is finished.
 
-## Four-dimensional completion envelope
+## Measured roots
 
-The accepted envelope must contain:
+Measure exactly:
 
 ```text
-X_files
-  final MirBuilder-owned Rust source file count
-
-X_builder_loc
-  final MirBuilder-owned Rust source LOC
-
-X_check_files
-  final MirBuilder-owned proof/check/data file count
-
-X_check_loc
-  final MirBuilder-owned proof/check/data LOC
+src/mir/builder
+crates/hakorune_mir_builder
 ```
 
-Each cell and pack closeout records:
+The second root prevents moving Context or another MirBuilder responsibility
+outside `src/mir/builder` to create a false reduction.
+
+Do not recursively discover or classify other repository paths. Adding another
+MirBuilder-owned source root later is an explicit policy update.
+
+## Four metrics
+
+Use filename partition `*test*.rs`:
 
 ```text
-owned source files before / after / delta
-owned source LOC before / after / delta
-owned check files before / after / delta
-owned check LOC before / after / delta
+source_files
+  *.rs excluding *test*.rs
+
+source_loc
+  wc -l over source_files
+
+test_files
+  *test*.rs
+
+test_loc
+  wc -l over test_files
 ```
 
-Source and check budgets are independent. Headroom cannot move between them.
-
-## Owned source universe
-
-### Mandatory tree
-
-Every Rust file below:
+Frozen baseline:
 
 ```text
-src/mir/builder/**/*.rs
+source_files = 952
+source_loc   = 182452
+test_files   = 139
+test_loc     = 40826
 ```
 
-is observed and classified, including all test and parity files.
-
-The baseline must reproduce:
-
-```text
-tree Rust files = 1,081
-tree Rust LOC   = 221,957
-baseline       = f0256073d5
-LOC semantics  = wc -l / LF count
-```
-
-### External-owned source
-
-Register every exact repository Rust path whose primary responsibility is a
-MirBuilder contract even when it lives outside the mandatory tree.
-
-Known candidates include the context owners documented by
-`src/mir/builder/README.md`:
-
-```text
-crates/hakorune_mir_builder/src/core_context.rs
-crates/hakorune_mir_builder/src/type_context.rs
-crates/hakorune_mir_builder/src/binding_context.rs
-crates/hakorune_mir_builder/src/variable_context.rs
-crates/hakorune_mir_builder/src/metadata_context.rs
-crates/hakorune_mir_builder/src/context.rs
-```
-
-The census must also inspect compiler/session owners protected by already
-closed replacement cells. Do not assume the list above is complete.
-
-External source is registered by exact path. Directory or filename inference
-does not grant ownership.
-
-Exclude:
-
-```text
-parked selfhost Hako MirBuilder
-general runtime/backend implementation
-consumer code whose only relation is calling MirBuilder
-```
-
-Moving a responsibility outside `src/mir/builder` never removes it from the
-budget.
-
-## Check universe
-
-Discover candidates repository-wide, including but not limited to:
-
-```text
-tools/checks
-tools/rust_lifecycle
-```
-
-Adjudicate every candidate:
-
-```text
-Owned
-  primary contract protects MirBuilder source/proof
-
-ExcludedGeneric
-  repository-wide corpus/backend/hygiene infrastructure where MirBuilder is
-  only one consumer
-```
-
-An unadjudicated candidate prevents D0 closeout. Name matching alone is not
-ownership authority.
-
-The structural checker, its tests, manifests, rules, and ratchet data are
-themselves `Owned` check footprint.
-
-## Closed-world rule manifest
-
-Do not author a 1,081-row mutable LOC ledger.
-
-Repository authority is a compact rule manifest. Every rule contains:
-
-```text
-rule_id
-kind = source | check
-pack
-disposition = Keep | Merge | Delete | Proof
-state = open | settled
-semantic_owner_or_proof_contract
-selector
-expected_path_count
-expected_path_sha256
-target_path_or_delete_condition
-target_loc_cap
-```
-
-The checker expands a selector, sorts the exact path set, and computes its
-SHA-256.
-
-Acceptance requires:
-
-```text
-expected path count = live count
-expected path digest = live sorted path-set digest
-```
-
-A new matching file therefore causes drift instead of silently inheriting a
+The split is intentionally mechanical. It is not a semantic ownership
 classification.
 
-The resolved per-file manifest is generated by joining live filesystem facts
-to the accepted rules. `current_loc` is observed, never handwritten.
+## Ratchet row
 
-## Classification state
-
-Disposition and completion state are independent:
-
-```text
-Keep / Proof
-  normally settled when their retained contract is exact
-
-Merge / Delete
-  open until the physical target/delete condition is satisfied
-```
-
-Classifying a path as Delete does not make its obligation closed.
-
-Every owned file must match exactly one rule:
-
-```text
-unmatched files   = 0
-overlapping rules = 0
-digest drift      = 0
-unknown pack      = 0
-unknown disposition = 0
-```
-
-## Pack assignment
-
-Assign the pack whose close condition becomes false when the file is wrong.
-Do not infer pack from directory name.
-
-```text
-production semantic owner:
-  its responsibility pack
-
-family-specific Proof:
-  same pack as the production contract it proves
-
-cross-pack replacement accountability:
-  REPLACEMENT-LEDGER0
-
-obsolete selector or route compatibility residue:
-  COMPILER-RESIDUE0
-
-source-neutral Call receipt:
-  CALL-OBJECT0
-
-function/module transaction:
-  FUNCTION-LIFECYCLE0 / MODULE-LIFECYCLE0
-```
-
-Each file has exactly one pack close authority.
-
-## Mechanical final envelope
-
-`AcceptedStructuralEnvelopeV1` derives only from classified facts:
-
-```text
-Keep:
-  final target = same path
-
-Proof:
-  final target = same path
-
-Merge:
-  final target = exact existing target path
-
-Delete:
-  final target = none
-```
-
-Derive:
-
-```text
-X_files
-  = unique final source targets
-
-X_builder_loc
-  = source target LOC-cap sum
-
-X_check_files
-  = unique final check targets
-
-X_check_loc
-  = check target LOC-cap sum
-```
-
-For Merge, count only the target. Never count both source and target.
-
-Forbidden:
-
-```text
-temporary headroom
-unclassified reserve
-percentage-based reduction
-manual cap mirror that disagrees with derivation
-```
-
-## Merge evidence
-
-A Merge target LOC cap is accepted only with:
-
-```text
-A. an existing target already covering the exact semantic/proof contract
-   -> current target LOC is the cap
-
-or
-
-B. a throwaway prototype diff retaining all unique behavior
-   -> measured target LOC is the cap
-```
-
-If neither evidence exists, classify conservatively as Keep. Do not estimate a
-future compression ratio.
-
-## Repository layout
+Add one compact TSV under the existing design fixtures:
 
 ```text
 docs/development/current/main/design/fixtures/
-  mirbuilder-structural-budget-v1/
-    budget.toml
-    manifest-index.tsv
-
-    rules/
-      00-replacement-ledger0.tsv
-      01-descent-spine0.tsv
-      02-function-state0.tsv
-      03-call-object0.tsv
-      04-control0.tsv
-      05-function-lifecycle0.tsv
-      06-module-lifecycle0.tsv
-      07-compiler-residue0.tsv
-
-    external-source-scope.tsv
-    check-scope.tsv
-    ratchet.tsv
-
-tools/checks/
-  mirbuilder_structural_budget.py
-
-tools/checks/tests/
-  test_mirbuilder_structural_budget.py
+mirbuilder-structural-ratchet.tsv
 ```
 
-`manifest-index.tsv` is closed-world authority for rule shards. An unlisted
-shard is an error. Every source/check/data file stays below 800 lines.
-
-## Stable entry
-
-One stable entry:
-
-```bash
-python3 tools/checks/mirbuilder_structural_budget.py check
-```
-
-Supporting modes:
-
-```bash
-python3 tools/checks/mirbuilder_structural_budget.py inventory
-
-python3 tools/checks/mirbuilder_structural_budget.py resolve \
-  --output /tmp/mirbuilder-structural-resolved.tsv
-
-python3 tools/checks/mirbuilder_structural_budget.py report
-
-python3 tools/checks/mirbuilder_structural_budget.py check \
-  --completion
-```
-
-Normal `check` proves:
+Schema:
 
 ```text
-exact owned coverage
-current high-water ceilings
-rule count/digest
-four-dimensional cap consistency
+source_files	source_loc	test_files	test_loc
 ```
 
-`--completion` additionally requires:
+It contains one current ceiling row only.
+
+Normal check fails if any measured value exceeds its ceiling:
 
 ```text
-Merge/Delete open obligations = 0
-measured footprint <= final envelope
-all eight packs closed
+measured source_files > ceiling source_files
+measured source_loc   > ceiling source_loc
+measured test_files   > ceiling test_files
+measured test_loc     > ceiling test_loc
 ```
 
-The existing shared replacement guard invokes the stable entry exactly once.
-Do not add a per-cell shell guard.
-
-## Commit A — footprint substrate
-
-Commit:
+At a macro-pack close, update each ceiling to:
 
 ```text
-tools(mir): inventory structural ownership
+min(previous ceiling, measured value)
 ```
 
-Include:
+Source headroom cannot compensate for test growth, and file-count headroom
+cannot compensate for LOC growth.
+
+## Shared guard
+
+Append one small check to:
 
 ```text
-checker and minimal self-tests
-manifest directory/index
-mandatory-tree observation
-external-source candidate census
-check candidate census
-closed-world rule schema
-resolved-manifest generation
-baseline verification
+tools/checks/mirbuilder_inplace_replacement_guard.sh
 ```
 
-State after A:
+Requirements:
 
 ```text
-budget status                  = draft
-current row                    = MIRBUILDER-STRUCTURAL-BUDGET0-CLASSIFY
-production source edit         = 0
-replacement manifest row delta = 0
-Binary                         = parked
+no new checker executable
+no Python module
+no per-cell shell wrapper
+no new guard mode
+no path manifest
+no generated report
 ```
 
-Commit A and B are adjacent. Do not interleave Binary, cleanup, another
-consultation, or a production replacement cell.
+The existing shared guard reads the one TSV row, runs the four measurements,
+and fails on growth. Keep the added shell compact and readable.
 
-## Commit B — classification and caps
-
-Commit:
+Existing rules still apply:
 
 ```text
-docs(mir): accept structural completion envelope
+new per-cell shell guards = 0
+all modified source/check files < 800 lines
+five-cell rolling production Rust LOC <= 0
 ```
 
-Include:
+These prevent one-line wrapper proliferation without a new check inventory.
+
+## What is not being built
+
+Explicitly rejected:
 
 ```text
-all source rules classified
-all external-source candidates adjudicated
-all check candidates adjudicated
-all rule path sets frozen by count and digest
-Keep/Merge/Delete/Proof totals by pack
-evidence-backed Merge target caps
-exact Delete conditions
-four final caps mechanically derived and accepted
-resolved-manifest digest accepted
-ratchet baseline initialized
-shared replacement guard invokes stable checker
-CURRENT_STATE/workstream/policy closeout
-Binary D0 re-evaluation
+ObservedOwnedFootprintV1
+ClassifiedOwnedFootprintV1
+AcceptedStructuralEnvelopeV1
+Keep / Merge / Delete / Proof ledger
+open / settled obligation state
+rule shards
+path-set digests
+external-source manifest
+repository-wide check classification
+Python checker and checker self-test suite
+resolve / report / inventory / completion modes
+precomputed final X
 ```
 
-Do not create the Binary replacement row in B.
+Those mechanisms manage a shrink plan rather than shrinking MirBuilder. Their
+own footprint would work against the purpose of the metric.
 
-## Ratchet law after D0
+## Completion meaning
 
-Every closed cell records all four dimensions.
+Structural metrics are a regression guard, not product authority.
 
-At pack close:
+`MIRBUILDER-INPLACE-REPLACEMENT0` still closes through semantic evidence:
 
 ```text
-new source file ceiling = min(previous, measured)
-new source LOC ceiling  = min(previous, measured)
-new check file ceiling  = min(previous, measured)
-new check LOC ceiling   = min(previous, measured)
+all packs closed
+old owners and selected edges = 0
+fallback / retry / reselection = 0
+detached production-capable routes = 0
+accepted vocabulary classified
+full parity green
 ```
 
-## Checker self-tests
+The four metrics show that the implementation/proof footprint did not grow
+while achieving those results.
 
-At minimum:
+## Implementation boundary
+
+One commit:
 
 ```text
-unmatched file rejection
-overlapping rule rejection
-path digest drift rejection
-new file silent-inheritance rejection
-Merge target double-count rejection
-cap mirror mismatch rejection
-800-line rejection
+tools(mir): ratchet structural footprint
 ```
+
+Include only:
+
+```text
+one TSV ceiling row
+small shared-guard measurement/comparison
+focused shell behavior check if existing guard tests provide a natural home
+policy/task/current closeout
+Binary D0 unpark
+```
+
+Production MirBuilder source remains unchanged. The seventh replacement
+manifest row remains absent.
 
 ## Acceptance
 
 ```text
-mandatory builder tree:
-  files                                      = 1,081
-  LOC                                        = 221,957
+measured source_files = 952
+measured source_loc   = 182452
+measured test_files   = 139
+measured test_loc     = 40826
 
-external source:
-  candidates adjudicated                    = all
-  unmatched                                 = 0
-
-check candidates:
-  Owned / ExcludedGeneric adjudicated       = all
-  unadjudicated                              = 0
-
-logical manifest:
-  owned files matched exactly once          = all
-  unmatched / overlap                       = 0
-  path count / digest drift                 = 0
-
-classification:
-  unknown pack / disposition                = 0
-  Proof without named contract              = 0
-  Merge without exact target/evidence       = 0
-  Merge across semantic owners              = 0
-  Delete without close condition            = 0
-
-final envelope:
-  X_files                                   = mechanically derived
-  X_builder_loc                             = mechanically derived
-  X_check_files                             = mechanically derived
-  X_check_loc                               = mechanically derived
-  unclassified headroom                     = 0
-  inconsistent numeric mirror               = 0
-
-boundaries:
-  source/check files >= 800 lines            = 0
-  new per-cell shell guard                   = 0
-  production Rust edit                       = 0
-  seventh replacement manifest row          = 0
+all measured values <= ratchet row
+ratchet rows = 1
+measured roots = exactly 2
+new checker executables = 0
+new per-cell guards = 0
+production Rust edit = 0
+seventh replacement row = 0
+all touched source/check files < 800 lines
 ```
 
 ## Gate order
 
 ```bash
-python3 -m py_compile tools/checks/mirbuilder_structural_budget.py
-
-python3 -m unittest \
-  tools.checks.tests.test_mirbuilder_structural_budget
-
-python3 tools/checks/mirbuilder_structural_budget.py \
-  inventory \
-  --verify-tree-files 1081 \
-  --verify-tree-loc 221957
-
-python3 tools/checks/mirbuilder_structural_budget.py resolve \
-  --output /tmp/mirbuilder-structural-resolved.tsv
-
-python3 tools/checks/mirbuilder_structural_budget.py report
-python3 tools/checks/mirbuilder_structural_budget.py check
-
 bash tools/checks/mirbuilder_inplace_replacement_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
+Record the four measured values in the closeout.
+
 ## Hard stops
 
 ```text
-mandatory-tree baseline does not reproduce 1,081 / 221,957
-external-owned source boundary remains undecidable
-check candidate remains unadjudicated
-accepted rule lacks path count or digest
-one file belongs to multiple packs
-Merge target cap is guessed
-Proof cannot name live edge/failure/reuse/parity contract
-X_check_files is omitted
-responsibility moves outside the owned universe
-checker/manifests/tests are excluded from check footprint
-Binary source or seventh replacement manifest changes during this task
+the two measured roots do not reproduce the baseline
+implementation needs a new checker program or rule manifest
+metric naming requires semantic file classification
+shared guard reaches 800 lines
+production MirBuilder or Binary source must change
+seventh replacement row is added
 ```
 
-## Binary handoff
+## Handoff
 
-After Commit B:
-
-```text
-accepted structural envelope
--> Binary D0 closeout
--> seventh cell selection
--> Binary atomic I0/R0
-```
-
-Current evidence favors one Binary source-partition cell because it reuses the
-existing independent parity suites and removes one dead predecessor chain
-without orphan accounting stages. That decision remains outside this task.
-
-## Non-claims
+After this one commit:
 
 ```text
-no guessed final cap
-no production MirBuilder edit
-no Binary accounting closeout
-no seventh replacement row
-no language/runtime/backend/selfhost change
+minimal structural ratchet closed
+-> Binary accounting D0 resumes
+-> seventh Binary cell selection
 ```
