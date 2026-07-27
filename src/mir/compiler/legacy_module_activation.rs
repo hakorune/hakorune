@@ -107,7 +107,7 @@ mod tests {
 
     const SOURCE: &str = r#"
 static box Helper {
-  pick(a, b) { return a }
+  pick(a, b) { return b }
 }
 box Caller {
   run(text, ret) {
