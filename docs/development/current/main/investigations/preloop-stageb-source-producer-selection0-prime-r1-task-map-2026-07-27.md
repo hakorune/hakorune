@@ -10,11 +10,11 @@ Related:
   - preloop-stageb-carrier-handoff0-d0-design-question-2026-07-27.md
   - src/mir/source_call_target/
   - src/mir/preloop_stageb_carrier/
-  - src/mir/compiler.rs
-Sunset:
-  id: PRELOOP-STAGEB-LEGACY-SOURCE-PRODUCER-SUNSET-001
-  owner: PRELOOP-STAGEB-SOURCE-PRODUCER-RETIRE0
-  row: PRELOOP-STAGEB-SOURCE-PRODUCER-RETIRE0-S0
+  - src/mir/compiler/mod.rs
+Sunsets:
+  - PRELOOP-STAGEB-LEGACY-ALIAS-MUTATION-SUNSET-001
+  - PRELOOP-INNER-TYPE-PROOF-SUNSET-001
+  - PRELOOP-STAGEB-LEGACY-SOURCE-PRODUCER-SUNSET-001 (long-term parked)
 ---
 
 # Pre-loop Stage-B Production Carrier Task Map
@@ -32,6 +32,7 @@ LegacyWholeSourceCompileRequestV1
   -> one selected instance-method function ingress
   -> exact inner Call receipt
   -> exact outer carrier Call receipt
+  -> exact assignment completion receipt
   -> success-only outer Integer fact
   -> existing GenericLoop consumer
 ```
@@ -55,9 +56,17 @@ candidate law:
   zero  -> explicit Ordinary
   one   -> Selected
   many  -> typed pre-Builder rejection
+  incomplete inventory or invalid authority
+        -> typed pre-Builder rejection
+
+ordinary boundary:
+  complete inventory + bounded capability not proven
+        -> Ordinary(BoundedProofUnavailable)
 
 alias authority:
   CompilerSuppliedStaticImportSnapshotV1
+  non-Clone owned None | Explicit(sorted aliases)
+  retained by both Ordinary and Selected
 
 selected catalog:
   sealed once for source proof
@@ -84,14 +93,21 @@ one boxed declaration catalog allocation
 -> exact complete candidate inventory
 ```
 
-Suggested layout:
+Suggested neutral layout:
 
 ```text
 src/mir/source_call_target/
   whole_source_inventory.rs
   whole_source_inventory_error.rs
   whole_source_inventory_tests.rs
+
+src/mir/preloop_stageb_carrier/
+  source_producer.rs
 ```
+
+`source_call_target` owns complete source-call observation and neutral target
+facts only. `source_producer` alone composes Stage-B nested/outer contracts and
+the 0/1/many policy.
 
 Reuse:
 
@@ -123,7 +139,8 @@ one direct-owner exact candidate     -> count 1
 one alias-selected exact candidate   -> count 1
 two complete exact candidates        -> count 2
 unrelated nested call                -> count 0
-missing alias target                 -> incomplete proof disposition
+receiver has no supplied/direct owner-> complete noncandidate
+supplied alias names missing owner    -> InvalidAliasSnapshot rejection
 foreign equal-looking catalog        -> typed identity rejection
 source declaration reorder           -> stable semantic classification
 ```
@@ -132,9 +149,18 @@ Acceptance:
 
 ```text
 boxed catalog producer = 1
+complete source-call inventory authority = 1
 complete candidate count authority = 1
+inventory incompleteness -> Ordinary = 0
 Builder reference = 0
 production consumer = 0
+```
+
+Use two buildable commits inside this row:
+
+```text
+A1 neutral complete inventory
+A2 Stage-B classification and the 0/1/many fixture matrix
 ```
 
 ## Umbrella B — owned request and disconnected selection
@@ -148,16 +174,29 @@ LegacyWholeSourceCompileRequestV1
 CompilerSuppliedStaticImportSnapshotV1
 ```
 
+Suggested files:
+
+```text
+src/mir/compiler/
+  legacy_static_import_snapshot.rs
+  legacy_whole_source_request.rs
+```
+
 Rules:
 
 ```text
 constructor = private MirCompiler::compile_legacy_request only
 source_file = diagnostic hint only
+snapshot = non-Clone None | Explicit(sorted/deduplicated owned aliases)
+raw HashMap / mutable / into_hash_map accessor = 0
 BareAst = eligible
 ProgramV0Compatibility = explicit Ordinary(ProfileExcluded)
 ReplCompatibility = explicit Ordinary(ProfileExcluded)
 Builder alias mutation before selection = 0
 ```
+
+`compiler/mod.rs` is already close to 800 lines. It receives declarations and
+thin delegation only.
 
 This commit is disconnected. The production Legacy arm still follows its
 current path.
@@ -189,9 +228,33 @@ selected identity drift:
   SelectedCandidateDrift rejection
 ```
 
-An incomplete exact proof is not a new Legacy compile error. It produces an
-explicit Ordinary disposition. Only ambiguity, contradictory authority, or
-post-selection identity drift rejects the whole request.
+The boundary is strict:
+
+```text
+complete inventory + bounded Stage-B proof unavailable
+  -> Ordinary(BoundedProofUnavailable)
+
+inventory incomplete
+invalid alias snapshot
+catalog identity/brand invalid
+  -> typed rejection
+```
+
+A real candidate must never disappear behind `Ordinary`.
+
+Both dispositions retain the same owned alias snapshot exactly once:
+
+```text
+PreparedOrdinaryLegacyWholeSourceV1
+  owns complete request + snapshot + explicit reason
+
+PreparedSelectedPreloopStageBWholeSourceV1
+  owns complete request + snapshot + activation plan
+```
+
+The original snapshot may be borrowed to create
+`VerifiedStaticImportAliasViewV1` in the proof scope. That borrowed view must
+end before the catalog and snapshot move into the Selected product.
 
 Every rejection retains the complete source request and exposes only:
 
@@ -237,7 +300,30 @@ activation ledger is Armed
 Do not expose a general public `into_parts()` tuple. Catalog and row leave the
 activation plan only through this consuming preparation terminal.
 
-### Commit C2 — `PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-B`
+Any preparation rejection is:
+
+```text
+RejectedPreloopStageBModuleActivationV1
+  retains complete selected request + catalog + aliases + row
+```
+
+### Commit C2 — `LOWER-ROOT-POST-INSTALL-KERNEL0-S0`
+
+Extract one behavior-neutral private kernel after callable-catalog install.
+The ordinary facade continues to seal/install its catalog and then delegates
+to this kernel. Fix ordinary MIR/error parity before Selected calls it.
+
+Suggested Builder layout:
+
+```text
+src/mir/builder/module_lifecycle/
+  post_catalog_install_root.rs
+  preinstalled_catalog.rs
+```
+
+`module_lifecycle.rs` receives thin delegation only.
+
+### Commit C3 — `PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-B`
 
 Add:
 
@@ -255,9 +341,23 @@ aliases -> candidate Builder CompilationContext
 row     -> stack-owned single-use ledger
 ```
 
-The ledger is not a Builder field. Extract one common post-install root
-lowering kernel so ordinary and selected routes share orchestration after
-catalog installation.
+The ledger is not a Builder field. Ordinary and selected routes use the same
+post-install root kernel. Catalog+alias commit must be one atomic
+CompilationContext operation; do not call a fallible catalog install followed
+by an alias setter.
+
+Ledger state is one-way and payload-retaining:
+
+```text
+Armed(row)
+  -> InFlight(selected ingress)
+  -> Completed(receipt)
+  |  Rejected { retained row/evidence, cause }
+```
+
+`finish(self)` rejects unobserved Armed and unfinished InFlight. There is no
+payloadless `Consumed`/`Poisoned`, `take`, `reset`, `rearm`, or row escape
+accessor.
 
 Acceptance:
 
@@ -314,7 +414,7 @@ selected function failure         -> no ordinary retry
 Direct `MirBuilder::build_module`, AST JSON, Program(JSON v0), REPL, and Raw
 routes have zero caller delta.
 
-### Commit D2 — `PRELOOP-STAGEB-FUNCTION-INGRESS0-P0`
+### Commit D2 — `PRELOOP-STAGEB-FUNCTION-INGRESS0-P0/G0`
 
 Focused matrix:
 
@@ -333,8 +433,6 @@ selected function failure -> no retry
 ProgramV0 / REPL -> Ordinary(ProfileExcluded)
 failure -> fresh compiler success
 ```
-
-### Commit D3 — `PRELOOP-STAGEB-FUNCTION-INGRESS0-G0`
 
 Fold structural assertions into the existing source-entry/Stage-B guard
 family. Do not create one shell guard per commit.
@@ -365,16 +463,22 @@ UNIFIED-CALL-OUTER-CARRIER-RECEIPT0-S0
   source-neutral receipt at actual generic Call success only
 
 PRELOOP-OUTER-CARRIER-RECEIPT0-I0
-PRELOOP-OUTER-CARRIER-RECEIPT0-P0
-PRELOOP-OUTER-CARRIER-RECEIPT0-G0
   exact outer receipt
-  outer destination == assignment carrier
   inner destination is never used as outer authority
 
+PRELOOP-OUTER-CARRIER-ASSIGNMENT0-S0
+  CompletedVariableAssignmentV1
+  CompletedPreloopCarrierAssignmentV1
+  outer final destination == assignment RHS == assigned carrier
+  do not infer the carrier from variable_map after the fact
+
+PRELOOP-OUTER-CARRIER-RECEIPT0-P0/G0
+  outer/inner/assignment correspondence matrix
+
 PRELOOP-OUTER-CARRIER-TYPE-I0-S0
-PRELOOP-OUTER-CARRIER-TYPE-I0-I0
-PRELOOP-OUTER-CARRIER-TYPE-I0-P0
-PRELOOP-OUTER-CARRIER-TYPE-I0-G0
+  prepare with existing TypeFactDecisionV1
+
+PRELOOP-OUTER-CARRIER-TYPE-I0-I0/P0/G0
   existing TypeFactDecisionV1
   existing TypeContext::set_type
   success-only outer Integer publication
@@ -410,29 +514,64 @@ PRELOOP-STAGEB-SOURCE-INVENTORY0-P0
 -> PRELOOP-STAGEB-SOURCE-SELECTION0-S0
 
 -> PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-A
+-> LOWER-ROOT-POST-INSTALL-KERNEL0-S0
 -> PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-B
 
 -> PRELOOP-STAGEB-FUNCTION-INGRESS0-I0
--> PRELOOP-STAGEB-FUNCTION-INGRESS0-P0
--> PRELOOP-STAGEB-FUNCTION-INGRESS0-G0
+-> PRELOOP-STAGEB-FUNCTION-INGRESS0-P0/G0
 
 -> UNIFIED-CALL-OUTER-CARRIER-RECEIPT0-S0
 -> PRELOOP-OUTER-CARRIER-RECEIPT0-I0
--> PRELOOP-OUTER-CARRIER-RECEIPT0-P0
--> PRELOOP-OUTER-CARRIER-RECEIPT0-G0
+-> PRELOOP-OUTER-CARRIER-ASSIGNMENT0-S0
+-> PRELOOP-OUTER-CARRIER-RECEIPT0-P0/G0
 
 -> PRELOOP-OUTER-CARRIER-TYPE-I0-S0
--> PRELOOP-OUTER-CARRIER-TYPE-I0-I0
--> PRELOOP-OUTER-CARRIER-TYPE-I0-P0
--> PRELOOP-OUTER-CARRIER-TYPE-I0-G0
+-> PRELOOP-OUTER-CARRIER-TYPE-I0-I0/P0/G0
 
 -> CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0
 -> PRELOOP-INNER-TYPE-PROOF-RETIRE0-S0
 ```
 
-This is approximately 10–16 buildable commits. Use Refactor Series Mode
+This is approximately 9–12 buildable commits. Use Refactor Series Mode
 inside each umbrella, with one purpose per series and all behavior changes at
 the end of their umbrella.
+
+## Minimal test and guard inventory
+
+Create about four focused test families across the whole series:
+
+```text
+src/mir/source_call_target/whole_source_inventory_tests.rs
+src/mir/preloop_stageb_carrier/source_selection_tests.rs
+src/mir/compiler/preloop_stageb_production_tests.rs
+src/mir/builder/calls/preloop_outer_carrier_tests.rs
+```
+
+Module-activation tests may remain private beside their owner. Reuse:
+
+```text
+actual Parser same-allocation Stage-B fixture
+callable catalog/install transaction tests
+instance-method draft parity tests
+unified physical receipt tests
+TypeFactDecisionV1 tests
+```
+
+Do not add a shell/Python guard per row. At final G0, extend the existing
+`tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_v0.py` structural guard
+once. Do not grow the nearly-full `mirbuilder_type_fact_partition_guard.py`.
+
+File pressure is already high:
+
+```text
+src/mir/compiler/mod.rs                  ~759 lines
+src/mir/builder/module_lifecycle.rs      ~601 lines
+src/mir/builder/calls/unified_emitter.rs ~789 lines
+```
+
+Keep these as thin facades. New request, activation, receipt, and test owners
+belong in small sibling modules; do not push an existing source/check file over
+800 lines.
 
 ## Structural gate
 
@@ -444,17 +583,22 @@ consumer location                                  = compile_request Legacy arm
 candidate zero product                             = explicit Ordinary
 Option::None candidate authority                   = 0
 0 -> Ordinary / 1 -> Selected / many -> reject     = exact
+incomplete inventory -> Ordinary                   = 0
+invalid alias snapshot -> Ordinary                 = 0
 
 compiler-supplied alias snapshot                   = 1
 ambient Builder alias read during selection        = 0
 Builder alias mutation before selection            = 0
+Ordinary snapshot consume                          = exactly 1
+Selected snapshot consume                          = exactly 1
+borrowed alias view after selection                 = 0
 
 selected exact catalog seal                        = 1
 selected catalog install                           = 1
 selected catalog reseal                            = 0
 
 ordinary build_module route                        = unchanged
-direct build_module producer                       = 0
+new selected direct-build_module activation        = 0
 AST JSON / Program(JSON v0) / REPL behavior delta  = 0
 
 Builder source-policy owner                        = 0
@@ -462,6 +606,7 @@ Builder source-site registry                       = 0
 persistent SourceExprSite -> ValueId map           = 0
 
 selected caller consume                            = exactly 1
+payloadless selected ledger terminal               = 0
 selected retry through ordinary lowering           = 0
 fallback / route reselection                       = 0
 
@@ -482,10 +627,50 @@ Open a new D0 only if evidence proves one of these:
    creating a second root-lowering orchestration.
 5. Exact selected function row cannot be consumed without a Builder field or
    persistent source-site map.
+6. Existing alias behavior depends on mutation timing that cannot be
+   represented by the owned typed snapshot.
 ```
 
 All other unsupported cases are typed Ordinary or typed rejection according
 to the fixed 0/1/many law.
+
+## Sunset accounting
+
+Immediate repayment:
+
+```text
+PRELOOP-STAGEB-LEGACY-ALIAS-MUTATION-SUNSET-001
+  retires:
+    compile_with_source_and_imports pre-selection Builder alias mutation
+    compile_legacy pre-selection alias clear
+    selected lower_root catalog reseal
+  repay at:
+    PRELOOP-STAGEB-FUNCTION-INGRESS0-I0
+```
+
+After the outer production path is green:
+
+```text
+PRELOOP-INNER-TYPE-PROOF-SUNSET-001
+  row:
+    PRELOOP-INNER-TYPE-PROOF-RETIRE0-S0
+  retires or merges:
+    proof-only inner TYPE publisher
+    temporary Stage-B correspondence fixture
+    redundant Emitted state when no consumer remains
+```
+
+Long-term parked:
+
+```text
+PRELOOP-STAGEB-LEGACY-SOURCE-PRODUCER-SUNSET-001
+  owner:
+    PRELOOP-STAGEB-SOURCE-PRODUCER-RETIRE0
+  retire only after:
+    canonical/normal source-plan migration
+    compile_request Legacy selected consumer = 0
+    proof-only producer consumers = 0
+```
 
 ## Post-Stage-B frontier
 
