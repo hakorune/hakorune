@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-CARRIER-HANDOFF0-prime-r1 is accepted with post-answer code-audit refinement. Correspondence, bounded outer result contract, owned source activation, and behavior-neutral function preparation are closed. Ordinary and port-aware instance methods now share one owned skeleton/signature/runes/uses/receiver/parameter preparation owner and one StepTree guard while retaining separate body drivers and finalizer authorities; empty and scalar-Return field parity are green. Production activation, Builder source policy, catalog reseal, fallback, and type publication remain zero. The hard stop is PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0: choose the exact pre-Builder whole-source producer, 0/1/many law, typed alias snapshot, consuming catalog install, and sole production ingress."
+status = "PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-prime-r1 is accepted and its production-carrier task map is issued. The sole producer/consumer seam is MirCompiler::compile_request's Legacy arm; candidate zero is an explicit Ordinary product; aliases are compiler-supplied typed snapshots; Selected alone consumes the same boxed catalog allocation through preflight then infallible install into a stack-owned single-use function ledger. Direct MirBuilder callers, Program(JSON v0), REPL, Raw publication, Builder source policy, fallback, receipt, and type publication remain unchanged. The first executable row is the Builder-free PRELOOP-STAGEB-SOURCE-INVENTORY0-P0."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0"
-current_execution_row = "PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0"
-current_execution_summary = "Design consultation only. Choose between the exact compiler Legacy-arm seam and build_module pre-prepare seam for one whole-source inventory and structural 0/1/many Stage-B selection. Fix the compiler-supplied typed alias snapshot, same-allocation boxed catalog borrow-disappearance proof, consuming preflight-plus-infallible install terminal, exact production caller census, and no-retry failure law. Do not implement source selection, activation install, function capture, receipt, or type publication before this D0 closes."
+current_design_stop = "none"
+current_execution_row = "PRELOOP-STAGEB-SOURCE-INVENTORY0-P0"
+current_execution_summary = "Implement one disconnected Builder-free whole-source inventory over one boxed declaration-catalog allocation and one typed alias snapshot. Reuse existing source-path, alias, static-result, nested-instance, and outer-carrier proof owners. Prove exact 0/1/many classification with production consumer=0. Do not connect compile_request, mutate Builder aliases, install the selected catalog, emit Call receipts, or publish types in this row."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -433,9 +433,10 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "preloop-stageb-source-producer-selection0-d0-design-question-2026-07-27"
-latest_card_path = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-d0-design-question-2026-07-27.md"
-latest_card_summary = """PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0 is the hard pre-Builder design stop after FUNCTION-PREPARATION0 closed. Two audits agree on one complete resolver-observable static-call inventory, one boxed declaration-catalog allocation, typed alias snapshot, explicit Ordinary for zero candidates, Selected for exactly one, typed rejection for many/drift, borrow disappearance before move, one consuming preflight-plus-infallible install, and no selected retry. They differ only on the external seam: compile_request Legacy arm versus build_module before prepare_module. The card recommends the Legacy arm because it preserves an exact-one production selector and leaves direct Builder callers unclassified."""
+latest_card = "preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27"
+latest_card_path = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
+latest_card_summary = """PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-prime-r1 accepts the compile_request Legacy arm as the sole whole-source producer consumer, explicit Ordinary for zero candidates, Selected for exactly one, typed rejection for many/drift, and a compiler-supplied typed alias snapshot. The active task map runs inventory, disconnected request/selection, same-allocation consuming activation, exact production ingress, outer receipt, outer Integer publication, real Stage-B progression proof, and proof retirement as five buildable umbrellas. The first row is PRELOOP-STAGEB-SOURCE-INVENTORY0-P0 with Builder and production caller both zero."""
+preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +638,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0"
+current_blocker_token = "PRELOOP-STAGEB-SOURCE-INVENTORY0-P0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

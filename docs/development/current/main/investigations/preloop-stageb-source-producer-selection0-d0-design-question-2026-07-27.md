@@ -1,7 +1,9 @@
 ---
-Status: design consultation
+Status: accepted design; execution task map issued
 Date: 2026-07-27
-Decision: PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0
+Decision: PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-prime-r1
+Closes:
+  - PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0
 Blocked by:
   - none
 Closes before this stop:
@@ -10,15 +12,59 @@ Closes before this stop:
   - PRELOOP-STAGEB-SOURCE-ACTIVATION0-S0
   - PRELOOP-STAGEB-FUNCTION-PREPARATION0-S0
 Next executable row:
-  - not selected until this D0 closes
+  - PRELOOP-STAGEB-SOURCE-INVENTORY0-P0
 Related:
   - preloop-stageb-carrier-handoff0-d0-design-question-2026-07-27.md
+  - preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md
   - src/mir/preloop_stageb_carrier/activation.rs
   - src/mir/builder/module_lifecycle.rs
   - src/mir/builder/calls/instance_method_draft_preparation.rs
 ---
 
 # Pre-loop Stage-B Source Producer Selection
+
+## Accepted closeout
+
+```text
+producer:
+  PreloopStageBWholeSourceProducerV1
+
+exact production seam:
+  MirCompiler::compile_request
+  / MirLoweringRequestV1::Legacy arm
+
+candidate zero:
+  explicit Ordinary product
+
+alias authority:
+  compiler-supplied typed using/import snapshot
+
+selected install:
+  activation plan
+    -> consuming module-activation preparation
+    -> fallible preflight
+    -> infallible catalog + alias install
+    -> stack-owned single-use function ledger
+
+first executable row:
+  PRELOOP-STAGEB-SOURCE-INVENTORY0-P0
+```
+
+Option A1 is accepted. Direct `MirBuilder::build_module` callers remain outside
+this bounded activation. Program(JSON v0), REPL compatibility, Raw publication,
+and public/CLI/environment selectors remain unchanged.
+
+The implementation task map is:
+
+```text
+docs/development/current/main/investigations/
+  preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md
+```
+
+One refinement is mandatory. The activation plan must not expose a general
+catalog/row tuple escape hatch. Its sole consuming terminal prepares the
+module activation directly, so the same-allocation catalog and owned row cannot
+be separated and reused by another caller.
 
 ## Why this is a real design stop
 
@@ -328,10 +374,10 @@ then commits catalog + activation ledger infallibly before declaration/body
 lowering. lower_root does not reseal.
 ```
 
-## Post-decision task series
+## Superseded provisional task series
 
-The exact names may be refined by the accepted answer, but the dependency
-order is fixed:
+The dependency order below led to the accepted task map. Execute the linked
+task map rather than treating this historical sketch as the live queue.
 
 ```text
 PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0-CLOSEOUT
@@ -375,6 +421,9 @@ fallback / retry
 ```
 
 ## Required answer
+
+This answer is now closed by
+`PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-prime-r1`.
 
 ```text
 Decision:
