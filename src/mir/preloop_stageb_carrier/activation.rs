@@ -103,6 +103,25 @@ pub(crate) struct OwnedPreloopStageBCarrierRowV1 {
     result: SealedPreloopOuterCarrierOwnedResultV1,
 }
 
+/// Owned source schedule retained while the nested-result witness is rebound
+/// into stack-local source products.
+#[derive(Debug)]
+pub(crate) struct PreparedPreloopStageBFunctionBodyRecipeV1 {
+    caller: CanonicalSameModuleCallableKeyV1,
+    body_handoff: PreloopStageBBodyHandoffV1,
+    outer_call_site: SourceExprSiteV1,
+    selected_argument_index: u32,
+    inner_call_site: SourceExprSiteV1,
+    outer_target: CanonicalSameModuleCallableKeyV1,
+    result: SealedPreloopOuterCarrierOwnedResultV1,
+}
+
+#[derive(Debug)]
+pub(super) struct PreparedPreloopStageBFunctionIngressSourcePartsV1 {
+    pub(super) nested_result_rebind: OwnedNestedInstanceResultRebindWitnessV1,
+    pub(super) recipe: PreparedPreloopStageBFunctionBodyRecipeV1,
+}
+
 impl OwnedPreloopStageBCarrierRowV1 {
     pub(crate) const fn caller(&self) -> &CanonicalSameModuleCallableKeyV1 {
         &self.caller
@@ -126,6 +145,53 @@ impl OwnedPreloopStageBCarrierRowV1 {
 
     pub(crate) const fn nested_result_rebind(&self) -> &OwnedNestedInstanceResultRebindWitnessV1 {
         &self.nested_result_rebind
+    }
+
+    pub(crate) const fn outer_target(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.outer_target
+    }
+
+    pub(crate) const fn result(&self) -> &SealedPreloopOuterCarrierOwnedResultV1 {
+        &self.result
+    }
+
+    pub(super) fn into_function_ingress_parts(
+        self,
+    ) -> PreparedPreloopStageBFunctionIngressSourcePartsV1 {
+        PreparedPreloopStageBFunctionIngressSourcePartsV1 {
+            nested_result_rebind: self.nested_result_rebind,
+            recipe: PreparedPreloopStageBFunctionBodyRecipeV1 {
+                caller: self.caller,
+                body_handoff: self.body_handoff,
+                outer_call_site: self.outer_call_site,
+                selected_argument_index: self.selected_argument_index,
+                inner_call_site: self.inner_call_site,
+                outer_target: self.outer_target,
+                result: self.result,
+            },
+        }
+    }
+}
+
+impl PreparedPreloopStageBFunctionBodyRecipeV1 {
+    pub(crate) const fn caller(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.caller
+    }
+
+    pub(crate) const fn body_handoff(&self) -> &PreloopStageBBodyHandoffV1 {
+        &self.body_handoff
+    }
+
+    pub(crate) const fn outer_call_site(&self) -> &SourceExprSiteV1 {
+        &self.outer_call_site
+    }
+
+    pub(crate) const fn selected_argument_index(&self) -> u32 {
+        self.selected_argument_index
+    }
+
+    pub(crate) const fn inner_call_site(&self) -> &SourceExprSiteV1 {
+        &self.inner_call_site
     }
 
     pub(crate) const fn outer_target(&self) -> &CanonicalSameModuleCallableKeyV1 {

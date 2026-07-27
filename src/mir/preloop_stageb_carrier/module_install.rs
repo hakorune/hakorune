@@ -102,6 +102,15 @@ impl PreparedPreloopStageBActivationLedgerPartsV1 {
     pub(in crate::mir) fn row(&self) -> &OwnedPreloopStageBCarrierRowV1 {
         &self.row
     }
+
+    pub(in crate::mir) fn prepare_function_ingress(
+        self,
+    ) -> super::function_ingress::PreparedPreloopStageBFunctionIngressV1 {
+        super::function_ingress::PreparedPreloopStageBFunctionIngressV1::new(
+            self.context.into_catalog(),
+            self.row,
+        )
+    }
 }
 
 #[derive(Debug)]

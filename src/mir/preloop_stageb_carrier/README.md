@@ -15,6 +15,9 @@ Owned here:
   Integer result disposition;
 - one plan that shares the exact declaration-catalog `Arc` allocation with
   the selected Builder lane and stack-owned activation ledger;
+- one consuming function-ingress recipe issued only from the installed ledger
+  parts; it reconstructs the existing located products inside an HRTB callback
+  and prevents every borrowed source owner from escaping;
 - one disconnected complete candidate inventory that consumes the neutral
   whole-source call/target inventory and composes only existing result,
   nested-instance, located-argument, outer-carrier, and owned-row authorities;
@@ -29,7 +32,7 @@ Not owned here:
 - source navigation or AST re-walk;
 - general callable-result solving;
 - Builder, `ValueId`, `MirType`, or `TypeContext`;
-- function activation, Call emission, assignment, or publication;
+- function lowering, Call emission, assignment, or publication;
 - compiler request ownership, production function selection, or module install;
 - fallback, retry, or route reselection.
 
@@ -45,6 +48,10 @@ VerifiedStaticExactI64RequirementV1
      - OwnedNestedInstanceResultRebindWitnessV1
   + exact Arc<VerifiedSameModuleCallableDeclarationCatalogV1>
   -> VerifiedPreloopStageBCarrierActivationPlanV1
+  -> PreparedPreloopStageBActivationLedgerPartsV1
+  -> PreparedPreloopStageBFunctionIngressV1
+  -> with_prepared_located_argument(...)
+  -> existing PreparedPreloopLocatedArgumentV1
 ```
 
 `inventory_preloop_stageb_candidates_v1()` is the sole A2 composition entry.
@@ -61,3 +68,9 @@ contains only the already-paired activation plan.
 The first profile requires the exact structural argument ordinal `1` and the
 exact static requirement set `[1]`. A broader required-argument solver belongs
 to a separate decision.
+
+The function-ingress terminal borrows only its external catalog `Arc`. It uses
+the existing source-view/path factories, consumes the owned nested-result
+rebind witness, and loans the existing located-argument owner to one
+lifetime-independent callback. It never reads `Builder::comp_ctx`, converts to
+RawLegacy input, changes the activation ledger, or performs lowering.

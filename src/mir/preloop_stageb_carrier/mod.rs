@@ -4,6 +4,7 @@
 
 mod activation;
 mod candidate_selection;
+mod function_ingress;
 mod module_install;
 mod outer_result;
 mod rejection;
@@ -13,7 +14,7 @@ mod source_inventory_error;
 #[allow(unused_imports)]
 pub(crate) use activation::{
     prepare_preloop_stageb_carrier_rows_v1, OwnedPreloopStageBCarrierRowV1,
-    VerifiedPreloopStageBCarrierActivationPlanV1,
+    PreparedPreloopStageBFunctionBodyRecipeV1, VerifiedPreloopStageBCarrierActivationPlanV1,
 };
 #[allow(unused_imports)]
 pub(crate) use candidate_selection::{
@@ -21,6 +22,11 @@ pub(crate) use candidate_selection::{
     RejectedPreloopStageBCandidateSelectionV1, VerifiedPreloopStageBAmbiguousCandidatesV1,
     VerifiedPreloopStageBCandidateSelectionV1, VerifiedPreloopStageBNoCandidateV1,
     VerifiedPreloopStageBSelectedCandidateV1,
+};
+#[allow(unused_imports)]
+pub(crate) use function_ingress::{
+    PreloopStageBFunctionIngressCauseV1, PreloopStageBFunctionIngressStageV1,
+    PreparedPreloopStageBFunctionIngressV1, RejectedPreloopStageBFunctionIngressV1,
 };
 #[allow(unused_imports)]
 pub(in crate::mir) use module_install::{
@@ -48,6 +54,8 @@ pub(crate) use source_inventory_error::{
     PreloopStageBSourceInventoryStageV1,
 };
 
+#[cfg(test)]
+mod function_ingress_tests;
 #[cfg(test)]
 mod source_inventory_tests;
 #[cfg(test)]

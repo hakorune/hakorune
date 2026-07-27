@@ -1,6 +1,6 @@
 # PRELOOP-STAGEB-OWNED-LOCATED-AUTHORITY0-prime-r1
 
-Status: accepted decision; R1-R2 closed; R3 active
+Status: accepted decision; R1-R3 closed; R4 active
 Date: 2026-07-27
 
 ## Decision
@@ -131,15 +131,20 @@ The physical function transaction uses:
 
 ```text
 capture_legacy_function_pending_session_v1
-build_instance_method_draft_with_port_v1
+existing instance-method preparation / StepTree guard
+bounded prefix / selected / suffix body driver
+existing PreloopLocatedArgumentPortV1 at the selected assignment only
 existing current-module header lookup
 existing draft finalization
 existing legacy function publication
 ```
 
-It does not use `RawInvocationChildPortV1`, because that owner requires a
-module collector/invocation lifecycle that the selected Legacy root does not
-own.
+It does not call the current whole-body
+`build_instance_method_draft_with_port_v1`: that sibling fixes
+`ExpressionInput = ASTNode`, and its statement/body descent delegates directly
+to the ordinary Port. It also does not use `RawInvocationChildPortV1`, because
+that owner requires a module collector/invocation lifecycle that the selected
+Legacy root does not own.
 
 The root loop only issues an exact canonical-key observation to the stack
 ledger. No Builder field, source-site map, name-selected policy, retry, or
@@ -225,6 +230,8 @@ activation row retention                         = 1
 
 ### R3 — `PRELOOP-STAGEB-FUNCTION-INGRESS-RECIPE0-S0`
 
+Status: closed
+
 Implement:
 
 ```text
@@ -237,15 +244,43 @@ existing PreparedPreloopLocatedArgumentV1 construction
 The prepared borrowed owner lives only inside the execution terminal while
 the external catalog `Arc` remains alive. It never borrows from Builder.
 
+Landed evidence:
+
+```text
+sole recipe producer                              = installed ledger parts
+owned authority                                   = shared Arc + exact row
+source descent                                    = existing factories only
+owned nested result                               = exact rebind terminal
+borrowed located owner                            = HRTB callback-local
+Builder / RawLegacy / new Port / ledger delta     = 0
+production caller / Call receipt / type write     = 0
+```
+
 ### R4 — `PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0`
 
-Add one Builder-owned selected instance-function session sibling using the
-existing pending-session, port-aware body, finalizer, and legacy publication
-authorities.
+Add one Builder-owned selected instance-function session sibling. Reuse the
+existing function preparation, StepTree guard, configured function context,
+finalizer, and unpublished pending-session authorities, but execute the
+already-sealed body schedule explicitly:
+
+```text
+prefix statements   -> ordinary Raw descent
+selected assignment -> existing PreloopLocatedArgumentPortV1
+suffix statements   -> ordinary Raw descent
+```
+
+The current whole-body `build_instance_method_draft_with_port_v1` is not the
+consumer: its trait fixes `ExpressionInput = ASTNode`, and its body/statement
+descent delegates to the ordinary Port. R4 therefore adds one thin bounded
+body driver plus a generic selected-session payload/error sibling over the
+same function session. It does not add a second general function compiler.
 
 ```text
 new function compiler                            = 0
 new module collector                             = 0
+second whole-body dispatcher                     = 0
+prefix/suffix ordinary descent                   = 1
+selected statement located Port consumer         = 1
 RawLegacy conversion                             = 0
 selected failure -> ordinary retry               = 0
 ```

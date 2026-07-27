@@ -14,7 +14,7 @@ pub(crate) use contract::{
 pub(crate) use owned_rebind::{
     rebind_nested_instance_result_contract_v1, NestedInstanceResultRebindErrorV1,
     NestedInstanceResultRebindStageV1, OwnedNestedInstanceResultRebindWitnessV1,
-    RejectedNestedInstanceResultRebindV1,
+    RejectedNestedInstanceResultRebindV1, RetainedNestedInstanceResultRebindAuthorityV1,
 };
 pub(crate) use preloop_association::{
     prepare_preloop_nested_result_association_v1, PreloopNestedResultAssociationErrorV1,

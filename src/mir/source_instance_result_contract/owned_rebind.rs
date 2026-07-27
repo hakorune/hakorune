@@ -57,6 +57,15 @@ pub(crate) struct RejectedNestedInstanceResultRebindV1<'site, 'catalog> {
     cause: NestedInstanceResultRebindErrorV1,
 }
 
+/// Terminal owner retained after a failed source reconstruction.
+///
+/// It deliberately exposes no witness recovery or rebind terminal. Higher
+/// layers may retain and discard it, but cannot retry the rejected authority.
+#[derive(Debug)]
+pub(crate) struct RetainedNestedInstanceResultRebindAuthorityV1 {
+    witness: OwnedNestedInstanceResultRebindWitnessV1,
+}
+
 impl<'site, 'catalog> SealedNestedInstanceResultContractV1<'site, 'catalog> {
     pub(crate) fn into_owned_rebind_witness(self) -> OwnedNestedInstanceResultRebindWitnessV1 {
         let target = self.into_rebind_target();
@@ -95,6 +104,22 @@ impl<'site, 'catalog> RejectedNestedInstanceResultRebindV1<'site, 'catalog> {
 
     pub(crate) fn discard(self) {
         let _ = (self.witness, self.call);
+    }
+
+    pub(crate) fn into_retained_authority(self) -> RetainedNestedInstanceResultRebindAuthorityV1 {
+        RetainedNestedInstanceResultRebindAuthorityV1 {
+            witness: self.witness,
+        }
+    }
+}
+
+impl RetainedNestedInstanceResultRebindAuthorityV1 {
+    pub(crate) fn discard(self) {
+        let _ = self.witness;
+    }
+
+    pub(super) fn from_witness(witness: OwnedNestedInstanceResultRebindWitnessV1) -> Self {
+        Self { witness }
     }
 }
 

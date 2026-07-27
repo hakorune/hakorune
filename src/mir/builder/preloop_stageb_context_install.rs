@@ -134,6 +134,12 @@ impl InstalledPreloopStageBContextV1 {
     pub(in crate::mir) fn catalog(&self) -> &Arc<VerifiedSameModuleCallableDeclarationCatalogV1> {
         &self.catalog
     }
+
+    pub(in crate::mir) fn into_catalog(
+        self,
+    ) -> Arc<VerifiedSameModuleCallableDeclarationCatalogV1> {
+        self.catalog
+    }
 }
 
 #[cfg(test)]

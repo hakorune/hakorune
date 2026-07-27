@@ -9,7 +9,10 @@ use std::ptr;
 
 use crate::mir::source_call_target::VerifiedRawLocatedCallArgumentV1;
 
-use super::{OwnedNestedInstanceResultRebindWitnessV1, PreparedPreloopNestedResultAssociationV1};
+use super::{
+    OwnedNestedInstanceResultRebindWitnessV1, PreparedPreloopNestedResultAssociationV1,
+    RetainedNestedInstanceResultRebindAuthorityV1,
+};
 
 #[derive(Debug)]
 pub(crate) struct PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog> {
@@ -124,6 +127,14 @@ impl<'site, 'view, 'catalog> RejectedPreloopLocatedArgumentV1<'site, 'view, 'cat
     }
 
     pub(crate) fn discard(self) {}
+
+    pub(crate) fn into_retained_rebind_authority(
+        self,
+    ) -> RetainedNestedInstanceResultRebindAuthorityV1 {
+        RetainedNestedInstanceResultRebindAuthorityV1::from_witness(
+            self.association.into_owned_rebind_witness(),
+        )
+    }
 }
 
 fn reject<'site, 'view, 'catalog>(
