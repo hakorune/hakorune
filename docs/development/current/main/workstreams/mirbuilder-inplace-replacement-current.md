@@ -48,15 +48,13 @@ authorityを一つ減らす場合だけ選択する。
 ## Current front
 
 ```text
-MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT
+BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0
 ```
 
-第六cellのReturn source partitionはclosed。value-bearing generic ownerと
-exact Void leafが本番selectorを分有し、旧Option/raw facadesは物理削除済み。
-第七production edgeは未選択。Binaryの一つのsource selector/dead
-predecessor chainを一cellで数えるか、Ordinary/ShortCircuitの二semantic
-ownerへ分けるかをD0で決める前に、二つの固定rootを四つの`find | wc`値で
-測る最小ratchetを一commitで閉じる。大型checkerや意味分類台帳は作らない。
+最小structural ratchetはclosed。第七cellは、一つのraw/default
+`ASTNode::BinaryOp` source partitionから二つの既存semantic ownerへ入る
+Option Aで固定した。live selectorは維持し、共有Legacy selectorと二つのraw
+facadeを一つのatomic I0/R0で削除する。
 
 ## First three replacements
 
@@ -140,11 +138,11 @@ Keep only these counters current:
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 6
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = 1 blocked
+accepted_next_responsibility       = 1 active
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
-structural_budget_status           = accepted minimal ratchet task
+structural_budget_status           = closed minimal ratchet
 source_files_ceiling               = 952
 source_LOC_ceiling                 = 182452
 test_files_ceiling                 = 139
@@ -156,27 +154,6 @@ result metrics that fail on growth; five-cell production Rust LOC also remains
 non-positive.
 
 ## Active replacement cell
-
-```text
-none
-```
-
-## Active policy task
-
-```text
-MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT
-
-one commit:
-  four find/wc measurements
-  one TSV ceiling row
-  one shared-guard comparison
-
-production source edit         = 0
-seventh replacement row        = 0
-Binary Option A                = accepted next, blocked
-```
-
-## Accepted next replacement
 
 ```text
 BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0
@@ -194,11 +171,10 @@ atomic delete set:
   drive_raw_short_circuit_expression_v1
 
 activation:
-  only after MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT
+  active; minimal structural ratchet closed
 ```
 
-No Binary source edit or seventh manifest row is authorized while the ratchet
-task remains active.
+The seventh manifest row belongs to the same atomic Binary closeout commit.
 
 ## Post-Binary boundary
 

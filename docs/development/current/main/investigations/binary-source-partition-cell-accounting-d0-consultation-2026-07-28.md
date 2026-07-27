@@ -1,5 +1,5 @@
 ---
-Status: accepted next execution task; blocked on minimal structural ratchet
+Status: active execution task; structural-ratchet prerequisite closed
 Date: 2026-07-28
 Decision: BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0; Option A accepted
 Responsibility: raw/default ASTNode::BinaryOp operator-family source partition
@@ -29,9 +29,9 @@ two disjoint semantic owners
 one atomic obsolete predecessor chain
 ```
 
-This decision does not activate source edits or a seventh manifest row.
-Execution remains blocked until the minimal four-metric structural ratchet is
-closed.
+The minimal four-metric structural ratchet is closed. This task now authorizes
+one atomic Binary I0/R0 implementation; the seventh manifest row is added only
+as part of that closeout.
 
 ## Why this consultation exists
 
@@ -48,19 +48,19 @@ The code deletion is mechanically bounded. This consultation originally asked
 whether the replacement manifest should credit the source partition as one
 cell or credit Ordinary Binary and ShortCircuit as separate semantic cells.
 
-The accounting question is now resolved. No Binary source, test, guard, or
-manifest row may change until the structural-ratchet prerequisite closes.
+The accounting question and structural-ratchet prerequisite are both resolved.
+Binary source, proof, guard, and manifest edits are now authorized only within
+the atomic execution contract below.
 
-Execution of the accepted accounting decision is blocked by:
+The prerequisite was closed by:
 
 ```text
 docs/development/current/main/investigations/
 mirbuilder-structural-budget-d0-consultation-2026-07-28.md
 ```
 
-Binary execution activates immediately after the minimal four-metric ratchet
-is installed. Structural size is a result metric and did not decide the
-semantic cell-accounting answer.
+Binary execution is active. Structural size is a result metric and did not
+decide the semantic cell-accounting answer.
 
 Execution authority for that prerequisite:
 

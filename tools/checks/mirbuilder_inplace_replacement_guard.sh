@@ -6,6 +6,7 @@ TAG="mirbuilder-inplace-replacement-guard"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 MANIFEST="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-inplace-replacement-v1.tsv"
+STRUCTURAL_RATCHET="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-structural-ratchet.tsv"
 LOWERING="$ROOT_DIR/src/mir/builder/calls/lowering.rs"
 PORT_OWNER="$ROOT_DIR/src/mir/builder/port_aware_function_draft_impl.rs"
 MODULE_LIFECYCLE="$ROOT_DIR/src/mir/builder/module_lifecycle.rs"
@@ -29,11 +30,14 @@ LOCATED_RETURN="$ROOT_DIR/src/mir/builder/located_legacy_return.rs"
 RETURN_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_return.py"
 
 guard_require_command "$TAG" awk
+guard_require_command "$TAG" find
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
+guard_require_command "$TAG" xargs
 guard_require_files \
   "$TAG" \
   "$MANIFEST" \
+  "$STRUCTURAL_RATCHET" \
   "$LOWERING" \
   "$PORT_OWNER" \
   "$MODULE_LIFECYCLE" \
@@ -72,6 +76,46 @@ if ! awk -F '\t' '
 ' "$MANIFEST"; then
   guard_fail "$TAG" "manifest row contract failed"
 fi
+
+ratchet_header=$'source_files\tsource_loc\ttest_files\ttest_loc'
+if [[ "$(head -n1 "$STRUCTURAL_RATCHET")" != "$ratchet_header" ]] ||
+   [[ "$(wc -l < "$STRUCTURAL_RATCHET" | tr -d '[:space:]')" != "2" ]]; then
+  guard_fail "$TAG" "structural ratchet must contain one ceiling row"
+fi
+read -r source_files_ceiling source_loc_ceiling test_files_ceiling test_loc_ceiling \
+  < <(tail -n1 "$STRUCTURAL_RATCHET")
+if [[ ! "$source_files_ceiling" =~ ^[0-9]+$ ]] ||
+   [[ ! "$source_loc_ceiling" =~ ^[0-9]+$ ]] ||
+   [[ ! "$test_files_ceiling" =~ ^[0-9]+$ ]] ||
+   [[ ! "$test_loc_ceiling" =~ ^[0-9]+$ ]]; then
+  guard_fail "$TAG" "structural ratchet ceiling row must be numeric"
+fi
+
+builder_roots=(
+  "$ROOT_DIR/src/mir/builder"
+  "$ROOT_DIR/crates/hakorune_mir_builder"
+)
+source_files="$(find "${builder_roots[@]}" -type f -name '*.rs' ! -name '*test*.rs' -print | wc -l)"
+source_loc="$(
+  find "${builder_roots[@]}" -type f -name '*.rs' ! -name '*test*.rs' -print0 \
+    | xargs -0 wc -l | tail -n1 | awk '{ print $1 }'
+)"
+test_files="$(find "${builder_roots[@]}" -type f -name '*test*.rs' -print | wc -l)"
+test_loc="$(
+  find "${builder_roots[@]}" -type f -name '*test*.rs' -print0 \
+    | xargs -0 wc -l | tail -n1 | awk '{ print $1 }'
+)"
+
+while read -r label measured ceiling; do
+  if (( measured > ceiling )); then
+    guard_fail "$TAG" "structural ratchet exceeded: $label=$measured ceiling=$ceiling"
+  fi
+done <<EOF
+source_files $source_files $source_files_ceiling
+source_loc $source_loc $source_loc_ceiling
+test_files $test_files $test_files_ceiling
+test_loc $test_loc $test_loc_ceiling
+EOF
 
 current_row_count="$(awk -F '\t' '
   $1 == "cell" &&

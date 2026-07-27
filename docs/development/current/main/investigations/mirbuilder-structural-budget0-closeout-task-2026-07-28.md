@@ -1,5 +1,5 @@
 ---
-Status: accepted execution task
+Status: closed
 Date: 2026-07-28
 Decision: MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT
 Ceremony: policy housekeeping; not a production replacement cell
@@ -14,6 +14,27 @@ Workstream:
 ---
 
 # MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT
+
+## Closeout
+
+Landed evidence:
+
+```text
+source_files = 952
+source_loc   = 182452
+test_files   = 139
+test_loc     = 40826
+
+ratchet rows              = 1
+measured roots            = 2
+new checker executables   = 0
+new per-cell guards       = 0
+production Rust edits     = 0
+seventh replacement rows  = 0
+shared guard              = green
+```
+
+The accepted Binary Option A task is now active.
 
 ## Decision
 

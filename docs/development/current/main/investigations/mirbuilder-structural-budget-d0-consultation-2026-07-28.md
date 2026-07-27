@@ -1,5 +1,5 @@
 ---
-Status: resolved
+Status: closed
 Date: 2026-07-28
 Decision: minimal four-metric ratchet
 Scope: prevent MirBuilder source/test footprint growth without creating a planning subsystem
@@ -114,6 +114,6 @@ docs/development/current/main/investigations/
 mirbuilder-structural-budget0-closeout-task-2026-07-28.md
 ```
 
-After the minimal ratchet lands, activate the accepted Binary Option A
-execution task immediately. The Binary accounting decision is already
-accepted; no seventh row is created in the budget task.
+The minimal ratchet is landed and the accepted Binary Option A execution task
+is active. The Binary accounting decision was already accepted; no seventh row
+was created in the budget task.

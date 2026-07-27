@@ -428,7 +428,7 @@ binary-source-partition-cell-accounting-d0-consultation-2026-07-28.md
 
 The consultation selects Option A but does not yet add a manifest row. Binary
 has one live source selector, two disjoint semantic owners, and one dead
-predecessor chain. Execution remains blocked by the structural ratchet.
+predecessor chain. The structural ratchet is closed and execution is active.
 
 ## Structural footprint ratchet
 
@@ -468,8 +468,7 @@ activates immediately.
 
 ### `BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0`
 
-Status: accepted next; blocked on
-`MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT`.
+Status: active; `MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT` is closed.
 
 Execution authority:
 
@@ -495,8 +494,8 @@ The source partition is total and pairwise-disjoint. Each semantic owner keeps
 its own parity, failure, reuse, and child-demand proof. The cell does not claim
 shared semantics and neither owner may be credited again later.
 
-No seventh manifest row or Binary source edit is added before the structural
-ratchet closes.
+The structural ratchet is closed. The seventh manifest row and Binary source
+edits now land together in the atomic implementation closeout.
 
 ## Post-Binary selection boundary
 

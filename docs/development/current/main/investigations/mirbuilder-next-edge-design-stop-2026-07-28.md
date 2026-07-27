@@ -1,5 +1,5 @@
 ---
-Status: resolved seventh selection; execution blocked on structural ratchet
+Status: resolved seventh selection; Binary execution active
 Date: 2026-07-28
 Decision: BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0; Option A
 Scope: select the next exact production edge after six closed cutovers
@@ -149,7 +149,7 @@ predecessor chain, while Ordinary Binary and ShortCircuit retain distinct
 semantic owners and parity suites. Option A is accepted as one source-partition
 cell; it does not claim shared semantics or allow later double credit.
 
-Before execution, the minimal footprint ratchet must be installed:
+The minimal footprint ratchet is now installed:
 
 ```text
 docs/development/current/main/investigations/
@@ -158,7 +158,7 @@ mirbuilder-structural-budget-d0-consultation-2026-07-28.md
 
 The structural D0 measures source/test files and LOC under the two fixed
 MirBuilder roots. It adds no checker subsystem or final-X authority. The
-accepted Binary task activates immediately after the one-row ratchet lands.
+accepted Binary task is now active.
 
 ## Minimum implementation slice after decision
 
