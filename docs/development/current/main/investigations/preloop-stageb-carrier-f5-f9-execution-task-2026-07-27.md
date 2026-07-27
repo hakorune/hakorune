@@ -11,7 +11,7 @@ preloop-stageb-instance-function-session-reconciliation0-prime-r1
 Current row:
 
 ```text
-PRELOOP-OUTER-CARRIER-TYPE-I0-S0
+PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0
 ```
 
 ## Closed prerequisites
@@ -282,6 +282,26 @@ Buildable cells:
 F5-C1 prepared/complete publication typestates
 F5-C2 assignment transaction connection
 F5-C3 focused fact matrix and structural guard
+```
+
+Landed evidence:
+
+```text
+outer publication prepared/completed/rejected owner = 1 each
+outer publication terminal                           = 1
+TypeFactDecisionV1 policy call                       = 1
+TypeContext::set_type writer                         = 1 Publish branch only
+
+None / Unknown -> Publish(Integer)
+Integer        -> Idempotent with physical write zero
+Bool conflict  -> existing fact and complete carrier retained
+conflict -> fresh configured fixture success
+
+inner destination sentinel remains unchanged
+inner receipt/destination import in publisher = 0
+direct value_types insert                      = 0
+GenericLoop producer                           = 0
+suffix / function session / production caller = 0
 ```
 
 ## F6 — selected instance-function session

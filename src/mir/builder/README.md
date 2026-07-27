@@ -133,6 +133,12 @@ reach into route-specific plan internals. The current boundary SSOT is
     that assignment receipt. It requires the source-sealed target and exact
     `outer destination == RHS == returned carrier` correspondence; every
     failure retains both owners and publishes no type fact.
+  - `calls/preloop_outer_carrier_type.rs` consumes only that completed
+    assignment carrier. It reuses the monotone `TypeFactDecisionV1`, commits
+    only `Publish(Integer)` through `TypeContext::set_type`, treats an existing
+    Integer as a physical no-op, and retains the complete carrier on conflict.
+    Inner destinations, direct fact-map writes, and GenericLoop publication
+    remain structurally unavailable.
   - `calls/method_call_terminal.rs` owns one source-neutral receipt-required
     static/global sibling. It shares `PreparedGlobalValueCallRequestV1` with
     the ordinary terminal and delegates to the existing generic physical Call

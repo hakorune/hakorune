@@ -78,7 +78,7 @@ def main() -> None:
     require_count(
         terminal,
         "MethodCallDescentPortV1",
-        2,
+        3,
         "associated-input terminal inheritance",
     )
 
@@ -361,6 +361,12 @@ def main() -> None:
     nested_type_p0 = read(
         root, "src/mir/builder/calls/preloop_nested_result_type_p0_tests.rs"
     )
+    outer_type = read(
+        root, "src/mir/builder/calls/preloop_outer_carrier_type.rs"
+    )
+    outer_type_tests = read(
+        root, "src/mir/builder/calls/preloop_outer_carrier_type_tests.rs"
+    )
     require_definition_count(
         terminal,
         "emit_standard_value_terminal_with_receipt_v1",
@@ -370,8 +376,8 @@ def main() -> None:
     require_count(
         terminal_code,
         "UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(",
-        1,
-        "REP0 sole generic physical receipt writer",
+        2,
+        "REP0/F4 source-neutral physical receipt consumers",
     )
     for forbidden in (
         "PreparedPreloop",
@@ -462,6 +468,63 @@ def main() -> None:
         if evidence not in nested_type_p0:
             fail(f"missing TYPE-I0 production-prefix evidence: {evidence}")
 
+    # F5-C keeps the outer assignment carrier separate from the historical
+    # inner-result publisher. Only the existing monotone decision and one
+    # success-only set_type commit are allowed in this owner.
+    outer_type_code = rust_code(outer_type)
+    for name in (
+        "PreparedPreloopOuterCarrierIntegerPublicationV1",
+        "CompletedPreloopOuterCarrierIntegerPublicationV1",
+        "RejectedPreloopOuterCarrierIntegerPublicationV1",
+    ):
+        require_count(outer_type, f"struct {name}", 1, f"outer TYPE-I0 owner {name}")
+    require_definition_count(
+        outer_type,
+        "publish_preloop_outer_carrier_integer_v1",
+        1,
+        "outer TYPE-I0 sole terminal",
+    )
+    require_count(
+        outer_type_code,
+        "TypeFactDecisionV1::prepare(",
+        1,
+        "outer TYPE-I0 sole fact decision",
+    )
+    require_count(
+        outer_type_code,
+        "type_ctx.set_type(",
+        1,
+        "outer TYPE-I0 sole fact writer",
+    )
+    require_count(
+        production,
+        "publish_preloop_outer_carrier_integer_v1(",
+        0,
+        "outer TYPE-I0 production caller zero",
+    )
+    for forbidden in (
+        "inner_destination",
+        "EmittedNestedInstanceCallV1",
+        "ReachedPreloopNestedPhysicalCallV1",
+        "MirInstruction",
+        "emit_unified_call",
+        "ASTNode",
+        "SourceExprSiteV1",
+        "GenericLoop",
+        "value_types",
+        "retry",
+        "fallback",
+    ):
+        if forbidden in outer_type_code:
+            fail(f"outer TYPE-I0 owner owns forbidden authority: {forbidden}")
+    for evidence in (
+        "missing_outer_fact_publishes_integer_without_touching_inner_destination",
+        "unknown_publishes_and_existing_integer_is_idempotent",
+        "concrete_conflict_preserves_fact_and_fresh_fixture_succeeds",
+    ):
+        if evidence not in outer_type_tests:
+            fail(f"missing outer TYPE-I0 evidence: {evidence}")
+
     for phrase in (
         "disconnected V0 value-only terminal port",
         "Route selection, syntax preflight, and child descent must finish",
@@ -491,6 +554,8 @@ def main() -> None:
         "src/mir/builder/calls/preloop_nested_result_type.rs",
         "src/mir/builder/calls/preloop_nested_result_type_tests.rs",
         "src/mir/builder/calls/preloop_nested_result_type_p0_tests.rs",
+        "src/mir/builder/calls/preloop_outer_carrier_type.rs",
+        "src/mir/builder/calls/preloop_outer_carrier_type_tests.rs",
         "src/mir/builder/calls/preloop_nested_result_test_support.rs",
         "src/mir/builder/calls/preloop_located_argument_ingress_tests.rs",
         "src/mir/builder/calls/preloop_located_argument_ingress_p0_tests.rs",

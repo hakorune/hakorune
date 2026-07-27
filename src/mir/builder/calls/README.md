@@ -40,6 +40,13 @@ source association. It keeps both until the containing outer call succeeds,
 then emits a destination-only nested result receipt. It owns no type-fact
 publication, MIR scan, persistent source map, retry, or loop-refresh policy.
 
+`preloop_outer_carrier_type.rs` is the separate outer-result publication
+owner. It accepts only the completed assignment carrier, delegates conflict
+policy to `TypeFactDecisionV1`, and writes through `TypeContext::set_type` only
+for `Publish`. The module cannot observe the inner receipt/destination, source
+syntax, Call emission, or GenericLoop; both success and conflict retain the
+complete outer assignment carrier.
+
 `preloop_located_argument_port.rs` is the disconnected candidate-only wrapper
 for one source-sealed pre-loop argument. It delegates every ordinary trait
 capability to the wrapped `MethodCallLoweringPortV1` and leaves the selected

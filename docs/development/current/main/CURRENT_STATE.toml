@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-OUTER-CARRIER-ASSIGNMENT0-S0/P0 is closed. One source-neutral completion sibling delegates exactly once to the existing build_assignment_from_value authority and retains target, RHS, and returned carrier without post-hoc variable_map inference. The pre-loop co-seal retains the complete outer carrier and requires the source-sealed target plus outer destination == assignment RHS == returned carrier. Assignment failure and every correspondence drift retain both owners; type publication, suffix descent, production connection, retry, and fallback remain zero. The active row is PRELOOP-OUTER-CARRIER-TYPE-I0-S0."
+status = "PRELOOP-OUTER-CARRIER-TYPE-I0-S0/I0/P0/G0 is closed. One outer-only publication owner consumes the completed assignment carrier, delegates exactly once to TypeFactDecisionV1, and commits only Publish(Integer) through TypeContext::set_type. None/Unknown publish, matching Integer is an idempotent physical no-op, and concrete conflict preserves the prior fact plus the complete carrier. The owner cannot observe the inner destination, source syntax, Call emission, or GenericLoop. Suffix descent, function completion, activation ledger, production connection, retry, and fallback remain zero. The active row is PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "PRELOOP-OUTER-CARRIER-TYPE-I0-S0"
-current_execution_summary = "Consume CompletedPreloopCarrierAssignmentV1 with the existing TypeFactDecisionV1 policy. None/Unknown prepares one Integer publication, existing Integer is idempotent without a physical write, and every other concrete fact is a typed conflict that preserves the prior fact and complete carrier. Only the private success commit may call TypeContext::set_type. Do not write value_types directly, publish the inner destination, descend the suffix, activate production, retry, or fallback."
+current_execution_row = "PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0"
+current_execution_summary = "Connect the one bounded selected instance-function body schedule: ordinary prefix, exact selected located outer Call, exact assignment, success-only outer Integer publication, ordinary suffix, existing finalizer, and the existing generic payload-preserving pending function session. Suffix descent may begin only after the completed F5-C owner exists. Every failure retains the source recipe and strongest completed F5 evidence. Do not retry ordinary lowering, activate the function ledger or compile_request consumer, publish a module, or widen the selected source family."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -638,7 +638,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-OUTER-CARRIER-TYPE-I0-S0"
+current_blocker_token = "PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

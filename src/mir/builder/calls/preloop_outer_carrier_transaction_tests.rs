@@ -20,7 +20,7 @@ use super::preloop_outer_carrier_transaction::{
 };
 use crate::mir::builder::stmts::build_variable_assignment_with_completion_v1;
 
-fn with_actual_outer_physical<R>(
+pub(super) fn with_actual_outer_physical<R>(
     f: impl for<'site, 'view, 'catalog> FnOnce(
         &mut crate::mir::builder::MirBuilder,
         CompletedPreloopLocatedOuterRequestV1<'site, 'view, 'catalog>,
@@ -211,6 +211,12 @@ fn assignment_failure_retains_the_carrier_and_fresh_fixture_succeeds() {
         with_actual_outer_physical(|builder, physical, recipe| {
             let carrier = complete_preloop_outer_carrier_call_v1(physical, recipe)
                 .expect("exact outer carrier");
+            let destination = carrier.outer_destination();
+            let existing = builder
+                .function_state
+                .type_ctx
+                .get_type(destination)
+                .cloned();
             builder
                 .function_state
                 .variable_ctx
@@ -227,6 +233,11 @@ fn assignment_failure_retains_the_carrier_and_fresh_fixture_succeeds() {
                 PreloopCarrierAssignmentErrorV1::AssignmentFailed
             );
             assert!(rejected.bounded_report().contains("target=pos"));
+            assert_eq!(
+                builder.function_state.type_ctx.get_type(destination),
+                existing.as_ref(),
+                "assignment failure must not publish an outer carrier fact"
+            );
             rejected.discard();
         });
 
