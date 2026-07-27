@@ -643,6 +643,35 @@ The next row is `CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-I0`. It may add only
 the consuming commit terminal: `Publish` calls the existing
 `TypeContext::set_type`, while `Idempotent` performs no physical write.
 
+### TYPE-I0-I0 closeout
+
+`CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-I0` is closed.
+
+The sole terminal keeps the fact read, existing `TypeFactDecisionV1`
+preparation, and consuming commit adjacent:
+
+```text
+emitted receipt
+  + TypeContext::get_type(final_destination)
+  -> prepared publication
+  -> Publish only: TypeContext::set_type(final_destination, Integer)
+  -> Idempotent: physical write 0
+```
+
+The prepared commit is private to the type owner. Callers cannot retain it
+across another fact-store mutation, recover the consumed receipt, write the
+map directly, or select another policy. Concrete conflicts leave the existing
+fact unchanged and retain the receipt in the typed rejection.
+
+Focused tests cover missing, stored Unknown, matching Integer, and concrete
+conflict commit behavior. The source/test files are 111/93 lines;
+`cargo test --lib preloop_nested_result_type`, `cargo check --lib`, the
+current-state pointer guard, and diff check are green.
+
+The next row is `CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-P0`. It connects this
+terminal only inside the existing production-prefix proof matrix and must
+retain zero production callers.
+
 Do not create a new guard script. Extend the existing callable-result guard
 with the receipt consumer/decision/writer and P0 evidence, and add this writer
 to the existing type-fact partition guard. The original ingress, port, and

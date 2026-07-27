@@ -1,13 +1,15 @@
-//! Builder-free Integer fact preparation for one emitted pre-loop result.
+//! Integer fact publication for one emitted pre-loop result.
 //!
-//! This box consumes the source-qualified emitted receipt and delegates the
-//! complete fact policy to `TypeFactDecisionV1`. S0 owns no Builder,
-//! `TypeContext`, Call emission, source lookup, or fact-store write.
+//! Preparation delegates the complete fact policy to `TypeFactDecisionV1`.
+//! The sole terminal reads the destination fact and immediately consumes the
+//! prepared owner. Only `Publish` reaches `TypeContext::set_type`; this module
+//! owns no Builder, Call emission, source lookup, or direct fact-map access.
 
 use hakorune_mir_builder::lowering_facts::{
     PreparedTypeFactPublicationV1, TypeFactDecisionErrorV1, TypeFactDecisionV1,
 };
 
+use crate::mir::builder::type_context::TypeContext;
 use crate::mir::{MirType, ValueId};
 
 use super::preloop_nested_result_receipt::EmittedNestedInstanceCallV1;
@@ -49,6 +51,20 @@ impl PreparedPreloopNestedIntegerPublicationV1 {
         &self.publication
     }
 
+    fn commit(self, type_ctx: &mut TypeContext) {
+        let Self {
+            receipt,
+            publication,
+        } = self;
+        let destination = receipt.final_destination();
+
+        if let PreparedTypeFactPublicationV1::Publish(ty) = publication {
+            type_ctx.set_type(destination, ty);
+        }
+
+        receipt.discard();
+    }
+
     pub(super) fn discard(self) {
         self.receipt.discard();
     }
@@ -75,4 +91,21 @@ impl RejectedPreloopNestedIntegerPublicationV1 {
     pub(super) fn discard(self) {
         self.receipt.discard();
     }
+}
+
+/// Publishes one exact Integer fact from a successfully emitted nested call.
+///
+/// The read, decision, and consuming commit stay in one terminal so callers
+/// cannot retain a prepared write across another fact-store mutation.
+pub(super) fn publish_preloop_nested_integer_result_v1(
+    receipt: EmittedNestedInstanceCallV1,
+    type_ctx: &mut TypeContext,
+) -> Result<(), RejectedPreloopNestedIntegerPublicationV1> {
+    let destination = receipt.final_destination();
+    let prepared = PreparedPreloopNestedIntegerPublicationV1::prepare(
+        receipt,
+        type_ctx.get_type(destination),
+    )?;
+    prepared.commit(type_ctx);
+    Ok(())
 }

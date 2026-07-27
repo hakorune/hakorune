@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0, the pre-loop located request boundary, generic unified-Call physical receipt, REP0 source/physical pairing, and production-prefix proof are closed. CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-prime-r1 accepts Choice A: stored Unknown remains a replaceable non-fact under the existing TypeFactDecisionV1 authority. TYPE-I0-S0 is closed with one Builder-free prepared/rejected Integer publication product. TYPE-I0-I0 is next and may add only the one consuming TypeContext terminal selected by the prepared decision; GenericLoop activation, production callers, fallback, Router, Call emission, source lookup, and backend changes remain zero."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0, the pre-loop located request boundary, generic unified-Call physical receipt, REP0 source/physical pairing, and production-prefix proof are closed. CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-prime-r1 accepts Choice A: stored Unknown remains a replaceable non-fact under the existing TypeFactDecisionV1 authority. TYPE-I0-S0 and I0 are closed: one immediate terminal consumes the emitted receipt and prepared decision, writes only Publish through TypeContext::set_type, and leaves Idempotent physically unchanged. TYPE-I0-P0 is next and connects this terminal only inside the production-prefix proof matrix; GenericLoop activation, production callers, fallback, Router, Call emission, source lookup, and backend changes remain zero."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-I0"
-current_execution_summary = "Consume PreparedPreloopNestedIntegerPublicationV1 exactly once. Publish may call the existing TypeContext::set_type terminal once for exact Integer; Idempotent must perform no physical write. Preserve the emitted receipt in typed rejection before commit, add no direct value_types insert or second fact policy, and keep GenericLoop, loop-refresh, production caller, fallback, Router, Call emission, source lookup, and backend changes at zero."
+current_execution_row = "CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-P0"
+current_execution_summary = "Extend the existing production-prefix proof with receipt-backed Integer publication cells: destination None, stored Unknown, matching Integer, concrete conflict, inner Call failure, outer terminal failure, and conflict/failure followed by fresh success. Use the existing exact fixture harness and new terminal; do not append policy to GenericLoop, add a second Call writer, infer source identity, retry/fallback, or change a production/default route."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-I0"
+current_blocker_token = "CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-P0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
