@@ -73,6 +73,7 @@ mod preloop_nested_result_receipt;
 mod preloop_outer_carrier_assignment;
 mod preloop_outer_carrier_transaction;
 mod preloop_outer_carrier_type;
+mod preloop_stageb_instance_function_session;
 mod preloop_nested_result_type;
 pub(in crate::mir::builder) use method_call_descent::{
     lower_method_call_argument_v1, AssociatedMethodCallArgumentsV1, LegacyMethodCallArgumentsV1,

@@ -369,10 +369,35 @@ production consumer                               = 0
 retry / rebind / source-MIR re-observation         = 0
 ```
 
-The F6 completion-evidence hard stop is cleared. The sole next cell is
-`PRELOOP-STAGEB-BODY-SCHEDULE0-I0`; it must consume these owned terminals
-without reopening their internal receipts or adding an external mutable
-payload slot.
+Landed F6-2 evidence:
+
+```text
+bounded Stage-B body schedule producer             = 1
+Legacy block driver                                = existing 1
+Legacy statement driver                            = existing 1
+second body/statement driver                       = 0
+
+prefix suffix-routing stops before selected row    = 1
+selected F3-F5 transaction consumer                = 1
+suffix routing before publication success          = 0
+
+actual Parser:
+  inner Call != outer Call
+  assignment carrier == outer Call
+  outer Integer fact visible before suffix
+  Body(4) remains the exact typed suffix frontier
+
+suffix rejection retains complete published carrier = 1
+retry / fallback / rebind                            = 0
+function finalizer / activation ledger / caller      = 0
+```
+
+The F6 body-schedule hard stop is cleared. The sole next cell is
+`PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0`; it must place the bounded
+schedule inside the existing instance preparation, StepTree, finalizer, and
+generic payload-preserving pending session. The observed Body(4) frontier must
+be resolved through those existing function-scoped authorities rather than by
+adding a second suffix or GenericLoop algorithm.
 
 ### F6 ownership closure
 

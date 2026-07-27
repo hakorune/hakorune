@@ -7,6 +7,10 @@ import re
 import sys
 from pathlib import Path
 
+from callable_result_i0_site0_r0_expr0_m0_v0_stageb_schedule import (
+    check_stageb_schedule,
+)
+
 
 TAG = "[callable-result-i0-site0-r0-expr0-m0-v0]"
 
@@ -54,6 +58,7 @@ def rust_code(text: str) -> str:
 
 def main() -> None:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
+    check_stageb_schedule(root)
     terminal = read(root, "src/mir/builder/calls/method_call_terminal.rs")
     tests = read(root, "src/mir/builder/calls/method_call_terminal_tests.rs")
     readme = read(root, "src/mir/builder/calls/README.md")
@@ -512,8 +517,8 @@ def main() -> None:
     require_count(
         production,
         "publish_preloop_outer_carrier_integer_v1(",
-        0,
-        "outer TYPE-I0 production caller zero",
+        1,
+        "outer TYPE-I0 sole disconnected F6-2 schedule consumer",
     )
     for forbidden in (
         "EmittedNestedInstanceCallV1",
@@ -585,8 +590,8 @@ def main() -> None:
     require_count(
         production,
         ".into_stageb_carrier_v1(",
-        0,
-        "F6 selected-session production consumer zero",
+        1,
+        "F6 sole disconnected body-schedule consumer",
     )
     rejection_projection_code = "\n".join(
         (ingress, outer_completion, outer_carrier, outer_assignment, outer_type)
