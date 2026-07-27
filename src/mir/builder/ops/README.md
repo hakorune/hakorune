@@ -29,12 +29,22 @@ It must not classify MIR operators, allocate a result, infer types, construct
 MIR instructions, own short-circuit control flow, or reconstruct source
 locations. It is stack-scoped and is never stored in `MirBuilder`.
 
-BIN0-I0 selects the ordinary raw source entry through one owned raw input and
-the shared raw child-lowering port. `And` / `Or` are rejected by this driver
-and remain selected by `logical_shortcircuit.rs` before the raw adapter is
-constructed. The adapter owns no recursion guard, location, ledger, route, or
-result policy. Located `BinaryLeft` / `BinaryRight` acceptance remains the
-later BIN0-L0 row; production located callers remain zero.
+The sole raw/default `ASTNode::BinaryOp` selector lives in
+`raw_expression_dispatch`. It creates one owned input and enters exactly one
+generic owner:
+
+```text
+And / Or
+  -> RawLegacyShortCircuitInputV1
+  -> drive_short_circuit_expression_v1
+
+all remaining operators
+  -> RawLegacyBinaryInputV1
+  -> drive_ordinary_binary_expression_v1
+```
+
+The partition is total and disjoint. There is no intermediate raw facade,
+fallback, retry, or route reselection.
 
 BIN0-P0 keeps one pre-I0 orchestration reference strictly inside a `#[cfg(test)]`
 module. Its snapshot compares output/error, ordered MIR and terminators,
@@ -43,28 +53,18 @@ ordinary operator matrix, MethodCall children, nested trees, failures, and
 reuse. The reference is parity evidence only and is never a production
 fallback or second lowering route. Located acceptance still belongs to BIN0-L0.
 
-BIN0-L0 adds one disconnected located port. Every ordinary Binary encountered
-by that session uses the same driver and obtains children only through PATH0
-`BinaryLeft` / `BinaryRight`. Each child independently proves an inactive
-prefix for raw whole-child delegation or continues located descent to an exact
-claim. The port never catches `RowsUnderPrefix` to probe for another route.
-Logical operators still reject before child effects, and production located
-root callers and callable-result publishers remain zero.
+The detached located port uses the same two drivers and obtains children only
+through PATH0 `BinaryLeft` / `BinaryRight`. Each child independently proves an
+inactive prefix for raw whole-child delegation or continues located descent to
+an exact claim. The port never catches `RowsUnderPrefix` to probe for another
+route. Production located root callers and callable-result publishers remain
+zero.
 
-`short_circuit_expression_descent.rs` is the disconnected SC0-S0 child-demand
-boundary. It admits only `And` / `Or`, lowers the lhs first, and gives the
-existing `logical_shortcircuit.rs` owner one deferred RHS closure. That owner
-invokes the closure only after entering the eval-RHS block. Branch layout,
-variable snapshots, PHIs, result type, and diagnostics remain in the existing
-owner. Raw and located adapters, production selectors, and result publication
-are still zero through SC0-S0.
-
-SC0-I0 adds one owned raw short-circuit input and one implementation on the
-existing raw child-lowering port. The existing `MirBuilder::build_binary_op`
-selector still chooses only `And` / `Or`, then delegates once to the generic
-driver. Ordinary Binary remains on BIN0. The raw adapter adds no operator,
-recursion, CFG, PHI, type, result, location, ledger, or fallback authority;
-located adapters and callable-result publication remain zero.
+`short_circuit_expression_descent.rs` admits only `And` / `Or`, lowers the lhs
+first, and gives the existing `logical_shortcircuit.rs` owner one deferred RHS closure.
+That owner invokes the closure only after entering the eval-RHS block. Branch
+layout, variable snapshots, PHIs, result type, and diagnostics remain in the
+existing owner.
 
 SC0-P0 retains the pre-I0 raw orchestration only as one `#[cfg(test)]`
 reference. Fresh selected/reference Builders compare result or error, ordered
@@ -73,10 +73,8 @@ pin maps, current block, next ValueId, and recursion depth. The reference is
 not a production selector or fallback. Located adapters and result publication
 remain zero.
 
-SC0-L0 implements the same port once on the disconnected located lowering
-session. PATH0 remains the only `BinaryLeft` / `BinaryRight` source; the lhs
-is demanded first and the rhs location is requested only by the deferred
-closure inside the eval-RHS block. Each child independently proves inactivity
-or continues located descent to an exact claim. The adapter adds no source
-rewalk, ledger probing, CFG/PHI/result authority, production root caller, or
-fallback.
+For short-circuit located descent, PATH0 remains the only `BinaryLeft` /
+`BinaryRight` source; the lhs is demanded first and the rhs location is
+requested only by the deferred closure inside the eval-RHS block. The adapter
+adds no source rewalk, ledger probing, CFG/PHI/result authority, production
+root caller, or fallback.

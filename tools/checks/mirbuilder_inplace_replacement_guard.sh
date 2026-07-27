@@ -28,6 +28,12 @@ RETURN_TESTS="$ROOT_DIR/src/mir/builder/stmts/return_statement_descent_tests.rs"
 RETURN_OWNER="$ROOT_DIR/src/mir/builder/stmts/return_stmt.rs"
 LOCATED_RETURN="$ROOT_DIR/src/mir/builder/located_legacy_return.rs"
 RETURN_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_return.py"
+OPS_ROOT="$ROOT_DIR/src/mir/builder/ops/mod.rs"
+BINARY_DESCENT="$ROOT_DIR/src/mir/builder/ops/binary_expression_descent.rs"
+BINARY_TESTS="$ROOT_DIR/src/mir/builder/ops/binary_expression_descent_tests.rs"
+SHORT_CIRCUIT_DESCENT="$ROOT_DIR/src/mir/builder/ops/short_circuit_expression_descent.rs"
+SHORT_CIRCUIT_TESTS="$ROOT_DIR/src/mir/builder/ops/short_circuit_expression_descent_tests.rs"
+BINARY_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0.py"
 
 guard_require_command "$TAG" awk
 guard_require_command "$TAG" find
@@ -58,7 +64,13 @@ guard_require_files \
   "$RETURN_TESTS" \
   "$RETURN_OWNER" \
   "$LOCATED_RETURN" \
-  "$RETURN_GUARD"
+  "$RETURN_GUARD" \
+  "$OPS_ROOT" \
+  "$BINARY_DESCENT" \
+  "$BINARY_TESTS" \
+  "$SHORT_CIRCUIT_DESCENT" \
+  "$SHORT_CIRCUIT_TESTS" \
+  "$BINARY_GUARD"
 
 expected_header=$'record_kind\tid\tpack\tproduction_caller\tnew_owner\tdelete_target\tparity_gate\tdisposition\tstate'
 actual_header="$(head -n1 "$MANIFEST")"
@@ -175,6 +187,16 @@ return_row_count="$(awk -F '\t' '
 ' "$MANIFEST")"
 if [[ "$return_row_count" != "1" ]]; then
   guard_fail "$TAG" "Return source partition cutover must have one closed manifest row"
+fi
+
+binary_row_count="$(awk -F '\t' '
+  $1 == "cell" &&
+  $2 == "BINARY-SOURCE-PARTITION-CUTOVER0" &&
+  $9 == "closed" { count += 1 }
+  END { print count + 0 }
+' "$MANIFEST")"
+if [[ "$binary_row_count" != "1" ]]; then
+  guard_fail "$TAG" "Binary source partition cutover must have one closed manifest row"
 fi
 
 for symbol in \
@@ -343,6 +365,59 @@ if rg -n -w 'retry|fallback' "$RETURN_DESCENT" >/dev/null; then
   guard_fail "$TAG" "Return value owner gained retry or route fallback"
 fi
 
+while IFS=$'\t' read -r file pattern expected label; do
+  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+  if [[ "$count" != "$expected" ]]; then
+    guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
+  fi
+done <<EOF
+$RAW_DISPATCH	\\bRawLegacyBinaryInputV1::new\\s*\\(	1	raw/default ordinary Binary input
+$RAW_DISPATCH	\\bdrive_ordinary_binary_expression_v1\\s*\\(	1	raw/default ordinary Binary owner caller
+$RAW_DISPATCH	\\bRawLegacyShortCircuitInputV1::new\\s*\\(	1	raw/default short-circuit input
+$RAW_DISPATCH	\\bdrive_short_circuit_expression_v1\\s*\\(	1	raw/default short-circuit owner caller
+$LOCATED_LOCAL	\\bdrive_ordinary_binary_expression_v1\\s*\\(	1	detached located ordinary Binary caller
+$LOCATED_LOCAL	\\bdrive_short_circuit_expression_v1\\s*\\(	1	detached located short-circuit caller
+EOF
+
+ordinary_binary_external_count="$(
+  rg -n -P '\bdrive_ordinary_binary_expression_v1\s*\(' \
+    "$ROOT_DIR/src" --glob '*.rs' \
+    | awk -F ':' \
+        -v owner="$BINARY_DESCENT" \
+        -v tests="$BINARY_TESTS" \
+        '$1 != owner && $1 != tests { count += 1 } END { print count + 0 }'
+)"
+if [[ "$ordinary_binary_external_count" != "2" ]]; then
+  guard_fail "$TAG" \
+    "ordinary Binary external sites must be one raw/default plus one detached: count=$ordinary_binary_external_count"
+fi
+
+short_circuit_external_count="$(
+  rg -n -P '\bdrive_short_circuit_expression_v1\s*\(' \
+    "$ROOT_DIR/src" --glob '*.rs' \
+    | awk -F ':' \
+        -v owner="$SHORT_CIRCUIT_DESCENT" \
+        -v tests="$SHORT_CIRCUIT_TESTS" \
+        '$1 != owner && $1 != tests { count += 1 } END { print count + 0 }'
+)"
+if [[ "$short_circuit_external_count" != "2" ]]; then
+  guard_fail "$TAG" \
+    "short-circuit external sites must be one raw/default plus one detached: count=$short_circuit_external_count"
+fi
+
+for retired_pattern in \
+  '\b(?:fn\s+)?build_binary_op\s*\(' \
+  '\b(?:fn\s+)?drive_raw_ordinary_binary_expression_v1\s*\(' \
+  '\b(?:fn\s+)?drive_raw_short_circuit_expression_v1\s*\('
+do
+  if rg -n -P "$retired_pattern" "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+    guard_fail "$TAG" "retired Binary selector/facade returned: $retired_pattern"
+  fi
+done
+if rg -n -w 'retry|fallback' "$BINARY_DESCENT" "$SHORT_CIRCUIT_DESCENT" >/dev/null; then
+  guard_fail "$TAG" "Binary owner gained retry or route fallback"
+fi
+
 for file in \
   "$LOWERING" \
   "$PORT_OWNER" \
@@ -375,6 +450,16 @@ for file in \
   "$ROOT_DIR/src/mir/builder/stmts/return_statement_raw_tests.rs" \
   "$ROOT_DIR/src/mir/builder/stmts/return_statement_parity_tests.rs" \
   "$RETURN_GUARD" \
+  "$OPS_ROOT" \
+  "$BINARY_DESCENT" \
+  "$BINARY_TESTS" \
+  "$ROOT_DIR/src/mir/builder/ops/binary_expression_raw_tests.rs" \
+  "$ROOT_DIR/src/mir/builder/ops/binary_expression_parity_tests.rs" \
+  "$SHORT_CIRCUIT_DESCENT" \
+  "$SHORT_CIRCUIT_TESTS" \
+  "$ROOT_DIR/src/mir/builder/ops/short_circuit_expression_raw_tests.rs" \
+  "$ROOT_DIR/src/mir/builder/ops/short_circuit_expression_parity_tests.rs" \
+  "$BINARY_GUARD" \
   "$ROOT_DIR/tools/checks/mirbuilder_inplace_replacement_guard.sh"
 do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

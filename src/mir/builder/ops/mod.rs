@@ -5,8 +5,8 @@
 //! ## Architecture Overview
 //!
 //! This module serves as the orchestrator for all operator-level MIR building,
-//! delegating to specialized semantic modules plus one disconnected child
-//! descent substrate organized by single responsibility:
+//! delegating to specialized semantic modules and live associated-input
+//! descent owners organized by single responsibility:
 //!
 //! ```text
 //! ops/ (587 lines → 1,098 lines with documentation)
@@ -19,32 +19,18 @@
 //! └── unary.rs                 (211 lines)  - Unary ops (-, !, ~)
 //! ```
 //!
-//! ## Design Pattern: Orchestrator + Delegation
+//! ## Design Pattern: Owner + Delegation
 //!
-//! This module follows the **wrapper pattern** seen in `stmts.rs` and `lifecycle.rs`:
+//! The raw expression dispatcher partitions source operators before entering
+//! this module's associated-input owners. Completion then delegates to the
+//! specialized semantic modules:
 //!
-//! 1. **Orchestrator (mod.rs)**: Thin wrapper methods on MirBuilder
-//! 2. **Specialized Modules**: Free functions that take `&mut MirBuilder`
-//! 3. **No Circular Dependencies**: All modules import from parent builder
-//!
-//! ### Wrapper Methods
-//!
-//! Each public method in `impl MirBuilder` is a thin wrapper that delegates
-//! to the appropriate specialized module:
-//!
-//! ```rust
-//! // Orchestrator wrapper in mod.rs
-//! pub(super) fn build_binary_op(...) -> Result<ValueId, String> {
-//!     // 1. Convert AST operator to MIR operator enum
-//!     let mir_op = converters::convert_binary_operator(operator)?;
-//!
-//!     // 2. Delegate to specialist module based on operator type
-//!     match mir_op {
-//!         BinaryOpType::Arithmetic(op) => arithmetic::build_arithmetic_op(self, op, lhs, rhs),
-//!         BinaryOpType::Comparison(op) => self.build_comparison_op(op, lhs, rhs),
-//!     }
-//! }
-//! ```
+//! 1. **Raw/default partition**: `ASTNode::BinaryOp` selects ordinary or
+//!    short-circuit descent exactly once.
+//! 2. **Associated-input owners**: demand children in the family-specific
+//!    order.
+//! 3. **Semantic completion**: arithmetic, comparison, and short-circuit
+//!    owners emit the MIR result.
 //!
 //! ## Module Responsibilities
 //!
@@ -156,36 +142,6 @@ pub(super) mod unary;
 use converters::BinaryOpType;
 
 impl super::MirBuilder {
-    /// Build a binary operation
-    ///
-    /// **Delegates to**: Specialized operator modules based on operator type
-    ///
-    /// This is the main entry point for binary operator lowering, which routes
-    /// to different specialist modules:
-    /// - Logical operators (&&, ||) → `logical_shortcircuit::build_logical_shortcircuit`
-    /// - Arithmetic operators → `arithmetic::build_arithmetic_op`
-    /// - Comparison operators → `comparison::build_comparison_op`
-    ///
-    /// **Note**: Logical operators use control-flow lowering with PHI nodes,
-    /// not simple BinOp instructions, to implement short-circuit evaluation.
-    pub(super) fn build_binary_op(
-        &mut self,
-        left: ASTNode,
-        operator: BinaryOperator,
-        right: ASTNode,
-    ) -> Result<ValueId, String> {
-        // Short-circuit logical ops: lower to control-flow so RHS is evaluated conditionally
-        if matches!(operator, BinaryOperator::And | BinaryOperator::Or) {
-            return short_circuit_expression_descent::drive_raw_short_circuit_expression_v1(
-                self, left, operator, right,
-            );
-        }
-
-        binary_expression_descent::drive_raw_ordinary_binary_expression_v1(
-            self, left, operator, right,
-        )
-    }
-
     pub(in crate::mir::builder) fn build_binary_op_from_values(
         &mut self,
         operator: BinaryOperator,

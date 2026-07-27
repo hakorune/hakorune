@@ -1,4 +1,4 @@
-//! Disconnected associated-input boundary for ordinary Binary expressions.
+//! Live raw/default associated-input boundary for ordinary Binary expressions.
 //!
 //! This box owns only the one-time operator observation and ordered child
 //! demand. Operator conversion, arithmetic/comparison semantics, destination
@@ -9,8 +9,7 @@ use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
-    RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 
 pub(in crate::mir::builder) struct RawLegacyBinaryInputV1 {
@@ -115,15 +114,4 @@ where
     let right = drive_legacy_expression_v1(builder, port, right_input)?;
 
     builder.build_binary_op_from_values(operator, left, right)
-}
-
-pub(in crate::mir::builder) fn drive_raw_ordinary_binary_expression_v1(
-    builder: &mut MirBuilder,
-    left: ASTNode,
-    operator: BinaryOperator,
-    right: ASTNode,
-) -> Result<ValueId, String> {
-    let input = RawLegacyBinaryInputV1::new(left, operator, right);
-    let mut port = RawLegacyChildLoweringPortV1;
-    drive_ordinary_binary_expression_v1(builder, &mut port, &input)
 }

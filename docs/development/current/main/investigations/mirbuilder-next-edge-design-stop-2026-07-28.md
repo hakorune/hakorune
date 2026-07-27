@@ -1,5 +1,5 @@
 ---
-Status: resolved seventh selection; Binary execution active
+Status: resolved seventh selection; Binary closed
 Date: 2026-07-28
 Decision: BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0; Option A
 Scope: select the next exact production edge after six closed cutovers
@@ -158,7 +158,7 @@ mirbuilder-structural-budget-d0-consultation-2026-07-28.md
 
 The structural D0 measures source/test files and LOC under the two fixed
 MirBuilder roots. It adds no checker subsystem or final-X authority. The
-accepted Binary task is now active.
+accepted Binary task is closed; `DESCENT-SPINE0-CLOSE-AUDIT` is next.
 
 ## Minimum implementation slice after decision
 
@@ -169,7 +169,7 @@ fallback, or unrelated cleanup may be added.
 
 ## Non-claims
 
-- seventh production responsibility is selected but not yet in the manifest
+- seventh production responsibility is closed in the manifest
 - no macro pack is closed
 - no detached asset is promoted
 - no Stage-B, Ownership, selfhost, language, runtime, or backend work resumes

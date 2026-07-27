@@ -62,13 +62,16 @@ def require_count(text: str, needle: str, expected: int, label: str) -> None:
 
 
 def main() -> None:
-    root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
+    binary_only = "--binary-only" in sys.argv[1:]
+    root_args = [arg for arg in sys.argv[1:] if arg != "--binary-only"]
+    root = Path(root_args[0] if root_args else ".").resolve()
     module_path = "src/mir/builder/ops/binary_expression_descent.rs"
     tests_path = "src/mir/builder/ops/binary_expression_descent_tests.rs"
     parity_tests_path = "src/mir/builder/ops/binary_expression_parity_tests.rs"
     raw_tests_path = "src/mir/builder/ops/binary_expression_raw_tests.rs"
     readme_path = "src/mir/builder/ops/README.md"
     ops_root_path = "src/mir/builder/ops/mod.rs"
+    raw_dispatch_path = "src/mir/builder/raw_expression_dispatch/mod.rs"
     located_path = "src/mir/builder/located_legacy_lowering.rs"
     located_tests_path = (
         "src/mir/callable_result_representation/tests/located_legacy_lowering.rs"
@@ -94,6 +97,7 @@ def main() -> None:
     raw_tests = read(root, raw_tests_path)
     readme = read(root, readme_path)
     ops_root = read(root, ops_root_path)
+    raw_dispatch = read(root, raw_dispatch_path)
     located = read(root, located_path)
     located_tests = read(root, located_tests_path)
     short_circuit = read(root, short_circuit_path)
@@ -171,17 +175,19 @@ def main() -> None:
 
     require_count(
         module,
-        "impl BinaryExpressionDescentPortV1 for RawLegacyChildLoweringPortV1",
+        "impl<Port> BinaryExpressionDescentPortV1 for Port",
         1,
-        "BIN0-I0 raw implementation",
+        "ordinary Binary blanket raw/default implementation",
     )
-    require_count(module, "struct RawLegacyBinaryInputV1", 1, "owned raw Binary input")
     require_count(
         module,
-        "fn drive_raw_ordinary_binary_expression_v1",
+        "Port: RawAstChildLoweringPortV1",
         1,
-        "thin raw Binary facade",
+        "ordinary Binary raw/default port bound",
     )
+    require_count(module, "struct RawLegacyBinaryInputV1", 1, "owned raw Binary input")
+    if "drive_raw_ordinary_binary_expression_v1" in module:
+        fail("retired ordinary raw Binary facade returned")
     require_count(
         located,
         "impl<'plan> BinaryExpressionDescentPortV1 for LocatedLegacyLoweringSessionV1<'plan>",
@@ -290,16 +296,18 @@ def main() -> None:
         fail("retired production raw short-circuit facade must remain absent")
     require_count(
         short_circuit,
-        "impl ShortCircuitExpressionDescentPortV1 for RawLegacyChildLoweringPortV1",
+        "impl<Port> ShortCircuitExpressionDescentPortV1 for Port",
         1,
-        "SC0-I0 raw short-circuit adapter",
+        "short-circuit blanket raw/default implementation",
     )
     require_count(
-        ops_root,
-        "short_circuit_expression_descent::drive_raw_short_circuit_expression_v1(",
+        short_circuit,
+        "Port: RawAstChildLoweringPortV1",
         1,
-        "SC0-I0 raw selector",
+        "short-circuit raw/default port bound",
     )
+    if "drive_raw_short_circuit_expression_v1" in short_circuit:
+        fail("retired short-circuit raw facade returned")
     require_count(
         located,
         "ShortCircuitExpressionDescentPortV1 for LocatedLegacyLoweringSessionV1",
@@ -325,9 +333,9 @@ def main() -> None:
         short_circuit_callers += path.read_text(encoding="utf-8").count(
             "drive_short_circuit_expression_v1("
         )
-    if short_circuit_callers != 1:
+    if short_circuit_callers != 2:
         fail(
-            "SC0-L0 must have exactly one disconnected located driver caller: "
+            "short-circuit driver must have one raw/default and one located caller: "
             f"actual={short_circuit_callers}"
         )
 
@@ -342,36 +350,65 @@ def main() -> None:
         production_callers += path.read_text(encoding="utf-8").count(
             "drive_ordinary_binary_expression_v1("
         )
-    if production_callers != 1:
-        fail(f"generic Binary driver located consumers: expected=1 actual={production_callers}")
+    if production_callers != 2:
+        fail(
+            "ordinary Binary driver must have one raw/default and one located caller: "
+            f"expected=2 actual={production_callers}"
+        )
 
-    raw_selectors = 0
+    retired_raw_sites = 0
     for path in (root / "src").rglob("*.rs"):
-        if path.resolve() in {
-            (root / module_path).resolve(),
-            (root / raw_tests_path).resolve(),
-        }:
-            continue
-        raw_selectors += path.read_text(encoding="utf-8").count(
+        text = path.read_text(encoding="utf-8")
+        retired_raw_sites += text.count(
             "drive_raw_ordinary_binary_expression_v1("
         )
-    if raw_selectors != 1:
-        fail(f"BIN0-I0 raw production selectors: expected=1 actual={raw_selectors}")
+        retired_raw_sites += text.count("drive_raw_short_circuit_expression_v1(")
+    if retired_raw_sites != 0:
+        fail(f"retired raw Binary facade sites: expected=0 actual={retired_raw_sites}")
 
-    logical_selector_at = ops_root.index(
-        "if matches!(operator, BinaryOperator::And | BinaryOperator::Or)"
+    require_count(
+        raw_dispatch,
+        "RawLegacyBinaryInputV1::new(",
+        1,
+        "raw/default ordinary Binary input",
     )
-    raw_selector_at = ops_root.index(
-        "binary_expression_descent::drive_raw_ordinary_binary_expression_v1("
+    require_count(
+        raw_dispatch,
+        "drive_ordinary_binary_expression_v1(self, port, &input)",
+        1,
+        "raw/default ordinary Binary owner caller",
     )
-    if logical_selector_at >= raw_selector_at:
-        fail("And/Or selection must precede the ordinary raw adapter")
-    for retired_direct_descent in (
-        "let lhs_raw = self.build_expression(left)?",
-        "let rhs_raw = self.build_expression(right)?",
+    require_count(
+        raw_dispatch,
+        "RawLegacyShortCircuitInputV1::new(",
+        1,
+        "raw/default short-circuit input",
+    )
+    require_count(
+        raw_dispatch,
+        "drive_short_circuit_expression_v1(self, port, &input)",
+        1,
+        "raw/default short-circuit owner caller",
+    )
+    logical_selector_at = raw_dispatch.index("match e.operator {")
+    logical_input_at = raw_dispatch.index("RawLegacyShortCircuitInputV1::new(")
+    logical_driver_at = raw_dispatch.index(
+        "drive_short_circuit_expression_v1(self, port, &input)"
+    )
+    ordinary_input_at = raw_dispatch.index("RawLegacyBinaryInputV1::new(")
+    ordinary_driver_at = raw_dispatch.index(
+        "drive_ordinary_binary_expression_v1(self, port, &input)"
+    )
+    if not (
+        logical_selector_at
+        < logical_input_at
+        < logical_driver_at
+        < ordinary_input_at
+        < ordinary_driver_at
     ):
-        if retired_direct_descent in ops_root:
-            fail(f"old direct Binary descent remains selected: {retired_direct_descent}")
+        fail("raw/default Binary partition order drifted")
+    if "build_binary_op(" in ops_root:
+        fail("retired shared Binary selector returned")
 
     require_count(
         ops_root,
@@ -502,27 +539,31 @@ def main() -> None:
         if snapshot_fact not in parity_tests:
             fail(f"BIN0-P0 snapshot misses fact: {snapshot_fact}")
 
-    try:
-        lcl_summary = check_lcl0_s0(root, located)
-        asn_summary = check_asn0_s0(root)
-        ret_summary = check_ret0_s0(root)
-        if_summary = check_if0_s0(root)
-        bodydomain_summary = check_bodydomain0(root)
-        suffix_summary = check_suffix0_s0(root)
-        suffix_parity_summary = check_suffix0_i0(root)
-        loop0_summary = check_loop0_s0a(root)
-        loop0_p0a_summary = check_loop0_p0a(root)
-        loop0_p0b_o0_summary = check_loop0_p0b_o0_s0(root)
-        loop0_p0b_o0_r0_summary = check_loop0_p0b_o0_r0(root)
-        loop0_p0b_o0_siteproj0_summary = check_loop0_p0b_o0_siteproj0(root)
-        loop0_p0b_o0_g0_summary = check_loop0_p0b_o0_g0(root)
-        loop0_p0b_t0_summary = check_loop0_p0b_t0(root)
-        loop0_p0b_t0_p0_summary = check_loop0_p0b_t0_p0(root)
-        loop0_p0c_summary = check_loop0_p0c(root)
-        loop0_i0a_summary = check_loop0_i0a(root)
-        loop0_i0b_summary = check_loop0_i0b(root)
-    except RuntimeError as error:
-        fail(str(error))
+    parent_summaries = []
+    if not binary_only:
+        try:
+            parent_summaries = [
+                check_lcl0_s0(root, located),
+                check_asn0_s0(root),
+                check_ret0_s0(root),
+                check_if0_s0(root),
+                check_bodydomain0(root),
+                check_suffix0_s0(root),
+                check_suffix0_i0(root),
+                check_loop0_s0a(root),
+                check_loop0_p0a(root),
+                check_loop0_p0b_o0_s0(root),
+                check_loop0_p0b_o0_r0(root),
+                check_loop0_p0b_o0_siteproj0(root),
+                check_loop0_p0b_o0_g0(root),
+                check_loop0_p0b_t0(root),
+                check_loop0_p0b_t0_p0(root),
+                check_loop0_p0c(root),
+                check_loop0_i0a(root),
+                check_loop0_i0b(root),
+            ]
+        except RuntimeError as error:
+            fail(str(error))
     require_count(
         parity_tests,
         "fn lower_legacy_reference(",
@@ -540,15 +581,15 @@ def main() -> None:
         "reject `And` and `Or` before child effects",
         "existing `build_binary_op_from_values` owner",
         "never stored in `MirBuilder`",
-        "BIN0-I0 selects the ordinary raw source entry",
-        "BIN0-L0 adds one disconnected located port",
+        "sole raw/default `ASTNode::BinaryOp` selector",
+        "partition is total and disjoint",
+        "There is no intermediate raw facade",
+        "detached located port uses the same two drivers",
         "never catches `RowsUnderPrefix`",
-        "disconnected SC0-S0 child-demand",
+        "`short_circuit_expression_descent.rs` admits only `And` / `Or`",
         "one deferred RHS closure",
-        "SC0-I0 adds one owned raw short-circuit input",
         "SC0-P0 retains the pre-I0 raw orchestration",
-        "SC0-L0 implements the same port once",
-        "production located callers remain zero",
+        "Production located root callers",
     ):
         if phrase not in readme:
             fail(f"missing BIN0 README boundary: {phrase}")
@@ -560,6 +601,7 @@ def main() -> None:
         raw_tests_path,
         readme_path,
         ops_root_path,
+        raw_dispatch_path,
         located_path,
         located_tests_path,
         short_circuit_path,
@@ -588,20 +630,12 @@ def main() -> None:
         fail("BIN0 substrate must remain stack-scoped and immutable")
 
     print(
-        f"{TAG} ok: driver=1 child_descents=2 raw_selector=1 "
-        "raw_impl=1 parity_reference=1 located_impl=1 sc_driver=1 "
-        "sc_raw_selector=1 sc_raw_impl=1 sc_located_impl=1 "
+        f"{TAG} ok: driver=1 child_descents=2 raw_default_caller=1 "
+        "blanket_impl=1 parity_reference=1 located_caller=1 sc_driver=1 "
+        "sc_raw_default_caller=1 sc_blanket_impl=1 sc_located_caller=1 "
+        "retired_raw_facades=0 retired_shared_selector=0 "
         "sc_parity_reference=1 logical_owner_preserved=1 "
-        f"{lcl_summary} {asn_summary} {ret_summary} {if_summary} "
-        f"{bodydomain_summary} {suffix_summary}"
-        f" {suffix_parity_summary} {loop0_summary} {loop0_p0a_summary}"
-        f" {loop0_p0b_o0_summary} {loop0_p0b_o0_r0_summary}"
-        f" {loop0_p0b_o0_siteproj0_summary}"
-        f" {loop0_p0b_o0_g0_summary}"
-        f" {loop0_p0b_t0_summary} {loop0_p0b_t0_p0_summary}"
-        f" {loop0_p0c_summary}"
-        f" {loop0_i0a_summary}"
-        f" {loop0_i0b_summary}"
+        + " ".join(parent_summaries)
     )
 
 

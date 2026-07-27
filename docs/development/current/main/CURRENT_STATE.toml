@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Six production cells and the minimal four-metric structural ratchet are closed. BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0 is the sole executable row: keep the live raw/default Binary partition, delete the shared legacy selector and both raw facades atomically, preserve the two independent semantic owners, and add no fallback or second route."
+status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Seven production cells and the minimal four-metric structural ratchet are closed. Binary now has one raw/default source partition, two independent semantic owners, and zero legacy selector/raw facade symbols. DESCENT-SPINE0-CLOSE-AUDIT is the current design boundary; it must select at most one next responsibility from exact post-Binary evidence."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0"
-current_execution_summary = "Retain the sole raw/default ASTNode::BinaryOp partition into the existing Ordinary and ShortCircuit owners. Atomically delete MirBuilder::build_binary_op plus both drive_raw_* facades, update existing proof authority and the shared guard, keep the two semantic contracts independent, and add the seventh manifest row only in the implementation closeout."
+current_design_stop = "DESCENT-SPINE0-CLOSE-AUDIT"
+current_execution_row = "DESCENT-SPINE0-CLOSE-AUDIT"
+current_execution_summary = "Run one bounded post-Binary census over remaining DESCENT-SPINE0 direct recursion, dead facades, and proof transport. Select at most one next task that removes a competing authority and advances the MirBuilder final pipeline. Do not pre-authorize a proof rewrite, raw-body cleanup, or record-helper capability change before the audit closes."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "binary-source-partition-cell-accounting-d0-consultation-2026-07-28"
 latest_card_path = "docs/development/current/main/investigations/binary-source-partition-cell-accounting-d0-consultation-2026-07-28.md"
-latest_card_summary = """BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0 is active. One raw/default ASTNode::BinaryOp selector already partitions totally and disjointly into the Ordinary and ShortCircuit owners. The implementation keeps that live selector unchanged, deletes the dead build_binary_op predecessor and both raw facades, updates existing EXPR0/shared proof authority, and preserves independent parity/failure/reuse contracts."""
+latest_card_summary = """BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0 is closed. One raw/default ASTNode::BinaryOp selector partitions totally and disjointly into the Ordinary and ShortCircuit owners; build_binary_op and both drive_raw_* facades are zero. The four focused suites passed 16/16, 16/16, 35/35, and 4/4; production Rust delta is -68 and the five-cell rolling delta is -294. DESCENT-SPINE0-CLOSE-AUDIT is now the design boundary."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0"
+current_blocker_token = "DESCENT-SPINE0-CLOSE-AUDIT"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

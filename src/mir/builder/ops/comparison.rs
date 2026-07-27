@@ -9,7 +9,7 @@
 /// - Guard detection (in_cmp_op) to prevent infinite recursion
 ///
 /// **Integration**:
-/// - Called from `build_binary_op()` in parent module
+/// - Called from `build_binary_op_from_values()` in parent module
 /// - Uses `emission::compare::emit_to()` for final MIR emission
 /// - Uses `ssa::local::finalize_compare()` for SSA correctness
 /// - Checks `NYASH_BUILDER_OPERATOR_BOX_COMPARE_CALL` and `NYASH_BUILDER_OPERATOR_BOX_ALL_CALL` env vars

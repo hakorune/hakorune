@@ -1,5 +1,5 @@
 ---
-Status: active execution task; structural-ratchet prerequisite closed
+Status: closed
 Date: 2026-07-28
 Decision: BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0; Option A accepted
 Responsibility: raw/default ASTNode::BinaryOp operator-family source partition
@@ -15,6 +15,43 @@ Workstream:
 
 # Binary source-partition cell accounting D0
 
+## Closeout
+
+```text
+raw/default Binary selector                  = 1
+ordinary raw/default generic caller          = 1
+ShortCircuit raw/default generic caller      = 1
+ordinary detached located caller             = 1
+ShortCircuit detached located caller         = 1
+ordinary external non-test generic sites     = 2
+ShortCircuit external non-test generic sites = 2
+
+build_binary_op                               = 0
+drive_raw_ordinary_binary_expression_v1       = 0
+drive_raw_short_circuit_expression_v1         = 0
+fallback / retry / reselection                = 0
+
+binary_expression tests                       = 16 / 16
+short_circuit_expression tests                = 16 / 16
+located_legacy_lowering tests                 = 35 / 35
+located_short_circuit_lowering tests           = 4 / 4
+cargo check                                   = green
+focused EXPR0 Binary proof                    = green
+shared replacement guard                      = green
+
+production Rust LOC delta                     = -68
+five-cell rolling production Rust LOC         = -294
+source files after                            = 952
+source LOC after                              = 182384
+test files after                              = 139
+test LOC after                                = 40826
+```
+
+The public EXPR0 parent still reaches an unrelated stale If helper that names
+the retired `src/mir/builder/exprs.rs`. This cell adds `--binary-only` to the
+existing helper and leaves that separate proof-family drift unchanged, as
+required by the non-claims below.
+
 ## Accepted decision
 
 Option A is accepted:
@@ -29,9 +66,9 @@ two disjoint semantic owners
 one atomic obsolete predecessor chain
 ```
 
-The minimal four-metric structural ratchet is closed. This task now authorizes
-one atomic Binary I0/R0 implementation; the seventh manifest row is added only
-as part of that closeout.
+The minimal four-metric structural ratchet closed first. This task then
+authorized one atomic Binary I0/R0 implementation; the seventh manifest row
+was added only as part of that closeout.
 
 ## Why this consultation exists
 
@@ -49,8 +86,8 @@ whether the replacement manifest should credit the source partition as one
 cell or credit Ordinary Binary and ShortCircuit as separate semantic cells.
 
 The accounting question and structural-ratchet prerequisite are both resolved.
-Binary source, proof, guard, and manifest edits are now authorized only within
-the atomic execution contract below.
+Binary source, proof, guard, and manifest edits landed only within the atomic
+execution contract below.
 
 The prerequisite was closed by:
 
@@ -59,7 +96,7 @@ docs/development/current/main/investigations/
 mirbuilder-structural-budget-d0-consultation-2026-07-28.md
 ```
 
-Binary execution is active. Structural size is a result metric and did not
+Binary execution is closed. Structural size is a result metric and did not
 decide the semantic cell-accounting answer.
 
 Execution authority for that prerequisite:
@@ -478,7 +515,7 @@ cargo test -q short_circuit_expression --lib
 cargo test -q located_legacy_lowering --lib
 cargo test -q located_short_circuit_lowering --lib
 cargo check -q
-python3 tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0.py
+python3 tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0.py --binary-only
 bash tools/checks/mirbuilder_inplace_replacement_guard.sh
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check

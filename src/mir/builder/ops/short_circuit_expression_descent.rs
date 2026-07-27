@@ -1,4 +1,4 @@
-//! Disconnected associated-input boundary for logical Binary expressions.
+//! Live raw/default associated-input boundary for logical Binary expressions.
 //!
 //! This box owns only exact logical-operator admission and child demand. The
 //! existing logical short-circuit owner retains branch layout, conditional RHS
@@ -8,8 +8,7 @@ use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
-    RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 use super::logical_shortcircuit::build_logical_shortcircuit_after_lhs_v1;
 
@@ -118,15 +117,4 @@ where
         let right_input = port.short_circuit_right_input(input)?;
         drive_legacy_expression_v1(builder, port, right_input)
     })
-}
-
-pub(in crate::mir::builder) fn drive_raw_short_circuit_expression_v1(
-    builder: &mut MirBuilder,
-    left: ASTNode,
-    operator: BinaryOperator,
-    right: ASTNode,
-) -> Result<ValueId, String> {
-    let input = RawLegacyShortCircuitInputV1::new(left, operator, right);
-    let mut port = RawLegacyChildLoweringPortV1;
-    drive_short_circuit_expression_v1(builder, &mut port, &input)
 }

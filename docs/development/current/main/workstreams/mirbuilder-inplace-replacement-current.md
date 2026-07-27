@@ -48,13 +48,12 @@ authorityを一つ減らす場合だけ選択する。
 ## Current front
 
 ```text
-BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0
+DESCENT-SPINE0-CLOSE-AUDIT
 ```
 
-最小structural ratchetはclosed。第七cellは、一つのraw/default
-`ASTNode::BinaryOp` source partitionから二つの既存semantic ownerへ入る
-Option Aで固定した。live selectorは維持し、共有Legacy selectorと二つのraw
-facadeを一つのatomic I0/R0で削除する。
+最小structural ratchetと第七Binary cellはclosed。現在はpost-Binaryの
+bounded auditだけを行い、残るdirect recursion、dead facade、proof transport
+からnorth starへ進む次の一責務だけを選ぶ。
 
 ## First three replacements
 
@@ -136,9 +135,9 @@ Keep only these counters current:
 
 ```text
 macro_packs_closed                 = 0 / 8
-live_replacement_cells_closed      = 6
+live_replacement_cells_closed      = 7
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = 1 active
+accepted_next_responsibility       = 0; close audit active
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -156,25 +155,8 @@ non-positive.
 ## Active replacement cell
 
 ```text
-BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0
-
-responsibility:
-  raw/default ASTNode::BinaryOp operator-family source partition
-
-owners:
-  drive_ordinary_binary_expression_v1
-  drive_short_circuit_expression_v1
-
-atomic delete set:
-  MirBuilder::build_binary_op
-  drive_raw_ordinary_binary_expression_v1
-  drive_raw_short_circuit_expression_v1
-
-activation:
-  active; minimal structural ratchet closed
+none; DESCENT-SPINE0-CLOSE-AUDIT is a design boundary
 ```
-
-The seventh manifest row belongs to the same atomic Binary closeout commit.
 
 ## Post-Binary boundary
 
@@ -238,6 +220,15 @@ RETURN-SOURCE-PARTITION-CUTOVER0
   fallback / retry               = 0
   production Rust LOC            = -141
   five-cell rolling Rust LOC     = -73
+
+BINARY-SOURCE-PARTITION-CUTOVER0
+  raw/default partition caller   = 1
+  ordinary generic callers       = 2
+  ShortCircuit generic callers   = 2
+  selected old symbols           = 0
+  fallback / retry               = 0
+  production Rust LOC            = -68
+  five-cell rolling Rust LOC     = -294
 ```
 
 ## Parked
