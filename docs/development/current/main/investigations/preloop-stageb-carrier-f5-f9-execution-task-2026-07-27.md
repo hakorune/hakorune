@@ -344,7 +344,8 @@ F6-3 PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0
   + capture_legacy_function_payload_pending_session_v1
 
 F6-4 PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-P0/G0
-  actual Parser full-function parity, failure retention, reuse, structural gate
+  actual Phase-A-indexed Parser full-function parity
+  + typed failure retention, parent restoration, reuse, structural gate
 ```
 
 Landed F6-1 evidence:
@@ -395,9 +396,12 @@ function finalizer / activation ledger / caller      = 0
 The F6 body-schedule hard stop is cleared. The sole next cell is
 `PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0`; it must place the bounded
 schedule inside the existing instance preparation, StepTree, finalizer, and
-generic payload-preserving pending session. The observed Body(4) frontier must
-be resolved through those existing function-scoped authorities rather than by
-adding a second suffix or GenericLoop algorithm.
+generic payload-preserving pending session. The local F6-2 fixture keeps its
+observed Body(4) frontier as a typed boundary proof because it deliberately
+does not run module-root declaration indexing. F6-3/F6-4 must use a separate
+actual Parser fixture after the existing Phase A declaration indexer has
+populated the module context. It must not fabricate a `ParserStringUtilsBox`
+binding or add a second suffix/GenericLoop algorithm.
 
 ### F6 ownership closure
 
@@ -424,14 +428,46 @@ Recommended implementation layout:
 
 ```text
 src/mir/builder/calls/
-  preloop_stageb_instance_function_session.rs
-  preloop_stageb_instance_function_session_tests.rs
+  preloop_stageb_instance_function_session/
+    session.rs
+    session_rejection.rs
+    session_tests.rs
+    test_support.rs                    # cfg(test), only if needed
+
+tools/checks/lib/
+  callable_result_i0_site0_r0_expr0_m0_v0_stageb_session.py
 ```
 
-The module owns one bounded schedule port, one Stage-B request, one pending
-newtype over the existing generic payload session, one owned completion
-payload, and one typed rejection family. It does not own a second body driver,
-function finalizer, or parent-restoration algorithm.
+The module owns one bounded schedule port, one Stage-B request, one private
+pending newtype over the existing generic payload session, one owned completion
+payload, and typed primary/session rejection families. It does not own a
+second body driver, function finalizer, or parent-restoration algorithm.
+
+Required session products:
+
+```text
+PreparedPreloopStageBInstanceFunctionV1
+CompletedPreloopStageBInstanceFunctionPayloadV1
+PendingPreloopStageBInstanceFunctionSessionV1
+CompletedPreloopStageBInstanceFunctionV1
+
+PreloopStageBInstanceFunctionPrimaryRejectionV1
+RejectedPreloopStageBInstanceFunctionSessionV1
+```
+
+The completed payload owns the entire
+`CompletedPreloopStageBBodyScheduleV1`; destination summaries are
+insufficient. Map all three existing
+`LegacyFunctionPayloadSessionErrorV1` variants structurally while the typed
+payload or primary rejection is still owned:
+
+```text
+Primary(primary)
+CleanupAfterSuccess { payload, detail }
+DuringCleanup { primary, detail }
+```
+
+No failure may be collapsed to `String` before that projection.
 
 Exact operation order:
 
@@ -447,6 +483,21 @@ prepare existing instance skeleton/signature/uses/attrs/params
 -> return (unpublished MirFunction, owned Stage-B evidence)
 -> existing generic payload pending session
 ```
+
+Do not call `build_instance_method_draft_with_port_v1`; it would run the
+ordinary whole body instead of the bounded schedule. Reuse:
+
+```text
+prepare_instance_method_draft_body_v1
+run_function_body_step_tree_guard_v1
+drive_preloop_stageb_body_schedule_v1
+finalize_function_draft_with_headers
+capture_legacy_function_payload_pending_session_v1
+```
+
+in that exact order. Extract one small shared prepared-completion helper for
+the current-function return disposition if needed; do not copy its calculation
+into a third owner.
 
 The schedule state is monotonic:
 
@@ -474,18 +525,44 @@ Failure retention:
 | cleanup after success | generic session payload | publication = 0 |
 | cleanup during failure | typed primary Stage-B rejection | publication = 0 |
 
-Actual Parser P0 must prove:
+F6-4 P0 must split its evidence:
 
 ```text
-inner Call precedes outer Call
-outer destination == assignment carrier
-Integer is visible before GenericLoop suffix observation
-suffix passes the previous Missing/Unknown frontier
-signature / params / uses / attrs remain exact
-draft remains unpublished
+local F6-2 actual Parser schedule:
+  Body(4) suffix failure remains pinned
+  full published carrier remains retained
+
+Phase-A-indexed actual Parser session:
+  user-defined-box facts come from the existing declaration indexer
+  inner Call precedes outer Call
+  outer destination == assignment carrier
+  Integer is visible before the suffix frontier
+  Body(4) clears without a new GenericLoop or suffix algorithm
+  Body(5) / whole-body completion reaches the existing finalizer
+  signature / params / uses / attrs remain exact
+  completed draft retains the entire body-schedule payload
+  draft remains unpublished
+  parent function/block/variables/type facts/scope/recursion restore exactly
+  child draft/module publication = 0
+
+compact exact Stage-B source:
+  exercises injected finalizer and cleanup failure branches
+  pending owner keeps the parent captured until one consuming completion
+  typed payload/primary rejection is retained without draft escape
+
 same parent/module candidate Builder:
-  failed session -> exact restoration -> fresh one-shot success
+  typed failure -> exact restoration -> fresh one-shot success
 ```
+
+Hard stop:
+
+```text
+the Phase-A-indexed actual Parser session still fails at Body(4)
+```
+
+If observed, retain the first typed rejection and open a new D0. A compact
+fixture is not a substitute for actual Parser success. F6 must not seed a
+test-only `ParserStringUtilsBox` value or weaken the pinned F6-2 failure.
 
 F6 hard stop:
 

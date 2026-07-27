@@ -7,7 +7,7 @@ development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
 current_execution_row = "PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0"
-current_execution_summary = "Wrap the closed F6-2 schedule in the existing instance preparation, StepTree, header-aware finalizer, and generic payload-preserving pending function session. Resolve the actual Body(4) suffix frontier through those existing function-scoped authorities; do not add a second suffix/GenericLoop algorithm, expose retry/rebind, activate the function ledger or compile_request consumer, or publish a module."
+current_execution_summary = "Wrap the closed F6-2 schedule in the existing instance preparation, StepTree, header-aware finalizer, and generic payload-preserving pending function session. Keep the local F6-2 fixture pinned at its honest Body(4) frontier, then run F6-3/F6-4 in an exact Phase-A-indexed Parser module context so existing user-defined-box authority can clear that frontier. If it does not, stop at the first typed rejection. Do not add a test-only static-box binding, second suffix/GenericLoop algorithm, retry/rebind, activation-ledger or compile_request consumer, or module publication."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
