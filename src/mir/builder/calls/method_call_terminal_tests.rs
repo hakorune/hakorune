@@ -5,7 +5,10 @@ use crate::mir::{Callee, ConstValue, EffectMask, MirBuilder, MirInstruction, Mir
 use crate::parser::NyashParser;
 
 use super::extern_calls::EnvMethodSpec;
-use super::method_call_terminal::MethodCallValueTerminalPortV1;
+use super::method_call_terminal::{
+    emit_static_global_value_terminal_with_receipt_v1, MethodCallValueTerminalPortV1,
+};
+use super::unified_emitter::UnifiedValueCallReceiptErrorV1;
 
 fn integer(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -218,6 +221,105 @@ fn disconnected_static_and_me_global_terminals_preserve_semantic_target_and_argu
     );
     assert_eq!(value_fact(&builder, static_result), (None, None));
     assert_eq!(value_fact(&builder, me_result), (None, None));
+}
+
+#[test]
+fn static_global_receipt_matches_the_successful_physical_call_destination() {
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+        let mut builder = builder("terminal_global_receipt/0");
+        let left = builder.build_expression(integer(3)).unwrap();
+        let right = builder.build_expression(integer(4)).unwrap();
+        let mut port = RawLegacyChildLoweringPortV1;
+
+        let receipt = emit_static_global_value_terminal_with_receipt_v1(
+            &mut builder,
+            &mut port,
+            "TerminalCatalogOwner",
+            "call",
+            2,
+            vec![left, right],
+        )
+        .expect("source-neutral static/global receipt");
+
+        let emitted = instructions(&builder);
+        let destination = emitted
+            .iter()
+            .find_map(|instruction| match instruction {
+                MirInstruction::Call {
+                    dst,
+                    callee: Some(Callee::Global(name)),
+                    ..
+                } if name == "TerminalCatalogOwner.call/2" => *dst,
+                _ => None,
+            })
+            .expect("exact physical global Call");
+        assert_eq!(receipt.final_destination(), destination);
+        assert_eq!(value_fact(&builder, destination), (None, None));
+    });
+}
+
+#[test]
+fn static_global_receipt_rejects_disabled_unified_without_legacy_retry() {
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "off", || {
+        let mut receipt_builder = builder("terminal_global_receipt_disabled/0");
+        let mut receipt_port = RawLegacyChildLoweringPortV1;
+        let error = emit_static_global_value_terminal_with_receipt_v1(
+            &mut receipt_builder,
+            &mut receipt_port,
+            "TerminalCatalogOwner",
+            "call",
+            0,
+            vec![],
+        )
+        .expect_err("receipt-required terminal must not use legacy compatibility");
+        assert_eq!(error, UnifiedValueCallReceiptErrorV1::UnifiedDisabled);
+        assert!(instructions(&receipt_builder)
+            .iter()
+            .all(|instruction| !matches!(instruction, MirInstruction::Call { .. })));
+
+        let mut ordinary_builder = builder("terminal_global_ordinary_disabled/0");
+        let mut ordinary_port = RawLegacyChildLoweringPortV1;
+        ordinary_port
+            .emit_static_global_value_terminal(
+                &mut ordinary_builder,
+                "TerminalCatalogOwner",
+                "call",
+                0,
+                vec![],
+            )
+            .expect("ordinary static terminal keeps legacy compatibility");
+        assert!(instructions(&ordinary_builder)
+            .iter()
+            .any(|instruction| matches!(instruction, MirInstruction::Call { .. })));
+    });
+}
+
+#[test]
+fn failed_static_global_call_emission_issues_no_receipt() {
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+        let mut builder = builder("terminal_global_receipt_failure/0");
+        builder.function_state.current_block = None;
+        let mut port = RawLegacyChildLoweringPortV1;
+
+        let error = emit_static_global_value_terminal_with_receipt_v1(
+            &mut builder,
+            &mut port,
+            "TerminalCatalogOwner",
+            "call",
+            0,
+            vec![],
+        )
+        .expect_err("failed physical Call must issue no receipt");
+        assert_eq!(
+            error,
+            UnifiedValueCallReceiptErrorV1::Emission {
+                detail: "No current basic block".into(),
+            }
+        );
+        assert!(instructions(&builder)
+            .iter()
+            .all(|instruction| !matches!(instruction, MirInstruction::Call { .. })));
+    });
 }
 
 #[test]

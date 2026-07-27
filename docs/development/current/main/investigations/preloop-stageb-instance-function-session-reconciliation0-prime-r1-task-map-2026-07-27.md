@@ -528,6 +528,19 @@ alternate route / Call failure -> receipt zero
 source import / result inference / type write zero
 ```
 
+Landed evidence:
+
+```text
+PreparedGlobalValueCallRequestV1 producer = 1
+ordinary static/global terminal consumer = 1
+receipt-required static/global terminal consumer = 1
+generic physical Call writer / post-success authority = existing 1
+success receipt destination == emitted Call destination
+unified-disabled / emission failure receipt = 0
+legacy retry / source policy / result inference / type write = 0
+production caller = 0
+```
+
 ### F5 — outer carrier transaction
 
 ```text

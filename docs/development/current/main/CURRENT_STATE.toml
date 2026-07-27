@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-LOCATED-OUTER-COMPLETION0-S0/P0/G0 is closed. The exact outer RawLocatedMethodCallInputV1 now reaches the existing planner and sole static-call handler through one narrow StaticMethodCallCompletionV1 capability. Argument(0) remains ordinary; structural Argument(1) uses the existing selected located ingress. The success product retains the exact inner source/physical owner plus only the outer requested ValueId. Outer RawLegacy conversion, second planner/handler/ordered driver, new outer physical receipt, type publication, and production caller remain zero. The active row is UNIFIED-CALL-OUTER-CARRIER-RECEIPT0-S0."
+status = "UNIFIED-CALL-OUTER-CARRIER-RECEIPT0-S0/P0 is closed. One source-neutral static/global receipt sibling now shares PreparedGlobalValueCallRequestV1 with the ordinary terminal and delegates exclusively to the existing generic physical receipt authority. A receipt is issued only after the actual MirInstruction::Call and existing post-success commit succeed; unified-disabled and emission failure issue zero receipt without legacy retry. Source policy, result inference, type publication, assignment, pre-loop production connection, and a second Call writer remain zero. The active row is PRELOOP-OUTER-CARRIER-RECEIPT0-I0."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "UNIFIED-CALL-OUTER-CARRIER-RECEIPT0-S0"
-current_execution_summary = "Add one source-neutral receipt-required static/global value terminal over the existing generic physical Call writer. It may issue CompletedUnifiedValueCallEmissionV1 only after the actual outer MirInstruction::Call succeeds and existing post-success work commits. Rewrite, BoxCall, legacy route, no destination, and Call failure issue zero receipt. Do not add source policy, nested-result inference, type publication, assignment, production activation, retry, or fallback."
+current_execution_row = "PRELOOP-OUTER-CARRIER-RECEIPT0-I0"
+current_execution_summary = "Connect the exact F3 located outer completion owner to the F4 source-neutral static/global receipt sibling. Co-seal the retained exact inner source/physical owner, the sealed outer Integer result contract, and the successful outer CompletedUnifiedValueCallEmissionV1 into one CompletedPreloopOuterCarrierCallV1. The outer final destination must come only from the physical receipt. Do not publish a type, infer from names/runtime/MIR scans, add a production caller, retry, or fallback."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -638,7 +638,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "UNIFIED-CALL-OUTER-CARRIER-RECEIPT0-S0"
+current_blocker_token = "PRELOOP-OUTER-CARRIER-RECEIPT0-I0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

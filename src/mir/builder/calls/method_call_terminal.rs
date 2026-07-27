@@ -299,15 +299,81 @@ fn emit_global_value_terminal_with_lookup_v1(
     arguments: Vec<ValueId>,
     lookup: Option<&dyn crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1>,
 ) -> Result<(ValueId, String), String> {
-    let target = format!("{owner}.{method}/{checked_source_arity}");
-    let dst = builder.next_value_id();
-    builder.emit_unified_call_with_lookup(
-        Some(dst),
-        CallTarget::Global(target.clone()),
+    let request = PreparedGlobalValueCallRequestV1::prepare(
+        builder,
+        owner,
+        method,
+        checked_source_arity,
         arguments,
+    );
+    let target = request.symbol.clone();
+    builder.emit_unified_call_with_lookup(
+        Some(request.destination),
+        request.target,
+        request.arguments,
         lookup,
     )?;
-    Ok((dst, target))
+    Ok((request.destination, target))
+}
+
+/// Receipt-required sibling for a source-neutral static/global value request.
+///
+/// The ordinary terminal keeps its compatibility behavior. This sibling
+/// accepts only the existing generic physical Call terminal, so rewrites,
+/// BoxCall, legacy compatibility, a missing destination, and failed emission
+/// cannot produce a receipt.
+pub(super) fn emit_static_global_value_terminal_with_receipt_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    owner: &str,
+    method: &str,
+    checked_source_arity: u32,
+    arguments: Vec<ValueId>,
+) -> Result<CompletedUnifiedValueCallEmissionV1, UnifiedValueCallReceiptErrorV1>
+where
+    Port: RawFunctionHeaderLookupPortV1,
+{
+    let request = PreparedGlobalValueCallRequestV1::prepare(
+        builder,
+        owner,
+        method,
+        checked_source_arity,
+        arguments,
+    );
+    port.with_function_headers(|lookup| {
+        UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
+            builder,
+            request.destination,
+            request.target,
+            request.arguments,
+            lookup,
+        )
+    })
+}
+
+struct PreparedGlobalValueCallRequestV1 {
+    destination: ValueId,
+    symbol: String,
+    target: CallTarget,
+    arguments: Vec<ValueId>,
+}
+
+impl PreparedGlobalValueCallRequestV1 {
+    fn prepare(
+        builder: &mut MirBuilder,
+        owner: &str,
+        method: &str,
+        checked_source_arity: u32,
+        arguments: Vec<ValueId>,
+    ) -> Self {
+        let symbol = format!("{owner}.{method}/{checked_source_arity}");
+        Self {
+            destination: builder.next_value_id(),
+            target: CallTarget::Global(symbol.clone()),
+            symbol,
+            arguments,
+        }
+    }
 }
 
 pub(in crate::mir::builder) fn emit_env_value_terminal_raw_v1(

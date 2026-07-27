@@ -120,7 +120,11 @@ reach into route-specific plan internals. The current boundary SSOT is
     `StaticReceiver` plan, and reuses the sole static handler through
     `StaticMethodCallCompletionV1`. Its disconnected product retains the inner
     authority plus only the outer requested ValueId; the verified outer
-    physical receipt belongs to the next row.
+    physical receipt belongs to the later carrier transaction.
+  - `calls/method_call_terminal.rs` owns one source-neutral receipt-required
+    static/global sibling. It shares `PreparedGlobalValueCallRequestV1` with
+    the ordinary terminal and delegates to the existing generic physical Call
+    receipt authority; it does not classify source results or publish facts.
   - The configured ParserBox proof discards the whole fixture Builder. This is
     not a production located-call entry or a general Builder transaction.
 - legacy block descent boundary
