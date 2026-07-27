@@ -509,35 +509,39 @@ five-cell rolling production Rust LOC      = -294
 
 ## Post-Binary selection boundary
 
-After Binary closes, open exactly one bounded selection boundary:
+After Binary closed, one bounded selection boundary ran:
 
 ```text
 DESCENT-SPINE0-CLOSE-AUDIT
 ```
 
-It may select at most one next task from the current evidence:
+It selected:
 
 ```text
-DESCENT-PARITY-HARNESS-CONSOLIDATION0-D0
-  non-production BoxShape prototype
-  first seam = seven-field Binary/ShortCircuit snapshot transport
-  reject/no-op if test files do not stay flat or test LOC does not decrease
-
-RAW-BODY-FACADE-RETIRE0
-  T0/RET0 cleanup candidate, not a replacement credit
-  bounded delete set = TaskScope facade + FastMem facade + cf_block + build_block
-  retain port-aware owners and drive_raw_legacy_body_v1
-  requires stale E0 proof-authority disposition first
-
 RECORD-HELPER-BODY-DESCENT0-D0
   first confirmed production-reachable nested direct-recursion red
   design question = declaration-body descent capability without reusing
                     call-site location/ledger authority
 ```
 
-Do not create cards, manifest rows, or a fixed commit train for these candidates
-before the audit. The audit may close the proof prototype as no-op and must keep
-the root non-Program fallback in a separate compiler-residue decision.
+Authority:
+
+```text
+docs/development/current/main/investigations/
+record-helper-body-descent0-d0-consultation-2026-07-28.md
+```
+
+Still parked:
+
+```text
+BINARY-SOURCE-PARTITION-PROOF-CONSOLIDATION0
+RAW-BODY-FACADE-RETIRE0
+non-Program root fallback
+```
+
+Do not create an eighth manifest row or edit production source until the D0
+selects T1 or T2. Keep the root non-Program fallback in a separate
+compiler-residue decision.
 
 ## Macro pack order
 

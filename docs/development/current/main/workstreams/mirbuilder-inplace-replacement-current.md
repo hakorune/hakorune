@@ -48,12 +48,13 @@ authorityを一つ減らす場合だけ選択する。
 ## Current front
 
 ```text
-DESCENT-SPINE0-CLOSE-AUDIT
+RECORD-HELPER-BODY-DESCENT0-D0
 ```
 
-最小structural ratchetと第七Binary cellはclosed。現在はpost-Binaryの
-bounded auditだけを行い、残るdirect recursion、dead facade、proof transport
-からnorth starへ進む次の一責務だけを選ぶ。
+最小structural ratchetと第七Binary cellはclosed。post-Binary auditは、
+prepared MethodCall route後にcallable-catalog helper bodyがLegacy
+`build_expression` / `build_statement`へ再入するlive redを選択した。現在は
+call-site authorityとhelper declaration authorityを分離するT1/T2設計停止。
 
 ## First three replacements
 
@@ -137,7 +138,7 @@ Keep only these counters current:
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 7
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = 0; close audit active
+accepted_next_responsibility       = 0; record-helper D0 active
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -155,15 +156,14 @@ non-positive.
 ## Active replacement cell
 
 ```text
-none; DESCENT-SPINE0-CLOSE-AUDIT is a design boundary
+none; RECORD-HELPER-BODY-DESCENT0-D0 is a design boundary
 ```
 
 ## Post-Binary boundary
 
-Binary closeout returns to one `DESCENT-SPINE0-CLOSE-AUDIT`. Proof-harness
-prototype, dead raw-body facade retirement, and record-helper body descent are
-candidate findings, not three pre-authorized commits. The audit selects at
-most one next task from exact current callers and north-star movement.
+`DESCENT-SPINE0-CLOSE-AUDIT` is closed. It selected only
+`RECORD-HELPER-BODY-DESCENT0-D0`. Proof consolidation and dead raw-body facade
+retirement remain candidate cleanups; neither is current execution authority.
 
 ## Landed replacement cells
 
