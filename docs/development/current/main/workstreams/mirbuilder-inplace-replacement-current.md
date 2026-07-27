@@ -27,12 +27,13 @@ new owner
 ## Current front
 
 ```text
-MIRBUILDER-NEXT-EDGE-DESIGN-STOP
+LOCAL-STATEMENT-DESCENT-CUTOVER0-I0-R0
 ```
 
-三つの固定cutoverはclosed。shared ledgerに第四のexact production edgeが
-まだ無いため、caller/new owner/delete target/parity gate/LOC repaymentを
-一組で選ぶまでcode editを停止する。
+bounded censusはLocalのlive raw/default selectorを第四cellに固定した。
+既に接続済みのgeneric ownerをcreditし、残る二つのLegacy facadeと
+cfg(test) callerを一つのatomic I0/R0で退役させる。detached located caller
+はproduction root activation zeroのまま別証明として保持する。
 
 ## First three replacements
 
@@ -115,13 +116,26 @@ Keep only these counters current:
 ```text
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 3
-replacement_ledger_remaining       = 0 scheduled rows
+replacement_ledger_remaining       = 1 active row
 detached_assets_remaining          = 2 recorded rows
-legacy_production_edges_remaining  = 0 scheduled edges
+legacy_production_edges_remaining  = 1 selected edge
 ```
 
 LOC and file counts are supporting evidence, not semantic authority. The
 five-cell rolling production Rust LOC budget must still be non-positive.
+
+## Active replacement cell
+
+```text
+LOCAL-STATEMENT-DESCENT-CUTOVER0
+  selected live raw callers       = 1
+  detached located root ingress   = 0
+  selected old symbols            = 2
+  old production consumers        = 0
+  cfg(test) callers to migrate    = 9
+  fallback / retry                = 0
+  expected production Rust LOC    < 0
+```
 
 ## Landed replacement cells
 

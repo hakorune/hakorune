@@ -270,17 +270,44 @@ numeric range rejection remains verifier authority rather than a carrier
 rebuild failure. Dynamic range contracts, constant proofs, and out-of-range
 verification are green.
 
-The next production edge is not named by the current ledger. Selection stops
-at:
+The next production edge was selected by the bounded ledger census:
 
 ```text
-docs/development/current/main/investigations/mirbuilder-next-edge-design-stop-2026-07-28.md
+LOCAL-STATEMENT-DESCENT-CUTOVER0-I0-R0
+docs/development/current/main/investigations/local-statement-descent-cutover0-i0-r0-task-2026-07-28.md
 ```
+
+## Fourth replacement
+
+### `LOCAL-STATEMENT-DESCENT-CUTOVER0-I0-R0`
+
+Status: accepted execution task.
+
+Exchange:
+
+```text
+old:
+  variable_stmt::build_local_statement
+  -> drive_raw_local_statement_v1
+  -> drive_local_statement_v1
+
+new/live:
+  raw statement_surface ASTNode::Local
+  -> RawLegacyLocalInputV1
+  -> drive_local_statement_v1
+```
+
+The selected live raw/default caller is exactly one. One detached located
+caller remains inactive at the production root and is guarded separately.
+The cell deletes only the two old facades, rewrites their nine cfg(test)
+callers through the real AST ingress, preserves Local semantics, and adds no
+fallback, retry, or second selector.
 
 ## Macro pack order
 
 The first three replacements above are fixed. After them, the shared ledger
-selects the next exact production edge inside this fixed order.
+selected Local as the first historical live replacement credit inside this
+fixed order.
 
 ```text
 DESCENT-SPINE0

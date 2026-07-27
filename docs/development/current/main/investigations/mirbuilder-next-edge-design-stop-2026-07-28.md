@@ -1,7 +1,7 @@
 ---
-Status: Design stop
+Status: accepted
 Date: 2026-07-28
-Decision: pending
+Decision: LOCAL-STATEMENT-DESCENT-CUTOVER0-I0-R0
 Scope: select the first exact production edge after the three fixed cutovers
 ---
 
@@ -45,6 +45,25 @@ Recommended next decision: candidate 1. It follows the fixed pack order and
 prevents naming an implementation row before the finite ledger has an exact
 production edge.
 
+## Resolution
+
+Accepted after a four-worker bounded census:
+
+```text
+LOCAL-STATEMENT-DESCENT-CUTOVER0-I0-R0
+```
+
+Execution authority:
+
+```text
+docs/development/current/main/investigations/local-statement-descent-cutover0-i0-r0-task-2026-07-28.md
+```
+
+The selected live raw/default Local selector is exactly one. The generic owner
+also has one detached located caller with production root ingress zero; the
+execution card guards these separately instead of making a false global
+caller-count claim.
+
 ## Minimum implementation slice after decision
 
 One manifest row, one named production caller switch, one selected old edge
@@ -54,7 +73,7 @@ fallback, or unrelated cleanup may be added.
 
 ## Non-claims
 
-- no fourth production row is selected yet
+- selection does not close the fourth production row
 - no macro pack is closed
 - no detached asset is promoted
 - no Stage-B, Ownership, selfhost, language, runtime, or backend work resumes
