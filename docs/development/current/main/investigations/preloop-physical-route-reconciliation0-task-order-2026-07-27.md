@@ -762,6 +762,44 @@ other frontier:
 
 Loop-refresh is a parked candidate, not a mandatory successor.
 
+### STAGEB0-P0 closeout
+
+`CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0` is closed as an observation row.
+
+The exact existing guard remained green because it still observed its
+pre-activation frontier:
+
+```text
+ParserBox.static_const_parse_add/2
+-> GenericLoop carrier representation failed:
+   MissingTransientType { init: ValueId(28) }
+```
+
+The row did not reach ownership syntax or loop-refresh. The exact other
+frontier is `ProductionCarrierHandoffMissing`.
+
+The audit also corrected the assumed destination relation:
+
+```text
+current TYPE-I0 destination =
+  inner me.static_const_eval_pos(ret) Call result
+
+GenericLoop carrier destination =
+  outer ParserStringUtilsBox.skip_ws(...) result assigned to pos
+
+these destinations are not the same
+```
+
+All candidate Port, emitted nested receipt, and TYPE-I0 consumers remain
+test-only. Therefore connecting the existing TYPE-I0 terminal alone cannot
+close the Stage-B carrier fact.
+
+The next stop is
+`PRELOOP-STAGEB-CARRIER-HANDOFF0-D0`, documented in
+`preloop-stageb-carrier-handoff0-d0-design-question-2026-07-27.md`. No code
+implementation, guard expectation rewrite, ownership resume, or loop-refresh
+activation is authorized before that decision closes.
+
 ## Longer roadmap
 
 If Stage-B selects ownership syntax, resume the already accepted sparse

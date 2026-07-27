@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0, the pre-loop located request boundary, generic unified-Call physical receipt, REP0 source/physical pairing, production-prefix proof, and receipt-backed Integer publication are closed. CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-prime-r1 remains the fact authority: stored Unknown is replaceable, matching Integer is idempotent, concrete overwrite rejects, and inner/outer failure publishes nothing. TYPE-I0-G0 closes with the existing callable-result and type-fact guards. CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0 is next and must only observe the first exact Stage-B frontier; it may not implement ownership, loop-refresh, fallback, Router, Call, backend, or production-route changes."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0, the pre-loop located request boundary, generic unified-Call physical receipt, REP0 source/physical pairing, production-prefix proof, and receipt-backed inner Integer publication are closed. CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0 is closed as observation: the exact guard still reports MissingTransientType for the outer skip_ws result assigned to pos. Current TYPE-I0 writes the selected inner Method Call destination, not the outer carrier destination, and all activation/publisher consumers remain test-only. PRELOOP-STAGEB-CARRIER-HANDOFF0-D0 is the exact design stop; no production activation or outer carrier publication is selected yet."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0"
-current_execution_summary = "Run the exact Stage-B guard with the real pre-loop Integer fact and record only the first new failure. If the frontier is ownership syntax, select the existing OWN-GRAM-REJECT0-HAKO0 resume; if it is loop-refresh, open GENERIC-LOOP-NESTED-RESULT-ACTIVATION0-D0; otherwise stop at one exact owner consultation. This row is observation-only: implementation, workaround, fallback, route reselection, and broad cleanup remain forbidden."
+current_design_stop = "PRELOOP-STAGEB-CARRIER-HANDOFF0-D0"
+current_execution_row = "design consultation only"
+current_execution_summary = "Decide the owned same-catalog source activation, the exact function-scoped handoff, and a separate outer skip_ws carrier receipt/result authority. The existing inner receipt and TYPE-I0 terminal must not be claimed as the outer GenericLoop carrier fact. Until D0 closes, implementation, guard expectation changes, ownership/loop-refresh activation, GenericLoop publication, fallback, and route reselection are forbidden."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -433,9 +433,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "preloop-physical-route-reconciliation0-task-order-2026-07-27"
-latest_card_path = "docs/development/current/main/investigations/preloop-physical-route-reconciliation0-task-order-2026-07-27.md"
-latest_card_summary = """PRELOOP-PHYSICAL-ROUTE-RECONCILIATION0-prime-r1 and REP0-I0/P0/G0 are closed. CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-prime-r1 accepts Choice A: None/Unknown publish Integer, existing Integer is idempotent with no physical write, and other concrete facts conflict without overwrite. Existing TypeFactDecisionV1 and TypeContext::set_type remain the sole policy/write authorities. TYPE-I0-S0 is next: one Builder-free prepared/rejected owner in a new small sibling module, with receipt consumption, type write, GenericLoop, production callers, fallback, and Router changes still zero."""
+latest_card = "preloop-stageb-carrier-handoff0-d0-design-question-2026-07-27"
+latest_card_path = "docs/development/current/main/investigations/preloop-stageb-carrier-handoff0-d0-design-question-2026-07-27.md"
+latest_card_summary = """CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0 closes with ProductionCarrierHandoffMissing. The exact guard still observes MissingTransientType for the outer skip_ws result. Existing TYPE-I0 is internally valid but test-only and writes the selected inner Method Call destination, which is not the outer assignment/GenericLoop init destination. PRELOOP-STAGEB-CARRIER-HANDOFF0-D0 must choose one owned same-catalog activation, exact instance-method handoff, outer physical carrier receipt, and outer result authority before implementation."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0"
+current_blocker_token = "PRELOOP-STAGEB-CARRIER-HANDOFF0-D0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
