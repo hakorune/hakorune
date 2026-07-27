@@ -1,7 +1,7 @@
 ---
-Status: active design stop
+Status: accepted
 Date: 2026-07-28
-Decision: pending fifth production edge
+Decision: VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0-I0-R0
 Scope: select the next exact production edge after four closed cutovers
 ---
 
@@ -73,6 +73,25 @@ docs/development/current/main/investigations/
 mirbuilder-fifth-production-edge-consultation-2026-07-28.md
 ```
 
+## Fifth resolution
+
+The consultation selected:
+
+```text
+VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0-I0-R0
+```
+
+The execution card is:
+
+```text
+docs/development/current/main/investigations/
+variable-assignment-descent-cutover0-i0-r0-task-2026-07-28.md
+```
+
+The cell owns the complete bounded raw/default variable-name reassignment
+caller set: exact Variable target plus GroupedAssignmentExpr. One detached
+located caller remains separately counted with production root ingress zero.
+
 ## Minimum implementation slice after decision
 
 One manifest row, one named production caller switch, one selected old edge
@@ -82,7 +101,8 @@ fallback, or unrelated cleanup may be added.
 
 ## Non-claims
 
-- no fifth production row is selected
+- selection does not close the fifth production row
+- no sixth production row is selected
 - no macro pack is closed
 - no detached asset is promoted
 - no Stage-B, Ownership, selfhost, language, runtime, or backend work resumes

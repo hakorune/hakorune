@@ -1,7 +1,7 @@
 ---
-Status: consultation requested
+Status: accepted and taskized
 Date: 2026-07-28
-Decision: pending fifth in-place production replacement
+Decision: VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0-I0-R0
 Parent:
   - docs/development/current/main/investigations/
     mirbuilder-next-edge-design-stop-2026-07-28.md
@@ -283,3 +283,24 @@ Which exact existing production edge should become the fifth in-place
 MirBuilder replacement cell, and can its selected old edge be physically
 retired in one bounded negative-LOC commit without semantic widening?
 ```
+
+## Resolution
+
+Accepted after a four-worker latest-main audit:
+
+```text
+VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0-I0-R0
+```
+
+Execution authority:
+
+```text
+docs/development/current/main/investigations/
+variable-assignment-descent-cutover0-i0-r0-task-2026-07-28.md
+```
+
+The audit fixed the caller contract at two raw/default sites—exact Variable
+target and GroupedAssignmentExpr—plus one detached located site. Both
+raw/default sites already construct the same input and call the same owner.
+The task card explicitly denies Grouped historical snapshot parity and stops
+if the two ingresses require different semantic interfaces.

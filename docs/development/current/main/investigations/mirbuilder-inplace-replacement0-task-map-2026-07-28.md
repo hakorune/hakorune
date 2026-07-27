@@ -316,8 +316,41 @@ production Rust LOC delta                 = -52
 four-cell cumulative production Rust LOC  = -57
 ```
 
-No fifth production edge is selected. Return to
-`MIRBUILDER-NEXT-EDGE-DESIGN-STOP`.
+That closeout returned to `MIRBUILDER-NEXT-EDGE-DESIGN-STOP`; the following
+bounded consultation then selected the fifth production edge.
+
+## Fifth replacement
+
+### `VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0-I0-R0`
+
+Status: accepted execution task.
+
+Execution authority:
+
+```text
+docs/development/current/main/investigations/
+variable-assignment-descent-cutover0-i0-r0-task-2026-07-28.md
+```
+
+Exchange:
+
+```text
+live:
+  exact Variable-target Assignment
+  GroupedAssignmentExpr
+  -> RawLegacyVariableAssignmentInputV1
+  -> drive_variable_assignment_v1
+
+retire:
+  drive_raw_variable_assignment_v1
+  MirBuilder::build_grouped_assignment
+```
+
+The two raw/default syntax ingresses form the complete bounded caller set for
+one variable-name reassignment input/owner. The detached located caller remains
+root-inactive and separately guarded. Exact Variable retains historical
+snapshot parity; Grouped retains existing production-ingress behavior only.
+No Grouped historical snapshot parity is claimed.
 
 ## Macro pack order
 

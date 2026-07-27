@@ -27,12 +27,12 @@ new owner
 ## Current front
 
 ```text
-MIRBUILDER-NEXT-EDGE-DESIGN-STOP
+VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0-I0-R0
 ```
 
-第四cellのLocalはclosed。次のproduction edgeは未選択であり、既存caller、
-replacement owner、delete target、parity gate、LOC repayment boundaryを
-一枚に固定するまでsource editへ進まない。
+第五cellはVariable-name Assignment descent。exact Variable targetと
+GroupedAssignmentExprの二つのraw/default入口は既に同じinput/ownerへ接続済み。
+残るraw facadeとzero-caller Grouped facadeを次のatomic I0/R0で退役させる。
 
 ## First three replacements
 
@@ -115,9 +115,9 @@ Keep only these counters current:
 ```text
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 4
-replacement_ledger_remaining       = 0 scheduled production rows
+replacement_ledger_remaining       = 1 active row
 detached_assets_remaining          = 2 recorded rows
-legacy_production_edges_remaining  = 0 selected edges
+legacy_production_edges_remaining  = 2 selected old symbols
 ```
 
 LOC and file counts are supporting evidence, not semantic authority. The
@@ -126,7 +126,15 @@ five-cell rolling production Rust LOC budget must still be non-positive.
 ## Active replacement cell
 
 ```text
-none
+VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0
+  raw/default production callers = 2
+  detached located caller        = 1
+  detached root ingress          = 0
+  selected old symbols           = 2
+  old production consumers       = 0
+  cfg(test) facade callers       = 1
+  fallback / retry               = 0
+  bounded production Rust LOC    <= -23
 ```
 
 ## Landed replacement cells
