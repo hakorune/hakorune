@@ -11,7 +11,7 @@ preloop-stageb-instance-function-session-reconciliation0-prime-r1
 Current row:
 
 ```text
-PRELOOP-OUTER-CARRIER-ASSIGNMENT0-S0
+PRELOOP-OUTER-CARRIER-TYPE-I0-S0
 ```
 
 ## Closed prerequisites
@@ -211,6 +211,23 @@ the outer physical destination
 
 If observed, retain the typed mismatch and open a new assignment-carrier D0.
 Do not compensate with `variable_map`, a copy, or a second assignment writer.
+
+Landed evidence:
+
+```text
+source-neutral assignment completion producer = 1
+existing build_assignment_from_value calls     = exactly 1
+second assignment writer                       = 0
+post-assignment variable_map inference         = 0
+
+source-sealed target == assignment target
+outer destination == assignment RHS == returned carrier
+
+assignment failure retains complete outer carrier
+correspondence drift retains both complete owners
+failure -> fresh fixture success
+type publication / suffix / production caller = 0
+```
 
 ## F5-C — outer Integer publication
 

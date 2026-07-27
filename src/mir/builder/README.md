@@ -125,6 +125,14 @@ reach into route-specific plan internals. The current boundary SSOT is
     physical owner with the owned Stage-B body recipe and co-seals caller,
     outer site, selected index, inner site, and the sealed Integer result. The
     outer destination is projected only from the outer physical receipt.
+  - `stmts/variable_assignment_completion.rs` is the source-neutral receipt
+    sibling for the existing `build_assignment_from_value` authority. It calls
+    that authority once and retains the exact target, RHS, and returned carrier
+    without reading `variable_map` afterward.
+  - `calls/preloop_outer_carrier_assignment.rs` consumes the outer carrier and
+    that assignment receipt. It requires the source-sealed target and exact
+    `outer destination == RHS == returned carrier` correspondence; every
+    failure retains both owners and publishes no type fact.
   - `calls/method_call_terminal.rs` owns one source-neutral receipt-required
     static/global sibling. It shares `PreparedGlobalValueCallRequestV1` with
     the ordinary terminal and delegates to the existing generic physical Call
