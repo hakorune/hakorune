@@ -331,11 +331,119 @@ the strongest completed F5 evidence. No ordinary retry is allowed.
 Buildable cells:
 
 ```text
-F6-1 selected statement transaction
-F6-2 prefix/selected/suffix schedule connection
-F6-3 payload function-session completion and failure retention
-F6-4 actual Parser parity and G0
+F6-1 PRELOOP-STAGEB-COMPLETION-EVIDENCE0-S0
+  consume the borrowed F3-F5 chain inside the HRTB callback
+  -> lifetime-free CompletedPreloopStageBCarrierV1
+
+F6-2 PRELOOP-STAGEB-BODY-SCHEDULE0-I0
+  one bounded LegacyBlockDescentPortV1
+  prefix ordinary -> selected F3-F5 transaction -> suffix ordinary
+
+F6-3 PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0
+  existing instance preparation / StepTree / finalizer
+  + capture_legacy_function_payload_pending_session_v1
+
+F6-4 PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-P0/G0
+  actual Parser full-function parity, failure retention, reuse, structural gate
 ```
+
+### F6 ownership closure
+
+F3-F5 products borrow the located source chain and cannot escape
+`PreparedPreloopStageBFunctionIngressV1::with_prepared_located_argument`.
+Before that callback ends, one private consuming projection must produce:
+
+```text
+CompletedPreloopStageBCarrierV1
+  - owned recipe / nested rebind witness
+  - inner physical destination evidence
+  - outer physical destination evidence
+  - assignment correspondence
+  - Integer publication disposition
+```
+
+Use the existing
+`PreparedPreloopLocatedArgumentV1::into_owned_rebind_witness()` through private
+delegating terminals. Public `into_owner`, AST/MIR re-observation, destination-
+only collapse, borrowed-owner escape, and an external mutable payload slot are
+forbidden.
+
+Recommended implementation layout:
+
+```text
+src/mir/builder/calls/
+  preloop_stageb_instance_function_session.rs
+  preloop_stageb_instance_function_session_tests.rs
+```
+
+The module owns one bounded schedule port, one Stage-B request, one pending
+newtype over the existing generic payload session, one owned completion
+payload, and one typed rejection family. It does not own a second body driver,
+function finalizer, or parent-restoration algorithm.
+
+Exact operation order:
+
+```text
+prepare existing instance skeleton/signature/uses/attrs/params
+-> existing StepTree guard
+-> one drive_legacy_block_v1
+     prefix ordinary
+     selected exact outer Call -> assignment -> Integer publication
+     convert borrowed F5 success/rejection to owned Stage-B evidence
+     suffix ordinary only after publication success
+-> existing header-aware finalizer
+-> return (unpublished MirFunction, owned Stage-B evidence)
+-> existing generic payload pending session
+```
+
+The schedule state is monotonic:
+
+```text
+Armed
+-> Prefix
+-> SelectedInFlight
+-> SelectedCompleted(owned F5 evidence)
+-> Suffix
+-> Completed
+ | Rejected(strongest retained owner)
+```
+
+Failure retention:
+
+| Failure | Retained authority | Later effects |
+| --- | --- | --- |
+| prefix | recipe + owned rebind | selected/F5/suffix = 0 |
+| inner Call | exact selected source | outer/assignment/type/suffix = 0 |
+| outer Call | successful inner physical evidence | assignment/type/suffix = 0 |
+| assignment | complete outer carrier | type/suffix = 0 |
+| type conflict | assignment + unchanged prior fact | suffix/finalizer = 0 |
+| suffix | owned completed F5 evidence | publication = 0 |
+| finalizer | owned completed F5 evidence | publication = 0 |
+| cleanup after success | generic session payload | publication = 0 |
+| cleanup during failure | typed primary Stage-B rejection | publication = 0 |
+
+Actual Parser P0 must prove:
+
+```text
+inner Call precedes outer Call
+outer destination == assignment carrier
+Integer is visible before GenericLoop suffix observation
+suffix passes the previous Missing/Unknown frontier
+signature / params / uses / attrs remain exact
+draft remains unpublished
+same parent/module candidate Builder:
+  failed session -> exact restoration -> fresh one-shot success
+```
+
+F6 hard stop:
+
+```text
+the F5 owner cannot yield the existing owned rebind witness inside the HRTB
+callback without a public owner escape or source/MIR re-observation
+```
+
+Only that contradiction opens
+`PRELOOP-STAGEB-INSTANCE-FUNCTION-COMPLETION-EVIDENCE0-D0`.
 
 ## F7 — activation ledger
 
@@ -366,9 +474,27 @@ duplicate caller             = typed reject
 Buildable cells:
 
 ```text
-F7-1 produce InFlight from Armed only
-F7-2 retain Completed | Rejected payloads
-F7-3 missing/double/reuse matrix and G0
+F7-1 INSTANCE-METHOD-CAPTURE-SEAM0-S0
+  one behavior-neutral exact-function capture seam
+
+F7-2 FUNCTION-ACTIVATION-LEDGER0-I0
+  exact canonical caller key:
+    Armed -> InFlight -> Completed(F6 receipt) | Rejected(F6 rejection)
+
+F7-3 FUNCTION-ACTIVATION-LEDGER0-P0/G0
+  exact-once / missing / duplicate / failure retention / reuse
+```
+
+The current ledger has only `Armed` and `SelectedCallerNotObserved`, and the
+preinstalled root does not yet pass a capture consumer. F8 must remain
+disconnected until F7 supplies one real completed-function payload.
+
+```text
+selected caller comparison = exact canonical key
+selected consumer           = exactly 1
+ordinary method delta       = 0
+Builder source-site field   = 0
+selected -> ordinary retry  = 0
 ```
 
 ## F8 — compile-request production ingress
@@ -387,6 +513,19 @@ PRELOOP-STAGEB-SOURCE-INVENTORY0-P0
 The inventory, request, selection, and disconnected module-activation rows in
 this list are already closed. They remain prerequisites and are not rebuilt.
 The first new F8 behavior is the exact Legacy-arm consumer after F7.
+
+Closed products that must be reused:
+
+```text
+CompilerSuppliedStaticImportSnapshotV1
+LegacyWholeSourceCompileRequestV1
+whole-source target inventory
+Stage-B candidate inventory and 0 / 1 / many selection
+PreparedSelectedPreloopStageBWholeSourceV1
+PreparedPreloopStageBModuleActivationV1
+atomic same-allocation catalog + alias install
+preinstalled-root shell
+```
 
 Before that consumer is added, close two bounded correspondence rows:
 
@@ -457,12 +596,53 @@ retries as Ordinary.
 Buildable cells:
 
 ```text
-F8-1 route compile_with_source/imports into the owned typed request
-F8-2 preserve Ordinary None / Explicit(empty) / Explicit(map) import parity
+F8-1 LEGACY-WHOLE-SOURCE-REQUEST-PLUMBING0-S0
+  route compile_with_source/imports into the existing owned typed request
+  remove Builder alias mutation before selection
+
+F8-2 LEGACY-ORDINARY-PARITY0-P0
+  preserve Ordinary None / Explicit(empty) / Explicit(map)
+  ProgramV0 / REPL / direct Builder callers unchanged
+
 F8-3 connect Selected to the completed F7 ledger/session
-F8-4 selected/ordinary/error/reuse P0
+
+F8-4 selected/ordinary/error/same-compiler-reuse P0
+
 F8-5 sole-caller, no-direct-Builder, no-fallback G0
      + register the reused structural guard in docs/tools/check-scripts-index.md
+```
+
+Current code-facing delta:
+
+```text
+MirLoweringRequestV1::Legacy
+  currently carries LegacyModuleLoweringInputV1 only
+
+compile_legacy / compile_with_source_and_imports
+  currently mutate Builder aliases before selection
+
+MirCompiler::compile_request Legacy arm
+  currently has zero PreloopStageBWholeSourceProducerV1 consumers
+```
+
+`ExactCandidateProofUnavailable` is not a new policy to invent during F8.
+Reconcile its name with the existing bounded ordinary disposition and retain
+the law:
+
+```text
+incomplete bounded proof -> explicit Ordinary
+partial Selected attempt -> 0
+```
+
+Exact F8 frontier:
+
+```text
+src/mir/compiler/mod.rs
+src/mir/compiler/lowering_input.rs
+src/mir/compiler/legacy_whole_source_request.rs
+src/mir/compiler/legacy_source_selection.rs
+src/mir/compiler/legacy_module_activation.rs
+src/mir/compiler/legacy_module_activation/{install,ledger}.rs
 ```
 
 ## F9 — real Stage-B proof and retirement census
@@ -494,6 +674,51 @@ another missing representation
 ```
 
 Alias/View language semantics are not selected by this series.
+
+## Reconciled commit order
+
+```text
+1. F6 owned HRTB completion closure
+2. F6 one bounded body schedule
+3. F6 payload function session + actual Parser P0/G0
+4. F7 behavior-neutral capture seam
+5. F7 exact single-use ledger P0/G0
+6. F8 typed Legacy request plumbing + Ordinary parity
+7. F8 selected candidate session D0 closeout and isolated session
+8. F8 compile_request sole consumer P0/G0
+9. F9 unchanged-first real Stage-B guard + retirement census
+```
+
+No earlier source inventory, selector, catalog, alias snapshot, module install,
+outer receipt, assignment, or type publisher is recreated.
+
+## Verification ladder
+
+```text
+F6:
+  cargo check -q --lib
+  cargo test -q --lib preloop_stageb
+  cargo test -q --lib preloop_outer_carrier
+  cargo test -q --lib function_session
+
+F7:
+  cargo test -q --lib legacy_module_activation
+  cargo test -q --lib preloop_stageb
+
+F8:
+  cargo test -q --lib source_call_target
+  cargo test -q --lib preloop_stageb
+  cargo test -q --lib module_lowering_invocation_reentrant
+  cargo check -q --lib
+
+G0 milestones:
+  python3 tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_v0.py
+  bash tools/checks/current_state_pointer_guard.sh
+  tools/checks/dev_gate.sh quick
+
+F9 only:
+  bash tools/checks/generic_loop_progression_role_v0_guard.sh
+```
 
 ## Parked cleanup after F9
 
