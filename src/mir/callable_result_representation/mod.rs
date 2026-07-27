@@ -19,6 +19,7 @@ mod loop_claim_batch;
 mod loop_claim_schedule;
 mod requirements;
 mod solver;
+mod static_exact_i64_requirement;
 
 #[allow(unused_imports)]
 pub(crate) use call_row::{VerifiedCallableResultCallSiteV1, VerifiedCallableResultEvidenceV1};
@@ -31,6 +32,11 @@ pub(crate) use body_proof_issue::{
     VerifiedUnannotatedCallableBodyResultProofV1,
 };
 pub(crate) use solver::VerifiedSameModuleCallableResultCatalogV1;
+#[allow(unused_imports)]
+pub(crate) use static_exact_i64_requirement::{
+    project_static_exact_i64_requirement_v1, StaticExactI64RequirementErrorV1,
+    VerifiedStaticExactI64RequirementV1,
+};
 
 #[cfg(test)]
 mod tests;

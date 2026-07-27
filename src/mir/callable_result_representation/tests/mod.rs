@@ -13,4 +13,5 @@ mod located_short_circuit_lowering;
 mod loop_claim_batch;
 mod normalized_snapshot;
 mod source_proof;
+mod static_exact_i64_requirement;
 mod support;

@@ -126,6 +126,7 @@ pub(crate) mod numeric_substrate; // fixed-width/pointer-sized numeric type-name
 pub mod optimizer;
 pub mod ordered_map_origin_plan; // focused OrderedMapBox get result-origin publication
 pub(crate) mod parameter_entry_backend_capability; // exact-numeric parameter-entry backend gate
+pub(crate) mod preloop_stageb_carrier; // bounded pre-loop outer carrier source proof
 pub mod policies; // shared routing policies (SSOT)
 pub mod range_index_fact; // canonical loop range-index facts for fast-path consumers
 pub(crate) mod record_value_backend_capability; // record construction/update contract backend gate

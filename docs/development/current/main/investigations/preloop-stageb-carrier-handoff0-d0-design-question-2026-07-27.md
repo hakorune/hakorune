@@ -1,5 +1,5 @@
 ---
-Status: accepted design; correspondence row closed
+Status: accepted design; correspondence and outer result-contract rows closed
 Date: 2026-07-27
 Decision: PRELOOP-STAGEB-CARRIER-HANDOFF0-prime-r1
 Closes:
@@ -9,7 +9,7 @@ Closes observation row:
 Observed frontier:
   - ProductionCarrierHandoffMissing
 First executable row:
-  - PRELOOP-OUTER-CARRIER-RESULT-CONTRACT0-S0
+  - PRELOOP-STAGEB-SOURCE-ACTIVATION0-S0
 Related:
   - preloop-physical-route-reconciliation0-task-order-2026-07-27.md
   - stageb-generic-loop-transient-type-d0-design-question-2026-07-26.md
@@ -363,12 +363,14 @@ Do not widen the solver or infer from names.
 
 ### 2. `PRELOOP-OUTER-CARRIER-RESULT-CONTRACT0-S0`
 
-Builder-free source proof:
+Closed Builder-free source proof (2026-07-27):
 
 ```text
 VerifiedStaticExactI64RequirementV1
 SealedPreloopOuterCarrierResultContractV1
 typed foreign-catalog / ordinal / result mismatch
+general call-result substitution rejected
+production consumer == 0
 ```
 
 ### 3. `PRELOOP-STAGEB-SOURCE-ACTIVATION0-S0`
@@ -383,7 +385,33 @@ VerifiedPreloopStageBCarrierActivationPlanV1
 
 Production consumer remains zero through this row.
 
-### 4. `PRELOOP-STAGEB-FUNCTION-INGRESS0-I0`
+### 4. `PRELOOP-STAGEB-FUNCTION-PREPARATION0-S0`
+
+Behavior-neutral BoxShape extraction:
+
+```text
+shared instance-method skeleton / signature / params / finalizer
+ordinary and port-aware body descent remain thin consumers
+activation selection and production consumer remain zero
+```
+
+### 5. `PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0`
+
+Before production ingress, select the real whole-source producer:
+
+```text
+target inventory = whole resolver-observable static-call inventory
+candidate zero = ordinary route unchanged
+candidate one = exact owned activation
+candidate many or selected drift = typed pre-Builder rejection
+unsupported inventory availability = explicit disposition, never silent fallback
+alias authority = compiler-supplied typed using/import snapshot
+```
+
+The D0 must also prove that the owned activation row removes every catalog
+borrow before the exact catalog is installed into the mutable Builder.
+
+### 6. `PRELOOP-STAGEB-FUNCTION-INGRESS0-I0`
 
 Connect exactly one selected instance method:
 
@@ -398,13 +426,13 @@ ordinary route delta zero
 RawInvocation/collector cutover zero
 ```
 
-### 5. `UNIFIED-CALL-OUTER-CARRIER-RECEIPT0-S0`
+### 7. `UNIFIED-CALL-OUTER-CARRIER-RECEIPT0-S0`
 
 Add one source-neutral receipt-returning sibling for the outer static/global
 value terminal. It must call the existing generic physical writer and expose
 only `CompletedUnifiedValueCallEmissionV1`.
 
-### 6. `PRELOOP-OUTER-CARRIER-RECEIPT0`
+### 8. `PRELOOP-OUTER-CARRIER-RECEIPT0`
 
 ```text
 I0:
@@ -417,7 +445,7 @@ G0:
   one outer receipt producer, no inner-as-outer conversion
 ```
 
-### 7. `PRELOOP-OUTER-CARRIER-ASSIGNMENT0-S0`
+### 9. `PRELOOP-OUTER-CARRIER-ASSIGNMENT0-S0`
 
 Add one source-neutral assignment-completion sibling and one bounded pre-loop
 co-seal:
@@ -432,7 +460,7 @@ outer physical destination
 The current row accepts exact identity only. Typed-local projection remains an
 explicit rejection and no general assignment-result typing is introduced.
 
-### 8. `PRELOOP-OUTER-CARRIER-TYPE-I0`
+### 10. `PRELOOP-OUTER-CARRIER-TYPE-I0`
 
 ```text
 S0:
@@ -448,7 +476,7 @@ G0:
   one production outer publisher; direct map insert zero
 ```
 
-### 9. `CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0`
+### 11. `CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0`
 
 Only after the preceding rows:
 
@@ -463,33 +491,39 @@ it. The new actual output selects the next blocker.
 
 ```text
 Commit A:
-  CORRESPONDENCE0-P0
-  + bounded exact-static requirement projection
+  closed CORRESPONDENCE0-P0
 
 Commit B:
-  RESULT-CONTRACT0-S0
-  + owned SOURCE-ACTIVATION0-S0
+  closed RESULT-CONTRACT0-S0
 
 Commit C:
+  owned SOURCE-ACTIVATION0-S0
+  + disconnected same-allocation/ownership matrix
+
+Commit D:
   shared instance-method preparation extraction
   + legacy/port-aware parity
 
-Commit D:
-  FUNCTION-INGRESS0-I0
-  + exact body handoff
+Design stop:
+  SOURCE-PRODUCER-SELECTION0-D0
+  + whole static-call inventory / zero-one-many selection
 
 Commit E:
+  FUNCTION-INGRESS0-I0
+  + exact owned body handoff
+
+Commit F:
   source-neutral outer receipt terminal
   + outer carrier receipt
   + source-neutral assignment completion
 
-Commit F:
+Commit G:
   bounded assignment correspondence
   + outer TYPE-I0
   + focused parity/reuse
   + existing lane guard consolidation
 
-Commit G:
+Commit H:
   actual Stage-B rerun
   + current pointer closeout
 ```
