@@ -28,6 +28,7 @@ cargo check -q
 ## Current Lane
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
+- MirBuilder north star: read `mirbuilder_north_star` in `CURRENT_STATE.toml`
 - workstream card: read `latest_workstream_card` in `CURRENT_STATE.toml`
 - method anchor: read `method_anchor` in `CURRENT_STATE.toml`
 - active lane: read `active_lane` in `CURRENT_STATE.toml`
@@ -44,6 +45,8 @@ cargo check -q
 - continue only the exact `current_blocker_token` and `latest_card_path` from
   `CURRENT_STATE.toml`; this mirror does not select or rename executable rows
 - read `method_anchor` for the in-place production replacement law
+- read `mirbuilder_north_star` before selecting a replacement cell; cell and
+  LOC counters are migration metrics, not the architecture goal
 - `I0` requires a real production caller switch; a disconnected candidate is
   S0/PROBE0, not I0
 - the same cell deletes the selected old branch in I0/R0 before unrelated work

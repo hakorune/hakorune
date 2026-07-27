@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-06-25
+Date: 2026-07-28
 Scope: `AGENTS.md` の current-first 読み順と historical section の扱い。
 Related:
   - AGENTS.md
@@ -36,6 +36,11 @@ Read current-state documents first:
 
 Then read `AGENTS.md` for personality, always-on engineering rules, and
 stop-the-line policy.
+
+When the active lane is MirBuilder in-place replacement, read the
+`mirbuilder_north_star` path from `CURRENT_STATE.toml` before selecting a cell.
+The replacement method and current row are subordinate to that final
+production-authority goal.
 
 For optimization work, the durable toolbox entry is:
 

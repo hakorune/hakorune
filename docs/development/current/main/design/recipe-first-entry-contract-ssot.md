@@ -1,6 +1,7 @@
 Status: SSOT
-Scope: Recipe-first entry contract (Facts → Recipe → Verify → Lower)
+Scope: final MirBuilder pipelineの前半契約 (Facts → Recipe → Verify → Lower)
 Related:
+- `docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`
 - `docs/development/current/main/design/recipe-tree-and-parts-ssot.md`
 - `docs/development/current/main/design/planfrag-freeze-taxonomy.md`
 - `docs/development/current/main/design/archive/domainplan-thinning-ssot.md`
@@ -8,6 +9,9 @@ Related:
 # Recipe-first Entry Contract (SSOT)
 
 This document fixes the entry flow so that entry-route selection does not define semantics; semantics come from Facts → Recipe → Verifier.
+The whole-pipeline authority, including DraftSeal and atomic module publication,
+is owned by `mirbuilder-final-pipeline-ssot.md`; this document owns only its
+Recipe-first front half.
 
 ## Pipeline (SSOT)
 

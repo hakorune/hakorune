@@ -1,6 +1,8 @@
 # MIR Builder (`src/mir/builder/`)
 
 Pointers:
+- final production pipeline north star:
+  - `docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`
 - active in-place replacement policy:
   - `docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md`
 - active replacement task map:
@@ -22,6 +24,17 @@ Pointers:
 
 This directory remains the one live production MirBuilder. Do not build an
 independent second Builder beside it.
+
+The final authority flow is:
+
+```text
+Resolve -> Observe -> Facts -> Recipe -> Verify
+-> Lower -> Seal -> Collect -> Atomic Publish
+```
+
+This is a responsibility flow, not a requirement to create one Rust file or
+type per box. A replacement cell is useful only when it removes a competing
+production authority and moves the live graph toward that flow.
 
 For each cleanup cell:
 

@@ -4,6 +4,8 @@ Date: 2026-07-28
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
+North star:
+  - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -12,7 +14,22 @@ Task map:
 
 ## Goal
 
-現在の本番MirBuilderを稼働させたまま、責務ownerを一つずつ交換する。
+最終production authorityを次の一本へ収束させる。
+
+```text
+Resolve
+-> Observe
+-> Facts
+-> Recipe
+-> Verify
+-> Lower
+-> Seal
+-> Collect
+-> Atomic Publish
+```
+
+現在の本番MirBuilderを稼働させたまま、競合する責務ownerを一つずつ交換して
+この形へ近づける。
 
 ```text
 new owner
@@ -23,6 +40,10 @@ new owner
 
 独立した第二MirBuilder、遠い一括CUT0、production consumer 0のroute建設は
 行わない。
+
+cell数、pack数、LOC、structural ratchetは進捗と増殖検知の手段であり、
+architecture goalやcompletion authorityではない。cellはnorth-star上の
+authorityを一つ減らす場合だけ選択する。
 
 ## Current front
 

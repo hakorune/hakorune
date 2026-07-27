@@ -42,7 +42,7 @@ Do not add a dedicated shell guard for every inventory or selection row.
 | Script | Purpose |
 | --- | --- |
 | `tools/checks/dev_gate.sh` | Integrated daily gate. `quick` is summary-only on success (group PASS plus profile result), failures emit a bounded tail plus a retained full-log path, and `DEV_GATE_VERBOSE=1` restores streamed child output. Heavier profiles remain explicit. |
-| `tools/checks/current_state_pointer_guard.sh` | Compact current-state pointer consistency guard. Run on restart and before docs/current pointer commits. |
+| `tools/checks/current_state_pointer_guard.sh` | Compact current-state pointer consistency guard, including the MirBuilder north-star SSOT. Run on restart and before docs/current pointer commits. |
 | `tools/checks/mirbuilder_inplace_replacement_guard.sh` | Shared MirBuilder in-place replacement ledger guard: validates the finite cell/asset manifest, requires the active callable-draft production cutover, prevents selected old callable-body symbols from returning, and enforces the 800-line boundary. |
 | `python3 tools/checks/lib/me_call_header_observation_guard.py` | ACCESS0-MEHEADER G0 guard: one shared `me` policy, exactly three route adapters, no direct/fallback header authority, no persistent observation, and below-800-line boundary. |
 | `python3 tools/checks/lib/rewrite_header_p0_guard.py` | ACCESS0-REWRITE-KNOWN-P0 guard: lookup-only Known/unique/equals projection, explicit-header forwarding, compatibility fallback isolation, parity fixtures, and below-800-line boundary. |

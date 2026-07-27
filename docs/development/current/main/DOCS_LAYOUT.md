@@ -85,6 +85,11 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - active Rust MirBuilder migration law: one live production Builder,
     responsibility-by-responsibility caller switch, immediate selected old-path
     deletion, post-cutover parity, and no detached replacement pipeline
+- `design/mirbuilder-final-pipeline-ssot.md`
+  - MirBuilderの最終production authority:
+    Resolve -> Observe -> Facts -> Recipe -> Verify -> Lower -> Seal ->
+    Collect -> Atomic Publish。cell数やLOCではなく、この一方向graphへの
+    収束をcompletionの北極星にする
 - `design/derived-to-native-hako-artifact-model-ssot.md`
   - Rust-derived Hako artifact migration owner; keeps Rust source as editable
     reference during derived phases, generated Hako as execution artifact, and

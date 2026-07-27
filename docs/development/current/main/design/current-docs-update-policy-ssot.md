@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-07-24
+Date: 2026-07-28
 Scope: current docs update policy for restart/current-lane pointers.
 Related:
   - AGENTS.md
@@ -11,6 +11,7 @@ Related:
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/design/allocator-provider-lightweight-doc-sync-policy-ssot.md
   - docs/development/current/main/design/current-docs-archive-policy-ssot.md
+  - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
   - docs/development/current/main/workstreams/language-v1-convergence-current.md
   - tools/checks/current_state_pointer_guard.sh
 ---
@@ -481,6 +482,8 @@ but it must not become the daily progress log.
 active_lane = "..."
 active_phase = "..."
 phase_status = "..."
+finite_product_goal = "..."
+mirbuilder_north_star = "docs/.../mirbuilder-final-pipeline-ssot.md"
 method_anchor = "..."
 taskboard = "..."
 current_blocker_token = "..."

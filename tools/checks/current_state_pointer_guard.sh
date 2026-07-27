@@ -78,6 +78,7 @@ count_landed_tail_rows() {
 active_lane="$(require_scalar active_lane)"
 active_phase="$(require_scalar active_phase)"
 phase_status="$(require_scalar phase_status)"
+mirbuilder_north_star="$(require_scalar mirbuilder_north_star)"
 method_anchor="$(require_scalar method_anchor)"
 taskboard="$(require_scalar taskboard)"
 latest_workstream_card="$(toml_scalar latest_workstream_card)"
@@ -104,6 +105,7 @@ echo "[$TAG] checking compact current state"
 
 require_repo_file "$active_phase" "active_phase"
 require_repo_file "$phase_status" "phase_status"
+require_repo_file "$mirbuilder_north_star" "mirbuilder_north_star"
 require_repo_file "$method_anchor" "method_anchor"
 require_repo_file "$taskboard" "taskboard"
 if [[ -n "$latest_workstream_card" ]]; then

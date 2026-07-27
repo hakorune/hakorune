@@ -12,6 +12,8 @@ Related:
 ## Current
 
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
+- MirBuilder final pipeline: read `mirbuilder_north_star` in
+  `CURRENT_STATE.toml`
 - active lane: read `active_lane` in `CURRENT_STATE.toml`
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - workstream card: read `latest_workstream_card` in `CURRENT_STATE.toml`
@@ -23,6 +25,8 @@ Related:
   `CURRENT_STATE.toml`
 - replacement law: read `method_anchor`; an I0 must switch a named production
   caller and retire the selected old edge
+- replacement purpose: remove a competing authority and move the production
+  graph toward `mirbuilder_north_star`; cell/pack/LOC counts are not the goal
 - active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
   possible
 - parked: Stage-B special activation, Ownership, Language v1 expansion,

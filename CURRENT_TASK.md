@@ -34,6 +34,7 @@ Continue only the exact `current_blocker_token` and `latest_card_path` named by
 The active lane is an in-place production responsibility replacement. Read:
 
 ```text
+mirbuilder_north_star
 method_anchor
 latest_workstream_card
 latest_card_path
@@ -43,3 +44,7 @@ current_execution_row
 An `I0` is closed only by an actual named production caller switch plus
 selected old-path retirement and zero fallback. Do not resume Stage-B,
 Ownership, Language v1, selfhost, or a parked stash from historical prose.
+
+The replacement rows are migration mechanics. Select them only when they
+remove a competing authority and move the production graph toward the
+`mirbuilder_north_star` pipeline.

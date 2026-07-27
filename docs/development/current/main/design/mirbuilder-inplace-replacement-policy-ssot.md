@@ -5,6 +5,7 @@ Decision: MIRBUILDER-INPLACE-REPLACEMENT-POLICY-v1
 Scope: Rust MirBuilderを稼働させたまま、責務単位で本番内部を交換する
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
+  - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
   - docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
   - docs/development/current/main/design/current-docs-update-policy-ssot.md
@@ -15,6 +16,11 @@ Related:
 # MirBuilder In-Place Replacement Policy
 
 ## Decision
+
+最終architectureのauthorityは
+`docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`である。
+このpolicyは、その最終形を現在のproduction MirBuilderへin-placeで着地
+させる移行規律だけを所有する。
 
 MirBuilderは、独立した第二実装を完成させて最後に丸ごと交換する方式では
 作り直さない。
@@ -35,6 +41,11 @@ existing production MirBuilder
 これは段階移行を否定する決定ではない。2026-07-18にLocal、Variable
 Assignment、value Return、statement Ifで実際に成功したdescent方式を、
 MirBuilder全体の移行規律として復活させる決定である。
+
+各cellは、north-star上の責務／edge、named production caller、new owner、
+同時に削除するold authorityを明示する。競合authorityを減らさず、単に
+fixture、wrapper、guard、LOCだけを動かす作業はproduction replacement
+cellとして数えない。
 
 ## Correction of the failed execution model
 
@@ -316,6 +327,12 @@ path manifest、意味分類台帳は作らない。外部MirBuilder責務のroo
 `MIRBUILDER-INPLACE-REPLACEMENT0`は次がすべて成立したときだけ完了する。
 
 ```text
+final pipeline north-star production conformance = green
+Facts -> Recipe -> Verify -> Lower                = one-way authority
+Lower / DraftSeal route redecision                = 0
+CompletedFunctionDraft-only collection            = yes
+partial module publication                        = 0
+
 macro packs closed                              = 8 / 8
 replacement ledger remaining                   = 0
 accepted AST vocabulary classified              = 57 / 57

@@ -8,7 +8,8 @@ development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad
 current_design_stop = "none"
 current_execution_row = "MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT"
 current_execution_summary = "Add one structural ratchet TSV and a compact shared-guard comparison for source_files=952, source_loc=182452, test_files=139, test_loc=40826 under the two fixed MirBuilder roots. Do not add a checker program, path manifest, semantic classification, final X, production source edit, or seventh replacement row."
-finite_product_goal = "MIRBUILDER-INPLACE-REPLACEMENT0"
+finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
+mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
