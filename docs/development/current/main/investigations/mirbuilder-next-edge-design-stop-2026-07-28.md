@@ -134,6 +134,21 @@ No seventh production edge is selected. A fresh bounded census must select one
 exact caller, replacement owner, delete target, parity gate, and LOC repayment
 boundary before source edits resume.
 
+## Seventh accounting consultation
+
+A four-worker census found Binary source partition as the sole bounded
+candidate, but the cell-accounting law needs an explicit decision:
+
+```text
+docs/development/current/main/investigations/
+binary-source-partition-cell-accounting-d0-consultation-2026-07-28.md
+```
+
+The physical graph has one production selector and one dead predecessor chain,
+while Ordinary Binary and ShortCircuit retain distinct semantic owners and
+parity suites. No seventh manifest row or source edit is authorized until D0
+chooses one source-partition cell or split semantic accounting.
+
 ## Minimum implementation slice after decision
 
 One manifest row, one named production caller switch, one selected old edge

@@ -27,13 +27,14 @@ new owner
 ## Current front
 
 ```text
-MIRBUILDER-NEXT-EDGE-DESIGN-STOP
+BINARY-SOURCE-PARTITION-CELL-ACCOUNTING-D0
 ```
 
 第六cellのReturn source partitionはclosed。value-bearing generic ownerと
 exact Void leafが本番selectorを分有し、旧Option/raw facadesは物理削除済み。
-第七production edgeは未選択であり、fresh bounded censusなしにsource editへ
-進まない。
+第七production edgeは未選択。Binaryの一つのsource selector/dead
+predecessor chainを一cellで数えるか、Ordinary/ShortCircuitの二semantic
+ownerへ分けるかをD0で決めるまでsource editへ進まない。
 
 ## First three replacements
 

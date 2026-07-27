@@ -418,6 +418,17 @@ five-cell rolling production Rust LOC     = -73
 No seventh production edge is selected. Return to
 `MIRBUILDER-NEXT-EDGE-DESIGN-STOP`.
 
+The bounded seventh-edge census is recorded at:
+
+```text
+docs/development/current/main/investigations/
+binary-source-partition-cell-accounting-d0-consultation-2026-07-28.md
+```
+
+It does not select a manifest row. Binary has one live source selector and one
+dead predecessor chain but two semantic owners; D0 must choose source-partition
+or split semantic accounting before execution resumes.
+
 ## Macro pack order
 
 The first three replacements above are fixed. After them, the shared ledger

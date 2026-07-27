@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0 is closed as the sixth production cell. The sole raw/default ASTNode::Return selector sends Some(value) to drive_value_return_statement_v1 and None to build_void_return_statement. build_return_statement and drive_raw_value_return_statement_v1 are physically absent; one detached located value caller remains root-inactive. No seventh production edge is selected."
+status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Six production cells are closed. BINARY-SOURCE-PARTITION-CELL-ACCOUNTING-D0 is the current design consultation: one live ASTNode::BinaryOp selector and one dead predecessor chain map to two disjoint semantic owners. No seventh manifest row or source edit is authorized until source-partition versus split semantic accounting is decided."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-NEXT-EDGE-DESIGN-STOP"
+current_design_stop = "BINARY-SOURCE-PARTITION-CELL-ACCOUNTING-D0"
 current_execution_row = "none"
-current_execution_summary = "Six in-place production cells are closed. Perform a fresh bounded census and select one exact seventh production caller, replacement owner, delete target, parity gate, and LOC repayment boundary before any source edit."
+current_execution_summary = "Resolve whether the seventh Binary edge is one ASTNode::BinaryOp operator-family source-partition cell or a dead shared-selector retirement plus separate Ordinary/ShortCircuit semantic credit cells. Keep source, tests, guards, and manifest unchanged until the D0 decision."
 finite_product_goal = "MIRBUILDER-INPLACE-REPLACEMENT0"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
@@ -437,9 +437,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "mirbuilder-next-edge-design-stop-2026-07-28"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-next-edge-design-stop-2026-07-28.md"
-latest_card_summary = """RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0 is closed as the sixth T1 cell with src/**/*.rs LOC -141 and new five-cell rolling -73. Raw/default value and exact Void callers are each one, the detached located value caller remains root-inactive, both old facades and the no-value Match observation are absent, and fallback/retry is zero. No seventh production edge is selected."""
+latest_card = "binary-source-partition-cell-accounting-d0-consultation-2026-07-28"
+latest_card_path = "docs/development/current/main/investigations/binary-source-partition-cell-accounting-d0-consultation-2026-07-28.md"
+latest_card_summary = """Six production cells are closed. The seventh-edge census leaves Binary as the sole bounded candidate: one live ASTNode::BinaryOp selector already partitions Ordinary and ShortCircuit generic owners, and one dead build_binary_op predecessor chain contains both raw facades. D0 must decide one source-partition cell versus split semantic-owner accounting. No manifest row or source edit is selected."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -642,7 +642,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-NEXT-EDGE-DESIGN-STOP"
+current_blocker_token = "BINARY-SOURCE-PARTITION-CELL-ACCOUNTING-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
