@@ -38,6 +38,7 @@ mod canonical_root_completion_receipt0_p0; // CUT0-I0-ROOT0-CANON0-RECEIPT0 fixt
 mod canonical_root_completion_recursive0_p0; // CUT0-I0-ROOT0-CANON0-RECURSIVE0 fixtures
 mod collection_literals; // ArrayLiteral / MapLiteral lowering
 mod compilation_context; // Phase 136 follow-up (Step 7/7): CompilationContext extraction
+pub(in crate::mir) mod preloop_stageb_context_install; // atomic selected catalog+alias install
 mod compound_assignment; // evaluated Place read-modify-write lowering
 mod decls; // declarations lowering split
 #[allow(dead_code)]

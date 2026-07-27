@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "LOWER-ROOT-POST-INSTALL-KERNEL0-S0 is closed. MirBuilder::lower_root remains the sole ordinary root facade and still owns the one root snapshot, one callable-catalog seal, and one catalog install. It now delegates the unchanged declaration indexing, static-data preparation, App/Script decision, and root lowering sequence to one private post-install kernel in module_lifecycle.rs. The same-file seam preserves existing lifecycle guard authority and behavior while giving the later Selected route one non-resealing continuation. Selected catalog/import install, function ledger, production callers, Builder source maps, fallback, retry, Call receipts, and type publication remain zero. The next row is PRELOOP-STAGEB-ATOMIC-CONTEXT-INSTALL0-S0."
+status = "PRELOOP-STAGEB-ATOMIC-CONTEXT-INSTALL0-S0 is closed. One Builder-owned prepared owner carries a selected callable catalog and its alias projection, rechecks catalog vacancy plus vacant-or-exact alias compatibility immediately before mutation, and then calls one private infallible CompilationContext pair writer. Occupied catalog leaves aliases unchanged; stale or conflicting aliases leave the catalog vacant. The C1 readiness receipt therefore cannot authorize a stale install. The transaction owns no source classification, activation ledger, root lowering, production caller, Builder source map, fallback, retry, Call receipt, or type publication. The next row is PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-B."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-ATOMIC-CONTEXT-INSTALL0-S0"
-current_execution_summary = "Add one selected-candidate CompilationContext transaction that preflights callable-catalog vacancy, typed-alias compatibility, and their exact pairing before mutation, then performs one infallible catalog+alias commit. Keep the function activation ledger, post-install root-kernel call, production Legacy consumer, Builder source maps, fallback, retry, Call receipts, and type publication at zero."
+current_execution_row = "PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-B"
+current_execution_summary = "Project the complete selected Legacy owner into one named install product, feed its exact catalog and typed aliases through the closed atomic context transaction, retain the exact activation row in one stack-owned payload-preserving ledger, and continue through the closed post-install root kernel without resealing. Keep the compile_request production consumer, Builder source maps, fallback, retry, Call receipts, and type publication at zero."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -638,7 +638,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-ATOMIC-CONTEXT-INSTALL0-S0"
+current_blocker_token = "PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-B"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

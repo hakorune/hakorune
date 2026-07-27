@@ -432,10 +432,13 @@ MIR / error behavior delta                         = 0
 
 ### Commit C3 — `PRELOOP-STAGEB-ATOMIC-CONTEXT-INSTALL0-S0`
 
-Add one CompilationContext preparation/commit owner for the selected
-callable catalog plus compiler-supplied aliases. Every vacancy,
-compatibility, and catalog/alias pairing check happens before mutation;
-commit contains infallible moves only.
+Status: closed.
+
+One Builder-owned preparation/commit owner now carries the selected callable
+catalog plus its typed-alias projection. It rechecks both lanes immediately
+before mutation, so a C1 readiness receipt cannot authorize a stale commit.
+Every vacancy and exact-alias compatibility check happens before mutation;
+the private CompilationContext commit contains only infallible field moves.
 
 This row does not create the function ledger and does not call the
 post-install root kernel. Splitting the context transaction from the
@@ -448,6 +451,9 @@ Acceptance:
 catalog + alias preflight owner                    = 1
 infallible context commit                         = 1
 partial catalog/alias install                     = 0
+stale readiness alias conflict                    = typed reject
+occupied catalog leaves aliases unchanged         = green
+alias conflict leaves catalog vacant              = green
 ledger / root lowering / production caller        = 0
 ```
 
