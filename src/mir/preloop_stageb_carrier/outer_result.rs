@@ -68,6 +68,12 @@ impl<'result, 'site, 'view, 'catalog>
         self.requirement.is_branded_by(declarations)
     }
 
+    pub(super) const fn prepared_source(
+        &self,
+    ) -> &PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog> {
+        &self.prepared
+    }
+
     pub(crate) fn discard(self) {
         let Self {
             requirement,

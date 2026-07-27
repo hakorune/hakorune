@@ -10,6 +10,8 @@ Owned here:
 - the structural selected `CallArgument(1)`;
 - the existing sealed nested instance Integer contract;
 - typed rejection before Builder effects.
+- one owned, non-Clone activation row;
+- one plan that owns the exact declaration-catalog allocation.
 
 Not owned here:
 
@@ -17,6 +19,7 @@ Not owned here:
 - general callable-result solving;
 - Builder, `ValueId`, `MirType`, or `TypeContext`;
 - function activation, Call emission, assignment, or publication;
+- production source inventory or function selection;
 - fallback, retry, or route reselection.
 
 The only construction path is:
@@ -26,6 +29,10 @@ VerifiedStaticExactI64RequirementV1
   + PreparedPreloopLocatedArgumentV1
   -> seal_preloop_outer_carrier_result_v1
   -> SealedPreloopOuterCarrierResultContractV1
+  -> prepare_preloop_stageb_carrier_rows_v1
+  -> PreparedPreloopStageBCarrierRowsV1
+  + exact Box<VerifiedSameModuleCallableDeclarationCatalogV1>
+  -> VerifiedPreloopStageBCarrierActivationPlanV1
 ```
 
 The first profile requires the exact structural argument ordinal `1` and the

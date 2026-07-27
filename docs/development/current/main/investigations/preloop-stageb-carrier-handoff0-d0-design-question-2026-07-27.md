@@ -1,5 +1,5 @@
 ---
-Status: accepted design; correspondence and outer result-contract rows closed
+Status: accepted design; source activation row closed
 Date: 2026-07-27
 Decision: PRELOOP-STAGEB-CARRIER-HANDOFF0-prime-r1
 Closes:
@@ -9,7 +9,7 @@ Closes observation row:
 Observed frontier:
   - ProductionCarrierHandoffMissing
 First executable row:
-  - PRELOOP-STAGEB-SOURCE-ACTIVATION0-S0
+  - PRELOOP-STAGEB-FUNCTION-PREPARATION0-S0
 Related:
   - preloop-physical-route-reconciliation0-task-order-2026-07-27.md
   - stageb-generic-loop-transient-type-d0-design-question-2026-07-26.md
@@ -375,15 +375,18 @@ production consumer == 0
 
 ### 3. `PRELOOP-STAGEB-SOURCE-ACTIVATION0-S0`
 
-Owned, non-Clone, one-row activation:
+Closed owned, non-Clone, one-row activation (2026-07-27):
 
 ```text
 PreparedPreloopStageBCarrierRowsV1
 OwnedPreloopStageBCarrierRowV1
 VerifiedPreloopStageBCarrierActivationPlanV1
+exact root assignment prefix / selected / suffix schedule
+same boxed declaration-catalog allocation
 ```
 
-Production consumer remains zero through this row.
+Production consumer, Builder, MIR, type publication, and catalog reseal remain
+zero through this row.
 
 ### 4. `PRELOOP-STAGEB-FUNCTION-PREPARATION0-S0`
 

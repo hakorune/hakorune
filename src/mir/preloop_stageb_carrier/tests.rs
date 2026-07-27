@@ -12,6 +12,10 @@ use crate::mir::source_instance_result_contract::{
     seal_nested_instance_result_contract, VerifiedCurrentOwnerInstanceResultTargetV1,
 };
 
+use super::activation::{
+    prepare_preloop_stageb_carrier_rows_v1, PreloopStageBCarrierActivationErrorV1,
+    PreloopStageBCarrierActivationStageV1, VerifiedPreloopStageBCarrierActivationPlanV1,
+};
 use super::{
     seal_preloop_outer_carrier_result_v1, PreloopOuterCarrierResultContractErrorV1,
     PreloopOuterCarrierResultContractStageV1,
@@ -230,4 +234,96 @@ fn required_argument_set_must_be_exactly_the_selected_argument() {
             let _ = (call, view);
         },
     );
+}
+
+#[test]
+fn owned_activation_plan_retains_one_exact_root_assignment_schedule() {
+    let (catalog, rows) =
+        actual_parser_add_fixture::with_owned_stageb_carrier_correspondence_inputs(
+            |catalog, caller, outer_site, inner_sites, targets, results| {
+                let requirement = project_static_exact_i64_requirement_v1(
+                    catalog, caller, outer_site, targets, results,
+                )
+                .expect("bounded exact static requirement");
+                bind_actual_preloop!(
+                    call,
+                    view,
+                    prepared,
+                    catalog,
+                    caller,
+                    &inner_sites[0],
+                    results
+                );
+                let contract = seal_preloop_outer_carrier_result_v1(requirement, prepared)
+                    .expect("exact outer carrier Integer contract");
+                let rows = prepare_preloop_stageb_carrier_rows_v1(contract)
+                    .expect("owned one-row normalization");
+                let _ = (call, view);
+                rows
+            },
+        );
+    let plan = VerifiedPreloopStageBCarrierActivationPlanV1::seal(catalog, rows)
+        .expect("same-allocation owned plan");
+    let row = plan.row();
+    assert_eq!(row.caller().owner(), "ParserBox");
+    assert_eq!(row.caller().name(), "static_const_parse_add");
+    assert_eq!(row.outer_call_site().node().segments().len(), 2);
+    assert_eq!(row.selected_argument_index(), 1);
+    assert_eq!(row.inner_call_site().node().segments().len(), 3);
+    assert_eq!(row.outer_target().owner(), "ParserStringUtilsBox");
+    assert_eq!(row.outer_target().name(), "skip_ws");
+    assert!(row.result().is_integer());
+    assert_eq!(row.body_handoff().prefix_statement_count(), 3);
+    assert_eq!(
+        row.body_handoff().selected_statement().node().segments(),
+        &[SourcePathSegmentV1::Body(3)]
+    );
+    assert_eq!(row.body_handoff().suffix_statement_start(), 4);
+    assert!(row.body_handoff().body_statement_count() > 4);
+
+    assert_eq!(plan.row().caller().arity(), 2);
+    assert_eq!(plan.row().outer_target().arity(), 2);
+}
+
+#[test]
+fn owned_activation_rows_reject_an_equal_looking_foreign_catalog() {
+    let (primary, rows) =
+        actual_parser_add_fixture::with_owned_stageb_carrier_correspondence_inputs(
+            |catalog, caller, outer_site, inner_sites, targets, results| {
+                let requirement = project_static_exact_i64_requirement_v1(
+                    catalog, caller, outer_site, targets, results,
+                )
+                .expect("bounded exact static requirement");
+                bind_actual_preloop!(
+                    call,
+                    view,
+                    prepared,
+                    catalog,
+                    caller,
+                    &inner_sites[0],
+                    results
+                );
+                let contract = seal_preloop_outer_carrier_result_v1(requirement, prepared)
+                    .expect("exact outer carrier Integer contract");
+                let rows = prepare_preloop_stageb_carrier_rows_v1(contract)
+                    .expect("owned one-row normalization");
+                let _ = (call, view);
+                rows
+            },
+        );
+    let (foreign, ()) = actual_parser_add_fixture::with_owned_stageb_carrier_correspondence_inputs(
+        |_, _, _, _, _, _| (),
+    );
+    let rejected = VerifiedPreloopStageBCarrierActivationPlanV1::seal(foreign, rows)
+        .expect_err("equal-looking foreign catalog must reject");
+    assert_eq!(
+        rejected.stage(),
+        PreloopStageBCarrierActivationStageV1::CatalogAllocation
+    );
+    assert_eq!(
+        rejected.cause(),
+        &PreloopStageBCarrierActivationErrorV1::CatalogAllocationMismatch
+    );
+    rejected.discard();
+    drop(primary);
 }

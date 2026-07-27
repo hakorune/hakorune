@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-CARRIER-HANDOFF0-prime-r1 is accepted with post-answer code-audit refinement. PRELOOP-STAGEB-CARRIER-CORRESPONDENCE0-P0 and PRELOOP-OUTER-CARRIER-RESULT-CONTRACT0-S0 are closed: one same-allocation fixture proves exact outer ExactI64(required=[Argument(1)]) evidence while the general nested call row remains absent; actual inner and outer Call destinations differ; existing assignment publishes the outer destination to pos without projection; and one Builder-free contract co-seals the exact static requirement, structural Argument(1), and existing inner Integer contract while retaining rejected owners. Production activation, Builder/MIR/type publication, and inner TYPE-I0 production consumers remain zero. PRELOOP-STAGEB-SOURCE-ACTIVATION0-S0 is next."
+status = "PRELOOP-STAGEB-CARRIER-HANDOFF0-prime-r1 is accepted with post-answer code-audit refinement. Correspondence, bounded outer result contract, and PRELOOP-STAGEB-SOURCE-ACTIVATION0-S0 are closed. Borrowed same-allocation evidence now normalizes into one owned non-Clone row containing the exact caller, root assignment prefix/selected/suffix schedule, outer/inner sites, selected Argument(1), static target, and sealed Integer disposition; one plan owns that row beside the exact boxed declaration catalog allocation. Equal-looking foreign catalogs reject. Production consumers, Builder/MIR/type publication, catalog reseal, and inner TYPE-I0 production consumers remain zero. PRELOOP-STAGEB-FUNCTION-PREPARATION0-S0 is next."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-SOURCE-ACTIVATION0-S0"
-current_execution_summary = "Normalize the accepted borrowed one-row proof into one owned non-Clone activation row and one plan that owns the exact declaration catalog allocation. Keep production consumers, Builder/MIR/type publication, source-name selection, catalog reseal, and fallback at zero. After the owned row and behavior-neutral function preparation close, stop at PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0 before production ingress."
+current_execution_row = "PRELOOP-STAGEB-FUNCTION-PREPARATION0-S0"
+current_execution_summary = "Perform one BoxShape-only behavior-neutral extraction of the existing instance-method skeleton, signature, parameter setup, StepTree/body descent seam, and finalizer so ordinary and port-aware routes are thin consumers. Do not add activation selection, production callers, source policy, Builder transaction snapshots, acceptance shapes, or fallback. After this row, stop at PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-SOURCE-ACTIVATION0-S0"
+current_blocker_token = "PRELOOP-STAGEB-FUNCTION-PREPARATION0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

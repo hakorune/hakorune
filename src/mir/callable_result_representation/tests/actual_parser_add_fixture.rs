@@ -297,8 +297,25 @@ pub(crate) fn with_stageb_carrier_correspondence_inputs<R>(
         &super::super::VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
     ) -> R,
 ) -> R {
+    let (_, result) = with_owned_stageb_carrier_correspondence_inputs(f);
+    result
+}
+
+/// Same proof fixture with the exact catalog allocation returned after every
+/// callback-local borrow has ended. This is used only to verify owned plan
+/// sealing; production source-plan construction remains disconnected.
+pub(crate) fn with_owned_stageb_carrier_correspondence_inputs<R>(
+    f: impl FnOnce(
+        &VerifiedSameModuleCallableDeclarationCatalogV1,
+        &CanonicalSameModuleCallableKeyV1,
+        &SourceExprSiteV1,
+        &[SourceExprSiteV1; 2],
+        &VerifiedSourceStaticCallTargetCatalogV1<'_>,
+        &super::super::VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
+    ) -> R,
+) -> (Box<VerifiedSameModuleCallableDeclarationCatalogV1>, R) {
     let source = instance_result_contract_source();
-    let declarations = declarations(&source);
+    let declarations = Box::new(declarations(&source));
     let outer_site = site(vec![
         SourcePathSegmentV1::Body(3),
         SourcePathSegmentV1::Value,
@@ -317,7 +334,7 @@ pub(crate) fn with_stageb_carrier_correspondence_inputs<R>(
         ]),
     ];
     let dependency_targets = qualified_targets(
-        &declarations,
+        declarations.as_ref(),
         &[("StringHelpers", "StringHelpers")],
         &[
             CallSiteSpecV1 {
@@ -349,7 +366,7 @@ pub(crate) fn with_stageb_carrier_correspondence_inputs<R>(
     );
     let targets = extend_current_owner_targets(
         dependency_targets,
-        &declarations,
+        declarations.as_ref(),
         &[CallSiteSpecV1 {
             caller_owner: "StringHelpers",
             caller_name: "to_i64",
@@ -361,17 +378,25 @@ pub(crate) fn with_stageb_carrier_correspondence_inputs<R>(
             ]),
         }],
     );
-    let results = seal_with_targets(&declarations, &targets);
-    let caller = instance_key(&declarations, "ParserBox", "static_const_parse_add", 2);
+    let results = seal_with_targets(declarations.as_ref(), &targets);
+    let caller = instance_key(
+        declarations.as_ref(),
+        "ParserBox",
+        "static_const_parse_add",
+        2,
+    );
 
-    f(
-        &declarations,
+    let result = f(
+        declarations.as_ref(),
         &caller,
         &outer_site,
         &inner_sites,
         &targets,
         &results,
-    )
+    );
+    drop(results);
+    drop(targets);
+    (declarations, result)
 }
 
 pub(crate) fn caller(
