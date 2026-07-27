@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-INSTANCE-DECLARATION-RECIPE0-S0 is closed. The verified callable declaration row now retains exact uses and DeclarationAttrs; reorder preserves their canonical-row pairing. The selected root statement is issued through the existing catalog-backed source view, accepts only a variable Assignment target, and seals OwnedPreloopCarrierAssignmentTargetV1 beside the function-ingress recipe. Field targets reject before Builder effects. Ordinary instance preparation, Builder, Call, type, and production behavior remain unchanged. The active row is PRELOOP-STAGEB-FUNCTION-PAYLOAD-SESSION0-S0."
+status = "PRELOOP-STAGEB-FUNCTION-PAYLOAD-SESSION0-S0 is closed. One private generic pending core now retains an unpublished MirFunction plus owned payload P and delegates the payload-pending family's sole parent-restoration transition to the existing CanonicalFunctionLoweringSessionV1 kernel. Typed Primary / CleanupAfterSuccess / DuringCleanup failures preserve the original primary or payload; the existing resolved and legacy pending terminals are thin P=() adapters over the same core. Non-Clone borrowed payloads, failure-to-fresh-success reuse, and exact parent restoration are green. Located outer completion, production activation, Call receipts, and type publication remain zero. The active row is PRELOOP-LOCATED-OUTER-COMPLETION0-S0."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-FUNCTION-PAYLOAD-SESSION0-S0"
-current_execution_summary = "Add one generic payload/error sibling over the existing CanonicalFunctionLoweringSessionV1 restoration kernel. It must retain an unpublished MirFunction plus owned payload P, preserve typed Primary / CleanupAfterSuccess / DuringCleanup owners, and restore the parent exactly once. Make the existing Result<MirFunction, String> terminal a P=() adapter. Do not use an external mutable Option slot, add retry/resume/draft escape, begin located outer completion, activate production, emit Call receipts, or publish types."
+current_execution_row = "PRELOOP-LOCATED-OUTER-COMPLETION0-S0"
+current_execution_summary = "Implement the source-neutral located outer completion seam only. Reuse the existing member-route planner, static handler, and ordered argument driver; outer StaticReceiver Argument(0) stays ordinary and structural Argument(1) uses the already sealed selected located ingress. Reject alternate routes without RawLegacy conversion, a second dispatcher, Call receipt, type publication, production activation, retry, or fallback."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -638,7 +638,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-FUNCTION-PAYLOAD-SESSION0-S0"
+current_blocker_token = "PRELOOP-LOCATED-OUTER-COMPLETION0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

@@ -12,7 +12,11 @@ use crate::mir::function::{FunctionPublicationErrorV1, MirFunction, MirModule};
 
 use super::context_lifecycle::LoweringContext;
 
+mod payload_terminal;
 mod terminal;
+pub(in crate::mir::builder) use payload_terminal::{
+    LegacyFunctionPayloadPendingSessionV1, LegacyFunctionPayloadSessionErrorV1,
+};
 #[allow(unused_imports)] // RAWPORT0-S0 exposes the later invocation terminal without a caller.
 pub(in crate::mir::builder) use terminal::{
     CanonicalFunctionSessionRestorationReceiptV1, LegacyFunctionPendingSessionV1,
@@ -187,6 +191,36 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
     ) -> Result<MirFunction, CanonicalFunctionSessionErrorV1> {
         let outcome = operation(self.builder);
         self.close_unpublished(outcome)
+    }
+
+    fn capture_pending_payload<P, E>(
+        mut self,
+        operation: impl FnOnce(&mut MirBuilder) -> Result<(MirFunction, P), E>,
+    ) -> Result<
+        payload_terminal::PendingFunctionPayloadSessionCloseV1<'builder, P>,
+        LegacyFunctionPayloadSessionErrorV1<E, P>,
+    > {
+        match operation(self.builder) {
+            Ok((draft, payload)) => match self.validate_before_restore(true) {
+                Ok(()) => Ok(payload_terminal::PendingFunctionPayloadSessionCloseV1::new(
+                    self, draft, payload,
+                )),
+                Err(cleanup) => {
+                    self.restore_context();
+                    Err(LegacyFunctionPayloadSessionErrorV1::CleanupAfterSuccess {
+                        payload,
+                        detail: cleanup.to_string().into_boxed_str(),
+                    })
+                }
+            },
+            Err(primary) => match self.cleanup(false) {
+                Ok(()) => Err(LegacyFunctionPayloadSessionErrorV1::Primary(primary)),
+                Err(cleanup) => Err(LegacyFunctionPayloadSessionErrorV1::DuringCleanup {
+                    primary,
+                    detail: cleanup.to_string().into_boxed_str(),
+                }),
+            },
+        }
     }
 
     fn close_unpublished(

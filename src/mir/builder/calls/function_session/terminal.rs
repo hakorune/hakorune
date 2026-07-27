@@ -9,7 +9,11 @@ use crate::mir::builder::type_context::TypeContext;
 use crate::mir::function::MirFunction;
 use crate::mir::MirBuilder;
 
-use super::{CanonicalFunctionLoweringSessionV1, CanonicalFunctionSessionErrorV1};
+use super::payload_terminal::PendingFunctionPayloadSessionCloseV1;
+use super::{
+    CanonicalFunctionLoweringSessionV1, CanonicalFunctionSessionErrorV1,
+    LegacyFunctionPayloadSessionErrorV1,
+};
 
 /// Receipt issued only after an unpublished canonical child has restored its
 /// captured caller context. It carries no retry, Builder, or draft access.
@@ -27,8 +31,7 @@ struct CanonicalFunctionSessionRestorationReceiptSealV1;
 /// which preserves unwind safety while this disconnected product has no
 /// production caller.
 pub(in crate::mir::builder) struct PendingFunctionSessionCloseV1<'builder> {
-    session: CanonicalFunctionLoweringSessionV1<'builder>,
-    draft: Option<MirFunction>,
+    pending: PendingFunctionPayloadSessionCloseV1<'builder, ()>,
 }
 
 /// One successful legacy child whose parent context is still captured.
@@ -119,29 +122,24 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
     /// Existing production facades continue through `run()` and therefore do
     /// not consume this transition until the later atomic cutover.
     pub(in crate::mir::builder) fn capture_pending(
-        mut self,
+        self,
         operation: impl FnOnce(&mut crate::mir::MirBuilder) -> Result<MirFunction, String>,
     ) -> Result<PendingFunctionSessionCloseV1<'builder>, CanonicalFunctionSessionErrorV1> {
-        match operation(self.builder) {
-            Ok(draft) => match self.validate_before_restore(true) {
-                Ok(()) => Ok(PendingFunctionSessionCloseV1 {
-                    session: self,
-                    draft: Some(draft),
-                }),
-                Err(cleanup) => {
-                    self.restore_context();
-                    Err(CanonicalFunctionSessionErrorV1::Cleanup(
-                        cleanup.to_string(),
-                    ))
-                }
-            },
-            Err(primary) => match self.cleanup(false) {
-                Ok(()) => Err(CanonicalFunctionSessionErrorV1::Primary(primary)),
-                Err(cleanup) => Err(CanonicalFunctionSessionErrorV1::DuringCleanup {
+        match self.capture_pending_payload(|builder| operation(builder).map(|draft| (draft, ()))) {
+            Ok(pending) => Ok(PendingFunctionSessionCloseV1 { pending }),
+            Err(LegacyFunctionPayloadSessionErrorV1::Primary(primary)) => {
+                Err(CanonicalFunctionSessionErrorV1::Primary(primary))
+            }
+            Err(LegacyFunctionPayloadSessionErrorV1::CleanupAfterSuccess {
+                payload: (),
+                detail,
+            }) => Err(CanonicalFunctionSessionErrorV1::Cleanup(detail.into())),
+            Err(LegacyFunctionPayloadSessionErrorV1::DuringCleanup { primary, detail }) => {
+                Err(CanonicalFunctionSessionErrorV1::DuringCleanup {
                     primary,
-                    cleanup: cleanup.to_string(),
-                }),
-            },
+                    cleanup: detail.into(),
+                })
+            }
         }
     }
 
@@ -229,29 +227,17 @@ impl PendingFunctionSessionCloseV1<'_> {
     /// restore the parent exactly once.  Unwind relies on `Drop` for the same
     /// restoration guarantee.
     pub(in crate::mir::builder) fn complete_before_restore<R, E>(
-        mut self,
+        self,
         complete: impl FnOnce(MirFunction) -> Result<R, E>,
     ) -> Result<R, E> {
-        let draft = self
-            .draft
-            .take()
-            .expect("pending terminal owns exactly one successful draft");
-        let result = complete(draft);
-        self.restore_parent();
-        result
+        self.pending
+            .complete_before_restore(|draft, ()| complete(draft))
     }
 
     /// Discard the pending draft and restore after a later pre-collect error.
     #[allow(dead_code)] // RAWPORT0-S0 exposes the later error path without a production caller.
-    pub(in crate::mir::builder) fn abort_and_restore(mut self) {
-        self.draft.take();
-        self.restore_parent();
-    }
-
-    fn restore_parent(&mut self) {
-        if !self.session.closed {
-            self.session.restore_context();
-        }
+    pub(in crate::mir::builder) fn abort_and_restore(self) {
+        self.pending.abort_and_restore();
     }
 }
 
@@ -349,13 +335,6 @@ impl Drop for RejectedFunctionSessionCloseV1<'_> {
     }
 }
 
-impl Drop for PendingFunctionSessionCloseV1<'_> {
-    fn drop(&mut self) {
-        self.draft.take();
-        self.restore_parent();
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use std::sync::Arc;
@@ -415,7 +394,7 @@ mod tests {
         )
         .capture_pending(|_| Ok(draft("pending/0", 0)))
         .unwrap();
-        assert!(pending.session.context.is_some());
+        assert!(pending.pending.parent_is_captured());
 
         pending.abort_and_restore();
         assert_eq!(builder.next_value_id().0, 0);

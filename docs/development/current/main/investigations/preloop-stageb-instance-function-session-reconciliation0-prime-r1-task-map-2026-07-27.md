@@ -463,6 +463,18 @@ parent restored exactly once
 failure -> fresh session success
 ```
 
+Landed evidence:
+
+```text
+one private PendingFunctionPayloadSessionCloseV1 restoration owner
+LegacyFunctionPayloadPendingSessionV1<P> keeps draft + non-Clone payload
+typed Primary / CleanupAfterSuccess / DuringCleanup ownership is preserved
+existing resolved and legacy pending terminals use the P=() adapter
+P: 'static / Clone requirements = 0
+external mutable payload slot / draft accessor / retry / resume = 0
+focused payload, unit-terminal, and legacy invocation regressions = green
+```
+
 ### F3 — exact located outer completion
 
 ```text
