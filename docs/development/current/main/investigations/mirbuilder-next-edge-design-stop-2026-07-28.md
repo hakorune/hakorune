@@ -1,8 +1,8 @@
 ---
-Status: resolved
+Status: active design stop
 Date: 2026-07-28
-Decision: RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0
-Scope: select the next exact production edge after five closed cutovers
+Decision: pending seventh production edge
+Scope: select the next exact production edge after six closed cutovers
 ---
 
 # MirBuilder next production edge design stop
@@ -23,7 +23,7 @@ not selection authority.
 
 ## Current boundary
 
-Five production cutovers are closed. The manifest has no remaining
+Six production cutovers are closed. The manifest has no remaining
 scheduled production cell, while all eight macro packs remain open. No source
 edit may begin until one exact existing caller, replacement owner, delete
 target, parity gate, and LOC repayment boundary are selected together.
@@ -94,7 +94,7 @@ located caller remains separately counted with production root ingress zero.
 Both obsolete facades are physically absent and the shared guard owns the
 production-edge proof.
 
-The sixth production edge is now selected below.
+The sixth production edge selected below is now closed.
 
 ## Sixth resolution
 
@@ -118,6 +118,22 @@ leaf and deletes the dormant raw compatibility facade. It must repay at least
 68 production Rust lines because the first `-202` cell leaves the next rolling
 window.
 
+Implementation closeout:
+
+```text
+raw/default value caller      = 1
+raw/default exact Void caller = 1
+detached located caller       = 1, root inactive
+old facade sites              = 0
+fallback / retry              = 0
+src/**/*.rs LOC               = -141
+new five-cell rolling LOC     = -73
+```
+
+No seventh production edge is selected. A fresh bounded census must select one
+exact caller, replacement owner, delete target, parity gate, and LOC repayment
+boundary before source edits resume.
+
 ## Minimum implementation slice after decision
 
 One manifest row, one named production caller switch, one selected old edge
@@ -127,7 +143,7 @@ fallback, or unrelated cleanup may be added.
 
 ## Non-claims
 
-- the sixth production row is selected but not implemented or closed
+- no seventh production row is selected
 - no macro pack is closed
 - no detached asset is promoted
 - no Stage-B, Ownership, selfhost, language, runtime, or backend work resumes

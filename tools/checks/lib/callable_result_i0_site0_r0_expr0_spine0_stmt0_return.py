@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Private RET0-S0/I0/P0 structural checks for the public EXPR0-SPINE0 guard."""
+"""Private Return source-partition checks for the public EXPR0-SPINE0 guard."""
 
 from __future__ import annotations
 
@@ -24,16 +24,42 @@ def _require_count(text: str, needle: str, expected: int, label: str) -> None:
         _fail(f"{label}: expected={expected} actual={actual}")
 
 
+def _require_order(text: str, needles: tuple[str, ...], label: str) -> None:
+    positions = [text.index(needle) for needle in needles]
+    if positions != sorted(positions) or len(set(positions)) != len(positions):
+        _fail(f"{label} order drifted")
+
+
+def _production_calls(
+    root: Path,
+    symbol: str,
+    *,
+    excluded: set[str],
+) -> int:
+    pattern = re.compile(rf"\b{re.escape(symbol)}\s*\(")
+    count = 0
+    for path in (root / "src").rglob("*.rs"):
+        relative = path.relative_to(root).as_posix()
+        if (
+            relative in excluded
+            or relative.endswith("_tests.rs")
+            or "/tests/" in relative
+        ):
+            continue
+        count += len(pattern.findall(path.read_text(encoding="utf-8")))
+    return count
+
+
 def check_ret0_s0(root: Path) -> str:
     descent_path = "src/mir/builder/stmts/return_statement_descent.rs"
     tests_path = "src/mir/builder/stmts/return_statement_descent_tests.rs"
     raw_tests_path = "src/mir/builder/stmts/return_statement_raw_tests.rs"
     parity_tests_path = "src/mir/builder/stmts/return_statement_parity_tests.rs"
+    surface_path = "src/mir/builder/raw_expression_dispatch/statement_surface.rs"
     located_path = "src/mir/builder/located_legacy_return.rs"
     located_tests_path = "src/mir/builder/located_legacy_return_tests.rs"
     located_session_path = "src/mir/builder/located_legacy_lowering.rs"
-    return_owner_path = "src/mir/builder/stmts/return_stmt.rs"
-    expression_owner_path = "src/mir/builder/exprs.rs"
+    owner_path = "src/mir/builder/stmts/return_stmt.rs"
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     readme_path = "src/mir/builder/stmts/README.md"
     helper_path = (
@@ -45,233 +71,207 @@ def check_ret0_s0(root: Path) -> str:
     tests = _read(root, tests_path)
     raw_tests = _read(root, raw_tests_path)
     parity_tests = _read(root, parity_tests_path)
+    surface = _read(root, surface_path)
     located = _read(root, located_path)
     located_tests = _read(root, located_tests_path)
     located_session = _read(root, located_session_path)
-    return_owner = _read(root, return_owner_path)
-    expression_owner = _read(root, expression_owner_path)
+    owner = _read(root, owner_path)
     stmts_root = _read(root, stmts_root_path)
     readme = _read(root, readme_path)
 
-    _require_count(
+    # The value owner has one mandatory source value and one ordered child demand.
+    for needle, expected, label in (
+        ("trait ReturnStatementDescentPortV1", 1, "Return port owner"),
+        ("type ReturnInput;", 1, "associated Return input"),
+        ("fn return_value_syntax", 2, "syntax port"),
+        ("fn try_match_return_optimization", 2, "Match port"),
+        ("fn return_value_expression_input", 2, "child-input port"),
+        ("fn drive_value_return_statement_v1", 1, "value Return driver"),
+        ("ensure_return_allowed(builder)?;", 1, "value cleanup preflight"),
+        (
+            "try_apply_match_return_optimization(builder, Some(value), true)",
+            1,
+            "existing Match owner delegation",
+        ),
+        (
+            "drive_legacy_expression_v1(builder, port, expression_input)?",
+            1,
+            "one value child descent",
+        ),
+        (
+            "emit_return_from_value(builder, return_value)",
+            1,
+            "shared completion",
+        ),
+    ):
+        _require_count(descent, needle, expected, label)
+
+    _require_order(
         descent,
-        "trait ReturnStatementDescentPortV1",
-        1,
-        "value-bearing Return port owner",
-    )
-    _require_count(descent, "type ReturnInput;", 1, "associated Return input")
-    _require_count(
-        descent,
-        "fn return_value_syntax",
-        2,
-        "Return syntax declaration plus raw implementation",
-    )
-    _require_count(
-        descent,
-        "fn try_match_return_optimization",
-        2,
-        "match hook declaration plus raw implementation",
-    )
-    _require_count(
-        descent,
-        "fn return_value_expression_input",
-        2,
-        "ReturnValue input declaration plus raw implementation",
-    )
-    _require_count(
-        descent,
-        "fn drive_value_return_statement_v1",
-        1,
-        "value-bearing Return driver",
-    )
-    _require_count(
-        descent,
-        "ensure_return_allowed(builder)?;",
-        1,
-        "existing cleanup prohibition consumer",
-    )
-    _require_count(
-        descent,
-        "try_apply_match_return_optimization(builder, Some(value), true)",
-        1,
-        "existing raw match-return owner delegation",
-    )
-    _require_count(
-        descent,
-        "drive_legacy_expression_v1(builder, port, expression_input)?",
-        1,
-        "one ReturnValue E0 descent",
-    )
-    _require_count(
-        descent,
-        "emit_return_from_value(builder, return_value)",
-        1,
-        "existing Return completion consumer",
+        (
+            "ensure_return_allowed(builder)?;",
+            "port.return_value_syntax(input)?",
+            "port.try_match_return_optimization(builder, input, value)?",
+            "port.return_value_expression_input(input)?",
+            "drive_legacy_expression_v1(builder, port, expression_input)?",
+            "emit_return_from_value(builder, return_value)",
+        ),
+        "value Return cleanup/syntax/Match/input/child/completion",
     )
 
-    cleanup_at = descent.index("ensure_return_allowed(builder)?;")
-    syntax_at = descent.index("port.return_value_syntax(input)?")
-    match_at = descent.index("port.try_match_return_optimization(builder, input, value)?")
-    input_at = descent.index("port.return_value_expression_input(input)?")
-    child_at = descent.index(
-        "drive_legacy_expression_v1(builder, port, expression_input)?"
-    )
-    completion_at = descent.index("emit_return_from_value(builder, return_value)")
-    if not cleanup_at < syntax_at < match_at < input_at < child_at < completion_at:
-        _fail(
-            "RET0 order must be cleanup -> syntax -> match -> input -> child -> completion"
-        )
-
-    raw_input_start = descent.index("struct RawLegacyValueReturnInputV1")
-    syntax_view_start = descent.index("struct ReturnStatementSyntaxViewV1")
-    trait_start = descent.index("trait ReturnStatementDescentPortV1")
-    if "Option" in descent[raw_input_start:syntax_view_start]:
-        _fail("RET0 raw input must make one Return value structurally mandatory")
-    if "Option" in descent[syntax_view_start:trait_start]:
-        _fail("RET0 syntax view must not admit void Return")
+    raw_input = descent[
+        descent.index("struct RawLegacyValueReturnInputV1") :
+        descent.index("struct ReturnStatementSyntaxViewV1")
+    ]
+    syntax_view = descent[
+        descent.index("struct ReturnStatementSyntaxViewV1") :
+        descent.index("trait ReturnStatementDescentPortV1")
+    ]
+    if "Option" in raw_input or "Option" in syntax_view:
+        _fail("value Return input and syntax must be structurally mandatory")
 
     for forbidden in (
-        "MatchReturnFacts",
-        "compose_match_return",
-        "PlanVerifier",
-        "PlanLowerer",
-        "ExprChildRoleV1",
-        "LegacyStmtInputV1",
-        "LocatedLegacy",
-        "CallableResult",
-        "SourcePath",
-        "ledger",
-        "return_defer_active =",
+        "drive_raw_value_return_statement_v1",
+        "RawLegacyChildLoweringPortV1",
         "MirInstruction::Return",
         "build_expression(",
         "retry",
         "fallback",
     ):
         if forbidden in descent:
-            _fail(f"RET0 substrate owns forbidden authority: {forbidden}")
+            _fail(f"value Return owner gained forbidden authority: {forbidden}")
 
+    # The raw/default statement surface is the sole Some/None selector.
     _require_count(
-        return_owner,
-        "fn ensure_return_allowed",
+        surface,
+        "node @ ASTNode::Return { .. }",
         1,
-        "single cleanup prohibition owner",
+        "AST Return selector",
     )
     _require_count(
-        return_owner,
-        "ensure_return_allowed(builder)?;",
+        surface,
+        "RawLegacyValueReturnInputV1::new(*value)",
         1,
-        "legacy Return facade cleanup consumer",
+        "raw value input",
     )
     _require_count(
-        return_owner,
-        "try_apply_match_return_optimization(builder, None, true)?",
+        surface,
+        "drive_value_return_statement_v1(builder, port, &input)",
         1,
-        "legacy Void match observation preserved",
+        "raw value owner caller",
     )
     _require_count(
-        return_owner,
-        "builder.build_expression(*expr)?",
-        0,
-        "retired inline value lowering",
-    )
-    _require_count(
-        return_owner,
-        "super::return_statement_descent::drive_raw_value_return_statement_v1(",
+        surface,
+        "build_void_return_statement(builder)",
         1,
-        "existing Return facade raw value selector",
+        "raw Void owner caller",
     )
-    _require_count(
-        return_owner,
-        "crate::mir::builder::emission::constant::emit_void(builder)?",
-        1,
-        "legacy Void Return lowering preserved",
-    )
-    _require_count(
-        return_owner,
-        "emit_return_from_value(builder, return_value)",
-        1,
-        "legacy Return completion preserved",
+    return_surface = surface[surface.index("fn build_return_with_port_v1") :]
+    _require_order(
+        return_surface,
+        (
+            "Some(value) =>",
+            "RawLegacyValueReturnInputV1::new(*value)",
+            "drive_value_return_statement_v1(builder, port, &input)",
+            "None =>",
+            "build_void_return_statement(builder)",
+        ),
+        "raw/default Return source partition",
     )
 
-    facade_start = return_owner.index(
-        "pub(in crate::mir::builder) fn build_return_statement("
+    # The exact Void leaf owns no AST, Option, child, or Match observation.
+    _require_count(owner, "fn ensure_return_allowed", 1, "cleanup owner")
+    _require_count(owner, "fn build_void_return_statement", 1, "Void owner")
+    void_owner = owner[owner.index("fn build_void_return_statement") :]
+    _require_order(
+        void_owner,
+        (
+            "ensure_return_allowed(builder)?;",
+            "emission::constant::emit_void(builder)?",
+            "emit_return_from_value(builder, return_value)",
+        ),
+        "Void cleanup/emission/completion",
     )
-    facade = return_owner[facade_start:]
-    _require_count(
-        facade,
-        "if let Some(expr) = value {",
-        1,
-        "exact value-bearing Return selector",
-    )
-    if not re.search(
-        r"if let Some\(expr\) = value \{\s*"
-        r"return super::return_statement_descent::"
-        r"drive_raw_value_return_statement_v1\(\s*builder, \*expr,\s*\);\s*\}",
-        facade,
+    for forbidden in (
+        "Option<",
+        "ASTNode",
+        "try_apply_match_return_optimization",
+        "drive_value_return_statement_v1(",
+        "build_expression(",
     ):
-        _fail("RET0-I0 Some selector must early-return through the raw driver")
+        if forbidden in void_owner:
+            _fail(f"exact Void owner gained forbidden input/authority: {forbidden}")
 
-    selector_at = facade.index("if let Some(expr) = value {")
-    raw_at = facade.index(
-        "return super::return_statement_descent::drive_raw_value_return_statement_v1("
+    all_src = "\n".join(
+        path.read_text(encoding="utf-8") for path in (root / "src").rglob("*.rs")
     )
-    cleanup_at = facade.index("ensure_return_allowed(builder)?;")
-    void_match_at = facade.index(
-        "try_apply_match_return_optimization(builder, None, true)?"
-    )
-    void_at = facade.index(
-        "crate::mir::builder::emission::constant::emit_void(builder)?"
-    )
-    facade_completion_at = facade.index(
-        "emit_return_from_value(builder, return_value)"
-    )
-    if not (
-        selector_at
-        < raw_at
-        < cleanup_at
-        < void_match_at
-        < void_at
-        < facade_completion_at
+    for retired in (
+        "build_return_statement(",
+        "drive_raw_value_return_statement_v1(",
+        "try_apply_match_return_optimization(builder, None",
     ):
+        if retired in all_src:
+            _fail(f"retired Return authority remains: {retired}")
+
+    external_driver_calls = _production_calls(
+        root,
+        "drive_value_return_statement_v1",
+        excluded={descent_path},
+    )
+    if external_driver_calls != 2:
         _fail(
-            "RET0-I0 order must be Some/raw early return before "
-            "Void cleanup -> match(None) -> emit_void -> completion"
+            "value Return driver must have raw/default plus detached callers: "
+            f"actual={external_driver_calls}"
         )
 
-    ignored = {
-        (root / descent_path).resolve(),
-        (root / tests_path).resolve(),
-        (root / raw_tests_path).resolve(),
-        (root / located_path).resolve(),
-    }
-    driver_callers = 0
-    raw_callers = 0
-    for path in (root / "src").rglob("*.rs"):
-        if path.resolve() in ignored:
-            continue
-        source = path.read_text(encoding="utf-8")
-        driver_callers += source.count("drive_value_return_statement_v1(")
-        raw_callers += source.count("drive_raw_value_return_statement_v1(")
-    if driver_callers != 0:
-        _fail(f"RET0-S0 production driver callers must be zero: actual={driver_callers}")
-    if raw_callers != 1:
-        _fail(f"RET0-I0 raw production selectors must be one: actual={raw_callers}")
+    # The detached caller remains exact-value-only and root-inactive.
+    for needle, expected, label in (
+        ("struct LocatedValueReturnInputV1", 1, "located carrier"),
+        ("fn select_exact_value_return_v1", 1, "located selector"),
+        (
+            "impl<'plan> ReturnStatementDescentPortV1 for "
+            "LocatedLegacyLoweringSessionV1<'plan>",
+            1,
+            "located port",
+        ),
+        (
+            "drive_value_return_statement_v1(builder, session, selected)",
+            1,
+            "located driver caller",
+        ),
+        ("ExprChildRoleV1::ReturnValue", 1, "ReturnValue role"),
+        (".prove_expr_inactive(&expression)", 1, "located Match inactive proof"),
+    ):
+        _require_count(located, needle, expected, label)
+    selector = located[
+        located.index("fn select_exact_value_return_v1") :
+        located.index("fn lower_selected_value_return_v1")
+    ]
+    if not re.search(
+        r"ASTNode::Return\s*\{\s*value: Some\(value\), \.\.\s*\}",
+        selector,
+    ):
+        _fail("located selector must admit exact Return Some only")
+    if _production_calls(
+        root,
+        "LocatedLegacyLoweringSessionV1::verify",
+        excluded=set(),
+    ):
+        _fail("located Return session gained production root ingress")
 
+    # Historical parity remains test-only and preserves both source shapes.
     _require_count(
         parity_tests,
         "fn lower_pre_i0_return_reference(",
         1,
-        "one cfg(test) pre-I0 Return reference",
+        "one historical Return reference",
     )
-    reference_start = parity_tests.index("fn lower_pre_i0_return_reference(")
-    reference_end = parity_tests.index("fn snapshot(", reference_start)
-    reference = parity_tests[reference_start:reference_end]
+    reference = parity_tests[
+        parity_tests.index("fn lower_pre_i0_return_reference(") :
+        parity_tests.index("fn snapshot(")
+    ]
     for required in (
-        "let span = expression.span();",
-        "let node_kind = std::mem::discriminant(&expression);",
         "ASTNode::Return { value, .. }",
-        "with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {",
-        "builder.metadata_ctx.set_current_span(span);",
         "ensure_return_allowed(builder)?;",
         "try_apply_match_return_optimization(builder, value.as_deref(), true)?",
         "builder.build_expression(*expr)?",
@@ -279,211 +279,13 @@ def check_ret0_s0(root: Path) -> str:
         "emit_return_from_value(builder, return_value)",
     ):
         if required not in reference:
-            _fail(f"missing RET0-P0 reference step: {required}")
-
-    span_extract_at = reference.index("let span = expression.span();")
-    node_kind_at = reference.index(
-        "let node_kind = std::mem::discriminant(&expression);"
-    )
-    destructure_at = reference.index("ASTNode::Return { value, .. }")
-    guard_at = reference.index(
-        "with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {"
-    )
-    span_at = reference.index("builder.metadata_ctx.set_current_span(span);")
-    cleanup_at = reference.index("ensure_return_allowed(builder)?;")
-    match_at = reference.index(
-        "try_apply_match_return_optimization(builder, value.as_deref(), true)?"
-    )
-    child_at = reference.index("builder.build_expression(*expr)?")
-    void_at = reference.index("emit_void(builder)?")
-    completion_at = reference.index("emit_return_from_value(builder, return_value)")
-    prefix_order = (
-        span_extract_at < node_kind_at < destructure_at < guard_at < span_at < cleanup_at
-    )
-    if not prefix_order or not cleanup_at < match_at < child_at < completion_at:
-        _fail("RET0-P0 value reference order drifted")
-    if not prefix_order or not cleanup_at < match_at < void_at < completion_at:
-        _fail("RET0-P0 Void reference order drifted")
-
-    for forbidden in (
-        "build_return_statement(",
-        "drive_value_return_statement_v1",
-        "drive_raw_value_return_statement_v1",
-        "Located",
-        "CallableResult",
-        "SourcePath",
-        "ledger",
-        "MatchReturnFacts",
-        "compose_match_return",
-        "PlanVerifier",
-        "PlanLowerer",
-        "retry",
-        "fallback",
+            _fail(f"historical Return parity step missing: {required}")
+    if _production_calls(
+        root,
+        "lower_pre_i0_return_reference",
+        excluded={parity_tests_path},
     ):
-        if forbidden in reference:
-            _fail(f"RET0-P0 reference owns forbidden authority: {forbidden}")
-
-    parity_reference_callers = 0
-    for path in (root / "src").rglob("*.rs"):
-        if path.resolve() == (root / parity_tests_path).resolve():
-            continue
-        parity_reference_callers += path.read_text(encoding="utf-8").count(
-            "lower_pre_i0_return_reference("
-        )
-    if parity_reference_callers != 0:
-        _fail(
-            "RET0-P0 reference production callers must be zero: "
-            f"actual={parity_reference_callers}"
-        )
-
-    _require_count(
-        located,
-        "struct LocatedValueReturnInputV1",
-        1,
-        "one located value-Return carrier",
-    )
-    _require_count(
-        located,
-        "fn select_exact_value_return_v1",
-        1,
-        "one exact located value-Return selector",
-    )
-    _require_count(
-        located,
-        "impl<'plan> ReturnStatementDescentPortV1 for LocatedLegacyLoweringSessionV1<'plan>",
-        1,
-        "one located Return port implementation",
-    )
-    _require_count(
-        located,
-        "drive_value_return_statement_v1(builder, session, selected)",
-        1,
-        "one located Return driver consumer",
-    )
-    _require_count(
-        located,
-        "ExprChildRoleV1::ReturnValue",
-        1,
-        "one canonical ReturnValue role consumer",
-    )
-    _require_count(
-        located,
-        ".prove_expr_inactive(&expression)",
-        1,
-        "one located Match inactive-subtree proof",
-    )
-    _require_count(
-        located,
-        "try_apply_match_return_optimization(builder, Some(value), true)",
-        1,
-        "one existing Match owner delegation",
-    )
-
-    carrier_start = located.index("struct LocatedValueReturnInputV1")
-    selector_start = located.index("fn select_exact_value_return_v1", carrier_start)
-    if "Option" in located[carrier_start:selector_start]:
-        _fail("RET0-L0 carrier must make one Return value structurally mandatory")
-    selector_end = located.index("fn lower_selected_value_return_v1", selector_start)
-    selector = located[selector_start:selector_end]
-    if not re.search(
-        r"ASTNode::Return\s*\{\s*value: Some\(value\), \.\.\s*\}",
-        selector,
-    ):
-        _fail("RET0-L0 selector must admit exact Return Some only")
-
-    match_start = located.index("fn try_match_return_optimization(")
-    child_start = located.index("fn return_value_expression_input(", match_start)
-    match_hook = located[match_start:child_start]
-    match_shape_at = match_hook.index("matches!(value, ASTNode::MatchExpr { .. })")
-    location_at = match_hook.index("self.return_value_expression_input(input)?")
-    inactive_at = match_hook.index(".prove_expr_inactive(&expression)")
-    match_owner_at = match_hook.index(
-        "try_apply_match_return_optimization(builder, Some(value), true)"
-    )
-    if not match_shape_at < location_at < inactive_at < match_owner_at:
-        _fail(
-            "RET0-L0 Match order must be shape -> exact location -> "
-            "inactive proof -> existing owner"
-        )
-
-    for forbidden in (
-        "SourceExprSiteV1",
-        "SourcePathSegmentV1",
-        "ledger.claim",
-        ".claim(",
-        "MirInstruction::Return",
-        "drive_raw_value_return_statement_v1",
-        "builder.build_expression(",
-        "emit_return_from_value",
-        "emit_void",
-        "RowsUnderPrefix",
-    ):
-        if forbidden in located:
-            _fail(f"RET0-L0 adapter owns forbidden authority: {forbidden}")
-
-    _require_count(
-        located_session,
-        "return_adapter::select_exact_value_return_v1(input)",
-        1,
-        "one located Return statement selector",
-    )
-    _require_count(
-        located_session,
-        "return_adapter::lower_selected_value_return_v1(",
-        1,
-        "one located Return selector consumer",
-    )
-    if not re.search(
-        r"#\[cfg\(test\)\]\s*#\[path = \"located_legacy_return_tests.rs\"\]\s*"
-        r"mod return_tests;",
-        located_session,
-    ):
-        _fail("RET0-L0 fixture module must remain cfg(test)-scoped")
-
-    production_session_callers = 0
-    for path in (root / "src").rglob("*.rs"):
-        relative = path.relative_to(root).as_posix()
-        if relative.endswith("_tests.rs") or "/tests/" in relative:
-            continue
-        production_session_callers += path.read_text(encoding="utf-8").count(
-            "LocatedLegacyLoweringSessionV1::verify("
-        )
-    if production_session_callers != 0:
-        _fail(
-            "RET0-L0 located production session callers must be zero: "
-            f"actual={production_session_callers}"
-        )
-
-    _require_count(
-        expression_owner,
-        "super::stmts::return_stmt::build_return_statement(self, stmt.value.clone())",
-        1,
-        "unchanged expression-to-Return facade entry",
-    )
-    if "drive_raw_value_return_statement_v1(" in expression_owner:
-        _fail("RET0-I0 expression dispatch must not become a second Return policy owner")
-
-    _require_count(
-        stmts_root,
-        "pub(in crate::mir::builder) mod return_statement_descent;",
-        1,
-        "Builder-private Return descent module",
-    )
-    if not re.search(
-        r"#\[cfg\(test\)\]\s*mod return_statement_descent_tests;",
-        stmts_root,
-    ):
-        _fail("RET0-S0 fixture module must remain cfg(test)-scoped")
-    if not re.search(
-        r"#\[cfg\(test\)\]\s*mod return_statement_raw_tests;",
-        stmts_root,
-    ):
-        _fail("RET0-I0 raw fixture module must remain cfg(test)-scoped")
-    if not re.search(
-        r"#\[cfg\(test\)\]\s*mod return_statement_parity_tests;",
-        stmts_root,
-    ):
-        _fail("RET0-P0 parity module must remain cfg(test)-scoped")
+        _fail("historical Return reference gained a production caller")
 
     for fixture in (
         "cleanup_precedes_match_child_and_return_effects",
@@ -491,23 +293,27 @@ def check_ret0_s0(root: Path) -> str:
         "selected_match_bypasses_value_demand_and_ordinary_completion",
         "syntax_match_input_and_child_failures_emit_no_return_completion",
         "configured_defer_reuses_copy_and_jump_completion_without_direct_return",
-        "raw_value_return_reuses_binary_and_short_circuit_child_spines",
-        "raw_value_return_reuses_actual_method_call_child_spine",
-        "value_return_input_excludes_void_while_legacy_void_return_remains",
+        "value_return_input_excludes_void",
     ):
         if fixture not in tests:
-            _fail(f"missing RET0-S0 fixture: {fixture}")
+            _fail(f"missing Return owner fixture: {fixture}")
+    for retired_fixture in (
+        "raw_value_return_reuses_binary_and_short_circuit_child_spines",
+        "raw_value_return_reuses_actual_method_call_child_spine",
+        "legacy_void_return_remains",
+    ):
+        if retired_fixture in tests:
+            _fail(f"retired facade-only fixture remains: {retired_fixture}")
 
     for fixture in (
         "raw_value_return_selects_owned_descent_for_actual_method_call",
-        "raw_void_return_stays_on_legacy_facade",
+        "raw_void_return_selects_void_source_partition",
         "raw_match_return_keeps_existing_selection_owner_without_second_completion",
         "raw_configured_defer_keeps_exact_copy_jump_completion",
         "raw_cleanup_and_child_failures_leave_no_terminator_then_reuse",
     ):
         if fixture not in raw_tests:
-            _fail(f"missing RET0-I0 raw fixture: {fixture}")
-
+            _fail(f"missing raw Return ingress fixture: {fixture}")
     for fixture in (
         "literal_binary_short_circuit_and_method_call_have_exact_pre_i0_parity",
         "void_return_has_exact_pre_i0_parity",
@@ -516,42 +322,7 @@ def check_ret0_s0(root: Path) -> str:
         "cleanup_and_child_failures_plus_same_builder_reuse_have_exact_pre_i0_parity",
     ):
         if fixture not in parity_tests:
-            _fail(f"missing RET0-P0 parity fixture: {fixture}")
-
-    for snapshot_field in (
-        "result:",
-        "blocks:",
-        "locals:",
-        "value_types:",
-        "value_kinds:",
-        "value_origins:",
-        "string_literals:",
-        "exact_numeric_const_facts:",
-        "exact_numeric_value_facts:",
-        "variable_map:",
-        "bindings:",
-        "scope_frames:",
-        "pin_slots:",
-        "local_ssa_map:",
-        "schedule_mat_map:",
-        "current_block:",
-        "next_value_id:",
-        "next_core_value:",
-        "next_core_block:",
-        "next_binding_id:",
-        "temp_slot_counter:",
-        "recursion_depth:",
-        "current_span:",
-        "in_cleanup_block:",
-        "cleanup_allow_return:",
-        "return_defer_active:",
-        "return_defer_slot:",
-        "return_defer_target:",
-        "return_deferred_emitted:",
-    ):
-        if snapshot_field not in parity_tests:
-            _fail(f"missing RET0-P0 snapshot surface: {snapshot_field}")
-
+            _fail(f"missing Return parity fixture: {fixture}")
     for fixture in (
         "located_return_claims_actual_body_value_last_in_exact_order",
         "located_return_claims_nested_argument_before_parent",
@@ -561,75 +332,47 @@ def check_ret0_s0(root: Path) -> str:
         "located_return_selector_excludes_void_and_non_return_statements",
     ):
         if fixture not in located_tests:
-            _fail(f"missing RET0-L0 located fixture: {fixture}")
+            _fail(f"missing located Return fixture: {fixture}")
 
-    actual_fixture_at = located_tests.index(
-        "fn located_return_claims_actual_body_value_last_in_exact_order()"
-    )
-    actual_fixture_end = located_tests.index("#[test]", actual_fixture_at)
-    actual_fixture = located_tests[actual_fixture_at:actual_fixture_end]
-    _require_count(
-        actual_fixture,
-        "SourcePathSegmentV1::Body(5)",
-        1,
-        "actual final Return Body(5) row",
-    )
-    _require_count(
-        actual_fixture,
-        "SourcePathSegmentV1::Value",
-        1,
-        "actual final Return Value row",
-    )
-    _require_count(
-        actual_fixture,
-        "SourcePathSegmentV1::Argument(",
-        0,
-        "actual final Return has no nested call row",
-    )
-
-    for required in (
-        "block.terminator.clone()",
-        "SourcePathSegmentV1::Body(5)",
-        "SourcePathSegmentV1::Value",
-        "WrongOrder",
-        "LocatedLegacyLoweringErrorV1::Poisoned",
-        "builder.recursion_depth",
+    for module in (
+        "return_statement_descent_tests",
+        "return_statement_raw_tests",
+        "return_statement_parity_tests",
     ):
-        if required not in located_tests:
-            _fail(f"missing RET0-L0 fixture evidence: {required}")
+        if not re.search(rf"#\[cfg\(test\)\]\s*mod {module};", stmts_root):
+            _fail(f"Return fixture module must remain cfg(test)-scoped: {module}")
+    if not re.search(
+        r"#\[cfg\(test\)\]\s*#\[path = \"located_legacy_return_tests.rs\"\]\s*"
+        r"mod return_tests;",
+        located_session,
+    ):
+        _fail("located Return fixtures must remain cfg(test)-scoped")
 
     normalized_readme = " ".join(readme.split())
     for phrase in (
-        "one disconnected orchestration boundary for",
-        "runs the existing cleanup prohibition first",
-        "delegates the existing match-return probe",
-        "requests `ReturnValue` once",
-        "existing `emit_return_from_value` owner",
-        "does not admit `return;`",
-        "must not reconstruct",
-        "selects that driver exactly once inside the existing Return facade",
-        "keeps the `None` branch on the legacy Void path",
+        "live associated-input owner",
+        "one exact source partition",
+        "`Some` constructs one mandatory",
+        "`None` calls `build_void_return_statement`",
+        "Match observation is value-bearing only",
+        "old mixed Return facade and raw value facade are retired",
         "one `cfg(test)` pre-I0 Return orchestration reference",
-        "exact normalized parity",
-        "has no production caller",
-        "one disconnected exact `Return { value: Some(_) }` adapter",
-        "existing `ReturnValue` source role",
-        "active row below Match fails closed",
-        "Void Return stays outside the adapter",
+        "disconnected exact `Return { value: Some(_) }` adapter",
+        "production located root",
     ):
         if phrase not in normalized_readme:
-            _fail(f"missing RET0-S0 README boundary: {phrase}")
+            _fail(f"missing Return README boundary: {phrase}")
 
     touched = (
         descent_path,
         tests_path,
         raw_tests_path,
         parity_tests_path,
+        surface_path,
         located_path,
         located_tests_path,
         located_session_path,
-        return_owner_path,
-        expression_owner_path,
+        owner_path,
         stmts_root_path,
         readme_path,
         helper_path,
@@ -638,12 +381,11 @@ def check_ret0_s0(root: Path) -> str:
         relative for relative in touched if len(_read(root, relative).splitlines()) >= 800
     ]
     if oversized:
-        _fail(f"RET0-S0 source/check files reached 800 lines: {oversized}")
+        _fail(f"Return source/check files reached 800 lines: {oversized}")
     if re.search(r"Arc<|Rc<|thread_local!|static mut", descent):
-        _fail("RET0-S0 substrate must remain stack-scoped and non-persistent")
+        _fail("Return owner must remain stack-scoped and non-persistent")
 
     return (
-        "ret_driver=1 ret_e0_descents=1 ret_match_hook=1 "
-        "ret_raw_selectors=1 ret_parity_reference=1 "
-        "ret_located_impl=1 ret_located_selectors=1"
+        "ret_value_driver=1 ret_raw_value_callers=1 ret_void_callers=1 "
+        "ret_detached_callers=1 ret_old_facades=0 ret_parity_reference=1"
     )

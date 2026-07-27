@@ -62,7 +62,8 @@
 //! ### 4. return_stmt.rs - Return Handling
 //! - **Purpose**: Return statement with match-return optimization
 //! - **Key Functions**:
-//!   - `build_return_statement` - Return with CorePlan optimization
+//!   - `build_void_return_statement` - Exact no-value Return leaf
+//!   - `drive_value_return_statement_v1` - Value-bearing Return owner
 //! - **Features**: Match-return optimization, defer mechanism
 //!
 //! ### 5. variable_stmt.rs - Variable Lifecycle

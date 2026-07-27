@@ -120,7 +120,7 @@ fn raw_value_return_selects_owned_descent_for_actual_method_call() {
 }
 
 #[test]
-fn raw_void_return_stays_on_legacy_facade() {
+fn raw_void_return_selects_void_source_partition() {
     let mut builder = builder("ret0_i0_void/0");
 
     let result = builder.build_expression(void_return()).unwrap();
@@ -205,6 +205,12 @@ fn raw_cleanup_and_child_failures_leave_no_terminator_then_reuse() {
     let error = cleanup
         .build_expression(value_return(type_check(integer(8))))
         .unwrap_err();
+    assert!(error.contains("return is not allowed inside cleanup block"));
+    assert!(instructions(&cleanup).is_empty());
+    assert!(current_terminator(&cleanup).is_none());
+    assert_eq!(cleanup.recursion_depth, 0);
+
+    let error = cleanup.build_expression(void_return()).unwrap_err();
     assert!(error.contains("return is not allowed inside cleanup block"));
     assert!(instructions(&cleanup).is_empty());
     assert!(current_terminator(&cleanup).is_none());

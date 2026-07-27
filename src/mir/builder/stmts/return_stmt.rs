@@ -1,6 +1,7 @@
 //! Return statement handling module
 //!
-//! This module provides return statement lowering with match-return optimization support.
+//! This module owns Return completion, Match-return optimization, and the
+//! exact no-value Return leaf.
 //!
 //! # Purpose
 //! - Return statement execution with defer mechanism
@@ -8,11 +9,9 @@
 //! - Plan system integration (verify → lower)
 //!
 //! # Responsibilities
-//! - `build_return_statement`: Main return statement builder
-//!   - Match-return facts extraction and optimization
-//!   - Return value evaluation
-//!   - Defer mechanism handling (slot copy + jump)
-//!   - Normal return emission
+//! - `build_void_return_statement`: Exact `return;` lowering
+//! - `try_apply_match_return_optimization`: Value-bearing Match probe
+//! - `emit_return_from_value`: Shared Return/defer completion
 //! - `adopt_match_return_coreplan`: **Private** helper for match-return optimization
 //!   - CorePlan composition via `compose_match_return_branchn`
 //!   - CorePlan verification
@@ -66,7 +65,7 @@ pub(in crate::mir::builder) fn ensure_return_allowed(builder: &MirBuilder) -> Re
 
 /// Adopt match-return CorePlan optimization
 ///
-/// **Private helper** - only called from `build_return_statement`.
+/// Private implementation of `try_apply_match_return_optimization`.
 ///
 /// # Process
 /// 1. Compose CorePlan from match-return facts
@@ -198,62 +197,13 @@ pub(in crate::mir::builder) fn emit_return_from_value(
     }
 }
 
-/// Build return statement with match-return optimization
+/// Lower the exact `return;` source shape.
 ///
-/// # Process
-/// 1. **Match-return optimization** (if enabled and pattern matches):
-///    - Extract match-return facts from return expression
-///    - Adopt CorePlan optimization via `adopt_match_return_coreplan`
-/// 2. **Return value evaluation**:
-///    - Evaluate return expression or default to void
-/// 3. **Defer mechanism** (if `return_defer_active`):
-///    - Copy return value to `return_defer_slot`
-///    - Jump to `return_defer_target` for cleanup
-///    - Set `return_deferred_emitted` flag
-/// 4. **Normal return**:
-///    - Emit `MirInstruction::Return` with evaluated value
-///
-/// # Arguments
-/// * `builder` - MIR builder context
-/// * `value` - Optional return expression
-///
-/// # Returns
-/// `Ok(ValueId)` - Return value (evaluated or void)
-/// `Err(String)` - Compilation error
-///
-/// # Examples
-/// ```hako
-/// // Simple return
-/// return 42
-///
-/// // Match-return (optimized)
-/// return match x {
-///     1 => "one",
-///     _ => "other"
-/// }
-///
-/// // Void return
-/// return
-/// ```
-pub(in crate::mir::builder) fn build_return_statement(
+/// Value-bearing Return is owned by `drive_value_return_statement_v1`.
+pub(in crate::mir::builder) fn build_void_return_statement(
     builder: &mut MirBuilder,
-    value: Option<Box<ASTNode>>,
 ) -> Result<ValueId, String> {
-    if let Some(expr) = value {
-        return super::return_statement_descent::drive_raw_value_return_statement_v1(
-            builder, *expr,
-        );
-    }
-
     ensure_return_allowed(builder)?;
-
-    // Preserve the legacy Void path exactly. The match owner observes `None`
-    // and declines without taking value-bearing Return authority.
-    if let Some(return_value) = try_apply_match_return_optimization(builder, None, true)? {
-        return Ok(return_value);
-    }
-
     let return_value = crate::mir::builder::emission::constant::emit_void(builder)?;
-
     emit_return_from_value(builder, return_value)
 }

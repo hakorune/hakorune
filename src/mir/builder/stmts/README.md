@@ -118,8 +118,8 @@ authority.
 
 ## Value-bearing Return associated-input descent
 
-`return_statement_descent.rs` owns one disconnected orchestration boundary for
-`return value` only. The driver runs the existing cleanup prohibition first,
+`return_statement_descent.rs` is the live associated-input owner for
+`return value`. The driver runs the existing cleanup prohibition first,
 observes one required value syntax, delegates the existing match-return probe
 through the port, requests `ReturnValue` once only when that probe declines,
 lowers the child through the shared recursive expression port, and completes
@@ -133,20 +133,18 @@ before. Cleanup/defer policy, CorePlan composition, Return ABI/contracts,
 instruction emission, source location, and callable-result ledger ownership
 remain outside this driver.
 
-RET0-S0 does not admit `return;`: the input and syntax view both carry one
-non-optional value. Void emission remains on the existing legacy facade. A
-cleanup rejection happens before port observation, while match-hook, input,
-or child failure emits no Return completion. The driver must not reconstruct
-sites, inspect Match facts, emit Return directly, retry another route, or
-store its input/port in `MirBuilder`.
+The raw/default statement surface owns one exact source partition. `Some`
+constructs one mandatory `RawLegacyValueReturnInputV1` and calls the value
+driver. `None` calls `build_void_return_statement`, whose complete authority is
+cleanup preflight, `emit_void`, and the existing completion owner. No
+`Option<Box<ASTNode>>` crosses either owner boundary, and Match observation is
+value-bearing only. The old mixed Return facade and raw value facade are
+retired.
 
-RET0-I0 selects that driver exactly once inside the existing Return facade
-when the source value is present. The facade performs no cleanup or Match work
-before selection; those remain ordered once inside the driver. It keeps the
-`None` branch on the legacy Void path, including cleanup, the existing
-no-value Match observation, `emit_void`, and the existing completion owner.
-Expression dispatch remains a thin caller of the Return facade, and failure
-never retries the retired inline value-lowering route.
+A cleanup rejection happens before value observation or Void emission, while
+match-hook, input, or child failure emits no Return completion. Neither owner
+may reconstruct sites, emit Return directly, retry another route, or store its
+input/port in `MirBuilder`.
 
 RET0-P0 keeps one `cfg(test)` pre-I0 Return orchestration reference with no
 production caller. It preserves the former span, cleanup, Match probe,
@@ -157,7 +155,7 @@ bindings/scopes, caches, allocator counters, span, cleanup state, defer state,
 partial failure effects, and same-Builder reuse. The reference owns no located
 source, callable-result ledger, Match/CorePlan policy, retry, or fallback.
 
-RET0-L0 adds one disconnected exact `Return { value: Some(_) }` adapter. It
+RET0-L0 keeps one disconnected exact `Return { value: Some(_) }` adapter. It
 publishes the existing statement span and recursion shell, then gives the
 shared Return driver one mandatory syntax value and derives its child only
 through the existing `ReturnValue` source role. A Match-valued Return must
@@ -165,9 +163,9 @@ first prove that exact located value subtree inactive before invoking the
 existing raw Match/CorePlan owner; an active row below Match fails closed
 before Match, child, or Return effects. Ordinary values continue through the
 located expression spine and its ledger claims. Void Return stays outside the
-adapter on the existing inactive legacy path. The adapter owns no site/path
-construction, call-row claim, cleanup/defer policy, completion, retry, or
-production located root.
+adapter and remains on the raw/default exact Void owner. The adapter owns no
+site/path construction, call-row claim, cleanup/defer policy, completion,
+retry, or production located root.
 
 ## Statement If associated-input descent
 

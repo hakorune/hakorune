@@ -27,14 +27,13 @@ new owner
 ## Current front
 
 ```text
-RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0
+MIRBUILDER-NEXT-EDGE-DESIGN-STOP
 ```
 
-第五cellのVariable-name Assignment descentはclosed。第六cellは既に本番を
-所有するvalue-bearing Return driverをcreditし、残るOption facadeをexact
-Void ownerへ狭め、raw compatibility facadeとfacade-only testsを同じT1
-I0/R0で削除する。直前四cellのrolling subtotalは`+68`なので、このcellの
-`src/**/*.rs` deltaは`<= -68`が必須。
+第六cellのReturn source partitionはclosed。value-bearing generic ownerと
+exact Void leafが本番selectorを分有し、旧Option/raw facadesは物理削除済み。
+第七production edgeは未選択であり、fresh bounded censusなしにsource editへ
+進まない。
 
 ## First three replacements
 
@@ -116,7 +115,7 @@ Keep only these counters current:
 
 ```text
 macro_packs_closed                 = 0 / 8
-live_replacement_cells_closed      = 5
+live_replacement_cells_closed      = 6
 replacement_ledger_remaining       = 0 scheduled production rows
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
@@ -128,15 +127,7 @@ five-cell rolling production Rust LOC budget must still be non-positive.
 ## Active replacement cell
 
 ```text
-RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0
-
-raw/default value caller = 1
-raw/default Void caller  = 1
-detached value caller    = 1, production root inactive
-delete targets           = build_return_statement
-                           drive_raw_value_return_statement_v1
-required Rust LOC delta  = <= -68
-fallback / retry         = forbidden
+none
 ```
 
 ## Landed replacement cells
@@ -184,6 +175,16 @@ VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0
   fallback / retry               = 0
   production Rust LOC            = -77
   five-cell rolling Rust LOC     = -134
+
+RETURN-SOURCE-PARTITION-CUTOVER0
+  raw/default value caller       = 1
+  raw/default exact Void caller  = 1
+  detached located value caller  = 1
+  detached root activation       = 0
+  selected old symbols           = 0
+  fallback / retry               = 0
+  production Rust LOC            = -141
+  five-cell rolling Rust LOC     = -73
 ```
 
 ## Parked

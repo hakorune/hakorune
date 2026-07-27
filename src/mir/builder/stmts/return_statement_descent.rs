@@ -1,4 +1,4 @@
-//! Disconnected associated-input boundary for value-bearing Return statements.
+//! Live associated-input owner for value-bearing Return statements.
 //!
 //! This box owns only the ordering between the existing cleanup preflight,
 //! match-return hook, one value-expression demand, and the existing Return
@@ -9,8 +9,7 @@ use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
-    RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 use super::return_stmt::{
     emit_return_from_value, ensure_return_allowed, try_apply_match_return_optimization,
@@ -110,13 +109,4 @@ where
     let expression_input = port.return_value_expression_input(input)?;
     let return_value = drive_legacy_expression_v1(builder, port, expression_input)?;
     emit_return_from_value(builder, return_value)
-}
-
-pub(in crate::mir::builder) fn drive_raw_value_return_statement_v1(
-    builder: &mut MirBuilder,
-    value: ASTNode,
-) -> Result<ValueId, String> {
-    let input = RawLegacyValueReturnInputV1::new(value);
-    let mut port = RawLegacyChildLoweringPortV1;
-    drive_value_return_statement_v1(builder, &mut port, &input)
 }

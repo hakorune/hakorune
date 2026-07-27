@@ -22,6 +22,11 @@ ASSIGNMENT_DESCENT="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_descent.
 LOCATED_ASSIGNMENT="$ROOT_DIR/src/mir/builder/located_legacy_assignment.rs"
 ASSIGNMENT_TESTS="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_descent_tests.rs"
 ASSIGNMENT_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_assignment.py"
+RETURN_DESCENT="$ROOT_DIR/src/mir/builder/stmts/return_statement_descent.rs"
+RETURN_TESTS="$ROOT_DIR/src/mir/builder/stmts/return_statement_descent_tests.rs"
+RETURN_OWNER="$ROOT_DIR/src/mir/builder/stmts/return_stmt.rs"
+LOCATED_RETURN="$ROOT_DIR/src/mir/builder/located_legacy_return.rs"
+RETURN_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_return.py"
 
 guard_require_command "$TAG" awk
 guard_require_command "$TAG" rg
@@ -44,7 +49,12 @@ guard_require_files \
   "$ASSIGNMENT_DESCENT" \
   "$LOCATED_ASSIGNMENT" \
   "$ASSIGNMENT_TESTS" \
-  "$ASSIGNMENT_GUARD"
+  "$ASSIGNMENT_GUARD" \
+  "$RETURN_DESCENT" \
+  "$RETURN_TESTS" \
+  "$RETURN_OWNER" \
+  "$LOCATED_RETURN" \
+  "$RETURN_GUARD"
 
 expected_header=$'record_kind\tid\tpack\tproduction_caller\tnew_owner\tdelete_target\tparity_gate\tdisposition\tstate'
 actual_header="$(head -n1 "$MANIFEST")"
@@ -111,6 +121,16 @@ assignment_row_count="$(awk -F '\t' '
 ' "$MANIFEST")"
 if [[ "$assignment_row_count" != "1" ]]; then
   guard_fail "$TAG" "Variable Assignment descent cutover must have one closed manifest row"
+fi
+
+return_row_count="$(awk -F '\t' '
+  $1 == "cell" &&
+  $2 == "RETURN-SOURCE-PARTITION-CUTOVER0" &&
+  $9 == "closed" { count += 1 }
+  END { print count + 0 }
+' "$MANIFEST")"
+if [[ "$return_row_count" != "1" ]]; then
+  guard_fail "$TAG" "Return source partition cutover must have one closed manifest row"
 fi
 
 for symbol in \
@@ -239,6 +259,46 @@ if rg -n -w 'retry|fallback' "$ASSIGNMENT_DESCENT" "$LOCATED_ASSIGNMENT" >/dev/n
   guard_fail "$TAG" "Assignment owner gained retry or fallback"
 fi
 
+while IFS=$'\t' read -r file pattern expected label; do
+  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+  if [[ "$count" != "$expected" ]]; then
+    guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
+  fi
+done <<EOF
+$STATEMENT_SURFACE	\\bdrive_value_return_statement_v1\\s*\\(	1	value-bearing Return owner caller
+$STATEMENT_SURFACE	\\bRawLegacyValueReturnInputV1::new\\s*\\(	1	value-bearing Return owned input
+$STATEMENT_SURFACE	\\bbuild_void_return_statement\\s*\\(	1	exact Void Return owner caller
+$LOCATED_RETURN	\\bdrive_value_return_statement_v1\\s*\\(	1	detached located Return owner caller
+EOF
+
+return_external_count="$(
+  rg -n -P '\bdrive_value_return_statement_v1\s*\(' \
+    "$ROOT_DIR/src" --glob '*.rs' \
+    | awk -F ':' \
+        -v owner="$RETURN_DESCENT" \
+        -v tests="$RETURN_TESTS" \
+        '$1 != owner && $1 != tests { count += 1 } END { print count + 0 }'
+)"
+if [[ "$return_external_count" != "2" ]]; then
+  guard_fail "$TAG" \
+    "Return external owner sites must be one raw/default plus one detached: count=$return_external_count"
+fi
+if rg -n -P '\b(?:fn\s+)?drive_raw_value_return_statement_v1\s*\(' \
+  "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+  guard_fail "$TAG" "retired drive_raw_value_return_statement_v1 facade returned"
+fi
+if rg -n -P '\b(?:fn\s+)?build_return_statement\s*\(' \
+  "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+  guard_fail "$TAG" "retired build_return_statement facade returned"
+fi
+if rg -n -P '\btry_apply_match_return_optimization\s*\(\s*builder,\s*None' \
+  "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+  guard_fail "$TAG" "retired no-value Match observation returned"
+fi
+if rg -n -w 'retry|fallback' "$RETURN_DESCENT" >/dev/null; then
+  guard_fail "$TAG" "Return value owner gained retry or route fallback"
+fi
+
 for file in \
   "$LOWERING" \
   "$PORT_OWNER" \
@@ -264,6 +324,13 @@ for file in \
   "$ROOT_DIR/src/mir/builder/stmts/variable_assignment_parity_tests.rs" \
   "$ROOT_DIR/src/mir/builder/builder_build.rs" \
   "$ASSIGNMENT_GUARD" \
+  "$RETURN_DESCENT" \
+  "$RETURN_TESTS" \
+  "$RETURN_OWNER" \
+  "$LOCATED_RETURN" \
+  "$ROOT_DIR/src/mir/builder/stmts/return_statement_raw_tests.rs" \
+  "$ROOT_DIR/src/mir/builder/stmts/return_statement_parity_tests.rs" \
+  "$RETURN_GUARD" \
   "$ROOT_DIR/tools/checks/mirbuilder_inplace_replacement_guard.sh"
 do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

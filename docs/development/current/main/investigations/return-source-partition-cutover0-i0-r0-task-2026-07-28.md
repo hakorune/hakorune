@@ -1,5 +1,5 @@
 ---
-Status: accepted execution task
+Status: closed
 Date: 2026-07-28
 Decision: RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0
 HistoricalCredit:
@@ -506,3 +506,36 @@ no Binary, ShortCircuit, If, Loop, or non-Program-root work
 no Stage-B, Ownership, language, runtime, backend, or selfhost work
 no seventh-cell selection
 ```
+
+## Closeout
+
+Closed on 2026-07-28.
+
+```text
+raw/default value-bearing Return caller           = 1
+raw/default exact Void Return caller               = 1
+detached located value caller                      = 1
+detached located production root ingress           = 0
+
+drive_raw_value_return_statement_v1 sites          = 0
+build_return_statement sites                       = 0
+try_apply_match_return_optimization(None) sites    = 0
+source-route fallback / retry / reselection        = 0
+
+focused Return tests                               = 17 / 17
+focused located Return tests                       = 6 / 6
+private Return helper                              = green
+shared replacement guard                           = green
+current-state pointer guard                        = green
+
+src/**/*.rs additions                              = 24
+src/**/*.rs deletions                              = 165
+src/**/*.rs LOC delta                              = -141
+new five-cell rolling LOC                          = -73
+largest touched source/check file                  = 391 lines
+```
+
+The exact Void leaf owns only cleanup preflight, existing Void emission, and
+the unchanged completion owner. The value-bearing path and located inactive
+adapter retain the same generic driver. Return ABI, Match/CorePlan,
+defer/cleanup policy, runtime, backend, and language behavior are unchanged.

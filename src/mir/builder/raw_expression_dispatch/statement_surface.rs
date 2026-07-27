@@ -222,6 +222,6 @@ where
             let input = RawLegacyValueReturnInputV1::new(*value);
             drive_value_return_statement_v1(builder, port, &input)
         }
-        None => crate::mir::builder::stmts::return_stmt::build_return_statement(builder, None),
+        None => crate::mir::builder::stmts::return_stmt::build_void_return_statement(builder),
     }
 }

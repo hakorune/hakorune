@@ -1,14 +1,12 @@
 use std::cell::RefCell;
 
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::{ConstValue, MirBuilder, MirInstruction, ValueId};
 
 use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::return_statement_descent::{
-    drive_raw_value_return_statement_v1, drive_value_return_statement_v1,
-    ReturnStatementDescentPortV1, ReturnStatementSyntaxViewV1,
+    drive_value_return_statement_v1, ReturnStatementDescentPortV1, ReturnStatementSyntaxViewV1,
 };
-use super::return_stmt::build_return_statement;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum EventV1 {
@@ -133,25 +131,6 @@ impl ReturnStatementDescentPortV1 for RecordingReturnPortV1 {
 fn integer(value: i64) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::Integer(value),
-        span: Span::unknown(),
-    }
-}
-
-fn variable(name: &str) -> ASTNode {
-    ASTNode::Variable {
-        name: name.to_string(),
-        span: Span::unknown(),
-    }
-}
-
-fn type_check(receiver: ASTNode) -> ASTNode {
-    ASTNode::MethodCall {
-        object: Box::new(receiver),
-        method: "is".to_string(),
-        arguments: vec![ASTNode::Literal {
-            value: LiteralValue::String("Integer".to_string()),
-            span: Span::unknown(),
-        }],
         span: Span::unknown(),
     }
 }
@@ -347,60 +326,7 @@ fn configured_defer_reuses_copy_and_jump_completion_without_direct_return() {
 }
 
 #[test]
-fn raw_value_return_reuses_binary_and_short_circuit_child_spines() {
-    for (index, value) in [
-        ASTNode::BinaryOp {
-            operator: BinaryOperator::Add,
-            left: Box::new(integer(1)),
-            right: Box::new(integer(2)),
-            span: Span::unknown(),
-        },
-        ASTNode::BinaryOp {
-            operator: BinaryOperator::And,
-            left: Box::new(variable("flag")),
-            right: Box::new(integer(1)),
-            span: Span::unknown(),
-        },
-    ]
-    .into_iter()
-    .enumerate()
-    {
-        let mut builder = builder(&format!("ret0_raw_spine_{index}/0"));
-        if index == 1 {
-            let flag =
-                crate::mir::builder::emission::constant::emit_bool(&mut builder, true).unwrap();
-            builder
-                .function_state
-                .variable_ctx
-                .variable_map
-                .insert("flag".to_string(), flag);
-        }
-
-        drive_raw_value_return_statement_v1(&mut builder, value).unwrap();
-
-        assert_eq!(return_count(&builder), 1);
-        assert_eq!(builder.recursion_depth, 0);
-    }
-}
-
-#[test]
-fn raw_value_return_reuses_actual_method_call_child_spine() {
-    let mut builder = builder("ret0_raw_method_call/0");
-
-    let result = drive_raw_value_return_statement_v1(&mut builder, type_check(integer(8))).unwrap();
-
-    assert!(instructions(&builder)
-        .iter()
-        .any(|row| matches!(row, MirInstruction::TypeOp { dst, .. } if *dst == result)));
-    assert!(matches!(
-        current_terminator(&builder),
-        Some(MirInstruction::Return { value: Some(value) }) if value == result
-    ));
-    assert_eq!(builder.recursion_depth, 0);
-}
-
-#[test]
-fn value_return_input_excludes_void_while_legacy_void_return_remains() {
+fn value_return_input_excludes_void() {
     let input = ReturnInputV1 { value: integer(1) };
     let syntax = RecordingReturnPortV1::accepting()
         .return_value_syntax(&input)
@@ -408,18 +334,4 @@ fn value_return_input_excludes_void_while_legacy_void_return_remains() {
 
     assert!(matches!(syntax.value(), ASTNode::Literal { .. }));
     let _no_optional_value: &ASTNode = syntax.value();
-
-    let mut legacy = builder("ret0_legacy_void/0");
-    let void_value = build_return_statement(&mut legacy, None).unwrap();
-    assert!(instructions(&legacy).iter().any(|row| matches!(
-        row,
-        MirInstruction::Const {
-            dst,
-            value: ConstValue::Void,
-        } if *dst == void_value
-    )));
-    assert!(matches!(
-        current_terminator(&legacy),
-        Some(MirInstruction::Return { value: Some(value) }) if value == void_value
-    ));
 }
