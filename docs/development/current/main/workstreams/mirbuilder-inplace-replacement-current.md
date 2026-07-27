@@ -27,14 +27,16 @@ new owner
 ## Current front
 
 ```text
-BINARY-SOURCE-PARTITION-CELL-ACCOUNTING-D0
+MIRBUILDER-STRUCTURAL-BUDGET-D0
 ```
 
 第六cellのReturn source partitionはclosed。value-bearing generic ownerと
 exact Void leafが本番selectorを分有し、旧Option/raw facadesは物理削除済み。
 第七production edgeは未選択。Binaryの一つのsource selector/dead
 predecessor chainを一cellで数えるか、Ordinary/ShortCircuitの二semantic
-ownerへ分けるかをD0で決めるまでsource editへ進まない。
+ownerへ分けるかをD0で決める前に、owned source/proof/check全体の絶対完了
+予算を固定する。structural budget D0がfinal Xを受理するまでsource editへ
+進まない。
 
 ## First three replacements
 
@@ -120,10 +122,18 @@ live_replacement_cells_closed      = 6
 replacement_ledger_remaining       = 0 scheduled production rows
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
+
+structural_budget_status           = D0 census required
+builder_Rust_files_baseline        = 1081
+builder_total_Rust_LOC_baseline    = 221957
+final_X_files                      = pending
+final_X_builder_LOC                = pending
+final_X_check_LOC                  = pending
 ```
 
-LOC and file counts are supporting evidence, not semantic authority. The
-five-cell rolling production Rust LOC budget must still be non-positive.
+Semantic evidence and structural budget are joint completion authority. The
+five-cell rolling production Rust LOC budget remains non-positive, while total
+builder files/LOC and MirBuilder-owned check LOC are charged separately.
 
 ## Active replacement cell
 

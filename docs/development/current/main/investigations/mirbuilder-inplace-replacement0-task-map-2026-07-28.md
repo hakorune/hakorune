@@ -429,6 +429,28 @@ It does not select a manifest row. Binary has one live source selector and one
 dead predecessor chain but two semantic owners; D0 must choose source-partition
 or split semantic accounting before execution resumes.
 
+## Structural completion budget
+
+The replacement product now requires semantic and structural completion:
+
+```text
+docs/development/current/main/investigations/
+mirbuilder-structural-budget-d0-consultation-2026-07-28.md
+```
+
+Frozen observation baseline:
+
+```text
+builder Rust files       = 1,081
+builder total Rust LOC   = 221,957
+baseline commit          = f0256073d5
+```
+
+These are high-water ceilings, not acceptable final X. D0 classifies every
+owned source/check file as Keep/Merge/Delete/Proof and fixes final
+`X_files`, `X_builder_loc`, and `X_check_loc`. The Binary consultation remains
+parked and no seventh manifest row is selected until that budget is accepted.
+
 ## Macro pack order
 
 The first three replacements above are fixed. After them, the shared ledger

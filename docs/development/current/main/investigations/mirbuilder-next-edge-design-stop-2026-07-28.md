@@ -149,6 +149,18 @@ while Ordinary Binary and ShortCircuit retain distinct semantic owners and
 parity suites. No seventh manifest row or source edit is authorized until D0
 chooses one source-partition cell or split semantic accounting.
 
+Before that choice, the absolute owned-footprint completion budget must be
+fixed:
+
+```text
+docs/development/current/main/investigations/
+mirbuilder-structural-budget-d0-consultation-2026-07-28.md
+```
+
+The structural D0 counts all builder Rust, including fixtures, plus
+manifest-listed MirBuilder checks. Binary accounting resumes after
+`X_files`, `X_builder_loc`, and `X_check_loc` are accepted.
+
 ## Minimum implementation slice after decision
 
 One manifest row, one named production caller switch, one selected old edge

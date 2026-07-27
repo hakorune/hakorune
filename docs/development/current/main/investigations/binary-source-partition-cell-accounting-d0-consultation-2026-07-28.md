@@ -1,5 +1,5 @@
 ---
-Status: active design consultation
+Status: parked behind structural budget D0
 Date: 2026-07-28
 Decision: pending
 Question: may one production replacement cell own one source selector partition with two disjoint semantic owners
@@ -29,6 +29,16 @@ the replacement manifest should credit the source partition as one cell or
 credit Ordinary Binary and ShortCircuit as separate semantic cells.
 
 No source, test, guard, or manifest row may change until this D0 is resolved.
+
+This accounting decision is now subordinate to:
+
+```text
+docs/development/current/main/investigations/
+mirbuilder-structural-budget-d0-consultation-2026-07-28.md
+```
+
+Binary selection resumes only after the final owned-footprint caps are
+accepted. The cap may change which accounting option is structurally valid.
 
 ## Exact current production graph
 
