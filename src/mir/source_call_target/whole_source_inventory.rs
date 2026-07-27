@@ -343,14 +343,7 @@ fn seal_static_targets<'catalog>(
         {
             return None;
         }
-        declarations
-            .declaration_for(
-                SameModuleCallableNamespaceV1::StaticBoxMethod,
-                call.caller().owner(),
-                call.method(),
-                call.arity() as usize,
-            )
-            .map(|_| call)
+        Some(call)
     });
     targets = targets
         .extend_current_owner(current_owner_calls)

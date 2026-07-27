@@ -3,8 +3,9 @@ use crate::mir::resolved_semantics::{ShadowMethodCallReceiverV0, SourceExprSiteV
 use crate::parser::NyashParser;
 
 use super::{
-    StaticImportAliasViewErrorV1, VerifiedStaticImportAliasViewV1,
-    VerifiedWholeSourceStaticCallTargetInventoryV1, WholeSourceStaticCallTargetInventoryErrorV1,
+    CurrentOwnerStaticCallTargetErrorV1, StaticImportAliasViewErrorV1,
+    VerifiedStaticImportAliasViewV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
+    WholeSourceStaticCallTargetInventoryErrorV1,
 };
 
 const ZERO: &str = r#"
@@ -220,4 +221,27 @@ fn bounded_observation_unavailability_does_not_hide_a_later_exact_target() {
     ));
     assert_eq!(inventory.target_len(), 1);
     assert_eq!(inventory.len(), 2);
+}
+
+#[test]
+fn missing_static_current_owner_target_is_a_typed_inventory_error() {
+    let declarations = catalog("static box Helpers { call(x) { return me.absent(x) } }");
+    let imports = VerifiedStaticImportAliasViewV1::seal(
+        &declarations,
+        std::iter::empty::<(String, String)>(),
+    )
+    .expect("empty alias view");
+
+    assert!(matches!(
+        VerifiedWholeSourceStaticCallTargetInventoryV1::verify(&declarations, &imports),
+        Err(
+            WholeSourceStaticCallTargetInventoryErrorV1::CurrentOwnerTarget(
+                CurrentOwnerStaticCallTargetErrorV1::TargetOutsideCatalog {
+                    method,
+                    arity: 1,
+                    ..
+                },
+            ),
+        ) if &*method == "absent"
+    ));
 }

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-S0/P0 are closed. The sole shadow traversal now admits only StaticCurrentOwner me.method(...) receivers, creates no lexical receiver, and retains the prior bare-me/static-function/lambda rejections plus qualified-observer parity. PRELOOP-STAGEB-STATIC-CURRENT-OWNER-TARGET0-P0 is next. Actual Parser proof also exposed one pre-existing recursive-closure stability defect; CALLABLE-RESULT-RECURSIVE-CLOSURE-STABILITY0-S0/P0 is the only added prerequisite before the unchanged candidate-count-one terminal."
+status = "PRELOOP-STAGEB-STATIC-CURRENT-OWNER-TARGET0-P0 is closed. Every observed static current-owner row now reaches the existing exact sealer; missing targets produce typed TargetOutsideCatalog instead of being silently filtered. CALLABLE-RESULT-RECURSIVE-CLOSURE-STABILITY0-S0/P0 is next and is the only added prerequisite before the unchanged candidate-count-one terminal."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-STATIC-CURRENT-OWNER-TARGET0-P0"
-current_execution_summary = "Prove every observed StaticCurrentOwner row through the existing current-owner target sealer, including typed TargetOutsideCatalog rejection instead of a production prefilter. Then close the pre-existing recursive-closure final-pass invariant without SCC inference or widening Unavailable equivalence."
+current_execution_row = "CALLABLE-RESULT-RECURSIVE-CLOSURE-STABILITY0-S0"
+current_execution_summary = "Close the pre-existing final-pass invariant for worklist-stalled recursive keys. Preserve RecursiveDependency as the conservative closure, reject Exact/Pending drift, retain exact equality for non-stalled rows, add no SCC inference, and do not weaken general StableResultDrift."
 current_bounded_terminal = "PRELOOP-STAGEB-SOURCE-INVENTORY0-G0"
 post_terminal_return_row = "OWN-GRAM-REJECT0"
 finite_product_goal = "OWNERSHIP-SPARSE-PRODUCT-READINESS-D0"
@@ -641,7 +641,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-STATIC-CURRENT-OWNER-TARGET0-P0"
+current_blocker_token = "CALLABLE-RESULT-RECURSIVE-CLOSURE-STABILITY0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

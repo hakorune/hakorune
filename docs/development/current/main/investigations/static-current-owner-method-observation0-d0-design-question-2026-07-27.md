@@ -111,6 +111,18 @@ prerequisite added before `PRELOOP-STAGEB-SOURCE-INVENTORY0-P0b`. It must keep
 the exact stalled-key closure authoritative, reject Exact/Pending final drift,
 leave non-stalled rows on exact equality, and add no SCC inference.
 
+## PRELOOP-STAGEB-STATIC-CURRENT-OWNER-TARGET0-P0 closeout
+
+Closed on 2026-07-28.
+
+```text
+observed StaticCurrentOwner rows reaching sealer = all
+current-owner target sealer                       = existing 1
+missing target prefilter                          = 0
+missing target typed rejection                    = TargetOutsideCatalog
+manual target / by-name target                    = 0
+```
+
 ## Question
 
 Choose the single source authority for `me.method(...)` inside an ordinary
