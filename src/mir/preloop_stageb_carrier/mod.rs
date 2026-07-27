@@ -27,7 +27,8 @@ pub(crate) use candidate_selection::{
 #[allow(unused_imports)]
 pub(crate) use function_ingress::{
     PreloopStageBFunctionIngressCauseV1, PreloopStageBFunctionIngressStageV1,
-    PreparedPreloopStageBFunctionIngressV1, RejectedPreloopStageBFunctionIngressV1,
+    PreloopStageBInstanceDraftSourceErrorV1, PreparedPreloopStageBFunctionIngressV1,
+    PreparedPreloopStageBInstanceDraftSourceV1, RejectedPreloopStageBFunctionIngressV1,
 };
 #[allow(unused_imports)]
 pub(in crate::mir) use module_install::{
@@ -60,6 +61,6 @@ mod function_ingress_tests;
 #[cfg(test)]
 mod source_inventory_tests;
 #[cfg(test)]
-mod tests;
-#[cfg(test)]
 pub(crate) mod test_support;
+#[cfg(test)]
+mod tests;

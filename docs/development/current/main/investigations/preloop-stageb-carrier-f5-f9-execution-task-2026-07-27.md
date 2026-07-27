@@ -564,6 +564,42 @@ If observed, retain the first typed rejection and open a new D0. A compact
 fixture is not a substitute for actual Parser success. F6 must not seed a
 test-only `ParserStringUtilsBox` value or weaken the pinned F6-2 failure.
 
+Landed F6-3 I0 evidence:
+
+```text
+catalog-backed instance source projection             = 1
+second AST walk / catalog reseal                       = 0
+
+instance preparation                                   = existing 1
+StepTree guard                                         = existing 1
+F6-2 body schedule                                     = existing 1
+shared finalizer preparation                           = 1
+header-aware finalizer                                 = existing 1
+generic payload-preserving function session            = existing 1
+
+Phase-A-indexed actual Parser:
+  Body(4) frontier clears
+  complete unpublished draft                           = 1
+  complete body-schedule/carrier payload                = 1
+  parent captured until consuming completion            = 1
+  parent restoration                                    = 1
+  module publication                                    = 0
+
+unannotated function signature                         = Unknown
+outer carrier fact                                     = Integer
+the two authorities are not conflated
+
+activation-ledger consumer                             = 0
+compile_request consumer                               = 0
+retry / fallback / rearm                               = 0
+```
+
+The sole next row is
+`PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-P0`. It closes the typed
+preparation/StepTree/body/finalizer/cleanup failure matrix, exact metadata and
+call-order parity, parent restoration, one-shot completion, and
+failure-to-fresh-session reuse before F7 may consume the completed function.
+
 F6 hard stop:
 
 ```text

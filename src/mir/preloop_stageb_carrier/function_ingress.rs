@@ -6,6 +6,8 @@
 
 use std::sync::Arc;
 
+use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
+use crate::mir::builder::SameModuleCallableNamespaceV1;
 use crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1;
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 use crate::mir::source_call_target::{
@@ -66,6 +68,24 @@ pub(crate) struct PreparedPreloopStageBFunctionIngressV1 {
 }
 
 #[derive(Debug)]
+pub(crate) struct PreparedPreloopStageBInstanceDraftSourceV1 {
+    pub(crate) function_name: String,
+    pub(crate) box_name: String,
+    pub(crate) params: Vec<String>,
+    pub(crate) param_decls: Vec<ParamDecl>,
+    pub(crate) return_type_name: Option<String>,
+    pub(crate) body: Vec<ASTNode>,
+    pub(crate) uses: Vec<String>,
+    pub(crate) attrs: DeclarationAttrs,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum PreloopStageBInstanceDraftSourceErrorV1 {
+    InstanceMethodRequired,
+    DeclarationUnavailable,
+}
+
+#[derive(Debug)]
 pub(crate) struct RejectedPreloopStageBFunctionIngressV1 {
     owner: RetainedPreloopStageBFunctionIngressOwnerV1,
     stage: PreloopStageBFunctionIngressStageV1,
@@ -97,6 +117,30 @@ impl PreparedPreloopStageBFunctionIngressV1 {
 
     pub(crate) const fn recipe(&self) -> &PreparedPreloopStageBFunctionBodyRecipeV1 {
         &self.recipe
+    }
+
+    pub(crate) fn instance_draft_source(
+        &self,
+    ) -> Result<PreparedPreloopStageBInstanceDraftSourceV1, PreloopStageBInstanceDraftSourceErrorV1>
+    {
+        let caller = self.recipe.caller();
+        if caller.namespace() != SameModuleCallableNamespaceV1::InstanceBoxMethod {
+            return Err(PreloopStageBInstanceDraftSourceErrorV1::InstanceMethodRequired);
+        }
+        let declaration = self
+            .catalog
+            .declaration(caller)
+            .ok_or(PreloopStageBInstanceDraftSourceErrorV1::DeclarationUnavailable)?;
+        Ok(PreparedPreloopStageBInstanceDraftSourceV1 {
+            function_name: caller.mir_symbol_projection(),
+            box_name: caller.owner().to_owned(),
+            params: declaration.params().to_vec(),
+            param_decls: declaration.param_decls().to_vec(),
+            return_type_name: declaration.return_type_name().map(str::to_owned),
+            body: declaration.body().to_vec(),
+            uses: declaration.uses().to_vec(),
+            attrs: declaration.attrs().clone(),
+        })
     }
 
     pub(crate) fn with_prepared_located_argument<R>(

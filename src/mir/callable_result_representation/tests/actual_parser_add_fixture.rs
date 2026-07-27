@@ -66,6 +66,10 @@ fn instance_result_contract_source() -> String {
     )
 }
 
+pub(crate) fn stageb_source_for_lowering() -> String {
+    instance_result_contract_source()
+}
+
 fn method_slice<'source>(source: &'source str, start: &str, end: &str) -> &'source str {
     let start = source.find(start).expect("actual ParserBox method start");
     let end = source[start..]

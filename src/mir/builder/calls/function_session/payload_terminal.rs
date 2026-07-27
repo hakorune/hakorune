@@ -109,6 +109,11 @@ impl<P> LegacyFunctionPayloadPendingSessionV1<'_, P> {
     ) -> Result<R, E> {
         self.pending.complete_before_restore(complete)
     }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn parent_is_captured_for_test(&self) -> bool {
+        self.pending.parent_is_captured()
+    }
 }
 
 impl MirBuilder {

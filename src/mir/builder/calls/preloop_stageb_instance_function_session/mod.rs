@@ -7,6 +7,10 @@
 
 mod body_schedule;
 mod rejection;
+mod session;
+mod session_rejection;
 
 #[cfg(test)]
 mod body_schedule_tests;
+#[cfg(test)]
+mod session_tests;

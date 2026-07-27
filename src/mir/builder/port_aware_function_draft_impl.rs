@@ -29,6 +29,19 @@ impl PortAwarePreparedDraftBodyV1 {
     }
 }
 
+pub(in crate::mir::builder) fn prepare_port_aware_draft_body_completion_v1(
+    builder: &MirBuilder,
+) -> Result<PortAwarePreparedDraftBodyV1, String> {
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .ok_or_else(|| "[freeze:contract][headerport/no_current_function]".to_owned())?;
+    Ok(PortAwarePreparedDraftBodyV1 {
+        returns_value: !matches!(function.signature.return_type, MirType::Void),
+    })
+}
+
 impl MirBuilder {
     /// Port-aware static draft sibling.  No collector or module is touched.
     #[allow(dead_code)]
@@ -57,12 +70,7 @@ impl MirBuilder {
         run_function_body_step_tree_guard_v1(self, &body, &self.current_function_name_for_port()?)?;
         let program_ast = function_lowering::wrap_in_program(body);
         let _ = self.build_expression_impl_with_port_v1(port, program_ast)?;
-        let returns_value = self
-            .function_state
-            .current_function
-            .as_ref()
-            .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));
-        Ok(PortAwarePreparedDraftBodyV1 { returns_value })
+        prepare_port_aware_draft_body_completion_v1(self)
     }
 
     /// Port-aware instance draft sibling.  The body keeps the same recursive
@@ -103,12 +111,7 @@ impl MirBuilder {
         )?;
         let _ =
             super::stmts::block_stmt::build_block_with_port_v1(self, port, prepared.into_body())?;
-        let returns_value = self
-            .function_state
-            .current_function
-            .as_ref()
-            .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));
-        Ok(PortAwarePreparedDraftBodyV1 { returns_value })
+        prepare_port_aware_draft_body_completion_v1(self)
     }
 
     /// Port-aware finalizer entrypoint; the header loan is explicit and short.

@@ -10,6 +10,9 @@ from pathlib import Path
 from callable_result_i0_site0_r0_expr0_m0_v0_stageb_schedule import (
     check_stageb_schedule,
 )
+from callable_result_i0_site0_r0_expr0_m0_v0_stageb_session import (
+    check_stageb_session,
+)
 
 
 TAG = "[callable-result-i0-site0-r0-expr0-m0-v0]"
@@ -59,6 +62,7 @@ def rust_code(text: str) -> str:
 def main() -> None:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
     check_stageb_schedule(root)
+    check_stageb_session(root)
     terminal = read(root, "src/mir/builder/calls/method_call_terminal.rs")
     tests = read(root, "src/mir/builder/calls/method_call_terminal_tests.rs")
     readme = read(root, "src/mir/builder/calls/README.md")

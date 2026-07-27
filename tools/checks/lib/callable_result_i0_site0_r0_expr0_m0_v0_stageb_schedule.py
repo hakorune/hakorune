@@ -165,9 +165,9 @@ def check_stageb_schedule(root: Path) -> None:
         production_consumers += path.read_text(encoding="utf-8").count(
             "drive_preloop_stageb_body_schedule_v1("
         )
-    if production_consumers != 0:
+    if production_consumers != 1:
         fail(
-            "F6-2 production consumers must remain zero: "
+            "F6-2 must have exactly one F6-3 session consumer: "
             f"actual={production_consumers}"
         )
 
