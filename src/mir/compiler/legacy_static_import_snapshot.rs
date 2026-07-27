@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use crate::mir::builder::preloop_stageb_context_install::PreparedPreloopStageBAliasInstallV1;
 use crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1;
 use crate::mir::source_call_target::{
     StaticImportAliasViewErrorV1, VerifiedStaticImportAliasViewV1,
@@ -21,6 +22,17 @@ pub(super) enum CompilerSuppliedStaticImportSnapshotErrorV1 {
 pub(super) enum CompilerSuppliedStaticImportSnapshotV1 {
     None,
     Explicit(BTreeMap<Box<str>, Box<str>>),
+}
+
+#[derive(Debug)]
+pub(super) struct PreparedCompilerStaticAliasInstallV1 {
+    projection: PreparedPreloopStageBAliasInstallV1,
+}
+
+impl PreparedCompilerStaticAliasInstallV1 {
+    pub(super) fn into_builder_projection(self) -> PreparedPreloopStageBAliasInstallV1 {
+        self.projection
+    }
 }
 
 impl CompilerSuppliedStaticImportSnapshotV1 {
@@ -91,6 +103,19 @@ impl CompilerSuppliedStaticImportSnapshotV1 {
             self.entries()
                 .map(|(alias, owner)| (alias.to_owned(), owner.to_owned())),
         )
+    }
+
+    pub(super) fn into_install_projection(self) -> PreparedCompilerStaticAliasInstallV1 {
+        let projection = match self {
+            Self::None => PreparedPreloopStageBAliasInstallV1::None,
+            Self::Explicit(imports) => PreparedPreloopStageBAliasInstallV1::Explicit(
+                imports
+                    .into_iter()
+                    .map(|(alias, owner)| (alias.into(), owner.into()))
+                    .collect(),
+            ),
+        };
+        PreparedCompilerStaticAliasInstallV1 { projection }
     }
 
     pub(super) fn discard(self) {}

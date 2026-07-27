@@ -4,6 +4,7 @@
 
 mod activation;
 mod candidate_selection;
+mod module_install;
 mod outer_result;
 mod rejection;
 mod source_inventory;
@@ -11,7 +12,8 @@ mod source_inventory_error;
 
 #[allow(unused_imports)]
 pub(crate) use activation::{
-    prepare_preloop_stageb_carrier_rows_v1, VerifiedPreloopStageBCarrierActivationPlanV1,
+    prepare_preloop_stageb_carrier_rows_v1, OwnedPreloopStageBCarrierRowV1,
+    VerifiedPreloopStageBCarrierActivationPlanV1,
 };
 #[allow(unused_imports)]
 pub(crate) use candidate_selection::{
@@ -19,6 +21,12 @@ pub(crate) use candidate_selection::{
     RejectedPreloopStageBCandidateSelectionV1, VerifiedPreloopStageBAmbiguousCandidatesV1,
     VerifiedPreloopStageBCandidateSelectionV1, VerifiedPreloopStageBNoCandidateV1,
     VerifiedPreloopStageBSelectedCandidateV1,
+};
+#[allow(unused_imports)]
+pub(in crate::mir) use module_install::{
+    InstalledPreloopStageBActivationContextPartsV1,
+    PreparedPreloopStageBActivationContextInstallV1, PreparedPreloopStageBActivationLedgerPartsV1,
+    RejectedPreloopStageBActivationContextInstallV1,
 };
 #[allow(unused_imports)]
 pub(crate) use outer_result::{

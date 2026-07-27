@@ -348,6 +348,15 @@ impl VerifiedPreloopStageBCarrierActivationPlanV1 {
     pub(crate) const fn row(&self) -> &OwnedPreloopStageBCarrierRowV1 {
         &self.row
     }
+
+    pub(in crate::mir) fn into_module_install_parts_v1(
+        self,
+    ) -> super::module_install::PreparedPreloopStageBActivationInstallPartsV1 {
+        super::module_install::PreparedPreloopStageBActivationInstallPartsV1::new(
+            *self.declaration_catalog,
+            self.row,
+        )
+    }
 }
 
 impl RejectedPreloopStageBCarrierActivationPlanV1 {

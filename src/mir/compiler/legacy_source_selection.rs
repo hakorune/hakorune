@@ -50,6 +50,12 @@ pub(super) struct PreparedSelectedPreloopStageBWholeSourceV1 {
     activation: VerifiedPreloopStageBCarrierActivationPlanV1,
 }
 
+#[derive(Debug)]
+pub(super) struct PreparedSelectedPreloopStageBInstallPartsV1 {
+    pub(super) source: LegacyWholeSourceCompileRequestV1,
+    pub(super) activation: VerifiedPreloopStageBCarrierActivationPlanV1,
+}
+
 impl PreparedSelectedPreloopStageBWholeSourceV1 {
     pub(super) const fn activation(&self) -> &VerifiedPreloopStageBCarrierActivationPlanV1 {
         &self.activation
@@ -75,6 +81,13 @@ impl PreparedSelectedPreloopStageBWholeSourceV1 {
             self.request.import_count(),
             self.request.import_entries(),
         )
+    }
+
+    pub(super) fn into_install_parts_v1(self) -> PreparedSelectedPreloopStageBInstallPartsV1 {
+        PreparedSelectedPreloopStageBInstallPartsV1 {
+            source: self.request,
+            activation: self.activation,
+        }
     }
 
     pub(super) fn discard(self) {

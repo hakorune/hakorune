@@ -54,6 +54,7 @@ use super::{
 };
 use crate::ast::ASTNode;
 use crate::config;
+use crate::mir::builder::preloop_stageb_context_install::InstalledPreloopStageBContextV1;
 use crate::mir::preloop_stageb_candidate_shell::{
     PreloopStageBCandidateShellReadinessErrorV1, VerifiedPreloopStageBCandidateShellReadinessV1,
 };
@@ -199,7 +200,7 @@ impl super::MirBuilder {
             .install_callable_declaration_catalog(callable_catalog)
             .map_err(|error| error.to_string())?;
 
-        self.lower_root_after_callable_catalog_install_v1(ast, snapshot)
+        self.lower_root_after_callable_catalog_install_v1(ast, &snapshot)
     }
 
     /// Shared root-lowering kernel after the complete callable catalog is
@@ -209,14 +210,14 @@ impl super::MirBuilder {
     pub(in crate::mir::builder) fn lower_root_after_callable_catalog_install_v1(
         &mut self,
         ast: ASTNode,
-        snapshot: ASTNode,
+        snapshot: &ASTNode,
     ) -> Result<ValueId, String> {
         // Phase A: collect the remaining non-callable declaration facts.
-        declaration_indexer::index_declarations(self, &snapshot);
+        declaration_indexer::index_declarations(self, snapshot);
         if let Some(module) = self.current_module.as_mut() {
             let specs = crate::mir::static_data_plan::collect_static_table_specs_from_ast(
                 &module.name,
-                &snapshot,
+                snapshot,
             )?;
             let plans = crate::mir::static_data_plan::static_data_plans_from_specs(&specs);
             module.metadata.static_table_contract_specs = specs;
@@ -228,7 +229,7 @@ impl super::MirBuilder {
         // false => Script/Test mode (top-level Program runs sequentially)
         let is_app_mode = self
             .root_is_app_mode
-            .unwrap_or_else(|| declaration_indexer::has_main_static(&snapshot));
+            .unwrap_or_else(|| declaration_indexer::has_main_static(snapshot));
         self.root_is_app_mode = Some(is_app_mode);
 
         // Phase B: top-level program lowering with declaration-first pass
@@ -429,6 +430,15 @@ impl super::MirBuilder {
             }
             other => self.build_expression(other),
         }
+    }
+
+    pub(in crate::mir) fn lower_root_with_preinstalled_catalog_v1(
+        &mut self,
+        source: &ASTNode,
+        _installed: &InstalledPreloopStageBContextV1,
+    ) -> Result<ValueId, String> {
+        let ast = source.clone();
+        self.lower_root_after_callable_catalog_install_v1(ast, source)
     }
 
     /// Finalize MIR module (Orchestrator Step 3)

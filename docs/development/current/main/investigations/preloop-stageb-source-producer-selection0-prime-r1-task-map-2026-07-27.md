@@ -459,6 +459,26 @@ ledger / root lowering / production caller        = 0
 
 ### Commit C4 — `PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-B`
 
+Status: closed.
+
+Landed shape:
+
+```text
+complete selected Legacy owner
+  -> named source/install projections
+  -> exact AST + catalog + typed aliases + row
+  -> one atomic CompilationContext commit
+  -> receipt-gated shared post-install root kernel
+  -> Armed(row)
+  -> retained SelectedCallerNotObserved rejection
+```
+
+The root wrapper performs the existing single snapshot clone; the shared
+kernel now borrows that snapshot. No second clone, catalog reseal, alternate
+root orchestration, or fabricated source owner is present. C4 deliberately
+has no successful function-activation product: D1 is the first row that can
+add one because it is the first row with a real exact-function producer.
+
 Add:
 
 ```text

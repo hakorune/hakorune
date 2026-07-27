@@ -7,6 +7,21 @@ use crate::mir::source_call_target::{
 use super::legacy_static_import_snapshot::CompilerSuppliedStaticImportSnapshotV1;
 use super::lowering_input::{LegacyModuleLoweringInputV1, LegacyModuleOriginV1};
 
+#[derive(Debug)]
+pub(super) struct PreparedPreloopStageBSourceInstallPartsV1 {
+    pub(super) ast: ASTNode,
+    pub(super) origin: LegacyModuleOriginV1,
+    pub(super) aliases: super::legacy_static_import_snapshot::PreparedCompilerStaticAliasInstallV1,
+    pub(super) diagnostic_source_hint: Option<Box<str>>,
+}
+
+#[derive(Debug)]
+pub(super) struct RetainedPreloopStageBSourceOwnerV1 {
+    pub(super) ast: ASTNode,
+    pub(super) origin: LegacyModuleOriginV1,
+    pub(super) diagnostic_source_hint: Option<Box<str>>,
+}
+
 /// One complete Legacy source request before route selection.
 ///
 /// This disconnected owner carries syntax provenance and exactly one typed
@@ -60,6 +75,16 @@ impl LegacyWholeSourceCompileRequestV1 {
 
     pub(super) fn import_entries(&self) -> impl Iterator<Item = (&str, &str)> {
         self.imports.entries()
+    }
+
+    pub(super) fn into_source_install_parts_v1(self) -> PreparedPreloopStageBSourceInstallPartsV1 {
+        let (ast, origin) = self.input.into_parts();
+        PreparedPreloopStageBSourceInstallPartsV1 {
+            ast,
+            origin,
+            aliases: self.imports.into_install_projection(),
+            diagnostic_source_hint: self.diagnostic_source_hint,
+        }
     }
 
     pub(super) fn discard(self) {}

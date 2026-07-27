@@ -5,6 +5,9 @@
 //! installation, root lowering, function capture, retry, and fallback remain
 //! unavailable.
 
+mod install;
+mod ledger;
+
 use crate::mir::builder::MirBuilder;
 use crate::mir::preloop_stageb_candidate_shell::{
     PreloopStageBCandidateShellReadinessErrorV1, VerifiedPreloopStageBCandidateShellReadinessV1,
@@ -36,6 +39,12 @@ impl PreparedPreloopStageBModuleActivationV1 {
         } = self;
         selected.discard();
         let _ = readiness;
+    }
+
+    pub(super) fn into_preinstalled_root_request_v1(
+        self,
+    ) -> install::PreparedPreloopStageBPreinstalledRootV1 {
+        install::PreparedPreloopStageBPreinstalledRootV1::from_module_activation(self)
     }
 }
 
