@@ -110,6 +110,7 @@ ACTIVE_CUTOVER_WRITER_REPLACEMENTS = {
     "src/mir/builder/resolved_lowering/trivial_ssa/direct_call_type.rs": 1,
     "src/mir/builder/emission/compare.rs": None,
     "src/mir/builder/emission/compare_type.rs": 1,
+    "src/mir/builder/calls/preloop_nested_result_type.rs": 1,
     "src/mir/builder/emission/value_lifecycle_definition.rs": 1,
     "src/mir/builder/fields.rs": None,
     "src/mir/builder/fields/post_success.rs": 1,
@@ -448,6 +449,9 @@ def validate_call_receipt0_authority_v1(root: Path) -> None:
     post_success = strip_cfg_test_modules(
         code_only(read(root / "src/mir/builder/calls/unified_emitter/post_success.rs"))
     )
+    nested_type = code_only(
+        read(root / "src/mir/builder/calls/preloop_nested_result_type.rs")
+    )
 
     if emitter.count("physical_terminal::emit_finalized_generic_call_v1") != 1:
         fail("CALL-RECEIPT0 requires one generic physical terminal consumer")
@@ -488,6 +492,10 @@ def validate_call_receipt0_authority_v1(root: Path) -> None:
 
     if post_success.count("fn commit_after_success") != 1:
         fail("CALL-RECEIPT0 requires one post-success commit owner")
+    if nested_type.count("TypeFactDecisionV1::prepare") != 1:
+        fail("TYPE-I0 requires one receipt-backed Integer decision")
+    if nested_type.count("type_ctx.set_type") != 1 or "value_types" in nested_type:
+        fail("TYPE-I0 exact writer authority drift")
     for required, expected in (
         ("annotate_call_result_from_func_name_with_lookup(", 1),
         ("annotate_call_result_from_func_name(", 1),
@@ -504,6 +512,7 @@ def validate_call_receipt0_authority_v1(root: Path) -> None:
         root / "src/mir/builder/calls/unified_emitter/request_boundary.rs",
         root / "src/mir/builder/calls/unified_emitter/physical_receipt_tests.rs",
         root / "src/mir/builder/calls/unified_emitter/temporal_witness_tests.rs",
+        root / "src/mir/builder/calls/preloop_nested_result_type.rs",
         Path(__file__),
     ):
         if len(read(path).splitlines()) >= 800:

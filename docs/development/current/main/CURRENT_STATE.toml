@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0, the pre-loop located request boundary, generic unified-Call physical receipt, REP0 source/physical pairing, and production-prefix proof are closed. CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-prime-r1 accepts Choice A: stored Unknown remains a replaceable non-fact under the existing TypeFactDecisionV1 authority. TYPE-I0-S0/I0/P0 are closed: one immediate terminal consumes the emitted receipt and prepared decision, writes only Publish through TypeContext::set_type, leaves Idempotent physically unchanged, rejects concrete overwrite, and remains absent after inner or outer failure. TYPE-I0-G0 is next and extends only the existing callable-result and type-fact guards; GenericLoop activation, production callers, fallback, Router, Call emission, source lookup, and backend changes remain zero."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0, the pre-loop located request boundary, generic unified-Call physical receipt, REP0 source/physical pairing, production-prefix proof, and receipt-backed Integer publication are closed. CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-prime-r1 remains the fact authority: stored Unknown is replaceable, matching Integer is idempotent, concrete overwrite rejects, and inner/outer failure publishes nothing. TYPE-I0-G0 closes with the existing callable-result and type-fact guards. CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0 is next and must only observe the first exact Stage-B frontier; it may not implement ownership, loop-refresh, fallback, Router, Call, backend, or production-route changes."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-G0"
-current_execution_summary = "Extend tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_v0.py with the one receipt consumer, one TypeFactDecisionV1 preparation, Publish-only TypeContext::set_type terminal, P0 matrix, and zero GenericLoop/source/Call/fallback authority. Add the new writer path to the existing mirbuilder_type_fact_partition_guard.py without creating another guard wrapper. Keep every source/check file below 800 lines."
+current_execution_row = "CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0"
+current_execution_summary = "Run the exact Stage-B guard with the real pre-loop Integer fact and record only the first new failure. If the frontier is ownership syntax, select the existing OWN-GRAM-REJECT0-HAKO0 resume; if it is loop-refresh, open GENERIC-LOOP-NESTED-RESULT-ACTIVATION0-D0; otherwise stop at one exact owner consultation. This row is observation-only: implementation, workaround, fallback, route reselection, and broad cleanup remain forbidden."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-G0"
+current_blocker_token = "CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

@@ -357,6 +357,10 @@ def main() -> None:
     ingress_p0_tests = read(
         root, "src/mir/builder/calls/preloop_located_argument_ingress_p0_tests.rs"
     )
+    nested_type = read(root, "src/mir/builder/calls/preloop_nested_result_type.rs")
+    nested_type_p0 = read(
+        root, "src/mir/builder/calls/preloop_nested_result_type_p0_tests.rs"
+    )
     require_definition_count(
         terminal,
         "emit_standard_value_terminal_with_receipt_v1",
@@ -414,6 +418,50 @@ def main() -> None:
         if evidence not in ingress_tests and evidence not in ingress_p0_tests:
             fail(f"missing REP0 production-prefix evidence: {evidence}")
 
+    nested_type_code = rust_code(nested_type)
+    require_definition_count(
+        nested_type,
+        "publish_preloop_nested_integer_result_v1",
+        1,
+        "TYPE-I0 sole receipt consumer",
+    )
+    require_count(
+        nested_type_code,
+        "TypeFactDecisionV1::prepare(",
+        1,
+        "TYPE-I0 sole fact decision",
+    )
+    require_count(
+        nested_type_code,
+        "type_ctx.set_type(",
+        1,
+        "TYPE-I0 sole fact writer",
+    )
+    require_count(
+        production,
+        "publish_preloop_nested_integer_result_v1(",
+        1,
+        "TYPE-I0 production caller zero",
+    )
+    for forbidden in (
+        "MirInstruction",
+        "emit_unified_call",
+        "ASTNode",
+        "SourceExprSiteV1",
+        "GenericLoop",
+        "value_types",
+        "retry",
+        "fallback",
+    ):
+        if forbidden in nested_type_code:
+            fail(f"TYPE-I0 owner owns forbidden authority: {forbidden}")
+    for evidence in (
+        "production_prefix_publishes_none_unknown_and_matching_integer",
+        "production_prefix_conflict_preserves_fact_then_fresh_fixture_succeeds",
+    ):
+        if evidence not in nested_type_p0:
+            fail(f"missing TYPE-I0 production-prefix evidence: {evidence}")
+
     for phrase in (
         "disconnected V0 value-only terminal port",
         "Route selection, syntax preflight, and child descent must finish",
@@ -440,6 +488,10 @@ def main() -> None:
         "src/mir/builder/calls/preloop_located_argument_port.rs",
         "src/mir/builder/calls/preloop_located_argument_ingress.rs",
         "src/mir/builder/calls/preloop_nested_result_receipt.rs",
+        "src/mir/builder/calls/preloop_nested_result_type.rs",
+        "src/mir/builder/calls/preloop_nested_result_type_tests.rs",
+        "src/mir/builder/calls/preloop_nested_result_type_p0_tests.rs",
+        "src/mir/builder/calls/preloop_nested_result_test_support.rs",
         "src/mir/builder/calls/preloop_located_argument_ingress_tests.rs",
         "src/mir/builder/calls/preloop_located_argument_ingress_p0_tests.rs",
         "src/mir/builder/calls/build.rs",

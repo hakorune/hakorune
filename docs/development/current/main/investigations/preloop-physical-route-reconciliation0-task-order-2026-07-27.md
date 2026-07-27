@@ -710,6 +710,31 @@ current-state pointer guard, and diff check are green.
 The next row is `CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-G0`. It extends only
 the existing callable-result and type-fact guards; no new wrapper is allowed.
 
+### TYPE-I0-G0 closeout
+
+`CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-G0` is closed.
+
+The existing callable-result guard now fixes:
+
+```text
+emitted receipt consumer                  = 1
+TypeFactDecisionV1 preparation            = 1
+Publish-only TypeContext::set_type writer = 1
+production caller                         = 0
+GenericLoop/source/Call/fallback authority = 0
+P0 production-prefix evidence             = complete
+```
+
+The existing type-fact partition guard records the new writer only in
+`ACTIVE_CUTOVER_WRITER_REPLACEMENTS`; its immutable P1 census fixture is not
+rewritten. The callable-result/type-fact guards are 513/786 lines and pass
+both in the active worktree and against a detached HEAD without the unrelated
+dirty test file. No guard wrapper was added.
+
+The next row is the observation-only
+`CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0`. It reruns the exact Stage-B front
+and selects only its first new failure owner.
+
 Do not create a new guard script. Extend the existing callable-result guard
 with the receipt consumer/decision/writer and P0 evidence, and add this writer
 to the existing type-fact partition guard. The original ingress, port, and
