@@ -63,6 +63,7 @@ pub(super) struct ShadowResolverV0<'ast> {
     qualified_receiver_requests: BTreeSet<SourceExprSiteV1>,
     qualified_receiver_dispositions:
         BTreeMap<SourceExprSiteV1, ShadowQualifiedReceiverDispositionV0>,
+    receiver_policy: ReceiverPolicyV1,
     method_call_observation_mode: ShadowMethodCallObservationModeV0,
     method_call_observations: BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>,
 }
@@ -164,14 +165,16 @@ fn traverse_shadow_view<'ast>(
 ) -> Result<ShadowResolverV0<'ast>, ShadowResolveErrorV0> {
     let params = view.params();
     let body = view.body();
+    let receiver_policy = view.receiver_policy();
 
     let mut resolver = ShadowResolverV0::new(
         lambda_mode,
         ancestor_names,
         qualified_receiver_requests,
+        receiver_policy,
         method_call_observation_mode,
     );
-    if view.receiver_policy() == ReceiverPolicyV1::DeclaredInstance {
+    if receiver_policy == ReceiverPolicyV1::DeclaredInstance {
         resolver.declare_binding(
             "me",
             ShadowBindingKindV0::Receiver,
@@ -217,6 +220,7 @@ impl<'ast> ShadowResolverV0<'ast> {
         lambda_mode: ShadowLambdaModeV0,
         ancestor_names: BTreeSet<Box<str>>,
         qualified_receiver_requests: BTreeSet<SourceExprSiteV1>,
+        receiver_policy: ReceiverPolicyV1,
         method_call_observation_mode: ShadowMethodCallObservationModeV0,
     ) -> Self {
         let function_scope = ShadowScopeIdV0::new(0);
@@ -267,6 +271,7 @@ impl<'ast> ShadowResolverV0<'ast> {
             ancestor_names,
             qualified_receiver_requests,
             qualified_receiver_dispositions: BTreeMap::new(),
+            receiver_policy,
             method_call_observation_mode,
             method_call_observations: BTreeMap::new(),
         }
@@ -394,6 +399,10 @@ impl<'ast> ShadowResolverV0<'ast> {
 
     pub(super) fn observes_all_method_calls(&self) -> bool {
         self.method_call_observation_mode == ShadowMethodCallObservationModeV0::All
+    }
+
+    pub(super) const fn receiver_policy(&self) -> ReceiverPolicyV1 {
+        self.receiver_policy
     }
 
     pub(super) fn request_qualified_receiver(&mut self, site: SourceExprSiteV1) {

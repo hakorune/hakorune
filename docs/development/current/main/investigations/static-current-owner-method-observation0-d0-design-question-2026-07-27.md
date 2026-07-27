@@ -79,6 +79,38 @@ The shared policy is Builder-free and owns no target or result inference.
 `StaticCurrentOwner` direct production outside that policy and focused tests
 is zero by structural census.
 
+## STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-S0/P0 closeout
+
+Closed on 2026-07-28.
+
+```text
+sole shadow traversal                               = existing 1
+StaticCurrentOwner MethodCall receiver observation  = 1
+StaticCurrentOwner lexical receiver binding         = 0
+bare me / argument me / field me                     = existing reject
+ordinary static function / lambda me.method          = existing reject
+instance-method current-owner parity                 = unchanged
+qualified-observer traversal parity                  = green
+Builder / MIR / runtime delta                        = 0
+```
+
+The actual Parser proof then reached the callable-result catalog and exposed a
+pre-existing construction invariant defect:
+
+```text
+stalled recursive key
+  -> Unavailable(RecursiveDependency)
+  -> final reproof remains Unavailable
+     but its diagnostic reason can differ after expression composition
+  -> StableResultDrift
+```
+
+This is not new result inference and does not reopen the A-prime decision.
+`CALLABLE-RESULT-RECURSIVE-CLOSURE-STABILITY0-S0/P0` is the sole direct
+prerequisite added before `PRELOOP-STAGEB-SOURCE-INVENTORY0-P0b`. It must keep
+the exact stalled-key closure authoritative, reject Exact/Pending final drift,
+leave non-stalled rows on exact equality, and add no SCC inference.
+
 ## Question
 
 Choose the single source authority for `me.method(...)` inside an ordinary
@@ -268,6 +300,12 @@ STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0-CLOSEOUT
 -> PRELOOP-STAGEB-STATIC-CURRENT-OWNER-TARGET0-P0
    existing target sealer yields exact `_digit_value/1`
    no new target factory
+
+-> CALLABLE-RESULT-RECURSIVE-CLOSURE-STABILITY0-S0/P0
+   preserve the existing RecursiveDependency closure for stalled keys
+   final Exact/Pending drift remains a typed error
+   non-stalled result equality remains exact
+   no SCC inference or general Unavailable equivalence
 
 -> PRELOOP-STAGEB-SOURCE-INVENTORY0-P0b
    StringHelpers.to_i64 = ExactI64

@@ -1,7 +1,7 @@
 //! Closed expression traversal for shadow name resolution.
 
 use crate::ast::ASTNode;
-use crate::mir::resolved_semantics::ExprChildRoleV1;
+use crate::mir::resolved_semantics::{ExprChildRoleV1, ReceiverPolicyV1};
 
 use super::path::ShadowSourcePathV0;
 use super::product::{
@@ -269,6 +269,19 @@ impl<'ast> ShadowResolverV0<'ast> {
         object: &'ast ASTNode,
         receiver_path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
+        if matches!(object, ASTNode::Me { .. })
+            && self.receiver_policy() == ReceiverPolicyV1::StaticCurrentOwner
+        {
+            if self.observes_all_method_calls() {
+                self.record_method_call_observation(
+                    call_site,
+                    receiver_path.expr(),
+                    ShadowMethodCallReceiverV0::CurrentOwner,
+                )?;
+            }
+            return Ok(());
+        }
+
         if !self.observes_all_method_calls() {
             return self.resolve_expr(object, receiver_path);
         }

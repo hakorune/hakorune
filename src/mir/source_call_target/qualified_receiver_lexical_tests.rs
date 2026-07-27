@@ -30,6 +30,10 @@ static box Caller {
     return Helpers.run(x)
   }
   current(x) { return me.run(x) }
+  mixed(x) {
+    local current_result = me.current(x)
+    return Helpers.run(x)
+  }
   nested(x) { return Outer.consume(Helpers.run(x)) }
   looped(x) {
     loop(x > 0) {
@@ -108,6 +112,27 @@ fn classifies_parameter_bound_and_direct_owner_proven_unbound() {
     assert_eq!(
         parameter_rows.disposition_for(&parameter),
         Some(QualifiedReceiverLexicalDispositionV1::Bound)
+    );
+}
+
+#[test]
+fn qualified_observer_passes_an_unrelated_static_current_owner_call() {
+    let root = parse(SOURCE);
+    let declarations = catalog(&root);
+    let caller = key(&declarations, "mixed", 1);
+    let call = verify_call(
+        &declarations,
+        &caller,
+        site(vec![
+            SourcePathSegmentV1::Body(1),
+            SourcePathSegmentV1::Value,
+        ]),
+    );
+
+    let rows = VerifiedQualifiedReceiverLexicalDispositionsV1::verify(&[&call]).unwrap();
+    assert_eq!(
+        rows.disposition_for(&call),
+        Some(QualifiedReceiverLexicalDispositionV1::ProvenUnbound)
     );
 }
 
