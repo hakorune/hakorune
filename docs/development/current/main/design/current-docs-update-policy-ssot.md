@@ -236,18 +236,24 @@ detour may preempt again only when the selected product row's unchanged exact
 gate proves that detour is a direct prerequisite; the card must name the
 failing owner and the return row.
 
-The current bounded detour is:
+The bounded detour is closed:
 
 ```text
 STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-prime-r1
   -> PRELOOP-STAGEB-SOURCE-INVENTORY0-G0
   -> park Stage-B
-  -> OWN-GRAM-REJECT0
 ```
 
-Candidate count one is correspondence evidence. It is not permission to
-continue a candidate session, production ingress, or unrelated cleanup before
-the ownership gate is rerun.
+The current unlocked product row is:
+
+```text
+OWN-GRAM-REJECT0-HAKO0-S0
+  -> OWN-GRAM-REJECT0-G0
+```
+
+Candidate count one remains correspondence evidence. It is not permission to
+continue a Stage-B candidate session, production ingress, or unrelated cleanup
+before the finite ownership readiness terminal.
 
 Do not create a second consecutive docs-only card for the same blocker unless
 one of these is true:

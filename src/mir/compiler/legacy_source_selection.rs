@@ -664,7 +664,7 @@ box Caller {
     }
 
     #[test]
-    fn actual_parser_source_retains_the_first_bounded_proof_gap() {
+    fn actual_parser_source_selects_one_exact_preloop_candidate() {
         let source = actual_parser_add_fixture::stageb_source_for_lowering();
         let ast = NyashParser::parse_from_string(&source).expect("actual Parser source");
         let declarations =
@@ -682,27 +682,37 @@ box Caller {
             .count();
         let candidates = inventory_preloop_stageb_candidates_v1(&calls).unwrap();
         assert_eq!(parser_targets, 2);
-        assert_eq!(candidates.candidate_count(), 0);
+        assert_eq!(candidates.candidate_count(), 1);
+        let identity = candidates
+            .candidate_identities()
+            .next()
+            .expect("one actual Parser candidate");
+        assert_eq!(identity.caller().owner(), "ParserBox");
+        assert_eq!(identity.caller().name(), "static_const_parse_add");
         assert_eq!(
-            candidates.first_unavailable_stage(),
-            Some(PreloopStageBSourceProofStageV1::WholeSourceMethodObservation)
+            identity.outer_call_site(),
+            &actual_parser_add_fixture::static_target_candidate_sites()[0],
         );
+        assert_eq!(identity.selected_argument_index(), 1);
+        assert_eq!(identity.inner_call_site().node().segments().len(), 3);
+        assert_eq!(identity.outer_target().owner(), "ParserStringUtilsBox");
+        assert_eq!(identity.outer_target().name(), "skip_ws");
 
         let disposition = PreloopStageBWholeSourceProducerV1::select(request(
             &source,
             CompilerSuppliedStaticImportSnapshotV1::none(),
         ))
         .unwrap();
-        let PreloopStageBWholeSourceDispositionV1::Ordinary(ordinary) = disposition else {
-            panic!("actual Parser source must not silently select through a proof gap");
+        let PreloopStageBWholeSourceDispositionV1::Selected(selected) = disposition else {
+            panic!("actual Parser source must select its one complete row");
         };
+        assert_eq!(selected.activation().row().caller(), identity.caller());
         assert_eq!(
-            ordinary.disposition(),
-            &PreloopStageBUnavailableDispositionV1::ExactCandidateProofUnavailable {
-                stage: PreloopStageBSourceProofStageV1::WholeSourceMethodObservation,
-            }
+            selected.activation().row().outer_call_site(),
+            identity.outer_call_site(),
         );
-        ordinary.discard();
+        assert_eq!(selected.activation().row().selected_argument_index(), 1);
+        selected.discard();
     }
 
     #[test]

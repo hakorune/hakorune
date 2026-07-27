@@ -1,5 +1,5 @@
 ---
-Status: accepted; bounded execution active
+Status: accepted; bounded execution closed
 Date: 2026-07-28
 Decision: STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-prime-r1
 Choice: A-prime
@@ -140,6 +140,35 @@ expression-algebra recursion policy               = 0
 Direct, mutual, composed direct, and composed reverse recursion fixtures are
 green. The actual Parser inventory now passes the old
 `StringHelpers.int_to_str/1` drift and yields one complete candidate.
+
+## PRELOOP-STAGEB-SOURCE-INVENTORY0-P0b/G0 closeout
+
+Closed on 2026-07-28.
+
+```text
+StringHelpers.to_i64/1                          = ExactI64
+ParserBox.static_const_eval_pos/1               = ExactI64
+actual complete candidate count                 = 1
+selected caller                                 = ParserBox.static_const_parse_add/2
+selected outer site                             = Body(3).Value
+selected child                                  = CallArgument(1)
+selected outer target                           = ParserStringUtilsBox.skip_ws/2
+loop-refresh                                    = parked
+candidate-session production consumer           = 0
+compile_request selected production consumer    = 0
+```
+
+The bounded repair therefore ends here. Candidate count one is correspondence
+evidence only; it does not authorize the parked selected-candidate session,
+Legacy compile ingress, outer-carrier publication, or later Stage-B rows.
+
+```text
+next:
+  OWN-GRAM-REJECT0
+
+finite product terminal:
+  OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
+```
 
 ## Question
 

@@ -1,11 +1,11 @@
 ---
-Status: accepted; implementation active
-Date: 2026-07-26
+Status: accepted; S0 closed; OWN-GRAM Hako resume selected
+Date: 2026-07-28
 Decision: STATIC-BOX-DERIVE-COMPAT-D0
 Classification: macro-policy / Main-entry contract boundary
 Blocked row: OWN-GRAM-REJECT0 Hako transport half
 Accepted option: A
-First executable row: STATIC-BOX-DERIVE-COMPAT0-S0
+First executable row: OWN-GRAM-REJECT0-HAKO0-S0
 ---
 
 # Static-box default derive compatibility
@@ -189,8 +189,9 @@ STATIC-BOX-DERIVE-COMPAT-D0-CLOSEOUT
   Rust/Hako inactive ownership-result reject parity
 ```
 
-The Hako row remains parked until the Stage-B baseline reaches its candidate.
-Its WIP must stay outside the S0 commit.
+The bounded Stage-B source inventory now reaches exactly one candidate and is
+parked. `OWN-GRAM-REJECT0-HAKO0-S0` is the current row. Its change remains
+separate from the already-closed static-box S0 commit.
 
 ## Proof budget
 

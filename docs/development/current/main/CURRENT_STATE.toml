@@ -1,15 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "CALLABLE-RESULT-RECURSIVE-CLOSURE-STABILITY0-S0/P0 is closed. Worklist-stalled keys alone retain the conservative RecursiveDependency closure when final reproof remains Unavailable; Exact/Pending still drift, non-stalled rows still require reason-exact equality, and SCC inference remains zero. PRELOOP-STAGEB-SOURCE-INVENTORY0-P0b is next; focused actual Parser evidence now reaches one complete Body(3) candidate."
+status = "PRELOOP-STAGEB-SOURCE-INVENTORY0-P0b/G0 is closed. The actual Parser source has exactly one complete Body(3) / CallArgument(1) candidate; StringHelpers.to_i64/1 and ParserBox.static_const_eval_pos/1 are ExactI64, loop-refresh remains parked, and candidate-session/production consumers remain zero. The bounded Stage-B detour is parked. UNLOCKED-PRODUCT-ROW-FIRST-v1 now selects OWN-GRAM-REJECT0-HAKO0-S0, then G0 and the finite ownership Packs A-E through OWNERSHIP-SPARSE-PRODUCT-READINESS-D0."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-SOURCE-INVENTORY0-P0b"
-current_execution_summary = "Seal the actual Parser evidence: StringHelpers.to_i64/1 and ParserBox.static_const_eval_pos/1 are ExactI64, candidate count is exactly one, selected outer row is Body(3), selected argument is 1, and loop-refresh remains parked. Then close the bounded structural G0 and return to OWN-GRAM-REJECT0."
-current_bounded_terminal = "PRELOOP-STAGEB-SOURCE-INVENTORY0-G0"
-post_terminal_return_row = "OWN-GRAM-REJECT0"
+current_execution_row = "OWN-GRAM-REJECT0-HAKO0-S0"
+current_execution_summary = "The Rust inactive ownership-result reject is already closed. Close the exact Hako static/instance : view T and : share T fail-fast, then OWN-GRAM-REJECT0-G0, and continue through ownership Packs A-E. No ownership grammar is activated by the reject row. A later discovery cannot preempt this product row unless its unchanged exact gate proves one named parked owner is a direct prerequisite."
 finite_product_goal = "OWNERSHIP-SPARSE-PRODUCT-READINESS-D0"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
@@ -335,9 +333,9 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/ownership-sparse-resume-d0-guard-refresh-task-2026-07-26.md"
+active_phase = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
 phase_status = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
-method_anchor = "docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md"
+method_anchor = "docs/reference/language/ownership.md"
 taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
 normal_entry_cutover_decision = "docs/development/current/main/investigations/normal-entry-cutover-d0-consultation-2026-07-25.md"
@@ -436,9 +434,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "static-current-owner-method-observation0-d0-design-question-2026-07-27"
-latest_card_path = "docs/development/current/main/investigations/static-current-owner-method-observation0-d0-design-question-2026-07-27.md"
-latest_card_summary = """STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0 asks for the single source authority for me.method(...) in an ordinary static-box method. The actual Parser proof gap is StringHelpers.to_i64/1 -> me._digit_value(ch); the existing current-owner target sealer is sufficient, but three catalog-backed consumers incorrectly map StaticBoxMethod to receiver-absent. Recommended A-prime adds one catalog-issued observation-only StaticCurrentOwner context to the sole shadow traversal, without a lexical instance binding, second walker, manual target, Builder policy, or production route."""
+latest_card = "hakorune-sparse-ownership-surface-task-2026-07-15"
+latest_card_path = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
+latest_card_summary = """The bounded StaticCurrentOwner/Stage-B source-inventory detour is closed at exactly one actual Body(3) candidate and is now parked. UNLOCKED-PRODUCT-ROW-FIRST-v1 selects OWN-GRAM-REJECT0-HAKO0-S0, then OWN-GRAM-REJECT0-G0 and the five ownership packs. The finite terminal is OWNERSHIP-SPARSE-PRODUCT-READINESS-D0; selected Stage-B production ingress, loop-refresh, cleanliness work, default promotion, and broader ownership families remain parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -641,7 +639,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-SOURCE-INVENTORY0-P0b"
+current_blocker_token = "OWN-GRAM-REJECT0-HAKO0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

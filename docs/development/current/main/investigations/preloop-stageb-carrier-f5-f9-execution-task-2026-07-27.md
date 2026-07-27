@@ -1,6 +1,6 @@
 # PRELOOP-STAGEB-CARRIER F5-F9 execution task
 
-Status: bounded source-observation repair active; F8/F9 parked after candidate=1
+Status: bounded source-observation repair closed; all later rows parked
 
 Parent:
 
@@ -8,10 +8,10 @@ Parent:
 preloop-stageb-instance-function-session-reconciliation0-prime-r1
 ```
 
-Current row:
+Current product row:
 
 ```text
-SAME-MODULE-CALLABLE-RECEIVER-POLICY0-S0
+OWN-GRAM-REJECT0
 ```
 
 ## Closed prerequisites
@@ -52,6 +52,16 @@ Required terminal evidence is one exact actual Parser candidate at `Body(3)`.
 After G0, all candidate-session, Legacy request/compile ingress, F9, and
 retirement-census rows in this card are parked. The current pointer returns to
 `OWN-GRAM-REJECT0`.
+
+The terminal is green as of 2026-07-28:
+
+```text
+actual candidate count = 1
+outer site              = Body(3).Value
+selected child          = CallArgument(1)
+loop-refresh            = parked
+production consumer     = 0
+```
 
 They may be reselected only if the unchanged ownership gate proves one of
 them is a direct prerequisite. Discovery inside this card does not extend the

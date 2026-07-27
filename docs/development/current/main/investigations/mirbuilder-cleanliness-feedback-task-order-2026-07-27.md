@@ -373,12 +373,13 @@ parked until OWNERSHIP-SPARSE-PRODUCT-READINESS-D0:
   CALL-BOX-KIND-POLICY-CENSUS0-P0
   -> its D0/migration series
 
-current finite detour:
+closed finite detour:
   STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-prime-r1
   -> PRELOOP-STAGEB-SOURCE-INVENTORY0-G0
 
-next product row:
-  OWN-GRAM-REJECT0
+current product row:
+  OWN-GRAM-REJECT0-HAKO0-S0
+  -> OWN-GRAM-REJECT0-G0
 
 finite macro goal:
   OWNERSHIP-SPARSE-PRODUCT-READINESS-D0

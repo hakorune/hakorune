@@ -283,6 +283,10 @@ FUNCTION-EXIT-F1-RETURN0-S0
   canonical-core caller, and fallback zero.
 
 -> OWNERSHIP-SPARSE-RESUME-D0
+  guard refresh and the bounded StaticCurrentOwner/Stage-B inventory detour
+  are closed. The active row is now:
+  -> OWN-GRAM-REJECT0-HAKO0-S0
+  -> OWN-GRAM-REJECT0-G0
   -> syntax safety/evidence
   -> passive ownership grammar and Loan Flow
   -> first Unique Box substrate
@@ -292,6 +296,7 @@ FUNCTION-EXIT-F1-RETURN0-S0
   -> OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
   The exact Pack A-E rows are owned by
   [hakorune-sparse-ownership-surface-task-2026-07-15.md](../investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md).
+  Selected Stage-B production ingress and loop-refresh remain parked.
   Ownership does not block canonical-core completion, but product/default
   promotion does not bypass its readiness gate.
 

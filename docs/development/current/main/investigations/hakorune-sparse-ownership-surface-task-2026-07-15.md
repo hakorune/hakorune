@@ -1,10 +1,10 @@
 ---
-Status: Accepted taskboard; D0 guard refresh closed; OWN-GRAM resume selected after bounded detour
+Status: Active taskboard; D0 guard refresh and bounded detour closed; OWN-GRAM Hako row selected
 Date: 2026-07-28
 Decision: Explicit-move/share, owner-anchored sparse ownership surface
 Source semantics SSOT: ../../../../reference/language/ownership.md
 Current lane: follow CURRENT_STATE.toml
-First code-facing ownership row after readiness: OWN-GRAM-REJECT0 exact inactive-syntax fail-fast
+First code-facing ownership row after bounded detour: OWN-GRAM-REJECT0-HAKO0-S0
 Integration resume checkpoint: MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
 Related:
   - hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md
@@ -39,10 +39,10 @@ call-result View branch details:
   hakorune-ownership-v2-anchored-view-return-abi-task-2026-07-15.md
 ```
 
-`CURRENT_STATE.toml`, `CURRENT_TASK.md`, `05-Restart-Quick-Resume.md`, and
-`10-Now.md` select the active row. Selection of an O2 row after
-`OWN-GRAM-REJECT0` still requires its explicit current-lane decision. Canonical
-failure must never retry the current SharedV1 route.
+`CURRENT_STATE.toml` selects the active row; this taskboard owns the exact Pack
+order. After `OWN-GRAM-REJECT0-G0`, `O2-P0a` follows without another docs-only
+selection card unless the executable gate finds a concrete contradiction.
+Canonical failure must never retry the current SharedV1 route.
 
 The 7,000-line design registry is not extended by this work. Its existing
 sharded-manifest task owns cleanup and begins with `CLEAN0`; only after that
@@ -214,11 +214,12 @@ The 2026-07-26 D0 inventory found no ownership semantic drift. The
 behavior-neutral `OWNERSHIP-SPARSE-RESUME-D0-GUARD-REFRESH0` receipt is green;
 no ownership prerequisite remains locked.
 
-One already-accepted source-observation repair may finish through
+The accepted source-observation repair is closed through
 `PRELOOP-STAGEB-SOURCE-INVENTORY0-G0`. Its terminal proves one exact actual
-Parser candidate without activating a production consumer. The next selected
-product-facing row is then `OWN-GRAM-REJECT0`; later Stage-B and cleanliness
-rows remain parked until `OWNERSHIP-SPARSE-PRODUCT-READINESS-D0`.
+Parser candidate without activating a production consumer. The first remaining
+product-facing row is `OWN-GRAM-REJECT0-HAKO0-S0`; later Stage-B and
+cleanliness rows remain parked until
+`OWNERSHIP-SPARSE-PRODUCT-READINESS-D0`.
 
 If the unchanged OWN-GRAM Hako gate fails specifically because the parked
 selected-candidate session is absent, that exact failure may reopen only the
@@ -232,7 +233,8 @@ them into five bounded packs:
 
 ```text
 Pack A — syntax safety and evidence
-  OWN-GRAM-REJECT0
+  OWN-GRAM-REJECT0-HAKO0-S0
+  OWN-GRAM-REJECT0-G0
   O2-P0a
   O2-P0r
   O2-P0b1
@@ -262,6 +264,7 @@ Pack D — callable ownership ABI
 
 Pack E — first Anchored View
   VIEW0 branch selection
+  PROJ-D0
   PROJ-S0
   PROJ-ABI0
   PROJ-R0
@@ -704,9 +707,9 @@ straight-line, same-task, and noescape. Parameter anchors follow before field,
 static, named-domain, or temporary-anchor rows.
 
 `VIEW0` is a branch-selection umbrella, not a code-facing implementation row.
-Its code-facing sequence is `PROJ-S0` through `PROJ-I0` in the Anchored View
-taskboard. Selecting `VIEW0` must not skip the parent evidence, grammar,
-Loan-Flow, first-Box, or callable-ABI prerequisites.
+It selects `PROJ-D0`, followed by the `PROJ-S0` through `PROJ-I0` sequence in
+the Anchored View taskboard. Selecting `VIEW0` must not skip the parent
+evidence, grammar, Loan-Flow, first-Box, or callable-ABI prerequisites.
 
 View requirements:
 
