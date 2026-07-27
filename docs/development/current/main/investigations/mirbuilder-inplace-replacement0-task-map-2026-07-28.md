@@ -281,7 +281,7 @@ docs/development/current/main/investigations/local-statement-descent-cutover0-i0
 
 ### `LOCAL-STATEMENT-DESCENT-CUTOVER0-I0-R0`
 
-Status: accepted execution task.
+Status: closed on 2026-07-28.
 
 Exchange:
 
@@ -302,6 +302,22 @@ caller remains inactive at the production root and is guarded separately.
 The cell deletes only the two old facades, rewrites their nine cfg(test)
 callers through the real AST ingress, preserves Local semantics, and adds no
 fallback, retry, or second selector.
+
+Closeout:
+
+```text
+raw/default production caller             = 1
+detached located caller                   = 1
+detached production root activation       = 0
+old facade call-shaped sites              = 0
+fallback / retry                          = 0
+focused Local tests and semantic helper   = green
+production Rust LOC delta                 = -52
+four-cell cumulative production Rust LOC  = -57
+```
+
+No fifth production edge is selected. Return to
+`MIRBUILDER-NEXT-EDGE-DESIGN-STOP`.
 
 ## Macro pack order
 

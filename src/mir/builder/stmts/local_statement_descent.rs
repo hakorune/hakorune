@@ -10,8 +10,7 @@ use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
-    RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 use super::variable_stmt::{
     build_local_statement_from_values_with_types_and_preclaims,
@@ -221,15 +220,4 @@ where
         declared_type_names,
         preclaimed_arrays,
     )
-}
-
-pub(in crate::mir::builder) fn drive_raw_local_statement_v1(
-    builder: &mut MirBuilder,
-    variables: Vec<String>,
-    initial_values: Vec<Option<Box<ASTNode>>>,
-    declared_type_names: Vec<Option<String>>,
-) -> Result<ValueId, String> {
-    let input = RawLegacyLocalInputV1::new(variables, initial_values, declared_type_names);
-    let mut port = RawLegacyChildLoweringPortV1;
-    drive_local_statement_v1(builder, &mut port, &input)
 }

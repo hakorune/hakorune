@@ -12,6 +12,11 @@ MODULE_LIFECYCLE="$ROOT_DIR/src/mir/builder/module_lifecycle.rs"
 COMPILER="$ROOT_DIR/src/mir/compiler/mod.rs"
 LEGACY_CANDIDATE="$ROOT_DIR/src/mir/compiler/legacy_candidate_session.rs"
 MODULE_SESSION="$ROOT_DIR/src/mir/builder/module_invocation_session.rs"
+LOCAL_SURFACE="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/statement_surface.rs"
+LOCAL_DESCENT="$ROOT_DIR/src/mir/builder/stmts/local_statement_descent.rs"
+LOCATED_LOCAL="$ROOT_DIR/src/mir/builder/located_legacy_lowering.rs"
+VARIABLE_STMT="$ROOT_DIR/src/mir/builder/stmts/variable_stmt.rs"
+LOCAL_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0.py"
 
 guard_require_command "$TAG" awk
 guard_require_command "$TAG" rg
@@ -24,7 +29,12 @@ guard_require_files \
   "$MODULE_LIFECYCLE" \
   "$COMPILER" \
   "$LEGACY_CANDIDATE" \
-  "$MODULE_SESSION"
+  "$MODULE_SESSION" \
+  "$LOCAL_SURFACE" \
+  "$LOCAL_DESCENT" \
+  "$LOCATED_LOCAL" \
+  "$VARIABLE_STMT" \
+  "$LOCAL_GUARD"
 
 expected_header=$'record_kind\tid\tpack\tproduction_caller\tnew_owner\tdelete_target\tparity_gate\tdisposition\tstate'
 actual_header="$(head -n1 "$MANIFEST")"
@@ -71,6 +81,16 @@ candidate_row_count="$(awk -F '\t' '
 ' "$MANIFEST")"
 if [[ "$candidate_row_count" != "1" ]]; then
   guard_fail "$TAG" "module candidate cutover must have one closed manifest row"
+fi
+
+local_row_count="$(awk -F '\t' '
+  $1 == "cell" &&
+  $2 == "LOCAL-STATEMENT-DESCENT-CUTOVER0" &&
+  $9 == "closed" { count += 1 }
+  END { print count + 0 }
+' "$MANIFEST")"
+if [[ "$local_row_count" != "1" ]]; then
+  guard_fail "$TAG" "Local descent cutover must have one closed manifest row"
 fi
 
 for symbol in \
@@ -139,6 +159,29 @@ $LEGACY_CANDIDATE	.prepare_external_commit()	1
 $LEGACY_CANDIDATE	.commit(&mut self.builder)	1
 EOF
 
+while IFS=$'\t' read -r file pattern expected label; do
+  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+  if [[ "$count" != "$expected" ]]; then
+    guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
+  fi
+done <<EOF
+$LOCAL_SURFACE	\\bdrive_local_statement_v1\\s*\\(	1	raw/default Local owner caller
+$LOCAL_SURFACE	\\bRawLegacyLocalInputV1::new\\s*\\(	1	raw/default Local owned input
+$LOCATED_LOCAL	\\bdrive_local_statement_v1\\s*\\(	1	detached located Local owner caller
+EOF
+
+if rg -n -P '\b(?:fn\s+)?build_local_statement\s*\(' \
+  "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+  guard_fail "$TAG" "retired build_local_statement facade returned"
+fi
+if rg -n -P '\b(?:fn\s+)?drive_raw_local_statement_v1\s*\(' \
+  "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+  guard_fail "$TAG" "retired drive_raw_local_statement_v1 facade returned"
+fi
+if rg -n -w 'retry|fallback' "$LOCAL_DESCENT" "$LOCATED_LOCAL" >/dev/null; then
+  guard_fail "$TAG" "Local owner gained retry or fallback"
+fi
+
 for file in \
   "$LOWERING" \
   "$PORT_OWNER" \
@@ -146,6 +189,16 @@ for file in \
   "$COMPILER" \
   "$LEGACY_CANDIDATE" \
   "$MODULE_SESSION" \
+  "$LOCAL_SURFACE" \
+  "$LOCAL_DESCENT" \
+  "$LOCATED_LOCAL" \
+  "$VARIABLE_STMT" \
+  "$ROOT_DIR/src/mir/builder/stmts/README.md" \
+  "$ROOT_DIR/src/mir/builder/control_flow/plan/parts/wiring_tests.rs" \
+  "$ROOT_DIR/src/mir/builder/control_flow/plan/parts/associated_source/raw_parity_tests.rs" \
+  "$ROOT_DIR/src/mir/builder/control_flow/plan/parts/if_general.rs" \
+  "$ROOT_DIR/src/mir/builder/control_flow/plan/parts/stmt/tests.rs" \
+  "$LOCAL_GUARD" \
   "$ROOT_DIR/tools/checks/mirbuilder_inplace_replacement_guard.sh"
 do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

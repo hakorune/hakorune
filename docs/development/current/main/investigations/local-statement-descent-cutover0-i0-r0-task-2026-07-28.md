@@ -1,5 +1,5 @@
 ---
-Status: accepted execution task
+Status: closed
 Date: 2026-07-28
 Decision: LOCAL-STATEMENT-DESCENT-CUTOVER0-I0-R0
 Pack: DESCENT-SPINE0
@@ -413,3 +413,30 @@ Recommended commit message:
 ```text
 refactor(mir): retire legacy local descent facades
 ```
+
+## Landed closeout
+
+Closed on 2026-07-28.
+
+```text
+raw/default production Local selector       = 1
+raw/default generic owner caller            = 1
+detached located owner caller               = 1
+detached located production root ingress    = 0
+post-cutover non-test generic driver sites  = 2
+
+build_local_statement call-shaped sites     = 0
+drive_raw_local_statement_v1 call sites     = 0
+fallback / retry                            = 0
+cfg(test) production-ingress migrations     = 9
+
+focused Local tests                         = green
+focused Local semantic helper               = green
+production Rust LOC delta                   = -52
+four-cell cumulative production Rust LOC    = -57
+detached asset delta                        = 0
+```
+
+The unrelated Binary assertion still prevents the public EXPR0 parent from
+being a whole-row gate. This cell repaired only the Local helper and made the
+shared in-place replacement guard the stable production-edge authority.

@@ -13,7 +13,6 @@ use crate::mir::builder::control_flow::plan::recipe_tree::{
 };
 use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::control_flow::recipes::{refs::StmtRef, RecipeBody};
-use crate::mir::builder::stmts::variable_stmt::build_local_statement;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{MirType, ValueId};
@@ -307,13 +306,14 @@ fn raw_no_exit_join_facade_matches_associated_block_driver() {
 
     let mut facade_builder = fresh_builder("raw_no_exit_join_facade/0");
     let _facade_scope = LexicalScopeGuard::new(&mut facade_builder);
-    build_local_statement(
-        &mut facade_builder,
-        vec!["value".to_string()],
-        vec![Some(Box::new(literal_int(0)))],
-        Vec::new(),
-    )
-    .expect("seed facade binding");
+    facade_builder
+        .build_expression(ASTNode::Local {
+            variables: vec!["value".to_string()],
+            initial_values: vec![Some(Box::new(literal_int(0)))],
+            declared_type_names: Vec::new(),
+            span: Span::unknown(),
+        })
+        .expect("seed facade binding");
     let mut facade_bindings = facade_builder
         .function_state
         .variable_ctx
@@ -332,13 +332,14 @@ fn raw_no_exit_join_facade_matches_associated_block_driver() {
 
     let mut driver_builder = fresh_builder("raw_no_exit_join_facade/0");
     let _driver_scope = LexicalScopeGuard::new(&mut driver_builder);
-    build_local_statement(
-        &mut driver_builder,
-        vec!["value".to_string()],
-        vec![Some(Box::new(literal_int(0)))],
-        Vec::new(),
-    )
-    .expect("seed driver binding");
+    driver_builder
+        .build_expression(ASTNode::Local {
+            variables: vec!["value".to_string()],
+            initial_values: vec![Some(Box::new(literal_int(0)))],
+            declared_type_names: Vec::new(),
+            span: Span::unknown(),
+        })
+        .expect("seed driver binding");
     let mut driver_bindings = driver_builder
         .function_state
         .variable_ctx

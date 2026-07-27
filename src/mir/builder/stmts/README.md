@@ -35,11 +35,11 @@ This boundary must not reconstruct source sites, own a caller ledger, infer
 types, reimplement typed-array or record semantics, publish a binding before
 all initializer values exist, or store its port/input in `MirBuilder`.
 
-LCL0-I0 selects the owned raw Local input through the existing
-`variable_stmt::build_local_statement` facade. That facade has one consumer of
-the raw adapter; the old initializer loop is retired. The shared driver keeps
-the existing preflight-success debug observation in its original position,
-before initializer effects.
+The raw/default `statement_surface` directly selects the generic Local driver
+with one owned `RawLegacyLocalInputV1`; the old `variable_stmt` and raw-driver
+facades are retired. The shared driver keeps the existing preflight-success
+debug observation in its original position, before initializer effects.
+The located adapter remains detached, with root activation zero.
 
 LCL0-P0 keeps one `cfg(test)` pre-I0 orchestration reference. Selected and
 reference paths compare exact results plus normalized MIR, transient type and

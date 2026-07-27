@@ -271,7 +271,6 @@ mod tests {
     use super::{try_lower_general_if, try_lower_general_if_recipe_authority};
     use crate::ast::{ASTNode, LiteralValue, Span};
     use crate::mir::builder::control_flow::plan::LoweredRecipe;
-    use crate::mir::builder::stmts::variable_stmt::build_local_statement;
     use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
     use crate::mir::builder::MirBuilder;
     use std::collections::BTreeMap;
@@ -361,13 +360,14 @@ mod tests {
             let mut builder = MirBuilder::new();
             builder.enter_function_for_test("if_general_recipe_authority_release".to_string());
             let _scope = LexicalScopeGuard::new(&mut builder);
-            build_local_statement(
-                &mut builder,
-                vec!["x".to_string()],
-                vec![Some(Box::new(lit_int(0)))],
-                Vec::new(),
-            )
-            .expect("declare x");
+            builder
+                .build_expression(ASTNode::Local {
+                    variables: vec!["x".to_string()],
+                    initial_values: vec![Some(Box::new(lit_int(0)))],
+                    declared_type_names: Vec::new(),
+                    span: span(),
+                })
+                .expect("declare x");
 
             let then_body = vec![assign("x", lit_int(1))];
             let mut default_bindings = builder.function_state.variable_ctx.variable_map.clone();

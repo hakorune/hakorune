@@ -36,6 +36,9 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     located_local_tests_path = (
         "src/mir/builder/located_legacy_local_tests.rs"
     )
+    raw_statement_surface_path = (
+        "src/mir/builder/raw_expression_dispatch/statement_surface.rs"
+    )
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     stmts_readme_path = "src/mir/builder/stmts/README.md"
     variable_stmt_path = "src/mir/builder/stmts/variable_stmt.rs"
@@ -49,6 +52,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     local_raw_tests = _read(root, local_raw_tests_path)
     local_parity_tests = _read(root, local_parity_tests_path)
     located_local_tests = _read(root, located_local_tests_path)
+    raw_statement_surface = _read(root, raw_statement_surface_path)
     stmts_root = _read(root, stmts_root_path)
     stmts_readme = _read(root, stmts_readme_path)
     variable_stmt = _read(root, variable_stmt_path)
@@ -166,9 +170,9 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     normalized_rust_source = re.sub(r"\s+", " ", production_rust_source)
     _require_count(
         normalized_rust_source,
-        "impl LocalStatementDescentPortV1 for RawLegacyChildLoweringPortV1",
+        "impl<Port> LocalStatementDescentPortV1 for Port where Port: RawAstChildLoweringPortV1",
         1,
-        "LCL0-I0 raw implementation",
+        "LCL0-I0 blanket raw-port implementation",
     )
     _require_count(
         normalized_rust_source,
@@ -253,11 +257,29 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         local_driver_callers += path.read_text(encoding="utf-8").count(
             "drive_local_statement_v1("
         )
-    if local_driver_callers != 1:
+    if local_driver_callers != 2:
         _fail(
-            "LCL0-L0 generic driver must have one located caller outside raw/test owners: "
+            "LCL0 generic driver must have one raw and one detached located caller: "
             f"actual={local_driver_callers}"
         )
+    _require_count(
+        raw_statement_surface,
+        "drive_local_statement_v1(",
+        1,
+        "LCL0 raw/default production caller",
+    )
+    _require_count(
+        raw_statement_surface,
+        "RawLegacyLocalInputV1::new(",
+        1,
+        "LCL0 raw/default owned input",
+    )
+    _require_count(
+        located,
+        "drive_local_statement_v1(builder, self, &input)",
+        1,
+        "LCL0 detached located caller",
+    )
 
     _require_count(
         local_descent,
@@ -265,12 +287,8 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         1,
         "owned raw Local input",
     )
-    _require_count(
-        local_descent,
-        "fn drive_raw_local_statement_v1",
-        1,
-        "thin raw Local facade",
-    )
+    if re.search(r"\bfn\s+drive_raw_local_statement_v1\s*\(", local_descent):
+        _fail("LCL0 retired raw Local facade returned")
     _require_count(
         local_descent,
         "builder.build_typed_array_literal(elements.to_vec())",
@@ -284,24 +302,12 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         "existing record-constructor owner reuse",
     )
 
-    raw_selector_callers = 0
-    for path in (root / "src").rglob("*.rs"):
-        if path.resolve() in local_ignored:
-            continue
-        raw_selector_callers += path.read_text(encoding="utf-8").count(
-            "drive_raw_local_statement_v1("
-        )
-    if raw_selector_callers != 1:
-        _fail(
-            "LCL0-I0 raw production selectors: "
-            f"expected=1 actual={raw_selector_callers}"
-        )
-    _require_count(
-        variable_stmt,
-        "super::local_statement_descent::drive_raw_local_statement_v1(",
-        1,
-        "existing build_local_statement facade selector",
-    )
+    if re.search(r"\bdrive_raw_local_statement_v1\s*\(", production_rust_source):
+        _fail("LCL0 retired raw Local facade call returned")
+    if re.search(r"\bfn\s+build_local_statement\s*\(", production_rust_source):
+        _fail("LCL0 retired variable_stmt Local facade returned")
+    if re.search(r"(?<!fn )\bbuild_local_statement\s*\(", production_rust_source):
+        _fail("LCL0 retired variable_stmt Local facade call returned")
     for retired in (
         "for (i, _var_name) in variables.iter().enumerate()",
         "builder.build_typed_array_literal(elements.clone())",
@@ -505,7 +511,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         "request ordinary initializer expressions in declaration order",
         "prove the exact `LocalInitializer(index)` subtree",
         "must not reconstruct source sites",
-        "LCL0-I0 selects the owned raw Local input",
+        "raw/default `statement_surface` directly selects the generic Local driver",
         "LCL0-P0 keeps one `cfg(test)` pre-I0 orchestration reference",
         "LCL0-L0 adds one disconnected located Local selector",
         "exact inactive-subtree proof before specialized effects",
@@ -534,6 +540,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
 
     return (
         "lcl_driver=1 lcl_e0_descents=1 lcl_raw_impl=1 "
-        "lcl_raw_selector=1 lcl_parity_reference=1 lcl_located_impl=1 "
+        "lcl_raw_caller=1 lcl_located_caller=1 lcl_non_test_callers=2 "
+        "lcl_parity_reference=1 lcl_located_impl=1 "
         "lcl_located_selector=1 lcl_special_inactive_proof=1"
     )

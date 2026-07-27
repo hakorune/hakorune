@@ -66,9 +66,9 @@
 //! - **Features**: Match-return optimization, defer mechanism
 //!
 //! ### 5. variable_stmt.rs - Variable Lifecycle
-//! - **Purpose**: Variable declaration and receiver resolution
+//! - **Purpose**: Local binding publication and receiver resolution
 //! - **Key Functions**:
-//!   - `build_local_statement` - Local variable declaration
+//!   - `build_local_statement_from_values*` - Local binding publication
 //!   - `build_me_expression` - Receiver resolution (me/this)
 //! - **Phase Context**: Phase 135 ValueId allocation, Phase 269 Fail-Fast
 //!

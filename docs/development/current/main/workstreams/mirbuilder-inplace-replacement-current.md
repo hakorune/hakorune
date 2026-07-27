@@ -27,13 +27,12 @@ new owner
 ## Current front
 
 ```text
-LOCAL-STATEMENT-DESCENT-CUTOVER0-I0-R0
+MIRBUILDER-NEXT-EDGE-DESIGN-STOP
 ```
 
-bounded censusはLocalのlive raw/default selectorを第四cellに固定した。
-既に接続済みのgeneric ownerをcreditし、残る二つのLegacy facadeと
-cfg(test) callerを一つのatomic I0/R0で退役させる。detached located caller
-はproduction root activation zeroのまま別証明として保持する。
+第四cellのLocalはclosed。次のproduction edgeは未選択であり、既存caller、
+replacement owner、delete target、parity gate、LOC repayment boundaryを
+一枚に固定するまでsource editへ進まない。
 
 ## First three replacements
 
@@ -115,10 +114,10 @@ Keep only these counters current:
 
 ```text
 macro_packs_closed                 = 0 / 8
-live_replacement_cells_closed      = 3
-replacement_ledger_remaining       = 1 active row
+live_replacement_cells_closed      = 4
+replacement_ledger_remaining       = 0 scheduled production rows
 detached_assets_remaining          = 2 recorded rows
-legacy_production_edges_remaining  = 1 selected edge
+legacy_production_edges_remaining  = 0 selected edges
 ```
 
 LOC and file counts are supporting evidence, not semantic authority. The
@@ -127,14 +126,7 @@ five-cell rolling production Rust LOC budget must still be non-positive.
 ## Active replacement cell
 
 ```text
-LOCAL-STATEMENT-DESCENT-CUTOVER0
-  selected live raw callers       = 1
-  detached located root ingress   = 0
-  selected old symbols            = 2
-  old production consumers        = 0
-  cfg(test) callers to migrate    = 9
-  fallback / retry                = 0
-  expected production Rust LOC    < 0
+none
 ```
 
 ## Landed replacement cells
@@ -164,6 +156,15 @@ MODULE-CANDIDATE-SESSION-CUTOVER0
   fallback / retry            = 0
   production Rust LOC         = +44
   three-cell rolling Rust LOC = -5
+
+LOCAL-STATEMENT-DESCENT-CUTOVER0
+  raw/default production caller = 1
+  detached located caller       = 1
+  detached root activation      = 0
+  selected old symbols          = 0
+  fallback / retry              = 0
+  production Rust LOC           = -52
+  four-cell cumulative Rust LOC = -57
 ```
 
 ## Parked

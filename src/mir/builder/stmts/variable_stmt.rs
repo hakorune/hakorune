@@ -10,7 +10,7 @@
 //! - SlotRegistry integration for observation
 //!
 //! **Key Functions**:
-//! - `build_local_statement` - Local variable declaration with optional initialization
+//! - `build_local_statement_from_values*` - Local binding publication after descent
 //! - `build_me_expression` - Receiver resolution (me/this)
 //!
 //! **Phase Context**:
@@ -25,51 +25,6 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 use crate::mir::builder::ValueId;
-
-/// Build a local variable declaration statement.
-///
-/// Handles both forms:
-/// - `local x` - Default initialization to null (sugar for `local x = null`)
-/// - `local x = expr` - Explicit initialization
-///
-/// **Variable Registration**:
-/// - Allocates new ValueId for each variable
-/// - Registers in variable_map via declare_local_in_current_scope
-/// - Registers in SlotRegistry for observation
-/// - Propagates type metadata from initializer to variable
-///
-/// **Phase Context**:
-/// - Phase 135 P0: Function-level ValueId allocation (SSOT)
-/// - Always in function context (top-level variables forbidden)
-///
-/// # Arguments
-/// * `builder` - MIR builder context
-/// * `variables` - List of variable names to declare
-/// * `initial_values` - Optional initializer expressions for each variable
-///
-/// # Returns
-/// * `Ok(ValueId)` - Last declared variable's ValueId
-/// * `Err(String)` - Error message if declaration fails
-///
-/// # Example
-/// ```hako
-/// local x              // ← Default to null
-/// local y = 42         // ← Initialize with expression
-/// local a, b = 1, 2    // ← Multiple variables
-/// ```
-pub(in crate::mir::builder) fn build_local_statement(
-    builder: &mut MirBuilder,
-    variables: Vec<String>,
-    initial_values: Vec<Option<Box<ASTNode>>>,
-    declared_type_names: Vec<Option<String>>,
-) -> Result<ValueId, String> {
-    super::local_statement_descent::drive_raw_local_statement_v1(
-        builder,
-        variables,
-        initial_values,
-        declared_type_names,
-    )
-}
 
 pub(in crate::mir::builder) fn observe_preflighted_local_statement(
     variables: &[String],
@@ -427,13 +382,14 @@ mod local_contract_tests {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("typed_local".to_string());
         let _scope = LexicalScopeGuard::new(&mut builder);
-        build_local_statement(
-            &mut builder,
-            vec!["x".to_string()],
-            vec![Some(Box::new(integer(1)))],
-            vec![Some("u8".to_string())],
-        )
-        .unwrap();
+        builder
+            .build_expression(ASTNode::Local {
+                variables: vec!["x".to_string()],
+                initial_values: vec![Some(Box::new(integer(1)))],
+                declared_type_names: vec![Some("u8".to_string())],
+                span: Span::unknown(),
+            })
+            .unwrap();
         let slot =
             crate::mir::LocalSlotId::from(builder.function_state.binding_ctx.lookup("x").unwrap());
         let rhs = builder.build_expression(integer(2)).unwrap();
@@ -474,13 +430,14 @@ mod local_contract_tests {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("typed_local_uninitialized".to_string());
         let _scope = LexicalScopeGuard::new(&mut builder);
-        let error = build_local_statement(
-            &mut builder,
-            vec!["x".to_string()],
-            vec![None],
-            vec![Some("i64".to_string())],
-        )
-        .unwrap_err();
+        let error = builder
+            .build_expression(ASTNode::Local {
+                variables: vec!["x".to_string()],
+                initial_values: vec![None],
+                declared_type_names: vec![Some("i64".to_string())],
+                span: Span::unknown(),
+            })
+            .unwrap_err();
         assert!(error.contains("[type/local_contract_uninitialized_forbidden]"));
         assert!(!builder
             .function_state
@@ -499,13 +456,14 @@ mod local_contract_tests {
             elements: vec![integer(1), integer(2)],
             span: Span::unknown(),
         };
-        build_local_statement(
-            &mut builder,
-            vec!["xs".to_string()],
-            vec![Some(Box::new(literal))],
-            vec![Some("Array<u8>".to_string())],
-        )
-        .unwrap();
+        builder
+            .build_expression(ASTNode::Local {
+                variables: vec!["xs".to_string()],
+                initial_values: vec![Some(Box::new(literal))],
+                declared_type_names: vec![Some("Array<u8>".to_string())],
+                span: Span::unknown(),
+            })
+            .unwrap();
         let slot =
             crate::mir::LocalSlotId::from(builder.function_state.binding_ctx.lookup("xs").unwrap());
 

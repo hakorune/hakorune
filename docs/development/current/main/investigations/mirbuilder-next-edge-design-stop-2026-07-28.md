@@ -1,8 +1,8 @@
 ---
-Status: accepted
+Status: active design stop
 Date: 2026-07-28
-Decision: LOCAL-STATEMENT-DESCENT-CUTOVER0-I0-R0
-Scope: select the first exact production edge after the three fixed cutovers
+Decision: pending fifth production edge
+Scope: select the next exact production edge after four closed cutovers
 ---
 
 # MirBuilder next production edge design stop
@@ -23,7 +23,7 @@ not selection authority.
 
 ## Current boundary
 
-The three fixed production cutovers are closed. The manifest has no remaining
+Four production cutovers are closed. The manifest has no remaining
 scheduled production cell, while all eight macro packs remain open. No source
 edit may begin until one exact existing caller, replacement owner, delete
 target, parity gate, and LOC repayment boundary are selected together.
@@ -45,9 +45,9 @@ Recommended next decision: candidate 1. It follows the fixed pack order and
 prevents naming an implementation row before the finite ledger has an exact
 production edge.
 
-## Resolution
+## Previous resolution
 
-Accepted after a four-worker bounded census:
+The previous design stop accepted after a four-worker bounded census:
 
 ```text
 LOCAL-STATEMENT-DESCENT-CUTOVER0-I0-R0
@@ -59,10 +59,12 @@ Execution authority:
 docs/development/current/main/investigations/local-statement-descent-cutover0-i0-r0-task-2026-07-28.md
 ```
 
-The selected live raw/default Local selector is exactly one. The generic owner
-also has one detached located caller with production root ingress zero; the
-execution card guards these separately instead of making a false global
-caller-count claim.
+That cell is now closed. Its live raw/default Local selector is exactly one,
+both old facades are physically absent, and the detached located caller remains
+root-inactive. The shared guard owns the production-edge proof.
+
+No fifth production edge is selected by that closeout. A fresh bounded census
+must select the next exact caller/owner/delete-target/parity boundary.
 
 ## Minimum implementation slice after decision
 
@@ -73,7 +75,7 @@ fallback, or unrelated cleanup may be added.
 
 ## Non-claims
 
-- selection does not close the fourth production row
+- no fifth production row is selected
 - no macro pack is closed
 - no detached asset is promoted
 - no Stage-B, Ownership, selfhost, language, runtime, or backend work resumes

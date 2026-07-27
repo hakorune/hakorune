@@ -9,7 +9,6 @@ mod tests {
     };
     use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan};
     use crate::mir::builder::control_flow::recipes::{refs::StmtRef, RecipeBody};
-    use crate::mir::builder::stmts::variable_stmt::build_local_statement;
     use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
     use crate::mir::builder::MirBuilder;
     use crate::mir::ValueId;
@@ -62,13 +61,14 @@ mod tests {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("recipe_scopebox_stmt_boundary".to_string());
         let _scope = LexicalScopeGuard::new(&mut builder);
-        build_local_statement(
-            &mut builder,
-            vec!["outer".to_string()],
-            vec![Some(Box::new(lit_int(0)))],
-            Vec::new(),
-        )
-        .expect("declare outer");
+        builder
+            .build_expression(ASTNode::Local {
+                variables: vec!["outer".to_string()],
+                initial_values: vec![Some(Box::new(lit_int(0)))],
+                declared_type_names: Vec::new(),
+                span: span(),
+            })
+            .expect("declare outer");
         let outer_binding_id = builder
             .function_state
             .binding_ctx
@@ -167,13 +167,14 @@ mod tests {
         builder.enter_function_for_test("joinir_wiring_loop_if_loop".to_string());
 
         let _scope = LexicalScopeGuard::new(&mut builder);
-        let _sum_id = build_local_statement(
-            &mut builder,
-            vec!["sum".to_string()],
-            vec![Some(Box::new(lit_int(0)))],
-            Vec::new(),
-        )
-        .expect("declare sum");
+        let _sum_id = builder
+            .build_expression(ASTNode::Local {
+                variables: vec!["sum".to_string()],
+                initial_values: vec![Some(Box::new(lit_int(0)))],
+                declared_type_names: Vec::new(),
+                span: span(),
+            })
+            .expect("declare sum");
 
         let mut current_bindings: BTreeMap<String, crate::mir::ValueId> =
             builder.function_state.variable_ctx.variable_map.clone();

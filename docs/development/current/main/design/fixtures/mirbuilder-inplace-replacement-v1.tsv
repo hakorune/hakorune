@@ -2,7 +2,7 @@ record_kind	id	pack	production_caller	new_owner	delete_target	parity_gate	dispos
 cell	CALLABLE-DRAFT-PORT-CUTOVER0	DESCENT-SPINE0	calls/lowering.rs:ordinary-static+instance	port_aware_function_draft_impl.rs	build_static_method_draft_v1+build_instance_method_draft_v1+lower_function_body+lower_method_body	cargo-test:callable-draft	-	closed
 cell	CALLABLE-DRAFT-COLLECTOR-CUTOVER0	FUNCTION-LIFECYCLE0	module-lifecycle:function-publication	module_draft_collector.rs	direct-per-function-publication	cargo-test:module-collector	-	closed
 cell	MODULE-CANDIDATE-SESSION-CUTOVER0	MODULE-LIFECYCLE0	compiler:legacy-build-module	module_invocation_session.rs	live-builder-module-mutation	cargo-test:compiler-reuse	-	closed
-cell	LOCAL-STATEMENT-DESCENT-CUTOVER0	DESCENT-SPINE0	raw_expression_dispatch/statement_surface.rs:ASTNode::Local	stmts/local_statement_descent.rs:drive_local_statement_v1	variable_stmt::build_local_statement+local_statement_descent::drive_raw_local_statement_v1	cargo-test:local-statement	-	active
+cell	LOCAL-STATEMENT-DESCENT-CUTOVER0	DESCENT-SPINE0	raw_expression_dispatch/statement_surface.rs:ASTNode::Local	stmts/local_statement_descent.rs:drive_local_statement_v1	variable_stmt::build_local_statement+local_statement_descent::drive_raw_local_statement_v1	cargo-test:local-statement	-	closed
 asset	PORT-AWARE-CALLABLE-DRAFT	DESCENT-SPINE0	-	port_aware_function_draft_impl.rs	-	-	IntegrateNow	closed
 asset	GENERIC-DRAFT-COLLECTOR	FUNCTION-LIFECYCLE0	-	module_draft_collector.rs	-	-	IntegrateNow	closed
 asset	CANDIDATE-SESSION	MODULE-LIFECYCLE0	-	module_invocation_session.rs	-	-	IntegrateNow	closed
