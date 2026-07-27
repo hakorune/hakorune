@@ -192,6 +192,28 @@ detached_asset_delta
 
 cellは`after >= 1`かつ`old_after = 0`になるまでclosedではない。
 
+### Source-partition cell law
+
+cellが宣言したcaller familyの一つのproduction selectorが、すでにliveな
+複数semantic ownerへtotalかつpairwise-disjointに分岐する場合、一つのcellが
+そのsource partitionをresponsibilityとして列挙してよい。
+
+成立条件はすべて必須である。
+
+```text
+named production selector in declared caller family = exactly 1
+source partition                                 = total and pairwise-disjoint
+each branch enters an already-live owner          = yes
+parity / failure / reuse gate                     = independent per owner
+obsolete predecessor authority                    = one atomic delete set
+shared semantic-owner claim                       = 0
+later duplicate credit of listed owners           = 0
+```
+
+cellはsource partitionをcreditするのであって、列挙したownerが同じ意味論を
+持つとは主張しない。repository内の別layerにあるobservation／resolved matcher
+まで「唯一のselector」と数えてはならない。
+
 ## Ceremony
 
 ### T0 — existing behavior transport

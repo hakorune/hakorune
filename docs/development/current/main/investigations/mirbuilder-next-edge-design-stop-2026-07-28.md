@@ -1,7 +1,7 @@
 ---
-Status: active design stop
+Status: resolved seventh selection; execution blocked on structural ratchet
 Date: 2026-07-28
-Decision: pending seventh production edge
+Decision: BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0; Option A
 Scope: select the next exact production edge after six closed cutovers
 ---
 
@@ -130,26 +130,26 @@ src/**/*.rs LOC               = -141
 new five-cell rolling LOC     = -73
 ```
 
-No seventh production edge is selected. A fresh bounded census must select one
-exact caller, replacement owner, delete target, parity gate, and LOC repayment
-boundary before source edits resume.
+The Return closeout itself selected no seventh production edge. The fresh
+bounded census below has since selected the next exact caller, owners, delete
+set, parity gates, and LOC boundary; source edits still wait for the ratchet.
 
 ## Seventh accounting consultation
 
 A four-worker census found Binary source partition as the sole bounded
-candidate, but the cell-accounting law needs an explicit decision:
+candidate and the cell-accounting law now accepts Option A:
 
 ```text
 docs/development/current/main/investigations/
 binary-source-partition-cell-accounting-d0-consultation-2026-07-28.md
 ```
 
-The physical graph has one production selector and one dead predecessor chain,
-while Ordinary Binary and ShortCircuit retain distinct semantic owners and
-parity suites. No seventh manifest row or source edit is authorized until D0
-chooses one source-partition cell or split semantic accounting.
+The physical graph has one raw/default production selector and one dead
+predecessor chain, while Ordinary Binary and ShortCircuit retain distinct
+semantic owners and parity suites. Option A is accepted as one source-partition
+cell; it does not claim shared semantics or allow later double credit.
 
-Before that choice, the minimal footprint ratchet must be installed:
+Before execution, the minimal footprint ratchet must be installed:
 
 ```text
 docs/development/current/main/investigations/
@@ -157,8 +157,8 @@ mirbuilder-structural-budget-d0-consultation-2026-07-28.md
 ```
 
 The structural D0 measures source/test files and LOC under the two fixed
-MirBuilder roots. It adds no checker subsystem or final-X authority. Binary
-accounting resumes immediately after the one-row ratchet lands.
+MirBuilder roots. It adds no checker subsystem or final-X authority. The
+accepted Binary task activates immediately after the one-row ratchet lands.
 
 ## Minimum implementation slice after decision
 
@@ -169,7 +169,7 @@ fallback, or unrelated cleanup may be added.
 
 ## Non-claims
 
-- no seventh production row is selected
+- seventh production responsibility is selected but not yet in the manifest
 - no macro pack is closed
 - no detached asset is promoted
 - no Stage-B, Ownership, selfhost, language, runtime, or backend work resumes

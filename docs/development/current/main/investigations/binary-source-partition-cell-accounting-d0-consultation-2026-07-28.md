@@ -1,8 +1,10 @@
 ---
-Status: parked behind structural budget D0
+Status: accepted next execution task; blocked on minimal structural ratchet
 Date: 2026-07-28
-Decision: pending
-Question: may one production replacement cell own one source selector partition with two disjoint semantic owners
+Decision: BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0; Option A accepted
+Responsibility: raw/default ASTNode::BinaryOp operator-family source partition
+Prerequisite:
+  - MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT
 Parent:
   - docs/development/current/main/investigations/mirbuilder-next-edge-design-stop-2026-07-28.md
 Policy:
@@ -12,6 +14,24 @@ Workstream:
 ---
 
 # Binary source-partition cell accounting D0
+
+## Accepted decision
+
+Option A is accepted:
+
+```text
+BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0
+Pack: DESCENT-SPINE0
+Ceremony: T0
+
+one raw/default source selector
+two disjoint semantic owners
+one atomic obsolete predecessor chain
+```
+
+This decision does not activate source edits or a seventh manifest row.
+Execution remains blocked until the minimal four-metric structural ratchet is
+closed.
 
 ## Why this consultation exists
 
@@ -24,22 +44,23 @@ two mutually exclusive semantic owners
 one dead predecessor selector chain
 ```
 
-The code deletion is mechanically bounded. The unresolved question is whether
-the replacement manifest should credit the source partition as one cell or
-credit Ordinary Binary and ShortCircuit as separate semantic cells.
+The code deletion is mechanically bounded. This consultation originally asked
+whether the replacement manifest should credit the source partition as one
+cell or credit Ordinary Binary and ShortCircuit as separate semantic cells.
 
-No source, test, guard, or manifest row may change until this D0 is resolved.
+The accounting question is now resolved. No Binary source, test, guard, or
+manifest row may change until the structural-ratchet prerequisite closes.
 
-This accounting decision is now subordinate to:
+Execution of the accepted accounting decision is blocked by:
 
 ```text
 docs/development/current/main/investigations/
 mirbuilder-structural-budget-d0-consultation-2026-07-28.md
 ```
 
-Binary selection resumes immediately after the minimal four-metric ratchet is
-installed. Structural size is a result metric and does not decide the semantic
-cell-accounting answer.
+Binary execution activates immediately after the minimal four-metric ratchet
+is installed. Structural size is a result metric and did not decide the
+semantic cell-accounting answer.
 
 Execution authority for that prerequisite:
 
@@ -294,9 +315,9 @@ This avoids a proof-only preliminary row but makes the first family responsible
 for incidental deletion of its sibling's old caller. The accounting is
 asymmetric and commit order becomes policy.
 
-## Recommendation
+## Accepted accounting
 
-Recommend Option A, with a narrow claim:
+Option A is accepted with this narrow claim:
 
 ```text
 one source-partition responsibility
@@ -310,8 +331,8 @@ authority without inventing orphan phases. Acceptance and manifest wording must
 say “operator-family source partition”; they must not say Ordinary and
 ShortCircuit share semantics.
 
-If policy defines a cell strictly as one semantic owner rather than one exact
-production responsibility, reject A and choose B. Do not silently choose C.
+Option B and Option C are rejected. Ordinary and ShortCircuit remain separate
+semantic owners and may not be credited again by later replacement cells.
 
 ## Rejected seventh candidates
 
@@ -362,6 +383,14 @@ is T2.
 ## Hard stops for either Binary answer
 
 ```text
+raw/default ASTNode::BinaryOp selector is not exactly one
+build_binary_op has an external executable caller
+either raw facade has a consumer other than the dead build_binary_op chain
+generic owner, completion owner, or located adapter interface must change
+resolved/Facts Binary routes must change
+compatibility facade is required
+final production Rust LOC delta is non-negative
+
 do not change operator vocabulary
 do not change eager-vs-conditional child demand
 do not change build_binary_op_from_values
@@ -370,17 +399,113 @@ do not activate located lowering
 do not add compatibility facade, retry, or route probing
 do not touch If, non-Program root, runtime, backend, language, or selfhost
 do not repair unrelated proof families
-do not create a manifest row before this D0 is resolved
+do not create a manifest row before the structural ratchet closes
 ```
 
-## Decision requested
+## Execution contract
 
-Choose one:
+The prerequisite closeout moves the current pointer directly to this task.
+The Binary implementation is one atomic I0/R0 commit; no additional selection
+card or per-cell guard is created.
+
+Keep unchanged:
 
 ```text
-A: one Binary source-partition cell with two explicit semantic owners
-B: dead shared-selector retirement plus two semantic credit cells
+raw_expression_dispatch::ASTNode::BinaryOp
+  And / Or
+    -> RawLegacyShortCircuitInputV1
+    -> drive_short_circuit_expression_v1
+
+  all remaining operators
+    -> RawLegacyBinaryInputV1
+    -> drive_ordinary_binary_expression_v1
 ```
 
-If neither is accepted, specify the replacement-cell accounting law that the
-seventh edge must satisfy. Source implementation remains stopped.
+Delete:
+
+```text
+MirBuilder::build_binary_op
+drive_raw_ordinary_binary_expression_v1
+drive_raw_short_circuit_expression_v1
+unused ASTNode / RawLegacyChildLoweringPortV1 imports
+stale facade-owner documentation
+```
+
+The current exact source shape predicts:
+
+```text
+production Rust LOC delta = -54
+```
+
+Closeout authority is the final `src/**/*.rs` numstat.
+
+Update in the same commit:
+
+```text
+existing EXPR0 helper:
+  remove old-facade existence authority
+  require the two live raw/default branches
+  require the blanket owner-port implementations
+  require external non-test generic sites = 2 per owner
+  remove stale ops-root selector/order assertions
+  update stale README phrases and printed summary
+  retain independent semantic-order proofs
+
+existing shared replacement guard:
+  Binary manifest row closed = 1
+  raw/default owner callers           = 1 each
+  raw/default input constructors       = 1 each
+  detached located callers             = 1 each
+  external non-test generic sites      = 2 per owner
+  obsolete call-shaped source symbols  = 0
+  owner retry / fallback               = 0
+
+ops README / module comments:
+  describe the live partition, not the dead selector chain
+```
+
+The zero-symbol assertions apply to executable `src/**/*.rs` call-shaped
+sites. Historical docs and generated evidence may retain symbol names as
+history; they are not production authority.
+
+No new test file is required. Keep all six existing owner/raw/parity suites.
+
+Focused gates:
+
+```bash
+cargo test -q binary_expression --lib
+cargo test -q short_circuit_expression --lib
+cargo test -q located_legacy_lowering --lib
+cargo test -q located_short_circuit_lowering --lib
+cargo check -q
+python3 tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0.py
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+Acceptance:
+
+```text
+raw/default Binary selector                  = 1
+ordinary raw/default generic caller          = 1
+ShortCircuit raw/default generic caller      = 1
+ordinary detached located caller             = 1
+ShortCircuit detached located caller         = 1
+ordinary external non-test generic sites     = 2
+ShortCircuit external non-test generic sites = 2
+detached production root                     = 0
+
+build_binary_op                               = 0
+drive_raw_ordinary_binary_expression_v1       = 0
+drive_raw_short_circuit_expression_v1         = 0
+
+ordinary parity / failure / reuse             = green
+ShortCircuit parity / failure / reuse         = green
+wrong-family production-ingress checks        = green
+operator / demand / CFG / PHI delta           = 0
+fallback / retry / reselection                = 0
+new proof file                                = 0
+production Rust LOC delta                     < 0
+all touched source/check files                < 800 lines
+```

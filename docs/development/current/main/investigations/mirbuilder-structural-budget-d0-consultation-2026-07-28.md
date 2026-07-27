@@ -114,5 +114,6 @@ docs/development/current/main/investigations/
 mirbuilder-structural-budget0-closeout-task-2026-07-28.md
 ```
 
-After the minimal ratchet lands, return immediately to the parked Binary
-accounting decision. No seventh row is created in the budget task.
+After the minimal ratchet lands, activate the accepted Binary Option A
+execution task immediately. The Binary accounting decision is already
+accepted; no seventh row is created in the budget task.

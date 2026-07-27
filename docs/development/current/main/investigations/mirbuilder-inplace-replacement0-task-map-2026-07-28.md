@@ -415,8 +415,9 @@ production Rust LOC delta                 = -141
 five-cell rolling production Rust LOC     = -73
 ```
 
-No seventh production edge is selected. Return to
-`MIRBUILDER-NEXT-EDGE-DESIGN-STOP`.
+The Return closeout itself selected no seventh production edge and returned to
+`MIRBUILDER-NEXT-EDGE-DESIGN-STOP`; the bounded consultation below has since
+accepted the next responsibility.
 
 The bounded seventh-edge census is recorded at:
 
@@ -425,9 +426,9 @@ docs/development/current/main/investigations/
 binary-source-partition-cell-accounting-d0-consultation-2026-07-28.md
 ```
 
-It does not select a manifest row. Binary has one live source selector and one
-dead predecessor chain but two semantic owners; D0 must choose source-partition
-or split semantic accounting before execution resumes.
+The consultation selects Option A but does not yet add a manifest row. Binary
+has one live source selector, two disjoint semantic owners, and one dead
+predecessor chain. Execution remains blocked by the structural ratchet.
 
 ## Structural footprint ratchet
 
@@ -460,7 +461,74 @@ mirbuilder-structural-budget0-closeout-task-2026-07-28.md
 
 The closeout is one small commit: one TSV ceiling row plus four measurements in
 the existing shared guard. No Python checker, path digest, disposition ledger,
-or final-X derivation is added. After it lands, Binary D0 resumes immediately.
+or final-X derivation is added. After it lands, the accepted Binary task
+activates immediately.
+
+## Accepted seventh replacement
+
+### `BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0`
+
+Status: accepted next; blocked on
+`MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT`.
+
+Execution authority:
+
+```text
+docs/development/current/main/investigations/
+binary-source-partition-cell-accounting-d0-consultation-2026-07-28.md
+```
+
+Responsibility:
+
+```text
+one raw/default ASTNode::BinaryOp selector
+  -> Ordinary Binary owner
+  -> ShortCircuit owner
+
+one atomic delete set:
+  MirBuilder::build_binary_op
+  drive_raw_ordinary_binary_expression_v1
+  drive_raw_short_circuit_expression_v1
+```
+
+The source partition is total and pairwise-disjoint. Each semantic owner keeps
+its own parity, failure, reuse, and child-demand proof. The cell does not claim
+shared semantics and neither owner may be credited again later.
+
+No seventh manifest row or Binary source edit is added before the structural
+ratchet closes.
+
+## Post-Binary selection boundary
+
+After Binary closes, open exactly one bounded selection boundary:
+
+```text
+DESCENT-SPINE0-CLOSE-AUDIT
+```
+
+It may select at most one next task from the current evidence:
+
+```text
+DESCENT-PARITY-HARNESS-CONSOLIDATION0-D0
+  non-production BoxShape prototype
+  first seam = seven-field Binary/ShortCircuit snapshot transport
+  reject/no-op if test files do not stay flat or test LOC does not decrease
+
+RAW-BODY-FACADE-RETIRE0
+  T0/RET0 cleanup candidate, not a replacement credit
+  bounded delete set = TaskScope facade + FastMem facade + cf_block + build_block
+  retain port-aware owners and drive_raw_legacy_body_v1
+  requires stale E0 proof-authority disposition first
+
+RECORD-HELPER-BODY-DESCENT0-D0
+  first confirmed production-reachable nested direct-recursion red
+  design question = declaration-body descent capability without reusing
+                    call-site location/ledger authority
+```
+
+Do not create cards, manifest rows, or a fixed commit train for these candidates
+before the audit. The audit may close the proof prototype as no-op and must keep
+the root non-Program fallback in a separate compiler-residue decision.
 
 ## Macro pack order
 

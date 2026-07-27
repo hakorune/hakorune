@@ -246,6 +246,6 @@ After this one commit:
 
 ```text
 minimal structural ratchet closed
--> Binary accounting D0 resumes
--> seventh Binary cell selection
+-> accepted Binary Option A task activates
+-> BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0
 ```

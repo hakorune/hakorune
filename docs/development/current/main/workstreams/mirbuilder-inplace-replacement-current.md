@@ -139,7 +139,8 @@ Keep only these counters current:
 ```text
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 6
-replacement_ledger_remaining       = 0 scheduled production rows
+replacement_ledger_remaining       = 0 manifest rows
+accepted_next_responsibility       = 1 blocked
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -172,8 +173,39 @@ one commit:
 
 production source edit         = 0
 seventh replacement row        = 0
-Binary                         = parked
+Binary Option A                = accepted next, blocked
 ```
+
+## Accepted next replacement
+
+```text
+BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0
+
+responsibility:
+  raw/default ASTNode::BinaryOp operator-family source partition
+
+owners:
+  drive_ordinary_binary_expression_v1
+  drive_short_circuit_expression_v1
+
+atomic delete set:
+  MirBuilder::build_binary_op
+  drive_raw_ordinary_binary_expression_v1
+  drive_raw_short_circuit_expression_v1
+
+activation:
+  only after MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT
+```
+
+No Binary source edit or seventh manifest row is authorized while the ratchet
+task remains active.
+
+## Post-Binary boundary
+
+Binary closeout returns to one `DESCENT-SPINE0-CLOSE-AUDIT`. Proof-harness
+prototype, dead raw-body facade retirement, and record-helper body descent are
+candidate findings, not three pre-authorized commits. The audit selects at
+most one next task from exact current callers and north-star movement.
 
 ## Landed replacement cells
 

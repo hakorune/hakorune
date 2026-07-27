@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Six production cells are closed. MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT is simplified to one minimal ratchet commit: four find/wc values across src/mir/builder and crates/hakorune_mir_builder, one TSV ceiling row, and one shared-guard comparison. The rejected checker/classification/final-X subsystem will not be built. Binary resumes immediately afterward."
+status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Six production cells are closed. MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT remains the sole executable row: four find/wc values across src/mir/builder and crates/hakorune_mir_builder, one TSV ceiling row, and one shared-guard comparison. The rejected checker/classification/final-X subsystem will not be built. Binary Option A is accepted next but remains blocked until this minimal ratchet closes."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
 current_execution_row = "MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT"
-current_execution_summary = "Add one structural ratchet TSV and a compact shared-guard comparison for source_files=952, source_loc=182452, test_files=139, test_loc=40826 under the two fixed MirBuilder roots. Do not add a checker program, path manifest, semantic classification, final X, production source edit, or seventh replacement row."
+current_execution_summary = "Add one structural ratchet TSV and a compact shared-guard comparison for source_files=952, source_loc=182452, test_files=139, test_loc=40826 under the two fixed MirBuilder roots. Do not add a checker program, path manifest, semantic classification, final X, production source edit, or seventh replacement row. The accepted Binary Option A task activates only after this row closes."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-structural-budget0-closeout-task-2026-07-28"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-structural-budget0-closeout-task-2026-07-28.md"
-latest_card_summary = """MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT is one minimal ratchet commit. It measures source/test files and LOC under src/mir/builder plus crates/hakorune_mir_builder, compares against one TSV row, and reuses the shared guard. Typed products, classification ledgers, path digests, Python checker, and final-X authority are rejected. Binary resumes immediately after closeout."""
+latest_card_summary = """MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT is one minimal ratchet commit. It measures source/test files and LOC under src/mir/builder plus crates/hakorune_mir_builder, compares against one TSV row, and reuses the shared guard. Typed products, classification ledgers, path digests, Python checker, and final-X authority are rejected. Binary Option A is accepted next and activates only after closeout."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
