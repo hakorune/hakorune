@@ -15,11 +15,14 @@ use super::member_route::MemberCallRoutePlan;
 use super::method_call_descent::MethodCallArgumentDescentV1;
 use super::method_call_terminal::StaticMethodCallCompletionV1;
 use super::preloop_located_argument_ingress::{
-    PreloopLocatedArgumentIngressErrorV1, PreloopLocatedArgumentIngressStageV1,
-    RejectedPreloopLocatedArgumentIngressV1,
+    OwnedRejectedPreloopLocatedArgumentIngressV1, PreloopLocatedArgumentIngressErrorV1,
+    PreloopLocatedArgumentIngressStageV1, RejectedPreloopLocatedArgumentIngressV1,
 };
 use super::preloop_located_argument_port::PreloopLocatedArgumentPortV1;
-use super::preloop_nested_result_receipt::ReachedPreloopOuterPhysicalCallV1;
+use super::preloop_nested_result_receipt::{
+    OwnedPreloopOuterPhysicalPartsV1, OwnedPreloopPhysicalProgressV1,
+    ReachedPreloopOuterPhysicalCallV1,
+};
 use super::{drive_call_arguments_v1, lower_call_argument_v1, CallArgumentDescentPortV1};
 
 #[derive(Debug)]
@@ -83,6 +86,19 @@ pub(super) struct RejectedPreloopLocatedOuterCompletionV1<'site, 'view, 'catalog
     cause: PreloopLocatedOuterCompletionErrorV1,
 }
 
+#[derive(Debug)]
+enum OwnedRetainedPreloopLocatedOuterCompletionV1 {
+    Source(OwnedPreloopPhysicalProgressV1),
+    Ingress(OwnedRejectedPreloopLocatedArgumentIngressV1),
+}
+
+#[derive(Debug)]
+pub(super) struct OwnedRejectedPreloopLocatedOuterCompletionV1 {
+    owner: OwnedRetainedPreloopLocatedOuterCompletionV1,
+    stage: PreloopLocatedOuterCompletionStageV1,
+    cause: PreloopLocatedOuterCompletionErrorV1,
+}
+
 impl RejectedPreloopLocatedOuterCompletionV1<'_, '_, '_> {
     pub(super) const fn stage(&self) -> PreloopLocatedOuterCompletionStageV1 {
         self.stage
@@ -102,6 +118,45 @@ impl RejectedPreloopLocatedOuterCompletionV1<'_, '_, '_> {
             RetainedPreloopLocatedOuterCompletionV1::Ingress(rejected) => rejected.discard(),
         }
     }
+
+    pub(super) fn into_owned_rejection_v1(self) -> OwnedRejectedPreloopLocatedOuterCompletionV1 {
+        let owner = match self.owner {
+            RetainedPreloopLocatedOuterCompletionV1::Source(source) => {
+                OwnedRetainedPreloopLocatedOuterCompletionV1::Source(
+                    OwnedPreloopPhysicalProgressV1::source(
+                        source.into_completed_retained_rebind_authority(),
+                    ),
+                )
+            }
+            RetainedPreloopLocatedOuterCompletionV1::Ingress(rejected) => {
+                OwnedRetainedPreloopLocatedOuterCompletionV1::Ingress(
+                    rejected.into_owned_rejection_v1(),
+                )
+            }
+        };
+        OwnedRejectedPreloopLocatedOuterCompletionV1 {
+            owner,
+            stage: self.stage,
+            cause: self.cause,
+        }
+    }
+}
+
+impl OwnedRejectedPreloopLocatedOuterCompletionV1 {
+    pub(super) const fn stage(&self) -> PreloopLocatedOuterCompletionStageV1 {
+        self.stage
+    }
+
+    pub(super) const fn cause(&self) -> &PreloopLocatedOuterCompletionErrorV1 {
+        &self.cause
+    }
+
+    pub(super) fn discard(self) {
+        match self.owner {
+            OwnedRetainedPreloopLocatedOuterCompletionV1::Source(progress) => progress.discard(),
+            OwnedRetainedPreloopLocatedOuterCompletionV1::Ingress(rejected) => rejected.discard(),
+        }
+    }
 }
 
 /// Exact inner source/physical authority plus the successful containing
@@ -115,16 +170,12 @@ pub(super) struct CompletedPreloopLocatedOuterRequestV1<'site, 'view, 'catalog> 
 #[derive(Debug)]
 struct CompletedPreloopLocatedOuterRequestSealV1;
 
-impl<'site, 'view, 'catalog>
-    CompletedPreloopLocatedOuterRequestV1<'site, 'view, 'catalog>
-{
+impl<'site, 'view, 'catalog> CompletedPreloopLocatedOuterRequestV1<'site, 'view, 'catalog> {
     pub(super) const fn inner_destination(&self) -> ValueId {
         self.physical.inner().final_destination()
     }
 
-    pub(super) fn caller(
-        &self,
-    ) -> &crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
+    pub(super) fn caller(&self) -> &crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
         self.physical.inner().caller()
     }
 
@@ -146,6 +197,10 @@ impl<'site, 'view, 'catalog>
 
     pub(super) fn discard(self) {
         self.physical.discard();
+    }
+
+    pub(super) fn into_owned_parts_v1(self) -> OwnedPreloopOuterPhysicalPartsV1 {
+        self.physical.into_owned_parts_v1()
     }
 }
 

@@ -367,6 +367,19 @@ def main() -> None:
     outer_type_tests = read(
         root, "src/mir/builder/calls/preloop_outer_carrier_type_tests.rs"
     )
+    outer_completion = read(
+        root, "src/mir/builder/calls/preloop_located_outer_completion.rs"
+    )
+    outer_carrier = read(
+        root, "src/mir/builder/calls/preloop_outer_carrier_transaction.rs"
+    )
+    outer_assignment = read(
+        root, "src/mir/builder/calls/preloop_outer_carrier_assignment.rs"
+    )
+    located_argument = read(
+        root,
+        "src/mir/source_instance_result_contract/preloop_located_argument.rs",
+    )
     require_definition_count(
         terminal,
         "emit_standard_value_terminal_with_receipt_v1",
@@ -503,7 +516,6 @@ def main() -> None:
         "outer TYPE-I0 production caller zero",
     )
     for forbidden in (
-        "inner_destination",
         "EmittedNestedInstanceCallV1",
         "ReachedPreloopNestedPhysicalCallV1",
         "MirInstruction",
@@ -524,6 +536,92 @@ def main() -> None:
     ):
         if evidence not in outer_type_tests:
             fail(f"missing outer TYPE-I0 evidence: {evidence}")
+
+    # F6-1 closes the HRTB source lifetime after F5 success. The terminal owns
+    # the actual receipts and a retained-only nested authority; it does not
+    # re-observe source/MIR or activate the selected function session.
+    require_count(
+        outer_type,
+        "struct CompletedPreloopStageBCarrierV1",
+        1,
+        "F6 owned completion owner",
+    )
+    require_definition_count(
+        outer_type,
+        "into_stageb_carrier_v1",
+        1,
+        "F6 sole owned completion projection",
+    )
+    require_count(
+        outer_type,
+        "nested_result: RetainedNestedInstanceResultRebindAuthorityV1",
+        1,
+        "F6 retained-only nested authority field",
+    )
+    require_count(
+        outer_type,
+        "inner_call: CompletedUnifiedValueCallEmissionV1",
+        1,
+        "F6 exact inner physical receipt",
+    )
+    require_count(
+        outer_type,
+        "outer_call: CompletedUnifiedValueCallEmissionV1",
+        1,
+        "F6 exact outer physical receipt",
+    )
+    require_count(
+        outer_type,
+        "assignment: CompletedVariableAssignmentV1",
+        1,
+        "F6 exact assignment receipt",
+    )
+    require_definition_count(
+        located_argument,
+        "into_completed_retained_rebind_authority",
+        1,
+        "F6 one-way retained source authority",
+    )
+    require_count(
+        production,
+        ".into_stageb_carrier_v1(",
+        0,
+        "F6 selected-session production consumer zero",
+    )
+    rejection_projection_code = "\n".join(
+        (ingress, outer_completion, outer_carrier, outer_assignment, outer_type)
+    )
+    require_definition_count(
+        rejection_projection_code,
+        "into_owned_rejection_v1",
+        5,
+        "F6 borrowed rejection closure terminals",
+    )
+    for forbidden in (
+        "into_owner",
+        "thread_local!",
+        "static mut",
+        "PendingMap",
+    ):
+        if forbidden in outer_type_code:
+            fail(f"F6 owned completion exposes forbidden authority: {forbidden}")
+    for evidence in (
+        "actual_parser_f5_success_escapes_hrtb_only_as_owned_stageb_completion",
+        "recipe_selected_index_drift_retains_the_complete_outer_owner",
+        "assignment_correspondence_drift_retains_both_complete_owners",
+        "concrete_conflict_preserves_fact_and_fresh_fixture_succeeds",
+    ):
+        evidence_sources = "\n".join(
+            (
+                outer_type_tests,
+                read(
+                    root,
+                    "src/mir/builder/calls/preloop_outer_carrier_transaction_tests.rs",
+                ),
+            )
+        )
+        if evidence not in evidence_sources:
+            fail(f"missing F6 owned completion evidence: {evidence}")
 
     for phrase in (
         "disconnected V0 value-only terminal port",
@@ -551,11 +649,16 @@ def main() -> None:
         "src/mir/builder/calls/preloop_located_argument_port.rs",
         "src/mir/builder/calls/preloop_located_argument_ingress.rs",
         "src/mir/builder/calls/preloop_nested_result_receipt.rs",
+        "src/mir/builder/calls/preloop_located_outer_completion.rs",
+        "src/mir/builder/calls/preloop_outer_carrier_transaction.rs",
+        "src/mir/builder/calls/preloop_outer_carrier_assignment.rs",
         "src/mir/builder/calls/preloop_nested_result_type.rs",
         "src/mir/builder/calls/preloop_nested_result_type_tests.rs",
         "src/mir/builder/calls/preloop_nested_result_type_p0_tests.rs",
         "src/mir/builder/calls/preloop_outer_carrier_type.rs",
         "src/mir/builder/calls/preloop_outer_carrier_type_tests.rs",
+        "src/mir/builder/calls/preloop_outer_carrier_transaction_tests.rs",
+        "src/mir/source_instance_result_contract/preloop_located_argument.rs",
         "src/mir/builder/calls/preloop_nested_result_test_support.rs",
         "src/mir/builder/calls/preloop_located_argument_ingress_tests.rs",
         "src/mir/builder/calls/preloop_located_argument_ingress_p0_tests.rs",

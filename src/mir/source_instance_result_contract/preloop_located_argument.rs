@@ -115,6 +115,14 @@ impl<'site, 'view, 'catalog> PreparedPreloopLocatedArgumentV1<'site, 'view, 'cat
         selected.discard();
         association.into_owned_rebind_witness()
     }
+
+    pub(crate) fn into_completed_retained_rebind_authority(
+        self,
+    ) -> RetainedNestedInstanceResultRebindAuthorityV1 {
+        RetainedNestedInstanceResultRebindAuthorityV1::from_witness(
+            self.into_owned_rebind_witness(),
+        )
+    }
 }
 
 impl<'site, 'view, 'catalog> RejectedPreloopLocatedArgumentV1<'site, 'view, 'catalog> {

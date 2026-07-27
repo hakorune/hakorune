@@ -9,6 +9,7 @@ use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::ValueId;
 
 use super::preloop_located_outer_completion::CompletedPreloopLocatedOuterRequestV1;
+use super::preloop_nested_result_receipt::OwnedPreloopOuterPhysicalPartsV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum PreloopOuterCarrierCorrespondenceStageV1 {
@@ -34,6 +35,26 @@ pub(super) struct RejectedPreloopOuterCarrierCallV1<'site, 'view, 'catalog> {
     cause: PreloopOuterCarrierCorrespondenceErrorV1,
 }
 
+#[derive(Debug)]
+pub(super) struct OwnedPreloopOuterCarrierPartsV1 {
+    pub(super) physical: OwnedPreloopOuterPhysicalPartsV1,
+    pub(super) recipe: PreparedPreloopStageBFunctionBodyRecipeV1,
+}
+
+impl OwnedPreloopOuterCarrierPartsV1 {
+    pub(super) fn discard(self) {
+        self.physical.discard();
+        let _ = self.recipe;
+    }
+}
+
+#[derive(Debug)]
+pub(super) struct OwnedRejectedPreloopOuterCarrierCallV1 {
+    owner: OwnedPreloopOuterCarrierPartsV1,
+    stage: PreloopOuterCarrierCorrespondenceStageV1,
+    cause: PreloopOuterCarrierCorrespondenceErrorV1,
+}
+
 impl RejectedPreloopOuterCarrierCallV1<'_, '_, '_> {
     pub(super) const fn stage(&self) -> PreloopOuterCarrierCorrespondenceStageV1 {
         self.stage
@@ -50,6 +71,31 @@ impl RejectedPreloopOuterCarrierCallV1<'_, '_, '_> {
     pub(super) fn discard(self) {
         self.physical.discard();
         let _ = self.recipe;
+    }
+
+    pub(super) fn into_owned_rejection_v1(self) -> OwnedRejectedPreloopOuterCarrierCallV1 {
+        OwnedRejectedPreloopOuterCarrierCallV1 {
+            owner: OwnedPreloopOuterCarrierPartsV1 {
+                physical: self.physical.into_owned_parts_v1(),
+                recipe: self.recipe,
+            },
+            stage: self.stage,
+            cause: self.cause,
+        }
+    }
+}
+
+impl OwnedRejectedPreloopOuterCarrierCallV1 {
+    pub(super) const fn stage(&self) -> PreloopOuterCarrierCorrespondenceStageV1 {
+        self.stage
+    }
+
+    pub(super) const fn cause(&self) -> PreloopOuterCarrierCorrespondenceErrorV1 {
+        self.cause
+    }
+
+    pub(super) fn discard(self) {
+        self.owner.discard();
     }
 }
 
@@ -89,6 +135,13 @@ impl CompletedPreloopOuterCarrierCallV1<'_, '_, '_> {
     pub(super) fn discard(self) {
         self.physical.discard();
         let _ = self.recipe;
+    }
+
+    pub(super) fn into_owned_parts_v1(self) -> OwnedPreloopOuterCarrierPartsV1 {
+        OwnedPreloopOuterCarrierPartsV1 {
+            physical: self.physical.into_owned_parts_v1(),
+            recipe: self.recipe,
+        }
     }
 }
 

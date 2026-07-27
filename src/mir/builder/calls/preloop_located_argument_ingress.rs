@@ -18,7 +18,8 @@ use crate::mir::MirBuilder;
 use super::member_route::MemberCallRoutePlan;
 use super::method_call_terminal::emit_standard_value_terminal_with_receipt_v1;
 use super::preloop_nested_result_receipt::{
-    ReachedPreloopNestedPhysicalCallV1, ReachedPreloopOuterPhysicalCallV1,
+    OwnedPreloopPhysicalProgressV1, ReachedPreloopNestedPhysicalCallV1,
+    ReachedPreloopOuterPhysicalCallV1,
 };
 use super::receiver_binding::ReceiverNormalizationPlan;
 use super::unified_emitter::UnifiedValueCallReceiptErrorV1;
@@ -96,6 +97,13 @@ pub(super) enum RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog> 
         stage: PreloopLocatedArgumentIngressStageV1,
         cause: PreloopLocatedArgumentIngressErrorV1,
     },
+}
+
+#[derive(Debug)]
+pub(super) struct OwnedRejectedPreloopLocatedArgumentIngressV1 {
+    progress: OwnedPreloopPhysicalProgressV1,
+    stage: PreloopLocatedArgumentIngressStageV1,
+    cause: PreloopLocatedArgumentIngressErrorV1,
 }
 
 impl<'site, 'view, 'catalog> RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog> {
@@ -251,6 +259,54 @@ impl<'site, 'view, 'catalog> RejectedPreloopLocatedArgumentIngressV1<'site, 'vie
             Self::Physical { reached, .. } => reached.discard(),
             Self::OuterPhysical { reached, .. } => reached.discard(),
         }
+    }
+
+    pub(super) fn into_owned_rejection_v1(self) -> OwnedRejectedPreloopLocatedArgumentIngressV1 {
+        match self {
+            Self::Source {
+                source,
+                stage,
+                cause,
+            } => OwnedRejectedPreloopLocatedArgumentIngressV1 {
+                progress: OwnedPreloopPhysicalProgressV1::source(
+                    source.into_completed_retained_rebind_authority(),
+                ),
+                stage,
+                cause,
+            },
+            Self::Physical {
+                reached,
+                stage,
+                cause,
+            } => OwnedRejectedPreloopLocatedArgumentIngressV1 {
+                progress: OwnedPreloopPhysicalProgressV1::Inner(reached.into_owned_parts_v1()),
+                stage,
+                cause,
+            },
+            Self::OuterPhysical {
+                reached,
+                stage,
+                cause,
+            } => OwnedRejectedPreloopLocatedArgumentIngressV1 {
+                progress: OwnedPreloopPhysicalProgressV1::Outer(reached.into_owned_parts_v1()),
+                stage,
+                cause,
+            },
+        }
+    }
+}
+
+impl OwnedRejectedPreloopLocatedArgumentIngressV1 {
+    pub(super) const fn stage(&self) -> PreloopLocatedArgumentIngressStageV1 {
+        self.stage
+    }
+
+    pub(super) const fn cause(&self) -> &PreloopLocatedArgumentIngressErrorV1 {
+        &self.cause
+    }
+
+    pub(super) fn discard(self) {
+        self.progress.discard();
     }
 }
 

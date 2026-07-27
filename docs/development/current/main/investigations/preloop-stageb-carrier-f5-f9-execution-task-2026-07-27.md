@@ -347,6 +347,33 @@ F6-4 PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-P0/G0
   actual Parser full-function parity, failure retention, reuse, structural gate
 ```
 
+Landed F6-1 evidence:
+
+```text
+CompletedPreloopStageBCarrierV1 producer          = 1
+borrowed F3-F5 -> owned completion projection     = 1
+retained-only nested authority                    = 1
+exact inner Call receipt                          = 1
+exact outer Call receipt                          = 1
+exact assignment receipt                          = 1
+exact publication disposition                     = 1
+
+borrowed ingress rejection -> owned rejection     = 1
+borrowed outer rejection -> owned rejection       = 1
+borrowed carrier rejection -> owned rejection     = 1
+borrowed assignment rejection -> owned rejection  = 1
+borrowed type rejection -> owned rejection        = 1
+
+actual Parser HRTB owned-success escape            = green
+production consumer                               = 0
+retry / rebind / source-MIR re-observation         = 0
+```
+
+The F6 completion-evidence hard stop is cleared. The sole next cell is
+`PRELOOP-STAGEB-BODY-SCHEDULE0-I0`; it must consume these owned terminals
+without reopening their internal receipts or adding an external mutable
+payload slot.
+
 ### F6 ownership closure
 
 F3-F5 products borrow the located source chain and cannot escape

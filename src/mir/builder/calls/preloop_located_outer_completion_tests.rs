@@ -63,10 +63,7 @@ fn actual_parser_located_outer_uses_existing_static_completion() {
                             prepared,
                         )
                         .expect("exact located outer completion");
-                        assert_ne!(
-                            completed.inner_destination(),
-                            completed.outer_destination()
-                        );
+                        assert_ne!(completed.inner_destination(), completed.outer_destination());
 
                         let calls = call_destinations(builder);
                         assert!(calls.iter().any(|(symbol, destination)| {
@@ -74,7 +71,7 @@ fn actual_parser_located_outer_uses_existing_static_completion() {
                                 && *destination == completed.inner_destination()
                         }));
                         assert!(calls.iter().any(|(symbol, destination)| {
-                                symbol == "ParserStringUtilsBox.skip_ws/2"
+                            symbol == "ParserStringUtilsBox.skip_ws/2"
                                 && *destination == completed.outer_destination()
                         }));
                         let instructions = builder.current_function_instructions();
@@ -151,6 +148,17 @@ fn located_outer_rejects_alternate_route_before_argument_descent() {
                         )
                     );
                     assert_eq!(builder.current_function_instructions().len(), before);
+                    let rejected = rejected.into_owned_rejection_v1();
+                    assert_eq!(
+                        rejected.stage(),
+                        PreloopLocatedOuterCompletionStageV1::RouteSelection
+                    );
+                    assert_eq!(
+                        rejected.cause(),
+                        &PreloopLocatedOuterCompletionErrorV1::AlternateRoute(
+                            PreloopLocatedOuterObservedRouteV1::Standard
+                        )
+                    );
                     rejected.discard();
                     Ok((ValueId::new(0), ()))
                 },

@@ -69,6 +69,34 @@ fn missing_outer_fact_publishes_integer_without_touching_inner_destination() {
 }
 
 #[test]
+fn actual_parser_f5_success_escapes_hrtb_only_as_owned_stageb_completion() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+        let completed = with_actual_assignment(|builder, assignment, _| {
+            publish_preloop_outer_carrier_integer_v1(
+                assignment,
+                &mut builder.function_state.type_ctx,
+            )
+            .expect("exact outer Integer publication")
+            .into_stageb_carrier_v1()
+        });
+
+        assert_eq!(completed.recipe().assignment_target().name(), "pos");
+        assert_eq!(completed.assignment_target(), "pos");
+        assert_ne!(completed.inner_destination(), completed.outer_destination());
+        assert_eq!(
+            completed.assigned_destination(),
+            completed.outer_destination()
+        );
+        assert_eq!(
+            completed.publication(),
+            PreloopOuterCarrierIntegerPublicationDispositionV1::Published
+        );
+        completed.discard();
+    });
+}
+
+#[test]
 fn unknown_publishes_and_existing_integer_is_idempotent() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
@@ -149,6 +177,15 @@ fn concrete_conflict_preserves_fact_and_fresh_fixture_succeeds() {
                 Some(&MirType::Bool)
             );
             assert!(rejected.bounded_report().contains("concrete_fact_conflict"));
+            let rejected = rejected.into_owned_rejection_v1();
+            assert_eq!(rejected.destination(), destination);
+            assert_eq!(
+                rejected.cause(),
+                &TypeFactDecisionErrorV1::ConcreteFactConflict {
+                    existing: MirType::Bool,
+                    proposed: MirType::Integer,
+                }
+            );
             rejected.discard();
         });
 

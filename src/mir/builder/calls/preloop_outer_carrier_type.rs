@@ -9,10 +9,16 @@ use hakorune_mir_builder::lowering_facts::{
     PreparedTypeFactPublicationV1, TypeFactDecisionErrorV1, TypeFactDecisionV1,
 };
 
+use crate::mir::builder::calls::unified_emitter::CompletedUnifiedValueCallEmissionV1;
+use crate::mir::builder::stmts::CompletedVariableAssignmentV1;
 use crate::mir::builder::type_context::TypeContext;
+use crate::mir::preloop_stageb_carrier::PreparedPreloopStageBFunctionBodyRecipeV1;
+use crate::mir::source_instance_result_contract::RetainedNestedInstanceResultRebindAuthorityV1;
 use crate::mir::{MirType, ValueId};
 
-use super::preloop_outer_carrier_assignment::CompletedPreloopCarrierAssignmentV1;
+use super::preloop_outer_carrier_assignment::{
+    CompletedPreloopCarrierAssignmentV1, OwnedPreloopCarrierAssignmentPartsV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum PreloopOuterCarrierIntegerPublicationDispositionV1 {
@@ -36,9 +42,34 @@ pub(super) struct CompletedPreloopOuterCarrierIntegerPublicationV1<'site, 'view,
 #[derive(Debug)]
 struct CompletedPreloopOuterCarrierIntegerPublicationSealV1;
 
+/// Lifetime-free terminal for the complete selected Stage-B carrier chain.
+///
+/// This owner stores the actual sealed receipts. The nested-result authority
+/// is inspection/discard-only, so the completed payload cannot rebind or retry
+/// the consumed source association.
+#[derive(Debug)]
+pub(super) struct CompletedPreloopStageBCarrierV1 {
+    recipe: PreparedPreloopStageBFunctionBodyRecipeV1,
+    nested_result: RetainedNestedInstanceResultRebindAuthorityV1,
+    inner_call: CompletedUnifiedValueCallEmissionV1,
+    outer_call: CompletedUnifiedValueCallEmissionV1,
+    assignment: CompletedVariableAssignmentV1,
+    publication: PreloopOuterCarrierIntegerPublicationDispositionV1,
+    _seal: CompletedPreloopStageBCarrierSealV1,
+}
+
+#[derive(Debug)]
+struct CompletedPreloopStageBCarrierSealV1;
+
 #[derive(Debug)]
 pub(super) struct RejectedPreloopOuterCarrierIntegerPublicationV1<'site, 'view, 'catalog> {
     carrier: CompletedPreloopCarrierAssignmentV1<'site, 'view, 'catalog>,
+    cause: TypeFactDecisionErrorV1,
+}
+
+#[derive(Debug)]
+pub(super) struct OwnedRejectedPreloopOuterCarrierIntegerPublicationV1 {
+    carrier: OwnedPreloopCarrierAssignmentPartsV1,
     cause: TypeFactDecisionErrorV1,
 }
 
@@ -101,6 +132,28 @@ impl CompletedPreloopOuterCarrierIntegerPublicationV1<'_, '_, '_> {
     pub(super) fn discard(self) {
         self.carrier.discard();
     }
+
+    pub(super) fn into_stageb_carrier_v1(self) -> CompletedPreloopStageBCarrierV1 {
+        let Self {
+            carrier,
+            disposition,
+            ..
+        } = self;
+        let OwnedPreloopCarrierAssignmentPartsV1 {
+            carrier,
+            assignment,
+        } = carrier.into_owned_parts_v1();
+        let physical = carrier.physical;
+        CompletedPreloopStageBCarrierV1 {
+            recipe: carrier.recipe,
+            nested_result: physical.nested_result,
+            inner_call: physical.inner_call,
+            outer_call: physical.outer_call,
+            assignment,
+            publication: disposition,
+            _seal: CompletedPreloopStageBCarrierSealV1,
+        }
+    }
 }
 
 impl RejectedPreloopOuterCarrierIntegerPublicationV1<'_, '_, '_> {
@@ -119,6 +172,66 @@ impl RejectedPreloopOuterCarrierIntegerPublicationV1<'_, '_, '_> {
             self.cause
         )
         .into_boxed_str()
+    }
+
+    pub(super) fn discard(self) {
+        self.carrier.discard();
+    }
+
+    pub(super) fn into_owned_rejection_v1(
+        self,
+    ) -> OwnedRejectedPreloopOuterCarrierIntegerPublicationV1 {
+        OwnedRejectedPreloopOuterCarrierIntegerPublicationV1 {
+            carrier: self.carrier.into_owned_parts_v1(),
+            cause: self.cause,
+        }
+    }
+}
+
+impl CompletedPreloopStageBCarrierV1 {
+    pub(super) const fn recipe(&self) -> &PreparedPreloopStageBFunctionBodyRecipeV1 {
+        &self.recipe
+    }
+
+    pub(super) const fn inner_destination(&self) -> ValueId {
+        self.inner_call.final_destination()
+    }
+
+    pub(super) const fn outer_destination(&self) -> ValueId {
+        self.outer_call.final_destination()
+    }
+
+    pub(super) const fn assigned_destination(&self) -> ValueId {
+        self.assignment.assigned()
+    }
+
+    pub(super) fn assignment_target(&self) -> &str {
+        self.assignment.target()
+    }
+
+    pub(super) const fn publication(&self) -> PreloopOuterCarrierIntegerPublicationDispositionV1 {
+        self.publication
+    }
+
+    pub(super) fn discard(self) {
+        self.nested_result.discard();
+        let _ = (
+            self.recipe,
+            self.inner_call,
+            self.outer_call,
+            self.assignment,
+            self.publication,
+        );
+    }
+}
+
+impl OwnedRejectedPreloopOuterCarrierIntegerPublicationV1 {
+    pub(super) const fn destination(&self) -> ValueId {
+        self.carrier.assignment.assigned()
+    }
+
+    pub(super) const fn cause(&self) -> &TypeFactDecisionErrorV1 {
+        &self.cause
     }
 
     pub(super) fn discard(self) {

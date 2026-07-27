@@ -107,6 +107,15 @@ fn recipe_selected_index_drift_retains_the_complete_outer_owner() {
             assert!(rejected
                 .bounded_report()
                 .contains("SelectedArgumentMismatch"));
+            let rejected = rejected.into_owned_rejection_v1();
+            assert_eq!(
+                rejected.stage(),
+                PreloopOuterCarrierCorrespondenceStageV1::SelectedArgument
+            );
+            assert_eq!(
+                rejected.cause(),
+                PreloopOuterCarrierCorrespondenceErrorV1::SelectedArgumentMismatch
+            );
             rejected.discard();
         });
     });
@@ -160,6 +169,12 @@ fn assignment_correspondence_drift_retains_both_complete_owners() {
                 PreloopCarrierAssignmentErrorV1::TargetMismatch
             );
             assert!(rejected.bounded_report().contains("TargetMismatch"));
+            let rejected = rejected.into_owned_rejection_v1();
+            assert_eq!(rejected.stage(), PreloopCarrierAssignmentStageV1::Target);
+            assert_eq!(
+                rejected.cause(),
+                PreloopCarrierAssignmentErrorV1::TargetMismatch
+            );
             rejected.discard();
         });
 

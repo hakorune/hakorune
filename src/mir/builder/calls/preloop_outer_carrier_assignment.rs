@@ -10,7 +10,9 @@ use crate::mir::builder::stmts::{
 };
 use crate::mir::{MirBuilder, ValueId};
 
-use super::preloop_outer_carrier_transaction::CompletedPreloopOuterCarrierCallV1;
+use super::preloop_outer_carrier_transaction::{
+    CompletedPreloopOuterCarrierCallV1, OwnedPreloopOuterCarrierPartsV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum PreloopCarrierAssignmentStageV1 {
@@ -43,6 +45,35 @@ enum RetainedPreloopCarrierAssignmentOwnerV1<'site, 'view, 'catalog> {
 #[derive(Debug)]
 pub(super) struct RejectedPreloopCarrierAssignmentV1<'site, 'view, 'catalog> {
     owner: RetainedPreloopCarrierAssignmentOwnerV1<'site, 'view, 'catalog>,
+    stage: PreloopCarrierAssignmentStageV1,
+    cause: PreloopCarrierAssignmentErrorV1,
+}
+
+#[derive(Debug)]
+pub(super) struct OwnedPreloopCarrierAssignmentPartsV1 {
+    pub(super) carrier: OwnedPreloopOuterCarrierPartsV1,
+    pub(super) assignment: CompletedVariableAssignmentV1,
+}
+
+impl OwnedPreloopCarrierAssignmentPartsV1 {
+    pub(super) fn discard(self) {
+        self.carrier.discard();
+        self.assignment.discard();
+    }
+}
+
+#[derive(Debug)]
+enum OwnedRetainedPreloopCarrierAssignmentOwnerV1 {
+    AssignmentFailure {
+        carrier: OwnedPreloopOuterCarrierPartsV1,
+        assignment: RejectedVariableAssignmentCompletionV1,
+    },
+    Correspondence(OwnedPreloopCarrierAssignmentPartsV1),
+}
+
+#[derive(Debug)]
+pub(super) struct OwnedRejectedPreloopCarrierAssignmentV1 {
+    owner: OwnedRetainedPreloopCarrierAssignmentOwnerV1,
     stage: PreloopCarrierAssignmentStageV1,
     cause: PreloopCarrierAssignmentErrorV1,
 }
@@ -89,6 +120,55 @@ impl RejectedPreloopCarrierAssignmentV1<'_, '_, '_> {
             }
         }
     }
+
+    pub(super) fn into_owned_rejection_v1(self) -> OwnedRejectedPreloopCarrierAssignmentV1 {
+        let owner = match self.owner {
+            RetainedPreloopCarrierAssignmentOwnerV1::AssignmentFailure {
+                carrier,
+                assignment,
+            } => OwnedRetainedPreloopCarrierAssignmentOwnerV1::AssignmentFailure {
+                carrier: carrier.into_owned_parts_v1(),
+                assignment,
+            },
+            RetainedPreloopCarrierAssignmentOwnerV1::Correspondence {
+                carrier,
+                assignment,
+            } => OwnedRetainedPreloopCarrierAssignmentOwnerV1::Correspondence(
+                OwnedPreloopCarrierAssignmentPartsV1 {
+                    carrier: carrier.into_owned_parts_v1(),
+                    assignment,
+                },
+            ),
+        };
+        OwnedRejectedPreloopCarrierAssignmentV1 {
+            owner,
+            stage: self.stage,
+            cause: self.cause,
+        }
+    }
+}
+
+impl OwnedRejectedPreloopCarrierAssignmentV1 {
+    pub(super) const fn stage(&self) -> PreloopCarrierAssignmentStageV1 {
+        self.stage
+    }
+
+    pub(super) const fn cause(&self) -> PreloopCarrierAssignmentErrorV1 {
+        self.cause
+    }
+
+    pub(super) fn discard(self) {
+        match self.owner {
+            OwnedRetainedPreloopCarrierAssignmentOwnerV1::AssignmentFailure {
+                carrier,
+                assignment,
+            } => {
+                carrier.discard();
+                assignment.discard();
+            }
+            OwnedRetainedPreloopCarrierAssignmentOwnerV1::Correspondence(parts) => parts.discard(),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -117,6 +197,13 @@ impl CompletedPreloopCarrierAssignmentV1<'_, '_, '_> {
     pub(super) fn discard(self) {
         self.carrier.discard();
         self.assignment.discard();
+    }
+
+    pub(super) fn into_owned_parts_v1(self) -> OwnedPreloopCarrierAssignmentPartsV1 {
+        OwnedPreloopCarrierAssignmentPartsV1 {
+            carrier: self.carrier.into_owned_parts_v1(),
+            assignment: self.assignment,
+        }
     }
 }
 
