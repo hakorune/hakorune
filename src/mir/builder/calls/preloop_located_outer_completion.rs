@@ -19,7 +19,7 @@ use super::preloop_located_argument_ingress::{
     RejectedPreloopLocatedArgumentIngressV1,
 };
 use super::preloop_located_argument_port::PreloopLocatedArgumentPortV1;
-use super::preloop_nested_result_receipt::ReachedPreloopNestedPhysicalCallV1;
+use super::preloop_nested_result_receipt::ReachedPreloopOuterPhysicalCallV1;
 use super::{drive_call_arguments_v1, lower_call_argument_v1, CallArgumentDescentPortV1};
 
 #[derive(Debug)]
@@ -104,30 +104,48 @@ impl RejectedPreloopLocatedOuterCompletionV1<'_, '_, '_> {
     }
 }
 
-/// Exact inner source/physical authority plus the destination requested by the
-/// existing outer static terminal. The destination is not yet a verified
-/// outer physical Call receipt.
+/// Exact inner source/physical authority plus the successful containing
+/// physical Call receipt.
 #[derive(Debug)]
 pub(super) struct CompletedPreloopLocatedOuterRequestV1<'site, 'view, 'catalog> {
-    inner: ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'catalog>,
-    requested_destination: ValueId,
+    physical: ReachedPreloopOuterPhysicalCallV1<'site, 'view, 'catalog>,
     _seal: CompletedPreloopLocatedOuterRequestSealV1,
 }
 
 #[derive(Debug)]
 struct CompletedPreloopLocatedOuterRequestSealV1;
 
-impl CompletedPreloopLocatedOuterRequestV1<'_, '_, '_> {
+impl<'site, 'view, 'catalog>
+    CompletedPreloopLocatedOuterRequestV1<'site, 'view, 'catalog>
+{
     pub(super) const fn inner_destination(&self) -> ValueId {
-        self.inner.final_destination()
+        self.physical.inner().final_destination()
     }
 
-    pub(super) const fn requested_destination(&self) -> ValueId {
-        self.requested_destination
+    pub(super) fn caller(
+        &self,
+    ) -> &crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
+        self.physical.inner().caller()
+    }
+
+    pub(super) fn outer_site(&self) -> &crate::mir::resolved_semantics::SourceExprSiteV1 {
+        self.physical.inner().outer_site()
+    }
+
+    pub(super) const fn selected_index(&self) -> u32 {
+        self.physical.inner().selected_index()
+    }
+
+    pub(super) fn inner_site(&self) -> &crate::mir::resolved_semantics::SourceExprSiteV1 {
+        self.physical.inner().selected_site()
+    }
+
+    pub(super) const fn outer_destination(&self) -> ValueId {
+        self.physical.outer_destination()
     }
 
     pub(super) fn discard(self) {
-        self.inner.discard();
+        self.physical.discard();
     }
 }
 
@@ -161,10 +179,10 @@ where
     fn into_reached(
         self,
     ) -> Result<
-        ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'catalog>,
+        ReachedPreloopOuterPhysicalCallV1<'site, 'view, 'catalog>,
         RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog>,
     > {
-        self.port.into_reached_physical()
+        self.port.into_reached_outer_physical()
     }
 }
 
@@ -258,7 +276,7 @@ where
     };
 
     let mut completion = PreloopLocatedStaticCompletionV1::new(ordinary, source, syntax.arguments);
-    let requested_destination = match builder.handle_static_method_call_with_descent(
+    let outer_destination = match builder.handle_static_method_call_with_descent(
         &box_name,
         syntax.method,
         syntax.arguments,
@@ -270,7 +288,7 @@ where
                 RetainedPreloopLocatedOuterCompletionV1::Ingress,
                 |reached| {
                     RetainedPreloopLocatedOuterCompletionV1::Ingress(
-                        RejectedPreloopLocatedArgumentIngressV1::after_physical(
+                        RejectedPreloopLocatedArgumentIngressV1::after_outer_physical(
                             reached,
                             PreloopLocatedArgumentIngressStageV1::OuterTerminal,
                             PreloopLocatedArgumentIngressErrorV1::OuterTerminal {
@@ -290,7 +308,7 @@ where
         }
     };
 
-    let inner = completion.into_reached().map_err(|rejected| {
+    let physical = completion.into_reached().map_err(|rejected| {
         let detail = rejected.bounded_report();
         RejectedPreloopLocatedOuterCompletionV1 {
             owner: RetainedPreloopLocatedOuterCompletionV1::Ingress(rejected),
@@ -300,9 +318,9 @@ where
             },
         }
     })?;
+    debug_assert_eq!(outer_destination, physical.outer_destination());
     Ok(CompletedPreloopLocatedOuterRequestV1 {
-        inner,
-        requested_destination,
+        physical,
         _seal: CompletedPreloopLocatedOuterRequestSealV1,
     })
 }

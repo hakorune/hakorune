@@ -61,3 +61,5 @@ mod function_ingress_tests;
 mod source_inventory_tests;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+pub(crate) mod test_support;

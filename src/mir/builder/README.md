@@ -118,9 +118,13 @@ reach into route-specific plan internals. The current boundary SSOT is
   - `calls/preloop_located_outer_completion.rs` projects the catalog-backed
     outer syntax without a RawLegacy clone, requires the existing
     `StaticReceiver` plan, and reuses the sole static handler through
-    `StaticMethodCallCompletionV1`. Its disconnected product retains the inner
-    authority plus only the outer requested ValueId; the verified outer
-    physical receipt belongs to the later carrier transaction.
+    `StaticMethodCallCompletionV1`. Its candidate Port requires the selected
+    inner receipt before calling the source-neutral static/global receipt
+    sibling, then retains both successful physical Calls.
+  - `calls/preloop_outer_carrier_transaction.rs` consumes that complete
+    physical owner with the owned Stage-B body recipe and co-seals caller,
+    outer site, selected index, inner site, and the sealed Integer result. The
+    outer destination is projected only from the outer physical receipt.
   - `calls/method_call_terminal.rs` owns one source-neutral receipt-required
     static/global sibling. It shares `PreparedGlobalValueCallRequestV1` with
     the ordinary terminal and delegates to the existing generic physical Call

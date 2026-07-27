@@ -70,6 +70,7 @@ mod preloop_located_argument_port;
 mod preloop_located_argument_rejection;
 mod preloop_located_outer_completion;
 mod preloop_nested_result_receipt;
+mod preloop_outer_carrier_transaction;
 mod preloop_nested_result_type;
 pub(in crate::mir::builder) use method_call_descent::{
     lower_method_call_argument_v1, AssociatedMethodCallArgumentsV1, LegacyMethodCallArgumentsV1,
@@ -97,6 +98,8 @@ mod preloop_located_argument_ingress_tests;
 mod preloop_located_argument_port_tests;
 #[cfg(test)]
 mod preloop_located_outer_completion_tests;
+#[cfg(test)]
+mod preloop_outer_carrier_transaction_tests;
 #[cfg(test)]
 mod preloop_nested_result_test_support;
 #[cfg(test)]

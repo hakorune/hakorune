@@ -259,6 +259,11 @@ impl PreparedPreloopStageBFunctionBodyRecipeV1 {
     pub(crate) const fn result(&self) -> &SealedPreloopOuterCarrierOwnedResultV1 {
         &self.result
     }
+
+    #[cfg(test)]
+    pub(crate) fn replace_selected_argument_index_for_test(&mut self, index: u32) {
+        self.selected_argument_index = index;
+    }
 }
 
 /// Prepared owned normalization. The pointer identity is construction-only and

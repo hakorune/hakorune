@@ -65,7 +65,7 @@ fn actual_parser_located_outer_uses_existing_static_completion() {
                         .expect("exact located outer completion");
                         assert_ne!(
                             completed.inner_destination(),
-                            completed.requested_destination()
+                            completed.outer_destination()
                         );
 
                         let calls = call_destinations(builder);
@@ -74,8 +74,8 @@ fn actual_parser_located_outer_uses_existing_static_completion() {
                                 && *destination == completed.inner_destination()
                         }));
                         assert!(calls.iter().any(|(symbol, destination)| {
-                            symbol == "ParserStringUtilsBox.skip_ws/2"
-                                && *destination == completed.requested_destination()
+                                symbol == "ParserStringUtilsBox.skip_ws/2"
+                                && *destination == completed.outer_destination()
                         }));
                         let instructions = builder.current_function_instructions();
                         let outer_arguments = instructions
@@ -106,7 +106,7 @@ fn actual_parser_located_outer_uses_existing_static_completion() {
                             builder
                                 .function_state
                                 .type_ctx
-                                .get_type(completed.requested_destination()),
+                                .get_type(completed.outer_destination()),
                             Some(&MirType::Integer),
                             "F3 does not publish the outer Integer fact"
                         );

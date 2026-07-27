@@ -119,6 +119,19 @@ recipe/source drift           -> typed reject
 inner destination != outer destination
 ```
 
+Landed evidence:
+
+```text
+inner receipt preflight before outer emission = 1
+outer physical receipt producer = existing F4 sibling 1
+duplicate outer emission = 0
+outer failure retains exact inner physical owner
+wrong completion terminal = typed retained rejection
+recipe/source/physical co-seal producer = 1
+outer destination from physical receipt only
+assignment / type / production caller = 0
+```
+
 ## F5-B — assignment correspondence
 
 Rows:

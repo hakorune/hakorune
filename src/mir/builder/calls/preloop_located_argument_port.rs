@@ -17,7 +17,9 @@ use crate::mir::{MirBuilder, MirType, TypeOpKind, ValueId};
 
 use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{MethodCallDescentPortV1, MethodCallSyntaxViewV1};
-use super::method_call_terminal::MethodCallValueTerminalPortV1;
+use super::method_call_terminal::{
+    emit_static_global_value_terminal_with_receipt_v1, MethodCallValueTerminalPortV1,
+};
 use super::preloop_located_argument_ingress::{
     lower_selected_preloop_located_argument_v1, PreloopLocatedArgumentIngressErrorV1,
     RejectedPreloopLocatedArgumentIngressV1,
@@ -25,6 +27,7 @@ use super::preloop_located_argument_ingress::{
 use super::preloop_located_argument_rejection::PreloopLocatedArgumentPortErrorV1;
 use super::preloop_nested_result_receipt::{
     EmittedNestedInstanceCallV1, ReachedPreloopNestedPhysicalCallV1,
+    ReachedPreloopOuterPhysicalCallV1,
 };
 use super::CallArgumentDescentPortV1;
 
@@ -37,6 +40,7 @@ pub(super) enum PreloopSelectedArgumentStateV1<'site, 'view, 'catalog> {
     InFlight(PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>),
     Transitioning,
     ReachedPhysical(ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'catalog>),
+    ReachedOuterPhysical(ReachedPreloopOuterPhysicalCallV1<'site, 'view, 'catalog>),
     Emitted(EmittedNestedInstanceCallV1),
     Rejected(RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog>),
 }
@@ -139,6 +143,13 @@ where
             PreloopSelectedArgumentStateV1::ReachedPhysical(reached) => {
                 Err(reached.reject_outer_not_completed())
             }
+            PreloopSelectedArgumentStateV1::ReachedOuterPhysical(reached) => {
+                Err(RejectedPreloopLocatedArgumentIngressV1::after_outer_physical(
+                    reached,
+                    super::preloop_located_argument_ingress::PreloopLocatedArgumentIngressStageV1::Completion,
+                    PreloopLocatedArgumentIngressErrorV1::WrongCompletionTerminal,
+                ))
+            }
             PreloopSelectedArgumentStateV1::Transitioning => {
                 unreachable!("private synchronous pre-loop transition escaped")
             }
@@ -178,14 +189,54 @@ where
                     receipt
                 )
             }
+            PreloopSelectedArgumentStateV1::ReachedOuterPhysical(reached) => {
+                Err(RejectedPreloopLocatedArgumentIngressV1::after_outer_physical(
+                    reached,
+                    super::preloop_located_argument_ingress::PreloopLocatedArgumentIngressStageV1::Completion,
+                    PreloopLocatedArgumentIngressErrorV1::WrongCompletionTerminal,
+                ))
+            }
             PreloopSelectedArgumentStateV1::Transitioning => {
                 unreachable!("private synchronous pre-loop transition escaped")
             }
         }
     }
 
-    /// Use the ordinary static terminal while retaining the exact inner
-    /// physical owner on success. F4 will add the outer physical receipt.
+    pub(super) fn into_reached_outer_physical(
+        self,
+    ) -> Result<
+        ReachedPreloopOuterPhysicalCallV1<'site, 'view, 'catalog>,
+        RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog>,
+    > {
+        match self.selected {
+            PreloopSelectedArgumentStateV1::ReachedOuterPhysical(reached) => Ok(reached),
+            PreloopSelectedArgumentStateV1::Rejected(rejected) => Err(rejected),
+            PreloopSelectedArgumentStateV1::ReachedPhysical(reached) => {
+                Err(reached.reject_outer_not_completed())
+            }
+            PreloopSelectedArgumentStateV1::Armed(source) => {
+                Err(RejectedPreloopLocatedArgumentIngressV1::completion(
+                    source,
+                    PreloopLocatedArgumentIngressErrorV1::SelectedArgumentNotReached,
+                ))
+            }
+            PreloopSelectedArgumentStateV1::InFlight(source) => {
+                Err(RejectedPreloopLocatedArgumentIngressV1::completion(
+                    source,
+                    PreloopLocatedArgumentIngressErrorV1::SelectedArgumentNotCompleted,
+                ))
+            }
+            PreloopSelectedArgumentStateV1::Emitted(receipt) => {
+                unreachable!("outer completion never creates historical receipt: {:?}", receipt)
+            }
+            PreloopSelectedArgumentStateV1::Transitioning => {
+                unreachable!("private synchronous pre-loop transition escaped")
+            }
+        }
+    }
+
+    /// Require the existing source-neutral outer physical receipt while
+    /// retaining the exact selected-inner owner in this Port.
     pub(super) fn finish_outer_static_request_v1(
         &mut self,
         builder: &mut MirBuilder,
@@ -194,28 +245,49 @@ where
         checked_source_arity: u32,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String> {
-        let result = self.ordinary.emit_static_global_value_terminal(
+        if !matches!(
+            self.selected,
+            PreloopSelectedArgumentStateV1::ReachedPhysical(_)
+        ) {
+            return Err(
+                "[preloop-ingress/outer-physical-receipt] inner receipt unavailable".to_owned(),
+            );
+        }
+        let result = emit_static_global_value_terminal_with_receipt_v1(
             builder,
+            &mut self.ordinary,
             owner,
             method,
             checked_source_arity,
             arguments,
         );
-        if let Err(detail) = &result {
-            let previous = std::mem::replace(
-                &mut self.selected,
-                PreloopSelectedArgumentStateV1::Transitioning,
-            );
-            self.selected = match previous {
-                PreloopSelectedArgumentStateV1::ReachedPhysical(reached) => {
-                    PreloopSelectedArgumentStateV1::Rejected(
-                        reached.reject_outer_terminal(detail.clone()),
-                    )
-                }
-                other => other,
-            };
+        let previous = std::mem::replace(
+            &mut self.selected,
+            PreloopSelectedArgumentStateV1::Transitioning,
+        );
+        match (result, previous) {
+            (Ok(outer), PreloopSelectedArgumentStateV1::ReachedPhysical(inner)) => {
+                let destination = outer.final_destination();
+                self.selected = PreloopSelectedArgumentStateV1::ReachedOuterPhysical(
+                    ReachedPreloopOuterPhysicalCallV1::prepare(inner, outer),
+                );
+                Ok(destination)
+            }
+            (Err(cause), PreloopSelectedArgumentStateV1::ReachedPhysical(reached)) => {
+                let report = format!("[preloop-ingress/outer-physical-receipt] {cause:?}");
+                self.selected = PreloopSelectedArgumentStateV1::Rejected(
+                    RejectedPreloopLocatedArgumentIngressV1::after_physical(
+                        reached,
+                        super::preloop_located_argument_ingress::PreloopLocatedArgumentIngressStageV1::OuterTerminal,
+                        PreloopLocatedArgumentIngressErrorV1::OuterPhysicalReceipt(cause),
+                    ),
+                );
+                Err(report)
+            }
+            (Ok(_), _) | (Err(_), _) => {
+                unreachable!("outer receipt preflight guaranteed the reached-inner state")
+            }
         }
-        result
     }
 
     fn arm_selected_token(&mut self) -> Result<PreloopSelectedArgumentTokenV1, String> {

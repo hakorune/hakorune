@@ -45,6 +45,16 @@ impl<'site, 'view, 'catalog> ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'c
         self.source.selected().child().site()
     }
 
+    pub(super) fn caller(
+        &self,
+    ) -> &crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
+        self.source.selected().parent().caller()
+    }
+
+    pub(super) fn outer_site(&self) -> &crate::mir::resolved_semantics::SourceExprSiteV1 {
+        self.source.selected().parent().site()
+    }
+
     pub(super) const fn final_destination(&self) -> ValueId {
         self.physical.final_destination()
     }
@@ -81,6 +91,43 @@ impl<'site, 'view, 'catalog> ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'c
 
     pub(super) fn discard(self) {
         self.source.discard();
+    }
+}
+
+/// Exact selected-inner authority paired with the successful containing
+/// physical Call. The outer destination can only come from `outer`.
+#[derive(Debug)]
+pub(super) struct ReachedPreloopOuterPhysicalCallV1<'site, 'view, 'catalog> {
+    inner: ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'catalog>,
+    outer: CompletedUnifiedValueCallEmissionV1,
+    _seal: ReachedPreloopOuterPhysicalCallSealV1,
+}
+
+#[derive(Debug)]
+struct ReachedPreloopOuterPhysicalCallSealV1;
+
+impl<'site, 'view, 'catalog> ReachedPreloopOuterPhysicalCallV1<'site, 'view, 'catalog> {
+    pub(super) fn prepare(
+        inner: ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'catalog>,
+        outer: CompletedUnifiedValueCallEmissionV1,
+    ) -> Self {
+        Self {
+            inner,
+            outer,
+            _seal: ReachedPreloopOuterPhysicalCallSealV1,
+        }
+    }
+
+    pub(super) const fn inner(&self) -> &ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'catalog> {
+        &self.inner
+    }
+
+    pub(super) const fn outer_destination(&self) -> ValueId {
+        self.outer.final_destination()
+    }
+
+    pub(super) fn discard(self) {
+        self.inner.discard();
     }
 }
 

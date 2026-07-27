@@ -17,7 +17,9 @@ use crate::mir::MirBuilder;
 
 use super::member_route::MemberCallRoutePlan;
 use super::method_call_terminal::emit_standard_value_terminal_with_receipt_v1;
-use super::preloop_nested_result_receipt::ReachedPreloopNestedPhysicalCallV1;
+use super::preloop_nested_result_receipt::{
+    ReachedPreloopNestedPhysicalCallV1, ReachedPreloopOuterPhysicalCallV1,
+};
 use super::receiver_binding::ReceiverNormalizationPlan;
 use super::unified_emitter::UnifiedValueCallReceiptErrorV1;
 use super::{drive_call_arguments_v1, CallArgumentDescentPortV1};
@@ -65,11 +67,13 @@ pub(super) enum PreloopLocatedArgumentIngressErrorV1 {
     UnifiedCallDisabled,
     ArgumentDescent { detail: Box<str> },
     PhysicalReceipt(UnifiedValueCallReceiptErrorV1),
+    OuterPhysicalReceipt(UnifiedValueCallReceiptErrorV1),
     UnifiedTerminal { detail: Box<str> },
     OuterTerminal { detail: Box<str> },
     SelectedArgumentNotReached,
     SelectedArgumentNotCompleted,
     OuterTerminalNotCompleted,
+    WrongCompletionTerminal,
 }
 
 /// Rejection retains the exact source owner in every state. A failure after a
@@ -84,6 +88,11 @@ pub(super) enum RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog> 
     },
     Physical {
         reached: ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'catalog>,
+        stage: PreloopLocatedArgumentIngressStageV1,
+        cause: PreloopLocatedArgumentIngressErrorV1,
+    },
+    OuterPhysical {
+        reached: ReachedPreloopOuterPhysicalCallV1<'site, 'view, 'catalog>,
         stage: PreloopLocatedArgumentIngressStageV1,
         cause: PreloopLocatedArgumentIngressErrorV1,
     },
@@ -126,10 +135,23 @@ impl<'site, 'view, 'catalog> RejectedPreloopLocatedArgumentIngressV1<'site, 'vie
         )
     }
 
+    pub(super) fn after_outer_physical(
+        reached: ReachedPreloopOuterPhysicalCallV1<'site, 'view, 'catalog>,
+        stage: PreloopLocatedArgumentIngressStageV1,
+        cause: PreloopLocatedArgumentIngressErrorV1,
+    ) -> Self {
+        Self::OuterPhysical {
+            reached,
+            stage,
+            cause,
+        }
+    }
+
     pub(super) const fn selected_index(&self) -> u32 {
         match self {
             Self::Source { source, .. } => source.selected().index(),
             Self::Physical { reached, .. } => reached.selected_index(),
+            Self::OuterPhysical { reached, .. } => reached.inner().selected_index(),
         }
     }
 
@@ -137,18 +159,23 @@ impl<'site, 'view, 'catalog> RejectedPreloopLocatedArgumentIngressV1<'site, 'vie
         match self {
             Self::Source { source, .. } => source.selected().child().site(),
             Self::Physical { reached, .. } => reached.selected_site(),
+            Self::OuterPhysical { reached, .. } => reached.inner().selected_site(),
         }
     }
 
     pub(super) const fn stage(&self) -> PreloopLocatedArgumentIngressStageV1 {
         match self {
-            Self::Source { stage, .. } | Self::Physical { stage, .. } => *stage,
+            Self::Source { stage, .. }
+            | Self::Physical { stage, .. }
+            | Self::OuterPhysical { stage, .. } => *stage,
         }
     }
 
     pub(super) const fn cause(&self) -> &PreloopLocatedArgumentIngressErrorV1 {
         match self {
-            Self::Source { cause, .. } | Self::Physical { cause, .. } => cause,
+            Self::Source { cause, .. }
+            | Self::Physical { cause, .. }
+            | Self::OuterPhysical { cause, .. } => cause,
         }
     }
 
@@ -157,6 +184,15 @@ impl<'site, 'view, 'catalog> RejectedPreloopLocatedArgumentIngressV1<'site, 'vie
         match self {
             Self::Source { .. } => None,
             Self::Physical { reached, .. } => Some(reached.final_destination()),
+            Self::OuterPhysical { reached, .. } => Some(reached.inner().final_destination()),
+        }
+    }
+
+    #[cfg(test)]
+    pub(super) const fn retained_outer_destination(&self) -> Option<crate::mir::ValueId> {
+        match self {
+            Self::OuterPhysical { reached, .. } => Some(reached.outer_destination()),
+            Self::Source { .. } | Self::Physical { .. } => None,
         }
     }
 
@@ -184,6 +220,9 @@ impl<'site, 'view, 'catalog> RejectedPreloopLocatedArgumentIngressV1<'site, 'vie
             PreloopLocatedArgumentIngressErrorV1::PhysicalReceipt(cause) => {
                 format!("[preloop-ingress/physical-receipt] {cause:?}")
             }
+            PreloopLocatedArgumentIngressErrorV1::OuterPhysicalReceipt(cause) => {
+                format!("[preloop-ingress/outer-physical-receipt] {cause:?}")
+            }
             PreloopLocatedArgumentIngressErrorV1::UnifiedTerminal { detail } => {
                 format!("[preloop-ingress/unified-terminal] {detail}")
             }
@@ -199,6 +238,10 @@ impl<'site, 'view, 'catalog> RejectedPreloopLocatedArgumentIngressV1<'site, 'vie
             PreloopLocatedArgumentIngressErrorV1::OuterTerminalNotCompleted => {
                 "[preloop-ingress/completion] outer terminal did not complete".to_string()
             }
+            PreloopLocatedArgumentIngressErrorV1::WrongCompletionTerminal => {
+                "[preloop-ingress/completion] wrong completion terminal for outer physical owner"
+                    .to_string()
+            }
         }
     }
 
@@ -206,6 +249,7 @@ impl<'site, 'view, 'catalog> RejectedPreloopLocatedArgumentIngressV1<'site, 'vie
         match self {
             Self::Source { source, .. } => source.discard(),
             Self::Physical { reached, .. } => reached.discard(),
+            Self::OuterPhysical { reached, .. } => reached.discard(),
         }
     }
 }
