@@ -1,6 +1,6 @@
 # PRELOOP-STAGEB-CARRIER F5-F9 execution task
 
-Status: active execution addendum
+Status: bounded source-observation repair active; F8/F9 parked after candidate=1
 
 Parent:
 
@@ -11,7 +11,7 @@ preloop-stageb-instance-function-session-reconciliation0-prime-r1
 Current row:
 
 ```text
-PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0
+SAME-MODULE-CALLABLE-RECEIVER-POLICY0-S0
 ```
 
 ## Closed prerequisites
@@ -36,7 +36,25 @@ F4 commit:
 d9b18cb58d
 ```
 
-## Execution law
+## Current bounded terminal
+
+The current A-prime repair ends at:
+
+```text
+SAME-MODULE-CALLABLE-RECEIVER-POLICY0-S0
+-> STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-S0/P0
+-> PRELOOP-STAGEB-STATIC-CURRENT-OWNER-TARGET0-P0
+-> PRELOOP-STAGEB-SOURCE-INVENTORY0-P0b/G0
+```
+
+Required terminal evidence is one exact actual Parser candidate at `Body(3)`.
+After G0, all candidate-session, Legacy request/compile ingress, F9, and
+retirement-census rows in this card are parked. The current pointer returns to
+`OWN-GRAM-REJECT0`.
+
+They may be reselected only if the unchanged ownership gate proves one of
+them is a direct prerequisite. Discovery inside this card does not extend the
+bounded terminal.
 
 The remaining chain is:
 
@@ -692,7 +710,8 @@ atomic same-allocation catalog + alias install
 preinstalled-root shell
 ```
 
-Before that consumer is added, close two bounded correspondence rows:
+The following rows remain designed but parked after the bounded source
+inventory terminal:
 
 ```text
 PRELOOP-STAGEB-UNAVAILABLE-DISPOSITION0-S0/P0

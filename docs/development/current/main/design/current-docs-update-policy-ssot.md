@@ -219,6 +219,36 @@ stop, the next active blocker must be one of:
 - a measured perf or smoke result that changes the selected owner;
 - an explicit closeout that parks the lane.
 
+## Unlocked Product Row First
+
+```text
+Decision:
+  UNLOCKED-PRODUCT-ROW-FIRST-v1
+```
+
+Once a product-facing row's named prerequisites are green, a later-discovered
+nonblocking proof, repair, cleanup, or cleanliness finding gets zero inserted
+active rows ahead of it.
+
+One already-accepted bounded detour may finish only through one predeclared
+terminal. New findings inside that detour may not extend its terminal. A
+detour may preempt again only when the selected product row's unchanged exact
+gate proves that detour is a direct prerequisite; the card must name the
+failing owner and the return row.
+
+The current bounded detour is:
+
+```text
+STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-prime-r1
+  -> PRELOOP-STAGEB-SOURCE-INVENTORY0-G0
+  -> park Stage-B
+  -> OWN-GRAM-REJECT0
+```
+
+Candidate count one is correspondence evidence. It is not permission to
+continue a candidate session, production ingress, or unrelated cleanup before
+the ownership gate is rerun.
+
 Do not create a second consecutive docs-only card for the same blocker unless
 one of these is true:
 

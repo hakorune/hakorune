@@ -1,6 +1,6 @@
 ---
-Status: Accepted taskboard; D0 inventory closed; production activation 0
-Date: 2026-07-15
+Status: Accepted taskboard; D0 guard refresh closed; OWN-GRAM resume selected after bounded detour
+Date: 2026-07-28
 Decision: Explicit-move/share, owner-anchored sparse ownership surface
 Source semantics SSOT: ../../../../reference/language/ownership.md
 Current lane: follow CURRENT_STATE.toml
@@ -210,11 +210,20 @@ It does not patch the ownership task inside the normal-entry route.
 
 ### D0 closeout
 
-The 2026-07-26 D0 inventory found no ownership semantic drift. It did find
-stale Binding/Ownership SSA proof anchors after accepted F1/draft-seal and
-normal-callable structure work. The active follow-up is the behavior-neutral
-`OWNERSHIP-SPARSE-RESUME-D0-GUARD-REFRESH0` card. `OWN-GRAM-REJECT0` remains
-locked until that receipt series is green.
+The 2026-07-26 D0 inventory found no ownership semantic drift. The
+behavior-neutral `OWNERSHIP-SPARSE-RESUME-D0-GUARD-REFRESH0` receipt is green;
+no ownership prerequisite remains locked.
+
+One already-accepted source-observation repair may finish through
+`PRELOOP-STAGEB-SOURCE-INVENTORY0-G0`. Its terminal proves one exact actual
+Parser candidate without activating a production consumer. The next selected
+product-facing row is then `OWN-GRAM-REJECT0`; later Stage-B and cleanliness
+rows remain parked until `OWNERSHIP-SPARSE-PRODUCT-READINESS-D0`.
+
+If the unchanged OWN-GRAM Hako gate fails specifically because the parked
+selected-candidate session is absent, that exact failure may reopen only the
+required Stage-B owner and must return here afterward. Candidate count one
+alone is not that evidence.
 
 ### 2.2 Execution packs
 

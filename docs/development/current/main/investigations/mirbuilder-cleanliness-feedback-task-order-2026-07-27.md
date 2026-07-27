@@ -6,7 +6,9 @@ Source:
   - GLM-5.2 / Claude review feedback
 Current-lane relation:
   - CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0 is closed
-  - CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0 remains active
+  - A-prime source observation may finish only through Stage-B source inventory G0
+  - OWN-GRAM-REJECT0 and ownership Packs A-E follow
+  - all cleanliness families remain parked until ownership product readiness
   - this card does not change CURRENT_STATE.toml
 ---
 
@@ -358,23 +360,28 @@ cross-route matrix covers every named row = 1
 ## Priority
 
 ```text
-P0 current:
-  exact Stage-B probe only
-
-P1 next safe cleanup window:
+parked until OWNERSHIP-SPARSE-PRODUCT-READINESS-D0:
   RAW-LEGACY-METHOD-INPUT-ALLOW0-S0
   -> CLOSURE-DESCRIPTOR-COMMENT0-S0
 
-P2 history cleanup:
   AI-COLLABORATION-CREDITS0-S0
   -> AI-COMMENT-SEMANTIC0-S0
 
-P3 policy migrations:
   UNIFIED-CALL-MODE-SUNSET-CENSUS0-P0
   -> its D0/retirement series
 
   CALL-BOX-KIND-POLICY-CENSUS0-P0
   -> its D0/migration series
+
+current finite detour:
+  STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-prime-r1
+  -> PRELOOP-STAGEB-SOURCE-INVENTORY0-G0
+
+next product row:
+  OWN-GRAM-REJECT0
+
+finite macro goal:
+  OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
 ```
 
 M2 and L2 may be audited in parallel, but their implementations must not share

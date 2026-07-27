@@ -1,13 +1,16 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-STATIC-CURRENT-OWNER-CORRESPONDENCE0-P0 is closed read-only. The actual missing authority is StringHelpers.to_i64/1 Body(12).LoopBody(2).Initializer(0): me._digit_value(ch) is rejected because three catalog-backed consumers map StaticBoxMethod to ReceiverPolicyV1::Absent. The existing current-owner target sealer is sufficient; a second walker, manual target, name/site selection, and Builder policy are unnecessary. The mandatory design stop is STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0."
-date = "2026-07-27"
+status = "STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-prime-r1 accepts A-prime. The finite repair centralizes the catalog receiver policy, admits observation-only me.method(...) for StaticBoxMethod without a lexical receiver, and ends at PRELOOP-STAGEB-SOURCE-INVENTORY0-G0 with actual Parser candidate count one. Stage-B candidate-session/production rows and cleanliness stay parked there; OWN-GRAM-REJECT0 resumes toward OWNERSHIP-SPARSE-PRODUCT-READINESS-D0."
+date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0"
-current_execution_row = "STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0"
-current_execution_summary = "Choose the sole source authority for me.method(...) inside an ordinary static-box method. Recommended A-prime adds a catalog-issued observation-only StaticCurrentOwner context to the existing FunctionSyntaxView/shadow traversal, without creating an instance receiver binding. Reject by-name/site target injection, a second walker, and broad DeclaredInstance semantics."
+current_design_stop = "none"
+current_execution_row = "SAME-MODULE-CALLABLE-RECEIVER-POLICY0-S0"
+current_execution_summary = "Implement one catalog namespace to source receiver policy authority. StaticBoxMethod projects StaticCurrentOwner and InstanceBoxMethod projects DeclaredInstance. Migrate the three catalog-backed consumers and fixture mapping without changing traversal behavior in this row."
+current_bounded_terminal = "PRELOOP-STAGEB-SOURCE-INVENTORY0-G0"
+post_terminal_return_row = "OWN-GRAM-REJECT0"
+finite_product_goal = "OWNERSHIP-SPARSE-PRODUCT-READINESS-D0"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -638,7 +641,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0"
+current_blocker_token = "SAME-MODULE-CALLABLE-RECEIVER-POLICY0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

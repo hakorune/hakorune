@@ -1,13 +1,66 @@
 ---
-Status: design consultation required
-Date: 2026-07-27
-Decision: STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0
+Status: accepted; bounded execution active
+Date: 2026-07-28
+Decision: STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-prime-r1
+Choice: A-prime
 ceremony_tier: T2
 Blocks:
   - PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION-CORRESPONDENCE0-P0
 ---
 
 # Static current-owner MethodCall observation
+
+## Accepted closeout
+
+```text
+Decision:
+  STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-prime-r1
+
+Status:
+  accepted
+
+Choice:
+  A-prime
+
+Semantic scope:
+  static box ordinary methodの
+  `me.method(...)` receiver observation only
+
+Lexical receiver binding:
+  0
+
+General bare `me`:
+  0
+
+First executable row:
+  SAME-MODULE-CALLABLE-RECEIVER-POLICY0-S0
+```
+
+This closes `STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0`. The execution
+series below is a finite repair, not permission to continue the Stage-B
+candidate-session or production-ingress series.
+
+## Finite execution goal
+
+```text
+terminal:
+  PRELOOP-STAGEB-SOURCE-INVENTORY0-G0
+
+required terminal evidence:
+  StringHelpers.to_i64/1 = ExactI64
+  ParserBox.static_const_eval_pos/1 = ExactI64
+  actual complete candidate count = 1
+  selected outer row = Body(3)
+  loop-refresh = parked
+  candidate-session production consumer = 0
+
+after terminal:
+  park Stage-B
+  resume OWN-GRAM-REJECT0
+
+macro goal:
+  OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
+```
 
 ## Question
 
@@ -156,8 +209,11 @@ existing nested/outer Stage-B contracts
 catalog namespace mismatch
   -> typed pre-Builder rejection
 
-StaticCurrentOwner outside catalog-backed view
-  -> constructor unavailable
+StaticCurrentOwner production producer
+  -> shared catalog policy exact 1
+
+direct StaticCurrentOwner construction outside shared policy/tests
+  -> structural guard rejection
 
 bare/non-receiver me under StaticCurrentOwner
   -> existing bounded source-observation rejection
@@ -207,19 +263,14 @@ STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0-CLOSEOUT
    traversal = existing 1
    second walker / by-name / ordinal / manual target = 0
 
--> PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION-CORRESPONDENCE0-P0
--> PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-D0
--> PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-S0-A/B/C
--> PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-P0/G0
--> PRELOOP-STAGEB-LEGACY-WHOLE-SOURCE-REQUEST0-I0
--> PRELOOP-STAGEB-LEGACY-ORDINARY0-P0
--> PRELOOP-STAGEB-COMPILE-REQUEST-INGRESS0-I0/P0/G0
--> CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0
--> PRELOOP-INNER-TYPE-PROOF-CENSUS0-P0
+-> park the remaining Stage-B rows
+-> OWN-GRAM-REJECT0
+-> ownership Pack A / B / C / D / E
+-> OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
 ```
 
-The candidate-session D0 recommendation already established by read-only
-audit is:
+The parked candidate-session D0 recommendation already established by
+read-only audit remains:
 
 ```text
 brand-free isolated Builder candidate core
@@ -227,8 +278,9 @@ brand-free isolated Builder candidate core
 selected-Legacy outer transaction
 ```
 
-It remains parked until the actual source selector produces one exact
-candidate.
+Candidate count one is necessary but does not automatically reactivate this
+session. Resume `OWN-GRAM-REJECT0` first. The parked session may preempt only
+when the unchanged ownership gate proves its absence is a direct prerequisite.
 
 ## Structural gate
 
@@ -267,22 +319,17 @@ Alias / View language work
 VM / LLVM / backend change
 ```
 
-## Required answer
+## Goal completion law
 
 ```text
-Decision:
-  STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-prime-r1
+this repair complete:
+  PRELOOP-STAGEB-SOURCE-INVENTORY0-G0 green
 
-Status:
-  accepted | revised | rejected
+not required:
+  selected candidate session
+  compile_request production consumer
+  real Stage-B activation
 
-Choice:
-  A-prime | B | C | D
-
-If A-prime:
-  static current owner is observation-only
-  no lexical instance receiver binding
-  catalog namespace is the sole producer
-  first executable row =
-    SAME-MODULE-CALLABLE-RECEIVER-POLICY0-S0
+next selected product row:
+  OWN-GRAM-REJECT0
 ```
