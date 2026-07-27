@@ -13,8 +13,9 @@ mod source_inventory_error;
 
 #[allow(unused_imports)]
 pub(crate) use activation::{
-    prepare_preloop_stageb_carrier_rows_v1, OwnedPreloopStageBCarrierRowV1,
-    PreparedPreloopStageBFunctionBodyRecipeV1, VerifiedPreloopStageBCarrierActivationPlanV1,
+    prepare_preloop_stageb_carrier_rows_v1, OwnedPreloopCarrierAssignmentTargetV1,
+    OwnedPreloopStageBCarrierRowV1, PreparedPreloopStageBFunctionBodyRecipeV1,
+    VerifiedPreloopStageBCarrierActivationPlanV1,
 };
 #[allow(unused_imports)]
 pub(crate) use candidate_selection::{

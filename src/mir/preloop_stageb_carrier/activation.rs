@@ -3,13 +3,12 @@
 //! Borrowed source proofs are normalized before the declaration catalog moves
 //! into the plan. The resulting row carries no AST borrow or Builder authority.
 
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, DeclarationAttrs};
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationCatalogV1,
 };
-use crate::mir::resolved_semantics::{
-    SourceExprSiteV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
-};
+use crate::mir::resolved_semantics::{SourceExprSiteV1, SourcePathSegmentV1, SourceStmtSiteV1};
+use crate::mir::source_call_target::RawSourceCursorErrorV1;
 use crate::mir::source_instance_result_contract::OwnedNestedInstanceResultRebindWitnessV1;
 use std::sync::Arc;
 
@@ -20,7 +19,9 @@ pub(crate) enum PreloopOuterCarrierActivationShapeErrorV1 {
     OuterCallMustBeRootAssignmentValue,
     SelectedStatementIndexOverflow,
     SelectedStatementUnavailable,
+    SelectedStatementSourceCursor(RawSourceCursorErrorV1),
     SelectedStatementMustBeAssignment,
+    SelectedStatementMustBeVariableAssignment,
     OuterCallSyntaxMismatch,
     BodyStatementCountOverflow,
 }
@@ -89,12 +90,39 @@ impl SealedPreloopOuterCarrierOwnedResultV1 {
     }
 }
 
+/// Exact assignment target issued while the selected source statement is
+/// still paired with its catalog-backed source view.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct OwnedPreloopCarrierAssignmentTargetV1 {
+    name: Box<str>,
+    _seal: OwnedPreloopCarrierAssignmentTargetSealV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct OwnedPreloopCarrierAssignmentTargetSealV1(());
+
+impl OwnedPreloopCarrierAssignmentTargetV1 {
+    fn new(name: &str) -> Self {
+        Self {
+            name: name.into(),
+            _seal: OwnedPreloopCarrierAssignmentTargetSealV1(()),
+        }
+    }
+
+    pub(crate) const fn name(&self) -> &str {
+        &self.name
+    }
+}
+
 /// One owned activation row. Its existence proves the complete bounded source
 /// relation; it does not select or lower a production function.
 #[derive(Debug)]
 pub(crate) struct OwnedPreloopStageBCarrierRowV1 {
     caller: CanonicalSameModuleCallableKeyV1,
     body_handoff: PreloopStageBBodyHandoffV1,
+    assignment_target: OwnedPreloopCarrierAssignmentTargetV1,
+    uses: Box<[String]>,
+    attrs: DeclarationAttrs,
     outer_call_site: SourceExprSiteV1,
     selected_argument_index: u32,
     inner_call_site: SourceExprSiteV1,
@@ -109,6 +137,9 @@ pub(crate) struct OwnedPreloopStageBCarrierRowV1 {
 pub(crate) struct PreparedPreloopStageBFunctionBodyRecipeV1 {
     caller: CanonicalSameModuleCallableKeyV1,
     body_handoff: PreloopStageBBodyHandoffV1,
+    assignment_target: OwnedPreloopCarrierAssignmentTargetV1,
+    uses: Box<[String]>,
+    attrs: DeclarationAttrs,
     outer_call_site: SourceExprSiteV1,
     selected_argument_index: u32,
     inner_call_site: SourceExprSiteV1,
@@ -133,6 +164,18 @@ impl OwnedPreloopStageBCarrierRowV1 {
 
     pub(crate) const fn outer_call_site(&self) -> &SourceExprSiteV1 {
         &self.outer_call_site
+    }
+
+    pub(crate) const fn assignment_target(&self) -> &OwnedPreloopCarrierAssignmentTargetV1 {
+        &self.assignment_target
+    }
+
+    pub(crate) fn uses(&self) -> &[String] {
+        &self.uses
+    }
+
+    pub(crate) const fn attrs(&self) -> &DeclarationAttrs {
+        &self.attrs
     }
 
     pub(crate) const fn selected_argument_index(&self) -> u32 {
@@ -163,6 +206,9 @@ impl OwnedPreloopStageBCarrierRowV1 {
             recipe: PreparedPreloopStageBFunctionBodyRecipeV1 {
                 caller: self.caller,
                 body_handoff: self.body_handoff,
+                assignment_target: self.assignment_target,
+                uses: self.uses,
+                attrs: self.attrs,
                 outer_call_site: self.outer_call_site,
                 selected_argument_index: self.selected_argument_index,
                 inner_call_site: self.inner_call_site,
@@ -184,6 +230,18 @@ impl PreparedPreloopStageBFunctionBodyRecipeV1 {
 
     pub(crate) const fn outer_call_site(&self) -> &SourceExprSiteV1 {
         &self.outer_call_site
+    }
+
+    pub(crate) const fn assignment_target(&self) -> &OwnedPreloopCarrierAssignmentTargetV1 {
+        &self.assignment_target
+    }
+
+    pub(crate) fn uses(&self) -> &[String] {
+        &self.uses
+    }
+
+    pub(crate) const fn attrs(&self) -> &DeclarationAttrs {
+        &self.attrs
     }
 
     pub(crate) const fn selected_argument_index(&self) -> u32 {
@@ -286,22 +344,37 @@ pub(crate) fn prepare_preloop_stageb_carrier_rows_v1<'result, 'site, 'view, 'cat
     };
     let prepared = contract.prepared_source();
     let view = prepared.selected().parent().view();
-    let Some(statement) = view
-        .declaration()
-        .body()
-        .get(selected_statement_index_usize)
-    else {
-        return Err(reject_rows(
-            contract,
-            PreloopOuterCarrierActivationShapeErrorV1::SelectedStatementUnavailable,
-        ));
+    let body = view.root_body();
+    let statement = match view.body_stmt(&body, selected_statement_index_usize) {
+        Ok(statement) => statement,
+        Err(RawSourceCursorErrorV1::BodyIndexOutOfBounds { .. }) => {
+            return Err(reject_rows(
+                contract,
+                PreloopOuterCarrierActivationShapeErrorV1::SelectedStatementUnavailable,
+            ))
+        }
+        Err(cause) => {
+            return Err(reject_rows(
+                contract,
+                PreloopOuterCarrierActivationShapeErrorV1::SelectedStatementSourceCursor(cause),
+            ))
+        }
     };
-    let ASTNode::Assignment { value, .. } = statement else {
+    let ASTNode::Assignment { target, value, .. } = statement.node() else {
         return Err(reject_rows(
             contract,
             PreloopOuterCarrierActivationShapeErrorV1::SelectedStatementMustBeAssignment,
         ));
     };
+    let ASTNode::Variable { name, .. } = target.as_ref() else {
+        return Err(reject_rows(
+            contract,
+            PreloopOuterCarrierActivationShapeErrorV1::SelectedStatementMustBeVariableAssignment,
+        ));
+    };
+    let assignment_target = OwnedPreloopCarrierAssignmentTargetV1::new(name);
+    let uses = view.declaration().uses().to_vec().into_boxed_slice();
+    let attrs = view.declaration().attrs().clone();
     if !std::ptr::eq(value.as_ref(), prepared.selected().parent().node()) {
         return Err(reject_rows(
             contract,
@@ -325,7 +398,7 @@ pub(crate) fn prepare_preloop_stageb_carrier_rows_v1<'result, 'site, 'view, 'cat
     };
     let catalog_identity = view.catalog() as *const _ as usize;
     let caller = contract.caller().clone();
-    let selected_statement = SourcePathV1::root_body(selected_statement_index_usize).stmt();
+    let selected_statement = statement.site().clone();
     let selected_argument_index = contract.selected_argument_index();
     let inner_call_site = contract.inner_site().clone();
     let outer_target = contract.target().clone();
@@ -341,6 +414,9 @@ pub(crate) fn prepare_preloop_stageb_carrier_rows_v1<'result, 'site, 'view, 'cat
                 suffix_statement_start,
                 body_statement_count,
             },
+            assignment_target,
+            uses,
+            attrs,
             outer_call_site,
             selected_argument_index,
             inner_call_site,

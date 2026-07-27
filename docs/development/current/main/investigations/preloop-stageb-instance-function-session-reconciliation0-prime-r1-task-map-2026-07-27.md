@@ -411,6 +411,8 @@ This card closes D1. No code behavior changes.
 PRELOOP-STAGEB-INSTANCE-DECLARATION-RECIPE0-S0
 ```
 
+Status: closed
+
 Implement:
 
 ```text
@@ -426,6 +428,19 @@ non-empty uses retained exactly
 non-default attrs retained exactly
 catalog reorder parity unchanged
 default ordinary lowering parity unchanged
+```
+
+Landed evidence:
+
+```text
+verified catalog row retains exact uses / DeclarationAttrs
+metadata remains paired with canonical rows across declaration reorder
+selected statement is issued by the existing catalog-backed source view
+variable assignment target is privately sealed as
+  OwnedPreloopCarrierAssignmentTargetV1
+field assignment target rejects at OwnedRow / BodyHandoff
+function-ingress recipe retains target / uses / attrs
+Builder / Call / type / production behavior delta = 0
 ```
 
 ### F2 — generic function payload session

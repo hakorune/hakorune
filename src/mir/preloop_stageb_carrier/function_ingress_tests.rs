@@ -2,6 +2,7 @@
 
 use std::sync::Arc;
 
+use crate::ast::{ASTNode, RuneAttr};
 use crate::mir::builder::preloop_stageb_context_install::PreparedPreloopStageBAliasInstallV1;
 use crate::mir::builder::{MirBuilder, VerifiedSameModuleCallableDeclarationCatalogV1};
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
@@ -29,7 +30,32 @@ fn selected_ingress() -> (
     Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
     super::PreparedPreloopStageBFunctionIngressV1,
 ) {
-    let ast = NyashParser::parse_from_string(SOURCE).expect("Stage-B ingress source");
+    let mut ast = NyashParser::parse_from_string(SOURCE).expect("Stage-B ingress source");
+    let ASTNode::Program { statements, .. } = &mut ast else {
+        panic!("Stage-B ingress Program")
+    };
+    let run = statements
+        .iter_mut()
+        .find_map(|statement| match statement {
+            ASTNode::BoxDeclaration { name, methods, .. } if name == "Caller" => {
+                methods.values_mut().find(|method| {
+                    matches!(
+                        method,
+                        ASTNode::FunctionDeclaration { name, .. } if name == "run"
+                    )
+                })
+            }
+            _ => None,
+        })
+        .expect("Caller.run declaration");
+    let ASTNode::FunctionDeclaration { uses, attrs, .. } = run else {
+        unreachable!()
+    };
+    *uses = vec!["rawbuf".to_string()];
+    attrs.runes.push(RuneAttr {
+        name: "Inline".to_string(),
+        args: vec!["prefer".to_string()],
+    });
     let catalog = Arc::new(
         VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&ast)
             .expect("Stage-B ingress catalog"),
@@ -65,6 +91,15 @@ fn selected_activation_reconstructs_one_stack_local_located_argument() {
     let inner = ingress.recipe().inner_call_site().clone();
     let target = ingress.recipe().outer_target().clone();
     let selected_index = ingress.recipe().selected_argument_index();
+    assert_eq!(ingress.recipe().assignment_target().name(), "pos");
+    assert_eq!(ingress.recipe().uses(), ["rawbuf"]);
+    assert_eq!(
+        ingress.recipe().attrs().runes,
+        [RuneAttr {
+            name: "Inline".to_string(),
+            args: vec!["prefer".to_string()],
+        }]
+    );
 
     let observed = ingress
         .with_prepared_located_argument(|located, recipe| {

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION-RECONCILIATION0-D1 is closed. The R1-R3 authority decisions remain closed; F1 extends their declaration transport only. R4 audits proved three implementation constraints: the exact declaration recipe must retain uses/attrs; the selected outer RawLocated MethodCall needs one source-neutral completion seam rather than RawLegacy conversion; and the outer Call receipt, assignment correspondence, and Integer publication must complete before suffix GenericLoop descent. The active row is PRELOOP-STAGEB-INSTANCE-DECLARATION-RECIPE0-S0. The reconciled F1-F9 series closes declaration transport, generic payload session, located outer completion, outer receipt/assignment/type, selected function session, ledger, sole Legacy compile-request ingress, and the real Stage-B guard in dependency order. Retry/fallback, second dispatchers, Builder source maps, direct value_types writes, and Alias/View or loop-refresh activation remain forbidden."
+status = "PRELOOP-STAGEB-INSTANCE-DECLARATION-RECIPE0-S0 is closed. The verified callable declaration row now retains exact uses and DeclarationAttrs; reorder preserves their canonical-row pairing. The selected root statement is issued through the existing catalog-backed source view, accepts only a variable Assignment target, and seals OwnedPreloopCarrierAssignmentTargetV1 beside the function-ingress recipe. Field targets reject before Builder effects. Ordinary instance preparation, Builder, Call, type, and production behavior remain unchanged. The active row is PRELOOP-STAGEB-FUNCTION-PAYLOAD-SESSION0-S0."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-INSTANCE-DECLARATION-RECIPE0-S0"
-current_execution_summary = "Complete the existing verified callable declaration row and Stage-B function recipe with exact uses, DeclarationAttrs, and the exact selected variable-assignment target. This is behavior-neutral declaration transport only: do not fabricate defaults, add a second metadata policy, activate a production caller, change ordinary lowering, add Call receipts/type publication, or begin the selected function session. The next rows are the generic payload session, exact located outer completion, outer receipt/assignment/type transaction, then the selected function session."
+current_execution_row = "PRELOOP-STAGEB-FUNCTION-PAYLOAD-SESSION0-S0"
+current_execution_summary = "Add one generic payload/error sibling over the existing CanonicalFunctionLoweringSessionV1 restoration kernel. It must retain an unpublished MirFunction plus owned payload P, preserve typed Primary / CleanupAfterSuccess / DuringCleanup owners, and restore the parent exactly once. Make the existing Result<MirFunction, String> terminal a P=() adapter. Do not use an external mutable Option slot, add retry/resume/draft escape, begin located outer completion, activate production, emit Call receipts, or publish types."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -638,7 +638,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-INSTANCE-DECLARATION-RECIPE0-S0"
+current_blocker_token = "PRELOOP-STAGEB-FUNCTION-PAYLOAD-SESSION0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

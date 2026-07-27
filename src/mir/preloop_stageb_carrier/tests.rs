@@ -267,6 +267,9 @@ fn owned_activation_plan_retains_one_exact_root_assignment_schedule() {
     let row = plan.row();
     assert_eq!(row.caller().owner(), "ParserBox");
     assert_eq!(row.caller().name(), "static_const_parse_add");
+    assert_eq!(row.assignment_target().name(), "pos");
+    assert!(row.uses().is_empty());
+    assert!(row.attrs().is_empty());
     assert_eq!(row.outer_call_site().node().segments().len(), 2);
     assert_eq!(row.selected_argument_index(), 1);
     assert_eq!(row.inner_call_site().node().segments().len(), 3);

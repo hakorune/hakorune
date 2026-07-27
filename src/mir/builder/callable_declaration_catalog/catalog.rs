@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::ast::{ASTNode, ParamDecl};
+use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
 use super::{
     CanonicalSameModuleCallableKeyV1, SameModuleCallableDeclarationCatalogErrorV1,
@@ -15,6 +15,8 @@ pub(crate) struct VerifiedSameModuleCallableDeclarationV1 {
     param_decls: Box<[ParamDecl]>,
     return_type_name: Option<Box<str>>,
     body: Box<[ASTNode]>,
+    uses: Box<[String]>,
+    attrs: DeclarationAttrs,
 }
 
 #[cfg_attr(not(test), allow(dead_code))]
@@ -37,6 +39,14 @@ impl VerifiedSameModuleCallableDeclarationV1 {
 
     pub(crate) fn body(&self) -> &[ASTNode] {
         &self.body
+    }
+
+    pub(crate) fn uses(&self) -> &[String] {
+        &self.uses
+    }
+
+    pub(crate) const fn attrs(&self) -> &DeclarationAttrs {
+        &self.attrs
     }
 }
 
@@ -112,6 +122,8 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                     param_decls,
                     return_type_name,
                     body,
+                    uses,
+                    attrs,
                     ..
                 } = declaration
                 else {
@@ -166,6 +178,8 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                     param_decls: param_decls.clone().into_boxed_slice(),
                     return_type_name: return_type_name.clone().map(String::into_boxed_str),
                     body: body.clone().into_boxed_slice(),
+                    uses: uses.clone().into_boxed_slice(),
+                    attrs: attrs.clone(),
                 };
                 if rows_by_key.insert(key.clone(), row).is_some() {
                     return Err(

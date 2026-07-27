@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
+use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, RuneAttr, Span};
 
 use super::*;
 
@@ -175,6 +175,39 @@ fn separates_instance_rows_from_static_candidate_lookup() {
 }
 
 #[test]
+fn retains_exact_uses_and_declaration_attrs() {
+    let mut method = instance_function("run", &[("x", Some("i64"))], Some("i64"));
+    let ASTNode::FunctionDeclaration { uses, attrs, .. } = &mut method else {
+        unreachable!()
+    };
+    *uses = vec!["rawbuf".to_string(), "atomic".to_string()];
+    attrs.runes.push(RuneAttr {
+        name: "Inline".to_string(),
+        args: vec!["prefer".to_string()],
+    });
+
+    let source = program(vec![instance_box("Worker", vec![method])]);
+    let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&source).unwrap();
+    let declaration = catalog
+        .declaration_for(
+            SameModuleCallableNamespaceV1::InstanceBoxMethod,
+            "Worker",
+            "run",
+            1,
+        )
+        .expect("exact instance declaration");
+
+    assert_eq!(declaration.uses(), &["rawbuf", "atomic"]);
+    assert_eq!(
+        declaration.attrs().runes,
+        [RuneAttr {
+            name: "Inline".to_string(),
+            args: vec!["prefer".to_string()],
+        }]
+    );
+}
+
+#[test]
 fn root_seal_preserves_program_single_box_and_expression_surfaces() {
     let static_root = static_box("Static", vec![static_function("run", &[], None)]);
     let static_catalog =
@@ -204,30 +237,47 @@ fn root_seal_preserves_program_single_box_and_expression_surfaces() {
 
 #[test]
 fn declaration_reorder_preserves_normalized_inventory() {
+    let attributed = |mut function: ASTNode, capability: &str, hint: &str| {
+        let ASTNode::FunctionDeclaration { uses, attrs, .. } = &mut function else {
+            unreachable!()
+        };
+        uses.push(capability.to_string());
+        attrs.runes.push(RuneAttr {
+            name: "Hint".to_string(),
+            args: vec![hint.to_string()],
+        });
+        function
+    };
+    let beta = attributed(
+        instance_function("read", &[("x", None)], None),
+        "rawbuf",
+        "hot",
+    );
+    let alpha = attributed(
+        static_function("run", &[("x", None)], None),
+        "atomic",
+        "cold",
+    );
     let left = program(vec![
-        instance_box(
-            "Beta",
-            vec![instance_function("read", &[("x", None)], None)],
-        ),
-        static_box("Alpha", vec![static_function("run", &[("x", None)], None)]),
+        instance_box("Beta", vec![beta.clone()]),
+        static_box("Alpha", vec![alpha.clone()]),
     ]);
     let right = program(vec![
-        static_box("Alpha", vec![static_function("run", &[("x", None)], None)]),
-        instance_box(
-            "Beta",
-            vec![instance_function("read", &[("x", None)], None)],
-        ),
+        static_box("Alpha", vec![alpha]),
+        instance_box("Beta", vec![beta]),
     ]);
     let normalized = |source: &ASTNode| {
-        VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(source)
-            .unwrap()
-            .keys()
-            .map(|key| {
+        let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(source).unwrap();
+        catalog
+            .declarations()
+            .map(|(key, declaration)| {
                 (
                     key.namespace(),
                     key.owner().to_string(),
                     key.name().to_string(),
                     key.arity(),
+                    declaration.uses().to_vec(),
+                    declaration.attrs().clone(),
                 )
             })
             .collect::<Vec<_>>()
