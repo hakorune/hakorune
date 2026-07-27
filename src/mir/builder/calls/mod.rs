@@ -90,6 +90,10 @@ mod preloop_located_argument_ingress_tests;
 #[cfg(test)]
 mod preloop_located_argument_port_tests;
 #[cfg(test)]
+mod preloop_nested_result_test_support;
+#[cfg(test)]
+mod preloop_nested_result_type_p0_tests;
+#[cfg(test)]
 mod preloop_nested_result_type_tests;
 pub mod receiver_binding; // Step 4: Receiver ('me'/'this') normalization and binding
 mod reserved_method_route; // shared reserved-route policy adapter + selected dispatch

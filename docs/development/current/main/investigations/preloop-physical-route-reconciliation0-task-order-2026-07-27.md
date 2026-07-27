@@ -672,6 +672,44 @@ The next row is `CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-P0`. It connects this
 terminal only inside the existing production-prefix proof matrix and must
 retain zero production callers.
 
+### TYPE-I0-P0 closeout
+
+`CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-P0` is closed.
+
+The existing exact source-association setup is now one shared test-only
+factory rather than a third copied source descent. The production-prefix
+matrix proves:
+
+```text
+destination fact None / stored Unknown
+  -> exact Integer publication
+
+destination fact Integer
+  -> exact Integer remains, second policy/write path = 0
+
+destination fact Bool
+  -> typed conflict
+  -> Bool retained
+  -> fixture candidate discarded
+  -> fresh production-prefix fixture succeeds
+
+inner physical Call failure
+  -> emitted receipt = 0
+  -> nested result fact delta = 0
+
+inner success + outer terminal failure
+  -> emitted nested receipt = 0
+  -> retained physical destination has no Integer publication
+```
+
+The shared fixture extraction reduces the existing ingress proof files from
+640/282 to 577/236 lines. The new shared factory and TYPE P0 matrix are 85/183
+lines. Focused TYPE and ingress test families, `cargo check --lib`, the
+current-state pointer guard, and diff check are green.
+
+The next row is `CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-G0`. It extends only
+the existing callable-result and type-fact guards; no new wrapper is allowed.
+
 Do not create a new guard script. Extend the existing callable-result guard
 with the receipt consumer/decision/writer and P0 evidence, and add this writer
 to the existing type-fact partition guard. The original ingress, port, and

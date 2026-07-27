@@ -8,14 +8,6 @@ use crate::ast::ASTNode;
 use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 use crate::mir::callable_result_representation::actual_parser_add_fixture;
 use crate::mir::definitions::call_unified::TypeCertainty;
-use crate::mir::resolved_semantics::ExprChildRoleV1;
-use crate::mir::source_call_target::{
-    VerifiedRawCallableSourceViewV1, VerifiedSourceMethodCallSiteV1,
-};
-use crate::mir::source_instance_result_contract::{
-    prepare_preloop_located_argument_v1, prepare_preloop_nested_result_association_v1,
-    seal_nested_instance_result_contract, VerifiedCurrentOwnerInstanceResultTargetV1,
-};
 use crate::mir::value_kind::MirValueKind;
 use crate::mir::{Callee, MirBuilder, MirInstruction, MirModule, MirType};
 
@@ -24,6 +16,7 @@ use super::method_call_descent::RawLegacyMethodCallInputV1;
 use super::preloop_located_argument_port::{
     PreloopLocatedArgumentPortV1, PreloopSelectedArgumentStateV1,
 };
+use super::preloop_nested_result_test_support::with_prepared_preloop;
 
 fn ordinary_copy_root(
     instructions: &[MirInstruction],
@@ -50,55 +43,16 @@ fn ordinary_copy_root(
 fn configured_preloop_ingress_reaches_existing_inner_and_outer_call_terminals() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
-        actual_parser_add_fixture::with_instance_result_contract_inputs(
-            |catalog, caller, sites, _targets, results| {
-                let call =
-                    VerifiedSourceMethodCallSiteV1::verify(catalog, caller, sites[0].clone())
-                        .expect("selected pre-loop source MethodCall");
-                let target = VerifiedCurrentOwnerInstanceResultTargetV1::seal(&call)
-                    .expect("selected pre-loop target");
-                let proof = results
-                    .issue_unannotated_body_proof(target.target())
-                    .expect("selected pre-loop Integer proof");
-                let contract = seal_nested_instance_result_contract(target, proof)
-                    .expect("selected pre-loop Integer contract");
-
-                let view = VerifiedRawCallableSourceViewV1::verify(catalog, caller)
-                    .expect("catalog-backed Raw source view");
-                let body = view.root_body();
-                let statement = view.body_stmt(&body, 3).expect("Body(3)");
-                let outer = view
-                    .child_expr_from_stmt(&statement, ExprChildRoleV1::AssignmentValue)
-                    .expect("Body(3).Value");
-                let inner = view
-                    .child_expr_from_expr(&outer, ExprChildRoleV1::CallArgument(1))
-                    .expect("Body(3).Value.Argument(1)");
-                let association = prepare_preloop_nested_result_association_v1(
-                    contract,
-                    view.method_call_input(&inner)
-                        .expect("located inner MethodCall"),
-                )
-                .expect("exact pre-loop association");
-                let outer_call = view
-                    .method_call_input(&outer)
-                    .expect("located outer MethodCall");
-                let outer_receiver = outer_call.receiver().clone();
-                let outer_method = outer_call.method().to_string();
-                let outer_arguments = outer_call.arguments().to_vec();
-                let selected = view
-                    .method_call_argument(outer_call, 1)
-                    .expect("structural Argument(1)");
-                let prepared = prepare_preloop_located_argument_v1(selected, association)
-                    .expect("exact outer/inner relation");
-
+        with_prepared_preloop(
+            |prepared,
+             outer_input,
+             outer_receiver,
+             outer_method,
+             _outer_arguments,
+             _selected_site| {
                 // The outer compatibility transport is permitted. The selected
                 // inner MethodCall itself remains located and never re-enters the
                 // Raw dispatcher.
-                let outer_input = RawLegacyMethodCallInputV1::new(
-                    outer_receiver.clone(),
-                    outer_method.clone(),
-                    outer_arguments,
-                );
 
                 let mut builder = MirBuilder::new();
                 builder.current_module =

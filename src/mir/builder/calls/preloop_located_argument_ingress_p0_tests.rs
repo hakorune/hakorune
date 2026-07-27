@@ -12,15 +12,6 @@ use crate::mir::builder::recursive_child_lowering::{
     RawFunctionHeaderLookupPortV1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 use crate::mir::callable_result_representation::actual_parser_add_fixture;
-use crate::mir::resolved_semantics::{ExprChildRoleV1, SourceExprSiteV1};
-use crate::mir::source_call_target::{
-    VerifiedRawCallableSourceViewV1, VerifiedSourceMethodCallSiteV1,
-};
-use crate::mir::source_instance_result_contract::{
-    prepare_preloop_located_argument_v1, prepare_preloop_nested_result_association_v1,
-    seal_nested_instance_result_contract, PreparedPreloopLocatedArgumentV1,
-    VerifiedCurrentOwnerInstanceResultTargetV1,
-};
 use crate::mir::{
     BasicBlockId, Callee, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirInstruction,
     MirModule, MirType, TypeOpKind, ValueId,
@@ -43,6 +34,7 @@ use super::preloop_located_argument_ingress::{
 use super::preloop_located_argument_port::{
     PreloopLocatedArgumentPortV1, PreloopSelectedArgumentStateV1,
 };
+use super::preloop_nested_result_test_support::with_prepared_preloop;
 use super::CallArgumentDescentPortV1;
 
 fn integer(value: i64) -> ASTNode {
@@ -78,73 +70,6 @@ fn synthetic_rejection_builder(bind_ret: bool) -> MirBuilder {
     }
     builder.bind_variable_for_test("me", me);
     builder
-}
-
-fn with_prepared_preloop<R>(
-    f: impl for<'site, 'view, 'catalog> FnOnce(
-        PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>,
-        RawLegacyMethodCallInputV1,
-        ASTNode,
-        String,
-        Vec<ASTNode>,
-        SourceExprSiteV1,
-    ) -> R,
-) -> R {
-    actual_parser_add_fixture::with_instance_result_contract_inputs(
-        |catalog, caller, sites, _targets, results| {
-            let call = VerifiedSourceMethodCallSiteV1::verify(catalog, caller, sites[0].clone())
-                .expect("selected pre-loop source MethodCall");
-            let target = VerifiedCurrentOwnerInstanceResultTargetV1::seal(&call)
-                .expect("selected pre-loop target");
-            let proof = results
-                .issue_unannotated_body_proof(target.target())
-                .expect("selected pre-loop Integer proof");
-            let contract = seal_nested_instance_result_contract(target, proof)
-                .expect("selected pre-loop Integer contract");
-
-            let view = VerifiedRawCallableSourceViewV1::verify(catalog, caller)
-                .expect("catalog-backed Raw source view");
-            let body = view.root_body();
-            let statement = view.body_stmt(&body, 3).expect("Body(3)");
-            let outer = view
-                .child_expr_from_stmt(&statement, ExprChildRoleV1::AssignmentValue)
-                .expect("Body(3).Value");
-            let inner = view
-                .child_expr_from_expr(&outer, ExprChildRoleV1::CallArgument(1))
-                .expect("Body(3).Value.Argument(1)");
-            let association = prepare_preloop_nested_result_association_v1(
-                contract,
-                view.method_call_input(&inner)
-                    .expect("located inner MethodCall"),
-            )
-            .expect("exact pre-loop association");
-            let outer_call = view
-                .method_call_input(&outer)
-                .expect("located outer MethodCall");
-            let outer_receiver = outer_call.receiver().clone();
-            let outer_method = outer_call.method().to_string();
-            let outer_arguments = outer_call.arguments().to_vec();
-            let outer_input = RawLegacyMethodCallInputV1::new(
-                outer_receiver.clone(),
-                outer_method.clone(),
-                outer_arguments.clone(),
-            );
-            let selected = view
-                .method_call_argument(outer_call, 1)
-                .expect("structural Argument(1)");
-            let prepared = prepare_preloop_located_argument_v1(selected, association)
-                .expect("exact outer/inner relation");
-
-            f(
-                prepared,
-                outer_input,
-                outer_receiver,
-                outer_method,
-                outer_arguments,
-                sites[0].clone(),
-            )
-        },
-    )
 }
 
 fn call_count(builder: &MirBuilder) -> usize {
@@ -338,6 +263,8 @@ fn production_prefix_physical_inner_call_failure_retains_source_without_receipt(
                             let calls_before = call_count(builder);
                             builder.function_state.current_block = None;
                             let mut ordinary = RawLegacyChildLoweringPortV1;
+                            let type_facts_before =
+                                builder.function_state.type_ctx.value_types.clone();
                             let rejected = lower_selected_preloop_located_argument_v1(
                                 builder,
                                 &mut ordinary,
@@ -356,6 +283,11 @@ fn production_prefix_physical_inner_call_failure_retains_source_without_receipt(
                                     super::unified_emitter::UnifiedValueCallReceiptErrorV1::Emission { detail }
                                 ) if detail.as_ref() == "No current basic block"
                             ));
+                            assert_eq!(
+                                builder.function_state.type_ctx.value_types,
+                                type_facts_before,
+                                "failed physical Call must not publish a nested result fact"
+                            );
                             rejected.discard();
                             Err::<(ValueId, ()), _>(
                                 "[preloop-fixture/physical-call-failure]".to_string(),
@@ -627,6 +559,11 @@ fn production_prefix_outer_failure_retains_source_and_physical_receipt() {
                                 rejected.retained_physical_destination(),
                                 Some(inner_destination),
                                 "outer failure retains the exact inner physical receipt"
+                            );
+                            assert_ne!(
+                                builder.function_state.type_ctx.get_type(inner_destination),
+                                Some(&MirType::Integer),
+                                "outer failure must not publish the nested Integer fact"
                             );
                             rejected.discard();
                             let ret = builder.function_state.variable_ctx.variable_map["ret"];
