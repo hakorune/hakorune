@@ -30,6 +30,7 @@ pub(in crate::mir) mod capability;
 #[allow(dead_code)]
 pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;
+mod legacy_candidate_session;
 mod legacy_module_activation;
 #[allow(dead_code)]
 mod legacy_source_selection;
@@ -142,6 +143,8 @@ mod drain_policy_p0;
 mod external_commit_p0;
 #[cfg(test)]
 mod finite_direct_call_tests;
+#[cfg(test)]
+mod legacy_candidate_session_tests;
 #[cfg(test)]
 mod module_postprocess_failure_p0;
 #[cfg(test)]
@@ -367,9 +370,10 @@ impl MirCompiler {
     ) -> Result<SourceBoundRawPackageV1, RejectedRawSourceBindingV1> {
         let config = match disposition {
             crate::mir::compiler::raw_public_ingress::RawPublicImportDispositionV1::None => {
-                BuilderInvocationConfigV1::snapshot_for_raw_without_imports(
+                BuilderInvocationConfigV1::snapshot_for_raw_with_imports(
                     &self.builder,
                     source_file,
+                    std::collections::HashMap::new(),
                 )
             }
         };
@@ -441,8 +445,11 @@ impl MirCompiler {
         source_file: Option<&str>,
         imports: std::collections::HashMap<String, String>,
     ) -> Result<MirCompileResult, String> {
-        self.builder.comp_ctx.set_using_import_boxes(imports);
-        self.compile_legacy_request(LegacyModuleLoweringInputV1::bare_ast(ast), source_file)
+        self.compile_legacy_request(
+            LegacyModuleLoweringInputV1::bare_ast(ast),
+            source_file,
+            imports,
+        )
     }
 
     /// Compile syntax that carries a verified canonical source-unit seal.
@@ -536,16 +543,16 @@ impl MirCompiler {
         input: LegacyModuleLoweringInputV1,
         source_file: Option<&str>,
     ) -> Result<MirCompileResult, String> {
-        self.builder.comp_ctx.clear_using_import_boxes();
-        self.compile_legacy_request(input, source_file)
+        self.compile_legacy_request(input, source_file, std::collections::HashMap::new())
     }
 
     fn compile_legacy_request(
         &mut self,
         input: LegacyModuleLoweringInputV1,
         source_file: Option<&str>,
+        imports: std::collections::HashMap<String, String>,
     ) -> Result<MirCompileResult, String> {
-        self.compile_request(MirLoweringRequestV1::Legacy(input), source_file)
+        self.compile_request(MirLoweringRequestV1::Legacy { input, imports }, source_file)
             .map_err(MirLoweringRequestErrorV1::into_legacy)
     }
 
@@ -559,9 +566,9 @@ impl MirCompiler {
             MirLoweringRequestV1::Resolved(input) => self
                 .compile_resolved_first_family(input, source_file)
                 .map_err(MirLoweringRequestErrorV1::Canonical),
-            MirLoweringRequestV1::Legacy(input) => {
+            MirLoweringRequestV1::Legacy { input, imports } => {
                 let (ast, _legacy_origin) = input.into_parts();
-                self.compile_with_source_internal(ast, source_file)
+                self.compile_legacy_candidate(ast, source_file, imports)
                     .map_err(MirLoweringRequestErrorV1::Legacy)
             }
         }
@@ -642,25 +649,6 @@ impl MirCompiler {
             module: result.module,
             verification_result: Ok(()),
         })
-    }
-
-    fn compile_with_source_internal(
-        &mut self,
-        ast: crate::ast::ASTNode,
-        source_file: Option<&str>,
-    ) -> Result<MirCompileResult, String> {
-        if let Some(src) = source_file {
-            self.builder.set_source_file_hint(src.to_string());
-        } else {
-            self.builder.clear_source_file_hint();
-        }
-
-        // Convert AST to MIR using builder
-        let stage_start = Instant::now();
-        let module = self.builder.build_module(ast)?;
-        super::compile_timing::trace_stage("build_module", stage_start.elapsed());
-
-        self.finish_built_module(module, MirFinishScheduleV1::Legacy)
     }
 
     fn finish_built_module(

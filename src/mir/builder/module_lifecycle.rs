@@ -781,6 +781,7 @@ impl super::MirBuilder {
             )?;
         }
 
+        self.function_state = Default::default();
         Ok(module)
     }
 

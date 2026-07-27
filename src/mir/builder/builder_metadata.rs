@@ -33,7 +33,7 @@ impl MirBuilder {
 
     /// Resolve current source file hint from metadata_ctx, then explicit env hint.
     /// Phase 136 Step 6/7: Delegate to metadata_ctx
-    pub(super) fn current_source_file(&self) -> Option<String> {
+    pub(in crate::mir) fn current_source_file(&self) -> Option<String> {
         self.metadata_ctx
             .current_source_file()
             .or_else(|| crate::config::env::builder_source_file_hint())

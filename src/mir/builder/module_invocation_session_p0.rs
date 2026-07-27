@@ -1,5 +1,7 @@
 //! CUT0-I0-SESSION0 fixtures for the disconnected Builder transaction.
 
+use std::collections::HashMap;
+
 use super::module_invocation_session::{
     BuilderCommitReadinessErrorV1, BuilderCoreIdSeedV1, BuilderCoreSeedPolicyV1,
     BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
@@ -178,8 +180,11 @@ fn snapshot_installs_all_explicit_builder_inputs() {
 fn raw_public_snapshot_forces_empty_imports_without_mutating_live() {
     let live = advanced_builder();
     let before_imports = live.comp_ctx.using_import_boxes.clone();
-    let config =
-        BuilderInvocationConfigV1::snapshot_for_raw_without_imports(&live, Some("raw-public.hako"));
+    let config = BuilderInvocationConfigV1::snapshot_for_raw_with_imports(
+        &live,
+        Some("raw-public.hako"),
+        HashMap::new(),
+    );
 
     assert!(config.using_import_boxes().is_empty());
     assert_eq!(config.source_file(), Some("raw-public.hako"));

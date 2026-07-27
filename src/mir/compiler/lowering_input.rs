@@ -261,7 +261,10 @@ impl std::error::Error for CanonicalLoweringErrorV1 {}
 
 pub(super) enum MirLoweringRequestV1<'a> {
     Resolved(ResolvedModuleLoweringInputV1<'a>),
-    Legacy(LegacyModuleLoweringInputV1),
+    Legacy {
+        input: LegacyModuleLoweringInputV1,
+        imports: std::collections::HashMap<String, String>,
+    },
 }
 
 pub(super) enum MirLoweringRequestErrorV1 {

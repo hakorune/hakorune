@@ -27,12 +27,12 @@ new owner
 ## Current front
 
 ```text
-MODULE-CANDIDATE-SESSION-CUTOVER0-I0-R0
+MIRBUILDER-NEXT-EDGE-DESIGN-STOP
 ```
 
-default compiler ingressのlive Builder mutationを、isolated candidateと
-success-only replacementへ交換する。既存Legacy lifecycle/verifierを再利用し、
-失敗時にlive Builderを変更しない。
+三つの固定cutoverはclosed。shared ledgerに第四のexact production edgeが
+まだ無いため、caller/new owner/delete target/parity gate/LOC repaymentを
+一組で選ぶまでcode editを停止する。
 
 ## First three replacements
 
@@ -114,10 +114,10 @@ Keep only these counters current:
 
 ```text
 macro_packs_closed                 = 0 / 8
-live_replacement_cells_closed      = 2
-replacement_ledger_remaining       = 1 scheduled row
-detached_assets_remaining          = 3 recorded rows
-legacy_production_edges_remaining  = 1 scheduled edge
+live_replacement_cells_closed      = 3
+replacement_ledger_remaining       = 0 scheduled rows
+detached_assets_remaining          = 2 recorded rows
+legacy_production_edges_remaining  = 0 scheduled edges
 ```
 
 LOC and file counts are supporting evidence, not semantic authority. The
@@ -141,6 +141,15 @@ CALLABLE-DRAFT-COLLECTOR-CUTOVER0
   fallback / retry            = 0
   production Rust LOC         = +153
   two-cell rolling Rust LOC   = -49
+
+MODULE-CANDIDATE-SESSION-CUTOVER0
+  default production callers  = 1
+  live pre-success mutation   = 0
+  failed-candidate mutation   = 0
+  selected old callers        = 0
+  fallback / retry            = 0
+  production Rust LOC         = +44
+  three-cell rolling Rust LOC = -5
 ```
 
 ## Parked

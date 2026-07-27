@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. CALLABLE-DRAFT-COLLECTOR-CUTOVER0 closed the second real I0/R0: ordinary root callable drafts now remain unpublished in one ModuleDraftCollectorV1 until one atomic insertion, direct per-function production publication is zero, collision publishes no prefix, and the two-cell production Rust total remains net -49 lines. The next fixed replacement moves default compilation to an isolated candidate Builder with success-only live replacement."
+status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. MODULE-CANDIDATE-SESSION-CUTOVER0 closed the third fixed I0/R0: default Legacy compilation now builds and finishes in one isolated candidate, replaces the live Builder only after success, retains zero old live-build or fallback edges, and keeps the three-cell production Rust total net -5 lines. The shared ledger has no fourth exact production edge, so execution stops at next-edge design selection."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "MODULE-CANDIDATE-SESSION-CUTOVER0-I0-R0"
-current_execution_summary = "Rewire the default compiler ingress from live Builder module mutation to an isolated candidate Builder that reuses the existing Legacy prepare/lower/finalize and verifier lifecycle, then replace live state only after success; delete the selected live-mutation entry with no fallback."
+current_design_stop = "docs/development/current/main/investigations/mirbuilder-next-edge-design-stop-2026-07-28.md"
+current_execution_row = "MIRBUILDER-NEXT-EDGE-DESIGN-STOP"
+current_execution_summary = "Select one exact fourth production replacement row from the fixed macro-pack order. No code edit is authorized until caller, new owner, delete target, parity gate, and LOC repayment are fixed together."
 finite_product_goal = "MIRBUILDER-INPLACE-REPLACEMENT0"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
@@ -437,9 +437,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "mirbuilder-inplace-replacement0-task-map-2026-07-28"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-latest_card_summary = """MIRBUILDER-INPLACE-REPLACEMENT0 restores the proven descent migration law: I0 means an actual existing production caller switch, R0 removes the selected old path immediately, and P0 proves parity after cutover. The callable-draft port and collector cells are closed: ordinary drafts use port-aware descent, stay unpublished until one atomic batch insertion, retain zero selected direct publication callers and zero fallback, and keep the two-cell production Rust total net negative. The candidate Builder session cutover is next."""
+latest_card = "mirbuilder-next-edge-design-stop-2026-07-28"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-next-edge-design-stop-2026-07-28.md"
+latest_card_summary = """The three fixed MirBuilder production cutovers are closed with a three-cell production Rust total of -5. The shared manifest has no fourth scheduled production edge. Stop before code changes and select one exact caller, replacement owner, delete target, parity gate, and LOC repayment boundary from the fixed macro-pack order."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -642,7 +642,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MODULE-CANDIDATE-SESSION-CUTOVER0-I0-R0"
+current_blocker_token = "MIRBUILDER-NEXT-EDGE-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
@@ -683,6 +683,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-28: MODULE-CANDIDATE-SESSION-CUTOVER0-I0-R0 closes the third fixed in-place production replacement. Default Legacy requests own source/import inputs before opening one ModuleBuilderInvocationSessionV1; build and compiler finish touch only the candidate, and the existing prepared external commit replaces live state after success. Failed candidates leave all live config/core cursors unchanged, reuse is green, old live build-module and fallback edges are zero. Successful module finalization closes function-local state. Collector parity exposed and repaired an exact-numeric/typed-array field classification leak; dynamic contract, constant proof, and verifier range rejection tests are green. Shared/pointer guards, cargo check, focused suites, diff check, and all touched files under 800 lines are green. Production Rust is +44 for this cell and -5 across three cells. MIRBUILDER-NEXT-EDGE-DESIGN-STOP is current.",
   "2026-07-28: CALLABLE-DRAFT-COLLECTOR-CUTOVER0-I0-R0 closes the second restored in-place production replacement. One ordinary root-local ModuleDraftCollectorV1 now owns static/free, instance, constructor, optional callable Main, and nested raw callable drafts until the root lifecycle drains the complete set through one try_add_functions_atomic call. The old direct per-function production publication edge is zero; a collision fixture proves no collected prefix is published; fallback/retry is zero. The root-only extension reuses existing raw child ports and retains only the canonical instance observation required by the parked Stage-B adapter. Focused existing tests are 63/63 green, cargo check and shared/pointer guards are green, every modified source file is below 800 lines, production Rust is +153 for this cell and -49 across the two closed cells. MODULE-CANDIDATE-SESSION-CUTOVER0-I0-R0 is next.",
   "2026-07-28: CALLABLE-DRAFT-PORT-CUTOVER0-I0-R0 closes the first restored in-place production replacement. The ordinary static/free and instance/constructor callable closures now create RawLegacyChildLoweringPortV1 and consume the existing port-aware draft owner before the unchanged Legacy finalizer/session publication. build_static_method_draft_v1, build_instance_method_draft_v1, lower_function_body, lower_method_body, and the unused disconnected port-aware protocol shell are deleted. New production callers=2, selected old callers=0, fallback/retry=0, focused callable/loop/Call/constructor tests are green, the shared replacement manifest/guard is live, and production Rust changes by -202 lines. CALLABLE-DRAFT-COLLECTOR-CUTOVER0-I0-R0 is next.",
   "2026-07-27: PRELOOP-STAGEB-INSTANCE-METHOD-CAPTURE-SEAM0-S0 closes F7-1. The shared post-catalog root kernel lends every source-order instance method to one stack-scoped InstanceMethodCapturePortV1; its ordinary adapter delegates to the existing lower_method_as_function terminal. A focused real root proves exactly one Worker.run/1 observation and unchanged materialization. Raw-port, module-activation, F6 session, structural guard, cargo check, diff check, and <800-line checks are green. Exact-caller ledger I0 is next; selected policy, collector admission, compile_request, retry/fallback, catalog reseal, and module publication remain zero.",
@@ -694,5 +695,4 @@ landed_tail = [
   "2026-07-26: NORMAL-CALLABLE-MODULE0-R0-S0 closes in 26d714da0c and 3670b7f14f. One inventory and deterministic SCC partition select Acyclic or Recursive directly; recursive SCC plus leaf, Main-to-recursive target, declaration reorder, owner-preserving profile rejection, and success-rejection-success are green. Acyclic-error-to-recursive retry, second inventory/partition, Builder/MIR/backend callers, and fallback remain zero. TX0 is next and owns one Main/helpers/physical-thunk atomic candidate.",
   "2026-07-26: NORMAL-CALLABLE-MODULE0-A0-S0 closes in 9a42606151 and 1e8a8dfde5. One original Program and catalog continuation resolve helper bodies; the normal-specific borrowed plan admits one-helper/zero-edge and finite DAGs, rejects self/cycles, retains owner evidence after helper failure, and co-seals Main/helper brand/target/cardinality without widening the frozen historical acyclic proof. R0 is next and must select topology once without Acyclic-to-Recursive retry.",
   "2026-07-26: NORMAL-MAIN-DIRECT-CALL0-S0 closes in 043274ac6c and 8cf87877be. Borrow-only catalog preparation keeps the complete Program until infallible commits; one resolver continuation issues helper and Main owners under one brand; call-free and finite exact Main calls use the borrowed helper index and existing F1/value-profile owners. Main catalog membership, AST rewrite, retry/fallback, Builder/MIR/backend callers, and files >=800 lines remain zero. NORMAL-CALLABLE-MODULE0-A0-S0 is next.",
-  "2026-07-25: PARITY0-EFFECT-prime-r1 closes the first exact parity repair. Raw BODY0 root main now emits EffectMask::PURE like the Legacy root contract; the focused BODY0 skeleton witness, deterministic empty-Script Legacy-vs-Raw snapshot, cargo check, diff check, and pointer guard are green. PARITY0 resumes as test-only; normal/JSON/executor/old-Raw/CUT0 remain disconnected.",
 ]

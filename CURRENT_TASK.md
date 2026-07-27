@@ -21,8 +21,9 @@ Run heavier gates only when the active card requires them. Current scope,
 acceptance, parked items, and non-claims belong in the active card and the
 workstream SSOT, not this pointer.
 
-When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new
-executable owner from historical mirrors. When it names an implementation
+When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executable owner from historical mirrors.
+Do not keep the goal open until the frontier names a concrete next executable
+row; stop at the consultation boundary. When the token names an implementation
 row, follow only the `latest_card_path` contract.
 
 ## Handoff

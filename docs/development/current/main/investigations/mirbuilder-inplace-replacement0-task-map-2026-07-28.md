@@ -214,6 +214,8 @@ or publication policy.
 
 ### `MODULE-CANDIDATE-SESSION-CUTOVER0-I0-R0`
 
+Status: closed on 2026-07-28.
+
 Exchange:
 
 ```text
@@ -240,6 +242,39 @@ failed candidate leaves live Builder unchanged= 1
 old live build-module entry                  = 0
 fallback to old live path                    = 0
 compiler reuse parity                        = green
+```
+
+Closeout:
+
+```text
+default compile production caller             = 1
+live Builder mutation before successful finish= 0
+failed candidate leaves live Builder unchanged= 1
+old live build-module entry                   = 0
+fallback to old live path                     = 0
+compiler reuse parity                         = green
+production Rust LOC delta                     = +44
+three-cell rolling production Rust LOC        = -5
+```
+
+The Legacy request owns source and imports before opening one
+`ModuleBuilderInvocationSessionV1`. Build and compiler finish operate only on
+its candidate; the existing prepared external commit replaces the live
+Builder after success. Successful module finalization now closes
+function-local Builder state at its own terminal.
+
+Collector parity also exposed a pre-existing field-write classification leak:
+exact numeric fields were entering the typed-array carrier lane and losing
+their `FieldSet`. Typed-array admission is now annotation-exact, and semantic
+numeric range rejection remains verifier authority rather than a carrier
+rebuild failure. Dynamic range contracts, constant proofs, and out-of-range
+verification are green.
+
+The next production edge is not named by the current ledger. Selection stops
+at:
+
+```text
+docs/development/current/main/investigations/mirbuilder-next-edge-design-stop-2026-07-28.md
 ```
 
 ## Macro pack order

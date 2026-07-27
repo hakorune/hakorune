@@ -222,8 +222,7 @@ mod module_invocation_callable_batch; // CUT0-I0-COLLECT0-BATCH0 source/co-seal
 mod module_invocation_collect0_s0_p0; // CUT0-I0-COLLECT0-S0 fixtures
 #[allow(dead_code)]
 mod module_invocation_collection; // CUT0-I0-COLLECT0-S0 co-seal terminal
-#[allow(dead_code)]
-mod module_invocation_session; // CUT0-I0-SESSION0 disconnected Builder transaction
+mod module_invocation_session; // Shared isolated Builder transaction
 pub(in crate::mir) use module_invocation_session::{
     BuilderCommitReadinessErrorV1, BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
     PreparedBuilderExternalCommitV1, PreparedBuilderModuleSessionV1,

@@ -1,8 +1,8 @@
 //! CUT0-I0-SESSION0: explicit Builder invocation configuration and session.
 //!
-//! This is a disconnected transaction owner. It snapshots persistent Builder
-//! inputs once, installs them into a candidate, and commits only through a
-//! single consuming terminal. No compiler ingress uses this box yet.
+//! It snapshots persistent Builder inputs once, installs them into a candidate,
+//! and commits only through a single consuming terminal. The default Legacy
+//! compiler ingress and the explicit source-bound routes share this owner.
 
 use std::collections::HashMap;
 
@@ -96,16 +96,14 @@ impl BuilderInvocationConfigV1 {
         config
     }
 
-    /// PUBLIC-INGRESS-CONFIG0: Raw bare-source requests own no imports.
-    ///
-    /// This preserves the live Builder as-is while preventing a reused
-    /// compiler's ambient import aliases from entering the candidate.
-    pub(in crate::mir) fn snapshot_for_raw_without_imports(
+    /// Capture request-owned imports without reading ambient live aliases.
+    pub(in crate::mir) fn snapshot_for_raw_with_imports(
         current: &MirBuilder,
         source_file: Option<&str>,
+        using_import_boxes: HashMap<String, String>,
     ) -> Self {
         let mut config = Self::snapshot_with_policy(current, BuilderCoreSeedPolicyV1::ContinueLive);
-        config.using_import_boxes.clear();
+        config.using_import_boxes = using_import_boxes;
         config.source_file = source_file.map(str::to_owned);
         config
     }
@@ -373,7 +371,7 @@ impl ModuleBuilderInvocationSessionV1 {
         })
     }
 
-    pub(in crate::mir::builder) fn prepare_external_commit(
+    pub(in crate::mir) fn prepare_external_commit(
         self,
     ) -> Result<PreparedBuilderExternalCommitV1, BuilderCommitReadinessErrorV1> {
         let prepared = self

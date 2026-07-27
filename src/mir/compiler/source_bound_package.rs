@@ -743,9 +743,9 @@ impl InvocationIdentityIssuerV1 {
         self.issue_family(family_for_route(route))
     }
 
-    /// RAW-SOURCE0-BIND0: Raw may mint only after its source continuation has
-    /// been sealed by the compiler-owned binding terminal.  Callers cannot
-    /// select a generic family and this method is not a public issuer API.
+    /// Mint one Raw-family token after the compiler has selected an exact
+    /// Legacy or source-bound Raw request. Callers cannot select a generic
+    /// family and this method is not a public issuer API.
     pub(super) fn issue_raw(&mut self) -> Result<ModuleInvocationTokenV1, SourceBindingErrorV1> {
         self.issue_family(ModuleInvocationFamilyV1::Raw)
     }

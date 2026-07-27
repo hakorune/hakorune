@@ -244,6 +244,14 @@ impl super::MirBuilder {
                 .map(Vec::as_slice),
         );
         let contract_identity = self.declared_field_contract_identity(object_value, &field);
+        let is_typed_array = contract_identity
+            .as_ref()
+            .and_then(|(_, _, declared)| declared.as_deref())
+            .map(crate::typed_array_contract_spec::parse_annotation)
+            .transpose()?
+            .flatten()
+            .is_some();
+        let contract_identity = is_typed_array.then_some(contract_identity).flatten();
         let has_contract_identity = contract_identity.is_some();
         let mut is_known_weak = false;
         let ordinary_receipt = match route {

@@ -9,6 +9,9 @@ MANIFEST="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-inp
 LOWERING="$ROOT_DIR/src/mir/builder/calls/lowering.rs"
 PORT_OWNER="$ROOT_DIR/src/mir/builder/port_aware_function_draft_impl.rs"
 MODULE_LIFECYCLE="$ROOT_DIR/src/mir/builder/module_lifecycle.rs"
+COMPILER="$ROOT_DIR/src/mir/compiler/mod.rs"
+LEGACY_CANDIDATE="$ROOT_DIR/src/mir/compiler/legacy_candidate_session.rs"
+MODULE_SESSION="$ROOT_DIR/src/mir/builder/module_invocation_session.rs"
 
 guard_require_command "$TAG" awk
 guard_require_command "$TAG" rg
@@ -18,7 +21,10 @@ guard_require_files \
   "$MANIFEST" \
   "$LOWERING" \
   "$PORT_OWNER" \
-  "$MODULE_LIFECYCLE"
+  "$MODULE_LIFECYCLE" \
+  "$COMPILER" \
+  "$LEGACY_CANDIDATE" \
+  "$MODULE_SESSION"
 
 expected_header=$'record_kind\tid\tpack\tproduction_caller\tnew_owner\tdelete_target\tparity_gate\tdisposition\tstate'
 actual_header="$(head -n1 "$MANIFEST")"
@@ -55,6 +61,16 @@ collector_row_count="$(awk -F '\t' '
 ' "$MANIFEST")"
 if [[ "$collector_row_count" != "1" ]]; then
   guard_fail "$TAG" "callable collector cutover must have one closed manifest row"
+fi
+
+candidate_row_count="$(awk -F '\t' '
+  $1 == "cell" &&
+  $2 == "MODULE-CANDIDATE-SESSION-CUTOVER0" &&
+  $9 == "closed" { count += 1 }
+  END { print count + 0 }
+' "$MANIFEST")"
+if [[ "$candidate_row_count" != "1" ]]; then
+  guard_fail "$TAG" "module candidate cutover must have one closed manifest row"
 fi
 
 for symbol in \
@@ -101,10 +117,35 @@ do
   fi
 done
 
+for retired_edge in \
+  compile_with_source_internal \
+  'self.builder.build_module'
+do
+  if rg -n -F "$retired_edge" "$COMPILER" >/dev/null; then
+    guard_fail "$TAG" "live compiler build edge returned: $retired_edge"
+  fi
+done
+
+while IFS=$'\t' read -r file symbol expected; do
+  count="$(rg -o -F "$symbol" "$file" | wc -l | tr -d '[:space:]')"
+  if [[ "$count" != "$expected" ]]; then
+    guard_fail "$TAG" "candidate compiler edge drift: $symbol count=$count expected=$expected"
+  fi
+done <<EOF
+$COMPILER	compile_legacy_candidate	1
+$LEGACY_CANDIDATE	.build_module(ast)	1
+$LEGACY_CANDIDATE	.finish_built_module	1
+$LEGACY_CANDIDATE	.prepare_external_commit()	1
+$LEGACY_CANDIDATE	.commit(&mut self.builder)	1
+EOF
+
 for file in \
   "$LOWERING" \
   "$PORT_OWNER" \
   "$MODULE_LIFECYCLE" \
+  "$COMPILER" \
+  "$LEGACY_CANDIDATE" \
+  "$MODULE_SESSION" \
   "$ROOT_DIR/tools/checks/mirbuilder_inplace_replacement_guard.sh"
 do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

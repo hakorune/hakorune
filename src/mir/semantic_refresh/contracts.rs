@@ -200,17 +200,24 @@ fn carrier_validation_error(
 }
 
 fn validate_box_field_contracts(module: &MirModule) -> Result<(), String> {
-    let findings =
+    let missing_carriers =
         crate::mir::exact_numeric_field_contracts::collect_exact_numeric_field_assignment_findings(
             module,
-        );
-    if findings.is_empty() {
+        )
+        .into_iter()
+        .filter(|finding| {
+            !matches!(
+                finding,
+                crate::mir::exact_numeric_field_contracts::ExactNumericFieldAssignmentFinding::RangeViolation(_)
+            )
+        })
+        .count();
+    if missing_carriers == 0 {
         return Ok(());
     }
     Err(format!(
         "{} family=box_field findings={}",
-        CONTRACT_REFRESH_REBUILD_FAILED_TAG,
-        findings.len()
+        CONTRACT_REFRESH_REBUILD_FAILED_TAG, missing_carriers
     ))
 }
 

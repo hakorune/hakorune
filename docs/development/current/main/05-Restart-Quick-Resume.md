@@ -39,6 +39,7 @@ cargo check -q
 ## Restart Notes
 
 - handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
+- at `DESIGN-STOP`, stop the goal-driven execution loop here and review the frontier card before selecting more work
 - read `latest_card_path` before editing
 - continue only the exact `current_blocker_token` and `latest_card_path` from
   `CURRENT_STATE.toml`; this mirror does not select or rename executable rows
