@@ -553,6 +553,19 @@ production consumer = 0
 
 ### Commit D1 — `PRELOOP-STAGEB-FUNCTION-INGRESS0-I0`
 
+Execution status: superseded before production activation by
+`PRELOOP-STAGEB-OWNED-LOCATED-AUTHORITY0-prime-r1`.
+
+The C4 audit proved that the owned activation row no longer contains the
+borrowed nested-result contract required by the existing located Port, while
+the installed catalog is held inside the Builder that the Port must mutate.
+Do not execute the direct D1 sequence below. Follow:
+
+```text
+docs/development/current/main/investigations/
+  preloop-stageb-owned-located-authority0-prime-r1-task-map-2026-07-27.md
+```
+
 This is the first production behavior change.
 
 Connect exactly:

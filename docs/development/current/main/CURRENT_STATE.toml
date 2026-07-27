@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-B is closed. Named consuming projections carry the exact selected AST, catalog, typed aliases, and activation row into the closed atomic context transaction. The installed catalog receipt gates one shared post-install root kernel without resealing; one exact wrapper clone preserves the existing root snapshot law. The activation row remains in one stack-owned Armed-only ledger, whose only C4 terminal retains the row and rejects SelectedCallerNotObserved. There is no dead Completed typestate, Builder ledger/source map, production caller, retry, fallback, Call receipt, or type publication. The next row is PRELOOP-STAGEB-FUNCTION-INGRESS0-I0."
+status = "PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-B is closed. The D1 audit found a real handoff mismatch before production activation: the owned row no longer retains the nested exact-Integer contract required by PreparedPreloopLocatedArgumentV1, and the installed catalog is owned inside the same Builder that located lowering must mutate. PRELOOP-STAGEB-OWNED-LOCATED-AUTHORITY0-prime-r1 accepts one source-sealed shared Arc catalog, one owned nested-result rebind witness, and reuse of the existing borrowed located Port. No result-catalog rebuild, source reclassification, Builder self-borrow, second Port family, retry, or fallback is allowed. The first reconciliation row is PRELOOP-STAGEB-SHARED-CATALOG0-S0."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-FUNCTION-INGRESS0-I0"
-current_execution_summary = "Add the first exact production consumer at MirCompiler::compile_request's Legacy arm. Select Ordinary or Selected exactly once from one typed whole-source request; preserve the ordinary route, while Selected consumes the preinstalled-root owner and captures the exact canonical caller once through the existing port-aware function ingress. Extend the Armed ledger only with transitions that gain real producers. Keep direct build_module/JSON/REPL/Raw callers, Builder source maps, retry/fallback, outer Call receipts, and type publication unchanged."
+current_execution_row = "PRELOOP-STAGEB-SHARED-CATALOG0-S0"
+current_execution_summary = "Create the selected Stage-B callable catalog as one Arc allocation before source proofs, retain that exact allocation through the activation plan, install it into the single Builder catalog lane as Shared(Arc), and retain the same Arc in the stack-owned function ingress. Ordinary and Raw installs remain exclusive and behavior-identical. Do not add production callers, source reclassification, result-catalog rebuilds, Builder source maps, a second located Port, retry/fallback, outer Call receipts, or type publication."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -433,8 +433,8 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27"
-latest_card_path = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
+latest_card = "preloop-stageb-owned-located-authority0-prime-r1-task-map-2026-07-27"
+latest_card_path = "docs/development/current/main/investigations/preloop-stageb-owned-located-authority0-prime-r1-task-map-2026-07-27.md"
 latest_card_summary = """PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-prime-r1 accepts the compile_request Legacy arm as the sole whole-source producer consumer. A four-worker audit keeps A1 and adds strict inventory completeness, invalid-alias rejection, one non-Clone snapshot retained by either disposition, atomic catalog+alias install, payload-retaining ledger states, a behavior-neutral post-install root kernel, and the previously missing assignment-completion receipt. The task map is compressed to about 9-12 buildable commits with roughly four new focused test families and no new per-row guard. The first row is PRELOOP-STAGEB-SOURCE-INVENTORY0-P0 with Builder and production caller both zero."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
@@ -638,7 +638,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-FUNCTION-INGRESS0-I0"
+current_blocker_token = "PRELOOP-STAGEB-SHARED-CATALOG0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
