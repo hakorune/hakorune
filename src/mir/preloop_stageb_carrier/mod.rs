@@ -3,6 +3,7 @@
 //! See `README.md` for the authority and non-authority boundary.
 
 mod activation;
+mod candidate_selection;
 mod outer_result;
 mod rejection;
 mod source_inventory;
@@ -11,6 +12,13 @@ mod source_inventory_error;
 #[allow(unused_imports)]
 pub(crate) use activation::{
     prepare_preloop_stageb_carrier_rows_v1, VerifiedPreloopStageBCarrierActivationPlanV1,
+};
+#[allow(unused_imports)]
+pub(crate) use candidate_selection::{
+    seal_preloop_stageb_candidate_selection_v1, PreloopStageBCandidateSelectionErrorV1,
+    RejectedPreloopStageBCandidateSelectionV1, VerifiedPreloopStageBAmbiguousCandidatesV1,
+    VerifiedPreloopStageBCandidateSelectionV1, VerifiedPreloopStageBNoCandidateV1,
+    VerifiedPreloopStageBSelectedCandidateV1,
 };
 #[allow(unused_imports)]
 pub(crate) use outer_result::{

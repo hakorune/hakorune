@@ -16,6 +16,10 @@ Owned here:
   whole-source call/target inventory and composes only existing result,
   nested-instance, located-argument, outer-carrier, and owned-row authorities;
 - stable owned candidate identities and exact zero/one/many cardinality.
+- one consuming candidate-selection boundary: zero retains complete observed
+  evidence until discard, one immediately creates the existing activation
+  plan, and many retains the exact boxed catalog plus complete ambiguity
+  inventory.
 
 Not owned here:
 
@@ -44,6 +48,11 @@ Bounded semantic mismatches remain complete noncandidates. Missing complete-call
 evidence, catalog/brand drift, source projection disagreement, or co-seal drift
 is a typed rejection. It performs no second source traversal and has no
 production caller.
+
+`seal_preloop_stageb_candidate_selection_v1()` is the only consumer of A2
+cardinality. It does not expose prepared rows or numeric catalog identity.
+Foreign equal-looking catalogs reject before cardinality; a selected result
+contains only the already-paired activation plan.
 
 The first profile requires the exact structural argument ordinal `1` and the
 exact static requirement set `[1]`. A broader required-argument solver belongs

@@ -22,6 +22,17 @@ module, entry-block, or FunctionRegion state.
 - The Stage-B request types have no production constructor caller until the
   later source-selection row. Existing Legacy alias mutation and route
   behavior remain unchanged meanwhile.
+- `PreloopStageBWholeSourceProducerV1` is the disconnected sole owner of the
+  bounded source-selection policy. Compatibility origins become explicit
+  `Ordinary(ProfileExcluded)` before proof work; complete candidate
+  cardinality becomes `Ordinary`, `Selected`, or a retained ambiguity
+  rejection.
+- Selection uses the same `seal_root` declaration surface as existing Builder
+  lowering. One candidate is immediately co-sealed with its exact boxed
+  catalog; prepared rows and construction-only catalog identity do not cross
+  the carrier boundary.
+- This selection row still has no production caller, Builder mutation,
+  catalog/import installation, fallback, or retry.
 - Production ingress is explicit by owner family. `resolve_function` owns the
   call-disabled body-only family. `VerifiedResolvedCallableProgramV1` owns all
   exact callable modules, including singleton self recursion. Neither retries

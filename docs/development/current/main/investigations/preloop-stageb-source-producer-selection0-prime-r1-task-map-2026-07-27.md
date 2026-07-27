@@ -260,6 +260,8 @@ compile_request behavior delta                      = 0
 
 ### Commit B2 — `PRELOOP-STAGEB-SOURCE-SELECTION0-S0`
 
+Status: closed.
+
 Add:
 
 ```text
@@ -323,6 +325,23 @@ discard(self)
 ```
 
 Production consumer remains zero through B2.
+
+B2 closeout:
+
+```text
+whole-source selection owner                       = 1
+Builder-compatible seal_root authority             = existing 1
+private cardinality consumer                       = 1
+zero -> explicit Ordinary                          = green
+one -> immediate exact-catalog activation seal     = green
+many -> retained typed ambiguity rejection         = green
+ProgramV0 / REPL -> ProfileExcluded Ordinary       = green
+direct / supplied-alias selection                  = green
+invalid alias / foreign catalog                    = rejected
+prepared row / numeric catalog identity exposure   = 0
+production caller / Builder mutation               = 0
+fallback / retry                                   = 0
+```
 
 ## Umbrella C — consuming module activation
 
