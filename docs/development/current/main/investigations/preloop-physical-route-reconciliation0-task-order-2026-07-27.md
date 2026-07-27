@@ -337,9 +337,9 @@ physical-route or fresh-success assertion. Those lower-level reject tests are
 not a substitute for the production prefix proof.
 
 The row made no receipt, Router, type-publication, production-caller, or
-fallback change. The red REP0 WIP remains quarantined; recover only its four
-semantic patches during the next row and rebuild tests against this prefix
-harness.
+fallback change. The former REP0 WIP remains quarantine-only after the landed
+manual reconstruction. Do not pop or apply it. Its later retirement requires
+an explicit stash inventory/drop decision and is not part of TYPE-I0.
 
 Verification:
 
@@ -359,7 +359,7 @@ the exact generic receipt without widening the emitter.
 Recommended bounded products:
 
 ```text
-ReachedPreloopNestedUnifiedValueCallV1
+ReachedPreloopNestedPhysicalCallV1
   owns:
     exact retained source association
     + CompletedUnifiedValueCallEmissionV1
@@ -369,8 +369,9 @@ EmittedNestedInstanceCallV1
     final_destination only
 ```
 
-The `Unified` qualifier belongs on the intermediate product because this row
-does not represent BoxCall, rewrite, legacy, or no-destination success.
+The physical product is issued only by the existing generic value-Call receipt
+terminal. It does not represent BoxCall, rewrite, legacy, or no-destination
+success.
 
 Temporal law:
 
@@ -471,8 +472,20 @@ retire duplicated manual-ingress proof scaffolding where possible.
 
 ### 5. `CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-D0`
 
-This remains the next semantic decision boundary. The recommended existing
-policy is:
+Decision:
+
+```text
+Decision:
+  CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-prime-r1
+
+Status:
+  accepted
+
+Choice:
+  A — stored Unknown remains a replaceable non-fact
+```
+
+This reuses the existing global fact policy:
 
 ```text
 type_ctx[dst] = None / Unknown
@@ -492,9 +505,9 @@ receipt absent / Call failure / outer failure
   -> publication 0
 ```
 
-The D0 must confirm whether `Unknown` remains the existing replaceable
-non-fact or becomes a conflict at this boundary. Do not encode that choice in
-REP0.
+`TypeFactDecisionV1` remains the sole decision authority and
+`TypeContext::set_type` remains the sole write terminal. TYPE-I0 adds no
+decision enum, TypeContext API, direct map insert, or GenericLoop publisher.
 
 ### REP0 I0/P0/G0 closeout
 
@@ -549,22 +562,62 @@ reopen receipt, Router, GenericLoop, or production-entry authority.
 
 ### 6. Type implementation series
 
-After D0:
+The implementation is one T1 bounded extension. Keep the receipt-only module
+unchanged and place the adapter and tests in separate files:
+
+```text
+src/mir/builder/calls/preloop_nested_result_type.rs
+src/mir/builder/calls/preloop_nested_result_type_tests.rs
+```
+
+The current ingress P0 file is already large; do not append the TYPE matrix to
+it. Every source/check file remains below 800 lines.
+
+Exact owner chain:
+
+```text
+EmittedNestedInstanceCallV1
++ TypeContext::get_type(final_destination)
+  -> TypeFactDecisionV1::prepare(existing, Integer)
+  -> PreparedPreloopNestedIntegerPublicationV1
+       owns:
+         emitted receipt
+         prepared fact decision
+  -> one consuming commit
+  -> TypeContext::set_type only for Publish(Integer)
+```
+
+On a concrete conflict,
+`RejectedPreloopNestedIntegerPublicationV1` retains the emitted receipt and
+the typed cause. It exposes inspection plus discard only. It has no retry,
+resume, receipt recovery, Call emission, source lookup, or fallback authority.
+
+Buildable task order:
 
 ```text
 CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-S0
-  one Builder-free prepared Integer fact decision
+  Builder-free prepared/rejected products
+  pure None / Unknown / Integer / concrete-conflict decision matrix
+  TypeContext write = 0
 
 -> CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-I0
   consume EmittedNestedInstanceCallV1 once
-  commit only the prepared decision
+  commit only Publish through TypeContext::set_type
+  Idempotent physical write = 0
 
 -> CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-P0
-  None / Unknown / Integer / conflict / Call failure / outer failure matrix
+  production-prefix None / Unknown / Integer / conflict
+  inner Call failure / outer failure / conflict -> fresh success
 
 -> CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-G0
+  extend existing callable-result and type-fact guards
   one publisher, GenericLoop consumer-only, overwrite zero
 ```
+
+Do not create a new guard script. Extend the existing callable-result guard
+with the receipt consumer/decision/writer and P0 evidence, and add this writer
+to the existing type-fact partition guard. The original ingress, port, and
+receipt modules retain zero type writes.
 
 ### 7. Exact Stage-B frontier
 

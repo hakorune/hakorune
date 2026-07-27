@@ -17,8 +17,8 @@ Related:
 - workstream card: read `latest_workstream_card` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
-- current decision authority:
-  `normal-source-plan0-design-stop-2026-07-26.md`
+- current decision authority: read `latest_card_path` and
+  `current_design_stop` in `CURRENT_STATE.toml`
 - current execution authority: read `latest_card_path` in
   `CURRENT_STATE.toml`
 - priority: follow the exact active task. Do not reopen the superseded App

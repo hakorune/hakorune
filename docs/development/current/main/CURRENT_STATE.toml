@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0, the pre-loop located request boundary, and the generic unified-Call physical receipt are closed. REP0-S0 is also landed. PRELOOP-PRODUCTION-PREFIX-FIXTURE0-S0 closed the production-shaped ParserBox correction. CALLABLE-RESULT-NESTED-PRELOOP-REP0-I0/P0/G0 now close the typed source-plus-physical receipt handoff: inner generic Call success retains the receipt, outer success alone emits the destination-only nested receipt, and outer failure retains both source and physical evidence. Integer publication remains zero. The next stop is TYPE-I0-D0, which must decide the existing Unknown fact disposition before any type_ctx write."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0, the pre-loop located request boundary, generic unified-Call physical receipt, REP0 source/physical pairing, and production-prefix proof are closed. CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-prime-r1 accepts Choice A: stored Unknown remains a replaceable non-fact under the existing TypeFactDecisionV1 authority. TYPE-I0-S0 is next and adds only a Builder-free prepared/rejected Integer publication product; receipt consumption, TypeContext write, GenericLoop activation, production callers, fallback, and Router changes remain zero."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-D0"
-current_execution_row = "CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-D0"
-current_execution_summary = "REP0-I0/P0/G0 are closed. The production-shaped ParserBox prefix proves the exact selected Generic Unified inner Call; its physical receipt pairs with the retained source association, and only outer success emits EmittedNestedInstanceCallV1. Inner Call failure emits no receipt; outer failure retains source plus physical receipt; type_ctx publication remains zero. TYPE-I0-D0 must decide whether existing Unknown is a replaceable non-fact or a conflict for this one consuming Integer publication; no implementation, GenericLoop activation, loop-refresh activation, fallback, or production caller is authorized before that decision."
+current_design_stop = "none"
+current_execution_row = "CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-S0"
+current_execution_summary = "TYPE-I0-prime-r1 accepts stored Unknown as a replaceable non-fact, exactly matching TypeFactDecisionV1. Add one new calls/preloop_nested_result_type.rs owner: PreparedPreloopNestedIntegerPublicationV1 retains the emitted receipt plus prepared decision, while a typed rejection retains the receipt on concrete conflict. S0 is Builder-free and performs no TypeContext write. Keep tests in a separate sibling file, create no new policy/guard script, and keep GenericLoop, loop-refresh, production caller, fallback, Router, and backend changes at zero."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -435,7 +435,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "preloop-physical-route-reconciliation0-task-order-2026-07-27"
 latest_card_path = "docs/development/current/main/investigations/preloop-physical-route-reconciliation0-task-order-2026-07-27.md"
-latest_card_summary = """PRELOOP-PHYSICAL-ROUTE-RECONCILIATION0-prime-r1 accepts A-prime. PRELOOP-PRODUCTION-PREFIX-FIXTURE0-S0 and REP0-I0/P0/G0 are closed: the production prefix proves the selected Known Unified Method Call; a generic physical receipt pairs with the exact source association; outer success alone produces EmittedNestedInstanceCallV1; inner failure yields no receipt and outer failure retains both authorities. Router policy, BoxCall receipt, type publication, GenericLoop production, and production callers remain zero. TYPE-I0-D0 is next and decides the existing Unknown fact disposition before a consuming Integer publication is implemented."""
+latest_card_summary = """PRELOOP-PHYSICAL-ROUTE-RECONCILIATION0-prime-r1 and REP0-I0/P0/G0 are closed. CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-prime-r1 accepts Choice A: None/Unknown publish Integer, existing Integer is idempotent with no physical write, and other concrete facts conflict without overwrite. Existing TypeFactDecisionV1 and TypeContext::set_type remain the sole policy/write authorities. TYPE-I0-S0 is next: one Builder-free prepared/rejected owner in a new small sibling module, with receipt consumption, type write, GenericLoop, production callers, fallback, and Router changes still zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-D0"
+current_blocker_token = "CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

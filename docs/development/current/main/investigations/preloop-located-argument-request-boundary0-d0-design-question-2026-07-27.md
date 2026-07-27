@@ -445,7 +445,10 @@ loop-refresh activation occur here.
 ### 7. `CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-D0`
 
 Select the one-shot Integer publication conflict law. This remains a semantic
-stop. At minimum:
+stop. The historical candidate matrix below is superseded by
+`CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-prime-r1` in
+`preloop-physical-route-reconciliation0-task-order-2026-07-27.md`; do not
+execute its `Unknown -> conflict` row.
 
 ```text
 None -> publish Integer once
@@ -453,6 +456,14 @@ Integer -> accept only with exact existing-authority pairing, otherwise conflict
 Unknown/other -> typed conflict
 overwrite -> forbidden
 Call failure / receipt absence -> publication zero
+```
+
+Accepted replacement:
+
+```text
+None / Unknown -> Publish(Integer)
+Integer        -> Idempotent, physical write 0
+other concrete -> typed conflict
 ```
 
 ### 8. Type I0/P0/G0 and post-type Stage-B guard
