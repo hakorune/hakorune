@@ -226,6 +226,14 @@ selected-candidate session is absent, that exact failure may reopen only the
 required Stage-B owner and must return here afterward. Candidate count one
 alone is not that evidence.
 
+The 2026-07-28 unchanged gate produced exactly
+`MissingTransientType { init: ValueId(28) }` before the Hako reject executed.
+The correspondence audit confirmed that result/receipt/function-capture
+owners are already closed and the production selector remains zero. The
+temporary direct prerequisite is therefore
+`PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-D0`; its accepted implementation
+must return directly to `OWN-GRAM-REJECT0-HAKO0-S0`.
+
 ### 2.2 Execution packs
 
 The detailed rows below remain authoritative. For scheduling and commits, group
