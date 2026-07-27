@@ -12,11 +12,16 @@ MODULE_LIFECYCLE="$ROOT_DIR/src/mir/builder/module_lifecycle.rs"
 COMPILER="$ROOT_DIR/src/mir/compiler/mod.rs"
 LEGACY_CANDIDATE="$ROOT_DIR/src/mir/compiler/legacy_candidate_session.rs"
 MODULE_SESSION="$ROOT_DIR/src/mir/builder/module_invocation_session.rs"
-LOCAL_SURFACE="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/statement_surface.rs"
+STATEMENT_SURFACE="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/statement_surface.rs"
 LOCAL_DESCENT="$ROOT_DIR/src/mir/builder/stmts/local_statement_descent.rs"
 LOCATED_LOCAL="$ROOT_DIR/src/mir/builder/located_legacy_lowering.rs"
 VARIABLE_STMT="$ROOT_DIR/src/mir/builder/stmts/variable_stmt.rs"
 LOCAL_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0.py"
+RAW_DISPATCH="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/mod.rs"
+ASSIGNMENT_DESCENT="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_descent.rs"
+LOCATED_ASSIGNMENT="$ROOT_DIR/src/mir/builder/located_legacy_assignment.rs"
+ASSIGNMENT_TESTS="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_descent_tests.rs"
+ASSIGNMENT_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_assignment.py"
 
 guard_require_command "$TAG" awk
 guard_require_command "$TAG" rg
@@ -30,11 +35,16 @@ guard_require_files \
   "$COMPILER" \
   "$LEGACY_CANDIDATE" \
   "$MODULE_SESSION" \
-  "$LOCAL_SURFACE" \
+  "$STATEMENT_SURFACE" \
   "$LOCAL_DESCENT" \
   "$LOCATED_LOCAL" \
   "$VARIABLE_STMT" \
-  "$LOCAL_GUARD"
+  "$LOCAL_GUARD" \
+  "$RAW_DISPATCH" \
+  "$ASSIGNMENT_DESCENT" \
+  "$LOCATED_ASSIGNMENT" \
+  "$ASSIGNMENT_TESTS" \
+  "$ASSIGNMENT_GUARD"
 
 expected_header=$'record_kind\tid\tpack\tproduction_caller\tnew_owner\tdelete_target\tparity_gate\tdisposition\tstate'
 actual_header="$(head -n1 "$MANIFEST")"
@@ -91,6 +101,16 @@ local_row_count="$(awk -F '\t' '
 ' "$MANIFEST")"
 if [[ "$local_row_count" != "1" ]]; then
   guard_fail "$TAG" "Local descent cutover must have one closed manifest row"
+fi
+
+assignment_row_count="$(awk -F '\t' '
+  $1 == "cell" &&
+  $2 == "VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0" &&
+  $9 == "closed" { count += 1 }
+  END { print count + 0 }
+' "$MANIFEST")"
+if [[ "$assignment_row_count" != "1" ]]; then
+  guard_fail "$TAG" "Variable Assignment descent cutover must have one closed manifest row"
 fi
 
 for symbol in \
@@ -165,8 +185,8 @@ while IFS=$'\t' read -r file pattern expected label; do
     guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
   fi
 done <<EOF
-$LOCAL_SURFACE	\\bdrive_local_statement_v1\\s*\\(	1	raw/default Local owner caller
-$LOCAL_SURFACE	\\bRawLegacyLocalInputV1::new\\s*\\(	1	raw/default Local owned input
+$STATEMENT_SURFACE	\\bdrive_local_statement_v1\\s*\\(	1	raw/default Local owner caller
+$STATEMENT_SURFACE	\\bRawLegacyLocalInputV1::new\\s*\\(	1	raw/default Local owned input
 $LOCATED_LOCAL	\\bdrive_local_statement_v1\\s*\\(	1	detached located Local owner caller
 EOF
 
@@ -182,6 +202,43 @@ if rg -n -w 'retry|fallback' "$LOCAL_DESCENT" "$LOCATED_LOCAL" >/dev/null; then
   guard_fail "$TAG" "Local owner gained retry or fallback"
 fi
 
+while IFS=$'\t' read -r file pattern expected label; do
+  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+  if [[ "$count" != "$expected" ]]; then
+    guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
+  fi
+done <<EOF
+$STATEMENT_SURFACE	\\bdrive_variable_assignment_v1\\s*\\(	1	exact Variable Assignment owner caller
+$STATEMENT_SURFACE	\\bRawLegacyVariableAssignmentInputV1::new\\s*\\(	1	exact Variable Assignment owned input
+$RAW_DISPATCH	\\bdrive_variable_assignment_v1\\s*\\(	1	Grouped Assignment owner caller
+$RAW_DISPATCH	\\bRawLegacyVariableAssignmentInputV1::new\\s*\\(	1	Grouped Assignment owned input
+$LOCATED_ASSIGNMENT	\\bdrive_variable_assignment_v1\\s*\\(	1	detached located Assignment owner caller
+EOF
+
+assignment_external_count="$(
+  rg -n -P '\bdrive_variable_assignment_v1\s*\(' \
+    "$ROOT_DIR/src" --glob '*.rs' \
+    | awk -F ':' \
+        -v owner="$ASSIGNMENT_DESCENT" \
+        -v tests="$ASSIGNMENT_TESTS" \
+        '$1 != owner && $1 != tests { count += 1 } END { print count + 0 }'
+)"
+if [[ "$assignment_external_count" != "3" ]]; then
+  guard_fail "$TAG" \
+    "Assignment external owner sites must be two raw/default plus one detached: count=$assignment_external_count"
+fi
+if rg -n -P '\b(?:fn\s+)?drive_raw_variable_assignment_v1\s*\(' \
+  "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+  guard_fail "$TAG" "retired drive_raw_variable_assignment_v1 facade returned"
+fi
+if rg -n -P '\b(?:fn\s+)?build_grouped_assignment\s*\(' \
+  "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+  guard_fail "$TAG" "retired build_grouped_assignment facade returned"
+fi
+if rg -n -w 'retry|fallback' "$ASSIGNMENT_DESCENT" "$LOCATED_ASSIGNMENT" >/dev/null; then
+  guard_fail "$TAG" "Assignment owner gained retry or fallback"
+fi
+
 for file in \
   "$LOWERING" \
   "$PORT_OWNER" \
@@ -189,7 +246,7 @@ for file in \
   "$COMPILER" \
   "$LEGACY_CANDIDATE" \
   "$MODULE_SESSION" \
-  "$LOCAL_SURFACE" \
+  "$STATEMENT_SURFACE" \
   "$LOCAL_DESCENT" \
   "$LOCATED_LOCAL" \
   "$VARIABLE_STMT" \
@@ -199,6 +256,14 @@ for file in \
   "$ROOT_DIR/src/mir/builder/control_flow/plan/parts/if_general.rs" \
   "$ROOT_DIR/src/mir/builder/control_flow/plan/parts/stmt/tests.rs" \
   "$LOCAL_GUARD" \
+  "$RAW_DISPATCH" \
+  "$ASSIGNMENT_DESCENT" \
+  "$LOCATED_ASSIGNMENT" \
+  "$ASSIGNMENT_TESTS" \
+  "$ROOT_DIR/src/mir/builder/stmts/variable_assignment_raw_tests.rs" \
+  "$ROOT_DIR/src/mir/builder/stmts/variable_assignment_parity_tests.rs" \
+  "$ROOT_DIR/src/mir/builder/builder_build.rs" \
+  "$ASSIGNMENT_GUARD" \
   "$ROOT_DIR/tools/checks/mirbuilder_inplace_replacement_guard.sh"
 do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

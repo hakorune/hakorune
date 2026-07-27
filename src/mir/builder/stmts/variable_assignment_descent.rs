@@ -1,4 +1,4 @@
-//! Disconnected associated-input boundary for exact Variable assignments.
+//! Associated-input owner for live raw/default variable-name assignments.
 //!
 //! The target selector remains outside this box. Its input contains only one
 //! already-selected variable name plus an RHS carrier. This box preserves the
@@ -9,8 +9,7 @@ use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
-    RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 use super::super::vars::assignment_resolver::AssignmentResolverBox;
 
@@ -96,14 +95,4 @@ where
     let rhs_input = port.assignment_rhs_expression_input(input)?;
     let rhs = drive_legacy_expression_v1(builder, port, rhs_input)?;
     builder.build_assignment_from_value(variable_name, rhs)
-}
-
-pub(in crate::mir::builder) fn drive_raw_variable_assignment_v1(
-    builder: &mut MirBuilder,
-    variable_name: String,
-    value: ASTNode,
-) -> Result<ValueId, String> {
-    let input = RawLegacyVariableAssignmentInputV1::new(variable_name, value);
-    let mut port = RawLegacyChildLoweringPortV1;
-    drive_variable_assignment_v1(builder, &mut port, &input)
 }

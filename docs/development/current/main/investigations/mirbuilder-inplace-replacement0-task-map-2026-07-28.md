@@ -323,7 +323,7 @@ bounded consultation then selected the fifth production edge.
 
 ### `VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0-I0-R0`
 
-Status: accepted execution task.
+Status: closed on 2026-07-28.
 
 Execution authority:
 
@@ -351,6 +351,22 @@ one variable-name reassignment input/owner. The detached located caller remains
 root-inactive and separately guarded. Exact Variable retains historical
 snapshot parity; Grouped retains existing production-ingress behavior only.
 No Grouped historical snapshot parity is claimed.
+
+Closeout:
+
+```text
+raw/default production callers              = 2
+detached located caller                     = 1
+detached production root activation         = 0
+old facade call-shaped sites                = 0
+fallback / retry                            = 0
+focused tests and private ASN0 helper       = green
+production Rust LOC delta                   = -77
+five-cell rolling production Rust LOC       = -134
+```
+
+No sixth production edge is selected. Return to
+`MIRBUILDER-NEXT-EDGE-DESIGN-STOP`.
 
 ## Macro pack order
 

@@ -30,8 +30,10 @@ def check_asn0_s0(root: Path) -> str:
     raw_tests_path = "src/mir/builder/stmts/variable_assignment_raw_tests.rs"
     parity_tests_path = "src/mir/builder/stmts/variable_assignment_parity_tests.rs"
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
-    selector_path = "src/mir/builder/exprs.rs"
-    grouped_path = "src/mir/builder/builder_build.rs"
+    selector_path = (
+        "src/mir/builder/raw_expression_dispatch/statement_surface.rs"
+    )
+    grouped_path = "src/mir/builder/raw_expression_dispatch/mod.rs"
     located_path = "src/mir/builder/located_legacy_lowering.rs"
     located_adapter_path = "src/mir/builder/located_legacy_assignment.rs"
     located_tests_path = "src/mir/builder/located_legacy_assignment_tests.rs"
@@ -59,12 +61,15 @@ def check_asn0_s0(root: Path) -> str:
         ("fn variable_assignment_syntax", 2, "syntax query and raw impl"),
         ("fn assignment_rhs_expression_input", 2, "RHS query and raw impl"),
         ("fn drive_variable_assignment_v1", 1, "Assignment driver"),
-        ("impl VariableAssignmentDescentPortV1 for RawLegacyChildLoweringPortV1", 1, "raw port impl"),
-        ("fn drive_raw_variable_assignment_v1", 1, "raw facade"),
         (
-            "drive_variable_assignment_v1(builder, &mut port, &input)",
+            "impl<Port> VariableAssignmentDescentPortV1 for Port",
             1,
-            "raw facade delegation",
+            "blanket raw-port implementation",
+        ),
+        (
+            "Port: RawAstChildLoweringPortV1",
+            1,
+            "blanket raw-port bound",
         ),
         ("AssignmentResolverBox::ensure_declared(builder, &variable_name)?;", 1, "pre-RHS declared check"),
         ("drive_legacy_expression_v1(builder, port, rhs_input)?", 1, "RHS E0 descent"),
@@ -119,10 +124,22 @@ def check_asn0_s0(root: Path) -> str:
         source = path.read_text(encoding="utf-8")
         driver_callers += source.count("drive_variable_assignment_v1(")
         raw_callers += source.count("drive_raw_variable_assignment_v1(")
-    if driver_callers != 1:
-        _fail(f"ASN0-L0 generic external callers must be one: actual={driver_callers}")
-    if raw_callers != 1:
-        _fail(f"ASN0-I0 raw production callers must be one: actual={raw_callers}")
+    if driver_callers != 3:
+        _fail(
+            "ASN0 generic external callers must be two raw/default plus one "
+            f"detached located: actual={driver_callers}"
+        )
+    if raw_callers != 0:
+        _fail(f"ASN0 retired raw facade callers must be zero: actual={raw_callers}")
+
+    production_source = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (root / "src").rglob("*.rs")
+    )
+    if re.search(r"\b(?:fn\s+)?drive_raw_variable_assignment_v1\s*\(", production_source):
+        _fail("retired raw Assignment facade returned")
+    if re.search(r"\b(?:fn\s+)?build_grouped_assignment\s*\(", production_source):
+        _fail("retired Grouped Assignment facade returned")
 
     _require_count(
         stmts_root,
@@ -146,7 +163,6 @@ def check_asn0_s0(root: Path) -> str:
     ):
         _fail("ASN0-P0 parity fixture module must remain cfg(test)-scoped")
     for export in (
-        "drive_raw_variable_assignment_v1",
         "drive_variable_assignment_v1",
         "VariableAssignmentDescentPortV1",
         "VariableAssignmentSyntaxViewV1",
@@ -154,7 +170,8 @@ def check_asn0_s0(root: Path) -> str:
         _require_count(stmts_root, export, 1, f"narrow Assignment export {export}")
 
     variable_branch = re.search(
-        r"else if let ASTNode::Variable \{ name, \.\. \} = stmt\.target\.as_ref\(\) \{(?P<body>.*?)\n\s*\} else \{",
+        r"else if let ASTNode::Variable \{ name, \.\. \} = "
+        r"statement\.target\.as_ref\(\) \{(?P<body>.*?)\n\s*\} else \{",
         selector,
         re.DOTALL,
     )
@@ -162,51 +179,46 @@ def check_asn0_s0(root: Path) -> str:
         _fail("missing exact Variable-target selector branch")
     _require_count(
         variable_branch.group("body"),
-        "drive_raw_variable_assignment_v1(",
+        "RawLegacyVariableAssignmentInputV1::new(",
         1,
-        "exact Variable selector raw delegation",
+        "exact Variable selector owned input",
     )
-    for owner in ("build_field_assignment(", "build_index_assignment("):
+    _require_count(
+        variable_branch.group("body"),
+        "drive_variable_assignment_v1(builder, port, &input)",
+        1,
+        "exact Variable selector generic owner",
+    )
+    for owner in (
+        "build_field_assignment_with_port_v1(",
+        "build_index_assignment_with_port_v1(",
+    ):
         _require_count(selector, owner, 1, f"unchanged {owner} selector")
     _require_count(
         selector,
-        "build_compound_assignment_statement(",
+        "build_compound_assignment_statement_with_port_v1(",
         1,
         "unchanged compound selector",
     )
     grouped_branch = re.search(
         r"ASTNode::GroupedAssignmentExpr \{ lhs, rhs, \.\. \} => \{(?P<body>.*?)\n\s*\}",
-        selector,
+        grouped,
         re.DOTALL,
     )
     if grouped_branch is None:
         _fail("missing grouped Assignment selector")
     _require_count(
         grouped_branch.group("body"),
-        "build_grouped_assignment(",
+        "RawLegacyVariableAssignmentInputV1::new(",
         1,
-        "parked grouped Assignment facade",
+        "Grouped Assignment owned input",
     )
-    if "drive_raw_variable_assignment_v1(" in grouped_branch.group("body"):
-        _fail("grouped Assignment must not select ASN0 raw descent")
     _require_count(
-        grouped,
-        "fn build_grouped_assignment(",
+        grouped_branch.group("body"),
+        "drive_variable_assignment_v1(self, port, &input)",
         1,
-        "dedicated grouped Assignment facade",
+        "Grouped Assignment generic owner",
     )
-    grouped_body = grouped.split("fn build_grouped_assignment(", 1)[1].split(
-        "fn build_assignment_from_value(", 1
-    )[0]
-    for legacy_step in (
-        "AssignmentResolverBox::ensure_declared(self, &var_name)?;",
-        "self.build_expression(value)?",
-        "self.build_assignment_from_value(var_name, value_id)",
-    ):
-        if legacy_step not in grouped_body:
-            _fail(f"grouped Assignment lost legacy orchestration: {legacy_step}")
-    if "drive_raw_variable_assignment_v1(" in grouped_body:
-        _fail("grouped Assignment facade must remain outside ASN0")
 
     _require_count(
         parity_tests,
@@ -258,7 +270,6 @@ def check_asn0_s0(root: Path) -> str:
         "syntax_and_rhs_input_failures_publish_no_rhs_or_assignment_effects",
         "rhs_failure_keeps_old_assignment_and_emits_no_completion_effect",
         "completion_recheck_rejects_lost_binding_and_fresh_attempt_succeeds",
-        "raw_facade_reuses_recursive_binary_rhs_and_existing_completion",
     ):
         if fixture not in tests:
             _fail(f"missing ASN0-S0 fixture: {fixture}")
@@ -268,7 +279,7 @@ def check_asn0_s0(root: Path) -> str:
         "raw_undeclared_target_rejects_before_rhs_effects",
         "raw_rhs_failure_keeps_old_binding_and_fresh_retry_succeeds",
         "field_target_stays_on_field_owner_before_rhs_descent",
-        "grouped_assignment_remains_on_its_legacy_facade",
+        "grouped_assignment_selects_owned_descent_through_production_ingress",
     ):
         if fixture not in raw_tests:
             _fail(f"missing ASN0-I0 raw fixture: {fixture}")
@@ -357,15 +368,17 @@ def check_asn0_s0(root: Path) -> str:
     for phrase in (
         "exact Variable-target",
         "field/index target syntax is structurally absent",
-        "declared-binding preflight before requesting the",
+        "declared-binding preflight before",
         "existing `build_assignment_from_value` owner",
-        "second completion-time declaration check is retained",
-        "selects this raw driver exactly once",
-        "`GroupedAssignmentExpr` remains",
+        "second completion-time",
+        "exact Variable",
+        "`GroupedAssignmentExpr`",
+        "obsolete raw",
         "ASN0-P0 retains the pre-I0 exact Variable orchestration",
         "reference rejects Grouped, field, index, and compound surfaces",
-        "parity reference and located `AssignmentValue` navigation",
-        "ASN0-L0 adds one disconnected located adapter",
+        "Grouped has production-ingress behavior coverage",
+        "ASN0-L0 keeps one detached located adapter",
+        "Production root activation",
         "derives the RHS only",
         "through the existing `AssignmentValue` role",
         "Field/index/compound and",
@@ -397,4 +410,10 @@ def check_asn0_s0(root: Path) -> str:
     if re.search(r"Arc<|Rc<|thread_local!|static mut", module):
         _fail("ASN0 substrate must remain stack-scoped and immutable")
 
-    return "asn_driver=1 asn_e0_descents=1 asn_raw_impl=1 asn_raw_selectors=1 asn_parity_reference=1 asn_located_impl=1 asn_located_selectors=1 asn_grouped_selectors=0"
+    return (
+        "asn_driver=1 asn_e0_descents=1 asn_raw_impl=1 "
+        "asn_variable_caller=1 asn_grouped_caller=1 "
+        "asn_raw_default_callers=2 asn_detached_callers=1 "
+        "asn_external_callers=3 asn_parity_reference=1 "
+        "asn_located_impl=1 asn_located_selectors=1"
+    )

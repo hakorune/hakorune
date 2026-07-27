@@ -156,21 +156,6 @@ impl MirBuilder {
         msg
     }
 
-    /// Build a grouped assignment expression.
-    ///
-    /// Exact Variable-target Assignment statements are selected separately by
-    /// the statement-surface dispatcher. Grouped assignment remains parked on
-    /// this pre-ASN0 orchestration until its own acceptance row.
-    pub(super) fn build_grouped_assignment(
-        &mut self,
-        var_name: String,
-        value: ASTNode,
-    ) -> Result<ValueId, String> {
-        vars::assignment_resolver::AssignmentResolverBox::ensure_declared(self, &var_name)?;
-        let value_id = self.build_expression(value)?;
-        self.build_assignment_from_value(var_name, value_id)
-    }
-
     /// Build assignment from an already-evaluated value.
     ///
     /// This is the shared shell used by ordinary lowering and fastmem lowering.

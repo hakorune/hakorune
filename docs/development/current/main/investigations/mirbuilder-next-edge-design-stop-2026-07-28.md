@@ -1,8 +1,8 @@
 ---
-Status: accepted
+Status: active design stop
 Date: 2026-07-28
-Decision: VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0-I0-R0
-Scope: select the next exact production edge after four closed cutovers
+Decision: pending sixth production edge
+Scope: select the next exact production edge after five closed cutovers
 ---
 
 # MirBuilder next production edge design stop
@@ -23,7 +23,7 @@ not selection authority.
 
 ## Current boundary
 
-Four production cutovers are closed. The manifest has no remaining
+Five production cutovers are closed. The manifest has no remaining
 scheduled production cell, while all eight macro packs remain open. No source
 edit may begin until one exact existing caller, replacement owner, delete
 target, parity gate, and LOC repayment boundary are selected together.
@@ -75,7 +75,7 @@ mirbuilder-fifth-production-edge-consultation-2026-07-28.md
 
 ## Fifth resolution
 
-The consultation selected:
+The consultation selected and the implementation closed:
 
 ```text
 VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0-I0-R0
@@ -91,6 +91,11 @@ variable-assignment-descent-cutover0-i0-r0-task-2026-07-28.md
 The cell owns the complete bounded raw/default variable-name reassignment
 caller set: exact Variable target plus GroupedAssignmentExpr. One detached
 located caller remains separately counted with production root ingress zero.
+Both obsolete facades are physically absent and the shared guard owns the
+production-edge proof.
+
+No sixth production edge is selected. A fresh bounded census must select the
+next exact caller/owner/delete-target/parity/LOC boundary.
 
 ## Minimum implementation slice after decision
 
@@ -101,7 +106,6 @@ fallback, or unrelated cleanup may be added.
 
 ## Non-claims
 
-- selection does not close the fifth production row
 - no sixth production row is selected
 - no macro pack is closed
 - no detached asset is promoted

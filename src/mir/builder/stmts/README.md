@@ -64,27 +64,33 @@ invent a malformed multi-initializer source fixture to widen the parser law.
 
 ## Variable-target Assignment associated-input descent
 
-`variable_assignment_descent.rs` owns one disconnected exact Variable-target
-Assignment boundary. Its input carries only the already-selected variable name
-and RHS; field/index target syntax is structurally absent. It observes the name
-once and runs the existing declared-binding preflight before requesting the
-RHS. The RHS is lowered once through the shared recursive expression port,
-then the existing `build_assignment_from_value` owner repeats the declaration
-check and performs contracts, ownership effects, and binding publication.
+`variable_assignment_descent.rs` owns the live raw/default variable-name
+Assignment boundary. The exact Variable-target statement surface and
+`GroupedAssignmentExpr` expression surface both construct one
+`RawLegacyVariableAssignmentInputV1` and select
+`drive_variable_assignment_v1`. Its input carries only the already-selected
+variable name and RHS; field/index target syntax is structurally absent. It
+observes the name once and runs the existing declared-binding preflight before
+requesting the RHS. The RHS is lowered once through the shared recursive
+expression port, then the existing `build_assignment_from_value` owner repeats
+the declaration check and performs contracts, ownership effects, and binding
+publication.
 
-ASN0-S0 must not inspect or reconstruct target AST, admit field, index,
-compound, or grouped assignment targets, inspect callable-result rows, or
-publish a binding itself. An undeclared target rejects before RHS input or
-effects, and an RHS failure leaves the previous assignment binding unchanged.
-The second completion-time declaration check is retained.
+ASN0-S0 must not inspect or reconstruct target AST, admit field, index, or
+compound assignment targets, inspect callable-result rows, or publish a
+binding itself. Grouped syntax selection remains dispatcher authority and
+reaches this owner only as an already-selected variable name plus RHS. An
+undeclared target rejects before RHS input or effects, and an RHS failure
+leaves the previous assignment binding unchanged. The second completion-time
+declaration check is retained.
 
-ASN0-I0 selects this raw driver exactly once from the exact Variable branch of
-the existing `exprs.rs` target selector. Field/index targets and compound
-assignment retain their existing owners. `GroupedAssignmentExpr` remains
-parked on a dedicated legacy facade because sharing its old facade would widen
-ASN0 indirectly. The raw adapter does not inspect the target AST or add a
-second selector. The parity reference and located `AssignmentValue` navigation
-remain disconnected at I0.
+The raw/default dispatcher selects this owner once from the exact Variable
+branch of `statement_surface` and once from `GroupedAssignmentExpr`. Field,
+index, and compound assignment retain their existing owners. The obsolete raw
+and Grouped facades are retired; neither live selector reconstructs target AST
+or adds route probing. Exact Variable retains the cfg(test)-only historical
+parity reference. Grouped has production-ingress behavior coverage but does
+not claim historical snapshot parity.
 
 ASN0-P0 retains the pre-I0 exact Variable orchestration only in a cfg(test)
 reference: declared-binding preflight, raw RHS lowering, then the existing
@@ -95,10 +101,11 @@ reference rejects Grouped, field, index, and compound surfaces and has no
 production caller. Located `AssignmentValue` navigation remains disconnected
 until ASN0-L0.
 
-ASN0-L0 adds one disconnected located adapter in
+ASN0-L0 keeps one detached located adapter in
 `located_legacy_assignment.rs`. It selects an exact Variable-target statement
 once, preserves the outer statement recursion guard, and derives the RHS only
-through the existing `AssignmentValue` role. The shared driver still owns the
+through the existing `AssignmentValue` role. Production root activation
+remains zero. The shared driver still owns the
 declared-binding preflight and completion; the located expression session and
 caller ledger still own MethodCall claims and order. Field/index/compound and
 If/Loop statement surfaces fail closed instead of probing a raw route.

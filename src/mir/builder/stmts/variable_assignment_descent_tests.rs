@@ -1,12 +1,10 @@
 use std::cell::RefCell;
 
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-use crate::mir::{BindingId, ConstValue, MirBuilder, MirInstruction, ValueId};
+use crate::mir::{BindingId, MirBuilder, MirInstruction, ValueId};
 
 use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::variable_assignment_descent::{
-    drive_raw_variable_assignment_v1, drive_variable_assignment_v1,
-    VariableAssignmentDescentPortV1, VariableAssignmentSyntaxViewV1,
+    drive_variable_assignment_v1, VariableAssignmentDescentPortV1, VariableAssignmentSyntaxViewV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -105,22 +103,6 @@ impl VariableAssignmentDescentPortV1 for RecordingAssignmentPortV1 {
             return Err("rhs-input".to_string());
         }
         Ok(())
-    }
-}
-
-fn integer(value: i64) -> ASTNode {
-    ASTNode::Literal {
-        value: LiteralValue::Integer(value),
-        span: Span::unknown(),
-    }
-}
-
-fn binary(left: ASTNode, right: ASTNode) -> ASTNode {
-    ASTNode::BinaryOp {
-        operator: BinaryOperator::Add,
-        left: Box::new(left),
-        right: Box::new(right),
-        span: Span::unknown(),
     }
 }
 
@@ -308,37 +290,4 @@ fn completion_recheck_rejects_lost_binding_and_fresh_attempt_succeeds() {
         builder.function_state.variable_ctx.variable_map.get("x"),
         Some(&result)
     );
-}
-
-#[test]
-fn raw_facade_reuses_recursive_binary_rhs_and_existing_completion() {
-    let mut builder = builder("asn0_raw_facade/0");
-    let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 7).unwrap();
-    declare(&mut builder, "x", old, 0);
-
-    let result = drive_raw_variable_assignment_v1(
-        &mut builder,
-        "x".to_string(),
-        binary(integer(2), integer(3)),
-    )
-    .unwrap();
-
-    assert_eq!(
-        builder.function_state.variable_ctx.variable_map.get("x"),
-        Some(&result)
-    );
-    assert!(instructions(&builder)
-        .iter()
-        .any(|row| matches!(row, MirInstruction::BinOp { .. })));
-    let constants = instructions(&builder)
-        .iter()
-        .filter_map(|row| match row {
-            MirInstruction::Const {
-                value: ConstValue::Integer(value),
-                ..
-            } => Some(*value),
-            _ => None,
-        })
-        .collect::<Vec<_>>();
-    assert!(constants.ends_with(&[2, 3]));
 }

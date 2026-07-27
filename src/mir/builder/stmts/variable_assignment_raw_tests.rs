@@ -179,7 +179,7 @@ fn field_target_stays_on_field_owner_before_rhs_descent() {
 }
 
 #[test]
-fn grouped_assignment_remains_on_its_legacy_facade() {
+fn grouped_assignment_selects_owned_descent_through_production_ingress() {
     let mut builder = builder("asn0_i0_grouped_control/0");
     let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 7).unwrap();
     declare(&mut builder, "x", old, 0);

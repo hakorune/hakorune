@@ -1,5 +1,5 @@
 ---
-Status: accepted execution task
+Status: closed
 Date: 2026-07-28
 Decision: VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0-I0-R0
 Pack: DESCENT-SPINE0
@@ -603,3 +603,34 @@ no new source / identity / failure authority
 no second production route
 no Grouped historical snapshot parity claim
 ```
+
+## Landed closeout
+
+Closed on 2026-07-28.
+
+```text
+exact Variable-target raw/default caller     = 1
+GroupedAssignmentExpr raw/default caller     = 1
+raw/default callers total                    = 2
+detached located caller                      = 1
+detached located production root ingress     = 0
+external generic driver sites                = 3
+
+drive_raw_variable_assignment_v1 sites       = 0
+build_grouped_assignment sites               = 0
+fallback / retry / route reselection         = 0
+
+Assignment focused tests                     = 17 green
+Grouped-filter tests                         = 6 green
+located Assignment tests                     = 6 green
+private ASN0 semantic helper                 = green
+shared replacement guard                     = green
+
+src/**/*.rs LOC delta                        = -77
+five-cell rolling production Rust LOC        = -134
+detached asset delta                         = 0
+```
+
+The public EXPR0 parent retains its unrelated pre-existing Binary first red.
+Grouped production-ingress behavior is proved; Grouped historical snapshot
+parity remains explicitly unclaimed.
