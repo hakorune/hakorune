@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0 is closed as the fifth production cell. Exact Variable-target Assignment and GroupedAssignmentExpr construct one RawLegacyVariableAssignmentInputV1 and call drive_variable_assignment_v1; drive_raw_variable_assignment_v1 and build_grouped_assignment are physically absent. One detached located caller remains root-inactive. No sixth production edge is selected."
+status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0 is selected as the sixth production cell. The live ASTNode::Return selector already sends Some(value) directly to drive_value_return_statement_v1; None alone consumes the old mixed Option facade. T1 will install one exact build_void_return_statement leaf and delete build_return_statement plus drive_raw_value_return_statement_v1. The implementation must measure src/**/*.rs delta <= -68."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-NEXT-EDGE-DESIGN-STOP"
-current_execution_row = "none"
-current_execution_summary = "Five in-place production cells are closed. Perform a fresh bounded census and select one exact sixth production caller, replacement owner, delete target, parity gate, and LOC repayment boundary before any source edit."
+current_design_stop = "none"
+current_execution_row = "RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0"
+current_execution_summary = "Implement the selected T1 source-shape partition atomically: preserve the live Some(value) generic owner, replace the None-only Option facade with an AST-free exact Void leaf, delete both old facades and facade-only tests, correct Return proof authority, and close only if src/**/*.rs delta <= -68 and the new five-cell rolling total is non-positive."
 finite_product_goal = "MIRBUILDER-INPLACE-REPLACEMENT0"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
@@ -437,9 +437,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "mirbuilder-next-edge-design-stop-2026-07-28"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-next-edge-design-stop-2026-07-28.md"
-latest_card_summary = """VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0-I0-R0 is closed as the fifth T0 cell with src/**/*.rs LOC -77 and five-cell rolling -134. Two raw/default callers and one detached located caller are guarded, both old facades are absent, and fallback/retry is zero. No sixth production edge is selected; bounded census is required before another source edit."""
+latest_card = "return-source-partition-cutover0-i0-r0-task-2026-07-28"
+latest_card_path = "docs/development/current/main/investigations/return-source-partition-cutover0-i0-r0-task-2026-07-28.md"
+latest_card_summary = """RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0 is the selected sixth T1 cell. Raw/default Some(value) already has one direct generic-driver caller; None has one residual mixed-facade caller; one detached located value caller remains root-inactive. The atomic I0/R0 must create one exact AST-free Void leaf, remove build_return_statement and drive_raw_value_return_statement_v1 plus facade-only tests, preserve Return/Match/defer/cleanup semantics, and measure src/**/*.rs LOC <= -68."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -642,7 +642,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-NEXT-EDGE-DESIGN-STOP"
+current_blocker_token = "RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -27,12 +27,14 @@ new owner
 ## Current front
 
 ```text
-MIRBUILDER-NEXT-EDGE-DESIGN-STOP
+RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0
 ```
 
-第五cellのVariable-name Assignment descentはclosed。第六production edge
-は未選択であり、既存caller、replacement owner、delete target、parity
-gate、LOC repayment boundaryを一枚に固定するまでsource editへ進まない。
+第五cellのVariable-name Assignment descentはclosed。第六cellは既に本番を
+所有するvalue-bearing Return driverをcreditし、残るOption facadeをexact
+Void ownerへ狭め、raw compatibility facadeとfacade-only testsを同じT1
+I0/R0で削除する。直前四cellのrolling subtotalは`+68`なので、このcellの
+`src/**/*.rs` deltaは`<= -68`が必須。
 
 ## First three replacements
 
@@ -126,7 +128,15 @@ five-cell rolling production Rust LOC budget must still be non-positive.
 ## Active replacement cell
 
 ```text
-none
+RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0
+
+raw/default value caller = 1
+raw/default Void caller  = 1
+detached value caller    = 1, production root inactive
+delete targets           = build_return_statement
+                           drive_raw_value_return_statement_v1
+required Rust LOC delta  = <= -68
+fallback / retry         = forbidden
 ```
 
 ## Landed replacement cells

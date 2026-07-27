@@ -1,7 +1,7 @@
 ---
-Status: active design stop
+Status: resolved
 Date: 2026-07-28
-Decision: pending sixth production edge
+Decision: RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0
 Scope: select the next exact production edge after five closed cutovers
 ---
 
@@ -94,8 +94,29 @@ located caller remains separately counted with production root ingress zero.
 Both obsolete facades are physically absent and the shared guard owns the
 production-edge proof.
 
-No sixth production edge is selected. A fresh bounded census must select the
-next exact caller/owner/delete-target/parity/LOC boundary.
+The sixth production edge is now selected below.
+
+## Sixth resolution
+
+A four-worker bounded census selected:
+
+```text
+RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0
+```
+
+Execution authority:
+
+```text
+docs/development/current/main/investigations/
+return-source-partition-cutover0-i0-r0-task-2026-07-28.md
+```
+
+The raw/default selector already partitions `Some(value)` directly to
+`drive_value_return_statement_v1`, while `None` alone consumes the old mixed
+Option facade. The T1 cell replaces that residual facade with one exact Void
+leaf and deletes the dormant raw compatibility facade. It must repay at least
+68 production Rust lines because the first `-202` cell leaves the next rolling
+window.
 
 ## Minimum implementation slice after decision
 
@@ -106,7 +127,7 @@ fallback, or unrelated cleanup may be added.
 
 ## Non-claims
 
-- no sixth production row is selected
+- the sixth production row is selected but not implemented or closed
 - no macro pack is closed
 - no detached asset is promoted
 - no Stage-B, Ownership, selfhost, language, runtime, or backend work resumes

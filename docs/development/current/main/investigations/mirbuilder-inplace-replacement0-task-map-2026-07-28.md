@@ -365,8 +365,42 @@ production Rust LOC delta                   = -77
 five-cell rolling production Rust LOC       = -134
 ```
 
-No sixth production edge is selected. Return to
-`MIRBUILDER-NEXT-EDGE-DESIGN-STOP`.
+The following bounded Return census selected the sixth production edge.
+
+## Sixth replacement
+
+### `RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0`
+
+Status: active T1 execution row selected on 2026-07-28.
+
+Execution authority:
+
+```text
+docs/development/current/main/investigations/
+return-source-partition-cutover0-i0-r0-task-2026-07-28.md
+```
+
+Exchange:
+
+```text
+live value:
+  ASTNode::Return Some
+  -> RawLegacyValueReturnInputV1
+  -> drive_value_return_statement_v1
+
+split Void:
+  ASTNode::Return None
+  -> build_void_return_statement
+
+retire:
+  build_return_statement(Option<Box<ASTNode>>)
+  drive_raw_value_return_statement_v1
+```
+
+This T1 cell changes only the responsibility interface. It preserves the
+Return ABI, Match/defer/cleanup/completion owners, located inactive adapter,
+and language/runtime/backend behavior. Its measured `src/**/*.rs` delta must
+be `<= -68` so the new five-cell rolling total remains non-positive.
 
 ## Macro pack order
 
