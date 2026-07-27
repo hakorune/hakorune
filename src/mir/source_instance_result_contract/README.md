@@ -24,6 +24,19 @@ input, select a route, emit a Call, retain a destination, or publish a type.
 The later physical-receipt row is the only allowed consumer toward the actual
 unified Call success boundary.
 
+## Owned rebind witness
+
+`OwnedNestedInstanceResultRebindWitnessV1` is the sole owned projection of an
+already-sealed nested Integer contract. It retains only the original catalog
+allocation identity, caller, source site, target key, and a private
+unconditional-Integer seal.
+
+Its one consuming rebind terminal accepts the retained shared catalog and an
+exact `VerifiedSourceMethodCallSiteV1`. It rechecks catalog allocation, caller,
+the existing same-owner instance relation, target key, and site before
+reissuing the existing borrowed contract. It does not rebuild callable-result
+evidence, inspect Builder state, or expose retry/resume authority.
+
 ## Located outer argument
 
 `PreparedPreloopLocatedArgumentV1` adds the structural outer

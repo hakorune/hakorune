@@ -2,6 +2,7 @@ use crate::mir::callable_result_representation::{
     VerifiedUnannotatedCallableBodyResultOutcomeV1, VerifiedUnannotatedCallableBodyResultProofV1,
 };
 
+use super::owned_rebind::OwnedNestedInstanceResultRebindWitnessSealV1;
 use super::{
     NestedInstanceResultContractErrorV1, NestedInstanceResultContractStageV1,
     VerifiedCurrentOwnerInstanceResultTargetV1,
@@ -13,12 +14,27 @@ pub(crate) struct SealedNestedInstanceResultContractV1<'site, 'catalog> {
 }
 
 impl<'site, 'catalog> SealedNestedInstanceResultContractV1<'site, 'catalog> {
-    pub(crate) const fn target(&self) -> &VerifiedCurrentOwnerInstanceResultTargetV1<'site, 'catalog> {
+    pub(crate) const fn target(
+        &self,
+    ) -> &VerifiedCurrentOwnerInstanceResultTargetV1<'site, 'catalog> {
         &self.target
     }
 
     pub(crate) const fn result_is_integer(&self) -> bool {
         true
+    }
+
+    pub(super) fn into_rebind_target(
+        self,
+    ) -> VerifiedCurrentOwnerInstanceResultTargetV1<'site, 'catalog> {
+        self.target
+    }
+
+    pub(super) fn from_owned_rebind(
+        target: VerifiedCurrentOwnerInstanceResultTargetV1<'site, 'catalog>,
+        _seal: OwnedNestedInstanceResultRebindWitnessSealV1,
+    ) -> Self {
+        Self { target }
     }
 }
 
@@ -41,7 +57,9 @@ impl<'site, 'catalog> RejectedNestedInstanceResultContractV1<'site, 'catalog> {
     pub(crate) fn discard(self) {}
 
     #[cfg(test)]
-    pub(crate) const fn target(&self) -> &VerifiedCurrentOwnerInstanceResultTargetV1<'site, 'catalog> {
+    pub(crate) const fn target(
+        &self,
+    ) -> &VerifiedCurrentOwnerInstanceResultTargetV1<'site, 'catalog> {
         &self.target
     }
 }

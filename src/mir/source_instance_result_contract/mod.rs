@@ -1,6 +1,7 @@
 //! One bounded source-only instance-call result contract.
 
 mod contract;
+mod owned_rebind;
 mod preloop_association;
 mod preloop_located_argument;
 mod rejection;
@@ -9,6 +10,11 @@ mod target;
 pub(crate) use contract::{
     seal_nested_instance_result_contract, RejectedNestedInstanceResultContractV1,
     SealedNestedInstanceResultContractV1,
+};
+pub(crate) use owned_rebind::{
+    rebind_nested_instance_result_contract_v1, NestedInstanceResultRebindErrorV1,
+    NestedInstanceResultRebindStageV1, OwnedNestedInstanceResultRebindWitnessV1,
+    RejectedNestedInstanceResultRebindV1,
 };
 pub(crate) use preloop_association::{
     prepare_preloop_nested_result_association_v1, PreloopNestedResultAssociationErrorV1,

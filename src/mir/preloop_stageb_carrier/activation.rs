@@ -10,6 +10,7 @@ use crate::mir::builder::{
 use crate::mir::resolved_semantics::{
     SourceExprSiteV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
 };
+use crate::mir::source_instance_result_contract::OwnedNestedInstanceResultRebindWitnessV1;
 use std::sync::Arc;
 
 use super::outer_result::SealedPreloopOuterCarrierResultContractV1;
@@ -97,6 +98,7 @@ pub(crate) struct OwnedPreloopStageBCarrierRowV1 {
     outer_call_site: SourceExprSiteV1,
     selected_argument_index: u32,
     inner_call_site: SourceExprSiteV1,
+    nested_result_rebind: OwnedNestedInstanceResultRebindWitnessV1,
     outer_target: CanonicalSameModuleCallableKeyV1,
     result: SealedPreloopOuterCarrierOwnedResultV1,
 }
@@ -120,6 +122,10 @@ impl OwnedPreloopStageBCarrierRowV1 {
 
     pub(crate) const fn inner_call_site(&self) -> &SourceExprSiteV1 {
         &self.inner_call_site
+    }
+
+    pub(crate) const fn nested_result_rebind(&self) -> &OwnedNestedInstanceResultRebindWitnessV1 {
+        &self.nested_result_rebind
     }
 
     pub(crate) const fn outer_target(&self) -> &CanonicalSameModuleCallableKeyV1 {
@@ -258,7 +264,7 @@ pub(crate) fn prepare_preloop_stageb_carrier_rows_v1<'result, 'site, 'view, 'cat
     let inner_call_site = contract.inner_site().clone();
     let outer_target = contract.target().clone();
 
-    contract.discard();
+    let nested_result_rebind = contract.into_owned_nested_result_rebind_witness();
     Ok(PreparedPreloopStageBCarrierRowsV1 {
         catalog_identity,
         row: OwnedPreloopStageBCarrierRowV1 {
@@ -272,6 +278,7 @@ pub(crate) fn prepare_preloop_stageb_carrier_rows_v1<'result, 'site, 'view, 'cat
             outer_call_site,
             selected_argument_index,
             inner_call_site,
+            nested_result_rebind,
             outer_target,
             result: SealedPreloopOuterCarrierOwnedResultV1::new(),
         },

@@ -1,6 +1,6 @@
 # PRELOOP-STAGEB-OWNED-LOCATED-AUTHORITY0-prime-r1
 
-Status: accepted decision; R1 closed; R2 active
+Status: accepted decision; R1-R2 closed; R3 active
 Date: 2026-07-27
 
 ## Decision
@@ -188,6 +188,8 @@ cargo check --lib                                  = green
 
 ### R2 — `PRELOOP-STAGEB-NESTED-REBIND0-S0`
 
+Status: closed
+
 Implement:
 
 ```text
@@ -205,6 +207,20 @@ equal-looking foreign catalog   -> reject
 caller/site/target drift        -> reject
 result-catalog construction     -> 0
 Builder reference               -> 0
+```
+
+Landed evidence:
+
+```text
+owned rebind witness producer                    = existing sealed contract only
+retained identity                                = catalog/caller/site/target
+unconditional Integer authority                  = private consumed seal
+same shared catalog/caller/site/target            = rebind green
+equal-looking foreign catalog                    = typed reject
+caller/site/target drift                         = typed reject
+callable-result catalog construction during rebind= 0
+Builder reference                                = 0
+activation row retention                         = 1
 ```
 
 ### R3 — `PRELOOP-STAGEB-FUNCTION-INGRESS-RECIPE0-S0`

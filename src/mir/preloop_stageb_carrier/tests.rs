@@ -270,6 +270,14 @@ fn owned_activation_plan_retains_one_exact_root_assignment_schedule() {
     assert_eq!(row.outer_call_site().node().segments().len(), 2);
     assert_eq!(row.selected_argument_index(), 1);
     assert_eq!(row.inner_call_site().node().segments().len(), 3);
+    assert_eq!(row.nested_result_rebind().caller(), row.caller());
+    assert_eq!(row.nested_result_rebind().site(), row.inner_call_site());
+    assert_eq!(row.nested_result_rebind().target().owner(), "ParserBox");
+    assert_eq!(
+        row.nested_result_rebind().target().name(),
+        "static_const_eval_pos"
+    );
+    assert_eq!(row.nested_result_rebind().target().arity(), 1);
     assert_eq!(row.outer_target().owner(), "ParserStringUtilsBox");
     assert_eq!(row.outer_target().name(), "skip_ws");
     assert!(row.result().is_integer());

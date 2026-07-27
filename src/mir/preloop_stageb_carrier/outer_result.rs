@@ -5,6 +5,7 @@ use crate::mir::builder::{
 };
 use crate::mir::callable_result_representation::VerifiedStaticExactI64RequirementV1;
 use crate::mir::resolved_semantics::SourceExprSiteV1;
+use crate::mir::source_instance_result_contract::OwnedNestedInstanceResultRebindWitnessV1;
 use crate::mir::source_instance_result_contract::PreparedPreloopLocatedArgumentV1;
 
 use super::{
@@ -81,6 +82,18 @@ impl<'result, 'site, 'view, 'catalog>
             ..
         } = self;
         let _ = (requirement, prepared);
+    }
+
+    pub(super) fn into_owned_nested_result_rebind_witness(
+        self,
+    ) -> OwnedNestedInstanceResultRebindWitnessV1 {
+        let Self {
+            requirement,
+            prepared,
+            ..
+        } = self;
+        let _ = requirement;
+        prepared.into_owned_rebind_witness()
     }
 }
 

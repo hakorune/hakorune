@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-SHARED-CATALOG0-S0 is closed. One Arc callable-catalog allocation is now created before Stage-B source proofs, retained by selection and activation owners, installed through the single Builder catalog lane as private Shared storage, and retained by the stack-owned ledger; Arc::ptr_eq fixes the exact Builder/ledger allocation law. Ordinary and Raw installs remain Exclusive and behavior-identical. The active row is PRELOOP-STAGEB-NESTED-REBIND0-S0: consume the already-sealed nested Integer contract into one owned rebind witness, retain it in the activation row, and rebind only against an exact site issued by the same shared catalog. Result-catalog rebuild, source reclassification, Builder self-borrow, a second Port family, retry, fallback, Call receipts, and type publication remain forbidden."
+status = "PRELOOP-STAGEB-NESTED-REBIND0-S0 is closed. The existing sealed nested Integer contract now consumes into one non-Clone owned witness branded by the exact catalog allocation, caller, source site, target key, and a private unconditional-Integer seal. The activation row retains that witness beside the distinct outer Integer result authority. Its sole rebind terminal accepts the shared catalog and exact verified MethodCall, rechecks the existing same-owner instance relation, and restores the existing borrowed contract without result-catalog construction or Builder access. The active row is PRELOOP-STAGEB-FUNCTION-INGRESS-RECIPE0-S0. Source reclassification, Builder self-borrow, a second located Port, retry/fallback, Call receipts, and type publication remain forbidden."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-NESTED-REBIND0-S0"
-current_execution_summary = "Add one OwnedNestedInstanceResultRebindWitnessV1 produced only by consuming the existing sealed nested Integer contract. Retain it in the owned activation row and allow one exact rebind against the shared catalog allocation, caller key, source site, target key, and instance-method relation. Do not rebuild a callable-result catalog, inspect Builder state, reclassify source, add a second located Port, retry/fallback, emit Call receipts, or publish types."
+current_execution_row = "PRELOOP-STAGEB-FUNCTION-INGRESS-RECIPE0-S0"
+current_execution_summary = "Add one PreparedPreloopStageBFunctionIngressV1 that consumes the exact activation row with the external shared catalog Arc, recreates the existing structural source-view products, consumes the owned witness through its exact rebind terminal, and produces the existing PreparedPreloopLocatedArgumentV1 for the selected function execution terminal. The borrowed products must remain stack-local and must never borrow Builder::comp_ctx. Do not add a production caller, new Port family, result inference, source map, retry/fallback, Call receipt, or type publication."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -638,7 +638,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-NESTED-REBIND0-S0"
+current_blocker_token = "PRELOOP-STAGEB-FUNCTION-INGRESS-RECIPE0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

@@ -11,6 +11,8 @@ Owned here:
 - the existing sealed nested instance Integer contract;
 - typed rejection before Builder effects.
 - one owned, non-Clone activation row;
+- one owned nested-result rebind witness retained beside the distinct outer
+  Integer result disposition;
 - one plan that shares the exact declaration-catalog `Arc` allocation with
   the selected Builder lane and stack-owned activation ledger;
 - one disconnected complete candidate inventory that consumes the neutral
@@ -40,6 +42,7 @@ VerifiedStaticExactI64RequirementV1
   -> SealedPreloopOuterCarrierResultContractV1
   -> prepare_preloop_stageb_carrier_rows_v1
   -> PreparedPreloopStageBCarrierRowsV1
+     - OwnedNestedInstanceResultRebindWitnessV1
   + exact Arc<VerifiedSameModuleCallableDeclarationCatalogV1>
   -> VerifiedPreloopStageBCarrierActivationPlanV1
 ```

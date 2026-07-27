@@ -8,7 +8,7 @@ use std::ptr;
 
 use crate::mir::source_call_target::RawLocatedMethodCallInputV1;
 
-use super::SealedNestedInstanceResultContractV1;
+use super::{OwnedNestedInstanceResultRebindWitnessV1, SealedNestedInstanceResultContractV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PreloopNestedResultAssociationStageV1 {
@@ -47,6 +47,14 @@ impl<'site, 'view, 'catalog> PreparedPreloopNestedResultAssociationV1<'site, 'vi
     }
 
     pub(crate) fn discard(self) {}
+
+    pub(super) fn into_owned_rebind_witness(self) -> OwnedNestedInstanceResultRebindWitnessV1 {
+        let Self {
+            contract, input, ..
+        } = self;
+        let _ = input;
+        contract.into_owned_rebind_witness()
+    }
 }
 
 #[derive(Debug)]
