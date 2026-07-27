@@ -9,18 +9,19 @@ use crate::mir::builder::preloop_stageb_context_install::{
     PreparedPreloopStageBContextInstallV1, RejectedPreloopStageBContextInstallV1,
 };
 use crate::mir::builder::{MirBuilder, VerifiedSameModuleCallableDeclarationCatalogV1};
+use std::sync::Arc;
 
 use super::activation::OwnedPreloopStageBCarrierRowV1;
 
 #[derive(Debug)]
 pub(in crate::mir) struct PreparedPreloopStageBActivationInstallPartsV1 {
-    catalog: VerifiedSameModuleCallableDeclarationCatalogV1,
+    catalog: Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
     row: OwnedPreloopStageBCarrierRowV1,
 }
 
 impl PreparedPreloopStageBActivationInstallPartsV1 {
     pub(super) const fn new(
-        catalog: VerifiedSameModuleCallableDeclarationCatalogV1,
+        catalog: Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
         row: OwnedPreloopStageBCarrierRowV1,
     ) -> Self {
         Self { catalog, row }

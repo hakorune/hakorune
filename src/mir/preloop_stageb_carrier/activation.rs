@@ -10,6 +10,7 @@ use crate::mir::builder::{
 use crate::mir::resolved_semantics::{
     SourceExprSiteV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
 };
+use std::sync::Arc;
 
 use super::outer_result::SealedPreloopOuterCarrierResultContractV1;
 
@@ -131,7 +132,7 @@ impl OwnedPreloopStageBCarrierRowV1 {
 }
 
 /// Prepared owned normalization. The pointer identity is construction-only and
-/// is consumed when the exact boxed catalog allocation seals the final plan.
+/// is consumed when the exact shared catalog allocation seals the final plan.
 #[derive(Debug)]
 pub(crate) struct PreparedPreloopStageBCarrierRowsV1 {
     catalog_identity: usize,
@@ -291,13 +292,13 @@ fn reject_rows<'result, 'site, 'view, 'catalog>(
 /// Owned, non-Clone, single-use activation plan.
 #[derive(Debug)]
 pub(crate) struct VerifiedPreloopStageBCarrierActivationPlanV1 {
-    declaration_catalog: Box<VerifiedSameModuleCallableDeclarationCatalogV1>,
+    declaration_catalog: Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
     row: OwnedPreloopStageBCarrierRowV1,
 }
 
 #[derive(Debug)]
 pub(crate) struct RejectedPreloopStageBCarrierActivationPlanV1 {
-    declaration_catalog: Box<VerifiedSameModuleCallableDeclarationCatalogV1>,
+    declaration_catalog: Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
     rows: PreparedPreloopStageBCarrierRowsV1,
     stage: PreloopStageBCarrierActivationStageV1,
     cause: PreloopStageBCarrierActivationErrorV1,
@@ -305,31 +306,31 @@ pub(crate) struct RejectedPreloopStageBCarrierActivationPlanV1 {
 
 impl VerifiedPreloopStageBCarrierActivationPlanV1 {
     pub(crate) fn seal(
-        declaration_catalog: Box<VerifiedSameModuleCallableDeclarationCatalogV1>,
+        declaration_catalog: Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
         rows: PreparedPreloopStageBCarrierRowsV1,
     ) -> Result<Self, RejectedPreloopStageBCarrierActivationPlanV1> {
-        let stage_and_cause =
-            if rows.catalog_identity != declaration_catalog.as_ref() as *const _ as usize {
-                Some((
-                    PreloopStageBCarrierActivationStageV1::CatalogAllocation,
-                    PreloopStageBCarrierActivationErrorV1::CatalogAllocationMismatch,
-                ))
-            } else if declaration_catalog.declaration(rows.row.caller()).is_none() {
-                Some((
-                    PreloopStageBCarrierActivationStageV1::Caller,
-                    PreloopStageBCarrierActivationErrorV1::CallerOutsideCatalog,
-                ))
-            } else if declaration_catalog
-                .declaration(rows.row.outer_target())
-                .is_none()
-            {
-                Some((
-                    PreloopStageBCarrierActivationStageV1::Target,
-                    PreloopStageBCarrierActivationErrorV1::TargetOutsideCatalog,
-                ))
-            } else {
-                None
-            };
+        let stage_and_cause = if rows.catalog_identity != Arc::as_ptr(&declaration_catalog) as usize
+        {
+            Some((
+                PreloopStageBCarrierActivationStageV1::CatalogAllocation,
+                PreloopStageBCarrierActivationErrorV1::CatalogAllocationMismatch,
+            ))
+        } else if declaration_catalog.declaration(rows.row.caller()).is_none() {
+            Some((
+                PreloopStageBCarrierActivationStageV1::Caller,
+                PreloopStageBCarrierActivationErrorV1::CallerOutsideCatalog,
+            ))
+        } else if declaration_catalog
+            .declaration(rows.row.outer_target())
+            .is_none()
+        {
+            Some((
+                PreloopStageBCarrierActivationStageV1::Target,
+                PreloopStageBCarrierActivationErrorV1::TargetOutsideCatalog,
+            ))
+        } else {
+            None
+        };
         if let Some((stage, cause)) = stage_and_cause {
             return Err(RejectedPreloopStageBCarrierActivationPlanV1 {
                 declaration_catalog,
@@ -353,7 +354,7 @@ impl VerifiedPreloopStageBCarrierActivationPlanV1 {
         self,
     ) -> super::module_install::PreparedPreloopStageBActivationInstallPartsV1 {
         super::module_install::PreparedPreloopStageBActivationInstallPartsV1::new(
-            *self.declaration_catalog,
+            self.declaration_catalog,
             self.row,
         )
     }

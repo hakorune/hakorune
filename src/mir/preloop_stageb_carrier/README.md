@@ -11,14 +11,15 @@ Owned here:
 - the existing sealed nested instance Integer contract;
 - typed rejection before Builder effects.
 - one owned, non-Clone activation row;
-- one plan that owns the exact declaration-catalog allocation.
+- one plan that shares the exact declaration-catalog `Arc` allocation with
+  the selected Builder lane and stack-owned activation ledger;
 - one disconnected complete candidate inventory that consumes the neutral
   whole-source call/target inventory and composes only existing result,
   nested-instance, located-argument, outer-carrier, and owned-row authorities;
 - stable owned candidate identities and exact zero/one/many cardinality.
 - one consuming candidate-selection boundary: zero retains complete observed
   evidence until discard, one immediately creates the existing activation
-  plan, and many retains the exact boxed catalog plus complete ambiguity
+  plan, and many retains the exact shared catalog plus complete ambiguity
   inventory.
 
 Not owned here:
@@ -39,7 +40,7 @@ VerifiedStaticExactI64RequirementV1
   -> SealedPreloopOuterCarrierResultContractV1
   -> prepare_preloop_stageb_carrier_rows_v1
   -> PreparedPreloopStageBCarrierRowsV1
-  + exact Box<VerifiedSameModuleCallableDeclarationCatalogV1>
+  + exact Arc<VerifiedSameModuleCallableDeclarationCatalogV1>
   -> VerifiedPreloopStageBCarrierActivationPlanV1
 ```
 

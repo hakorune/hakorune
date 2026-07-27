@@ -1,10 +1,11 @@
 //! Consuming 0/1/many projection for the bounded Stage-B candidate inventory.
 //!
 //! Prepared rows and construction-only catalog identity never cross this
-//! boundary. A single candidate is immediately paired with the exact boxed
+//! boundary. A single candidate is immediately paired with the exact shared
 //! declaration catalog that produced it.
 
 use crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1;
+use std::sync::Arc;
 
 use super::activation::{
     PreloopStageBCarrierActivationErrorV1, PreloopStageBCarrierActivationStageV1,
@@ -17,7 +18,7 @@ use super::source_inventory::{
 
 #[derive(Debug)]
 pub(crate) struct VerifiedPreloopStageBNoCandidateV1 {
-    declaration_catalog: Box<VerifiedSameModuleCallableDeclarationCatalogV1>,
+    declaration_catalog: Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
     inventory: VerifiedPreloopStageBCandidateInventoryV1,
 }
 
@@ -45,7 +46,7 @@ impl VerifiedPreloopStageBSelectedCandidateV1 {
 
 #[derive(Debug)]
 pub(crate) struct VerifiedPreloopStageBAmbiguousCandidatesV1 {
-    declaration_catalog: Box<VerifiedSameModuleCallableDeclarationCatalogV1>,
+    declaration_catalog: Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
     inventory: VerifiedPreloopStageBCandidateInventoryV1,
 }
 
@@ -87,7 +88,7 @@ pub(crate) enum PreloopStageBCandidateSelectionErrorV1 {
 #[derive(Debug)]
 enum RetainedPreloopStageBCandidateSelectionOwnerV1 {
     CatalogMismatch {
-        declaration_catalog: Box<VerifiedSameModuleCallableDeclarationCatalogV1>,
+        declaration_catalog: Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
         inventory: VerifiedPreloopStageBCandidateInventoryV1,
     },
     Activation(RejectedPreloopStageBCarrierActivationPlanV1),
@@ -121,7 +122,7 @@ impl RejectedPreloopStageBCandidateSelectionV1 {
 }
 
 pub(crate) fn seal_preloop_stageb_candidate_selection_v1(
-    declaration_catalog: Box<VerifiedSameModuleCallableDeclarationCatalogV1>,
+    declaration_catalog: Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
     inventory: VerifiedPreloopStageBCandidateInventoryV1,
 ) -> Result<VerifiedPreloopStageBCandidateSelectionV1, RejectedPreloopStageBCandidateSelectionV1> {
     if !inventory.is_branded_by(declaration_catalog.as_ref()) {

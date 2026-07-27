@@ -1,6 +1,6 @@
 # PRELOOP-STAGEB-OWNED-LOCATED-AUTHORITY0-prime-r1
 
-Status: accepted decision and active execution task map
+Status: accepted decision; R1 closed; R2 active
 Date: 2026-07-27
 
 ## Decision
@@ -149,6 +149,8 @@ fallback is added.
 
 ### R1 — `PRELOOP-STAGEB-SHARED-CATALOG0-S0`
 
+Status: closed
+
 Implement:
 
 ```text
@@ -169,6 +171,19 @@ Arc::ptr_eq(Builder, ledger)                      = green
 ordinary catalog install behavior                 = unchanged
 catalog reseal                                    = 0
 production caller                                 = 0
+```
+
+Landed evidence:
+
+```text
+source catalog allocation                          = Arc::new before proof borrows
+activation / selected / rejection retention        = same Arc
+Builder catalog storage                            = private Exclusive | Shared
+Builder + installed stack ledger                   = Arc::ptr_eq green
+ordinary and Raw installs                          = Exclusive, unchanged
+focused carrier / inventory / selection /
+context-install / module-activation tests          = green
+cargo check --lib                                  = green
 ```
 
 ### R2 — `PRELOOP-STAGEB-NESTED-REBIND0-S0`

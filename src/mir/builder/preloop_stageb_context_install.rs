@@ -5,6 +5,7 @@
 //! and fallback remain outside this boundary.
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use super::{MirBuilder, VerifiedSameModuleCallableDeclarationCatalogV1};
 
@@ -53,7 +54,7 @@ impl PreparedPreloopStageBAliasInstallV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) struct PreparedPreloopStageBContextInstallV1 {
-    catalog: VerifiedSameModuleCallableDeclarationCatalogV1,
+    catalog: Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
     aliases: PreparedPreloopStageBAliasInstallV1,
 }
 
@@ -75,6 +76,7 @@ impl RejectedPreloopStageBContextInstallV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) struct InstalledPreloopStageBContextV1 {
+    catalog: Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
     _seal: InstalledPreloopStageBContextSealV1,
 }
 
@@ -83,7 +85,7 @@ struct InstalledPreloopStageBContextSealV1(());
 
 impl PreparedPreloopStageBContextInstallV1 {
     pub(in crate::mir) fn new(
-        catalog: VerifiedSameModuleCallableDeclarationCatalogV1,
+        catalog: Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
         aliases: PreparedPreloopStageBAliasInstallV1,
     ) -> Self {
         Self { catalog, aliases }
@@ -117,13 +119,20 @@ impl PreparedPreloopStageBContextInstallV1 {
         let aliases_are_explicit = self.aliases.is_explicit();
         let aliases = self.aliases.into_map();
         builder.comp_ctx.install_preloop_stageb_context_preflighted(
-            self.catalog,
+            Arc::clone(&self.catalog),
             aliases,
             aliases_are_explicit,
         );
         Ok(InstalledPreloopStageBContextV1 {
+            catalog: self.catalog,
             _seal: InstalledPreloopStageBContextSealV1(()),
         })
+    }
+}
+
+impl InstalledPreloopStageBContextV1 {
+    pub(in crate::mir) fn catalog(&self) -> &Arc<VerifiedSameModuleCallableDeclarationCatalogV1> {
+        &self.catalog
     }
 }
 
@@ -158,7 +167,7 @@ static box Helper {
     fn vacant_context_commits_none_or_explicit_aliases_atomically() {
         let mut none = MirBuilder::new();
         PreparedPreloopStageBContextInstallV1::new(
-            catalog(),
+            catalog().into(),
             PreparedPreloopStageBAliasInstallV1::None,
         )
         .commit(&mut none)
@@ -168,7 +177,7 @@ static box Helper {
 
         let mut explicit = MirBuilder::new();
         PreparedPreloopStageBContextInstallV1::new(
-            catalog(),
+            catalog().into(),
             PreparedPreloopStageBAliasInstallV1::Explicit(aliases("Helper")),
         )
         .commit(&mut explicit)
@@ -185,7 +194,7 @@ static box Helper {
         let mut builder = MirBuilder::new();
         builder.comp_ctx.set_using_import_boxes(aliases("Helper"));
         PreparedPreloopStageBContextInstallV1::new(
-            catalog(),
+            catalog().into(),
             PreparedPreloopStageBAliasInstallV1::Explicit(aliases("Helper")),
         )
         .commit(&mut builder)
@@ -207,7 +216,7 @@ static box Helper {
         builder.comp_ctx.set_using_import_boxes(aliases("Existing"));
 
         let rejected = PreparedPreloopStageBContextInstallV1::new(
-            catalog(),
+            catalog().into(),
             PreparedPreloopStageBAliasInstallV1::Explicit(aliases("Helper")),
         )
         .commit(&mut builder)
@@ -227,7 +236,7 @@ static box Helper {
     fn stale_alias_conflict_rejects_without_installing_catalog() {
         let mut builder = MirBuilder::new();
         let prepared = PreparedPreloopStageBContextInstallV1::new(
-            catalog(),
+            catalog().into(),
             PreparedPreloopStageBAliasInstallV1::Explicit(aliases("Helper")),
         );
         builder

@@ -14,6 +14,7 @@ use crate::mir::source_call_target::{
     StaticImportAliasViewErrorV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
     WholeSourceStaticCallTargetInventoryErrorV1,
 };
+use std::sync::Arc;
 
 use super::legacy_whole_source_request::LegacyWholeSourceCompileRequestV1;
 use super::lowering_input::LegacyModuleOriginV1;
@@ -202,7 +203,7 @@ impl PreloopStageBWholeSourceProducerV1 {
 
         let declarations =
             match VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(request.ast()) {
-                Ok(declarations) => Box::new(declarations),
+                Ok(declarations) => Arc::new(declarations),
                 Err(cause) => {
                     return Err(reject_request(
                         request,
@@ -573,7 +574,8 @@ static box Caller {
 
         let foreign =
             Box::new(VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&ast).unwrap());
-        let rejected = seal_preloop_stageb_candidate_selection_v1(foreign, candidates).unwrap_err();
+        let rejected =
+            seal_preloop_stageb_candidate_selection_v1(foreign.into(), candidates).unwrap_err();
         assert_eq!(
             rejected.cause(),
             &PreloopStageBCandidateSelectionErrorV1::CatalogAllocationMismatch

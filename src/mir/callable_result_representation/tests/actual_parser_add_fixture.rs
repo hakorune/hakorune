@@ -4,6 +4,8 @@
 //! sealing its exact 15-row activation plan. GenericLoop located-plan tests
 //! borrow this fixture rather than copying source or target-site ordinals.
 
+use std::sync::Arc;
+
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
     VerifiedSameModuleCallableDeclarationCatalogV1,
@@ -313,9 +315,9 @@ pub(crate) fn with_owned_stageb_carrier_correspondence_inputs<R>(
         &VerifiedSourceStaticCallTargetCatalogV1<'_>,
         &super::super::VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
     ) -> R,
-) -> (Box<VerifiedSameModuleCallableDeclarationCatalogV1>, R) {
+) -> (Arc<VerifiedSameModuleCallableDeclarationCatalogV1>, R) {
     let source = instance_result_contract_source();
-    let declarations = Box::new(declarations(&source));
+    let declarations = Arc::new(declarations(&source));
     let outer_site = site(vec![
         SourcePathSegmentV1::Body(3),
         SourcePathSegmentV1::Value,

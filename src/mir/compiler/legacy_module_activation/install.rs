@@ -244,6 +244,9 @@ box Caller {
             .into_preinstalled_root_request_v1();
         let installed = prepared.commit(&mut builder).expect("atomic context");
         assert!(builder.comp_ctx.callable_declaration_catalog().is_ok());
+        assert!(builder
+            .comp_ctx
+            .callable_declaration_catalog_is_shared_with(installed.ledger.context().catalog()));
         assert_eq!(installed.ledger.row().caller().owner(), "Caller");
 
         let completed = installed

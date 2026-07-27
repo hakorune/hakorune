@@ -63,8 +63,24 @@ use super::properties::PropertyRegistry;
 use super::static_scalar_facts::{infer_static_scalar_method_fact, StaticScalarMethodFact};
 use super::type_registry::TypeRegistry;
 use hakorune_mir_builder::BoxCompilationContext;
+use std::sync::Arc;
 
 mod declarations;
+
+#[derive(Debug)]
+enum CallableDeclarationCatalogStorageV1 {
+    Exclusive(VerifiedSameModuleCallableDeclarationCatalogV1),
+    Shared(Arc<VerifiedSameModuleCallableDeclarationCatalogV1>),
+}
+
+impl CallableDeclarationCatalogStorageV1 {
+    fn catalog(&self) -> &VerifiedSameModuleCallableDeclarationCatalogV1 {
+        match self {
+            Self::Exclusive(catalog) => catalog,
+            Self::Shared(catalog) => catalog.as_ref(),
+        }
+    }
+}
 
 /// Compilation state context for MIR builder
 ///
@@ -123,7 +139,7 @@ pub(crate) struct CompilationContext {
     /// The slot is cleared at module preparation and installed exactly once
     /// before declaration-index effects. Missing or duplicate installation is
     /// a typed session error, never an empty-candidate fallback.
-    callable_declaration_catalog: Option<VerifiedSameModuleCallableDeclarationCatalogV1>,
+    callable_declaration_catalog: Option<CallableDeclarationCatalogStorageV1>,
 
     /// Verified static scalar method facts keyed by lowered function name.
     ///
@@ -231,7 +247,8 @@ impl CompilationContext {
         if self.callable_declaration_catalog.is_some() {
             return Err(SameModuleCallableDeclarationCatalogSessionErrorV1::DuplicateInstall);
         }
-        self.callable_declaration_catalog = Some(catalog);
+        self.callable_declaration_catalog =
+            Some(CallableDeclarationCatalogStorageV1::Exclusive(catalog));
         Ok(())
     }
 
@@ -258,7 +275,7 @@ impl CompilationContext {
 
     pub(in crate::mir::builder) fn install_preloop_stageb_context_preflighted(
         &mut self,
-        catalog: VerifiedSameModuleCallableDeclarationCatalogV1,
+        catalog: Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
         aliases: HashMap<String, String>,
         aliases_are_explicit: bool,
     ) {
@@ -267,7 +284,8 @@ impl CompilationContext {
             self.using_import_boxes.is_empty()
                 || (aliases_are_explicit && self.using_import_boxes == aliases)
         );
-        self.callable_declaration_catalog = Some(catalog);
+        self.callable_declaration_catalog =
+            Some(CallableDeclarationCatalogStorageV1::Shared(catalog));
         self.using_import_boxes = aliases;
     }
 
@@ -321,7 +339,8 @@ impl CompilationContext {
         debug_assert!(self.field_origin_by_box.is_empty());
         debug_assert!(self.method_tail_index.is_empty());
         debug_assert_eq!(self.method_tail_index_source_len, 0);
-        self.callable_declaration_catalog = Some(catalog);
+        self.callable_declaration_catalog =
+            Some(CallableDeclarationCatalogStorageV1::Exclusive(catalog));
         if matches!(
             route,
             super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1::App
@@ -339,7 +358,20 @@ impl CompilationContext {
     > {
         self.callable_declaration_catalog
             .as_ref()
+            .map(CallableDeclarationCatalogStorageV1::catalog)
             .ok_or(SameModuleCallableDeclarationCatalogSessionErrorV1::QueryBeforeInstall)
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn callable_declaration_catalog_is_shared_with(
+        &self,
+        expected: &Arc<VerifiedSameModuleCallableDeclarationCatalogV1>,
+    ) -> bool {
+        matches!(
+            self.callable_declaration_catalog.as_ref(),
+            Some(CallableDeclarationCatalogStorageV1::Shared(installed))
+                if Arc::ptr_eq(installed, expected)
+        )
     }
 
     pub(crate) fn callable_declaration(
