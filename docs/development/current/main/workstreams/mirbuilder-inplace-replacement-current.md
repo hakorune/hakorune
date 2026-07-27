@@ -27,16 +27,16 @@ new owner
 ## Current front
 
 ```text
-MIRBUILDER-STRUCTURAL-BUDGET-D0
+MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT
 ```
 
 第六cellのReturn source partitionはclosed。value-bearing generic ownerと
 exact Void leafが本番selectorを分有し、旧Option/raw facadesは物理削除済み。
 第七production edgeは未選択。Binaryの一つのsource selector/dead
 predecessor chainを一cellで数えるか、Ordinary/ShortCircuitの二semantic
-ownerへ分けるかをD0で決める前に、owned source/proof/check全体の絶対完了
-予算を固定する。structural budget D0がfinal Xを受理するまでsource editへ
-進まない。
+ownerへ分けるかをD0で決める前に、generated observation、closed-world
+classification、mechanically derived envelopeを二commitで閉じる。四つの
+final Xを受理するまでproduction source editへ進まない。
 
 ## First three replacements
 
@@ -123,11 +123,12 @@ replacement_ledger_remaining       = 0 scheduled production rows
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
-structural_budget_status           = D0 census required
+structural_budget_status           = accepted two-commit execution task
 builder_Rust_files_baseline        = 1081
 builder_total_Rust_LOC_baseline    = 221957
 final_X_files                      = pending
 final_X_builder_LOC                = pending
+final_X_check_files                = pending
 final_X_check_LOC                  = pending
 ```
 
@@ -139,6 +140,22 @@ builder files/LOC and MirBuilder-owned check LOC are charged separately.
 
 ```text
 none
+```
+
+## Active policy task
+
+```text
+MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT
+
+Commit A:
+  generated footprint/checker substrate
+
+Commit B:
+  closed-world classification + four accepted caps
+
+production source edit         = 0
+seventh replacement row        = 0
+Binary                         = parked
 ```
 
 ## Landed replacement cells

@@ -40,6 +40,13 @@ mirbuilder-structural-budget-d0-consultation-2026-07-28.md
 Binary selection resumes only after the final owned-footprint caps are
 accepted. The cap may change which accounting option is structurally valid.
 
+Execution authority for that prerequisite:
+
+```text
+docs/development/current/main/investigations/
+mirbuilder-structural-budget0-closeout-task-2026-07-28.md
+```
+
 ## Exact current production graph
 
 There is exactly one raw/default `ASTNode::BinaryOp` selector:

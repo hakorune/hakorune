@@ -448,8 +448,21 @@ baseline commit          = f0256073d5
 
 These are high-water ceilings, not acceptable final X. D0 classifies every
 owned source/check file as Keep/Merge/Delete/Proof and fixes final
-`X_files`, `X_builder_loc`, and `X_check_loc`. The Binary consultation remains
-parked and no seventh manifest row is selected until that budget is accepted.
+`X_files`, `X_builder_loc`, `X_check_files`, and `X_check_loc`. The Binary
+consultation remains parked and no seventh manifest row is selected until that
+budget is accepted.
+
+Accepted execution:
+
+```text
+docs/development/current/main/investigations/
+mirbuilder-structural-budget0-closeout-task-2026-07-28.md
+```
+
+The closeout uses two adjacent commits: generated observation/checker
+substrate, then closed-world classification and four mechanically derived caps.
+The fourth cap is `X_check_files`; exact external-owned Rust paths are included
+so responsibility cannot escape by moving outside `src/mir/builder`.
 
 ## Macro pack order
 

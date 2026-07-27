@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Six production cells are closed. MIRBUILDER-STRUCTURAL-BUDGET-D0 is current: completion now requires semantic zero conditions and an absolute owned source/proof/check envelope. Baseline builder Rust is 1,081 files / 221,957 LOC at f0256073d5; final X is pending Keep/Merge/Delete/Proof census. Binary accounting and the seventh manifest row are parked."
+status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Six production cells are closed. MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT is the accepted two-commit policy task: generated observation, closed-world classification, and four mechanically derived caps including external-owned source and check file count. Binary and the seventh row remain parked."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-STRUCTURAL-BUDGET-D0"
-current_execution_row = "none"
-current_execution_summary = "Classify the complete MirBuilder-owned source/check footprint as Keep, Merge, Delete, or Proof; accept X_files, X_builder_loc, X_check_loc and one stable measurement entry. Keep Binary accounting, source, tests, guards, and replacement manifest unchanged until the structural envelope is fixed."
+current_design_stop = "none"
+current_execution_row = "MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT"
+current_execution_summary = "Commit A builds generated footprint facts, closed-world rule checking, resolved-manifest output, and baseline verification without final X. The immediately following Commit B adjudicates all source/check scope, freezes rule path sets, and accepts X_files, X_builder_loc, X_check_files, X_check_loc. Production MirBuilder and the seventh replacement manifest remain unchanged."
 finite_product_goal = "MIRBUILDER-INPLACE-REPLACEMENT0"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
@@ -437,9 +437,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "mirbuilder-structural-budget-d0-consultation-2026-07-28"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-structural-budget-d0-consultation-2026-07-28.md"
-latest_card_summary = """MIRBUILDER-STRUCTURAL-BUDGET-D0 strengthens replacement completion to semantic AND structural. The frozen high-water baseline is 1,081 builder Rust files / 221,957 LOC at f0256073d5; all fixtures are counted and MirBuilder-owned checks must be manifest-listed. Final X_files, X_builder_loc, and X_check_loc require a Keep/Merge/Delete/Proof census. Binary and the seventh cell remain unselected."""
+latest_card = "mirbuilder-structural-budget0-closeout-task-2026-07-28"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-structural-budget0-closeout-task-2026-07-28.md"
+latest_card_summary = """MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT is accepted as two adjacent commits. ObservedOwnedFootprintV1 comes only from filesystem facts; compact authored rules freeze count plus exact path-set digest; ClassifiedOwnedFootprintV1 derives a four-dimensional envelope including X_check_files. Exact external-owned Rust paths prevent directory escape. Binary/source edits and the seventh row remain parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -642,7 +642,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-STRUCTURAL-BUDGET-D0"
+current_blocker_token = "MIRBUILDER-STRUCTURAL-BUDGET0-SUBSTRATE"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

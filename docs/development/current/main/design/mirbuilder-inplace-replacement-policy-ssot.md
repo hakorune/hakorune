@@ -284,7 +284,7 @@ new per-cell shell guards                = 0
 
 closed-cell builder Rust files           <= current structural ceiling
 closed-cell builder total Rust LOC       <= current structural ceiling
-MirBuilder-owned check LOC               = measured from structural manifest
+MirBuilder-owned check files / LOC       = measured from structural manifest
 ```
 
 T1で一時的にproduction LOCが増える場合、同じpack内のrepayment cellと削除
@@ -292,8 +292,10 @@ T1で一時的にproduction LOCが増える場合、同じpack内のrepayment ce
 
 production Rust LOCだけを分母にしない。`src/mir/builder/**/*.rs`は
 `cfg(test)`を含めて全file／全LOCを数え、MirBuilder専用checkはstructural
-manifestから数える。各cell closeoutはproduction deltaに加えてbuilder
-file/total LOC/check LOCのbefore／after／deltaを記録する。
+manifestから数える。MirBuilder責務を主契約とするrepository内のexact external
+Rust pathもmanifestへ登録し、directory外へ移して予算から外してはならない。
+各cell closeoutはproduction deltaに加えてsource files/LOCとcheck files/LOC
+のbefore／after／deltaを記録する。
 
 2026-07-28の凍結baselineは次である。
 
@@ -303,7 +305,8 @@ builder Rust files         = 1,081
 builder total Rust LOC     = 221,957
 ```
 
-最終Xではない。最終`X_files`／`X_builder_loc`／`X_check_loc`は
+最終Xではない。最終`X_files`／`X_builder_loc`／`X_check_files`／
+`X_check_loc`は
 `MIRBUILDER-STRUCTURAL-BUDGET-D0`のKeep／Merge／Delete／Proof censusで
 固定する。capを上げるにはT2が必要である。
 
@@ -335,6 +338,7 @@ full accepted corpus/backend parity                = green
 owned source/check files classified                = all
 builder Rust files                                 <= accepted X_files
 builder total Rust LOC                             <= accepted X_builder_loc
+MirBuilder-owned check files                       <= accepted X_check_files
 MirBuilder-owned check LOC                         <= accepted X_check_loc
 all source/check files                             < 800 lines
 ```

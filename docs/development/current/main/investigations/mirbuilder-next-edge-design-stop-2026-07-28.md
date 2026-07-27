@@ -159,7 +159,7 @@ mirbuilder-structural-budget-d0-consultation-2026-07-28.md
 
 The structural D0 counts all builder Rust, including fixtures, plus
 manifest-listed MirBuilder checks. Binary accounting resumes after
-`X_files`, `X_builder_loc`, and `X_check_loc` are accepted.
+`X_files`, `X_builder_loc`, `X_check_files`, and `X_check_loc` are accepted.
 
 ## Minimum implementation slice after decision
 

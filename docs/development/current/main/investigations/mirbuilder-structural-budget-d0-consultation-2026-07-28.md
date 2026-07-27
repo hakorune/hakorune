@@ -1,5 +1,5 @@
 ---
-Status: accepted policy task
+Status: resolved; execution task accepted
 Date: 2026-07-28
 Decision: MIRBUILDER-STRUCTURAL-BUDGET-D0
 Scope: define the absolute structural completion envelope for MIRBUILDER-INPLACE-REPLACEMENT0
@@ -28,8 +28,16 @@ precommitted final envelope.
 
 The final numeric envelope is not guessed in this card. D0 first classifies
 the complete owned footprint as `Keep`, `Merge`, `Delete`, or `Proof`, then
-fixes `X_files`, `X_builder_loc`, and `X_check_loc`. No production replacement
-cell resumes before those caps and their measurement command are accepted.
+fixes `X_files`, `X_builder_loc`, `X_check_files`, and `X_check_loc`. No
+production replacement cell resumes before those caps and their measurement
+command are accepted.
+
+Execution authority:
+
+```text
+docs/development/current/main/investigations/
+mirbuilder-structural-budget0-closeout-task-2026-07-28.md
+```
 
 ## Why this is required
 
@@ -93,7 +101,7 @@ headroom but does not by itself define final completion.
 
 ## Owned footprint
 
-### A. Builder tree
+### A. Mandatory builder tree
 
 Every Rust file below:
 
@@ -114,7 +122,18 @@ test-only compatibility owners
 
 No test filename or `cfg(test)` exclusion is allowed in the total LOC number.
 
-### B. MirBuilder-owned checks
+### B. External-owned source
+
+MirBuilder responsibility may exist outside the mandatory tree. Exact external
+Rust paths whose primary contract is MirBuilder must be manifest-owned and
+counted. This includes the split Context owners documented by the Builder
+README and any compiler/session owner protected by the replacement graph.
+
+Do not infer this scope by directory name. Do not count general runtime/backend
+code or a consumer merely because it calls MirBuilder. Moving a responsibility
+to another directory never removes it from the structural budget.
+
+### C. MirBuilder-owned checks
 
 Every structural/proof script whose primary contract protects
 `src/mir/builder` must be listed in the D0 structural manifest and counted.
@@ -127,10 +146,12 @@ shared MirBuilder replacement guard
 manifest runners or data used only by this workstream
 ```
 
-Repository-wide generic guard infrastructure is counted only if D0 classifies
-it as MirBuilder-owned. A filename pattern is not authority; the manifest is.
+Candidate discovery is repository-wide, including non-`tools/checks` lifecycle
+scripts. Every candidate is adjudicated as `Owned` or `ExcludedGeneric`.
+Repository-wide generic infrastructure is counted only if D0 classifies it as
+MirBuilder-owned. A filename pattern is not authority; the manifest is.
 
-### C. Navigation docs
+### D. Navigation docs
 
 Task history and investigations are not added to the Rust/check LOC scalar.
 Current navigation docs remain subject to compact-pointer and 800-line rules.
@@ -138,7 +159,11 @@ Duplicate current authority must still be merged or retired.
 
 ## Classification
 
-Every owned source/check file receives exactly one disposition:
+Every owned source/check file receives exactly one disposition. Repository
+authority may use compact cluster rules, but each selector must freeze both
+expected path count and the SHA-256 of its sorted exact path set. The checker
+generates the resolved per-file manifest and live LOC; humans do not maintain
+1,081 mutable `current_loc` rows.
 
 ```text
 Keep
@@ -180,6 +205,9 @@ X_files
 X_builder_loc
   final total LOC of every src/mir/builder Rust file
 
+X_check_files
+  final file count of manifest-listed MirBuilder proof/check/data
+
 X_check_loc
   final total LOC of the manifest-listed MirBuilder checks
 ```
@@ -205,6 +233,7 @@ Each replacement closeout records:
 ```text
 builder Rust files before / after / delta
 builder total Rust LOC before / after / delta
+MirBuilder-owned check files before / after / delta
 MirBuilder-owned check LOC before / after / delta
 production Rust LOC delta
 five-cell rolling production Rust LOC
@@ -276,10 +305,11 @@ versus semantic-owner accounting law remains explicit.
 2. Keep/Merge/Delete/Proof totals by macro pack
 3. accepted X_files
 4. accepted X_builder_loc
-5. accepted X_check_loc
-6. one stable measurement/check entry
-7. workstream dashboard baseline and remaining structural debt
-8. Binary D0 re-evaluation under the accepted envelope
+5. accepted X_check_files
+6. accepted X_check_loc
+7. one stable measurement/check entry
+8. workstream dashboard baseline and remaining structural debt
+9. Binary D0 re-evaluation under the accepted envelope
 ```
 
 ## Hard stops
