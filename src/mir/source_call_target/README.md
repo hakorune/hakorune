@@ -16,15 +16,19 @@ The inventory distinguishes:
 ```text
 complete observed call + exact static target -> target row
 complete observed call + bound/dynamic/unresolved receiver -> noncandidate
-incomplete traversal / invalid or foreign alias authority -> typed rejection
+bounded per-caller source-shape gap
+  -> exact first unavailable caller/cause retained; later callers still observed
+duplicate/coverage/traversal invariant or invalid/foreign alias authority
+  -> typed rejection
 ```
 
-Absence from the target subset is therefore never evidence that source
-observation failed. The product retains every exact call carrier and the one
-target catalog, both branded by the same declaration catalog. It owns no
-Stage-B nested-result policy, candidate cardinality, Builder, MIR, runtime, or
-production route. Stage-B classification belongs to
-`preloop_stageb_carrier::source_producer`.
+Absence from the target subset is therefore not interpreted as successful
+source observation when the unavailable receipt is present. The product
+retains every completed exact call carrier, the deterministic first bounded
+unavailable caller/cause, and the one target catalog, all branded by the same
+declaration catalog. It owns no Stage-B nested-result policy, candidate
+cardinality, Builder, MIR, runtime, or production route. Stage-B classification
+belongs to `preloop_stageb_carrier::source_producer`.
 
 ## RAW-SOURCE-CURSOR0-S0 catalog-backed Raw navigation
 

@@ -53,7 +53,7 @@ pub(crate) use source_inventory::{
 #[allow(unused_imports)]
 pub(crate) use source_inventory_error::{
     PreloopStageBSourceInventoryCauseV1, PreloopStageBSourceInventoryErrorV1,
-    PreloopStageBSourceInventoryStageV1,
+    PreloopStageBSourceInventoryStageV1, PreloopStageBSourceProofStageV1,
 };
 
 #[cfg(test)]

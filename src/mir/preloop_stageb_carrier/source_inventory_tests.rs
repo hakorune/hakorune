@@ -8,14 +8,10 @@ use crate::mir::source_call_target::{
 };
 use crate::parser::NyashParser;
 
-use super::activation::{
-    PreloopOuterCarrierActivationShapeErrorV1, PreloopStageBCarrierActivationErrorV1,
-    PreloopStageBCarrierActivationStageV1,
-};
 use super::{
     inventory_preloop_stageb_candidates_v1, source_inventory::PreloopStageBCandidateCardinalityV1,
-    PreloopStageBCandidateIdentityV1, PreloopStageBSourceInventoryCauseV1,
-    PreloopStageBSourceInventoryStageV1, VerifiedPreloopStageBCandidateInventoryV1,
+    PreloopStageBCandidateIdentityV1, PreloopStageBSourceInventoryStageV1,
+    PreloopStageBSourceProofStageV1, VerifiedPreloopStageBCandidateInventoryV1,
 };
 
 const ZERO: &str = r#"
@@ -181,31 +177,23 @@ fn unrelated_nested_call_remains_a_complete_noncandidate() {
 }
 
 #[test]
-fn selected_field_assignment_target_rejects_before_owned_row_seal() {
+fn selected_field_assignment_target_is_bounded_proof_unavailable() {
     let declarations = catalog(ONE_FIELD_TARGET);
     let imports = VerifiedStaticImportAliasViewV1::seal(declarations.as_ref(), std::iter::empty())
         .expect("empty alias snapshot");
     let calls =
         VerifiedWholeSourceStaticCallTargetInventoryV1::verify(declarations.as_ref(), &imports)
             .expect("complete MethodCall inventory");
-    let rejected =
-        inventory_preloop_stageb_candidates_v1(&calls).expect_err("field target must reject");
+    let inventory =
+        inventory_preloop_stageb_candidates_v1(&calls).expect("bounded shape is unavailable");
 
+    assert_eq!(inventory.candidate_count(), 0);
     assert_eq!(
-        rejected.stage(),
-        PreloopStageBSourceInventoryStageV1::OwnedRow
+        inventory.first_unavailable_stage(),
+        Some(PreloopStageBSourceProofStageV1::CandidateInventory(
+            PreloopStageBSourceInventoryStageV1::OwnedRow,
+        ))
     );
-    assert_eq!(
-        rejected.cause(),
-        &PreloopStageBSourceInventoryCauseV1::OwnedRow {
-            stage: PreloopStageBCarrierActivationStageV1::BodyHandoff,
-            cause: PreloopStageBCarrierActivationErrorV1::BodyHandoff(
-                PreloopOuterCarrierActivationShapeErrorV1::
-                    SelectedStatementMustBeVariableAssignment,
-            ),
-        }
-    );
-    rejected.discard();
 }
 
 #[test]

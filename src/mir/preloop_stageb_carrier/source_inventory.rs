@@ -20,7 +20,7 @@ use super::activation::{
 use super::outer_result::seal_preloop_outer_carrier_result_v1;
 use super::source_inventory_error::{
     PreloopStageBSourceInventoryCauseV1, PreloopStageBSourceInventoryErrorV1,
-    PreloopStageBSourceInventoryStageV1,
+    PreloopStageBSourceInventoryStageV1, PreloopStageBSourceProofStageV1,
 };
 
 const SELECTED_ARGUMENT_INDEX: usize = 1;
@@ -67,6 +67,7 @@ pub(crate) struct VerifiedPreloopStageBCandidateInventoryV1 {
     catalog_identity: usize,
     observed_declaration_count: usize,
     observed_method_call_count: usize,
+    first_unavailable_stage: Option<PreloopStageBSourceProofStageV1>,
     candidates: Box<[VerifiedPreloopStageBCandidateV1]>,
 }
 
@@ -106,6 +107,10 @@ impl VerifiedPreloopStageBCandidateInventoryV1 {
         self.candidates.iter().map(|candidate| &candidate.identity)
     }
 
+    pub(crate) const fn first_unavailable_stage(&self) -> Option<PreloopStageBSourceProofStageV1> {
+        self.first_unavailable_stage
+    }
+
     pub(super) fn classify(self) -> PreloopStageBCandidateCardinalityV1 {
         match self.candidates.len() {
             0 => PreloopStageBCandidateCardinalityV1::Zero(self),
@@ -142,6 +147,10 @@ pub(crate) fn inventory_preloop_stageb_candidates_v1(
                 )
             })?;
     let mut candidates = Vec::new();
+    let mut first_unavailable_stage = inventory
+        .first_method_observation_unavailability()
+        .is_some()
+        .then_some(PreloopStageBSourceProofStageV1::WholeSourceMethodObservation);
 
     for ((caller, outer_site), _) in inventory.targets().rows() {
         let requirement = match project_static_exact_i64_requirement_v1(
@@ -324,17 +333,31 @@ pub(crate) fn inventory_preloop_stageb_candidates_v1(
                     PreloopStageBSourceInventoryCauseV1::OuterContract { stage, cause },
                 )
             })?;
-        let rows = prepare_preloop_stageb_carrier_rows_v1(contract).map_err(|rejected| {
-            let stage = rejected.stage();
-            let cause = rejected.cause().clone();
-            rejected.discard();
-            reject(
-                PreloopStageBSourceInventoryStageV1::OwnedRow,
-                Some(caller.clone()),
-                Some(outer_site.clone()),
-                PreloopStageBSourceInventoryCauseV1::OwnedRow { stage, cause },
-            )
-        })?;
+        let rows = match prepare_preloop_stageb_carrier_rows_v1(contract) {
+            Ok(rows) => rows,
+            Err(rejected) => {
+                let stage = rejected.stage();
+                let cause = rejected.cause().clone();
+                rejected.discard();
+                if matches!(
+                    cause,
+                    super::activation::PreloopStageBCarrierActivationErrorV1::BodyHandoff(_)
+                ) {
+                    first_unavailable_stage.get_or_insert(
+                        PreloopStageBSourceProofStageV1::CandidateInventory(
+                            PreloopStageBSourceInventoryStageV1::OwnedRow,
+                        ),
+                    );
+                    continue;
+                }
+                return Err(reject(
+                    PreloopStageBSourceInventoryStageV1::OwnedRow,
+                    Some(caller.clone()),
+                    Some(outer_site.clone()),
+                    PreloopStageBSourceInventoryCauseV1::OwnedRow { stage, cause },
+                ));
+            }
+        };
         let identity = PreloopStageBCandidateIdentityV1 {
             caller: rows.caller().clone(),
             outer_call_site: rows.outer_call_site().clone(),
@@ -349,6 +372,7 @@ pub(crate) fn inventory_preloop_stageb_candidates_v1(
         catalog_identity: declarations as *const _ as usize,
         observed_declaration_count: inventory.observed_declaration_count(),
         observed_method_call_count: inventory.len(),
+        first_unavailable_stage,
         candidates: candidates.into_boxed_slice(),
     })
 }

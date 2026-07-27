@@ -15,6 +15,7 @@ use super::source_inventory::{
     PreloopStageBCandidateCardinalityV1, PreloopStageBCandidateIdentityV1,
     VerifiedPreloopStageBCandidateInventoryV1,
 };
+use super::source_inventory_error::PreloopStageBSourceProofStageV1;
 
 #[derive(Debug)]
 pub(crate) struct VerifiedPreloopStageBNoCandidateV1 {
@@ -23,6 +24,10 @@ pub(crate) struct VerifiedPreloopStageBNoCandidateV1 {
 }
 
 impl VerifiedPreloopStageBNoCandidateV1 {
+    pub(crate) const fn first_unavailable_stage(&self) -> Option<PreloopStageBSourceProofStageV1> {
+        self.inventory.first_unavailable_stage()
+    }
+
     pub(crate) fn discard(self) {
         let Self {
             declaration_catalog,

@@ -7,8 +7,9 @@ use crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1;
 use crate::mir::preloop_stageb_carrier::{
     inventory_preloop_stageb_candidates_v1, seal_preloop_stageb_candidate_selection_v1,
     PreloopStageBCandidateSelectionErrorV1, PreloopStageBSourceInventoryErrorV1,
-    RejectedPreloopStageBCandidateSelectionV1, VerifiedPreloopStageBAmbiguousCandidatesV1,
-    VerifiedPreloopStageBCandidateSelectionV1, VerifiedPreloopStageBCarrierActivationPlanV1,
+    PreloopStageBSourceProofStageV1, RejectedPreloopStageBCandidateSelectionV1,
+    VerifiedPreloopStageBAmbiguousCandidatesV1, VerifiedPreloopStageBCandidateSelectionV1,
+    VerifiedPreloopStageBCarrierActivationPlanV1,
 };
 use crate::mir::source_call_target::{
     StaticImportAliasViewErrorV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
@@ -21,8 +22,13 @@ use super::lowering_input::LegacyModuleOriginV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum PreloopStageBUnavailableDispositionV1 {
-    ProfileExcluded { origin: LegacyModuleOriginV1 },
+    ProfileExcluded {
+        origin: LegacyModuleOriginV1,
+    },
     NoExactCandidate,
+    ExactCandidateProofUnavailable {
+        stage: PreloopStageBSourceProofStageV1,
+    },
 }
 
 #[derive(Debug)]
@@ -277,11 +283,18 @@ impl PreloopStageBWholeSourceProducerV1 {
         };
         match selection {
             VerifiedPreloopStageBCandidateSelectionV1::Zero(receipt) => {
+                let unavailable = receipt.first_unavailable_stage();
                 receipt.discard();
                 Ok(PreloopStageBWholeSourceDispositionV1::Ordinary(
                     PreparedOrdinaryLegacyWholeSourceV1 {
                         request,
-                        disposition: PreloopStageBUnavailableDispositionV1::NoExactCandidate,
+                        disposition: match unavailable {
+                            Some(stage) => {
+                                PreloopStageBUnavailableDispositionV1::
+                                    ExactCandidateProofUnavailable { stage }
+                            }
+                            None => PreloopStageBUnavailableDispositionV1::NoExactCandidate,
+                        },
                     },
                 ))
             }
@@ -324,9 +337,11 @@ fn reject_request(
 mod tests {
     use crate::ast::{ASTNode, LiteralValue, Span};
     use crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1;
+    use crate::mir::callable_result_representation::actual_parser_add_fixture;
     use crate::mir::preloop_stageb_carrier::{
         inventory_preloop_stageb_candidates_v1, seal_preloop_stageb_candidate_selection_v1,
-        PreloopStageBCandidateSelectionErrorV1,
+        PreloopStageBCandidateSelectionErrorV1, PreloopStageBSourceInventoryStageV1,
+        PreloopStageBSourceProofStageV1,
     };
     use crate::mir::source_call_target::{
         VerifiedStaticImportAliasViewV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
@@ -395,6 +410,35 @@ static box Carrier {
 }
 static box Caller {
   exact(value) { return Carrier.keep(1, value) }
+}
+"#;
+
+    const PROOF_UNAVAILABLE_WHOLE_SOURCE: &str = r#"
+static box Unsupported {
+  bad() { return me }
+}
+"#;
+
+    const PROOF_UNAVAILABLE_CANDIDATE: &str = r#"
+static box Carrier {
+  keep(left, right) { return right }
+}
+box Caller {
+  inner(value) { return 1 }
+  run(text, pos) { me.pos = Carrier.keep(text, me.inner(pos)) }
+}
+"#;
+
+    const UNAVAILABLE_THEN_EXACT: &str = r#"
+static box AUnsupported {
+  bad() { return me }
+}
+static box Carrier {
+  keep(left, right) { return right }
+}
+box Caller {
+  inner(value) { return 1 }
+  run(text, pos) { pos = Carrier.keep(text, me.inner(pos)) }
 }
 "#;
 
@@ -567,6 +611,98 @@ static box Caller {
                 &PreloopStageBUnavailableDispositionV1::NoExactCandidate
             );
         }
+    }
+
+    #[test]
+    fn candidate_zero_distinguishes_true_zero_from_bounded_proof_unavailability() {
+        let whole_source = PreloopStageBWholeSourceProducerV1::select(request(
+            PROOF_UNAVAILABLE_WHOLE_SOURCE,
+            CompilerSuppliedStaticImportSnapshotV1::none(),
+        ))
+        .unwrap();
+        let PreloopStageBWholeSourceDispositionV1::Ordinary(whole_source) = whole_source else {
+            panic!("unsupported observation alone cannot become Selected");
+        };
+        assert_eq!(
+            whole_source.disposition(),
+            &PreloopStageBUnavailableDispositionV1::ExactCandidateProofUnavailable {
+                stage: PreloopStageBSourceProofStageV1::WholeSourceMethodObservation,
+            }
+        );
+
+        let candidate = PreloopStageBWholeSourceProducerV1::select(request(
+            PROOF_UNAVAILABLE_CANDIDATE,
+            CompilerSuppliedStaticImportSnapshotV1::none(),
+        ))
+        .unwrap();
+        let PreloopStageBWholeSourceDispositionV1::Ordinary(candidate) = candidate else {
+            panic!("unsupported bounded candidate shape cannot become Selected");
+        };
+        assert_eq!(
+            candidate.disposition(),
+            &PreloopStageBUnavailableDispositionV1::ExactCandidateProofUnavailable {
+                stage: PreloopStageBSourceProofStageV1::CandidateInventory(
+                    PreloopStageBSourceInventoryStageV1::OwnedRow,
+                ),
+            }
+        );
+    }
+
+    #[test]
+    fn earlier_unavailable_caller_does_not_hide_one_complete_candidate() {
+        let selected = PreloopStageBWholeSourceProducerV1::select(request(
+            UNAVAILABLE_THEN_EXACT,
+            CompilerSuppliedStaticImportSnapshotV1::none(),
+        ))
+        .unwrap();
+        let PreloopStageBWholeSourceDispositionV1::Selected(selected) = selected else {
+            panic!("one complete row must win over unrelated bounded proof gaps");
+        };
+        assert_eq!(selected.activation().row().caller().owner(), "Caller");
+        assert_eq!(selected.activation().row().caller().name(), "run");
+        selected.discard();
+    }
+
+    #[test]
+    fn actual_parser_source_retains_the_first_bounded_proof_gap() {
+        let source = actual_parser_add_fixture::stageb_source_for_lowering();
+        let ast = NyashParser::parse_from_string(&source).expect("actual Parser source");
+        let declarations =
+            VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&ast).unwrap();
+        let aliases =
+            VerifiedStaticImportAliasViewV1::seal(&declarations, std::iter::empty()).unwrap();
+        let calls = VerifiedWholeSourceStaticCallTargetInventoryV1::verify(&declarations, &aliases)
+            .unwrap();
+        let parser_targets = calls
+            .targets()
+            .rows()
+            .filter(|((caller, _), _)| {
+                caller.owner() == "ParserBox" && caller.name() == "static_const_parse_add"
+            })
+            .count();
+        let candidates = inventory_preloop_stageb_candidates_v1(&calls).unwrap();
+        assert_eq!(parser_targets, 2);
+        assert_eq!(candidates.candidate_count(), 0);
+        assert_eq!(
+            candidates.first_unavailable_stage(),
+            Some(PreloopStageBSourceProofStageV1::WholeSourceMethodObservation)
+        );
+
+        let disposition = PreloopStageBWholeSourceProducerV1::select(request(
+            &source,
+            CompilerSuppliedStaticImportSnapshotV1::none(),
+        ))
+        .unwrap();
+        let PreloopStageBWholeSourceDispositionV1::Ordinary(ordinary) = disposition else {
+            panic!("actual Parser source must not silently select through a proof gap");
+        };
+        assert_eq!(
+            ordinary.disposition(),
+            &PreloopStageBUnavailableDispositionV1::ExactCandidateProofUnavailable {
+                stage: PreloopStageBSourceProofStageV1::WholeSourceMethodObservation,
+            }
+        );
+        ordinary.discard();
     }
 
     #[test]

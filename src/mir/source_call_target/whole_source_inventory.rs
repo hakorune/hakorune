@@ -7,7 +7,7 @@ use crate::mir::builder::{
 };
 use crate::mir::resolved_semantics::{
     observe_method_calls_shadow_view_v0, FunctionSyntaxViewV1, ReceiverPolicyV1,
-    ShadowMethodCallReceiverV0, SourceExprSiteV1,
+    ShadowMethodCallReceiverV0, ShadowResolveErrorV0, SourceExprSiteV1,
 };
 
 use super::{
@@ -38,6 +38,22 @@ impl<'catalog> VerifiedWholeSourceMethodCallSiteV1<'catalog> {
 }
 
 #[derive(Debug)]
+pub(crate) struct WholeSourceMethodObservationUnavailableV1 {
+    caller: CanonicalSameModuleCallableKeyV1,
+    cause: ShadowResolveErrorV0,
+}
+
+impl WholeSourceMethodObservationUnavailableV1 {
+    pub(crate) const fn caller(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.caller
+    }
+
+    pub(crate) const fn cause(&self) -> &ShadowResolveErrorV0 {
+        &self.cause
+    }
+}
+
+#[derive(Debug)]
 pub(crate) struct VerifiedWholeSourceStaticCallTargetInventoryV1<'catalog> {
     declarations: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
     observed_callers: Box<[CanonicalSameModuleCallableKeyV1]>,
@@ -45,6 +61,7 @@ pub(crate) struct VerifiedWholeSourceStaticCallTargetInventoryV1<'catalog> {
         (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
         VerifiedWholeSourceMethodCallSiteV1<'catalog>,
     >,
+    first_method_observation_unavailable: Option<WholeSourceMethodObservationUnavailableV1>,
     targets: VerifiedSourceStaticCallTargetCatalogV1<'catalog>,
 }
 
@@ -57,12 +74,14 @@ impl<'catalog> VerifiedWholeSourceStaticCallTargetInventoryV1<'catalog> {
             return Err(WholeSourceStaticCallTargetInventoryErrorV1::ImportCatalogMismatch);
         }
 
-        let (observed_callers, calls) = observe_all_calls(declarations)?;
+        let (observed_callers, calls, first_method_observation_unavailable) =
+            observe_all_calls(declarations)?;
         let targets = seal_static_targets(declarations, imports, &calls)?;
         Ok(Self {
             declarations,
             observed_callers,
             calls,
+            first_method_observation_unavailable,
             targets,
         })
     }
@@ -129,6 +148,12 @@ impl<'catalog> VerifiedWholeSourceStaticCallTargetInventoryV1<'catalog> {
     pub(crate) fn noncandidate_len(&self) -> usize {
         self.len().saturating_sub(self.target_len())
     }
+
+    pub(crate) const fn first_method_observation_unavailability(
+        &self,
+    ) -> Option<&WholeSourceMethodObservationUnavailableV1> {
+        self.first_method_observation_unavailable.as_ref()
+    }
 }
 
 fn observe_all_calls<'catalog>(
@@ -140,11 +165,13 @@ fn observe_all_calls<'catalog>(
             (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
             VerifiedWholeSourceMethodCallSiteV1<'catalog>,
         >,
+        Option<WholeSourceMethodObservationUnavailableV1>,
     ),
     WholeSourceStaticCallTargetInventoryErrorV1,
 > {
     let mut observed_callers = Vec::with_capacity(declarations.len());
     let mut calls = BTreeMap::new();
+    let mut first_method_observation_unavailable = None;
     for (caller, declaration) in declarations.declarations() {
         observed_callers.push(caller.clone());
         let receiver_policy = match caller.namespace() {
@@ -156,12 +183,26 @@ fn observe_all_calls<'catalog>(
             declaration.body(),
             receiver_policy,
         );
-        let observed = observe_method_calls_shadow_view_v0(view).map_err(|cause| {
-            WholeSourceStaticCallTargetInventoryErrorV1::MethodCallObservation {
-                caller: caller.clone(),
-                cause,
+        let observed = match observe_method_calls_shadow_view_v0(view) {
+            Ok(observed) => observed,
+            Err(cause) if is_bounded_method_observation_unavailability(&cause) => {
+                first_method_observation_unavailable.get_or_insert_with(|| {
+                    WholeSourceMethodObservationUnavailableV1 {
+                        caller: caller.clone(),
+                        cause,
+                    }
+                });
+                continue;
             }
-        })?;
+            Err(cause) => {
+                return Err(
+                    WholeSourceStaticCallTargetInventoryErrorV1::MethodCallObservation {
+                        caller: caller.clone(),
+                        cause,
+                    },
+                );
+            }
+        };
         for (site, observation) in observed {
             let call = VerifiedSourceMethodCallSiteV1::verify(declarations, caller, site.clone())
                 .map_err(WholeSourceStaticCallTargetInventoryErrorV1::MethodCallSite)?;
@@ -188,7 +229,25 @@ fn observe_all_calls<'catalog>(
             }
         }
     }
-    Ok((observed_callers.into_boxed_slice(), calls))
+    Ok((
+        observed_callers.into_boxed_slice(),
+        calls,
+        first_method_observation_unavailable,
+    ))
+}
+
+fn is_bounded_method_observation_unavailability(cause: &ShadowResolveErrorV0) -> bool {
+    matches!(
+        cause,
+        ShadowResolveErrorV0::SameScopeRedeclaration { .. }
+            | ShadowResolveErrorV0::UnresolvedName { .. }
+            | ShadowResolveErrorV0::ExitOutsideLoop { .. }
+            | ShadowResolveErrorV0::UnsupportedStatement { .. }
+            | ShadowResolveErrorV0::UnsupportedExpression { .. }
+            | ShadowResolveErrorV0::UnsupportedAssignmentTarget { .. }
+            | ShadowResolveErrorV0::FunctionCallArityOverflow { .. }
+            | ShadowResolveErrorV0::BlockExprNonLocalExit { .. }
+    )
 }
 
 fn seal_static_targets<'catalog>(

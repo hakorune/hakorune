@@ -30,6 +30,12 @@ pub(crate) enum PreloopStageBSourceInventoryStageV1 {
     OwnedRow,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum PreloopStageBSourceProofStageV1 {
+    WholeSourceMethodObservation,
+    CandidateInventory(PreloopStageBSourceInventoryStageV1),
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum PreloopStageBSourceInventoryCauseV1 {
     CallableResults(CallableResultCatalogErrorV1),

@@ -807,6 +807,31 @@ F8-1 UNAVAILABLE-DISPOSITION0-S0/P0
     -> ExactCandidateProofUnavailable(stage)
   import alias and identity invariants remain typed errors
 
+  Status: closed
+
+  Landed evidence:
+    true zero -> NoExactCandidate
+    deterministic first bounded gap
+      -> ExactCandidateProofUnavailable(stage)
+    exact first unavailable caller/cause retained internally
+    duplicate/coverage/traversal invariants remain typed rejection
+    one complete candidate survives unrelated earlier unavailable observation
+    actual Parser exposes both ParserBox outer targets but remains candidate-zero
+      because one dependency caller loses bounded current-owner observation
+    alias/catalog/identity drift remains typed rejection
+    second traversal / Builder / production consumer = 0
+
+F8-1a PRELOOP-STAGEB-STATIC-CURRENT-OWNER-CORRESPONDENCE0-P0
+  read-only inventory the exact dependency caller/site/result edge hidden by
+  the actual Parser WholeSourceMethodObservation gap
+  identify the existing source-view/path authority that can preserve the row
+  without a second walker or by-name selection
+
+F8-1b mandatory STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0
+  choose one bounded observation handoff before changing source semantics
+  do not proceed to candidate-session correspondence while the actual
+  production source remains candidate-zero
+
 F8-2 SELECTED-CANDIDATE-SESSION-CORRESPONDENCE0-P0
   inventory the exact candidate configuration and commit matrix
   prove the current canonical and branded Raw sessions are not exact owners

@@ -56,6 +56,19 @@ box Caller {
 }
 "#;
 
+const UNAVAILABLE_THEN_EXACT: &str = r#"
+static box AUnsupported {
+  bad() { return me }
+}
+static box Carrier {
+  keep(left, right) { return right }
+}
+box Caller {
+  inner(value) { return 1 }
+  run(text, pos) { pos = Carrier.keep(text, me.inner(pos)) }
+}
+"#;
+
 fn catalog(source: &str) -> VerifiedSameModuleCallableDeclarationCatalogV1 {
     let ast = NyashParser::parse_from_string(source).expect("whole-source inventory fixture");
     VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&ast)
@@ -181,4 +194,30 @@ static box Carrier {
         normalized_inventory(ONE_DIRECT),
         normalized_inventory(reordered)
     );
+}
+
+#[test]
+fn bounded_observation_unavailability_does_not_hide_a_later_exact_target() {
+    let declarations = catalog(UNAVAILABLE_THEN_EXACT);
+    let imports = VerifiedStaticImportAliasViewV1::seal(
+        &declarations,
+        std::iter::empty::<(String, String)>(),
+    )
+    .expect("empty alias view");
+    let inventory = VerifiedWholeSourceStaticCallTargetInventoryV1::verify(&declarations, &imports)
+        .expect("bounded observation gaps are retained without aborting inventory");
+
+    let unavailable = inventory
+        .first_method_observation_unavailability()
+        .expect("one bounded observation gap");
+    assert_eq!(unavailable.caller().owner(), "AUnsupported");
+    assert!(matches!(
+        unavailable.cause(),
+        crate::mir::resolved_semantics::ShadowResolveErrorV0::UnsupportedExpression {
+            kind: "Me",
+            ..
+        }
+    ));
+    assert_eq!(inventory.target_len(), 1);
+    assert_eq!(inventory.len(), 2);
 }
