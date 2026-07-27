@@ -1,5 +1,5 @@
 ---
-Status: accepted design; source activation row closed
+Status: accepted design; function preparation row closed
 Date: 2026-07-27
 Decision: PRELOOP-STAGEB-CARRIER-HANDOFF0-prime-r1
 Closes:
@@ -9,7 +9,7 @@ Closes observation row:
 Observed frontier:
   - ProductionCarrierHandoffMissing
 First executable row:
-  - PRELOOP-STAGEB-FUNCTION-PREPARATION0-S0
+  - PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0
 Related:
   - preloop-physical-route-reconciliation0-task-order-2026-07-27.md
   - stageb-generic-loop-transient-type-d0-design-question-2026-07-26.md
@@ -390,11 +390,14 @@ zero through this row.
 
 ### 4. `PRELOOP-STAGEB-FUNCTION-PREPARATION0-S0`
 
-Behavior-neutral BoxShape extraction:
+Closed behavior-neutral BoxShape extraction (2026-07-27):
 
 ```text
-shared instance-method skeleton / signature / params / finalizer
-ordinary and port-aware body descent remain thin consumers
+shared instance-method skeleton / signature / runes / uses / params
+shared StepTree observation guard
+ordinary and port-aware body descent remain separate thin consumers
+legacy current-module and port-aware header finalizers remain separate
+empty-body and scalar-Return field parity green
 activation selection and production consumer remain zero
 ```
 

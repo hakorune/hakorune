@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-CARRIER-HANDOFF0-prime-r1 is accepted with post-answer code-audit refinement. Correspondence, bounded outer result contract, and PRELOOP-STAGEB-SOURCE-ACTIVATION0-S0 are closed. Borrowed same-allocation evidence now normalizes into one owned non-Clone row containing the exact caller, root assignment prefix/selected/suffix schedule, outer/inner sites, selected Argument(1), static target, and sealed Integer disposition; one plan owns that row beside the exact boxed declaration catalog allocation. Equal-looking foreign catalogs reject. Production consumers, Builder/MIR/type publication, catalog reseal, and inner TYPE-I0 production consumers remain zero. PRELOOP-STAGEB-FUNCTION-PREPARATION0-S0 is next."
+status = "PRELOOP-STAGEB-CARRIER-HANDOFF0-prime-r1 is accepted with post-answer code-audit refinement. Correspondence, bounded outer result contract, owned source activation, and behavior-neutral function preparation are closed. Ordinary and port-aware instance methods now share one owned skeleton/signature/runes/uses/receiver/parameter preparation owner and one StepTree guard while retaining separate body drivers and finalizer authorities; empty and scalar-Return field parity are green. Production activation, Builder source policy, catalog reseal, fallback, and type publication remain zero. The hard stop is PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0: choose the exact pre-Builder whole-source producer, 0/1/many law, typed alias snapshot, consuming catalog install, and sole production ingress."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-FUNCTION-PREPARATION0-S0"
-current_execution_summary = "Perform one BoxShape-only behavior-neutral extraction of the existing instance-method skeleton, signature, parameter setup, StepTree/body descent seam, and finalizer so ordinary and port-aware routes are thin consumers. Do not add activation selection, production callers, source policy, Builder transaction snapshots, acceptance shapes, or fallback. After this row, stop at PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0."
+current_design_stop = "PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0"
+current_execution_row = "PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0"
+current_execution_summary = "Design consultation only. Choose between the exact compiler Legacy-arm seam and build_module pre-prepare seam for one whole-source inventory and structural 0/1/many Stage-B selection. Fix the compiler-supplied typed alias snapshot, same-allocation boxed catalog borrow-disappearance proof, consuming preflight-plus-infallible install terminal, exact production caller census, and no-retry failure law. Do not implement source selection, activation install, function capture, receipt, or type publication before this D0 closes."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -433,9 +433,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "preloop-stageb-carrier-handoff0-d0-design-question-2026-07-27"
-latest_card_path = "docs/development/current/main/investigations/preloop-stageb-carrier-handoff0-d0-design-question-2026-07-27.md"
-latest_card_summary = """PRELOOP-STAGEB-CARRIER-HANDOFF0-prime-r1 accepts A-prime with code-audit refinement: one owned same-allocation activation row, one selected port-aware body sibling under the existing legacy function transaction, one distinct outer generic-Call receipt, exact assignment completion evidence, a bounded outer Integer contract from the existing static result requirement plus structural Argument(1) plus the inner Integer contract, and success-only publication to the assigned outer carrier through existing type-fact authorities. Direct RawInvocation/collector cutover is zero. CORRESPONDENCE0-P0 is first."""
+latest_card = "preloop-stageb-source-producer-selection0-d0-design-question-2026-07-27"
+latest_card_path = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-d0-design-question-2026-07-27.md"
+latest_card_summary = """PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0 is the hard pre-Builder design stop after FUNCTION-PREPARATION0 closed. Two audits agree on one complete resolver-observable static-call inventory, one boxed declaration-catalog allocation, typed alias snapshot, explicit Ordinary for zero candidates, Selected for exactly one, typed rejection for many/drift, borrow disappearance before move, one consuming preflight-plus-infallible install, and no selected retry. They differ only on the external seam: compile_request Legacy arm versus build_module before prepare_module. The card recommends the Legacy arm because it preserves an exact-one production selector and leaves direct Builder callers unclassified."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-FUNCTION-PREPARATION0-S0"
+current_blocker_token = "PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-D0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
