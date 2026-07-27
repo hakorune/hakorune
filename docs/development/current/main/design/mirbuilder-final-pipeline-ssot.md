@@ -204,6 +204,10 @@ MirBuilder再構築は、次がproduction graphで成立したときに着地す
 
 ```text
 accepted production source families enter one authority pipeline = all
+normal/default runner enters one typed canonical source ingress   = yes
+normal/default route-selection authority                          = 1
+Legacy compile_with_source* production callers                    = 0
+family-specific canonical entrypoints as competing prod fronts    = 0
 Facts / Recipe / Verify decision authority                       = one each
 unverified direct lower                                           = 0
 Lower-side AST route redecision                                   = 0
@@ -212,6 +216,7 @@ physical Return writer on canonical function path                 = 1
 CompletedFunctionDraft-only collection                            = yes
 partial module publication                                        = 0
 fallback / retry / profile reselection                            = 0
+canonical rejection -> Legacy retry/fallback                      = 0
 selected old production owner / facade / edge                     = 0
 full accepted corpus / backend parity                             = green
 ```

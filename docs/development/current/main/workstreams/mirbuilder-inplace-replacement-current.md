@@ -86,7 +86,7 @@ call-site authorityとhelper declaration authorityを分離するT1/T2設計停�
 | CONTROL0 | If／Loop／Match／QMark／cleanup／async | old control branches 0 |
 | FUNCTION-LIFECYCLE0 | draft／collector／function finalize | direct draft publication 0 |
 | MODULE-LIFECYCLE0 | declarations／catalog／module transaction | live partial module mutation 0 |
-| COMPILER-RESIDUE0 | old facades／selectors／proof routes | Legacy orchestration consumers 0 |
+| COMPILER-RESIDUE0 | compiler ingress／old selectors／proof routes | normal/default canonical ingress 1; Legacy production callers 0 |
 
 Pack数は8で固定する。新しい発見は既存packへ入れる。
 

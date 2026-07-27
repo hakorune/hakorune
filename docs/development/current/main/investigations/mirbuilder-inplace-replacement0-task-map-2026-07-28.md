@@ -574,6 +574,35 @@ COMPILER-RESIDUE0
 
 No new macro pack may be inserted.
 
+### Default compiler ingress debt
+
+The current normal runners, including ordinary `--backend vm`, still enter:
+
+```text
+compile_with_source / compile_with_source_and_imports
+-> compile_legacy_request
+```
+
+The resolved canonical entrypoints currently admit explicit bounded families;
+they are not yet the normal/default front door. This split is an intentional
+migration state, not the final architecture.
+
+`COMPILER-RESIDUE0` cannot close until:
+
+```text
+normal/default runner ingress                    = one typed canonical ingress
+normal/default route selection                   = exactly once
+compile_with_source* Legacy production callers   = 0
+family-specific canonical entrypoints            = internal helpers or retired
+canonical rejection -> Legacy retry/fallback     = 0
+imports / Program / Main / callable families     = covered by typed preflight
+full normal corpus and backend parity             = green
+```
+
+Do not implement this as “probe canonical, then fall back to Legacy”. Keep the
+current split until the canonical accepted vocabulary can replace the whole
+selected normal caller family atomically.
+
 ## Shared replacement ledger
 
 Stable paths:

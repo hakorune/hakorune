@@ -364,8 +364,11 @@ selected old production owners / edges           = 0
 detached production-capable replacement routes   = 0
 fallback / retry / profile reselection            = 0
 
-compile_with_source cleaned owner graph           = 1
-compile_with_source_and_imports same owner graph   = 1
+normal/default runner typed canonical ingress      = 1
+normal/default route-selection authority           = 1
+compile_with_source* Legacy production callers     = 0
+family-specific canonical competing prod fronts    = 0
+canonical rejection -> Legacy retry/fallback       = 0
 direct build_module caller families reconciled    = all
 
 Legacy-named orchestration/facade consumers        = 0
