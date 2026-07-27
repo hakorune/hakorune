@@ -108,6 +108,13 @@ pub(crate) struct VerifiedStaticImportAliasViewV1<'catalog> {
 }
 
 impl VerifiedStaticImportAliasViewV1<'_> {
+    pub(crate) fn is_branded_by(
+        &self,
+        declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
+    ) -> bool {
+        std::ptr::eq(self.catalog, declarations)
+    }
+
     pub(crate) fn canonical_owner(&self, alias: &str) -> Option<&str> {
         self.aliases.get(alias).map(Box::as_ref)
     }

@@ -159,8 +159,21 @@ production consumer = 0
 Use two buildable commits inside this row:
 
 ```text
-A1 neutral complete inventory
-A2 Stage-B classification and the 0/1/many fixture matrix
+A1 neutral complete inventory                         = closed
+A2 Stage-B classification and the 0/1/many matrix    = current
+```
+
+A1 closeout:
+
+```text
+complete declaration coverage receipt              = 1
+complete MethodCall inventory authority             = 1
+same-catalog alias brand check                      = 1
+stored lexical observation -> existing V1 facts     = 1
+existing static-target catalog projection           = 1
+second source-navigation engine                     = 0
+Builder / MIR / runtime reference                   = 0
+production consumer                                 = 0
 ```
 
 ## Umbrella B — owned request and disconnected selection

@@ -14,6 +14,8 @@ mod qualified_route_facts;
 mod raw_callable_source_view;
 mod raw_source_cursor_error;
 mod source_method_call_site;
+mod whole_source_inventory;
+mod whole_source_inventory_error;
 
 #[allow(unused_imports)]
 pub(crate) use error::{
@@ -46,6 +48,12 @@ pub(crate) use raw_callable_source_view::{
 pub(crate) use raw_source_cursor_error::RawSourceCursorErrorV1;
 #[allow(unused_imports)]
 pub(crate) use source_method_call_site::VerifiedSourceMethodCallSiteV1;
+#[allow(unused_imports)]
+pub(crate) use whole_source_inventory::{
+    VerifiedWholeSourceMethodCallSiteV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
+};
+#[allow(unused_imports)]
+pub(crate) use whole_source_inventory_error::WholeSourceStaticCallTargetInventoryErrorV1;
 
 #[cfg(test)]
 mod current_owner_tests;
@@ -61,3 +69,5 @@ mod source_method_call_site_tests;
 mod test_support;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod whole_source_inventory_tests;

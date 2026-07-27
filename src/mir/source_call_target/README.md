@@ -2,6 +2,30 @@
 
 This module owns disconnected, pre-Builder source-call target proofs.
 
+## PRELOOP-STAGEB-SOURCE-INVENTORY0-P0
+
+`VerifiedWholeSourceStaticCallTargetInventoryV1` is the sole complete,
+Builder-free MethodCall inventory over one declaration-catalog allocation. It
+runs the existing shadow MethodCall traversal for every declaration, seals one
+exact `VerifiedSourceMethodCallSiteV1` per observed site, and derives the
+qualified/current-owner static-target subset only through the existing lexical,
+reserved-route, alias, and target factories.
+
+The inventory distinguishes:
+
+```text
+complete observed call + exact static target -> target row
+complete observed call + bound/dynamic/unresolved receiver -> noncandidate
+incomplete traversal / invalid or foreign alias authority -> typed rejection
+```
+
+Absence from the target subset is therefore never evidence that source
+observation failed. The product retains every exact call carrier and the one
+target catalog, both branded by the same declaration catalog. It owns no
+Stage-B nested-result policy, candidate cardinality, Builder, MIR, runtime, or
+production route. Stage-B classification belongs to
+`preloop_stageb_carrier::source_producer`.
+
 ## RAW-SOURCE-CURSOR0-S0 catalog-backed Raw navigation
 
 `VerifiedRawCallableSourceViewV1` is the Raw route's thin, catalog-branded

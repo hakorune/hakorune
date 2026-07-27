@@ -9,7 +9,7 @@ use crate::mir::builder::{
 };
 use crate::mir::resolved_semantics::{
     observe_qualified_receiver_shadow_view_v0, FunctionSyntaxViewV1, ReceiverPolicyV1,
-    ShadowQualifiedReceiverDispositionV0, SourceExprSiteV1,
+    ShadowMethodCallReceiverV0, ShadowQualifiedReceiverDispositionV0, SourceExprSiteV1,
 };
 
 use super::{QualifiedReceiverLexicalDispositionErrorV1, VerifiedSourceMethodCallSiteV1};
@@ -33,6 +33,78 @@ pub(crate) struct VerifiedQualifiedReceiverLexicalDispositionsV1<'catalog> {
 }
 
 impl<'catalog> VerifiedQualifiedReceiverLexicalDispositionsV1<'catalog> {
+    /// Seals the existing lexical vocabulary from one complete MethodCall
+    /// observation. This adapter performs no second source traversal.
+    pub(crate) fn seal_from_complete_inventory<'rows>(
+        caller: &'catalog CanonicalSameModuleCallableKeyV1,
+        declaration: &'catalog VerifiedSameModuleCallableDeclarationV1,
+        rows: impl IntoIterator<
+            Item = (
+                &'rows VerifiedSourceMethodCallSiteV1<'catalog>,
+                ShadowMethodCallReceiverV0,
+            ),
+        >,
+    ) -> Result<Self, QualifiedReceiverLexicalDispositionErrorV1>
+    where
+        'catalog: 'rows,
+    {
+        let mut dispositions = BTreeMap::new();
+        let mut observed = 0usize;
+        for (call, receiver) in rows {
+            observed += 1;
+            if call.caller() != caller {
+                return Err(QualifiedReceiverLexicalDispositionErrorV1::MixedCaller {
+                    expected: caller.clone(),
+                    actual: call.caller().clone(),
+                });
+            }
+            if !std::ptr::eq(call.declaration(), declaration) {
+                return Err(
+                    QualifiedReceiverLexicalDispositionErrorV1::MixedCallerDeclaration {
+                        caller: caller.clone(),
+                        site: call.site().clone(),
+                    },
+                );
+            }
+            let disposition = match receiver {
+                ShadowMethodCallReceiverV0::Qualified(
+                    ShadowQualifiedReceiverDispositionV0::Bound,
+                ) => QualifiedReceiverLexicalDispositionV1::Bound,
+                ShadowMethodCallReceiverV0::Qualified(
+                    ShadowQualifiedReceiverDispositionV0::ProvenUnbound,
+                ) => QualifiedReceiverLexicalDispositionV1::ProvenUnbound,
+                ShadowMethodCallReceiverV0::CurrentOwner
+                | ShadowMethodCallReceiverV0::Dynamic => {
+                    return Err(
+                        QualifiedReceiverLexicalDispositionErrorV1::QualifiedReceiverVariableRequired {
+                            caller: caller.clone(),
+                            site: call.receiver_site().clone(),
+                        },
+                    )
+                }
+            };
+            if dispositions
+                .insert(call.receiver_site().clone(), disposition)
+                .is_some()
+            {
+                return Err(
+                    QualifiedReceiverLexicalDispositionErrorV1::DuplicateReceiverSite {
+                        caller: caller.clone(),
+                        site: call.receiver_site().clone(),
+                    },
+                );
+            }
+        }
+        if observed == 0 {
+            return Err(QualifiedReceiverLexicalDispositionErrorV1::EmptyRequestSet);
+        }
+        Ok(Self {
+            caller,
+            declaration,
+            rows: dispositions,
+        })
+    }
+
     pub(crate) fn verify(
         call_sites: &[&VerifiedSourceMethodCallSiteV1<'catalog>],
     ) -> Result<Self, QualifiedReceiverLexicalDispositionErrorV1> {
