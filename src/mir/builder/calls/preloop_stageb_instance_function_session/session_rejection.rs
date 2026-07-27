@@ -170,6 +170,20 @@ impl RejectedPreloopStageBInstanceFunctionSessionV1 {
             }
         }
     }
+
+    #[cfg(test)]
+    pub(super) fn retains_published_carrier_for_test(&self) -> bool {
+        match &self.owner {
+            RetainedPreloopStageBInstanceFunctionSessionOwnerV1::Primary(primary)
+            | RetainedPreloopStageBInstanceFunctionSessionOwnerV1::DuringCleanup(primary) => {
+                primary.retains_published_carrier_for_test()
+            }
+            RetainedPreloopStageBInstanceFunctionSessionOwnerV1::CleanupAfterSuccess(payload) => {
+                let _ = payload.schedule().carrier();
+                true
+            }
+        }
+    }
 }
 
 impl PreloopStageBInstanceFunctionPrimaryRejectionV1 {
@@ -211,6 +225,21 @@ impl PreloopStageBInstanceFunctionPrimaryRejectionV1 {
             RetainedPreloopStageBInstanceFunctionPrimaryOwnerV1::Finalizer(schedule) => {
                 schedule.discard();
             }
+        }
+    }
+
+    #[cfg(test)]
+    fn retains_published_carrier_for_test(&self) -> bool {
+        match &self.owner {
+            RetainedPreloopStageBInstanceFunctionPrimaryOwnerV1::BodySchedule(rejected) => {
+                rejected.retained_published_carrier_for_test().is_some()
+            }
+            RetainedPreloopStageBInstanceFunctionPrimaryOwnerV1::Finalizer(schedule) => {
+                let _ = schedule.carrier();
+                true
+            }
+            RetainedPreloopStageBInstanceFunctionPrimaryOwnerV1::Ingress(_)
+            | RetainedPreloopStageBInstanceFunctionPrimaryOwnerV1::Prepared(_) => false,
         }
     }
 }

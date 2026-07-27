@@ -223,6 +223,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 
 | Script | Purpose |
 | --- | --- |
+| `python3 tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_v0_stageb_session.py` | Pre-loop Stage-B selected-function structural guard. It fixes one source projection, one body schedule, one payload-preserving unpublished function session, exact Phase-A success plus typed failure-to-fresh-session evidence, zero activation-ledger/production consumers through F6, and the 800-line boundary. F7/F8 must evolve this same guard rather than add a parallel authority. |
 | `tools/checks/generic_loop_progression_role_v0_guard.sh` | Generic-loop progression lane guard. Active C0 proves acceptance-neutral candidate-report schema, exact isolated-probe record inventory, zero product-path connection, preserved clean-HEAD ProgramV0 rejection, parser isolation, and the 800-line boundary. Later proof/Recipe slices must evolve the same guard deliberately. |
 | `tools/checks/resolved_region_flow_authority_guard.sh` | Reusable Resolved Region Flow authority guard. It preserves the passive owner-arena/forest contracts and now fixes the atomic SA3-B first family: one preflighted resolved route, exact located carriers, `BindingRefV1 -> ValueId`, legacy allocator veto, coverage-before-publication, zero Planner/BlockExpr/Lambda activation, focused tests, and the 800-line boundary. |
 | `tools/checks/rust_lifecycle_source_selfhost_family_guard.sh` | Reusable Source Selfhost family guard; prefer this over row-boilerplate guards. |

@@ -146,11 +146,12 @@ def check_stageb_session(root: Path) -> None:
     if consumers != 0:
         fail(f"F6-3 production consumers must remain zero: actual={consumers}")
 
-    if (
-        "phase_a_indexed_actual_parser_completes_one_unpublished_stageb_function"
-        not in tests
+    for evidence in (
+        "phase_a_indexed_actual_parser_completes_one_unpublished_stageb_function",
+        "suffix_failure_restores_parent_retains_carrier_then_fresh_session_succeeds",
     ):
-        fail("missing F6-3 indexed actual Parser proof")
+        if evidence not in tests:
+            fail(f"missing F6-3/F6-4 evidence: {evidence}")
 
     touched = (
         session_path,

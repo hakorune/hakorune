@@ -596,6 +596,43 @@ Suffix, finalizer, or session-cleanup failure retains the recipe plus the
 strongest completed carrier/type evidence. It must not collapse that owner to
 `String`, and it must not expose a retryable Port or source witness.
 
+Status: closed
+
+Landed evidence:
+
+```text
+one catalog-backed source projection
+  -> existing instance preparation
+  -> existing StepTree guard
+  -> sole F6 body schedule
+  -> shared finalizer preparation
+  -> header-aware finalization
+  -> generic payload session
+
+Phase-A-indexed actual Parser:
+  unpublished function draft                          = 1
+  physical parameters                                = 3
+  inner physical Call precedes outer physical Call    = 1
+  inner destination != outer destination              = 1
+  assignment destination == outer destination         = 1
+  unannotated function return                         = Unknown
+  exact outer carrier fact                            = Integer
+  parent restoration                                  = exact
+  module publication                                  = 0
+
+without Phase A:
+  typed stage                                         = BodySchedule
+  completed carrier evidence retained                 = 1
+  draft publication                                   = 0
+  parent restoration                                  = exact
+  same Builder + fresh ingress + existing indexer
+    -> successful unpublished function                = 1
+
+retry / resume / rearm                                = 0
+activation-ledger consumer                            = 0
+compile_request consumer                              = 0
+```
+
 ### F7 — function activation ledger
 
 ```text

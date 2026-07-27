@@ -24,16 +24,25 @@ pub(super) fn with_actual_parser_stageb_ingress<R>(
         crate::mir::preloop_stageb_carrier::PreparedPreloopStageBFunctionIngressV1,
     ) -> R,
 ) -> R {
+    let (builder, ingress) = actual_parser_stageb_ingress();
+    f(builder, ingress)
+}
+
+pub(super) fn actual_parser_stageb_ingress() -> (
+    crate::mir::builder::MirBuilder,
+    crate::mir::preloop_stageb_carrier::PreparedPreloopStageBFunctionIngressV1,
+) {
     use crate::mir::builder::preloop_stageb_context_install::PreparedPreloopStageBAliasInstallV1;
-    let prepared = crate::mir::preloop_stageb_carrier::test_support::actual_parser_activation_plan()
-        .into_module_install_parts_v1()
-        .attach_aliases(PreparedPreloopStageBAliasInstallV1::None);
+    let prepared =
+        crate::mir::preloop_stageb_carrier::test_support::actual_parser_activation_plan()
+            .into_module_install_parts_v1()
+            .attach_aliases(PreparedPreloopStageBAliasInstallV1::None);
     let mut builder = crate::mir::builder::MirBuilder::new();
     let installed = prepared
         .commit(&mut builder)
         .expect("actual Parser Stage-B context install");
     let ingress = installed.into_ledger_parts().prepare_function_ingress();
-    f(builder, ingress)
+    (builder, ingress)
 }
 
 pub(super) fn with_prepared_preloop<R>(
