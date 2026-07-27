@@ -462,12 +462,31 @@ ledger / root lowering / production caller        = 0
 Add:
 
 ```text
+PreparedPreloopStageBActivationInstallPartsV1
+PreparedPreloopStageBSourceInstallPartsV1
+PreparedPreloopStageBPreinstalledRootV1
 InstalledPreloopStageBModuleActivationV1
 PreloopStageBFunctionActivationLedgerV1
 lower_root_with_preinstalled_catalog_v1
 ```
 
-After all fallible checks, commit is an infallible move:
+Only narrowly named consuming projections may expose the catalog, aliases,
+AST, and row to this transaction. Generic `into_parts()` tuples and raw alias
+maps are forbidden.
+
+Owner chain:
+
+```text
+PreparedPreloopStageBModuleActivationV1
+  -> named source + activation install projections
+  -> AST + exact catalog + typed aliases + Armed(row)
+  -> existing atomic context commit
+  -> InstalledPreloopStageBModuleActivationV1
+  -> receipt-gated preinstalled-root wrapper
+  -> existing post-install root kernel
+```
+
+After all fallible checks, context commit is an infallible move:
 
 ```text
 catalog -> candidate Builder CompilationContext
@@ -480,18 +499,19 @@ post-install root kernel. Catalog+alias commit must be one atomic
 CompilationContext operation; do not call a fallible catalog install followed
 by an alias setter.
 
-Ledger state is one-way and payload-retaining:
+C4 has no exact-function ingress yet. Its ledger therefore implements only
+the state that has a real producer:
 
 ```text
 Armed(row)
-  -> InFlight(selected ingress)
-  -> Completed(receipt)
-  |  Rejected { retained row/evidence, cause }
+  -> finish()
+  -> Rejected { retained row, SelectedCallerNotObserved }
 ```
 
-`finish(self)` rejects unobserved Armed and unfinished InFlight. There is no
-payloadless `Consumed`/`Poisoned`, `take`, `reset`, `rearm`, or row escape
-accessor.
+`InFlight`, `Completed`, and selected-function `Rejected` are added only in D1
+with their exact production transitions. Creating those variants in C4 would
+be dead typestate and a false completion claim. There is no payloadless
+`Consumed`/`Poisoned`, `take`, `reset`, `rearm`, or row escape accessor.
 
 Acceptance:
 
@@ -500,6 +520,10 @@ selected catalog seal = 1
 selected catalog install = 1
 selected catalog reseal = 0
 partial catalog/alias install = 0
+preinstalled-root wrapper clone = exact 1
+post-install root kernel consumer = exact 1 disconnected
+ledger state = Armed only
+dead InFlight / Completed producer = 0
 Builder source-site registry = 0
 second root-lowering orchestration = 0
 production consumer = 0
@@ -543,6 +567,15 @@ exact canonical key observed once -> consume row
 selected key never observed       -> typed rejection
 selected key observed twice       -> typed rejection
 selected function failure         -> no ordinary retry
+```
+
+D1 extends the C4 ledger only when these transitions gain real producers:
+
+```text
+Armed(row)
+  -> InFlight(selected ingress)
+  -> Completed(receipt)
+  |  Rejected { retained row/evidence, cause }
 ```
 
 Direct `MirBuilder::build_module`, AST JSON, Program(JSON v0), REPL, and Raw
