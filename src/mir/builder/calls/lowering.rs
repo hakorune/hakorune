@@ -25,9 +25,11 @@
 //! - **Box理論**: BoxCompilationContext による完全独立化、型情報・変数マッピングの適切な管理
 
 use super::function_lowering;
+use super::instance_method_draft_preparation::{
+    prepare_instance_method_draft_body_v1, run_function_body_step_tree_guard_v1,
+    InstanceMethodDraftPreparationRequestV1,
+};
 use crate::ast::{ASTNode, ParamDecl};
-use crate::mir::builder::module_lowering_invocation::LegacyChildDraftAdmissionV1;
-use crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1;
 use crate::mir::builder::{MirBuilder, MirFunction, MirInstruction, MirType};
 use crate::mir::function::MirParamDecl;
 use std::collections::BTreeSet;
@@ -188,15 +190,20 @@ impl MirBuilder {
         uses: Vec<String>,
         attrs: crate::ast::DeclarationAttrs,
     ) -> Result<MirFunction, String> {
-        self.create_method_skeleton(function_name, &box_name, &params, &body)?;
-        self.set_current_function_declared_signature(
-            mir_method_param_decls_from_source(&box_name, &params, &param_decls),
-            return_type_name,
-        );
-        self.set_current_function_runes(&attrs);
-        self.set_current_function_declared_capability_uses(&uses);
-        self.setup_method_params(&box_name, &params)?;
-        self.lower_method_body(body)?;
+        let prepared = prepare_instance_method_draft_body_v1(
+            self,
+            InstanceMethodDraftPreparationRequestV1::new(
+                function_name,
+                box_name,
+                params,
+                param_decls,
+                return_type_name,
+                body,
+                uses,
+                attrs,
+            ),
+        )?;
+        self.lower_method_body(prepared.into_body())?;
         let returns_value = self
             .function_state
             .current_function
@@ -218,8 +225,6 @@ impl MirBuilder {
         let trace = crate::mir::builder::control_flow::joinir::trace::trace();
 
         // Phase 112: StepTree capability guard (strict-only) + dev shadow lowering
-        let strict = crate::config::env::joinir_dev::strict_enabled();
-        let dev = crate::config::env::joinir_dev_enabled();
         let func_name = self
             .function_state
             .current_function
@@ -227,26 +232,7 @@ impl MirBuilder {
             .map(|f| f.signature.name.clone())
             .unwrap_or_else(|| "<unknown>".to_string());
 
-        struct JoinLoopTraceDevAdapter<'a> {
-            trace: &'a crate::mir::builder::control_flow::joinir::trace::JoinLoopTrace,
-        }
-        impl crate::mir::control_tree::normalized_shadow::dev_pipeline::DevTrace
-            for JoinLoopTraceDevAdapter<'_>
-        {
-            fn dev(&self, tag: &str, msg: &str) {
-                self.trace.dev(tag, msg)
-            }
-        }
-        let trace_adapter = JoinLoopTraceDevAdapter { trace: &trace };
-
-        crate::mir::control_tree::normalized_shadow::dev_pipeline::StepTreeDevPipelineBox::run(
-            self,
-            &body,
-            &func_name,
-            strict,
-            dev,
-            &trace_adapter,
-        )?;
+        run_function_body_step_tree_guard_v1(self, &body, &func_name)?;
 
         trace.emit_if(
             "debug",
