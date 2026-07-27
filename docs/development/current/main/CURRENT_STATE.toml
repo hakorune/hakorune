@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "OWN-GRAM-REJECT0-HAKO0-S0 remains the return row. Its unchanged Hako gate reproduces MissingTransientType { init: ValueId(28) } before the reject executes, satisfying the taskboard's sole direct-prerequisite reopen clause. UNAVAILABLE-DISPOSITION0 is already closed and green; correspondence now stops at PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-D0. No production consumer, ownership grammar, or fallback is active."
+status = "PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-prime-r1 accepts A-double-prime: one brand-free candidate/config/replacement core, family-specific readiness, and a strong Legacy finish/commit product. Worker audit adds one exact selected-draft collector-to-candidate-module handoff before the existing Legacy finalizer. BUILDER-CANDIDATE-SESSION-CORE0-S0 is executable now. OWN-GRAM-REJECT0-HAKO0-S0 remains the immediate return row after the unchanged real Stage-B proof is green."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-D0"
-current_execution_row = "PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-D0"
-current_execution_summary = "Select the isolated Legacy Selected Builder candidate-session owner after correspondence proved canonical and branded Raw sessions are not exact. The accepted implementation must preserve ContinueLive CoreContext and Legacy config, keep typed aliases in the existing atomic activation transaction, commit the live Builder only after complete success, and return directly to OWN-GRAM-REJECT0-HAKO0-S0."
+current_design_stop = "none"
+current_execution_row = "BUILDER-CANDIDATE-SESSION-CORE0-S0"
+current_execution_summary = "Behavior-neutrally extract candidate/config/private replacement from ModuleBuilderInvocationSessionV1. Raw/Canonical retain strict external quiescence; Legacy readiness remains family-specific. Then close exact selected-draft publication, Legacy finalize/finish/commit, sole Legacy-arm ingress, unchanged Stage-B progression, and return directly to OWN-GRAM-REJECT0-HAKO0-S0."
 finite_product_goal = "OWNERSHIP-SPARSE-PRODUCT-READINESS-D0"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
@@ -434,9 +434,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "preloop-stageb-selected-candidate-session0-d0-design-question-2026-07-28"
-latest_card_path = "docs/development/current/main/investigations/preloop-stageb-selected-candidate-session0-d0-design-question-2026-07-28.md"
-latest_card_summary = """The unchanged OWN-GRAM Hako gate proves the parked selected candidate session is a direct prerequisite by reproducing MissingTransientType before the reject executes. Correspondence closes with canonical and branded Raw sessions both inexact. PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-D0 recommends extracting one brand-free Builder candidate-session core, retaining thin Raw/Canonical/Legacy family wrappers, success-only live replacement, no catalog reseal, and no retry. The return row remains OWN-GRAM-REJECT0-HAKO0-S0."""
+latest_card = "preloop-stageb-selected-candidate-session0-prime-r1-task-map-2026-07-28"
+latest_card_path = "docs/development/current/main/investigations/preloop-stageb-selected-candidate-session0-prime-r1-task-map-2026-07-28.md"
+latest_card_summary = """PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-prime-r1 accepts A-double-prime. BuilderCandidateSessionCoreV1 owns only candidate/config/private replacement; Raw/Canonical and Legacy retain distinct readiness laws. The worker audit adds one exact selected-draft collector-to-candidate-module publication handoff before existing Legacy finalize. Nine buildable commits close core extraction, draft publication, route-specific Legacy completion, compiler finish/commit, Legacy-arm ingress, the unchanged Stage-B proof, and immediate return to OWN-GRAM-REJECT0-HAKO0-S0."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -639,7 +639,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-D0"
+current_blocker_token = "BUILDER-CANDIDATE-SESSION-CORE0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

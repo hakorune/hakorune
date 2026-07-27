@@ -1,7 +1,8 @@
 ---
-Status: design stop; consultation required
+Status: accepted; superseded by execution task map
 Date: 2026-07-28
-Decision: pending
+Decision: PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-prime-r1
+Choice: A-double-prime
 Closes:
   - PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION-CORRESPONDENCE0-P0
 Stops:
@@ -9,12 +10,34 @@ Stops:
 Return row:
   - OWN-GRAM-REJECT0-HAKO0-S0
 Related:
+  - docs/development/current/main/investigations/preloop-stageb-selected-candidate-session0-prime-r1-task-map-2026-07-28.md
   - docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md
   - docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md
   - docs/development/current/main/investigations/preloop-stageb-instance-function-session-reconciliation0-prime-r1-task-map-2026-07-27.md
 ---
 
 # PRELOOP-STAGEB selected candidate session design question
+
+## Accepted answer
+
+The consultation accepted A-double-prime:
+
+```text
+brand-free candidate/config/replacement core
++ family-specific readiness and lifecycle
++ strong Legacy finish/commit product
+```
+
+Universal readiness in the core is rejected. The worker audit also found one
+mechanical selected-draft collector-to-candidate-module handoff that must close
+before the existing Legacy finalizer. The complete executable order and
+acceptance matrix are now owned by:
+
+```text
+preloop-stageb-selected-candidate-session0-prime-r1-task-map-2026-07-28.md
+```
+
+This question is historical and must not be executed directly.
 
 ## Why this stop reopened
 
@@ -294,4 +317,3 @@ GenericLoop-side type publication
 fallback/retry
 default backend or compiler route change
 ```
-
