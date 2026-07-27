@@ -9,7 +9,7 @@ use crate::mir::builder::me_call_header_observation::{
     MeCallHeaderObservationPortV1, MeCallHeaderSourceV1, MeCallParameterObservationV1,
 };
 use crate::mir::builder::recursive_child_lowering::{
-    RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    RawFunctionHeaderLookupPortV1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 use crate::mir::callable_result_representation::actual_parser_add_fixture;
 use crate::mir::resolved_semantics::{ExprChildRoleV1, SourceExprSiteV1};
@@ -28,7 +28,9 @@ use crate::mir::{
 
 use super::extern_calls::EnvMethodSpec;
 use super::member_route::MemberCallRoutePlan;
-use super::method_call_descent::RawLegacyMethodCallInputV1;
+use super::method_call_descent::{
+    MethodCallDescentPortV1, MethodCallSyntaxViewV1, RawLegacyMethodCallInputV1,
+};
 use super::method_call_terminal::{
     emit_env_value_terminal_raw_v1, emit_global_value_terminal_raw_v1,
     emit_standard_value_terminal_raw_v1, emit_typeop_value_terminal_raw_v1,
@@ -41,6 +43,7 @@ use super::preloop_located_argument_ingress::{
 use super::preloop_located_argument_port::{
     PreloopLocatedArgumentPortV1, PreloopSelectedArgumentStateV1,
 };
+use super::CallArgumentDescentPortV1;
 
 fn integer(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -83,6 +86,7 @@ fn with_prepared_preloop<R>(
         RawLegacyMethodCallInputV1,
         ASTNode,
         String,
+        Vec<ASTNode>,
         SourceExprSiteV1,
     ) -> R,
 ) -> R {
@@ -119,10 +123,11 @@ fn with_prepared_preloop<R>(
                 .expect("located outer MethodCall");
             let outer_receiver = outer_call.receiver().clone();
             let outer_method = outer_call.method().to_string();
+            let outer_arguments = outer_call.arguments().to_vec();
             let outer_input = RawLegacyMethodCallInputV1::new(
                 outer_receiver.clone(),
                 outer_method.clone(),
-                outer_call.arguments().to_vec(),
+                outer_arguments.clone(),
             );
             let selected = view
                 .method_call_argument(outer_call, 1)
@@ -135,6 +140,7 @@ fn with_prepared_preloop<R>(
                 outer_input,
                 outer_receiver,
                 outer_method,
+                outer_arguments,
                 sites[0].clone(),
             )
         },
@@ -153,7 +159,12 @@ fn call_count(builder: &MirBuilder) -> usize {
 fn outer_route_drift_stops_before_candidate_argument_descent() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         with_prepared_preloop(
-            |prepared, _outer_input, outer_receiver, outer_method, selected_site| {
+            |prepared,
+             _outer_input,
+             outer_receiver,
+             outer_method,
+             _outer_arguments,
+             selected_site| {
                 let mut builder = synthetic_rejection_builder(true);
                 let shadow = builder
                     .build_expression(integer(99))
@@ -185,7 +196,12 @@ fn outer_route_drift_stops_before_candidate_argument_descent() {
 fn candidate_rejects_unified_disabled_before_the_selected_inner_call() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "off", || {
         with_prepared_preloop(
-            |prepared, outer_input, outer_receiver, outer_method, selected_site| {
+            |prepared,
+             outer_input,
+             outer_receiver,
+             outer_method,
+             _outer_arguments,
+             selected_site| {
                 let mut builder = synthetic_rejection_builder(true);
                 let route = builder
                     .plan_member_call_route(&outer_receiver, &outer_method)
@@ -216,7 +232,12 @@ fn candidate_rejects_unified_disabled_before_the_selected_inner_call() {
 fn configured_header_drift_rejects_lowered_global_before_call_emission() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         with_prepared_preloop(
-            |prepared, _outer_input, _outer_receiver, _outer_method, selected_site| {
+            |prepared,
+             _outer_input,
+             _outer_receiver,
+             _outer_method,
+             _outer_arguments,
+             selected_site| {
                 let mut builder = synthetic_rejection_builder(true);
                 let signature = FunctionSignature {
                     name: "ParserBox.static_const_eval_pos/1".to_string(),
@@ -257,7 +278,12 @@ fn configured_header_drift_rejects_lowered_global_before_call_emission() {
 fn missing_inner_argument_retains_source_in_the_synthetic_rejection_harness() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         with_prepared_preloop(
-            |prepared, _outer_input, _outer_receiver, _outer_method, selected_site| {
+            |prepared,
+             _outer_input,
+             _outer_receiver,
+             _outer_method,
+             _outer_arguments,
+             selected_site| {
                 let mut builder = synthetic_rejection_builder(false);
                 let mut ordinary = RawLegacyChildLoweringPortV1;
                 let rejected = lower_selected_preloop_located_argument_v1(
@@ -282,15 +308,84 @@ fn missing_inner_argument_retains_source_in_the_synthetic_rejection_harness() {
     });
 }
 
+#[test]
+fn production_prefix_physical_inner_call_failure_retains_source_without_receipt() {
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+        with_prepared_preloop(
+            |prepared,
+             _outer_input,
+             _outer_receiver,
+             _outer_method,
+             _outer_arguments,
+             selected_site| {
+                let mut builder = MirBuilder::new();
+                builder.current_module = Some(MirModule::new(
+                    "preloop-production-prefix-physical-failure".to_string(),
+                ));
+                builder
+                    .comp_ctx
+                    .install_callable_declaration_catalog(
+                        actual_parser_add_fixture::declaration_catalog_for_lowering(),
+                    )
+                    .expect("production prefix lowering catalog");
+                let error = builder
+                    .lower_instance_method_prefix_for_test(
+                        "ParserBox",
+                        actual_parser_add_fixture::method_declaration_for_lowering(),
+                        3,
+                        |builder, suffix| {
+                            assert!(matches!(suffix.first(), Some(ASTNode::Assignment { .. })));
+                            let calls_before = call_count(builder);
+                            builder.function_state.current_block = None;
+                            let mut ordinary = RawLegacyChildLoweringPortV1;
+                            let rejected = lower_selected_preloop_located_argument_v1(
+                                builder,
+                                &mut ordinary,
+                                prepared,
+                            )
+                            .expect_err("generic physical Call must fail without an active block");
+                            assert_eq!(call_count(builder) - calls_before, 0);
+                            assert_eq!(rejected.selected_site(), &selected_site);
+                            assert_eq!(
+                                rejected.stage(),
+                                PreloopLocatedArgumentIngressStageV1::UnifiedTerminal
+                            );
+                            assert!(matches!(
+                                rejected.cause(),
+                                PreloopLocatedArgumentIngressErrorV1::PhysicalReceipt(
+                                    super::unified_emitter::UnifiedValueCallReceiptErrorV1::Emission { detail }
+                                ) if detail.as_ref() == "No current basic block"
+                            ));
+                            rejected.discard();
+                            Err::<(ValueId, ()), _>(
+                                "[preloop-fixture/physical-call-failure]".to_string(),
+                            )
+                        },
+                    )
+                    .expect_err("fixture must discard the failed candidate");
+                assert!(error.contains("physical-call-failure"));
+            },
+        );
+    });
+}
+
 /// Test-only ordinary port that preserves every existing Raw child/terminal
 /// path except the outer static terminal, which fails after the selected inner
 /// Method Call has completed.
+struct FailingMethodCallInputV1 {
+    receiver: ASTNode,
+    method: String,
+    arguments: Vec<ASTNode>,
+}
+
+struct FailingExpressionInputV1(ASTNode);
+
 struct FailingOuterStaticTerminalPortV1;
 
 impl RecursiveChildLoweringPortV1 for FailingOuterStaticTerminalPortV1 {
     type BodyInput = Vec<ASTNode>;
     type StatementInput = ASTNode;
-    type ExpressionInput = ASTNode;
+    type ExpressionInput = FailingExpressionInputV1;
 
     fn lower_body(
         &mut self,
@@ -313,7 +408,75 @@ impl RecursiveChildLoweringPortV1 for FailingOuterStaticTerminalPortV1 {
         builder: &mut MirBuilder,
         input: Self::ExpressionInput,
     ) -> Result<ValueId, String> {
-        RawLegacyChildLoweringPortV1.lower_expression(builder, input)
+        RawLegacyChildLoweringPortV1.lower_expression(builder, input.0)
+    }
+}
+
+impl CallArgumentDescentPortV1 for FailingOuterStaticTerminalPortV1 {
+    type ArgumentsInput = [ASTNode];
+
+    fn argument_count(&self, input: &Self::ArgumentsInput) -> usize {
+        input.len()
+    }
+
+    fn argument_syntax<'input>(
+        &self,
+        input: &'input Self::ArgumentsInput,
+        index: usize,
+    ) -> Option<&'input ASTNode> {
+        input.get(index)
+    }
+
+    fn argument_expression_input(
+        &mut self,
+        input: &Self::ArgumentsInput,
+        index: usize,
+    ) -> Result<Self::ExpressionInput, String> {
+        input
+            .get(index)
+            .cloned()
+            .map(FailingExpressionInputV1)
+            .ok_or_else(|| format!("missing failing-port argument index={index}"))
+    }
+}
+
+impl MethodCallDescentPortV1 for FailingOuterStaticTerminalPortV1 {
+    type MethodCallInput = FailingMethodCallInputV1;
+
+    fn method_call_syntax<'input>(
+        &self,
+        input: &'input Self::MethodCallInput,
+    ) -> Result<MethodCallSyntaxViewV1<'input>, String> {
+        Ok(MethodCallSyntaxViewV1::new(
+            &input.receiver,
+            &input.method,
+            &input.arguments,
+        ))
+    }
+
+    fn receiver_expression_input(
+        &self,
+        input: &Self::MethodCallInput,
+    ) -> Result<Self::ExpressionInput, String> {
+        Ok(FailingExpressionInputV1(input.receiver.clone()))
+    }
+
+    fn call_arguments_input<'input>(
+        &self,
+        input: &'input Self::MethodCallInput,
+    ) -> Result<&'input Self::ArgumentsInput, String> {
+        Ok(&input.arguments)
+    }
+}
+
+impl RawFunctionHeaderLookupPortV1 for FailingOuterStaticTerminalPortV1 {
+    fn with_function_headers<R>(
+        &mut self,
+        observe: impl for<'headers> FnOnce(
+            Option<&'headers dyn crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1>,
+        ) -> R,
+    ) -> R {
+        observe(None)
     }
 }
 
@@ -382,42 +545,95 @@ impl MethodCallValueTerminalPortV1 for FailingOuterStaticTerminalPortV1 {
 }
 
 #[test]
-fn outer_terminal_failure_retains_the_completed_inner_source_owner() {
+fn production_prefix_outer_failure_retains_source_and_physical_receipt() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         with_prepared_preloop(
-            |prepared, outer_input, outer_receiver, outer_method, selected_site| {
-                let mut builder = synthetic_rejection_builder(true);
-                let route = builder
-                    .plan_member_call_route(&outer_receiver, &outer_method)
-                    .expect("existing outer route");
-                let mut port =
-                    PreloopLocatedArgumentPortV1::new(FailingOuterStaticTerminalPortV1, prepared);
-                let error = builder
-                    .execute_prepared_member_call_route_v1(&mut port, &outer_input, route)
-                    .expect_err("outer terminal is deliberately rejected");
-                assert!(error.contains("outer-terminal-failure"));
-                assert_eq!(call_count(&builder), 1, "inner Method Call completed once");
-                assert!(builder.current_function_instructions().iter().any(
-                    |instruction| matches!(
-                        instruction,
-                        MirInstruction::Call {
-                            callee: Some(Callee::Method { method, .. }),
-                            ..
-                        } if method == "static_const_eval_pos"
-                    )
+            |prepared,
+             _outer_input,
+             outer_receiver,
+             outer_method,
+             outer_arguments,
+             selected_site| {
+                let mut builder = MirBuilder::new();
+                builder.current_module = Some(MirModule::new(
+                    "preloop-production-prefix-outer-failure".to_string(),
                 ));
-                assert!(matches!(
-                    port.selected_state(),
-                    PreloopSelectedArgumentStateV1::Rejected(rejected)
-                        if rejected.selected_site() == &selected_site
-                            && rejected.stage()
-                                == PreloopLocatedArgumentIngressStageV1::OuterTerminal
-                            && matches!(
+                builder
+                    .comp_ctx
+                    .install_callable_declaration_catalog(
+                        actual_parser_add_fixture::declaration_catalog_for_lowering(),
+                    )
+                    .expect("production prefix lowering catalog");
+                builder
+                    .lower_instance_method_prefix_for_test(
+                        "ParserBox",
+                        actual_parser_add_fixture::method_declaration_for_lowering(),
+                        3,
+                        |builder, suffix| {
+                            assert!(matches!(suffix.first(), Some(ASTNode::Assignment { .. })));
+                            let calls_before = call_count(builder);
+                            let route = builder
+                                .plan_member_call_route(&outer_receiver, &outer_method)
+                                .expect("existing outer route");
+                            assert!(matches!(route, MemberCallRoutePlan::StaticReceiver { .. }));
+                            let outer_input = FailingMethodCallInputV1 {
+                                receiver: outer_receiver,
+                                method: outer_method,
+                                arguments: outer_arguments,
+                            };
+                            let mut port = PreloopLocatedArgumentPortV1::new(
+                                FailingOuterStaticTerminalPortV1,
+                                prepared,
+                            );
+                            let error = builder
+                                .execute_prepared_member_call_route_v1(
+                                    &mut port,
+                                    &outer_input,
+                                    route,
+                                )
+                                .expect_err("outer terminal is deliberately rejected");
+                            assert!(error.contains("outer-terminal-failure"));
+                            assert_eq!(
+                                call_count(builder) - calls_before,
+                                1,
+                                "only the selected inner generic Method Call commits"
+                            );
+                            let inner_destination = builder
+                                .current_function_instructions()
+                                .iter()
+                                .filter_map(|instruction| match instruction {
+                                    MirInstruction::Call {
+                                        dst: Some(dst),
+                                        callee: Some(Callee::Method { method, .. }),
+                                        ..
+                                    } if method == "static_const_eval_pos" => Some(*dst),
+                                    _ => None,
+                                })
+                                .last()
+                                .expect("selected inner physical Method Call");
+                            let rejected = port
+                                .into_emitted_nested_result()
+                                .expect_err("outer failure must not emit a nested receipt");
+                            assert_eq!(rejected.selected_site(), &selected_site);
+                            assert_eq!(
+                                rejected.stage(),
+                                PreloopLocatedArgumentIngressStageV1::OuterTerminal
+                            );
+                            assert!(matches!(
                                 rejected.cause(),
                                 PreloopLocatedArgumentIngressErrorV1::OuterTerminal { .. }
-                            )
-                ));
-                port.discard();
+                            ));
+                            assert_eq!(
+                                rejected.retained_physical_destination(),
+                                Some(inner_destination),
+                                "outer failure retains the exact inner physical receipt"
+                            );
+                            rejected.discard();
+                            let ret = builder.function_state.variable_ctx.variable_map["ret"];
+                            Ok((ret, ()))
+                        },
+                    )
+                    .expect("production prefix outer-failure fixture");
             },
         );
     });

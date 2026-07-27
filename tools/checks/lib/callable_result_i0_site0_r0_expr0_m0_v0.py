@@ -29,9 +29,27 @@ def require_count(text: str, needle: str, expected: int, label: str) -> None:
 
 
 def require_definition_count(text: str, name: str, expected: int, label: str) -> None:
-    actual = len(re.findall(rf"\bfn\s+{re.escape(name)}\s*\(", text))
+    actual = len(
+        re.findall(
+            rf"\bfn\s+{re.escape(name)}(?:<[^>]+>)?\s*\(",
+            text,
+        )
+    )
     if actual != expected:
         fail(f"{label}: expected={expected} actual={actual}")
+
+
+def rust_code(text: str) -> str:
+    """Drop line comments before authority checks.
+
+    Boundary documentation must be able to describe rejected routes.  These
+    checks guard executable authority, not diagnostic vocabulary.
+    """
+
+    return "\n".join(
+        line.split("//", 1)[0]
+        for line in text.splitlines()
+    )
 
 
 def main() -> None:
@@ -233,6 +251,7 @@ def main() -> None:
     )
     for name in terminal_methods:
         require_definition_count(candidate, name, 1, f"candidate terminal method {name}")
+    terminal_code = rust_code(terminal)
     for forbidden in (
         "MirInstruction",
         "emit_unified_call",
@@ -266,7 +285,7 @@ def main() -> None:
         "thread_local!",
         "Arc<",
     ):
-        if forbidden in terminal:
+        if forbidden in terminal_code:
             fail(f"terminal boundary owns forbidden authority: {forbidden}")
 
     if re.search(r"#\[derive\([^]]*Clone[^]]*\)\]", terminal):
@@ -327,6 +346,74 @@ def main() -> None:
         if evidence not in reserved_tests:
             fail(f"missing P0 reserved custom-terminal evidence: {evidence}")
 
+    # REP0 keeps source policy out of the shared terminal.  The terminal may
+    # issue exactly one generic value-call receipt; the pre-loop owner pairs it
+    # with source evidence only after that physical Call succeeds.
+    ingress = read(root, "src/mir/builder/calls/preloop_located_argument_ingress.rs")
+    receipt = read(root, "src/mir/builder/calls/preloop_nested_result_receipt.rs")
+    ingress_tests = read(
+        root, "src/mir/builder/calls/preloop_located_argument_ingress_tests.rs"
+    )
+    ingress_p0_tests = read(
+        root, "src/mir/builder/calls/preloop_located_argument_ingress_p0_tests.rs"
+    )
+    require_definition_count(
+        terminal,
+        "emit_standard_value_terminal_with_receipt_v1",
+        1,
+        "REP0 generic receipt terminal",
+    )
+    require_count(
+        terminal_code,
+        "UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(",
+        1,
+        "REP0 sole generic physical receipt writer",
+    )
+    for forbidden in (
+        "PreparedPreloop",
+        "ReachedPreloop",
+        "EmittedNested",
+        "SourceExprSiteV1",
+        "type_ctx",
+        "value_types",
+    ):
+        if forbidden in terminal_code:
+            fail(f"REP0 generic terminal owns forbidden authority: {forbidden}")
+
+    require_count(
+        receipt,
+        "struct ReachedPreloopNestedPhysicalCallV1",
+        1,
+        "REP0 source plus physical receipt owner",
+    )
+    require_count(
+        receipt,
+        "struct EmittedNestedInstanceCallV1",
+        1,
+        "REP0 emitted nested receipt owner",
+    )
+    require_definition_count(
+        receipt,
+        "complete_after_outer_success",
+        1,
+        "REP0 outer-success receipt terminal",
+    )
+    for forbidden in (
+        "MirInstruction",
+        "emit_unified_call",
+        "type_ctx",
+        "value_types",
+    ):
+        if forbidden in rust_code("\n".join((ingress, candidate, receipt))):
+            fail(f"REP0 pre-loop receipt path owns forbidden authority: {forbidden}")
+    for evidence in (
+        "configured_preloop_ingress_reaches_existing_inner_and_outer_call_terminals",
+        "production_prefix_outer_failure_retains_source_and_physical_receipt",
+        "production_prefix_physical_inner_call_failure_retains_source_without_receipt",
+    ):
+        if evidence not in ingress_tests and evidence not in ingress_p0_tests:
+            fail(f"missing REP0 production-prefix evidence: {evidence}")
+
     for phrase in (
         "disconnected V0 value-only terminal port",
         "Route selection, syntax preflight, and child descent must finish",
@@ -351,6 +438,10 @@ def main() -> None:
         "src/mir/builder/calls/method_call_terminal_tests.rs",
         "src/mir/builder/calls/method_call_descent.rs",
         "src/mir/builder/calls/preloop_located_argument_port.rs",
+        "src/mir/builder/calls/preloop_located_argument_ingress.rs",
+        "src/mir/builder/calls/preloop_nested_result_receipt.rs",
+        "src/mir/builder/calls/preloop_located_argument_ingress_tests.rs",
+        "src/mir/builder/calls/preloop_located_argument_ingress_p0_tests.rs",
         "src/mir/builder/calls/build.rs",
         "src/mir/builder/calls/member_route.rs",
         "src/mir/builder/calls/member_route_descent_tests.rs",

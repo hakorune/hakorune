@@ -9,7 +9,9 @@ use crate::ast::ASTNode;
 use crate::mir::builder::me_call_header_observation::{
     MeCallHeaderObservationPortV1, MeCallParameterObservationV1, MethodCallLoweringPortV1,
 };
-use crate::mir::builder::recursive_child_lowering::RecursiveChildLoweringPortV1;
+use crate::mir::builder::recursive_child_lowering::{
+    RawFunctionHeaderLookupPortV1, RecursiveChildLoweringPortV1,
+};
 use crate::mir::source_instance_result_contract::PreparedPreloopLocatedArgumentV1;
 use crate::mir::{MirBuilder, MirType, TypeOpKind, ValueId};
 
@@ -17,10 +19,13 @@ use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{MethodCallDescentPortV1, MethodCallSyntaxViewV1};
 use super::method_call_terminal::MethodCallValueTerminalPortV1;
 use super::preloop_located_argument_ingress::{
-    lower_selected_preloop_located_argument_v1, ReachedPreloopUnifiedMethodRequestV1,
+    lower_selected_preloop_located_argument_v1, PreloopLocatedArgumentIngressErrorV1,
     RejectedPreloopLocatedArgumentIngressV1,
 };
 use super::preloop_located_argument_rejection::PreloopLocatedArgumentPortErrorV1;
+use super::preloop_nested_result_receipt::{
+    EmittedNestedInstanceCallV1, ReachedPreloopNestedPhysicalCallV1,
+};
 use super::CallArgumentDescentPortV1;
 
 /// One-shot state is retained in the candidate Port, not in `MirBuilder`.
@@ -31,7 +36,8 @@ pub(super) enum PreloopSelectedArgumentStateV1<'site, 'view, 'catalog> {
     Armed(PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>),
     InFlight(PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>),
     Transitioning,
-    Reached(ReachedPreloopUnifiedMethodRequestV1<'site, 'view, 'catalog>),
+    ReachedPhysical(ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'catalog>),
+    Emitted(EmittedNestedInstanceCallV1),
     Rejected(RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog>),
 }
 
@@ -75,7 +81,9 @@ pub(super) enum PreloopLocatedExpressionInputV1<'site, 'view, 'catalog, Expressi
 #[derive(Debug)]
 pub(super) struct PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
 where
-    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
+    Port: MethodCallLoweringPortV1
+        + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>
+        + RawFunctionHeaderLookupPortV1,
 {
     ordinary: Port,
     selected_index: u32,
@@ -84,7 +92,9 @@ where
 
 impl<'site, 'view, 'catalog, Port> PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
 where
-    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
+    Port: MethodCallLoweringPortV1
+        + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>
+        + RawFunctionHeaderLookupPortV1,
 {
     pub(super) fn new(
         ordinary: Port,
@@ -103,6 +113,36 @@ where
 
     pub(super) fn selected_state(&self) -> &PreloopSelectedArgumentStateV1<'site, 'view, 'catalog> {
         &self.selected
+    }
+
+    pub(super) fn into_emitted_nested_result(
+        self,
+    ) -> Result<
+        EmittedNestedInstanceCallV1,
+        RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog>,
+    > {
+        match self.selected {
+            PreloopSelectedArgumentStateV1::Emitted(receipt) => Ok(receipt),
+            PreloopSelectedArgumentStateV1::Rejected(rejected) => Err(rejected),
+            PreloopSelectedArgumentStateV1::Armed(source) => {
+                Err(RejectedPreloopLocatedArgumentIngressV1::completion(
+                    source,
+                    PreloopLocatedArgumentIngressErrorV1::SelectedArgumentNotReached,
+                ))
+            }
+            PreloopSelectedArgumentStateV1::InFlight(source) => {
+                Err(RejectedPreloopLocatedArgumentIngressV1::completion(
+                    source,
+                    PreloopLocatedArgumentIngressErrorV1::SelectedArgumentNotCompleted,
+                ))
+            }
+            PreloopSelectedArgumentStateV1::ReachedPhysical(reached) => {
+                Err(reached.reject_outer_not_completed())
+            }
+            PreloopSelectedArgumentStateV1::Transitioning => {
+                unreachable!("private synchronous pre-loop transition escaped")
+            }
+        }
     }
 
     pub(super) fn discard(self) {}
@@ -133,7 +173,9 @@ where
 impl<'site, 'view, 'catalog, Port> RecursiveChildLoweringPortV1
     for PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
 where
-    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
+    Port: MethodCallLoweringPortV1
+        + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>
+        + RawFunctionHeaderLookupPortV1,
 {
     type BodyInput = Port::BodyInput;
     type StatementInput = Port::StatementInput;
@@ -181,9 +223,10 @@ where
                             source,
                         ) {
                             Ok(reached) => {
-                                let requested_destination = reached.requested_destination();
-                                self.selected = PreloopSelectedArgumentStateV1::Reached(reached);
-                                Ok(requested_destination)
+                                let final_destination = reached.final_destination();
+                                self.selected =
+                                    PreloopSelectedArgumentStateV1::ReachedPhysical(reached);
+                                Ok(final_destination)
                             }
                             Err(rejected) => {
                                 let report = rejected.bounded_report();
@@ -210,7 +253,9 @@ where
 impl<'site, 'view, 'catalog, Port> CallArgumentDescentPortV1
     for PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
 where
-    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
+    Port: MethodCallLoweringPortV1
+        + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>
+        + RawFunctionHeaderLookupPortV1,
 {
     type ArgumentsInput = Port::ArgumentsInput;
 
@@ -249,7 +294,9 @@ where
 impl<'site, 'view, 'catalog, Port> MethodCallDescentPortV1
     for PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
 where
-    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
+    Port: MethodCallLoweringPortV1
+        + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>
+        + RawFunctionHeaderLookupPortV1,
 {
     type MethodCallInput = Port::MethodCallInput;
 
@@ -280,7 +327,9 @@ where
 impl<'site, 'view, 'catalog, Port> MeCallHeaderObservationPortV1
     for PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
 where
-    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
+    Port: MethodCallLoweringPortV1
+        + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>
+        + RawFunctionHeaderLookupPortV1,
 {
     fn observe_me_call_parameters(
         &mut self,
@@ -294,7 +343,9 @@ where
 impl<'site, 'view, 'catalog, Port> MethodCallValueTerminalPortV1
     for PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, Port>
 where
-    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
+    Port: MethodCallLoweringPortV1
+        + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>
+        + RawFunctionHeaderLookupPortV1,
 {
     fn emit_typeop_value_terminal(
         &mut self,
@@ -322,20 +373,21 @@ where
             checked_source_arity,
             arguments,
         );
-        if let Err(detail) = &result {
-            let previous = std::mem::replace(
-                &mut self.selected,
-                PreloopSelectedArgumentStateV1::Transitioning,
-            );
-            self.selected = match previous {
-                PreloopSelectedArgumentStateV1::Reached(reached) => {
-                    PreloopSelectedArgumentStateV1::Rejected(
-                        reached.reject_outer_terminal(detail.clone()),
-                    )
-                }
-                other => other,
-            };
-        }
+        let previous = std::mem::replace(
+            &mut self.selected,
+            PreloopSelectedArgumentStateV1::Transitioning,
+        );
+        self.selected = match (result.as_ref(), previous) {
+            (Ok(_), PreloopSelectedArgumentStateV1::ReachedPhysical(reached)) => {
+                PreloopSelectedArgumentStateV1::Emitted(reached.complete_after_outer_success())
+            }
+            (Err(detail), PreloopSelectedArgumentStateV1::ReachedPhysical(reached)) => {
+                PreloopSelectedArgumentStateV1::Rejected(
+                    reached.reject_outer_terminal(detail.clone()),
+                )
+            }
+            (_, other) => other,
+        };
         result
     }
 

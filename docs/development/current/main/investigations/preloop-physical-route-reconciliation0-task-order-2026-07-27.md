@@ -496,6 +496,57 @@ The D0 must confirm whether `Unknown` remains the existing replaceable
 non-fact or becomes a conflict at this boundary. Do not encode that choice in
 REP0.
 
+### REP0 I0/P0/G0 closeout
+
+`CALLABLE-RESULT-NESTED-PRELOOP-REP0-I0`, `-P0`, and `-G0` are closed.
+
+The shared standard Method terminal now has one receipt-required sibling. It
+uses the existing generic unified Call writer and produces a physical value
+receipt only after the selected inner `MirInstruction::Call` succeeds. The
+shared terminal remains source-neutral: it does not own the pre-loop source
+association, a `type_ctx` write, a source-site map, or a second Call writer.
+
+The production-shaped ParserBox prefix matrix proves:
+
+```text
+inner generic Call success
+  + exact source association
+  -> retained reached-physical owner
+
+outer Call success
+  -> exactly one EmittedNestedInstanceCallV1(final_destination)
+
+inner physical Call failure
+  -> source retained, physical receipt = 0
+
+inner success + outer terminal failure
+  -> source + physical receipt retained in typed rejection
+
+all failure cells
+  -> fresh production-shaped fixture success
+```
+
+The existing callable-result guards were extended rather than adding a new
+wrapper. They now inspect executable authority rather than rejecting prose
+that describes a forbidden route. They keep these facts fixed:
+
+```text
+generic physical Call writer               = existing 1
+generic value receipt writer               = existing 1
+pre-loop receipt consumer                  = 1
+BoxCall / rewrite receipt                  = 0
+nested Integer type_ctx writer             = 0
+GenericLoop nested-result producer         = 0
+fallback / retry / route reselection       = 0
+production caller                          = 0
+```
+
+The next row is therefore the already-reserved semantic stop
+`CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-D0`. It decides only the disposition
+of an existing `Unknown` fact for this receipt-backed Integer publication.
+It must reuse `TypeFactDecisionV1` and `TypeContext::set_type`; it must not
+reopen receipt, Router, GenericLoop, or production-entry authority.
+
 ### 6. Type implementation series
 
 After D0:

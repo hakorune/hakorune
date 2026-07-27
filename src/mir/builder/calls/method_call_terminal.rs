@@ -7,6 +7,9 @@
 
 use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{AssociatedMethodCallArgumentsV1, MethodCallDescentPortV1};
+use super::unified_emitter::{
+    CompletedUnifiedValueCallEmissionV1, UnifiedCallEmitterBox, UnifiedValueCallReceiptErrorV1,
+};
 use super::CallTarget;
 use crate::mir::builder::recursive_child_lowering::{
     RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
@@ -301,16 +304,65 @@ fn emit_standard_value_terminal_with_lookup_v1(
     arguments: Vec<ValueId>,
     lookup: Option<&dyn crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1>,
 ) -> Result<ValueId, String> {
-    let dst = builder.next_value_id();
+    let request = PreparedStandardValueCallRequestV1::prepare(builder, receiver, method, arguments);
     builder.emit_unified_call_with_lookup(
-        Some(dst),
-        CallTarget::Method {
-            box_type: None,
-            method,
-            receiver,
-        },
-        arguments,
+        Some(request.destination),
+        request.target,
+        request.arguments,
         lookup,
     )?;
-    Ok(dst)
+    Ok(request.destination)
+}
+
+/// Receipt-required sibling for the bounded pre-loop candidate only.
+///
+/// The ordinary terminal retains its compatibility facade. This sibling shares
+/// the same prepared standard Method request but requires the existing generic
+/// physical Call terminal and therefore never accepts a rewrite, BoxCall, or
+/// legacy fallback as success.
+pub(super) fn emit_standard_value_terminal_with_receipt_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    receiver: ValueId,
+    method: String,
+    arguments: Vec<ValueId>,
+) -> Result<CompletedUnifiedValueCallEmissionV1, UnifiedValueCallReceiptErrorV1>
+where
+    Port: RawFunctionHeaderLookupPortV1,
+{
+    let request = PreparedStandardValueCallRequestV1::prepare(builder, receiver, method, arguments);
+    port.with_function_headers(|lookup| {
+        UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
+            builder,
+            request.destination,
+            request.target,
+            request.arguments,
+            lookup,
+        )
+    })
+}
+
+struct PreparedStandardValueCallRequestV1 {
+    destination: ValueId,
+    target: CallTarget,
+    arguments: Vec<ValueId>,
+}
+
+impl PreparedStandardValueCallRequestV1 {
+    fn prepare(
+        builder: &mut MirBuilder,
+        receiver: ValueId,
+        method: String,
+        arguments: Vec<ValueId>,
+    ) -> Self {
+        Self {
+            destination: builder.next_value_id(),
+            target: CallTarget::Method {
+                box_type: None,
+                method,
+                receiver,
+            },
+            arguments,
+        }
+    }
 }

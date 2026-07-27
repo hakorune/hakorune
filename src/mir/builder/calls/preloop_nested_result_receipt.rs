@@ -9,6 +9,11 @@ use crate::mir::builder::calls::unified_emitter::CompletedUnifiedValueCallEmissi
 use crate::mir::source_instance_result_contract::PreparedPreloopLocatedArgumentV1;
 use crate::mir::ValueId;
 
+use super::preloop_located_argument_ingress::{
+    PreloopLocatedArgumentIngressErrorV1, PreloopLocatedArgumentIngressStageV1,
+    RejectedPreloopLocatedArgumentIngressV1,
+};
+
 /// Exact source authority paired with the successful selected inner Call.
 #[derive(Debug)]
 pub(super) struct ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'catalog> {
@@ -49,6 +54,29 @@ impl<'site, 'view, 'catalog> ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'c
             final_destination: self.physical.final_destination(),
             _seal: EmittedNestedInstanceCallSealV1,
         }
+    }
+
+    pub(super) fn reject_outer_terminal(
+        self,
+        detail: String,
+    ) -> RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog> {
+        RejectedPreloopLocatedArgumentIngressV1::after_physical(
+            self,
+            PreloopLocatedArgumentIngressStageV1::OuterTerminal,
+            PreloopLocatedArgumentIngressErrorV1::OuterTerminal {
+                detail: detail.into_boxed_str(),
+            },
+        )
+    }
+
+    pub(super) fn reject_outer_not_completed(
+        self,
+    ) -> RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog> {
+        RejectedPreloopLocatedArgumentIngressV1::after_physical(
+            self,
+            PreloopLocatedArgumentIngressStageV1::Completion,
+            PreloopLocatedArgumentIngressErrorV1::OuterTerminalNotCompleted,
+        )
     }
 
     pub(super) fn discard(self) {

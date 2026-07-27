@@ -2,38 +2,25 @@
 //!
 //! This box consumes the exact source association, requires the existing
 //! `Me -> Standard(Unified)` prepared route, and delegates ordinary child
-//! descent and terminal emission to the existing Raw port. The returned value
-//! is the terminal-requested destination, not a physical Call receipt. The
-//! existing terminal may emit a fixture-owned Call; this box issues no typed
-//! receipt and claims no final physical destination.
+//! descent to the existing Raw port. The selected Standard(Unified) terminal
+//! alone uses the source-neutral receipt-required sibling and returns its exact
+//! successful physical Call destination. Type publication remains outside.
 
 use crate::ast::ASTNode;
 use crate::mir::builder::me_call_header_observation::MethodCallLoweringPortV1;
 use crate::mir::builder::method_call_handlers::{
     prepare_me_call_execution_v1, PreparedMeCallExecutionV1, PreparedStandardMethodExecutionV1,
 };
+use crate::mir::builder::recursive_child_lowering::RawFunctionHeaderLookupPortV1;
 use crate::mir::source_instance_result_contract::PreparedPreloopLocatedArgumentV1;
-use crate::mir::{MirBuilder, ValueId};
+use crate::mir::MirBuilder;
 
 use super::member_route::MemberCallRoutePlan;
+use super::method_call_terminal::emit_standard_value_terminal_with_receipt_v1;
+use super::preloop_nested_result_receipt::ReachedPreloopNestedPhysicalCallV1;
 use super::receiver_binding::ReceiverNormalizationPlan;
+use super::unified_emitter::UnifiedValueCallReceiptErrorV1;
 use super::{drive_call_arguments_v1, CallArgumentDescentPortV1};
-
-#[derive(Debug)]
-pub(super) struct ReachedPreloopUnifiedMethodRequestV1<'site, 'view, 'catalog> {
-    source: PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>,
-    requested_destination: ValueId,
-    _seal: ReachedPreloopUnifiedMethodRequestSealV1,
-}
-
-#[derive(Debug)]
-struct ReachedPreloopUnifiedMethodRequestSealV1(());
-
-impl ReachedPreloopUnifiedMethodRequestSealV1 {
-    const fn new() -> Self {
-        Self(())
-    }
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum PreloopLocatedArgumentIngressStageV1 {
@@ -44,6 +31,7 @@ pub(super) enum PreloopLocatedArgumentIngressStageV1 {
     ArgumentDescent,
     UnifiedTerminal,
     OuterTerminal,
+    Completion,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -76,47 +64,38 @@ pub(super) enum PreloopLocatedArgumentIngressErrorV1 {
     AlternateMeRoute(PreloopObservedMeRouteV1),
     UnifiedCallDisabled,
     ArgumentDescent { detail: Box<str> },
+    PhysicalReceipt(UnifiedValueCallReceiptErrorV1),
     UnifiedTerminal { detail: Box<str> },
     OuterTerminal { detail: Box<str> },
+    SelectedArgumentNotReached,
+    SelectedArgumentNotCompleted,
+    OuterTerminalNotCompleted,
 }
 
+/// Rejection retains the exact source owner in every state. A failure after a
+/// successful inner generic Call additionally retains that physical receipt;
+/// it is not reduced to an inferred destination or a String diagnostic.
 #[derive(Debug)]
-pub(super) struct RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog> {
-    source: PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>,
-    stage: PreloopLocatedArgumentIngressStageV1,
-    cause: PreloopLocatedArgumentIngressErrorV1,
+pub(super) enum RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog> {
+    Source {
+        source: PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>,
+        stage: PreloopLocatedArgumentIngressStageV1,
+        cause: PreloopLocatedArgumentIngressErrorV1,
+    },
+    Physical {
+        reached: ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'catalog>,
+        stage: PreloopLocatedArgumentIngressStageV1,
+        cause: PreloopLocatedArgumentIngressErrorV1,
+    },
 }
 
-impl<'site, 'view, 'catalog> ReachedPreloopUnifiedMethodRequestV1<'site, 'view, 'catalog> {
-    fn new(
+impl<'site, 'view, 'catalog> RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog> {
+    pub(super) fn outer_terminal(
         source: PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>,
-        requested_destination: ValueId,
-    ) -> Self {
-        Self {
-            source,
-            requested_destination,
-            _seal: ReachedPreloopUnifiedMethodRequestSealV1::new(),
-        }
-    }
-
-    pub(super) const fn selected_index(&self) -> u32 {
-        self.source.selected().index()
-    }
-
-    pub(super) fn selected_site(&self) -> &crate::mir::resolved_semantics::SourceExprSiteV1 {
-        self.source.selected().child().site()
-    }
-
-    pub(super) const fn requested_destination(&self) -> ValueId {
-        self.requested_destination
-    }
-
-    pub(super) fn reject_outer_terminal(
-        self,
         detail: String,
-    ) -> RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog> {
+    ) -> Self {
         reject(
-            self.source,
+            source,
             PreloopLocatedArgumentIngressStageV1::OuterTerminal,
             PreloopLocatedArgumentIngressErrorV1::OuterTerminal {
                 detail: detail.into_boxed_str(),
@@ -124,30 +103,65 @@ impl<'site, 'view, 'catalog> ReachedPreloopUnifiedMethodRequestV1<'site, 'view, 
         )
     }
 
-    pub(super) fn discard(self) {
-        self.source.discard();
+    pub(super) fn after_physical(
+        reached: ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'catalog>,
+        stage: PreloopLocatedArgumentIngressStageV1,
+        cause: PreloopLocatedArgumentIngressErrorV1,
+    ) -> Self {
+        Self::Physical {
+            reached,
+            stage,
+            cause,
+        }
     }
-}
 
-impl<'site, 'view, 'catalog> RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog> {
+    pub(super) fn completion(
+        source: PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>,
+        cause: PreloopLocatedArgumentIngressErrorV1,
+    ) -> Self {
+        reject(
+            source,
+            PreloopLocatedArgumentIngressStageV1::Completion,
+            cause,
+        )
+    }
+
     pub(super) const fn selected_index(&self) -> u32 {
-        self.source.selected().index()
+        match self {
+            Self::Source { source, .. } => source.selected().index(),
+            Self::Physical { reached, .. } => reached.selected_index(),
+        }
     }
 
     pub(super) fn selected_site(&self) -> &crate::mir::resolved_semantics::SourceExprSiteV1 {
-        self.source.selected().child().site()
+        match self {
+            Self::Source { source, .. } => source.selected().child().site(),
+            Self::Physical { reached, .. } => reached.selected_site(),
+        }
     }
 
     pub(super) const fn stage(&self) -> PreloopLocatedArgumentIngressStageV1 {
-        self.stage
+        match self {
+            Self::Source { stage, .. } | Self::Physical { stage, .. } => *stage,
+        }
     }
 
     pub(super) const fn cause(&self) -> &PreloopLocatedArgumentIngressErrorV1 {
-        &self.cause
+        match self {
+            Self::Source { cause, .. } | Self::Physical { cause, .. } => cause,
+        }
+    }
+
+    #[cfg(test)]
+    pub(super) const fn retained_physical_destination(&self) -> Option<crate::mir::ValueId> {
+        match self {
+            Self::Source { .. } => None,
+            Self::Physical { reached, .. } => Some(reached.final_destination()),
+        }
     }
 
     pub(super) fn bounded_report(&self) -> String {
-        match &self.cause {
+        match self.cause() {
             PreloopLocatedArgumentIngressErrorV1::MemberRoutePreparation { detail } => {
                 format!("[preloop-ingress/member-route-preparation] {detail}")
             }
@@ -167,17 +181,32 @@ impl<'site, 'view, 'catalog> RejectedPreloopLocatedArgumentIngressV1<'site, 'vie
             PreloopLocatedArgumentIngressErrorV1::ArgumentDescent { detail } => {
                 format!("[preloop-ingress/argument-descent] {detail}")
             }
+            PreloopLocatedArgumentIngressErrorV1::PhysicalReceipt(cause) => {
+                format!("[preloop-ingress/physical-receipt] {cause:?}")
+            }
             PreloopLocatedArgumentIngressErrorV1::UnifiedTerminal { detail } => {
                 format!("[preloop-ingress/unified-terminal] {detail}")
             }
             PreloopLocatedArgumentIngressErrorV1::OuterTerminal { detail } => {
                 format!("[preloop-ingress/outer-terminal] {detail}")
             }
+            PreloopLocatedArgumentIngressErrorV1::SelectedArgumentNotReached => {
+                "[preloop-ingress/completion] selected argument was not reached".to_string()
+            }
+            PreloopLocatedArgumentIngressErrorV1::SelectedArgumentNotCompleted => {
+                "[preloop-ingress/completion] selected argument did not complete".to_string()
+            }
+            PreloopLocatedArgumentIngressErrorV1::OuterTerminalNotCompleted => {
+                "[preloop-ingress/completion] outer terminal did not complete".to_string()
+            }
         }
     }
 
     pub(super) fn discard(self) {
-        self.source.discard();
+        match self {
+            Self::Source { source, .. } => source.discard(),
+            Self::Physical { reached, .. } => reached.discard(),
+        }
     }
 }
 
@@ -186,11 +215,13 @@ pub(super) fn lower_selected_preloop_located_argument_v1<'site, 'view, 'catalog,
     ordinary: &mut Port,
     source: PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>,
 ) -> Result<
-    ReachedPreloopUnifiedMethodRequestV1<'site, 'view, 'catalog>,
+    ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'catalog>,
     RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog>,
 >
 where
-    Port: MethodCallLoweringPortV1 + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>,
+    Port: MethodCallLoweringPortV1
+        + CallArgumentDescentPortV1<ArgumentsInput = [ASTNode]>
+        + RawFunctionHeaderLookupPortV1,
 {
     let route = {
         let input = source.association().input();
@@ -298,31 +329,36 @@ where
             ))
         }
     };
-    let requested_destination = {
+    let physical = {
         let input = source.association().input();
-        ordinary.emit_standard_value_terminal(
+        emit_standard_value_terminal_with_receipt_v1(
             builder,
+            ordinary,
             receiver,
             input.method().to_string(),
             argument_values,
         )
     };
-    let requested_destination = match requested_destination {
-        Ok(destination) => destination,
-        Err(detail) => {
+    let physical = match physical {
+        Ok(physical) => physical,
+        Err(UnifiedValueCallReceiptErrorV1::UnifiedDisabled) => {
+            return Err(reject(
+                source,
+                PreloopLocatedArgumentIngressStageV1::UnifiedCapability,
+                PreloopLocatedArgumentIngressErrorV1::UnifiedCallDisabled,
+            ))
+        }
+        Err(cause) => {
             return Err(reject(
                 source,
                 PreloopLocatedArgumentIngressStageV1::UnifiedTerminal,
-                PreloopLocatedArgumentIngressErrorV1::UnifiedTerminal {
-                    detail: detail.into_boxed_str(),
-                },
+                PreloopLocatedArgumentIngressErrorV1::PhysicalReceipt(cause),
             ))
         }
     };
 
-    Ok(ReachedPreloopUnifiedMethodRequestV1::new(
-        source,
-        requested_destination,
+    Ok(ReachedPreloopNestedPhysicalCallV1::prepare(
+        source, physical,
     ))
 }
 
@@ -342,7 +378,7 @@ fn reject<'site, 'view, 'catalog>(
     stage: PreloopLocatedArgumentIngressStageV1,
     cause: PreloopLocatedArgumentIngressErrorV1,
 ) -> RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog> {
-    RejectedPreloopLocatedArgumentIngressV1 {
+    RejectedPreloopLocatedArgumentIngressV1::Source {
         source,
         stage,
         cause,

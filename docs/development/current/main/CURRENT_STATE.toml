@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0, the pre-loop located request boundary, and the generic unified-Call physical receipt are closed. REP0-S0 is also landed. PRELOOP-PRODUCTION-PREFIX-FIXTURE0-S0 has closed the fixture correction: the successful proof now uses the production-shaped ParserBox prefix at Body(3), while the manual Integer-me Builder is isolated to lower-level rejection tests. BoxCall receipt widening remains rejected. REP0-I0 may now connect the retained source association to the existing generic receipt; Integer publication remains zero until its later D0."
+status = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0, the pre-loop located request boundary, and the generic unified-Call physical receipt are closed. REP0-S0 is also landed. PRELOOP-PRODUCTION-PREFIX-FIXTURE0-S0 closed the production-shaped ParserBox correction. CALLABLE-RESULT-NESTED-PRELOOP-REP0-I0/P0/G0 now close the typed source-plus-physical receipt handoff: inner generic Call success retains the receipt, outer success alone emits the destination-only nested receipt, and outer failure retains both source and physical evidence. Integer publication remains zero. The next stop is TYPE-I0-D0, which must decide the existing Unknown fact disposition before any type_ctx write."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "CALLABLE-RESULT-NESTED-PRELOOP-REP0-I0"
-current_execution_summary = "PRELOOP-PRODUCTION-PREFIX-FIXTURE0-S0 is closed: the only successful physical-route proof now uses lower_instance_method_prefix_for_test(prefix_len=3), verifies canonical ParserBox receiver facts and the selected Known Unified Method Call, and isolates the manual Integer-me Builder as synthetic rejection-only. Selectively reconstruct the four quarantined REP0 semantic patches against that production prefix fixture: retain the generic physical receipt after inner Call success, emit the nested receipt only after outer success, and keep type publication, production callers, fallback, and Router changes at zero."
+current_design_stop = "CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-D0"
+current_execution_row = "CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-D0"
+current_execution_summary = "REP0-I0/P0/G0 are closed. The production-shaped ParserBox prefix proves the exact selected Generic Unified inner Call; its physical receipt pairs with the retained source association, and only outer success emits EmittedNestedInstanceCallV1. Inner Call failure emits no receipt; outer failure retains source plus physical receipt; type_ctx publication remains zero. TYPE-I0-D0 must decide whether existing Unknown is a replaceable non-fact or a conflict for this one consuming Integer publication; no implementation, GenericLoop activation, loop-refresh activation, fallback, or production caller is authorized before that decision."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -435,7 +435,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "preloop-physical-route-reconciliation0-task-order-2026-07-27"
 latest_card_path = "docs/development/current/main/investigations/preloop-physical-route-reconciliation0-task-order-2026-07-27.md"
-latest_card_summary = """PRELOOP-PHYSICAL-ROUTE-RECONCILIATION0-prime-r1 accepts A-prime. PRELOOP-PRODUCTION-PREFIX-FIXTURE0-S0 is closed: the successful proof uses lower_instance_method_prefix_for_test(prefix_len=3), confirms canonical ParserBox receiver facts, and observes the selected Known Unified Method Call; the manual Integer-me helper is rejection-only and no longer route authority. CALLABLE-RESULT-NESTED-PRELOOP-REP0-I0 is next: selectively reconstruct the quarantined generic-receipt semantic seam without touching Router policy, type publication, or production callers."""
+latest_card_summary = """PRELOOP-PHYSICAL-ROUTE-RECONCILIATION0-prime-r1 accepts A-prime. PRELOOP-PRODUCTION-PREFIX-FIXTURE0-S0 and REP0-I0/P0/G0 are closed: the production prefix proves the selected Known Unified Method Call; a generic physical receipt pairs with the exact source association; outer success alone produces EmittedNestedInstanceCallV1; inner failure yields no receipt and outer failure retains both authorities. Router policy, BoxCall receipt, type publication, GenericLoop production, and production callers remain zero. TYPE-I0-D0 is next and decides the existing Unknown fact disposition before a consuming Integer publication is implemented."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "CALLABLE-RESULT-NESTED-PRELOOP-REP0-I0"
+current_blocker_token = "CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-D0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

@@ -48,6 +48,7 @@ fn ordinary_copy_root(
 
 #[test]
 fn configured_preloop_ingress_reaches_existing_inner_and_outer_call_terminals() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         actual_parser_add_fixture::with_instance_result_contract_inputs(
             |catalog, caller, sites, _targets, results| {
@@ -184,24 +185,23 @@ fn configured_preloop_ingress_reaches_existing_inner_and_outer_call_terminals() 
                                 )
                                 .expect("configured outer route");
 
-                            let requested_destination = match port.selected_state() {
-                                PreloopSelectedArgumentStateV1::Reached(reached) => {
-                                    assert_eq!(reached.selected_index(), 1);
-                                    assert_eq!(reached.selected_site(), &sites[0]);
-                                    reached.requested_destination()
-                                }
-                                other => panic!("expected retained reached owner, got {other:?}"),
-                            };
+                            assert!(matches!(
+                                port.selected_state(),
+                                PreloopSelectedArgumentStateV1::Emitted(_)
+                            ));
+                            let nested = port
+                                .into_emitted_nested_result()
+                                .expect("outer success commits the nested receipt");
+                            let final_destination = nested.final_destination();
 
                             let instructions = builder.current_function_instructions();
-                            let emitted = instructions
+                            let call_count_after = instructions
                                 .iter()
                                 .filter(|instruction| {
                                     matches!(instruction, MirInstruction::Call { .. })
                                 })
-                                .skip(call_count_before)
-                                .collect::<Vec<_>>();
-                            let inner_destinations = emitted
+                                .count();
+                            let inner_destinations = instructions
                                 .iter()
                                 .filter_map(|instruction| match instruction {
                                     MirInstruction::Call {
@@ -217,6 +217,7 @@ fn configured_preloop_ingress_reaches_existing_inner_and_outer_call_terminals() 
                                         ..
                                     } if box_name == "ParserBox"
                                         && method == "static_const_eval_pos"
+                                        && *dst == final_destination
                                         && receiver.is_some_and(|receiver| {
                                             ordinary_copy_root(&instructions, receiver) == me
                                         })
@@ -224,10 +225,16 @@ fn configured_preloop_ingress_reaches_existing_inner_and_outer_call_terminals() 
                                     {
                                         Some(*dst)
                                     }
+                                    MirInstruction::Call {
+                                        dst: Some(dst),
+                                        callee: Some(Callee::Global(name)),
+                                        ..
+                                    } if name == "ParserBox.static_const_eval_pos/1"
+                                        && *dst == final_destination => Some(*dst),
                                     _ => None,
                                 })
                                 .collect::<Vec<_>>();
-                            let outer_arguments = emitted
+                            let outer_arguments = instructions
                                 .iter()
                                 .filter_map(|instruction| match instruction {
                                     MirInstruction::Call {
@@ -241,19 +248,31 @@ fn configured_preloop_ingress_reaches_existing_inner_and_outer_call_terminals() 
                                 })
                                 .collect::<Vec<_>>();
 
-                            assert_eq!(emitted.len(), 2, "selected inner and outer Call only");
-                            assert_eq!(inner_destinations, [requested_destination]);
+                            assert_eq!(
+                                call_count_after,
+                                call_count_before + 2,
+                                "the bounded continuation must add exactly the selected inner and outer Calls"
+                            );
+                            assert_eq!(
+                                inner_destinations,
+                                [final_destination],
+                                "selected receipt must correspond to the inner physical Call"
+                            );
                             assert_eq!(outer_arguments.len(), 1);
                             assert!(
-                                outer_arguments[0].iter().any(|argument| ordinary_copy_root(
-                                    &instructions,
-                                    *argument
-                                )
-                                    == requested_destination),
+                                outer_arguments[0]
+                                    .iter()
+                                    .any(|argument| ordinary_copy_root(&instructions, *argument)
+                                        == final_destination),
                                 "outer terminal must consume the selected inner terminal value"
                             );
-                            port.discard();
-                            Ok((requested_destination, ()))
+                            assert_ne!(
+                                builder.function_state.type_ctx.get_type(final_destination),
+                                Some(&MirType::Integer),
+                                "REP0 does not publish the nested Integer type"
+                            );
+                            nested.discard();
+                            Ok((final_destination, ()))
                         },
                     )
                     .expect("production-shaped configured outer route");
