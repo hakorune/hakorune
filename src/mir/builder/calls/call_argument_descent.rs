@@ -60,6 +60,24 @@ where
     Ok(values)
 }
 
+/// Lower one already-selected argument through the same projection and
+/// recursive expression authority used by the ordered driver.
+///
+/// This helper intentionally does not repeat list-wide preflight. Callers use
+/// it only after their existing route-specific indexed decision.
+pub(in crate::mir::builder) fn lower_call_argument_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    input: &Port::ArgumentsInput,
+    index: usize,
+) -> Result<ValueId, String>
+where
+    Port: CallArgumentDescentPortV1,
+{
+    let expression_input = port.argument_expression_input(input, index)?;
+    drive_legacy_expression_v1(builder, port, expression_input)
+}
+
 fn validate_argument_inputs<Port>(port: &Port, input: &Port::ArgumentsInput) -> Result<(), String>
 where
     Port: CallArgumentDescentPortV1,

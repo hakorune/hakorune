@@ -112,12 +112,17 @@ reach into route-specific plan internals. The current boundary SSOT is
     route, and delegates inner children plus terminal emission to the wrapped
     ordinary Raw Port. A disabled unified-Call capability rejects before
     selected inner argument descent instead of entering the ordinary Raw
-    compatibility route. The ingress does not re-enter the Raw dispatcher or
-    issue a physical Call receipt, final-destination authority, or type fact.
-  - The configured ParserBox proof alone transports the outer call through
-    the existing Raw facade, requires its existing `StaticReceiver` plan, and
-    discards the whole fixture Builder. This is not a production located-call
-    entry or a general Builder transaction.
+    compatibility route. The ingress does not re-enter the Raw dispatcher and
+    retains the exact selected-inner physical receipt without publishing a
+    type fact.
+  - `calls/preloop_located_outer_completion.rs` projects the catalog-backed
+    outer syntax without a RawLegacy clone, requires the existing
+    `StaticReceiver` plan, and reuses the sole static handler through
+    `StaticMethodCallCompletionV1`. Its disconnected product retains the inner
+    authority plus only the outer requested ValueId; the verified outer
+    physical receipt belongs to the next row.
+  - The configured ParserBox proof discards the whole fixture Builder. This is
+    not a production located-call entry or a general Builder transaction.
 - legacy block descent boundary
   - `src/mir/builder/stmts/block_driver.rs` alone owns scope lifetime, the
     existing suffix-router call, termination checks, last-value selection, and

@@ -6,7 +6,9 @@
 //! the existing legacy terminal operations.
 
 use super::extern_calls::EnvMethodSpec;
-use super::method_call_descent::{AssociatedMethodCallArgumentsV1, MethodCallDescentPortV1};
+use super::method_call_descent::{
+    AssociatedMethodCallArgumentsV1, MethodCallArgumentDescentV1, MethodCallDescentPortV1,
+};
 use super::unified_emitter::{
     CompletedUnifiedValueCallEmissionV1, UnifiedCallEmitterBox, UnifiedValueCallReceiptErrorV1,
 };
@@ -55,6 +57,25 @@ pub(in crate::mir::builder) trait MethodCallValueTerminalPortV1 {
         builder: &mut MirBuilder,
         receiver: ValueId,
         method: String,
+        arguments: Vec<ValueId>,
+    ) -> Result<ValueId, String>;
+}
+
+/// Source-neutral completion capability for the one existing static-call
+/// handler.
+///
+/// It combines the existing argument-descent authority with only the static
+/// value terminal needed by that handler. Route selection and source identity
+/// stay outside this interface.
+pub(in crate::mir::builder) trait StaticMethodCallCompletionV1:
+    MethodCallArgumentDescentV1
+{
+    fn finish_static_global_value_terminal(
+        &mut self,
+        builder: &mut MirBuilder,
+        owner: &str,
+        method: &str,
+        checked_source_arity: u32,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String>;
 }
@@ -217,6 +238,28 @@ where
     ) -> Result<ValueId, String> {
         self.terminal_port()
             .emit_standard_value_terminal(builder, receiver, method, arguments)
+    }
+}
+
+impl<Port> StaticMethodCallCompletionV1 for AssociatedMethodCallArgumentsV1<'_, '_, Port>
+where
+    Port: MethodCallDescentPortV1 + MethodCallValueTerminalPortV1,
+{
+    fn finish_static_global_value_terminal(
+        &mut self,
+        builder: &mut MirBuilder,
+        owner: &str,
+        method: &str,
+        checked_source_arity: u32,
+        arguments: Vec<ValueId>,
+    ) -> Result<ValueId, String> {
+        self.terminal_port().emit_static_global_value_terminal(
+            builder,
+            owner,
+            method,
+            checked_source_arity,
+            arguments,
+        )
     }
 }
 

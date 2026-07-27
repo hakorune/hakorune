@@ -493,7 +493,22 @@ Argument(0) ordinary
 Argument(1) existing selected located ingress
 alternate route typed reject
 RawLegacy construction zero
-Call receipt / type publication zero
+new outer physical receipt / type publication zero
+existing selected-inner physical receipt remains unchanged
+```
+
+Landed evidence:
+
+```text
+exact outer RawLocatedMethodCallInputV1 consumer = 1
+StaticMethodCallCompletionV1 authority = 1
+member route planner / static handler / ordered argument driver = existing 1
+Argument(0) ordinary + structural Argument(1) selected = green
+outer RawLocated -> RawLegacy conversion = 0
+success retains exact inner source/physical owner
+outer product carries requested ValueId only
+new outer physical receipt / type publication / production caller = 0
+alternate outer route rejects before argument effects
 ```
 
 ### F4 — outer physical receipt

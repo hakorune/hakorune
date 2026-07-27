@@ -14,7 +14,9 @@ use super::super::me_call_header_observation::{
 use super::super::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1,
 };
-use super::call_argument_descent::{drive_call_arguments_v1, CallArgumentDescentPortV1};
+use super::call_argument_descent::{
+    drive_call_arguments_v1, lower_call_argument_v1, CallArgumentDescentPortV1,
+};
 
 pub(in crate::mir::builder) struct MethodCallSyntaxViewV1<'input> {
     receiver: &'input ASTNode,
@@ -79,8 +81,7 @@ where
     Port: MethodCallDescentPortV1,
 {
     let arguments = port.call_arguments_input(input)?;
-    let expression = port.argument_expression_input(arguments, index)?;
-    drive_legacy_expression_v1(builder, port, expression)
+    lower_call_argument_v1(builder, port, arguments, index)
 }
 
 pub(in crate::mir::builder) fn lower_method_call_receiver_v1<Port>(

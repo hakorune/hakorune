@@ -168,3 +168,56 @@ pub(super) fn with_prepared_stageb_correspondence<R>(
         },
     )
 }
+
+/// F3 source-only factory for the exact located outer completion.
+///
+/// Unlike the historical ingress helpers above, this path never constructs a
+/// `RawLegacyMethodCallInputV1`; the outer call stays inside the catalog-backed
+/// located source relation.
+pub(super) fn with_prepared_located_outer<R>(
+    f: impl for<'site, 'view, 'catalog> FnOnce(
+        PreparedPreloopLocatedArgumentV1<'site, 'view, 'catalog>,
+        SourceExprSiteV1,
+    ) -> R,
+) -> R {
+    actual_parser_add_fixture::with_instance_result_contract_inputs(
+        |catalog, caller, sites, _targets, results| {
+            let call = VerifiedSourceMethodCallSiteV1::verify(catalog, caller, sites[0].clone())
+                .expect("selected pre-loop source MethodCall");
+            let target = VerifiedCurrentOwnerInstanceResultTargetV1::seal(&call)
+                .expect("selected pre-loop target");
+            let proof = results
+                .issue_unannotated_body_proof(target.target())
+                .expect("selected pre-loop Integer proof");
+            let contract = seal_nested_instance_result_contract(target, proof)
+                .expect("selected pre-loop Integer contract");
+
+            let view = VerifiedRawCallableSourceViewV1::verify(catalog, caller)
+                .expect("catalog-backed Raw source view");
+            let body = view.root_body();
+            let statement = view.body_stmt(&body, 3).expect("Body(3)");
+            let outer = view
+                .child_expr_from_stmt(&statement, ExprChildRoleV1::AssignmentValue)
+                .expect("Body(3).Value");
+            let inner = view
+                .child_expr_from_expr(&outer, ExprChildRoleV1::CallArgument(1))
+                .expect("Body(3).Value.Argument(1)");
+            let association = prepare_preloop_nested_result_association_v1(
+                contract,
+                view.method_call_input(&inner)
+                    .expect("located inner MethodCall"),
+            )
+            .expect("exact pre-loop association");
+            let outer_call = view
+                .method_call_input(&outer)
+                .expect("located outer MethodCall");
+            let selected = view
+                .method_call_argument(outer_call, 1)
+                .expect("structural Argument(1)");
+            let prepared = prepare_preloop_located_argument_v1(selected, association)
+                .expect("exact outer/inner relation");
+
+            f(prepared, sites[0].clone())
+        },
+    )
+}

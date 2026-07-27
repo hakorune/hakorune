@@ -9,7 +9,7 @@ use crate::mir::builder::calls::function_lowering;
 use crate::mir::builder::calls::{
     emit_standard_value_terminal_raw_v1, AssociatedMethodCallArgumentsV1,
     LegacyMethodCallArgumentsV1, MethodCallArgumentDescentV1, MethodCallDescentPortV1,
-    MethodCallValueTerminalPortV1,
+    MethodCallValueTerminalPortV1, StaticMethodCallCompletionV1,
 };
 use crate::mir::builder::me_call_header_observation::{
     prepare_me_lowered_call_v1, MeCallHeaderObservationPortV1, MethodCallLoweringPortV1,
@@ -413,15 +413,15 @@ mod tests {
 
 impl MirBuilder {
     /// Handle source static calls after route selection.
-    pub(in crate::mir::builder) fn handle_static_method_call_with_descent<Port>(
+    pub(in crate::mir::builder) fn handle_static_method_call_with_descent<Completion>(
         &mut self,
         box_name: &str,
         method: &str,
         arguments: &[ASTNode],
-        descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
+        completion: &mut Completion,
     ) -> Result<ValueId, String>
     where
-        Port: MethodCallDescentPortV1 + MethodCallValueTerminalPortV1,
+        Completion: StaticMethodCallCompletionV1,
     {
         if crate::config::env::joinir_dev::debug_enabled() {
             crate::runtime::get_global_ring0().log.debug(&format!(
@@ -445,13 +445,13 @@ impl MirBuilder {
             method,
             arguments,
             None,
-            descent,
+            completion,
         )? {
             return Ok(result);
         }
 
         // Build argument values
-        let arg_values = descent.lower_all(self)?;
+        let arg_values = completion.lower_all(self)?;
         if crate::config::env::builder_static_call_trace() {
             crate::runtime::get_global_ring0()
                 .log
@@ -466,7 +466,7 @@ impl MirBuilder {
                 arguments.len()
             )
         })?;
-        descent.finish_static_global_value_terminal(
+        completion.finish_static_global_value_terminal(
             self,
             box_name,
             method,

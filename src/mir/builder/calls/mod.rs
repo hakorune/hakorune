@@ -20,7 +20,7 @@
 pub mod annotation;
 mod call_argument_descent;
 pub(in crate::mir::builder) use call_argument_descent::{
-    drive_call_arguments_v1, CallArgumentDescentPortV1,
+    drive_call_arguments_v1, lower_call_argument_v1, CallArgumentDescentPortV1,
 };
 #[cfg(test)]
 mod call_argument_descent_tests;
@@ -68,6 +68,7 @@ mod method_call_terminal;
 mod preloop_located_argument_ingress;
 mod preloop_located_argument_port;
 mod preloop_located_argument_rejection;
+mod preloop_located_outer_completion;
 mod preloop_nested_result_receipt;
 mod preloop_nested_result_type;
 pub(in crate::mir::builder) use method_call_descent::{
@@ -76,6 +77,7 @@ pub(in crate::mir::builder) use method_call_descent::{
     RawLegacyMethodCallInputV1,
 };
 pub(in crate::mir::builder) use method_call_terminal::MethodCallValueTerminalPortV1;
+pub(in crate::mir::builder) use method_call_terminal::StaticMethodCallCompletionV1;
 pub(in crate::mir::builder) use method_call_terminal::{
     emit_env_value_terminal_raw_v1, emit_global_value_terminal_raw_v1,
     emit_standard_value_terminal_raw_v1, emit_typeop_value_terminal_raw_v1,
@@ -93,6 +95,8 @@ mod preloop_located_argument_ingress_p0_tests;
 mod preloop_located_argument_ingress_tests;
 #[cfg(test)]
 mod preloop_located_argument_port_tests;
+#[cfg(test)]
+mod preloop_located_outer_completion_tests;
 #[cfg(test)]
 mod preloop_nested_result_test_support;
 #[cfg(test)]

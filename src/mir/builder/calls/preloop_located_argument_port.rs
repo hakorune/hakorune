@@ -147,6 +147,77 @@ where
 
     pub(super) fn discard(self) {}
 
+    /// Consume the candidate after the outer source-neutral completion seam.
+    ///
+    /// F3 retains the exact inner physical owner and does not collapse it into
+    /// the historical destination-only emitted receipt.
+    pub(super) fn into_reached_physical(
+        self,
+    ) -> Result<
+        ReachedPreloopNestedPhysicalCallV1<'site, 'view, 'catalog>,
+        RejectedPreloopLocatedArgumentIngressV1<'site, 'view, 'catalog>,
+    > {
+        match self.selected {
+            PreloopSelectedArgumentStateV1::ReachedPhysical(reached) => Ok(reached),
+            PreloopSelectedArgumentStateV1::Rejected(rejected) => Err(rejected),
+            PreloopSelectedArgumentStateV1::Armed(source) => {
+                Err(RejectedPreloopLocatedArgumentIngressV1::completion(
+                    source,
+                    PreloopLocatedArgumentIngressErrorV1::SelectedArgumentNotReached,
+                ))
+            }
+            PreloopSelectedArgumentStateV1::InFlight(source) => {
+                Err(RejectedPreloopLocatedArgumentIngressV1::completion(
+                    source,
+                    PreloopLocatedArgumentIngressErrorV1::SelectedArgumentNotCompleted,
+                ))
+            }
+            PreloopSelectedArgumentStateV1::Emitted(receipt) => {
+                unreachable!(
+                    "located outer completion never creates the historical emitted receipt: {:?}",
+                    receipt
+                )
+            }
+            PreloopSelectedArgumentStateV1::Transitioning => {
+                unreachable!("private synchronous pre-loop transition escaped")
+            }
+        }
+    }
+
+    /// Use the ordinary static terminal while retaining the exact inner
+    /// physical owner on success. F4 will add the outer physical receipt.
+    pub(super) fn finish_outer_static_request_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        owner: &str,
+        method: &str,
+        checked_source_arity: u32,
+        arguments: Vec<ValueId>,
+    ) -> Result<ValueId, String> {
+        let result = self.ordinary.emit_static_global_value_terminal(
+            builder,
+            owner,
+            method,
+            checked_source_arity,
+            arguments,
+        );
+        if let Err(detail) = &result {
+            let previous = std::mem::replace(
+                &mut self.selected,
+                PreloopSelectedArgumentStateV1::Transitioning,
+            );
+            self.selected = match previous {
+                PreloopSelectedArgumentStateV1::ReachedPhysical(reached) => {
+                    PreloopSelectedArgumentStateV1::Rejected(
+                        reached.reject_outer_terminal(detail.clone()),
+                    )
+                }
+                other => other,
+            };
+        }
+        result
+    }
+
     fn arm_selected_token(&mut self) -> Result<PreloopSelectedArgumentTokenV1, String> {
         let selected = std::mem::replace(
             &mut self.selected,
