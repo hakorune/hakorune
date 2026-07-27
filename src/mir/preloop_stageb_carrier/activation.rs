@@ -138,6 +138,32 @@ pub(crate) struct PreparedPreloopStageBCarrierRowsV1 {
     row: OwnedPreloopStageBCarrierRowV1,
 }
 
+impl PreparedPreloopStageBCarrierRowsV1 {
+    pub(super) const fn catalog_identity(&self) -> usize {
+        self.catalog_identity
+    }
+
+    pub(super) const fn caller(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        self.row.caller()
+    }
+
+    pub(super) const fn outer_call_site(&self) -> &SourceExprSiteV1 {
+        self.row.outer_call_site()
+    }
+
+    pub(super) const fn selected_argument_index(&self) -> u32 {
+        self.row.selected_argument_index()
+    }
+
+    pub(super) const fn inner_call_site(&self) -> &SourceExprSiteV1 {
+        self.row.inner_call_site()
+    }
+
+    pub(super) const fn outer_target(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        self.row.outer_target()
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct RejectedPreloopStageBCarrierRowsV1<'result, 'site, 'view, 'catalog> {
     contract: SealedPreloopOuterCarrierResultContractV1<'result, 'site, 'view, 'catalog>,

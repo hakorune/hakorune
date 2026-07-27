@@ -12,6 +12,10 @@ Owned here:
 - typed rejection before Builder effects.
 - one owned, non-Clone activation row;
 - one plan that owns the exact declaration-catalog allocation.
+- one disconnected complete candidate inventory that consumes the neutral
+  whole-source call/target inventory and composes only existing result,
+  nested-instance, located-argument, outer-carrier, and owned-row authorities;
+- stable owned candidate identities and exact zero/one/many cardinality.
 
 Not owned here:
 
@@ -19,7 +23,7 @@ Not owned here:
 - general callable-result solving;
 - Builder, `ValueId`, `MirType`, or `TypeContext`;
 - function activation, Call emission, assignment, or publication;
-- production source inventory or function selection;
+- compiler request ownership, production function selection, or module install;
 - fallback, retry, or route reselection.
 
 The only construction path is:
@@ -34,6 +38,12 @@ VerifiedStaticExactI64RequirementV1
   + exact Box<VerifiedSameModuleCallableDeclarationCatalogV1>
   -> VerifiedPreloopStageBCarrierActivationPlanV1
 ```
+
+`inventory_preloop_stageb_candidates_v1()` is the sole A2 composition entry.
+Bounded semantic mismatches remain complete noncandidates. Missing complete-call
+evidence, catalog/brand drift, source projection disagreement, or co-seal drift
+is a typed rejection. It performs no second source traversal and has no
+production caller.
 
 The first profile requires the exact structural argument ordinal `1` and the
 exact static requirement set `[1]`. A broader required-argument solver belongs

@@ -160,7 +160,7 @@ Use two buildable commits inside this row:
 
 ```text
 A1 neutral complete inventory                         = closed
-A2 Stage-B classification and the 0/1/many matrix    = current
+A2 Stage-B classification and the 0/1/many matrix    = closed
 ```
 
 A1 closeout:
@@ -174,6 +174,34 @@ existing static-target catalog projection           = 1
 second source-navigation engine                     = 0
 Builder / MIR / runtime reference                   = 0
 production consumer                                 = 0
+```
+
+A2 closeout:
+
+```text
+Stage-B candidate inventory producer               = 1
+existing callable-result solver reuse              = 1
+existing nested / located / outer co-seal reuse    = 1
+stable owned candidate identity                    = 1
+consuming Zero / One / Many authority              = 1
+zero / direct / alias / many / unrelated matrix    = green
+existing general-result authority remains unclaimed= green
+foreign catalog branding                           = rejected
+declaration reorder semantic identity              = stable
+second result inference or source traversal        = 0
+Builder / MIR / runtime reference                  = 0
+production consumer                                = 0
+```
+
+Carry into B2:
+
+```text
+the lifetime-free candidate inventory is not a durable source owner alone
+the exact Box<declaration catalog> must remain owned beside it
+One must immediately co-seal its paired row through
+  VerifiedPreloopStageBCarrierActivationPlanV1::seal
+Many rejection retains the complete ambiguous inventory
+numeric catalog identity is never published or persisted
 ```
 
 ## Umbrella B — owned request and disconnected selection
