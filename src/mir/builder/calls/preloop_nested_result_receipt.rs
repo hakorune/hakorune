@@ -102,5 +102,13 @@ impl EmittedNestedInstanceCallV1 {
         self.final_destination
     }
 
+    #[cfg(test)]
+    pub(super) const fn from_destination_for_test(final_destination: ValueId) -> Self {
+        Self {
+            final_destination,
+            _seal: EmittedNestedInstanceCallSealV1,
+        }
+    }
+
     pub(super) fn discard(self) {}
 }

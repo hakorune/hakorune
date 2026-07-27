@@ -615,6 +615,34 @@ CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-S0
   one publisher, GenericLoop consumer-only, overwrite zero
 ```
 
+### TYPE-I0-S0 closeout
+
+`CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-S0` is closed.
+
+One Builder-free owner now consumes `EmittedNestedInstanceCallV1` and delegates
+the complete fact decision to the existing `TypeFactDecisionV1`:
+
+```text
+None / stored Unknown
+  -> PreparedTypeFactPublicationV1::Publish(Integer)
+
+stored Integer
+  -> PreparedTypeFactPublicationV1::Idempotent(Integer)
+
+other concrete fact
+  -> typed conflict retaining the emitted receipt
+```
+
+The product owns no `MirBuilder`, `TypeContext`, source lookup, Call emission,
+GenericLoop capability, or fact-store write. Focused tests cover the four
+decision cells in a separate sibling file; the source and test files remain
+below 800 lines. `cargo test --lib preloop_nested_result_type`, `cargo check
+--lib`, the current-state pointer guard, and diff check are green.
+
+The next row is `CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0-I0`. It may add only
+the consuming commit terminal: `Publish` calls the existing
+`TypeContext::set_type`, while `Idempotent` performs no physical write.
+
 Do not create a new guard script. Extend the existing callable-result guard
 with the receipt consumer/decision/writer and P0 evidence, and add this writer
 to the existing type-fact partition guard. The original ingress, port, and
