@@ -11,7 +11,7 @@ preloop-stageb-instance-function-session-reconciliation0-prime-r1
 Current row:
 
 ```text
-PRELOOP-OUTER-CARRIER-RECEIPT0-I0
+PRELOOP-OUTER-CARRIER-ASSIGNMENT0-S0
 ```
 
 ## Closed prerequisites
@@ -21,6 +21,13 @@ F1 exact declaration/body recipe retention
 F2 generic payload-preserving pending function session
 F3 exact located outer request through the existing static handler
 F4 source-neutral static/global physical Call receipt sibling
+F5-A exact outer carrier receipt
+
+source-producer prerequisites already closed:
+  whole-source inventory
+  typed Legacy request and alias snapshot
+  explicit Ordinary | Selected decision
+  same-allocation module activation preparation/install
 ```
 
 F4 commit:
@@ -187,6 +194,24 @@ assignment failure         -> type publication zero
 failure -> fresh fixture success
 ```
 
+Buildable cells:
+
+```text
+F5-B1 source-neutral CompletedVariableAssignmentV1 sibling
+F5-B2 exact pre-loop carrier/assignment co-seal
+F5-B3 actual Parser fixture, negative matrix, and pointer closeout
+```
+
+Hard stop:
+
+```text
+actual selected assignment returns a carrier different from
+the outer physical destination
+```
+
+If observed, retain the typed mismatch and open a new assignment-carrier D0.
+Do not compensate with `variable_map`, a copy, or a second assignment writer.
+
 ## F5-C — outer Integer publication
 
 Rows:
@@ -234,6 +259,14 @@ conflict -> fresh fixture success
 Call/assignment failure -> publisher product zero
 ```
 
+Buildable cells:
+
+```text
+F5-C1 prepared/complete publication typestates
+F5-C2 assignment transaction connection
+F5-C3 focused fact matrix and structural guard
+```
+
 ## F6 — selected instance-function session
 
 Rows:
@@ -257,6 +290,15 @@ prefix ordinary
 
 Suffix cannot begin before F5-C success. Every failure retains the recipe and
 the strongest completed F5 evidence. No ordinary retry is allowed.
+
+Buildable cells:
+
+```text
+F6-1 selected statement transaction
+F6-2 prefix/selected/suffix schedule connection
+F6-3 payload function-session completion and failure retention
+F6-4 actual Parser parity and G0
+```
 
 ## F7 — activation ledger
 
@@ -284,6 +326,14 @@ missing caller               = typed reject
 duplicate caller             = typed reject
 ```
 
+Buildable cells:
+
+```text
+F7-1 produce InFlight from Armed only
+F7-2 retain Completed | Rejected payloads
+F7-3 missing/double/reuse matrix and G0
+```
+
 ## F8 — compile-request production ingress
 
 Rows:
@@ -296,6 +346,56 @@ PRELOOP-STAGEB-SOURCE-INVENTORY0-P0
 -> PRELOOP-STAGEB-COMPILE-REQUEST-INGRESS0-P0
 -> PRELOOP-STAGEB-COMPILE-REQUEST-INGRESS0-G0
 ```
+
+The inventory, request, selection, and disconnected module-activation rows in
+this list are already closed. They remain prerequisites and are not rebuilt.
+The first new F8 behavior is the exact Legacy-arm consumer after F7.
+
+Before that consumer is added, close two bounded correspondence rows:
+
+```text
+PRELOOP-STAGEB-UNAVAILABLE-DISPOSITION0-S0/P0
+  retain the first bounded proof-unavailable stage in the existing inventory
+  Zero -> NoExactCandidate | ExactCandidateProofUnavailable(stage)
+  no second traversal or policy owner
+
+PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION-CORRESPONDENCE0-P0
+  inventory the exact Legacy config/commit matrix
+  prove existing canonical and branded Raw sessions are not exact owners
+
+PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-D0
+  select one source-neutral isolated candidate kernel
+  keep Raw/canonical/Legacy-selected authority in thin family wrappers
+```
+
+The correspondence audit already found that neither existing wrapper is an
+exact owner:
+
+```text
+CanonicalModuleLoweringSessionV1:
+  preserves quiet_internal_logs only
+
+ModuleBuilderInvocationSessionV1:
+  preserves the needed config
+  but requires a Raw/Canonical family brand and token
+```
+
+The D0 must preserve:
+
+```text
+CoreContext continuation
+repl_mode
+quiet_internal_logs
+plugin_method_sigs
+source hint
+typed alias installation only through the selected activation transaction
+success-only live Builder replacement
+all failure -> candidate drop
+retry / fallback = 0
+```
+
+Do not connect Selected directly to the live compiler Builder or borrow the
+Raw family brand for a Legacy source.
 
 Sole production consumer:
 
@@ -316,6 +416,17 @@ The request owns the final AST plus compiler-supplied typed import snapshot.
 Selection occurs before Builder mutation. Selected installs the same catalog
 allocation once; Ordinary preserves the existing route. Selected failure never
 retries as Ordinary.
+
+Buildable cells:
+
+```text
+F8-1 route compile_with_source/imports into the owned typed request
+F8-2 preserve Ordinary None / Explicit(empty) / Explicit(map) import parity
+F8-3 connect Selected to the completed F7 ledger/session
+F8-4 selected/ordinary/error/reuse P0
+F8-5 sole-caller, no-direct-Builder, no-fallback G0
+     + register the reused structural guard in docs/tools/check-scripts-index.md
+```
 
 ## F9 — real Stage-B proof and retirement census
 
@@ -346,6 +457,21 @@ another missing representation
 ```
 
 Alias/View language semantics are not selected by this series.
+
+## Parked cleanup after F9
+
+The following cleanliness items are real but must not be mixed into the
+carrier activation commits:
+
+```text
+PRELOOP-INNER-TYPE-PROOF-RETIRE0-S0
+PRELOOP-STAGEB-LEGACY-ALIAS-MUTATION-RETIRE0-S0
+PRELOOP-STAGEB-SOURCE-PRODUCER-RETIRE0
+```
+
+Alias/View language semantics, loop-refresh activation, feature-flag cleanup,
+legacy comment/history cleanup, and general call-result inference remain
+separate workstreams selected only after the real F9 frontier is known.
 
 ## Structural gate
 

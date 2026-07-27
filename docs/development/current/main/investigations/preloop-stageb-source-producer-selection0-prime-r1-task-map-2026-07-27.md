@@ -1,5 +1,5 @@
 ---
-Status: active execution task map
+Status: accepted decision; umbrellas A-C closed; execution order reconciled
 Date: 2026-07-27
 Decision: PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-prime-r1
 Series: PRELOOP-STAGEB-PRODUCTION-CARRIER0
@@ -18,6 +18,47 @@ Sunsets:
 ---
 
 # Pre-loop Stage-B Production Carrier Task Map
+
+## Current execution handoff
+
+The accepted A1 source-producer design is already implemented through the
+disconnected module-activation boundary:
+
+```text
+PRELOOP-STAGEB-SOURCE-INVENTORY0-P0              = closed
+PRELOOP-STAGEB-LEGACY-REQUEST0-S0                = closed
+PRELOOP-STAGEB-SOURCE-SELECTION0-S0              = closed
+PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-A           = closed
+LOWER-ROOT-POST-INSTALL-KERNEL0-S0               = closed
+PRELOOP-STAGEB-ATOMIC-CONTEXT-INSTALL0-S0        = closed
+PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-B           = closed
+production compile_request consumer              = 0
+```
+
+Do not restart this card from its original first row. The C4 audit proved that
+the selected statement must finish its outer Call, assignment correspondence,
+and Integer publication before suffix descent and before production
+activation. The live executable order is maintained by:
+
+```text
+docs/development/current/main/investigations/
+  preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md
+```
+
+The current dependency chain is:
+
+```text
+F5-B exact assignment correspondence
+-> F5-C success-only outer Integer publication
+-> F6 selected instance-function session
+-> F7 single-use function activation ledger
+-> F8 compile_request Legacy production consumer
+-> F9 real Stage-B guard and retirement census
+```
+
+This is an execution-order correction only. It preserves A1, the explicit
+`Ordinary | Selected` decision, compiler-supplied typed aliases, same-catalog
+installation, and no-fallback law.
 
 ## Outcome
 
@@ -87,7 +128,7 @@ fallback:
 Purpose:
 
 ```text
-one boxed declaration catalog allocation
+one owned declaration-catalog allocation
 + one typed alias snapshot
 + existing source/result proof owners
 -> exact complete candidate inventory
@@ -148,7 +189,7 @@ source declaration reorder           -> stable semantic classification
 Acceptance:
 
 ```text
-boxed catalog producer = 1
+owned catalog allocation producer = 1
 complete source-call inventory authority = 1
 complete candidate count authority = 1
 inventory incompleteness -> Ordinary = 0
@@ -197,7 +238,9 @@ Carry into B2:
 
 ```text
 the lifetime-free candidate inventory is not a durable source owner alone
-the exact Box<declaration catalog> must remain owned beside it
+the exact constrained Arc<declaration catalog> allocation remains owned beside it
+the sole context-install boundary may clone that Arc exactly once
+unconstrained catalog clone authority remains zero
 One must immediately co-seal its paired row through
   VerifiedPreloopStageBCarrierActivationPlanV1::seal
 Many rejection retains the complete ambiguous inventory
@@ -359,7 +402,7 @@ PreparedSelectedPreloopStageBWholeSourceV1
 The terminal owns:
 
 ```text
-same-allocation boxed catalog
+same-allocation constrained Arc catalog
 typed aliases
 one armed activation row
 complete retained selected source owner
@@ -705,7 +748,12 @@ PRELOOP-INNER-TYPE-PROOF-RETIRE0-S0
 retires or explicitly parks the proof-only inner TYPE-I0 consumer. It must not
 remain a production outer-carrier authority.
 
-## Task order
+## Original task order — historical after C4
+
+The list below records the order proposed before the owned-located and
+function-session audits. It must not be used as the live queue. In particular,
+production function ingress cannot precede the selected-statement carrier
+transaction.
 
 ```text
 PRELOOP-STAGEB-SOURCE-INVENTORY0-P0
@@ -733,9 +781,8 @@ PRELOOP-STAGEB-SOURCE-INVENTORY0-P0
 -> PRELOOP-INNER-TYPE-PROOF-RETIRE0-S0
 ```
 
-This is approximately 10–13 buildable commits. Use Refactor Series Mode
-inside each umbrella, with one purpose per series and all behavior changes at
-the end of their umbrella.
+The remaining live rows and their buildable commit boundaries are defined by
+the F5-F9 execution addendum named above.
 
 ## Minimal test and guard inventory
 
@@ -846,7 +893,7 @@ PRELOOP-STAGEB-LEGACY-ALIAS-MUTATION-SUNSET-001
     compile_legacy pre-selection alias clear
     selected lower_root catalog reseal
   repay at:
-    PRELOOP-STAGEB-FUNCTION-INGRESS0-I0
+    PRELOOP-STAGEB-COMPILE-REQUEST-INGRESS0-I0
 ```
 
 After the outer production path is green:
