@@ -31,6 +31,10 @@ pub(in crate::mir) mod capability;
 pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;
 #[allow(dead_code)]
+mod legacy_static_import_snapshot;
+#[allow(dead_code)]
+mod legacy_whole_source_request;
+#[allow(dead_code)]
 pub(in crate::mir) mod located;
 mod lowering_input;
 #[allow(dead_code)]

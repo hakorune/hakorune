@@ -133,6 +133,14 @@ impl LegacyModuleLoweringInputV1 {
         }
     }
 
+    pub(super) const fn ast(&self) -> &ASTNode {
+        &self.ast
+    }
+
+    pub(super) const fn origin(&self) -> LegacyModuleOriginV1 {
+        self.origin
+    }
+
     pub(super) fn into_parts(self) -> (ASTNode, LegacyModuleOriginV1) {
         (self.ast, self.origin)
     }

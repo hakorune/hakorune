@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-SOURCE-INVENTORY0-P0 is closed. A1 observes every declaration and MethodCall exactly once and projects the same-catalog static-target subset. A2 consumes that neutral inventory and composes only existing callable-result, Raw source-view, nested-instance, located-argument, outer-carrier, and owned-row authorities into stable owned candidates. Exact candidate counts 0/1/2, direct and supplied-alias selection, unrelated nested nonselection, foreign-catalog rejection, and declaration-reorder stability are green. Production consumers remain zero. The next row is PRELOOP-STAGEB-LEGACY-REQUEST0-S0: add a non-Clone typed legacy whole-source request and None/Explicit compiler-supplied alias snapshot in new compiler files, disconnected from compile_request."
+status = "PRELOOP-STAGEB-LEGACY-REQUEST0-S0 is closed. One private non-Clone LegacyWholeSourceCompileRequestV1 owns the exact Legacy lowering input, one compiler-supplied None/Explicit sorted alias snapshot, and a diagnostic-only source hint. The snapshot exposes only same-catalog verified alias projection; raw map access, Builder install, production construction, source selection, fallback, and retry remain zero. The next row is PRELOOP-STAGEB-SOURCE-SELECTION0-S0: consume the complete inventory into explicit Ordinary, Selected, or retained typed rejection while keeping production callers zero."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-LEGACY-REQUEST0-S0"
-current_execution_summary = "Add disconnected compiler-layer LegacyWholeSourceCompileRequestV1 and CompilerSuppliedStaticImportSnapshotV1 in new small files. The snapshot is non-Clone, owned, sorted/deduplicated, and explicitly None or Explicit; it must expose only a bounded borrowed alias view for source proof and a later consuming install terminal. The whole-source request owns LegacyModuleLoweringInputV1 plus exactly one snapshot. compiler/mod.rs receives only thin private declarations. Production caller, compile_request behavior, Builder alias mutation, source selection, catalog install, Call receipts, type publication, fallback, and retry remain zero."
+current_execution_row = "PRELOOP-STAGEB-SOURCE-SELECTION0-S0"
+current_execution_summary = "Add one disconnected PreloopStageBWholeSourceProducerV1 and typed Ordinary/Selected/rejection products in a small compiler sibling. BareAst alone is eligible; compatibility origins become explicit Ordinary(ProfileExcluded). Zero complete candidates is Ordinary, one immediately co-seals the same boxed catalog into the existing activation plan, and many is a retained typed pre-Builder rejection. A complete inventory with only bounded-proof unavailability may be Ordinary, but invalid alias/catalog authority or ambiguity may not disappear behind Ordinary. Production caller, compile_request behavior, Builder mutation, fallback, retry, module activation, Call receipts, and type publication remain zero."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -638,7 +638,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-SOURCE-INVENTORY0-P0"
+current_blocker_token = "PRELOOP-STAGEB-SOURCE-SELECTION0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

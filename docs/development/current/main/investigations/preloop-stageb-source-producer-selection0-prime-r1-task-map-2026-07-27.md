@@ -208,6 +208,8 @@ numeric catalog identity is never published or persisted
 
 ### Commit B1 — `PRELOOP-STAGEB-LEGACY-REQUEST0-S0`
 
+Status: closed.
+
 Add:
 
 ```text
@@ -241,6 +243,20 @@ thin delegation only.
 
 This commit is disconnected. The production Legacy arm still follows its
 current path.
+
+B1 closeout:
+
+```text
+private non-Clone whole-source request              = 1
+private None / Explicit typed alias snapshot        = 1
+sorted aliases / duplicate rejection                = green
+same-catalog verified alias projection              = 1
+diagnostic-only source hint                         = retained
+raw map / mutable / into-map accessor               = 0
+Builder install / mutation                          = 0
+production constructor caller                      = 0
+compile_request behavior delta                      = 0
+```
 
 ### Commit B2 — `PRELOOP-STAGEB-SOURCE-SELECTION0-S0`
 

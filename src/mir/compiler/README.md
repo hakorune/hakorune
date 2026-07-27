@@ -6,6 +6,12 @@ module, entry-block, or FunctionRegion state.
 ## Typed ingress contract
 
 - `LegacyModuleLoweringInputV1` owns a bare AST plus an explicit legacy origin.
+- `LegacyWholeSourceCompileRequestV1` is the disconnected pre-selection owner
+  for that input plus exactly one non-Clone
+  `CompilerSuppliedStaticImportSnapshotV1`.
+- The import snapshot distinguishes `None` from an explicitly supplied,
+  sorted/deduplicated table. It can seal only a borrowed same-catalog alias
+  view; it has no Builder installation or ambient lookup in the request row.
 - `ResolvedModuleLoweringInputV1` can only borrow an opaque
   `VerifiedResolvedSourceUnitV1`.
 - The verified unit is canonical syntax plus its sealed semantic owner forest;
@@ -13,6 +19,9 @@ module, entry-block, or FunctionRegion state.
 - A private request enum is matched once in `MirCompiler` and never reaches
   recursive Lower.
 - Canonical failure never retries through the legacy route.
+- The Stage-B request types have no production constructor caller until the
+  later source-selection row. Existing Legacy alias mutation and route
+  behavior remain unchanged meanwhile.
 - Production ingress is explicit by owner family. `resolve_function` owns the
   call-disabled body-only family. `VerifiedResolvedCallableProgramV1` owns all
   exact callable modules, including singleton self recursion. Neither retries
