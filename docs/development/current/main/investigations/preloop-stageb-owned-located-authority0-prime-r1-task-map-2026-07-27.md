@@ -1,6 +1,6 @@
 # PRELOOP-STAGEB-OWNED-LOCATED-AUTHORITY0-prime-r1
 
-Status: accepted decision; R1-R3 closed; R4 active
+Status: accepted decision; R1-R3 closed; R4 execution order superseded
 Date: 2026-07-27
 
 ## Decision
@@ -257,6 +257,25 @@ production caller / Call receipt / type write     = 0
 ```
 
 ### R4 — `PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0`
+
+The original R4-and-later order is superseded by:
+
+```text
+PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION-RECONCILIATION0-prime-r1
+```
+
+Read:
+
+```text
+docs/development/current/main/investigations/
+  preloop-stageb-instance-function-session-reconciliation0-prime-r1-task-map-2026-07-27.md
+```
+
+The R1-R3 products and owner decisions in this card remain authoritative. Do
+not execute the historical R4 ordering below: read-only audits proved that
+complete declaration metadata, located outer completion, outer physical
+receipt, assignment correspondence, and outer Integer publication must close
+before suffix descent can finish the selected function.
 
 Add one Builder-owned selected instance-function session sibling. Reuse the
 existing function preparation, StepTree guard, configured function context,

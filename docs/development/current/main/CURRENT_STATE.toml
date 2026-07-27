@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-FUNCTION-INGRESS-RECIPE0-S0 is closed. Installed ledger parts now consume into one owned function-ingress recipe retaining the exact external catalog Arc, body recipe, and nested-result witness. Its HRTB terminal recreates the existing source view, outer MethodCall, structural selected argument, inner MethodCall, sealed nested Integer contract, association, and PreparedPreloopLocatedArgumentV1; every borrowed owner remains callback-local and Builder::comp_ctx is never borrowed. The active row is PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0. R4 must use the sealed prefix/selected/suffix schedule because the existing whole-body port-aware draft fixes ASTNode input and delegates statement descent to the ordinary Port. Production selection, retry/fallback, Call receipts, and type publication remain forbidden."
+status = "PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION-RECONCILIATION0-D1 is closed. The R1-R3 authority decisions remain closed; F1 extends their declaration transport only. R4 audits proved three implementation constraints: the exact declaration recipe must retain uses/attrs; the selected outer RawLocated MethodCall needs one source-neutral completion seam rather than RawLegacy conversion; and the outer Call receipt, assignment correspondence, and Integer publication must complete before suffix GenericLoop descent. The active row is PRELOOP-STAGEB-INSTANCE-DECLARATION-RECIPE0-S0. The reconciled F1-F9 series closes declaration transport, generic payload session, located outer completion, outer receipt/assignment/type, selected function session, ledger, sole Legacy compile-request ingress, and the real Stage-B guard in dependency order. Retry/fallback, second dispatchers, Builder source maps, direct value_types writes, and Alias/View or loop-refresh activation remain forbidden."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0"
-current_execution_summary = "Add one selected instance-function session sibling over the existing configured function preparation/finalization authorities. Consume the R3 HRTB loan and execute the sealed body handoff as prefix ordinary descent, one exact selected assignment through the existing PreloopLocatedArgumentPortV1, then suffix ordinary descent. The current whole-body port-aware draft is not a valid consumer because it fixes ASTNode input and delegates body/statement descent to the ordinary Port. Add only the thin bounded body driver and the owned selected payload/error session needed to retain the draft result and nested receipt. Do not add a second general function compiler, production selector, Builder source map, RawLegacy conversion, retry/fallback, outer Call receipt, or type publication."
+current_execution_row = "PRELOOP-STAGEB-INSTANCE-DECLARATION-RECIPE0-S0"
+current_execution_summary = "Complete the existing verified callable declaration row and Stage-B function recipe with exact uses, DeclarationAttrs, and the exact selected variable-assignment target. This is behavior-neutral declaration transport only: do not fabricate defaults, add a second metadata policy, activate a production caller, change ordinary lowering, add Call receipts/type publication, or begin the selected function session. The next rows are the generic payload session, exact located outer completion, outer receipt/assignment/type transaction, then the selected function session."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -433,9 +433,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "preloop-stageb-owned-located-authority0-prime-r1-task-map-2026-07-27"
-latest_card_path = "docs/development/current/main/investigations/preloop-stageb-owned-located-authority0-prime-r1-task-map-2026-07-27.md"
-latest_card_summary = """PRELOOP-STAGEB-SOURCE-PRODUCER-SELECTION0-prime-r1 accepts the compile_request Legacy arm as the sole whole-source producer consumer. A four-worker audit keeps A1 and adds strict inventory completeness, invalid-alias rejection, one non-Clone snapshot retained by either disposition, atomic catalog+alias install, payload-retaining ledger states, a behavior-neutral post-install root kernel, and the previously missing assignment-completion receipt. The task map is compressed to about 9-12 buildable commits with roughly four new focused test families and no new per-row guard. The first row is PRELOOP-STAGEB-SOURCE-INVENTORY0-P0 with Builder and production caller both zero."""
+latest_card = "preloop-stageb-instance-function-session-reconciliation0-prime-r1-task-map-2026-07-27"
+latest_card_path = "docs/development/current/main/investigations/preloop-stageb-instance-function-session-reconciliation0-prime-r1-task-map-2026-07-27.md"
+latest_card_summary = """PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION-RECONCILIATION0-prime-r1 preserves the accepted A1 and A-double-prime owners while correcting the R4 execution order. Audits proved that exact uses/attrs transport, a no-RawLegacy located outer completion seam, and outer Call receipt/assignment/Integer publication must close before suffix GenericLoop descent. The reconciled F1-F9 series implements those prerequisites, then the selected function session, exact ledger, sole compile_request Legacy ingress, and the real Stage-B guard. The first row is PRELOOP-STAGEB-INSTANCE-DECLARATION-RECIPE0-S0."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -638,7 +638,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0"
+current_blocker_token = "PRELOOP-STAGEB-INSTANCE-DECLARATION-RECIPE0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
