@@ -199,6 +199,18 @@ impl super::MirBuilder {
             .install_callable_declaration_catalog(callable_catalog)
             .map_err(|error| error.to_string())?;
 
+        self.lower_root_after_callable_catalog_install_v1(ast, snapshot)
+    }
+
+    /// Shared root-lowering kernel after the complete callable catalog is
+    /// already installed. Source selection and catalog installation remain
+    /// outside this function; it preserves the existing indexing and lowering
+    /// order without re-sealing or re-classifying the root.
+    pub(in crate::mir::builder) fn lower_root_after_callable_catalog_install_v1(
+        &mut self,
+        ast: ASTNode,
+        snapshot: ASTNode,
+    ) -> Result<ValueId, String> {
         // Phase A: collect the remaining non-callable declaration facts.
         declaration_indexer::index_declarations(self, &snapshot);
         if let Some(module) = self.current_module.as_mut() {

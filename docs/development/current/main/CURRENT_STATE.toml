@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-A is closed. One disconnected consuming preparation terminal keeps the complete selected Legacy request and exact activation plan intact, then pairs it with one read-only candidate-shell readiness receipt. The Builder-side observer requires an existing physical main/0 at its entry block, vacant callable-catalog state, and a vacant or exactly compatible compiler-supplied alias lane. Rejection retains the complete selected owner; caller/target membership is not re-inferred because the immutable activation plan already sealed it. Catalog/import install, root lowering, production callers, Builder source maps, fallback, retry, Call receipts, and type publication remain zero. The next row is LOWER-ROOT-POST-INSTALL-KERNEL0-S0."
+status = "LOWER-ROOT-POST-INSTALL-KERNEL0-S0 is closed. MirBuilder::lower_root remains the sole ordinary root facade and still owns the one root snapshot, one callable-catalog seal, and one catalog install. It now delegates the unchanged declaration indexing, static-data preparation, App/Script decision, and root lowering sequence to one private post-install kernel in module_lifecycle.rs. The same-file seam preserves existing lifecycle guard authority and behavior while giving the later Selected route one non-resealing continuation. Selected catalog/import install, function ledger, production callers, Builder source maps, fallback, retry, Call receipts, and type publication remain zero. The next row is PRELOOP-STAGEB-ATOMIC-CONTEXT-INSTALL0-S0."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "LOWER-ROOT-POST-INSTALL-KERNEL0-S0"
-current_execution_summary = "Split existing MirBuilder::lower_root into the unchanged seal/install facade plus one private post-catalog-install root kernel. The ordinary route must preserve MIR and error parity before any selected caller exists. The kernel owns the existing declaration indexing, static-table preparation, App/Script decision, and root lowering after catalog install. Do not add another AST walker, source policy, catalog install, alias install, production caller, Builder source map, fallback, retry, Call receipt, or type publication."
+current_execution_row = "PRELOOP-STAGEB-ATOMIC-CONTEXT-INSTALL0-S0"
+current_execution_summary = "Add one selected-candidate CompilationContext transaction that preflights callable-catalog vacancy, typed-alias compatibility, and their exact pairing before mutation, then performs one infallible catalog+alias commit. Keep the function activation ledger, post-install root-kernel call, production Legacy consumer, Builder source maps, fallback, retry, Call receipts, and type publication at zero."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -638,7 +638,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "LOWER-ROOT-POST-INSTALL-KERNEL0-S0"
+current_blocker_token = "PRELOOP-STAGEB-ATOMIC-CONTEXT-INSTALL0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"

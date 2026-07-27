@@ -402,21 +402,56 @@ only that the already-open Builder shell is safe to receive the plan later.
 
 ### Commit C2 — `LOWER-ROOT-POST-INSTALL-KERNEL0-S0`
 
-Extract one behavior-neutral private kernel after callable-catalog install.
-The ordinary facade continues to seal/install its catalog and then delegates
-to this kernel. Fix ordinary MIR/error parity before Selected calls it.
+Status: closed.
 
-Suggested Builder layout:
+One behavior-neutral private kernel now owns the existing root work after
+callable-catalog install. The ordinary facade still owns the sole root clone,
+catalog seal, and catalog install, then delegates the owned root plus its
+snapshot to:
 
 ```text
-src/mir/builder/module_lifecycle/
-  post_catalog_install_root.rs
-  preinstalled_catalog.rs
+MirBuilder::lower_root_after_callable_catalog_install_v1
 ```
 
-`module_lifecycle.rs` receives thin delegation only.
+The seam remains in `module_lifecycle.rs`: extracting a nested file would
+split the existing lifecycle guard authority without reducing policy. The
+kernel preserves the existing declaration indexing, static-data preparation,
+App/Script decision, and root lowering order. Selected callers remain zero.
 
-### Commit C3 — `PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-B`
+Closeout:
+
+```text
+root AST clone                                      = existing 1
+ordinary catalog seal/install                      = existing 1
+post-install root kernel                           = 1
+second AST walker / source policy                   = 0
+selected catalog/alias install                     = 0
+selected caller                                    = 0
+MIR / error behavior delta                         = 0
+```
+
+### Commit C3 — `PRELOOP-STAGEB-ATOMIC-CONTEXT-INSTALL0-S0`
+
+Add one CompilationContext preparation/commit owner for the selected
+callable catalog plus compiler-supplied aliases. Every vacancy,
+compatibility, and catalog/alias pairing check happens before mutation;
+commit contains infallible moves only.
+
+This row does not create the function ledger and does not call the
+post-install root kernel. Splitting the context transaction from the
+function activation ledger keeps partial catalog/alias install impossible
+without combining two state machines in one commit.
+
+Acceptance:
+
+```text
+catalog + alias preflight owner                    = 1
+infallible context commit                         = 1
+partial catalog/alias install                     = 0
+ledger / root lowering / production caller        = 0
+```
+
+### Commit C4 — `PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-B`
 
 Add:
 
@@ -608,6 +643,7 @@ PRELOOP-STAGEB-SOURCE-INVENTORY0-P0
 
 -> PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-A
 -> LOWER-ROOT-POST-INSTALL-KERNEL0-S0
+-> PRELOOP-STAGEB-ATOMIC-CONTEXT-INSTALL0-S0
 -> PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-B
 
 -> PRELOOP-STAGEB-FUNCTION-INGRESS0-I0
@@ -625,7 +661,7 @@ PRELOOP-STAGEB-SOURCE-INVENTORY0-P0
 -> PRELOOP-INNER-TYPE-PROOF-RETIRE0-S0
 ```
 
-This is approximately 9–12 buildable commits. Use Refactor Series Mode
+This is approximately 10–13 buildable commits. Use Refactor Series Mode
 inside each umbrella, with one purpose per series and all behavior changes at
 the end of their umbrella.
 
