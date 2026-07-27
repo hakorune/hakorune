@@ -66,6 +66,13 @@ root-inactive. The shared guard owns the production-edge proof.
 No fifth production edge is selected by that closeout. A fresh bounded census
 must select the next exact caller/owner/delete-target/parity boundary.
 
+Consultation packet:
+
+```text
+docs/development/current/main/investigations/
+mirbuilder-fifth-production-edge-consultation-2026-07-28.md
+```
+
 ## Minimum implementation slice after decision
 
 One manifest row, one named production caller switch, one selected old edge

@@ -437,9 +437,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "mirbuilder-next-edge-design-stop-2026-07-28"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-next-edge-design-stop-2026-07-28.md"
-latest_card_summary = """LOCAL-STATEMENT-DESCENT-CUTOVER0-I0-R0 is closed as the fourth T0 cell with production Rust LOC -52 and four-cell cumulative -57. The raw/default Local caller is one, both old facades are absent, fallback/retry is zero, and the detached located caller remains root-inactive. No fifth production edge is selected; bounded census is required before another source edit."""
+latest_card = "mirbuilder-fifth-production-edge-consultation-2026-07-28"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-fifth-production-edge-consultation-2026-07-28.md"
+latest_card_summary = """The fifth in-place production replacement is at a design stop. The consultation packet requests a read-only bounded census of Variable Assignment, value Return, statement If, Binary, ShortCircuit, and the non-Program root candidate, then requires exactly one implementation-ready caller/owner/delete-target/parity/LOC decision. No source edit, fifth manifest row, fallback, retry, or semantic widening is authorized before that decision."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
