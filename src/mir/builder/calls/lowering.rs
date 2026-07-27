@@ -14,7 +14,7 @@
 //!   ├─ function_session::with_function_lowering_session()
 //!   ├─ Step 2: skeleton_builder::create_function_skeleton()
 //!   ├─ Step 3: parameter_setup::setup_function_params()
-//!   ├─ Step 4: lower_function_body() (本体lowering - このファイルで実装)
+//!   ├─ Step 4: port-aware recursive body descent
 //!   ├─ Step 5: finalize_function_draft() (未公開 draft を返す)
 //!   └─ session close: caller restore → module commit
 //! ```
@@ -24,12 +24,8 @@
 //! - **明確な境界**: Context管理・スケルトン生成・パラメータ設定は外部モジュール、本体lowering・finalize処理はこのファイル
 //! - **Box理論**: BoxCompilationContext による完全独立化、型情報・変数マッピングの適切な管理
 
-use super::function_lowering;
-use super::instance_method_draft_preparation::{
-    prepare_instance_method_draft_body_v1, run_function_body_step_tree_guard_v1,
-    InstanceMethodDraftPreparationRequestV1,
-};
 use crate::ast::{ASTNode, ParamDecl};
+use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 use crate::mir::builder::{MirBuilder, MirFunction, MirInstruction, MirType};
 use crate::mir::function::MirParamDecl;
 use std::collections::BTreeSet;
@@ -150,112 +146,6 @@ impl MirBuilder {
                 ring0.log.debug(&message);
             }
         }
-    }
-
-    pub(in crate::mir::builder) fn build_static_method_draft_v1(
-        &mut self,
-        function_name: String,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: crate::ast::DeclarationAttrs,
-    ) -> Result<MirFunction, String> {
-        self.create_function_skeleton(function_name, &params, &body)?;
-        self.set_current_function_declared_signature(
-            mir_param_decls_from_source(&params, &param_decls),
-            return_type_name,
-        );
-        self.set_current_function_runes(&attrs);
-        self.set_current_function_declared_capability_uses(&uses);
-        self.setup_function_params(&params)?;
-        self.lower_function_body(body)?;
-        let returns_value = self
-            .function_state
-            .current_function
-            .as_ref()
-            .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));
-        self.finalize_function_draft(returns_value)
-    }
-
-    pub(in crate::mir::builder) fn build_instance_method_draft_v1(
-        &mut self,
-        function_name: String,
-        box_name: String,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: crate::ast::DeclarationAttrs,
-    ) -> Result<MirFunction, String> {
-        let prepared = prepare_instance_method_draft_body_v1(
-            self,
-            InstanceMethodDraftPreparationRequestV1::new(
-                function_name,
-                box_name,
-                params,
-                param_decls,
-                return_type_name,
-                body,
-                uses,
-                attrs,
-            ),
-        )?;
-        self.lower_method_body(prepared.into_body())?;
-        let returns_value = self
-            .function_state
-            .current_function
-            .as_ref()
-            .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));
-        self.finalize_function_draft(returns_value)
-    }
-
-    // ============================================================================
-    // Step 4: 本体lowering (Body Lowering)
-    // ============================================================================
-
-    /// 🎯 箱理論: Step 4 - 本体lowering
-    ///
-    /// 責務: 関数本体（static method）を MIR に lowering
-    /// - StepTree capability guard 実行（strict-only）
-    /// - build_expression() 経由で本体処理
-    pub(super) fn lower_function_body(&mut self, body: Vec<ASTNode>) -> Result<(), String> {
-        let trace = crate::mir::builder::control_flow::joinir::trace::trace();
-
-        // Phase 112: StepTree capability guard (strict-only) + dev shadow lowering
-        let func_name = self
-            .function_state
-            .current_function
-            .as_ref()
-            .map(|f| f.signature.name.clone())
-            .unwrap_or_else(|| "<unknown>".to_string());
-
-        run_function_body_step_tree_guard_v1(self, &body, &func_name)?;
-
-        trace.emit_if(
-            "debug",
-            "lower_function_body",
-            &format!("body.len() = {}", body.len()),
-            trace.is_enabled(),
-        );
-
-        let program_ast = function_lowering::wrap_in_program(body);
-        trace.emit_if(
-            "debug",
-            "lower_function_body",
-            "About to call build_expression",
-            trace.is_enabled(),
-        );
-        let _last = self.build_expression(program_ast)?;
-        trace.emit_if(
-            "debug",
-            "lower_function_body",
-            "build_expression completed",
-            trace.is_enabled(),
-        );
-        Ok(())
     }
 
     // ============================================================================
@@ -420,51 +310,6 @@ impl MirBuilder {
     }
 
     // ============================================================================
-    // Step 4b: 本体lowering (Method Body Lowering)
-    // ============================================================================
-
-    /// 🎯 箱理論: Step 4b - 本体lowering（instance method版: cf_block）
-    ///
-    /// 責務: メソッド本体（instance method）を MIR に lowering
-    /// - StepTree capability guard 実行（strict-only）
-    /// - cf_block() 経由で本体処理（method専用）
-    pub(super) fn lower_method_body(&mut self, body: Vec<ASTNode>) -> Result<(), String> {
-        let trace = crate::mir::builder::control_flow::joinir::trace::trace();
-        let strict = crate::config::env::joinir_dev::strict_enabled();
-        let dev = crate::config::env::joinir_dev_enabled();
-        let func_name = self
-            .function_state
-            .current_function
-            .as_ref()
-            .map(|f| f.signature.name.clone())
-            .unwrap_or_else(|| "<unknown>".to_string());
-
-        struct JoinLoopTraceDevAdapter<'a> {
-            trace: &'a crate::mir::builder::control_flow::joinir::trace::JoinLoopTrace,
-        }
-        impl crate::mir::control_tree::normalized_shadow::dev_pipeline::DevTrace
-            for JoinLoopTraceDevAdapter<'_>
-        {
-            fn dev(&self, tag: &str, msg: &str) {
-                self.trace.dev(tag, msg)
-            }
-        }
-        let trace_adapter = JoinLoopTraceDevAdapter { trace: &trace };
-
-        crate::mir::control_tree::normalized_shadow::dev_pipeline::StepTreeDevPipelineBox::run(
-            self,
-            &body,
-            &func_name,
-            strict,
-            dev,
-            &trace_adapter,
-        )?;
-
-        let _last = self.cf_block(body)?;
-        Ok(())
-    }
-
-    // ============================================================================
     // 統合エントリーポイント (Unified Entry Points)
     // ============================================================================
 
@@ -533,7 +378,9 @@ impl MirBuilder {
             &session_name,
             body.clone(),
             move |builder| {
-                builder.build_static_method_draft_v1(
+                let mut port = RawLegacyChildLoweringPortV1;
+                let prepared = builder.build_static_method_draft_with_port_v1(
+                    &mut port,
                     func_name,
                     params,
                     param_decls,
@@ -541,7 +388,8 @@ impl MirBuilder {
                     body,
                     uses,
                     attrs,
-                )
+                )?;
+                builder.finalize_port_aware_draft_for_legacy_v1(prepared)
             },
         )
     }
@@ -587,7 +435,9 @@ impl MirBuilder {
         }
         let session_name = func_name.clone();
         self.with_function_lowering_session(&session_name, body.clone(), move |builder| {
-            builder.build_instance_method_draft_v1(
+            let mut port = RawLegacyChildLoweringPortV1;
+            let prepared = builder.build_instance_method_draft_with_port_v1(
+                &mut port,
                 func_name,
                 box_name,
                 params,
@@ -596,7 +446,8 @@ impl MirBuilder {
                 body,
                 uses,
                 attrs,
-            )
+            )?;
+            builder.finalize_port_aware_draft_for_legacy_v1(prepared)
         })
     }
 

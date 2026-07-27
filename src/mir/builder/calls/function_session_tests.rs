@@ -4,6 +4,7 @@ use std::sync::Arc;
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::builder::compilation_context::RecordLocalFieldValue;
 use crate::mir::builder::control_flow::edgecfg::api::{EdgeStub, ExitKind, Frag};
+use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::function::{MirFunction, MirModule};
 use crate::mir::instruction::FastMemRegionId;
@@ -453,7 +454,9 @@ fn run_injected_checkpoint(
         if checkpoint == InjectedCheckpoint::AfterParameters {
             return Err("injected:after_parameters".into());
         }
-        builder.lower_function_body(body.clone())?;
+        let mut port = RawLegacyChildLoweringPortV1;
+        let program = super::function_lowering::wrap_in_program(body.clone());
+        let _ = builder.build_expression_impl_with_port_v1(&mut port, program)?;
         if checkpoint == InjectedCheckpoint::AfterBody {
             return Err("injected:after_body".into());
         }
@@ -550,6 +553,26 @@ fn static_and_instance_drafts_commit_only_after_caller_restore() {
         .as_ref()
         .unwrap()
         .get_function("Fixture.run/0")
+        .is_some());
+
+    builder
+        .lower_method_as_function(
+            "Fixture.birth/0".into(),
+            "Fixture".into(),
+            Vec::new(),
+            Vec::new(),
+            None,
+            Vec::new(),
+            Vec::new(),
+            DeclarationAttrs::default(),
+        )
+        .unwrap();
+    assert_outer_state(&builder);
+    assert!(builder
+        .current_module
+        .as_ref()
+        .unwrap()
+        .get_function("Fixture.birth/0")
         .is_some());
 }
 

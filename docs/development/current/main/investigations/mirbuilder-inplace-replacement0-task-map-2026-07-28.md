@@ -56,6 +56,19 @@ P0 = parity after that switch
 
 Ceremony: T0, one atomic I0/R0 commit preferred.
 
+Status: closed on 2026-07-28.
+
+Closeout:
+
+```text
+new ordinary production callers = 2
+old selected production callers = 0
+fallback / retry                 = 0
+deleted old symbols              = 4
+deleted disconnected shell       = port_aware_function_draft.rs
+production Rust LOC delta        = -202
+```
+
 Production seams:
 
 ```text

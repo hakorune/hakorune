@@ -27,11 +27,11 @@ new owner
 ## Current front
 
 ```text
-CALLABLE-DRAFT-PORT-CUTOVER0-I0-R0
+CALLABLE-DRAFT-COLLECTOR-CUTOVER0-I0-R0
 ```
 
-既に存在するport-aware callable-body loweringを、ordinary Legacy callable
-loweringの本番callerへ接続する。新しいS0や相談は追加しない。
+ordinary callable draftのpublicationを、既存のcomplete collector batchと
+atomic insertionへ交換する。Stage-B一行sessionは使わない。
 
 ## First three replacements
 
@@ -112,15 +112,27 @@ must not be revived as a production route.
 Keep only these counters current:
 
 ```text
-macro_packs_closed
-live_replacement_cells_closed
-replacement_ledger_remaining
-detached_assets_remaining
-legacy_production_edges_remaining
+macro_packs_closed                 = 0 / 8
+live_replacement_cells_closed      = 1
+replacement_ledger_remaining       = 2 scheduled rows
+detached_assets_remaining          = 4 recorded rows
+legacy_production_edges_remaining  = 2 scheduled edges
 ```
 
 LOC and file counts are supporting evidence, not semantic authority. The
 five-cell rolling production Rust LOC budget must still be non-positive.
+
+## Landed replacement cells
+
+```text
+CALLABLE-DRAFT-PORT-CUTOVER0
+  new production callers   = 2
+  selected old callers     = 0
+  fallback / retry         = 0
+  deleted old symbols      = 4
+  deleted protocol shells  = 1
+  production Rust LOC      = -202
+```
 
 ## Parked
 

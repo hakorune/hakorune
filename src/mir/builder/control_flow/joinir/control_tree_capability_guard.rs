@@ -10,7 +10,7 @@
 //! - **Default behavior unchanged**: strict=false always returns Ok(())
 //!
 //! ## Integration
-//! - Called from `lower_function_body()` in `calls/lowering.rs`
+//! - Called from port-aware callable draft body descent
 //! - Uses existing `HAKO_JOINIR_STRICT` / `NYASH_JOINIR_STRICT` env vars
 //! - Error format: `[joinir/control_tree/cap_missing/<Cap>] <msg>  Hint: <hint>`
 

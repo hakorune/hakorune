@@ -1,8 +1,7 @@
-//! HEADERPORT0-REENTRANT-TERM0-P0: port-aware draft/body siblings.
+//! Port-aware callable draft/body owner.
 //!
 //! This module reuses the existing skeleton, parameter, and finalizer owners.
-//! Only the recursive body driver and the short-lived signature view differ
-//! from the legacy facade.  The methods remain disconnected until I0.
+//! Only the recursive body driver and the signature-view boundary differ.
 
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::mir::{MirBuilder, MirFunction, MirType};
@@ -44,7 +43,6 @@ pub(in crate::mir::builder) fn prepare_port_aware_draft_body_completion_v1(
 
 impl MirBuilder {
     /// Port-aware static draft sibling.  No collector or module is touched.
-    #[allow(dead_code)]
     pub(in crate::mir::builder) fn build_static_method_draft_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
@@ -75,7 +73,6 @@ impl MirBuilder {
 
     /// Port-aware instance draft sibling.  The body keeps the same recursive
     /// port, while the finalizer borrows headers only for its call lookup.
-    #[allow(dead_code)]
     pub(in crate::mir::builder) fn build_instance_method_draft_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
@@ -115,13 +112,21 @@ impl MirBuilder {
     }
 
     /// Port-aware finalizer entrypoint; the header loan is explicit and short.
-    #[allow(dead_code)]
     pub(in crate::mir::builder) fn finalize_function_draft_with_headers(
         &mut self,
         prepared: PortAwarePreparedDraftBodyV1,
         headers: &LoweringHeaderPortV1<'_>,
     ) -> Result<MirFunction, String> {
         self.finalize_function_draft_with_lookup(prepared.returns_value, Some(headers))
+    }
+
+    /// Complete an ordinary Legacy callable through the existing finalizer
+    /// facade after the port-aware body descent has released its port.
+    pub(in crate::mir::builder) fn finalize_port_aware_draft_for_legacy_v1(
+        &mut self,
+        prepared: PortAwarePreparedDraftBodyV1,
+    ) -> Result<MirFunction, String> {
+        self.finalize_function_draft(prepared.returns_value)
     }
 
     fn current_function_name_for_port(&self) -> Result<String, String> {

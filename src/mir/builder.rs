@@ -384,9 +384,7 @@ mod phi_type_inference; // Phase 29bq+: PHI type inference (multi-phase fallback
 #[allow(dead_code)]
 mod phi_type_publication;
 #[allow(dead_code)]
-mod port_aware_function_draft; // HEADERPORT0-S0 disconnected body/finalizer vocabulary
-#[allow(dead_code)]
-mod port_aware_function_draft_impl; // HEADERPORT0-P0 port-aware draft siblings
+mod port_aware_function_draft_impl;
 mod type_hint_providers; // Phase 29bq+: Type hint provision (call results, method signatures) // Phase 25.1q: Unified PHI merge helper // prepare/lower_root/finalize split
                          // legacy large-match remains inline for now (planned extraction)
 pub(in crate::mir) mod emission; // emission::*（Const/Compare/Branch の薄い発行箱）

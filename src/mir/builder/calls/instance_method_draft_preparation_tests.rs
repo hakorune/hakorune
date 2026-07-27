@@ -135,11 +135,13 @@ fn prepared_body_is_consumed_once_without_clone_authority() {
 }
 
 #[test]
-fn ordinary_and_port_aware_instance_drafts_keep_empty_and_scalar_return_parity() {
+fn legacy_completion_preserves_port_aware_instance_draft_contract() {
     for body in [Vec::new(), vec![scalar_return(7)]] {
-        let mut legacy = MirBuilder::new();
-        let legacy_draft = legacy
-            .build_instance_method_draft_v1(
+        let mut through_legacy_completion = MirBuilder::new();
+        let mut legacy_port = RawLegacyChildLoweringPortV1;
+        let legacy_prepared = through_legacy_completion
+            .build_instance_method_draft_with_port_v1(
+                &mut legacy_port,
                 "Fixture.parity/0".to_owned(),
                 "Fixture".to_owned(),
                 Vec::new(),
@@ -150,12 +152,15 @@ fn ordinary_and_port_aware_instance_drafts_keep_empty_and_scalar_return_parity()
                 DeclarationAttrs::default(),
             )
             .unwrap();
+        let legacy_draft = through_legacy_completion
+            .finalize_port_aware_draft_for_legacy_v1(legacy_prepared)
+            .unwrap();
 
-        let mut port_aware = MirBuilder::new();
-        let mut port = RawLegacyChildLoweringPortV1;
-        let prepared = port_aware
+        let mut explicit_lookup = MirBuilder::new();
+        let mut lookup_port = RawLegacyChildLoweringPortV1;
+        let lookup_prepared = explicit_lookup
             .build_instance_method_draft_with_port_v1(
-                &mut port,
+                &mut lookup_port,
                 "Fixture.parity/0".to_owned(),
                 "Fixture".to_owned(),
                 Vec::new(),
@@ -166,11 +171,11 @@ fn ordinary_and_port_aware_instance_drafts_keep_empty_and_scalar_return_parity()
                 DeclarationAttrs::default(),
             )
             .unwrap();
-        let returns_value = prepared.returns_value_for_test();
-        let port_aware_draft = port_aware
+        let returns_value = lookup_prepared.returns_value_for_test();
+        let lookup_draft = explicit_lookup
             .finalize_function_draft_with_lookup(returns_value, None)
             .unwrap();
 
-        assert_function_parity(&legacy_draft, &port_aware_draft);
+        assert_function_parity(&legacy_draft, &lookup_draft);
     }
 }
