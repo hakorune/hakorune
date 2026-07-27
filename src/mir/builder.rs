@@ -60,6 +60,7 @@ mod function_state_transaction;
 mod located_legacy_lowering;
 #[allow(dead_code)]
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
+mod preloop_stageb_function_activation; // exact selected-function ledger + collector owner
 mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
 #[cfg(test)]
 mod raw_required_condition_draft_p0; // ROOTBATCH0-S0b exact factory contract
@@ -180,6 +181,10 @@ pub(in crate::mir) use module_invocation_brand0::{
 pub(in crate::mir) use module_invocation_owner_chain::InvocationBranded;
 pub(in crate::mir) use module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;
+pub(in crate::mir) use preloop_stageb_function_activation::{
+    CompletedPreloopStageBFunctionActivationV1, PreparedPreloopStageBFunctionActivationV1,
+    PreloopStageBFunctionActivationErrorV1, RejectedPreloopStageBFunctionActivationV1,
+};
 pub(in crate::mir) use normal_module_transaction::{
     CompletedNormalCallableCandidateV1, CompletedNormalCallableModuleEvidenceV1,
     CompletedNormalMainModuleCandidateV1, CompletedNormalMainModuleEvidenceV1,
@@ -368,6 +373,8 @@ mod module_compat_raw_ledger_p0; // CUT0-S0-COMPAT0 receipt bridge fixtures
 #[cfg(test)]
 mod module_invocation_cut0_p0; // CUT0-P0 disconnected all-route adapter
 mod module_lifecycle; // Phase 29bq+: Module lifecycle orchestrator (prepare → lower → finalize)
+#[cfg(test)]
+mod module_lifecycle_capture_tests;
 mod ops;
 mod phi;
 #[allow(dead_code)]

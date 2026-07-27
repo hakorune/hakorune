@@ -12,7 +12,7 @@ use super::session::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum PreloopStageBInstanceFunctionStageV1 {
+pub(in crate::mir::builder) enum PreloopStageBInstanceFunctionStageV1 {
     SourceProjection,
     Preparation,
     StepTree,
@@ -55,7 +55,7 @@ enum RetainedPreloopStageBInstanceFunctionSessionOwnerV1 {
 }
 
 #[derive(Debug)]
-pub(super) struct RejectedPreloopStageBInstanceFunctionSessionV1 {
+pub(in crate::mir::builder) struct RejectedPreloopStageBInstanceFunctionSessionV1 {
     owner: RetainedPreloopStageBInstanceFunctionSessionOwnerV1,
     stage: PreloopStageBInstanceFunctionStageV1,
     cause: PreloopStageBInstanceFunctionCauseV1,
@@ -116,6 +116,16 @@ impl PreloopStageBInstanceFunctionPrimaryRejectionV1 {
 }
 
 impl RejectedPreloopStageBInstanceFunctionSessionV1 {
+    pub(in crate::mir::builder) fn from_primary(
+        primary: PreloopStageBInstanceFunctionPrimaryRejectionV1,
+    ) -> Self {
+        Self {
+            stage: primary.stage,
+            cause: primary.cause_for_projection(),
+            owner: RetainedPreloopStageBInstanceFunctionSessionOwnerV1::Primary(primary),
+        }
+    }
+
     pub(super) fn from_session(
         error: LegacyFunctionPayloadSessionErrorV1<
             PreloopStageBInstanceFunctionPrimaryRejectionV1,
@@ -143,7 +153,7 @@ impl RejectedPreloopStageBInstanceFunctionSessionV1 {
         }
     }
 
-    pub(super) const fn stage(&self) -> PreloopStageBInstanceFunctionStageV1 {
+    pub(in crate::mir::builder) const fn stage(&self) -> PreloopStageBInstanceFunctionStageV1 {
         self.stage
     }
 
@@ -151,7 +161,7 @@ impl RejectedPreloopStageBInstanceFunctionSessionV1 {
         &self.cause
     }
 
-    pub(super) fn bounded_report(&self) -> Box<str> {
+    pub(in crate::mir::builder) fn bounded_report(&self) -> Box<str> {
         format!(
             "[mir/preloop-stageb/instance-function/{:?}] {:?}",
             self.stage, self.cause
@@ -159,7 +169,7 @@ impl RejectedPreloopStageBInstanceFunctionSessionV1 {
         .into_boxed_str()
     }
 
-    pub(super) fn discard(self) {
+    pub(in crate::mir::builder) fn discard(self) {
         match self.owner {
             RetainedPreloopStageBInstanceFunctionSessionOwnerV1::Primary(primary)
             | RetainedPreloopStageBInstanceFunctionSessionOwnerV1::DuringCleanup(primary) => {

@@ -58,6 +58,17 @@ pub(super) struct PreparedSelectedPreloopStageBInstallPartsV1 {
 }
 
 impl PreparedSelectedPreloopStageBWholeSourceV1 {
+    #[cfg(test)]
+    pub(super) fn from_exact_test_parts(
+        request: LegacyWholeSourceCompileRequestV1,
+        activation: VerifiedPreloopStageBCarrierActivationPlanV1,
+    ) -> Self {
+        Self {
+            request,
+            activation,
+        }
+    }
+
     pub(super) const fn activation(&self) -> &VerifiedPreloopStageBCarrierActivationPlanV1 {
         &self.activation
     }

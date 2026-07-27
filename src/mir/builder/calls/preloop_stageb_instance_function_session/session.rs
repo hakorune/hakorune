@@ -33,7 +33,7 @@ pub(super) struct PreparedPreloopStageBInstanceFunctionV1 {
 }
 
 #[derive(Debug)]
-pub(super) struct CompletedPreloopStageBInstanceFunctionPayloadV1 {
+pub(in crate::mir::builder) struct CompletedPreloopStageBInstanceFunctionPayloadV1 {
     schedule: CompletedPreloopStageBBodyScheduleV1,
     _seal: CompletedPreloopStageBInstanceFunctionPayloadSealV1,
 }
@@ -41,7 +41,7 @@ pub(super) struct CompletedPreloopStageBInstanceFunctionPayloadV1 {
 #[derive(Debug)]
 struct CompletedPreloopStageBInstanceFunctionPayloadSealV1;
 
-pub(super) struct PendingPreloopStageBInstanceFunctionSessionV1<'builder> {
+pub(in crate::mir::builder) struct PendingPreloopStageBInstanceFunctionSessionV1<'builder> {
     pending: LegacyFunctionPayloadPendingSessionV1<
         'builder,
         CompletedPreloopStageBInstanceFunctionPayloadV1,
@@ -52,7 +52,7 @@ pub(super) struct PendingPreloopStageBInstanceFunctionSessionV1<'builder> {
 struct PendingPreloopStageBInstanceFunctionSessionSealV1;
 
 #[derive(Debug)]
-pub(super) struct CompletedPreloopStageBInstanceFunctionV1 {
+pub(in crate::mir::builder) struct CompletedPreloopStageBInstanceFunctionV1 {
     draft: MirFunction,
     payload: CompletedPreloopStageBInstanceFunctionPayloadV1,
     _seal: CompletedPreloopStageBInstanceFunctionSealV1,
@@ -86,7 +86,7 @@ impl CompletedPreloopStageBInstanceFunctionPayloadV1 {
         &self.schedule
     }
 
-    pub(super) fn discard(self) {
+    pub(in crate::mir::builder) fn discard(self) {
         self.schedule.discard();
     }
 }
@@ -97,7 +97,7 @@ impl PendingPreloopStageBInstanceFunctionSessionV1<'_> {
         self.pending.parent_is_captured_for_test()
     }
 
-    pub(super) fn complete(self) -> CompletedPreloopStageBInstanceFunctionV1 {
+    pub(in crate::mir::builder) fn complete(self) -> CompletedPreloopStageBInstanceFunctionV1 {
         self.pending
             .complete_before_restore(|draft, payload| {
                 Ok::<_, Infallible>(CompletedPreloopStageBInstanceFunctionV1 {
@@ -111,7 +111,7 @@ impl PendingPreloopStageBInstanceFunctionSessionV1<'_> {
 }
 
 impl CompletedPreloopStageBInstanceFunctionV1 {
-    pub(super) const fn draft(&self) -> &MirFunction {
+    pub(in crate::mir::builder) const fn draft(&self) -> &MirFunction {
         &self.draft
     }
 
@@ -119,7 +119,7 @@ impl CompletedPreloopStageBInstanceFunctionV1 {
         &self.payload
     }
 
-    pub(super) fn into_parts(
+    pub(in crate::mir::builder) fn into_parts(
         self,
     ) -> (MirFunction, CompletedPreloopStageBInstanceFunctionPayloadV1) {
         (self.draft, self.payload)
@@ -149,6 +149,21 @@ pub(super) fn capture_preloop_stageb_instance_function_v1<'builder>(
         pending,
         _seal: PendingPreloopStageBInstanceFunctionSessionSealV1,
     })
+}
+
+pub(in crate::mir::builder) fn capture_preloop_stageb_instance_function_from_ingress_v1<
+    'builder,
+>(
+    builder: &'builder mut MirBuilder,
+    child_port: RawInvocationChildPortV1<'_, '_>,
+    ingress: PreparedPreloopStageBFunctionIngressV1,
+) -> Result<
+    PendingPreloopStageBInstanceFunctionSessionV1<'builder>,
+    RejectedPreloopStageBInstanceFunctionSessionV1,
+> {
+    let prepared = PreparedPreloopStageBInstanceFunctionV1::prepare(ingress)
+        .map_err(RejectedPreloopStageBInstanceFunctionSessionV1::from_primary)?;
+    capture_preloop_stageb_instance_function_v1(builder, child_port, prepared)
 }
 
 fn lower_preloop_stageb_instance_function_v1(

@@ -6,6 +6,9 @@
 //! production caller, function capture, retry, fallback, or publication.
 
 use crate::mir::builder::MirBuilder;
+use crate::mir::builder::{
+    CompletedPreloopStageBFunctionActivationV1, RejectedPreloopStageBFunctionActivationV1,
+};
 use crate::mir::preloop_stageb_candidate_shell::VerifiedPreloopStageBCandidateShellReadinessV1;
 use crate::mir::preloop_stageb_carrier::{
     PreparedPreloopStageBActivationContextInstallV1,
@@ -13,9 +16,7 @@ use crate::mir::preloop_stageb_carrier::{
 };
 use crate::mir::ValueId;
 
-use super::ledger::{
-    PreloopStageBFunctionActivationLedgerV1, RejectedPreloopStageBFunctionActivationV1,
-};
+use super::ledger::PreloopStageBFunctionActivationLedgerV1;
 use super::PreparedPreloopStageBModuleActivationV1;
 use crate::mir::compiler::legacy_whole_source_request::{
     PreparedPreloopStageBSourceInstallPartsV1, RetainedPreloopStageBSourceOwnerV1,
@@ -94,22 +95,19 @@ impl InstalledPreloopStageBModuleActivationV1 {
         builder: &mut MirBuilder,
     ) -> Result<CompletedPreloopStageBPreinstalledRootV1, RejectedPreloopStageBPreinstalledRootV1>
     {
-        match builder
-            .lower_root_with_preinstalled_catalog_v1(&self.source.ast, self.ledger.context())
-        {
-            Ok(result_value) => Ok(CompletedPreloopStageBPreinstalledRootV1 {
-                result_value,
+        match builder.lower_root_with_preloop_stageb_function_activation_v1(
+            &self.source.ast,
+            self.ledger.into_prepared(),
+        ) {
+            Ok(activation) => Ok(CompletedPreloopStageBPreinstalledRootV1 {
+                activation,
                 source: self.source,
                 readiness: self.readiness,
-                ledger: self.ledger,
             }),
-            Err(detail) => Err(RejectedPreloopStageBPreinstalledRootV1 {
+            Err(activation) => Err(RejectedPreloopStageBPreinstalledRootV1 {
                 source: self.source,
                 readiness: self.readiness,
-                cause: RejectedPreloopStageBPreinstalledRootCauseV1::RootLowering {
-                    ledger: self.ledger,
-                    detail: detail.into_boxed_str(),
-                },
+                cause: RejectedPreloopStageBPreinstalledRootCauseV1::FunctionActivation(activation),
             }),
         }
     }
@@ -117,34 +115,30 @@ impl InstalledPreloopStageBModuleActivationV1 {
 
 #[derive(Debug)]
 pub(super) struct CompletedPreloopStageBPreinstalledRootV1 {
-    result_value: ValueId,
+    activation: CompletedPreloopStageBFunctionActivationV1,
     source: RetainedPreloopStageBSourceOwnerV1,
     readiness: VerifiedPreloopStageBCandidateShellReadinessV1,
-    ledger: PreloopStageBFunctionActivationLedgerV1,
 }
 
 impl CompletedPreloopStageBPreinstalledRootV1 {
     pub(super) const fn result_value(&self) -> ValueId {
-        self.result_value
+        self.activation.result_value()
     }
 
-    pub(super) fn finish(self) -> RejectedPreloopStageBPreinstalledRootV1 {
-        RejectedPreloopStageBPreinstalledRootV1 {
-            source: self.source,
-            readiness: self.readiness,
-            cause: RejectedPreloopStageBPreinstalledRootCauseV1::Ledger(self.ledger.finish()),
-        }
+    pub(super) fn activation(&self) -> &CompletedPreloopStageBFunctionActivationV1 {
+        &self.activation
+    }
+
+    pub(super) fn discard(self) {
+        let _ = (self.source, self.readiness);
+        self.activation.discard();
     }
 }
 
 #[derive(Debug)]
 enum RejectedPreloopStageBPreinstalledRootCauseV1 {
     Context(RejectedPreloopStageBActivationContextInstallV1),
-    RootLowering {
-        ledger: PreloopStageBFunctionActivationLedgerV1,
-        detail: Box<str>,
-    },
-    Ledger(RejectedPreloopStageBFunctionActivationV1),
+    FunctionActivation(RejectedPreloopStageBFunctionActivationV1),
 }
 
 #[derive(Debug)]
@@ -162,27 +156,42 @@ impl RejectedPreloopStageBPreinstalledRootV1 {
     pub(super) fn bounded_report(&self) -> Box<str> {
         match &self.cause {
             RejectedPreloopStageBPreinstalledRootCauseV1::Context(cause) => cause.bounded_report(),
-            RejectedPreloopStageBPreinstalledRootCauseV1::RootLowering { detail, .. } => {
-                format!("[mir/preloop-stageb/preinstalled-root/lower] {detail}").into_boxed_str()
+            RejectedPreloopStageBPreinstalledRootCauseV1::FunctionActivation(activation) => {
+                activation.bounded_report()
             }
-            RejectedPreloopStageBPreinstalledRootCauseV1::Ledger(ledger) => format!(
-                "[mir/preloop-stageb/preinstalled-root/ledger/{:?}] caller={:?}",
-                ledger.cause(),
-                ledger.row().caller()
-            )
-            .into_boxed_str(),
         }
     }
 
     pub(super) fn discard(self) {
         match self.cause {
             RejectedPreloopStageBPreinstalledRootCauseV1::Context(cause) => cause.discard(),
-            RejectedPreloopStageBPreinstalledRootCauseV1::RootLowering { ledger, .. } => {
-                let _ = ledger;
+            RejectedPreloopStageBPreinstalledRootCauseV1::FunctionActivation(activation) => {
+                activation.discard()
             }
-            RejectedPreloopStageBPreinstalledRootCauseV1::Ledger(ledger) => ledger.discard(),
         }
         let _ = (self.source, self.readiness);
+    }
+
+    #[cfg(test)]
+    fn retained_completed_caller(
+        &self,
+    ) -> Option<&crate::mir::builder::CanonicalSameModuleCallableKeyV1> {
+        match &self.cause {
+            RejectedPreloopStageBPreinstalledRootCauseV1::FunctionActivation(activation) => {
+                activation.retained_completed_caller()
+            }
+            _ => None,
+        }
+    }
+
+    #[cfg(test)]
+    fn retains_invocation_state(&self) -> bool {
+        match &self.cause {
+            RejectedPreloopStageBPreinstalledRootCauseV1::FunctionActivation(activation) => {
+                activation.retains_invocation_state()
+            }
+            _ => false,
+        }
     }
 }
 
@@ -191,40 +200,25 @@ mod tests {
     use std::collections::HashMap;
 
     use crate::mir::builder::MirBuilder;
-    use crate::mir::compiler::legacy_source_selection::{
-        PreloopStageBWholeSourceDispositionV1, PreloopStageBWholeSourceProducerV1,
-        PreparedSelectedPreloopStageBWholeSourceV1,
-    };
+    use crate::mir::compiler::legacy_source_selection::PreparedSelectedPreloopStageBWholeSourceV1;
     use crate::mir::compiler::legacy_static_import_snapshot::CompilerSuppliedStaticImportSnapshotV1;
     use crate::mir::compiler::legacy_whole_source_request::LegacyWholeSourceCompileRequestV1;
     use crate::mir::compiler::lowering_input::LegacyModuleLoweringInputV1;
     use crate::parser::NyashParser;
 
-    const SOURCE: &str = r#"
-static box Helper {
-  pick(a, b) { return b }
-}
-box Caller {
-  run(text, ret) {
-    local pos
-    pos = Helper.pick(text, me.value(ret))
-    return pos
-  }
-  value(ret) { return 1 }
-}
-"#;
-
     fn selected() -> PreparedSelectedPreloopStageBWholeSourceV1 {
-        let ast = NyashParser::parse_from_string(SOURCE).expect("preinstalled-root source");
+        let source = crate::mir::callable_result_representation::actual_parser_add_fixture::
+            stageb_source_for_lowering();
+        let ast = NyashParser::parse_from_string(&source).expect("preinstalled-root source");
         let request = LegacyWholeSourceCompileRequestV1::new(
             LegacyModuleLoweringInputV1::bare_ast(ast),
             CompilerSuppliedStaticImportSnapshotV1::none(),
             Some("preinstalled-root.hako".into()),
         );
-        match PreloopStageBWholeSourceProducerV1::select(request).expect("unique selection") {
-            PreloopStageBWholeSourceDispositionV1::Selected(selected) => selected,
-            other => panic!("expected selected source, got {other:?}"),
-        }
+        PreparedSelectedPreloopStageBWholeSourceV1::from_exact_test_parts(
+            request,
+            crate::mir::preloop_stageb_carrier::test_support::actual_parser_activation_plan(),
+        )
     }
 
     fn prepared_builder() -> MirBuilder {
@@ -247,20 +241,18 @@ box Caller {
         assert!(builder
             .comp_ctx
             .callable_declaration_catalog_is_shared_with(installed.ledger.context().catalog()));
-        assert_eq!(installed.ledger.row().caller().owner(), "Caller");
+        assert_eq!(installed.ledger.row().caller().owner(), "ParserBox");
 
-        let completed = installed
+        let rejected = installed
             .lower_root(&mut builder)
-            .expect("post-install root kernel");
-        let _ = completed.result_value();
-        let rejected = completed.finish();
-        assert_eq!(
-            rejected.diagnostic_source_hint(),
-            Some("preinstalled-root.hako")
-        );
-        assert!(rejected
-            .bounded_report()
-            .contains("SelectedCallerNotObserved"));
+            .expect_err("real suffix remains the current Stage-B frontier");
+        let caller = rejected
+            .retained_completed_caller()
+            .expect("selected F6 draft was collected before the suffix frontier");
+        assert_eq!(caller.owner(), "ParserBox");
+        assert_eq!(caller.name(), "static_const_parse_add");
+        assert!(rejected.retains_invocation_state());
+        assert!(rejected.bounded_report().contains("MissingTransientType"));
         rejected.discard();
     }
 

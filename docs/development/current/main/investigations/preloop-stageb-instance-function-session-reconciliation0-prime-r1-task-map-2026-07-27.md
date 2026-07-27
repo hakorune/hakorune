@@ -722,7 +722,7 @@ inventory without a Builder field, source map, name scan, or second method
 lowering orchestration
 ```
 
-F7-1 status: closed
+F7 status: closed
 
 Landed evidence:
 
@@ -738,15 +738,25 @@ focused real root:
   observation count                                 = 1
   resulting function                                = Worker.run/1
 
-selected policy / catalog lookup                    = 0
-ledger transition                                   = 0
-collector admission                                 = 0
+exact canonical key issued by shared lifecycle      = 1
+second catalog lookup in selected port              = 0
+builder-owned Armed/InFlight/Completed/Rejected     = 1
+compiler transition ledger                          = 0
+F6 collector admission                              = exact 1
+collector policy                                    = LegacyReplaceWholePair
+selected failure -> ordinary lowering               = 0
+later root failure retains collected F6 owner
+  + invocation-local collector                      = 1
+payloadless externally observable InFlight          = 0
+selected identity drift before ordinary effects     = typed
+actual Parser selected function collected before
+  unchanged GenericLoop MissingTransientType        = green
 compile_request consumer                            = 0
 retry / fallback / catalog reseal                   = 0
 ```
 
 The sole next row is
-`PRELOOP-STAGEB-FUNCTION-ACTIVATION-LEDGER0-I0`.
+`PRELOOP-STAGEB-UNAVAILABLE-DISPOSITION0-S0`.
 
 ### F8 — compile-request production ingress
 

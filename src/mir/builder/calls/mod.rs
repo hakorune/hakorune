@@ -86,6 +86,10 @@ pub(in crate::mir::builder) use method_call_terminal::{
     emit_env_value_terminal_raw_v1, emit_global_value_terminal_raw_v1,
     emit_standard_value_terminal_raw_v1, emit_typeop_value_terminal_raw_v1,
 };
+pub(in crate::mir::builder) use preloop_stageb_instance_function_session::{
+    collect_preloop_stageb_instance_function_v1, CollectedPreloopStageBInstanceFunctionV1,
+    RejectedPreloopStageBInstanceFunctionCollectionV1,
+};
 #[cfg(test)]
 mod member_route_descent_tests;
 #[cfg(test)]

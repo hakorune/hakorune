@@ -1,61 +1,37 @@
-//! Stack-owned, payload-retaining function activation ledger.
+//! Thin compiler handoff to the builder-owned exact-function ledger.
 //!
-//! C4 has no exact-function production ingress. Only `Armed` and its
-//! unobserved terminal are real in this row; D1 adds the later transitions
-//! when their producers exist.
+//! The transition authority lives in `PreparedPreloopStageBFunctionActivationV1`.
+//! This wrapper only preserves the selected module-install boundary.
 
-use crate::mir::builder::preloop_stageb_context_install::InstalledPreloopStageBContextV1;
+use crate::mir::builder::{
+    preloop_stageb_context_install::InstalledPreloopStageBContextV1,
+    PreparedPreloopStageBFunctionActivationV1,
+};
 use crate::mir::preloop_stageb_carrier::{
     OwnedPreloopStageBCarrierRowV1, PreparedPreloopStageBActivationLedgerPartsV1,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum PreloopStageBFunctionActivationLedgerErrorV1 {
-    SelectedCallerNotObserved,
-}
-
 #[derive(Debug)]
 pub(super) struct PreloopStageBFunctionActivationLedgerV1 {
-    armed: PreparedPreloopStageBActivationLedgerPartsV1,
+    prepared: PreparedPreloopStageBFunctionActivationV1,
 }
 
 impl PreloopStageBFunctionActivationLedgerV1 {
-    pub(super) const fn armed(armed: PreparedPreloopStageBActivationLedgerPartsV1) -> Self {
-        Self { armed }
+    pub(super) fn armed(armed: PreparedPreloopStageBActivationLedgerPartsV1) -> Self {
+        Self {
+            prepared: PreparedPreloopStageBFunctionActivationV1::armed(armed),
+        }
     }
 
     pub(super) fn context(&self) -> &InstalledPreloopStageBContextV1 {
-        self.armed.context()
+        self.prepared.context()
     }
 
     pub(super) fn row(&self) -> &OwnedPreloopStageBCarrierRowV1 {
-        self.armed.row()
+        self.prepared.row()
     }
 
-    pub(super) fn finish(self) -> RejectedPreloopStageBFunctionActivationV1 {
-        RejectedPreloopStageBFunctionActivationV1 {
-            armed: self.armed,
-            cause: PreloopStageBFunctionActivationLedgerErrorV1::SelectedCallerNotObserved,
-        }
-    }
-}
-
-#[derive(Debug)]
-pub(super) struct RejectedPreloopStageBFunctionActivationV1 {
-    armed: PreparedPreloopStageBActivationLedgerPartsV1,
-    cause: PreloopStageBFunctionActivationLedgerErrorV1,
-}
-
-impl RejectedPreloopStageBFunctionActivationV1 {
-    pub(super) const fn cause(&self) -> PreloopStageBFunctionActivationLedgerErrorV1 {
-        self.cause
-    }
-
-    pub(super) fn row(&self) -> &OwnedPreloopStageBCarrierRowV1 {
-        self.armed.row()
-    }
-
-    pub(super) fn discard(self) {
-        let _ = self.armed;
+    pub(super) fn into_prepared(self) -> PreparedPreloopStageBFunctionActivationV1 {
+        self.prepared
     }
 }

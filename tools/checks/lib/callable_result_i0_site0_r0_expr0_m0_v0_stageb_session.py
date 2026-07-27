@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Guard the F6 session and F7 stack-scoped instance-method capture seam."""
+"""Guard the F6 session and sole F7 exact-function activation owner."""
 
 from __future__ import annotations
 
@@ -39,6 +39,9 @@ def check_stageb_session(root: Path) -> None:
     completion_path = "src/mir/builder/port_aware_function_draft_impl.rs"
     lifecycle_path = "src/mir/builder/module_lifecycle.rs"
     lifecycle_tests_path = "src/mir/builder/module_lifecycle_capture_tests.rs"
+    collector_path = f"{base}/collector_terminal.rs"
+    activation_path = "src/mir/builder/preloop_stageb_function_activation.rs"
+    compiler_ledger_path = "src/mir/compiler/legacy_module_activation/ledger.rs"
 
     session = read(root, session_path)
     rejection = read(root, rejection_path)
@@ -47,6 +50,9 @@ def check_stageb_session(root: Path) -> None:
     completion = read(root, completion_path)
     lifecycle = read(root, lifecycle_path)
     lifecycle_tests = read(root, lifecycle_tests_path)
+    collector = read(root, collector_path)
+    activation = read(root, activation_path)
+    compiler_ledger = read(root, compiler_ledger_path)
     session_code = code(session)
     rejection_code = code(rejection)
 
@@ -179,6 +185,57 @@ def check_stageb_session(root: Path) -> None:
     ):
         fail("missing F7 behavior-neutral capture-seam proof")
 
+    for needle, label in (
+        (
+            "struct CollectedPreloopStageBInstanceFunctionV1",
+            "F7 collected function owner",
+        ),
+        (
+            "fn collect_preloop_stageb_instance_function_v1(",
+            "F7 sole collector terminal",
+        ),
+        (
+            "enum PreloopStageBFunctionActivationStateV1",
+            "F7 sole transition state",
+        ),
+        (
+            "struct PreparedPreloopStageBFunctionActivationV1",
+            "F7 stack-owned ledger",
+        ),
+        (
+            "lower_root_with_preloop_stageb_function_activation_v1(",
+            "F7 selected root terminal",
+        ),
+    ):
+        require_count(collector + activation, needle, 1, label)
+
+    for state in ("Armed(", "InFlight", "Completed(", "Rejected {"):
+        if state not in activation:
+            fail(f"missing F7 retained ledger state: {state}")
+    for forbidden in ("enum PreloopStageBFunctionActivationLedgerErrorV1", "SelectedCallerNotObserved"):
+        if forbidden in compiler_ledger:
+            fail(f"compiler ledger duplicated F7 transition authority: {forbidden}")
+    for evidence in (
+        "exact_key_is_claimed_once_and_duplicate_claim_is_typed",
+        "selected_identity_drift_rejects_before_consuming_armed_owner",
+    ):
+        if evidence not in activation:
+            fail(f"missing F7 exact-ledger evidence: {evidence}")
+
+    activation_consumers = 0
+    for path in (root / "src/mir").rglob("*.rs"):
+        if path == root / activation_path or path.name.endswith("_tests.rs"):
+            continue
+        activation_consumers += code(path.read_text(encoding="utf-8")).count(
+            "lower_root_with_preloop_stageb_function_activation_v1("
+        )
+    if activation_consumers != 1:
+        fail(f"F7 selected root consumers: expected=1 actual={activation_consumers}")
+
+    compiler_text = read(root, "src/mir/compiler/mod.rs")
+    if "PreloopStageBWholeSourceProducerV1::select(" in code(compiler_text):
+        fail("F7 must keep compile_request production selector callers at zero")
+
     touched = (
         session_path,
         rejection_path,
@@ -187,6 +244,9 @@ def check_stageb_session(root: Path) -> None:
         completion_path,
         lifecycle_path,
         lifecycle_tests_path,
+        collector_path,
+        activation_path,
+        compiler_ledger_path,
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_v0_stageb_session.py",
     )
     oversized = [relative for relative in touched if len(read(root, relative).splitlines()) >= 800]

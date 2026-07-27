@@ -50,7 +50,8 @@
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
 use super::{
-    BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirModule, MirType, ValueId,
+    BasicBlockId, CanonicalSameModuleCallableKeyV1, EffectMask, FunctionSignature, MirInstruction,
+    MirModule, MirType, SameModuleCallableNamespaceV1, ValueId,
 };
 use crate::ast::ASTNode;
 use crate::config;
@@ -70,10 +71,11 @@ use super::type_hint_providers;
 /// One source-order instance-method terminal in the shared root-lowering
 /// kernel.
 ///
-/// The request keeps syntax transport only.  A selected Stage-B adapter may
-/// resolve its exact canonical key from the already-installed catalog; the
-/// ordinary adapter preserves the existing legacy terminal.
+/// The shared lifecycle issues the exact canonical key from the already
+/// installed catalog together with the syntax transport. Selected adapters do
+/// not perform a second lookup, while the ordinary adapter ignores the key.
 pub(in crate::mir::builder) struct InstanceMethodCaptureRequestV1 {
+    pub(in crate::mir::builder) canonical_key: CanonicalSameModuleCallableKeyV1,
     pub(in crate::mir::builder) owner: String,
     pub(in crate::mir::builder) method: String,
     pub(in crate::mir::builder) function_name: String,
@@ -104,17 +106,24 @@ impl InstanceMethodCapturePortV1 for OrdinaryInstanceMethodCapturePortV1 {
         builder: &mut super::MirBuilder,
         request: InstanceMethodCaptureRequestV1,
     ) -> Result<(), String> {
-        builder.lower_method_as_function(
-            request.function_name,
-            request.owner,
-            request.params,
-            request.param_decls,
-            request.return_type_name,
-            request.body,
-            request.uses,
-            request.attrs,
-        )
+        lower_ordinary_instance_method_v1(builder, request)
     }
+}
+
+pub(in crate::mir::builder) fn lower_ordinary_instance_method_v1(
+    builder: &mut super::MirBuilder,
+    request: InstanceMethodCaptureRequestV1,
+) -> Result<(), String> {
+    builder.lower_method_as_function(
+        request.function_name,
+        request.owner,
+        request.params,
+        request.param_decls,
+        request.return_type_name,
+        request.body,
+        request.uses,
+        request.attrs,
+    )
 }
 
 impl super::MirBuilder {
@@ -391,6 +400,25 @@ impl super::MirBuilder {
                                 } = mast
                                 {
                                     if !*is_static {
+                                        let canonical_key = self
+                                            .comp_ctx
+                                            .callable_declaration_catalog()
+                                            .map_err(|error| error.to_string())?
+                                            .declaration_for(
+                                                SameModuleCallableNamespaceV1::InstanceBoxMethod,
+                                                name,
+                                                mname,
+                                                params.len(),
+                                            )
+                                            .ok_or_else(|| {
+                                                format!(
+                                                    "[freeze:contract][mir/instance-capture/catalog] \
+                                                     missing exact declaration for {name}.{mname}/{}",
+                                                    params.len()
+                                                )
+                                            })?
+                                            .key()
+                                            .clone();
                                         let func_name = format!(
                                             "{}.{}{}",
                                             name,
@@ -400,6 +428,7 @@ impl super::MirBuilder {
                                         instance_methods.lower_instance_method(
                                             self,
                                             InstanceMethodCaptureRequestV1 {
+                                                canonical_key,
                                                 owner: name.clone(),
                                                 method: mname.to_owned(),
                                                 function_name: func_name,

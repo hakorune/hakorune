@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-INSTANCE-METHOD-CAPTURE-SEAM0-S0 is closed. The shared post-catalog root kernel now lends every source-order instance method to one stack-scoped InstanceMethodCapturePortV1. The ordinary adapter delegates to the existing lower_method_as_function terminal, and a focused real root proves exactly one Worker.run/1 observation and unchanged function materialization. Selected policy, catalog lookup, ledger transitions, collector admission, compile_request consumers, retry/fallback, and module publication remain zero. The active row is PRELOOP-STAGEB-FUNCTION-ACTIVATION-LEDGER0-I0."
+status = "PRELOOP-STAGEB-FUNCTION-ACTIVATION-LEDGER0-I0/P0/G0 is closed. The shared lifecycle issues one exact catalog key per instance-method request; the builder-owned stack ledger is the sole Armed/InFlight/Completed/Rejected authority; the compiler ledger is a thin handoff; and the completed F6 draft enters the existing invocation-local collector exactly once. Exact identity drift rejects before ordinary effects, selected failure never retries ordinary lowering, and a later unchanged GenericLoop MissingTransientType failure retains both the collected F6 owner and invocation state. compile_request production consumers remain zero. The active row is PRELOOP-STAGEB-UNAVAILABLE-DISPOSITION0-S0."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-FUNCTION-ACTIVATION-LEDGER0-I0"
-current_execution_summary = "Add the stack-owned exact-caller ledger over the closed capture seam and real F6 session: key mismatch remains Ordinary without consumption; the first exact key moves Armed -> InFlight -> Completed(F6 receipt) or Rejected(retained F6 owner); missing and duplicate exact observations are typed. Keep the ledger outside Builder fields and keep compile_request, retry/fallback, catalog reseal, and module publication at zero."
+current_execution_row = "PRELOOP-STAGEB-UNAVAILABLE-DISPOSITION0-S0"
+current_execution_summary = "Refine the already-existing one-pass Legacy selector only: preserve true zero as NoExactCandidate, retain the deterministic first bounded proof-unavailable stage as ExactCandidateProofUnavailable(stage), and keep alias/identity invariants as typed rejection. Do not add a second AST traversal, rebuild inventory/module activation, or connect compile_request."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -638,7 +638,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-FUNCTION-ACTIVATION-LEDGER0-I0"
+current_blocker_token = "PRELOOP-STAGEB-UNAVAILABLE-DISPOSITION0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
