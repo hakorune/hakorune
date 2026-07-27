@@ -235,6 +235,27 @@ impl CompilationContext {
         Ok(())
     }
 
+    pub(in crate::mir::builder) fn callable_declaration_catalog_lane_is_vacant(&self) -> bool {
+        self.callable_declaration_catalog.is_none()
+    }
+
+    pub(in crate::mir::builder) fn using_import_boxes_are_vacant(&self) -> bool {
+        self.using_import_boxes.is_empty()
+    }
+
+    pub(in crate::mir::builder) fn using_import_boxes_match<'a>(
+        &self,
+        expected_count: usize,
+        mut expected: impl Iterator<Item = (&'a str, &'a str)>,
+    ) -> bool {
+        self.using_import_boxes.len() == expected_count
+            && expected.all(|(alias, owner)| {
+                self.using_import_boxes
+                    .get(alias)
+                    .is_some_and(|installed| installed == owner)
+            })
+    }
+
     pub(in crate::mir::builder) fn raw_root_environment_lanes_vacant(
         &self,
         route: super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1,

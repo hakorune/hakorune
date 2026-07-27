@@ -50,6 +50,18 @@ impl LegacyWholeSourceCompileRequestV1 {
         self.imports.verify_alias_view(declarations)
     }
 
+    pub(super) const fn imports_are_explicit(&self) -> bool {
+        self.imports.is_explicit()
+    }
+
+    pub(super) fn import_count(&self) -> usize {
+        self.imports.len()
+    }
+
+    pub(super) fn import_entries(&self) -> impl Iterator<Item = (&str, &str)> {
+        self.imports.entries()
+    }
+
     pub(super) fn discard(self) {}
 }
 

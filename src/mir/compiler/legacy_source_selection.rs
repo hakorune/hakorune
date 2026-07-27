@@ -59,6 +59,24 @@ impl PreparedSelectedPreloopStageBWholeSourceV1 {
         self.request.diagnostic_source_hint()
     }
 
+    pub(super) fn prepare_module_activation(
+        self,
+        builder: &crate::mir::builder::MirBuilder,
+    ) -> Result<
+        super::legacy_module_activation::PreparedPreloopStageBModuleActivationV1,
+        super::legacy_module_activation::RejectedPreloopStageBModuleActivationV1,
+    > {
+        super::legacy_module_activation::prepare_preloop_stageb_module_activation_v1(self, builder)
+    }
+
+    pub(super) fn import_expectation(&self) -> (bool, usize, impl Iterator<Item = (&str, &str)>) {
+        (
+            self.request.imports_are_explicit(),
+            self.request.import_count(),
+            self.request.import_entries(),
+        )
+    }
+
     pub(super) fn discard(self) {
         let Self {
             request,

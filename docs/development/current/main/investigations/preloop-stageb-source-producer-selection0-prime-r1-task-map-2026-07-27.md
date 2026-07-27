@@ -347,10 +347,12 @@ fallback / retry                                   = 0
 
 ### Commit C1 — `PRELOOP-STAGEB-MODULE-ACTIVATION0-S0-A`
 
+Status: closed.
+
 Add the sole consuming preparation terminal:
 
 ```text
-VerifiedPreloopStageBCarrierActivationPlanV1
+PreparedSelectedPreloopStageBWholeSourceV1
   -> PreparedPreloopStageBModuleActivationV1
 ```
 
@@ -369,8 +371,7 @@ Preflight before any install:
 candidate module and physical main exist
 callable catalog lane is vacant
 alias lane is vacant or exactly compatible
-selected caller and target remain members of the catalog
-activation ledger is Armed
+complete immutable activation plan remains retained
 ```
 
 Do not expose a general public `into_parts()` tuple. Catalog and row leave the
@@ -382,6 +383,22 @@ Any preparation rejection is:
 RejectedPreloopStageBModuleActivationV1
   retains complete selected request + catalog + aliases + row
 ```
+
+Landed refinement:
+
+```text
+candidate-shell observer                        = read-only 1
+physical main/0 + entry-block readiness         = sealed
+catalog lane vacant                             = required
+alias lane vacant or exact compatible           = required
+caller/target membership re-inference            = 0
+ledger construction                              = deferred to C3
+install / lower / production caller              = 0
+```
+
+Caller/target membership and the armed row already live inside the immutable
+activation plan. C1 therefore does not reopen those source truths; it proves
+only that the already-open Builder shell is safe to receive the plan later.
 
 ### Commit C2 — `LOWER-ROOT-POST-INSTALL-KERNEL0-S0`
 

@@ -60,28 +60,26 @@ impl CompilerSuppliedStaticImportSnapshotV1 {
         Ok(Self::Explicit(imports))
     }
 
-    #[cfg(test)]
-    const fn is_explicit(&self) -> bool {
+    pub(super) const fn is_explicit(&self) -> bool {
         matches!(self, Self::Explicit(_))
     }
 
-    #[cfg(test)]
-    fn len(&self) -> usize {
+    pub(super) fn len(&self) -> usize {
         match self {
             Self::None => 0,
             Self::Explicit(imports) => imports.len(),
         }
     }
 
-    fn entries(&self) -> impl Iterator<Item = (&str, &str)> {
-        let imports = match self {
-            Self::None => None,
-            Self::Explicit(imports) => Some(imports),
-        };
-        imports
-            .into_iter()
-            .flat_map(BTreeMap::iter)
-            .map(|(alias, owner)| (alias.as_ref(), owner.as_ref()))
+    pub(super) fn entries(&self) -> Box<dyn Iterator<Item = (&str, &str)> + '_> {
+        match self {
+            Self::None => Box::new(std::iter::empty()),
+            Self::Explicit(imports) => Box::new(
+                imports
+                    .iter()
+                    .map(|(alias, owner)| (alias.as_ref(), owner.as_ref())),
+            ),
+        }
     }
 
     pub(super) fn verify_alias_view<'catalog>(

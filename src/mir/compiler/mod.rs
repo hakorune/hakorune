@@ -30,6 +30,7 @@ pub(in crate::mir) mod capability;
 #[allow(dead_code)]
 pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;
+mod legacy_module_activation;
 #[allow(dead_code)]
 mod legacy_source_selection;
 #[allow(dead_code)]
