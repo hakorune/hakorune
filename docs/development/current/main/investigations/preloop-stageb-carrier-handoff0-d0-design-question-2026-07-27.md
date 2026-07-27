@@ -1,11 +1,15 @@
 ---
-Status: design consultation required
+Status: accepted design and execution task order
 Date: 2026-07-27
-Decision: PRELOOP-STAGEB-CARRIER-HANDOFF0-D0
+Decision: PRELOOP-STAGEB-CARRIER-HANDOFF0-prime-r1
+Closes:
+  - PRELOOP-STAGEB-CARRIER-HANDOFF0-D0
 Closes observation row:
   - CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0
 Observed frontier:
   - ProductionCarrierHandoffMissing
+First executable row:
+  - PRELOOP-STAGEB-CARRIER-CORRESPONDENCE0-P0
 Related:
   - preloop-physical-route-reconciliation0-task-order-2026-07-27.md
   - stageb-generic-loop-transient-type-d0-design-question-2026-07-26.md
@@ -16,9 +20,611 @@ Related:
 
 # Pre-loop Stage-B Carrier Handoff Design Question
 
-## Consultation stop
+## Accepted closeout
 
-The exact Stage-B guard was rerun after TYPE-I0-G0:
+```text
+Q1 source activation:
+  A-prime
+  separate owned one-row pre-loop carrier activation plan
+
+Q2 function-scoped handoff:
+  existing legacy function transaction
+  + existing port-aware draft/body preparation seams
+  + exact selected instance-method body-handoff sibling
+
+  RawInvocationChildPortV1 / collector publication cutover:
+    rejected by post-answer code audit
+
+Q3 outer carrier receipt:
+  CompletedPreloopOuterCarrierCallV1
+  owns the actual successful outer generic Call receipt
+
+Q4 outer result authority:
+  existing static exact-i64 result proof
+  + exact structural CallArgument(1)
+  + sealed inner exact-i64 contract
+  -> bounded outer Integer contract
+
+Q5 publication:
+  existing TypeFactDecisionV1
+  + existing TypeContext::set_type
+  -> success-only publication to the assignment-published outer carrier
+```
+
+The current inner receipt and TYPE-I0 remain internally valid for the selected
+inner `me.static_const_eval_pos(ret)` call. They are not the outer carrier
+authority and must never be reused as one.
+
+The accepted chain is:
+
+```text
+one exact declaration-catalog allocation
+  -> borrowed outer static-result proof
+  -> structural CallArgument(1)
+  -> sealed inner Integer contract
+  -> PreparedPreloopStageBCarrierRowsV1
+  -> VerifiedPreloopStageBCarrierActivationPlanV1
+  -> one module install of the existing callable catalog
+  -> one exact selected instance-method capture
+  -> Body(3) prefix / selected assignment / suffix handoff
+  -> successful inner physical Call receipt
+  -> successful outer physical Call receipt
+  -> assignment destination correspondence
+  -> TypeFactDecisionV1
+  -> TypeContext::set_type(assigned_outer_carrier, Integer)
+  -> existing GenericLoop consumer
+```
+
+### Selected authorities
+
+```text
+source/catalog identity:
+  VerifiedSameModuleCallableDeclarationCatalogV1
+
+static outer result evidence:
+  VerifiedSameModuleCallableResultCatalogV1
+  projected as one bounded exact-i64 requirement
+
+inner instance result:
+  SealedNestedInstanceResultContractV1
+
+source navigation:
+  existing SourcePathV1 / child-role / Raw callable-source view
+
+function lifecycle:
+  existing CanonicalFunctionLoweringSessionV1
+  existing skeleton/signature/parameter/finalizer owners
+  bounded port-aware body descent sibling
+
+function publication:
+  existing current-module draft publication after session success
+
+physical Call:
+  existing UnifiedCallEmitterBox writer
+  existing CompletedUnifiedValueCallEmissionV1
+
+type fact decision:
+  existing TypeFactDecisionV1
+
+type fact commit:
+  existing TypeContext::set_type
+
+GenericLoop:
+  consumer only
+```
+
+### Explicit non-authorities
+
+```text
+callee or Box spelling
+the inner destination as the outer destination
+runtime values
+GenericLoop use
+Builder-wide source registries
+persistent SourceExprSite -> ValueId maps
+AST re-walk or catalog reseal
+direct value_types insertion
+fallback, retry, or route reselection
+```
+
+## Exact accepted products
+
+### Source result contract
+
+The first bounded contract accepts only:
+
+```text
+outer target result:
+  ExactI64
+
+required argument set:
+  exactly [structurally issued CallArgument(1)]
+
+selected argument:
+  same source-view child as the sealed inner contract
+
+inner result:
+  unconditional ExactI64
+```
+
+The source-result module may issue a small borrowed requirement view, but the
+new activation owner must not retain the complete borrowed result catalog or
+create a second general result solver.
+
+```rust
+VerifiedStaticExactI64RequirementV1<'result>
+SealedPreloopOuterCarrierResultContractV1
+```
+
+The exact existing evidence path is:
+
+```text
+targets.target(caller, outer_site)
+  -> source_target.target()
+  -> results.disposition(target_key)
+  -> required_i64_arguments() == [1]
+```
+
+`results.call_result(caller, outer_site)` is intentionally absent for this
+nested-instance argument and must not be synthesized. The current exact
+target/result construction is test-only; RESULT-CONTRACT0-S0 must add one
+bounded real-source producer before the owned activation can seal.
+
+Any required set other than exact `[1]`, a foreign catalog allocation, or a
+non-Integer inner contract is a typed pre-Builder rejection.
+
+### Owned activation
+
+```rust
+PreparedPreloopStageBCarrierRowsV1
+OwnedPreloopStageBCarrierRowV1
+VerifiedPreloopStageBCarrierActivationPlanV1
+```
+
+The borrowed proof phase copies only canonical keys, structural source sites,
+the selected argument ordinal, the bounded result disposition, and the body
+handoff. It then drops every borrow before sealing beside the same boxed
+declaration catalog allocation.
+
+The only module terminal consumes the plan:
+
+```text
+boxed declaration catalog
+  -> existing callable-catalog install
+
+owned one-row activation
+  -> module-scoped single-use ledger
+  -> exact selected function
+```
+
+No activation row is stored in `MirBuilder`.
+
+### Function ingress and body schedule
+
+Post-answer code audit found that directly selecting
+`RawInvocationChildPortV1::capture_instance_box_method_pending_v1` would also
+select an invocation-local `ModuleDraftCollectorV1`, collector-backed header
+lookup, pending-session admission, and collector publication. The exact
+Stage-B legacy caller owns none of those. Direct RawInvocation selection would
+therefore be a publication/header-authority cutover rather than a bounded
+function handoff.
+
+```text
+RawInvocationChildPortV1 direct Stage-B consumer = 0
+ModuleDraftCollectorV1 Stage-B owner              = 0
+collector-backed header lookup                    = 0
+```
+
+The accepted Q2 intent is retained through one selected sibling under the
+current legacy function transaction:
+
+```text
+module_lifecycle root-local owned selector
+  -> exact canonical function key
+  -> lower_method_as_function_with_preloop_stageb_handoff_v1
+  -> existing CanonicalFunctionLoweringSessionV1
+  -> shared instance-method preparation
+  -> exact Body(3) body handoff
+  -> existing finalizer
+  -> existing current-module draft publication
+```
+
+Shared preparation reuses:
+
+```text
+create_method_skeleton
+declared signature
+setup_method_params
+StepTree guard
+existing header lookup authority
+existing finalizer
+```
+
+Ordinary instance methods continue through their existing route. Selection is
+by the catalog-issued canonical function key exactly once. A selected failure
+must not retry through ordinary or legacy lowering.
+
+`build_instance_method_draft_v1` and
+`build_instance_method_draft_with_port_v1` may share a private preparation
+core, but the selected sibling must not adopt the RawInvocation collector or
+pending-session terminal. This is a behavior-neutral BoxShape extraction
+before the selected body handoff is connected.
+
+The source-issued body handoff fixes:
+
+```text
+prefix:
+  Body(0..3), ordinary existing Port
+
+selected:
+  exact Body(3) assignment/RHS
+  candidate pre-loop Port
+
+suffix:
+  Body(4..), ordinary existing Port
+  GenericLoop sees the committed outer fact
+```
+
+The integer `3` is not caller authority. The existing source-path/body-child
+machinery issues the prefix, selected statement, and suffix relation.
+
+### Outer receipt and assignment
+
+```rust
+CompletedPreloopOuterCarrierCallV1
+CompletedVariableAssignmentV1
+CompletedPreloopCarrierAssignmentV1
+```
+
+`CompletedPreloopOuterCarrierCallV1` retains:
+
+```text
+exact source evidence
+successful inner physical receipt
+bounded outer Integer contract
+successful outer physical Call receipt
+```
+
+Its public destination is the outer physical receipt's final destination.
+The inner destination is test-only correspondence evidence.
+
+The existing assignment completion may project the RHS through
+`LocalContractWrite` before publishing it to `variable_map`. Therefore the
+outer Call receipt alone is not the assignment/GenericLoop carrier receipt.
+
+A source-neutral private sibling of the existing assignment driver retains:
+
+```rust
+CompletedVariableAssignmentV1 {
+    rhs_destination,
+    assigned_destination,
+}
+```
+
+The ordinary facade continues returning only `assigned_destination`.
+The bounded pre-loop path consumes the completion receipt and requires:
+
+```text
+rhs_destination == outer final destination
+assigned_destination == outer final destination
+```
+
+The second equality is a bounded property of the current untyped `pos` row,
+not a general assignment law. A `LocalContractWrite` projection or any other
+destination drift rejects this row before type publication; it must not be
+silently followed or generalized.
+
+`CompletedPreloopCarrierAssignmentV1` then co-seals the outer receipt with the
+assignment completion. GenericLoop correspondence is proved against the
+assigned destination actually stored in `variable_map`, never by assuming the
+RHS destination survived assignment.
+
+### Outer type publication
+
+No second type-policy D0 is required when the first correspondence row proves
+the exact `[Argument(1)] -> Integer` result contract.
+
+```text
+None / Unknown:
+  Publish(Integer)
+
+Integer:
+  Idempotent
+
+other concrete fact:
+  Conflict
+
+failed inner/outer Call or absent receipt:
+  publication zero
+```
+
+The commit writes only the assignment-published outer carrier through the
+existing `TypeContext::set_type`. For this bounded row correspondence must
+prove that it is the same `ValueId` as the outer physical destination. The
+current inner TYPE-I0 has no production role in the outer carrier chain.
+
+## Executable series
+
+### 1. `PRELOOP-STAGEB-CARRIER-CORRESPONDENCE0-P0`
+
+Read-only/code-facing proof:
+
+```text
+inner destination != outer destination
+outer destination == assignment result
+outer destination == GenericLoop init carrier
+outer static result == ExactI64(required=[Argument(1)])
+current activation production consumer == 0
+current inner TYPE-I0 production consumer == 0
+```
+
+If the exact required set cannot be proved, stop at a new result-contract D0.
+Do not widen the solver or infer from names.
+
+### 2. `PRELOOP-OUTER-CARRIER-RESULT-CONTRACT0-S0`
+
+Builder-free source proof:
+
+```text
+VerifiedStaticExactI64RequirementV1
+SealedPreloopOuterCarrierResultContractV1
+typed foreign-catalog / ordinal / result mismatch
+```
+
+### 3. `PRELOOP-STAGEB-SOURCE-ACTIVATION0-S0`
+
+Owned, non-Clone, one-row activation:
+
+```text
+PreparedPreloopStageBCarrierRowsV1
+OwnedPreloopStageBCarrierRowV1
+VerifiedPreloopStageBCarrierActivationPlanV1
+```
+
+Production consumer remains zero through this row.
+
+### 4. `PRELOOP-STAGEB-FUNCTION-INGRESS0-I0`
+
+Connect exactly one selected instance method:
+
+```text
+catalog install once
+function selection once
+legacy function transaction once
+selected lower_method_as_function_with_preloop_stageb_handoff_v1
+prefix / selected / suffix body handoff
+production consumer exactly one
+ordinary route delta zero
+RawInvocation/collector cutover zero
+```
+
+### 5. `UNIFIED-CALL-OUTER-CARRIER-RECEIPT0-S0`
+
+Add one source-neutral receipt-returning sibling for the outer static/global
+value terminal. It must call the existing generic physical writer and expose
+only `CompletedUnifiedValueCallEmissionV1`.
+
+### 6. `PRELOOP-OUTER-CARRIER-RECEIPT0`
+
+```text
+I0:
+  pair inner + outer physical receipts with the bounded source contract
+
+P0:
+  inner failure / outer failure / alternate route / assignment mismatch
+
+G0:
+  one outer receipt producer, no inner-as-outer conversion
+```
+
+### 7. `PRELOOP-OUTER-CARRIER-ASSIGNMENT0-S0`
+
+Add one source-neutral assignment-completion sibling and one bounded pre-loop
+co-seal:
+
+```text
+rhs destination
+assigned destination
+variable_map publication
+outer physical destination
+```
+
+The current row accepts exact identity only. Typed-local projection remains an
+explicit rejection and no general assignment-result typing is introduced.
+
+### 8. `PRELOOP-OUTER-CARRIER-TYPE-I0`
+
+```text
+S0:
+  prepare-only outer publication owner
+
+I0:
+  success-only outer destination commit
+
+P0:
+  None / Unknown / Integer / conflict / failed-Call matrix
+
+G0:
+  one production outer publisher; direct map insert zero
+```
+
+### 9. `CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0`
+
+Only after the preceding rows:
+
+```bash
+bash tools/checks/generic_loop_progression_role_v0_guard.sh
+```
+
+Do not change the guard's expected frontier before the implementation reaches
+it. The new actual output selects the next blocker.
+
+## Buildable commit plan
+
+```text
+Commit A:
+  CORRESPONDENCE0-P0
+  + bounded exact-static requirement projection
+
+Commit B:
+  RESULT-CONTRACT0-S0
+  + owned SOURCE-ACTIVATION0-S0
+
+Commit C:
+  shared instance-method preparation extraction
+  + legacy/port-aware parity
+
+Commit D:
+  FUNCTION-INGRESS0-I0
+  + exact body handoff
+
+Commit E:
+  source-neutral outer receipt terminal
+  + outer carrier receipt
+  + source-neutral assignment completion
+
+Commit F:
+  bounded assignment correspondence
+  + outer TYPE-I0
+  + focused parity/reuse
+  + existing lane guard consolidation
+
+Commit G:
+  actual Stage-B rerun
+  + current pointer closeout
+```
+
+Every commit must build. BoxCount and BoxShape must not be mixed. If one
+commit exceeds a reviewable semantic boundary, split it without changing this
+owner order.
+
+## File placement and line budget
+
+Prefer small sibling modules:
+
+```text
+src/mir/preloop_stageb_carrier/
+  README.md
+  mod.rs
+  outer_result.rs
+  activation.rs
+  rejection.rs
+  tests.rs
+
+src/mir/builder/calls/
+  preloop_stageb_function_handoff.rs
+  preloop_outer_carrier_receipt.rs
+  preloop_outer_carrier_type.rs
+  preloop_outer_carrier_tests.rs
+
+src/mir/builder/stmts/
+  variable_assignment_completion.rs
+```
+
+Do not grow these near-cap files with new implementations:
+
+```text
+src/mir/builder/calls/lowering.rs
+src/mir/builder/calls/unified_emitter.rs
+src/mir/builder/recursive_child_lowering.rs
+tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_v0.py
+tools/checks/lib/mirbuilder_type_fact_partition_guard.py
+```
+
+They may receive only thin declarations/delegations when required. Every
+modified/new source or check file remains below 800 lines.
+
+## Proof budget and sunset
+
+```text
+ceremony_tier:
+  T2 new source activation and outer publication boundary
+
+sunset_id:
+  PRELOOP-INNER-TYPE-PROOF-SUNSET-001
+
+proof_inventory_before:
+  one test-only inner physical receipt chain
+  one test-only inner TYPE-I0 chain
+  one stale Stage-B guard expectation
+
+new_proofs:
+  one bounded outer result-contract proof
+  one owned activation proof
+  one outer physical/assignment receipt proof
+  one production outer publication proof
+
+retired_or_merged_proofs:
+  none before the outer production chain is green
+
+net_proof_delta:
+  temporarily positive for the T2 boundary
+
+sunset_budget:
+  repay after outer Stage-B publication is green
+
+sunset_row:
+  PRELOOP-INNER-TYPE-PROOF-RETIRE0-S0
+
+retire_when:
+  outer production publisher == 1
+  inner TYPE-I0 production consumer == 0
+  actual Stage-B guard no longer needs the proof-only inner publisher
+
+budget_repayment_evidence:
+  exact inner proof consumer census
+  actual Stage-B guard
+  focused outer publication parity/reuse matrix
+```
+
+No new per-row shell guard is authorized. Extend the existing call/source
+focused tests and the existing Stage-B guard only when its real expected
+frontier changes.
+
+## Verification
+
+At each buildable milestone:
+
+```bash
+cargo check --lib
+cargo test -q --lib source_instance_result_contract
+cargo test -q --lib callable_result_representation
+cargo test -q --lib preloop_nested_result
+cargo test -q --lib recursive_child_lowering_rawport
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+At the final Stage-B row:
+
+```bash
+bash tools/checks/generic_loop_progression_role_v0_guard.sh
+```
+
+Before every commit:
+
+```text
+protected dirty file:
+  src/mir/builder/calls/member_route_descent_tests.rs
+  must not be staged or edited
+
+parked stash:
+  stash@{0}: wip/preloop-rep0-generic-route-drift
+  must not be popped wholesale
+
+all modified/new source/check files:
+  less than 800 lines
+```
+
+```text
+docs_only_closeout = forbidden
+code_or_artifact_delta_required = 1
+```
+
+## Historical consultation basis
+
+The exact Stage-B guard was rerun after TYPE-I0-G0 before the accepted
+closeout:
 
 ```bash
 bash tools/checks/generic_loop_progression_role_v0_guard.sh
@@ -40,8 +646,9 @@ exact frontier is:
 ProductionCarrierHandoffMissing
 ```
 
-No implementation row is authorized until this D0 selects the source owner,
-the outer-carrier physical receipt, and the function-scoped consuming handoff.
+This observation prohibited implementation until the D0 selected the source
+owner, outer-carrier physical receipt, and function-scoped consuming handoff.
+The accepted closeout above now authorizes only the listed executable series.
 
 ## Factual correction
 
@@ -149,261 +756,43 @@ GenericLoop:
 This D0 must not create a second Call writer, type policy, source navigator, or
 GenericLoop publisher.
 
-## Q1 — source activation owner
+## Historical alternatives
 
-Which owner should convert the borrowed exact source evidence into a
-production-usable, owned, one-row activation plan before Builder effects?
-
-### A — separate owned pre-loop carrier activation plan
-
-Seal one owned row from the same declaration-catalog allocation:
+The consultation compared:
 
 ```text
-caller identity
-outer StaticReceiver call site
-structural CallArgument(1)
-inner same-owner MethodCall site
-exact inner Integer contract
-exact outer carrier result contract
+A:
+  separate owned one-row activation
+
+B:
+  widen the existing generic static activation plan
+
+C:
+  reconstruct source evidence during lowering
+
+D:
+  Builder registry or GenericLoop inference
 ```
 
-The plan owns the catalog until a consuming split/co-install terminal. The
-exact row then stays function-scoped and stack-scoped. It must also establish
-how one allocation supplies source association and lowering/header facts
-without borrowing a Builder-owned catalog across mutable lowering.
+A was accepted. B would mix static-result, nested-instance, and outer-carrier
+authority. C and D violate same-allocation source identity and consumer-only
+GenericLoop laws.
 
-### B — widen `VerifiedCallableResultActivationPlanV1`
-
-Add the outer-plus-nested relation to the existing static callable-result
-activation plan.
-
-This is acceptable only if the existing owner can represent the inner
-instance contract and the outer carrier relation without conflating static
-result authority, nested instance authority, or loop-refresh.
-
-### C — reconstruct inside method lowering
-
-Rescan the method AST, names, or source paths when lowering
-`ParserBox.static_const_parse_add/2`.
-
-This conflicts with the existing same-allocation source authority and is not
-recommended.
-
-### D — Builder registry or GenericLoop inference
-
-Store source-site metadata in `MirBuilder`, or let GenericLoop infer Integer
-from source/callee/runtime facts.
-
-This conflicts with the persistent-map and consumer-only laws and is not
-recommended.
-
-## Q2 — function-scoped handoff
-
-Where should the selected activation enter the actual instance-method route?
-
-Candidate seams:
-
-```text
-legacy production:
-  build_instance_method_draft_v1
-
-existing port-aware sibling:
-  build_instance_method_draft_with_port_v1
-
-both require:
-  -> skeleton/signature
-  -> setup_method_params
-  -> install exact function-scoped activation
-  -> body lowering through one scoped Port
-```
-
-Required properties:
-
-```text
-ordinary methods remain unchanged
-selected activation is consumed exactly once
-no optional override on the ordinary Raw port
-no Builder-wide source-site registry
-no second AST scan or catalog reseal
-failure cannot retry through ordinary lowering
-```
-
-The exact source/effect correspondence is rooted at the located Body(3)
-assignment/RHS boundary, not at the emitter and not at GenericLoop. The chosen
-function-scoped owner must preserve that assignment relation while delegating
-physical calls to the existing terminals.
-
-The decision must say whether to:
-
-```text
-select the existing port-aware Raw invocation owner for this exact function
-add a bounded port-aware sibling under the current legacy function session
-or place the activation in a separate outer function/body transaction
-```
-
-It must not silently reinterpret the exact guard as already using
-`RawInvocationChildPortV1`.
-
-## Q3 — outer carrier receipt
-
-What product proves that the actual outer `skip_ws` Call succeeded and exposes
-its final physical destination without reusing the inner receipt?
-
-Candidate shape:
-
-```rust
-CompletedPreloopOuterCarrierCallV1 {
-    nested_result_evidence,
-    outer_result_contract,
-    outer_physical_destination,
-}
-```
-
-Required temporal law:
-
-```text
-inner Call failure
-  -> outer receipt = 0
-
-outer Call failure
-  -> outer receipt = 0
-
-successful outer physical Call
-  -> exactly one outer carrier receipt
-
-receipt absent
-  -> outer Integer publication = 0
-```
-
-The existing unified Call writer remains the sole physical writer. The outer
-receipt may only be committed by the existing outer success branch.
-
-## Q4 — outer result authority
-
-Which sealed evidence proves that the outer `skip_ws` result is Integer?
-
-Candidates include:
-
-```text
-existing static callable-result activation evidence
-an exact projection from the owned pre-loop activation plan
-a new bounded outer-carrier contract
-```
-
-The answer must not infer the result from:
-
-```text
-callee or Box spelling
-the inner Integer argument
-runtime value
-GenericLoop use
-method-name policy
-```
-
-If the outer result needs a new fact policy, it must reuse
-`TypeFactDecisionV1` and `TypeContext::set_type` and open a separate
-`PRELOOP-OUTER-CARRIER-TYPE-I0-D0`.
-
-## Q5 — failure and publication law
-
-Required minimum:
-
-```text
-source/admission failure:
-  Builder effects = 0
-
-function ingress / route mismatch:
-  candidate function publication = 0
-  alternate route retry = 0
-
-inner or outer Call failure:
-  outer carrier receipt = 0
-  outer type write = 0
-
-type conflict:
-  existing concrete fact retained
-  candidate function/module publication = 0
-
-success:
-  outer destination receives one exact fact
-  GenericLoop only reads that fact
-```
-
-The retained rejection owner must keep the owned activation evidence until
-inspection and discard. It must not expose retry, resume, source recovery, or
-fallback.
-
-## Recommended task boundary after decision
-
-The exact task names may be adjusted by the accepted design, but the semantic
-order must remain:
-
-```text
-PRELOOP-STAGEB-CARRIER-CORRESPONDENCE0-P0
-  prove inner destination != outer carrier destination
-  freeze production consumer count = 0
-  mark the current Stage-B guard expectation as pre-activation evidence
-
--> PRELOOP-STAGEB-SOURCE-ACTIVATION0-S0
-   Builder-free owned source plan
-   production caller = 0
-
--> PRELOOP-STAGEB-FUNCTION-INGRESS0-I0
-   one exact instance-method consumer
-
--> PRELOOP-OUTER-CARRIER-RECEIPT0-S0
-   successful outer Call destination receipt
-
--> PRELOOP-OUTER-CARRIER-TYPE-I0-D0
-   only if outer fact disposition is not already sealed
-
--> PRELOOP-OUTER-CARRIER-TYPE-I0
-   one success-only fact publication
-
--> CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0
-   rerun the real Stage-B guard
-```
-
-## Structural gate
-
-```text
-same declaration-catalog allocation              = 1
-owned pre-loop activation producer               = 1
-exact instance-method activation consumer        = 1
-
-inner destination authority                      = existing 1
-outer carrier destination authority              = exact 1
-inner destination treated as outer               = 0
-
-physical Call writer                             = existing 1
-second Call writer                               = 0
-
-TypeFactDecisionV1 authority                     = existing 1
-TypeContext::set_type authority                  = existing 1
-direct type map insert                           = 0
-
-GenericLoop type producer                        = 0
-Builder source-site registry                     = 0
-persistent SourceExprSite -> ValueId map          = 0
-callee/Box-name selection                        = 0
-AST rewalk / catalog reseal                      = 0
-
-loop-refresh activation                          = 0
-ownership grammar activation                     = 0
-fallback / retry / route reselection             = 0
-
-all modified/new source/check files              < 800 lines
-```
+Post-answer code audit also rejected direct selection of
+`RawInvocationChildPortV1`: the exact Stage-B caller does not own its
+`ModuleLoweringPortV1`/collector/header/publication world. The accepted bounded
+implementation reuses only its port-aware preparation/descent pattern inside
+the current legacy function transaction.
 
 ## Non-claims
 
 ```text
-production activation selected before this D0
 current TYPE-I0 proves the outer carrier
 loop-refresh activation
 GenericLoop publisher migration
 general instance-call result inference
 general located lowering activation
+RawInvocation / ModuleDraftCollector cutover
 ownership syntax / Alias / View activation
 parser / Hako / VM / backend change
 default route cutover
