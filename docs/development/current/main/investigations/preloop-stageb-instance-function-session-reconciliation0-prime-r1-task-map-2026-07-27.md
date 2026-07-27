@@ -636,7 +636,10 @@ compile_request consumer                              = 0
 ### F7 — function activation ledger
 
 ```text
-PRELOOP-STAGEB-FUNCTION-ACTIVATION-LEDGER0-P0/G0
+PRELOOP-STAGEB-INSTANCE-METHOD-CAPTURE-SEAM0-S0
+-> PRELOOP-STAGEB-FUNCTION-ACTIVATION-LEDGER0-I0
+-> PRELOOP-STAGEB-FUNCTION-ACTIVATION-LEDGER0-P0
+-> PRELOOP-STAGEB-FUNCTION-ACTIVATION-LEDGER0-G0
 ```
 
 Only now add states with real producers:
@@ -648,10 +651,87 @@ Armed
  | Rejected(retained owner + typed cause)
 ```
 
+Current implementation fact:
+
+```text
+legacy_module_activation/ledger.rs:
+  Armed + SelectedCallerNotObserved only
+
+preinstalled-root lowering:
+  immutable installed context only
+  stack ledger is not threaded to the instance-method inventory
+
+F6 completed-function producer:
+  real and green
+```
+
+Buildable cells:
+
+```text
+F7-1 INSTANCE-METHOD-CAPTURE-SEAM0-S0
+  thread one mutable stack-scoped selection capability through the existing
+  post-install root kernel and instance-method inventory
+  ordinary roots and ordinary methods remain mechanically unchanged
+
+F7-2 FUNCTION-ACTIVATION-LEDGER0-I0
+  exact canonical caller key:
+    mismatch -> Ordinary without consumption
+    exact first observation -> Armed -> InFlight
+    F6 success -> Completed(exact unpublished function receipt)
+    F6 rejection -> Rejected(exact retained typed owner)
+
+F7-3 FUNCTION-ACTIVATION-LEDGER0-COMMIT0-I0
+  admit the completed F6 draft through the existing module-lowering
+  collector exactly once
+  no draft is visible before ledger completion
+
+F7-4 FUNCTION-ACTIVATION-LEDGER0-P0/G0
+  exact-once / missing / duplicate / F6 failure retention
+  ordinary method parity / fresh-ledger reuse / structural guard
+```
+
+Required fixtures:
+
+```text
+exact selected caller once        -> Completed(F6 receipt)
+non-selected instance method      -> existing ordinary lowering
+selected caller absent            -> SelectedCallerNotObserved
+selected caller observed twice    -> SelectedCallerConsumedTwice
+selected F6 failure               -> Rejected(retained F6 owner)
+failed ledger -> fresh ledger     -> success
+```
+
+Forbidden:
+
+```text
+Builder source-site field
+name or symbol scan
+payloadless Consumed / Poisoned
+reset / retry / resume / rearm
+selected failure -> ordinary lowering
+catalog reseal
+module publication before ledger completion
+compile_request consumer
+```
+
+F7 hard stop:
+
+```text
+the exact canonical key cannot be observed at the existing instance-method
+inventory without a Builder field, source map, name scan, or second method
+lowering orchestration
+```
+
 ### F8 — compile-request production ingress
 
 ```text
-PRELOOP-STAGEB-COMPILE-REQUEST-INGRESS0-I0
+PRELOOP-STAGEB-UNAVAILABLE-DISPOSITION0-S0/P0
+-> PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION-CORRESPONDENCE0-P0
+-> PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-D0
+-> PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-S0/P0/G0
+-> PRELOOP-STAGEB-LEGACY-WHOLE-SOURCE-REQUEST0-I0
+-> PRELOOP-STAGEB-LEGACY-ORDINARY0-P0
+-> PRELOOP-STAGEB-COMPILE-REQUEST-INGRESS0-I0
 -> PRELOOP-STAGEB-COMPILE-REQUEST-INGRESS0-P0/G0
 ```
 
@@ -664,6 +744,98 @@ Selected = exact Stage-B transaction
 selected failure -> no Ordinary retry
 ```
 
+Do not rebuild these already-closed prerequisites:
+
+```text
+typed compiler-supplied import snapshot
+owned Legacy whole-source request
+whole-source target and Stage-B candidate inventory
+explicit Zero / One / Many products
+explicit Ordinary / Selected disposition
+same-allocation selected activation
+atomic catalog + alias install
+preinstalled-root shell
+outer physical Call receipt
+assignment correspondence
+outer Integer publication
+```
+
+Buildable cells:
+
+```text
+F8-1 UNAVAILABLE-DISPOSITION0-S0/P0
+  retain the deterministic first bounded proof-unavailable stage in the
+  existing one-pass inventory
+  unrelated source -> NoExactCandidate
+  nested-looking but incomplete bounded proof
+    -> ExactCandidateProofUnavailable(stage)
+  import alias and identity invariants remain typed errors
+
+F8-2 SELECTED-CANDIDATE-SESSION-CORRESPONDENCE0-P0
+  inventory the exact candidate configuration and commit matrix
+  prove the current canonical and branded Raw sessions are not exact owners
+
+F8-3 mandatory SELECTED-CANDIDATE-SESSION0-D0
+  select one source-neutral isolated candidate owner before code connection
+
+F8-4 SELECTED-CANDIDATE-SESSION0-S0/P0/G0
+  candidate creation
+  -> existing prepare_module
+  -> activation preflight
+  -> same-allocation catalog + typed alias install
+  -> preinstalled root + completed F7 ledger
+  -> existing finalize_module / compiler postprocess
+  -> success-only live Builder replacement
+
+F8-5 LEGACY-WHOLE-SOURCE-REQUEST0-I0
+  MirLoweringRequestV1::Legacy carries the owned request
+  compile_with_source supplies None
+  compile_with_source_and_imports supplies Explicit
+  remove live Builder alias set/clear before selection
+
+F8-6 LEGACY-ORDINARY0-P0
+  None / Explicit(empty) / Explicit(map) parity
+  ProgramV0 / REPL / direct Builder callers unchanged
+
+F8-7 COMPILE-REQUEST-INGRESS0-I0/P0/G0
+  MirCompiler::compile_request Legacy arm is the sole selector consumer
+  0 -> Ordinary
+  1 -> Selected
+  many -> typed pre-Builder rejection
+  selected failure never retries Ordinary
+```
+
+The mandatory D0 must preserve:
+
+```text
+CoreContext continuation
+repl_mode
+quiet_internal_logs
+plugin_method_sigs
+diagnostic source hint
+typed aliases only through the selected activation transaction
+all failure -> isolated candidate drop
+all success -> one live Builder replacement
+```
+
+Known non-solutions:
+
+```text
+CanonicalModuleLoweringSessionV1
+  preserves quiet_internal_logs only
+
+ModuleBuilderInvocationSessionV1
+  preserves broader configuration
+  but requires a Raw/Canonical family token and brand
+
+install catalog/aliases before prepare_module
+  invalid because prepare_module clears candidate context
+```
+
+The D0 must choose a Builder-owned narrow prepare/root/finalize terminal or an
+equivalent source-neutral kernel. It must not duplicate the build algorithm or
+borrow Raw/canonical lifecycle authority.
+
 ### F9 — real Stage-B proof and retirement
 
 ```text
@@ -673,6 +845,19 @@ CALLABLE-RESULT-NESTED-PRELOOP-STAGEB0-P0
 
 Run the real progression guard only after F8. Do not change its expectation
 before the new producer is active and green.
+
+Exact order:
+
+```text
+1. run generic_loop_progression_role_v0_guard.sh unchanged
+2. retain the first actual result
+3. reconcile the guard expectation only from that observation
+4. run PRELOOP-INNER-TYPE-PROOF-CENSUS0-P0
+5. select the next frontier from the observed blocker
+```
+
+Do not preselect ownership grammar, loop-refresh, Alias/View, or another
+representation row before the unchanged guard names the next frontier.
 
 The census decides whether the old inner publisher remains a proof-only
 consumer or is retired. `PRELOOP-INNER-TYPE-PROOF-RETIRE0-S0` is executable

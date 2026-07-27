@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-P0/G0 is closed. The Phase-A-indexed actual Parser fixture completes one unpublished function with the exact inner-before-outer Call order, three physical parameters, distinct unannotated Unknown return metadata and Integer outer-carrier evidence, and exact parent restoration. A typed BodySchedule rejection without Phase A retains the completed carrier, publishes no draft, restores the same parent, and permits a fresh selected session on the same Builder to succeed after the existing declaration indexer runs. Generic payload cleanup regressions, the Stage-B session structural guard, cargo check, and surrounding Raw-port/outer-carrier tests are green. Activation ledger and production consumers remain zero. The active row is PRELOOP-STAGEB-FUNCTION-ACTIVATION-LEDGER0-P0."
+status = "PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-P0/G0 is closed. The Phase-A-indexed actual Parser fixture completes one unpublished function with the exact inner-before-outer Call order, three physical parameters, distinct unannotated Unknown return metadata and Integer outer-carrier evidence, and exact parent restoration. A typed BodySchedule rejection without Phase A retains the completed carrier, publishes no draft, restores the same parent, and permits a fresh selected session on the same Builder to succeed after the existing declaration indexer runs. Generic payload cleanup regressions, the Stage-B session structural guard, cargo check, and surrounding Raw-port/outer-carrier tests are green. Activation ledger and production consumers remain zero. The active row is PRELOOP-STAGEB-INSTANCE-METHOD-CAPTURE-SEAM0-S0."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-FUNCTION-ACTIVATION-LEDGER0-P0"
-current_execution_summary = "Close F7 with one stack-owned exact-caller ledger: Armed -> InFlight -> Completed(the real F6 function receipt) or Rejected(the retained typed F6 owner). Prove exact-once, missing caller, duplicate caller, failure retention, and fresh-ledger reuse. Keep ordinary methods unchanged and keep compile_request, Builder source-site fields, retry/fallback, and module publication at zero."
+current_execution_row = "PRELOOP-STAGEB-INSTANCE-METHOD-CAPTURE-SEAM0-S0"
+current_execution_summary = "First thread one mutable stack-scoped selection capability through the existing post-install root kernel and instance-method inventory without changing ordinary roots or methods. The seam must expose the exact canonical caller key to the later F7 ledger and nothing else. Do not add a Builder source field/map, name scan, second method-lowering orchestration, F6 draft publication, compile_request consumer, retry/fallback, or catalog reseal."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -638,7 +638,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-FUNCTION-ACTIVATION-LEDGER0-P0"
+current_blocker_token = "PRELOOP-STAGEB-INSTANCE-METHOD-CAPTURE-SEAM0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
