@@ -27,11 +27,12 @@ new owner
 ## Current front
 
 ```text
-CALLABLE-DRAFT-COLLECTOR-CUTOVER0-I0-R0
+MODULE-CANDIDATE-SESSION-CUTOVER0-I0-R0
 ```
 
-ordinary callable draftのpublicationを、既存のcomplete collector batchと
-atomic insertionへ交換する。Stage-B一行sessionは使わない。
+default compiler ingressのlive Builder mutationを、isolated candidateと
+success-only replacementへ交換する。既存Legacy lifecycle/verifierを再利用し、
+失敗時にlive Builderを変更しない。
 
 ## First three replacements
 
@@ -113,10 +114,10 @@ Keep only these counters current:
 
 ```text
 macro_packs_closed                 = 0 / 8
-live_replacement_cells_closed      = 1
-replacement_ledger_remaining       = 2 scheduled rows
-detached_assets_remaining          = 4 recorded rows
-legacy_production_edges_remaining  = 2 scheduled edges
+live_replacement_cells_closed      = 2
+replacement_ledger_remaining       = 1 scheduled row
+detached_assets_remaining          = 3 recorded rows
+legacy_production_edges_remaining  = 1 scheduled edge
 ```
 
 LOC and file counts are supporting evidence, not semantic authority. The
@@ -132,6 +133,14 @@ CALLABLE-DRAFT-PORT-CUTOVER0
   deleted old symbols      = 4
   deleted protocol shells  = 1
   production Rust LOC      = -202
+
+CALLABLE-DRAFT-COLLECTOR-CUTOVER0
+  ordinary collector callers = 1
+  direct publication callers = 0
+  partial publication         = 0
+  fallback / retry            = 0
+  production Rust LOC         = +153
+  two-cell rolling Rust LOC   = -49
 ```
 
 ## Parked

@@ -9,16 +9,30 @@ use super::calls::{
     collect_preloop_stageb_instance_function_v1, CollectedPreloopStageBInstanceFunctionV1,
     RejectedPreloopStageBInstanceFunctionCollectionV1,
 };
-use super::module_lifecycle::{
-    lower_ordinary_instance_method_v1, InstanceMethodCapturePortV1, InstanceMethodCaptureRequestV1,
-};
+use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::{ModuleLoweringInvocationV1, ModuleLoweringPortV1};
 use super::module_lowering_invocation_state::ModuleLoweringInvocationStateV1;
+use super::recursive_child_lowering::{
+    RawBoxMethodChildPortV1, RawInvocationChildPortV1, RecursiveChildLoweringPortV1,
+};
 use super::{CanonicalSameModuleCallableKeyV1, MirBuilder, ValueId};
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::mir::preloop_stageb_carrier::{
     PreparedPreloopStageBActivationLedgerPartsV1, PreparedPreloopStageBFunctionIngressV1,
 };
+
+struct InstanceMethodCaptureRequestV1 {
+    canonical_key: CanonicalSameModuleCallableKeyV1,
+    owner: String,
+    method: String,
+    function_name: String,
+    params: Vec<String>,
+    param_decls: Vec<ParamDecl>,
+    return_type_name: Option<String>,
+    body: Vec<ASTNode>,
+    uses: Vec<String>,
+    attrs: DeclarationAttrs,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum PreloopStageBFunctionActivationErrorV1 {
@@ -243,17 +257,136 @@ impl PreparedPreloopStageBFunctionActivationV1 {
     }
 }
 
-impl InstanceMethodCapturePortV1 for SelectedInstanceMethodCapturePortV1<'_, '_, '_> {
-    fn lower_instance_method(
+impl RawBoxMethodChildPortV1 for SelectedInstanceMethodCapturePortV1<'_, '_, '_> {
+    fn lower_static_main_box(
         &mut self,
         builder: &mut MirBuilder,
-        request: InstanceMethodCaptureRequestV1,
+        box_name: String,
+        methods: std::collections::HashMap<String, ASTNode>,
+    ) -> Result<ValueId, String> {
+        RawInvocationChildPortV1::new(self.module_port)
+            .lower_static_main_box(builder, box_name, methods)
+    }
+
+    fn lower_static_box_method(
+        &mut self,
+        builder: &mut MirBuilder,
+        function_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
     ) -> Result<(), String> {
-        let observed = request.canonical_key.clone();
+        RawInvocationChildPortV1::new(self.module_port).lower_static_box_method(
+            builder,
+            function_name,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
+    }
+
+    fn lower_instance_box_method(
+        &mut self,
+        builder: &mut MirBuilder,
+        function_name: String,
+        owner: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        RawInvocationChildPortV1::new(self.module_port).lower_instance_box_method(
+            builder,
+            function_name,
+            owner,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
+    }
+}
+
+impl RecursiveChildLoweringPortV1 for SelectedInstanceMethodCapturePortV1<'_, '_, '_> {
+    type BodyInput = Vec<ASTNode>;
+    type StatementInput = ASTNode;
+    type ExpressionInput = ASTNode;
+
+    fn lower_body(
+        &mut self,
+        builder: &mut MirBuilder,
+        body: Self::BodyInput,
+    ) -> Result<ValueId, String> {
+        RawInvocationChildPortV1::new(self.module_port).lower_body(builder, body)
+    }
+
+    fn lower_statement(
+        &mut self,
+        builder: &mut MirBuilder,
+        statement: Self::StatementInput,
+    ) -> Result<ValueId, String> {
+        RawInvocationChildPortV1::new(self.module_port).lower_statement(builder, statement)
+    }
+
+    fn lower_expression(
+        &mut self,
+        builder: &mut MirBuilder,
+        expression: Self::ExpressionInput,
+    ) -> Result<ValueId, String> {
+        RawInvocationChildPortV1::new(self.module_port).lower_expression(builder, expression)
+    }
+}
+
+impl RootCallableCapturePortV1 for SelectedInstanceMethodCapturePortV1<'_, '_, '_> {
+    fn lower_root_instance_method(
+        &mut self,
+        builder: &mut MirBuilder,
+        canonical_key: CanonicalSameModuleCallableKeyV1,
+        owner: String,
+        method: String,
+        function_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        let observed = canonical_key.clone();
+        let request = InstanceMethodCaptureRequestV1 {
+            canonical_key,
+            owner,
+            method,
+            function_name,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        };
         match self.ledger.observe_or_claim(&observed, &request) {
-            Ok(PreloopStageBFunctionSelectionV1::Ordinary) => {
-                lower_ordinary_instance_method_v1(builder, request)
-            }
+            Ok(PreloopStageBFunctionSelectionV1::Ordinary) => self.lower_instance_box_method(
+                builder,
+                request.function_name,
+                request.owner,
+                request.params,
+                request.param_decls,
+                request.return_type_name,
+                request.body,
+                request.uses,
+                request.attrs,
+            ),
             Ok(PreloopStageBFunctionSelectionV1::Selected(ingress)) => {
                 match collect_preloop_stageb_instance_function_v1(
                     builder,
@@ -454,7 +587,7 @@ impl MirBuilder {
                 ledger: &mut ledger,
                 module_port,
             };
-            builder.lower_root_after_callable_catalog_install_with_instance_port_v1(
+            builder.lower_root_after_callable_catalog_install_with_callable_port_v1(
                 source.clone(),
                 source,
                 &mut capture,

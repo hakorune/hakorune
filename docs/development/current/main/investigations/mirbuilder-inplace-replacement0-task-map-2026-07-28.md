@@ -154,6 +154,8 @@ Do not invent a new guard if the existing test surface covers the contract.
 
 ### `CALLABLE-DRAFT-COLLECTOR-CUTOVER0-I0-R0`
 
+Status: closed on 2026-07-28.
+
 Exchange:
 
 ```text
@@ -186,6 +188,27 @@ fallback / retry                          = 0
 
 This row reuses the generic collector. It does not activate the Stage-B
 one-row function session.
+
+Closeout:
+
+```text
+ordinary production collector callers    = 1
+old direct production publication callers= 0
+partial callable publication on failure  = 0
+fallback / retry                          = 0
+focused existing tests                    = 63 green
+production Rust LOC delta                 = +153
+two-cell rolling production Rust LOC      = -49
+```
+
+The ordinary root now owns one invocation-local `ModuleDraftCollectorV1`.
+Static/free functions, instance methods, constructors, optional callable
+`Main`, and raw root descent share the existing raw child port; root lifecycle
+drains the complete draft set once through `try_add_functions_atomic`.
+Collision evidence proves that no collected prefix reaches the live module.
+The root-specific port extension owns only the canonical instance-method
+observation needed by the parked Stage-B adapter; it adds no second lowering
+or publication policy.
 
 ## Immediate follow-up 2
 

@@ -48,7 +48,7 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
     ) -> Result<ValueId, String>;
 }
 
-/// Raw AST specialization shared by the legacy facade and the future
+/// Raw AST specialization shared by the legacy facade and the
 /// invocation-aware carrier.
 ///
 /// Located/source-branded ports intentionally do not implement this marker.
@@ -194,15 +194,15 @@ impl MeCallHeaderObservationPortV1 for RawLegacyChildLoweringPortV1 {
 
 /// Stack-owned raw-recursion capability for one module-lowering invocation.
 ///
-/// This is intentionally only the carrier in the first RAWPORT0-M0-R0
-/// refactor commit.  The following port-aware dispatcher series consumes it
-/// for body, statement, and expression descent.  It owns neither a Builder,
-/// collector, header view, AST cache, nor child-terminal authority; all it can
-/// do is reborrow the exact invocation port for a shorter recursive frame.
+/// Ordinary root lowering now uses this carrier for body, statement, and
+/// expression descent while callable drafts accumulate in one invocation-local
+/// collector. It owns neither a Builder, collector, header view, AST cache, nor
+/// child-terminal authority; all it can do is reborrow the exact invocation
+/// port for a shorter recursive frame.
 ///
-/// Keeping this wrapper separate from `RawLegacyChildLoweringPortV1` makes a
-/// port drop mechanically visible while the legacy facade remains the sole
-/// production route through M0.
+/// Keeping this wrapper separate from `RawLegacyChildLoweringPortV1` makes the
+/// collector-backed production route and the direct compatibility facade
+/// mechanically distinct.
 pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     module_port: &'port mut ModuleLoweringPortV1<'collector>,
     _seal: RawInvocationChildPortSealV1,

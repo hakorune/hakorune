@@ -1,6 +1,8 @@
 // Declarations lowering: static boxes and box declarations
 use super::calls::CanonicalFunctionSessionErrorV1;
+use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
+use super::recursive_child_lowering::{RawBoxMethodChildPortV1, RawLegacyChildLoweringPortV1};
 use super::{declaration_order::sorted_method_entries, MirInstruction, ValueId};
 use crate::ast::ASTNode;
 use crate::mir::slot_registry::{get_or_assign_type_id, reserve_method_slot};
@@ -61,6 +63,19 @@ impl super::MirBuilder {
         box_name: String,
         methods: std::collections::HashMap<String, ASTNode>,
     ) -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_static_main_box_with_port_v1(&mut port, box_name, methods)
+    }
+
+    pub(in crate::mir::builder) fn build_static_main_box_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        box_name: String,
+        methods: std::collections::HashMap<String, ASTNode>,
+    ) -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1>
+    where
+        Port: RootCallableCapturePortV1,
+    {
         // Lower other static methods (except main) to standalone MIR functions so JIT can see them
         for (mname, mast) in sorted_method_entries(&methods) {
             if mname == "main" {
@@ -79,7 +94,8 @@ impl super::MirBuilder {
                 // NamingBox 経由で static メソッド名を一元管理する
                 let func_name =
                     crate::mir::naming::encode_static_method(&box_name, mname, params.len());
-                self.lower_static_method_as_function(
+                port.lower_static_box_method(
+                    self,
                     func_name,
                     params.clone(),
                     param_decls.clone(),
@@ -137,7 +153,8 @@ impl super::MirBuilder {
                         );
                         // Note: Metadata clearing is now handled by BoxCompilationContext (箱理論)
                         // See lifecycle.rs for context swap implementation.
-                        self.lower_static_method_as_function_typed(
+                        port.lower_static_box_method(
+                            self,
                             func_name,
                             params.clone(),
                             param_decls.clone(),
@@ -231,7 +248,7 @@ impl super::MirBuilder {
                     self.set_current_function_declared_capability_uses(uses);
 
                     // Lower statements in order to preserve def→use
-                    let lowered = self.cf_block(body.clone());
+                    let lowered = port.lower_body(self, body.clone());
 
                     // Phase 200-C: Clear fn_body_ast after main() lowering
                     self.function_state.compilation.fn_body_ast = None;

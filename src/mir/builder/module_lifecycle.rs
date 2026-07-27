@@ -49,11 +49,17 @@
 
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
+use super::module_draft_collector::ModuleDraftCollectorV1;
+use super::module_lowering_invocation::ModuleLoweringPortV1;
+use super::recursive_child_lowering::{
+    RawAstChildLoweringPortV1, RawBoxMethodChildPortV1, RawInvocationChildPortV1,
+    RawLegacyChildLoweringPortV1,
+};
 use super::{
     BasicBlockId, CanonicalSameModuleCallableKeyV1, EffectMask, FunctionSignature, MirInstruction,
     MirModule, MirType, SameModuleCallableNamespaceV1, ValueId,
 };
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::config;
 use crate::mir::builder::preloop_stageb_context_install::InstalledPreloopStageBContextV1;
 use crate::mir::preloop_stageb_candidate_shell::{
@@ -68,63 +74,46 @@ use super::phi_type_inference;
 // Phase 29bq+: Type hint provision extracted to dedicated module
 use super::type_hint_providers;
 
-/// One source-order instance-method terminal in the shared root-lowering
-/// kernel.
+/// Root-only extension of the existing raw child-lowering capability.
 ///
-/// The shared lifecycle issues the exact canonical key from the already
-/// installed catalog together with the syntax transport. Selected adapters do
-/// not perform a second lookup, while the ordinary adapter ignores the key.
-pub(in crate::mir::builder) struct InstanceMethodCaptureRequestV1 {
-    pub(in crate::mir::builder) canonical_key: CanonicalSameModuleCallableKeyV1,
-    pub(in crate::mir::builder) owner: String,
-    pub(in crate::mir::builder) method: String,
-    pub(in crate::mir::builder) function_name: String,
-    pub(in crate::mir::builder) params: Vec<String>,
-    pub(in crate::mir::builder) param_decls: Vec<crate::ast::ParamDecl>,
-    pub(in crate::mir::builder) return_type_name: Option<String>,
-    pub(in crate::mir::builder) body: Vec<ASTNode>,
-    pub(in crate::mir::builder) uses: Vec<String>,
-    pub(in crate::mir::builder) attrs: crate::ast::DeclarationAttrs,
-}
-
-/// Stack-scoped instance-method completion capability for one root descent.
-///
-/// It owns no Builder field, source map, catalog, or route policy.
-pub(in crate::mir::builder) trait InstanceMethodCapturePortV1 {
-    fn lower_instance_method(
+/// Static/free callables, constructors, and root-body descent already have
+/// exact owners on the raw port. Only source-order instance methods need this
+/// extra seam because the parked Stage-B adapter observes their canonical key.
+pub(in crate::mir::builder) trait RootCallableCapturePortV1:
+    RawBoxMethodChildPortV1 + RawAstChildLoweringPortV1
+{
+    #[allow(clippy::too_many_arguments)]
+    fn lower_root_instance_method(
         &mut self,
         builder: &mut super::MirBuilder,
-        request: InstanceMethodCaptureRequestV1,
-    ) -> Result<(), String>;
-}
-
-struct OrdinaryInstanceMethodCapturePortV1;
-
-impl InstanceMethodCapturePortV1 for OrdinaryInstanceMethodCapturePortV1 {
-    fn lower_instance_method(
-        &mut self,
-        builder: &mut super::MirBuilder,
-        request: InstanceMethodCaptureRequestV1,
+        canonical_key: CanonicalSameModuleCallableKeyV1,
+        owner: String,
+        method: String,
+        function_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
     ) -> Result<(), String> {
-        lower_ordinary_instance_method_v1(builder, request)
+        let _ = (canonical_key, method);
+        self.lower_instance_box_method(
+            builder,
+            function_name,
+            owner,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
     }
 }
 
-pub(in crate::mir::builder) fn lower_ordinary_instance_method_v1(
-    builder: &mut super::MirBuilder,
-    request: InstanceMethodCaptureRequestV1,
-) -> Result<(), String> {
-    builder.lower_method_as_function(
-        request.function_name,
-        request.owner,
-        request.params,
-        request.param_decls,
-        request.return_type_name,
-        request.body,
-        request.uses,
-        request.attrs,
-    )
-}
+impl RootCallableCapturePortV1 for RawInvocationChildPortV1<'_, '_> {}
+impl RootCallableCapturePortV1 for RawLegacyChildLoweringPortV1 {}
 
 impl super::MirBuilder {
     pub(super) fn prepare_module(&mut self) -> Result<(), String> {
@@ -271,22 +260,35 @@ impl super::MirBuilder {
         ast: ASTNode,
         snapshot: &ASTNode,
     ) -> Result<ValueId, String> {
-        let mut port = OrdinaryInstanceMethodCapturePortV1;
-        self.lower_root_after_callable_catalog_install_with_instance_port_v1(
-            ast, snapshot, &mut port,
-        )
+        let mut collector = ModuleDraftCollectorV1::default();
+        let result = {
+            let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
+            let mut port = RawInvocationChildPortV1::new(&mut module_port);
+            self.lower_root_after_callable_catalog_install_with_callable_port_v1(
+                ast, snapshot, &mut port,
+            )
+        }?;
+        let drafts = collector.into_draft_functions();
+        self.current_module
+            .as_mut()
+            .ok_or_else(|| "[freeze:contract][mir/callable-collector/module-missing]".to_owned())?
+            .try_add_functions_atomic(drafts)
+            .map_err(|error| {
+                format!("[freeze:contract][mir/callable-collector/atomic-commit] {error}")
+            })?;
+        Ok(result)
     }
 
-    pub(in crate::mir::builder) fn lower_root_after_callable_catalog_install_with_instance_port_v1<
+    pub(in crate::mir::builder) fn lower_root_after_callable_catalog_install_with_callable_port_v1<
         Port,
     >(
         &mut self,
         ast: ASTNode,
         snapshot: &ASTNode,
-        instance_methods: &mut Port,
+        callables: &mut Port,
     ) -> Result<ValueId, String>
     where
-        Port: InstanceMethodCapturePortV1,
+        Port: RootCallableCapturePortV1,
     {
         // Phase A: collect the remaining non-callable declaration facts.
         declaration_indexer::index_declarations(self, snapshot);
@@ -375,7 +377,8 @@ impl super::MirBuilder {
                                     // Keep constructor function name as "Box.birth/N" where ctor_key already encodes arity.
                                     // ctor_key format comes from parser as "birth/<arity>".
                                     let func_name = format!("{}.{}", name, ctor_key);
-                                    self.lower_method_as_function(
+                                    callables.lower_instance_box_method(
+                                        self,
                                         func_name,
                                         name.clone(),
                                         params.clone(),
@@ -425,20 +428,18 @@ impl super::MirBuilder {
                                             mname,
                                             format!("/{}", params.len())
                                         );
-                                        instance_methods.lower_instance_method(
+                                        callables.lower_root_instance_method(
                                             self,
-                                            InstanceMethodCaptureRequestV1 {
-                                                canonical_key,
-                                                owner: name.clone(),
-                                                method: mname.to_owned(),
-                                                function_name: func_name,
-                                                params: params.clone(),
-                                                param_decls: param_decls.clone(),
-                                                return_type_name: return_type_name.clone(),
-                                                body: body.clone(),
-                                                uses: uses.clone(),
-                                                attrs: attrs.clone(),
-                                            },
+                                            canonical_key,
+                                            name.clone(),
+                                            mname.to_owned(),
+                                            func_name,
+                                            params.clone(),
+                                            param_decls.clone(),
+                                            return_type_name.clone(),
+                                            body.clone(),
+                                            uses.clone(),
+                                            attrs.clone(),
                                         )?;
                                     }
                                 }
@@ -456,7 +457,8 @@ impl super::MirBuilder {
                     } = st
                     {
                         let func_name = format!("{}/{}", name, params.len());
-                        self.lower_static_method_as_function(
+                        callables.lower_static_box_method(
+                            self,
                             func_name,
                             params.clone(),
                             param_decls.clone(),
@@ -495,7 +497,8 @@ impl super::MirBuilder {
                             {
                                 let func_name =
                                     format!("{}.{}{}", name, mname, format!("/{}", params.len()));
-                                self.lower_static_method_as_function(
+                                callables.lower_static_box_method(
+                                    self,
                                     func_name,
                                     params.clone(),
                                     param_decls.clone(),
@@ -517,15 +520,15 @@ impl super::MirBuilder {
                 if is_app_mode {
                     // App モード: Main.main をエントリとして扱う
                     if let Some((box_name, methods)) = main_static {
-                        self.build_static_main_box_typed(box_name, methods)
+                        self.build_static_main_box_with_port_v1(callables, box_name, methods)
                             .map_err(|error| error.to_string())
                     } else {
                         // 理論上は起こりにくいが、安全のため Script モードと同じ lowering にする
-                        self.cf_block(runtime_statements)
+                        callables.lower_body(self, runtime_statements)
                     }
                 } else {
                     // Script/Test モード: トップレベル Program をそのまま順次実行
-                    self.cf_block(runtime_statements)
+                    callables.lower_body(self, runtime_statements)
                 }
             }
             other => self.build_expression(other),
