@@ -1,6 +1,10 @@
 # MIR Builder (`src/mir/builder/`)
 
 Pointers:
+- active in-place replacement policy:
+  - `docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md`
+- active replacement task map:
+  - `docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md`
 - repo-wide selfhost compiler ownership map:
   - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
 - parked clean-architecture consolidation task:
@@ -13,6 +17,25 @@ Pointers:
 このディレクトリは Rust 側の MIR 生成（AST → canonical MIR emission）を担う。
 `control_flow/plan` と JoinIR merge は物理的にはここにあるが、builder core
 ではなく FlowPlanner / JoinIR glue として読む。
+
+## Active replacement law
+
+This directory remains the one live production MirBuilder. Do not build an
+independent second Builder beside it.
+
+For each cleanup cell:
+
+```text
+extract one responsibility
+-> switch its existing production caller
+-> delete the selected old branch/symbol
+-> prove parity after the switch
+```
+
+Disconnected S0 code may survive at most one landed commit before its I0/R0.
+An internal candidate connection with production callers at zero is not I0.
+Stage-B-specific source routes must not be connected here; only their
+source-neutral reusable parts may enter a named production replacement cell.
 
 ## Reading Order
 

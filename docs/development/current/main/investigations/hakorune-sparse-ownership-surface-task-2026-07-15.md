@@ -1,10 +1,10 @@
 ---
-Status: Active taskboard; D0 guard refresh and bounded detour closed; OWN-GRAM Hako row selected
+Status: Parked taskboard; no current execution authority
 Date: 2026-07-28
 Decision: Explicit-move/share, owner-anchored sparse ownership surface
 Source semantics SSOT: ../../../../reference/language/ownership.md
 Current lane: follow CURRENT_STATE.toml
-First code-facing ownership row after bounded detour: OWN-GRAM-REJECT0-HAKO0-S0
+First code-facing ownership row when explicitly resumed: OWN-GRAM-REJECT0-HAKO0-S0
 Integration resume checkpoint: MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
 Related:
   - hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md
@@ -15,6 +15,12 @@ Related:
 ---
 
 # Hakorune Sparse Ownership Surface Taskboard
+
+## Parking notice
+
+`MIRBUILDER-INPLACE-REPLACEMENT0` supersedes the former Stage-B-to-OWN-GRAM
+schedule. Ownership semantics and pack contents remain valid, but this board
+cannot select a current row until `CURRENT_STATE.toml` explicitly reopens it.
 
 ## 0. Authority and parking law
 

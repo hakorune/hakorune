@@ -1,19 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-prime-r1 accepts A-double-prime: one brand-free candidate/config/replacement core, family-specific readiness, and a strong Legacy finish/commit product. Worker audit adds one exact selected-draft collector-to-candidate-module handoff before the existing Legacy finalizer. BUILDER-CANDIDATE-SESSION-CORE0-S0 is executable now. OWN-GRAM-REJECT0-HAKO0-S0 remains the immediate return row after the unchanged real Stage-B proof is green."
+status = "MIRBUILDER-INPLACE-REPLACEMENT0 is accepted. Keep the existing production MirBuilder live, replace one responsibility at a time, switch the existing production caller, and immediately delete the selected old branch. Disconnected candidate/proof work cannot close I0 or CUT0. The first executable replacement connects the already-built port-aware callable draft lowering to the two ordinary production callers and retires the old callable body path."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "BUILDER-CANDIDATE-SESSION-CORE0-S0"
-current_execution_summary = "Behavior-neutrally extract candidate/config/private replacement from ModuleBuilderInvocationSessionV1. Raw/Canonical retain strict external quiescence; Legacy readiness remains family-specific. Then close exact selected-draft publication, Legacy finalize/finish/commit, sole Legacy-arm ingress, unchanged Stage-B progression, and return directly to OWN-GRAM-REJECT0-HAKO0-S0."
-finite_product_goal = "OWNERSHIP-SPARSE-PRODUCT-READINESS-D0"
+current_execution_row = "CALLABLE-DRAFT-PORT-CUTOVER0-I0-R0"
+current_execution_summary = "Atomically rewire the ordinary static/free and instance/constructor callable draft production closures to the existing port-aware lowering, remove the selected old draft/body lowering symbols, preserve the current publication/finalizer policy, and prove post-cutover parity with no fallback."
+finite_product_goal = "MIRBUILDER-INPLACE-REPLACEMENT0"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
-active_lane = "Language v1 semantic convergence"
-active_lane_status = """LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
+active_lane = "MirBuilder in-place responsibility replacement"
+active_lane_status = """MIRBUILDER-INPLACE-REPLACEMENT0 is the sole current execution authority. The existing production MirBuilder remains live while one responsibility is switched to a new owner and the selected old path is deleted in the same cell. Stage-B special activation, Ownership, Language v1 expansion, cleanliness, and selfhost migration are parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
 canonical protected-region target; Fault remains terminal and non-catchable;
@@ -333,11 +334,13 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
-phase_status = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
-method_anchor = "docs/reference/language/ownership.md"
-taskboard = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
-latest_workstream_card = "docs/development/current/main/workstreams/language-v1-convergence-current.md"
+active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
+phase_status = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
+method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
+taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
+latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
+mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
+mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 normal_entry_cutover_decision = "docs/development/current/main/investigations/normal-entry-cutover-d0-consultation-2026-07-25.md"
 normal_entry_cutover_d1_decision = "docs/development/current/main/investigations/normal-entry-cutover-d1-consultation-2026-07-25.md"
 normal_file_vm0_task = "docs/development/current/main/investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
@@ -434,9 +437,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "preloop-stageb-selected-candidate-session0-prime-r1-task-map-2026-07-28"
-latest_card_path = "docs/development/current/main/investigations/preloop-stageb-selected-candidate-session0-prime-r1-task-map-2026-07-28.md"
-latest_card_summary = """PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-prime-r1 accepts A-double-prime. BuilderCandidateSessionCoreV1 owns only candidate/config/private replacement; Raw/Canonical and Legacy retain distinct readiness laws. The worker audit adds one exact selected-draft collector-to-candidate-module publication handoff before existing Legacy finalize. Nine buildable commits close core extraction, draft publication, route-specific Legacy completion, compiler finish/commit, Legacy-arm ingress, the unchanged Stage-B proof, and immediate return to OWN-GRAM-REJECT0-HAKO0-S0."""
+latest_card = "mirbuilder-inplace-replacement0-task-map-2026-07-28"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
+latest_card_summary = """MIRBUILDER-INPLACE-REPLACEMENT0 restores the proven descent migration law: I0 means an actual existing production caller switch, R0 removes the selected old path immediately, and P0 proves parity after cutover. Eight fixed responsibility packs make completion finite. The first executable cell connects the existing port-aware callable draft lowering to two ordinary production callers and retires the old callable body path."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -639,7 +642,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "BUILDER-CANDIDATE-SESSION-CORE0-S0"
+current_blocker_token = "CALLABLE-DRAFT-PORT-CUTOVER0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

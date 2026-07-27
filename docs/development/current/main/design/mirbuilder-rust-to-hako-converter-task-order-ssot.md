@@ -19,10 +19,14 @@ inventories, transcripts, or historical next chains.
 ## Parked Front
 
 ```text
-status = parked_by_language_v1_convergence
+status = parked_by_mirbuilder_inplace_replacement
 resume = MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001
-resume_after = LANGV1-CONFORMANCE-CLOSEOUT-001
+resume_after = explicit CURRENT_STATE.toml lane selection
 ```
+
+This `.hako` converter order is independent from the active Rust MirBuilder
+in-place replacement. Do not translate or widen a Rust responsibility while
+its production owner is being exchanged.
 
 The active token, latest card, and phase pointer are authoritative only in:
 

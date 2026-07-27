@@ -19,6 +19,24 @@ Related:
 
 # Selfhost Parser/MirBuilder Migration Order (SSOT)
 
+## Current scope notice
+
+This document owns only the `.hako` selfhost MirBuilder/parser migration
+order. That lane is parked while
+`MIRBUILDER-INPLACE-REPLACEMENT0` replaces responsibilities inside the Rust
+production MirBuilder.
+
+The rule “Rust builder widening is frozen” means:
+
+```text
+old production behavior expansion = forbidden
+in-place behavior-preserving responsibility replacement = allowed
+new language semantics during replacement = forbidden
+```
+
+Do not merge the `.hako` converter backlog into the Rust replacement ledger,
+and do not resume this task order from historical row text.
+
 ## Goal
 
 `.hako` 移植を “順番迷子” にしない。  

@@ -1,7 +1,7 @@
 # CURRENT_TASK
 
 Status: SSOT pointer
-Date: 2026-07-26
+Date: 2026-07-28
 Scope: root restart anchor only. Do not store landed history here.
 
 ## Quick Restart
@@ -30,26 +30,15 @@ row, follow only the `latest_card_path` contract.
 Continue only the exact `current_blocker_token` and `latest_card_path` named by
 `CURRENT_STATE.toml`.
 
-`LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT` is closed. It recorded the accepted
-tryless surface without changing registry, parser, AST, MIR, runtime, backend,
-or JSON behavior:
+The active lane is an in-place production responsibility replacement. Read:
 
 ```text
-source try / throw       = rejected in both language profiles
-postfix catch            = canonical protected-region target
-catchable target Outcome = RecoverableFailure
-Fault                    = terminal and non-catchable
-cleanup                  = separate scope-exit owner
-box.fini()               = separate lifecycle owner
+method_anchor
+latest_workstream_card
+latest_card_path
+current_execution_row
 ```
 
-`RecoverableFailure` producer and ABI remain parked for
-`LANGUAGE-RECOVERABLE-FAILURE-D0`. `NORMAL-SOURCE-PLAN0-prime-r1` is accepted.
-Follow `current_execution_row` and `latest_card_path` in `CURRENT_STATE.toml`;
-profile admission, default routing, and legacy callers remain outside the
-active bounded source-plan series until explicitly selected there.
-
-The active row may move without another edit to this mirror. Read
-`current_execution_row`, `current_blocker_token`, and `latest_card_path` from
-`CURRENT_STATE.toml`, then follow only that card's scope, gate order, and WIP
-instructions. Do not pop a parked stash based on historical text here.
+An `I0` is closed only by an actual named production caller switch plus
+selected old-path retirement and zero fallback. Do not resume Stage-B,
+Ownership, Language v1, selfhost, or a parked stash from historical prose.

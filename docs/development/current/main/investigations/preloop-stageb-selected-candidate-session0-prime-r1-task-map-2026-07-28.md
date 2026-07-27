@@ -1,14 +1,17 @@
 ---
-Status: accepted execution task map
+Status: superseded historical task map; execution authority none
 Date: 2026-07-28
 Decision: PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-prime-r1
 Choice: A-double-prime
 Closes:
   - PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-D0
 First executable row:
-  - BUILDER-CANDIDATE-SESSION-CORE0-S0
+  - none
 Return row:
-  - OWN-GRAM-REJECT0-HAKO0-S0
+  - none
+Superseded by:
+  - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
+  - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 Related:
   - docs/development/current/main/investigations/preloop-stageb-selected-candidate-session0-d0-design-question-2026-07-28.md
   - docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md
@@ -16,6 +19,17 @@ Related:
 ---
 
 # PRELOOP-STAGEB selected candidate session task map
+
+## Supersession
+
+The design evidence remains historical, but this execution sequence must not
+run.
+
+It built a special source route while keeping production consumers at zero.
+The current policy instead reconnects reusable neutral parts inside the
+ordinary production MirBuilder and deletes the selected old path immediately.
+The Stage-B-specific source selection, activation, and type-publication route
+is parked for classification as `FixtureOnly` or `Delete`.
 
 ## Decision
 

@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-07-10
+Date: 2026-07-28
 Scope: one-screen current lane and parked-resume map.
 Related:
   - CURRENT_TASK.md
@@ -25,27 +25,23 @@ Related:
 ## Current Read
 
 1. `docs/development/current/main/CURRENT_STATE.toml`
-2. `docs/development/current/main/workstreams/language-v1-convergence-current.md`
+2. the file named by `latest_workstream_card`
 3. the file named by `latest_card_path`
-4. `docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md`
+4. the file named by `method_anchor`
 5. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
 
 ## Immediate Sequence
 
 1. Run `bash tools/checks/current_state_pointer_guard.sh`.
-2. Work only on the current macro row.
-3. Keep parser/runtime behavior unchanged during the Constitution row.
-4. Advance through the ordered language-v1 workstream without creating
-   inventory, rerun, or consultation cards.
+2. Work only on the exact current production replacement cell.
+3. Switch the named production caller and delete the selected old path.
+4. Prove parity after cutover; do not add a disconnected route chain.
 
 ## Parked Resume
 
 ```text
-MirBuilder resume:
-  MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001
-
-resume gate:
-  LANGV1-CONFORMANCE-CLOSEOUT-001
+Stage-B / Ownership / Language v1 / selfhost:
+  parked until CURRENT_STATE.toml explicitly reopens them
 ```
 
 Optimization, allocator replacement, provider activation, and broad selfhost

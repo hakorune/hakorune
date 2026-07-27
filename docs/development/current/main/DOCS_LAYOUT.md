@@ -33,9 +33,12 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - active multi-day work cards
   - inventory / selection / smoke / parking-lot notes live here instead of
     becoming one numbered row per observation
+  - `workstreams/mirbuilder-inplace-replacement-current.md`
+    - active Rust MirBuilder production-responsibility replacement order,
+      finite pack counters, detached-asset disposition, and current cutover
   - `workstreams/language-v1-convergence-current.md`
-    - active Language v1 macro-row order, acceptance gates, and selfhost resume
-      boundary; only the current macro row gets a numbered card
+    - parked Language v1 macro-row order, acceptance gates, and selfhost resume
+      boundary
   - `workstreams/compiler-foundation-current.md`
     - active compiler foundation taskboard when exact-front optimization is
       paused for BoxCallable / TypeAbiCatalog / CorePlan foundation work
@@ -78,6 +81,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     lego-ization before any accepted-shape expansion
 - `design/current-docs-update-policy-ssot.md`
   - current docs update policy and mirror-thinning contract
+- `design/mirbuilder-inplace-replacement-policy-ssot.md`
+  - active Rust MirBuilder migration law: one live production Builder,
+    responsibility-by-responsibility caller switch, immediate selected old-path
+    deletion, post-cutover parity, and no detached replacement pipeline
 - `design/derived-to-native-hako-artifact-model-ssot.md`
   - Rust-derived Hako artifact migration owner; keeps Rust source as editable
     reference during derived phases, generated Hako as execution artifact, and
@@ -245,12 +252,11 @@ Rule:
   - the active card
   - `CURRENT_STATE.toml` latest-card fields
   - code/test docs only when their contract changes
-- current execution work stays in three buckets:
-  - mimalloc migration and optimization
-  - Array / representation fast paths only when selected by mimalloc perf evidence
-  - manual/current-entry synchronization when current source semantics or
-    reference navigation drift from landed SSOTs
-  - docs and shell hygiene
+- current execution follows the single `active_lane` selected by
+  `CURRENT_STATE.toml`; the current selection is MirBuilder in-place
+  responsibility replacement
+- Language v1, Ownership, selfhost, optimization, allocator, and
+  representation work remain parked unless that pointer explicitly changes
 - do not add a new phase row or one-off `.sh` for every inventory note; use the
   active working card and reusable lane guards first.
 - update `AGENTS.md`, `CURRENT_TASK.md`, `10-Now.md`,

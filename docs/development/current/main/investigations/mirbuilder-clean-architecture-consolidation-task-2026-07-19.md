@@ -1,5 +1,5 @@
 ---
-Status: Active architecture task
+Status: Superseded scheduling authority; historical component evidence
 Date: 2026-07-19
 Scope: MirBuilder function-session, fact-publication, plan, and compatibility boundaries
 Related:
@@ -9,6 +9,17 @@ Related:
 ---
 
 # MirBuilder clean-architecture consolidation
+
+## Supersession
+
+The responsibility findings remain reusable, but the disconnected execution
+chain below no longer selects work.
+
+Current scheduling is owned by
+`design/mirbuilder-inplace-replacement-policy-ssot.md`: a responsibility may
+land only with an existing production caller switch and selected old-path
+retirement. Reuse the component evidence from this card inside those cells;
+do not resume its consumer-zero row chain.
 
 ## Decision
 

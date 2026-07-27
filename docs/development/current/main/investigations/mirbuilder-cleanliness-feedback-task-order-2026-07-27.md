@@ -5,10 +5,8 @@ Decision: MIRBUILDER-CLEANLINESS-FEEDBACK-prime-r1
 Source:
   - GLM-5.2 / Claude review feedback
 Current-lane relation:
-  - CALLABLE-RESULT-NESTED-PRELOOP-TYPE-I0 is closed
-  - A-prime source observation may finish only through Stage-B source inventory G0
-  - OWN-GRAM-REJECT0 and ownership Packs A-E follow
-  - all cleanliness families remain parked until ownership product readiness
+  - all cleanliness families are parked behind MIRBUILDER-INPLACE-REPLACEMENT0
+  - they cannot preempt a production replacement cell
   - this card does not change CURRENT_STATE.toml
 ---
 

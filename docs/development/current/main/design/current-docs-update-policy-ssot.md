@@ -44,14 +44,17 @@ for the current lane, blocker, phase pointers, and latest card pointer.
 Current work is constrained to the active lane named by `CURRENT_STATE.toml`
 and the durable workstream card it points to. The current active buckets are:
 
-1. Language v1 semantic convergence when selected by `CURRENT_STATE.toml`;
-2. Source Selfhost / MirBuilder Rust-to-Hako converter task order;
-3. mimalloc migration and optimization when reopened by `CURRENT_STATE.toml`;
-4. direct memory / DirectArray language substrate when it reduces allocator
+1. MirBuilder in-place responsibility replacement when selected by
+   `CURRENT_STATE.toml`;
+2. Language v1 semantic convergence when explicitly reopened;
+3. Source Selfhost / MirBuilder Rust-to-Hako converter task order when
+   explicitly reopened;
+4. mimalloc migration and optimization when reopened by `CURRENT_STATE.toml`;
+5. direct memory / DirectArray language substrate when it reduces allocator
    workaround pressure or clarifies future fast-path ownership;
-5. Array / representation fast paths only when selected by current perf
+6. Array / representation fast paths only when selected by current perf
    evidence or by the active direct-memory substrate workstream;
-6. docs and shell hygiene.
+7. docs and shell hygiene.
 
 These buckets are the work taxonomy. Do not open a new active lane outside
 them without updating this policy and `CURRENT_STATE.toml`.
@@ -112,6 +115,36 @@ Rules:
 The cost of a row is approximately its ceremony cost multiplied by the number
 of route/stage cells. The project must reduce repeated cells without weakening
 source authority, fail-fast, or evidence requirements.
+
+### MirBuilder in-place replacement override
+
+While `MIRBUILDER-INPLACE-REPLACEMENT0` is active, the durable architecture
+decision is made once in
+`design/mirbuilder-inplace-replacement-policy-ssot.md`.
+
+Moving already-existing behavior into a new responsibility owner is T0 by
+default. It does not open a new consultation, route family, or S0/I0/P0/G0
+card chain.
+
+```text
+normal T0 cell:
+  one atomic production switch + old-path deletion
+  one focused fixture
+  one shared pack guard assertion
+
+split T0 cell:
+  at most one S0 commit
+  immediately followed by I0/R0
+  no intervening row
+```
+
+`I0`, `P0`, `G0`, and `CUT0` use the exact meanings in the in-place
+replacement policy. In particular, a disconnected candidate or a route with
+`production consumers = 0` cannot close I0 or CUT0.
+
+The batch-proof trigger may genericize transport shared by several live
+responsibility owners. It may not justify building Raw/Normal/Canonical/Legacy
+parallel production routes.
 
 Use the smallest ceremony tier that matches the novelty of the cell:
 
@@ -236,24 +269,27 @@ detour may preempt again only when the selected product row's unchanged exact
 gate proves that detour is a direct prerequisite; the card must name the
 failing owner and the return row.
 
-The bounded detour is closed:
+The current unlocked product is the finite in-place replacement parent:
 
 ```text
-STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-prime-r1
-  -> PRELOOP-STAGEB-SOURCE-INVENTORY0-G0
-  -> park Stage-B
+MIRBUILDER-INPLACE-REPLACEMENT0
+  -> CALLABLE-DRAFT-PORT-CUTOVER0-I0-R0
 ```
 
-The current unlocked product row is:
+Stage-B special activation, Ownership, selfhost migration, and cleanliness
+findings are parked. They may not insert work ahead of the named production
+replacement cell.
+
+For this lane, “unlocked row first” means:
 
 ```text
-OWN-GRAM-REJECT0-HAKO0-S0
-  -> OWN-GRAM-REJECT0-G0
+new production edge active
++ selected old edge deleted
++ no fallback
 ```
 
-Candidate count one remains correspondence evidence. It is not permission to
-continue a Stage-B candidate session, production ingress, or unrelated cleanup
-before the finite ownership readiness terminal.
+It does not mean accumulating another disconnected proof before the
+production edge.
 
 Do not create a second consecutive docs-only card for the same blocker unless
 one of these is true:

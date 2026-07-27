@@ -1,5 +1,5 @@
 ---
-Status: Active Taskboard
+Status: Parked taskboard; no current execution authority
 Date: 2026-07-25
 Scope: Hakorune language v1 semantic convergence before selfhost migration.
 Related:
@@ -14,6 +14,14 @@ Related:
 
 # Language v1 Convergence Current Taskboard
 
+## Parking notice
+
+`MIRBUILDER-INPLACE-REPLACEMENT0` currently owns execution order.
+
+Language semantics and this taskboard remain valid, but no row below may
+preempt the current production responsibility replacement. Resume only when
+`CURRENT_STATE.toml` explicitly selects this workstream again.
+
 ## Priority Decision
 
 Language coherence is the prerequisite. Selfhost migration is a proof consumer
@@ -21,10 +29,10 @@ of the language contract, not authority to preserve ambiguous syntax or
 semantics.
 
 ```text
-language_contract_priority_over_selfhost_migration = 1
+language_contract_priority_over_selfhost_migration = historical 1
 selfhost_migration_parked = 1
 mirbuilder_3456_parked = 1
-one_active_language_card = 1
+one_active_language_card = 0
 ```
 
 Resume the parked MirBuilder route at 3456 only after this workstream closes or

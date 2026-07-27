@@ -1,5 +1,5 @@
 Status: Active
-Date: 2026-07-26
+Date: 2026-07-28
 Scope: restart in 2-5 minutes with a thin pointer surface.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -42,18 +42,15 @@ cargo check -q
 - read `latest_card_path` before editing
 - continue only the exact `current_blocker_token` and `latest_card_path` from
   `CURRENT_STATE.toml`; this mirror does not select or rename executable rows
-- `LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT` is closed: source `try` and
-  `throw` remain rejected, postfix `catch` is a pending protected-region
-  target, and terminal `Fault` remains non-catchable
-- `RecoverableFailure` remains a named pending Outcome target; its producer
-  and boundary ABI belong to `LANGUAGE-RECOVERABLE-FAILURE-D0`
-- `NORMAL-SOURCE-PLAN0-prime-r1` is accepted. Read `current_execution_row` and
-  `latest_card_path` before editing; the active source-plan slice must retain
-  its exact profile, lowering, execution, and route non-claims.
+- read `method_anchor` for the in-place production replacement law
+- `I0` requires a real production caller switch; a disconnected candidate is
+  S0/PROBE0, not I0
+- the same cell deletes the selected old branch in I0/R0 before unrelated work
+- Stage-B, Ownership, Language v1, and `.hako` selfhost lanes are parked
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - the current lane is the `active_lane` in `CURRENT_STATE.toml`
-- other language-v1 and ownership rows remain parked unless
-  `CURRENT_STATE.toml` explicitly selects them
+- all other rows remain parked unless `CURRENT_STATE.toml` explicitly selects
+  them
 - product/app validation now uses EXE/AOT as the primary route; VM work is a
   small semantic-reference subset only

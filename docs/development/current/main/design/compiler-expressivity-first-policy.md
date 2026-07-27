@@ -11,6 +11,17 @@ Related:
 
 # Policy: Compiler expressivity first (pause selfhost workarounds)
 
+## Current MirBuilder replacement scope
+
+While `MIRBUILDER-INPLACE-REPLACEMENT0` is active, this policy's no-workaround,
+no-AST-rewrite, source-of-truth, and fail-fast rules remain mandatory.
+
+Its feature-by-feature expressivity roadmap is parked. The active work moves
+existing accepted behavior into cleaner production responsibility owners; it
+does not widen the old Builder or add a new source shape. A missing behavior
+found during parity is either an existing-behavior responsibility gap in the
+current pack or a T2 stop, never permission for a `.hako` workaround.
+
 ## 結論
 
 selfhost（`.hako` 側の回避的対応）を優先せず、先に compiler 側（Facts 前段の正規化・loop 構造箱・analysis-only view）で表現力を増やす。

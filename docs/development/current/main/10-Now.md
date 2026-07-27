@@ -1,5 +1,5 @@
 Status: SSOT mirror
-Date: 2026-07-26
+Date: 2026-07-28
 Scope: one-screen current dashboard. Do not store landed history here.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -21,28 +21,12 @@ Related:
   `current_design_stop` in `CURRENT_STATE.toml`
 - current execution authority: read `latest_card_path` in
   `CURRENT_STATE.toml`
-- priority: follow the exact active task. Do not reopen the superseded App
-  any-statement-tail S0 as canonical work.
-- closed row: RAW-VM-REFERENCE-SUPPORT0-S0 — typed profile handoff, bounded
-  diagnostics, supported opt-in surface, and renamed conformance proof
-- closed docs row: DOCS-POINTER-ALIGNMENT0 + LANGUAGE-DOCS-STATUS-SSOT-D0 — the
-  status index and entry-point navigation are landed; no semantic conflict was
-  silently resolved
-- closed context: LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT aligned the accepted
-  no-source-try/postfix-catch target without grammar, parser, MIR, runtime,
-  backend, or JSON changes
-- accepted target: postfix `catch` protects the immediately preceding region
-  and handles only the pending `RecoverableFailure` Outcome; terminal `Fault`
-  remains non-catchable
-- active row: read `current_execution_row` in `CURRENT_STATE.toml`; continue
-  only its bounded source-plan contract and non-claims
-- closed immediately before this frontier: passive Canonical/NarrowV1/
-  VM-reference profile, explicit early `--backend raw-vm-reference` canary,
-  mandatory feature-enabled/disabled parity family, and the D0 decision that
-  found no safe bounded normal caller
-- parked: RecoverableFailure producer/ABI D0, language implementation rows,
-  normal/default cutover, general VM/LLVM, JSON, executor, selfhost, fastmem,
-  and CUT0
+- replacement law: read `method_anchor`; an I0 must switch a named production
+  caller and retire the selected old edge
+- active row: read `current_execution_row`; use one atomic T0 I0/R0 whenever
+  possible
+- parked: Stage-B special activation, Ownership, Language v1 expansion,
+  selfhost migration, cleanliness, and unrelated backend work
 
 ## Rule
 
