@@ -218,6 +218,11 @@ fn actual_canonical_prefix_rejects_untyped_numeric_loop_carrier_before_claims() 
                         &caller,
                     )
                     .expect_err("untyped raw loop carrier must stop before claims");
+                    let exact_init = format!("MissingTransientType {{ init: {loop_carrier:?} }}");
+                    assert!(
+                        error.contains(&exact_init),
+                        "GenericLoop must read the exact assignment-published pos carrier: {error}"
+                    );
                     Err::<(ValueId, ()), _>(error)
                 },
             )

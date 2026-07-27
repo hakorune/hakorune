@@ -1,5 +1,5 @@
 ---
-Status: accepted design and execution task order
+Status: accepted design; correspondence row closed
 Date: 2026-07-27
 Decision: PRELOOP-STAGEB-CARRIER-HANDOFF0-prime-r1
 Closes:
@@ -9,7 +9,7 @@ Closes observation row:
 Observed frontier:
   - ProductionCarrierHandoffMissing
 First executable row:
-  - PRELOOP-STAGEB-CARRIER-CORRESPONDENCE0-P0
+  - PRELOOP-OUTER-CARRIER-RESULT-CONTRACT0-S0
 Related:
   - preloop-physical-route-reconciliation0-task-order-2026-07-27.md
   - stageb-generic-loop-transient-type-d0-design-question-2026-07-26.md
@@ -347,7 +347,7 @@ current inner TYPE-I0 has no production role in the outer carrier chain.
 
 ### 1. `PRELOOP-STAGEB-CARRIER-CORRESPONDENCE0-P0`
 
-Read-only/code-facing proof:
+Closed read-only/code-facing proof (2026-07-27):
 
 ```text
 inner destination != outer destination

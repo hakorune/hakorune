@@ -280,6 +280,100 @@ pub(crate) fn with_instance_result_contract_inputs<R>(
     f(&declarations, &caller, &sites, &targets, &results)
 }
 
+/// Supplies one same-allocation source/result view for the bounded Stage-B
+/// carrier correspondence proof.
+///
+/// Unlike `with_instance_result_contract_inputs`, this sibling includes the
+/// exact outer static `Body(3).Value` target. The general call-result row for
+/// that site intentionally remains absent because its nested instance
+/// argument is closed by the separate bounded contract.
+pub(crate) fn with_stageb_carrier_correspondence_inputs<R>(
+    f: impl FnOnce(
+        &VerifiedSameModuleCallableDeclarationCatalogV1,
+        &CanonicalSameModuleCallableKeyV1,
+        &SourceExprSiteV1,
+        &[SourceExprSiteV1; 2],
+        &VerifiedSourceStaticCallTargetCatalogV1<'_>,
+        &super::super::VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
+    ) -> R,
+) -> R {
+    let source = instance_result_contract_source();
+    let declarations = declarations(&source);
+    let outer_site = site(vec![
+        SourcePathSegmentV1::Body(3),
+        SourcePathSegmentV1::Value,
+    ]);
+    let inner_sites = [
+        site(vec![
+            SourcePathSegmentV1::Body(3),
+            SourcePathSegmentV1::Value,
+            SourcePathSegmentV1::Argument(1),
+        ]),
+        site(vec![
+            SourcePathSegmentV1::Body(4),
+            SourcePathSegmentV1::LoopBody(5),
+            SourcePathSegmentV1::Value,
+            SourcePathSegmentV1::Argument(1),
+        ]),
+    ];
+    let dependency_targets = qualified_targets(
+        &declarations,
+        &[("StringHelpers", "StringHelpers")],
+        &[
+            CallSiteSpecV1 {
+                caller_owner: "ParserBox",
+                caller_name: "static_const_eval_pos",
+                caller_arity: 1,
+                site: site(vec![
+                    SourcePathSegmentV1::Body(3),
+                    SourcePathSegmentV1::Value,
+                ]),
+            },
+            CallSiteSpecV1 {
+                caller_owner: "ParserBox",
+                caller_name: "static_const_parse_add",
+                caller_arity: 2,
+                site: outer_site.clone(),
+            },
+            CallSiteSpecV1 {
+                caller_owner: "ParserBox",
+                caller_name: "static_const_parse_add",
+                caller_arity: 2,
+                site: site(vec![
+                    SourcePathSegmentV1::Body(4),
+                    SourcePathSegmentV1::LoopBody(5),
+                    SourcePathSegmentV1::Value,
+                ]),
+            },
+        ],
+    );
+    let targets = extend_current_owner_targets(
+        dependency_targets,
+        &declarations,
+        &[CallSiteSpecV1 {
+            caller_owner: "StringHelpers",
+            caller_name: "to_i64",
+            caller_arity: 1,
+            site: site(vec![
+                SourcePathSegmentV1::Body(12),
+                SourcePathSegmentV1::LoopBody(2),
+                SourcePathSegmentV1::Initializer(0),
+            ]),
+        }],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let caller = instance_key(&declarations, "ParserBox", "static_const_parse_add", 2);
+
+    f(
+        &declarations,
+        &caller,
+        &outer_site,
+        &inner_sites,
+        &targets,
+        &results,
+    )
+}
+
 pub(crate) fn caller(
     plan: &VerifiedCallableResultActivationPlanV1,
 ) -> CanonicalSameModuleCallableKeyV1 {

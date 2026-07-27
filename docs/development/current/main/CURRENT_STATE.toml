@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-CARRIER-HANDOFF0-prime-r1 is accepted with post-answer code-audit refinement. The selected chain uses one owned same-catalog activation row, one bounded port-aware body sibling inside the existing legacy function transaction, a distinct successful outer generic-Call receipt, exact assignment correspondence, and existing TypeFactDecisionV1/TypeContext::set_type publication to the assigned outer carrier only. Direct RawInvocation/collector cutover is rejected because it would change header and publication authority. The current inner receipt/TYPE-I0 remains proof-only and never proves the outer carrier. PRELOOP-STAGEB-CARRIER-CORRESPONDENCE0-P0 is next."
+status = "PRELOOP-STAGEB-CARRIER-HANDOFF0-prime-r1 is accepted with post-answer code-audit refinement. PRELOOP-STAGEB-CARRIER-CORRESPONDENCE0-P0 is closed: one same-allocation fixture proves exact outer ExactI64(required=[Argument(1)]) evidence while the general nested call row remains absent; actual inner and outer Call destinations differ; existing assignment publishes the outer destination to pos without projection; and the existing GenericLoop composer reports that exact pos ValueId as its missing transient type. Production activation, outer type publication, and inner TYPE-I0 production consumers remain zero. PRELOOP-OUTER-CARRIER-RESULT-CONTRACT0-S0 is next."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-CARRIER-CORRESPONDENCE0-P0"
-current_execution_summary = "Read-only/code-facing proof of the exact selected row: inner Call destination differs from the outer skip_ws destination; the outer destination corresponds to the Body(3) assignment and later GenericLoop init carrier; the existing static result proof exposes ExactI64 with required=[structural Argument(1)]; activation and inner TYPE-I0 production consumers remain zero. If any correspondence is absent, stop instead of widening or inferring from names."
+current_execution_row = "PRELOOP-OUTER-CARRIER-RESULT-CONTRACT0-S0"
+current_execution_summary = "Add one Builder-free bounded source proof: project the existing same-allocation static exact-i64 requirement, co-seal it with structural CallArgument(1) and the existing inner exact-i64 contract, and reject foreign catalog, ordinal, unavailable result, or general call-row substitution. Do not add Builder, ValueId, MirType, activation, solver widening, name inference, or production consumers."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -637,7 +637,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-CARRIER-CORRESPONDENCE0-P0"
+current_blocker_token = "PRELOOP-OUTER-CARRIER-RESULT-CONTRACT0-S0"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
 raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
