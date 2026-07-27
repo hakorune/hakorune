@@ -70,11 +70,11 @@ mod preloop_located_argument_port;
 mod preloop_located_argument_rejection;
 mod preloop_located_outer_completion;
 mod preloop_nested_result_receipt;
+mod preloop_nested_result_type;
 mod preloop_outer_carrier_assignment;
 mod preloop_outer_carrier_transaction;
 mod preloop_outer_carrier_type;
 mod preloop_stageb_instance_function_session;
-mod preloop_nested_result_type;
 pub(in crate::mir::builder) use method_call_descent::{
     lower_method_call_argument_v1, AssociatedMethodCallArgumentsV1, LegacyMethodCallArgumentsV1,
     MethodCallArgumentDescentV1, MethodCallDescentPortV1, MethodCallSyntaxViewV1,
@@ -106,15 +106,15 @@ mod preloop_located_argument_port_tests;
 #[cfg(test)]
 mod preloop_located_outer_completion_tests;
 #[cfg(test)]
-mod preloop_outer_carrier_transaction_tests;
-#[cfg(test)]
-mod preloop_outer_carrier_type_tests;
-#[cfg(test)]
 mod preloop_nested_result_test_support;
 #[cfg(test)]
 mod preloop_nested_result_type_p0_tests;
 #[cfg(test)]
 mod preloop_nested_result_type_tests;
+#[cfg(test)]
+mod preloop_outer_carrier_transaction_tests;
+#[cfg(test)]
+mod preloop_outer_carrier_type_tests;
 #[cfg(test)]
 mod preloop_stageb_carrier_correspondence_tests;
 pub mod receiver_binding; // Step 4: Receiver ('me'/'this') normalization and binding

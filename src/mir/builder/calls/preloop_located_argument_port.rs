@@ -227,7 +227,10 @@ where
                 ))
             }
             PreloopSelectedArgumentStateV1::Emitted(receipt) => {
-                unreachable!("outer completion never creates historical receipt: {:?}", receipt)
+                unreachable!(
+                    "outer completion never creates historical receipt: {:?}",
+                    receipt
+                )
             }
             PreloopSelectedArgumentStateV1::Transitioning => {
                 unreachable!("private synchronous pre-loop transition escaped")

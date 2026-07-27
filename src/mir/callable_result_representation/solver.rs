@@ -7,11 +7,11 @@ use crate::mir::builder::{
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1;
 
-use super::call_row::{CallableResultCallRowsV1, VerifiedCallableResultCallSiteV1};
 use super::body_proof_issue::{
     CallableBodyProofIssueErrorV1, VerifiedUnannotatedCallableBodyResultOutcomeV1,
     VerifiedUnannotatedCallableBodyResultProofV1,
 };
+use super::call_row::{CallableResultCallRowsV1, VerifiedCallableResultCallSiteV1};
 use super::function_proof::{prove_function, FunctionProofOutcomeV1};
 use super::{
     CallableResultCatalogErrorV1, CallableResultUnavailableReasonV1,
@@ -142,10 +142,8 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
     pub(in crate::mir) fn issue_unannotated_body_proof(
         &self,
         target: &'catalog VerifiedSameModuleCallableDeclarationV1,
-    ) -> Result<
-        VerifiedUnannotatedCallableBodyResultProofV1<'catalog>,
-        CallableBodyProofIssueErrorV1,
-    > {
+    ) -> Result<VerifiedUnannotatedCallableBodyResultProofV1<'catalog>, CallableBodyProofIssueErrorV1>
+    {
         let Some(owned_target) = self.declarations.declaration(target.key()) else {
             return Err(CallableBodyProofIssueErrorV1::TargetOutsideCatalog {
                 target: target.key().clone(),

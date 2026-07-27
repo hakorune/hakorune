@@ -31,14 +31,14 @@ pub(in crate::mir) use callable_commit::{
     NormalCallableCandidateVerificationReceiptV1, NormalCallableCommitErrorV1,
     PreparedNormalCallableCommitV1, RejectedNormalCallableCommitV1,
 };
+#[cfg(test)]
+pub(in crate::mir) use callable_draft_prefix::completed_for_main_physical;
 pub(in crate::mir) use callable_draft_prefix::{
     ConsumedNormalHelperLoweringReceiptV1, NormalHelperDraftCorrespondenceErrorV1,
     NormalHelperDraftPrefixFailureV1, PreparedNormalHelperDraftPrefixV1,
     RejectedNormalHelperDraftPrefixV1, RetainedNormalHelperDraftPrefixV1,
     VerifiedNormalHelperDraftV1,
 };
-#[cfg(test)]
-pub(in crate::mir) use callable_draft_prefix::completed_for_main_physical;
 #[cfg(test)]
 pub(super) use callable_main_physical::{
     reject_normal_callable_main_physical_at_stage_for_test, NormalCallableMainPhysicalTestStageV1,
@@ -59,8 +59,7 @@ pub(in crate::mir) use main_transaction::{
     NormalMainBatchCorrespondenceErrorV1, NormalMainCandidateVerificationReceiptV1,
     NormalMainModuleTransactionErrorV1, NormalMainModuleTransactionStageV1,
     PreparedNormalMainModuleTransactionV1, RejectedNormalMainModuleTransactionV1,
-    RetainedNormalMainPreparedDraftsV1,
-    RetainedNormalMainTransactionEvidenceV1,
+    RetainedNormalMainPreparedDraftsV1, RetainedNormalMainTransactionEvidenceV1,
 };
 pub(in crate::mir::builder) use rejection::{
     NormalModuleTransactionSchemaErrorV1, RejectedNormalModuleTransactionSchemaV1,

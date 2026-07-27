@@ -388,7 +388,6 @@ impl CompletedNormalMainModuleCandidateV1 {
     ) {
         (self.module, self.evidence, self.verification)
     }
-
 }
 
 fn validate_correspondence(

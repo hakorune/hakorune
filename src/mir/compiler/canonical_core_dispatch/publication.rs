@@ -13,8 +13,7 @@ use crate::mir::builder::{
     CompletedNormalMainModuleCandidateV1, CompletedNormalMainModuleEvidenceV1,
     CompletedNormalScriptModuleCandidateV1, CompletedNormalScriptModuleEvidenceV1,
     NormalCallableCandidateVerificationReceiptV1, NormalMainCandidateVerificationReceiptV1,
-    NormalScriptCandidateVerificationReceiptV1,
-    VerifiedScriptEntryResultContractV1,
+    NormalScriptCandidateVerificationReceiptV1, VerifiedScriptEntryResultContractV1,
 };
 use crate::mir::compiler::normal_source_plan::VerifiedNormalMainThunkResultV1;
 use crate::mir::compiler::source_entry_published_invocation::{

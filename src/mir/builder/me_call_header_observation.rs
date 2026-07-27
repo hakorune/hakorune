@@ -6,8 +6,8 @@
 //! The shared method policy consumes this vocabulary at I0; production
 //! module draft/fact capture remains a separate cutover.
 
-use super::calls::MethodCallValueTerminalPortV1;
 use super::calls::MethodCallDescentPortV1;
+use super::calls::MethodCallValueTerminalPortV1;
 use super::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::{MirBuilder, MirType, ValueId};
 

@@ -1,7 +1,5 @@
 use crate::ast::ASTNode;
-use crate::mir::builder::{
-    SameModuleCallableNamespaceV1, VerifiedSameModuleCallableDeclarationV1,
-};
+use crate::mir::builder::{SameModuleCallableNamespaceV1, VerifiedSameModuleCallableDeclarationV1};
 use crate::mir::source_call_target::VerifiedSourceMethodCallSiteV1;
 
 use super::CurrentOwnerInstanceResultTargetErrorV1;
@@ -40,11 +38,13 @@ impl<'site, 'catalog> VerifiedCurrentOwnerInstanceResultTargetV1<'site, 'catalog
             call.method(),
             call.arity() as usize,
         ) else {
-            return Err(CurrentOwnerInstanceResultTargetErrorV1::TargetOutsideCatalog {
-                owner: owner.into(),
-                method: call.method().into(),
-                arity: call.arity(),
-            });
+            return Err(
+                CurrentOwnerInstanceResultTargetErrorV1::TargetOutsideCatalog {
+                    owner: owner.into(),
+                    method: call.method().into(),
+                    arity: call.arity(),
+                },
+            );
         };
         Ok(Self { call, target })
     }

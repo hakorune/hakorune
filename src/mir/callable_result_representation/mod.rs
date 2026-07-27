@@ -21,16 +21,16 @@ mod requirements;
 mod solver;
 mod static_exact_i64_requirement;
 
+pub(crate) use body_proof_issue::{
+    CallableBodyProofIssueErrorV1, VerifiedUnannotatedCallableBodyResultOutcomeV1,
+    VerifiedUnannotatedCallableBodyResultProofV1,
+};
 #[allow(unused_imports)]
 pub(crate) use call_row::{VerifiedCallableResultCallSiteV1, VerifiedCallableResultEvidenceV1};
 pub(crate) use disposition::{
     CallableResultUnavailableReasonV1, VerifiedCallableResultDispositionV1,
 };
 pub(crate) use error::CallableResultCatalogErrorV1;
-pub(crate) use body_proof_issue::{
-    CallableBodyProofIssueErrorV1, VerifiedUnannotatedCallableBodyResultOutcomeV1,
-    VerifiedUnannotatedCallableBodyResultProofV1,
-};
 pub(crate) use solver::VerifiedSameModuleCallableResultCatalogV1;
 #[allow(unused_imports)]
 pub(crate) use static_exact_i64_requirement::{

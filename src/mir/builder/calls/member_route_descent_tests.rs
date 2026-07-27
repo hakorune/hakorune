@@ -14,9 +14,7 @@ use super::super::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::call_argument_descent::CallArgumentDescentPortV1;
 use super::extern_calls::EnvMethodSpec;
-use super::method_call_descent::{
-    MethodCallDescentPortV1, MethodCallSyntaxViewV1,
-};
+use super::method_call_descent::{MethodCallDescentPortV1, MethodCallSyntaxViewV1};
 use super::method_call_terminal::MethodCallValueTerminalPortV1;
 
 fn integer(value: i64) -> ASTNode {
@@ -257,12 +255,7 @@ impl MethodCallValueTerminalPortV1 for RoutePort {
             return Err("route fixture terminal failure".to_string());
         }
         let mut raw = RawLegacyChildLoweringPortV1;
-        raw.emit_standard_value_terminal(
-            builder,
-            receiver,
-            method,
-            arguments,
-        )
+        raw.emit_standard_value_terminal(builder, receiver, method, arguments)
     }
 }
 

@@ -23,9 +23,7 @@ pub(crate) enum CallableBodyProofIssueErrorV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum VerifiedUnannotatedCallableBodyResultOutcomeV1 {
-    ExactI64 {
-        required_i64_arguments: Box<[u32]>,
-    },
+    ExactI64 { required_i64_arguments: Box<[u32]> },
     Unavailable(CallableResultUnavailableReasonV1),
     PendingDependency,
 }

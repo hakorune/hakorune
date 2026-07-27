@@ -5,14 +5,13 @@
 //! returns an unpublished candidate; publication and VM execution remain later
 //! boundaries.
 
-pub(in crate::mir) mod publication;
 mod callable;
+pub(in crate::mir) mod publication;
 
 use crate::mir::builder::{
     CompletedNormalCallableCandidateV1, CompletedNormalMainModuleCandidateV1,
-    NormalCanonicalModuleBatchErrorV1,
-    NormalCanonicalModuleBatchV1, NormalMainModuleTransactionErrorV1,
-    PreparedNormalScriptModuleTransactionV1,
+    NormalCanonicalModuleBatchErrorV1, NormalCanonicalModuleBatchV1,
+    NormalMainModuleTransactionErrorV1, PreparedNormalScriptModuleTransactionV1,
 };
 use crate::mir::compiler::normal_source_plan::{
     NormalMainFunctionPlanErrorV1, NormalMainFunctionPreflightV1, NormalMainFunctionSourceErrorV1,
@@ -274,9 +273,7 @@ impl CanonicalCoreInvocationFailureReportV1 {
     }
 }
 
-impl From<RejectedCanonicalCorePublishedSourceEntryV1>
-    for CanonicalCoreInvocationFailureReportV1
-{
+impl From<RejectedCanonicalCorePublishedSourceEntryV1> for CanonicalCoreInvocationFailureReportV1 {
     fn from(rejected: RejectedCanonicalCorePublishedSourceEntryV1) -> Self {
         match rejected {
             RejectedCanonicalCorePublishedSourceEntryV1::Dispatch(rejected) => {
@@ -408,13 +405,9 @@ impl NormalCanonicalCoreSourcePlanCompilerV1 {
             SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)) => {
                 Self::compile_script(compiler, script, admission, receipt)
             }
-            SealedNormalSourcePlanV1::CallableModule(source) => callable::compile(
-                compiler,
-                source,
-                admission,
-                receipt,
-            )
-            .map_err(reject_callable),
+            SealedNormalSourcePlanV1::CallableModule(source) => {
+                callable::compile(compiler, source, admission, receipt).map_err(reject_callable)
+            }
         }
     }
 

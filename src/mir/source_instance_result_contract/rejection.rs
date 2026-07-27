@@ -30,7 +30,5 @@ pub(crate) enum NestedInstanceResultContractErrorV1 {
     TargetProofMismatch,
     BodyUnavailable(CallableResultUnavailableReasonV1),
     SealedDependencyPending,
-    NonEmptyRequiredArguments {
-        count: usize,
-    },
+    NonEmptyRequiredArguments { count: usize },
 }

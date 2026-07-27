@@ -38,7 +38,6 @@ mod canonical_root_completion_receipt0_p0; // CUT0-I0-ROOT0-CANON0-RECEIPT0 fixt
 mod canonical_root_completion_recursive0_p0; // CUT0-I0-ROOT0-CANON0-RECURSIVE0 fixtures
 mod collection_literals; // ArrayLiteral / MapLiteral lowering
 mod compilation_context; // Phase 136 follow-up (Step 7/7): CompilationContext extraction
-pub(in crate::mir) mod preloop_stageb_context_install; // atomic selected catalog+alias install
 mod compound_assignment; // evaluated Place read-modify-write lowering
 mod decls; // declarations lowering split
 #[allow(dead_code)]
@@ -60,6 +59,7 @@ mod function_state_transaction;
 mod located_legacy_lowering;
 #[allow(dead_code)]
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
+pub(in crate::mir) mod preloop_stageb_context_install; // atomic selected catalog+alias install
 mod preloop_stageb_function_activation; // exact selected-function ledger + collector owner
 mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
 #[cfg(test)]
@@ -181,24 +181,24 @@ pub(in crate::mir) use module_invocation_brand0::{
 pub(in crate::mir) use module_invocation_owner_chain::InvocationBranded;
 pub(in crate::mir) use module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;
-pub(in crate::mir) use preloop_stageb_function_activation::{
-    CompletedPreloopStageBFunctionActivationV1, PreparedPreloopStageBFunctionActivationV1,
-    PreloopStageBFunctionActivationErrorV1, RejectedPreloopStageBFunctionActivationV1,
-};
+#[cfg(test)]
+pub(in crate::mir) use normal_module_transaction::completed_for_main_physical;
 pub(in crate::mir) use normal_module_transaction::{
     CompletedNormalCallableCandidateV1, CompletedNormalCallableModuleEvidenceV1,
     CompletedNormalMainModuleCandidateV1, CompletedNormalMainModuleEvidenceV1,
     CompletedNormalScriptModuleCandidateV1, CompletedNormalScriptModuleEvidenceV1,
-    NormalCanonicalModuleBatchErrorV1, NormalCanonicalModuleBatchV1,
-    NormalCallableCandidateVerificationReceiptV1, NormalMainCandidateVerificationReceiptV1,
-    NormalMainModuleTransactionErrorV1,
-    RejectedNormalCallableBatchV1, RejectedNormalCallableCommitV1,
-    RejectedNormalCallableMainPhysicalV1, RejectedNormalHelperDraftPrefixV1,
-    NormalScriptCandidateVerificationReceiptV1, PreparedNormalScriptModuleTransactionV1,
-    RejectedNormalScriptModuleTransactionV1, VerifiedScriptEntryResultContractV1,
+    NormalCallableCandidateVerificationReceiptV1, NormalCanonicalModuleBatchErrorV1,
+    NormalCanonicalModuleBatchV1, NormalMainCandidateVerificationReceiptV1,
+    NormalMainModuleTransactionErrorV1, NormalScriptCandidateVerificationReceiptV1,
+    PreparedNormalScriptModuleTransactionV1, RejectedNormalCallableBatchV1,
+    RejectedNormalCallableCommitV1, RejectedNormalCallableMainPhysicalV1,
+    RejectedNormalHelperDraftPrefixV1, RejectedNormalScriptModuleTransactionV1,
+    VerifiedScriptEntryResultContractV1,
 };
-#[cfg(test)]
-pub(in crate::mir) use normal_module_transaction::completed_for_main_physical;
+pub(in crate::mir) use preloop_stageb_function_activation::{
+    CompletedPreloopStageBFunctionActivationV1, PreloopStageBFunctionActivationErrorV1,
+    PreparedPreloopStageBFunctionActivationV1, RejectedPreloopStageBFunctionActivationV1,
+};
 pub(in crate::mir) use raw_root_physical::drain_terminal::{
     PreparedRawPhysicalDrainV1, RawDrainWitnessV1, RawDrainedPhysicalV1, RawPhysicalDrainErrorV1,
     RejectedRawPhysicalDrainV1,

@@ -22,19 +22,14 @@ use super::preloop_located_argument_ingress::{
 use super::preloop_located_argument_port::{
     PreloopLocatedArgumentPortV1, PreloopLocatedExpressionInputV1, PreloopSelectedArgumentStateV1,
 };
-use super::preloop_nested_result_test_support::with_prepared_located_outer;
 use super::preloop_nested_result_test_support::with_actual_parser_stageb_ingress;
+use super::preloop_nested_result_test_support::with_prepared_located_outer;
 use super::{drive_call_arguments_v1, CallArgumentDescentPortV1};
 
 fn with_reached_inner_port<R>(
     f: impl for<'site, 'view, 'catalog> FnOnce(
         &mut MirBuilder,
-        PreloopLocatedArgumentPortV1<
-            'site,
-            'view,
-            'catalog,
-            RawLegacyChildLoweringPortV1,
-        >,
+        PreloopLocatedArgumentPortV1<'site, 'view, 'catalog, RawLegacyChildLoweringPortV1>,
         Vec<ValueId>,
     ) -> R,
 ) -> R {
@@ -54,12 +49,8 @@ fn with_reached_inner_port<R>(
                                 RawLegacyChildLoweringPortV1,
                                 prepared,
                             );
-                            let values = drive_call_arguments_v1(
-                                builder,
-                                &mut port,
-                                &arguments,
-                            )
-                            .expect("selected inner physical receipt");
+                            let values = drive_call_arguments_v1(builder, &mut port, &arguments)
+                                .expect("selected inner physical receipt");
                             assert!(matches!(
                                 port.selected_state(),
                                 PreloopSelectedArgumentStateV1::ReachedPhysical(_)
@@ -77,13 +68,15 @@ fn outer_call_count(builder: &MirBuilder) -> usize {
     builder
         .current_function_instructions()
         .iter()
-        .filter(|instruction| matches!(
-            instruction,
-            MirInstruction::Call {
-                callee: Some(Callee::Global(symbol)),
-                ..
-            } if symbol == "ParserStringUtilsBox.skip_ws/2"
-        ))
+        .filter(|instruction| {
+            matches!(
+                instruction,
+                MirInstruction::Call {
+                    callee: Some(Callee::Global(symbol)),
+                    ..
+                } if symbol == "ParserStringUtilsBox.skip_ws/2"
+            )
+        })
         .count()
 }
 
@@ -210,8 +203,7 @@ fn candidate_rejection_retains_the_exact_selected_source_owner() {
 #[test]
 fn outer_receipt_preflight_emits_no_call_without_the_inner_receipt() {
     with_prepared_located_outer(|prepared, _| {
-        let mut port =
-            PreloopLocatedArgumentPortV1::new(RawLegacyChildLoweringPortV1, prepared);
+        let mut port = PreloopLocatedArgumentPortV1::new(RawLegacyChildLoweringPortV1, prepared);
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("outer_receipt_preflight/0".to_owned());
         let before = builder.current_function_instructions().len();
@@ -324,7 +316,10 @@ fn completed_outer_terminal_rejects_duplicate_and_wrong_completion_without_a_sec
                 rejected.retained_outer_destination(),
                 Some(outer_destination)
             );
-            assert_eq!(builder.function_state.type_ctx.get_type(outer_destination), None);
+            assert_eq!(
+                builder.function_state.type_ctx.get_type(outer_destination),
+                None
+            );
             rejected.discard();
         });
     });

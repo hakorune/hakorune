@@ -4,10 +4,10 @@
 //! the complete projected owner and exposes only the already-normalized
 //! process outcome.
 
-use super::raw_root_publication::RawPublishedInvocationV1;
 use super::canonical_core_dispatch::publication::{
     CanonicalPublishedFamilyKindV1, PublishedCanonicalSourceEntryOwnerV1,
 };
+use super::raw_root_publication::RawPublishedInvocationV1;
 use super::source_entry_projection::ProjectedSourceEntryV1;
 use super::source_entry_result::{
     ProcessExitCodeV1, ProcessFaultV1, ProcessTerminationV1, SourceEntryResultKindV1,
@@ -16,9 +16,9 @@ use super::source_entry_result::{
 use super::source_entry_vm_diagnostic::{
     VmReferenceProcessDiagnosticAdapterV1, VmReferenceProcessDiagnosticReportV1,
 };
-use crate::mir::builder::RawVmSourceEntryDecodeKindV1;
 #[cfg(feature = "vm-reference")]
 use super::source_entry_vm_invocation::VmReferenceExecutablePublishedOwnerV1;
+use crate::mir::builder::RawVmSourceEntryDecodeKindV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum VmSourceEntryDecodePlanV1 {
@@ -212,17 +212,19 @@ impl VmReferenceProcessOutcomeV1 {
             VmReferenceProjectedOwnerV1::Existing(projected) => projected.carrier().route(),
             VmReferenceProjectedOwnerV1::Published { published, .. } => match published {
                 VmReferencePublishedOwnerV1::Raw(published) => published.selected_entry().route(),
-                VmReferencePublishedOwnerV1::Canonical(published) => match published.family_kind() {
-                    CanonicalPublishedFamilyKindV1::Main => {
-                        super::source_entry_selection::SelectedSourceEntryRouteV1::AppMain0
+                VmReferencePublishedOwnerV1::Canonical(published) => {
+                    match published.family_kind() {
+                        CanonicalPublishedFamilyKindV1::Main => {
+                            super::source_entry_selection::SelectedSourceEntryRouteV1::AppMain0
+                        }
+                        CanonicalPublishedFamilyKindV1::Script => {
+                            super::source_entry_selection::SelectedSourceEntryRouteV1::Script
+                        }
+                        CanonicalPublishedFamilyKindV1::Callable => {
+                            super::source_entry_selection::SelectedSourceEntryRouteV1::AppMain0
+                        }
                     }
-                    CanonicalPublishedFamilyKindV1::Script => {
-                        super::source_entry_selection::SelectedSourceEntryRouteV1::Script
-                    }
-                    CanonicalPublishedFamilyKindV1::Callable => {
-                        super::source_entry_selection::SelectedSourceEntryRouteV1::AppMain0
-                    }
-                },
+                }
             },
         }
     }

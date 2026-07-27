@@ -4,12 +4,12 @@ use crate::mir::builder::module_lowering_shell::{
     ModuleLoweringShellDrainInventoryV1, ModuleLoweringShellErrorV1, ModuleLoweringShellV1,
     PreparedModuleLoweringShellDrainV1,
 };
-use crate::mir::verification::MirVerifier;
-use crate::mir::verification_types::VerificationError;
 use crate::mir::compiler::normal_source_plan::{
     PreparedNormalHelperTopologyReceiptV1, VerifiedNormalMainPhysicalRelationV1,
     VerifiedNormalMainThunkResultV1,
 };
+use crate::mir::verification::MirVerifier;
+use crate::mir::verification_types::VerificationError;
 use crate::mir::{MirFunction, MirModule};
 
 use super::callable_batch::PreparedNormalCallableBatchV1;
@@ -74,7 +74,9 @@ impl CompletedNormalCallableCandidateV1 {
         &self.evidence
     }
 
-    pub(in crate::mir) const fn verification(&self) -> &NormalCallableCandidateVerificationReceiptV1 {
+    pub(in crate::mir) const fn verification(
+        &self,
+    ) -> &NormalCallableCandidateVerificationReceiptV1 {
         &self.verification
     }
 

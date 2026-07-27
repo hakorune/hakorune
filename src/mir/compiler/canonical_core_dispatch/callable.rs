@@ -14,13 +14,12 @@ use crate::mir::compiler::normal_source_plan::{
     SealedNormalCallableModuleSourceV1,
 };
 
-use super::{
-    CanonicalCallableDispatchStageV1,
-    CompletedCanonicalCoreSourceEntryCandidateSealV1, CompletedCanonicalCoreSourceEntryCandidateV1,
-    CompletedCanonicalCoreSourceEntryFamilyV1, NormalSourcePlanReceiptV1,
-    VerifiedCanonicalCoreSourcePlanAdmissionV1,
-};
 use super::super::MirCompiler;
+use super::{
+    CanonicalCallableDispatchStageV1, CompletedCanonicalCoreSourceEntryCandidateSealV1,
+    CompletedCanonicalCoreSourceEntryCandidateV1, CompletedCanonicalCoreSourceEntryFamilyV1,
+    NormalSourcePlanReceiptV1, VerifiedCanonicalCoreSourcePlanAdmissionV1,
+};
 
 /// The fixed no-import profile owns one source file, hence one catalog unit.
 const CANONICAL_CORE_SINGLE_FILE_UNIT_ORDINAL: u32 = 0;
@@ -113,50 +112,74 @@ pub(super) fn compile(
     source: SealedNormalCallableModuleSourceV1,
     admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
     receipt: NormalSourcePlanReceiptV1,
-) -> Result<CompletedCanonicalCoreSourceEntryCandidateV1, RejectedCanonicalCallableDispatchWithContextV1>
-{
+) -> Result<
+    CompletedCanonicalCoreSourceEntryCandidateV1,
+    RejectedCanonicalCallableDispatchWithContextV1,
+> {
     let context = OpenCanonicalCallableDispatchContextV1 { admission, receipt };
     let callable = match source.prepare_callable_source() {
         Ok(callable) => callable,
-        Err(rejected) => return Err(context.reject(RejectedCanonicalCallableDispatchV1::Source(rejected))),
+        Err(rejected) => {
+            return Err(context.reject(RejectedCanonicalCallableDispatchV1::Source(rejected)))
+        }
     };
     let catalog = match callable.prepare_helper_catalog(CANONICAL_CORE_SINGLE_FILE_UNIT_ORDINAL) {
         Ok(catalog) => catalog,
-        Err(rejected) => return Err(context.reject(RejectedCanonicalCallableDispatchV1::Catalog(rejected))),
+        Err(rejected) => {
+            return Err(context.reject(RejectedCanonicalCallableDispatchV1::Catalog(rejected)))
+        }
     };
     let main = match catalog.prepare_main_with_helper_catalog() {
         Ok(main) => main,
-        Err(rejected) => return Err(context.reject(RejectedCanonicalCallableDispatchV1::MainCatalog(rejected))),
+        Err(rejected) => {
+            return Err(context.reject(RejectedCanonicalCallableDispatchV1::MainCatalog(rejected)))
+        }
     };
     let plan = match NormalMainDirectCallPreflightV1::seal(main) {
         Ok(plan) => plan,
-        Err(rejected) => return Err(context.reject(RejectedCanonicalCallableDispatchV1::MainPlan(rejected))),
+        Err(rejected) => {
+            return Err(context.reject(RejectedCanonicalCallableDispatchV1::MainPlan(rejected)))
+        }
     };
     let resolved = match plan.prepare_helper_resolution().resolve() {
         Ok(resolved) => resolved,
-        Err(rejected) => return Err(context.reject(RejectedCanonicalCallableDispatchV1::HelperResolution(rejected))),
+        Err(rejected) => {
+            return Err(
+                context.reject(RejectedCanonicalCallableDispatchV1::HelperResolution(
+                    rejected,
+                )),
+            )
+        }
     };
     let prefix = match compiler
         .builder
         .prepare_normal_helper_draft_prefix_v1(resolved.into_tx0_handoff())
     {
         Ok(prefix) => prefix,
-        Err(rejected) => return Err(context.reject(RejectedCanonicalCallableDispatchV1::HelperDraft(rejected))),
+        Err(rejected) => {
+            return Err(context.reject(RejectedCanonicalCallableDispatchV1::HelperDraft(rejected)))
+        }
     };
     let physical = match compiler
         .builder
         .prepare_normal_callable_main_physical_v1(prefix)
     {
         Ok(physical) => physical,
-        Err(rejected) => return Err(context.reject(RejectedCanonicalCallableDispatchV1::MainPhysical(rejected))),
+        Err(rejected) => {
+            return Err(context.reject(RejectedCanonicalCallableDispatchV1::MainPhysical(rejected)))
+        }
     };
     let batch = match physical.seal_normal_callable_batch_v1() {
         Ok(batch) => batch,
-        Err(rejected) => return Err(context.reject(RejectedCanonicalCallableDispatchV1::Batch(rejected))),
+        Err(rejected) => {
+            return Err(context.reject(RejectedCanonicalCallableDispatchV1::Batch(rejected)))
+        }
     };
     let prepared = match batch.prepare_normal_callable_commit_v1() {
         Ok(prepared) => prepared,
-        Err(rejected) => return Err(context.reject(RejectedCanonicalCallableDispatchV1::Commit(rejected))),
+        Err(rejected) => {
+            return Err(context.reject(RejectedCanonicalCallableDispatchV1::Commit(rejected)))
+        }
     };
     Ok(context.complete(prepared.commit()))
 }
