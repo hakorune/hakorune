@@ -76,8 +76,12 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
             });
         }
 
-        for (key, _) in &static_declarations {
-            rows_by_key.entry((*key).clone()).or_insert_with(|| {
+        let stalled_keys = static_declarations
+            .iter()
+            .filter_map(|(key, _)| (!rows_by_key.contains_key(*key)).then_some((*key).clone()))
+            .collect::<std::collections::BTreeSet<_>>();
+        for key in &stalled_keys {
+            rows_by_key.entry(key.clone()).or_insert_with(|| {
                 VerifiedCallableResultDispositionV1::Unavailable(
                     CallableResultUnavailableReasonV1::RecursiveDependency,
                 )
@@ -93,10 +97,11 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
         let mut call_rows_by_site = CallableResultCallRowsV1::new();
         for (key, declaration) in static_declarations {
             let product = prove_function(declaration, targets, &rows_by_key)?;
-            let Some(stable) = disposition(key, product.outcome)? else {
+            let stable = disposition(key, product.outcome)?;
+            let Some(stored) = rows_by_key.get(key) else {
                 return Err(CallableResultCatalogErrorV1::StableResultDrift { key: key.clone() });
             };
-            if rows_by_key.get(key) != Some(&stable) {
+            if !final_disposition_matches(stored, stable.as_ref(), stalled_keys.contains(key)) {
                 return Err(CallableResultCatalogErrorV1::StableResultDrift { key: key.clone() });
             }
             for (row_key, row) in product.call_rows {
@@ -225,6 +230,25 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
     }
 }
 
+fn final_disposition_matches(
+    stored: &VerifiedCallableResultDispositionV1,
+    observed: Option<&VerifiedCallableResultDispositionV1>,
+    stalled: bool,
+) -> bool {
+    if stalled {
+        return matches!(
+            (stored, observed),
+            (
+                VerifiedCallableResultDispositionV1::Unavailable(
+                    CallableResultUnavailableReasonV1::RecursiveDependency,
+                ),
+                Some(VerifiedCallableResultDispositionV1::Unavailable(_)),
+            )
+        );
+    }
+    Some(stored) == observed
+}
+
 fn disposition(
     key: &CanonicalSameModuleCallableKeyV1,
     outcome: FunctionProofOutcomeV1,
@@ -237,6 +261,44 @@ fn disposition(
             VerifiedCallableResultDispositionV1::Unavailable(reason),
         )),
         FunctionProofOutcomeV1::PendingDependency => Ok(None),
+    }
+}
+
+#[cfg(test)]
+mod final_disposition_tests {
+    use super::{
+        final_disposition_matches, CallableResultUnavailableReasonV1,
+        VerifiedCallableResultDispositionV1,
+    };
+
+    fn recursive() -> VerifiedCallableResultDispositionV1 {
+        VerifiedCallableResultDispositionV1::Unavailable(
+            CallableResultUnavailableReasonV1::RecursiveDependency,
+        )
+    }
+
+    #[test]
+    fn stalled_rows_retain_recursive_closure_only_while_reproof_stays_unavailable() {
+        let stored = recursive();
+        let different_unavailable = VerifiedCallableResultDispositionV1::Unavailable(
+            CallableResultUnavailableReasonV1::UnknownExpression,
+        );
+        let exact = VerifiedCallableResultDispositionV1::ExactI64 {
+            required_i64_arguments: Box::new([]),
+        };
+
+        assert!(final_disposition_matches(
+            &stored,
+            Some(&different_unavailable),
+            true,
+        ));
+        assert!(!final_disposition_matches(&stored, Some(&exact), true));
+        assert!(!final_disposition_matches(&stored, None, true));
+        assert!(!final_disposition_matches(
+            &different_unavailable,
+            Some(&stored),
+            false,
+        ));
     }
 }
 

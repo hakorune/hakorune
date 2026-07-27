@@ -123,6 +123,24 @@ missing target typed rejection                    = TargetOutsideCatalog
 manual target / by-name target                    = 0
 ```
 
+## CALLABLE-RESULT-RECURSIVE-CLOSURE-STABILITY0-S0/P0 closeout
+
+Closed on 2026-07-28.
+
+```text
+recursive closure authority                       = stalled key set exact 1
+stalled final Unavailable                         = retain RecursiveDependency
+stalled final Exact / Pending                     = StableResultDrift
+non-stalled final reason drift                    = StableResultDrift
+final call-row producer                           = final reproof only
+SCC inference                                     = 0
+expression-algebra recursion policy               = 0
+```
+
+Direct, mutual, composed direct, and composed reverse recursion fixtures are
+green. The actual Parser inventory now passes the old
+`StringHelpers.int_to_str/1` drift and yields one complete candidate.
+
 ## Question
 
 Choose the single source authority for `me.method(...)` inside an ordinary

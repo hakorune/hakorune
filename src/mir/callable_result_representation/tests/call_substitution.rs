@@ -252,10 +252,22 @@ fn two_forwarding_wrappers_are_order_independent() {
 fn exact_targets_close_direct_and_mutual_recursion_without_scc_inference() {
     let source = r#"
         static box DirectV1 { again(value) { return me.again(value) } }
+        static box WrappedV1 { again(value) { return "-" + me.again(value) } }
         static box LeftV1 { call(value) { return RightV1.call(value) } }
         static box RightV1 { call(value) { return LeftV1.call(value) } }
+        static box LeftWrappedV1 {
+            call(value) { return "-" + RightWrappedV1.call(value) }
+        }
+        static box RightWrappedV1 {
+            call(value) { return LeftWrappedV1.call(value) }
+        }
     "#;
     let declarations = declarations(source);
+    let binary_right_site = site(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Value,
+        SourcePathSegmentV1::Rhs,
+    ]);
     let targets = qualified_targets(
         &declarations,
         &[],
@@ -272,17 +284,37 @@ fn exact_targets_close_direct_and_mutual_recursion_without_scc_inference() {
                 caller_arity: 1,
                 site: return_site(),
             },
+            CallSiteSpecV1 {
+                caller_owner: "LeftWrappedV1",
+                caller_name: "call",
+                caller_arity: 1,
+                site: binary_right_site.clone(),
+            },
+            CallSiteSpecV1 {
+                caller_owner: "RightWrappedV1",
+                caller_name: "call",
+                caller_arity: 1,
+                site: return_site(),
+            },
         ],
     );
     let targets = extend_current_owner_targets(
         targets,
         &declarations,
-        &[CallSiteSpecV1 {
-            caller_owner: "DirectV1",
-            caller_name: "again",
-            caller_arity: 1,
-            site: return_site(),
-        }],
+        &[
+            CallSiteSpecV1 {
+                caller_owner: "DirectV1",
+                caller_name: "again",
+                caller_arity: 1,
+                site: return_site(),
+            },
+            CallSiteSpecV1 {
+                caller_owner: "WrappedV1",
+                caller_name: "again",
+                caller_arity: 1,
+                site: binary_right_site,
+            },
+        ],
     );
     let results = seal_with_targets(&declarations, &targets);
     let recursive = VerifiedCallableResultDispositionV1::Unavailable(
@@ -291,8 +323,11 @@ fn exact_targets_close_direct_and_mutual_recursion_without_scc_inference() {
 
     for (owner, name) in [
         ("DirectV1", "again"),
+        ("WrappedV1", "again"),
         ("LeftV1", "call"),
         ("RightV1", "call"),
+        ("LeftWrappedV1", "call"),
+        ("RightWrappedV1", "call"),
     ] {
         assert_eq!(
             results.disposition(&key(&declarations, owner, name, 1)),
