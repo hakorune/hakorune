@@ -827,10 +827,24 @@ F8-1a PRELOOP-STAGEB-STATIC-CURRENT-OWNER-CORRESPONDENCE0-P0
   identify the existing source-view/path authority that can preserve the row
   without a second walker or by-name selection
 
+  Status: closed read-only
+
+  Exact evidence:
+    missing caller = StringHelpers.to_i64/1
+    missing site = Body(12).LoopBody(2).Initializer(0)
+    source = me._digit_value(ch)
+    missing target = StringHelpers._digit_value/1
+    existing current-owner target sealer = sufficient
+    duplicated StaticBoxMethod -> Absent mappings = 3
+    production behavior delta = 0
+
 F8-1b mandatory STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0
   choose one bounded observation handoff before changing source semantics
   do not proceed to candidate-session correspondence while the actual
   production source remains candidate-zero
+
+  Active card:
+    static-current-owner-method-observation0-d0-design-question-2026-07-27.md
 
 F8-2 SELECTED-CANDIDATE-SESSION-CORRESPONDENCE0-P0
   inventory the exact candidate configuration and commit matrix

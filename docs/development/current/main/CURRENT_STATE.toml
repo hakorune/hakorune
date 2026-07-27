@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-UNAVAILABLE-DISPOSITION0-S0/P0 is closed. The one-pass selector now distinguishes true zero as NoExactCandidate from the deterministic first bounded proof gap as ExactCandidateProofUnavailable(stage); structural alias/catalog/identity drift remains typed rejection. A complete candidate may survive an unrelated earlier observation gap. The actual Parser source now proves a narrower stop: both ParserBox outer targets are visible, but a dependency caller's bounded method observation is unavailable, so candidate count remains zero. compile_request production consumers remain zero. The active row is PRELOOP-STAGEB-STATIC-CURRENT-OWNER-CORRESPONDENCE0-P0."
+status = "PRELOOP-STAGEB-STATIC-CURRENT-OWNER-CORRESPONDENCE0-P0 is closed read-only. The actual missing authority is StringHelpers.to_i64/1 Body(12).LoopBody(2).Initializer(0): me._digit_value(ch) is rejected because three catalog-backed consumers map StaticBoxMethod to ReceiverPolicyV1::Absent. The existing current-owner target sealer is sufficient; a second walker, manual target, name/site selection, and Builder policy are unnecessary. The mandatory design stop is STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0."
 date = "2026-07-27"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "PRELOOP-STAGEB-STATIC-CURRENT-OWNER-CORRESPONDENCE0-P0"
-current_execution_summary = "Read-only inventory the exact actual-Parser dependency row lost when one static-box caller hits a bounded shadow-observation gap. Identify the exact caller/site/result edge and the existing source-view/path authority that can preserve it without a second AST walker, by-name selection, Builder policy, or production consumer. Then open one mandatory D0 before changing observation semantics."
+current_design_stop = "STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0"
+current_execution_row = "STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0"
+current_execution_summary = "Choose the sole source authority for me.method(...) inside an ordinary static-box method. Recommended A-prime adds a catalog-issued observation-only StaticCurrentOwner context to the existing FunctionSyntaxView/shadow traversal, without creating an instance receiver binding. Reject by-name/site target injection, a second walker, and broad DeclaredInstance semantics."
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
@@ -433,9 +433,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "preloop-stageb-instance-function-session-reconciliation0-prime-r1-task-map-2026-07-27"
-latest_card_path = "docs/development/current/main/investigations/preloop-stageb-instance-function-session-reconciliation0-prime-r1-task-map-2026-07-27.md"
-latest_card_summary = """PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION-RECONCILIATION0-prime-r1 preserves the accepted A1 and A-double-prime owners while correcting the R4 execution order. Audits proved that exact uses/attrs transport, a no-RawLegacy located outer completion seam, and outer Call receipt/assignment/Integer publication must close before suffix GenericLoop descent. The reconciled F1-F9 series implements those prerequisites, then the selected function session, exact ledger, sole compile_request Legacy ingress, and the real Stage-B guard. The first row is PRELOOP-STAGEB-INSTANCE-DECLARATION-RECIPE0-S0."""
+latest_card = "static-current-owner-method-observation0-d0-design-question-2026-07-27"
+latest_card_path = "docs/development/current/main/investigations/static-current-owner-method-observation0-d0-design-question-2026-07-27.md"
+latest_card_summary = """STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0 asks for the single source authority for me.method(...) in an ordinary static-box method. The actual Parser proof gap is StringHelpers.to_i64/1 -> me._digit_value(ch); the existing current-owner target sealer is sufficient, but three catalog-backed consumers incorrectly map StaticBoxMethod to receiver-absent. Recommended A-prime adds one catalog-issued observation-only StaticCurrentOwner context to the sole shadow traversal, without a lexical instance binding, second walker, manual target, Builder policy, or production route."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -638,7 +638,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PRELOOP-STAGEB-STATIC-CURRENT-OWNER-CORRESPONDENCE0-P0"
+current_blocker_token = "STATIC-CURRENT-OWNER-METHOD-OBSERVATION0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
