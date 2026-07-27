@@ -4,15 +4,17 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::ASTNode;
 use crate::mir::builder::{
-    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
-    VerifiedSameModuleCallableDeclarationV1,
+    CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationV1,
 };
 use crate::mir::resolved_semantics::{
-    observe_qualified_receiver_shadow_view_v0, FunctionSyntaxViewV1, ReceiverPolicyV1,
-    ShadowMethodCallReceiverV0, ShadowQualifiedReceiverDispositionV0, SourceExprSiteV1,
+    observe_qualified_receiver_shadow_view_v0, FunctionSyntaxViewV1, ShadowMethodCallReceiverV0,
+    ShadowQualifiedReceiverDispositionV0, SourceExprSiteV1,
 };
 
-use super::{QualifiedReceiverLexicalDispositionErrorV1, VerifiedSourceMethodCallSiteV1};
+use super::{
+    QualifiedReceiverLexicalDispositionErrorV1, SameModuleCallableSourceReceiverPolicyV1,
+    VerifiedSourceMethodCallSiteV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum QualifiedReceiverLexicalDispositionV1 {
@@ -148,10 +150,9 @@ impl<'catalog> VerifiedQualifiedReceiverLexicalDispositionsV1<'catalog> {
             }
         }
 
-        let receiver_policy = match caller.namespace() {
-            SameModuleCallableNamespaceV1::StaticBoxMethod => ReceiverPolicyV1::Absent,
-            SameModuleCallableNamespaceV1::InstanceBoxMethod => ReceiverPolicyV1::DeclaredInstance,
-        };
+        let receiver_policy =
+            SameModuleCallableSourceReceiverPolicyV1::from_namespace(caller.namespace())
+                .into_shadow_policy();
         let view = FunctionSyntaxViewV1::from_borrowed_function_parts(
             declaration.params(),
             declaration.body(),

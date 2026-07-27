@@ -5,6 +5,7 @@
 
 #![allow(dead_code)]
 
+mod callable_receiver_policy;
 mod current_owner;
 mod error;
 mod model;
@@ -17,6 +18,8 @@ mod source_method_call_site;
 mod whole_source_inventory;
 mod whole_source_inventory_error;
 
+#[allow(unused_imports)]
+pub(crate) use callable_receiver_policy::SameModuleCallableSourceReceiverPolicyV1;
 #[allow(unused_imports)]
 pub(crate) use error::{
     CurrentOwnerStaticCallTargetErrorV1, QualifiedCallRouteFactsErrorV1,
@@ -55,6 +58,8 @@ pub(crate) use whole_source_inventory::{
 #[allow(unused_imports)]
 pub(crate) use whole_source_inventory_error::WholeSourceStaticCallTargetInventoryErrorV1;
 
+#[cfg(test)]
+mod callable_receiver_policy_tests;
 #[cfg(test)]
 mod current_owner_tests;
 #[cfg(test)]

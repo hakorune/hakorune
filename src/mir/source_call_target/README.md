@@ -2,6 +2,23 @@
 
 This module owns disconnected, pre-Builder source-call target proofs.
 
+## SAME-MODULE-CALLABLE-RECEIVER-POLICY0-S0
+
+`SameModuleCallableSourceReceiverPolicyV1` is the sole production projection
+from a verified declaration-catalog namespace into the source-neutral shadow
+receiver vocabulary:
+
+```text
+StaticBoxMethod   -> StaticCurrentOwner
+InstanceBoxMethod -> DeclaredInstance
+```
+
+The policy owns no target lookup, callable-result inference, lexical receiver
+declaration, Builder receiver, MIR, or runtime identity. `FunctionSyntaxViewV1`
+for ordinary non-catalog functions and lambdas keeps its existing policy.
+Direct `StaticCurrentOwner` production outside this shared policy and focused
+tests is structurally forbidden.
+
 ## PRELOOP-STAGEB-SOURCE-INVENTORY0-P0
 
 `VerifiedWholeSourceStaticCallTargetInventoryV1` is the sole complete,

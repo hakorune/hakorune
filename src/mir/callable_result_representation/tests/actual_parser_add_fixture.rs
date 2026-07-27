@@ -11,10 +11,12 @@ use crate::mir::builder::{
     VerifiedSameModuleCallableDeclarationCatalogV1,
 };
 use crate::mir::resolved_semantics::{
-    observe_method_calls_shadow_view_v0, FunctionSyntaxViewV1, ReceiverPolicyV1, SourceExprSiteV1,
+    observe_method_calls_shadow_view_v0, FunctionSyntaxViewV1, SourceExprSiteV1,
     SourcePathSegmentV1,
 };
-use crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1;
+use crate::mir::source_call_target::{
+    SameModuleCallableSourceReceiverPolicyV1, VerifiedSourceStaticCallTargetCatalogV1,
+};
 use crate::parser::NyashParser;
 
 use super::super::{
@@ -214,7 +216,8 @@ pub(crate) fn with_source_gate_inputs<R>(
         observe_method_calls_shadow_view_v0(FunctionSyntaxViewV1::from_borrowed_function_parts(
             declaration.params(),
             declaration.body(),
-            ReceiverPolicyV1::DeclaredInstance,
+            SameModuleCallableSourceReceiverPolicyV1::from_namespace(caller.namespace())
+                .into_shadow_policy(),
         ))
         .expect("actual ParserBox method-call inventory")
         .into_iter()

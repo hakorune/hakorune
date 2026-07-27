@@ -6,15 +6,16 @@ use crate::mir::builder::{
     VerifiedSameModuleCallableDeclarationCatalogV1,
 };
 use crate::mir::resolved_semantics::{
-    observe_method_calls_shadow_view_v0, FunctionSyntaxViewV1, ReceiverPolicyV1,
-    ShadowMethodCallReceiverV0, ShadowResolveErrorV0, SourceExprSiteV1,
+    observe_method_calls_shadow_view_v0, FunctionSyntaxViewV1, ShadowMethodCallReceiverV0,
+    ShadowResolveErrorV0, SourceExprSiteV1,
 };
 
 use super::{
-    QualifiedCallRouteFactsErrorV1, VerifiedQualifiedCallRouteFactsV1,
-    VerifiedQualifiedReceiverLexicalDispositionsV1, VerifiedSourceMethodCallSiteV1,
-    VerifiedSourceStaticCallTargetCatalogV1, VerifiedSourceStaticCallTargetV1,
-    VerifiedStaticImportAliasViewV1, WholeSourceStaticCallTargetInventoryErrorV1,
+    QualifiedCallRouteFactsErrorV1, SameModuleCallableSourceReceiverPolicyV1,
+    VerifiedQualifiedCallRouteFactsV1, VerifiedQualifiedReceiverLexicalDispositionsV1,
+    VerifiedSourceMethodCallSiteV1, VerifiedSourceStaticCallTargetCatalogV1,
+    VerifiedSourceStaticCallTargetV1, VerifiedStaticImportAliasViewV1,
+    WholeSourceStaticCallTargetInventoryErrorV1,
 };
 
 /// Complete source MethodCall inventory plus its exact static-target subset.
@@ -174,10 +175,9 @@ fn observe_all_calls<'catalog>(
     let mut first_method_observation_unavailable = None;
     for (caller, declaration) in declarations.declarations() {
         observed_callers.push(caller.clone());
-        let receiver_policy = match caller.namespace() {
-            SameModuleCallableNamespaceV1::StaticBoxMethod => ReceiverPolicyV1::Absent,
-            SameModuleCallableNamespaceV1::InstanceBoxMethod => ReceiverPolicyV1::DeclaredInstance,
-        };
+        let receiver_policy =
+            SameModuleCallableSourceReceiverPolicyV1::from_namespace(caller.namespace())
+                .into_shadow_policy();
         let view = FunctionSyntaxViewV1::from_borrowed_function_parts(
             declaration.params(),
             declaration.body(),

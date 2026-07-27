@@ -62,6 +62,23 @@ macro goal:
   OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
 ```
 
+## SAME-MODULE-CALLABLE-RECEIVER-POLICY0-S0 closeout
+
+Closed on 2026-07-28.
+
+```text
+namespace policy authority = exact 1
+StaticBoxMethod -> StaticCurrentOwner
+InstanceBoxMethod -> DeclaredInstance
+duplicated production namespace mappings = 0
+ordinary static function / lambda policy = unchanged
+shadow traversal behavior delta in this row = 0
+```
+
+The shared policy is Builder-free and owns no target or result inference.
+`StaticCurrentOwner` direct production outside that policy and focused tests
+is zero by structural census.
+
 ## Question
 
 Choose the single source authority for `me.method(...)` inside an ordinary

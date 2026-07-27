@@ -1,13 +1,14 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::builder::{
-    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
-    VerifiedSameModuleCallableDeclarationCatalogV1,
+    CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationCatalogV1,
 };
 use crate::mir::resolved_semantics::{
-    observe_method_calls_shadow_view_v0, FunctionSyntaxViewV1, ReceiverPolicyV1, SourceExprSiteV1,
+    observe_method_calls_shadow_view_v0, FunctionSyntaxViewV1, SourceExprSiteV1,
 };
-use crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1;
+use crate::mir::source_call_target::{
+    SameModuleCallableSourceReceiverPolicyV1, VerifiedSourceStaticCallTargetCatalogV1,
+};
 
 use super::{
     classify_activation_source_site_v1, CallableResultActivationErrorV1,
@@ -64,12 +65,9 @@ impl VerifiedCallableResultActivationRowsV1 {
         let mut rows_by_caller = BTreeMap::new();
         let mut observed_sites = BTreeSet::new();
         for (caller, declaration) in declarations.declarations() {
-            let receiver_policy = match caller.namespace() {
-                SameModuleCallableNamespaceV1::StaticBoxMethod => ReceiverPolicyV1::Absent,
-                SameModuleCallableNamespaceV1::InstanceBoxMethod => {
-                    ReceiverPolicyV1::DeclaredInstance
-                }
-            };
+            let receiver_policy =
+                SameModuleCallableSourceReceiverPolicyV1::from_namespace(caller.namespace())
+                    .into_shadow_policy();
             let view = FunctionSyntaxViewV1::from_borrowed_function_parts(
                 declaration.params(),
                 declaration.body(),
