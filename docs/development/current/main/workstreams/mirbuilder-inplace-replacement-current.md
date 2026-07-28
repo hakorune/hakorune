@@ -25,14 +25,15 @@ Resolve -> Observe -> Facts -> Recipe -> Verify
 第二MirBuilder、production consumer 0のroute拡張、Legacy fallbackは作らない。
 cell数、pack数、LOCは観測値であり、完成条件ではない。
 
-## Current execution
+## Current design stop
 
 ```text
 Parent:  MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Closed:  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0
 Closed:  NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0
-Current: NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0
-Ceremony: T2; one atomic I0/R0 commit
+Closed:  NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0
+Current: NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0
+Ceremony: short D0; production edits parked
 ```
 
 R1 closeout:
@@ -75,75 +76,72 @@ The shared source-hint wrappers are provenance-blind and remain compatibility
 surfaces. NarrowV1 lacks normal imports and general module/callable coverage;
 only its source-neutral lifecycle kernels are reusable.
 
-## Execution brief
+R2b closeout:
+
+```text
+selected lifecycle caller            = 1
+ExistingGeneralModuleCompatibilityV1 = 0
+selected-normal build_module edge    = 0
+root-level AST clone                 = 1
+typed lifecycle failure evidence     = 3/3
+normal parity / failure / reuse      = 4/4
+explicit compatibility build_module = 2, unchanged
+new source file                      = 1, 292 lines
+new test/check file                  = 0
+all source/check files               < 800
+optional quick gate                  = pre-existing EBNF naming-charter failure
+clean efe2c467c2 reproduces the same failure
+```
+
+## D0 brief
 
 Change:
 
 ```text
-ModuleBuilderInvocationSessionV1 + owned AST
--> one session-consuming root/catalog lifecycle
--> completed session + MirModule
-
-atomically delete:
-  ExistingGeneralModuleCompatibilityV1
-  selected session.builder_mut().build_module(ast) edge
-close:
-  NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001
+decide one total, disjoint non-Program root partition by AST-node responsibility
+target old edge:
+  module_lifecycle.rs: other -> self.build_expression(other)
+target new capability:
+  drive_legacy_expression_v1(self, selected invocation port, node)
+production/source mutation = 0 during D0
 ```
 
 Contract:
 
 ```text
-preserve:
-  Program root expansion preflight; non-Program current acceptance
-  -> prepare_module
-  -> one root-level AST clone
-  -> callable catalog seal/install
-  -> existing port-aware root lower
-  -> finalize_module
-
-typed failure order:
-  RootExpansion < PrepareModule < CatalogSeal
-  < CatalogInstall < RootLower < FinalizeModule
-
-rejection retains session + source and exposes no retry/recovery terminal
-existing finish/result/external-commit policy and explicit compatibility lanes stay unchanged
+classify each non-Program root exactly once before descent
+move only proven port-parity node kinds to the selected invocation port
+retain divergent root-only Main / Box / Loop surfaces as explicit compatibility
+name a same-commit old branch-edge delete set for every selected branch
+no try-new-then-Legacy retry and no whole-function accepted variants
 ```
 
 Done:
 
 ```text
-selected-normal build_module reachability = 0
-selected lifecycle caller                = 1
-compiler-side session.builder_mut        = 0
-general/non-Program parity and failure/reuse evidence = green
-existing shared guard/manifests updated; new test/check file = 0
-module_lifecycle.rs unchanged; every source/check file < 800
+exact non-Program AST-node census and port-parity table
+one source-only partition owner and one failure boundary
+selected branches, compatibility branches, and atomic delete edges are explicit
+one bounded implementation row selected, or typed no-safe-slice stop
 ```
 
 Stop:
 
 ```text
-forwarding facade or selected build_module edge remains
-failure order changes, second root clone, reparse, or source split
-non-Program acceptance narrows
-NarrowV1, Stage-B, second session/publication, retry, or fallback is required
-finish/result/commit semantics change
-new per-row guard or any edit to 799-line module_lifecycle.rs
+blanket replacement of all `other` roots narrows current behavior
+Main / Box / Loop authority changes without an explicit branch contract
+classification occurs after a failed descent or retries another port
+new whole-program/function accepted-family variants are introduced
+new per-row guard or source clone/reparse is required
 ```
 
-Implementation boundary:
+Closed sunset:
 
 ```text
-new sibling:
-  builder/normal_default_root_catalog_lifecycle.rs
-session-consuming API:
-  complete_normal_default_root_catalog_lifecycle(self, ast)
-durable products:
-  completed lifecycle
-  rejected lifecycle with typed stage and existing diagnostic parity
-non-claim:
-  global MirBuilder::build_module callers = 0
+NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001
+  owner ExistingGeneralModuleCompatibilityV1 = 0
+  selected-normal build_module surface       = 0
+  global build_module definition/callers     = non-claim
 ```
 
 ## Queue
@@ -152,9 +150,9 @@ non-claim:
 R0  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 closed
 R1  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 closed
 R2a NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 closed
-R2b NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0 current
-R2c fresh live-edge census after closeout
-R2d later named AST-node responsibility cells; each selected old edge becomes zero
+R2b NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0 closed
+R2c NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 current
+R2d accepted non-Program branch cells; each selected old edge becomes zero
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:
@@ -163,9 +161,6 @@ F1  resume the existing Ownership taskboard from its read-only readiness gate
 F2  Unique Box / ScopedAlias -> callable ABI -> Anchored View
 F3  select one later unimplemented feature from the language status index
 ```
-
-`NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0` is the first census candidate,
-not selected authority. The exact live graph after R2b decides the next row.
 
 The old M2c-to-M8 complete-program queue is superseded. Passive assets are
 reconsidered only when the selected live edge names an exact consumer.

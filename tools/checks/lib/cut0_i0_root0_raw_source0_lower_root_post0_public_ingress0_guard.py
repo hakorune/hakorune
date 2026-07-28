@@ -24,6 +24,9 @@ CURRENT_WORKSTREAM = ROOT / (
     "mirbuilder-inplace-replacement-current.md"
 )
 NORMAL_PIPELINE = ROOT / "src/mir/compiler/normal_default_pipeline.rs"
+NORMAL_ROOT_LIFECYCLE = (
+    ROOT / "src/mir/builder/normal_default_root_catalog_lifecycle.rs"
+)
 NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
 SOURCES = (
     ROOT / "src/mir/compiler/raw_public_ingress.rs",
@@ -144,6 +147,7 @@ def main() -> int:
             CALLER_MANIFEST,
             CURRENT_WORKSTREAM,
             NORMAL_PIPELINE,
+            NORMAL_ROOT_LIFECYCLE,
             NORMAL_TESTS,
             *SOURCES,
         )
@@ -157,6 +161,7 @@ def main() -> int:
     adapter = texts[SOURCES[2]]
     compile_kernel = texts[SOURCES[3]]
     normal_pipeline = texts[NORMAL_PIPELINE]
+    normal_root_lifecycle = texts[NORMAL_ROOT_LIFECYCLE]
     normal_tests = texts[NORMAL_TESTS]
     current_workstream = texts[CURRENT_WORKSTREAM]
     for fragment in (
@@ -255,23 +260,26 @@ def main() -> int:
                 f"selected normal Legacy reachability in {relative}: "
                 f"expected={expected} actual={actual}"
             )
-    compatibility = caller_manifest.get("normal_default_compatibility_owner", {})
-    if compatibility.get("definition_file") != str(NORMAL_PIPELINE.relative_to(ROOT)):
-        raise AssertionError("normal compatibility owner path drift")
+    lifecycle = caller_manifest.get("normal_default_root_catalog_lifecycle", {})
+    lifecycle_path = ROOT / lifecycle.get("definition_file", "")
+    caller_path = ROOT / lifecycle.get("caller_file", "")
+    if lifecycle_path != NORMAL_ROOT_LIFECYCLE or caller_path != NORMAL_PIPELINE:
+        raise AssertionError("normal root/catalog lifecycle path drift")
     require(
-        normal_pipeline,
-        compatibility.get("definition_anchor", ""),
-        "normal compatibility owner",
+        normal_root_lifecycle,
+        lifecycle.get("definition_anchor", ""),
+        "normal root/catalog lifecycle owner",
     )
-    if normal_pipeline.count(".build_module(") != compatibility.get(
-        "build_module_callers"
-    ):
-        raise AssertionError("normal compatibility build_module caller drift")
+    caller_anchor = lifecycle.get("caller_anchor", "")
+    if normal_pipeline.count(caller_anchor) != lifecycle.get("callers"):
+        raise AssertionError("normal root/catalog lifecycle caller drift")
     require(
         current_workstream,
-        compatibility.get("sunset_id", ""),
+        lifecycle.get("sunset_id", ""),
         "normal compatibility sunset",
     )
+    if lifecycle.get("sunset_state") != "closed":
+        raise AssertionError("normal compatibility sunset must close with lifecycle cutover")
     for fragment in (
         "pub struct NormalCompileRequestV1",
         "enum NormalSourceIdentityV1",
@@ -281,7 +289,7 @@ def main() -> int:
         "pub fn for_llvm_source",
         "pub fn for_wasm_source",
         "struct NormalDefaultPublishedPipelineV1",
-        "struct ExistingGeneralModuleCompatibilityV1",
+        "complete_normal_default_root_catalog_lifecycle",
         "prepare_external_commit",
         "finish_built_module",
     ):
@@ -298,17 +306,75 @@ def main() -> int:
     ):
         if forbidden in code_only(normal_pipeline):
             raise AssertionError(f"normal pipeline leaks forbidden route: {forbidden}")
+    for forbidden in (
+        "ExistingGeneralModuleCompatibilityV1",
+        ".build_module(",
+        ".builder_mut()",
+    ):
+        if forbidden in code_only(normal_pipeline):
+            raise AssertionError(f"retired normal compatibility edge returned: {forbidden}")
+    for fragment in (
+        "CompletedNormalDefaultRootCatalogLifecycleV1",
+        "RejectedNormalDefaultRootCatalogLifecycleV1",
+        "NormalDefaultRootCatalogLifecycleErrorV1",
+        "RootExpansion",
+        "PrepareModule",
+        "CatalogSeal",
+        "CatalogInstall",
+        "RootLower",
+        "FinalizeModule",
+        "VerifiedRawRootExpansionV1::from_program",
+        "prepare_module()",
+        "VerifiedSameModuleCallableDeclarationCatalogV1::seal_root",
+        "install_callable_declaration_catalog",
+        "lower_root_after_callable_catalog_install_v1",
+        "finalize_module",
+    ):
+        require(normal_root_lifecycle, fragment, f"normal lifecycle contract {fragment}")
+    anchors = (
+        "VerifiedRawRootExpansionV1::from_program",
+        "prepare_module()",
+        "source.ast.clone()",
+        "VerifiedSameModuleCallableDeclarationCatalogV1::seal_root",
+        "install_callable_declaration_catalog",
+        "lower_root_after_callable_catalog_install_v1",
+        "finalize_module",
+    )
+    positions = [normal_root_lifecycle.index(anchor) for anchor in anchors]
+    if positions != sorted(positions):
+        raise AssertionError("normal root/catalog lifecycle ordering drift")
+    if normal_root_lifecycle.count("source.ast.clone()") != 1:
+        raise AssertionError("normal root/catalog lifecycle root clone drift")
+    for forbidden in (
+        "build_module(",
+        "compile_legacy",
+        "OwnedRawSourceV1",
+        "InstalledPreloopStageBContextV1",
+        "retry(",
+        "fallback(",
+        "recover(",
+    ):
+        if forbidden in code_only(normal_root_lifecycle):
+            raise AssertionError(f"normal lifecycle gained forbidden authority: {forbidden}")
     for fixture in (
         "late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable",
         "explicit_imports_commit_only_with_the_finished_normal_candidate",
         "normal_pipeline_matches_legacy_compatibility_for_general_module",
+        "normal_pipeline_matches_legacy_compatibility_for_non_program_root",
     ):
         require(normal_tests, fixture, f"normal pipeline fixture {fixture}")
     count_by_manifest(caller_manifest.get("normal_compile_adapters", {}), ".compile(")
-    count_by_manifest(
-        caller_manifest.get("direct_build_module_production", {}),
-        ".build_module(",
-    )
+    expected_build_module = caller_manifest.get("direct_build_module_production", {})
+    actual_build_module = {
+        str(path.relative_to(ROOT)): text.count(".build_module(")
+        for path, text in production.items()
+        if text.count(".build_module(")
+    }
+    if actual_build_module != expected_build_module:
+        raise AssertionError(
+            "direct production build_module caller drift: "
+            f"expected={expected_build_module} actual={actual_build_module}"
+        )
     test_bridge = ROOT / "src/host_providers/mir_builder/lowering.rs"
     require(test_bridge.read_text(), "#[cfg(test)]\nmod ast_json;", "cfg(test) AST-JSON bridge")
     for relative in caller_manifest.get("direct_build_module_cfg_test", {}):

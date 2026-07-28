@@ -33,18 +33,21 @@
     "src/runner/product/llvm/mir_compiler.rs": 0,
     "src/runner/product/wasm.rs": 0
   },
-  "normal_default_compatibility_owner": {
-    "definition_file": "src/mir/compiler/normal_default_pipeline.rs",
-    "definition_anchor": "struct ExistingGeneralModuleCompatibilityV1",
-    "build_module_callers": 1,
-    "sunset_id": "NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001"
+  "normal_default_root_catalog_lifecycle": {
+    "definition_file": "src/mir/builder/normal_default_root_catalog_lifecycle.rs",
+    "definition_anchor": "pub(in crate::mir) struct CompletedNormalDefaultRootCatalogLifecycleV1",
+    "caller_file": "src/mir/compiler/normal_default_pipeline.rs",
+    "caller_anchor": ".complete_normal_default_root_catalog_lifecycle(ast)",
+    "callers": 1,
+    "sunset_id": "NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001",
+    "sunset_state": "closed"
   },
   "normal_compile_adapters": {
     "src/runner/modes/bench.rs": 1,
     "src/runner/selfhost.rs": 1
   },
   "direct_build_module_production": {
-    "src/mir/compiler/normal_default_pipeline.rs": 1,
+    "src/mir/compiler/legacy_candidate_session.rs": 1,
     "src/runtime/mirbuilder_emit.rs": 1
   },
   "direct_build_module_cfg_test": {

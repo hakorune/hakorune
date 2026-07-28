@@ -2,8 +2,8 @@
 //!
 //! This is the live in-place migration seam.  The request fixes source
 //! identity and admission before the compiler opens a candidate.  The one
-//! compatibility owner below temporarily owns general raw root/module
-//! lowering; later AST-node cells shrink that surface until R3 removes it.
+//! root/catalog lifecycle below owns selected-normal orchestration while later
+//! AST-node cells retire the remaining raw lowering responsibilities.
 
 use std::{collections::HashMap, time::Instant};
 
@@ -167,11 +167,18 @@ impl NormalDefaultPublishedPipelineV1 {
             source.source_file(),
             imports,
         );
-        let mut session =
+        let session =
             ModuleBuilderInvocationSessionV1::open_for_token(&token, &compiler.builder, config);
 
         let stage_start = Instant::now();
-        let module = ExistingGeneralModuleCompatibilityV1::lower(&mut session, ast)?;
+        let completed = session
+            .complete_normal_default_root_catalog_lifecycle(ast)
+            .map_err(|rejected| {
+                let message = rejected.error().to_string();
+                rejected.discard();
+                message
+            })?;
+        let (session, module) = completed.into_parts();
         super::super::compile_timing::trace_stage("build_module", stage_start.elapsed());
 
         match result_contract {
@@ -183,17 +190,6 @@ impl NormalDefaultPublishedPipelineV1 {
             .map_err(|error| error.to_string())?;
         let _receipt = prepared.commit(&mut compiler.builder);
         Ok(result)
-    }
-}
-
-struct ExistingGeneralModuleCompatibilityV1;
-
-impl ExistingGeneralModuleCompatibilityV1 {
-    fn lower(
-        session: &mut ModuleBuilderInvocationSessionV1,
-        ast: ASTNode,
-    ) -> Result<crate::mir::MirModule, String> {
-        session.builder_mut().build_module(ast)
     }
 }
 

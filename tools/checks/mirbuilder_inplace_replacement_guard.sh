@@ -13,6 +13,8 @@ MODULE_LIFECYCLE="$ROOT_DIR/src/mir/builder/module_lifecycle.rs"
 COMPILER="$ROOT_DIR/src/mir/compiler/mod.rs"
 LEGACY_CANDIDATE="$ROOT_DIR/src/mir/compiler/legacy_candidate_session.rs"
 MODULE_SESSION="$ROOT_DIR/src/mir/builder/module_invocation_session.rs"
+NORMAL_PIPELINE="$ROOT_DIR/src/mir/compiler/normal_default_pipeline.rs"
+NORMAL_ROOT_LIFECYCLE="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle.rs"
 STATEMENT_SURFACE="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/statement_surface.rs"
 LOCAL_DESCENT="$ROOT_DIR/src/mir/builder/stmts/local_statement_descent.rs"
 LOCATED_LOCAL="$ROOT_DIR/src/mir/builder/located_legacy_lowering.rs"
@@ -63,6 +65,8 @@ guard_require_files \
   "$COMPILER" \
   "$LEGACY_CANDIDATE" \
   "$MODULE_SESSION" \
+  "$NORMAL_PIPELINE" \
+  "$NORMAL_ROOT_LIFECYCLE" \
   "$STATEMENT_SURFACE" \
   "$LOCAL_DESCENT" \
   "$LOCATED_LOCAL" \
@@ -178,6 +182,34 @@ candidate_row_count="$(awk -F '\t' '
   $9 == "closed" { count += 1 }
   END { print count + 0 }
 ' "$MANIFEST")"
+
+normal_pipeline_row_count="$(awk -F '\t' '
+  $1 == "cell" &&
+  $2 == "NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0" &&
+  $9 == "closed" { count += 1 }
+  END { print count + 0 }
+' "$MANIFEST")"
+if [[ "$normal_pipeline_row_count" != "1" ]]; then
+  guard_fail "$TAG" "normal default published pipeline must have one closed manifest row"
+fi
+
+normal_lifecycle_row_count="$(awk -F '\t' '
+  $1 == "cell" &&
+  $2 == "NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0" &&
+  $9 == "closed" { count += 1 }
+  END { print count + 0 }
+' "$MANIFEST")"
+if [[ "$normal_lifecycle_row_count" != "1" ]]; then
+  guard_fail "$TAG" "normal root/catalog lifecycle must have one closed manifest row"
+fi
+
+if rg -n 'ExistingGeneralModuleCompatibilityV1|\.build_module\(|session\.builder_mut\(' \
+  "$NORMAL_PIPELINE" >/dev/null; then
+  guard_fail "$TAG" "selected normal compatibility owner or direct Builder edge returned"
+fi
+if [[ "$(rg -o 'complete_normal_default_root_catalog_lifecycle\(' "$NORMAL_PIPELINE" | wc -l | tr -d '[:space:]')" != "1" ]]; then
+  guard_fail "$TAG" "selected normal lifecycle caller must be exactly one"
+fi
 if [[ "$candidate_row_count" != "1" ]]; then
   guard_fail "$TAG" "module candidate cutover must have one closed manifest row"
 fi
@@ -545,6 +577,8 @@ for file in \
   "$COMPILER" \
   "$LEGACY_CANDIDATE" \
   "$MODULE_SESSION" \
+  "$NORMAL_PIPELINE" \
+  "$NORMAL_ROOT_LIFECYCLE" \
   "$STATEMENT_SURFACE" \
   "$LOCAL_DESCENT" \
   "$LOCATED_LOCAL" \

@@ -202,3 +202,32 @@ static box Main {
         contract_count(&legacy.module)
     );
 }
+
+#[test]
+fn normal_pipeline_matches_legacy_compatibility_for_non_program_root() {
+    let mut legacy_compiler = MirCompiler::with_options(false);
+    let legacy = legacy_compiler
+        .compile_with_source(literal(17), Some("non-program-parity.hako"))
+        .expect("legacy non-Program root");
+    let mut compiler = MirCompiler::with_options(false);
+    let candidate = compiler
+        .compile_normal(normal_request(
+            literal(17),
+            Some("non-program-parity.hako"),
+            HashMap::new(),
+        ))
+        .expect("normal non-Program root");
+
+    assert_eq!(
+        MirPrinter::new().print_module(&candidate.module),
+        MirPrinter::new().print_module(&legacy.module)
+    );
+    assert_eq!(
+        format!("{:?}", candidate.verification_result),
+        format!("{:?}", legacy.verification_result)
+    );
+    assert_eq!(
+        candidate.module.metadata.source_file,
+        legacy.module.metadata.source_file
+    );
+}
