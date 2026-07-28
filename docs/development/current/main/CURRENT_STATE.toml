@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0 is closed. RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0 is the current read-only live-edge design stop."
+status = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0 is closed with Candidate GroupedAssignment+. RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 is current."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0"
-current_execution_row = ""
-current_execution_summary = "The behavior-neutral root-partition test seam is closed: the four existing tests moved unchanged into one private path-bound raw_nonprogram_root_descent_tests.rs sibling. Production is 317 lines, tests are 447 lines, selected expression kinds remain 9, statement roots remain 2, residual kinds remain 45, and selected/compatibility terminals remain 1/1. The current stop is a fresh read-only census of remaining live root compatibility responsibilities. Do not preselect a syntax kind or edit production until one named caller, one bounded owner, and one same-commit old-edge deletion are fixed."
+current_design_stop = ""
+current_execution_row = "RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0"
+current_execution_summary = "One atomic T1 cell adds GroupedAssignmentExpr { rhs: PortNeutralExprTreeV1 } as the tenth recursive selected expression constructor. Reuse the existing dispatcher and drive_variable_assignment_v1 exactly: observe lhs once, ensure it is declared before RHS effects, lower the RHS once through the same selected invocation port, then use existing assignment completion. Remove safe GroupedAssignmentExpr from the unconditional SeparateDesignStop edge in the same commit; an unsafe RHS remains whole compatibility. Expression kinds move 9->10 and residual kinds 45->44; statement roots stay 2 and selected/compatibility terminals stay 1/1. Do not include ordinary/compound Assignment, Field/Index targets, Local, or any control/call authority."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0 is closed with production/test files at 317/447 lines and unchanged 9/2/45 responsibility counts. RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0 is the sole current read-only live-edge census. Select no implementation until one existing production caller, one bounded responsibility owner, and one same-commit compatibility-edge deletion are proven; whole-program variants, new language semantics, fallback/retry, and production-caller-zero routes remain forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0 is closed after parallel live-edge, expression, statement, adversarial, and evidence-budget audits. RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 is the sole current T1 cell. The shared root classifier may select only GroupedAssignmentExpr whose RHS is fully PortNeutralExprTreeV1, then the existing drive_variable_assignment_v1 must perform declared-binding preflight, one same-port RHS descent, and existing completion. The same commit deletes the safe GroupedAssignment compatibility edge; unsafe RHS stays whole compatibility, with no retry or mixed child routing. Expression/statement/residual counts become 10/2/44 and terminal sites remain 1/1. Ordinary/compound Assignment, Field/Index, Local, control/call authority, whole-program variants, new language semantics, fallback/retry, and production-caller-zero routes are forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0-SELECT"
+current_blocker_token = "RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0-IMPLEMENT"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
