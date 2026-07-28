@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0 is closed. RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0 is the current design stop."
+status = "RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0 is closed with Candidate A. RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0 is the current behavior-neutral BoxShape row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0"
-current_execution_row = ""
-current_execution_summary = "Map compositional cutover is closed: String-keyed MapLiteral joins PortNeutralExprTreeV1 exactly when every value is selected. Empty, duplicate-key, nested Map/Array, and enclosing trees preserve exact MIR/span, receiver materialization, String facts, origin/type registry, LocalSSA, unified-call off/on, absent map-fact replay, rollback, and reuse parity. Selected expression kinds are 9, statement roots are 2, and residual kinds are 45. raw_nonprogram_root_descent.rs is now 769 lines; before selecting another root responsibility, move its inline test module to one responsibility-named sibling test file without production or behavior delta. No production edit is authorized at this design stop."
+current_design_stop = ""
+current_execution_row = "RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0"
+current_execution_summary = "One behavior-neutral T1 BoxShape row moves the complete inline #[cfg(test)] module from raw_nonprogram_root_descent.rs into src/mir/builder/raw_nonprogram_root_descent_tests.rs through one private path-bound child module. Move tests byte-for-byte apart from rustfmt/path adaptation; do not rewrite fixtures or production code. Test names, selected/residual counts, drivers, compatibility surface, guard/manifest semantics, and behavior remain exact. The production owner returns from 769 lines to roughly 310; the new responsibility-named test file remains below 800. This row adds one test-only Rust file and no production authority."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0 is closed. String-keyed MapLiteral is now a recursive PortNeutralExprTreeV1 constructor when every value is selected; safe nested Map/Array and enclosing trees leave compatibility together, while any unsafe value keeps the whole tree on the single compatibility owner. Empty, duplicate-key, nested, and unified-call off/on cases preserve exact MIR/span, receiver materialization, String facts, type/origin registry, LocalSSA, absent map-fact replay, candidate rollback, and compiler reuse parity. Selected/compatibility terminals remain one each, selected expression kinds are 9, selected statement roots are 2, and residual kinds are 45. RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0 is the sole current design stop. raw_nonprogram_root_descent.rs is 769 lines, so the next work is a behavior-neutral BoxShape split of its inline tests into one sibling test module before another root responsibility is selected. Production behavior, partition counts, compatibility surface, guards, and manifests must remain unchanged. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0 is closed with Candidate A. RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0 is the sole current behavior-neutral T1 BoxShape row. Move the entire inline test module from the 769-line raw_nonprogram_root_descent.rs into one responsibility-named raw_nonprogram_root_descent_tests.rs sibling via a private path-bound child module. Preserve test bodies/names and production bytes apart from rustfmt/path wiring; do not mix the next semantic responsibility or cleanup. Selected/compatibility terminals stay one each, selected expression kinds stay 9, selected statement roots stay 2, residual kinds stay 45, and all existing parity/rollback gates remain green. The new test-only Rust file and production owner must both remain below 800; no new guard file is allowed. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0-DESIGN-STOP"
+current_blocker_token = "RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0-IMPLEMENT"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

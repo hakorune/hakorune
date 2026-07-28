@@ -46,9 +46,10 @@ Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0
 Closed:  RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0
 Closed:  RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0
-Current: RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0
-Pack:    structural selection pending
-Ceremony: design stop; production edit = 0
+Closed:  RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0
+Current: RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0
+Pack:    ROOT-LIFECYCLE0
+Ceremony: T1; behavior-neutral BoxShape move
 ```
 
 R1 closeout:
@@ -222,23 +223,29 @@ largest touched source/check file           = 769
 largest relevant source/check file          = 774, unchanged
 ```
 
-## Current design question
+## Current execution row
 
 ```text
-RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0
+RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0
 
-Candidate A:
-  move the inline #[cfg(test)] root-partition module to
-  src/mir/builder/raw_nonprogram_root_descent_tests.rs
+Move:
+  raw_nonprogram_root_descent.rs inline #[cfg(test)] module
+  -> raw_nonprogram_root_descent_tests.rs
+  through one private #[path] child declaration
 
-Required:
-  production Rust / behavior / partition / guard / manifest delta = 0
-  test names and focused evidence unchanged
-  raw_nonprogram_root_descent.rs returns to one production responsibility
-  new test file owns only this module's tests and stays < 800
+Preserve:
+  production bytes and behavior
+  test names/bodies and focused evidence
+  selected expression kinds = 9
+  selected statement roots   = 2
+  residual kinds             = 45
+  selected/compat terminals  = 1 / 1
 
-Stop:
-  production edit, test rewrite, semantic cleanup, or automatic next-cell selection
+Gates / stops:
+  root-partition focused tests and shared guard unchanged green
+  artifact inventory records exactly one new test-only Rust file
+  both Rust files < 800
+  test rewrite, production edit, semantic cleanup, or next-cell mixing -> stop
 ```
 
 Compatibility sunset:
@@ -283,7 +290,8 @@ R2m RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0 closed
 R2n RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2o RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0 closed
 R2p RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0 closed
-R2q RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0 current design stop
+R2q RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0 closed
+R2r RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:
