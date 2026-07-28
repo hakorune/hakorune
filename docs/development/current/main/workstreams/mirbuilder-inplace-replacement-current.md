@@ -60,9 +60,10 @@ Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0
 Closed:  RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0
 Closed:  RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0
-Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0
+Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0
+Current: RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0
 Pack:    ROOT-LIFECYCLE0
-Ceremony: read-only live-edge census
+Ceremony: T1 atomic I0/R0
 ```
 
 R1 closeout:
@@ -370,25 +371,61 @@ new source/test/check/task file                  = 0
 all source/check files                           < 800
 ```
 
-## Current design stop
+## Current execution task
 
 ```text
-RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0
+RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0
 
-Mode:
-  read-only fresh live-edge census
+Named production edge:
+  shared raw root kernel
+  -> selected/compatibility non-Program partition
+  -> existing TaskScope statement owner
 
-Selection requires:
-  one named production caller
-  one bounded source-only partition
-  one existing semantic owner
-  one same-commit compatibility-edge deletion
+Selected source-only closure:
+  TaskScope {
+    body:
+      existing safe BlockExpr-prelude statement closure*
+  }
 
-Do not infer:
-  Local scope widening from BlockExpr route parity
-  next responsibility from the previous candidate list
-  fallback/retry permission
-  source-level Ownership/View activation
+Compositional recursion:
+  safe TaskScope participates in the same BlockExpr-prelude closure
+  nested safe TaskScope / BlockExpr = selected
+
+Existing owner remains sole authority for:
+  early-exit rejection scan
+  source keyword diagnostic
+  task-scope push
+  body descent through the same selected port
+  task-scope pop, including current child-failure ordering
+
+Atomic delete:
+  safe TaskScope
+  -> SeparateDesignStop
+  -> ExistingRawNonProgramRootCompatibilityV1
+  = 0
+
+Expected ratchet:
+  selected expression / statement kinds = 12 / 4
+  registered residual kinds              = 40
+  selected / compatibility terminals     = 1 / 1
+
+Evidence:
+  recursive safe/unsafe partition
+  empty, non-empty, and nested TaskScope exact raw-port parity
+  push -> body -> pop source order
+  child failure keeps current pop behavior
+  live candidate discard and compiler reuse
+  parser reachability remains existing `co` / `task_scope`
+
+Hard stop:
+  Return / Throw / Break / Continue / If / Loop in selected body
+  root-side duplication of the early-exit scan
+  per-statement selected/compatibility route mixing
+  push/pop or child-failure ordering change
+  second port, AST clone/reparse, or compatibility retry
+  Assignment, Field, Call, New, QMark, or Ownership/View widening
+  new semantic owner, terminal, failure type, test file, or guard file
+  any source/check file reaching 800 lines
 ```
 
 Compatibility sunset:
@@ -447,7 +484,8 @@ R2aa RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0 closed
 R2ab RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0 closed
 R2ac RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0 closed
 R2ad RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0 closed
-R2ae RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0 current
+R2ae RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0 closed
+R2af RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:
