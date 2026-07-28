@@ -151,29 +151,51 @@ largest touched source/check file         = 582
 ```text
 RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0
 
+Source authority:
+  exhaustive PreparedRawRootPartitionV1 root classification
+  existing PortNeutralExprTreeV1 safety predicate
+
+Semantic authority:
+  statement_surface::try_build_with_port_v1
+  build_print_statement_with_port_v1
+  build_print_from_value
+
+Recommended:
+  PortNeutralPrintRoot0
+    = Print(expression: PortNeutralExprTreeV1)
+  keep it as a selected-root sibling; Print is not an ExprTree constructor
+  proposed row: RAW-NONPROGRAM-PRINT-COMPOSITIONAL-DESCENT0-I0-R0
+  pack: DESCENT-SPINE0; ceremony: T1 atomic I0/R0
+
 Candidate A:
-  Print(PortNeutralExprTreeV1)
-  inspect output/type side effects before claiming T1 DESCENT-SPINE0
+  safe Print root
+  delete safe Print -> unconditional SeparateDesignStop compatibility
+  preserve TypeOp-special and unsafe Print as whole compatibility inputs
 
 Candidate B:
-  Nowait(exact binding, PortNeutralExprTreeV1)
-  inspect variable-map/slot/Future publication before claiming T1
+  Nowait(target name, PortNeutralExprTreeV1)
+  current production target is by-name, not BindingRef; pack CONTROL0
 
 Candidate C:
   ArrayLiteral([PortNeutralExprTreeV1]*)
-  treat allocation/birth/type-registry/metadata as CALL-OBJECT0 authority
+  viable T1 only with allocation/birth/type/write/metadata order frozen
+  pack CALL-OBJECT0; higher proof cost than Print
 
 Separate:
   QMarkPropagate owns physical Return, CFG, and runtime calls
   -> dedicated CONTROL0 design, not a mechanical expression constructor
 
-Required D0:
-  name one production caller and one same-commit old edge deletion
-  prove compatibility surface shrinks without retry or route mixing
-  select exactly one responsibility; otherwise remain at this stop
+Fail-fast boundary:
+  one unsafe Print child keeps the whole Print on compatibility exactly once
+  selected child/output failure propagates; no compatibility retry
+
+Non-claims:
+  TypeOp Print migration, output policy change, BindingRef/slot semantics,
+  Array allocation, QMark control, grammar, result, or publication change
 
 Stop:
-  production edits, new compatibility surface, or automatic next-row selection
+  production edits until this recommendation is accepted
+  Print added to PortNeutralExprTreeV1, compatibility growth, or route mixing
 ```
 
 Compatibility sunset:
