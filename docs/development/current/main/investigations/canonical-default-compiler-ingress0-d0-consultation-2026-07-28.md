@@ -39,7 +39,7 @@ The D0 question is:
 
 > What one typed normal compile request can consume the already-parsed AST,
 > exact source identity, explicit imports, compiler configuration, and
-> compatibility provenance once; classify the complete normal source family
+> normal-admission provenance once; classify the complete normal source family
 > before Builder effects; dispatch to existing canonical family owners once;
 > return the backend-neutral `MirCompileResult`; and atomically replace the
 > selected normal/default Legacy ingress without probing, retry, or fallback?
@@ -107,10 +107,10 @@ normal MIR, ordinary VM, MIR interpreter, LLVM, Wasm, VM-Hako bridge,
 benchmarks, minimal MIR JSON, and Stage1/direct compatibility flows. Both
 wrapper families currently end at `compile_with_source*`, hence Legacy.
 
-### Normal/default examples
+### Normal/default and ordinary MIR-compiler examples
 
 ```text
-default backend=mir
+explicit --backend mir
 -> compile_with_source_hint_and_imports
 -> compile_with_source_and_imports
 -> compile_legacy_request
@@ -125,6 +125,10 @@ ordinary --backend vm
 These are the minimum caller family the D0 must classify. It must decide
 whether the other source-hint consumers switch through the same atomic front
 or remain separately named compatibility/reference authorities.
+
+The no-flag CLI default is `backend=interpreter`, not MIR. The caller table must
+classify that default explicitly as selected, separate, or out of scope with
+evidence; it must not relabel explicit `--backend mir` as the CLI default.
 
 ### Existing canonical fronts
 
@@ -163,7 +167,8 @@ accepted grammar, backend-neutral result parity, or compatibility provenance.
 At minimum, enumerate and classify:
 
 ```text
-default backend=mir
+no-flag default backend=interpreter
+explicit backend=mir
 ordinary explicit backend=vm
 MIR interpreter
 LLVM
@@ -180,7 +185,7 @@ explicit canonical/Raw VM-reference profiles
 Each family must be one of:
 
 ```text
-selected normal/default cutover caller
+selected normal/default or ordinary compiler cutover caller
 explicit compatibility authority with an exact removal condition
 explicit reference authority
 out of scope with evidence
@@ -195,12 +200,14 @@ already-parsed AST / Program
 exact source identity and source hint
 explicit imports snapshot
 compiler invocation/configuration snapshot
-normal versus compatibility provenance
+normal-admission provenance
 total source-family classification input
 ```
 
 It must not reread or reparse source, reconstruct AST, drop imports, or infer
-provenance from a string after classification.
+provenance from a string after classification. REPL, JSON, and reference
+compatibility stay behind separate typed requests or explicit authorities;
+their provenance is not merged into the normal request.
 
 ### 3. Total accepted-family table
 
@@ -269,8 +276,8 @@ explicit Raw VM-reference profiles
 explicit canonical-core VM-reference profile
 ```
 
-Do not silently merge compatibility provenance into the normal typed request.
-Keeping an explicit compatibility entry is allowed only with an exact contract
+Do not merge compatibility provenance into the normal typed request. Keeping
+an explicit compatibility entry is allowed only with an exact typed contract
 and removal or permanent-support condition.
 
 ### 7. Atomic old-edge delete set
@@ -345,16 +352,21 @@ test LOC     / ceiling = 40809 / 40826
 ```
 
 The next five-cell rolling production LOC base is `-141`, so a tenth cell could
-be at most `+141` under that independent rule. The absolute source ceiling is
-stricter: a new typed ingress must be paid for by deleting old Legacy/default
-authority in the same atomic implementation, with net source LOC `<= 0`.
+be at most `+141` under that independent rule.
+
+The four-metric ratchet above measures the fixed MirBuilder roots only. It does
+not measure `src/mir/compiler` or runner files and therefore cannot, by itself,
+bound this compiler-ingress implementation. Those MirBuilder-root ceilings
+must remain unchanged. In addition, this D0 requires the eventual atomic
+implementation to have non-positive physical production-Rust LOC across every
+`.rs` file in its diff, including compiler and runner ingress files.
 
 ```text
-new source/test/check files = 0
-new per-cell guard          = 0
-source file/LOC growth      = 0
-test file growth            = 0
-all touched source/check    < 800 lines
+MirBuilder source/test ratchet delta      = 0
+new source/test/check files               = 0
+new per-cell guard                        = 0
+whole implementation production Rust LOC <= 0
+all touched source/check                  < 800 lines
 ```
 
 Proof consolidation or dead-facade cleanup may later ratchet the ceilings
@@ -365,6 +377,7 @@ downward. Their deletion is not headroom that authorizes unrelated growth.
 ```text
 exact non-test caller census                  = complete
 selected normal/default caller family         = exact
+selected typed production callers             = exact N
 typed request fields and owner                = exact
 accepted source-family table                  = total
 imports/config/provenance transport           = exact
@@ -373,10 +386,13 @@ Builder effects before classification         = 0
 backend-neutral result contract               = exact
 compatibility/reference boundary              = exact
 atomic old-edge delete set                    = exact
+selected compile_with_source* -> Legacy edges = 0
+compatibility/reference caller delta          = 0
 canonical rejection -> Legacy                 = 0
 full normal corpus/backend parity gate        = named
 failure / compiler reuse / atomic publish     = named
-structural repayment                          = net non-growth
+MirBuilder ratchet delta                       = 0
+whole implementation production Rust LOC      <= 0
 ```
 
 Only after all rows are accepted may a tenth replacement manifest row be

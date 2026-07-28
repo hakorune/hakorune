@@ -79,7 +79,8 @@ No tenth responsibility is selected.
 ## Tenth-responsibility census outcome
 
 A six-worker bounded census found that local dead-facade and proof cleanup is
-available, and non-Program root descent remains a live T1 boundary. Neither
+available, and non-Program root descent remains a live boundary with ceremony
+still unresolved. Neither
 resolves the fixed north-star's largest production split:
 
 ```text

@@ -7,7 +7,7 @@ development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "CANONICAL-DEFAULT-COMPILER-INGRESS0-D0"
 current_execution_row = "CANONICAL-DEFAULT-COMPILER-INGRESS0-D0"
-current_execution_summary = "Reconcile one typed normal/default compiler request across AST, source identity, imports, configuration, provenance, complete source-family classification, canonical owner dispatch, and backend-neutral MirCompileResult. Production edits, a tenth manifest row, and canonical-to-Legacy fallback are forbidden until the exact caller family, parity gate, and atomic old-edge delete set are accepted."
+current_execution_summary = "Reconcile one typed normal-admission compiler request across AST, source identity, imports, configuration, complete source-family classification, canonical owner dispatch, and backend-neutral MirCompileResult while keeping REPL/JSON/reference compatibility behind separate typed authorities. Production edits, a tenth manifest row, and canonical-to-Legacy fallback are forbidden until the exact caller family, parity gate, and atomic old-edge delete set are accepted."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "canonical-default-compiler-ingress0-d0-consultation-2026-07-28"
 latest_card_path = "docs/development/current/main/investigations/canonical-default-compiler-ingress0-d0-consultation-2026-07-28.md"
-latest_card_summary = """CANONICAL-DEFAULT-COMPILER-INGRESS0-D0 is the active T2 design stop. Normal/default MIR and ordinary VM still enter compile_with_source* -> compile_legacy_request, while existing canonical entrypoints have zero normal/default production callers and narrower accepted families. The consultation must select one typed request, exact caller family, total source-family table, internal canonical owner graph, backend-neutral result contract, compatibility boundary, parity gates, and atomic Legacy/default delete set. No production edit, tenth manifest row, fallback, retry, or reselection is authorized."""
+latest_card_summary = """CANONICAL-DEFAULT-COMPILER-INGRESS0-D0 is the active T2 design stop. Explicit MIR and ordinary VM compiler fronts still enter compile_with_source* -> compile_legacy_request, while existing canonical entrypoints have zero normal/default production callers and narrower accepted families. The no-flag CLI default remains interpreter and must be classified separately. The consultation must select one typed normal-admission request, exact caller family, total source-family table, internal canonical owner graph, backend-neutral result contract, separate compatibility authorities, parity gates, and atomic Legacy/default delete set. No production edit, tenth manifest row, fallback, retry, or reselection is authorized."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

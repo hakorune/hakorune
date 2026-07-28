@@ -75,9 +75,10 @@ canonical fronts
 ```
 
 現在はT2相談だけを行う。AST、source identity、imports、config、
-compatibility provenance、total family classification、backend-neutral result
-を一つのtyped requestへ閉じ、fallbackなしのatomic delete setが確定するまで
-production editと第十manifest rowを禁止する。
+normal-admission provenance、total family classification、backend-neutral
+resultを一つのtyped requestへ閉じ、REPL/JSON/referenceは別authorityに保つ。
+fallbackなしのatomic delete setが確定するまでproduction editと第十manifest
+rowを禁止する。
 
 ## First three replacements
 
