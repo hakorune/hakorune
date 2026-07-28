@@ -61,6 +61,7 @@ mod located_legacy_lowering;
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 pub(in crate::mir) mod preloop_stageb_context_install; // atomic selected catalog+alias install
 mod preloop_stageb_function_activation; // exact selected-function ledger + collector owner
+mod raw_nonprogram_root_descent; // Shared root port-neutral partition
 mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
 #[cfg(test)]
 mod raw_required_condition_draft_p0; // ROOTBATCH0-S0b exact factory contract

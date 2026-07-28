@@ -27,6 +27,10 @@ NORMAL_PIPELINE = ROOT / "src/mir/compiler/normal_default_pipeline.rs"
 NORMAL_ROOT_LIFECYCLE = (
     ROOT / "src/mir/builder/normal_default_root_catalog_lifecycle.rs"
 )
+MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
+RAW_NONPROGRAM_ROOT_DESCENT = (
+    ROOT / "src/mir/builder/raw_nonprogram_root_descent.rs"
+)
 NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
 SOURCES = (
     ROOT / "src/mir/compiler/raw_public_ingress.rs",
@@ -123,6 +127,16 @@ def require(text: str, fragment: str, label: str) -> None:
         raise AssertionError(f"missing {label}: {fragment!r}")
 
 
+def ast_kinds(text: str) -> set[str]:
+    return set(re.findall(r"ASTNode::([A-Za-z0-9_]+)", text))
+
+
+def text_between(text: str, start: str, end: str) -> str:
+    start_index = text.index(start)
+    end_index = text.index(end, start_index)
+    return text[start_index:end_index]
+
+
 def main() -> int:
     task = TASK.read_text()
     repair_task = REPAIR_TASK.read_text()
@@ -148,6 +162,8 @@ def main() -> int:
             CURRENT_WORKSTREAM,
             NORMAL_PIPELINE,
             NORMAL_ROOT_LIFECYCLE,
+            MODULE_LIFECYCLE,
+            RAW_NONPROGRAM_ROOT_DESCENT,
             NORMAL_TESTS,
             *SOURCES,
         )
@@ -162,6 +178,8 @@ def main() -> int:
     compile_kernel = texts[SOURCES[3]]
     normal_pipeline = texts[NORMAL_PIPELINE]
     normal_root_lifecycle = texts[NORMAL_ROOT_LIFECYCLE]
+    module_lifecycle = production_code(MODULE_LIFECYCLE)
+    raw_nonprogram_root_descent = production_code(RAW_NONPROGRAM_ROOT_DESCENT)
     normal_tests = texts[NORMAL_TESTS]
     current_workstream = texts[CURRENT_WORKSTREAM]
     for fragment in (
@@ -356,11 +374,149 @@ def main() -> int:
     ):
         if forbidden in code_only(normal_root_lifecycle):
             raise AssertionError(f"normal lifecycle gained forbidden authority: {forbidden}")
+    root_descent = caller_manifest.get("raw_nonprogram_root_descent", {})
+    if (
+        ROOT / root_descent.get("definition_file", "")
+        != RAW_NONPROGRAM_ROOT_DESCENT
+        or ROOT / root_descent.get("caller_file", "") != MODULE_LIFECYCLE
+    ):
+        raise AssertionError("raw non-Program root descent path drift")
+    require(
+        raw_nonprogram_root_descent,
+        root_descent.get("definition_anchor", ""),
+        "raw root partition owner",
+    )
+    caller_anchor = root_descent.get("caller_anchor", "")
+    if module_lifecycle.count(caller_anchor) != root_descent.get("callers"):
+        raise AssertionError("raw non-Program root descent caller drift")
+    retired_anchor = root_descent.get("retired_anchor", "")
+    if module_lifecycle.count(retired_anchor) != root_descent.get("retired_calls"):
+        raise AssertionError("broad non-Program build_expression edge returned")
+    for anchor_key, count_key in (
+        ("selected_driver_anchor", "selected_driver_calls"),
+        ("compatibility_driver_anchor", "compatibility_driver_calls"),
+    ):
+        anchor = root_descent.get(anchor_key, "")
+        if raw_nonprogram_root_descent.count(anchor) != root_descent.get(count_key):
+            raise AssertionError(f"raw root driver drift: {anchor_key}")
+    require(
+        current_workstream,
+        root_descent.get("sunset_id", ""),
+        "raw root compatibility sunset",
+    )
+    if root_descent.get("sunset_state") != "active":
+        raise AssertionError("raw root compatibility sunset must remain active")
+    if root_descent.get("residual_kind_count") != 51:
+        raise AssertionError("raw root compatibility residual count drift")
+    ast_node_kinds = ast_kinds(
+        (
+            ROOT
+            / "crates/hakorune_frontend_ast/src/utils/node_type.rs"
+        ).read_text()
+    )
+    classified_kinds = ast_kinds(raw_nonprogram_root_descent)
+    if len(ast_node_kinds) != 57 or classified_kinds != ast_node_kinds:
+        raise AssertionError(
+            "raw root partition must exhaust all 57 AST kinds: "
+            f"missing={sorted(ast_node_kinds - classified_kinds)} "
+            f"extra={sorted(classified_kinds - ast_node_kinds)}"
+        )
+    selected_arms = re.findall(
+        r"node\s*@\s*(.*?)=>\s*\{\s*Self::selected\(node\)\s*\}"
+        r"|node\s*@\s*(.*?)=>\s*Self::selected\(node\)",
+        raw_nonprogram_root_descent,
+        re.S,
+    )
+    selected_kinds = set()
+    for braced, direct in selected_arms:
+        selected_kinds.update(ast_kinds(braced or direct))
+    expected_selected = {"Literal", "Variable", "Me", "UnaryOp", "BinaryOp"}
+    if selected_kinds != expected_selected:
+        raise AssertionError(
+            "selected raw-root kind ratchet drift: "
+            f"expected={sorted(expected_selected)} actual={sorted(selected_kinds)}"
+        )
+    explicit_kinds = ast_kinds(
+        text_between(
+            raw_nonprogram_root_descent,
+            "node @ (ASTNode::BoxDeclaration",
+            "RawNonProgramRootCompatibilityClassV1::ExplicitRoot",
+        )
+    )
+    if explicit_kinds != {"BoxDeclaration", "Loop"}:
+        raise AssertionError(f"explicit root compatibility drift: {sorted(explicit_kinds)}")
+    separate_kinds = ast_kinds(
+        text_between(
+            raw_nonprogram_root_descent,
+            "node @ (ASTNode::Assignment",
+            "RawNonProgramRootCompatibilityClassV1::SeparateDesignStop",
+        )
+    )
+    expected_separate = {
+        "Assignment", "CompoundAssignment", "Print", "If", "Return", "Nowait",
+        "TaskScope", "AwaitExpression", "QMarkPropagate", "MatchExpr",
+        "EnumMatchExpr", "ArrayLiteral", "MapLiteral", "RecordLiteral",
+        "RecordUpdate", "Lambda", "BlockExpr", "TryCatch", "Throw", "CheckExpr",
+        "GroupedAssignmentExpr", "MethodCall", "FieldAccess", "Index", "New",
+        "FromCall", "Local", "ScopeBox", "FunctionCall", "Call",
+    }
+    if separate_kinds != expected_separate:
+        raise AssertionError(
+            "separate-design root compatibility drift: "
+            f"expected={sorted(expected_separate)} actual={sorted(separate_kinds)}"
+        )
+    outside_kinds = ast_kinds(
+        text_between(
+            raw_nonprogram_root_descent,
+            "node @ (ASTNode::LoopRange",
+            "RawNonProgramRootCompatibilityClassV1::OutsideNormalFileIngress",
+        )
+    )
+    expected_outside = ast_node_kinds - expected_selected - explicit_kinds - expected_separate - {
+        "Program"
+    }
+    if len(expected_outside) != 19 or outside_kinds != expected_outside:
+        raise AssertionError(
+            "outside-normal root compatibility drift: "
+            f"expected={sorted(expected_outside)} actual={sorted(outside_kinds)}"
+        )
+    actual_residual_kind_count = len(explicit_kinds | separate_kinds | outside_kinds)
+    if actual_residual_kind_count != root_descent.get("residual_kind_count"):
+        raise AssertionError(
+            "raw root residual ratchet drift: "
+            f"manifest={root_descent.get('residual_kind_count')} "
+            f"actual={actual_residual_kind_count}"
+        )
+    for fragment in (
+        "PreparedRawNonProgramRootV1",
+        "PortNeutralExprTreeV1",
+        "ExistingRawNonProgramRootCompatibilityV1",
+        "RawNonProgramRootCompatibilityClassV1::ExplicitRoot",
+        "RawNonProgramRootCompatibilityClassV1::SeparateDesignStop",
+        "RawNonProgramRootCompatibilityClassV1::OutsideNormalFileIngress",
+    ):
+        require(raw_nonprogram_root_descent, fragment, f"raw root partition {fragment}")
+    for forbidden in (
+        "build_expression(",
+        ".clone()",
+        "NyashParser",
+        "parse_",
+        "retry(",
+        "fallback(",
+        "or_else(",
+        "unreachable!(",
+        "panic!(",
+    ):
+        if forbidden in raw_nonprogram_root_descent:
+            raise AssertionError(f"raw root partition gained forbidden surface: {forbidden}")
+    if re.search(r"\b_\s*=>", raw_nonprogram_root_descent):
+        raise AssertionError("raw root partition must not use a wildcard AST arm")
     for fixture in (
         "late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable",
         "explicit_imports_commit_only_with_the_finished_normal_candidate",
         "normal_pipeline_matches_legacy_compatibility_for_general_module",
         "normal_pipeline_matches_legacy_compatibility_for_non_program_root",
+        "selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable",
     ):
         require(normal_tests, fixture, f"normal pipeline fixture {fixture}")
     count_by_manifest(caller_manifest.get("normal_compile_adapters", {}), ".compile(")

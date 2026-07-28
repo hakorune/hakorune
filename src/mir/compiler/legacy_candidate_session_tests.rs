@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::ast::{ASTNode, LiteralValue, Span};
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::{MirCompiler, MirPrinter, MirType, NormalCompileRequestV1};
 use crate::parser::NyashParser;
 
@@ -17,6 +17,30 @@ fn core_cursor(compiler: &MirCompiler) -> (u32, u32, u32, u32, u32) {
 fn literal(value: i64) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::Integer(value),
+        span: Span::unknown(),
+    }
+}
+
+fn boolean(value: bool) -> ASTNode {
+    ASTNode::Literal {
+        value: LiteralValue::Bool(value),
+        span: Span::unknown(),
+    }
+}
+
+fn unary(operator: UnaryOperator, operand: ASTNode) -> ASTNode {
+    ASTNode::UnaryOp {
+        operator,
+        operand: Box::new(operand),
+        span: Span::unknown(),
+    }
+}
+
+fn binary(operator: BinaryOperator, left: ASTNode, right: ASTNode) -> ASTNode {
+    ASTNode::BinaryOp {
+        operator,
+        left: Box::new(left),
+        right: Box::new(right),
         span: Span::unknown(),
     }
 }
@@ -205,29 +229,77 @@ static box Main {
 
 #[test]
 fn normal_pipeline_matches_legacy_compatibility_for_non_program_root() {
-    let mut legacy_compiler = MirCompiler::with_options(false);
-    let legacy = legacy_compiler
-        .compile_with_source(literal(17), Some("non-program-parity.hako"))
-        .expect("legacy non-Program root");
+    let roots = [
+        literal(17),
+        unary(
+            UnaryOperator::Minus,
+            binary(BinaryOperator::Add, literal(1), literal(2)),
+        ),
+        binary(BinaryOperator::And, boolean(true), boolean(false)),
+        binary(
+            BinaryOperator::Or,
+            boolean(false),
+            binary(BinaryOperator::And, boolean(true), boolean(true)),
+        ),
+    ];
+
+    for root in roots {
+        let mut legacy_compiler = MirCompiler::with_options(false);
+        let legacy = legacy_compiler
+            .compile_with_source(root.clone(), Some("non-program-parity.hako"))
+            .expect("legacy non-Program root");
+        let mut compiler = MirCompiler::with_options(false);
+        let candidate = compiler
+            .compile_normal(normal_request(
+                root,
+                Some("non-program-parity.hako"),
+                HashMap::new(),
+            ))
+            .expect("normal non-Program root");
+
+        assert_eq!(
+            MirPrinter::new().print_module(&candidate.module),
+            MirPrinter::new().print_module(&legacy.module)
+        );
+        assert_eq!(
+            format!("{:?}", candidate.verification_result),
+            format!("{:?}", legacy.verification_result)
+        );
+        assert_eq!(
+            candidate.module.metadata.source_file,
+            legacy.module.metadata.source_file
+        );
+    }
+}
+
+#[test]
+fn selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable() {
     let mut compiler = MirCompiler::with_options(false);
-    let candidate = compiler
+    compiler.builder.set_source_file_hint("live-before.hako");
+    let before = (source_file(&compiler), core_cursor(&compiler));
+    let error = compiler
         .compile_normal(normal_request(
-            literal(17),
-            Some("non-program-parity.hako"),
+            ASTNode::Variable {
+                name: "missing".to_owned(),
+                span: Span::unknown(),
+            },
+            Some("failed-nonprogram.hako"),
             HashMap::new(),
         ))
-        .expect("normal non-Program root");
+        .expect_err("selected undefined Variable must fail");
 
+    assert!(error.contains("Undefined variable: missing"), "{error}");
+    assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
+    let result = compiler
+        .compile_normal(normal_request(
+            literal(23),
+            Some("reused-nonprogram.hako"),
+            HashMap::new(),
+        ))
+        .expect("fresh selected root after failure");
+    assert!(result.module.functions.contains_key("main"));
     assert_eq!(
-        MirPrinter::new().print_module(&candidate.module),
-        MirPrinter::new().print_module(&legacy.module)
-    );
-    assert_eq!(
-        format!("{:?}", candidate.verification_result),
-        format!("{:?}", legacy.verification_result)
-    );
-    assert_eq!(
-        candidate.module.metadata.source_file,
-        legacy.module.metadata.source_file
+        source_file(&compiler).as_deref(),
+        Some("reused-nonprogram.hako")
     );
 }

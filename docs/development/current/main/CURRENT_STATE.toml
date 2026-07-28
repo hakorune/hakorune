@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 is closed with Candidate A. RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 is the current T1 production replacement."
+status = "RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 is closed. RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0 is the current design stop."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0"
-current_execution_summary = "One atomic T1 cell classifies all 57 root variants once with an explicit unchanged Program outcome, sends only recursive Literal/Variable/Me/Unary/Binary trees through the selected invocation port, sends every residual once through one sunset-bound raw compatibility owner, and deletes `other -> self.build_expression(other)`. Box, Loop, grammar, result, publication, and explicit compatibility caller behavior remain unchanged; retry, reclassification, AST cloning, and a new per-row guard are forbidden."
+current_design_stop = "RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0"
+current_execution_row = ""
+current_execution_summary = "Select exactly one compositional residual root responsibility from the fresh live-edge census. AwaitExpression with a PortNeutralExprTree0 operand is the smallest candidate; CheckExpr and ArrayLiteral are viable alternatives. No implementation starts until D0 fixes the exact recursive closure, named old edge, same-commit deletion, parity evidence, and compatibility-sunset decrement. Whole-kind cutover and selected-port failure retry remain forbidden."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 is closed with Candidate A. RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 is the sole current production row: one source-only total partition keeps Program on its unchanged owner, selects only recursive Literal/Variable/Me/Unary/Binary trees for the existing invocation port, bounds all residual kinds behind RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001, and atomically removes the broad `other -> self.build_expression(other)` edge. Main/Box/Loop and explicit compatibility behavior remain unchanged. The compatibility surface may only shrink; any attempted addition or selected-port retry returns to design. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 is closed: one total source partition keeps Program unchanged, routes recursive Literal/Variable/Me/Unary/Binary trees through the selected invocation port, bounds 51 residual kinds behind RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001, and removes the broad `other -> self.build_expression(other)` edge. RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0 is now the sole design stop because the fresh census found no uniquely selected next responsibility. AwaitExpression with a port-neutral operand is the smallest candidate; CheckExpr and ArrayLiteral remain alternatives. No code row is authorized until the D0 fixes one recursive source closure and one same-commit old-edge deletion. The compatibility surface may only shrink; retry, reclassification, whole-kind widening, and new whole-function variants remain forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the

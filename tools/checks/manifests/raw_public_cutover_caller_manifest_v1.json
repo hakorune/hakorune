@@ -42,6 +42,23 @@
     "sunset_id": "NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001",
     "sunset_state": "closed"
   },
+  "raw_nonprogram_root_descent": {
+    "definition_file": "src/mir/builder/raw_nonprogram_root_descent.rs",
+    "definition_anchor": "pub(super) enum PreparedRawRootPartitionV1",
+    "caller_file": "src/mir/builder/module_lifecycle.rs",
+    "caller_anchor": "lower_raw_nonprogram_root_with_port_v1",
+    "callers": 1,
+    "selected_driver_anchor": "drive_legacy_expression_v1(builder, selected_port, tree.node)",
+    "selected_driver_calls": 1,
+    "compatibility_driver_anchor": "drive_raw_legacy_expression_v1(builder, node)",
+    "compatibility_driver_calls": 1,
+    "retired_anchor": "self.build_expression(other)",
+    "retired_calls": 0,
+    "sunset_id": "RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001",
+    "sunset_state": "active",
+    "residual_kind_count": 51,
+    "retire_when": "root compatibility owner, registered residual surface, and root-specific raw legacy driver edge are zero"
+  },
   "normal_compile_adapters": {
     "src/runner/modes/bench.rs": 1,
     "src/runner/selfhost.rs": 1

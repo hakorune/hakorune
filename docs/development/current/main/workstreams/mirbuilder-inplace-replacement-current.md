@@ -33,9 +33,10 @@ Closed:  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0
 Closed:  NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0
 Closed:  NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0
 Closed:  NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0
-Current: RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0
+Closed:  RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0
+Current design stop: RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0
 Pack:    DESCENT-SPINE0
-Ceremony: T1; one atomic production replacement
+Ceremony: consultation; no production edit before selection
 ```
 
 R1 closeout:
@@ -95,54 +96,68 @@ optional quick gate                  = pre-existing EBNF naming-charter failure
 clean efe2c467c2 reproduces the same failure
 ```
 
+R2d closeout:
+
+```text
+shared root classifier                 = exhaustive 57/57
+Program owner                          = unchanged
+selected recursive-safe kinds          = 5
+registered residual kinds              = 51
+broad self.build_expression fallback   = 0
+selected invocation-port descent       = 1
+root-specific raw compatibility edge   = 1
+selected failure retry                 = 0
+focused tests                          = 7/7
+new source file                        = 1, 338 lines
+new test/check file                    = 0
+largest touched source/check file      = 796
+```
+
 ## Execution brief
 
-Change:
+Question:
 
 ```text
-add one source-only total root disposition owner in a Builder sibling
-keep Program as an explicit outcome delegated once to the existing orchestration
-selected PortNeutralExprTree0:
-  Literal | Variable | Me | recursive UnaryOp | recursive BinaryOp
-lower selected trees through the already-selected RawInvocationChildPortV1
-route every residual category once through one bounded raw compatibility owner
-atomically delete `other -> self.build_expression(other)`
+select exactly one compositional residual root responsibility
+name its live production edge and same-commit old compatibility edge deletion
+keep the selection source-only, disjoint, and closed under recursive children
 ```
 
-Contract:
+Fresh census:
 
 ```text
-ASTNode census = 57; one exhaustive no-wildcard classifier has an explicit
-Program outcome plus a disjoint 5 selected / 2 Box+Loop / 30 pending /
-19 outside-normal-file partition
-Program is neither reclassified nor reimplemented; its existing orchestration is unchanged
-Unary/Binary are selected only when every descendant is port-neutral
-classification occurs before descent; execution route is selected exactly once
-all 51 residual kinds preserve current behavior; this row adds no rejection or skip
-result, root/catalog lifecycle, explicit compatibility callers, and grammar stay unchanged
-RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001 owns all residual raw-port reachability
+Candidate A: AwaitExpression with a PortNeutralExprTree0 operand
+  smallest arity; existing port-aware await owner and live bare-root fixture
+
+Candidate B: CheckExpr with every item expression port-neutral
+  existing port-aware owner; wider list closure than A
+
+Candidate C: ArrayLiteral with every element port-neutral
+  existing port-aware owner; collection/result parity requires separate proof
+
+recommended: A, but repo authority does not select it automatically
 ```
 
-Done:
+Required D0 output:
 
 ```text
-focused partition evidence covers nested safe trees and unsafe descendants
-scalar-tree MIR/diagnostic parity and existing RootLower retention/reuse are green
-Main/Box and all Loop shapes remain on explicit compatibility
-shared root guard proves broad build_expression edge = 0, selected descent = 1,
-compatibility raw descent = 1; no new test/check file or per-row guard
-replacement credit applies only to the five-kind recursive-safe branch
+one accepted recursive source closure
+one named production caller
+one selected existing port-aware owner
+one same-commit compatibility branch removal
+one residual-count decrement
+parity and failure/reuse evidence
+sunset update
 ```
 
 Stop:
 
 ```text
-selected failure retries the raw port or any residual is reclassified
-MethodCall / FunctionCall / New / FieldAccess enters selected without parity proof
-Box or Loop authority, result policy, grammar, or publication changes
-Program is handled by panic/unreachable instead of the existing root partition
-any currently accepted residual gains a new rejection or skip
-source clone/reparse, new failure owner, or new per-row guard is required
+whole Await/Check/Array kind is moved without recursive child closure
+selected failure retries or reselects compatibility
+compatibility surface grows
+Box/Loop/header/call authority is mixed into the row
+new grammar, result policy, source clone/reparse, or per-row guard is required
 ```
 
 Compatibility sunset:
@@ -174,8 +189,8 @@ R1  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 closed
 R2a NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 closed
 R2b NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0 closed
 R2c NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 closed
-R2d RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 current
-R2e fresh live-edge census; select exactly one named responsibility
+R2d RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 closed
+R2e RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0 current design stop
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:

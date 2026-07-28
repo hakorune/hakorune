@@ -43,10 +43,6 @@
 //! 3. **Type hints BEFORE PHI inference**: Ensures value_types populated
 //! 4. **PHI resolver order固定**: A → B → P3-D → P4 → P3-C
 //!
-//! # Called By
-//!
-//! - `builder_build.rs::build_module()` - Main entry point
-
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
 use super::module_draft_collector::ModuleDraftCollectorV1;
@@ -310,15 +306,12 @@ impl super::MirBuilder {
             .unwrap_or_else(|| declaration_indexer::has_main_static(snapshot));
         self.root_is_app_mode = Some(is_app_mode);
 
-        // Phase B: top-level program lowering with declaration-first pass
-        match ast {
-            ASTNode::Program { statements, .. } => {
+        use super::raw_nonprogram_root_descent::PreparedRawRootPartitionV1 as RootPartition;
+        match RootPartition::classify(ast) {
+            RootPartition::Program { statements } => {
                 use crate::ast::ASTNode as N;
-                // First pass: lower instance declarations before static methods.
-                //
-                // Static methods may allocate instance boxes. Birth-call injection
-                // checks for already-lowered `Box.birth/N` functions, so App mode
-                // must not lower static methods before the instance constructors.
+                // Lower instance declarations before static methods so birth-call
+                // injection can see already-lowered `Box.birth/N` functions.
                 let mut main_static: Option<(String, std::collections::HashMap<String, ASTNode>)> =
                     None;
                 let mut deferred_static_boxes: Vec<(
@@ -531,7 +524,11 @@ impl super::MirBuilder {
                     callables.lower_body(self, runtime_statements)
                 }
             }
-            other => self.build_expression(other),
+            RootPartition::NonProgram(root) => {
+                super::raw_nonprogram_root_descent::lower_raw_nonprogram_root_with_port_v1(
+                    self, callables, root,
+                )
+            }
         }
     }
 
