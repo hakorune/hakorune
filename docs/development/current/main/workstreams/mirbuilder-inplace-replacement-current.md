@@ -35,9 +35,10 @@ Closed:  NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0
 Closed:  NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0
 Closed:  RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0
-Current: RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0
+Closed:  RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0
+Current design stop: RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0
 Pack:    DESCENT-SPINE0
-Ceremony: T1; one atomic production replacement
+Ceremony: consultation; no production edit before selection
 ```
 
 R1 closeout:
@@ -114,45 +115,59 @@ new test/check file                    = 0
 largest touched source/check file      = 796
 ```
 
+R2f closeout:
+
+```text
+Await recursive closure                 = selected safe / residual unsafe
+selected invocation-port descent        = 1
+existing Await completion owner          = 1
+selected failure retry                   = 0
+selected recursive-safe kinds            = 6
+registered residual kinds                = 50
+focused tests                            = 8/8
+new source/test/check/task file           = 0
+largest touched source/check file         = 574
+```
+
 ## Execution brief
 
-Change:
+Question:
 
 ```text
-extend PortNeutralExprTreeV1 with AwaitExpression(PortNeutralExprTreeV1)
-route safe Await roots and safe Await nested under Unary/Binary through the
-existing selected invocation port and build_await_expression_with_port_v1
-delete safe Await -> SeparateDesignStop compatibility in the same commit
+select exactly one next compositional residual expression responsibility
+fix its recursive closure, completion authority, failure/order parity, and
+same-commit compatibility-edge deletion before opening production edits
 ```
 
-Contract:
+Fresh census:
 
 ```text
-classification and execution route = exactly once
-unsafe Await remains on the single compatibility owner without retry
-existing operand descent and Safepoint -> Await -> type -> Safepoint order stay unchanged
-new classifier/root clone = 0; existing raw-dispatch operand clone is unchanged
-Program, Box, Loop, calls, grammar, result, verification, and publication do not move
+Candidate A: CheckExpr with every item expression port-neutral
+  recommended; eager ordered list, no allocation/header/control authority
+
+Candidate B: QMarkPropagate with a port-neutral operand
+  branch/Return/runtime-call authority requires explicit control/result parity
+
+Candidate C: ArrayLiteral with every element port-neutral
+  allocation/type-registry/write order requires object/result parity
 ```
 
-Done:
+Required D0 output:
 
 ```text
-recursive classifier proves safe and unsafe nested Await shapes
-normal/compatibility MIR and diagnostic parity plus failure/reuse are green
-selected kinds 5 -> 6; registered residual kinds 51 -> 50
-shared root guard and caller manifest ratchet the exact sets and sunset
-new source/test/check/task file = 0; every source/check file < 800
+one accepted recursive closure and existing owner
+one named old compatibility edge removed atomically
+one residual-count decrement and sunset update
+focused completion-order, parity, and failure/reuse evidence
 ```
 
 Stop:
 
 ```text
-Await is selected with a non-port-neutral descendant
-selected failure retries or reselects compatibility, or the compatibility driver grows
-the classifier performs a new AST clone/reconstruction/reparse
-Await completion order, result policy, or verification policy changes
-CheckExpr, ArrayLiteral, Box/Loop/header/call authority, or a new file enters the row
+an entire AST kind moves without a recursive child closure
+selected failure retries/reselects compatibility or the compatibility surface grows
+allocation, control, header, or result authority is smuggled into another candidate
+new grammar, source clone/reparse, whole-function variant, or per-row file is required
 ```
 
 Compatibility sunset:
@@ -186,7 +201,8 @@ R2b NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0 closed
 R2c NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 closed
 R2d RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 closed
 R2e RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0 closed
-R2f RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0 current
+R2f RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0 closed
+R2g RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0 current design stop
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:

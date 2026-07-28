@@ -406,7 +406,7 @@ def main() -> int:
     )
     if root_descent.get("sunset_state") != "active":
         raise AssertionError("raw root compatibility sunset must remain active")
-    if root_descent.get("residual_kind_count") != 51:
+    if root_descent.get("residual_kind_count") != 50:
         raise AssertionError("raw root compatibility residual count drift")
     ast_node_kinds = ast_kinds(
         (
@@ -430,7 +430,9 @@ def main() -> int:
     selected_kinds = set()
     for braced, direct in selected_arms:
         selected_kinds.update(ast_kinds(braced or direct))
-    expected_selected = {"Literal", "Variable", "Me", "UnaryOp", "BinaryOp"}
+    expected_selected = {
+        "Literal", "Variable", "Me", "UnaryOp", "BinaryOp", "AwaitExpression",
+    }
     if selected_kinds != expected_selected:
         raise AssertionError(
             "selected raw-root kind ratchet drift: "
@@ -454,7 +456,7 @@ def main() -> int:
     )
     expected_separate = {
         "Assignment", "CompoundAssignment", "Print", "If", "Return", "Nowait",
-        "TaskScope", "AwaitExpression", "QMarkPropagate", "MatchExpr",
+        "TaskScope", "QMarkPropagate", "MatchExpr",
         "EnumMatchExpr", "ArrayLiteral", "MapLiteral", "RecordLiteral",
         "RecordUpdate", "Lambda", "BlockExpr", "TryCatch", "Throw", "CheckExpr",
         "GroupedAssignmentExpr", "MethodCall", "FieldAccess", "Index", "New",
@@ -487,6 +489,13 @@ def main() -> int:
             f"manifest={root_descent.get('residual_kind_count')} "
             f"actual={actual_residual_kind_count}"
         )
+    for fragment in (
+        "node @ ASTNode::AwaitExpression { .. } if is_port_neutral_expr_tree(&node)",
+        "ASTNode::AwaitExpression { expression, .. } => is_port_neutral_expr_tree(expression)",
+    ):
+        require(raw_nonprogram_root_descent, fragment, "recursive Await partition")
+    if raw_nonprogram_root_descent.count("node @ ASTNode::AwaitExpression { .. }") != 2:
+        raise AssertionError("Await root must have one safe and one compatibility arm")
     for fragment in (
         "PreparedRawNonProgramRootV1",
         "PortNeutralExprTreeV1",

@@ -45,6 +45,13 @@ fn binary(operator: BinaryOperator, left: ASTNode, right: ASTNode) -> ASTNode {
     }
 }
 
+fn awaited(expression: ASTNode) -> ASTNode {
+    ASTNode::AwaitExpression {
+        expression: Box::new(expression),
+        span: Span::unknown(),
+    }
+}
+
 fn source_file(compiler: &MirCompiler) -> Option<String> {
     compiler.builder.current_source_file()
 }
@@ -241,6 +248,14 @@ fn normal_pipeline_matches_legacy_compatibility_for_non_program_root() {
             boolean(false),
             binary(BinaryOperator::And, boolean(true), boolean(true)),
         ),
+        awaited(literal(18)),
+        awaited(unary(
+            UnaryOperator::Minus,
+            binary(BinaryOperator::Add, literal(3), literal(4)),
+        )),
+        unary(UnaryOperator::Minus, awaited(literal(19))),
+        binary(BinaryOperator::Add, awaited(literal(20)), literal(5)),
+        awaited(awaited(literal(21))),
     ];
 
     for root in roots {
@@ -274,32 +289,40 @@ fn normal_pipeline_matches_legacy_compatibility_for_non_program_root() {
 
 #[test]
 fn selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable() {
-    let mut compiler = MirCompiler::with_options(false);
-    compiler.builder.set_source_file_hint("live-before.hako");
-    let before = (source_file(&compiler), core_cursor(&compiler));
-    let error = compiler
-        .compile_normal(normal_request(
-            ASTNode::Variable {
-                name: "missing".to_owned(),
-                span: Span::unknown(),
-            },
-            Some("failed-nonprogram.hako"),
-            HashMap::new(),
-        ))
-        .expect_err("selected undefined Variable must fail");
+    for root in [
+        ASTNode::Variable {
+            name: "missing".to_owned(),
+            span: Span::unknown(),
+        },
+        awaited(ASTNode::Variable {
+            name: "missing".to_owned(),
+            span: Span::unknown(),
+        }),
+    ] {
+        let mut compiler = MirCompiler::with_options(false);
+        compiler.builder.set_source_file_hint("live-before.hako");
+        let before = (source_file(&compiler), core_cursor(&compiler));
+        let error = compiler
+            .compile_normal(normal_request(
+                root,
+                Some("failed-nonprogram.hako"),
+                HashMap::new(),
+            ))
+            .expect_err("selected undefined Variable must fail");
 
-    assert!(error.contains("Undefined variable: missing"), "{error}");
-    assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
-    let result = compiler
-        .compile_normal(normal_request(
-            literal(23),
-            Some("reused-nonprogram.hako"),
-            HashMap::new(),
-        ))
-        .expect("fresh selected root after failure");
-    assert!(result.module.functions.contains_key("main"));
-    assert_eq!(
-        source_file(&compiler).as_deref(),
-        Some("reused-nonprogram.hako")
-    );
+        assert!(error.contains("Undefined variable: missing"), "{error}");
+        assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
+        let result = compiler
+            .compile_normal(normal_request(
+                literal(23),
+                Some("reused-nonprogram.hako"),
+                HashMap::new(),
+            ))
+            .expect("fresh selected root after failure");
+        assert!(result.module.functions.contains_key("main"));
+        assert_eq!(
+            source_file(&compiler).as_deref(),
+            Some("reused-nonprogram.hako")
+        );
+    }
 }

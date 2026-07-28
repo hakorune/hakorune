@@ -1,7 +1,8 @@
 //! Source-only root disposition for the shared raw module lifecycle.
 //!
 //! The selected invocation port is parity-safe only for expression trees whose
-//! complete recursive surface is Literal, Variable, Me, Unary, or Binary.
+//! complete recursive surface is Literal, Variable, Me, Unary, Binary, or
+//! Await.
 //! Every other non-Program root keeps the existing raw compatibility terminal
 //! until its own production responsibility cell removes that residual.
 
@@ -57,6 +58,13 @@ impl PreparedRawRootPartitionV1 {
                 node,
                 RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
             ),
+            node @ ASTNode::AwaitExpression { .. } if is_port_neutral_expr_tree(&node) => {
+                Self::selected(node)
+            }
+            node @ ASTNode::AwaitExpression { .. } => Self::compatibility(
+                node,
+                RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+            ),
             node @ (ASTNode::BoxDeclaration { .. } | ASTNode::Loop { .. }) => {
                 Self::compatibility(node, RawNonProgramRootCompatibilityClassV1::ExplicitRoot)
             }
@@ -67,7 +75,6 @@ impl PreparedRawRootPartitionV1 {
             | ASTNode::Return { .. }
             | ASTNode::Nowait { .. }
             | ASTNode::TaskScope { .. }
-            | ASTNode::AwaitExpression { .. }
             | ASTNode::QMarkPropagate { .. }
             | ASTNode::MatchExpr { .. }
             | ASTNode::EnumMatchExpr { .. }
@@ -136,6 +143,7 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
         ASTNode::BinaryOp { left, right, .. } => {
             is_port_neutral_expr_tree(left) && is_port_neutral_expr_tree(right)
         }
+        ASTNode::AwaitExpression { expression, .. } => is_port_neutral_expr_tree(expression),
         ASTNode::Program { .. }
         | ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
@@ -153,7 +161,6 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
         | ASTNode::TaskScope { .. }
         | ASTNode::ContextScope { .. }
         | ASTNode::FastMemRegion { .. }
-        | ASTNode::AwaitExpression { .. }
         | ASTNode::QMarkPropagate { .. }
         | ASTNode::MatchExpr { .. }
         | ASTNode::EnumMatchExpr { .. }
@@ -245,6 +252,13 @@ mod tests {
         }
     }
 
+    fn awaited(expression: ASTNode) -> ASTNode {
+        ASTNode::AwaitExpression {
+            expression: Box::new(expression),
+            span: Span::unknown(),
+        }
+    }
+
     fn assert_selected(node: ASTNode) {
         assert!(matches!(
             PreparedRawRootPartitionV1::classify(node),
@@ -287,6 +301,18 @@ mod tests {
             }),
             span: Span::unknown(),
         });
+        assert_selected(awaited(awaited(integer(4))));
+        assert_selected(ASTNode::UnaryOp {
+            operator: UnaryOperator::Minus,
+            operand: Box::new(awaited(variable("future"))),
+            span: Span::unknown(),
+        });
+        assert_selected(ASTNode::BinaryOp {
+            operator: BinaryOperator::Add,
+            left: Box::new(awaited(integer(5))),
+            right: Box::new(integer(6)),
+            span: Span::unknown(),
+        });
 
         assert_compatibility(
             ASTNode::UnaryOp {
@@ -311,6 +337,28 @@ mod tests {
                     field: "value".to_owned(),
                     span: Span::unknown(),
                 }),
+                span: Span::unknown(),
+            },
+            RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+        );
+        assert_compatibility(
+            awaited(ASTNode::New {
+                class: "Page".to_owned(),
+                arguments: Vec::new(),
+                field_initializers: Vec::new(),
+                type_arguments: Vec::new(),
+                span: Span::unknown(),
+            }),
+            RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+        );
+        assert_compatibility(
+            ASTNode::UnaryOp {
+                operator: UnaryOperator::Minus,
+                operand: Box::new(awaited(ASTNode::FieldAccess {
+                    object: Box::new(variable("page")),
+                    field: "value".to_owned(),
+                    span: Span::unknown(),
+                })),
                 span: Span::unknown(),
             },
             RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
