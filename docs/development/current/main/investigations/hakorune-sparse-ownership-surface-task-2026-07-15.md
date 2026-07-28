@@ -7,6 +7,7 @@ Current lane: follow CURRENT_STATE.toml
 First code-facing ownership row when explicitly resumed: OWN-GRAM-REJECT0-HAKO0-S0
 Integration resume checkpoint: MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
 Related:
+  - ownership-view-missing-grammar-inventory-2026-07-28.md
   - hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md
   - hakorune-ownership-v2-anchored-view-return-abi-task-2026-07-15.md
   - ../design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
@@ -43,6 +44,9 @@ historical evidence and detailed fixture inventory:
 
 call-result View branch details:
   hakorune-ownership-v2-anchored-view-return-abi-task-2026-07-15.md
+
+exact missing grammar census and compact resume train:
+  ownership-view-missing-grammar-inventory-2026-07-28.md
 ```
 
 `CURRENT_STATE.toml` selects the active row; this taskboard owns the exact Pack

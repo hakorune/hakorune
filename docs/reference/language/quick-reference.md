@@ -15,8 +15,9 @@ Ownership note
   added to this current-syntax sheet until their EBNF and grammar-registry rows
   land. Do not infer parser support from the target reference alone.
 - Do not write inactive lookalike results such as `: view T` or `: share T`;
-  the current scanners may coalesce them into ordinary type names until the
-  parked `OWN-GRAM-REJECT0` fail-fast row lands.
+  the Rust parser now rejects them, while the parked
+  `OWN-GRAM-REJECT0-HAKO0-S0` row still owns the Hako parser witness before the
+  shared reject boundary closes.
 
 Feature status and gates
 - Check the [language status index](status-index.md) before treating an example

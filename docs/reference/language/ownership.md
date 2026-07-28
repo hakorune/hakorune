@@ -17,6 +17,8 @@ Related authorities:
 - `lifecycle.md`: `fini()`, Alive/Dead/Freed, weak references, and reclamation
 - `../../development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md`:
   staged implementation order
+- `../../development/current/main/investigations/ownership-view-missing-grammar-inventory-2026-07-28.md`:
+  exact parser census and compact parked task train
 
 The grammar examples below describe the accepted target contract. They do not
 make a spelling parser-live. `EBNF.md` and the grammar registry remain the live
@@ -79,11 +81,11 @@ registry, Rust parser, Hako parser, AST/schema carriers, and shared witnesses
 land together. The target grammar above is semantic design authority, not
 evidence that current source accepts it.
 
-Known conformance gap: the current Rust and Hako return-type scanners may
-discard whitespace and coalesce an inactive spelling such as `: view Node` or
-`: share Service` into the ordinary type text `viewNode` / `shareService`.
-`OWN-GRAM-REJECT0` in the parked implementation taskboard owns the exact
-dual-parser fail-fast witness. Until it lands, do not use these lookalike
+Reject-boundary status: the Rust parser now rejects inactive spellings such as
+`: view Node` and `: share Service` with
+`[freeze:contract][parser/ownership_syntax_inactive]`. The remaining first row
+is the Hako parser witness, `OWN-GRAM-REJECT0-HAKO0-S0`, followed by the shared
+`OWN-GRAM-REJECT0-G0` closure. Until both close, do not use these lookalike
 result forms and do not treat accidental parsing as ownership syntax.
 
 ## 1. Thirty-second rule
