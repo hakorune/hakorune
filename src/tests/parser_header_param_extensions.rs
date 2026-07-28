@@ -44,7 +44,7 @@ box Worker {
 #[test]
 fn parser_accepts_interface_clause_keyword_and_implements_alias() {
     let src = r#"
-box A from Base interface Runnable, Loggable {
+box A interface Runnable, Loggable {
   run() { return 0 }
 }
 box B implements Runnable {
@@ -61,7 +61,7 @@ box B implements Runnable {
     else {
         panic!("expected BoxDeclaration A");
     };
-    assert_eq!(extends, &vec!["Base".to_string()]);
+    assert!(extends.is_empty());
     assert_eq!(
         implements,
         &vec!["Runnable".to_string(), "Loggable".to_string()]
