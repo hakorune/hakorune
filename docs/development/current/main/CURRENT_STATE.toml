@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 is closed: four selected normal callers now use one typed pipeline and have zero generic Legacy reachability. NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 is the current design stop."
+status = "NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 accepted Candidate A-prime-plus. NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0 is the current executable row: one atomic session-owned lifecycle cutover deletes the selected normal build_module edge."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0: select one neutral source/root/catalog handoff that preserves lifecycle failure order and atomically deletes the selected normal build_module edge"
-current_execution_row = "NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0"
-current_execution_summary = "Read-only design only. Preserve root expansion preflight -> prepare_module -> callable catalog seal/install -> existing port-aware root lower -> finalize_module. Reuse VerifiedRawRootExpansionV1, VerifiedSameModuleCallableDeclarationCatalogV1::seal_root, and lower_root_after_callable_catalog_install_v1 without NarrowV1 or Stage-B authority. The accepted row must retain source on failure, live in a sibling module because module_lifecycle.rs is 799 lines, and delete ExistingGeneralModuleCompatibilityV1 -> session.builder_mut().build_module(ast) atomically. Production edits remain parked until this D0 closes."
+current_design_stop = "none; NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 accepted Candidate A-prime-plus"
+current_execution_row = "NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0"
+current_execution_summary = "T2, one atomic I0/R0. Add one session-consuming sibling lifecycle for Program/non-Program root partition, existing Program expansion preflight, prepare_module, one root clone, callable catalog seal/install, existing port-aware root lower, and finalize_module. Success returns the retained session plus MirModule; typed rejection retains session and source without recovery. Delete ExistingGeneralModuleCompatibilityV1 and the selected session.builder_mut().build_module(ast) edge in the same commit. Keep finish/result/external-commit behavior and explicit compatibility callers unchanged; no NarrowV1, Stage-B, retry, fallback, new test/check file, or module_lifecycle.rs edit."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 is closed. Exactly four selected normal construction sites now construct one opaque NormalCompileRequestV1 and enter one candidate/finish/publication path; their generic Legacy reachability is zero. ExistingGeneralModuleCompatibilityV1 remains the sole selected-normal raw root/module owner and its build_module edge is registered for R3 retirement. NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 is now the sole authority; production edits are parked while the neutral root/catalog lifecycle handoff and exact failure ordering are fixed. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 accepted Candidate A-prime-plus. NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0 is the sole execution authority: one session-consuming sibling lifecycle must preserve Program/non-Program behavior and root-expansion/prepare/catalog/lower/finalize order while atomically deleting ExistingGeneralModuleCompatibilityV1 and the selected normal build_module edge. The old general-module compatibility sunset closes in that same commit; later exact AST-node edges receive fresh named cells after a live-edge census. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 closes four selected normal callers onto one opaque request and one candidate/finish/publication path with selected generic Legacy reachability zero. ExistingGeneralModuleCompatibilityV1 retains one registered build_module edge. NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 now decides the neutral source/root/catalog handoff that can delete that edge without changing lifecycle failure order."""
+latest_card_summary = """NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 accepted one session-consuming root/catalog lifecycle. NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0 must preserve Program/non-Program behavior and exact failure order, return the completed session plus module, retain session/source on typed rejection, and atomically delete ExistingGeneralModuleCompatibilityV1 plus the selected normal build_module edge."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0-DESIGN-STOP"
+current_blocker_token = "NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -25,17 +25,15 @@ Resolve -> Observe -> Facts -> Recipe -> Verify
 第二MirBuilder、production consumer 0のroute拡張、Legacy fallbackは作らない。
 cell数、pack数、LOCは観測値であり、完成条件ではない。
 
-## Current design stop
+## Current execution
 
 ```text
 Parent:  MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Closed:  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0
-Current: NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0
-Ceremony: short D0; production edits parked
+Closed:  NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0
+Current: NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0
+Ceremony: T2; one atomic I0/R0 commit
 ```
-
-External consultation packet:
-[NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 question](../investigations/normal-default-root-catalog-preflight0-consultation-question-2026-07-29.md)
 
 R1 closeout:
 
@@ -77,66 +75,75 @@ The shared source-hint wrappers are provenance-blind and remain compatibility
 surfaces. NarrowV1 lacks normal imports and general module/callable coverage;
 only its source-neutral lifecycle kernels are reusable.
 
-## D0 brief
+## Execution brief
 
 Change:
 
 ```text
-decide one neutral typed handoff for the selected normal root/module lifecycle
-production/source mutation = 0 during D0
-target old edge:
+ModuleBuilderInvocationSessionV1 + owned AST
+-> one session-consuming root/catalog lifecycle
+-> completed session + MirModule
+
+atomically delete:
   ExistingGeneralModuleCompatibilityV1
-  -> session.builder_mut().build_module(ast)
+  selected session.builder_mut().build_module(ast) edge
+close:
+  NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001
 ```
 
 Contract:
 
 ```text
-preserve exact order:
-  root expansion preflight
+preserve:
+  Program root expansion preflight; non-Program current acceptance
   -> prepare_module
+  -> one root-level AST clone
   -> callable catalog seal/install
   -> existing port-aware root lower
   -> finalize_module
 
-reuse:
-  VerifiedRawRootExpansionV1
-  VerifiedSameModuleCallableDeclarationCatalogV1::seal_root
-  lower_root_after_callable_catalog_install_v1
+typed failure order:
+  RootExpansion < PrepareModule < CatalogSeal
+  < CatalogInstall < RootLower < FinalizeModule
 
-retain source on failure; no NarrowV1 or Stage-B authority reuse
+rejection retains session + source and exposes no retry/recovery terminal
+existing finish/result/external-commit policy and explicit compatibility lanes stay unchanged
 ```
 
 Done:
 
 ```text
-one source/root/catalog owner graph
-one sibling lifecycle API; module_lifecycle.rs remains below 800
-exact failure ordering and selected old-edge delete set
-one bounded implementation row selected
+selected-normal build_module reachability = 0
+selected lifecycle caller                = 1
+compiler-side session.builder_mut        = 0
+general/non-Program parity and failure/reuse evidence = green
+existing shared guard/manifests updated; new test/check file = 0
+module_lifecycle.rs unchanged; every source/check file < 800
 ```
 
 Stop:
 
 ```text
-moving catalog seal before prepare_module changes failure precedence
-AST clone/reparse or source authority split
-Stage-B context or NarrowV1 grammar becomes required
-facade-only rename that leaves selected build_module reachability
-new per-row guard or editing 799-line module_lifecycle.rs in place
+forwarding facade or selected build_module edge remains
+failure order changes, second root clone, reparse, or source split
+non-Program acceptance narrows
+NarrowV1, Stage-B, second session/publication, retry, or fallback is required
+finish/result/commit semantics change
+new per-row guard or any edit to 799-line module_lifecycle.rs
 ```
 
-Sunset:
+Implementation boundary:
 
 ```text
-sunset_id: NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001
-owner: ExistingGeneralModuleCompatibilityV1
-surface: selected-normal raw root/module -> MirBuilder::build_module(ASTNode)
-baseline callers: 1
-sunset_row: NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-RETIRE0-I0-R0
-retire_when: selected pipeline compatibility/build_module reachability = 0
-evidence: caller manifest + MirBuilder lane guard + normal parity/reuse tests
-non-claim: global build_module callers = 0
+new sibling:
+  builder/normal_default_root_catalog_lifecycle.rs
+session-consuming API:
+  complete_normal_default_root_catalog_lifecycle(self, ast)
+durable products:
+  completed lifecycle
+  rejected lifecycle with typed stage and existing diagnostic parity
+non-claim:
+  global MirBuilder::build_module callers = 0
 ```
 
 ## Queue
@@ -144,18 +151,21 @@ non-claim: global build_module callers = 0
 ```text
 R0  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 closed
 R1  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 closed
-R2a NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 current
-R2b accepted root/catalog handoff deletes the selected build_module edge
-R2c later named AST-node responsibility cells; each selected old edge becomes zero
-R3  NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-RETIRE0-I0-R0
-R4  eight-pack ledger + final-pipeline completion conformance
+R2a NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 closed
+R2b NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0 current
+R2c fresh live-edge census after closeout
+R2d later named AST-node responsibility cells; each selected old edge becomes zero
+R3  eight-pack ledger + final-pipeline completion conformance
 
-after R4 only:
+after R3 only:
 F0  refresh missing-feature / Ownership / View readiness inventory
 F1  resume the existing Ownership taskboard from its read-only readiness gate
 F2  Unique Box / ScopedAlias -> callable ABI -> Anchored View
 F3  select one later unimplemented feature from the language status index
 ```
+
+`NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0` is the first census candidate,
+not selected authority. The exact live graph after R2b decides the next row.
 
 The old M2c-to-M8 complete-program queue is superseded. Passive assets are
 reconsidered only when the selected live edge names an exact consumer.
