@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Nine production cells and the minimal four-metric structural observation are closed. LOC and file counts are measured closeout results, not implementation-permission gates. The current T2 design stop is CANONICAL-DEFAULT-COMPILER-INGRESS0-D0: normal/default compilation still enters Legacy, while existing canonical fronts cover narrower explicit families and have no normal/default production caller. No tenth replacement cell is selected."
+status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Nine production cells and the minimal four-metric structural observation are closed. LOC and file counts are measured closeout results, not implementation-permission gates. CANONICAL-DEFAULT-COMPILER-INGRESS0-D0 accepted Candidate B: the first missing capability is a finite verified-plan owner for current normal Program families outside the exact canonical fronts. The current T2 design stop is NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0. No production caller or tenth replacement cell is selected."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "CANONICAL-DEFAULT-COMPILER-INGRESS0-D0"
-current_execution_row = "CANONICAL-DEFAULT-COMPILER-INGRESS0-D0"
-current_execution_summary = "Reconcile one typed normal-admission compiler request across AST, source identity, imports, configuration, complete source-family classification, canonical owner dispatch, and backend-neutral MirCompileResult while keeping REPL/JSON/reference compatibility behind separate typed authorities. Production edits, a tenth manifest row, and canonical-to-Legacy fallback are forbidden until the exact caller family, parity gate, and atomic old-edge delete set are accepted."
+current_design_stop = "NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0"
+current_execution_row = "NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0"
+current_execution_summary = "Enumerate the current normal Program corpus outside exact canonical Script/Main0/Callable families; define one finite VerifiedNormalGeneralProgramPlanV1, its consuming candidate/publication owner, and current-normal MirCompileResult parity without Builder effects or raw-AST route redecision. Candidate A, production edits, a tenth manifest row, and any GeneralProgram-to-Legacy fallback remain forbidden."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "canonical-default-compiler-ingress0-d0-consultation-2026-07-28"
 latest_card_path = "docs/development/current/main/investigations/canonical-default-compiler-ingress0-d0-consultation-2026-07-28.md"
-latest_card_summary = """CANONICAL-DEFAULT-COMPILER-INGRESS0-D0 is the active T2 design stop. Explicit MIR and ordinary VM compiler fronts still enter compile_with_source* -> compile_legacy_request, while existing canonical entrypoints have zero normal/default production callers and narrower accepted families. The no-flag CLI default remains interpreter and must be classified separately. The consultation must select one typed normal-admission request, exact caller family, total source-family table, internal canonical owner graph, backend-neutral result contract, separate compatibility authorities, parity gates, and atomic Legacy/default delete set. No production edit, tenth manifest row, fallback, retry, or reselection is authorized."""
+latest_card_summary = """CANONICAL-DEFAULT-COMPILER-INGRESS0-D0 accepted Candidate B. The no-flag default and explicit mir route are one selected normal family; explicit vm is compatibility; strict-JSON compilation is cfg(test)-only. Existing request/config/candidate isolation is sufficient, but no verified-plan owner covers the current normal Program surface outside exact canonical Script/Main0/Callable families. NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0 must now enumerate that finite corpus, close one opaque verified plan and consuming candidate/publication owner, and preserve current-normal MirCompileResult parity. Production callers, production edits, the tenth manifest row, fallback, retry, and reselection remain zero."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "CANONICAL-DEFAULT-COMPILER-INGRESS0-D0-DESIGN-STOP"
+current_blocker_token = "NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

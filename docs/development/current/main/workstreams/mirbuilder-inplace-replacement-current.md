@@ -48,7 +48,7 @@ authorityを一つ減らす場合だけ選択する。
 ## Current front
 
 ```text
-CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
+NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0
 ```
 
 最小structural observation、第七Binary cell、第八record-helper body descent
@@ -62,23 +62,36 @@ dead same-family facade三本はゼロになった。
 dead field facadeはゼロ。第十cellは未選択。
 
 六workerのbounded censusは、局所のdead facade／proof cleanupより先に、
-north-star最大の入口分岐を設計停止へ固定した。
+north-star最大の入口分岐を設計停止へ固定した。compiler-ingress D0は
+Candidate Bを受理し、薄いtyped入口より先に必要な最初のcapabilityを、
+current normal Program全域の有限verified-plan ownerへ固定した。
 
 ```text
-normal/default
+CLI default / explicit mir
+-> selected normal family
 -> compile_with_source*
 -> compile_legacy_request
 
-canonical fronts
+explicit vm
+-> compatibility authority
+
+canonical exact fronts
 -> bounded explicit families
 -> normal/default production caller = 0
+
+missing
+-> current normal general Program
+-> verified plan + candidate/publication owner
 ```
 
-現在はT2相談だけを行う。AST、source identity、imports、config、
-normal-admission provenance、total family classification、backend-neutral
-resultを一つのtyped requestへ閉じ、REPL/JSON/referenceは別authorityに保つ。
-fallbackなしのatomic delete setが確定するまでproduction editと第十manifest
-rowを禁止する。
+現在はT2 prerequisite designだけを行う。current normal corpusを有限表へ
+閉じ、`VerifiedNormalGeneralProgramPlanV1`と、そのplanだけを消費する
+candidate/publication ownerを定義する。GeneralProgram catch-all、
+`compile_legacy_candidate`、raw AST route redecisionは禁止する。
+
+このownerとcurrent-normal `MirCompileResult` parityが閉じるまで、
+one total typed ingressのCandidate A、production edit、第十manifest rowを
+禁止する。REPL／JSON／VM keep／referenceは別authorityのまま保つ。
 
 ## First three replacements
 
@@ -181,7 +194,7 @@ closeout explanation, not automatic rejection.
 
 ```text
 none
-  current = CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
+  current = NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0
   tenth responsibility = not selected
 ```
 
@@ -228,13 +241,17 @@ Dead raw-body facade retirement, proof consolidation, non-Program root, and
 default compiler ingress were all unselected by the property closeout. The
 fresh census below now selects only the compiler-ingress D0.
 
-## Active compiler-ingress consultation
+## Active compiler-ingress prerequisite
 
 ```text
 pack                         = COMPILER-RESIDUE0
-ceremony                     = T2 design stop
+parent decision              = CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
+accepted candidate           = B
+ceremony                     = T2 bounded enabling design
+first missing capability     = NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0
 normal/default Legacy caller = present
 canonical default caller     = 0
+prerequisite caller          = 0
 production/source edit       = 0
 manifest row delta           = 0
 fallback / retry             = forbidden
@@ -247,10 +264,15 @@ docs/development/current/main/investigations/
 canonical-default-compiler-ingress0-d0-consultation-2026-07-28.md
 ```
 
-The consultation must either accept one total typed ingress and its atomic
-old-edge delete set, or name the first missing production capability. Local
-cleanup and proof consolidation remain parked because they do not switch the
-default production authority.
+The parent consultation named the first missing capability. The current task
+must enumerate the accepted normal Program corpus outside exact canonical
+families, define a finite opaque verified plan and its consuming
+candidate/publication owner, and freeze current-normal result parity.
+
+Candidate A remains parked. A typed `GeneralProgram -> Legacy` residual, a
+catch-all source family, and a second monolithic MirBuilder are forbidden.
+Local cleanup and proof consolidation remain parked because they do not switch
+the default production authority.
 
 ## Landed replacement cells
 

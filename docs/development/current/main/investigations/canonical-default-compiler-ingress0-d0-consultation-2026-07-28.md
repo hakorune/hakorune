@@ -1,10 +1,13 @@
 ---
-Status: active design consultation
+Status: accepted bounded enabling design task
 Date: 2026-07-28
-Decision: CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
+Decision: NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0
+ParentDecision: CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
+Candidate: B
 Pack: COMPILER-RESIDUE0
-Ceremony: T2 design stop
+Ceremony: T2 prerequisite design
 ReplacementCell: no
+ProductionCaller: 0
 ProductionEdit: forbidden during D0
 Parent:
   - docs/development/current/main/investigations/mirbuilder-next-edge-design-stop-2026-07-28.md
@@ -14,456 +17,667 @@ NorthStar:
   - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
 ---
 
-# CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
+# CANONICAL-DEFAULT-COMPILER-INGRESS0-D0 — Candidate B
 
-## Decision boundary
+## Decision
 
-Nine production replacement cells are closed. Do not select a tenth cell yet.
-The next design responsibility is the largest remaining north-star break:
-normal/default compilation still enters the Legacy compiler route.
+Candidate B is accepted. Candidate A is not executable yet.
 
 ```text
-normal/default source
--> compile_with_source_hint*
--> MirCompiler::compile_with_source*
--> compile_legacy_request
--> compile_legacy_candidate
--> MirBuilder::build_module
+Candidate A                         = rejected for now
+Candidate B                         = accepted
+first missing capability            = NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0
+current authority                   = NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0
+ceremony                            = T2 bounded enabling design
+production caller during D0         = 0
+replacement-cell credit             = 0
+tenth manifest row                  = absent
+production source/test/check edit   = 0
+fallback / retry / reselection      = 0
 ```
 
-Existing canonical compiler entrypoints accept narrower, explicit families and
-have no normal/default production caller. They cannot replace the route by a
-T0 edge switch.
-
-The D0 question is:
-
-> What one typed normal compile request can consume the already-parsed AST,
-> exact source identity, explicit imports, compiler configuration, and
-> normal-admission provenance once; classify the complete normal source family
-> before Builder effects; dispatch to existing canonical family owners once;
-> return the backend-neutral `MirCompileResult`; and atomically replace the
-> selected normal/default Legacy ingress without probing, retry, or fallback?
-
-If that product is not yet implementable, the consultation must identify the
-first missing capability and a smallest prerequisite slice with a real
-production caller. A disconnected canonical route is not replacement credit.
-
-## Why this outranks local cleanup
-
-A six-worker bounded census found:
+The direction of the parent consultation remains accepted:
 
 ```text
-live CALL-OBJECT child-recursion breaks             = 0
-next live DESCENT break                             = non-Program root
-normal/default typed canonical ingress callers     = 0
-normal/default Legacy ingress callers               > 0
-dead CALL-OBJECT facade cleanup                     = about -85..-95 LOC
-dead body/statement shell cleanup                   = at least -60 LOC
-bounded proof consolidation                         = -131 test LOC
+one normal request
+-> one source-only inventory
+-> one total family classification
+-> one verified owner dispatch
+-> one backend-neutral candidate/publication
 ```
 
-The cleanups are valid debt repayment, but they switch no production authority.
-The non-Program root is a real associated-descent break, yet it sits inside the
-Legacy `build_module` route. Selecting it before the compiler-front decision
-would make the old default ingress cleaner without resolving the final
-pipeline's single canonical entry requirement.
+The missing piece is not a thin request wrapper. The repository does not yet
+have a verified-plan owner for the part of the current normal `Program`
+surface that lies outside the exact canonical Script, Main0, and Callable
+families.
 
-Therefore:
+Do not hide that gap behind a typed `GeneralProgram -> compile_legacy_candidate`
+branch. This D0 must first define the finite accepted surface, the verified
+product, and the consuming owner without adding a production route.
+
+## Corrected current caller facts
+
+The parent consultation contained three stale caller claims. The source at the
+time of this decision establishes:
 
 ```text
-current authority = CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
-tenth cell         = not selected
-production edit    = 0
-manifest row delta = 0
+CLI no-flag backend default       = mir
+explicit --backend mir           = the same mainline production family
+explicit --backend vm            = legacy keep/debug compatibility
+strict JSON compiler call        = cfg(test)-only fixture
+strict JSON runtime session      = downstream of an already-built MIR module
 ```
 
-## Exact current caller census
-
-### Legacy public fronts
+Evidence:
 
 ```text
-MirCompiler::compile_with_source
-  definition                    = 1
-  non-test executable callers   = 3
-    source_hint wrappers        = 2
-    MirCompiler::compile        = 1
+src/cli/args.rs
+  backend default_value("mir")
 
-MirCompiler::compile_with_source_and_imports
-  definition                    = 1
-  non-test executable callers   = 3
-    source_hint wrappers        = 2
-    strict JSON session         = 1
+src/runner/dispatch.rs
+  backend "mir" -> execute_mir_mode
+  backend "vm"  -> BootstrapRustVmKeep orchestration
 
-MirCompiler::compile_legacy
-  definition                    = 1
-  non-test executable callers   = 3
-    compile_with_source         = 1
-    Program JSON v0             = 1
-    REPL compatibility          = 1
+src/runner/route_orchestrator.rs
+  vm family = explicit legacy keep/debug only
+
+src/backend/mir_interpreter/strict_json_session.rs
+  compile_with_source_and_imports use is inside cfg(test)
 ```
 
-The shared source-hint wrappers have twelve non-test runner call sites across
-normal MIR, ordinary VM, MIR interpreter, LLVM, Wasm, VM-Hako bridge,
-benchmarks, minimal MIR JSON, and Stage1/direct compatibility flows. Both
-wrapper families currently end at `compile_with_source*`, hence Legacy.
+`execute_mir_interpreter_mode` still contains a Legacy compiler call, but its
+definition has no root-reachable caller in the current bounded census. It is
+not counted as a selected normal production construction site.
 
-### Normal/default and ordinary MIR-compiler examples
+## Why Candidate A cannot be implemented now
+
+### Existing substrate
+
+The normal runner already performs most request preparation before the
+compiler call:
 
 ```text
-explicit --backend mir
--> compile_with_source_hint_and_imports
--> compile_with_source_and_imports
--> compile_legacy_request
-
-ordinary --backend vm
--> BootstrapRustVmKeep
--> compile_with_source_hint_and_imports
--> compile_with_source_and_imports
--> compile_legacy_request
+source read
+-> using/prelude resolution
+-> exact imports snapshot
+-> parser normalization
+-> parse exactly once
+-> AST
 ```
 
-These are the minimum caller family the D0 must classify. It must decide
-whether the other source-hint consumers switch through the same atomic front
-or remain separately named compatibility/reference authorities.
-
-The no-flag CLI default is `backend=interpreter`, not MIR. The caller table must
-classify that default explicitly as selected, separate, or out of scope with
-evidence; it must not relabel explicit `--backend mir` as the CLI default.
-
-### Existing canonical fronts
+The compiler also already has a candidate-session substrate:
 
 ```text
-compile_resolved
-  normal/default production callers = 0
-  accepted family                    = one resolved FunctionDeclaration
+BuilderInvocationConfigV1
+  REPL mode
+  quiet diagnostics
+  imports
+  plugin method signatures
+  source file
+  core-ID seed policy
 
-compile_resolved_callable_module
-  normal/default production callers = 0
-  accepted family                    = exact acyclic callable Program
-
-explicit recursive callable ingress
-  normal/default production callers = 0
-  accepted family                    = bounded recursive callable Program
+LegacyModuleCandidateSessionV1
+  candidate isolation
+  failure leaves the live Builder unchanged
+  success commits once
 ```
 
-The closest source-plan substrate is:
+Therefore the first missing capability is not:
 
 ```text
-PreparedNormalSourcePlanInputV1
--> NormalSourcePlanClassifierV1
--> Script | Main0 | Callable
--> CanonicalCoreSourcePlanCompileRequestV1
--> compile_canonical_core_source_plan
+an imports-bearing envelope
+a configuration snapshot
+candidate isolation
+MirCompileResult as a type
 ```
 
-Its live caller is an explicit default-off VM-reference profile. It is not a
-normal/default compiler ingress and does not yet prove normal imports, complete
-accepted grammar, backend-neutral result parity, or compatibility provenance.
+### Missing complete normal Program owner
 
-## Decisions this D0 must close
-
-### 1. Declared production caller family
-
-At minimum, enumerate and classify:
+The current canonical source inventory is intentionally narrow:
 
 ```text
-no-flag default backend=interpreter
-explicit backend=mir
-ordinary explicit backend=vm
-MIR interpreter
-LLVM
-Wasm
-VM-Hako bridge
-benchmark and minimal-MIR routes
-Stage1/direct routes
-strict JSON
-REPL
-Program JSON v0
-explicit canonical/Raw VM-reference profiles
+root:
+  Program only
+
+unsupported top-level rows:
+  non-Main BoxDeclaration
+  Using / Import
+  Enum
+  Brand
+  TypeAlias
+  GlobalVar
+  StaticConstTable
+
+Main0:
+  unique static Main
+  static main
+  arity 0
+
+Script recipe:
+  LinearScalar0
 ```
 
-Each family must be one of:
+`LinearScalar0` accepts only:
 
 ```text
-selected normal/default or ordinary compiler cutover caller
-explicit compatibility authority with an exact removal condition
-explicit reference authority
-out of scope with evidence
+expressions:
+  Literal / Variable / Unary / Binary
+
+statements:
+  Expr / Print / Assignment / CompoundAssignment / Local
 ```
 
-### 2. One typed request owner
+It explicitly excludes general control flow such as If, Loop, Return, Break,
+Continue, and ScopeBox. The exact canonical Callable owner is also a bounded
+single-file/no-import family.
 
-The selected request must own or borrow exactly:
+The current normal Legacy route accepts programs beyond those families,
+including user boxes, constructors, fields, and non-Main0 entry shapes.
+Consequently:
 
 ```text
-already-parsed AST / Program
-exact source identity and source hint
-explicit imports snapshot
-compiler invocation/configuration snapshot
-normal-admission provenance
-total source-family classification input
+current normal accepted Program
+!=
+Canonical Script0 + Main0 + exact Callable
 ```
 
-It must not reread or reparse source, reconstruct AST, drop imports, or infer
-provenance from a string after classification. REPL, JSON, and reference
-compatibility stay behind separate typed requests or explicit authorities;
-their provenance is not merged into the normal request.
+### Rejected pseudo-cutover
 
-### 3. Total accepted-family table
-
-The consultation must compare Legacy-normal accepted behavior with canonical
-owners for:
+This is forbidden:
 
 ```text
-Script
-Main0
-callable Main/module
-top-level functions
-acyclic calls
-recursive calls
-currently accepted Box roots
-currently accepted non-Program roots
-imports / Using handling
+NormalCompileClassifier
+  -> exact canonical family: canonical owner
+  -> otherwise: compile_legacy_candidate
 ```
 
-FunctionDeclaration coverage is not Program coverage. Acyclic coverage is not
-recursive coverage. Missing rows must fail closed before Builder effects.
-
-### 4. One classifier and internal owner graph
-
-The final candidate must have:
+Even without retry, the residual branch would still be:
 
 ```text
-normal/default route selection       = exactly 1
-source-family classification         = exactly 1
-Builder effects before classification= 0
-canonical owner dispatch             = exactly 1
-canonical rejection -> Legacy        = 0
+bare AST
+-> Legacy build_module
+-> Lower-side route and semantic redecision
 ```
 
-Existing `compile_resolved*`, callable-module, recursive-module, and
-NormalSourcePlan implementations may remain semantic owners, but must become
-branches behind the one typed classifier rather than competing default fronts.
+A typed enum around that branch does not remove the old authority.
 
-### 5. Result and publication parity
-
-The selected front must return the same backend-neutral compiler product and
-preserve:
+## Accepted prerequisite responsibility
 
 ```text
-MirCompileResult contract
-module candidate isolation
-function draft collection
-success-only atomic publication
-source diagnostics and identity
+NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0
+```
+
+Definition:
+
+> For selected normal `Program` inputs outside the existing exact canonical
+> families, observe the currently accepted source families without Builder
+> effects, validate a closed finite obligation vocabulary, produce one opaque
+> verified plan, consume only that plan to construct a complete MIR module
+> candidate, and prepare the current normal `MirCompileResult` publication.
+
+`GeneralProgram` does not mean “all other AST.” It means only:
+
+```text
+an explicitly enumerated current-normal family
+whose source correspondence and lowering obligations are complete
+before Builder effects
+```
+
+Anything not in that finite table must produce a typed preflight rejection.
+
+## Required products
+
+The D0 must close the contracts for these products. Names are fixed for the
+design task; fields remain private unless the contract explicitly exposes
+them.
+
+```rust
+pub(crate) struct VerifiedNormalGeneralProgramPlanV1 {
+    // Closed source facts and verified lowering obligations.
+    // No public bare-AST reclassification accessor.
+}
+
+pub(crate) struct RejectedNormalGeneralProgramPlanV1 {
+    source: OwnedNormalProgramSourceV1,
+    stage: NormalGeneralProgramPreflightStageV1,
+    cause: NormalGeneralProgramPreflightErrorV1,
+}
+
+pub(crate) struct NormalGeneralProgramCompileOwnerV1;
+
+pub(crate) struct PreparedNormalGeneralProgramPublicationV1;
+```
+
+The target owner graph is:
+
+```text
+OwnedNormalProgramSourceV1
+  AST + exact source identity
+  imports/config/admission retained
+
+-> NormalGeneralProgramPreflightV1
+   source observation exactly once
+   complete accepted-surface validation
+   function/module/entry/exit obligations
+   Builder effects = 0
+
+-> VerifiedNormalGeneralProgramPlanV1
+
+-> NormalGeneralProgramCompileOwnerV1
+   consumes verified obligations
+   creates function drafts
+   collects a complete candidate module
+
+-> PreparedNormalGeneralProgramPublicationV1
+   all fallible pairing and verification complete
+
+-> one infallible commit
+
+-> MirCompileResult
+```
+
+The verified plan must not expose an unbounded raw-AST escape hatch that lets
+the lowering owner repeat classification. It may retain exact source nodes as
+operands only when their route, role, coverage, and consuming owner were
+already fixed by the plan.
+
+## D0 execution task
+
+This is a design and census task. It does not implement the products above.
+
+### 1. Freeze the selected normal corpus
+
+Build a bounded, repository-backed table of current normal programs for:
+
+```text
+Script:
+  scalar
+  If
+  Loop
+  Return
+  call / new / field / index
+
+Main:
+  Main.main/0
+  Main.main(args)
+  helper methods
+  user boxes
+  fields / constructors
+
+Callable:
+  top-level helper
+  Main helper
+  acyclic call graph
+  bounded recursive call graph
+
+Module:
+  imports
+  user boxes
+  currently accepted declaration rows
+```
+
+For every row, record:
+
+```text
+current normal acceptance evidence
+source identity/import profile
+existing canonical owner, if any
+missing verified obligation
+expected MirCompileResult surface
+unsupported backends and exact fail-fast
+```
+
+Do not create one document or one guard per fixture. Keep the table and the
+decision in this rolling card; use existing corpus/test files as evidence.
+
+### 2. Define the finite GeneralProgram boundary
+
+Partition the corpus into:
+
+```text
+CanonicalCore
+RecursiveCallable
+GeneralProgram
+TypedReject
+```
+
+The partition must be total and pairwise-disjoint before Builder effects.
+Canonical failure may not cause movement to another branch.
+
+For `GeneralProgram`, enumerate the exact source vocabulary and obligations.
+An `Other`, `Unknown`, or residual Legacy variant is forbidden.
+
+### 3. Define the verified-plan vocabulary
+
+The plan must carry enough information that lowering does not decide:
+
+```text
+root/source family
+declaration ownership
+function inventory and identity
+entry symbol and arity
+callable graph/SCC disposition
+body recipe and source coverage
+exit/completion contract
+imports and source identity
+module publication obligations
+```
+
+Reuse the north-star products where they already exist:
+
+```text
+Facts
+-> Recipe
+-> RecipeVerifier
+-> Verified CorePlan
+-> Lower
+-> FunctionDraftSeal
+-> Collector
+-> Atomic Module Publish
+```
+
+Do not invent a second recipe, function-seal, collector, or module-publication
+authority merely to give `GeneralProgram` a name.
+
+### 4. Define the consuming owner
+
+Specify the exact boundary between the verified plan and existing canonical
+owners. The compile owner must:
+
+```text
+consume one verified plan
+lower each declared function once
+publish no partial function/module state
+return one prepared normal publication
+```
+
+It must not call:
+
+```text
+compile_legacy_candidate
+MirBuilder::build_module(ASTNode)
+build_expression(raw AST root)
+build_statement(raw AST root)
+```
+
+If implementing the owner would require it to re-own every statement and
+expression semantic family, stop and split the missing verified vocabulary by
+existing semantic owner. Do not turn `GeneralProgram` into a second monolithic
+MirBuilder.
+
+### 5. Freeze current-normal publication parity
+
+The final normal route must preserve the current normal result contract, not
+silently adopt the explicit canonical-reference terminal policy.
+
+The D0 must name parity evidence for:
+
+```text
+function set
+entry symbol and arity
+MIR instructions
+types and origins
+metadata
+diagnostic category/text
+verification_result
 imports
-compiler configuration
-compiler reuse after failure
+source identity
+success-only publication
+compiler reuse after each failure stage
 ```
 
-VM execution belongs after compilation. A VM-reference front that reads the
-file and executes it is not itself the backend-neutral compiler owner.
+The publication boundary is:
 
-### 6. Compatibility boundary
+```rust
+pub(crate) struct NormalCompilePublicationV1 {
+    candidate: CompletedNormalCompileCandidateV1,
+    contract: CurrentNormalCompileResultContractV1,
+}
+```
 
-The D0 must explicitly decide the future of:
+This is compiler publication policy, not backend execution policy.
+
+### 6. Freeze the future total ingress handoff
+
+After this prerequisite closes, Candidate A may use:
+
+```rust
+pub(crate) struct NormalCompileRequestV1 {
+    source: OwnedNormalSourceV1,
+    imports: NormalImportSnapshotV1,
+    config: NormalCompilerConfigSnapshotV1,
+    admission: NormalAdmissionV1,
+}
+```
+
+Required distinctions:
 
 ```text
-REPL compatibility
-Program JSON v0 compatibility
-strict JSON session
-explicit Raw VM-reference profiles
-explicit canonical-core VM-reference profile
+source identity:
+  Named { display_name, source_hint }
+  Anonymous { exact caller provenance }
+
+imports:
+  Explicit(snapshot)
+  EmptyByContract(MinimalNoImportsSealV1)
+
+admission:
+  PreparedSourceFile
+  MinimalMirJsonNoImports
+
+REPL:
+  structurally separate compatibility request
+
+backend name:
+  absent from the backend-neutral compile request
 ```
 
-Do not merge compatibility provenance into the normal typed request. Keeping
-an explicit compatibility entry is allowed only with an exact typed contract
-and removal or permanent-support condition.
+The final classifier must use one observation product and one exhaustive
+match:
 
-### 7. Atomic old-edge delete set
+```rust
+pub(crate) enum VerifiedNormalCompileDispatchV1 {
+    CanonicalCore(CanonicalCoreSourcePlanCompileRequestV1),
+    RecursiveCallable(VerifiedRecursiveNormalCallableRequestV1),
+    GeneralProgram(BoundNormalGeneralProgramRequestV1),
+}
+```
 
-Before any executable row is selected, name the exact old call-shaped edges
-that become zero in the same implementation commit. The minimum candidates are:
+It must not “try” the narrow classifier and use `GeneralProgram` after
+rejection.
+
+## Caller authority table for future Candidate A
+
+### Selected normal/default
 
 ```text
-normal/default compile_with_source -> compile_legacy
-normal/default compile_with_source_and_imports
-  -> compile_legacy_request
-normal/default source_hint wrappers -> Legacy request
+execute_mir_mode
+  no-flag backend=mir
+  explicit backend=mir
+  dump/verify/full MIR JSON variants
+
+execute_mir_json_minimal
+  MinimalMirJsonNoImports admission
+
+LLVM source compiler
+  backend terminal runs after MirCompileResult
+
+Wasm source compiler
+  backend terminal runs after MirCompileResult
 ```
 
-Do not promise deletion of explicit REPL/JSON/reference APIs until their
-caller classification is accepted.
+These are four source compiler construction sites, not four independent
+source-family classifiers.
 
-## Candidate outcomes
-
-### Candidate A — one total normal/default typed ingress
-
-Accept only if the census proves one request can cover the complete selected
-normal caller family and dispatch every accepted source family before Builder
-effects.
-
-Expected ceremony:
+### Explicit compatibility
 
 ```text
-T2
-one bounded responsibility-design commit
-one immediately-following atomic I0/R0 implementation commit
+explicit backend=vm / BootstrapRustVmKeep
+vm-compat-fallback
+Stage1 binary-only direct route
+MirCompiler::compile(ASTNode) bare-AST API
+REPL
+Program JSON v0 import compilation
 ```
 
-The implementation commit must add the typed owner and remove the selected
-Legacy/default edges together. No temporary dual default route is allowed.
+They require separate typed provenance. Candidate A may not infer their class
+from source hints or backend strings inside a generic wrapper.
 
-### Candidate B — prerequisite capability first
-
-Select B if exactly one missing capability prevents A, for example:
+### Explicit reference
 
 ```text
-imports-bearing canonical request
-backend-neutral canonical compile result
-total source-family preflight
-normal/compatibility provenance partition
+VM-Hako bridge
+Raw VM-reference
+canonical-core VM-reference
+benchmark compiler profiles
 ```
 
-The prerequisite may become a production cell only when it has a named
-existing production caller and deletes an old authority atomically. Otherwise
-it is a bounded enabling task and receives no replacement credit.
+They may later share a source-neutral compile kernel, but their constructors
+remain separate from normal admission.
 
-### Rejected candidate C — probe then fall back
+### Out of scope
 
 ```text
-try canonical
--> unsupported/rejected
--> retry through Legacy
+strict JSON runtime session
+  consumes a MIR module
+  compiler call exists only in cfg(test)
+
+execute_mir_interpreter_mode
+  no current root caller
+
+backend execution after MirCompileResult
 ```
 
-Reject unconditionally. It creates two default authorities, changes diagnostic
-and effect timing, and hides incomplete accepted-family coverage.
+## Accepted-family table
+
+| Source family | Current canonical owner | Required final disposition |
+| --- | --- | --- |
+| LinearScalar0 Script | existing | `CanonicalCore::Script` |
+| general Script with control/calls/new/field/index | none complete | enumerated `GeneralProgram` plan |
+| exact static `Main.main/0` | existing | `CanonicalCore::Main0` |
+| Main args/helpers/user boxes/fields/constructors | none complete | enumerated `GeneralProgram` plan |
+| exact acyclic callable module | existing | canonical Callable |
+| exact bounded recursive callable module | existing explicit owner | `RecursiveCallable` |
+| non-Main user boxes | canonical inventory rejects | accepted rows only in `GeneralProgram` |
+| Enum/Brand/TypeAlias/Global/Static table | canonical inventory rejects | accepted rows only in `GeneralProgram` |
+| imports-bearing source | transport exists; exact canonical callable is no-import | preclassified imports-aware owner |
+| residual Using/Import AST after preparation | not accepted | pre-Builder typed rejection |
+| non-Program root | outside normal-file family | `BareAstCompatibility` |
+
+This table is a design inventory. D0 closeout must replace “accepted rows” with
+exact repository-backed rows; it may not promote an unverified declaration
+family merely because Legacy contains a branch for it.
+
+## Candidate A reopen conditions
+
+Candidate A remains parked until all are true:
+
+```text
+selected normal corpus                          = finite and named
+source-family partition                         = total and disjoint
+VerifiedNormalGeneralProgramPlanV1 contract     = closed
+GeneralProgram consuming owner                  = closed
+Lower-side source-family redecision             = 0
+current-normal MirCompileResult parity          = named and green
+selected normal construction sites              = exactly 4
+compatibility/reference constructors            = separately typed
+atomic selected old-edge delete set              = exact
+fallback / retry / reselection                   = 0
+```
+
+Only then may the tenth replacement row be selected.
+
+The future Candidate A atomic delete set is:
+
+```text
+selected normal compile_with_source -> compile_legacy
+selected normal compile_with_source_and_imports -> compile_legacy_request
+selected normal source-hint wrappers -> Legacy request
+selected normal MirLoweringRequestV1::Legacy construction
+```
+
+Compatibility/reference Legacy edges are not part of that deletion unless a
+separate accepted removal condition covers them.
+
+## D0 acceptance
+
+```text
+corrected caller table                           = source-backed
+current normal accepted-family corpus            = finite
+unclassified accepted corpus rows                = 0
+GeneralProgram catch-all branch                  = 0
+verified-plan raw-AST route escape               = 0
+Builder effects during classification            = 0
+Lower-side family reclassification               = 0
+compile_legacy_candidate in target owner          = 0
+MirBuilder::build_module(ASTNode) in target owner = 0
+normal publication/result parity contract        = exact
+future Candidate A caller/delete set              = exact
+production caller during D0                       = 0
+production source/test/check edit                 = 0
+replacement manifest row delta                    = 0
+fallback / retry / reselection                    = 0
+```
 
 ## Structural boundary
 
-Current structural observation:
+The MirBuilder structural observation remains unchanged during this D0:
 
 ```text
-source files current / baseline = 952 / 952
-source LOC   current / baseline = 182452 / 182452
-test files   current / baseline = 139 / 139
-test LOC     current / baseline = 40809 / 40826
+source files / baseline = 952 / 952
+source LOC   / baseline = 182452 / 182452
+test files   / baseline = 139 / 139
+test LOC     / baseline = 40809 / 40826
 ```
 
-The next historical five-cell rolling production LOC base is `-141`. This is a
-trend observation, not a limit on the tenth cell.
-
-The four-metric observation above measures the fixed MirBuilder roots only. It does
-not measure `src/mir/compiler` or runner files and therefore cannot, by itself,
-bound this compiler-ingress implementation.
-
-This D0 does not predetermine the sign of the compiler/runner LOC delta. A T2
-typed request, total classifier, or clean responsibility split may legitimately
-add code while deleting an old authority. Architecture closure is the gate;
-file/LOC counts are measured consequences that must be reported and justified.
-
-```text
-MirBuilder source/test observation  = report current / baseline / delta
-production Rust files/LOC           = record before / after / delta
-new files                           = allowed only for a named responsibility
-new per-cell guard                  = 0
-all touched source/check files      < 800 lines
-```
-
-Proof consolidation or dead-facade cleanup may later lower the observed
-footprint. Their deletion does not automatically authorize unrelated growth.
-Conversely, a necessary T2 owner must not be distorted merely to force one
-cell's LOC negative.
-
-Individual cells may be positive, as several closed cells already are. The
-rolling value is recorded at closeout, but it must not cause padding deletions,
-task reselection, or a weaker responsibility boundary.
-
-## Required evidence before implementation
-
-```text
-exact non-test caller census                  = complete
-selected normal/default caller family         = exact
-selected typed production callers             = exact N
-typed request fields and owner                = exact
-accepted source-family table                  = total
-imports/config/provenance transport           = exact
-canonical internal owner graph                = one
-Builder effects before classification         = 0
-backend-neutral result contract               = exact
-compatibility/reference boundary              = exact
-atomic old-edge delete set                    = exact
-selected compile_with_source* -> Legacy edges = 0
-compatibility/reference caller delta          = 0
-canonical rejection -> Legacy                 = 0
-full normal corpus/backend parity gate        = named
-failure / compiler reuse / atomic publish     = named
-MirBuilder structural impact                   = measured by its exact scope
-production Rust files/LOC delta                = measured and justified
-five-cell trend                                = measured
-```
-
-Only after all rows are accepted may a tenth replacement manifest row be
-created.
+These numbers are measured consequences, not an implementation-permission
+gate. Compiler-ingress implementation may legitimately add a named owner and
+must report compiler/runner files and LOC before/after/delta. It may not add a
+generic “misc” module, a per-cell guard, or a second default router.
 
 ## Hard stop
 
-Return to a narrower design consultation if:
+Stop and return to a narrower owner design if:
 
 ```text
-normal accepted corpus cannot be enumerated
-imports do not cross the typed boundary
-compiler options or provenance are inferred late
-source is reread/reparsed or AST is rewritten
-family selection occurs after Builder effects
-canonical owner returns a VM-specific terminal instead of MirCompileResult
-normal and compatibility callers cannot be separated
-canonical rejection requires Legacy retry
-one atomic old-edge delete set cannot be named
-full parity requires unrelated language/runtime/backend semantics
-source/test/check growth is unexplained or unowned
+the current normal accepted corpus cannot be enumerated
+GeneralProgram needs an Other/Unknown/Legacy residual
+the plan exposes bare AST for route redecision
+one compile owner must duplicate all expression/statement semantics
+imports or source identity are reconstructed after classification
+current normal MirCompileResult parity cannot be stated
+canonical rejection is needed to discover the GeneralProgram branch
+compatibility/reference callers cannot be separated from normal admission
+the future atomic old-edge delete set cannot be named
 ```
 
 ## Explicit non-claims
 
-This D0 does not authorize:
+This accepted task does not authorize:
 
 ```text
 production source, test, guard, or manifest edits
 tenth replacement-cell credit
-canonical probe with Legacy fallback
+Candidate A implementation
+a GeneralProgram fallback owner
+canonical probe followed by Legacy
 default backend selection changes
-language, grammar, runtime, backend, or result-policy changes
-source reread/reparse, AST rewrite, or import re-resolution
-blanket deletion of REPL/JSON/reference entrypoints
-non-Program root descent implementation
+language/grammar/runtime/backend/result-policy changes
+source reread/reparse or AST rewrite
+REPL/JSON/reference removal
+non-Program root descent
 Stage-B or Ownership activation
 selfhost migration
 proof consolidation or dead-facade cleanup
 ```
 
-## Consultation request
-
-Please return one of:
+## One-line handoff
 
 ```text
-A. Candidate A accepted
-   exact typed request
-   exact caller family
-   total accepted-family table
-   internal canonical owner graph
-   atomic old-edge delete set
-   parity/failure/reuse gates
-   structural impact and any required policy decision
+Do not build the typed default front yet.
 
-B. Candidate B accepted
-   first missing capability only
-   exact production caller, if any
-   exact owner and delete set
-   proof that no fallback/second default router is introduced
-
-C. Hard stop
-   first unresolved authority boundary
-   evidence required for the next bounded census
+First close NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0:
+enumerate the current normal Program surface, define one finite verified plan
+and its consuming candidate/publication owner, and prove that no Legacy or raw
+AST route decision survives behind it.
 ```
