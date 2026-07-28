@@ -406,7 +406,7 @@ def main() -> int:
     )
     if root_descent.get("sunset_state") != "active":
         raise AssertionError("raw root compatibility sunset must remain active")
-    if root_descent.get("residual_kind_count") != 49:
+    if root_descent.get("residual_kind_count") != 48:
         raise AssertionError("raw root compatibility residual count drift")
     ast_node_kinds = ast_kinds(
         (
@@ -422,8 +422,8 @@ def main() -> int:
             f"extra={sorted(classified_kinds - ast_node_kinds)}"
         )
     selected_arms = re.findall(
-        r"node\s*@\s*(.*?)=>\s*\{\s*Self::selected\(node\)\s*\}"
-        r"|node\s*@\s*(.*?)=>\s*Self::selected\(node\)",
+        r"node\s*@\s*(.*?)=>\s*\{\s*Self::selected_(?:expr_tree|print_root)\(node\)\s*\}"
+        r"|node\s*@\s*(.*?)=>\s*Self::selected_(?:expr_tree|print_root)\(node\)",
         raw_nonprogram_root_descent,
         re.S,
     )
@@ -432,7 +432,7 @@ def main() -> int:
         selected_kinds.update(ast_kinds(braced or direct))
     expected_selected = {
         "Literal", "Variable", "Me", "UnaryOp", "BinaryOp", "AwaitExpression",
-        "CheckExpr",
+        "CheckExpr", "Print",
     }
     if selected_kinds != expected_selected:
         raise AssertionError(
@@ -456,7 +456,7 @@ def main() -> int:
         )
     )
     expected_separate = {
-        "Assignment", "CompoundAssignment", "Print", "If", "Return", "Nowait",
+        "Assignment", "CompoundAssignment", "If", "Return", "Nowait",
         "TaskScope", "QMarkPropagate", "MatchExpr",
         "EnumMatchExpr", "ArrayLiteral", "MapLiteral", "RecordLiteral",
         "RecordUpdate", "Lambda", "BlockExpr", "TryCatch", "Throw",
@@ -505,7 +505,18 @@ def main() -> int:
     if raw_nonprogram_root_descent.count("node @ ASTNode::CheckExpr { .. }") != 2:
         raise AssertionError("Check root must have one safe and one compatibility arm")
     for fragment in (
+        "node @ ASTNode::Print { .. } if is_port_neutral_print_root(&node)",
+        "SelectedRawNonProgramRootV1",
+        "PortNeutralPrintRootV1",
+        "SelectedRawNonProgramRootV1::PrintRoot",
+        "root.into_node()",
+    ):
+        require(raw_nonprogram_root_descent, fragment, "selected Print root partition")
+    if raw_nonprogram_root_descent.count("node @ ASTNode::Print { .. }") != 2:
+        raise AssertionError("Print root must have one safe and one compatibility arm")
+    for fragment in (
         "PreparedRawNonProgramRootV1",
+        "SelectedRawNonProgramRootV1",
         "PortNeutralExprTreeV1",
         "ExistingRawNonProgramRootCompatibilityV1",
         "RawNonProgramRootCompatibilityClassV1::ExplicitRoot",

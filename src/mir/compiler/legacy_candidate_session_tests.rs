@@ -67,6 +67,13 @@ fn checked(expressions: Vec<ASTNode>) -> ASTNode {
     }
 }
 
+fn printed(expression: ASTNode) -> ASTNode {
+    ASTNode::Print {
+        expression: Box::new(expression),
+        span: Span::unknown(),
+    }
+}
+
 fn source_file(compiler: &MirCompiler) -> Option<String> {
     compiler.builder.current_source_file()
 }
@@ -280,6 +287,11 @@ fn normal_pipeline_matches_legacy_compatibility_for_non_program_root() {
             checked(vec![boolean(true), boolean(false)]),
         ),
         awaited(checked(vec![boolean(true), awaited(boolean(false))])),
+        printed(literal(22)),
+        printed(awaited(checked(vec![
+            boolean(true),
+            awaited(boolean(false)),
+        ]))),
     ];
 
     for root in roots {
@@ -330,6 +342,10 @@ fn selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable() {
             },
             boolean(false),
         ]),
+        printed(ASTNode::Variable {
+            name: "missing".to_owned(),
+            span: Span::unknown(),
+        }),
     ] {
         let mut compiler = MirCompiler::with_options(false);
         compiler.builder.set_source_file_hint("live-before.hako");

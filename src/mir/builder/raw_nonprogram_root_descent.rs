@@ -2,7 +2,7 @@
 //!
 //! The selected invocation port is parity-safe only for expression trees whose
 //! complete recursive surface is Literal, Variable, Me, Unary, Binary, Await,
-//! or Check.
+//! or Check, plus a Print root whose value is one such tree.
 //! Every other non-Program root keeps the existing raw compatibility terminal
 //! until its own production responsibility cell removes that residual.
 
@@ -19,15 +19,33 @@ pub(super) enum PreparedRawRootPartitionV1 {
 }
 
 pub(super) enum PreparedRawNonProgramRootV1 {
-    SelectedPortParity(PortNeutralExprTreeV1),
+    SelectedPortParity(SelectedRawNonProgramRootV1),
     Compatibility {
         node: ASTNode,
         class: RawNonProgramRootCompatibilityClassV1,
     },
 }
 
+enum SelectedRawNonProgramRootV1 {
+    ExprTree(PortNeutralExprTreeV1),
+    PrintRoot(PortNeutralPrintRootV1),
+}
+
 struct PortNeutralExprTreeV1 {
     node: ASTNode,
+}
+
+struct PortNeutralPrintRootV1 {
+    node: ASTNode,
+}
+
+impl SelectedRawNonProgramRootV1 {
+    fn into_node(self) -> ASTNode {
+        match self {
+            Self::ExprTree(tree) => tree.node,
+            Self::PrintRoot(root) => root.node,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -42,33 +60,40 @@ impl PreparedRawRootPartitionV1 {
         match node {
             ASTNode::Program { statements, .. } => Self::Program { statements },
             node @ (ASTNode::Literal { .. } | ASTNode::Variable { .. } | ASTNode::Me { .. }) => {
-                Self::selected(node)
+                Self::selected_expr_tree(node)
             }
             node @ ASTNode::UnaryOp { .. } if is_port_neutral_expr_tree(&node) => {
-                Self::selected(node)
+                Self::selected_expr_tree(node)
             }
             node @ ASTNode::UnaryOp { .. } => Self::compatibility(
                 node,
                 RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
             ),
             node @ ASTNode::BinaryOp { .. } if is_port_neutral_expr_tree(&node) => {
-                Self::selected(node)
+                Self::selected_expr_tree(node)
             }
             node @ ASTNode::BinaryOp { .. } => Self::compatibility(
                 node,
                 RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
             ),
             node @ ASTNode::AwaitExpression { .. } if is_port_neutral_expr_tree(&node) => {
-                Self::selected(node)
+                Self::selected_expr_tree(node)
             }
             node @ ASTNode::AwaitExpression { .. } => Self::compatibility(
                 node,
                 RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
             ),
             node @ ASTNode::CheckExpr { .. } if is_port_neutral_expr_tree(&node) => {
-                Self::selected(node)
+                Self::selected_expr_tree(node)
             }
             node @ ASTNode::CheckExpr { .. } => Self::compatibility(
+                node,
+                RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+            ),
+            node @ ASTNode::Print { .. } if is_port_neutral_print_root(&node) => {
+                Self::selected_print_root(node)
+            }
+            node @ ASTNode::Print { .. } => Self::compatibility(
                 node,
                 RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
             ),
@@ -77,7 +102,6 @@ impl PreparedRawRootPartitionV1 {
             }
             node @ (ASTNode::Assignment { .. }
             | ASTNode::CompoundAssignment { .. }
-            | ASTNode::Print { .. }
             | ASTNode::If { .. }
             | ASTNode::Return { .. }
             | ASTNode::Nowait { .. }
@@ -131,15 +155,28 @@ impl PreparedRawRootPartitionV1 {
         }
     }
 
-    fn selected(node: ASTNode) -> Self {
+    fn selected_expr_tree(node: ASTNode) -> Self {
         Self::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
-            PortNeutralExprTreeV1 { node },
+            SelectedRawNonProgramRootV1::ExprTree(PortNeutralExprTreeV1 { node }),
+        ))
+    }
+
+    fn selected_print_root(node: ASTNode) -> Self {
+        Self::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
+            SelectedRawNonProgramRootV1::PrintRoot(PortNeutralPrintRootV1 { node }),
         ))
     }
 
     fn compatibility(node: ASTNode, class: RawNonProgramRootCompatibilityClassV1) -> Self {
         Self::NonProgram(PreparedRawNonProgramRootV1::Compatibility { node, class })
     }
+}
+
+fn is_port_neutral_print_root(node: &ASTNode) -> bool {
+    let ASTNode::Print { expression, .. } = node else {
+        return false;
+    };
+    is_port_neutral_expr_tree(expression)
 }
 
 fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
@@ -215,8 +252,8 @@ where
     Port: RawAstChildLoweringPortV1,
 {
     match prepared {
-        PreparedRawNonProgramRootV1::SelectedPortParity(tree) => {
-            drive_legacy_expression_v1(builder, selected_port, tree.node)
+        PreparedRawNonProgramRootV1::SelectedPortParity(root) => {
+            drive_legacy_expression_v1(builder, selected_port, root.into_node())
         }
         PreparedRawNonProgramRootV1::Compatibility { node, class } => {
             ExistingRawNonProgramRootCompatibilityV1::lower(builder, node, class)
@@ -239,11 +276,17 @@ impl ExistingRawNonProgramRootCompatibilityV1 {
 #[cfg(test)]
 mod tests {
     use crate::ast::{ASTNode, BinaryOperator, CheckItem, LiteralValue, Span, UnaryOperator};
+    use crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1;
+    use crate::mir::builder::module_lowering_invocation::ModuleLoweringInvocationV1;
+    use crate::mir::builder::recursive_child_lowering::{
+        drive_legacy_expression_v1, drive_raw_legacy_expression_v1, RawInvocationChildPortV1,
+    };
+    use crate::mir::MirBuilder;
     use crate::parser::NyashParser;
 
     use super::{
         PreparedRawNonProgramRootV1, PreparedRawRootPartitionV1,
-        RawNonProgramRootCompatibilityClassV1,
+        RawNonProgramRootCompatibilityClassV1, SelectedRawNonProgramRootV1,
     };
 
     fn integer(value: i64) -> ASTNode {
@@ -282,11 +325,31 @@ mod tests {
         }
     }
 
+    fn printed(expression: ASTNode) -> ASTNode {
+        ASTNode::Print {
+            expression: Box::new(expression),
+            span: Span::unknown(),
+        }
+    }
+
     fn assert_selected(node: ASTNode) {
         assert!(matches!(
             PreparedRawRootPartitionV1::classify(node),
             PreparedRawRootPartitionV1::NonProgram(
-                PreparedRawNonProgramRootV1::SelectedPortParity(_)
+                PreparedRawNonProgramRootV1::SelectedPortParity(
+                    SelectedRawNonProgramRootV1::ExprTree(_)
+                )
+            )
+        ));
+    }
+
+    fn assert_selected_print(node: ASTNode) {
+        assert!(matches!(
+            PreparedRawRootPartitionV1::classify(node),
+            PreparedRawRootPartitionV1::NonProgram(
+                PreparedRawNonProgramRootV1::SelectedPortParity(
+                    SelectedRawNonProgramRootV1::PrintRoot(_)
+                )
             )
         ));
     }
@@ -342,6 +405,11 @@ mod tests {
             awaited(checked(vec![variable("ready")])),
         ]));
         assert_selected(awaited(checked(vec![integer(8), integer(9)])));
+        assert_selected_print(printed(integer(10)));
+        assert_selected_print(printed(awaited(checked(vec![
+            integer(11),
+            variable("ready"),
+        ]))));
 
         assert_compatibility(
             ASTNode::UnaryOp {
@@ -413,6 +481,73 @@ mod tests {
                 span: Span::unknown(),
             }])),
             RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+        );
+        assert_compatibility(
+            printed(ASTNode::FunctionCall {
+                name: "isType".to_owned(),
+                arguments: vec![
+                    integer(12),
+                    ASTNode::Literal {
+                        value: LiteralValue::String("Integer".to_owned()),
+                        span: Span::unknown(),
+                    },
+                ],
+                span: Span::unknown(),
+            }),
+            RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+        );
+        assert_compatibility(
+            printed(ASTNode::MethodCall {
+                object: Box::new(integer(13)),
+                method: "is".to_owned(),
+                arguments: vec![ASTNode::Literal {
+                    value: LiteralValue::String("Integer".to_owned()),
+                    span: Span::unknown(),
+                }],
+                span: Span::unknown(),
+            }),
+            RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+        );
+    }
+
+    fn spanned_instructions(builder: &MirBuilder) -> Vec<(String, Span)> {
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("current function")
+            .blocks
+            .values()
+            .flat_map(|block| block.all_spanned_instructions())
+            .map(|instruction| (format!("{:?}", instruction.inst), instruction.span))
+            .collect()
+    }
+
+    #[test]
+    fn selected_print_root_matches_the_raw_legacy_port_exactly() {
+        let root = || printed(awaited(checked(vec![integer(14), integer(15)])));
+        let mut legacy = MirBuilder::new();
+        legacy.enter_function_for_test("print_root_parity/0".to_owned());
+        let legacy_value = drive_raw_legacy_expression_v1(&mut legacy, root()).unwrap();
+
+        let mut selected = MirBuilder::new();
+        selected.enter_function_for_test("print_root_parity/0".to_owned());
+        let selected_value = {
+            let mut invocation = ModuleLoweringInvocationV1::with_collector(
+                &mut selected,
+                ModuleDraftCollectorV1::default(),
+            );
+            invocation.with_module_port(|builder, module_port| {
+                let mut port = RawInvocationChildPortV1::new(module_port);
+                drive_legacy_expression_v1(builder, &mut port, root())
+            })
+        }
+        .unwrap();
+
+        assert_eq!(selected_value, legacy_value);
+        assert_eq!(
+            spanned_instructions(&selected),
+            spanned_instructions(&legacy)
         );
     }
 

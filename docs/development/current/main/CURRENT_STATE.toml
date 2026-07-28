@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0 is closed with Candidate A-prime. RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0 is the current T1 production replacement."
+status = "RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0 is closed. RAW-NONPROGRAM-NEXT-RESPONSIBILITY1-D0 is the current design stop."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0"
-current_execution_summary = "One atomic T1 cell adds a private selected-root sum with ExprTree and PortNeutralPrintRoot0 siblings. PortNeutralPrintRoot0 is exactly one Print statement whose expression is an existing PortNeutralExprTreeV1; Print never becomes an expression-tree constructor. Safe Print leaves unconditional SeparateDesignStop compatibility and reuses the existing single raw dispatcher, statement surface, print owner, and selected invocation port. TypeOp-special or otherwise unsafe Print stays whole on the single compatibility owner. Preserve output-mode choice, instruction/span behavior, existing one-clone probe, diagnostics, candidate rollback, and selected/compatibility driver counts. Ratchet selected expression kinds at 7, selected statement-root kinds 0->1, and registered residual kinds 49->48 with no new files, fallback, retry, or reselection."
+current_design_stop = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY1-D0"
+current_execution_row = ""
+current_execution_summary = "Print root cutover is closed. Fresh live-edge census is not unique: Nowait(target name, PortNeutralExprTreeV1) carries by-name variable/Future/slot publication under CONTROL0; ArrayLiteral and MapLiteral over safe children carry allocation, birth, registry, write, and metadata authority under CALL-OBJECT0. QMark remains a separate physical Return/CFG/runtime-call CONTROL0 design. Compare these exact live responsibilities and select only one named caller plus same-commit old-edge deletion. No production edit is authorized at this stop."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0 is closed with Candidate A-prime. RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0 is the sole current T1 production row. Add one private selected-root sum whose ExprTree and PortNeutralPrintRoot0 variants retain the original AST; Print is a statement-root sibling, never an expression-tree constructor. Safe Print uses the existing single raw dispatcher, statement surface, print owner, and selected invocation port; TypeOp-special or unsafe Print stays whole on compatibility. Delete safe Print from unconditional residual compatibility in the same commit. Preserve output mode, instruction/span behavior, the existing TypeOp probe clone, diagnostics, rollback, and driver counts. Selected expression kinds stay 7, selected statement-root kinds become 1, and registered residual kinds ratchet 49->48. Nowait binding publication, Array allocation/birth, QMark control, new files, fallback, retry, and route mixing are forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0 is closed. Safe Print is a private selected statement-root sibling over the existing PortNeutralExprTreeV1, while TypeOp-special and unsafe Print stay whole on compatibility. The old safe-Print compatibility edge is zero; selected and compatibility terminals remain one each; selected expression kinds remain 7, selected statement-root kinds are 1, and registered residual kinds are 48. RAW-NONPROGRAM-NEXT-RESPONSIBILITY1-D0 is the sole current design stop. Fresh live edges are not unique: Nowait carries by-name Future/binding/slot publication under CONTROL0, Array and Map carry allocation/birth/registry/write/metadata under CALL-OBJECT0, and QMark owns separate physical Return/CFG authority. No production edit is authorized until one exact responsibility is selected. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0-IMPLEMENT"
+current_blocker_token = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY1-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

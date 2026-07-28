@@ -39,9 +39,10 @@ Closed:  RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0
 Closed:  RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0
-Current: RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0
-Pack:    DESCENT-SPINE0
-Ceremony: T1; one atomic production replacement
+Closed:  RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0
+Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY1-D0
+Pack:    selection pending
+Ceremony: design stop; production edit = 0
 ```
 
 R1 closeout:
@@ -147,39 +148,50 @@ new source/test/check/task file           = 0
 largest touched source/check file         = 582
 ```
 
-## Execution brief
+R2j closeout:
 
 ```text
-Row: RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0
-Parent: RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0
-Decision: Candidate A-prime; T1; DESCENT-SPINE0
+safe Print compatibility edge           = 0
+selected expression kinds               = 7
+selected statement-root kinds           = 1
+registered residual kinds               = 48
+selected / compatibility terminals      = 1 / 1
+direct instruction/span parity           = green, unified on/off
+focused tests                            = 6/6
+fallback / retry / reselection           = 0
+production Rust delta                    = +37
+new source/test/check/task file           = 0
+largest touched source/check file         = 593
+largest relevant source/check file        = 774, unchanged
+```
 
-Change:
-  add private SelectedRawNonProgramRootV1::{ExprTree, PrintRoot}
-  seal PrintRoot only when its expression is PortNeutralExprTreeV1
-  keep one selected raw-dispatch terminal and delete safe Print from the
-  unconditional SeparateDesignStop branch in the same commit
+## Current design question
 
-Contract:
-  Print is a sibling statement-root product, not an ExprTree constructor
-  retain the original Print AST; no reconstruction or new clone
-  reuse statement_surface, build_print_statement_with_port_v1, and
-  build_print_from_value unchanged
-  TypeOp-special and unsafe Print stay whole on compatibility exactly once
-  preserve output mode, instruction/span behavior, diagnostics, and rollback
+```text
+RAW-NONPROGRAM-NEXT-RESPONSIBILITY1-D0
 
-Done:
-  recursive partition covers safe nested and TypeOp/unsafe Print
-  direct raw-legacy versus selected-port instruction/span parity is green
-  existing raw-port Print witness and Print(missing) reuse are green
-  selected expression kinds = 7; selected statement-root kinds = 1
-  residual kinds = 48; selected/compatibility drivers = 1/1
-  shared guard/manifest green; new files = 0; every source/check file < 800
+Candidate A:
+  Nowait(target name, PortNeutralExprTreeV1)
+  CONTROL0; preserve child -> FutureNew -> type -> variable_map -> slot order
+  do not claim BindingRef or typed-slot authority
+
+Candidate B:
+  ArrayLiteral([PortNeutralExprTreeV1]*)
+  CALL-OBJECT0; preserve allocation -> birth -> registry -> writes -> metadata
+
+Candidate C:
+  MapLiteral([(key, PortNeutralExprTreeV1)]*)
+  CALL-OBJECT0; preserve allocation/birth/key/value/write order and metadata
+
+Separate:
+  QMarkPropagate -> dedicated CONTROL0 for physical Return/CFG/runtime calls
+
+Required:
+  exact production edge and same-commit residual deletion
+  one source-only disjoint partition, one execution, no retry or route mixing
 
 Stop:
-  Print enters PortNeutralExprTreeV1 or bypasses the existing raw dispatcher
-  TypeOp/output/span/clone policy changes, routes mix, or failure retries
-  Nowait binding, Array allocation, QMark control, or a new file enters
+  production edit, automatic candidate selection, or compatibility growth
 ```
 
 Compatibility sunset:
@@ -217,7 +229,8 @@ R2f RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2g RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0 closed
 R2h RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2i RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0 closed
-R2j RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0 current
+R2j RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0 closed
+R2k RAW-NONPROGRAM-NEXT-RESPONSIBILITY1-D0 current design stop
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:
