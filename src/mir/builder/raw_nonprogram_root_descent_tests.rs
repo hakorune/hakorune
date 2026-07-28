@@ -5,7 +5,7 @@ use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, drive_raw_legacy_expression_v1, RawInvocationChildPortV1,
 };
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
-use crate::mir::{MirBuilder, MirType};
+use crate::mir::{BindingId, MirBuilder, MirType, ValueId};
 use crate::parser::NyashParser;
 
 use super::{
@@ -79,6 +79,35 @@ fn map(entries: Vec<(&str, ASTNode)>) -> ASTNode {
             .collect(),
         span: Span::unknown(),
     }
+}
+
+fn grouped_assignment(variable_name: &str, rhs: ASTNode) -> ASTNode {
+    ASTNode::GroupedAssignmentExpr {
+        lhs: variable_name.to_owned(),
+        rhs: Box::new(rhs),
+        span: Span::unknown(),
+    }
+}
+
+fn drive_selected(builder: &mut MirBuilder, node: ASTNode) -> Result<ValueId, String> {
+    let mut invocation =
+        ModuleLoweringInvocationV1::with_collector(builder, ModuleDraftCollectorV1::default());
+    invocation.with_module_port(|builder, module_port| {
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        drive_legacy_expression_v1(builder, &mut port, node)
+    })
+}
+
+fn seed_binding(builder: &mut MirBuilder, name: &str, value: ValueId) {
+    builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .insert(name.to_owned(), value);
+    builder
+        .function_state
+        .binding_ctx
+        .insert(name.to_owned(), BindingId::new(0));
 }
 
 fn assert_selected(node: ASTNode) {
@@ -177,6 +206,11 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
     assert_selected(awaited(array(vec![checked(vec![integer(15)])])));
     assert_selected_print(printed(map(vec![("array", array(vec![integer(16)]))])));
     assert_selected_nowait(nowait("array_future", array(vec![integer(17)])));
+    assert_selected(grouped_assignment("x", integer(18)));
+    assert_selected(awaited(grouped_assignment(
+        "x",
+        checked(vec![integer(19), array(vec![integer(20)])]),
+    )));
 
     assert_compatibility(
         ASTNode::UnaryOp {
@@ -310,6 +344,17 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
         }])),
         RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
     );
+    assert_compatibility(
+        grouped_assignment(
+            "x",
+            ASTNode::FieldAccess {
+                object: Box::new(variable("page")),
+                field: "value".to_owned(),
+                span: Span::unknown(),
+            },
+        ),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
 }
 
 fn spanned_instructions(builder: &MirBuilder) -> Vec<(String, Span)> {
@@ -425,6 +470,77 @@ fn selected_nowait_root_matches_raw_legacy_effects_exactly() {
         .and_then(|registry| registry.get_slot("pending"));
     assert_eq!(selected_slot, legacy_slot);
     assert!(selected_slot.is_some());
+}
+
+#[test]
+fn selected_grouped_assignment_matches_raw_legacy_effects_exactly() {
+    let root = || {
+        grouped_assignment(
+            "x",
+            ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left: Box::new(integer(21)),
+                right: Box::new(integer(22)),
+                span: Span::unknown(),
+            },
+        )
+    };
+    let mut legacy = MirBuilder::new();
+    legacy.enter_function_for_test("grouped_assignment_root_parity/0".to_owned());
+    let legacy_old = crate::mir::builder::emission::constant::emit_integer(&mut legacy, 7).unwrap();
+    seed_binding(&mut legacy, "x", legacy_old);
+    let legacy_value = drive_raw_legacy_expression_v1(&mut legacy, root()).unwrap();
+
+    let mut selected = MirBuilder::new();
+    selected.enter_function_for_test("grouped_assignment_root_parity/0".to_owned());
+    let selected_old =
+        crate::mir::builder::emission::constant::emit_integer(&mut selected, 7).unwrap();
+    seed_binding(&mut selected, "x", selected_old);
+    let selected_value = drive_selected(&mut selected, root()).unwrap();
+
+    assert_eq!(selected_value, legacy_value);
+    assert_eq!(
+        spanned_instructions(&selected),
+        spanned_instructions(&legacy)
+    );
+    assert_eq!(
+        selected.function_state.variable_ctx.variable_map.get("x"),
+        Some(&selected_value)
+    );
+    assert_eq!(
+        legacy.function_state.variable_ctx.variable_map.get("x"),
+        Some(&legacy_value)
+    );
+}
+
+#[test]
+fn selected_grouped_assignment_preflights_and_reuses_without_retry() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("grouped_assignment_root_failure/0".to_owned());
+    let before = spanned_instructions(&builder);
+    let error =
+        drive_selected(&mut builder, grouped_assignment("missing", integer(99))).unwrap_err();
+    assert!(error.contains("Undefined variable: missing"));
+    assert_eq!(spanned_instructions(&builder), before);
+
+    let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 5).unwrap();
+    seed_binding(&mut builder, "x", old);
+    let rhs_error = drive_selected(
+        &mut builder,
+        grouped_assignment("x", variable("missing_rhs")),
+    )
+    .unwrap_err();
+    assert!(rhs_error.contains("Undefined variable: missing_rhs"));
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map.get("x"),
+        Some(&old)
+    );
+
+    let value = drive_selected(&mut builder, grouped_assignment("x", integer(100))).unwrap();
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map.get("x"),
+        Some(&value)
+    );
 }
 
 #[test]

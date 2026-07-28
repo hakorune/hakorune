@@ -2,7 +2,8 @@
 //!
 //! The selected invocation port is parity-safe only for expression trees whose
 //! complete recursive surface is Literal, Variable, Me, Unary, Binary, Await,
-//! Check, Array, or Map, plus Print and Nowait roots whose value is one such tree.
+//! Check, Array, Map, or GroupedAssignment, plus Print and Nowait roots whose
+//! value is one such tree.
 //! Every other non-Program root keeps the existing raw compatibility terminal
 //! until its own production responsibility cell removes that residual.
 
@@ -110,6 +111,13 @@ impl PreparedRawRootPartitionV1 {
                 node,
                 RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
             ),
+            node @ ASTNode::GroupedAssignmentExpr { .. } if is_port_neutral_expr_tree(&node) => {
+                Self::selected_expr_tree(node)
+            }
+            node @ ASTNode::GroupedAssignmentExpr { .. } => Self::compatibility(
+                node,
+                RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+            ),
             node @ ASTNode::Print { .. } if is_port_neutral_print_root(&node) => {
                 Self::selected_print_root(node)
             }
@@ -141,7 +149,6 @@ impl PreparedRawRootPartitionV1 {
             | ASTNode::BlockExpr { .. }
             | ASTNode::TryCatch { .. }
             | ASTNode::Throw { .. }
-            | ASTNode::GroupedAssignmentExpr { .. }
             | ASTNode::MethodCall { .. }
             | ASTNode::FieldAccess { .. }
             | ASTNode::Index { .. }
@@ -231,6 +238,7 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
         ASTNode::MapLiteral { entries, .. } => entries
             .iter()
             .all(|(_, value)| is_port_neutral_expr_tree(value)),
+        ASTNode::GroupedAssignmentExpr { rhs, .. } => is_port_neutral_expr_tree(rhs),
         ASTNode::Program { .. }
         | ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
@@ -265,7 +273,6 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
         | ASTNode::TypeAliasDeclaration { .. }
         | ASTNode::GlobalVar { .. }
         | ASTNode::StaticConstTable { .. }
-        | ASTNode::GroupedAssignmentExpr { .. }
         | ASTNode::MethodCall { .. }
         | ASTNode::FieldAccess { .. }
         | ASTNode::Index { .. }

@@ -49,9 +49,10 @@ Closed:  RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0
 Closed:  RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0
-Current: RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0
-Pack:    DESCENT-SPINE0
-Ceremony: T1; one atomic I0/R0
+Closed:  RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0
+Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY5-D0
+Pack:    ROOT-LIFECYCLE0
+Ceremony: read-only live-edge census
 ```
 
 R1 closeout:
@@ -241,52 +242,46 @@ shared guard / artifact inventory     = green
 fallback / retry / reselection        = 0
 ```
 
-## Current execution row
+## Latest closeout
 
 ```text
 RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0
 
-Accepted constructor:
-  GroupedAssignmentExpr {
-    lhs: existing variable-name syntax
-    rhs: PortNeutralExprTreeV1
-  }
+safe Grouped Assignment compatibility edge = 0
+selected expression / statement kinds      = 10 / 2
+registered residual kinds                   = 44
+selected / compatibility terminals          = 1 / 1
+root focused tests                           = 6/6
+grouped parity / failure / reuse             = 3/3
+existing assignment/raw-port evidence        = green
+normal-vs-Legacy non-Program parity          = green
+shared guard / artifact inventory            = green
+fallback / retry / reselection               = 0
+new source/test/check file                    = 0
+largest touched source/check file             = 665
+```
 
-Existing owner:
-  RawLegacyVariableAssignmentInputV1
-  -> drive_variable_assignment_v1
-  -> declared-binding preflight
-  -> RHS once through the same selected port
-  -> existing assignment completion
+## Current design stop
 
-Atomic delete:
-  safe GroupedAssignmentExpr
-  -> unconditional SeparateDesignStop
-  -> raw compatibility
-  = 0
+```text
+RAW-NONPROGRAM-NEXT-RESPONSIBILITY5-D0
 
-Ratchet:
-  selected expression kinds = 9 -> 10
-  selected statement roots  = 2 unchanged
-  residual kinds            = 45 -> 44
-  selected/compat terminals = 1 / 1 unchanged
+Read-only:
+  refresh the remaining 44-kind live compatibility census
+  compare only responsibilities with existing production owners
 
-Evidence:
-  recursive safe/unsafe partition, including safe nesting
-  selected-port vs raw-port assignment result/effect parity
-  undeclared lhs rejects before RHS effects
-  RHS failure preserves the old binding and never retries
-  normal-vs-Legacy diagnostic parity and compiler reuse
-  existing shared guard/manifest only; no new test/check file
+Selection requires:
+  one named production caller
+  one bounded source-only partition
+  one same-commit old compatibility-edge deletion
+  no duplicated target/family decision
+  fallback / retry / reselection = 0
 
-Hard stop:
-  unsafe RHS selected
-  ordinary/compound Assignment, Field, Index, or Local mixed in
-  Builder state consulted by source classifier
-  target/RHS classified or lowered twice
-  selected failure enters compatibility
-  assignment completion/order changes
-  new source/failure owner or compatibility terminal appears
+Park:
+  implementation
+  whole-program accepted variants
+  source-level Ownership / View
+  all other new language semantics
 ```
 
 Compatibility sunset:
@@ -334,7 +329,8 @@ R2p RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2q RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0 closed
 R2r RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0 closed
 R2s RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0 closed
-R2t RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 current
+R2t RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 closed
+R2u RAW-NONPROGRAM-NEXT-RESPONSIBILITY5-D0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:

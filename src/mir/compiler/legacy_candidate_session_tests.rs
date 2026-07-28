@@ -99,6 +99,14 @@ fn map(entries: Vec<(&str, ASTNode)>) -> ASTNode {
     }
 }
 
+fn grouped_assignment(variable_name: &str, rhs: ASTNode) -> ASTNode {
+    ASTNode::GroupedAssignmentExpr {
+        lhs: variable_name.to_owned(),
+        rhs: Box::new(rhs),
+        span: Span::unknown(),
+    }
+}
+
 fn source_file(compiler: &MirCompiler) -> Option<String> {
     compiler.builder.current_source_file()
 }
@@ -436,4 +444,41 @@ fn selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable() {
             Some("reused-nonprogram.hako")
         );
     }
+}
+
+#[test]
+fn selected_grouped_assignment_failure_matches_legacy_and_reuses() {
+    let root = grouped_assignment("missing", literal(31));
+    let mut legacy_compiler = MirCompiler::with_options(false);
+    let legacy_error = legacy_compiler
+        .compile_with_source(root.clone(), Some("grouped-assignment-failure.hako"))
+        .expect_err("legacy grouped assignment must reject an undeclared lhs");
+
+    let mut compiler = MirCompiler::with_options(false);
+    compiler.builder.set_source_file_hint("live-before.hako");
+    let before = (source_file(&compiler), core_cursor(&compiler));
+    let selected_error = compiler
+        .compile_normal(normal_request(
+            root,
+            Some("grouped-assignment-failure.hako"),
+            HashMap::new(),
+        ))
+        .expect_err("selected grouped assignment must reject an undeclared lhs");
+
+    assert_eq!(selected_error, legacy_error);
+    assert!(selected_error.contains("Undefined variable: missing"));
+    assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
+
+    let result = compiler
+        .compile_normal(normal_request(
+            literal(32),
+            Some("grouped-assignment-reuse.hako"),
+            HashMap::new(),
+        ))
+        .expect("fresh selected root after grouped assignment failure");
+    assert!(result.module.functions.contains_key("main"));
+    assert_eq!(
+        source_file(&compiler).as_deref(),
+        Some("grouped-assignment-reuse.hako")
+    );
 }
