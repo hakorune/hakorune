@@ -194,7 +194,7 @@ mod tests {
     use crate::mir::builder::recursive_child_lowering::{
         drive_legacy_expression_v1, drive_raw_legacy_expression_v1, RawInvocationChildPortV1,
     };
-    use crate::mir::{MirBuilder, MirInstruction, MirType};
+    use crate::mir::{Callee, EffectMask, MirBuilder, MirInstruction, MirType};
 
     fn integer(value: i64) -> ASTNode {
         ASTNode::Literal {
@@ -224,6 +224,24 @@ mod tests {
         ])
     }
 
+    fn map(entries: Vec<(&str, ASTNode)>) -> ASTNode {
+        ASTNode::MapLiteral {
+            entries: entries
+                .into_iter()
+                .map(|(key, value)| (key.to_owned(), value))
+                .collect(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn nested_map() -> ASTNode {
+        map(vec![
+            ("dup", integer(1)),
+            ("dup", array(vec![integer(2), integer(3)])),
+            ("nested", map(vec![("inner", boolean(true))])),
+        ])
+    }
+
     fn spanned_instructions(builder: &MirBuilder) -> Vec<(String, Span)> {
         builder
             .function_state
@@ -247,6 +265,34 @@ mod tests {
             .values()
             .flat_map(|block| block.instructions.iter())
             .filter(|instruction| matches!(instruction, MirInstruction::ArrayElementWrite { .. }))
+            .count()
+    }
+
+    fn map_set_count(builder: &MirBuilder) -> usize {
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("current function")
+            .blocks
+            .values()
+            .flat_map(|block| block.instructions.iter())
+            .filter(|instruction| {
+                matches!(
+                    instruction,
+                    MirInstruction::Call {
+                        callee: Some(Callee::Method {
+                            box_name,
+                            method,
+                            ..
+                        }),
+                        effects,
+                        ..
+                    } if box_name == "MapBox"
+                        && method == "set"
+                        && *effects == EffectMask::MUT
+                )
+            })
             .count()
     }
 
@@ -333,5 +379,149 @@ mod tests {
                     .get(&legacy_value)
             );
         }
+    }
+
+    fn assert_selected_map_parity() -> Vec<(String, Span)> {
+        let mut legacy = MirBuilder::new();
+        legacy.enter_function_for_test("map_port_parity/0".to_owned());
+        let legacy_value =
+            drive_raw_legacy_expression_v1(&mut legacy, nested_map()).expect("legacy Map");
+
+        let mut selected = MirBuilder::new();
+        selected.enter_function_for_test("map_port_parity/0".to_owned());
+        let selected_value = {
+            let mut invocation = ModuleLoweringInvocationV1::with_collector(
+                &mut selected,
+                ModuleDraftCollectorV1::default(),
+            );
+            invocation.with_module_port(|builder, module_port| {
+                let mut port = RawInvocationChildPortV1::new(module_port);
+                drive_legacy_expression_v1(builder, &mut port, nested_map())
+            })
+        }
+        .expect("selected Map");
+
+        assert_eq!(selected_value, legacy_value);
+        assert_eq!(
+            spanned_instructions(&selected),
+            spanned_instructions(&legacy)
+        );
+        assert_eq!(map_set_count(&selected), 4);
+        assert_eq!(map_set_count(&selected), map_set_count(&legacy));
+        assert_eq!(
+            selected
+                .function_state
+                .type_ctx
+                .value_origin_newbox
+                .get(&selected_value),
+            Some(&"MapBox".to_owned())
+        );
+        assert_eq!(
+            selected
+                .function_state
+                .type_ctx
+                .value_origin_newbox
+                .get(&selected_value),
+            legacy
+                .function_state
+                .type_ctx
+                .value_origin_newbox
+                .get(&legacy_value)
+        );
+        assert_eq!(
+            selected.comp_ctx.type_registry.get_origin(selected_value),
+            legacy.comp_ctx.type_registry.get_origin(legacy_value)
+        );
+        assert_eq!(
+            selected
+                .function_state
+                .type_ctx
+                .value_types
+                .get(&selected_value),
+            Some(&MirType::Box("MapBox".to_owned()))
+        );
+        assert_eq!(
+            selected.function_state.type_ctx.string_literals,
+            legacy.function_state.type_ctx.string_literals
+        );
+        assert_eq!(
+            selected
+                .function_state
+                .type_ctx
+                .string_literals
+                .values()
+                .filter(|key| key.as_str() == "dup")
+                .count(),
+            2
+        );
+        assert_eq!(
+            selected.function_state.local_ssa_map,
+            legacy.function_state.local_ssa_map
+        );
+        assert!(
+            selected.function_state.type_ctx.map_value_types.is_empty()
+                && selected
+                    .function_state
+                    .type_ctx
+                    .map_literal_value_types
+                    .is_empty()
+        );
+        assert_eq!(
+            selected.core_ctx.peek_next_value(),
+            legacy.core_ctx.peek_next_value()
+        );
+        spanned_instructions(&selected)
+    }
+
+    #[test]
+    fn selected_map_port_matches_raw_legacy_and_unified_modes_exactly() {
+        let off = crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "off", || {
+            assert_selected_map_parity()
+        });
+        let on = crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+            assert_selected_map_parity()
+        });
+        assert_eq!(off, on);
+    }
+
+    #[test]
+    fn selected_map_child_failure_stops_before_set_and_later_entry() {
+        let root = map(vec![
+            ("before", integer(1)),
+            (
+                "missing",
+                ASTNode::Variable {
+                    name: "missing".to_owned(),
+                    span: Span::unknown(),
+                },
+            ),
+            ("after", integer(2)),
+        ]);
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("map_failure/0".to_owned());
+        let error = {
+            let mut invocation = ModuleLoweringInvocationV1::with_collector(
+                &mut builder,
+                ModuleDraftCollectorV1::default(),
+            );
+            invocation.with_module_port(|builder, module_port| {
+                let mut port = RawInvocationChildPortV1::new(module_port);
+                drive_legacy_expression_v1(builder, &mut port, root)
+            })
+        }
+        .expect_err("missing Map value must fail");
+
+        assert!(error.contains("Undefined variable: missing"), "{error}");
+        assert_eq!(map_set_count(&builder), 1);
+        let keys = builder
+            .function_state
+            .type_ctx
+            .string_literals
+            .values()
+            .map(String::as_str)
+            .collect::<Vec<_>>();
+        assert!(keys.contains(&"before"));
+        assert!(keys.contains(&"missing"));
+        assert!(!keys.contains(&"after"));
     }
 }

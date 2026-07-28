@@ -89,6 +89,16 @@ fn array(elements: Vec<ASTNode>) -> ASTNode {
     }
 }
 
+fn map(entries: Vec<(&str, ASTNode)>) -> ASTNode {
+    ASTNode::MapLiteral {
+        entries: entries
+            .into_iter()
+            .map(|(key, value)| (key.to_owned(), value))
+            .collect(),
+        span: Span::unknown(),
+    }
+}
+
 fn source_file(compiler: &MirCompiler) -> Option<String> {
     compiler.builder.current_source_file()
 }
@@ -314,6 +324,12 @@ fn normal_pipeline_matches_legacy_compatibility_for_non_program_root() {
         array(Vec::new()),
         array(vec![literal(24), array(vec![literal(25), literal(26)])]),
         awaited(array(vec![checked(vec![boolean(true), boolean(false)])])),
+        map(Vec::new()),
+        map(vec![
+            ("key", literal(27)),
+            ("key", array(vec![literal(28), literal(29)])),
+        ]),
+        awaited(map(vec![("nested", map(vec![("value", literal(30))]))])),
     ];
 
     for root in roots {
@@ -381,6 +397,17 @@ fn selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable() {
                 name: "missing".to_owned(),
                 span: Span::unknown(),
             },
+        ]),
+        map(vec![
+            ("before", literal(25)),
+            (
+                "missing",
+                ASTNode::Variable {
+                    name: "missing".to_owned(),
+                    span: Span::unknown(),
+                },
+            ),
+            ("after", literal(26)),
         ]),
     ] {
         let mut compiler = MirCompiler::with_options(false);

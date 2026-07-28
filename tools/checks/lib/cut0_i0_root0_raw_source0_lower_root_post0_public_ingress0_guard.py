@@ -406,7 +406,7 @@ def main() -> int:
     )
     if root_descent.get("sunset_state") != "active":
         raise AssertionError("raw root compatibility sunset must remain active")
-    if root_descent.get("residual_kind_count") != 46:
+    if root_descent.get("residual_kind_count") != 45:
         raise AssertionError("raw root compatibility residual count drift")
     ast_node_kinds = ast_kinds(
         (
@@ -432,7 +432,7 @@ def main() -> int:
         selected_kinds.update(ast_kinds(braced or direct))
     expected_selected = {
         "Literal", "Variable", "Me", "UnaryOp", "BinaryOp", "AwaitExpression",
-        "CheckExpr", "ArrayLiteral", "Print", "Nowait",
+        "CheckExpr", "ArrayLiteral", "MapLiteral", "Print", "Nowait",
     }
     if selected_kinds != expected_selected:
         raise AssertionError(
@@ -458,7 +458,7 @@ def main() -> int:
     expected_separate = {
         "Assignment", "CompoundAssignment", "If", "Return",
         "TaskScope", "QMarkPropagate", "MatchExpr",
-        "EnumMatchExpr", "MapLiteral", "RecordLiteral",
+        "EnumMatchExpr", "RecordLiteral",
         "RecordUpdate", "Lambda", "BlockExpr", "TryCatch", "Throw",
         "GroupedAssignmentExpr", "MethodCall", "FieldAccess", "Index", "New",
         "FromCall", "Local", "ScopeBox", "FunctionCall", "Call",
@@ -512,6 +512,14 @@ def main() -> int:
         require(raw_nonprogram_root_descent, fragment, "recursive Array partition")
     if raw_nonprogram_root_descent.count("node @ ASTNode::ArrayLiteral { .. }") != 2:
         raise AssertionError("Array root must have one safe and one compatibility arm")
+    for fragment in (
+        "node @ ASTNode::MapLiteral { .. } if is_port_neutral_expr_tree(&node)",
+        "ASTNode::MapLiteral { entries, .. }",
+        ".all(|(_, value)| is_port_neutral_expr_tree(value))",
+    ):
+        require(raw_nonprogram_root_descent, fragment, "recursive Map partition")
+    if raw_nonprogram_root_descent.count("node @ ASTNode::MapLiteral { .. }") != 2:
+        raise AssertionError("Map root must have one safe and one compatibility arm")
     for fragment in (
         "node @ ASTNode::Print { .. } if is_port_neutral_print_root(&node)",
         "SelectedRawNonProgramRootV1",

@@ -45,9 +45,10 @@ Closed:  RAW-NONPROGRAM-NOWAIT-ROOT-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0
 Closed:  RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0
-Current: RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0
-Pack:    CALL-OBJECT0
-Ceremony: T1; one atomic production replacement
+Closed:  RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0
+Current: RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0
+Pack:    structural selection pending
+Ceremony: design stop; production edit = 0
 ```
 
 R1 closeout:
@@ -204,37 +205,40 @@ largest touched source/check file           = 745
 largest relevant source/check file          = 774, unchanged
 ```
 
-## Current execution row
+R2p closeout:
 
 ```text
-RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0
+safe Map compatibility edge                = 0
+selected expression kinds                 = 9
+selected statement-root kinds             = 2
+registered residual kinds                 = 45
+selected / compatibility terminals        = 1 / 1
+duplicate/nested/unified off-on parity      = green
+focused Rust tests                          = 9/9
+fallback / retry / reselection             = 0
+Rust net delta, including focused tests     = +241
+new source/test/check/task file             = 0
+largest touched source/check file           = 769
+largest relevant source/check file          = 774, unchanged
+```
 
-Decision / boundary:
-  Candidate A; T1 / CALL-OBJECT0
-  PortNeutralExprTreeV1 += MapLiteral([(String, PortNeutralExprTreeV1)]*)
-  unsafe value keeps the whole enclosing tree on compatibility
-  key expressions/normalization, generic calls, map facts, result delta = 0
+## Current design question
 
-Preserved production order:
-  ValueId -> NewBox(MapBox) -> birth
-  -> function origin/type + compilation type registry
-  -> each entry: String Const -> selected value -> fixed MapBox.set
-  preserve source order, duplicate keys, current spans, receiver Copy
+```text
+RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0
 
-Atomic change:
-  safe Map whole-kind compatibility edge = 0
-  selected expression kinds = 8 -> 9
-  selected statement roots   = 2 unchanged
-  registered residual kinds  = 46 -> 45
-  selected/compat terminals  = 1 / 1 unchanged
+Candidate A:
+  move the inline #[cfg(test)] root-partition module to
+  src/mir/builder/raw_nonprogram_root_descent_tests.rs
 
-Gates / stops:
-  empty/duplicate/nested safe Map and unsafe whole-tree partition
-  selected vs raw MIR/span/type/origin/registry/Call/LocalSSA parity
-  unified call off/on exact parity; map fact tables stay absent
-  Map(later missing) rollback/reuse; no later entry descent
-  per-entry route mixing / fallback / retry = 0
-  root file >= 800 or new file required -> stop
+Required:
+  production Rust / behavior / partition / guard / manifest delta = 0
+  test names and focused evidence unchanged
+  raw_nonprogram_root_descent.rs returns to one production responsibility
+  new test file owns only this module's tests and stays < 800
+
+Stop:
+  production edit, test rewrite, semantic cleanup, or automatic next-cell selection
 ```
 
 Compatibility sunset:
@@ -278,7 +282,8 @@ R2l RAW-NONPROGRAM-NOWAIT-ROOT-DESCENT0-I0-R0 closed
 R2m RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0 closed
 R2n RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2o RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0 closed
-R2p RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0 current
+R2p RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0 closed
+R2q RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0 current design stop
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:

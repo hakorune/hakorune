@@ -2,7 +2,7 @@
 //!
 //! The selected invocation port is parity-safe only for expression trees whose
 //! complete recursive surface is Literal, Variable, Me, Unary, Binary, Await,
-//! Check, or Array, plus Print and Nowait roots whose value is one such tree.
+//! Check, Array, or Map, plus Print and Nowait roots whose value is one such tree.
 //! Every other non-Program root keeps the existing raw compatibility terminal
 //! until its own production responsibility cell removes that residual.
 
@@ -103,6 +103,13 @@ impl PreparedRawRootPartitionV1 {
                 node,
                 RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
             ),
+            node @ ASTNode::MapLiteral { .. } if is_port_neutral_expr_tree(&node) => {
+                Self::selected_expr_tree(node)
+            }
+            node @ ASTNode::MapLiteral { .. } => Self::compatibility(
+                node,
+                RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+            ),
             node @ ASTNode::Print { .. } if is_port_neutral_print_root(&node) => {
                 Self::selected_print_root(node)
             }
@@ -128,7 +135,6 @@ impl PreparedRawRootPartitionV1 {
             | ASTNode::QMarkPropagate { .. }
             | ASTNode::MatchExpr { .. }
             | ASTNode::EnumMatchExpr { .. }
-            | ASTNode::MapLiteral { .. }
             | ASTNode::RecordLiteral { .. }
             | ASTNode::RecordUpdate { .. }
             | ASTNode::Lambda { .. }
@@ -222,6 +228,9 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
             .iter()
             .all(|item| is_port_neutral_expr_tree(&item.expression)),
         ASTNode::ArrayLiteral { elements, .. } => elements.iter().all(is_port_neutral_expr_tree),
+        ASTNode::MapLiteral { entries, .. } => entries
+            .iter()
+            .all(|(_, value)| is_port_neutral_expr_tree(value)),
         ASTNode::Program { .. }
         | ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
@@ -242,7 +251,6 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
         | ASTNode::QMarkPropagate { .. }
         | ASTNode::MatchExpr { .. }
         | ASTNode::EnumMatchExpr { .. }
-        | ASTNode::MapLiteral { .. }
         | ASTNode::RecordLiteral { .. }
         | ASTNode::RecordUpdate { .. }
         | ASTNode::Lambda { .. }
@@ -379,6 +387,16 @@ mod tests {
         }
     }
 
+    fn map(entries: Vec<(&str, ASTNode)>) -> ASTNode {
+        ASTNode::MapLiteral {
+            entries: entries
+                .into_iter()
+                .map(|(key, value)| (key.to_owned(), value))
+                .collect(),
+            span: Span::unknown(),
+        }
+    }
+
     fn assert_selected(node: ASTNode) {
         assert!(matches!(
             PreparedRawRootPartitionV1::classify(node),
@@ -472,10 +490,13 @@ mod tests {
             "pending",
             awaited(checked(vec![integer(12), variable("ready")])),
         ));
-        assert_selected(array(Vec::new()));
-        assert_selected(array(vec![integer(13), array(vec![integer(14)])]));
+        assert_selected(map(Vec::new()));
+        assert_selected(array(vec![
+            integer(13),
+            map(vec![("nested", array(vec![integer(14)]))]),
+        ]));
         assert_selected(awaited(array(vec![checked(vec![integer(15)])])));
-        assert_selected_print(printed(array(vec![integer(16)])));
+        assert_selected_print(printed(map(vec![("array", array(vec![integer(16)]))])));
         assert_selected_nowait(nowait("array_future", array(vec![integer(17)])));
 
         assert_compatibility(
@@ -587,13 +608,16 @@ mod tests {
             RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
         );
         assert_compatibility(
-            array(vec![
-                integer(18),
-                ASTNode::FieldAccess {
-                    object: Box::new(variable("page")),
-                    field: "value".to_owned(),
-                    span: Span::unknown(),
-                },
+            map(vec![
+                ("safe", integer(18)),
+                (
+                    "unsafe",
+                    ASTNode::FieldAccess {
+                        object: Box::new(variable("page")),
+                        field: "value".to_owned(),
+                        span: Span::unknown(),
+                    },
+                ),
             ]),
             RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
         );
