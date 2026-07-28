@@ -25,76 +25,109 @@ Resolve -> Observe -> Facts -> Recipe -> Verify
 第二MirBuilder、production consumer 0のroute拡張、Legacy fallbackは作らない。
 cell数、pack数、LOCは観測値であり、完成条件ではない。
 
-## Current execution brief
-
-`GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-S0` — T2
+## Current design stop
 
 ```text
-Shape:
-  one exact i64 Parameter P; one distinct untyped Local X initialized by P;
-  one terminal Return of X. Same-name shadowing is a later finite row.
-
-Facts:
-  Receiver=1, Parameter(0)=1, Local(0)=1; initializer exact-site use resolves
-  Parameter; ReturnValue exact-site use resolves Local; total uses=2;
-  assignments/calls/upvars=0. Parameter has the existing exact ABI receipt;
-  Local has no ABI/type/representation receipt.
-
-Execution:
-  first compact existing proof transport, then add one total classifier arm,
-  one resolver pass, bounded Parameter/Local receipt factories, one Recipe,
-  one completion, and one fourth cumulative variant. Do not seal old plans
-  and combine them. Whole-module rejection drops every partial plan.
-
-Structure:
-  two immediately-following commits are allowed: behavior-neutral test/guard
-  compaction, then the semantic variant. Reuse existing test/check files;
-  target tests <= 750 and guard <= 760, hard maximum < 800. New per-row guard
-  is forbidden. Stable gate: run_row_guard --only normal-source-plan0.
-
-Non-claims:
-  typed Local, shadowing, reassignment, Binary, Builder/MIR, production caller,
-  fallback/retry, Ownership/View, replacement credit, or tenth row.
+Parent:  MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
+Current: NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0
 ```
 
-## Queue to the north star
+Decision:
 
 ```text
-M2c  closed exact i64 parameter-return variant
-M2c+ selected parameter-fed Local
-M2c+ then parameter/Local shadow, reassignment, Binary finite binding slices
-M2d  field schema
-M2e  field read
-M2f  field write
-M2g  constructorless default construction
-M2h  Main-to-instance call
-M3   aggregate VerifiedNormalGeneralProgramPlanV1
-M4   reuse DraftSeal / Collector / atomic publication
-M5   current-normal MirCompileResult parity
-M6   Candidate A technical readiness audit
-O1-O5 Ownership/View readiness
-M7   Candidate A final re-evaluation
-M8   atomic normal/default cutover, only when M7 is green
+cancel:
+  GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-S0
+  # semantic implementation was not landed
+
+reason:
+  Parameter -> Local -> Return composes existing responsibilities
+  complete-program shape is not a replacement unit
+
+freeze:
+  normal_source_plan variants = 3
+  production callers = 0
+  new accepted variants / replacement credit = 0
+
+retain:
+  8859caecba behavior-neutral proof compaction
 ```
 
-Finite row order after the selected S0 (later D0s are anticipated, not yet
-execution authority):
+## Evidence
 
 ```text
-GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-LOCAL-SHADOW0-D0
-GENERAL-FUNCTION-PLAN0-INSTANCE-REASSIGNMENT0-D0
-GENERAL-FUNCTION-PLAN0-INSTANCE-BINARY0-D0
-NORMAL-GENERAL-PROGRAM-FIELD-SCHEMA0-D0
-GENERAL-FUNCTION-PLAN0-INSTANCE-FIELD-READ0-D0
-GENERAL-FUNCTION-PLAN0-INSTANCE-FIELD-WRITE0-D0
-NORMAL-GENERAL-PROGRAM-DEFAULT-CONSTRUCTION0-D0
-GENERAL-FUNCTION-PLAN0-MAIN-INSTANCE-CALL0-D0
-NORMAL-GENERAL-PROGRAM-PLAN0-S0
+compile_with_source*
+  -> compile_legacy_request
+  -> compile_legacy_candidate
+  -> ModuleBuilderInvocationSessionV1
+  -> MirBuilder::build_module(ASTNode)
+
+selected normal constructors:
+  execute_mir_mode
+  execute_mir_json_minimal
+  LLVM source compiler
+  Wasm source compiler
 ```
 
-M2c+の各行は有限なFacts/Recipe語彙を一つだけ追加する。M3まではproduction
-caller 0であり、replacement creditを主張しない。M8だけがselected
-normal/default Legacy edgeを切り替える。
+The shared source-hint wrappers also serve compatibility/reference callers, so
+their bodies cannot be switched globally. `compile_raw_published_v1` has a
+useful one-shot lifecycle, but `NarrowV1` has no normal caller and lacks normal
+imports, callable-Main coverage, accepted-corpus coverage, and result parity.
+
+## D0 brief
+
+Change:
+
+```text
+read-only census and owner selection
+production/source mutation = 0
+next implementation token = unset
+```
+
+Contract:
+
+```text
+one typed normal request owns source identity/imports/config/admission/result
+four selected constructors enter one pipeline exactly once
+compatibility/reference constructors stay separate
+compatibility body is positively selected before Builder effects
+verified/canonical rejection -> compatibility = 0
+one candidate/session/finish/publication; retry/reselection = 0
+selected normal -> generic Legacy reachability becomes 0 atomically
+REPL / Program JSON / VM compatibility/reference behavior does not move
+```
+
+Done:
+
+```text
+exact caller/provenance matrix
+selected owner plus compatibility debt/removal condition
+atomic old-edge delete set
+success, exact transport, late failure/reuse, result-parity gates
+existing shared guards to extend; new per-row guard = 0
+one bounded code-facing row selected
+```
+
+Stop:
+
+```text
+unknown fifth normal constructor or shared-wrapper global switch
+NarrowV1 renamed normal without capability/parity evidence
+fallback after a verifier rejection
+Program clone/reparse or second compiler execution
+production connection before corpus and late-failure parity
+```
+
+## Queue
+
+```text
+R0  current D0: exact live pipeline decision
+R1  atomic selected-normal switch + old-edge deletion
+R2  compositional Expr/Stmt/Body Recipe on that live edge
+R3  compatibility body/raw-AST retirement when its caller count reaches zero
+```
+
+The old M2c-to-M8 complete-program queue is superseded. Passive assets are
+reconsidered only when the selected live edge names an exact consumer.
 
 ## Closed tail
 
@@ -119,6 +152,9 @@ INSTANCE-INTEGER-LOCAL-RETURN0-S0 / adbb737f8a
   third cumulative variant; exact Receiver + Local(0) + Integer initializer
   + terminal Local read; evidence 74/74; production +391, test +62, check +8;
   one new source file, no new test/check file, max source/check 799
+
+NORMAL-SOURCE-PLAN0-PROOF-COMPACTION / 8859caecba
+  behavior/grammar delta 0; tests 701 lines, callable guard 755 lines
 ```
 
 Detailed landed diffs and older cell measurements belong to git history and
