@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Eight production cells and the minimal four-metric structural ratchet are closed. RECORD-HELPER-BODY-DESCENT0-I0-R0 landed with one tagged catalog-child loan, zero old direct helper-body edges, zero dead same-family facades, and unchanged authority/grammar. No ninth responsibility is selected."
+status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Eight production cells and the minimal four-metric structural ratchet are closed. The next live authority break is FIELD-PROPERTY-GETTER-DESCENT0-D0: FieldAccess retains its selected port through object descent but drops it when a property getter enters the raw standard MethodCall adapter. No ninth responsibility is selected."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-NEXT-EDGE-DESIGN-STOP"
-current_execution_row = "MIRBUILDER-NEXT-EDGE-DESIGN-STOP"
-current_execution_summary = "The eighth record-helper body descent cell is closed. Keep the north-star pipeline fixed and select no ninth executable owner until one exact production caller, replacement owner, atomic delete set, parity gate, and structural boundary are accepted together."
+current_design_stop = "FIELD-PROPERTY-GETTER-DESCENT0-D0"
+current_execution_row = "none"
+current_execution_summary = "Design consultation only. Decide whether one exact zero-argument property adapter may short-loan the FieldAccess-selected port without fabricating MethodCall source, re-descending the receiver, or silently changing terminal/header authority. No Rust edit or ninth manifest row is authorized."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -438,9 +438,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "record-helper-body-descent0-d0-consultation-2026-07-28"
-latest_card_path = "docs/development/current/main/investigations/record-helper-body-descent0-d0-consultation-2026-07-28.md"
-latest_card_summary = """RECORD-HELPER-BODY-DESCENT0-I0-R0 is closed. One crate-private tagged catalog-child loan preserves the selected MethodCall port while the helper driver remains the sole grammar classifier and Return-as-value owner. Both direct Legacy re-entry edges and three dead same-family facades are absent; located activation, fallback, retry, reselection, grammar, identity, publication, runtime, and backend deltas are zero. Focused tests are 38/38 green, source/test files remain 952/139, source LOC is +46 within the ceiling, test LOC is -6, and the five-cell rolling production LOC is -292. No ninth responsibility is selected."""
+latest_card = "field-property-getter-descent0-d0-consultation-2026-07-28"
+latest_card_path = "docs/development/current/main/investigations/field-property-getter-descent0-d0-consultation-2026-07-28.md"
+latest_card_summary = """FIELD-PROPERTY-GETTER-DESCENT0-D0 is the current design stop. The sole raw/default FieldAccess selector keeps its selected port while lowering the object, but the resolved zero-argument property getter drops that port through handle_standard_method_call and LegacyMethodCallArgumentsV1. Candidate A is a bounded T1 port loan, but D0 must explicitly choose whether property terminal/header authority remains lookup=None or also cuts over. No source, test, guard, manifest row, cell count, runtime, backend, or grammar change is authorized."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-NEXT-EDGE-DESIGN-STOP"
+current_blocker_token = "FIELD-PROPERTY-GETTER-DESCENT0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

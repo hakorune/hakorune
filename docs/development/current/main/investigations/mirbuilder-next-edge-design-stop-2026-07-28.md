@@ -1,5 +1,5 @@
 ---
-Status: active after eighth replacement closeout
+Status: resolved into FIELD-PROPERTY-GETTER-DESCENT0-D0
 Date: 2026-07-28
 Decision: MIRBUILDER-NEXT-EDGE-DESIGN-STOP
 Scope: select the next exact production edge after eight closed cutovers
@@ -31,6 +31,31 @@ target, parity gate, and LOC repayment boundary are selected together.
 Fail fast if a proposed row is inventory-only, has no selected old edge, needs
 fallback/retry, revives special Stage-B activation, or mixes BoxCount with
 BoxShape.
+
+## Ninth selection outcome
+
+A six-worker bounded census found one live authority break before the parked
+cleanup and compiler-ingress work:
+
+```text
+FIELD-PROPERTY-GETTER-DESCENT0-D0
+```
+
+Authority:
+
+```text
+docs/development/current/main/investigations/
+field-property-getter-descent0-d0-consultation-2026-07-28.md
+```
+
+The raw/default FieldAccess selector preserves its selected port through object
+descent, then the property-getter branch drops it through
+`handle_standard_method_call` and `LegacyMethodCallArgumentsV1`. Candidate A
+is an exact zero-argument port loan, but the consultation must separately fix
+terminal/header authority: the current property terminal has no header lookup,
+while a full invocation-port terminal can observe collector headers.
+
+This outcome creates no ninth row and authorizes no production edit.
 
 ## Candidates
 

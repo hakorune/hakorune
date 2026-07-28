@@ -48,13 +48,20 @@ authorityを一つ減らす場合だけ選択する。
 ## Current front
 
 ```text
-MIRBUILDER-NEXT-EDGE-DESIGN-STOP
+FIELD-PROPERTY-GETTER-DESCENT0-D0
 ```
 
 最小structural ratchet、第七Binary cell、第八record-helper body descent
 cellはclosed。helper driverはReturn-as-value ownerのまま、選択済み
 MethodCall portをtagged child loanとして短期再借用し、旧direct edge二本と
-dead same-family facade三本はゼロになった。第九cellは未選択。
+dead same-family facade三本はゼロになった。
+
+次のlive authority breakはFieldAccess property getterにある。object descent
+までは選択済みportを保持するが、resolved getterが
+`handle_standard_method_call` / `LegacyMethodCallArgumentsV1`へ入るとraw
+child descentへ戻る。Candidate Aはexact zero-argument port loanだが、
+property terminalでcollector headerを新たに見せるかは意味差分になり得る。
+このT1/T2境界をD0で閉じるまで第九cellは未選択。
 
 ## First three replacements
 
@@ -138,7 +145,7 @@ Keep only these counters current:
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 8
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = 0; design stop
+accepted_next_responsibility       = 0; FIELD-PROPERTY-GETTER-DESCENT0-D0
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -157,7 +164,7 @@ non-positive.
 
 ```text
 none
-  current = MIRBUILDER-NEXT-EDGE-DESIGN-STOP
+  current = FIELD-PROPERTY-GETTER-DESCENT0-D0-DESIGN-STOP
   ninth responsibility = not selected
 ```
 
@@ -168,6 +175,33 @@ none
 `RECORD-HELPER-BODY-DESCENT0-I0-R0` execution. Proof consolidation and dead
 raw-body facade retirement remain candidate cleanups; neither is current
 execution authority.
+
+## Current property-getter consultation
+
+```text
+production caller:
+  raw_expression_dispatch::ASTNode::FieldAccess
+  -> fields::build_field_access_with_port_v1
+
+live authority break:
+  property_reads::try_lower_property_read
+  -> method_call_handlers::handle_standard_method_call
+  -> LegacyMethodCallArgumentsV1
+
+preferred candidate:
+  exact zero-argument property adapter
+  -> borrow the selected FieldAccess port
+  -> existing catalog-helper child capability
+
+unresolved semantic boundary:
+  keep current lookup=None terminal authority
+  OR prove collector-header visibility behavior-neutral
+```
+
+No MethodCall AST/input reconstruction, receiver re-descent, fallback, retry,
+route reselection, new file, or ninth manifest row is authorized during D0.
+Dead raw-body facade retirement, proof consolidation, non-Program root, and
+default compiler ingress remain parked.
 
 ## Landed replacement cells
 

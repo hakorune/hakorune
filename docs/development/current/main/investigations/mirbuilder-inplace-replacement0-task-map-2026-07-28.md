@@ -619,8 +619,34 @@ production Rust LOC                         = +46
 five-cell rolling production Rust LOC       = -292
 ```
 
-The eighth cell selects no ninth responsibility. The current execution
-boundary is `MIRBUILDER-NEXT-EDGE-DESIGN-STOP`.
+## Ninth-cell design consultation
+
+```text
+FIELD-PROPERTY-GETTER-DESCENT0-D0
+  pack / ceremony = CALL-OBJECT0 / T1 candidate
+  execution / row = none / absent
+```
+
+```text
+ASTNode::FieldAccess
+-> build_field_access_with_port_v1
+-> selected port lowers object to ValueId
+-> try_lower_property_read
+-> handle_standard_method_call
+-> LegacyMethodCallArgumentsV1
+-> raw catalog-helper child descent
+```
+
+Decide whether one exact zero-argument property adapter can borrow the selected
+port without source fabrication, receiver re-descent, duplicate preparation,
+or FieldGet fallback change. Catalog-child descent and terminal/header
+authority are separate: the current terminal has no lookup, while the full
+invocation port can expose collector headers.
+
+```text
+authority = investigations/field-property-getter-descent0-d0-consultation-2026-07-28.md
+until accepted = source/test/check edit 0; manifest/cell delta 0; fallback/retry 0
+```
 
 ## Macro pack order
 
