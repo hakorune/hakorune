@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The bounded compiler-ingress census is closed with Candidate B retained. The first missing authority is NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0, not a monolithic GeneralProgram lowerer. Repository artifact lifecycle R1 is closed and the bounded interlude is active at R2. After R2 -> R3 -> first R4 -> DOCS-MEANING-RECOVERY-RETURN0, MirBuilder resumes at NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0. No production caller or tenth replacement cell is selected."
+status = "The bounded compiler-ingress census is closed with Candidate B retained. The first missing authority is NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0, not a monolithic GeneralProgram lowerer. Repository artifact lifecycle R1 is closed and the bounded interlude is active at R2. After R2 -> R3 -> first R4 -> DOCS-MEANING-RECOVERY-RETURN0, MirBuilder resumes at NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0. General Program owner/result parity then precede Ownership/View readiness, and Candidate A cutover comes only after both. No production caller or tenth replacement cell is selected."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none; MirBuilder return target is NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0"
 current_execution_row = "REPOSITORY-ARTIFACT-LIFECYCLE-R2"
-current_execution_summary = "Extend the existing phase-card resolver and relocation tools to recognize live, global development archive, and transitional nested-archive locations in that order, with collision fail-fast and no physical move. Continue R3 -> first bounded R4 -> DOCS-MEANING-RECOVERY-RETURN0, then return to NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0. Compiler/runtime/backend edits and a tenth replacement row remain forbidden during the interlude."
+current_execution_summary = "Extend the existing phase-card resolver and relocation tools to recognize live, global development archive, and transitional nested-archive locations in that order, with collision fail-fast and no physical move. Continue R3 -> first bounded R4 -> DOCS-MEANING-RECOVERY-RETURN0, then return to NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0. The later order is general Program/result parity -> Ownership/View readiness -> Candidate A cutover. Compiler/runtime/backend edits and a tenth replacement row remain forbidden during the interlude."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"

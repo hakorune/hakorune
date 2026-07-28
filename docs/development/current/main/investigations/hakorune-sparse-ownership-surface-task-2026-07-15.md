@@ -5,7 +5,7 @@ Decision: Explicit-move/share, owner-anchored sparse ownership surface
 Source semantics SSOT: ../../../../reference/language/ownership.md
 Current lane: follow CURRENT_STATE.toml
 First code-facing ownership row when explicitly resumed: OWN-GRAM-REJECT0-HAKO0-S0
-Integration resume checkpoint: MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
+Integration resume checkpoint: NORMAL-GENERAL-PROGRAM verified owner and current-normal result parity
 Related:
   - ownership-view-missing-grammar-inventory-2026-07-28.md
   - hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md
@@ -170,23 +170,28 @@ Decision:
 Status:
   accepted scheduling
 
-current TX0 / canonical-core series:
+current general Program / normal-result series:
   remains first
 
 ownership activation:
-  begins after MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
+  begins after the verified general Program owner, atomic candidate
+  publication, and current-normal MirCompileResult parity
 
 default product promotion:
   remains separate
-  NORMAL-ENTRY-PROMOTION-D3 does not silently activate ownership
+  Candidate A / NORMAL-ENTRY-PROMOTION-D3 does not bypass ownership readiness
 ```
 
 The global order is:
 
 ```text
-NORMAL-CALLABLE-MODULE0-TX0-*
--> NORMAL-FILE-CANONICAL-CORE0-*
--> MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
+MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
+-> NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
+-> GENERAL-FUNCTION-PLAN0 family slices
+-> VerifiedNormalGeneralProgramPlanV1
+-> DraftSeal / Collector / atomic publication
+-> current-normal MirCompileResult parity
+-> Candidate A technical readiness audit
 
 -> OWNERSHIP-SPARSE-RESUME-D0
 -> OWN-GRAM-REJECT0
@@ -197,9 +202,11 @@ NORMAL-CALLABLE-MODULE0-TX0-*
 -> Anchored View
 -> OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
 
+-> Candidate A final re-evaluation
+-> Candidate A atomic normal/default ingress cutover
+
 -> NORMAL-ENTRY-PRODUCT-BACKEND-D0
--> NORMAL-DEFAULT-CALLER-CENSUS0-P0
--> NORMAL-ENTRY-PROMOTION-D3
+-> later backend/product promotion rows selected by CURRENT_STATE
 ```
 
 `OWNERSHIP-SPARSE-RESUME-D0` is a bounded readiness check, not a new source

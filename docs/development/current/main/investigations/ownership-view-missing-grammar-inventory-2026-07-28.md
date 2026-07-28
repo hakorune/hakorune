@@ -5,7 +5,7 @@ Decision: Inventory the exact accepted-but-inactive Ownership/View grammar witho
 Source semantics SSOT: ../../../../reference/language/ownership.md
 Execution taskboard: hakorune-sparse-ownership-surface-task-2026-07-15.md
 Current lane: follow ../CURRENT_STATE.toml
-Resume checkpoint: MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
+Resume checkpoint: NORMAL-GENERAL-PROGRAM verified owner and current-normal result parity
 First executable row when resumed: OWN-GRAM-REJECT0-HAKO0-S0
 ---
 

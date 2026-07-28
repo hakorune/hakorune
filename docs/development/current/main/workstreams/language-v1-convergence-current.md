@@ -291,6 +291,10 @@ FUNCTION-EXIT-F1-RETURN0-S0
   canonical-core caller, and fallback zero.
 
 -> OWNERSHIP-SPARSE-RESUME-D0
+  Resume only after `NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0`, the finite
+  function-plan families, atomic candidate publication, and current-normal
+  `MirCompileResult` parity are closed. A Candidate A technical audit may run
+  first, but the normal/default production edge must not switch yet.
   guard refresh and the bounded StaticCurrentOwner/Stage-B inventory detour
   are closed. The active row is now:
   -> OWN-GRAM-REJECT0-HAKO0-S0
@@ -305,8 +309,8 @@ FUNCTION-EXIT-F1-RETURN0-S0
   The exact Pack A-E rows are owned by
   [hakorune-sparse-ownership-surface-task-2026-07-15.md](../investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md).
   Selected Stage-B production ingress and loop-refresh remain parked.
-  Ownership does not block canonical-core completion, but product/default
-  promotion does not bypass its readiness gate.
+  Ownership does not block the verified general Program owner or result-parity
+  work, but Candidate A/default promotion does not bypass its readiness gate.
 
 -> NORMAL-ENTRY-PRODUCT-BACKEND-D0
   -> NORMAL-DEFAULT-CALLER-CENSUS0-P0

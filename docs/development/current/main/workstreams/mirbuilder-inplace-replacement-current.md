@@ -89,9 +89,11 @@ missing
 candidate/publication ownerを定義する。GeneralProgram catch-all、
 `compile_legacy_candidate`、raw AST route redecisionは禁止する。
 
-このownerとcurrent-normal `MirCompileResult` parityが閉じるまで、
-one total typed ingressのCandidate A、production edit、第十manifest rowを
-禁止する。REPL／JSON／VM keep／referenceは別authorityのまま保つ。
+このownerとcurrent-normal `MirCompileResult` parityが閉じ、さらにpark済みの
+Ownership/View readiness trainがproduct/default境界を閉じるまで、one total
+typed ingressのCandidate A、Candidate A production edit、第十manifest rowを
+禁止する。
+REPL／JSON／VM keep／referenceは別authorityのまま保つ。
 
 ## First three replacements
 
@@ -316,14 +318,36 @@ M4  reuse DraftSeal / Collector / atomic publication
 
 M5  current-normal MirCompileResult parity
 
-M6  Candidate A re-evaluation
+M6  Candidate A technical readiness audit
+    total partition / parity / failure / reuseを確認
+    この時点ではproduction callerを切り替えない
 
-M7  Candidate A atomic cutover, only if M1-M6 are green
+O1  OWNERSHIP-SPARSE-RESUME-D0
+    current compiler productsに対するprerequisite再確認
+
+O2  Ownership/View Pack A
+    inactive syntax rejection + exact evidence
+
+O3  Ownership/View Pack B
+    passive move/share/view grammar + resolved intent + Loan Flow
+
+O4  Ownership/View Packs C-E
+    Unique Box -> ScopedAlias -> callable ABI -> first Anchored View
+
+O5  OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
+    supported backendまたはpre-effect rejectionを固定
+
+M7  Candidate A final re-evaluation
+    M1-M6 + O1-O5のreceiptを一度だけ照合
+
+M8  Candidate A atomic cutover, only if M7 is green
+    selected normal/default Legacy edgeをゼロへする
 ```
 
 R5 stale-phase cohorts and R6 design/investigation retirement are later
 bounded lifecycle batches. They do not hold the compiler lane after the first
-R4 batch has passed RETURN0.
+R4 batch has passed RETURN0 and may run only at a later explicitly selected
+clean-worktree milestone. They are not an implicit prerequisite for M1-M8.
 
 During D1 through D5:
 
@@ -332,6 +356,21 @@ compiler/runtime/backend edit = 0
 tenth replacement row         = absent
 new consultation file         = 0
 ```
+
+This is the single cross-workstream execution queue. The detailed
+Ownership/View row order remains owned by:
+
+```text
+docs/development/current/main/investigations/
+  ownership-view-missing-grammar-inventory-2026-07-28.md
+
+docs/development/current/main/investigations/
+  hakorune-sparse-ownership-surface-task-2026-07-15.md
+```
+
+The language-v1 semantic backlog after M8 and the later R5/R6 documentation
+batches remain parked queues. Neither may preempt an earlier row merely
+because its task card already exists.
 
 ## Landed replacement cells
 

@@ -27,7 +27,9 @@ permission gates and do not replace reference-closure checks.
 R3, one first R4 batch, and `DOCS-MEANING-RECOVERY-RETURN0`. It then returns
 to the MirBuilder workstream at
 `NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0`; it does not jump directly to
-Candidate A.
+Candidate A. The returned MirBuilder train closes the general Program verified
+owner and current-normal result parity, then passes the parked Ownership/View
+readiness train before any default-ingress cutover.
 
 R2 authorizes only resolver/relocator support for the live, global archive,
 and transitional nested-archive locations. Physical moves begin no earlier
@@ -67,6 +69,23 @@ RETURN0:
 R5 stale-phase cohorts and R6 design/investigation retirement remain scheduled
 cleanup debt. They are not prerequisites for the first return to compiler
 work.
+
+The global queue after RETURN0 is authoritative in
+`mirbuilder-inplace-replacement-current.md`:
+
+```text
+general Program verified owner
+-> function-plan families
+-> verified aggregate / DraftSeal / atomic publication
+-> current-normal result parity
+-> Candidate A technical readiness audit
+-> Ownership/View Pack A-E + product readiness
+-> Candidate A final re-evaluation
+-> atomic default-ingress cutover
+```
+
+R5/R6 may run only at a later explicitly selected clean-worktree milestone.
+They do not silently become the current blocker when RETURN0 closes.
 
 ## Measured baseline
 
