@@ -31,6 +31,9 @@ MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
 RAW_NONPROGRAM_ROOT_DESCENT = (
     ROOT / "src/mir/builder/raw_nonprogram_root_descent.rs"
 )
+RAW_NONPROGRAM_ROOT_DESCENT_TESTS = (
+    ROOT / "src/mir/builder/raw_nonprogram_root_descent_tests.rs"
+)
 NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
 SOURCES = (
     ROOT / "src/mir/compiler/raw_public_ingress.rs",
@@ -46,7 +49,9 @@ _RUST_IGNORED = re.compile(
     r"|(?P<line>//[^\n]*)",
     re.S,
 )
-_CFG_TEST_MODULE = re.compile(r"#\[cfg\(test\)\]\s*mod\s+\w+")
+_CFG_TEST_MODULE = re.compile(
+    r"#\[cfg\(test\)\]\s*(?:#\[path\s*=\s*\"[^\"]+\"\]\s*)?mod\s+\w+"
+)
 
 
 def code_only(text: str) -> str:
@@ -90,7 +95,8 @@ def production_paths() -> list[Path]:
     for path in ROOT.glob("src/**/*.rs"):
         declared_test_modules.update(
             re.findall(
-                r"#\[cfg\(test\)\]\s*mod\s+([A-Za-z0-9_]+)\s*;",
+                r"#\[cfg\(test\)\]\s*(?:#\[path\s*=\s*\"[^\"]+\"\]\s*)?"
+                r"mod\s+([A-Za-z0-9_]+)\s*;",
                 path.read_text(),
             )
         )
@@ -164,6 +170,7 @@ def main() -> int:
             NORMAL_ROOT_LIFECYCLE,
             MODULE_LIFECYCLE,
             RAW_NONPROGRAM_ROOT_DESCENT,
+            RAW_NONPROGRAM_ROOT_DESCENT_TESTS,
             NORMAL_TESTS,
             *SOURCES,
         )
@@ -180,6 +187,7 @@ def main() -> int:
     normal_root_lifecycle = texts[NORMAL_ROOT_LIFECYCLE]
     module_lifecycle = production_code(MODULE_LIFECYCLE)
     raw_nonprogram_root_descent = production_code(RAW_NONPROGRAM_ROOT_DESCENT)
+    raw_nonprogram_root_descent_tests = texts[RAW_NONPROGRAM_ROOT_DESCENT_TESTS]
     normal_tests = texts[NORMAL_TESTS]
     current_workstream = texts[CURRENT_WORKSTREAM]
     for fragment in (
@@ -563,6 +571,26 @@ def main() -> int:
             raise AssertionError(f"raw root partition gained forbidden surface: {forbidden}")
     if re.search(r"\b_\s*=>", raw_nonprogram_root_descent):
         raise AssertionError("raw root partition must not use a wildcard AST arm")
+    require(
+        texts[RAW_NONPROGRAM_ROOT_DESCENT],
+        '#[path = "raw_nonprogram_root_descent_tests.rs"]\nmod tests;',
+        "path-bound raw root test seam",
+    )
+    if "fn port_neutral_partition_is_recursive_and_disjoint" in texts[
+        RAW_NONPROGRAM_ROOT_DESCENT
+    ]:
+        raise AssertionError("raw root partition tests must remain outside production source")
+    for fixture in (
+        "port_neutral_partition_is_recursive_and_disjoint",
+        "selected_print_root_matches_the_raw_legacy_port_exactly",
+        "selected_nowait_root_matches_raw_legacy_effects_exactly",
+        "program_box_and_loop_keep_their_existing_root_owners",
+    ):
+        require(
+            raw_nonprogram_root_descent_tests,
+            fixture,
+            f"raw root partition fixture {fixture}",
+        )
     for fixture in (
         "late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable",
         "explicit_imports_commit_only_with_the_finished_normal_candidate",

@@ -47,9 +47,10 @@ Closed:  RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0
 Closed:  RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0
-Current: RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0
+Closed:  RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0
+Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0
 Pack:    ROOT-LIFECYCLE0
-Ceremony: T1; behavior-neutral BoxShape move
+Ceremony: read-only live-edge census
 ```
 
 R1 closeout:
@@ -223,29 +224,42 @@ largest touched source/check file           = 769
 largest relevant source/check file          = 774, unchanged
 ```
 
-## Current execution row
+## Latest closeout
 
 ```text
 RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0
 
-Move:
-  raw_nonprogram_root_descent.rs inline #[cfg(test)] module
-  -> raw_nonprogram_root_descent_tests.rs
-  through one private #[path] child declaration
+production / test files              = 317 / 447 lines
+existing focused tests               = 4/4 green
+selected expression / statement      = 9 / 2 unchanged
+registered residual kinds            = 45 unchanged
+selected / compatibility terminals   = 1 / 1 unchanged
+new test-only Rust file               = 1
+production behavior / grammar delta  = 0
+shared guard / artifact inventory     = green
+fallback / retry / reselection        = 0
+```
 
-Preserve:
-  production bytes and behavior
-  test names/bodies and focused evidence
-  selected expression kinds = 9
-  selected statement roots   = 2
-  residual kinds             = 45
-  selected/compat terminals  = 1 / 1
+## Current design stop
 
-Gates / stops:
-  root-partition focused tests and shared guard unchanged green
-  artifact inventory records exactly one new test-only Rust file
-  both Rust files < 800
-  test rewrite, production edit, semantic cleanup, or next-cell mixing -> stop
+```text
+RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0
+
+Read-only:
+  census the remaining live root compatibility edges
+  rank only responsibilities with an existing production caller
+
+Selection requires:
+  one named production caller
+  one bounded existing owner or responsibility seam
+  one same-commit old compatibility-edge deletion
+  fallback / retry / reselection = 0
+
+Park:
+  implementation
+  whole-program accepted variants
+  source-level Ownership / View
+  all other new language semantics
 ```
 
 Compatibility sunset:
@@ -291,7 +305,8 @@ R2n RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2o RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0 closed
 R2p RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2q RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0 closed
-R2r RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0 current
+R2r RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0 closed
+R2s RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:
