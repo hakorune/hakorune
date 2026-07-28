@@ -43,9 +43,10 @@ Closed:  RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY1-D0
 Closed:  RAW-NONPROGRAM-NOWAIT-ROOT-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0
-Current: RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0
-Pack:    CALL-OBJECT0
-Ceremony: T1; one atomic production replacement
+Closed:  RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0
+Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0
+Pack:    selection pending
+Ceremony: design stop; production edit = 0
 ```
 
 R1 closeout:
@@ -185,38 +186,45 @@ largest touched source/check file           = 706
 largest relevant source/check file          = 774, unchanged
 ```
 
-## Current execution row
+R2n closeout:
 
 ```text
-RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0
+safe Array compatibility edge              = 0
+selected expression kinds                 = 8
+selected statement-root kinds             = 2
+registered residual kinds                 = 46
+selected / compatibility terminals        = 1 / 1
+empty/homogeneous/mixed/nested parity       = green
+focused Rust tests                          = 8/8
+fallback / retry / reselection             = 0
+Rust net delta, including focused tests     = +206
+new source/test/check/task file             = 0
+largest touched source/check file           = 745
+largest relevant source/check file          = 774, unchanged
+```
 
-Decision / boundary:
-  Candidate A; T1 / CALL-OBJECT0
-  PortNeutralExprTreeV1 += ArrayLiteral([PortNeutralExprTreeV1]*)
-  unsafe element keeps the whole enclosing tree on compatibility
-  typed-array contract/local, Map, generic-call, and result-policy delta = 0
+## Current design question
 
-Preserved production order:
-  ValueId -> NewBox(ArrayBox) -> birth
-  -> function origin/type + compilation type registry
-  -> each element once in source order -> ArrayElementWrite
-  -> final aggregate element metadata
+```text
+RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0
 
-Atomic change:
-  safe Array whole-kind compatibility edge = 0
-  selected expression kinds = 7 -> 8
-  selected statement roots   = 2 unchanged
-  registered residual kinds  = 47 -> 46
-  selected/compat terminals  = 1 / 1 unchanged
+Candidate A:
+  MapLiteral([(String key, PortNeutralExprTreeV1)]*)
+  CALL-OBJECT0
+  preserve allocation -> birth -> registry
+  -> source-order key const -> selected value -> fixed runtime set
 
-Gates / stops:
-  empty/homogeneous/mixed/nested safe Array and unsafe whole-tree partition
-  selected vs raw legacy MIR/span/type/origin/registry/metadata parity
-  Array([missing]) rollback and compiler reuse
-  per-element route mixing / fallback / retry = 0
-  owner implementation or typed-array contract delta = 0
-  new source/test/check/task file = 0
-  any file >= 800 -> stop
+Separate:
+  QMarkPropagate -> physical Return/CFG/runtime-call CONTROL0
+
+Required:
+  recursive expression constructor, not root-shape special case
+  same-commit safe residual deletion
+  whole-container route; no per-entry mixing or retry
+  root partition file remains < 800
+
+Stop:
+  production edit or automatic candidate selection
 ```
 
 Compatibility sunset:
@@ -258,7 +266,8 @@ R2j RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0 closed
 R2k RAW-NONPROGRAM-NEXT-RESPONSIBILITY1-D0 closed
 R2l RAW-NONPROGRAM-NOWAIT-ROOT-DESCENT0-I0-R0 closed
 R2m RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0 closed
-R2n RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0 current
+R2n RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0 closed
+R2o RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0 current design stop
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:

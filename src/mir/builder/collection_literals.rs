@@ -185,3 +185,153 @@ impl super::MirBuilder {
         Ok(map_id)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::ast::{ASTNode, LiteralValue, Span};
+    use crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1;
+    use crate::mir::builder::module_lowering_invocation::ModuleLoweringInvocationV1;
+    use crate::mir::builder::recursive_child_lowering::{
+        drive_legacy_expression_v1, drive_raw_legacy_expression_v1, RawInvocationChildPortV1,
+    };
+    use crate::mir::{MirBuilder, MirInstruction, MirType};
+
+    fn integer(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        }
+    }
+
+    fn boolean(value: bool) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Bool(value),
+            span: Span::unknown(),
+        }
+    }
+
+    fn array(elements: Vec<ASTNode>) -> ASTNode {
+        ASTNode::ArrayLiteral {
+            elements,
+            span: Span::unknown(),
+        }
+    }
+
+    fn nested_array() -> ASTNode {
+        array(vec![
+            array(vec![integer(1), integer(2)]),
+            array(vec![integer(3), integer(4)]),
+        ])
+    }
+
+    fn spanned_instructions(builder: &MirBuilder) -> Vec<(String, Span)> {
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("current function")
+            .blocks
+            .values()
+            .flat_map(|block| block.all_spanned_instructions())
+            .map(|instruction| (format!("{:?}", instruction.inst), instruction.span))
+            .collect()
+    }
+
+    fn array_write_count(builder: &MirBuilder) -> usize {
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("current function")
+            .blocks
+            .values()
+            .flat_map(|block| block.instructions.iter())
+            .filter(|instruction| matches!(instruction, MirInstruction::ArrayElementWrite { .. }))
+            .count()
+    }
+
+    #[test]
+    fn selected_array_port_matches_raw_legacy_state_exactly() {
+        for (root, expected_type, expected_writes) in [
+            (array(Vec::new()), MirType::Box("ArrayBox".to_owned()), 0),
+            (
+                array(vec![integer(1), integer(2)]),
+                MirType::Array(Box::new(MirType::Integer)),
+                2,
+            ),
+            (
+                array(vec![integer(1), boolean(true)]),
+                MirType::Array(Box::new(MirType::Unknown)),
+                2,
+            ),
+            (
+                nested_array(),
+                MirType::Array(Box::new(MirType::Array(Box::new(MirType::Integer)))),
+                6,
+            ),
+        ] {
+            let mut legacy = MirBuilder::new();
+            legacy.enter_function_for_test("array_port_parity/0".to_owned());
+            let legacy_value =
+                drive_raw_legacy_expression_v1(&mut legacy, root.clone()).expect("legacy Array");
+
+            let mut selected = MirBuilder::new();
+            selected.enter_function_for_test("array_port_parity/0".to_owned());
+            let selected_value = {
+                let mut invocation = ModuleLoweringInvocationV1::with_collector(
+                    &mut selected,
+                    ModuleDraftCollectorV1::default(),
+                );
+                invocation.with_module_port(|builder, module_port| {
+                    let mut port = RawInvocationChildPortV1::new(module_port);
+                    drive_legacy_expression_v1(builder, &mut port, root)
+                })
+            }
+            .expect("selected Array");
+
+            assert_eq!(selected_value, legacy_value);
+            assert_eq!(
+                spanned_instructions(&selected),
+                spanned_instructions(&legacy)
+            );
+            assert_eq!(array_write_count(&selected), expected_writes);
+            assert_eq!(array_write_count(&selected), array_write_count(&legacy));
+            assert_eq!(
+                selected
+                    .function_state
+                    .type_ctx
+                    .value_origin_newbox
+                    .get(&selected_value),
+                legacy
+                    .function_state
+                    .type_ctx
+                    .value_origin_newbox
+                    .get(&legacy_value)
+            );
+            assert_eq!(
+                selected.comp_ctx.type_registry.get_origin(selected_value),
+                legacy.comp_ctx.type_registry.get_origin(legacy_value)
+            );
+            assert_eq!(
+                selected
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .get(&selected_value),
+                Some(&expected_type)
+            );
+            assert_eq!(
+                selected
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .get(&selected_value),
+                legacy
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .get(&legacy_value)
+            );
+        }
+    }
+}

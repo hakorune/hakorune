@@ -2,7 +2,7 @@
 //!
 //! The selected invocation port is parity-safe only for expression trees whose
 //! complete recursive surface is Literal, Variable, Me, Unary, Binary, Await,
-//! or Check, plus Print and Nowait roots whose value is one such tree.
+//! Check, or Array, plus Print and Nowait roots whose value is one such tree.
 //! Every other non-Program root keeps the existing raw compatibility terminal
 //! until its own production responsibility cell removes that residual.
 
@@ -96,6 +96,13 @@ impl PreparedRawRootPartitionV1 {
                 node,
                 RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
             ),
+            node @ ASTNode::ArrayLiteral { .. } if is_port_neutral_expr_tree(&node) => {
+                Self::selected_expr_tree(node)
+            }
+            node @ ASTNode::ArrayLiteral { .. } => Self::compatibility(
+                node,
+                RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+            ),
             node @ ASTNode::Print { .. } if is_port_neutral_print_root(&node) => {
                 Self::selected_print_root(node)
             }
@@ -121,7 +128,6 @@ impl PreparedRawRootPartitionV1 {
             | ASTNode::QMarkPropagate { .. }
             | ASTNode::MatchExpr { .. }
             | ASTNode::EnumMatchExpr { .. }
-            | ASTNode::ArrayLiteral { .. }
             | ASTNode::MapLiteral { .. }
             | ASTNode::RecordLiteral { .. }
             | ASTNode::RecordUpdate { .. }
@@ -215,6 +221,7 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
         ASTNode::CheckExpr { items, .. } => items
             .iter()
             .all(|item| is_port_neutral_expr_tree(&item.expression)),
+        ASTNode::ArrayLiteral { elements, .. } => elements.iter().all(is_port_neutral_expr_tree),
         ASTNode::Program { .. }
         | ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
@@ -235,7 +242,6 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
         | ASTNode::QMarkPropagate { .. }
         | ASTNode::MatchExpr { .. }
         | ASTNode::EnumMatchExpr { .. }
-        | ASTNode::ArrayLiteral { .. }
         | ASTNode::MapLiteral { .. }
         | ASTNode::RecordLiteral { .. }
         | ASTNode::RecordUpdate { .. }
@@ -366,6 +372,13 @@ mod tests {
         }
     }
 
+    fn array(elements: Vec<ASTNode>) -> ASTNode {
+        ASTNode::ArrayLiteral {
+            elements,
+            span: Span::unknown(),
+        }
+    }
+
     fn assert_selected(node: ASTNode) {
         assert!(matches!(
             PreparedRawRootPartitionV1::classify(node),
@@ -459,6 +472,11 @@ mod tests {
             "pending",
             awaited(checked(vec![integer(12), variable("ready")])),
         ));
+        assert_selected(array(Vec::new()));
+        assert_selected(array(vec![integer(13), array(vec![integer(14)])]));
+        assert_selected(awaited(array(vec![checked(vec![integer(15)])])));
+        assert_selected_print(printed(array(vec![integer(16)])));
+        assert_selected_nowait(nowait("array_future", array(vec![integer(17)])));
 
         assert_compatibility(
             ASTNode::UnaryOp {
@@ -566,6 +584,27 @@ mod tests {
                     span: Span::unknown(),
                 },
             ),
+            RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+        );
+        assert_compatibility(
+            array(vec![
+                integer(18),
+                ASTNode::FieldAccess {
+                    object: Box::new(variable("page")),
+                    field: "value".to_owned(),
+                    span: Span::unknown(),
+                },
+            ]),
+            RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+        );
+        assert_compatibility(
+            awaited(array(vec![ASTNode::New {
+                class: "Page".to_owned(),
+                arguments: Vec::new(),
+                field_initializers: Vec::new(),
+                type_arguments: Vec::new(),
+                span: Span::unknown(),
+            }])),
             RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
         );
     }

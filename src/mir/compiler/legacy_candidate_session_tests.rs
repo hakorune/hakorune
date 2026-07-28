@@ -82,6 +82,13 @@ fn nowait(variable: &str, expression: ASTNode) -> ASTNode {
     }
 }
 
+fn array(elements: Vec<ASTNode>) -> ASTNode {
+    ASTNode::ArrayLiteral {
+        elements,
+        span: Span::unknown(),
+    }
+}
+
 fn source_file(compiler: &MirCompiler) -> Option<String> {
     compiler.builder.current_source_file()
 }
@@ -304,6 +311,9 @@ fn normal_pipeline_matches_legacy_compatibility_for_non_program_root() {
             "pending",
             awaited(checked(vec![boolean(true), boolean(false)])),
         ),
+        array(Vec::new()),
+        array(vec![literal(24), array(vec![literal(25), literal(26)])]),
+        awaited(array(vec![checked(vec![boolean(true), boolean(false)])])),
     ];
 
     for root in roots {
@@ -365,6 +375,13 @@ fn selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable() {
                 span: Span::unknown(),
             },
         ),
+        array(vec![
+            literal(24),
+            ASTNode::Variable {
+                name: "missing".to_owned(),
+                span: Span::unknown(),
+            },
+        ]),
     ] {
         let mut compiler = MirCompiler::with_options(false);
         compiler.builder.set_source_file_hint("live-before.hako");
