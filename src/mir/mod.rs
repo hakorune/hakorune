@@ -232,8 +232,9 @@ pub use basic_block::{BasicBlock, EdgeArgs};
 pub use builder::MirBuilder;
 pub use compiler::{
     CanonicalLoweringErrorV1, LegacyModuleLoweringInputV1, MirCompileResult, MirCompiler,
-    NormalCompileRequestV1, ResolvedCallableModuleLoweringInputV1, ResolvedModuleLoweringInputV1,
-    VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1,
+    NormalCompileRequestV1, NormalProgramCompileRequestErrorV1,
+    RejectedNormalProgramCompileRequestV1, ResolvedCallableModuleLoweringInputV1,
+    ResolvedModuleLoweringInputV1, VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1,
 };
 pub use hakorune_mir_core::{BasicBlockId, BindingId, LocalSlotId};
 

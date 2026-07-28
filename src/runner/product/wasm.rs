@@ -114,10 +114,16 @@ impl NyashRunner {
         let ast = self.parse_ast_for_wasm_emit(filename, &prepared.code);
 
         // Compile to MIR
+        let request =
+            match NormalCompileRequestV1::for_wasm_source(ast, Some(filename), prepared.imports) {
+                Ok(request) => request,
+                Err(rejected) => {
+                    eprintln!("❌ MIR compilation error: {}", rejected);
+                    process::exit(1);
+                }
+            };
         let mut mir_compiler = MirCompiler::new();
-        let compile_result = match mir_compiler.compile_normal(
-            NormalCompileRequestV1::for_wasm_source(ast, Some(filename), prepared.imports),
-        ) {
+        let compile_result = match mir_compiler.compile_normal(request) {
             Ok(result) => result,
             Err(e) => {
                 eprintln!("❌ MIR compilation error: {}", e);

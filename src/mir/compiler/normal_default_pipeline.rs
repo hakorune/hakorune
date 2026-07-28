@@ -8,7 +8,9 @@
 use std::{collections::HashMap, time::Instant};
 
 use crate::ast::ASTNode;
-use crate::mir::builder::{BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1};
+use crate::mir::builder::{
+    BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1, PreparedNormalDefaultProgramRootV1,
+};
 
 use super::{MirCompileResult, MirCompiler, MirFinishScheduleV1};
 
@@ -54,12 +56,55 @@ impl NormalSourceIdentityV1 {
 
 #[derive(Debug)]
 pub struct NormalCompileRequestV1 {
-    ast: ASTNode,
+    program: PreparedNormalDefaultProgramRootV1,
     source: NormalSourceIdentityV1,
     imports: HashMap<String, String>,
     admission: NormalCompileAdmissionV1,
     result_contract: CurrentNormalCompileResultContractV1,
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NormalProgramCompileRequestErrorV1 {
+    ExpectedProgramRoot,
+}
+
+impl std::fmt::Display for NormalProgramCompileRequestErrorV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::ExpectedProgramRoot => formatter.write_str(
+                "[mir/normal-program-admission] selected normal/default source must produce Program",
+            ),
+        }
+    }
+}
+
+impl std::error::Error for NormalProgramCompileRequestErrorV1 {}
+
+#[derive(Debug)]
+pub struct RejectedNormalProgramCompileRequestV1 {
+    _ast: ASTNode,
+    _source: NormalSourceIdentityV1,
+    _imports: HashMap<String, String>,
+    _admission: NormalCompileAdmissionV1,
+    _result_contract: CurrentNormalCompileResultContractV1,
+    error: NormalProgramCompileRequestErrorV1,
+}
+
+impl RejectedNormalProgramCompileRequestV1 {
+    pub fn error(&self) -> NormalProgramCompileRequestErrorV1 {
+        self.error
+    }
+
+    pub fn discard(self) {}
+}
+
+impl std::fmt::Display for RejectedNormalProgramCompileRequestV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.error.fmt(formatter)
+    }
+}
+
+impl std::error::Error for RejectedNormalProgramCompileRequestV1 {}
 
 impl NormalCompileRequestV1 {
     fn new(
@@ -67,13 +112,25 @@ impl NormalCompileRequestV1 {
         source_file: Option<&str>,
         imports: HashMap<String, String>,
         admission: NormalCompileAdmissionV1,
-    ) -> Self {
-        Self {
-            ast,
-            source: NormalSourceIdentityV1::from_hint(source_file, admission),
-            imports,
-            admission,
-            result_contract: CurrentNormalCompileResultContractV1::ReportPreTransformVerification,
+    ) -> Result<Self, RejectedNormalProgramCompileRequestV1> {
+        let source = NormalSourceIdentityV1::from_hint(source_file, admission);
+        let result_contract = CurrentNormalCompileResultContractV1::ReportPreTransformVerification;
+        match PreparedNormalDefaultProgramRootV1::seal(ast) {
+            Ok(program) => Ok(Self {
+                program,
+                source,
+                imports,
+                admission,
+                result_contract,
+            }),
+            Err(ast) => Err(RejectedNormalProgramCompileRequestV1 {
+                _ast: ast,
+                _source: source,
+                _imports: imports,
+                _admission: admission,
+                _result_contract: result_contract,
+                error: NormalProgramCompileRequestErrorV1::ExpectedProgramRoot,
+            }),
         }
     }
 
@@ -81,7 +138,7 @@ impl NormalCompileRequestV1 {
         ast: ASTNode,
         source_file: Option<&str>,
         imports: HashMap<String, String>,
-    ) -> Self {
+    ) -> Result<Self, RejectedNormalProgramCompileRequestV1> {
         Self::new(
             ast,
             source_file,
@@ -92,7 +149,10 @@ impl NormalCompileRequestV1 {
         )
     }
 
-    pub fn for_minimal_mir_json(ast: ASTNode, source_file: Option<&str>) -> Self {
+    pub fn for_minimal_mir_json(
+        ast: ASTNode,
+        source_file: Option<&str>,
+    ) -> Result<Self, RejectedNormalProgramCompileRequestV1> {
         Self::new(
             ast,
             source_file,
@@ -105,7 +165,7 @@ impl NormalCompileRequestV1 {
         ast: ASTNode,
         source_file: Option<&str>,
         imports: HashMap<String, String>,
-    ) -> Self {
+    ) -> Result<Self, RejectedNormalProgramCompileRequestV1> {
         Self::new(
             ast,
             source_file,
@@ -120,7 +180,7 @@ impl NormalCompileRequestV1 {
         ast: ASTNode,
         source_file: Option<&str>,
         imports: HashMap<String, String>,
-    ) -> Self {
+    ) -> Result<Self, RejectedNormalProgramCompileRequestV1> {
         Self::new(
             ast,
             source_file,
@@ -134,14 +194,14 @@ impl NormalCompileRequestV1 {
     fn into_parts(
         self,
     ) -> (
-        ASTNode,
+        PreparedNormalDefaultProgramRootV1,
         NormalSourceIdentityV1,
         HashMap<String, String>,
         NormalCompileAdmissionV1,
         CurrentNormalCompileResultContractV1,
     ) {
         (
-            self.ast,
+            self.program,
             self.source,
             self.imports,
             self.admission,
@@ -157,7 +217,7 @@ impl NormalDefaultPublishedPipelineV1 {
         compiler: &mut MirCompiler,
         request: NormalCompileRequestV1,
     ) -> Result<MirCompileResult, String> {
-        let (ast, source, imports, _admission, result_contract) = request.into_parts();
+        let (program, source, imports, _admission, result_contract) = request.into_parts();
         let token = compiler
             .invocation_identity
             .issue_raw()
@@ -172,7 +232,7 @@ impl NormalDefaultPublishedPipelineV1 {
 
         let stage_start = Instant::now();
         let completed = session
-            .complete_normal_default_root_catalog_lifecycle(ast)
+            .complete_normal_default_program_root_catalog_lifecycle(program)
             .map_err(|rejected| {
                 let message = rejected.error().to_string();
                 rejected.discard();
@@ -199,5 +259,68 @@ impl MirCompiler {
         request: NormalCompileRequestV1,
     ) -> Result<MirCompileResult, String> {
         NormalDefaultPublishedPipelineV1::compile(self, request)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::{LiteralValue, Span};
+
+    fn program() -> ASTNode {
+        ASTNode::Program {
+            statements: Vec::new(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn non_program() -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(1),
+            span: Span::unknown(),
+        }
+    }
+
+    #[test]
+    fn all_normal_source_constructors_share_one_program_admission() {
+        let imports = HashMap::from([("Alias".to_owned(), "Target".to_owned())]);
+        assert!(
+            NormalCompileRequestV1::for_mir_mode(program(), Some("mir.hako"), imports.clone(),)
+                .is_ok()
+        );
+        assert!(
+            NormalCompileRequestV1::for_minimal_mir_json(program(), Some("minimal.hako")).is_ok()
+        );
+        assert!(NormalCompileRequestV1::for_llvm_source(
+            program(),
+            Some("llvm.hako"),
+            imports.clone(),
+        )
+        .is_ok());
+        assert!(
+            NormalCompileRequestV1::for_wasm_source(program(), Some("wasm.hako"), imports).is_ok()
+        );
+
+        for rejected in [
+            NormalCompileRequestV1::for_mir_mode(non_program(), Some("mir.hako"), HashMap::new()),
+            NormalCompileRequestV1::for_minimal_mir_json(non_program(), Some("minimal.hako")),
+            NormalCompileRequestV1::for_llvm_source(
+                non_program(),
+                Some("llvm.hako"),
+                HashMap::new(),
+            ),
+            NormalCompileRequestV1::for_wasm_source(
+                non_program(),
+                Some("wasm.hako"),
+                HashMap::new(),
+            ),
+        ] {
+            let rejected = rejected.expect_err("non-Program root must reject at request admission");
+            assert_eq!(
+                rejected.error(),
+                NormalProgramCompileRequestErrorV1::ExpectedProgramRoot
+            );
+            rejected.discard();
+        }
     }
 }

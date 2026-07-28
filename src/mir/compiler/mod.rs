@@ -211,7 +211,10 @@ pub use lowering_input::{
 };
 use lowering_input::{MirLoweringRequestErrorV1, MirLoweringRequestV1};
 use module_session::CanonicalModuleLoweringSessionV1;
-pub use normal_default_pipeline::NormalCompileRequestV1;
+pub use normal_default_pipeline::{
+    NormalCompileRequestV1, NormalProgramCompileRequestErrorV1,
+    RejectedNormalProgramCompileRequestV1,
+};
 use raw_source_binding::{
     RawCallableMainSelectionV1, RawIngressRequestV1, RejectedRawSourceBindingV1,
     SourceBoundRawPackageV1,

@@ -207,7 +207,7 @@ if rg -n 'ExistingGeneralModuleCompatibilityV1|\.build_module\(|session\.builder
   "$NORMAL_PIPELINE" >/dev/null; then
   guard_fail "$TAG" "selected normal compatibility owner or direct Builder edge returned"
 fi
-if [[ "$(rg -o 'complete_normal_default_root_catalog_lifecycle\(' "$NORMAL_PIPELINE" | wc -l | tr -d '[:space:]')" != "1" ]]; then
+if [[ "$(rg -o 'complete_normal_default_program_root_catalog_lifecycle\(' "$NORMAL_PIPELINE" | wc -l | tr -d '[:space:]')" != "1" ]]; then
   guard_fail "$TAG" "selected normal lifecycle caller must be exactly one"
 fi
 if [[ "$candidate_row_count" != "1" ]]; then

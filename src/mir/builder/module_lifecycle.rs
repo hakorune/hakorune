@@ -44,7 +44,6 @@
 //! 4. **PHI resolver order固定**: A → B → P3-D → P4 → P3-C
 //!
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
-use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
 use super::module_draft_collector::ModuleDraftCollectorV1;
 use super::module_lowering_invocation::ModuleLoweringPortV1;
 use super::recursive_child_lowering::{
@@ -53,7 +52,7 @@ use super::recursive_child_lowering::{
 };
 use super::{
     BasicBlockId, CanonicalSameModuleCallableKeyV1, EffectMask, FunctionSignature, MirInstruction,
-    MirModule, MirType, SameModuleCallableNamespaceV1, ValueId,
+    MirModule, MirType, ValueId,
 };
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::config;
@@ -61,7 +60,6 @@ use crate::mir::builder::preloop_stageb_context_install::InstalledPreloopStageBC
 use crate::mir::preloop_stageb_candidate_shell::{
     PreloopStageBCandidateShellReadinessErrorV1, VerifiedPreloopStageBCandidateShellReadinessV1,
 };
-use hakorune_mir_builder::BoxCompilationContext;
 
 // Phase 29bq+: Declaration indexing extracted to dedicated module
 use super::declaration_indexer;
@@ -286,245 +284,26 @@ impl super::MirBuilder {
     where
         Port: RootCallableCapturePortV1,
     {
-        // Phase A: collect the remaining non-callable declaration facts.
-        declaration_indexer::index_declarations(self, snapshot);
-        if let Some(module) = self.current_module.as_mut() {
-            let specs = crate::mir::static_data_plan::collect_static_table_specs_from_ast(
-                &module.name,
-                snapshot,
-            )?;
-            let plans = crate::mir::static_data_plan::static_data_plans_from_specs(&specs);
-            module.metadata.static_table_contract_specs = specs;
-            module.metadata.static_data_plans = plans;
-        }
-
-        // Decide root mode (App vs Script) once per module based on presence of static box Main.main
-        // true  => App mode (Main.main is entry)
-        // false => Script/Test mode (top-level Program runs sequentially)
-        let is_app_mode = self
-            .root_is_app_mode
-            .unwrap_or_else(|| declaration_indexer::has_main_static(snapshot));
-        self.root_is_app_mode = Some(is_app_mode);
-
         use super::raw_nonprogram_root_descent::PreparedRawRootPartitionV1 as RootPartition;
         match RootPartition::classify(ast) {
             RootPartition::Program { statements } => {
-                use crate::ast::ASTNode as N;
-                // Lower instance declarations before static methods so birth-call
-                // injection can see already-lowered `Box.birth/N` functions.
-                let mut main_static: Option<(String, std::collections::HashMap<String, ASTNode>)> =
-                    None;
-                let mut deferred_static_boxes: Vec<(
-                    String,
-                    std::collections::HashMap<String, ASTNode>,
-                )> = Vec::new();
-                for st in &statements {
-                    if let N::BoxDeclaration {
-                        name,
-                        methods,
-                        is_static,
-                        fields,
-                        field_decls,
-                        constructors,
-                        init_fields,
-                        weak_fields,
-                        ..
-                    } = st
-                    {
-                        if *is_static {
-                            if name == "Main" {
-                                main_static = Some((name.clone(), methods.clone()));
-                            } else {
-                                // Script/Test モードでは static box の lowering は exprs.rs 側に任せる
-                                if is_app_mode {
-                                    deferred_static_boxes.push((name.clone(), methods.clone()));
-                                }
-                            }
-                        } else {
-                            // Instance box: register type and lower instance methods/ctors as functions
-                            // Phase 285LLVM-1.1: Register with field information for LLVM harness
-                            self.comp_ctx.register_user_box_declared_fields(
-                                name.clone(),
-                                fields,
-                                field_decls,
-                                init_fields,
-                                weak_fields,
-                            );
-                            self.build_box_declaration(
-                                name.clone(),
-                                methods.clone(),
-                                fields.clone(),
-                                weak_fields.clone(),
-                            )?;
-                            for (ctor_key, ctor_ast) in sorted_constructor_entries(constructors) {
-                                if let N::FunctionDeclaration {
-                                    params,
-                                    param_decls,
-                                    return_type_name,
-                                    body,
-                                    uses,
-                                    attrs,
-                                    ..
-                                } = ctor_ast
-                                {
-                                    // Keep constructor function name as "Box.birth/N" where ctor_key already encodes arity.
-                                    // ctor_key format comes from parser as "birth/<arity>".
-                                    let func_name = format!("{}.{}", name, ctor_key);
-                                    callables.lower_instance_box_method(
-                                        self,
-                                        func_name,
-                                        name.clone(),
-                                        params.clone(),
-                                        param_decls.clone(),
-                                        return_type_name.clone(),
-                                        body.clone(),
-                                        uses.clone(),
-                                        attrs.clone(),
-                                    )?;
-                                }
-                            }
-                            for (mname, mast) in sorted_method_entries(methods) {
-                                if let N::FunctionDeclaration {
-                                    params,
-                                    param_decls,
-                                    return_type_name,
-                                    body,
-                                    is_static,
-                                    uses,
-                                    attrs,
-                                    ..
-                                } = mast
-                                {
-                                    if !*is_static {
-                                        let canonical_key = self
-                                            .comp_ctx
-                                            .callable_declaration_catalog()
-                                            .map_err(|error| error.to_string())?
-                                            .declaration_for(
-                                                SameModuleCallableNamespaceV1::InstanceBoxMethod,
-                                                name,
-                                                mname,
-                                                params.len(),
-                                            )
-                                            .ok_or_else(|| {
-                                                format!(
-                                                    "[freeze:contract][mir/instance-capture/catalog] \
-                                                     missing exact declaration for {name}.{mname}/{}",
-                                                    params.len()
-                                                )
-                                            })?
-                                            .key()
-                                            .clone();
-                                        let func_name = format!(
-                                            "{}.{}{}",
-                                            name,
-                                            mname,
-                                            format!("/{}", params.len())
-                                        );
-                                        callables.lower_root_instance_method(
-                                            self,
-                                            canonical_key,
-                                            name.clone(),
-                                            mname.to_owned(),
-                                            func_name,
-                                            params.clone(),
-                                            param_decls.clone(),
-                                            return_type_name.clone(),
-                                            body.clone(),
-                                            uses.clone(),
-                                            attrs.clone(),
-                                        )?;
-                                    }
-                                }
-                            }
-                        }
-                    } else if let N::FunctionDeclaration {
-                        name,
-                        params,
-                        param_decls,
-                        return_type_name,
-                        body,
-                        uses,
-                        attrs,
-                        ..
-                    } = st
-                    {
-                        let func_name = format!("{}/{}", name, params.len());
-                        callables.lower_static_box_method(
-                            self,
-                            func_name,
-                            params.clone(),
-                            param_decls.clone(),
-                            return_type_name.clone(),
-                            body.clone(),
-                            uses.clone(),
-                            attrs.clone(),
-                        )?;
-                    }
-                }
-                let runtime_statements: Vec<N> = statements
-                    .into_iter()
-                    .filter(|st| !matches!(st, N::FunctionDeclaration { .. }))
-                    .collect();
-                for (name, methods) in deferred_static_boxes {
-                    // Dev: trace which static box is being lowered (env-gated)
-                    self.trace_compile(format!("lower static box {}", name));
-                    // 🎯 箱理論: 各static boxに専用のコンパイルコンテキストを作成
-                    // これにより、using文や前のboxからのメタデータ汚染を構造的に防止
-                    // スコープを抜けると自動的にコンテキストが破棄される
-                    {
-                        let ctx = BoxCompilationContext::new();
-                        self.comp_ctx.compilation_context = Some(ctx);
-
-                        // Lower all static methods into standalone functions: BoxName.method/Arity
-                        for (mname, mast) in sorted_method_entries(&methods) {
-                            if let N::FunctionDeclaration {
-                                params,
-                                param_decls,
-                                return_type_name,
-                                body,
-                                uses,
-                                attrs,
-                                ..
-                            } = mast
-                            {
-                                let func_name =
-                                    format!("{}.{}{}", name, mname, format!("/{}", params.len()));
-                                callables.lower_static_box_method(
-                                    self,
-                                    func_name,
-                                    params.clone(),
-                                    param_decls.clone(),
-                                    return_type_name.clone(),
-                                    body.clone(),
-                                    uses.clone(),
-                                    attrs.clone(),
-                                )?;
-                            }
-                        }
-                    }
-
-                    // 🎯 箱理論: コンテキストをクリア（スコープ終了で自動破棄）
-                    // これにより、次のstatic boxは汚染されていない状態から開始される
-                    self.comp_ctx.compilation_context = None;
-                }
-
-                // Second pass: mode-dependent entry lowering
-                if is_app_mode {
-                    // App モード: Main.main をエントリとして扱う
-                    if let Some((box_name, methods)) = main_static {
-                        self.build_static_main_box_with_port_v1(callables, box_name, methods)
-                            .map_err(|error| error.to_string())
-                    } else {
-                        // 理論上は起こりにくいが、安全のため Script モードと同じ lowering にする
-                        callables.lower_body(self, runtime_statements)
-                    }
-                } else {
-                    // Script/Test モード: トップレベル Program をそのまま順次実行
-                    callables.lower_body(self, runtime_statements)
-                }
+                self.lower_program_root_with_callable_port_v1(statements, snapshot, callables)
             }
             RootPartition::NonProgram(root) => {
+                declaration_indexer::index_declarations(self, snapshot);
+                if let Some(module) = self.current_module.as_mut() {
+                    let specs = crate::mir::static_data_plan::collect_static_table_specs_from_ast(
+                        &module.name,
+                        snapshot,
+                    )?;
+                    let plans = crate::mir::static_data_plan::static_data_plans_from_specs(&specs);
+                    module.metadata.static_table_contract_specs = specs;
+                    module.metadata.static_data_plans = plans;
+                }
+                let is_app_mode = self
+                    .root_is_app_mode
+                    .unwrap_or_else(|| declaration_indexer::has_main_static(snapshot));
+                self.root_is_app_mode = Some(is_app_mode);
                 super::raw_nonprogram_root_descent::lower_raw_nonprogram_root_with_port_v1(
                     self, callables, root,
                 )

@@ -24,16 +24,11 @@ CURRENT_WORKSTREAM = ROOT / (
     "mirbuilder-inplace-replacement-current.md"
 )
 NORMAL_PIPELINE = ROOT / "src/mir/compiler/normal_default_pipeline.rs"
-NORMAL_ROOT_LIFECYCLE = (
-    ROOT / "src/mir/builder/normal_default_root_catalog_lifecycle.rs"
-)
+NORMAL_ROOT_LIFECYCLE = ROOT / "src/mir/builder/normal_default_root_catalog_lifecycle.rs"
+PROGRAM_ROOT_LOWERING = ROOT / "src/mir/builder/program_root_lowering.rs"
 MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
-RAW_NONPROGRAM_ROOT_DESCENT = (
-    ROOT / "src/mir/builder/raw_nonprogram_root_descent.rs"
-)
-RAW_NONPROGRAM_ROOT_DESCENT_TESTS = (
-    ROOT / "src/mir/builder/raw_nonprogram_root_descent_tests.rs"
-)
+RAW_NONPROGRAM_ROOT_DESCENT = ROOT / "src/mir/builder/raw_nonprogram_root_descent.rs"
+RAW_NONPROGRAM_ROOT_DESCENT_TESTS = ROOT / "src/mir/builder/raw_nonprogram_root_descent_tests.rs"
 RAW_NONPROGRAM_ROOT_DESCENT_PARITY_TESTS = (
     ROOT / "src/mir/builder/raw_nonprogram_root_descent_tests/parity.rs"
 )
@@ -171,6 +166,7 @@ def main() -> int:
             CURRENT_WORKSTREAM,
             NORMAL_PIPELINE,
             NORMAL_ROOT_LIFECYCLE,
+            PROGRAM_ROOT_LOWERING,
             MODULE_LIFECYCLE,
             RAW_NONPROGRAM_ROOT_DESCENT,
             RAW_NONPROGRAM_ROOT_DESCENT_TESTS,
@@ -189,6 +185,7 @@ def main() -> int:
     compile_kernel = texts[SOURCES[3]]
     normal_pipeline = texts[NORMAL_PIPELINE]
     normal_root_lifecycle = texts[NORMAL_ROOT_LIFECYCLE]
+    program_root_lowering = production_code(PROGRAM_ROOT_LOWERING)
     module_lifecycle = production_code(MODULE_LIFECYCLE)
     raw_nonprogram_root_descent = production_code(RAW_NONPROGRAM_ROOT_DESCENT)
     raw_nonprogram_root_descent_tests = texts[RAW_NONPROGRAM_ROOT_DESCENT_TESTS]
@@ -321,8 +318,11 @@ def main() -> int:
         "pub fn for_minimal_mir_json",
         "pub fn for_llvm_source",
         "pub fn for_wasm_source",
+        "pub struct RejectedNormalProgramCompileRequestV1",
+        "PreparedNormalDefaultProgramRootV1::seal(ast)",
+        "program: PreparedNormalDefaultProgramRootV1",
         "struct NormalDefaultPublishedPipelineV1",
-        "complete_normal_default_root_catalog_lifecycle",
+        "complete_normal_default_program_root_catalog_lifecycle",
         "prepare_external_commit",
         "finish_built_module",
     ):
@@ -358,29 +358,38 @@ def main() -> int:
         "FinalizeModule",
         "VerifiedRawRootExpansionV1::from_program",
         "prepare_module()",
-        "VerifiedSameModuleCallableDeclarationCatalogV1::seal_root",
-        "install_callable_declaration_catalog",
-        "lower_root_after_callable_catalog_install_v1",
+        "lower_normal_default_program_root_catalog_v1(&source)",
         "finalize_module",
     ):
         require(normal_root_lifecycle, fragment, f"normal lifecycle contract {fragment}")
-    anchors = (
+    lifecycle_anchors = (
         "VerifiedRawRootExpansionV1::from_program",
         "prepare_module()",
-        "source.ast.clone()",
-        "VerifiedSameModuleCallableDeclarationCatalogV1::seal_root",
-        "install_callable_declaration_catalog",
-        "lower_root_after_callable_catalog_install_v1",
+        "lower_normal_default_program_root_catalog_v1(&source)",
         "finalize_module",
     )
-    positions = [normal_root_lifecycle.index(anchor) for anchor in anchors]
-    if positions != sorted(positions):
-        raise AssertionError("normal root/catalog lifecycle ordering drift")
-    if normal_root_lifecycle.count("source.ast.clone()") != 1:
-        raise AssertionError("normal root/catalog lifecycle root clone drift")
+    kernel_anchors = (
+        "source.clone_lowering_statements()",
+        "VerifiedSameModuleCallableDeclarationCatalogV1::seal_root",
+        "install_callable_declaration_catalog",
+        "lower_program_root_after_catalog_install_v1",
+    )
+    ordered_contracts = ((normal_root_lifecycle, lifecycle_anchors), (program_root_lowering, kernel_anchors))
+    for text, anchors in ordered_contracts:
+        positions = [text.index(anchor) for anchor in anchors]
+        if positions != sorted(positions):
+            raise AssertionError("normal root/catalog lifecycle ordering drift")
+    if program_root_lowering.count("source.clone_lowering_statements()") != 1:
+        raise AssertionError("normal Program kernel root clone drift")
+    if normal_root_lifecycle.count("self.ast.clone()") != 1:
+        raise AssertionError("normal Program source root clone implementation drift")
     for forbidden in (
         "build_module(",
         "compile_legacy",
+        "NormalDefaultRootPartitionV1",
+        "NonProgramCompatibility",
+        "PreparedRawRootPartitionV1",
+        "complete_normal_default_root_catalog_lifecycle",
         "OwnedRawSourceV1",
         "InstalledPreloopStageBContextV1",
         "retry(",
@@ -389,6 +398,44 @@ def main() -> int:
     ):
         if forbidden in code_only(normal_root_lifecycle):
             raise AssertionError(f"normal lifecycle gained forbidden authority: {forbidden}")
+    admission = caller_manifest.get("normal_default_program_root_admission", {})
+    if ROOT / admission.get("program_kernel_file", "") != PROGRAM_ROOT_LOWERING:
+        raise AssertionError("normal Program root kernel path drift")
+    issuer = admission.get("request_issuer_anchor", "")
+    if normal_pipeline.count(issuer) != admission.get("request_issuer_calls"):
+        raise AssertionError("normal Program admission issuer drift")
+    selected_call = "lower_normal_default_program_root_catalog_v1(&source)"
+    if normal_root_lifecycle.count(selected_call) != admission.get("selected_lifecycle_calls"):
+        raise AssertionError("selected Program lifecycle caller drift")
+    if normal_root_lifecycle.count("PreparedRawRootPartitionV1") != admission.get(
+        "selected_generic_partition_calls"
+    ):
+        raise AssertionError("selected normal generic partition drift")
+    for sunset in (
+        admission.get("mircompiler_compat_sunset", ""),
+        admission.get("runtime_ast_json_compat_sunset", ""),
+    ):
+        require(current_workstream, sunset, "arbitrary-AST compatibility sunset")
+    require(
+        program_root_lowering,
+        "lower_normal_default_program_root_catalog_v1",
+        "selected Program-only root kernel",
+    )
+    require(
+        program_root_lowering,
+        "lower_program_root_with_callable_port_v1",
+        "shared generic Program kernel",
+    )
+    if module_lifecycle.count("lower_program_root_with_callable_port_v1") != admission.get(
+        "generic_program_branch_calls"
+    ):
+        raise AssertionError("generic Program branch reuse drift")
+    if "ast: ASTNode" in text_between(
+        normal_pipeline,
+        "pub struct NormalCompileRequestV1",
+        "pub enum NormalProgramCompileRequestErrorV1",
+    ):
+        raise AssertionError("normal request regained bare AST authority")
     root_descent = caller_manifest.get("raw_nonprogram_root_descent", {})
     if (
         ROOT / root_descent.get("definition_file", "")
@@ -698,11 +745,11 @@ def main() -> int:
         "late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable",
         "explicit_imports_commit_only_with_the_finished_normal_candidate",
         "normal_pipeline_matches_legacy_compatibility_for_general_module",
-        "normal_pipeline_matches_legacy_compatibility_for_non_program_root",
-        "selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable",
-        "selected_local_root_failure_matches_legacy_and_reuses",
-        "selected_grouped_assignment_failure_matches_legacy_and_reuses",
-        "selected_index_failure_matches_legacy_and_reuses",
+        "normal_program_admission_rejects_legacy_compatible_non_program_roots",
+        "rejected_nonprogram_admission_leaves_live_builder_unchanged_and_reusable",
+        "local_root_remains_explicit_legacy_compatibility_only",
+        "grouped_assignment_root_remains_explicit_legacy_compatibility_only",
+        "index_root_remains_explicit_legacy_compatibility_only",
     ):
         require(normal_tests, fixture, f"normal pipeline fixture {fixture}")
     count_by_manifest(caller_manifest.get("normal_compile_adapters", {}), ".compile(")

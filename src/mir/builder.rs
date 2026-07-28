@@ -232,9 +232,11 @@ pub(in crate::mir) use module_invocation_session::{
 #[cfg(test)]
 mod module_invocation_session_p0; // CUT0-I0-SESSION0 fixtures
 mod normal_default_root_catalog_lifecycle; // Selected normal root/catalog lifecycle
+mod program_root_lowering; // Shared typed/generic Program root owner
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::{
     CompletedNormalDefaultRootCatalogLifecycleV1, NormalDefaultRootCatalogLifecycleErrorV1,
-    NormalDefaultRootCatalogLifecycleStageV1, RejectedNormalDefaultRootCatalogLifecycleV1,
+    NormalDefaultRootCatalogLifecycleStageV1, PreparedNormalDefaultProgramRootV1,
+    RejectedNormalDefaultRootCatalogLifecycleV1,
 };
 #[allow(dead_code)]
 mod module_lowering_access_port; // HEADERPORT0 I0-ACCESS0-S0 disconnected vocabulary

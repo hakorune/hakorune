@@ -5,7 +5,6 @@
 
 use crate::ast::ASTNode;
 
-use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::{MirModule, ModuleBuilderInvocationSessionV1};
 
@@ -61,48 +60,36 @@ impl std::fmt::Display for NormalDefaultRootCatalogLifecycleErrorV1 {
 
 impl std::error::Error for NormalDefaultRootCatalogLifecycleErrorV1 {}
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum NormalDefaultRootPartitionV1 {
-    Program,
-    NonProgramCompatibility,
+#[derive(Debug)]
+pub(in crate::mir) struct PreparedNormalDefaultProgramRootV1 {
+    ast: ASTNode,
+    _seal: PreparedNormalDefaultProgramRootSealV1,
 }
 
 #[derive(Debug)]
-struct PreparedNormalDefaultRootSourceV1 {
-    ast: ASTNode,
-    _partition: NormalDefaultRootPartitionV1,
-}
+struct PreparedNormalDefaultProgramRootSealV1;
 
-impl PreparedNormalDefaultRootSourceV1 {
-    fn seal(ast: ASTNode) -> Result<Self, (ASTNode, NormalDefaultRootCatalogLifecycleErrorV1)> {
-        let partition = if matches!(ast, ASTNode::Program { .. }) {
-            if let Err(error) = VerifiedRawRootExpansionV1::from_program(&ast) {
-                return Err((
-                    ast,
-                    NormalDefaultRootCatalogLifecycleErrorV1::RootExpansion(
-                        format!("[mir/main-expansion/preflight] {error:?}").into(),
-                    ),
-                ));
-            }
-            NormalDefaultRootPartitionV1::Program
-        } else {
-            NormalDefaultRootPartitionV1::NonProgramCompatibility
-        };
+impl PreparedNormalDefaultProgramRootV1 {
+    pub(in crate::mir) fn seal(ast: ASTNode) -> Result<Self, ASTNode> {
+        if !matches!(ast, ASTNode::Program { .. }) {
+            return Err(ast);
+        }
         Ok(Self {
             ast,
-            _partition: partition,
+            _seal: PreparedNormalDefaultProgramRootSealV1,
         })
     }
-}
 
-#[derive(Debug)]
-enum RetainedNormalDefaultRootSourceV1 {
-    BeforeExpansion {
-        _ast: ASTNode,
-    },
-    Prepared {
-        _source: PreparedNormalDefaultRootSourceV1,
-    },
+    pub(super) fn source_ast(&self) -> &ASTNode {
+        &self.ast
+    }
+
+    pub(super) fn clone_lowering_statements(&self) -> Vec<ASTNode> {
+        match self.ast.clone() {
+            ASTNode::Program { statements, .. } => statements,
+            _ => unreachable!("sealed normal/default root must remain Program"),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -120,7 +107,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
 #[derive(Debug)]
 pub(in crate::mir) struct RejectedNormalDefaultRootCatalogLifecycleV1 {
     session: ModuleBuilderInvocationSessionV1,
-    _source: RetainedNormalDefaultRootSourceV1,
+    _source: PreparedNormalDefaultProgramRootV1,
     error: NormalDefaultRootCatalogLifecycleErrorV1,
 }
 
@@ -137,53 +124,26 @@ impl RejectedNormalDefaultRootCatalogLifecycleV1 {
 }
 
 impl ModuleBuilderInvocationSessionV1 {
-    pub(in crate::mir) fn complete_normal_default_root_catalog_lifecycle(
+    pub(in crate::mir) fn complete_normal_default_program_root_catalog_lifecycle(
         mut self,
-        ast: ASTNode,
+        source: PreparedNormalDefaultProgramRootV1,
     ) -> Result<
         CompletedNormalDefaultRootCatalogLifecycleV1,
         RejectedNormalDefaultRootCatalogLifecycleV1,
     > {
-        let source = match PreparedNormalDefaultRootSourceV1::seal(ast) {
-            Ok(source) => source,
-            Err((ast, error)) => {
-                return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
-                    session: self,
-                    _source: RetainedNormalDefaultRootSourceV1::BeforeExpansion { _ast: ast },
-                    error,
-                });
-            }
-        };
-
         let result = {
             let builder = self.builder_mut();
             (|| {
+                VerifiedRawRootExpansionV1::from_program(source.source_ast()).map_err(|error| {
+                    NormalDefaultRootCatalogLifecycleErrorV1::RootExpansion(
+                        format!("[mir/main-expansion/preflight] {error:?}").into(),
+                    )
+                })?;
                 builder.prepare_module().map_err(|error| {
                     NormalDefaultRootCatalogLifecycleErrorV1::PrepareModule(error.into())
                 })?;
 
-                let lowering_ast = source.ast.clone();
-                let catalog =
-                    VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&source.ast)
-                        .map_err(|error| {
-                            NormalDefaultRootCatalogLifecycleErrorV1::CatalogSeal(
-                                format!("[mir/callable-catalog/seal] {error:?}").into(),
-                            )
-                        })?;
-                builder
-                    .comp_ctx
-                    .install_callable_declaration_catalog(catalog)
-                    .map_err(|error| {
-                        NormalDefaultRootCatalogLifecycleErrorV1::CatalogInstall(
-                            error.to_string().into(),
-                        )
-                    })?;
-
-                let result_value = builder
-                    .lower_root_after_callable_catalog_install_v1(lowering_ast, &source.ast)
-                    .map_err(|error| {
-                        NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into())
-                    })?;
+                let result_value = builder.lower_normal_default_program_root_catalog_v1(&source)?;
                 builder.finalize_module(result_value).map_err(|error| {
                     NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into())
                 })
@@ -197,7 +157,7 @@ impl ModuleBuilderInvocationSessionV1 {
             }),
             Err(error) => Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
                 session: self,
-                _source: RetainedNormalDefaultRootSourceV1::Prepared { _source: source },
+                _source: source,
                 error,
             }),
         }
@@ -206,14 +166,11 @@ impl ModuleBuilderInvocationSessionV1 {
 
 #[cfg(test)]
 mod tests {
-    use crate::ast::{ASTNode, Span};
     use crate::mir::builder::{
         BuilderInvocationConfigV1, MirBuilder, ModuleBuilderInvocationSessionV1,
-        NormalDefaultRootCatalogLifecycleStageV1,
+        NormalDefaultRootCatalogLifecycleStageV1, PreparedNormalDefaultProgramRootV1,
     };
     use crate::parser::NyashParser;
-
-    use super::RetainedNormalDefaultRootSourceV1;
 
     fn session() -> ModuleBuilderInvocationSessionV1 {
         let current = MirBuilder::new();
@@ -230,8 +187,9 @@ mod tests {
             "#,
         )
         .expect("duplicate Main source");
+        let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
         let rejected = session()
-            .complete_normal_default_root_catalog_lifecycle(source)
+            .complete_normal_default_program_root_catalog_lifecycle(source)
             .expect_err("duplicate Main must reject before prepare");
 
         assert_eq!(
@@ -240,8 +198,8 @@ mod tests {
         );
         assert!(rejected.session.builder().current_module.is_none());
         assert!(matches!(
-            rejected._source,
-            RetainedNormalDefaultRootSourceV1::BeforeExpansion { .. }
+            rejected._source.ast,
+            crate::ast::ASTNode::Program { .. }
         ));
     }
 
@@ -254,8 +212,9 @@ mod tests {
             "#,
         )
         .expect("duplicate Box source");
+        let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
         let rejected = session()
-            .complete_normal_default_root_catalog_lifecycle(source)
+            .complete_normal_default_program_root_catalog_lifecycle(source)
             .expect_err("duplicate Box owner must reject during catalog seal");
 
         assert_eq!(
@@ -264,29 +223,8 @@ mod tests {
         );
         assert!(rejected.session.builder().current_module.is_some());
         assert!(matches!(
-            rejected._source,
-            RetainedNormalDefaultRootSourceV1::Prepared { .. }
-        ));
-    }
-
-    #[test]
-    fn non_program_root_lower_failure_is_typed_and_retained() {
-        let source = ASTNode::Variable {
-            name: "missing".to_owned(),
-            span: Span::unknown(),
-        };
-        let rejected = session()
-            .complete_normal_default_root_catalog_lifecycle(source)
-            .expect_err("undefined non-Program root must reject during lowering");
-
-        assert_eq!(
-            rejected.stage(),
-            NormalDefaultRootCatalogLifecycleStageV1::RootLower
-        );
-        assert!(rejected.error().to_string().contains("Undefined variable"));
-        assert!(matches!(
-            rejected._source,
-            RetainedNormalDefaultRootSourceV1::Prepared { .. }
+            rejected._source.ast,
+            crate::ast::ASTNode::Program { .. }
         ));
     }
 }

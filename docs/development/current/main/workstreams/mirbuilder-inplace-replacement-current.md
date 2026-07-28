@@ -395,44 +395,58 @@ new source/test/check/task file             = 0
 all source/check files                      < 800
 ```
 
-## Current execution
+## Closed execution
 
 `NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0` — T2, parent
 `NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0`.
 
 ```text
+result:
+  four selected normal constructors -> one opaque Program admission
+  -> one session-owned Program root/catalog kernel
+  selected bare-AST/non-Program/generic-root admission = 0
+  fallback / retry / reselection = 0
+
+evidence:
+  root/catalog lifecycle 2/2; constructor admission 1/1; normal candidate 8/8
+  generic Program parity 1/1; raw non-Program partition 12/12
+  shared guards, pointer guard, diff check, release build = green
+
+structure:
+  module_lifecycle.rs 796 -> 575
+  program_root_lowering.rs = 286
+  shared guard = 798
+  new source/test/check files = 1/0/0
+  every touched source/check file < 800
+```
+
+## Current execution
+
+`MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0` — T0 conformance census,
+replacement credit 0.
+
+```text
 Change:
-  MIR mainline, minimal MIR JSON, LLVM source, and Wasm source issue one opaque
-  Program-only normal request after macro/normalization and before token/session
-  effects. Carry it through the published pipeline into a shared Program-only
-  lowering sibling extracted from the 796-line module lifecycle. The generic
-  arbitrary-AST path reuses its Program kernel only after its own partition.
-  Atomically delete the bare-AST request field, infallible constructors,
-  selected lifecycle Program/non-Program partition, and selected normal ->
-  generic raw-root classifier edge.
+  Reconcile the fixed eight-pack TSV with the actual non-test selected-normal
+  chain and the three retained compatibility surfaces. Record caller, owner,
+  old edge, detached asset, sunset, gate, and verdict per pack.
 
 Contract:
-  Program admission is issued exactly once; Main/Script expansion, catalog,
-  lowering, finish, publication, imports, and diagnostics keep current meaning.
-  The two arbitrary-AST build_module edges remain explicit compatibility
-  authorities under MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001 and
-  RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001. No fallback/retry, clone,
-  reparse, grammar/result/backend change, or Ownership/View activation.
+  This is a docs/ledger/gate closeout, not a production replacement. It must
+  report Complete or Residual honestly. Existing Rust behavior, accepted
+  shapes, compatibility owners, sunsets, and source-level Ownership/View do
+  not change.
 
 Done:
-  All four constructors accept Program and reject post-macro/normalize
-  non-Program before token/session effects; selected normal has zero raw
-  non-Program reachability. Existing Program parity, import commit, failure
-  reuse, arbitrary-AST compatibility census, and the shared root guard are
-  green. One named Program-lowering source sibling is allowed; no new
-  test/check/guard file, proof inventory does not grow, and every source/check
-  file is <800.
+  The selected-normal chain and all required zeros are measured once; pending
+  ReuseNeutral/Delete assets are reconciled without invented credit; existing
+  guards run green. Final-pipeline is Complete only if every north-star
+  condition is physically zero/green, otherwise it is explicitly Residual and
+  one exact read-only design stop is selected from the residual ledger.
 
 Stop:
-  Return to design if the opaque product must be unwrapped before the Program
-  kernel, a second Program classifier or compatibility route is needed, a
-  selected-normal generic partition remains, module_lifecycle.rs reaches 800,
-  or either retained arbitrary-AST caller changes behavior.
+  Stop if the census needs Rust edits, a new guard/test/task file, compatibility
+  growth, sunset closure without physical zero, or Ownership/View activation.
 ```
 
 Compatibility sunset:
@@ -511,8 +525,8 @@ R2ae RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0 closed
 R2af RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2ag RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0 closed
 R2ah NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0 closed
-R2ai NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0 current
-R3  eight-pack ledger + final-pipeline completion conformance
+R2ai NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0 closed
+R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 current
 
 after R3 only:
 F0  refresh missing-feature / Ownership / View readiness inventory

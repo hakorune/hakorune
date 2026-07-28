@@ -56,7 +56,8 @@ impl MirCompilerBox {
         };
         let mut mir_compiler = MirCompiler::new();
 
-        let request = NormalCompileRequestV1::for_llvm_source(ast, filename, imports);
+        let request = NormalCompileRequestV1::for_llvm_source(ast, filename, imports)
+            .map_err(|error| format!("MIR compilation error: {error}"))?;
         let compile_result = mir_compiler
             .compile_normal(request)
             .map_err(|e| format!("MIR compilation error: {}", e))?;

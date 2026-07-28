@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::ast::{ASTNode, BinaryOperator, CheckItem, LiteralValue, Span, UnaryOperator};
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::{MirCompiler, MirPrinter, MirType, NormalCompileRequestV1};
 use crate::parser::NyashParser;
 
@@ -42,7 +42,7 @@ fn variable(name: &str) -> ASTNode {
     }
 }
 
-fn unary(operator: UnaryOperator, operand: ASTNode) -> ASTNode {
+fn unary(operator: crate::ast::UnaryOperator, operand: ASTNode) -> ASTNode {
     ASTNode::UnaryOp {
         operator,
         operand: Box::new(operand),
@@ -50,7 +50,7 @@ fn unary(operator: UnaryOperator, operand: ASTNode) -> ASTNode {
     }
 }
 
-fn binary(operator: BinaryOperator, left: ASTNode, right: ASTNode) -> ASTNode {
+fn binary(operator: crate::ast::BinaryOperator, left: ASTNode, right: ASTNode) -> ASTNode {
     ASTNode::BinaryOp {
         operator,
         left: Box::new(left),
@@ -72,7 +72,7 @@ fn checked(expressions: Vec<ASTNode>) -> ASTNode {
         items: expressions
             .into_iter()
             .enumerate()
-            .map(|(index, expression)| CheckItem {
+            .map(|(index, expression)| crate::ast::CheckItem {
                 label: Some(format!("item-{index}")),
                 expression,
             })
@@ -158,6 +158,13 @@ fn task_scope(source_keyword: &str, body: Vec<ASTNode>) -> ASTNode {
     }
 }
 
+fn program(statement: ASTNode) -> ASTNode {
+    ASTNode::Program {
+        statements: vec![statement],
+        span: Span::unknown(),
+    }
+}
+
 fn source_file(compiler: &MirCompiler) -> Option<String> {
     compiler.builder.current_source_file()
 }
@@ -168,6 +175,7 @@ fn normal_request(
     imports: HashMap<String, String>,
 ) -> NormalCompileRequestV1 {
     NormalCompileRequestV1::for_mir_mode(ast, source_file, imports)
+        .expect("test normal request must own Program")
 }
 
 #[test]
@@ -229,7 +237,7 @@ fn late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
 
     let result = compiler
         .compile_normal(normal_request(
-            literal(7),
+            program(literal(7)),
             Some("reused.hako"),
             HashMap::new(),
         ))
@@ -254,7 +262,7 @@ fn explicit_imports_commit_only_with_the_finished_normal_candidate() {
 
     let result = compiler
         .compile_normal(normal_request(
-            literal(11),
+            program(literal(11)),
             Some("explicit-imports.hako"),
             imports.clone(),
         ))
@@ -341,7 +349,7 @@ static box Main {
 }
 
 #[test]
-fn normal_pipeline_matches_legacy_compatibility_for_non_program_root() {
+fn normal_program_admission_rejects_legacy_compatible_non_program_roots() {
     let roots = [
         literal(17),
         unary(
@@ -415,35 +423,25 @@ fn normal_pipeline_matches_legacy_compatibility_for_non_program_root() {
 
     for root in roots {
         let mut legacy_compiler = MirCompiler::with_options(false);
-        let legacy = legacy_compiler
+        legacy_compiler
             .compile_with_source(root.clone(), Some("non-program-parity.hako"))
             .expect("legacy non-Program root");
-        let mut compiler = MirCompiler::with_options(false);
-        let candidate = compiler
-            .compile_normal(normal_request(
-                root,
-                Some("non-program-parity.hako"),
-                HashMap::new(),
-            ))
-            .expect("normal non-Program root");
-
+        let rejected = NormalCompileRequestV1::for_mir_mode(
+            root,
+            Some("non-program-parity.hako"),
+            HashMap::new(),
+        )
+        .expect_err("selected normal admission must reject non-Program root");
         assert_eq!(
-            MirPrinter::new().print_module(&candidate.module),
-            MirPrinter::new().print_module(&legacy.module)
+            rejected.error(),
+            crate::mir::NormalProgramCompileRequestErrorV1::ExpectedProgramRoot
         );
-        assert_eq!(
-            format!("{:?}", candidate.verification_result),
-            format!("{:?}", legacy.verification_result)
-        );
-        assert_eq!(
-            candidate.module.metadata.source_file,
-            legacy.module.metadata.source_file
-        );
+        rejected.discard();
     }
 }
 
 #[test]
-fn selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable() {
+fn rejected_nonprogram_admission_leaves_live_builder_unchanged_and_reusable() {
     for root in [
         ASTNode::Variable {
             name: "missing".to_owned(),
@@ -509,19 +507,17 @@ fn selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable() {
         let mut compiler = MirCompiler::with_options(false);
         compiler.builder.set_source_file_hint("live-before.hako");
         let before = (source_file(&compiler), core_cursor(&compiler));
-        let error = compiler
-            .compile_normal(normal_request(
-                root,
-                Some("failed-nonprogram.hako"),
-                HashMap::new(),
-            ))
-            .expect_err("selected undefined Variable must fail");
-
-        assert!(error.contains("Undefined variable: missing"), "{error}");
+        let rejected = NormalCompileRequestV1::for_mir_mode(
+            root,
+            Some("failed-nonprogram.hako"),
+            HashMap::new(),
+        )
+        .expect_err("selected normal admission must reject before compilation");
+        rejected.discard();
         assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
         let result = compiler
             .compile_normal(normal_request(
-                literal(23),
+                program(literal(23)),
                 Some("reused-nonprogram.hako"),
                 HashMap::new(),
             ))
@@ -535,7 +531,7 @@ fn selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable() {
 }
 
 #[test]
-fn selected_local_root_failure_matches_legacy_and_reuses() {
+fn local_root_remains_explicit_legacy_compatibility_only() {
     let root = local("x", Some(block_expr(literal(38))));
     let mut legacy_compiler = MirCompiler::with_options(false);
     let legacy_error = legacy_compiler
@@ -545,21 +541,16 @@ fn selected_local_root_failure_matches_legacy_and_reuses() {
     let mut compiler = MirCompiler::with_options(false);
     compiler.builder.set_source_file_hint("live-before.hako");
     let before = (source_file(&compiler), core_cursor(&compiler));
-    let selected_error = compiler
-        .compile_normal(normal_request(
-            root,
-            Some("local-root-failure.hako"),
-            HashMap::new(),
-        ))
-        .expect_err("selected Local root must preserve the lexical-scope failure");
-
-    assert_eq!(selected_error, legacy_error);
-    assert!(selected_error.contains("local declaration outside lexical scope"));
+    let rejected =
+        NormalCompileRequestV1::for_mir_mode(root, Some("local-root-failure.hako"), HashMap::new())
+            .expect_err("selected normal admission must reject Local root");
+    assert!(legacy_error.contains("local declaration outside lexical scope"));
+    rejected.discard();
     assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
 
     let result = compiler
         .compile_normal(normal_request(
-            literal(39),
+            program(literal(39)),
             Some("local-root-reuse.hako"),
             HashMap::new(),
         ))
@@ -572,7 +563,7 @@ fn selected_local_root_failure_matches_legacy_and_reuses() {
 }
 
 #[test]
-fn selected_grouped_assignment_failure_matches_legacy_and_reuses() {
+fn grouped_assignment_root_remains_explicit_legacy_compatibility_only() {
     let root = grouped_assignment("missing", literal(31));
     let mut legacy_compiler = MirCompiler::with_options(false);
     let legacy_error = legacy_compiler
@@ -582,21 +573,19 @@ fn selected_grouped_assignment_failure_matches_legacy_and_reuses() {
     let mut compiler = MirCompiler::with_options(false);
     compiler.builder.set_source_file_hint("live-before.hako");
     let before = (source_file(&compiler), core_cursor(&compiler));
-    let selected_error = compiler
-        .compile_normal(normal_request(
-            root,
-            Some("grouped-assignment-failure.hako"),
-            HashMap::new(),
-        ))
-        .expect_err("selected grouped assignment must reject an undeclared lhs");
-
-    assert_eq!(selected_error, legacy_error);
-    assert!(selected_error.contains("Undefined variable: missing"));
+    let rejected = NormalCompileRequestV1::for_mir_mode(
+        root,
+        Some("grouped-assignment-failure.hako"),
+        HashMap::new(),
+    )
+    .expect_err("selected normal admission must reject GroupedAssignment root");
+    assert!(legacy_error.contains("Undefined variable: missing"));
+    rejected.discard();
     assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
 
     let result = compiler
         .compile_normal(normal_request(
-            literal(32),
+            program(literal(32)),
             Some("grouped-assignment-reuse.hako"),
             HashMap::new(),
         ))
@@ -609,7 +598,7 @@ fn selected_grouped_assignment_failure_matches_legacy_and_reuses() {
 }
 
 #[test]
-fn selected_index_failure_matches_legacy_and_reuses() {
+fn index_root_remains_explicit_legacy_compatibility_only() {
     let root = indexed(literal(35), literal(0));
     let mut legacy_compiler = MirCompiler::with_options(false);
     let legacy_error = legacy_compiler
@@ -619,24 +608,19 @@ fn selected_index_failure_matches_legacy_and_reuses() {
     let mut compiler = MirCompiler::with_options(false);
     compiler.builder.set_source_file_hint("live-before.hako");
     let before = (source_file(&compiler), core_cursor(&compiler));
-    let selected_error = compiler
-        .compile_normal(normal_request(
-            root,
-            Some("index-failure.hako"),
-            HashMap::new(),
-        ))
-        .expect_err("selected Index must reject an unsupported target");
-
-    assert_eq!(selected_error, legacy_error);
+    let rejected =
+        NormalCompileRequestV1::for_mir_mode(root, Some("index-failure.hako"), HashMap::new())
+            .expect_err("selected normal admission must reject Index root");
     assert!(
-        selected_error.contains("index operator is only supported for Array/Map"),
-        "{selected_error}"
+        legacy_error.contains("index operator is only supported for Array/Map"),
+        "{legacy_error}"
     );
+    rejected.discard();
     assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
 
     let result = compiler
         .compile_normal(normal_request(
-            indexed(array(vec![literal(36)]), literal(0)),
+            program(indexed(array(vec![literal(36)]), literal(0))),
             Some("index-reuse.hako"),
             HashMap::new(),
         ))

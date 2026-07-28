@@ -37,10 +37,16 @@ impl NyashRunner {
         };
         let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
 
+        let request =
+            match NormalCompileRequestV1::for_mir_mode(ast, Some(filename), prepared.imports) {
+                Ok(request) => request,
+                Err(rejected) => {
+                    eprintln!("❌ MIR compilation error: {}", rejected);
+                    process::exit(1);
+                }
+            };
         let mut mir_compiler = MirCompiler::with_options(!self.config.no_optimize);
-        let compile_result = match mir_compiler.compile_normal(
-            NormalCompileRequestV1::for_mir_mode(ast, Some(filename), prepared.imports),
-        ) {
+        let compile_result = match mir_compiler.compile_normal(request) {
             Ok(result) => result,
             Err(e) => {
                 eprintln!("❌ MIR compilation error: {}", e);
@@ -152,10 +158,15 @@ impl NyashRunner {
             ast
         };
 
+        let request = match NormalCompileRequestV1::for_minimal_mir_json(ast, Some(filename)) {
+            Ok(request) => request,
+            Err(rejected) => {
+                eprintln!("❌ MIR compilation error: {}", rejected);
+                process::exit(1);
+            }
+        };
         let mut mir_compiler = MirCompiler::with_options(!self.config.no_optimize);
-        let compile_result = match mir_compiler.compile_normal(
-            NormalCompileRequestV1::for_minimal_mir_json(ast, Some(filename)),
-        ) {
+        let compile_result = match mir_compiler.compile_normal(request) {
             Ok(result) => result,
             Err(e) => {
                 eprintln!("❌ MIR compilation error: {}", e);
