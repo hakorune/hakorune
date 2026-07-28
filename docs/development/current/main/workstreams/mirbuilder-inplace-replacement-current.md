@@ -38,9 +38,10 @@ Closed:  RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0
 Closed:  RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0
 Closed:  RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0
-Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0
-Pack:    selection pending
-Ceremony: design stop; production edit = 0
+Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0
+Current: RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0
+Pack:    DESCENT-SPINE0
+Ceremony: T1; one atomic production replacement
 ```
 
 R1 closeout:
@@ -146,56 +147,39 @@ new source/test/check/task file           = 0
 largest touched source/check file         = 582
 ```
 
-## Current design question
+## Execution brief
 
 ```text
-RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0
+Row: RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0
+Parent: RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0
+Decision: Candidate A-prime; T1; DESCENT-SPINE0
 
-Source authority:
-  exhaustive PreparedRawRootPartitionV1 root classification
-  existing PortNeutralExprTreeV1 safety predicate
+Change:
+  add private SelectedRawNonProgramRootV1::{ExprTree, PrintRoot}
+  seal PrintRoot only when its expression is PortNeutralExprTreeV1
+  keep one selected raw-dispatch terminal and delete safe Print from the
+  unconditional SeparateDesignStop branch in the same commit
 
-Semantic authority:
-  statement_surface::try_build_with_port_v1
-  build_print_statement_with_port_v1
-  build_print_from_value
+Contract:
+  Print is a sibling statement-root product, not an ExprTree constructor
+  retain the original Print AST; no reconstruction or new clone
+  reuse statement_surface, build_print_statement_with_port_v1, and
+  build_print_from_value unchanged
+  TypeOp-special and unsafe Print stay whole on compatibility exactly once
+  preserve output mode, instruction/span behavior, diagnostics, and rollback
 
-Recommended:
-  PortNeutralPrintRoot0
-    = Print(expression: PortNeutralExprTreeV1)
-  keep it as a selected-root sibling; Print is not an ExprTree constructor
-  proposed row: RAW-NONPROGRAM-PRINT-COMPOSITIONAL-DESCENT0-I0-R0
-  pack: DESCENT-SPINE0; ceremony: T1 atomic I0/R0
-
-Candidate A:
-  safe Print root
-  delete safe Print -> unconditional SeparateDesignStop compatibility
-  preserve TypeOp-special and unsafe Print as whole compatibility inputs
-
-Candidate B:
-  Nowait(target name, PortNeutralExprTreeV1)
-  current production target is by-name, not BindingRef; pack CONTROL0
-
-Candidate C:
-  ArrayLiteral([PortNeutralExprTreeV1]*)
-  viable T1 only with allocation/birth/type/write/metadata order frozen
-  pack CALL-OBJECT0; higher proof cost than Print
-
-Separate:
-  QMarkPropagate owns physical Return, CFG, and runtime calls
-  -> dedicated CONTROL0 design, not a mechanical expression constructor
-
-Fail-fast boundary:
-  one unsafe Print child keeps the whole Print on compatibility exactly once
-  selected child/output failure propagates; no compatibility retry
-
-Non-claims:
-  TypeOp Print migration, output policy change, BindingRef/slot semantics,
-  Array allocation, QMark control, grammar, result, or publication change
+Done:
+  recursive partition covers safe nested and TypeOp/unsafe Print
+  direct raw-legacy versus selected-port instruction/span parity is green
+  existing raw-port Print witness and Print(missing) reuse are green
+  selected expression kinds = 7; selected statement-root kinds = 1
+  residual kinds = 48; selected/compatibility drivers = 1/1
+  shared guard/manifest green; new files = 0; every source/check file < 800
 
 Stop:
-  production edits until this recommendation is accepted
-  Print added to PortNeutralExprTreeV1, compatibility growth, or route mixing
+  Print enters PortNeutralExprTreeV1 or bypasses the existing raw dispatcher
+  TypeOp/output/span/clone policy changes, routes mix, or failure retries
+  Nowait binding, Array allocation, QMark control, or a new file enters
 ```
 
 Compatibility sunset:
@@ -232,7 +216,8 @@ R2e RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0 closed
 R2f RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2g RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0 closed
 R2h RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0 closed
-R2i RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0 current design stop
+R2i RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0 closed
+R2j RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:

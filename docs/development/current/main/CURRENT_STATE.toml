@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0 is closed. RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0 is the current design stop."
+status = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0 is closed with Candidate A-prime. RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0 is the current T1 production replacement."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0"
-current_execution_row = ""
-current_execution_summary = "Read-only candidate audit recommends PortNeutralPrintRoot0 as the smallest next slice: one Print statement root whose expression is an existing PortNeutralExprTreeV1. Print must remain a sibling root product, not a new expression-tree constructor. The existing statement-surface and build_print_statement_with_port_v1 owners remain semantic authority; safe Print leaves compatibility, while TypeOp-special or otherwise unsafe Print stays whole on compatibility without retry. Nowait retains by-name binding publication and ArrayLiteral retains CALL-OBJECT allocation/birth authority as later designs. No production edit is authorized until this design stop is accepted."
+current_design_stop = ""
+current_execution_row = "RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0"
+current_execution_summary = "One atomic T1 cell adds a private selected-root sum with ExprTree and PortNeutralPrintRoot0 siblings. PortNeutralPrintRoot0 is exactly one Print statement whose expression is an existing PortNeutralExprTreeV1; Print never becomes an expression-tree constructor. Safe Print leaves unconditional SeparateDesignStop compatibility and reuses the existing single raw dispatcher, statement surface, print owner, and selected invocation port. TypeOp-special or otherwise unsafe Print stays whole on the single compatibility owner. Preserve output-mode choice, instruction/span behavior, existing one-clone probe, diagnostics, candidate rollback, and selected/compatibility driver counts. Ratchet selected expression kinds at 7, selected statement-root kinds 0->1, and registered residual kinds 49->48 with no new files, fallback, retry, or reselection."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0 is closed: recursively safe CheckExpr now uses the existing selected invocation port and eager Check owner, while unsafe Check retains the single compatibility route without retry. Selected kinds are 7 and registered residual kinds are 49. RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0 is the sole current design stop. Read-only candidate audit recommends PortNeutralPrintRoot0: a Print statement root holding one existing PortNeutralExprTreeV1. Print must not enter the expression-tree type. Safe Print may leave compatibility through the existing statement-surface and print owners; TypeOp-special and unsafe Print stay whole on compatibility. Nowait's by-name binding publication, ArrayLiteral's allocation/birth authority, and QMark's physical Return/CFG authority remain separate designs. No production edit is authorized until the stop is accepted. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0 is closed with Candidate A-prime. RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0 is the sole current T1 production row. Add one private selected-root sum whose ExprTree and PortNeutralPrintRoot0 variants retain the original AST; Print is a statement-root sibling, never an expression-tree constructor. Safe Print uses the existing single raw dispatcher, statement surface, print owner, and selected invocation port; TypeOp-special or unsafe Print stays whole on compatibility. Delete safe Print from unconditional residual compatibility in the same commit. Preserve output mode, instruction/span behavior, the existing TypeOp probe clone, diagnostics, rollback, and driver counts. Selected expression kinds stay 7, selected statement-root kinds become 1, and registered residual kinds ratchet 49->48. Nowait binding publication, Array allocation/birth, QMark control, new files, fallback, retry, and route mixing are forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0-DESIGN-STOP"
+current_blocker_token = "RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0-IMPLEMENT"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
