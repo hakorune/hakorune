@@ -420,45 +420,81 @@ structure:
   every touched source/check file < 800
 ```
 
-## Current execution
+## Closed conformance census
 
 `MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0` — T0 conformance census,
 replacement credit 0.
 
 ```text
-Change:
-  Reconcile the fixed eight-pack TSV with the actual non-test selected-normal
-  chain and the three retained compatibility surfaces. Record caller, owner,
-  old edge, detached asset, sunset, gate, and verdict per pack.
+verdict:
+  selected-normal production chain = Complete
+  repository-wide final pipeline   = Residual
+  replacement credit               = 0
 
-Contract:
-  This is a docs/ledger/gate closeout, not a production replacement. It must
-  report Complete or Residual honestly. Existing Rust behavior, accepted
-  shapes, compatibility owners, sunsets, and source-level Ownership/View do
-  not change.
+selected-normal:
+  four typed constructors
+  -> one Program admission before token/session
+  -> one candidate/session
+  -> one root/catalog lifecycle
+  -> one collector-backed callable batch
+  -> one finish/readiness/external commit
 
-Done:
-  The selected-normal chain and all required zeros are measured once; pending
-  ReuseNeutral/Delete assets are reconciled without invented credit; existing
-  guards run green. Final-pipeline is Complete only if every north-star
-  condition is physically zero/green, otherwise it is explicitly Residual and
-  one exact read-only design stop is selected from the residual ledger.
+ledger reconciliation:
+  14 landed production rows backfilled
+  SOURCE-NEUTRAL-CALL-RECEIPT = ReuseNeutral closed
+  PRELOOP-STAGEB-SPECIAL-ACTIVATION = Delete pending
+  test-only seam rows receive replacement credit = 0
+```
 
-Stop:
-  Stop if the census needs Rust edits, a new guard/test/task file, compatibility
-  growth, sunset closure without physical zero, or Ownership/View activation.
+Eight-pack verdict:
+
+| Pack | Verdict | Exact residual |
+| --- | --- | --- |
+| `REPLACEMENT-LEDGER0` | Residual | one `Delete pending` detached Stage-B asset and active compatibility sunsets |
+| `DESCENT-SPINE0` | Complete | fixed selected old-edge inventory is physically zero |
+| `FUNCTION-STATE0` | Residual | `function_state` / PHI / `variable_map` authority remains distributed |
+| `CALL-OBJECT0` | Residual | MethodCall / Call / New / Field / Index and other header-sensitive compatibility surfaces remain |
+| `CONTROL0` | Residual | If / Loop / TryCatch / Throw / QMark / Match and related control authority remains |
+| `FUNCTION-LIFECYCLE0` | Residual | selected-normal is complete; raw legacy direct function publication remains |
+| `MODULE-LIFECYCLE0` | Residual | selected-normal is complete; two production arbitrary-AST `build_module` surfaces remain |
+| `COMPILER-RESIDUE0` | Residual | MirCompiler/runtime arbitrary-AST compatibility plus caller-zero Stage-B activation remain |
+
+## Current design stop
+
+`PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0`
+
+```text
+Purpose:
+  Decide the bounded deletion of the caller-zero, production-capable detached
+  Stage-B carrier/session/context path.
+
+Why first:
+  The fixed ledger already classifies this asset as Delete pending, its
+  production caller count is zero, and deleting it reduces detached authority
+  without changing grammar or a live result.
+
+Required decision:
+  exact symbol/file delete set
+  exact test-only callers and proof replacement
+  retained source-neutral receipts/seams
+  same-commit guard/manifest ratchet
+
+Non-claims:
+  replacement credit = 0
+  selected-normal behavior delta = 0
+  raw compatibility retirement = 0
+  MirCompiler/runtime AST compatibility retirement = 0
+  source-level Ownership/View activation = 0
 ```
 
 Compatibility sunset:
 
 ```text
 sunset_id: RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
-retirement owner: MIRBUILDER-INPLACE-REPLACEMENT0
-target card: this rolling card, before R3 completion conformance closes
-retire when: this owner's construction/definition, registered residual surface,
-and root-specific `-> drive_raw_legacy_expression_v1` production edge are all zero
-evidence: later named AST-node replacements plus the shared caller guard
-surface may only shrink; adding a residual requires a new design stop
+state: active
+residual_kind_count: 40
+retire when: owner definition, registered residual surface, and root-specific
+  drive_raw_legacy_expression_v1 production edge are all zero
 ```
 
 Closed sunset:
@@ -474,12 +510,16 @@ Compatibility sunsets:
 
 ```text
 MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001
+  state: active
+  measured build_module edge: src/mir/compiler/legacy_candidate_session.rs = 1
   owner: MirCompiler legacy candidate family
   retire when: public/internal VM, Stage1, selfhost, REPL, Program JSON, and
     reference callers have typed replacements and its build_module edge is 0
   target/evidence: later named replacement rows plus production caller census
 
 RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001
+  state: active
+  measured build_module edge: src/runtime/mirbuilder_emit.rs = 1
   owner: env.mirbuilder.emit AST-JSON compatibility
   retire when: AST-JSON producers/callers are 0, or a Program-only contract is
     sealed and its arbitrary-root build_module edge is 0
@@ -526,9 +566,14 @@ R2af RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2ag RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0 closed
 R2ah NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0 closed
 R2ai NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0 closed
-R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 current
+R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
+R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 current design stop
 
-after R3 only:
+after every bounded retirement:
+  run a fresh live-edge census
+  select exactly one named production edge or detached Delete asset
+
+after final-pipeline Complete only:
 F0  refresh missing-feature / Ownership / View readiness inventory
 F1  resume the existing Ownership taskboard from its read-only readiness gate
 F2  Unique Box / ScopedAlias -> callable ABI -> Anchored View

@@ -91,5 +91,19 @@
   "direct_build_module_cfg_test": {
     "src/host_providers/mir_builder/lowering/ast_json.rs": 1
   },
+  "compatibility_sunsets": {
+    "MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001": {
+      "state": "active",
+      "owner": "src/mir/compiler/legacy_candidate_session.rs",
+      "production_build_module_edges": 1,
+      "retire_when": "all MirCompiler legacy candidate caller families have explicit typed replacements and this arbitrary-AST build_module edge is zero"
+    },
+    "RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001": {
+      "state": "active",
+      "owner": "src/runtime/mirbuilder_emit.rs",
+      "production_build_module_edges": 1,
+      "retire_when": "AST-JSON production callers are zero or a sealed Program-only contract replaces this arbitrary-AST build_module edge"
+    }
+  },
   "old_raw_non_test_callers": 0
 }

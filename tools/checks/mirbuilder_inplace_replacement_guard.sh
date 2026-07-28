@@ -6,6 +6,7 @@ TAG="mirbuilder-inplace-replacement-guard"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 MANIFEST="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-inplace-replacement-v1.tsv"
+CALLER_MANIFEST="$ROOT_DIR/tools/checks/manifests/raw_public_cutover_caller_manifest_v1.json"
 STRUCTURAL_RATCHET="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-structural-ratchet.tsv"
 LOWERING="$ROOT_DIR/src/mir/builder/calls/lowering.rs"
 PORT_OWNER="$ROOT_DIR/src/mir/builder/port_aware_function_draft_impl.rs"
@@ -58,6 +59,7 @@ guard_require_command "$TAG" xargs
 guard_require_files \
   "$TAG" \
   "$MANIFEST" \
+  "$CALLER_MANIFEST" \
   "$STRUCTURAL_RATCHET" \
   "$LOWERING" \
   "$PORT_OWNER" \
@@ -117,6 +119,18 @@ if ! awk -F '\t' '
   END { if (NR < 2) exit 1 }
 ' "$MANIFEST"; then
   guard_fail "$TAG" "manifest row contract failed"
+fi
+
+for sunset in \
+  MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001 \
+  RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001
+do
+  if [[ "$(rg -F -c "\"$sunset\": {" "$CALLER_MANIFEST")" != "1" ]]; then
+    guard_fail "$TAG" "compatibility sunset must have one first-class record: $sunset"
+  fi
+done
+if [[ "$(rg -F -c '"production_build_module_edges": 1' "$CALLER_MANIFEST")" != "2" ]]; then
+  guard_fail "$TAG" "arbitrary-AST production sunsets must retain two measured edges"
 fi
 
 ratchet_header=$'source_files\tsource_loc\ttest_files\ttest_loc'
