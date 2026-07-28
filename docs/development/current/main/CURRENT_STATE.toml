@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The bounded compiler-ingress census is closed with Candidate B retained. The first missing authority is NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0, not a monolithic GeneralProgram lowerer. Repository artifact lifecycle R3 is closed and the bounded interlude is active at the first generated R4 nested-archive batch. After first R4 -> DOCS-MEANING-RECOVERY-RETURN0, MirBuilder resumes at NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0. General Program owner/result parity then precede Ownership/View readiness, and Candidate A cutover comes only after both. No production caller or tenth replacement cell is selected."
+status = "The bounded repository artifact lifecycle interlude is closed through R4-first and DOCS-MEANING-RECOVERY-RETURN0. MirBuilder has resumed at NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0, the first missing authority outside exact canonical Script/Main0/Callable families. This is a T2 source/catalog design stop: production callers, production edits, the tenth replacement cell, fallback, retry, and reselection remain zero."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none; MirBuilder return target is NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0"
-current_execution_row = "REPOSITORY-ARTIFACT-LIFECYCLE-R4-FIRST"
-current_execution_summary = "Materialize the phase-296x archived-in-place unreachable clusters from the existing lifecycle graph, select one generated reference-closed batch of at most 200 files without splitting a weakly connected cluster, reject inbound references and occupied targets, and move only that batch. Then run DOCS-MEANING-RECOVERY-RETURN0 before returning to NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0. The later order is general Program/result parity -> Ownership/View readiness -> Candidate A cutover. Compiler/runtime/backend edits and a tenth replacement row remain forbidden during the interlude."
+current_design_stop = "NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0; close one bounded source/catalog authority design before any implementation"
+current_execution_row = "NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0"
+current_execution_summary = "Define the smallest opaque source product that co-seals exact Program, top-level declaration inventory, entry contract, and callable catalog facts for current-normal families outside exact Script/Main0/Callable. The D0 must enumerate the accepted source family without catch-all GeneralProgram, raw-AST lowering, Legacy fallback, source re-read, or Builder effects. Stop at the accepted design/task boundary before implementation."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
-active_lane = "Repository artifact lifecycle bounded interlude"
-active_lane_status = """REPOSITORY-ARTIFACT-LIFECYCLE-R4-FIRST is the sole current execution authority. MirBuilder returns after this one bounded batch and RETURN0 at NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0. Compiler/runtime/backend edits, Candidate A, and the tenth replacement row are parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane = "MirBuilder in-place replacement"
+active_lane_status = """NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0 is the sole current design authority. Repository artifact lifecycle R1-R4-first and RETURN0 are closed. Production implementation must stop until the source/catalog product, finite accepted family, fail-fast boundary, and exact next executable row are accepted. Candidate A, Ownership activation, compiler/runtime/backend edits, and the tenth replacement row are parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -335,11 +335,11 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
-phase_status = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
-method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
-latest_workstream_card = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
+active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
+phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
+method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
+taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
+latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 normal_entry_cutover_decision = "docs/development/current/main/investigations/normal-entry-cutover-d0-consultation-2026-07-25.md"
@@ -438,9 +438,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "repository-artifact-lifecycle-current"
-latest_card_path = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
-latest_card_summary = """Repository artifact lifecycle R3 is closed. R4-FIRST now has one generated reference-closed batch: archived-in-place unreachable=1,594 files, weak clusters=1,392, selected files=200, selected clusters=23, selected LOC=14,337, external inbound edges=0, target collisions=0. The exact path list is generated in the lifecycle manifest; no hand-written range or per-file task ledger is added. Physical R4 moves remain zero until the clean-worktree apply commit."""
+latest_card = "mirbuilder-inplace-replacement-current"
+latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
+latest_card_summary = """Repository artifact lifecycle R4-first moved one generated reference-closed batch: 200 files, 23 weak clusters, 14,337 LOC, external inbound edges=0, target collisions=0, reference rewrites=0, and forwarding stubs=0. RETURN0 strict lifecycle, pointer, resolver, and reference-closure gates are green. CURRENT_STATE has returned to NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0. This is a design stop; the next work is to accept one finite source/catalog authority and one exact executable row, not to implement a catch-all GeneralProgram or switch a production caller."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-R4-FIRST"
+current_blocker_token = "NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

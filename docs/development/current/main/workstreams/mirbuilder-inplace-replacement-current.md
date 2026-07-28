@@ -196,9 +196,46 @@ closeout explanation, not automatic rejection.
 
 ```text
 none
-  current authority = repository artifact lifecycle interlude
-  return target = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
+  current authority = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0 design stop
+  repository artifact lifecycle R1-R4-first / RETURN0 = closed
   tenth responsibility = not selected
+```
+
+## Current design stop
+
+`NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0` must accept one bounded source
+authority before implementation. It must decide:
+
+```text
+opaque source product:
+  exact Program identity
+  top-level declaration inventory
+  entry contract
+  callable catalog correspondence
+
+finite accepted family:
+  source-backed current-normal rows only
+  no catch-all residual
+
+failure boundary:
+  complete preflight before Builder effects
+  unsupported declaration/source family rejects explicitly
+
+next executable row:
+  one named source/catalog slice
+  production caller = 0 during prerequisite work
+```
+
+It must not authorize:
+
+```text
+GeneralProgram -> compile_legacy_candidate
+MirBuilder::build_module(raw AST)
+Lower-side route redecision
+canonical probe then fallback
+source re-read/reparse
+Candidate A production switch
+tenth replacement row
 ```
 
 ## Post-Binary boundary

@@ -1,5 +1,5 @@
 ---
-Status: Active bounded interlude at R4-first
+Status: Bounded interlude closed at RETURN0
 Date: 2026-07-28
 Decision: Restore `current` as an authority surface and stop one-decision-one-file growth
 Owner: ../design/current-docs-archive-policy-ssot.md
@@ -23,9 +23,7 @@ move already-historical phase material out of current
 File and line counts are measured results. They are not implementation
 permission gates and do not replace reference-closure checks.
 
-`CURRENT_STATE.toml` now selects the first R4 batch. This bounded activation
-runs through that one batch and `DOCS-MEANING-RECOVERY-RETURN0`. It then returns
-to the MirBuilder workstream at
+`CURRENT_STATE.toml` has returned to the MirBuilder workstream at
 `NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0`; it does not jump directly to
 Candidate A. The returned MirBuilder train closes the general Program verified
 owner and current-normal result parity, then passes the parked Ownership/View
@@ -33,9 +31,9 @@ readiness train before any default-ingress cutover.
 
 R2 closed resolver/relocator support for the live, global archive, and
 transitional nested-archive locations. R3 closed the exact two-file pilot.
-R4-first now authorizes only one generated reference-closed batch of at most
-200 files. Compiler/runtime/backend edits and a tenth replacement row remain
-forbidden throughout this interlude.
+R4-first closed one generated reference-closed batch of 200 files.
+`DOCS-MEANING-RECOVERY-RETURN0` is closed. R5/R6 remain parked cleanup debt and
+do not retain the current execution pointer.
 
 ## Scheduled first activation
 
@@ -326,6 +324,74 @@ The exact 200 paths live only in the generated lifecycle manifest. Do not copy
 them into this card or create a per-file task ledger. The selector skips every
 cluster with an inbound edge from outside that cluster before applying the
 200-file ceiling.
+
+## R4-first closeout
+
+```text
+moved files                                 = 200
+moved weakly connected clusters             = 23
+moved LF LOC                                = 14,337
+cluster-external inbound edges              = 0
+archive target collisions                   = 0
+Markdown link rewrites                      = 0
+plain path rewrites                         = 0
+forwarding stubs                            = 0
+cluster split                               = 0
+```
+
+Post-move:
+
+```text
+strict lifecycle inventory                 = green
+whole/partial relocator dry-runs           = green
+DOCS-SLIM-001/002/003/026                  = green
+current-state pointer guard                = green
+source/check files >= 800 lines            = 0
+```
+
+The repository-wide quick gate was also run. It reached an unchanged,
+pre-existing naming-charter red:
+
+```text
+docs/reference/language/EBNF.md
+  missing required historical token:
+  `--syntax-3` with compatibility alias `--stage3`
+
+R4 delta to EBNF / naming guard / dev gate = 0
+```
+
+That language naming-contract drift is not repaired inside a documentation
+relocation commit.
+
+## DOCS-MEANING-RECOVERY-RETURN0 closeout
+
+Measured result:
+
+```text
+current/main Markdown files                 = 6,890
+current/main Markdown LOC                   = 765,765
+current/main/phases Markdown files          = 5,429
+current/main/phases Markdown LOC            = 451,420
+nested phase archive files                  = 2,412
+nested phase archive LOC                    = 217,093
+phase-296x/archive files                    = 2,315
+phase-296x/archive LOC                      = 192,964
+global phase-296x/cards files               = 202
+global phase-296x/cards LOC                 = 14,536
+```
+
+Against the pre-interlude observation:
+
+```text
+current/main file delta                     = -202
+phase-tree file delta                       = -202
+phase-tree LOC delta                        = -14,536
+physical moved files                        = 202
+physical moved LOC                          = 14,536
+```
+
+The broader R5 stale-phase and R6 design/investigation queues remain parked.
+The next authority is the MirBuilder source/catalog design stop.
 
 ## Final archive shape
 
