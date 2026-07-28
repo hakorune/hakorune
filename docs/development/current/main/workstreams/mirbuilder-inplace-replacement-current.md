@@ -44,9 +44,10 @@ Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY1-D0
 Closed:  RAW-NONPROGRAM-NOWAIT-ROOT-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0
 Closed:  RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0
-Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0
-Pack:    selection pending
-Ceremony: design stop; production edit = 0
+Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0
+Current: RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0
+Pack:    CALL-OBJECT0
+Ceremony: T1; one atomic production replacement
 ```
 
 R1 closeout:
@@ -203,28 +204,37 @@ largest touched source/check file           = 745
 largest relevant source/check file          = 774, unchanged
 ```
 
-## Current design question
+## Current execution row
 
 ```text
-RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0
+RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0
 
-Candidate A:
-  MapLiteral([(String key, PortNeutralExprTreeV1)]*)
-  CALL-OBJECT0
-  preserve allocation -> birth -> registry
-  -> source-order key const -> selected value -> fixed runtime set
+Decision / boundary:
+  Candidate A; T1 / CALL-OBJECT0
+  PortNeutralExprTreeV1 += MapLiteral([(String, PortNeutralExprTreeV1)]*)
+  unsafe value keeps the whole enclosing tree on compatibility
+  key expressions/normalization, generic calls, map facts, result delta = 0
 
-Separate:
-  QMarkPropagate -> physical Return/CFG/runtime-call CONTROL0
+Preserved production order:
+  ValueId -> NewBox(MapBox) -> birth
+  -> function origin/type + compilation type registry
+  -> each entry: String Const -> selected value -> fixed MapBox.set
+  preserve source order, duplicate keys, current spans, receiver Copy
 
-Required:
-  recursive expression constructor, not root-shape special case
-  same-commit safe residual deletion
-  whole-container route; no per-entry mixing or retry
-  root partition file remains < 800
+Atomic change:
+  safe Map whole-kind compatibility edge = 0
+  selected expression kinds = 8 -> 9
+  selected statement roots   = 2 unchanged
+  registered residual kinds  = 46 -> 45
+  selected/compat terminals  = 1 / 1 unchanged
 
-Stop:
-  production edit or automatic candidate selection
+Gates / stops:
+  empty/duplicate/nested safe Map and unsafe whole-tree partition
+  selected vs raw MIR/span/type/origin/registry/Call/LocalSSA parity
+  unified call off/on exact parity; map fact tables stay absent
+  Map(later missing) rollback/reuse; no later entry descent
+  per-entry route mixing / fallback / retry = 0
+  root file >= 800 or new file required -> stop
 ```
 
 Compatibility sunset:
@@ -267,7 +277,8 @@ R2k RAW-NONPROGRAM-NEXT-RESPONSIBILITY1-D0 closed
 R2l RAW-NONPROGRAM-NOWAIT-ROOT-DESCENT0-I0-R0 closed
 R2m RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0 closed
 R2n RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0 closed
-R2o RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0 current design stop
+R2o RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0 closed
+R2p RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:

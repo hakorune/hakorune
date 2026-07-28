@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0 is closed. RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0 is the current design stop."
+status = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0 is closed with Candidate A. RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0 is the current T1 production replacement."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0"
-current_execution_row = ""
-current_execution_summary = "Array compositional cutover is closed: ArrayLiteral joins PortNeutralExprTreeV1 exactly when every element is already selected, so safe nested Array and safe enclosing expression/Print/Nowait trees leave compatibility without whole-program variants. Empty, homogeneous, mixed, and nested Array preserve exact MIR/span, origin/type registry, ArrayElementWrite, aggregate metadata, rollback, and reuse parity. Selected expression kinds are 8, selected statement roots are 2, and residual kinds are 46. The next live compositional candidate is MapLiteral with String keys and selected values, but its allocation/birth/key/value/runtime-set authority must be selected at a fresh design stop. QMark remains separate physical Return/CFG CONTROL0. No production edit is authorized."
+current_design_stop = ""
+current_execution_row = "RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0"
+current_execution_summary = "One atomic T1 cell adds MapLiteral([(String, PortNeutralExprTreeV1)]*) as a recursive constructor of the selected expression algebra. Safe nested Map, Array-valued Map, and safe enclosing trees leave compatibility together; any unsafe value keeps the whole outer tree on the single compatibility owner. Reuse build_map_literal_with_port_v1 unchanged and preserve ValueId -> NewBox -> birth -> function/compilation type registries -> source-order String key Const -> selected value -> fixed runtime MapBox.set order, including current spans, receiver materialization, duplicate keys, and unified-call on/off parity. Key expressions, dedup/reorder, generic call routing, and map-fact replay are nonclaims. Selected expression kinds ratchet 8->9, statement roots stay 2, and residual kinds ratchet 46->45 with no retry, route mixing, or new files."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0 is closed. ArrayLiteral is now a recursive PortNeutralExprTreeV1 constructor when every element is selected; safe nested Array and safe enclosing Unary/Binary/Await/Check/Print/Nowait trees leave compatibility together, while any unsafe descendant keeps the whole tree on the single compatibility owner. Empty, homogeneous, mixed, and nested Array preserve exact MIR/span, origin/type registry, ArrayElementWrite, aggregate metadata, candidate rollback, and compiler reuse parity. Selected/compatibility terminals remain one each, selected expression kinds are 8, selected statement roots are 2, and residual kinds are 46. RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0 is the sole current design stop. MapLiteral is the next live compositional candidate but carries String-key constant and fixed runtime MapBox.set authority; QMark retains physical Return/CFG/runtime-call CONTROL0. No production edit is authorized until one exact responsibility is selected. The root partition file is 745 lines, so future evidence must use the existing collection/tests seams rather than exceed 800. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0 is closed with Candidate A. RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0 is the sole current T1 production row. Add MapLiteral as a recursive PortNeutralExprTreeV1 constructor exactly when every String-keyed entry value is selected. Safe nested Map, Array-valued Map, and safe enclosing trees use the existing selected invocation port; any unsafe value keeps the whole outer tree on compatibility without retry. Reuse build_map_literal_with_port_v1 unchanged and preserve allocation, birth, both type registries, source-order String key Const, value descent, fixed runtime MapBox.set, current key spans, receiver Copy, duplicate entries, and unified-call on/off parity. Do not add map-fact replay, key normalization, generic call routing, or result policy. Selected expression kinds become 9, selected statement roots stay 2, and residual kinds ratchet 46->45. Root partition evidence must remain minimal so its 745-line baseline stays below 800; detailed parity belongs in collection_literals.rs. New files, fallback, retry, and per-entry route mixing are forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0-DESIGN-STOP"
+current_blocker_token = "RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0-IMPLEMENT"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
