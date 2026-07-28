@@ -1,5 +1,5 @@
 ---
-Status: closed
+Status: closed; growth-failure contract superseded
 Date: 2026-07-28
 Decision: MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT
 Ceremony: policy housekeeping; not a production replacement cell
@@ -14,6 +14,15 @@ Workstream:
 ---
 
 # MIRBUILDER-STRUCTURAL-BUDGET0-CLOSEOUT
+
+## Later policy correction
+
+The four measurements and compact TSV remain useful. The original automatic
+failure on footprint growth and the five-cell non-positive gate are
+superseded by the current in-place replacement policy. The shared guard now
+reports current values against the baseline; semantic authority, fallback
+zero, old-edge deletion, parity, and the 800-line source/check boundary remain
+the hard gates.
 
 ## Closeout
 
@@ -94,7 +103,7 @@ test_loc     = 40826
 The split is intentionally mechanical. It is not a semantic ownership
 classification.
 
-## Ratchet row
+## Baseline row
 
 Add one compact TSV under the existing design fixtures:
 
@@ -109,25 +118,19 @@ Schema:
 source_files	source_loc	test_files	test_loc
 ```
 
-It contains one current ceiling row only.
+It contains one current baseline row only.
 
-Normal check fails if any measured value exceeds its ceiling:
-
-```text
-measured source_files > ceiling source_files
-measured source_loc   > ceiling source_loc
-measured test_files   > ceiling test_files
-measured test_loc     > ceiling test_loc
-```
-
-At a macro-pack close, update each ceiling to:
+The shared guard reports each measured value and its signed baseline delta:
 
 ```text
-min(previous ceiling, measured value)
+measured source_files - baseline source_files
+measured source_loc   - baseline source_loc
+measured test_files   - baseline test_files
+measured test_loc     - baseline test_loc
 ```
 
-Source headroom cannot compensate for test growth, and file-count headroom
-cannot compensate for LOC growth.
+Pack close or an explicit structural review may update the baseline to the
+current values. No dimension acts as implementation permission.
 
 ## Shared guard
 
@@ -149,17 +152,18 @@ no generated report
 ```
 
 The existing shared guard reads the one TSV row, runs the four measurements,
-and fails on growth. Keep the added shell compact and readable.
+and reports their deltas. Keep the shell compact and readable.
 
 Existing rules still apply:
 
 ```text
 new per-cell shell guards = 0
 all modified source/check files < 800 lines
-five-cell rolling production Rust LOC <= 0
+five-cell rolling production Rust LOC = historical trend only
 ```
 
-These prevent one-line wrapper proliferation without a new check inventory.
+The hard rules prevent one-line wrapper proliferation without making total LOC
+an architecture selector.
 
 ## What is not being built
 
@@ -198,8 +202,8 @@ accepted vocabulary classified
 full parity green
 ```
 
-The four metrics show that the implementation/proof footprint did not grow
-while achieving those results.
+The four metrics record the implementation/proof footprint observed with those
+results.
 
 ## Implementation boundary
 
@@ -212,8 +216,8 @@ tools(mir): ratchet structural footprint
 Include only:
 
 ```text
-one TSV ceiling row
-small shared-guard measurement/comparison
+one TSV baseline row
+small shared-guard measurement/report
 focused shell behavior check if existing guard tests provide a natural home
 policy/task/current closeout
 Binary D0 unpark
@@ -266,7 +270,7 @@ seventh replacement row is added
 After this one commit:
 
 ```text
-minimal structural ratchet closed
+minimal structural observation closed
 -> accepted Binary Option A task activates
 -> BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0
 ```

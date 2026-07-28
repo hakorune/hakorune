@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Nine production cells and the minimal four-metric structural ratchet are closed. The current T2 design stop is CANONICAL-DEFAULT-COMPILER-INGRESS0-D0: normal/default compilation still enters Legacy, while existing canonical fronts cover narrower explicit families and have no normal/default production caller. No tenth replacement cell is selected."
+status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Nine production cells and the minimal four-metric structural observation are closed. LOC and file counts are measured closeout results, not implementation-permission gates. The current T2 design stop is CANONICAL-DEFAULT-COMPILER-INGRESS0-D0: normal/default compilation still enters Legacy, while existing canonical fronts cover narrower explicit families and have no normal/default production caller. No tenth replacement cell is selected."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"

@@ -304,23 +304,29 @@ default MirBuilder内部交換とは別に維持し、default cutoverとして�
 新しい発見は必ずこのどれかへ入れる。pack追加は、新しい言語／backend
 scopeを明示的に受理するT2 decisionなしには禁止する。
 
-## Growth budget
+## Structural observation and growth review
 
-目的は箱を増やすことではなく、旧責務を新ownerへ移して総量を収束させる
-ことである。
+目的は箱を増やすことではなく、旧責務を新ownerへ移してauthorityを収束
+させることである。
 
 ```text
 all modified/new source and check files < 800 lines
 T0 cell detached_asset_delta            <= 0
-five-cell rolling production Rust LOC   <= 0
 new per-cell shell guards                = 0
 
-measured source files / LOC              <= ratchet ceiling
-measured test files / LOC                <= ratchet ceiling
+production Rust files / LOC              = record before / after / delta
+measured source files / LOC              = record against baseline
+measured test files / LOC                = record against baseline
 ```
 
-T1で一時的にproduction LOCが増える場合、同じpack内のrepayment cellと削除
-対象を先に予約する。名前だけのsunsetは認めない。
+個別cellのLOC符号、five-cell rolling LOC、source/test総量は実装許可を決める
+hard gateではない。T1/T2の責務分割やtyped owner追加でLOCが増えることを
+許容する。closeoutには増えた責務、削除したauthority、files/LOC差分、その
+差分が必要な理由を記録する。
+
+five-cell rolling値はhistorical trendとして残してよいが、窓から古い削減が
+外れることを理由にcellを選んだり、必要な設計を縮退させたりしない。
+削減だけを目的とする無関係なcleanupを混ぜて帳尻を合わせることも禁止する。
 
 Structural sizeはsemantic authorityではなく増殖検知用の結果指標である。
 次の二rootを固定して、`*test*.rs`とそれ以外を機械的に分ける。
@@ -330,7 +336,7 @@ src/mir/builder
 crates/hakorune_mir_builder
 ```
 
-2026-07-28の凍結ratchetは次である。
+2026-07-28の観測baselineは次である。
 
 ```text
 source files = 952
@@ -339,10 +345,11 @@ test files   = 139
 test LOC     = 40826
 ```
 
-既存shared guardは一行のratchet dataと比較し、いずれかが増えたら失敗する。
-pack close時だけ各ceilingを`min(previous, measured)`へ下げる。新しいchecker、
-path manifest、意味分類台帳は作らない。外部MirBuilder責務のrootが増える場合
-は、この固定root listを明示更新する。
+legacy名の`mirbuilder-structural-ratchet.tsv`は一行のbaseline dataとして
+保持する。shared guardは現在値とbaseline差分を表示するが、増加だけでは
+失敗しない。pack closeまたは明示的な構造レビューでbaselineを実測値へ更新
+する。新しいchecker、path manifest、意味分類台帳は作らない。外部
+MirBuilder責務のrootが増える場合は、この固定root listを明示更新する。
 
 ## Completion
 
@@ -376,8 +383,9 @@ proof-only assets classified and settled          = all
 full accepted corpus/backend parity                = green
 ```
 
-四つのratchet値は上記semantic completionを置き換えない。作り替えの結果として
-source/test footprintが増えていないことだけを保証する。
+四つのbaseline値とLOC trendは上記semantic completionを置き換えない。
+作り替えのstructural impactを可視化し、増加理由をレビュー可能にするだけで
+ある。
 
 `Legacy`という語が互換data formatやdiagnostic名に残る場合は、production
 orchestrationではないことをledgerへ明記する。

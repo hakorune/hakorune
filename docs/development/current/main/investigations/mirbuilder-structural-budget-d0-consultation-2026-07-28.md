@@ -1,8 +1,8 @@
 ---
-Status: closed
+Status: closed; growth-failure rule superseded by measurement-only policy
 Date: 2026-07-28
-Decision: minimal four-metric ratchet
-Scope: prevent MirBuilder source/test footprint growth without creating a planning subsystem
+Decision: minimal four-metric structural observation
+Scope: measure MirBuilder source/test footprint without creating a planning subsystem
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
 Execution:
@@ -11,7 +11,7 @@ Execution:
 
 # MirBuilder structural budget D0
 
-## Accepted decision
+## Accepted decision, as amended
 
 Structural size is a result metric, not MirBuilder design authority.
 
@@ -20,8 +20,8 @@ Implement only:
 ```text
 two fixed source roots
 four find/wc measurements
-one TSV ratchet row
-one comparison in the existing shared guard
+one TSV baseline row
+one measurement report in the existing shared guard
 ```
 
 Measured roots:
@@ -38,7 +38,7 @@ source = *.rs excluding *test*.rs
 test   = *test*.rs
 ```
 
-Frozen values:
+Baseline values:
 
 ```text
 source_files = 952
@@ -47,8 +47,9 @@ test_files   = 139
 test_loc     = 40826
 ```
 
-Every closed state must remain at or below the ratchet row in all four
-dimensions. Pack close lowers each ceiling to the measured minimum.
+Every closeout records the four current values and their delta from baseline.
+An increase is a review fact, not an automatic failure. Pack close or an
+explicit structural review may update the baseline to the current measurement.
 
 ## Correction of the rejected design
 
@@ -87,8 +88,9 @@ fallback / retry = 0
 parity green
 ```
 
-The structural ratchet only proves that implementation and test footprint did
-not grow while the semantic replacement progressed.
+The structural observation makes implementation and test footprint changes
+visible while semantic replacement progresses. It does not decide whether a
+responsibility owner is acceptable.
 
 Existing policy already forbids per-cell shell guards and files at or above
 800 lines. No separate check-file inventory is required.

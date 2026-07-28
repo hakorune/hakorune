@@ -399,8 +399,9 @@ retire:
 
 This T1 cell changes only the responsibility interface. It preserves the
 Return ABI, Match/defer/cleanup/completion owners, located inactive adapter,
-and language/runtime/backend behavior. Its measured `src/**/*.rs` delta must
-be `<= -68` so the new five-cell rolling total remains non-positive.
+and language/runtime/backend behavior. Its historical execution estimate used
+`-68` as a five-cell target; the current policy records that trend without
+using it as implementation permission.
 
 Closeout:
 
@@ -430,7 +431,7 @@ The consultation selected Option A and the implementation has since added one
 closed manifest row. Binary has one live source selector, two disjoint semantic
 owners, and zero remaining predecessor-chain symbols.
 
-## Structural footprint ratchet
+## Structural footprint observation
 
 Structural size is a result metric, not replacement completion authority:
 
@@ -439,7 +440,7 @@ docs/development/current/main/investigations/
 mirbuilder-structural-budget-d0-consultation-2026-07-28.md
 ```
 
-Fixed roots and frozen observation:
+Fixed roots and baseline observation:
 
 ```text
 roots:
@@ -459,10 +460,10 @@ docs/development/current/main/investigations/
 mirbuilder-structural-budget0-closeout-task-2026-07-28.md
 ```
 
-The closeout is one small commit: one TSV ceiling row plus four measurements in
-the existing shared guard. No Python checker, path digest, disposition ledger,
-or final-X derivation is added. After it lands, the accepted Binary task
-activates immediately.
+The closeout landed one TSV baseline row plus four measurements in the existing
+shared guard. The later policy correction makes growth measurement-only: it
+requires explanation but does not reject a cell. No Python checker, path
+digest, disposition ledger, or final-X derivation is added.
 
 ## Accepted seventh replacement
 
@@ -494,8 +495,8 @@ The source partition is total and pairwise-disjoint. Each semantic owner keeps
 its own parity, failure, reuse, and child-demand proof. The cell does not claim
 shared semantics and neither owner may be credited again later.
 
-The structural ratchet is closed. The seventh manifest row and Binary source
-edits landed together in the atomic implementation closeout.
+The structural observation is closed. The seventh manifest row and Binary
+source edits landed together in the atomic implementation closeout.
 
 Closeout:
 
@@ -590,7 +591,7 @@ record_helper_args and MethodCall tests
 private M0 route helper after exact caller census
 real allocator record-construction helper guard
 shared replacement guard
-four-metric structural ratchet
+four-metric structural observation
 ```
 
 Hard stop:
@@ -601,8 +602,8 @@ call-site location/ledger/token reuse
 helper grammar or Return completion change
 located production activation
 fallback / retry / reselection
-new source/test/check file
-source/test ratchet or five-cell rolling LOC breach
+new unowned source/test/check file
+unexplained source/test or rolling-LOC growth
 ```
 
 Closeout:

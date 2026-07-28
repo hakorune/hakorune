@@ -41,7 +41,7 @@ new owner
 独立した第二MirBuilder、遠い一括CUT0、production consumer 0のroute建設は
 行わない。
 
-cell数、pack数、LOC、structural ratchetは進捗と増殖検知の手段であり、
+cell数、pack数、LOC、structural observationは進捗と増殖検知の手段であり、
 architecture goalやcompletion authorityではない。cellはnorth-star上の
 authorityを一つ減らす場合だけ選択する。
 
@@ -51,7 +51,7 @@ authorityを一つ減らす場合だけ選択する。
 CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
 ```
 
-最小structural ratchet、第七Binary cell、第八record-helper body descent
+最小structural observation、第七Binary cell、第八record-helper body descent
 cellはclosed。helper driverはReturn-as-value ownerのまま、選択済み
 MethodCall portをtagged child loanとして短期再借用し、旧direct edge二本と
 dead same-family facade三本はゼロになった。
@@ -166,16 +166,16 @@ accepted_next_responsibility       = 0; design stop
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
-structural_budget_status           = closed minimal ratchet
-source_files_ceiling               = 952
-source_LOC_ceiling                 = 182452
-test_files_ceiling                 = 139
-test_LOC_ceiling                   = 40826
+structural_budget_status           = closed minimal observation
+source_files_baseline              = 952
+source_LOC_baseline                = 182452
+test_files_baseline                = 139
+test_LOC_baseline                  = 40826
 ```
 
-Semantic evidence remains completion authority. The four ratchet values are
-result metrics that fail on growth; five-cell production Rust LOC also remains
-non-positive.
+Semantic evidence remains completion authority. The four structural values and
+five-cell production Rust LOC are measurement history. Growth requires a
+closeout explanation, not automatic rejection.
 
 ## Active replacement cell
 

@@ -59,8 +59,8 @@ Resolve
 ```
 
 `MIRBUILDER-INPLACE-REPLACEMENT0`は、この最終形へ現在のproduction
-MirBuilderを移す方法である。replacement cellやstructural ratchetは移行手段
-であって、最終architectureの代わりではない。
+MirBuilderを移す方法である。replacement cellやstructural measurementsは
+移行の観測手段であって、最終architectureの代わりではない。
 
 ## Authority map
 
@@ -221,9 +221,9 @@ selected old production owner / facade / edge                     = 0
 full accepted corpus / backend parity                             = green
 ```
 
-pack counters、replacement ledger、five-cell LOC、source/test ratchetは、この
-semantic completionへ到達するための進捗・増殖guardである。いずれも単独では
-completion authorityにならない。
+pack counters、replacement ledger、five-cell LOC、source/test measurements
+は、このsemantic completionへ到達する過程の観測値である。増減だけで
+implementation permissionやcompletionを決めない。
 
 ## Explicit non-goals
 

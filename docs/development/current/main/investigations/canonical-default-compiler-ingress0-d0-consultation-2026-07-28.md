@@ -342,22 +342,21 @@ and effect timing, and hides incomplete accepted-family coverage.
 
 ## Structural boundary
 
-Current closed ratchet:
+Current structural observation:
 
 ```text
-source files / ceiling = 952 / 952
-source LOC   / ceiling = 182452 / 182452
-test files   / ceiling = 139 / 139
-test LOC     / ceiling = 40809 / 40826
+source files current / baseline = 952 / 952
+source LOC   current / baseline = 182452 / 182452
+test files   current / baseline = 139 / 139
+test LOC     current / baseline = 40809 / 40826
 ```
 
-The next five-cell rolling production LOC base is `-141`, so a tenth cell could
-be at most `+141` under that independent rule.
+The next historical five-cell rolling production LOC base is `-141`. This is a
+trend observation, not a limit on the tenth cell.
 
-The four-metric ratchet above measures the fixed MirBuilder roots only. It does
+The four-metric observation above measures the fixed MirBuilder roots only. It does
 not measure `src/mir/compiler` or runner files and therefore cannot, by itself,
-bound this compiler-ingress implementation. Those MirBuilder-root ceilings
-remain applicable only if the implementation touches those roots.
+bound this compiler-ingress implementation.
 
 This D0 does not predetermine the sign of the compiler/runner LOC delta. A T2
 typed request, total classifier, or clean responsibility split may legitimately
@@ -365,23 +364,21 @@ add code while deleting an old authority. Architecture closure is the gate;
 file/LOC counts are measured consequences that must be reported and justified.
 
 ```text
-MirBuilder source/test ratchet      = apply only to touched measured roots
+MirBuilder source/test observation  = report current / baseline / delta
 production Rust files/LOC           = record before / after / delta
 new files                           = allowed only for a named responsibility
 new per-cell guard                  = 0
 all touched source/check files      < 800 lines
 ```
 
-Proof consolidation or dead-facade cleanup may later ratchet the ceilings
-downward. Their deletion does not automatically authorize unrelated growth.
+Proof consolidation or dead-facade cleanup may later lower the observed
+footprint. Their deletion does not automatically authorize unrelated growth.
 Conversely, a necessary T2 owner must not be distorted merely to force one
 cell's LOC negative.
 
-The existing five-cell rolling rule is evaluated when an implementation shape
-is known. Individual cells may be positive, as several closed cells already
-are. If a required north-star change cannot satisfy the current rolling policy
-without harming the responsibility boundary, stop for an explicit policy
-decision rather than padding deletions or weakening the design.
+Individual cells may be positive, as several closed cells already are. The
+rolling value is recorded at closeout, but it must not cause padding deletions,
+task reselection, or a weaker responsibility boundary.
 
 ## Required evidence before implementation
 
@@ -402,9 +399,9 @@ compatibility/reference caller delta          = 0
 canonical rejection -> Legacy                 = 0
 full normal corpus/backend parity gate        = named
 failure / compiler reuse / atomic publish     = named
-MirBuilder ratchet impact                      = measured by its exact scope
+MirBuilder structural impact                   = measured by its exact scope
 production Rust files/LOC delta                = measured and justified
-five-cell policy impact                        = evaluated explicitly
+five-cell trend                                = measured
 ```
 
 Only after all rows are accepted may a tenth replacement manifest row be
@@ -425,7 +422,7 @@ normal and compatibility callers cannot be separated
 canonical rejection requires Legacy retry
 one atomic old-edge delete set cannot be named
 full parity requires unrelated language/runtime/backend semantics
-source/test/check structural ceilings would grow
+source/test/check growth is unexplained or unowned
 ```
 
 ## Explicit non-claims

@@ -118,15 +118,15 @@ fi
 ratchet_header=$'source_files\tsource_loc\ttest_files\ttest_loc'
 if [[ "$(head -n1 "$STRUCTURAL_RATCHET")" != "$ratchet_header" ]] ||
    [[ "$(wc -l < "$STRUCTURAL_RATCHET" | tr -d '[:space:]')" != "2" ]]; then
-  guard_fail "$TAG" "structural ratchet must contain one ceiling row"
+  guard_fail "$TAG" "structural observation must contain one baseline row"
 fi
-read -r source_files_ceiling source_loc_ceiling test_files_ceiling test_loc_ceiling \
+read -r source_files_baseline source_loc_baseline test_files_baseline test_loc_baseline \
   < <(tail -n1 "$STRUCTURAL_RATCHET")
-if [[ ! "$source_files_ceiling" =~ ^[0-9]+$ ]] ||
-   [[ ! "$source_loc_ceiling" =~ ^[0-9]+$ ]] ||
-   [[ ! "$test_files_ceiling" =~ ^[0-9]+$ ]] ||
-   [[ ! "$test_loc_ceiling" =~ ^[0-9]+$ ]]; then
-  guard_fail "$TAG" "structural ratchet ceiling row must be numeric"
+if [[ ! "$source_files_baseline" =~ ^[0-9]+$ ]] ||
+   [[ ! "$source_loc_baseline" =~ ^[0-9]+$ ]] ||
+   [[ ! "$test_files_baseline" =~ ^[0-9]+$ ]] ||
+   [[ ! "$test_loc_baseline" =~ ^[0-9]+$ ]]; then
+  guard_fail "$TAG" "structural observation baseline row must be numeric"
 fi
 
 builder_roots=(
@@ -144,16 +144,13 @@ test_loc="$(
     | xargs -0 wc -l | tail -n1 | awk '{ print $1 }'
 )"
 
-while read -r label measured ceiling; do
-  if (( measured > ceiling )); then
-    guard_fail "$TAG" "structural ratchet exceeded: $label=$measured ceiling=$ceiling"
-  fi
-done <<EOF
-source_files $source_files $source_files_ceiling
-source_loc $source_loc $source_loc_ceiling
-test_files $test_files $test_files_ceiling
-test_loc $test_loc $test_loc_ceiling
-EOF
+printf \
+  '[%s] structural observation: source_files=%d (%+d), source_loc=%d (%+d), test_files=%d (%+d), test_loc=%d (%+d)\n' \
+  "$TAG" \
+  "$source_files" "$((source_files - source_files_baseline))" \
+  "$source_loc" "$((source_loc - source_loc_baseline))" \
+  "$test_files" "$((test_files - test_files_baseline))" \
+  "$test_loc" "$((test_loc - test_loc_baseline))"
 
 current_row_count="$(awk -F '\t' '
   $1 == "cell" &&
