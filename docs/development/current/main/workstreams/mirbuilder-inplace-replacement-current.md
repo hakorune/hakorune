@@ -41,9 +41,10 @@ Closed:  RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0
 Closed:  RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY1-D0
-Current: RAW-NONPROGRAM-NOWAIT-ROOT-DESCENT0-I0-R0
-Pack:    CONTROL0
-Ceremony: T1; one atomic production replacement
+Closed:  RAW-NONPROGRAM-NOWAIT-ROOT-DESCENT0-I0-R0
+Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0
+Pack:    selection pending
+Ceremony: design stop; production edit = 0
 ```
 
 R1 closeout:
@@ -166,48 +167,50 @@ largest touched source/check file         = 593
 largest relevant source/check file        = 774, unchanged
 ```
 
-## Current execution row
+R2l closeout:
 
 ```text
-RAW-NONPROGRAM-NOWAIT-ROOT-DESCENT0-I0-R0
+safe Nowait compatibility edge             = 0
+selected expression kinds                 = 7
+selected statement-root kinds             = 2
+registered residual kinds                 = 47
+selected / compatibility terminals        = 1 / 1
+MIR/span/Future/binding/slot parity         = green
+focused Rust tests                          = 7/7
+fallback / retry / reselection             = 0
+Rust net delta, including focused tests     = +153
+new source/test/check/task file             = 0
+largest touched source/check file           = 706
+largest relevant source/check file          = 774, unchanged
+```
 
-Decision / boundary:
-  Candidate A; T1 / CONTROL0
-  select Nowait(target: current String, expression: PortNeutralExprTreeV1)
-  as a private statement-root sibling, not an expression-tree constructor
-  retain unsafe-child Nowait whole on compatibility
-  do not claim BindingRef, resolver, typed-slot, redeclaration, scheduling,
-  Ownership, or View authority
+## Current design question
 
-Production edge / preserved order:
-  shared raw non-Program root
-  -> selected invocation child port
-  -> existing statement dispatcher
-  -> build_nowait_statement_with_port_v1
-  -> child descent
-  -> FutureNew
-  -> Future<T> type
-  -> by-name variable_map
-  -> optional slot ensure
+```text
+RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0
 
-Atomic change:
-  safe Nowait
-  -> unconditional SeparateDesignStop compatibility
-  = 0
-  selected expression kinds = 7 unchanged
-  selected statement roots   = 1 -> 2
-  registered residual kinds  = 48 -> 47
-  selected/compat terminals  = 1 / 1 unchanged
+Candidate A:
+  ArrayLiteral([PortNeutralExprTreeV1]*)
+  CALL-OBJECT0
+  preserve allocation -> birth -> registry -> element/write order
+  -> aggregate element metadata
 
-Gates / stops:
-  safe / unsafe Nowait partition is recursive and disjoint
-  selected invocation port vs raw legacy port has exact MIR/span/state parity
-  normal candidate parity and Nowait(missing) rollback/reuse are green
-  shared guard fixes selected/compat driver sites at 1/1
-  fallback / retry / route mixing = 0
-  owner implementation / AST clone / reparse delta = 0
-  new source/test/check/task file = 0
-  any BindingRef/typed-slot semantics or file >= 800 -> stop
+Candidate B:
+  MapLiteral([(String key, PortNeutralExprTreeV1)]*)
+  CALL-OBJECT0
+  preserve allocation -> birth -> registry
+  -> key const -> value -> runtime set order
+
+Separate:
+  QMarkPropagate -> physical Return/CFG/runtime-call CONTROL0
+
+Required:
+  one exact production responsibility
+  same-commit safe residual deletion
+  whole-container route; no per-item mixing or retry
+
+Stop:
+  production edit or automatic candidate selection
 ```
 
 Compatibility sunset:
@@ -247,7 +250,8 @@ R2h RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2i RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0 closed
 R2j RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0 closed
 R2k RAW-NONPROGRAM-NEXT-RESPONSIBILITY1-D0 closed
-R2l RAW-NONPROGRAM-NOWAIT-ROOT-DESCENT0-I0-R0 current
+R2l RAW-NONPROGRAM-NOWAIT-ROOT-DESCENT0-I0-R0 closed
+R2m RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0 current design stop
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:

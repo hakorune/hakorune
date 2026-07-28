@@ -406,7 +406,7 @@ def main() -> int:
     )
     if root_descent.get("sunset_state") != "active":
         raise AssertionError("raw root compatibility sunset must remain active")
-    if root_descent.get("residual_kind_count") != 48:
+    if root_descent.get("residual_kind_count") != 47:
         raise AssertionError("raw root compatibility residual count drift")
     ast_node_kinds = ast_kinds(
         (
@@ -422,8 +422,8 @@ def main() -> int:
             f"extra={sorted(classified_kinds - ast_node_kinds)}"
         )
     selected_arms = re.findall(
-        r"node\s*@\s*(.*?)=>\s*\{\s*Self::selected_(?:expr_tree|print_root)\(node\)\s*\}"
-        r"|node\s*@\s*(.*?)=>\s*Self::selected_(?:expr_tree|print_root)\(node\)",
+        r"node\s*@\s*(.*?)=>\s*\{\s*Self::selected_(?:expr_tree|print_root|nowait_root)\(node\)\s*\}"
+        r"|node\s*@\s*(.*?)=>\s*Self::selected_(?:expr_tree|print_root|nowait_root)\(node\)",
         raw_nonprogram_root_descent,
         re.S,
     )
@@ -432,7 +432,7 @@ def main() -> int:
         selected_kinds.update(ast_kinds(braced or direct))
     expected_selected = {
         "Literal", "Variable", "Me", "UnaryOp", "BinaryOp", "AwaitExpression",
-        "CheckExpr", "Print",
+        "CheckExpr", "Print", "Nowait",
     }
     if selected_kinds != expected_selected:
         raise AssertionError(
@@ -456,7 +456,7 @@ def main() -> int:
         )
     )
     expected_separate = {
-        "Assignment", "CompoundAssignment", "If", "Return", "Nowait",
+        "Assignment", "CompoundAssignment", "If", "Return",
         "TaskScope", "QMarkPropagate", "MatchExpr",
         "EnumMatchExpr", "ArrayLiteral", "MapLiteral", "RecordLiteral",
         "RecordUpdate", "Lambda", "BlockExpr", "TryCatch", "Throw",
@@ -514,6 +514,14 @@ def main() -> int:
         require(raw_nonprogram_root_descent, fragment, "selected Print root partition")
     if raw_nonprogram_root_descent.count("node @ ASTNode::Print { .. }") != 2:
         raise AssertionError("Print root must have one safe and one compatibility arm")
+    for fragment in (
+        "node @ ASTNode::Nowait { .. } if is_port_neutral_nowait_root(&node)",
+        "PortNeutralNowaitRootV1",
+        "SelectedRawNonProgramRootV1::NowaitRoot",
+    ):
+        require(raw_nonprogram_root_descent, fragment, "selected Nowait root partition")
+    if raw_nonprogram_root_descent.count("node @ ASTNode::Nowait { .. }") != 2:
+        raise AssertionError("Nowait root must have one safe and one compatibility arm")
     for fragment in (
         "PreparedRawNonProgramRootV1",
         "SelectedRawNonProgramRootV1",

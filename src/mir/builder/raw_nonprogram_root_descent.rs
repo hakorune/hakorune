@@ -2,7 +2,7 @@
 //!
 //! The selected invocation port is parity-safe only for expression trees whose
 //! complete recursive surface is Literal, Variable, Me, Unary, Binary, Await,
-//! or Check, plus a Print root whose value is one such tree.
+//! or Check, plus Print and Nowait roots whose value is one such tree.
 //! Every other non-Program root keeps the existing raw compatibility terminal
 //! until its own production responsibility cell removes that residual.
 
@@ -29,6 +29,7 @@ pub(super) enum PreparedRawNonProgramRootV1 {
 enum SelectedRawNonProgramRootV1 {
     ExprTree(PortNeutralExprTreeV1),
     PrintRoot(PortNeutralPrintRootV1),
+    NowaitRoot(PortNeutralNowaitRootV1),
 }
 
 struct PortNeutralExprTreeV1 {
@@ -39,11 +40,16 @@ struct PortNeutralPrintRootV1 {
     node: ASTNode,
 }
 
+struct PortNeutralNowaitRootV1 {
+    node: ASTNode,
+}
+
 impl SelectedRawNonProgramRootV1 {
     fn into_node(self) -> ASTNode {
         match self {
             Self::ExprTree(tree) => tree.node,
             Self::PrintRoot(root) => root.node,
+            Self::NowaitRoot(root) => root.node,
         }
     }
 }
@@ -97,6 +103,13 @@ impl PreparedRawRootPartitionV1 {
                 node,
                 RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
             ),
+            node @ ASTNode::Nowait { .. } if is_port_neutral_nowait_root(&node) => {
+                Self::selected_nowait_root(node)
+            }
+            node @ ASTNode::Nowait { .. } => Self::compatibility(
+                node,
+                RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+            ),
             node @ (ASTNode::BoxDeclaration { .. } | ASTNode::Loop { .. }) => {
                 Self::compatibility(node, RawNonProgramRootCompatibilityClassV1::ExplicitRoot)
             }
@@ -104,7 +117,6 @@ impl PreparedRawRootPartitionV1 {
             | ASTNode::CompoundAssignment { .. }
             | ASTNode::If { .. }
             | ASTNode::Return { .. }
-            | ASTNode::Nowait { .. }
             | ASTNode::TaskScope { .. }
             | ASTNode::QMarkPropagate { .. }
             | ASTNode::MatchExpr { .. }
@@ -167,6 +179,12 @@ impl PreparedRawRootPartitionV1 {
         ))
     }
 
+    fn selected_nowait_root(node: ASTNode) -> Self {
+        Self::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
+            SelectedRawNonProgramRootV1::NowaitRoot(PortNeutralNowaitRootV1 { node }),
+        ))
+    }
+
     fn compatibility(node: ASTNode, class: RawNonProgramRootCompatibilityClassV1) -> Self {
         Self::NonProgram(PreparedRawNonProgramRootV1::Compatibility { node, class })
     }
@@ -174,6 +192,13 @@ impl PreparedRawRootPartitionV1 {
 
 fn is_port_neutral_print_root(node: &ASTNode) -> bool {
     let ASTNode::Print { expression, .. } = node else {
+        return false;
+    };
+    is_port_neutral_expr_tree(expression)
+}
+
+fn is_port_neutral_nowait_root(node: &ASTNode) -> bool {
+    let ASTNode::Nowait { expression, .. } = node else {
         return false;
     };
     is_port_neutral_expr_tree(expression)
@@ -281,7 +306,8 @@ mod tests {
     use crate::mir::builder::recursive_child_lowering::{
         drive_legacy_expression_v1, drive_raw_legacy_expression_v1, RawInvocationChildPortV1,
     };
-    use crate::mir::MirBuilder;
+    use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
+    use crate::mir::{MirBuilder, MirType};
     use crate::parser::NyashParser;
 
     use super::{
@@ -332,6 +358,14 @@ mod tests {
         }
     }
 
+    fn nowait(variable: &str, expression: ASTNode) -> ASTNode {
+        ASTNode::Nowait {
+            variable: variable.to_owned(),
+            expression: Box::new(expression),
+            span: Span::unknown(),
+        }
+    }
+
     fn assert_selected(node: ASTNode) {
         assert!(matches!(
             PreparedRawRootPartitionV1::classify(node),
@@ -349,6 +383,17 @@ mod tests {
             PreparedRawRootPartitionV1::NonProgram(
                 PreparedRawNonProgramRootV1::SelectedPortParity(
                     SelectedRawNonProgramRootV1::PrintRoot(_)
+                )
+            )
+        ));
+    }
+
+    fn assert_selected_nowait(node: ASTNode) {
+        assert!(matches!(
+            PreparedRawRootPartitionV1::classify(node),
+            PreparedRawRootPartitionV1::NonProgram(
+                PreparedRawNonProgramRootV1::SelectedPortParity(
+                    SelectedRawNonProgramRootV1::NowaitRoot(_)
                 )
             )
         ));
@@ -410,6 +455,10 @@ mod tests {
             integer(11),
             variable("ready"),
         ]))));
+        assert_selected_nowait(nowait(
+            "pending",
+            awaited(checked(vec![integer(12), variable("ready")])),
+        ));
 
         assert_compatibility(
             ASTNode::UnaryOp {
@@ -508,6 +557,17 @@ mod tests {
             }),
             RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
         );
+        assert_compatibility(
+            nowait(
+                "pending",
+                ASTNode::FieldAccess {
+                    object: Box::new(variable("page")),
+                    field: "value".to_owned(),
+                    span: Span::unknown(),
+                },
+            ),
+            RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+        );
     }
 
     fn spanned_instructions(builder: &MirBuilder) -> Vec<(String, Span)> {
@@ -549,6 +609,80 @@ mod tests {
             spanned_instructions(&selected),
             spanned_instructions(&legacy)
         );
+    }
+
+    #[test]
+    fn selected_nowait_root_matches_raw_legacy_effects_exactly() {
+        let root = || nowait("pending", checked(vec![integer(16), integer(17)]));
+        let mut legacy = MirBuilder::new();
+        legacy.enter_function_for_test("nowait_root_parity/0".to_owned());
+        legacy.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
+        let legacy_value = drive_raw_legacy_expression_v1(&mut legacy, root()).unwrap();
+
+        let mut selected = MirBuilder::new();
+        selected.enter_function_for_test("nowait_root_parity/0".to_owned());
+        selected.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
+        let selected_value = {
+            let mut invocation = ModuleLoweringInvocationV1::with_collector(
+                &mut selected,
+                ModuleDraftCollectorV1::default(),
+            );
+            invocation.with_module_port(|builder, module_port| {
+                let mut port = RawInvocationChildPortV1::new(module_port);
+                drive_legacy_expression_v1(builder, &mut port, root())
+            })
+        }
+        .unwrap();
+
+        assert_eq!(selected_value, legacy_value);
+        assert_eq!(
+            spanned_instructions(&selected),
+            spanned_instructions(&legacy)
+        );
+        let selected_binding = selected
+            .function_state
+            .variable_ctx
+            .variable_map
+            .get("pending");
+        let legacy_binding = legacy
+            .function_state
+            .variable_ctx
+            .variable_map
+            .get("pending");
+        assert_eq!(selected_binding, Some(&selected_value));
+        assert_eq!(legacy_binding, Some(&legacy_value));
+        assert_eq!(
+            selected
+                .function_state
+                .type_ctx
+                .value_types
+                .get(&selected_value),
+            legacy
+                .function_state
+                .type_ctx
+                .value_types
+                .get(&legacy_value)
+        );
+        assert!(matches!(
+            selected
+                .function_state
+                .type_ctx
+                .value_types
+                .get(&selected_value),
+            Some(MirType::Future(inner)) if **inner == MirType::Integer
+        ));
+        let selected_slot = selected
+            .comp_ctx
+            .current_slot_registry
+            .as_ref()
+            .and_then(|registry| registry.get_slot("pending"));
+        let legacy_slot = legacy
+            .comp_ctx
+            .current_slot_registry
+            .as_ref()
+            .and_then(|registry| registry.get_slot("pending"));
+        assert_eq!(selected_slot, legacy_slot);
+        assert!(selected_slot.is_some());
     }
 
     #[test]
