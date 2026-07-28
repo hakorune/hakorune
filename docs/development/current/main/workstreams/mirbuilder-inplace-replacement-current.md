@@ -50,9 +50,10 @@ Closed:  RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0
 Closed:  RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0
 Closed:  RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0
-Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY5-D0
-Pack:    ROOT-LIFECYCLE0
-Ceremony: read-only live-edge census
+Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY5-D0
+Current: RAW-NONPROGRAM-INDEX-COMPOSITIONAL-DESCENT0-I0-R0
+Pack:    DESCENT-SPINE0
+Ceremony: T1; one atomic I0/R0
 ```
 
 R1 closeout:
@@ -261,27 +262,60 @@ new source/test/check file                    = 0
 largest touched source/check file             = 665
 ```
 
-## Current design stop
+## Current execution row
 
 ```text
-RAW-NONPROGRAM-NEXT-RESPONSIBILITY5-D0
+RAW-NONPROGRAM-INDEX-COMPOSITIONAL-DESCENT0-I0-R0
 
-Read-only:
-  refresh the remaining 44-kind live compatibility census
-  compare only responsibilities with existing production owners
+Accepted constructor:
+  Index {
+    target: PortNeutralExprTreeV1
+    index:  PortNeutralExprTreeV1
+  }
 
-Selection requires:
-  one named production caller
-  one bounded source-only partition
-  one same-commit old compatibility-edge deletion
-  no duplicated target/family decision
-  fallback / retry / reselection = 0
+Existing owner:
+  build_index_expression_with_port_v1
 
-Park:
-  implementation
-  whole-program accepted variants
-  source-level Ownership / View
-  all other new language semantics
+Owner laws:
+  static-data Variable target:
+    target descent = 0
+    index descent  = 1 through selected port
+    StaticDataLoad = 1
+    type commit    = success-only
+
+  generic target:
+    target descent = 1 through selected port
+    index descent  = 1 through same port
+    access completion = 1
+
+Atomic delete:
+  safe Index
+  -> unconditional SeparateDesignStop
+  -> raw compatibility
+  = 0
+
+Ratchet:
+  selected expression kinds = 10 -> 11
+  selected statement roots  = 2 unchanged
+  residual kinds            = 44 -> 43
+  selected/compat terminals = 1 / 1 unchanged
+
+Non-authority:
+  static-data/dynamic route selection
+  Array/Map get policy
+  fastmem/access-site/type/origin publication
+  Index assignment/store
+  Field/New/Call
+
+Hard stop:
+  classifier reads Builder/current_module/type facts
+  unsafe target or index selected
+  static/dynamic route selected outside Index owner
+  target/index classified or lowered twice
+  static Variable target is forced through child descent
+  target-before-index order or success-only type commit changes
+  selected failure enters compatibility
+  new source/failure owner, file, or terminal appears
 ```
 
 Compatibility sunset:
@@ -330,7 +364,8 @@ R2q RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0 closed
 R2r RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0 closed
 R2s RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0 closed
 R2t RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 closed
-R2u RAW-NONPROGRAM-NEXT-RESPONSIBILITY5-D0 current
+R2u RAW-NONPROGRAM-NEXT-RESPONSIBILITY5-D0 closed
+R2v RAW-NONPROGRAM-INDEX-COMPOSITIONAL-DESCENT0-I0-R0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:
