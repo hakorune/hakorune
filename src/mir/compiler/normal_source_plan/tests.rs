@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
-use crate::ast::{ASTNode, DeclarationAttrs, EnumVariantDecl, LiteralValue, ParamDecl, Span};
+use crate::ast::{
+    ASTNode, DeclarationAttrs, EnumVariantDecl, FieldDecl, LiteralValue, ParamDecl, Span,
+};
 
 use super::*;
 
@@ -81,8 +83,51 @@ fn main_only() -> ASTNode {
     main_box(vec![("main", function("main", 0, true))], true)
 }
 
+fn instance_box(name: &str, methods: Vec<(&str, ASTNode)>) -> ASTNode {
+    ASTNode::BoxDeclaration {
+        name: name.to_owned(),
+        fields: vec!["value".to_owned()],
+        field_decls: vec![FieldDecl {
+            name: "value".to_owned(),
+            declared_type_name: Some("Integer".to_owned()),
+            is_weak: false,
+            default_value: Some(Box::new(literal(1))),
+        }],
+        public_fields: vec!["value".to_owned()],
+        private_fields: Vec::new(),
+        methods: methods
+            .into_iter()
+            .map(|(method_name, method)| (method_name.to_owned(), method))
+            .collect(),
+        constructors: HashMap::new(),
+        init_fields: vec!["value".to_owned()],
+        weak_fields: Vec::new(),
+        delegates: Vec::new(),
+        invariants: Vec::new(),
+        transitions: Vec::new(),
+        is_interface: false,
+        is_record: false,
+        extends: Vec::new(),
+        implements: Vec::new(),
+        type_parameters: Vec::new(),
+        is_sync: false,
+        is_static: false,
+        static_init: None,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    }
+}
+
 fn seal(source: ASTNode) -> Result<SealedNormalSourcePlanV1, RejectedNormalSourcePlanV1> {
     NormalSourcePlanClassifierV1::seal(input(source))
+}
+
+fn seal_module(
+    source: ASTNode,
+) -> Result<VerifiedNormalModuleSourceV1, RejectedNormalModuleSourceV1> {
+    let inventory = inventory::NormalSourceSurfaceInventoryV1::collect(input(source))
+        .expect("Program inventory");
+    VerifiedNormalModuleSourceV1::seal(inventory)
 }
 
 fn assert_error(source: ASTNode, expected: NormalSourcePlanErrorV1) {
@@ -245,6 +290,162 @@ fn unsupported_declaration_is_rejected_before_family_selection() {
             kind: rejection::NormalUnsupportedTopLevelKindV1::Enum,
         },
     );
+}
+
+#[test]
+fn main_with_plain_instance_box_seals_module_source() {
+    let module = seal_module(program(vec![
+        instance_box("Page", vec![("render", function("render", 1, false))]),
+        main_only(),
+    ]))
+    .expect("finite module source");
+
+    assert_eq!(module.source_identity(), "normal-source-plan0-test");
+    assert_eq!(module.main_statement_index(), 1);
+    assert_eq!(module.main_arity(), 0);
+    assert_eq!(module.instance_boxes().len(), 1);
+    assert_eq!(module.instance_boxes()[0].statement_index(), 0);
+    assert_eq!(module.instance_boxes()[0].name(), "Page");
+    assert_eq!(module.callable_catalog().len(), 2);
+    assert!(module
+        .callable_catalog()
+        .declaration_for(
+            crate::mir::builder::SameModuleCallableNamespaceV1::InstanceBoxMethod,
+            "Page",
+            "render",
+            1,
+        )
+        .is_some());
+}
+
+#[test]
+fn multiple_instance_boxes_preserve_source_order() {
+    let module = seal_module(program(vec![
+        instance_box("Zeta", Vec::new()),
+        main_only(),
+        instance_box("Alpha", Vec::new()),
+    ]))
+    .expect("ordered module source");
+
+    let rows = module
+        .instance_boxes()
+        .iter()
+        .map(|site| (site.statement_index(), site.name()))
+        .collect::<Vec<_>>();
+    assert_eq!(rows, [(0, "Zeta"), (2, "Alpha")]);
+    assert_eq!(module.callable_catalog().len(), 1);
+}
+
+#[test]
+fn instance_method_catalog_correspondence_is_exact() {
+    let module = seal_module(program(vec![
+        instance_box(
+            "Page",
+            vec![
+                ("zeta", function("zeta", 0, false)),
+                ("alpha", function("alpha", 2, false)),
+            ],
+        ),
+        main_only(),
+    ]))
+    .expect("exact callable correspondence");
+
+    let keys = module
+        .callable_catalog()
+        .keys()
+        .map(|key| {
+            (
+                key.namespace(),
+                key.owner().to_owned(),
+                key.name().to_owned(),
+                key.arity(),
+            )
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(keys.len(), 3);
+    assert_eq!(keys[0].1, "Main");
+    assert_eq!(keys[1].1, "Page");
+    assert_eq!(keys[1].2, "alpha");
+    assert_eq!(keys[2].2, "zeta");
+}
+
+#[test]
+fn explicit_constructor_is_rejected_before_builder() {
+    let mut page = instance_box("Page", Vec::new());
+    let ASTNode::BoxDeclaration { constructors, .. } = &mut page else {
+        unreachable!()
+    };
+    constructors.insert("init/0".to_owned(), function("init", 0, false));
+
+    let rejected = seal_module(program(vec![page, main_only()])).unwrap_err();
+    assert_eq!(rejected.stage(), NormalModuleSourceStageV1::BoxShape);
+    assert_eq!(
+        rejected.error(),
+        &NormalModuleSourceErrorV1::BoxShape {
+            statement_index: 0,
+            cause: NormalModuleBoxSourceErrorV1::ConstructorUnsupported,
+        }
+    );
+    rejected.discard();
+}
+
+#[test]
+fn static_method_inside_instance_box_is_rejected() {
+    let rejected = seal_module(program(vec![
+        instance_box("Page", vec![("make", function("make", 0, true))]),
+        main_only(),
+    ]))
+    .unwrap_err();
+    assert_eq!(
+        rejected.error(),
+        &NormalModuleSourceErrorV1::BoxShape {
+            statement_index: 0,
+            cause: NormalModuleBoxSourceErrorV1::StaticMethod,
+        }
+    );
+    rejected.discard();
+}
+
+#[test]
+fn top_level_function_or_runtime_statement_is_rejected() {
+    for extra in [function("helper", 0, true), literal(1)] {
+        let rejected = seal_module(program(vec![
+            instance_box("Page", Vec::new()),
+            main_only(),
+            extra,
+        ]))
+        .unwrap_err();
+        assert_eq!(rejected.stage(), NormalModuleSourceStageV1::Family);
+        rejected.discard();
+    }
+}
+
+#[test]
+fn existing_exact_classifier_still_rejects_non_main_box() {
+    assert_error(
+        program(vec![instance_box("Page", Vec::new()), main_only()]),
+        NormalSourcePlanErrorV1::UnsupportedTopLevelSurface {
+            statement_index: 0,
+            kind: rejection::NormalUnsupportedTopLevelKindV1::Box,
+        },
+    );
+}
+
+#[test]
+fn rejection_retains_source_identity_and_has_no_retry() {
+    let mut page = instance_box("Page", Vec::new());
+    let ASTNode::BoxDeclaration { constructors, .. } = &mut page else {
+        unreachable!()
+    };
+    constructors.insert("init/0".to_owned(), function("init", 0, false));
+    let rejected = seal_module(program(vec![page, main_only()])).unwrap_err();
+    assert_eq!(rejected.source_identity(), "normal-source-plan0-test");
+    rejected.discard();
+
+    assert!(seal_module(program(
+        vec![instance_box("Page", Vec::new()), main_only(),]
+    ))
+    .is_ok());
 }
 
 #[test]

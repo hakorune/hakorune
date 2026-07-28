@@ -7,10 +7,109 @@
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::CallableFunctionSyntaxViewV1;
 
+use super::inventory::{NormalMainBoxSurfaceV1, NormalMethodSurfaceV1};
 use super::product::{
     NormalMainMethodSiteV1, NormalTopLevelSiteV1, PreparedNormalSourcePlanInputV1,
     SealedNormalMainSourceV1,
 };
+use super::rejection::NormalSourcePlanErrorV1;
+
+pub(super) fn validate_main_surface(
+    main_box: &NormalMainBoxSurfaceV1,
+) -> Result<
+    (
+        NormalTopLevelSiteV1,
+        NormalMainMethodSiteV1,
+        Vec<NormalMainMethodSiteV1>,
+    ),
+    NormalSourcePlanErrorV1,
+> {
+    if !main_box.is_static {
+        return Err(NormalSourcePlanErrorV1::MainMustBeStatic);
+    }
+
+    let mut main_method = None;
+    let mut helper_methods = Vec::new();
+    for method in &main_box.methods {
+        if method.method_key.as_ref() == "main" {
+            main_method = Some(validate_main_method(
+                main_box.site.statement_index(),
+                method,
+            )?);
+        } else {
+            helper_methods.push(validate_helper_method(
+                main_box.site.statement_index(),
+                method,
+            )?);
+        }
+    }
+    let Some(main_method) = main_method else {
+        return Err(NormalSourcePlanErrorV1::MainMethodMissing);
+    };
+    Ok((
+        NormalTopLevelSiteV1::new(main_box.site.statement_index()),
+        main_method,
+        helper_methods,
+    ))
+}
+
+fn validate_main_method(
+    main_statement_index: usize,
+    method: &NormalMethodSurfaceV1,
+) -> Result<NormalMainMethodSiteV1, NormalSourcePlanErrorV1> {
+    let Some(declaration_name) = method.declaration_name.as_deref() else {
+        return Err(NormalSourcePlanErrorV1::MainMethodMustBeFunction);
+    };
+    if declaration_name != "main" {
+        return Err(NormalSourcePlanErrorV1::MainMethodNameMismatch {
+            method_key: method.method_key.as_ref().into(),
+            declaration_name: declaration_name.into(),
+        });
+    }
+    let (Some(arity), Some(is_static)) = (method.arity, method.is_static) else {
+        return Err(NormalSourcePlanErrorV1::MainMethodMustBeFunction);
+    };
+    if !is_static {
+        return Err(NormalSourcePlanErrorV1::MainMethodMustBeStatic);
+    }
+    if arity != 0 {
+        return Err(NormalSourcePlanErrorV1::MainArityMismatch { actual: arity });
+    }
+    Ok(NormalMainMethodSiteV1::new(
+        main_statement_index,
+        method.method_key.as_ref().into(),
+        arity,
+        is_static,
+    ))
+}
+
+fn validate_helper_method(
+    main_statement_index: usize,
+    method: &NormalMethodSurfaceV1,
+) -> Result<NormalMainMethodSiteV1, NormalSourcePlanErrorV1> {
+    let Some(declaration_name) = method.declaration_name.as_deref() else {
+        return Err(NormalSourcePlanErrorV1::MainHelperMustBeFunction {
+            method_key: method.method_key.as_ref().into(),
+        });
+    };
+    if declaration_name != method.method_key.as_ref() {
+        return Err(NormalSourcePlanErrorV1::MainHelperNameMismatch {
+            method_key: method.method_key.as_ref().into(),
+            declaration_name: declaration_name.into(),
+        });
+    }
+    let (Some(arity), Some(is_static)) = (method.arity, method.is_static) else {
+        return Err(NormalSourcePlanErrorV1::MainHelperMustBeFunction {
+            method_key: method.method_key.as_ref().into(),
+        });
+    };
+    Ok(NormalMainMethodSiteV1::new(
+        main_statement_index,
+        method.method_key.as_ref().into(),
+        arity,
+        is_static,
+    ))
+}
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum NormalMainFunctionSourceErrorV1 {

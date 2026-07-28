@@ -708,6 +708,8 @@ def main() -> int:
         "VerifiedNormalMainFunctionPlanV1",
         "VerifiedNormalMainThunkPlanV1",
         "VerifiedNormalCallableSourceUnitV1",
+        "VerifiedNormalModuleSourceV1",
+        "RejectedNormalModuleSourceV1",
         "CanonicalNormalMainEntryTargetV1",
         "PreparedNormalCanonicalModuleBatchV1",
         "NormalModuleTransactionSchemaV1",

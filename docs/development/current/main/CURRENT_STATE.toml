@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0 is accepted and closed. NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0 is the sole executable authority: one disconnected, Builder-free VerifiedNormalModuleSourceV1 for the finite Main0WithPlainInstanceBoxes0 family. Production callers, Builder/lowering/publication edits, the tenth replacement cell, fallback, retry, and reselection remain zero."
+status = "NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0 is closed. One disconnected, Builder-free VerifiedNormalModuleSourceV1 now seals the finite Main0WithPlainInstanceBoxes0 family with exact Program/Main/Box/catalog correspondence, eight focused fixtures, production callers=0, and existing canonical behavior unchanged. The next authority is GENERAL-FUNCTION-PLAN0-D0, a design stop selecting one finite body/function-plan vocabulary before implementation."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none; accepted NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0 selected one bounded executable prerequisite"
-current_execution_row = "NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0"
-current_execution_summary = "Implement one opaque VerifiedNormalModuleSourceV1 over the existing owned PreparedNormalSourcePlanInputV1, shared NormalSourceSurfaceInventoryV1, exact static Main.main/0, one-or-more plain non-static instance boxes in source order, and the existing same-module callable catalog with exact source/catalog key correspondence. Keep the product disconnected with test callers only. Existing canonical Script/Main0/Callable classification, production routes, body/function recipes, Builder effects, candidate/publication, raw-AST escape, Legacy fallback, Candidate A, and the tenth replacement row remain unchanged or absent."
+current_design_stop = "GENERAL-FUNCTION-PLAN0-D0; select one finite body/function-plan vocabulary and exact consuming product before implementation"
+current_execution_row = "GENERAL-FUNCTION-PLAN0-D0"
+current_execution_summary = "Select the first finite function-plan slice consuming VerifiedNormalModuleSourceV1. The D0 must define exact accepted body grammar, source-to-function ownership, Facts/Recipe/Verify products, field and receiver obligations, failure boundary before Builder effects, and one executable row. It must not add a catch-all body plan, raw-AST lower escape, Legacy fallback, production caller, Builder effects, Candidate A, Ownership activation, or the tenth replacement row."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0 is the sole executable authority. Its parent D0 is accepted and closed. S0 may only seal the disconnected Main0WithPlainInstanceBoxes0 module-source product with production consumers and Builder effects at zero. Candidate A, Ownership activation, compiler/runtime/backend edits, and the tenth replacement row are parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """GENERAL-FUNCTION-PLAN0-D0 is the sole current design authority. NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0 is closed with a disconnected source/catalog product and production consumers zero. Production implementation must stop until one finite function-plan vocabulary, exact product chain, fail-fast boundary, and executable row are accepted. Candidate A, Ownership activation, compiler/runtime/backend edits, and the tenth replacement row are parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0 accepted Main0WithPlainInstanceBoxes0 and one opaque VerifiedNormalModuleSourceV1. The selected S0 reuses the existing owned input, inventory, Main relation, and same-module callable catalog; it proves exact source/catalog correspondence before Builder effects and has production caller=0. Existing canonical classification, Candidate A, Ownership activation, compiler/runtime/backend routes, and the tenth replacement row remain parked."""
+latest_card_summary = """NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0 is closed: shared inventory retains ordered non-Main Box sites, one opaque VerifiedNormalModuleSourceV1 seals exact Main0WithPlainInstanceBoxes0 and callable-catalog correspondence, eight focused fixtures are green, and canonical classifier behavior plus production caller=0 are guarded. Measured delta is production Rust +626 LOC, test Rust +201 LOC, check Python +103 LOC, and one named source file. GENERAL-FUNCTION-PLAN0-D0 is now the sole design stop."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0"
+current_blocker_token = "GENERAL-FUNCTION-PLAN0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

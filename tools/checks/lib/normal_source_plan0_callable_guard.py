@@ -49,6 +49,16 @@ def check_callable_source(
     normal_acyclic_plan_path = source_dir / "normal_acyclic_module_plan.rs"
     handoff_path = source_dir / "normal_callable_transaction_handoff.rs"
     handoff_tests_path = source_dir / "normal_callable_transaction_handoff_tests.rs"
+    module_source_path = source_dir / "module_source.rs"
+    module_source_tests_path = source_dir / "tests.rs"
+    module_source_task_path = root / (
+        "docs/development/current/main/workstreams/"
+        "mirbuilder-inplace-replacement-current.md"
+    )
+    canonical_dispatch_path = root / "src/mir/compiler/canonical_core_dispatch.rs"
+    normal_frontdoor_path = (
+        root / "src/runner/reference/normal_file_vm_frontdoor.rs"
+    )
     capability_path = root / "src/mir/compiler/capability.rs"
     function_role_policy_path = (
         root / "src/mir/compiler/capability/function_role_policy.rs"
@@ -84,6 +94,11 @@ def check_callable_source(
         normal_acyclic_plan_path,
         handoff_path,
         handoff_tests_path,
+        module_source_path,
+        module_source_tests_path,
+        module_source_task_path,
+        canonical_dispatch_path,
+        normal_frontdoor_path,
         capability_path,
         function_role_policy_path,
         analyzer_policy_path,
@@ -111,6 +126,11 @@ def check_callable_source(
     normal_acyclic_plan = normal_acyclic_plan_path.read_text()
     handoff = handoff_path.read_text()
     handoff_tests = handoff_tests_path.read_text()
+    module_source = module_source_path.read_text()
+    module_source_tests = module_source_tests_path.read_text()
+    module_source_task = module_source_task_path.read_text()
+    canonical_dispatch = canonical_dispatch_path.read_text()
+    normal_frontdoor = normal_frontdoor_path.read_text()
     acyclic_graph = acyclic_graph_path.read_text()
     scc_partition = scc_partition_path.read_text()
     capability = capability_path.read_text()
@@ -185,6 +205,87 @@ def check_callable_source(
             f"fn {test_name}(",
             f"exact-site source fixture {test_name}",
         )
+
+    for fragment in (
+        "row                         = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0",
+        "accepted family             = Main0WithPlainInstanceBoxes0",
+        "production caller           = 0",
+        "existing canonical non-Main Box rejection      = unchanged",
+        "all modified source/check files                 < 800",
+    ):
+        require(module_source_task, fragment, f"module-source task {fragment}")
+    for definition in (
+        "struct NormalInstanceBoxSiteV1",
+        "struct VerifiedNormalModuleSourceV1",
+        "struct RejectedNormalModuleSourceV1",
+        "enum NormalModuleSourceStageV1",
+        "enum NormalModuleSourceErrorV1",
+    ):
+        require_count(
+            module_source,
+            definition,
+            1,
+            f"sole module-source definition {definition}",
+        )
+    for fragment in (
+        "pub(super) fn seal(",
+        "validate_main_surface(main_surface)",
+        "verify_main_source_parts(",
+        "VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(",
+        ".keys()",
+        "actual != expected_keys",
+        "declaration_for(",
+        "fn stage(&self)",
+        "fn error(&self)",
+        "fn discard(self)",
+        "Main0WithPlainInstanceBoxes0SealV1",
+    ):
+        require(module_source, fragment, f"module-source law {fragment}")
+    for test_name in (
+        "main_with_plain_instance_box_seals_module_source",
+        "multiple_instance_boxes_preserve_source_order",
+        "instance_method_catalog_correspondence_is_exact",
+        "explicit_constructor_is_rejected_before_builder",
+        "static_method_inside_instance_box_is_rejected",
+        "top_level_function_or_runtime_statement_is_rejected",
+        "existing_exact_classifier_still_rejects_non_main_box",
+        "rejection_retains_source_identity_and_has_no_retry",
+    ):
+        require(
+            module_source_tests,
+            f"fn {test_name}(",
+            f"module-source fixture {test_name}",
+        )
+    for forbidden in (
+        "MirBuilder",
+        "MirInstruction",
+        "MirModule",
+        "ValueId",
+        "MirType",
+        "compile_legacy_candidate",
+        "build_module(",
+        "source_ast(",
+        "into_ast(",
+        "input.clone(",
+        "source.clone(",
+        "retry(",
+        "fallback",
+    ):
+        if forbidden in module_source:
+            raise AssertionError(
+                f"module-source owner gained lowering/retry authority: {forbidden}"
+            )
+    for production_surface in (canonical_dispatch, normal_frontdoor):
+        for symbol in (
+            "VerifiedNormalModuleSourceV1",
+            "RejectedNormalModuleSourceV1",
+        ):
+            if symbol in production_surface:
+                raise AssertionError(
+                    f"disconnected module-source product gained production consumer: {symbol}"
+                )
+    if "struct VerifiedSameModuleCallableDeclarationCatalogV1" in module_source:
+        raise AssertionError("module-source owner duplicated callable catalog")
 
     for fragment in (
         "NORMAL-CALLABLE-MODULE0-R0-S0",

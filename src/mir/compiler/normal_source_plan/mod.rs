@@ -13,6 +13,7 @@ mod main_function_plan;
 mod main_resolved_source;
 mod main_source;
 mod main_thunk_plan;
+mod module_source;
 mod normal_acyclic_module_plan;
 mod normal_callable_transaction_handoff;
 mod product;
@@ -64,6 +65,12 @@ pub(crate) use main_thunk_plan::{
     RejectedNormalMainThunkPlanV1, VerifiedNormalMainEntryRelationV1,
     VerifiedNormalMainPhysicalRelationV1, VerifiedNormalMainThunkPlanV1,
     VerifiedNormalMainThunkResultV1,
+};
+#[allow(unused_imports)]
+pub(crate) use module_source::{
+    NormalInstanceBoxSiteV1, NormalModuleBoxSourceErrorV1, NormalModuleSourceErrorV1,
+    NormalModuleSourceStageV1, NormalModuleUnsupportedTopLevelKindV1, RejectedNormalModuleSourceV1,
+    VerifiedNormalModuleSourceV1,
 };
 #[allow(unused_imports)]
 pub(crate) use normal_acyclic_module_plan::{

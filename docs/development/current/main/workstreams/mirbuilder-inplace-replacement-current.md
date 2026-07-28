@@ -45,10 +45,10 @@ cell数、pack数、LOC、structural observationは進捗と増殖検知の手�
 architecture goalやcompletion authorityではない。cellはnorth-star上の
 authorityを一つ減らす場合だけ選択する。
 
-## Active executable front
+## Current design stop
 
 ```text
-NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0
+GENERAL-FUNCTION-PLAN0-D0
 ```
 
 最小structural observation、第七Binary cell、第八record-helper body descent
@@ -85,11 +85,11 @@ missing
 -> verified plan + candidate/publication owner
 ```
 
-現在はT2 prerequisite S0だけを実装する。既存のowned input、source
-inventory、Main relation、same-module callable catalogを再利用し、exact
-Program、Main.main/0、source-orderのplain instance Box、catalogとの完全な
-key対応を一つのopaque productへsealする。production caller、Builder effect、
-body/function plan、candidate/publicationはすべてゼロのままにする。
+T2 prerequisite S0はclosedした。既存のowned input、source inventory、Main
+relation、same-module callable catalogを再利用し、exact Program、
+Main.main/0、source-orderのplain instance Box、catalogとの完全なkey対応を
+一つのopaque productへsealした。production caller、Builder effect、
+body/function plan、candidate/publicationはすべてゼロを維持した。
 
 このownerとcurrent-normal `MirCompileResult` parityが閉じ、さらにpark済みの
 Ownership/View readiness trainがproduct/default境界を閉じるまで、one total
@@ -179,7 +179,7 @@ Keep only these counters current:
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 9
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0
+accepted_next_responsibility       = 0; GENERAL-FUNCTION-PLAN0-D0 design stop
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -198,12 +198,12 @@ closeout explanation, not automatic rejection.
 
 ```text
 none
-  current authority = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0 prerequisite
+  current authority = GENERAL-FUNCTION-PLAN0-D0 design stop
   repository artifact lifecycle R1-R4-first / RETURN0 = closed
   tenth responsibility = not selected
 ```
 
-## Selected S0 execution
+## Closed S0 execution
 
 ```text
 row                         = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0
@@ -378,6 +378,29 @@ new test/check file                              = 0
 all modified source/check files                 < 800
 ```
 
+### Closeout
+
+```text
+focused normal_source_plan tests                = 67 / 67
+VerifiedNormalModuleSourceV1 production callers = 0
+existing canonical classifier behavior          = unchanged
+Builder / lowering / publication delta           = 0
+fallback / retry / route reselection             = 0
+replacement row / credit                         = 0
+
+new source files                                 = 1
+new test/check files                             = 0
+production Rust LOC delta                        = +626
+test Rust LOC delta                              = +201
+check Python LOC delta                           = +103
+largest touched source/check file                = 776
+```
+
+The positive LOC delta is the measured cost of one new T2 source/catalog
+authority, not replacement-cell credit. The source/check files stay below 800,
+the product is disconnected, and the next slice must consume it rather than
+create another module-source owner.
+
 ### Hard stop
 
 ```text
@@ -504,10 +527,10 @@ M1a NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
     closed: Main0WithPlainInstanceBoxes0 selected
 
 M1b NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0
-    current: disconnected source/catalog product
+    closed: disconnected source/catalog product
 
 M2  GENERAL-FUNCTION-PLAN0 family slices
-    one finite semantic vocabulary per row
+    current design stop: select one finite semantic vocabulary
 
 M3  aggregate VerifiedNormalGeneralProgramPlanV1
 

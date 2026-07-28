@@ -9,7 +9,7 @@
     "phase_296x_archive": 2315,
     "phase_296x_direct": 1039,
     "private": 0,
-    "src": 3893,
+    "src": 3894,
     "tools": 7221
   },
   "design_registry": {
@@ -1930,7 +1930,7 @@
       "current_pointer": 4,
       "design_authority": 263,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3184
+      "reference_src_tools": 3185
     },
     "unreachable_count": 3190,
     "unreachable_pending_count": 1796,

@@ -32,6 +32,7 @@ pub(in crate::mir) struct NormalSourceSurfaceInventoryV1 {
     pub(super) script_sites: Box<[NormalTopLevelSiteV1]>,
     pub(super) top_level_callables: Box<[NormalTopLevelSiteV1]>,
     pub(super) main_boxes: Box<[NormalMainBoxSurfaceV1]>,
+    pub(super) non_main_box_sites: Box<[NormalTopLevelSiteV1]>,
     pub(super) unsupported: Box<[NormalUnsupportedTopLevelSiteV1]>,
 }
 
@@ -49,6 +50,7 @@ impl NormalSourceSurfaceInventoryV1 {
         let mut script_sites = Vec::new();
         let mut top_level_callables = Vec::new();
         let mut main_boxes = Vec::new();
+        let mut non_main_box_sites = Vec::new();
         let mut unsupported = Vec::new();
 
         for (statement_index, statement) in statements.iter().enumerate() {
@@ -114,6 +116,7 @@ impl NormalSourceSurfaceInventoryV1 {
                     kind: NormalUnsupportedTopLevelKindV1::BuildGate,
                 }),
                 ASTNode::BoxDeclaration { .. } => {
+                    non_main_box_sites.push(NormalTopLevelSiteV1::new(statement_index));
                     unsupported.push(NormalUnsupportedTopLevelSiteV1 {
                         statement_index,
                         kind: NormalUnsupportedTopLevelKindV1::Box,
@@ -156,6 +159,7 @@ impl NormalSourceSurfaceInventoryV1 {
             script_sites: script_sites.into_boxed_slice(),
             top_level_callables: top_level_callables.into_boxed_slice(),
             main_boxes: main_boxes.into_boxed_slice(),
+            non_main_box_sites: non_main_box_sites.into_boxed_slice(),
             unsupported: unsupported.into_boxed_slice(),
         })
     }
