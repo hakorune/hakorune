@@ -14,7 +14,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """MIRBUILDER-LIVE-PRODUCTION-RESET0-D0 cancels GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-S0 before semantic implementation. `normal_source_plan` is frozen at the three landed whole-function variants with production callers still zero; no fourth variant, reassignment/Binary/field/call family row, or replacement credit may be added. NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 is the sole authority: compiler/runtime/backend mutations remain parked while its read-only caller, transport, candidate, publication, parity, and failure/reuse census is performed. Ownership/View activation and the tenth replacement row remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """MIRBUILDER-LIVE-PRODUCTION-RESET0-D0 cancels GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-S0 before semantic implementation. `normal_source_plan` is frozen at the three landed whole-function variants with production callers still zero; no fourth variant, reassignment/Binary/field/call family row, or replacement credit may be added. NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 is the sole authority: compiler/runtime/backend mutations remain parked while its read-only caller, transport, candidate, publication, parity, and failure/reuse census is performed. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract; analysis-only observation views are not feature activation. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -374,9 +374,9 @@ normal_script0_physical_entry_decision = "docs/development/current/main/investig
 normal_script0_physical_entry_task = "docs/development/current/main/investigations/normal-script0-physical-entry0-s0-execution-task-2026-07-26.md"
 canonical_source_entry_publication0_task = "docs/development/current/main/investigations/canonical-source-entry-publication0-execution-task-2026-07-26.md"
 ownership_sparse_surface_task = "docs/development/current/main/investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md"
-ownership_sparse_resume_after = "MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0"
+ownership_sparse_resume_after = "MIRBUILDER-INPLACE-REPLACEMENT0 final-pipeline completion"
 ownership_sparse_first_resume_row = "OWNERSHIP-SPARSE-RESUME-D0"
-ownership_sparse_first_executable_row = "OWN-GRAM-REJECT0"
+ownership_sparse_first_executable_row = "OWN-GRAM-REJECT0-HAKO0-S0"
 ownership_sparse_product_readiness_row = "OWNERSHIP-SPARSE-PRODUCT-READINESS-D0"
 language_docs_status_task = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
 language_docs_try_catch_task = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """MIRBUILDER-LIVE-PRODUCTION-RESET0-D0 cancels the parameter-fed Local S0 before semantic implementation because it composes already-known binding/local/return parts and must not require a fourth whole-function variant. The behavior-neutral proof compaction at 8859caecba is retained; tests are 701 lines, the callable guard is 755 lines, and the three landed variants are frozen. NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 now owns the exact live-caller and one-publication-path design census."""
+latest_card_summary = """MIRBUILDER-LIVE-PRODUCTION-RESET0-D0 cancels the parameter-fed Local S0 before semantic implementation because it composes already-known binding/local/return parts and must not require a fourth whole-function variant. The behavior-neutral proof compaction at 8859caecba is retained; tests are 701 lines, the callable guard is 755 lines, and the three landed variants are frozen. NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 owns the exact live-caller and one-publication-path design census. Replacement implementation now advances only by named production responsibility plus selected old-edge deletion; source-level Ownership/View and other missing features resume after MirBuilder final-pipeline completion."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

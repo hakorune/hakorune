@@ -192,6 +192,64 @@ detached_asset_delta
 
 cellは`after >= 1`かつ`old_after = 0`になるまでclosedではない。
 
+## Progress admission and circuit breaker
+
+この節はMirBuilderのproduction replacement実装rowに適用する。D0、
+障害修正、post-cutover parity、docs／asset closeoutはnon-replacementと
+明記し、replacement creditを持たせない。
+
+replacementの実装単位は次で固定する。
+
+```text
+one named production responsibility
++ one existing non-test caller
++ one selected new owner
++ one selected old-edge delete set
++ one parity / failure / reuse gate
+```
+
+既存のExpr／Stmt／Body Recipe部品の合成だけで表せる入力に、新しい
+whole-function body-shape variantを作らない。signature、entry、completion、
+call topology、publicationのように、本当に関数全体の義務を所有するplanは
+この禁止に含めない。
+
+新しいtype、file、test、proof、wrapperは、selected production責務、
+verified contract、parity／failure／reuse evidence、または責務上必要な
+size splitへ直接必要な場合だけ追加する。各assetはdurable ownerまたは
+retirement conditionを持つ。disconnected route、one-row shell guard、
+wrapper自体は進捗に数えない。
+
+T0はatomic I0/R0を原則とする。detached S0を分けた場合は最大一commitで、
+次のforward semantic commitは同じcellのI0/R0だけである。進めなければ
+revert／stashしてD0へ戻る。承認済みRefactor Series Modeだけは2〜5個の
+buildable commitを許すが、全commitが一目的で、series終端がnamed
+production cutoverとselected old-edge deletionを閉じなければならない。
+
+predeclared Refactor Series以外で、selected old edgeを減らさないforward
+implementation commitが二つ連続したら、三つ目へ進まずdesignへ戻る。
+D0、障害修正、revert、post-cutover parity、docs／asset closeoutはこの
+連続数へ入れず、進捗creditにも使わない。split S0は一つ目になり得るため、
+その次は必ずold edgeを減らすsame-cell I0/R0である。
+
+```text
+split S0 landed:
+  next = same-cell I0/R0 or revert/stash
+
+bounded series ended:
+  selected old edge = 0
+  fallback / retry / reselection = 0
+
+otherwise:
+  stop forward work
+  classify disconnected assets
+  return to design
+```
+
+800行境界は責務分割のhygiene triggerである。task selector、LOC非増加、
+progress credit、completion conditionではない。超える前に同じselected
+cell内のcohesive responsibilityで分割し、production switchをguard／testの
+headroom作りだけのために遅らせない。
+
 ### Source-partition cell law
 
 cellが宣言したcaller familyの一つのproduction selectorが、すでにliveな
@@ -286,6 +344,22 @@ publisherは現在proof-onlyであり、本番差し替えauthorityを持たな�
 Raw／Canonical VM-reference laneは実consumerを持つreference laneである。
 default MirBuilder内部交換とは別に維持し、default cutoverとして数えない。
 
+## Post-replacement feature boundary
+
+`MIRBUILDER-INPLACE-REPLACEMENT0`は既存production責務を収束させる
+BoxShape laneであり、新しいsource-language semanticsを追加するBoxCount
+laneではない。
+
+source-level Ownership/View、新文法、backend widening、およびその他の
+未実装featureは、下記Completionがproduction graphでgreenになった後だけ
+再開する。再開時はread-only readiness inventoryから始め、
+`CURRENT_STATE.toml`が一つのfeature rowを明示選択するまでparked tokenを
+実装しない。
+
+`CondBlockView`のようなanalysis-only observation viewはsource-language
+Viewではない。既存挙動のproduction edge交換に必要なら、このlane内で
+使ってよい。
+
 ## Finite task packs
 
 完了分母は次の8 packに固定する。
@@ -354,6 +428,11 @@ MirBuilder責務のrootが増える場合は、この固定root listを明示更
 ## Completion
 
 `MIRBUILDER-INPLACE-REPLACEMENT0`は次がすべて成立したときだけ完了する。
+
+以下は最終completion条件であり、最初のproduction replacement cellを
+始める前提条件ではない。移行中の一つのselected production pipelineは、
+source-onlyに一度だけ選ぶ明示的compatibility ownerを含んでよいが、
+rejection後のretry／fallbackはしてはならない。
 
 ```text
 final pipeline north-star production conformance = green

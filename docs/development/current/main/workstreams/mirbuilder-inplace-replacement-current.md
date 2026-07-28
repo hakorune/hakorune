@@ -124,10 +124,20 @@ R0  current D0: exact live pipeline decision
 R1  atomic selected-normal switch + old-edge deletion
 R2  compositional Expr/Stmt/Body Recipe on that live edge
 R3  compatibility body/raw-AST retirement when its caller count reaches zero
+R4  eight-pack ledger + final-pipeline completion conformance
+
+after R4 only:
+F0  refresh missing-feature / Ownership / View readiness inventory
+F1  resume the existing Ownership taskboard from its read-only readiness gate
+F2  Unique Box / ScopedAlias -> callable ABI -> Anchored View
+F3  select one later unimplemented feature from the language status index
 ```
 
 The old M2c-to-M8 complete-program queue is superseded. Passive assets are
 reconsidered only when the selected live edge names an exact consumer.
+Source-level Ownership/View and other new language semantics do not enter the
+MirBuilder replacement train. Analysis-only views used to observe existing
+control flow are not source-language View activation.
 
 ## Closed tail
 
@@ -179,7 +189,7 @@ COMPILER-RESIDUE0    compiler ingress / old selectors / proof routes
 
 ```text
 Preloop Stage-B special production activation
-Ownership/View activation before O1
+source-level Ownership/View and unimplemented language features until R4
 .hako selfhost MirBuilder/parser migration
 unselected cleanliness work
 new language semantics

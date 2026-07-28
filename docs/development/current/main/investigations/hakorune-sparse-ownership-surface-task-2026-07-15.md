@@ -5,7 +5,7 @@ Decision: Explicit-move/share, owner-anchored sparse ownership surface
 Source semantics SSOT: ../../../../reference/language/ownership.md
 Current lane: follow CURRENT_STATE.toml
 First code-facing ownership row when explicitly resumed: OWN-GRAM-REJECT0-HAKO0-S0
-Integration resume checkpoint: NORMAL-GENERAL-PROGRAM verified owner and current-normal result parity
+Integration resume checkpoint: MIRBUILDER-INPLACE-REPLACEMENT0 final-pipeline semantic completion
 Related:
   - ownership-view-missing-grammar-inventory-2026-07-28.md
   - hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md
@@ -165,35 +165,27 @@ Every activation row consumes the sealed products from its prerequisites.
 
 ```text
 Decision:
-  MIRBUILDER-OWNERSHIP-RESUME-ORDER-prime-r1
+  MIRBUILDER-FIRST-OWNERSHIP-RESUME-ORDER-v2
 
 Status:
   accepted scheduling
 
-current general Program / normal-result series:
-  remains first
+MirBuilder replacement:
+  completes first, including typed normal/default ingress, compatibility/raw
+  AST retirement, DraftSeal/collector/publication convergence, and final
+  accepted-corpus/backend parity
 
-ownership activation:
-  begins after the verified general Program owner, atomic candidate
-  publication, and current-normal MirCompileResult parity
-
-default product promotion:
-  remains separate
-  Candidate A / NORMAL-ENTRY-PROMOTION-D3 does not bypass ownership readiness
+Ownership/View:
+  remains parked until that semantic completion
+  resumes with one read-only readiness revalidation
+  does not auto-select VIEW0 or a grammar/ABI row
 ```
 
 The global order is:
 
 ```text
-MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
--> NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
--> GENERAL-FUNCTION-PLAN0 family slices
--> VerifiedNormalGeneralProgramPlanV1
--> DraftSeal / Collector / atomic publication
--> current-normal MirCompileResult parity
--> Candidate A technical readiness audit
-
--> OWNERSHIP-SPARSE-RESUME-D0
+MIRBUILDER-INPLACE-REPLACEMENT0 final-pipeline completion
+-> revalidate OWNERSHIP-SPARSE-RESUME-D0
 -> OWN-GRAM-REJECT0
 -> ownership evidence / passive grammar / Loan Flow
 -> first Unique Box substrate
@@ -201,12 +193,7 @@ MIRBUILDER-CANONICAL-CORE-COMPLETE0-P0
 -> structured Alias + callable ABI
 -> Anchored View
 -> OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
-
--> Candidate A final re-evaluation
--> Candidate A atomic normal/default ingress cutover
-
--> NORMAL-ENTRY-PRODUCT-BACKEND-D0
--> later backend/product promotion rows selected by CURRENT_STATE
+-> select one later missing feature from the language status/order SSOT
 ```
 
 `OWNERSHIP-SPARSE-RESUME-D0` is a bounded readiness check, not a new source
@@ -225,11 +212,12 @@ fallback = 0
 If a prerequisite has drifted, resume stops with a typed inventory blocker.
 It does not patch the ownership task inside the normal-entry route.
 
-### D0 closeout
+### Historical D0 closeout
 
 The 2026-07-26 D0 inventory found no ownership semantic drift. The
 behavior-neutral `OWNERSHIP-SPARSE-RESUME-D0-GUARD-REFRESH0` receipt is green;
-no ownership prerequisite remains locked.
+that receipt remains historical input. It does not bypass the post-MirBuilder
+readiness revalidation or select a grammar/ABI row.
 
 The accepted source-observation repair is closed through
 `PRELOOP-STAGEB-SOURCE-INVENTORY0-G0`. Its terminal proves one exact actual

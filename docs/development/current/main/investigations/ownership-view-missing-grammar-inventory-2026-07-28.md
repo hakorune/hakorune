@@ -5,7 +5,7 @@ Decision: Inventory the exact accepted-but-inactive Ownership/View grammar witho
 Source semantics SSOT: ../../../../reference/language/ownership.md
 Execution taskboard: hakorune-sparse-ownership-surface-task-2026-07-15.md
 Current lane: follow ../CURRENT_STATE.toml
-Resume checkpoint: NORMAL-GENERAL-PROGRAM verified owner and current-normal result parity
+Resume checkpoint: MIRBUILDER-INPLACE-REPLACEMENT0 final-pipeline semantic completion
 First executable row when resumed: OWN-GRAM-REJECT0-HAKO0-S0
 ---
 
@@ -35,7 +35,9 @@ None of these forms is parser-live. Their target semantics are accepted by
 
 The current MirBuilder lane does not move. This inventory is a parked resume
 map, not authority to implement grammar, Ownership SSA, View ABI, runtime, or
-backend work.
+backend work. After MirBuilder completion, resume begins by revalidating the
+read-only `OWNERSHIP-SPARSE-RESUME-D0` contract; it does not automatically
+select a grammar or View implementation row.
 
 ## Exact current surface
 
