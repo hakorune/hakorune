@@ -8,6 +8,7 @@ mod callable_source;
 mod classifier;
 mod instance_integer_return_plan;
 mod inventory;
+mod main0_bridge;
 mod main_direct_call_plan;
 mod main_direct_call_source;
 mod main_function_plan;
@@ -43,6 +44,11 @@ pub(crate) use instance_integer_return_plan::{
     VerifiedNormalInstanceIntegerReturnPlanV1,
 };
 #[allow(unused_imports)]
+pub(crate) use main0_bridge::{
+    NormalMain0BridgeErrorV1, NormalMain0BridgeStageV1, RejectedNormalMain0BridgeV1,
+    VerifiedNormalMain0BridgePlanV1, VerifiedNormalModuleFunctionPlanSetV1,
+};
+#[allow(unused_imports)]
 pub(crate) use main_direct_call_plan::{
     NormalMainDirectCallPlanErrorV1, NormalMainDirectCallPreflightV1,
     RejectedNormalMainDirectCallPlanV1, VerifiedNormalMainDirectCallPlanV1,
@@ -64,8 +70,8 @@ pub(crate) use main_resolved_source::{
 };
 #[allow(unused_imports)]
 pub(crate) use main_source::{
-    NormalMainFunctionSourceErrorV1, NormalMainFunctionSourceViewV1,
-    RejectedNormalMainFunctionSourceV1, VerifiedNormalMainFunctionSourceUnitV1,
+    NormalMainFunctionSourceErrorV1, RejectedNormalMainFunctionSourceV1,
+    VerifiedNormalMainFunctionSourceUnitV1,
 };
 #[allow(unused_imports)]
 pub(crate) use main_thunk_plan::{

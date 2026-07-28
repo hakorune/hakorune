@@ -124,22 +124,22 @@ pub(crate) enum NormalMainFunctionSourceErrorV1 {
 }
 
 #[derive(Debug)]
-pub(crate) struct NormalMainFunctionSourceViewV1<'src> {
+pub(super) struct NormalMainFunctionSourceViewV1<'src> {
     function: &'src ASTNode,
     main_statement_index: usize,
     method_key: &'src str,
 }
 
 impl<'src> NormalMainFunctionSourceViewV1<'src> {
-    pub(crate) fn function(&self) -> &'src ASTNode {
+    pub(super) fn function(&self) -> &'src ASTNode {
         self.function
     }
 
-    pub(crate) fn main_statement_index(&self) -> usize {
+    pub(super) fn main_statement_index(&self) -> usize {
         self.main_statement_index
     }
 
-    pub(crate) fn method_key(&self) -> &'src str {
+    pub(super) fn method_key(&self) -> &'src str {
         self.method_key
     }
 }
@@ -162,20 +162,16 @@ impl VerifiedNormalMainFunctionSourceUnitV1 {
     }
 
     pub(crate) fn borrow_exact_function(&self) -> NormalMainFunctionSourceViewV1<'_> {
-        let Some(function) = locate_main_function(
+        borrow_exact_main_function_v1(
             self.source.input(),
             self.source.main_box(),
             self.source.main_method(),
-        ) else {
+        )
+        .unwrap_or_else(|_| {
             unreachable!(
                 "[normal-main-source/invariant] verified immutable Main relation disappeared"
-            );
-        };
-        NormalMainFunctionSourceViewV1 {
-            function,
-            main_statement_index: self.source.main_box().statement_index(),
-            method_key: self.source.main_method().method_key(),
-        }
+            )
+        })
     }
 
     pub(in crate::mir) fn into_source(self) -> SealedNormalMainSourceV1 {
@@ -269,6 +265,21 @@ pub(super) fn verify_main_source_parts(
         return Err(NormalMainFunctionSourceErrorV1::MainMethodArityDrift);
     }
     Ok(())
+}
+
+pub(super) fn borrow_exact_main_function_v1<'src>(
+    input: &'src PreparedNormalSourcePlanInputV1,
+    main_box: &'src NormalTopLevelSiteV1,
+    main_method: &'src NormalMainMethodSiteV1,
+) -> Result<NormalMainFunctionSourceViewV1<'src>, NormalMainFunctionSourceErrorV1> {
+    verify_main_source_parts(input, main_box, main_method)?;
+    let function = locate_main_function(input, main_box, main_method)
+        .ok_or(NormalMainFunctionSourceErrorV1::MainMethodMissing)?;
+    Ok(NormalMainFunctionSourceViewV1 {
+        function,
+        main_statement_index: main_box.statement_index(),
+        method_key: main_method.method_key(),
+    })
 }
 
 fn locate_main_function<'src>(

@@ -26,6 +26,7 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::source_call_target::SameModuleCallableSourceReceiverPolicyV1;
 
+use super::main_source::{NormalMainFunctionSourceErrorV1, NormalMainFunctionSourceViewV1};
 use super::module_source::{
     NormalInstanceMethodSourceLoanErrorV1, NormalInstanceMethodSourceViewV1,
     VerifiedNormalModuleSourceV1,
@@ -119,6 +120,12 @@ impl VerifiedNormalInstanceIntegerReturnPlanSetV1 {
 
     pub(crate) fn len(&self) -> usize {
         self.plans.len()
+    }
+
+    pub(super) fn borrow_exact_main_function(
+        &self,
+    ) -> Result<NormalMainFunctionSourceViewV1<'_>, NormalMainFunctionSourceErrorV1> {
+        self.source.borrow_exact_main_function()
     }
 }
 

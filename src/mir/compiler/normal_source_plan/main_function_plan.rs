@@ -4,6 +4,7 @@ use crate::mir::compiler::capability::{
     CanonicalLoweringPreflightV1, CanonicalTrivialBindingSsaPlanV1, ResolvedOwnerHeaderSealErrorV1,
     VerifiedResolvedOwnerHeaderV1,
 };
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::lowering_input::CanonicalLoweringErrorV1;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_value_profile::product::TrivialTerminalProfileV1;
@@ -42,13 +43,8 @@ impl NormalMainFunctionPreflightV1 {
                     error: NormalMainFunctionPlanErrorV1::FunctionInput(error),
                 })?;
         let role = unit.role();
-        let lowering = CanonicalLoweringPreflightV1::verify_normal_main0_function_v1(
-            function, role,
-        )
-        .map_err(|error| RejectedNormalMainFunctionPlanV1 {
-            owner: unit,
-            error: NormalMainFunctionPlanErrorV1::CanonicalPreflight(error),
-        })?;
+        let lowering = verify_normal_main0_input_v1(function, role)
+            .map_err(|error| RejectedNormalMainFunctionPlanV1 { owner: unit, error })?;
         Ok(VerifiedNormalMainFunctionPlanV1 {
             unit,
             lowering,
@@ -56,6 +52,14 @@ impl NormalMainFunctionPreflightV1 {
             _seal: VerifiedNormalMainFunctionPlanSealV1,
         })
     }
+}
+
+pub(super) fn verify_normal_main0_input_v1<'source>(
+    input: ResolvedFunctionLoweringInputV1<'source>,
+    role: VerifiedNormalMainRoleV1,
+) -> Result<CanonicalTrivialBindingSsaPlanV1<'source>, NormalMainFunctionPlanErrorV1> {
+    CanonicalLoweringPreflightV1::verify_normal_main0_function_v1(input, role)
+        .map_err(NormalMainFunctionPlanErrorV1::CanonicalPreflight)
 }
 
 impl<'unit> VerifiedNormalMainFunctionPlanV1<'unit> {

@@ -11,8 +11,10 @@ use crate::mir::resolved_control_flow::{
 use std::collections::HashMap;
 
 use super::super::{
-    NormalSourcePlanClassifierV1, PreparedNormalSourcePlanInputV1, SealedNormalScalarRootV1,
-    SealedNormalSourcePlanV1, VerifiedNormalMainFunctionSourceUnitV1,
+    NormalMain0BridgeErrorV1, NormalMain0BridgeStageV1, NormalSourcePlanClassifierV1,
+    PreparedNormalSourcePlanInputV1, SealedNormalScalarRootV1, SealedNormalSourcePlanV1,
+    VerifiedNormalInstanceIntegerReturnPlanSetV1, VerifiedNormalMainFunctionSourceUnitV1,
+    VerifiedNormalModuleSourceV1,
 };
 
 fn literal(value: LiteralValue) -> ASTNode {
@@ -78,6 +80,81 @@ fn main_program(result: Option<&str>, body: Vec<ASTNode>) -> ASTNode {
         }],
         span: Span::unknown(),
     }
+}
+
+fn instance_integer_function(name: &str, value: i64) -> ASTNode {
+    let mut function = function(
+        name,
+        Vec::new(),
+        None,
+        vec![return_(Some(LiteralValue::Integer(value)))],
+    );
+    let ASTNode::FunctionDeclaration { is_static, .. } = &mut function else {
+        unreachable!()
+    };
+    *is_static = false;
+    function
+}
+
+fn module_program(
+    main_result: Option<&str>,
+    main_body: Vec<ASTNode>,
+    instance_value: i64,
+) -> ASTNode {
+    let ASTNode::Program {
+        mut statements,
+        span,
+    } = main_program(main_result, main_body)
+    else {
+        unreachable!()
+    };
+    let mut methods = HashMap::new();
+    methods.insert(
+        "value".to_owned(),
+        instance_integer_function("value", instance_value),
+    );
+    statements.push(ASTNode::BoxDeclaration {
+        name: "Page".to_owned(),
+        fields: Vec::new(),
+        field_decls: Vec::new(),
+        public_fields: Vec::new(),
+        private_fields: Vec::new(),
+        methods,
+        constructors: HashMap::new(),
+        init_fields: Vec::new(),
+        weak_fields: Vec::new(),
+        delegates: Vec::new(),
+        invariants: Vec::new(),
+        transitions: Vec::new(),
+        is_interface: false,
+        is_sync: false,
+        is_record: false,
+        type_parameters: Vec::new(),
+        extends: Vec::new(),
+        implements: Vec::new(),
+        is_static: false,
+        static_init: None,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    });
+    ASTNode::Program { statements, span }
+}
+
+fn module_instance_plans(
+    main_result: Option<&str>,
+    main_body: Vec<ASTNode>,
+    instance_value: i64,
+) -> VerifiedNormalInstanceIntegerReturnPlanSetV1 {
+    let input = PreparedNormalSourcePlanInputV1::new(
+        module_program(main_result, main_body, instance_value),
+        "main0-bridge-test",
+    );
+    let inventory = super::super::inventory::NormalSourceSurfaceInventoryV1::collect(input)
+        .expect("module inventory");
+    VerifiedNormalModuleSourceV1::seal(inventory)
+        .expect("module source")
+        .seal_instance_integer_return_plans()
+        .expect("instance plans")
 }
 
 fn main_source(result: Option<&str>, body: Vec<ASTNode>) -> VerifiedNormalMainFunctionSourceUnitV1 {
@@ -320,4 +397,111 @@ fn main_plan_retains_exact_role_unit_and_consumable_trivial_plan() {
     assert!(std::ptr::eq(plan.owner_for_test(), &unit));
     let lowering: CanonicalTrivialBindingSsaPlanV1<'_> = plan.into_lowering();
     assert!(lowering.completion().returns_value());
+}
+
+#[test]
+fn main0_bridge_preserves_module_source_and_instance_plans() {
+    let plans = module_instance_plans(None, vec![return_(Some(LiteralValue::Integer(9)))], 41);
+    let expected_rows = plans
+        .plans()
+        .map(|(key, plan)| {
+            (
+                key.owner().to_owned(),
+                key.name().to_owned(),
+                plan.recipe().value(),
+            )
+        })
+        .collect::<Vec<_>>();
+
+    let aggregate = plans.seal_main0_bridge().expect("Main0 bridge");
+    let actual_rows = aggregate
+        .instance()
+        .plans()
+        .map(|(key, plan)| {
+            (
+                key.owner().to_owned(),
+                key.name().to_owned(),
+                plan.recipe().value(),
+            )
+        })
+        .collect::<Vec<_>>();
+    let main = aggregate.main();
+    let [owner] = main.forest().roots() else {
+        panic!("exact Main owner")
+    };
+
+    assert_eq!(aggregate.source_identity(), "main0-bridge-test");
+    assert_eq!(actual_rows, expected_rows);
+    assert_eq!(aggregate.instance().len(), 1);
+    assert_eq!(main.completion().owner(), *owner);
+    assert_eq!(main.if_control().owner(), *owner);
+    assert_eq!(main.profile().owner(), *owner);
+    assert_eq!(main.block_expr_count(), 0);
+}
+
+#[test]
+fn main0_bridge_matches_existing_main0_plan_contract() {
+    let body = vec![return_(Some(LiteralValue::Integer(17)))];
+    let (existing_role, existing_completion, existing_terminal, existing_blocks) = {
+        let unit = resolved_main(None, body.clone());
+        let plan = NormalMainFunctionPreflightV1::seal(&unit).expect("existing Main0 plan");
+        let role = plan.role();
+        let (input, _if_control, completion, profile, blocks) = plan.into_lowering().into_parts();
+        let _owner = input.owner();
+        (role, completion, profile.terminal().clone(), blocks)
+    };
+
+    let aggregate = module_instance_plans(None, body, 5)
+        .seal_main0_bridge()
+        .expect("module Main0 bridge");
+    let bridged = aggregate.main();
+
+    assert_eq!(bridged.role(), existing_role);
+    let bridged_contract = bridged.completion().function_exit_contract();
+    let existing_contract = existing_completion.function_exit_contract();
+    assert_eq!(
+        bridged_contract.declared_result(),
+        existing_contract.declared_result()
+    );
+    assert_eq!(
+        bridged_contract.disposition(),
+        existing_contract.disposition()
+    );
+    assert_eq!(bridged_contract.coverage(), existing_contract.coverage());
+    assert_eq!(
+        bridged_contract.return_contract_relation(),
+        existing_contract.return_contract_relation()
+    );
+    assert_eq!(bridged.profile().terminal(), &existing_terminal);
+    assert_eq!(bridged.block_expr_count(), existing_blocks);
+}
+
+#[test]
+fn main0_bridge_failure_retains_owner_without_retry_and_fresh_source_reuses() {
+    let rejected = module_instance_plans(
+        None,
+        vec![return_(Some(LiteralValue::String(
+            "unsupported".to_owned(),
+        )))],
+        3,
+    )
+    .seal_main0_bridge()
+    .expect_err("existing Main0 grammar rejects String");
+
+    assert_eq!(rejected.source_identity(), "main0-bridge-test");
+    assert_eq!(rejected.instance_plan_count(), 1);
+    assert_eq!(rejected.stage(), NormalMain0BridgeStageV1::FunctionPlan);
+    assert!(matches!(
+        rejected.error(),
+        NormalMain0BridgeErrorV1::FunctionPlan(NormalMainFunctionPlanErrorV1::CanonicalPreflight(
+            _
+        ))
+    ));
+    rejected.discard();
+
+    let aggregate = module_instance_plans(None, vec![return_(Some(LiteralValue::Integer(1)))], 4)
+        .seal_main0_bridge()
+        .expect("fresh module reuses bridge");
+    assert_eq!(aggregate.instance().len(), 1);
+    assert!(aggregate.main().completion().returns_value());
 }

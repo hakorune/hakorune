@@ -53,6 +53,11 @@ def check_callable_source(
     instance_integer_return_plan_path = (
         source_dir / "instance_integer_return_plan.rs"
     )
+    main0_bridge_path = source_dir / "main0_bridge.rs"
+    main_source_path = source_dir / "main_source.rs"
+    main_resolved_source_path = source_dir / "main_resolved_source.rs"
+    main_function_plan_path = source_dir / "main_function_plan.rs"
+    main_function_plan_tests_path = source_dir / "main_function_plan_tests.rs"
     module_source_tests_path = source_dir / "tests.rs"
     module_source_task_path = root / (
         "docs/development/current/main/workstreams/"
@@ -99,6 +104,11 @@ def check_callable_source(
         handoff_tests_path,
         module_source_path,
         instance_integer_return_plan_path,
+        main0_bridge_path,
+        main_source_path,
+        main_resolved_source_path,
+        main_function_plan_path,
+        main_function_plan_tests_path,
         module_source_tests_path,
         module_source_task_path,
         canonical_dispatch_path,
@@ -132,6 +142,11 @@ def check_callable_source(
     handoff_tests = handoff_tests_path.read_text()
     module_source = module_source_path.read_text()
     instance_integer_return_plan = instance_integer_return_plan_path.read_text()
+    main0_bridge = main0_bridge_path.read_text()
+    main_source = main_source_path.read_text()
+    main_resolved_source = main_resolved_source_path.read_text()
+    main_function_plan = main_function_plan_path.read_text()
+    main_function_plan_tests = main_function_plan_tests_path.read_text()
     module_source_tests = module_source_tests_path.read_text()
     module_source_task = module_source_task_path.read_text()
     canonical_dispatch = canonical_dispatch_path.read_text()
@@ -377,6 +392,95 @@ def check_callable_source(
             raise AssertionError(
                 "disconnected instance integer-return plan gained production consumer"
             )
+
+    for fragment in (
+        "row       = GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0",
+        "decision  = corrected C-prime",
+        "input     = VerifiedNormalInstanceIntegerReturnPlanSetV1",
+        "output    = VerifiedNormalModuleFunctionPlanSetV1",
+        "production callers          = 0",
+        "largest source/check file   = 776",
+    ):
+        require(module_source_task, fragment, f"Main0 bridge task {fragment}")
+    for definition in (
+        "struct VerifiedNormalMain0BridgePlanV1",
+        "struct VerifiedNormalModuleFunctionPlanSetV1",
+        "struct RejectedNormalMain0BridgeV1",
+        "enum NormalMain0BridgeStageV1",
+        "enum NormalMain0BridgeErrorV1",
+    ):
+        require_count(main0_bridge, definition, 1, f"sole Main0 bridge {definition}")
+    for fragment in (
+        "pub(crate) fn seal_main0_bridge(",
+        "prepare_main0_bridge(&self)",
+        ".borrow_exact_main_function()",
+        "resolve_normal_main_loan_v1(&source)",
+        "verify_normal_main0_input_v1(input, role)",
+        "lowering.into_parts()",
+        "instance: self",
+        "owner: self",
+        "let [forest_root] = forest.roots()",
+        "if_control.owner() != root_owner",
+        "completion.owner() != root_owner",
+        "profile.owner() != root_owner",
+    ):
+        require(main0_bridge, fragment, f"Main0 bridge law {fragment}")
+    for source, fragment, label in (
+        (main_source, "fn borrow_exact_main_function_v1", "shared exact Main locator"),
+        (
+            module_source,
+            "borrow_exact_main_function_v1(&self.input, &self.main_box, &self.main_method)",
+            "module-backed exact Main loan",
+        ),
+        (
+            main_resolved_source,
+            "fn resolve_normal_main_loan_v1",
+            "shared Main resolver kernel",
+        ),
+        (
+            main_function_plan,
+            "fn verify_normal_main0_input_v1",
+            "shared Main0 preflight kernel",
+        ),
+    ):
+        require(source, fragment, label)
+    for test_name in (
+        "main0_bridge_preserves_module_source_and_instance_plans",
+        "main0_bridge_matches_existing_main0_plan_contract",
+        "main0_bridge_failure_retains_owner_without_retry_and_fresh_source_reuses",
+    ):
+        require(
+            main_function_plan_tests,
+            f"fn {test_name}(",
+            f"Main0 bridge fixture {test_name}",
+        )
+    for forbidden in (
+        "ASTNode",
+        "FunctionSemanticResolverSessionV1",
+        "CanonicalLoweringPreflightV1",
+        "VerifiedNormalMainFunctionPlanV1",
+        "MirBuilder",
+        "MirInstruction",
+        "MirModule",
+        "ValueId",
+        "compile_legacy",
+        "build_module(",
+        "retry(",
+        "fallback",
+        ".clone(",
+    ):
+        if forbidden in main0_bridge:
+            raise AssertionError(f"Main0 bridge gained duplicate/lowering authority: {forbidden}")
+    for production_surface in (canonical_dispatch, normal_frontdoor):
+        for symbol in (
+            "VerifiedNormalMain0BridgePlanV1",
+            "VerifiedNormalModuleFunctionPlanSetV1",
+            "seal_main0_bridge",
+        ):
+            if symbol in production_surface:
+                raise AssertionError(
+                    f"disconnected Main0 bridge gained production consumer: {symbol}"
+                )
 
     for fragment in (
         "NORMAL-CALLABLE-MODULE0-R0-S0",

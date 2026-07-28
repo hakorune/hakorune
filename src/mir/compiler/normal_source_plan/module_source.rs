@@ -13,6 +13,9 @@ use crate::mir::builder::{
 };
 
 use super::inventory::NormalSourceSurfaceInventoryV1;
+use super::main_source::{
+    borrow_exact_main_function_v1, NormalMainFunctionSourceErrorV1, NormalMainFunctionSourceViewV1,
+};
 use super::product::{
     NormalMainMethodSiteV1, NormalTopLevelSiteV1, PreparedNormalSourcePlanInputV1,
 };
@@ -120,6 +123,12 @@ impl VerifiedNormalModuleSourceV1 {
 
     pub(crate) fn callable_catalog(&self) -> &VerifiedSameModuleCallableDeclarationCatalogV1 {
         &self.callables
+    }
+
+    pub(super) fn borrow_exact_main_function(
+        &self,
+    ) -> Result<NormalMainFunctionSourceViewV1<'_>, NormalMainFunctionSourceErrorV1> {
+        borrow_exact_main_function_v1(&self.input, &self.main_box, &self.main_method)
     }
 
     pub(super) fn borrow_instance_method_source<'source>(

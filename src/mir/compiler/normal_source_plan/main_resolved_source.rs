@@ -14,7 +14,7 @@ use crate::mir::resolved_semantics::{
     ResolveOwnerForestErrorV1, VerifiedSemanticOwnerForestV1,
 };
 
-use super::main_source::VerifiedNormalMainFunctionSourceUnitV1;
+use super::main_source::{NormalMainFunctionSourceViewV1, VerifiedNormalMainFunctionSourceUnitV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct VerifiedNormalMainRoleV1 {
@@ -60,12 +60,13 @@ impl VerifiedNormalMainFunctionSourceUnitV1 {
     pub(crate) fn prepare_embedded_resolved_main(
         self,
     ) -> Result<VerifiedNormalMainResolvedSourceUnitV1, RejectedNormalMainResolvedSourceV1> {
-        match prepare_borrowed(&self) {
-            Ok((forest, projection)) => Ok(VerifiedNormalMainResolvedSourceUnitV1 {
+        let source = self.borrow_exact_function();
+        match resolve_normal_main_loan_v1(&source) {
+            Ok((forest, projection, role)) => Ok(VerifiedNormalMainResolvedSourceUnitV1 {
                 source: self,
                 forest,
                 projection,
-                role: VerifiedNormalMainRoleV1::seal(),
+                role,
                 _seal: VerifiedNormalMainResolvedSourceUnitSealV1,
             }),
             Err(error) => Err(RejectedNormalMainResolvedSourceV1 { owner: self, error }),
@@ -124,13 +125,16 @@ impl RejectedNormalMainResolvedSourceV1 {
     }
 }
 
-fn prepare_borrowed(
-    source: &VerifiedNormalMainFunctionSourceUnitV1,
+pub(super) fn resolve_normal_main_loan_v1(
+    function: &NormalMainFunctionSourceViewV1<'_>,
 ) -> Result<
-    (VerifiedSemanticOwnerForestV1, VerifiedSourceProjectionV1),
+    (
+        VerifiedSemanticOwnerForestV1,
+        VerifiedSourceProjectionV1,
+        VerifiedNormalMainRoleV1,
+    ),
     NormalMainResolvedSourceErrorV1,
 > {
-    let function = source.borrow_exact_function();
     let syntax = FunctionSyntaxViewV1::from_ast(function.function())
         .ok_or(NormalMainResolvedSourceErrorV1::FunctionShapeDrift)?;
     let mut session = FunctionSemanticResolverSessionV1::new(0)
@@ -140,7 +144,7 @@ fn prepare_borrowed(
         .map_err(NormalMainResolvedSourceErrorV1::OwnerForest)?;
     let projection = VerifiedSourceProjectionV1::seal(function.function(), &forest)
         .map_err(NormalMainResolvedSourceErrorV1::SourceProjection)?;
-    Ok((forest, projection))
+    Ok((forest, projection, VerifiedNormalMainRoleV1::seal()))
 }
 
 #[cfg(test)]

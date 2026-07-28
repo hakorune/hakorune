@@ -45,126 +45,47 @@ cell数、pack数、LOC、structural observationは進捗と増殖検知の手�
 architecture goalやcompletion authorityではない。cellはnorth-star上の
 authorityを一つ減らす場合だけ選択する。
 
-## Active executable front
+## Current design stop
 
 ```text
-GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0
+GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0
 ```
 
-parent D0はcorrected C-primeを受理した。M2a plan setを分解せず消費し、
-保持中のMain.main/0を一度だけ借り、既存Main0 kernelが発行するowned receipt
-だけをinstance ownerの横へsealする。新しいMain grammar、第二resolver、
-AST clone/reconstruction、physical relation、Builder/MIR、production caller、
-fallback/retry、Candidate A、Ownership/View、第十rowは認めない。
+M2bでmodule source、全instance integer-return plans、Main0 semantic receiptが
+一つのownerへ集約された。次はinstance methodのscalar binding vocabularyを
+有限に選ぶ。候補順はtyped Integer parameter read/return、local Integer
+declaration/read、binding reassignment、Binaryである。最初の一rowが必要とする
+source facts、Recipe、receiver/parameter owner、completion correspondenceを
+固定し、field/Call/New、physical receiver/Ownership、Builder/MIR、production
+caller、fallback/retry、Candidate A、第十rowは開かない。
 
-### Accepted S0 task
+## Closed M2b execution
 
 ```text
-input:
-  VerifiedNormalInstanceIntegerReturnPlanSetV1
-
-transition:
-  seal_main0_bridge(self)
-
-output:
-  VerifiedNormalModuleFunctionPlanSetV1
-    instance = original M2a owner, intact
-    main     = VerifiedNormalMain0BridgePlanV1
-
-rejection:
-  RejectedNormalMain0BridgeV1
-    owner = original M2a owner, intact
-
-ceremony / caller / credit:
-  T2 prerequisite S0 / production caller 0 / replacement credit 0
+row       = GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0
+decision  = corrected C-prime
+input     = VerifiedNormalInstanceIntegerReturnPlanSetV1
+output    = VerifiedNormalModuleFunctionPlanSetV1
+Main      = VerifiedNormalMain0BridgePlanV1
+rejection = RejectedNormalMain0BridgeV1
 ```
 
-`prepare_main0_bridge(&self)`の短命borrow内だけで、module sourceからexact
-Main functionを一度借りる。現行downstream APIはexact function
-`&ASTNode`を要求するため、raw rootを完全に消したとはclaimしない。許すのは
-`normal_source_plan` sibling内のexact-function loanだけで、Program/root
-accessorやcrate-wide AST escapeはゼロにする。
+one sibling-only exact Main loanが既存Main locator/resolver/source projection/
+Main0 preflight kernelを一度ずつ通る。borrowed lowering inputはscope内で破棄し、
+owned forest/control/completion/profileだけを、分解していないM2a ownerの横へ
+保存する。Program clone、crate-wide AST escape、自己参照、第二resolver、
+Main grammar差分、physical relation、partial aggregateはゼロ。
 
 ```text
-one sibling-only exact Main loan
--> shared existing Main resolver kernel
--> owned forest / projection / Main role
--> ResolvedFunctionLoweringInputV1
--> shared existing Main0 preflight kernel
--> CanonicalTrivialBindingSsaPlanV1::into_parts
--> borrowed lowering inputを破棄
--> owned if-control / completion / profile / block_expr_count
--> exact owner/source/completion/profile pairing
--> loan終了後、元のselfをaggregateへmove
-```
-
-既存のowning Main source/resolved/function-plan shellは、module sourceと同じ
-Program ownerを二重所有できず、その型のままaggregateへ保存できない。
-再利用authorityはexact source relation、resolver、source projection、
-Main role、Main0 preflight kernelである。既存canonical shellも同じshared
-helperへ委譲し、resolver/preflight implementation countを一つに保つ。
-
-```text
-production changes:
-  normal_source_plan/main0_bridge.rs
-    aggregate / owned Main receipt / transition / rejection / pairing
-  main_source.rs
-    sibling-only exact Main locator/loan; existing shell also delegates
-    NormalMainFunctionSourceViewV1のcrate-wide exportを撤去
-  module_source.rs
-    exact Main loan delegation only
-  instance_integer_return_plan.rs
-    exact Main loan delegation + seal_main0_bridge consuming transition
-  main_resolved_source.rs
-    typed Main loanを受けるshared resolver kernel
-  main_function_plan.rs
-    exact input + roleを受けるshared Main0 preflight kernel
-  mod.rs
-    bounded product/rejection exports
-
-tests:
-  existing main_function_plan_tests.rs only
-  - aggregate retains source/catalog/instance plans
-  - semantic parity with existing Main0 owner chain
-  - typed failure retains complete M2a owner; fresh source succeeds
-
-guard:
-  existing normal_source_plan0_callable_guard.py only
-  parent normal_source_plan0_guard.py remains 776 lines and unchanged
-```
-
-`main0_bridge.rs`はAST grammar、resolver traversal、canonical preflightを
-直接実装しない。`VerifiedNormalMainFunctionPlanV1<'_>`、
-`ResolvedFunctionLoweringInputV1<'_>`、source viewをaggregateへ保存しない。
-Main physical relation/thunkはM4以降まで発行しない。
-
-```text
-acceptance:
-  input consumption / exact Main loan / resolver pass / preflight pass = 1
-  module source / catalog / instance-plan loss                         = 0
-  source identity storage                                               = module source only
-  Main grammar / identity issuer / resolver implementation delta        = 0
-  borrowed input or AST stored / self-reference / partial aggregate      = 0
-  Builder / MIR / thunk / DraftSeal / collector / publication            = 0
-  fallback / retry / family reselection / production caller               = 0
-  new test/check file / per-row guard                                     = 0
-  every source/check file                                                  < 800
-```
-
-Program clone/move-out、Mainの二度locate、crate-wide raw AST accessor、
-独自resolver/preflight、既存Main0 grammar差分、instance plan分解再構築、
-partial Main reuse、physical relation、production connectionのいずれかが
-必要ならhard stopしてD0へ戻る。
-
-Focused gates:
-
-```text
-RUSTFLAGS='-Awarnings' cargo test -q normal_source_plan --lib
-python3 tools/checks/lib/normal_source_plan0_guard.py
-cargo check -q
-bash tools/checks/mirbuilder_inplace_replacement_guard.sh
-bash tools/checks/current_state_pointer_guard.sh
-git diff --check
+closeout:
+  focused normal-source tests = 76 / 76
+  production Rust delta       = +249
+  test Rust delta             = +184
+  check Python delta          = +104
+  new source files            = 1
+  new test/check files        = 0
+  production callers          = 0
+  largest source/check file   = 776
 ```
 
 ## Closed M2a execution
@@ -187,6 +108,9 @@ verifierを再利用し、lexical `me`を一件だけsealした。部分plan、r
 Legacy復帰、field/Call/New、physical receiver/Ownership/ABI claimはゼロ。
 
 ```text
+production caller / Builder / MIR       = 0
+fallback / retry / reselection          = 0
+
 closeout:
   focused normal-source tests = 73 / 73
   production Rust delta       = +583
@@ -279,7 +203,7 @@ Keep only these counters current:
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 9
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = MAIN0-BRIDGE0-S0 prerequisite
+accepted_next_responsibility       = 0; INSTANCE-SCALAR-BINDING0 D0 design stop
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -298,8 +222,8 @@ closeout explanation, not automatic rejection.
 
 ```text
 none
-  current authority = GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0
-  M2a disconnected prerequisite = closed; production caller = 0
+  current authority = GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0
+  M2a / M2b disconnected prerequisites = closed; production caller = 0
   repository artifact lifecycle R1-R4-first / RETURN0 = closed
   tenth responsibility = not selected
 ```
@@ -328,7 +252,7 @@ product                                         = VerifiedNormalModuleSourceV1
 source/catalog callable correspondence          = exact
 focused normal_source_plan tests                = 67 / 67
 VerifiedNormalModuleSourceV1 production callers = 0
-existing canonical classifier behavior          = unchanged
+existing canonical non-Main Box rejection      = unchanged
 Builder / lowering / publication delta           = 0
 fallback / retry / route reselection             = 0
 replacement row / credit                         = 0
@@ -339,6 +263,7 @@ production Rust LOC delta                        = +626
 test Rust LOC delta                              = +201
 check Python LOC delta                           = +103
 largest touched source/check file                = 776
+all modified source/check files                 < 800
 ```
 
 Fields and method bodies remain retained source, not yet verified plans.
@@ -398,7 +323,7 @@ ceremony                     = T2 bounded enabling design
 future aggregate product     = VerifiedNormalGeneralProgramPlanV1
 first missing authority      = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0
 D0 / module-source S0 status = closed
-current executable row       = GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0
+current executable row       = GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0
 normal/default Legacy caller = present
 canonical default caller     = 0
 prerequisite caller          = 0
@@ -465,7 +390,10 @@ M2b GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0
     closed: corrected C-prime exact Main0 reuse bridge selected
 
 M2b GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0
-    current: retain M2a owner and seal owned Main0 receipts
+    closed: retained M2a owner plus owned Main0 receipts
+
+M2c GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0
+    current design stop: select the first finite scalar-binding Recipe
 
 M2c+ GENERAL-FUNCTION-PLAN0 finite family slices
     scalar bindings, field schema/read/write,
