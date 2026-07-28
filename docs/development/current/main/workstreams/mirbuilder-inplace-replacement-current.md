@@ -36,9 +36,10 @@ Closed:  NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0
 Closed:  RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0
 Closed:  RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0
-Current design stop: RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0
+Closed:  RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0
+Current: RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0
 Pack:    DESCENT-SPINE0
-Ceremony: consultation; no production edit before selection
+Ceremony: T1; one atomic production replacement
 ```
 
 R1 closeout:
@@ -131,43 +132,42 @@ largest touched source/check file         = 574
 
 ## Execution brief
 
-Question:
+Change:
 
 ```text
-select exactly one next compositional residual expression responsibility
-fix its recursive closure, completion authority, failure/order parity, and
-same-commit compatibility-edge deletion before opening production edits
+extend PortNeutralExprTreeV1 with CheckExpr when every item.expression is safe
+route the complete eager list through the existing selected invocation port and
+build_check_expression_with_port_v1
+delete safe CheckExpr -> SeparateDesignStop compatibility in the same commit
 ```
 
-Fresh census:
+Contract:
 
 ```text
-Candidate A: CheckExpr with every item expression port-neutral
-  recommended; eager ordered list, no allocation/header/control authority
-
-Candidate B: QMarkPropagate with a port-neutral operand
-  branch/Return/runtime-call authority requires explicit control/result parity
-
-Candidate C: ArrayLiteral with every element port-neutral
-  allocation/type-registry/write order requires object/result parity
+empty Check is selected; name and labels are unrestricted and non-routing
+all items use the same selected port once in source order; no per-item route mixing
+Const one/zero, eager item, Select, and post-emit type-commit order stay unchanged
+one unsafe item keeps the whole Check on compatibility without retry
+Program/Box/Loop/calls, grammar, result, verification, and publication do not move
 ```
 
-Required D0 output:
+Done:
 
 ```text
-one accepted recursive closure and existing owner
-one named old compatibility edge removed atomically
-one residual-count decrement and sunset update
-focused completion-order, parity, and failure/reuse evidence
+recursive partition covers empty, nested-safe, and mixed-unsafe Check shapes
+recording-port order plus normal parity and failure/reuse are green
+existing eager Check surface guard is green
+selected kinds 6 -> 7; registered residual kinds 50 -> 49
+new source/test/check/task file = 0; every source/check file < 800
 ```
 
 Stop:
 
 ```text
-an entire AST kind moves without a recursive child closure
-selected failure retries/reselects compatibility or the compatibility surface grows
-allocation, control, header, or result authority is smuggled into another candidate
-new grammar, source clone/reparse, whole-function variant, or per-row file is required
+Check with an unsafe descendant enters selected or items use different ports
+selected failure retries/reselects compatibility or the compatibility driver grows
+name/label routing, Bool admission, short-circuiting, or completion ordering changes
+QMark control, Array allocation, source clone/reparse, or a new file enters the row
 ```
 
 Compatibility sunset:
@@ -202,7 +202,8 @@ R2c NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 closed
 R2d RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 closed
 R2e RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0 closed
 R2f RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0 closed
-R2g RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0 current design stop
+R2g RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0 closed
+R2h RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:
