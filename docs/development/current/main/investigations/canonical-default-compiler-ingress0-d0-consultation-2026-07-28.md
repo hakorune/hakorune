@@ -599,6 +599,41 @@ selected normal MirLoweringRequestV1::Legacy construction
 Compatibility/reference Legacy edges are not part of that deletion unless a
 separate accepted removal condition covers them.
 
+## Cross-workstream handoff order
+
+Closing this D0 does not immediately authorize Candidate A. The accepted
+handoff is:
+
+```text
+1. NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0 close
+
+2. repository artifact lifecycle interlude
+   R1 archive substrate recovery
+   -> R2 global phase resolver
+   -> R3 two-file phase-296x pilot
+   -> R4 first bounded nested-archive batch only
+
+3. DOCS-MEANING-RECOVERY-RETURN0
+   strict lifecycle gate
+   current-state pointer guard
+   link/reference closure
+   measured current-doc recount
+
+4. restore MirBuilder workstream as current authority
+
+5. Candidate A re-evaluation
+   -> accept one total typed ingress
+   or stop at the first still-missing verified capability
+```
+
+The docs interlude is bounded. R5 stale-phase cohorts and R6
+design/investigation retirement remain later repository-lifecycle work and do
+not block Candidate A re-evaluation after the first R4 batch.
+
+Do not mix compiler source changes with R1 through RETURN0. The current
+compiler card remains the return target; no new consultation or task document
+is created for the handoff.
+
 ## D0 acceptance
 
 ```text

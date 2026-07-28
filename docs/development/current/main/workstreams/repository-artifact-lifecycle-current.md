@@ -24,8 +24,45 @@ File and line counts are measured results. They are not implementation
 permission gates and do not replace reference-closure checks.
 
 This workstream is parked while `CURRENT_STATE.toml` selects the MirBuilder
-lane. It does not authorize physical moves, pointer changes, production source
-edits, or a current-lane switch.
+lane. Its first bounded activation is scheduled immediately after
+`NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0` closes and before Candidate A is
+re-evaluated. Until `CURRENT_STATE.toml` performs that handoff, this card does
+not authorize physical moves, pointer changes, production source edits, or a
+current-lane switch.
+
+## Scheduled first activation
+
+The first activation is deliberately smaller than the complete R1-R6 backlog:
+
+```text
+R1
+-> R2
+-> R3
+-> first R4 batch
+-> DOCS-MEANING-RECOVERY-RETURN0
+-> MirBuilder Candidate A re-evaluation
+```
+
+Exact boundary:
+
+```text
+R1  restore existing lifecycle gates
+R2  close global/transitional archive resolution
+R3  move the exact two-file pilot
+R4  move one bounded reference-closed nested-archive batch
+
+RETURN0:
+  strict lifecycle inventory green
+  pointer guard green
+  reference/link closure green
+  current-doc counts recorded
+  worktree clean
+  CURRENT_STATE returned to MirBuilder
+```
+
+R5 stale-phase cohorts and R6 design/investigation retirement remain scheduled
+cleanup debt. They are not prerequisites for the first return to compiler
+work.
 
 ## Measured baseline
 
@@ -243,7 +280,7 @@ not an archival receipt.
 
 ## Execution train
 
-### R0 — growth stop
+### R0 — growth stop (closed)
 
 Update the current docs policy and layout so the one-card law and exception
 fields are explicit. Reuse an existing docs/current guard; do not create a new
@@ -256,6 +293,15 @@ one active current card per workstream
 ordinary row/cell investigation-file delta = 0
 new investigation without named exception = rejected
 current pointer semantics unchanged
+```
+
+Closeout:
+
+```text
+commit = 5d71ff9d61
+new rolling workstream card = 0
+ordinary row/cell investigation-file delta rule = 0
+physical archive move = 0
 ```
 
 ### R1 — archive substrate recovery

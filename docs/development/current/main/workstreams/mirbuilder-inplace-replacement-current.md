@@ -274,6 +274,45 @@ catch-all source family, and a second monolithic MirBuilder are forbidden.
 Local cleanup and proof consolidation remain parked because they do not switch
 the default production authority.
 
+## Scheduled docs interlude and return
+
+The accepted cross-workstream order is:
+
+```text
+M0  NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0 close
+
+D1  repository artifact lifecycle R1
+    restore archive substrate gates
+
+D2  repository artifact lifecycle R2
+    make live / global archive / transitional archive resolution explicit
+
+D3  repository artifact lifecycle R3
+    move the exact two-file phase-296x pilot
+
+D4  repository artifact lifecycle R4-first
+    move one reference-closed bounded nested-archive batch
+
+D5  DOCS-MEANING-RECOVERY-RETURN0
+    strict lifecycle + pointer + reference gates
+    recount
+    return CURRENT_STATE to this MirBuilder workstream
+
+M1  Candidate A re-evaluation
+```
+
+R5 stale-phase cohorts and R6 design/investigation retirement are later
+bounded lifecycle batches. They do not hold the compiler lane until every
+historical document has moved.
+
+During D1 through D5:
+
+```text
+compiler/runtime/backend edit = 0
+tenth replacement row         = absent
+new consultation file         = 0
+```
+
 ## Landed replacement cells
 
 ```text
