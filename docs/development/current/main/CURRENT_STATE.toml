@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY7-D0 is closed. RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0 is the current executable T1 row."
+status = "RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0 is closed. RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0 is the current read-only live-edge design stop."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0"
-current_execution_summary = "Select only Local roots whose supplied declared-type rows are all None and whose supplied initializers are None or fully PortNeutralExprTreeV1. The classifier proves port safety only: it must not validate vector cardinality or names, parse types, read Builder state, or decide Local semantics. Reuse the existing selected raw dispatcher and drive_local_statement_v1 unchanged. This makes typed-array and record-constructor special hooks structurally unreachable while preserving missing-initializer Null, initializer order, preflight, and success-only binding publication. Same-commit delete the safe Local compatibility edge; target counts are 12 selected expressions, 3 statement roots, 41 residual kinds, and 1/1 terminals. No new owner, terminal, route, source/test/check file, grammar, retry, fallback, or source-level Ownership/View is authorized."
+current_design_stop = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0"
+current_execution_row = ""
+current_execution_summary = "Annotation-free Local with only absent or fully port-neutral supplied initializers is now the third selected statement root. The classifier proves only port safety and preserves the existing Local owner as the sole cardinality, name, type, preflight, initializer-order, Null, and binding-publication authority. Typed-array and record-constructor hooks are structurally unreachable on the selected slice. Standalone Local retains the exact current lexical-scope failure across normal and Legacy routes, with candidate discard and compiler reuse green. Counts are 12 selected expressions, 3 statement roots, 41 residual kinds, and 1/1 terminals. Root production/tests, normal integration tests, and the shared guard are 376/782/604/695 lines. The current stop is a fresh read-only census; do not preselect or edit the next responsibility."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """RAW-NONPROGRAM-NEXT-RESPONSIBILITY7-D0 is closed after fresh live-edge, Local-owner, adversarial, and evidence-budget audits. RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0 is the sole executable T1 row. Select only Local with no supplied annotation and with every supplied initializer absent or fully port-neutral; reuse the existing selected terminal and drive_local_statement_v1 unchanged. The root classifier must not validate cardinality/names/types or inspect Builder state. Typed-array and record hooks must remain unreachable. The same commit deletes the safe Local compatibility edge; target ratchet is 12/2/42 -> 12/3/41 with terminals 1/1. Whole-program variants, source-level Ownership/View, all other new semantics, fallback/retry, compatibility growth, new owners/terminals/files, and production-caller-zero routes remain forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0 is closed green. Safe annotation-free Local now uses the selected invocation port while drive_local_statement_v1 remains the sole semantic/completion owner; typed/unsafe Local stays whole compatibility, with exact 12/3/41 counts and 1/1 terminals. Existing standalone lexical-scope failure, internal Local semantics, candidate discard, and reuse are green. RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0 is the sole current read-only live-edge census. Select no implementation until one named production caller, one bounded source-only partition, one existing owner, and one same-commit compatibility-edge deletion are proven without duplicated family/target decisions. Whole-program variants, source-level Ownership/View, all other new semantics, fallback/retry, compatibility growth, and production-caller-zero routes remain forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0-IMPLEMENT"
+current_blocker_token = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0-SELECT"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

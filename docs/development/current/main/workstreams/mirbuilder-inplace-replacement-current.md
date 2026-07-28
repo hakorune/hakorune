@@ -55,9 +55,10 @@ Closed:  RAW-NONPROGRAM-INDEX-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY6-D0
 Closed:  RAW-NONPROGRAM-EMPTY-BLOCK-EXPR-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY7-D0
-Current: RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0
-Pack:    DESCENT-SPINE0
-Ceremony: T1, one atomic I0/R0 commit
+Closed:  RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0
+Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0
+Pack:    ROOT-LIFECYCLE0
+Ceremony: read-only live-edge census
 ```
 
 R1 closeout:
@@ -305,38 +306,47 @@ new source/test/check file               = 0
 largest touched source/check file        = 729
 ```
 
-## Current execution row
+## Latest closeout
 
 ```text
 RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0
 
-Selected closure:
-  Local {
-    every supplied declared type = None
-    every supplied initializer   = None | PortNeutralExprTreeV1
-  }
+safe annotation-free Local edge          = 0
+selected expression / statement kinds    = 12 / 3
+registered residual kinds                 = 41
+selected / compatibility terminals        = 1 / 1
+typed-array / record special-hook reach    = 0 / 0
+root partition tests                       = 8/8 green
+existing Local descent/raw/parity suites   = 8/8, 7/7, 6/6 green
+standalone lexical-scope diagnostic parity = green
+candidate discard / compiler reuse         = green
+shared guard / artifact inventory          = green
+fallback / retry / reselection             = 0
+new source/test/check file                 = 0
+largest touched source/check file          = 782
+```
 
-Existing owner:
-  selected raw dispatcher -> drive_local_statement_v1
+## Current design stop
 
-Classifier non-authority:
-  vector cardinality / names / type parsing / Builder state
-  Local preflight / initializer order / Null / binding publication
+```text
+RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0
 
-Atomic delete:
-  safe annotation-free Local -> root compatibility = 0
+Read-only:
+  refresh the remaining 41-kind live compatibility census
+  compare only responsibilities with existing production owners
 
-Ratchet:
-  selected expression / statement kinds = 12 / 2 -> 12 / 3
-  registered residual kinds              = 42 -> 41
-  selected / compatibility terminals     = 1 / 1 unchanged
+Selection requires:
+  one named production caller
+  one bounded source-only partition
+  one same-commit old compatibility-edge deletion
+  no duplicated family/target decision
+  fallback / retry / reselection = 0
 
-Hard stop:
-  selecting any annotation, New, or unsafe initializer
-  per-initializer route mixing
-  reaching typed-array or record special hooks
-  adding an owner, terminal, file, retry, fallback, or new grammar
-  any source/check file reaching 800 lines
+Park:
+  implementation
+  whole-program accepted variants
+  source-level Ownership / View
+  all other new language semantics
 ```
 
 Compatibility sunset:
@@ -390,7 +400,8 @@ R2v RAW-NONPROGRAM-INDEX-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2w RAW-NONPROGRAM-NEXT-RESPONSIBILITY6-D0 closed
 R2x RAW-NONPROGRAM-EMPTY-BLOCK-EXPR-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2y RAW-NONPROGRAM-NEXT-RESPONSIBILITY7-D0 closed
-R2z RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0 current
+R2z RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0 closed
+R2aa RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:

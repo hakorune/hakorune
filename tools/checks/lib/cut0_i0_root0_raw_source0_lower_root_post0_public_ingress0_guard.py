@@ -414,7 +414,7 @@ def main() -> int:
     )
     if root_descent.get("sunset_state") != "active":
         raise AssertionError("raw root compatibility sunset must remain active")
-    if root_descent.get("residual_kind_count") != 42:
+    if root_descent.get("residual_kind_count") != 41:
         raise AssertionError("raw root compatibility residual count drift")
     ast_node_kinds = ast_kinds(
         (
@@ -430,8 +430,8 @@ def main() -> int:
             f"extra={sorted(classified_kinds - ast_node_kinds)}"
         )
     selected_arms = re.findall(
-        r"node\s*@\s*(.*?)=>\s*\{\s*Self::selected_(?:expr_tree|print_root|nowait_root)\(node\)\s*\}"
-        r"|node\s*@\s*(.*?)=>\s*Self::selected_(?:expr_tree|print_root|nowait_root)\(node\)",
+        r"node\s*@\s*(.*?)=>\s*\{\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root)\(node\)\s*\}"
+        r"|node\s*@\s*(.*?)=>\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root)\(node\)",
         raw_nonprogram_root_descent,
         re.S,
     )
@@ -441,7 +441,7 @@ def main() -> int:
     expected_selected = {
         "Literal", "Variable", "Me", "UnaryOp", "BinaryOp", "AwaitExpression",
         "CheckExpr", "ArrayLiteral", "MapLiteral", "GroupedAssignmentExpr", "Index",
-        "BlockExpr", "Print", "Nowait",
+        "BlockExpr", "Print", "Nowait", "Local",
     }
     if selected_kinds != expected_selected:
         raise AssertionError(
@@ -470,7 +470,7 @@ def main() -> int:
         "EnumMatchExpr", "RecordLiteral",
         "RecordUpdate", "Lambda", "TryCatch", "Throw",
         "MethodCall", "FieldAccess", "New",
-        "FromCall", "Local", "ScopeBox", "FunctionCall", "Call",
+        "FromCall", "ScopeBox", "FunctionCall", "Call",
     }
     if separate_kinds != expected_separate:
         raise AssertionError(
@@ -580,6 +580,16 @@ def main() -> int:
     if raw_nonprogram_root_descent.count("node @ ASTNode::Nowait { .. }") != 2:
         raise AssertionError("Nowait root must have one safe and one compatibility arm")
     for fragment in (
+        "node @ ASTNode::Local { .. } if is_port_neutral_local_root(&node)",
+        "declared_type_names.iter().all(Option::is_none)",
+        ".is_none_or(is_port_neutral_expr_tree)",
+        "PortNeutralLocalRootV1",
+        "SelectedRawNonProgramRootV1::LocalRoot",
+    ):
+        require(raw_nonprogram_root_descent, fragment, "annotation-free Local partition")
+    if raw_nonprogram_root_descent.count("node @ ASTNode::Local { .. }") != 2:
+        raise AssertionError("Local root must have one safe and one compatibility arm")
+    for fragment in (
         "PreparedRawNonProgramRootV1",
         "SelectedRawNonProgramRootV1",
         "PortNeutralExprTreeV1",
@@ -634,6 +644,7 @@ def main() -> int:
         "normal_pipeline_matches_legacy_compatibility_for_general_module",
         "normal_pipeline_matches_legacy_compatibility_for_non_program_root",
         "selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable",
+        "selected_local_root_failure_matches_legacy_and_reuses",
         "selected_grouped_assignment_failure_matches_legacy_and_reuses",
         "selected_index_failure_matches_legacy_and_reuses",
     ):

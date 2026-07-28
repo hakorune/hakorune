@@ -130,6 +130,15 @@ fn block_expr(tail_expr: ASTNode) -> ASTNode {
     }
 }
 
+fn local(name: &str, initializer: Option<ASTNode>) -> ASTNode {
+    ASTNode::Local {
+        variables: vec![name.to_owned()],
+        initial_values: vec![initializer.map(Box::new)],
+        declared_type_names: vec![None],
+        span: Span::unknown(),
+    }
+}
+
 fn source_file(compiler: &MirCompiler) -> Option<String> {
     compiler.builder.current_source_file()
 }
@@ -481,6 +490,43 @@ fn selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable() {
             Some("reused-nonprogram.hako")
         );
     }
+}
+
+#[test]
+fn selected_local_root_failure_matches_legacy_and_reuses() {
+    let root = local("x", Some(block_expr(literal(38))));
+    let mut legacy_compiler = MirCompiler::with_options(false);
+    let legacy_error = legacy_compiler
+        .compile_with_source(root.clone(), Some("local-root-failure.hako"))
+        .expect_err("legacy Local root must reject outside lexical scope");
+
+    let mut compiler = MirCompiler::with_options(false);
+    compiler.builder.set_source_file_hint("live-before.hako");
+    let before = (source_file(&compiler), core_cursor(&compiler));
+    let selected_error = compiler
+        .compile_normal(normal_request(
+            root,
+            Some("local-root-failure.hako"),
+            HashMap::new(),
+        ))
+        .expect_err("selected Local root must preserve the lexical-scope failure");
+
+    assert_eq!(selected_error, legacy_error);
+    assert!(selected_error.contains("local declaration outside lexical scope"));
+    assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
+
+    let result = compiler
+        .compile_normal(normal_request(
+            literal(39),
+            Some("local-root-reuse.hako"),
+            HashMap::new(),
+        ))
+        .expect("fresh selected root after Local rejection");
+    assert!(result.module.functions.contains_key("main"));
+    assert_eq!(
+        source_file(&compiler).as_deref(),
+        Some("local-root-reuse.hako")
+    );
 }
 
 #[test]

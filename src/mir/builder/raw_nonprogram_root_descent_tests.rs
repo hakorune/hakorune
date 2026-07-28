@@ -112,6 +112,25 @@ fn block_expr(prelude_stmts: Vec<ASTNode>, tail_expr: ASTNode) -> ASTNode {
     }
 }
 
+fn local(
+    variables: &[&str],
+    initial_values: Vec<Option<ASTNode>>,
+    declared_type_names: Vec<Option<&str>>,
+) -> ASTNode {
+    ASTNode::Local {
+        variables: variables.iter().map(|name| (*name).to_owned()).collect(),
+        initial_values: initial_values
+            .into_iter()
+            .map(|value| value.map(Box::new))
+            .collect(),
+        declared_type_names: declared_type_names
+            .into_iter()
+            .map(|value| value.map(str::to_owned))
+            .collect(),
+        span: Span::unknown(),
+    }
+}
+
 fn drive_selected(builder: &mut MirBuilder, node: ASTNode) -> Result<ValueId, String> {
     let mut invocation =
         ModuleLoweringInvocationV1::with_collector(builder, ModuleDraftCollectorV1::default());
@@ -156,6 +175,15 @@ fn assert_selected_nowait(node: ASTNode) {
         PreparedRawRootPartitionV1::classify(node),
         PreparedRawRootPartitionV1::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
             SelectedRawNonProgramRootV1::NowaitRoot(_)
+        ))
+    ));
+}
+
+fn assert_selected_local(node: ASTNode) {
+    assert!(matches!(
+        PreparedRawRootPartitionV1::classify(node),
+        PreparedRawRootPartitionV1::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
+            SelectedRawNonProgramRootV1::LocalRoot(_)
         ))
     ));
 }
@@ -248,6 +276,13 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
     assert_selected(block_expr(
         Vec::new(),
         block_expr(Vec::new(), checked(vec![integer(27)])),
+    ));
+    assert_selected_local(local(&["x"], vec![Some(integer(28))], vec![None]));
+    assert_selected_local(local(&["missing"], Vec::new(), Vec::new()));
+    assert_selected_local(local(
+        &["nested"],
+        vec![Some(block_expr(Vec::new(), array(vec![integer(29)])))],
+        vec![None],
     ));
 
     assert_compatibility(
@@ -429,6 +464,24 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
                 field: "value".to_owned(),
                 span: Span::unknown(),
             },
+        ),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        local(&["typed"], vec![Some(integer(30))], vec![Some("i64")]),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        local(
+            &["unsafe"],
+            vec![Some(ASTNode::New {
+                class: "Page".to_owned(),
+                arguments: Vec::new(),
+                field_initializers: Vec::new(),
+                type_arguments: Vec::new(),
+                span: Span::unknown(),
+            })],
+            vec![None],
         ),
         RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
     );
