@@ -1,6 +1,6 @@
 ---
 Status: Active workstream
-Date: 2026-07-28
+Date: 2026-07-29
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -25,37 +25,44 @@ Resolve -> Observe -> Facts -> Recipe -> Verify
 第二MirBuilder、production consumer 0のroute拡張、Legacy fallbackは作らない。
 cell数、pack数、LOCは観測値であり、完成条件ではない。
 
-## Current design stop
+## Current execution brief
 
-`GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-D0`
+`GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-S0` — T2
 
 ```text
-Question:
-  should the next finite family be exactly one i64 parameter, one untyped
-  Local initialized from that resolved parameter, and one terminal Return of
-  the resolved Local?
+Shape:
+  one exact i64 Parameter P; one distinct untyped Local X initialized by P;
+  one terminal Return of X. Same-name shadowing is a later finite row.
 
-Reuse:
-  existing exact i64 parameter receipt, dynamic Local binding facts, total
-  source classifier, one resolver pass, source projection, and completion.
+Facts:
+  Receiver=1, Parameter(0)=1, Local(0)=1; initializer exact-site use resolves
+  Parameter; ReturnValue exact-site use resolves Local; total uses=2;
+  assignments/calls/upvars=0. Parameter has the existing exact ABI receipt;
+  Local has no ABI/type/representation receipt.
 
-Must decide:
-  exact declaration/use cardinality; initializer Parameter-use and final
-  Local-use pairing; whether the Recipe stores both BindingRefs and sites;
-  whole-module rejection and fresh-source reuse evidence.
+Execution:
+  first compact existing proof transport, then add one total classifier arm,
+  one resolver pass, bounded Parameter/Local receipt factories, one Recipe,
+  one completion, and one fourth cumulative variant. Do not seal old plans
+  and combine them. Whole-module rejection drops every partial plan.
+
+Structure:
+  two immediately-following commits are allowed: behavior-neutral test/guard
+  compaction, then the semantic variant. Reuse existing test/check files;
+  target tests <= 750 and guard <= 760, hard maximum < 800. New per-row guard
+  is forbidden. Stable gate: run_row_guard --only normal-source-plan0.
 
 Non-claims:
-  no exact Local ABI inference, typed LocalSlotContract/LocalContractWrite,
-  reassignment, Binary, physical lowering, production caller, fallback/retry,
-  Ownership/View, or tenth replacement row.
+  typed Local, shadowing, reassignment, Binary, Builder/MIR, production caller,
+  fallback/retry, Ownership/View, replacement credit, or tenth row.
 ```
 
 ## Queue to the north star
 
 ```text
 M2c  closed exact i64 parameter-return variant
-M2c+ closed integer-literal Local; current parameter-fed Local
-M2c+ then reassignment / Binary finite binding slices
+M2c+ selected parameter-fed Local
+M2c+ then parameter/Local shadow, reassignment, Binary finite binding slices
 M2d  field schema
 M2e  field read
 M2f  field write
@@ -68,6 +75,21 @@ M6   Candidate A technical readiness audit
 O1-O5 Ownership/View readiness
 M7   Candidate A final re-evaluation
 M8   atomic normal/default cutover, only when M7 is green
+```
+
+Finite row order after the selected S0 (later D0s are anticipated, not yet
+execution authority):
+
+```text
+GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-LOCAL-SHADOW0-D0
+GENERAL-FUNCTION-PLAN0-INSTANCE-REASSIGNMENT0-D0
+GENERAL-FUNCTION-PLAN0-INSTANCE-BINARY0-D0
+NORMAL-GENERAL-PROGRAM-FIELD-SCHEMA0-D0
+GENERAL-FUNCTION-PLAN0-INSTANCE-FIELD-READ0-D0
+GENERAL-FUNCTION-PLAN0-INSTANCE-FIELD-WRITE0-D0
+NORMAL-GENERAL-PROGRAM-DEFAULT-CONSTRUCTION0-D0
+GENERAL-FUNCTION-PLAN0-MAIN-INSTANCE-CALL0-D0
+NORMAL-GENERAL-PROGRAM-PLAN0-S0
 ```
 
 M2c+の各行は有限なFacts/Recipe語彙を一つだけ追加する。M3まではproduction
@@ -93,7 +115,7 @@ INSTANCE-I64-PARAMETER-RETURN0-S0 / bdd0812c26
   total two-family classifier; exact Receiver + Parameter(0) + Return use
   evidence 76/76; production +464, test +62, check +36; max file 791
 
-INSTANCE-INTEGER-LOCAL-RETURN0-S0 / this implementation commit
+INSTANCE-INTEGER-LOCAL-RETURN0-S0 / adbb737f8a
   third cumulative variant; exact Receiver + Local(0) + Integer initializer
   + terminal Local read; evidence 74/74; production +391, test +62, check +8;
   one new source file, no new test/check file, max source/check 799

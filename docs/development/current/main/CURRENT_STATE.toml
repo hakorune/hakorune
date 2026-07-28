@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-LOCAL-RETURN0-S0 is closed. GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-D0 is the current design stop."
-date = "2026-07-28"
+status = "GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-D0 accepts one exact i64-parameter to untyped-Local flow. GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-S0 is selected."
+date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-D0: choose the first exact parameter-to-untyped-Local Facts/Recipe slice without inventing a Local ABI or retrying plan families"
-current_execution_row = "GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-D0"
-current_execution_summary = "Decide whether the next finite family is exactly one i64 parameter, one untyped Local initialized from that resolved parameter, and one terminal Return of the resolved Local. Fix source/fact coverage, Recipe ownership, and failure boundaries before implementation. Reuse the existing parameter ABI receipt, Local binding facts, total classifier, and single resolver pass; do not infer an exact Local ABI, add reassignment/Binary, open Builder/MIR, connect a production caller, retry another family, activate Ownership/View, or create the tenth replacement row."
+current_design_stop = "none; GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-D0 is accepted by delegated source/owner/proof audits"
+current_execution_row = "GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-S0"
+current_execution_summary = "Add one InstanceMethodI64ParameterFedUntypedLocalReturn0 cumulative variant: exact one i64 parameter P, one distinct untyped Local X initialized from the resolved Parameter binding, and one terminal Return of the resolved Local binding. Select it in the existing total parameter-body match before the sole resolver pass; reuse bounded Parameter/Local receipt factories and exact-site variable-ref checks. First compact existing tests and shared guard, then add the variant. Do not admit same-name shadowing, infer a Local ABI, add typed-Local contracts, reassignment/Binary, Builder/MIR, production callers, fallback/retry, Ownership/View, or the tenth replacement row."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-LOCAL-RETURN0-S0 is closed with a third cumulative variant, exact dynamic-Integer Local facts, unchanged Main0 receipt, and no production caller. GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-D0 is now the sole design authority. Exact typed-Local contracts remain separate because they own LocalSlotContract/LocalContractWrite obligations; reassignment/Binary, Ownership activation, compiler/runtime/backend edits, fields/calls/construction, physical Main relation, and the tenth replacement row remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-D0 accepts one distinct-name `i64 Parameter -> untyped Local -> Return` slice, and GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-S0 is the sole executable row. The prior three cumulative variants remain closed. Same-name shadowing, typed-Local contracts, reassignment/Binary, Ownership activation, compiler/runtime/backend edits, fields/calls/construction, physical Main relation, and the tenth replacement row remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-LOCAL-RETURN0-S0 is closed at 74/74: three cumulative variants, exact key coverage, unchanged Main0 bridge, production +391, test +62, check +8, one new source file, no new test/check file, max source/check 799. GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-D0 is the next design stop."""
+latest_card_summary = """GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-D0 accepts InstanceMethodI64ParameterFedUntypedLocalReturn0. S0 must compact the 796-line tests and 799-line shared guard before adding the fourth cumulative variant; it keeps one resolver pass, exact Parameter/Local use edges, no Local ABI, no retry, and production caller zero."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-D0-DESIGN-STOP"
+current_blocker_token = "GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-S0-EXECUTION"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
