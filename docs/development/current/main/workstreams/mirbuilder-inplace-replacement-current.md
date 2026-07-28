@@ -45,19 +45,128 @@ cell数、pack数、LOC、structural observationは進捗と増殖検知の手�
 architecture goalやcompletion authorityではない。cellはnorth-star上の
 authorityを一つ減らす場合だけ選択する。
 
-## Current design stop
+## Active executable front
 
 ```text
-GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0
+row          = GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0
+parent       = GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0
+decision     = corrected Candidate C-prime
+ceremony     = T1
+input        = VerifiedNormalModuleSourceV1
+intermediate = VerifiedNormalInstanceFunctionPlanSetV1
+checkpoint   = VerifiedNormalModuleFunctionPlanSetV1
+variants     = IntegerLiteralReturn exactly one
+grammar delta / production caller / replacement credit = 0
 ```
 
-M2bでmodule source、全instance integer-return plans、Main0 semantic receiptが
-一つのownerへ集約された。次はinstance methodのscalar binding vocabularyを
-有限に選ぶ。候補順はtyped Integer parameter read/return、local Integer
-declaration/read、binding reassignment、Binaryである。最初の一rowが必要とする
-source facts、Recipe、receiver/parameter owner、completion correspondenceを
-固定し、field/Call/New、physical receiver/Ownership、Builder/MIR、production
-caller、fallback/retry、Candidate A、第十rowは開かない。
+Candidate Aのcumulative sum-typeを最終形に採用しつつ、BoxShape migrationと
+新grammarを分離する。C0は既存integer-literal-return familyだけをenumの
+第一variantへ包むgrammar-neutral migrationである。C1だけが、C0 close後に
+exact `i64` parameter-return familyを追加できる。
+
+```text
+VerifiedNormalModuleFunctionPlanSetV1
+├─ instance: VerifiedNormalInstanceFunctionPlanSetV1
+│  ├─ source: VerifiedNormalModuleSourceV1
+│  │  └─ Program / identity / Main sites / Box sites / callable catalog
+│  └─ plans: BTreeMap<CanonicalKey, VerifiedNormalInstanceFunctionPlanV1>
+│     └─ IntegerLiteralReturn(existing verified plan)
+└─ main: existing VerifiedNormalMain0BridgePlanV1
+```
+
+sourceとcatalogのownerはcumulative setの一箇所だけである。Main bridgeは同set
+からexact Main loanを借り、既存receiptを変更せず外側aggregateへ保存する。
+旧setからのruntime conversion、source分解、alias、compatibility facadeは作らない。
+
+### C0 atomic change
+
+```text
+new:
+  instance_function_plan.rs
+    cumulative enum / source-owning set / all-method iteration
+    common function Facts / stage-error-rejection owner
+    exact ordered key coverage
+
+retain in instance_integer_return_plan.rs:
+  integer Recipe / verified plan / receiver-only fact validation
+  exact signature/body/completion pairing
+
+replace atomically:
+  producer and seal API
+  Main bridge instance field/input and rejection owner
+  exports, tests, guard expectations
+
+delete to zero:
+  VerifiedNormalInstanceIntegerReturnPlanSetV1
+  seal_instance_integer_return_plans
+  old concrete-set exports/usages
+  compatibility aliases/converters
+```
+
+C0は一variantだけなので、投機的なmulti-family classifierを作らない。既存planの
+sole producerが`IntegerLiteralReturn`を一度だけ直接構築する。各methodは
+既存順序のまま、
+
+```text
+signature
+-> resolver / projection
+-> facts
+-> Recipe
+-> completion / pairing
+-> IntegerLiteralReturn variant construction
+```
+
+を一度だけ通る。rejection stageとerror vocabularyを変えず、variant failure後の
+retry/reselectionを作らない。total source-family classifierは第二variantが存在する
+C1で初めて導入する。
+
+### C0 proof and size boundary
+
+既存fixtureをrename/置換して、literal payload、canonical order、rejection stage、
+Main receipt parityを維持する。catalog coverageは件数一致ではなく、
+`plans.keys().eq(keys.iter())`相当のexact ordered equalityに強化する。
+
+```text
+new test/check file          = 0
+parent normal-source guard   = 776 lines; unchanged
+callable child guard         = 760 lines before C0
+child guard update           = old concrete assertionsの置換・圧縮
+child guard target           <= 795 lines
+all source/check files       < 800 lines
+tests.rs target              < 780 lines
+```
+
+guardへの単純追記は禁止する。新file pathの読み込み、cumulative symbols、旧symbol
+zero、production consumer zeroを、旧concrete blockとのnet置換で収める。
+
+### C0 acceptance and hard stop
+
+```text
+module source / identity / catalog owners       = exactly one
+all InstanceBoxMethod keys                      = exactly once, ordered equal
+public cumulative variants                      = IntegerLiteralReturn only
+existing literal grammar and rejection order    = unchanged
+outer aggregate name / Main0 receipt             = unchanged
+old concrete set / seal API / alias / converter = 0
+partial product / fallback / retry               = 0
+Builder / MIR / publication / Ownership          = 0
+production caller / tenth replacement row        = 0
+```
+
+source clone/reparse/reseal、old/new set共存、Main receipt再seal、検証順変更、
+multi-family classifier先行、guard 800行到達のどれかが必要ならD0へ戻る。
+
+Gate:
+
+```bash
+cargo check -q
+cargo test -q normal_source_plan --lib
+bash tools/checks/run_row_guard.sh --only normal-source-plan0
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
+python3 tools/docs/repository_artifact_lifecycle_inventory.py --check --strict
+git diff --check
+```
 
 ## Closed M2b execution
 
@@ -203,7 +312,7 @@ Keep only these counters current:
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 9
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = 0; INSTANCE-SCALAR-BINDING0 D0 design stop
+accepted_next_responsibility       = 1; INSTANCE-CUMULATIVE0-S0 prerequisite
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -222,7 +331,7 @@ closeout explanation, not automatic rejection.
 
 ```text
 none
-  current authority = GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0
+  current authority = GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0
   M2a / M2b disconnected prerequisites = closed; production caller = 0
   repository artifact lifecycle R1-R4-first / RETURN0 = closed
   tenth responsibility = not selected
@@ -323,7 +432,7 @@ ceremony                     = T2 bounded enabling design
 future aggregate product     = VerifiedNormalGeneralProgramPlanV1
 first missing authority      = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0
 D0 / module-source S0 status = closed
-current executable row       = GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0
+current executable row       = GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0
 normal/default Legacy caller = present
 canonical default caller     = 0
 prerequisite caller          = 0
@@ -393,10 +502,16 @@ M2b GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0
     closed: retained M2a owner plus owned Main0 receipts
 
 M2c GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0
-    current design stop: select the first finite scalar-binding Recipe
+    closed: corrected Candidate C-prime selected
+
+M2c GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0
+    selected: grammar-neutral cumulative one-variant owner migration
+
+M2c GENERAL-FUNCTION-PLAN0-INSTANCE-I64-PARAMETER-RETURN0-S0
+    parked until C0 green: first exact scalar-binding variant
 
 M2c+ GENERAL-FUNCTION-PLAN0 finite family slices
-    scalar bindings, field schema/read/write,
+    local/reassign/Binary bindings, field schema/read/write,
     default construction, Main-to-instance call
 
 M3  aggregate VerifiedNormalGeneralProgramPlanV1

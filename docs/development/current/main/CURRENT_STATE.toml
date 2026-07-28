@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0 is closed. One exact sibling-only Main loan reuses the existing Main0 locator, resolver, source projection, and preflight kernels; only owned receipts are stored beside the intact M2a owner. The next authority is GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0."
+status = "GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0 accepted corrected Candidate C-prime: the cumulative sum type is the target, but its grammar-neutral substrate and the first scalar variant are separate rows. GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0 is selected."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0; select the first finite instance scalar-binding Recipe and its exact source/fact/completion authority"
-current_execution_row = "GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0"
-current_execution_summary = "Choose one finite scalar-binding family after the closed M2b module aggregate. Compare typed Integer parameter read/return, local Integer declaration/read, binding reassignment, and Binary sequencing; fix the exact input product, source facts, Recipe, resolver/receiver/parameter authority, complete-method coverage, rejection owner, and following executable row. Do not open fields, calls, construction, physical receiver/Ownership, Builder/MIR, production callers, Legacy fallback, retry/reselection, Candidate A, or the tenth replacement row."
+current_design_stop = "none; GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0 accepted corrected Candidate C-prime and selected the grammar-neutral cumulative substrate"
+current_execution_row = "GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0"
+current_execution_summary = "T1 atomic source-level migration: consume VerifiedNormalModuleSourceV1 into VerifiedNormalInstanceFunctionPlanSetV1, retain the existing outer VerifiedNormalModuleFunctionPlanSetV1 and unchanged Main0 receipt, and wrap every existing integer-literal-return plan in the sole IntegerLiteralReturn variant. Preserve the current signature-to-resolution-to-recipe-to-completion order and rejection vocabulary; strengthen catalog coverage to exact ordered key equality. Delete the old concrete set, old seal API, exports/usages, and guard expectations without a runtime converter, alias, retry, grammar widening, Builder/MIR effect, production caller, or replacement credit. The exact i64 parameter-return variant remains parked for the immediately following C1 row."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0 is the sole current design authority. M2b is closed with 76 focused tests: the intact M2a owner and owned Main0 receipts now form one disconnected module function-plan set, with production consumers zero. Candidate A, Ownership activation, compiler/runtime/backend edits, fields/calls/construction, physical Main relation, and the tenth replacement row are parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0 is the sole executable authority. It performs a grammar-neutral T1 atomic migration from the concrete all-integer-return set to one cumulative instance-function sum-type set while retaining the existing outer aggregate and Main0 receipt. The real multi-family classifier and exact i64 parameter-return grammar are parked until C0 is green. Candidate A, Ownership activation, compiler/runtime/backend edits, fields/calls/construction, physical Main relation, and the tenth replacement row remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0 is closed at 76/76. One sibling-only exact Main loan reuses shared existing Main0 locator/resolver/preflight kernels; borrowed input is discarded and owned receipts are paired with the intact M2a owner. Production Rust +249, test Rust +184, check Python +104, one new source file, no new test/check file, max source/check 776. GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0 is now the sole design stop."""
+latest_card_summary = """GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0 accepted corrected Candidate C-prime. C0 now atomically replaces the concrete all-integer-return set with a cumulative one-variant set without changing grammar, verification order, Main0 semantics, or production routes. C1 alone may add the exact i64 parameter-return variant after C0 closes."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0-DESIGN-STOP"
+current_blocker_token = "GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
