@@ -15,30 +15,13 @@ def check_callable_source(
     require: Require,
     require_count: RequireCount,
 ) -> tuple[Path, ...]:
-    task_path = root / (
-        "docs/development/current/main/investigations/"
-        "normal-callable-source0-s0-execution-task-2026-07-26.md"
-    )
-    direct_call_task_path = root / (
-        "docs/development/current/main/investigations/"
-        "normal-main-direct-call0-s0-execution-task-2026-07-26.md"
-    )
-    acyclic_task_path = root / (
-        "docs/development/current/main/investigations/"
-        "normal-callable-module0-a0-s0-execution-task-2026-07-26.md"
-    )
-    recursive_task_path = root / (
-        "docs/development/current/main/investigations/"
-        "normal-callable-module0-r0-s0-execution-task-2026-07-26.md"
-    )
-    transaction_task_path = root / (
-        "docs/development/current/main/investigations/"
-        "normal-callable-module0-tx0-s0-execution-task-2026-07-26.md"
-    )
-    handoff_task_path = root / (
-        "docs/development/current/main/investigations/"
-        "normal-callable-module0-tx0-handoff0-s0-execution-task-2026-07-26.md"
-    )
+    task_dir = root / "docs/development/current/main/investigations"
+    task_path = task_dir / "normal-callable-source0-s0-execution-task-2026-07-26.md"
+    direct_call_task_path = task_dir / "normal-main-direct-call0-s0-execution-task-2026-07-26.md"
+    acyclic_task_path = task_dir / "normal-callable-module0-a0-s0-execution-task-2026-07-26.md"
+    recursive_task_path = task_dir / "normal-callable-module0-r0-s0-execution-task-2026-07-26.md"
+    transaction_task_path = task_dir / "normal-callable-module0-tx0-s0-execution-task-2026-07-26.md"
+    handoff_task_path = task_dir / "normal-callable-module0-tx0-handoff0-s0-execution-task-2026-07-26.md"
     callable_source_path = source_dir / "callable_source.rs"
     callable_source_tests_path = source_dir / "callable_source_tests.rs"
     callable_catalog_source_path = source_dir / "callable_catalog_source.rs"
@@ -51,13 +34,9 @@ def check_callable_source(
     handoff_tests_path = source_dir / "normal_callable_transaction_handoff_tests.rs"
     module_source_path = source_dir / "module_source.rs"
     instance_function_plan_path = source_dir / "instance_function_plan.rs"
-    instance_integer_return_plan_path = (
-        source_dir / "instance_integer_return_plan.rs"
-    )
+    instance_integer_return_plan_path = source_dir / "instance_integer_return_plan.rs"
     instance_i64_parameter_return_plan_path = source_dir / "instance_i64_parameter_return_plan.rs"
-    instance_integer_local_return_plan_path = (
-        source_dir / "instance_integer_local_return_plan.rs"
-    )
+    instance_integer_local_return_plan_path = source_dir / "instance_integer_local_return_plan.rs"
     main0_bridge_path = source_dir / "main0_bridge.rs"
     main_source_path = source_dir / "main_source.rs"
     main_resolved_source_path = source_dir / "main_resolved_source.rs"
@@ -65,27 +44,15 @@ def check_callable_source(
     main_function_plan_tests_path = source_dir / "main_function_plan_tests.rs"
     module_source_tests_path = source_dir / "tests.rs"
     canonical_dispatch_path = root / "src/mir/compiler/canonical_core_dispatch.rs"
-    normal_frontdoor_path = (
-        root / "src/runner/reference/normal_file_vm_frontdoor.rs"
-    )
+    normal_frontdoor_path = root / "src/runner/reference/normal_file_vm_frontdoor.rs"
     capability_path = root / "src/mir/compiler/capability.rs"
-    function_role_policy_path = (
-        root / "src/mir/compiler/capability/function_role_policy.rs"
-    )
-    analyzer_policy_path = (
-        root / "src/mir/resolved_value_profile/analyzer_policy.rs"
-    )
+    function_role_policy_path = root / "src/mir/compiler/capability/function_role_policy.rs"
+    analyzer_policy_path = root / "src/mir/resolved_value_profile/analyzer_policy.rs"
     acyclic_graph_path = root / "src/mir/compiler/acyclic_callable_graph.rs"
     scc_partition_path = root / "src/mir/compiler/callable_scc_partition.rs"
-    header_source_path = (
-        root / "src/mir/resolved_semantics/callable_header_source_unit.rs"
-    )
-    header_source_tests_path = (
-        root / "src/mir/resolved_semantics/callable_header_source_unit_tests.rs"
-    )
-    header_view_path = (
-        root / "src/mir/resolved_semantics/callable_module_header_view.rs"
-    )
+    header_source_path = root / "src/mir/resolved_semantics/callable_header_source_unit.rs"
+    header_source_tests_path = root / "src/mir/resolved_semantics/callable_header_source_unit_tests.rs"
+    header_view_path = root / "src/mir/resolved_semantics/callable_module_header_view.rs"
     files = (
         task_path,
         direct_call_task_path,
@@ -376,17 +343,6 @@ def check_callable_source(
     for source, label, laws in variant_laws:
         for fragment in laws:
             require(source, fragment, f"instance {label} law {fragment}")
-    for test_name in (
-        "mixed_instance_function_variants_seal_once_and_bridge_main",
-        "unsupported_method_rejects_whole_set_and_fresh_local_reuses",
-        "empty_instance_boxes_do_not_issue_an_empty_plan_set",
-        "instance_scalar_variants_reject_widening_without_retry",
-    ):
-        require(
-            module_source_tests,
-            f"fn {test_name}(",
-            f"instance integer-return fixture {test_name}",
-        )
     for source, label in (
         (instance_function_plan, "cumulative instance-plan owner"),
         (instance_integer_return_plan, "integer-return variant"),

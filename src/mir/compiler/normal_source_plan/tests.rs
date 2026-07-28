@@ -1,101 +1,11 @@
 use std::collections::HashMap;
 
 use crate::ast::{
-    ASTNode, DeclarationAttrs, EnumVariantDecl, FieldDecl, LiteralValue, ParamDecl, RuneAttr, Span,
+    ASTNode, DeclarationAttrs, EnumVariantDecl, FieldDecl, LiteralValue, RuneAttr, Span,
 };
 
+use super::test_support::*;
 use super::*;
-
-fn input(source: ASTNode) -> PreparedNormalSourcePlanInputV1 {
-    PreparedNormalSourcePlanInputV1::new(source, "normal-source-plan0-test")
-}
-
-fn program(statements: Vec<ASTNode>) -> ASTNode {
-    ASTNode::Program {
-        statements,
-        span: Span::unknown(),
-    }
-}
-
-fn literal(value: i64) -> ASTNode {
-    ASTNode::Literal {
-        value: LiteralValue::Integer(value),
-        span: Span::unknown(),
-    }
-}
-
-fn variable(name: &str) -> ASTNode {
-    ASTNode::Variable {
-        name: name.to_owned(),
-        span: Span::unknown(),
-    }
-}
-
-fn function(name: &str, arity: usize, is_static: bool) -> ASTNode {
-    let params = (0..arity)
-        .map(|index| format!("p{index}"))
-        .collect::<Vec<_>>();
-    ASTNode::FunctionDeclaration {
-        name: name.to_owned(),
-        param_decls: params
-            .iter()
-            .map(|name| ParamDecl {
-                name: name.to_owned(),
-                declared_type_name: None,
-            })
-            .collect(),
-        params,
-        return_type_name: None,
-        body: Vec::new(),
-        uses: Vec::new(),
-        contracts: Vec::new(),
-        is_static,
-        is_override: false,
-        attrs: DeclarationAttrs::default(),
-        span: Span::unknown(),
-    }
-}
-
-fn function_with_body(name: &str, body: Vec<ASTNode>, is_static: bool) -> ASTNode {
-    let mut function = function(name, 0, is_static);
-    let ASTNode::FunctionDeclaration {
-        body: function_body,
-        ..
-    } = &mut function
-    else {
-        unreachable!()
-    };
-    *function_body = body;
-    function
-}
-
-fn value_return(value: ASTNode) -> ASTNode {
-    ASTNode::Return {
-        value: Some(Box::new(value)),
-        span: Span::unknown(),
-    }
-}
-
-fn integer_return_function(name: &str, value: i64) -> ASTNode {
-    function_with_body(name, vec![value_return(literal(value))], false)
-}
-
-fn i64_parameter_return_function(
-    name: &str,
-    declared_type_name: Option<&str>,
-    returned_name: &str,
-) -> ASTNode {
-    let mut function = function(name, 1, false);
-    let ASTNode::FunctionDeclaration {
-        param_decls, body, ..
-    } = &mut function
-    else {
-        unreachable!()
-    };
-    param_decls[0].declared_type_name = declared_type_name.map(str::to_owned);
-    *body = vec![value_return(variable(returned_name))];
-    function
-}
 
 fn integer_local_return_function(
     name: &str,
@@ -106,12 +16,7 @@ fn integer_local_return_function(
 ) -> ASTNode {
     function_with_body(
         name,
-        test_support::integer_local_return_body(
-            local_name,
-            declared_type,
-            initializer,
-            returned_name,
-        ),
+        integer_local_return_body(local_name, declared_type, initializer, returned_name),
         false,
     )
 }
