@@ -45,57 +45,81 @@ cell数、pack数、LOC、structural observationは進捗と増殖検知の手�
 architecture goalやcompletion authorityではない。cellはnorth-star上の
 authorityを一つ減らす場合だけ選択する。
 
-## Current design stop
+## Active executable front
 
 ```text
-GENERAL-FUNCTION-PLAN0-D0
+GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0
 ```
 
-最小structural observation、第七Binary cell、第八record-helper body descent
-cellはclosed。helper driverはReturn-as-value ownerのまま、選択済み
-MethodCall portをtagged child loanとして短期再借用し、旧direct edge二本と
-dead same-family facade三本はゼロになった。
-
-第九FieldAccess property getter cellもclosed。exact zero-argument adapterは
-選択済みportをcatalog-child descentだけへ貸し、terminalはA1の
-`lookup=None`を維持する。旧raw handler、Legacy adapter、value-only entry、
-dead field facadeはゼロ。第十cellは未選択。
-
-六workerのbounded censusは、局所のdead facade／proof cleanupより先に、
-north-star最大の入口分岐を設計停止へ固定した。compiler-ingress D0は
-Candidate Bを受理した。後続のsource/catalog D0は、最初の有限familyを
-`Main0WithPlainInstanceBoxes0`、最初のproductを
-`VerifiedNormalModuleSourceV1`へ固定してclosedした。
+`GENERAL-FUNCTION-PLAN0-D0`はCandidate Cを受理してclosedした。最初の
+function-plan familyは`InstanceMethodIntegerLiteralReturn0`である。
 
 ```text
-CLI default / explicit mir
--> selected normal family
--> compile_with_source*
--> compile_legacy_request
+input:
+  VerifiedNormalModuleSourceV1
 
-explicit vm
--> compatibility authority
+coverage:
+  every InstanceBoxMethod exactly once
+  canonical callable-catalog order
+  Main key = 0
+  unsupported method skipping / partial product = 0
 
-canonical exact fronts
--> bounded explicit families
--> normal/default production caller = 0
+exact method grammar:
+  params / param_decls = 0
+  return annotation / uses / attrs = 0
+  body = [Return(Some(LiteralValue::Integer(i64)))] exactly
 
-missing
--> current normal general Program
--> verified plan + candidate/publication owner
+products:
+  VerifiedNormalInstanceFunctionFactsV1
+  NormalInstanceIntegerReturnRecipeV1
+  VerifiedNormalInstanceIntegerReturnPlanV1
+  VerifiedNormalInstanceIntegerReturnPlanSetV1
+  RejectedGeneralFunctionPlanSetV1
 ```
 
-T2 prerequisite S0はclosedした。既存のowned input、source inventory、Main
-relation、same-module callable catalogを再利用し、exact Program、
-Main.main/0、source-orderのplain instance Box、catalogとの完全なkey対応を
-一つのopaque productへsealした。production caller、Builder effect、
-body/function plan、candidate/publicationはすべてゼロを維持した。
+実装はmodule sourceからcanonical keyでexact instance
+`FunctionDeclaration`を借りる限定loanを一つだけ追加する。Program/ASTの
+public accessor、source clone、再parse、owner/name/arityの再構築は作らない。
+catalog cloneだけでは`VerifiedSourceProjectionV1::seal`に必要なexact rootを
+渡せないため、loanはProgram site、catalog row、keyの一致を内部で再確認する。
 
-このownerとcurrent-normal `MirCompileResult` parityが閉じ、さらにpark済みの
-Ownership/View readiness trainがproduct/default境界を閉じるまで、one total
-typed ingressのCandidate A、Candidate A production edit、第十manifest rowを
-禁止する。
-REPL／JSON／VM keep／referenceは別authorityのまま保つ。
+```text
+exact loan
+-> FunctionSyntaxViewV1::from_ast
+-> FunctionSemanticResolverSessionV1::resolve_forest
+-> VerifiedSourceProjectionV1::seal
+-> ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable
+-> exact receiver/fact closure
+-> located ReturnValue Integer observation
+-> verify_function_completion_v1
+-> recipe/completion pairing
+-> complete plan map commit
+```
+
+receiverは既存namespace policyが発行するlexical `me`一件だけをsealする。
+`SourceBindingSiteV1::Receiver`、`BindingKindV1::Receiver`、diagnostic
+name `me`、use/assignment/upvar 0を要求する。receiverの物理parameter位置、
+BoxRef、Ownership/View、RC、backend ABIは決めない。既存static-only
+`CanonicalLoweringPreflightV1`とtrivial representation profileは再利用しない。
+
+変更範囲は`instance_integer_return_plan.rs`一個、`module_source.rs`の限定
+loan、`mod.rs`、既存`tests.rs`、既存callable child guardだけ。新test/check
+fileとper-row guardは作らず、776行のparent guardは変更しない。全source/check
+fileは800行未満を維持する。
+
+```text
+production caller / Builder / MIR       = 0
+Lower / DraftSeal / collector / publish = 0
+field / Call / New / Main plan          = 0
+fallback / retry / reselection          = 0
+replacement credit / tenth row          = 0
+```
+
+一methodでもgrammar、receiver closure、source projection、completion
+pairingから外れたら、module sourceを保持するtyped rejectionへ一度だけ進み、
+部分plan mapを破棄する。raw AST保持、Legacy復帰、別family再投入が必要なら
+hard stopしてD0へ戻る。Candidate AとOwnership/View readiness trainはparkを
+維持する。
 
 ## First three replacements
 
@@ -179,7 +203,7 @@ Keep only these counters current:
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 9
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = 0; GENERAL-FUNCTION-PLAN0-D0 design stop
+accepted_next_responsibility       = InstanceMethodIntegerLiteralReturn0 S0
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -198,7 +222,8 @@ closeout explanation, not automatic rejection.
 
 ```text
 none
-  current authority = GENERAL-FUNCTION-PLAN0-D0 design stop
+  current authority = GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0
+  prerequisite product only; production caller = 0
   repository artifact lifecycle R1-R4-first / RETURN0 = closed
   tenth responsibility = not selected
 ```
@@ -468,8 +493,8 @@ accepted candidate           = B
 ceremony                     = T2 bounded enabling design
 future aggregate product     = VerifiedNormalGeneralProgramPlanV1
 first missing authority      = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0
-D0 status                    = closed
-selected executable row      = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0
+D0 / module-source S0 status = closed
+current executable row       = GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0
 normal/default Legacy caller = present
 canonical default caller     = 0
 prerequisite caller          = 0
@@ -529,8 +554,12 @@ M1a NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
 M1b NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0
     closed: disconnected source/catalog product
 
-M2  GENERAL-FUNCTION-PLAN0 family slices
-    current design stop: select one finite semantic vocabulary
+M2a GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0
+    selected: exact all-instance-method integer-literal Return plan
+
+M2b+ GENERAL-FUNCTION-PLAN0 finite family slices
+    Main0 bridge, scalar bindings, field schema/read/write,
+    default construction, Main-to-instance call
 
 M3  aggregate VerifiedNormalGeneralProgramPlanV1
 
