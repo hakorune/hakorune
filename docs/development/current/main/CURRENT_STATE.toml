@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0 is closed: the concrete integer-return set is atomically replaced by one cumulative source-owning set with exact ordered key coverage. GENERAL-FUNCTION-PLAN0-INSTANCE-I64-PARAMETER-RETURN0-S0 is selected."
+status = "GENERAL-FUNCTION-PLAN0-INSTANCE-I64-PARAMETER-RETURN0-S0 is closed: one total source classifier selects IntegerLiteralReturn or exact i64 ParameterReturn before one resolver pass, and the cumulative set retains exact ordered coverage. The next authority is GENERAL-FUNCTION-PLAN0-INSTANCE-LOCAL-BINDING0-D0."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none; corrected Candidate C-prime closed the cumulative substrate and selected the exact i64 parameter-return variant"
-current_execution_row = "GENERAL-FUNCTION-PLAN0-INSTANCE-I64-PARAMETER-RETURN0-S0"
-current_execution_summary = "T2 finite grammar extension: add one exact InstanceMethodI64ParameterReturn0 variant to the cumulative instance-function plan set. Accept exactly one parameter whose declaration spells i64, no return annotation/uses/attrs, and body [Return(Variable(the same parameter))]. Classify each method once before the existing single resolver pass; retain one unused lexical receiver and one resolved parameter binding. Accept mixed literal/parameter modules, reject the whole set on any unsupported method, and preserve Main0, source ownership, production callers, Builder/MIR, fields/calls/new, Ownership, and fallback/retry at zero."
+current_design_stop = "GENERAL-FUNCTION-PLAN0-INSTANCE-LOCAL-BINDING0-D0; select the first finite local-declaration/read Recipe without widening into reassignment, Binary, fields, calls, physical ABI, Builder, or MIR"
+current_execution_row = "GENERAL-FUNCTION-PLAN0-INSTANCE-LOCAL-BINDING0-D0"
+current_execution_summary = "Design the next cumulative instance-function variant from existing resolved Local facts. Fix the exact source grammar, declared scalar authority, local declaration/read correspondence, completion shape, interaction with the unused receiver and optional parameter rows, and whole-module rejection boundary. Reuse the total classifier and single resolver pass. Do not add reassignment, Binary, field/call/new, physical representation, Builder/MIR, production callers, Legacy fallback, Ownership/View, or the tenth replacement row."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """GENERAL-FUNCTION-PLAN0-INSTANCE-I64-PARAMETER-RETURN0-S0 is the sole executable authority. C0 is closed with one cumulative source-owning set, one IntegerLiteralReturn variant, exact ordered catalog-key coverage, unchanged Main0 receipts, and zero production callers. C1 adds only the exact i64 parameter-return variant and the first real total family classifier. Candidate A, Ownership activation, compiler/runtime/backend edits, fields/calls/construction, physical Main relation, and the tenth replacement row remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """GENERAL-FUNCTION-PLAN0-INSTANCE-I64-PARAMETER-RETURN0-S0 is closed with one total family classifier, exact i64 source authority, Receiver plus Parameter(0) fact closure, mixed-module coverage, unchanged Main0 receipts, and zero production callers. GENERAL-FUNCTION-PLAN0-INSTANCE-LOCAL-BINDING0-D0 is the sole design stop. Candidate A, Ownership activation, compiler/runtime/backend edits, reassignment/Binary, fields/calls/construction, physical Main relation, and the tenth replacement row remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "GENERAL-FUNCTION-PLAN0-INSTANCE-I64-PARAMETER-RETURN0-S0"
+current_blocker_token = "GENERAL-FUNCTION-PLAN0-INSTANCE-LOCAL-BINDING0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

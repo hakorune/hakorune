@@ -25,57 +25,37 @@ Resolve -> Observe -> Facts -> Recipe -> Verify
 第二MirBuilder、production consumer 0のroute拡張、Legacy fallbackは作らない。
 cell数、pack数、LOCは観測値であり、完成条件ではない。
 
-## Current
+## Current design stop
 
-`GENERAL-FUNCTION-PLAN0-INSTANCE-I64-PARAMETER-RETURN0-S0`
-（parent `GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0`, T2）
-
-### Change
+`GENERAL-FUNCTION-PLAN0-INSTANCE-LOCAL-BINDING0-D0`
 
 ```text
-VerifiedNormalModuleSourceV1
--> cumulative instance-function plan set
--> existing module function-plan aggregate
+source authority:
+  retained exact instance-method declaration + existing resolved Local facts
 
-add:
-  I64ParameterReturn
-  exact one parameter declaration spelling "i64"
-  body [Return(Variable(the same parameter))]
+non-authority:
+  physical local/receiver ABI, ValueId, Builder, MIR, field/call/new
 
-old authority:
-  single-variant-only selection assumption
+fail-fast:
+  one total source classification before the existing single resolver pass;
+  unsupported method rejects the complete module plan set
+
+candidate slices:
+  exact local declaration + terminal local read
+  optional parameter-fed initializer only if it does not widen this first row
+
+recommended next slice:
+  the smallest exact i64 local declaration/read Recipe with no reassignment
+
+non-claims:
+  Binary, assignment, PHI, fields, calls, construction, Ownership, production
 ```
-
-### Contract
-
-各methodを一度だけtotal分類し、選択後にresolver/projectionを一度だけ通す。
-receiver `me` は一つのunused lexical binding、parameterはindex 0の一bindingと
-一useに固定する。IntegerLiteralReturn、module source/catalog、Main0 receiptを
-維持する。Builder/MIR、physical receiver ABI、field/call/new、Ownership、
-production callerは増やさない。
-
-### Done
-
-mixed literal/parameter moduleがgreen。non-`i64`、別変数Return、unsupported
-methodはmodule全体をtyped rejectionする。新しいtest/check fileは作らず、
-既存fixtureとshared guardを統合更新する。
-
-Stable entry:
-
-```bash
-bash tools/checks/run_row_guard.sh --only normal-source-plan0
-```
-
-### Stop
-
-source clone/reparse、family retry、partial plan、typed return、physical
-receiver、field/call/new、またはsource/check file 800行到達が必要ならD0へ戻る。
 
 ## Queue to the north star
 
 ```text
-M2c  current exact i64 parameter-return variant
-M2c+ local / reassign / Binary finite binding slices
+M2c  closed exact i64 parameter-return variant
+M2c+ current local, then reassign / Binary finite binding slices
 M2d  field schema
 M2e  field read
 M2f  field write
@@ -108,6 +88,10 @@ MAIN0-BRIDGE0-S0 / 7aed7848e6
 
 INSTANCE-CUMULATIVE0-S0 / 7e3144da62
   one source-owning cumulative set; exact ordered key coverage
+
+INSTANCE-I64-PARAMETER-RETURN0-S0 / this implementation commit
+  total two-family classifier; exact Receiver + Parameter(0) + Return use
+  evidence 76/76; production +464, test +62, check +36; max file 791
 ```
 
 Detailed landed diffs and older cell measurements belong to git history and

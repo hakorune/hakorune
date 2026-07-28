@@ -24,6 +24,13 @@ fn literal(value: i64) -> ASTNode {
     }
 }
 
+fn variable(name: &str) -> ASTNode {
+    ASTNode::Variable {
+        name: name.to_owned(),
+        span: Span::unknown(),
+    }
+}
+
 fn function(name: &str, arity: usize, is_static: bool) -> ASTNode {
     let params = (0..arity)
         .map(|index| format!("p{index}"))
@@ -71,6 +78,23 @@ fn value_return(value: ASTNode) -> ASTNode {
 
 fn integer_return_function(name: &str, value: i64) -> ASTNode {
     function_with_body(name, vec![value_return(literal(value))], false)
+}
+
+fn i64_parameter_return_function(
+    name: &str,
+    declared_type_name: Option<&str>,
+    returned_name: &str,
+) -> ASTNode {
+    let mut function = function(name, 1, false);
+    let ASTNode::FunctionDeclaration {
+        param_decls, body, ..
+    } = &mut function
+    else {
+        unreachable!()
+    };
+    param_decls[0].declared_type_name = declared_type_name.map(str::to_owned);
+    *body = vec![value_return(variable(returned_name))];
+    function
 }
 
 fn main_box(methods: Vec<(&str, ASTNode)>, is_static: bool) -> ASTNode {
@@ -473,39 +497,59 @@ fn rejection_retains_source_identity_and_has_no_retry() {
 }
 
 #[test]
-fn all_instance_integer_return_methods_become_first_cumulative_variant() {
+fn mixed_literal_and_i64_parameter_methods_seal_once_and_bridge_main() {
     let source = seal_module(program(vec![
         instance_box("Zeta", vec![("a", integer_return_function("a", 1))]),
         main_only(),
-        instance_box("Alpha", vec![("b", integer_return_function("b", 2))]),
+        instance_box(
+            "Alpha",
+            vec![(
+                "identity",
+                i64_parameter_return_function("identity", Some("i64"), "p0"),
+            )],
+        ),
     ]))
     .unwrap();
     let plans = source.seal_instance_function_plans().unwrap();
-    let rows = plans
-        .plans()
-        .map(|(key, plan)| {
-            let plan = plan
-                .as_integer_literal_return()
-                .expect("sole cumulative variant");
-            (
-                key.owner().to_owned(),
-                key.name().to_owned(),
-                plan.recipe().value(),
-                plan.facts().owner_count(),
-                plan.recipe().receiver() == plan.facts().receiver(),
-            )
-        })
-        .collect::<Vec<_>>();
+    let rows = plans.plans().collect::<Vec<_>>();
+    let [(parameter_key, parameter), (literal_key, literal)] = rows.as_slice() else {
+        panic!("expected exact mixed cumulative plans")
+    };
+    let parameter = parameter
+        .as_i64_parameter_return()
+        .expect("exact i64 parameter variant");
+    let literal = literal
+        .as_integer_literal_return()
+        .expect("integer literal variant");
 
     assert_eq!(
-        rows,
-        [
-            ("Alpha".to_owned(), "b".to_owned(), 2, 1, true),
-            ("Zeta".to_owned(), "a".to_owned(), 1, 1, true),
-        ]
+        (parameter_key.owner(), parameter_key.name()),
+        ("Alpha", "identity")
     );
+    assert_eq!(parameter.parameter().source_name(), "p0");
+    assert_eq!(parameter.parameter().abi().source_type_name(), "i64");
+    assert_eq!(
+        parameter.parameter().site(),
+        &crate::mir::resolved_semantics::SourceBindingSiteV1::Parameter { index: 0 }
+    );
+    assert_eq!(parameter.facts().owner_count(), 1);
+    assert_eq!(parameter.recipe().receiver(), parameter.facts().receiver());
+    assert_eq!(
+        parameter.recipe().parameter(),
+        parameter.parameter().binding()
+    );
+    assert_eq!(
+        parameter.completion().explicit_site(),
+        Some(parameter.recipe().return_site())
+    );
+    assert_eq!((literal_key.owner(), literal_key.name()), ("Zeta", "a"));
+    assert_eq!(literal.recipe().value(), 1);
     assert_eq!(plans.len(), 2);
     assert_eq!(plans.source_identity(), "normal-source-plan0-test");
+
+    let aggregate = plans.seal_main0_bridge().expect("mixed Main0 bridge");
+    assert_eq!(aggregate.instance().len(), 2);
+    assert!(!aggregate.main().completion().returns_value());
 }
 
 #[test]
@@ -559,6 +603,10 @@ fn one_unsupported_method_rejects_the_whole_plan_set() {
             "Page",
             vec![
                 ("good", integer_return_function("good", 1)),
+                (
+                    "identity",
+                    i64_parameter_return_function("identity", Some("i64"), "p0"),
+                ),
                 ("bad", function_with_body("bad", Vec::new(), false)),
             ],
         ),
@@ -624,7 +672,7 @@ fn instance_integer_return_rejects_signature_and_body_widening() {
         },
         span: Span::unknown(),
     };
-    let cases = [
+    let mut cases = vec![
         (
             function("parameter", 1, false),
             GeneralFunctionPlanStageV1::Source,
@@ -640,7 +688,21 @@ fn instance_integer_return_rejects_signature_and_body_widening() {
             function_with_body("suffix", vec![value_return(literal(1)), literal(2)], false),
             GeneralFunctionPlanStageV1::Recipe,
         ),
+        (
+            i64_parameter_return_function("wrong_name", Some("i64"), "other"),
+            GeneralFunctionPlanStageV1::Recipe,
+        ),
     ];
+    for spelling in ["Integer", "int", "IntegerBox", "I64", " i64", "i64 "] {
+        cases.push((
+            i64_parameter_return_function("bad_type", Some(spelling), "p0"),
+            GeneralFunctionPlanStageV1::Source,
+        ));
+    }
+    cases.push((
+        i64_parameter_return_function("untyped", None, "p0"),
+        GeneralFunctionPlanStageV1::Source,
+    ));
 
     for (method, expected_stage) in cases {
         let name = match &method {

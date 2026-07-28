@@ -54,6 +54,7 @@ def check_callable_source(
     instance_integer_return_plan_path = (
         source_dir / "instance_integer_return_plan.rs"
     )
+    instance_i64_parameter_return_plan_path = source_dir / "instance_i64_parameter_return_plan.rs"
     main0_bridge_path = source_dir / "main0_bridge.rs"
     main_source_path = source_dir / "main_source.rs"
     main_resolved_source_path = source_dir / "main_resolved_source.rs"
@@ -102,6 +103,7 @@ def check_callable_source(
         module_source_path,
         instance_function_plan_path,
         instance_integer_return_plan_path,
+        instance_i64_parameter_return_plan_path,
         main0_bridge_path,
         main_source_path,
         main_resolved_source_path,
@@ -140,6 +142,7 @@ def check_callable_source(
     module_source = module_source_path.read_text()
     instance_function_plan = instance_function_plan_path.read_text()
     instance_integer_return_plan = instance_integer_return_plan_path.read_text()
+    instance_i64_parameter_return_plan = instance_i64_parameter_return_plan_path.read_text()
     main0_bridge = main0_bridge_path.read_text()
     main_source = main_source_path.read_text()
     main_resolved_source = main_resolved_source_path.read_text()
@@ -320,19 +323,33 @@ def check_callable_source(
             1,
             f"sole integer-return variant definition {definition}",
         )
+    for definition in (
+        "struct VerifiedNormalInstanceI64ParameterV1",
+        "struct NormalInstanceI64ParameterReturnRecipeV1",
+        "struct VerifiedNormalInstanceI64ParameterReturnPlanV1",
+    ):
+        require_count(
+            instance_i64_parameter_return_plan,
+            definition,
+            1,
+            f"sole i64 parameter-return variant definition {definition}",
+        )
     for fragment in (
         "borrow_instance_method_source(key)",
         "SameModuleCallableNamespaceV1::InstanceBoxMethod",
-        "seal_integer_literal_return_one(&mut resolver, view)",
-        "VerifiedNormalInstanceFunctionPlanV1::IntegerLiteralReturn(plan)",
+        "classify_instance_function(view)",
+        "resolve_instance_function(&mut resolver, family.view())",
+        "ExactTrivialParameterAbiV1::classify",
+        "seal_integer_literal_return_one(view, value, forest, projection)",
+        "seal_i64_parameter_return_one(",
+        "Self::I64ParameterReturn(plan)",
         "plans.keys().eq(keys.iter())",
-    ):
-        require(instance_function_plan, fragment, f"cumulative instance-plan law {fragment}")
-    for fragment in (
-        "SameModuleCallableSourceReceiverPolicyV1::from_namespace(",
         "FunctionSyntaxViewV1::from_borrowed_function_parts(",
         ".resolve_forest(syntax)",
         "VerifiedSourceProjectionV1::seal(view.function(), &forest)",
+    ):
+        require(instance_function_plan, fragment, f"cumulative instance-plan law {fragment}")
+    for fragment in (
         "ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(",
         "ExprChildRoleV1::ReturnValue",
         "LiteralValue::Integer(integer)",
@@ -345,8 +362,20 @@ def check_callable_source(
             fragment,
             f"instance integer-return law {fragment}",
         )
+    for fragment in (
+        "SourceBindingSiteV1::Parameter { index: 0 }",
+        "BindingKindV1::Parameter { index: 0 }",
+        "ResolvedLexicalRefV1::Local(parameter)",
+        "ExprChildRoleV1::ReturnValue",
+        "verify_function_completion_v1(input)",
+    ):
+        require(
+            instance_i64_parameter_return_plan,
+            fragment,
+            f"instance i64 parameter-return law {fragment}",
+        )
     for test_name in (
-        "all_instance_integer_return_methods_become_first_cumulative_variant",
+        "mixed_literal_and_i64_parameter_methods_seal_once_and_bridge_main",
         "integer_return_recipe_pairs_exact_completion_without_claiming_main",
         "one_unsupported_method_rejects_the_whole_plan_set",
         "empty_instance_boxes_do_not_issue_an_empty_plan_set",
@@ -361,6 +390,7 @@ def check_callable_source(
     for source, label in (
         (instance_function_plan, "cumulative instance-plan owner"),
         (instance_integer_return_plan, "integer-return variant"),
+        (instance_i64_parameter_return_plan, "i64 parameter-return variant"),
     ):
         for forbidden in (
             "MirBuilder",
@@ -380,7 +410,13 @@ def check_callable_source(
         ):
             if forbidden in source:
                 raise AssertionError(f"{label} gained lowering/retry authority: {forbidden}")
-    normal_plan_surface = instance_function_plan + instance_integer_return_plan + main0_bridge
+    for forbidden in ("or_else(", "filter_map("):
+        if forbidden in instance_function_plan:
+            raise AssertionError(f"cumulative owner gained family retry/skip: {forbidden}")
+    normal_plan_surface = (
+        instance_function_plan + instance_integer_return_plan
+        + instance_i64_parameter_return_plan + main0_bridge
+    )
     for retired in (
         "VerifiedNormalInstanceIntegerReturnPlanSetV1",
         "seal_instance_integer_return_plans",

@@ -14,14 +14,12 @@ use crate::mir::resolved_control_flow::{
     ReturnExitRelationV1, VerifiedFunctionCompletionV1,
 };
 use crate::mir::resolved_semantics::{
-    BindingKindV1, BindingOriginV1, BindingRefV1, FunctionSemanticResolverSessionV1,
-    FunctionSyntaxViewV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
+    BindingKindV1, BindingOriginV1, BindingRefV1, SourceBindingSiteV1, SourceExprSiteV1,
+    SourceStmtSiteV1, VerifiedSemanticOwnerForestV1,
 };
-use crate::mir::source_call_target::SameModuleCallableSourceReceiverPolicyV1;
 
 use super::instance_function_plan::{
-    GeneralFunctionPlanErrorV1, GeneralFunctionSignatureStopV1,
-    VerifiedNormalInstanceFunctionFactsV1,
+    GeneralFunctionPlanErrorV1, VerifiedNormalInstanceFunctionFactsV1,
 };
 use super::module_source::NormalInstanceMethodSourceViewV1;
 
@@ -73,33 +71,11 @@ impl VerifiedNormalInstanceIntegerReturnPlanV1 {
 }
 
 pub(super) fn seal_integer_literal_return_one(
-    resolver: &mut FunctionSemanticResolverSessionV1,
     view: NormalInstanceMethodSourceViewV1<'_>,
+    selected_value: i64,
+    forest: VerifiedSemanticOwnerForestV1,
+    projection: VerifiedSourceProjectionV1,
 ) -> Result<VerifiedNormalInstanceIntegerReturnPlanV1, GeneralFunctionPlanErrorV1> {
-    verify_signature(view)?;
-    let declaration = view.declaration();
-    let receiver_policy =
-        SameModuleCallableSourceReceiverPolicyV1::from_namespace(view.key().namespace())
-            .into_shadow_policy();
-    let syntax = FunctionSyntaxViewV1::from_borrowed_function_parts(
-        declaration.params(),
-        declaration.body(),
-        receiver_policy,
-    );
-    let forest =
-        resolver
-            .resolve_forest(syntax)
-            .map_err(|cause| GeneralFunctionPlanErrorV1::Resolver {
-                key: view.key().clone(),
-                cause,
-            })?;
-    let projection =
-        VerifiedSourceProjectionV1::seal(view.function(), &forest).map_err(|cause| {
-            GeneralFunctionPlanErrorV1::Projection {
-                key: view.key().clone(),
-                cause,
-            }
-        })?;
     let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
         view.function(),
         &forest,
@@ -110,7 +86,7 @@ pub(super) fn seal_integer_literal_return_one(
         cause,
     })?;
     let receiver = verify_facts(view.key(), input)?;
-    let recipe = compose_recipe(view.key(), input, receiver)?;
+    let recipe = compose_recipe(view.key(), input, receiver, selected_value)?;
     let completion = verify_function_completion_v1(input).map_err(|cause| {
         GeneralFunctionPlanErrorV1::Completion {
             key: view.key().clone(),
@@ -123,32 +99,6 @@ pub(super) fn seal_integer_literal_return_one(
         recipe,
         completion,
     })
-}
-
-fn verify_signature(
-    view: NormalInstanceMethodSourceViewV1<'_>,
-) -> Result<(), GeneralFunctionPlanErrorV1> {
-    let declaration = view.declaration();
-    let reason = if !declaration.params().is_empty() {
-        Some(GeneralFunctionSignatureStopV1::Parameters)
-    } else if !declaration.param_decls().is_empty() {
-        Some(GeneralFunctionSignatureStopV1::ParameterDeclarations)
-    } else if declaration.return_type_name().is_some() {
-        Some(GeneralFunctionSignatureStopV1::ReturnAnnotation)
-    } else if !declaration.uses().is_empty() {
-        Some(GeneralFunctionSignatureStopV1::Uses)
-    } else if !declaration.attrs().is_empty() {
-        Some(GeneralFunctionSignatureStopV1::Attributes)
-    } else {
-        None
-    };
-    match reason {
-        Some(reason) => Err(GeneralFunctionPlanErrorV1::UnsupportedSignature {
-            key: view.key().clone(),
-            reason,
-        }),
-        None => Ok(()),
-    }
 }
 
 fn verify_facts(
@@ -182,6 +132,7 @@ fn compose_recipe(
     key: &CanonicalSameModuleCallableKeyV1,
     input: ResolvedFunctionLoweringInputV1<'_>,
     receiver: BindingRefV1,
+    selected_value: i64,
 ) -> Result<NormalInstanceIntegerReturnRecipeV1, GeneralFunctionPlanErrorV1> {
     let source = input.source();
     let body = source
@@ -206,6 +157,9 @@ fn compose_recipe(
     else {
         return Err(body_error(key, "integer_literal_required"));
     };
+    if *integer != selected_value {
+        return Err(body_error(key, "selected_integer_literal_drift"));
+    }
     Ok(NormalInstanceIntegerReturnRecipeV1 {
         receiver,
         return_site: statement.site().clone(),
