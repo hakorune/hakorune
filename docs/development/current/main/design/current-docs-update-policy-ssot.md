@@ -127,6 +127,38 @@ External AI advice is distilled into the active decision, evidence, rejected
 alternatives, acceptance, and hard stops. Do not preserve the full answer as a
 new current document.
 
+### Lightweight Execution Card Law
+
+An accepted execution row is an implementation handoff, not a consultation
+transcript. Keep its active section to these six items:
+
+```text
+1. transition: exact input -> output
+2. responsibility: the one owner/interface change
+3. atomic delete: old authority removed in the same change
+4. preserve: semantics and owners that must not move
+5. acceptance: focused evidence and stable gate entry
+6. hard stop: conditions that return the row to design
+```
+
+Rules:
+
+- candidate comparisons and rejected alternatives end when D0 closes; retain
+  only the selected decision and one sentence of rationale;
+- do not repeat full type definitions, fixture bodies, guard assertions, or
+  generic gate commands when stable source/check entries already own them;
+- use exact symbol/file lists only for an atomic delete or a boundary that
+  would otherwise be ambiguous;
+- active execution detail should normally fit in about 40–80 lines; this is an
+  editorial target, not a new guard or permission gate;
+- T2 may need a durable design SSOT, but the rolling card still contains only
+  the six-item handoff and a link;
+- closeout replaces the active procedure with `row / commit / measured result /
+  next blocker`, normally about 10–20 lines. Do not retain the landed
+  implementation checklist in the rolling card;
+- git history owns the detailed landed diff. A later row must not copy the
+  previous row's design explanation forward.
+
 A new narrative document is allowed only for a durable cross-workstream
 contract, machine-consumed stable artifact, irreproducible evidence, incident
 audit, genuine independently owned workstream fork, or independently readable
@@ -246,6 +278,7 @@ limit:
 
 - keep active entry docs as pointers, current decisions, and next-action
   queues;
+- keep the active execution section within the Lightweight Execution Card Law;
 - move landed history, full inventories, and probe transcripts into phase
   cards, fixtures, ledgers, or investigation notes;
 - keep `mirbuilder-rust-to-hako-converter-task-order-ssot.md` below 400 lines

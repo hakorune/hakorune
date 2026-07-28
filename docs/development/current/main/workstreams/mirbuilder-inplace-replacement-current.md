@@ -52,182 +52,86 @@ row          = GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0
 parent       = GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0
 decision     = corrected Candidate C-prime
 ceremony     = T1
-input        = VerifiedNormalModuleSourceV1
-intermediate = VerifiedNormalInstanceFunctionPlanSetV1
-checkpoint   = VerifiedNormalModuleFunctionPlanSetV1
-variants     = IntegerLiteralReturn exactly one
-grammar delta / production caller / replacement credit = 0
+transition   = VerifiedNormalModuleSourceV1
+            -> VerifiedNormalInstanceFunctionPlanSetV1
+            -> existing VerifiedNormalModuleFunctionPlanSetV1
 ```
 
-Candidate Aのcumulative sum-typeを最終形に採用しつつ、BoxShape migrationと
-新grammarを分離する。C0は既存integer-literal-return familyだけをenumの
-第一variantへ包むgrammar-neutral migrationである。C1だけが、C0 close後に
-exact `i64` parameter-return familyを追加できる。
+### Responsibility
 
 ```text
-VerifiedNormalModuleFunctionPlanSetV1
-├─ instance: VerifiedNormalInstanceFunctionPlanSetV1
-│  ├─ source: VerifiedNormalModuleSourceV1
-│  │  └─ Program / identity / Main sites / Box sites / callable catalog
-│  └─ plans: BTreeMap<CanonicalKey, VerifiedNormalInstanceFunctionPlanV1>
-│     └─ IntegerLiteralReturn(existing verified plan)
-└─ main: existing VerifiedNormalMain0BridgePlanV1
+instance_function_plan.rs:
+  one source-owning cumulative set
+  one enum variant: IntegerLiteralReturn(existing verified plan)
+  all-method iteration / common Facts / rejection / exact key coverage
+
+instance_integer_return_plan.rs:
+  retain literal Recipe, receiver-only validation, completion pairing
 ```
 
-sourceとcatalogのownerはcumulative setの一箇所だけである。Main bridgeは同set
-からexact Main loanを借り、既存receiptを変更せず外側aggregateへ保存する。
-旧setからのruntime conversion、source分解、alias、compatibility facadeは作らない。
+各methodは既存のsignature → resolver/projection → facts → Recipe →
+completion順を一度だけ通り、sole producerが第一variantを直接構築する。
+multi-family classifierは第二variantを追加するC1まで作らない。
 
-### C0 atomic change
+### Atomic delete
 
 ```text
-new:
-  instance_function_plan.rs
-    cumulative enum / source-owning set / all-method iteration
-    common function Facts / stage-error-rejection owner
-    exact ordered key coverage
-
-retain in instance_integer_return_plan.rs:
-  integer Recipe / verified plan / receiver-only fact validation
-  exact signature/body/completion pairing
-
-replace atomically:
-  producer and seal API
-  Main bridge instance field/input and rejection owner
-  exports, tests, guard expectations
-
-delete to zero:
-  VerifiedNormalInstanceIntegerReturnPlanSetV1
-  seal_instance_integer_return_plans
-  old concrete-set exports/usages
-  compatibility aliases/converters
+VerifiedNormalInstanceIntegerReturnPlanSetV1 = 0
+seal_instance_integer_return_plans           = 0
+old exports/usages/guard expectations        = 0
+runtime converter / compatibility alias      = 0
 ```
 
-C0は一variantだけなので、投機的なmulti-family classifierを作らない。既存planの
-sole producerが`IntegerLiteralReturn`を一度だけ直接構築する。各methodは
-既存順序のまま、
+### Preserve
 
 ```text
-signature
--> resolver / projection
--> facts
--> Recipe
--> completion / pairing
--> IntegerLiteralReturn variant construction
+literal grammar and rejection order
+module source / identity / catalog single ownership
+existing outer aggregate and Main0 receipt
+production caller / Builder / MIR / Ownership = 0
 ```
 
-を一度だけ通る。rejection stageとerror vocabularyを変えず、variant failure後の
-retry/reselectionを作らない。total source-family classifierは第二variantが存在する
-C1で初めて導入する。
-
-### C0 proof and size boundary
-
-既存fixtureをrename/置換して、literal payload、canonical order、rejection stage、
-Main receipt parityを維持する。catalog coverageは件数一致ではなく、
-`plans.keys().eq(keys.iter())`相当のexact ordered equalityに強化する。
+### Acceptance
 
 ```text
-new test/check file          = 0
-parent normal-source guard   = 776 lines; unchanged
-callable child guard         = 760 lines before C0
-child guard update           = old concrete assertionsの置換・圧縮
-child guard target           <= 795 lines
-all source/check files       < 800 lines
-tests.rs target              < 780 lines
+plans.keys() == catalog InstanceBoxMethod keys in exact order
+all plans = IntegerLiteralReturn exactly once
+literal/rejection/Main receipt parity = green
+new test/check file = 0
+parent guard unchanged; child guard assertions replaced, final <= 795
+all source/check files < 800
 ```
 
-guardへの単純追記は禁止する。新file pathの読み込み、cumulative symbols、旧symbol
-zero、production consumer zeroを、旧concrete blockとのnet置換で収める。
+Stable gate: `run_row_guard.sh --only normal-source-plan0` plus the normal
+build, pointer, replacement, lifecycle, and diff checks.
 
-### C0 acceptance and hard stop
-
-```text
-module source / identity / catalog owners       = exactly one
-all InstanceBoxMethod keys                      = exactly once, ordered equal
-public cumulative variants                      = IntegerLiteralReturn only
-existing literal grammar and rejection order    = unchanged
-outer aggregate name / Main0 receipt             = unchanged
-old concrete set / seal API / alias / converter = 0
-partial product / fallback / retry               = 0
-Builder / MIR / publication / Ownership          = 0
-production caller / tenth replacement row        = 0
-```
+### Hard stop
 
 source clone/reparse/reseal、old/new set共存、Main receipt再seal、検証順変更、
-multi-family classifier先行、guard 800行到達のどれかが必要ならD0へ戻る。
-
-Gate:
-
-```bash
-cargo check -q
-cargo test -q normal_source_plan --lib
-bash tools/checks/run_row_guard.sh --only normal-source-plan0
-bash tools/checks/current_state_pointer_guard.sh
-bash tools/checks/mirbuilder_inplace_replacement_guard.sh
-python3 tools/docs/repository_artifact_lifecycle_inventory.py --check --strict
-git diff --check
-```
+fallback/retry、partial product、guard 800行到達のどれかが必要ならD0へ戻る。
 
 ## Closed M2b execution
 
 ```text
 row       = GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0
-decision  = corrected C-prime
-input     = VerifiedNormalInstanceIntegerReturnPlanSetV1
-output    = VerifiedNormalModuleFunctionPlanSetV1
-Main      = VerifiedNormalMain0BridgePlanV1
-rejection = RejectedNormalMain0BridgeV1
-```
-
-one sibling-only exact Main loanが既存Main locator/resolver/source projection/
-Main0 preflight kernelを一度ずつ通る。borrowed lowering inputはscope内で破棄し、
-owned forest/control/completion/profileだけを、分解していないM2a ownerの横へ
-保存する。Program clone、crate-wide AST escape、自己参照、第二resolver、
-Main grammar差分、physical relation、partial aggregateはゼロ。
-
-```text
-closeout:
-  focused normal-source tests = 76 / 76
-  production Rust delta       = +249
-  test Rust delta             = +184
-  check Python delta          = +104
-  new source files            = 1
-  new test/check files        = 0
-  production callers          = 0
-  largest source/check file   = 776
+commit    = 7aed7848e6
+result    = intact M2a owner + owned Main0 receipts
+evidence  = 76 / 76 focused tests; production callers 0
+delta     = production +249; test +184; check +104; source files +1
+boundary  = no AST escape, self-reference, second resolver, or Main grammar delta
+max file  = 776
 ```
 
 ## Closed M2a execution
 
 ```text
-GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0
-```
-
-```text
-family       = InstanceMethodIntegerLiteralReturn0
-input        = VerifiedNormalModuleSourceV1
-coverage     = every InstanceBoxMethod exactly once
-grammar      = no parameters; [Return(Some(Integer literal))] exactly
-product      = VerifiedNormalInstanceIntegerReturnPlanSetV1
-Main claim   = 0
-```
-
-exact source loan、既存receiver policy/resolver/source projection/completion
-verifierを再利用し、lexical `me`を一件だけsealした。部分plan、raw AST保持、
-Legacy復帰、field/Call/New、physical receiver/Ownership/ABI claimはゼロ。
-
-```text
-production caller / Builder / MIR       = 0
-fallback / retry / reselection          = 0
-
-closeout:
-  focused normal-source tests = 73 / 73
-  production Rust delta       = +583
-  test Rust delta             = +232
-  check Python delta          = +91
-  new source files            = 1
-  new test/check files        = 0
-  largest source/check file   = 776
+row       = GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0
+commit    = 34ea62cfea
+result    = every InstanceBoxMethod sealed as exact integer-literal Return
+evidence  = 73 / 73 focused tests; production callers 0
+delta     = production +583; test +232; check +91; source files +1
+boundary  = no partial plan, raw AST, field/call/new, Ownership, or ABI claim
+max file  = 776
 ```
 
 ## First three replacements

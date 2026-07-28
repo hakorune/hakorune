@@ -360,6 +360,11 @@ Rule:
 - 小さい棚卸しや guard 文言修正は Ghost Task として commit message に残す。
 - 新しい numbered row は lane 変更、実装境界変更、durable keeper/nonkeeper、
   新 contract / ABI / verifier / measurement policy の時だけ作る。
+- active executionは
+  `design/current-docs-update-policy-ssot.md` の Lightweight Execution Card
+  Lawに従い、transition / responsibility / atomic delete / preserve /
+  acceptance / hard stop の六項目だけを残す。land後は手順を短いcloseoutへ
+  置換し、rolling cardへ積み重ねない。
 
 ### `docs/development/current/main/phases/`（Phaseログ）
 
