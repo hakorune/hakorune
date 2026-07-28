@@ -8,9 +8,7 @@ use crate::ast::ASTNode;
 use super::compiler::raw_public_ingress::RawPublicImportDispositionV1;
 use super::compiler::raw_root_helper_coverage::RawPublicEligibilityProfileV1;
 use super::compiler::raw_source_binding::RawCallableMainSelectionV1;
-use super::compiler::source_entry_result::{
-    CanonicalProcessExitV1, ProcessExitProfileV1,
-};
+use super::compiler::source_entry_result::{CanonicalProcessExitV1, ProcessExitProfileV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum RawVmReferenceSourceProfileV1 {
@@ -51,9 +49,7 @@ impl RawPublishedCompileProfileV1 {
         RawCallableMainSelectionV1,
     ) {
         let eligibility = match self.source {
-            RawVmReferenceSourceProfileV1::NarrowV1 => {
-                RawPublicEligibilityProfileV1::narrow_v1()
-            }
+            RawVmReferenceSourceProfileV1::NarrowV1 => RawPublicEligibilityProfileV1::narrow_v1(),
         };
         let imports = match self.imports {
             RawVmReferenceImportProfileV1::None => RawPublicImportDispositionV1::None,
@@ -106,9 +102,7 @@ pub(crate) enum RawVmReferenceExecutionProfileV1 {
 impl RawVmReferenceExecutionProfileV1 {
     pub(in crate::mir) const fn process_profile(self) -> ProcessExitProfileV1 {
         match self {
-            Self::CanonicalV1 => {
-                ProcessExitProfileV1::Canonical(CanonicalProcessExitV1::V1)
-            }
+            Self::CanonicalV1 => ProcessExitProfileV1::Canonical(CanonicalProcessExitV1::V1),
         }
     }
 }

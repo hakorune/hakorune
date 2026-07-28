@@ -42,20 +42,19 @@ pub(crate) mod canonical_direct_call_contract;
 pub(crate) mod canonical_direct_static_call_backend_capability;
 pub(crate) mod canonical_direct_static_call_capability;
 pub(crate) mod canonical_physical_drain;
-pub(crate) mod raw_root_body_recipe;
-pub(crate) mod raw_physical_drain;
-pub(crate) mod raw_finalization_contract;
-pub(crate) mod raw_vm_reference_contract;
 pub(crate) mod canonical_recursive_callable_module_backend_capability;
 pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
 mod compiler;
+pub(crate) mod raw_finalization_contract;
+pub(crate) mod raw_physical_drain;
+pub(crate) mod raw_root_body_recipe;
+pub(crate) mod raw_vm_reference_contract;
 #[allow(unused_imports)]
 pub(crate) use compiler::canonical_core_dispatch::{
     CanonicalCallableDispatchStageV1, CanonicalCoreDispatchErrorV1, CanonicalCoreDispatchStageV1,
     CanonicalCoreInvocationFailureReportV1, CanonicalCoreSourcePlanCompileRequestV1,
-    NormalSourcePlanReceiptV1,
-    VerifiedCanonicalCoreSourcePlanAdmissionV1,
+    NormalSourcePlanReceiptV1, VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };
 pub(crate) use compiler::normal_source_plan;
 pub(crate) use compiler::source_entry_vm_reference::RawVmReferenceRunReportV1;
@@ -64,8 +63,8 @@ pub(crate) use compiler::source_entry_vm_runner_adapter::RawVmReferenceInvocatio
 pub(crate) use raw_vm_reference_contract::{
     RawPublishedCompileProfileV1, RawPublishedCompileRequestV1,
     RawVmReferenceCallableMainProfileV1, RawVmReferenceExecutionProfileV1,
-    RawVmReferenceImportProfileV1, RawVmReferenceInvocationV1,
-    RawVmReferenceSourceProfileV1, RawVmReferenceSupportProfileV1,
+    RawVmReferenceImportProfileV1, RawVmReferenceInvocationV1, RawVmReferenceSourceProfileV1,
+    RawVmReferenceSupportProfileV1,
 };
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
 pub mod constructor_call_route_plan; // MIR-owned constructor call route plans
@@ -126,9 +125,9 @@ pub(crate) mod numeric_substrate; // fixed-width/pointer-sized numeric type-name
 pub mod optimizer;
 pub mod ordered_map_origin_plan; // focused OrderedMapBox get result-origin publication
 pub(crate) mod parameter_entry_backend_capability; // exact-numeric parameter-entry backend gate
-pub(crate) mod preloop_stageb_carrier; // bounded pre-loop outer carrier source proof
-pub(crate) mod preloop_stageb_candidate_shell; // read-only prepared Legacy module-shell receipt
 pub mod policies; // shared routing policies (SSOT)
+pub(crate) mod preloop_stageb_candidate_shell; // read-only prepared Legacy module-shell receipt
+pub(crate) mod preloop_stageb_carrier; // bounded pre-loop outer carrier source proof
 pub mod range_index_fact; // canonical loop range-index facts for fast-path consumers
 pub(crate) mod record_value_backend_capability; // record construction/update contract backend gate
 pub(crate) mod return_exit_backend_capability; // exact-numeric return-exit backend gate
@@ -186,8 +185,8 @@ pub mod same_module_fusion_plan; // MIR-owned same-module fusion window plans
 pub mod semantic_refresh; // MIR semantic metadata refresh owner (SSOT)
 pub mod slot_registry; // Phase 9.79b.1: method slot resolution (IDs)
 pub(crate) mod source_call_target; // pre-Builder canonical source-call target proofs
-pub(crate) mod source_instance_result_contract; // bounded current-owner instance result proof
 pub(crate) mod source_core_receiver; // bounded source-only Core receiver representation proof
+pub(crate) mod source_instance_result_contract; // bounded current-owner instance result proof
 mod spanned_instruction;
 pub mod static_data_plan; // MIR-owned static readonly table rows for backend emission
 pub(crate) mod static_table_backend_capability;

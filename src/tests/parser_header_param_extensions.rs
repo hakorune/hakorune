@@ -1,6 +1,6 @@
 use crate::ast::{ASTNode, ParamDecl};
-use crate::r#macro::ast_json::{ast_to_json_roundtrip, json_to_ast};
 use crate::parser::NyashParser;
+use crate::r#macro::ast_json::{ast_to_json_roundtrip, json_to_ast};
 use crate::tests::helpers::parser::{find_box, find_method_decl, find_method_params, parse_ok};
 
 fn param(name: &str, ty: Option<&str>) -> ParamDecl {

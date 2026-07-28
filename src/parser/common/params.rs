@@ -96,10 +96,8 @@ fn parse_optional_type_annotation(
                     break;
                 }
                 consumed_any = true;
-                inactive_ownership_result_prefix = matches!(
-                    site,
-                    TypeAnnotationSite::Return
-                ) && type_text.is_empty()
+                inactive_ownership_result_prefix = matches!(site, TypeAnnotationSite::Return)
+                    && type_text.is_empty()
                     && (name == "view" || name == "share");
                 type_text.push_str(name);
                 p.advance();

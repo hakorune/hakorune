@@ -17,11 +17,12 @@ fn write_source(dir: &Path, name: &str, source: &str) -> PathBuf {
 
 fn outcome(path: &Path) -> ReferenceRunOutcomeV1 {
     let mut config = CliConfig::default();
-    config.backend = NormalFileCanonicalCoreVmReferenceProductionRequestV1::backend_name()
-        .to_owned();
+    config.backend =
+        NormalFileCanonicalCoreVmReferenceProductionRequestV1::backend_name().to_owned();
     config.file = Some(path.to_string_lossy().into_owned());
-    let request = NormalFileCanonicalCoreVmReferenceProductionRequestV1::try_from_selected_cli(&config)
-        .expect("canonical-core request");
+    let request =
+        NormalFileCanonicalCoreVmReferenceProductionRequestV1::try_from_selected_cli(&config)
+            .expect("canonical-core request");
     run(request)
 }
 
@@ -41,15 +42,35 @@ fn canonical_core_report_preserves_script_result_and_fault_projection() {
         ("null.hako", "null", (0, None)),
         ("integer.hako", "42", (42, None)),
         ("integer-max.hako", "255", (255, None)),
-        ("range.hako", "256", (70, Some("[process/exit-code-out-of-range]"))),
-        ("bool.hako", "true", (70, Some("[process/unsupported-result]"))),
-        ("float.hako", "1.5", (70, Some("[process/unsupported-result]"))),
-        ("string.hako", "\"nyan\"", (70, Some("[process/unsupported-result]"))),
+        (
+            "range.hako",
+            "256",
+            (70, Some("[process/exit-code-out-of-range]")),
+        ),
+        (
+            "bool.hako",
+            "true",
+            (70, Some("[process/unsupported-result]")),
+        ),
+        (
+            "float.hako",
+            "1.5",
+            (70, Some("[process/unsupported-result]")),
+        ),
+        (
+            "string.hako",
+            "\"nyan\"",
+            (70, Some("[process/unsupported-result]")),
+        ),
         ("print.hako", "print(1)", (0, None)),
         ("local.hako", "local x = 3", (0, None)),
         ("assignment.hako", "local x = 1\nx = 3", (0, None)),
         ("compound.hako", "local x = 1\nx += 2", (0, None)),
-        ("division.hako", "1 / 0", (70, Some("[process/source-fault]"))),
+        (
+            "division.hako",
+            "1 / 0",
+            (70, Some("[process/source-fault]")),
+        ),
     ];
 
     for (name, source, expected) in cases {
@@ -93,7 +114,9 @@ fn canonical_core_report_keeps_pre_execution_rejections_out_of_program_results()
         ),
     ];
     for (name, source, tag) in cases {
-        let ReferenceRunOutcomeV1::Invocation(report) = outcome(&write_source(dir.path(), name, source)) else {
+        let ReferenceRunOutcomeV1::Invocation(report) =
+            outcome(&write_source(dir.path(), name, source))
+        else {
             panic!("{name} must reject before program execution");
         };
         assert!(report.line().contains(tag), "{name}: {}", report.line());

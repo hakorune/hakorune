@@ -44,12 +44,12 @@ impl ExplicitReferenceRunnerSelectionErrorV1 {
                 "[normal-file-vm-reference/profile/rejected] {}",
                 error.code()
             )),
-            Self::NormalFileCanonicalCoreVmReference(error) => ReferenceUsageReportV1::new(
-                format!(
+            Self::NormalFileCanonicalCoreVmReference(error) => {
+                ReferenceUsageReportV1::new(format!(
                     "[normal-file-canonical-core-vm-reference/profile/rejected] {}",
                     error.code()
-                ),
-            ),
+                ))
+            }
         }
     }
 }
@@ -72,11 +72,15 @@ pub(crate) fn select_from_cli(
                 .map(ExplicitReferenceRunnerSelectionV1::Selected)
                 .map_err(ExplicitReferenceRunnerSelectionErrorV1::NormalFileVmReference)
         }
-        backend if backend == NormalFileCanonicalCoreVmReferenceProductionRequestV1::backend_name() => {
+        backend
+            if backend == NormalFileCanonicalCoreVmReferenceProductionRequestV1::backend_name() =>
+        {
             NormalFileCanonicalCoreVmReferenceProductionRequestV1::try_from_selected_cli(config)
                 .map(ExplicitReferenceRunnerRequestV1::NormalFileCanonicalCoreVmReference)
                 .map(ExplicitReferenceRunnerSelectionV1::Selected)
-                .map_err(ExplicitReferenceRunnerSelectionErrorV1::NormalFileCanonicalCoreVmReference)
+                .map_err(
+                    ExplicitReferenceRunnerSelectionErrorV1::NormalFileCanonicalCoreVmReference,
+                )
         }
         _ => Ok(ExplicitReferenceRunnerSelectionV1::NotSelected),
     }
@@ -98,8 +102,8 @@ mod tests {
             ))
         ));
 
-        config.backend = NormalFileCanonicalCoreVmReferenceProductionRequestV1::backend_name()
-            .to_owned();
+        config.backend =
+            NormalFileCanonicalCoreVmReferenceProductionRequestV1::backend_name().to_owned();
         assert!(matches!(
             select_from_cli(&config),
             Ok(ExplicitReferenceRunnerSelectionV1::Selected(
@@ -112,7 +116,6 @@ mod tests {
             select_from_cli(&config),
             Ok(ExplicitReferenceRunnerSelectionV1::NotSelected)
         ));
-
     }
 
     #[test]
@@ -139,8 +142,8 @@ mod tests {
             )
         ));
 
-        config.backend = NormalFileCanonicalCoreVmReferenceProductionRequestV1::backend_name()
-            .to_owned();
+        config.backend =
+            NormalFileCanonicalCoreVmReferenceProductionRequestV1::backend_name().to_owned();
         assert!(matches!(
             select_from_cli(&config),
             Err(

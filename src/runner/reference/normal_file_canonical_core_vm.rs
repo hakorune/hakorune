@@ -9,9 +9,9 @@ use super::normal_file_vm_frontdoor::{
     NormalFileReadErrorV1, NormalFileSourceErrorV1, NormalFileSourceProfileErrorV1,
     NormalFileSourceStageV1, RejectedNormalFileSourceV1,
 };
-use super::terminal::{ReferenceInvocationReportV1, ReferenceRunOutcomeV1};
 #[cfg(not(feature = "vm-reference"))]
 use super::terminal::ReferenceUsageReportV1;
+use super::terminal::{ReferenceInvocationReportV1, ReferenceRunOutcomeV1};
 
 pub(crate) fn run(
     request: NormalFileCanonicalCoreVmReferenceProductionRequestV1,
@@ -104,8 +104,8 @@ mod tests {
 
     fn request(path: &std::path::Path) -> NormalFileCanonicalCoreVmReferenceProductionRequestV1 {
         let mut config = CliConfig::default();
-        config.backend = NormalFileCanonicalCoreVmReferenceProductionRequestV1::backend_name()
-            .to_owned();
+        config.backend =
+            NormalFileCanonicalCoreVmReferenceProductionRequestV1::backend_name().to_owned();
         config.file = Some(path.to_string_lossy().into_owned());
         NormalFileCanonicalCoreVmReferenceProductionRequestV1::try_from_selected_cli(&config)
             .expect("canonical-core request")
