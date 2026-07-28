@@ -47,6 +47,70 @@ def repository_files() -> list[str]:
     )
 
 
+def phase293x_card_bucket(filename: str) -> str | None:
+    match = re.match(r"^293x-([0-9]+)-", filename)
+    if not match:
+        return None
+    lower = (int(match.group(1), 10) // 100) * 100
+    return f"293x-{lower:03d}-{lower + 99:03d}"
+
+
+def phase_card_locations(phase: str, filename: str) -> tuple[str, ...]:
+    phase_name = phase if phase.startswith("phase-") else f"phase-{phase}"
+    live_root = f"{CURRENT_PHASE_ROOT}/{phase_name}"
+    global_root = f"{ARCHIVE_PHASE_ROOT}/{phase_name}"
+    locations = [
+        f"{live_root}/{filename}",
+        f"{global_root}/{filename}",
+        f"{global_root}/cards/{filename}",
+    ]
+    if phase_name == "phase-293x":
+        if bucket := phase293x_card_bucket(filename):
+            locations.append(f"{global_root}/cards/{bucket}/{filename}")
+    locations.append(f"{CURRENT_PHASE_ROOT}/archive/{phase_name}/{filename}")
+    if phase_name == "phase-293x":
+        if bucket := phase293x_card_bucket(filename):
+            locations.append(f"{live_root}/archive/cards/{bucket}/{filename}")
+    locations.append(f"{live_root}/archive/{filename}")
+    return tuple(locations)
+
+
+def archive_target_for_source(source: str) -> str:
+    shared_prefix = f"{CURRENT_PHASE_ROOT}/archive/"
+    if source.startswith(shared_prefix):
+        remainder = source[len(shared_prefix) :]
+        phase_name, separator, relative = remainder.partition("/")
+        if not separator or not phase_name.startswith("phase-"):
+            raise ValueError(f"invalid transitional phase source: {source}")
+        return f"{ARCHIVE_PHASE_ROOT}/{phase_name}/{relative}"
+
+    live_prefix = f"{CURRENT_PHASE_ROOT}/"
+    if not source.startswith(live_prefix):
+        raise ValueError(f"phase source is outside current roots: {source}")
+    remainder = source[len(live_prefix) :]
+    phase_name, separator, relative = remainder.partition("/")
+    if not separator or not phase_name.startswith("phase-"):
+        raise ValueError(f"invalid phase source: {source}")
+    if relative.startswith("archive/"):
+        relative = relative.removeprefix("archive/")
+        if phase_name == "phase-296x" and not relative.startswith("cards/"):
+            relative = f"cards/{relative}"
+    return f"{ARCHIVE_PHASE_ROOT}/{phase_name}/{relative}"
+
+
+def validate_move_map(
+    move_map: dict[str, str], repository_paths: set[str]
+) -> None:
+    targets = list(move_map.values())
+    if len(targets) != len(set(targets)):
+        raise RuntimeError("multiple phase sources select the same archive target")
+    for source, target in move_map.items():
+        if source not in repository_paths:
+            raise RuntimeError(f"phase move source is missing: {source}")
+        if target in repository_paths or (ROOT / target).exists():
+            raise RuntimeError(f"archive target already exists: {target}")
+
+
 def readable_text(relative: str) -> str | None:
     path = ROOT / relative
     try:
@@ -139,9 +203,9 @@ def load_plan() -> tuple[list[str], dict[str, str]]:
         for phase in phases:
             prefix = f"{CURRENT_PHASE_ROOT}/{phase}/"
             if relative.startswith(prefix):
-                suffix = relative[len(prefix) :]
-                move_map[relative] = f"{ARCHIVE_PHASE_ROOT}/{phase}/{suffix}"
+                move_map[relative] = archive_target_for_source(relative)
                 break
+    validate_move_map(move_map, set(repository_files()))
     return phases, move_map
 
 
@@ -161,9 +225,7 @@ def apply_plan(phases: list[str], move_map: dict[str, str]) -> None:
         check=True,
     )
     repository_paths = set(repository_files())
-    for target in move_map.values():
-        if (ROOT / target).exists():
-            raise RuntimeError(f"archive target already exists: {target}")
+    validate_move_map(move_map, repository_paths)
 
     rewritten: dict[str, str] = {}
     preserved_links: list[tuple[str, str]] = []

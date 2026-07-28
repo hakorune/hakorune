@@ -100,5 +100,58 @@ guard_expect_in_file "$TAG" 'design-registry-v0:begin' "$DESIGN_REGISTRY" "typed
 guard_expect_in_file "$TAG" 'mode = "warning"' "$DESIGN_REGISTRY" "design registry rollout must remain explicit"
 guard_expect_in_file "$TAG" 'ensure_clean_worktree' "$PHASE_RELOCATOR" "phase relocation must require a clean worktree"
 guard_expect_in_file "$TAG" 'reachable_incoming_edge_count' "$PARTIAL_PHASE_RELOCATOR" "partial relocation must reject reachable incoming edges"
+guard_expect_in_file "$TAG" 'archive_target_for_source' "$PHASE_RELOCATOR" "phase relocation must normalize archive targets"
+guard_expect_in_file "$TAG" 'archive_target_for_source' "$PARTIAL_PHASE_RELOCATOR" "partial relocation must reuse normalized archive targets"
+guard_expect_in_file "$TAG" 'validate_move_map' "$PHASE_RELOCATOR" "phase relocation dry-run must reject collisions"
+guard_expect_in_file "$TAG" 'validate_move_map' "$PARTIAL_PHASE_RELOCATOR" "partial relocation dry-run must reject collisions"
+
+python3 - <<'PY'
+import sys
+
+sys.path.insert(0, "tools/docs")
+from archive_unreachable_phase_clusters import (
+    archive_target_for_source,
+    phase_card_locations,
+    validate_move_map,
+)
+
+filenames = (
+    "1776-MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001.md",
+    "1777-MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROMOTION-DECISION-001.md",
+)
+for filename in filenames:
+    source = (
+        "docs/development/current/main/phases/"
+        f"phase-296x/archive/{filename}"
+    )
+    target = (
+        "docs/development/archive/phases/"
+        f"phase-296x/cards/{filename}"
+    )
+    assert archive_target_for_source(source) == target
+    assert target in phase_card_locations("296x", filename)
+
+shared = "docs/development/current/main/phases/archive/phase-130/README.md"
+assert archive_target_for_source(shared) == (
+    "docs/development/archive/phases/phase-130/README.md"
+)
+
+try:
+    validate_move_map(
+        {"source-a": "target", "source-b": "target"},
+        {"source-a", "source-b"},
+    )
+except RuntimeError:
+    pass
+else:
+    raise AssertionError("duplicate relocation target was accepted")
+
+try:
+    validate_move_map({"source": "target"}, {"source", "target"})
+except RuntimeError:
+    pass
+else:
+    raise AssertionError("occupied relocation target was accepted")
+PY
 
 echo "[$TAG] ok landed_tail=$tail_count"

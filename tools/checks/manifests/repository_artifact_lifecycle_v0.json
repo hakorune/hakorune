@@ -1712,14 +1712,14 @@
       }
     ],
     "reachable_count": 5241,
-    "root_count": 3807,
+    "root_count": 3812,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1039,
       "current_pointer": 3,
       "design_authority": 263,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3181
+      "reference_src_tools": 3186
     },
     "unreachable_count": 3390,
     "unreachable_pending_count": 1796,
@@ -2792,7 +2792,7 @@
         "current_pointer": false,
         "direct_files": 1,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 4,
+        "external_reference_count": 5,
         "phase": "phase-100",
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-100/README.md",
@@ -3022,7 +3022,7 @@
         "current_pointer": false,
         "direct_files": 11,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 42,
+        "external_reference_count": 43,
         "phase": "phase-137x",
         "status": "active_like",
         "status_source": "docs/development/current/main/phases/phase-137x/README.md",

@@ -13,6 +13,8 @@ import sys
 import tomllib
 from pathlib import Path
 
+from archive_unreachable_phase_clusters import archive_target_for_source
+
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUT = ROOT / "tools/checks/manifests/repository_artifact_lifecycle_v0.json"
@@ -362,14 +364,7 @@ def document_reachability_inventory(
         document_phase[document] for document in partial_candidates
     }
     partial_target_collisions = sum(
-        (
-            ROOT
-            / document.replace(
-                "docs/development/current/main/phases/",
-                "docs/development/archive/phases/",
-                1,
-            )
-        ).exists()
+        (ROOT / archive_target_for_source(document)).exists()
         for document in partial_candidates
     )
     return {

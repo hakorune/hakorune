@@ -4,33 +4,77 @@
 phase_card_path() {
   local phase="$1"
   local filename="$2"
-  local phase_dir="docs/development/current/main/phases/phase-$phase"
-  local live_path="$phase_dir/$filename"
+  local -a candidates=()
+  local candidate
 
-  if [[ -f "$live_path" ]]; then
-    echo "$live_path"
-    return 0
-  fi
+  while IFS= read -r candidate; do
+    candidates+=("$candidate")
+  done < <(phase_card_candidates "$phase" "$filename")
+
+  phase_card_select_candidates "${candidates[@]}"
+}
+
+phase_card_candidates() {
+  local phase="$1"
+  local filename="$2"
+  local live_root="docs/development/current/main/phases/phase-$phase"
+  local global_root="docs/development/archive/phases/phase-$phase"
+  local top_transitional_root="docs/development/current/main/phases/archive/phase-$phase"
+
+  echo "$live_root/$filename"
+  echo "$global_root/$filename"
+  echo "$global_root/cards/$filename"
 
   if [[ "$phase" == "293x" ]]; then
     local bucket
-    if ! bucket="$(phase293x_card_bucket "$filename")"; then
+    if bucket="$(phase293x_card_bucket "$filename")"; then
+      echo "$global_root/cards/$bucket/$filename"
+    fi
+  fi
+
+  echo "$top_transitional_root/$filename"
+
+  if [[ "$phase" == "293x" ]]; then
+    local bucket
+    if bucket="$(phase293x_card_bucket "$filename")"; then
+      echo "$live_root/archive/cards/$bucket/$filename"
+    fi
+  fi
+
+  echo "$live_root/archive/$filename"
+}
+
+phase_card_is_forwarding_stub() {
+  local path="$1"
+
+  grep -Eq '^#{1,6}[[:space:]]+Moved([[:space:]]|$)' "$path" \
+    && grep -Eq '^Moved to:' "$path"
+}
+
+phase_card_select_candidates() {
+  local -a full_paths=()
+  local candidate
+
+  for candidate in "$@"; do
+    [[ -f "$candidate" ]] || continue
+    if ! phase_card_is_forwarding_stub "$candidate"; then
+      full_paths+=("$candidate")
+    fi
+  done
+
+  case "${#full_paths[@]}" in
+    0)
       return 1
-    fi
-    local bucketed_path="$phase_dir/archive/cards/$bucket/$filename"
-    if [[ -f "$bucketed_path" ]]; then
-      echo "$bucketed_path"
-      return 0
-    fi
-  fi
-
-  local archive_path="$phase_dir/archive/$filename"
-  if [[ -f "$archive_path" ]]; then
-    echo "$archive_path"
-    return 0
-  fi
-
-  return 1
+      ;;
+    1)
+      echo "${full_paths[0]}"
+      ;;
+    *)
+      echo "[phase-card-paths] authoritative phase-card collision:" >&2
+      printf '  %s\n' "${full_paths[@]}" >&2
+      return 2
+      ;;
+  esac
 }
 
 guard_require_phase_card() {
@@ -39,38 +83,26 @@ guard_require_phase_card() {
   local filename="$3"
   local path
 
-  if ! path="$(phase_card_path "$phase" "$filename")"; then
-    guard_fail "$tag" "phase-$phase card not found in live root or archive: $filename"
+  if path="$(phase_card_path "$phase" "$filename")"; then
+    echo "$path"
+    return 0
   fi
 
-  echo "$path"
+  local status=$?
+  if (( status == 2 )); then
+    guard_fail "$tag" "phase-$phase card has multiple authoritative copies: $filename"
+  fi
+  guard_fail "$tag" "phase-$phase card not found in live or archive roots: $filename"
 }
 
 phase293x_card_bucket() {
   local filename="$1"
-  local number="${filename#293x-}"
-  number="${number%%-*}"
+  [[ "$filename" =~ ^293x-([0-9]+)- ]] || return 1
 
-  case "$number" in
-    0[0-9][0-9])
-      echo "293x-000-099"
-      ;;
-    1[0-9][0-9])
-      echo "293x-100-199"
-      ;;
-    2[0-9][0-9])
-      echo "293x-200-299"
-      ;;
-    3[0-9][0-9])
-      echo "293x-300-399"
-      ;;
-    4[0-9][0-9])
-      echo "293x-400-499"
-      ;;
-    *)
-      return 1
-      ;;
-  esac
+  local number=$((10#${BASH_REMATCH[1]}))
+  local lower=$(((number / 100) * 100))
+  local upper=$((lower + 99))
+  printf '293x-%03d-%03d\n' "$lower" "$upper"
 }
 
 phase293x_card_path() {

@@ -83,4 +83,76 @@ if [[ "$resolved" != "$CARD" ]]; then
   guard_fail "$TAG" "phase-card resolver returned unexpected path: $resolved"
 fi
 
+guard_expect_phase_card() {
+  local phase="$1"
+  local filename="$2"
+  local expected="$3"
+  local actual
+
+  if ! actual="$(phase_card_path "$phase" "$filename")"; then
+    guard_fail "$TAG" "focused phase-card lookup failed: phase-$phase/$filename"
+  fi
+  if [[ "$actual" != "$expected" ]]; then
+    guard_fail "$TAG" "focused phase-card lookup mismatch: expected=$expected actual=$actual"
+  fi
+}
+
+guard_expect_phase_card \
+  "100" \
+  "README.md" \
+  "docs/development/current/main/phases/phase-100/README.md"
+guard_expect_phase_card \
+  "105" \
+  "README.md" \
+  "docs/development/archive/phases/phase-105/README.md"
+guard_expect_phase_card \
+  "137x" \
+  "137x-current-full-ledger-2026-05-18.md" \
+  "docs/development/current/main/phases/phase-137x/archive/137x-current-full-ledger-2026-05-18.md"
+guard_expect_phase_card \
+  "130" \
+  "README.md" \
+  "docs/development/current/main/phases/archive/phase-130/README.md"
+guard_expect_phase_card \
+  "293x" \
+  "293x-001-BOXTORRENT-MINI-LOCAL-STORE.md" \
+  "docs/development/archive/phases/phase-293x/293x-001-BOXTORRENT-MINI-LOCAL-STORE.md"
+guard_expect_phase_card \
+  "293x" \
+  "293x-1003-RUNE-INLINE-001-INLINE-RUNE-CANONICAL-SURFACE.md" \
+  "docs/development/archive/phases/phase-293x/293x-1003-RUNE-INLINE-001-INLINE-RUNE-CANONICAL-SURFACE.md"
+
+if phase_card_path "fixture-missing" "no-such-card.md" >/dev/null 2>&1; then
+  guard_fail "$TAG" "missing phase-card fixture unexpectedly resolved"
+fi
+
+for fixture in \
+  "293x-050-example.md:293x-000-099" \
+  "293x-413-example.md:293x-400-499" \
+  "293x-1003-example.md:293x-1000-1099"
+do
+  filename="${fixture%%:*}"
+  expected="${fixture#*:}"
+  actual="$(phase293x_card_bucket "$filename")"
+  if [[ "$actual" != "$expected" ]]; then
+    guard_fail "$TAG" "293x bucket mismatch: expected=$expected actual=$actual"
+  fi
+done
+
+collision_log="$(mktemp)"
+if phase_card_select_candidates \
+  "docs/development/current/main/phases/phase-100/README.md" \
+  "docs/development/archive/phases/phase-105/README.md" \
+  >"$collision_log" 2>&1
+then
+  rm -f "$collision_log"
+  guard_fail "$TAG" "two authoritative phase-card candidates did not collide"
+else
+  collision_status=$?
+fi
+rm -f "$collision_log"
+if (( collision_status != 2 )); then
+  guard_fail "$TAG" "phase-card collision returned unexpected status: $collision_status"
+fi
+
 echo "[$TAG] ok"

@@ -1,5 +1,5 @@
 ---
-Status: Active bounded interlude at R2
+Status: Active bounded interlude at R3
 Date: 2026-07-28
 Decision: Restore `current` as an authority surface and stop one-decision-one-file growth
 Owner: ../design/current-docs-archive-policy-ssot.md
@@ -23,17 +23,17 @@ move already-historical phase material out of current
 File and line counts are measured results. They are not implementation
 permission gates and do not replace reference-closure checks.
 
-`CURRENT_STATE.toml` now selects R2. This bounded activation runs through R2,
-R3, one first R4 batch, and `DOCS-MEANING-RECOVERY-RETURN0`. It then returns
+`CURRENT_STATE.toml` now selects R3. This bounded activation runs through R3,
+one first R4 batch, and `DOCS-MEANING-RECOVERY-RETURN0`. It then returns
 to the MirBuilder workstream at
 `NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0`; it does not jump directly to
 Candidate A. The returned MirBuilder train closes the general Program verified
 owner and current-normal result parity, then passes the parked Ownership/View
 readiness train before any default-ingress cutover.
 
-R2 authorizes only resolver/relocator support for the live, global archive,
-and transitional nested-archive locations. Physical moves begin no earlier
-than the exact R3 pilot. Compiler/runtime/backend edits and a tenth replacement
+R2 closed resolver/relocator support for the live, global archive, and
+transitional nested-archive locations. R3 now authorizes only the exact
+two-file pilot below. Compiler/runtime/backend edits and a tenth replacement
 row remain forbidden throughout this interlude.
 
 ## Scheduled first activation
@@ -205,9 +205,9 @@ DOCS-SLIM-026:
 physical archive move = 0
 ```
 
-## Current R2 task
+## R2 closeout
 
-Extend the one existing phase-card resolver and relocation tools to recognize:
+The one existing phase-card resolver now recognizes:
 
 ```text
 live phase path
@@ -215,7 +215,7 @@ global development archive path
 transitional nested archive path
 ```
 
-Lookup order is:
+It enumerates every candidate in this order:
 
 ```text
 live
@@ -223,8 +223,48 @@ live
 -> transitional nested archive
 ```
 
-R2 must preserve collision detection and fail when more than one authoritative
-full copy exists. It does not move files.
+The resolver classifies a file as a forwarding stub only when it has both a
+`Moved to:` row and a `# Moved` heading. A stub is not authority. Exactly one
+full copy resolves; zero is missing; more than one fails with every full path.
+The phase-293x bucket calculation now accepts arbitrary numeric card prefixes,
+including four-digit cards.
+
+Both existing relocators reuse one source-layout-to-canonical-target function:
+
+```text
+live phase path
+top-level transitional phase path
+phase-local nested archive path
+-> docs/development/archive/phases/<phase>/...
+```
+
+For phase-296x nested cards, the exact target is:
+
+```text
+docs/development/archive/phases/phase-296x/cards/<filename>
+```
+
+Duplicate targets and every occupied destination, including a forwarding stub,
+fail during dry-run. The generated lifecycle manifest uses the same target
+normalization.
+
+Closeout evidence:
+
+```text
+strict lifecycle inventory                 = green
+whole-phase relocator dry-run              = green, 0 files
+partial-phase relocator dry-run            = green, 0 files
+DOCS-SLIM-001/002/003/026                  = green
+current-state pointer guard                = green
+physical Markdown move                     = 0
+new checker/test file                       = 0
+modified source/check files >= 800 lines   = 0
+```
+
+## Current R3 task
+
+Move only the exact pilot named below. Do not select a generated R4 batch in
+the same commit.
 
 ## Final archive shape
 

@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 from archive_unreachable_phase_clusters import (
-    ARCHIVE_PHASE_ROOT,
+    archive_target_for_source,
     CURRENT_PHASE_ROOT,
     INVENTORY,
     MANIFEST,
@@ -19,6 +19,7 @@ from archive_unreachable_phase_clusters import (
     readable_text,
     repository_files,
     rewrite_markdown_links,
+    validate_move_map,
 )
 
 
@@ -51,13 +52,6 @@ def select_batch(max_files: int) -> list[str]:
     return sorted(selected)
 
 
-def archive_target(source: str) -> str:
-    prefix = f"{CURRENT_PHASE_ROOT}/"
-    if not source.startswith(prefix):
-        raise ValueError(f"partial source is outside phase root: {source}")
-    return f"{ARCHIVE_PHASE_ROOT}/{source[len(prefix):]}"
-
-
 def prune_empty_parents(path: Path) -> None:
     stop = ROOT / CURRENT_PHASE_ROOT
     current = path
@@ -76,11 +70,9 @@ def apply_batch(selected: list[str]) -> None:
         cwd=ROOT,
         check=True,
     )
-    move_map = {source: archive_target(source) for source in selected}
+    move_map = {source: archive_target_for_source(source) for source in selected}
     repository_paths = set(repository_files())
-    for source, target in move_map.items():
-        if source not in repository_paths or (ROOT / target).exists():
-            raise RuntimeError(f"invalid partial move: {source} -> {target}")
+    validate_move_map(move_map, repository_paths)
 
     rewritten: dict[str, str] = {}
     preserved_links: list[tuple[str, str]] = []
@@ -147,6 +139,8 @@ def apply_batch(selected: list[str]) -> None:
 def main() -> int:
     args = parse_args()
     selected = select_batch(args.max_files)
+    move_map = {source: archive_target_for_source(source) for source in selected}
+    validate_move_map(move_map, set(repository_files()))
     print(
         "[archive-unreachable-partial-phases] plan "
         f"files={len(selected)} max_files={args.max_files}"
