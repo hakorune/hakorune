@@ -48,15 +48,13 @@ authorityを一つ減らす場合だけ選択する。
 ## Current front
 
 ```text
-RECORD-HELPER-BODY-DESCENT0-I0-R0
+MIRBUILDER-NEXT-EDGE-DESIGN-STOP
 ```
 
-最小structural ratchetと第七Binary cellはclosed。post-Binary auditは、
-prepared MethodCall route後にcallable-catalog helper bodyがLegacy
-`build_expression` / `build_statement`へ再入するlive redを選択した。
-Candidate A / T1 short reborrowを受理済みで、一つのtagged catalog-child
-operation、旧direct edge二本、dead same-family facade三本のatomic cutoverが
-sole current execution。
+最小structural ratchet、第七Binary cell、第八record-helper body descent
+cellはclosed。helper driverはReturn-as-value ownerのまま、選択済み
+MethodCall portをtagged child loanとして短期再借用し、旧direct edge二本と
+dead same-family facade三本はゼロになった。第九cellは未選択。
 
 ## First three replacements
 
@@ -138,9 +136,9 @@ Keep only these counters current:
 
 ```text
 macro_packs_closed                 = 0 / 8
-live_replacement_cells_closed      = 7
+live_replacement_cells_closed      = 8
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = 1 active; record-helper T1 selected
+accepted_next_responsibility       = 0; design stop
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -158,9 +156,9 @@ non-positive.
 ## Active replacement cell
 
 ```text
-RECORD-HELPER-BODY-DESCENT0
-  execution = RECORD-HELPER-BODY-DESCENT0-I0-R0
-  manifest row remains absent until atomic implementation is green
+none
+  current = MIRBUILDER-NEXT-EDGE-DESIGN-STOP
+  ninth responsibility = not selected
 ```
 
 ## Post-Binary boundary
@@ -235,6 +233,16 @@ BINARY-SOURCE-PARTITION-CUTOVER0
   fallback / retry               = 0
   production Rust LOC            = -68
   five-cell rolling Rust LOC     = -294
+
+RECORD-HELPER-BODY-DESCENT0-I0-R0
+  catalog-child tag issuers        = 2
+  selected old direct edges        = 0
+  dead same-family facades         = 0
+  fallback / retry / reselection   = 0
+  source/test files                = 952 / 139
+  source/test LOC                  = 182430 / 40820
+  production Rust LOC              = +46
+  five-cell rolling Rust LOC       = -292
 ```
 
 ## Parked

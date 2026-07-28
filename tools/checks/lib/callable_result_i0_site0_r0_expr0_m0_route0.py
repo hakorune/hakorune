@@ -44,6 +44,7 @@ def main() -> None:
     candidate = read(
         root, "src/mir/builder/calls/preloop_located_argument_port.rs"
     )
+    located = read(root, "src/mir/builder/located_legacy_lowering.rs")
     property_reads = read(root, "src/mir/builder/property_reads.rs")
     reserved_tests = read(root, "src/mir/builder/calls/reserved_method_route_tests.rs")
 
@@ -78,6 +79,13 @@ def main() -> None:
     require_count(port, "trait MethodCallArgumentDescentV1", 1, "route argument capability")
     require_count(port, "struct AssociatedMethodCallArgumentsV1", 1, "associated route adapter")
     require_count(port, "struct LegacyMethodCallArgumentsV1", 1, "materialized-receiver adapter")
+    require_count(port, "enum CatalogHelperChildV1", 1, "catalog helper child vocabulary")
+    require_count(
+        port,
+        "[method-call-descent/catalog-helper-child-unsupported]",
+        1,
+        "fail-closed catalog child default",
+    )
     require_count(port, "fn into_parts", 0, "retired raw AST split")
 
     if re.search(r"#\[derive\([^]]*Clone[^]]*\)\]\s*pub\(in crate::mir::builder\) enum MethodCallChildDemandV1", port):
@@ -195,12 +203,60 @@ def main() -> None:
     require_count(
         handlers,
         "descent.lower_all(",
-        5,
+        4,
         "static me source/property standard ARG0 demand",
     )
     require_count(member, "descent.lower_all(self)?", 1, "env ARG0 demand")
     require_count(helpers, "let value = self.build_expression(arg.clone())?", 0, "helper arg E0 bypass")
     require_count(helpers, "descent.lower_index(self,", 2, "helper indexed E0 consumers")
+    require_count(
+        helpers,
+        "CatalogHelperChildV1::Statement(stmt.clone())",
+        1,
+        "catalog helper statement loan",
+    )
+    require_count(
+        helpers,
+        "CatalogHelperChildV1::Expression(*expr.clone())",
+        1,
+        "catalog helper expression loan",
+    )
+    require_count(
+        helpers,
+        "self.build_statement(stmt.clone())",
+        0,
+        "retired helper statement recursion",
+    )
+    require_count(
+        helpers,
+        "self.build_expression(*expr.clone())",
+        0,
+        "retired helper expression recursion",
+    )
+    for retired in (
+        "try_inline_same_module_helper_setter_call(",
+        "try_inline_same_module_helper_setter_call_with_descent(",
+        "try_inline_same_module_helper_setter_call_from_receiver_with_descent(",
+    ):
+        require_count(helpers, retired, 0, f"retired helper facade {retired}")
+    require_count(
+        located,
+        "drive_raw_legacy_statement_v1(builder, statement)",
+        1,
+        "located catalog statement compatibility projection",
+    )
+    require_count(
+        located,
+        "drive_raw_legacy_expression_v1(builder, expression)",
+        1,
+        "located catalog expression compatibility projection",
+    )
+    require_count(
+        candidate,
+        "self.ordinary.lower_catalog_helper_child(builder, child)",
+        1,
+        "preloop catalog child ordinary delegation",
+    )
     require_count(
         property_reads,
         "handle_standard_method_call(object_value, getter_name, &[])",
@@ -272,9 +328,9 @@ def main() -> None:
             fail(f"missing M0 fixture: {evidence}")
 
     for evidence in (
-        "inlineable_setter_accepts_simple_assignment_and_return",
-        "setter_allowlist_rejects_before_catalog_query",
+        "setter_boundary_keeps_allowlist_and_body_shape_separate",
         "structured_catalog_lookup_preserves_static_and_instance_namespaces",
+        "helper_body_continuity_failure_restore_and_reuse",
     ):
         if evidence not in helper_tests:
             fail(f"missing split record-helper fixture: {evidence}")

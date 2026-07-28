@@ -12,7 +12,9 @@ use crate::mir::source_instance_result_contract::PreparedPreloopLocatedArgumentV
 use crate::mir::{MirBuilder, ValueId};
 
 use super::member_route::MemberCallRoutePlan;
-use super::method_call_descent::MethodCallArgumentDescentV1;
+use super::method_call_descent::{
+    CatalogHelperChildV1, MethodCallArgumentDescentV1, MethodCallDescentPortV1,
+};
 use super::method_call_terminal::StaticMethodCallCompletionV1;
 use super::preloop_located_argument_ingress::{
     OwnedRejectedPreloopLocatedArgumentIngressV1, PreloopLocatedArgumentIngressErrorV1,
@@ -253,6 +255,14 @@ where
 
     fn lower_index(&mut self, builder: &mut MirBuilder, index: usize) -> Result<ValueId, String> {
         lower_call_argument_v1(builder, &mut self.port, self.arguments, index)
+    }
+
+    fn lower_catalog_helper_child(
+        &mut self,
+        builder: &mut MirBuilder,
+        child: CatalogHelperChildV1,
+    ) -> Result<ValueId, String> {
+        self.port.lower_catalog_helper_child(builder, child)
     }
 }
 

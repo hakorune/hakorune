@@ -76,9 +76,9 @@ mod preloop_outer_carrier_transaction;
 mod preloop_outer_carrier_type;
 mod preloop_stageb_instance_function_session;
 pub(in crate::mir::builder) use method_call_descent::{
-    lower_method_call_argument_v1, AssociatedMethodCallArgumentsV1, LegacyMethodCallArgumentsV1,
-    MethodCallArgumentDescentV1, MethodCallDescentPortV1, MethodCallSyntaxViewV1,
-    RawLegacyMethodCallInputV1,
+    lower_method_call_argument_v1, AssociatedMethodCallArgumentsV1, CatalogHelperChildV1,
+    LegacyMethodCallArgumentsV1, MethodCallArgumentDescentV1, MethodCallDescentPortV1,
+    MethodCallSyntaxViewV1, RawLegacyMethodCallInputV1,
 };
 pub(in crate::mir::builder) use method_call_terminal::MethodCallValueTerminalPortV1;
 pub(in crate::mir::builder) use method_call_terminal::StaticMethodCallCompletionV1;

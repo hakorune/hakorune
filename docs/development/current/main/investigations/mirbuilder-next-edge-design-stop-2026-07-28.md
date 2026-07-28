@@ -1,8 +1,8 @@
 ---
-Status: resolved seventh selection; Binary closed
+Status: active after eighth replacement closeout
 Date: 2026-07-28
-Decision: BINARY-SOURCE-PARTITION-CUTOVER0-I0-R0; Option A
-Scope: select the next exact production edge after six closed cutovers
+Decision: MIRBUILDER-NEXT-EDGE-DESIGN-STOP
+Scope: select the next exact production edge after eight closed cutovers
 ---
 
 # MirBuilder next production edge design stop
@@ -23,7 +23,7 @@ not selection authority.
 
 ## Current boundary
 
-Six production cutovers are closed. The manifest has no remaining
+Eight production cutovers are closed. The manifest has no remaining
 scheduled production cell, while all eight macro packs remain open. No source
 edit may begin until one exact existing caller, replacement owner, delete
 target, parity gate, and LOC repayment boundary are selected together.

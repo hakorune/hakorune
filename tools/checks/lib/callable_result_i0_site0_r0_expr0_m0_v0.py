@@ -336,7 +336,7 @@ def main() -> None:
     ):
         if evidence not in route_tests:
             fail(f"missing P0 route/custom evidence: {evidence}")
-    if "helper_setter_completion_bypasses_generic_terminal" not in record_helper_tests:
+    if "helper_body_continuity_failure_restore_and_reuse" not in record_helper_tests:
         fail("missing P0 helper-setter custom-terminal evidence")
 
     for evidence in (

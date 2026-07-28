@@ -45,8 +45,8 @@ use super::calls::extern_calls::EnvMethodSpec;
 use super::calls::{
     emit_env_value_terminal_raw_v1, emit_global_value_terminal_raw_v1,
     emit_standard_value_terminal_raw_v1, emit_typeop_value_terminal_raw_v1,
-    CallArgumentDescentPortV1, MethodCallDescentPortV1, MethodCallSyntaxViewV1,
-    MethodCallValueTerminalPortV1,
+    CallArgumentDescentPortV1, CatalogHelperChildV1, MethodCallDescentPortV1,
+    MethodCallSyntaxViewV1, MethodCallValueTerminalPortV1,
 };
 use super::function_signature_lookup::FunctionSignatureLookupV1;
 use super::me_call_header_observation::{
@@ -525,6 +525,21 @@ impl<'plan> MethodCallDescentPortV1 for LocatedLegacyLoweringSessionV1<'plan> {
         input: &'input Self::MethodCallInput,
     ) -> Result<&'input Self::ArgumentsInput, String> {
         Ok(input)
+    }
+
+    fn lower_catalog_helper_child(
+        &mut self,
+        builder: &mut MirBuilder,
+        child: CatalogHelperChildV1,
+    ) -> Result<ValueId, String> {
+        match child {
+            CatalogHelperChildV1::Statement(statement) => {
+                drive_raw_legacy_statement_v1(builder, statement)
+            }
+            CatalogHelperChildV1::Expression(expression) => {
+                drive_raw_legacy_expression_v1(builder, expression)
+            }
+        }
     }
 }
 

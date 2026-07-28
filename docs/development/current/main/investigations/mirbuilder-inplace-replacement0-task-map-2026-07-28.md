@@ -605,6 +605,23 @@ new source/test/check file
 source/test ratchet or five-cell rolling LOC breach
 ```
 
+Closeout:
+
+```text
+manifest state                              = closed
+old direct helper-body edges                = 0
+dead same-family facades                    = 0
+focused suites                              = 4 / 4, 4 / 4, 13 / 13, 17 / 17
+private M0 / real CLI / shared guards       = green / green / green
+source/test files                           = 952 / 139
+source/test LOC                             = 182430 / 40820
+production Rust LOC                         = +46
+five-cell rolling production Rust LOC       = -292
+```
+
+The eighth cell selects no ninth responsibility. The current execution
+boundary is `MIRBUILDER-NEXT-EDGE-DESIGN-STOP`.
+
 ## Macro pack order
 
 The first three replacements above are fixed. After them, the shared ledger

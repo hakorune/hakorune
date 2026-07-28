@@ -10,9 +10,7 @@
 
 use crate::ast::{ASTNode, ParamDecl};
 use crate::mir::builder::callable_declaration_catalog::SameModuleCallableNamespaceV1;
-#[cfg(test)]
-use crate::mir::builder::calls::LegacyMethodCallArgumentsV1;
-use crate::mir::builder::calls::MethodCallArgumentDescentV1;
+use crate::mir::builder::calls::{CatalogHelperChildV1, MethodCallArgumentDescentV1};
 use crate::mir::builder::MirBuilder;
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin};
 use crate::mir::MirInstruction;
@@ -99,40 +97,6 @@ impl MirBuilder {
             .map(Some)
     }
 
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn try_inline_same_module_helper_setter_call(
-        &mut self,
-        owner: &str,
-        method: &str,
-        args: &[ASTNode],
-        receiver: Option<ValueId>,
-    ) -> Result<Option<ValueId>, String> {
-        let mut descent = LegacyMethodCallArgumentsV1::new(args);
-        self.try_inline_same_module_helper_setter_call_with_descent(
-            owner,
-            method,
-            args,
-            receiver,
-            &mut descent,
-        )
-    }
-
-    pub(in crate::mir::builder) fn try_inline_same_module_helper_setter_call_with_descent(
-        &mut self,
-        owner: &str,
-        method: &str,
-        args: &[ASTNode],
-        receiver: Option<ValueId>,
-        descent: &mut dyn MethodCallArgumentDescentV1,
-    ) -> Result<Option<ValueId>, String> {
-        let Some(prepared) = self.prepare_same_module_helper_setter_inline(owner, method, args)?
-        else {
-            return Ok(None);
-        };
-        self.execute_prepared_same_module_helper_setter_inline(prepared, args, receiver, descent)
-            .map(Some)
-    }
-
     pub(in crate::mir::builder) fn prepare_record_helper_inline(
         &self,
         namespace: SameModuleCallableNamespaceV1,
@@ -178,6 +142,7 @@ impl MirBuilder {
             receiver,
             bindings,
             &prepared.helper.body,
+            descent,
         )
     }
 
@@ -265,31 +230,13 @@ impl MirBuilder {
                 args.len()
             ));
         }
-        self.inline_record_helper_body(&helper.function_name, receiver, bindings, &helper.body)
-    }
-
-    pub(in crate::mir::builder) fn try_inline_same_module_helper_setter_call_from_receiver_with_descent(
-        &mut self,
-        object_value: ValueId,
-        method: &str,
-        args: &[ASTNode],
-        descent: &mut dyn MethodCallArgumentDescentV1,
-    ) -> Result<Option<ValueId>, String> {
-        let Some(prepared) = self.prepare_same_module_helper_setter_inline_from_receiver(
-            object_value,
-            method,
-            args,
-        )?
-        else {
-            return Ok(None);
-        };
-        self.execute_prepared_same_module_helper_setter_inline(
-            prepared,
-            args,
-            Some(object_value),
+        self.inline_record_helper_body(
+            &helper.function_name,
+            receiver,
+            bindings,
+            &helper.body,
             descent,
         )
-        .map(Some)
     }
 
     pub(in crate::mir::builder) fn prepare_same_module_helper_setter_inline_from_receiver(
@@ -573,6 +520,7 @@ impl MirBuilder {
         receiver: Option<ValueId>,
         bindings: Vec<HelperArgBinding>,
         body: &[ASTNode],
+        descent: &mut dyn MethodCallArgumentDescentV1,
     ) -> Result<ValueId, String> {
         let saved_var_map = self.function_state.variable_ctx.variable_map.clone();
 
@@ -589,7 +537,7 @@ impl MirBuilder {
                 .insert(binding.param_name, binding.value);
         }
 
-        let result = self.lower_record_helper_body_until_return(func_name, body);
+        let result = self.lower_record_helper_body_until_return(func_name, body, descent);
         self.function_state.variable_ctx.variable_map = saved_var_map;
         result
     }
@@ -598,15 +546,20 @@ impl MirBuilder {
         &mut self,
         func_name: &str,
         body: &[ASTNode],
+        descent: &mut dyn MethodCallArgumentDescentV1,
     ) -> Result<ValueId, String> {
         for stmt in body {
             if let ASTNode::Return { value, .. } = stmt {
                 return match value {
-                    Some(expr) => self.build_expression(*expr.clone()),
+                    Some(expr) => descent.lower_catalog_helper_child(
+                        self,
+                        CatalogHelperChildV1::Expression(*expr.clone()),
+                    ),
                     None => crate::mir::builder::emission::constant::emit_void(self),
                 };
             }
-            self.build_statement(stmt.clone())?;
+            descent
+                .lower_catalog_helper_child(self, CatalogHelperChildV1::Statement(stmt.clone()))?;
         }
 
         Err(format!(

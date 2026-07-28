@@ -34,6 +34,13 @@ BINARY_TESTS="$ROOT_DIR/src/mir/builder/ops/binary_expression_descent_tests.rs"
 SHORT_CIRCUIT_DESCENT="$ROOT_DIR/src/mir/builder/ops/short_circuit_expression_descent.rs"
 SHORT_CIRCUIT_TESTS="$ROOT_DIR/src/mir/builder/ops/short_circuit_expression_descent_tests.rs"
 BINARY_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0.py"
+METHOD_CALL_DESCENT="$ROOT_DIR/src/mir/builder/calls/method_call_descent.rs"
+RECORD_HELPER="$ROOT_DIR/src/mir/builder/record_helper_args.rs"
+RECORD_HELPER_TESTS="$ROOT_DIR/src/mir/builder/record_helper_args_tests.rs"
+PRELOOP_ARGUMENT="$ROOT_DIR/src/mir/builder/calls/preloop_located_argument_port.rs"
+PRELOOP_COMPLETION="$ROOT_DIR/src/mir/builder/calls/preloop_located_outer_completion.rs"
+METHOD_CALL_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_route0.py"
+RECORD_HELPER_GUARD="$ROOT_DIR/tools/checks/impl/k2_wide_allocator_record_construction_read_guard.sh"
 
 guard_require_command "$TAG" awk
 guard_require_command "$TAG" find
@@ -70,7 +77,14 @@ guard_require_files \
   "$BINARY_TESTS" \
   "$SHORT_CIRCUIT_DESCENT" \
   "$SHORT_CIRCUIT_TESTS" \
-  "$BINARY_GUARD"
+  "$BINARY_GUARD" \
+  "$METHOD_CALL_DESCENT" \
+  "$RECORD_HELPER" \
+  "$RECORD_HELPER_TESTS" \
+  "$PRELOOP_ARGUMENT" \
+  "$PRELOOP_COMPLETION" \
+  "$METHOD_CALL_GUARD" \
+  "$RECORD_HELPER_GUARD"
 
 expected_header=$'record_kind\tid\tpack\tproduction_caller\tnew_owner\tdelete_target\tparity_gate\tdisposition\tstate'
 actual_header="$(head -n1 "$MANIFEST")"
@@ -197,6 +211,16 @@ binary_row_count="$(awk -F '\t' '
 ' "$MANIFEST")"
 if [[ "$binary_row_count" != "1" ]]; then
   guard_fail "$TAG" "Binary source partition cutover must have one closed manifest row"
+fi
+
+record_helper_row_count="$(awk -F '\t' '
+  $1 == "cell" &&
+  $2 == "RECORD-HELPER-BODY-DESCENT0" &&
+  $9 == "closed" { count += 1 }
+  END { print count + 0 }
+' "$MANIFEST")"
+if [[ "$record_helper_row_count" != "1" ]]; then
+  guard_fail "$TAG" "record-helper body descent must have one closed manifest row"
 fi
 
 for symbol in \
@@ -418,6 +442,37 @@ if rg -n -w 'retry|fallback' "$BINARY_DESCENT" "$SHORT_CIRCUIT_DESCENT" >/dev/nu
   guard_fail "$TAG" "Binary owner gained retry or route fallback"
 fi
 
+while IFS='|' read -r file pattern expected label; do
+  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+  if [[ "$count" != "$expected" ]]; then
+    guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
+  fi
+done <<EOF
+$METHOD_CALL_DESCENT|\\benum\\s+CatalogHelperChildV1\\b|1|catalog helper child vocabulary
+$METHOD_CALL_DESCENT|\\[method-call-descent/catalog-helper-child-unsupported\\]|1|fail-closed custom-port default
+$RECORD_HELPER|CatalogHelperChildV1::Expression\\(\\*expr\\.clone\\(\\)\\)|1|catalog helper expression terminal
+$RECORD_HELPER|CatalogHelperChildV1::Statement\\(stmt\\.clone\\(\\)\\)|1|catalog helper statement terminal
+$LOCATED_LOCAL|drive_raw_legacy_expression_v1\\(builder, expression\\)|1|located unlocated-expression projection
+$LOCATED_LOCAL|drive_raw_legacy_statement_v1\\(builder, statement\\)|1|located unlocated-statement projection
+$PRELOOP_ARGUMENT|self\\.ordinary\\.lower_catalog_helper_child\\(builder, child\\)|1|preloop ordinary-port projection
+EOF
+
+for retired_pattern in \
+  'self\.build_expression\(\*expr\.clone\(\)\)' \
+  'self\.build_statement\(stmt\.clone\(\)\)' \
+  '\btry_inline_same_module_helper_setter_call\s*\(' \
+  '\btry_inline_same_module_helper_setter_call_with_descent\s*\(' \
+  '\btry_inline_same_module_helper_setter_call_from_receiver_with_descent\s*\('
+do
+  if rg -n -P "$retired_pattern" "$RECORD_HELPER" >/dev/null; then
+    guard_fail "$TAG" "retired record-helper edge returned: $retired_pattern"
+  fi
+done
+if rg -n -w 'retry|fallback|reselection' \
+  "$METHOD_CALL_DESCENT" "$RECORD_HELPER" "$LOCATED_LOCAL" "$PRELOOP_ARGUMENT" >/dev/null; then
+  guard_fail "$TAG" "record-helper descent gained retry, fallback, or reselection"
+fi
+
 for file in \
   "$LOWERING" \
   "$PORT_OWNER" \
@@ -460,6 +515,13 @@ for file in \
   "$ROOT_DIR/src/mir/builder/ops/short_circuit_expression_raw_tests.rs" \
   "$ROOT_DIR/src/mir/builder/ops/short_circuit_expression_parity_tests.rs" \
   "$BINARY_GUARD" \
+  "$METHOD_CALL_DESCENT" \
+  "$RECORD_HELPER" \
+  "$RECORD_HELPER_TESTS" \
+  "$PRELOOP_ARGUMENT" \
+  "$PRELOOP_COMPLETION" \
+  "$METHOD_CALL_GUARD" \
+  "$RECORD_HELPER_GUARD" \
   "$ROOT_DIR/tools/checks/mirbuilder_inplace_replacement_guard.sh"
 do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

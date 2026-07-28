@@ -12,7 +12,8 @@ use super::super::me_call_header_observation::{
     MeCallHeaderObservationPortV1, MeCallParameterObservationV1, MethodCallLoweringPortV1,
 };
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1,
+    drive_legacy_expression_v1, drive_legacy_statement_v1, drive_raw_legacy_expression_v1,
+    drive_raw_legacy_statement_v1, RawAstChildLoweringPortV1,
 };
 use super::call_argument_descent::{
     drive_call_arguments_v1, lower_call_argument_v1, CallArgumentDescentPortV1,
@@ -50,6 +51,11 @@ impl<'input> MethodCallSyntaxViewV1<'input> {
     }
 }
 
+pub(in crate::mir::builder) enum CatalogHelperChildV1 {
+    Statement(ASTNode),
+    Expression(ASTNode),
+}
+
 pub(in crate::mir::builder) trait MethodCallDescentPortV1:
     CallArgumentDescentPortV1
 {
@@ -69,6 +75,14 @@ pub(in crate::mir::builder) trait MethodCallDescentPortV1:
         &self,
         input: &'input Self::MethodCallInput,
     ) -> Result<&'input Self::ArgumentsInput, String>;
+
+    fn lower_catalog_helper_child(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _child: CatalogHelperChildV1,
+    ) -> Result<ValueId, String> {
+        Err("[method-call-descent/catalog-helper-child-unsupported]".to_string())
+    }
 }
 
 pub(in crate::mir::builder) fn lower_method_call_argument_v1<Port>(
@@ -115,6 +129,12 @@ pub(in crate::mir::builder) trait MethodCallArgumentDescentV1 {
     fn lower_all(&mut self, builder: &mut MirBuilder) -> Result<Vec<ValueId>, String>;
 
     fn lower_index(&mut self, builder: &mut MirBuilder, index: usize) -> Result<ValueId, String>;
+
+    fn lower_catalog_helper_child(
+        &mut self,
+        builder: &mut MirBuilder,
+        child: CatalogHelperChildV1,
+    ) -> Result<ValueId, String>;
 }
 
 pub(in crate::mir::builder) struct AssociatedMethodCallArgumentsV1<'port, 'input, Port>
@@ -165,6 +185,14 @@ where
     fn lower_index(&mut self, builder: &mut MirBuilder, index: usize) -> Result<ValueId, String> {
         lower_method_call_argument_v1(builder, self.port, self.input, index)
     }
+
+    fn lower_catalog_helper_child(
+        &mut self,
+        builder: &mut MirBuilder,
+        child: CatalogHelperChildV1,
+    ) -> Result<ValueId, String> {
+        self.port.lower_catalog_helper_child(builder, child)
+    }
 }
 
 /// Existing already-materialized receiver callers do not own a MethodCall
@@ -190,6 +218,21 @@ impl MethodCallArgumentDescentV1 for LegacyMethodCallArgumentsV1<'_> {
             format!("[method-call-descent/missing-legacy-argument] index={index}")
         })?;
         builder.build_expression(argument)
+    }
+
+    fn lower_catalog_helper_child(
+        &mut self,
+        builder: &mut MirBuilder,
+        child: CatalogHelperChildV1,
+    ) -> Result<ValueId, String> {
+        match child {
+            CatalogHelperChildV1::Statement(statement) => {
+                drive_raw_legacy_statement_v1(builder, statement)
+            }
+            CatalogHelperChildV1::Expression(expression) => {
+                drive_raw_legacy_expression_v1(builder, expression)
+            }
+        }
     }
 }
 
@@ -244,5 +287,20 @@ where
         input: &'input Self::MethodCallInput,
     ) -> Result<&'input Self::ArgumentsInput, String> {
         Ok(&input.arguments)
+    }
+
+    fn lower_catalog_helper_child(
+        &mut self,
+        builder: &mut MirBuilder,
+        child: CatalogHelperChildV1,
+    ) -> Result<ValueId, String> {
+        match child {
+            CatalogHelperChildV1::Statement(statement) => {
+                drive_legacy_statement_v1(builder, self, statement)
+            }
+            CatalogHelperChildV1::Expression(expression) => {
+                drive_legacy_expression_v1(builder, self, expression)
+            }
+        }
     }
 }

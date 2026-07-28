@@ -14,6 +14,9 @@ SELF_SCRIPT="tools/checks/k2_wide_allocator_record_construction_read_guard.sh"
 
 echo "[$TAG] checking C205b allocator record construction/read lowering"
 
+# This guard owns record-value lowering, not derive-macro catalog coverage.
+export NYASH_MACRO_ENABLE=0
+
 guard_require_files \
   "$TAG" \
   "$CARD" \
@@ -25,7 +28,7 @@ guard_require_files \
   "src/mir/builder/builder_build.rs" \
   "src/mir/builder/fields.rs" \
   "src/mir/builder/stmts/variable_stmt.rs" \
-  "src/mir/builder/compilation_context.rs" \
+  "src/mir/builder/function_lowering_state.rs" \
   "lang/src/hako_alloc/memory/aligned_small_meta_store_box.hako" \
   "lang/src/hako_alloc/memory/page_map_aligned_small_path_box.hako" \
   "lang/src/hako_alloc/memory/huge_page_meta_store_box.hako" \
@@ -44,7 +47,7 @@ guard_expect_in_file "$TAG" 'try_lower_record_field_read_from_ast' "src/mir/buil
 guard_expect_in_file "$TAG" '\[record-construction/escape\]' "src/mir/builder/builder_build.rs" "record construction must not silently fall through to NewBox"
 guard_expect_in_file "$TAG" '\[record-value/escape\]' "src/mir/builder/record_values.rs" "record value escape must fail fast"
 guard_expect_in_file "$TAG" '\[record-field-read/unknown-field\]' "src/mir/builder/record_values.rs" "unknown record field must fail fast"
-guard_expect_in_file "$TAG" 'record_local_values' "src/mir/builder/compilation_context.rs" "builder-local record values must be tracked separately"
+guard_expect_in_file "$TAG" 'record_local_values' "src/mir/builder/function_lowering_state.rs" "builder-local record values must be tracked separately"
 
 guard_expect_in_file "$TAG" 'new HakoAllocAlignedSmallMeta' "lang/src/hako_alloc/memory/aligned_small_meta_store_box.hako" "C205c store must exercise C205b aligned-small record construction"
 guard_expect_in_file "$TAG" 'ptrs: ArrayBox = new ArrayBox\(\)' "lang/src/hako_alloc/memory/aligned_small_meta_store_box.hako" "aligned-small metadata storage must remain scalar inside store"
@@ -211,7 +214,8 @@ record ProbeMeta {
 
 static box Main {
     make(meta: ProbeMeta): i64 {
-        return meta.ptr
+        local value = meta.ptr
+        return value
     }
 
     main(args) {
@@ -248,8 +252,16 @@ if any(node.get("op") == "newbox" and node.get("type") == "ProbeMeta" for node i
     raise SystemExit("record helper argument materialized as NewBox")
 if any(node.get("op") == "field_get" and node.get("field") == "ptr" for node in nodes):
     raise SystemExit("record helper argument leaked as FieldGet")
-if not any(node.get("op") == "ret" for node in nodes):
-    raise SystemExit("record helper inline result did not return from main")
+if any(
+    node.get("op") == "mir_call"
+    and node.get("mir_call", {}).get("callee", {}).get("box_name") == "Main"
+    and node.get("mir_call", {}).get("callee", {}).get("name") == "make"
+    for node in nodes
+):
+    raise SystemExit("record helper leaked a physical Call")
+returns = [node for node in nodes if node.get("op") == "ret"]
+if len(returns) != 1:
+    raise SystemExit(f"record helper must leave one caller Return, got {len(returns)}")
 PY
 
 echo "[$TAG] ok"

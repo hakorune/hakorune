@@ -1,5 +1,5 @@
 ---
-Status: accepted execution task
+Status: closed
 Date: 2026-07-28
 Decision: RECORD-HELPER-BODY-DESCENT0-I0-R0
 Pack: DESCENT-SPINE0
@@ -579,6 +579,38 @@ test LOC delta                                <= 0
 five-cell rolling production Rust LOC         <= 0
 all touched source/check files                < 800 lines
 ```
+
+## Closeout
+
+```text
+closed manifest row                           = 1
+old direct helper-body edges                  = 0
+dead same-family facades                      = 0
+catalog-child tag issuers                     = 2 exact
+located helper-body production activation     = 0
+fallback / retry / reselection                = 0
+
+focused tests                                 = 4 + 4 + 13 + 17 = 38 green
+private M0 route helper                       = green
+real CLI allocator/helper guard               = green
+shared replacement guard                      = green
+
+source files                                  = 952 -> 952
+source LOC                                    = 182384 -> 182430 (+46)
+test files                                    = 139 -> 139
+test LOC                                      = 40826 -> 40820 (-6)
+five-cell rolling production Rust LOC         = -292
+largest touched source/check file             = 690 lines
+```
+
+The stale private-M0 `descent.lower_all` expectation was corrected from five
+to the mechanically observed four current production sites. The real CLI
+fixture disables unrelated derive-macro expansion and rejects only a physical
+`Main.make` call; compiler initialization calls remain outside this helper
+contract.
+
+The eighth cell is closed. No ninth responsibility is selected here;
+execution returns to `MIRBUILDER-NEXT-EDGE-DESIGN-STOP`.
 
 ## Hard stop
 

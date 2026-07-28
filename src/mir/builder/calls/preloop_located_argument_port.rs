@@ -16,7 +16,9 @@ use crate::mir::source_instance_result_contract::PreparedPreloopLocatedArgumentV
 use crate::mir::{MirBuilder, MirType, TypeOpKind, ValueId};
 
 use super::extern_calls::EnvMethodSpec;
-use super::method_call_descent::{MethodCallDescentPortV1, MethodCallSyntaxViewV1};
+use super::method_call_descent::{
+    CatalogHelperChildV1, MethodCallDescentPortV1, MethodCallSyntaxViewV1,
+};
 use super::method_call_terminal::{
     emit_static_global_value_terminal_with_receipt_v1, MethodCallValueTerminalPortV1,
 };
@@ -467,6 +469,14 @@ where
         input: &'input Self::MethodCallInput,
     ) -> Result<&'input Self::ArgumentsInput, String> {
         self.ordinary.call_arguments_input(input)
+    }
+
+    fn lower_catalog_helper_child(
+        &mut self,
+        builder: &mut MirBuilder,
+        child: CatalogHelperChildV1,
+    ) -> Result<ValueId, String> {
+        self.ordinary.lower_catalog_helper_child(builder, child)
     }
 }
 
