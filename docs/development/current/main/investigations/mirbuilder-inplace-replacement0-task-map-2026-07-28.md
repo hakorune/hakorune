@@ -519,8 +519,10 @@ It selected:
 
 ```text
 RECORD-HELPER-BODY-DESCENT0-D0
-  first confirmed production-reachable nested direct-recursion red
-  design question = declaration-body descent capability without reusing
+  closed decision = Candidate A
+  ceremony        = T1
+  execution       = RECORD-HELPER-BODY-DESCENT0-I0-R0
+  contract        = declaration-body short reborrow without reusing
                     call-site location/ledger authority
 ```
 
@@ -539,9 +541,66 @@ RAW-BODY-FACADE-RETIRE0
 non-Program root fallback
 ```
 
-Do not create an eighth manifest row or edit production source until the D0
-selects T1 or T2. Keep the root non-Program fallback in a separate
-compiler-residue decision.
+The selection commit does not create an eighth manifest row. The atomic
+implementation adds the row as `closed` only after the two old direct edges
+are zero and the focused gates are green. Keep the root non-Program fallback
+in a separate compiler-residue decision.
+
+## Accepted eighth replacement
+
+### `RECORD-HELPER-BODY-DESCENT0-I0-R0`
+
+Responsibility:
+
+```text
+raw/default MethodCall
+-> prepared InlineRecord / InlineSetter helper execution
+-> callable-catalog helper body statement/expression descent
+```
+
+New responsibility edge:
+
+```text
+MethodCallArgumentDescentV1
+-> two bounded catalog-child operations
+-> exact associated MethodCallDescentPortV1
+```
+
+Completion owner:
+
+```text
+record_helper_args.rs
+lower_record_helper_body_until_return
+```
+
+Atomic old-edge deletion:
+
+```text
+self.build_expression(*expr.clone())
+self.build_statement(stmt.clone())
+```
+
+Focused gates:
+
+```text
+record_helper_args and MethodCall tests
+private M0 route helper after exact caller census
+real allocator record-construction helper guard
+shared replacement guard
+four-metric structural ratchet
+```
+
+Hard stop:
+
+```text
+new helper source/provenance authority
+call-site location/ledger/token reuse
+helper grammar or Return completion change
+located production activation
+fallback / retry / reselection
+new source/test/check file
+positive production Rust or test LOC delta
+```
 
 ## Macro pack order
 

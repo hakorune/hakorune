@@ -48,13 +48,14 @@ authorityを一つ減らす場合だけ選択する。
 ## Current front
 
 ```text
-RECORD-HELPER-BODY-DESCENT0-D0
+RECORD-HELPER-BODY-DESCENT0-I0-R0
 ```
 
 最小structural ratchetと第七Binary cellはclosed。post-Binary auditは、
 prepared MethodCall route後にcallable-catalog helper bodyがLegacy
-`build_expression` / `build_statement`へ再入するlive redを選択した。現在は
-call-site authorityとhelper declaration authorityを分離するT1/T2設計停止。
+`build_expression` / `build_statement`へ再入するlive redを選択した。
+Candidate A / T1 short reborrowを受理済みで、二つのbounded catalog-child
+operationと旧direct edge二本のatomic cutoverがsole current execution。
 
 ## First three replacements
 
@@ -138,7 +139,7 @@ Keep only these counters current:
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 7
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = 0; record-helper D0 active
+accepted_next_responsibility       = 1 active; record-helper T1 selected
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -156,14 +157,18 @@ non-positive.
 ## Active replacement cell
 
 ```text
-none; RECORD-HELPER-BODY-DESCENT0-D0 is a design boundary
+RECORD-HELPER-BODY-DESCENT0
+  execution = RECORD-HELPER-BODY-DESCENT0-I0-R0
+  manifest row remains absent until atomic implementation is green
 ```
 
 ## Post-Binary boundary
 
-`DESCENT-SPINE0-CLOSE-AUDIT` is closed. It selected only
-`RECORD-HELPER-BODY-DESCENT0-D0`. Proof consolidation and dead raw-body facade
-retirement remain candidate cleanups; neither is current execution authority.
+`DESCENT-SPINE0-CLOSE-AUDIT` is closed. Its
+`RECORD-HELPER-BODY-DESCENT0-D0` decision selected Candidate A as the T1
+`RECORD-HELPER-BODY-DESCENT0-I0-R0` execution. Proof consolidation and dead
+raw-body facade retirement remain candidate cleanups; neither is current
+execution authority.
 
 ## Landed replacement cells
 

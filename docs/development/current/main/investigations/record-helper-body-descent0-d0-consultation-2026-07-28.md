@@ -1,7 +1,13 @@
 ---
-Status: active design consultation
+Status: accepted execution task
 Date: 2026-07-28
-Decision: pending T1/T2 responsibility boundary
+Decision: RECORD-HELPER-BODY-DESCENT0-I0-R0
+Pack: DESCENT-SPINE0
+Ceremony: T1
+Selected: Candidate A — existing invocation capability short reborrow
+Commits:
+  - one docs selection commit
+  - one immediately-following atomic I0/R0 implementation commit
 Scope: callable-catalog helper declaration body descent after one selected MethodCall route
 Parent:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
@@ -11,7 +17,29 @@ NorthStar:
   - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
 ---
 
-# RECORD-HELPER-BODY-DESCENT0-D0
+# RECORD-HELPER-BODY-DESCENT0-I0-R0
+
+## Decision
+
+Candidate A is accepted. The callable catalog already owns the helper
+declaration identity, parameters, declarations, and body AST. The selected
+raw/default MethodCall port already owns the recursive invocation capability
+and collector-backed header view. The missing piece is only a bounded
+projection through the existing argument-capability erasure boundary.
+
+This is a T1 responsibility-interface change:
+
+```text
+new source/provenance owner    = 0
+new identity issuer            = 0
+new publication/failure owner  = 0
+helper grammar delta           = 0
+located production activation  = 0
+fallback / retry / reselection = 0
+```
+
+Candidate B remains only a hard-stop escalation. It is not authorized by this
+task.
 
 ## Why this is the next boundary
 
@@ -107,17 +135,26 @@ helper completion authority:
 The call-site location or ledger must not be reused as the provenance of the
 helper declaration body.
 
-## One decision question
+## Closed decision question
 
-> How does a callable-catalog helper declaration body borrow a short-lived
-> nested statement/expression descent capability that retains the current
-> invocation collector/header authority, does not reuse call-site location or
-> ledger authority, and completes the inline helper Return as a value?
+The existing selected MethodCall descent object lends two source-neutral,
+short-lived catalog-child operations to the current helper-body completion
+owner:
 
-## Candidate A — T1 short reborrow
+```text
+catalog helper statement AST
+  -> exact associated port
+  -> existing statement descent
 
-Preferred if the current catalog snapshot and raw invocation capability are
-sufficient:
+catalog helper expression AST
+  -> exact associated port
+  -> existing expression descent
+```
+
+The call-site MethodCall input, argument index, located role, source ledger,
+and selected preloop token are not inputs to either operation.
+
+## Accepted shape — T1 short reborrow
 
 ```text
 selected MethodCall route
@@ -139,12 +176,47 @@ physical caller Return                    = 0
 old direct helper-body edges              = 0
 ```
 
-If this is sufficient, ceremony is T1 because the existing capability
-interface gains one bounded declaration-body responsibility.
+The helper-body grammar and completion remain in
+`lower_record_helper_body_until_return`. Do not add a whole-body method to a
+port. A whole-body method would leak statement ordering, top-level Return
+recognition, Return-as-value completion, and missing-return diagnostics out of
+their current owner.
 
-## Candidate B — T2 declaration-body authority
+## Rejected implementation shapes
 
-Use only if Candidate A cannot express the contract.
+Do not genericize every MethodCall handler merely to expose
+`AssociatedMethodCallArgumentsV1::terminal_port()`. The current executor
+intentionally receives `dyn MethodCallArgumentDescentV1`; widening the handler
+graph would touch more route families than the two bounded projections.
+
+Do not add a new `CatalogHelperBodyDescentV1` object or a new body-session
+product. The two operations fit the existing MethodCall descent interfaces and
+new files are forbidden by the structural ratchet.
+
+Do not provide default methods that call `MirBuilder::build_statement` or
+`MirBuilder::build_expression`. That would move the competing authority into
+the interface instead of deleting it.
+
+Do not make the Located or Preloop implementation consume call-site child
+roles, ledger entries, or selected argument tokens. Their catalog-child
+implementation must preserve the current unlocated compatibility behavior
+explicitly:
+
+```text
+LocatedLegacyLoweringSessionV1
+  -> raw compatibility statement/expression descent
+  -> source / ledger / located child role untouched
+
+PreloopLocatedArgumentPortV1
+  -> ordinary port catalog-child operation
+  -> selected argument token/state untouched
+```
+
+If this explicit delegation cannot preserve current behavior without
+activating a located helper-body route, stop rather than substituting a
+fallback or silent rejection.
+
+## T2 escalation boundary
 
 A T2 design is required if correct lowering needs any of:
 
@@ -156,8 +228,266 @@ helper-body grammar widening
 located helper-body production activation
 ```
 
-This D0 does not authorize that authority. It must describe the exact product,
+This task does not authorize that authority. It must describe the exact product,
 issuer, consumer, and fail-fast boundary before implementation.
+
+## Exact interface change
+
+Add two required methods to `MethodCallDescentPortV1`:
+
+```rust
+fn lower_catalog_helper_statement(
+    &mut self,
+    builder: &mut MirBuilder,
+    statement: ASTNode,
+) -> Result<ValueId, String>;
+
+fn lower_catalog_helper_expression(
+    &mut self,
+    builder: &mut MirBuilder,
+    expression: ASTNode,
+) -> Result<ValueId, String>;
+```
+
+Add the same two required operations to
+`MethodCallArgumentDescentV1`. The argument object forwards them to its
+retained underlying port without consulting its MethodCall input.
+
+No default implementation is allowed on either trait.
+
+The exact current implementer census is:
+
+```text
+MethodCallArgumentDescentV1:
+  AssociatedMethodCallArgumentsV1<Port>
+  LegacyMethodCallArgumentsV1
+  PreloopLocatedStaticCompletionV1
+
+MethodCallDescentPortV1:
+  blanket Port: RawAstChildLoweringPortV1
+  LocatedLegacyLoweringSessionV1
+  PreloopLocatedArgumentPortV1
+
+cfg(test) MethodCallDescentPortV1:
+  RoutePort
+  DistinctMethodCallPort
+  FailingOuterStaticTerminalPortV1
+```
+
+Every implementer must be updated explicitly. In particular,
+`PreloopLocatedStaticCompletionV1` must forward through its internal port; an
+implicit default error would change existing static helper behavior.
+
+The blanket raw implementation short-reborrows the same port into the
+existing statement/expression drivers. For `RawInvocationChildPortV1`, this
+retains the same `ModuleLoweringPortV1`, collector, and header authority across
+nested MethodCalls. `RawLegacyChildLoweringPortV1` remains a separately
+selected compatibility implementation, not a retry target.
+
+## Atomic implementation
+
+Production source:
+
+```text
+src/mir/builder/calls/method_call_descent.rs
+  add the two required port operations
+  add the two required erased argument operations
+  forward Associated through its retained port
+  implement explicit Legacy compatibility descent
+  implement the raw blanket short reborrow
+
+src/mir/builder/record_helper_args.rs
+  pass descent through inline_record_helper_body
+  pass descent through lower_record_helper_body_until_return
+  consume top-level Return before statement descent
+  lower only Return Some(expr)'s expression through the catalog hook
+  lower prefix statements through the catalog hook
+
+src/mir/builder/located_legacy_lowering.rs
+  implement explicit unlocated compatibility projection
+  do not read source, ledger, LegacyExprInputV1, or child roles
+
+src/mir/builder/calls/preloop_located_argument_port.rs
+  delegate catalog children to ordinary
+  do not arm or consume the selected argument token
+
+src/mir/builder/calls/preloop_located_outer_completion.rs
+  forward both erased operations through its internal port
+```
+
+`method_call_handlers.rs` already passes the descent object to the prepared
+helper executors. It is not an expected production edit.
+
+Atomic old-edge deletion:
+
+```text
+lower_record_helper_body_until_return
+  -> self.build_expression(*expr.clone()) = 0
+  -> self.build_statement(stmt.clone())   = 0
+```
+
+The function itself remains the sole owner of:
+
+```text
+statement ordering
+top-level Return recognition
+Return-as-value completion
+missing-return diagnostic
+```
+
+`Return Some(expr)` lowers the expression exactly once and returns its
+`ValueId` as the inline helper result. `Return None` emits the existing Void
+value. Neither shape is sent to the ordinary Return statement owner, and no
+physical Return terminator is emitted for the caller function.
+
+## Focused evidence
+
+Do not create a new parity, test, or guard file.
+
+Update existing tests only:
+
+```text
+src/mir/builder/record_helper_args_tests.rs
+  port continuity:
+    prefix statement(s) -> final Return expression
+    one retained port instance
+    call-site argument input access = 0
+
+  failure / reuse:
+    prefix statement failure
+    final expression failure
+    exact variable_map restore after both
+    same Builder and port succeed afterward
+
+  Return-as-value:
+    final expression demand = 1
+    inline result ValueId exists
+    physical Return terminator = 0
+    generic Call / BoxCall = 0
+
+src/mir/builder/calls/method_call_descent_tests.rs
+  explicit custom-port projection contract
+```
+
+Strengthen the existing real production fixture rather than adding another:
+
+```text
+tools/checks/impl/k2_wide_allocator_record_construction_read_guard.sh
+  normal CLI -> MIR JSON
+  helper prefix statement is exercised
+  inline result reaches the caller's one real Return
+  helper physical Return / generic Call / NewBox / FieldGet = 0
+```
+
+The private M0 route helper currently has a pre-existing first red:
+
+```text
+static me source/property standard ARG0 demand: expected=5 actual=4
+```
+
+Before using it as green evidence, perform an exact current caller census.
+Update the stale count only if the four current callers are mechanically
+proven. If the helper cannot become green through an evidence-backed current
+graph correction plus this helper-only contract update, hard stop. Do not hide
+the red or weaken unrelated assertions.
+
+The shared replacement guard must gain only macro-level evidence:
+
+```text
+closed manifest row                         = 1
+selected raw/default helper-body terminal   >= 1
+old direct build_expression edge            = 0
+old direct build_statement edge             = 0
+located helper-body production activation   = 0
+fallback / retry / reselection              = 0
+```
+
+No per-cell guard is allowed.
+
+## Structural budget
+
+Current measured footprint and accepted ceilings:
+
+```text
+                         current   ceiling   headroom
+source files                 952       952          0
+source LOC                182384    182452         68
+test files                   139       139          0
+test LOC                   40826     40826          0
+```
+
+Therefore:
+
+```text
+new source files             = 0
+new test/check files         = 0
+production Rust LOC delta   <= 0
+test LOC after           <= 40826
+all four ceilings            = green
+all touched source/check     < 800 lines
+```
+
+Focused evidence added to existing tests must replace or consolidate at least
+the same number of test lines in the atomic implementation commit. A positive
+test LOC delta is not accepted. Do not spend the 68-line source headroom on a
+new abstraction; the target is a non-positive production Rust delta.
+
+## Commit boundary
+
+Selection commit:
+
+```text
+docs(mir): select record helper body descent
+```
+
+Immediately following atomic implementation:
+
+```text
+refactor(mir): thread record helper body descent
+```
+
+The implementation commit contains:
+
+```text
+two bounded interface operations
+all production and cfg(test) implementer updates
+helper-body terminal switch
+two old direct-edge deletions
+focused existing-test consolidation
+private M0 proof correction
+shared guard extension
+closed eighth manifest row
+this card and current SSOT closeout
+measured four-metric and production LOC closeout
+```
+
+Do not interleave proof consolidation, raw-body facade cleanup, the non-Program
+root, another consultation, or an unrelated source edit.
+
+## Gate order
+
+```bash
+# exact implementer / old-edge census
+rg -n 'MethodCallArgumentDescentV1|MethodCallDescentPortV1' \
+  src/mir/builder --glob '*.rs'
+rg -n 'self\.build_(?:expression|statement)' \
+  src/mir/builder/record_helper_args.rs
+
+cargo check -q
+cargo test -q record_helper_args --lib
+cargo test -q method_call --lib
+
+python3 \
+  tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_route0.py
+bash tools/checks/impl/k2_wide_allocator_record_construction_read_guard.sh
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+
+git diff --check
+```
+
+Zero-test filters are not green evidence. Record executed test counts in the
+closeout.
 
 ## Rejected shortcut
 
@@ -203,22 +533,27 @@ src/mir/builder/record_helper_args_tests.rs
   add focused port continuity plus failure/reuse evidence here if selected
 ```
 
-## D0 acceptance
+## Acceptance
 
 ```text
 production helper-body terminal census       = exact
 declaration-body provenance owner             = one
 call-site location / ledger reuse             = 0
 nested body/statement/expression capability   = selected
+MethodCallArgumentDescentV1 implementers       = exact, all explicit
+MethodCallDescentPortV1 implementers           = exact, all explicit
 inline Return-as-value completion owner       = one
 caller function physical Return emission      = 0
+helper generic Call / BoxCall emission         = 0
 variable-map restore on success/failure       = preserved
 fallback / retry / route reselection          = 0
 new owner and atomic old-edge delete set       = exact
-ceremony                                      = T1 or T2 decided
+ceremony                                      = T1
 new proof file                                = 0
 source/test file-count delta                  = 0 planned
 four structural ratchet ceilings              = preserved
+production Rust LOC delta                     <= 0
+test LOC delta                                <= 0
 all touched source/check files                < 800 lines
 ```
 
@@ -230,8 +565,12 @@ callable catalog identity/body ownership must change
 record-local ABI, receiver binding, or argument order must change
 helper body acceptance must narrow or widen
 located InlineRecord / InlineSetter must activate
+an implementer requires a default fallback or behavior-changing rejection
 fallback, retry, or route re-selection is required
 the two old direct edges cannot reach zero in one bounded interface slice
+private M0 proof cannot become green by an exact current census plus this contract update
+production Rust LOC delta becomes positive
+test LOC or any structural ceiling grows
 ```
 
 ## Other audit findings
@@ -257,8 +596,8 @@ None outranks the live record-helper descent red.
 ## Non-claims
 
 ```text
-no production source edit
-no eighth replacement manifest row
+no production source edit in the selection commit
+no eighth replacement manifest row before the atomic implementation is green
 no helper body grammar change
 no located route activation
 no new Recipe/CorePlan claim

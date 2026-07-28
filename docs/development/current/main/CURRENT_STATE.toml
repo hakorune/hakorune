@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Seven production cells and the minimal four-metric structural ratchet are closed. DESCENT-SPINE0-CLOSE-AUDIT selected RECORD-HELPER-BODY-DESCENT0-D0 as the next design boundary: a live prepared MethodCall route loses its invocation capability and re-enters Legacy build_expression/build_statement for a callable-catalog helper body. Production edits remain stopped pending the T1/T2 responsibility decision."
+status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Seven production cells and the minimal four-metric structural ratchet are closed. RECORD-HELPER-BODY-DESCENT0-I0-R0 is the sole executable row. Candidate A is accepted as T1: lend two bounded catalog-child operations through the selected MethodCall descent object, preserve helper-local Return-as-value completion, and delete the two direct Legacy re-entry edges atomically."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RECORD-HELPER-BODY-DESCENT0-D0"
-current_execution_row = "RECORD-HELPER-BODY-DESCENT0-D0"
-current_execution_summary = "Decide how a callable-catalog helper declaration body borrows a short-lived nested descent capability that retains invocation collector/header authority without reusing call-site location/ledger authority, and how inline Return is completed as a value without emitting a caller-function Return. Prefer T1 reborrow if no new authority is needed; escalate to T2 otherwise."
+current_design_stop = "none"
+current_execution_row = "RECORD-HELPER-BODY-DESCENT0-I0-R0"
+current_execution_summary = "Thread one short-lived existing invocation capability into the catalog-owned inline helper body, preserve Return-as-value, update every MethodCall descent implementer explicitly, and delete both direct Legacy re-entry edges in one atomic T1 implementation."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "record-helper-body-descent0-d0-consultation-2026-07-28"
 latest_card_path = "docs/development/current/main/investigations/record-helper-body-descent0-d0-consultation-2026-07-28.md"
-latest_card_summary = """RECORD-HELPER-BODY-DESCENT0-D0 is the active design consultation. The live MethodCall route keeps RawInvocation capability through argument lowering, then erases it before lowering the callable-catalog helper body and directly re-enters build_expression/build_statement. D0 must select a declaration-body capability and inline Return-as-value owner without reusing call-site location/ledger, changing helper grammar, or adding fallback."""
+latest_card_summary = """RECORD-HELPER-BODY-DESCENT0-I0-R0 is the selected T1 implementation. The existing callable-catalog snapshot and RawInvocation capability are sufficient. Add two required catalog-child operations through MethodCallDescentPortV1 and MethodCallArgumentDescentV1, forward every production and test implementer explicitly, keep Return-as-value in record_helper_args, and atomically remove the direct build_expression/build_statement edges. No new files, located activation, fallback, retry, grammar change, or positive source/test LOC delta is accepted."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RECORD-HELPER-BODY-DESCENT0-D0"
+current_blocker_token = "RECORD-HELPER-BODY-DESCENT0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
