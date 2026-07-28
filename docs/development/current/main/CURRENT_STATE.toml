@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The bounded compiler-ingress census is closed with Candidate B retained. The first missing authority is NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0, not a monolithic GeneralProgram lowerer. Repository artifact lifecycle R2 is closed and the bounded interlude is active at the exact two-file R3 pilot. After R3 -> first R4 -> DOCS-MEANING-RECOVERY-RETURN0, MirBuilder resumes at NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0. General Program owner/result parity then precede Ownership/View readiness, and Candidate A cutover comes only after both. No production caller or tenth replacement cell is selected."
+status = "The bounded compiler-ingress census is closed with Candidate B retained. The first missing authority is NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0, not a monolithic GeneralProgram lowerer. Repository artifact lifecycle R3 is closed and the bounded interlude is active at the first generated R4 nested-archive batch. After first R4 -> DOCS-MEANING-RECOVERY-RETURN0, MirBuilder resumes at NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0. General Program owner/result parity then precede Ownership/View readiness, and Candidate A cutover comes only after both. No production caller or tenth replacement cell is selected."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none; MirBuilder return target is NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0"
-current_execution_row = "REPOSITORY-ARTIFACT-LIFECYCLE-R3"
-current_execution_summary = "Move exactly the two selected phase-296x nested-archive cards to docs/development/archive/phases/phase-296x/cards after clean-worktree, zero-inbound-reference, and zero-target-collision checks. Then run one bounded R4 batch and DOCS-MEANING-RECOVERY-RETURN0 before returning to NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0. The later order is general Program/result parity -> Ownership/View readiness -> Candidate A cutover. Compiler/runtime/backend edits and a tenth replacement row remain forbidden during the interlude."
+current_execution_row = "REPOSITORY-ARTIFACT-LIFECYCLE-R4-FIRST"
+current_execution_summary = "Materialize the phase-296x archived-in-place unreachable clusters from the existing lifecycle graph, select one generated reference-closed batch of at most 200 files without splitting a weakly connected cluster, reject inbound references and occupied targets, and move only that batch. Then run DOCS-MEANING-RECOVERY-RETURN0 before returning to NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0. The later order is general Program/result parity -> Ownership/View readiness -> Candidate A cutover. Compiler/runtime/backend edits and a tenth replacement row remain forbidden during the interlude."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "Repository artifact lifecycle bounded interlude"
-active_lane_status = """REPOSITORY-ARTIFACT-LIFECYCLE-R3 is the sole current execution authority. MirBuilder returns after the bounded R3 -> first R4 -> RETURN0 sequence at NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0. Compiler/runtime/backend edits, Candidate A, and the tenth replacement row are parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """REPOSITORY-ARTIFACT-LIFECYCLE-R4-FIRST is the sole current execution authority. MirBuilder returns after this one bounded batch and RETURN0 at NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0. Compiler/runtime/backend edits, Candidate A, and the tenth replacement row are parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "repository-artifact-lifecycle-current"
 latest_card_path = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
-latest_card_summary = """Repository artifact lifecycle R2 is closed: phase cards resolve across live, global archive, and transitional roots; forwarding stubs are not authority; multiple full copies fail; phase-293x bucket calculation accepts four-digit cards; both relocators normalize canonical archive targets and reject occupied targets during dry-run. Strict inventory, both relocator dry-runs, DOCS-SLIM-001/002/003/026, and pointer guard are green. Physical archive moves remain zero. R3 now selects exactly the two phase-296x pilot cards."""
+latest_card_summary = """Repository artifact lifecycle R3 is closed: exactly two selected phase-296x cards moved from the nested current archive to the canonical global phase-296x/cards root. Source files=2, LOC=199, inbound full-path references=0, target collisions=0, rewrites=0, forwarding stubs=0. Strict inventory, both relocator dry-runs, DOCS-SLIM-001/002/003/026, and pointer guard are green. R4-FIRST now selects one generated reference-closed nested-archive batch of at most 200 files."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-R3"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-R4-FIRST"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

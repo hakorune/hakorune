@@ -1,5 +1,5 @@
 ---
-Status: Active bounded interlude at R3
+Status: Active bounded interlude at R4-first
 Date: 2026-07-28
 Decision: Restore `current` as an authority surface and stop one-decision-one-file growth
 Owner: ../design/current-docs-archive-policy-ssot.md
@@ -23,8 +23,8 @@ move already-historical phase material out of current
 File and line counts are measured results. They are not implementation
 permission gates and do not replace reference-closure checks.
 
-`CURRENT_STATE.toml` now selects R3. This bounded activation runs through R3,
-one first R4 batch, and `DOCS-MEANING-RECOVERY-RETURN0`. It then returns
+`CURRENT_STATE.toml` now selects the first R4 batch. This bounded activation
+runs through that one batch and `DOCS-MEANING-RECOVERY-RETURN0`. It then returns
 to the MirBuilder workstream at
 `NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0`; it does not jump directly to
 Candidate A. The returned MirBuilder train closes the general Program verified
@@ -32,9 +32,10 @@ owner and current-normal result parity, then passes the parked Ownership/View
 readiness train before any default-ingress cutover.
 
 R2 closed resolver/relocator support for the live, global archive, and
-transitional nested-archive locations. R3 now authorizes only the exact
-two-file pilot below. Compiler/runtime/backend edits and a tenth replacement
-row remain forbidden throughout this interlude.
+transitional nested-archive locations. R3 closed the exact two-file pilot.
+R4-first now authorizes only one generated reference-closed batch of at most
+200 files. Compiler/runtime/backend edits and a tenth replacement row remain
+forbidden throughout this interlude.
 
 ## Scheduled first activation
 
@@ -261,10 +262,52 @@ new checker/test file                       = 0
 modified source/check files >= 800 lines   = 0
 ```
 
-## Current R3 task
+## R3 closeout
 
-Move only the exact pilot named below. Do not select a generated R4 batch in
-the same commit.
+The exact pilot moved:
+
+```text
+source:
+  docs/development/current/main/phases/phase-296x/archive/
+
+target:
+  docs/development/archive/phases/phase-296x/cards/
+
+files                                      = 2
+LOC                                        = 199
+tracked inbound full-path references       = 0
+archive target collisions                  = 0
+Markdown link rewrites                     = 0
+plain path rewrites                        = 0
+forwarding stubs                           = 0
+```
+
+Post-move evidence:
+
+```text
+both cards resolve through the global phase-card owner
+strict lifecycle inventory                 = green
+whole/partial relocator dry-runs           = green
+DOCS-SLIM-001/002/003/026                  = green
+current-state pointer guard                = green
+```
+
+## Current R4-first task
+
+Materialize the archived-in-place unreachable document clusters from the
+existing lifecycle graph, then select one generated batch with:
+
+```text
+file maximum                               = 200
+weakly connected cluster split             = 0
+reachable incoming edge                    = 0
+archive target collision                   = 0
+manual filename-range selection            = 0
+age-only selection                         = 0
+```
+
+Move only that batch. Do not start a second R4 batch in the same activation.
+The next row after its closeout is `DOCS-MEANING-RECOVERY-RETURN0`.
 
 ## Final archive shape
 
