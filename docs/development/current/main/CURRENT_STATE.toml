@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0 is closed. RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0 is the current read-only live-edge design stop."
+status = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0 selected one behavior-neutral test seam. RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0 is the current execution row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0"
-current_execution_row = ""
-current_execution_summary = "Annotation-free Local with only absent or fully port-neutral supplied initializers is now the third selected statement root. The classifier proves only port safety and preserves the existing Local owner as the sole cardinality, name, type, preflight, initializer-order, Null, and binding-publication authority. Typed-array and record-constructor hooks are structurally unreachable on the selected slice. Standalone Local retains the exact current lexical-scope failure across normal and Legacy routes, with candidate discard and compiler reuse green. Counts are 12 selected expressions, 3 statement roots, 41 residual kinds, and 1/1 terminals. Root production/tests, normal integration tests, and the shared guard are 376/782/604/695 lines. The current stop is a fresh read-only census; do not preselect or edit the next responsibility."
+current_design_stop = ""
+current_execution_row = "RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0"
+current_execution_summary = "Behavior-neutral BoxShape row only. Keep raw_nonprogram_root_descent_tests.rs as the helper/partition/owner hub and move the existing parity/effect block unchanged into one private child test module. Production Rust, test bodies/names/assertions, route/classification behavior, 12/3/41 counts, and 1/1 terminals must not change. Reuse parent helpers; do not duplicate them. Update the existing shared guard and artifact inventory only. No semantic responsibility may be mixed into this row."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0-SELECT"
+current_blocker_token = "RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0-IMPLEMENT"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
