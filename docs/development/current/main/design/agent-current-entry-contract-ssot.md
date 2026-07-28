@@ -117,6 +117,12 @@ the ceremony tiers, batch-proof trigger, and sunset requirements in
 4. every fast-path proof still needs a focused fixture, an existing batch/lane
    guard assertion, and a sunset reference.
 
+After selection, write only the four-block Minimal Execution Brief from the
+current-docs policy. Do not turn a worker report or consultation answer into
+the execution card. Detailed types, fixture matrices, guard strings, LOC
+forecasts, and rejected alternatives remain in code, tests, the reusable
+guard, or a genuinely durable design SSOT.
+
 ## Historical Sections
 
 Sections about these topics in `AGENTS.md` are historical unless the active

@@ -60,10 +60,6 @@ def check_callable_source(
     main_function_plan_path = source_dir / "main_function_plan.rs"
     main_function_plan_tests_path = source_dir / "main_function_plan_tests.rs"
     module_source_tests_path = source_dir / "tests.rs"
-    module_source_task_path = root / (
-        "docs/development/current/main/workstreams/"
-        "mirbuilder-inplace-replacement-current.md"
-    )
     canonical_dispatch_path = root / "src/mir/compiler/canonical_core_dispatch.rs"
     normal_frontdoor_path = (
         root / "src/runner/reference/normal_file_vm_frontdoor.rs"
@@ -112,7 +108,6 @@ def check_callable_source(
         main_function_plan_path,
         main_function_plan_tests_path,
         module_source_tests_path,
-        module_source_task_path,
         canonical_dispatch_path,
         normal_frontdoor_path,
         capability_path,
@@ -151,7 +146,6 @@ def check_callable_source(
     main_function_plan = main_function_plan_path.read_text()
     main_function_plan_tests = main_function_plan_tests_path.read_text()
     module_source_tests = module_source_tests_path.read_text()
-    module_source_task = module_source_task_path.read_text()
     canonical_dispatch = canonical_dispatch_path.read_text()
     normal_frontdoor = normal_frontdoor_path.read_text()
     acyclic_graph = acyclic_graph_path.read_text()
@@ -229,14 +223,6 @@ def check_callable_source(
             f"exact-site source fixture {test_name}",
         )
 
-    for fragment in (
-        "row                         = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0",
-        "accepted family             = Main0WithPlainInstanceBoxes0",
-        "production caller           = 0",
-        "existing canonical non-Main Box rejection      = unchanged",
-        "all modified source/check files                 < 800",
-    ):
-        require(module_source_task, fragment, f"module-source task {fragment}")
     for definition in (
         "struct NormalInstanceBoxSiteV1",
         "struct VerifiedNormalModuleSourceV1",

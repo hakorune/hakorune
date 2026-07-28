@@ -31,8 +31,12 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - one-screen lane order mirror
 - `workstreams/*.md`
   - active multi-day work cards
-  - inventory / selection / smoke / parking-lot notes live here instead of
-    becoming one numbered row per observation
+  - keep only the current four-block execution brief, compact queue, parked
+    boundary, and a short closed tail
+  - inventory / consultation detail is distilled here instead of becoming one
+    numbered row or one copied transcript per observation
+  - landed implementation detail belongs to git history; do not accumulate a
+    second historical ledger in a rolling workstream
   - `workstreams/mirbuilder-inplace-replacement-current.md`
     - active Rust MirBuilder production-responsibility replacement order,
       finite pack counters, detached-asset disposition, and current cutover
