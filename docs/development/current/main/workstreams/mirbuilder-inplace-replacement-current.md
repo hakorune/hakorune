@@ -62,9 +62,10 @@ Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0
 Closed:  RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0
 Closed:  RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0
-Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0
+Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0
+Current: NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0
 Pack:    ROOT-LIFECYCLE0
-Ceremony: read-only live-edge census
+Ceremony: read-only caller-scope design
 ```
 
 R1 closeout:
@@ -396,22 +397,42 @@ all source/check files                      < 800
 ## Current design stop
 
 ```text
-RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0
+NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0
 
-Mode:
-  read-only fresh live-edge census
+Finding:
+  selected normal source constructors = 4
+  parser result at every constructor   = ASTNode::Program
+  remaining non-Program root edge
+    selected-normal source reachability = 0
 
-Selection requires:
-  one named production caller
-  one bounded source-only partition
-  one existing semantic owner
-  one same-commit compatibility-edge deletion
+Decide:
+  exact typed Program-only normal request/product
+  issuer after source preparation and parse
+  one total normal Program admission
+  retained arbitrary-AST compatibility caller census
+  exact compatibility sunset IDs and deletion conditions
+  atomic selected-normal old-edge deletion
 
-Do not infer:
-  Assignment target admission
-  Field/property/header parity
-  Return/QMark/Loop control authority
-  fallback/retry or Ownership/View activation
+Retain explicitly, pending census:
+  MirCompiler arbitrary-AST public/internal callers
+  VM / REPL / Program JSON / Stage1 / reference authorities
+
+Forbid during D0:
+  production edits
+  another non-Program accepted shape
+  conditional void Return / Field / ScopeBox / Assignment row
+  guard split or proof-only route
+  parser/source reread or AST clone
+  fallback/retry/reselection
+  source-level Ownership/View activation
+
+Acceptance for the next executable row:
+  named selected normal callers
+  typed Program-only issuer exactly once
+  one execution and publication path
+  same-commit selected-normal non-Program edge deletion
+  explicit compatibility callers unchanged
+  grammar/result/backend delta = 0
 ```
 
 Compatibility sunset:
@@ -472,7 +493,8 @@ R2ac RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0 closed
 R2ad RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0 closed
 R2ae RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0 closed
 R2af RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0 closed
-R2ag RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0 current
+R2ag RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0 closed
+R2ah NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:
