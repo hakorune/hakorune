@@ -104,6 +104,14 @@ fn indexed(target: ASTNode, index: ASTNode) -> ASTNode {
     }
 }
 
+fn block_expr(prelude_stmts: Vec<ASTNode>, tail_expr: ASTNode) -> ASTNode {
+    ASTNode::BlockExpr {
+        prelude_stmts,
+        tail_expr: Box::new(tail_expr),
+        span: Span::unknown(),
+    }
+}
+
 fn drive_selected(builder: &mut MirBuilder, node: ASTNode) -> Result<ValueId, String> {
     let mut invocation =
         ModuleLoweringInvocationV1::with_collector(builder, ModuleDraftCollectorV1::default());
@@ -232,6 +240,15 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
         array(vec![integer(23), integer(24)]),
         integer(1),
     )));
+    assert_selected(block_expr(Vec::new(), integer(25)));
+    assert_selected(awaited(block_expr(
+        Vec::new(),
+        indexed(array(vec![integer(26)]), integer(0)),
+    )));
+    assert_selected(block_expr(
+        Vec::new(),
+        block_expr(Vec::new(), checked(vec![integer(27)])),
+    ));
 
     assert_compatibility(
         ASTNode::UnaryOp {
@@ -391,10 +408,25 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
     );
     assert_compatibility(
         indexed(
-            array(vec![integer(25)]),
+            array(vec![integer(28)]),
             ASTNode::FieldAccess {
                 object: Box::new(variable("page")),
                 field: "index".to_owned(),
+                span: Span::unknown(),
+            },
+        ),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        block_expr(vec![printed(integer(29))], integer(30)),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        block_expr(
+            Vec::new(),
+            ASTNode::FieldAccess {
+                object: Box::new(variable("page")),
+                field: "value".to_owned(),
                 span: Span::unknown(),
             },
         ),
@@ -640,6 +672,41 @@ fn selected_index_matches_raw_legacy_effects_exactly() {
             )
         );
     }
+}
+
+#[test]
+fn selected_empty_block_expr_matches_raw_legacy_effects_exactly() {
+    let root = || {
+        block_expr(
+            Vec::new(),
+            block_expr(
+                Vec::new(),
+                ASTNode::BinaryOp {
+                    operator: BinaryOperator::Add,
+                    left: Box::new(integer(31)),
+                    right: Box::new(integer(32)),
+                    span: Span::unknown(),
+                },
+            ),
+        )
+    };
+    let mut legacy = MirBuilder::new();
+    legacy.enter_function_for_test("empty_block_expr_root_parity/0".to_owned());
+    let legacy_value = drive_raw_legacy_expression_v1(&mut legacy, root()).unwrap();
+
+    let mut selected = MirBuilder::new();
+    selected.enter_function_for_test("empty_block_expr_root_parity/0".to_owned());
+    let selected_value = drive_selected(&mut selected, root()).unwrap();
+
+    assert_eq!(selected_value, legacy_value);
+    assert_eq!(
+        spanned_instructions(&selected),
+        spanned_instructions(&legacy)
+    );
+    assert_eq!(
+        selected.function_state.type_ctx.value_types,
+        legacy.function_state.type_ctx.value_types
+    );
 }
 
 #[test]

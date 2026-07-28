@@ -414,7 +414,7 @@ def main() -> int:
     )
     if root_descent.get("sunset_state") != "active":
         raise AssertionError("raw root compatibility sunset must remain active")
-    if root_descent.get("residual_kind_count") != 43:
+    if root_descent.get("residual_kind_count") != 42:
         raise AssertionError("raw root compatibility residual count drift")
     ast_node_kinds = ast_kinds(
         (
@@ -441,7 +441,7 @@ def main() -> int:
     expected_selected = {
         "Literal", "Variable", "Me", "UnaryOp", "BinaryOp", "AwaitExpression",
         "CheckExpr", "ArrayLiteral", "MapLiteral", "GroupedAssignmentExpr", "Index",
-        "Print", "Nowait",
+        "BlockExpr", "Print", "Nowait",
     }
     if selected_kinds != expected_selected:
         raise AssertionError(
@@ -468,7 +468,7 @@ def main() -> int:
         "Assignment", "CompoundAssignment", "If", "Return",
         "TaskScope", "QMarkPropagate", "MatchExpr",
         "EnumMatchExpr", "RecordLiteral",
-        "RecordUpdate", "Lambda", "BlockExpr", "TryCatch", "Throw",
+        "RecordUpdate", "Lambda", "TryCatch", "Throw",
         "MethodCall", "FieldAccess", "New",
         "FromCall", "Local", "ScopeBox", "FunctionCall", "Call",
     }
@@ -554,6 +554,14 @@ def main() -> int:
     if raw_nonprogram_root_descent.count("node @ ASTNode::Index { .. }") != 2:
         raise AssertionError("Index root must have one safe and one compatibility arm")
     for fragment in (
+        "node @ ASTNode::BlockExpr { .. } if is_port_neutral_expr_tree(&node)",
+        "ASTNode::BlockExpr {",
+        "prelude_stmts.is_empty() && is_port_neutral_expr_tree(tail_expr)",
+    ):
+        require(raw_nonprogram_root_descent, fragment, "recursive empty BlockExpr partition")
+    if raw_nonprogram_root_descent.count("node @ ASTNode::BlockExpr { .. }") != 2:
+        raise AssertionError("BlockExpr root must have one safe and one compatibility arm")
+    for fragment in (
         "node @ ASTNode::Print { .. } if is_port_neutral_print_root(&node)",
         "SelectedRawNonProgramRootV1",
         "PortNeutralPrintRootV1",
@@ -612,6 +620,7 @@ def main() -> int:
         "selected_grouped_assignment_matches_raw_legacy_effects_exactly",
         "selected_grouped_assignment_preflights_and_reuses_without_retry",
         "selected_index_matches_raw_legacy_effects_exactly",
+        "selected_empty_block_expr_matches_raw_legacy_effects_exactly",
         "program_box_and_loop_keep_their_existing_root_owners",
     ):
         require(

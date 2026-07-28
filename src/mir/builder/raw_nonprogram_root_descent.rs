@@ -2,8 +2,8 @@
 //!
 //! The selected invocation port is parity-safe only for expression trees whose
 //! complete recursive surface is Literal, Variable, Me, Unary, Binary, Await,
-//! Check, Array, Map, GroupedAssignment, or Index, plus Print and Nowait roots
-//! whose value is one such tree.
+//! Check, Array, Map, GroupedAssignment, Index, or an empty-prelude BlockExpr,
+//! plus Print and Nowait roots whose value is one such tree.
 //! Every other non-Program root keeps the existing raw compatibility terminal
 //! until its own production responsibility cell removes that residual.
 
@@ -125,6 +125,13 @@ impl PreparedRawRootPartitionV1 {
                 node,
                 RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
             ),
+            node @ ASTNode::BlockExpr { .. } if is_port_neutral_expr_tree(&node) => {
+                Self::selected_expr_tree(node)
+            }
+            node @ ASTNode::BlockExpr { .. } => Self::compatibility(
+                node,
+                RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+            ),
             node @ ASTNode::Print { .. } if is_port_neutral_print_root(&node) => {
                 Self::selected_print_root(node)
             }
@@ -153,7 +160,6 @@ impl PreparedRawRootPartitionV1 {
             | ASTNode::RecordLiteral { .. }
             | ASTNode::RecordUpdate { .. }
             | ASTNode::Lambda { .. }
-            | ASTNode::BlockExpr { .. }
             | ASTNode::TryCatch { .. }
             | ASTNode::Throw { .. }
             | ASTNode::MethodCall { .. }
@@ -248,6 +254,11 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
         ASTNode::Index { target, index, .. } => {
             is_port_neutral_expr_tree(target) && is_port_neutral_expr_tree(index)
         }
+        ASTNode::BlockExpr {
+            prelude_stmts,
+            tail_expr,
+            ..
+        } => prelude_stmts.is_empty() && is_port_neutral_expr_tree(tail_expr),
         ASTNode::Program { .. }
         | ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
@@ -271,7 +282,6 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
         | ASTNode::RecordLiteral { .. }
         | ASTNode::RecordUpdate { .. }
         | ASTNode::Lambda { .. }
-        | ASTNode::BlockExpr { .. }
         | ASTNode::Arrow { .. }
         | ASTNode::TryCatch { .. }
         | ASTNode::Throw { .. }

@@ -53,9 +53,10 @@ Closed:  RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY5-D0
 Closed:  RAW-NONPROGRAM-INDEX-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY6-D0
-Current: RAW-NONPROGRAM-EMPTY-BLOCK-EXPR-COMPOSITIONAL-DESCENT0-I0-R0
-Pack:    DESCENT-SPINE0
-Ceremony: T1, one atomic I0/R0 commit
+Closed:  RAW-NONPROGRAM-EMPTY-BLOCK-EXPR-COMPOSITIONAL-DESCENT0-I0-R0
+Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY7-D0
+Pack:    ROOT-LIFECYCLE0
+Ceremony: read-only live-edge census
 ```
 
 R1 closeout:
@@ -284,44 +285,46 @@ new source/test/check file                   = 0
 largest touched source/check file            = 675
 ```
 
-## Current execution row
+## Latest closeout
 
 ```text
 RAW-NONPROGRAM-EMPTY-BLOCK-EXPR-COMPOSITIONAL-DESCENT0-I0-R0
 
-Named production caller:
-  shared raw non-Program root classifier
+safe empty-prelude BlockExpr edge       = 0
+selected expression / statement kinds  = 12 / 2
+registered residual kinds               = 42
+selected / compatibility terminals      = 1 / 1
+statement / tail demands                = 0 / 1
+nested selected / unsafe-tail partition = green
+raw-port MIR/type parity                 = green
+normal-vs-Legacy parity/failure/reuse    = green
+shared guard / artifact inventory        = green
+fallback / retry / reselection           = 0
+new source/test/check file               = 0
+largest touched source/check file        = 729
+```
 
-Selected closure:
-  BlockExpr {
-    prelude_stmts: [],
-    tail_expr: PortNeutralExprTreeV1
-  }
+## Current design stop
 
-Existing owner:
-  raw expression dispatcher's port-aware BlockExpr arm
+```text
+RAW-NONPROGRAM-NEXT-RESPONSIBILITY7-D0
 
-Exact effects:
-  statement demands = 0
-  tail demands      = exactly 1 through the selected port
+Read-only:
+  refresh the remaining 42-kind live compatibility census
+  compare only responsibilities with existing production owners
 
-Atomic delete:
-  safe empty-prelude BlockExpr -> root compatibility = 0
+Selection requires:
+  one named production caller
+  one bounded source-only partition
+  one same-commit old compatibility-edge deletion
+  no duplicated family/target decision
+  fallback / retry / reselection = 0
 
-Ratchet:
-  selected expression / statement kinds = 11 / 2 -> 12 / 2
-  registered residual kinds              = 43 -> 42
-  selected / compatibility terminals     = 1 / 1 unchanged
-
-Keep residual:
-  every non-empty prelude
-  every unsafe tail
-
-Hard stop:
-  classifying prelude statements
-  changing BlockExpr scope/exit semantics
-  adding an owner, terminal, file, retry, fallback, or new grammar
-  any source/check file reaching 800 lines
+Park:
+  implementation
+  whole-program accepted variants
+  source-level Ownership / View
+  all other new language semantics
 ```
 
 Compatibility sunset:
@@ -373,7 +376,8 @@ R2t RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2u RAW-NONPROGRAM-NEXT-RESPONSIBILITY5-D0 closed
 R2v RAW-NONPROGRAM-INDEX-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2w RAW-NONPROGRAM-NEXT-RESPONSIBILITY6-D0 closed
-R2x RAW-NONPROGRAM-EMPTY-BLOCK-EXPR-COMPOSITIONAL-DESCENT0-I0-R0 current
+R2x RAW-NONPROGRAM-EMPTY-BLOCK-EXPR-COMPOSITIONAL-DESCENT0-I0-R0 closed
+R2y RAW-NONPROGRAM-NEXT-RESPONSIBILITY7-D0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:
