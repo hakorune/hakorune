@@ -37,6 +37,7 @@ MirOptimizer
 MirPrinter
 MirType
 MirVerifier
+NormalCompileRequestV1
 LocalSlotId
 ResolvedCallableModuleLoweringInputV1
 ResolvedModuleLoweringInputV1

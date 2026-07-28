@@ -2,7 +2,10 @@
 //!
 //! Handles AST → MIR compilation.
 
-use nyash_rust::{ast::ASTNode, mir::MirCompiler, mir::MirModule};
+use nyash_rust::{
+    ast::ASTNode,
+    mir::{MirCompiler, MirModule, NormalCompileRequestV1},
+};
 use std::collections::HashMap;
 
 use super::compile_options::{FutureRewriteRoute, LlvmCompileOptions};
@@ -53,13 +56,9 @@ impl MirCompilerBox {
         };
         let mut mir_compiler = MirCompiler::new();
 
-        let compile_result =
-            crate::runner::modes::common_util::source_hint::compile_with_source_hint_and_imports(
-                &mut mir_compiler,
-                ast,
-                filename,
-                imports,
-            )
+        let request = NormalCompileRequestV1::for_llvm_source(ast, filename, imports);
+        let compile_result = mir_compiler
+            .compile_normal(request)
             .map_err(|e| format!("MIR compilation error: {}", e))?;
 
         crate::console_println!("📊 MIR Module compiled successfully!");

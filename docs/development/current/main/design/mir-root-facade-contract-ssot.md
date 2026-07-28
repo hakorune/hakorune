@@ -139,3 +139,10 @@ headers, resolved function units, activation witnesses, and transaction plans
 remain private to their owner modules. This pair exposes one explicit
 multi-function compiler ingress without turning the MIR root into a callable
 semantic-vocabulary catalog.
+
+`NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0` adds only the opaque normal
+compiler-front request. Its named constructors seal the two admission modes
+and exact selected caller identity without exporting that provenance
+vocabulary. The candidate session, current-normal result contract, and
+sunset-bound general-module compatibility owner remain private to
+`mir::compiler::normal_default_pipeline`.

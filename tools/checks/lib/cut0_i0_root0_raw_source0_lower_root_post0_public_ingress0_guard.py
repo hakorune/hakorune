@@ -19,6 +19,12 @@ REPAIR_TASK = ROOT / (
     "execution-task-2026-07-24.md"
 )
 CALLER_MANIFEST = ROOT / "tools/checks/manifests/raw_public_cutover_caller_manifest_v1.json"
+CURRENT_WORKSTREAM = ROOT / (
+    "docs/development/current/main/workstreams/"
+    "mirbuilder-inplace-replacement-current.md"
+)
+NORMAL_PIPELINE = ROOT / "src/mir/compiler/normal_default_pipeline.rs"
+NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
 SOURCES = (
     ROOT / "src/mir/compiler/raw_public_ingress.rs",
     ROOT / "src/mir/compiler/raw_public_ingress_p0.rs",
@@ -132,7 +138,15 @@ def main() -> int:
 
     texts = {
         path: path.read_text()
-        for path in (TASK, REPAIR_TASK, CALLER_MANIFEST, *SOURCES)
+        for path in (
+            TASK,
+            REPAIR_TASK,
+            CALLER_MANIFEST,
+            CURRENT_WORKSTREAM,
+            NORMAL_PIPELINE,
+            NORMAL_TESTS,
+            *SOURCES,
+        )
     }
     for path, text in texts.items():
         if len(text.splitlines()) >= 800:
@@ -142,6 +156,9 @@ def main() -> int:
     tests = texts[SOURCES[1]]
     adapter = texts[SOURCES[2]]
     compile_kernel = texts[SOURCES[3]]
+    normal_pipeline = texts[NORMAL_PIPELINE]
+    normal_tests = texts[NORMAL_TESTS]
+    current_workstream = texts[CURRENT_WORKSTREAM]
     for fragment in (
         "compile_raw_with_source",
         "RawPublicIngressPolicyV1",
@@ -209,6 +226,84 @@ def main() -> int:
         normal.get("import_callers", {}),
         "compile_with_source_hint_and_imports(",
     )
+    count_by_manifest(
+        caller_manifest.get("normal_default_callers", {}),
+        "compile_normal(",
+    )
+    count_by_manifest(
+        caller_manifest.get("normal_default_construction_sites", {}),
+        "NormalCompileRequestV1::for_",
+    )
+    for relative, expected in caller_manifest.get(
+        "normal_default_legacy_reachability", {}
+    ).items():
+        path = ROOT / relative
+        code = production_code(path)
+        actual = sum(
+            code.count(token)
+            for token in (
+                "compile_with_source_hint(",
+                "compile_with_source_hint_and_imports(",
+                ".compile_with_source(",
+                ".compile_with_source_and_imports(",
+                "compile_legacy_request(",
+                "compile_legacy_candidate(",
+            )
+        )
+        if actual != expected:
+            raise AssertionError(
+                f"selected normal Legacy reachability in {relative}: "
+                f"expected={expected} actual={actual}"
+            )
+    compatibility = caller_manifest.get("normal_default_compatibility_owner", {})
+    if compatibility.get("definition_file") != str(NORMAL_PIPELINE.relative_to(ROOT)):
+        raise AssertionError("normal compatibility owner path drift")
+    require(
+        normal_pipeline,
+        compatibility.get("definition_anchor", ""),
+        "normal compatibility owner",
+    )
+    if normal_pipeline.count(".build_module(") != compatibility.get(
+        "build_module_callers"
+    ):
+        raise AssertionError("normal compatibility build_module caller drift")
+    require(
+        current_workstream,
+        compatibility.get("sunset_id", ""),
+        "normal compatibility sunset",
+    )
+    for fragment in (
+        "pub struct NormalCompileRequestV1",
+        "enum NormalSourceIdentityV1",
+        "enum NormalCompileAdmissionV1",
+        "pub fn for_mir_mode",
+        "pub fn for_minimal_mir_json",
+        "pub fn for_llvm_source",
+        "pub fn for_wasm_source",
+        "struct NormalDefaultPublishedPipelineV1",
+        "struct ExistingGeneralModuleCompatibilityV1",
+        "prepare_external_commit",
+        "finish_built_module",
+    ):
+        require(normal_pipeline, fragment, f"normal pipeline contract {fragment}")
+    for forbidden in (
+        "compile_with_source(",
+        "compile_with_source_and_imports(",
+        "compile_legacy(",
+        "compile_legacy_request(",
+        "compile_legacy_candidate(",
+        "compile_raw_published_v1(",
+        "retry(",
+        "fallback(",
+    ):
+        if forbidden in code_only(normal_pipeline):
+            raise AssertionError(f"normal pipeline leaks forbidden route: {forbidden}")
+    for fixture in (
+        "late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable",
+        "explicit_imports_commit_only_with_the_finished_normal_candidate",
+        "normal_pipeline_matches_legacy_compatibility_for_general_module",
+    ):
+        require(normal_tests, fixture, f"normal pipeline fixture {fixture}")
     count_by_manifest(caller_manifest.get("normal_compile_adapters", {}), ".compile(")
     count_by_manifest(
         caller_manifest.get("direct_build_module_production", {}),

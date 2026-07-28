@@ -4,7 +4,7 @@ use crate::config::env::WasmRoutePolicyMode;
 #[cfg(feature = "wasm-backend")]
 use nyash_rust::{
     backend::wasm::{compile_hako_native_shape_emit, WasmBackend},
-    mir::MirCompiler,
+    mir::{MirCompiler, NormalCompileRequestV1},
     parser::NyashParser,
 };
 #[cfg(feature = "wasm-backend")]
@@ -115,19 +115,15 @@ impl NyashRunner {
 
         // Compile to MIR
         let mut mir_compiler = MirCompiler::new();
-        let compile_result =
-            match crate::runner::modes::common_util::source_hint::compile_with_source_hint_and_imports(
-                &mut mir_compiler,
-                ast,
-                Some(filename),
-                prepared.imports,
-            ) {
-                Ok(result) => result,
-                Err(e) => {
-                    eprintln!("❌ MIR compilation error: {}", e);
-                    process::exit(1);
-                }
-            };
+        let compile_result = match mir_compiler.compile_normal(
+            NormalCompileRequestV1::for_wasm_source(ast, Some(filename), prepared.imports),
+        ) {
+            Ok(result) => result,
+            Err(e) => {
+                eprintln!("❌ MIR compilation error: {}", e);
+                process::exit(1);
+            }
+        };
 
         compile_result.module
     }

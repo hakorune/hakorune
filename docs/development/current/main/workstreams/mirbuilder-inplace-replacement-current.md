@@ -25,32 +25,35 @@ Resolve -> Observe -> Facts -> Recipe -> Verify
 第二MirBuilder、production consumer 0のroute拡張、Legacy fallbackは作らない。
 cell数、pack数、LOCは観測値であり、完成条件ではない。
 
-## Current execution
+## Current design stop
 
 ```text
 Parent:  MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Closed:  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0
-Current: NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0
-Ceremony: T2, one atomic implementation commit
+Closed:  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0
+Current: NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0
+Ceremony: short D0; production edits parked
 ```
 
-Decision:
+R1 closeout:
 
 ```text
 selected normal construction sites = exactly 4
-fifth root-reachable normal site    = 0
-selected pipeline                  = NormalDefaultPublishedPipelineV1
-temporary compatibility owner      = ExistingGeneralModuleCompatibilityV1
-RawPublished NarrowV1              = unchanged reference/non-authority
+NormalCompileRequestV1 constructors = exactly 4
+selected-normal Legacy reachability = 0
+candidate / finish / publication    = exactly 1
+compatibility build_module edge     = exactly 1
+fallback / retry / reselection      = 0
+new test/check file                 = 0
 ```
 
 ## Evidence
 
 ```text
-compile_with_source*
-  -> compile_legacy_request
-  -> compile_legacy_candidate
+selected normal constructors
+  -> NormalCompileRequestV1
+  -> NormalDefaultPublishedPipelineV1
   -> ModuleBuilderInvocationSessionV1
+  -> ExistingGeneralModuleCompatibilityV1
   -> MirBuilder::build_module(ASTNode)
 
 selected normal constructors:
@@ -71,52 +74,53 @@ The shared source-hint wrappers are provenance-blind and remain compatibility
 surfaces. NarrowV1 lacks normal imports and general module/callable coverage;
 only its source-neutral lifecycle kernels are reusable.
 
-## Execution brief
+## D0 brief
 
 Change:
 
 ```text
-four selected sites construct NormalCompileRequestV1
--> NormalDefaultPublishedPipelineV1 exactly once
--> ExistingGeneralModuleCompatibilityV1
--> existing isolated session/current-normal finish/atomic external commit
-
-delete selected-normal reachability through:
-  compile_with_source_hint*
-  MirCompiler::compile_with_source*
-  compile_legacy_request / MirLoweringRequestV1::Legacy
-  compile_legacy_candidate
+decide one neutral typed handoff for the selected normal root/module lifecycle
+production/source mutation = 0 during D0
+target old edge:
+  ExistingGeneralModuleCompatibilityV1
+  -> session.builder_mut().build_module(ast)
 ```
 
 Contract:
 
 ```text
-request owns AST, exact source identity, imports, admission, and current-normal result contract
-PreparedSourceWithImports and MinimalMirJsonNoImports are the only admissions
-current reportable pre-transform verification behavior is unchanged
-compatibility/reference callers and NarrowV1 do not move
-parse/source read/candidate/session/finish/publication = exactly one
-fallback / retry / reselection = 0
+preserve exact order:
+  root expansion preflight
+  -> prepare_module
+  -> callable catalog seal/install
+  -> existing port-aware root lower
+  -> finalize_module
+
+reuse:
+  VerifiedRawRootExpansionV1
+  VerifiedSameModuleCallableDeclarationCatalogV1::seal_root
+  lower_root_after_callable_catalog_install_v1
+
+retain source on failure; no NarrowV1 or Stage-B authority reuse
 ```
 
 Done:
 
 ```text
-new production callers = 4; selected old Legacy reachability = 0
-compatibility edge = 1 and creation-time sunset is registered
-normal corpus/import/result/failure/reuse parity = green
-existing caller manifest/lane guards extended; new test/check file = 0
-all modified/new source and check files < 800 lines
+one source/root/catalog owner graph
+one sibling lifecycle API; module_lifecycle.rs remains below 800
+exact failure ordering and selected old-edge delete set
+one bounded implementation row selected
 ```
 
 Stop:
 
 ```text
-unknown fifth normal caller or provenance inference inside shared wrappers
-second candidate/publication path or try-Narrow-then-compatibility
-normal result/diagnostic/import behavior delta
-compatibility surface widening or missing sunset evidence
-new test/check file or any touched source/check file reaching 800 lines
+moving catalog seal before prepare_module changes failure precedence
+AST clone/reparse or source authority split
+Stage-B context or NarrowV1 grammar becomes required
+facade-only rename that leaves selected build_module reachability
+new per-row guard or editing 799-line module_lifecycle.rs in place
 ```
 
 Sunset:
@@ -136,8 +140,10 @@ non-claim: global build_module callers = 0
 
 ```text
 R0  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 closed
-R1  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 current
-R2  named AST-node responsibility cells; each selected old edge becomes zero
+R1  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 closed
+R2a NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 current
+R2b accepted root/catalog handoff deletes the selected build_module edge
+R2c later named AST-node responsibility cells; each selected old edge becomes zero
 R3  NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-RETIRE0-I0-R0
 R4  eight-pack ledger + final-pipeline completion conformance
 

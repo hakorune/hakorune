@@ -1,5 +1,5 @@
 use super::super::NyashRunner;
-use nyash_rust::mir::{MirCompiler, MirPrinter};
+use nyash_rust::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
 use std::{fs, process};
 
 impl NyashRunner {
@@ -38,19 +38,15 @@ impl NyashRunner {
         let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
 
         let mut mir_compiler = MirCompiler::with_options(!self.config.no_optimize);
-        let compile_result =
-            match crate::runner::modes::common_util::source_hint::compile_with_source_hint_and_imports(
-                &mut mir_compiler,
-                ast,
-                Some(filename),
-                prepared.imports,
-            ) {
-                Ok(result) => result,
-                Err(e) => {
-                    eprintln!("❌ MIR compilation error: {}", e);
-                    process::exit(1);
-                }
-            };
+        let compile_result = match mir_compiler.compile_normal(
+            NormalCompileRequestV1::for_mir_mode(ast, Some(filename), prepared.imports),
+        ) {
+            Ok(result) => result,
+            Err(e) => {
+                eprintln!("❌ MIR compilation error: {}", e);
+                process::exit(1);
+            }
+        };
 
         let groups = self.config.as_groups();
         if groups.debug.verify_mir {
@@ -157,18 +153,15 @@ impl NyashRunner {
         };
 
         let mut mir_compiler = MirCompiler::with_options(!self.config.no_optimize);
-        let compile_result =
-            match crate::runner::modes::common_util::source_hint::compile_with_source_hint(
-                &mut mir_compiler,
-                ast,
-                Some(filename),
-            ) {
-                Ok(result) => result,
-                Err(e) => {
-                    eprintln!("❌ MIR compilation error: {}", e);
-                    process::exit(1);
-                }
-            };
+        let compile_result = match mir_compiler.compile_normal(
+            NormalCompileRequestV1::for_minimal_mir_json(ast, Some(filename)),
+        ) {
+            Ok(result) => result,
+            Err(e) => {
+                eprintln!("❌ MIR compilation error: {}", e);
+                process::exit(1);
+            }
+        };
 
         let out = std::path::Path::new(out_path);
         if let Err(e) =

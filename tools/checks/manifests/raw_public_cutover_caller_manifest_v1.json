@@ -10,24 +10,41 @@
     "no_import_callers": {
       "src/runner/modes/bench.rs": 3,
       "src/runner/keep/vm_fallback.rs": 1,
-      "src/runner/modes/mir.rs": 1,
       "src/runner/stage1_bridge/direct_route/compile.rs": 1
     },
     "import_callers": {
-      "src/runner/modes/mir.rs": 1,
       "src/runner/keep/vm.rs": 1,
       "src/runner/modes/mir_interpreter.rs": 1,
-      "src/runner/reference/vm_hako/compile_bridge.rs": 1,
-      "src/runner/product/llvm/mir_compiler.rs": 1,
-      "src/runner/product/wasm.rs": 1
+      "src/runner/reference/vm_hako/compile_bridge.rs": 1
     }
+  },
+  "normal_default_callers": {
+    "src/runner/modes/mir.rs": 2,
+    "src/runner/product/llvm/mir_compiler.rs": 1,
+    "src/runner/product/wasm.rs": 1
+  },
+  "normal_default_construction_sites": {
+    "src/runner/modes/mir.rs": 2,
+    "src/runner/product/llvm/mir_compiler.rs": 1,
+    "src/runner/product/wasm.rs": 1
+  },
+  "normal_default_legacy_reachability": {
+    "src/runner/modes/mir.rs": 0,
+    "src/runner/product/llvm/mir_compiler.rs": 0,
+    "src/runner/product/wasm.rs": 0
+  },
+  "normal_default_compatibility_owner": {
+    "definition_file": "src/mir/compiler/normal_default_pipeline.rs",
+    "definition_anchor": "struct ExistingGeneralModuleCompatibilityV1",
+    "build_module_callers": 1,
+    "sunset_id": "NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001"
   },
   "normal_compile_adapters": {
     "src/runner/modes/bench.rs": 1,
     "src/runner/selfhost.rs": 1
   },
   "direct_build_module_production": {
-    "src/mir/compiler/mod.rs": 1,
+    "src/mir/compiler/normal_default_pipeline.rs": 1,
     "src/runtime/mirbuilder_emit.rs": 1
   },
   "direct_build_module_cfg_test": {

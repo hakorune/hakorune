@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 is closed with exactly four selected normal construction sites and one bounded root/module compatibility owner. NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 is current."
+status = "NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 is closed: four selected normal callers now use one typed pipeline and have zero generic Legacy reachability. NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 is the current design stop."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 closed: four selected normal sites, no fifth caller, one typed pipeline, and one sunset-bound root/module compatibility owner"
-current_execution_row = "NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0"
-current_execution_summary = "Atomically switch execute_mir_mode, execute_mir_json_minimal, the LLVM source compiler, and the Wasm source compiler to NormalCompileRequestV1 and one NormalDefaultPublishedPipelineV1. Reuse the existing isolated candidate, current-normal result policy, and external commit. ExistingGeneralModuleCompatibilityV1 alone may call MirBuilder::build_module(ASTNode); register NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001 for R3. Remove selected-normal reachability through the provenance-blind source-hint/compile_with_source*/Legacy request chain while preserving explicit VM/REPL/Program JSON/reference lanes. No retry, second publication, NarrowV1 promotion, new test/check file, or 800-line source/check file is allowed."
+current_design_stop = "NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0: select one neutral source/root/catalog handoff that preserves lifecycle failure order and atomically deletes the selected normal build_module edge"
+current_execution_row = "NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0"
+current_execution_summary = "Read-only design only. Preserve root expansion preflight -> prepare_module -> callable catalog seal/install -> existing port-aware root lower -> finalize_module. Reuse VerifiedRawRootExpansionV1, VerifiedSameModuleCallableDeclarationCatalogV1::seal_root, and lower_root_after_callable_catalog_install_v1 without NarrowV1 or Stage-B authority. The accepted row must retain source on failure, live in a sibling module because module_lifecycle.rs is 799 lines, and delete ExistingGeneralModuleCompatibilityV1 -> session.builder_mut().build_module(ast) atomically. Production edits remain parked until this D0 closes."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 is closed. Exactly four selected normal construction sites now have one atomic code-facing row: NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0. It introduces one typed backend-neutral normal request/pipeline, reuses the existing isolated candidate/current-normal finish/atomic commit, and keeps one root/module compatibility owner with a creation-time R3 sunset. Selected-normal generic Legacy reachability must become zero in the same commit; explicit VM/REPL/Program JSON/reference lanes do not move. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 is closed. Exactly four selected normal construction sites now construct one opaque NormalCompileRequestV1 and enter one candidate/finish/publication path; their generic Legacy reachability is zero. ExistingGeneralModuleCompatibilityV1 remains the sole selected-normal raw root/module owner and its build_module edge is registered for R3 retirement. NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 is now the sole authority; production edits are parked while the neutral root/catalog lifecycle handoff and exact failure ordering are fixed. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 closes the read-only census with exactly four selected normal construction sites and no fifth caller. R1 selects one NormalCompileRequestV1/NormalDefaultPublishedPipelineV1, reuses the existing isolated candidate/current-normal result/atomic commit, and confines raw root/module lowering to one ExistingGeneralModuleCompatibilityV1 with an exact R3 sunset. Selected-normal reachability through shared compile_with_source*/Legacy request authority must become zero atomically; explicit compatibility/reference lanes remain separate."""
+latest_card_summary = """NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 closes four selected normal callers onto one opaque request and one candidate/finish/publication path with selected generic Legacy reachability zero. ExistingGeneralModuleCompatibilityV1 retains one registered build_module edge. NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 now decides the neutral source/root/catalog handoff that can delete that edge without changing lifecycle failure order."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0"
+current_blocker_token = "NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

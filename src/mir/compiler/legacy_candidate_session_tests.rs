@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::ast::{ASTNode, LiteralValue, Span};
-use crate::mir::MirCompiler;
+use crate::mir::{MirCompiler, MirPrinter, MirType, NormalCompileRequestV1};
 use crate::parser::NyashParser;
 
 fn core_cursor(compiler: &MirCompiler) -> (u32, u32, u32, u32, u32) {
@@ -25,8 +25,16 @@ fn source_file(compiler: &MirCompiler) -> Option<String> {
     compiler.builder.current_source_file()
 }
 
+fn normal_request(
+    ast: ASTNode,
+    source_file: Option<&str>,
+    imports: HashMap<String, String>,
+) -> NormalCompileRequestV1 {
+    NormalCompileRequestV1::for_mir_mode(ast, source_file, imports)
+}
+
 #[test]
-fn late_legacy_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
+fn late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
     let root = NyashParser::parse_from_string(
         r#"
             function staged() { return 1 }
@@ -42,6 +50,11 @@ fn late_legacy_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
         .comp_ctx
         .using_import_boxes
         .insert("Old".into(), "Live".into());
+    compiler
+        .builder
+        .comp_ctx
+        .plugin_method_sigs
+        .insert(("PluginBox".into(), "value/0".into()), MirType::Integer);
     compiler.builder.set_source_file_hint("live-before.hako");
     compiler.builder.next_value_id();
     compiler.builder.next_block_id();
@@ -50,11 +63,17 @@ fn late_legacy_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
         compiler.builder.repl_mode,
         compiler.builder.comp_ctx.quiet_internal_logs,
         compiler.builder.comp_ctx.using_import_boxes.clone(),
+        compiler.builder.comp_ctx.plugin_method_sigs.clone(),
         source_file(&compiler),
         core_cursor(&compiler),
     );
+    let failed_imports = HashMap::from([("Failed".to_owned(), "Candidate".to_owned())]);
     let error = compiler
-        .compile_with_source(root, Some("failed-candidate.hako"))
+        .compile_normal(normal_request(
+            root,
+            Some("failed-candidate.hako"),
+            failed_imports,
+        ))
         .expect_err("undefined runtime variable must reject the candidate");
 
     assert!(error.contains("Undefined variable: missing"), "{error}");
@@ -63,6 +82,7 @@ fn late_legacy_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
             compiler.builder.repl_mode,
             compiler.builder.comp_ctx.quiet_internal_logs,
             compiler.builder.comp_ctx.using_import_boxes.clone(),
+            compiler.builder.comp_ctx.plugin_method_sigs.clone(),
             source_file(&compiler),
             core_cursor(&compiler),
         ),
@@ -71,7 +91,11 @@ fn late_legacy_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
     assert!(compiler.builder.current_module.is_none());
 
     let result = compiler
-        .compile_with_source(literal(7), Some("reused.hako"))
+        .compile_normal(normal_request(
+            literal(7),
+            Some("reused.hako"),
+            HashMap::new(),
+        ))
         .expect("fresh candidate after failure");
     assert!(result.module.functions.contains_key("main"));
     assert!(compiler.builder.comp_ctx.using_import_boxes.is_empty());
@@ -79,7 +103,7 @@ fn late_legacy_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
 }
 
 #[test]
-fn explicit_imports_commit_only_with_the_finished_legacy_candidate() {
+fn explicit_imports_commit_only_with_the_finished_normal_candidate() {
     let mut compiler = MirCompiler::with_options(false);
     compiler
         .builder
@@ -92,11 +116,11 @@ fn explicit_imports_commit_only_with_the_finished_legacy_candidate() {
     ]);
 
     let result = compiler
-        .compile_with_source_and_imports(
+        .compile_normal(normal_request(
             literal(11),
             Some("explicit-imports.hako"),
             imports.clone(),
-        )
+        ))
         .expect("finished explicit-import candidate");
 
     assert!(result.module.functions.contains_key("main"));
@@ -109,7 +133,7 @@ fn explicit_imports_commit_only_with_the_finished_legacy_candidate() {
 }
 
 #[test]
-fn isolated_candidate_keeps_direct_legacy_numeric_contract_inputs() {
+fn normal_pipeline_matches_legacy_compatibility_for_general_module() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     let source = r#"
 box Page {
@@ -124,29 +148,32 @@ static box Main {
   }
 }
     "#;
-    let direct_ast = NyashParser::parse_from_string(source).expect("direct source");
+    let legacy_ast = NyashParser::parse_from_string(source).expect("legacy source");
     let candidate_ast = NyashParser::parse_from_string(source).expect("candidate source");
-    let mut direct_compiler = MirCompiler::with_options(false);
-    direct_compiler
-        .builder
-        .set_source_file_hint("numeric-direct.hako");
-    let direct = direct_compiler
-        .builder
-        .build_module(direct_ast)
-        .expect("direct module");
-    let direct = direct_compiler
-        .finish_built_module(direct, super::MirFinishScheduleV1::Legacy)
-        .expect("direct finish")
-        .module;
+    let mut legacy_compiler = MirCompiler::with_options(false);
+    let legacy = legacy_compiler
+        .compile_with_source(legacy_ast, Some("numeric-parity.hako"))
+        .expect("legacy compatibility module");
     let mut compiler = MirCompiler::with_options(false);
     let candidate = compiler
-        .compile_with_source(candidate_ast, Some("numeric-candidate.hako"))
-        .expect("candidate module")
-        .module;
+        .compile_normal(normal_request(
+            candidate_ast,
+            Some("numeric-parity.hako"),
+            HashMap::new(),
+        ))
+        .expect("normal candidate");
 
     assert_eq!(
-        candidate.metadata.user_box_field_decls,
-        direct.metadata.user_box_field_decls
+        candidate.module.metadata.user_box_field_decls,
+        legacy.module.metadata.user_box_field_decls
+    );
+    assert_eq!(
+        MirPrinter::new().print_module(&candidate.module),
+        MirPrinter::new().print_module(&legacy.module)
+    );
+    assert_eq!(
+        format!("{:?}", candidate.verification_result),
+        format!("{:?}", legacy.verification_result)
     );
     let contract_count = |module: &crate::mir::MirModule| {
         module
@@ -160,15 +187,18 @@ static box Main {
             })
             .sum::<usize>()
     };
-    let main_instructions = direct.functions["main"]
+    let main_instructions = legacy.module.functions["main"]
         .blocks
         .values()
         .flat_map(|block| block.instructions.iter())
         .collect::<Vec<_>>();
     assert_eq!(
-        contract_count(&direct),
+        contract_count(&legacy.module),
         1,
         "main instructions: {main_instructions:#?}"
     );
-    assert_eq!(contract_count(&candidate), contract_count(&direct));
+    assert_eq!(
+        contract_count(&candidate.module),
+        contract_count(&legacy.module)
+    );
 }

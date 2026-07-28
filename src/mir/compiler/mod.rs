@@ -45,6 +45,7 @@ mod lowering_input;
 pub(in crate::mir) mod module_postprocess;
 pub(in crate::mir) mod module_postprocess_stages;
 mod module_session;
+mod normal_default_pipeline;
 #[allow(dead_code)]
 pub(crate) mod normal_source_plan;
 pub(in crate::mir) mod publication_kernel;
@@ -210,6 +211,7 @@ pub use lowering_input::{
 };
 use lowering_input::{MirLoweringRequestErrorV1, MirLoweringRequestV1};
 use module_session::CanonicalModuleLoweringSessionV1;
+pub use normal_default_pipeline::NormalCompileRequestV1;
 use raw_source_binding::{
     RawCallableMainSelectionV1, RawIngressRequestV1, RejectedRawSourceBindingV1,
     SourceBoundRawPackageV1,
