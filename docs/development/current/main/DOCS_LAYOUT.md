@@ -328,14 +328,22 @@ Rule:
 歴史化した設計メモ・移行 ledger を置く。
 
 - current owner ではない historical docs を移す。
-- 旧パスには short stub を残す。
+- repository内参照を同時更新できる場合は旧パスを削除する。
+- stable external entrypointを維持する必要がある場合だけshort stubを残す。
 - curated top からは外すが、traceability は保持する。
 
 ### `docs/development/current/main/investigations/`（調査ログ）
 
-不具合調査のログ、切り分け、暫定メモを置く。
+再生成不能な不具合証拠、独立した再現、または current workstream card
+に収まらない明示例外を置く。
 
-- 原則: “結論” は `10-Now.md` / `20-Decisions.md` / 該当 design doc に反映し、調査ログ自体は参照用に残す。
+- 原則: consultation / design stop / selection / execution / closeout は
+  active workstream card の状態として更新し、状態遷移ごとに新しい
+  investigation file を作らない。
+- 原則: ordinary row/cell の investigation file delta は 0。
+- 新規ファイルは `Exception:` と `ParentCurrentCard:` を明記する。
+- 原則: “結論” は該当 design/reference SSOT または workstream card に
+  反映し、調査ログ自体は authority にしない。
 - 原則: 調査ログを SSOT にしない（参照元を明記して“歴史化”できる形にする）。
 - よく参照する調査ログ:
   - Phase 259: block-parameterized CFG / ABI/contract 相談パケット: `docs/development/current/main/investigations/phase-259-block-parameterized-cfg-consult.md`
@@ -362,23 +370,24 @@ Phase ごとの記録・完了サマリ・実装チェックリストを置く�
   - `docs/development/archive/phases/phase-131/131-03-llvm-lowering-inventory.md`
   - `docs/development/archive/phases/phase-131/131-11-case-c-summary.md`
 
-### `docs/development/current/main/phases/archive/`（historical phase fronts）
+### `docs/development/current/main/phases/archive/`（transitional historical fronts）
 
-closeout / accepted monitor-only / parked / superseded の phase front を置く。
+既存のhistorical phase front互換置き場。新規archive先には使わない。
 
 - current active phase front は `phase-*/README.md` に残す。
-- archived phase front は `phases/archive/<phase>/README.md` に移す。
-- phase 配下の child docs は必要な限り元の場所に残してよい。
+- 新しいhistorical phase移動先は
+  `docs/development/archive/phases/<phase>/`。
+- このtransitional rootはreference-closed batchで順次drainする。
 
-### `docs/development/current/main/phases/phase-293x/archive/`（phase-local execution archive）
+### `docs/development/current/main/phases/phase-293x/archive/`（transitional phase-local archive）
 
 phase-293x numbered-card archive prep lives here while the active phase remains
-in `phase-293x/README.md`.
+in `phase-293x/README.md`. 新規の一般archive authorityではない。
 
 - card archive manifest:
   `docs/development/current/main/phases/phase-293x/archive/cards/phase-293x-card-archive-manifest.md`
-- physical card moves require either guard-reference decoupling or forwarding
-  stubs at the old paths.
+- physical card moves require guard-reference decoupling or atomic tracked
+  reference rewrites. Stubはstable external entrypointだけに限定する。
 
 ### `docs/development/current/main/phases/phase-294x/`（usize active phase）
 
@@ -422,7 +431,10 @@ Related:
 
 ## 移行ポリシー（リンク切れ防止）
 
-既存のファイルは大量移動しない。移動が必要な場合は必ず旧パスに“転送スタブ”を残す。
+既存ファイルは clean worktree から reference-closed なbounded batchで
+移動する。repository内参照を同一commitで更新できる場合は旧パスへ
+stubを残さない。stable external entrypointを移せない場合だけ、短い
+転送stubを残す。current pointer targetは移動もstub化もしない。
 
 例（旧ファイルの内容を最小化）:
 
@@ -436,7 +448,8 @@ Moved to: docs/development/archive/phases/phase-131/131-03-llvm-lowering-invento
 ## 命名（推奨）
 
 - Phase 文書: `phase-<N>/` + `<N>-<NN>-<topic>.md`（同一フェーズ内で並べ替えが自然）
-- 調査ログ: `<topic>-investigation-YYYY-MM-DD.md` など（時系列が分かる形）
+- 調査ログの明示例外: `<topic>-investigation-YYYY-MM-DD.md` など
+  （`Exception:` / `ParentCurrentCard:` 必須）
 - 入口/SSOT: “Phase番号を入れない” ことを基本にする（寿命が長いので）
 
 ## 運用の最小ルール

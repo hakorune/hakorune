@@ -111,6 +111,35 @@ Rules:
 - no fast path lane opens unless current mimalloc perf evidence names a
   concrete owner family and a positive-net implementation path.
 
+### Workstream One-Card Law
+
+For ordinary workstream progress, consultation, design stop, selection,
+execution, recount, and closeout are states inside the existing rolling
+workstream card. They are not separate document types.
+
+```text
+default investigation-file delta per row/cell = 0
+landed detail authority = git history
+rolling-card landed record = row / commit / measured result
+```
+
+External AI advice is distilled into the active decision, evidence, rejected
+alternatives, acceptance, and hard stops. Do not preserve the full answer as a
+new current document.
+
+A new narrative document is allowed only for a durable cross-workstream
+contract, machine-consumed stable artifact, irreproducible evidence, incident
+audit, genuine independently owned workstream fork, or independently readable
+reference shard. A new investigation document must state:
+
+```text
+Exception:
+ParentCurrentCard:
+```
+
+A status transition, another consultation, a checklist, or a landed commit is
+not an exception.
+
 ## Ceremony Calibration and Proof Sunset Policy
 
 The cost of a row is approximately its ceremony cost multiplied by the number

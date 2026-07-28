@@ -1,684 +1,491 @@
 ---
-Status: Active implementation workstream
-Date: 2026-07-11
-Owner: current-docs-archive-policy-ssot.md
+Status: Parked refactor workstream; no current execution authority
+Date: 2026-07-28
+Decision: Restore `current` as an authority surface and stop one-decision-one-file growth
+Owner: ../design/current-docs-archive-policy-ssot.md
+Current lane: follow ../CURRENT_STATE.toml
 ---
 
 # Repository Artifact Lifecycle Current
 
-## Priority
+## Decision
 
-Repository artifact C2 classification is now 91% complete. The remaining 77
-design files stay warning-unregistered for focused consultation, and C3
-supersession movement has not started. The active language lane is the
-3505 Failure/Outcome relation inventory; no language, parser, runtime, or
-backend semantics change is authorized by the cleanup workstream.
+`docs/development/current/main` is for active authority and navigation, not for
+everything reachable from current text.
 
-```text
-parked_next:
-  docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md
-
-active_order:
-  H0 inventory + warning guard
-  H1 phase-296x bounded archive batches
-  H2 inactive phase archive
-  H3 design/README authority registry
-  H4 check-script manifest convergence
-  H5 lifecycle enforcement
-```
-
-## 3504 / 3505 Failure-Outcome Handoff
-
-The 3504 design consultation is accepted as relation/spec plus exhaustive
-inventory only. It does not authorize grammar, runtime, VM, cleanup, or
-backend behavior changes.
+The selected recovery has two independent duties:
 
 ```text
-3504_decision = accepted
-first_slice = relation_spec_and_exhaustive_inventory
-canonical_unit = void
-canonical_absence = Option::None
-canonical_recoverable_failure = Result::Err
-canonical_fault = outcome_not_value
-canonical_catchable_fault_count = 0
-uninitialized_local = slot_only_state
-weak_upgrade_target = Option::Some_or_None
-foreign_null = boundary_only
-compat_null = Compat2025_only
-
-3505_status = active
-3505_start_condition = repository artifact lifecycle C2 deterministic classification resolved; 77 consultation rows deferred
-3505_s0_relation_ssot = complete
-3505_s1_evidence_queue = complete
-3505_s1_reference_provider_classification = 55
-3505_s1_pending_evidence = 547
-3505_s1_next = LANGV1-FAILURE-OUTCOME-S1-SEMANTIC-CLASSIFICATION-002
-3505_behavior_change = 0
+stop new narrative-file growth
+move already-historical phase material out of current
 ```
 
-## H0 Inventory Owner
+File and line counts are measured results. They are not implementation
+permission gates and do not replace reference-closure checks.
 
-H0 creates one deterministic inventory generator and one manifest. It derives
-archive candidates from card status plus tracked references, including links
-from other cards in the active phase while excluding only card self-reference. Warning
-mode reports drift without blocking ordinary development; archive batches use
-strict mode before moving files.
+This workstream is parked while `CURRENT_STATE.toml` selects the MirBuilder
+lane. It does not authorize physical moves, pointer changes, production source
+edits, or a current-lane switch.
 
-H0 evidence:
+## Measured baseline
+
+Physical Markdown census after the 2026-07-28 Ownership grammar task:
 
 ```text
-inventory generator = tools/docs/repository_artifact_lifecycle_inventory.py
-inventory manifest = tools/checks/manifests/repository_artifact_lifecycle_v0.json
-current pointer guard = green
-docs slim archive policy guard = green
+docs, excluding docs/private       10,955 files
+docs/development                    9,858 files
+docs/development/current/main       7,092 files / 779,724 LOC
+
+current/main/phases                 5,631 files / 465,956 LOC
+current/main/design                   846 files / 143,596 LOC
+current/main/investigations           439 files / 162,132 LOC
+current/main/workstreams                9 files /   5,397 LOC
+current/main root                     166 files /   2,568 LOC
+
+nested phase archives              2,614 files / 231,629 LOC
+phase-296x/archive                  2,517 files / 207,500 LOC
 ```
 
-## H1 Entry Conditions
+Tracked Markdown, excluding `docs/private`, is 10,949 files / 1,191,196 LF
+lines. The physical/tracked difference is six ignored or untracked historical
+entry files. The recovery gates use tracked paths; the physical census remains
+an observation.
+
+The current investigation growth is concentrated in July:
 
 ```text
-inventory strict check = green
-current pointer guard = green
-phase resolver supports phase-296x = 1
-first move batch <= 200
-candidate status = closed
-tracked external reference = 0
+investigations total                 439 files / 162,132 LOC
+created in 2026-07 by git date       338 files / 134,326 LOC
+
+consultation                          61 files
+design-stop                           25
+execution-task                        86
+task-map                               7
+filename containing `task`           176
 ```
 
-The shared `phase_card_path` resolver owns live/archive lookup. Phase 293x
-keeps its bucketed archive compatibility wrapper; phase 296x resolves its
-existing flat `archive/` layout.
-
-Each batch stops on any unresolved reference, pointer drift, docs-slim failure,
-or `dev_gate quick` failure. Only the current batch is reverted.
-
-## H1 Batch Ledger
+The repeated shape is:
 
 ```text
-batch-001:
-  moved = 200
-  phase_direct = 2123 -> 1923
-  phase_archive = 1425 -> 1625
-  inventory_strict = green
-  current_state_pointer_guard = green
-  docs_slim_archive_policy_guard = green
-  dev_gate_quick = green
-
-batch-002:
-  moved = 200
-  phase_direct = 1923 -> 1723
-  phase_archive = 1625 -> 1825
-  inventory_strict = green
-  current_state_pointer_guard = green
-  docs_slim_archive_policy_guard = green
-  dev_gate_quick = green
-
-batch-003:
-  moved = 200
-  phase_direct = 1723 -> 1523
-  phase_archive = 1825 -> 2025
-  inventory_strict = green
-  current_state_pointer_guard = green
-  docs_slim_archive_policy_guard = green
-  dev_gate_quick = green
-
-batch-004:
-  moved = 200
-  phase_direct = 1523 -> 1323
-  phase_archive = 2025 -> 2225
-  inventory_strict = green
-  current_state_pointer_guard = green
-  docs_slim_archive_policy_guard = green
-  dev_gate_quick = green
-
-batch-005:
-  moved = 200
-  phase_direct = 1323 -> 1123
-  phase_archive = 2225 -> 2425
-  inventory_strict = green
-  current_state_pointer_guard = green
-  docs_slim_archive_policy_guard = green
-  dev_gate_quick = green
-
-batch-006-final:
-  moved = 92
-  phase_direct = 1123 -> 1031
-  phase_archive = 2425 -> 2517
-  archive_candidate_count = 0
-  protected_referenced = 851
-  protected_needs_review = 177
-  inventory_strict = green
-  current_state_pointer_guard = green
-  docs_slim_archive_policy_guard = green
-  dev_gate_quick = green
-
-H1 closeout:
-  total_moved = 1092
-  closed_unreferenced_candidate_drain = complete
-  broad_phase_296x_archive_complete = 0
+question
+-> consultation
+-> design stop
+-> task map
+-> execution task
+-> closeout or mirror
 ```
 
-## Current Slice
+Those are normally states of one workstream, not six independent document
+owners.
 
-H2 inventories phase directories outside the active phase before any whole
-phase move. A phase is eligible only when current pointers, tracked references,
-and phase-local status evidence all prove it inactive. Ambiguous phases remain
-in place for review.
+## Landed lifecycle summary
+
+Prior H0-H2 work already:
 
 ```text
-phase_directories = 392
-strict_inactive_candidates = 87
-strict_inactive_candidate_files = 238
-largest_candidate = phase-292x (31 files)
-whole_phase_move_started = 0
-
-excluded_large_phases:
-  phase-293x = local status unresolved + 759 external reference files
-  phase-291x = active_like + 14 external reference files
-  phase-29cv = active_like + 5 external reference files
-  phase-294x = local status unresolved + 80 external reference files
-  phase-295x = active_like + 137 external reference files
-  phase-29cc = closed + 90 external reference files
-
-next = H2-INACTIVE-PHASE-BATCH-001
+archived 1,092 unreferenced phase-296x direct cards in place
+moved 285 inactive phase directories to the global development archive
+moved 2,351 unreachable partial-phase files
+drained mechanically safe whole-phase and partial-phase candidates to zero
 ```
 
-## H2 Closeout
+Therefore age alone does not authorize another phase move. The remaining
+90-day-old phase directories require current backlink adjudication or an
+atomic path rewrite.
+
+Git history owns the detailed batch ledger. It is intentionally not repeated
+in this rolling card.
+
+## Current first red
+
+The archive substrate is not green:
 
 ```text
-archived_phase_directories = 87
-archived_phase_files = 238
-current_phase_directories = 305
-remaining_strict_inactive_candidates = 0
-inventory_strict = green
-current_state_pointer_guard = green
-docs_slim_archive_policy_guard = green
-dev_gate_quick = green
+repository lifecycle strict check:
+  unregistered design files grew: 79 > 77
 
-protected_large_or_ambiguous_phases = unchanged
-all_historical_phase_archive_complete = 0
+DOCS-SLIM-001:
+  guard file is not executable
 
-next = H3-DESIGN-AUTHORITY-REGISTRY-INVENTORY
+DOCS-SLIM-002:
+  phase-293x/archive/README.md is missing
+
+DOCS-SLIM-003 and DOCS-SLIM-026:
+  phase_card_paths.sh is not executable
+
+whole-phase dry-run candidates:
+  0
+
+partial-phase dry-run candidates:
+  0
 ```
 
-## H3 Design Stop
+No physical move starts while these known gates are red.
 
-The machine inventory is complete, but authority selection is not mechanical.
-The active consultation packet is:
+## Final archive shape
 
-`docs/development/current/main/investigations/repository-artifact-lifecycle-h3-design-registry-consultation.md`
+Historical development phase material converges on:
 
 ```text
-design direct files = 848
-seed pointer union = 160
-unseeded files = 688
-usable closed status = 11
-usable active-like status = 127
-status unresolved = 689
-
-design_registry_decided = 0
-design_file_move_started = 0
+docs/development/archive/phases/<phase>/...
 ```
 
-## H3 Accepted Landing
-
-Candidate A is accepted. `design/INDEX.md` now owns typed membership and
-precedence rows. The warning rollout starts with five explicit rows and a
-no-growth backlog baseline.
+Existing current-local archive roots are transitional:
 
 ```text
-registry_mode = warning
-registered_rows = 5
-owned_sidecars = 0
-unregistered_baseline = 844
-unregistered_current = 844
-precedence_cycle_count = 0
-registry_violation_count = 0
-
-README_role = navigation-only
-seed_union_is_authority = 0
-strict_mode = 0
-
-next = H2-TRACE-ROOT-REACHABILITY-INVENTORY
+docs/development/current/main/phases/archive/
+docs/development/current/main/phases/<phase>/archive/
 ```
 
-## H2 Tracing Reachability
+They are drained only by reference-closed bounded moves. The general
+`docs/archive/` tree remains a separate repository-wide archive and is not a
+substitute destination for development phase history.
 
-Reference counts remain diagnostic only. Archive eligibility now uses
-reachability from the accepted active root set.
+### Current authority roots
+
+Current status is granted only by:
 
 ```text
-current_documents = 10627
-root_documents = 3529
-reachable_documents = 4905
-unreachable_documents = 5722
-
-whole_phase_unreachable = 198
-whole_phase_unreachable_files = 517
-phase_scc_clusters = 189
-ambiguous_basenames = 26
-
-root_policy:
-  CURRENT_STATE/current entry pointers
-  phase-296x direct files
-  INDEX authority rows
-  docs/reference
-  AGENTS/CLAUDE/root README/CURRENT_TASK
-  src/tools document references
-
-generated_inventory_is_root = 0
-design_unregistered_move_allowed = 0
-partial_phase_move_allowed = 0
-
-next = H2-TRACE-WHOLE-PHASE-BATCH-001
+CURRENT_STATE.toml path fields
+thin fixed restart entries
+active workstream cards
+active card / phase status
+registered live design and reference authorities
+explicit stable external entrypoints
 ```
 
-The relocation owner is
-`tools/docs/archive_unreachable_phase_clusters.py`. It preserves every local
-Markdown link that resolved before the move, rewrites repository-absolute
-phase paths, requires a clean worktree, and regenerates the inventory after
-application.
+A historical document linking another historical document creates a move
+cluster. It does not make both documents current forever.
 
-## H2 Tracing Whole-Phase Closeout
+`src/`, `tools/`, or another tracked document referencing a historical path is
+not by itself a move prohibition. The batch must either rewrite that reference
+atomically or retain the exact stable entrypoint under the stub law below.
+
+## Workstream one-card law
+
+Each active workstream owns exactly one rolling current card:
 
 ```text
-moved_phases = 198
-moved_files = 517
-markdown_links_rewritten = 8
-repository_paths_rewritten = 644
-
-current_documents = 10627 -> 10110
-archived_phase_directories = 87 -> 285
-current_phase_directories = 305 -> 107
-
-remaining_whole_phase_unreachable = 0
-remaining_whole_phase_unreachable_files = 0
-preserved_preexisting_valid_links = green
-old_current_phase_path_residue = 0
-inventory_strict = green
-current_state_pointer_guard = green
-docs_slim_archive_policy_guard = green
-dev_gate_quick = green
-
-next = H2-TRACE-PARTIAL-PHASE-CLUSTER-INVENTORY
+docs/development/current/main/workstreams/<workstream>-current.md
 ```
 
-## H2 Partial-Phase Cluster Inventory
+These are states inside that card, not reasons for new files:
 
 ```text
-partial_phases = 41
-unreachable_files = 1834
-weakly_connected_clusters = 1008
-largest_cluster_files = 503
-reachable_to_candidate_edges = 0
-archive_target_collisions = 0
-
-batch_law:
-  never split a weakly connected cluster
-  cluster > 200 files -> one dedicated batch
-  remaining clusters -> pack up to 200 files
-
-active_phase_296x = excluded
-design_unregistered = excluded
-
-next = H2-TRACE-PARTIAL-PHASE-RELOCATOR-001
+consultation
+design stop
+selection
+execution
+gate result
+closeout
+recount
+next row
 ```
 
-The partial relocation owner is
-`tools/docs/archive_unreachable_partial_phase_clusters.py`. It shares the
-whole-phase link rewrite implementation and refuses reachable incoming edges,
-archive collisions, dirty worktrees, and split weak components.
-
-## H2 Partial-Phase Batch Ledger
+The rolling card retains only:
 
 ```text
-batch-001-dedicated-large-cluster:
-  moved_files = 503
-  markdown_links_rewritten = 0
-  repository_paths_rewritten = 669
-  current_documents = 10110 -> 9607
-  remaining_files = 1331
-  remaining_clusters = 1007
-  largest_remaining_cluster = 42
-  reachable_incoming_edges = 0
-  archive_target_collisions = 0
-  inventory_strict = green
-  current_state_pointer_guard = green
-  docs_slim_archive_policy_guard = green
-  dev_gate_quick = green
-
-batch-002:
-  moved_files = 200
-  repository_paths_rewritten = 227
-  current_documents = 9607 -> 9407
-  remaining_files = 1131
-  remaining_clusters = 998
-  largest_remaining_cluster = 15
-  all_gates = green
-
-batch-003:
-  moved_files = 200
-  markdown_links_rewritten = 12
-  repository_paths_rewritten = 144
-  current_documents = 9407 -> 9207
-  remaining_files = 931
-  remaining_clusters = 928
-  largest_remaining_cluster = 2
-  all_gates = green
-
-batches-004-through-007:
-  moved_files = 800
-  batch_size = 200 each
-  all_gates = green
-
-batch-008-final:
-  moved_files = 131
-  repository_paths_rewritten = 14
-  current_documents = 8407 -> 8276
-  remaining_files = 0
-  remaining_clusters = 0
-  reachable_incoming_edges = 0
-  archive_target_collisions = 0
-  all_gates = green
-
-partial_phase_closeout:
-  moved_files = 1834
-  current_documents = 10110 -> 8276
-  candidate_drain = complete
-
-tracing_closeout:
-  whole_phase_files = 517
-  partial_phase_files = 1834
-  total_moved_files = 2351
-  current_documents = 10627 -> 8276
-  repository_total_files = unchanged_by_design
-
-next = H3-DESIGN-REGISTRY-CLASSIFICATION-DESIGN-STOP
+active decision
+exact task
+gates
+hard stops
+short landed ledger: row / commit / measured result
 ```
 
-## H3 C1 Closeout
+Git history owns replaced prose and detailed landed chronology.
 
-C1 classifies only direct design files explicitly named by the checked
-README sections. The registry records the evidence section in
-`classification_basis`; filename suffixes, status text, and reference
-popularity do not assign a role. No design file moved in this slice.
+The default investigation-file delta for an ordinary row or cell is zero.
+External AI advice is distilled into decision, evidence, rejected alternatives,
+acceptance, and hard stops; the full answer is not copied into a new current
+file.
+
+### New narrative-file exceptions
+
+A new narrative document requires one of:
 
 ```text
-c1_review_basis = explicit README section evidence
-c1_review_rows = 112
-c1_role_counts:
-  authority = 107
-  supporting = 2
-  status-ledger = 3
-
-registered_rows = 117
-owned_sidecars = 0
-unregistered_baseline = 732
-unregistered_current = 732
-precedence_cycle_count = 0
-registry_violation_count = 0
-
-current_documents = 8277
-whole_phase_unreachable = 0
-partial_phase_unreachable = 0
-design_file_move_started = 0
-
-inventory_strict = green
-current_state_pointer_guard = green
-docs_slim_archive_policy_guard = green
-dev_gate_quick = green
-
-next = H3-C2-OWNER-FAMILY-REVIEW-DESIGN-STOP
+durable cross-workstream normative contract
+machine-consumed stable artifact or schema
+irreproducible evidence/reproduction that must be retained
+security, legal, release, or incident audit
+genuine workstream fork with an independent owner and lifecycle
+reference shard that remains independent after aggressive compaction
 ```
 
-## H3 C2 Boundary
-
-C2 reviews the remaining 732 direct design files by explicit owner family.
-The queue may be generated deterministically, but a role is not assigned
-until an authority spine, precedence parent, and retirement condition are
-reviewed for that family. Ambiguous families stop for a focused consultation.
+For investigations, the document must name:
 
 ```text
-c2_queue_basis = deterministic three-token filename prefix queue only
-c2_family_count = 393
-c2_multi_file_family_count = 37
-c2_singleton_family_count = 356
-c2_largest_family = hako-alloc-segment:163
-c2_role_assignment = none
-owner_family_role_heuristic = forbidden
-one_authority_spine_default = 1
-multiple_authorities_require_explicit_precedence = 1
-physical_move_requires_reference_closure = 1
+Exception:
+ParentCurrentCard:
 ```
 
-## H3 C2 First Family Stop
+Another AI consultation, a status transition, a checklist, or a landed commit
+is not an exception.
 
-The first queued family, `hako-alloc-segment`, is now accepted as four
-semantic subfamilies. The queue prefix remains scheduling-only. Individual
-roles still require explicit content review, and no physical movement starts
-in this slice.
+## Stub law
 
 ```text
-family = hako-alloc-segment
-unregistered_files = 163
-status_counts = SSOT:64, accepted:21, active:69, mimap_active:9
-external_incoming_references = 0
-internal_family_references = present
-authority_spine = existing allocator authority chain
-role_assignment = none
-physical_move = forbidden
-next = S2 explicit content review projection
+rewritable repository-internal reference:
+  rewrite it and leave no stub
+
+stable public entry or unrewritable external consumer:
+  leave one compact forwarding stub
+
+whole phase needing a historical entry:
+  at most one phase README stub
+
+current pointer target:
+  do not move and do not replace with a stub
 ```
 
-## H3 C2 Accepted Family Design
+Per-card stubs are forbidden by default. A stub is a compatibility surface,
+not an archival receipt.
+
+## Execution train
+
+### R0 — growth stop
+
+Update the current docs policy and layout so the one-card law and exception
+fields are explicit. Reuse an existing docs/current guard; do not create a new
+shell wrapper or a per-workstream manifest.
+
+Acceptance:
 
 ```text
-semantic_subfamilies:
-  segment-lifecycle-and-membership
-  segment-allocation-and-local-reuse
-  segment-arena-backing-and-residence
-  segment-map-and-release
-
-new_family_authority_document = 0
-historical_ssot_suffix_implies_authority = 0
-authority_spine = existing allocator authority chain
-lifecycle_blueprint_registration = prerequisite
-role_assignment = explicit content review only
-superseded_assignment = 0
-physical_move = 0
+one active current card per workstream
+ordinary row/cell investigation-file delta = 0
+new investigation without named exception = rejected
+current pointer semantics unchanged
 ```
 
-## H3 C2 Family Classification Task
+### R1 — archive substrate recovery
+
+Restore the existing lifecycle machinery before moving anything:
 
 ```text
-task = H3-C2-HAKO-ALLOC-SEGMENT-FAMILY-CLASSIFICATION
-scope = all 163 hako-alloc-segment rows
-
-S1 = establish authority/precedence chain
-S2 = generate subfamily and proposed-role review projection
-S3 = land reviewed registry rows and unique sidecars
-S4 = lower baseline only after full batch is green
-S5 = run cycle/orphan/reference/pointer/docs-slim/dev-gate guards
-
-superseded_rows = 0
-physical_moves = 0
+adjudicate the 79 vs 77 design-registry drift
+restore required executable modes
+restore or deliberately retire the missing phase-293x archive entry
+make strict inventory green
+make DOCS-SLIM-001/002/003/026 green
 ```
 
-S1 closeout:
+Do not hide the design-registry drift by merely increasing a numeric baseline.
+Classify the exact new files or explicitly accept a reviewed new baseline.
+
+### R2 — global phase resolver
+
+Extend the existing phase-card resolver and relocation tools to recognize:
 
 ```text
-registered_rows = 118
-unregistered_current = 731
-unregistered_baseline = 732
-precedence_cycle_count = 0
-lifecycle_blueprint_registered = 1
-new_authority_documents = 0
-next = S2 explicit content review projection
+live phase path
+transitional nested phase archive
+global development phase archive
 ```
 
-S2 projection closeout:
+Target lookup order:
 
 ```text
-projection_manifest = tools/checks/manifests/hako_alloc_segment_family_projection_v0.json
-projection_rows = 163
-review_status = pending:163
-role_assignment = none
-owner_fields_set = 0
-precedence_parent_fields_set = 0
-sidecar_owner_fields_set = 0
-next = explicit content review before S3 registry landing
+live
+-> global archive
+-> transitional nested archive until drained
 ```
 
-`supporting`, `status-ledger`, and `sidecar` remain review outcomes, not
-filename-derived assignments. Bridge rows require individual review.
-
-S3 lifecycle/membership review closeout:
+The lifecycle inventory must distinguish:
 
 ```text
-reviewed_base_rows = 2
-supporting_rows = 2
-owned_sidecars = 2
-registered_rows = 120
-unregistered_current = 727
-unregistered_baseline = 732
-precedence_cycle_count = 0
-authority_rows_added = 0
-superseded_assignment = 0
-physical_move = 0
-projection_rows_remaining = 159
-next = allocation/local-reuse explicit content review
+active authority root
+rewritable inbound reference
+historical move-cluster edge
+stable external entrypoint
 ```
 
-The reviewed base rows are the proof-only lifecycle scalar and page-membership
-scalar contracts. Their closeout documents are guard-only and are owned as
-sidecars by the corresponding base row. No allocator behavior, arena backing,
-segment-map mutation, or backend capability is activated by this review.
+Do not add SHA-256 path ledgers, per-file disposition tables, or a second
+archive checker.
 
-S3 allocation-readiness review closeout:
+### R3 — phase-296x nested-archive pilot
+
+After R1/R2 are green, the first bounded physical proof is exactly two closed,
+path-unreferenced cards:
 
 ```text
-reviewed_base_rows = 3
-supporting_rows = 3
-owned_sidecars = 3
-registered_rows = 121
-unregistered_current = 725
-unregistered_baseline = 732
-precedence_cycle_count = 0
-authority_rows_added = 0
-superseded_assignment = 0
-physical_move = 0
-projection_rows_remaining = 157
-next = modeled-consume/local-free explicit content review
+1776-MIRBUILDER-RETURN-EMISSION-HAKO-SHADOW-PROMOTION-DECISION-001.md
+1777-MIRBUILDER-FUNCTION-REGION-STACK-POP-HAKO-SHADOW-PROMOTION-DECISION-001.md
 ```
 
-The allocation-readiness scalar is proof-only and keeps real allocation/free,
-arena backing, raw pointer residence, segment-map lookup, bitmap/OSVM,
-threads, providers, and backend matchers inactive. Its guard-only closeout is
-the third owned sidecar; modeled consume and local-free rows remain unclassified.
-
-S3 modeled-consume/ledger review closeout:
+Pilot facts:
 
 ```text
-reviewed_base_rows = 5
-supporting_rows = 4
-status_ledger_rows = 1
-owned_sidecars = 5
-registered_rows = 123
-unregistered_current = 721
-unregistered_baseline = 732
-precedence_cycle_count = 0
-authority_rows_added = 0
-superseded_assignment = 0
-physical_move = 0
-projection_rows_remaining = 153
-next = local-free explicit content review
+source:
+  docs/development/current/main/phases/phase-296x/archive/
+
+target:
+  docs/development/archive/phases/phase-296x/cards/
+
+files:
+  2
+
+LOC:
+  199
+
+tracked inbound path references:
+  0
+
+forwarding stubs:
+  0
 ```
 
-Modeled consume remains a scalar proof route, and modeled ledger remains a
-deterministic inventory of modeled tokens. Neither row opens real allocation,
-arena residence, raw pointers, segment maps, bitmap/OSVM, threads, providers,
-or backend matchers.
+The pilot updates the existing generated lifecycle manifest in the same
+commit. If the global partial-phase destination is not accepted by the
+resolver dry-run, the move count remains zero.
 
-S3 local-free chain review closeout:
+### R4 — nested archive batches
+
+After the pilot, select candidates from the generated unreachable set, not
+from filename ranges or age.
 
 ```text
-reviewed_base_rows = 9
-status_ledger_rows = 3
-supporting_rows = 6
-owned_sidecars = 7
-registered_rows = 127
-unregistered_current = 715
-unregistered_baseline = 732
-precedence_cycle_count = 0
-authority_rows_added = 0
-superseded_assignment = 0
-physical_move = 0
-projection_rows_remaining = 147
-next = local-free/reuse residual review
+normal batch maximum = 200 files
+never split a weakly connected historical cluster
+cluster larger than 200 = one dedicated reviewed batch
+destination collision = 0
+reachable incoming edge = 0 or atomically rewritten
+per-card stub = 0
 ```
 
-The candidate ledger and apply plan are deterministic status ledgers. The
-page-model apply and integration rows are bounded supporting composition
-surfaces, with their closeout documents owned as sidecars. The reuse closeout
-without a current direct base row remains unclassified rather than becoming an
-orphan sidecar.
+Phase-296x has 1,597 currently unreachable archived-in-place documents, but
+that number is evidence, not blanket movement permission.
 
-## C2 Residual Sidecar Ownership Design Stop
+### R5 — stale phase cohorts
 
-The remaining local-free/reuse rows cannot be classified mechanically under
-the accepted registry schema. `hako-alloc-segment-allocation-modeled-local-free-
-scalar-lane-closeout-ssot.md` closes multiple base rows, while the reuse
-closeouts reference MIMAP rows whose direct base documents are not present in
-the current design registry. The single-owner sidecar rule and orphan-sidecar
-guard therefore require consultation before further registry landing.
+The 2026-07-28 age census found:
 
 ```text
-design_stop = residual_sidecar_ownership
-remaining_projection_rows = 147
-candidate_multi_base_closeout = 1
-candidate_orphan_closeouts = 2
-new_authority_document = 0
-superseded_assignment = 0
-physical_move = 0
-next = focused consultation on grouped closeout ownership
+immediate phase directories             = 108
+last path touch older than 90 days       = 59
+archive-ready after atomic reference rewrite = 20
+retain pending backlink adjudication     = 39
 ```
 
-## Non-Claims
+The first review cohort is:
 
 ```text
-strict_inactive_phase_candidate_drain_complete = 1
-all_historical_phase_archive_complete = 0
-phase_296x_archive_complete = 0
-design_registry_complete = 0
-design_registry_decided = 1
-heuristic_role_assignment = 0
-design_file_move_started = 0
-check_script_retirement_complete = 0
-docs_private_retention_decided = 0
-failure_outcome_design_accepted = 1
-selfhost_claim = 0
+phase-29z
+phase-268
+phase-275
+phase-29aw
+phase-29bh
+phase-29bi
+phase-29bj
+phase-29bk
+phase-29bn
+phase-29bo
+phase-29br
+phase-29cd
+phase-29ce
+phase-29cf
+phase-29cj
+phase-29cl
+phase-29co
+phase-29cp
+phase-96x
+phase-290x
 ```
 
-## H3 Design Registry V1 sharding taskization (2026-07-14)
+The 90-day threshold only selects review candidates. Each cohort still needs
+active-root exclusion, exact reference rewrite, collision checks, and strict
+green before `git mv`.
 
-The embedded registry has crossed 7,000 lines, so its storage is taskized as a
-behavior-neutral BoxShape series. The accepted final form keeps one semantic
-registry while moving explicit rows into deterministic SHA-256 first-nybble
-shards selected by one manifest.
+### R6 — design and investigation retirement
+
+Only after phase relocation is routine:
 
 ```text
-decision = deterministic_sharded_manifest_v1
-task_status = parked
-production_activation = 0
-current_blocker_replaced = 0
-first_implementation_row = CLEAN0
-clean_requirement = worktree_empty_and_pointer_guard_green
-cutover = atomic_after_full_normalized_v0_v1_parity
-v0_fallback_after_cutover = forbidden
-index_final_line_budget = 200
-return_owner = RETURN0
+finish design authority classification
+archive superseded design clusters with exact inbound-reference closure
+archive historical investigation clusters
+retain one rolling workstream card
+retire obsolete DOCS-SLIM ordinal guards and numeric-history assertions
+keep one durable artifact-lifecycle guard
 ```
 
-The execution taskboard is
-`investigations/design-registry-v1-sharded-manifest-task-2026-07-14.md`.
-`SSA-RC-L0` remains selected; this row does not authorize SELECT0 or registry
-implementation on top of its current worktree.
+The actual design registry is `design/INDEX.md`. Policy and tooling must agree
+on that path before any design mass move.
+
+## Commit train
+
+```text
+docs: stop current narrative file growth
+tools(docs): restore artifact lifecycle gates
+tools(docs): resolve global phase archives
+docs: relocate first phase archive pilot
+docs: relocate bounded phase archive batch
+docs: archive reviewed stale phase cohort
+tools(docs): consolidate artifact lifecycle guards
+```
+
+Do not mix a physical move with an unrelated language, compiler, runtime,
+backend, or ownership change.
+
+## Batch gates
+
+Preflight:
+
+```bash
+git status --short
+python3 tools/docs/repository_artifact_lifecycle_inventory.py --check --strict
+python3 tools/docs/archive_unreachable_phase_clusters.py
+python3 tools/docs/archive_unreachable_partial_phase_clusters.py --max-files 200
+```
+
+After every physical batch:
+
+```bash
+python3 tools/docs/repository_artifact_lifecycle_inventory.py --check --strict
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/docs_slim_001_archive_policy_guard.sh
+bash tools/checks/docs_slim_002_archive_manifest_guard.sh
+bash tools/checks/docs_slim_003_guard_reference_decoupling_guard.sh
+bash tools/checks/docs_slim_026_phase_card_resolver_leak_helper_guard.sh
+bash tools/checks/dev_gate.sh quick
+git diff --check
+```
+
+The relocator's preserved-link and old-path checks are the reference-closure
+authority. Do not claim a separate generic Markdown link checker exists.
+
+## Completion
+
+This workstream closes only when:
+
+```text
+current pointer targets remain live
+current authority roots are explicit and finite
+nested phase archives are drained or own an exact retained exception
+reviewed stale phase cohorts live under the global development archive
+one rolling card owns each active workstream
+ordinary status transitions create zero new investigation files
+design and investigation authorities are classified
+archive lifecycle guard count is consolidated
+unresolved tracked references = 0
+physical file and LOC deltas are reported
+```
+
+There is no final arbitrary file-count or LOC cap. A smaller `current` tree is
+the result of restoring the authority boundary.
+
+## Hard stops
+
+```text
+dirty worktree before a physical batch
+current pointer target selected for movement
+strict inventory red
+unresolved tracked reference
+archive target collision
+age used as sole movement authority
+historical backlink treated as permanent current authority
+per-card forwarding-stub multiplication
+new file-per-decision ceremony
+new archive checker or path-digest ledger
+production source or language behavior mixed into a docs move
+```

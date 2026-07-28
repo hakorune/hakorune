@@ -1,11 +1,12 @@
 ---
 Status: SSOT
-Date: 2026-05-16
+Date: 2026-07-28
 Scope: current docs archive and slimming policy.
 Related:
   - docs/development/current/main/DOCS_LAYOUT.md
   - docs/development/current/main/design/current-docs-update-policy-ssot.md
   - docs/development/current/main/CURRENT_STATE.toml
+  - docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md
   - docs/development/current/main/phases/phase-293x/README.md
 ---
 
@@ -61,44 +62,33 @@ Landed phase cards can move when all are true:
 - The card is not the active row for a current taskboard.
 - The card has no current guard that requires the old path.
 
-Archive buckets for phase card directories:
+Canonical archive root for development phase history:
 
 ```text
-docs/development/current/main/phases/phase-293x/archive/cards/293x-000-099/
-docs/development/current/main/phases/phase-293x/archive/cards/293x-100-199/
-docs/development/current/main/phases/phase-293x/archive/cards/293x-200-299/
-docs/development/current/main/phases/phase-293x/archive/cards/293x-300-399/
+docs/development/archive/phases/<phase>/
 ```
 
-Keep a forwarding stub at the old path only when a current doc, guard, or script
-still references the old path. If no tracked current reference exists, the
-archive ledger is enough.
+Existing `current/main/phases/**/archive/` paths are transitional compatibility
+roots. Drain them only through the bounded reference-closed workstream; do not
+create another archive destination.
+
+Rewrite repository-internal current doc, guard, and script references in the
+same move commit. Keep a forwarding stub only when a stable external entrypoint
+cannot be rewritten. If no such consumer exists, the archive ledger and Git
+history are enough.
 
 ## Repository Artifact Lifecycle Consolidation (2026-07-11)
 
 The file-count problem is historical artifact retention, not source-code
-module granularity. Measured baseline:
+module granularity. The live measured baseline and selected recovery train are
+owned by:
 
 ```text
-docs files = 16,534
-tools files = 8,620
-src files = 3,314
-phase-296x direct files = 2,123
-phase-296x archive files = 1,425
-design direct files = 848
-main direct files = 169
-tools/checks files = 3,265
-docs/private files = 4,251
-
-phase-296x direct card sample:
-  cards excluding README/STATUS/hygiene = 2,120
-  status classified closed = 1,330
-  externally referenced by tracked files = 788
-  unreferenced archive candidates = 1,332
+docs/development/current/main/workstreams/
+  repository-artifact-lifecycle-current.md
 ```
 
-Counts are inventory evidence, not permission to move or delete files. In
-particular, the 788 referenced cards disprove a review-free mass move.
+Counts are inventory evidence, not permission to move or delete files.
 
 Do not add more numbered `DOCS-SLIM-*` cards. The existing 001-027 history is
 consolidated into one artifact-lifecycle refactor series with these ordered
@@ -122,22 +112,22 @@ steps:
 - keep the active card, active references, README, STATUS, and hygiene rule;
 - use batches of at most 200 physical moves per commit;
 - after every batch run pointer, link/reference, docs-slim, and `dev_gate quick`;
-- no full duplicate at the old path; create a forwarding stub only when a live
-  tracked reference cannot yet use the resolver.
+- rewrite live tracked references in the same commit; create a forwarding stub
+  only for an unrewritable stable external entrypoint.
 
 ### H2 - inactive phase directory archive
 
 - derive the active phase closure from current pointers and tracked live docs;
 - move only phases outside that closure;
 - archive to `docs/development/archive/phases/` in bounded batches;
-- preserve a compact phase index/stub where live navigation still requires the
-  old path;
+- preserve at most one compact phase index/stub only where a stable external
+  entrypoint still requires the old path;
 - do not claim that `git log --follow` prevents link or guard breakage.
 
 ### H3 - design authority registry
 
-- use the existing `design/README.md` as the registry; do not create a second
-  `INDEX.md` truth;
+- use the existing `design/INDEX.md` typed registry; `design/README.md` remains
+  navigation and must not become a second membership truth;
 - classify each direct design file as authority, active navigation, candidate,
   superseded, or archive;
 - move unregistered/superseded files only after inbound-reference inventory;
@@ -165,8 +155,9 @@ steps:
 - switch warning counts to hard no-growth limits only after H1-H4 establish a
   clean baseline;
 - hard guards use active-reference closure, not an arbitrary "latest 20" rule;
-- keep one-card-one-file and one-owner-per-guard; do not merge history into a
-  giant ledger.
+- keep one rolling current card per active workstream and one owner per guard;
+  Git history owns replaced progress prose, so do not merge landed detail into
+  a giant append-only ledger.
 
 `docs/private` retention is a separate final sweep. It must not preempt current
 navigation cleanup and requires an explicit private-data retention decision.
