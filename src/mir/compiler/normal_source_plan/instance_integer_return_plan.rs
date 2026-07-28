@@ -1,53 +1,29 @@
-//! Disconnected first function-plan slice for plain instance methods.
+//! Integer-literal Return variant for plain instance methods.
 //!
-//! Every instance method in one verified module must be a no-parameter
-//! `return <Integer literal>` function. This owner performs no MIR lowering,
-//! publication, route reselection, or physical receiver/ownership selection.
-
-use std::collections::BTreeMap;
+//! This module verifies one already-selected no-parameter
+//! `return <Integer literal>` method. Module ownership, all-method iteration,
+//! and cumulative plan coverage live in `instance_function_plan`.
 
 use crate::ast::{ASTNode, LiteralValue};
-use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
+use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::compiler::lowering_input::CanonicalLoweringErrorV1;
-use crate::mir::compiler::source_projection::{
-    SourceNavigationErrorV1, VerifiedSourceProjectionV1,
-};
+use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::compiler::source_view::ExprChildRoleV1;
 use crate::mir::resolved_control_flow::{
-    verify_function_completion_v1, DeclaredFunctionResultContractV1,
-    FunctionCompletionVerificationErrorV1, FunctionExitCoverageV1, ReturnExitRelationV1,
-    VerifiedFunctionCompletionV1,
+    verify_function_completion_v1, DeclaredFunctionResultContractV1, FunctionExitCoverageV1,
+    ReturnExitRelationV1, VerifiedFunctionCompletionV1,
 };
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingOriginV1, BindingRefV1, FunctionSemanticResolverSessionV1,
-    FunctionSyntaxViewV1, ResolveFunctionErrorV1, ResolveOwnerForestErrorV1, SourceBindingSiteV1,
-    SourceExprSiteV1, SourceStmtSiteV1, VerifiedSemanticOwnerForestV1,
+    FunctionSyntaxViewV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 use crate::mir::source_call_target::SameModuleCallableSourceReceiverPolicyV1;
 
-use super::main_source::{NormalMainFunctionSourceErrorV1, NormalMainFunctionSourceViewV1};
-use super::module_source::{
-    NormalInstanceMethodSourceLoanErrorV1, NormalInstanceMethodSourceViewV1,
-    VerifiedNormalModuleSourceV1,
+use super::instance_function_plan::{
+    GeneralFunctionPlanErrorV1, GeneralFunctionSignatureStopV1,
+    VerifiedNormalInstanceFunctionFactsV1,
 };
-
-#[derive(Debug)]
-pub(crate) struct VerifiedNormalInstanceFunctionFactsV1 {
-    forest: VerifiedSemanticOwnerForestV1,
-    projection: VerifiedSourceProjectionV1,
-    receiver: BindingRefV1,
-}
-
-impl VerifiedNormalInstanceFunctionFactsV1 {
-    pub(crate) const fn receiver(&self) -> BindingRefV1 {
-        self.receiver
-    }
-
-    pub(crate) fn owner_count(&self) -> usize {
-        self.forest.owner_count()
-    }
-}
+use super::module_source::NormalInstanceMethodSourceViewV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct NormalInstanceIntegerReturnRecipeV1 {
@@ -96,218 +72,7 @@ impl VerifiedNormalInstanceIntegerReturnPlanV1 {
     }
 }
 
-#[derive(Debug)]
-pub(crate) struct VerifiedNormalInstanceIntegerReturnPlanSetV1 {
-    source: VerifiedNormalModuleSourceV1,
-    plans: BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedNormalInstanceIntegerReturnPlanV1>,
-}
-
-impl VerifiedNormalInstanceIntegerReturnPlanSetV1 {
-    pub(crate) fn source_identity(&self) -> &str {
-        self.source.source_identity()
-    }
-
-    pub(crate) fn plans(
-        &self,
-    ) -> impl Iterator<
-        Item = (
-            &CanonicalSameModuleCallableKeyV1,
-            &VerifiedNormalInstanceIntegerReturnPlanV1,
-        ),
-    > {
-        self.plans.iter()
-    }
-
-    pub(crate) fn len(&self) -> usize {
-        self.plans.len()
-    }
-
-    pub(super) fn borrow_exact_main_function(
-        &self,
-    ) -> Result<NormalMainFunctionSourceViewV1<'_>, NormalMainFunctionSourceErrorV1> {
-        self.source.borrow_exact_main_function()
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum GeneralFunctionPlanStageV1 {
-    Inventory,
-    Source,
-    Resolve,
-    Recipe,
-    Completion,
-    Pairing,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum GeneralFunctionSignatureStopV1 {
-    Parameters,
-    ParameterDeclarations,
-    ReturnAnnotation,
-    Uses,
-    Attributes,
-}
-
-#[derive(Debug)]
-pub(crate) enum GeneralFunctionPlanErrorV1 {
-    NoInstanceMethod,
-    Source {
-        key: CanonicalSameModuleCallableKeyV1,
-        cause: NormalInstanceMethodSourceLoanErrorV1,
-    },
-    UnsupportedSignature {
-        key: CanonicalSameModuleCallableKeyV1,
-        reason: GeneralFunctionSignatureStopV1,
-    },
-    ResolverSession(ResolveFunctionErrorV1),
-    Resolver {
-        key: CanonicalSameModuleCallableKeyV1,
-        cause: ResolveOwnerForestErrorV1,
-    },
-    Projection {
-        key: CanonicalSameModuleCallableKeyV1,
-        cause: SourceNavigationErrorV1,
-    },
-    Input {
-        key: CanonicalSameModuleCallableKeyV1,
-        cause: CanonicalLoweringErrorV1,
-    },
-    FactCoverage {
-        key: CanonicalSameModuleCallableKeyV1,
-        reason: &'static str,
-    },
-    UnsupportedBody {
-        key: CanonicalSameModuleCallableKeyV1,
-        reason: &'static str,
-    },
-    Completion {
-        key: CanonicalSameModuleCallableKeyV1,
-        cause: FunctionCompletionVerificationErrorV1,
-    },
-    Pairing {
-        key: CanonicalSameModuleCallableKeyV1,
-        reason: &'static str,
-    },
-    PlanKeyCoverageMismatch {
-        expected: usize,
-        actual: usize,
-    },
-}
-
-impl GeneralFunctionPlanErrorV1 {
-    pub(crate) const fn stage(&self) -> GeneralFunctionPlanStageV1 {
-        match self {
-            Self::NoInstanceMethod => GeneralFunctionPlanStageV1::Inventory,
-            Self::Source { .. } | Self::UnsupportedSignature { .. } => {
-                GeneralFunctionPlanStageV1::Source
-            }
-            Self::ResolverSession(_)
-            | Self::Resolver { .. }
-            | Self::Projection { .. }
-            | Self::Input { .. }
-            | Self::FactCoverage { .. } => GeneralFunctionPlanStageV1::Resolve,
-            Self::UnsupportedBody { .. } => GeneralFunctionPlanStageV1::Recipe,
-            Self::Completion { .. } => GeneralFunctionPlanStageV1::Completion,
-            Self::Pairing { .. } | Self::PlanKeyCoverageMismatch { .. } => {
-                GeneralFunctionPlanStageV1::Pairing
-            }
-        }
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct RejectedGeneralFunctionPlanSetV1 {
-    owner: VerifiedNormalModuleSourceV1,
-    error: GeneralFunctionPlanErrorV1,
-}
-
-impl RejectedGeneralFunctionPlanSetV1 {
-    pub(crate) fn source_identity(&self) -> &str {
-        self.owner.source_identity()
-    }
-
-    pub(crate) const fn stage(&self) -> GeneralFunctionPlanStageV1 {
-        self.error.stage()
-    }
-
-    pub(crate) const fn error(&self) -> &GeneralFunctionPlanErrorV1 {
-        &self.error
-    }
-
-    pub(crate) fn discard(self) {
-        drop(self);
-    }
-}
-
-impl VerifiedNormalModuleSourceV1 {
-    pub(crate) fn seal_instance_integer_return_plans(
-        self,
-    ) -> Result<VerifiedNormalInstanceIntegerReturnPlanSetV1, RejectedGeneralFunctionPlanSetV1>
-    {
-        let keys = self
-            .callable_catalog()
-            .keys()
-            .filter(|key| key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod)
-            .cloned()
-            .collect::<Vec<_>>();
-        if keys.is_empty() {
-            return Err(reject(self, GeneralFunctionPlanErrorV1::NoInstanceMethod));
-        }
-        let mut resolver = match FunctionSemanticResolverSessionV1::new(0) {
-            Ok(resolver) => resolver,
-            Err(error) => {
-                return Err(reject(
-                    self,
-                    GeneralFunctionPlanErrorV1::ResolverSession(error),
-                ))
-            }
-        };
-        let mut plans = BTreeMap::new();
-        for key in &keys {
-            let view = match self.borrow_instance_method_source(key) {
-                Ok(view) => view,
-                Err(cause) => {
-                    return Err(reject(
-                        self,
-                        GeneralFunctionPlanErrorV1::Source {
-                            key: key.clone(),
-                            cause,
-                        },
-                    ))
-                }
-            };
-            let plan = match seal_one(&mut resolver, view) {
-                Ok(plan) => plan,
-                Err(error) => return Err(reject(self, error)),
-            };
-            if plans.insert(key.clone(), plan).is_some() {
-                return Err(reject(
-                    self,
-                    GeneralFunctionPlanErrorV1::Pairing {
-                        key: key.clone(),
-                        reason: "duplicate_plan_key",
-                    },
-                ));
-            }
-        }
-        if plans.len() != keys.len() {
-            let actual = plans.len();
-            return Err(reject(
-                self,
-                GeneralFunctionPlanErrorV1::PlanKeyCoverageMismatch {
-                    expected: keys.len(),
-                    actual,
-                },
-            ));
-        }
-        Ok(VerifiedNormalInstanceIntegerReturnPlanSetV1 {
-            source: self,
-            plans,
-        })
-    }
-}
-
-fn seal_one(
+pub(super) fn seal_integer_literal_return_one(
     resolver: &mut FunctionSemanticResolverSessionV1,
     view: NormalInstanceMethodSourceViewV1<'_>,
 ) -> Result<VerifiedNormalInstanceIntegerReturnPlanV1, GeneralFunctionPlanErrorV1> {
@@ -354,11 +119,7 @@ fn seal_one(
     })?;
     verify_pairing(view.key(), &recipe, &completion)?;
     Ok(VerifiedNormalInstanceIntegerReturnPlanV1 {
-        facts: VerifiedNormalInstanceFunctionFactsV1 {
-            forest,
-            projection,
-            receiver,
-        },
+        facts: VerifiedNormalInstanceFunctionFactsV1::new(forest, projection, receiver),
         recipe,
         completion,
     })
@@ -472,13 +233,6 @@ fn verify_pairing(
         });
     }
     Ok(())
-}
-
-fn reject(
-    owner: VerifiedNormalModuleSourceV1,
-    error: GeneralFunctionPlanErrorV1,
-) -> RejectedGeneralFunctionPlanSetV1 {
-    RejectedGeneralFunctionPlanSetV1 { owner, error }
 }
 
 fn fact_error(

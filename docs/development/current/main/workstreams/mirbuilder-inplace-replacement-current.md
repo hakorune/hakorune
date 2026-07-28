@@ -48,10 +48,10 @@ authorityを一つ減らす場合だけ選択する。
 ## Active executable front
 
 ```text
-row          = GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0
+row          = GENERAL-FUNCTION-PLAN0-INSTANCE-I64-PARAMETER-RETURN0-S0
 parent       = GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0
-decision     = corrected Candidate C-prime
-ceremony     = T1
+decision     = exact i64 parameter-return variant
+ceremony     = T2
 transition   = VerifiedNormalModuleSourceV1
             -> VerifiedNormalInstanceFunctionPlanSetV1
             -> existing VerifiedNormalModuleFunctionPlanSetV1
@@ -60,46 +60,44 @@ transition   = VerifiedNormalModuleSourceV1
 ### Responsibility
 
 ```text
-instance_function_plan.rs:
-  one source-owning cumulative set
-  one enum variant: IntegerLiteralReturn(existing verified plan)
-  all-method iteration / common Facts / rejection / exact key coverage
-
-instance_integer_return_plan.rs:
-  retain literal Recipe, receiver-only validation, completion pairing
+add I64ParameterReturn variant:
+  params / param_decls = exactly one
+  declared spelling = exact "i64"
+  body = [Return(Variable(the same parameter))]
+  receiver = one declared unused "me"
+  parameter = one resolved Parameter(index=0)
 ```
 
-各methodは既存のsignature → resolver/projection → facts → Recipe →
-completion順を一度だけ通り、sole producerが第一variantを直接構築する。
-multi-family classifierは第二variantを追加するC1まで作らない。
+一つのsource observationでLiteralReturnまたはI64ParameterReturnをtotal分類し、
+選択後にresolver/projectionを一度だけ通す。`or_else`によるfamily retryは作らない。
+variant-specific Facts/Recipe/Verifyは別fileに保持する。
 
 ### Atomic delete
 
 ```text
-VerifiedNormalInstanceIntegerReturnPlanSetV1 = 0
-seal_instance_integer_return_plans           = 0
-old exports/usages/guard expectations        = 0
-runtime converter / compatibility alias      = 0
+single-variant-only selector assumptions = 0
+literal failure -> parameter retry        = 0
+parameter failure -> literal retry        = 0
 ```
 
 ### Preserve
 
 ```text
-literal grammar and rejection order
-module source / identity / catalog single ownership
-existing outer aggregate and Main0 receipt
-production caller / Builder / MIR / Ownership = 0
+existing IntegerLiteralReturn behavior
+module source / catalog / outer aggregate / Main0 receipt
+physical receiver ABI / Builder / MIR / Ownership = 0
+field / call / new / production caller = 0
 ```
 
 ### Acceptance
 
 ```text
-plans.keys() == catalog InstanceBoxMethod keys in exact order
-all plans = IntegerLiteralReturn exactly once
-literal/rejection/Main receipt parity = green
-new test/check file = 0
-parent guard unchanged; child guard assertions replaced, final <= 795
-all source/check files < 800
+mixed literal + exact i64 parameter methods accepted
+receiver binding = 1; parameter binding/use = 1; assignments/calls = 0
+non-i64 spelling, wrong variable, or unsupported method rejects whole set
+classification / resolver / insertion = exactly once per method
+new test/check file = 0; existing tables/assertions are consolidated
+parent guard unchanged; child guard <= 795; all source/check files < 800
 ```
 
 Stable gate: `run_row_guard.sh --only normal-source-plan0` plus the normal
@@ -107,8 +105,20 @@ build, pointer, replacement, lifecycle, and diff checks.
 
 ### Hard stop
 
-source clone/reparse/reseal、old/new set共存、Main receipt再seal、検証順変更、
-fallback/retry、partial product、guard 800行到達のどれかが必要ならD0へ戻る。
+source clone/reparse/reseal、family retry、partial map、typed return、physical
+receiver、field/call/new、guard 800行到達のどれかが必要ならD0へ戻る。
+
+## Closed M2c C0 execution
+
+```text
+row       = GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0
+commit    = this atomic implementation commit
+result    = one source-owning cumulative set; IntegerLiteralReturn first variant
+evidence  = 76 / 76 focused tests; exact ordered keys; production callers 0
+delta     = production +46; test +12; check +9; source files +1
+boundary  = no grammar, Main0, Builder/MIR, Ownership, or route delta
+max file  = 769
+```
 
 ## Closed M2b execution
 
@@ -216,7 +226,7 @@ Keep only these counters current:
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 9
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = 1; INSTANCE-CUMULATIVE0-S0 prerequisite
+accepted_next_responsibility       = 1; INSTANCE-I64-PARAMETER-RETURN0-S0
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -235,7 +245,7 @@ closeout explanation, not automatic rejection.
 
 ```text
 none
-  current authority = GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0
+  current authority = GENERAL-FUNCTION-PLAN0-INSTANCE-I64-PARAMETER-RETURN0-S0
   M2a / M2b disconnected prerequisites = closed; production caller = 0
   repository artifact lifecycle R1-R4-first / RETURN0 = closed
   tenth responsibility = not selected
@@ -336,7 +346,7 @@ ceremony                     = T2 bounded enabling design
 future aggregate product     = VerifiedNormalGeneralProgramPlanV1
 first missing authority      = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0
 D0 / module-source S0 status = closed
-current executable row       = GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0
+current executable row       = GENERAL-FUNCTION-PLAN0-INSTANCE-I64-PARAMETER-RETURN0-S0
 normal/default Legacy caller = present
 canonical default caller     = 0
 prerequisite caller          = 0
@@ -409,10 +419,10 @@ M2c GENERAL-FUNCTION-PLAN0-INSTANCE-SCALAR-BINDING0-D0
     closed: corrected Candidate C-prime selected
 
 M2c GENERAL-FUNCTION-PLAN0-INSTANCE-CUMULATIVE0-S0
-    selected: grammar-neutral cumulative one-variant owner migration
+    closed: grammar-neutral cumulative one-variant owner migration
 
 M2c GENERAL-FUNCTION-PLAN0-INSTANCE-I64-PARAMETER-RETURN0-S0
-    parked until C0 green: first exact scalar-binding variant
+    selected: first exact scalar-binding variant
 
 M2c+ GENERAL-FUNCTION-PLAN0 finite family slices
     local/reassign/Binary bindings, field schema/read/write,

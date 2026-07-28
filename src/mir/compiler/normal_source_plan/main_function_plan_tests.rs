@@ -13,7 +13,7 @@ use std::collections::HashMap;
 use super::super::{
     NormalMain0BridgeErrorV1, NormalMain0BridgeStageV1, NormalSourcePlanClassifierV1,
     PreparedNormalSourcePlanInputV1, SealedNormalScalarRootV1, SealedNormalSourcePlanV1,
-    VerifiedNormalInstanceIntegerReturnPlanSetV1, VerifiedNormalMainFunctionSourceUnitV1,
+    VerifiedNormalInstanceFunctionPlanSetV1, VerifiedNormalMainFunctionSourceUnitV1,
     VerifiedNormalModuleSourceV1,
 };
 
@@ -144,7 +144,7 @@ fn module_instance_plans(
     main_result: Option<&str>,
     main_body: Vec<ASTNode>,
     instance_value: i64,
-) -> VerifiedNormalInstanceIntegerReturnPlanSetV1 {
+) -> VerifiedNormalInstanceFunctionPlanSetV1 {
     let input = PreparedNormalSourcePlanInputV1::new(
         module_program(main_result, main_body, instance_value),
         "main0-bridge-test",
@@ -153,7 +153,7 @@ fn module_instance_plans(
         .expect("module inventory");
     VerifiedNormalModuleSourceV1::seal(inventory)
         .expect("module source")
-        .seal_instance_integer_return_plans()
+        .seal_instance_function_plans()
         .expect("instance plans")
 }
 
@@ -405,6 +405,9 @@ fn main0_bridge_preserves_module_source_and_instance_plans() {
     let expected_rows = plans
         .plans()
         .map(|(key, plan)| {
+            let plan = plan
+                .as_integer_literal_return()
+                .expect("sole cumulative variant");
             (
                 key.owner().to_owned(),
                 key.name().to_owned(),
@@ -418,6 +421,9 @@ fn main0_bridge_preserves_module_source_and_instance_plans() {
         .instance()
         .plans()
         .map(|(key, plan)| {
+            let plan = plan
+                .as_integer_literal_return()
+                .expect("sole cumulative variant");
             (
                 key.owner().to_owned(),
                 key.name().to_owned(),

@@ -473,17 +473,20 @@ fn rejection_retains_source_identity_and_has_no_retry() {
 }
 
 #[test]
-fn all_instance_integer_return_methods_seal_in_catalog_order() {
+fn all_instance_integer_return_methods_become_first_cumulative_variant() {
     let source = seal_module(program(vec![
         instance_box("Zeta", vec![("a", integer_return_function("a", 1))]),
         main_only(),
         instance_box("Alpha", vec![("b", integer_return_function("b", 2))]),
     ]))
     .unwrap();
-    let plans = source.seal_instance_integer_return_plans().unwrap();
+    let plans = source.seal_instance_function_plans().unwrap();
     let rows = plans
         .plans()
         .map(|(key, plan)| {
+            let plan = plan
+                .as_integer_literal_return()
+                .expect("sole cumulative variant");
             (
                 key.owner().to_owned(),
                 key.name().to_owned(),
@@ -522,12 +525,15 @@ fn integer_return_recipe_pairs_exact_completion_without_claiming_main() {
         ),
     ]))
     .unwrap()
-    .seal_instance_integer_return_plans()
+    .seal_instance_function_plans()
     .unwrap();
     let rows = plans.plans().collect::<Vec<_>>();
     let [(key, plan)] = rows.as_slice() else {
         panic!("expected one instance plan")
     };
+    let plan = plan
+        .as_integer_literal_return()
+        .expect("sole cumulative variant");
 
     assert_eq!(
         key.namespace(),
@@ -558,7 +564,7 @@ fn one_unsupported_method_rejects_the_whole_plan_set() {
         ),
     ]))
     .unwrap();
-    let rejected = source.seal_instance_integer_return_plans().unwrap_err();
+    let rejected = source.seal_instance_function_plans().unwrap_err();
 
     assert_eq!(rejected.stage(), GeneralFunctionPlanStageV1::Recipe);
     assert_eq!(rejected.source_identity(), "normal-source-plan0-test");
@@ -574,7 +580,7 @@ fn one_unsupported_method_rejects_the_whole_plan_set() {
 fn empty_instance_boxes_do_not_issue_an_empty_plan_set() {
     let rejected = seal_module(program(vec![main_only(), instance_box("Page", Vec::new())]))
         .unwrap()
-        .seal_instance_integer_return_plans()
+        .seal_instance_function_plans()
         .unwrap_err();
 
     assert_eq!(rejected.stage(), GeneralFunctionPlanStageV1::Inventory);
@@ -646,7 +652,7 @@ fn instance_integer_return_rejects_signature_and_body_widening() {
             instance_box("Page", vec![(name.as_str(), method)]),
         ]))
         .unwrap()
-        .seal_instance_integer_return_plans()
+        .seal_instance_function_plans()
         .unwrap_err();
         assert_eq!(rejected.stage(), expected_stage);
         rejected.discard();
@@ -663,7 +669,7 @@ fn rejection_discards_without_retry_and_fresh_source_reuses() {
         ),
     ]))
     .unwrap()
-    .seal_instance_integer_return_plans()
+    .seal_instance_function_plans()
     .unwrap_err();
     rejected.discard();
 
@@ -675,7 +681,7 @@ fn rejection_discards_without_retry_and_fresh_source_reuses() {
         ),
     ]))
     .unwrap()
-    .seal_instance_integer_return_plans()
+    .seal_instance_function_plans()
     .unwrap();
     assert_eq!(plans.len(), 1);
 }

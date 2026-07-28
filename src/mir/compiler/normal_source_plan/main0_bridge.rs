@@ -12,7 +12,7 @@ use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::VerifiedSemanticOwnerForestV1;
 use crate::mir::resolved_value_profile::product::VerifiedTrivialCanonicalOwnerV1;
 
-use super::instance_integer_return_plan::VerifiedNormalInstanceIntegerReturnPlanSetV1;
+use super::instance_function_plan::VerifiedNormalInstanceFunctionPlanSetV1;
 use super::main_function_plan::{verify_normal_main0_input_v1, NormalMainFunctionPlanErrorV1};
 use super::main_resolved_source::{
     resolve_normal_main_loan_v1, NormalMainResolvedSourceErrorV1, VerifiedNormalMainRoleV1,
@@ -62,12 +62,12 @@ impl VerifiedNormalMain0BridgePlanV1 {
 
 #[derive(Debug)]
 pub(crate) struct VerifiedNormalModuleFunctionPlanSetV1 {
-    instance: VerifiedNormalInstanceIntegerReturnPlanSetV1,
+    instance: VerifiedNormalInstanceFunctionPlanSetV1,
     main: VerifiedNormalMain0BridgePlanV1,
 }
 
 impl VerifiedNormalModuleFunctionPlanSetV1 {
-    pub(crate) const fn instance(&self) -> &VerifiedNormalInstanceIntegerReturnPlanSetV1 {
+    pub(crate) const fn instance(&self) -> &VerifiedNormalInstanceFunctionPlanSetV1 {
         &self.instance
     }
 
@@ -112,7 +112,7 @@ impl NormalMain0BridgeErrorV1 {
 
 #[derive(Debug)]
 pub(crate) struct RejectedNormalMain0BridgeV1 {
-    owner: VerifiedNormalInstanceIntegerReturnPlanSetV1,
+    owner: VerifiedNormalInstanceFunctionPlanSetV1,
     error: NormalMain0BridgeErrorV1,
 }
 
@@ -138,7 +138,7 @@ impl RejectedNormalMain0BridgeV1 {
     }
 }
 
-impl VerifiedNormalInstanceIntegerReturnPlanSetV1 {
+impl VerifiedNormalInstanceFunctionPlanSetV1 {
     pub(crate) fn seal_main0_bridge(
         self,
     ) -> Result<VerifiedNormalModuleFunctionPlanSetV1, RejectedNormalMain0BridgeV1> {
@@ -154,7 +154,7 @@ impl VerifiedNormalInstanceIntegerReturnPlanSetV1 {
 }
 
 fn prepare_main0_bridge(
-    owner: &VerifiedNormalInstanceIntegerReturnPlanSetV1,
+    owner: &VerifiedNormalInstanceFunctionPlanSetV1,
 ) -> Result<VerifiedNormalMain0BridgePlanV1, NormalMain0BridgeErrorV1> {
     let source = owner
         .borrow_exact_main_function()
