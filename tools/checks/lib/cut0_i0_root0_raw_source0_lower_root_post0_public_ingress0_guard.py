@@ -34,6 +34,9 @@ RAW_NONPROGRAM_ROOT_DESCENT = (
 RAW_NONPROGRAM_ROOT_DESCENT_TESTS = (
     ROOT / "src/mir/builder/raw_nonprogram_root_descent_tests.rs"
 )
+RAW_NONPROGRAM_ROOT_DESCENT_PARITY_TESTS = (
+    ROOT / "src/mir/builder/raw_nonprogram_root_descent_tests/parity.rs"
+)
 NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
 SOURCES = (
     ROOT / "src/mir/compiler/raw_public_ingress.rs",
@@ -171,6 +174,7 @@ def main() -> int:
             MODULE_LIFECYCLE,
             RAW_NONPROGRAM_ROOT_DESCENT,
             RAW_NONPROGRAM_ROOT_DESCENT_TESTS,
+            RAW_NONPROGRAM_ROOT_DESCENT_PARITY_TESTS,
             NORMAL_TESTS,
             *SOURCES,
         )
@@ -188,6 +192,9 @@ def main() -> int:
     module_lifecycle = production_code(MODULE_LIFECYCLE)
     raw_nonprogram_root_descent = production_code(RAW_NONPROGRAM_ROOT_DESCENT)
     raw_nonprogram_root_descent_tests = texts[RAW_NONPROGRAM_ROOT_DESCENT_TESTS]
+    raw_nonprogram_root_descent_parity_tests = texts[
+        RAW_NONPROGRAM_ROOT_DESCENT_PARITY_TESTS
+    ]
     normal_tests = texts[NORMAL_TESTS]
     current_workstream = texts[CURRENT_WORKSTREAM]
     for fragment in (
@@ -623,20 +630,36 @@ def main() -> int:
         RAW_NONPROGRAM_ROOT_DESCENT
     ]:
         raise AssertionError("raw root partition tests must remain outside production source")
+    require(
+        raw_nonprogram_root_descent_tests,
+        '#[path = "raw_nonprogram_root_descent_tests/parity.rs"]\nmod parity;',
+        "private raw root parity test child",
+    )
     for fixture in (
         "port_neutral_partition_is_recursive_and_disjoint",
-        "selected_print_root_matches_the_raw_legacy_port_exactly",
-        "selected_nowait_root_matches_raw_legacy_effects_exactly",
-        "selected_grouped_assignment_matches_raw_legacy_effects_exactly",
-        "selected_grouped_assignment_preflights_and_reuses_without_retry",
-        "selected_index_matches_raw_legacy_effects_exactly",
-        "selected_empty_block_expr_matches_raw_legacy_effects_exactly",
         "program_box_and_loop_keep_their_existing_root_owners",
     ):
         require(
             raw_nonprogram_root_descent_tests,
             fixture,
             f"raw root partition fixture {fixture}",
+        )
+        if fixture in raw_nonprogram_root_descent_parity_tests:
+            raise AssertionError(f"raw root partition fixture moved into parity child: {fixture}")
+    for fixture in (
+        "selected_print_root_matches_the_raw_legacy_port_exactly",
+        "selected_nowait_root_matches_raw_legacy_effects_exactly",
+        "selected_grouped_assignment_matches_raw_legacy_effects_exactly",
+        "selected_grouped_assignment_preflights_and_reuses_without_retry",
+        "selected_index_matches_raw_legacy_effects_exactly",
+        "selected_empty_block_expr_matches_raw_legacy_effects_exactly",
+    ):
+        if fixture in raw_nonprogram_root_descent_tests:
+            raise AssertionError(f"raw root parity fixture remains in parent hub: {fixture}")
+        require(
+            raw_nonprogram_root_descent_parity_tests,
+            fixture,
+            f"raw root parity fixture {fixture}",
         )
     for fixture in (
         "late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable",

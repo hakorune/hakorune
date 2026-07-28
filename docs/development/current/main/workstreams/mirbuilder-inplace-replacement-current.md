@@ -57,9 +57,10 @@ Closed:  RAW-NONPROGRAM-EMPTY-BLOCK-EXPR-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY7-D0
 Closed:  RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0
-Current: RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0
+Closed:  RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0
+Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0
 Pack:    ROOT-LIFECYCLE0
-Ceremony: T1 behavior-neutral BoxShape R0
+Ceremony: read-only live-edge census
 ```
 
 R1 closeout:
@@ -327,47 +328,46 @@ new source/test/check file                 = 0
 largest touched source/check file          = 782
 ```
 
-## Current execution task
+## Latest closeout
 
 ```text
 RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0
 
-Purpose:
-  free honest evidence space before the next semantic responsibility
-  without mixing BoxShape cleanup into that later replacement cell
+production Rust delta                = 0
+moved fixture body parity            = 6/6 exact
+root partition/parity tests          = 8/8 green
+normal integration/failure tests     = 8/8 green
+selected expr/stmt/residual          = 12 / 3 / 41
+selected/compatibility terminals     = 1 / 1
+parent/child/shared guard lines       = 482 / 305 / 718
+shared guard / artifact inventory    = green
+fallback / retry / reselection       = 0
+new test-only Rust file              = 1
+new check/guard/task file            = 0
+all source/check files               < 800
+```
 
-Keep in raw_nonprogram_root_descent_tests.rs:
-  shared AST constructors and assertion helpers
-  exhaustive recursive partition fixture
-  Program / Box / Loop owner fixture
+## Current design stop
 
-Move unchanged to one private child test module:
-  selected-vs-Legacy parity/effect helpers and fixtures
-  Print / Nowait / GroupedAssignment / Index / empty BlockExpr evidence
+```text
+RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0
 
-Required:
-  parent helpers remain the only helper authority
-  child uses the parent helpers
-  existing shared guard watches both files
-  artifact lifecycle inventory is regenerated
+Read-only:
+  refresh the remaining 41-kind live compatibility census
+  compare only responsibilities with existing production owners
 
-Invariant:
-  production Rust delta             = 0
-  test name/body/assertion delta    = 0
-  grammar/result/route delta        = 0
-  selected expr/stmt/residual       = 12 / 3 / 41
-  selected/compatibility terminals  = 1 / 1
-  fallback/retry/reselection        = 0
-  new test-only Rust file           = 1
-  new check/guard/task file         = 0
-  every source/check file           < 800
+Selection requires:
+  one named production caller
+  one bounded source-only partition
+  one same-commit old compatibility-edge deletion
+  no duplicated family/target decision
+  fallback / retry / reselection = 0
 
-Hard stop:
-  semantic classifier or owner edit
-  helper or fixture duplication
-  evidence compression
-  manifest responsibility-count change
-  production behavior or ratchet change
+Park:
+  implementation
+  whole-program accepted variants
+  source-level Ownership / View
+  all other new language semantics
 ```
 
 Compatibility sunset:
@@ -423,7 +423,8 @@ R2x RAW-NONPROGRAM-EMPTY-BLOCK-EXPR-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2y RAW-NONPROGRAM-NEXT-RESPONSIBILITY7-D0 closed
 R2z RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0 closed
 R2aa RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0 closed
-R2ab RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0 current
+R2ab RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0 closed
+R2ac RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:
