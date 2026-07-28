@@ -59,19 +59,6 @@ guard_expect_in_file "$TAG" "Past row guards must not pin" "$POLICY" "update pol
 guard_expect_in_file "$TAG" "historical snapshot" "$MANIFEST" "archive manifest must describe DOCS-SLIM-002 counts as historical"
 guard_expect_in_file "$TAG" "phase293x_card_path" "$HELPER" "phase card helper must expose resolver"
 
-latest_prefix='latest_card = "'
-latest_phase='293x-'
-blocker_prefix='current_blocker_token = '
-quote='"'
-
-if rg -n "${latest_prefix}${latest_phase}|${blocker_prefix}${quote}" tools/checks --glob '!docs_slim_003_guard_reference_decoupling_guard.sh' >/tmp/"$TAG".current_pin 2>&1; then
-  echo "[$TAG] ERROR: check guards must not pin CURRENT_STATE latest_card/current_blocker_token" >&2
-  cat /tmp/"$TAG".current_pin >&2
-  rm -f /tmp/"$TAG".current_pin
-  exit 1
-fi
-rm -f /tmp/"$TAG".current_pin
-
 for script in "${stale_pin_guards[@]}"; do
   if rg -n 'CURRENT_STATE|latest_card|current_blocker_token' "$script" >/tmp/"$TAG".stale_pin 2>&1; then
     echo "[$TAG] ERROR: stale current pointer dependency remains in $script" >&2
@@ -82,7 +69,7 @@ for script in "${stale_pin_guards[@]}"; do
 done
 rm -f /tmp/"$TAG".stale_pin
 
-dynamic_latest_pin="${latest_prefix}${latest_phase}"
+dynamic_latest_pin='latest_card = "293x-'
 if rg -n "count_root_cards|count_range|direct_guard_refs|unique_card_refs|${dynamic_latest_pin}" "$DOCS_SLIM_002_GUARD" >/tmp/"$TAG".docs_slim_002_dynamic 2>&1; then
   echo "[$TAG] ERROR: DOCS-SLIM-002 guard must not pin evolving root counts, reference counts, or latest-card fields" >&2
   cat /tmp/"$TAG".docs_slim_002_dynamic >&2

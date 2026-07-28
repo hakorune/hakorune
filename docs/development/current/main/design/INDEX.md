@@ -103,6 +103,29 @@ sidecars = []
 supersedes = []
 superseded_by = ""
 retire_when = "current documentation update policy is replaced explicitly"
+
+[[documents]]
+path = "mirbuilder-final-pipeline-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "recipe-first-entry-contract-ssot.md"
+classification_basis = "DOCS_LAYOUT:MirBuilder final production pipeline"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "MirBuilder final production pipeline is replaced explicitly"
+
+[[documents]]
+path = "mirbuilder-inplace-replacement-policy-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "mirbuilder-final-pipeline-ssot.md"
+classification_basis = "DOCS_LAYOUT:MirBuilder in-place replacement policy"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "MirBuilder replacement method is replaced explicitly"
+
 [[documents]]
 path = "ai-handoff-and-debug-contract.md"
 role = "authority"

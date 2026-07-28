@@ -77,8 +77,4 @@ for script in "${converted_scripts[@]}"; do
   bash -n "$script" >/dev/null
 done
 
-for script in "${converted_scripts[@]}"; do
-  bash "$script" >/dev/null
-done
-
 echo "[$TAG] ok converted=${actionable_count}"

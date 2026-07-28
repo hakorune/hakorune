@@ -1,22 +1,22 @@
 {
   "counts": {
-    "checks": 3324,
-    "design_direct": 851,
-    "docs": 12332,
+    "checks": 3602,
+    "design_direct": 855,
+    "docs": 12643,
     "docs_development_archive": 2589,
-    "docs_development_current": 8326,
+    "docs_development_current": 8631,
     "main_direct": 168,
     "phase_296x_archive": 2517,
     "phase_296x_direct": 1039,
     "private": 0,
-    "src": 3183,
-    "tools": 6906
+    "src": 3893,
+    "tools": 7221
   },
   "design_registry": {
     "authority_registry_decided": true,
     "c1_review": {
       "basis": "explicit README section evidence",
-      "row_count": 113,
+      "row_count": 115,
       "rows": [
         {
           "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
@@ -41,6 +41,11 @@
         {
           "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09; canonical resolved-source local-value/control lowering authority",
           "path": "binding-ssa-first-control-lowering-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09; B\u2032 Box lifecycle, Ownership SSA/ObjectCell boundary, and adaptive runtime strategy",
+          "path": "box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md",
           "role": "authority"
         },
         {
@@ -121,6 +126,11 @@
         {
           "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
           "path": "de-rust-post-g1-runtime-plan-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09; deterministic sharded Design Registry V1 storage, parity, cutover, and V0 retirement boundary",
+          "path": "design-registry-v1-sharded-manifest-ssot.md",
           "role": "authority"
         },
         {
@@ -834,23 +844,23 @@
       "role_assignment": "none",
       "singleton_family_count": 35
     },
-    "direct_files": 851,
-    "markdown_files": 830,
+    "direct_files": 855,
+    "markdown_files": 834,
     "non_markdown_files": 21,
     "owned_sidecar_count": 119,
-    "registered_count": 655,
+    "registered_count": 659,
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 14,
-      "docs/development/current/main/CURRENT_STATE.toml": 3,
-      "docs/development/current/main/DOCS_LAYOUT.md": 53,
-      "docs/development/current/main/design/README.md": 124
+      "docs/development/current/main/CURRENT_STATE.toml": 4,
+      "docs/development/current/main/DOCS_LAYOUT.md": 57,
+      "docs/development/current/main/design/README.md": 126
     },
-    "seed_union_count": 163,
+    "seed_union_count": 167,
     "status_counts": {
       "active_like": 128,
       "closed": 12,
-      "other_or_missing": 690
+      "other_or_missing": 694
     },
     "unregistered": [
       "allocator-hook-activation-proof-v0.toml",
@@ -938,8 +948,8 @@
   },
   "document_reachability": {
     "ambiguous_basename_count": 15,
-    "archived_in_place_count": 1597,
-    "document_count": 8326,
+    "archived_in_place_count": 1594,
+    "document_count": 8631,
     "partial_phase_unreachable": {
       "archive_target_collision_count": 0,
       "cluster_count": 0,
@@ -1380,9 +1390,9 @@
       },
       {
         "phase": "phase-296x",
-        "reachable_files": 1959,
+        "reachable_files": 1962,
         "total_files": 3556,
-        "unreachable_files": 1597,
+        "unreachable_files": 1594,
         "whole_phase_unreachable": false
       },
       {
@@ -1701,18 +1711,18 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 4964,
-    "root_count": 3676,
+    "reachable_count": 5241,
+    "root_count": 3807,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1039,
-      "current_pointer": 4,
-      "design_authority": 259,
+      "current_pointer": 3,
+      "design_authority": 263,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3048
+      "reference_src_tools": 3181
     },
-    "unreachable_count": 3362,
-    "unreachable_pending_count": 1765,
+    "unreachable_count": 3390,
+    "unreachable_pending_count": 1796,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0
@@ -2575,7 +2585,7 @@
       "docs/development/current/main/phases/phase-296x/3459-LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001.md",
       "docs/development/current/main/phases/phase-296x/3460-LANGV1-GRAMMAR-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3461-LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001.md",
-      "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md",
+      "docs/development/current/main/phases/phase-296x/3481-LANGV1-TYPE-GUARANTEE-PARAMETER-ENTRY-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3506-LANGV1-FAILURE-OUTCOME-SEMANTIC-UNIFICATION-001.md",
       "docs/development/current/main/phases/phase-296x/3507-LANGV1-FAILURE-OUTCOME-S2-PROJECTION-BINDING-001.md",
       "docs/development/current/main/phases/phase-296x/3510-LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001.md",
@@ -2755,12 +2765,12 @@
       "docs/development/current/main/phases/phase-296x/3343-MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-TASKIZATION-001.md",
       "docs/development/current/main/phases/phase-296x/3346-MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3467-LANGV1-HAKO-GRAMMAR-PROFILE-WITNESS-DESIGN-STOP-001.md",
-      "docs/development/current/main/phases/phase-296x/3481-LANGV1-TYPE-GUARANTEE-PARAMETER-ENTRY-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3483-LANGV1-TYPE-GUARANTEE-RETURN-EXIT-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3491-LANGV1-NEXT-TYPE-FAMILY-SELECTION-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3500-LANGV1-WEAK-FIELD-CONTRACT-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3501-LANGV1-WEAKREF-VALUE-LAW-CORRECTIVE-001.md",
       "docs/development/current/main/phases/phase-296x/3504-LANGV1-FAILURE-OUTCOME-DESIGN-STOP-001.md",
+      "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md",
       "docs/development/current/main/phases/phase-296x/3508-LANGV1-FAILURE-OUTCOME-S3-CONTROL-FLOW-INVENTORY-001.md",
       "docs/development/current/main/phases/phase-296x/3509-LANGV1-FAILURE-OUTCOME-S4-EXHAUSTIVENESS-CHECKER-001.md"
     ],
@@ -3312,7 +3322,7 @@
         "current_pointer": false,
         "direct_files": 6,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 3,
+        "external_reference_count": 4,
         "phase": "phase-285",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-285/README.md",
@@ -3402,7 +3412,7 @@
         "current_pointer": false,
         "direct_files": 2,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 4,
+        "external_reference_count": 5,
         "phase": "phase-29aa",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-29aa/README.md",
@@ -3452,7 +3462,7 @@
         "current_pointer": false,
         "direct_files": 46,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 4,
+        "external_reference_count": 5,
         "phase": "phase-29ao",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-29ao/README.md",
@@ -3582,7 +3592,7 @@
         "current_pointer": false,
         "direct_files": 156,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 90,
+        "external_reference_count": 91,
         "phase": "phase-29cc",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-29cc/README.md",
@@ -3662,7 +3672,7 @@
         "current_pointer": false,
         "direct_files": 20,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 26,
+        "external_reference_count": 27,
         "phase": "phase-29ck",
         "status": "active_like",
         "status_source": "docs/development/current/main/phases/phase-29ck/README.md",
@@ -3732,7 +3742,7 @@
         "current_pointer": false,
         "direct_files": 58,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 34,
+        "external_reference_count": 35,
         "phase": "phase-29x",
         "status": "active_like",
         "status_source": "docs/development/current/main/phases/phase-29x/README.md",
@@ -3742,7 +3752,7 @@
         "current_pointer": false,
         "direct_files": 16,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 60,
+        "external_reference_count": 61,
         "phase": "phase-29y",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-29y/README.md",

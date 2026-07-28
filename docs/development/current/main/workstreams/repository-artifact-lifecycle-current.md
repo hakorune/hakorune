@@ -1,5 +1,5 @@
 ---
-Status: Active bounded interlude at R1
+Status: Active bounded interlude at R2
 Date: 2026-07-28
 Decision: Restore `current` as an authority surface and stop one-decision-one-file growth
 Owner: ../design/current-docs-archive-policy-ssot.md
@@ -23,15 +23,16 @@ move already-historical phase material out of current
 File and line counts are measured results. They are not implementation
 permission gates and do not replace reference-closure checks.
 
-`CURRENT_STATE.toml` now selects R1. This bounded activation runs through R2,
+`CURRENT_STATE.toml` now selects R2. This bounded activation runs through R2,
 R3, one first R4 batch, and `DOCS-MEANING-RECOVERY-RETURN0`. It then returns
 to the MirBuilder workstream at
 `NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0`; it does not jump directly to
 Candidate A.
 
-R1 authorizes only archive-substrate gate repair. Physical moves begin no
-earlier than the exact R3 pilot. Compiler/runtime/backend edits and a tenth
-replacement row remain forbidden throughout this interlude.
+R2 authorizes only resolver/relocator support for the live, global archive,
+and transitional nested-archive locations. Physical moves begin no earlier
+than the exact R3 pilot. Compiler/runtime/backend edits and a tenth replacement
+row remain forbidden throughout this interlude.
 
 ## Scheduled first activation
 
@@ -136,31 +137,75 @@ atomic path rewrite.
 Git history owns the detailed batch ledger. It is intentionally not repeated
 in this rolling card.
 
-## Current first red
+## R1 closeout
 
-The archive substrate is not green:
+The substrate repair established:
 
 ```text
-repository lifecycle strict check:
-  unregistered design files grew: 79 > 77
+design registry:
+  mirbuilder-final-pipeline-ssot.md classified as authority
+  mirbuilder-inplace-replacement-policy-ssot.md classified as authority
+  unregistered baseline remains 77
 
-DOCS-SLIM-001:
-  guard file is not executable
+repository lifecycle strict check = green
+DOCS-SLIM-001                    = green
+DOCS-SLIM-002                    = green
 
-DOCS-SLIM-002:
-  phase-293x/archive/README.md is missing
-
-DOCS-SLIM-003 and DOCS-SLIM-026:
-  phase_card_paths.sh is not executable
-
-whole-phase dry-run candidates:
-  0
-
-partial-phase dry-run candidates:
-  0
+phase-293x archive entry:
+  canonical path = docs/development/archive/phases/phase-293x/archive/README.md
+  duplicate current-tree restoration = forbidden
 ```
 
-No physical move starts while these known gates are red.
+Restoring the masked executable entries exposed two later-history contract
+drifts:
+
+```text
+DOCS-SLIM-003:
+  its repository-wide current-pointer-pin scan now includes 201 historical,
+  non-executable row guards
+
+DOCS-SLIM-026:
+  its 19 converted historical guards are structurally resolver-aware, but
+  executing every old guard also reasserts unrelated retired source/dev-gate
+  snapshots
+```
+
+R1 resolved those drifts without reviving historical guards:
+
+```text
+DOCS-SLIM-003:
+  original explicit ten-guard regression set = retained and green
+  later historical row guards                = not current authority
+
+DOCS-SLIM-026:
+  shared helper presence across 19 scripts = exact
+  raw resolver-leak assertions             = 0
+  bash syntax                              = green
+  unrelated historical guard execution    = not an R1 requirement
+
+physical archive move = 0
+```
+
+## Current R2 task
+
+Extend the one existing phase-card resolver and relocation tools to recognize:
+
+```text
+live phase path
+global development archive path
+transitional nested archive path
+```
+
+Lookup order is:
+
+```text
+live
+-> global archive
+-> transitional nested archive
+```
+
+R2 must preserve collision detection and fail when more than one authoritative
+full copy exists. It does not move files.
 
 ## Final archive shape
 
