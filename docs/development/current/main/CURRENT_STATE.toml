@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Nine production cells and the minimal four-metric structural ratchet are closed. FIELD-PROPERTY-GETTER-DESCENT0-I0-R0 now preserves the selected FieldAccess port for catalog-child descent while retaining the A1 lookup-none property terminal. The old raw handler, Legacy adapter, value-only entry, and dead field facade are absent. No tenth responsibility is selected."
+status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Nine production cells and the minimal four-metric structural ratchet are closed. The current T2 design stop is CANONICAL-DEFAULT-COMPILER-INGRESS0-D0: normal/default compilation still enters Legacy, while existing canonical fronts cover narrower explicit families and have no normal/default production caller. No tenth replacement cell is selected."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-NEXT-EDGE-DESIGN-STOP"
-current_execution_row = "MIRBUILDER-NEXT-EDGE-DESIGN-STOP"
-current_execution_summary = "The ninth FieldAccess property-getter descent cell is closed. Keep the north-star pipeline fixed and select no tenth executable owner until one exact production caller, replacement owner, atomic delete set, parity gate, and structural boundary are accepted together."
+current_design_stop = "CANONICAL-DEFAULT-COMPILER-INGRESS0-D0"
+current_execution_row = "CANONICAL-DEFAULT-COMPILER-INGRESS0-D0"
+current_execution_summary = "Reconcile one typed normal/default compiler request across AST, source identity, imports, configuration, provenance, complete source-family classification, canonical owner dispatch, and backend-neutral MirCompileResult. Production edits, a tenth manifest row, and canonical-to-Legacy fallback are forbidden until the exact caller family, parity gate, and atomic old-edge delete set are accepted."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -438,9 +438,9 @@ raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/invest
 raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
 raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
 
-latest_card = "field-property-getter-descent0-d0-consultation-2026-07-28"
-latest_card_path = "docs/development/current/main/investigations/field-property-getter-descent0-d0-consultation-2026-07-28.md"
-latest_card_summary = """FIELD-PROPERTY-GETTER-DESCENT0-I0-R0 is closed as Candidate A / A1 / T1. The sole raw/default FieldAccess selector keeps its selected port through object descent and lends it only to catalog-helper child descent; the property terminal deliberately remains raw lookup=None. The old value-only property entry, raw standard handler, Legacy argument adapter, and dead build_field_access facade are absent. Real property ingress is 3/3 green, focused route/failure/reuse guards are green, source/test files remain 952/139, source/test LOC is 182452/40809, and the five-cell rolling production LOC is -218. No tenth responsibility is selected."""
+latest_card = "canonical-default-compiler-ingress0-d0-consultation-2026-07-28"
+latest_card_path = "docs/development/current/main/investigations/canonical-default-compiler-ingress0-d0-consultation-2026-07-28.md"
+latest_card_summary = """CANONICAL-DEFAULT-COMPILER-INGRESS0-D0 is the active T2 design stop. Normal/default MIR and ordinary VM still enter compile_with_source* -> compile_legacy_request, while existing canonical entrypoints have zero normal/default production callers and narrower accepted families. The consultation must select one typed request, exact caller family, total source-family table, internal canonical owner graph, backend-neutral result contract, compatibility boundary, parity gates, and atomic Legacy/default delete set. No production edit, tenth manifest row, fallback, retry, or reselection is authorized."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-NEXT-EDGE-DESIGN-STOP"
+current_blocker_token = "CANONICAL-DEFAULT-COMPILER-INGRESS0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -48,7 +48,7 @@ authorityを一つ減らす場合だけ選択する。
 ## Current front
 
 ```text
-MIRBUILDER-NEXT-EDGE-DESIGN-STOP
+CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
 ```
 
 最小structural ratchet、第七Binary cell、第八record-helper body descent
@@ -60,6 +60,24 @@ dead same-family facade三本はゼロになった。
 選択済みportをcatalog-child descentだけへ貸し、terminalはA1の
 `lookup=None`を維持する。旧raw handler、Legacy adapter、value-only entry、
 dead field facadeはゼロ。第十cellは未選択。
+
+六workerのbounded censusは、局所のdead facade／proof cleanupより先に、
+north-star最大の入口分岐を設計停止へ固定した。
+
+```text
+normal/default
+-> compile_with_source*
+-> compile_legacy_request
+
+canonical fronts
+-> bounded explicit families
+-> normal/default production caller = 0
+```
+
+現在はT2相談だけを行う。AST、source identity、imports、config、
+compatibility provenance、total family classification、backend-neutral result
+を一つのtyped requestへ閉じ、fallbackなしのatomic delete setが確定するまで
+production editと第十manifest rowを禁止する。
 
 ## First three replacements
 
@@ -162,7 +180,7 @@ non-positive.
 
 ```text
 none
-  current = MIRBUILDER-NEXT-EDGE-DESIGN-STOP
+  current = CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
   tenth responsibility = not selected
 ```
 
@@ -206,7 +224,32 @@ closeout:
 MethodCall AST/input reconstruction, receiver re-descent, fallback, retry,
 route reselection, located activation, and header-authority delta are zero.
 Dead raw-body facade retirement, proof consolidation, non-Program root, and
-default compiler ingress remain parked; none is selected by this closeout.
+default compiler ingress were all unselected by the property closeout. The
+fresh census below now selects only the compiler-ingress D0.
+
+## Active compiler-ingress consultation
+
+```text
+pack                         = COMPILER-RESIDUE0
+ceremony                     = T2 design stop
+normal/default Legacy caller = present
+canonical default caller     = 0
+production/source edit       = 0
+manifest row delta           = 0
+fallback / retry             = forbidden
+```
+
+Authority:
+
+```text
+docs/development/current/main/investigations/
+canonical-default-compiler-ingress0-d0-consultation-2026-07-28.md
+```
+
+The consultation must either accept one total typed ingress and its atomic
+old-edge delete set, or name the first missing production capability. Local
+cleanup and proof consolidation remain parked because they do not switch the
+default production authority.
 
 ## Landed replacement cells
 

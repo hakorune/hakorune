@@ -679,34 +679,30 @@ COMPILER-RESIDUE0
 
 No new macro pack may be inserted.
 
-### Default compiler ingress debt
+### Active default compiler ingress D0
 
-The current normal runners, including ordinary `--backend vm`, still enter:
+The current normal runners, including ordinary `--backend vm`, still enter
+`compile_with_source* -> compile_legacy_request`. Existing canonical
+entrypoints admit narrower explicit families and have no normal/default
+production caller.
 
-```text
-compile_with_source / compile_with_source_and_imports
--> compile_legacy_request
-```
-
-The resolved canonical entrypoints currently admit explicit bounded families;
-they are not yet the normal/default front door. This split is an intentional
-migration state, not the final architecture.
-
-`COMPILER-RESIDUE0` cannot close until:
+Active authority:
 
 ```text
-normal/default runner ingress                    = one typed canonical ingress
-normal/default route selection                   = exactly once
-compile_with_source* Legacy production callers   = 0
-family-specific canonical entrypoints            = internal helpers or retired
-canonical rejection -> Legacy retry/fallback     = 0
-imports / Program / Main / callable families     = covered by typed preflight
-full normal corpus and backend parity             = green
+CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
+docs/development/current/main/investigations/
+canonical-default-compiler-ingress0-d0-consultation-2026-07-28.md
 ```
 
-Do not implement this as “probe canonical, then fall back to Legacy”. Keep the
-current split until the canonical accepted vocabulary can replace the whole
-selected normal caller family atomically.
+Before a tenth row, the D0 must accept one typed request carrying AST, source
+identity, imports, configuration, and compatibility provenance; one total
+source-family classifier before Builder effects; one backend-neutral result;
+the exact normal/default caller family; and one atomic old-edge delete set.
+
+`COMPILER-RESIDUE0` cannot close until normal/default route selection is once,
+`compile_with_source*` Legacy production callers are zero, family-specific
+canonical entrypoints are internal or retired, full corpus/backend parity is
+green, and canonical rejection never retries Legacy.
 
 ## Shared replacement ledger
 

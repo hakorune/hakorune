@@ -1,8 +1,8 @@
 ---
-Status: active after ninth replacement closeout
+Status: resolved into compiler-ingress design consultation
 Date: 2026-07-28
 Decision: MIRBUILDER-NEXT-EDGE-DESIGN-STOP
-Scope: select the next exact production edge after eight closed cutovers
+Scope: select the next exact production edge after nine closed cutovers
 ---
 
 # MirBuilder next production edge design stop
@@ -23,8 +23,8 @@ not selection authority.
 
 ## Current boundary
 
-Eight production cutovers are closed. The manifest has no remaining
-scheduled production cell, while all eight macro packs remain open. No source
+Nine production cutovers are closed. The manifest has no remaining scheduled
+production cell, while all eight macro packs remain open. No source
 edit may begin until one exact existing caller, replacement owner, delete
 target, parity gate, and LOC repayment boundary are selected together.
 
@@ -76,18 +76,51 @@ fallback / retry / reselection    = 0
 
 No tenth responsibility is selected.
 
+## Tenth-responsibility census outcome
+
+A six-worker bounded census found that local dead-facade and proof cleanup is
+available, and non-Program root descent remains a live T1 boundary. Neither
+resolves the fixed north-star's largest production split:
+
+```text
+normal/default compilation
+-> compile_with_source*
+-> compile_legacy_request
+
+existing canonical fronts
+-> narrower explicit families
+-> normal/default production callers = 0
+```
+
+The design stop therefore resolves into:
+
+```text
+CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
+Pack: COMPILER-RESIDUE0
+Ceremony: T2
+ReplacementCell: no
+```
+
+Authority:
+
+```text
+docs/development/current/main/investigations/
+canonical-default-compiler-ingress0-d0-consultation-2026-07-28.md
+```
+
+The D0 must close one typed request, exact caller family, total accepted-family
+table, canonical owner graph, backend-neutral result contract, compatibility
+boundary, parity gates, and atomic Legacy/default delete set. A canonical
+probe followed by Legacy fallback is rejected. No production edit or tenth
+manifest row is authorized during the consultation.
+
 ## Candidates
 
-1. `REPLACEMENT-LEDGER0` bounded census, then select one historical live
-   replacement whose new caller and old selected branch can both be guarded.
-2. `DESCENT-SPINE0` select the next direct recursion/facade edge after the
-   callable body cutover.
-3. `FUNCTION-STATE0` select one duplicate function-state writer only if the
-   ledger proves an existing production caller can switch in the same cell.
-
-Recommended next decision: candidate 1. It follows the fixed pack order and
-prevents naming an implementation row before the finite ledger has an exact
-production edge.
+1. `CANONICAL-DEFAULT-COMPILER-INGRESS0-D0`: selected design authority.
+2. `NONPROGRAM-ROOT-DESCENT-PARTITION0-D0`: real live descent boundary, parked
+   until the compiler-front authority is decided.
+3. Dead CALL/body/statement facades and proof transport: bounded cleanup,
+   parked because they switch no production authority.
 
 ## Previous resolution
 
