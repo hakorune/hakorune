@@ -459,32 +459,73 @@ Eight-pack verdict:
 | `MODULE-LIFECYCLE0` | Residual | selected-normal is complete; two production arbitrary-AST `build_module` surfaces remain |
 | `COMPILER-RESIDUE0` | Residual | MirCompiler/runtime arbitrary-AST compatibility plus caller-zero Stage-B activation remain |
 
-## Current design stop
+## Accepted execution
 
-`PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0`
+`PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0` — T1 detached-asset
+retirement, one atomic commit.
 
 ```text
-Purpose:
-  Decide the bounded deletion of the caller-zero, production-capable detached
-  Stage-B carrier/session/context path.
+Decision:
+  Delete the complete caller-zero Stage-B whole-source selector -> activation
+  -> carrier -> function-session -> physical-publication closure.
 
-Why first:
-  The fixed ledger already classifies this asset as Delete pending, its
-  production caller count is zero, and deleting it reduces detached authority
-  without changing grammar or a live result.
+Atomic delete roots:
+  compiler:
+    legacy_source_selection
+    legacy_static_import_snapshot
+    legacy_whole_source_request
+    legacy_module_activation/**
+  mir:
+    preloop_stageb_candidate_shell
+    preloop_stageb_carrier/**
+  builder:
+    preloop_stageb_context_install
+    preloop_stageb_function_activation
+    calls/preloop_stageb_instance_function_session/**
+    calls/preloop_located_argument_*
+    calls/preloop_located_outer_completion
+    calls/preloop_nested_result_*
+    calls/preloop_outer_carrier_*
+    all dedicated cfg(test) support for those physical owners
+  wiring:
+    module declarations/reexports
+    Stage-B-only module-lifecycle/readiness/install helpers
+    Stage-B-only compilation-context helpers
+  proof:
+    two Stage-B child guards and their aggregate positive assertions
 
-Required decision:
-  exact symbol/file delete set
-  exact test-only callers and proof replacement
-  retained source-neutral receipts/seams
-  same-commit guard/manifest ratchet
+Keep:
+  source_call_target/**
+  source_instance_result_contract/**
+  callable result/catalog and generic method-call receipts
+  unified emitter, recursive child ports, generic function session
+  ModuleDraftCollectorV1
 
-Non-claims:
-  replacement credit = 0
-  selected-normal behavior delta = 0
-  raw compatibility retirement = 0
-  MirCompiler/runtime AST compatibility retirement = 0
-  source-level Ownership/View activation = 0
+Measured law:
+  production caller                         = 0 -> 0
+  detached production-capable asset family  = 1 -> 0
+  replacement cell / credit                 = 0
+  replacement owner / fallback              = 0
+
+Ledger:
+  PRELOOP-STAGEB-SPECIAL-ACTIVATION
+  Delete pending -> Delete closed
+
+Evidence:
+  exact special-root repository-zero census
+  retained source-neutral receipt tests
+  retained method-call/unified-emitter tests
+  cargo test --lib
+  existing aggregate/replacement/pointer guards
+  git diff --check
+  all source/check files < 800
+
+Hard stop:
+  any non-test caller outside this closure appears
+  selected-normal or explicit build_module behavior needs an edit
+  a retained source-neutral receipt/catalog semantic must change
+  a tombstone, alias, forwarding facade, fallback, or new guard is needed
+  JoinIR/runtime Stage-B would be touched
 ```
 
 Compatibility sunset:
@@ -567,7 +608,8 @@ R2ag RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0 closed
 R2ah NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0 closed
 R2ai NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0 closed
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
-R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 current design stop
+R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
+R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 current
 
 after every bounded retirement:
   run a fresh live-edge census

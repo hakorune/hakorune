@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed with an honest Residual verdict. PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 is the sole design stop."
+status = "PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 is closed. PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 is the sole executable row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0"
-current_execution_row = ""
-current_execution_summary = "Design-only deletion inventory for one caller-zero production-capable detached Stage-B carrier/session/context path. Fix the exact physical delete set, test-only proof migration, retained source-neutral seams, and same-commit ledger/guard ratchet before any code edit. Replacement credit, grammar/result changes, compatibility growth, selected-normal route changes, and source-level Ownership/View remain zero."
+current_design_stop = ""
+current_execution_row = "PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0"
+current_execution_summary = "T1 one-commit physical retirement of the complete caller-zero Stage-B whole-source selector, activation, carrier, function-session, and preloop physical-publication closure. Delete its dedicated tests/child guards and wiring; preserve source_call_target, source_instance_result_contract, generic callable/method-call receipts, unified emitter, function session, and draft collector. Production callers remain 0, replacement credit is 0, and grammar/result/backend/Ownership/View behavior must not change."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """The eight-pack conformance census is closed. The selected-normal chain is complete from four typed Program constructors through one candidate/session, root/catalog lifecycle, collector-backed callable batch, finish/readiness, and external commit. Repository-wide MIRBUILDER-FINAL-PIPELINE-v1 remains Residual: raw legacy function publication, distributed function/control/call authority, 40 raw non-Program compatibility kinds, two production arbitrary-AST build_module edges, and one caller-zero production-capable Stage-B activation asset remain. The sole current design stop is PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0. It may select only a bounded physical deletion with replacement credit 0; no Rust edit begins until the exact delete set and retained seams are fixed. MirBuilder cleanup remains ahead of source-level Ownership/View or other unimplemented features. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """The eight-pack conformance census is closed with a repository-wide Residual verdict. PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 accepted one atomic physical deletion of a caller-zero private closure; PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 is the sole executable row. It deletes the Stage-B whole-source selector, activation, carrier, function session, preloop physical publication, dedicated tests/guards, and wiring, while preserving source-neutral source_call_target/source_instance_result_contract receipts plus live generic method-call/unified-emitter/session/collector owners. Production callers remain 0, replacement credit is 0, and selected-normal, explicit build_module, grammar, result, backend, and Ownership/View behavior must not change. MirBuilder cleanup remains ahead of source-level Ownership/View or other unimplemented features. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
