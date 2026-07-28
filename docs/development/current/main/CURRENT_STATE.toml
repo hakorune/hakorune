@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0 is closed. Every InstanceBoxMethod is sealed exactly once into a disconnected integer-literal Return plan set with lexical receiver, source projection, Recipe, and completion correspondence. The next authority is GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0."
+status = "GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0 is accepted as corrected C-prime. GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0 is selected to retain the closed M2a plan set, borrow its exact Main.main/0 once, reuse the existing Main0 semantic kernels, and seal only owned receipts into one disconnected aggregate."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0; define the exact ownership bridge from VerifiedNormalModuleSourceV1 Main.main/0 into existing Main0 source/resolved/function-plan owners"
-current_execution_row = "GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0"
-current_execution_summary = "Select one exact consuming bridge for the Main.main/0 retained by VerifiedNormalModuleSourceV1. Reuse the existing Main0 source, resolved-source, function-plan, and physical relation owners without adding Main grammar or a second resolver. Fix source authority, consuming transition, rejection ownership, pairing evidence, and the following executable row. Do not add AST clone/reconstruction, Builder/MIR, production caller, Legacy fallback, Ownership/View activation, Candidate A, or the tenth replacement row."
+current_design_stop = "none; GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0 accepted corrected C-prime and selected GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0"
+current_execution_row = "GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0"
+current_execution_summary = "Consume VerifiedNormalInstanceIntegerReturnPlanSetV1 exactly once. Borrow its retained Main.main/0 once, share the existing exact Main locator, resolver, source projection, and Main0 preflight kernels, discard the borrowed lowering input, and move only owned Main receipts beside the intact M2a owner into VerifiedNormalModuleFunctionPlanSetV1. Failure retains the complete M2a owner in RejectedNormalMain0BridgeV1. Main grammar, resolver count, physical relation, Builder/MIR, production callers, Legacy fallback, retry/reselection, Candidate A, Ownership/View, and the tenth replacement row remain unchanged."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0 is the sole current design authority. The disconnected instance integer-return S0 is closed with 73 focused tests and production consumers zero. The D0 must select an exact consuming projection into existing Main0 owners before another code row opens. Candidate A, Ownership activation, compiler/runtime/backend edits, and the tenth replacement row are parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0 is the sole executable authority. Corrected C-prime retains the closed M2a plan set and converts one exact borrowed Main.main/0 through shared existing Main0 kernels into owned receipts; production consumers remain zero. Candidate A, Ownership activation, compiler/runtime/backend edits, physical Main relation, and the tenth replacement row are parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0 is closed: one bounded exact function loan feeds the existing receiver policy, resolver, source projection, lowering-input seam, and completion verifier; all instance methods are covered in canonical order and partial plans are rejected. Focused tests are 73/73; production Rust +583, test Rust +232, check Python +91, one new source file, no new test/check file, max source/check 776. GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0 is now the sole design stop."""
+latest_card_summary = """GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0 accepted corrected C-prime and selected GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0. The row consumes the intact M2a plan set once, borrows exact Main.main/0 once, reuses shared existing Main0 locator/resolver/preflight kernels, and stores only owned receipts in a disconnected aggregate. M2a remains closed at 73/73; production callers, Builder/MIR, physical relation, fallback/retry, Candidate A, Ownership/View, and the tenth row remain zero."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0-DESIGN-STOP"
+current_blocker_token = "GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

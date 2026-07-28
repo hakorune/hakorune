@@ -45,17 +45,127 @@ cell数、pack数、LOC、structural observationは進捗と増殖検知の手�
 architecture goalやcompletion authorityではない。cellはnorth-star上の
 authorityを一つ減らす場合だけ選択する。
 
-## Current design stop
+## Active executable front
 
 ```text
-GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0
+GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0
 ```
 
-M2aはinstance methodの最初の有限Recipeをclosedした。次は
-`VerifiedNormalModuleSourceV1`が保持するMain.main/0を、既存の
-Main0 source／resolved／function-plan ownerへexactに投影する所有権bridgeを
-設計する。新しいMain grammar、第二resolver、AST clone/reconstruction、
-Builder/MIR、production caller、fallback、Candidate A、第十rowは認めない。
+parent D0はcorrected C-primeを受理した。M2a plan setを分解せず消費し、
+保持中のMain.main/0を一度だけ借り、既存Main0 kernelが発行するowned receipt
+だけをinstance ownerの横へsealする。新しいMain grammar、第二resolver、
+AST clone/reconstruction、physical relation、Builder/MIR、production caller、
+fallback/retry、Candidate A、Ownership/View、第十rowは認めない。
+
+### Accepted S0 task
+
+```text
+input:
+  VerifiedNormalInstanceIntegerReturnPlanSetV1
+
+transition:
+  seal_main0_bridge(self)
+
+output:
+  VerifiedNormalModuleFunctionPlanSetV1
+    instance = original M2a owner, intact
+    main     = VerifiedNormalMain0BridgePlanV1
+
+rejection:
+  RejectedNormalMain0BridgeV1
+    owner = original M2a owner, intact
+
+ceremony / caller / credit:
+  T2 prerequisite S0 / production caller 0 / replacement credit 0
+```
+
+`prepare_main0_bridge(&self)`の短命borrow内だけで、module sourceからexact
+Main functionを一度借りる。現行downstream APIはexact function
+`&ASTNode`を要求するため、raw rootを完全に消したとはclaimしない。許すのは
+`normal_source_plan` sibling内のexact-function loanだけで、Program/root
+accessorやcrate-wide AST escapeはゼロにする。
+
+```text
+one sibling-only exact Main loan
+-> shared existing Main resolver kernel
+-> owned forest / projection / Main role
+-> ResolvedFunctionLoweringInputV1
+-> shared existing Main0 preflight kernel
+-> CanonicalTrivialBindingSsaPlanV1::into_parts
+-> borrowed lowering inputを破棄
+-> owned if-control / completion / profile / block_expr_count
+-> exact owner/source/completion/profile pairing
+-> loan終了後、元のselfをaggregateへmove
+```
+
+既存のowning Main source/resolved/function-plan shellは、module sourceと同じ
+Program ownerを二重所有できず、その型のままaggregateへ保存できない。
+再利用authorityはexact source relation、resolver、source projection、
+Main role、Main0 preflight kernelである。既存canonical shellも同じshared
+helperへ委譲し、resolver/preflight implementation countを一つに保つ。
+
+```text
+production changes:
+  normal_source_plan/main0_bridge.rs
+    aggregate / owned Main receipt / transition / rejection / pairing
+  main_source.rs
+    sibling-only exact Main locator/loan; existing shell also delegates
+    NormalMainFunctionSourceViewV1のcrate-wide exportを撤去
+  module_source.rs
+    exact Main loan delegation only
+  instance_integer_return_plan.rs
+    exact Main loan delegation + seal_main0_bridge consuming transition
+  main_resolved_source.rs
+    typed Main loanを受けるshared resolver kernel
+  main_function_plan.rs
+    exact input + roleを受けるshared Main0 preflight kernel
+  mod.rs
+    bounded product/rejection exports
+
+tests:
+  existing main_function_plan_tests.rs only
+  - aggregate retains source/catalog/instance plans
+  - semantic parity with existing Main0 owner chain
+  - typed failure retains complete M2a owner; fresh source succeeds
+
+guard:
+  existing normal_source_plan0_callable_guard.py only
+  parent normal_source_plan0_guard.py remains 776 lines and unchanged
+```
+
+`main0_bridge.rs`はAST grammar、resolver traversal、canonical preflightを
+直接実装しない。`VerifiedNormalMainFunctionPlanV1<'_>`、
+`ResolvedFunctionLoweringInputV1<'_>`、source viewをaggregateへ保存しない。
+Main physical relation/thunkはM4以降まで発行しない。
+
+```text
+acceptance:
+  input consumption / exact Main loan / resolver pass / preflight pass = 1
+  module source / catalog / instance-plan loss                         = 0
+  source identity storage                                               = module source only
+  Main grammar / identity issuer / resolver implementation delta        = 0
+  borrowed input or AST stored / self-reference / partial aggregate      = 0
+  Builder / MIR / thunk / DraftSeal / collector / publication            = 0
+  fallback / retry / family reselection / production caller               = 0
+  new test/check file / per-row guard                                     = 0
+  every source/check file                                                  < 800
+```
+
+Program clone/move-out、Mainの二度locate、crate-wide raw AST accessor、
+独自resolver/preflight、既存Main0 grammar差分、instance plan分解再構築、
+partial Main reuse、physical relation、production connectionのいずれかが
+必要ならhard stopしてD0へ戻る。
+
+Focused gates:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q normal_source_plan --lib
+python3 tools/checks/lib/normal_source_plan0_guard.py
+cargo check -q
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
 
 ## Closed M2a execution
 
@@ -63,75 +173,18 @@ Builder/MIR、production caller、fallback、Candidate A、第十rowは認めな
 GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0
 ```
 
-`GENERAL-FUNCTION-PLAN0-D0`はCandidate Cを受理してclosedした。最初の
-function-plan familyは`InstanceMethodIntegerLiteralReturn0`である。
-
 ```text
-input:
-  VerifiedNormalModuleSourceV1
-
-coverage:
-  every InstanceBoxMethod exactly once
-  canonical callable-catalog order
-  Main key = 0
-  unsupported method skipping / partial product = 0
-
-exact method grammar:
-  params / param_decls = 0
-  return annotation / uses / attrs = 0
-  body = [Return(Some(LiteralValue::Integer(i64)))] exactly
-
-products:
-  VerifiedNormalInstanceFunctionFactsV1
-  NormalInstanceIntegerReturnRecipeV1
-  VerifiedNormalInstanceIntegerReturnPlanV1
-  VerifiedNormalInstanceIntegerReturnPlanSetV1
-  RejectedGeneralFunctionPlanSetV1
+family       = InstanceMethodIntegerLiteralReturn0
+input        = VerifiedNormalModuleSourceV1
+coverage     = every InstanceBoxMethod exactly once
+grammar      = no parameters; [Return(Some(Integer literal))] exactly
+product      = VerifiedNormalInstanceIntegerReturnPlanSetV1
+Main claim   = 0
 ```
 
-実装はmodule sourceからcanonical keyでexact instance
-`FunctionDeclaration`を借りる限定loanを一つだけ追加する。Program/ASTの
-public accessor、source clone、再parse、owner/name/arityの再構築は作らない。
-catalog cloneだけでは`VerifiedSourceProjectionV1::seal`に必要なexact rootを
-渡せないため、loanはProgram site、catalog row、keyの一致を内部で再確認する。
-
-```text
-exact loan
--> FunctionSyntaxViewV1::from_ast
--> FunctionSemanticResolverSessionV1::resolve_forest
--> VerifiedSourceProjectionV1::seal
--> ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable
--> exact receiver/fact closure
--> located ReturnValue Integer observation
--> verify_function_completion_v1
--> recipe/completion pairing
--> complete plan map commit
-```
-
-receiverは既存namespace policyが発行するlexical `me`一件だけをsealする。
-`SourceBindingSiteV1::Receiver`、`BindingKindV1::Receiver`、diagnostic
-name `me`、use/assignment/upvar 0を要求する。receiverの物理parameter位置、
-BoxRef、Ownership/View、RC、backend ABIは決めない。既存static-only
-`CanonicalLoweringPreflightV1`とtrivial representation profileは再利用しない。
-
-変更範囲は`instance_integer_return_plan.rs`一個、`module_source.rs`の限定
-loan、`mod.rs`、既存`tests.rs`、既存callable child guardだけ。新test/check
-fileとper-row guardは作らず、776行のparent guardは変更しない。全source/check
-fileは800行未満を維持する。
-
-```text
-production caller / Builder / MIR       = 0
-Lower / DraftSeal / collector / publish = 0
-field / Call / New / Main plan          = 0
-fallback / retry / reselection          = 0
-replacement credit / tenth row          = 0
-```
-
-一methodでもgrammar、receiver closure、source projection、completion
-pairingから外れたら、module sourceを保持するtyped rejectionへ一度だけ進み、
-部分plan mapを破棄する。raw AST保持、Legacy復帰、別family再投入が必要なら
-hard stopしてD0へ戻る。Candidate AとOwnership/View readiness trainはparkを
-維持する。
+exact source loan、既存receiver policy/resolver/source projection/completion
+verifierを再利用し、lexical `me`を一件だけsealした。部分plan、raw AST保持、
+Legacy復帰、field/Call/New、physical receiver/Ownership/ABI claimはゼロ。
 
 ```text
 closeout:
@@ -226,7 +279,7 @@ Keep only these counters current:
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 9
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = 0; MAIN0-BRIDGE0 D0 design stop
+accepted_next_responsibility       = MAIN0-BRIDGE0-S0 prerequisite
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -245,7 +298,7 @@ closeout explanation, not automatic rejection.
 
 ```text
 none
-  current authority = GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0
+  current authority = GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0
   M2a disconnected prerequisite = closed; production caller = 0
   repository artifact lifecycle R1-R4-first / RETURN0 = closed
   tenth responsibility = not selected
@@ -266,169 +319,13 @@ Builder effect              = 0
 fallback / retry            = 0
 ```
 
-### Exact finite family
+### Contract and closeout
 
 ```text
-root:
-  Program exactly
-
-entry:
-  one static Main exactly
-  one static Main.main/0 exactly
-  Main helper methods = 0
-  all other Main Box features = empty
-
-module:
-  one-or-more non-Main Box declarations
-  source order and unique Box names retained
-  is_static / is_record / is_sync / is_interface = false
-  constructors / static_init = empty
-  extends / implements / type_parameters = empty
-  delegates / invariants / transitions / Box attrs = empty
-  every method is a non-static FunctionDeclaration
-  method map key = declaration name
-  method contracts = empty
-  method override = false
-
-field and method source:
-  fields / field_decls / visibility / init / weak metadata are retained
-  body / return type / uses / method attrs are retained
-  their semantic verification and lowering are later plan rows
-
-top-level:
-  executable statements = 0
-  FunctionDeclaration = 0
-  Enum / Brand / TypeAlias / Global / StaticConstTable = 0
-  non-Main static Box / Using / Import / BuildGate = 0
-```
-
-The family name includes `Main0` intentionally. It does not claim
-`Main.main(args)`, constructors, top-level functions, or all current-normal
-user-box programs.
-
-### One observation and one product
-
-`inventory.rs` retains non-Main Box sites instead of collapsing them into the
-generic unsupported bucket. The existing canonical classifier continues to
-reject the first such site as the historical `Box` rejection. S0 does not add a
-`SealedNormalSourcePlanV1` variant and does not connect canonical dispatch.
-
-The disconnected S0 fixture consumes a fresh `PreparedNormalSourcePlanInputV1`,
-runs the same `NormalSourceSurfaceInventoryV1::collect` exactly once, and calls
-one module-source seal terminal. It is never invoked after canonical rejection.
-
-```text
-PreparedNormalSourcePlanInputV1
-  AST + existing NormalSourceIdentityV1
--> NormalSourceSurfaceInventoryV1
--> VerifiedNormalModuleSourceV1
-   Main site
-   Main.main/0 site
-   ordered NormalInstanceBoxSiteV1 rows
-   existing VerifiedSameModuleCallableDeclarationCatalogV1
-```
-
-Do not add another identity issuer, callable catalog, classifier, trait,
-raw-source accessor, `into_ast`, lowering method, Builder, or publication
-terminal. Imports/config/admission are outside the current input and are not an
-S0 claim.
-
-### Exact correspondence
-
-The callable catalog does not cover constructors, fields, empty boxes, or
-top-level functions. S0 must therefore validate the Box surface from the owned
-Program first, seal the existing catalog with `seal_program`, and compare:
-
-```text
-expected keys from source:
-  StaticBoxMethod(Main, main, 0)
-  every InstanceBoxMethod(owner, method, arity)
-
-actual keys:
-  catalog.keys in canonical order
-
-required:
-  sorted expected tuple set = exact actual tuple set
-  each row's params / param_decls / return type / body / uses / attrs
-    corresponds to the source declaration
-  missing = 0
-  extra = 0
-```
-
-No public canonical-key constructor is required; compare borrowed key
-namespace/owner/name/arity and use `declaration_for` for the exact row.
-
-### Bounded implementation
-
-```text
-production source:
-  normal_source_plan/inventory.rs
-    retain ordered non-Main Box sites
-  normal_source_plan/product.rs
-    add NormalInstanceBoxSiteV1 and opaque product fields if needed
-  normal_source_plan/main_source.rs
-    reuse one exact Main relation validator
-  normal_source_plan/module_source.rs
-    new named owner: family seal, correspondence, rejection
-  normal_source_plan/classifier.rs
-    preserve exact historical non-Main Box rejection
-  normal_source_plan/mod.rs
-    private module and bounded product exports
-
-tests:
-  normal_source_plan/tests.rs
-    success, source-order, exact catalog, forbidden Box surface,
-    mixed top-level rejection, canonical-rejection preservation,
-    rejection identity/discard
-
-guard:
-  normal_source_plan0_guard.py
-    only one child invocation/watched-symbol update
-  normal_source_plan0_callable_guard.py
-    detailed module-source assertions
-```
-
-The main shared guard is already near 800 lines; detailed assertions belong in
-the existing callable child guard. No new test/check file or per-row guard is
-allowed. Every touched source/check file must remain below 800 lines.
-
-Focused gate:
-
-```text
-RUSTFLAGS='-Awarnings' cargo test -q normal_source_plan --lib
-python3 tools/checks/lib/normal_source_plan0_guard.py
-cargo check -q
-bash tools/checks/mirbuilder_inplace_replacement_guard.sh
-bash tools/checks/current_state_pointer_guard.sh
-git diff --check
-```
-
-### Acceptance
-
-```text
-VerifiedNormalModuleSourceV1 definitions       = 1
-module-source seal terminal                    = 1
-test callers                                   >= 1
-production callers                             = 0
-
-Program / Main.main/0 / Box order              = exact
-source/catalog key-set correspondence          = exact
-unsupported source rejection before Builder   = green
-existing canonical non-Main Box rejection      = unchanged
-
-new identity / callable catalog / classifier   = 0
-raw AST escape / source reread / parse          = 0
-Builder / lowering / function plan             = 0
-candidate / DraftSeal / publication             = 0
-fallback / retry / route reselection             = 0
-replacement row / credit                        = 0
-new test/check file                              = 0
-all modified source/check files                 < 800
-```
-
-### Closeout
-
-```text
+root / entry                                    = Program / exact Main.main/0
+module                                          = one-or-more plain instance Boxes
+product                                         = VerifiedNormalModuleSourceV1
+source/catalog callable correspondence          = exact
 focused normal_source_plan tests                = 67 / 67
 VerifiedNormalModuleSourceV1 production callers = 0
 existing canonical classifier behavior          = unchanged
@@ -444,25 +341,9 @@ check Python LOC delta                           = +103
 largest touched source/check file                = 776
 ```
 
-The positive LOC delta is the measured cost of one new T2 source/catalog
-authority, not replacement-cell credit. The source/check files stay below 800,
-the product is disconnected, and the next slice must consume it rather than
-create another module-source owner.
-
-### Hard stop
-
-```text
-existing canonical dispatch or frontdoor must change
-the product requires recovery from canonical rejection
-the input must be cloned or re-parsed
-Main relation requires a second validator
-catalog completeness requires widening catalog authority
-constructor / top-level function / Main(args) support is required
-body, field, or function-plan semantics must be decided
-Builder, candidate, DraftSeal, collector, or publication must be opened
-compatibility wrapper, Legacy fallback, retry, or route reselection is needed
-any touched source/check file reaches 800 lines
-```
+Fields and method bodies remain retained source, not yet verified plans.
+Constructor, top-level function, Main(args), Builder/publication, recovery,
+fallback/retry, and replacement credit remain outside this product.
 
 ## Post-Binary boundary
 
@@ -517,7 +398,7 @@ ceremony                     = T2 bounded enabling design
 future aggregate product     = VerifiedNormalGeneralProgramPlanV1
 first missing authority      = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0
 D0 / module-source S0 status = closed
-current executable row       = GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0
+current executable row       = GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0
 normal/default Legacy caller = present
 canonical default caller     = 0
 prerequisite caller          = 0
@@ -581,7 +462,10 @@ M2a GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0
     closed: exact all-instance-method integer-literal Return plan
 
 M2b GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0
-    current design stop: exact reuse of existing Main0 owners
+    closed: corrected C-prime exact Main0 reuse bridge selected
+
+M2b GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-S0
+    current: retain M2a owner and seal owned Main0 receipts
 
 M2c+ GENERAL-FUNCTION-PLAN0 finite family slices
     scalar bindings, field schema/read/write,
