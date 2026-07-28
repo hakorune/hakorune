@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Seven production cells and the minimal four-metric structural ratchet are closed. RECORD-HELPER-BODY-DESCENT0-I0-R0 is the sole executable row. Candidate A is accepted as T1: lend two bounded catalog-child operations through the selected MethodCall descent object, preserve helper-local Return-as-value completion, and delete the two direct Legacy re-entry edges atomically."
+status = "MIRBUILDER-INPLACE-REPLACEMENT0 is active. Seven production cells and the minimal four-metric structural ratchet are closed. RECORD-HELPER-BODY-DESCENT0-I0-R0 is the sole executable row. Candidate A is accepted as T1: lend one tagged catalog-child operation through the selected MethodCall descent object, preserve helper-local Return-as-value completion, and retire the two direct Legacy edges plus three dead same-family facades atomically."
 date = "2026-07-28"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "record-helper-body-descent0-d0-consultation-2026-07-28"
 latest_card_path = "docs/development/current/main/investigations/record-helper-body-descent0-d0-consultation-2026-07-28.md"
-latest_card_summary = """RECORD-HELPER-BODY-DESCENT0-I0-R0 is the selected T1 implementation. The existing callable-catalog snapshot and RawInvocation capability are sufficient. Add two required catalog-child operations through MethodCallDescentPortV1 and MethodCallArgumentDescentV1, forward every production and test implementer explicitly, keep Return-as-value in record_helper_args, and atomically remove the direct build_expression/build_statement edges. No new files, located activation, fallback, retry, grammar change, or positive source/test LOC delta is accepted."""
+latest_card_summary = """RECORD-HELPER-BODY-DESCENT0-I0-R0 is the selected T1 implementation. One crate-private Statement/Expression tag crosses MethodCallDescentPortV1 and MethodCallArgumentDescentV1; the helper driver remains the sole classifier and Return-as-value owner. Production-capable ports override explicitly, unsupported custom ports fail closed, and three zero-production-consumer setter facades join the two direct Legacy edges in the atomic delete set. No new files, located activation, fallback, retry, grammar change, ratchet breach, positive test LOC delta, or positive five-cell rolling LOC is accepted."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

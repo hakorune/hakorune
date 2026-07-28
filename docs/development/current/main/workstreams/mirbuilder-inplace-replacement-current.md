@@ -54,8 +54,9 @@ RECORD-HELPER-BODY-DESCENT0-I0-R0
 最小structural ratchetと第七Binary cellはclosed。post-Binary auditは、
 prepared MethodCall route後にcallable-catalog helper bodyがLegacy
 `build_expression` / `build_statement`へ再入するlive redを選択した。
-Candidate A / T1 short reborrowを受理済みで、二つのbounded catalog-child
-operationと旧direct edge二本のatomic cutoverがsole current execution。
+Candidate A / T1 short reborrowを受理済みで、一つのtagged catalog-child
+operation、旧direct edge二本、dead same-family facade三本のatomic cutoverが
+sole current execution。
 
 ## First three replacements
 

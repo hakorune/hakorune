@@ -137,18 +137,15 @@ helper declaration body.
 
 ## Closed decision question
 
-The existing selected MethodCall descent object lends two source-neutral,
-short-lived catalog-child operations to the current helper-body completion
-owner:
+The existing selected MethodCall descent object lends one source-neutral,
+short-lived tagged catalog-child operation to the current helper-body
+completion owner:
 
 ```text
-catalog helper statement AST
+CatalogHelperChildV1
+  Statement(ASTNode) | Expression(ASTNode)
   -> exact associated port
-  -> existing statement descent
-
-catalog helper expression AST
-  -> exact associated port
-  -> existing expression descent
+  -> corresponding existing descent
 ```
 
 The call-site MethodCall input, argument index, located role, source ledger,
@@ -187,15 +184,17 @@ their current owner.
 Do not genericize every MethodCall handler merely to expose
 `AssociatedMethodCallArgumentsV1::terminal_port()`. The current executor
 intentionally receives `dyn MethodCallArgumentDescentV1`; widening the handler
-graph would touch more route families than the two bounded projections.
+graph would touch more route families than the bounded projection.
 
 Do not add a new `CatalogHelperBodyDescentV1` object or a new body-session
-product. The two operations fit the existing MethodCall descent interfaces and
+product. The tagged operation fits the existing MethodCall descent interfaces and
 new files are forbidden by the structural ratchet.
 
-Do not provide default methods that call `MirBuilder::build_statement` or
-`MirBuilder::build_expression`. That would move the competing authority into
-the interface instead of deleting it.
+The `MethodCallDescentPortV1` method may have one stable fail-closed default
+for custom ports that do not own catalog-helper descent. It must not call
+`MirBuilder::build_statement`, `MirBuilder::build_expression`, or any raw
+fallback. Every production-capable raw, Located, and Preloop port overrides it
+explicitly. `MethodCallArgumentDescentV1` remains required with no default.
 
 Do not make the Located or Preloop implementation consume call-site child
 roles, ledger entries, or selected argument tokens. Their catalog-child
@@ -233,27 +232,30 @@ issuer, consumer, and fail-fast boundary before implementation.
 
 ## Exact interface change
 
-Add two required methods to `MethodCallDescentPortV1`:
+Use one crate-private transport tag:
 
 ```rust
-fn lower_catalog_helper_statement(
-    &mut self,
-    builder: &mut MirBuilder,
-    statement: ASTNode,
-) -> Result<ValueId, String>;
+enum CatalogHelperChildV1 {
+    Statement(ASTNode),
+    Expression(ASTNode),
+}
 
-fn lower_catalog_helper_expression(
+fn lower_catalog_helper_child(
     &mut self,
     builder: &mut MirBuilder,
-    expression: ASTNode,
+    child: CatalogHelperChildV1,
 ) -> Result<ValueId, String>;
 ```
 
-Add the same two required operations to
-`MethodCallArgumentDescentV1`. The argument object forwards them to its
-retained underlying port without consulting its MethodCall input.
+The helper-body driver is the sole tag issuer. A port may only dispatch the
+tag to the corresponding existing descent owner; it may not inspect the AST
+to reclassify the helper grammar. No `Body` or `Return` variant is allowed.
 
-No default implementation is allowed on either trait.
+`MethodCallDescentPortV1` owns the underlying port operation and a stable
+fail-closed default. `MethodCallArgumentDescentV1` owns the required
+object-safe projection through the erased helper executor. The associated
+argument object forwards to its retained port without consulting its
+MethodCall input.
 
 The exact current implementer census is:
 
@@ -274,7 +276,10 @@ cfg(test) MethodCallDescentPortV1:
   FailingOuterStaticTerminalPortV1
 ```
 
-Every implementer must be updated explicitly. In particular,
+Every production `MethodCallArgumentDescentV1` implementer and every
+production-capable `MethodCallDescentPortV1` implementer must be updated
+explicitly. Test-only ports that cannot reach a helper body use the stable
+fail-closed default. In particular,
 `PreloopLocatedStaticCompletionV1` must forward through its internal port; an
 implicit default error would change existing static helper behavior.
 
@@ -290,8 +295,8 @@ Production source:
 
 ```text
 src/mir/builder/calls/method_call_descent.rs
-  add the two required port operations
-  add the two required erased argument operations
+  add one tagged helper-child carrier
+  add one port operation and one erased argument operation
   forward Associated through its retained port
   implement explicit Legacy compatibility descent
   implement the raw blanket short reborrow
@@ -312,7 +317,7 @@ src/mir/builder/calls/preloop_located_argument_port.rs
   do not arm or consume the selected argument token
 
 src/mir/builder/calls/preloop_located_outer_completion.rs
-  forward both erased operations through its internal port
+  forward the erased tagged operation through its internal port
 ```
 
 `method_call_handlers.rs` already passes the descent object to the prepared
@@ -324,6 +329,11 @@ Atomic old-edge deletion:
 lower_record_helper_body_until_return
   -> self.build_expression(*expr.clone()) = 0
   -> self.build_statement(stmt.clone())   = 0
+
+dead same-family facades:
+  try_inline_same_module_helper_setter_call
+  try_inline_same_module_helper_setter_call_with_descent
+  try_inline_same_module_helper_setter_call_from_receiver_with_descent
 ```
 
 The function itself remains the sole owner of:
@@ -421,16 +431,20 @@ Therefore:
 ```text
 new source files             = 0
 new test/check files         = 0
-production Rust LOC delta   <= 0
+production Rust LOC delta   <= 68
 test LOC after           <= 40826
 all four ceilings            = green
 all touched source/check     < 800 lines
+five-cell rolling Rust LOC   <= 0
 ```
 
 Focused evidence added to existing tests must replace or consolidate at least
 the same number of test lines in the atomic implementation commit. A positive
-test LOC delta is not accepted. Do not spend the 68-line source headroom on a
-new abstraction; the target is a non-positive production Rust delta.
+test LOC delta is not accepted. Source growth is accepted only inside the
+already-ratcheted 68-line ceiling and only while the five-cell rolling total
+remains non-positive. The tagged carrier plus dead same-family facade
+retirement is the bounded implementation; unrelated deletion cannot be used
+to buy headroom.
 
 ## Commit boundary
 
@@ -438,6 +452,12 @@ Selection commit:
 
 ```text
 docs(mir): select record helper body descent
+```
+
+Bounded interface correction:
+
+```text
+docs(mir): compact record helper descent capability
 ```
 
 Immediately following atomic implementation:
@@ -449,10 +469,11 @@ refactor(mir): thread record helper body descent
 The implementation commit contains:
 
 ```text
-two bounded interface operations
-all production and cfg(test) implementer updates
+one tagged bounded interface operation
+all production-capable implementer updates
 helper-body terminal switch
 two old direct-edge deletions
+three dead same-family facade deletions
 focused existing-test consolidation
 private M0 proof correction
 shared guard extension
@@ -541,7 +562,8 @@ declaration-body provenance owner             = one
 call-site location / ledger reuse             = 0
 nested body/statement/expression capability   = selected
 MethodCallArgumentDescentV1 implementers       = exact, all explicit
-MethodCallDescentPortV1 implementers           = exact, all explicit
+production MethodCallDescentPortV1 implementers= exact, all explicit
+unsupported custom-port default               = fail-closed
 inline Return-as-value completion owner       = one
 caller function physical Return emission      = 0
 helper generic Call / BoxCall emission         = 0
@@ -552,8 +574,9 @@ ceremony                                      = T1
 new proof file                                = 0
 source/test file-count delta                  = 0 planned
 four structural ratchet ceilings              = preserved
-production Rust LOC delta                     <= 0
+production Rust LOC delta                     <= 68
 test LOC delta                                <= 0
+five-cell rolling production Rust LOC         <= 0
 all touched source/check files                < 800 lines
 ```
 
@@ -565,11 +588,11 @@ callable catalog identity/body ownership must change
 record-local ABI, receiver binding, or argument order must change
 helper body acceptance must narrow or widen
 located InlineRecord / InlineSetter must activate
-an implementer requires a default fallback or behavior-changing rejection
+an implementer requires a raw fallback or behavior-changing rejection
 fallback, retry, or route re-selection is required
 the two old direct edges cannot reach zero in one bounded interface slice
 private M0 proof cannot become green by an exact current census plus this contract update
-production Rust LOC delta becomes positive
+production Rust LOC exceeds the ratchet or makes the rolling window positive
 test LOC or any structural ceiling grows
 ```
 

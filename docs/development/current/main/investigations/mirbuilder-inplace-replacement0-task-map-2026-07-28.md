@@ -562,7 +562,7 @@ New responsibility edge:
 
 ```text
 MethodCallArgumentDescentV1
--> two bounded catalog-child operations
+-> one tagged catalog-child operation
 -> exact associated MethodCallDescentPortV1
 ```
 
@@ -578,6 +578,9 @@ Atomic old-edge deletion:
 ```text
 self.build_expression(*expr.clone())
 self.build_statement(stmt.clone())
+try_inline_same_module_helper_setter_call
+try_inline_same_module_helper_setter_call_with_descent
+try_inline_same_module_helper_setter_call_from_receiver_with_descent
 ```
 
 Focused gates:
@@ -599,7 +602,7 @@ helper grammar or Return completion change
 located production activation
 fallback / retry / reselection
 new source/test/check file
-positive production Rust or test LOC delta
+source/test ratchet or five-cell rolling LOC breach
 ```
 
 ## Macro pack order
