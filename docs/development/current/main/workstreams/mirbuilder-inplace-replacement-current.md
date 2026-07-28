@@ -36,6 +36,9 @@ Current: NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0
 Ceremony: short D0; production edits parked
 ```
 
+External consultation packet:
+[NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 question](../investigations/normal-default-nonprogram-root-descent0-consultation-question-2026-07-29.md)
+
 R1 closeout:
 
 ```text
