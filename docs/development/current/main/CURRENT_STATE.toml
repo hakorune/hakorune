@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0 is closed green. RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0 is the current read-only live-edge design stop."
+status = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0 selected safe non-empty BlockExpr prelude composition. RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0 is the current execution row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0"
-current_execution_row = ""
-current_execution_summary = "The root parity test seam is closed behavior-neutral. The 482-line parent retains shared AST constructors, partition assertions, and Program/Box/Loop owner evidence; one private 305-line child owns the six unchanged selected-vs-Legacy parity/effect fixtures and their private execution helpers. The shared guard watches both files at 718 lines, the artifact inventory is current, production Rust delta is zero, and moved fixture bodies match the prior HEAD exactly. Counts remain 12 selected expressions, 3 statement roots, 41 residual kinds, and 1/1 terminals. The current stop is a fresh read-only live-edge census; do not preselect or edit the next responsibility."
+current_design_stop = ""
+current_execution_row = "RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0"
+current_execution_summary = "T1 atomic I0/R0. Extend the existing BlockExpr recursive port-safety predicate so a prelude composed only of already-selected expression trees, safe Print, safe Nowait, and annotation-free safe Local is selected with a safe tail. The existing raw BlockExpr dispatcher remains the sole exit-scan, source-order statement descent, tail descent, scope, and completion owner. One unsafe prelude or tail keeps the whole BlockExpr on compatibility; no per-statement route mixing or retry. Delete the safe non-empty BlockExpr compatibility edge in the same commit. Counts remain 12/3/41 and terminals 1/1; add a shape-level ratchet instead of changing kind counts."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0-SELECT"
+current_blocker_token = "RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0-IMPLEMENT"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

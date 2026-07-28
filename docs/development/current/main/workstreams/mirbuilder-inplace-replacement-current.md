@@ -58,9 +58,10 @@ Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY7-D0
 Closed:  RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0
 Closed:  RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0
-Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0
+Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0
+Current: RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0
 Pack:    ROOT-LIFECYCLE0
-Ceremony: read-only live-edge census
+Ceremony: T1 atomic I0/R0
 ```
 
 R1 closeout:
@@ -347,27 +348,59 @@ new check/guard/task file            = 0
 all source/check files               < 800
 ```
 
-## Current design stop
+## Current execution task
 
 ```text
-RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0
+RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0
 
-Read-only:
-  refresh the remaining 41-kind live compatibility census
-  compare only responsibilities with existing production owners
+Named production edge:
+  shared raw root kernel
+  -> selected/compatibility non-Program partition
+  -> existing raw BlockExpr dispatcher
 
-Selection requires:
-  one named production caller
-  one bounded source-only partition
-  one same-commit old compatibility-edge deletion
-  no duplicated family/target decision
-  fallback / retry / reselection = 0
+Selected source-only closure:
+  BlockExpr {
+    prelude_stmts:
+      PortNeutralExprTreeV1
+      | safe Print
+      | safe Nowait
+      | annotation-free safe Local
+    tail_expr:
+      PortNeutralExprTreeV1
+  }
 
-Park:
-  implementation
-  whole-program accepted variants
-  source-level Ownership / View
-  all other new language semantics
+Existing owner remains sole authority for:
+  non-local-exit scan
+  statement source order
+  statement and tail descent
+  lexical/scope effects
+  tail result
+
+Atomic delete:
+  safe non-empty BlockExpr
+  -> SeparateDesignStop
+  -> ExistingRawNonProgramRootCompatibilityV1
+  = 0
+
+Invariant:
+  unsafe prelude/tail keeps whole BlockExpr compatibility
+  per-statement selected/compatibility mixing = 0
+  selected failure -> compatibility retry = 0
+  new owner / terminal / failure type = 0
+  selected expr/stmt/residual = 12 / 3 / 41
+  selected/compatibility terminals = 1 / 1
+  grammar/result/publication delta = 0
+  new source/test/check file = 0
+  every source/check file < 800
+
+Hard stop:
+  Assignment / Return / Throw / control / typed Local in selected prelude
+  Field / Call / New through a selected descendant
+  Builder-state predicate or copied admission policy
+  source-order, exit-scan, scope, or completion change
+  AST clone/reparse or second port
+  compatibility owner/terminal growth
+  false residual-kind decrement
 ```
 
 Compatibility sunset:
@@ -424,7 +457,8 @@ R2y RAW-NONPROGRAM-NEXT-RESPONSIBILITY7-D0 closed
 R2z RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0 closed
 R2aa RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0 closed
 R2ab RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0 closed
-R2ac RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0 current
+R2ac RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0 closed
+R2ad RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:
