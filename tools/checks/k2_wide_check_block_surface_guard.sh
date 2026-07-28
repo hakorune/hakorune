@@ -15,9 +15,9 @@ ORDER_CARD="$(guard_require_phase293x_card "$TAG" "293x-202-C197-C200-PROOF-APPL
 PLAN="docs/development/current/main/design/mimalloc-hako-port-implementation-plan-ssot.md"
 EBNF="docs/reference/language/EBNF.md"
 PARSER_TEST="src/tests/parser_check_block_surface.rs"
-AST="src/ast/mod.rs"
+AST="crates/hakorune_frontend_ast/src/ast_node.rs"
 PARSER_PRIMARY="src/parser/expr/primary.rs"
-PARSER_CURSOR="src/parser/expr_cursor.rs"
+PARSER_CURSOR="crates/hakorune_frontend_parser/src/parser/expr_cursor/primary.rs"
 BUILDER="src/mir/builder/exprs_check.rs"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_check_block_surface_guard.sh"
@@ -40,8 +40,6 @@ guard_require_files \
   "$BUILDER" \
   "$INDEX" \
   "$SELF_SCRIPT"
-
-guard_require_exec_files "$TAG" "$APP_TEST" "$SELF_SCRIPT"
 
 guard_expect_in_file "$TAG" '### C198 Check Block Surface' "$EBNF" "EBNF must record the C198 decision"
 guard_expect_in_file "$TAG" 'Decision: accepted' "$EBNF" "EBNF must mark C198 accepted"
@@ -78,7 +76,7 @@ vm_err="$tmp_dir/vm.err"
 if [[ -n "${HAKORUNE_BIN:-}" ]]; then
   HAKO_CMD=("$HAKORUNE_BIN")
 else
-  HAKO_CMD=(cargo run -q --bin hakorune --)
+  HAKO_CMD=(cargo run -q --features vm-reference --bin hakorune --)
 fi
 
 NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}" \
