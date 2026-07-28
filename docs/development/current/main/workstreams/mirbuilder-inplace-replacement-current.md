@@ -31,24 +31,34 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 source authority:
-  retained exact instance-method declaration + existing resolved Local facts
+  AST Local parallel rows + existing Local declaration/read facts
 
 non-authority:
-  physical local/receiver ABI, ValueId, Builder, MIR, field/call/new
+  typed-local meaning, physical local/receiver ABI, Builder, MIR
 
 fail-fast:
   one total source classification before the existing single resolver pass;
   unsupported method rejects the complete module plan set
 
 candidate slices:
-  exact local declaration + terminal local read
-  optional parameter-fed initializer only if it does not widen this first row
+  A: local x = Integer literal; return x
+     smallest Local fact/Recipe; makes no declared-type claim
+  B: local x: i64 = Integer literal; return x
+     exact scalar spelling receipt; opens typed-Local meaning in this row
+  C: local y = exact i64 parameter; return y
+     adds a Parameter-to-Local binding-flow obligation
 
 recommended next slice:
-  the smallest exact i64 local declaration/read Recipe with no reassignment
+  A / InstanceMethodIntegerLocalReturn0
+  exactly one untyped Local, one initializer, and one terminal resolved read
+
+decision question:
+  accept A as the first Local Recipe, leaving typed Local and parameter-fed
+  initialization for later finite rows?
 
 non-claims:
-  Binary, assignment, PHI, fields, calls, construction, Ownership, production
+  typed Local, parameter composition, reassignment, Binary, PHI, fields,
+  calls, construction, Ownership, production
 ```
 
 ## Queue to the north star
