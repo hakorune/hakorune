@@ -357,20 +357,31 @@ be at most `+141` under that independent rule.
 The four-metric ratchet above measures the fixed MirBuilder roots only. It does
 not measure `src/mir/compiler` or runner files and therefore cannot, by itself,
 bound this compiler-ingress implementation. Those MirBuilder-root ceilings
-must remain unchanged. In addition, this D0 requires the eventual atomic
-implementation to have non-positive physical production-Rust LOC across every
-`.rs` file in its diff, including compiler and runner ingress files.
+remain applicable only if the implementation touches those roots.
+
+This D0 does not predetermine the sign of the compiler/runner LOC delta. A T2
+typed request, total classifier, or clean responsibility split may legitimately
+add code while deleting an old authority. Architecture closure is the gate;
+file/LOC counts are measured consequences that must be reported and justified.
 
 ```text
-MirBuilder source/test ratchet delta      = 0
-new source/test/check files               = 0
-new per-cell guard                        = 0
-whole implementation production Rust LOC <= 0
-all touched source/check                  < 800 lines
+MirBuilder source/test ratchet      = apply only to touched measured roots
+production Rust files/LOC           = record before / after / delta
+new files                           = allowed only for a named responsibility
+new per-cell guard                  = 0
+all touched source/check files      < 800 lines
 ```
 
 Proof consolidation or dead-facade cleanup may later ratchet the ceilings
-downward. Their deletion is not headroom that authorizes unrelated growth.
+downward. Their deletion does not automatically authorize unrelated growth.
+Conversely, a necessary T2 owner must not be distorted merely to force one
+cell's LOC negative.
+
+The existing five-cell rolling rule is evaluated when an implementation shape
+is known. Individual cells may be positive, as several closed cells already
+are. If a required north-star change cannot satisfy the current rolling policy
+without harming the responsibility boundary, stop for an explicit policy
+decision rather than padding deletions or weakening the design.
 
 ## Required evidence before implementation
 
@@ -391,8 +402,9 @@ compatibility/reference caller delta          = 0
 canonical rejection -> Legacy                 = 0
 full normal corpus/backend parity gate        = named
 failure / compiler reuse / atomic publish     = named
-MirBuilder ratchet delta                       = 0
-whole implementation production Rust LOC      <= 0
+MirBuilder ratchet impact                      = measured by its exact scope
+production Rust files/LOC delta                = measured and justified
+five-cell policy impact                        = evaluated explicitly
 ```
 
 Only after all rows are accepted may a tenth replacement manifest row be
@@ -446,7 +458,7 @@ A. Candidate A accepted
    internal canonical owner graph
    atomic old-edge delete set
    parity/failure/reuse gates
-   structural repayment
+   structural impact and any required policy decision
 
 B. Candidate B accepted
    first missing capability only
