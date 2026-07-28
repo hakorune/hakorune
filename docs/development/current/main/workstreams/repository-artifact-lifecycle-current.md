@@ -1,5 +1,5 @@
 ---
-Status: Parked refactor workstream; no current execution authority
+Status: Active bounded interlude at R1
 Date: 2026-07-28
 Decision: Restore `current` as an authority surface and stop one-decision-one-file growth
 Owner: ../design/current-docs-archive-policy-ssot.md
@@ -23,12 +23,15 @@ move already-historical phase material out of current
 File and line counts are measured results. They are not implementation
 permission gates and do not replace reference-closure checks.
 
-This workstream is parked while `CURRENT_STATE.toml` selects the MirBuilder
-lane. Its first bounded activation is scheduled immediately after
-`NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0` closes and before Candidate A is
-re-evaluated. Until `CURRENT_STATE.toml` performs that handoff, this card does
-not authorize physical moves, pointer changes, production source edits, or a
-current-lane switch.
+`CURRENT_STATE.toml` now selects R1. This bounded activation runs through R2,
+R3, one first R4 batch, and `DOCS-MEANING-RECOVERY-RETURN0`. It then returns
+to the MirBuilder workstream at
+`NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0`; it does not jump directly to
+Candidate A.
+
+R1 authorizes only archive-substrate gate repair. Physical moves begin no
+earlier than the exact R3 pilot. Compiler/runtime/backend edits and a tenth
+replacement row remain forbidden throughout this interlude.
 
 ## Scheduled first activation
 
@@ -40,7 +43,7 @@ R1
 -> R3
 -> first R4 batch
 -> DOCS-MEANING-RECOVERY-RETURN0
--> MirBuilder Candidate A re-evaluation
+-> NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
 ```
 
 Exact boundary:

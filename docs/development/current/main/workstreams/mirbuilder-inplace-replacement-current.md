@@ -45,10 +45,10 @@ cell数、pack数、LOC、structural observationは進捗と増殖検知の手�
 architecture goalやcompletion authorityではない。cellはnorth-star上の
 authorityを一つ減らす場合だけ選択する。
 
-## Current front
+## Parked return front
 
 ```text
-NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0
+NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
 ```
 
 最小structural observation、第七Binary cell、第八record-helper body descent
@@ -194,7 +194,8 @@ closeout explanation, not automatic rejection.
 
 ```text
 none
-  current = NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0
+  current authority = repository artifact lifecycle interlude
+  return target = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
   tenth responsibility = not selected
 ```
 
@@ -241,14 +242,15 @@ Dead raw-body facade retirement, proof consolidation, non-Program root, and
 default compiler ingress were all unselected by the property closeout. The
 fresh census below now selects only the compiler-ingress D0.
 
-## Active compiler-ingress prerequisite
+## Compiler-ingress return target
 
 ```text
 pack                         = COMPILER-RESIDUE0
 parent decision              = CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
 accepted candidate           = B
 ceremony                     = T2 bounded enabling design
-first missing capability     = NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0
+future aggregate product     = VerifiedNormalGeneralProgramPlanV1
+first missing authority      = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0
 normal/default Legacy caller = present
 canonical default caller     = 0
 prerequisite caller          = 0
@@ -264,10 +266,12 @@ docs/development/current/main/investigations/
 canonical-default-compiler-ingress0-d0-consultation-2026-07-28.md
 ```
 
-The parent consultation named the first missing capability. The current task
-must enumerate the accepted normal Program corpus outside exact canonical
-families, define a finite opaque verified plan and its consuming
-candidate/publication owner, and freeze current-normal result parity.
+The completed census corrected the first missing authority. The existing
+canonical families are Script, Main0, and Callable; Callable itself seals
+Acyclic or Recursive topology. The earliest source-backed residual fails on a
+non-Main user `BoxDeclaration`, before body lowering. The return target must
+therefore co-seal exact Program/declaration/entry/callable source facts before
+adding body-plan vocabularies.
 
 Candidate A remains parked. A typed `GeneralProgram -> Legacy` residual, a
 catch-all source family, and a second monolithic MirBuilder are forbidden.
@@ -279,7 +283,9 @@ the default production authority.
 The accepted cross-workstream order is:
 
 ```text
-M0  NORMAL-GENERAL-PROGRAM-VERIFIED-OWNER0-D0 close
+M0  bounded compiler-ingress census close
+    return target fixed:
+    NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
 
 D1  repository artifact lifecycle R1
     restore archive substrate gates
@@ -298,12 +304,26 @@ D5  DOCS-MEANING-RECOVERY-RETURN0
     recount
     return CURRENT_STATE to this MirBuilder workstream
 
-M1  Candidate A re-evaluation
+M1  NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
+    source/catalog authority
+
+M2  GENERAL-FUNCTION-PLAN0 family slices
+    one finite semantic vocabulary per row
+
+M3  aggregate VerifiedNormalGeneralProgramPlanV1
+
+M4  reuse DraftSeal / Collector / atomic publication
+
+M5  current-normal MirCompileResult parity
+
+M6  Candidate A re-evaluation
+
+M7  Candidate A atomic cutover, only if M1-M6 are green
 ```
 
 R5 stale-phase cohorts and R6 design/investigation retirement are later
-bounded lifecycle batches. They do not hold the compiler lane until every
-historical document has moved.
+bounded lifecycle batches. They do not hold the compiler lane after the first
+R4 batch has passed RETURN0.
 
 During D1 through D5:
 
