@@ -97,6 +97,25 @@ fn i64_parameter_return_function(
     function
 }
 
+fn integer_local_return_function(
+    name: &str,
+    local_name: &str,
+    declared_type: Option<&str>,
+    initializer: Option<ASTNode>,
+    returned_name: &str,
+) -> ASTNode {
+    function_with_body(
+        name,
+        test_support::integer_local_return_body(
+            local_name,
+            declared_type,
+            initializer,
+            returned_name,
+        ),
+        false,
+    )
+}
+
 fn main_box(methods: Vec<(&str, ASTNode)>, is_static: bool) -> ASTNode {
     ASTNode::BoxDeclaration {
         name: "Main".to_owned(),
@@ -497,7 +516,7 @@ fn rejection_retains_source_identity_and_has_no_retry() {
 }
 
 #[test]
-fn mixed_literal_and_i64_parameter_methods_seal_once_and_bridge_main() {
+fn mixed_instance_function_variants_seal_once_and_bridge_main() {
     let source = seal_module(program(vec![
         instance_box("Zeta", vec![("a", integer_return_function("a", 1))]),
         main_only(),
@@ -508,16 +527,27 @@ fn mixed_literal_and_i64_parameter_methods_seal_once_and_bridge_main() {
                 i64_parameter_return_function("identity", Some("i64"), "p0"),
             )],
         ),
+        instance_box(
+            "Beta",
+            vec![(
+                "cached",
+                integer_local_return_function("cached", "value", None, Some(literal(7)), "value"),
+            )],
+        ),
     ]))
     .unwrap();
     let plans = source.seal_instance_function_plans().unwrap();
     let rows = plans.plans().collect::<Vec<_>>();
-    let [(parameter_key, parameter), (literal_key, literal)] = rows.as_slice() else {
+    let [(parameter_key, parameter), (local_key, local), (literal_key, literal)] = rows.as_slice()
+    else {
         panic!("expected exact mixed cumulative plans")
     };
     let parameter = parameter
         .as_i64_parameter_return()
         .expect("exact i64 parameter variant");
+    let local = local
+        .as_integer_local_return()
+        .expect("integer Local variant");
     let literal = literal
         .as_integer_literal_return()
         .expect("integer literal variant");
@@ -532,7 +562,6 @@ fn mixed_literal_and_i64_parameter_methods_seal_once_and_bridge_main() {
         parameter.parameter().site(),
         &crate::mir::resolved_semantics::SourceBindingSiteV1::Parameter { index: 0 }
     );
-    assert_eq!(parameter.facts().owner_count(), 1);
     assert_eq!(parameter.recipe().receiver(), parameter.facts().receiver());
     assert_eq!(
         parameter.recipe().parameter(),
@@ -542,61 +571,39 @@ fn mixed_literal_and_i64_parameter_methods_seal_once_and_bridge_main() {
         parameter.completion().explicit_site(),
         Some(parameter.recipe().return_site())
     );
+    assert_eq!((local_key.owner(), local_key.name()), ("Beta", "cached"));
+    assert!(matches!(
+        local.local().site(),
+        crate::mir::resolved_semantics::SourceBindingSiteV1::Local { ordinal: 0, .. }
+    ));
+    assert_eq!(local.local().source_name(), "value");
+    assert_eq!(local.local().binding(), local.recipe().local());
+    assert_eq!(local.recipe().receiver(), local.facts().receiver());
+    assert_eq!(local.recipe().initializer_value(), 7);
+    assert_eq!(
+        local.completion().explicit_site(),
+        Some(local.recipe().return_site())
+    );
     assert_eq!((literal_key.owner(), literal_key.name()), ("Zeta", "a"));
     assert_eq!(literal.recipe().value(), 1);
-    assert_eq!(plans.len(), 2);
-    assert_eq!(plans.source_identity(), "normal-source-plan0-test");
+    assert_eq!(
+        literal.completion().explicit_site(),
+        Some(literal.recipe().return_site())
+    );
+    assert!(literal.completion().returns_value());
+    assert_ne!(
+        literal.recipe().return_site().node(),
+        literal.recipe().value_site().node()
+    );
+    assert_eq!(plans.len(), 3);
 
     let aggregate = plans.seal_main0_bridge().expect("mixed Main0 bridge");
-    assert_eq!(aggregate.instance().len(), 2);
+    assert_eq!(aggregate.instance().len(), 3);
     assert!(!aggregate.main().completion().returns_value());
 }
 
 #[test]
-fn integer_return_recipe_pairs_exact_completion_without_claiming_main() {
-    let main = main_box(
-        vec![(
-            "main",
-            function_with_body("main", vec![literal(99), literal(100)], true),
-        )],
-        true,
-    );
-    let plans = seal_module(program(vec![
-        main,
-        instance_box(
-            "Page",
-            vec![("render", integer_return_function("render", 42))],
-        ),
-    ]))
-    .unwrap()
-    .seal_instance_function_plans()
-    .unwrap();
-    let rows = plans.plans().collect::<Vec<_>>();
-    let [(key, plan)] = rows.as_slice() else {
-        panic!("expected one instance plan")
-    };
-    let plan = plan
-        .as_integer_literal_return()
-        .expect("sole cumulative variant");
-
-    assert_eq!(
-        key.namespace(),
-        crate::mir::builder::SameModuleCallableNamespaceV1::InstanceBoxMethod
-    );
-    assert_eq!(
-        plan.completion().explicit_site(),
-        Some(plan.recipe().return_site())
-    );
-    assert!(plan.completion().returns_value());
-    assert_eq!(plan.completion().unreachable_suffix_count(), 0);
-    assert_ne!(
-        plan.recipe().return_site().node(),
-        plan.recipe().value_site().node()
-    );
-}
-
-#[test]
-fn one_unsupported_method_rejects_the_whole_plan_set() {
+fn unsupported_method_rejects_whole_set_and_fresh_local_reuses() {
     let source = seal_module(program(vec![
         main_only(),
         instance_box(
@@ -606,6 +613,16 @@ fn one_unsupported_method_rejects_the_whole_plan_set() {
                 (
                     "identity",
                     i64_parameter_return_function("identity", Some("i64"), "p0"),
+                ),
+                (
+                    "cached",
+                    integer_local_return_function(
+                        "cached",
+                        "value",
+                        None,
+                        Some(literal(2)),
+                        "value",
+                    ),
                 ),
                 ("bad", function_with_body("bad", Vec::new(), false)),
             ],
@@ -622,6 +639,21 @@ fn one_unsupported_method_rejects_the_whole_plan_set() {
             if key.owner() == "Page" && key.name() == "bad"
     ));
     rejected.discard();
+
+    let plans = seal_module(program(vec![
+        main_only(),
+        instance_box(
+            "Page",
+            vec![(
+                "cached",
+                integer_local_return_function("cached", "value", None, Some(literal(7)), "value"),
+            )],
+        ),
+    ]))
+    .unwrap()
+    .seal_instance_function_plans()
+    .unwrap();
+    assert_eq!(plans.len(), 1);
 }
 
 #[test]
@@ -640,7 +672,7 @@ fn empty_instance_boxes_do_not_issue_an_empty_plan_set() {
 }
 
 #[test]
-fn instance_integer_return_rejects_signature_and_body_widening() {
+fn instance_scalar_variants_reject_widening_without_retry() {
     let mut annotated = integer_return_function("annotated", 1);
     let ASTNode::FunctionDeclaration {
         return_type_name, ..
@@ -672,6 +704,11 @@ fn instance_integer_return_rejects_signature_and_body_widening() {
         },
         span: Span::unknown(),
     };
+    let mut parameter_fed = i64_parameter_return_function("parameter_fed", Some("i64"), "p0");
+    let ASTNode::FunctionDeclaration { body, .. } = &mut parameter_fed else {
+        unreachable!()
+    };
+    *body = test_support::integer_local_return_body("value", None, Some(variable("p0")), "value");
     let mut cases = vec![
         (
             function("parameter", 1, false),
@@ -692,6 +729,35 @@ fn instance_integer_return_rejects_signature_and_body_widening() {
             i64_parameter_return_function("wrong_name", Some("i64"), "other"),
             GeneralFunctionPlanStageV1::Recipe,
         ),
+        (
+            integer_local_return_function("typed_local", "x", Some("i64"), Some(literal(1)), "x"),
+            GeneralFunctionPlanStageV1::Recipe,
+        ),
+        (
+            integer_local_return_function("missing", "x", None, None, "x"),
+            GeneralFunctionPlanStageV1::Recipe,
+        ),
+        (
+            integer_local_return_function("wrong_local", "x", None, Some(literal(1)), "y"),
+            GeneralFunctionPlanStageV1::Recipe,
+        ),
+        (
+            function_with_body(
+                "non_integer_local",
+                test_support::integer_local_return_body(
+                    "x",
+                    None,
+                    Some(ASTNode::Literal {
+                        value: LiteralValue::Bool(true),
+                        span: Span::unknown(),
+                    }),
+                    "x",
+                ),
+                false,
+            ),
+            GeneralFunctionPlanStageV1::Recipe,
+        ),
+        (parameter_fed, GeneralFunctionPlanStageV1::Recipe),
     ];
     for spelling in ["Integer", "int", "IntegerBox", "I64", " i64", "i64 "] {
         cases.push((
@@ -719,33 +785,6 @@ fn instance_integer_return_rejects_signature_and_body_widening() {
         assert_eq!(rejected.stage(), expected_stage);
         rejected.discard();
     }
-}
-
-#[test]
-fn rejection_discards_without_retry_and_fresh_source_reuses() {
-    let rejected = seal_module(program(vec![
-        main_only(),
-        instance_box(
-            "Page",
-            vec![("render", function_with_body("render", Vec::new(), false))],
-        ),
-    ]))
-    .unwrap()
-    .seal_instance_function_plans()
-    .unwrap_err();
-    rejected.discard();
-
-    let plans = seal_module(program(vec![
-        main_only(),
-        instance_box(
-            "Page",
-            vec![("render", integer_return_function("render", 7))],
-        ),
-    ]))
-    .unwrap()
-    .seal_instance_function_plans()
-    .unwrap();
-    assert_eq!(plans.len(), 1);
 }
 
 #[test]

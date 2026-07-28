@@ -8,6 +8,7 @@ mod callable_source;
 mod classifier;
 mod instance_function_plan;
 mod instance_i64_parameter_return_plan;
+mod instance_integer_local_return_plan;
 mod instance_integer_return_plan;
 mod inventory;
 mod main0_bridge;
@@ -48,6 +49,11 @@ pub(crate) use instance_function_plan::{
 pub(crate) use instance_i64_parameter_return_plan::{
     NormalInstanceI64ParameterReturnRecipeV1, VerifiedNormalInstanceI64ParameterReturnPlanV1,
     VerifiedNormalInstanceI64ParameterV1,
+};
+#[allow(unused_imports)]
+pub(crate) use instance_integer_local_return_plan::{
+    NormalInstanceIntegerLocalReturnRecipeV1, VerifiedNormalInstanceIntegerLocalReturnPlanV1,
+    VerifiedNormalInstanceLocalV1,
 };
 #[allow(unused_imports)]
 pub(crate) use instance_integer_return_plan::{

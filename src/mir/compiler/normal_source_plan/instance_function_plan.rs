@@ -23,6 +23,9 @@ use crate::mir::source_call_target::SameModuleCallableSourceReceiverPolicyV1;
 use super::instance_i64_parameter_return_plan::{
     seal_i64_parameter_return_one, VerifiedNormalInstanceI64ParameterReturnPlanV1,
 };
+use super::instance_integer_local_return_plan::{
+    seal_integer_local_return_one, VerifiedNormalInstanceIntegerLocalReturnPlanV1,
+};
 use super::instance_integer_return_plan::{
     seal_integer_literal_return_one, VerifiedNormalInstanceIntegerReturnPlanV1,
 };
@@ -65,6 +68,7 @@ impl VerifiedNormalInstanceFunctionFactsV1 {
 pub(crate) enum VerifiedNormalInstanceFunctionPlanV1 {
     IntegerLiteralReturn(VerifiedNormalInstanceIntegerReturnPlanV1),
     I64ParameterReturn(VerifiedNormalInstanceI64ParameterReturnPlanV1),
+    IntegerLocalReturn(VerifiedNormalInstanceIntegerLocalReturnPlanV1),
 }
 
 impl VerifiedNormalInstanceFunctionPlanV1 {
@@ -73,7 +77,7 @@ impl VerifiedNormalInstanceFunctionPlanV1 {
     ) -> Option<&VerifiedNormalInstanceIntegerReturnPlanV1> {
         match self {
             Self::IntegerLiteralReturn(plan) => Some(plan),
-            Self::I64ParameterReturn(_) => None,
+            Self::I64ParameterReturn(_) | Self::IntegerLocalReturn(_) => None,
         }
     }
 
@@ -81,8 +85,17 @@ impl VerifiedNormalInstanceFunctionPlanV1 {
         &self,
     ) -> Option<&VerifiedNormalInstanceI64ParameterReturnPlanV1> {
         match self {
-            Self::IntegerLiteralReturn(_) => None,
+            Self::IntegerLiteralReturn(_) | Self::IntegerLocalReturn(_) => None,
             Self::I64ParameterReturn(plan) => Some(plan),
+        }
+    }
+
+    pub(crate) const fn as_integer_local_return(
+        &self,
+    ) -> Option<&VerifiedNormalInstanceIntegerLocalReturnPlanV1> {
+        match self {
+            Self::IntegerLiteralReturn(_) | Self::I64ParameterReturn(_) => None,
+            Self::IntegerLocalReturn(plan) => Some(plan),
         }
     }
 }
@@ -98,12 +111,19 @@ enum PreparedNormalInstanceFunctionFamilyV1<'source> {
         source_name: &'source str,
         abi: ExactTrivialParameterAbiV1,
     },
+    IntegerLocalReturn {
+        view: NormalInstanceMethodSourceViewV1<'source>,
+        source_name: &'source str,
+        value: i64,
+    },
 }
 
 impl<'source> PreparedNormalInstanceFunctionFamilyV1<'source> {
     const fn view(self) -> NormalInstanceMethodSourceViewV1<'source> {
         match self {
-            Self::IntegerLiteralReturn { view, .. } | Self::I64ParameterReturn { view, .. } => view,
+            Self::IntegerLiteralReturn { view, .. }
+            | Self::I64ParameterReturn { view, .. }
+            | Self::IntegerLocalReturn { view, .. } => view,
         }
     }
 }
@@ -308,6 +328,12 @@ impl VerifiedNormalModuleSourceV1 {
                     abi,
                 } => seal_i64_parameter_return_one(view, source_name, abi, forest, projection)
                     .map(VerifiedNormalInstanceFunctionPlanV1::I64ParameterReturn),
+                PreparedNormalInstanceFunctionFamilyV1::IntegerLocalReturn {
+                    view,
+                    source_name,
+                    value,
+                } => seal_integer_local_return_one(view, source_name, value, forest, projection)
+                    .map(VerifiedNormalInstanceFunctionPlanV1::IntegerLocalReturn),
             };
             let plan = match plan {
                 Ok(plan) => plan,
@@ -364,27 +390,61 @@ fn classify_instance_function(
     }
 
     match (declaration.params(), declaration.param_decls()) {
-        ([], []) => {
-            let [ASTNode::Return {
+        ([], []) => match declaration.body() {
+            [ASTNode::Return {
                 value: Some(value), ..
-            }] = declaration.body()
-            else {
-                return Err(body_error(key, "exact_value_return_required"));
-            };
-            let ASTNode::Literal {
-                value: LiteralValue::Integer(value),
+            }] => {
+                let ASTNode::Literal {
+                    value: LiteralValue::Integer(value),
+                    ..
+                } = value.as_ref()
+                else {
+                    return Err(body_error(key, "integer_literal_required"));
+                };
+                Ok(
+                    PreparedNormalInstanceFunctionFamilyV1::IntegerLiteralReturn {
+                        view,
+                        value: *value,
+                    },
+                )
+            }
+            [ASTNode::Local {
+                variables,
+                initial_values,
+                declared_type_names,
                 ..
-            } = value.as_ref()
-            else {
-                return Err(body_error(key, "integer_literal_required"));
-            };
-            Ok(
-                PreparedNormalInstanceFunctionFamilyV1::IntegerLiteralReturn {
+            }, ASTNode::Return {
+                value: Some(returned),
+                ..
+            }] => {
+                let ([source_name], [Some(initializer)], [None]) = (
+                    variables.as_slice(),
+                    initial_values.as_slice(),
+                    declared_type_names.as_slice(),
+                ) else {
+                    return Err(body_error(key, "exact_untyped_single_local_required"));
+                };
+                let ASTNode::Literal {
+                    value: LiteralValue::Integer(value),
+                    ..
+                } = initializer.as_ref()
+                else {
+                    return Err(body_error(key, "integer_initializer_required"));
+                };
+                let ASTNode::Variable { name, .. } = returned.as_ref() else {
+                    return Err(body_error(key, "local_variable_return_required"));
+                };
+                if name != source_name {
+                    return Err(body_error(key, "returned_local_name_mismatch"));
+                }
+                Ok(PreparedNormalInstanceFunctionFamilyV1::IntegerLocalReturn {
                     view,
+                    source_name,
                     value: *value,
-                },
-            )
-        }
+                })
+            }
+            _ => Err(body_error(key, "exact_scalar_return_family_required")),
+        },
         ([source_name], [parameter_declaration]) => {
             if parameter_declaration.name != *source_name {
                 return Err(signature_error(

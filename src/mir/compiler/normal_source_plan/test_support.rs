@@ -1,4 +1,4 @@
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, Span};
 
 use super::{
     NormalMainFunctionPreflightV1, NormalSourcePlanClassifierV1, PreparedNormalSourcePlanInputV1,
@@ -20,4 +20,27 @@ pub(crate) fn with_main_thunk_for_test<R>(
         .expect("embedded Main resolution");
     let main = NormalMainFunctionPreflightV1::seal(&resolved).expect("Main F1 plan");
     inspect(VerifiedNormalMainThunkPlanV1::seal(main).expect("Main thunk plan"))
+}
+
+pub(super) fn integer_local_return_body(
+    local_name: &str,
+    declared_type: Option<&str>,
+    initializer: Option<ASTNode>,
+    returned_name: &str,
+) -> Vec<ASTNode> {
+    vec![
+        ASTNode::Local {
+            variables: vec![local_name.to_owned()],
+            initial_values: vec![initializer.map(Box::new)],
+            declared_type_names: vec![declared_type.map(str::to_owned)],
+            span: Span::unknown(),
+        },
+        ASTNode::Return {
+            value: Some(Box::new(ASTNode::Variable {
+                name: returned_name.to_owned(),
+                span: Span::unknown(),
+            })),
+            span: Span::unknown(),
+        },
+    ]
 }

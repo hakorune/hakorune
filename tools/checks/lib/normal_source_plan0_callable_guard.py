@@ -55,6 +55,9 @@ def check_callable_source(
         source_dir / "instance_integer_return_plan.rs"
     )
     instance_i64_parameter_return_plan_path = source_dir / "instance_i64_parameter_return_plan.rs"
+    instance_integer_local_return_plan_path = (
+        source_dir / "instance_integer_local_return_plan.rs"
+    )
     main0_bridge_path = source_dir / "main0_bridge.rs"
     main_source_path = source_dir / "main_source.rs"
     main_resolved_source_path = source_dir / "main_resolved_source.rs"
@@ -104,6 +107,7 @@ def check_callable_source(
         instance_function_plan_path,
         instance_integer_return_plan_path,
         instance_i64_parameter_return_plan_path,
+        instance_integer_local_return_plan_path,
         main0_bridge_path,
         main_source_path,
         main_resolved_source_path,
@@ -143,6 +147,7 @@ def check_callable_source(
     instance_function_plan = instance_function_plan_path.read_text()
     instance_integer_return_plan = instance_integer_return_plan_path.read_text()
     instance_i64_parameter_return_plan = instance_i64_parameter_return_plan_path.read_text()
+    instance_integer_local_return_plan = instance_integer_local_return_plan_path.read_text()
     main0_bridge = main0_bridge_path.read_text()
     main_source = main_source_path.read_text()
     main_resolved_source = main_resolved_source_path.read_text()
@@ -299,41 +304,33 @@ def check_callable_source(
     if "struct VerifiedSameModuleCallableDeclarationCatalogV1" in module_source:
         raise AssertionError("module-source owner duplicated callable catalog")
 
-    for definition in (
-        "struct VerifiedNormalInstanceFunctionFactsV1",
-        "enum VerifiedNormalInstanceFunctionPlanV1",
-        "struct VerifiedNormalInstanceFunctionPlanSetV1",
-        "struct RejectedGeneralFunctionPlanSetV1",
-        "enum GeneralFunctionPlanStageV1",
-        "enum GeneralFunctionPlanErrorV1",
-    ):
-        require_count(
-            instance_function_plan,
-            definition,
-            1,
-            f"sole cumulative instance-plan definition {definition}",
-        )
-    for definition in (
-        "struct NormalInstanceIntegerReturnRecipeV1",
-        "struct VerifiedNormalInstanceIntegerReturnPlanV1",
-    ):
-        require_count(
-            instance_integer_return_plan,
-            definition,
-            1,
-            f"sole integer-return variant definition {definition}",
-        )
-    for definition in (
-        "struct VerifiedNormalInstanceI64ParameterV1",
-        "struct NormalInstanceI64ParameterReturnRecipeV1",
-        "struct VerifiedNormalInstanceI64ParameterReturnPlanV1",
-    ):
-        require_count(
-            instance_i64_parameter_return_plan,
-            definition,
-            1,
-            f"sole i64 parameter-return variant definition {definition}",
-        )
+    definition_groups = (
+        (instance_function_plan, "cumulative instance-plan", (
+                "struct VerifiedNormalInstanceFunctionFactsV1",
+                "enum VerifiedNormalInstanceFunctionPlanV1",
+                "struct VerifiedNormalInstanceFunctionPlanSetV1",
+                "struct RejectedGeneralFunctionPlanSetV1",
+                "enum GeneralFunctionPlanStageV1",
+                "enum GeneralFunctionPlanErrorV1",
+        )),
+        (instance_integer_return_plan, "integer-return variant", (
+                "struct NormalInstanceIntegerReturnRecipeV1",
+                "struct VerifiedNormalInstanceIntegerReturnPlanV1",
+        )),
+        (instance_i64_parameter_return_plan, "i64 parameter-return variant", (
+                "struct VerifiedNormalInstanceI64ParameterV1",
+                "struct NormalInstanceI64ParameterReturnRecipeV1",
+                "struct VerifiedNormalInstanceI64ParameterReturnPlanV1",
+        )),
+        (instance_integer_local_return_plan, "integer Local-return variant", (
+                "struct VerifiedNormalInstanceLocalV1",
+                "struct NormalInstanceIntegerLocalReturnRecipeV1",
+                "struct VerifiedNormalInstanceIntegerLocalReturnPlanV1",
+        )),
+    )
+    for source, label, definitions in definition_groups:
+        for definition in definitions:
+            require_count(source, definition, 1, f"sole {label} definition {definition}")
     for fragment in (
         "borrow_instance_method_source(key)",
         "SameModuleCallableNamespaceV1::InstanceBoxMethod",
@@ -343,44 +340,47 @@ def check_callable_source(
         "seal_integer_literal_return_one(view, value, forest, projection)",
         "seal_i64_parameter_return_one(",
         "Self::I64ParameterReturn(plan)",
+        "seal_integer_local_return_one(",
+        "Self::IntegerLocalReturn(plan)",
         "plans.keys().eq(keys.iter())",
         "FunctionSyntaxViewV1::from_borrowed_function_parts(",
         ".resolve_forest(syntax)",
         "VerifiedSourceProjectionV1::seal(view.function(), &forest)",
     ):
         require(instance_function_plan, fragment, f"cumulative instance-plan law {fragment}")
-    for fragment in (
-        "ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(",
-        "ExprChildRoleV1::ReturnValue",
-        "LiteralValue::Integer(integer)",
-        "verify_function_completion_v1(input)",
-        "SourceBindingSiteV1::Receiver",
-        "BindingKindV1::Receiver",
-    ):
-        require(
-            instance_integer_return_plan,
-            fragment,
-            f"instance integer-return law {fragment}",
-        )
-    for fragment in (
-        "SourceBindingSiteV1::Parameter { index: 0 }",
-        "BindingKindV1::Parameter { index: 0 }",
-        "ResolvedLexicalRefV1::Local(parameter)",
-        "ExprChildRoleV1::ReturnValue",
-        "verify_function_completion_v1(input)",
-    ):
-        require(
-            instance_i64_parameter_return_plan,
-            fragment,
-            f"instance i64 parameter-return law {fragment}",
-        )
+    variant_laws = (
+        (instance_integer_return_plan, "integer-return", (
+                "ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(",
+                "ExprChildRoleV1::ReturnValue",
+                "LiteralValue::Integer(integer)",
+                "verify_function_completion_v1(input)",
+                "SourceBindingSiteV1::Receiver",
+                "BindingKindV1::Receiver",
+        )),
+        (instance_i64_parameter_return_plan, "i64 parameter-return", (
+                "SourceBindingSiteV1::Parameter { index: 0 }",
+                "BindingKindV1::Parameter { index: 0 }",
+                "ResolvedLexicalRefV1::Local(parameter)",
+                "ExprChildRoleV1::ReturnValue",
+                "verify_function_completion_v1(input)",
+        )),
+        (instance_integer_local_return_plan, "integer Local-return", (
+                "ExprChildRoleV1::LocalInitializer(0)",
+                "SourceBindingSiteV1::Local {",
+                "BindingKindV1::Local { ordinal: 0 }",
+                "ResolvedLexicalRefV1::Local(local)",
+                "ExprChildRoleV1::ReturnValue",
+                "verify_function_completion_v1(input)",
+        )),
+    )
+    for source, label, laws in variant_laws:
+        for fragment in laws:
+            require(source, fragment, f"instance {label} law {fragment}")
     for test_name in (
-        "mixed_literal_and_i64_parameter_methods_seal_once_and_bridge_main",
-        "integer_return_recipe_pairs_exact_completion_without_claiming_main",
-        "one_unsupported_method_rejects_the_whole_plan_set",
+        "mixed_instance_function_variants_seal_once_and_bridge_main",
+        "unsupported_method_rejects_whole_set_and_fresh_local_reuses",
         "empty_instance_boxes_do_not_issue_an_empty_plan_set",
-        "instance_integer_return_rejects_signature_and_body_widening",
-        "rejection_discards_without_retry_and_fresh_source_reuses",
+        "instance_scalar_variants_reject_widening_without_retry",
     ):
         require(
             module_source_tests,
@@ -391,6 +391,7 @@ def check_callable_source(
         (instance_function_plan, "cumulative instance-plan owner"),
         (instance_integer_return_plan, "integer-return variant"),
         (instance_i64_parameter_return_plan, "i64 parameter-return variant"),
+        (instance_integer_local_return_plan, "integer Local-return variant"),
     ):
         for forbidden in (
             "MirBuilder",
@@ -413,9 +414,16 @@ def check_callable_source(
     for forbidden in ("or_else(", "filter_map("):
         if forbidden in instance_function_plan:
             raise AssertionError(f"cumulative owner gained family retry/skip: {forbidden}")
+    for forbidden in (
+        "ExactTrivialParameterAbiV1", "ExactTrivialScalarAbiV1",
+        "LocalSlotContract", "MirType",
+    ):
+        if forbidden in instance_integer_local_return_plan:
+            raise AssertionError(f"dynamic Local variant gained ABI authority: {forbidden}")
     normal_plan_surface = (
         instance_function_plan + instance_integer_return_plan
-        + instance_i64_parameter_return_plan + main0_bridge
+        + instance_i64_parameter_return_plan + instance_integer_local_return_plan
+        + main0_bridge
     )
     for retired in (
         "VerifiedNormalInstanceIntegerReturnPlanSetV1",

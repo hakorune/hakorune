@@ -25,43 +25,37 @@ Resolve -> Observe -> Facts -> Recipe -> Verify
 第二MirBuilder、production consumer 0のroute拡張、Legacy fallbackは作らない。
 cell数、pack数、LOCは観測値であり、完成条件ではない。
 
-## Current execution brief
+## Current design stop
 
-`GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-LOCAL-RETURN0-S0`
-— parent `INSTANCE-LOCAL-BINDING0-D0`, T2
+`GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-D0`
 
 ```text
-Change:
-  add InstanceMethodIntegerLocalReturn0 to the cumulative plan vocabulary:
-  no parameters; body = untyped Local x initialized by one ordinary Integer
-  literal, then Return of exactly x. Select it in the total source classifier
-  before the existing single resolver pass. Old authority: none.
+Question:
+  should the next finite family be exactly one i64 parameter, one untyped
+  Local initialized from that resolved parameter, and one terminal Return of
+  the resolved Local?
 
-Contract:
-  this is a dynamic Integer value Recipe, not exact-i64 inference. Co-seal one
-  Receiver, one Local(ordinal 0), the initializer site/payload, one terminal
-  resolved Local read, and existing completion. Typed LocalSlotContract,
-  parameter-fed initialization, reassignment, Binary, and physical lowering
-  remain separate owners.
+Reuse:
+  existing exact i64 parameter receipt, dynamic Local binding facts, total
+  source classifier, one resolver pass, source projection, and completion.
 
-Done:
-  literal-return, i64-parameter-return, and Integer-Local-return coexist with
-  exact catalog-key coverage and unchanged Main0 receipt; one unsupported
-  method rejects the whole set without retry. Reuse and compact existing tests
-  and shared normal-source-plan guard; new test/check files = 0; every touched
-  source/check file < 800. Stable gate: run_row_guard normal-source-plan0.
+Must decide:
+  exact declaration/use cardinality; initializer Parameter-use and final
+  Local-use pairing; whether the Recipe stores both BindingRefs and sites;
+  whole-module rejection and fresh-source reuse evidence.
 
-Stop:
-  typed-Local meaning, parameter flow, assignment/Binary, a second resolver
-  pass, partial-plan publication, Builder/MIR/representation authority, a new
-  test/check file, or any source/check file reaching 800 lines is required.
+Non-claims:
+  no exact Local ABI inference, typed LocalSlotContract/LocalContractWrite,
+  reassignment, Binary, physical lowering, production caller, fallback/retry,
+  Ownership/View, or tenth replacement row.
 ```
 
 ## Queue to the north star
 
 ```text
 M2c  closed exact i64 parameter-return variant
-M2c+ current local, then reassign / Binary finite binding slices
+M2c+ closed integer-literal Local; current parameter-fed Local
+M2c+ then reassignment / Binary finite binding slices
 M2d  field schema
 M2e  field read
 M2f  field write
@@ -95,9 +89,14 @@ MAIN0-BRIDGE0-S0 / 7aed7848e6
 INSTANCE-CUMULATIVE0-S0 / 7e3144da62
   one source-owning cumulative set; exact ordered key coverage
 
-INSTANCE-I64-PARAMETER-RETURN0-S0 / this implementation commit
+INSTANCE-I64-PARAMETER-RETURN0-S0 / bdd0812c26
   total two-family classifier; exact Receiver + Parameter(0) + Return use
   evidence 76/76; production +464, test +62, check +36; max file 791
+
+INSTANCE-INTEGER-LOCAL-RETURN0-S0 / this implementation commit
+  third cumulative variant; exact Receiver + Local(0) + Integer initializer
+  + terminal Local read; evidence 74/74; production +391, test +62, check +8;
+  one new source file, no new test/check file, max source/check 799
 ```
 
 Detailed landed diffs and older cell measurements belong to git history and
