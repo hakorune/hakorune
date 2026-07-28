@@ -95,7 +95,9 @@ record-local slots bind their existing values and only non-record slots use the
 indexed E0 primitive. Its inline body remains a separate terminal authority.
 `property_reads.rs` is also separate because it already owns a materialized
 receiver value; the source MethodCall driver must not synthesize an AST for it
-or duplicate its standard-handler preflight.
+or duplicate its standard-handler preflight. Its exact zero-argument completion
+adapter borrows the selected FieldAccess port only for catalog-helper child
+descent. `lower_all` is structurally empty and indexed demand fails closed.
 
 `method_call_terminal.rs` is the disconnected V0 value-only terminal port.
 Route selection, syntax preflight, and child descent must finish before it is
@@ -110,7 +112,11 @@ associated MethodCall input: TypeOp, qualified static, current-owner lowered
 global, Env, and Standard. Early/custom scalar, record-helper, setter, weak,
 FastMem, MIR-debug, and REPL terminals remain outside this boundary. A
 materialized property keeps the shared Standard preflight and calls only the
-raw value-level Standard helper; it creates no MethodCall source carrier.
+raw value-level Standard helper with `lookup=None`; it creates no MethodCall source carrier
+and deliberately does not acquire the selected port's
+terminal/header authority. `StandardMethodCallCompletionV1` makes this choice
+adapter-local: associated MethodCalls keep header-aware completion, while the
+property adapter preserves the A1 terminal.
 Located source, caller-ledger, activation, and result authority remain absent.
 
 V0-P0/G0 fixes normalized destination allocation, target/effects, argument

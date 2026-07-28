@@ -1,5 +1,5 @@
 ---
-Status: resolved into FIELD-PROPERTY-GETTER-DESCENT0-D0
+Status: active after ninth replacement closeout
 Date: 2026-07-28
 Decision: MIRBUILDER-NEXT-EDGE-DESIGN-STOP
 Scope: select the next exact production edge after eight closed cutovers
@@ -55,7 +55,26 @@ is an exact zero-argument port loan, but the consultation must separately fix
 terminal/header authority: the current property terminal has no header lookup,
 while a full invocation-port terminal can observe collector headers.
 
-This outcome creates no ninth row and authorizes no production edit.
+The consultation accepted Candidate A / A1 / T1 and the atomic implementation
+closed:
+
+```text
+FIELD-PROPERTY-GETTER-DESCENT0-I0-R0
+```
+
+Closeout:
+
+```text
+selected catalog-child loan       = 1
+A1 raw lookup-none terminal       = 1
+old property symbols              = 0
+source/test files                 = 952 / 139
+source/test LOC                   = 182452 / 40809
+production / rolling Rust LOC     = +22 / -218
+fallback / retry / reselection    = 0
+```
+
+No tenth responsibility is selected.
 
 ## Candidates
 

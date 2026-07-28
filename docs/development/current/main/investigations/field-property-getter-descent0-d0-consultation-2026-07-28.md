@@ -1,11 +1,11 @@
 ---
-Status: design consultation
+Status: closed execution
 Date: 2026-07-28
 Decision: FIELD-PROPERTY-GETTER-DESCENT0-D0
 Pack: CALL-OBJECT0
-Ceremony: T1 candidate
-ReplacementCell: no during D0
-ProductionEdit: forbidden
+Ceremony: T1
+ReplacementCell: FIELD-PROPERTY-GETTER-DESCENT0-I0-R0
+ProductionEdit: landed atomically with closeout
 Parent:
   - docs/development/current/main/investigations/mirbuilder-next-edge-design-stop-2026-07-28.md
 Policy:
@@ -18,8 +18,8 @@ NorthStar:
 
 ## Decision boundary
 
-Eight production replacement cells are closed. This consultation selects no
-ninth cell and authorizes no Rust, test, guard, or manifest-row change.
+The D0 accepted Candidate A with A1 parity-preserving terminal authority. The
+ninth cell is now closed as `FIELD-PROPERTY-GETTER-DESCENT0-I0-R0`.
 
 The next exact production authority break is:
 
@@ -68,7 +68,7 @@ to reconstruct. The missing capability is not a new source, identity,
 provenance, route, or completion owner. It is one bounded projection of the
 already-selected port across the property-getter boundary.
 
-This is therefore a T1 candidate:
+This closed as T1:
 
 ```text
 new source/provenance owner    = 0
@@ -77,7 +77,7 @@ new route selector             = 0
 new publication/failure owner  = 0
 property grammar delta         = 0
 fallback / retry / reselection = 0
-responsibility interface delta = bounded, pending D0 acceptance
+responsibility interface delta = bounded and landed
 ```
 
 ## Exact live census
@@ -157,7 +157,7 @@ use call-site argument roles or located ledger
 
 ## Candidate A — exact zero-argument port loan
 
-Preferred shape, subject to D0 acceptance:
+Accepted and implemented shape:
 
 1. Replace the sole `LegacyMethodCallArgumentsV1` authority with one exact
    zero-argument property-call adapter that borrows the selected FieldAccess
@@ -206,17 +206,19 @@ diagnostic timing or text
 MIR metadata
 ```
 
-The D0 must choose one explicitly:
+The D0 fixed the choice explicitly:
 
 ```text
 A1 parity-preserving
   selected port is loaned only for catalog-helper child descent
   current lookup=None property terminal remains unchanged
+  decision = accepted
 
 A2 full port continuity
   selected port also owns property terminal completion
   accept only after focused proof shows no unintended diagnostic,
   type, origin, or MIR change
+  decision = rejected for this cell
 ```
 
 Do not silently bundle A2 into the descent cutover. If header visibility
@@ -229,9 +231,9 @@ would duplicate standard route preparation, helper completion, WeakLoad /
 Upgrade completion, and Unified terminal policy. Reject B unless Candidate A
 is impossible without widening unrelated standard MethodCall policy.
 
-## Candidate delete set after acceptance
+## Atomic delete set
 
-The future atomic implementation may delete exactly:
+The atomic implementation deleted:
 
 ```text
 property_reads::try_lower_property_read
@@ -297,13 +299,15 @@ current test files / LOC   = 139 / 40820
 test ceiling               = 139 / 40826
 ```
 
-Future implementation acceptance:
+Closeout measurement:
 
 ```text
 new source/test/check files       = 0
-source LOC                        <= 182452
-test LOC                          <= 40826
-five-cell production Rust rolling <= 0
+source files / LOC                = 952 / 182452
+test files / LOC                  = 139 / 40809
+source LOC delta                  = +22
+test LOC delta                    = -11
+five-cell production Rust rolling = -218
 all modified source/check files   < 800 lines
 new per-cell guard                = 0
 ```
@@ -313,7 +317,7 @@ lines. LOC is a result boundary, not the reason to select this responsibility.
 
 ## Hard stop
 
-Return to a short design consultation if any occurs:
+No hard stop fired. The retained stop conditions are:
 
 ```text
 MethodCall AST/input fabrication is required
@@ -348,26 +352,33 @@ contract: ordinary `--backend vm` still enters Legacy today. It is not safe to
 cut over until the canonical typed ingress accepts the complete normal source
 family without rejection-to-Legacy fallback.
 
-## Required consultation output
-
-The answer must fix:
+## Closeout evidence
 
 ```text
-Candidate A accepted or rejected
-A1 or A2 terminal authority
-exact interface shape
-exact production caller
-exact old symbol/delete set
-exact parity and failure/reuse fixtures
-exact guard assertions
-measured structural boundary
-T1 or T2 ceremony
+Candidate A / A1 / T1                         = accepted
+real registered property ingress             = 3 / 3 green
+zero-argument property completion fixture    = 1 / 1 green
+WeakLoad / Upgrade route fixture              = green
+standard terminal failure / Builder reuse    = green
+helper-body failure / Builder reuse           = green
+M0 ROUTE0 helper                              = green
+M0 V0 property-focused assertions             = green
+shared replacement guard                      = green
+current receiver declared-field proof         = green
+old property symbols                          = 0
+MethodCall source fabrication                 = 0
+fallback / retry / reselection                = 0
 ```
 
-Until accepted:
+The full historical M0 V0 parent still reaches its pre-existing unrelated
+Stage-B F7 capture-capability drift before the property assertions. This cell
+does not repair or claim Stage-B authority; the property-specific remainder is
+green when that unrelated precheck is held constant.
+
+Closeout:
 
 ```text
-ninth manifest row     = absent
-production source edit = forbidden
-current execution row  = none
+ninth manifest row     = exactly one closed
+production source edit = landed
+current execution row  = MIRBUILDER-NEXT-EDGE-DESIGN-STOP
 ```

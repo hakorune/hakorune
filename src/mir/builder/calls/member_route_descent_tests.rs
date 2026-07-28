@@ -14,8 +14,11 @@ use super::super::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::call_argument_descent::CallArgumentDescentPortV1;
 use super::extern_calls::EnvMethodSpec;
-use super::method_call_descent::{MethodCallDescentPortV1, MethodCallSyntaxViewV1};
-use super::method_call_terminal::MethodCallValueTerminalPortV1;
+use super::method_call_descent::{
+    CatalogHelperChildV1, MethodCallArgumentDescentV1, MethodCallDescentPortV1,
+    MethodCallSyntaxViewV1,
+};
+use super::method_call_terminal::{MethodCallValueTerminalPortV1, StandardMethodCallCompletionV1};
 
 fn integer(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -271,37 +274,6 @@ fn builder(name: &str) -> MirBuilder {
         .unwrap();
     builder.enter_function_for_test(name.to_string());
     builder
-}
-
-fn ordinary_copy_root(instructions: &[MirInstruction], mut value: ValueId) -> ValueId {
-    let mut remaining = instructions.len();
-    while remaining > 0 {
-        let Some(src) = instructions
-            .iter()
-            .find_map(|instruction| match instruction {
-                MirInstruction::Copy { dst, src } if *dst == value => Some(*src),
-                _ => None,
-            })
-        else {
-            break;
-        };
-        value = src;
-        remaining -= 1;
-    }
-    value
-}
-
-fn normalized_const_value(
-    instructions: &[MirInstruction],
-    value: ValueId,
-) -> Option<crate::mir::ConstValue> {
-    let root = ordinary_copy_root(instructions, value);
-    instructions
-        .iter()
-        .find_map(|instruction| match instruction {
-            MirInstruction::Const { dst, value } if *dst == root => Some(value.clone()),
-            _ => None,
-        })
 }
 
 #[test]
@@ -705,43 +677,60 @@ fn generic_terminal_failure_follows_children_without_retry_and_builder_reuses() 
 }
 
 #[test]
-fn materialized_property_receiver_is_forwarded_without_source_redescent() {
-    let mut builder = builder("materialized_property_route/0");
-    let receiver = builder.build_expression(integer(11)).unwrap();
+fn property_completion_uses_selected_catalog_child_but_raw_terminal() {
+    use super::super::property_reads::PropertyGetterCompletionV1;
 
-    let result = builder
-        .handle_standard_method_call(receiver, "propertyGetter".to_string(), &[])
+    let mut builder = builder("property_completion/0");
+    let receiver = builder.build_expression(integer(11)).unwrap();
+    let mut port = RawLegacyChildLoweringPortV1;
+    let mut completion = PropertyGetterCompletionV1::new(&mut port);
+
+    assert!(completion.lower_all(&mut builder).unwrap().is_empty());
+    assert_eq!(
+        completion.lower_index(&mut builder, 0).unwrap_err(),
+        "[property-getter-descent/indexed-argument] index=0 arity=0"
+    );
+    let catalog_value = completion
+        .lower_catalog_helper_child(&mut builder, CatalogHelperChildV1::Expression(integer(12)))
+        .unwrap();
+    let result = completion
+        .finish_standard_value_terminal(
+            &mut builder,
+            receiver,
+            "propertyGetter".to_string(),
+            Vec::new(),
+        )
         .unwrap();
 
     let function = builder.function_state.current_function.as_ref().unwrap();
-    let emitted = function
+    let instructions = function
         .blocks
         .values()
         .flat_map(|block| &block.instructions)
-        .cloned()
         .collect::<Vec<_>>();
-    let (call_dst, call_receiver) = emitted
+    assert!(instructions.iter().any(|instruction| matches!(
+        instruction,
+        MirInstruction::Const { dst, value: crate::mir::ConstValue::Integer(12) }
+            if *dst == catalog_value
+    )));
+    let calls = instructions
         .iter()
-        .find_map(|instruction| match instruction {
+        .filter_map(|instruction| match instruction {
             MirInstruction::Call {
                 dst: Some(dst),
                 callee:
                     Some(Callee::Method {
                         method,
-                        receiver: Some(call_receiver),
+                        receiver: Some(_),
                         ..
                     }),
                 args,
                 ..
-            } if method == "propertyGetter" && args.is_empty() => Some((*dst, *call_receiver)),
+            } if method == "propertyGetter" => Some((*dst, args.len())),
             _ => None,
         })
-        .expect("materialized property must emit one completed method call");
-    assert_eq!(call_dst, result);
-    assert_eq!(
-        normalized_const_value(&emitted, call_receiver),
-        normalized_const_value(&emitted, receiver),
-    );
+        .collect::<Vec<_>>();
+    assert_eq!(calls, [(result, 0)]);
     assert_eq!(
         builder.function_state.type_ctx.value_types.get(&result),
         None

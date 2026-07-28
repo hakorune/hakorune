@@ -1,5 +1,5 @@
 use crate::ast::ASTNode;
-use crate::mir::{Callee, MirCompiler, MirInstruction, MirModule};
+use crate::mir::{Callee, MirCompiler, MirInstruction, MirModule, ValueId};
 use crate::parser::NyashParser;
 
 fn compile_src(src: &str) -> MirModule {
@@ -11,42 +11,20 @@ fn compile_src(src: &str) -> MirModule {
     })
 }
 
-fn count_newbox(module: &MirModule, box_type: &str) -> usize {
-    module
-        .functions
-        .values()
-        .flat_map(|function| function.blocks.values())
-        .flat_map(|block| block.instructions.iter())
-        .filter(|inst| {
-            matches!(
-                inst,
-                MirInstruction::NewBox {
-                    box_type: inst_box,
-                    ..
-                } if inst_box == box_type
-            )
-        })
-        .count()
-}
-
-fn count_getter_calls(module: &MirModule, method_name: &str) -> usize {
-    let global_suffix = format!(".{}/0", method_name);
-    module
-        .functions
-        .values()
-        .flat_map(|function| function.blocks.values())
-        .flat_map(|block| block.instructions.iter())
-        .filter(|inst| {
-            let MirInstruction::Call { callee, .. } = inst else {
-                return false;
-            };
-            match callee {
-                Some(Callee::Method { method, .. }) => method == method_name,
-                Some(Callee::Global(name)) => name.ends_with(&global_suffix),
-                _ => false,
-            }
-        })
-        .count()
+fn copy_root(instructions: &[&MirInstruction], mut value: ValueId) -> ValueId {
+    for _ in 0..instructions.len() {
+        let Some(src) = instructions
+            .iter()
+            .find_map(|instruction| match instruction {
+                MirInstruction::Copy { dst, src } if *dst == value => Some(*src),
+                _ => None,
+            })
+        else {
+            break;
+        };
+        value = src;
+    }
+    value
 }
 
 fn count_field_gets(module: &MirModule, field_name: &str) -> usize {
@@ -71,9 +49,61 @@ fn assert_property_read_uses_getter(
     getter_name: &str,
 ) {
     let module = compile_src(src);
+    let function = module
+        .functions
+        .values()
+        .find(|function| {
+            function.blocks.values().any(|block| {
+                block.instructions.iter().any(|instruction| {
+                    matches!(
+                        instruction,
+                        MirInstruction::NewBox { box_type: ty, .. } if ty == box_type
+                    )
+                })
+            })
+        })
+        .expect("function containing property receiver");
+    let instructions = function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .collect::<Vec<_>>();
+    let newboxes = instructions
+        .iter()
+        .filter_map(|instruction| match instruction {
+            MirInstruction::NewBox {
+                dst, box_type: ty, ..
+            } if ty == box_type => Some(*dst),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(newboxes.len(), 1);
+    let global_suffix = format!(".{getter_name}/0");
+    let getter_receivers = instructions
+        .iter()
+        .filter_map(|instruction| match instruction {
+            MirInstruction::Call {
+                callee:
+                    Some(Callee::Method {
+                        method,
+                        receiver: Some(receiver),
+                        ..
+                    }),
+                args,
+                ..
+            } if method == getter_name && args.len() == 1 => Some((*receiver, args[0])),
+            MirInstruction::Call {
+                callee: Some(Callee::Global(name)),
+                args,
+                ..
+            } if name.ends_with(&global_suffix) && args.len() == 1 => Some((args[0], args[0])),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
 
-    assert_eq!(count_newbox(&module, box_type), 1);
-    assert_eq!(count_getter_calls(&module, getter_name), 1);
+    assert_eq!(getter_receivers.len(), 1);
+    assert_eq!(copy_root(&instructions, getter_receivers[0].0), newboxes[0]);
+    assert_eq!(copy_root(&instructions, getter_receivers[0].1), newboxes[0]);
     assert_eq!(count_field_gets(&module, property_name), 0);
 }
 

@@ -35,6 +35,12 @@ SHORT_CIRCUIT_DESCENT="$ROOT_DIR/src/mir/builder/ops/short_circuit_expression_de
 SHORT_CIRCUIT_TESTS="$ROOT_DIR/src/mir/builder/ops/short_circuit_expression_descent_tests.rs"
 BINARY_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0.py"
 METHOD_CALL_DESCENT="$ROOT_DIR/src/mir/builder/calls/method_call_descent.rs"
+METHOD_CALL_TERMINAL="$ROOT_DIR/src/mir/builder/calls/method_call_terminal.rs"
+CALLS_MOD="$ROOT_DIR/src/mir/builder/calls/mod.rs"
+METHOD_CALL_HANDLERS="$ROOT_DIR/src/mir/builder/method_call_handlers.rs"
+PROPERTY_READS="$ROOT_DIR/src/mir/builder/property_reads.rs"
+FIELDS="$ROOT_DIR/src/mir/builder/fields.rs"
+PROPERTY_TESTS="$ROOT_DIR/src/tests/mir_unified_members_property_read.rs"
 RECORD_HELPER="$ROOT_DIR/src/mir/builder/record_helper_args.rs"
 RECORD_HELPER_TESTS="$ROOT_DIR/src/mir/builder/record_helper_args_tests.rs"
 PRELOOP_ARGUMENT="$ROOT_DIR/src/mir/builder/calls/preloop_located_argument_port.rs"
@@ -79,6 +85,12 @@ guard_require_files \
   "$SHORT_CIRCUIT_TESTS" \
   "$BINARY_GUARD" \
   "$METHOD_CALL_DESCENT" \
+  "$METHOD_CALL_TERMINAL" \
+  "$CALLS_MOD" \
+  "$METHOD_CALL_HANDLERS" \
+  "$PROPERTY_READS" \
+  "$FIELDS" \
+  "$PROPERTY_TESTS" \
   "$RECORD_HELPER" \
   "$RECORD_HELPER_TESTS" \
   "$PRELOOP_ARGUMENT" \
@@ -221,6 +233,16 @@ record_helper_row_count="$(awk -F '\t' '
 ' "$MANIFEST")"
 if [[ "$record_helper_row_count" != "1" ]]; then
   guard_fail "$TAG" "record-helper body descent must have one closed manifest row"
+fi
+
+property_row_count="$(awk -F '\t' '
+  $1 == "cell" &&
+  $2 == "FIELD-PROPERTY-GETTER-DESCENT0" &&
+  $9 == "closed" { count += 1 }
+  END { print count + 0 }
+' "$MANIFEST")"
+if [[ "$property_row_count" != "1" ]]; then
+  guard_fail "$TAG" "Field property getter descent must have one closed manifest row"
 fi
 
 for symbol in \
@@ -473,6 +495,52 @@ if rg -n -w 'retry|fallback|reselection' \
   guard_fail "$TAG" "record-helper descent gained retry, fallback, or reselection"
 fi
 
+while IFS='|' read -r file pattern expected label; do
+  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+  if [[ "$count" != "$expected" ]]; then
+    guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
+  fi
+done <<EOF
+$RAW_DISPATCH|self\\.build_field_access_with_port_v1\\s*\\(|1|sole raw/default FieldAccess selector
+$FIELDS|try_lower_property_read_with_port_v1\\s*\\(port, object_value, &field\\)|1|port-aware property caller
+$PROPERTY_READS|struct\\s+PropertyGetterCompletionV1\\b|1|exact zero-argument property adapter
+$PROPERTY_READS|fn\\s+try_lower_property_read_with_port_v1\\s*<Port>|1|port-aware property owner
+$PROPERTY_READS|handle_standard_method_call_with_descent\\s*\\(|1|shared standard orchestration caller
+$PROPERTY_READS|lower_catalog_helper_child\\(self\\.port, builder, child\\)|1|selected catalog-child loan
+$PROPERTY_READS|emit_standard_value_terminal_raw_v1\\s*\\(|1|A1 lookup-none property terminal
+$METHOD_CALL_HANDLERS|fn\\s+handle_standard_method_call_with_descent\\s*<Completion>|1|sole standard orchestration owner
+$METHOD_CALL_TERMINAL|trait\\s+StandardMethodCallCompletionV1\\b|1|standard completion capability
+$METHOD_CALL_TERMINAL|impl<Port>\\s+StandardMethodCallCompletionV1|1|associated standard completion
+EOF
+
+for retired_pattern in \
+  '\b(?:fn\s+)?try_lower_property_read\s*\(' \
+  '\b(?:fn\s+)?handle_standard_method_call\s*\(' \
+  '\bLegacyMethodCallArgumentsV1\b' \
+  '\b(?:fn\s+)?build_field_access\s*\('
+do
+  if rg -n -P "$retired_pattern" "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+    guard_fail "$TAG" "retired property facade returned: $retired_pattern"
+  fi
+done
+
+for forbidden in \
+  RawLegacyMethodCallInputV1 \
+  MethodCallValueTerminalPortV1 \
+  with_function_headers \
+  drive_raw_legacy_expression_v1 \
+  drive_raw_legacy_statement_v1 \
+  'build_expression('
+do
+  if rg -n -F "$forbidden" "$PROPERTY_READS" >/dev/null; then
+    guard_fail "$TAG" "property adapter acquired forbidden authority: $forbidden"
+  fi
+done
+if rg -n -w 'retry|fallback|reselection' \
+  "$PROPERTY_READS" "$FIELDS" "$METHOD_CALL_HANDLERS" >/dev/null; then
+  guard_fail "$TAG" "property descent gained retry, fallback, or reselection"
+fi
+
 for file in \
   "$LOWERING" \
   "$PORT_OWNER" \
@@ -516,6 +584,12 @@ for file in \
   "$ROOT_DIR/src/mir/builder/ops/short_circuit_expression_parity_tests.rs" \
   "$BINARY_GUARD" \
   "$METHOD_CALL_DESCENT" \
+  "$METHOD_CALL_TERMINAL" \
+  "$CALLS_MOD" \
+  "$METHOD_CALL_HANDLERS" \
+  "$PROPERTY_READS" \
+  "$FIELDS" \
+  "$PROPERTY_TESTS" \
   "$RECORD_HELPER" \
   "$RECORD_HELPER_TESTS" \
   "$PRELOOP_ARGUMENT" \

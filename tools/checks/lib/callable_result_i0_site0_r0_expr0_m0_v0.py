@@ -87,8 +87,20 @@ def main() -> None:
     require_count(
         terminal,
         "MethodCallDescentPortV1",
-        3,
+        4,
         "associated-input terminal inheritance",
+    )
+    require_count(
+        terminal,
+        "trait StandardMethodCallCompletionV1",
+        1,
+        "source-neutral standard completion owner",
+    )
+    require_count(
+        terminal,
+        "impl<Port> StandardMethodCallCompletionV1",
+        1,
+        "associated standard completion implementation",
     )
 
     terminal_methods = (
@@ -184,6 +196,30 @@ def main() -> None:
     require_count(handlers, "emit_unified_call(", 0, "ordinary direct call emission")
     require_count(handlers, "MirInstruction::TypeOp", 0, "ordinary direct TypeOp emission")
     require_count(property_reads, "RawLegacyMethodCallInputV1", 0, "property fake source input")
+    require_count(
+        property_reads,
+        "impl<Port> StandardMethodCallCompletionV1",
+        1,
+        "exact property A1 completion",
+    )
+    require_count(
+        property_reads,
+        "MethodCallValueTerminalPortV1",
+        0,
+        "property must not acquire header-aware terminal",
+    )
+    require_count(
+        property_reads,
+        "with_function_headers",
+        0,
+        "property must not observe collector headers",
+    )
+    require_count(
+        property_reads,
+        "emit_standard_value_terminal_raw_v1(",
+        1,
+        "property A1 lookup-none terminal",
+    )
     require_count(
         build,
         "MethodCallValueTerminalPortV1",
@@ -332,7 +368,7 @@ def main() -> None:
         "argument_failure_enters_no_terminal_and_builder_reuses",
         "static_scalar_fact_returns_const_without_generic_terminal",
         "weak_load_and_upgrade_preflight_bypass_generic_terminal",
-        "materialized_property_receiver_is_forwarded_without_source_redescent",
+        "property_completion_uses_selected_catalog_child_but_raw_terminal",
     ):
         if evidence not in route_tests:
             fail(f"missing P0 route/custom evidence: {evidence}")
@@ -675,6 +711,9 @@ def main() -> None:
         "src/mir/builder/calls/member_route.rs",
         "src/mir/builder/calls/member_route_descent_tests.rs",
         "src/mir/builder/method_call_handlers.rs",
+        "src/mir/builder/property_reads.rs",
+        "src/mir/builder/fields.rs",
+        "src/tests/mir_unified_members_property_read.rs",
         "src/mir/builder/me_call_header_observation.rs",
         "src/mir/builder/record_helper_args_tests.rs",
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_v0.py",

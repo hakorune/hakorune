@@ -80,6 +80,22 @@ pub(in crate::mir::builder) trait StaticMethodCallCompletionV1:
     ) -> Result<ValueId, String>;
 }
 
+/// Source-neutral completion capability for standard value calls.
+///
+/// Associated calls retain header-aware completion; materialized property
+/// getters retain the raw `lookup=None` terminal.
+pub(in crate::mir::builder) trait StandardMethodCallCompletionV1:
+    MethodCallArgumentDescentV1
+{
+    fn finish_standard_value_terminal(
+        &mut self,
+        builder: &mut MirBuilder,
+        receiver: ValueId,
+        method: String,
+        arguments: Vec<ValueId>,
+    ) -> Result<ValueId, String>;
+}
+
 impl<Port> MethodCallValueTerminalPortV1 for Port
 where
     Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
@@ -228,17 +244,6 @@ where
         self.terminal_port()
             .emit_env_value_terminal(builder, spec, arguments)
     }
-
-    pub(in crate::mir::builder) fn finish_standard_value_terminal(
-        &mut self,
-        builder: &mut MirBuilder,
-        receiver: ValueId,
-        method: String,
-        arguments: Vec<ValueId>,
-    ) -> Result<ValueId, String> {
-        self.terminal_port()
-            .emit_standard_value_terminal(builder, receiver, method, arguments)
-    }
 }
 
 impl<Port> StaticMethodCallCompletionV1 for AssociatedMethodCallArgumentsV1<'_, '_, Port>
@@ -260,6 +265,22 @@ where
             checked_source_arity,
             arguments,
         )
+    }
+}
+
+impl<Port> StandardMethodCallCompletionV1 for AssociatedMethodCallArgumentsV1<'_, '_, Port>
+where
+    Port: MethodCallDescentPortV1 + MethodCallValueTerminalPortV1,
+{
+    fn finish_standard_value_terminal(
+        &mut self,
+        builder: &mut MirBuilder,
+        receiver: ValueId,
+        method: String,
+        arguments: Vec<ValueId>,
+    ) -> Result<ValueId, String> {
+        self.terminal_port()
+            .emit_standard_value_terminal(builder, receiver, method, arguments)
     }
 }
 

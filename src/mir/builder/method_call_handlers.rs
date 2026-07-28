@@ -7,9 +7,8 @@ use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::SameModuleCallableNamespaceV1;
 use crate::mir::builder::calls::function_lowering;
 use crate::mir::builder::calls::{
-    emit_standard_value_terminal_raw_v1, AssociatedMethodCallArgumentsV1,
-    LegacyMethodCallArgumentsV1, MethodCallArgumentDescentV1, MethodCallDescentPortV1,
-    MethodCallValueTerminalPortV1, StaticMethodCallCompletionV1,
+    AssociatedMethodCallArgumentsV1, MethodCallArgumentDescentV1, MethodCallDescentPortV1,
+    MethodCallValueTerminalPortV1, StandardMethodCallCompletionV1, StaticMethodCallCompletionV1,
 };
 use crate::mir::builder::me_call_header_observation::{
     prepare_me_lowered_call_v1, MeCallHeaderObservationPortV1, MethodCallLoweringPortV1,
@@ -508,37 +507,15 @@ impl MirBuilder {
         MeCallPolicyBox::resolve_me_call(self, method, arguments, descent)
     }
 
-    /// Handle standard Box/Plugin method calls.
-    pub(super) fn handle_standard_method_call(
+    pub(in crate::mir::builder) fn handle_standard_method_call_with_descent<Completion>(
         &mut self,
         object_value: ValueId,
         method: String,
         arguments: &[ASTNode],
-    ) -> Result<ValueId, String> {
-        let mut descent = LegacyMethodCallArgumentsV1::new(arguments);
-        let prepared =
-            self.prepare_standard_method_execution_v1(object_value, &method, arguments)?;
-        if let Some(result) = self.execute_prepared_standard_method_execution_v1(
-            prepared,
-            object_value,
-            arguments,
-            &mut descent,
-        )? {
-            return Ok(result);
-        }
-        let arg_values = descent.lower_all(self)?;
-        emit_standard_value_terminal_raw_v1(self, object_value, method, arg_values)
-    }
-
-    pub(in crate::mir::builder) fn handle_standard_method_call_with_descent<Port>(
-        &mut self,
-        object_value: ValueId,
-        method: String,
-        arguments: &[ASTNode],
-        descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
+        completion: &mut Completion,
     ) -> Result<ValueId, String>
     where
-        Port: MethodCallDescentPortV1 + MethodCallValueTerminalPortV1,
+        Completion: StandardMethodCallCompletionV1,
     {
         let prepared =
             self.prepare_standard_method_execution_v1(object_value, &method, arguments)?;
@@ -546,12 +523,12 @@ impl MirBuilder {
             prepared,
             object_value,
             arguments,
-            descent,
+            completion,
         )? {
             return Ok(result);
         }
-        let arg_values = descent.lower_all(self)?;
-        descent.finish_standard_value_terminal(self, object_value, method, arg_values)
+        let arg_values = completion.lower_all(self)?;
+        completion.finish_standard_value_terminal(self, object_value, method, arg_values)
     }
 
     fn prepare_standard_method_execution_v1(

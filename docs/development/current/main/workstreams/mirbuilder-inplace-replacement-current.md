@@ -48,7 +48,7 @@ authorityを一つ減らす場合だけ選択する。
 ## Current front
 
 ```text
-FIELD-PROPERTY-GETTER-DESCENT0-D0
+MIRBUILDER-NEXT-EDGE-DESIGN-STOP
 ```
 
 最小structural ratchet、第七Binary cell、第八record-helper body descent
@@ -56,12 +56,10 @@ cellはclosed。helper driverはReturn-as-value ownerのまま、選択済み
 MethodCall portをtagged child loanとして短期再借用し、旧direct edge二本と
 dead same-family facade三本はゼロになった。
 
-次のlive authority breakはFieldAccess property getterにある。object descent
-までは選択済みportを保持するが、resolved getterが
-`handle_standard_method_call` / `LegacyMethodCallArgumentsV1`へ入るとraw
-child descentへ戻る。Candidate Aはexact zero-argument port loanだが、
-property terminalでcollector headerを新たに見せるかは意味差分になり得る。
-このT1/T2境界をD0で閉じるまで第九cellは未選択。
+第九FieldAccess property getter cellもclosed。exact zero-argument adapterは
+選択済みportをcatalog-child descentだけへ貸し、terminalはA1の
+`lookup=None`を維持する。旧raw handler、Legacy adapter、value-only entry、
+dead field facadeはゼロ。第十cellは未選択。
 
 ## First three replacements
 
@@ -143,9 +141,9 @@ Keep only these counters current:
 
 ```text
 macro_packs_closed                 = 0 / 8
-live_replacement_cells_closed      = 8
+live_replacement_cells_closed      = 9
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = 0; FIELD-PROPERTY-GETTER-DESCENT0-D0
+accepted_next_responsibility       = 0; design stop
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -164,8 +162,8 @@ non-positive.
 
 ```text
 none
-  current = FIELD-PROPERTY-GETTER-DESCENT0-D0-DESIGN-STOP
-  ninth responsibility = not selected
+  current = MIRBUILDER-NEXT-EDGE-DESIGN-STOP
+  tenth responsibility = not selected
 ```
 
 ## Post-Binary boundary
@@ -176,7 +174,7 @@ none
 raw-body facade retirement remain candidate cleanups; neither is current
 execution authority.
 
-## Current property-getter consultation
+## Closed property-getter replacement
 
 ```text
 production caller:
@@ -188,20 +186,27 @@ live authority break:
   -> method_call_handlers::handle_standard_method_call
   -> LegacyMethodCallArgumentsV1
 
-preferred candidate:
+accepted owner:
   exact zero-argument property adapter
   -> borrow the selected FieldAccess port
   -> existing catalog-helper child capability
 
-unresolved semantic boundary:
-  keep current lookup=None terminal authority
-  OR prove collector-header visibility behavior-neutral
+A1 terminal:
+  raw lookup=None
+  selected port terminal/header authority = 0
+
+closeout:
+  old property symbols              = 0
+  source/test files                 = 952 / 139
+  source/test LOC                   = 182452 / 40809
+  production Rust LOC               = +22
+  five-cell rolling production LOC  = -218
 ```
 
-No MethodCall AST/input reconstruction, receiver re-descent, fallback, retry,
-route reselection, new file, or ninth manifest row is authorized during D0.
+MethodCall AST/input reconstruction, receiver re-descent, fallback, retry,
+route reselection, located activation, and header-authority delta are zero.
 Dead raw-body facade retirement, proof consolidation, non-Program root, and
-default compiler ingress remain parked.
+default compiler ingress remain parked; none is selected by this closeout.
 
 ## Landed replacement cells
 
@@ -277,6 +282,18 @@ RECORD-HELPER-BODY-DESCENT0-I0-R0
   source/test LOC                  = 182430 / 40820
   production Rust LOC              = +46
   five-cell rolling Rust LOC       = -292
+
+FIELD-PROPERTY-GETTER-DESCENT0-I0-R0
+  raw/default FieldAccess caller    = 1
+  exact zero-argument adapter       = 1
+  selected catalog-child loan       = 1
+  A1 raw lookup-none terminal       = 1
+  selected old symbols              = 0
+  fallback / retry / reselection    = 0
+  source/test files                 = 952 / 139
+  source/test LOC                   = 182452 / 40809
+  production Rust LOC               = +22
+  five-cell rolling Rust LOC        = -218
 ```
 
 ## Parked

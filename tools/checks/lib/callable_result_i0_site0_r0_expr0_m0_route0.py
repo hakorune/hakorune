@@ -46,6 +46,8 @@ def main() -> None:
     )
     located = read(root, "src/mir/builder/located_legacy_lowering.rs")
     property_reads = read(root, "src/mir/builder/property_reads.rs")
+    fields = read(root, "src/mir/builder/fields.rs")
+    property_tests = read(root, "src/tests/mir_unified_members_property_read.rs")
     reserved_tests = read(root, "src/mir/builder/calls/reserved_method_route_tests.rs")
 
     require_count(port, "struct MethodCallSyntaxViewV1", 1, "syntax view owner")
@@ -78,7 +80,14 @@ def main() -> None:
     )
     require_count(port, "trait MethodCallArgumentDescentV1", 1, "route argument capability")
     require_count(port, "struct AssociatedMethodCallArgumentsV1", 1, "associated route adapter")
-    require_count(port, "struct LegacyMethodCallArgumentsV1", 1, "materialized-receiver adapter")
+    require_count(port, "LegacyMethodCallArgumentsV1", 0, "retired raw property adapter")
+    require_count(calls_mod, "LegacyMethodCallArgumentsV1", 0, "retired adapter re-export")
+    require_count(
+        property_reads,
+        "struct PropertyGetterCompletionV1",
+        1,
+        "exact zero-argument property adapter",
+    )
     require_count(port, "enum CatalogHelperChildV1", 1, "catalog helper child vocabulary")
     require_count(
         port,
@@ -200,11 +209,12 @@ def main() -> None:
     require_count(member, "build_expression(object.clone())", 0, "raw receiver bypass")
     require_count(member, "AssociatedMethodCallArgumentsV1::new(", 5, "route argument adapters")
     require_count(handlers, "build_call_args(arguments)", 0, "handler ARG0 bypass")
+    require_count(handlers, "descent.lower_all(", 2, "me/static associated ARG0 demand")
     require_count(
         handlers,
-        "descent.lower_all(",
-        4,
-        "static me source/property standard ARG0 demand",
+        "completion.lower_all(",
+        2,
+        "source-neutral static/standard ARG0 demand",
     )
     require_count(member, "descent.lower_all(self)?", 1, "env ARG0 demand")
     require_count(helpers, "let value = self.build_expression(arg.clone())?", 0, "helper arg E0 bypass")
@@ -259,10 +269,84 @@ def main() -> None:
     )
     require_count(
         property_reads,
-        "handle_standard_method_call(object_value, getter_name, &[])",
+        "handle_standard_method_call_with_descent(",
         1,
-        "materialized property-read consumer",
+        "port-aware materialized property consumer",
     )
+    require_count(
+        handlers,
+        "fn handle_standard_method_call(",
+        0,
+        "retired raw standard handler",
+    )
+    require_count(
+        handlers,
+        "fn handle_standard_method_call_with_descent<Completion>",
+        1,
+        "sole standard orchestration owner",
+    )
+    require_count(
+        property_reads,
+        "fn try_lower_property_read(",
+        0,
+        "retired value-only property entry",
+    )
+    require_count(
+        property_reads,
+        "fn try_lower_property_read_with_port_v1<Port>",
+        1,
+        "port-aware property entry",
+    )
+    require_count(
+        fields,
+        "try_lower_property_read_with_port_v1(port, object_value, &field)",
+        1,
+        "sole property entry caller",
+    )
+    require_count(fields, "fn build_field_access(", 0, "retired raw field facade")
+    require_count(
+        fields,
+        "fn build_field_access_with_port_v1<Port>",
+        1,
+        "port-aware FieldAccess owner",
+    )
+    require_count(
+        raw_dispatch,
+        "self.build_field_access_with_port_v1(",
+        1,
+        "sole raw/default FieldAccess caller",
+    )
+    require_count(
+        property_reads,
+        "lower_catalog_helper_child(self.port, builder, child)",
+        1,
+        "selected property catalog-child loan",
+    )
+    require_count(property_reads, "Ok(Vec::new())", 1, "zero-argument property owner")
+    require_count(
+        property_reads,
+        "[property-getter-descent/indexed-argument]",
+        1,
+        "indexed property demand invariant",
+    )
+    require_count(
+        property_reads,
+        "[property-getter-descent/nonzero-terminal-arguments]",
+        1,
+        "nonzero property terminal invariant",
+    )
+    for forbidden in (
+        "RawLegacyMethodCallInputV1",
+        "build_expression(",
+        "drive_raw_legacy_expression_v1",
+        "drive_raw_legacy_statement_v1",
+    ):
+        require_count(
+            property_reads,
+            forbidden,
+            0,
+            f"property source reconstruction/re-entry {forbidden}",
+        )
     require_count(reserved, "lower_method_call_arguments_v1(builder, port, input)?", 1, "REPL full ARG0")
     require_count(reserved, "lower_method_call_argument_v1(builder, port, input, index)?", 1, "Debug indexed E0")
     require_count(fastmem, "lower_method_call_argument_v1(builder, port, input, index)", 1, "FastMem indexed E0")
@@ -322,10 +406,18 @@ def main() -> None:
         "malformed_typeop_uses_standard_receiver_then_argument_demand",
         "env_route_keeps_receiver_syntax_only_and_descends_arguments",
         "bound_me_route_keeps_source_receiver_syntax_only",
-        "materialized_property_receiver_is_forwarded_without_source_redescent",
+        "property_completion_uses_selected_catalog_child_but_raw_terminal",
     ):
         if evidence not in member_tests:
             fail(f"missing M0 fixture: {evidence}")
+
+    for evidence in (
+        "property_read_on_newbox_reuses_lowered_receiver",
+        "once_property_read_uses_once_getter",
+        "birth_once_property_read_uses_birth_getter",
+    ):
+        if evidence not in property_tests:
+            fail(f"missing production property fixture: {evidence}")
 
     for evidence in (
         "setter_boundary_keeps_allowlist_and_body_shape_separate",
@@ -365,8 +457,11 @@ def main() -> None:
         "src/mir/builder/fastmem/calls.rs",
         "src/mir/builder/raw_expression_dispatch/mod.rs",
         "src/mir/builder/method_call_handlers.rs",
+        "src/mir/builder/property_reads.rs",
+        "src/mir/builder/fields.rs",
         "src/mir/builder/record_helper_args.rs",
         "src/mir/builder/record_helper_args_tests.rs",
+        "src/tests/mir_unified_members_property_read.rs",
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_route0.py",
     ]
     oversized = [relative for relative in touched if len(read(root, relative).splitlines()) >= 800]

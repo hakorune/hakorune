@@ -13,16 +13,6 @@ mod store_post_success;
 use store_post_success::PreparedOrdinaryFieldStoreAccessSiteV1;
 
 impl super::MirBuilder {
-    /// Build field access: object.field
-    pub(super) fn build_field_access(
-        &mut self,
-        object: ASTNode,
-        field: String,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_field_access_with_port_v1(&mut port, object, field)
-    }
-
     /// Lower a field read without dropping the caller's raw child port.
     pub(in crate::mir::builder) fn build_field_access_with_port_v1<Port>(
         &mut self,
@@ -42,7 +32,9 @@ impl super::MirBuilder {
         let object_value = drive_legacy_expression_v1(self, port, object)?;
         let object_value = self.local_field_base(object_value);
 
-        if let Some(property_value) = self.try_lower_property_read(object_value, &field)? {
+        if let Some(property_value) =
+            self.try_lower_property_read_with_port_v1(port, object_value, &field)?
+        {
             return Ok(property_value);
         }
 

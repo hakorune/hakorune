@@ -619,33 +619,33 @@ production Rust LOC                         = +46
 five-cell rolling production Rust LOC       = -292
 ```
 
-## Ninth-cell design consultation
+## Closed ninth replacement
 
 ```text
-FIELD-PROPERTY-GETTER-DESCENT0-D0
-  pack / ceremony = CALL-OBJECT0 / T1 candidate
-  execution / row = none / absent
+FIELD-PROPERTY-GETTER-DESCENT0-I0-R0
+  pack / ceremony = CALL-OBJECT0 / T1
+  Candidate / terminal = A / A1 lookup-none
 ```
 
 ```text
 ASTNode::FieldAccess
 -> build_field_access_with_port_v1
 -> selected port lowers object to ValueId
--> try_lower_property_read
--> handle_standard_method_call
--> LegacyMethodCallArgumentsV1
--> raw catalog-helper child descent
+-> try_lower_property_read_with_port_v1
+-> PropertyGetterCompletionV1
+-> shared standard prepare / execute
+-> selected-port catalog child OR raw A1 terminal
 ```
 
-Decide whether one exact zero-argument property adapter can borrow the selected
-port without source fabrication, receiver re-descent, duplicate preparation,
-or FieldGet fallback change. Catalog-child descent and terminal/header
-authority are separate: the current terminal has no lookup, while the full
-invocation port can expose collector headers.
+The old value-only entry, raw standard handler, Legacy argument adapter, and
+dead field facade are absent. MethodCall source fabrication, receiver
+re-descent, header authority, fallback, retry, and reselection are zero.
 
 ```text
 authority = investigations/field-property-getter-descent0-d0-consultation-2026-07-28.md
-until accepted = source/test/check edit 0; manifest/cell delta 0; fallback/retry 0
+manifest = one closed row
+source/test = 952 files / 182452 LOC; 139 files / 40809 LOC
+cell / rolling production LOC = +22 / -218
 ```
 
 ## Macro pack order
