@@ -104,6 +104,10 @@ guard_expect_in_file "$TAG" 'archive_target_for_source' "$PHASE_RELOCATOR" "phas
 guard_expect_in_file "$TAG" 'archive_target_for_source' "$PARTIAL_PHASE_RELOCATOR" "partial relocation must reuse normalized archive targets"
 guard_expect_in_file "$TAG" 'validate_move_map' "$PHASE_RELOCATOR" "phase relocation dry-run must reject collisions"
 guard_expect_in_file "$TAG" 'validate_move_map' "$PARTIAL_PHASE_RELOCATOR" "partial relocation dry-run must reject collisions"
+guard_expect_in_file "$TAG" 'nested_archive_first_batch' "$ARTIFACT_INVENTORY" "inventory must generate one bounded nested archive batch"
+guard_expect_in_file "$TAG" 'inbound_edge_count' "$ARTIFACT_INVENTORY" "inventory must classify cluster-external inbound edges"
+guard_expect_in_file "$TAG" 'select_nested_archive_batch' "$PARTIAL_PHASE_RELOCATOR" "partial relocation must consume the generated nested archive batch"
+guard_expect_in_file "$TAG" 'inbound_edge_count' "$PARTIAL_PHASE_RELOCATOR" "partial relocation must reject external inbound edges"
 
 python3 - <<'PY'
 import sys

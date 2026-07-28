@@ -309,6 +309,24 @@ age-only selection                         = 0
 Move only that batch. Do not start a second R4 batch in the same activation.
 The next row after its closeout is `DOCS-MEANING-RECOVERY-RETURN0`.
 
+Generated R4-first selection:
+
+```text
+archived-in-place unreachable files          = 1,594
+weakly connected clusters                    = 1,392
+selected files                               = 200
+selected clusters                            = 23
+selected LF LOC                              = 14,337
+selected cluster-external inbound edges      = 0
+selected archive target collisions           = 0
+physical R4 move before apply                = 0
+```
+
+The exact 200 paths live only in the generated lifecycle manifest. Do not copy
+them into this card or create a per-file task ledger. The selector skips every
+cluster with an inbound edge from outside that cluster before applying the
+200-file ceiling.
+
 ## Final archive shape
 
 Historical development phase material converges on:

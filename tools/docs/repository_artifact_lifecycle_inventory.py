@@ -13,7 +13,10 @@ import sys
 import tomllib
 from pathlib import Path
 
-from archive_unreachable_phase_clusters import archive_target_for_source
+from archive_unreachable_phase_clusters import (
+    archive_target_for_source,
+    bounded_cluster_batch,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -303,6 +306,20 @@ def document_reachability_inventory(
         for document in unreachable
         if document.startswith(archived_in_place_prefix)
     }
+    archived_clusters = weakly_connected_document_clusters(archived_in_place, graph)
+    for cluster in archived_clusters:
+        members = set(cluster["documents"])
+        cluster["inbound_edge_count"] = sum(
+            target in members
+            for source, targets in graph.items()
+            if source not in members
+            for target in targets
+        )
+    archived_batch = bounded_cluster_batch(archived_clusters)
+    archived_collisions = sum(
+        (ROOT / archive_target_for_source(document)).exists()
+        for document in archived_batch["documents"]
+    )
 
     phase_prefix = "docs/development/current/main/phases/"
     phase_documents: dict[str, set[str]] = {}
@@ -376,6 +393,11 @@ def document_reachability_inventory(
         "reachable_count": len(reachable),
         "unreachable_count": len(unreachable),
         "archived_in_place_count": len(archived_in_place),
+        "nested_archive_first_batch": {
+            "archive_target_collision_count": archived_collisions,
+            "cluster_count": len(archived_clusters),
+            "first_batch": archived_batch,
+        },
         "unreachable_pending_count": len(unreachable - archived_in_place),
         "whole_phase_unreachable_count": len(unreachable_phases),
         "whole_phase_unreachable_files": sum(

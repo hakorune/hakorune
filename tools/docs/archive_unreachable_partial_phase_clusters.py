@@ -26,6 +26,7 @@ from archive_unreachable_phase_clusters import (
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--apply", action="store_true")
+    parser.add_argument("--nested-archive", action="store_true")
     parser.add_argument("--max-files", type=int, default=200)
     return parser.parse_args()
 
@@ -50,6 +51,19 @@ def select_batch(max_files: int) -> list[str]:
             continue
         selected.extend(cluster["documents"])
     return sorted(selected)
+
+
+def select_nested_archive_batch(max_files: int) -> list[str]:
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    nested = manifest["document_reachability"]["nested_archive_first_batch"]
+    batch = nested["first_batch"]
+    if nested["archive_target_collision_count"] != 0:
+        raise RuntimeError("nested archive batch has target collisions")
+    if batch["inbound_edge_count"] != 0:
+        raise RuntimeError("nested archive batch has external inbound edges")
+    if batch["file_count"] > max_files:
+        raise RuntimeError("generated nested archive batch exceeds max-files")
+    return sorted(batch["documents"])
 
 
 def prune_empty_parents(path: Path) -> None:
@@ -138,7 +152,11 @@ def apply_batch(selected: list[str]) -> None:
 
 def main() -> int:
     args = parse_args()
-    selected = select_batch(args.max_files)
+    selected = (
+        select_nested_archive_batch(args.max_files)
+        if args.nested_archive
+        else select_batch(args.max_files)
+    )
     move_map = {source: archive_target_for_source(source) for source in selected}
     validate_move_map(move_map, set(repository_files()))
     print(

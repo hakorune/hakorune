@@ -111,6 +111,22 @@ def validate_move_map(
             raise RuntimeError(f"archive target already exists: {target}")
 
 
+def bounded_cluster_batch(
+    clusters: list[dict[str, object]], maximum: int = 200
+) -> dict[str, object]:
+    selected: list[str] = []
+    count = 0
+    for cluster in clusters:
+        documents = cluster["documents"]
+        if cluster.get("inbound_edge_count", 0) != 0:
+            continue
+        if len(documents) > maximum or len(selected) + len(documents) > maximum:
+            continue
+        selected.extend(documents)
+        count += 1
+    return {"cluster_count": count, "file_count": len(selected), "inbound_edge_count": 0, "documents": selected}
+
+
 def readable_text(relative: str) -> str | None:
     path = ROOT / relative
     try:

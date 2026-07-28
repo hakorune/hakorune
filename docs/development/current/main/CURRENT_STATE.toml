@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "repository-artifact-lifecycle-current"
 latest_card_path = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
-latest_card_summary = """Repository artifact lifecycle R3 is closed: exactly two selected phase-296x cards moved from the nested current archive to the canonical global phase-296x/cards root. Source files=2, LOC=199, inbound full-path references=0, target collisions=0, rewrites=0, forwarding stubs=0. Strict inventory, both relocator dry-runs, DOCS-SLIM-001/002/003/026, and pointer guard are green. R4-FIRST now selects one generated reference-closed nested-archive batch of at most 200 files."""
+latest_card_summary = """Repository artifact lifecycle R3 is closed. R4-FIRST now has one generated reference-closed batch: archived-in-place unreachable=1,594 files, weak clusters=1,392, selected files=200, selected clusters=23, selected LOC=14,337, external inbound edges=0, target collisions=0. The exact path list is generated in the lifecycle manifest; no hand-written range or per-file task ledger is added. Physical R4 moves remain zero until the clean-worktree apply commit."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
