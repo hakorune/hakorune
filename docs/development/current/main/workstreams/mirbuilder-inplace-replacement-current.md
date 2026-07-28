@@ -45,7 +45,19 @@ cell数、pack数、LOC、structural observationは進捗と増殖検知の手�
 architecture goalやcompletion authorityではない。cellはnorth-star上の
 authorityを一つ減らす場合だけ選択する。
 
-## Active executable front
+## Current design stop
+
+```text
+GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0
+```
+
+M2aはinstance methodの最初の有限Recipeをclosedした。次は
+`VerifiedNormalModuleSourceV1`が保持するMain.main/0を、既存の
+Main0 source／resolved／function-plan ownerへexactに投影する所有権bridgeを
+設計する。新しいMain grammar、第二resolver、AST clone/reconstruction、
+Builder/MIR、production caller、fallback、Candidate A、第十rowは認めない。
+
+## Closed M2a execution
 
 ```text
 GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0
@@ -120,6 +132,17 @@ pairingから外れたら、module sourceを保持するtyped rejectionへ一度
 部分plan mapを破棄する。raw AST保持、Legacy復帰、別family再投入が必要なら
 hard stopしてD0へ戻る。Candidate AとOwnership/View readiness trainはparkを
 維持する。
+
+```text
+closeout:
+  focused normal-source tests = 73 / 73
+  production Rust delta       = +583
+  test Rust delta             = +232
+  check Python delta          = +91
+  new source files            = 1
+  new test/check files        = 0
+  largest source/check file   = 776
+```
 
 ## First three replacements
 
@@ -203,7 +226,7 @@ Keep only these counters current:
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 9
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = InstanceMethodIntegerLiteralReturn0 S0
+accepted_next_responsibility       = 0; MAIN0-BRIDGE0 D0 design stop
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -222,8 +245,8 @@ closeout explanation, not automatic rejection.
 
 ```text
 none
-  current authority = GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0
-  prerequisite product only; production caller = 0
+  current authority = GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0
+  M2a disconnected prerequisite = closed; production caller = 0
   repository artifact lifecycle R1-R4-first / RETURN0 = closed
   tenth responsibility = not selected
 ```
@@ -555,10 +578,13 @@ M1b NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0
     closed: disconnected source/catalog product
 
 M2a GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0
-    selected: exact all-instance-method integer-literal Return plan
+    closed: exact all-instance-method integer-literal Return plan
 
-M2b+ GENERAL-FUNCTION-PLAN0 finite family slices
-    Main0 bridge, scalar bindings, field schema/read/write,
+M2b GENERAL-FUNCTION-PLAN0-MAIN0-BRIDGE0-D0
+    current design stop: exact reuse of existing Main0 owners
+
+M2c+ GENERAL-FUNCTION-PLAN0 finite family slices
+    scalar bindings, field schema/read/write,
     default construction, Main-to-instance call
 
 M3  aggregate VerifiedNormalGeneralProgramPlanV1

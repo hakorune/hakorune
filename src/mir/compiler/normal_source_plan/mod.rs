@@ -6,6 +6,7 @@
 mod callable_catalog_source;
 mod callable_source;
 mod classifier;
+mod instance_integer_return_plan;
 mod inventory;
 mod main_direct_call_plan;
 mod main_direct_call_source;
@@ -34,6 +35,13 @@ pub(crate) use callable_source::{
     VerifiedNormalCallableSourceUnitV1,
 };
 pub(crate) use classifier::NormalSourcePlanClassifierV1;
+#[allow(unused_imports)]
+pub(crate) use instance_integer_return_plan::{
+    GeneralFunctionPlanErrorV1, GeneralFunctionPlanStageV1, GeneralFunctionSignatureStopV1,
+    NormalInstanceIntegerReturnRecipeV1, RejectedGeneralFunctionPlanSetV1,
+    VerifiedNormalInstanceFunctionFactsV1, VerifiedNormalInstanceIntegerReturnPlanSetV1,
+    VerifiedNormalInstanceIntegerReturnPlanV1,
+};
 #[allow(unused_imports)]
 pub(crate) use main_direct_call_plan::{
     NormalMainDirectCallPlanErrorV1, NormalMainDirectCallPreflightV1,

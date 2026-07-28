@@ -8,7 +8,8 @@ use std::collections::BTreeSet;
 
 use crate::ast::ASTNode;
 use crate::mir::builder::{
-    SameModuleCallableNamespaceV1, VerifiedSameModuleCallableDeclarationCatalogV1,
+    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
+    VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
 };
 
 use super::inventory::NormalSourceSurfaceInventoryV1;
@@ -38,6 +39,35 @@ impl NormalInstanceBoxSiteV1 {
     pub(crate) fn name(&self) -> &str {
         &self.name
     }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub(super) struct NormalInstanceMethodSourceViewV1<'source> {
+    key: &'source CanonicalSameModuleCallableKeyV1,
+    function: &'source ASTNode,
+    declaration: &'source VerifiedSameModuleCallableDeclarationV1,
+}
+
+impl<'source> NormalInstanceMethodSourceViewV1<'source> {
+    pub(super) const fn key(&self) -> &'source CanonicalSameModuleCallableKeyV1 {
+        self.key
+    }
+
+    pub(super) const fn function(&self) -> &'source ASTNode {
+        self.function
+    }
+
+    pub(super) const fn declaration(&self) -> &'source VerifiedSameModuleCallableDeclarationV1 {
+        self.declaration
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum NormalInstanceMethodSourceLoanErrorV1 {
+    WrongNamespace,
+    MissingBoxSite,
+    SourceDrift,
+    CatalogDrift,
 }
 
 #[derive(Debug)]
@@ -91,6 +121,55 @@ impl VerifiedNormalModuleSourceV1 {
     pub(crate) fn callable_catalog(&self) -> &VerifiedSameModuleCallableDeclarationCatalogV1 {
         &self.callables
     }
+
+    pub(super) fn borrow_instance_method_source<'source>(
+        &'source self,
+        key: &'source CanonicalSameModuleCallableKeyV1,
+    ) -> Result<NormalInstanceMethodSourceViewV1<'source>, NormalInstanceMethodSourceLoanErrorV1>
+    {
+        if key.namespace() != SameModuleCallableNamespaceV1::InstanceBoxMethod {
+            return Err(NormalInstanceMethodSourceLoanErrorV1::WrongNamespace);
+        }
+        let box_site = self
+            .instance_boxes
+            .iter()
+            .find(|site| site.name() == key.owner())
+            .ok_or(NormalInstanceMethodSourceLoanErrorV1::MissingBoxSite)?;
+        let ASTNode::Program { statements, .. } = self.input.source() else {
+            return Err(NormalInstanceMethodSourceLoanErrorV1::SourceDrift);
+        };
+        let Some(ASTNode::BoxDeclaration { name, methods, .. }) =
+            statements.get(box_site.statement_index())
+        else {
+            return Err(NormalInstanceMethodSourceLoanErrorV1::SourceDrift);
+        };
+        let Some(function @ ASTNode::FunctionDeclaration { params, .. }) = methods.get(key.name())
+        else {
+            return Err(NormalInstanceMethodSourceLoanErrorV1::SourceDrift);
+        };
+        if name != key.owner() || params.len() != key.arity() as usize {
+            return Err(NormalInstanceMethodSourceLoanErrorV1::SourceDrift);
+        }
+        let declaration = self
+            .callables
+            .declaration(key)
+            .ok_or(NormalInstanceMethodSourceLoanErrorV1::CatalogDrift)?;
+        if declaration.params() != params || declaration.body() != function_body(function) {
+            return Err(NormalInstanceMethodSourceLoanErrorV1::CatalogDrift);
+        }
+        Ok(NormalInstanceMethodSourceViewV1 {
+            key,
+            function,
+            declaration,
+        })
+    }
+}
+
+fn function_body(function: &ASTNode) -> &[ASTNode] {
+    let ASTNode::FunctionDeclaration { body, .. } = function else {
+        unreachable!("[normal-module-source/invariant] function source drift")
+    };
+    body
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -17,7 +17,8 @@ mod if_control_tests;
 mod source_coverage_tests;
 
 pub(crate) use function_control::{
-    verify_function_completion_v1, DeclaredFunctionResultContractV1, FunctionExitCoverageV1,
-    FunctionUnitOriginV1, SealedFunctionExitContractV1, SealedFunctionExitDispositionV1,
+    verify_function_completion_v1, DeclaredFunctionResultContractV1,
+    FunctionCompletionVerificationErrorV1, FunctionExitCoverageV1, FunctionUnitOriginV1,
+    ReturnExitRelationV1, SealedFunctionExitContractV1, SealedFunctionExitDispositionV1,
     VerifiedFunctionCompletionV1,
 };

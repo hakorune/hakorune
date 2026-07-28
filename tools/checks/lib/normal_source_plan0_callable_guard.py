@@ -50,6 +50,9 @@ def check_callable_source(
     handoff_path = source_dir / "normal_callable_transaction_handoff.rs"
     handoff_tests_path = source_dir / "normal_callable_transaction_handoff_tests.rs"
     module_source_path = source_dir / "module_source.rs"
+    instance_integer_return_plan_path = (
+        source_dir / "instance_integer_return_plan.rs"
+    )
     module_source_tests_path = source_dir / "tests.rs"
     module_source_task_path = root / (
         "docs/development/current/main/workstreams/"
@@ -95,6 +98,7 @@ def check_callable_source(
         handoff_path,
         handoff_tests_path,
         module_source_path,
+        instance_integer_return_plan_path,
         module_source_tests_path,
         module_source_task_path,
         canonical_dispatch_path,
@@ -127,6 +131,7 @@ def check_callable_source(
     handoff = handoff_path.read_text()
     handoff_tests = handoff_tests_path.read_text()
     module_source = module_source_path.read_text()
+    instance_integer_return_plan = instance_integer_return_plan_path.read_text()
     module_source_tests = module_source_tests_path.read_text()
     module_source_task = module_source_task_path.read_text()
     canonical_dispatch = canonical_dispatch_path.read_text()
@@ -286,6 +291,92 @@ def check_callable_source(
                 )
     if "struct VerifiedSameModuleCallableDeclarationCatalogV1" in module_source:
         raise AssertionError("module-source owner duplicated callable catalog")
+
+    for fragment in (
+        "GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-RETURN0-S0",
+        "InstanceMethodIntegerLiteralReturn0",
+        "every InstanceBoxMethod exactly once",
+        "production caller / Builder / MIR       = 0",
+        "fallback / retry / reselection          = 0",
+    ):
+        require(
+            module_source_task,
+            fragment,
+            f"instance integer-return task {fragment}",
+        )
+    for definition in (
+        "struct VerifiedNormalInstanceFunctionFactsV1",
+        "struct NormalInstanceIntegerReturnRecipeV1",
+        "struct VerifiedNormalInstanceIntegerReturnPlanV1",
+        "struct VerifiedNormalInstanceIntegerReturnPlanSetV1",
+        "struct RejectedGeneralFunctionPlanSetV1",
+        "enum GeneralFunctionPlanStageV1",
+        "enum GeneralFunctionPlanErrorV1",
+    ):
+        require_count(
+            instance_integer_return_plan,
+            definition,
+            1,
+            f"sole instance integer-return definition {definition}",
+        )
+    for fragment in (
+        "borrow_instance_method_source(key)",
+        "SameModuleCallableNamespaceV1::InstanceBoxMethod",
+        "SameModuleCallableSourceReceiverPolicyV1::from_namespace(",
+        "FunctionSyntaxViewV1::from_borrowed_function_parts(",
+        ".resolve_forest(syntax)",
+        "VerifiedSourceProjectionV1::seal(view.function(), &forest)",
+        "ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(",
+        "ExprChildRoleV1::ReturnValue",
+        "LiteralValue::Integer(integer)",
+        "verify_function_completion_v1(input)",
+        "SourceBindingSiteV1::Receiver",
+        "BindingKindV1::Receiver",
+        "plans.len() != keys.len()",
+    ):
+        require(
+            instance_integer_return_plan,
+            fragment,
+            f"instance integer-return law {fragment}",
+        )
+    for test_name in (
+        "all_instance_integer_return_methods_seal_in_catalog_order",
+        "integer_return_recipe_pairs_exact_completion_without_claiming_main",
+        "one_unsupported_method_rejects_the_whole_plan_set",
+        "empty_instance_boxes_do_not_issue_an_empty_plan_set",
+        "instance_integer_return_rejects_signature_and_body_widening",
+        "rejection_discards_without_retry_and_fresh_source_reuses",
+    ):
+        require(
+            module_source_tests,
+            f"fn {test_name}(",
+            f"instance integer-return fixture {test_name}",
+        )
+    for forbidden in (
+        "MirBuilder",
+        "MirInstruction",
+        "MirModule",
+        "ValueId",
+        "BasicBlockId",
+        "compile_legacy",
+        "build_module(",
+        "build_expression(",
+        "build_statement(",
+        "CanonicalLoweringPreflightV1",
+        "CanonicalTrivialBindingSsaPlanV1",
+        "TrivialRepresentationV1",
+        "retry(",
+        "fallback",
+    ):
+        if forbidden in instance_integer_return_plan:
+            raise AssertionError(
+                f"instance integer-return owner gained lowering/retry authority: {forbidden}"
+            )
+    for production_surface in (canonical_dispatch, normal_frontdoor):
+        if "VerifiedNormalInstanceIntegerReturnPlanSetV1" in production_surface:
+            raise AssertionError(
+                "disconnected instance integer-return plan gained production consumer"
+            )
 
     for fragment in (
         "NORMAL-CALLABLE-MODULE0-R0-S0",

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::ast::{
-    ASTNode, DeclarationAttrs, EnumVariantDecl, FieldDecl, LiteralValue, ParamDecl, Span,
+    ASTNode, DeclarationAttrs, EnumVariantDecl, FieldDecl, LiteralValue, ParamDecl, RuneAttr, Span,
 };
 
 use super::*;
@@ -47,6 +47,30 @@ fn function(name: &str, arity: usize, is_static: bool) -> ASTNode {
         attrs: DeclarationAttrs::default(),
         span: Span::unknown(),
     }
+}
+
+fn function_with_body(name: &str, body: Vec<ASTNode>, is_static: bool) -> ASTNode {
+    let mut function = function(name, 0, is_static);
+    let ASTNode::FunctionDeclaration {
+        body: function_body,
+        ..
+    } = &mut function
+    else {
+        unreachable!()
+    };
+    *function_body = body;
+    function
+}
+
+fn value_return(value: ASTNode) -> ASTNode {
+    ASTNode::Return {
+        value: Some(Box::new(value)),
+        span: Span::unknown(),
+    }
+}
+
+fn integer_return_function(name: &str, value: i64) -> ASTNode {
+    function_with_body(name, vec![value_return(literal(value))], false)
 }
 
 fn main_box(methods: Vec<(&str, ASTNode)>, is_static: bool) -> ASTNode {
@@ -446,6 +470,214 @@ fn rejection_retains_source_identity_and_has_no_retry() {
         vec![instance_box("Page", Vec::new()), main_only(),]
     ))
     .is_ok());
+}
+
+#[test]
+fn all_instance_integer_return_methods_seal_in_catalog_order() {
+    let source = seal_module(program(vec![
+        instance_box("Zeta", vec![("a", integer_return_function("a", 1))]),
+        main_only(),
+        instance_box("Alpha", vec![("b", integer_return_function("b", 2))]),
+    ]))
+    .unwrap();
+    let plans = source.seal_instance_integer_return_plans().unwrap();
+    let rows = plans
+        .plans()
+        .map(|(key, plan)| {
+            (
+                key.owner().to_owned(),
+                key.name().to_owned(),
+                plan.recipe().value(),
+                plan.facts().owner_count(),
+                plan.recipe().receiver() == plan.facts().receiver(),
+            )
+        })
+        .collect::<Vec<_>>();
+
+    assert_eq!(
+        rows,
+        [
+            ("Alpha".to_owned(), "b".to_owned(), 2, 1, true),
+            ("Zeta".to_owned(), "a".to_owned(), 1, 1, true),
+        ]
+    );
+    assert_eq!(plans.len(), 2);
+    assert_eq!(plans.source_identity(), "normal-source-plan0-test");
+}
+
+#[test]
+fn integer_return_recipe_pairs_exact_completion_without_claiming_main() {
+    let main = main_box(
+        vec![(
+            "main",
+            function_with_body("main", vec![literal(99), literal(100)], true),
+        )],
+        true,
+    );
+    let plans = seal_module(program(vec![
+        main,
+        instance_box(
+            "Page",
+            vec![("render", integer_return_function("render", 42))],
+        ),
+    ]))
+    .unwrap()
+    .seal_instance_integer_return_plans()
+    .unwrap();
+    let rows = plans.plans().collect::<Vec<_>>();
+    let [(key, plan)] = rows.as_slice() else {
+        panic!("expected one instance plan")
+    };
+
+    assert_eq!(
+        key.namespace(),
+        crate::mir::builder::SameModuleCallableNamespaceV1::InstanceBoxMethod
+    );
+    assert_eq!(
+        plan.completion().explicit_site(),
+        Some(plan.recipe().return_site())
+    );
+    assert!(plan.completion().returns_value());
+    assert_eq!(plan.completion().unreachable_suffix_count(), 0);
+    assert_ne!(
+        plan.recipe().return_site().node(),
+        plan.recipe().value_site().node()
+    );
+}
+
+#[test]
+fn one_unsupported_method_rejects_the_whole_plan_set() {
+    let source = seal_module(program(vec![
+        main_only(),
+        instance_box(
+            "Page",
+            vec![
+                ("good", integer_return_function("good", 1)),
+                ("bad", function_with_body("bad", Vec::new(), false)),
+            ],
+        ),
+    ]))
+    .unwrap();
+    let rejected = source.seal_instance_integer_return_plans().unwrap_err();
+
+    assert_eq!(rejected.stage(), GeneralFunctionPlanStageV1::Recipe);
+    assert_eq!(rejected.source_identity(), "normal-source-plan0-test");
+    assert!(matches!(
+        rejected.error(),
+        GeneralFunctionPlanErrorV1::UnsupportedBody { key, .. }
+            if key.owner() == "Page" && key.name() == "bad"
+    ));
+    rejected.discard();
+}
+
+#[test]
+fn empty_instance_boxes_do_not_issue_an_empty_plan_set() {
+    let rejected = seal_module(program(vec![main_only(), instance_box("Page", Vec::new())]))
+        .unwrap()
+        .seal_instance_integer_return_plans()
+        .unwrap_err();
+
+    assert_eq!(rejected.stage(), GeneralFunctionPlanStageV1::Inventory);
+    assert!(matches!(
+        rejected.error(),
+        GeneralFunctionPlanErrorV1::NoInstanceMethod
+    ));
+    rejected.discard();
+}
+
+#[test]
+fn instance_integer_return_rejects_signature_and_body_widening() {
+    let mut annotated = integer_return_function("annotated", 1);
+    let ASTNode::FunctionDeclaration {
+        return_type_name, ..
+    } = &mut annotated
+    else {
+        unreachable!()
+    };
+    *return_type_name = Some("Integer".to_owned());
+
+    let mut with_uses = integer_return_function("with_uses", 1);
+    let ASTNode::FunctionDeclaration { uses, .. } = &mut with_uses else {
+        unreachable!()
+    };
+    uses.push("external".to_owned());
+
+    let mut with_attrs = integer_return_function("with_attrs", 1);
+    let ASTNode::FunctionDeclaration { attrs, .. } = &mut with_attrs else {
+        unreachable!()
+    };
+    attrs.runes.push(RuneAttr {
+        name: "Public".to_owned(),
+        args: Vec::new(),
+    });
+
+    let typed = ASTNode::Literal {
+        value: LiteralValue::TypedInteger {
+            value: 1,
+            declared_type_name: "i64".to_owned(),
+        },
+        span: Span::unknown(),
+    };
+    let cases = [
+        (
+            function("parameter", 1, false),
+            GeneralFunctionPlanStageV1::Source,
+        ),
+        (annotated, GeneralFunctionPlanStageV1::Source),
+        (with_uses, GeneralFunctionPlanStageV1::Source),
+        (with_attrs, GeneralFunctionPlanStageV1::Source),
+        (
+            function_with_body("typed", vec![value_return(typed)], false),
+            GeneralFunctionPlanStageV1::Recipe,
+        ),
+        (
+            function_with_body("suffix", vec![value_return(literal(1)), literal(2)], false),
+            GeneralFunctionPlanStageV1::Recipe,
+        ),
+    ];
+
+    for (method, expected_stage) in cases {
+        let name = match &method {
+            ASTNode::FunctionDeclaration { name, .. } => name.clone(),
+            _ => unreachable!(),
+        };
+        let rejected = seal_module(program(vec![
+            main_only(),
+            instance_box("Page", vec![(name.as_str(), method)]),
+        ]))
+        .unwrap()
+        .seal_instance_integer_return_plans()
+        .unwrap_err();
+        assert_eq!(rejected.stage(), expected_stage);
+        rejected.discard();
+    }
+}
+
+#[test]
+fn rejection_discards_without_retry_and_fresh_source_reuses() {
+    let rejected = seal_module(program(vec![
+        main_only(),
+        instance_box(
+            "Page",
+            vec![("render", function_with_body("render", Vec::new(), false))],
+        ),
+    ]))
+    .unwrap()
+    .seal_instance_integer_return_plans()
+    .unwrap_err();
+    rejected.discard();
+
+    let plans = seal_module(program(vec![
+        main_only(),
+        instance_box(
+            "Page",
+            vec![("render", integer_return_function("render", 7))],
+        ),
+    ]))
+    .unwrap()
+    .seal_instance_integer_return_plans()
+    .unwrap();
+    assert_eq!(plans.len(), 1);
 }
 
 #[test]
