@@ -223,39 +223,26 @@ wrapper自体は進捗に数えない。
 
 production compatibility ownerは、一つのselected pipelineの内部で、
 selected residual inputへのBuilder effectを開始する前に、migrated ownerと
-total／pairwise-disjointにexactly once selectされるbounded branchとしてだけ
-許可する。第二のpublic ingress、独立したcaller family、独立した
-candidate／publication、どちらかのrejection後に他方を試すretry／fallback
-terminalを所有してはならない。
+total／pairwise-disjointにexactly once選ぶbounded branchとしてだけ許可する。
+第二のpublic ingress、独立したcandidate／publication、双方向の
+retry／fallbackを所有してはならない。
 
-compatibility ownerを作るcommitは、
-`current-docs-update-policy-ssot.md`のsunset recordに加えて、次を同時に
-登録しなければならない。
+作成commitでは`current-docs-update-policy-ssot.md`のsunset recordへ、次を
+exactに登録する。
 
 ```text
-compatibility_owner_id
 selected_pipeline and production callers
 exact residual responsibility / AST-node surface
-caller_count_at_creation
-sunset_id
-sunset_row
-retire_when
-retirement owner and shared-gate evidence
+caller-count baseline (observation only)
+sunset row and retire_when
 ```
 
-`delete later`、未指定のfuture row、最終cleanupだけを削除条件にしては
-ならない。登録後のresidual responsibility／AST-node surfaceとproduction
-ingress authorityは単調非増加である。縮小または削除だけを許し、wideningが
-必要なら実装を止めてD0へ戻る。caller countは観測値であり、それ自体を
-authorityとしない。責務不変のhelper split等でcaller countが増える場合も、
-exact before／after mappingとauthority delta = 0をD0で承認する。
-ownerを分割する場合は同じcommitで旧ownerを縮小または削除し、登録済み
-surfaceの総和を増やしてはならない。detached S0でownerを作る場合も、直後の
-same-cell I0/R0またはrevert／stashという既定順序を緩和しない。
+登録後のresidual surfaceとproduction ingress authorityは拡大禁止である。
+caller countは観測値なので、責務不変の増減はcloseoutでexact mappingを示せば
+よい。surfaceまたはauthorityが広がる場合だけ実装を止めてD0へ戻る。
 
-最終compatibility retirement rowは、作成時から登録済みのsunset ledgerを
-zeroにする工程である。未登録debtを発見した場合はcloseせず、ledgerを訂正して
-D0へ戻る。debtを隠したままcompletionまたは新featureへ進んではならない。
+最終retirement rowは登録済みsunset ledgerをzeroにする。未登録debtを
+発見したらcloseせず、ledgerを訂正してD0へ戻る。
 
 T0はatomic I0/R0を原則とする。detached S0を分けた場合は最大一commitで、
 次のforward semantic commitは同じcellのI0/R0だけである。進めなければ

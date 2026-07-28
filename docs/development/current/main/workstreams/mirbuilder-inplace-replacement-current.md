@@ -89,12 +89,10 @@ Contract:
 one typed normal request owns source identity/imports/config/admission/result
 four selected constructors enter one pipeline exactly once
 compatibility/reference constructors stay separate
-each residual input selects migrated or compatibility owner exactly once before its effect
-compatibility owner has no independent ingress/candidate/publication
-creation commit registers exact residual surface, caller baseline, and sunset row
-registered compatibility surface/ingress authority does not widen
-verified/canonical rejection -> compatibility = 0
-compatibility rejection -> verified/canonical retry = 0
+each residual input selects migrated or compatibility owner exactly once
+compatibility has no independent ingress/candidate/publication/retry
+creation commit registers exact residual surface, sunset row, and retire_when
+compatibility surface/ingress authority does not widen
 one candidate/session/finish/publication; retry/reselection = 0
 selected normal -> generic Legacy reachability becomes 0 atomically
 REPL / Program JSON / VM compatibility/reference behavior does not move
@@ -104,8 +102,7 @@ Done:
 
 ```text
 exact caller/provenance matrix
-selected owner plus exact compatibility sunset ledger
-sunset_id / sunset_row / retire_when / retirement evidence
+selected owner plus exact compatibility sunset ledger/evidence
 atomic old-edge delete set
 success, exact transport, late failure/reuse, result-parity gates
 existing shared guards to extend; new per-row guard = 0
@@ -122,7 +119,6 @@ Program clone/reparse or second compiler execution
 production connection before corpus and late-failure parity
 compatibility owner without a creation-time exact sunset row
 compatibility surface or ingress authority widening after registration
-unexplained caller-count increase without exact mapping and D0 approval
 new compatibility debt discovered at R3 without ledger correction and D0 return
 ```
 
