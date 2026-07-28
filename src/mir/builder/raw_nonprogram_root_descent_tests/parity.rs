@@ -270,6 +270,75 @@ fn selected_index_matches_raw_legacy_effects_exactly() {
 }
 
 #[test]
+fn selected_safe_block_prelude_matches_raw_legacy_effects_exactly() {
+    let root = || {
+        block_expr(
+            vec![printed(integer(31)), nowait("pending", integer(32))],
+            variable("pending"),
+        )
+    };
+    let mut legacy = MirBuilder::new();
+    legacy.enter_function_for_test("safe_block_prelude_root_parity/0".to_owned());
+    legacy.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
+    let legacy_value = drive_raw_legacy_expression_v1(&mut legacy, root()).unwrap();
+
+    let mut selected = MirBuilder::new();
+    selected.enter_function_for_test("safe_block_prelude_root_parity/0".to_owned());
+    selected.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
+    let selected_value = drive_selected(&mut selected, root()).unwrap();
+
+    assert_eq!(selected_value, legacy_value);
+    assert_eq!(
+        spanned_instructions(&selected),
+        spanned_instructions(&legacy)
+    );
+    assert_eq!(
+        selected.function_state.variable_ctx.variable_map,
+        legacy.function_state.variable_ctx.variable_map
+    );
+    assert_eq!(
+        selected.function_state.type_ctx.value_types,
+        legacy.function_state.type_ctx.value_types
+    );
+    assert_eq!(
+        selected
+            .comp_ctx
+            .current_slot_registry
+            .as_ref()
+            .and_then(|registry| registry.get_slot("pending")),
+        legacy
+            .comp_ctx
+            .current_slot_registry
+            .as_ref()
+            .and_then(|registry| registry.get_slot("pending"))
+    );
+}
+
+#[test]
+fn selected_block_prelude_local_keeps_existing_scope_failure() {
+    let root = || {
+        block_expr(
+            vec![local(&["x"], vec![Some(integer(33))], vec![None])],
+            variable("x"),
+        )
+    };
+    let mut legacy = MirBuilder::new();
+    legacy.enter_function_for_test("block_prelude_local_failure/0".to_owned());
+    let legacy_error = drive_raw_legacy_expression_v1(&mut legacy, root()).unwrap_err();
+
+    let mut selected = MirBuilder::new();
+    selected.enter_function_for_test("block_prelude_local_failure/0".to_owned());
+    let selected_error = drive_selected(&mut selected, root()).unwrap_err();
+
+    assert_eq!(selected_error, legacy_error);
+    assert!(selected_error.contains("local declaration outside lexical scope"));
+    assert_eq!(
+        spanned_instructions(&selected),
+        spanned_instructions(&legacy)
+    );
+}
+
+#[test]
 fn selected_empty_block_expr_matches_raw_legacy_effects_exactly() {
     let root = || {
         block_expr(

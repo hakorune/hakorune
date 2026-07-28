@@ -292,7 +292,10 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
             prelude_stmts,
             tail_expr,
             ..
-        } => prelude_stmts.is_empty() && is_port_neutral_expr_tree(tail_expr),
+        } => {
+            prelude_stmts.iter().all(is_port_neutral_block_prelude_stmt)
+                && is_port_neutral_expr_tree(tail_expr)
+        }
         ASTNode::Program { .. }
         | ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
@@ -339,6 +342,13 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
         | ASTNode::FunctionCall { .. }
         | ASTNode::Call { .. } => false,
     }
+}
+
+fn is_port_neutral_block_prelude_stmt(node: &ASTNode) -> bool {
+    is_port_neutral_expr_tree(node)
+        || is_port_neutral_print_root(node)
+        || is_port_neutral_nowait_root(node)
+        || is_port_neutral_local_root(node)
 }
 
 pub(super) fn lower_raw_nonprogram_root_with_port_v1<Port>(

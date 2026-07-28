@@ -252,6 +252,18 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
         Vec::new(),
         block_expr(Vec::new(), checked(vec![integer(27)])),
     ));
+    assert_selected(block_expr(
+        vec![
+            local(&["x"], vec![Some(integer(29))], vec![None]),
+            printed(variable("x")),
+            nowait("pending", variable("x")),
+        ],
+        variable("pending"),
+    ));
+    assert_selected(block_expr(
+        vec![block_expr(vec![printed(integer(30))], integer(31))],
+        integer(32),
+    ));
     assert_selected_local(local(&["x"], vec![Some(integer(28))], vec![None]));
     assert_selected_local(local(&["missing"], Vec::new(), Vec::new()));
     assert_selected_local(local(
@@ -428,7 +440,25 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
         RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
     );
     assert_compatibility(
-        block_expr(vec![printed(integer(29))], integer(30)),
+        block_expr(
+            vec![ASTNode::Assignment {
+                target: Box::new(variable("x")),
+                value: Box::new(integer(33)),
+                span: Span::unknown(),
+            }],
+            integer(34),
+        ),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        block_expr(
+            vec![local(
+                &["typed"],
+                vec![Some(integer(35))],
+                vec![Some("i64")],
+            )],
+            integer(36),
+        ),
         RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
     );
     assert_compatibility(

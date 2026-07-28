@@ -57,6 +57,13 @@
     "sunset_id": "RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001",
     "sunset_state": "active",
     "residual_kind_count": 41,
+    "selected_block_prelude_responsibilities": [
+      "expr_tree",
+      "print",
+      "nowait",
+      "annotation_free_local"
+    ],
+    "safe_nonempty_block_compatibility_edge": 0,
     "retire_when": "root compatibility owner, registered residual surface, and root-specific raw legacy driver edge are zero"
   },
   "normal_compile_adapters": {

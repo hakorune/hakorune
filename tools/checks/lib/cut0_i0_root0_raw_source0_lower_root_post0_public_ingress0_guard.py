@@ -563,11 +563,26 @@ def main() -> int:
     for fragment in (
         "node @ ASTNode::BlockExpr { .. } if is_port_neutral_expr_tree(&node)",
         "ASTNode::BlockExpr {",
-        "prelude_stmts.is_empty() && is_port_neutral_expr_tree(tail_expr)",
+        ".all(is_port_neutral_block_prelude_stmt)",
+        "is_port_neutral_expr_tree(tail_expr)",
+        "fn is_port_neutral_block_prelude_stmt(node: &ASTNode) -> bool",
+        "is_port_neutral_print_root(node)",
+        "is_port_neutral_nowait_root(node)",
+        "is_port_neutral_local_root(node)",
     ):
-        require(raw_nonprogram_root_descent, fragment, "recursive empty BlockExpr partition")
+        require(raw_nonprogram_root_descent, fragment, "recursive BlockExpr prelude partition")
     if raw_nonprogram_root_descent.count("node @ ASTNode::BlockExpr { .. }") != 2:
         raise AssertionError("BlockExpr root must have one safe and one compatibility arm")
+    expected_block_prelude = [
+        "expr_tree",
+        "print",
+        "nowait",
+        "annotation_free_local",
+    ]
+    if root_descent.get("selected_block_prelude_responsibilities") != expected_block_prelude:
+        raise AssertionError("selected BlockExpr prelude responsibility ratchet drift")
+    if root_descent.get("safe_nonempty_block_compatibility_edge") != 0:
+        raise AssertionError("safe non-empty BlockExpr compatibility edge must remain zero")
     for fragment in (
         "node @ ASTNode::Print { .. } if is_port_neutral_print_root(&node)",
         "SelectedRawNonProgramRootV1",
@@ -652,6 +667,8 @@ def main() -> int:
         "selected_grouped_assignment_matches_raw_legacy_effects_exactly",
         "selected_grouped_assignment_preflights_and_reuses_without_retry",
         "selected_index_matches_raw_legacy_effects_exactly",
+        "selected_safe_block_prelude_matches_raw_legacy_effects_exactly",
+        "selected_block_prelude_local_keeps_existing_scope_failure",
         "selected_empty_block_expr_matches_raw_legacy_effects_exactly",
     ):
         if fixture in raw_nonprogram_root_descent_tests:

@@ -35,6 +35,13 @@ fn string(value: &str) -> ASTNode {
     }
 }
 
+fn variable(name: &str) -> ASTNode {
+    ASTNode::Variable {
+        name: name.to_owned(),
+        span: Span::unknown(),
+    }
+}
+
 fn unary(operator: UnaryOperator, operand: ASTNode) -> ASTNode {
     ASTNode::UnaryOp {
         operator,
@@ -123,8 +130,12 @@ fn indexed(target: ASTNode, index: ASTNode) -> ASTNode {
 }
 
 fn block_expr(tail_expr: ASTNode) -> ASTNode {
+    block_expr_with_prelude(Vec::new(), tail_expr)
+}
+
+fn block_expr_with_prelude(prelude_stmts: Vec<ASTNode>, tail_expr: ASTNode) -> ASTNode {
     ASTNode::BlockExpr {
-        prelude_stmts: Vec::new(),
+        prelude_stmts,
         tail_expr: Box::new(tail_expr),
         span: Span::unknown(),
     }
@@ -380,6 +391,10 @@ fn normal_pipeline_matches_legacy_compatibility_for_non_program_root() {
             literal(37),
         ))),
         block_expr(block_expr(checked(vec![boolean(true)]))),
+        block_expr_with_prelude(
+            vec![printed(literal(38)), nowait("pending", literal(39))],
+            variable("pending"),
+        ),
     ];
 
     for root in roots {
@@ -463,6 +478,10 @@ fn selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable() {
             name: "missing".to_owned(),
             span: Span::unknown(),
         }),
+        block_expr_with_prelude(
+            vec![printed(variable("missing")), nowait("pending", literal(40))],
+            variable("pending"),
+        ),
     ] {
         let mut compiler = MirCompiler::with_options(false);
         compiler.builder.set_source_file_hint("live-before.hako");
