@@ -421,7 +421,7 @@ def main() -> int:
     )
     if root_descent.get("sunset_state") != "active":
         raise AssertionError("raw root compatibility sunset must remain active")
-    if root_descent.get("residual_kind_count") != 41:
+    if root_descent.get("residual_kind_count") != 40:
         raise AssertionError("raw root compatibility residual count drift")
     ast_node_kinds = ast_kinds(
         (
@@ -437,8 +437,8 @@ def main() -> int:
             f"extra={sorted(classified_kinds - ast_node_kinds)}"
         )
     selected_arms = re.findall(
-        r"node\s*@\s*(.*?)=>\s*\{\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root)\(node\)\s*\}"
-        r"|node\s*@\s*(.*?)=>\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root)\(node\)",
+        r"node\s*@\s*(.*?)=>\s*\{\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root|task_scope_root)\(node\)\s*\}"
+        r"|node\s*@\s*(.*?)=>\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root|task_scope_root)\(node\)",
         raw_nonprogram_root_descent,
         re.S,
     )
@@ -448,7 +448,7 @@ def main() -> int:
     expected_selected = {
         "Literal", "Variable", "Me", "UnaryOp", "BinaryOp", "AwaitExpression",
         "CheckExpr", "ArrayLiteral", "MapLiteral", "GroupedAssignmentExpr", "Index",
-        "BlockExpr", "Print", "Nowait", "Local",
+        "BlockExpr", "Print", "Nowait", "Local", "TaskScope",
     }
     if selected_kinds != expected_selected:
         raise AssertionError(
@@ -473,7 +473,7 @@ def main() -> int:
     )
     expected_separate = {
         "Assignment", "CompoundAssignment", "If", "Return",
-        "TaskScope", "QMarkPropagate", "MatchExpr",
+        "QMarkPropagate", "MatchExpr",
         "EnumMatchExpr", "RecordLiteral",
         "RecordUpdate", "Lambda", "TryCatch", "Throw",
         "MethodCall", "FieldAccess", "New",
@@ -569,6 +569,7 @@ def main() -> int:
         "is_port_neutral_print_root(node)",
         "is_port_neutral_nowait_root(node)",
         "is_port_neutral_local_root(node)",
+        "is_port_neutral_task_scope_root(node)",
     ):
         require(raw_nonprogram_root_descent, fragment, "recursive BlockExpr prelude partition")
     if raw_nonprogram_root_descent.count("node @ ASTNode::BlockExpr { .. }") != 2:
@@ -578,6 +579,7 @@ def main() -> int:
         "print",
         "nowait",
         "annotation_free_local",
+        "task_scope",
     ]
     if root_descent.get("selected_block_prelude_responsibilities") != expected_block_prelude:
         raise AssertionError("selected BlockExpr prelude responsibility ratchet drift")
@@ -611,6 +613,18 @@ def main() -> int:
         require(raw_nonprogram_root_descent, fragment, "annotation-free Local partition")
     if raw_nonprogram_root_descent.count("node @ ASTNode::Local { .. }") != 2:
         raise AssertionError("Local root must have one safe and one compatibility arm")
+    for fragment in (
+        "node @ ASTNode::TaskScope { .. } if is_port_neutral_task_scope_root(&node)",
+        "fn is_port_neutral_task_scope_root(node: &ASTNode) -> bool",
+        "body.iter().all(is_port_neutral_block_prelude_stmt)",
+        "PortNeutralTaskScopeRootV1",
+        "SelectedRawNonProgramRootV1::TaskScopeRoot",
+    ):
+        require(raw_nonprogram_root_descent, fragment, "recursive TaskScope partition")
+    if raw_nonprogram_root_descent.count("node @ ASTNode::TaskScope { .. }") != 2:
+        raise AssertionError("TaskScope root must have one safe and one compatibility arm")
+    if root_descent.get("safe_task_scope_compatibility_edge") != 0:
+        raise AssertionError("safe TaskScope compatibility edge must remain zero")
     for fragment in (
         "PreparedRawNonProgramRootV1",
         "SelectedRawNonProgramRootV1",
@@ -669,6 +683,8 @@ def main() -> int:
         "selected_index_matches_raw_legacy_effects_exactly",
         "selected_safe_block_prelude_matches_raw_legacy_effects_exactly",
         "selected_block_prelude_local_keeps_existing_scope_failure",
+        "selected_task_scope_matches_raw_legacy_effects_exactly",
+        "selected_task_scope_child_failure_keeps_pop_order_without_retry",
         "selected_empty_block_expr_matches_raw_legacy_effects_exactly",
     ):
         if fixture in raw_nonprogram_root_descent_tests:

@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0 selected safe TaskScope composition. RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0 is the current execution row."
+status = "RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0 closed green. RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0 is the sole current read-only live-edge census."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0"
-current_execution_summary = "T1 atomic I0/R0. Select TaskScope only when every body statement belongs to the existing safe BlockExpr-prelude closure; include the same TaskScope predicate in that closure so nested safe TaskScope/BlockExpr composition is recursive. The existing build_task_scope_statement_with_port_v1 remains the sole early-exit scan and push -> same-port body -> pop owner. Any unsafe body keeps the whole TaskScope on compatibility. Delete the safe TaskScope compatibility edge in the same commit. Expected counts are 12/4/40 with terminals 1/1; grammar/result/publication remain unchanged."
+current_design_stop = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0"
+current_execution_row = ""
+current_execution_summary = "Read-only fresh live-edge census. The closed TaskScope row selects empty and recursively safe TaskScope bodies, including nested safe TaskScope/BlockExpr composition, while build_task_scope_statement_with_port_v1 remains the sole early-exit and push/body/pop owner. Unsafe bodies remain whole compatibility. Exact selected expr/stmt/residual counts are 12/4/40 with terminals 1/1. Select no implementation until one named production caller, one bounded source-only partition, one existing semantic owner, and one same-commit compatibility-edge deletion are proven."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0 is closed green. RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0 selected one source-reachable TaskScope responsibility after independent expression, control, and live-edge audits. RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0 is the sole current execution row. It selects only TaskScope bodies recursively closed over the existing safe BlockExpr-prelude statement algebra, while build_task_scope_statement_with_port_v1 remains the sole early-exit and push/body/pop owner. Unsafe bodies stay whole compatibility; no per-statement route mixing, duplicated control policy, or retry is allowed. Expected exact counts are 12/4/40 with 1/1 terminals. Whole-program variants, source-level Ownership/View, all other new semantics, fallback/retry, compatibility growth, and production-caller-zero routes remain forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0 is closed green. Safe TaskScope bodies recursively composed from the existing expression-tree, Print, Nowait, annotation-free Local, BlockExpr, and TaskScope responsibilities now use the selected invocation port. The existing TaskScope owner remains the sole early-exit and push/body/pop authority, including current child-failure pop ordering. Unsafe bodies remain whole compatibility. Exact counts are 12/4/40 with 1/1 terminals; root 12/12 and normal integration 8/8 are green. RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0 is the sole current read-only live-edge census. Select no implementation until one named production caller, one bounded source-only partition, one existing owner, and one same-commit compatibility-edge deletion are proven without duplicated family/target decisions. Whole-program variants, source-level Ownership/View, all other new semantics, fallback/retry, compatibility growth, and production-caller-zero routes remain forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0-IMPLEMENT"
+current_blocker_token = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0-CENSUS"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

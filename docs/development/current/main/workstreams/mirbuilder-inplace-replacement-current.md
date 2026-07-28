@@ -61,9 +61,10 @@ Closed:  RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0
 Closed:  RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0
-Current: RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0
+Closed:  RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0
+Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0
 Pack:    ROOT-LIFECYCLE0
-Ceremony: T1 atomic I0/R0
+Ceremony: read-only live-edge census
 ```
 
 R1 closeout:
@@ -371,61 +372,46 @@ new source/test/check/task file                  = 0
 all source/check files                           < 800
 ```
 
-## Current execution task
+## Latest closeout
 
 ```text
 RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0
 
-Named production edge:
-  shared raw root kernel
-  -> selected/compatibility non-Program partition
-  -> existing TaskScope statement owner
+safe TaskScope compatibility edge          = 0
+empty/non-empty/nested safe partition      = green
+safe TaskScope in BlockExpr prelude        = green
+existing early-exit / push-body-pop owner  = unchanged
+child failure pop-order parity             = green
+root partition/parity tests                = 12/12 green
+normal integration/failure tests           = 8/8 green
+selected expr/stmt/residual                 = 12 / 4 / 40
+selected/compatibility terminals           = 1 / 1
+production/parent/parity/integration/guard = 413/577/440/646/751 lines
+shared guard / artifact inventory          = green
+fallback / retry / reselection             = 0
+new source/test/check/task file             = 0
+all source/check files                      < 800
+```
 
-Selected source-only closure:
-  TaskScope {
-    body:
-      existing safe BlockExpr-prelude statement closure*
-  }
+## Current design stop
 
-Compositional recursion:
-  safe TaskScope participates in the same BlockExpr-prelude closure
-  nested safe TaskScope / BlockExpr = selected
+```text
+RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0
 
-Existing owner remains sole authority for:
-  early-exit rejection scan
-  source keyword diagnostic
-  task-scope push
-  body descent through the same selected port
-  task-scope pop, including current child-failure ordering
+Mode:
+  read-only fresh live-edge census
 
-Atomic delete:
-  safe TaskScope
-  -> SeparateDesignStop
-  -> ExistingRawNonProgramRootCompatibilityV1
-  = 0
+Selection requires:
+  one named production caller
+  one bounded source-only partition
+  one existing semantic owner
+  one same-commit compatibility-edge deletion
 
-Expected ratchet:
-  selected expression / statement kinds = 12 / 4
-  registered residual kinds              = 40
-  selected / compatibility terminals     = 1 / 1
-
-Evidence:
-  recursive safe/unsafe partition
-  empty, non-empty, and nested TaskScope exact raw-port parity
-  push -> body -> pop source order
-  child failure keeps current pop behavior
-  live candidate discard and compiler reuse
-  parser reachability remains existing `co` / `task_scope`
-
-Hard stop:
-  Return / Throw / Break / Continue / If / Loop in selected body
-  root-side duplication of the early-exit scan
-  per-statement selected/compatibility route mixing
-  push/pop or child-failure ordering change
-  second port, AST clone/reparse, or compatibility retry
-  Assignment, Field, Call, New, QMark, or Ownership/View widening
-  new semantic owner, terminal, failure type, test file, or guard file
-  any source/check file reaching 800 lines
+Do not infer:
+  Assignment target admission
+  Field/property/header parity
+  Return/QMark/Loop control authority
+  fallback/retry or Ownership/View activation
 ```
 
 Compatibility sunset:
@@ -485,7 +471,8 @@ R2ab RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0 closed
 R2ac RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0 closed
 R2ad RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0 closed
 R2ae RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0 closed
-R2af RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0 current
+R2af RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0 closed
+R2ag RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:

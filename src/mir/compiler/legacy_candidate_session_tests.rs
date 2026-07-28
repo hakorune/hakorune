@@ -150,6 +150,14 @@ fn local(name: &str, initializer: Option<ASTNode>) -> ASTNode {
     }
 }
 
+fn task_scope(source_keyword: &str, body: Vec<ASTNode>) -> ASTNode {
+    ASTNode::TaskScope {
+        body,
+        source_keyword: source_keyword.to_owned(),
+        span: Span::unknown(),
+    }
+}
+
 fn source_file(compiler: &MirCompiler) -> Option<String> {
     compiler.builder.current_source_file()
 }
@@ -395,6 +403,14 @@ fn normal_pipeline_matches_legacy_compatibility_for_non_program_root() {
             vec![printed(literal(38)), nowait("pending", literal(39))],
             variable("pending"),
         ),
+        task_scope(
+            "co",
+            vec![
+                printed(literal(40)),
+                task_scope("task_scope", vec![nowait("task_result", literal(41))]),
+                printed(variable("task_result")),
+            ],
+        ),
     ];
 
     for root in roots {
@@ -481,6 +497,13 @@ fn selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable() {
         block_expr_with_prelude(
             vec![printed(variable("missing")), nowait("pending", literal(40))],
             variable("pending"),
+        ),
+        task_scope(
+            "co",
+            vec![
+                printed(variable("missing")),
+                task_scope("task_scope", vec![printed(literal(42))]),
+            ],
         ),
     ] {
         let mut compiler = MirCompiler::with_options(false);

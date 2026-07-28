@@ -127,6 +127,14 @@ fn local(
     }
 }
 
+fn task_scope(source_keyword: &str, body: Vec<ASTNode>) -> ASTNode {
+    ASTNode::TaskScope {
+        body,
+        source_keyword: source_keyword.to_owned(),
+        span: Span::unknown(),
+    }
+}
+
 fn assert_selected(node: ASTNode) {
     assert!(matches!(
         PreparedRawRootPartitionV1::classify(node),
@@ -159,6 +167,15 @@ fn assert_selected_local(node: ASTNode) {
         PreparedRawRootPartitionV1::classify(node),
         PreparedRawRootPartitionV1::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
             SelectedRawNonProgramRootV1::LocalRoot(_)
+        ))
+    ));
+}
+
+fn assert_selected_task_scope(node: ASTNode) {
+    assert!(matches!(
+        PreparedRawRootPartitionV1::classify(node),
+        PreparedRawRootPartitionV1::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
+            SelectedRawNonProgramRootV1::TaskScopeRoot(_)
         ))
     ));
 }
@@ -270,6 +287,19 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
         &["nested"],
         vec![Some(block_expr(Vec::new(), array(vec![integer(29)])))],
         vec![None],
+    ));
+    assert_selected_task_scope(task_scope("co", Vec::new()));
+    assert_selected_task_scope(task_scope(
+        "task_scope",
+        vec![
+            printed(integer(37)),
+            nowait("pending", integer(38)),
+            task_scope("co", vec![checked(vec![integer(39)])]),
+        ],
+    ));
+    assert_selected(block_expr(
+        vec![task_scope("co", vec![printed(integer(40))])],
+        integer(41),
     ));
 
     assert_compatibility(
@@ -487,6 +517,41 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
                 span: Span::unknown(),
             })],
             vec![None],
+        ),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        task_scope(
+            "co",
+            vec![ASTNode::Return {
+                value: Some(Box::new(integer(42))),
+                span: Span::unknown(),
+            }],
+        ),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        task_scope(
+            "task_scope",
+            vec![local(
+                &["typed"],
+                vec![Some(integer(43))],
+                vec![Some("i64")],
+            )],
+        ),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        block_expr(
+            vec![task_scope(
+                "co",
+                vec![ASTNode::FunctionCall {
+                    name: "unsafe_child".to_owned(),
+                    arguments: Vec::new(),
+                    span: Span::unknown(),
+                }],
+            )],
+            integer(44),
         ),
         RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
     );

@@ -339,6 +339,72 @@ fn selected_block_prelude_local_keeps_existing_scope_failure() {
 }
 
 #[test]
+fn selected_task_scope_matches_raw_legacy_effects_exactly() {
+    let root = || {
+        task_scope(
+            "co",
+            vec![
+                printed(integer(34)),
+                task_scope("task_scope", vec![nowait("pending", integer(35))]),
+                printed(variable("pending")),
+            ],
+        )
+    };
+    let mut legacy = MirBuilder::new();
+    legacy.enter_function_for_test("task_scope_root_parity/0".to_owned());
+    legacy.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
+    let legacy_value = drive_raw_legacy_expression_v1(&mut legacy, root()).unwrap();
+
+    let mut selected = MirBuilder::new();
+    selected.enter_function_for_test("task_scope_root_parity/0".to_owned());
+    selected.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
+    let selected_value = drive_selected(&mut selected, root()).unwrap();
+
+    assert_eq!(selected_value, legacy_value);
+    assert_eq!(
+        spanned_instructions(&selected),
+        spanned_instructions(&legacy)
+    );
+    assert_eq!(
+        selected.function_state.variable_ctx.variable_map,
+        legacy.function_state.variable_ctx.variable_map
+    );
+    assert_eq!(
+        selected.function_state.type_ctx.value_types,
+        legacy.function_state.type_ctx.value_types
+    );
+}
+
+#[test]
+fn selected_task_scope_child_failure_keeps_pop_order_without_retry() {
+    let root = || {
+        task_scope(
+            "co",
+            vec![printed(variable("missing")), printed(integer(36))],
+        )
+    };
+    let mut legacy = MirBuilder::new();
+    legacy.enter_function_for_test("task_scope_failure_parity/0".to_owned());
+    let legacy_error = drive_raw_legacy_expression_v1(&mut legacy, root()).unwrap_err();
+
+    let mut selected = MirBuilder::new();
+    selected.enter_function_for_test("task_scope_failure_parity/0".to_owned());
+    let selected_error = drive_selected(&mut selected, root()).unwrap_err();
+
+    assert_eq!(selected_error, legacy_error);
+    assert!(selected_error.contains("Undefined variable: missing"));
+    assert_eq!(
+        spanned_instructions(&selected),
+        spanned_instructions(&legacy)
+    );
+    let task_scope_calls = spanned_instructions(&selected)
+        .into_iter()
+        .filter(|(instruction, _)| instruction.contains("env.task_scope"))
+        .count();
+    assert_eq!(task_scope_calls, 2, "push and pop must both remain emitted");
+}
+
+#[test]
 fn selected_empty_block_expr_matches_raw_legacy_effects_exactly() {
     let root = || {
         block_expr(

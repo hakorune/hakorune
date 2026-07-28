@@ -56,14 +56,16 @@
     "retired_calls": 0,
     "sunset_id": "RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001",
     "sunset_state": "active",
-    "residual_kind_count": 41,
+    "residual_kind_count": 40,
     "selected_block_prelude_responsibilities": [
       "expr_tree",
       "print",
       "nowait",
-      "annotation_free_local"
+      "annotation_free_local",
+      "task_scope"
     ],
     "safe_nonempty_block_compatibility_edge": 0,
+    "safe_task_scope_compatibility_edge": 0,
     "retire_when": "root compatibility owner, registered residual surface, and root-specific raw legacy driver edge are zero"
   },
   "normal_compile_adapters": {
