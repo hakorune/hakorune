@@ -34,6 +34,9 @@ Current: NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0
 Ceremony: short D0; production edits parked
 ```
 
+External consultation packet:
+[NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 question](../investigations/normal-default-root-catalog-preflight0-consultation-question-2026-07-29.md)
+
 R1 closeout:
 
 ```text
