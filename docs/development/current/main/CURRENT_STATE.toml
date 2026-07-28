@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-NONPROGRAM-NOWAIT-ROOT-DESCENT0-I0-R0 is closed. RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0 is the current design stop."
+status = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0 is closed with Candidate A. RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0 is the current T1 production replacement."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0"
-current_execution_row = ""
-current_execution_summary = "Nowait root cutover is closed: exactly Nowait(target String, PortNeutralExprTreeV1) is a private selected statement-root sibling over the existing port-aware owner. The old safe-Nowait compatibility edge is zero; unsafe-child Nowait stays whole on compatibility. MIR/span, Future type, by-name variable_map, optional slot, candidate rollback, and compiler reuse parity are green. Selected expression kinds remain 7, selected statement roots are 2, and residual kinds are 47. Fresh live edges are not unique: safe ArrayLiteral owns allocation/birth/registry/element-write/aggregate-metadata order, while safe MapLiteral owns allocation/birth/registry/key/value/runtime-set order. QMark remains separate physical Return/CFG/runtime-call CONTROL0. No production edit is authorized until one exact responsibility is selected."
+current_design_stop = ""
+current_execution_row = "RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0"
+current_execution_summary = "One atomic T1 cell adds ArrayLiteral([PortNeutralExprTreeV1]*) as a recursive constructor of the existing selected expression algebra. Safe Array and safe enclosing expression trees leave compatibility together; any unsafe element keeps the whole outer tree on the single compatibility owner. Reuse build_array_literal_with_port_v1 unchanged and preserve ValueId -> NewBox -> birth -> function/compilation type registries -> source-order element descent/write -> final aggregate element metadata. Typed-array contract/local semantics, Map, calls, and new result policy are nonclaims. Selected expression kinds ratchet 7->8, selected statement roots stay 2, and residual kinds ratchet 47->46 with no fallback, retry, route mixing, or new files."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """RAW-NONPROGRAM-NOWAIT-ROOT-DESCENT0-I0-R0 is closed. Safe Nowait is a private selected statement-root sibling over the existing PortNeutralExprTreeV1 and port-aware Nowait owner; unsafe-child Nowait remains whole on compatibility. The old safe-Nowait compatibility edge is zero. Exact MIR/span, Future type, by-name variable_map, optional slot, candidate rollback, and compiler reuse parity are green. Selected/compatibility terminals remain one each, selected expression kinds remain 7, selected statement-root kinds are 2, and registered residual kinds are 47. RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0 is the sole current design stop. Fresh live edges are not unique: ArrayLiteral carries allocation/birth/registry/element-write/aggregate-metadata authority and MapLiteral carries allocation/birth/registry/key/value/runtime-set authority under CALL-OBJECT0. QMark retains physical Return/CFG/runtime-call CONTROL0. No production edit is authorized until one exact responsibility is selected. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0 is closed with Candidate A. RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0 is the sole current T1 production row. Add ArrayLiteral as a recursive PortNeutralExprTreeV1 constructor exactly when every element is already in that algebra; do not create a root-only accepted-shape sibling. Safe nested Array and safe enclosing Unary/Binary/Await/Check/Print/Nowait trees use the existing selected invocation port; any unsafe descendant keeps the whole outer tree on compatibility without retry. Reuse build_array_literal_with_port_v1 unchanged and preserve allocation, birth, both type registries, source-order element descent and ArrayElementWrite, then final aggregate element metadata. Selected expression kinds become 8, selected statement roots stay 2, and residual kinds ratchet 47->46. Typed-array contracts, typed Local semantics, Map, generic calls, new files, fallback, retry, and route mixing are forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0-DESIGN-STOP"
+current_blocker_token = "RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0-IMPLEMENT"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
