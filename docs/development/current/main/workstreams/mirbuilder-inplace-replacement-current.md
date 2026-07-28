@@ -45,10 +45,10 @@ cell数、pack数、LOC、structural observationは進捗と増殖検知の手�
 architecture goalやcompletion authorityではない。cellはnorth-star上の
 authorityを一つ減らす場合だけ選択する。
 
-## Parked return front
+## Active executable front
 
 ```text
-NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
+NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0
 ```
 
 最小structural observation、第七Binary cell、第八record-helper body descent
@@ -63,8 +63,9 @@ dead field facadeはゼロ。第十cellは未選択。
 
 六workerのbounded censusは、局所のdead facade／proof cleanupより先に、
 north-star最大の入口分岐を設計停止へ固定した。compiler-ingress D0は
-Candidate Bを受理し、薄いtyped入口より先に必要な最初のcapabilityを、
-current normal Program全域の有限verified-plan ownerへ固定した。
+Candidate Bを受理した。後続のsource/catalog D0は、最初の有限familyを
+`Main0WithPlainInstanceBoxes0`、最初のproductを
+`VerifiedNormalModuleSourceV1`へ固定してclosedした。
 
 ```text
 CLI default / explicit mir
@@ -84,10 +85,11 @@ missing
 -> verified plan + candidate/publication owner
 ```
 
-現在はT2 prerequisite designだけを行う。current normal corpusを有限表へ
-閉じ、`VerifiedNormalGeneralProgramPlanV1`と、そのplanだけを消費する
-candidate/publication ownerを定義する。GeneralProgram catch-all、
-`compile_legacy_candidate`、raw AST route redecisionは禁止する。
+現在はT2 prerequisite S0だけを実装する。既存のowned input、source
+inventory、Main relation、same-module callable catalogを再利用し、exact
+Program、Main.main/0、source-orderのplain instance Box、catalogとの完全な
+key対応を一つのopaque productへsealする。production caller、Builder effect、
+body/function plan、candidate/publicationはすべてゼロのままにする。
 
 このownerとcurrent-normal `MirCompileResult` parityが閉じ、さらにpark済みの
 Ownership/View readiness trainがproduct/default境界を閉じるまで、one total
@@ -177,7 +179,7 @@ Keep only these counters current:
 macro_packs_closed                 = 0 / 8
 live_replacement_cells_closed      = 9
 replacement_ledger_remaining       = 0 manifest rows
-accepted_next_responsibility       = 0; design stop
+accepted_next_responsibility       = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0
 detached_assets_remaining          = 2 recorded rows
 legacy_production_edges_remaining  = 0 selected edges
 
@@ -196,46 +198,199 @@ closeout explanation, not automatic rejection.
 
 ```text
 none
-  current authority = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0 design stop
+  current authority = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0 prerequisite
   repository artifact lifecycle R1-R4-first / RETURN0 = closed
   tenth responsibility = not selected
 ```
 
-## Current design stop
-
-`NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0` must accept one bounded source
-authority before implementation. It must decide:
+## Selected S0 execution
 
 ```text
-opaque source product:
-  exact Program identity
-  top-level declaration inventory
-  entry contract
-  callable catalog correspondence
-
-finite accepted family:
-  source-backed current-normal rows only
-  no catch-all residual
-
-failure boundary:
-  complete preflight before Builder effects
-  unsupported declaration/source family rejects explicitly
-
-next executable row:
-  one named source/catalog slice
-  production caller = 0 during prerequisite work
+row                         = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0
+parent                      = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
+accepted family             = Main0WithPlainInstanceBoxes0
+product                     = VerifiedNormalModuleSourceV1
+ceremony                    = T2 prerequisite S0
+production caller           = 0
+replacement credit          = 0
+tenth manifest row          = absent
+Builder effect              = 0
+fallback / retry            = 0
 ```
 
-It must not authorize:
+### Exact finite family
 
 ```text
-GeneralProgram -> compile_legacy_candidate
-MirBuilder::build_module(raw AST)
-Lower-side route redecision
-canonical probe then fallback
-source re-read/reparse
-Candidate A production switch
-tenth replacement row
+root:
+  Program exactly
+
+entry:
+  one static Main exactly
+  one static Main.main/0 exactly
+  Main helper methods = 0
+  all other Main Box features = empty
+
+module:
+  one-or-more non-Main Box declarations
+  source order and unique Box names retained
+  is_static / is_record / is_sync / is_interface = false
+  constructors / static_init = empty
+  extends / implements / type_parameters = empty
+  delegates / invariants / transitions / Box attrs = empty
+  every method is a non-static FunctionDeclaration
+  method map key = declaration name
+  method contracts = empty
+  method override = false
+
+field and method source:
+  fields / field_decls / visibility / init / weak metadata are retained
+  body / return type / uses / method attrs are retained
+  their semantic verification and lowering are later plan rows
+
+top-level:
+  executable statements = 0
+  FunctionDeclaration = 0
+  Enum / Brand / TypeAlias / Global / StaticConstTable = 0
+  non-Main static Box / Using / Import / BuildGate = 0
+```
+
+The family name includes `Main0` intentionally. It does not claim
+`Main.main(args)`, constructors, top-level functions, or all current-normal
+user-box programs.
+
+### One observation and one product
+
+`inventory.rs` retains non-Main Box sites instead of collapsing them into the
+generic unsupported bucket. The existing canonical classifier continues to
+reject the first such site as the historical `Box` rejection. S0 does not add a
+`SealedNormalSourcePlanV1` variant and does not connect canonical dispatch.
+
+The disconnected S0 fixture consumes a fresh `PreparedNormalSourcePlanInputV1`,
+runs the same `NormalSourceSurfaceInventoryV1::collect` exactly once, and calls
+one module-source seal terminal. It is never invoked after canonical rejection.
+
+```text
+PreparedNormalSourcePlanInputV1
+  AST + existing NormalSourceIdentityV1
+-> NormalSourceSurfaceInventoryV1
+-> VerifiedNormalModuleSourceV1
+   Main site
+   Main.main/0 site
+   ordered NormalInstanceBoxSiteV1 rows
+   existing VerifiedSameModuleCallableDeclarationCatalogV1
+```
+
+Do not add another identity issuer, callable catalog, classifier, trait,
+raw-source accessor, `into_ast`, lowering method, Builder, or publication
+terminal. Imports/config/admission are outside the current input and are not an
+S0 claim.
+
+### Exact correspondence
+
+The callable catalog does not cover constructors, fields, empty boxes, or
+top-level functions. S0 must therefore validate the Box surface from the owned
+Program first, seal the existing catalog with `seal_program`, and compare:
+
+```text
+expected keys from source:
+  StaticBoxMethod(Main, main, 0)
+  every InstanceBoxMethod(owner, method, arity)
+
+actual keys:
+  catalog.keys in canonical order
+
+required:
+  sorted expected tuple set = exact actual tuple set
+  each row's params / param_decls / return type / body / uses / attrs
+    corresponds to the source declaration
+  missing = 0
+  extra = 0
+```
+
+No public canonical-key constructor is required; compare borrowed key
+namespace/owner/name/arity and use `declaration_for` for the exact row.
+
+### Bounded implementation
+
+```text
+production source:
+  normal_source_plan/inventory.rs
+    retain ordered non-Main Box sites
+  normal_source_plan/product.rs
+    add NormalInstanceBoxSiteV1 and opaque product fields if needed
+  normal_source_plan/main_source.rs
+    reuse one exact Main relation validator
+  normal_source_plan/module_source.rs
+    new named owner: family seal, correspondence, rejection
+  normal_source_plan/classifier.rs
+    preserve exact historical non-Main Box rejection
+  normal_source_plan/mod.rs
+    private module and bounded product exports
+
+tests:
+  normal_source_plan/tests.rs
+    success, source-order, exact catalog, forbidden Box surface,
+    mixed top-level rejection, canonical-rejection preservation,
+    rejection identity/discard
+
+guard:
+  normal_source_plan0_guard.py
+    only one child invocation/watched-symbol update
+  normal_source_plan0_callable_guard.py
+    detailed module-source assertions
+```
+
+The main shared guard is already near 800 lines; detailed assertions belong in
+the existing callable child guard. No new test/check file or per-row guard is
+allowed. Every touched source/check file must remain below 800 lines.
+
+Focused gate:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q normal_source_plan --lib
+python3 tools/checks/lib/normal_source_plan0_guard.py
+cargo check -q
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+### Acceptance
+
+```text
+VerifiedNormalModuleSourceV1 definitions       = 1
+module-source seal terminal                    = 1
+test callers                                   >= 1
+production callers                             = 0
+
+Program / Main.main/0 / Box order              = exact
+source/catalog key-set correspondence          = exact
+unsupported source rejection before Builder   = green
+existing canonical non-Main Box rejection      = unchanged
+
+new identity / callable catalog / classifier   = 0
+raw AST escape / source reread / parse          = 0
+Builder / lowering / function plan             = 0
+candidate / DraftSeal / publication             = 0
+fallback / retry / route reselection             = 0
+replacement row / credit                        = 0
+new test/check file                              = 0
+all modified source/check files                 < 800
+```
+
+### Hard stop
+
+```text
+existing canonical dispatch or frontdoor must change
+the product requires recovery from canonical rejection
+the input must be cloned or re-parsed
+Main relation requires a second validator
+catalog completeness requires widening catalog authority
+constructor / top-level function / Main(args) support is required
+body, field, or function-plan semantics must be decided
+Builder, candidate, DraftSeal, collector, or publication must be opened
+compatibility wrapper, Legacy fallback, retry, or route reselection is needed
+any touched source/check file reaches 800 lines
 ```
 
 ## Post-Binary boundary
@@ -290,6 +445,8 @@ accepted candidate           = B
 ceremony                     = T2 bounded enabling design
 future aggregate product     = VerifiedNormalGeneralProgramPlanV1
 first missing authority      = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0
+D0 status                    = closed
+selected executable row      = NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0
 normal/default Legacy caller = present
 canonical default caller     = 0
 prerequisite caller          = 0
@@ -343,8 +500,11 @@ D5  DOCS-MEANING-RECOVERY-RETURN0
     recount
     return CURRENT_STATE to this MirBuilder workstream
 
-M1  NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
-    source/catalog authority
+M1a NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
+    closed: Main0WithPlainInstanceBoxes0 selected
+
+M1b NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-S0
+    current: disconnected source/catalog product
 
 M2  GENERAL-FUNCTION-PLAN0 family slices
     one finite semantic vocabulary per row
