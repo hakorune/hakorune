@@ -63,9 +63,10 @@ Closed:  RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0
 Closed:  RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0
-Current: NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0
+Closed:  NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0
+Current: NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0
 Pack:    ROOT-LIFECYCLE0
-Ceremony: read-only caller-scope design
+Ceremony: T2, one atomic I0/R0
 ```
 
 R1 closeout:
@@ -394,45 +395,44 @@ new source/test/check/task file             = 0
 all source/check files                      < 800
 ```
 
-## Current design stop
+## Current execution
+
+`NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0` — T2, parent
+`NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0`.
 
 ```text
-NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0
+Change:
+  MIR mainline, minimal MIR JSON, LLVM source, and Wasm source issue one opaque
+  Program-only normal request after macro/normalization and before token/session
+  effects. Carry it through the published pipeline into a shared Program-only
+  lowering sibling extracted from the 796-line module lifecycle. The generic
+  arbitrary-AST path reuses its Program kernel only after its own partition.
+  Atomically delete the bare-AST request field, infallible constructors,
+  selected lifecycle Program/non-Program partition, and selected normal ->
+  generic raw-root classifier edge.
 
-Finding:
-  selected normal source constructors = 4
-  parser result at every constructor   = ASTNode::Program
-  remaining non-Program root edge
-    selected-normal source reachability = 0
+Contract:
+  Program admission is issued exactly once; Main/Script expansion, catalog,
+  lowering, finish, publication, imports, and diagnostics keep current meaning.
+  The two arbitrary-AST build_module edges remain explicit compatibility
+  authorities under MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001 and
+  RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001. No fallback/retry, clone,
+  reparse, grammar/result/backend change, or Ownership/View activation.
 
-Decide:
-  exact typed Program-only normal request/product
-  issuer after source preparation and parse
-  one total normal Program admission
-  retained arbitrary-AST compatibility caller census
-  exact compatibility sunset IDs and deletion conditions
-  atomic selected-normal old-edge deletion
+Done:
+  All four constructors accept Program and reject post-macro/normalize
+  non-Program before token/session effects; selected normal has zero raw
+  non-Program reachability. Existing Program parity, import commit, failure
+  reuse, arbitrary-AST compatibility census, and the shared root guard are
+  green. One named Program-lowering source sibling is allowed; no new
+  test/check/guard file, proof inventory does not grow, and every source/check
+  file is <800.
 
-Retain explicitly, pending census:
-  MirCompiler arbitrary-AST public/internal callers
-  VM / REPL / Program JSON / Stage1 / reference authorities
-
-Forbid during D0:
-  production edits
-  another non-Program accepted shape
-  conditional void Return / Field / ScopeBox / Assignment row
-  guard split or proof-only route
-  parser/source reread or AST clone
-  fallback/retry/reselection
-  source-level Ownership/View activation
-
-Acceptance for the next executable row:
-  named selected normal callers
-  typed Program-only issuer exactly once
-  one execution and publication path
-  same-commit selected-normal non-Program edge deletion
-  explicit compatibility callers unchanged
-  grammar/result/backend delta = 0
+Stop:
+  Return to design if the opaque product must be unwrapped before the Program
+  kernel, a second Program classifier or compatibility route is needed, a
+  selected-normal generic partition remains, module_lifecycle.rs reaches 800,
+  or either retained arbitrary-AST caller changes behavior.
 ```
 
 Compatibility sunset:
@@ -454,6 +454,22 @@ NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001
   owner ExistingGeneralModuleCompatibilityV1 = 0
   selected-normal build_module surface       = 0
   global build_module definition/callers     = non-claim
+```
+
+Compatibility sunsets:
+
+```text
+MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001
+  owner: MirCompiler legacy candidate family
+  retire when: public/internal VM, Stage1, selfhost, REPL, Program JSON, and
+    reference callers have typed replacements and its build_module edge is 0
+  target/evidence: later named replacement rows plus production caller census
+
+RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001
+  owner: env.mirbuilder.emit AST-JSON compatibility
+  retire when: AST-JSON producers/callers are 0, or a Program-only contract is
+    sealed and its arbitrary-root build_module edge is 0
+  target/evidence: later runtime ingress row plus production caller census
 ```
 
 ## Queue
@@ -494,7 +510,8 @@ R2ad RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0 closed
 R2ae RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0 closed
 R2af RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2ag RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0 closed
-R2ah NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0 current
+R2ah NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0 closed
+R2ai NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:

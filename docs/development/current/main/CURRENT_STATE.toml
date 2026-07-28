@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0 closed as NoSafeSlice for selected normal source. NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0 is the sole current design stop."
+status = "NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0 accepted. NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0 is the sole executable row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0"
-current_execution_row = ""
-current_execution_summary = "Read-only caller-scope design. All four selected normal source callers parse to ASTNode::Program before constructing NormalCompileRequestV1, so remaining non-Program root compatibility shapes have selected-normal source reachability 0. Decide whether selected normal constructors can issue a typed Program-only request and atomically remove selected-normal non-Program admission, while preserving arbitrary-AST MirCompiler, VM/REPL/JSON/Stage1/reference lanes as explicit compatibility authorities with named sunset conditions. Do not add another non-Program root shape or guard seam during this stop."
+current_design_stop = ""
+current_execution_row = "NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0"
+current_execution_summary = "T2 atomic cutover. After macro expansion and route-specific normalization, the four selected normal source constructors must seal one opaque Program-only request before invocation-token/session/Builder effects. The opaque Program product survives request -> published pipeline -> session-owned lifecycle -> one named shared Program-only lowering sibling; the generic arbitrary-AST path reuses its kernel only after its own partition. Delete the selected lifecycle non-Program partition and selected-normal generic raw-root classification in the same commit. Preserve the two explicit arbitrary-AST build_module compatibility edges and track them with named sunsets. One structurally named source sibling is allowed; no new test/check file, fallback/retry, AST clone/reparse, grammar/result/backend delta, or source-level Ownership/View."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0 is closed green. RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0 is closed as NoSafeSlice for selected normal source: all four selected normal source callers parse to ASTNode::Program, and remaining non-Program root compatibility branches have selected-normal source reachability zero. Conditional void Return, FieldAccess, ScopeBox, Assignment, QMark, If, Loop, and Call rows are not authorized. NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0 is the sole current read-only design stop. It must separate typed Program-only normal authority from explicit arbitrary-AST compatibility lanes, name every retained production caller and sunset, and identify one atomic old-edge deletion before implementation. Guard remains frozen at 751 lines; a production-edge-zero seam is not authorized. Whole-program variants, source-level Ownership/View, new semantics, fallback/retry, compatibility growth, and production-caller-zero routes remain forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0 accepts one T2 atomic cutover. The four selected normal source routes are MIR mainline, minimal MIR JSON, LLVM source, and Wasm source. MIR/minimal/LLVM must seal after macro expansion and normalization because a MacroBox may return a non-Program root; Wasm seals its parser-produced Program. One opaque Program owner must survive to a shared Program-only lowering kernel, and selected normal must never reach the generic raw-root partition. The old selected lifecycle Program/non-Program partition, bare-AST request field, infallible constructors, and generic root-classifier edge must disappear in the same commit. The two arbitrary-AST build_module compatibility edges remain explicit and sunset-bound. Guard must stay below 800 by replacing stale assertions rather than adding a seam. Whole-program variants, source-level Ownership/View, new semantics, fallback/retry, compatibility growth, and production-caller-zero routes remain forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 accepts Candidate A. RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 now replaces the shared broad non-Program build_expression re-entry with a recursive port-neutral selected branch and one sunset-bound residual compatibility branch."""
+latest_card_summary = """NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0 accepts one T2 atomic I0/R0. The four selected normal source constructors seal one opaque Program-only request before token/session effects; the product survives to a shared Program-only lowering kernel. The same commit deletes selected-normal bare-AST/non-Program/generic-root admission while preserving two sunset-bound arbitrary-AST compatibility edges."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0-DESIGN"
+current_blocker_token = "NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
