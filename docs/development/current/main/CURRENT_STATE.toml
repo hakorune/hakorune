@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 is closed. RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0 is the current design stop."
+status = "RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0 is closed with Candidate A+. RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0 is the current T1 production replacement."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0"
-current_execution_row = ""
-current_execution_summary = "Select exactly one compositional residual root responsibility from the fresh live-edge census. AwaitExpression with a PortNeutralExprTree0 operand is the smallest candidate; CheckExpr and ArrayLiteral are viable alternatives. No implementation starts until D0 fixes the exact recursive closure, named old edge, same-commit deletion, parity evidence, and compatibility-sunset decrement. Whole-kind cutover and selected-port failure retry remain forbidden."
+current_design_stop = ""
+current_execution_row = "RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0"
+current_execution_summary = "One atomic T1 cell extends PortNeutralExprTreeV1 with AwaitExpression(child) only when the complete child tree is already port-neutral. Safe Await roots and safe Await nested under Unary/Binary use the existing selected invocation port and existing await owner exactly once; unsafe Await shapes remain on the single compatibility owner without retry. Remove AwaitExpression from the unconditional pending group, ratchet selected kinds 5->6 and registered residual kinds 51->50, add no files or new authority, and preserve the existing dispatcher operand-clone and Await completion order."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 is closed: one total source partition keeps Program unchanged, routes recursive Literal/Variable/Me/Unary/Binary trees through the selected invocation port, bounds 51 residual kinds behind RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001, and removes the broad `other -> self.build_expression(other)` edge. RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0 is now the sole design stop because the fresh census found no uniquely selected next responsibility. AwaitExpression with a port-neutral operand is the smallest candidate; CheckExpr and ArrayLiteral remain alternatives. No code row is authorized until the D0 fixes one recursive source closure and one same-commit old-edge deletion. The compatibility surface may only shrink; retry, reclassification, whole-kind widening, and new whole-function variants remain forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0 is closed with Candidate A+. RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0 is the sole current production row: extend the existing recursive PortNeutralExprTreeV1 algebra with AwaitExpression(child) only when the complete child tree is already safe, route it once through the selected invocation port and existing await owner, and remove the safe-Await compatibility edge in the same commit. Unsafe Await remains on the one compatibility owner; selected kinds ratchet 5->6 and registered residual kinds 51->50. New parser/root clones, retry, reclassification, whole-kind widening, new files, and changes to Await completion order are forbidden; the existing raw-dispatch operand clone remains unchanged. CheckExpr and ArrayLiteral are unselected. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the

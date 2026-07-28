@@ -34,9 +34,10 @@ Closed:  NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0
 Closed:  NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0
 Closed:  NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0
 Closed:  RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0
-Current design stop: RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0
+Closed:  RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0
+Current: RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0
 Pack:    DESCENT-SPINE0
-Ceremony: consultation; no production edit before selection
+Ceremony: T1; one atomic production replacement
 ```
 
 R1 closeout:
@@ -115,49 +116,43 @@ largest touched source/check file      = 796
 
 ## Execution brief
 
-Question:
+Change:
 
 ```text
-select exactly one compositional residual root responsibility
-name its live production edge and same-commit old compatibility edge deletion
-keep the selection source-only, disjoint, and closed under recursive children
+extend PortNeutralExprTreeV1 with AwaitExpression(PortNeutralExprTreeV1)
+route safe Await roots and safe Await nested under Unary/Binary through the
+existing selected invocation port and build_await_expression_with_port_v1
+delete safe Await -> SeparateDesignStop compatibility in the same commit
 ```
 
-Fresh census:
+Contract:
 
 ```text
-Candidate A: AwaitExpression with a PortNeutralExprTree0 operand
-  smallest arity; existing port-aware await owner and live bare-root fixture
-
-Candidate B: CheckExpr with every item expression port-neutral
-  existing port-aware owner; wider list closure than A
-
-Candidate C: ArrayLiteral with every element port-neutral
-  existing port-aware owner; collection/result parity requires separate proof
-
-recommended: A, but repo authority does not select it automatically
+classification and execution route = exactly once
+unsafe Await remains on the single compatibility owner without retry
+existing operand descent and Safepoint -> Await -> type -> Safepoint order stay unchanged
+new classifier/root clone = 0; existing raw-dispatch operand clone is unchanged
+Program, Box, Loop, calls, grammar, result, verification, and publication do not move
 ```
 
-Required D0 output:
+Done:
 
 ```text
-one accepted recursive source closure
-one named production caller
-one selected existing port-aware owner
-one same-commit compatibility branch removal
-one residual-count decrement
-parity and failure/reuse evidence
-sunset update
+recursive classifier proves safe and unsafe nested Await shapes
+normal/compatibility MIR and diagnostic parity plus failure/reuse are green
+selected kinds 5 -> 6; registered residual kinds 51 -> 50
+shared root guard and caller manifest ratchet the exact sets and sunset
+new source/test/check/task file = 0; every source/check file < 800
 ```
 
 Stop:
 
 ```text
-whole Await/Check/Array kind is moved without recursive child closure
-selected failure retries or reselects compatibility
-compatibility surface grows
-Box/Loop/header/call authority is mixed into the row
-new grammar, result policy, source clone/reparse, or per-row guard is required
+Await is selected with a non-port-neutral descendant
+selected failure retries or reselects compatibility, or the compatibility driver grows
+the classifier performs a new AST clone/reconstruction/reparse
+Await completion order, result policy, or verification policy changes
+CheckExpr, ArrayLiteral, Box/Loop/header/call authority, or a new file enters the row
 ```
 
 Compatibility sunset:
@@ -190,7 +185,8 @@ R2a NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 closed
 R2b NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0 closed
 R2c NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 closed
 R2d RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 closed
-R2e RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0 current design stop
+R2e RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0 closed
+R2f RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:
