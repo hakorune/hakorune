@@ -25,19 +25,18 @@ Resolve -> Observe -> Facts -> Recipe -> Verify
 第二MirBuilder、production consumer 0のroute拡張、Legacy fallbackは作らない。
 cell数、pack数、LOCは観測値であり、完成条件ではない。
 
-## Current design stop
+## Current execution
 
 ```text
 Parent:  MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Closed:  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0
 Closed:  NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0
 Closed:  NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0
-Current: NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0
-Ceremony: short D0; production edits parked
+Closed:  NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0
+Current: RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0
+Pack:    DESCENT-SPINE0
+Ceremony: T1; one atomic production replacement
 ```
-
-External consultation packet:
-[NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 question](../investigations/normal-default-nonprogram-root-descent0-consultation-question-2026-07-29.md)
 
 R1 closeout:
 
@@ -96,46 +95,66 @@ optional quick gate                  = pre-existing EBNF naming-charter failure
 clean efe2c467c2 reproduces the same failure
 ```
 
-## D0 brief
+## Execution brief
 
 Change:
 
 ```text
-decide one total, disjoint non-Program root partition by AST-node responsibility
-target old edge:
-  module_lifecycle.rs: other -> self.build_expression(other)
-target new capability:
-  drive_legacy_expression_v1(self, selected invocation port, node)
-production/source mutation = 0 during D0
+add one source-only total root disposition owner in a Builder sibling
+keep Program as an explicit outcome delegated once to the existing orchestration
+selected PortNeutralExprTree0:
+  Literal | Variable | Me | recursive UnaryOp | recursive BinaryOp
+lower selected trees through the already-selected RawInvocationChildPortV1
+route every residual category once through one bounded raw compatibility owner
+atomically delete `other -> self.build_expression(other)`
 ```
 
 Contract:
 
 ```text
-classify each non-Program root exactly once before descent
-move only proven port-parity node kinds to the selected invocation port
-retain divergent root-only Main / Box / Loop surfaces as explicit compatibility
-name a same-commit old branch-edge delete set for every selected branch
-no try-new-then-Legacy retry and no whole-function accepted variants
+ASTNode census = 57; one exhaustive no-wildcard classifier has an explicit
+Program outcome plus a disjoint 5 selected / 2 Box+Loop / 30 pending /
+19 outside-normal-file partition
+Program is neither reclassified nor reimplemented; its existing orchestration is unchanged
+Unary/Binary are selected only when every descendant is port-neutral
+classification occurs before descent; execution route is selected exactly once
+all 51 residual kinds preserve current behavior; this row adds no rejection or skip
+result, root/catalog lifecycle, explicit compatibility callers, and grammar stay unchanged
+RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001 owns all residual raw-port reachability
 ```
 
 Done:
 
 ```text
-exact non-Program AST-node census and port-parity table
-one source-only partition owner and one failure boundary
-selected branches, compatibility branches, and atomic delete edges are explicit
-one bounded implementation row selected, or typed no-safe-slice stop
+focused partition evidence covers nested safe trees and unsafe descendants
+scalar-tree MIR/diagnostic parity and existing RootLower retention/reuse are green
+Main/Box and all Loop shapes remain on explicit compatibility
+shared root guard proves broad build_expression edge = 0, selected descent = 1,
+compatibility raw descent = 1; no new test/check file or per-row guard
+replacement credit applies only to the five-kind recursive-safe branch
 ```
 
 Stop:
 
 ```text
-blanket replacement of all `other` roots narrows current behavior
-Main / Box / Loop authority changes without an explicit branch contract
-classification occurs after a failed descent or retries another port
-new whole-program/function accepted-family variants are introduced
-new per-row guard or source clone/reparse is required
+selected failure retries the raw port or any residual is reclassified
+MethodCall / FunctionCall / New / FieldAccess enters selected without parity proof
+Box or Loop authority, result policy, grammar, or publication changes
+Program is handled by panic/unreachable instead of the existing root partition
+any currently accepted residual gains a new rejection or skip
+source clone/reparse, new failure owner, or new per-row guard is required
+```
+
+Compatibility sunset:
+
+```text
+sunset_id: RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
+retirement owner: MIRBUILDER-INPLACE-REPLACEMENT0
+target card: this rolling card, before R3 completion conformance closes
+retire when: this owner's construction/definition, registered residual surface,
+and root-specific `-> drive_raw_legacy_expression_v1` production edge are all zero
+evidence: later named AST-node replacements plus the shared caller guard
+surface may only shrink; adding a residual requires a new design stop
 ```
 
 Closed sunset:
@@ -154,8 +173,9 @@ R0  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 closed
 R1  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 closed
 R2a NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0 closed
 R2b NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0 closed
-R2c NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 current
-R2d accepted non-Program branch cells; each selected old edge becomes zero
+R2c NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 closed
+R2d RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 current
+R2e fresh live-edge census; select exactly one named responsibility
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:

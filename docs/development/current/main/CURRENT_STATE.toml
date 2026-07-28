@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0 is closed: one session-owned lifecycle replaced the selected normal build_module edge. NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 is the current design stop."
+status = "NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 is closed with Candidate A. RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 is the current T1 production replacement."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0: select a total AST-node responsibility partition that moves only port-parity non-Program roots to the selected invocation port without narrowing Main, Box, or Loop compatibility"
-current_execution_row = "NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0"
-current_execution_summary = "Read-only design only. The selected lifecycle now reaches module_lifecycle.rs `other -> self.build_expression(other)`, which opens a fresh RawLegacyChildLoweringPortV1 even though the selected invocation port is in scope. A blanket swap is forbidden because Main, Box, and Loop roots have observed port behavior differences. Inventory exact non-Program node kinds once, select only disjoint port-parity branches, name each same-commit old branch-edge deletion, and retain divergent root-only branches as explicit compatibility without retry. Production edits remain parked until this D0 closes."
+current_design_stop = ""
+current_execution_row = "RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0"
+current_execution_summary = "One atomic T1 cell classifies all 57 root variants once with an explicit unchanged Program outcome, sends only recursive Literal/Variable/Me/Unary/Binary trees through the selected invocation port, sends every residual once through one sunset-bound raw compatibility owner, and deletes `other -> self.build_expression(other)`. Box, Loop, grammar, result, publication, and explicit compatibility caller behavior remain unchanged; retry, reclassification, AST cloning, and a new per-row guard are forbidden."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0 is closed. One session-consuming sibling now preserves Program/non-Program behavior and root-expansion/prepare/catalog/lower/finalize order; ExistingGeneralModuleCompatibilityV1 and the selected normal build_module edge are zero, while two explicit compatibility build_module callers remain unchanged. NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 is the sole design authority because the remaining `other -> self.build_expression(other)` edge reopens a fresh Legacy port and a blanket selected-port swap would change Main, Box, or Loop behavior. Production edits are parked until one total disjoint AST-node partition and exact branch delete set are fixed. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 is closed with Candidate A. RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 is the sole current production row: one source-only total partition keeps Program on its unchanged owner, selects only recursive Literal/Variable/Me/Unary/Binary trees for the existing invocation port, bounds all residual kinds behind RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001, and atomically removes the broad `other -> self.build_expression(other)` edge. Main/Box/Loop and explicit compatibility behavior remain unchanged. The compatibility surface may only shrink; any attempted addition or selected-port retry returns to design. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0 closes one session-owned root/catalog lifecycle and deletes ExistingGeneralModuleCompatibilityV1 plus the selected normal build_module edge. NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 now selects a total AST-node partition for the remaining direct build_expression re-entry without narrowing divergent Main, Box, or Loop roots."""
+latest_card_summary = """NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0 accepts Candidate A. RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 now replaces the shared broad non-Program build_expression re-entry with a recursive port-neutral selected branch and one sunset-bound residual compatibility branch."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0-DESIGN-STOP"
+current_blocker_token = "RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0-IMPLEMENT"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
