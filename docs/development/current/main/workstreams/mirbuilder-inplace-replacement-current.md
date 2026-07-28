@@ -25,40 +25,36 @@ Resolve -> Observe -> Facts -> Recipe -> Verify
 第二MirBuilder、production consumer 0のroute拡張、Legacy fallbackは作らない。
 cell数、pack数、LOCは観測値であり、完成条件ではない。
 
-## Current design stop
+## Current execution brief
 
-`GENERAL-FUNCTION-PLAN0-INSTANCE-LOCAL-BINDING0-D0`
+`GENERAL-FUNCTION-PLAN0-INSTANCE-INTEGER-LOCAL-RETURN0-S0`
+— parent `INSTANCE-LOCAL-BINDING0-D0`, T2
 
 ```text
-source authority:
-  AST Local parallel rows + existing Local declaration/read facts
+Change:
+  add InstanceMethodIntegerLocalReturn0 to the cumulative plan vocabulary:
+  no parameters; body = untyped Local x initialized by one ordinary Integer
+  literal, then Return of exactly x. Select it in the total source classifier
+  before the existing single resolver pass. Old authority: none.
 
-non-authority:
-  typed-local meaning, physical local/receiver ABI, Builder, MIR
+Contract:
+  this is a dynamic Integer value Recipe, not exact-i64 inference. Co-seal one
+  Receiver, one Local(ordinal 0), the initializer site/payload, one terminal
+  resolved Local read, and existing completion. Typed LocalSlotContract,
+  parameter-fed initialization, reassignment, Binary, and physical lowering
+  remain separate owners.
 
-fail-fast:
-  one total source classification before the existing single resolver pass;
-  unsupported method rejects the complete module plan set
+Done:
+  literal-return, i64-parameter-return, and Integer-Local-return coexist with
+  exact catalog-key coverage and unchanged Main0 receipt; one unsupported
+  method rejects the whole set without retry. Reuse and compact existing tests
+  and shared normal-source-plan guard; new test/check files = 0; every touched
+  source/check file < 800. Stable gate: run_row_guard normal-source-plan0.
 
-candidate slices:
-  A: local x = Integer literal; return x
-     smallest Local fact/Recipe; makes no declared-type claim
-  B: local x: i64 = Integer literal; return x
-     exact scalar spelling receipt; opens typed-Local meaning in this row
-  C: local y = exact i64 parameter; return y
-     adds a Parameter-to-Local binding-flow obligation
-
-recommended next slice:
-  A / InstanceMethodIntegerLocalReturn0
-  exactly one untyped Local, one initializer, and one terminal resolved read
-
-decision question:
-  accept A as the first Local Recipe, leaving typed Local and parameter-fed
-  initialization for later finite rows?
-
-non-claims:
-  typed Local, parameter composition, reassignment, Binary, PHI, fields,
-  calls, construction, Ownership, production
+Stop:
+  typed-Local meaning, parameter flow, assignment/Binary, a second resolver
+  pass, partial-plan publication, Builder/MIR/representation authority, a new
+  test/check file, or any source/check file reaching 800 lines is required.
 ```
 
 ## Queue to the north star
