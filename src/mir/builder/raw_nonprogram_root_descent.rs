@@ -1,8 +1,8 @@
 //! Source-only root disposition for the shared raw module lifecycle.
 //!
 //! The selected invocation port is parity-safe only for expression trees whose
-//! complete recursive surface is Literal, Variable, Me, Unary, Binary, or
-//! Await.
+//! complete recursive surface is Literal, Variable, Me, Unary, Binary, Await,
+//! or Check.
 //! Every other non-Program root keeps the existing raw compatibility terminal
 //! until its own production responsibility cell removes that residual.
 
@@ -65,6 +65,13 @@ impl PreparedRawRootPartitionV1 {
                 node,
                 RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
             ),
+            node @ ASTNode::CheckExpr { .. } if is_port_neutral_expr_tree(&node) => {
+                Self::selected(node)
+            }
+            node @ ASTNode::CheckExpr { .. } => Self::compatibility(
+                node,
+                RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+            ),
             node @ (ASTNode::BoxDeclaration { .. } | ASTNode::Loop { .. }) => {
                 Self::compatibility(node, RawNonProgramRootCompatibilityClassV1::ExplicitRoot)
             }
@@ -86,7 +93,6 @@ impl PreparedRawRootPartitionV1 {
             | ASTNode::BlockExpr { .. }
             | ASTNode::TryCatch { .. }
             | ASTNode::Throw { .. }
-            | ASTNode::CheckExpr { .. }
             | ASTNode::GroupedAssignmentExpr { .. }
             | ASTNode::MethodCall { .. }
             | ASTNode::FieldAccess { .. }
@@ -144,6 +150,9 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
             is_port_neutral_expr_tree(left) && is_port_neutral_expr_tree(right)
         }
         ASTNode::AwaitExpression { expression, .. } => is_port_neutral_expr_tree(expression),
+        ASTNode::CheckExpr { items, .. } => items
+            .iter()
+            .all(|item| is_port_neutral_expr_tree(&item.expression)),
         ASTNode::Program { .. }
         | ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
@@ -180,7 +189,6 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
         | ASTNode::TypeAliasDeclaration { .. }
         | ASTNode::GlobalVar { .. }
         | ASTNode::StaticConstTable { .. }
-        | ASTNode::CheckExpr { .. }
         | ASTNode::GroupedAssignmentExpr { .. }
         | ASTNode::MethodCall { .. }
         | ASTNode::FieldAccess { .. }
@@ -230,7 +238,7 @@ impl ExistingRawNonProgramRootCompatibilityV1 {
 
 #[cfg(test)]
 mod tests {
-    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
+    use crate::ast::{ASTNode, BinaryOperator, CheckItem, LiteralValue, Span, UnaryOperator};
     use crate::parser::NyashParser;
 
     use super::{
@@ -255,6 +263,21 @@ mod tests {
     fn awaited(expression: ASTNode) -> ASTNode {
         ASTNode::AwaitExpression {
             expression: Box::new(expression),
+            span: Span::unknown(),
+        }
+    }
+
+    fn checked(expressions: Vec<ASTNode>) -> ASTNode {
+        ASTNode::CheckExpr {
+            name: Some("root-partition".to_owned()),
+            items: expressions
+                .into_iter()
+                .enumerate()
+                .map(|(index, expression)| CheckItem {
+                    label: Some(format!("item-{index}")),
+                    expression,
+                })
+                .collect(),
             span: Span::unknown(),
         }
     }
@@ -313,6 +336,12 @@ mod tests {
             right: Box::new(integer(6)),
             span: Span::unknown(),
         });
+        assert_selected(checked(Vec::new()));
+        assert_selected(checked(vec![
+            integer(7),
+            awaited(checked(vec![variable("ready")])),
+        ]));
+        assert_selected(awaited(checked(vec![integer(8), integer(9)])));
 
         assert_compatibility(
             ASTNode::UnaryOp {
@@ -361,6 +390,28 @@ mod tests {
                 })),
                 span: Span::unknown(),
             },
+            RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+        );
+        assert_compatibility(
+            checked(vec![
+                integer(10),
+                ASTNode::New {
+                    class: "Page".to_owned(),
+                    arguments: Vec::new(),
+                    field_initializers: Vec::new(),
+                    type_arguments: Vec::new(),
+                    span: Span::unknown(),
+                },
+                integer(11),
+            ]),
+            RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+        );
+        assert_compatibility(
+            awaited(checked(vec![ASTNode::FieldAccess {
+                object: Box::new(variable("page")),
+                field: "value".to_owned(),
+                span: Span::unknown(),
+            }])),
             RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
         );
     }

@@ -57,6 +57,7 @@ mod tests {
     use super::super::MirBuilder;
     use super::super::{MirInstruction, MirType, ValueId};
     use crate::ast::{ASTNode, CheckItem, LiteralValue, Span};
+    use crate::mir::builder::recursive_child_lowering::RecursiveChildLoweringPortV1;
 
     fn boolean_item(value: bool) -> CheckItem {
         CheckItem {
@@ -65,6 +66,63 @@ mod tests {
                 value: LiteralValue::Bool(value),
                 span: Span::unknown(),
             },
+        }
+    }
+
+    fn integer_item(value: i64) -> CheckItem {
+        CheckItem {
+            label: Some(format!("item-{value}")),
+            expression: ASTNode::Literal {
+                value: LiteralValue::Integer(value),
+                span: Span::unknown(),
+            },
+        }
+    }
+
+    #[derive(Default)]
+    struct RecordingCheckPortV1 {
+        seen: Vec<i64>,
+        fail_at: Option<i64>,
+    }
+
+    impl RecursiveChildLoweringPortV1 for RecordingCheckPortV1 {
+        type BodyInput = Vec<ASTNode>;
+        type StatementInput = ASTNode;
+        type ExpressionInput = ASTNode;
+
+        fn lower_body(
+            &mut self,
+            _builder: &mut MirBuilder,
+            _input: Self::BodyInput,
+        ) -> Result<ValueId, String> {
+            Err("check test port received a body".to_owned())
+        }
+
+        fn lower_statement(
+            &mut self,
+            _builder: &mut MirBuilder,
+            _input: Self::StatementInput,
+        ) -> Result<ValueId, String> {
+            Err("check test port received a statement".to_owned())
+        }
+
+        fn lower_expression(
+            &mut self,
+            builder: &mut MirBuilder,
+            input: Self::ExpressionInput,
+        ) -> Result<ValueId, String> {
+            let ASTNode::Literal {
+                value: LiteralValue::Integer(value),
+                ..
+            } = input
+            else {
+                return Err("check test port expected an Integer marker".to_owned());
+            };
+            self.seen.push(value);
+            if self.fail_at == Some(value) {
+                return Err(format!("check item {value} failed"));
+            }
+            crate::mir::builder::emission::constant::emit_integer(builder, value)
         }
     }
 
@@ -161,5 +219,45 @@ mod tests {
             finalized.metadata.value_types.get(&result),
             Some(&MirType::Integer)
         );
+    }
+
+    #[test]
+    fn selected_port_consumes_check_items_once_in_source_order() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("check_port_order/0".to_owned());
+        let mut port = RecordingCheckPortV1::default();
+
+        let result = builder
+            .build_check_expression_with_port_v1(
+                &mut port,
+                vec![integer_item(1), integer_item(2), integer_item(3)],
+            )
+            .unwrap();
+
+        assert_eq!(port.seen, vec![1, 2, 3]);
+        let selects = select_destinations(&builder);
+        assert_eq!(selects.len(), 3);
+        assert_eq!(selects.last(), Some(&result));
+    }
+
+    #[test]
+    fn failed_item_stops_before_later_children_without_route_retry() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("check_port_failure/0".to_owned());
+        let mut port = RecordingCheckPortV1 {
+            fail_at: Some(2),
+            ..RecordingCheckPortV1::default()
+        };
+
+        let error = builder
+            .build_check_expression_with_port_v1(
+                &mut port,
+                vec![integer_item(1), integer_item(2), integer_item(3)],
+            )
+            .unwrap_err();
+
+        assert_eq!(error, "check item 2 failed");
+        assert_eq!(port.seen, vec![1, 2]);
+        assert_eq!(select_destinations(&builder).len(), 1);
     }
 }

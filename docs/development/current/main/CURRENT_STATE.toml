@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0 is closed with Candidate A. RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0 is the current T1 production replacement."
+status = "RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0 is closed. RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0 is the current design stop."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0"
-current_execution_summary = "One atomic T1 cell extends PortNeutralExprTreeV1 with CheckExpr when every item.expression is recursively port-neutral, including the empty list. Safe Check roots and safe Check nested under Unary/Binary/Await use the existing selected invocation port and eager build_check_expression_with_port_v1 owner once; one unsafe item keeps the whole Check on the single compatibility owner without retry. Preserve unrestricted name/label, source-order eager evaluation, Select/type-commit order, and existing diagnostics. Ratchet selected kinds 6->7 and registered residual kinds 50->49 with no new files or authority."
+current_design_stop = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0"
+current_execution_row = ""
+current_execution_summary = "Read-only live-edge census after Check leaves no unique executable row. Compare Print over PortNeutralExprTreeV1, Nowait over one verified binding plus a safe expression, and ArrayLiteral over safe elements. Select only a named production edge with same-commit old-edge deletion. QMark remains a separate CONTROL0 design because it owns physical Return/CFG/runtime calls. Do not implement at this stop."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0 is closed with Candidate A. RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0 is the sole current production row: extend PortNeutralExprTreeV1 with CheckExpr only when every item expression is recursively safe, route the complete eager list once through the selected invocation port and existing Check owner, and remove the safe-Check compatibility edge in the same commit. Empty Check is selected; name and labels remain unrestricted; one unsafe item keeps the whole Check on compatibility without mixed routes or retry. Selected kinds ratchet 6->7 and registered residual kinds 50->49. Short-circuiting, new Bool admission, completion-order changes, QMark control, Array allocation, new files, and compatibility growth are forbidden. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0 is closed: recursively safe CheckExpr now uses the existing selected invocation port and eager Check owner, while unsafe Check retains the single compatibility route without retry. Selected kinds are 7 and registered residual kinds are 49. RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0 is the sole current design stop. The next row must be selected from a fresh live-edge comparison of Print, Nowait, and ArrayLiteral and must name a production caller plus same-commit old-edge deletion. QMark remains a separate CONTROL0 design. No production edit is authorized at this stop. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0-IMPLEMENT"
+current_blocker_token = "RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

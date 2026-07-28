@@ -37,9 +37,10 @@ Closed:  RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0
 Closed:  RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0
-Current: RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0
-Pack:    DESCENT-SPINE0
-Ceremony: T1; one atomic production replacement
+Closed:  RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0
+Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0
+Pack:    selection pending
+Ceremony: design stop; production edit = 0
 ```
 
 R1 closeout:
@@ -130,44 +131,49 @@ new source/test/check/task file           = 0
 largest touched source/check file         = 574
 ```
 
-## Execution brief
-
-Change:
+R2h closeout:
 
 ```text
-extend PortNeutralExprTreeV1 with CheckExpr when every item.expression is safe
-route the complete eager list through the existing selected invocation port and
-build_check_expression_with_port_v1
-delete safe CheckExpr -> SeparateDesignStop compatibility in the same commit
+Check recursive closure                  = selected safe / residual unsafe
+same-port eager child order              = sealed
+existing Check completion owner          = unchanged
+selected failure retry                   = 0
+selected recursive-safe kinds            = 7
+registered residual kinds                = 49
+focused Rust tests                        = 13/13
+existing Check surface guard              = green
+new source/test/check/task file           = 0
+largest touched source/check file         = 582
 ```
 
-Contract:
+## Current design question
 
 ```text
-empty Check is selected; name and labels are unrestricted and non-routing
-all items use the same selected port once in source order; no per-item route mixing
-Const one/zero, eager item, Select, and post-emit type-commit order stay unchanged
-one unsafe item keeps the whole Check on compatibility without retry
-Program/Box/Loop/calls, grammar, result, verification, and publication do not move
-```
+RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0
 
-Done:
+Candidate A:
+  Print(PortNeutralExprTreeV1)
+  inspect output/type side effects before claiming T1 DESCENT-SPINE0
 
-```text
-recursive partition covers empty, nested-safe, and mixed-unsafe Check shapes
-recording-port order plus normal parity and failure/reuse are green
-existing eager Check surface guard is green
-selected kinds 6 -> 7; registered residual kinds 50 -> 49
-new source/test/check/task file = 0; every source/check file < 800
-```
+Candidate B:
+  Nowait(exact binding, PortNeutralExprTreeV1)
+  inspect variable-map/slot/Future publication before claiming T1
+
+Candidate C:
+  ArrayLiteral([PortNeutralExprTreeV1]*)
+  treat allocation/birth/type-registry/metadata as CALL-OBJECT0 authority
+
+Separate:
+  QMarkPropagate owns physical Return, CFG, and runtime calls
+  -> dedicated CONTROL0 design, not a mechanical expression constructor
+
+Required D0:
+  name one production caller and one same-commit old edge deletion
+  prove compatibility surface shrinks without retry or route mixing
+  select exactly one responsibility; otherwise remain at this stop
 
 Stop:
-
-```text
-Check with an unsafe descendant enters selected or items use different ports
-selected failure retries/reselects compatibility or the compatibility driver grows
-name/label routing, Bool admission, short-circuiting, or completion ordering changes
-QMark control, Array allocation, source clone/reparse, or a new file enters the row
+  production edits, new compatibility surface, or automatic next-row selection
 ```
 
 Compatibility sunset:
@@ -203,7 +209,8 @@ R2d RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0 closed
 R2e RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0 closed
 R2f RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2g RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0 closed
-R2h RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0 current
+R2h RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0 closed
+R2i RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0 current design stop
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:

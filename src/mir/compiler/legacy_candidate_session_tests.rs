@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
+use crate::ast::{ASTNode, BinaryOperator, CheckItem, LiteralValue, Span, UnaryOperator};
 use crate::mir::{MirCompiler, MirPrinter, MirType, NormalCompileRequestV1};
 use crate::parser::NyashParser;
 
@@ -48,6 +48,21 @@ fn binary(operator: BinaryOperator, left: ASTNode, right: ASTNode) -> ASTNode {
 fn awaited(expression: ASTNode) -> ASTNode {
     ASTNode::AwaitExpression {
         expression: Box::new(expression),
+        span: Span::unknown(),
+    }
+}
+
+fn checked(expressions: Vec<ASTNode>) -> ASTNode {
+    ASTNode::CheckExpr {
+        name: Some("normal-root".to_owned()),
+        items: expressions
+            .into_iter()
+            .enumerate()
+            .map(|(index, expression)| CheckItem {
+                label: Some(format!("item-{index}")),
+                expression,
+            })
+            .collect(),
         span: Span::unknown(),
     }
 }
@@ -256,6 +271,15 @@ fn normal_pipeline_matches_legacy_compatibility_for_non_program_root() {
         unary(UnaryOperator::Minus, awaited(literal(19))),
         binary(BinaryOperator::Add, awaited(literal(20)), literal(5)),
         awaited(awaited(literal(21))),
+        checked(Vec::new()),
+        checked(vec![boolean(true)]),
+        checked(vec![boolean(true), boolean(false), boolean(true)]),
+        checked(vec![checked(vec![boolean(true)]), awaited(boolean(false))]),
+        unary(
+            UnaryOperator::Minus,
+            checked(vec![boolean(true), boolean(false)]),
+        ),
+        awaited(checked(vec![boolean(true), awaited(boolean(false))])),
     ];
 
     for root in roots {
@@ -298,6 +322,14 @@ fn selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable() {
             name: "missing".to_owned(),
             span: Span::unknown(),
         }),
+        checked(vec![
+            boolean(true),
+            ASTNode::Variable {
+                name: "missing".to_owned(),
+                span: Span::unknown(),
+            },
+            boolean(false),
+        ]),
     ] {
         let mut compiler = MirCompiler::with_options(false);
         compiler.builder.set_source_file_hint("live-before.hako");
