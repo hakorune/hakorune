@@ -28,6 +28,13 @@ fn boolean(value: bool) -> ASTNode {
     }
 }
 
+fn string(value: &str) -> ASTNode {
+    ASTNode::Literal {
+        value: LiteralValue::String(value.to_owned()),
+        span: Span::unknown(),
+    }
+}
+
 fn unary(operator: UnaryOperator, operand: ASTNode) -> ASTNode {
     ASTNode::UnaryOp {
         operator,
@@ -103,6 +110,14 @@ fn grouped_assignment(variable_name: &str, rhs: ASTNode) -> ASTNode {
     ASTNode::GroupedAssignmentExpr {
         lhs: variable_name.to_owned(),
         rhs: Box::new(rhs),
+        span: Span::unknown(),
+    }
+}
+
+fn indexed(target: ASTNode, index: ASTNode) -> ASTNode {
+    ASTNode::Index {
+        target: Box::new(target),
+        index: Box::new(index),
         span: Span::unknown(),
     }
 }
@@ -338,6 +353,9 @@ fn normal_pipeline_matches_legacy_compatibility_for_non_program_root() {
             ("key", array(vec![literal(28), literal(29)])),
         ]),
         awaited(map(vec![("nested", map(vec![("value", literal(30))]))])),
+        indexed(array(vec![literal(31), literal(32)]), literal(1)),
+        indexed(map(vec![("key", literal(33))]), string("key")),
+        awaited(indexed(array(vec![literal(34)]), literal(0))),
     ];
 
     for root in roots {
@@ -481,4 +499,41 @@ fn selected_grouped_assignment_failure_matches_legacy_and_reuses() {
         source_file(&compiler).as_deref(),
         Some("grouped-assignment-reuse.hako")
     );
+}
+
+#[test]
+fn selected_index_failure_matches_legacy_and_reuses() {
+    let root = indexed(literal(35), literal(0));
+    let mut legacy_compiler = MirCompiler::with_options(false);
+    let legacy_error = legacy_compiler
+        .compile_with_source(root.clone(), Some("index-failure.hako"))
+        .expect_err("legacy Index must reject an unsupported target");
+
+    let mut compiler = MirCompiler::with_options(false);
+    compiler.builder.set_source_file_hint("live-before.hako");
+    let before = (source_file(&compiler), core_cursor(&compiler));
+    let selected_error = compiler
+        .compile_normal(normal_request(
+            root,
+            Some("index-failure.hako"),
+            HashMap::new(),
+        ))
+        .expect_err("selected Index must reject an unsupported target");
+
+    assert_eq!(selected_error, legacy_error);
+    assert!(
+        selected_error.contains("index operator is only supported for Array/Map"),
+        "{selected_error}"
+    );
+    assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
+
+    let result = compiler
+        .compile_normal(normal_request(
+            indexed(array(vec![literal(36)]), literal(0)),
+            Some("index-reuse.hako"),
+            HashMap::new(),
+        ))
+        .expect("fresh selected Index after failure");
+    assert!(result.module.functions.contains_key("main"));
+    assert_eq!(source_file(&compiler).as_deref(), Some("index-reuse.hako"));
 }

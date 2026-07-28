@@ -2,8 +2,8 @@
 //!
 //! The selected invocation port is parity-safe only for expression trees whose
 //! complete recursive surface is Literal, Variable, Me, Unary, Binary, Await,
-//! Check, Array, Map, or GroupedAssignment, plus Print and Nowait roots whose
-//! value is one such tree.
+//! Check, Array, Map, GroupedAssignment, or Index, plus Print and Nowait roots
+//! whose value is one such tree.
 //! Every other non-Program root keeps the existing raw compatibility terminal
 //! until its own production responsibility cell removes that residual.
 
@@ -118,6 +118,13 @@ impl PreparedRawRootPartitionV1 {
                 node,
                 RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
             ),
+            node @ ASTNode::Index { .. } if is_port_neutral_expr_tree(&node) => {
+                Self::selected_expr_tree(node)
+            }
+            node @ ASTNode::Index { .. } => Self::compatibility(
+                node,
+                RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+            ),
             node @ ASTNode::Print { .. } if is_port_neutral_print_root(&node) => {
                 Self::selected_print_root(node)
             }
@@ -151,7 +158,6 @@ impl PreparedRawRootPartitionV1 {
             | ASTNode::Throw { .. }
             | ASTNode::MethodCall { .. }
             | ASTNode::FieldAccess { .. }
-            | ASTNode::Index { .. }
             | ASTNode::New { .. }
             | ASTNode::FromCall { .. }
             | ASTNode::Local { .. }
@@ -239,6 +245,9 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
             .iter()
             .all(|(_, value)| is_port_neutral_expr_tree(value)),
         ASTNode::GroupedAssignmentExpr { rhs, .. } => is_port_neutral_expr_tree(rhs),
+        ASTNode::Index { target, index, .. } => {
+            is_port_neutral_expr_tree(target) && is_port_neutral_expr_tree(index)
+        }
         ASTNode::Program { .. }
         | ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
@@ -275,7 +284,6 @@ fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {
         | ASTNode::StaticConstTable { .. }
         | ASTNode::MethodCall { .. }
         | ASTNode::FieldAccess { .. }
-        | ASTNode::Index { .. }
         | ASTNode::New { .. }
         | ASTNode::This { .. }
         | ASTNode::FromCall { .. }

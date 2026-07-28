@@ -291,8 +291,9 @@ mod tests {
     use super::super::MirBuilder;
     use super::MirType;
     use crate::ast::{ASTNode, LiteralValue, Span};
+    use crate::mir::builder::recursive_child_lowering::RecursiveChildLoweringPortV1;
     use crate::mir::function::StaticDataPlan;
-    use crate::mir::{MirInstruction, MirModule};
+    use crate::mir::{MirInstruction, MirModule, ValueId};
 
     fn span() -> Span {
         Span::unknown()
@@ -364,6 +365,110 @@ mod tests {
             .flat_map(|function| function.blocks.values())
             .flat_map(|block| block.instructions.iter())
             .any(|instruction| matches!(instruction, MirInstruction::StaticDataLoad { .. }))
+    }
+
+    struct RecordingIndexPortV1 {
+        events: Vec<&'static str>,
+        target_value: ValueId,
+        index_value: ValueId,
+    }
+
+    impl RecursiveChildLoweringPortV1 for RecordingIndexPortV1 {
+        type BodyInput = ();
+        type StatementInput = ();
+        type ExpressionInput = ASTNode;
+
+        fn lower_body(
+            &mut self,
+            _builder: &mut MirBuilder,
+            _input: Self::BodyInput,
+        ) -> Result<ValueId, String> {
+            Err("body descent is outside Index".to_owned())
+        }
+
+        fn lower_statement(
+            &mut self,
+            _builder: &mut MirBuilder,
+            _input: Self::StatementInput,
+        ) -> Result<ValueId, String> {
+            Err("statement descent is outside Index".to_owned())
+        }
+
+        fn lower_expression(
+            &mut self,
+            _builder: &mut MirBuilder,
+            input: Self::ExpressionInput,
+        ) -> Result<ValueId, String> {
+            match input {
+                ASTNode::Variable { name, .. } if name == "target" => {
+                    self.events.push("target");
+                    Ok(self.target_value)
+                }
+                ASTNode::Variable { name, .. } if name == "index" => {
+                    self.events.push("index");
+                    Ok(self.index_value)
+                }
+                ASTNode::Variable { name, .. } if name == "SIZE_CLASS" => {
+                    self.events.push("static-target");
+                    Ok(self.target_value)
+                }
+                other => Err(format!("unexpected Index child: {other:?}")),
+            }
+        }
+    }
+
+    #[test]
+    fn generic_index_lowers_target_then_index_once_through_the_same_port() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("generic_index_port_order/0".to_owned());
+        let target_value = builder.alloc_value_for_test();
+        let index_value = builder.alloc_value_for_test();
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(target_value, MirType::Box("ArrayBox".to_owned()));
+        let mut port = RecordingIndexPortV1 {
+            events: Vec::new(),
+            target_value,
+            index_value,
+        };
+
+        builder
+            .build_index_expression_with_port_v1(&mut port, var("target"), var("index"))
+            .expect("generic Index");
+
+        assert_eq!(port.events, ["target", "index"]);
+        assert_eq!(
+            builder
+                .function_state
+                .current_function
+                .as_ref()
+                .expect("test function")
+                .metadata
+                .fastmem_index_access_sites
+                .len(),
+            1
+        );
+    }
+
+    #[test]
+    fn static_index_skips_target_and_lowers_index_once_through_the_port() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("static_index_port_order/0".to_owned());
+        install_static_plan(&mut builder, u16_static_plan());
+        let mut port = RecordingIndexPortV1 {
+            events: Vec::new(),
+            target_value: builder.alloc_value_for_test(),
+            index_value: builder.alloc_value_for_test(),
+        };
+
+        builder
+            .build_index_expression_with_port_v1(&mut port, var("SIZE_CLASS"), var("index"))
+            .expect("static Index");
+
+        assert_eq!(port.events, ["index"]);
+        assert!(has_static_load(&builder));
     }
 
     #[test]

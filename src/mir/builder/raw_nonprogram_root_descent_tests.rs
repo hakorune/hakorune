@@ -20,6 +20,13 @@ fn integer(value: i64) -> ASTNode {
     }
 }
 
+fn string(value: &str) -> ASTNode {
+    ASTNode::Literal {
+        value: LiteralValue::String(value.to_owned()),
+        span: Span::unknown(),
+    }
+}
+
 fn variable(name: &str) -> ASTNode {
     ASTNode::Variable {
         name: name.to_owned(),
@@ -85,6 +92,14 @@ fn grouped_assignment(variable_name: &str, rhs: ASTNode) -> ASTNode {
     ASTNode::GroupedAssignmentExpr {
         lhs: variable_name.to_owned(),
         rhs: Box::new(rhs),
+        span: Span::unknown(),
+    }
+}
+
+fn indexed(target: ASTNode, index: ASTNode) -> ASTNode {
+    ASTNode::Index {
+        target: Box::new(target),
+        index: Box::new(index),
         span: Span::unknown(),
     }
 }
@@ -210,6 +225,12 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
     assert_selected(awaited(grouped_assignment(
         "x",
         checked(vec![integer(19), array(vec![integer(20)])]),
+    )));
+    assert_selected(indexed(array(vec![integer(21)]), integer(0)));
+    assert_selected(indexed(map(vec![("key", integer(22))]), string("key")));
+    assert_selected(awaited(indexed(
+        array(vec![integer(23), integer(24)]),
+        integer(1),
     )));
 
     assert_compatibility(
@@ -350,6 +371,30 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
             ASTNode::FieldAccess {
                 object: Box::new(variable("page")),
                 field: "value".to_owned(),
+                span: Span::unknown(),
+            },
+        ),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        indexed(
+            ASTNode::New {
+                class: "Page".to_owned(),
+                arguments: Vec::new(),
+                field_initializers: Vec::new(),
+                type_arguments: Vec::new(),
+                span: Span::unknown(),
+            },
+            integer(0),
+        ),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        indexed(
+            array(vec![integer(25)]),
+            ASTNode::FieldAccess {
+                object: Box::new(variable("page")),
+                field: "index".to_owned(),
                 span: Span::unknown(),
             },
         ),
@@ -541,6 +586,60 @@ fn selected_grouped_assignment_preflights_and_reuses_without_retry() {
         builder.function_state.variable_ctx.variable_map.get("x"),
         Some(&value)
     );
+}
+
+#[test]
+fn selected_index_matches_raw_legacy_effects_exactly() {
+    let roots = [
+        indexed(array(vec![integer(26), integer(27)]), integer(1)),
+        indexed(map(vec![("key", integer(28))]), string("key")),
+    ];
+
+    for root in roots {
+        let mut legacy = MirBuilder::new();
+        legacy.enter_function_for_test("index_root_parity/0".to_owned());
+        let legacy_value = drive_raw_legacy_expression_v1(&mut legacy, root.clone()).unwrap();
+
+        let mut selected = MirBuilder::new();
+        selected.enter_function_for_test("index_root_parity/0".to_owned());
+        let selected_value = drive_selected(&mut selected, root).unwrap();
+
+        assert_eq!(selected_value, legacy_value);
+        assert_eq!(
+            spanned_instructions(&selected),
+            spanned_instructions(&legacy)
+        );
+        assert_eq!(
+            selected.function_state.type_ctx.value_types,
+            legacy.function_state.type_ctx.value_types
+        );
+        assert_eq!(
+            selected.function_state.type_ctx.value_origin_newbox,
+            legacy.function_state.type_ctx.value_origin_newbox
+        );
+        assert_eq!(
+            format!(
+                "{:?}",
+                selected
+                    .function_state
+                    .current_function
+                    .as_ref()
+                    .expect("selected function")
+                    .metadata
+                    .fastmem_index_access_sites
+            ),
+            format!(
+                "{:?}",
+                legacy
+                    .function_state
+                    .current_function
+                    .as_ref()
+                    .expect("legacy function")
+                    .metadata
+                    .fastmem_index_access_sites
+            )
+        );
+    }
 }
 
 #[test]

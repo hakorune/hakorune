@@ -51,9 +51,10 @@ Closed:  RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0
 Closed:  RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY5-D0
-Current: RAW-NONPROGRAM-INDEX-COMPOSITIONAL-DESCENT0-I0-R0
-Pack:    DESCENT-SPINE0
-Ceremony: T1; one atomic I0/R0
+Closed:  RAW-NONPROGRAM-INDEX-COMPOSITIONAL-DESCENT0-I0-R0
+Current: RAW-NONPROGRAM-NEXT-RESPONSIBILITY6-D0
+Pack:    ROOT-LIFECYCLE0
+Ceremony: read-only live-edge census
 ```
 
 R1 closeout:
@@ -262,60 +263,47 @@ new source/test/check file                    = 0
 largest touched source/check file             = 665
 ```
 
-## Current execution row
+## Latest closeout
 
 ```text
 RAW-NONPROGRAM-INDEX-COMPOSITIONAL-DESCENT0-I0-R0
 
-Accepted constructor:
-  Index {
-    target: PortNeutralExprTreeV1
-    index:  PortNeutralExprTreeV1
-  }
+safe Index compatibility edge             = 0
+selected expression / statement kinds     = 11 / 2
+registered residual kinds                  = 43
+selected / compatibility terminals         = 1 / 1
+static / generic descent laws               = 0/1 and 1/1 green
+StaticDataLoad success-only type evidence   = green
+root focused tests                          = 7/7
+Array/Map Index full-effect parity          = green
+normal-vs-Legacy parity/failure/reuse        = green
+shared guard / artifact inventory           = green
+fallback / retry / reselection              = 0
+new source/test/check file                   = 0
+largest touched source/check file            = 675
+```
 
-Existing owner:
-  build_index_expression_with_port_v1
+## Current design stop
 
-Owner laws:
-  static-data Variable target:
-    target descent = 0
-    index descent  = 1 through selected port
-    StaticDataLoad = 1
-    type commit    = success-only
+```text
+RAW-NONPROGRAM-NEXT-RESPONSIBILITY6-D0
 
-  generic target:
-    target descent = 1 through selected port
-    index descent  = 1 through same port
-    access completion = 1
+Read-only:
+  refresh the remaining 43-kind live compatibility census
+  compare only responsibilities with existing production owners
 
-Atomic delete:
-  safe Index
-  -> unconditional SeparateDesignStop
-  -> raw compatibility
-  = 0
+Selection requires:
+  one named production caller
+  one bounded source-only partition
+  one same-commit old compatibility-edge deletion
+  no duplicated family/target decision
+  fallback / retry / reselection = 0
 
-Ratchet:
-  selected expression kinds = 10 -> 11
-  selected statement roots  = 2 unchanged
-  residual kinds            = 44 -> 43
-  selected/compat terminals = 1 / 1 unchanged
-
-Non-authority:
-  static-data/dynamic route selection
-  Array/Map get policy
-  fastmem/access-site/type/origin publication
-  Index assignment/store
-  Field/New/Call
-
-Hard stop:
-  classifier reads Builder/current_module/type facts
-  unsafe target or index selected
-  static/dynamic route selected outside Index owner
-  target/index classified or lowered twice
-  static Variable target is forced through child descent
-  target-before-index order or success-only type commit changes
-  selected failure enters compatibility
-  new source/failure owner, file, or terminal appears
+Park:
+  implementation
+  whole-program accepted variants
+  source-level Ownership / View
+  all other new language semantics
 ```
 
 Compatibility sunset:
@@ -365,7 +353,8 @@ R2r RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0 closed
 R2s RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0 closed
 R2t RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2u RAW-NONPROGRAM-NEXT-RESPONSIBILITY5-D0 closed
-R2v RAW-NONPROGRAM-INDEX-COMPOSITIONAL-DESCENT0-I0-R0 current
+R2v RAW-NONPROGRAM-INDEX-COMPOSITIONAL-DESCENT0-I0-R0 closed
+R2w RAW-NONPROGRAM-NEXT-RESPONSIBILITY6-D0 current
 R3  eight-pack ledger + final-pipeline completion conformance
 
 after R3 only:

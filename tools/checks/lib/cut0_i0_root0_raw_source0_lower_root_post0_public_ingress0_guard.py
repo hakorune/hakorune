@@ -414,7 +414,7 @@ def main() -> int:
     )
     if root_descent.get("sunset_state") != "active":
         raise AssertionError("raw root compatibility sunset must remain active")
-    if root_descent.get("residual_kind_count") != 44:
+    if root_descent.get("residual_kind_count") != 43:
         raise AssertionError("raw root compatibility residual count drift")
     ast_node_kinds = ast_kinds(
         (
@@ -440,7 +440,7 @@ def main() -> int:
         selected_kinds.update(ast_kinds(braced or direct))
     expected_selected = {
         "Literal", "Variable", "Me", "UnaryOp", "BinaryOp", "AwaitExpression",
-        "CheckExpr", "ArrayLiteral", "MapLiteral", "GroupedAssignmentExpr",
+        "CheckExpr", "ArrayLiteral", "MapLiteral", "GroupedAssignmentExpr", "Index",
         "Print", "Nowait",
     }
     if selected_kinds != expected_selected:
@@ -469,7 +469,7 @@ def main() -> int:
         "TaskScope", "QMarkPropagate", "MatchExpr",
         "EnumMatchExpr", "RecordLiteral",
         "RecordUpdate", "Lambda", "BlockExpr", "TryCatch", "Throw",
-        "MethodCall", "FieldAccess", "Index", "New",
+        "MethodCall", "FieldAccess", "New",
         "FromCall", "Local", "ScopeBox", "FunctionCall", "Call",
     }
     if separate_kinds != expected_separate:
@@ -546,6 +546,14 @@ def main() -> int:
             "Grouped Assignment root must have one safe and one compatibility arm"
         )
     for fragment in (
+        "node @ ASTNode::Index { .. } if is_port_neutral_expr_tree(&node)",
+        "ASTNode::Index { target, index, .. }",
+        "is_port_neutral_expr_tree(target) && is_port_neutral_expr_tree(index)",
+    ):
+        require(raw_nonprogram_root_descent, fragment, "recursive Index partition")
+    if raw_nonprogram_root_descent.count("node @ ASTNode::Index { .. }") != 2:
+        raise AssertionError("Index root must have one safe and one compatibility arm")
+    for fragment in (
         "node @ ASTNode::Print { .. } if is_port_neutral_print_root(&node)",
         "SelectedRawNonProgramRootV1",
         "PortNeutralPrintRootV1",
@@ -603,6 +611,7 @@ def main() -> int:
         "selected_nowait_root_matches_raw_legacy_effects_exactly",
         "selected_grouped_assignment_matches_raw_legacy_effects_exactly",
         "selected_grouped_assignment_preflights_and_reuses_without_retry",
+        "selected_index_matches_raw_legacy_effects_exactly",
         "program_box_and_loop_keep_their_existing_root_owners",
     ):
         require(
@@ -617,6 +626,7 @@ def main() -> int:
         "normal_pipeline_matches_legacy_compatibility_for_non_program_root",
         "selected_nonprogram_failure_leaves_live_builder_unchanged_and_reusable",
         "selected_grouped_assignment_failure_matches_legacy_and_reuses",
+        "selected_index_failure_matches_legacy_and_reuses",
     ):
         require(normal_tests, fixture, f"normal pipeline fixture {fixture}")
     count_by_manifest(caller_manifest.get("normal_compile_adapters", {}), ".compile(")
