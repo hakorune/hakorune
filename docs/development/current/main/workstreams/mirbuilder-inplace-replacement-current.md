@@ -25,31 +25,23 @@ Resolve -> Observe -> Facts -> Recipe -> Verify
 第二MirBuilder、production consumer 0のroute拡張、Legacy fallbackは作らない。
 cell数、pack数、LOCは観測値であり、完成条件ではない。
 
-## Current design stop
+## Current execution
 
 ```text
 Parent:  MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Current: NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0
+Closed:  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0
+Current: NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0
+Ceremony: T2, one atomic implementation commit
 ```
 
 Decision:
 
 ```text
-cancel:
-  GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-S0
-  # semantic implementation was not landed
-
-reason:
-  Parameter -> Local -> Return composes existing responsibilities
-  complete-program shape is not a replacement unit
-
-freeze:
-  normal_source_plan variants = 3
-  production callers = 0
-  new accepted variants / replacement credit = 0
-
-retain:
-  8859caecba behavior-neutral proof compaction
+selected normal construction sites = exactly 4
+fifth root-reachable normal site    = 0
+selected pipeline                  = NormalDefaultPublishedPipelineV1
+temporary compatibility owner      = ExistingGeneralModuleCompatibilityV1
+RawPublished NarrowV1              = unchanged reference/non-authority
 ```
 
 ## Evidence
@@ -66,72 +58,87 @@ selected normal constructors:
   execute_mir_json_minimal
   LLVM source compiler
   Wasm source compiler
+
+explicit compatibility:
+  VM keep/fallback, Stage1, REPL, Program JSON v0, selfhost macro-preexpand
+explicit reference:
+  VM-Hako and the three VM-reference lanes
+definition-only:
+  execute_mir_interpreter_mode
 ```
 
-The shared source-hint wrappers also serve compatibility/reference callers, so
-their bodies cannot be switched globally. `compile_raw_published_v1` has a
-useful one-shot lifecycle, but `NarrowV1` has no normal caller and lacks normal
-imports, callable-Main coverage, accepted-corpus coverage, and result parity.
+The shared source-hint wrappers are provenance-blind and remain compatibility
+surfaces. NarrowV1 lacks normal imports and general module/callable coverage;
+only its source-neutral lifecycle kernels are reusable.
 
-## D0 brief
+## Execution brief
 
 Change:
 
 ```text
-read-only census and owner selection
-production/source mutation = 0
-next implementation token = unset
+four selected sites construct NormalCompileRequestV1
+-> NormalDefaultPublishedPipelineV1 exactly once
+-> ExistingGeneralModuleCompatibilityV1
+-> existing isolated session/current-normal finish/atomic external commit
+
+delete selected-normal reachability through:
+  compile_with_source_hint*
+  MirCompiler::compile_with_source*
+  compile_legacy_request / MirLoweringRequestV1::Legacy
+  compile_legacy_candidate
 ```
 
 Contract:
 
 ```text
-one typed normal request owns source identity/imports/config/admission/result
-four selected constructors enter one pipeline exactly once
-compatibility/reference constructors stay separate
-each residual input selects migrated or compatibility owner exactly once
-compatibility has no independent ingress/candidate/publication/retry
-creation commit registers exact residual surface, sunset row, and retire_when
-compatibility surface/ingress authority does not widen
-one candidate/session/finish/publication; retry/reselection = 0
-selected normal -> generic Legacy reachability becomes 0 atomically
-REPL / Program JSON / VM compatibility/reference behavior does not move
+request owns AST, exact source identity, imports, admission, and current-normal result contract
+PreparedSourceWithImports and MinimalMirJsonNoImports are the only admissions
+current reportable pre-transform verification behavior is unchanged
+compatibility/reference callers and NarrowV1 do not move
+parse/source read/candidate/session/finish/publication = exactly one
+fallback / retry / reselection = 0
 ```
 
 Done:
 
 ```text
-exact caller/provenance matrix
-selected owner plus exact compatibility sunset ledger/evidence
-atomic old-edge delete set
-success, exact transport, late failure/reuse, result-parity gates
-existing shared guards to extend; new per-row guard = 0
-one bounded code-facing row selected
+new production callers = 4; selected old Legacy reachability = 0
+compatibility edge = 1 and creation-time sunset is registered
+normal corpus/import/result/failure/reuse parity = green
+existing caller manifest/lane guards extended; new test/check file = 0
+all modified/new source and check files < 800 lines
 ```
 
 Stop:
 
 ```text
-unknown fifth normal constructor or shared-wrapper global switch
-NarrowV1 renamed normal without capability/parity evidence
-fallback after a verifier rejection
-Program clone/reparse or second compiler execution
-production connection before corpus and late-failure parity
-compatibility owner without a creation-time exact sunset row
-compatibility surface or ingress authority widening after registration
-new compatibility debt discovered at R3 without ledger correction and D0 return
+unknown fifth normal caller or provenance inference inside shared wrappers
+second candidate/publication path or try-Narrow-then-compatibility
+normal result/diagnostic/import behavior delta
+compatibility surface widening or missing sunset evidence
+new test/check file or any touched source/check file reaching 800 lines
+```
+
+Sunset:
+
+```text
+sunset_id: NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001
+owner: ExistingGeneralModuleCompatibilityV1
+surface: selected-normal raw root/module -> MirBuilder::build_module(ASTNode)
+baseline callers: 1
+sunset_row: NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-RETIRE0-I0-R0
+retire_when: selected pipeline compatibility/build_module reachability = 0
+evidence: caller manifest + MirBuilder lane guard + normal parity/reuse tests
+non-claim: global build_module callers = 0
 ```
 
 ## Queue
 
 ```text
-R0  current D0: exact live pipeline decision
-R1  atomic selected-normal switch + real old-authority deletion + sunset registration
-    adapter rename or forwarding facade alone receives no replacement credit
-R2  named AST-node responsibility cells on the live edge
-    each closes its selected old edge and shrinks the registered residual surface
-R3  close the creation-time sunset ledger; compatibility body/raw-AST caller = 0
-    newly discovered debt blocks close, corrects the ledger, and returns to D0
+R0  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 closed
+R1  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 current
+R2  named AST-node responsibility cells; each selected old edge becomes zero
+R3  NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-RETIRE0-I0-R0
 R4  eight-pack ledger + final-pipeline completion conformance
 
 after R4 only:

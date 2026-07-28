@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-PRODUCTION-RESET0-D0 cancels the fourth whole-function variant before semantic implementation. NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 is the current read-only design stop."
+status = "NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 is closed with exactly four selected normal construction sites and one bounded root/module compatibility owner. NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0 is current."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-PRODUCTION-RESET0-D0: stop complete-program shape enumeration and decide the one live normal/default production pipeline before any further substrate work"
-current_execution_row = "NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0"
-current_execution_summary = "Perform a read-only exact census from the four selected normal/default source construction sites through request/config/import transport, candidate/session ownership, module/result publication, and execution. Separate normal callers from compatibility/reference users of the shared source-hint wrappers; compare the narrow Raw published chain with an exact callable-body compatibility owner; fix one-execution/no-fallback rules, the atomic selected-Legacy edge delete set, parity/failure/reuse gates, and the next bounded implementation row. Do not edit production code, add a fourth whole-function variant, rename NarrowV1 as normal, connect a disconnected route, or select an implementation token before this D0 closes."
+current_design_stop = "NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 closed: four selected normal sites, no fifth caller, one typed pipeline, and one sunset-bound root/module compatibility owner"
+current_execution_row = "NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0"
+current_execution_summary = "Atomically switch execute_mir_mode, execute_mir_json_minimal, the LLVM source compiler, and the Wasm source compiler to NormalCompileRequestV1 and one NormalDefaultPublishedPipelineV1. Reuse the existing isolated candidate, current-normal result policy, and external commit. ExistingGeneralModuleCompatibilityV1 alone may call MirBuilder::build_module(ASTNode); register NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001 for R3. Remove selected-normal reachability through the provenance-blind source-hint/compile_with_source*/Legacy request chain while preserving explicit VM/REPL/Program JSON/reference lanes. No retry, second publication, NarrowV1 promotion, new test/check file, or 800-line source/check file is allowed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """MIRBUILDER-LIVE-PRODUCTION-RESET0-D0 cancels GENERAL-FUNCTION-PLAN0-INSTANCE-PARAMETER-FED-LOCAL0-S0 before semantic implementation. `normal_source_plan` is frozen at the three landed whole-function variants with production callers still zero; no fourth variant, reassignment/Binary/field/call family row, or replacement credit may be added. NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 is the sole authority: compiler/runtime/backend mutations remain parked while its read-only caller, transport, candidate, publication, parity, and failure/reuse census is performed. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract; analysis-only observation views are not feature activation. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 is closed. Exactly four selected normal construction sites now have one atomic code-facing row: NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0. It introduces one typed backend-neutral normal request/pipeline, reuses the existing isolated candidate/current-normal finish/atomic commit, and keeps one root/module compatibility owner with a creation-time R3 sunset. Selected-normal generic Legacy reachability must become zero in the same commit; explicit VM/REPL/Program JSON/reference lanes do not move. `normal_source_plan` remains frozen at three production-caller-zero variants. Source-level Ownership/View and all other new language semantics remain parked until MIRBUILDER-INPLACE-REPLACEMENT0 satisfies the final-pipeline completion contract. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """MIRBUILDER-LIVE-PRODUCTION-RESET0-D0 cancels the parameter-fed Local S0 before semantic implementation because it composes already-known binding/local/return parts and must not require a fourth whole-function variant. The behavior-neutral proof compaction at 8859caecba is retained; tests are 701 lines, the callable guard is 755 lines, and the three landed variants are frozen. NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 owns the exact live-caller and one-publication-path design census. Replacement implementation now advances only by named production responsibility plus selected old-edge deletion; source-level Ownership/View and other missing features resume after MirBuilder final-pipeline completion."""
+latest_card_summary = """NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0 closes the read-only census with exactly four selected normal construction sites and no fifth caller. R1 selects one NormalCompileRequestV1/NormalDefaultPublishedPipelineV1, reuses the existing isolated candidate/current-normal result/atomic commit, and confines raw root/module lowering to one ExistingGeneralModuleCompatibilityV1 with an exact R3 sunset. Selected-normal reachability through shared compile_with_source*/Legacy request authority must become zero atomically; explicit compatibility/reference lanes remain separate."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-DEFAULT-PUBLISHED-PIPELINE0-D0-DESIGN-STOP"
+current_blocker_token = "NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
