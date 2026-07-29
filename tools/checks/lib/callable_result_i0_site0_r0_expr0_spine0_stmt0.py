@@ -250,6 +250,8 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         (root / local_raw_tests_path).resolve(),
         parity_resolved,
         (root / located_local_tests_path).resolve(),
+        (root / variable_stmt_path).resolve(),
+        (root / "src/mir/builder/stmts/variable_assignment_parity_tests.rs").resolve(),
     }
     for path in (root / "src").rglob("*.rs"):
         if path.resolve() in local_ignored:
@@ -416,6 +418,9 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         1,
         "cfg(test) pre-I0 Local orchestration",
     )
+    reference_body = local_parity_tests.split(
+        "fn lower_pre_i0_local_reference(", 1
+    )[1].split("fn snapshot(", 1)[0]
     for owner_call, label in (
         ("preflight_exact_numeric_local_initializers(", "whole preflight"),
         ("observe_preflighted_local_statement(", "debug observation"),
@@ -424,22 +429,56 @@ def check_lcl0_s0(root: Path, located: str) -> str:
             "builder.build_record_constructor_value(class.to_string(), arguments.to_vec())",
             "record owner",
         ),
-        ("Some(initializer) => builder.build_expression(initializer.clone())?", "ordinary child"),
+        (
+            "Some(initializer) => drive_raw_legacy_expression_v1(builder, initializer.clone())?",
+            "ordinary raw child oracle",
+        ),
         ("crate::mir::builder::emission::constant::emit_null(builder)?", "Null sugar"),
         (
             "build_local_statement_from_values_with_types_and_preclaims(",
             "from-values completion",
         ),
     ):
-        _require_count(local_parity_tests, owner_call, 1, f"LCL0-P0 {label}")
+        _require_count(reference_body, owner_call, 1, f"LCL0-P0 {label}")
     for forbidden in (
         "drive_local_statement_v1(",
         "drive_raw_local_statement_v1(",
         "LocalStatementDescentPortV1",
         "RawLegacyChildLoweringPortV1",
     ):
-        if forbidden in local_parity_tests:
+        if forbidden in reference_body:
             _fail(f"LCL0-P0 reference must not reuse selected descent: {forbidden}")
+    _require_count(
+        local_raw_tests,
+        "drive_raw_legacy_expression_v1(",
+        7,
+        "raw Local oracle calls",
+    )
+    _require_count(
+        local_parity_tests,
+        "drive_local_statement_v1(builder, &mut port, &input)",
+        1,
+        "selected Local owner call",
+    )
+    _require_count(
+        variable_stmt,
+        "fn lower_local(",
+        1,
+        "local-contract exact Local fixture entry",
+    )
+    _require_count(
+        variable_stmt,
+        "lower_local(",
+        4,
+        "local-contract helper definition plus three uses",
+    )
+    for test_source, label in (
+        (local_raw_tests, "raw Local tests"),
+        (local_parity_tests, "Local parity tests"),
+        (variable_stmt, "Local contract tests"),
+    ):
+        if ".build_expression(" in test_source:
+            _fail(f"{label} retained retired test facade")
     for fixture in (
         "ordinary_exact_numeric_and_null_locals_have_exact_pre_i0_snapshot_parity",
         "typed_array_local_has_exact_pre_i0_snapshot_parity",

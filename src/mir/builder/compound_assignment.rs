@@ -165,15 +165,6 @@ mod tests {
         }
     }
 
-    fn compound_assignment(target: &str, rhs: ASTNode) -> ASTNode {
-        ASTNode::CompoundAssignment {
-            target: Box::new(variable(target)),
-            operator: BinaryOperator::Add,
-            value: Box::new(rhs),
-            span: Span::unknown(),
-        }
-    }
-
     fn builder(name: &str) -> MirBuilder {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test(name.to_owned());
@@ -207,8 +198,14 @@ mod tests {
     #[test]
     fn local_compound_assignment_preflights_and_reuses_after_rhs_failure() {
         let mut missing_target = builder("compound_assignment_missing_target/0");
+        let mut port = RawLegacyChildLoweringPortV1;
         let error = missing_target
-            .build_expression(compound_assignment("missing", integer(99)))
+            .build_compound_assignment_statement_with_port_v1(
+                &mut port,
+                variable("missing"),
+                BinaryOperator::Add,
+                integer(99),
+            )
             .unwrap_err();
         assert!(error.contains("Undefined variable: missing"));
         assert!(instructions(&missing_target).is_empty());
@@ -218,8 +215,14 @@ mod tests {
         declare(&mut builder, "x", old);
         let before_rhs = instructions(&builder);
 
+        let mut port = RawLegacyChildLoweringPortV1;
         let error = builder
-            .build_expression(compound_assignment("x", variable("missing_rhs")))
+            .build_compound_assignment_statement_with_port_v1(
+                &mut port,
+                variable("x"),
+                BinaryOperator::Add,
+                variable("missing_rhs"),
+            )
             .unwrap_err();
         assert!(error.contains("Undefined variable: missing_rhs"));
         assert_eq!(instructions(&builder), before_rhs);
@@ -228,8 +231,14 @@ mod tests {
             Some(&old)
         );
 
+        let mut port = RawLegacyChildLoweringPortV1;
         let value = builder
-            .build_expression(compound_assignment("x", integer(4)))
+            .build_compound_assignment_statement_with_port_v1(
+                &mut port,
+                variable("x"),
+                BinaryOperator::Add,
+                integer(4),
+            )
             .unwrap();
         assert_eq!(
             builder.function_state.variable_ctx.variable_map.get("x"),

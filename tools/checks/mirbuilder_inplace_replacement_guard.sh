@@ -25,6 +25,7 @@ RAW_DISPATCH="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/mod.rs"
 ASSIGNMENT_DESCENT="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_descent.rs"
 LOCATED_ASSIGNMENT="$ROOT_DIR/src/mir/builder/located_legacy_assignment.rs"
 ASSIGNMENT_TESTS="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_descent_tests.rs"
+ASSIGNMENT_PARITY_TESTS="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_parity_tests.rs"
 ASSIGNMENT_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_assignment.py"
 RETURN_DESCENT="$ROOT_DIR/src/mir/builder/stmts/return_statement_descent.rs"
 RETURN_TESTS="$ROOT_DIR/src/mir/builder/stmts/return_statement_descent_tests.rs"
@@ -427,7 +428,8 @@ assignment_external_count="$(
     | awk -F ':' \
         -v owner="$ASSIGNMENT_DESCENT" \
         -v tests="$ASSIGNMENT_TESTS" \
-        '$1 != owner && $1 != tests { count += 1 } END { print count + 0 }'
+        -v parity="$ASSIGNMENT_PARITY_TESTS" \
+        '$1 != owner && $1 != tests && $1 != parity { count += 1 } END { print count + 0 }'
 )"
 if [[ "$assignment_external_count" != "3" ]]; then
   guard_fail "$TAG" \

@@ -366,6 +366,8 @@ pub(in crate::mir::builder) fn build_me_expression(
 mod local_contract_tests {
     use super::*;
     use crate::ast::{LiteralValue, Span};
+    use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
+    use crate::mir::builder::stmts::{drive_local_statement_v1, RawLegacyLocalInputV1};
     use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
     use crate::mir::function::LocalContractWriteKind;
     use crate::mir::MirInstruction;
@@ -377,22 +379,39 @@ mod local_contract_tests {
         }
     }
 
+    fn lower_local(builder: &mut MirBuilder, node: ASTNode) -> Result<ValueId, String> {
+        let ASTNode::Local {
+            variables,
+            initial_values,
+            declared_type_names,
+            ..
+        } = node
+        else {
+            return Err("local contract fixture requires Local".to_string());
+        };
+        let input = RawLegacyLocalInputV1::new(variables, initial_values, declared_type_names);
+        let mut port = RawLegacyChildLoweringPortV1;
+        drive_local_statement_v1(builder, &mut port, &input)
+    }
+
     #[test]
     fn typed_local_init_and_reassignment_share_one_slot() {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("typed_local".to_string());
         let _scope = LexicalScopeGuard::new(&mut builder);
-        builder
-            .build_expression(ASTNode::Local {
+        lower_local(
+            &mut builder,
+            ASTNode::Local {
                 variables: vec!["x".to_string()],
                 initial_values: vec![Some(Box::new(integer(1)))],
                 declared_type_names: vec![Some("u8".to_string())],
                 span: Span::unknown(),
-            })
-            .unwrap();
+            },
+        )
+        .unwrap();
         let slot =
             crate::mir::LocalSlotId::from(builder.function_state.binding_ctx.lookup("x").unwrap());
-        let rhs = builder.build_expression(integer(2)).unwrap();
+        let rhs = crate::mir::builder::emission::constant::emit_integer(&mut builder, 2).unwrap();
         builder
             .build_assignment_from_value("x".to_string(), rhs)
             .unwrap();
@@ -430,14 +449,16 @@ mod local_contract_tests {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("typed_local_uninitialized".to_string());
         let _scope = LexicalScopeGuard::new(&mut builder);
-        let error = builder
-            .build_expression(ASTNode::Local {
+        let error = lower_local(
+            &mut builder,
+            ASTNode::Local {
                 variables: vec!["x".to_string()],
                 initial_values: vec![None],
                 declared_type_names: vec![Some("i64".to_string())],
                 span: Span::unknown(),
-            })
-            .unwrap_err();
+            },
+        )
+        .unwrap_err();
         assert!(error.contains("[type/local_contract_uninitialized_forbidden]"));
         assert!(!builder
             .function_state
@@ -456,22 +477,22 @@ mod local_contract_tests {
             elements: vec![integer(1), integer(2)],
             span: Span::unknown(),
         };
-        builder
-            .build_expression(ASTNode::Local {
+        lower_local(
+            &mut builder,
+            ASTNode::Local {
                 variables: vec!["xs".to_string()],
                 initial_values: vec![Some(Box::new(literal))],
                 declared_type_names: vec![Some("Array<u8>".to_string())],
                 span: Span::unknown(),
-            })
-            .unwrap();
+            },
+        )
+        .unwrap();
         let slot =
             crate::mir::LocalSlotId::from(builder.function_state.binding_ctx.lookup("xs").unwrap());
 
+        let mut port = RawLegacyChildLoweringPortV1;
         let replacement = builder
-            .build_expression(ASTNode::ArrayLiteral {
-                elements: vec![integer(3)],
-                span: Span::unknown(),
-            })
+            .build_array_literal_with_port_v1(&mut port, vec![integer(3)])
             .unwrap();
         builder
             .build_assignment_from_value("xs".to_string(), replacement)

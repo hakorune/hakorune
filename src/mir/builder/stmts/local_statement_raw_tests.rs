@@ -1,4 +1,5 @@
 use crate::ast::{ASTNode, BinaryOperator, FieldDecl, LiteralValue, Span};
+use crate::mir::builder::recursive_child_lowering::drive_raw_legacy_expression_v1;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::{ConstValue, MirBuilder, MirInstruction};
 
@@ -71,13 +72,15 @@ fn raw_local_selector_preserves_initializer_order_and_binding_completion() {
     let mut builder = builder("lcl0_raw_order/0");
     let _scope = LexicalScopeGuard::new(&mut builder);
 
-    builder
-        .build_expression(local(
+    drive_raw_legacy_expression_v1(
+        &mut builder,
+        local(
             &["x", "y"],
             vec![Some(Box::new(integer(4))), Some(Box::new(integer(9)))],
             vec![None, None],
-        ))
-        .unwrap();
+        ),
+    )
+    .unwrap();
 
     let constants = instructions(&builder)
         .iter()
@@ -100,13 +103,15 @@ fn raw_local_preflight_rejects_before_first_initializer_effect() {
     let mut builder = builder("lcl0_raw_preflight/0");
     let _scope = LexicalScopeGuard::new(&mut builder);
 
-    let error = builder
-        .build_expression(local(
+    let error = drive_raw_legacy_expression_v1(
+        &mut builder,
+        local(
             &["x", "y"],
             vec![Some(Box::new(integer(4))), None],
             vec![None, Some("Array<u8>")],
-        ))
-        .unwrap_err();
+        ),
+    )
+    .unwrap_err();
 
     assert!(error.contains("local_contract_uninitialized_forbidden"));
     assert!(instructions(&builder).is_empty());
@@ -120,16 +125,18 @@ fn raw_local_child_failure_stops_later_initializer_and_binding_publication() {
     let mut builder = builder("lcl0_raw_child_failure/0");
     let _scope = LexicalScopeGuard::new(&mut builder);
 
-    let error = builder
-        .build_expression(local(
+    let error = drive_raw_legacy_expression_v1(
+        &mut builder,
+        local(
             &["x", "y"],
             vec![
                 Some(Box::new(variable("missing"))),
                 Some(Box::new(integer(91))),
             ],
             vec![None, None],
-        ))
-        .unwrap_err();
+        ),
+    )
+    .unwrap_err();
 
     assert!(error.contains("Undefined variable: missing"));
     assert!(instructions(&builder).is_empty());
@@ -143,8 +150,9 @@ fn raw_local_initializers_reuse_binary_and_short_circuit_spines() {
     let mut builder = builder("lcl0_raw_expression_spines/0");
     let _scope = LexicalScopeGuard::new(&mut builder);
 
-    builder
-        .build_expression(local(
+    drive_raw_legacy_expression_v1(
+        &mut builder,
+        local(
             &["sum", "flag"],
             vec![
                 Some(Box::new(binary(
@@ -159,8 +167,9 @@ fn raw_local_initializers_reuse_binary_and_short_circuit_spines() {
                 ))),
             ],
             vec![None, None],
-        ))
-        .unwrap();
+        ),
+    )
+    .unwrap();
 
     let rows = instructions(&builder);
     assert!(rows
@@ -179,16 +188,18 @@ fn raw_local_typed_array_reuses_specialized_claim_before_appends() {
     let mut builder = builder("lcl0_raw_typed_array/0");
     let _scope = LexicalScopeGuard::new(&mut builder);
 
-    builder
-        .build_expression(local(
+    drive_raw_legacy_expression_v1(
+        &mut builder,
+        local(
             &["xs"],
             vec![Some(Box::new(ASTNode::ArrayLiteral {
                 elements: vec![integer(1), integer(2)],
                 span: Span::unknown(),
             }))],
             vec![Some("Array<u8>")],
-        ))
-        .unwrap();
+        ),
+    )
+    .unwrap();
 
     let rows = instructions(&builder);
     let claim = rows
@@ -220,8 +231,9 @@ fn raw_local_record_initializer_reuses_existing_constructor_owner() {
     );
     let _scope = LexicalScopeGuard::new(&mut builder);
 
-    builder
-        .build_expression(local(
+    drive_raw_legacy_expression_v1(
+        &mut builder,
+        local(
             &["pair"],
             vec![Some(Box::new(ASTNode::New {
                 class: "Pair".to_string(),
@@ -231,8 +243,9 @@ fn raw_local_record_initializer_reuses_existing_constructor_owner() {
                 span: Span::unknown(),
             }))],
             vec![None],
-        ))
-        .unwrap();
+        ),
+    )
+    .unwrap();
 
     assert!(builder.function_state.binding_ctx.contains("pair"));
     assert!(instructions(&builder)
@@ -245,9 +258,7 @@ fn raw_local_untyped_missing_initializer_keeps_existing_null_sugar() {
     let mut builder = builder("lcl0_raw_null/0");
     let _scope = LexicalScopeGuard::new(&mut builder);
 
-    builder
-        .build_expression(local(&["x"], vec![None], vec![None]))
-        .unwrap();
+    drive_raw_legacy_expression_v1(&mut builder, local(&["x"], vec![None], vec![None])).unwrap();
 
     assert!(builder.function_state.binding_ctx.contains("x"));
     assert!(instructions(&builder).iter().any(|instruction| matches!(

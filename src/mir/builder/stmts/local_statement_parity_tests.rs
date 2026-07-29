@@ -1,5 +1,8 @@
 use crate::ast::{ASTNode, BinaryOperator, FieldDecl, LiteralValue, Span};
-use crate::mir::builder::recursive_child_lowering::with_legacy_expression_recursion_guard_v1;
+use crate::mir::builder::recursive_child_lowering::{
+    drive_raw_legacy_expression_v1, with_legacy_expression_recursion_guard_v1,
+    RawLegacyChildLoweringPortV1,
+};
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::exact_numeric_value_facts::{ExactNumericConstFact, ExactNumericValueFact};
 use crate::mir::function::{
@@ -15,6 +18,7 @@ use super::variable_stmt::{
     build_local_statement_from_values_with_types_and_preclaims,
     observe_preflighted_local_statement, preflight_exact_numeric_local_initializers,
 };
+use super::{drive_local_statement_v1, RawLegacyLocalInputV1};
 
 #[derive(Debug, PartialEq)]
 struct ScopeFrameSnapshotV1 {
@@ -134,7 +138,23 @@ fn builder(name: &str, with_record: bool) -> MirBuilder {
 }
 
 fn lower_selected(builder: &mut MirBuilder, expression: ASTNode) -> Result<ValueId, String> {
-    builder.build_expression(expression)
+    let span = expression.span();
+    let node_kind = std::mem::discriminant(&expression);
+    let ASTNode::Local {
+        variables,
+        initial_values,
+        declared_type_names,
+        ..
+    } = expression
+    else {
+        return Err("LCL0-I0 selected owner requires Local".to_string());
+    };
+    with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {
+        builder.metadata_ctx.set_current_span(span);
+        let input = RawLegacyLocalInputV1::new(variables, initial_values, declared_type_names);
+        let mut port = RawLegacyChildLoweringPortV1;
+        drive_local_statement_v1(builder, &mut port, &input)
+    })
 }
 
 fn lower_pre_i0_local_reference(
@@ -188,7 +208,7 @@ fn build_pre_i0_local_reference(
             }) if builder.is_record_constructor_class(class) => {
                 builder.build_record_constructor_value(class.to_string(), arguments.to_vec())?
             }
-            Some(initializer) => builder.build_expression(initializer.clone())?,
+            Some(initializer) => drive_raw_legacy_expression_v1(builder, initializer.clone())?,
             None => crate::mir::builder::emission::constant::emit_null(builder)?,
         };
         evaluated_values.push(value);

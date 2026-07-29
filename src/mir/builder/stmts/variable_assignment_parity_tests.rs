@@ -1,5 +1,8 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-use crate::mir::builder::recursive_child_lowering::with_legacy_expression_recursion_guard_v1;
+use crate::mir::builder::recursive_child_lowering::{
+    drive_raw_legacy_expression_v1, with_legacy_expression_recursion_guard_v1,
+    RawLegacyChildLoweringPortV1,
+};
 use crate::mir::builder::vars::assignment_resolver::AssignmentResolverBox;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::exact_numeric_value_facts::{ExactNumericConstFact, ExactNumericValueFact};
@@ -11,6 +14,11 @@ use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
 use crate::mir::region::RefSlotKind;
 use crate::mir::value_kind::MirValueKind;
 use crate::mir::{BasicBlockId, BindingId, MirBuilder, MirInstruction, MirType, ValueId};
+
+use super::{
+    drive_local_statement_v1, drive_variable_assignment_v1, RawLegacyLocalInputV1,
+    RawLegacyVariableAssignmentInputV1,
+};
 
 #[derive(Debug, PartialEq)]
 struct ScopeFrameSnapshotV1 {
@@ -125,7 +133,40 @@ fn builder(name: &str) -> MirBuilder {
 }
 
 fn lower_selected(builder: &mut MirBuilder, expression: ASTNode) -> Result<ValueId, String> {
-    builder.build_expression(expression)
+    let span = expression.span();
+    let node_kind = std::mem::discriminant(&expression);
+    let ASTNode::Assignment { target, value, .. } = expression else {
+        return Err("ASN0-I0 selected owner requires Assignment".to_string());
+    };
+    let ASTNode::Variable { name, .. } = *target else {
+        return Err("ASN0-I0 selected owner requires exact Variable target".to_string());
+    };
+    with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {
+        builder.metadata_ctx.set_current_span(span);
+        let input = RawLegacyVariableAssignmentInputV1::new(name, *value);
+        let mut port = RawLegacyChildLoweringPortV1;
+        drive_variable_assignment_v1(builder, &mut port, &input)
+    })
+}
+
+fn lower_local_seed(builder: &mut MirBuilder, expression: ASTNode) -> Result<ValueId, String> {
+    let span = expression.span();
+    let node_kind = std::mem::discriminant(&expression);
+    let ASTNode::Local {
+        variables,
+        initial_values,
+        declared_type_names,
+        ..
+    } = expression
+    else {
+        return Err("ASN0-P0 seed requires Local".to_string());
+    };
+    with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {
+        builder.metadata_ctx.set_current_span(span);
+        let input = RawLegacyLocalInputV1::new(variables, initial_values, declared_type_names);
+        let mut port = RawLegacyChildLoweringPortV1;
+        drive_local_statement_v1(builder, &mut port, &input)
+    })
 }
 
 fn lower_pre_i0_assignment_reference(
@@ -143,7 +184,7 @@ fn lower_pre_i0_assignment_reference(
     with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {
         builder.metadata_ctx.set_current_span(span);
         AssignmentResolverBox::ensure_declared(builder, &name)?;
-        let value = builder.build_expression(*value)?;
+        let value = drive_raw_legacy_expression_v1(builder, *value)?;
         builder.build_assignment_from_value(name, value)
     })
 }
@@ -335,8 +376,8 @@ fn assert_parity(seed: Option<ASTNode>, expression: ASTNode, observed_names: &[&
     let _reference_scope = LexicalScopeGuard::new(&mut reference);
 
     if let Some(seed) = seed {
-        let selected_seed = selected.build_expression(seed.clone());
-        let reference_seed = reference.build_expression(seed);
+        let selected_seed = lower_local_seed(&mut selected, seed.clone());
+        let reference_seed = lower_local_seed(&mut reference, seed);
         assert_eq!(
             snapshot(&selected, selected_seed, observed_names),
             snapshot(&reference, reference_seed, observed_names)
@@ -364,8 +405,8 @@ fn assert_failure_and_reuse_parity(
     let _reference_scope = LexicalScopeGuard::new(&mut reference);
 
     if let Some(seed) = seed {
-        selected.build_expression(seed.clone()).unwrap();
-        reference.build_expression(seed).unwrap();
+        lower_local_seed(&mut selected, seed.clone()).unwrap();
+        lower_local_seed(&mut reference, seed).unwrap();
     }
 
     let selected_failure = lower_selected(&mut selected, failure.clone());
@@ -376,8 +417,8 @@ fn assert_failure_and_reuse_parity(
     );
 
     if let Some(seed) = recovery_seed {
-        let selected_seed = selected.build_expression(seed.clone());
-        let reference_seed = reference.build_expression(seed);
+        let selected_seed = lower_local_seed(&mut selected, seed.clone());
+        let reference_seed = lower_local_seed(&mut reference, seed);
         assert_eq!(
             snapshot(&selected, selected_seed, observed_names),
             snapshot(&reference, reference_seed, observed_names)

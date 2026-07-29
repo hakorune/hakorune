@@ -1,4 +1,5 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+use crate::mir::builder::recursive_child_lowering::drive_raw_legacy_expression_v1;
 use crate::mir::{BindingId, ConstValue, MirBuilder, MirInstruction, ValueId};
 
 fn integer(value: i64) -> ASTNode {
@@ -76,9 +77,11 @@ fn raw_variable_assignment_selects_owned_descent_and_recursive_rhs() {
     let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 7).unwrap();
     declare(&mut builder, "x", old, 0);
 
-    let result = builder
-        .build_expression(assignment(variable("x"), binary(integer(2), integer(3))))
-        .unwrap();
+    let result = drive_raw_legacy_expression_v1(
+        &mut builder,
+        assignment(variable("x"), binary(integer(2), integer(3))),
+    )
+    .unwrap();
 
     assert_eq!(
         builder.function_state.variable_ctx.variable_map.get("x"),
@@ -104,12 +107,11 @@ fn raw_variable_assignment_selects_owned_descent_and_recursive_rhs() {
 fn raw_undeclared_target_rejects_before_rhs_effects() {
     let mut builder = builder("asn0_i0_undeclared/0");
 
-    let error = builder
-        .build_expression(assignment(
-            variable("missing"),
-            binary(integer(40), integer(2)),
-        ))
-        .unwrap_err();
+    let error = drive_raw_legacy_expression_v1(
+        &mut builder,
+        assignment(variable("missing"), binary(integer(40), integer(2))),
+    )
+    .unwrap_err();
 
     assert!(error.contains("Undefined variable: missing"));
     assert!(instructions(&builder).is_empty());
@@ -121,9 +123,11 @@ fn raw_rhs_failure_keeps_old_binding_and_fresh_retry_succeeds() {
     let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 7).unwrap();
     declare(&mut builder, "x", old, 0);
 
-    let error = builder
-        .build_expression(assignment(variable("x"), variable("missing_rhs")))
-        .unwrap_err();
+    let error = drive_raw_legacy_expression_v1(
+        &mut builder,
+        assignment(variable("x"), variable("missing_rhs")),
+    )
+    .unwrap_err();
     assert!(error.contains("Undefined variable: missing_rhs"));
     assert_eq!(
         builder.function_state.variable_ctx.variable_map.get("x"),
@@ -133,9 +137,9 @@ fn raw_rhs_failure_keeps_old_binding_and_fresh_retry_succeeds() {
         .iter()
         .any(|row| matches!(row, MirInstruction::ReleaseStrong { .. })));
 
-    let result = builder
-        .build_expression(assignment(variable("x"), integer(9)))
-        .unwrap();
+    let result =
+        drive_raw_legacy_expression_v1(&mut builder, assignment(variable("x"), integer(9)))
+            .unwrap();
     assert_eq!(
         builder.function_state.variable_ctx.variable_map.get("x"),
         Some(&result)
@@ -164,8 +168,7 @@ fn field_target_stays_on_field_owner_before_rhs_descent() {
         span: Span::unknown(),
     };
 
-    let error = builder
-        .build_expression(assignment(field_target, integer(99)))
+    let error = drive_raw_legacy_expression_v1(&mut builder, assignment(field_target, integer(99)))
         .unwrap_err();
 
     assert!(error.contains("Undefined variable: missing_object"));
@@ -184,9 +187,8 @@ fn grouped_assignment_selects_owned_descent_through_production_ingress() {
     let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 7).unwrap();
     declare(&mut builder, "x", old, 0);
 
-    let result = builder
-        .build_expression(grouped_assignment("x", integer(11)))
-        .unwrap();
+    let result =
+        drive_raw_legacy_expression_v1(&mut builder, grouped_assignment("x", integer(11))).unwrap();
 
     assert_eq!(
         builder.function_state.variable_ctx.variable_map.get("x"),
@@ -205,9 +207,11 @@ fn grouped_assignment_selects_owned_descent_through_production_ingress() {
 #[test]
 fn grouped_assignment_preflights_target_preserves_binding_and_reuses_freshly() {
     let mut missing_target = builder("asn0_i0_grouped_missing_target/0");
-    let error = missing_target
-        .build_expression(grouped_assignment("missing", integer(99)))
-        .unwrap_err();
+    let error = drive_raw_legacy_expression_v1(
+        &mut missing_target,
+        grouped_assignment("missing", integer(99)),
+    )
+    .unwrap_err();
     assert!(error.contains("Undefined variable: missing"));
     assert!(instructions(&missing_target).is_empty());
 
@@ -216,9 +220,11 @@ fn grouped_assignment_preflights_target_preserves_binding_and_reuses_freshly() {
     declare(&mut builder, "x", old, 0);
     let before_rhs = instructions(&builder);
 
-    let error = builder
-        .build_expression(grouped_assignment("x", variable("missing_rhs")))
-        .unwrap_err();
+    let error = drive_raw_legacy_expression_v1(
+        &mut builder,
+        grouped_assignment("x", variable("missing_rhs")),
+    )
+    .unwrap_err();
     assert!(error.contains("Undefined variable: missing_rhs"));
     assert_eq!(instructions(&builder), before_rhs);
     assert_eq!(
@@ -226,8 +232,7 @@ fn grouped_assignment_preflights_target_preserves_binding_and_reuses_freshly() {
         Some(&old)
     );
 
-    let value = builder
-        .build_expression(grouped_assignment("x", integer(100)))
+    let value = drive_raw_legacy_expression_v1(&mut builder, grouped_assignment("x", integer(100)))
         .unwrap();
     assert_eq!(
         builder.function_state.variable_ctx.variable_map.get("x"),

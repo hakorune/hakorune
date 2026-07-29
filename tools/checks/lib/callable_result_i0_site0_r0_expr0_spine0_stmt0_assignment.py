@@ -29,6 +29,7 @@ def check_asn0_s0(root: Path) -> str:
     tests_path = "src/mir/builder/stmts/variable_assignment_descent_tests.rs"
     raw_tests_path = "src/mir/builder/stmts/variable_assignment_raw_tests.rs"
     parity_tests_path = "src/mir/builder/stmts/variable_assignment_parity_tests.rs"
+    compound_tests_path = "src/mir/builder/compound_assignment.rs"
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     selector_path = (
         "src/mir/builder/raw_expression_dispatch/statement_surface.rs"
@@ -47,6 +48,7 @@ def check_asn0_s0(root: Path) -> str:
     tests = _read(root, tests_path)
     raw_tests = _read(root, raw_tests_path)
     parity_tests = _read(root, parity_tests_path)
+    compound_tests = _read(root, compound_tests_path)
     stmts_root = _read(root, stmts_root_path)
     selector = _read(root, selector_path)
     grouped = _read(root, grouped_path)
@@ -115,6 +117,7 @@ def check_asn0_s0(root: Path) -> str:
     ignored = {
         (root / module_path).resolve(),
         (root / tests_path).resolve(),
+        (root / parity_tests_path).resolve(),
     }
     driver_callers = 0
     raw_callers = 0
@@ -235,7 +238,7 @@ def check_asn0_s0(root: Path) -> str:
         "ASTNode::Variable { name, .. }",
         "builder.metadata_ctx.set_current_span(span);",
         "AssignmentResolverBox::ensure_declared(builder, &name)?;",
-        "builder.build_expression(*value)?",
+        "drive_raw_legacy_expression_v1(builder, *value)?",
         "builder.build_assignment_from_value(name, value)",
     ):
         if required not in reference_body:
@@ -244,7 +247,7 @@ def check_asn0_s0(root: Path) -> str:
     preflight_at = reference_body.index(
         "AssignmentResolverBox::ensure_declared(builder, &name)?;"
     )
-    rhs_at = reference_body.index("builder.build_expression(*value)?")
+    rhs_at = reference_body.index("drive_raw_legacy_expression_v1(builder, *value)?")
     completion_at = reference_body.index("builder.build_assignment_from_value(name, value)")
     if not span_at < preflight_at < rhs_at < completion_at:
         _fail("ASN0-P0 reference order must be span -> preflight -> RHS -> completion")
@@ -263,6 +266,44 @@ def check_asn0_s0(root: Path) -> str:
             continue
         if "lower_pre_i0_assignment_reference(" in path.read_text(encoding="utf-8"):
             _fail(f"test-only Assignment reference escaped parity module: {path}")
+
+    _require_count(
+        raw_tests,
+        "drive_raw_legacy_expression_v1(",
+        9,
+        "raw Assignment oracle calls",
+    )
+    _require_count(
+        parity_tests,
+        "drive_variable_assignment_v1(builder, &mut port, &input)",
+        1,
+        "selected Assignment owner call",
+    )
+    _require_count(
+        parity_tests,
+        "fn lower_local_seed(",
+        1,
+        "exact Local seed fixture entry",
+    )
+    _require_count(
+        parity_tests,
+        "lower_local_seed(",
+        7,
+        "Local seed helper definition plus six uses",
+    )
+    _require_count(
+        compound_tests.split("#[cfg(test)]", 1)[1],
+        ".build_compound_assignment_statement_with_port_v1(",
+        3,
+        "compound Assignment selected-owner tests",
+    )
+    for test_source, label in (
+        (raw_tests, "raw Assignment tests"),
+        (parity_tests, "Assignment parity tests"),
+        (compound_tests, "compound Assignment tests"),
+    ):
+        if ".build_expression(" in test_source:
+            _fail(f"{label} retained retired test facade")
 
     for fixture in (
         "declared_target_preflights_then_descends_rhs_and_completes_once",
