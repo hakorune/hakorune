@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS0 is closed: no live T0 replacement is safe; NORMAL-PROGRAM-COLLECTOR-DRAIN0-D0 is selected to define the normal-specific collector correspondence before any direct drain replacement. Final conformance must settle JoinModule before Ownership, View, and later features."
+status = "NORMAL-PROGRAM-COLLECTOR-DRAIN0-D0 is closed: collector final rows are the normal correspondence authority, and S0 must immediately lead to the selected drain I0/R0. Final conformance must settle JoinModule before Ownership, View, and later features."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "NORMAL-PROGRAM-COLLECTOR-DRAIN0-D0"
-current_execution_row = ""
-current_execution_summary = "Design-only: define the normal collector's exact legacy draft correspondence and preflight/commit boundary before replacing collector.into_draft_functions() -> current_module.try_add_functions_atomic(). Do not use Raw/canonical drain types as a facade."
+current_design_stop = ""
+current_execution_row = "NORMAL-PROGRAM-COLLECTOR-DRAIN0-S0"
+current_execution_summary = "T2 substrate: retain exact final legacy admission/replacement records beside collected drafts and seal one collector-owned normal drain preflight. The next landed commit must be NORMAL-PROGRAM-COLLECTOR-DRAIN0-I0-R0, deleting collector.into_draft_functions() -> current_module.try_add_functions_atomic(); Raw/canonical drains, source reread, retry, fallback, and partial publication are forbidden."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-PROGRAM-COLLECTOR-DRAIN0-D0"
+current_blocker_token = "NORMAL-PROGRAM-COLLECTOR-DRAIN0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
