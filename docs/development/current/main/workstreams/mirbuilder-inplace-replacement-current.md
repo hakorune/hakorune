@@ -589,7 +589,14 @@ Atomic delete:
   target/index clones, repeated Variable observation, read facades.
 Evidence: Index/static-data tests, type-publication authority,
   replacement/pointer guards, cargo check, and reuse are green.
-Next design stop: MIRBUILDER-POST-INDEX-READ-LIVE-EDGE-CENSUS0-D0.
+Current: RAW-ENUM-MATCH-ROUTE-ONCE0-I0-R0, CONTROL0/T1.
+Named caller: raw dispatcher ASTNode::EnumMatchExpr arm.
+New owner: opaque PreparedRawEnumMatchV1; projection or bool-select.
+Atomic delete: field/scrutinee clones, Option probe, double arm
+  observation, raw-input and caller-zero facades.
+Order: else reject -> source/catalog seal -> scrutinee -> one terminal.
+Keep: exact validation/diagnostic, one scrutinee descent, MIR/type order.
+Forbid: failed projection to bool retry, grammar/result delta, new guard.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
