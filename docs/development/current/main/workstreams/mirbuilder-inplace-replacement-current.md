@@ -582,7 +582,7 @@ largest touched source/check file          = 799
 `MIRBUILDER-BUILD-EXPRESSION-TEST-EVIDENCE0-D0` — accepted
 ```text
 Observed:
-  production reachability = 0; test/evidence callers = 95 / 23 files;
+  production reachability = 0; test/evidence callers = 74 / 19 files;
   facade definition = 1.
 Disposition:
   SETUP          -> exact emitter/binding setup
@@ -598,7 +598,7 @@ Forbid:
 ```
 T1 responsibility batches:
 ```text
-1 RECURSIVE-EXPR 7 closed; 2 EXPRESSION-OWNER 21 <- current; 3 CALL-OBJECT 22
+1 RECURSIVE-EXPR 7 closed; 2 EXPRESSION-OWNER 21 closed; 3 CALL-OBJECT 22 <- current
 4 BINDING-STMT 34; 5 EXIT-CONTROL-PLAN 18; 6 FACADE0-RET0 after caller=0
 ```
 Each batch records exact census; stop rather than widen visibility or add an adapter.

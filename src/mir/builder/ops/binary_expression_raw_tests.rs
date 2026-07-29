@@ -1,6 +1,8 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::{BinaryOp, CompareOp, MirBuilder, MirInstruction, MirType, TypeOpKind};
 
+use super::super::recursive_child_lowering::drive_raw_legacy_expression_v1;
+
 fn integer(value: i64) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::Integer(value),
@@ -65,9 +67,11 @@ fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
 fn raw_ordinary_binary_entry_preserves_left_right_and_existing_terminal() {
     let mut builder = builder("binary_raw_add/0");
 
-    let output = builder
-        .build_expression(binary(BinaryOperator::Add, integer(7), integer(3)))
-        .unwrap();
+    let output = drive_raw_legacy_expression_v1(
+        &mut builder,
+        binary(BinaryOperator::Add, integer(7), integer(3)),
+    )
+    .unwrap();
 
     let rows = instructions(&builder);
     let constants = rows
@@ -98,13 +102,15 @@ fn raw_ordinary_binary_entry_preserves_left_right_and_existing_terminal() {
 fn raw_ordinary_binary_accepts_method_calls_on_both_sides() {
     let mut builder = builder("binary_raw_method_sides/0");
 
-    let output = builder
-        .build_expression(binary(
+    let output = drive_raw_legacy_expression_v1(
+        &mut builder,
+        binary(
             BinaryOperator::Equal,
             type_check(integer(1)),
             type_check(integer(2)),
-        ))
-        .unwrap();
+        ),
+    )
+    .unwrap();
 
     let rows = instructions(&builder);
     assert_eq!(
@@ -141,44 +147,40 @@ fn nested_raw_ordinary_binary_restores_depth_and_allows_reuse() {
     }
     let mut builder = builder("binary_raw_nested/0");
 
-    builder.build_expression(expression).unwrap();
+    drive_raw_legacy_expression_v1(&mut builder, expression).unwrap();
     assert_eq!(builder.recursion_depth, 0);
 
-    assert!(builder
-        .build_expression(binary(
-            BinaryOperator::Add,
-            variable("missing"),
-            integer(99),
-        ))
-        .is_err());
+    assert!(drive_raw_legacy_expression_v1(
+        &mut builder,
+        binary(BinaryOperator::Add, variable("missing"), integer(99),),
+    )
+    .is_err());
     assert_eq!(builder.recursion_depth, 0);
 
-    builder
-        .build_expression(binary(BinaryOperator::Add, integer(5), integer(6)))
-        .unwrap();
+    drive_raw_legacy_expression_v1(
+        &mut builder,
+        binary(BinaryOperator::Add, integer(5), integer(6)),
+    )
+    .unwrap();
     assert_eq!(builder.recursion_depth, 0);
 }
 
 #[test]
 fn raw_ordinary_binary_failure_stops_later_child_or_terminal() {
     let mut left_failure = builder("binary_raw_left_failure/0");
-    assert!(left_failure
-        .build_expression(binary(
-            BinaryOperator::Add,
-            variable("missing_left"),
-            integer(91),
-        ))
-        .is_err());
+    assert!(drive_raw_legacy_expression_v1(
+        &mut left_failure,
+        binary(BinaryOperator::Add, variable("missing_left"), integer(91),),
+    )
+    .is_err());
     assert!(instructions(&left_failure).is_empty());
 
     let mut right_failure = builder("binary_raw_right_failure/0");
-    assert!(right_failure
-        .build_expression(binary(
-            BinaryOperator::Add,
-            integer(17),
-            variable("missing_right"),
-        ))
-        .is_err());
+    assert!(drive_raw_legacy_expression_v1(
+        &mut right_failure,
+        binary(BinaryOperator::Add, integer(17), variable("missing_right"),),
+    )
+    .is_err());
     let rows = instructions(&right_failure);
     assert_eq!(
         rows.iter()
@@ -195,9 +197,11 @@ fn raw_ordinary_binary_failure_stops_later_child_or_terminal() {
 fn logical_operators_remain_on_existing_short_circuit_owner() {
     for operator in [BinaryOperator::And, BinaryOperator::Or] {
         let mut builder = builder("binary_raw_logical_owner/0");
-        let output = builder
-            .build_expression(binary(operator, boolean(false), boolean(true)))
-            .unwrap();
+        let output = drive_raw_legacy_expression_v1(
+            &mut builder,
+            binary(operator, boolean(false), boolean(true)),
+        )
+        .unwrap();
 
         assert_eq!(
             builder.function_state.type_ctx.value_types.get(&output),
@@ -217,15 +221,19 @@ fn raw_binary_child_depth_failure_restores_parent_depth() {
     let mut builder = builder("binary_raw_depth_failure/0");
     builder.recursion_depth = 199;
 
-    let error = builder
-        .build_expression(binary(BinaryOperator::Add, integer(1), integer(2)))
-        .unwrap_err();
+    let error = drive_raw_legacy_expression_v1(
+        &mut builder,
+        binary(BinaryOperator::Add, integer(1), integer(2)),
+    )
+    .unwrap_err();
     assert!(error.contains("Recursion depth exceeded: 201"));
     assert_eq!(builder.recursion_depth, 199);
 
     builder.recursion_depth = 0;
-    builder
-        .build_expression(binary(BinaryOperator::Add, integer(3), integer(4)))
-        .unwrap();
+    drive_raw_legacy_expression_v1(
+        &mut builder,
+        binary(BinaryOperator::Add, integer(3), integer(4)),
+    )
+    .unwrap();
     assert_eq!(builder.recursion_depth, 0);
 }

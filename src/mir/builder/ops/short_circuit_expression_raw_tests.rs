@@ -2,6 +2,8 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::loop_api::LoopBuilderApi;
 use crate::mir::{BasicBlockId, MirBuilder, MirInstruction, MirType};
 
+use super::super::recursive_child_lowering::drive_raw_legacy_expression_v1;
+
 fn boolean(value: bool) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::Bool(value),
@@ -59,9 +61,11 @@ fn instructions(builder: &MirBuilder) -> Vec<(BasicBlockId, MirInstruction)> {
 fn raw_short_circuit_selector_preserves_and_or_completion() {
     for operator in [BinaryOperator::And, BinaryOperator::Or] {
         let mut builder = builder(&format!("sc0_raw_operator/{operator}"));
-        let output = builder
-            .build_expression(binary(operator, boolean(false), boolean(true)))
-            .unwrap();
+        let output = drive_raw_legacy_expression_v1(
+            &mut builder,
+            binary(operator, boolean(false), boolean(true)),
+        )
+        .unwrap();
 
         assert_eq!(
             builder.function_state.type_ctx.value_types.get(&output),
@@ -78,9 +82,11 @@ fn raw_rhs_is_materialized_only_inside_the_eval_block() {
     let mut builder = builder("sc0_raw_rhs_block/0");
     let entry = builder.current_block().unwrap();
 
-    builder
-        .build_expression(binary(BinaryOperator::And, boolean(true), boolean(false)))
-        .unwrap();
+    drive_raw_legacy_expression_v1(
+        &mut builder,
+        binary(BinaryOperator::And, boolean(true), boolean(false)),
+    )
+    .unwrap();
 
     let bool_constants = instructions(&builder)
         .into_iter()
@@ -114,13 +120,11 @@ fn raw_lhs_failure_stops_before_short_circuit_cfg() {
         .blocks
         .len();
 
-    let error = builder
-        .build_expression(binary(
-            BinaryOperator::And,
-            variable("missing_lhs"),
-            boolean(true),
-        ))
-        .unwrap_err();
+    let error = drive_raw_legacy_expression_v1(
+        &mut builder,
+        binary(BinaryOperator::And, variable("missing_lhs"), boolean(true)),
+    )
+    .unwrap_err();
 
     assert!(error.contains("Undefined variable: missing_lhs"));
     assert_eq!(
@@ -141,13 +145,11 @@ fn raw_lhs_failure_stops_before_short_circuit_cfg() {
 fn raw_rhs_failure_occurs_after_entering_eval_block() {
     let mut builder = builder("sc0_raw_rhs_failure/0");
 
-    let error = builder
-        .build_expression(binary(
-            BinaryOperator::Or,
-            boolean(false),
-            variable("missing_rhs"),
-        ))
-        .unwrap_err();
+    let error = drive_raw_legacy_expression_v1(
+        &mut builder,
+        binary(BinaryOperator::Or, boolean(false), variable("missing_rhs")),
+    )
+    .unwrap_err();
 
     assert!(error.contains("Undefined variable: missing_rhs"));
     assert!(
@@ -166,9 +168,11 @@ fn raw_rhs_failure_occurs_after_entering_eval_block() {
 #[test]
 fn ordinary_binary_remains_on_bin0_after_short_circuit_cutover() {
     let mut builder = builder("sc0_raw_ordinary_control/0");
-    let output = builder
-        .build_expression(binary(BinaryOperator::Add, integer(2), integer(3)))
-        .unwrap();
+    let output = drive_raw_legacy_expression_v1(
+        &mut builder,
+        binary(BinaryOperator::Add, integer(2), integer(3)),
+    )
+    .unwrap();
 
     assert!(instructions(&builder).iter().any(
         |(_, instruction)| matches!(instruction, MirInstruction::BinOp { dst, .. } if *dst == output)
@@ -181,18 +185,18 @@ fn ordinary_binary_remains_on_bin0_after_short_circuit_cutover() {
 #[test]
 fn failed_raw_short_circuit_allows_a_fresh_builder() {
     let mut failed = builder("sc0_raw_failed/0");
-    assert!(failed
-        .build_expression(binary(
-            BinaryOperator::And,
-            variable("missing"),
-            boolean(true),
-        ))
-        .is_err());
+    assert!(drive_raw_legacy_expression_v1(
+        &mut failed,
+        binary(BinaryOperator::And, variable("missing"), boolean(true),),
+    )
+    .is_err());
 
     let mut fresh = builder("sc0_raw_fresh/0");
-    let output = fresh
-        .build_expression(binary(BinaryOperator::And, boolean(true), boolean(true)))
-        .unwrap();
+    let output = drive_raw_legacy_expression_v1(
+        &mut fresh,
+        binary(BinaryOperator::And, boolean(true), boolean(true)),
+    )
+    .unwrap();
     assert_eq!(
         fresh.function_state.type_ctx.value_types.get(&output),
         Some(&MirType::Bool)

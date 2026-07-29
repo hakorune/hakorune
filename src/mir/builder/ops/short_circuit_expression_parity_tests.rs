@@ -2,7 +2,9 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::value_kind::MirValueKind;
 use crate::mir::{BasicBlockId, MirBuilder, MirInstruction, MirType, ValueId};
 
-use super::super::recursive_child_lowering::with_legacy_expression_recursion_guard_v1;
+use super::super::recursive_child_lowering::{
+    drive_raw_legacy_expression_v1, with_legacy_expression_recursion_guard_v1,
+};
 use super::logical_shortcircuit::build_logical_shortcircuit_pre_sc0_i0_reference_v1;
 
 #[derive(Debug, PartialEq)]
@@ -68,7 +70,7 @@ fn builder(name: &str) -> MirBuilder {
 }
 
 fn lower_selected(builder: &mut MirBuilder, expression: ASTNode) -> Result<ValueId, String> {
-    builder.build_expression(expression)
+    drive_raw_legacy_expression_v1(builder, expression)
 }
 
 fn lower_pre_i0_reference(

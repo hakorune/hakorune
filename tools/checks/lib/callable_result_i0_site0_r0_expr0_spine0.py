@@ -107,6 +107,20 @@ def main() -> None:
     located_short_circuit_tests = read(root, located_short_circuit_tests_path)
     logical_owner = read(root, logical_owner_path)
 
+    for fixture_text, expected_raw_calls, label in (
+        (parity_tests, 3, "Binary parity"),
+        (raw_tests, 10, "Binary raw"),
+        (short_circuit_parity_tests, 1, "short-circuit parity"),
+        (short_circuit_raw_tests, 7, "short-circuit raw"),
+    ):
+        require_count(fixture_text, ".build_expression(", 0, f"{label} facade callers")
+        require_count(
+            fixture_text,
+            "drive_raw_legacy_expression_v1(",
+            expected_raw_calls,
+            f"{label} raw-driver callers",
+        )
+
     require_count(
         module,
         "trait BinaryExpressionDescentPortV1",

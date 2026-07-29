@@ -2,7 +2,9 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::value_kind::MirValueKind;
 use crate::mir::{BasicBlockId, MirBuilder, MirInstruction, MirType, ValueId};
 
-use super::super::recursive_child_lowering::with_legacy_expression_recursion_guard_v1;
+use super::super::recursive_child_lowering::{
+    drive_raw_legacy_expression_v1, with_legacy_expression_recursion_guard_v1,
+};
 
 #[derive(Debug, PartialEq)]
 struct BinaryParitySnapshotV1 {
@@ -57,7 +59,7 @@ fn builder(name: &str) -> MirBuilder {
 }
 
 fn lower_selected(builder: &mut MirBuilder, expression: ASTNode) -> Result<ValueId, String> {
-    builder.build_expression(expression)
+    drive_raw_legacy_expression_v1(builder, expression)
 }
 
 fn lower_legacy_reference(
@@ -75,8 +77,8 @@ fn lower_legacy_reference(
         return Err("BIN0-P0 reference requires BinaryOp".to_string());
     };
     with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {
-        let left = builder.build_expression(*left)?;
-        let right = builder.build_expression(*right)?;
+        let left = drive_raw_legacy_expression_v1(builder, *left)?;
+        let right = drive_raw_legacy_expression_v1(builder, *right)?;
         builder.build_binary_op_from_values(operator, left, right)
     })
 }
