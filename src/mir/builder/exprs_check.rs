@@ -1,6 +1,6 @@
 use crate::ast::{ASTNode, CheckItem};
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RecursiveChildLoweringPortV1,
 };
 
 use super::{MirInstruction, ValueId};
@@ -10,14 +10,6 @@ mod select_type;
 use select_type::PreparedCheckSelectIntegerTypeV1;
 
 impl super::MirBuilder {
-    pub(super) fn build_check_expression(
-        &mut self,
-        items: Vec<CheckItem>,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_check_expression_with_port_v1(&mut port, items)
-    }
-
     /// Lower check items while retaining the caller's raw child-descent port.
     pub(in crate::mir::builder) fn build_check_expression_with_port_v1<Port>(
         &mut self,
@@ -57,7 +49,9 @@ mod tests {
     use super::super::MirBuilder;
     use super::super::{MirInstruction, MirType, ValueId};
     use crate::ast::{ASTNode, CheckItem, LiteralValue, Span};
-    use crate::mir::builder::recursive_child_lowering::RecursiveChildLoweringPortV1;
+    use crate::mir::builder::recursive_child_lowering::{
+        RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    };
 
     fn boolean_item(value: bool) -> CheckItem {
         CheckItem {
@@ -142,12 +136,20 @@ mod tests {
             .collect()
     }
 
+    fn lower_legacy_check(
+        builder: &mut MirBuilder,
+        items: Vec<CheckItem>,
+    ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        builder.build_check_expression_with_port_v1(&mut port, items)
+    }
+
     #[test]
     fn empty_check_returns_the_existing_const_integer_without_a_select() {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("check_empty/0".to_string());
 
-        let result = builder.build_check_expression(vec![]).unwrap();
+        let result = lower_legacy_check(&mut builder, vec![]).unwrap();
 
         assert_eq!(
             builder.function_state.type_ctx.get_type(result),
@@ -161,9 +163,9 @@ mod tests {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("check_multiple/0".to_string());
 
-        let result = builder
-            .build_check_expression(vec![boolean_item(true), boolean_item(false)])
-            .unwrap();
+        let result =
+            lower_legacy_check(&mut builder, vec![boolean_item(true), boolean_item(false)])
+                .unwrap();
         let selects = select_destinations(&builder);
 
         assert_eq!(selects.len(), 2);
@@ -210,9 +212,7 @@ mod tests {
     fn normal_finalization_snapshots_the_transient_check_select_fact() {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("check_finalize/0".to_string());
-        let result = builder
-            .build_check_expression(vec![boolean_item(true)])
-            .unwrap();
+        let result = lower_legacy_check(&mut builder, vec![boolean_item(true)]).unwrap();
 
         let finalized = builder.finalize_function_draft(false).unwrap();
         assert_eq!(

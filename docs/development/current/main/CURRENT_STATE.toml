@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-QMARK-LEGACY-FACADE-RETIRE0-RET0 is closed: its caller-zero ambient-port facade is deleted while the selected port-aware QMark owner remains sole. Fresh live-edge census is the only current stop. Final conformance must settle JoinModule before Ownership, View, and later features."
+status = "RAW-CHECK-LEGACY-FACADE-RETIRE0-RET0 is closed: its caller-zero ambient-port facade is deleted while the selected port-aware Check owner remains sole. Fresh live-edge census is the only current stop. Final conformance must settle JoinModule before Ownership, View, and later features."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-QMARK-LEGACY-FACADE-RETIRE0-RET0 is closed. The caller-zero QMark ambient RawLegacyChildLoweringPort facade is deleted, and the raw dispatcher continues to call the existing port-aware QMark owner exactly once. The sole current stop is a fresh live-edge census. Final conformance must settle compatibility/detached assets, JoinModule disposition, and corpus/backend parity before Ownership, View, or missing features start."""
+latest_card_summary = """RAW-CHECK-LEGACY-FACADE-RETIRE0-RET0 is closed. The caller-zero Check ambient RawLegacyChildLoweringPort facade is deleted, local tests use the explicit test port, and the raw dispatcher continues to call the existing port-aware Check owner exactly once. The sole current stop is a fresh live-edge census. Final conformance must settle compatibility/detached assets, JoinModule disposition, and corpus/backend parity before Ownership, View, or missing features start."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS2"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS3"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

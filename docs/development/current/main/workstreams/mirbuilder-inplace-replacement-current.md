@@ -29,17 +29,17 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: RAW-QMARK-LEGACY-FACADE-RETIRE0-RET0
-Result:        caller-zero ambient QMark port facade is deleted; dispatcher keeps
-               the sole port-aware QMark owner
+Latest landed: RAW-CHECK-LEGACY-FACADE-RETIRE0-RET0
+Result:        caller-zero ambient Check port facade is deleted; dispatcher keeps
+               the sole port-aware Check owner
 Latest design: fresh live-edge census required
-Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS2` is a design stop
+Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS3` is a design stop
 History:       Git history and the short landed tail below
 ```
 
 ## Current execution
 
-`MIRBUILDER-LIVE-EDGE-CENSUS2` — read-only design stop
+`MIRBUILDER-LIVE-EDGE-CENSUS3` — read-only design stop
 
 ```text
 Select:
@@ -53,6 +53,21 @@ Do not:
 Require:
   one execution, no retry/fallback, explicit compatibility sunset when one remains,
   and a fresh caller/owner census before naming an implementation row.
+```
+
+## Latest closeout
+
+```text
+RAW-CHECK-LEGACY-FACADE-RETIRE0-RET0
+
+`build_check_expression` facade                              = 0
+ambient production `RawLegacyChildLoweringPortV1`             = 0
+raw dispatcher -> with-port Check owner                       = exactly one
+Check unit / raw-port integration / shared guard / cargo check= green
+fallback / retry / grammar / result / control delta           = 0
+new source/test/check file                                    = 0 / 0 / 0
+largest touched source/check file                             < 800
+next                                                          = fresh live-edge census
 ```
 
 ## Latest closeout
@@ -168,7 +183,7 @@ largest touched source/check file                       < 800
 
 ```text
 Now
-  1 MIRBUILDER-LIVE-EDGE-CENSUS2
+  1 MIRBUILDER-LIVE-EDGE-CENSUS3
 
 Then, repeat
   2 select at most one named production edge or detached Delete asset
@@ -190,8 +205,8 @@ Only after Complete
 
 The observed shelves for the next census are the Program static-data source/
 metadata mix, header-sensitive Call compatibility, raw/static-Main compatibility,
-pipeline authority, raw AST/Recipe composition, and function-state/control
-residuals. This list is evidence input, not execution order. Whole-function
+selected invocation Loop/CorePlan route policy, pipeline authority, raw AST/Recipe
+composition, and function-state/control residuals. This list is evidence input, not execution order. Whole-function
 accepted variants remain frozen.
 
 JoinModule remains out of the current replacement commit, but not out of the
