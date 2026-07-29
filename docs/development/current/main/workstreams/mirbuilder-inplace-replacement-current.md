@@ -580,21 +580,23 @@ largest touched source/check file          = 799
 
 ## Current execution row
 Closed: `RAW-FROM-CALL-ROUTE-ONCE0-I0-R0`, `RAW-SCOPEBOX-BODY-ROUTE-ONCE0-I0-R0`.
-Closed: `RAW-INDEX-READ-ROUTE-ONCE0-I0-R0`.
 ```text
-Pack / ceremony: CALL-OBJECT0 / T1, one atomic I0/R0.
-Named caller: raw dispatcher ASTNode::Index arm.
-New owner: opaque PreparedRawIndexReadV1, one prepared route.
-Atomic delete:
-  target/index clones, repeated Variable observation, read facades.
-Evidence: Index/static-data tests, type-publication authority,
-  replacement/pointer guards, cargo check, and reuse are green.
 Closed: RAW-ENUM-MATCH-ROUTE-ONCE0-I0-R0, CONTROL0/T1.
 Evidence: one opaque projection/bool route, one scrutinee descent,
   exact guard-let MIR, parser coverage, cargo check, and guard green.
 Deleted: dispatcher clones, Option probe, duplicate arm observation,
   raw-input and caller-zero facades.
-Next: MIRBUILDER-POST-ENUM-MATCH-LIVE-EDGE-CENSUS0-D0.
+Current: RAW-FIELD-READ-SOURCE-ROUTE-ONCE0-I0-R0, CALL-OBJECT0/T1.
+Named caller: sole raw dispatcher ASTNode::FieldAccess arm.
+New owner: opaque PreparedRawFieldReadV1; ExistingRecord,
+  RecordConstructor, RecordLiteral, RecordUpdate, or Dynamic.
+Atomic delete: object/field clones, Option record probe, read facades.
+Order: source route -> exact record terminal, or object once ->
+  local_field_base -> property lookup -> FastMem/ordinary FieldGet.
+Keep: record construction/update diagnostics and publication timing;
+  property failure has no ordinary retry; all write/place paths untouched.
+Forbid: record-to-dynamic retry, pre-child property/FastMem facts,
+  grammar/result delta, new test/check file, or any file >= 800.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:

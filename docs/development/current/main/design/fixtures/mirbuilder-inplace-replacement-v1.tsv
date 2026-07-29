@@ -40,6 +40,7 @@ cell	RAW-FROM-CALL-ROUTE-ONCE0-I0-R0	CALL-OBJECT0	raw_expression_dispatch.rs:AST
 cell	RAW-SCOPEBOX-BODY-ROUTE-ONCE0-I0-R0	DESCENT-SPINE0	statement_surface.rs:ASTNode-ScopeBox	PreparedRawScopeBoxV1+prepared-guard-let-or-ordinary-lower	body-clone+Option-try-route+no-port-facade	cargo-test:guard-let+ScopeBox-order+failure	-	closed
 cell	RAW-INDEX-READ-ROUTE-ONCE0-I0-R0	CALL-OBJECT0	raw_expression_dispatch.rs:ASTNode-Index	PreparedRawIndexReadV1+prepared-static-or-dynamic-lower	target/index-clone+repeated-Variable-observation+no-port-facade	cargo-test:index-order+static-data+metadata+failure	-	closed
 cell	RAW-ENUM-MATCH-ROUTE-ONCE0-I0-R0	CONTROL0	raw_expression_dispatch.rs:ASTNode-EnumMatchExpr	PreparedRawEnumMatchV1+prepared-projection-or-bool-select-lower	dispatcher-clones+Option-probe+double-arm-observation+no-port-facade	cargo-test:guard-let-enummatch+route+diagnostic+failure	-	closed
+cell	RAW-FIELD-READ-SOURCE-ROUTE-ONCE0-I0-R0	CALL-OBJECT0	raw_expression_dispatch.rs:ASTNode-FieldAccess	PreparedRawFieldReadV1+prepared-record-or-dynamic-lower	object-field-clones+Option-record-probe+read-facades	cargo-test:record-field+property-getter+FastMem+diagnostic+reuse	-	active
 asset	PORT-AWARE-CALLABLE-DRAFT	DESCENT-SPINE0	-	port_aware_function_draft_impl.rs	-	-	IntegrateNow	closed
 asset	GENERIC-DRAFT-COLLECTOR	FUNCTION-LIFECYCLE0	-	module_draft_collector.rs	-	-	IntegrateNow	closed
 asset	CANDIDATE-SESSION	MODULE-LIFECYCLE0	-	module_invocation_session.rs	-	-	IntegrateNow	closed
