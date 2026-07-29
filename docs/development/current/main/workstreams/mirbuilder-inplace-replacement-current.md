@@ -73,8 +73,10 @@ Closed:  REPL-TYPED-PROGRAM-INGRESS0-I0-R0
 Closed:  POST-MACRO-PROGRAM-ADMISSION0-D0
 Closed:  STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0
 Closed:  NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0
-Current: MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0
-Mode:    read-only live production-edge census
+Closed:  MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0
+Current: INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0
+Pack:    FUNCTION-LIFECYCLE0
+Ceremony: T0, one atomic production SSOT replacement
 ```
 
 R1 closeout:
@@ -821,17 +823,59 @@ quick gate                                           = unrelated pre-existing
   docs/reference/language/EBNF.md naming-token failure
 ```
 
-## Current design stop
+## Current execution brief
 
-`MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0`.
+`INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0` / parent
+`MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0` / T0 /
+`FUNCTION-LIFECYCLE0`.
 
 ```text
-Read the live production graph after the verified Main handoff. Select at most
-one bounded responsibility only when it names a production caller, one new or
-existing selected owner, and a same-commit old-edge deletion. Do not select
-from the historical queue, add a proof-only route, or start View/Ownership.
-If the first credible edge crosses policy, source identity, physical ABI, or
-multiple lifecycle owners, stop with a consultation instead of implementation.
+Named production callers:
+  lower_program_statements_with_callable_port_v1 instance-Box branch
+  build_expression_impl_with_port_v1 raw instance-Box branch
+
+New owner:
+  PreparedInstanceBoxMethodBatchV1
+  - Box owner name
+  - lexically sorted non-static FunctionDeclaration rows
+  - exact method name, Box.method/N symbol, params/decls/result/body/uses/attrs
+
+Durable terminals:
+  root:
+    exact callable-catalog lookup for each row
+    -> lower_root_instance_method
+  raw:
+    no catalog lookup
+    -> lower_instance_box_method
+
+Atomic delete:
+  both caller-local sorted_method_entries loops
+  duplicated FunctionDeclaration/static filtering
+  duplicated symbol formatting and field clone bundles
+  both direct caller-local method dispatch sites
+
+Preserve:
+  field registration and build_box_declaration before constructor batch
+  constructor batch before instance-method batch
+  lexical order, non-Function/static skip, first-error stop
+  root exact canonical-key error and raw no-lookup behavior
+  partial candidate state on failure; outer candidate discard/reuse
+  fallback/retry/reselection = 0
+
+Evidence:
+  shared batch lexical order and skip matrix
+  root canonical-key demand and missing-catalog fail-before-port
+  raw direct demand and method-N stop-before-later-method
+  general Program MIR/result parity and nested instance capture
+  late failure candidate isolation/compiler reuse
+
+Stop:
+  batch must not select or infer root-vs-raw route
+  raw gains no catalog admission; root loses no exact lookup
+  no method-before-constructor reorder or source admission change
+  no public row/AST recovery, new failure owner, fallback, retry
+  no grammar/result/publication/View/Ownership change
+  no new per-row test/check file; every source/check file < 800
 ```
 
 ## Latest closeout
@@ -1096,7 +1140,8 @@ R50 MIRBUILDER-POST-CONSTRUCTOR-BATCH-LIVE-EDGE-CENSUS0-D0 closed: root expansio
 R51 NORMAL-DEFAULT-ROOT-EXPANSION-ROUTE-HANDOFF0-I0-R0 closed
 R52 MIRBUILDER-POST-ROOT-EXPANSION-HANDOFF-LIVE-EDGE-CENSUS0-D0 closed: verified Main handoff selected
 R53 NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0 closed
-R54 MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0 current
+R54 MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0 closed
+R55 INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

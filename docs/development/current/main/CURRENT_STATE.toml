@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0 is closed. Selected Program App lowering now consumes the existing VerifiedMainExpansionV1 directly for the Main root, sorted static children, and callable-main symbol. The raw Main method-map accumulator/clone, impossible App fallback, selected compatibility-facade edge, and helper re-sort/re-projection are deleted. Explicit raw Main compatibility retains the shared Main body/state kernel. A fresh read-only live-edge census is now the only design stop."
+status = "The post-verified-Main live-edge census selected INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0. Program-root and raw instance-Box branches still duplicate the same lexical sorting, non-static FunctionDeclaration projection, symbol construction, field cloning, and method dispatch. The next T0 cell introduces one source batch with distinct durable root/raw terminals and atomically deletes both caller-local production loops without changing catalog admission, constructor order, failure behavior, or grammar."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = ""
+current_design_stop = ""
+current_execution_row = "INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0"
+current_execution_summary = "T0 FUNCTION-LIFECYCLE0: prepare every lexically sorted non-static instance FunctionDeclaration once into a sealed owner/method/symbol/body row batch. The Program-root terminal keeps exact callable-catalog lookup before lower_root_instance_method; the raw terminal keeps direct lower_instance_box_method with no new lookup. Delete both caller-local loops in the same commit. Field registration, build_box_declaration, constructor-before-method order, first-error stop, candidate isolation, result/publication, fallback/retry, View, and Ownership do not move."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0 is closed. Selected Program App lowering consumes VerifiedMainExpansionV1 directly, and the selected raw Main accumulator/clone, impossible fallback, compatibility facade call, helper re-sort, and symbol re-projection are zero. Helper order and first-failure stop, callable-main Required/Omitted behavior, explicit raw compatibility, general Program parity, candidate isolation/reuse, result/publication, fallback/retry, View, and Ownership remain unchanged. The sole next authority is a fresh live production-edge census."""
+latest_card_summary = """INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0 is selected from a fresh four-angle live-edge census. One PreparedInstanceBoxMethodBatchV1 will own the exact sorted non-static method rows shared by the Program-root and raw instance-Box branches. Route-specific consuming terminals preserve the root catalog/key admission and raw direct child demand while deleting both local sort/projection/symbol/clone/dispatch loops. No compatibility owner, sunset, grammar, result, View, Ownership, fallback, or retry is introduced."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0"
+current_blocker_token = "INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
