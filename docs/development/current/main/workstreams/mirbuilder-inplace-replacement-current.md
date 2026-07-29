@@ -72,9 +72,9 @@ Closed:  REPL-TYPED-PROGRAM-INGRESS0-D0
 Closed:  REPL-TYPED-PROGRAM-INGRESS0-I0-R0
 Closed:  POST-MACRO-PROGRAM-ADMISSION0-D0
 Closed:  STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0
-Current: MIRBUILDER-POST-CONSTRUCTOR-BATCH-LIVE-EDGE-CENSUS0-D0
-Pack:    read-only live-edge census
-Ceremony: design stop; production edit 0
+Current: NORMAL-DEFAULT-ROOT-EXPANSION-ROUTE-HANDOFF0-I0-R0
+Pack:    MODULE-LIFECYCLE0
+Ceremony: T1, one atomic production replacement
 ```
 
 R1 closeout:
@@ -821,19 +821,51 @@ quick gate                                           = unrelated pre-existing
   docs/reference/language/EBNF.md naming-token failure
 ```
 
-## Current design stop
+## Current execution brief
 
-`MIRBUILDER-POST-CONSTRUCTOR-BATCH-LIVE-EDGE-CENSUS0-D0`
+`NORMAL-DEFAULT-ROOT-EXPANSION-ROUTE-HANDOFF0-I0-R0` / parent
+`MIRBUILDER-POST-CONSTRUCTOR-BATCH-LIVE-EDGE-CENSUS0-D0` / T1 /
+`MODULE-LIFECYCLE0`.
 
 ```text
-Read-only:
-  enumerate remaining live competing MirBuilder authorities after the
-  constructor-batch closeout. Select at most one named production edge whose
-  old authority can be deleted in the same bounded replacement commit.
+Named production chain:
+  NormalDefaultPublishedPipelineV1
+  -> complete_normal_default_program_root_catalog_lifecycle
+  -> lower_normal_default_program_root_catalog_v1
+  -> lower_program_root_with_callable_port_v1
 
-Do not:
-  infer the next row from historical queues, add a whole-function accepted
-  variant, widen grammar, start View/Ownership, or build a caller-zero route.
+Change:
+  bind the existing VerifiedRawRootExpansionV1 once before prepare_module,
+  borrow-thread it through the selected normal Program lifecycle, and derive
+  root_is_app_mode only from its Script/App variant before statement effects.
+
+Atomic delete:
+  declaration_indexer::has_main_static definition and sole caller
+  root_is_app_mode.unwrap_or_else ambient fallback
+  second AST App/Script classification
+  immediate discard of the verified expansion receipt
+
+Preserve:
+  invalid/duplicate Main fails at RootExpansion before prepare_module
+  CatalogSeal/CatalogInstall/RootLower/Finalize order and diagnostics
+  one root_is_app_mode publication for existing raw nested-static observation
+  Main/helper/body, catalog/index/static-data, collector/publication behavior
+  explicit compatibility routes, fallback/retry/reselection = 0
+
+Evidence:
+  Script and App route disposition from the receipt
+  invalid Main precedence
+  general Program MIR/result parity
+  late failure leaves live Builder unchanged and reusable
+  shared guard: from_program issuer=1, handoff consumer=1,
+    has_main_static/unwrap fallback=0
+
+Stop:
+  no AST clone/reparse/source reread/self-referential storage
+  no Main/helper grammar or diagnostic change
+  do not remove root_is_app_mode before its raw observer migrates
+  no raw_source_projection/Stage-B activation, new failure owner, or new guard
+  every source/check file remains below 800 lines
 ```
 
 ## Latest closeout
@@ -1022,7 +1054,8 @@ R46 MIRBUILDER-POST-DEFERRED-STATIC-BOX-LIVE-EDGE-CENSUS0-D0 closed: method-batc
 R47 NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0 closed
 R48 MIRBUILDER-POST-STATIC-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0 closed: constructor batch selected
 R49 INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0 closed
-R50 MIRBUILDER-POST-CONSTRUCTOR-BATCH-LIVE-EDGE-CENSUS0-D0 current design stop
+R50 MIRBUILDER-POST-CONSTRUCTOR-BATCH-LIVE-EDGE-CENSUS0-D0 closed: root expansion handoff selected
+R51 NORMAL-DEFAULT-ROOT-EXPANSION-ROUTE-HANDOFF0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
