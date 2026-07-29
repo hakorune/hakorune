@@ -91,33 +91,37 @@ Closed:  MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0
 Closed:  MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0
 Closed:  VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0
-Current: MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0
-Mode:    read-only fresh live-edge census
+Closed:  MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0
+Current: VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0
+Mode:    one atomic T1 I0/R0
 ```
 
 ## Current execution brief
 
-`MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0` /
-parent R71 / read-only
+`VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0` / parent R72 / T1 /
+`MODULE-LIFECYCLE0`
 
 ```text
 Change:
-  Inventory remaining live MirBuilder production edges after the selected Main
-  helper handoff. Select exactly one bounded production replacement or
-  detached Delete asset.
+  Extend VerifiedMainRootBodyV1 with exact borrowed function parts and issue a
+  bounded owned root lowering payload. The selected Main terminal consumes it
+  without passing root().source() into a raw AST classifier.
 
 Contract:
-  Read-only only. Rank candidates by authority reduction and smallest safe
-  same-commit old-edge deletion. Do not merge raw and verified Main admission
-  or add compatibility, fallback, grammar, View, or Ownership authority.
+  Preserve expansion as pre-Builder issuer; helper/root order; callable-main
+  policy and distinct identity; argument materialization; static and variable
+  map restoration; first body failure; and the raw Main compatibility route.
 
 Done:
-  One named caller, one replacement owner or deletion, one exact old edge, and
-  fallback/retry=0 are fixed in the next four-block execution brief.
+  The selected verified path has no root().source() lowering handoff, no
+  FunctionDeclaration rematch, and no selected late missing/not-function
+  error. Existing Main root/compatibility, parity, failure/reuse, and guards
+  remain green without new files.
 
 Stop:
-  No production edit, new grammar, View/Ownership activation, compatibility
-  growth, or task queue beyond the single selected next row.
+  Return to design if raw Main is routed through the verified payload, root and
+  callable-main identity merge, source is cloned/reparsed, failure order/text
+  changes, or fallback/retry/View/Ownership/new grammar appears.
 ```
 
 ## Latest closeout
@@ -1343,7 +1347,8 @@ R68 MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0 closed
 R69 RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0 closed
 R70 MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 closed
 R71 VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0 closed
-R72 MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0 current
+R72 MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0 closed
+R73 VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0 closed at 67085bec4f. VerifiedMainExpansionV1 now retains exact borrowed function parts for each selected Main helper and issues one bounded owned lowering payload; build_verified_static_main_box_with_port_v1 no longer reopens or reclassifies helper AST and the impossible main-expansion/static-child-source rejection is zero. The lane is stopped at MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0. Raw Main compatibility, View, Ownership, and other unimplemented features remain parked."
+status = "The post-verified-Main-child-handoff live-edge census selected VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0. VerifiedMainExpansionV1 already proves Main.main is a static FunctionDeclaration before Builder effects, but the selected terminal passes root().source() into a shared raw helper that re-matches the AST and retains impossible selected late missing/not-function errors. The selected T1 row issues one verified root-body lowering payload and atomically deletes that selected lower-side reclassification. Raw Main compatibility, callable-main identity, grammar, result, View, and Ownership remain unchanged."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = ""
+current_design_stop = ""
+current_execution_row = "VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0"
+current_execution_summary = "Project already-verified Main root function parts and callable-main symbol through one typed payload; delete the selected root().source() handoff, Lower-side FunctionDeclaration rematch, and impossible selected missing/not-function rejection."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, and selected Main helper lower-side AST reclassification are deleted. A fresh read-only live-edge census must select one bounded production replacement or detached Delete asset. View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, and selected Main helper lower-side AST reclassification are deleted. The next T1 row removes selected Main root lower-side AST reclassification behind the existing verified expansion. View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
