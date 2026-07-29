@@ -578,22 +578,30 @@ new source/test/check/task file            = 0
 largest touched source/check file          = 799
 ```
 
-## Current design stop
-`MIRBUILDER-BUILD-EXPRESSION-TEST-EVIDENCE0-D0` — read-only
+## Current execution series
+`MIRBUILDER-BUILD-EXPRESSION-TEST-EVIDENCE0-D0` — accepted
 ```text
 Observed:
-  build_expression production reachability = 0; remaining compiled test calls
-  = 103 after dead If and short-circuit evidence cleanup.
-Decide:
-  Responsibility batches: raw oracle -> raw driver; selected owner -> its port;
-  setup literal -> exact emission. No generic test replacement facade.
+  production reachability = 0; test/evidence callers = 102 / 24 files;
+  facade definition = 1.
+Disposition:
+  SETUP          -> exact emitter/binding setup
+  RAW-ORACLE     -> durable raw driver
+  SELECTED-OWNER -> exact typed owner and port
+  RETIRE         -> delete evidence that proves only facade forwarding
 Keep:
-  Global raw driver and located legacy callers; test semantics and diagnostics.
+  Oracle independence, diagnostics/order, raw driver, and located callers.
 Forbid:
-  API deletion before caller zero, mixed build_statement/build_block cleanup,
+  Generic test facade, selected/reference convergence on one top-level driver,
+  API deletion before caller zero, build_statement/build_block cleanup,
   grammar change, fallback/retry, or Ownership/View activation.
 ```
-After caller zero, delete the crate-internal facade in a separate T1 RET0.
+T1 responsibility batches:
+```text
+1 RECURSIVE-EXPR 7 <- current; 2 EXPRESSION-OWNER 21; 3 CALL-OBJECT 22
+4 BINDING-STMT 34; 5 EXIT-CONTROL-PLAN 18; 6 FACADE0-RET0 after caller=0
+```
+Each batch records exact census; stop rather than widen visibility or add an adapter.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)
@@ -602,8 +610,7 @@ Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 4 MIRBUILDER-MINIMAL-LIFECYCLE-SMOKE0-R0 closed (1 -> 0)
 5 MIRBUILDER-PUBLIC-ROOT-API0-RET0 closed (definition/wrappers -> 0)
 ```
-External consumers are unknown, not zero. Migration is `MirCompiler::compile*`
-for Program; no public arbitrary-root replacement is introduced.
+External consumers are unknown; migration is `MirCompiler::compile*` for Program.
 
 Compatibility sunset:
 ```text
