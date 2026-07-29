@@ -14,7 +14,6 @@
     },
     "import_callers": {
       "src/runner/keep/vm.rs": 1,
-      "src/runner/modes/mir_interpreter.rs": 1,
       "src/runner/reference/vm_hako/compile_bridge.rs": 1
     }
   },

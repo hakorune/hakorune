@@ -8,7 +8,7 @@ Production behavior delta: `0`
 | Inventory | Rows |
 | --- | ---: |
 | Kept MIR instructions | 43 |
-| Caller surfaces | 9 |
+| Caller surfaces | 10 |
 | Fixture families | 6 |
 | Transports | 9 |
 | VMValue classes | 9 |
@@ -81,12 +81,13 @@ Production behavior delta: `0`
 | --- | --- | --- |
 | dispatch_product_module | product | HMI-P1 plus SSA-I1-O1 plus HMI-C0/X0 product cutover |
 | dispatch_quiet_reference | semantic_reference | HMI-P1 parity and HMI-X0 cutover, then HMI-R1 caller zero |
-| explicit_mir_interpreter_mode | vm_only_compatibility | explicit interpreter backend dispatch is retired or receives an exact replacement owner |
 | joinir_runner_api | vm_only_compatibility | experimental JoinIR runner removes its typed MirInterpreter dependency |
 | joinir_runner_exec | vm_only_compatibility | experimental JoinIR runner removes its typed MirInterpreter dependency |
 | joinir_vm_bridge | vm_only_compatibility | strict V1 direct ingress and bridge canary parity with no VMValue conversion |
+| raw_published_vm_reference | semantic_reference | HMI-C0/X0 .hako semantic-reference parity plus raw-vm-reference terminal cutover and caller zero, then HMI-R1 |
 | repl_vm_reference | vm_only_compatibility | REPL strict V1 ingress and session/result parity |
 | runner_compiled_vm | vm_only_compatibility | explicit vm and vm-fallback routes are retired or replaced by EXE/AOT |
+| source_entry_canonical_vm_reference | semantic_reference | HMI-C0/X0 .hako semantic-reference parity plus normal-file-canonical-core-vm-reference cutover and caller zero, then HMI-R1 |
 | strict_json_session_api | vm_only_compatibility | strict-json VM fixture/API family receives an exact replacement owner |
 
 ## Transport lossiness

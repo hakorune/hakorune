@@ -595,21 +595,27 @@ largest touched source/check file    = 798
 
 ## Current execution
 
-`MIR-INTERPRETER-DETACHED-ASSET-RETIRE0-RET0` / T1 / replacement credit 0
+`BENCH-DETACHED-ASSET-RETIRE0-RET0` / T1 / replacement credit 0
 
 ```text
 Change:
-  delete uncompiled runner/modes/mir_interpreter.rs and its false caller rows
+  delete uncompiled runner/modes/bench.rs and its two false manifest rows
 
 Contract:
-  modes/mod.rs declaration, path/include seam, and external caller remain zero;
-  live backend/mir_interpreter and product/keep/reference behavior do not move
+  wiring/callers remain zero; live CLI benchmark rejection and every
+  product/keep/reference route do not move
 
 Done:
-  source path/symbol and stale inventory rows are zero; existing shared guards green
+  path/symbol/manifest rows are zero; existing shared guards green
 
 Stop:
   any real module/caller edge appears, or deletion requires a replacement route
+```
+
+MIR-interpreter detached retirement closeout:
+
+```text
+source -142; false caller 0; HMI caller inventory 10 exact; behavior delta 0
 ```
 
 Compatibility sunset:
@@ -707,7 +713,8 @@ R9  REPL-TYPED-PROGRAM-INGRESS0-I0-R0 closed
 R10 POST-MACRO-PROGRAM-ADMISSION0-D0 closed
 R11 STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0 closed
 R12 MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0 closed: NoProductionCaller
-R13 MIR-INTERPRETER-DETACHED-ASSET-RETIRE0-RET0 current
+R13 MIR-INTERPRETER-DETACHED-ASSET-RETIRE0-RET0 closed
+R14 BENCH-DETACHED-ASSET-RETIRE0-RET0 current
 
 after every bounded retirement:
   run a fresh live-edge census
