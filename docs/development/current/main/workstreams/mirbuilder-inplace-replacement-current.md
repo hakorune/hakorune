@@ -32,29 +32,46 @@ Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Latest landed: NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0
 Result:        selected Program declaration indexing is one source-only,
                source-ordered product; the old indexer edge and file are gone
-Current stop:  MIRBUILDER-LIVE-EDGE-CENSUS0
-Executable:    none — census only
+Current stop:  PROGRAM-ROOT-WORK-PARTITION0-D0
+Executable:    none — T2 design only
 History:       Git history and the short landed tail below
 ```
 
 ## Current stop
 
-`MIRBUILDER-LIVE-EDGE-CENSUS0` — fresh read-only production census
+`PROGRAM-ROOT-WORK-PARTITION0-D0` — T2 source-only work-partition design
 
 ```text
-Scope:
-  Inventory live production edges and explicit compatibility surfaces after the
-  declaration-facts replacement. This is not an implementation row.
+Named live caller:
+  `MirBuilder::lower_program_root_with_callable_port_v1`
+  -> `lower_program_statements_with_callable_port_v1`
 
-Selection rule:
-  Choose at most one named production edge or detached delete asset. It must name
-  its current owner, replacement owner, same-commit deletion, and any compatibility
-  sunset/retirement condition. Do not schedule a proof-only route or a new language
-  semantic slice.
+Current mixed authority:
+  The latter method reclassifies Program AST, schedules immediate instance/top-level
+  work, accumulates deferred non-Main static Box work, retains runtime statements,
+  and selects the existing Script/App terminal order.
 
-Stop:
-  If no bounded edge satisfies those conditions, record NoSafeI0 and return to
-  design; do not grow a compatibility owner or infer a default cutover.
+Design target:
+  One source-only, source-order `PreparedProgramRootWorkPlanV1` (name provisional)
+  that partitions the already-cloned statement vector exactly once. It may retain
+  owned work payloads, but owns no declaration facts, static-table planning,
+  instance/static/Main lifecycle, collector, body lowering, new source rejection,
+  or retry/fallback policy.
+
+Required I0/R0 deletion after D0:
+  Delete the full lower-side Program `for statement` classifier, its runtime
+  `FunctionDeclaration` filter, local deferred-static vector, and direct top-level
+  callable projection. A wrapper around only one clone family is not a replacement.
+
+Preserve:
+  facts -> static-table -> work preparation order; immediate source order; deferred
+  static source order; runtime Box retention; existing Script/App terminal owners;
+  dirty candidate failure prefix and outer collector discard; root clone count.
+
+Do not select:
+  raw non-Program descent (NoSafeI0: selected normal is Program-only), Call
+  compatibility deletion (requires its own multi-owner D0), raw static-Main carrier
+  retirement (requires reachability/env-policy D0), or JoinModule deletion (final-C0).
 ```
 
 ## Latest closeout
@@ -93,12 +110,14 @@ largest touched source/check file                       < 800
 
 ```text
 Now
-  1 fresh live-edge census
+  1 PROGRAM-ROOT-WORK-PARTITION0-D0
+  2 if accepted, one atomic I0/R0 that deletes the full mixed Program-root classifier
 
 Then, repeat
-  2 select at most one named production edge or detached Delete asset
-  3 switch it and delete its old authority in the same commit
-  4 return to step 1
+  3 fresh live-edge census
+  4 select at most one named production edge or detached Delete asset
+  5 switch it and delete its old authority in the same commit
+  6 return to step 3
 
 When live cleanup reaches closure
   6 MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0
@@ -1436,6 +1455,9 @@ R90 NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-D0 closed: total source-ordered
     facts product accepted; atomic indexer replacement is next
 R91 NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0 closed: source-only facts
     product replaces the selected raw indexer edge; fresh live-edge census is current
+R92 MIRBUILDER-LIVE-EDGE-CENSUS0 closed: raw non-Program is NoSafeI0, immediate
+    compatibility retirement has no safe I0, and Program-root work partition is the
+    sole selected T2 design stop; JoinModule remains final-C0 disposition work
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
