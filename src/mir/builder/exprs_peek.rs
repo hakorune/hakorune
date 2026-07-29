@@ -74,10 +74,11 @@ impl super::MirBuilder {
 
         // Chain dispatch blocks for each arm
         let mut cur_dispatch = dispatch_block;
-        for (i, (label, arm_expr)) in arms.iter().cloned().enumerate() {
+        let arm_count = arms.len();
+        for (i, (label, arm_expr)) in arms.into_iter().enumerate() {
             let then_block = self.next_block_id();
             // Next dispatch (only for non-last arm)
-            let next_dispatch = if i + 1 < arms.len() {
+            let next_dispatch = if i + 1 < arm_count {
                 Some(self.next_block_id())
             } else {
                 None

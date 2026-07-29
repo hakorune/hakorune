@@ -202,12 +202,7 @@ impl super::MirBuilder {
                 arms,
                 else_expr,
                 ..
-            } => self.build_peek_expression_with_port_v1(
-                port,
-                *scrutinee.clone(),
-                arms.clone(),
-                *else_expr.clone(),
-            ),
+            } => self.build_peek_expression_with_port_v1(port, *scrutinee, arms, *else_expr),
 
             ASTNode::EnumMatchExpr {
                 enum_name,

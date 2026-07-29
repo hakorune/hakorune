@@ -23,6 +23,7 @@ LOCATED_LOCAL="$ROOT_DIR/src/mir/builder/located_legacy_lowering.rs"
 VARIABLE_STMT="$ROOT_DIR/src/mir/builder/stmts/variable_stmt.rs"
 LOCAL_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0.py"
 RAW_DISPATCH="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/mod.rs"
+MATCH_OWNER="$ROOT_DIR/src/mir/builder/exprs_peek.rs"
 BUILDER_BUILD="$ROOT_DIR/src/mir/builder/builder_build.rs"
 ASSIGNMENT_DESCENT="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_descent.rs"
 LOCATED_ASSIGNMENT="$ROOT_DIR/src/mir/builder/located_legacy_assignment.rs"
@@ -67,7 +68,7 @@ guard_exact_counts() {
     fi
   done
 }
-for command in awk find rg wc xargs; do
+for command in awk find rg sed wc xargs; do
   guard_require_command "$TAG" "$command"
 done
 guard_require_files \
@@ -92,6 +93,7 @@ guard_require_files \
   "$VARIABLE_STMT" \
   "$LOCAL_GUARD" \
   "$RAW_DISPATCH" \
+  "$MATCH_OWNER" \
   "$BUILDER_BUILD" \
   "$ASSIGNMENT_DESCENT" \
   "$LOCATED_ASSIGNMENT" \
@@ -720,6 +722,12 @@ fi
 if rg -n -P '\bfn\s+build_expression\s*\(' \
   "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired MirBuilder build_expression facade returned"
+fi
+match_branch="$(sed -n '/ASTNode::MatchExpr {/,/ASTNode::EnumMatchExpr {/p' "$RAW_DISPATCH")"
+if rg -n -F '.clone()' <<<"$match_branch" >/dev/null ||
+   ! rg -n -F 'arms.into_iter().enumerate()' "$MATCH_OWNER" >/dev/null ||
+   rg -n -F 'arms.iter().cloned()' "$MATCH_OWNER" >/dev/null; then
+  guard_fail "$TAG" "Match owned input must have one consuming production owner"
 fi
 for file in \
   "$LOWERING" \
