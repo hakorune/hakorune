@@ -580,15 +580,21 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: RAW-TASK-SCOPE-PREPARED-ADMISSION0-I0-R0.
-Caller: raw statement-surface ASTNode::TaskScope branch.
-Selected owner: PreparedRawTaskScopeV1 plus its consuming same-port lower terminal.
-Deleted: two raw TaskScope terminals, duplicate early-exit admission, source clones.
-Preserved: diagnostic precedence, push/body/pop order, child failure and pop behavior.
-Non-claims: cleanup-on-early-exit, Return/Throw/TryCatch semantics, new co capability.
-Evidence: admission matrix, loop-owned exit proof, source order/failure tests, shared guard.
-Fallback / retry / reselection: 0.
-Current stop: fresh production live-edge census; no next row is preselected.
+Selected: RAW-BLOCKEXPR-PREPARED-DESCENT0-I0-R0 (T1, one atomic commit).
+Caller: raw expression dispatcher ASTNode::BlockExpr arm.
+Owner: PreparedRawBlockExprV1 in focused raw-expression-dispatch child module.
+Delete: inline exit scan, diagnostic ownership, direct prelude loop, direct tail descent.
+
+Preserve: all-prelude admission before effects, exact diagnostic, source order,
+same child port, tail once, failure precedence, accepted surface and result.
+Forbid: clone/reparse, lower-side recheck, new scope, compatibility owner,
+fallback/retry, TryCatch/QMark/Loop work, new test/check/task file.
+
+Evidence: exact rejection with zero child demand; nested-loop exits remain
+accepted; prelude order and stop-on-failure; tail once; existing integration
+reuse; shared guard; all touched source/check files below 800 lines.
+
+After closeout: fresh production live-edge census. No following row is selected.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
