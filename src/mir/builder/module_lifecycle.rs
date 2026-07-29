@@ -56,10 +56,6 @@ use super::{
 };
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::config;
-use crate::mir::builder::preloop_stageb_context_install::InstalledPreloopStageBContextV1;
-use crate::mir::preloop_stageb_candidate_shell::{
-    PreloopStageBCandidateShellReadinessErrorV1, VerifiedPreloopStageBCandidateShellReadinessV1,
-};
 
 // Phase 29bq+: Declaration indexing extracted to dedicated module
 use super::declaration_indexer;
@@ -158,71 +154,6 @@ impl super::MirBuilder {
         Ok(())
     }
 
-    pub(in crate::mir) fn verify_preloop_stageb_candidate_shell_readiness_v1<'a>(
-        &self,
-        imports_are_explicit: bool,
-        import_count: usize,
-        imports: impl Iterator<Item = (&'a str, &'a str)>,
-    ) -> Result<
-        VerifiedPreloopStageBCandidateShellReadinessV1,
-        PreloopStageBCandidateShellReadinessErrorV1,
-    > {
-        let module = self
-            .current_module
-            .as_ref()
-            .ok_or(PreloopStageBCandidateShellReadinessErrorV1::CandidateModuleMissing)?;
-        let function = self
-            .function_state
-            .current_function
-            .as_ref()
-            .ok_or(PreloopStageBCandidateShellReadinessErrorV1::PhysicalMainMissing)?;
-        if function.signature.name != "main" {
-            return Err(PreloopStageBCandidateShellReadinessErrorV1::PhysicalMainNameMismatch);
-        }
-        if !function.signature.params.is_empty() {
-            return Err(PreloopStageBCandidateShellReadinessErrorV1::PhysicalMainArityMismatch);
-        }
-        let current_block = self
-            .function_state
-            .current_block
-            .ok_or(PreloopStageBCandidateShellReadinessErrorV1::CurrentBlockMissing)?;
-        if current_block != function.entry_block || !function.blocks.contains_key(&current_block) {
-            return Err(
-                PreloopStageBCandidateShellReadinessErrorV1::CurrentBlockIsNotPhysicalMainEntry,
-            );
-        }
-        debug_assert_eq!(module.name, "main");
-        if !self.comp_ctx.callable_declaration_catalog_lane_is_vacant() {
-            return Err(PreloopStageBCandidateShellReadinessErrorV1::CallableCatalogLaneOccupied);
-        }
-        let aliases_are_compatible = self.comp_ctx.using_import_boxes_are_vacant()
-            || (imports_are_explicit
-                && self
-                    .comp_ctx
-                    .using_import_boxes_match(import_count, imports));
-        if !aliases_are_compatible {
-            return Err(PreloopStageBCandidateShellReadinessErrorV1::ImportAliasLaneConflict);
-        }
-        Ok(VerifiedPreloopStageBCandidateShellReadinessV1::new())
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir) fn prepare_module_for_preloop_stageb_shell_test_v1(
-        &mut self,
-    ) -> Result<(), String> {
-        self.prepare_module()
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir) fn install_callable_catalog_for_preloop_stageb_shell_test_v1(
-        &mut self,
-        catalog: VerifiedSameModuleCallableDeclarationCatalogV1,
-    ) {
-        self.comp_ctx
-            .install_callable_declaration_catalog(catalog)
-            .expect("test candidate catalog lane must be vacant");
-    }
-
     /// Lower root AST to MIR (Orchestrator Step 2)
     ///
     /// Execution flow:
@@ -309,15 +240,6 @@ impl super::MirBuilder {
                 )
             }
         }
-    }
-
-    pub(in crate::mir) fn lower_root_with_preinstalled_catalog_v1(
-        &mut self,
-        source: &ASTNode,
-        _installed: &InstalledPreloopStageBContextV1,
-    ) -> Result<ValueId, String> {
-        let ast = source.clone();
-        self.lower_root_after_callable_catalog_install_v1(ast, source)
     }
 
     /// Finalize MIR module (Orchestrator Step 3)

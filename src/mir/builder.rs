@@ -59,8 +59,6 @@ mod function_state_transaction;
 mod located_legacy_lowering;
 #[allow(dead_code)]
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
-pub(in crate::mir) mod preloop_stageb_context_install; // atomic selected catalog+alias install
-mod preloop_stageb_function_activation; // exact selected-function ledger + collector owner
 mod raw_nonprogram_root_descent; // Shared root port-neutral partition
 mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
 #[cfg(test)]
@@ -195,10 +193,6 @@ pub(in crate::mir) use normal_module_transaction::{
     RejectedNormalCallableCommitV1, RejectedNormalCallableMainPhysicalV1,
     RejectedNormalHelperDraftPrefixV1, RejectedNormalScriptModuleTransactionV1,
     VerifiedScriptEntryResultContractV1,
-};
-pub(in crate::mir) use preloop_stageb_function_activation::{
-    CompletedPreloopStageBFunctionActivationV1, PreloopStageBFunctionActivationErrorV1,
-    PreparedPreloopStageBFunctionActivationV1, RejectedPreloopStageBFunctionActivationV1,
 };
 pub(in crate::mir) use raw_root_physical::drain_terminal::{
     PreparedRawPhysicalDrainV1, RawDrainWitnessV1, RawDrainedPhysicalV1, RawPhysicalDrainErrorV1,

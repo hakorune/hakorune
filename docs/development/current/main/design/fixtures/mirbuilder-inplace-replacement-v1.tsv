@@ -28,4 +28,4 @@ asset	PORT-AWARE-CALLABLE-DRAFT	DESCENT-SPINE0	-	port_aware_function_draft_impl.
 asset	GENERIC-DRAFT-COLLECTOR	FUNCTION-LIFECYCLE0	-	module_draft_collector.rs	-	-	IntegrateNow	closed
 asset	CANDIDATE-SESSION	MODULE-LIFECYCLE0	-	module_invocation_session.rs	-	-	IntegrateNow	closed
 asset	SOURCE-NEUTRAL-CALL-RECEIPT	CALL-OBJECT0	-	calls/unified_emitter	-	-	ReuseNeutral	closed
-asset	PRELOOP-STAGEB-SPECIAL-ACTIVATION	COMPILER-RESIDUE0	-	preloop_stageb_carrier	-	-	Delete	pending
+asset	PRELOOP-STAGEB-SPECIAL-ACTIVATION	COMPILER-RESIDUE0	-	preloop_stageb_carrier	-	-	Delete	closed

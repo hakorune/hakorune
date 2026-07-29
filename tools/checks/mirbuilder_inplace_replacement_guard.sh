@@ -46,8 +46,6 @@ FIELDS="$ROOT_DIR/src/mir/builder/fields.rs"
 PROPERTY_TESTS="$ROOT_DIR/src/tests/mir_unified_members_property_read.rs"
 RECORD_HELPER="$ROOT_DIR/src/mir/builder/record_helper_args.rs"
 RECORD_HELPER_TESTS="$ROOT_DIR/src/mir/builder/record_helper_args_tests.rs"
-PRELOOP_ARGUMENT="$ROOT_DIR/src/mir/builder/calls/preloop_located_argument_port.rs"
-PRELOOP_COMPLETION="$ROOT_DIR/src/mir/builder/calls/preloop_located_outer_completion.rs"
 METHOD_CALL_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_route0.py"
 RECORD_HELPER_GUARD="$ROOT_DIR/tools/checks/impl/k2_wide_allocator_record_construction_read_guard.sh"
 
@@ -99,8 +97,6 @@ guard_require_files \
   "$PROPERTY_TESTS" \
   "$RECORD_HELPER" \
   "$RECORD_HELPER_TESTS" \
-  "$PRELOOP_ARGUMENT" \
-  "$PRELOOP_COMPLETION" \
   "$METHOD_CALL_GUARD" \
   "$RECORD_HELPER_GUARD"
 
@@ -132,6 +128,41 @@ done
 if [[ "$(rg -F -c '"production_build_module_edges": 1' "$CALLER_MANIFEST")" != "2" ]]; then
   guard_fail "$TAG" "arbitrary-AST production sunsets must retain two measured edges"
 fi
+
+stageb_asset_count="$(awk -F '\t' '
+  $1 == "asset" &&
+  $2 == "PRELOOP-STAGEB-SPECIAL-ACTIVATION" &&
+  $8 == "Delete" &&
+  $9 == "closed" { count += 1 }
+  END { print count + 0 }
+' "$MANIFEST")"
+if [[ "$stageb_asset_count" != "1" ]]; then
+  guard_fail "$TAG" "Stage-B special activation asset must be Delete/closed"
+fi
+
+for retired_path in \
+  "$ROOT_DIR/src/mir/preloop_stageb_candidate_shell.rs" \
+  "$ROOT_DIR/src/mir/preloop_stageb_carrier" \
+  "$ROOT_DIR/src/mir/builder/calls/preloop_stageb_instance_function_session" \
+  "$ROOT_DIR/src/mir/builder/calls/preloop_located_argument_port.rs" \
+  "$ROOT_DIR/src/mir/builder/calls/preloop_located_outer_completion.rs"
+do
+  if [[ -e "$retired_path" ]]; then
+    guard_fail "$TAG" "retired Stage-B activation path returned: ${retired_path#"$ROOT_DIR/"}"
+  fi
+done
+
+for retired_symbol in \
+  PreloopStageBWholeSourceProducerV1 \
+  PreparedPreloopStageBModuleActivationV1 \
+  PreparedPreloopStageBFunctionActivationV1 \
+  collect_preloop_stageb_instance_function_v1 \
+  lower_root_with_preinstalled_catalog_v1
+do
+  if rg -n -F "$retired_symbol" "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+    guard_fail "$TAG" "retired Stage-B activation symbol returned: $retired_symbol"
+  fi
+done
 
 ratchet_header=$'source_files\tsource_loc\ttest_files\ttest_loc'
 if [[ "$(head -n1 "$STRUCTURAL_RATCHET")" != "$ratchet_header" ]] ||
@@ -519,7 +550,6 @@ $RECORD_HELPER|CatalogHelperChildV1::Expression\\(\\*expr\\.clone\\(\\)\\)|1|cat
 $RECORD_HELPER|CatalogHelperChildV1::Statement\\(stmt\\.clone\\(\\)\\)|1|catalog helper statement terminal
 $LOCATED_LOCAL|drive_raw_legacy_expression_v1\\(builder, expression\\)|1|located unlocated-expression projection
 $LOCATED_LOCAL|drive_raw_legacy_statement_v1\\(builder, statement\\)|1|located unlocated-statement projection
-$PRELOOP_ARGUMENT|self\\.ordinary\\.lower_catalog_helper_child\\(builder, child\\)|1|preloop ordinary-port projection
 EOF
 
 for retired_pattern in \
@@ -534,7 +564,7 @@ do
   fi
 done
 if rg -n -w 'retry|fallback|reselection' \
-  "$METHOD_CALL_DESCENT" "$RECORD_HELPER" "$LOCATED_LOCAL" "$PRELOOP_ARGUMENT" >/dev/null; then
+  "$METHOD_CALL_DESCENT" "$RECORD_HELPER" "$LOCATED_LOCAL" >/dev/null; then
   guard_fail "$TAG" "record-helper descent gained retry, fallback, or reselection"
 fi
 
@@ -637,8 +667,6 @@ for file in \
   "$PROPERTY_TESTS" \
   "$RECORD_HELPER" \
   "$RECORD_HELPER_TESTS" \
-  "$PRELOOP_ARGUMENT" \
-  "$PRELOOP_COMPLETION" \
   "$METHOD_CALL_GUARD" \
   "$RECORD_HELPER_GUARD" \
   "$ROOT_DIR/tools/checks/mirbuilder_inplace_replacement_guard.sh"

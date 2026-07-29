@@ -6,12 +6,6 @@ module, entry-block, or FunctionRegion state.
 ## Typed ingress contract
 
 - `LegacyModuleLoweringInputV1` owns a bare AST plus an explicit legacy origin.
-- `LegacyWholeSourceCompileRequestV1` is the disconnected pre-selection owner
-  for that input plus exactly one non-Clone
-  `CompilerSuppliedStaticImportSnapshotV1`.
-- The import snapshot distinguishes `None` from an explicitly supplied,
-  sorted/deduplicated table. It can seal only a borrowed same-catalog alias
-  view; it has no Builder installation or ambient lookup in the request row.
 - `ResolvedModuleLoweringInputV1` can only borrow an opaque
   `VerifiedResolvedSourceUnitV1`.
 - The verified unit is canonical syntax plus its sealed semantic owner forest;
@@ -19,20 +13,6 @@ module, entry-block, or FunctionRegion state.
 - A private request enum is matched once in `MirCompiler` and never reaches
   recursive Lower.
 - Canonical failure never retries through the legacy route.
-- The Stage-B request types have no production constructor caller until the
-  later source-selection row. Existing Legacy alias mutation and route
-  behavior remain unchanged meanwhile.
-- `PreloopStageBWholeSourceProducerV1` is the disconnected sole owner of the
-  bounded source-selection policy. Compatibility origins become explicit
-  `Ordinary(ProfileExcluded)` before proof work; complete candidate
-  cardinality becomes `Ordinary`, `Selected`, or a retained ambiguity
-  rejection.
-- Selection uses the same `seal_root` declaration surface as existing Builder
-  lowering. One candidate is immediately co-sealed with its exact boxed
-  catalog; prepared rows and construction-only catalog identity do not cross
-  the carrier boundary.
-- This selection row still has no production caller, Builder mutation,
-  catalog/import installation, fallback, or retry.
 - Production ingress is explicit by owner family. `resolve_function` owns the
   call-disabled body-only family. `VerifiedResolvedCallableProgramV1` owns all
   exact callable modules, including singleton self recursion. Neither retries

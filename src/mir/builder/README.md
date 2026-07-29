@@ -139,48 +139,14 @@ reach into route-specific plan internals. The current boundary SSOT is
   - Existing helper recursion remains an explicit raw leaf. Located inputs,
     caller ledgers, MethodCall route splitting, and result publication remain
     disconnected until their later SITE0-R0 rows.
-  - `calls/preloop_located_argument_port.rs` is one proof-only Raw candidate
-    Port for the selected pre-loop `CallArgument(1)`. The exact source owner
-    stays inside `Armed` / `InFlight` / `Reached` / `Rejected`; projection
-    exposes only a privately sealed one-shot token.
-  - `calls/preloop_located_argument_ingress.rs` consumes that retained owner
-    directly, accepts only the existing `Me -> Standard(Unified)` prepared
-    route, and delegates inner children plus terminal emission to the wrapped
-    ordinary Raw Port. A disabled unified-Call capability rejects before
-    selected inner argument descent instead of entering the ordinary Raw
-    compatibility route. The ingress does not re-enter the Raw dispatcher and
-    retains the exact selected-inner physical receipt without publishing a
-    type fact.
-  - `calls/preloop_located_outer_completion.rs` projects the catalog-backed
-    outer syntax without a RawLegacy clone, requires the existing
-    `StaticReceiver` plan, and reuses the sole static handler through
-    `StaticMethodCallCompletionV1`. Its candidate Port requires the selected
-    inner receipt before calling the source-neutral static/global receipt
-    sibling, then retains both successful physical Calls.
-  - `calls/preloop_outer_carrier_transaction.rs` consumes that complete
-    physical owner with the owned Stage-B body recipe and co-seals caller,
-    outer site, selected index, inner site, and the sealed Integer result. The
-    outer destination is projected only from the outer physical receipt.
   - `stmts/variable_assignment_completion.rs` is the source-neutral receipt
     sibling for the existing `build_assignment_from_value` authority. It calls
     that authority once and retains the exact target, RHS, and returned carrier
     without reading `variable_map` afterward.
-  - `calls/preloop_outer_carrier_assignment.rs` consumes the outer carrier and
-    that assignment receipt. It requires the source-sealed target and exact
-    `outer destination == RHS == returned carrier` correspondence; every
-    failure retains both owners and publishes no type fact.
-  - `calls/preloop_outer_carrier_type.rs` consumes only that completed
-    assignment carrier. It reuses the monotone `TypeFactDecisionV1`, commits
-    only `Publish(Integer)` through `TypeContext::set_type`, treats an existing
-    Integer as a physical no-op, and retains the complete carrier on conflict.
-    Inner destinations, direct fact-map writes, and GenericLoop publication
-    remain structurally unavailable.
   - `calls/method_call_terminal.rs` owns one source-neutral receipt-required
     static/global sibling. It shares `PreparedGlobalValueCallRequestV1` with
     the ordinary terminal and delegates to the existing generic physical Call
     receipt authority; it does not classify source results or publish facts.
-  - The configured ParserBox proof discards the whole fixture Builder. This is
-    not a production located-call entry or a general Builder transaction.
 - legacy block descent boundary
   - `src/mir/builder/stmts/block_driver.rs` alone owns scope lifetime, the
     existing suffix-router call, termination checks, last-value selection, and

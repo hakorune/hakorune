@@ -34,34 +34,6 @@ never issue that receipt. `unified_emitter/request_boundary.rs` owns the
 receipt-required sibling API; it rejects alternate and legacy routes without
 retry and owns no source classification or result-type publication.
 
-`preloop_nested_result_receipt.rs` owns the later one-shot correspondence
-between that physical value receipt and the exact retained pre-loop Integer
-source association. It keeps both until the containing outer call succeeds,
-then emits a destination-only nested result receipt. It owns no type-fact
-publication, MIR scan, persistent source map, retry, or loop-refresh policy.
-
-`preloop_outer_carrier_type.rs` is the separate outer-result publication
-owner. It accepts only the completed assignment carrier, delegates conflict
-policy to `TypeFactDecisionV1`, and writes through `TypeContext::set_type` only
-for `Publish`. The module cannot observe the inner receipt/destination, source
-syntax, Call emission, or GenericLoop; both success and conflict retain the
-complete outer assignment carrier.
-
-`preloop_located_argument_port.rs` is the disconnected candidate-only wrapper
-for one source-sealed pre-loop argument. It delegates every ordinary trait
-capability to the wrapped `MethodCallLoweringPortV1` and leaves the selected
-structural argument fail-closed until its later isolated candidate ingress.
-Its one typestate retains the exact source association in the current rejected
-terminal; payloadless consumed/poisoned states and a separate route-state
-field are forbidden. The concrete reached/request product is introduced only
-when the later ingress has a real success boundary.
-It never stores state in `MirBuilder`, creates no second ordered argument
-driver, does not convert the selected input to RawLegacy syntax, and owns no
-Call receipt or type publication.
-S0 production consumers = 0. Exact route demand remains owned by the later
-R0/M0 rows; inactive raw terminals will require the existing ledger's
-inactive-prefix proof before located lowering may delegate to them.
-
 ROUTE0 is one behavior-neutral Refactor Series: S0 adds this disconnected port,
 GUARD0 restores one exact recursion-depth guard around raw expression descent,
 R0 threads exact reserved-route child demand, and M0 threads TypeOp and the

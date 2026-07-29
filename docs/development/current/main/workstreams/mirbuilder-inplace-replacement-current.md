@@ -442,7 +442,7 @@ selected-normal:
 ledger reconciliation:
   14 landed production rows backfilled
   SOURCE-NEUTRAL-CALL-RECEIPT = ReuseNeutral closed
-  PRELOOP-STAGEB-SPECIAL-ACTIVATION = Delete pending
+  PRELOOP-STAGEB-SPECIAL-ACTIVATION = Delete closed
   test-only seam rows receive replacement credit = 0
 ```
 
@@ -450,16 +450,16 @@ Eight-pack verdict:
 
 | Pack | Verdict | Exact residual |
 | --- | --- | --- |
-| `REPLACEMENT-LEDGER0` | Residual | one `Delete pending` detached Stage-B asset and active compatibility sunsets |
+| `REPLACEMENT-LEDGER0` | Residual | detached Stage-B asset is deleted; active compatibility sunsets remain |
 | `DESCENT-SPINE0` | Complete | fixed selected old-edge inventory is physically zero |
 | `FUNCTION-STATE0` | Residual | `function_state` / PHI / `variable_map` authority remains distributed |
 | `CALL-OBJECT0` | Residual | MethodCall / Call / New / Field / Index and other header-sensitive compatibility surfaces remain |
 | `CONTROL0` | Residual | If / Loop / TryCatch / Throw / QMark / Match and related control authority remains |
 | `FUNCTION-LIFECYCLE0` | Residual | selected-normal is complete; raw legacy direct function publication remains |
 | `MODULE-LIFECYCLE0` | Residual | selected-normal is complete; two production arbitrary-AST `build_module` surfaces remain |
-| `COMPILER-RESIDUE0` | Residual | MirCompiler/runtime arbitrary-AST compatibility plus caller-zero Stage-B activation remain |
+| `COMPILER-RESIDUE0` | Residual | MirCompiler/runtime arbitrary-AST compatibility remains; Stage-B activation is zero |
 
-## Accepted execution
+## Closed execution
 
 `PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0` — T1 detached-asset
 retirement, one atomic commit.
@@ -513,9 +513,12 @@ Ledger:
 
 Evidence:
   exact special-root repository-zero census
-  retained source-neutral receipt tests
-  retained method-call/unified-emitter tests
-  cargo test --lib
+  retained source-neutral receipt tests = green
+  normal candidate/session focused tests = 8/8 green
+  retained method-call focused tests = green
+  cargo check --tests = green
+  cargo test --lib attempted; pre-existing baseline failures remain
+  (one exact edgecfg failure reproduced at clean pre-RET0 HEAD)
   existing aggregate/replacement/pointer guards
   git diff --check
   all source/check files < 800
@@ -526,6 +529,37 @@ Hard stop:
   a retained source-neutral receipt/catalog semantic must change
   a tombstone, alias, forwarding facade, fallback, or new guard is needed
   JoinIR/runtime Stage-B would be touched
+```
+
+## Current design stop
+
+`PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0` — read-only caller/parity audit.
+
+```text
+caller:
+  program_json_v0_loader import-bundle compiler
+
+candidate:
+  ProgramV0Compatibility -> existing typed Program admission
+  -> existing session-owned root/catalog lifecycle
+
+required future atomic delete:
+  LegacyModuleOriginV1::ProgramV0Compatibility
+  Program-v0 compile_legacy caller edge
+
+accept only if:
+  merged root is exactly Program
+  imports/source/diagnostic/finish/commit parity is exact
+  token/session/Builder open once
+  fallback / retry = 0
+
+reject:
+  generic raw-lifecycle rename that preserves arbitrary-AST authority
+  any grammar, View, Ownership, result, or backend widening
+
+fallback decision if NoSafeSlice:
+  choose one bounded raw non-Program compositional production edge
+  from the fresh census; do not widen Program-v0 scope
 ```
 
 Compatibility sunset:
@@ -609,7 +643,8 @@ R2ah NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0 closed
 R2ai NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0 closed
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
-R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 current
+R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
+R6  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0 current
 
 after every bounded retirement:
   run a fresh live-edge census
@@ -677,8 +712,8 @@ COMPILER-RESIDUE0    compiler ingress / old selectors / proof routes
 ## Parked
 
 ```text
-Preloop Stage-B special production activation
-source-level Ownership/View and unimplemented language features until R4
+source-level Ownership/View and unimplemented language features until the
+repository-wide final pipeline is Complete
 .hako selfhost MirBuilder/parser migration
 unselected cleanliness work
 new language semantics

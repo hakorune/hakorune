@@ -7,14 +7,6 @@ import re
 import sys
 from pathlib import Path
 
-from callable_result_i0_site0_r0_expr0_m0_v0_stageb_schedule import (
-    check_stageb_schedule,
-)
-from callable_result_i0_site0_r0_expr0_m0_v0_stageb_session import (
-    check_stageb_session,
-)
-
-
 TAG = "[callable-result-i0-site0-r0-expr0-m0-v0]"
 
 
@@ -61,15 +53,10 @@ def rust_code(text: str) -> str:
 
 def main() -> None:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
-    check_stageb_schedule(root)
-    check_stageb_session(root)
     terminal = read(root, "src/mir/builder/calls/method_call_terminal.rs")
     tests = read(root, "src/mir/builder/calls/method_call_terminal_tests.rs")
     readme = read(root, "src/mir/builder/calls/README.md")
     calls_mod = read(root, "src/mir/builder/calls/mod.rs")
-    candidate = read(
-        root, "src/mir/builder/calls/preloop_located_argument_port.rs"
-    )
     capability = read(root, "src/mir/builder/me_call_header_observation.rs")
 
     require_count(
@@ -288,24 +275,7 @@ def main() -> None:
     ):
         require_count(handlers, needle, expected, label)
 
-    require_count(
-        candidate,
-        "impl<'site, 'view, 'catalog, Port> MethodCallValueTerminalPortV1",
-        1,
-        "candidate terminal adapter",
-    )
-    for name in terminal_methods:
-        require_definition_count(candidate, name, 1, f"candidate terminal method {name}")
     terminal_code = rust_code(terminal)
-    for forbidden in (
-        "MirInstruction",
-        "emit_unified_call",
-        "next_value_id",
-        "type_ctx",
-        "value_types",
-    ):
-        if forbidden in candidate:
-            fail(f"candidate terminal adapter owns forbidden authority: {forbidden}")
 
     custom_owners = "\n".join(
         (static_scalar, weak_ref, record_helper, reserved, debug_routes, fastmem_calls)
@@ -391,51 +361,19 @@ def main() -> None:
         if evidence not in reserved_tests:
             fail(f"missing P0 reserved custom-terminal evidence: {evidence}")
 
-    # REP0 keeps source policy out of the shared terminal.  The terminal may
-    # issue exactly one generic value-call receipt; the pre-loop owner pairs it
-    # with source evidence only after that physical Call succeeds.
-    ingress = read(root, "src/mir/builder/calls/preloop_located_argument_ingress.rs")
-    receipt = read(root, "src/mir/builder/calls/preloop_nested_result_receipt.rs")
-    ingress_tests = read(
-        root, "src/mir/builder/calls/preloop_located_argument_ingress_tests.rs"
-    )
-    ingress_p0_tests = read(
-        root, "src/mir/builder/calls/preloop_located_argument_ingress_p0_tests.rs"
-    )
-    nested_type = read(root, "src/mir/builder/calls/preloop_nested_result_type.rs")
-    nested_type_p0 = read(
-        root, "src/mir/builder/calls/preloop_nested_result_type_p0_tests.rs"
-    )
-    outer_type = read(
-        root, "src/mir/builder/calls/preloop_outer_carrier_type.rs"
-    )
-    outer_type_tests = read(
-        root, "src/mir/builder/calls/preloop_outer_carrier_type_tests.rs"
-    )
-    outer_completion = read(
-        root, "src/mir/builder/calls/preloop_located_outer_completion.rs"
-    )
-    outer_carrier = read(
-        root, "src/mir/builder/calls/preloop_outer_carrier_transaction.rs"
-    )
-    outer_assignment = read(
-        root, "src/mir/builder/calls/preloop_outer_carrier_assignment.rs"
-    )
-    located_argument = read(
-        root,
-        "src/mir/source_instance_result_contract/preloop_located_argument.rs",
-    )
+    # The source-neutral value-call receipt is live in the ordinary method-call
+    # terminal. Detached Stage-B pairing and publication owners are retired.
     require_definition_count(
         terminal,
         "emit_standard_value_terminal_with_receipt_v1",
         1,
-        "REP0 generic receipt terminal",
+        "generic receipt terminal",
     )
     require_count(
         terminal_code,
         "UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(",
         2,
-        "REP0/F4 source-neutral physical receipt consumers",
+        "source-neutral physical receipt consumers",
     )
     for forbidden in (
         "PreparedPreloop",
@@ -446,227 +384,7 @@ def main() -> None:
         "value_types",
     ):
         if forbidden in terminal_code:
-            fail(f"REP0 generic terminal owns forbidden authority: {forbidden}")
-
-    require_count(
-        receipt,
-        "struct ReachedPreloopNestedPhysicalCallV1",
-        1,
-        "REP0 source plus physical receipt owner",
-    )
-    require_count(
-        receipt,
-        "struct EmittedNestedInstanceCallV1",
-        1,
-        "REP0 emitted nested receipt owner",
-    )
-    require_definition_count(
-        receipt,
-        "complete_after_outer_success",
-        1,
-        "REP0 outer-success receipt terminal",
-    )
-    for forbidden in (
-        "MirInstruction",
-        "emit_unified_call",
-        "type_ctx",
-        "value_types",
-    ):
-        if forbidden in rust_code("\n".join((ingress, candidate, receipt))):
-            fail(f"REP0 pre-loop receipt path owns forbidden authority: {forbidden}")
-    for evidence in (
-        "configured_preloop_ingress_reaches_existing_inner_and_outer_call_terminals",
-        "production_prefix_outer_failure_retains_source_and_physical_receipt",
-        "production_prefix_physical_inner_call_failure_retains_source_without_receipt",
-    ):
-        if evidence not in ingress_tests and evidence not in ingress_p0_tests:
-            fail(f"missing REP0 production-prefix evidence: {evidence}")
-
-    nested_type_code = rust_code(nested_type)
-    require_definition_count(
-        nested_type,
-        "publish_preloop_nested_integer_result_v1",
-        1,
-        "TYPE-I0 sole receipt consumer",
-    )
-    require_count(
-        nested_type_code,
-        "TypeFactDecisionV1::prepare(",
-        1,
-        "TYPE-I0 sole fact decision",
-    )
-    require_count(
-        nested_type_code,
-        "type_ctx.set_type(",
-        1,
-        "TYPE-I0 sole fact writer",
-    )
-    require_count(
-        production,
-        "publish_preloop_nested_integer_result_v1(",
-        1,
-        "TYPE-I0 production caller zero",
-    )
-    for forbidden in (
-        "MirInstruction",
-        "emit_unified_call",
-        "ASTNode",
-        "SourceExprSiteV1",
-        "GenericLoop",
-        "value_types",
-        "retry",
-        "fallback",
-    ):
-        if forbidden in nested_type_code:
-            fail(f"TYPE-I0 owner owns forbidden authority: {forbidden}")
-    for evidence in (
-        "production_prefix_publishes_none_unknown_and_matching_integer",
-        "production_prefix_conflict_preserves_fact_then_fresh_fixture_succeeds",
-    ):
-        if evidence not in nested_type_p0:
-            fail(f"missing TYPE-I0 production-prefix evidence: {evidence}")
-
-    # F5-C keeps the outer assignment carrier separate from the historical
-    # inner-result publisher. Only the existing monotone decision and one
-    # success-only set_type commit are allowed in this owner.
-    outer_type_code = rust_code(outer_type)
-    for name in (
-        "PreparedPreloopOuterCarrierIntegerPublicationV1",
-        "CompletedPreloopOuterCarrierIntegerPublicationV1",
-        "RejectedPreloopOuterCarrierIntegerPublicationV1",
-    ):
-        require_count(outer_type, f"struct {name}", 1, f"outer TYPE-I0 owner {name}")
-    require_definition_count(
-        outer_type,
-        "publish_preloop_outer_carrier_integer_v1",
-        1,
-        "outer TYPE-I0 sole terminal",
-    )
-    require_count(
-        outer_type_code,
-        "TypeFactDecisionV1::prepare(",
-        1,
-        "outer TYPE-I0 sole fact decision",
-    )
-    require_count(
-        outer_type_code,
-        "type_ctx.set_type(",
-        1,
-        "outer TYPE-I0 sole fact writer",
-    )
-    require_count(
-        production,
-        "publish_preloop_outer_carrier_integer_v1(",
-        1,
-        "outer TYPE-I0 sole disconnected F6-2 schedule consumer",
-    )
-    for forbidden in (
-        "EmittedNestedInstanceCallV1",
-        "ReachedPreloopNestedPhysicalCallV1",
-        "MirInstruction",
-        "emit_unified_call",
-        "ASTNode",
-        "SourceExprSiteV1",
-        "GenericLoop",
-        "value_types",
-        "retry",
-        "fallback",
-    ):
-        if forbidden in outer_type_code:
-            fail(f"outer TYPE-I0 owner owns forbidden authority: {forbidden}")
-    for evidence in (
-        "missing_outer_fact_publishes_integer_without_touching_inner_destination",
-        "unknown_publishes_and_existing_integer_is_idempotent",
-        "concrete_conflict_preserves_fact_and_fresh_fixture_succeeds",
-    ):
-        if evidence not in outer_type_tests:
-            fail(f"missing outer TYPE-I0 evidence: {evidence}")
-
-    # F6-1 closes the HRTB source lifetime after F5 success. The terminal owns
-    # the actual receipts and a retained-only nested authority; it does not
-    # re-observe source/MIR or activate the selected function session.
-    require_count(
-        outer_type,
-        "struct CompletedPreloopStageBCarrierV1",
-        1,
-        "F6 owned completion owner",
-    )
-    require_definition_count(
-        outer_type,
-        "into_stageb_carrier_v1",
-        1,
-        "F6 sole owned completion projection",
-    )
-    require_count(
-        outer_type,
-        "nested_result: RetainedNestedInstanceResultRebindAuthorityV1",
-        1,
-        "F6 retained-only nested authority field",
-    )
-    require_count(
-        outer_type,
-        "inner_call: CompletedUnifiedValueCallEmissionV1",
-        1,
-        "F6 exact inner physical receipt",
-    )
-    require_count(
-        outer_type,
-        "outer_call: CompletedUnifiedValueCallEmissionV1",
-        1,
-        "F6 exact outer physical receipt",
-    )
-    require_count(
-        outer_type,
-        "assignment: CompletedVariableAssignmentV1",
-        1,
-        "F6 exact assignment receipt",
-    )
-    require_definition_count(
-        located_argument,
-        "into_completed_retained_rebind_authority",
-        1,
-        "F6 one-way retained source authority",
-    )
-    require_count(
-        production,
-        ".into_stageb_carrier_v1(",
-        1,
-        "F6 sole disconnected body-schedule consumer",
-    )
-    rejection_projection_code = "\n".join(
-        (ingress, outer_completion, outer_carrier, outer_assignment, outer_type)
-    )
-    require_definition_count(
-        rejection_projection_code,
-        "into_owned_rejection_v1",
-        5,
-        "F6 borrowed rejection closure terminals",
-    )
-    for forbidden in (
-        "into_owner",
-        "thread_local!",
-        "static mut",
-        "PendingMap",
-    ):
-        if forbidden in outer_type_code:
-            fail(f"F6 owned completion exposes forbidden authority: {forbidden}")
-    for evidence in (
-        "actual_parser_f5_success_escapes_hrtb_only_as_owned_stageb_completion",
-        "recipe_selected_index_drift_retains_the_complete_outer_owner",
-        "assignment_correspondence_drift_retains_both_complete_owners",
-        "concrete_conflict_preserves_fact_and_fresh_fixture_succeeds",
-    ):
-        evidence_sources = "\n".join(
-            (
-                outer_type_tests,
-                read(
-                    root,
-                    "src/mir/builder/calls/preloop_outer_carrier_transaction_tests.rs",
-                ),
-            )
-        )
-        if evidence not in evidence_sources:
-            fail(f"missing F6 owned completion evidence: {evidence}")
+            fail(f"generic terminal owns forbidden authority: {forbidden}")
 
     for phrase in (
         "disconnected V0 value-only terminal port",
@@ -691,22 +409,6 @@ def main() -> None:
         "src/mir/builder/calls/method_call_terminal.rs",
         "src/mir/builder/calls/method_call_terminal_tests.rs",
         "src/mir/builder/calls/method_call_descent.rs",
-        "src/mir/builder/calls/preloop_located_argument_port.rs",
-        "src/mir/builder/calls/preloop_located_argument_ingress.rs",
-        "src/mir/builder/calls/preloop_nested_result_receipt.rs",
-        "src/mir/builder/calls/preloop_located_outer_completion.rs",
-        "src/mir/builder/calls/preloop_outer_carrier_transaction.rs",
-        "src/mir/builder/calls/preloop_outer_carrier_assignment.rs",
-        "src/mir/builder/calls/preloop_nested_result_type.rs",
-        "src/mir/builder/calls/preloop_nested_result_type_tests.rs",
-        "src/mir/builder/calls/preloop_nested_result_type_p0_tests.rs",
-        "src/mir/builder/calls/preloop_outer_carrier_type.rs",
-        "src/mir/builder/calls/preloop_outer_carrier_type_tests.rs",
-        "src/mir/builder/calls/preloop_outer_carrier_transaction_tests.rs",
-        "src/mir/source_instance_result_contract/preloop_located_argument.rs",
-        "src/mir/builder/calls/preloop_nested_result_test_support.rs",
-        "src/mir/builder/calls/preloop_located_argument_ingress_tests.rs",
-        "src/mir/builder/calls/preloop_located_argument_ingress_p0_tests.rs",
         "src/mir/builder/calls/build.rs",
         "src/mir/builder/calls/member_route.rs",
         "src/mir/builder/calls/member_route_descent_tests.rs",

@@ -126,8 +126,6 @@ pub mod optimizer;
 pub mod ordered_map_origin_plan; // focused OrderedMapBox get result-origin publication
 pub(crate) mod parameter_entry_backend_capability; // exact-numeric parameter-entry backend gate
 pub mod policies; // shared routing policies (SSOT)
-pub(crate) mod preloop_stageb_candidate_shell; // read-only prepared Legacy module-shell receipt
-pub(crate) mod preloop_stageb_carrier; // bounded pre-loop outer carrier source proof
 pub mod range_index_fact; // canonical loop range-index facts for fast-path consumers
 pub(crate) mod record_value_backend_capability; // record construction/update contract backend gate
 pub(crate) mod return_exit_backend_capability; // exact-numeric return-exit backend gate

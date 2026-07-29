@@ -44,8 +44,7 @@ source observation when the unavailable receipt is present. The product
 retains every completed exact call carrier, the deterministic first bounded
 unavailable caller/cause, and the one target catalog, all branded by the same
 declaration catalog. It owns no Stage-B nested-result policy, candidate
-cardinality, Builder, MIR, runtime, or production route. Stage-B classification
-belongs to `preloop_stageb_carrier::source_producer`.
+cardinality, Builder, MIR, runtime, or production route.
 
 ## RAW-SOURCE-CURSOR0-S0 catalog-backed Raw navigation
 

@@ -20,7 +20,7 @@
 pub mod annotation;
 mod call_argument_descent;
 pub(in crate::mir::builder) use call_argument_descent::{
-    drive_call_arguments_v1, lower_call_argument_v1, CallArgumentDescentPortV1,
+    drive_call_arguments_v1, CallArgumentDescentPortV1,
 };
 #[cfg(test)]
 mod call_argument_descent_tests;
@@ -65,16 +65,6 @@ pub mod materializer;
 pub mod member_route; // Member call route plan + emit handoff
 mod method_call_descent;
 mod method_call_terminal;
-mod preloop_located_argument_ingress;
-mod preloop_located_argument_port;
-mod preloop_located_argument_rejection;
-mod preloop_located_outer_completion;
-mod preloop_nested_result_receipt;
-mod preloop_nested_result_type;
-mod preloop_outer_carrier_assignment;
-mod preloop_outer_carrier_transaction;
-mod preloop_outer_carrier_type;
-mod preloop_stageb_instance_function_session;
 pub(in crate::mir::builder) use method_call_descent::{
     lower_method_call_argument_v1, AssociatedMethodCallArgumentsV1, CatalogHelperChildV1,
     MethodCallArgumentDescentV1, MethodCallDescentPortV1, MethodCallSyntaxViewV1,
@@ -88,10 +78,6 @@ pub(in crate::mir::builder) use method_call_terminal::{
 pub(in crate::mir::builder) use method_call_terminal::{
     StandardMethodCallCompletionV1, StaticMethodCallCompletionV1,
 };
-pub(in crate::mir::builder) use preloop_stageb_instance_function_session::{
-    collect_preloop_stageb_instance_function_v1, CollectedPreloopStageBInstanceFunctionV1,
-    RejectedPreloopStageBInstanceFunctionCollectionV1,
-};
 #[cfg(test)]
 mod member_route_descent_tests;
 #[cfg(test)]
@@ -99,26 +85,6 @@ mod method_call_descent_tests;
 #[cfg(test)]
 mod method_call_terminal_tests;
 pub mod parameter_setup; // Step 3: Parameter setup and binding (static/instance methods)
-#[cfg(test)]
-mod preloop_located_argument_ingress_p0_tests;
-#[cfg(test)]
-mod preloop_located_argument_ingress_tests;
-#[cfg(test)]
-mod preloop_located_argument_port_tests;
-#[cfg(test)]
-mod preloop_located_outer_completion_tests;
-#[cfg(test)]
-mod preloop_nested_result_test_support;
-#[cfg(test)]
-mod preloop_nested_result_type_p0_tests;
-#[cfg(test)]
-mod preloop_nested_result_type_tests;
-#[cfg(test)]
-mod preloop_outer_carrier_transaction_tests;
-#[cfg(test)]
-mod preloop_outer_carrier_type_tests;
-#[cfg(test)]
-mod preloop_stageb_carrier_correspondence_tests;
 pub mod receiver_binding; // Step 4: Receiver ('me'/'this') normalization and binding
 mod reserved_method_route; // shared reserved-route policy adapter + selected dispatch
 #[cfg(test)]
