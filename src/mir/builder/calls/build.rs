@@ -2,13 +2,13 @@
 //!
 //! # 責務
 //! ASTからCall構築の統合制御（orchestration only, no implementation）
-//! - build_function_call: 関数呼び出し構築
+//! - direct FunctionCall post-argument completion
 //! - build_method_call: メソッド呼び出し構築
 //! - `PreparedRawFromCallV1`: from式のenum/ordinary routeをeffect前に一度だけ選択
 //!
 //! # Delegation Strategy (実装は専用モジュールへ委譲)
 //! - `debug_method_routing`: Debug tracing（179 lines）
-//! - `function_preflight`: source-level special call gate
+//! - `function_call_preflight_route`: one pre-effect direct-call route
 //! - `special_method_handlers`: Special method detection（122 lines）
 //! - `static_resolution`: Static receiver resolution（182 lines）
 //! - `receiver_binding`: Receiver normalization（54 lines）
@@ -32,7 +32,6 @@ use crate::mir::builder::exprs_enum_match::{
 };
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
-    RawLegacyChildLoweringPortV1,
 };
 
 pub(in crate::mir::builder) struct PreparedRawFromCallV1 {
@@ -79,18 +78,8 @@ impl PreparedRawFromCallV1 {
 }
 
 impl MirBuilder {
-    // Build function call: name(args)
-    pub fn build_function_call(
-        &mut self,
-        name: String,
-        args: Vec<ASTNode>,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_function_call_with_port_v1(&mut port, name, args)
-    }
-
-    /// Lower a function call while retaining the caller's raw child port.
-    pub(in crate::mir::builder) fn build_function_call_with_port_v1<Port>(
+    /// Complete the ordinary direct-call route after pre-effect selection.
+    pub(in crate::mir::builder) fn lower_ordinary_function_call_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
         name: String,
@@ -99,35 +88,6 @@ impl MirBuilder {
     where
         Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
     {
-        // Dev trace
-        if crate::config::env::cli_verbose() {
-            let cur_fun = self
-                .function_state
-                .current_function
-                .as_ref()
-                .map(|f| f.signature.name.clone())
-                .unwrap_or_else(|| "<none>".to_string());
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[builder] function-call name={} static_ctx={} in_fn={}",
-                name,
-                self.comp_ctx.current_static_box.as_deref().unwrap_or(""),
-                cur_fun
-            ));
-        }
-
-        if let Some(result) = self.try_handle_function_preflight_with_port_v1(port, &name, &args)? {
-            return Ok(result);
-        }
-
-        if let Some(region) = self.current_fastmem_region() {
-            if name.starts_with("mem.") {
-                return crate::mir::builder::fastmem::calls::lower_fastmem_function_call_with_port_v1(
-                    self, region, name, args, port,
-                );
-            }
-        }
-
         // 1. Build argument values
         let arg_values = drive_call_arguments_v1(self, port, args.as_slice())?;
 
@@ -288,15 +248,6 @@ impl MirBuilder {
         Ok(result_id)
     }
 
-    pub(in crate::mir::builder) fn build_brand_constructor_call(
-        &mut self,
-        name: String,
-        args: Vec<ASTNode>,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_brand_constructor_call_with_port_v1(&mut port, name, args)
-    }
-
     pub(in crate::mir::builder) fn build_brand_constructor_call_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
@@ -405,14 +356,6 @@ impl MirBuilder {
             lookup,
         )?;
         Ok(dst)
-    }
-
-    pub(in crate::mir::builder) fn build_explicit_extern_call(
-        &mut self,
-        args: Vec<ASTNode>,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_explicit_extern_call_with_port_v1(&mut port, args)
     }
 
     pub(in crate::mir::builder) fn build_explicit_extern_call_with_port_v1<Port>(

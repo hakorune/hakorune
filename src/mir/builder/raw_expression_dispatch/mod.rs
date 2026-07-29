@@ -14,7 +14,10 @@ pub(in crate::mir::builder) use input_view::{
 };
 
 use super::builder_build::PreparedRawNewExpressionV1;
-use super::calls::{MethodCallDescentPortV1, PreparedRawFromCallV1, RawLegacyMethodCallInputV1};
+use super::calls::{
+    lower_prepared_raw_function_preflight_with_port_v1, MethodCallDescentPortV1,
+    PreparedRawFromCallV1, PreparedRawFunctionPreflightV1, RawLegacyMethodCallInputV1,
+};
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
 use super::exprs_enum_match::PreparedRawEnumMatchV1;
 use super::fields::PreparedRawFieldReadV1;
@@ -35,7 +38,7 @@ use super::stmts::{
     VariableAssignmentDescentPortV1,
 };
 use super::ValueId;
-use crate::ast::{ASTNode, BinaryExpr, CallExpr, MethodCallExpr};
+use crate::ast::{ASTNode, BinaryExpr, MethodCallExpr};
 use hakorune_mir_builder::BoxCompilationContext;
 
 /// Capability set consumed by the one raw AST expression match tree.
@@ -188,9 +191,11 @@ impl super::MirBuilder {
                 self.lower_prepared_raw_index_read_with_port_v1(port, prepared)
             }
 
-            node @ ASTNode::FunctionCall { .. } => {
-                let c = CallExpr::try_from(node).expect("ASTNode::FunctionCall must convert");
-                self.build_function_call_with_port_v1(port, c.name, c.arguments)
+            ASTNode::FunctionCall {
+                name, arguments, ..
+            } => {
+                let prepared = PreparedRawFunctionPreflightV1::prepare(self, name, arguments);
+                lower_prepared_raw_function_preflight_with_port_v1(self, port, prepared)
             }
 
             ASTNode::Call {

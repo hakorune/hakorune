@@ -8,7 +8,7 @@
 
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::function::FastMemBlockNextProofKind;
@@ -74,16 +74,6 @@ impl FastMemIntrinsicSpec {
             arity,
         }
     }
-}
-
-pub(crate) fn lower_fastmem_function_call(
-    builder: &mut MirBuilder,
-    region: FastMemRegionId,
-    name: String,
-    arguments: Vec<ASTNode>,
-) -> Result<ValueId, String> {
-    let mut port = RawLegacyChildLoweringPortV1;
-    lower_fastmem_function_call_with_port_v1(builder, region, name, arguments, &mut port)
 }
 
 pub(in crate::mir::builder) fn lower_fastmem_function_call_with_port_v1<Port>(

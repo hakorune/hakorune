@@ -13,8 +13,8 @@
 //! - `static_resolution`, `extern_calls`, `receiver_binding` classify routes
 //! - `member_route` holds the route-plan object and emission-from-plan bridge
 //! - receiver / args should not be re-lowered across route probes
-//! - `function_preflight` owns special source-level call gates before generic
-//!   function-call lowering
+//! - `function_call_preflight_route` owns the one direct-call route selected
+//!   before generic argument lowering
 
 // Existing modules (already implemented elsewhere)
 pub mod annotation;
@@ -27,8 +27,11 @@ mod call_argument_descent_tests;
 pub mod call_target;
 pub mod call_unified;
 pub mod extern_calls;
+mod function_call_preflight_route;
 pub mod function_lowering;
-pub mod function_preflight; // Function-call special gate before arg materialization
+pub(in crate::mir::builder) use function_call_preflight_route::{
+    lower_prepared_raw_function_preflight_with_port_v1, PreparedRawFunctionPreflightV1,
+};
 mod function_session; // Closure-scoped function transaction and cleanup owner
 pub(in crate::mir::builder) mod instance_method_draft_preparation;
 pub(in crate::mir::builder) use function_session::CanonicalFunctionLoweringSessionV1;

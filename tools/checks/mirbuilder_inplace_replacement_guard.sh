@@ -45,6 +45,9 @@ METHOD_CALL_DESCENT="$ROOT_DIR/src/mir/builder/calls/method_call_descent.rs"
 METHOD_CALL_TERMINAL="$ROOT_DIR/src/mir/builder/calls/method_call_terminal.rs"
 CALLS_MOD="$ROOT_DIR/src/mir/builder/calls/mod.rs"
 CALLS_BUILD="$ROOT_DIR/src/mir/builder/calls/build.rs"
+FUNCTION_CALL_ROUTE="$ROOT_DIR/src/mir/builder/calls/function_call_preflight_route.rs"
+FUNCTION_SPECIAL="$ROOT_DIR/src/mir/builder/calls/special_method_handlers.rs"
+FASTMEM_CALLS="$ROOT_DIR/src/mir/builder/fastmem/calls.rs"
 ENUM_MATCH="$ROOT_DIR/src/mir/builder/exprs_enum_match.rs"
 METHOD_CALL_HANDLERS="$ROOT_DIR/src/mir/builder/method_call_handlers.rs"
 PROPERTY_READS="$ROOT_DIR/src/mir/builder/property_reads.rs"
@@ -109,6 +112,9 @@ guard_require_files \
   "$METHOD_CALL_TERMINAL" \
   "$CALLS_MOD" \
   "$CALLS_BUILD" \
+  "$FUNCTION_CALL_ROUTE" \
+  "$FUNCTION_SPECIAL" \
+  "$FASTMEM_CALLS" \
   "$ENUM_MATCH" \
   "$METHOD_CALL_HANDLERS" \
   "$PROPERTY_READS" \
@@ -155,7 +161,6 @@ if rg -n -F '.cf_loop(' "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null ||
    rg -n -F 'planner_reject_detail' "$CONTROL_FLOW_ROOT" >/dev/null; then
   guard_fail "$TAG" "retired generic cf_loop authority returned"
 fi
-
 guard_exact_counts <<EOF
 $BUILDER_BUILD|struct\\s+PreparedRawNewExpressionV1\\b|1|prepared raw New route
 $BUILDER_BUILD|fn\\s+lower_prepared_raw_new_expression_with_port_v1\\s*<Port>|1|prepared raw New lowering owner
@@ -163,7 +168,6 @@ $BUILDER_BUILD|is_record_constructor_class\\(&class\\)|1|single raw New record c
 $RAW_DISPATCH|PreparedRawNewExpressionV1::prepare\\s*\\(|1|sole raw New route issuer
 $RAW_DISPATCH|lower_prepared_raw_new_expression_with_port_v1\\s*\\(|1|sole prepared raw New caller
 EOF
-
 for retired_new_edge in \
   'fn build_new_expression(' \
   'fn build_new_expression_with_port_v1' \
@@ -177,7 +181,6 @@ done
 if rg -n -F 'RawLegacyChildLoweringPortV1' "$BUILDER_BUILD" >/dev/null; then
   guard_fail "$TAG" "builder_build restored a caller-selected legacy New port"
 fi
-
 guard_exact_counts <<EOF
 $CALLS_BUILD|struct\\s+PreparedRawFromCallV1\\b|1|opaque prepared raw From route
 $CALLS_BUILD|enum\\s+PreparedRawFromCallRouteV1\\b|1|private raw From route vocabulary
@@ -188,7 +191,6 @@ $CALLS_BUILD|lower_prepared_raw_enum_variant_with_port_v1\\s*\\(|1|sole prepared
 $RAW_DISPATCH|PreparedRawFromCallV1::prepare\\s*\\(|1|sole raw From route issuer
 $RAW_DISPATCH|lower_prepared_raw_from_call_with_port_v1\\s*\\(|1|sole prepared raw From caller
 EOF
-
 for retired_from_edge in \
   'fn build_from_expression(' \
   'fn build_from_expression_with_port_v1' \
@@ -199,7 +201,6 @@ do
     guard_fail "$TAG" "retired raw From edge returned: $retired_from_edge"
   fi
 done
-
 guard_exact_counts <<EOF
 $ENUM_MATCH|struct\\s+PreparedRawScopeBoxV1\\b|1|opaque prepared raw ScopeBox route
 $ENUM_MATCH|enum\\s+PreparedRawScopeBoxRouteV1\\b|1|private raw ScopeBox route vocabulary
@@ -233,7 +234,6 @@ do
     guard_fail "$TAG" "retired raw edge returned: $retired_raw_edge"
   fi
 done
-
 stageb_asset_count="$(awk -F '\t' '
   $1 == "asset" &&
   $2 == "PRELOOP-STAGEB-SPECIAL-ACTIVATION" &&
@@ -244,7 +244,6 @@ stageb_asset_count="$(awk -F '\t' '
 if [[ "$stageb_asset_count" != "1" ]]; then
   guard_fail "$TAG" "Stage-B special activation asset must be Delete/closed"
 fi
-
 for retired_path in \
   "$ROOT_DIR/src/mir/preloop_stageb_candidate_shell.rs" \
   "$ROOT_DIR/src/mir/preloop_stageb_carrier" \
@@ -256,7 +255,6 @@ do
     guard_fail "$TAG" "retired Stage-B activation path returned: ${retired_path#"$ROOT_DIR/"}"
   fi
 done
-
 for retired_symbol in \
   PreloopStageBWholeSourceProducerV1 \
   PreparedPreloopStageBModuleActivationV1 \
@@ -268,7 +266,6 @@ do
     guard_fail "$TAG" "retired Stage-B activation symbol returned: $retired_symbol"
   fi
 done
-
 ratchet_header=$'source_files\tsource_loc\ttest_files\ttest_loc'
 if [[ "$(head -n1 "$STRUCTURAL_RATCHET")" != "$ratchet_header" ]] ||
    [[ "$(wc -l < "$STRUCTURAL_RATCHET" | tr -d '[:space:]')" != "2" ]]; then
@@ -282,7 +279,6 @@ if [[ ! "$source_files_baseline" =~ ^[0-9]+$ ]] ||
    [[ ! "$test_loc_baseline" =~ ^[0-9]+$ ]]; then
   guard_fail "$TAG" "structural observation baseline row must be numeric"
 fi
-
 builder_roots=(
   "$ROOT_DIR/src/mir/builder"
   "$ROOT_DIR/crates/hakorune_mir_builder"
@@ -297,7 +293,6 @@ test_loc="$(
   find "${builder_roots[@]}" -type f -name '*test*.rs' -print0 \
     | xargs -0 wc -l | tail -n1 | awk '{ print $1 }'
 )"
-
 printf \
   '[%s] structural observation: source_files=%d (%+d), source_loc=%d (%+d), test_files=%d (%+d), test_loc=%d (%+d)\n' \
   "$TAG" \
@@ -305,7 +300,6 @@ printf \
   "$source_loc" "$((source_loc - source_loc_baseline))" \
   "$test_files" "$((test_files - test_files_baseline))" \
   "$test_loc" "$((test_loc - test_loc_baseline))"
-
 current_row_count="$(awk -F '\t' '
   $1 == "cell" &&
   $2 == "CALLABLE-DRAFT-PORT-CUTOVER0" &&
@@ -315,7 +309,6 @@ current_row_count="$(awk -F '\t' '
 if [[ "$current_row_count" != "1" ]]; then
   guard_fail "$TAG" "callable draft cutover must have one closed manifest row"
 fi
-
 collector_row_count="$(awk -F '\t' '
   $1 == "cell" &&
   $2 == "CALLABLE-DRAFT-COLLECTOR-CUTOVER0" &&
@@ -325,14 +318,12 @@ collector_row_count="$(awk -F '\t' '
 if [[ "$collector_row_count" != "1" ]]; then
   guard_fail "$TAG" "callable collector cutover must have one closed manifest row"
 fi
-
 candidate_row_count="$(awk -F '\t' '
   $1 == "cell" &&
   $2 == "MODULE-CANDIDATE-SESSION-CUTOVER0" &&
   $9 == "closed" { count += 1 }
   END { print count + 0 }
 ' "$MANIFEST")"
-
 normal_pipeline_row_count="$(awk -F '\t' '
   $1 == "cell" &&
   $2 == "NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0" &&
@@ -342,7 +333,6 @@ normal_pipeline_row_count="$(awk -F '\t' '
 if [[ "$normal_pipeline_row_count" != "1" ]]; then
   guard_fail "$TAG" "normal default published pipeline must have one closed manifest row"
 fi
-
 normal_lifecycle_row_count="$(awk -F '\t' '
   $1 == "cell" &&
   $2 == "NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0" &&
@@ -352,7 +342,6 @@ normal_lifecycle_row_count="$(awk -F '\t' '
 if [[ "$normal_lifecycle_row_count" != "1" ]]; then
   guard_fail "$TAG" "normal root/catalog lifecycle must have one closed manifest row"
 fi
-
 if rg -n 'ExistingGeneralModuleCompatibilityV1|\.build_module\(|session\.builder_mut\(' \
   "$NORMAL_PIPELINE" >/dev/null; then
   guard_fail "$TAG" "selected normal compatibility owner or direct Builder edge returned"
@@ -363,7 +352,6 @@ fi
 if [[ "$candidate_row_count" != "1" ]]; then
   guard_fail "$TAG" "module candidate cutover must have one closed manifest row"
 fi
-
 local_row_count="$(awk -F '\t' '
   $1 == "cell" &&
   $2 == "LOCAL-STATEMENT-DESCENT-CUTOVER0" &&
@@ -373,7 +361,6 @@ local_row_count="$(awk -F '\t' '
 if [[ "$local_row_count" != "1" ]]; then
   guard_fail "$TAG" "Local descent cutover must have one closed manifest row"
 fi
-
 assignment_row_count="$(awk -F '\t' '
   $1 == "cell" &&
   $2 == "VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0" &&
@@ -383,7 +370,6 @@ assignment_row_count="$(awk -F '\t' '
 if [[ "$assignment_row_count" != "1" ]]; then
   guard_fail "$TAG" "Variable Assignment descent cutover must have one closed manifest row"
 fi
-
 return_row_count="$(awk -F '\t' '
   $1 == "cell" &&
   $2 == "RETURN-SOURCE-PARTITION-CUTOVER0" &&
@@ -393,7 +379,6 @@ return_row_count="$(awk -F '\t' '
 if [[ "$return_row_count" != "1" ]]; then
   guard_fail "$TAG" "Return source partition cutover must have one closed manifest row"
 fi
-
 binary_row_count="$(awk -F '\t' '
   $1 == "cell" &&
   $2 == "BINARY-SOURCE-PARTITION-CUTOVER0" &&
@@ -403,7 +388,6 @@ binary_row_count="$(awk -F '\t' '
 if [[ "$binary_row_count" != "1" ]]; then
   guard_fail "$TAG" "Binary source partition cutover must have one closed manifest row"
 fi
-
 record_helper_row_count="$(awk -F '\t' '
   $1 == "cell" &&
   $2 == "RECORD-HELPER-BODY-DESCENT0" &&
@@ -413,7 +397,6 @@ record_helper_row_count="$(awk -F '\t' '
 if [[ "$record_helper_row_count" != "1" ]]; then
   guard_fail "$TAG" "record-helper body descent must have one closed manifest row"
 fi
-
 property_row_count="$(awk -F '\t' '
   $1 == "cell" &&
   $2 == "FIELD-PROPERTY-GETTER-DESCENT0" &&
@@ -423,7 +406,6 @@ property_row_count="$(awk -F '\t' '
 if [[ "$property_row_count" != "1" ]]; then
   guard_fail "$TAG" "Field property getter descent must have one closed manifest row"
 fi
-
 for symbol in \
   build_static_method_draft_v1 \
   build_instance_method_draft_v1 \
@@ -434,7 +416,6 @@ do
     guard_fail "$TAG" "retired callable body symbol returned: $symbol"
   fi
 done
-
 while read -r symbol expected; do
   count="$(rg -o -F "$symbol" "$LOWERING" | wc -l | tr -d '[:space:]')"
   if [[ "$count" != "$expected" ]]; then
@@ -445,7 +426,6 @@ build_static_method_draft_with_port_v1 1
 build_instance_method_draft_with_port_v1 1
 finalize_port_aware_draft_for_legacy_v1 2
 EOF
-
 while read -r symbol expected; do
   count="$(rg -o -F "$symbol" "$PROGRAM_ROOT" | wc -l | tr -d '[:space:]')"
   if [[ "$count" != "$expected" ]]; then
@@ -456,7 +436,6 @@ ModuleDraftCollectorV1::default() 1
 RawInvocationChildPortV1::new 1
 .try_add_functions_atomic 1
 EOF
-
 for retired_edge in \
   lower_static_method_as_function \
   lower_method_as_function \
@@ -467,7 +446,6 @@ do
     guard_fail "$TAG" "direct ordinary callable edge returned: $retired_edge"
   fi
 done
-
 for retired_edge in \
   compile_with_source_internal \
   compile_legacy_candidate \
@@ -479,7 +457,6 @@ do
     guard_fail "$TAG" "live compiler build edge returned: $retired_edge"
   fi
 done
-
 for required_edge in \
   'fn compile_public_program' \
   'NormalCompileRequestV1::for_mir_mode' \
@@ -489,7 +466,6 @@ do
     guard_fail "$TAG" "public Program compiler edge drift: $required_edge"
   fi
 done
-
 while IFS=$'\t' read -r file pattern expected label; do
   count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
   if [[ "$count" != "$expected" ]]; then
@@ -500,7 +476,6 @@ $STATEMENT_SURFACE	\\bdrive_local_statement_v1\\s*\\(	1	raw/default Local owner 
 $STATEMENT_SURFACE	\\bRawLegacyLocalInputV1::new\\s*\\(	1	raw/default Local owned input
 $LOCATED_LOCAL	\\bdrive_local_statement_v1\\s*\\(	1	detached located Local owner caller
 EOF
-
 if rg -n -P '\b(?:fn\s+)?build_local_statement\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired build_local_statement facade returned"
@@ -512,7 +487,6 @@ fi
 if rg -n -w 'retry|fallback' "$LOCAL_DESCENT" "$LOCATED_LOCAL" >/dev/null; then
   guard_fail "$TAG" "Local owner gained retry or fallback"
 fi
-
 while IFS=$'\t' read -r file pattern expected label; do
   count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
   if [[ "$count" != "$expected" ]]; then
@@ -525,7 +499,6 @@ $RAW_DISPATCH	\\bdrive_variable_assignment_v1\\s*\\(	1	Grouped Assignment owner 
 $RAW_DISPATCH	\\bRawLegacyVariableAssignmentInputV1::new\\s*\\(	1	Grouped Assignment owned input
 $LOCATED_ASSIGNMENT	\\bdrive_variable_assignment_v1\\s*\\(	1	detached located Assignment owner caller
 EOF
-
 assignment_external_count="$(
   rg -n -P '\bdrive_variable_assignment_v1\s*\(' \
     "$ROOT_DIR/src" --glob '*.rs' \
@@ -550,7 +523,6 @@ fi
 if rg -n -w 'retry|fallback' "$ASSIGNMENT_DESCENT" "$LOCATED_ASSIGNMENT" >/dev/null; then
   guard_fail "$TAG" "Assignment owner gained retry or fallback"
 fi
-
 while IFS=$'\t' read -r file pattern expected label; do
   count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
   if [[ "$count" != "$expected" ]]; then
@@ -562,7 +534,6 @@ $STATEMENT_SURFACE	\\bRawLegacyValueReturnInputV1::new\\s*\\(	1	value-bearing Re
 $STATEMENT_SURFACE	\\bbuild_void_return_statement\\s*\\(	1	exact Void Return owner caller
 $LOCATED_RETURN	\\bdrive_value_return_statement_v1\\s*\\(	1	detached located Return owner caller
 EOF
-
 return_external_count="$(
   rg -n -P '\bdrive_value_return_statement_v1\s*\(' \
     "$ROOT_DIR/src" --glob '*.rs' \
@@ -591,7 +562,6 @@ fi
 if rg -n -w 'retry|fallback' "$RETURN_DESCENT" >/dev/null; then
   guard_fail "$TAG" "Return value owner gained retry or route fallback"
 fi
-
 while IFS=$'\t' read -r file pattern expected label; do
   count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
   if [[ "$count" != "$expected" ]]; then
@@ -605,7 +575,6 @@ $RAW_DISPATCH	\\bdrive_short_circuit_expression_v1\\s*\\(	1	raw/default short-ci
 $LOCATED_LOCAL	\\bdrive_ordinary_binary_expression_v1\\s*\\(	1	detached located ordinary Binary caller
 $LOCATED_LOCAL	\\bdrive_short_circuit_expression_v1\\s*\\(	1	detached located short-circuit caller
 EOF
-
 ordinary_binary_external_count="$(
   rg -n -P '\bdrive_ordinary_binary_expression_v1\s*\(' \
     "$ROOT_DIR/src" --glob '*.rs' \
@@ -618,7 +587,6 @@ if [[ "$ordinary_binary_external_count" != "2" ]]; then
   guard_fail "$TAG" \
     "ordinary Binary external sites must be one raw/default plus one detached: count=$ordinary_binary_external_count"
 fi
-
 short_circuit_external_count="$(
   rg -n -P '\bdrive_short_circuit_expression_v1\s*\(' \
     "$ROOT_DIR/src" --glob '*.rs' \
@@ -631,7 +599,6 @@ if [[ "$short_circuit_external_count" != "2" ]]; then
   guard_fail "$TAG" \
     "short-circuit external sites must be one raw/default plus one detached: count=$short_circuit_external_count"
 fi
-
 for retired_pattern in \
   '\b(?:fn\s+)?build_binary_op\s*\(' \
   '\b(?:fn\s+)?drive_raw_ordinary_binary_expression_v1\s*\(' \
@@ -644,7 +611,6 @@ done
 if rg -n -w 'retry|fallback' "$BINARY_DESCENT" "$SHORT_CIRCUIT_DESCENT" >/dev/null; then
   guard_fail "$TAG" "Binary owner gained retry or route fallback"
 fi
-
 guard_exact_counts <<EOF
 $METHOD_CALL_DESCENT|\\benum\\s+CatalogHelperChildV1\\b|1|catalog helper child vocabulary
 $METHOD_CALL_DESCENT|\\[method-call-descent/catalog-helper-child-unsupported\\]|1|fail-closed custom-port default
@@ -653,7 +619,6 @@ $RECORD_HELPER|CatalogHelperChildV1::Statement\\(stmt\\.clone\\(\\)\\)|1|catalog
 $LOCATED_LOCAL|drive_raw_legacy_expression_v1\\(builder, expression\\)|1|located unlocated-expression projection
 $LOCATED_LOCAL|drive_raw_legacy_statement_v1\\(builder, statement\\)|1|located unlocated-statement projection
 EOF
-
 for retired_pattern in \
   'self\.build_expression\(\*expr\.clone\(\)\)' \
   'self\.build_statement\(stmt\.clone\(\)\)' \
@@ -669,7 +634,6 @@ if rg -n -w 'retry|fallback|reselection' \
   "$METHOD_CALL_DESCENT" "$RECORD_HELPER" "$LOCATED_LOCAL" >/dev/null; then
   guard_fail "$TAG" "record-helper descent gained retry, fallback, or reselection"
 fi
-
 guard_exact_counts <<EOF
 $RAW_DISPATCH|PreparedRawFieldReadV1::prepare\\s*\\(|1|sole raw/default FieldAccess route issuer
 $RAW_DISPATCH|lower_prepared_raw_field_read_with_port_v1\\s*\\(|1|sole prepared FieldAccess caller
@@ -678,6 +642,11 @@ $PRINT_STMT|enum\\s+PreparedRawPrintRouteV1\\b|1|private raw Print route vocabul
 $PRINT_STMT|fn\\s+lower_prepared_raw_print_with_port_v1\\s*<Port>|1|prepared raw Print lowering owner
 $STATEMENT_SURFACE|PreparedRawPrintV1::prepare\\s*\\(|1|sole raw Print route issuer
 $STATEMENT_SURFACE|lower_prepared_raw_print_with_port_v1\\s*\\(|1|sole prepared raw Print caller
+$FUNCTION_CALL_ROUTE|struct\\s+PreparedRawFunctionPreflightV1\\b|1|opaque direct FunctionCall preflight
+$FUNCTION_CALL_ROUTE|enum\\s+PreparedRawFunctionPreflightRouteV1\\b|1|private direct FunctionCall route vocabulary
+$FUNCTION_CALL_ROUTE|fn\\s+lower_prepared_raw_function_preflight_with_port_v1\\s*<Port>|1|prepared direct FunctionCall lowering owner
+$RAW_DISPATCH|PreparedRawFunctionPreflightV1::prepare\\s*\\(|1|sole direct FunctionCall route issuer
+$RAW_DISPATCH|lower_prepared_raw_function_preflight_with_port_v1\\s*\\(|1|sole prepared direct FunctionCall caller
 $FIELDS|try_lower_property_read_with_port_v1\\s*\\(port, object_value, &field\\)|1|port-aware property caller
 $PROPERTY_READS|struct\\s+PropertyGetterCompletionV1\\b|1|exact zero-argument property adapter
 $PROPERTY_READS|fn\\s+try_lower_property_read_with_port_v1\\s*<Port>|1|port-aware property owner
@@ -688,7 +657,6 @@ $METHOD_CALL_HANDLERS|fn\\s+handle_standard_method_call_with_descent\\s*<Complet
 $METHOD_CALL_TERMINAL|trait\\s+StandardMethodCallCompletionV1\\b|1|standard completion capability
 $METHOD_CALL_TERMINAL|impl<Port>\\s+StandardMethodCallCompletionV1|1|associated standard completion
 EOF
-
 for retired_pattern in \
   '\b(?:fn\s+)?try_lower_property_read\s*\(' \
   '\b(?:fn\s+)?handle_standard_method_call\s*\(' \
@@ -704,7 +672,31 @@ if rg -n -P '\bbuild_print_statement(?:_with_port_v1)?\s*\(|\bCallExpr\b|\.clone
   "$PRINT_STMT" >/dev/null; then
   guard_fail "$TAG" "retired raw Print facade, wrapper, or AST clone returned"
 fi
-
+if [[ -e "$ROOT_DIR/src/mir/builder/calls/function_preflight.rs" ]] ||
+   rg -n -P '\b(?:build_function_call|try_handle_function_preflight|try_build_typeop_function|try_handle_math_function|lower_fastmem_function_call)\s*\(' \
+     "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null ||
+   rg -n -P '\bCallExpr\b' "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null ||
+   rg -n -P '\.clone\s*\(|\b(?:retry|fallback|reselection)\b' \
+     "$FUNCTION_CALL_ROUTE" "$FUNCTION_SPECIAL" >/dev/null; then
+  guard_fail "$TAG" "retired FunctionCall probe/facade/clone or route retry returned"
+fi
+function_prepare_external_files="$(
+  rg -l -P '\bPreparedRawFunctionPreflightV1::prepare\s*\(' \
+    "$ROOT_DIR/src/mir/builder" --glob '*.rs' |
+    rg -v '/calls/function_call_preflight_route\.rs$' |
+    wc -l | tr -d '[:space:]'
+)"
+function_lower_external_files="$(
+  rg -l -P '\blower_prepared_raw_function_preflight_with_port_v1\s*\(' \
+    "$ROOT_DIR/src/mir/builder" --glob '*.rs' |
+    rg -v '/calls/function_call_preflight_route\.rs$' |
+    wc -l | tr -d '[:space:]'
+)"
+if [[ "$function_prepare_external_files" != "1" ]] ||
+   [[ "$function_lower_external_files" != "1" ]]; then
+  guard_fail "$TAG" \
+    "direct FunctionCall must have one external issuer/consumer file: prepare=$function_prepare_external_files lower=$function_lower_external_files"
+fi
 for forbidden in \
   RawLegacyMethodCallInputV1 \
   MethodCallValueTerminalPortV1 \
@@ -721,7 +713,6 @@ if rg -n -w 'retry|fallback|reselection' \
   "$PROPERTY_READS" "$FIELDS" "$METHOD_CALL_HANDLERS" >/dev/null; then
   guard_fail "$TAG" "property descent gained retry, fallback, or reselection"
 fi
-
 if rg -n -P '\.build_expression\s*\(' \
   "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired MirBuilder build_expression caller returned"
@@ -730,7 +721,6 @@ if rg -n -P '\bfn\s+build_expression\s*\(' \
   "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired MirBuilder build_expression facade returned"
 fi
-
 for file in \
   "$LOWERING" \
   "$PORT_OWNER" \
@@ -778,6 +768,9 @@ for file in \
   "$METHOD_CALL_TERMINAL" \
   "$CALLS_MOD" \
   "$CALLS_BUILD" \
+  "$FUNCTION_CALL_ROUTE" \
+  "$FUNCTION_SPECIAL" \
+  "$FASTMEM_CALLS" \
   "$ENUM_MATCH" \
   "$METHOD_CALL_HANDLERS" \
   "$PROPERTY_READS" \
@@ -794,5 +787,4 @@ do
     guard_fail "$TAG" "file exceeds boundary: ${file#"$ROOT_DIR/"} lines=$lines"
   fi
 done
-
 echo "[$TAG] ok"

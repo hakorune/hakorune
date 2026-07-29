@@ -584,19 +584,20 @@ Closed: `RAW-FROM-CALL-ROUTE-ONCE0-I0-R0`, `RAW-SCOPEBOX-BODY-ROUTE-ONCE0-I0-R0`
 Closed: EnumMatch, Field-read, and Print route-once replacements.
 Evidence: exact prepared routes, effect/diagnostic parity, failure/reuse,
   focused tests, cargo check, shared guards; old probes/clones/facades are zero.
-Current: RAW-DIRECT-FUNCTION-PREFLIGHT-ROUTE-ONCE0-I0-R0,
-  CALL-OBJECT0/T1, one atomic commit.
-Caller: raw dispatcher sole ASTNode::FunctionCall edge.
-Owner: effect-free, read-only Builder-observing PreparedRawFunctionPreflightV1.
+Closed: RAW-DIRECT-FUNCTION-PREFLIGHT-ROUTE-ONCE0-I0-R0.
+Caller/owner: the sole raw ASTNode::FunctionCall edge now issues one
+  PreparedRawFunctionPreflightV1 before child effects.
 Priority: weak -> extern -> Brand -> exact TypeOp -> math ->
   active FastMem -> Ordinary; one selected route, no retry.
-Delete: FunctionCall CallExpr conversion, Option preflight/typeop/math probes,
+Deleted: CallExpr conversion, Option preflight/typeop/math probes,
   caller-zero direct-call/brand/extern/FastMem facades, and probe clones.
-Preserve after Ordinary arguments: str/1, unified/resolved choice,
-  header lookup, unique-static/tail resolution, diagnostics and effects.
-Exclude: MethodCall, indirect Call, CompoundAssignment, feature work.
-Hard stop: route choice after a child, special failure -> Ordinary,
-  or any post-argument resolution decision moves before argument descent.
+Preserved: Ordinary arguments -> str/1 -> header -> resolution timing,
+  diagnostics, MIR effects, legacy candidate reuse, and FastMem memops.
+Non-claim: FastMem intrinsic-internal source argument clones remain owned by
+  its shared FunctionCall/MethodCall kernel.
+Current design stop: MIRBUILDER-POST-DIRECT-FUNCTION-PREFLIGHT-LIVE-EDGE-CENSUS0-D0.
+Next: read-only production census; do not preselect MethodCall, indirect Call,
+  CompoundAssignment, View/Ownership, or feature work.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
