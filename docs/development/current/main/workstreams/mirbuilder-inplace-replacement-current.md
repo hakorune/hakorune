@@ -578,24 +578,25 @@ new source/test/check/task file            = 0
 largest touched source/check file          = 799
 ```
 
-## Current execution
-`SOURCE-HINT-COMPILE-HELPER-RETIRE0-DEL0`
-Parent: `POST-MACRO-ROOT-CONTRACT0-D0` / Delete
+## Current design stop
+`MIRCOMPILER-PUBLIC-ARBITRARY-AST-CONTRACT0-D0`
+Parent: `POST-MACRO-ROOT-CONTRACT0-D0` / D0
 ```text
-Change:
-  Move two decode-escape tests to typed Program ingress, then physically delete
-  caller-zero compile_with_source_hint helpers. Retain source preparation.
+Question:
+  Retire, narrow, or explicitly preserve the public arbitrary-AST MirCompiler
+  contract now that its internal production callers are zero.
 
-Contract:
-  Production behavior, grammar, source preparation, and decode-escape evidence
-  stay unchanged. No new adapter replaces the deleted helpers.
+Must inventory:
+  Public API compatibility, all test-oracle callers, strict-JSON fixture use,
+  and the exact legacy_candidate_session/build_module atomic delete set.
 
-Done:
-  Helper definitions and callers are zero; typed tests and shared guards are green.
+Non-authority:
+  AST-JSON host lowering remains a separate generic-node contract. No language,
+  backend, Ownership/View, or normal production behavior changes are selected.
 
 Stop:
-  A production caller is discovered, preparation utilities would be deleted,
-  test semantics drift, or another generic raw-AST compile adapter is needed.
+  Do not edit code until one public contract, migration plan, failure surface,
+  and same-cell old-edge deletion are accepted.
 ```
 Post-macro retirement order after each fresh census:
 ```text
@@ -718,7 +719,7 @@ R29 POST-MACRO-ROOT-CONTRACT0-D0 closed: WholeFileProgram
 R30 STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0 closed
 R31 SELFHOST-MACRO-PREEXPAND-TYPED-PROGRAM-INGRESS0-I0-R0 closed
 R32 VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 closed
-R33 VM fallback closed; R34 VM keep closed; R35 SOURCE-HINT-COMPILE-HELPER-RETIRE0-DEL0 current
+R33 VM fallback closed; R34 VM keep closed; R35 source-hint helper DEL0 closed; R36 MIRCOMPILER-PUBLIC-ARBITRARY-AST-CONTRACT0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

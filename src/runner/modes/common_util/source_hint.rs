@@ -1,41 +1,9 @@
-use crate::ast::ASTNode;
-use crate::mir::{MirCompileResult, MirCompiler};
 use crate::runner::NyashRunner;
 use std::collections::HashMap;
 
 pub(crate) struct PreparedSourceWithImports {
     pub(crate) code: String,
     pub(crate) imports: HashMap<String, String>,
-}
-
-/// Compile AST with a source filename hint, reducing call-site duplication.
-/// Falls back to regular compile when filename is None or empty.
-pub fn compile_with_source_hint(
-    compiler: &mut MirCompiler,
-    ast: ASTNode,
-    filename: Option<&str>,
-) -> Result<MirCompileResult, String> {
-    if let Some(f) = filename {
-        if !f.is_empty() {
-            return compiler.compile_with_source(ast, Some(f));
-        }
-    }
-    compiler.compile_with_source(ast, None)
-}
-
-/// Compile AST with a source hint plus explicit imported static-box bindings.
-pub fn compile_with_source_hint_and_imports(
-    compiler: &mut MirCompiler,
-    ast: ASTNode,
-    filename: Option<&str>,
-    imports: HashMap<String, String>,
-) -> Result<MirCompileResult, String> {
-    if let Some(f) = filename {
-        if !f.is_empty() {
-            return compiler.compile_with_source_and_imports(ast, Some(f), imports);
-        }
-    }
-    compiler.compile_with_source_and_imports(ast, None, imports)
 }
 
 fn normalize_source_for_parser(code: &str, filename: &str) -> String {
