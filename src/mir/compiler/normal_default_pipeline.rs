@@ -30,6 +30,7 @@ enum NormalCompileAdmissionV1 {
     Stage1DirectPostMacroProgramNoImports,
     SelfhostMacroPreexpandProgramNoImports,
     VmHakoPostMacroProgramWithImports,
+    VmFallbackPostMacroProgramNoImports,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -323,6 +324,18 @@ impl NormalCompileRequestV1 {
         )
     }
 
+    pub(crate) fn for_vm_fallback_post_macro(
+        program: VerifiedPostMacroWholeFileProgramV1,
+        source_file: &str,
+    ) -> Self {
+        Self::from_prepared(
+            program.program,
+            Some(source_file),
+            HashMap::new(),
+            NormalCompileAdmissionV1::VmFallbackPostMacroProgramNoImports,
+        )
+    }
+
     fn into_parts(
         self,
     ) -> (
@@ -543,6 +556,22 @@ mod tests {
         assert_eq!(
             admission,
             NormalCompileAdmissionV1::VmHakoPostMacroProgramWithImports
+        );
+    }
+
+    #[test]
+    fn vm_fallback_post_macro_preserves_named_source_and_empty_imports() {
+        let program =
+            VerifiedPostMacroWholeFileProgramV1::seal(program()).expect("Program must seal once");
+        let request =
+            NormalCompileRequestV1::for_vm_fallback_post_macro(program, "fallback.hako");
+        let (_, source, imports, admission, _) = request.into_parts();
+
+        assert_eq!(source.source_file(), Some("fallback.hako"));
+        assert!(imports.is_empty());
+        assert_eq!(
+            admission,
+            NormalCompileAdmissionV1::VmFallbackPostMacroProgramNoImports
         );
     }
 }

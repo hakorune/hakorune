@@ -579,24 +579,24 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution
-`VM-FALLBACK-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0`
+`VM-KEEP-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0`
 Parent: `POST-MACRO-ROOT-CONTRACT0-D0` / T0
 ```text
 Change:
-  Consume the shared post-macro Program seal after the VM fallback user-factory
-  observation and delete its no-import source-hint Legacy edge.
+  Consume the shared post-macro Program seal after the VM keep user-factory
+  observation and delete its imports-bearing source-hint Legacy edge.
 
 Contract:
-  Filename, empty imports, optimize flag, user-factory observation, plugin
-  guard, VM execution, diagnostics, and process-exit behavior stay unchanged.
+  Filename, exact imports, optimize flag, user-factory/plugin behavior,
+  trace/quiet controls, VM execution, diagnostics, and process exit stay unchanged.
 
 Done:
-  Program parity and typed non-Program failure are green; the fallback
+  Program/import parity and typed non-Program failure are green; the VM keep
   source-hint edge is zero; shared pointer/replacement guards are green.
 
 Stop:
-  Factory/source drift, clone/reparse, changed VM/process behavior, MacroBox
-  narrowing, route retry, or compilation after Program-seal failure.
+  Import/factory/source drift, clone/reparse, changed VM/process behavior,
+  MacroBox narrowing, route retry, or compilation after Program-seal failure.
 ```
 Post-macro retirement order after each fresh census:
 ```text
@@ -719,7 +719,7 @@ R29 POST-MACRO-ROOT-CONTRACT0-D0 closed: WholeFileProgram
 R30 STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0 closed
 R31 SELFHOST-MACRO-PREEXPAND-TYPED-PROGRAM-INGRESS0-I0-R0 closed
 R32 VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 closed
-R33 VM-FALLBACK-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 current
+R33 VM-FALLBACK-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 closed; R34 VM-KEEP-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

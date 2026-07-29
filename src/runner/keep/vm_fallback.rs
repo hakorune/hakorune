@@ -6,7 +6,10 @@
 //! - the `vm-hako` reference/conformance lane
 
 use super::super::NyashRunner;
-use crate::mir::MirCompiler;
+use crate::mir::{
+    MirCompileResult, MirCompiler, NormalCompileRequestV1, RejectedPostMacroWholeFileProgramV1,
+    VerifiedPostMacroWholeFileProgramV1,
+};
 use crate::runtime::get_global_ring0;
 use std::{fs, process};
 
@@ -161,12 +164,7 @@ impl NyashRunner {
             crate::runner::modes::common_util::vm_user_factory::prepare_vm_user_factory(
                 &ast, false, true,
             );
-        let mut compiler = MirCompiler::with_options(!self.config.no_optimize);
-        let compile = match crate::runner::modes::common_util::source_hint::compile_with_source_hint(
-            &mut compiler,
-            ast,
-            Some(filename),
-        ) {
+        let compile = match compile_post_macro_program(ast, filename, !self.config.no_optimize) {
             Ok(c) => c,
             Err(e) => {
                 eprintln!("❌ MIR compilation error: {}", e);
@@ -194,5 +192,44 @@ impl NyashRunner {
             &_vm_user_factory,
             false,
         );
+    }
+}
+
+fn compile_post_macro_program(
+    ast: crate::ast::ASTNode,
+    filename: &str,
+    optimize: bool,
+) -> Result<MirCompileResult, String> {
+    let program = VerifiedPostMacroWholeFileProgramV1::seal(ast).map_err(
+        |rejected: RejectedPostMacroWholeFileProgramV1| {
+            let message = rejected.error().to_string();
+            rejected.discard();
+            message
+        },
+    )?;
+    let mut compiler = MirCompiler::with_options(optimize);
+    compiler.compile_normal(NormalCompileRequestV1::for_vm_fallback_post_macro(
+        program, filename,
+    ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::compile_post_macro_program;
+    use crate::ast::{ASTNode, LiteralValue, Span};
+
+    #[test]
+    fn nonprogram_macro_output_rejects_before_vm_fallback_compiler_admission() {
+        let error = compile_post_macro_program(
+            ASTNode::Literal {
+                value: LiteralValue::Integer(5),
+                span: Span::unknown(),
+            },
+            "fallback.hako",
+            true,
+        )
+        .expect_err("whole-file non-Program output must reject");
+
+        assert!(error.starts_with("[macro/whole-file-root] expected Program"));
     }
 }
