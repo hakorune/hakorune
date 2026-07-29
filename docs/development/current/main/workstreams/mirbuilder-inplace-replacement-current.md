@@ -580,19 +580,90 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Design stop: RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-D0 (T2).
-Caller: statement surface ASTNode::TryCatch -> cf_try_catch_with_port_v1.
-Reason: no bounded T1 remains; TryCatch mixes route selection, block allocation,
-deferred-return state, cleanup admission, three body descents and manual restore.
+Decision: Candidate A
+Row: RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-I0-R0
+Ceremony: T2, one atomic implementation/retirement commit
+Pack: FUNCTION-STATE0 + CONTROL0
 
-Must decide: exact captured state; success/every-failure restoration; primary
-versus restoration error precedence; body ownership; disable-route compatibility
-owner and sunset; one atomic old-terminal/manual-state delete set.
-Forbid: AST carrier wrapper, implicit failure-behavior improvement, old facade,
-fallback/retry, Return/Throw/QMark changes, new feature or Ownership/View work.
+Caller:
+  statement_surface ASTNode::TryCatch
 
-No production/test/check edit is authorized during D0.
+New owners:
+  PreparedRawTryCatchV1
+    -> DisabledCompatibility(try body only)
+    -> Enabled(owned try / catches / finally)
+  ActiveRawTryCatchFunctionStateV1
+    -> exact seven-field success-only transaction
+
+Exact state:
+  return_defer_active / slot / target / emitted
+  in_cleanup_block / cleanup_allow_return / cleanup_allow_throw
+
+Contract:
+  disable/enabled route sampled pre-effect exactly once
+  same child port used exactly once
+  first catch only, current try/catch/finally order unchanged
+  catch body clone = 0
+  success restores exact seven fields
+  every typed failure restores 0 and preserves current dirty state
+  primary String error unchanged
+  CFG / ID / type / binding rollback = 0
+  fallback / retry / reselection = 0
+  grammar / MIR success / result / publication delta = 0
 ```
+
+Success-only restoration is intentional. Restoring on failure would be a
+separate behavior change; the outer candidate session already owns live-Builder
+isolation.
+
+### Atomic delete and sunset
+
+```text
+delete:
+  statement_surface -> cf_try_catch_with_port_v1(raw fields)
+  old terminal definition/export
+  lower-side disable-route read
+  seven saved_* locals and manual restore assignments
+  catch body clone
+  caller-zero cf_try_catch / MirBuilder facade / fresh Legacy port facade
+
+sunset:
+  id: RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-SUNSET-001
+  owner: PreparedDisabledRawTryCatchV1
+  surface: NYASH_BUILDER_DISABLE_TRYCATCH=1 -> try body only
+  retire_when: env definition/read/documented consumers and fixture are zero
+  growth: forbidden
+```
+
+### Evidence and hard stops
+
+Use module-local tests plus existing integration/shared guards. New test,
+check, task, and per-row guard files are zero.
+
+```text
+evidence:
+  enabled success restores seeded seven fields and preserves MIR
+  try/catch failure leaves current inner defer state and stops later bodies
+  finally failure leaves current cleanup state and stops exit
+  nested success restores outer state, then caller state
+  disabled route lowers try only with no transaction/block/catch/finally
+  first catch executes once; later catches execute zero
+  failed candidate leaves live Builder unchanged; fresh request succeeds
+
+hard stop:
+  error-path restore or Drop/RAII restore
+  broad FunctionOwnedStateTransactionV1 or non-seven-field capture
+  MIR/CFG/ID/type/binding rollback
+  cleanup-policy sampling before finally entry
+  changed debug timing, catch semantics, or primary error
+  clone/reparse, second port, fallback, retry, or old wrapper
+  Return/Throw/QMark/If/Loop or Ownership/View/feature work
+  compatibility growth/missing sunset
+  any touched source/check file >= 800
+```
+
+After closeout, run a fresh live-edge census and do not preselect the next cell.
+
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
