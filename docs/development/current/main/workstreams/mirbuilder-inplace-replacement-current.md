@@ -32,20 +32,36 @@ Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Latest landed: RAW-INDIRECT-CALL-LEGACY-FACADE-RETIRE0-RET0
 Result:        caller-zero ambient indirect-Call port facade is deleted;
                dispatcher keeps the sole with-port Call owner
-Latest design: fresh live-edge census required
-Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS4` is a design stop
+Latest design: selected normal static-table metadata owner
+Executable:    none — `NORMAL-PROGRAM-STATIC-TABLE-PLAN0-D0` is a design stop
 History:       Git history and the short landed tail below
 ```
 
-## Current execution
+## Current design stop
 
-`MIRBUILDER-LIVE-EDGE-CENSUS4` — read-only design stop
+`NORMAL-PROGRAM-STATIC-TABLE-PLAN0-D0` — T2 source-to-metadata ownership
 
 ```text
-Select at most one named live production authority or caller-zero facade with an
-exact same-commit old-edge deletion. A detached RET0 must not hide a live-owner
-decision; return to D0 when the candidate needs port, argument-order, control,
-allocation, ownership, or compatibility-surface changes.
+Caller:
+  selected normal `lower_program_root_with_callable_port_v1`.
+
+Product:
+  `PreparedNormalProgramStaticTableMetadataV1<'module>` borrows the candidate
+  `MirModule`; `prepare(snapshot, target)` collects the existing source-ordered
+  specs once and derives plans once; infallible `commit(self)` moves both
+  metadata fields together. It owns no AST, source/module identity, Builder,
+  Index route, or new rejection owner.
+
+Required I0/R0:
+  replace the direct collect -> plan-map -> two metadata assignments with one
+  prepare/commit handoff. Preserve facts -> static-table -> work-plan/body,
+  exact static-const diagnostics, candidate discard/reuse, and
+  `current_module = None` no-op behavior.
+
+Forbid:
+  reparse/re-scan/clone; separately visible specs or plans; partial metadata
+  publication; static Index/load/backend/body/collector/finalization change;
+  fallback, retry, or a compatibility owner.
 ```
 
 ## Latest closeout
@@ -191,8 +207,9 @@ largest touched source/check file                       < 800
 
 ```text
 R1 Now
-  MIRBUILDER-LIVE-EDGE-CENSUS4
-  Select one exact current edge or record the D0 it requires.
+  NORMAL-PROGRAM-STATIC-TABLE-PLAN0-D0
+  Only its same-responsibility I0/R0 may follow, or return to census if its
+  source-to-metadata boundary cannot remain bounded.
 
 R2 Live responsibility replacement
   fresh census -> one exact edge or one bounded D0 -> same-cell I0/R0
