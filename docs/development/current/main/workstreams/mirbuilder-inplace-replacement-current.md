@@ -72,9 +72,9 @@ Closed:  REPL-TYPED-PROGRAM-INGRESS0-D0
 Closed:  REPL-TYPED-PROGRAM-INGRESS0-I0-R0
 Closed:  POST-MACRO-PROGRAM-ADMISSION0-D0
 Closed:  STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0
-Current: MIRBUILDER-POST-STATIC-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0
-Pack:    REPLACEMENT-LEDGER0
-Ceremony: T1, read-only live-edge census
+Current: INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0
+Pack:    FUNCTION-LIFECYCLE0
+Ceremony: T0, one atomic production replacement
 ```
 
 R1 closeout:
@@ -821,17 +821,43 @@ quick gate                                           = unrelated pre-existing
   docs/reference/language/EBNF.md naming-token failure
 ```
 
-## Current design stop
+## Current execution brief
+
+`INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0` / parent
+`MIRBUILDER-POST-STATIC-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0` / T0 /
+`FUNCTION-LIFECYCLE0`.
 
 ```text
-MIRBUILDER-POST-STATIC-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0
+Change:
+  prepare one PreparedInstanceBoxConstructorBatchV1 and consume it through
+  RawBoxMethodChildPortV1. In the same commit delete both Program-root and raw
+  instance-Box copies of constructor sorting, FunctionDeclaration projection,
+  Box.constructor-key symbol construction, clone bundle, and direct dispatch.
+  Delete sorted_constructor_entries if its production/test surface becomes
+  caller-zero.
+
+Contract:
+  preserve lexical constructor-key order, non-Function skip, exact symbol,
+  and stop-on-constructor-N failure. Field registration and
+  build_box_declaration remain before the batch; failure still skips later
+  constructors and all ordinary methods while retaining partial candidate
+  state. Ordinary methods, Main/static routes, and publication do not move.
+
+Done:
+  both named production callers use one constructor-batch owner and both old
+  constructor-policy copies are zero. Focused order/skip/failure evidence,
+  existing Program/raw parity, and compacted shared guards are green.
+
+Stop:
+  return to design if the batch needs catalog/canonical-key authority, a new
+  failure owner, different constructor spelling/order, ordinary-method or
+  field lifecycle ownership, another port, fallback/retry, or any
+  source/check file reaches 800 lines.
 ```
 
-Run a fresh read-only census. Match owned-input remains hygiene rather than
-replacement credit. Lambda capture remains a T2 candidate until its two
-collectors have proven semantic parity. Every selected row still requires a
-named production caller, same-commit old-authority deletion, and zero
-fallback/retry. Feature additions remain parked.
+Lambda capture collector SSOT is the strongest designed follow-up candidate,
+but is not bundled. Main helper batching and Match hygiene also remain
+separate. Feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)
@@ -973,7 +999,8 @@ R44 MIRBUILDER-POST-STATIC-BOX-LIVE-EDGE-CENSUS0-D0 closed: deferred Program sta
 R45 PROGRAM-ROOT-DEFERRED-STATIC-BOX-LIFECYCLE0-I0-R0 closed
 R46 MIRBUILDER-POST-DEFERRED-STATIC-BOX-LIVE-EDGE-CENSUS0-D0 closed: method-batch SSOT selected
 R47 NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0 closed
-R48 MIRBUILDER-POST-STATIC-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0 current design stop
+R48 MIRBUILDER-POST-STATIC-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0 closed: constructor batch selected
+R49 INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
