@@ -31,6 +31,7 @@ enum NormalCompileAdmissionV1 {
     SelfhostMacroPreexpandProgramNoImports,
     VmHakoPostMacroProgramWithImports,
     VmFallbackPostMacroProgramNoImports,
+    VmKeepPostMacroProgramWithImports,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -336,6 +337,19 @@ impl NormalCompileRequestV1 {
         )
     }
 
+    pub(crate) fn for_vm_keep_post_macro(
+        program: VerifiedPostMacroWholeFileProgramV1,
+        source_file: &str,
+        imports: HashMap<String, String>,
+    ) -> Self {
+        Self::from_prepared(
+            program.program,
+            Some(source_file),
+            imports,
+            NormalCompileAdmissionV1::VmKeepPostMacroProgramWithImports,
+        )
+    }
+
     fn into_parts(
         self,
     ) -> (
@@ -572,6 +586,26 @@ mod tests {
         assert_eq!(
             admission,
             NormalCompileAdmissionV1::VmFallbackPostMacroProgramNoImports
+        );
+    }
+
+    #[test]
+    fn vm_keep_post_macro_preserves_named_source_and_exact_imports() {
+        let program =
+            VerifiedPostMacroWholeFileProgramV1::seal(program()).expect("Program must seal once");
+        let imports = HashMap::from([("KeepAlias".to_owned(), "KeepTarget".to_owned())]);
+        let request = NormalCompileRequestV1::for_vm_keep_post_macro(
+            program,
+            "vm-keep.hako",
+            imports.clone(),
+        );
+        let (_, source, actual_imports, admission, _) = request.into_parts();
+
+        assert_eq!(source.source_file(), Some("vm-keep.hako"));
+        assert_eq!(actual_imports, imports);
+        assert_eq!(
+            admission,
+            NormalCompileAdmissionV1::VmKeepPostMacroProgramWithImports
         );
     }
 }

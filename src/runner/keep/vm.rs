@@ -1,6 +1,12 @@
 use super::super::NyashRunner;
-use nyash_rust::{ast::ASTNode, mir::MirCompiler};
-use std::{fs, process};
+use nyash_rust::{
+    ast::ASTNode,
+    mir::{
+        MirCompileResult, MirCompiler, NormalCompileRequestV1,
+        RejectedPostMacroWholeFileProgramV1, VerifiedPostMacroWholeFileProgramV1,
+    },
+};
+use std::{collections::HashMap, fs, process};
 
 impl NyashRunner {
     /// Execute the deprecated bootstrap Rust VM source-execution keep.
@@ -267,8 +273,12 @@ impl NyashRunner {
             let ring0 = crate::runtime::ring0::get_global_ring0();
             ring0.log.info("[runner/vm:emit-trace] phase=compile.begin");
         }
-        let mut compiler = MirCompiler::with_options(!self.config.no_optimize);
-        let compile = match crate::runner::modes::common_util::source_hint::compile_with_source_hint_and_imports(&mut compiler, ast, Some(filename), using_imports) {
+        let compile = match compile_post_macro_program(
+            ast,
+            filename,
+            using_imports,
+            !self.config.no_optimize,
+        ) {
             Ok(c) => c,
             Err(e) => {
                 let ring0 = crate::runtime::ring0::get_global_ring0();
@@ -299,5 +309,47 @@ impl NyashRunner {
             &vm_user_factory,
             true,
         );
+    }
+}
+
+fn compile_post_macro_program(
+    ast: ASTNode,
+    filename: &str,
+    imports: HashMap<String, String>,
+    optimize: bool,
+) -> Result<MirCompileResult, String> {
+    let program = VerifiedPostMacroWholeFileProgramV1::seal(ast).map_err(
+        |rejected: RejectedPostMacroWholeFileProgramV1| {
+            let message = rejected.error().to_string();
+            rejected.discard();
+            message
+        },
+    )?;
+    let mut compiler = MirCompiler::with_options(optimize);
+    compiler.compile_normal(NormalCompileRequestV1::for_vm_keep_post_macro(
+        program, filename, imports,
+    ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::compile_post_macro_program;
+    use nyash_rust::ast::{ASTNode, LiteralValue, Span};
+    use std::collections::HashMap;
+
+    #[test]
+    fn nonprogram_macro_output_rejects_before_vm_keep_compiler_admission() {
+        let error = compile_post_macro_program(
+            ASTNode::Literal {
+                value: LiteralValue::Integer(8),
+                span: Span::unknown(),
+            },
+            "vm-keep.hako",
+            HashMap::new(),
+            true,
+        )
+        .expect_err("whole-file non-Program output must reject");
+
+        assert!(error.starts_with("[macro/whole-file-root] expected Program"));
     }
 }

@@ -579,24 +579,23 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution
-`VM-KEEP-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0`
-Parent: `POST-MACRO-ROOT-CONTRACT0-D0` / T0
+`SOURCE-HINT-COMPILE-HELPER-RETIRE0-DEL0`
+Parent: `POST-MACRO-ROOT-CONTRACT0-D0` / Delete
 ```text
 Change:
-  Consume the shared post-macro Program seal after the VM keep user-factory
-  observation and delete its imports-bearing source-hint Legacy edge.
+  Move two decode-escape tests to typed Program ingress, then physically delete
+  caller-zero compile_with_source_hint helpers. Retain source preparation.
 
 Contract:
-  Filename, exact imports, optimize flag, user-factory/plugin behavior,
-  trace/quiet controls, VM execution, diagnostics, and process exit stay unchanged.
+  Production behavior, grammar, source preparation, and decode-escape evidence
+  stay unchanged. No new adapter replaces the deleted helpers.
 
 Done:
-  Program/import parity and typed non-Program failure are green; the VM keep
-  source-hint edge is zero; shared pointer/replacement guards are green.
+  Helper definitions and callers are zero; typed tests and shared guards are green.
 
 Stop:
-  Import/factory/source drift, clone/reparse, changed VM/process behavior,
-  MacroBox narrowing, route retry, or compilation after Program-seal failure.
+  A production caller is discovered, preparation utilities would be deleted,
+  test semantics drift, or another generic raw-AST compile adapter is needed.
 ```
 Post-macro retirement order after each fresh census:
 ```text
@@ -719,7 +718,7 @@ R29 POST-MACRO-ROOT-CONTRACT0-D0 closed: WholeFileProgram
 R30 STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0 closed
 R31 SELFHOST-MACRO-PREEXPAND-TYPED-PROGRAM-INGRESS0-I0-R0 closed
 R32 VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 closed
-R33 VM-FALLBACK-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 closed; R34 VM-KEEP-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 current
+R33 VM fallback closed; R34 VM keep closed; R35 SOURCE-HINT-COMPILE-HELPER-RETIRE0-DEL0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
