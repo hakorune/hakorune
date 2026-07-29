@@ -25,8 +25,8 @@ use super::indexing::PreparedRawIndexReadV1;
 use super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::ops::{
     drive_ordinary_binary_expression_v1, drive_short_circuit_expression_v1,
-    BinaryExpressionDescentPortV1, RawLegacyBinaryInputV1, RawLegacyShortCircuitInputV1,
-    ShortCircuitExpressionDescentPortV1,
+    lower_prepared_raw_unary_with_port_v1, BinaryExpressionDescentPortV1, PreparedRawUnaryV1,
+    RawLegacyBinaryInputV1, RawLegacyShortCircuitInputV1, ShortCircuitExpressionDescentPortV1,
 };
 use super::recursive_child_lowering::{
     drive_legacy_expression_v1, drive_legacy_statement_v1, RawBoxMethodChildPortV1,
@@ -137,25 +137,8 @@ impl super::MirBuilder {
             ASTNode::UnaryOp {
                 operator, operand, ..
             } => {
-                match operator {
-                    // Phase 285W-Syntax-0: weak <expr> → WeakRef(New)
-                    crate::ast::UnaryOperator::Weak => {
-                        let box_val = drive_legacy_expression_v1(self, port, *operand)?;
-                        self.emit_weak_new(box_val)
-                    }
-                    // Traditional unary operators
-                    _ => {
-                        let op_string = match operator {
-                            crate::ast::UnaryOperator::Minus => "-".to_string(),
-                            crate::ast::UnaryOperator::Not => "not".to_string(),
-                            crate::ast::UnaryOperator::BitNot => "~".to_string(),
-                            crate::ast::UnaryOperator::Weak => unreachable!("handled above"),
-                        };
-                        super::ops::unary::build_unary_op_with_port_v1(
-                            self, port, op_string, *operand,
-                        )
-                    }
-                }
+                let prepared = PreparedRawUnaryV1::prepare(operator, *operand);
+                lower_prepared_raw_unary_with_port_v1(self, port, prepared)
             }
 
             ASTNode::Variable { name, .. } => self.build_variable_access(name.clone()),

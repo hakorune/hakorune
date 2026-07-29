@@ -327,7 +327,7 @@ def validate_literal_postemit_retirement_v1(root: Path) -> None:
         "pub(in crate::mir::builder) fn emit_typed_integer_literal", 1
     )[0]
     resolved_literal = resolved_lowerer.split("fn lower_literal", 1)[1]
-    folded_negative = unary.split('if operator == "-"', 1)[1].split("let operand_val", 1)[0]
+    folded_negative = unary.split("if operator.is_minus()", 1)[1].split("let operand_val", 1)[0]
 
     if "value_types.insert" in literal_dispatch:
         fail("LITERAL-POSTEMIT-RET0 literal dispatch direct type writer survived")

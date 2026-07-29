@@ -18,6 +18,9 @@ PROGRAM_ROOT_LOWERING = ROOT / "src/mir/builder/program_root_lowering.rs"
 MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
 BUILDER_ROOT = ROOT / "src/mir/builder.rs"
 NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
+RAW_EXPRESSION_DISPATCH = ROOT / "src/mir/builder/raw_expression_dispatch/mod.rs"
+RAW_UNARY_OWNER = ROOT / "src/mir/builder/ops/unary.rs"
+OPS_MOD = ROOT / "src/mir/builder/ops/mod.rs"
 SOURCES = (
     ROOT / "src/mir/compiler/raw_public_ingress.rs",
     ROOT / "src/mir/compiler/raw_public_ingress_p0.rs",
@@ -144,6 +147,9 @@ def main() -> int:
             MODULE_LIFECYCLE,
             BUILDER_ROOT,
             NORMAL_TESTS,
+            RAW_EXPRESSION_DISPATCH,
+            RAW_UNARY_OWNER,
+            OPS_MOD,
             *SOURCES,
         )
     }
@@ -161,7 +167,49 @@ def main() -> int:
     module_lifecycle = production_code(MODULE_LIFECYCLE)
     builder_root = production_code(BUILDER_ROOT)
     normal_tests = texts[NORMAL_TESTS]
+    raw_expression_dispatch = code_only(texts[RAW_EXPRESSION_DISPATCH])
+    raw_unary_owner = code_only(texts[RAW_UNARY_OWNER])
+    ops_mod = code_only(texts[OPS_MOD])
     current_workstream = texts[CURRENT_WORKSTREAM]
+    for fragment in (
+        "struct PreparedRawUnaryV1",
+        "enum PreparedRawUnaryRouteV1",
+        "fn prepare(operator: UnaryOperator, operand: ASTNode) -> Self",
+        "fn lower_prepared_raw_unary_with_port_v1<Port>",
+        "fn lower_prepared_raw_ordinary_unary_with_port_v1<Port>",
+    ):
+        require(raw_unary_owner, fragment, f"raw Unary owner {fragment}")
+    for fragment in (
+        "PreparedRawUnaryV1::prepare(operator, *operand)",
+        "lower_prepared_raw_unary_with_port_v1(self, port, prepared)",
+    ):
+        if raw_expression_dispatch.count(fragment) != 1:
+            raise AssertionError(f"raw Unary production handoff drift: {fragment}")
+    for retired in (
+        "build_unary_op_with_port_v1",
+        "fn build_unary_op(",
+        "emit_weak_new",
+        "UnaryOperator::Weak",
+        '"-".to_string()',
+        '"not".to_string()',
+        '"~".to_string()',
+    ):
+        if retired in raw_expression_dispatch:
+            raise AssertionError(f"retired raw Unary dispatcher policy returned: {retired}")
+    if "fn build_unary_op(" in ops_mod:
+        raise AssertionError("caller-zero MirBuilder Unary facade returned")
+    if raw_unary_owner.count("drive_legacy_expression_v1(builder, port, operand)") != 2:
+        raise AssertionError("raw Unary Weak/Ordinary operand descent count drift")
+    if raw_unary_owner.count("builder.emit_weak_new(box_value)") != 1:
+        raise AssertionError("raw Unary Weak completion count drift")
+    for forbidden in (
+        "RawLegacyChildLoweringPortV1",
+        "retry(",
+        "fallback(",
+        "or_else(",
+    ):
+        if forbidden in raw_unary_owner:
+            raise AssertionError(f"raw Unary owner gained forbidden edge: {forbidden}")
     for fragment in (
         "compile_raw_with_source",
         "RawPublicIngressPolicyV1",

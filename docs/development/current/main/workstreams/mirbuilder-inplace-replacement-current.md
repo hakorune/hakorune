@@ -580,22 +580,14 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed through ordinary Assignment route-once; focused gates are green.
-Current: RAW-UNARY-SOURCE-ROUTE-ONCE0-I0-R0, DESCENT-SPINE0/T1,
-  one atomic commit.
-Caller: sole raw ASTNode::UnaryOp edge.
-Owner: source-only PreparedRawUnaryV1 with private Weak or Ordinary route;
-  selected route is consumed exactly once in ops/unary.rs.
-Delete: dispatcher Weak policy and operator-string mapping,
-  build_unary_op_with_port_v1, and caller-zero Unary facades.
-Preserve: minus-literal fold before descent; Weak operand then emit;
-  ordinary operand then operator-box/Core13/direct completion and facts.
-Evidence: existing raw-port/literal-postemit tests plus existing shared guard;
-  no new source/test/check/task file.
-Hard stop: route selection after effects, double operand descent, policy-order
-  drift, retry, or widening ordinary Unary semantics.
-Non-claims: CompoundAssignment, indirect Call, FastMem, MethodCall, QMark,
-  View/Ownership, and feature work.
+Closed: RAW-UNARY-SOURCE-ROUTE-ONCE0-I0-R0, DESCENT-SPINE0/T1.
+Owner: PreparedRawUnaryV1 selects Weak or ordinary once before effects.
+Deleted: dispatcher Unary policy/string mapping, port facade, caller-zero facade.
+Preserved: literal fold, operand/completion order, facts, diagnostics, reuse.
+Evidence: focused tests, shared guards, cargo check, vm-reference smokes green.
+Current stop: MIRBUILDER-POST-UNARY-LIVE-EDGE-CENSUS0-D0.
+Next: fresh read-only census; no executable row is preselected.
+Parked: View/Ownership, features, FastMem, MethodCall, QMark.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:

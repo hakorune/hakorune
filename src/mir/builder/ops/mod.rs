@@ -110,7 +110,7 @@
 //! - **Preserved**: All Phase comments, functionality, Core-13 pure expansion
 
 use super::ValueId;
-use crate::ast::{ASTNode, BinaryOperator};
+use crate::ast::BinaryOperator;
 
 pub(super) mod arithmetic;
 mod binary_expression_descent;
@@ -140,6 +140,9 @@ mod short_circuit_expression_parity_tests;
 mod short_circuit_expression_raw_tests;
 pub(super) mod unary;
 use converters::BinaryOpType;
+pub(in crate::mir::builder) use unary::{
+    lower_prepared_raw_unary_with_port_v1, PreparedRawUnaryV1,
+};
 
 impl super::MirBuilder {
     pub(in crate::mir::builder) fn build_binary_op_from_values(
@@ -160,22 +163,5 @@ impl super::MirBuilder {
             // Comparison operations
             BinaryOpType::Comparison(op) => self.build_comparison_op(op, lhs_raw, rhs_raw),
         }
-    }
-
-    /// Build a unary operation
-    ///
-    /// **Delegates to**: `unary::build_unary_op`
-    ///
-    /// This handles all unary operations (-, !, ~) by delegating to the
-    /// specialized unary module, which implements Core-13 pure expansion:
-    /// - Neg (-): Lowered to `Sub 0-x`
-    /// - Not (!): Lowered to `Compare Eq x-false`
-    /// - BitNot (~): Lowered to `XOR x-(-1)`
-    pub(super) fn build_unary_op(
-        &mut self,
-        operator: String,
-        operand: ASTNode,
-    ) -> Result<ValueId, String> {
-        unary::build_unary_op(self, operator, operand)
     }
 }
