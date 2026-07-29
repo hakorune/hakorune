@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0 closed at b23b654aa7. RawLegacyChildLoweringPortV1 now hands its existing port directly to PreparedRawStaticMainBoxCompatibilityV1; build_static_main_box, build_static_main_box_typed, build_static_main_box_with_port_v1, and fresh raw-port reselection are zero. RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001 remains active with its prepared owner and a manifest retirement condition. The current stop is MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0: read-only before selecting one next R2/R3 production edge. Grammar, result, View, Ownership, and JoinModule remain unchanged."
+status = "MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0 closed. The census selected INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0: the shared Program/raw instance-Box lifecycle still calls build_box_declaration after effects begin, cloning raw fields/methods and re-sorting/re-matching FunctionDeclaration twice for metadata. The selected T1 row issues one source-only metadata projection before effects and deletes that lower-side authority atomically. Active compatibility sunsets, grammar, result, View, Ownership, and JoinModule remain unchanged."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = "Read-only census only: after raw static-Main facade retirement, select at most one R2/R3 live competing production authority with one bounded owner, same-commit old-edge deletion, explicit compatibility sunset if needed, and zero fallback/retry."
+current_design_stop = ""
+current_execution_row = "INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0"
+current_execution_summary = "Prepare one source-only instance-Box metadata projection shared by Program and raw BoxDeclaration lowering; delete lower_common_prefix_v1 -> build_box_declaration, its raw collection clones, and lower-side sorted FunctionDeclaration scans while preserving metadata effect order and zero fallback/retry."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, raw static-Main compatibility lower-side source classification, and three raw static-Main facade layers are deleted. A fresh live-edge census is current. RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001 remains active with its prepared owner. Legacy JoinModule disposition belongs to repository-wide final conformance; View/Ownership and other unimplemented features remain parked until final pipeline completion. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, raw static-Main compatibility lower-side source classification, three raw static-Main facade layers, and raw static-Main fresh-port reselection are deleted. INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0 is current. Active compatibility sunsets remain unchanged. Legacy JoinModule disposition belongs to repository-wide final conformance; View/Ownership and other unimplemented features remain parked until final pipeline completion. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0 closed at b23b654aa7. RawLegacyChildLoweringPortV1 now connects directly to PreparedRawStaticMainBoxCompatibilityV1; three facades and fresh raw-port reselection are zero while the prepared compatibility owner remains under its explicit sunset."""
+latest_card_summary = """INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0 is selected as one atomic T1 replacement. The shared Program/raw instance-Box lifecycle will issue one source-only metadata projection before Builder effects; build_box_declaration and its Lower-side raw AST clone/reclassification passes will be deleted."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0"
+current_blocker_token = "INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
