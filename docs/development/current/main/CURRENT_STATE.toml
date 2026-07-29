@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Cleanup-block Return and Throw admission now share one cleanup owner; the duplicate Return helper and Throw inline policy are deleted, and the next MirBuilder responsibility awaits a fresh production live-edge census."
+status = "Match label literal emission now uses the canonical MirBuilder literal owner; the duplicate seven-way production mapping is deleted, and the next MirBuilder responsibility awaits a fresh production live-edge census."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-CLEANUP-EXIT-ADMISSION-LIVE-EDGE-CENSUS0-D0"
+current_design_stop = "MIRBUILDER-POST-MATCH-LABEL-LITERAL-SSOT-LIVE-EDGE-CENSUS0-D0"
 current_execution_row = ""
 current_execution_summary = ""
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-POST-CLEANUP-EXIT-ADMISSION-LIVE-EDGE-CENSUS0-D0"
+current_blocker_token = "MIRBUILDER-POST-MATCH-LABEL-LITERAL-SSOT-LIVE-EDGE-CENSUS0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

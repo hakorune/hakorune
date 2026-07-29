@@ -580,13 +580,13 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: MIR-CLEANUP-EXIT-ADMISSION-SSOT0-I0-R0.
-Callers: value Return, void Return, and Throw.
-New owner: control_flow::cleanup::ensure_cleanup_exit_allowed_v1(state, kind).
-Deleted: ensure_return_allowed and Throw's duplicate cleanup-state predicate.
-Preserved: exact diagnostics and admission before Return/Throw observation or effects.
-Non-claims: TryCatch transaction, defer completion, Throw completion route, grammar.
-Evidence: cleanup matrix, Return parity/order, Throw structural order, exact shared guard, cargo check.
+Closed: MATCH-LABEL-LITERAL-EMISSION-SSOT0-I0-R0.
+Caller: build_peek_expression_with_port_v1 Match arm dispatch.
+Selected owner: MirBuilder::build_literal.
+Deleted: duplicate seven-way LiteralValue mapping and all direct label emitter calls.
+Preserved: label order, block/ID order, comparison/branch/arm/PHI behavior, literal facts.
+Non-claims: Match control flow, child descent, result policy, grammar.
+Evidence: all-seven-label fixture, canonical literal tests, exact shared guard.
 Fallback / retry / reselection: 0.
 Current stop: fresh production live-edge census; no next row is preselected.
 ```

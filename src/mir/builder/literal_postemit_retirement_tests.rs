@@ -92,6 +92,50 @@ fn literal_callers_observe_canonical_const_facts_before_returning() {
 }
 
 #[test]
+fn match_labels_share_the_canonical_literal_vocabulary() {
+    let labels = vec![
+        LiteralValue::String("text".to_string()),
+        LiteralValue::Integer(1),
+        LiteralValue::TypedInteger {
+            value: 2,
+            declared_type_name: "i64".to_string(),
+        },
+        LiteralValue::Bool(true),
+        LiteralValue::Float(1.5),
+        LiteralValue::Null,
+        LiteralValue::Void,
+    ];
+    let arms = labels
+        .into_iter()
+        .enumerate()
+        .map(|(index, label)| (label, literal(LiteralValue::Integer(index as i64))))
+        .collect();
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("match_labels/0".to_string());
+    drive_raw_legacy_expression_v1(
+        &mut builder,
+        ASTNode::MatchExpr {
+            scrutinee: Box::new(literal(LiteralValue::Integer(2))),
+            arms,
+            else_expr: Box::new(literal(LiteralValue::Integer(9))),
+            span: Span::unknown(),
+        },
+    )
+    .expect("all canonical labels lower");
+    let compare_count = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .filter(|instruction| matches!(instruction, MirInstruction::Compare { .. }))
+        .count();
+    assert_eq!(compare_count, 7);
+}
+
+#[test]
 fn literal_emission_failure_reaches_no_caller_postpublication() {
     let fixtures = [
         LiteralValue::Integer(7),

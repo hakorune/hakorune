@@ -86,26 +86,7 @@ impl super::MirBuilder {
 
             // In current dispatch block, compare and branch
             self.start_new_block(cur_dispatch)?;
-            let lit_id = match label {
-                LiteralValue::String(s) => {
-                    crate::mir::builder::emission::constant::emit_string(self, s)?
-                }
-                LiteralValue::Integer(i) => {
-                    crate::mir::builder::emission::constant::emit_integer(self, i)?
-                }
-                LiteralValue::TypedInteger {
-                    value,
-                    declared_type_name,
-                } => self.emit_typed_integer_literal(value, declared_type_name)?,
-                LiteralValue::Bool(b) => {
-                    crate::mir::builder::emission::constant::emit_bool(self, b)?
-                }
-                LiteralValue::Float(f) => {
-                    crate::mir::builder::emission::constant::emit_float(self, f)?
-                }
-                LiteralValue::Null => crate::mir::builder::emission::constant::emit_null(self)?,
-                LiteralValue::Void => crate::mir::builder::emission::constant::emit_void(self)?,
-            };
+            let lit_id = self.build_literal(label)?;
             let cond_id = self.next_value_id();
             crate::mir::builder::emission::compare::emit_to(
                 self,

@@ -19,6 +19,7 @@ MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
 BUILDER_ROOT = ROOT / "src/mir/builder.rs"
 NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
 RAW_EXPRESSION_DISPATCH = ROOT / "src/mir/builder/raw_expression_dispatch/mod.rs"
+MATCH_EXPRESSION_OWNER = ROOT / "src/mir/builder/exprs_peek.rs"
 BUILDER_BUILD = ROOT / "src/mir/builder/builder_build.rs"
 FUNCTION_CALL_PREFLIGHT = ROOT / "src/mir/builder/calls/function_call_preflight_route.rs"
 SPECIAL_METHOD_HANDLERS = ROOT / "src/mir/builder/calls/special_method_handlers.rs"
@@ -757,6 +758,12 @@ def main() -> int:
         raise AssertionError(f"old Raw non-test callers: {old_calls}")
     if caller_manifest.get("old_raw_non_test_callers") != 0:
         raise AssertionError("old Raw caller manifest drift")
+    match_owner = production_code(MATCH_EXPRESSION_OWNER)
+    if match_owner.count("self.build_literal(label)?") != 1:
+        raise AssertionError("Match label must use canonical literal owner exactly once")
+    for retired in ("match label", "LiteralValue::", "emission::constant::", "emit_typed_integer_literal"):
+        if retired in match_owner:
+            raise AssertionError(f"duplicate Match label literal authority remains: {retired}")
 
     print(
         "[cut0-i0-root0-raw-source0-lower-root-post0-public-ingress0-guard] ok "
