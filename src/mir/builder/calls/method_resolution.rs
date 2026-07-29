@@ -5,6 +5,9 @@
  * ChatGPT5 Pro design for preventing runtime string-based resolution
  */
 
+use crate::mir::policies::call_name_classification::{
+    classify_call_name_v1, CallNameCalleeClassV1,
+};
 use crate::mir::policies::callee_box_kind::{
     classify_callee_box_kind_v1, CalleeBoxKindPolicyContextV1,
 };
@@ -18,8 +21,10 @@ pub fn resolve_call_target(
     current_static_box: &Option<String>,
     variable_map: &BTreeMap<String, ValueId>, // Phase 25.1: BTreeMap化
 ) -> Result<Callee, String> {
+    let name_classification = classify_call_name_v1(name);
+
     // 1. Check for built-in/global functions first
-    if is_builtin_function(name) {
+    if name_classification.callee_class() == CallNameCalleeClassV1::BuiltinGlobal {
         return Ok(Callee::Global(name.to_string()));
     }
 
@@ -56,7 +61,7 @@ pub fn resolve_call_target(
     }
 
     // 4. Check for external/host functions
-    if is_extern_function(name) {
+    if name_classification.callee_class() == CallNameCalleeClassV1::Extern {
         return Ok(Callee::Extern(name.to_string()));
     }
 
@@ -70,22 +75,6 @@ pub fn resolve_call_target(
         name,
         suggest_resolution(name)
     ))
-}
-
-/// Check if function name is a built-in global function
-pub fn is_builtin_function(name: &str) -> bool {
-    matches!(
-        name,
-        "print" | "error" | "panic" | "exit" | "now" |
-        "gc_collect" | "gc_stats" |
-        // Math functions (handled specially)
-        "sin" | "cos" | "abs" | "min" | "max"
-    )
-}
-
-/// Check if function name is an external/host function
-pub fn is_extern_function(name: &str) -> bool {
-    name.starts_with("nyash.") || name.starts_with("env.") || name.starts_with("system.")
 }
 
 /// Check if method is commonly shadowed (for warning generation)
@@ -127,5 +116,40 @@ pub fn has_method(box_name: &str, method: &str) -> bool {
         "MapBox" => crate::boxes::MapMethodId::from_name(method).is_some(),
         "MathBox" => matches!(method, "sin" | "cos" | "abs" | "min" | "max"),
         _ => false, // Conservative: assume no method unless explicitly known
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn call_name_facts_preserve_resolution_priority() {
+        let mut variables = BTreeMap::new();
+        variables.insert("print".to_string(), ValueId(1));
+        variables.insert("length".to_string(), ValueId(2));
+        variables.insert("env.local".to_string(), ValueId(3));
+        let static_box = Some("StringBox".to_string());
+
+        assert!(matches!(
+            resolve_call_target("print", &static_box, &variables).unwrap(),
+            Callee::Global(name) if name == "print"
+        ));
+        assert!(matches!(
+            resolve_call_target("length", &static_box, &variables).unwrap(),
+            Callee::Method {
+                box_name,
+                method,
+                ..
+            } if box_name == "StringBox" && method == "length"
+        ));
+        assert!(matches!(
+            resolve_call_target("env.local", &static_box, &variables).unwrap(),
+            Callee::Value(ValueId(3))
+        ));
+        assert!(matches!(
+            resolve_call_target("system.clock", &None, &variables).unwrap(),
+            Callee::Extern(name) if name == "system.clock"
+        ));
     }
 }

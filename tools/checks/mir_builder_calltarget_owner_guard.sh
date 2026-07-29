@@ -9,11 +9,17 @@ cd "$ROOT_DIR"
 BUILDER_ROOT="src/mir/builder.rs"
 COMPAT_SHELL="src/mir/builder/builder_calls.rs"
 BOX_KIND_POLICY="src/mir/policies/callee_box_kind.rs"
+CALL_NAME_POLICY="src/mir/policies/call_name_classification.rs"
 BOX_KIND_CONSUMERS=(
   "src/mir/builder/calls/resolver.rs"
   "src/mir/builder/calls/unified_emitter.rs"
   "src/mir/builder/calls/method_resolution.rs"
   "src/mir/builder/utils/boxcall_emit.rs"
+)
+CALL_NAME_CONSUMERS=(
+  "src/mir/builder/calls/build.rs"
+  "src/mir/builder/calls/resolver.rs"
+  "src/mir/builder/calls/method_resolution.rs"
 )
 
 guard_require_command "$TAG" rg
@@ -22,7 +28,9 @@ guard_require_files \
   "$BUILDER_ROOT" \
   "src/mir/builder/calls/call_target.rs" \
   "$BOX_KIND_POLICY" \
-  "${BOX_KIND_CONSUMERS[@]}"
+  "$CALL_NAME_POLICY" \
+  "${BOX_KIND_CONSUMERS[@]}" \
+  "${CALL_NAME_CONSUMERS[@]}"
 
 echo "[$TAG] checking CallTarget owner path"
 
@@ -101,6 +109,61 @@ general_contexts="$(
 )"
 if [ "$general_contexts" -ne 4 ]; then
   guard_fail "$TAG" "expected 4 general-emission contexts, got $general_contexts"
+fi
+
+guard_expect_in_file \
+  "$TAG" \
+  '^pub\(crate\) fn classify_call_name_v1\(' \
+  "$CALL_NAME_POLICY" \
+  "neutral call-name classification owner must exist"
+
+old_call_name_owners="$(
+  rg -n '\bfn\s+is_(builtin|extern)_function\(' src/mir -g '*.rs' || true
+)"
+if [ -n "$old_call_name_owners" ]; then
+  echo "[$TAG] ERROR: old local call-name classifier remains" >&2
+  printf '%s\n' "$old_call_name_owners" >&2
+  exit 1
+fi
+
+for consumer in "${CALL_NAME_CONSUMERS[@]}"; do
+  call_count="$(rg -n 'classify_call_name_v1\(' "$consumer" | wc -l)"
+  if [ "$call_count" -ne 1 ]; then
+    guard_fail "$TAG" "expected one call-name classification in $consumer, got $call_count"
+  fi
+done
+
+old_call_name_calls="$(
+  rg -n '\b(is_builtin_function|is_extern_function)\(' src/mir/builder -g '*.rs' || true
+)"
+if [ -n "$old_call_name_calls" ]; then
+  echo "[$TAG] ERROR: old call-name predicate call remains" >&2
+  printf '%s\n' "$old_call_name_calls" >&2
+  exit 1
+fi
+
+build_raw_fact="$( (rg -n '\.raw_unified_admission\(\)' "${CALL_NAME_CONSUMERS[0]}" || true) | wc -l)"
+build_callee_fact="$( (rg -n '\.callee_class\(\)' "${CALL_NAME_CONSUMERS[0]}" || true) | wc -l)"
+resolver_raw_fact="$( (rg -n '\.raw_unified_admission\(\)' "${CALL_NAME_CONSUMERS[1]}" || true) | wc -l)"
+resolver_callee_fact="$( (rg -n '\.callee_class\(\)' "${CALL_NAME_CONSUMERS[1]}" || true) | wc -l)"
+method_raw_fact="$( (rg -n '\.raw_unified_admission\(\)' "${CALL_NAME_CONSUMERS[2]}" || true) | wc -l)"
+method_callee_fact="$( (rg -n '\.callee_class\(\)' "${CALL_NAME_CONSUMERS[2]}" || true) | wc -l)"
+if [ "$build_raw_fact" -ne 1 ] || [ "$build_callee_fact" -ne 0 ] \
+  || [ "$resolver_raw_fact" -ne 0 ] || [ "$resolver_callee_fact" -ne 1 ] \
+  || [ "$method_raw_fact" -ne 0 ] || [ "$method_callee_fact" -ne 2 ]; then
+  guard_fail "$TAG" "call-name fact projection drift"
+fi
+
+unexpected_call_name_consumers="$(
+  rg -l 'classify_call_name_v1\(' src/mir -g '*.rs' \
+    | grep -v '^src/mir/policies/call_name_classification.rs$' \
+    | grep -v -F -x -f <(printf '%s\n' "${CALL_NAME_CONSUMERS[@]}") \
+    || true
+)"
+if [ -n "$unexpected_call_name_consumers" ]; then
+  echo "[$TAG] ERROR: unregistered call-name classification consumer" >&2
+  printf '%s\n' "$unexpected_call_name_consumers" >&2
+  exit 1
 fi
 
 echo "[$TAG] ok"

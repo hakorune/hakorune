@@ -12,10 +12,12 @@
  * - Call引数検証
  */
 
-use super::method_resolution;
 use crate::mir::builder::type_registry::TypeRegistry;
 use crate::mir::builder::CallTarget;
 use crate::mir::definitions::call_unified::TypeCertainty;
+use crate::mir::policies::call_name_classification::{
+    classify_call_name_v1, CallNameCalleeClassV1,
+};
 use crate::mir::policies::callee_box_kind::{
     classify_callee_box_kind_v1, CalleeBoxKindPolicyContextV1,
 };
@@ -63,14 +65,13 @@ impl<'a> CalleeResolverBox<'a> {
 
         match target {
             CallTarget::Global(name) => {
-                // Prefer explicit categories; otherwise treat as module-global function
-                if method_resolution::is_builtin_function(&name) {
-                    Ok(Callee::Global(name))
-                } else if method_resolution::is_extern_function(&name) {
-                    Ok(Callee::Extern(name))
-                } else {
-                    // Module-local or static lowered function (e.g., "Box.method/N")
-                    Ok(Callee::Global(name))
+                let classification = classify_call_name_v1(&name);
+                match classification.callee_class() {
+                    CallNameCalleeClassV1::Extern => Ok(Callee::Extern(name)),
+                    CallNameCalleeClassV1::BuiltinGlobal | CallNameCalleeClassV1::Ordinary => {
+                        // Module-local or static lowered function (e.g., "Box.method/N")
+                        Ok(Callee::Global(name))
+                    }
                 }
             }
 
@@ -305,12 +306,21 @@ mod tests {
         let value_types = BTreeMap::new();
         let resolver = CalleeResolverBox::new(&value_origin, &value_types, None);
 
-        let target = CallTarget::Global("print".to_string());
-        let result = resolver.resolve(target).unwrap();
-
-        match result {
-            Callee::Global(name) => assert_eq!(name, "print"),
-            _ => panic!("Expected Global callee"),
+        for name in ["print", "isType", "gc_collect", "ordinary"] {
+            assert!(matches!(
+                resolver
+                    .resolve(CallTarget::Global(name.to_string()))
+                    .unwrap(),
+                Callee::Global(actual) if actual == name
+            ));
+        }
+        for name in ["nyash.fs.read", "env.console.log", "system.clock"] {
+            assert!(matches!(
+                resolver
+                    .resolve(CallTarget::Global(name.to_string()))
+                    .unwrap(),
+                Callee::Extern(actual) if actual == name
+            ));
         }
     }
 

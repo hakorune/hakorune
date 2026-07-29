@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Fresh post-CalleeBoxKind census selected CALL-NAME-CLASSIFICATION-SSOT0-I0-R0. One neutral call-name fact product will preserve both currently distinct questions: Raw unified admission and Callee Global/Extern/Ordinary classification. Three production consumers classify once and project the fact they need; resolve_call_target retains builtin -> static -> local -> extern priority. The same atomic commit deletes four old predicate definitions and six old predicate call edges. No compatibility owner, fallback, route, grammar, result, View, or Ownership change is authorized."
+status = "CALL-NAME-CLASSIFICATION-SSOT0-I0-R0 is closed. One neutral total-match policy now emits independent Raw unified-admission and Callee-class facts for three production responsibility boundaries. Four old predicate definitions and six old predicate edges are deleted; exact cross-surface behavior and builtin -> static -> local -> extern priority are green. Four stale stable guard entrypoints are transported to the shared owner guard, Hako classifier parity remains green, and no compatibility/fallback/route/grammar/result/View/Ownership delta was introduced. The only current stop is a fresh read-only live-edge census."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "CALL-NAME-CLASSIFICATION-SSOT0-I0-R0"
-current_execution_summary = "T1 CALL-OBJECT0: replace four duplicated call-name predicates and six production predicate edges with one neutral classification product consumed once by Raw call admission, Callee resolution, and method resolution, preserving the exact cross-surface matrix and priority order."
+current_design_stop = "MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0"
+current_execution_row = ""
+current_execution_summary = ""
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """Fresh live-edge census selected CALL-NAME-CLASSIFICATION-SSOT0-I0-R0. The next atomic T1 cell emits one neutral fact product containing current Raw unified admission and Callee name class, migrates three production consumers, and deletes all four local predicate definitions plus six old call edges. Existing set differences and method-resolution priority remain exact; compatibility/fallback/route/grammar/result/View/Ownership deltas remain zero."""
+latest_card_summary = """CALL-NAME-CLASSIFICATION-SSOT0-I0-R0 is closed. One total-match policy owns both independent call-name facts; three production boundaries consume only their projection, four old definitions and six old edges are zero, and resolution priority plus parity/reuse evidence are green. Stable proof entrypoints were transported to the shared owner guard. The next authority is a fresh read-only live-edge census."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "CALL-NAME-CLASSIFICATION-SSOT0-I0-R0"
+current_blocker_token = "MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -101,14 +101,14 @@ PY
 
 cat <<'REPORT'
 output_contract=rust-lifecycle-mirbuilder-call-resolution-builtin-function-classifier-parity-gate-v0
-owner=call_resolution_builtin_function_classifier
+owner=call_name_classification.raw_unified_admission
 rust_oracle_fixture=mirbuilder-call-resolution-builtin-function-classifier-rust-oracle-v0.json
 hako_implementation=lang/src/compiler/lib/call_resolution_builtin_function_classifier.hako
 parity_rows=10
 parity_status=green
 source_selfhost_claim=0
 hako_adopted_decision=0
-call_resolution_migration=0
+call_name_policy_transport=1
 backend_lowering_migration=0
 mir_mutation_migration=0
 summary=ok

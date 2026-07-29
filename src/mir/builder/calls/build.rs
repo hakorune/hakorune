@@ -34,6 +34,7 @@ use crate::mir::builder::exprs_enum_match::{
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
 };
+use crate::mir::policies::call_name_classification::classify_call_name_v1;
 
 pub(in crate::mir::builder) struct PreparedRawFromCallV1 {
     route: PreparedRawFromCallRouteV1,
@@ -100,8 +101,7 @@ impl MirBuilder {
                 // resolver, emitter, and annotation. The legacy port returns None.
                 port.with_function_headers(|lookup| {
                     let use_unified = super::call_unified::is_unified_call_enabled()
-                        && (super::super::call_resolution::is_builtin_function(&name)
-                            || super::super::call_resolution::is_extern_function(&name));
+                        && classify_call_name_v1(&name).raw_unified_admission();
 
                     if !use_unified {
                         self.build_resolved_function_call(name, arg_values, lookup)
