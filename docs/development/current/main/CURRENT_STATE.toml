@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-NONPROGRAM-VARIABLE-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 is closed. CompoundAssignment composition is the sole design stop."
+status = "Variable CompoundAssignment composition is accepted. Its I0/R0 is the sole executable row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-D0"
-current_execution_row = ""
-current_execution_summary = "T1 read-only production-edge design: audit exact CompoundAssignment(target=bare Variable, operator=current BinaryOperator, value=PortNeutralExprTreeV1) composition through the shared root/BlockExpr/TaskScope selected port. Verify source-only classification; existing place read, one RHS descent, binary emission, and place write order; same-commit safe-shape compatibility removal; unsafe target/RHS retention; failure parity; and residual 39 to 38. Do not edit production Rust during D0, add the statement to the expression-tree predicate, invent an operator allowlist, mix FieldAccess/Index writes, retry compatibility, or change grammar/result/publication."
+current_design_stop = ""
+current_execution_row = "RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0"
+current_execution_summary = "T1 atomic production cutover: add one private source-only VariableCompoundAssignmentRoot for bare Variable target, existing BinaryOperator, and PortNeutralExprTreeV1 RHS; compose it into root, BlockExpr prelude, and TaskScope body selection; reuse the existing compound-assignment owner unchanged; and delete the safe-shape SeparateDesignStop edge. Preserve current old-value read before one RHS descent before binary emission before one write, residual 39 to 38, FieldAccess/Index/other target and unsafe-RHS compatibility, and zero retry. Do not add the statement to the expression-tree predicate, inspect Builder state in classification, add operator rules, or change grammar/result/publication."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """Exact Variable-target assignment is now compositional through root, BlockExpr, and TaskScope with residual 39 and zero retry. Fresh census selects CompoundAssignment for a separate read-only design audit."""
+latest_card_summary = """Three reviews accepted exact bare-Variable CompoundAssignment composition through the existing port-aware read/RHS/binary/write owner. Its atomic cutover removes one more safe compatibility kind."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-D0"
+current_blocker_token = "RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

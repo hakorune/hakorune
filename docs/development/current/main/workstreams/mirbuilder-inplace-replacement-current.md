@@ -717,11 +717,11 @@ R16 INTERPRETER-LEGACY-FEATURE-RETIRE0-RET0 closed
 R17 MIR-CONTROL-FLOW-DETACHED-HELPERS0-RET0 closed
 R18 RAW-NONPROGRAM-VARIABLE-ASSIGNMENT-COMPOSITIONAL-DESCENT0-D0 closed
 R19 RAW-NONPROGRAM-VARIABLE-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 closed
-R20 RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-D0 current
+R20 RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-D0 closed
+R21 RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 current
 
 after every bounded retirement:
-  run a fresh live-edge census
-  select exactly one named production edge or detached Delete asset
+  fresh-census then select one named production edge or detached Delete asset
 
 after final-pipeline Complete only:
 F0  refresh missing-feature / Ownership / View readiness inventory
@@ -736,8 +736,8 @@ Source-level Ownership/View and other new language semantics do not enter the
 MirBuilder replacement train. Analysis-only views used to observe existing
 control flow are not source-language View activation.
 
-Current stop `RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-D0`
-audits bare-Variable / safe-RHS read-binary-write ordering before cutover.
+Current row `RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0`
+reuses exact read-RHS-binary-write order and removes its safe compatibility edge.
 ## Closed tail
 
 ```text
