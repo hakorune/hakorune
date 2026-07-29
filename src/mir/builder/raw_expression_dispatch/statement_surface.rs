@@ -20,6 +20,81 @@ pub(super) enum StatementSurfaceDispatch {
     RegularExpression(ASTNode),
 }
 
+struct PreparedRawOrdinaryAssignmentV1 {
+    route: PreparedRawOrdinaryAssignmentRouteV1,
+}
+
+enum PreparedRawOrdinaryAssignmentRouteV1 {
+    Variable {
+        input: RawLegacyVariableAssignmentInputV1,
+    },
+    Field {
+        object: ASTNode,
+        field: String,
+        value: ASTNode,
+    },
+    Index {
+        target: ASTNode,
+        index: ASTNode,
+        value: ASTNode,
+    },
+    Unsupported,
+}
+
+impl PreparedRawOrdinaryAssignmentV1 {
+    fn prepare(statement: AssignStmt) -> Self {
+        let AssignStmt { target, value, .. } = statement;
+        let value = *value;
+        let route = match *target {
+            ASTNode::Variable { name, .. } => PreparedRawOrdinaryAssignmentRouteV1::Variable {
+                input: RawLegacyVariableAssignmentInputV1::new(name, value),
+            },
+            ASTNode::FieldAccess { object, field, .. } => {
+                PreparedRawOrdinaryAssignmentRouteV1::Field {
+                    object: *object,
+                    field,
+                    value,
+                }
+            }
+            ASTNode::Index { target, index, .. } => PreparedRawOrdinaryAssignmentRouteV1::Index {
+                target: *target,
+                index: *index,
+                value,
+            },
+            _ => PreparedRawOrdinaryAssignmentRouteV1::Unsupported,
+        };
+        Self { route }
+    }
+}
+
+fn lower_prepared_raw_ordinary_assignment_with_port_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    prepared: PreparedRawOrdinaryAssignmentV1,
+) -> Result<ValueId, String>
+where
+    Port: RawExpressionDispatchPortV1,
+{
+    match prepared.route {
+        PreparedRawOrdinaryAssignmentRouteV1::Variable { input } => {
+            drive_variable_assignment_v1(builder, port, &input)
+        }
+        PreparedRawOrdinaryAssignmentRouteV1::Field {
+            object,
+            field,
+            value,
+        } => builder.build_field_assignment_with_port_v1(port, object, field, value),
+        PreparedRawOrdinaryAssignmentRouteV1::Index {
+            target,
+            index,
+            value,
+        } => builder.build_index_assignment_with_port_v1(port, target, index, value),
+        PreparedRawOrdinaryAssignmentRouteV1::Unsupported => {
+            Err("Complex assignment targets not yet supported".to_string())
+        }
+    }
+}
+
 pub(super) fn try_build_with_port_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
@@ -126,8 +201,9 @@ where
         )),
         node @ ASTNode::Assignment { .. } => {
             let statement = AssignStmt::try_from(node).expect("ASTNode::Assignment must convert");
+            let prepared = PreparedRawOrdinaryAssignmentV1::prepare(statement);
             Ok(StatementSurfaceDispatch::Lowered(
-                build_assignment_with_port_v1(builder, port, statement)?,
+                lower_prepared_raw_ordinary_assignment_with_port_v1(builder, port, prepared)?,
             ))
         }
         ASTNode::CompoundAssignment {
@@ -178,36 +254,6 @@ where
             crate::mir::builder::emission::constant::emit_void(builder)?,
         )),
         ast => Ok(StatementSurfaceDispatch::RegularExpression(ast)),
-    }
-}
-
-fn build_assignment_with_port_v1<Port>(
-    builder: &mut MirBuilder,
-    port: &mut Port,
-    statement: AssignStmt,
-) -> Result<ValueId, String>
-where
-    Port: RawExpressionDispatchPortV1,
-{
-    if let ASTNode::FieldAccess { object, field, .. } = statement.target.as_ref() {
-        builder.build_field_assignment_with_port_v1(
-            port,
-            *object.clone(),
-            field.clone(),
-            *statement.value.clone(),
-        )
-    } else if let ASTNode::Index { target, index, .. } = statement.target.as_ref() {
-        builder.build_index_assignment_with_port_v1(
-            port,
-            *target.clone(),
-            *index.clone(),
-            *statement.value.clone(),
-        )
-    } else if let ASTNode::Variable { name, .. } = statement.target.as_ref() {
-        let input = RawLegacyVariableAssignmentInputV1::new(name.clone(), *statement.value);
-        drive_variable_assignment_v1(builder, port, &input)
-    } else {
-        Err("Complex assignment targets not yet supported".to_string())
     }
 }
 

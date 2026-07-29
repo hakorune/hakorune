@@ -172,31 +172,71 @@ def check_asn0_s0(root: Path) -> str:
     ):
         _require_count(stmts_root, export, 1, f"narrow Assignment export {export}")
 
-    variable_branch = re.search(
-        r"else if let ASTNode::Variable \{ name, \.\. \} = "
-        r"statement\.target\.as_ref\(\) \{(?P<body>.*?)\n\s*\} else \{",
-        selector,
-        re.DOTALL,
-    )
-    if variable_branch is None:
-        _fail("missing exact Variable-target selector branch")
-    _require_count(
-        variable_branch.group("body"),
-        "RawLegacyVariableAssignmentInputV1::new(",
-        1,
-        "exact Variable selector owned input",
-    )
-    _require_count(
-        variable_branch.group("body"),
-        "drive_variable_assignment_v1(builder, port, &input)",
-        1,
-        "exact Variable selector generic owner",
-    )
+    for needle, expected, label in (
+        (
+            "struct PreparedRawOrdinaryAssignmentV1",
+            1,
+            "opaque ordinary Assignment product",
+        ),
+        (
+            "enum PreparedRawOrdinaryAssignmentRouteV1",
+            1,
+            "private ordinary Assignment route",
+        ),
+        (
+            "fn prepare(statement: AssignStmt) -> Self",
+            1,
+            "source-only ordinary Assignment prepare",
+        ),
+        (
+            "fn lower_prepared_raw_ordinary_assignment_with_port_v1<Port>",
+            1,
+            "consuming ordinary Assignment terminal",
+        ),
+        (
+            "PreparedRawOrdinaryAssignmentV1::prepare(statement)",
+            1,
+            "sole ordinary Assignment route issuer",
+        ),
+        (
+            "lower_prepared_raw_ordinary_assignment_with_port_v1(builder, port, prepared)?",
+            1,
+            "sole ordinary Assignment route consumer",
+        ),
+        (
+            "RawLegacyVariableAssignmentInputV1::new(name, value)",
+            1,
+            "exact Variable route owned input",
+        ),
+        (
+            "drive_variable_assignment_v1(builder, port, &input)",
+            1,
+            "exact Variable route generic owner",
+        ),
+    ):
+        _require_count(selector, needle, expected, label)
+    for route in ("Variable", "Field", "Index", "Unsupported"):
+        _require_count(
+            selector,
+            f"PreparedRawOrdinaryAssignmentRouteV1::{route}",
+            2,
+            f"one prepare and one consume arm for {route}",
+        )
     for owner in (
         "build_field_assignment_with_port_v1(",
         "build_index_assignment_with_port_v1(",
     ):
         _require_count(selector, owner, 1, f"unchanged {owner} selector")
+    for retired in (
+        "fn build_assignment_with_port_v1",
+        "statement.target.as_ref()",
+        "*object.clone()",
+        "*target.clone()",
+        "*index.clone()",
+        "*statement.value.clone()",
+    ):
+        if retired in selector:
+            _fail(f"retired ordinary Assignment selector edge returned: {retired}")
     _require_count(
         selector,
         "build_compound_assignment_statement_with_port_v1(",

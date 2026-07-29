@@ -580,20 +580,14 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed through direct FunctionCall preflight: exact prepared routes, parity,
-  failure/reuse, and guards are green; selected old probes/facades are zero.
-Current: RAW-ORDINARY-ASSIGNMENT-TARGET-ROUTE-ONCE0-I0-R0,
-  DESCENT-SPINE0/T1, one atomic commit.
-Caller: statement_surface sole ASTNode::Assignment edge.
-Owner: PreparedRawOrdinaryAssignmentV1 with private Variable, Field, Index,
-  or existing Unsupported route; source-only and exactly once.
-Delete: local build_assignment_with_port_v1, borrowed target if/else selector,
-  and selector-level object/field/target/index/value clones.
-Preserve: Variable preflight -> RHS -> completion; Field record check ->
-  object -> value -> write; Index target -> index -> value -> completion.
-Evidence: existing raw/parity tests + shared Assignment child guard; new file 0.
-Hard stop: target classification twice, Builder access during preparation,
-  order/diagnostic drift, retry, or mixing Grouped/Compound Assignment.
+Closed: RAW-ORDINARY-ASSIGNMENT-TARGET-ROUTE-ONCE0-I0-R0.
+Caller: sole raw ASTNode::Assignment edge.
+Owner: one source-only PreparedRawOrdinaryAssignmentV1 route, then one
+  Variable, Field, Index, or existing Unsupported terminal.
+Deleted: borrowed target selector, local helper, and selector AST clones.
+Evidence: ordering/diagnostic/reuse suites, cargo check, shared guard green.
+Current stop: MIRBUILDER-POST-ORDINARY-ASSIGNMENT-LIVE-EDGE-CENSUS0-D0.
+Next action: read-only census; no implementation row is preselected.
 Non-claims: caller-zero Field/Index facades, FastMem, indirect Call,
   MethodCall, QMark, View/Ownership, and feature work.
 ```

@@ -182,6 +182,20 @@ fn field_target_stays_on_field_owner_before_rhs_descent() {
 }
 
 #[test]
+fn unsupported_target_rejects_before_rhs_effects() {
+    let mut builder = builder("asn0_i0_unsupported_target/0");
+
+    let error = drive_raw_legacy_expression_v1(
+        &mut builder,
+        assignment(integer(1), binary(integer(40), integer(2))),
+    )
+    .unwrap_err();
+
+    assert_eq!(error, "Complex assignment targets not yet supported");
+    assert!(instructions(&builder).is_empty());
+}
+
+#[test]
 fn grouped_assignment_selects_owned_descent_through_production_ingress() {
     let mut builder = builder("asn0_i0_grouped_control/0");
     let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 7).unwrap();
