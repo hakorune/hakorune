@@ -19,6 +19,54 @@ use super::normal_default_root_catalog_lifecycle::{
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::{declaration_indexer, MirBuilder, SameModuleCallableNamespaceV1, ValueId};
 
+pub(super) struct ProgramDeferredStaticBoxLifecycleV1 {
+    name: String,
+    methods: HashMap<String, ASTNode>,
+}
+
+impl ProgramDeferredStaticBoxLifecycleV1 {
+    pub(super) fn new(name: String, methods: HashMap<String, ASTNode>) -> Self {
+        Self { name, methods }
+    }
+
+    pub(super) fn lower_with_port_v1<Port>(
+        self,
+        builder: &mut MirBuilder,
+        callables: &mut Port,
+    ) -> Result<(), String>
+    where
+        Port: RootCallableCapturePortV1,
+    {
+        builder.trace_compile(format!("lower static box {}", self.name));
+        builder.comp_ctx.compilation_context = Some(BoxCompilationContext::new());
+        for (method_name, method_ast) in sorted_method_entries(&self.methods) {
+            if let ASTNode::FunctionDeclaration {
+                params,
+                param_decls,
+                return_type_name,
+                body,
+                uses,
+                attrs,
+                ..
+            } = method_ast
+            {
+                callables.lower_static_box_method(
+                    builder,
+                    format!("{}.{}/{}", self.name, method_name, params.len()),
+                    params.clone(),
+                    param_decls.clone(),
+                    return_type_name.clone(),
+                    body.clone(),
+                    uses.clone(),
+                    attrs.clone(),
+                )?;
+            }
+        }
+        builder.comp_ctx.compilation_context = None;
+        Ok(())
+    }
+}
+
 impl MirBuilder {
     pub(in crate::mir::builder) fn lower_normal_default_program_root_catalog_v1(
         &mut self,
@@ -241,34 +289,8 @@ impl MirBuilder {
             .filter(|statement| !matches!(statement, N::FunctionDeclaration { .. }))
             .collect();
         for (name, methods) in deferred_static_boxes {
-            self.trace_compile(format!("lower static box {}", name));
-            {
-                self.comp_ctx.compilation_context = Some(BoxCompilationContext::new());
-                for (method_name, method_ast) in sorted_method_entries(&methods) {
-                    if let N::FunctionDeclaration {
-                        params,
-                        param_decls,
-                        return_type_name,
-                        body,
-                        uses,
-                        attrs,
-                        ..
-                    } = method_ast
-                    {
-                        callables.lower_static_box_method(
-                            self,
-                            format!("{}.{}/{}", name, method_name, params.len()),
-                            params.clone(),
-                            param_decls.clone(),
-                            return_type_name.clone(),
-                            body.clone(),
-                            uses.clone(),
-                            attrs.clone(),
-                        )?;
-                    }
-                }
-            }
-            self.comp_ctx.compilation_context = None;
+            ProgramDeferredStaticBoxLifecycleV1::new(name, methods)
+                .lower_with_port_v1(self, callables)?;
         }
 
         if is_app_mode {

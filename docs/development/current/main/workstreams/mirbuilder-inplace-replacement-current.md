@@ -774,54 +774,40 @@ shared spine guard                            = binary-only green
 largest touched source/check file             = 781
 ```
 
-## Current selected row
+## Latest deferred static Box closeout
 
 ```text
 PROGRAM-ROOT-DEFERRED-STATIC-BOX-LIFECYCLE0-I0-R0
 Pack: FUNCTION-LIFECYCLE0
-Ceremony: T1, one atomic I0/R0 commit
+Ceremony: T1
 ```
-
-Change:
-
-```text
-named caller:
-  App-mode Program root -> deferred non-Main static Box loop
-new owner:
-  ProgramDeferredStaticBoxLifecycleV1
-delete:
-  inline BoxCompilationContext Some/None writes
-  inline sorted FunctionDeclaration method loop and dispatch
-```
-
-Contract:
-
-```text
-consume one deferred Box source; install one fresh context; lower methods in
-the existing sorted order through the same callable port; clear only after
-complete success. Method-N failure keeps the dirty candidate context, skips
-later methods, and preserves the primary String error. Outer candidate discard
-remains the sole isolation owner.
-```
-
-Done:
 
 ```text
 direct Program-root context and method-lifecycle authority = 0
 new consuming owner production calls                       = exactly 1
-success/failure ordering and general Program parity        = green
+sorted demand / success clear / method-N dirty failure      = green
+general Program parity / candidate reuse                    = green
 fallback / retry / reselection                             = 0
+new source/test/check file                                  = 0
+largest touched source/check file                           = 784
+release build                                               = green
+quick gate                                                  = unrelated pre-existing
+  docs/reference/language/EBNF.md naming-token failure
 ```
 
-Stop:
+The owner preserves the existing success-only lifecycle: method failure leaves
+the dirty candidate context, skips later methods, and retains the primary
+String. Outer candidate discard remains the sole isolation owner.
+
+## Current design stop
 
 ```text
-failure-path restore, reuse of the raw four-state transaction, Main/instance/
-raw-static integration, method grammar/symbol/order changes, publication
-changes, new per-row guard/test file, or any source/check file >= 800
+MIRBUILDER-POST-DEFERRED-STATIC-BOX-LIVE-EDGE-CENSUS0-D0
 ```
 
-Match owned-input retirement remains a later fresh-census candidate. Lambda
+Run a fresh read-only census. Match owned-input remains a known candidate, not
+an automatic selection. Every next row still requires a named production
+caller, same-commit old-authority deletion, and zero fallback/retry. Lambda
 capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
@@ -961,7 +947,8 @@ R41 RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-I0-R0 closed
 R42 MIRBUILDER-POST-TRYCATCH-LIVE-EDGE-CENSUS0-D0 closed: static Box selected
 R43 RAW-NONMAIN-STATIC-BOX-COMPILATION-STATE-TRANSACTION0-I0-R0 closed
 R44 MIRBUILDER-POST-STATIC-BOX-LIVE-EDGE-CENSUS0-D0 closed: deferred Program static Box selected
-R45 PROGRAM-ROOT-DEFERRED-STATIC-BOX-LIFECYCLE0-I0-R0 current
+R45 PROGRAM-ROOT-DEFERRED-STATIC-BOX-LIFECYCLE0-I0-R0 closed
+R46 MIRBUILDER-POST-DEFERRED-STATIC-BOX-LIVE-EDGE-CENSUS0-D0 current design stop
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

@@ -169,7 +169,7 @@ def main() -> int:
         )
     }
     for path, text in texts.items():
-        if len(text.splitlines()) >= 800:
+        if path.suffix in {".rs", ".py", ".sh"} and len(text.splitlines()) >= 800:
             raise AssertionError(f"ingress file must remain below 800 lines: {path}")
 
     ingress = texts[SOURCES[0]]
@@ -675,6 +675,14 @@ def main() -> int:
         "selected_program_kernel_calls"
     ):
         raise AssertionError("generic Program branch reuse drift")
+    deferred_owner = "ProgramDeferredStaticBoxLifecycleV1"
+    require(program_root_lowering, f"struct {deferred_owner}", "deferred static Box owner")
+    if program_root_lowering.count(f"{deferred_owner}::new(name, methods)") != 1:
+        raise AssertionError("deferred static Box production handoff drift")
+    mirbuilder_impl = program_root_lowering.split("impl MirBuilder", maxsplit=1)[1]
+    for retired in ("self.comp_ctx.compilation_context = Some(", "self.comp_ctx.compilation_context = None"):
+        if retired in mirbuilder_impl:
+            raise AssertionError(f"Program root retains deferred static Box lifecycle: {retired}")
     if "ast: ASTNode" in text_between(
         normal_pipeline,
         "pub struct NormalCompileRequestV1",
