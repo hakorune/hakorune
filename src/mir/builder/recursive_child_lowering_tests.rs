@@ -1,12 +1,9 @@
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-use crate::mir::{
-    BasicBlockId, Effect, EffectMask, FunctionSignature, MirBuilder, MirInstruction, MirType,
-    ValueId,
-};
+use crate::ast::{ASTNode, LiteralValue, Span};
+use crate::mir::{MirBuilder, MirInstruction, ValueId};
 
 use super::recursive_child_lowering::{
     drive_legacy_body_v1, drive_legacy_expression_v1, drive_legacy_statement_v1,
-    RecursiveChildLoweringPortV1,
+    drive_raw_legacy_expression_v1, RecursiveChildLoweringPortV1,
 };
 
 struct BodyTokenV1(i64);
@@ -60,15 +57,6 @@ impl RecursiveChildLoweringPortV1 for CountingPortV1 {
 fn integer(value: i64) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::Integer(value),
-        span: Span::unknown(),
-    }
-}
-
-fn add(left: ASTNode, right: ASTNode) -> ASTNode {
-    ASTNode::BinaryOp {
-        operator: BinaryOperator::Add,
-        left: Box::new(left),
-        right: Box::new(right),
         span: Span::unknown(),
     }
 }
@@ -130,21 +118,6 @@ fn child_driver_propagates_failure_without_retry() {
 }
 
 #[test]
-fn selected_raw_expression_port_preserves_nested_mir() {
-    let expression = add(integer(1), add(integer(2), integer(3)));
-    let mut selected = MirBuilder::new();
-    selected.enter_function_for_test("recursive_child_nested/0".to_string());
-    let selected_output = selected.build_expression(expression.clone()).unwrap();
-
-    let mut raw_leaf = MirBuilder::new();
-    raw_leaf.enter_function_for_test("recursive_child_nested/0".to_string());
-    let raw_output = raw_leaf.build_expression_impl(expression).unwrap();
-
-    assert_eq!(selected_output, raw_output);
-    assert_eq!(instructions(&selected), instructions(&raw_leaf));
-}
-
-#[test]
 fn selected_raw_body_and_statement_ports_preserve_order_and_last_value() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("recursive_child_body/0".to_string());
@@ -178,14 +151,16 @@ fn expression_failure_restores_recursion_depth_for_reuse() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("recursive_child_reuse/0".to_string());
 
-    assert!(builder
-        .build_expression(ASTNode::Variable {
+    assert!(drive_raw_legacy_expression_v1(
+        &mut builder,
+        ASTNode::Variable {
             name: "missing".to_string(),
             span: Span::unknown(),
-        })
-        .is_err());
+        },
+    )
+    .is_err());
     assert_eq!(builder.recursion_depth, 0);
-    builder.build_expression(integer(9)).unwrap();
+    drive_raw_legacy_expression_v1(&mut builder, integer(9)).unwrap();
     assert_eq!(builder.recursion_depth, 0);
 }
 
@@ -198,11 +173,11 @@ fn raw_expression_depth_limit_rejects_without_poisoning_the_session() {
     builder.enter_function_for_test("recursive_child_depth_limit/0".to_string());
     builder.recursion_depth = 200;
 
-    let error = builder.build_expression(integer(8)).unwrap_err();
+    let error = drive_raw_legacy_expression_v1(&mut builder, integer(8)).unwrap_err();
     assert!(error.contains("Recursion depth exceeded: 201"));
     assert_eq!(builder.recursion_depth, 200);
     builder.recursion_depth = 0;
-    builder.build_expression(integer(9)).unwrap();
+    drive_raw_legacy_expression_v1(&mut builder, integer(9)).unwrap();
 }
 
 #[test]
@@ -214,11 +189,11 @@ fn typeop_receiver_uses_nested_raw_depth_guard_without_publishing_on_failure() {
     builder.enter_function_for_test("typeop_receiver_depth_limit/0".to_string());
 
     builder.recursion_depth = 198;
-    builder.build_expression(typeop(integer(8))).unwrap();
+    drive_raw_legacy_expression_v1(&mut builder, typeop(integer(8))).unwrap();
     assert_eq!(builder.recursion_depth, 198);
     builder.recursion_depth = 199;
     let before = instructions(&builder);
-    let error = builder.build_expression(typeop(integer(9))).unwrap_err();
+    let error = drive_raw_legacy_expression_v1(&mut builder, typeop(integer(9))).unwrap_err();
     assert!(error.contains("Recursion depth exceeded: 201"));
     assert_eq!(instructions(&builder), before);
 }

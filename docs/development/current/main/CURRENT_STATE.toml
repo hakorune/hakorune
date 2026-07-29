@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "build_expression has no production caller; its 102 test/evidence callers are assigned to five responsibility batches."
+status = "Recursive-expression evidence no longer uses build_expression; 95 test/evidence callers remain."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = ""
-current_execution_row = "MIRBUILDER-RECURSIVE-EXPR-TEST-EVIDENCE0-R0"
-current_execution_summary = "Classify seven recursive-expression evidence calls as setup, raw oracle, selected owner, or retire; remove every facade call in that file without adding a replacement facade."
+current_execution_row = "MIRBUILDER-EXPRESSION-OWNER-TEST-EVIDENCE0-R0"
+current_execution_summary = "Retire 21 Binary and short-circuit build_expression test calls while preserving raw-dispatch and parity-oracle independence."
 current_execution_design = "docs/development/current/main/design/mir-root-facade-contract-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, its dead generic root wrappers, disconnected raw root owner, caller-zero If facades, and cfg(test) short-circuit facade edges are deleted. The remaining crate-internal build_expression surface is 102 test/evidence callers plus one definition, with production reachability zero. A five-batch T1 refactor series removes callers by tested responsibility, then a separate RET0 deletes the definition. MirBuilder cleanup remains ahead of source-level Ownership/View or other unimplemented features. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, its dead generic root wrappers, disconnected raw root owner, caller-zero If facades, and cfg(test) short-circuit facade edges are deleted. Recursive-expression evidence removed seven build_expression calls: one facade-only comparison retired and six durable recursion/failure proofs now enter the raw driver. The remaining surface is 95 test/evidence callers plus one definition, with production reachability zero. The T1 responsibility series continues with Binary and short-circuit owner evidence; View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-RECURSIVE-EXPR-TEST-EVIDENCE0-R0"
+current_blocker_token = "MIRBUILDER-EXPRESSION-OWNER-TEST-EVIDENCE0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

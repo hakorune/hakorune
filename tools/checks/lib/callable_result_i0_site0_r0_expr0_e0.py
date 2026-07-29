@@ -38,7 +38,18 @@ def main() -> None:
     require_count(port, "type StatementInput;", 1, "statement input owner")
     require_count(port, "type ExpressionInput;", 1, "expression input owner")
     require_count(port, "struct RawLegacyChildLoweringPortV1", 1, "raw port owner")
-    require_count(port, "impl RecursiveChildLoweringPortV1", 1, "raw port impl")
+    require_count(
+        port,
+        "impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1",
+        1,
+        "invocation port impl",
+    )
+    require_count(
+        port,
+        "impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1",
+        1,
+        "raw compatibility port impl",
+    )
 
     require_count(
         builder_build,
@@ -58,11 +69,24 @@ def main() -> None:
         1,
         "selected statement facade",
     )
-    require_count(port, "block_stmt::build_block(builder, input)", 1, "raw body leaf")
     require_count(
-        port, "block_stmt::build_statement(builder, input)", 1, "raw statement leaf"
+        port,
+        "block_stmt::build_block_with_port_v1(builder, self, input)",
+        2,
+        "raw child-port body leaves",
     )
-    require_count(port, "builder.build_expression_impl(input)", 1, "raw expression leaf")
+    require_count(
+        port,
+        "block_stmt::build_statement_with_port_v1(builder, self, input)",
+        2,
+        "raw child-port statement leaves",
+    )
+    require_count(
+        port,
+        "builder.build_expression_impl_with_port_v1(port, input)",
+        1,
+        "shared raw expression leaf",
+    )
     require_count(fastmem, "block_stmt::build_block", 0, "fastmem raw bypass")
     require_count(fastmem, "builder.build_block(body)", 1, "fastmem selected facade")
 
@@ -86,12 +110,18 @@ def main() -> None:
     for evidence in (
         "associated_inputs_dispatch_each_child_kind_exactly_once",
         "child_driver_propagates_failure_without_retry",
-        "selected_raw_expression_port_preserves_nested_mir",
         "selected_raw_body_and_statement_ports_preserve_order_and_last_value",
         "expression_failure_restores_recursion_depth_for_reuse",
     ):
         if evidence not in tests:
             fail(f"missing child-lowering parity fixture: {evidence}")
+    require_count(tests, ".build_expression(", 0, "retired expression facade callers")
+    require_count(
+        tests,
+        "drive_raw_legacy_expression_v1(",
+        6,
+        "durable raw-expression evidence callers",
+    )
 
     for phrase in (
         "recursive child-lowering boundary",

@@ -39,7 +39,7 @@ def main() -> None:
     )
     require_count(
         recursive,
-        "fn lower_raw_expression_with_recursion_guard_v1(",
+        "fn lower_raw_expression_with_recursion_guard_v1<Port>(",
         1,
         "raw guard owner",
     )
@@ -48,8 +48,14 @@ def main() -> None:
     require_count(
         recursive,
         "lower_raw_expression_with_recursion_guard_v1(builder, input)",
-        1,
-        "raw port guard consumer",
+        0,
+        "retired unported raw guard consumer",
+    )
+    require_count(
+        recursive,
+        "lower_raw_expression_with_recursion_guard_v1(builder, self, input)",
+        2,
+        "raw child-port guard consumers",
     )
     require_count(
         build,

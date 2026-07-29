@@ -27,6 +27,7 @@ cell	NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0	COMPILER-RESIDUE0	four-selecte
 cell	RAW-NONPROGRAM-ROOT-COMPAT-RET0-R0	DESCENT-SPINE0	disconnected-raw-root-owner	owner-local-node-tests	raw_nonprogram_root_descent.rs+tests+residual-registry	cargo-test:owner-local-node-contracts+shared-ingress	-	closed
 cell	MIRBUILDER-RAW-IF-REFERENCE-FACADE0-RET0	CONTROL0	caller-zero-cf_if+IfForm-shells	cf_if_with_port_v1+IfForm-core	cf_if+lower_if_form+lower_if_form_with_condition_value	cargo-test:if-statement-parity+if-driver	-	closed
 cell	MIRBUILDER-SHORT-CIRCUIT-BUILD-EXPRESSION-FACADE0-I0-R0	CONTROL0	cfgtest-short-circuit-reference	drive_raw_legacy_expression_v1	logical_shortcircuit.rs:build_expression-calls	cargo-test:short-circuit-parity+raw+descent	-	closed
+cell	MIRBUILDER-RECURSIVE-EXPR-TEST-EVIDENCE0-R0	DESCENT-SPINE0	cfgtest-recursive-expression-facade	raw-driver+recursion-guard	recursive_child_lowering_tests.rs:build_expression-calls	cargo-test:recursive-child+focused-guards	-	closed
 asset	PORT-AWARE-CALLABLE-DRAFT	DESCENT-SPINE0	-	port_aware_function_draft_impl.rs	-	-	IntegrateNow	closed
 asset	GENERIC-DRAFT-COLLECTOR	FUNCTION-LIFECYCLE0	-	module_draft_collector.rs	-	-	IntegrateNow	closed
 asset	CANDIDATE-SESSION	MODULE-LIFECYCLE0	-	module_invocation_session.rs	-	-	IntegrateNow	closed
