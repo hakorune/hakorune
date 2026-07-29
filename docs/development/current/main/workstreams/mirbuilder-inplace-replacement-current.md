@@ -580,11 +580,14 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: RAW-FIELD-ASSIGNMENT-TARGET-SNAPSHOT-ONCE0-I0-R0.
-Owner: PreparedRawFieldAssignmentV1 plus its consuming port terminal.
-Deleted: raw Field tuple, ordinary lower-side record-target observation, old raw terminals.
-Preserved: current-span timing, exact record diagnostics, object -> RHS order, metadata.
-Evidence: record-target matrix, field metadata/order tests, exact Assignment/lane guards, check.
+Closed: MIR-CLEANUP-EXIT-ADMISSION-SSOT0-I0-R0.
+Callers: value Return, void Return, and Throw.
+New owner: control_flow::cleanup::ensure_cleanup_exit_allowed_v1(state, kind).
+Deleted: ensure_return_allowed and Throw's duplicate cleanup-state predicate.
+Preserved: exact diagnostics and admission before Return/Throw observation or effects.
+Non-claims: TryCatch transaction, defer completion, Throw completion route, grammar.
+Evidence: cleanup matrix, Return parity/order, Throw structural order, exact shared guard, cargo check.
+Fallback / retry / reselection: 0.
 Current stop: fresh production live-edge census; no next row is preselected.
 ```
 Lambda capture authority and all feature additions remain parked.

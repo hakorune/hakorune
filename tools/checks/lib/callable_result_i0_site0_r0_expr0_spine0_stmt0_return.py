@@ -60,6 +60,10 @@ def check_ret0_s0(root: Path) -> str:
     located_tests_path = "src/mir/builder/located_legacy_return_tests.rs"
     located_session_path = "src/mir/builder/located_legacy_lowering.rs"
     owner_path = "src/mir/builder/stmts/return_stmt.rs"
+    admission_path = (
+        "src/mir/builder/control_flow/cleanup/exit_admission.rs"
+    )
+    throw_path = "src/mir/builder/control_flow/exception/throw.rs"
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     readme_path = "src/mir/builder/stmts/README.md"
     helper_path = (
@@ -76,6 +80,8 @@ def check_ret0_s0(root: Path) -> str:
     located_tests = _read(root, located_tests_path)
     located_session = _read(root, located_session_path)
     owner = _read(root, owner_path)
+    admission = _read(root, admission_path)
+    throw = _read(root, throw_path)
     stmts_root = _read(root, stmts_root_path)
     readme = _read(root, readme_path)
 
@@ -87,7 +93,11 @@ def check_ret0_s0(root: Path) -> str:
         ("fn try_match_return_optimization", 2, "Match port"),
         ("fn return_value_expression_input", 2, "child-input port"),
         ("fn drive_value_return_statement_v1", 1, "value Return driver"),
-        ("ensure_return_allowed(builder)?;", 1, "value cleanup preflight"),
+        (
+            "ensure_cleanup_exit_allowed_v1(&builder.function_state, CleanupExitKindV1::Return)?;",
+            1,
+            "value cleanup preflight",
+        ),
         (
             "try_apply_match_return_optimization(builder, Some(value), true)",
             1,
@@ -109,7 +119,7 @@ def check_ret0_s0(root: Path) -> str:
     _require_order(
         descent,
         (
-            "ensure_return_allowed(builder)?;",
+            "ensure_cleanup_exit_allowed_v1(&builder.function_state, CleanupExitKindV1::Return)?;",
             "port.return_value_syntax(input)?",
             "port.try_match_return_optimization(builder, input, value)?",
             "port.return_value_expression_input(input)?",
@@ -180,13 +190,12 @@ def check_ret0_s0(root: Path) -> str:
     )
 
     # The exact Void leaf owns no AST, Option, child, or Match observation.
-    _require_count(owner, "fn ensure_return_allowed", 1, "cleanup owner")
     _require_count(owner, "fn build_void_return_statement", 1, "Void owner")
     void_owner = owner[owner.index("fn build_void_return_statement") :]
     _require_order(
         void_owner,
         (
-            "ensure_return_allowed(builder)?;",
+            "ensure_cleanup_exit_allowed_v1(&builder.function_state, CleanupExitKindV1::Return)?;",
             "emission::constant::emit_void(builder)?",
             "emit_return_from_value(builder, return_value)",
         ),
@@ -209,6 +218,7 @@ def check_ret0_s0(root: Path) -> str:
         "build_return_statement(",
         "drive_raw_value_return_statement_v1(",
         "try_apply_match_return_optimization(builder, None",
+        "ensure_return_allowed",
     ):
         if retired in all_src:
             _fail(f"retired Return authority remains: {retired}")
@@ -272,7 +282,9 @@ def check_ret0_s0(root: Path) -> str:
     ]
     for required in (
         "ASTNode::Return { value, .. }",
-        "ensure_return_allowed(builder)?;",
+        "builder.function_state.in_cleanup_block",
+        "!builder.function_state.cleanup_allow_return",
+        "return is not allowed inside cleanup block",
         "try_apply_match_return_optimization(builder, value.as_deref(), true)?",
         "drive_raw_legacy_expression_v1(builder, *expr)?",
         "emit_void(builder)?",
@@ -318,9 +330,44 @@ def check_ret0_s0(root: Path) -> str:
         "drive_value_return_statement_v1(",
         "RawLegacyValueReturnInputV1",
         "RawLegacyChildLoweringPortV1",
+        "ensure_cleanup_exit_allowed_v1",
     ):
         if forbidden in reference:
             _fail(f"historical Return reference reused selected owner: {forbidden}")
+
+    admission_production = admission.split("#[cfg(test)]", 1)[0]
+    for needle, expected, label in (
+        ("enum CleanupExitKindV1", 1, "cleanup exit kind"),
+        ("fn ensure_cleanup_exit_allowed_v1(", 1, "sole cleanup admission owner"),
+        ("state.in_cleanup_block", 1, "cleanup state observation"),
+        ("state.cleanup_allow_return", 1, "Return allow-bit observation"),
+        ("state.cleanup_allow_throw", 1, "Throw allow-bit observation"),
+        ("NYASH_CLEANUP_ALLOW_RETURN=1", 1, "exact Return diagnostic"),
+        ("NYASH_CLEANUP_ALLOW_THROW=1", 1, "exact Throw diagnostic"),
+    ):
+        _require_count(admission_production, needle, expected, label)
+    _require_count(
+        throw,
+        "ensure_cleanup_exit_allowed_v1(&builder.function_state, CleanupExitKindV1::Throw)?;",
+        1,
+        "Throw cleanup admission",
+    )
+    _require_order(
+        throw,
+        (
+            "ensure_cleanup_exit_allowed_v1(&builder.function_state, CleanupExitKindV1::Throw)?;",
+            "builder_disable_throw()",
+            "drive_legacy_expression_v1(builder, port, expression)?",
+        ),
+        "Throw admission/env/child",
+    )
+    for retired in (
+        "function_state.in_cleanup_block",
+        "function_state.cleanup_allow_throw",
+        "NYASH_CLEANUP_ALLOW_THROW=1",
+    ):
+        if retired in throw:
+            _fail(f"Throw retained duplicate cleanup admission: {retired}")
     for source, label in (
         (raw_tests, "raw Return tests"),
         (parity_tests, "Return parity tests"),
@@ -414,6 +461,8 @@ def check_ret0_s0(root: Path) -> str:
         located_tests_path,
         located_session_path,
         owner_path,
+        admission_path,
+        throw_path,
         stmts_root_path,
         readme_path,
         helper_path,

@@ -4,6 +4,9 @@
 //! with proper cleanup block validation.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::cleanup::{
+    ensure_cleanup_exit_allowed_v1, CleanupExitKindV1,
+};
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
@@ -15,8 +18,8 @@ use crate::mir::builder::{Effect, EffectMask, MirInstruction, ValueId};
 ///
 /// # Cleanup Block Validation
 ///
-/// Throwing inside cleanup blocks is controlled by the
-/// `NYASH_CLEANUP_ALLOW_THROW=1` environment variable.
+/// Cleanup admission is decided by the shared cleanup-exit owner before any
+/// environment route or child descent.
 pub(in crate::mir::builder) fn cf_throw(
     builder: &mut super::super::super::MirBuilder,
     expression: ASTNode,
@@ -34,9 +37,7 @@ pub(in crate::mir::builder) fn cf_throw_with_port_v1<Port>(
 where
     Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
 {
-    if builder.function_state.in_cleanup_block && !builder.function_state.cleanup_allow_throw {
-        return Err("throw is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_THROW=1 to permit)".to_string());
-    }
+    ensure_cleanup_exit_allowed_v1(&builder.function_state, CleanupExitKindV1::Throw)?;
     if crate::config::env::builder_disable_throw() {
         let v = drive_legacy_expression_v1(builder, port, expression)?;
         builder.emit_extern_call_with_effects(

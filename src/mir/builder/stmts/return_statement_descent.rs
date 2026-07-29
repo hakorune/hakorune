@@ -6,14 +6,15 @@
 //! source location, and callable-result consumption remain outside it.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::cleanup::{
+    ensure_cleanup_exit_allowed_v1, CleanupExitKindV1,
+};
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
-use super::return_stmt::{
-    emit_return_from_value, ensure_return_allowed, try_apply_match_return_optimization,
-};
+use super::return_stmt::{emit_return_from_value, try_apply_match_return_optimization};
 
 pub(in crate::mir::builder) struct RawLegacyValueReturnInputV1 {
     value: ASTNode,
@@ -100,7 +101,7 @@ pub(in crate::mir::builder) fn drive_value_return_statement_v1<Port>(
 where
     Port: ReturnStatementDescentPortV1,
 {
-    ensure_return_allowed(builder)?;
+    ensure_cleanup_exit_allowed_v1(&builder.function_state, CleanupExitKindV1::Return)?;
     let value = port.return_value_syntax(input)?.value();
     if let Some(result) = port.try_match_return_optimization(builder, input, value)? {
         return Ok(result);

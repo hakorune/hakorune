@@ -8,8 +8,7 @@ use crate::mir::value_kind::MirValueKind;
 use crate::mir::{BasicBlockId, BindingId, MirBuilder, MirInstruction, MirType, ValueId};
 
 use super::return_stmt::{
-    build_void_return_statement, emit_return_from_value, ensure_return_allowed,
-    try_apply_match_return_optimization,
+    build_void_return_statement, emit_return_from_value, try_apply_match_return_optimization,
 };
 use super::{drive_value_return_statement_v1, RawLegacyValueReturnInputV1};
 
@@ -158,7 +157,9 @@ fn lower_pre_i0_return_reference(
 
     with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {
         builder.metadata_ctx.set_current_span(span);
-        ensure_return_allowed(builder)?;
+        if builder.function_state.in_cleanup_block && !builder.function_state.cleanup_allow_return {
+            return Err("return is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_RETURN=1 to permit)".to_string());
+        }
         if let Some(return_value) =
             try_apply_match_return_optimization(builder, value.as_deref(), true)?
         {

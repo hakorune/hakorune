@@ -42,6 +42,9 @@
 //! - Match-return composer: `control_flow/plan/composer/match_return_branchn.rs`
 
 use crate::ast::{ASTNode, LiteralValue, Span};
+use crate::mir::builder::control_flow::cleanup::{
+    ensure_cleanup_exit_allowed_v1, CleanupExitKindV1,
+};
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::lower::PlanLowerer;
 use crate::mir::builder::control_flow::plan::composer::{
@@ -53,15 +56,6 @@ use crate::mir::builder::control_flow::plan::facts::match_return_facts::{
 use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
 use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::{MirBuilder, MirInstruction, ValueId};
-
-/// Preserve the existing cleanup-block Return prohibition before any value
-/// observation or lowering effect.
-pub(in crate::mir::builder) fn ensure_return_allowed(builder: &MirBuilder) -> Result<(), String> {
-    if builder.function_state.in_cleanup_block && !builder.function_state.cleanup_allow_return {
-        return Err("return is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_RETURN=1 to permit)".to_string());
-    }
-    Ok(())
-}
 
 /// Adopt match-return CorePlan optimization
 ///
@@ -203,7 +197,7 @@ pub(in crate::mir::builder) fn emit_return_from_value(
 pub(in crate::mir::builder) fn build_void_return_statement(
     builder: &mut MirBuilder,
 ) -> Result<ValueId, String> {
-    ensure_return_allowed(builder)?;
+    ensure_cleanup_exit_allowed_v1(&builder.function_state, CleanupExitKindV1::Return)?;
     let return_value = crate::mir::builder::emission::constant::emit_void(builder)?;
     emit_return_from_value(builder, return_value)
 }

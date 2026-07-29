@@ -55,6 +55,7 @@ cell	RAW-DIRECT-MATH-ARGUMENT-RECIPE0-I0-R0	CALL-OBJECT0	function_call_preflight
 cell	FUNCTION-STATE-TRANSIENT-CONTROL-LIFECYCLE0-I0-R0	FUNCTION-LIFECYCLE0	function-state-transaction+raw-root-close	role-exact-child-entry+root-close-terminals+private-nine-field-writer	two-foreign-nine-field-reset-clusters	cargo-test:capture-neutral-restore+root-close-quiescence	-	closed
 cell	RAW-INDEX-ASSIGNMENT-TARGET-SNAPSHOT-ONCE0-I0-R0	DESCENT-SPINE0	statement_surface.rs:Assignment-Index	PreparedRawIndexAssignmentV1+consuming-port-terminal	raw-Index-bundle+lower-target-rematch+raw-terminal	cargo-test:index-assignment-order+metadata+raw-port	-	closed
 cell	RAW-FIELD-ASSIGNMENT-TARGET-SNAPSHOT-ONCE0-I0-R0	DESCENT-SPINE0	statement_surface.rs:Assignment-Field	PreparedRawFieldAssignmentV1+consuming-port-terminal	raw-Field-bundle+ordinary-record-target-observation+raw-terminal	cargo-test:field-assignment-preflight+metadata+raw-port	-	closed
+cell	MIR-CLEANUP-EXIT-ADMISSION-SSOT0-I0-R0	FUNCTION-LIFECYCLE0	value-Return+void-Return+Throw	control_flow::cleanup:cleanup-exit-kind-admission	Return-helper+Throw-inline-cleanup-predicate	cargo-test:cleanup-exit-matrix+Return-order+Throw-order	-	closed
 asset	PORT-AWARE-CALLABLE-DRAFT	DESCENT-SPINE0	-	port_aware_function_draft_impl.rs	-	-	IntegrateNow	closed
 asset	GENERIC-DRAFT-COLLECTOR	FUNCTION-LIFECYCLE0	-	module_draft_collector.rs	-	-	IntegrateNow	closed
 asset	CANDIDATE-SESSION	MODULE-LIFECYCLE0	-	module_invocation_session.rs	-	-	IntegrateNow	closed

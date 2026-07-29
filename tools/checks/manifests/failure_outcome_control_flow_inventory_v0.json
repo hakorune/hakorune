@@ -2425,15 +2425,15 @@
       "token": "throw_instruction"
     },
     {
-      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/control_flow/exception/throw.rs:22:throw_instruction",
-      "evidence": "return Err(\"throw is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_THROW=1 to permit)\".to_string());",
+      "control_flow_evidence_id": "control.fault_and_throw.src/mir/builder/control_flow/cleanup/exit_admission.rs:25:throw_instruction",
+      "evidence": "\"throw is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_THROW=1 to permit)\",",
       "evidence_kind": "throw_instruction",
       "family": "fault_and_throw",
-      "line": 22,
+      "line": 25,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
-      "source_path": "src/mir/builder/control_flow/exception/throw.rs",
+      "source_path": "src/mir/builder/control_flow/cleanup/exit_admission.rs",
       "token": "throw_instruction"
     },
     {
