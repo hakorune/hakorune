@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0 closed at 1e73b9180f. The owned raw expression dispatcher now moves Call, QMark, Await, RecordLiteral, and RecordUpdate payloads directly into their existing port-aware owners; the eight immediate deep-clone expressions are zero. The lane is stopped at MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 for a fresh read-only production-edge census. Lambda, raw Main, static non-Main multi-consumer inputs, facade retirement, View, Ownership, and other unimplemented features remain parked."
+status = "The post-compound-expression live-edge census selected VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0. VerifiedMainExpansionV1 already seals every selected Main helper as a static FunctionDeclaration with exact symbol/arity before Builder effects, but build_verified_static_main_box_with_port_v1 reopens child.source(), re-matches the AST, and owns an impossible late rejection. The selected T1 row adds one bounded verified function-parts handoff and atomically deletes that lower-side AST reclassification/rejection. Raw Main compatibility, Main root/callable-main identity, grammar, result, View, and Ownership remain unchanged."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = ""
+current_design_stop = ""
+current_execution_row = "VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0"
+current_execution_summary = "Project already-verified Main static-child function parts through one typed handoff; delete the selected lower-side FunctionDeclaration rematch, bare-AST payload extraction, and impossible static-child-source rejection."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, and eight immediate compound-expression payload clones are deleted. A fresh read-only live-edge census must now select one bounded production replacement or detached Delete asset. View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, and eight immediate compound-expression payload clones are deleted. The next T1 row removes selected Main helper lower-side AST reclassification behind an existing verified source owner. View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
