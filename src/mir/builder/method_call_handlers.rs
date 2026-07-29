@@ -367,7 +367,7 @@ mod tests {
             .install_callable_declaration_catalog(catalog)
             .unwrap();
         builder.enter_function_for_test("RouteOwner.caller/0".to_string());
-        let me = builder.build_expression(integer(9)).unwrap();
+        let me = crate::mir::builder::emission::constant::emit_integer(&mut builder, 9).unwrap();
         builder
             .function_state
             .variable_ctx

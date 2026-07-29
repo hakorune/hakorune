@@ -10,8 +10,9 @@ use super::super::function_signature_lookup::FunctionSignatureLookupV1;
 use super::super::me_call_header_observation::{
     MeCallHeaderObservationPortV1, MeCallHeaderSourceV1, MeCallParameterObservationV1,
 };
-use super::super::recursive_child_lowering::RawLegacyChildLoweringPortV1;
-use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
+use super::super::recursive_child_lowering::{
+    drive_raw_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+};
 use super::call_argument_descent::CallArgumentDescentPortV1;
 use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{
@@ -106,7 +107,7 @@ impl RecursiveChildLoweringPortV1 for RoutePort {
                 syntax
             }
         };
-        builder.build_expression(syntax)
+        drive_raw_legacy_expression_v1(builder, syntax)
     }
 }
 
@@ -538,7 +539,7 @@ fn bound_me_route_keeps_source_receiver_syntax_only() {
     };
     let mut port = RoutePort::default();
     let mut builder = builder("RouteOwner.method/0");
-    let me = builder.build_expression(integer(9)).unwrap();
+    let me = crate::mir::builder::emission::constant::emit_integer(&mut builder, 9).unwrap();
     builder
         .function_state
         .variable_ctx
@@ -566,7 +567,7 @@ fn lowered_me_arguments_precede_terminal_and_keep_receiver_prefix() {
     };
     let mut port = RoutePort::default();
     let mut builder = builder("RouteOwner.caller/0");
-    let me = builder.build_expression(integer(9)).unwrap();
+    let me = crate::mir::builder::emission::constant::emit_integer(&mut builder, 9).unwrap();
     builder
         .function_state
         .variable_ctx
@@ -681,7 +682,7 @@ fn property_completion_uses_selected_catalog_child_but_raw_terminal() {
     use super::super::property_reads::PropertyGetterCompletionV1;
 
     let mut builder = builder("property_completion/0");
-    let receiver = builder.build_expression(integer(11)).unwrap();
+    let receiver = crate::mir::builder::emission::constant::emit_integer(&mut builder, 11).unwrap();
     let mut port = RawLegacyChildLoweringPortV1;
     let mut completion = PropertyGetterCompletionV1::new(&mut port);
 

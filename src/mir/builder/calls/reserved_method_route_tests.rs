@@ -2,7 +2,9 @@ use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::instruction::MemOpKind;
 use crate::mir::{Callee, MirBuilder, MirInstruction};
 
-use super::super::recursive_child_lowering::RawLegacyChildLoweringPortV1;
+use super::super::recursive_child_lowering::{
+    drive_raw_legacy_expression_v1, RawLegacyChildLoweringPortV1,
+};
 use super::method_call_descent::RawLegacyMethodCallInputV1;
 use super::reserved_method_route::{build_reserved_method_call_v1, ReservedMethodCallOutcomeV1};
 
@@ -51,9 +53,11 @@ fn instructions(builder: &MirBuilder) -> impl Iterator<Item = &MirInstruction> {
 fn selected_mir_debug_route_preserves_debug_payload() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("mir_debug/0".into());
-    let result = builder
-        .build_expression(method("__mir__", "log", vec![string("value"), integer(7)]))
-        .unwrap();
+    let result = drive_raw_legacy_expression_v1(
+        &mut builder,
+        method("__mir__", "log", vec![string("value"), integer(7)]),
+    )
+    .unwrap();
 
     assert!(instructions(&builder).any(|instruction| {
         matches!(
@@ -75,13 +79,15 @@ fn selected_mir_debug_route_preserves_debug_payload() {
 fn selected_mir_mark_evaluates_neither_label_nor_extra_arguments() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("mir_mark_syntax_only/0".into());
-    builder
-        .build_expression(method(
+    drive_raw_legacy_expression_v1(
+        &mut builder,
+        method(
             "__mir__",
             "mark",
             vec![string("marker"), variable("must_not_be_evaluated")],
-        ))
-        .unwrap();
+        ),
+    )
+    .unwrap();
 
     assert!(instructions(&builder).any(|instruction| matches!(
         instruction,
@@ -93,13 +99,15 @@ fn selected_mir_mark_evaluates_neither_label_nor_extra_arguments() {
 fn selected_mir_log_stops_at_first_failed_suffix_and_builder_is_reusable() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("mir_log_failure/0".into());
-    let error = builder
-        .build_expression(method(
+    let error = drive_raw_legacy_expression_v1(
+        &mut builder,
+        method(
             "__mir__",
             "log",
             vec![string("value"), integer(1), variable("missing"), integer(3)],
-        ))
-        .unwrap_err();
+        ),
+    )
+    .unwrap_err();
     assert!(error.contains("Undefined variable: missing"));
     let integers = instructions(&builder)
         .filter_map(|instruction| match instruction {
@@ -112,7 +120,7 @@ fn selected_mir_log_stops_at_first_failed_suffix_and_builder_is_reusable() {
         .collect::<Vec<_>>();
     assert_eq!(integers, vec![1]);
 
-    builder.build_expression(integer(9)).unwrap();
+    drive_raw_legacy_expression_v1(&mut builder, integer(9)).unwrap();
     assert!(instructions(&builder).any(|instruction| matches!(
         instruction,
         MirInstruction::Const {
@@ -145,8 +153,7 @@ fn selected_mir_debug_zero_argument_failure_is_stable() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("mir_debug_fail/0".into());
     assert_eq!(
-        builder
-            .build_expression(method("__mir__", "mark", vec![]))
+        drive_raw_legacy_expression_v1(&mut builder, method("__mir__", "mark", vec![]),)
             .unwrap_err(),
         "__mir__.log/__mir__.mark requires at least a label argument"
     );
@@ -158,8 +165,7 @@ fn selected_mir_debug_zero_argument_failure_is_stable() {
 fn selected_repl_route_preserves_extern_call() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("repl/0".into());
-    builder
-        .build_expression(method("__repl", "get", vec![string("name")]))
+    drive_raw_legacy_expression_v1(&mut builder, method("__repl", "get", vec![string("name")]))
         .unwrap();
 
     assert!(instructions(&builder).any(|instruction| {
@@ -178,13 +184,11 @@ fn selected_repl_unsupported_method_failure_is_stable() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("repl_fail/0".into());
     assert_eq!(
-        builder
-            .build_expression(method(
-                "__repl",
-                "other",
-                vec![variable("must_not_be_evaluated")],
-            ))
-            .unwrap_err(),
+        drive_raw_legacy_expression_v1(
+            &mut builder,
+            method("__repl", "other", vec![variable("must_not_be_evaluated")],),
+        )
+        .unwrap_err(),
         "__repl.other is not supported. Only __repl.get and __repl.set are allowed."
     );
     assert_eq!(instructions(&builder).count(), 0);

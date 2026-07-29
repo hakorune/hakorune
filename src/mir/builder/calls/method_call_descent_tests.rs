@@ -2,7 +2,7 @@ use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::{MirBuilder, MirInstruction, ValueId};
 
 use super::super::recursive_child_lowering::{
-    RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    drive_raw_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 use super::call_argument_descent::CallArgumentDescentPortV1;
 use super::method_call_descent::{
@@ -133,7 +133,7 @@ impl RecursiveChildLoweringPortV1 for DistinctMethodCallPort {
                 syntax
             }
         };
-        builder.build_expression(syntax)
+        drive_raw_legacy_expression_v1(builder, syntax)
     }
 }
 

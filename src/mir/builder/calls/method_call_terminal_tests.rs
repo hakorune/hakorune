@@ -110,7 +110,7 @@ fn normalized_const_value(
 #[test]
 fn disconnected_typeop_terminals_preserve_check_cast_value_type_and_destination() {
     let mut builder = builder("terminal_typeop/0");
-    let value = builder.build_expression(integer(7)).unwrap();
+    let value = crate::mir::builder::emission::constant::emit_integer(&mut builder, 7).unwrap();
     let mut port = RawLegacyChildLoweringPortV1;
     let cursor_before = next_value_cursor(&builder);
 
@@ -159,8 +159,8 @@ fn disconnected_typeop_terminals_preserve_check_cast_value_type_and_destination(
 #[test]
 fn disconnected_static_and_me_global_terminals_preserve_semantic_target_and_arguments() {
     let mut builder = builder("terminal_global/0");
-    let left = builder.build_expression(integer(3)).unwrap();
-    let right = builder.build_expression(integer(4)).unwrap();
+    let left = crate::mir::builder::emission::constant::emit_integer(&mut builder, 3).unwrap();
+    let right = crate::mir::builder::emission::constant::emit_integer(&mut builder, 4).unwrap();
     let mut port = RawLegacyChildLoweringPortV1;
     let cursor_before = next_value_cursor(&builder);
 
@@ -227,8 +227,8 @@ fn disconnected_static_and_me_global_terminals_preserve_semantic_target_and_argu
 fn static_global_receipt_matches_the_successful_physical_call_destination() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         let mut builder = builder("terminal_global_receipt/0");
-        let left = builder.build_expression(integer(3)).unwrap();
-        let right = builder.build_expression(integer(4)).unwrap();
+        let left = crate::mir::builder::emission::constant::emit_integer(&mut builder, 3).unwrap();
+        let right = crate::mir::builder::emission::constant::emit_integer(&mut builder, 4).unwrap();
         let mut port = RawLegacyChildLoweringPortV1;
 
         let receipt = emit_static_global_value_terminal_with_receipt_v1(
@@ -325,7 +325,7 @@ fn failed_static_global_call_emission_issues_no_receipt() {
 #[test]
 fn disconnected_env_terminals_preserve_returning_and_no_result_laws() {
     let mut builder = builder("terminal_env/0");
-    let argument = builder.build_expression(integer(5)).unwrap();
+    let argument = crate::mir::builder::emission::constant::emit_integer(&mut builder, 5).unwrap();
     let mut port = RawLegacyChildLoweringPortV1;
     let returning = EnvMethodSpec {
         iface_name: "env.fs".to_string(),
@@ -408,8 +408,8 @@ fn disconnected_env_terminals_preserve_returning_and_no_result_laws() {
 #[test]
 fn disconnected_standard_terminal_preserves_method_identity_and_completed_destination() {
     let mut builder = builder("terminal_standard/0");
-    let receiver = builder.build_expression(integer(8)).unwrap();
-    let argument = builder.build_expression(integer(9)).unwrap();
+    let receiver = crate::mir::builder::emission::constant::emit_integer(&mut builder, 8).unwrap();
+    let argument = crate::mir::builder::emission::constant::emit_integer(&mut builder, 9).unwrap();
     let mut port = RawLegacyChildLoweringPortV1;
     let cursor_before = next_value_cursor(&builder);
 

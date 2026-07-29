@@ -1,7 +1,9 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::{MirBuilder, MirInstruction, ValueId};
 
-use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
+use super::super::recursive_child_lowering::{
+    drive_raw_legacy_expression_v1, RecursiveChildLoweringPortV1,
+};
 use super::call_argument_descent::{drive_call_arguments_v1, CallArgumentDescentPortV1};
 
 fn integer(value: i64) -> ASTNode {
@@ -202,7 +204,7 @@ fn selected_raw_facade_preserves_nested_argument_mir() {
     manual.enter_function_for_test("call_argument_raw_selected/0".to_string());
     let manual_values = arguments
         .into_iter()
-        .map(|argument| manual.build_expression(argument).unwrap())
+        .map(|argument| drive_raw_legacy_expression_v1(&mut manual, argument).unwrap())
         .collect::<Vec<_>>();
 
     assert_eq!(selected_values, manual_values);
