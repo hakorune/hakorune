@@ -103,47 +103,33 @@ Closed:  MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0
 Closed:  MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 (NoSafeI0)
-Current: RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0
-Mode:    design-only D0
+Closed:  RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0
+Closed:  RAW-LAMBDA-LEXICAL-CAPTURE-LIFECYCLE0-I0-R0
+Current: MIRBUILDER-POST-RAW-LAMBDA-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
+Mode:    read-only selection
 ```
 
 ## Current execution brief
 
-`RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0`
+`MIRBUILDER-POST-RAW-LAMBDA-LIFECYCLE-LIVE-EDGE-CENSUS0-D0`
 
 ```text
-Authority:
-  A standalone FunctionSemanticResolverSession forest is not a raw capture
-  authority: the raw edge lacks parent owner, BindingRef, definition site, and
-  lexical-scope provenance. Legacy free-var walking is likewise not reusable.
-
 Change:
-  Seal one owner-neutral lexical observation contract from resolver scope
-  rules: relative declaration/read/rebind/direct-Me/nested-boundary records in
-  deterministic first-demand order. It owns no AST, BindingRef, source
-  identity, ValueId, Builder, module, or publication. A later materializer may
-  bind it once to an explicit legacy name-to-ValueId environment.
+  Read the remaining production edges after the Lambda retirement and select
+  at most one next replacement.
 
 Contract:
-  Fix parameter/local initializer sequencing, scope boundaries, direct-Me
-  versus Variable("me"), read versus rebind, first-demand dedup/order, and
-  source-only rejection. Before I0, decide exactly: unavailable external name;
-  direct-Me environment availability; nested Lambda/Function/Box boundary;
-  reserve -> emit -> infallible commit closure-body publication. No nested
-  forwarding or closure-runtime claim is implied.
+  A candidate needs one named production caller, one bounded owner, and one
+  old edge deleted in the same commit. No complete-program variants, fallback,
+  retry, or compatibility expansion may be selected.
 
-Next:
-  Only if all four decisions close, open one atomic T2
-  `RAW-LAMBDA-LEXICAL-OBSERVATION0-I0-R0`: switch the raw dispatcher Lambda
-  edge once and delete the old inline walker/ambient-me/pre-emit publication
-  authority. Otherwise remain at this D0; no observer-only I0 is valid.
+Done:
+  Record the live-edge census and either select one bounded D0 or state that no
+  safe slice exists. Do not pre-name the following implementation row.
 
 Stop:
-  Do not fabricate BindingRef/source identity from variable_map, make the raw
-  Lambda a standalone resolver root, preserve silent omissions, add fallback/
-  retry, or treat this as a whole-function acceptance queue. Program-root and
-  static-Main D0 shelves stay independent; JoinModule disposition is final
-  conformance, then View/Ownership and later features may resume.
+  Do not reopen raw Lambda, Program-root, static-Main, JoinModule, View, or
+  Ownership work without a fresh selected edge.
 ```
 
 Fixed phase order:
@@ -160,6 +146,23 @@ R2/R3 live-authority cleanup
 ```
 
 ## Latest closeout
+
+```text
+RAW-LAMBDA-LEXICAL-CAPTURE-LIFECYCLE0-I0-R0
+
+raw dispatcher Lambda edge                  = lifecycle once
+build_lambda_expression / exprs_lambda.rs   = 0
+capture order                                = lexical first demand
+missing capture / direct Me                  = pre-effect failure
+nested Lambda / Function / Box               = pre-effect failure
+closure metadata                             = reserve -> emit -> commit
+raw Lambda / normal reuse / general parity   = green
+fallback / retry / compatibility             = 0
+new source/test/check file                   = 2 / 0 / 0
+largest touched source/check file            < 800
+```
+
+## Previous closeout
 
 ```text
 RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0
@@ -1439,7 +1442,9 @@ R80 MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0 closed
 R81 RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0 closed: raw dispatcher lifecycle deleted at da95eee7f7
 R82 MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 closed: no bounded executable edge; Lambda D0 selected
 R83 RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 closed: NoSafeI0; lexical boundary matrix selected
-R84 RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 current: seal owner-neutral observation and four I0 gates
+R84 RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 closed: owner-neutral observer and four I0 gates selected
+R85 RAW-LAMBDA-LEXICAL-CAPTURE-LIFECYCLE0-I0-R0 closed: raw Lambda lifecycle selected once; old authority deleted
+R86 MIRBUILDER-POST-RAW-LAMBDA-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

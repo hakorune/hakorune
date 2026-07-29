@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 is the sole current design stop: raw Lambda cannot consume a standalone resolved owner forest because it lacks parent source identity and BindingRef provenance; the legacy walker cannot be extracted. R84 must seal its owner-neutral lexical observation contract and four I0 gates before one atomic Lambda replacement may open. Program-root single-pass partition and raw static-Main retirement remain separate D0 shelves. Grammar, result, View, Ownership, and JoinModule remain unchanged."
+status = "RAW-LAMBDA-LEXICAL-CAPTURE-LIFECYCLE0-I0-R0 is closed: the sole raw dispatcher Lambda edge now uses source-only lexical observation, an explicit raw capture environment, and reserve->emit->commit metadata publication; the old HashSet walker, ambient-me capture, pre-emit publication, and build_lambda_expression authority are deleted. MIRBUILDER-POST-RAW-LAMBDA-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 is the sole current design stop. Program-root single-pass partition and raw static-Main retirement remain separate shelves. View, Ownership, and JoinModule remain parked."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0"
+current_design_stop = "MIRBUILDER-POST-RAW-LAMBDA-LIFECYCLE-LIVE-EDGE-CENSUS0-D0"
 current_execution_row = ""
-current_execution_summary = "Seal the raw Lambda lexical-boundary matrix: owner-neutral relative lexical observation plus exact unresolved-capture, direct-Me, nested-owner, and reserve->emit->commit body-publication contracts. Do not open I0/R0 until all four are explicit."
+current_execution_summary = "Read-only census: choose at most one remaining production edge only when it has a named caller, bounded replacement owner, and same-commit old-edge deletion. Do not reopen whole-function acceptance variants."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, raw static-Main compatibility lower-side source classification, three raw static-Main facade layers, raw static-Main fresh-port reselection, the shared instance-Box lower-side metadata authority, and the raw non-Main static-Box inline lifecycle authority are deleted. RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 is current. Active compatibility sunsets remain unchanged. Legacy JoinModule disposition belongs to repository-wide final conformance; View/Ownership and other unimplemented features remain parked until final pipeline completion. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, raw static-Main compatibility lower-side source classification, three raw static-Main facade layers, raw static-Main fresh-port reselection, the shared instance-Box lower-side metadata authority, the raw non-Main static-Box inline lifecycle authority, and the old raw Lambda HashSet/ambient-me/pre-emit-metadata authority are deleted. MIRBUILDER-POST-RAW-LAMBDA-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 is current. Active compatibility sunsets remain unchanged. Legacy JoinModule disposition belongs to repository-wide final conformance; View/Ownership and other unimplemented features remain parked until final pipeline completion. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 is the sole design stop. It must select one owner-neutral lexical observation contract and resolve unavailable capture, direct-Me, nested-owner, and reserve->emit->commit body-publication policy before a single atomic raw Lambda I0/R0 may open."""
+latest_card_summary = """RAW-LAMBDA-LEXICAL-CAPTURE-LIFECYCLE0-I0-R0 is closed: the raw dispatcher now selects one lexical observer/capture lifecycle, source-order external demands bind once or fail before Builder effects, direct Me is explicit, nested owners fail fast, and external closure metadata commits only after NewClosure emits. The next step is a read-only live-edge census, not another Lambda feature row."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0"
+current_blocker_token = "MIRBUILDER-POST-RAW-LAMBDA-LIFECYCLE-LIVE-EDGE-CENSUS0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

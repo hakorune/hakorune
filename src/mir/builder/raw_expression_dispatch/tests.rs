@@ -21,6 +21,13 @@ fn integer(value: i64) -> ASTNode {
     }
 }
 
+fn variable(name: &str) -> ASTNode {
+    ASTNode::Variable {
+        name: name.into(),
+        span: Span::unknown(),
+    }
+}
+
 fn add(left: ASTNode, right: ASTNode) -> ASTNode {
     ASTNode::BinaryOp {
         operator: BinaryOperator::Add,
@@ -250,4 +257,57 @@ fn raw_nonmain_static_box_failure_keeps_inner_state_and_primary_error() {
     let module = builder.current_module.as_ref().expect("module shell");
     assert!(module.functions.contains_key("Broken.alpha/0"));
     assert!(!module.functions.contains_key("Broken.gamma/0"));
+}
+
+#[test]
+fn raw_lambda_dispatches_once_with_source_ordered_captures() {
+    let mut builder = MirBuilder::new();
+    builder.prepare_module().expect("module shell");
+    builder.enter_function_for_test("raw_lambda_dispatch/0".to_string());
+    builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .insert("second".into(), ValueId(12));
+    builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .insert("first".into(), ValueId(11));
+    builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .insert("me".into(), ValueId(99));
+
+    let lambda = ASTNode::Lambda {
+        params: vec![],
+        body: vec![add(variable("first"), variable("second"))],
+        span: Span::unknown(),
+    };
+    let dst = builder.build_expression_impl(lambda).unwrap();
+
+    let closure = instructions(&builder)
+        .into_iter()
+        .find(|instruction| matches!(instruction, MirInstruction::NewClosure { dst: actual, .. } if *actual == dst))
+        .expect("one closure instruction");
+    assert!(matches!(
+        closure,
+        MirInstruction::NewClosure {
+            body_id: Some(0),
+            captures,
+            me: None,
+            ..
+        } if captures == vec![("first".into(), ValueId(11)), ("second".into(), ValueId(12))]
+    ));
+    assert_eq!(
+        builder
+            .current_module
+            .as_ref()
+            .unwrap()
+            .metadata
+            .closure_bodies
+            .len(),
+        1
+    );
 }

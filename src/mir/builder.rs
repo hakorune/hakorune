@@ -355,7 +355,6 @@ pub(crate) fn check_step_tree_capabilities(
         planner_required,
     )
 }
-mod exprs_lambda; // lambda lowering
 mod exprs_peek; // peek expression
 mod exprs_qmark; // ?-propagate
 mod field_facts; // Field/property receiver facts and declared-type helpers
@@ -363,6 +362,8 @@ mod field_receiver_provenance; // Bounded current-receiver Copy/Phi proof; one f
 mod fields; // field access/assignment lowering split
 mod if_form;
 mod indexing; // indexing expression/assignment lowering
+mod raw_lambda_capture_lifecycle; // consuming raw Lambda capture/publication lifecycle
+mod raw_lambda_lexical_observation; // source-only raw Lambda lexical observer
 mod weak_field_write;
 // Phase 29bq+: sealing 層中立化
 use control_flow::edgecfg::api::FragEmitSession;

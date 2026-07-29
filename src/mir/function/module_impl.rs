@@ -86,6 +86,38 @@ impl MirModule {
         id
     }
 
+    /// Read the exact id that a subsequent closure-body publication would use.
+    /// This is intentionally non-mutating so a caller can emit its matching
+    /// `NewClosure` instruction before publishing the body metadata.
+    pub(in crate::mir) fn reserve_next_closure_body_id(&self) -> ClosureBodyId {
+        self.metadata.next_closure_body_id
+    }
+
+    /// Publish a body for a previously observed next id.
+    ///
+    /// The caller must arrange that no fallible work remains between its
+    /// reservation and this terminal. A mismatch is an internal lifecycle
+    /// violation, not a recoverable source error.
+    pub(in crate::mir) fn commit_reserved_closure_body(
+        &mut self,
+        expected: ClosureBodyId,
+        body: Vec<crate::ast::ASTNode>,
+    ) {
+        assert!(
+            !body.is_empty(),
+            "[freeze:contract][mir/closure_body_empty_commit]"
+        );
+        assert_eq!(
+            self.metadata.next_closure_body_id, expected,
+            "[freeze:contract][mir/closure_body_reservation_drift]"
+        );
+        let published = self.intern_closure_body(body);
+        assert_eq!(
+            published, expected,
+            "[freeze:contract][mir/closure_body_commit_drift]"
+        );
+    }
+
     /// NCL-1: Read externalized closure body by id.
     pub fn closure_body(&self, id: ClosureBodyId) -> Option<&[crate::ast::ASTNode]> {
         self.metadata

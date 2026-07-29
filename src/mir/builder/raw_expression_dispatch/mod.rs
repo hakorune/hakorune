@@ -213,7 +213,10 @@ impl super::MirBuilder {
             }
 
             ASTNode::Lambda { params, body, .. } => {
-                self.build_lambda_expression(params.clone(), body.clone())
+                super::raw_lambda_capture_lifecycle::PreparedRawLambdaLexicalCaptureLifecycleV1::prepare(
+                    params, body,
+                )?
+                .lower_with_builder_v1(self)
             }
 
             ASTNode::BoxDeclaration {
