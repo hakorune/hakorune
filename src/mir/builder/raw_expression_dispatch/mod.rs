@@ -17,6 +17,7 @@ use super::builder_build::PreparedRawNewExpressionV1;
 use super::calls::{MethodCallDescentPortV1, PreparedRawFromCallV1, RawLegacyMethodCallInputV1};
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
 use super::exprs_enum_match::PreparedRawEnumMatchV1;
+use super::fields::PreparedRawFieldReadV1;
 use super::indexing::PreparedRawIndexReadV1;
 use super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::ops::{
@@ -34,7 +35,7 @@ use super::stmts::{
     VariableAssignmentDescentPortV1,
 };
 use super::ValueId;
-use crate::ast::{ASTNode, BinaryExpr, CallExpr, FieldAccessExpr, MethodCallExpr};
+use crate::ast::{ASTNode, BinaryExpr, CallExpr, MethodCallExpr};
 use hakorune_mir_builder::BoxCompilationContext;
 
 /// Capability set consumed by the one raw AST expression match tree.
@@ -391,9 +392,9 @@ impl super::MirBuilder {
                 }
             }
 
-            node @ ASTNode::FieldAccess { .. } => {
-                let f = FieldAccessExpr::try_from(node).expect("ASTNode::FieldAccess must convert");
-                self.build_field_access_with_port_v1(port, *f.object.clone(), f.field.clone())
+            ASTNode::FieldAccess { object, field, .. } => {
+                let prepared = PreparedRawFieldReadV1::prepare(self, *object, field);
+                self.lower_prepared_raw_field_read_with_port_v1(port, prepared)
             }
 
             ASTNode::New {

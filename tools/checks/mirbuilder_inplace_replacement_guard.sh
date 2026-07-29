@@ -679,7 +679,8 @@ if rg -n -w 'retry|fallback|reselection' \
 fi
 
 guard_exact_counts <<EOF
-$RAW_DISPATCH|self\\.build_field_access_with_port_v1\\s*\\(|1|sole raw/default FieldAccess selector
+$RAW_DISPATCH|PreparedRawFieldReadV1::prepare\\s*\\(|1|sole raw/default FieldAccess route issuer
+$RAW_DISPATCH|lower_prepared_raw_field_read_with_port_v1\\s*\\(|1|sole prepared FieldAccess caller
 $FIELDS|try_lower_property_read_with_port_v1\\s*\\(port, object_value, &field\\)|1|port-aware property caller
 $PROPERTY_READS|struct\\s+PropertyGetterCompletionV1\\b|1|exact zero-argument property adapter
 $PROPERTY_READS|fn\\s+try_lower_property_read_with_port_v1\\s*<Port>|1|port-aware property owner
@@ -695,7 +696,8 @@ for retired_pattern in \
   '\b(?:fn\s+)?try_lower_property_read\s*\(' \
   '\b(?:fn\s+)?handle_standard_method_call\s*\(' \
   '\bLegacyMethodCallArgumentsV1\b' \
-  '\b(?:fn\s+)?build_field_access\s*\('
+  '\b(?:fn\s+)?build_field_access\s*\(' \
+  '\b(?:fn\s+)?(?:build_field_access_with_port_v1|try_lower_record_field_read_from_ast(?:_with_port_v1)?)\s*\('
 do
   if rg -n -P "$retired_pattern" "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
     guard_fail "$TAG" "retired property facade returned: $retired_pattern"

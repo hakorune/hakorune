@@ -381,72 +381,6 @@ impl MirBuilder {
         Ok(())
     }
 
-    pub(in crate::mir::builder) fn try_lower_record_field_read_from_ast(
-        &mut self,
-        object: &ASTNode,
-        field: &str,
-    ) -> Result<Option<ValueId>, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.try_lower_record_field_read_from_ast_with_port_v1(&mut port, object, field)
-    }
-
-    /// Preserve the caller's raw child port through record-backed field reads.
-    pub(in crate::mir::builder) fn try_lower_record_field_read_from_ast_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        object: &ASTNode,
-        field: &str,
-    ) -> Result<Option<ValueId>, String>
-    where
-        Port: RawAstChildLoweringPortV1,
-    {
-        match object {
-            ASTNode::Variable { name, .. } => {
-                let Some(value) = self
-                    .function_state
-                    .variable_ctx
-                    .variable_map
-                    .get(name)
-                    .copied()
-                else {
-                    return Ok(None);
-                };
-                self.lower_record_field_read_from_value(value, field)
-            }
-            ASTNode::New {
-                class, arguments, ..
-            } if self.is_record_constructor_class(class) => {
-                let value = self.build_record_constructor_value_with_port_v1(
-                    port,
-                    class.clone(),
-                    arguments.clone(),
-                )?;
-                self.lower_record_field_read_from_value(value, field)
-            }
-            ASTNode::RecordLiteral {
-                record_type_name,
-                fields,
-                ..
-            } => {
-                let value = self.build_record_literal_value_with_port_v1(
-                    port,
-                    record_type_name.clone(),
-                    fields.clone(),
-                )?;
-                self.lower_record_field_read_from_value(value, field)
-            }
-            ASTNode::RecordUpdate { base, updates, .. } => {
-                let value = self.build_record_update_value_with_port_v1(
-                    port,
-                    *base.clone(),
-                    updates.clone(),
-                )?;
-                self.lower_record_field_read_from_value(value, field)
-            }
-            _ => Ok(None),
-        }
-    }
-
     pub(in crate::mir::builder) fn fail_if_record_field_assignment_target(
         &self,
         object: &ASTNode,
@@ -548,18 +482,21 @@ impl MirBuilder {
         }
     }
 
-    fn lower_record_field_read_from_value(
+    pub(in crate::mir::builder) fn lower_prepared_record_field_read_from_value(
         &mut self,
         value: ValueId,
         field: &str,
-    ) -> Result<Option<ValueId>, String> {
+    ) -> Result<ValueId, String> {
         let Some(record) = self
             .function_state
             .compilation
             .record_local_value(value)
             .cloned()
         else {
-            return Ok(None);
+            return Err(format!(
+                "[record-field-read/source-drift] value={} field={}",
+                value, field
+            ));
         };
         let Some(field_value) = record
             .fields
@@ -578,7 +515,7 @@ impl MirBuilder {
                 .value_types
                 .insert(field_value.value, ty);
         }
-        Ok(Some(field_value.value))
+        Ok(field_value.value)
     }
 
     fn begin_record_value_contract(&mut self, decl: &RecordDecl) -> (ValueId, String, String) {

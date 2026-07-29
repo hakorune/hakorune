@@ -43,7 +43,7 @@ guard_expect_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check script index must lis
 
 guard_expect_in_file "$TAG" 'RecordValueScalarizationBox' "src/mir/builder/record_values.rs" "record scalarization owner must be explicit"
 guard_expect_in_file "$TAG" 'build_record_constructor_value' "src/mir/builder/record_values.rs" "record constructor helper must exist"
-guard_expect_in_file "$TAG" 'try_lower_record_field_read_from_ast' "src/mir/builder/record_values.rs" "record field read helper must exist"
+guard_expect_in_file "$TAG" 'lower_prepared_record_field_read_from_value' "src/mir/builder/record_values.rs" "exact prepared record field read terminal must exist"
 guard_expect_in_file "$TAG" '\[record-construction/escape\]' "src/mir/builder/builder_build.rs" "record construction must not silently fall through to NewBox"
 guard_expect_in_file "$TAG" '\[record-value/escape\]' "src/mir/builder/record_values.rs" "record value escape must fail fast"
 guard_expect_in_file "$TAG" '\[record-field-read/unknown-field\]' "src/mir/builder/record_values.rs" "unknown record field must fail fast"

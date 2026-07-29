@@ -586,17 +586,12 @@ Evidence: one opaque projection/bool route, one scrutinee descent,
   exact guard-let MIR, parser coverage, cargo check, and guard green.
 Deleted: dispatcher clones, Option probe, duplicate arm observation,
   raw-input and caller-zero facades.
-Current: RAW-FIELD-READ-SOURCE-ROUTE-ONCE0-I0-R0, CALL-OBJECT0/T1.
-Named caller: sole raw dispatcher ASTNode::FieldAccess arm.
-New owner: opaque PreparedRawFieldReadV1; ExistingRecord,
-  RecordConstructor, RecordLiteral, RecordUpdate, or Dynamic.
-Atomic delete: object/field clones, Option record probe, read facades.
-Order: source route -> exact record terminal, or object once ->
-  local_field_base -> property lookup -> FastMem/ordinary FieldGet.
-Keep: record construction/update diagnostics and publication timing;
-  property failure has no ordinary retry; all write/place paths untouched.
-Forbid: record-to-dynamic retry, pre-child property/FastMem facts,
-  grammar/result delta, new test/check file, or any file >= 800.
+Closed: RAW-FIELD-READ-SOURCE-ROUTE-ONCE0-I0-R0, CALL-OBJECT0/T1.
+Evidence: exact 5-route partition; record constructor/literal/update,
+  property, FastMem, failure/reuse, cargo check, and guards are green.
+Deleted: dispatcher clones, Option record probe, and read facades.
+Kept: post-child property/FastMem facts and all write/place paths.
+Next: MIRBUILDER-POST-FIELD-READ-LIVE-EDGE-CENSUS0-D0.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:

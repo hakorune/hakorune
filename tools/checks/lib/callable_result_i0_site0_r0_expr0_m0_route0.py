@@ -306,15 +306,33 @@ def main() -> None:
     require_count(fields, "fn build_field_access(", 0, "retired raw field facade")
     require_count(
         fields,
-        "fn build_field_access_with_port_v1<Port>",
+        "struct PreparedRawFieldReadV1",
         1,
-        "port-aware FieldAccess owner",
+        "opaque prepared FieldAccess source route",
+    )
+    require_count(
+        fields,
+        "enum PreparedRawFieldReadRouteV1",
+        1,
+        "private FieldAccess source route vocabulary",
+    )
+    require_count(
+        fields,
+        "fn lower_prepared_raw_field_read_with_port_v1<Port>",
+        1,
+        "prepared FieldAccess lowering owner",
     )
     require_count(
         raw_dispatch,
-        "self.build_field_access_with_port_v1(",
+        "PreparedRawFieldReadV1::prepare(",
         1,
-        "sole raw/default FieldAccess caller",
+        "sole raw/default FieldAccess route issuer",
+    )
+    require_count(
+        raw_dispatch,
+        "self.lower_prepared_raw_field_read_with_port_v1(port, prepared)",
+        1,
+        "sole prepared FieldAccess caller",
     )
     require_count(
         property_reads,

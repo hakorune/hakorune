@@ -12,33 +12,144 @@ mod store_post_success;
 
 use store_post_success::PreparedOrdinaryFieldStoreAccessSiteV1;
 
-impl super::MirBuilder {
-    /// Lower a field read without dropping the caller's raw child port.
-    pub(in crate::mir::builder) fn build_field_access_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
+pub(in crate::mir::builder) struct PreparedRawFieldReadV1 {
+    route: PreparedRawFieldReadRouteV1,
+}
+
+enum PreparedRawFieldReadRouteV1 {
+    ExistingRecord {
+        value: ValueId,
+        field: String,
+    },
+    RecordConstructor {
+        class: String,
+        arguments: Vec<ASTNode>,
+        field: String,
+    },
+    RecordLiteral {
+        record_type_name: String,
+        fields: Vec<(String, ASTNode)>,
+        field: String,
+    },
+    RecordUpdate {
+        base: ASTNode,
+        updates: Vec<(String, ASTNode)>,
+        field: String,
+    },
+    Dynamic {
         object: ASTNode,
         field: String,
+    },
+}
+
+impl PreparedRawFieldReadV1 {
+    pub(in crate::mir::builder) fn prepare(
+        builder: &super::MirBuilder,
+        object: ASTNode,
+        field: String,
+    ) -> Self {
+        if let ASTNode::Variable { name, .. } = &object {
+            let record_value = builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .get(name)
+                .copied()
+                .filter(|value| {
+                    builder
+                        .function_state
+                        .compilation
+                        .record_local_value(*value)
+                        .is_some()
+                });
+            if let Some(value) = record_value {
+                return Self {
+                    route: PreparedRawFieldReadRouteV1::ExistingRecord { value, field },
+                };
+            }
+        }
+        let route = match object {
+            ASTNode::New {
+                class, arguments, ..
+            } if builder.is_record_constructor_class(&class) => {
+                PreparedRawFieldReadRouteV1::RecordConstructor {
+                    class,
+                    arguments,
+                    field,
+                }
+            }
+            ASTNode::RecordLiteral {
+                record_type_name,
+                fields,
+                ..
+            } => PreparedRawFieldReadRouteV1::RecordLiteral {
+                record_type_name,
+                fields,
+                field,
+            },
+            ASTNode::RecordUpdate { base, updates, .. } => {
+                PreparedRawFieldReadRouteV1::RecordUpdate {
+                    base: *base,
+                    updates,
+                    field,
+                }
+            }
+            object => PreparedRawFieldReadRouteV1::Dynamic { object, field },
+        };
+        Self { route }
+    }
+}
+
+impl super::MirBuilder {
+    pub(in crate::mir::builder) fn lower_prepared_raw_field_read_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        prepared: PreparedRawFieldReadV1,
     ) -> Result<ValueId, String>
     where
         Port: RawAstChildLoweringPortV1,
     {
-        if let Some(record_field_value) =
-            self.try_lower_record_field_read_from_ast_with_port_v1(port, &object, &field)?
-        {
-            return Ok(record_field_value);
+        match prepared.route {
+            PreparedRawFieldReadRouteV1::ExistingRecord { value, field } => {
+                self.lower_prepared_record_field_read_from_value(value, &field)
+            }
+            PreparedRawFieldReadRouteV1::RecordConstructor {
+                class,
+                arguments,
+                field,
+            } => {
+                let value =
+                    self.build_record_constructor_value_with_port_v1(port, class, arguments)?;
+                self.lower_prepared_record_field_read_from_value(value, &field)
+            }
+            PreparedRawFieldReadRouteV1::RecordLiteral {
+                record_type_name,
+                fields,
+                field,
+            } => {
+                let value =
+                    self.build_record_literal_value_with_port_v1(port, record_type_name, fields)?;
+                self.lower_prepared_record_field_read_from_value(value, &field)
+            }
+            PreparedRawFieldReadRouteV1::RecordUpdate {
+                base,
+                updates,
+                field,
+            } => {
+                let value = self.build_record_update_value_with_port_v1(port, base, updates)?;
+                self.lower_prepared_record_field_read_from_value(value, &field)
+            }
+            PreparedRawFieldReadRouteV1::Dynamic { object, field } => {
+                let object_value = drive_legacy_expression_v1(self, port, object)?;
+                let object_value = self.local_field_base(object_value);
+                if let Some(property_value) =
+                    self.try_lower_property_read_with_port_v1(port, object_value, &field)?
+                {
+                    return Ok(property_value);
+                }
+                self.build_field_access_from_value(object_value, field)
+            }
         }
-
-        let object_value = drive_legacy_expression_v1(self, port, object)?;
-        let object_value = self.local_field_base(object_value);
-
-        if let Some(property_value) =
-            self.try_lower_property_read_with_port_v1(port, object_value, &field)?
-        {
-            return Ok(property_value);
-        }
-
-        self.build_field_access_from_value(object_value, field)
     }
 
     /// Build field assignment: object.field = value
@@ -392,8 +503,8 @@ impl super::MirBuilder {
 
 #[cfg(test)]
 mod tests {
-    use super::super::MirBuilder;
-    use crate::ast::{ASTNode, LiteralValue, Span};
+    use super::{super::MirBuilder, PreparedRawFieldReadRouteV1, PreparedRawFieldReadV1};
+    use crate::ast::{ASTNode, FieldDecl, LiteralValue, Span};
 
     fn span() -> Span {
         Span::unknown()
@@ -436,6 +547,80 @@ mod tests {
             declared_type_names: Vec::new(),
             span: span(),
         }
+    }
+
+    fn prepared_route(builder: &MirBuilder, object: ASTNode) -> &'static str {
+        match PreparedRawFieldReadV1::prepare(builder, object, "value".to_string()).route {
+            PreparedRawFieldReadRouteV1::ExistingRecord { .. } => "existing-record",
+            PreparedRawFieldReadRouteV1::RecordConstructor { .. } => "record-constructor",
+            PreparedRawFieldReadRouteV1::RecordLiteral { .. } => "record-literal",
+            PreparedRawFieldReadRouteV1::RecordUpdate { .. } => "record-update",
+            PreparedRawFieldReadRouteV1::Dynamic { .. } => "dynamic",
+        }
+    }
+
+    #[test]
+    fn field_read_source_route_is_total_and_disjoint() {
+        let mut builder = MirBuilder::new();
+        builder.comp_ctx.register_record_decl(
+            "Pair".to_string(),
+            Vec::new(),
+            &[FieldDecl {
+                name: "value".to_string(),
+                declared_type_name: None,
+                is_weak: false,
+                default_value: None,
+            }],
+        );
+        builder.enter_function_for_test("field_read_route/0".to_string());
+        let existing = builder.alloc_value_for_test();
+        builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .insert("pair".to_string(), existing);
+        builder
+            .function_state
+            .compilation
+            .register_record_local_value(existing, "Pair".to_string(), Vec::new());
+
+        assert_eq!(prepared_route(&builder, var("pair")), "existing-record");
+        assert_eq!(
+            prepared_route(
+                &builder,
+                ASTNode::New {
+                    class: "Pair".to_string(),
+                    arguments: vec![int_lit(1)],
+                    field_initializers: Vec::new(),
+                    type_arguments: Vec::new(),
+                    span: span(),
+                },
+            ),
+            "record-constructor"
+        );
+        assert_eq!(
+            prepared_route(
+                &builder,
+                ASTNode::RecordLiteral {
+                    record_type_name: "Pair".to_string(),
+                    fields: vec![("value".to_string(), int_lit(1))],
+                    span: span(),
+                },
+            ),
+            "record-literal"
+        );
+        assert_eq!(
+            prepared_route(
+                &builder,
+                ASTNode::RecordUpdate {
+                    base: Box::new(var("pair")),
+                    updates: vec![("value".to_string(), int_lit(2))],
+                    span: span(),
+                },
+            ),
+            "record-update"
+        );
+        assert_eq!(prepared_route(&builder, var("ordinary")), "dynamic");
     }
 
     #[test]
