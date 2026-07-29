@@ -580,11 +580,11 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: RAW-DIRECT-MATH-ARGUMENT-RECIPE0-I0-R0, CALL-OBJECT0/T1.
-Owner: effect-free PreparedRawMathArgumentV1 Direct/IntegerBoxToFloat list.
-Deleted: lower-side raw AST wrapper classification during child effects.
-Preserved: route/trace, child/cast order, malformed Direct, MathBox/result.
-Evidence: Recipe boundary/failure tests, route/port tests, cargo check, guards.
+Closed: FUNCTION-STATE-TRANSIENT-CONTROL-LIFECYCLE0-I0-R0.
+Owner: role-exact child-entry/root-close terminals and private 9-field writer.
+Deleted: two foreign reset clusters, 18 direct writes total.
+Preserved: capture-before-reset, exact restore, draft/block/root close order.
+Evidence: 9-value neutral/restore, root parity, cargo check, census/lane guards.
 Current stop: fresh production live-edge census; no next row is preselected.
 ```
 Lambda capture authority and all feature additions remain parked.

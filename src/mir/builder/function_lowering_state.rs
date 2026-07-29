@@ -50,6 +50,30 @@ pub(super) struct FunctionLoweringStateV1 {
 }
 
 impl FunctionLoweringStateV1 {
+    pub(super) fn enter_fresh_child_transient_control_v1(&mut self) {
+        debug_assert!(self.current_function.is_none());
+        debug_assert!(self.current_block.is_none());
+        self.write_neutral_transient_control_vector_v1();
+    }
+
+    pub(super) fn close_raw_root_transient_control_v1(&mut self) {
+        debug_assert!(self.current_function.is_none());
+        debug_assert!(self.current_block.is_none());
+        self.write_neutral_transient_control_vector_v1();
+    }
+
+    fn write_neutral_transient_control_vector_v1(&mut self) {
+        self.return_defer_active = false;
+        self.return_defer_slot = None;
+        self.return_defer_target = None;
+        self.return_deferred_emitted = false;
+        self.in_cleanup_block = false;
+        self.cleanup_allow_return = false;
+        self.cleanup_allow_throw = false;
+        self.suppress_pin_entry_copy_next = false;
+        self.in_unified_boxcall_fallback = false;
+    }
+
     pub(super) fn is_closed_for_external_commit(&self) -> bool {
         self.current_function.is_none()
             && self.current_block.is_none()

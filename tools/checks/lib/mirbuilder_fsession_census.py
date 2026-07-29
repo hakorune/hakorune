@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = ROOT / "tools/checks/fixtures/mirbuilder_fsession_census_v1.json"
 FUNCTION_STATE = ROOT / "src/mir/builder/function_lowering_state.rs"
 FUNCTION_TRANSACTION = ROOT / "src/mir/builder/function_state_transaction.rs"
+RAW_ROOT_BODY_EXIT = ROOT / "src/mir/builder/raw_root_body_exit.rs"
 CLASSES = {
     "ModuleImmutable",
     "ModulePublication",
@@ -570,6 +571,8 @@ def validate_s0c_lifecycle_transaction(
         fail("missing S0c function-owned transaction")
     transaction = FUNCTION_TRANSACTION.read_text()
     transaction_runtime = transaction.split("#[cfg(test)]", 1)[0]
+    state_runtime = FUNCTION_STATE.read_text().split("#[cfg(test)]", 1)[0]
+    root_exit_runtime = RAW_ROOT_BODY_EXIT.read_text().split("#[cfg(test)]", 1)[0]
     lifecycle_path = ROOT / required_string(sources, "lifecycle", "sources")
     lifecycle = lifecycle_path.read_text()
 
@@ -663,6 +666,34 @@ def validate_s0c_lifecycle_transaction(
 
     if transaction_runtime.count("fn begin(") != 1 or transaction_runtime.count("fn restore(") != 1:
         fail("FunctionOwned transaction must have one begin and one consume-and-restore owner")
+    neutral_fields = {
+        "return_defer_active": "false",
+        "return_defer_slot": "None",
+        "return_defer_target": "None",
+        "return_deferred_emitted": "false",
+        "in_cleanup_block": "false",
+        "cleanup_allow_return": "false",
+        "cleanup_allow_throw": "false",
+        "suppress_pin_entry_copy_next": "false",
+        "in_unified_boxcall_fallback": "false",
+    }
+    for field, value in neutral_fields.items():
+        if state_runtime.count(f"self.{field} = {value};") != 1:
+            fail(f"transient-control neutral writer drift: {field}")
+        if f"state.{field} = {value};" in transaction_runtime:
+            fail(f"fresh-child foreign reset returned: {field}")
+        if f"builder.function_state.{field} = {value};" in root_exit_runtime:
+            fail(f"raw-root foreign reset returned: {field}")
+    for terminal, owner in (
+        ("enter_fresh_child_transient_control_v1", transaction_runtime),
+        ("close_raw_root_transient_control_v1", root_exit_runtime),
+    ):
+        if owner.count(f".{terminal}()") != 1:
+            fail(f"role-exact transient-control terminal call drift: {terminal}")
+    if state_runtime.count("self.write_neutral_transient_control_vector_v1();") != 2:
+        fail("role-exact terminals must share one private neutral writer")
+    if "reset_transient_control" in state_runtime:
+        fail("generic transient-control reset API is forbidden")
     if lifecycle.count("FunctionOwnedStateTransactionV1::begin") != 1:
         fail("canonical lifecycle must begin the FunctionOwned transaction exactly once")
     if len(re.findall(r"function_state_transaction\s*\.\s*restore\(", lifecycle)) != 1:

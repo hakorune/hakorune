@@ -117,15 +117,7 @@ impl FunctionOwnedStateTransactionV1 {
             in_unified_boxcall_fallback: state.in_unified_boxcall_fallback,
         };
 
-        state.return_defer_active = false;
-        state.return_defer_slot = None;
-        state.return_defer_target = None;
-        state.return_deferred_emitted = false;
-        state.in_cleanup_block = false;
-        state.cleanup_allow_return = false;
-        state.cleanup_allow_throw = false;
-        state.suppress_pin_entry_copy_next = false;
-        state.in_unified_boxcall_fallback = false;
+        state.enter_fresh_child_transient_control_v1();
 
         if mode == FunctionStateCaptureModeV1::BoxCompilationPartialClear {
             state.variable_ctx = VariableContext::new();
@@ -249,6 +241,14 @@ mod tests {
             ValueId::new(24),
         );
         state.return_defer_active = true;
+        state.return_defer_slot = Some(ValueId::new(25));
+        state.return_defer_target = Some(BasicBlockId::new(26));
+        state.return_deferred_emitted = true;
+        state.in_cleanup_block = true;
+        state.cleanup_allow_return = true;
+        state.cleanup_allow_throw = true;
+        state.suppress_pin_entry_copy_next = true;
+        state.in_unified_boxcall_fallback = true;
 
         let transaction = FunctionOwnedStateTransactionV1::begin(
             &mut state,
@@ -269,6 +269,14 @@ mod tests {
         assert!(state.pending_phis.is_empty());
         assert!(state.local_ssa_map.is_empty());
         assert!(!state.return_defer_active);
+        assert!(state.return_defer_slot.is_none());
+        assert!(state.return_defer_target.is_none());
+        assert!(!state.return_deferred_emitted);
+        assert!(!state.in_cleanup_block);
+        assert!(!state.cleanup_allow_return);
+        assert!(!state.cleanup_allow_throw);
+        assert!(!state.suppress_pin_entry_copy_next);
+        assert!(!state.in_unified_boxcall_fallback);
 
         state
             .variable_ctx
@@ -319,6 +327,14 @@ mod tests {
         assert_eq!(state.pending_phis.len(), 1);
         assert_eq!(state.local_ssa_map.len(), 1);
         assert!(state.return_defer_active);
+        assert_eq!(state.return_defer_slot, Some(ValueId::new(25)));
+        assert_eq!(state.return_defer_target, Some(BasicBlockId::new(26)));
+        assert!(state.return_deferred_emitted);
+        assert!(state.in_cleanup_block);
+        assert!(state.cleanup_allow_return);
+        assert!(state.cleanup_allow_throw);
+        assert!(state.suppress_pin_entry_copy_next);
+        assert!(state.in_unified_boxcall_fallback);
     }
 
     #[test]

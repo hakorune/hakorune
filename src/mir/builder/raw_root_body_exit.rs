@@ -407,15 +407,7 @@ fn close_raw_root_function_state_v1(builder: &mut MirBuilder) {
     builder.function_state.schedule_mat_map.clear();
     builder.function_state.pin_slot_names.clear();
     builder.function_state.frag_emit_session.reset();
-    builder.function_state.return_defer_active = false;
-    builder.function_state.return_defer_slot = None;
-    builder.function_state.return_defer_target = None;
-    builder.function_state.return_deferred_emitted = false;
-    builder.function_state.in_cleanup_block = false;
-    builder.function_state.cleanup_allow_return = false;
-    builder.function_state.cleanup_allow_throw = false;
-    builder.function_state.suppress_pin_entry_copy_next = false;
-    builder.function_state.in_unified_boxcall_fallback = false;
+    builder.function_state.close_raw_root_transient_control_v1();
 }
 
 impl RawRootBodyExitWitnessV1 {
