@@ -31,6 +31,8 @@
 
 use super::super::{MirBuilder, ValueId};
 use crate::ast::{ASTNode, BinaryOperator};
+#[cfg(test)]
+use crate::mir::builder::recursive_child_lowering::drive_raw_legacy_expression_v1;
 use crate::mir::loop_api::LoopBuilderApi; // for current_block()
 use crate::mir::MirType;
 use std::collections::BTreeMap;
@@ -48,9 +50,9 @@ pub(in crate::mir::builder) fn build_logical_shortcircuit_pre_sc0_i0_reference_v
     operator: BinaryOperator,
     right: ASTNode,
 ) -> Result<ValueId, String> {
-    let lhs_val0 = builder.build_expression(left)?;
+    let lhs_val0 = drive_raw_legacy_expression_v1(builder, left)?;
     build_logical_shortcircuit_after_lhs_v1(builder, operator, lhs_val0, move |builder| {
-        builder.build_expression(right)
+        drive_raw_legacy_expression_v1(builder, right)
     })
 }
 
