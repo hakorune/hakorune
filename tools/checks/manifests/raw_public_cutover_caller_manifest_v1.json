@@ -8,7 +8,6 @@
   },
   "normal_source_hint": {
     "no_import_callers": {
-      "src/runner/modes/bench.rs": 3,
       "src/runner/keep/vm_fallback.rs": 1,
       "src/runner/stage1_bridge/direct_route/compile.rs": 1
     },
@@ -100,7 +99,6 @@
     "retire_when": "root compatibility owner, registered residual surface, and root-specific raw legacy driver edge are zero"
   },
   "normal_compile_adapters": {
-    "src/runner/modes/bench.rs": 1,
     "src/runner/selfhost.rs": 1
   },
   "direct_build_module_production": {

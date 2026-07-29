@@ -593,29 +593,26 @@ new source/test/check file           = 0
 largest touched source/check file    = 798
 ```
 
-## Current execution
+## Current design stop
 
-`BENCH-DETACHED-ASSET-RETIRE0-RET0` / T1 / replacement credit 0
+`INTERPRETER-LEGACY-FEATURE-CLOSURE0-D0` / T1 read-only
 
 ```text
-Change:
-  delete uncompiled runner/modes/bench.rs and its two false manifest rows
+Audit:
+  feature/module/CLI/API/test closure plus the two current feature-build errors
 
-Contract:
-  wiring/callers remain zero; live CLI benchmark rejection and every
-  product/keep/reference route do not move
+Decision:
+  choose retire, repair, or a bounded split from current reachability evidence
 
-Done:
-  path/symbol/manifest rows are zero; existing shared guards green
+Non-claim:
+  default production, live MIR backend, MirBuilder semantics, and old benchmark
 
 Stop:
-  any real module/caller edge appears, or deletion requires a replacement route
+  production editing, fallback, or archived interpreter restoration during D0
 ```
 
-MIR-interpreter detached retirement closeout:
-
 ```text
-source -142; false caller 0; HMI caller inventory 10 exact; behavior delta 0
+detached closeout: MIR interpreter -142; bench -260; behavior delta 0
 ```
 
 Compatibility sunset:
@@ -714,7 +711,8 @@ R10 POST-MACRO-PROGRAM-ADMISSION0-D0 closed
 R11 STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0 closed
 R12 MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0 closed: NoProductionCaller
 R13 MIR-INTERPRETER-DETACHED-ASSET-RETIRE0-RET0 closed
-R14 BENCH-DETACHED-ASSET-RETIRE0-RET0 current
+R14 BENCH-DETACHED-ASSET-RETIRE0-RET0 closed
+R15 INTERPRETER-LEGACY-FEATURE-CLOSURE0-D0 current
 
 after every bounded retirement:
   run a fresh live-edge census
