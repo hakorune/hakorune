@@ -16,6 +16,47 @@ pub(in crate::mir::builder) struct PreparedRawFieldReadV1 {
     route: PreparedRawFieldReadRouteV1,
 }
 
+/// Ordinary Field-assignment source and record-target admission prepared once.
+pub(in crate::mir::builder) struct PreparedRawFieldAssignmentV1 {
+    object: ASTNode,
+    field: String,
+    value: ASTNode,
+}
+
+impl PreparedRawFieldAssignmentV1 {
+    pub(in crate::mir::builder) fn prepare(
+        builder: &super::MirBuilder,
+        object: ASTNode,
+        field: String,
+        value: ASTNode,
+    ) -> Result<Self, String> {
+        builder.fail_if_record_field_assignment_target(&object, &field)?;
+        Ok(Self {
+            object,
+            field,
+            value,
+        })
+    }
+}
+
+pub(in crate::mir::builder) fn lower_prepared_raw_field_assignment_with_port_v1<Port>(
+    builder: &mut super::MirBuilder,
+    port: &mut Port,
+    prepared: PreparedRawFieldAssignmentV1,
+) -> Result<ValueId, String>
+where
+    Port: RawAstChildLoweringPortV1,
+{
+    let PreparedRawFieldAssignmentV1 {
+        object,
+        field,
+        value,
+    } = prepared;
+    let object_value = drive_legacy_expression_v1(builder, port, object)?;
+    let object_value = builder.local_field_base(object_value);
+    builder.build_field_assignment_from_value_with_port_v1(port, object_value, field, value)
+}
+
 enum PreparedRawFieldReadRouteV1 {
     ExistingRecord {
         value: ValueId,
@@ -150,34 +191,6 @@ impl super::MirBuilder {
                 self.build_field_access_from_value(object_value, field)
             }
         }
-    }
-
-    /// Build field assignment: object.field = value
-    pub(super) fn build_field_assignment(
-        &mut self,
-        object: ASTNode,
-        field: String,
-        value: ASTNode,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_field_assignment_with_port_v1(&mut port, object, field, value)
-    }
-
-    /// Lower a field assignment without dropping the caller's raw child port.
-    pub(in crate::mir::builder) fn build_field_assignment_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        object: ASTNode,
-        field: String,
-        value: ASTNode,
-    ) -> Result<ValueId, String>
-    where
-        Port: RawAstChildLoweringPortV1,
-    {
-        self.fail_if_record_field_assignment_target(&object, &field)?;
-        let object_value = drive_legacy_expression_v1(self, port, object)?;
-        let object_value = self.local_field_base(object_value);
-        self.build_field_assignment_from_value_with_port_v1(port, object_value, field, value)
     }
 
     pub(super) fn build_box_field_initializers(
@@ -503,7 +516,10 @@ impl super::MirBuilder {
 
 #[cfg(test)]
 mod tests {
-    use super::{super::MirBuilder, PreparedRawFieldReadRouteV1, PreparedRawFieldReadV1};
+    use super::{
+        super::MirBuilder, PreparedRawFieldAssignmentV1, PreparedRawFieldReadRouteV1,
+        PreparedRawFieldReadV1,
+    };
     use crate::ast::{ASTNode, FieldDecl, LiteralValue, Span};
 
     fn span() -> Span {
@@ -559,8 +575,7 @@ mod tests {
         }
     }
 
-    #[test]
-    fn field_read_source_route_is_total_and_disjoint() {
+    fn builder_with_pair_record(function: &str) -> MirBuilder {
         let mut builder = MirBuilder::new();
         builder.comp_ctx.register_record_decl(
             "Pair".to_string(),
@@ -572,7 +587,7 @@ mod tests {
                 default_value: None,
             }],
         );
-        builder.enter_function_for_test("field_read_route/0".to_string());
+        builder.enter_function_for_test(function.to_string());
         let existing = builder.alloc_value_for_test();
         builder
             .function_state
@@ -583,6 +598,12 @@ mod tests {
             .function_state
             .compilation
             .register_record_local_value(existing, "Pair".to_string(), Vec::new());
+        builder
+    }
+
+    #[test]
+    fn field_read_source_route_is_total_and_disjoint() {
+        let builder = builder_with_pair_record("field_read_route/0");
 
         assert_eq!(prepared_route(&builder, var("pair")), "existing-record");
         assert_eq!(
@@ -621,6 +642,63 @@ mod tests {
             "record-update"
         );
         assert_eq!(prepared_route(&builder, var("ordinary")), "dynamic");
+    }
+
+    #[test]
+    fn field_assignment_prepares_record_rejection_before_child_descent() {
+        let builder = builder_with_pair_record("field_assignment_prepare/0");
+
+        let rejected = vec![
+            (
+                var("pair"),
+                "[record-field-set/unsupported] name=pair record=Pair field=value",
+            ),
+            (
+                ASTNode::New {
+                    class: "Pair".to_string(),
+                    arguments: Vec::new(),
+                    field_initializers: Vec::new(),
+                    type_arguments: Vec::new(),
+                    span: span(),
+                },
+                "[record-field-set/unsupported] record=Pair field=value",
+            ),
+            (
+                ASTNode::RecordLiteral {
+                    record_type_name: "Pair".to_string(),
+                    fields: Vec::new(),
+                    span: span(),
+                },
+                "[record-field-set/unsupported] record=Pair field=value",
+            ),
+            (
+                ASTNode::RecordUpdate {
+                    base: Box::new(var("ordinary")),
+                    updates: Vec::new(),
+                    span: span(),
+                },
+                "[record-field-set/unsupported] record-update field=value",
+            ),
+        ];
+        for (object, expected) in rejected {
+            let error = match PreparedRawFieldAssignmentV1::prepare(
+                &builder,
+                object,
+                "value".to_string(),
+                int_lit(1),
+            ) {
+                Ok(_) => panic!("record Field assignment must reject during preparation"),
+                Err(error) => error,
+            };
+            assert_eq!(error, expected);
+        }
+        PreparedRawFieldAssignmentV1::prepare(
+            &builder,
+            var("ordinary"),
+            "value".to_string(),
+            int_lit(1),
+        )
+        .expect("ordinary Field assignment must prepare");
     }
 
     #[test]

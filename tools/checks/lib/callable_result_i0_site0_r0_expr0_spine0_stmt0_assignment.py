@@ -35,6 +35,7 @@ def check_asn0_s0(root: Path) -> str:
         "src/mir/builder/raw_expression_dispatch/statement_surface.rs"
     )
     indexing_path = "src/mir/builder/indexing.rs"
+    fields_path = "src/mir/builder/fields.rs"
     grouped_path = "src/mir/builder/raw_expression_dispatch/mod.rs"
     located_path = "src/mir/builder/located_legacy_lowering.rs"
     located_adapter_path = "src/mir/builder/located_legacy_assignment.rs"
@@ -53,6 +54,7 @@ def check_asn0_s0(root: Path) -> str:
     stmts_root = _read(root, stmts_root_path)
     selector = _read(root, selector_path)
     indexing = _read(root, indexing_path)
+    fields = _read(root, fields_path)
     grouped = _read(root, grouped_path)
     located = _read(root, located_path)
     located_adapter = _read(root, located_adapter_path)
@@ -186,7 +188,7 @@ def check_asn0_s0(root: Path) -> str:
             "private ordinary Assignment route",
         ),
         (
-            "fn prepare(statement: AssignStmt) -> Self",
+            "fn prepare(builder: &MirBuilder, statement: AssignStmt) -> Result<Self, String>",
             1,
             "source-only ordinary Assignment prepare",
         ),
@@ -196,7 +198,7 @@ def check_asn0_s0(root: Path) -> str:
             "consuming ordinary Assignment terminal",
         ),
         (
-            "PreparedRawOrdinaryAssignmentV1::prepare(statement)",
+            "PreparedRawOrdinaryAssignmentV1::prepare(builder, statement)?",
             1,
             "sole ordinary Assignment route issuer",
         ),
@@ -224,13 +226,17 @@ def check_asn0_s0(root: Path) -> str:
             2,
             f"one prepare and one consume arm for {route}",
         )
-    _require_count(
-        selector,
-        "build_field_assignment_with_port_v1(",
-        1,
-        "unchanged field Assignment selector",
-    )
     for needle, expected, label in (
+        (
+            "PreparedRawFieldAssignmentV1::prepare(",
+            1,
+            "Field prepare issuer",
+        ),
+        (
+            "lower_prepared_raw_field_assignment_with_port_v1(builder, port, prepared)",
+            1,
+            "Field prepared consumer",
+        ),
         ("PreparedRawIndexAssignmentV1::prepare(*target, *index, value)", 1, "Index prepare issuer"),
         (
             "lower_prepared_raw_index_assignment_with_port_v1(builder, port, prepared)",
@@ -241,6 +247,7 @@ def check_asn0_s0(root: Path) -> str:
         _require_count(selector, needle, expected, label)
     for retired in (
         "fn build_assignment_with_port_v1",
+        "build_field_assignment_with_port_v1(",
         "build_index_assignment_with_port_v1(",
         "statement.target.as_ref()",
         "*object.clone()",
@@ -250,6 +257,51 @@ def check_asn0_s0(root: Path) -> str:
     ):
         if retired in selector:
             _fail(f"retired ordinary Assignment selector edge returned: {retired}")
+    fields_production = fields.split("#[cfg(test)]", 1)[0]
+    for needle, expected, label in (
+        ("struct PreparedRawFieldAssignmentV1", 1, "prepared Field Assignment product"),
+        (
+            "fn lower_prepared_raw_field_assignment_with_port_v1<Port>",
+            1,
+            "prepared Field Assignment terminal",
+        ),
+        (
+            "fail_if_record_field_assignment_target(&object, &field)?",
+            1,
+            "Field record-target preparation",
+        ),
+        (
+            "drive_legacy_expression_v1(builder, port, object)?",
+            1,
+            "prepared Field object descent",
+        ),
+        (
+            "builder.build_field_assignment_from_value_with_port_v1(port, object_value, field, value)",
+            1,
+            "prepared Field RHS/completion handoff",
+        ),
+    ):
+        _require_count(fields_production, needle, expected, label)
+    object_at = fields_production.index(
+        "drive_legacy_expression_v1(builder, port, object)?"
+    )
+    completion_at = fields_production.index(
+        "builder.build_field_assignment_from_value_with_port_v1(port, object_value, field, value)"
+    )
+    if not object_at < completion_at:
+        _fail("Field Assignment order must be object -> RHS/completion")
+    for retired in (
+        "fn build_field_assignment(",
+        "fn build_field_assignment_with_port_v1",
+    ):
+        if retired in fields_production:
+            _fail(f"retired Field Assignment authority returned: {retired}")
+    _require_count(
+        compound_tests.split("#[cfg(test)]", 1)[0],
+        "fail_if_record_field_assignment_target(&object, &field)?",
+        1,
+        "CompoundAssignment retains canonical record-target check",
+    )
     indexing_production = indexing.split("#[cfg(test)]", 1)[0]
     for needle, expected, label in (
         ("struct PreparedRawIndexAssignmentV1", 1, "prepared Index Assignment product"),
@@ -576,6 +628,7 @@ def check_asn0_s0(root: Path) -> str:
         stmts_root_path,
         selector_path,
         indexing_path,
+        fields_path,
         grouped_path,
         located_path,
         located_adapter_path,

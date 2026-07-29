@@ -580,11 +580,11 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: RAW-INDEX-ASSIGNMENT-TARGET-SNAPSHOT-ONCE0-I0-R0.
-Owner: PreparedRawIndexAssignmentV1 plus its consuming port terminal.
-Deleted: raw Index field bundle, lower-side target-label AST rematch, and old raw terminals.
-Preserved: current-span timing, target -> index -> RHS order, metadata, and completion policy.
-Evidence: focused Index order/metadata, raw port parity, assignment/lane guards, cargo check.
+Closed: RAW-FIELD-ASSIGNMENT-TARGET-SNAPSHOT-ONCE0-I0-R0.
+Owner: PreparedRawFieldAssignmentV1 plus its consuming port terminal.
+Deleted: raw Field tuple, ordinary lower-side record-target observation, old raw terminals.
+Preserved: current-span timing, exact record diagnostics, object -> RHS order, metadata.
+Evidence: record-target matrix, field metadata/order tests, exact Assignment/lane guards, check.
 Current stop: fresh production live-edge census; no next row is preselected.
 ```
 Lambda capture authority and all feature additions remain parked.

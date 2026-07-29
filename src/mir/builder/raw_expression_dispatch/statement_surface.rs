@@ -9,6 +9,9 @@ use crate::mir::builder::compound_assignment::{
     lower_prepared_raw_compound_assignment_with_port_v1, PreparedRawCompoundAssignmentV1,
 };
 use crate::mir::builder::exprs_enum_match::PreparedRawScopeBoxV1;
+use crate::mir::builder::fields::{
+    lower_prepared_raw_field_assignment_with_port_v1, PreparedRawFieldAssignmentV1,
+};
 use crate::mir::builder::indexing::{
     lower_prepared_raw_index_assignment_with_port_v1, PreparedRawIndexAssignmentV1,
 };
@@ -35,9 +38,7 @@ enum PreparedRawOrdinaryAssignmentRouteV1 {
         input: RawLegacyVariableAssignmentInputV1,
     },
     Field {
-        object: ASTNode,
-        field: String,
-        value: ASTNode,
+        prepared: PreparedRawFieldAssignmentV1,
     },
     Index {
         prepared: PreparedRawIndexAssignmentV1,
@@ -46,7 +47,7 @@ enum PreparedRawOrdinaryAssignmentRouteV1 {
 }
 
 impl PreparedRawOrdinaryAssignmentV1 {
-    fn prepare(statement: AssignStmt) -> Self {
+    fn prepare(builder: &MirBuilder, statement: AssignStmt) -> Result<Self, String> {
         let AssignStmt { target, value, .. } = statement;
         let value = *value;
         let route = match *target {
@@ -55,9 +56,9 @@ impl PreparedRawOrdinaryAssignmentV1 {
             },
             ASTNode::FieldAccess { object, field, .. } => {
                 PreparedRawOrdinaryAssignmentRouteV1::Field {
-                    object: *object,
-                    field,
-                    value,
+                    prepared: PreparedRawFieldAssignmentV1::prepare(
+                        builder, *object, field, value,
+                    )?,
                 }
             }
             ASTNode::Index { target, index, .. } => PreparedRawOrdinaryAssignmentRouteV1::Index {
@@ -65,7 +66,7 @@ impl PreparedRawOrdinaryAssignmentV1 {
             },
             _ => PreparedRawOrdinaryAssignmentRouteV1::Unsupported,
         };
-        Self { route }
+        Ok(Self { route })
     }
 }
 
@@ -81,11 +82,9 @@ where
         PreparedRawOrdinaryAssignmentRouteV1::Variable { input } => {
             drive_variable_assignment_v1(builder, port, &input)
         }
-        PreparedRawOrdinaryAssignmentRouteV1::Field {
-            object,
-            field,
-            value,
-        } => builder.build_field_assignment_with_port_v1(port, object, field, value),
+        PreparedRawOrdinaryAssignmentRouteV1::Field { prepared } => {
+            lower_prepared_raw_field_assignment_with_port_v1(builder, port, prepared)
+        }
         PreparedRawOrdinaryAssignmentRouteV1::Index { prepared } => {
             lower_prepared_raw_index_assignment_with_port_v1(builder, port, prepared)
         }
@@ -201,7 +200,7 @@ where
         )),
         node @ ASTNode::Assignment { .. } => {
             let statement = AssignStmt::try_from(node).expect("ASTNode::Assignment must convert");
-            let prepared = PreparedRawOrdinaryAssignmentV1::prepare(statement);
+            let prepared = PreparedRawOrdinaryAssignmentV1::prepare(builder, statement)?;
             Ok(StatementSurfaceDispatch::Lowered(
                 lower_prepared_raw_ordinary_assignment_with_port_v1(builder, port, prepared)?,
             ))
