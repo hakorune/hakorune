@@ -593,23 +593,19 @@ new source/test/check file           = 0
 largest touched source/check file    = 798
 ```
 
-## Current execution: `RAW-NONPROGRAM-PLAIN-SCOPEBOX-COMPOSITIONAL-DESCENT0-I0-R0`
+## Current design stop: `RAW-NONPROGRAM-SAFE-THROW-ROOT-DESCENT0-D0`
 
 ```text
-Selected:
-  ScopeBox(body = existing non-terminal block-prelude vocabulary only)
-Proof:
-  safe closure excludes If; unchanged guard-let probe therefore returns None
-Atomic delete:
-  safe plain ScopeBox -> SeparateDesignStop -> raw compatibility = 0
-Execution:
-  one route choice, unchanged probe/body driver, no child-port mixing
+Candidate:
+  root-only Throw(expression = PortNeutralExprTreeV1)
+Existing owner:
+  cleanup preflight -> one same-port child -> Throw or current debug trace
+Proposed delete:
+  safe Throw -> SeparateDesignStop -> raw compatibility = 0
+Following mandatory census:
+  arbitrary-AST / AST-JSON / Stage1 NonProgram ingress policy as one batch
 Forbid:
-  If/Return/Throw/Loop/calls, scope-policy change, mixed ports, retry
-```
-
-```text
-detached closeout: MIR interpreter -142; bench -260; behavior delta 0
+  grammar activation, prelude admission, policy change, retry, per-kind outside migration
 ```
 
 Compatibility sunset:
@@ -617,7 +613,7 @@ Compatibility sunset:
 ```text
 sunset_id: RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 state: active
-residual_kind_count: 37
+residual_kind_count: 36
 retire when: owner definition, registered residual surface, and root-specific
   drive_raw_legacy_expression_v1 production edge are all zero
 
@@ -719,7 +715,8 @@ R21 RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 clo
 R22 RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-D0 closed: Accept
 R23 RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-I0-R0 closed
 R24 RAW-NONPROGRAM-PLAIN-SCOPEBOX-COMPOSITIONAL-DESCENT0-D0 closed: Accept
-R25 RAW-NONPROGRAM-PLAIN-SCOPEBOX-COMPOSITIONAL-DESCENT0-I0-R0 current
+R25 RAW-NONPROGRAM-PLAIN-SCOPEBOX-COMPOSITIONAL-DESCENT0-I0-R0 closed
+R26 RAW-NONPROGRAM-SAFE-THROW-ROOT-DESCENT0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

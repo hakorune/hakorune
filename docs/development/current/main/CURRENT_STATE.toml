@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Plain ScopeBox composition is accepted. Its atomic I0/R0 is the sole executable row."
+status = "Plain ScopeBox composition is closed. Safe root Throw is the sole design stop."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RAW-NONPROGRAM-PLAIN-SCOPEBOX-COMPOSITIONAL-DESCENT0-I0-R0"
-current_execution_summary = "T1 atomic production cutover: select ScopeBox only when its complete body uses the existing non-terminal block-prelude vocabulary, compose plain ScopeBox into that same vocabulary, reuse the unchanged guard-let probe and same-port body driver, delete the safe ScopeBox SeparateDesignStop edge, and move residual 37 to 36. The safe closure is structurally disjoint from guard-let because If is excluded. Do not admit If/Return/Throw/Loop/calls, alter lexical-scope semantics, mix ports per child, add a probe/clone/reparse, or retry."
+current_design_stop = "RAW-NONPROGRAM-SAFE-THROW-ROOT-DESCENT0-D0"
+current_execution_row = ""
+current_execution_summary = "Read-only T1 selection: decide the root-only Throw(PortNeutralExprTreeV1) cutover over the existing cleanup-check, one same-port child demand, and existing Throw-or-debug-trace terminal. Do not activate source try/throw, admit Throw into BlockExpr/ScopeBox/TaskScope preludes, change cleanup/env/effect policy, add exception authority, or retry. After this cell, audit arbitrary-AST/AST-JSON/Stage1 NonProgram ingress policy as a caller-level batch; do not migrate the 19 OutsideNormalFileIngress kinds one by one."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"

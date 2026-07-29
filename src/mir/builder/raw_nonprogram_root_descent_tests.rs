@@ -159,6 +159,13 @@ fn task_scope(source_keyword: &str, body: Vec<ASTNode>) -> ASTNode {
     }
 }
 
+fn scope_box(body: Vec<ASTNode>) -> ASTNode {
+    ASTNode::ScopeBox {
+        body,
+        span: Span::unknown(),
+    }
+}
+
 fn assert_selected(node: ASTNode) {
     assert!(matches!(
         PreparedRawRootPartitionV1::classify(node),
@@ -227,6 +234,15 @@ fn assert_selected_return(node: ASTNode) {
         PreparedRawRootPartitionV1::classify(node),
         PreparedRawRootPartitionV1::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
             SelectedRawNonProgramRootV1::ReturnRoot(_)
+        ))
+    ));
+}
+
+fn assert_selected_scope_box(node: ASTNode) {
+    assert!(matches!(
+        PreparedRawRootPartitionV1::classify(node),
+        PreparedRawRootPartitionV1::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
+            SelectedRawNonProgramRootV1::PlainScopeBoxRoot(_)
         ))
     ));
 }
@@ -347,6 +363,11 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
     ));
     assert_selected_return(returning(None));
     assert_selected_return(returning(Some(awaited(integer(37)))));
+    assert_selected_scope_box(scope_box(Vec::new()));
+    assert_selected_scope_box(scope_box(vec![
+        printed(integer(38)),
+        scope_box(vec![assignment(variable("x"), integer(39))]),
+    ]));
     assert_selected_task_scope(task_scope("co", Vec::new()));
     assert_selected_task_scope(task_scope(
         "task_scope",
@@ -355,6 +376,7 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
             nowait("pending", integer(38)),
             assignment(variable("x"), checked(vec![integer(38)])),
             compound_assignment(variable("x"), BinaryOperator::Multiply, integer(2)),
+            scope_box(vec![printed(integer(39))]),
             task_scope("co", vec![checked(vec![integer(39)])]),
         ],
     ));
@@ -566,6 +588,15 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
     );
     assert_compatibility(
         block_expr(vec![returning(Some(integer(1)))], integer(2)),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        scope_box(vec![ASTNode::If {
+            condition: Box::new(integer(1)),
+            then_body: Vec::new(),
+            else_body: None,
+            span: Span::unknown(),
+        }]),
         RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
     );
     assert_compatibility(

@@ -6,7 +6,8 @@
 //! plus Print, Nowait, and annotation-free Local roots whose values are such
 //! trees, exact variable assignments and compound assignments whose right-hand
 //! sides are such trees, root-only Return with no value or such a tree, and
-//! TaskScope bodies recursively composed from the non-terminal safe statements.
+//! plain ScopeBox/TaskScope bodies recursively composed from the non-terminal
+//! safe statements.
 //! Every other non-Program root keeps the existing raw compatibility terminal
 //! until its own production responsibility cell removes that residual.
 
@@ -38,6 +39,7 @@ enum SelectedRawNonProgramRootV1 {
     VariableAssignmentRoot(PortNeutralVariableAssignmentRootV1),
     VariableCompoundAssignmentRoot(PortNeutralVariableCompoundAssignmentRootV1),
     ReturnRoot(PortNeutralReturnRootV1),
+    PlainScopeBoxRoot(PortNeutralPlainScopeBoxRootV1),
     TaskScopeRoot(PortNeutralTaskScopeRootV1),
 }
 
@@ -69,6 +71,10 @@ struct PortNeutralReturnRootV1 {
     node: ASTNode,
 }
 
+struct PortNeutralPlainScopeBoxRootV1 {
+    node: ASTNode,
+}
+
 struct PortNeutralTaskScopeRootV1 {
     node: ASTNode,
 }
@@ -83,6 +89,7 @@ impl SelectedRawNonProgramRootV1 {
             Self::VariableAssignmentRoot(root) => root.node,
             Self::VariableCompoundAssignmentRoot(root) => root.node,
             Self::ReturnRoot(root) => root.node,
+            Self::PlainScopeBoxRoot(root) => root.node,
             Self::TaskScopeRoot(root) => root.node,
         }
     }
@@ -211,6 +218,13 @@ impl PreparedRawRootPartitionV1 {
                 node,
                 RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
             ),
+            node @ ASTNode::ScopeBox { .. } if is_port_neutral_plain_scope_box_root(&node) => {
+                Self::selected_plain_scope_box_root(node)
+            }
+            node @ ASTNode::ScopeBox { .. } => Self::compatibility(
+                node,
+                RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+            ),
             node @ ASTNode::TaskScope { .. } if is_port_neutral_task_scope_root(&node) => {
                 Self::selected_task_scope_root(node)
             }
@@ -234,7 +248,6 @@ impl PreparedRawRootPartitionV1 {
             | ASTNode::FieldAccess { .. }
             | ASTNode::New { .. }
             | ASTNode::FromCall { .. }
-            | ASTNode::ScopeBox { .. }
             | ASTNode::FunctionCall { .. }
             | ASTNode::Call { .. }) => Self::compatibility(
                 node,
@@ -314,6 +327,12 @@ impl PreparedRawRootPartitionV1 {
     fn selected_return_root(node: ASTNode) -> Self {
         Self::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
             SelectedRawNonProgramRootV1::ReturnRoot(PortNeutralReturnRootV1 { node }),
+        ))
+    }
+
+    fn selected_plain_scope_box_root(node: ASTNode) -> Self {
+        Self::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
+            SelectedRawNonProgramRootV1::PlainScopeBoxRoot(PortNeutralPlainScopeBoxRootV1 { node }),
         ))
     }
 
@@ -454,7 +473,15 @@ fn is_port_neutral_block_prelude_stmt(node: &ASTNode) -> bool {
         || is_port_neutral_local_root(node)
         || is_port_neutral_variable_assignment_root(node)
         || is_port_neutral_variable_compound_assignment_root(node)
+        || is_port_neutral_plain_scope_box_root(node)
         || is_port_neutral_task_scope_root(node)
+}
+
+fn is_port_neutral_plain_scope_box_root(node: &ASTNode) -> bool {
+    let ASTNode::ScopeBox { body, .. } = node else {
+        return false;
+    };
+    body.iter().all(is_port_neutral_block_prelude_stmt)
 }
 
 fn is_port_neutral_task_scope_root(node: &ASTNode) -> bool {

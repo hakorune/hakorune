@@ -375,6 +375,46 @@ fn selected_safe_return_root_matches_raw_legacy_without_retry() {
 }
 
 #[test]
+fn selected_plain_scope_box_composes_without_retry() {
+    let roots = [
+        scope_box(Vec::new()),
+        scope_box(vec![integer(43), checked(vec![integer(44)])]),
+        block_expr(vec![scope_box(vec![printed(integer(45))])], integer(46)),
+        task_scope("co", vec![scope_box(vec![awaited(integer(47))])]),
+    ];
+    for root in roots {
+        let mut legacy = MirBuilder::new();
+        legacy.enter_function_for_test("plain_scope_box_parity/0".to_owned());
+        let legacy_value = drive_raw_legacy_expression_v1(&mut legacy, root.clone()).unwrap();
+
+        let mut selected = MirBuilder::new();
+        selected.enter_function_for_test("plain_scope_box_parity/0".to_owned());
+        let selected_value = drive_selected(&mut selected, root).unwrap();
+
+        assert_eq!(selected_value, legacy_value);
+        assert_eq!(
+            spanned_instructions(&selected),
+            spanned_instructions(&legacy)
+        );
+        assert_eq!(
+            selected.function_state.variable_ctx.variable_map,
+            legacy.function_state.variable_ctx.variable_map
+        );
+    }
+
+    let mut selected = MirBuilder::new();
+    selected.enter_function_for_test("plain_scope_box_failure/0".to_owned());
+    let error = drive_selected(
+        &mut selected,
+        scope_box(vec![variable("missing"), printed(integer(48))]),
+    )
+    .unwrap_err();
+    assert!(error.contains("Undefined variable: missing"));
+    assert!(spanned_instructions(&selected).is_empty());
+    drive_selected(&mut selected, scope_box(vec![integer(49)])).unwrap();
+}
+
+#[test]
 fn selected_index_matches_raw_legacy_effects_exactly() {
     let roots = [
         indexed(array(vec![integer(26), integer(27)]), integer(1)),
