@@ -174,6 +174,30 @@ def main() -> None:
     weak_ref = read(root, "src/mir/builder/utils/weak_ref.rs")
     record_helper = read(root, "src/mir/builder/record_helper_args.rs")
     record_helper_tests = read(root, "src/mir/builder/record_helper_args_tests.rs")
+    require_count(
+        record_helper,
+        "struct PreparedRecordHelperBodyInvocationV1",
+        1,
+        "record-helper body invocation owner",
+    )
+    require_count(
+        record_helper,
+        "PreparedRecordHelperBodyInvocationV1::new(",
+        2,
+        "record-helper body invocation preparation sites",
+    )
+    require_definition_count(
+        record_helper,
+        "inline_record_helper_body",
+        0,
+        "retired raw-parts body terminal",
+    )
+    require_definition_count(
+        record_helper,
+        "lower_record_helper_body_until_return",
+        0,
+        "retired split body lowering terminal",
+    )
     reserved = read(root, "src/mir/builder/calls/reserved_method_route.rs")
     reserved_tests = read(root, "src/mir/builder/calls/reserved_method_route_tests.rs")
     debug_routes = read(root, "src/mir/builder/calls/debug_method_routing.rs")
@@ -344,6 +368,8 @@ def main() -> None:
             fail(f"missing P0 route/custom evidence: {evidence}")
     if "helper_body_continuity_failure_restore_and_reuse" not in record_helper_tests:
         fail("missing P0 helper-setter custom-terminal evidence")
+    if "prepared_body_invocation_owns_scope_first_return_and_missing_return" not in record_helper_tests:
+        fail("missing record-helper consuming body-owner evidence")
 
     for evidence in (
         "selected_mir_debug_route_preserves_debug_payload",

@@ -229,6 +229,70 @@ fn helper_body_continuity_failure_restore_and_reuse() {
 }
 
 #[test]
+fn prepared_body_invocation_owns_scope_first_return_and_missing_return() {
+    let mut builder = helper_builder();
+    builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .insert("me".to_string(), ValueId::new(7));
+    let saved = builder.function_state.variable_ctx.variable_map.clone();
+
+    let helper = PreparedHelperDeclarationV1 {
+        function_name: "Helper.shadow/1".to_string(),
+        params: vec!["me".to_string()],
+        param_decls: Vec::new(),
+        body: vec![
+            ASTNode::Return {
+                value: Some(Box::new(ASTNode::Variable {
+                    name: "me".to_string(),
+                    span: span(),
+                })),
+                span: span(),
+            },
+            ASTNode::Variable {
+                name: "missing_suffix".to_string(),
+                span: span(),
+            },
+        ],
+    };
+    let invocation = PreparedRecordHelperBodyInvocationV1::new(
+        helper,
+        Some(ValueId::new(90)),
+        vec![HelperArgBinding {
+            param_name: "me".to_string(),
+            value: ValueId::new(91),
+        }],
+    );
+    let mut descent = RecordingHelperDescent::default();
+    assert_eq!(
+        invocation.lower(&mut builder, &mut descent).unwrap(),
+        ValueId::new(91)
+    );
+    assert_eq!(descent.events, ["expression"]);
+    assert_eq!(builder.function_state.variable_ctx.variable_map, saved);
+
+    let missing_return = PreparedRecordHelperBodyInvocationV1::new(
+        PreparedHelperDeclarationV1 {
+            function_name: "Helper.missing/0".to_string(),
+            params: Vec::new(),
+            param_decls: Vec::new(),
+            body: vec![int_lit(1)],
+        },
+        Some(ValueId::new(92)),
+        Vec::new(),
+    );
+    let error = missing_return
+        .lower(&mut builder, &mut descent)
+        .unwrap_err();
+    assert_eq!(
+        error,
+        "[record-helper-arg/missing-return] func=Helper.missing/0"
+    );
+    assert_eq!(builder.function_state.variable_ctx.variable_map, saved);
+}
+
+#[test]
 fn infer_same_module_helper_receiver_box_name_follows_phi_inputs_without_hint() {
     let signature = FunctionSignature {
         name: "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1".to_string(),

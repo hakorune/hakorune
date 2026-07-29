@@ -616,8 +616,8 @@ fi
 guard_exact_counts <<EOF
 $METHOD_CALL_DESCENT|\\benum\\s+CatalogHelperChildV1\\b|1|catalog helper child vocabulary
 $METHOD_CALL_DESCENT|\\[method-call-descent/catalog-helper-child-unsupported\\]|1|fail-closed custom-port default
-$RECORD_HELPER|CatalogHelperChildV1::Expression\\(\\*expr\\.clone\\(\\)\\)|1|catalog helper expression terminal
-$RECORD_HELPER|CatalogHelperChildV1::Statement\\(stmt\\.clone\\(\\)\\)|1|catalog helper statement terminal
+$RECORD_HELPER|CatalogHelperChildV1::Expression\\(\\*expression\\)|1|owned catalog helper expression terminal
+$RECORD_HELPER|CatalogHelperChildV1::Statement\\(statement\\)|1|owned catalog helper statement terminal
 $LOCATED_LOCAL|drive_raw_legacy_expression_v1\\(builder, expression\\)|1|located unlocated-expression projection
 $LOCATED_LOCAL|drive_raw_legacy_statement_v1\\(builder, statement\\)|1|located unlocated-statement projection
 EOF

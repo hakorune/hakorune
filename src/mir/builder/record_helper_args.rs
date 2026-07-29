@@ -64,6 +64,92 @@ struct PreparedHelperDeclarationV1 {
     body: Vec<ASTNode>,
 }
 
+/// Consuming boundary for one already-argument-complete helper body.
+///
+/// Argument descent remains caller-owned. This owner installs the completed
+/// bindings, lowers through the first Return, and restores the exact outer
+/// variable map on every body outcome.
+struct PreparedRecordHelperBodyInvocationV1 {
+    function_name: String,
+    receiver: Option<ValueId>,
+    bindings: Vec<HelperArgBinding>,
+    body: Vec<ASTNode>,
+}
+
+impl PreparedRecordHelperBodyInvocationV1 {
+    fn new(
+        helper: PreparedHelperDeclarationV1,
+        receiver: Option<ValueId>,
+        bindings: Vec<HelperArgBinding>,
+    ) -> Self {
+        let PreparedHelperDeclarationV1 {
+            function_name,
+            body,
+            ..
+        } = helper;
+        Self {
+            function_name,
+            receiver,
+            bindings,
+            body,
+        }
+    }
+
+    fn lower(
+        self,
+        builder: &mut MirBuilder,
+        descent: &mut dyn MethodCallArgumentDescentV1,
+    ) -> Result<ValueId, String> {
+        let Self {
+            function_name,
+            receiver,
+            bindings,
+            body,
+        } = self;
+        let saved_var_map = builder.function_state.variable_ctx.variable_map.clone();
+
+        if let Some(receiver) = receiver {
+            builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .insert("me".to_string(), receiver);
+        }
+        for binding in bindings {
+            builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .insert(binding.param_name, binding.value);
+        }
+
+        let result = (|| {
+            for statement in body {
+                if let ASTNode::Return { value, .. } = statement {
+                    return match value {
+                        Some(expression) => descent.lower_catalog_helper_child(
+                            builder,
+                            CatalogHelperChildV1::Expression(*expression),
+                        ),
+                        None => crate::mir::builder::emission::constant::emit_void(builder),
+                    };
+                }
+                descent.lower_catalog_helper_child(
+                    builder,
+                    CatalogHelperChildV1::Statement(statement),
+                )?;
+            }
+
+            Err(format!(
+                "[record-helper-arg/missing-return] func={}",
+                function_name
+            ))
+        })();
+        builder.function_state.variable_ctx.variable_map = saved_var_map;
+        result
+    }
+}
+
 /// Read-only eligibility evidence for the record-helper inline path. It owns
 /// no lowered arguments or Builder effect; execution remains a separate step.
 #[derive(Debug)]
@@ -137,13 +223,8 @@ impl MirBuilder {
             &prepared.record_arg_indices,
             descent,
         )?;
-        self.inline_record_helper_body(
-            &prepared.helper.function_name,
-            receiver,
-            bindings,
-            &prepared.helper.body,
-            descent,
-        )
+        PreparedRecordHelperBodyInvocationV1::new(prepared.helper, receiver, bindings)
+            .lower(self, descent)
     }
 
     pub(in crate::mir::builder) fn prepare_same_module_helper_setter_inline(
@@ -230,13 +311,7 @@ impl MirBuilder {
                 args.len()
             ));
         }
-        self.inline_record_helper_body(
-            &helper.function_name,
-            receiver,
-            bindings,
-            &helper.body,
-            descent,
-        )
+        PreparedRecordHelperBodyInvocationV1::new(helper, receiver, bindings).lower(self, descent)
     }
 
     pub(in crate::mir::builder) fn prepare_same_module_helper_setter_inline_from_receiver(
@@ -512,60 +587,6 @@ impl MirBuilder {
         };
         let def_map = build_value_def_map(function);
         resolve_value_origin(function, &def_map, object_value)
-    }
-
-    fn inline_record_helper_body(
-        &mut self,
-        func_name: &str,
-        receiver: Option<ValueId>,
-        bindings: Vec<HelperArgBinding>,
-        body: &[ASTNode],
-        descent: &mut dyn MethodCallArgumentDescentV1,
-    ) -> Result<ValueId, String> {
-        let saved_var_map = self.function_state.variable_ctx.variable_map.clone();
-
-        if let Some(receiver) = receiver {
-            self.function_state
-                .variable_ctx
-                .variable_map
-                .insert("me".to_string(), receiver);
-        }
-        for binding in bindings {
-            self.function_state
-                .variable_ctx
-                .variable_map
-                .insert(binding.param_name, binding.value);
-        }
-
-        let result = self.lower_record_helper_body_until_return(func_name, body, descent);
-        self.function_state.variable_ctx.variable_map = saved_var_map;
-        result
-    }
-
-    fn lower_record_helper_body_until_return(
-        &mut self,
-        func_name: &str,
-        body: &[ASTNode],
-        descent: &mut dyn MethodCallArgumentDescentV1,
-    ) -> Result<ValueId, String> {
-        for stmt in body {
-            if let ASTNode::Return { value, .. } = stmt {
-                return match value {
-                    Some(expr) => descent.lower_catalog_helper_child(
-                        self,
-                        CatalogHelperChildV1::Expression(*expr.clone()),
-                    ),
-                    None => crate::mir::builder::emission::constant::emit_void(self),
-                };
-            }
-            descent
-                .lower_catalog_helper_child(self, CatalogHelperChildV1::Statement(stmt.clone()))?;
-        }
-
-        Err(format!(
-            "[record-helper-arg/missing-return] func={}",
-            func_name
-        ))
     }
 }
 
