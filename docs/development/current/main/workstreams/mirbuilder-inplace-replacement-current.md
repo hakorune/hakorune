@@ -30,47 +30,95 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Latest landed: MIRBUILDER raw Lambda lifecycle (`7690abc332`)
-Latest census: MIRBUILDER-POST-RAW-LAMBDA-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
-Verdict:       NoSafeSlice; no executable row is selected
-Resume only:   fresh evidence for one named production caller, bounded owner,
-               and same-commit deletion of its old edge
+Latest audit:  post-Lambda multi-owner task census
+Correction:    the prior NoSafeSlice verdict missed two live env-selected
+               compatibility routes
+Executable:    RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0
+Census input:  Throw debug compatibility is observed but not preselected
 History:       Git history and the short landed tail below
 ```
 
-## Current stop
+## Current execution
 
-`MIRBUILDER-POST-RAW-LAMBDA-LIFECYCLE-LIVE-EDGE-CENSUS0-D0`
+`RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0`
+
+Parent: `MIRBUILDER-LIVE-PRODUCTION-RESET0-D0` · Pack:
+`CONTROL0` · Ceremony: T1, one atomic I0/R0 commit.
 
 ```text
 Change:
-  R86 found no bounded production replacement after the Lambda retirement.
+  Switch the exact flag-selected subset:
+    before: statement_surface TryCatch + flag=1 -> disabled try-body-only owner
+    after:  the same caller -> existing physical prepared TryCatch owner
+  Flatten the now-one-variant prepared route. In the same commit delete the
+  flag getter/read/docs, route enum/wrappers, disabled fixture, stale guard
+  expectations, derived inventory residue, and close its sunset.
 
 Contract:
-  Program-root traversal remains a separate multi-authority shelf. Raw
-  static-Main and legacy facades have no named production caller. No I0/R0 may
-  be opened without fresh live-edge evidence.
+  The named production selector remains statement_surface -> TryCatch prepare
+  exactly once. Default/unset physical-route order, function-state transaction,
+  errors, grammar, result, and publication behavior do not move. The explicit
+  flag-selected behavior is intentionally retired. No fallback or retry.
 
 Done:
-  No implementation row is preselected. Program-root, raw static-Main,
-  JoinModule, View, and Ownership remain shelves rather than queue entries.
+  Repository consumers outside definition/read/docs/fixture/guard are zero.
+  All five residue classes and the one-variant route shell are zero; physical
+  TryCatch focused tests, normal parity/reuse, shared lane guard, and current
+  pointer guard are green; the sunset manifest records exact zeroes and closed.
 
 Stop:
-  Do not turn caller-zero facades, complete-program variants, or a broad
-  cleanup into replacement work. Fallback/retry remains forbidden.
+  Stop if another repository consumer is found, enabled-route parity fails, or
+  removal requires default TryCatch semantic changes. Do not include Throw,
+  broad cleanup, a new per-row guard, or a new compatibility route.
 ```
 
-Fixed phase order:
+## Task order
 
 ```text
-remaining live-authority cleanup
--> MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0
-   (including explicit legacy JoinModule disposition)
--> OWNERSHIP-SPARSE-RESUME-D0
--> Ownership packs A-D
--> Anchored View pack E
--> OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
--> later unimplemented features, one decision at a time
+Now
+  1 RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0
+
+Then, repeat
+  2 fresh live-edge census
+  3 select at most one named production edge or detached Delete asset
+  4 switch it and delete its old authority in the same commit
+  5 return to step 2
+
+When live cleanup reaches closure
+  6 MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0
+    - remaining compatibility and detached assets
+    - explicit JoinModule disposition
+    - accepted-corpus/backend parity
+    - MIRBUILDER-FINAL-PIPELINE-v1 completion decision
+
+Only after Complete
+  7 Ownership readiness refresh -> Ownership
+  8 View
+  9 later unimplemented features, one decision at a time
 ```
+
+Only item 1 is executable. The observed shelves for the next census are Throw
+debug compatibility, stale HeaderPort proof surfaces, Program-root source/work
+classification, pipeline authority, raw AST/Recipe composition, and function
+DraftSeal/collector convergence. This list is evidence input, not execution
+order. Whole-function accepted variants remain frozen.
+
+JoinModule remains out of the current replacement commit, but not out of the
+completion definition. Its current 34,212-line inventory has no normal/default
+consumer and still serves explicit dev/strict, VM-reference, and LLVM
+experiment families. Before Complete, final conformance must:
+
+```text
+fresh consumer/carrier census
+each family = retain / reown / retire
+normal/default planner-route resurrection = 0
+unresolved disposition = 0
+```
+
+Do not delete the tree by name, and do not claim final-pipeline completion
+while this disposition remains undecided. A compatibility owner may exist only
+with one sunset ID, an exact non-growing surface, and a written retirement
+condition.
 
 ## Latest closeout
 
@@ -1360,7 +1408,9 @@ R82 post-raw-static-Box census closed: no bounded edge; Lambda design selected
 R83 RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 closed: NoSafeI0
 R84 RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 closed
 R85 RAW-LAMBDA-LEXICAL-CAPTURE-LIFECYCLE0-I0-R0 closed: old authority deleted
-R86 post-Lambda census closed: NoSafeSlice; no executable row selected
+R86 post-Lambda census closed: its NoSafeSlice verdict was corrected by the
+    later multi-owner task census
+R87 RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0 selected
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

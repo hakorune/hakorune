@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LAMBDA-LEXICAL-CAPTURE-LIFECYCLE0-I0-R0 and the post-Lambda census are closed: the raw Lambda authority is replaced, while no bounded next production edge exists. Resume only with fresh named-caller, bounded-owner, same-commit-deletion evidence. Program-root, raw static-Main, JoinModule, View, and Ownership remain shelves."
+status = "The post-Lambda NoSafeSlice verdict is corrected by a fresh task census: bounded compatibility residue remains. RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0 is the sole executable row. Throw, Program-root, HeaderPort proof residue, and function-lifecycle gaps are census inputs only. Final conformance must settle JoinModule before Ownership, View, and later features."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-EDGE-NOSAFE0"
-current_execution_row = ""
-current_execution_summary = "No executable MirBuilder row is selected: the post-Lambda census found no bounded live edge. Resume only from fresh named-caller, bounded-owner, same-commit-deletion evidence; do not reopen whole-function acceptance variants."
+current_design_stop = ""
+current_execution_row = "RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0"
+current_execution_summary = "Switch the NYASH_BUILDER_DISABLE_TRYCATCH-selected try-body-only subset to the existing physical prepared TryCatch owner in one atomic retirement. Keep default/unset physical-route behavior unchanged; delete the flag definition/read/docs, disabled owner/fixture, now-one-variant route shell, guard/inventory residue, and sunset together. Throw is not part of this commit."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, raw static-Main compatibility lower-side source classification, three raw static-Main facade layers, raw static-Main fresh-port reselection, the shared instance-Box lower-side metadata authority, the raw non-Main static-Box inline lifecycle authority, and the old raw Lambda HashSet/ambient-me/pre-emit-metadata authority are deleted. Post-Lambda census is NoSafeSlice: no executable row is selected. Active compatibility sunsets remain unchanged. Legacy JoinModule disposition is mandatory at repository-wide final conformance; View/Ownership and other unimplemented features remain parked until final pipeline completion. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, raw static-Main compatibility lower-side source classification, three raw static-Main facade layers, raw static-Main fresh-port reselection, the shared instance-Box lower-side metadata authority, the raw non-Main static-Box inline lifecycle authority, and the old raw Lambda HashSet/ambient-me/pre-emit-metadata authority are deleted. A fresh multi-owner census corrected the prior NoSafeSlice verdict: the TryCatch disable route is the sole executable retirement. Throw debug compatibility, Program-root decomposition, stale proof surfaces, pipeline convergence, and function DraftSeal/collector convergence remain census shelves, not a preselected queue. Legacy JoinModule disposition and final parity are mandatory before repository-wide final-pipeline completion. Ownership, View, and later features remain parked until then. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """Post-Lambda live-edge census is closed as NoSafeSlice. Program-root traversal is not bounded; raw static-Main and legacy facades lack a named production caller. No implementation row is queued. Final conformance must decide legacy JoinModule by separate carrier and execution-family ledgers before any repository-wide completion claim."""
+latest_card_summary = """A fresh task census corrects the post-Lambda NoSafeSlice verdict. The sole executable row retires the NYASH_BUILDER_DISABLE_TRYCATCH compatibility route and closes its sunset without changing default physical TryCatch behavior. All later MirBuilder gaps return to a fresh named-edge census. Final conformance must settle compatibility/detached assets, JoinModule disposition, and corpus/backend parity before Ownership, View, or missing features start."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-NOSAFE0"
+current_blocker_token = "RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
