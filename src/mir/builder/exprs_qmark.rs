@@ -1,19 +1,10 @@
 use super::ValueId;
 use crate::ast::ASTNode;
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RecursiveChildLoweringPortV1,
 };
 
 impl super::MirBuilder {
-    // QMarkPropagate: result?.value (Result-like)
-    pub(super) fn build_qmark_propagate_expression(
-        &mut self,
-        expression: ASTNode,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_qmark_propagate_expression_with_port_v1(&mut port, expression)
-    }
-
     /// Lower a qmark operand through the existing raw child port.
     ///
     /// The Result-like control-flow and runtime-call semantics stay owned by

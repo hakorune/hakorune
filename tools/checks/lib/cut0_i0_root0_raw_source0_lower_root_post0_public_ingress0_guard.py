@@ -21,6 +21,7 @@ MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
 BUILDER_ROOT = ROOT / "src/mir/builder.rs"
 NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
 RAW_EXPRESSION_DISPATCH = ROOT / "src/mir/builder/raw_expression_dispatch/mod.rs"
+QMARK = ROOT / "src/mir/builder/exprs_qmark.rs"
 MATCH_EXPRESSION_OWNER = ROOT / "src/mir/builder/exprs_peek.rs"
 BUILDER_BUILD = ROOT / "src/mir/builder/builder_build.rs"
 FUNCTION_CALL_PREFLIGHT = ROOT / "src/mir/builder/calls/function_call_preflight_route.rs"
@@ -141,6 +142,7 @@ def main() -> int:
             BUILDER_ROOT,
             NORMAL_TESTS,
             RAW_EXPRESSION_DISPATCH,
+            QMARK,
             BUILDER_BUILD,
             FUNCTION_CALL_PREFLIGHT,
             SPECIAL_METHOD_HANDLERS,
@@ -169,6 +171,7 @@ def main() -> int:
     builder_root = production_code(BUILDER_ROOT)
     normal_tests = texts[NORMAL_TESTS]
     raw_expression_dispatch = code_only(texts[RAW_EXPRESSION_DISPATCH])
+    qmark = production_code(QMARK)
     builder_build = production_code(BUILDER_BUILD)
     function_call_preflight = production_code(FUNCTION_CALL_PREFLIGHT)
     function_call_preflight_tests = texts[FUNCTION_CALL_PREFLIGHT]
@@ -395,6 +398,8 @@ def main() -> int:
             raise AssertionError(f"retired raw Unary dispatcher policy returned: {retired}")
     if "fn build_unary_op(" in ops_mod:
         raise AssertionError("caller-zero MirBuilder Unary facade returned")
+    if "fn build_qmark_propagate_expression(" in qmark or "RawLegacyChildLoweringPortV1" in qmark or raw_expression_dispatch.count("self.build_qmark_propagate_expression_with_port_v1(port, *expression)") != 1:
+        raise AssertionError("caller-zero QMark facade or selected port handoff drift")
     if raw_unary_owner.count("drive_legacy_expression_v1(builder, port, operand)") != 2:
         raise AssertionError("raw Unary Weak/Ordinary operand descent count drift")
     if raw_unary_owner.count("builder.emit_weak_new(box_value)") != 1:

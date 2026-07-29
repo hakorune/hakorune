@@ -29,36 +29,46 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: NORMAL-PROGRAM-COLLECTOR-DRAIN0-I0-R0
-Result:        selected normal root drains final collector rows through one prepared
-               legacy terminal; direct extraction/module insertion is zero
-Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS1` selected the QMark facade delete
-Executable:    RAW-QMARK-LEGACY-FACADE-RETIRE0-RET0
+Latest landed: RAW-QMARK-LEGACY-FACADE-RETIRE0-RET0
+Result:        caller-zero ambient QMark port facade is deleted; dispatcher keeps
+               the sole port-aware QMark owner
+Latest design: fresh live-edge census required
+Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS2` is a design stop
 History:       Git history and the short landed tail below
 ```
 
 ## Current execution
 
-`RAW-QMARK-LEGACY-FACADE-RETIRE0-RET0` — T0 caller-zero deletion
+`MIRBUILDER-LIVE-EDGE-CENSUS2` — read-only design stop
 
 ```text
-Delete:
-  `MirBuilder::build_qmark_propagate_expression`, its ambient
-  `RawLegacyChildLoweringPortV1` construction, and its import.
+Select:
+  at most one named live production authority whose replacement can delete its
+  exact old edge in the same commit; otherwise record the bounded D0 required.
 
-Keep:
-  raw dispatcher -> `build_qmark_propagate_expression_with_port_v1(port, ...)`
-  exactly once; the port-aware QMark/control owner and every diagnostic/MIR rule
-  stay unchanged.
+Do not:
+  add a production-zero route, expand compatibility, resurrect a whole-function
+  acceptance variant, or start Ownership/View/features before final conformance.
 
-Acceptance:
-  non-definition direct facade callers = 0; with-port dispatcher call = 1;
-  existing raw-port QMark coverage remains green; fallback/retry/grammar/result
-  delta = 0; no new source/test/check file; all source/check files < 800.
+Require:
+  one execution, no retry/fallback, explicit compatibility sunset when one remains,
+  and a fresh caller/owner census before naming an implementation row.
+```
 
-Stop:
-  return to D0 if a live non-test direct caller appears or deletion requires a
-  legacy re-entry, control-semantics change, or a new compatibility route.
+## Latest closeout
+
+```text
+RAW-QMARK-LEGACY-FACADE-RETIRE0-RET0
+
+`build_qmark_propagate_expression` facade                = 0
+ambient `RawLegacyChildLoweringPortV1` construction       = 0
+raw dispatcher -> with-port QMark owner                  = exactly one
+raw-port QMark regression / shared guard / cargo check   = green
+fallback / retry / grammar / result / control delta      = 0
+new source/test/check file                               = 0 / 0 / 0
+largest touched source/check file                        < 800
+format check                                             = unrelated pre-existing diffs
+next                                                     = fresh live-edge census
 ```
 
 ## Latest closeout
@@ -158,13 +168,12 @@ largest touched source/check file                       < 800
 
 ```text
 Now
-  1 RAW-QMARK-LEGACY-FACADE-RETIRE0-RET0
+  1 MIRBUILDER-LIVE-EDGE-CENSUS2
 
 Then, repeat
-  2 fresh live-edge census
-  3 select at most one named production edge or detached Delete asset
-  4 switch it and delete its old authority in the same commit
-  5 return to step 2
+  2 select at most one named production edge or detached Delete asset
+  3 switch it and delete its old authority in the same commit
+  4 return to step 1
 
 When live cleanup reaches closure
   6 MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0
