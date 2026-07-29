@@ -32,27 +32,33 @@ Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Latest landed: RAW-CHECK-LEGACY-FACADE-RETIRE0-RET0
 Result:        caller-zero ambient Check port facade is deleted; dispatcher keeps
                the sole port-aware Check owner
-Latest design: fresh live-edge census required
-Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS3` is a design stop
+Latest design: fresh census selected the indirect Call facade delete
+Executable:    RAW-INDIRECT-CALL-LEGACY-FACADE-RETIRE0-RET0
 History:       Git history and the short landed tail below
 ```
 
 ## Current execution
 
-`MIRBUILDER-LIVE-EDGE-CENSUS3` — read-only design stop
+`RAW-INDIRECT-CALL-LEGACY-FACADE-RETIRE0-RET0` — T0 caller-zero deletion
 
 ```text
-Select:
-  at most one named live production authority whose replacement can delete its
-  exact old edge in the same commit; otherwise record the bounded D0 required.
+Delete:
+  `MirBuilder::build_indirect_call_expression`, its ambient
+  `RawLegacyChildLoweringPortV1` construction, and its import.
 
-Do not:
-  add a production-zero route, expand compatibility, resurrect a whole-function
-  acceptance variant, or start Ownership/View/features before final conformance.
+Keep:
+  raw dispatcher -> `build_indirect_call_expression_with_port_v1(port, callee,
+  arguments)` exactly once. Argument descent, unified-call mode selection, and
+  direct `CallTarget::Value` emission remain owned by that existing terminal.
 
-Require:
-  one execution, no retry/fallback, explicit compatibility sunset when one remains,
-  and a fresh caller/owner census before naming an implementation row.
+Acceptance:
+  non-test direct facade callers = 0; with-port dispatcher call = 1; fallback,
+  retry, grammar, route, MIR, and result delta = 0; no new source/test/check file;
+  all source/check files < 800.
+
+Stop:
+  return to D0 if a non-test caller appears or deletion requires a legacy re-entry,
+  unified-call policy change, new compatibility route, or altered argument order.
 ```
 
 ## Latest closeout
@@ -182,37 +188,57 @@ largest touched source/check file                       < 800
 ## Task order
 
 ```text
-Now
-  1 MIRBUILDER-LIVE-EDGE-CENSUS3
+R1 Now
+  RAW-INDIRECT-CALL-LEGACY-FACADE-RETIRE0-RET0
+  Delete only the caller-zero ambient facade; the existing with-port owner is
+  already selected by the shared dispatcher.
 
-Then, repeat
-  2 select at most one named production edge or detached Delete asset
-  3 switch it and delete its old authority in the same commit
-  4 return to step 1
+R2 Live responsibility replacement
+  fresh census -> one exact edge or one bounded D0 -> same-cell I0/R0
+  Every compatibility surface has one non-growing sunset record. A detached
+  facade retirement is not replacement credit and may not hide a live-owner
+  decision.
 
-When live cleanup reaches closure
-  6 MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0
-    - remaining compatibility and detached assets
-    - explicit JoinModule disposition
-    - accepted-corpus/backend parity
-    - MIRBUILDER-FINAL-PIPELINE-v1 completion decision
+  The detached-facade horizon is at most three RET0 rows, including the current
+  row. Return to a full census after each row and stop the horizon early when
+  the next facade needs owner, port, argument-order, control, allocation, or
+  guard-structure changes.
 
-Only after Complete
-  7 Ownership readiness refresh -> Ownership implementation
-  8 View design -> View implementation
-  9 later unimplemented features, one decision at a time
+  The first live normal candidate after the current census is
+  NORMAL-PROGRAM-STATIC-TABLE-PLAN0-D0, followed only if accepted by its
+  same-cell I0/R0. It must turn the selected Program source -> static specs ->
+  static plans -> candidate metadata sequence into one owner; it does not
+  change grammar, result policy, or body lowering.
+
+  Raw/static-Main, no-header Call, and selected invocation Loop/CorePlan remain
+  separate D0 boundaries. Loop work uses the active Recipe/CorePlan route;
+  legacy JoinModule is never reactivated as a normal/default planner.
+
+R3 Legacy JoinModule disposition
+  after R2 reaches live-cleanup closure and before final conformance, open
+  JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0. Classify every family as retain,
+  reown, or retire; any action is a separate named row. No name-only tree
+  deletion, normal/default route resurrection, or unresolved family is allowed.
+
+R4 Final conformance
+  MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0 decides Complete only when the
+  live-edge ledger, compatibility/detached-asset disposition, JoinModule
+  disposition, and accepted-corpus/backend parity are all green.
+
+R5 Features, strictly after Complete
+  refresh Ownership readiness -> implement Ownership -> View D0 and
+  implementation -> one later unimplemented feature at a time.
 ```
 
-The observed shelves for the next census are the Program static-data source/
-metadata mix, header-sensitive Call compatibility, raw/static-Main compatibility,
-selected invocation Loop/CorePlan route policy, pipeline authority, raw AST/Recipe
-composition, and function-state/control residuals. This list is evidence input, not execution order. Whole-function
-accepted variants remain frozen.
+The observed shelves are Program static-table metadata, header-sensitive Call,
+raw/static-Main, selected invocation Loop/CorePlan, pipeline authority, raw
+AST/Recipe composition, and function-state/control residuals. They are census
+input, not a pre-authorized order. Whole-function accepted variants remain frozen.
 
-JoinModule remains out of the current replacement commit, but not out of the
-completion definition. Its current 34,827-line inventory has no normal/default
-consumer and still serves explicit dev/strict, VM-reference, and LLVM
-experiment families. Before Complete, final conformance must:
+JoinModule remains out of R2 replacement commits, but not out of the completion
+definition. Its current 34,827-line inventory has no normal/default consumer and
+still serves explicit dev/strict, VM-reference, and LLVM experiment families.
+R3 must classify it before Complete:
 
 ```text
 fresh consumer/carrier census
