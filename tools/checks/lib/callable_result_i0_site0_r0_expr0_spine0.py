@@ -76,6 +76,7 @@ def main() -> None:
     static_box_state_path = (
         "src/mir/builder/raw_expression_dispatch/static_box_state.rs"
     )
+    static_box_lifecycle_path = "src/mir/builder/raw_expression_dispatch/nonmain_static_box_lifecycle.rs"
     located_path = "src/mir/builder/located_legacy_lowering.rs"
     located_tests_path = (
         "src/mir/callable_result_representation/tests/located_legacy_lowering.rs"
@@ -104,6 +105,7 @@ def main() -> None:
     raw_dispatch = read(root, raw_dispatch_path)
     block_expr = read(root, block_expr_path)
     static_box_state = read(root, static_box_state_path)
+    static_box_lifecycle = read(root, static_box_lifecycle_path)
     located = read(root, located_path)
     located_tests = read(root, located_tests_path)
     short_circuit = read(root, short_circuit_path)
@@ -189,6 +191,7 @@ def main() -> None:
             fail(f"raw dispatcher retains inline BlockExpr authority: {forbidden}")
 
     raw_dispatch_production = raw_dispatch
+    static_box_lifecycle_production = static_box_lifecycle.split("#[cfg(test)]", maxsplit=1)[0]
     static_box_state_production = static_box_state.split("#[cfg(test)]", maxsplit=1)[0]
     require_count(
         static_box_state_production,
@@ -201,7 +204,8 @@ def main() -> None:
         ".complete_success(",
         ".reject(",
     ):
-        require_count(raw_dispatch_production, terminal, 1, f"static Box terminal {terminal}")
+        require_count(static_box_lifecycle_production, terminal, 1, f"static Box terminal {terminal}")
+        require_count(raw_dispatch_production, terminal, 0, f"retired raw dispatcher static Box terminal {terminal}")
     for retired in (
         "saved_var_map",
         "saved_type_ctx",
@@ -740,6 +744,7 @@ def main() -> None:
         raw_dispatch_path,
         block_expr_path,
         static_box_state_path,
+        static_box_lifecycle_path,
         located_path,
         located_tests_path,
         short_circuit_path,

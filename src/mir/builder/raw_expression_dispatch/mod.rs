@@ -6,6 +6,7 @@
 mod block_expr;
 mod input_view;
 mod legacy_facade;
+mod nonmain_static_box_lifecycle;
 mod statement_surface;
 mod static_box_state;
 #[cfg(test)]
@@ -16,7 +17,7 @@ pub(in crate::mir::builder) use input_view::{
 };
 
 use self::block_expr::{lower_prepared_raw_block_expr_with_port_v1, PreparedRawBlockExprV1};
-use self::static_box_state::ActiveRawStaticBoxCompilationStateV1;
+use self::nonmain_static_box_lifecycle::PreparedRawNonMainStaticBoxLifecycleV1;
 use super::builder_build::PreparedRawNewExpressionV1;
 use super::calls::{
     lower_prepared_raw_function_preflight_with_port_v1, MethodCallDescentPortV1,
@@ -27,7 +28,6 @@ use super::fields::PreparedRawFieldReadV1;
 use super::indexing::PreparedRawIndexReadV1;
 use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use super::me_call_header_observation::MethodCallLoweringPortV1;
-use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use super::ops::{
     drive_ordinary_binary_expression_v1, drive_short_circuit_expression_v1,
     lower_prepared_raw_unary_with_port_v1, BinaryExpressionDescentPortV1, PreparedRawUnaryV1,
@@ -240,36 +240,8 @@ impl super::MirBuilder {
                     // adapter preserves the existing inline-main behavior.
                     port.lower_static_main_box(self, name.clone(), methods.clone())
                 } else if is_static {
-                    // In App mode, the typed Program root owner lowers static boxes.
-                    // Here we only handle Script/Test mode or non-root contexts.
-                    let is_app_mode = self.root_is_app_mode.unwrap_or(false);
-                    if is_app_mode {
-                        // Already lowered by lifecycle pass; return Void as a pure declaration.
-                        Ok(crate::mir::builder::emission::constant::emit_void(self)?)
-                    } else {
-                        let methods =
-                            PreparedNonMainStaticBoxMethodBatchV1::prepare(name.clone(), methods);
-                        // Generic static box: lower all static methods into standalone MIR functions (BoxName.method/N)
-                        // Note: Metadata clearing is now handled by BoxCompilationContext (箱理論)
-                        // See lifecycle.rs for context creation and context swap.
-                        // Phase 285LLVM-1.1: Register static box (no fields)
-                        self.comp_ctx.register_user_box(name.clone());
-                        // Use one outer transaction even in script/test mode to
-                        // isolate metadata across the complete static Box.
-                        let transaction = ActiveRawStaticBoxCompilationStateV1::begin(self);
-                        let method_result = methods.lower_with_port_v1(self, port);
-                        match method_result {
-                            Ok(()) => transaction.complete_success(self),
-                            Err(error) => {
-                                let rejected = transaction.reject(error);
-                                let error = rejected.error().to_string();
-                                rejected.discard();
-                                return Err(error);
-                            }
-                        }
-                        // Return void for declaration context
-                        Ok(crate::mir::builder::emission::constant::emit_void(self)?)
-                    }
+                    PreparedRawNonMainStaticBoxLifecycleV1::prepare(name, methods)
+                        .lower_with_port_v1(self, port)
                 } else {
                     // Instance box: register type and lower instance methods/ctors as functions
                     // Phase 285LLVM-1.1: Register with field information for LLVM harness

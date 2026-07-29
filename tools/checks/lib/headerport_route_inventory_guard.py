@@ -605,12 +605,13 @@ def verify_nonmain_static_method_batch(
     instance_lifecycle = (root / "src/mir/builder/instance_box_declaration_lifecycle.rs").read_text(); instance_metadata = (root / "src/mir/builder/instance_box_declaration_metadata.rs").read_text()
     order = (root / "src/mir/builder/declaration_order.rs").read_text()
     program = (root / "src/mir/builder/program_root_lowering.rs").read_text()
-    raw = (root / "src/mir/builder/raw_expression_dispatch/mod.rs").read_text()
-    if any(len(text.splitlines()) >= 800 for text in (batch, constructors, instance_methods, instance_lifecycle, instance_metadata, program, raw)):
+    raw = (root / "src/mir/builder/raw_expression_dispatch/mod.rs").read_text(); raw_static_lifecycle = (root / "src/mir/builder/raw_expression_dispatch/nonmain_static_box_lifecycle.rs").read_text()
+    if any(len(text.splitlines()) >= 800 for text in (batch, constructors, instance_methods, instance_lifecycle, instance_metadata, program, raw, raw_static_lifecycle)):
         raise AssertionError("Box member-batch sources reached 800 lines")
     require(builder_mod, "mod nonmain_static_box_method_batch;", "method-batch module")
     require(builder_mod, "mod instance_box_declaration_lifecycle;", "instance lifecycle module")
     require(builder_mod, "mod instance_box_declaration_metadata;", "instance metadata module")
+    require(raw, "mod nonmain_static_box_lifecycle;", "raw static lifecycle module")
     for fragment in ("PreparedNonMainStaticBoxMethodBatchV1", "entries.sort_by(", "ASTNode::FunctionDeclaration", 'format!("{}.{}/{}"', "port.lower_static_box_method("):
         require(batch, fragment, "static method-batch authority")
     for fragment in ("sorted_method_entries", "compilation_context", "root_is_app_mode", "register_user_box", "emit_void", "fallback", "retry"):
@@ -620,8 +621,11 @@ def verify_nonmain_static_method_batch(
     forbid(lifecycle, "sorted_method_entries", "Program caller-local method sorting")
     forbid(lifecycle, ".lower_static_box_method(", "Program caller-local method dispatch")
     forbid(raw, ".lower_static_box_method(", "raw caller-local static method dispatch")
-    if (program + raw).count("PreparedNonMainStaticBoxMethodBatchV1::prepare(") != 2:
+    if (program + raw_static_lifecycle).count("PreparedNonMainStaticBoxMethodBatchV1::prepare(") != 2:
         raise AssertionError("static method batch must have exactly two production issuers")
+    require(raw, "PreparedRawNonMainStaticBoxLifecycleV1::prepare(name, methods)", "raw static lifecycle handoff")
+    for fragment in ("ActiveRawStaticBoxCompilationStateV1::begin(", ".complete_success(", ".reject("):
+        require(raw_static_lifecycle, fragment, "raw non-Main static Box lifecycle")
     for fragment in ("PreparedInstanceBoxConstructorBatchV1", "entries.sort_by(", "port.lower_instance_box_method("):
         require(constructors, fragment, "instance constructor-batch authority")
     forbid(order, "sorted_constructor_entries", "retired constructor order helper")
@@ -739,17 +743,12 @@ def verify_route_inventory_extension(
     aborted_impl = source.split("impl AbortedRawExpansionReceiptLedgerV1", 1)[1]
     forbid(aborted_impl, "fn seal(", "aborted ledger regains seal authority")
 
-    require(builder_mod, "mod raw_expansion_receipt_ledger;", "raw ledger registration")
-    require(
-        builder_mod,
-        "mod raw_expansion_receipt_ledger_tests;",
-        "raw ledger fixture registration",
-    )
-    require(
-        builder_mod,
-        "mod raw_expansion_receipt_ledger_p0;",
-        "raw ledger P0 registration",
-    )
+    for fragment, label in (
+        ("mod raw_expansion_receipt_ledger;", "raw ledger registration"),
+        ("mod raw_expansion_receipt_ledger_tests;", "raw ledger fixture registration"),
+        ("mod raw_expansion_receipt_ledger_p0;", "raw ledger P0 registration"),
+    ):
+        require(builder_mod, fragment, label)
     consumers = []
     for path in (root / "src/mir/builder").rglob("*.rs"):
         if path in (
