@@ -72,9 +72,9 @@ Closed:  REPL-TYPED-PROGRAM-INGRESS0-D0
 Closed:  REPL-TYPED-PROGRAM-INGRESS0-I0-R0
 Closed:  POST-MACRO-PROGRAM-ADMISSION0-D0
 Closed:  STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0
-Current: NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0
-Pack:    MODULE-LIFECYCLE0
-Ceremony: T1, one atomic production replacement
+Closed:  NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0
+Current: MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0
+Mode:    read-only live production-edge census
 ```
 
 R1 closeout:
@@ -821,56 +821,57 @@ quick gate                                           = unrelated pre-existing
   docs/reference/language/EBNF.md naming-token failure
 ```
 
-## Current execution brief
+## Current design stop
 
-`NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0` / parent
-`MIRBUILDER-POST-ROOT-EXPANSION-HANDOFF-LIVE-EDGE-CENSUS0-D0` / T1 /
-`MODULE-LIFECYCLE0`.
+`MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0`.
 
 ```text
-Named production caller:
-  lower_program_statements_with_callable_port_v1 selected App terminal
-
-Selected authority:
-  VerifiedRawRootExpansionV1::App(VerifiedMainExpansionV1)
-  - exact Main root source
-  - sorted verified static children and symbols
-  - callable-main compatibility projection
-
-Change:
-  pass the verified App payload to one selected Main terminal. Lower verified
-  helpers once in their existing order, then invoke the existing Main
-  callable/body/state lifecycle through a private shared kernel if needed.
-
-Atomic delete from selected normal:
-  main_static raw method-map accumulator and methods.clone()
-  App if-let Main re-selection and Script fallback on impossible missing Main
-  build_static_main_box_with_port_v1 compatibility-facade edge
-  helper sort/filter/FunctionDeclaration/symbol re-projection
-
-Preserve:
-  RootExpansion rejects malformed Main/helper before prepare_module
-  helper-N first error and stop-before-later-helper/Main behavior
-  callable-main policy and emission order
-  current_static_box, args, variable_map, fn_body/runes/uses, body behavior
-  explicit raw Main compatibility behavior
-  fallback/retry/reselection = 0
-
-Evidence:
-  verified helper lexical order/symbols and helper-N stop
-  Main body exactly once; callable-main policy on/off unchanged
-  Script/App lifecycle and invalid Main precedence
-  general Program MIR/result parity and late failure compiler reuse
-
-Stop:
-  no Program/method-map reconstruction, clone, reparse, or second Main scan
-  selected path must not call build_static_main_box_with_port_v1
-  do not change explicit compatibility admission or Main state semantics
-  no new failure owner/compatibility owner/guard; no View/Ownership
-  every source/check file remains below 800 lines
+Read the live production graph after the verified Main handoff. Select at most
+one bounded responsibility only when it names a production caller, one new or
+existing selected owner, and a same-commit old-edge deletion. Do not select
+from the historical queue, add a proof-only route, or start View/Ownership.
+If the first credible edge crosses policy, source identity, physical ABI, or
+multiple lifecycle owners, stop with a consultation instead of implementation.
 ```
 
 ## Latest closeout
+
+`NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0` / T1 /
+`MODULE-LIFECYCLE0` is closed.
+
+```text
+authority:
+  selected Program App terminal consumes VerifiedMainExpansionV1 directly
+  for exact Main root source, sorted static children, and callable-main symbol
+
+deleted from selected Program:
+  raw Main method-map accumulator and methods.clone()
+  second App/Main re-selection and impossible Script fallback
+  build_static_main_box_with_port_v1 compatibility-facade edge
+  helper re-sort/filter/symbol re-projection
+
+preserved:
+  RootExpansion validation precedence
+  helper order, first failure, stop-before-later-helper/Main body
+  callable-main Omitted/Required policy and Main body exactly once
+  explicit raw Main compatibility via one shared body/state kernel
+  Main args/state restoration, general MIR/result/publication behavior
+  fallback / retry / reselection = 0
+
+evidence:
+  verified helper order and helper-N failure stop        = green
+  Required selected/compat helper+Main order parity      = green
+  general Program MIR/result parity                      = green
+  late failure candidate isolation/compiler reuse        = green
+  shared root guard / binary-only lane guard              = green
+  release build                                           = green
+  quick gate                                              = unrelated pre-existing
+    docs/reference/language/EBNF.md naming-token failure
+  new source/test/check file                              = 0
+  largest touched source/check file                       = 799
+```
+
+## Previous closeout
 
 `NORMAL-DEFAULT-ROOT-EXPANSION-ROUTE-HANDOFF0-I0-R0` / T1 /
 `MODULE-LIFECYCLE0` is closed.
@@ -1094,7 +1095,8 @@ R49 INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0 closed
 R50 MIRBUILDER-POST-CONSTRUCTOR-BATCH-LIVE-EDGE-CENSUS0-D0 closed: root expansion handoff selected
 R51 NORMAL-DEFAULT-ROOT-EXPANSION-ROUTE-HANDOFF0-I0-R0 closed
 R52 MIRBUILDER-POST-ROOT-EXPANSION-HANDOFF-LIVE-EDGE-CENSUS0-D0 closed: verified Main handoff selected
-R53 NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0 current
+R53 NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0 closed
+R54 MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

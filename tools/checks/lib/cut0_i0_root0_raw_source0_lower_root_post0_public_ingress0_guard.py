@@ -15,6 +15,7 @@ CURRENT_WORKSTREAM = ROOT / ("docs/development/current/main/workstreams/"
 NORMAL_PIPELINE = ROOT / "src/mir/compiler/normal_default_pipeline.rs"
 NORMAL_ROOT_LIFECYCLE = ROOT / "src/mir/builder/normal_default_root_catalog_lifecycle.rs"
 PROGRAM_ROOT_LOWERING = ROOT / "src/mir/builder/program_root_lowering.rs"
+DECLS = ROOT / "src/mir/builder/decls.rs"
 MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
 BUILDER_ROOT = ROOT / "src/mir/builder.rs"
 NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
@@ -179,6 +180,7 @@ def main() -> int:
     normal_pipeline = texts[NORMAL_PIPELINE]
     normal_root_lifecycle = texts[NORMAL_ROOT_LIFECYCLE]
     program_root_lowering = production_code(PROGRAM_ROOT_LOWERING)
+    decls = production_code(DECLS)
     module_lifecycle = production_code(MODULE_LIFECYCLE)
     builder_root = production_code(BUILDER_ROOT)
     normal_tests = texts[NORMAL_TESTS]
@@ -614,6 +616,11 @@ def main() -> int:
     if normal_root_lifecycle.count("let expansion = VerifiedRawRootExpansionV1::from_program") != 1:
         raise AssertionError("verified root expansion handoff issuer drift")
     require(program_root_lowering, "expansion.is_app_mode()", "verified root route consumer")
+    require(program_root_lowering, "VerifiedRawRootExpansionV1::App(main)", "verified Main route")
+    require(decls, "build_verified_static_main_box_with_port_v1", "verified Main terminal")
+    for retired in ("main_static:", "build_static_main_box_with_port_v1(callables"):
+        if retired in program_root_lowering:
+            raise AssertionError(f"retired selected Main projection returned: {retired}")
     for retired in ("has_main_static", "root_is_app_mode.unwrap_or_else"):
         if retired in program_root_lowering or retired in production_code(
             ROOT / "src/mir/builder/declaration_indexer.rs"

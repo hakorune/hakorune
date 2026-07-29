@@ -2,6 +2,7 @@ use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl};
 use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use crate::mir::builder::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
 use crate::mir::builder::main_expansion::VerifiedRawRootExpansionV1;
+use crate::mir::builder::module_compat_policy::CallableMainCompatibilityPolicyV1;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
 use crate::mir::builder::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use crate::mir::builder::program_root_lowering::ProgramDeferredStaticBoxLifecycleV1;
@@ -21,6 +22,7 @@ struct RecordingOrdinaryPortV1 {
     fail_instance_method: Option<String>,
     record_only_static: bool,
     record_only_instance: bool,
+    body_calls: usize,
 }
 
 impl RawBoxMethodChildPortV1 for RecordingOrdinaryPortV1 {
@@ -108,6 +110,7 @@ impl RecursiveChildLoweringPortV1 for RecordingOrdinaryPortV1 {
         builder: &mut MirBuilder,
         body: Self::BodyInput,
     ) -> Result<ValueId, String> {
+        self.body_calls += 1;
         RawLegacyChildLoweringPortV1.lower_body(builder, body)
     }
 
@@ -240,6 +243,128 @@ fn shared_root_kernel_lends_each_instance_method_to_one_stack_port() {
 
     assert_eq!(port.methods, vec![("Worker".into(), "run".into(), 1)]);
     assert!(module.functions.contains_key("Worker.run/1"));
+}
+
+#[test]
+fn verified_main_expansion_lowers_helpers_in_order_before_body() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let root = NyashParser::parse_from_string(
+        "static box Main { zeta(value) { return value } alpha() { return 1 } main() { return 0 } }",
+    )
+    .expect("verified Main source");
+    let catalog =
+        VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&root).expect("catalog");
+    let expansion =
+        VerifiedRawRootExpansionV1::from_program(&root).expect("verified App expansion");
+    let ASTNode::Program { statements, .. } = root.clone() else {
+        panic!("verified Main source must parse a Program");
+    };
+    let mut builder = MirBuilder::new();
+    builder.prepare_module().expect("module shell");
+    builder
+        .comp_ctx
+        .install_callable_declaration_catalog(catalog)
+        .expect("catalog install");
+    let mut port = RecordingOrdinaryPortV1 {
+        record_only_static: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+
+    builder
+        .lower_program_root_with_callable_port_v1(statements, &root, &expansion, &mut port)
+        .expect("verified Main lowering");
+
+    assert_eq!(port.static_methods, vec!["Main.alpha/0", "Main.zeta/1"]);
+    assert_eq!(port.body_calls, 1);
+}
+
+#[test]
+fn verified_and_compatibility_main_share_required_callable_order() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source =
+        "static box Main { zeta(value) { return value } alpha() { return 1 } main() { return 0 } }";
+    let root = NyashParser::parse_from_string(source).expect("verified Main source");
+    let catalog =
+        VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&root).expect("catalog");
+    let expansion =
+        VerifiedRawRootExpansionV1::from_program(&root).expect("verified App expansion");
+    let ASTNode::Program { statements, .. } = root.clone() else {
+        panic!("verified Main source must parse a Program");
+    };
+    let mut selected_builder = MirBuilder::new();
+    selected_builder.prepare_module().expect("module shell");
+    selected_builder.comp_ctx.callable_main_compatibility_policy =
+        CallableMainCompatibilityPolicyV1::Required;
+    selected_builder
+        .comp_ctx
+        .install_callable_declaration_catalog(catalog)
+        .expect("catalog install");
+    let mut selected_port = RecordingOrdinaryPortV1 {
+        record_only_static: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+    selected_builder
+        .lower_program_root_with_callable_port_v1(statements, &root, &expansion, &mut selected_port)
+        .expect("verified Main lowering");
+
+    let (box_name, methods) = parsed_static_box(source);
+    let mut compatibility_builder = MirBuilder::new();
+    compatibility_builder
+        .prepare_module()
+        .expect("compatibility module shell");
+    compatibility_builder
+        .comp_ctx
+        .callable_main_compatibility_policy = CallableMainCompatibilityPolicyV1::Required;
+    let mut compatibility_port = RecordingOrdinaryPortV1 {
+        record_only_static: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+    compatibility_builder
+        .build_static_main_box_with_port_v1(&mut compatibility_port, box_name, methods)
+        .expect("explicit compatibility Main lowering");
+
+    let expected = vec!["Main.alpha/0", "Main.zeta/1", "Main.main/0"];
+    assert_eq!(selected_port.static_methods, expected);
+    assert_eq!(compatibility_port.static_methods, expected);
+    assert_eq!(selected_port.body_calls, 1);
+    assert_eq!(compatibility_port.body_calls, 1);
+}
+
+#[test]
+fn verified_main_helper_failure_stops_later_helpers_and_body() {
+    let root = NyashParser::parse_from_string(
+        "static box Main { zeta() { return 2 } alpha() { return 1 } main() { return 0 } }",
+    )
+    .expect("verified Main failure source");
+    let catalog =
+        VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&root).expect("catalog");
+    let expansion =
+        VerifiedRawRootExpansionV1::from_program(&root).expect("verified App expansion");
+    let ASTNode::Program { statements, .. } = root.clone() else {
+        panic!("verified Main source must parse a Program");
+    };
+    let mut builder = MirBuilder::new();
+    builder.prepare_module().expect("module shell");
+    builder
+        .comp_ctx
+        .install_callable_declaration_catalog(catalog)
+        .expect("catalog install");
+    let mut port = RecordingOrdinaryPortV1 {
+        fail_static_method: Some("Main.alpha/0".to_owned()),
+        record_only_static: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+
+    let error = builder
+        .lower_program_root_with_callable_port_v1(statements, &root, &expansion, &mut port)
+        .expect_err("first verified helper must fail");
+
+    assert_eq!(
+        error,
+        "[callable-main/lowering] selected static method failure: Main.alpha/0"
+    );
+    assert_eq!(port.static_methods, vec!["Main.alpha/0"]);
+    assert_eq!(port.body_calls, 0);
 }
 
 #[test]

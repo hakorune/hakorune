@@ -124,13 +124,13 @@ impl MirBuilder {
 
         let is_app_mode = expansion.is_app_mode();
         self.root_is_app_mode = Some(is_app_mode);
-        self.lower_program_statements_with_callable_port_v1(statements, is_app_mode, callables)
+        self.lower_program_statements_with_callable_port_v1(statements, expansion, callables)
     }
 
     fn lower_program_statements_with_callable_port_v1<Port>(
         &mut self,
         statements: Vec<ASTNode>,
-        is_app_mode: bool,
+        expansion: &VerifiedRawRootExpansionV1<'_>,
         callables: &mut Port,
     ) -> Result<ValueId, String>
     where
@@ -138,7 +138,7 @@ impl MirBuilder {
     {
         use crate::ast::ASTNode as N;
 
-        let mut main_static: Option<(String, HashMap<String, ASTNode>)> = None;
+        let is_app_mode = expansion.is_app_mode();
         let mut deferred_static_boxes: Vec<(String, HashMap<String, ASTNode>)> = Vec::new();
         for statement in &statements {
             if let N::BoxDeclaration {
@@ -154,9 +154,7 @@ impl MirBuilder {
             } = statement
             {
                 if *is_static {
-                    if name == "Main" {
-                        main_static = Some((name.clone(), methods.clone()));
-                    } else if is_app_mode {
+                    if name != "Main" && is_app_mode {
                         deferred_static_boxes.push((name.clone(), methods.clone()));
                     }
                 } else {
@@ -259,15 +257,11 @@ impl MirBuilder {
                 .lower_with_port_v1(self, callables)?;
         }
 
-        if is_app_mode {
-            if let Some((box_name, methods)) = main_static {
-                self.build_static_main_box_with_port_v1(callables, box_name, methods)
-                    .map_err(|error| error.to_string())
-            } else {
-                callables.lower_body(self, runtime_statements)
-            }
-        } else {
-            callables.lower_body(self, runtime_statements)
+        match expansion {
+            VerifiedRawRootExpansionV1::Script => callables.lower_body(self, runtime_statements),
+            VerifiedRawRootExpansionV1::App(main) => self
+                .build_verified_static_main_box_with_port_v1(callables, main)
+                .map_err(|error| error.to_string()),
         }
     }
 }

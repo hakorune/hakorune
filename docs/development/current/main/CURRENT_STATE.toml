@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The post-root-route census selected NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0. VerifiedMainExpansionV1 already carries the exact Main root, sorted static children, and callable-main projection, but selected Program lowering still rescans and clones the Main method map before entering the raw compatibility terminal. The next atomic cell consumes the verified projection directly and deletes that selected-normal re-projection."
+status = "NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0 is closed. Selected Program App lowering now consumes the existing VerifiedMainExpansionV1 directly for the Main root, sorted static children, and callable-main symbol. The raw Main method-map accumulator/clone, impossible App fallback, selected compatibility-facade edge, and helper re-sort/re-projection are deleted. Explicit raw Main compatibility retains the shared Main body/state kernel. A fresh read-only live-edge census is now the only design stop."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0"
-current_execution_summary = "T1 MODULE-LIFECYCLE0: carry the existing borrowed VerifiedMainExpansionV1 to the selected App terminal, lower its already-verified static children in exact order, and reuse the existing Main body/state kernel. Atomically delete the Program Main accumulator/method-map clone, selected Main re-selection, selected compatibility-facade call, and helper re-sort/re-projection. Explicit raw Main compatibility, Main state/args/callable-main ordering, grammar/result/publication, fallback/retry, View, and Ownership do not move."
+current_design_stop = "MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0"
+current_execution_row = ""
+current_execution_summary = ""
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0 is selected. The existing verified Main root/static-child/callable-main projection will become the only selected-normal Main source authority. Program lowering will stop locating and cloning the raw Main method map and will no longer call build_static_main_box_with_port_v1. A private shared Main body/state kernel may be extracted solely to preserve exact explicit-compatibility behavior. Helper order/errors, callable-main policy, args/state restoration behavior, result/publication, fallback/retry, View, and Ownership remain unchanged."""
+latest_card_summary = """NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0 is closed. Selected Program App lowering consumes VerifiedMainExpansionV1 directly, and the selected raw Main accumulator/clone, impossible fallback, compatibility facade call, helper re-sort, and symbol re-projection are zero. Helper order and first-failure stop, callable-main Required/Omitted behavior, explicit raw compatibility, general Program parity, candidate isolation/reuse, result/publication, fallback/retry, View, and Ownership remain unchanged. The sole next authority is a fresh live production-edge census."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0"
+current_blocker_token = "MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

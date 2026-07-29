@@ -1,5 +1,6 @@
 // Declarations lowering: static boxes and box declarations
 use super::calls::CanonicalFunctionSessionErrorV1;
+use super::main_expansion::VerifiedMainExpansionV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 use super::recursive_child_lowering::{RawBoxMethodChildPortV1, RawLegacyChildLoweringPortV1};
@@ -106,12 +107,67 @@ impl super::MirBuilder {
                 )?;
             }
         }
+        self.lower_static_main_root_with_port_v1(port, &box_name, methods.get("main"), None)
+    }
+
+    pub(in crate::mir::builder) fn build_verified_static_main_box_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        main: &VerifiedMainExpansionV1<'_>,
+    ) -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1>
+    where
+        Port: RootCallableCapturePortV1,
+    {
+        for child in main.static_children() {
+            let ASTNode::FunctionDeclaration {
+                params,
+                param_decls,
+                return_type_name,
+                body,
+                uses,
+                attrs,
+                ..
+            } = child.source()
+            else {
+                return Err(CallableMainCompatibilityLoweringErrorV1::Lowering(
+                    "[freeze:contract][main-expansion/static-child-source]".to_owned(),
+                ));
+            };
+            port.lower_static_box_method(
+                self,
+                child.symbol().to_owned(),
+                params.clone(),
+                param_decls.clone(),
+                return_type_name.clone(),
+                body.clone(),
+                uses.clone(),
+                attrs.clone(),
+            )?;
+        }
+        self.lower_static_main_root_with_port_v1(
+            port,
+            main.root().box_name(),
+            Some(main.root().source()),
+            main.callable_main_compat().map(|child| child.symbol()),
+        )
+    }
+
+    fn lower_static_main_root_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        box_name: &str,
+        main_method: Option<&ASTNode>,
+        verified_callable_symbol: Option<&str>,
+    ) -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1>
+    where
+        Port: RootCallableCapturePortV1,
+    {
         // Within this lowering, treat `me` receiver as this static box
         let saved_static = self.comp_ctx.current_static_box.clone();
-        self.comp_ctx.current_static_box = Some(box_name.clone());
+        self.comp_ctx.current_static_box = Some(box_name.to_owned());
         // Look for the main() method
         let out = (|| -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1> {
-            if let Some(main_method) = methods.get("main") {
+            if let Some(main_method) = main_method {
                 if let ASTNode::FunctionDeclaration {
                     params,
                     param_decls,
@@ -132,11 +188,16 @@ impl super::MirBuilder {
                     {
                         let trace = crate::mir::builder::control_flow::joinir::trace::trace();
                         // NamingBox SSOT: Use encode_static_method for main/arity entry
-                        let func_name = crate::mir::naming::encode_static_method(
-                            &box_name,
-                            "main",
-                            params.len(),
-                        );
+                        let func_name =
+                            verified_callable_symbol
+                                .map(str::to_owned)
+                                .unwrap_or_else(|| {
+                                    crate::mir::naming::encode_static_method(
+                                        box_name,
+                                        "main",
+                                        params.len(),
+                                    )
+                                });
                         trace.stderr_if(
                             "[DEBUG] build_static_main_box: Before lower_static_method_as_function",
                             true,
