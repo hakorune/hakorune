@@ -32,46 +32,38 @@ Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Latest landed: NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0
 Result:        selected Program declaration indexing is one source-only,
                source-ordered product; the old indexer edge and file are gone
-Current stop:  PROGRAM-ROOT-WORK-PARTITION0-D0
-Executable:    none — T2 design only
+Latest design: PROGRAM-ROOT-WORK-PARTITION0-D0 accepted
+Executable:    PROGRAM-ROOT-WORK-PARTITION0-I0-R0
 History:       Git history and the short landed tail below
 ```
 
 ## Current stop
 
-`PROGRAM-ROOT-WORK-PARTITION0-D0` — T2 source-only work-partition design
+`PROGRAM-ROOT-WORK-PARTITION0-I0-R0` — T2, one atomic implementation
 
 ```text
-Named live caller:
-  `MirBuilder::lower_program_root_with_callable_port_v1`
-  -> `lower_program_statements_with_callable_port_v1`
+Change:
+  The selected live caller replaces `lower_program_statements_with_callable_port_v1`
+  with one consuming `PreparedProgramRootWorkPlanV1`; delete the full lower-side AST
+  scan, runtime Function filter, deferred-static vector, and direct top-level function
+  port projection in the same commit.
 
-Current mixed authority:
-  The latter method reclassifies Program AST, schedules immediate instance/top-level
-  work, accumulates deferred non-Main static Box work, retains runtime statements,
-  and selects the existing Script/App terminal order.
+Contract:
+  The plan consumes the once-cloned statement vector and source-only partitions it into
+  immediate instance/top-level-function work, App-only deferred non-Main static work,
+  all non-Function runtime statements, and an already-verified Script/App terminal
+  schedule. Existing facts, static-table, instance/static/Main lifecycle, collector,
+  DraftSeal, result policy, and RootLower failure authority do not move.
 
-Design target:
-  One source-only, source-order `PreparedProgramRootWorkPlanV1` (name provisional)
-  that partitions the already-cloned statement vector exactly once. It may retain
-  owned work payloads, but owns no declaration facts, static-table planning,
-  instance/static/Main lifecycle, collector, body lowering, new source rejection,
-  or retry/fallback policy.
+Done:
+  Preserve `facts -> static-table -> immediate -> deferred -> terminal`, source order,
+  runtime Box retention, candidate discard/atomic collector behavior, and one root clone.
+  Add module-local partition/order evidence; retain normal parity, reuse, and imports gates.
 
-Required I0/R0 deletion after D0:
-  Delete the full lower-side Program `for statement` classifier, its runtime
-  `FunctionDeclaration` filter, local deferred-static vector, and direct top-level
-  callable projection. A wrapper around only one clone family is not a replacement.
-
-Preserve:
-  facts -> static-table -> work preparation order; immediate source order; deferred
-  static source order; runtime Box retention; existing Script/App terminal owners;
-  dirty candidate failure prefix and outer collector discard; root clone count.
-
-Do not select:
-  raw non-Program descent (NoSafeI0: selected normal is Program-only), Call
-  compatibility deletion (requires its own multi-owner D0), raw static-Main carrier
-  retirement (requires reachability/env-policy D0), or JoinModule deletion (final-C0).
+Stop:
+  Return to design for AST reclassification during execution, a second root clone or
+  source reread, new rejection/terminal ownership, changed Script/App behavior, partial
+  replacement, retry/fallback, or a need for a new per-row guard.
 ```
 
 ## Latest closeout
@@ -110,14 +102,13 @@ largest touched source/check file                       < 800
 
 ```text
 Now
-  1 PROGRAM-ROOT-WORK-PARTITION0-D0
-  2 if accepted, one atomic I0/R0 that deletes the full mixed Program-root classifier
+  1 PROGRAM-ROOT-WORK-PARTITION0-I0-R0
 
 Then, repeat
-  3 fresh live-edge census
-  4 select at most one named production edge or detached Delete asset
-  5 switch it and delete its old authority in the same commit
-  6 return to step 3
+  2 fresh live-edge census
+  3 select at most one named production edge or detached Delete asset
+  4 switch it and delete its old authority in the same commit
+  5 return to step 2
 
 When live cleanup reaches closure
   6 MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0
@@ -1458,6 +1449,8 @@ R91 NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0 closed: source-only facts
 R92 MIRBUILDER-LIVE-EDGE-CENSUS0 closed: raw non-Program is NoSafeI0, immediate
     compatibility retirement has no safe I0, and Program-root work partition is the
     sole selected T2 design stop; JoinModule remains final-C0 disposition work
+R93 PROGRAM-ROOT-WORK-PARTITION0-D0 closed: one total source-only partition of the
+    mixed Program-root coordinator is accepted; atomic I0/R0 is next
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
