@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The Print source-route-once replacement is closed; select the next live MirBuilder edge from a fresh read-only census."
+status = "The next live MirBuilder replacement seals one direct FunctionCall pre-effect route and deletes the Option/fallthrough preflight chain."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-PRINT-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = "RAW-PRINT-SOURCE-ROUTE-ONCE0-I0-R0 is closed: one prepared Function/Method TypeOp-or-General route replaces duplicate Print source probes, clones, and caller-zero facades while preserving legacy trace, child-port, emission, and unified-print policy."
+current_design_stop = ""
+current_execution_row = "RAW-DIRECT-FUNCTION-PREFLIGHT-ROUTE-ONCE0-I0-R0"
+current_execution_summary = "Prepare exactly one WeakReject, ExplicitExtern, Brand, exact TypeOp, Math, active FastMem, or Ordinary direct-FunctionCall route before child effects; preserve post-argument str/header/resolution timing and delete Option probes and caller-zero facades atomically."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

@@ -581,21 +581,22 @@ largest touched source/check file          = 799
 ## Current execution row
 Closed: `RAW-FROM-CALL-ROUTE-ONCE0-I0-R0`, `RAW-SCOPEBOX-BODY-ROUTE-ONCE0-I0-R0`.
 ```text
-Closed: RAW-ENUM-MATCH-ROUTE-ONCE0-I0-R0 and
-  RAW-FIELD-READ-SOURCE-ROUTE-ONCE0-I0-R0.
-Evidence: exact 5-route partition; record constructor/literal/update,
-  property, FastMem, failure/reuse, cargo check, and guards are green.
-Deleted: dispatcher clones, Option record probe, and read facades.
-Kept: post-child property/FastMem facts and all write/place paths.
-Closed: RAW-PRINT-SOURCE-ROUTE-ONCE0-I0-R0.
-Owner: opaque PreparedRawPrintV1 selects Function/Method TypeOp or General once.
-Deleted: CallExpr clone probe, duplicate FunctionCall observation,
-  operand/object clones, and both caller-zero Print facades.
-Preserved: legacy trace order, one selected child port, TypeOp then extern log,
-  General unified-print policy, failure behavior, and compiler reuse.
-Evidence: focused route/emission and invocation-port tests, cargo check,
-  shared guard, diff check; touched source/check files remain below 800.
-Current stop: MIRBUILDER-POST-PRINT-LIVE-EDGE-CENSUS0-D0.
+Closed: EnumMatch, Field-read, and Print route-once replacements.
+Evidence: exact prepared routes, effect/diagnostic parity, failure/reuse,
+  focused tests, cargo check, shared guards; old probes/clones/facades are zero.
+Current: RAW-DIRECT-FUNCTION-PREFLIGHT-ROUTE-ONCE0-I0-R0,
+  CALL-OBJECT0/T1, one atomic commit.
+Caller: raw dispatcher sole ASTNode::FunctionCall edge.
+Owner: effect-free, read-only Builder-observing PreparedRawFunctionPreflightV1.
+Priority: weak -> extern -> Brand -> exact TypeOp -> math ->
+  active FastMem -> Ordinary; one selected route, no retry.
+Delete: FunctionCall CallExpr conversion, Option preflight/typeop/math probes,
+  caller-zero direct-call/brand/extern/FastMem facades, and probe clones.
+Preserve after Ordinary arguments: str/1, unified/resolved choice,
+  header lookup, unique-static/tail resolution, diagnostics and effects.
+Exclude: MethodCall, indirect Call, CompoundAssignment, feature work.
+Hard stop: route choice after a child, special failure -> Ordinary,
+  or any post-argument resolution decision moves before argument descent.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
