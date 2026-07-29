@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Plain ScopeBox composition is closed. Safe root Throw is the sole design stop."
+status = "Safe root Throw is rejected for no concrete production constructor. Root ingress policy is the sole design stop."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-NONPROGRAM-SAFE-THROW-ROOT-DESCENT0-D0"
+current_design_stop = "RAW-NONPROGRAM-ROOT-INGRESS-POLICY0-D0"
 current_execution_row = ""
-current_execution_summary = "Read-only T1 selection: decide the root-only Throw(PortNeutralExprTreeV1) cutover over the existing cleanup-check, one same-port child demand, and existing Throw-or-debug-trace terminal. Do not activate source try/throw, admit Throw into BlockExpr/ScopeBox/TaskScope preludes, change cleanup/env/effect policy, add exception authority, or retry. After this cell, audit arbitrary-AST/AST-JSON/Stage1 NonProgram ingress policy as a caller-level batch; do not migrate the 19 OutsideNormalFileIngress kinds one by one."
+current_execution_summary = "Read-only caller-level census: inventory MirCompiler arbitrary-AST compatibility, runtime AST-JSON compatibility, and Stage1 post-macro NonProgram compatibility; select caller retirement, Program-only typed admission, or an exact bounded residual contract. Do not migrate the 19 OutsideNormalFileIngress kinds one by one, add a second route, narrow a live contract without parity evidence, activate Context/View/Throw, or retry."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"

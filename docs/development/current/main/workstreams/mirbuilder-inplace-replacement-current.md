@@ -593,19 +593,17 @@ new source/test/check file           = 0
 largest touched source/check file    = 798
 ```
 
-## Current design stop: `RAW-NONPROGRAM-SAFE-THROW-ROOT-DESCENT0-D0`
+## Current design stop: `RAW-NONPROGRAM-ROOT-INGRESS-POLICY0-D0`
 
 ```text
-Candidate:
-  root-only Throw(expression = PortNeutralExprTreeV1)
-Existing owner:
-  cleanup preflight -> one same-port child -> Throw or current debug trace
-Proposed delete:
-  safe Throw -> SeparateDesignStop -> raw compatibility = 0
-Following mandatory census:
-  arbitrary-AST / AST-JSON / Stage1 NonProgram ingress policy as one batch
+Audit:
+  MirCompiler arbitrary AST; runtime AST-JSON; Stage1 post-macro NonProgram
+Decision:
+  caller retirement, Program-only admission, or exact bounded residual contract
+Rejected precursor:
+  safe bare Throw has no concrete current production constructor
 Forbid:
-  grammar activation, prelude admission, policy change, retry, per-kind outside migration
+  per-kind outside migration, contract narrowing without parity, second route, retry
 ```
 
 Compatibility sunset:
@@ -716,7 +714,8 @@ R22 RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-D0 closed: Accept
 R23 RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-I0-R0 closed
 R24 RAW-NONPROGRAM-PLAIN-SCOPEBOX-COMPOSITIONAL-DESCENT0-D0 closed: Accept
 R25 RAW-NONPROGRAM-PLAIN-SCOPEBOX-COMPOSITIONAL-DESCENT0-I0-R0 closed
-R26 RAW-NONPROGRAM-SAFE-THROW-ROOT-DESCENT0-D0 current
+R26 RAW-NONPROGRAM-SAFE-THROW-ROOT-DESCENT0-D0 closed: NoProductionConstructor
+R27 RAW-NONPROGRAM-ROOT-INGRESS-POLICY0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
