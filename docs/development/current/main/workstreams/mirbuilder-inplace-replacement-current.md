@@ -28,38 +28,66 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 ## Current state
 
 ```text
-Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
+Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
 Latest landed: FINALIZE0-CONDITIONFN-RET0-I0-R0
 Result:        finalization and Call materialization no longer carry the
                synthetic `condition_fn` compatibility semantics
-Latest design: `JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0`
-Executable:    none — repository asset disposition design stop
+Latest design: `JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0` closed
+Executable:    `DERIVED-CONDITIONFN-SHADOW-RETIRE0-RET0`
 History:       Git history and the short landed tail below
 ```
 
-## Current design stop
+## Disposition closeout
 
-`JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0` — classify non-mainline
-JoinModule and detached evidence assets
+`JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0` — T2 disposition, closed
+
+```text
+normal/default JoinModule execution = 0
+
+REOWN (separate CorePlan/MIR rows):
+  CFG/boundary carriers (`JumpArgsLayout`, `JoinInlineBoundary`, carrier and
+  loop-scope facts); finalization type helpers; shared operator/error policy.
+
+RETIRE (after each named closure):
+  normalized-shadow emission/observation, direct JoinIR runner, and cfg(test)
+  VM-bridge handlers. They are not final planners or acceptance truth.
+
+RETAIN-FENCED:
+  JoinIR model/lowering/JSON/format only while required by the explicit
+  `NYASH_JOINIR_VM_BRIDGE` VM route or LLVM experiment gates. Neither is a
+  normal/default route; their sunset is decided before R4.
+
+DERIVEDSHADOW:
+  all 48 manifests are `mainline_selected=0`. Retire the direct stale
+  `condition_fn_injection` bundle now; reown/refresh bounded-finalize,
+  function-region-stack, and aggregate evidence that named its deleted edge;
+  retain the remaining 45 caller-zero reference families. Raw root condition
+  drafts are a separate live owner and are excluded.
+```
+
+## Current execution
+
+`DERIVED-CONDITIONFN-SHADOW-RETIRE0-RET0` — T1 caller-zero asset retirement
 
 ```text
 Change:
-  produce one consumer/carrier inventory over JoinModule families and detached
-  DerivedShadow assets, including `condition_fn` injection evidence.
+  delete the direct `condition_fn_injection` generated bundle, generator,
+  dedicated guards, and fixture closure; refresh surviving evidence rather
+  than retaining a deleted finalization edge.
 
 Contract:
-  each family is retain, reown, or retire with an exact consumer, activation
-  gate, owner, and evidence. CorePlan stays separate; no normal/default planner
-  resurrection, name-only deletion, fallback, or source feature activation.
+  `RawRequiredConditionDraftV1` remains untouched. This is neither a
+  JoinModule reown nor a normal/default route change; no planner, fallback, or
+  feature activation is permitted.
 
 Done:
-  every family has a disposition and any action is a later named row. R4 can
-  verify this ledger rather than making its first disposition decision.
+  direct stale bundle = 0; refreshed evidence states the finalizer edge is
+  retired; remaining DerivedShadow references stay caller-zero; focused
+  lifecycle/artifact gates are green.
 
 Stop:
-  return to design if a family lacks a consumer/carrying boundary, if retaining
-  it would make it a planner/acceptance truth, or if a deletion crosses another
-  family without a named replacement.
+  return to D0 if a target has a live semantic consumer, requires moving a
+  CorePlan carrier, or makes any reference asset a normal/default authority.
 ```
 
 ## Census9 closeout
@@ -324,16 +352,22 @@ R2 Live responsibility replacement
   separate D0 boundaries. Loop work uses the active Recipe/CorePlan route;
   legacy JoinModule is never reactivated as a normal/default planner.
 
-R3 Legacy JoinModule disposition
-  only after R1 records R2 closure/no safe live edge, and before final conformance, open
-  JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0. Classify every family as retain,
-  reown, or retire; any action is a separate named row. No name-only tree
-  deletion, normal/default route resurrection, or unresolved family is allowed.
+R3 Legacy JoinModule/reference disposition
+  `JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0` is closed. Execute only the
+  current condition_fn DerivedShadow RET0 closure. Then reconsider, one at a
+  time and with a fresh consumer census:
+  1. `JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0`;
+  2. `JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0`;
+  3. `JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0`.
+  These are ordering boundaries, not pre-authorized implementations. No
+  name-only tree deletion, normal/default route resurrection, or unresolved
+  family is allowed.
 
 R4 Final conformance
   MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0 decides Complete only when the
   live-edge ledger, compatibility/detached-asset disposition, JoinModule
-  disposition, and accepted-corpus/backend parity are all green.
+  disposition (including every named R3 closure or fence), and
+  accepted-corpus/backend parity are all green.
 
 R5 Features, strictly after Complete
   refresh Ownership readiness -> implement Ownership -> View D0 and
