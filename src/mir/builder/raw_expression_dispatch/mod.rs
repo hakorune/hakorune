@@ -256,7 +256,7 @@ impl super::MirBuilder {
                     // adapter preserves the existing inline-main behavior.
                     port.lower_static_main_box(self, name.clone(), methods.clone())
                 } else if is_static {
-                    // In App mode (Main/main present), static boxes are lowered in lower_root().
+                    // In App mode, the typed Program root owner lowers static boxes.
                     // Here we only handle Script/Test mode or non-root contexts.
                     let is_app_mode = self.root_is_app_mode.unwrap_or(false);
                     if is_app_mode {

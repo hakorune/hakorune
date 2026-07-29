@@ -214,7 +214,7 @@
     },
     "semantic_closure_report": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/minimal-mirbuilder-execution-path-semantic-closure-report-v0.json",
-      "sha256": "77bd29e2e005a65746660b551124b3a09d29af9805dfc48e61dd9b0eaee413e2"
+      "sha256": "be07d28cb10fed0a6c5b5714b6558d62f9ab8d318d3f86d8397a5323310f080b"
     }
   },
   "source_order_prefix": [
@@ -225,7 +225,7 @@
       "required_capability": "PreparedMirBuilderStateV1"
     },
     {
-      "callsite": "MirBuilder::build_module -> prepare_module",
+      "callsite": "owner-local composition -> prepare_module",
       "edge_id": "build_module.prepare_module",
       "provider_kind": "LiveSourceOrder",
       "required_capability": "RustSourceCallOrder"

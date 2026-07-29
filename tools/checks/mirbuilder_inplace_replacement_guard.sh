@@ -11,6 +11,7 @@ STRUCTURAL_RATCHET="$ROOT_DIR/docs/development/current/main/design/fixtures/mirb
 LOWERING="$ROOT_DIR/src/mir/builder/calls/lowering.rs"
 PORT_OWNER="$ROOT_DIR/src/mir/builder/port_aware_function_draft_impl.rs"
 MODULE_LIFECYCLE="$ROOT_DIR/src/mir/builder/module_lifecycle.rs"
+PROGRAM_ROOT="$ROOT_DIR/src/mir/builder/program_root_lowering.rs"
 COMPILER="$ROOT_DIR/src/mir/compiler/mod.rs"
 MODULE_SESSION="$ROOT_DIR/src/mir/builder/module_invocation_session.rs"
 NORMAL_PIPELINE="$ROOT_DIR/src/mir/compiler/normal_default_pipeline.rs"
@@ -61,6 +62,7 @@ guard_require_files \
   "$LOWERING" \
   "$PORT_OWNER" \
   "$MODULE_LIFECYCLE" \
+  "$PROGRAM_ROOT" \
   "$COMPILER" \
   "$MODULE_SESSION" \
   "$NORMAL_PIPELINE" \
@@ -340,7 +342,7 @@ finalize_port_aware_draft_for_legacy_v1 2
 EOF
 
 while read -r symbol expected; do
-  count="$(rg -o -F "$symbol" "$MODULE_LIFECYCLE" | wc -l | tr -d '[:space:]')"
+  count="$(rg -o -F "$symbol" "$PROGRAM_ROOT" | wc -l | tr -d '[:space:]')"
   if [[ "$count" != "$expected" ]]; then
     guard_fail "$TAG" "ordinary collector production edge drift: $symbol count=$count expected=$expected"
   fi

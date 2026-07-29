@@ -578,24 +578,24 @@ new source/test/check/task file            = 0
 largest touched source/check file          = 799
 ```
 
-## Current execution
-`MIRBUILDER-PUBLIC-ROOT-API0-RET0` — T2 breaking series 5/5
+## Current design stop
+`RAW-NONPROGRAM-ROOT-COMPAT-RET0-D0` — read-only
 ```text
-Change:
-  Delete public build_module and the dead generic root wrappers after all
-  repository callers reached zero.
+Observed:
+  Public build_module and its three generic root wrappers are zero.
+  raw_nonprogram_root_descent now has production/test execution callers = 0.
 
-Contract:
-  Keep MirBuilder itself, typed Program lowering, responsibility-local node
-  kernels, prepare/finalize, and the stable build_module timing label.
+Decide:
+  Exact file/type/test/guard retirement boundary for the disconnected owner,
+  preserving any node-responsibility evidence that is still uniquely useful.
 
-Done:
-  Definition/callers/generic wrappers are zero; live guards/current source
-  artifacts describe the typed lifecycle and release build is green.
+Keep:
+  Typed Program lowering, responsibility-local node kernels, MirBuilder,
+  prepare/finalize, and the stable build_module timing label.
 
-Stop:
-  Do not add a private/cfg(test)/deprecated replacement facade, rename the
-  timing label, or close the separate Raw non-Program compatibility sunset.
+Forbid:
+  New compatibility caller, proof-only route expansion, grammar change,
+  Ownership/View activation, or source-level feature work.
 ```
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
@@ -603,7 +603,7 @@ Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 2 HOST-PROVIDER-CFGTEST-AST-JSON-COMPAT0-RET0 closed (5 -> 4)
 3 MIRBUILDER-RAW-OWNER-TEST-EVIDENCE0-R0 closed (4 -> 1)
 4 MIRBUILDER-MINIMAL-LIFECYCLE-SMOKE0-R0 closed (1 -> 0)
-5 MIRBUILDER-PUBLIC-ROOT-API0-RET0 current
+5 MIRBUILDER-PUBLIC-ROOT-API0-RET0 closed (definition/wrappers -> 0)
 ```
 External consumers are unknown, not zero. Migration is `MirCompiler::compile*`
 for Program; no public arbitrary-root replacement is introduced.
@@ -611,7 +611,7 @@ for Program; no public arbitrary-root replacement is introduced.
 Compatibility sunset:
 ```text
 sunset_id: RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
-state: active
+state: retirement-selected; execution callers = 0
 residual_kind_count: 36
 retire when: owner definition, registered residual surface, and root-specific
   drive_raw_legacy_expression_v1 production edge are all zero

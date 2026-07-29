@@ -18,7 +18,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle"
 
-BUILDER_BUILD = ROOT / "src/mir/builder/builder_build.rs"
+MINIMAL_COMPOSITION_TEST = ROOT / "src/mir/builder/module_lifecycle_capture_tests.rs"
 MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
 
 BUNDLE_MANIFEST = (
@@ -154,17 +154,17 @@ def require_order(text: str, needles: list[str], label: str) -> list[dict[str, A
 
 
 def extract_source_order_facts() -> dict[str, Any]:
-    build_text = BUILDER_BUILD.read_text()
+    composition_text = MINIMAL_COMPOSITION_TEST.read_text()
     lifecycle_text = MODULE_LIFECYCLE.read_text()
 
     build_order = require_order(
-        build_text,
+        composition_text,
         [
-            "self.prepare_module()?;",
-            "let result_value = self.lower_root(ast)?;",
-            "self.finalize_module(result_value)",
+            'builder.prepare_module().expect("module shell");',
+            ".build_literal(LiteralValue::Integer(0))",
+            'builder.finalize_module(literal).expect("final module");',
         ],
-        "MirBuilder::build_module",
+        "owner-local minimal lifecycle composition",
     )
     prepare_order = require_order(
         lifecycle_text,
@@ -174,8 +174,8 @@ def extract_source_order_facts() -> dict[str, Any]:
             "let entry_block = self.next_block_id();",
             "let mut main_function = self.new_function_with_metadata(main_signature, entry_block);",
             "self.current_module = Some(module);",
-            "self.scope_ctx.current_function = Some(main_function);",
-            "self.current_block = Some(entry_block);",
+            "self.function_state.current_function = Some(main_function);",
+            "self.function_state.current_block = Some(entry_block);",
         ],
         "MirBuilder::prepare_module",
     )
@@ -183,7 +183,10 @@ def extract_source_order_facts() -> dict[str, Any]:
     return {
         "kind": "MirBuilderMinimalPathSourceOrderFactsV1",
         "source_files": [
-            {"path": rel(BUILDER_BUILD), "sha256": sha256_text(build_text)},
+            {
+                "path": rel(MINIMAL_COMPOSITION_TEST),
+                "sha256": sha256_text(composition_text),
+            },
             {"path": rel(MODULE_LIFECYCLE), "sha256": sha256_text(lifecycle_text)},
         ],
         "build_module_order": build_order,
@@ -1129,7 +1132,7 @@ def build_plan() -> dict[str, Any]:
         },
         {
             "id": "build_module.prepare_module",
-            "callsite": "MirBuilder::build_module -> prepare_module",
+            "callsite": "owner-local composition -> prepare_module",
             "required_capability": "RustSourceCallOrder",
             "provider": {"kind": "LiveSourceOrder", "facts": "build_module_order"},
         },
@@ -1235,7 +1238,7 @@ def build_plan() -> dict[str, Any]:
         },
         {
             "id": "minimal_execution_path.smoke",
-            "callsite": "PreparedMirBuilderStateV1 build_module(ASTNode::Literal(Integer(0))) smoke",
+            "callsite": "prepare_module -> build_literal(Integer(0)) -> finalize_module smoke",
             "required_capability": "MinimalExecutionPathSmoke",
             "provider": {
                 "kind": "CapabilityPlan",
@@ -1594,7 +1597,7 @@ def build_plan() -> dict[str, Any]:
 
     return {
         "kind": "MinimalMirBuilderExecutionPathPlanV1",
-        "source_entry": "MirBuilder::build_module",
+        "source_entry": "owner-local minimal lifecycle composition",
         "input_profile": {
             "ast": "ASTNode::Literal(Integer(0))",
         },

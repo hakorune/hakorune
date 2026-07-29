@@ -7,7 +7,7 @@
 //! - Index user-defined boxes before AST lowering
 //! - Record narrow verified static scalar facts
 //!
-//! Called by: `lower_root()` in module_lifecycle.rs
+//! Called by the typed Program root owner in `program_root_lowering.rs`.
 
 use super::declaration_order::sorted_method_entries;
 use super::MirBuilder;

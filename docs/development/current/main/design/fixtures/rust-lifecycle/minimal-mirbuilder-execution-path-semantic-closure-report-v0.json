@@ -64,7 +64,7 @@
     },
     {
       "edge_id": "build_module.prepare_module",
-      "callsite": "MirBuilder::build_module -> prepare_module",
+      "callsite": "owner-local composition -> prepare_module",
       "status": "Available",
       "required_capability": "RustSourceCallOrder",
       "semantic_status": "Available",
@@ -195,7 +195,7 @@
     },
     {
       "edge_id": "minimal_execution_path.smoke",
-      "callsite": "PreparedMirBuilderStateV1 build_module(ASTNode::Literal(Integer(0))) smoke",
+      "callsite": "prepare_module -> build_literal(Integer(0)) -> finalize_module smoke",
       "status": "Available",
       "required_capability": "MinimalExecutionPathSmoke",
       "semantic_status": "Available",

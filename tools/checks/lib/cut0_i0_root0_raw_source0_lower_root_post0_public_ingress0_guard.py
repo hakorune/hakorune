@@ -424,8 +424,8 @@ def main() -> int:
         "lower_program_root_with_callable_port_v1",
         "shared generic Program kernel",
     )
-    if module_lifecycle.count("lower_program_root_with_callable_port_v1") != admission.get(
-        "generic_program_branch_calls"
+    if program_root_lowering.count("self.lower_program_root_with_callable_port_v1(") != admission.get(
+        "selected_program_kernel_calls"
     ):
         raise AssertionError("generic Program branch reuse drift")
     if "ast: ASTNode" in text_between(
@@ -464,8 +464,8 @@ def main() -> int:
         root_descent.get("sunset_id", ""),
         "raw root compatibility sunset",
     )
-    if root_descent.get("sunset_state") != "active":
-        raise AssertionError("raw root compatibility sunset must remain active")
+    if root_descent.get("sunset_state") != "retirement-selected":
+        raise AssertionError("disconnected raw root compatibility must remain selected for retirement")
     if root_descent.get("residual_kind_count") != 36:
         raise AssertionError("raw root compatibility residual count drift")
     ast_node_kinds = ast_kinds(
@@ -759,18 +759,18 @@ def main() -> int:
     if actual_build_module != expected_build_module:
         raise AssertionError("direct production build_module caller drift: "
                              f"expected={expected_build_module} actual={actual_build_module}")
-    runtime_emit = (ROOT / "src/runtime/mirbuilder_emit.rs").read_text()
-    if "json_to_ast" in runtime_emit or "lower_ast_json_to_module" in runtime_emit: raise AssertionError("runtime AST-JSON compatibility must remain retired")
+    if "json_to_ast" in (runtime_emit := (ROOT / "src/runtime/mirbuilder_emit.rs").read_text()) or "lower_ast_json_to_module" in runtime_emit: raise AssertionError("runtime AST-JSON compatibility must remain retired")
     test_bridge = ROOT / "src/host_providers/mir_builder/lowering/ast_json.rs"
     if test_bridge.exists(): raise AssertionError("cfg(test) AST-JSON compatibility returned")
-    expected_test_build = caller_manifest.get("direct_build_module_repository_tests", {})
-    actual_test_build = {}
+    expected_test_build = caller_manifest.get("direct_build_module_repository_tests", {}); actual_test_build = {}
     for root in (ROOT / "src", ROOT / "tests"):
         for path in root.rglob("*.rs"):
             count = path.read_text().count(".build_module(")
             if count: actual_test_build[str(path.relative_to(ROOT))] = count
     if actual_test_build != expected_test_build: raise AssertionError(
         f"direct test build_module caller drift: expected={expected_test_build} actual={actual_test_build}")
+    module_lifecycle = (ROOT / "src/mir/builder/module_lifecycle.rs").read_text()
+    if "pub fn build_module" in (ROOT / "src/mir/builder/builder_build.rs").read_text() or any(retired in module_lifecycle for retired in ("fn lower_root(", "fn lower_root_after_callable_catalog_install_v1(", "fn lower_root_after_callable_catalog_install_with_callable_port_v1")): raise AssertionError("generic public/root wrapper returned")
     old_calls = []
     old_definitions = {
         ROOT / "src/mir/compiler/module_postprocess.rs",

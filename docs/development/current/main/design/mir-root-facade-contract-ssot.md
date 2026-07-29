@@ -139,16 +139,15 @@ are the public pre-Builder failure transport. The Raw syntax carrier remains
 crate-internal to its explicit NarrowV1 lifecycle and cannot select the public
 compiler route.
 
-`MIRBUILDER-PUBLIC-ROOT-API0-D0` selects an explicit T2 breaking retirement of
-`MirBuilder::build_module(ASTNode)`. Repository production callers are zero,
-but unknown downstream callers are a non-claim. Whole-file users migrate to
-`MirCompiler::compile*`; arbitrary-root behavior has no replacement public API
-and remains only as responsibility-local test evidence. A short buildable
-series first relocates that evidence, then deletes the public method and dead
-generic lifecycle wrappers. No deprecated, feature-gated, `doc(hidden)`, or
-test-only public facade may prolong the second module lifecycle. The
-`MirBuilder` type, module, root re-export, and live lowering kernels are
-separate contracts and remain unchanged.
+`MIRBUILDER-PUBLIC-ROOT-API0-RET0` closes the explicit T2 breaking retirement of
+`MirBuilder::build_module(ASTNode)`. Repository callers and the dead generic
+root wrappers are zero; unknown downstream callers remain a recorded
+non-claim. Whole-file users migrate to `MirCompiler::compile*`; arbitrary-root
+behavior has no replacement public API and remains only as
+responsibility-local test evidence. No deprecated, feature-gated,
+`doc(hidden)`, private, or test-only facade prolongs the second module
+lifecycle. The `MirBuilder` type, module, root re-export, typed Program
+lowering, and live node kernels are separate contracts and remain unchanged.
 
 P0c-B1 adds the compiler-facade pair
 `VerifiedResolvedCallableProgramV1` and

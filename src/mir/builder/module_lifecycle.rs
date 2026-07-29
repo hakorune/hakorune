@@ -4,17 +4,14 @@
 //!
 //! # Purpose
 //!
-//! Orchestrates the complete MIR module construction pipeline:
+//! Owns the shared setup and finalization kernels used by typed module owners:
 //! 1. prepare_module() - Module setup and entry point creation
-//! 2. lower_root() - Catalog sealing, remaining declaration indexing, and AST lowering
-//! 3. finalize_module() - Type propagation, PHI inference, module sealing
+//! 2. finalize_module() - Type propagation, PHI inference, module sealing
 //!
 //! # Architecture
 //!
 //! This orchestrator delegates to specialized modules:
 //!
-//! - **callable_declaration_catalog** - Seals the complete callable declarations once
-//! - **declaration_indexer** - Pre-indexes remaining non-callable declaration facts
 //! - **type_hint_providers** - Annotates Call/BoxCall/Await result types
 //! - **phi_type_inference** - Multi-phase PHI return type resolution
 //!
@@ -22,13 +19,7 @@
 //!
 //! ```text
 //! prepare_module()
-//!   ↓
-//! lower_root()
-//!   ├→ callable catalog seal + install            (Complete callable authority)
-//!   ├→ declaration_indexer::index_declarations()  (Remaining declaration facts)
-//!   ├→ declaration_indexer::has_main_static()      (App vs Script mode)
-//!   └→ AST lowering (build_expression, etc.)
-//!   ↓
+//!   ↓ typed Program or responsibility-local lowering owner
 //! finalize_module()
 //!   ├→ TypePropagationPipeline::run()              (Copy → BinOp → PHI)
 //!   ├→ type_hint_providers::annotate_*()           (Call result types)
@@ -38,14 +29,11 @@
 //!
 //! # Critical Constraints
 //!
-//! 1. **Execution order固定**: prepare → lower → finalize
+//! 1. **Execution order固定**: typed owner enforces prepare → lower → finalize
 //! 2. **Type propagation BEFORE PHI inference**: TypePropagationPipeline runs first
 //! 3. **Type hints BEFORE PHI inference**: Ensures value_types populated
 //! 4. **PHI resolver order固定**: A → B → P3-D → P4 → P3-C
 //!
-use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
-use super::module_draft_collector::ModuleDraftCollectorV1;
-use super::module_lowering_invocation::ModuleLoweringPortV1;
 use super::recursive_child_lowering::{
     RawAstChildLoweringPortV1, RawBoxMethodChildPortV1, RawInvocationChildPortV1,
     RawLegacyChildLoweringPortV1,
@@ -57,8 +45,6 @@ use super::{
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::config;
 
-// Phase 29bq+: Declaration indexing extracted to dedicated module
-use super::declaration_indexer;
 // Phase 29bq+: PHI type inference extracted to dedicated module
 use super::phi_type_inference;
 // Phase 29bq+: Type hint provision extracted to dedicated module
@@ -154,95 +140,7 @@ impl super::MirBuilder {
         Ok(())
     }
 
-    /// Lower root AST to MIR (Orchestrator Step 2)
-    ///
-    /// Execution flow:
-    /// 1. Complete callable catalog seal and install
-    /// 2. Remaining declaration indexing (delegation to declaration_indexer)
-    /// 3. App vs Script mode detection
-    /// 4. AST lowering (build_expression, etc.)
-    pub(super) fn lower_root(&mut self, ast: ASTNode) -> Result<ValueId, String> {
-        let snapshot = ast.clone();
-
-        // Seal the complete declaration authority before any legacy indexing
-        // or body-lowering effect. Every root, including a scalar root, owns
-        // exactly one installed catalog for this Builder session.
-        let callable_catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&snapshot)
-            .map_err(|error| format!("[mir/callable-catalog/seal] {error:?}"))?;
-        self.comp_ctx
-            .install_callable_declaration_catalog(callable_catalog)
-            .map_err(|error| error.to_string())?;
-
-        self.lower_root_after_callable_catalog_install_v1(ast, &snapshot)
-    }
-
-    /// Shared root-lowering kernel after the complete callable catalog is
-    /// already installed. Source selection and catalog installation remain
-    /// outside this function; it preserves the existing indexing and lowering
-    /// order without re-sealing or re-classifying the root.
-    pub(in crate::mir::builder) fn lower_root_after_callable_catalog_install_v1(
-        &mut self,
-        ast: ASTNode,
-        snapshot: &ASTNode,
-    ) -> Result<ValueId, String> {
-        let mut collector = ModuleDraftCollectorV1::default();
-        let result = {
-            let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
-            let mut port = RawInvocationChildPortV1::new(&mut module_port);
-            self.lower_root_after_callable_catalog_install_with_callable_port_v1(
-                ast, snapshot, &mut port,
-            )
-        }?;
-        let drafts = collector.into_draft_functions();
-        self.current_module
-            .as_mut()
-            .ok_or_else(|| "[freeze:contract][mir/callable-collector/module-missing]".to_owned())?
-            .try_add_functions_atomic(drafts)
-            .map_err(|error| {
-                format!("[freeze:contract][mir/callable-collector/atomic-commit] {error}")
-            })?;
-        Ok(result)
-    }
-
-    pub(in crate::mir::builder) fn lower_root_after_callable_catalog_install_with_callable_port_v1<
-        Port,
-    >(
-        &mut self,
-        ast: ASTNode,
-        snapshot: &ASTNode,
-        callables: &mut Port,
-    ) -> Result<ValueId, String>
-    where
-        Port: RootCallableCapturePortV1,
-    {
-        use super::raw_nonprogram_root_descent::PreparedRawRootPartitionV1 as RootPartition;
-        match RootPartition::classify(ast) {
-            RootPartition::Program { statements } => {
-                self.lower_program_root_with_callable_port_v1(statements, snapshot, callables)
-            }
-            RootPartition::NonProgram(root) => {
-                declaration_indexer::index_declarations(self, snapshot);
-                if let Some(module) = self.current_module.as_mut() {
-                    let specs = crate::mir::static_data_plan::collect_static_table_specs_from_ast(
-                        &module.name,
-                        snapshot,
-                    )?;
-                    let plans = crate::mir::static_data_plan::static_data_plans_from_specs(&specs);
-                    module.metadata.static_table_contract_specs = specs;
-                    module.metadata.static_data_plans = plans;
-                }
-                let is_app_mode = self
-                    .root_is_app_mode
-                    .unwrap_or_else(|| declaration_indexer::has_main_static(snapshot));
-                self.root_is_app_mode = Some(is_app_mode);
-                super::raw_nonprogram_root_descent::lower_raw_nonprogram_root_with_port_v1(
-                    self, callables, root,
-                )
-            }
-        }
-    }
-
-    /// Finalize MIR module (Orchestrator Step 3)
+    /// Finalize MIR module after a typed or responsibility-local lowering owner.
     ///
     /// Execution flow:
     /// 1. Type propagation (TypePropagationPipeline)

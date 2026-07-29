@@ -65,7 +65,7 @@
     "request_issuer_calls": 1,
     "program_kernel_file": "src/mir/builder/program_root_lowering.rs",
     "selected_lifecycle_calls": 1,
-    "generic_program_branch_calls": 1,
+    "selected_program_kernel_calls": 1,
     "selected_generic_partition_calls": 0,
     "mircompiler_compat_sunset": "MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001",
     "runtime_ast_json_compat_sunset": "RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001"
@@ -89,7 +89,7 @@
     "definition_anchor": "pub(super) enum PreparedRawRootPartitionV1",
     "caller_file": "src/mir/builder/module_lifecycle.rs",
     "caller_anchor": "lower_raw_nonprogram_root_with_port_v1",
-    "callers": 1,
+    "callers": 0,
     "selected_driver_anchor": "drive_legacy_expression_v1(builder, selected_port, root.into_node())",
     "selected_driver_calls": 1,
     "compatibility_driver_anchor": "drive_raw_legacy_expression_v1(builder, node)",
@@ -97,7 +97,7 @@
     "retired_anchor": "self.build_expression(other)",
     "retired_calls": 0,
     "sunset_id": "RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001",
-    "sunset_state": "active",
+    "sunset_state": "retirement-selected",
     "residual_kind_count": 36,
     "selected_block_prelude_responsibilities": [
       "expr_tree",

@@ -57,7 +57,7 @@
       "status": "Available"
     },
     {
-      "callsite": "MirBuilder::build_module -> prepare_module",
+      "callsite": "owner-local composition -> prepare_module",
       "edge_id": "build_module.prepare_module",
       "provider": {
         "facts": "build_module_order",
@@ -153,7 +153,7 @@
       "status": "Available"
     },
     {
-      "callsite": "PreparedMirBuilderStateV1 build_module(ASTNode::Literal(Integer(0))) smoke",
+      "callsite": "prepare_module -> build_literal(Integer(0)) -> finalize_module smoke",
       "contract_reference": {
         "artifact_state": "Observed",
         "capability": "MinimalExecutionPathSmoke",
@@ -462,5 +462,5 @@
       "status": "Unsupported"
     }
   ],
-  "source_entry": "MirBuilder::build_module"
+  "source_entry": "owner-local minimal lifecycle composition"
 }

@@ -141,19 +141,21 @@ def verify_cutover_owner(root: Path) -> dict[str, int]:
         require(retired not in builder_sources, f"retired authority remains in Rust: {retired}")
 
     lifecycle = (root / "src/mir/builder/module_lifecycle.rs").read_text(encoding="utf-8")
+    program_root = (root / "src/mir/builder/program_root_lowering.rs").read_text(
+        encoding="utf-8"
+    )
     require(
         lifecycle.count(".clear_callable_declaration_catalog()") == 1,
         "catalog clear production caller count drift",
     )
     require(
-        lifecycle.count(".install_callable_declaration_catalog(callable_catalog)") == 1,
+        program_root.count(".install_callable_declaration_catalog(catalog)") == 1,
         "catalog install production caller count drift",
     )
-    lower_root = lifecycle[lifecycle.index("pub(super) fn lower_root") :]
     require(
-        lower_root.index("VerifiedSameModuleCallableDeclarationCatalogV1::seal_root")
-        < lower_root.index("install_callable_declaration_catalog(callable_catalog)")
-        < lower_root.index("declaration_indexer::index_declarations"),
+        program_root.index("VerifiedSameModuleCallableDeclarationCatalogV1::seal_root")
+        < program_root.index("install_callable_declaration_catalog(catalog)")
+        < program_root.index("declaration_indexer::index_declarations"),
         "catalog seal/install must precede declaration indexing",
     )
     return {"decision_owners": 1, "production_consumers": consumers}
@@ -170,6 +172,7 @@ def verify_closeout_contract(root: Path) -> dict[str, int]:
         path.read_text(encoding="utf-8") for path in production_paths
     )
     lifecycle = (builder_root / "module_lifecycle.rs").read_text(encoding="utf-8")
+    program_root = (builder_root / "program_root_lowering.rs").read_text(encoding="utf-8")
     context = (builder_root / "compilation_context.rs").read_text(encoding="utf-8")
     catalog = (CATALOG_DIR / "catalog.rs")
     catalog_source = (root / catalog).read_text(encoding="utf-8")
@@ -191,12 +194,12 @@ def verify_closeout_contract(root: Path) -> dict[str, int]:
         "declaration catalog definition count drift",
     )
     require(
-        lifecycle.count("VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&snapshot)")
+        program_root.count("VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(source.source_ast())")
         == 1,
         "production catalog producer count drift",
     )
     require(
-        lifecycle.count(".install_callable_declaration_catalog(callable_catalog)") == 1,
+        program_root.count(".install_callable_declaration_catalog(catalog)") == 1,
         "catalog install-per-root count drift",
     )
     require(

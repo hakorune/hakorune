@@ -30,6 +30,7 @@ def main() -> int:
         "calls/lowering.rs",
         "builder_build.rs",
         "module_lifecycle.rs",
+        "normal_default_root_catalog_lifecycle.rs",
     )
     files = {name: (SRC / name).read_text() for name in names}
     for name, text in files.items():
@@ -40,11 +41,15 @@ def main() -> int:
     require(files["main_expansion.rs"], "DuplicateMainBox", "duplicate Main rejection")
     require(files["module_compat_policy.rs"], "snapshot_from_legacy_ingress", "sealed policy snapshot")
     require(files["decls.rs"], "CallableMainCompatibilityLoweringErrorV1", "typed callable-Main error")
-    require(files["decls.rs"], "lower_static_method_as_function_typed", "typed selected lowering")
-    if "let _ = self.lower_static_method_as_function" in files["decls.rs"]:
+    require(files["calls/lowering.rs"], "lower_static_method_as_function_typed", "typed selected lowering")
+    if "let _ = self.lower_static_method_as_function" in files["calls/lowering.rs"]:
         raise AssertionError("selected callable Main lowering must not discard its error")
-    require(files["builder_build.rs"], "VerifiedRawRootExpansionV1::from_program", "preflight selector")
-    require(files["module_lifecycle.rs"], "build_static_main_box_typed", "typed root entry")
+    require(
+        files["normal_default_root_catalog_lifecycle.rs"],
+        "VerifiedRawRootExpansionV1::from_program",
+        "preflight selector",
+    )
+    require(files["decls.rs"], "build_static_main_box_typed", "typed root entry")
     require(files["module_compat_policy_p0.rs"], "not_a_missing_receipt", "typed failure fixture")
     require(files["module_compat_raw_ledger_p0.rs"], "callable_main_compatibility", "dedicated receipt request")
     require(files["module_compat_raw_ledger_p0.rs"], ".complete(reservation", "receipt completion")

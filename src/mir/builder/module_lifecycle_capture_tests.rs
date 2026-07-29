@@ -4,10 +4,7 @@ use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
 use crate::mir::builder::recursive_child_lowering::{
     RawBoxMethodChildPortV1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
-use crate::mir::{
-    BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirBuilder, MirFunction,
-    MirInstruction, MirType, ValueId,
-};
+use crate::mir::{ConstValue, MirBuilder, MirInstruction, MirType, ValueId};
 use crate::parser::NyashParser;
 
 #[derive(Default)]
@@ -176,79 +173,15 @@ fn shared_root_kernel_lends_each_instance_method_to_one_stack_port() {
         .comp_ctx
         .install_callable_declaration_catalog(catalog)
         .expect("catalog install");
+    let ASTNode::Program { statements, .. } = root.clone() else {
+        panic!("capture seam must parse a Program");
+    };
     let mut port = RecordingOrdinaryPortV1::default();
     let result = builder
-        .lower_root_after_callable_catalog_install_with_callable_port_v1(
-            root.clone(),
-            &root,
-            &mut port,
-        )
+        .lower_program_root_with_callable_port_v1(statements, &root, &mut port)
         .expect("shared root kernel");
     let module = builder.finalize_module(result).expect("module");
 
     assert_eq!(port.methods, vec![("Worker".into(), "run".into(), 1)]);
     assert!(module.functions.contains_key("Worker.run/1"));
-}
-
-#[test]
-fn ordinary_root_commits_one_complete_callable_batch() {
-    let source = r#"
-        function first() { return 1 }
-        box Worker {
-            birth(value) { return value }
-            run(value) { return value }
-        }
-        static box Helpers {
-            step(value) { return value }
-        }
-    "#;
-    let root = NyashParser::parse_from_string(source).expect("collector source");
-    let mut builder = MirBuilder::new();
-    builder.prepare_module().expect("module shell");
-    let result = builder
-        .lower_root(root)
-        .expect("collector-backed production root");
-
-    let module = builder.current_module.as_ref().expect("unfinalized module");
-    for symbol in [
-        "first/0",
-        "Worker.birth/1",
-        "Worker.run/1",
-        "Helpers.step/1",
-    ] {
-        assert!(module.functions.contains_key(symbol), "missing {symbol}");
-    }
-
-    builder.finalize_module(result).expect("final module");
-}
-
-#[test]
-fn callable_batch_collision_publishes_no_collected_prefix() {
-    let root = NyashParser::parse_from_string(
-        r#"
-            function first() { return 1 }
-            function second() { return 2 }
-        "#,
-    )
-    .expect("collision source");
-    let mut builder = MirBuilder::new();
-    builder.prepare_module().expect("module shell");
-    let signature = FunctionSignature {
-        name: "second/0".into(),
-        params: Vec::new(),
-        return_type: MirType::Integer,
-        effects: EffectMask::PURE,
-    };
-    builder
-        .current_module
-        .as_mut()
-        .expect("module")
-        .add_function(MirFunction::new(signature, BasicBlockId::new(99)));
-
-    let error = builder.lower_root(root).unwrap_err();
-    assert!(error.contains("[mir/callable-collector/atomic-commit]"));
-    let module = builder.current_module.as_ref().expect("retained module");
-    assert!(module.functions.contains_key("second/0"));
-    assert!(!module.functions.contains_key("first/0"));
-    assert_eq!(module.functions.len(), 1);
 }

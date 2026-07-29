@@ -1,7 +1,6 @@
-use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::vars;
 use super::CallTarget;
-use super::{ConstValue, Effect, EffectMask, MirBuilder, MirInstruction, MirModule, ValueId};
+use super::{ConstValue, Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
@@ -15,17 +14,6 @@ use crate::mir::numeric_substrate::{
 use crate::mir::slot_registry::resolve_slot_by_type_name;
 
 impl MirBuilder {
-    /// Build a complete MIR module from AST
-    pub fn build_module(&mut self, ast: ASTNode) -> Result<MirModule, String> {
-        if matches!(ast, ASTNode::Program { .. }) {
-            VerifiedRawRootExpansionV1::from_program(&ast)
-                .map_err(|error| format!("[mir/main-expansion/preflight] {error:?}"))?;
-        }
-        self.prepare_module()?;
-        let result_value = self.lower_root(ast)?;
-        self.finalize_module(result_value)
-    }
-
     /// Build an expression and return its value ID
     pub(in crate::mir) fn build_expression(&mut self, ast: ASTNode) -> Result<ValueId, String> {
         super::recursive_child_lowering::drive_raw_legacy_expression_v1(self, ast)

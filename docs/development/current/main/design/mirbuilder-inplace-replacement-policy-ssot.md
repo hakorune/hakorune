@@ -73,8 +73,9 @@ default compiler cellでは最低限、次から到達しなければならな�
 ```text
 MirCompiler::compile_with_source
 MirCompiler::compile_with_source_and_imports
-  -> current default Legacy request
-  -> MirBuilder::build_module / build_expression
+  -> typed normal Program request
+  -> candidate root/catalog lifecycle
+  -> typed Program lowering and atomic publication
 ```
 
 AST JSON、runtime `env.mirbuilder.emit`、明示的なVM-reference backendなどを

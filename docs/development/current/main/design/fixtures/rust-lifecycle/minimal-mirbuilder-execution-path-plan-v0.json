@@ -258,7 +258,7 @@
       "required_capability": "PreparedMirBuilderStateV1"
     },
     {
-      "callsite": "MirBuilder::build_module -> prepare_module",
+      "callsite": "owner-local composition -> prepare_module",
       "id": "build_module.prepare_module",
       "provider": {
         "facts": "build_module_order",
@@ -367,7 +367,7 @@
       }
     },
     {
-      "callsite": "PreparedMirBuilderStateV1 build_module(ASTNode::Literal(Integer(0))) smoke",
+      "callsite": "prepare_module -> build_literal(Integer(0)) -> finalize_module smoke",
       "id": "minimal_execution_path.smoke",
       "provider": {
         "capability": "MinimalExecutionPathSmoke",
@@ -724,61 +724,61 @@
       }
     }
   ],
-  "source_entry": "MirBuilder::build_module",
+  "source_entry": "owner-local minimal lifecycle composition",
   "source_order_facts": {
     "build_module_order": [
       {
-        "byte_offset": 616,
-        "marker": "self.prepare_module()?;"
+        "byte_offset": 3997,
+        "marker": "builder.prepare_module().expect(\"module shell\");"
       },
       {
-        "byte_offset": 648,
-        "marker": "let result_value = self.lower_root(ast)?;"
+        "byte_offset": 4080,
+        "marker": ".build_literal(LiteralValue::Integer(0))"
       },
       {
-        "byte_offset": 698,
-        "marker": "self.finalize_module(result_value)"
+        "byte_offset": 4174,
+        "marker": "builder.finalize_module(literal).expect(\"final module\");"
       }
     ],
     "kind": "MirBuilderMinimalPathSourceOrderFactsV1",
     "prepare_module_order": [
       {
-        "byte_offset": 2412,
+        "byte_offset": 3929,
         "marker": "let mut module = MirModule::new(\"main\".to_string());"
       },
       {
-        "byte_offset": 2473,
+        "byte_offset": 3990,
         "marker": "module.metadata.source_file = self.current_source_file();"
       },
       {
-        "byte_offset": 2745,
+        "byte_offset": 4262,
         "marker": "let entry_block = self.next_block_id();"
       },
       {
-        "byte_offset": 2793,
+        "byte_offset": 4310,
         "marker": "let mut main_function = self.new_function_with_metadata(main_signature, entry_block);"
       },
       {
-        "byte_offset": 2942,
+        "byte_offset": 4459,
         "marker": "self.current_module = Some(module);"
       },
       {
-        "byte_offset": 3039,
-        "marker": "self.scope_ctx.current_function = Some(main_function);"
+        "byte_offset": 4556,
+        "marker": "self.function_state.current_function = Some(main_function);"
       },
       {
-        "byte_offset": 3102,
-        "marker": "self.current_block = Some(entry_block);"
+        "byte_offset": 4624,
+        "marker": "self.function_state.current_block = Some(entry_block);"
       }
     ],
     "source_files": [
       {
-        "path": "src/mir/builder/builder_build.rs",
-        "sha256": "bd90d77f1d53aecdda9ebdcda5e2e71f0e91c01741860d0c23bf7e91d2c12242"
+        "path": "src/mir/builder/module_lifecycle_capture_tests.rs",
+        "sha256": "fda7869db83af07dca1e6b70c4ae72c1b1af692d02900be6a2bcba6e2206eb25"
       },
       {
         "path": "src/mir/builder/module_lifecycle.rs",
-        "sha256": "a51fa33e11958fb658159b89c575c31e4f4ff1e88aaedd9d909ac0989a5f7e22"
+        "sha256": "463824f69bca345aabe87c486723339491d0aa6b029ad91b7c8b0a01485cd9d7"
       }
     ]
   }

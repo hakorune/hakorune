@@ -388,8 +388,6 @@ def main() -> int:
             + ", ".join(receipt_consumers)
         )
     for fragment in (
-        "MirCompiler::compile_legacy_request",
-        "MirBuilder::build_module",
         "MirCompiler::compile_resolved_first_family",
         "MirBuilder::build_resolved_function_module",
         "MirBuilder::build_resolved_trivial_function_module",
@@ -400,8 +398,6 @@ def main() -> int:
     ):
         require(route_inventory, fragment, "WIRING-I0 exact ingress/root symbol")
     for relative, fragment in (
-        ("src/mir/compiler/mod.rs", "fn compile_legacy_request"),
-        ("src/mir/builder/builder_build.rs", "fn build_module"),
         ("src/mir/compiler/mod.rs", "fn compile_resolved_first_family"),
         ("src/mir/builder/resolved_lowering/mod.rs", "fn build_resolved_function_module"),
         (
