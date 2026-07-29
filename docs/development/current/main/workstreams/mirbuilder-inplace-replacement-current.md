@@ -580,11 +580,11 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: FUNCTION-STATE-TRANSIENT-CONTROL-LIFECYCLE0-I0-R0.
-Owner: role-exact child-entry/root-close terminals and private 9-field writer.
-Deleted: two foreign reset clusters, 18 direct writes total.
-Preserved: capture-before-reset, exact restore, draft/block/root close order.
-Evidence: 9-value neutral/restore, root parity, cargo check, census/lane guards.
+Closed: RAW-INDEX-ASSIGNMENT-TARGET-SNAPSHOT-ONCE0-I0-R0.
+Owner: PreparedRawIndexAssignmentV1 plus its consuming port terminal.
+Deleted: raw Index field bundle, lower-side target-label AST rematch, and old raw terminals.
+Preserved: current-span timing, target -> index -> RHS order, metadata, and completion policy.
+Evidence: focused Index order/metadata, raw port parity, assignment/lane guards, cargo check.
 Current stop: fresh production live-edge census; no next row is preselected.
 ```
 Lambda capture authority and all feature additions remain parked.

@@ -34,6 +34,7 @@ def check_asn0_s0(root: Path) -> str:
     selector_path = (
         "src/mir/builder/raw_expression_dispatch/statement_surface.rs"
     )
+    indexing_path = "src/mir/builder/indexing.rs"
     grouped_path = "src/mir/builder/raw_expression_dispatch/mod.rs"
     located_path = "src/mir/builder/located_legacy_lowering.rs"
     located_adapter_path = "src/mir/builder/located_legacy_assignment.rs"
@@ -51,6 +52,7 @@ def check_asn0_s0(root: Path) -> str:
     compound_tests = _read(root, compound_tests_path)
     stmts_root = _read(root, stmts_root_path)
     selector = _read(root, selector_path)
+    indexing = _read(root, indexing_path)
     grouped = _read(root, grouped_path)
     located = _read(root, located_path)
     located_adapter = _read(root, located_adapter_path)
@@ -222,13 +224,24 @@ def check_asn0_s0(root: Path) -> str:
             2,
             f"one prepare and one consume arm for {route}",
         )
-    for owner in (
+    _require_count(
+        selector,
         "build_field_assignment_with_port_v1(",
-        "build_index_assignment_with_port_v1(",
+        1,
+        "unchanged field Assignment selector",
+    )
+    for needle, expected, label in (
+        ("PreparedRawIndexAssignmentV1::prepare(*target, *index, value)", 1, "Index prepare issuer"),
+        (
+            "lower_prepared_raw_index_assignment_with_port_v1(builder, port, prepared)",
+            1,
+            "Index prepared consumer",
+        ),
     ):
-        _require_count(selector, owner, 1, f"unchanged {owner} selector")
+        _require_count(selector, needle, expected, label)
     for retired in (
         "fn build_assignment_with_port_v1",
+        "build_index_assignment_with_port_v1(",
         "statement.target.as_ref()",
         "*object.clone()",
         "*target.clone()",
@@ -237,6 +250,53 @@ def check_asn0_s0(root: Path) -> str:
     ):
         if retired in selector:
             _fail(f"retired ordinary Assignment selector edge returned: {retired}")
+    indexing_production = indexing.split("#[cfg(test)]", 1)[0]
+    for needle, expected, label in (
+        ("struct PreparedRawIndexAssignmentV1", 1, "prepared Index Assignment product"),
+        ("fn prepare(", 2, "Index read and assignment prepare terminals"),
+        (
+            "fn lower_prepared_raw_index_assignment_with_port_v1<Port>",
+            1,
+            "prepared Index Assignment terminal",
+        ),
+        (
+            "drive_legacy_expression_v1(builder, port, target)?",
+            1,
+            "prepared Index target descent",
+        ),
+        (
+            "drive_legacy_expression_v1(builder, port, index)?",
+            1,
+            "prepared Index child descent",
+        ),
+        (
+            "drive_legacy_expression_v1(builder, port, value)?",
+            1,
+            "prepared Index RHS descent",
+        ),
+    ):
+        _require_count(indexing_production, needle, expected, label)
+    target_at = indexing_production.index(
+        "drive_legacy_expression_v1(builder, port, target)?"
+    )
+    index_at = indexing_production.index(
+        "drive_legacy_expression_v1(builder, port, index)?"
+    )
+    value_at = indexing_production.index(
+        "drive_legacy_expression_v1(builder, port, value)?"
+    )
+    completion_at = indexing_production.index(
+        "builder.build_index_access_from_values(", value_at
+    )
+    if not target_at < index_at < value_at < completion_at:
+        _fail("Index Assignment order must be target -> index -> RHS -> completion")
+    for retired in (
+        "fn build_index_assignment(",
+        "fn build_index_assignment_with_port_v1",
+        "RawLegacyChildLoweringPortV1",
+    ):
+        if retired in indexing_production:
+            _fail(f"retired Index Assignment authority returned: {retired}")
     for needle, expected, label in (
         (
             "PreparedRawCompoundAssignmentV1::prepare(*target, operator, *value)",
@@ -323,7 +383,7 @@ def check_asn0_s0(root: Path) -> str:
     _require_count(
         raw_tests,
         "drive_raw_legacy_expression_v1(",
-        9,
+        10,
         "raw Assignment oracle calls",
     )
     _require_count(
@@ -515,6 +575,7 @@ def check_asn0_s0(root: Path) -> str:
         compound_tests_path,
         stmts_root_path,
         selector_path,
+        indexing_path,
         grouped_path,
         located_path,
         located_adapter_path,

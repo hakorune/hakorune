@@ -9,6 +9,9 @@ use crate::mir::builder::compound_assignment::{
     lower_prepared_raw_compound_assignment_with_port_v1, PreparedRawCompoundAssignmentV1,
 };
 use crate::mir::builder::exprs_enum_match::PreparedRawScopeBoxV1;
+use crate::mir::builder::indexing::{
+    lower_prepared_raw_index_assignment_with_port_v1, PreparedRawIndexAssignmentV1,
+};
 use crate::mir::builder::recursive_child_lowering::drive_legacy_body_v1;
 use crate::mir::builder::stmts::{
     drive_local_statement_v1, drive_value_return_statement_v1, drive_variable_assignment_v1,
@@ -37,9 +40,7 @@ enum PreparedRawOrdinaryAssignmentRouteV1 {
         value: ASTNode,
     },
     Index {
-        target: ASTNode,
-        index: ASTNode,
-        value: ASTNode,
+        prepared: PreparedRawIndexAssignmentV1,
     },
     Unsupported,
 }
@@ -60,9 +61,7 @@ impl PreparedRawOrdinaryAssignmentV1 {
                 }
             }
             ASTNode::Index { target, index, .. } => PreparedRawOrdinaryAssignmentRouteV1::Index {
-                target: *target,
-                index: *index,
-                value,
+                prepared: PreparedRawIndexAssignmentV1::prepare(*target, *index, value),
             },
             _ => PreparedRawOrdinaryAssignmentRouteV1::Unsupported,
         };
@@ -87,11 +86,9 @@ where
             field,
             value,
         } => builder.build_field_assignment_with_port_v1(port, object, field, value),
-        PreparedRawOrdinaryAssignmentRouteV1::Index {
-            target,
-            index,
-            value,
-        } => builder.build_index_assignment_with_port_v1(port, target, index, value),
+        PreparedRawOrdinaryAssignmentRouteV1::Index { prepared } => {
+            lower_prepared_raw_index_assignment_with_port_v1(builder, port, prepared)
+        }
         PreparedRawOrdinaryAssignmentRouteV1::Unsupported => {
             Err("Complex assignment targets not yet supported".to_string())
         }

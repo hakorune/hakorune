@@ -1,6 +1,6 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RecursiveChildLoweringPortV1,
 };
 use crate::mir::instruction::FastMemRegionId;
 use crate::mir::instruction::MemOpKind;
@@ -29,6 +29,60 @@ enum PreparedRawIndexReadRouteV1 {
         index: ASTNode,
         target_label: Option<String>,
     },
+}
+
+/// Source-only Index-assignment snapshot prepared before child descent.
+pub(in crate::mir::builder) struct PreparedRawIndexAssignmentV1 {
+    target: ASTNode,
+    index: ASTNode,
+    value: ASTNode,
+    target_label: Option<String>,
+}
+
+impl PreparedRawIndexAssignmentV1 {
+    pub(in crate::mir::builder) fn prepare(
+        target: ASTNode,
+        index: ASTNode,
+        value: ASTNode,
+    ) -> Self {
+        let target_label = match &target {
+            ASTNode::Variable { name, .. } => Some(name.clone()),
+            _ => None,
+        };
+        Self {
+            target,
+            index,
+            value,
+            target_label,
+        }
+    }
+}
+
+pub(in crate::mir::builder) fn lower_prepared_raw_index_assignment_with_port_v1<Port>(
+    builder: &mut super::MirBuilder,
+    port: &mut Port,
+    prepared: PreparedRawIndexAssignmentV1,
+) -> Result<ValueId, String>
+where
+    Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
+{
+    let PreparedRawIndexAssignmentV1 {
+        target,
+        index,
+        value,
+        target_label,
+    } = prepared;
+    let target_val = drive_legacy_expression_v1(builder, port, target)?;
+    let index_val = drive_legacy_expression_v1(builder, port, index)?;
+    let value_val = drive_legacy_expression_v1(builder, port, value)?;
+    builder.build_index_access_from_values(
+        None,
+        target_val,
+        index_val,
+        target_label,
+        "store",
+        Some(value_val),
+    )
 }
 
 impl PreparedRawIndexReadV1 {
@@ -295,44 +349,6 @@ impl super::MirBuilder {
             }
         }
     }
-
-    pub(super) fn build_index_assignment(
-        &mut self,
-        target: ASTNode,
-        index: ASTNode,
-        value: ASTNode,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_index_assignment_with_port_v1(&mut port, target, index, value)
-    }
-
-    /// Lower an index write while retaining the raw child's descent port.
-    pub(super) fn build_index_assignment_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        target: ASTNode,
-        index: ASTNode,
-        value: ASTNode,
-    ) -> Result<ValueId, String>
-    where
-        Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
-    {
-        let target_label = match &target {
-            ASTNode::Variable { name, .. } => Some(name.clone()),
-            _ => None,
-        };
-        let target_val = drive_legacy_expression_v1(self, port, target)?;
-        let index_val = drive_legacy_expression_v1(self, port, index)?;
-        let value_val = drive_legacy_expression_v1(self, port, value)?;
-        self.build_index_access_from_values(
-            None,
-            target_val,
-            index_val,
-            target_label,
-            "store",
-            Some(value_val),
-        )
-    }
 }
 
 #[cfg(test)]
@@ -444,6 +460,7 @@ mod tests {
         events: Vec<&'static str>,
         target_value: ValueId,
         index_value: ValueId,
+        value_value: ValueId,
     }
 
     impl RecursiveChildLoweringPortV1 for RecordingIndexPortV1 {
@@ -481,6 +498,10 @@ mod tests {
                     self.events.push("index");
                     Ok(self.index_value)
                 }
+                ASTNode::Variable { name, .. } if name == "value" => {
+                    self.events.push("value");
+                    Ok(self.value_value)
+                }
                 ASTNode::Variable { name, .. } if name == "SIZE_CLASS" => {
                     self.events.push("static-target");
                     Ok(self.target_value)
@@ -505,6 +526,7 @@ mod tests {
             events: Vec::new(),
             target_value,
             index_value,
+            value_value: builder.alloc_value_for_test(),
         };
 
         lower_index_read_with_port(&mut builder, &mut port, var("target"), var("index"))
@@ -533,6 +555,7 @@ mod tests {
             events: Vec::new(),
             target_value: builder.alloc_value_for_test(),
             index_value: builder.alloc_value_for_test(),
+            value_value: builder.alloc_value_for_test(),
         };
 
         lower_index_read_with_port(&mut builder, &mut port, var("SIZE_CLASS"), var("index"))
@@ -540,6 +563,52 @@ mod tests {
 
         assert_eq!(port.events, ["index"]);
         assert!(has_static_load(&builder));
+    }
+
+    #[test]
+    fn index_assignment_prepares_label_and_lowers_children_once_in_order() {
+        let prepared =
+            super::PreparedRawIndexAssignmentV1::prepare(var("target"), var("index"), var("value"));
+        assert_eq!(prepared.target_label.as_deref(), Some("target"));
+        let non_variable =
+            super::PreparedRawIndexAssignmentV1::prepare(int_lit(1), var("index"), var("value"));
+        assert_eq!(non_variable.target_label, None);
+
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("index_assignment_order/0".to_owned());
+        let target_value = builder.alloc_value_for_test();
+        let index_value = builder.alloc_value_for_test();
+        let value_value = builder.alloc_value_for_test();
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(target_value, MirType::Box("ArrayBox".to_owned()));
+        let mut port = RecordingIndexPortV1 {
+            events: Vec::new(),
+            target_value,
+            index_value,
+            value_value,
+        };
+
+        let result = super::lower_prepared_raw_index_assignment_with_port_v1(
+            &mut builder,
+            &mut port,
+            prepared,
+        )
+        .expect("prepared Index assignment");
+
+        assert_eq!(result, value_value);
+        assert_eq!(port.events, ["target", "index", "value"]);
+        let site = &builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("test function")
+            .metadata
+            .fastmem_index_access_sites[0];
+        assert_eq!(site.table_id.as_deref(), Some("target"));
+        assert_eq!(site.access_kind, "store");
     }
 
     #[test]
