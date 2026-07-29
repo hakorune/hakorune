@@ -32,31 +32,56 @@ Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Latest landed: NORMAL-PROGRAM-STATIC-TABLE-PLAN0-I0-R0
 Result:        selected normal Program static-table specs and plans are
                prepared and published together into candidate metadata
-Latest design: fresh live-edge census
-Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS5` is a design stop
+Latest design: Program deferred-static context restoration
+Executable:    none — `NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-D0` is a design stop
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`MIRBUILDER-LIVE-EDGE-CENSUS5` — select one real remaining authority edge
+`NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-D0` — T2 scoped context ownership
 
 ```text
-Scope:
-  take a fresh production and compatibility census after the static-table
-  closeout. Select at most one named caller/old edge pair, or record one
-  bounded D0 if the next ownership boundary is not yet safe.
+Caller:
+  `MirBuilder::lower_program_root_work_plan_with_callable_port_v1`
+  -> `ProgramDeferredStaticBoxLifecycleV1::lower_with_port_v1`.
 
-Must preserve:
-  one execution, no fallback/retry, explicit non-growing compatibility sunsets,
-  and a same-commit old-edge deletion for every implementation row.
+Old live edge:
+  direct `compilation_context = Some(new)` -> lower -> `= None`. A lowering
+  error exits before the clear, so the ownership/restore contract is implicit.
 
-Do not select automatically:
-  raw/static-Main, no-header Call, selected-invocation Loop/CorePlan, detached
-  assets, JoinModule, Ownership, View, or new language features.
+Required decision:
+  choose one scoped context session that restores the prior candidate context
+  after both success and error, without changing static-Box lowering, callable
+  capture, diagnostics, or outer Builder ownership. I0/R0 is authorized only
+  if the two direct assignments can be deleted in the same change.
+
+Evidence needed before I0/R0:
+  non-Main static-Box success, failure, fresh candidate reuse, prior-context
+  restoration, and no `current_module`/slot/type-context drift.
+
+Forbid:
+  raw/static-Main, no-header Call, Loop/CorePlan, source grammar, collector,
+  finalization, fallback/retry, JoinModule activation, Ownership, View, and
+  feature work.
 ```
 
 ## Latest closeout
+
+```text
+MIRBUILDER-LIVE-EDGE-CENSUS5
+
+safe live T1 replacement                                           = none
+selected normal live boundary                                      = deferred static context
+selected next stop                                                 = T2 D0
+detached RET0 selected                                             = 0 (three-row horizon closed)
+raw/static-Main, no-header Call, Loop/CorePlan                     = separate D0 only
+JoinModule normal/default execution                                = 0; R3 disposition required
+JoinModule current inventory                                       = 34,212 LOC
+next                                                               = deferred-static context D0
+```
+
+## Previous closeout
 
 ```text
 NORMAL-PROGRAM-STATIC-TABLE-PLAN0-I0-R0
@@ -215,28 +240,29 @@ largest touched source/check file                       < 800
 
 ```text
 R1 Now
-  MIRBUILDER-LIVE-EDGE-CENSUS5
-  Freshly inventory live normal/default and explicit compatibility edges. It
-  may select one named replacement or one bounded D0; it cannot pre-authorize
-  a future implementation.
+  NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-D0
+  This non-replacement T2 design decides one scoped restore owner for the
+  selected non-Main static-Box live edge. Only its same-scope I0/R0 may follow.
 
 R2 Live responsibility replacement
-  fresh census -> one exact edge or one bounded D0 -> same-cell I0/R0
-  Every compatibility surface has one non-growing sunset record. A detached
-  facade retirement is not replacement credit and may not hide a live-owner
-  decision.
+  Census (no code) outputs exactly one of: one I0/R0 candidate, one bounded
+  D0, or R2 closure/no safe live edge. An I0/R0 has a named non-test caller, a
+  new owner, same-atomic-series old-edge deletion, and one parity/failure/reuse
+  gate; fallback/retry is zero. A D0 may precede only its same-scope I0/R0.
 
-  The detached-facade horizon is at most three RET0 rows, including the current
-  row. Return to a full census after each row and stop the horizon early when
-  the next facade needs owner, port, argument-order, control, allocation, or
-  guard-structure changes.
+  A compatibility owner is one bounded residual branch inside the selected
+  pipeline, never another route. Its creation or retention records sunset ID,
+  exact non-growing surface, retirement owner, retire condition, and target
+  row/evidence. Expansion returns to D0. RET0 removes only a registered
+  caller-zero sunset asset and earns no replacement credit; at most three
+  consecutive RET0 rows may occur since the last live I0/R0.
 
   Raw/static-Main, no-header Call, and selected invocation Loop/CorePlan remain
   separate D0 boundaries. Loop work uses the active Recipe/CorePlan route;
   legacy JoinModule is never reactivated as a normal/default planner.
 
 R3 Legacy JoinModule disposition
-  after R2 reaches live-cleanup closure and before final conformance, open
+  only after R1 records R2 closure/no safe live edge, and before final conformance, open
   JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0. Classify every family as retain,
   reown, or retire; any action is a separate named row. No name-only tree
   deletion, normal/default route resurrection, or unresolved family is allowed.
@@ -257,7 +283,7 @@ AST/Recipe composition, and function-state/control residuals. They are census
 input, not a pre-authorized order. Whole-function accepted variants remain frozen.
 
 JoinModule remains out of R2 replacement commits, but not out of the completion
-definition. Its current 34,827-line inventory has no normal/default consumer and
+definition. Its current 34,212-line inventory has no normal/default consumer and
 still serves explicit dev/strict, VM-reference, and LLVM experiment families.
 R3 must classify it before Complete:
 
