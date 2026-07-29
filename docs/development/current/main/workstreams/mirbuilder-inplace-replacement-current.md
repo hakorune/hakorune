@@ -680,30 +680,78 @@ quick gate                                     = unrelated pre-existing
 largest touched source/check file              = 774
 ```
 
-## Current design stop
+## Current execution row
 
 ```text
-MIRBUILDER-POST-TRYCATCH-LIVE-EDGE-CENSUS0-D0
+Decision: non-Main static Box state authority
+Row: RAW-NONMAIN-STATIC-BOX-COMPILATION-STATE-TRANSACTION0-I0-R0
+Ceremony: T2, one atomic implementation/retirement commit
+Pack: FUNCTION-STATE0
+
+Named caller:
+  raw_expression_dispatch
+  -> BoxDeclaration
+  -> is_static && name != Main && !root_is_app_mode
+
+New owner:
+  ActiveRawStaticBoxCompilationStateV1
+
+Exact state:
+  variable_map
+  TypeContext snapshot
+  current_slot_registry
+  BoxCompilationContext option
 ```
 
-The fresh census found two materially different candidates:
+The transaction begins after `register_user_box`, captures/installs the four
+states in their current order, and restores them only after every sorted
+method succeeds. A method failure consumes a typed rejection without restoring,
+preserving the current dirty candidate state and primary String error. The
+outer invocation session remains the sole unpublished-candidate discard owner.
+
+### Atomic delete
 
 ```text
-MatchExpr:
-  live source clones at dispatcher/owner = 4
-  existing port-aware owner              = yes
-  likely ceremony                        = T1
-
-non-Main static Box:
-  manual compilation-state authority     = present
-  broader method/context lifecycle        = involved
-  ceremony                               = design decision required
+dispatcher saved_var_map / saved_type_ctx       = 0
+dispatcher saved_slot_registry / saved_comp_ctx = 0
+dispatcher direct BoxCompilationContext install = 0
+dispatcher four manual success restores         = 0
+transaction begin / complete / reject            = exactly 1
 ```
 
-The D0 must compare production-authority reduction, failure precedence, and
-same-commit deletion scope. It may select at most one row. No implementation,
-View/Ownership, grammar, feature, fallback, or compatibility growth is
-authorized at this stop.
+The existing registration point, sorted method iteration, FunctionDeclaration
+filter, same child port, per-method lowering, draft behavior, and
+restore-before-Void order remain unchanged.
+
+### Evidence and hard stops
+
+Use module-local transaction/route tests plus existing candidate reuse and
+static-Box parity evidence. New test/check/task files and per-row guards are
+zero.
+
+```text
+evidence:
+  seeded four-state success restores exactly before Void
+  method N failure stops N+1 and leaves the current inner state
+  zero methods begin/restore once and emit Void
+  nested success restores outer transaction then caller
+  Main / App-mode / instance / Program-root static routes do not participate
+  late failure publishes no candidate and a fresh compiler request succeeds
+
+hard stop:
+  restore-on-error or Drop/RAII restore
+  whole FunctionLoweringState / whole MirBuilder capture
+  reuse of per-function FunctionOwnedStateTransactionV1
+  register_user_box movement or rollback
+  method order/filter/port/draft/publication change
+  Main, App-mode, instance Box, or Program-root static integration
+  Match clone cleanup in the same commit
+  fallback, retry, grammar, View/Ownership, or feature work
+  new per-row guard/test file or any source/check file >= 800
+```
+
+Match owned-input clone retirement remains a fresh-census candidate; it is not
+bundled with this state-authority replacement.
 
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
@@ -841,7 +889,8 @@ R36 public contract D0 closed; R37 public Program admission closed
 R38 public root D0 closed; R39 root test evidence closed
 R40 host cfgtest AST JSON closed
 R41 RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-I0-R0 closed
-R42 MIRBUILDER-POST-TRYCATCH-LIVE-EDGE-CENSUS0-D0 current design stop
+R42 MIRBUILDER-POST-TRYCATCH-LIVE-EDGE-CENSUS0-D0 closed: static Box selected
+R43 RAW-NONMAIN-STATIC-BOX-COMPILATION-STATE-TRANSACTION0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
