@@ -88,35 +88,51 @@ Closed:  RECORD-HELPER-BODY-INVOCATION0-I0-R0
 Closed:  MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0
 Closed:  MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0
-Current: RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0
-Mode:    one atomic T0 I0/R0
+Closed:  RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0
+Current: MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0
+Mode:    read-only fresh live-edge census
 ```
 
 ## Current execution brief
 
-`RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0` / parent R68 / T0 /
-`DESCENT-SPINE0`
+`MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0` /
+parent R69 / read-only
 
 ```text
 Change:
-  build_expression_impl_with_port_v1 already owns its ASTNode. Move Call
-  callee/arguments, QMark operand, Await operand, RecordLiteral name/fields,
-  and RecordUpdate base/updates directly into their existing port-aware owners.
+  Inventory remaining live MirBuilder production edges after the compound
+  expression owned-input retirement. Select exactly one bounded production
+  replacement or detached Delete asset.
 
 Contract:
-  Preserve the exact selected port, child order, partial candidate effects,
-  diagnostics, RootLower rejection, and owner APIs. Add no wrapper or product.
-  Lambda, raw Main, static non-Main, and owner-internal snapshots are untouched.
+  Read-only only. Rank by authority reduction and smallest safe same-commit
+  old-edge deletion. Raw/Verified Main helper authority remains separate unless
+  provenance and failure contracts can be preserved explicitly.
 
 Done:
-  The eight immediate `.clone()` expressions are zero at the sole live raw
-  matcher. Existing Call/QMark/Await/Record child-continuity, parity,
-  failure/reuse, lane guard, and release build are green. No new file.
+  One named caller, one replacement owner or deletion, one exact old edge, and
+  fallback/retry=0 are fixed in the next four-block execution brief.
 
 Stop:
-  Return to design if any downstream owner needs a borrowed or duplicate
-  payload, evaluation/failure timing moves, a facade/route changes, or
-  fallback/retry/View/Ownership/new grammar appears.
+  No production edit, new grammar, View/Ownership activation, compatibility
+  growth, or task queue beyond the single selected next row.
+```
+
+## Latest closeout
+
+```text
+RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0
+
+implementation commit                       = 1e73b9180f
+immediate compound-expression deep clones   = 8 -> 0
+Call / QMark / Await / Record owner APIs     = unchanged
+child order / diagnostics / RootLower delta = 0
+focused Call/QMark/Await/Record tests        = green
+general module parity / failure / reuse      = green
+release build / current pointer / lane guard = green
+fallback / retry / View / Ownership          = 0
+new source/test/check file                   = 0
+largest touched source/check file            = 799
 ```
 
 ## Latest closeout
@@ -1304,7 +1320,8 @@ R65 RECORD-HELPER-BODY-INVOCATION0-I0-R0 closed
 R66 MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0 closed: instance normalization selected
 R67 RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0 closed
 R68 MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0 closed
-R69 RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0 current
+R69 RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0 closed
+R70 MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

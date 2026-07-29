@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The post-instance-normalization live-edge census selected RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0. The owned raw expression dispatcher currently deep-clones Call, QMark, Await, RecordLiteral, and RecordUpdate payloads immediately before handing them to existing owned-input port-aware owners. The selected T0 row moves those fields once and deletes the eight clone expressions. Lambda, raw Main, static non-Main multi-consumer inputs, facade retirement, View, Ownership, grammar, route, result, and failure policy are out of scope."
+status = "RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0 closed at 1e73b9180f. The owned raw expression dispatcher now moves Call, QMark, Await, RecordLiteral, and RecordUpdate payloads directly into their existing port-aware owners; the eight immediate deep-clone expressions are zero. The lane is stopped at MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 for a fresh read-only production-edge census. Lambda, raw Main, static non-Main multi-consumer inputs, facade retirement, View, Ownership, and other unimplemented features remain parked."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0"
-current_execution_summary = "Move already-owned Call, QMark, Await, RecordLiteral, and RecordUpdate fields directly from build_expression_impl_with_port_v1 into their existing port-aware owners; delete the eight immediate dispatcher clone expressions."
+current_design_stop = "MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0"
+current_execution_row = ""
+current_execution_summary = ""
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, and the duplicate instance-method parameter normalization pair are deleted. The next T0 row removes eight immediate deep clones from the owned raw expression dispatcher without changing its existing port-aware owners. View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, and eight immediate compound-expression payload clones are deleted. A fresh read-only live-edge census must now select one bounded production replacement or detached Delete asset. View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
