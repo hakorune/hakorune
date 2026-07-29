@@ -3,6 +3,7 @@ use super::calls::CanonicalFunctionSessionErrorV1;
 use super::main_expansion::{OwnedVerifiedMainRootLoweringV1, VerifiedMainExpansionV1};
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
+use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
 use super::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 use super::{declaration_order::sorted_method_entries, MirInstruction, ValueId};
 use crate::ast::ASTNode;
@@ -77,37 +78,8 @@ impl super::MirBuilder {
     where
         Port: RootCallableCapturePortV1,
     {
-        // Lower other static methods (except main) to standalone MIR functions so JIT can see them
-        for (mname, mast) in sorted_method_entries(&methods) {
-            if mname == "main" {
-                continue;
-            }
-            if let ASTNode::FunctionDeclaration {
-                params,
-                param_decls,
-                return_type_name,
-                body,
-                uses,
-                attrs,
-                ..
-            } = mast
-            {
-                // NamingBox 経由で static メソッド名を一元管理する
-                let func_name =
-                    crate::mir::naming::encode_static_method(&box_name, mname, params.len());
-                port.lower_static_box_method(
-                    self,
-                    func_name,
-                    params.clone(),
-                    param_decls.clone(),
-                    return_type_name.clone(),
-                    body.clone(),
-                    uses.clone(),
-                    attrs.clone(),
-                )?;
-            }
-        }
-        self.lower_static_main_root_with_port_v1(port, &box_name, methods.get("main"), None)
+        PreparedRawStaticMainBoxCompatibilityV1::prepare(box_name, methods)
+            .lower_with_port_v1(self, port)
     }
 
     pub(in crate::mir::builder) fn build_verified_static_main_box_with_port_v1<Port>(
@@ -158,47 +130,7 @@ impl super::MirBuilder {
         )
     }
 
-    fn lower_static_main_root_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        box_name: &str,
-        main_method: Option<&ASTNode>,
-        verified_callable_symbol: Option<&str>,
-    ) -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1>
-    where
-        Port: RootCallableCapturePortV1,
-    {
-        let Some(main_method) = main_method else {
-            return Err("static box must contain a main() method".to_string().into());
-        };
-        let ASTNode::FunctionDeclaration {
-            params,
-            param_decls,
-            return_type_name,
-            body,
-            uses,
-            attrs,
-            ..
-        } = main_method
-        else {
-            return Err(CallableMainCompatibilityLoweringErrorV1::Lowering(
-                "main method in static box is not a FunctionDeclaration".to_string(),
-            ));
-        };
-        self.lower_static_main_function_parts_with_port_v1(
-            port,
-            box_name,
-            verified_callable_symbol,
-            params.clone(),
-            param_decls.clone(),
-            return_type_name.clone(),
-            body.clone(),
-            uses.clone(),
-            attrs.clone(),
-        )
-    }
-
-    fn lower_static_main_function_parts_with_port_v1<Port>(
+    pub(super) fn lower_static_main_function_parts_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
         box_name: &str,

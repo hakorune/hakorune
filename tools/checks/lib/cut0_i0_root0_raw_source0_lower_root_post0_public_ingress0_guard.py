@@ -16,6 +16,7 @@ NORMAL_PIPELINE = ROOT / "src/mir/compiler/normal_default_pipeline.rs"
 NORMAL_ROOT_LIFECYCLE = ROOT / "src/mir/builder/normal_default_root_catalog_lifecycle.rs"
 PROGRAM_ROOT_LOWERING = ROOT / "src/mir/builder/program_root_lowering.rs"
 DECLS = ROOT / "src/mir/builder/decls.rs"
+RAW_STATIC_MAIN_COMPAT = ROOT / "src/mir/builder/raw_static_main_compat_batch.rs"
 MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
 BUILDER_ROOT = ROOT / "src/mir/builder.rs"
 NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
@@ -36,17 +37,14 @@ SOURCES = (
     ROOT / "src/mir/compiler/raw_root_publication_adapter.rs",
     ROOT / "src/mir/compiler/raw_published_compile.rs",
 )
-
 _RUST_IGNORED = re.compile(r"(?P<raw>r(?P<hash>#*)\".*?\"(?P=hash))|(?P<string>(?:b|c)?\"(?:\\.|[^\"\\])*\")"
                            r"|(?P<block>/\*.*?\*/)|(?P<line>//[^\n]*)", re.S)
 _CFG_TEST_MODULE = re.compile(r"#\[cfg\(test\)\]\s*(?:#\[path\s*=\s*\"[^\"]+\"\]\s*)?mod\s+\w+")
-
 def code_only(text: str) -> str:
     return _RUST_IGNORED.sub(
         lambda match: "".join("\n" if char == "\n" else " " for char in match.group()),
         text,
     )
-
 def strip_cfg_test_modules(text: str) -> str:
     cursor = 0
     output: list[str] = []
@@ -74,7 +72,6 @@ def strip_cfg_test_modules(text: str) -> str:
                     break
         else:
             raise AssertionError("unterminated cfg(test) module")
-
 def production_paths() -> list[Path]:
     declared_test_modules: set[str] = set()
     for path in ROOT.glob("src/**/*.rs"):
@@ -93,8 +90,6 @@ def production_paths() -> list[Path]:
         and not path.name.endswith("_p0.rs")
         and "tests" not in path.parts
     )
-
-
 def production_code(path: Path) -> str:
     return strip_cfg_test_modules(code_only(path.read_text()))
 
@@ -116,8 +111,6 @@ def count_by_manifest(rows: dict[str, int], token: str) -> None:
 def require(text: str, fragment: str, label: str) -> None:
     if fragment not in text:
         raise AssertionError(f"missing {label}: {fragment!r}")
-
-
 def text_between(text: str, start: str, end: str) -> str:
     start_index = text.index(start)
     end_index = text.index(end, start_index)
@@ -150,6 +143,7 @@ def main() -> int:
             NORMAL_PIPELINE,
             NORMAL_ROOT_LIFECYCLE,
             PROGRAM_ROOT_LOWERING,
+            RAW_STATIC_MAIN_COMPAT,
             MODULE_LIFECYCLE,
             BUILDER_ROOT,
             NORMAL_TESTS,
@@ -178,6 +172,7 @@ def main() -> int:
     normal_root_lifecycle = texts[NORMAL_ROOT_LIFECYCLE]
     program_root_lowering = production_code(PROGRAM_ROOT_LOWERING)
     decls = production_code(DECLS)
+    raw_static_main_compat = production_code(RAW_STATIC_MAIN_COMPAT)
     module_lifecycle = production_code(MODULE_LIFECYCLE)
     builder_root = production_code(BUILDER_ROOT)
     normal_tests = texts[NORMAL_TESTS]
@@ -615,9 +610,12 @@ def main() -> int:
     require(program_root_lowering, "expansion.is_app_mode()", "verified root route consumer")
     require(program_root_lowering, "VerifiedRawRootExpansionV1::App(main)", "verified Main route")
     require(decls, "build_verified_static_main_box_with_port_v1", "verified Main terminal")
-    verified_main = text_between(decls, "fn build_verified_static_main_box_with_port_v1", "fn lower_static_main_root_with_port_v1")
+    verified_main = text_between(decls, "fn build_verified_static_main_box_with_port_v1", "fn lower_verified_static_main_root_with_port_v1")
     if not all(fragment in verified_main for fragment in ("child.to_owned_lowering().into_parts()", "main.to_owned_root_lowering()")): raise AssertionError("verified Main typed lowering handoff drift")
     if "ASTNode::FunctionDeclaration" in verified_main or "main.root().source()" in verified_main or "main-expansion/static-child-source" in verified_main: raise AssertionError("verified Main lower-side AST reclassification returned")
+    raw_static_main = text_between(decls, "fn build_static_main_box_with_port_v1", "fn build_verified_static_main_box_with_port_v1")
+    if "PreparedRawStaticMainBoxCompatibilityV1::prepare(box_name, methods)" not in raw_static_main or any(fragment in raw_static_main for fragment in ("sorted_method_entries", "methods.get(\"main\")", "ASTNode::FunctionDeclaration")): raise AssertionError("raw static-Main compatibility lower-side classification returned")
+    if not all(fragment in raw_static_main_compat for fragment in ("struct PreparedRawStaticMainBoxCompatibilityV1", "enum RawStaticMainRootDispositionV1", "sorted_method_entries(&methods)", "lower_static_main_function_parts_with_port_v1")): raise AssertionError("raw static-Main compatibility batch contract drift")
     for retired in ("main_static:", "build_static_main_box_with_port_v1(callables"):
         if retired in program_root_lowering:
             raise AssertionError(f"retired selected Main projection returned: {retired}")

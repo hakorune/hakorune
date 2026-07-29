@@ -654,17 +654,33 @@ fn verified_main_helper_failure_stops_later_helpers_and_body() {
         record_only_static: true,
         ..RecordingOrdinaryPortV1::default()
     };
-
     let error = builder
         .lower_program_root_with_callable_port_v1(statements, &root, &expansion, &mut port)
         .expect_err("first verified helper must fail");
-
     assert_eq!(
         error,
         "[callable-main/lowering] selected static method failure: Main.alpha/0"
     );
     assert_eq!(port.static_methods, vec!["Main.alpha/0"]);
     assert_eq!(port.body_calls, 0);
+    let (box_name, methods) = parsed_static_box(
+        "static box Main { zeta() { return 2 } alpha() { return 1 } main() { return 0 } }",
+    );
+    let mut compatibility_builder = MirBuilder::new();
+    let mut compatibility_port = RecordingOrdinaryPortV1 {
+        fail_static_method: Some("Main.alpha/0".to_owned()),
+        record_only_static: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+    let error = compatibility_builder
+        .build_static_main_box_with_port_v1(&mut compatibility_port, box_name, methods)
+        .expect_err("first raw compatibility helper must fail");
+    assert_eq!(
+        error.to_string(),
+        "[callable-main/lowering] selected static method failure: Main.alpha/0"
+    );
+    assert_eq!(compatibility_port.static_methods, vec!["Main.alpha/0"]);
+    assert_eq!(compatibility_port.body_calls, 0);
 }
 
 #[test]
