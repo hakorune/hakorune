@@ -579,18 +579,18 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution row
-`RAW-FROM-CALL-ROUTE-ONCE0-I0-R0` — closed
+Closed: `RAW-FROM-CALL-ROUTE-ONCE0-I0-R0`.
+Current: `RAW-SCOPEBOX-BODY-ROUTE-ONCE0-I0-R0` — accepted
 ```text
-Pack / ceremony: CALL-OBJECT0 / T1, one atomic I0/R0.
-Named caller: raw expression dispatcher ASTNode::FromCall arm.
-New owner:
-  opaque PreparedRawFromCallV1 -> one prepared enum or ordinary lower
+Pack / ceremony: DESCENT-SPINE0 / T1, one atomic I0/R0.
+Named caller: statement surface ASTNode::ScopeBox arm.
+New owner: opaque PreparedRawScopeBoxV1.
+Routes: prepared guard-let body or ordinary body.
 Atomic delete:
-  optional enum-constructor probe, arguments clone, build_from_expression,
-  and caller-zero try_build_enum_variant_constructor.
-Evidence: route/error tests, raw child-port parity, Result VariantMake,
-  cargo check, shared replacement guard, and pointer guard are green.
-Next design stop: MIRBUILDER-POST-FROM-CALL-LIVE-EDGE-CENSUS0-D0.
+  body clone, Option-based try route, guard-let no-port facade.
+Keep: same-port/source-order descent and success-only temp cleanup.
+Exclude: shared-body rewrite, scope semantics, Lambda/View/Ownership.
+Forbid: failure cleanup, ordinary retry, fallback, grammar/result delta.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
