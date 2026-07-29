@@ -14,6 +14,8 @@ use crate::mir::{FunctionSignature, MirFunction};
 mod callable_batch;
 mod collected_product;
 mod drain;
+mod final_row;
+mod normal_legacy_drain;
 mod raw_drain;
 mod receipt;
 mod root_batch;
@@ -204,14 +206,7 @@ pub(in crate::mir::builder) struct UnpublishedFunctionDraftV1<'collector> {
 #[derive(Debug)]
 struct UnpublishedFunctionDraftSealV1;
 
-/// Collector-owned form after infallible admission commit.
-///
-/// This remains private so callers cannot separate a collected draft from its
-/// collector identity or invent a second draft store.
-#[derive(Debug)]
-struct CollectedFunctionDraftV1 {
-    draft: MirFunction,
-}
+use final_row::{CollectedDraftFinalAdmissionV1, CollectedFunctionDraftV1};
 
 impl UnpublishedFunctionDraftV1<'_> {
     /// Commit cannot fail: its collector was exclusively borrowed when
@@ -351,7 +346,7 @@ impl ModuleDraftCollectorV1 {
             symbol.clone().into_boxed_str(),
             arity,
             policy,
-            replacement_disposition,
+            replacement_disposition.clone(),
             self.receipt_brand,
         );
         match (policy, replacement) {
@@ -377,8 +372,21 @@ impl ModuleDraftCollectorV1 {
             ) => {}
             _ => unreachable!("prepared collector policy/replacement mismatch"),
         }
+        let final_admission = CollectedDraftFinalAdmissionV1::new(
+            key.clone(),
+            symbol.clone().into_boxed_str(),
+            arity,
+            policy,
+            replacement_disposition.clone(),
+        );
         self.key_by_symbol.insert(symbol, key.clone());
-        self.drafts.insert(key, CollectedFunctionDraftV1 { draft });
+        self.drafts.insert(
+            key,
+            CollectedFunctionDraftV1 {
+                draft,
+                admission: final_admission,
+            },
+        );
         receipt
     }
 

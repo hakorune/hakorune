@@ -42,18 +42,31 @@ impl MirModule {
         &mut self,
         functions: Vec<MirFunction>,
     ) -> Result<(), FunctionPublicationErrorV1> {
-        let mut names = BTreeSet::new();
-        for function in &functions {
-            let name = function.signature.name.clone();
-            if self.functions.contains_key(&name) || !names.insert(name.clone()) {
-                return Err(FunctionPublicationErrorV1 {
-                    function_name: name,
-                });
-            }
-        }
+        self.preflight_add_function_symbols(
+            functions
+                .iter()
+                .map(|function| function.signature.name.as_str()),
+        )?;
         for function in functions {
             let name = function.signature.name.clone();
             self.functions.insert(name, function);
+        }
+        Ok(())
+    }
+
+    /// Check an exact function-symbol batch without taking ownership of its
+    /// drafts, so a prepared collector can retain them until infallible commit.
+    pub(in crate::mir) fn preflight_add_function_symbols<'symbol>(
+        &self,
+        symbols: impl IntoIterator<Item = &'symbol str>,
+    ) -> Result<(), FunctionPublicationErrorV1> {
+        let mut names = BTreeSet::new();
+        for symbol in symbols {
+            if self.functions.contains_key(symbol) || !names.insert(symbol) {
+                return Err(FunctionPublicationErrorV1 {
+                    function_name: symbol.to_owned(),
+                });
+            }
         }
         Ok(())
     }

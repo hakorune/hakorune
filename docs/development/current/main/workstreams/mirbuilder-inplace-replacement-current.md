@@ -29,41 +29,38 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: CALL-GLOBAL-PRESENCE-LEGACY-FACADE-RETIRE0-RET0
-Result:        the caller-zero Call global-presence facade is gone; the
-               authority-aware resolver is the sole entry
+Latest landed: NORMAL-PROGRAM-COLLECTOR-DRAIN0-S0
+Result:        collector final rows retain legacy admission/replacement facts;
+               normal drain preflight owns the candidate-module loan
 Latest design: NORMAL-PROGRAM-COLLECTOR-DRAIN0-D0 accepted
-Executable:    NORMAL-PROGRAM-COLLECTOR-DRAIN0-S0, then its immediate I0/R0
+Executable:    NORMAL-PROGRAM-COLLECTOR-DRAIN0-I0-R0 (immediate follow-up)
 History:       Git history and the short landed tail below
 ```
 
 ## Current execution
 
-`NORMAL-PROGRAM-COLLECTOR-DRAIN0-S0` — T2 substrate
+`NORMAL-PROGRAM-COLLECTOR-DRAIN0-I0-R0` — T2 integration / retirement
 
 Decision: the collector's final rows, not a source re-read, are the normal
-draft correspondence authority.  Each final row must retain its exact legacy
-admission/replacement record; Raw and canonical drains remain non-authorities.
+draft correspondence authority. The completed S0 retains each final legacy
+admission/replacement record and has sealed the only prepared drain.
 
 ```text
 Change:
-  Add the normal final-row inventory and prepared drain substrate. Old authority: none.
-  The immediately following `NORMAL-PROGRAM-COLLECTOR-DRAIN0-I0-R0` replaces
-  `collector.into_draft_functions() -> current_module.try_add_functions_atomic(...)`.
+  In the selected Program root, consume `prepare_normal_legacy_drain(...).commit()` once and
+  delete `collector.into_draft_functions() -> current_module.try_add_functions_atomic(...)`.
 
 Contract:
-  Retain the final `LegacySymbol` key, symbol/arity, `LegacyReplaceWholePair`, and
-  replacement disposition beside each collected draft. Preflight the exact candidate module;
-  commit only the complete collision-free final set. RootLower discard/reuse remains unchanged.
+  Preserve final collector key order, symbol/arity, `LegacyReplaceWholePair`, RootLower error
+  mapping, candidate discard/reuse, and one atomic candidate-module insertion.
 
 Done:
-  One collector-owned final inventory and one prepared normal drain exist, with a typed
-  rejection retaining the collector. The next landed commit is this cell's I0/R0, not another row.
+  Selected normal direct extraction/insertion is zero; general parity, collision rejection, and
+  failure-then-reuse are green through the one new drain terminal.
 
 Stop:
-  Return to design if normal emits a non-legacy final key/policy, final-row correspondence cannot
-  be retained, target borrowing cannot span preflight through commit, or any source re-read,
-  second collector, policy conversion, partial publication, retry, or fallback is required.
+  Return to design if normal emits a non-legacy final key/policy, RootLower mapping moves, or any
+  source re-read, second collector, policy conversion, partial publication, retry, or fallback is required.
 ```
 
 ## Latest closeout
@@ -147,26 +144,25 @@ largest touched source/check file                       < 800
 
 ```text
 Now
-  1 NORMAL-PROGRAM-COLLECTOR-DRAIN0-S0
-  2 NORMAL-PROGRAM-COLLECTOR-DRAIN0-I0-R0 (immediately after S0)
+  1 NORMAL-PROGRAM-COLLECTOR-DRAIN0-I0-R0
 
 Then, repeat
-  3 fresh live-edge census
-  4 select at most one named production edge or detached Delete asset
-  5 switch it and delete its old authority in the same commit
-  6 return to step 3
+  2 fresh live-edge census
+  3 select at most one named production edge or detached Delete asset
+  4 switch it and delete its old authority in the same commit
+  5 return to step 2
 
 When live cleanup reaches closure
-  7 MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0
+  6 MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0
     - remaining compatibility and detached assets
     - explicit JoinModule disposition
     - accepted-corpus/backend parity
     - MIRBUILDER-FINAL-PIPELINE-v1 completion decision
 
 Only after Complete
-  8 Ownership readiness refresh -> Ownership implementation
-  9 View design -> View implementation
-  10 later unimplemented features, one decision at a time
+  7 Ownership readiness refresh -> Ownership implementation
+  8 View design -> View implementation
+  9 later unimplemented features, one decision at a time
 ```
 
 The observed shelves for the next census are Throw debug compatibility, stale

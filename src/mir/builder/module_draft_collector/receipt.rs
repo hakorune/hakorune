@@ -13,7 +13,7 @@ use super::ModuleDraftCollectorV1;
 use crate::mir::FunctionSignature;
 
 /// Exact effect of one successful collector admission on the prior pair.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum CollectedDraftReplacementDispositionV1 {
     Inserted,
     ReplacedWholePair {
