@@ -86,13 +86,14 @@
     "retired_calls": 0,
     "sunset_id": "RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001",
     "sunset_state": "active",
-    "residual_kind_count": 39,
+    "residual_kind_count": 38,
     "selected_block_prelude_responsibilities": [
       "expr_tree",
       "print",
       "nowait",
       "annotation_free_local",
       "variable_assignment",
+      "variable_compound_assignment",
       "task_scope"
     ],
     "safe_nonempty_block_compatibility_edge": 0,

@@ -100,6 +100,15 @@ fn assignment(target: ASTNode, value: ASTNode) -> ASTNode {
     }
 }
 
+fn compound_assignment(target: ASTNode, operator: BinaryOperator, value: ASTNode) -> ASTNode {
+    ASTNode::CompoundAssignment {
+        target: Box::new(target),
+        operator,
+        value: Box::new(value),
+        span: Span::unknown(),
+    }
+}
+
 fn indexed(target: ASTNode, index: ASTNode) -> ASTNode {
     ASTNode::Index {
         target: Box::new(target),
@@ -193,6 +202,15 @@ fn assert_selected_assignment(node: ASTNode) {
         PreparedRawRootPartitionV1::classify(node),
         PreparedRawRootPartitionV1::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
             SelectedRawNonProgramRootV1::VariableAssignmentRoot(_)
+        ))
+    ));
+}
+
+fn assert_selected_compound_assignment(node: ASTNode) {
+    assert!(matches!(
+        PreparedRawRootPartitionV1::classify(node),
+        PreparedRawRootPartitionV1::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
+            SelectedRawNonProgramRootV1::VariableCompoundAssignmentRoot(_)
         ))
     ));
 }
@@ -306,6 +324,11 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
         vec![None],
     ));
     assert_selected_assignment(assignment(variable("x"), awaited(integer(36))));
+    assert_selected_compound_assignment(compound_assignment(
+        variable("x"),
+        BinaryOperator::Add,
+        checked(vec![integer(36)]),
+    ));
     assert_selected_task_scope(task_scope("co", Vec::new()));
     assert_selected_task_scope(task_scope(
         "task_scope",
@@ -313,6 +336,7 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
             printed(integer(37)),
             nowait("pending", integer(38)),
             assignment(variable("x"), checked(vec![integer(38)])),
+            compound_assignment(variable("x"), BinaryOperator::Multiply, integer(2)),
             task_scope("co", vec![checked(vec![integer(39)])]),
         ],
     ));
@@ -489,7 +513,10 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
         RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
     );
     assert_selected(block_expr(
-        vec![assignment(variable("x"), integer(33))],
+        vec![
+            assignment(variable("x"), integer(33)),
+            compound_assignment(variable("x"), BinaryOperator::Add, integer(1)),
+        ],
         integer(34),
     ));
     assert_compatibility(
@@ -500,6 +527,26 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
                 span: Span::unknown(),
             },
             integer(33),
+        ),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        compound_assignment(
+            indexed(variable("items"), integer(0)),
+            BinaryOperator::Add,
+            integer(1),
+        ),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        compound_assignment(
+            variable("x"),
+            BinaryOperator::Add,
+            ASTNode::FieldAccess {
+                object: Box::new(variable("page")),
+                field: "value".to_owned(),
+                span: Span::unknown(),
+            },
         ),
         RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
     );

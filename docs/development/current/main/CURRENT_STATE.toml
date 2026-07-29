@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Variable CompoundAssignment composition is accepted. Its I0/R0 is the sole executable row."
+status = "Variable CompoundAssignment composition is closed. Safe root Return selection is the sole design stop."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0"
-current_execution_summary = "T1 atomic production cutover: add one private source-only VariableCompoundAssignmentRoot for bare Variable target, existing BinaryOperator, and PortNeutralExprTreeV1 RHS; compose it into root, BlockExpr prelude, and TaskScope body selection; reuse the existing compound-assignment owner unchanged; and delete the safe-shape SeparateDesignStop edge. Preserve current old-value read before one RHS descent before binary emission before one write, residual 39 to 38, FieldAccess/Index/other target and unsafe-RHS compatibility, and zero retry. Do not add the statement to the expression-tree predicate, inspect Builder state in classification, add operator rules, or change grammar/result/publication."
+current_design_stop = "RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-D0"
+current_execution_row = ""
+current_execution_summary = "Read-only T1 selection: decide the exact root-only Return closure over None or Some(PortNeutralExprTreeV1), reusing the existing void/value Return owners without changing cleanup, defer, Match-return, ABI, result, or publication policy. The proposed I0/R0 deletes the safe Return SeparateDesignStop edge and moves residual 38 to 37. Return must not enter the expression-tree or BlockExpr/TaskScope prelude predicates; unsafe value Return remains compatibility and selected failure never retries."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
