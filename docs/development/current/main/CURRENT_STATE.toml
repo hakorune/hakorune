@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The ordinary Assignment target route is prepared exactly once; the next action is a fresh read-only live-edge census."
+status = "The fresh census selected the split raw Unary source route for one atomic production replacement."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-ORDINARY-ASSIGNMENT-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = ""
+current_design_stop = ""
+current_execution_row = "RAW-UNARY-SOURCE-ROUTE-ONCE0-I0-R0"
+current_execution_summary = "Move the sole raw Unary Weak-versus-ordinary source decision into one source-only PreparedRawUnaryV1, consume the selected route once, and delete the dispatcher policy plus caller-zero Unary facades in the same commit."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-ORDINARY-ASSIGNMENT-TARGET-ROUTE-ONCE0-I0-R0 is closed. The sole raw Assignment arm now consumes AssignStmt into one opaque Variable, Field, Index, or existing Unsupported route before Builder effects and delegates once to the existing owner. The borrowed target selector, local helper, and selector-level AST clones are absent; focused parity, ordering, diagnostic, reuse, cargo check, and shared guards are green. GroupedAssignment, CompoundAssignment, caller-zero field/index facades, FastMem, indirect Call, MethodCall, QMark, View, Ownership, and feature additions remain non-claims. A fresh read-only live-edge census is the only next authority."""
+latest_card_summary = """The post-Assignment fresh census selected RAW-UNARY-SOURCE-ROUTE-ONCE0-I0-R0. The sole raw UnaryOp caller will consume operator and operand into one opaque Weak or Ordinary route before Builder effects, then lower exactly once through the existing Unary semantics. The same commit deletes the dispatcher Weak policy/operator-string mapping, build_unary_op_with_port_v1, and caller-zero Unary facades. Minus-literal folding, operand order, operator-box/Core13/direct completion, diagnostics, and result facts remain exact. CompoundAssignment is already one EvaluatedPlace owner; indirect Call clone transport is cleanup-only; FastMem, MethodCall, QMark, View, Ownership, and feature additions remain parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-POST-ORDINARY-ASSIGNMENT-LIVE-EDGE-CENSUS0-D0"
+current_blocker_token = "RAW-UNARY-SOURCE-ROUTE-ONCE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

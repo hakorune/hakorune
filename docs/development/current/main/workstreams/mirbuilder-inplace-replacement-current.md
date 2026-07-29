@@ -580,16 +580,22 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: RAW-ORDINARY-ASSIGNMENT-TARGET-ROUTE-ONCE0-I0-R0.
-Caller: sole raw ASTNode::Assignment edge.
-Owner: one source-only PreparedRawOrdinaryAssignmentV1 route, then one
-  Variable, Field, Index, or existing Unsupported terminal.
-Deleted: borrowed target selector, local helper, and selector AST clones.
-Evidence: ordering/diagnostic/reuse suites, cargo check, shared guard green.
-Current stop: MIRBUILDER-POST-ORDINARY-ASSIGNMENT-LIVE-EDGE-CENSUS0-D0.
-Next action: read-only census; no implementation row is preselected.
-Non-claims: caller-zero Field/Index facades, FastMem, indirect Call,
-  MethodCall, QMark, View/Ownership, and feature work.
+Closed through ordinary Assignment route-once; focused gates are green.
+Current: RAW-UNARY-SOURCE-ROUTE-ONCE0-I0-R0, DESCENT-SPINE0/T1,
+  one atomic commit.
+Caller: sole raw ASTNode::UnaryOp edge.
+Owner: source-only PreparedRawUnaryV1 with private Weak or Ordinary route;
+  selected route is consumed exactly once in ops/unary.rs.
+Delete: dispatcher Weak policy and operator-string mapping,
+  build_unary_op_with_port_v1, and caller-zero Unary facades.
+Preserve: minus-literal fold before descent; Weak operand then emit;
+  ordinary operand then operator-box/Core13/direct completion and facts.
+Evidence: existing raw-port/literal-postemit tests plus existing shared guard;
+  no new source/test/check/task file.
+Hard stop: route selection after effects, double operand descent, policy-order
+  drift, retry, or widening ordinary Unary semantics.
+Non-claims: CompoundAssignment, indirect Call, FastMem, MethodCall, QMark,
+  View/Ownership, and feature work.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
