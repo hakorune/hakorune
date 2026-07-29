@@ -14,7 +14,7 @@ pub(in crate::mir::builder) use input_view::{
 };
 
 use super::builder_build::PreparedRawNewExpressionV1;
-use super::calls::{MethodCallDescentPortV1, RawLegacyMethodCallInputV1};
+use super::calls::{MethodCallDescentPortV1, PreparedRawFromCallV1, RawLegacyMethodCallInputV1};
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
 use super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::ops::{
@@ -167,12 +167,10 @@ impl super::MirBuilder {
                 method,
                 arguments,
                 ..
-            } => self.build_from_expression_with_port_v1(
-                port,
-                parent.clone(),
-                method.clone(),
-                arguments.clone(),
-            ),
+            } => {
+                let prepared = PreparedRawFromCallV1::prepare(self, parent, method, arguments)?;
+                self.lower_prepared_raw_from_call_with_port_v1(port, prepared)
+            }
 
             // Phase 152-A: Grouped assignment expression (x = expr)
             // Stage-3 only. Value/type same as rhs, side effect assigns to lhs.

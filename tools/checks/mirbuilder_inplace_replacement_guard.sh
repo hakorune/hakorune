@@ -46,6 +46,8 @@ BINARY_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine
 METHOD_CALL_DESCENT="$ROOT_DIR/src/mir/builder/calls/method_call_descent.rs"
 METHOD_CALL_TERMINAL="$ROOT_DIR/src/mir/builder/calls/method_call_terminal.rs"
 CALLS_MOD="$ROOT_DIR/src/mir/builder/calls/mod.rs"
+CALLS_BUILD="$ROOT_DIR/src/mir/builder/calls/build.rs"
+ENUM_MATCH="$ROOT_DIR/src/mir/builder/exprs_enum_match.rs"
 METHOD_CALL_HANDLERS="$ROOT_DIR/src/mir/builder/method_call_handlers.rs"
 PROPERTY_READS="$ROOT_DIR/src/mir/builder/property_reads.rs"
 FIELDS="$ROOT_DIR/src/mir/builder/fields.rs"
@@ -101,6 +103,8 @@ guard_require_files \
   "$METHOD_CALL_DESCENT" \
   "$METHOD_CALL_TERMINAL" \
   "$CALLS_MOD" \
+  "$CALLS_BUILD" \
+  "$ENUM_MATCH" \
   "$METHOD_CALL_HANDLERS" \
   "$PROPERTY_READS" \
   "$FIELDS" \
@@ -175,6 +179,33 @@ done
 if rg -n -F 'RawLegacyChildLoweringPortV1' "$BUILDER_BUILD" >/dev/null; then
   guard_fail "$TAG" "builder_build restored a caller-selected legacy New port"
 fi
+
+while IFS='|' read -r file pattern expected label; do
+  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+  if [[ "$count" != "$expected" ]]; then
+    guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
+  fi
+done <<EOF
+$CALLS_BUILD|struct\\s+PreparedRawFromCallV1\\b|1|opaque prepared raw From route
+$CALLS_BUILD|enum\\s+PreparedRawFromCallRouteV1\\b|1|private raw From route vocabulary
+$CALLS_BUILD|fn\\s+lower_prepared_raw_from_call_with_port_v1\\s*<Port>|1|prepared raw From lowering owner
+$ENUM_MATCH|fn\\s+prepare_raw_enum_variant_header_v1\\s*\\(|1|single raw enum variant classifier
+$ENUM_MATCH|fn\\s+lower_prepared_raw_enum_variant_with_port_v1\\s*<Port>|1|prepared raw enum lowering owner
+$CALLS_BUILD|lower_prepared_raw_enum_variant_with_port_v1\\s*\\(|1|sole prepared raw enum caller
+$RAW_DISPATCH|PreparedRawFromCallV1::prepare\\s*\\(|1|sole raw From route issuer
+$RAW_DISPATCH|lower_prepared_raw_from_call_with_port_v1\\s*\\(|1|sole prepared raw From caller
+EOF
+
+for retired_from_edge in \
+  'fn build_from_expression(' \
+  'fn build_from_expression_with_port_v1' \
+  'fn try_build_enum_variant_constructor(' \
+  'fn try_build_enum_variant_constructor_with_port_v1'
+do
+  if rg -n -F "$retired_from_edge" "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+    guard_fail "$TAG" "retired raw From edge returned: $retired_from_edge"
+  fi
+done
 
 stageb_asset_count="$(awk -F '\t' '
   $1 == "asset" &&
@@ -718,6 +749,8 @@ for file in \
   "$METHOD_CALL_DESCENT" \
   "$METHOD_CALL_TERMINAL" \
   "$CALLS_MOD" \
+  "$CALLS_BUILD" \
+  "$ENUM_MATCH" \
   "$METHOD_CALL_HANDLERS" \
   "$PROPERTY_READS" \
   "$FIELDS" \

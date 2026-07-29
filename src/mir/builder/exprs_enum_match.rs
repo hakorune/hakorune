@@ -6,6 +6,56 @@ use crate::mir::builder::recursive_child_lowering::{
 };
 use crate::mir::{CompareOp, MirInstruction, MirType, ValueId};
 
+pub(in crate::mir::builder) struct PreparedRawEnumVariantHeaderV1 {
+    tag: u32,
+    declared_payload_type: Option<MirType>,
+    _seal: PreparedRawEnumVariantHeaderSealV1,
+}
+
+struct PreparedRawEnumVariantHeaderSealV1;
+
+pub(in crate::mir::builder) fn prepare_raw_enum_variant_header_v1(
+    builder: &super::MirBuilder,
+    enum_name: &str,
+    variant_name: &str,
+    arguments: &[ASTNode],
+) -> Result<Option<PreparedRawEnumVariantHeaderV1>, String> {
+    let Some(resolved) = builder
+        .comp_ctx
+        .resolve_enum_variant(enum_name, variant_name)
+    else {
+        return Ok(None);
+    };
+    if resolved.decl.requires_compat_payload_box() {
+        return Err(format!(
+            "[freeze:contract][mir_builder/enum_ctor] {}::{} record/tuple payload lowering is outside direct-MIR MVP",
+            enum_name, variant_name
+        ));
+    }
+    let expected_arity = resolved.decl.payload_arity();
+    if arguments.len() != expected_arity {
+        return Err(format!(
+            "[freeze:contract][mir_builder/enum_ctor] {}::{} expects {} arg(s), got {}",
+            enum_name,
+            variant_name,
+            expected_arity,
+            arguments.len()
+        ));
+    }
+    if crate::semantics::option_contract::requires_non_nullish_payload(enum_name, variant_name)
+        && arguments.iter().any(ast_is_statically_nullish)
+    {
+        return Err(crate::semantics::option_contract::nullish_payload_error(
+            "mir_builder/enum_ctor",
+        ));
+    }
+    Ok(Some(PreparedRawEnumVariantHeaderV1 {
+        tag: resolved.tag,
+        declared_payload_type: payload_mir_type(resolved.decl.payload_type_name.as_deref()),
+        _seal: PreparedRawEnumVariantHeaderSealV1,
+    }))
+}
+
 impl super::MirBuilder {
     pub(super) fn try_build_guard_let_scopebox(
         &mut self,
@@ -76,61 +126,23 @@ impl super::MirBuilder {
         self.build_guard_let_variant_bool_select_with_port_v1(port, enum_name, scrutinee, arms)
     }
 
-    pub(super) fn try_build_enum_variant_constructor(
-        &mut self,
-        enum_name: &str,
-        variant_name: &str,
-        arguments: Vec<ASTNode>,
-    ) -> Result<Option<ValueId>, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.try_build_enum_variant_constructor_with_port_v1(
-            &mut port,
-            enum_name,
-            variant_name,
-            arguments,
-        )
-    }
-
-    /// Lower a resolved enum constructor while retaining the raw child port.
-    pub(in crate::mir::builder) fn try_build_enum_variant_constructor_with_port_v1<Port>(
+    /// Lower one prepared enum constructor while retaining the raw child port.
+    pub(in crate::mir::builder) fn lower_prepared_raw_enum_variant_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
-        enum_name: &str,
-        variant_name: &str,
+        enum_name: String,
+        variant_name: String,
         arguments: Vec<ASTNode>,
-    ) -> Result<Option<ValueId>, String>
+        prepared: PreparedRawEnumVariantHeaderV1,
+    ) -> Result<ValueId, String>
     where
         Port: RawAstChildLoweringPortV1,
     {
-        let Some(resolved) = self.comp_ctx.resolve_enum_variant(enum_name, variant_name) else {
-            return Ok(None);
-        };
-        if resolved.decl.requires_compat_payload_box() {
-            return Err(format!(
-                "[freeze:contract][mir_builder/enum_ctor] {}::{} record/tuple payload lowering is outside direct-MIR MVP",
-                enum_name, variant_name
-            ));
-        }
-        let tag = resolved.tag;
-        let declared_payload_type = payload_mir_type(resolved.decl.payload_type_name.as_deref());
-        let expected_arity = resolved.decl.payload_arity();
-        if arguments.len() != expected_arity {
-            return Err(format!(
-                "[freeze:contract][mir_builder/enum_ctor] {}::{} expects {} arg(s), got {}",
-                enum_name,
-                variant_name,
-                expected_arity,
-                arguments.len()
-            ));
-        }
-        if crate::semantics::option_contract::requires_non_nullish_payload(enum_name, variant_name)
-            && arguments.iter().any(ast_is_statically_nullish)
-        {
-            return Err(crate::semantics::option_contract::nullish_payload_error(
-                "mir_builder/enum_ctor",
-            ));
-        }
-
+        let PreparedRawEnumVariantHeaderV1 {
+            tag,
+            declared_payload_type,
+            _seal: _,
+        } = prepared;
         let arg_values = drive_call_arguments_v1(self, port, arguments.as_slice())?;
         let payload = match arg_values.as_slice() {
             [] => None,
@@ -161,7 +173,7 @@ impl super::MirBuilder {
                             .metadata
                             .declared_return_type_name
                             .as_deref()
-                            .and_then(|raw| concrete_enum_payload_type_name(enum_name, raw))
+                            .and_then(|raw| concrete_enum_payload_type_name(&enum_name, raw))
                     })
             })
             .or_else(|| {
@@ -169,14 +181,14 @@ impl super::MirBuilder {
                     .current_function
                     .as_ref()
                     .and_then(|function| {
-                        concrete_enum_payload_type(enum_name, &function.signature.return_type)
+                        concrete_enum_payload_type(&enum_name, &function.signature.return_type)
                     })
             });
         let dst = self.next_value_id();
         self.emit_instruction(MirInstruction::VariantMake {
             dst,
-            enum_name: enum_name.to_string(),
-            variant: variant_name.to_string(),
+            enum_name: enum_name.clone(),
+            variant: variant_name,
             tag,
             payload,
             payload_type,
@@ -184,8 +196,8 @@ impl super::MirBuilder {
         self.function_state
             .type_ctx
             .value_types
-            .insert(dst, MirType::Box(runtime_variant_box_name(enum_name)));
-        Ok(Some(dst))
+            .insert(dst, MirType::Box(runtime_variant_box_name(&enum_name)));
+        Ok(dst)
     }
 
     fn build_guard_let_variant_bool_select_with_port_v1<Port>(

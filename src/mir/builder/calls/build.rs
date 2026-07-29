@@ -4,7 +4,7 @@
 //! ASTからCall構築の統合制御（orchestration only, no implementation）
 //! - build_function_call: 関数呼び出し構築
 //! - build_method_call: メソッド呼び出し構築
-//! - build_from_expression: from式構築
+//! - `PreparedRawFromCallV1`: from式のenum/ordinary routeをeffect前に一度だけ選択
 //!
 //! # Delegation Strategy (実装は専用モジュールへ委譲)
 //! - `debug_method_routing`: Debug tracing（179 lines）
@@ -27,10 +27,56 @@ use super::CallTarget;
 use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::BareStaticRecoveryNoRecoveryReasonV1;
 use crate::mir::builder::calls::drive_call_arguments_v1;
+use crate::mir::builder::exprs_enum_match::{
+    prepare_raw_enum_variant_header_v1, PreparedRawEnumVariantHeaderV1,
+};
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
     RawLegacyChildLoweringPortV1,
 };
+
+pub(in crate::mir::builder) struct PreparedRawFromCallV1 {
+    route: PreparedRawFromCallRouteV1,
+}
+
+enum PreparedRawFromCallRouteV1 {
+    EnumVariant {
+        parent: String,
+        method: String,
+        arguments: Vec<ASTNode>,
+        header: PreparedRawEnumVariantHeaderV1,
+    },
+    Ordinary {
+        parent: String,
+        method: String,
+        arguments: Vec<ASTNode>,
+    },
+}
+
+impl PreparedRawFromCallV1 {
+    pub(in crate::mir::builder) fn prepare(
+        builder: &MirBuilder,
+        parent: String,
+        method: String,
+        arguments: Vec<ASTNode>,
+    ) -> Result<Self, String> {
+        let route = match prepare_raw_enum_variant_header_v1(builder, &parent, &method, &arguments)?
+        {
+            Some(header) => PreparedRawFromCallRouteV1::EnumVariant {
+                parent,
+                method,
+                arguments,
+                header,
+            },
+            None => PreparedRawFromCallRouteV1::Ordinary {
+                parent,
+                method,
+                arguments,
+            },
+        };
+        Ok(Self { route })
+    }
+}
 
 impl MirBuilder {
     // Build function call: name(args)
@@ -201,38 +247,34 @@ impl MirBuilder {
         self.build_member_method_call_v1(port, input)
     }
 
-    // Build from expression: from Parent.method(arguments)
-    pub fn build_from_expression(
-        &mut self,
-        parent: String,
-        method: String,
-        arguments: Vec<ASTNode>,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_from_expression_with_port_v1(&mut port, parent, method, arguments)
-    }
-
-    /// Lower a `from` call without dropping the caller's raw child port.
-    pub(in crate::mir::builder) fn build_from_expression_with_port_v1<Port>(
+    /// Lower one prepared `from` route without dropping the caller's child port.
+    pub(in crate::mir::builder) fn lower_prepared_raw_from_call_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
-        parent: String,
-        method: String,
-        arguments: Vec<ASTNode>,
+        prepared: PreparedRawFromCallV1,
     ) -> Result<ValueId, String>
     where
         Port: RawAstChildLoweringPortV1,
     {
-        if let Some(result) = self.try_build_enum_variant_constructor_with_port_v1(
-            port,
-            &parent,
-            &method,
-            arguments.clone(),
-        )? {
-            return Ok(result);
-        }
+        let (parent, method, arguments) = match prepared.route {
+            PreparedRawFromCallRouteV1::EnumVariant {
+                parent,
+                method,
+                arguments,
+                header,
+            } => {
+                return self.lower_prepared_raw_enum_variant_with_port_v1(
+                    port, parent, method, arguments, header,
+                )
+            }
+            PreparedRawFromCallRouteV1::Ordinary {
+                parent,
+                method,
+                arguments,
+            } => (parent, method, arguments),
+        };
 
-        let arg_values = drive_call_arguments_v1(self, port, arguments.as_slice())?;
+        let arg_values = drive_call_arguments_v1(self, port, &arguments)?;
         let parent_value = crate::mir::builder::emission::constant::emit_string(self, parent)?;
         let result_id = self.next_value_id();
         self.emit_box_or_plugin_call(
@@ -408,5 +450,124 @@ impl MirBuilder {
             .value_types
             .insert(dst, return_type);
         Ok(dst)
+    }
+}
+
+#[cfg(test)]
+mod raw_from_route_tests {
+    use super::*;
+    use crate::ast::{EnumVariantDecl, FieldDecl, LiteralValue, Span};
+
+    fn int(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        }
+    }
+
+    fn null() -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Null,
+            span: Span::unknown(),
+        }
+    }
+
+    fn variant(name: &str, payload_type_name: Option<&str>) -> EnumVariantDecl {
+        EnumVariantDecl {
+            name: name.to_string(),
+            payload_type_name: payload_type_name.map(str::to_string),
+            record_field_decls: vec![],
+            tuple_payload_type_names: vec![],
+        }
+    }
+
+    fn prepare_error(result: Result<PreparedRawFromCallV1, String>) -> String {
+        match result {
+            Ok(_) => panic!("expected raw From preparation to fail"),
+            Err(error) => error,
+        }
+    }
+
+    #[test]
+    fn raw_from_route_selects_enum_or_ordinary_once_before_lowering() {
+        let mut builder = MirBuilder::new();
+        builder.comp_ctx.register_enum_decl(
+            "Result".to_string(),
+            vec!["T".to_string(), "E".to_string()],
+            vec![variant("Ok", Some("T")), variant("Err", Some("E"))],
+        );
+
+        let enum_route = PreparedRawFromCallV1::prepare(
+            &builder,
+            "Result".to_string(),
+            "Ok".to_string(),
+            vec![int(1)],
+        )
+        .expect("known enum variant must prepare");
+        assert!(matches!(
+            enum_route.route,
+            PreparedRawFromCallRouteV1::EnumVariant { .. }
+        ));
+
+        let ordinary_route = PreparedRawFromCallV1::prepare(
+            &builder,
+            "Parent".to_string(),
+            "build".to_string(),
+            vec![int(2)],
+        )
+        .expect("unknown enum owner remains ordinary From");
+        assert!(matches!(
+            ordinary_route.route,
+            PreparedRawFromCallRouteV1::Ordinary { .. }
+        ));
+    }
+
+    #[test]
+    fn raw_enum_route_preserves_payload_arity_and_nullish_error_precedence() {
+        let mut builder = MirBuilder::new();
+        builder.comp_ctx.register_enum_decl(
+            "Option".to_string(),
+            vec!["T".to_string()],
+            vec![variant("None", None), variant("Some", Some("T"))],
+        );
+        builder.comp_ctx.register_enum_decl(
+            "RecordResult".to_string(),
+            vec![],
+            vec![EnumVariantDecl {
+                name: "Ok".to_string(),
+                payload_type_name: None,
+                record_field_decls: vec![FieldDecl {
+                    name: "value".to_string(),
+                    declared_type_name: Some("i64".to_string()),
+                    is_weak: false,
+                    default_value: None,
+                }],
+                tuple_payload_type_names: vec![],
+            }],
+        );
+
+        let record = prepare_error(PreparedRawFromCallV1::prepare(
+            &builder,
+            "RecordResult".to_string(),
+            "Ok".to_string(),
+            vec![],
+        ));
+        assert!(record.contains("record/tuple payload lowering"));
+
+        let arity = prepare_error(PreparedRawFromCallV1::prepare(
+            &builder,
+            "Option".to_string(),
+            "Some".to_string(),
+            vec![],
+        ));
+        assert!(arity.contains("expects 1 arg(s), got 0"));
+
+        let nullish = prepare_error(PreparedRawFromCallV1::prepare(
+            &builder,
+            "Option".to_string(),
+            "Some".to_string(),
+            vec![null()],
+        ));
+        assert!(nullish.contains("nullish"));
     }
 }

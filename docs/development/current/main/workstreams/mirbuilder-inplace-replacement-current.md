@@ -579,24 +579,18 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution row
-`RAW-FROM-CALL-ROUTE-ONCE0-I0-R0` — accepted
+`RAW-FROM-CALL-ROUTE-ONCE0-I0-R0` — closed
 ```text
 Pack / ceremony: CALL-OBJECT0 / T1, one atomic I0/R0.
 Named caller: raw expression dispatcher ASTNode::FromCall arm.
 New owner:
-  PreparedRawFromCallV1 -> prepared enum-variant or ordinary From lower
+  opaque PreparedRawFromCallV1 -> one prepared enum or ordinary lower
 Atomic delete:
   optional enum-constructor probe, arguments clone, build_from_expression,
   and caller-zero try_build_enum_variant_constructor.
-Keep:
-  enum payload/arity/nullish diagnostic precedence, argument source order,
-  VariantMake/type facts, and ordinary From call/effect policy.
-Forbid:
-  post-prepare enum lookup, fallback/retry, enum-match/unified-call changes,
-  grammar/result/publication, Lambda, View, or Ownership changes.
-Evidence:
-  raw From child-port parity, Result VariantMake fixtures, enum rejection
-  precedence, cargo check, shared replacement guard, and pointer guard.
+Evidence: route/error tests, raw child-port parity, Result VariantMake,
+  cargo check, shared replacement guard, and pointer guard are green.
+Next design stop: MIRBUILDER-POST-FROM-CALL-LIVE-EDGE-CENSUS0-D0.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
