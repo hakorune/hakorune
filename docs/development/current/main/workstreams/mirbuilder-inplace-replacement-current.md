@@ -578,36 +578,42 @@ new source/test/check/task file            = 0
 largest touched source/check file          = 799
 ```
 
-## Stage1 closeout
+## Current execution
 
-`STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0`
-
-```text
-Program partition / typed execution = exactly 1 / 1
-Program broad legacy reachability   = 0
-NonProgram compatibility edge       = exactly 1, caller-local
-Program MIR/error parity            = green
-real non-Program MIR parity          = green
-fallback / retry / reselection      = 0
-new source/test/check file           = 0
-largest touched source/check file    = 798
-```
-
-## Current design stop: `POST-MACRO-ROOT-CONTRACT0-D0`
+`STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0`
+Parent: `POST-MACRO-ROOT-CONTRACT0-D0` / T2
 
 ```text
-Audit:
-  Stage1, VM keep/fallback, VM-Hako, selfhost post-macro root contracts
-Decision:
-  Program-preserving whole-file macros or one explicit arbitrary-root authority
-Required:
-  NyChildMacroBox policy, caller-specific transport parity, atomic caller order
-Forbid:
-  caller-local compatibility growth, Program->Legacy retry, API narrowing here
+Change:
+  Seal the final Stage1 whole-file macro output as Program before compiler
+  admission. Delete ExistingStage1DirectPostMacroCompatibilityV1, its
+  NonProgram carrier/match arm, and the Stage1 source-hint Legacy edge.
+
+Contract:
+  Generic MacroBox and AST JSON remain node-generic. Whole-file compilation is
+  Program -> macro/normalization -> Program or typed failure. Macro order,
+  Stage1 source/optimize/result behavior, and Program MIR stay unchanged.
+
+Done:
+  Program parity is green; non-Program macro output fails before MirCompiler;
+  the Stage1 sunset closes; the shared pointer/replacement guards are green.
+
+Stop:
+  Program wrapping, AST clone/reparse, MacroBox trait narrowing, caller-local
+  compatibility, compiler/Legacy retry, or changed macro pass order.
 ```
+
+Post-macro retirement order after each fresh census:
+```text
+Stage1 current -> selfhost preexpand -> VM-Hako -> VM fallback -> VM keep
+-> caller-zero source-hint helpers -> wasm benchmark
+-> public arbitrary-AST contract D0 -> final Legacy/build_module retirement
+```
+The first seven caller rows reuse one whole-file Program seal. The public
+`MacroBox::expand`, `--macro-expand-child`, AST JSON v0, and dump/roundtrip
+tooling keep arbitrary-node authority and never gain MIR compilation authority.
 
 Compatibility sunset:
-
 ```text
 sunset_id: RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 state: active
@@ -715,7 +721,8 @@ R25 RAW-NONPROGRAM-PLAIN-SCOPEBOX-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R26 RAW-NONPROGRAM-SAFE-THROW-ROOT-DESCENT0-D0 closed: NoProductionConstructor
 R27 RAW-NONPROGRAM-ROOT-INGRESS-POLICY0-D0 closed: IndependentSunsets
 R28 RUNTIME-MIRBUILDER-AST-JSON-COMPAT-RETIRE0-I0-R0 closed
-R29 POST-MACRO-ROOT-CONTRACT0-D0 current
+R29 POST-MACRO-ROOT-CONTRACT0-D0 closed: WholeFileProgram
+R30 STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

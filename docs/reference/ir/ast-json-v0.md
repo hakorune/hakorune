@@ -3,6 +3,11 @@
 Status: Draft. This document specifies a minimal JSON schema for representing Nyash AST to enable macro expansion by external processes (e.g., PyVM-based MacroBox).
 
 Decision note (current):
+- Decision: accepted — AST JSON v0 remains a node-generic transport. When a
+  macro is used as a whole-file source transform, its final output must be an
+  `ASTNode::Program`. A non-Program output is a macro-output contract error
+  before compiler/Builder admission; it is not wrapped, retried, or sent to an
+  arbitrary-AST compatibility compiler.
 - Rune declaration metadata carriage is declaration-local on AST JSON v0 and direct MIR; this includes base Rune v0 families plus Rune v1 optimization families (`Inline` / `Hint` / `Contract` / `Profile` / `IntrinsicCandidate`) after normalization. Compat `Lowering(inline_required)` remains accepted during the migration window. Program(JSON v0) is a retire target and is not widened for Rune metadata.
 - SSOT:
   - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
@@ -12,6 +17,9 @@ Top-level
 - Object with `kind` discriminator.
 - Nested nodes referenced inline; no IDs.
 - Span is omitted in v0 (unknown). Future versions may include `span` with file/line/col.
+- The transport and `--macro-expand-child` tooling may carry any supported
+  node kind. The Program-only rule applies only when the result is admitted as
+  a whole source file for compilation.
 
 Kinds (subset for Phase 2+)
 - Program: { kind: "Program", statements: [Node] }

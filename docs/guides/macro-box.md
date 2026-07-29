@@ -15,6 +15,9 @@ API（Nyash, 推奨）
 - Box: `static box MacroBoxSpec { static function expand(json[, ctx]) -> json }`
 - Contract: AST JSON v0（docs/reference/ir/ast-json-v0.md）。ctxはJSON文字列（MVP: {caps:{io,net,env}}）。
 - 実行: エンジンは登録されたファイルをNyashランナールートで呼び出し、展開JSONを受け取る。
+- whole-file source の展開では、入力と最終出力のrootはともに
+  `Program` 必須。non-Program出力はコンパイラーへ渡さず契約違反として
+  fail-fastする。AST JSON v0とmacro child tooling自体はnode-genericのまま。
 
 API（Rust, 内部/開発者向け）
 - Trait: `MacroBox { name() -> &'static str; expand(&ASTNode) -> ASTNode }`

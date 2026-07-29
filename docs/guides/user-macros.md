@@ -50,6 +50,15 @@ static box MacroBoxSpec {
 }
 ```
 
+Whole-file compilation contract:
+
+- source-file expansion receives a `Program` root and must return a `Program`
+  root
+- returning another AST kind is a macro contract error before MIR compilation
+- the runner does not wrap the node in a Program or retry the unexpanded/Legacy
+  route
+- generic AST JSON tooling remains node-generic
+
 Example (repo): `apps/macros/examples/echo_macro.hako`.
 
 Editing template (string literal uppercasing)
@@ -125,6 +134,7 @@ See `docs/reference/ir/ast-json-v0.md` for the minimal schema used in Phase 2.
 
 - Child timeout: increase `NYASH_NY_COMPILER_TIMEOUT_MS` or simplify macro code; strict mode fails fast.
 - Invalid JSON from child: ensure `expand(json)` returns a valid AST JSON v0 string.
+- Wrong whole-file root: ensure the returned JSON has `kind: "Program"`.
 - No changes observed: confirm your macro is registered and the runner route is enabled.
 - Capability denied: set caps explicitly（デフォルトは全OFF）
   - `NYASH_MACRO_CAP_IO=1` → IO系Box（File/Path/Dir）許可

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Runtime AST-JSON compatibility is retired. Post-macro root contract is the sole design stop."
+status = "Whole-file macro output is Program-only; Stage1 compatibility retirement is the active execution row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "POST-MACRO-ROOT-CONTRACT0-D0"
-current_execution_row = ""
-current_execution_summary = "Read-only policy decision shared by Stage1 direct, VM keep/fallback, VM-Hako reference, and selfhost preexpand: decide whether whole-file macro expansion must preserve Program or whether one explicit arbitrary-root macro compatibility authority remains. Inventory NyChildMacroBox and built-in/test macros, caller provenance/import/config/result contracts, and exact caller cutover order. Do not add caller-local compatibility owners, retry typed Program through Legacy, clone/reparse, or narrow the public arbitrary-AST API in this D0."
+current_design_stop = ""
+current_execution_row = "STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0"
+current_execution_summary = "Seal final Stage1 whole-file macro output as Program before compiler admission and atomically delete the Stage1 NonProgram compatibility owner plus its source-hint Legacy edge. Generic MacroBox, AST JSON v0, and macro-child tooling remain node-generic. No wrapping, clone/reparse, retry, or caller-local compatibility."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """Three reviews accepted exact bare-Variable CompoundAssignment composition through the existing port-aware read/RHS/binary/write owner. Its atomic cutover removes one more safe compatibility kind."""
+latest_card_summary = """POST-MACRO-ROOT-CONTRACT0-D0 accepts a Program-only whole-file compilation boundary while keeping generic macro tooling node-generic. Stage1 direct is the first atomic compatibility retirement."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "POST-MACRO-ROOT-CONTRACT0-D0"
+current_blocker_token = "STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
