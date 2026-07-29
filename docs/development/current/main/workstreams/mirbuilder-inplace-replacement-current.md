@@ -579,25 +579,23 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution row
-Closed: `RAW-FROM-CALL-ROUTE-ONCE0-I0-R0`, `RAW-SCOPEBOX-BODY-ROUTE-ONCE0-I0-R0`.
 ```text
-Closed: EnumMatch, Field-read, and Print route-once replacements.
-Evidence: exact prepared routes, effect/diagnostic parity, failure/reuse,
-  focused tests, cargo check, shared guards; old probes/clones/facades are zero.
-Closed: RAW-DIRECT-FUNCTION-PREFLIGHT-ROUTE-ONCE0-I0-R0.
-Caller/owner: the sole raw ASTNode::FunctionCall edge now issues one
-  PreparedRawFunctionPreflightV1 before child effects.
-Priority: weak -> extern -> Brand -> exact TypeOp -> math ->
-  active FastMem -> Ordinary; one selected route, no retry.
-Deleted: CallExpr conversion, Option preflight/typeop/math probes,
-  caller-zero direct-call/brand/extern/FastMem facades, and probe clones.
-Preserved: Ordinary arguments -> str/1 -> header -> resolution timing,
-  diagnostics, MIR effects, legacy candidate reuse, and FastMem memops.
-Non-claim: FastMem intrinsic-internal source argument clones remain owned by
-  its shared FunctionCall/MethodCall kernel.
-Current design stop: MIRBUILDER-POST-DIRECT-FUNCTION-PREFLIGHT-LIVE-EDGE-CENSUS0-D0.
-Next: read-only production census; do not preselect MethodCall, indirect Call,
-  CompoundAssignment, View/Ownership, or feature work.
+Closed through direct FunctionCall preflight: exact prepared routes, parity,
+  failure/reuse, and guards are green; selected old probes/facades are zero.
+Current: RAW-ORDINARY-ASSIGNMENT-TARGET-ROUTE-ONCE0-I0-R0,
+  DESCENT-SPINE0/T1, one atomic commit.
+Caller: statement_surface sole ASTNode::Assignment edge.
+Owner: PreparedRawOrdinaryAssignmentV1 with private Variable, Field, Index,
+  or existing Unsupported route; source-only and exactly once.
+Delete: local build_assignment_with_port_v1, borrowed target if/else selector,
+  and selector-level object/field/target/index/value clones.
+Preserve: Variable preflight -> RHS -> completion; Field record check ->
+  object -> value -> write; Index target -> index -> value -> completion.
+Evidence: existing raw/parity tests + shared Assignment child guard; new file 0.
+Hard stop: target classification twice, Builder access during preparation,
+  order/diagnostic drift, retry, or mixing Grouped/Compound Assignment.
+Non-claims: caller-zero Field/Index facades, FastMem, indirect Call,
+  MethodCall, QMark, View/Ownership, and feature work.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
