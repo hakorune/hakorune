@@ -100,45 +100,34 @@ Closed:  RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0
 Closed:  MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0
 Closed:  INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0
 Closed:  MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0
-Current: RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0
-Mode:    one atomic T1 I0/R0
+Closed:  RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0
+Current: MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
+Mode:    read-only D0
 ```
 
 ## Current execution brief
 
-`RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0` / T1 / parent
-`MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0`
+`MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0`
 
 ```text
-Change:
-  Prepare one raw non-Main static-Box lifecycle from the already-classified
-  dispatcher input. Delete the dispatcher-owned app-mode branch, method-batch
-  preparation, user-box registration, raw transaction success/rejection, and
-  declaration Void completion in the same commit.
+Read only:
+  Recount production-authority edges after da95eee7f7. Select no work unless
+  one live named edge has one bounded replacement owner and a same-commit old
+  authority deletion.
 
-Contract:
-  Preserve raw app-mode Void behavior; for non-App mode preserve registration
-  -> ActiveRawStaticBoxCompilationStateV1 -> sorted existing batch -> exact
-  success restore or rejected discard -> Void. Do not merge Program deferred
-  static-Box state semantics, move its timing, change ports, grammar, result,
-  publication, compatibility sunsets, View, Ownership, or JoinModule.
+Preserve:
+  Program deferred-static timing, raw static-Box lifecycle behavior, active
+  compatibility sunsets, grammar, result/publication policy, View, Ownership,
+  and JoinModule disposition.
 
-Done:
-  build_expression_impl_with_port_v1 has one prepared-owner handoff for the
-  raw non-Main static Box branch; its old inline lifecycle authority is zero.
-  Existing raw static-Box success/failure, normal parity/reuse, reusable
-  guards, and release build are green. All touched source/check files remain
-  below 800 lines.
+Shelf:
+  Lambda capture observation and Program-root statement single-pass partition
+  need their own D0; do not treat either as preselected implementation work.
 
 Stop:
-  Return to design if this requires a shared Program/raw transaction, changes
-  Program deferred-static timing, retains an inline lifecycle adapter, adds a
-  compatibility owner/fallback/retry, or needs a non-cohesive line-cap split.
+  Do not widen a compatibility owner, introduce fallback/retry, or convert a
+  census into implementation without a named live old edge.
 ```
-
-Following task: `MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0`
-only. Lambda capture observation and Program-root statement single-pass
-partition remain D0 shelf entries.
 
 Fixed phase order:
 
@@ -1430,7 +1419,8 @@ R77 RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0 closed
 R78 MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0 closed: instance-Box metadata projection selected
 R79 INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0 closed
 R80 MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0 closed: raw non-Main static-Box lifecycle handoff selected
-R81 RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0 current
+R81 RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0 closed: raw dispatcher lifecycle deleted at da95eee7f7
+R82 MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
