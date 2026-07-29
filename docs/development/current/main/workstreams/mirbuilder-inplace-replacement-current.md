@@ -98,43 +98,34 @@ Closed:  RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0
 Closed:  MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0
 Closed:  MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0
-Current: INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0
-Mode:    one atomic T1 I0/R0
+Closed:  INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0
+Current: MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0
+Mode:    read-only census; no implementation
 ```
 
 ## Current execution brief
 
-`INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0` / T1 / parent
-`MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0`
+`MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0` / parent
+R79 / read-only design stop
 
 ```text
-Change:
-  Prepare one source-only instance-Box declaration metadata projection in the
-  shared lifecycle.  Delete lower_common_prefix_v1 -> build_box_declaration,
-  its raw fields/methods clones, and both lower-side sorted FunctionDeclaration
-  scans in the same commit.
+Read:
+  Perform a fresh live production-edge census after instance-Box metadata
+  projection. Candidate shelf entries do not select work.
 
-Contract:
-  Preserve declared-field registration -> box/field markers -> weak registry
-  -> method slots -> method markers/getters -> constructors -> methods.  Do not
-  change declaration_indexer, ports, callable catalog, grammar, result,
-  publication, compatibility sunsets, View, Ownership, or JoinModule.
+Select only if:
+  one named caller has a competing authority; one bounded owner can replace it;
+  the same commit can delete the exact old edge; any compatibility owner has a
+  named sunset and retirement condition; fallback/retry remains zero.
 
-Done:
-  Program-root and raw BoxDeclaration paths share the one projection;
-  build_box_declaration definition/call is zero; focused prefix/order and
-  failure evidence, normal parity/reuse, reusable guards, and release build
-  are green.  All touched source/check files remain below 800 lines.
-
-Stop:
-  Return to design if this needs root/raw-specific metadata authority, changes
-  declaration-indexing order or failure policy, retains a build_box_declaration
-  adapter, adds compatibility/fallback/retry, or needs a non-cohesive line-cap
-  split.
+Do not select:
+  new accepted-program variants, caller-zero proof routes, grammar work,
+  View/Ownership activation, legacy JoinModule work, or a compatibility wrapper
+  without a deletion target.
 ```
 
-Following task: `MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0`
-only.  Lambda capture observation remains a D0 shelf entry.
+Instance-Box metadata projection is closed. Lambda capture observation remains
+a D0 shelf entry until this fresh census selects a live production edge.
 
 Fixed phase order:
 
@@ -1424,7 +1415,8 @@ R75 RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0 closed
 R76 MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0 closed: raw static-Main facade retirement selected
 R77 RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0 closed
 R78 MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0 closed: instance-Box metadata projection selected
-R79 INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0 current
+R79 INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0 closed
+R80 MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
