@@ -82,37 +82,35 @@ Closed:  CALL-BOX-KIND-POLICY-SSOT0-I0-R0
 Closed:  MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0
 Closed:  CALL-NAME-CLASSIFICATION-SSOT0-I0-R0
 Closed:  MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0
-Current: RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0
-Mode:    one atomic T0 I0/R0
+Closed:  RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0
+Current: MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0
+Mode:    read-only production edge census
 ```
 
-## Current execution brief
+## Latest closeout
 
-`RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0` / parent R62 / T0 /
-`CONTROL0`
+`RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0` / `370c1eed07` / T0 /
+`CONTROL0` closed.
 
 ```text
-Change:
-  Move the live MatchExpr scrutinee, complete arm vector, and else expression
-  directly from the raw dispatcher into build_peek_expression_with_port_v1.
-  Consume the owned arm vector once with into_iter. Delete the three dispatcher
-  clones and the arm-loop clone in the same commit.
+result:
+  MatchExpr moves scrutinee, complete arms, and else expression from the sole
+  raw dispatcher; the existing port-aware owner consumes arms with into_iter.
+  Three dispatcher clones and one arm-loop clone are zero.
 
-Contract:
-  Preserve eager scrutinee/arm/else order, block and ValueId allocation order,
-  compare/branch/PHI topology and input order, first child error, candidate
-  discard/reuse, selected child port, and all diagnostics. Grammar, route,
-  publication, fallback/retry, View, and Ownership do not move.
+evidence:
+  exact Match port/Return/literal tests, general Program parity, late failure
+  isolation/compiler reuse, shared MirBuilder lane guard, and release build
+  are green. Broad `cargo test --release -q match` passed 198 selected tests
+  but remains globally red on an unrelated stale Stage1 embedded snapshot.
+  quick remains red only on the known EBNF `--syntax-3` naming-token failure.
 
-Done:
-  The four live Match AST clone edges are zero. Existing Match/Return and
-  normal-vs-legacy parity evidence is green, and one existing shared MirBuilder
-  guard fixes the consuming-input law. No new source/test/check file.
+structure:
+  no new source/test/check file; touched source/check = 354 / 134 / 798 lines.
+  route/grammar/result/publication/fallback/View/Ownership delta = 0.
 
-Stop:
-  Return to design if moving the owned inputs changes CFG/PHI or ValueId order,
-  else timing, failure state, the selected port, or requires a new facade,
-  product, compatibility owner, route, grammar rule, or retry.
+next:
+  fresh read-only live-edge census; no candidate is preselected.
 ```
 
 R1 closeout:
@@ -1275,7 +1273,8 @@ R59 CALL-BOX-KIND-POLICY-SSOT0-I0-R0 closed
 R60 MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0 closed
 R61 CALL-NAME-CLASSIFICATION-SSOT0-I0-R0 closed
 R62 MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0 closed: Match owned-input selected
-R63 RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0 current
+R63 RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0 closed
+R64 MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
