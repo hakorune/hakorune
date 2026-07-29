@@ -86,40 +86,53 @@ Closed:  RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0
 Closed:  MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0
 Closed:  RECORD-HELPER-BODY-INVOCATION0-I0-R0
 Closed:  MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0
-Current: RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0
-Mode:    one atomic T0 I0/R0
+Closed:  RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0
+Current: MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0
+Mode:    read-only fresh live-edge census
 ```
 
 ## Current execution brief
 
-`RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0` / parent R66 / T0 /
-`FUNCTION-LIFECYCLE0`
+`MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0` /
+parent R67 / read-only
 
 ```text
 Change:
-  In RawInvocationChildPortV1::lower_instance_box_method, retain the existing
-  params and param_decls normalization before method observation and legacy
-  admission. Rename the sole private capture terminal to
-  capture_normalized_instance_box_method_pending_v1 and make it consume those
-  already-normalized vectors without classifying them again.
+  Inventory the remaining live MirBuilder production edges after the
+  instance-method normalization retirement. Select exactly one bounded
+  production replacement or detached Delete asset.
 
 Contract:
-  Preserve normalization before observation, expected-arity computation,
-  admission, body snapshot, session open, child descent, header finalization,
-  and collector commit. Static method capture is unchanged. Constructor names
-  birth/init/pack retain exact receiver-row normalization and diagnostics.
+  Read-only only. Rank candidates by authority reduction and smallest safe
+  same-commit old-edge deletion. Do not reopen the parked Raw/Verified Main
+  batch without resolving its provenance and failure-contract mismatch.
 
 Done:
-  The raw invocation instance-method path contains exactly one params and one
-  param-decls normalization call. The old broad capture symbol and its inner
-  duplicate pair are zero. Existing constructor/session/parity tests stay
-  green; add only a compact idempotence fixture and update existing guards
-  without adding files. Every touched source/check remains <800.
+  One named caller, one replacement owner or deletion, one exact old edge, and
+  fallback/retry=0 are fixed in the next four-block execution brief.
 
 Stop:
-  Return to design if the first normalization must move, normalization rules or
-  expected arity change, a forwarding wrapper remains, static capture changes,
-  failure timing moves, or retry/fallback/View/Ownership appears.
+  No production edit, no new accepted grammar, no View/Ownership activation,
+  and no task queue beyond the single selected next row.
+```
+
+## Latest closeout
+
+```text
+RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0
+
+implementation commit                       = 71714556db
+instance params normalization calls         = exactly 1
+instance param-decls normalization calls    = exactly 1
+duplicate capture normalization pair        = 0
+normalized-input-only capture terminal      = exactly 1
+static capture / route / grammar delta       = 0
+focused normalization / constructor tests   = green
+depth-three capture / first-failure tests    = green
+release build / current pointer / lane guard = green
+fallback / retry / View / Ownership          = 0
+new source/test/check file                   = 0
+largest touched source/check file            = 799
 ```
 
 R1 closeout:
@@ -1286,7 +1299,8 @@ R63 RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0 closed
 R64 MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 closed: record-helper body selected
 R65 RECORD-HELPER-BODY-INVOCATION0-I0-R0 closed
 R66 MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0 closed: instance normalization selected
-R67 RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0 current
+R67 RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0 closed
+R68 MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

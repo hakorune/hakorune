@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The post-record-helper fresh live-edge census selected RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0. The live RawInvocationChildPortV1 instance-method terminal currently normalizes params and param_decls before observation/admission, then its sole capture helper repeats the same two normalizations. The selected T0 row keeps the first policy decision, makes the private capture terminal normalized-input-only, and atomically deletes the duplicate pair. Route, grammar, result, failure order, fallback, View, and Ownership must not change."
+status = "RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0 closed at 71714556db. RawInvocationChildPortV1 now normalizes instance-method params and param_decls exactly once before observation/admission; the normalized-input-only capture terminal no longer repeats either policy decision. The lane is stopped at MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0 for a fresh read-only production-edge census. View, Ownership, and other unimplemented features remain parked until MirBuilder cleanup completes."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0"
-current_execution_summary = "Keep the first instance-method params/param_decls normalization before observation and admission; rename the sole capture terminal as normalized-input-only and delete its duplicate normalization pair."
+current_design_stop = "MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0"
+current_execution_row = ""
+current_execution_summary = ""
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, and the two record-helper raw-parts body terminals are deleted. The next T0 row removes the duplicate instance-method parameter normalization pair from the sole raw invocation capture helper while preserving the first pre-admission normalization as SSOT. View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, and the duplicate instance-method parameter normalization pair are deleted. A fresh read-only live-edge census must now select one bounded production replacement or detached Delete asset. View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
