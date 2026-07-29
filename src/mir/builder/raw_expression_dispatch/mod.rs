@@ -187,14 +187,10 @@ impl super::MirBuilder {
 
             ASTNode::Call {
                 callee, arguments, ..
-            } => self.build_indirect_call_expression_with_port_v1(
-                port,
-                *callee.clone(),
-                arguments.clone(),
-            ),
+            } => self.build_indirect_call_expression_with_port_v1(port, *callee, arguments),
 
             ASTNode::QMarkPropagate { expression, .. } => {
-                self.build_qmark_propagate_expression_with_port_v1(port, *expression.clone())
+                self.build_qmark_propagate_expression_with_port_v1(port, *expression)
             }
 
             ASTNode::MatchExpr {
@@ -322,7 +318,7 @@ impl super::MirBuilder {
                 super::stmts::async_stmt::build_await_expression_with_port_v1(
                     self,
                     port,
-                    *expression.clone(),
+                    *expression,
                 )
             }
 
@@ -330,13 +326,9 @@ impl super::MirBuilder {
                 record_type_name,
                 fields,
                 ..
-            } => self.build_record_literal_value_with_port_v1(
-                port,
-                record_type_name.clone(),
-                fields.clone(),
-            ),
+            } => self.build_record_literal_value_with_port_v1(port, record_type_name, fields),
             ASTNode::RecordUpdate { base, updates, .. } => {
-                self.build_record_update_value_with_port_v1(port, *base.clone(), updates.clone())
+                self.build_record_update_value_with_port_v1(port, *base, updates)
             }
 
             ASTNode::BlockExpr {

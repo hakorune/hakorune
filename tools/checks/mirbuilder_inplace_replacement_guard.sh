@@ -729,6 +729,7 @@ if rg -n -F '.clone()' <<<"$match_branch" >/dev/null ||
    rg -n -F 'arms.iter().cloned()' "$MATCH_OWNER" >/dev/null; then
   guard_fail "$TAG" "Match owned input must have one consuming production owner"
 fi
+if rg -n -P '\b(?:callee|arguments|expression|record_type_name|fields|base|updates)\.clone\s*\(' "$RAW_DISPATCH" >/dev/null; then guard_fail "$TAG" "owned compound expression dispatcher clone returned"; fi
 for file in \
   "$LOWERING" \
   "$PORT_OWNER" \
