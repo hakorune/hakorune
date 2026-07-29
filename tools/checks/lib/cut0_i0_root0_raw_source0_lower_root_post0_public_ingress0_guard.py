@@ -21,6 +21,7 @@ NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
 RAW_EXPRESSION_DISPATCH = ROOT / "src/mir/builder/raw_expression_dispatch/mod.rs"
 BUILDER_BUILD = ROOT / "src/mir/builder/builder_build.rs"
 FUNCTION_CALL_PREFLIGHT = ROOT / "src/mir/builder/calls/function_call_preflight_route.rs"
+SPECIAL_METHOD_HANDLERS = ROOT / "src/mir/builder/calls/special_method_handlers.rs"
 RESERVED_METHOD_ROUTE = ROOT / "src/mir/builder/calls/reserved_method_route.rs"
 RESERVED_METHOD_TESTS = ROOT / "src/mir/builder/calls/reserved_method_route_tests.rs"
 FASTMEM_CALLS = ROOT / "src/mir/builder/fastmem/calls.rs"
@@ -156,6 +157,7 @@ def main() -> int:
             RAW_EXPRESSION_DISPATCH,
             BUILDER_BUILD,
             FUNCTION_CALL_PREFLIGHT,
+            SPECIAL_METHOD_HANDLERS,
             RESERVED_METHOD_ROUTE,
             RESERVED_METHOD_TESTS,
             FASTMEM_CALLS,
@@ -183,6 +185,8 @@ def main() -> int:
     builder_build = production_code(BUILDER_BUILD)
     function_call_preflight = production_code(FUNCTION_CALL_PREFLIGHT)
     function_call_preflight_tests = texts[FUNCTION_CALL_PREFLIGHT]
+    special_method_handlers = production_code(SPECIAL_METHOD_HANDLERS)
+    special_method_handler_tests = texts[SPECIAL_METHOD_HANDLERS]
     reserved_method_route = production_code(RESERVED_METHOD_ROUTE)
     reserved_method_tests = texts[RESERVED_METHOD_TESTS]
     fastmem_calls = production_code(FASTMEM_CALLS)
@@ -276,6 +280,37 @@ def main() -> int:
         "rejecting_routes_precede_children_and_typeop_uses_one_child",
         "Brand arity rejection precedes child evidence",
     )
+    for fragment in (
+        "enum PreparedRawMathArgumentV1",
+        "PreparedRawMathArgumentV1::Direct",
+        "PreparedRawMathArgumentV1::IntegerBoxToFloat",
+        "fn prepare_raw_math_arguments_v1",
+        "fn lower_math_function_with_port_v1",
+    ):
+        require(special_method_handlers, fragment, f"Math argument Recipe {fragment}")
+    if function_call_preflight.count(
+        "special_method_handlers::prepare_raw_math_arguments_v1("
+    ) != 1:
+        raise AssertionError("direct Math argument Recipe issuer count drift")
+    math_prepare = text_between(
+        special_method_handlers, "impl PreparedRawMathArgumentV1", "impl MirBuilder"
+    )
+    math_lower = text_between(
+        special_method_handlers,
+        "fn lower_math_function_with_port_v1",
+        "fn build_str_normalization",
+    )
+    for forbidden in ("MirBuilder", "drive_legacy_expression_v1", "emit_", "next_value_id"):
+        if forbidden in math_prepare:
+            raise AssertionError(f"Math argument prepare gained effect edge: {forbidden}")
+    for retired in ("ASTNode::", "class ==", "arguments.len()", "raw_args"):
+        if retired in math_lower:
+            raise AssertionError(f"Math lower-side source classifier returned: {retired}")
+    for evidence in (
+        "math_argument_recipes_preserve_exact_wrapper_boundary",
+        "math_argument_failure_stops_suffix_and_mathbox_effects",
+    ):
+        require(special_method_handler_tests, evidence, f"Math Recipe evidence {evidence}")
     for fragment in (
         "struct PreparedFastMemIntrinsicV1",
         "PreparedFastMemIntrinsicRouteV1::Selected",

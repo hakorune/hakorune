@@ -26,7 +26,7 @@ enum PreparedRawFunctionPreflightRouteV1 {
         op: TypeOpKind,
     },
     Math {
-        arguments: Vec<ASTNode>,
+        arguments: Vec<super::special_method_handlers::PreparedRawMathArgumentV1>,
     },
     FastMem {
         region: FastMemRegionId,
@@ -123,7 +123,9 @@ impl PreparedRawFunctionPreflightV1 {
                 op,
             }
         } else if super::special_handlers::is_math_function(&name) {
-            PreparedRawFunctionPreflightRouteV1::Math { arguments }
+            PreparedRawFunctionPreflightRouteV1::Math {
+                arguments: super::special_method_handlers::prepare_raw_math_arguments_v1(arguments),
+            }
         } else if let Some(region) = builder.current_fastmem_region() {
             if name.starts_with("mem.") {
                 let intrinsic =

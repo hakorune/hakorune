@@ -580,11 +580,11 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: RAW-DIRECT-BRAND-CONSTRUCTOR-ARITY-PREFLIGHT-ONCE0-I0-R0.
-Owner: one deferred PreparedRawBrandConstructorV1 child or arity rejection.
-Deleted: raw Brand terminal and lower-side arity/sole-child partition.
-Preserved: route priority, trace timing, child/result order, diagnostics.
-Evidence: focused preflight/Brand/port tests, cargo check, shared/lane guards.
+Closed: RAW-DIRECT-MATH-ARGUMENT-RECIPE0-I0-R0, CALL-OBJECT0/T1.
+Owner: effect-free PreparedRawMathArgumentV1 Direct/IntegerBoxToFloat list.
+Deleted: lower-side raw AST wrapper classification during child effects.
+Preserved: route/trace, child/cast order, malformed Direct, MathBox/result.
+Evidence: Recipe boundary/failure tests, route/port tests, cargo check, guards.
 Current stop: fresh production live-edge census; no next row is preselected.
 ```
 Lambda capture authority and all feature additions remain parked.
