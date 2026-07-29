@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-DEFAULT-ROOT-EXPANSION-ROUTE-HANDOFF0-I0-R0 is closed. The selected normal/default lifecycle now borrows one VerifiedRawRootExpansionV1 through Program lowering and derives Script/App only from that receipt; declaration_indexer::has_main_static and the ambient unwrap fallback are deleted. The lane is stopped at a fresh read-only live-edge census."
+status = "The post-root-route census selected NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0. VerifiedMainExpansionV1 already carries the exact Main root, sorted static children, and callable-main projection, but selected Program lowering still rescans and clones the Main method map before entering the raw compatibility terminal. The next atomic cell consumes the verified projection directly and deletes that selected-normal re-projection."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-ROOT-EXPANSION-HANDOFF-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = ""
+current_design_stop = ""
+current_execution_row = "NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0"
+current_execution_summary = "T1 MODULE-LIFECYCLE0: carry the existing borrowed VerifiedMainExpansionV1 to the selected App terminal, lower its already-verified static children in exact order, and reuse the existing Main body/state kernel. Atomically delete the Program Main accumulator/method-map clone, selected Main re-selection, selected compatibility-facade call, and helper re-sort/re-projection. Explicit raw Main compatibility, Main state/args/callable-main ordering, grammar/result/publication, fallback/retry, View, and Ownership do not move."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """NORMAL-DEFAULT-ROOT-EXPANSION-ROUTE-HANDOFF0-I0-R0 is closed. One existing borrowed VerifiedRawRootExpansionV1 is now the sole selected normal Script/App route authority through Program lowering. declaration_indexer::has_main_static, its sole caller, the ambient unwrap fallback, and the second AST route classification are zero. Invalid or duplicate Main still fails at RootExpansion before prepare_module; catalog, lowering, finalization, result/publication, explicit compatibility, View/Ownership, fallback, and retry remain unchanged. A fresh live-edge census is the only current authority."""
+latest_card_summary = """NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0 is selected. The existing verified Main root/static-child/callable-main projection will become the only selected-normal Main source authority. Program lowering will stop locating and cloning the raw Main method map and will no longer call build_static_main_box_with_port_v1. A private shared Main body/state kernel may be extracted solely to preserve exact explicit-compatibility behavior. Helper order/errors, callable-main policy, args/state restoration behavior, result/publication, fallback/retry, View, and Ownership remain unchanged."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-POST-ROOT-EXPANSION-HANDOFF-LIVE-EDGE-CENSUS0-D0"
+current_blocker_token = "NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
