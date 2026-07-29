@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The post-deferred-static-Box census selected NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0. Program-root and raw-static production paths currently duplicate one non-Main static method-batch policy; the next atomic cell moves that policy to one prepared owner and deletes both caller-local copies."
+status = "NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0 is closed. Program-root and raw-static now share one prepared non-Main static method-batch authority; both caller-local sorting, projection, symbol construction, clone bundle, and direct method dispatch copies are deleted. A fresh live-edge census must select the next production authority."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0"
-current_execution_summary = "T0 FUNCTION-LIFECYCLE0: prepare one source-only non-Main static-Box method batch, consume it through the existing RawBoxMethodChildPortV1, and atomically delete the duplicated Program-root/raw-static sorting, FunctionDeclaration projection, symbol construction, clone bundle, and direct method-port calls. Outer context/state transactions, Main/instance/constructor behavior, publication, grammar, fallback, retry, View, and Ownership remain unchanged."
+current_design_stop = "MIRBUILDER-POST-STATIC-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0"
+current_execution_row = ""
+current_execution_summary = ""
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0 is selected. One neutral prepared batch will become the sole owner of non-Main static method ordering, FunctionDeclaration projection, exact Box.method/arity spelling, owned lowering inputs, and same-port dispatch. The Program deferred-static lifecycle retains trace/context timing; the raw-static lifecycle retains App routing, registration, four-state transaction, failure dirtiness, and Void completion. The same commit must delete both caller-local method-batch authorities with fallback/retry zero."""
+latest_card_summary = """NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0 is closed. PreparedNonMainStaticBoxMethodBatchV1 is the sole owner of non-Main static method ordering, FunctionDeclaration projection, exact Box.method/arity spelling, owned lowering inputs, and same-port dispatch. Program trace/context timing and raw App routing/registration/four-state transaction/Void remain with their outer owners. Both caller-local method-policy copies are zero; Main/instance/constructor behavior, grammar, publication, View/Ownership, fallback, and retry are unchanged. The next authority is a fresh post-closeout live-edge census."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0"
+current_blocker_token = "MIRBUILDER-POST-STATIC-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -27,6 +27,7 @@ use super::exprs_enum_match::PreparedRawEnumMatchV1;
 use super::fields::PreparedRawFieldReadV1;
 use super::indexing::PreparedRawIndexReadV1;
 use super::me_call_header_observation::MethodCallLoweringPortV1;
+use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use super::ops::{
     drive_ordinary_binary_expression_v1, drive_short_circuit_expression_v1,
     lower_prepared_raw_unary_with_port_v1, BinaryExpressionDescentPortV1, PreparedRawUnaryV1,
@@ -255,6 +256,8 @@ impl super::MirBuilder {
                         // Already lowered by lifecycle pass; return Void as a pure declaration.
                         Ok(crate::mir::builder::emission::constant::emit_void(self)?)
                     } else {
+                        let methods =
+                            PreparedNonMainStaticBoxMethodBatchV1::prepare(name.clone(), methods);
                         // Generic static box: lower all static methods into standalone MIR functions (BoxName.method/N)
                         // Note: Metadata clearing is now handled by BoxCompilationContext (箱理論)
                         // See lifecycle.rs for context creation and context swap.
@@ -263,38 +266,7 @@ impl super::MirBuilder {
                         // Use one outer transaction even in script/test mode to
                         // isolate metadata across the complete static Box.
                         let transaction = ActiveRawStaticBoxCompilationStateV1::begin(self);
-                        let method_result = (|| -> Result<(), String> {
-                            for (method_name, method_ast) in sorted_method_entries(&methods) {
-                                if let ASTNode::FunctionDeclaration {
-                                    params,
-                                    param_decls,
-                                    return_type_name,
-                                    body,
-                                    uses,
-                                    attrs,
-                                    ..
-                                } = method_ast
-                                {
-                                    let func_name = format!(
-                                        "{}.{}{}",
-                                        name,
-                                        method_name,
-                                        format!("/{}", params.len())
-                                    );
-                                    port.lower_static_box_method(
-                                        self,
-                                        func_name,
-                                        params.clone(),
-                                        param_decls.clone(),
-                                        return_type_name.clone(),
-                                        body.clone(),
-                                        uses.clone(),
-                                        attrs.clone(),
-                                    )?;
-                                }
-                            }
-                            Ok(())
-                        })();
+                        let method_result = methods.lower_with_port_v1(self, port);
                         match method_result {
                             Ok(()) => transaction.complete_success(self),
                             Err(error) => {

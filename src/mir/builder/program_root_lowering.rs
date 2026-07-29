@@ -13,6 +13,7 @@ use super::declaration_order::{sorted_constructor_entries, sorted_method_entries
 use super::module_draft_collector::ModuleDraftCollectorV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortV1;
+use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use super::normal_default_root_catalog_lifecycle::{
     NormalDefaultRootCatalogLifecycleErrorV1, PreparedNormalDefaultProgramRootV1,
 };
@@ -20,13 +21,14 @@ use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::{declaration_indexer, MirBuilder, SameModuleCallableNamespaceV1, ValueId};
 
 pub(super) struct ProgramDeferredStaticBoxLifecycleV1 {
-    name: String,
-    methods: HashMap<String, ASTNode>,
+    methods: PreparedNonMainStaticBoxMethodBatchV1,
 }
 
 impl ProgramDeferredStaticBoxLifecycleV1 {
     pub(super) fn new(name: String, methods: HashMap<String, ASTNode>) -> Self {
-        Self { name, methods }
+        Self {
+            methods: PreparedNonMainStaticBoxMethodBatchV1::prepare(name, methods),
+        }
     }
 
     pub(super) fn lower_with_port_v1<Port>(
@@ -37,31 +39,9 @@ impl ProgramDeferredStaticBoxLifecycleV1 {
     where
         Port: RootCallableCapturePortV1,
     {
-        builder.trace_compile(format!("lower static box {}", self.name));
+        builder.trace_compile(format!("lower static box {}", self.methods.owner()));
         builder.comp_ctx.compilation_context = Some(BoxCompilationContext::new());
-        for (method_name, method_ast) in sorted_method_entries(&self.methods) {
-            if let ASTNode::FunctionDeclaration {
-                params,
-                param_decls,
-                return_type_name,
-                body,
-                uses,
-                attrs,
-                ..
-            } = method_ast
-            {
-                callables.lower_static_box_method(
-                    builder,
-                    format!("{}.{}/{}", self.name, method_name, params.len()),
-                    params.clone(),
-                    param_decls.clone(),
-                    return_type_name.clone(),
-                    body.clone(),
-                    uses.clone(),
-                    attrs.clone(),
-                )?;
-            }
-        }
+        self.methods.lower_with_port_v1(builder, callables)?;
         builder.comp_ctx.compilation_context = None;
         Ok(())
     }

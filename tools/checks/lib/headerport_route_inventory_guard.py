@@ -595,6 +595,45 @@ def verify_borrow_raw_p0(
     )
 
 
+def verify_nonmain_static_method_batch(
+    root: pathlib.Path,
+    builder_mod: str,
+    card: str,
+) -> None:
+    batch = (root / "src/mir/builder/nonmain_static_box_method_batch.rs").read_text()
+    program = (root / "src/mir/builder/program_root_lowering.rs").read_text()
+    raw = (root / "src/mir/builder/raw_expression_dispatch/mod.rs").read_text()
+    if any(len(text.splitlines()) >= 800 for text in (batch, program, raw)):
+        raise AssertionError("non-Main static method-batch sources reached 800 lines")
+    require(builder_mod, "mod nonmain_static_box_method_batch;", "method-batch module")
+    for fragment in (
+        "PreparedNonMainStaticBoxMethodBatchV1",
+        "entries.sort_by(",
+        "ASTNode::FunctionDeclaration",
+        'format!("{}.{}/{}"',
+        "port.lower_static_box_method(",
+    ):
+        require(batch, fragment, "static method-batch authority")
+    for fragment in (
+        "sorted_method_entries",
+        "compilation_context",
+        "root_is_app_mode",
+        "register_user_box",
+        "emit_void",
+        "fallback",
+        "retry",
+    ):
+        forbid(batch, fragment, "static method-batch outer authority")
+    lifecycle = program.split("pub(super) struct ProgramDeferredStaticBoxLifecycleV1", 1)[1]
+    lifecycle = lifecycle.split("impl MirBuilder", 1)[0]
+    forbid(lifecycle, "sorted_method_entries", "Program caller-local method sorting")
+    forbid(lifecycle, ".lower_static_box_method(", "Program caller-local method dispatch")
+    forbid(raw, ".lower_static_box_method(", "raw caller-local static method dispatch")
+    if (program + raw).count("PreparedNonMainStaticBoxMethodBatchV1::prepare(") != 2:
+        raise AssertionError("static method batch must have exactly two production issuers")
+    require(card, "NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0", "active method-batch row")
+
+
 def verify_route_inventory_extension(
     root: pathlib.Path,
     builder_mod: str,
@@ -732,5 +771,6 @@ def verify_route_inventory_extension(
     verify_route_matrix_g0(root, builder_mod, card)
     verify_borrow_schedule_s0(root, builder_mod, card, state)
     verify_borrow_raw_p0(root, card, state)
+    verify_nonmain_static_method_batch(root, builder_mod, card)
     verify_borrow_canonical_p0(root, card, state)
     verify_borrow_root_p0(root, builder_mod, card, state)

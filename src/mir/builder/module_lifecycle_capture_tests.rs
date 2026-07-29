@@ -1,6 +1,7 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl};
 use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
+use crate::mir::builder::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use crate::mir::builder::program_root_lowering::ProgramDeferredStaticBoxLifecycleV1;
 use crate::mir::builder::recursive_child_lowering::{
     RawBoxMethodChildPortV1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
@@ -232,6 +233,33 @@ fn deferred_static_box_lifecycle_lowers_sorted_methods_and_clears_on_success() {
     );
     assert_eq!(port.static_context_active, vec![true, true]);
     assert!(builder.comp_ctx.compilation_context.is_none());
+}
+
+#[test]
+fn nonmain_static_method_batch_sorts_projects_and_keeps_ordinary_main() {
+    let (name, mut methods) = parsed_static_box(
+        "static box Helpers { omega() { return 3 } main() { return 2 } alpha(value) { return value } }",
+    );
+    let ASTNode::Program { mut statements, .. } =
+        NyashParser::parse_from_string("42").expect("non-function method-map fixture")
+    else {
+        panic!("parser must return Program");
+    };
+    methods.insert("ignored".to_owned(), statements.remove(0));
+    let mut builder = MirBuilder::new();
+    let mut port = RecordingOrdinaryPortV1 {
+        record_only_static: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+
+    PreparedNonMainStaticBoxMethodBatchV1::prepare(name, methods)
+        .lower_with_port_v1(&mut builder, &mut port)
+        .expect("prepared static method batch");
+
+    assert_eq!(
+        port.static_methods,
+        vec!["Helpers.alpha/1", "Helpers.main/0", "Helpers.omega/0"]
+    );
 }
 
 #[test]
