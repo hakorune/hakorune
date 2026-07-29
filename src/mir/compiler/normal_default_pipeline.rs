@@ -27,6 +27,7 @@ enum NormalCompileAdmissionV1 {
     MinimalMirJsonNoImports,
     ProgramJsonV0ImportBundleNoBuilderImports,
     ReplProgramNoBuilderImports,
+    Stage1DirectPostMacroProgramNoImports,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -70,6 +71,43 @@ pub enum NormalProgramCompileRequestErrorV1 {
     ExpectedProgramRoot,
 }
 
+#[derive(Debug)]
+pub(crate) enum PreparedPostMacroNormalRootV1 {
+    Program(PreparedPostMacroNormalProgramV1),
+    NonProgram(PreparedPostMacroNormalNonProgramV1),
+}
+
+#[derive(Debug)]
+pub(crate) struct PreparedPostMacroNormalProgramV1 {
+    program: PreparedNormalDefaultProgramRootV1,
+}
+
+#[derive(Debug)]
+pub(crate) struct PreparedPostMacroNormalNonProgramV1 {
+    ast: ASTNode,
+}
+
+impl PreparedPostMacroNormalRootV1 {
+    pub(crate) fn classify(ast: ASTNode) -> Self {
+        match prepare_normal_program_root(ast) {
+            Ok(program) => Self::Program(PreparedPostMacroNormalProgramV1 { program }),
+            Err(ast) => Self::NonProgram(PreparedPostMacroNormalNonProgramV1 { ast }),
+        }
+    }
+}
+
+fn prepare_normal_program_root(
+    ast: ASTNode,
+) -> Result<PreparedNormalDefaultProgramRootV1, ASTNode> {
+    PreparedNormalDefaultProgramRootV1::seal(ast)
+}
+
+impl PreparedPostMacroNormalNonProgramV1 {
+    pub(crate) fn into_ast(self) -> ASTNode {
+        self.ast
+    }
+}
+
 impl std::fmt::Display for NormalProgramCompileRequestErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -109,6 +147,21 @@ impl std::fmt::Display for RejectedNormalProgramCompileRequestV1 {
 impl std::error::Error for RejectedNormalProgramCompileRequestV1 {}
 
 impl NormalCompileRequestV1 {
+    fn from_prepared(
+        program: PreparedNormalDefaultProgramRootV1,
+        source_file: Option<&str>,
+        imports: HashMap<String, String>,
+        admission: NormalCompileAdmissionV1,
+    ) -> Self {
+        Self {
+            program,
+            source: NormalSourceIdentityV1::from_hint(source_file, admission),
+            imports,
+            admission,
+            result_contract: CurrentNormalCompileResultContractV1::ReportPreTransformVerification,
+        }
+    }
+
     fn new(
         ast: ASTNode,
         source_file: Option<&str>,
@@ -117,7 +170,7 @@ impl NormalCompileRequestV1 {
     ) -> Result<Self, RejectedNormalProgramCompileRequestV1> {
         let source = NormalSourceIdentityV1::from_hint(source_file, admission);
         let result_contract = CurrentNormalCompileResultContractV1::ReportPreTransformVerification;
-        match PreparedNormalDefaultProgramRootV1::seal(ast) {
+        match prepare_normal_program_root(ast) {
             Ok(program) => Ok(Self {
                 program,
                 source,
@@ -212,6 +265,18 @@ impl NormalCompileRequestV1 {
             Some("<repl>"),
             HashMap::new(),
             NormalCompileAdmissionV1::ReplProgramNoBuilderImports,
+        )
+    }
+
+    pub(crate) fn for_stage1_direct_post_macro(
+        program: PreparedPostMacroNormalProgramV1,
+        source_file: Option<&str>,
+    ) -> Self {
+        Self::from_prepared(
+            program.program,
+            source_file,
+            HashMap::new(),
+            NormalCompileAdmissionV1::Stage1DirectPostMacroProgramNoImports,
         )
     }
 
@@ -378,5 +443,28 @@ mod tests {
             admission,
             NormalCompileAdmissionV1::ReplProgramNoBuilderImports
         );
+    }
+
+    #[test]
+    fn post_macro_partition_seals_program_once_and_retains_non_program() {
+        let program = match PreparedPostMacroNormalRootV1::classify(program()) {
+            PreparedPostMacroNormalRootV1::Program(program) => program,
+            PreparedPostMacroNormalRootV1::NonProgram(_) => panic!("Program must classify once"),
+        };
+        let request =
+            NormalCompileRequestV1::for_stage1_direct_post_macro(program, Some("stage1.hako"));
+        let (_, source, imports, admission, _) = request.into_parts();
+        assert_eq!(source.source_file(), Some("stage1.hako"));
+        assert!(imports.is_empty());
+        assert_eq!(
+            admission,
+            NormalCompileAdmissionV1::Stage1DirectPostMacroProgramNoImports
+        );
+
+        let retained = match PreparedPostMacroNormalRootV1::classify(non_program()) {
+            PreparedPostMacroNormalRootV1::Program(_) => panic!("Literal must remain residual"),
+            PreparedPostMacroNormalRootV1::NonProgram(retained) => retained,
+        };
+        assert!(matches!(retained.into_ast(), ASTNode::Literal { .. }));
     }
 }

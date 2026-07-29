@@ -6,30 +6,20 @@ import json
 import re
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
-TASK = ROOT / (
-    "docs/development/current/main/investigations/"
-    "cut0-i0-raw-source0-lower-root-post0-public-ingress0-s0-"
-    "execution-task-2026-07-24.md"
-)
-REPAIR_TASK = ROOT / (
-    "docs/development/current/main/investigations/"
-    "cut0-i0-raw-source0-lower-root-post0-public-ingress0-closeout-repair0-s0-"
-    "execution-task-2026-07-24.md"
-)
+TASK = ROOT / ("docs/development/current/main/investigations/"
+               "cut0-i0-raw-source0-lower-root-post0-public-ingress0-s0-execution-task-2026-07-24.md")
+REPAIR_TASK = ROOT / ("docs/development/current/main/investigations/"
+                      "cut0-i0-raw-source0-lower-root-post0-public-ingress0-closeout-repair0-s0-execution-task-2026-07-24.md")
 CALLER_MANIFEST = ROOT / "tools/checks/manifests/raw_public_cutover_caller_manifest_v1.json"
-CURRENT_WORKSTREAM = ROOT / (
-    "docs/development/current/main/workstreams/"
-    "mirbuilder-inplace-replacement-current.md"
-)
+CURRENT_WORKSTREAM = ROOT / ("docs/development/current/main/workstreams/"
+                             "mirbuilder-inplace-replacement-current.md")
 NORMAL_PIPELINE = ROOT / "src/mir/compiler/normal_default_pipeline.rs"
 NORMAL_ROOT_LIFECYCLE = ROOT / "src/mir/builder/normal_default_root_catalog_lifecycle.rs"
 PROGRAM_ROOT_LOWERING = ROOT / "src/mir/builder/program_root_lowering.rs"
 MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
 RAW_NONPROGRAM_ROOT_DESCENT = ROOT / "src/mir/builder/raw_nonprogram_root_descent.rs"
 RAW_NONPROGRAM_ROOT_DESCENT_TESTS = ROOT / "src/mir/builder/raw_nonprogram_root_descent_tests.rs"
-RAW_NONPROGRAM_ROOT_DESCENT_PARITY_TESTS = (
-    ROOT / "src/mir/builder/raw_nonprogram_root_descent_tests/parity.rs"
-)
+RAW_NONPROGRAM_ROOT_DESCENT_PARITY_TESTS = ROOT / "src/mir/builder/raw_nonprogram_root_descent_tests/parity.rs"
 NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
 SOURCES = (
     ROOT / "src/mir/compiler/raw_public_ingress.rs",
@@ -38,16 +28,9 @@ SOURCES = (
     ROOT / "src/mir/compiler/raw_published_compile.rs",
 )
 
-_RUST_IGNORED = re.compile(
-    r"(?P<raw>r(?P<hash>#*)\".*?\"(?P=hash))"
-    r"|(?P<string>(?:b|c)?\"(?:\\.|[^\"\\])*\")"
-    r"|(?P<block>/\*.*?\*/)"
-    r"|(?P<line>//[^\n]*)",
-    re.S,
-)
-_CFG_TEST_MODULE = re.compile(
-    r"#\[cfg\(test\)\]\s*(?:#\[path\s*=\s*\"[^\"]+\"\]\s*)?mod\s+\w+"
-)
+_RUST_IGNORED = re.compile(r"(?P<raw>r(?P<hash>#*)\".*?\"(?P=hash))|(?P<string>(?:b|c)?\"(?:\\.|[^\"\\])*\")"
+                           r"|(?P<block>/\*.*?\*/)|(?P<line>//[^\n]*)", re.S)
+_CFG_TEST_MODULE = re.compile(r"#\[cfg\(test\)\]\s*(?:#\[path\s*=\s*\"[^\"]+\"\]\s*)?mod\s+\w+")
 
 
 def code_only(text: str) -> str:
@@ -415,6 +398,22 @@ def main() -> int:
         admission.get("runtime_ast_json_compat_sunset", ""),
     ):
         require(current_workstream, sunset, "arbitrary-AST compatibility sunset")
+    post_macro = caller_manifest.get("post_macro_program_admission", {})
+    stage1_path = ROOT / post_macro.get("first_caller_file", "")
+    if ROOT / post_macro.get("partition_file", "") != NORMAL_PIPELINE:
+        raise AssertionError("post-macro partition path drift")
+    require(normal_pipeline, post_macro.get("partition_definition_anchor", ""), "post-macro partition")
+    stage1 = production_code(stage1_path)
+    if stage1.count(post_macro.get("caller_anchor", "")) != post_macro.get("partition_callers"):
+        raise AssertionError("post-macro partition caller drift")
+    if stage1.index("maybe_expand_and_dump") > stage1.index(post_macro.get("caller_anchor", "")):
+        raise AssertionError("post-macro partition must follow complete macro expansion")
+    if stage1.count("compile_normal(") != post_macro.get("typed_program_calls"):
+        raise AssertionError("Stage1 typed Program caller drift")
+    if stage1.count("ExistingStage1DirectPostMacroCompatibilityV1::compile(") != post_macro.get("nonprogram_compatibility_calls"):
+        raise AssertionError("Stage1 post-macro compatibility caller drift")
+    for key in ("sunset_id", "retire_row"):
+        require(current_workstream, post_macro.get(key, ""), f"Stage1 compatibility {key}")
     require(
         program_root_lowering,
         "lower_normal_default_program_root_catalog_v1",

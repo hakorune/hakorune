@@ -71,9 +71,10 @@ Closed:  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0
 Closed:  REPL-TYPED-PROGRAM-INGRESS0-D0
 Closed:  REPL-TYPED-PROGRAM-INGRESS0-I0-R0
 Closed:  POST-MACRO-PROGRAM-ADMISSION0-D0
-Current: STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0
+Closed:  STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0
+Current: MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0
 Pack:    ROOT-LIFECYCLE0
-Ceremony: T2, one atomic I0/R0
+Ceremony: T1, read-only design audit
 ```
 
 R1 closeout:
@@ -577,35 +578,38 @@ new source/test/check/task file            = 0
 largest touched source/check file          = 799
 ```
 
-## Current execution brief
+## Stage1 closeout
 
 `STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0`
 
 ```text
-Change:
-  after Stage1 direct maybe_expand_and_dump, classify the owned AST once into
-  Program or NonProgram; Program uses one dedicated typed Stage1 request,
-  NonProgram alone uses ExistingStage1DirectPostMacroCompatibilityV1
-  delete the broad unconditional Stage1 compile_with_source_hint edge
+Program partition / typed execution = exactly 1 / 1
+Program broad legacy reachability   = 0
+NonProgram compatibility edge       = exactly 1, caller-local
+Program MIR/error parity            = green
+real non-Program MIR parity          = green
+fallback / retry / reselection      = 0
+new source/test/check file           = 0
+largest touched source/check file    = 798
+```
 
-Contract:
-  shared source-only partition reuses the existing Program seal and retains
-  NonProgram AST without clone/reparse/Builder access
-  compatibility execution is caller-local, never shared, and has sunset
-  STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-SUNSET-001
-  -> STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-RETIRE0-R0
-  filename, empty imports, optimize flag, Legacy finish/result/module behavior,
-  macro semantics, and diagnostics do not move
+## Current design stop
 
-Done:
-  Stage1 Program legacy reachability = 0; residual compatibility is reachable
-  only from NonProgram; typed failure never retries
-  focused Program/non-Program parity and the existing public-ingress guard pass
+`MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0`
+
+```text
+Audit:
+  reuse the existing post-macro partition after runtime Box collection
+  prove exact filename/imports/optimizer/Legacy result transport and preserve
+  escape-pass/interpreter/exit behavior
+
+Candidate:
+  Program -> dedicated typed MIR-interpreter request
+  NonProgram -> one caller-local compatibility owner with a named sunset
 
 Stop:
-  AST clone/reparse, double Program seal, shared compatibility executor,
-  typed rejection recovery, fallback/retry, macro/grammar/backend/View/Ownership
-  change, new per-row guard, or any source/check file reaching 800 lines
+  runtime scan needs AST consumption/clone, typed failure retries compatibility,
+  imports/config/result parity fails, or backend/View/Ownership changes
 ```
 
 Compatibility sunset:
@@ -618,7 +622,7 @@ retire when: owner definition, registered residual surface, and root-specific
   drive_raw_legacy_expression_v1 production edge are all zero
 
 sunset_id: STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-SUNSET-001
-state: selected with R11
+state: active
 owner: ExistingStage1DirectPostMacroCompatibilityV1
 retire row: STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-RETIRE0-R0
 retire when: Stage1 direct post-macro NonProgram production reachability is zero
@@ -701,7 +705,8 @@ R7  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0 closed
 R8  REPL-TYPED-PROGRAM-INGRESS0-D0 closed
 R9  REPL-TYPED-PROGRAM-INGRESS0-I0-R0 closed
 R10 POST-MACRO-PROGRAM-ADMISSION0-D0 closed
-R11 STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0 current
+R11 STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0 closed
+R12 MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0 current
 
 after every bounded retirement:
   run a fresh live-edge census

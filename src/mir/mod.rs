@@ -234,6 +234,7 @@ pub use compiler::{
     RejectedNormalProgramCompileRequestV1, ResolvedCallableModuleLoweringInputV1,
     ResolvedModuleLoweringInputV1, VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1,
 };
+pub(crate) use compiler::{PreparedPostMacroNormalNonProgramV1, PreparedPostMacroNormalRootV1};
 pub use hakorune_mir_core::{BasicBlockId, BindingId, LocalSlotId};
 
 // Public facade exports: core MIR surfaces and refresh orchestration entry
