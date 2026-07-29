@@ -22,15 +22,11 @@ for required in [
     "update_return_type_from_result",
     "type_propagation",
     "module_add_main_function",
-    "inject_condition_fn_if_missing",
     "refresh_module_plans_subset",
     "return_module",
 ]:
     if required not in steps:
         raise SystemExit(f"missing finalize step: {required}")
-condition = next(row for row in plan["composition"] if row.get("step") == "inject_condition_fn_if_missing")
-if condition.get("required_by_source") is not True:
-    raise SystemExit("condition_fn injection must be marked source-required")
 non_claims = plan.get("non_claims") or {}
 for key in [
     "full_finalize_module",
@@ -48,7 +44,7 @@ cat <<'REPORT'
 output_contract=rust-lifecycle-mirbuilder-bounded-finalize-composition-guard-v0
 bounded_finalize_composition_guard=green
 capability=FinalizeModuleComposition
-condition_fn_injection=source_required
+condition_fn_injection=retired
 full_finalize_module_claim=0
 generated_hako_change=0
 runtime_fallback=0

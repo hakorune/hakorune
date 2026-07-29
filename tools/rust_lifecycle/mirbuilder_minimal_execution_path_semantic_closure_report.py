@@ -63,8 +63,6 @@ EXECUTABLE_ARTIFACT_MANIFESTS = {
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_dev_birth_verification.artifact.json",
     "ModuleFunctionInsertion": ROOT
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_module_function_insertion.artifact.json",
-    "ConditionFnInjection": ROOT
-    / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_condition_fn_injection.artifact.json",
     "FunctionRegionStackPop": ROOT
     / "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_function_region_stack_pop.artifact.json",
     "SlotRegistryRelease": ROOT
@@ -296,8 +294,6 @@ def _materialization_slice_for(capability: str | None) -> str:
         return "MIRBUILDER-DEV-BIRTH-VERIFICATION-DERIVED-HAKO-ARTIFACT-001"
     if capability == "ModuleFunctionInsertion":
         return "MIRBUILDER-MODULE-FUNCTION-INSERTION-DERIVED-HAKO-ARTIFACT-001"
-    if capability == "ConditionFnInjection":
-        return "MIRBUILDER-CONDITION-FN-INJECTION-DERIVED-HAKO-ARTIFACT-001"
     if capability == "FunctionRegionStackPop":
         return "MIRBUILDER-FUNCTION-REGION-STACK-POP-DERIVED-HAKO-ARTIFACT-001"
     if capability == "SlotRegistryRelease":

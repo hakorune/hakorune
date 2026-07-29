@@ -47,7 +47,6 @@ box FinalizedMirFunctionShellBox {
 box FinalizedMirModuleShellBox {
     functions_count: i64
     main_function: FinalizedMirFunctionShellBox
-    condition_fn_present: i64
     region_popped: i64
     slot_registry_released: i64
     metadata_published: i64
@@ -59,7 +58,6 @@ box FinalizedMirModuleShellBox {
     birth() {
         me.functions_count = 0
         me.main_function = null
-        me.condition_fn_present = 0
         me.region_popped = 0
         me.slot_registry_released = 0
         me.metadata_published = 0
@@ -132,8 +130,7 @@ static box BoundedFinalizeCompositionApi {
         func.phi_return_type_inferred = 1
         func.phi_inputs_materialized = 1
         module.main_function = func
-        module.functions_count = 2
-        module.condition_fn_present = 1
+        module.functions_count = 1
         module.region_popped = 1
         module.slot_registry_released = 1
         module.metadata_published = 1
@@ -178,13 +175,9 @@ static box Main {
             print("bounded_finalize_return_type=fail")
             return 3
         }
-        if finalized.functions_count != 2 {
+        if finalized.functions_count != 1 {
             print("bounded_finalize_function_count=fail")
             return 4
-        }
-        if finalized.condition_fn_present != 1 {
-            print("bounded_finalize_condition_fn=fail")
-            return 5
         }
         if finalized.metadata_published != 1 {
             print("bounded_finalize_metadata=fail")

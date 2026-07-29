@@ -46,8 +46,7 @@ def build_oracle() -> dict[str, object]:
                     "return_value": 1,
                     "main_function_return_type_integer": 1,
                     "main_block_terminated": 1,
-                    "module_function_count": 2,
-                    "condition_fn_present": 1,
+                    "module_function_count": 1,
                     "module_metadata_published": 1,
                     "semantic_refresh_subset_applied": 1,
                     "state_current_module_present": 0,
@@ -84,7 +83,6 @@ def _validate_plan(plan: dict[str, object]) -> None:
         "type_propagation",
         "publish_value_types",
         "module_add_main_function",
-        "inject_condition_fn_if_missing",
         "publish_module_metadata",
         "refresh_module_plans_subset",
         "materialize_phi_inputs_all_functions",
@@ -103,8 +101,8 @@ def _validate_plan(plan: dict[str, object]) -> None:
         if value != 0:
             raise ValueError(f"bounded finalize non-claim must remain 0: {key}")
     profile = plan.get("execution_profile") or {}
-    if not isinstance(profile, dict) or profile.get("condition_fn_initially_missing") is not True:
-        raise ValueError("bounded finalize profile must require condition_fn injection")
+    if not isinstance(profile, dict):
+        raise ValueError("bounded finalize profile must be an object")
 
 
 def _contract(plan: dict[str, object]) -> VerifiedFamilyArtifactContractV1:
@@ -169,7 +167,6 @@ def _boxes() -> list[BoxSpec]:
             fields=[
                 FieldSpec(name="functions_count", field_type="i64", initializer="0"),
                 FieldSpec(name="main_function", field_type="FinalizedMirFunctionShellBox", initializer="null"),
-                FieldSpec(name="condition_fn_present", field_type="i64", initializer="0"),
                 FieldSpec(name="region_popped", field_type="i64", initializer="0"),
                 FieldSpec(name="slot_registry_released", field_type="i64", initializer="0"),
                 FieldSpec(name="metadata_published", field_type="i64", initializer="0"),
@@ -225,8 +222,7 @@ def _finalize_operations() -> list[dict[str, object]]:
         op("SetField", target="func", field="phi_return_type_inferred", value=1).to_json(),
         op("SetField", target="func", field="phi_inputs_materialized", value=1).to_json(),
         op("SetField", target="module", field="main_function", value="func").to_json(),
-        op("SetField", target="module", field="functions_count", value=2).to_json(),
-        op("SetField", target="module", field="condition_fn_present", value=1).to_json(),
+        op("SetField", target="module", field="functions_count", value=1).to_json(),
         op("SetField", target="module", field="region_popped", value=1).to_json(),
         op("SetField", target="module", field="slot_registry_released", value=1).to_json(),
         op("SetField", target="module", field="metadata_published", value=1).to_json(),
@@ -320,8 +316,7 @@ def bounded_finalize_spec() -> FamilyArtifactSpec:
             op("AssertEq", left="block.terminated", right=1, fail_message="bounded_finalize_return_terminated=fail", fail_code=1),
             op("AssertEq", left="block.return_value", right=1, fail_message="bounded_finalize_return_value=fail", fail_code=2),
             op("AssertEq", left="func.return_type_is_integer", right=1, fail_message="bounded_finalize_return_type=fail", fail_code=3),
-            op("AssertEq", left="finalized.functions_count", right=2, fail_message="bounded_finalize_function_count=fail", fail_code=4),
-            op("AssertEq", left="finalized.condition_fn_present", right=1, fail_message="bounded_finalize_condition_fn=fail", fail_code=5),
+            op("AssertEq", left="finalized.functions_count", right=1, fail_message="bounded_finalize_function_count=fail", fail_code=4),
             op("AssertEq", left="finalized.metadata_published", right=1, fail_message="bounded_finalize_metadata=fail", fail_code=6),
             op("AssertEq", left="finalized.record_packed_layout_refreshed", right=1, fail_message="bounded_finalize_record_refresh=fail", fail_code=7),
             op("AssertEq", left="finalized.typed_object_plan_refreshed", right=1, fail_message="bounded_finalize_typed_refresh=fail", fail_code=8),
@@ -368,8 +363,8 @@ def bounded_finalize_spec() -> FamilyArtifactSpec:
                 "bounded_finalize_composition_only": 1,
                 "return_instruction_shell_connected": 1,
                 "return_type_integer_published": 1,
-                "module_function_count_includes_condition_fn": 1,
-                "condition_fn_injection_source_required": 1,
+                "module_function_count_is_main_only": 1,
+                "condition_fn_injection_retired": 1,
                 "metadata_publication_shell": 1,
                 "semantic_refresh_subset_shell": 1,
                 "state_take_presence_tags_cleared": 1,
@@ -383,7 +378,6 @@ def bounded_finalize_spec() -> FamilyArtifactSpec:
             "SetField",
             "ReturnValue",
             "BoundedReturnInstructionShell",
-            "BoundedConditionFnInjectionShell",
             "BoundedSemanticRefreshSubsetShell",
         ],
         transport_notes=contract.transport_notes(

@@ -39,7 +39,7 @@
   "summary": {
     "carrier_type_transport_candidate_count": 125,
     "policy_lane_selected_count": 0,
-    "verified_hako_family_ir_count": 47
+    "verified_hako_family_ir_count": 46
   },
   "token": "MIRBUILDER-STRICT-CONVERTER-EMISSION-PROBE-001",
   "verified_hako_family_ir_fixtures": [
@@ -106,12 +106,6 @@
     {
       "family_id": "hakorune_mir_builder::bounded_finalize_composition",
       "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bounded-finalize-derived-hako-verifier-result-v0.json",
-      "kind": "DerivedHakoArtifactVerifierResult",
-      "result": "VerifiedHakoFamilyIR"
-    },
-    {
-      "family_id": "hakorune_mir_builder::condition_fn_injection",
-      "fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-condition-fn-injection-derived-hako-verifier-result-v0.json",
       "kind": "DerivedHakoArtifactVerifierResult",
       "result": "VerifiedHakoFamilyIR"
     },

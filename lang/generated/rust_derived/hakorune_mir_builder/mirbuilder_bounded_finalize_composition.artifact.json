@@ -25,15 +25,15 @@
   "inputs": {
     "facts": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bounded-finalize-composition-plan-v0.json",
-      "sha256": "2de15060561ec82d80d2f1c6a333c79fdbd7d6a19056c9ae0b1722adbe75e66b"
+      "sha256": "5ae6ecca9d6ac210252b9e765348536c4794f51cef53108aff2b53a702b9785d"
     },
     "oracle": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bounded-finalize-derived-hako-oracle-v0.json",
-      "sha256": "593755f7961a1bf3973b92fe2d3fd821975bc325f8bab1030d51e47ff543bf1a"
+      "sha256": "0e1a9210b45e5c04092ab4f899d891df33cabd826cdf237d07be3cdb01978e51"
     },
     "plan": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bounded-finalize-composition-plan-v0.json",
-      "sha256": "2de15060561ec82d80d2f1c6a333c79fdbd7d6a19056c9ae0b1722adbe75e66b"
+      "sha256": "5ae6ecca9d6ac210252b9e765348536c4794f51cef53108aff2b53a702b9785d"
     },
     "recipe": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bounded-finalize-derived-hako-recipe-v0.json",
@@ -41,13 +41,13 @@
     },
     "verifier": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bounded-finalize-derived-hako-verifier-result-v0.json",
-      "sha256": "ce596199137250d26898eba0a4f27a82c0bbe8009e7f1123324745ffb4d1f935"
+      "sha256": "98a0cbd0d83ee6433e5aa5bf7bf82bb58b1d99109c95ee397013b3780e5684ad"
     }
   },
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_bounded_finalize_composition.hako",
-    "hako_sha256": "386b0f4360dc378144da6c3e67b3c5874aa9e4a40a13dc3a2a142f90a70f63a5"
+    "hako_sha256": "c8533d723c9552c1aeccb44ca3c3f4e04defb5c9a1a43503bdb1c415b3dd24a0"
   },
   "pilot_scope": "BoundedFinalizeComposition_prepared_minimal_profile",
   "schema_version": 0,
@@ -55,7 +55,7 @@
     "rust_files": [
       {
         "path": "src/mir/builder/module_lifecycle.rs",
-        "sha256": "a51fa33e11958fb658159b89c575c31e4f4ff1e88aaedd9d909ac0989a5f7e22"
+        "sha256": "35eda237742948d3dbce08b60f2110f62054840634c17e9300b069f5b9c725b0"
       }
     ]
   },

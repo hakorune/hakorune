@@ -75,29 +75,24 @@ def extract_plan() -> dict[str, Any]:
         finalize,
         [
             "self.hint_scope_leave(0);",
-            "if let Some(block_id) = self.current_block",
+            "if let Some(block_id) = self.function_state.current_block",
             "block.add_instruction(MirInstruction::Return",
             "function.signature.return_type = mt;",
             "let mut module = self.current_module.take().unwrap();",
             "verify_typed_values_are_defined",
-            "let mut function = self.scope_ctx.current_function.take().unwrap();",
-            "TypePropagationPipeline::run(&mut function, &mut self.type_ctx.value_types)?;",
+            "let mut function = self.function_state.current_function.take().unwrap();",
+            "TypePropagationPipeline::run(&mut function, &mut self.function_state.type_ctx.value_types)?;",
             "type_hint_providers::annotate_missing_result_types_from_calls_and_await",
-            "function.metadata.value_types = self.type_ctx.value_types.clone();",
-            "function.metadata.value_origin_callers = origin_callers;",
+            "PreparedModuleFinalizationFunctionMetadataV1::prepare",
+            ".commit_into(&mut function);",
             "phi_type_inference::infer_return_type_from_phi",
             "materialize_all_phi_inputs",
             "if crate::config::env::using_is_dev()",
             "module.add_function(function);",
-            'if module.functions.get("condition_fn").is_none()',
-            'name: "condition_fn".to_string(),',
-            "crate::mir::function_emission::emit_const_integer(&mut f, entry, 1);",
-            "module.add_function(f);",
             "crate::mir::region::observer::pop_function_region(self);",
             "self.comp_ctx.current_slot_registry = None;",
-            "module.metadata.user_box_decls = self.comp_ctx.user_defined_boxes.clone();",
-            "module.metadata.record_decls = self.comp_ctx.record_decls.clone().into_iter().collect();",
-            "module.metadata.enum_decls = self.comp_ctx.enum_decls_for_module_metadata();",
+            "PreparedModuleFinalizationDeclarationMetadataV1::prepare(&self.comp_ctx)",
+            ".commit_into(&mut module);",
             "refresh_module_record_and_packed_layout_plans(&mut module);",
             "refresh_module_typed_object_plans(&mut module);",
             "refresh_module_direct_state_plans(&mut module);",
@@ -140,7 +135,6 @@ def extract_plan() -> dict[str, Any]:
             "input": "ASTNode::Literal(Integer(0))",
             "source_file": None,
             "dev_birth_verification": False,
-            "condition_fn_initially_missing": True,
             "user_box_decls": "Empty",
             "record_decls": "Empty",
             "enum_decls": "Empty",
@@ -169,11 +163,6 @@ def extract_plan() -> dict[str, Any]:
             {"step": "materialize_phi_inputs_main", "operation": "materialize_all_phi_inputs"},
             {"step": "dev_birth_verification", "profile": "ExcludedFalse"},
             {"step": "module_add_main_function", "operation": "MirModule::add_function"},
-            {
-                "step": "inject_condition_fn_if_missing",
-                "operation": "condition_fn const 1 return",
-                "required_by_source": True,
-            },
             {"step": "pop_function_region", "operation": "region::observer::pop_function_region"},
             {"step": "clear_slot_registry", "operation": "current_slot_registry = None"},
             {"step": "publish_module_metadata", "fields": ["user_box_decls", "record_decls", "enum_decls"]},
@@ -215,7 +204,6 @@ def validate_plan(plan: dict[str, Any]) -> None:
         "take_function",
         "type_propagation",
         "module_add_main_function",
-        "inject_condition_fn_if_missing",
         "refresh_module_plans_subset",
         "return_module",
     ]
@@ -225,12 +213,8 @@ def validate_plan(plan: dict[str, Any]) -> None:
         require(index > cursor, f"finalize step order drift: {step}")
         cursor = index
     require(
-        plan["execution_profile"]["condition_fn_initially_missing"] is True,
-        "condition_fn injection profile drift",
-    )
-    require(
-        plan["composition"][14]["required_by_source"] is True,
-        "condition_fn injection must remain source-required",
+        plan["composition"][-1]["transport"] == "MirModuleMinimalShell",
+        "return module transport drift",
     )
     for key, value in plan["non_claims"].items():
         require(value == 0, f"non-claim must remain 0: {key}")
@@ -239,7 +223,7 @@ def validate_plan(plan: dict[str, Any]) -> None:
 def run_drift_probes(plan: dict[str, Any]) -> None:
     probes: list[tuple[str, list[Any], Any]] = [
         ("missing finalize capability", ["available_capabilities"], []),
-        ("condition_fn source requirement drift", ["composition", 14, "required_by_source"], False),
+        ("missing return module transport", ["composition", -1, "transport"], "Other"),
         ("full finalize claim drift", ["non_claims", "full_finalize_module"], 1),
     ]
     for label, path, value in probes:
@@ -282,7 +266,7 @@ def main() -> int:
             ("output_contract", "rust-lifecycle-mirbuilder-bounded-finalize-composition-v0"),
             ("mirbuilder_bounded_finalize_composition", "green"),
             ("capability", "FinalizeModuleComposition"),
-            ("condition_fn_injection", "source_required"),
+            ("condition_fn_injection", "retired"),
             ("full_finalize_module_claim", "0"),
             ("generated_hako_artifact", "0"),
             ("backend_behavior_changed", "0"),

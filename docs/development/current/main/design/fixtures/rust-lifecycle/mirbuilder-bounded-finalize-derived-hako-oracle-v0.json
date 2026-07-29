@@ -15,10 +15,9 @@
   "vectors": [
     {
       "expect": {
-        "condition_fn_present": 1,
         "main_block_terminated": 1,
         "main_function_return_type_integer": 1,
-        "module_function_count": 2,
+        "module_function_count": 1,
         "module_metadata_published": 1,
         "return_value": 1,
         "semantic_refresh_subset_applied": 1,

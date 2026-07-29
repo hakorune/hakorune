@@ -84,9 +84,6 @@ DEV_BIRTH_VERIFICATION_PLAN = (
 MODULE_FUNCTION_INSERTION_PLAN = (
     FIXTURES / "mirbuilder-module-function-insertion-plan-v0.json"
 )
-CONDITION_FN_INJECTION_PLAN = (
-    FIXTURES / "mirbuilder-condition-fn-injection-plan-v0.json"
-)
 FUNCTION_REGION_STACK_POP_PLAN = (
     FIXTURES / "mirbuilder-function-region-stack-pop-plan-v0.json"
 )
@@ -215,7 +212,6 @@ def contract_sources() -> list[dict[str, Any]]:
     phi_input_materialization = read_json(PHI_INPUT_MATERIALIZATION_PLAN)
     dev_birth_verification = read_json(DEV_BIRTH_VERIFICATION_PLAN)
     module_function_insertion = read_json(MODULE_FUNCTION_INSERTION_PLAN)
-    condition_fn_injection = read_json(CONDITION_FN_INJECTION_PLAN)
     function_region_stack_pop = read_json(FUNCTION_REGION_STACK_POP_PLAN)
     slot_registry_release = read_json(SLOT_REGISTRY_RELEASE_PLAN)
     module_metadata_publication = read_json(MODULE_METADATA_PUBLICATION_PLAN)
@@ -583,33 +579,6 @@ def contract_sources() -> list[dict[str, Any]]:
     ]:
         if module_function_non_claims.get(key) != 0:
             raise SelectionError(f"module function insertion plan must keep {key}=0")
-    if condition_fn_injection.get("kind") != "MirBuilderConditionFnInjectionPlanV1":
-        raise SelectionError("condition_fn injection plan has wrong kind")
-    condition_caps = set(condition_fn_injection.get("available_capabilities") or [])
-    if "ConditionFnInjection" not in condition_caps:
-        raise SelectionError("condition_fn injection plan lacks ConditionFnInjection")
-    injection = condition_fn_injection.get("injection") or {}
-    if injection.get("predicate") != 'module.functions.get("condition_fn").is_none()':
-        raise SelectionError("condition_fn injection predicate drift")
-    if injection.get("function_name") != "condition_fn":
-        raise SelectionError("condition_fn injection function name drift")
-    if injection.get("body") != ["ConstInteger(1)", "ReturnValue(one)"]:
-        raise SelectionError("condition_fn injection body drift")
-    if injection.get("insert_operation") != "module.add_function(f)":
-        raise SelectionError("condition_fn injection insert operation drift")
-    condition_non_claims = condition_fn_injection.get("non_claims") or {}
-    for key in [
-        "condition_fn_policy_generalization",
-        "region_stack_pop",
-        "slot_registry_release",
-        "metadata_publication",
-        "semantic_refresh",
-        "all_functions_phi_materialization",
-        "full_finalize_module",
-        "generated_hako_artifact",
-    ]:
-        if condition_non_claims.get(key) != 0:
-            raise SelectionError(f"condition_fn injection plan must keep {key}=0")
     if function_region_stack_pop.get("kind") != "MirBuilderFunctionRegionStackPopPlanV1":
         raise SelectionError("function-region stack pop plan has wrong kind")
     region_pop_caps = set(function_region_stack_pop.get("available_capabilities") or [])
@@ -1017,13 +986,6 @@ def contract_sources() -> list[dict[str, Any]]:
             "contract_kind": "SourceDerivedCapabilityPlanV1",
             "family_id": "hakorune_mir_builder::module_function_insertion",
             "manifest_path": rel(MODULE_FUNCTION_INSERTION_PLAN),
-            "artifact_state": "PlanOnly",
-        },
-        {
-            "capability": "ConditionFnInjection",
-            "contract_kind": "SourceDerivedCapabilityPlanV1",
-            "family_id": "hakorune_mir_builder::condition_fn_injection",
-            "manifest_path": rel(CONDITION_FN_INJECTION_PLAN),
             "artifact_state": "PlanOnly",
         },
         {
@@ -1462,21 +1424,6 @@ def build_plan() -> dict[str, Any]:
             },
         },
         {
-            "id": "finalize_module.condition_fn_injection",
-            "callsite": "MirBuilder::finalize_module -> inject condition_fn when missing",
-            "required_capability": "ConditionFnInjection",
-            "provider": {
-                "kind": "CapabilityPlan",
-                "capability": "ConditionFnInjection",
-            },
-            "unsupported": {
-                "deny_reason": "UnsupportedDirectShape",
-                "deny_detail": "ConditionFnInjectionRequired",
-                "semantic_owner": "MirBuilder::finalize_module condition_fn injection",
-                "next_slice_token": "MIRBUILDER-CONDITION-FN-INJECTION-001",
-            },
-        },
-        {
             "id": "finalize_module.region_stack_pop",
             "callsite": "MirBuilder::finalize_module -> region::observer::pop_function_region",
             "required_capability": "FunctionRegionStackPop",
@@ -1779,41 +1726,12 @@ def verify_result(plan: dict[str, Any], result: dict[str, Any]) -> None:
         if first.get(key) != value:
             raise SelectionError(f"first unsupported edge expected {key}={value}, got {first.get(key)}")
     statuses = [row["status"] for row in result["reached_prefix"]]
-    if statuses != [
-        "Available",
-        "Available",
-        "Available",
-        "ProfileExcluded",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Available",
-        "Unsupported",
-    ]:
+    if (
+        len(statuses) < 5
+        or statuses[:4] != ["Available", "Available", "Available", "ProfileExcluded"]
+        or any(status != "Available" for status in statuses[4:-1])
+        or statuses[-1] != "Unsupported"
+    ):
         raise SelectionError(f"unexpected reached frontier statuses: {statuses}")
     for row in result["not_reached_edges"]:
         if row.get("status") != "NotReached":

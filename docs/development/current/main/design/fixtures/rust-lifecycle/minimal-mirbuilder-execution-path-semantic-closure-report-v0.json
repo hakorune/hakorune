@@ -36,15 +36,15 @@
       "Observed": 1,
       "ProfileExcluded": 1,
       "SourceOrderOrProfile": 2,
-      "VerifiedArtifact": 28
+      "VerifiedArtifact": 27
     },
     "artifact_materialization": {
-      "ExecutableArtifactPresent": 28,
+      "ExecutableArtifactPresent": 27,
       "NotApplicable": 4
     },
     "route_state": {
       "DerivedMainline": 1,
-      "DerivedShadow": 27,
+      "DerivedShadow": 26,
       "NotApplicable": 4
     }
   },
@@ -445,23 +445,6 @@
         "contract_kind": "VerifiedFamilyArtifactContractV1",
         "family_id": "hakorune_mir_builder::module_function_insertion",
         "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_module_function_insertion.artifact.json",
-        "artifact_state": "DerivedShadow"
-      }
-    },
-    {
-      "edge_id": "finalize_module.condition_fn_injection",
-      "callsite": "MirBuilder::finalize_module -> inject condition_fn when missing",
-      "status": "Available",
-      "required_capability": "ConditionFnInjection",
-      "semantic_status": "Available",
-      "evidence_tier": "VerifiedArtifact",
-      "artifact_materialization": "ExecutableArtifactPresent",
-      "route_state": "DerivedShadow",
-      "provider_reference": {
-        "capability": "ConditionFnInjection",
-        "contract_kind": "VerifiedFamilyArtifactContractV1",
-        "family_id": "hakorune_mir_builder::condition_fn_injection",
-        "manifest_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_condition_fn_injection.artifact.json",
         "artifact_state": "DerivedShadow"
       }
     },

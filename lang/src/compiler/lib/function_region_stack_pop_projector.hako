@@ -35,8 +35,6 @@ static box FunctionRegionStackPopHakoProjector {
     if err != null { return err }
     err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(source_authority, "observer"), "plan.source_authority.observer", "src/mir/region/observer.rs::pop_function_region", tag)
     if err != null { return err }
-    err = CompilerProjectorSupportBox.require_text(BoxHelpers.map_get(source_authority, "predecessor_plan"), "plan.source_authority.predecessor_plan", "mirbuilder-condition-fn-injection-plan-v0.json", tag)
-    if err != null { return err }
 
     local execution_profile = BoxHelpers.map_get(plan, "execution_profile")
     err = CompilerProjectorSupportBox.require_map(execution_profile, "plan.execution_profile", tag)
@@ -57,7 +55,7 @@ static box FunctionRegionStackPopHakoProjector {
     if finalize_module.length() != 3 {
       return CompilerProjectorSupportBox.fail(tag, "[plan.observed_source_order.finalize_module] expected 3 markers")
     }
-    err = CompilerProjectorSupportBox.require_text(finalize_module.get(0), "plan.observed_source_order.finalize_module[0]", "module.add_function(f);", tag)
+    err = CompilerProjectorSupportBox.require_text(finalize_module.get(0), "plan.observed_source_order.finalize_module[0]", "module.add_function(function);", tag)
     if err != null { return err }
     err = CompilerProjectorSupportBox.require_text(finalize_module.get(1), "plan.observed_source_order.finalize_module[1]", "crate::mir::region::observer::pop_function_region(self);", tag)
     if err != null { return err }

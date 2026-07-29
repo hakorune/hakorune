@@ -12,7 +12,6 @@
     "input": "ASTNode::Literal(Integer(0))",
     "source_file": null,
     "dev_birth_verification": false,
-    "condition_fn_initially_missing": true,
     "user_box_decls": "Empty",
     "record_decls": "Empty",
     "enum_decls": "Empty"
@@ -23,116 +22,96 @@
       "byte_offset": 70
     },
     {
-      "marker": "if let Some(block_id) = self.current_block",
+      "marker": "if let Some(block_id) = self.function_state.current_block",
       "byte_offset": 104
     },
     {
       "marker": "block.add_instruction(MirInstruction::Return",
-      "byte_offset": 371
+      "byte_offset": 391
     },
     {
       "marker": "function.signature.return_type = mt;",
-      "byte_offset": 641
+      "byte_offset": 821
     },
     {
       "marker": "let mut module = self.current_module.take().unwrap();",
-      "byte_offset": 751
+      "byte_offset": 931
     },
     {
       "marker": "verify_typed_values_are_defined",
-      "byte_offset": 919
+      "byte_offset": 1099
     },
     {
-      "marker": "let mut function = self.scope_ctx.current_function.take().unwrap();",
-      "byte_offset": 1021
+      "marker": "let mut function = self.function_state.current_function.take().unwrap();",
+      "byte_offset": 1201
     },
     {
-      "marker": "TypePropagationPipeline::run(&mut function, &mut self.type_ctx.value_types)?;",
-      "byte_offset": 1462
+      "marker": "TypePropagationPipeline::run(&mut function, &mut self.function_state.type_ctx.value_types)?;",
+      "byte_offset": 1647
     },
     {
       "marker": "type_hint_providers::annotate_missing_result_types_from_calls_and_await",
-      "byte_offset": 1911
+      "byte_offset": 2111
     },
     {
-      "marker": "function.metadata.value_types = self.type_ctx.value_types.clone();",
-      "byte_offset": 2192
+      "marker": "PreparedModuleFinalizationFunctionMetadataV1::prepare",
+      "byte_offset": 2354
     },
     {
-      "marker": "function.metadata.value_origin_callers = origin_callers;",
-      "byte_offset": 2480
+      "marker": ".commit_into(&mut function);",
+      "byte_offset": 2570
     },
     {
       "marker": "phi_type_inference::infer_return_type_from_phi",
-      "byte_offset": 2835
+      "byte_offset": 2897
     },
     {
       "marker": "materialize_all_phi_inputs",
-      "byte_offset": 3197
+      "byte_offset": 3259
     },
     {
       "marker": "if crate::config::env::using_is_dev()",
-      "byte_offset": 3624
+      "byte_offset": 3686
     },
     {
       "marker": "module.add_function(function);",
-      "byte_offset": 8129
-    },
-    {
-      "marker": "if module.functions.get(\"condition_fn\").is_none()",
-      "byte_offset": 8570
-    },
-    {
-      "marker": "name: \"condition_fn\".to_string(),",
-      "byte_offset": 8680
-    },
-    {
-      "marker": "crate::mir::function_emission::emit_const_integer(&mut f, entry, 1);",
-      "byte_offset": 9096
-    },
-    {
-      "marker": "module.add_function(f);",
-      "byte_offset": 9259
+      "byte_offset": 8191
     },
     {
       "marker": "crate::mir::region::observer::pop_function_region(self);",
-      "byte_offset": 9346
+      "byte_offset": 8275
     },
     {
       "marker": "self.comp_ctx.current_slot_registry = None;",
-      "byte_offset": 9457
+      "byte_offset": 8386
     },
     {
-      "marker": "module.metadata.user_box_decls = self.comp_ctx.user_defined_boxes.clone();",
-      "byte_offset": 9603
+      "marker": "PreparedModuleFinalizationDeclarationMetadataV1::prepare(&self.comp_ctx)",
+      "byte_offset": 8501
     },
     {
-      "marker": "module.metadata.record_decls = self.comp_ctx.record_decls.clone().into_iter().collect();",
-      "byte_offset": 10338
-    },
-    {
-      "marker": "module.metadata.enum_decls = self.comp_ctx.enum_decls_for_module_metadata();",
-      "byte_offset": 10435
+      "marker": ".commit_into(&mut module);",
+      "byte_offset": 8586
     },
     {
       "marker": "refresh_module_record_and_packed_layout_plans(&mut module);",
-      "byte_offset": 10550
+      "byte_offset": 8651
     },
     {
       "marker": "refresh_module_typed_object_plans(&mut module);",
-      "byte_offset": 10649
+      "byte_offset": 8750
     },
     {
       "marker": "refresh_module_direct_state_plans(&mut module);",
-      "byte_offset": 10736
+      "byte_offset": 8837
     },
     {
       "marker": "materialize_all_phi_inputs(\n                function,\n                \"finalize_module_all_functions\",",
-      "byte_offset": 10902
+      "byte_offset": 9003
     },
     {
       "marker": "Ok(module)",
-      "byte_offset": 11040
+      "byte_offset": 9191
     }
   ],
   "composition": [
@@ -193,11 +172,6 @@
     {
       "step": "module_add_main_function",
       "operation": "MirModule::add_function"
-    },
-    {
-      "step": "inject_condition_fn_if_missing",
-      "operation": "condition_fn const 1 return",
-      "required_by_source": true
     },
     {
       "step": "pop_function_region",

@@ -348,19 +348,6 @@
       "status": "Available"
     },
     {
-      "callsite": "MirBuilder::finalize_module -> inject condition_fn when missing",
-      "contract_reference": {
-        "artifact_state": "PlanOnly",
-        "capability": "ConditionFnInjection",
-        "contract_kind": "SourceDerivedCapabilityPlanV1",
-        "family_id": "hakorune_mir_builder::condition_fn_injection",
-        "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-condition-fn-injection-plan-v0.json"
-      },
-      "edge_id": "finalize_module.condition_fn_injection",
-      "required_capability": "ConditionFnInjection",
-      "status": "Available"
-    },
-    {
       "callsite": "MirBuilder::finalize_module -> region::observer::pop_function_region",
       "contract_reference": {
         "artifact_state": "PlanOnly",

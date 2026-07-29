@@ -54,7 +54,7 @@
     "rust_files": [
       {
         "path": "src/mir/builder/module_lifecycle.rs",
-        "sha256": "a51fa33e11958fb658159b89c575c31e4f4ff1e88aaedd9d909ac0989a5f7e22"
+        "sha256": "35eda237742948d3dbce08b60f2110f62054840634c17e9300b069f5b9c725b0"
       }
     ]
   },

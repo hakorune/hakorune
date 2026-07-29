@@ -26,10 +26,10 @@ for key in ["emits_hako", "constructs_verified_hako_family_ir", "weakens_strict_
     need(scope.get(key) is False, f"{key} must be false")
 
 summary = data.get("summary") or {}
-need(summary.get("verified_hako_family_ir_count") == 47, "verified fixture count drift")
+need(summary.get("verified_hako_family_ir_count") == 46, "verified fixture count drift")
 need(summary.get("carrier_type_transport_candidate_count") == 125, "carrier/type count drift")
 need(summary.get("policy_lane_selected_count") == 0, "policy lane must not be selected")
-need(len(data.get("verified_hako_family_ir_fixtures") or []) == 47, "verified fixture list length drift")
+need(len(data.get("verified_hako_family_ir_fixtures") or []) == 46, "verified fixture list length drift")
 for row in data.get("verified_hako_family_ir_fixtures") or []:
     need(row.get("result") == "VerifiedHakoFamilyIR", "non-verified result in verified list")
     need(row.get("fixture", "").endswith("verifier-result-v0.json"), "verified row must point at verifier fixture")
@@ -65,7 +65,7 @@ for key in [
     need(claims.get(key) == 0, f"{key} must be 0")
 
 print("output_contract=rust-lifecycle-mirbuilder-strict-converter-emission-probe")
-print("verified_hako_family_ir_count=47")
+print("verified_hako_family_ir_count=46")
 print("hako_generation=0")
 print("strict_rules_changed=0")
 print(f"selected_next_card={decision.get('selected_next_card')}")

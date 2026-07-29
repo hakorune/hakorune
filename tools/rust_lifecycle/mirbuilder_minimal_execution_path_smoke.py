@@ -41,7 +41,7 @@ def verify_test_source() -> None:
         "builder.finalize_module(literal)",
         "get_function(\"main\")",
         "MirType::Integer",
-        "get_function(\"condition_fn\")",
+        "get_function(\"condition_fn\").is_none()",
         "ConstValue::Integer(0)",
         "MirInstruction::Return",
     ]
@@ -66,7 +66,7 @@ def build_result() -> dict[str, Any]:
             "main_return_type": "MirType::Integer",
             "main_const_integer": "ConstValue::Integer(0)",
             "main_return_value": "literal_integer_const_dst",
-            "condition_fn_injection": "source_required",
+            "condition_fn_injection": "retired",
         },
         "available_capabilities": [
             "MinimalExecutionPathSmoke",
@@ -98,7 +98,7 @@ def run(check: bool) -> None:
     print("output_contract=rust-lifecycle-mirbuilder-minimal-execution-path-smoke-v0")
     print("input=prepare_module->build_literal(Integer(0))->finalize_module")
     print("minimal_execution_path_smoke=green")
-    print("condition_fn_injection=source_required")
+    print("condition_fn_injection=retired")
     print("full_mirbuilder_new_claim=0")
     print("mainline_selected=0")
     print("runtime_fallback=0")

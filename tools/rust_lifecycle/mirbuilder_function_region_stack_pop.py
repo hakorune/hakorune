@@ -26,11 +26,6 @@ FIXTURE = (
 )
 MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
 REGION_OBSERVER = ROOT / "src/mir/region/observer.rs"
-CONDITION_FN_INJECTION_PLAN = (
-    ROOT
-    / "docs/development/current/main/design/fixtures/rust-lifecycle/"
-    / "mirbuilder-condition-fn-injection-plan-v0.json"
-)
 
 
 def _read(path: Path) -> str:
@@ -74,7 +69,6 @@ def _require_order(text: str, markers: list[str], label: str) -> list[dict[str, 
 def extract_plan() -> dict[str, Any]:
     lifecycle = _read(MODULE_LIFECYCLE)
     observer = _read(REGION_OBSERVER)
-    condition_fn = _read_json(CONDITION_FN_INJECTION_PLAN)
     finalize = _function_body(
         lifecycle, "pub(super) fn finalize_module(&mut self, result_value: ValueId)"
     )
@@ -88,7 +82,7 @@ def extract_plan() -> dict[str, Any]:
     finalize_order = _require_order(
         finalize,
         [
-            "module.add_function(f);",
+            "module.add_function(function);",
             "crate::mir::region::observer::pop_function_region(self);",
             "self.comp_ctx.current_slot_registry = None;",
         ],
@@ -116,11 +110,6 @@ def extract_plan() -> dict[str, Any]:
         in observer,
         "region trace guard source marker missing",
     )
-    require(
-        condition_fn.get("non_claims", {}).get("region_stack_pop") == 0,
-        "ConditionFnInjection must not claim region_stack_pop",
-    )
-
     return {
         "schema_version": 0,
         "kind": "MirBuilderFunctionRegionStackPopPlanV1",
@@ -128,7 +117,6 @@ def extract_plan() -> dict[str, Any]:
         "source_authority": {
             "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
             "observer": "src/mir/region/observer.rs::pop_function_region",
-            "predecessor_plan": "mirbuilder-condition-fn-injection-plan-v0.json",
         },
         "execution_profile": {
             "input": "ASTNode::Literal(Integer(0))",

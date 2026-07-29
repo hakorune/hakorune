@@ -1,13 +1,13 @@
 {
   "checks": {
     "bounded_finalize_composition_only": 1,
-    "condition_fn_injection_source_required": 1,
+    "condition_fn_injection_retired": 1,
     "excluded_methods": [],
     "full_build_module_execution": 0,
     "full_finalize_module": 0,
     "mainline_selected": 0,
     "metadata_publication_shell": 1,
-    "module_function_count_includes_condition_fn": 1,
+    "module_function_count_is_main_only": 1,
     "return_instruction_shell_connected": 1,
     "return_type_integer_published": 1,
     "runtime_fallback": 0,
@@ -52,7 +52,6 @@
     "SetField",
     "ReturnValue",
     "BoundedReturnInstructionShell",
-    "BoundedConditionFnInjectionShell",
     "BoundedSemanticRefreshSubsetShell"
   ]
 }

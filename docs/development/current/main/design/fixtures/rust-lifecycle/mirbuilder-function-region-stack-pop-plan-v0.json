@@ -4,8 +4,7 @@
   "subject": "MirBuilder::finalize_module function region stack pop",
   "source_authority": {
     "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
-    "observer": "src/mir/region/observer.rs::pop_function_region",
-    "predecessor_plan": "mirbuilder-condition-fn-injection-plan-v0.json"
+    "observer": "src/mir/region/observer.rs::pop_function_region"
   },
   "execution_profile": {
     "input": "ASTNode::Literal(Integer(0))",
@@ -15,16 +14,16 @@
   "observed_source_order": {
     "finalize_module": [
       {
-        "marker": "module.add_function(f);",
-        "byte_offset": 9259
+        "marker": "module.add_function(function);",
+        "byte_offset": 8191
       },
       {
         "marker": "crate::mir::region::observer::pop_function_region(self);",
-        "byte_offset": 9346
+        "byte_offset": 8275
       },
       {
         "marker": "self.comp_ctx.current_slot_registry = None;",
-        "byte_offset": 9457
+        "byte_offset": 8386
       }
     ],
     "pop_function_region": [
@@ -48,7 +47,7 @@
       },
       {
         "marker": "builder.metadata_ctx.push_region(id);",
-        "byte_offset": 852
+        "byte_offset": 744
       }
     ]
   },

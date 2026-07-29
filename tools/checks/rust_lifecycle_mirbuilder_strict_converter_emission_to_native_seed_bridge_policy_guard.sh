@@ -31,7 +31,7 @@ need(
     previous.get("rerun_003_reason_token") == "NoMachineDerivedNativeOwnerSeedCandidateAfterStrictEmissionProbe",
     "previous reason drift",
 )
-need(previous.get("strict_verified_hako_family_ir_count") == 47, "strict verified count drift")
+need(previous.get("strict_verified_hako_family_ir_count") == 46, "strict verified count drift")
 need(previous.get("strict_probe_hako_generation") == 0, "strict probe must not generate Hako")
 need(previous.get("strict_probe_rules_changed") == 0, "strict probe must not change rules")
 
@@ -85,7 +85,7 @@ for key in [
     "generated_artifact_as_seed_draft_input",
 ]:
     need(claims.get(key) == 1, f"{key} must be 1")
-need(claims.get("strict_verified_hako_family_ir_count") == 47, "claim verified count drift")
+need(claims.get("strict_verified_hako_family_ir_count") == 46, "claim verified count drift")
 for key in [
     "generated_artifact_as_native_edit_authority",
     "native_seed_materialization",
@@ -105,7 +105,7 @@ for key in [
     need(claims.get(key) == 0, f"{key} must be 0")
 
 print("output_contract=rust-lifecycle-mirbuilder-strict-converter-emission-to-native-seed-bridge-policy")
-print("strict_verified_hako_family_ir_count=47")
+print("strict_verified_hako_family_ir_count=46")
 print("generated_artifact_as_native_edit_authority=0")
 print("generated_artifact_as_seed_draft_input=1")
 print(f"selected_next_card={decision.get('selected_next_card')}")

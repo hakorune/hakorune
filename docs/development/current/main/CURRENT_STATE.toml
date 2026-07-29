@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0 is closed: normal/default JoinModule execution is zero; CorePlan carriers are reown candidates, normalized shadows/runners are retirement candidates, and explicit VM/LLVM paths are fenced references. DERIVED-CONDITIONFN-SHADOW-RETIRE0-RET0 is current; final conformance must verify every named disposition before Ownership, View, or feature work opens."
+status = "DERIVED-CONDITIONFN-SHADOW-RETIRE0-RET0 is closed: the caller-zero condition_fn DerivedShadow bundle and its dedicated guards are retired, while bounded-finalize, function-region-stack, and aggregate evidence no longer claim the deleted edge. JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0 is current; final conformance must verify every named disposition before Ownership, View, or feature work opens."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "DERIVED-CONDITIONFN-SHADOW-RETIRE0-RET0"
-current_execution_summary = "Retire the caller-zero condition_fn DerivedShadow bundle and refresh only evidence that still owns a live finalization/region-stack fact. Raw root condition drafts, JoinModule reown, normal/default routing, Ownership, View, and features remain out of scope."
+current_design_stop = "JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0"
+current_execution_row = ""
+current_execution_summary = "Design the reown boundary for the retained JoinModule CorePlan/MIR carriers. The retired condition_fn DerivedShadow bundle is closed; raw root condition drafts, normal/default routing, Ownership, View, and features remain out of scope."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DERIVED-CONDITIONFN-SHADOW-RETIRE0-RET0"
+current_blocker_token = "JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

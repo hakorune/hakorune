@@ -46,7 +46,7 @@
     "runtime_fallback": 0,
     "source_selfhost_claim": 0,
     "strict_converter_emission_probe_consumed": 1,
-    "strict_verified_hako_family_ir_count": 47
+    "strict_verified_hako_family_ir_count": 46
   },
   "decision": {
     "kind": "PolicyDefined",
@@ -75,12 +75,12 @@
     "rerun_003_selected_next_card": "SOURCE-SELFHOST-WIDER-ROUTE-SELECTION-DESIGN-STOP-001",
     "strict_probe_hako_generation": 0,
     "strict_probe_rules_changed": 0,
-    "strict_verified_hako_family_ir_count": 47
+    "strict_verified_hako_family_ir_count": 46
   },
   "provenance": {
     "native_seed_survey_rerun_003_hash": "8ae80980997726547f4cac9c32a6096456ad5b3d4b5c6b6e75081ee5a74fd6e3",
-    "strict_converter_emission_probe_hash": "60209abdd157303ebeedc467c3d6f7d5f66f7eeba9c47c590864effef06d7e09",
-    "unconverted_surface_report_hash": "93ce02bcfad01b32f6d3c0ea93fe9974380b71e26b5e4949c3a103730497d8cc"
+    "strict_converter_emission_probe_hash": "a6da948e75ca2765ea51d74b58fdcba3541572f812329829d4796a4656fc29df",
+    "unconverted_surface_report_hash": "610bc2b724b270c5a09615c27de40616517caab74411cd9933703871424f263e"
   },
   "schema_version": 0,
   "token": "MIRBUILDER-STRICT-CONVERTER-EMISSION-TO-NATIVE-SEED-BRIDGE-POLICY-001"

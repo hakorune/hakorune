@@ -1,12 +1,12 @@
 {
   "candidate_pool": {
     "already_adopted_count": 3,
-    "bridge_blocked_count": 38,
+    "bridge_blocked_count": 37,
     "bridge_eligible_count": 9,
     "composite_or_integration_owner_count": 7,
-    "gap_blocked_count": 36,
+    "gap_blocked_count": 35,
     "unscoped_adoption_blocked_count": 4,
-    "verified_hako_family_ir_count": 47
+    "verified_hako_family_ir_count": 46
   },
   "candidates": [
     {
@@ -332,36 +332,6 @@
       "source_recipe": "mirbuilder-bounded-finalize-derived-hako-recipe-v0.json",
       "verifier_or_oracle_or_guard_present": true,
       "verifier_result_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-bounded-finalize-derived-hako-verifier-result-v0.json"
-    },
-    {
-      "already_hako_adopted": false,
-      "blocked_by": [
-        "PolicyGapInDeniedBoundaries"
-      ],
-      "borrow_policy_gap": false,
-      "bridge_state": "BridgeBlocked",
-      "carrier_type_transport_gap": true,
-      "composite_owner": false,
-      "deterministic_regeneration": true,
-      "family_id": "hakorune_mir_builder::condition_fn_injection",
-      "next_card": null,
-      "owner_edge_confidence": "FixtureMapped",
-      "owner_edge_id": "hakorune_mir_builder::condition_fn_injection",
-      "priority_tuple": [
-        1,
-        0,
-        0,
-        0,
-        0,
-        0,
-        "hakorune_mir_builder::condition_fn_injection",
-        "mirbuilder-condition-fn-injection-derived-hako-verifier-result-v0.json"
-      ],
-      "provenance_manifest_present": true,
-      "source_plan": "mirbuilder-condition-fn-injection-plan-v0.json",
-      "source_recipe": "mirbuilder-condition-fn-injection-derived-hako-recipe-v0.json",
-      "verifier_or_oracle_or_guard_present": true,
-      "verifier_result_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-condition-fn-injection-derived-hako-verifier-result-v0.json"
     },
     {
       "already_hako_adopted": false,
@@ -1446,9 +1416,9 @@
   "kind": "MirBuilderStrictConverterEmissionNativeSeedCandidateSelectionV1",
   "provenance": {
     "adoption_evidence_cutoff_token": "MIRBUILDER-STRICT-CONVERTER-EMISSION-NATIVE-SEED-CANDIDATE-SELECTION-001",
-    "bridge_policy_hash": "218cd631ed71744538d528b472cd42ac5a500d74440c97e1e93fe074a6456055",
+    "bridge_policy_hash": "c1ddc3813c6edefd2660ed3b3419c8239f112d8355adf9ca3bfd44255946a996",
     "source_selfhost_family_guard_manifest": "docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json",
-    "strict_converter_emission_probe_hash": "60209abdd157303ebeedc467c3d6f7d5f66f7eeba9c47c590864effef06d7e09"
+    "strict_converter_emission_probe_hash": "a6da948e75ca2765ea51d74b58fdcba3541572f812329829d4796a4656fc29df"
   },
   "schema_version": 0,
   "selection_rule": {

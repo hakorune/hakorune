@@ -128,13 +128,6 @@
     },
     {
       "artifact_state": "PlanOnly",
-      "capability": "ConditionFnInjection",
-      "contract_kind": "SourceDerivedCapabilityPlanV1",
-      "family_id": "hakorune_mir_builder::condition_fn_injection",
-      "manifest_path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-condition-fn-injection-plan-v0.json"
-    },
-    {
-      "artifact_state": "PlanOnly",
       "capability": "FunctionRegionStackPop",
       "contract_kind": "SourceDerivedCapabilityPlanV1",
       "family_id": "hakorune_mir_builder::function_region_stack_pop",
@@ -592,21 +585,6 @@
       }
     },
     {
-      "callsite": "MirBuilder::finalize_module -> inject condition_fn when missing",
-      "id": "finalize_module.condition_fn_injection",
-      "provider": {
-        "capability": "ConditionFnInjection",
-        "kind": "CapabilityPlan"
-      },
-      "required_capability": "ConditionFnInjection",
-      "unsupported": {
-        "deny_detail": "ConditionFnInjectionRequired",
-        "deny_reason": "UnsupportedDirectShape",
-        "next_slice_token": "MIRBUILDER-CONDITION-FN-INJECTION-001",
-        "semantic_owner": "MirBuilder::finalize_module condition_fn injection"
-      }
-    },
-    {
       "callsite": "MirBuilder::finalize_module -> region::observer::pop_function_region",
       "id": "finalize_module.region_stack_pop",
       "provider": {
@@ -728,57 +706,57 @@
   "source_order_facts": {
     "build_module_order": [
       {
-        "byte_offset": 3997,
+        "byte_offset": 7666,
         "marker": "builder.prepare_module().expect(\"module shell\");"
       },
       {
-        "byte_offset": 4080,
+        "byte_offset": 7749,
         "marker": ".build_literal(LiteralValue::Integer(0))"
       },
       {
-        "byte_offset": 4174,
+        "byte_offset": 7843,
         "marker": "builder.finalize_module(literal).expect(\"final module\");"
       }
     ],
     "kind": "MirBuilderMinimalPathSourceOrderFactsV1",
     "prepare_module_order": [
       {
-        "byte_offset": 3929,
+        "byte_offset": 3915,
         "marker": "let mut module = MirModule::new(\"main\".to_string());"
       },
       {
-        "byte_offset": 3990,
+        "byte_offset": 3976,
         "marker": "module.metadata.source_file = self.current_source_file();"
       },
       {
-        "byte_offset": 4262,
+        "byte_offset": 4248,
         "marker": "let entry_block = self.next_block_id();"
       },
       {
-        "byte_offset": 4310,
+        "byte_offset": 4296,
         "marker": "let mut main_function = self.new_function_with_metadata(main_signature, entry_block);"
       },
       {
-        "byte_offset": 4459,
+        "byte_offset": 4445,
         "marker": "self.current_module = Some(module);"
       },
       {
-        "byte_offset": 4556,
+        "byte_offset": 4542,
         "marker": "self.function_state.current_function = Some(main_function);"
       },
       {
-        "byte_offset": 4624,
+        "byte_offset": 4610,
         "marker": "self.function_state.current_block = Some(entry_block);"
       }
     ],
     "source_files": [
       {
         "path": "src/mir/builder/module_lifecycle_capture_tests.rs",
-        "sha256": "fda7869db83af07dca1e6b70c4ae72c1b1af692d02900be6a2bcba6e2206eb25"
+        "sha256": "68f17f179e0ca143950a7ac0dd0f4f8f32df4c798430bc4b6275efe47e346100"
       },
       {
         "path": "src/mir/builder/module_lifecycle.rs",
-        "sha256": "463824f69bca345aabe87c486723339491d0aa6b029ad91b7c8b0a01485cd9d7"
+        "sha256": "35eda237742948d3dbce08b60f2110f62054840634c17e9300b069f5b9c725b0"
       }
     ]
   }

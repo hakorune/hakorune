@@ -181,9 +181,9 @@ GuardOrchestrator:
 
 ## Growth Freeze Rule
 
-After the current `ConditionFnInjection` executable artifact slice lands, the
-MirBuilder lane must insert a role-control checkpoint before continuing wider
-derived artifact growth.
+The retired `ConditionFnInjection` derived artifact still establishes the
+role-control checkpoint before the MirBuilder lane continues wider derived
+artifact growth.
 
 ```text
 checkpoint:
@@ -398,7 +398,6 @@ without relying on handwritten prose.
         "tools/rust_lifecycle/mirbuilder_allocation_policy_mainline_selection.py",
         "tools/rust_lifecycle/mirbuilder_minimal_execution_path_selection.py",
         "tools/rust_lifecycle/mirbuilder_minimal_execution_path_semantic_closure_report.py",
-        "tools/rust_lifecycle/mirbuilder_condition_fn_injection.py",
         "tools/rust_lifecycle/mirbuilder_direct_shape_lowerer.py",
         "tools/rust_lifecycle/mirbuilder_metadata_origin_caller_merge.py",
         "tools/rust_lifecycle/mirbuilder_mir_module_minimal_shell_transport.py",

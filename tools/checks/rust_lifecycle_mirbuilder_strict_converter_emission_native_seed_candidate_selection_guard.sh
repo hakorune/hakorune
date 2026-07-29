@@ -32,10 +32,10 @@ need(rule.get("coverage_percentage_as_proof") is False, "coverage proof must be 
 need(rule.get("route_membership_alone_as_proof") is False, "route membership proof must be false")
 
 pool = fixture.get("candidate_pool") or {}
-need(pool.get("verified_hako_family_ir_count") == 47, "verified count drift")
+need(pool.get("verified_hako_family_ir_count") == 46, "verified count drift")
 need(pool.get("bridge_eligible_count") == 9, "eligible count drift")
-need(pool.get("bridge_blocked_count") == 38, "blocked count drift")
-need(pool.get("gap_blocked_count") == 36, "gap blocked count drift")
+need(pool.get("bridge_blocked_count") == 37, "blocked count drift")
+need(pool.get("gap_blocked_count") == 35, "gap blocked count drift")
 
 decision = fixture.get("decision") or {}
 need(decision.get("kind") == "SelectNativeSeedCandidate", "bad decision kind")
@@ -82,7 +82,7 @@ for key in [
     need(claims.get(key) == 0, f"{key} must be 0")
 
 print("output_contract=rust-lifecycle-mirbuilder-strict-converter-emission-native-seed-candidate-selection")
-print("verified_hako_family_ir_count=47")
+print("verified_hako_family_ir_count=46")
 print("bridge_eligible_count=9")
 print("selected_owner_edge_id=hakorune_mir_builder::core_context")
 print("selected_next_card=MIRBUILDER-CORE-CONTEXT-HAKO-NATIVE-SOURCE-SEED-001")

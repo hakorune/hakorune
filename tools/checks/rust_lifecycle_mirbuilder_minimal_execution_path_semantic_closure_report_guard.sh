@@ -160,13 +160,6 @@ assert module_function_insertion_edge["evidence_tier"] == "VerifiedArtifact"
 assert module_function_insertion_edge["artifact_materialization"] == "ExecutableArtifactPresent"
 assert module_function_insertion_edge["route_state"] == "DerivedShadow"
 assert module_function_insertion_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_module_function_insertion.artifact.json"
-condition_fn_edges = [edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.condition_fn_injection"]
-assert len(condition_fn_edges) == 1
-condition_fn_edge = condition_fn_edges[0]
-assert condition_fn_edge["evidence_tier"] == "VerifiedArtifact"
-assert condition_fn_edge["artifact_materialization"] == "ExecutableArtifactPresent"
-assert condition_fn_edge["route_state"] == "DerivedShadow"
-assert condition_fn_edge["provider_reference"]["manifest_path"] == "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_condition_fn_injection.artifact.json"
 function_region_stack_pop_edges = [edge for edge in report["edges"] if edge["edge_id"] == "finalize_module.region_stack_pop"]
 assert len(function_region_stack_pop_edges) == 1
 function_region_stack_pop_edge = function_region_stack_pop_edges[0]

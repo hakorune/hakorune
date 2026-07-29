@@ -29,11 +29,11 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
-Latest landed: FINALIZE0-CONDITIONFN-RET0-I0-R0
-Result:        finalization and Call materialization no longer carry the
-               synthetic `condition_fn` compatibility semantics
-Latest design: `JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0` closed
-Executable:    `DERIVED-CONDITIONFN-SHADOW-RETIRE0-RET0`
+Latest landed: DERIVED-CONDITIONFN-SHADOW-RETIRE0-RET0
+Result:        caller-zero `condition_fn` DerivedShadow bundle retired; its
+               stale finalization/region-stack claims are refreshed
+Latest design: `JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0`
+Executable:    none; stop at the design boundary
 History:       Git history and the short landed tail below
 ```
 
@@ -65,29 +65,41 @@ DERIVEDSHADOW:
   drafts are a separate live owner and are excluded.
 ```
 
-## Current execution
+## Current design stop
 
-`DERIVED-CONDITIONFN-SHADOW-RETIRE0-RET0` — T1 caller-zero asset retirement
+`JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0` — T2 CorePlan/MIR boundary design
 
 ```text
-Change:
-  delete the direct `condition_fn_injection` generated bundle, generator,
-  dedicated guards, and fixture closure; refresh surviving evidence rather
-  than retaining a deleted finalization edge.
+Purpose:
+  select one bounded reown seam for the retained JoinModule carrier and
+  boundary facts without reopening JoinModule as a planner or normal/default
+  execution route.
 
 Contract:
-  `RawRequiredConditionDraftV1` remains untouched. This is neither a
-  JoinModule reown nor a normal/default route change; no planner, fallback, or
-  feature activation is permitted.
+  normal/default JoinModule execution remains 0. Raw root condition drafts,
+  normalized shadows, direct runners, VM/LLVM fenced references, Ownership,
+  View, and feature work remain out of scope.
 
-Done:
-  direct stale bundle = 0; refreshed evidence states the finalizer edge is
-  retired; remaining DerivedShadow references stay caller-zero; focused
-  lifecycle/artifact gates are green.
+Required decision:
+  exact CorePlan/MIR carrier owner, authority transfer, selected live consumer
+  census, same-commit old-edge deletion, and a non-growing sunset condition.
 
 Stop:
-  return to D0 if a target has a live semantic consumer, requires moving a
-  CorePlan carrier, or makes any reference asset a normal/default authority.
+  do not open an I0 until one live consumer and one removable competing
+  authority are named. No compatibility owner may be introduced without its
+  removal row and measurable sunset condition.
+```
+
+## Latest closeout
+
+```text
+DERIVED-CONDITIONFN-SHADOW-RETIRE0-RET0
+  direct condition_fn generated bundle / generator / dedicated guards = 0
+  bounded-finalize and function-region-stack evidence                = refreshed
+  aggregate and strict-converter evidence                             = refreshed
+  raw root condition draft / JoinModule / normal-default routes      = unchanged
+  focused lifecycle, artifact, parity, reuse, cargo check            = green
+  next                                                                = JoinModule carrier-boundary D0
 ```
 
 ## Census9 closeout

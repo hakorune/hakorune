@@ -16,7 +16,7 @@
   },
   "kind": "MinimalMirBuilderExecutionPathSmokeResultV1",
   "observed": {
-    "condition_fn_injection": "source_required",
+    "condition_fn_injection": "retired",
     "main_const_integer": "ConstValue::Integer(0)",
     "main_function": "present",
     "main_return_type": "MirType::Integer",
