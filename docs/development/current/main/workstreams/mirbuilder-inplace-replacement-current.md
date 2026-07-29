@@ -70,9 +70,10 @@ Closed:  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0
 Closed:  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0
 Closed:  REPL-TYPED-PROGRAM-INGRESS0-D0
 Closed:  REPL-TYPED-PROGRAM-INGRESS0-I0-R0
-Current: POST-MACRO-PROGRAM-ADMISSION0-D0
+Closed:  POST-MACRO-PROGRAM-ADMISSION0-D0
+Current: STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0
 Pack:    ROOT-LIFECYCLE0
-Ceremony: T2, read-only policy audit
+Ceremony: T2, one atomic I0/R0
 ```
 
 R1 closeout:
@@ -576,42 +577,35 @@ new source/test/check/task file            = 0
 largest touched source/check file          = 799
 ```
 
-## Current design stop
+## Current execution brief
 
-`POST-MACRO-PROGRAM-ADMISSION0-D0`
+`STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0`
 
 ```text
-Mode:
-  T2 read-only policy audit; production Rust edit = 0
+Change:
+  after Stage1 direct maybe_expand_and_dump, classify the owned AST once into
+  Program or NonProgram; Program uses one dedicated typed Stage1 request,
+  NonProgram alone uses ExistingStage1DirectPostMacroCompatibilityV1
+  delete the broad unconditional Stage1 compile_with_source_hint edge
 
-Named shared boundary:
-  production maybe_expand_and_dump
-  -> post-macro AST root
-  -> compile* legacy-compatible ingress
+Contract:
+  shared source-only partition reuses the existing Program seal and retains
+  NonProgram AST without clone/reparse/Builder access
+  compatibility execution is caller-local, never shared, and has sunset
+  STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-SUNSET-001
+  -> STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-RETIRE0-R0
+  filename, empty imports, optimize flag, Legacy finish/result/module behavior,
+  macro semantics, and diagnostics do not move
 
-Candidate:
-  one source-only PostMacroRootV1 partition:
-    Program -> existing typed Program lifecycle
-    ExplicitCompatibility -> existing arbitrary-root lifecycle
-  classification exactly once; no clone, reparse, Builder access, retry, or
-  fallback
+Done:
+  Stage1 Program legacy reachability = 0; residual compatibility is reachable
+  only from NonProgram; typed failure never retries
+  focused Program/non-Program parity and the existing public-ingress guard pass
 
-Program stop:
-  parser success does not prove the post-macro root because public MacroBox may
-  return an arbitrary ASTNode; MIR interpreter and Stage1 share this blocker
-
-First future atomic caller:
-  prefer Stage1 direct after the shared contract closes; delete its broad
-  unconditional source-hint edge in the same I0/R0 commit
-
-Compatibility discipline:
-  any new explicit compatibility owner names its retirement row at creation;
-  caller-zero S0 and compatibility growth without an old-edge deletion are 0
-
-Non-claims:
-  MIR interpreter, VM keep/fallback, VM-Hako reference, selfhost, bench, public
-  arbitrary-AST APIs, global legacy candidate/build_module, and runtime
-  AST-JSON remain unchanged during D0
+Stop:
+  AST clone/reparse, double Program seal, shared compatibility executor,
+  typed rejection recovery, fallback/retry, macro/grammar/backend/View/Ownership
+  change, new per-row guard, or any source/check file reaching 800 lines
 ```
 
 Compatibility sunset:
@@ -622,6 +616,12 @@ state: active
 residual_kind_count: 40
 retire when: owner definition, registered residual surface, and root-specific
   drive_raw_legacy_expression_v1 production edge are all zero
+
+sunset_id: STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-SUNSET-001
+state: selected with R11
+owner: ExistingStage1DirectPostMacroCompatibilityV1
+retire row: STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-RETIRE0-R0
+retire when: Stage1 direct post-macro NonProgram production reachability is zero
 ```
 
 Closed sunset:
@@ -700,7 +700,8 @@ R6  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0 closed
 R7  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0 closed
 R8  REPL-TYPED-PROGRAM-INGRESS0-D0 closed
 R9  REPL-TYPED-PROGRAM-INGRESS0-I0-R0 closed
-R10 POST-MACRO-PROGRAM-ADMISSION0-D0 current
+R10 POST-MACRO-PROGRAM-ADMISSION0-D0 closed
+R11 STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0 current
 
 after every bounded retirement:
   run a fresh live-edge census

@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "REPL-TYPED-PROGRAM-INGRESS0-I0-R0 is closed. POST-MACRO-PROGRAM-ADMISSION0-D0 is the sole design stop."
+status = "POST-MACRO-PROGRAM-ADMISSION0-D0 is closed as Accept. STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0 is the sole executable row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "POST-MACRO-PROGRAM-ADMISSION0-D0"
-current_execution_row = ""
-current_execution_summary = "T2 read-only policy audit: inventory every production maybe_expand_and_dump -> compile* edge and define one source-only post-macro Program/explicit-compatibility partition. Public MacroBox may return an arbitrary root, so neither MIR interpreter nor Stage1 may claim Program-only admission yet. Classification must be exactly once with no clone, reparse, Builder access, fallback, or retry. Any compatibility owner must name its retirement row when created. No caller-zero S0 or production Rust edit is authorized during D0; the first later atomic caller cutover should prefer Stage1 direct if the shared contract closes."
+current_design_stop = ""
+current_execution_row = "STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0"
+current_execution_summary = "T2 atomic I0/R0: after the complete Stage1 direct macro pass, classify the owned AST exactly once into Program or NonProgram. Program consumes the existing typed Program seal and one dedicated Stage1 request; NonProgram alone enters ExistingStage1DirectPostMacroCompatibilityV1. In the same commit delete the broad unconditional Stage1 compile_with_source_hint edge and register STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-SUNSET-001 with its RETIRE0 row. Preserve filename, empty imports, optimize flag, Legacy finish/result/module behavior, macro semantics, and diagnostics. No clone, reparse, Builder access, typed failure retry, shared compatibility executor, grammar/backend/View/Ownership change, or separate S0."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """The eight-pack conformance census remains repository-wide Residual. PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 physically deleted the complete caller-zero Stage-B activation/carrier/function-session/physical-publication closure while preserving source-neutral receipts and all live generic owners. PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0 moved the import-bundle production caller onto the existing typed Program lifecycle and atomically deleted its ProgramV0Compatibility origin, raw-binding tombstone, and compile_legacy edge. REPL-TYPED-PROGRAM-INGRESS0-I0-R0 likewise moved eval_line and physically deleted ReplCompatibility from lowering input and raw source authority while preserving VM/session behavior. Direct ProgramV0-to-MIR JSON lowering remains distinct. POST-MACRO-PROGRAM-ADMISSION0-D0 is now the sole read-only design stop shared by MIR interpreter and Stage1 direct callers. MirBuilder cleanup remains ahead of source-level Ownership/View or other unimplemented features. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """The eight-pack conformance census remains repository-wide Residual. PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 physically deleted the complete caller-zero Stage-B activation/carrier/function-session/physical-publication closure while preserving source-neutral receipts and all live generic owners. PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0 moved the import-bundle production caller onto the existing typed Program lifecycle and atomically deleted its ProgramV0Compatibility origin, raw-binding tombstone, and compile_legacy edge. REPL-TYPED-PROGRAM-INGRESS0-I0-R0 likewise moved eval_line and physically deleted ReplCompatibility from lowering input and raw source authority while preserving VM/session behavior. POST-MACRO-PROGRAM-ADMISSION0-D0 accepted one shared source-only Program/NonProgram partition with caller-local residual execution; Stage1 direct is the first atomic production consumer. Direct ProgramV0-to-MIR JSON lowering remains distinct. MirBuilder cleanup remains ahead of source-level Ownership/View or other unimplemented features. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """REPL-TYPED-PROGRAM-INGRESS0-I0-R0 is closed: eval_line now uses the typed Program lifecycle and all ReplCompatibility Rust authority is zero. POST-MACRO-PROGRAM-ADMISSION0-D0 is the sole read-only design stop because public MacroBox may replace Program with an arbitrary root."""
+latest_card_summary = """POST-MACRO-PROGRAM-ADMISSION0-D0 accepted one shared source-only Program/NonProgram partition and caller-local compatibility execution. The sole executable row atomically moves the Stage1 direct Program branch to typed ingress while retaining only an explicitly sunset-bound NonProgram residual."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "POST-MACRO-PROGRAM-ADMISSION0-D0"
+current_blocker_token = "STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
