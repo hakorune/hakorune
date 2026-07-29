@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-I0-R0 is closed: selected non-Main static-Box lowering restores its prior compilation context on every exit. MIRBUILDER-LIVE-EDGE-CENSUS6 is the next stop; final conformance must settle JoinModule before Ownership, View, and later features."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS6 is closed: shared finalization declaration metadata is the next live mechanical replacement. MODULE-FINALIZATION-DECLARATION-METADATA0-I0-R0 is the sole executable row; final conformance must settle JoinModule before Ownership, View, and later features."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = ""
-current_execution_row = ""
-current_execution_summary = "Fresh live-edge census only: select at most one real production authority reduction or one bounded D0. Do not pre-authorize raw/static-Main, no-header Call, Loop/CorePlan, detached assets, JoinModule, Ownership, View, or features."
+current_execution_row = "MODULE-FINALIZATION-DECLARATION-METADATA0-I0-R0"
+current_execution_summary = "T0 atomic replacement: make finalize_module delegate its four existing compilation-context -> candidate-module declaration-metadata projections to one infallible prepared owner, then delete the inline projections. Preserve exact timing before existing refreshes and after prior fallible finalization stages. Do not alter refresh semantics, source grammar, Loop/CorePlan, JoinModule, Ownership, View, or features."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-I0-R0 is closed. One private Program scope installs a fresh compilation context for each deferred non-Main static Box and restores exactly the prior Option<BoxCompilationContext> on success, lowering error, and unwind; the selected direct open/clear pair is deleted. Raw static's four-state success-only transaction remains separate. MIRBUILDER-LIVE-EDGE-CENSUS6 is next; JoinModule, Ownership, View, and missing features remain parked as stated in the workstream."""
+latest_card_summary = """MIRBUILDER-LIVE-EDGE-CENSUS6 selected MODULE-FINALIZATION-DECLARATION-METADATA0-I0-R0. The shared finalizer must move its four declaration-metadata projections through one infallible prepared owner at the identical point before existing refreshes, deleting inline branches. Default normal/default JoinModule execution remains zero, but dev normalization and explicit VM/LLVM bridges are live separate boundaries; Loop/CorePlan/R3 stay parked. Ownership/View/features remain after conformance."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS6"
+current_blocker_token = "MODULE-FINALIZATION-DECLARATION-METADATA0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

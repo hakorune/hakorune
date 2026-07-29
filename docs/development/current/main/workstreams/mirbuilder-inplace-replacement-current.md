@@ -32,30 +32,50 @@ Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Latest landed: NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-I0-R0
 Result:        deferred non-Main static-Box lowering restores its exact prior
                compilation context on every exit
-Latest design: fresh live-edge census
-Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS6` is a design stop
+Latest design: finalization declaration-metadata owner
+Executable:    `MODULE-FINALIZATION-DECLARATION-METADATA0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
-## Current design stop
+## Current execution
 
-`MIRBUILDER-LIVE-EDGE-CENSUS6` — select one remaining authority edge
+`MODULE-FINALIZATION-DECLARATION-METADATA0-I0-R0` — T0 shared-finalizer extraction
 
 ```text
-Scope:
-  take a fresh production and explicit-compatibility census after the scoped
-  context closeout. Select at most one named replacement or one bounded D0.
+Change:
+  finalize_module delegates its four compilation-context declaration-metadata
+  projections to one infallible prepared owner and deletes the inline writes.
 
-Must preserve:
-  one execution, no fallback/retry, explicit non-growing compatibility sunsets,
-  and a same-commit old-edge deletion for every implementation row.
+Contract:
+  preserve order: prior finalization -> module.add_function -> declaration
+  metadata -> existing refreshes -> all-function PHI materialization. The
+  owner has no refresh, source, rejection, result, publication, or JoinModule
+  policy.
 
-Do not select automatically:
-  raw/static-Main, no-header Call, selected-invocation Loop/CorePlan, detached
-  assets, JoinModule, Ownership, View, or new language features.
+Done:
+  all four metadata lanes retain normal general-module parity; metadata changes
+  only at commit; focused finalization tests and the shared lane guard are green.
+
+Stop:
+  return to D0 if preparation becomes fallible, timing moves, disconnected
+  shell facts are needed, or refresh/finalization semantics enter scope.
 ```
 
-## Latest closeout
+## Latest selection
+
+```text
+MIRBUILDER-LIVE-EDGE-CENSUS6
+
+selected live edge                         = shared finalizer declaration metadata
+safe direct I0/R0                          = yes (T0)
+inline metadata projections                = 4
+default normal/default JoinModule execution = 0
+explicit dev-normalization / VM / LLVM     = separate live boundaries
+JoinModule inventory                        = 34,212 LOC (join_ir + vm_bridge + runner)
+next                                       = finalization declaration metadata I0/R0
+```
+
+## Previous closeout
 
 ```text
 NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-I0-R0
@@ -246,10 +266,9 @@ largest touched source/check file                       < 800
 
 ```text
 R1 Now
-  MIRBUILDER-LIVE-EDGE-CENSUS6
-  Freshly inventory live normal/default and explicit compatibility edges. It
-  may select one named replacement or one bounded D0; it cannot pre-authorize
-  a future implementation.
+  MODULE-FINALIZATION-DECLARATION-METADATA0-I0-R0
+  The shared finalizer has one selected live four-lane direct projection. T0
+  moves it into an infallible owner and deletes the inline authority.
 
 R2 Live responsibility replacement
   Census (no code) outputs exactly one of: one I0/R0 candidate, one bounded
@@ -290,8 +309,10 @@ AST/Recipe composition, and function-state/control residuals. They are census
 input, not a pre-authorized order. Whole-function accepted variants remain frozen.
 
 JoinModule remains out of R2 replacement commits, but not out of the completion
-definition. Its current 34,212-line inventory has no normal/default consumer and
-still serves explicit dev/strict, VM-reference, and LLVM experiment families.
+definition. Its 34,212-line inventory has no default normal/default execution
+consumer; it serves explicit dev-normalization, VM-reference, and LLVM
+experiment families. The count is join_ir + join_ir_vm_bridge + join_ir_runner
+and intentionally excludes bridge dispatch.
 R3 must classify it before Complete:
 
 ```text
