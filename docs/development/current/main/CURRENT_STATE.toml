@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Fresh production census selects the raw BlockExpr arm: move its all-prelude exit admission and ordered prelude/tail descent into one prepared owner, deleting the inline dispatcher authority without grammar or behavior change."
+status = "Raw BlockExpr now seals all-prelude exit admission before child effects and lowers only the prepared prelude/tail through one port; inline dispatcher policy and direct descent are deleted, and the next responsibility awaits a fresh production live-edge census."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RAW-BLOCKEXPR-PREPARED-DESCENT0-I0-R0"
-current_execution_summary = "T1 atomic replacement: BlockExpr arm prepares every prelude before effects, then consumes the sealed prelude and tail through the same port; inline dispatcher policy/descent is deleted."
+current_design_stop = "MIRBUILDER-POST-BLOCKEXPR-PREPARED-DESCENT-LIVE-EDGE-CENSUS0-D0"
+current_execution_row = ""
+current_execution_summary = ""
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-BLOCKEXPR-PREPARED-DESCENT0-I0-R0"
+current_blocker_token = "MIRBUILDER-POST-BLOCKEXPR-PREPARED-DESCENT-LIVE-EDGE-CENSUS0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

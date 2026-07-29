@@ -3,6 +3,7 @@
 //! RAWPORT0 keeps exactly one AST match tree here. The legacy facade still
 //! owns production behavior; later M0 commits parameterize this dispatcher
 //! with the invocation child port rather than adding a second matcher.
+mod block_expr;
 mod input_view;
 mod legacy_facade;
 mod statement_surface;
@@ -13,6 +14,7 @@ pub(in crate::mir::builder) use input_view::{
     RawBodyInputViewV1, RawLegacyBodyInputV1, RawLegacyStatementInputV1, RawStatementInputViewV1,
 };
 
+use self::block_expr::{lower_prepared_raw_block_expr_with_port_v1, PreparedRawBlockExprV1};
 use super::builder_build::PreparedRawNewExpressionV1;
 use super::calls::{
     lower_prepared_raw_function_preflight_with_port_v1, MethodCallDescentPortV1,
@@ -29,8 +31,8 @@ use super::ops::{
     RawLegacyBinaryInputV1, RawLegacyShortCircuitInputV1, ShortCircuitExpressionDescentPortV1,
 };
 use super::recursive_child_lowering::{
-    drive_legacy_expression_v1, drive_legacy_statement_v1, RawBoxMethodChildPortV1,
-    RawFunctionHeaderLookupPortV1, RawLoopChildEntryPortV1, RecursiveChildLoweringPortV1,
+    RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1, RawLoopChildEntryPortV1,
+    RecursiveChildLoweringPortV1,
 };
 use super::stmts::{
     drive_variable_assignment_v1, LocalStatementDescentPortV1, RawLegacyLocalInputV1,
@@ -433,23 +435,8 @@ impl super::MirBuilder {
                 tail_expr,
                 ..
             } => {
-                // Phase B2-6: BlockExpr in expression position.
-                //
-                // v1 safety contract: disallow non-local exits that can escape prelude scope.
-                // `break/continue` inside nested loops are allowed.
-                for stmt in &prelude_stmts {
-                    if stmt.contains_non_local_exit_outside_loops() {
-                        return Err(
-                            "[freeze:contract][blockexpr] exit stmt is forbidden in BlockExpr prelude"
-                                .to_string(),
-                        );
-                    }
-                }
-                for stmt in prelude_stmts {
-                    let _ = drive_legacy_statement_v1(self, port, stmt)?;
-                }
-
-                drive_legacy_expression_v1(self, port, *tail_expr)
+                let prepared = PreparedRawBlockExprV1::prepare(prelude_stmts, *tail_expr)?;
+                lower_prepared_raw_block_expr_with_port_v1(self, port, prepared)
             }
 
             _ => Err(format!("Unsupported AST node type: {:?}", ast)),

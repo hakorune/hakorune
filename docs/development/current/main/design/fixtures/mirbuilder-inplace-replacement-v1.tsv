@@ -59,7 +59,7 @@ cell	MIR-CLEANUP-EXIT-ADMISSION-SSOT0-I0-R0	FUNCTION-LIFECYCLE0	value-Return+voi
 cell	MATCH-LABEL-LITERAL-EMISSION-SSOT0-I0-R0	CONTROL0	build_peek_expression_with_port_v1:arm-label	MirBuilder::build_literal	peek-seven-way-LiteralValue-map+direct-emitters	cargo-test:all-seven-Match-labels+literal-facts	-	closed
 cell	RAW-THROW-COMPLETION-ROUTE-PREPARE-ONCE0-I0-R0	DESCENT-SPINE0	statement_surface.rs:Throw	PreparedRawThrowV1+sealed-completion-route	cf_throw*+MirBuilder-facade+lower-env-redecision	cargo-test:prepared-route+raw-port+cleanup-matrix	RAW-THROW-DEBUG-TRACE-COMPAT-SUNSET-001	closed
 cell	RAW-TASK-SCOPE-PREPARED-ADMISSION0-I0-R0	CONTROL0	statement_surface.rs:TaskScope	PreparedRawTaskScopeV1+prepared-same-port-lower	two-raw-terminals+duplicate-early-exit-admission+source-clones	cargo-test:admission-matrix+loop-owned-exits+source-order+failure	-	closed
-cell	RAW-BLOCKEXPR-PREPARED-DESCENT0-I0-R0	DESCENT-SPINE0	raw_expression_dispatch.rs:BlockExpr	PreparedRawBlockExprV1+prepared-same-port-descent	inline-exit-scan+diagnostic+prelude-loop+tail-descent	cargo-test:admission+order+failure+tail-once	-	selected
+cell	RAW-BLOCKEXPR-PREPARED-DESCENT0-I0-R0	DESCENT-SPINE0	raw_expression_dispatch.rs:BlockExpr	PreparedRawBlockExprV1+prepared-same-port-descent	inline-exit-scan+diagnostic+prelude-loop+tail-descent	cargo-test:admission+order+failure+tail-once	-	closed
 asset	PORT-AWARE-CALLABLE-DRAFT	DESCENT-SPINE0	-	port_aware_function_draft_impl.rs	-	-	IntegrateNow	closed
 asset	GENERIC-DRAFT-COLLECTOR	FUNCTION-LIFECYCLE0	-	module_draft_collector.rs	-	-	IntegrateNow	closed
 asset	CANDIDATE-SESSION	MODULE-LIFECYCLE0	-	module_invocation_session.rs	-	-	IntegrateNow	closed

@@ -72,6 +72,7 @@ def main() -> None:
     readme_path = "src/mir/builder/ops/README.md"
     ops_root_path = "src/mir/builder/ops/mod.rs"
     raw_dispatch_path = "src/mir/builder/raw_expression_dispatch/mod.rs"
+    block_expr_path = "src/mir/builder/raw_expression_dispatch/block_expr.rs"
     located_path = "src/mir/builder/located_legacy_lowering.rs"
     located_tests_path = (
         "src/mir/callable_result_representation/tests/located_legacy_lowering.rs"
@@ -98,6 +99,7 @@ def main() -> None:
     readme = read(root, readme_path)
     ops_root = read(root, ops_root_path)
     raw_dispatch = read(root, raw_dispatch_path)
+    block_expr = read(root, block_expr_path)
     located = read(root, located_path)
     located_tests = read(root, located_tests_path)
     short_circuit = read(root, short_circuit_path)
@@ -106,6 +108,81 @@ def main() -> None:
     short_circuit_parity_tests = read(root, short_circuit_parity_tests_path)
     located_short_circuit_tests = read(root, located_short_circuit_tests_path)
     logical_owner = read(root, logical_owner_path)
+
+    block_expr_production = block_expr.split("#[cfg(test)]", maxsplit=1)[0]
+    require_count(
+        block_expr_production,
+        "struct PreparedRawBlockExprV1",
+        1,
+        "BlockExpr prepared source owner",
+    )
+    require_count(
+        block_expr_production,
+        "fn lower_prepared_raw_block_expr_with_port_v1",
+        1,
+        "BlockExpr consuming lower terminal",
+    )
+    require_count(
+        block_expr_production,
+        "contains_non_local_exit_outside_loops",
+        1,
+        "BlockExpr sole all-prelude admission issuer",
+    )
+    require_count(
+        block_expr_production,
+        "[freeze:contract][blockexpr] exit stmt is forbidden in BlockExpr prelude",
+        1,
+        "BlockExpr exact admission diagnostic",
+    )
+    require_count(
+        block_expr_production,
+        "drive_legacy_statement_v1(builder, port, statement)?",
+        1,
+        "BlockExpr prepared prelude descent",
+    )
+    require_count(
+        block_expr_production,
+        "drive_legacy_expression_v1(builder, port, prepared.tail)",
+        1,
+        "BlockExpr prepared tail descent",
+    )
+    block_expr_lower = block_expr_production.split(
+        "fn lower_prepared_raw_block_expr_with_port_v1", maxsplit=1
+    )[1]
+    for forbidden in (
+        "contains_non_local_exit_outside_loops",
+        "[freeze:contract][blockexpr]",
+        "clone()",
+        "NyashParser",
+        "parse_",
+        "fallback",
+        "retry",
+        "LexicalScope",
+        "hint_scope",
+    ):
+        if forbidden in block_expr_lower:
+            fail(f"BlockExpr lower owns forbidden authority: {forbidden}")
+
+    require_count(
+        raw_dispatch,
+        "PreparedRawBlockExprV1::prepare(prelude_stmts, *tail_expr)?",
+        1,
+        "raw BlockExpr prepared admission caller",
+    )
+    require_count(
+        raw_dispatch,
+        "lower_prepared_raw_block_expr_with_port_v1(self, port, prepared)",
+        1,
+        "raw BlockExpr prepared lower caller",
+    )
+    for forbidden in (
+        "contains_non_local_exit_outside_loops",
+        "[freeze:contract][blockexpr]",
+        "drive_legacy_statement_v1",
+        "drive_legacy_expression_v1",
+    ):
+        if forbidden in raw_dispatch:
+            fail(f"raw dispatcher retains inline BlockExpr authority: {forbidden}")
 
     for fixture_text, expected_raw_calls, label in (
         (parity_tests, 3, "Binary parity"),
@@ -616,6 +693,7 @@ def main() -> None:
         readme_path,
         ops_root_path,
         raw_dispatch_path,
+        block_expr_path,
         located_path,
         located_tests_path,
         short_circuit_path,
