@@ -579,27 +579,26 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution row
-`RAW-LOOP-JOINIR-ENTRY-FACADE0-I0-R0` — closed
+`RAW-NEW-ROUTE-ONCE0-I0-R0` — accepted
 ```text
-Closeout: CONTROL0 / T1, one atomic I0/R0; old production edges = 0.
-Named callers:
-  RawLegacyChildLoweringPortV1::lower_loop
-  RawInvocationChildPortV1::lower_loop(NoChildFunctionEntry)
+Pack / ceremony: CALL-OBJECT0 / T1, one atomic I0/R0.
+Named caller: raw expression dispatcher ASTNode::New arm.
 New owner:
-  control_flow::joinir::routing::lower_loop_or_freeze_v1
+  PreparedRawNewExpressionV1 -> lower_prepared_raw_new_expression_with_port_v1
 Atomic delete:
-  MirBuilder::cf_loop definition and both live .cf_loop calls.
+  nested raw New entry, duplicate record classifier, and two caller-zero
+  no-port New facades.
 Keep:
-  child-entry classification before routing, reachable-Box fail-fast,
-  reject-detail clear/take order, JoinIR route and exact Freeze diagnostic.
+  record+fields vs record-empty error precedence, argument/source order,
+  Core13, IntegerBox, NewBox/type/origin, birth/header, and field-init policy.
 Forbid:
-  fake Loop port plumbing, route/recipe/env changes, fallback/retry,
-  grammar/result/publication, View, or Ownership changes.
+  post-prepare route redecision, child-port replacement, fallback/retry,
+  grammar/result/publication, record admission, View, or Ownership changes.
 Evidence:
-  raw Loop quarantine/parity tests, planner reject-detail tests, existing
-  JoinIR gates, cargo check, and shared replacement/pointer guards.
+  exact record diagnostic/effect precedence, header/birth parity, selected
+  New+field children, field-init integration, shared guards, and cargo check.
 ```
-New route-once and caller-zero cleanup remain candidates for fresh live census.
+Lambda capture observation and unrelated caller-zero cleanup remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)

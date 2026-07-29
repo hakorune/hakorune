@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Both raw Loop production callers enter one JoinIR routing/freeze owner; MirBuilder::cf_loop and its callers are zero."
+status = "The next live MirBuilder replacement makes the production New route classify record/non-record exactly once before effects."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-LOOP-ENTRY-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = "Read-only census the next production-reachable competing MirBuilder authority after Loop route ownership consolidation."
+current_design_stop = ""
+current_execution_row = "RAW-NEW-ROUTE-ONCE0-I0-R0"
+current_execution_summary = "Prepare one ordinary New route before effects, preserve exact record error precedence, and delete the nested raw New entry and duplicate classifier."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-LOOP-JOINIR-ENTRY-FACADE0-I0-R0 is closed. Both live RawLoopChildEntryPort callers use one JoinIR routing/freeze SSOT; MirBuilder::cf_loop and its callers are zero. Child-entry classification, exact diagnostics, grammar, View, and Ownership remain unchanged. Fresh live-edge census is required."""
+latest_card_summary = """The fresh census selected RAW-NEW-ROUTE-ONCE0-I0-R0. The production ASTNode::New arm issues one prepared ordinary-New route before Builder effects; record+fields and record-without-fields retain their exact distinct diagnostics. Duplicate record classification, nested raw New entry, and caller-zero New facades are deleted atomically."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-POST-LOOP-ENTRY-LIVE-EDGE-CENSUS0-D0"
+current_blocker_token = "RAW-NEW-ROUTE-ONCE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
