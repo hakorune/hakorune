@@ -35,7 +35,8 @@ PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
 LEGACYTERM_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_legacyterm_tests.rs"
 RAWPORT_TESTS = ROOT / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
 REENTRANT_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_reentrant_tests.rs"
-RAW_DISPATCH = ROOT / "src/mir/builder/raw_expression_dispatch.rs"
+RAW_DISPATCH = ROOT / "src/mir/builder/raw_expression_dispatch/mod.rs"
+INSTANCE_CONSTRUCTOR_BATCH = ROOT / "src/mir/builder/instance_box_constructor_batch.rs"
 RAW_PORT = ROOT / "src/mir/builder/recursive_child_lowering.rs"
 RAW_LOOP_ENTRY = ROOT / "src/mir/builder/raw_loop_child_entry.rs"
 LOOP_PLAN = ROOT / "src/mir/builder/control_flow/plan"
@@ -199,6 +200,7 @@ def main() -> int:
     rawport_tests = read(RAWPORT_TESTS)
     reentrant_tests = read(REENTRANT_TESTS)
     raw_dispatch = read(RAW_DISPATCH)
+    constructor_batch = read(INSTANCE_CONSTRUCTOR_BATCH)
     raw_port = read(RAW_PORT)
     raw_loop_entry = read(RAW_LOOP_ENTRY)
     consultation = read(SOURCE_CENSUS_DOC)
@@ -625,11 +627,9 @@ def main() -> int:
         "self.build_static_main_box(",
         "HEADERPORT0 P0 direct Main root bypass",
     )
-    require(
-        raw_dispatch,
-        "for (ctor_key, ctor_ast)",
-        "HEADERPORT0 P0 constructor traversal",
-    )
+    require(constructor_batch, "PreparedInstanceBoxConstructorBatchV1", "constructor batch")
+    require(constructor_batch, "port.lower_instance_box_method(", "constructor terminal")
+    forbid(raw_dispatch, "for (ctor_key, ctor_ast)", "caller-local constructor traversal")
     forbid(
         raw_dispatch,
         "self.lower_method_as_function(",
@@ -673,7 +673,7 @@ def main() -> int:
     require_count(
         raw_dispatch,
         "port.lower_instance_box_method(",
-        2,
+        1,
         "LEGACYTERM0 instance raw dispatch",
     )
     require_count(

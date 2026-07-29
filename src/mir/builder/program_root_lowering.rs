@@ -9,7 +9,8 @@ use crate::ast::ASTNode;
 use hakorune_mir_builder::BoxCompilationContext;
 
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
-use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
+use super::declaration_order::sorted_method_entries;
+use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
 use super::module_draft_collector::ModuleDraftCollectorV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortV1;
@@ -164,31 +165,8 @@ impl MirBuilder {
                         fields.clone(),
                         weak_fields.clone(),
                     )?;
-                    for (ctor_key, ctor_ast) in sorted_constructor_entries(constructors) {
-                        if let N::FunctionDeclaration {
-                            params,
-                            param_decls,
-                            return_type_name,
-                            body,
-                            uses,
-                            attrs,
-                            ..
-                        } = ctor_ast
-                        {
-                            let function_name = format!("{}.{}", name, ctor_key);
-                            callables.lower_instance_box_method(
-                                self,
-                                function_name,
-                                name.clone(),
-                                params.clone(),
-                                param_decls.clone(),
-                                return_type_name.clone(),
-                                body.clone(),
-                                uses.clone(),
-                                attrs.clone(),
-                            )?;
-                        }
-                    }
+                    PreparedInstanceBoxConstructorBatchV1::prepare(name, constructors)
+                        .lower_with_port_v1(self, callables)?;
                     for (method_name, method_ast) in sorted_method_entries(methods) {
                         if let N::FunctionDeclaration {
                             params,

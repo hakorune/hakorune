@@ -22,10 +22,11 @@ use super::calls::{
     lower_prepared_raw_function_preflight_with_port_v1, MethodCallDescentPortV1,
     PreparedRawFromCallV1, PreparedRawFunctionPreflightV1, RawLegacyMethodCallInputV1,
 };
-use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
+use super::declaration_order::sorted_method_entries;
 use super::exprs_enum_match::PreparedRawEnumMatchV1;
 use super::fields::PreparedRawFieldReadV1;
 use super::indexing::PreparedRawIndexReadV1;
+use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
 use super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use super::ops::{
@@ -295,31 +296,8 @@ impl super::MirBuilder {
                         fields.clone(),
                         weak_fields.clone(),
                     )?;
-                    for (ctor_key, ctor_ast) in sorted_constructor_entries(&constructors) {
-                        if let ASTNode::FunctionDeclaration {
-                            params,
-                            param_decls,
-                            return_type_name,
-                            body,
-                            uses,
-                            attrs,
-                            ..
-                        } = ctor_ast
-                        {
-                            let func_name = format!("{}.{}", name, ctor_key);
-                            port.lower_instance_box_method(
-                                self,
-                                func_name,
-                                name.clone(),
-                                params.clone(),
-                                param_decls.clone(),
-                                return_type_name.clone(),
-                                body.clone(),
-                                uses.clone(),
-                                attrs.clone(),
-                            )?;
-                        }
-                    }
+                    PreparedInstanceBoxConstructorBatchV1::prepare(&name, &constructors)
+                        .lower_with_port_v1(self, port)?;
                     for (method_name, method_ast) in sorted_method_entries(&methods) {
                         if let ASTNode::FunctionDeclaration {
                             params,

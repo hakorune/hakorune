@@ -601,10 +601,12 @@ def verify_nonmain_static_method_batch(
     card: str,
 ) -> None:
     batch = (root / "src/mir/builder/nonmain_static_box_method_batch.rs").read_text()
+    constructors = (root / "src/mir/builder/instance_box_constructor_batch.rs").read_text()
+    order = (root / "src/mir/builder/declaration_order.rs").read_text()
     program = (root / "src/mir/builder/program_root_lowering.rs").read_text()
     raw = (root / "src/mir/builder/raw_expression_dispatch/mod.rs").read_text()
-    if any(len(text.splitlines()) >= 800 for text in (batch, program, raw)):
-        raise AssertionError("non-Main static method-batch sources reached 800 lines")
+    if any(len(text.splitlines()) >= 800 for text in (batch, constructors, program, raw)):
+        raise AssertionError("Box member-batch sources reached 800 lines")
     require(builder_mod, "mod nonmain_static_box_method_batch;", "method-batch module")
     for fragment in (
         "PreparedNonMainStaticBoxMethodBatchV1",
@@ -631,7 +633,17 @@ def verify_nonmain_static_method_batch(
     forbid(raw, ".lower_static_box_method(", "raw caller-local static method dispatch")
     if (program + raw).count("PreparedNonMainStaticBoxMethodBatchV1::prepare(") != 2:
         raise AssertionError("static method batch must have exactly two production issuers")
+    for fragment in (
+        "PreparedInstanceBoxConstructorBatchV1",
+        "entries.sort_by(",
+        "port.lower_instance_box_method(",
+    ):
+        require(constructors, fragment, "instance constructor-batch authority")
+    forbid(order, "sorted_constructor_entries", "retired constructor order helper")
+    if (program + raw).count("PreparedInstanceBoxConstructorBatchV1::prepare(") != 2:
+        raise AssertionError("constructor batch must have exactly two production issuers")
     require(card, "NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0", "active method-batch row")
+    require(card, "INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0", "constructor-batch row")
 
 
 def verify_route_inventory_extension(

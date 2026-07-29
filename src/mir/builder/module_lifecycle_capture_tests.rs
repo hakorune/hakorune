@@ -1,5 +1,6 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl};
 use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
+use crate::mir::builder::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
 use crate::mir::builder::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use crate::mir::builder::program_root_lowering::ProgramDeferredStaticBoxLifecycleV1;
@@ -14,8 +15,11 @@ struct RecordingOrdinaryPortV1 {
     methods: Vec<(String, String, usize)>,
     static_methods: Vec<String>,
     static_context_active: Vec<bool>,
+    instance_methods: Vec<String>,
     fail_static_method: Option<String>,
+    fail_instance_method: Option<String>,
     record_only_static: bool,
+    record_only_instance: bool,
 }
 
 impl RawBoxMethodChildPortV1 for RecordingOrdinaryPortV1 {
@@ -72,6 +76,13 @@ impl RawBoxMethodChildPortV1 for RecordingOrdinaryPortV1 {
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
+        self.instance_methods.push(function_name.clone());
+        if self.fail_instance_method.as_deref() == Some(function_name.as_str()) {
+            return Err(format!("selected instance method failure: {function_name}"));
+        }
+        if self.record_only_instance {
+            return Ok(());
+        }
         RawLegacyChildLoweringPortV1.lower_instance_box_method(
             builder,
             function_name,
@@ -156,6 +167,21 @@ fn parsed_static_box(source: &str) -> (String, std::collections::HashMap<String,
         panic!("fixture must contain one static Box");
     };
     (name, methods)
+}
+
+fn parsed_instance_box(source: &str) -> (String, std::collections::HashMap<String, ASTNode>) {
+    let ASTNode::Program { mut statements, .. } =
+        NyashParser::parse_from_string(source).expect("instance Box source")
+    else {
+        panic!("parser must return Program");
+    };
+    let ASTNode::BoxDeclaration {
+        name, constructors, ..
+    } = statements.remove(0)
+    else {
+        panic!("fixture must contain one instance Box");
+    };
+    (name, constructors)
 }
 
 #[test]
@@ -260,6 +286,50 @@ fn nonmain_static_method_batch_sorts_projects_and_keeps_ordinary_main() {
         port.static_methods,
         vec!["Helpers.alpha/1", "Helpers.main/0", "Helpers.omega/0"]
     );
+}
+
+#[test]
+fn instance_constructor_batch_sorts_projects_and_skips_non_function_rows() {
+    let (name, mut constructors) = parsed_instance_box(
+        "box Page { birth(value, extra) { return value } birth() { return 0 } }",
+    );
+    let ASTNode::Program { mut statements, .. } =
+        NyashParser::parse_from_string("42").expect("non-function constructor-map fixture")
+    else {
+        panic!("parser must return Program");
+    };
+    constructors.insert("ignored/0".to_owned(), statements.remove(0));
+    let mut builder = MirBuilder::new();
+    let mut port = RecordingOrdinaryPortV1 {
+        record_only_instance: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+
+    PreparedInstanceBoxConstructorBatchV1::prepare(&name, &constructors)
+        .lower_with_port_v1(&mut builder, &mut port)
+        .expect("prepared constructor batch");
+
+    assert_eq!(port.instance_methods, vec!["Page.birth/0", "Page.birth/2"]);
+}
+
+#[test]
+fn instance_constructor_batch_stops_after_first_failure() {
+    let (name, constructors) = parsed_instance_box(
+        "box Page { birth(value, extra) { return value } birth(value) { return value } birth() { return 0 } }",
+    );
+    let mut builder = MirBuilder::new();
+    let mut port = RecordingOrdinaryPortV1 {
+        fail_instance_method: Some("Page.birth/1".to_owned()),
+        record_only_instance: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+
+    let error = PreparedInstanceBoxConstructorBatchV1::prepare(&name, &constructors)
+        .lower_with_port_v1(&mut builder, &mut port)
+        .expect_err("selected constructor must fail");
+
+    assert_eq!(error, "selected instance method failure: Page.birth/1");
+    assert_eq!(port.instance_methods, vec!["Page.birth/0", "Page.birth/1"]);
 }
 
 #[test]

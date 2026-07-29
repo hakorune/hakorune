@@ -56,6 +56,7 @@ mod function_lowering_state;
 #[allow(dead_code)]
 mod function_signature_lookup; // HEADERPORT0-S0 neutral header lookup surface
 mod function_state_transaction;
+mod instance_box_constructor_batch;
 mod located_legacy_lowering;
 #[allow(dead_code)]
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion

@@ -23,16 +23,9 @@ pub(super) fn sorted_method_entries<'a>(
     sorted_named_ast_entries(methods)
 }
 
-/// Constructors share the same deterministic traversal seam.
-pub(super) fn sorted_constructor_entries<'a>(
-    constructors: &'a HashMap<String, ASTNode>,
-) -> Vec<(&'a str, &'a ASTNode)> {
-    sorted_named_ast_entries(constructors)
-}
-
 #[cfg(test)]
 mod tests {
-    use super::{sorted_constructor_entries, sorted_method_entries};
+    use super::sorted_method_entries;
     use crate::ast::{ASTNode, DeclarationAttrs, Span};
     use std::collections::HashMap;
 
@@ -65,19 +58,5 @@ mod tests {
             .map(|(name, _)| name)
             .collect();
         assert_eq!(names, vec!["birth", "step", "step_chain"]);
-    }
-
-    #[test]
-    fn sorted_constructor_entries_ignore_hashmap_order() {
-        let mut ctors = HashMap::new();
-        ctors.insert("birth/2".to_string(), empty_fn());
-        ctors.insert("birth/0".to_string(), empty_fn());
-        ctors.insert("birth/1".to_string(), empty_fn());
-
-        let names: Vec<&str> = sorted_constructor_entries(&ctors)
-            .into_iter()
-            .map(|(name, _)| name)
-            .collect();
-        assert_eq!(names, vec!["birth/0", "birth/1", "birth/2"]);
     }
 }

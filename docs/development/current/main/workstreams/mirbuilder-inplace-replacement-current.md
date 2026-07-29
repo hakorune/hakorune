@@ -72,9 +72,9 @@ Closed:  REPL-TYPED-PROGRAM-INGRESS0-D0
 Closed:  REPL-TYPED-PROGRAM-INGRESS0-I0-R0
 Closed:  POST-MACRO-PROGRAM-ADMISSION0-D0
 Closed:  STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0
-Current: INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0
-Pack:    FUNCTION-LIFECYCLE0
-Ceremony: T0, one atomic production replacement
+Current: MIRBUILDER-POST-CONSTRUCTOR-BATCH-LIVE-EDGE-CENSUS0-D0
+Pack:    read-only live-edge census
+Ceremony: design stop; production edit 0
 ```
 
 R1 closeout:
@@ -821,43 +821,64 @@ quick gate                                           = unrelated pre-existing
   docs/reference/language/EBNF.md naming-token failure
 ```
 
-## Current execution brief
+## Current design stop
 
-`INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0` / parent
-`MIRBUILDER-POST-STATIC-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0` / T0 /
-`FUNCTION-LIFECYCLE0`.
+`MIRBUILDER-POST-CONSTRUCTOR-BATCH-LIVE-EDGE-CENSUS0-D0`
 
 ```text
-Change:
-  prepare one PreparedInstanceBoxConstructorBatchV1 and consume it through
-  RawBoxMethodChildPortV1. In the same commit delete both Program-root and raw
-  instance-Box copies of constructor sorting, FunctionDeclaration projection,
-  Box.constructor-key symbol construction, clone bundle, and direct dispatch.
-  Delete sorted_constructor_entries if its production/test surface becomes
-  caller-zero.
+Read-only:
+  enumerate remaining live competing MirBuilder authorities after the
+  constructor-batch closeout. Select at most one named production edge whose
+  old authority can be deleted in the same bounded replacement commit.
 
-Contract:
-  preserve lexical constructor-key order, non-Function skip, exact symbol,
-  and stop-on-constructor-N failure. Field registration and
-  build_box_declaration remain before the batch; failure still skips later
-  constructors and all ordinary methods while retaining partial candidate
-  state. Ordinary methods, Main/static routes, and publication do not move.
-
-Done:
-  both named production callers use one constructor-batch owner and both old
-  constructor-policy copies are zero. Focused order/skip/failure evidence,
-  existing Program/raw parity, and compacted shared guards are green.
-
-Stop:
-  return to design if the batch needs catalog/canonical-key authority, a new
-  failure owner, different constructor spelling/order, ordinary-method or
-  field lifecycle ownership, another port, fallback/retry, or any
-  source/check file reaches 800 lines.
+Do not:
+  infer the next row from historical queues, add a whole-function accepted
+  variant, widen grammar, start View/Ownership, or build a caller-zero route.
 ```
 
-Lambda capture collector SSOT is the strongest designed follow-up candidate,
-but is not bundled. Main helper batching and Match hygiene also remain
-separate. Feature additions remain parked.
+## Latest closeout
+
+`INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0` / T0 /
+`FUNCTION-LIFECYCLE0` is closed.
+
+```text
+new owner:
+  PreparedInstanceBoxConstructorBatchV1
+
+named production issuers:
+  Program-root instance Box = 1
+  raw instance Box          = 1
+
+deleted:
+  both caller-local constructor sort/projection/symbol/clone/dispatch loops
+  sorted_constructor_entries helper and its caller-zero test
+
+preserved:
+  field registration and build_box_declaration ordering
+  ordinary instance-method routes
+  Main/static behavior
+  stop-on-constructor-N failure and partial candidate state
+  grammar/result/publication behavior
+  fallback/retry/reselection = 0
+
+evidence:
+  lexical order/non-Function skip/first-failure stop = green
+  nested constructor and depth-three capture paths   = green
+  general Program parity and compiler reuse          = green
+  focused shared guard and binary-only lane guard    = green
+  full legacy module-draft/headerport guard           = pre-existing stale
+    port_aware_function_draft.rs path failure before selected assertions
+  release build                                      = green
+  quick gate                                         = unrelated pre-existing
+    docs/reference/language/EBNF.md naming-token failure
+  new source file                                    = 1, 91 lines
+  new test/check file                                = 0
+  largest touched source/check file                  = 799
+```
+
+Lambda capture collector SSOT is a pre-designed candidate only. Main helper
+batching and Match hygiene also remain unselected. Feature additions remain
+parked until a fresh live-edge census selects one bounded replacement.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)
@@ -1000,7 +1021,8 @@ R45 PROGRAM-ROOT-DEFERRED-STATIC-BOX-LIFECYCLE0-I0-R0 closed
 R46 MIRBUILDER-POST-DEFERRED-STATIC-BOX-LIVE-EDGE-CENSUS0-D0 closed: method-batch SSOT selected
 R47 NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0 closed
 R48 MIRBUILDER-POST-STATIC-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0 closed: constructor batch selected
-R49 INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0 current
+R49 INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0 closed
+R50 MIRBUILDER-POST-CONSTRUCTOR-BATCH-LIVE-EDGE-CENSUS0-D0 current design stop
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
