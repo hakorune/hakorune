@@ -23,10 +23,13 @@ pub(in crate::mir::builder) enum NormalLegacyCollectorDrainErrorV1 {
 
 impl std::fmt::Display for NormalLegacyCollectorDrainErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            formatter,
-            "[freeze:contract][normal-collector-drain] {self:?}"
-        )
+        match self {
+            Self::Publication(error) => error.fmt(formatter),
+            _ => write!(
+                formatter,
+                "[freeze:contract][normal-collector-drain] {self:?}"
+            ),
+        }
     }
 }
 

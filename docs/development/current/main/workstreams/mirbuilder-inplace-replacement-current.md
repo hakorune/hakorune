@@ -29,38 +29,46 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: NORMAL-PROGRAM-COLLECTOR-DRAIN0-S0
-Result:        collector final rows retain legacy admission/replacement facts;
-               normal drain preflight owns the candidate-module loan
-Latest design: NORMAL-PROGRAM-COLLECTOR-DRAIN0-D0 accepted
-Executable:    NORMAL-PROGRAM-COLLECTOR-DRAIN0-I0-R0 (immediate follow-up)
+Latest landed: NORMAL-PROGRAM-COLLECTOR-DRAIN0-I0-R0
+Result:        selected normal root drains final collector rows through one prepared
+               legacy terminal; direct extraction/module insertion is zero
+Latest design: fresh live-edge census required
+Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS1` is a design stop
 History:       Git history and the short landed tail below
 ```
 
 ## Current execution
 
-`NORMAL-PROGRAM-COLLECTOR-DRAIN0-I0-R0` — T2 integration / retirement
-
-Decision: the collector's final rows, not a source re-read, are the normal
-draft correspondence authority. The completed S0 retains each final legacy
-admission/replacement record and has sealed the only prepared drain.
+`MIRBUILDER-LIVE-EDGE-CENSUS1` — read-only design stop
 
 ```text
-Change:
-  In the selected Program root, consume `prepare_normal_legacy_drain(...).commit()` once and
-  delete `collector.into_draft_functions() -> current_module.try_add_functions_atomic(...)`.
+Select:
+  at most one named live production authority whose replacement can delete its
+  exact old edge in the same commit; otherwise record the bounded D0 required.
 
-Contract:
-  Preserve final collector key order, symbol/arity, `LegacyReplaceWholePair`, RootLower error
-  mapping, candidate discard/reuse, and one atomic candidate-module insertion.
+Do not:
+  add a production-zero route, expand compatibility, resurrect a whole-function
+  acceptance variant, or start Ownership/View/features before final conformance.
 
-Done:
-  Selected normal direct extraction/insertion is zero; general parity, collision rejection, and
-  failure-then-reuse are green through the one new drain terminal.
+Require:
+  one execution, no retry/fallback, explicit compatibility sunset when one remains,
+  and a fresh caller/owner census before naming an implementation row.
+```
 
-Stop:
-  Return to design if normal emits a non-legacy final key/policy, RootLower mapping moves, or any
-  source re-read, second collector, policy conversion, partial publication, retry, or fallback is required.
+## Latest closeout
+
+```text
+NORMAL-PROGRAM-COLLECTOR-DRAIN0-I0-R0
+
+selected direct `collector.into_draft_functions()`                 = 0
+selected direct `try_add_functions_atomic(drafts)`                 = 0
+prepared final-row normal legacy drain -> atomic commit            = exactly one
+legacy symbol/replacement admission and RootLower mapping          = preserved
+normal general parity / collision / reuse / imports                = green
+fallback / retry / grammar / result / publication delta            = 0
+new source/test/check file                                         = 1 / 0 / 0
+largest touched source/check file                                  < 800
+next                                                               = fresh live-edge census
 ```
 
 ## Latest closeout
@@ -144,13 +152,12 @@ largest touched source/check file                       < 800
 
 ```text
 Now
-  1 NORMAL-PROGRAM-COLLECTOR-DRAIN0-I0-R0
+  1 MIRBUILDER-LIVE-EDGE-CENSUS1
 
 Then, repeat
-  2 fresh live-edge census
-  3 select at most one named production edge or detached Delete asset
-  4 switch it and delete its old authority in the same commit
-  5 return to step 2
+  2 select at most one named production edge or detached Delete asset
+  3 switch it and delete its old authority in the same commit
+  4 return to step 1
 
 When live cleanup reaches closure
   6 MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0

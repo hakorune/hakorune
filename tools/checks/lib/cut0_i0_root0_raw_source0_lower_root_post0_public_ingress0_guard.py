@@ -678,16 +678,8 @@ def main() -> int:
     require(stage1, post_macro.get("typed_rejection_anchor", ""), "Stage1 typed rejection")
     for key in ("sunset_id", "retire_row"):
         require(current_workstream, post_macro.get(key, ""), f"Stage1 compatibility {key}")
-    require(
-        program_root_lowering,
-        "lower_normal_default_program_root_catalog_v1",
-        "selected Program-only root kernel",
-    )
-    require(
-        program_root_lowering,
-        "lower_program_root_with_callable_port_v1",
-        "shared generic Program kernel",
-    )
+    require(program_root_lowering, "lower_normal_default_program_root_catalog_v1", "selected Program-only root kernel")
+    require(program_root_lowering, "lower_program_root_with_callable_port_v1", "shared generic Program kernel")
     if program_root_lowering.count("self.lower_program_root_with_callable_port_v1(") != admission.get(
         "selected_program_kernel_calls"
     ):
@@ -696,6 +688,10 @@ def main() -> int:
     require(program_root_lowering, f"struct {deferred_owner}", "deferred static Box owner")
     if program_root_lowering.count(f"{deferred_owner}::new(name, methods)") != 1:
         raise AssertionError("deferred static Box production handoff drift")
+    if any(token in program_root_lowering for token in ("collector.into_draft_functions()", ".try_add_functions_atomic(")):
+        raise AssertionError("selected Program collector direct drain returned")
+    if program_root_lowering.count(".prepare_normal_legacy_drain(target)") != 1:
+        raise AssertionError("selected Program normal collector drain caller drift")
     mirbuilder_impl = program_root_lowering.split("impl MirBuilder", maxsplit=1)[1]
     for retired in ("self.comp_ctx.compilation_context = Some(", "self.comp_ctx.compilation_context = None"):
         if retired in mirbuilder_impl:

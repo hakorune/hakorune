@@ -90,14 +90,18 @@ impl MirBuilder {
                 statements, snapshot, expansion, &mut port,
             )
         }?;
-        let drafts = collector.into_draft_functions();
-        self.current_module
+        let target = self
+            .current_module
             .as_mut()
-            .ok_or_else(|| "[freeze:contract][mir/callable-collector/module-missing]".to_owned())?
-            .try_add_functions_atomic(drafts)
-            .map_err(|error| {
+            .ok_or_else(|| "[freeze:contract][mir/callable-collector/module-missing]".to_owned())?;
+        let prepared = collector
+            .prepare_normal_legacy_drain(target)
+            .map_err(|rejected| {
+                let error = rejected.error().to_string();
+                rejected.discard();
                 format!("[freeze:contract][mir/callable-collector/atomic-commit] {error}")
             })?;
+        prepared.commit();
         Ok(result)
     }
 
