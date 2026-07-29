@@ -95,37 +95,57 @@ Closed:  MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0
 Closed:  VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0
 Closed:  MIRBUILDER-POST-VERIFIED-MAIN-ROOT-HANDOFF-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0
-Current: MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0
-Mode:    read-only census; no implementation
+Closed:  MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0
+Current: RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0
+Mode:    one atomic T1 I0/R0
 ```
 
 ## Current execution brief
 
-`MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0` / parent
-R75 / read-only design stop
+`RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0` / T1 / parent
+`MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0`
 
 ```text
-Read:
-  Perform a fresh live production-edge census after raw static-Main
-  compatibility stopped retaining/reclassifying raw AST in Lower.
+Change:
+  RawLegacyChildLoweringPortV1::lower_static_main_box
+  -> PreparedRawStaticMainBoxCompatibilityV1::prepare(...)
+  -> lower_with_port_v1(builder, self)
+  Delete build_static_main_box, build_static_main_box_typed, and
+  build_static_main_box_with_port_v1 in the same commit.
 
-  Do not select legacy `JoinModule` work in this R2/R3 census.  Its broad
-  file count is not a current edge metric, and legacy JoinModule must not be
-  revived as a second final planner.  At repository-wide final-pipeline
-  completion, record one explicit disposition: retire the remaining
-  carrier/boundary surfaces, or retain each named surface with its scope,
-  caller census, and prohibition on final-pipeline authority.  Completion
-  cannot be declared without that decision.
+Contract:
+  Keep one existing prepared compatibility owner, helper/root order, first
+  failure, missing/non-function Main diagnostics, and raw child port semantics.
+  Grammar, result, publication, View, Ownership, and JoinModule do not move.
+  RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001 remains active with a smaller surface.
 
-Select only if:
-  one named caller has a competing authority; one bounded owner can replace it;
-  the same commit can delete the exact old edge; any compatibility owner has a
-  named sunset row and retirement condition; fallback/retry remains zero.
+Done:
+  Three facade definitions/callers and fresh raw-port construction are zero;
+  focused raw/verified Main ordering, general-module parity, late failure/reuse,
+  reusable lane guard, pointer guard, and release build are green.  The caller
+  manifest records the remaining prepared compatibility owner and sunset.
 
-Do not select:
-  new accepted-program variants, caller-zero proof routes, grammar work,
-  View/Ownership activation, or a compatibility wrapper without a deletion
-  target.
+Stop:
+  Return to design if direct handoff needs a second compatibility route,
+  different error mapping/order, new failure authority, fallback/retry, or a
+  source/check file at 800 lines.
+```
+
+Following task: `MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0`
+only.  Instance-Box metadata projection and Lambda capture observation remain
+candidate shelf entries until that fresh census selects one production edge.
+
+Fixed phase order:
+
+```text
+R2/R3 live-authority cleanup
+-> MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0
+   (including explicit legacy JoinModule disposition)
+-> OWNERSHIP-SPARSE-RESUME-D0
+-> Ownership packs A-D
+-> Anchored View pack E
+-> OWNERSHIP-SPARSE-PRODUCT-READINESS-D0
+-> later unimplemented features, one decision at a time
 ```
 
 ## Latest closeout
@@ -1404,7 +1424,8 @@ R72 MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0 closed
 R73 VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0 closed
 R74 MIRBUILDER-POST-VERIFIED-MAIN-ROOT-HANDOFF-LIVE-EDGE-CENSUS0-D0 closed: raw static-Main compatibility batch selected
 R75 RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0 closed
-R76 MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0 current
+R76 MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0 closed: raw static-Main facade retirement selected
+R77 RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

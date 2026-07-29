@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0 closed at 67b5fb8467. Explicit raw Main compatibility now consumes one prepared source partition; the old Lower-side sorted helper AST loop, helper FunctionDeclaration re-match, methods.get(\"main\"), and raw Main root matcher are deleted. Helper/root order, first failure, and missing/non-function Main diagnostics are preserved. RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001 remains active. The current stop is MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0: select one next production edge from the current R2/R3 boundary; legacy JoinModule is outside that selection and receives a mandatory disposition decision only at repository-wide final-pipeline completion. Grammar, result, View, and Ownership remain unchanged."
+status = "MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0 closed. The census selected RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0: RawLegacyChildLoweringPortV1 still reaches PreparedRawStaticMainBoxCompatibilityV1 through three MirBuilder facade layers and creates a fresh raw legacy port. The selected T1 row connects the named production port directly to the prepared compatibility owner and deletes all three facades in the same commit. RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001 remains active but its surface shrinks. Grammar, result, View, Ownership, and JoinModule remain unchanged."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = "Read-only census only: choose one live competing production authority from the current R2/R3 boundary. Require a named caller, one bounded owner, exact same-commit old-edge deletion, a sunset condition for any compatibility owner, and zero fallback/retry. Legacy JoinModule disposition is reserved for repository-wide final-pipeline completion."
+current_design_stop = ""
+current_execution_row = "RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0"
+current_execution_summary = "Connect RawLegacyChildLoweringPortV1::lower_static_main_box directly to PreparedRawStaticMainBoxCompatibilityV1; delete build_static_main_box, build_static_main_box_typed, and build_static_main_box_with_port_v1 while preserving raw Main helper/root order, diagnostics, and zero fallback/retry."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, and raw static-Main compatibility lower-side source classification are deleted. A fresh live-edge census is current; it selects only an exact R2/R3 production replacement. Legacy JoinModule is not a current replacement target: its carrier/boundary disposition (retire versus explicitly retain) is a mandatory repository-wide final-pipeline completion decision. RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001 remains active. View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, and raw static-Main compatibility lower-side source classification are deleted. RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0 is current: it removes three facade layers between RawLegacyChildLoweringPortV1 and the prepared compatibility owner. RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001 remains active. Legacy JoinModule disposition belongs to repository-wide final conformance; View/Ownership and other unimplemented features remain parked until final pipeline completion. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0 is selected as one atomic T0 replacement. RawInvocationChildPortV1 keeps exactly one params/param_decls normalization pair before observation and legacy admission; capture_instance_box_method_pending_v1 becomes a normalized-input-only private terminal and its duplicate policy calls are deleted."""
+latest_card_summary = """RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0 is selected as one atomic T1 replacement. RawLegacyChildLoweringPortV1 connects directly to PreparedRawStaticMainBoxCompatibilityV1; the three MirBuilder facade layers and fresh raw-port reselection are deleted while the compatibility sunset remains explicit."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0"
+current_blocker_token = "RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
