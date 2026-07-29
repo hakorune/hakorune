@@ -99,33 +99,46 @@ Closed:  MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0
 Closed:  MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0
 Closed:  INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0
-Current: MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0
-Mode:    read-only census; no implementation
+Closed:  MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0
+Current: RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0
+Mode:    one atomic T1 I0/R0
 ```
 
 ## Current execution brief
 
-`MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0` / parent
-R79 / read-only design stop
+`RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0` / T1 / parent
+`MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0`
 
 ```text
-Read:
-  Perform a fresh live production-edge census after instance-Box metadata
-  projection. Candidate shelf entries do not select work.
+Change:
+  Prepare one raw non-Main static-Box lifecycle from the already-classified
+  dispatcher input. Delete the dispatcher-owned app-mode branch, method-batch
+  preparation, user-box registration, raw transaction success/rejection, and
+  declaration Void completion in the same commit.
 
-Select only if:
-  one named caller has a competing authority; one bounded owner can replace it;
-  the same commit can delete the exact old edge; any compatibility owner has a
-  named sunset and retirement condition; fallback/retry remains zero.
+Contract:
+  Preserve raw app-mode Void behavior; for non-App mode preserve registration
+  -> ActiveRawStaticBoxCompilationStateV1 -> sorted existing batch -> exact
+  success restore or rejected discard -> Void. Do not merge Program deferred
+  static-Box state semantics, move its timing, change ports, grammar, result,
+  publication, compatibility sunsets, View, Ownership, or JoinModule.
 
-Do not select:
-  new accepted-program variants, caller-zero proof routes, grammar work,
-  View/Ownership activation, legacy JoinModule work, or a compatibility wrapper
-  without a deletion target.
+Done:
+  build_expression_impl_with_port_v1 has one prepared-owner handoff for the
+  raw non-Main static Box branch; its old inline lifecycle authority is zero.
+  Existing raw static-Box success/failure, normal parity/reuse, reusable
+  guards, and release build are green. All touched source/check files remain
+  below 800 lines.
+
+Stop:
+  Return to design if this requires a shared Program/raw transaction, changes
+  Program deferred-static timing, retains an inline lifecycle adapter, adds a
+  compatibility owner/fallback/retry, or needs a non-cohesive line-cap split.
 ```
 
-Instance-Box metadata projection is closed. Lambda capture observation remains
-a D0 shelf entry until this fresh census selects a live production edge.
+Following task: `MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0`
+only. Lambda capture observation and Program-root statement single-pass
+partition remain D0 shelf entries.
 
 Fixed phase order:
 
@@ -1416,7 +1429,8 @@ R76 MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0 closed: ra
 R77 RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0 closed
 R78 MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0 closed: instance-Box metadata projection selected
 R79 INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0 closed
-R80 MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0 current
+R80 MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0 closed: raw non-Main static-Box lifecycle handoff selected
+R81 RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
