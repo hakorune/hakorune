@@ -68,9 +68,10 @@ Closed:  NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0
 Closed:  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0
 Closed:  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0
 Closed:  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0
-Current: REPL-TYPED-PROGRAM-INGRESS0-D0
+Closed:  REPL-TYPED-PROGRAM-INGRESS0-D0
+Current: REPL-TYPED-PROGRAM-INGRESS0-I0-R0
 Pack:    ROOT-LIFECYCLE0
-Ceremony: T1, read-only design audit
+Ceremony: T1, one atomic I0/R0
 ```
 
 R1 closeout:
@@ -554,35 +555,49 @@ new source/test/check file                   = 0
 largest touched source/check file            = 799
 ```
 
-## Current design stop
+## Current implementation brief
 
-`REPL-TYPED-PROGRAM-INGRESS0-D0`
+`REPL-TYPED-PROGRAM-INGRESS0-I0-R0`
 
 ```text
-Mode:
-  T1 read-only audit; production Rust edit = 0
-
 Named edge:
   ReplRunnerBox::eval_line
   -> compile_legacy(ReplCompatibility, <repl>)
 
 Source authority:
-  REPL wraps each line in static Main Program
-  ReplAstRewriter must preserve Program exactly
+  eval_line parse success produces static Main Program
+  parser-owned pruning/lowering and the Program rewrite arm preserve Program
+  ReplAstRewriter outside this production chain is not claimed Program-only
 
-Candidate:
+Change:
   one dedicated typed Program request
   exact <repl> source hint and empty Builder imports
   preserve repl_mode=true, quiet mode, plugin signatures,
-  ContinueLive, Legacy finish, diagnostics, and success-only commit
+  ContinueLive, optimize=true, Legacy finish/result, diagnostics,
+  success-only commit, VM/session, rewrite, and auto-display
 
-Required future atomic delete:
+Atomic delete:
   REPL compile_legacy edge
-  ReplCompatibility origin/constructor/raw-binding authority
+  LegacyModuleOriginV1::ReplCompatibility
+  LegacyModuleLoweringInputV1::repl_compatibility
+  RawSourceOriginV1::ReplCompatibility and raw-binding arm
 
-Non-claims:
-  REPL session/VM/rewrite/grammar, View/Ownership, backend, and result policy
-  do not change; reject the cutover if Program or config parity is incomplete
+Keep:
+  BareAst and global legacy candidate/build_module compatibility
+  runtime AST-JSON and direct ProgramV0 bridge
+
+Evidence:
+  parse/rewrite Program retention
+  full MIR/metadata/verification/error and config parity
+  late failure/live Builder reuse
+  vm-reference production build
+  live caller manifest and repository-zero old-symbol census
+
+Stop:
+  Program or config parity fails; imports are nonempty; fallback/retry or a
+  second compile is required; REPL grammar/VM/session/backend/View/Ownership
+  changes; historical resolved-ingress inventory needs a partial rebaseline;
+  a new file/guard is required; or any source/check file reaches 800 lines
 ```
 
 Compatibility sunset:
@@ -669,7 +684,8 @@ R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
 R6  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0 closed
 R7  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0 closed
-R8  REPL-TYPED-PROGRAM-INGRESS0-D0 current
+R8  REPL-TYPED-PROGRAM-INGRESS0-D0 closed
+R9  REPL-TYPED-PROGRAM-INGRESS0-I0-R0 current
 
 after every bounded retirement:
   run a fresh live-edge census
