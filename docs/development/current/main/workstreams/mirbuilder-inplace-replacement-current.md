@@ -29,39 +29,41 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: RAW-CHECK-LEGACY-FACADE-RETIRE0-RET0
-Result:        caller-zero ambient Check port facade is deleted; dispatcher keeps
-               the sole port-aware Check owner
-Latest design: fresh census selected the indirect Call facade delete
-Executable:    RAW-INDIRECT-CALL-LEGACY-FACADE-RETIRE0-RET0
+Latest landed: RAW-INDIRECT-CALL-LEGACY-FACADE-RETIRE0-RET0
+Result:        caller-zero ambient indirect-Call port facade is deleted;
+               dispatcher keeps the sole with-port Call owner
+Latest design: fresh live-edge census required
+Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS4` is a design stop
 History:       Git history and the short landed tail below
 ```
 
 ## Current execution
 
-`RAW-INDIRECT-CALL-LEGACY-FACADE-RETIRE0-RET0` — T0 caller-zero deletion
+`MIRBUILDER-LIVE-EDGE-CENSUS4` — read-only design stop
 
 ```text
-Delete:
-  `MirBuilder::build_indirect_call_expression`, its ambient
-  `RawLegacyChildLoweringPortV1` construction, and its import.
-
-Keep:
-  raw dispatcher -> `build_indirect_call_expression_with_port_v1(port, callee,
-  arguments)` exactly once. Argument descent, unified-call mode selection, and
-  direct `CallTarget::Value` emission remain owned by that existing terminal.
-
-Acceptance:
-  non-test direct facade callers = 0; with-port dispatcher call = 1; fallback,
-  retry, grammar, route, MIR, and result delta = 0; no new source/test/check file;
-  all source/check files < 800.
-
-Stop:
-  return to D0 if a non-test caller appears or deletion requires a legacy re-entry,
-  unified-call policy change, new compatibility route, or altered argument order.
+Select at most one named live production authority or caller-zero facade with an
+exact same-commit old-edge deletion. A detached RET0 must not hide a live-owner
+decision; return to D0 when the candidate needs port, argument-order, control,
+allocation, ownership, or compatibility-surface changes.
 ```
 
 ## Latest closeout
+
+```text
+RAW-INDIRECT-CALL-LEGACY-FACADE-RETIRE0-RET0
+
+`build_indirect_call_expression` facade                           = 0
+ambient production `RawLegacyChildLoweringPortV1`                  = 0
+raw dispatcher -> with-port indirect-Call owner                   = exactly one
+raw-port Call regression / shared guard / cargo check             = green
+fallback / retry / grammar / result / Call policy delta           = 0
+new source/test/check file                                        = 0 / 0 / 0
+largest touched source/check file                                 < 800
+next                                                              = fresh live-edge census
+```
+
+## Previous closeout
 
 ```text
 RAW-CHECK-LEGACY-FACADE-RETIRE0-RET0
@@ -189,9 +191,8 @@ largest touched source/check file                       < 800
 
 ```text
 R1 Now
-  RAW-INDIRECT-CALL-LEGACY-FACADE-RETIRE0-RET0
-  Delete only the caller-zero ambient facade; the existing with-port owner is
-  already selected by the shared dispatcher.
+  MIRBUILDER-LIVE-EDGE-CENSUS4
+  Select one exact current edge or record the D0 it requires.
 
 R2 Live responsibility replacement
   fresh census -> one exact edge or one bounded D0 -> same-cell I0/R0

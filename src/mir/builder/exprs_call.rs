@@ -2,20 +2,10 @@ use super::ValueId;
 use crate::ast::ASTNode;
 use crate::mir::builder::calls::drive_call_arguments_v1;
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1,
 };
 
 impl super::MirBuilder {
-    // Indirect call: (callee)(args...)
-    pub(super) fn build_indirect_call_expression(
-        &mut self,
-        callee: ASTNode,
-        arguments: Vec<ASTNode>,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_indirect_call_expression_with_port_v1(&mut port, callee, arguments)
-    }
-
     /// Lower an indirect call while retaining the caller's raw child port.
     pub(in crate::mir::builder) fn build_indirect_call_expression_with_port_v1<Port>(
         &mut self,
