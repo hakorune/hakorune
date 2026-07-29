@@ -9,8 +9,7 @@ use crate::ast::ASTNode;
 use hakorune_mir_builder::BoxCompilationContext;
 
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
-use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
-use super::instance_box_method_batch::PreparedInstanceBoxMethodBatchV1;
+use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::module_draft_collector::ModuleDraftCollectorV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
@@ -158,23 +157,16 @@ impl MirBuilder {
                         deferred_static_boxes.push((name.clone(), methods.clone()));
                     }
                 } else {
-                    self.comp_ctx.register_user_box_declared_fields(
-                        name.clone(),
+                    PreparedInstanceBoxDeclarationLifecycleV1::prepare(
+                        name,
+                        methods,
                         fields,
                         field_decls,
+                        constructors,
                         init_fields,
                         weak_fields,
-                    );
-                    self.build_box_declaration(
-                        name.clone(),
-                        methods.clone(),
-                        fields.clone(),
-                        weak_fields.clone(),
-                    )?;
-                    PreparedInstanceBoxConstructorBatchV1::prepare(name, constructors)
-                        .lower_with_port_v1(self, callables)?;
-                    PreparedInstanceBoxMethodBatchV1::prepare(name, methods)
-                        .lower_root_with_port_v1(self, callables)?;
+                    )
+                    .lower_root_with_port_v1(self, callables)?;
                 }
             } else if let N::FunctionDeclaration {
                 name,

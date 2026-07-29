@@ -3,6 +3,7 @@ use crate::mir::builder::callable_declaration_catalog::{
     SameModuleCallableNamespaceV1, VerifiedSameModuleCallableDeclarationCatalogV1,
 };
 use crate::mir::builder::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
+use crate::mir::builder::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use crate::mir::builder::instance_box_method_batch::PreparedInstanceBoxMethodBatchV1;
 use crate::mir::builder::main_expansion::VerifiedRawRootExpansionV1;
 use crate::mir::builder::module_compat_policy::CallableMainCompatibilityPolicyV1;
@@ -208,6 +209,15 @@ fn parsed_instance_methods(source: &str) -> (String, std::collections::HashMap<S
     (name, methods)
 }
 
+fn parsed_instance_declaration(source: &str) -> ASTNode {
+    let ASTNode::Program { mut statements, .. } =
+        NyashParser::parse_from_string(source).expect("instance declaration source")
+    else {
+        panic!("parser must return Program");
+    };
+    statements.remove(0)
+}
+
 #[test]
 fn mirbuilder_minimal_literal_integer_path_smoke() {
     let mut builder = MirBuilder::new();
@@ -367,6 +377,172 @@ fn instance_method_batch_preserves_prefix_on_route_failure() {
         raw_port.instance_methods,
         vec!["Page.alpha/0", "Page.beta/0"]
     );
+}
+
+#[test]
+fn instance_box_declaration_lifecycle_preserves_prefix_and_route_terminals() {
+    let source = "box Page {
+        value: IntegerBox
+        weak parent
+        birth() { return 0 }
+        omega() { return 2 }
+        alpha() { return 1 }
+    }";
+    let root = NyashParser::parse_from_string(source).expect("catalog source");
+    let catalog =
+        VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&root).expect("catalog");
+
+    let mut raw_builder = MirBuilder::new();
+    raw_builder.prepare_module().expect("raw module shell");
+    let mut raw_port = RecordingOrdinaryPortV1 {
+        record_only_instance: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+    let ASTNode::BoxDeclaration {
+        name,
+        methods,
+        fields,
+        field_decls,
+        constructors,
+        init_fields,
+        weak_fields,
+        ..
+    } = parsed_instance_declaration(source)
+    else {
+        panic!("fixture must contain one Box");
+    };
+    PreparedInstanceBoxDeclarationLifecycleV1::prepare(
+        &name,
+        &methods,
+        &fields,
+        &field_decls,
+        &constructors,
+        &init_fields,
+        &weak_fields,
+    )
+    .lower_raw_with_port_v1(&mut raw_builder, &mut raw_port)
+    .expect("raw declaration lifecycle");
+
+    let mut root_builder = MirBuilder::new();
+    root_builder.prepare_module().expect("root module shell");
+    root_builder
+        .comp_ctx
+        .install_callable_declaration_catalog(catalog)
+        .expect("catalog install");
+    let mut root_port = RecordingOrdinaryPortV1 {
+        record_only_instance: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+    PreparedInstanceBoxDeclarationLifecycleV1::prepare(
+        &name,
+        &methods,
+        &fields,
+        &field_decls,
+        &constructors,
+        &init_fields,
+        &weak_fields,
+    )
+    .lower_root_with_port_v1(&mut root_builder, &mut root_port)
+    .expect("root declaration lifecycle");
+
+    let expected = vec!["Page.birth/0", "Page.alpha/0", "Page.omega/0"];
+    assert_eq!(raw_port.instance_methods, expected);
+    assert_eq!(root_port.instance_methods, expected);
+    assert!(raw_port.instance_keys.is_empty());
+    assert_eq!(
+        root_port.instance_keys,
+        vec![
+            (
+                SameModuleCallableNamespaceV1::InstanceBoxMethod,
+                "Page.alpha/0".into()
+            ),
+            (
+                SameModuleCallableNamespaceV1::InstanceBoxMethod,
+                "Page.omega/0".into()
+            ),
+        ]
+    );
+    for builder in [&raw_builder, &root_builder] {
+        assert_eq!(
+            builder.comp_ctx.user_defined_boxes.get("Page"),
+            Some(&vec!["value".to_owned(), "parent".to_owned()])
+        );
+        assert!(builder
+            .comp_ctx
+            .weak_fields_by_box
+            .get("Page")
+            .is_some_and(|fields| fields.contains("parent")));
+    }
+}
+
+#[test]
+fn instance_box_declaration_lifecycle_stops_after_exact_dirty_prefix() {
+    let source = "box Page {
+        value: IntegerBox
+        birth() { return 0 }
+        alpha() { return 1 }
+    }";
+    let ASTNode::BoxDeclaration {
+        name,
+        methods,
+        fields,
+        field_decls,
+        constructors,
+        init_fields,
+        weak_fields,
+        ..
+    } = parsed_instance_declaration(source)
+    else {
+        panic!("fixture must contain one Box");
+    };
+    let mut metadata_failure = MirBuilder::new();
+    let mut untouched_port = RecordingOrdinaryPortV1 {
+        record_only_instance: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+    PreparedInstanceBoxDeclarationLifecycleV1::prepare(
+        &name,
+        &methods,
+        &fields,
+        &field_decls,
+        &constructors,
+        &init_fields,
+        &weak_fields,
+    )
+    .lower_raw_with_port_v1(&mut metadata_failure, &mut untouched_port)
+    .expect_err("metadata emission without module shell must fail");
+    assert!(metadata_failure
+        .comp_ctx
+        .user_defined_boxes
+        .contains_key("Page"));
+    assert!(untouched_port.instance_methods.is_empty());
+
+    let mut constructor_failure = MirBuilder::new();
+    constructor_failure
+        .prepare_module()
+        .expect("constructor module shell");
+    let mut prefix_port = RecordingOrdinaryPortV1 {
+        fail_instance_method: Some("Page.birth/0".to_owned()),
+        record_only_instance: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+    let error = PreparedInstanceBoxDeclarationLifecycleV1::prepare(
+        &name,
+        &methods,
+        &fields,
+        &field_decls,
+        &constructors,
+        &init_fields,
+        &weak_fields,
+    )
+    .lower_raw_with_port_v1(&mut constructor_failure, &mut prefix_port)
+    .expect_err("constructor failure must stop methods");
+    assert_eq!(error, "selected instance method failure: Page.birth/0");
+    assert_eq!(prefix_port.instance_methods, vec!["Page.birth/0"]);
+    assert!(constructor_failure
+        .comp_ctx
+        .user_defined_boxes
+        .contains_key("Page"));
 }
 
 #[test]

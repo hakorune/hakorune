@@ -603,29 +603,17 @@ def verify_nonmain_static_method_batch(
     batch = (root / "src/mir/builder/nonmain_static_box_method_batch.rs").read_text()
     constructors = (root / "src/mir/builder/instance_box_constructor_batch.rs").read_text()
     instance_methods = (root / "src/mir/builder/instance_box_method_batch.rs").read_text()
+    instance_lifecycle = (root / "src/mir/builder/instance_box_declaration_lifecycle.rs").read_text()
     order = (root / "src/mir/builder/declaration_order.rs").read_text()
     program = (root / "src/mir/builder/program_root_lowering.rs").read_text()
     raw = (root / "src/mir/builder/raw_expression_dispatch/mod.rs").read_text()
-    if any(len(text.splitlines()) >= 800 for text in (batch, constructors, instance_methods, program, raw)):
+    if any(len(text.splitlines()) >= 800 for text in (batch, constructors, instance_methods, instance_lifecycle, program, raw)):
         raise AssertionError("Box member-batch sources reached 800 lines")
     require(builder_mod, "mod nonmain_static_box_method_batch;", "method-batch module")
-    for fragment in (
-        "PreparedNonMainStaticBoxMethodBatchV1",
-        "entries.sort_by(",
-        "ASTNode::FunctionDeclaration",
-        'format!("{}.{}/{}"',
-        "port.lower_static_box_method(",
-    ):
+    require(builder_mod, "mod instance_box_declaration_lifecycle;", "instance lifecycle module")
+    for fragment in ("PreparedNonMainStaticBoxMethodBatchV1", "entries.sort_by(", "ASTNode::FunctionDeclaration", 'format!("{}.{}/{}"', "port.lower_static_box_method("):
         require(batch, fragment, "static method-batch authority")
-    for fragment in (
-        "sorted_method_entries",
-        "compilation_context",
-        "root_is_app_mode",
-        "register_user_box",
-        "emit_void",
-        "fallback",
-        "retry",
-    ):
+    for fragment in ("sorted_method_entries", "compilation_context", "root_is_app_mode", "register_user_box", "emit_void", "fallback", "retry"):
         forbid(batch, fragment, "static method-batch outer authority")
     lifecycle = program.split("pub(super) struct ProgramDeferredStaticBoxLifecycleV1", 1)[1]
     lifecycle = lifecycle.split("impl MirBuilder", 1)[0]
@@ -634,25 +622,35 @@ def verify_nonmain_static_method_batch(
     forbid(raw, ".lower_static_box_method(", "raw caller-local static method dispatch")
     if (program + raw).count("PreparedNonMainStaticBoxMethodBatchV1::prepare(") != 2:
         raise AssertionError("static method batch must have exactly two production issuers")
-    for fragment in (
-        "PreparedInstanceBoxConstructorBatchV1",
-        "entries.sort_by(",
-        "port.lower_instance_box_method(",
-    ):
+    for fragment in ("PreparedInstanceBoxConstructorBatchV1", "entries.sort_by(", "port.lower_instance_box_method("):
         require(constructors, fragment, "instance constructor-batch authority")
     forbid(order, "sorted_constructor_entries", "retired constructor order helper")
-    if (program + raw).count("PreparedInstanceBoxConstructorBatchV1::prepare(") != 2:
-        raise AssertionError("constructor batch must have exactly two production issuers")
-    require(instance_methods, "PreparedInstanceBoxMethodBatchV1", "instance method batch")
-    require(instance_methods, "lower_root_with_port_v1", "root instance method terminal")
-    require(instance_methods, "lower_raw_with_port_v1", "raw instance method terminal")
-    forbid(program, "sorted_method_entries", "Program caller-local instance sorting")
-    forbid(raw, "sorted_method_entries", "raw caller-local instance sorting")
-    if (program + raw).count("PreparedInstanceBoxMethodBatchV1::prepare(") != 2:
-        raise AssertionError("instance method batch must have exactly two production issuers")
-    require(card, "NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0", "active method-batch row")
-    require(card, "INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0", "constructor-batch row")
-    require(card, "INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0", "instance method-batch row")
+    for fragment in ("PreparedInstanceBoxMethodBatchV1", "lower_root_with_port_v1", "lower_raw_with_port_v1"):
+        require(instance_methods, fragment, "instance method batch")
+    for fragment in ("register_user_box_declared_fields(", "build_box_declaration(", "PreparedInstanceBoxConstructorBatchV1::prepare(", "PreparedInstanceBoxMethodBatchV1::prepare("):
+        forbid(program, fragment, "Program caller-local instance lifecycle")
+        forbid(raw, fragment, "raw caller-local instance lifecycle")
+    for fragment in ("PreparedInstanceBoxDeclarationLifecycleV1", "lower_common_prefix_v1", "register_user_box_declared_fields(", "build_box_declaration(", "PreparedInstanceBoxConstructorBatchV1::prepare(", "PreparedInstanceBoxMethodBatchV1::prepare(", "lower_root_with_port_v1", "lower_raw_with_port_v1"):
+        require(instance_lifecycle, fragment, "instance declaration lifecycle")
+    if (program + raw).count("PreparedInstanceBoxDeclarationLifecycleV1::prepare(") != 2:
+        raise AssertionError("instance declaration lifecycle must have exactly two issuers")
+    if program.count(".lower_root_with_port_v1(self, callables)?") != 1:
+        raise AssertionError("Program must select the root lifecycle terminal once")
+    if raw.count(".lower_raw_with_port_v1(self, port)?") != 1:
+        raise AssertionError("raw must select the lookup-free lifecycle terminal once")
+    if instance_lifecycle.count("lower_common_prefix_v1(builder, port)?") != 2:
+        raise AssertionError("both lifecycle terminals must consume the common prefix")
+    for fragment in ("register_user_box_declared_fields(", "build_box_declaration(", "PreparedInstanceBoxConstructorBatchV1::prepare(", "PreparedInstanceBoxMethodBatchV1::prepare("):
+        if instance_lifecycle.count(fragment) != 1:
+            raise AssertionError(f"instance declaration common prefix drift: {fragment}")
+    effect_order = ("register_user_box_declared_fields(", "build_box_declaration(", "self.constructors.lower_with_port_v1(builder, port)?", "Ok(self.instance_methods)")
+    if [instance_lifecycle.index(item) for item in effect_order] != sorted(instance_lifecycle.index(item) for item in effect_order):
+        raise AssertionError("instance declaration lifecycle effect order drift")
+    forbid(instance_lifecycle, "callable_declaration_catalog", "root-only catalog authority")
+    for fragment in ("fallback", "retry", "emit_void"):
+        forbid(instance_lifecycle, fragment, "instance declaration lifecycle outer authority")
+    for row in ("NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0", "INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0", "INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0", "INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0"):
+        require(card, row, "Box lifecycle row")
 
 
 def verify_route_inventory_extension(

@@ -25,8 +25,7 @@ use super::calls::{
 use super::exprs_enum_match::PreparedRawEnumMatchV1;
 use super::fields::PreparedRawFieldReadV1;
 use super::indexing::PreparedRawIndexReadV1;
-use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
-use super::instance_box_method_batch::PreparedInstanceBoxMethodBatchV1;
+use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use super::ops::{
@@ -283,23 +282,16 @@ impl super::MirBuilder {
                 } else {
                     // Instance box: register type and lower instance methods/ctors as functions
                     // Phase 285LLVM-1.1: Register with field information for LLVM harness
-                    self.comp_ctx.register_user_box_declared_fields(
-                        name.clone(),
+                    PreparedInstanceBoxDeclarationLifecycleV1::prepare(
+                        &name,
+                        &methods,
                         &fields,
                         &field_decls,
+                        &constructors,
                         &init_fields,
                         &weak_fields,
-                    );
-                    self.build_box_declaration(
-                        name.clone(),
-                        methods.clone(),
-                        fields.clone(),
-                        weak_fields.clone(),
-                    )?;
-                    PreparedInstanceBoxConstructorBatchV1::prepare(&name, &constructors)
-                        .lower_with_port_v1(self, port)?;
-                    PreparedInstanceBoxMethodBatchV1::prepare(&name, &methods)
-                        .lower_raw_with_port_v1(self, port)?;
+                    )
+                    .lower_raw_with_port_v1(self, port)?;
                     Ok(crate::mir::builder::emission::constant::emit_void(self)?)
                 }
             }

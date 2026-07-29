@@ -76,9 +76,9 @@ Closed:  NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0
 Closed:  MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0
 Closed:  INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0
 Closed:  MIRBUILDER-POST-INSTANCE-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0
-Current: INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0
-Pack:    FUNCTION-LIFECYCLE0
-Ceremony: T1, one atomic production SSOT replacement
+Closed:  INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0
+Current: MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
+Mode:    read-only production edge census
 ```
 
 R1 closeout:
@@ -825,64 +825,63 @@ quick gate                                           = unrelated pre-existing
   docs/reference/language/EBNF.md naming-token failure
 ```
 
-## Current execution brief
+## Current design stop
 
-`INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0` / parent
-`MIRBUILDER-POST-INSTANCE-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0` / T1 /
-`FUNCTION-LIFECYCLE0`.
+`MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0`.
 
 ```text
-Named production callers:
-  Program-root non-static Box branch
-  raw expression dispatcher non-static Box branch
+Read only:
+  enumerate current production MirBuilder edges after lifecycle closeout
+  select at most one behavior-neutral responsibility with a named caller
+  require same-commit deletion of its competing old edge
 
-New owner:
-  PreparedInstanceBoxDeclarationLifecycleV1
-  - Box name and exact field/declaration/init/weak surfaces
-  - original method source needed by build_box_declaration
-  - existing prepared constructor batch
-  - existing prepared instance-method batch
-
-One common consuming prefix:
-  register_user_box_declared_fields
-  -> build_box_declaration
-  -> constructor batch
-  -> return prepared method batch
-
-Distinct terminals:
-  root -> method_batch.lower_root_with_port_v1
-  raw  -> method_batch.lower_raw_with_port_v1
-
-Atomic delete:
-  both caller-local field registration edges
-  both caller-local build_box_declaration edges
-  both caller-local constructor-batch issuers
-  both caller-local method-batch issuers
-
-Preserve:
-  field registry before marker/weak/slot/getter publication
-  metadata completion before constructors; every constructor before methods
-  first-error stop and exact partial candidate prefix
-  root exact catalog lookup/error; raw lookup-free method demand
-  raw trailing Void after lifecycle success; Program has no lifecycle Void
-
-Evidence:
-  exact Program/raw event order and parity
-  metadata failure -> constructor/method count 0
-  constructor-N failure -> later constructor/method count 0
-  method-N failure -> later method count 0
-  root exact-key handoff, raw direct demand, candidate reuse
-
-Stop:
-  common four-step prefix must not be duplicated inside root/raw terminals
-  do not merge root/raw ports or move raw Void into the lifecycle
-  do not add rollback/restoration or change current dirty-candidate prefix
-  no static/Main/sync widening, grammar/result/publication/View/Ownership delta
-  no compatibility owner/sunset, fallback/retry, or new per-row guard
-  every source/check file < 800
+Do not:
+  infer the next row from raw Main, Call policy, or record-helper reserves
+  add production-caller-zero proof routes or accepted-family variants
+  start View, Ownership, parser, backend, or feature work
 ```
 
 ## Latest closeout
+
+`INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0` / T1 /
+`FUNCTION-LIFECYCLE0` is closed.
+
+```text
+authority:
+  one PreparedInstanceBoxDeclarationLifecycleV1
+  one effectful common prefix
+  distinct consuming root/raw method terminals
+
+production issuers:
+  Program-root instance Box = 1
+  raw instance Box          = 1
+
+deleted from both callers:
+  register_user_box_declared_fields
+  build_box_declaration
+  constructor-batch issue/lower
+  instance-method-batch issue/lower
+
+preserved:
+  field -> metadata -> every constructor -> every method
+  metadata/constructor/method first-error dirty prefix
+  root exact catalog key and missing-row diagnostic
+  raw lookup-free method demand and trailing Void placement
+  compatibility owner/sunset = 0
+  fallback/retry/reselection = 0
+  grammar/result/publication/View/Ownership delta = 0
+
+evidence:
+  lifecycle capture tests 14/14
+  depth-three constructor/method capture, general Program parity, reuse = green
+  route inventory/root/binary guards and release build = green
+  quick gate = unrelated pre-existing EBNF compatibility-alias failure
+
+structure:
+  new source file = 1, 98 lines
+  new test/check file = 0
+  largest source/check file = 799
+```
 
 `INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0` / T1 /
 `FUNCTION-LIFECYCLE0` is closed.
@@ -1186,7 +1185,8 @@ R53 NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0 closed
 R54 MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0 closed
 R55 INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0 closed
 R56 MIRBUILDER-POST-INSTANCE-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0 closed
-R57 INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0 current
+R57 INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0 closed
+R58 MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
