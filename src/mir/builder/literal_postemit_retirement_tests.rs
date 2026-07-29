@@ -140,9 +140,13 @@ fn folded_negative_integer_failure_has_no_caller_postpublication() {
 #[test]
 fn finalization_snapshots_the_canonical_literal_fact_without_a_late_repair() {
     let mut builder = MirBuilder::new();
+    builder.prepare_module().expect("module shell");
+    let result = builder
+        .build_literal(LiteralValue::String("text".to_string()))
+        .expect("String literal");
     let module = builder
-        .build_module(literal(LiteralValue::String("text".to_string())))
-        .unwrap();
+        .finalize_module(result)
+        .expect("finalized literal module");
     let function = module
         .functions
         .get("main")

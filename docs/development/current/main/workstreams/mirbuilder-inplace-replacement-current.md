@@ -579,30 +579,31 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution
-`MIRBUILDER-RAW-TEST-EVIDENCE-LOCALIZE0-R0` — T2 breaking series 3/4
+`MIRBUILDER-MINIMAL-LIFECYCLE-SMOKE0-R0` — T2 breaking series 4/5
 ```text
 Change:
-  Localize or retire the four remaining arbitrary-root test callers at their
-  exact responsibility owners.
+  Move the artifact-backed minimal Literal(Integer(0)) smoke to one fixed
+  prepare_module -> build_literal -> finalize_module owner-local composition.
 
 Contract:
-  Do not synthesize Program wrappers or add cfg(test)/public generic root
-  facades. Preserve only non-duplicate responsibility evidence.
+  Preserve main/Integer/Const(0)/same-dst Return/condition_fn evidence and
+  refresh its live rust-lifecycle fixture; generic root/API claims become zero.
 
 Done:
-  Direct repository test callers become zero; focused owner evidence and the
-  minimal lifecycle smoke contract remain green.
+  Direct repository test callers become zero and the exact owner-local smoke
+  plus dependent current artifact checks are green.
 
 Stop:
-  If a Raw assertion has no bounded owner seam, stop and split the series row
-  rather than recreating build_module under another name.
+  Do not synthesize Program, add a reusable helper/facade, or leave current
+  fixtures naming build_module as their live authority.
 ```
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)
 2 HOST-PROVIDER-CFGTEST-AST-JSON-COMPAT0-RET0 closed (5 -> 4)
-3 MIRBUILDER-RAW-TEST-EVIDENCE-LOCALIZE0-R0 current
-4 MIRBUILDER-PUBLIC-ROOT-API0-RET0
+3 MIRBUILDER-RAW-OWNER-TEST-EVIDENCE0-R0 closed (4 -> 1)
+4 MIRBUILDER-MINIMAL-LIFECYCLE-SMOKE0-R0 current
+5 MIRBUILDER-PUBLIC-ROOT-API0-RET0
 ```
 External consumers are unknown, not zero. Migration is `MirCompiler::compile*`
 for Program; no public arbitrary-root replacement is introduced.
