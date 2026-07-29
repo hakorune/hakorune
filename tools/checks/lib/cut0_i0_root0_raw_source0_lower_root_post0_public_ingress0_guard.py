@@ -466,7 +466,7 @@ def main() -> int:
     )
     if root_descent.get("sunset_state") != "active":
         raise AssertionError("raw root compatibility sunset must remain active")
-    if root_descent.get("residual_kind_count") != 38:
+    if root_descent.get("residual_kind_count") != 37:
         raise AssertionError("raw root compatibility residual count drift")
     ast_node_kinds = ast_kinds(
         (
@@ -482,8 +482,8 @@ def main() -> int:
             f"extra={sorted(classified_kinds - ast_node_kinds)}"
         )
     selected_arms = re.findall(
-        r"node\s*@\s*(.*?)=>\s*\{\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root|variable_assignment_root|variable_compound_assignment_root|task_scope_root)\(node\)\s*\}"
-        r"|node\s*@\s*(.*?)=>\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root|variable_assignment_root|variable_compound_assignment_root|task_scope_root)\(node\)",
+        r"node\s*@\s*(.*?)=>\s*\{\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root|variable_assignment_root|variable_compound_assignment_root|return_root|task_scope_root)\(node\)\s*\}"
+        r"|node\s*@\s*(.*?)=>\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root|variable_assignment_root|variable_compound_assignment_root|return_root|task_scope_root)\(node\)",
         raw_nonprogram_root_descent,
         re.S,
     )
@@ -493,7 +493,7 @@ def main() -> int:
     expected_selected = {
         "Literal", "Variable", "Me", "UnaryOp", "BinaryOp", "AwaitExpression",
         "CheckExpr", "ArrayLiteral", "MapLiteral", "GroupedAssignmentExpr", "Index",
-        "BlockExpr", "Print", "Nowait", "Local", "Assignment", "CompoundAssignment", "TaskScope",
+        "BlockExpr", "Print", "Nowait", "Local", "Assignment", "CompoundAssignment", "Return", "TaskScope",
     }
     if selected_kinds != expected_selected:
         raise AssertionError(
@@ -517,8 +517,7 @@ def main() -> int:
         )
     )
     expected_separate = {
-        "If", "Return",
-        "QMarkPropagate", "MatchExpr",
+        "If", "QMarkPropagate", "MatchExpr",
         "EnumMatchExpr", "RecordLiteral",
         "RecordUpdate", "Lambda", "TryCatch", "Throw",
         "MethodCall", "FieldAccess", "New",
@@ -627,7 +626,7 @@ def main() -> int:
         raise AssertionError("safe non-empty BlockExpr compatibility edge must remain zero")
     for fragment in (
         "node @ ASTNode::Print { .. } if is_port_neutral_print_root(&node)",
-        "SelectedRawNonProgramRootV1",
+        "SelectedRawNonProgramRootV1", "fn is_port_neutral_return_root",
         "PortNeutralPrintRootV1",
         "SelectedRawNonProgramRootV1::PrintRoot",
         "root.into_node()",
@@ -726,7 +725,7 @@ def main() -> int:
         "selected_nowait_root_matches_raw_legacy_effects_exactly",
         "selected_grouped_assignment_matches_raw_legacy_effects_exactly",
         "selected_grouped_assignment_preflights_and_reuses_without_retry",
-        "selected_index_matches_raw_legacy_effects_exactly",
+        "selected_index_matches_raw_legacy_effects_exactly", "selected_safe_return_root_matches_raw_legacy_without_retry",
         "selected_safe_block_prelude_matches_raw_legacy_effects_exactly",
         "selected_block_prelude_local_keeps_existing_scope_failure",
         "selected_task_scope_matches_raw_legacy_effects_exactly",

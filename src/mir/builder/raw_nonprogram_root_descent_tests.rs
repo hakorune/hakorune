@@ -109,6 +109,13 @@ fn compound_assignment(target: ASTNode, operator: BinaryOperator, value: ASTNode
     }
 }
 
+fn returning(value: Option<ASTNode>) -> ASTNode {
+    ASTNode::Return {
+        value: value.map(Box::new),
+        span: Span::unknown(),
+    }
+}
+
 fn indexed(target: ASTNode, index: ASTNode) -> ASTNode {
     ASTNode::Index {
         target: Box::new(target),
@@ -211,6 +218,15 @@ fn assert_selected_compound_assignment(node: ASTNode) {
         PreparedRawRootPartitionV1::classify(node),
         PreparedRawRootPartitionV1::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
             SelectedRawNonProgramRootV1::VariableCompoundAssignmentRoot(_)
+        ))
+    ));
+}
+
+fn assert_selected_return(node: ASTNode) {
+    assert!(matches!(
+        PreparedRawRootPartitionV1::classify(node),
+        PreparedRawRootPartitionV1::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
+            SelectedRawNonProgramRootV1::ReturnRoot(_)
         ))
     ));
 }
@@ -329,6 +345,8 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
         BinaryOperator::Add,
         checked(vec![integer(36)]),
     ));
+    assert_selected_return(returning(None));
+    assert_selected_return(returning(Some(awaited(integer(37)))));
     assert_selected_task_scope(task_scope("co", Vec::new()));
     assert_selected_task_scope(task_scope(
         "task_scope",
@@ -536,6 +554,18 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
             BinaryOperator::Add,
             integer(1),
         ),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        returning(Some(ASTNode::FieldAccess {
+            object: Box::new(variable("page")),
+            field: "value".to_owned(),
+            span: Span::unknown(),
+        })),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        block_expr(vec![returning(Some(integer(1)))], integer(2)),
         RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
     );
     assert_compatibility(

@@ -86,7 +86,7 @@
     "retired_calls": 0,
     "sunset_id": "RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001",
     "sunset_state": "active",
-    "residual_kind_count": 38,
+    "residual_kind_count": 37,
     "selected_block_prelude_responsibilities": [
       "expr_tree",
       "print",

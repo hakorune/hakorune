@@ -5,8 +5,8 @@
 //! Check, Array, Map, GroupedAssignment, Index, or an empty-prelude BlockExpr,
 //! plus Print, Nowait, and annotation-free Local roots whose values are such
 //! trees, exact variable assignments and compound assignments whose right-hand
-//! sides are such trees, and TaskScope bodies recursively composed from those
-//! same safe statements.
+//! sides are such trees, root-only Return with no value or such a tree, and
+//! TaskScope bodies recursively composed from the non-terminal safe statements.
 //! Every other non-Program root keeps the existing raw compatibility terminal
 //! until its own production responsibility cell removes that residual.
 
@@ -37,6 +37,7 @@ enum SelectedRawNonProgramRootV1 {
     LocalRoot(PortNeutralLocalRootV1),
     VariableAssignmentRoot(PortNeutralVariableAssignmentRootV1),
     VariableCompoundAssignmentRoot(PortNeutralVariableCompoundAssignmentRootV1),
+    ReturnRoot(PortNeutralReturnRootV1),
     TaskScopeRoot(PortNeutralTaskScopeRootV1),
 }
 
@@ -64,6 +65,10 @@ struct PortNeutralVariableCompoundAssignmentRootV1 {
     node: ASTNode,
 }
 
+struct PortNeutralReturnRootV1 {
+    node: ASTNode,
+}
+
 struct PortNeutralTaskScopeRootV1 {
     node: ASTNode,
 }
@@ -77,6 +82,7 @@ impl SelectedRawNonProgramRootV1 {
             Self::LocalRoot(root) => root.node,
             Self::VariableAssignmentRoot(root) => root.node,
             Self::VariableCompoundAssignmentRoot(root) => root.node,
+            Self::ReturnRoot(root) => root.node,
             Self::TaskScopeRoot(root) => root.node,
         }
     }
@@ -198,6 +204,13 @@ impl PreparedRawRootPartitionV1 {
                 node,
                 RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
             ),
+            node @ ASTNode::Return { .. } if is_port_neutral_return_root(&node) => {
+                Self::selected_return_root(node)
+            }
+            node @ ASTNode::Return { .. } => Self::compatibility(
+                node,
+                RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+            ),
             node @ ASTNode::TaskScope { .. } if is_port_neutral_task_scope_root(&node) => {
                 Self::selected_task_scope_root(node)
             }
@@ -209,7 +222,6 @@ impl PreparedRawRootPartitionV1 {
                 Self::compatibility(node, RawNonProgramRootCompatibilityClassV1::ExplicitRoot)
             }
             node @ (ASTNode::If { .. }
-            | ASTNode::Return { .. }
             | ASTNode::QMarkPropagate { .. }
             | ASTNode::MatchExpr { .. }
             | ASTNode::EnumMatchExpr { .. }
@@ -299,6 +311,12 @@ impl PreparedRawRootPartitionV1 {
         ))
     }
 
+    fn selected_return_root(node: ASTNode) -> Self {
+        Self::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
+            SelectedRawNonProgramRootV1::ReturnRoot(PortNeutralReturnRootV1 { node }),
+        ))
+    }
+
     fn compatibility(node: ASTNode, class: RawNonProgramRootCompatibilityClassV1) -> Self {
         Self::NonProgram(PreparedRawNonProgramRootV1::Compatibility { node, class })
     }
@@ -345,6 +363,13 @@ fn is_port_neutral_variable_compound_assignment_root(node: &ASTNode) -> bool {
         return false;
     };
     matches!(target.as_ref(), ASTNode::Variable { .. }) && is_port_neutral_expr_tree(value)
+}
+
+fn is_port_neutral_return_root(node: &ASTNode) -> bool {
+    let ASTNode::Return { value, .. } = node else {
+        return false;
+    };
+    value.as_deref().map_or(true, is_port_neutral_expr_tree)
 }
 
 fn is_port_neutral_expr_tree(node: &ASTNode) -> bool {

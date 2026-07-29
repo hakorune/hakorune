@@ -343,6 +343,38 @@ fn selected_variable_compound_assignment_composes_without_retry() {
 }
 
 #[test]
+fn selected_safe_return_root_matches_raw_legacy_without_retry() {
+    for root in [returning(None), returning(Some(awaited(integer(41))))] {
+        let mut legacy = MirBuilder::new();
+        legacy.enter_function_for_test("safe_return_root_parity/0".to_owned());
+        let legacy_value = drive_raw_legacy_expression_v1(&mut legacy, root.clone()).unwrap();
+
+        let mut selected = MirBuilder::new();
+        selected.enter_function_for_test("safe_return_root_parity/0".to_owned());
+        let selected_value = drive_selected(&mut selected, root).unwrap();
+
+        assert_eq!(selected_value, legacy_value);
+        assert_eq!(
+            spanned_instructions(&selected),
+            spanned_instructions(&legacy)
+        );
+        assert_eq!(
+            selected.function_state.return_deferred_emitted,
+            legacy.function_state.return_deferred_emitted
+        );
+    }
+
+    let mut selected = MirBuilder::new();
+    selected.enter_function_for_test("safe_return_root_failure/0".to_owned());
+    let before = spanned_instructions(&selected);
+    let error = drive_selected(&mut selected, returning(Some(variable("missing")))).unwrap_err();
+    assert!(error.contains("Undefined variable: missing"));
+    assert_eq!(spanned_instructions(&selected), before);
+
+    drive_selected(&mut selected, returning(Some(integer(42)))).unwrap();
+}
+
+#[test]
 fn selected_index_matches_raw_legacy_effects_exactly() {
     let roots = [
         indexed(array(vec![integer(26), integer(27)]), integer(1)),

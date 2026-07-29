@@ -593,21 +593,19 @@ new source/test/check file           = 0
 largest touched source/check file    = 798
 ```
 
-## Current execution
-
-`RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-I0-R0` / T1 atomic
+## Current design stop: `RAW-NONPROGRAM-PLAIN-SCOPEBOX-COMPOSITIONAL-DESCENT0-D0`
 
 ```text
-Selected:
-  Return(None | Some(PortNeutralExprTreeV1)), non-Program root only
-Production caller:
-  shared root kernel, including live runtime AST-JSON compatibility ingress
-Atomic delete:
-  safe Return -> SeparateDesignStop -> raw compatibility = 0
-Preserve:
-  unsafe Return compatibility; cleanup/defer/Match/ABI/result policy
+Candidate:
+  ScopeBox(body = existing non-terminal block-prelude vocabulary only)
+Required decision:
+  guard-let probe is one unchanged execution probe, not route reselection
+Proposed delete:
+  safe plain ScopeBox -> SeparateDesignStop -> raw compatibility = 0
+Fallback decision:
+  if single-classification proof fails, NoSafeSlice or root-only safe Throw
 Forbid:
-  BlockExpr/TaskScope prelude admission, retry, new Return owner, new grammar
+  If/Return/Throw/Loop/calls, scope-policy change, mixed ports, retry
 ```
 
 ```text
@@ -619,7 +617,7 @@ Compatibility sunset:
 ```text
 sunset_id: RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 state: active
-residual_kind_count: 38
+residual_kind_count: 37
 retire when: owner definition, registered residual surface, and root-specific
   drive_raw_legacy_expression_v1 production edge are all zero
 
@@ -719,7 +717,8 @@ R19 RAW-NONPROGRAM-VARIABLE-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R20 RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-D0 closed
 R21 RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R22 RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-D0 closed: Accept
-R23 RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-I0-R0 current
+R23 RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-I0-R0 closed
+R24 RAW-NONPROGRAM-PLAIN-SCOPEBOX-COMPOSITIONAL-DESCENT0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
@@ -737,8 +736,7 @@ Source-level Ownership/View and other new language semantics do not enter the
 MirBuilder replacement train. Analysis-only views used to observe existing
 control flow are not source-language View activation.
 
-R23 selects root-only safe Return and removes its compatibility edge without
-body widening.
+R23 removed the root-only safe Return compatibility edge without body widening.
 ## Closed tail
 
 ```text
