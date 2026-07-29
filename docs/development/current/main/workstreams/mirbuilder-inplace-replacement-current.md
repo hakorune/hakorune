@@ -29,42 +29,50 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: RAW-INDIRECT-CALL-LEGACY-FACADE-RETIRE0-RET0
-Result:        caller-zero ambient indirect-Call port facade is deleted;
-               dispatcher keeps the sole with-port Call owner
-Latest design: selected normal static-table metadata owner
-Executable:    none — `NORMAL-PROGRAM-STATIC-TABLE-PLAN0-D0` is a design stop
+Latest landed: NORMAL-PROGRAM-STATIC-TABLE-PLAN0-I0-R0
+Result:        selected normal Program static-table specs and plans are
+               prepared and published together into candidate metadata
+Latest design: fresh live-edge census
+Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS5` is a design stop
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`NORMAL-PROGRAM-STATIC-TABLE-PLAN0-D0` — T2 source-to-metadata ownership
+`MIRBUILDER-LIVE-EDGE-CENSUS5` — select one real remaining authority edge
 
 ```text
-Caller:
-  selected normal `lower_program_root_with_callable_port_v1`.
+Scope:
+  take a fresh production and compatibility census after the static-table
+  closeout. Select at most one named caller/old edge pair, or record one
+  bounded D0 if the next ownership boundary is not yet safe.
 
-Product:
-  `PreparedNormalProgramStaticTableMetadataV1<'module>` borrows the candidate
-  `MirModule`; `prepare(snapshot, target)` collects the existing source-ordered
-  specs once and derives plans once; infallible `commit(self)` moves both
-  metadata fields together. It owns no AST, source/module identity, Builder,
-  Index route, or new rejection owner.
+Must preserve:
+  one execution, no fallback/retry, explicit non-growing compatibility sunsets,
+  and a same-commit old-edge deletion for every implementation row.
 
-Required I0/R0:
-  replace the direct collect -> plan-map -> two metadata assignments with one
-  prepare/commit handoff. Preserve facts -> static-table -> work-plan/body,
-  exact static-const diagnostics, candidate discard/reuse, and
-  `current_module = None` no-op behavior.
-
-Forbid:
-  reparse/re-scan/clone; separately visible specs or plans; partial metadata
-  publication; static Index/load/backend/body/collector/finalization change;
-  fallback, retry, or a compatibility owner.
+Do not select automatically:
+  raw/static-Main, no-header Call, selected-invocation Loop/CorePlan, detached
+  assets, JoinModule, Ownership, View, or new language features.
 ```
 
 ## Latest closeout
+
+```text
+NORMAL-PROGRAM-STATIC-TABLE-PLAN0-I0-R0
+
+`PreparedNormalProgramStaticTableMetadataV1`                     = exactly one
+selected direct source collect/plan/two metadata writes           = 0
+facts -> paired static-table metadata -> work-plan/body           = preserved
+source order, diagnostics, candidate discard/reuse                = preserved
+static-table unit / existing static-const tests / guard           = green
+fallback / retry / grammar / result / finish / publication delta  = 0
+new source/test/check file                                        = 1 / 0 / 0
+largest touched source/check file                                 < 800
+next                                                              = fresh live-edge census
+```
+
+## Previous closeout
 
 ```text
 RAW-INDIRECT-CALL-LEGACY-FACADE-RETIRE0-RET0
@@ -207,9 +215,10 @@ largest touched source/check file                       < 800
 
 ```text
 R1 Now
-  NORMAL-PROGRAM-STATIC-TABLE-PLAN0-D0
-  Only its same-responsibility I0/R0 may follow, or return to census if its
-  source-to-metadata boundary cannot remain bounded.
+  MIRBUILDER-LIVE-EDGE-CENSUS5
+  Freshly inventory live normal/default and explicit compatibility edges. It
+  may select one named replacement or one bounded D0; it cannot pre-authorize
+  a future implementation.
 
 R2 Live responsibility replacement
   fresh census -> one exact edge or one bounded D0 -> same-cell I0/R0
@@ -221,12 +230,6 @@ R2 Live responsibility replacement
   row. Return to a full census after each row and stop the horizon early when
   the next facade needs owner, port, argument-order, control, allocation, or
   guard-structure changes.
-
-  The first live normal candidate after the current census is
-  NORMAL-PROGRAM-STATIC-TABLE-PLAN0-D0, followed only if accepted by its
-  same-cell I0/R0. It must turn the selected Program source -> static specs ->
-  static plans -> candidate metadata sequence into one owner; it does not
-  change grammar, result policy, or body lowering.
 
   Raw/static-Main, no-header Call, and selected invocation Loop/CorePlan remain
   separate D0 boundaries. Loop work uses the active Recipe/CorePlan route;

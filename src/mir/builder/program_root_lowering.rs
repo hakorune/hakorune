@@ -19,6 +19,7 @@ use super::normal_default_root_catalog_lifecycle::{
 };
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_work_plan::{PreparedProgramRootWorkPlanV1, ProgramRootTerminalScheduleV1};
+use super::program_static_table_metadata::PreparedNormalProgramStaticTableMetadataV1;
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::{MirBuilder, ValueId};
 
@@ -117,13 +118,7 @@ impl MirBuilder {
     {
         PreparedNormalProgramDeclarationFactsV1::collect(snapshot).install_into(&mut self.comp_ctx);
         if let Some(module) = self.current_module.as_mut() {
-            let specs = crate::mir::static_data_plan::collect_static_table_specs_from_ast(
-                &module.name,
-                snapshot,
-            )?;
-            let plans = crate::mir::static_data_plan::static_data_plans_from_specs(&specs);
-            module.metadata.static_table_contract_specs = specs;
-            module.metadata.static_data_plans = plans;
+            PreparedNormalProgramStaticTableMetadataV1::prepare(snapshot, module)?.commit();
         }
 
         let is_app_mode = expansion.is_app_mode();

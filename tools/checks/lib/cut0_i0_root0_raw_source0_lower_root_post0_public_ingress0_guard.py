@@ -14,7 +14,7 @@ CURRENT_WORKSTREAM = ROOT / ("docs/development/current/main/workstreams/"
                              "mirbuilder-inplace-replacement-current.md")
 NORMAL_PIPELINE = ROOT / "src/mir/compiler/normal_default_pipeline.rs"
 NORMAL_ROOT_LIFECYCLE = ROOT / "src/mir/builder/normal_default_root_catalog_lifecycle.rs"
-PROGRAM_ROOT_LOWERING = ROOT / "src/mir/builder/program_root_lowering.rs"
+PROGRAM_ROOT_LOWERING, PROGRAM_STATIC_TABLE_METADATA = ROOT / "src/mir/builder/program_root_lowering.rs", ROOT / "src/mir/builder/program_static_table_metadata.rs"
 DECLS = ROOT / "src/mir/builder/decls.rs"
 RAW_STATIC_MAIN_COMPAT = ROOT / "src/mir/builder/raw_static_main_compat_batch.rs"
 MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
@@ -135,7 +135,7 @@ def main() -> int:
             CURRENT_WORKSTREAM,
             NORMAL_PIPELINE,
             NORMAL_ROOT_LIFECYCLE,
-            PROGRAM_ROOT_LOWERING,
+            PROGRAM_ROOT_LOWERING, PROGRAM_STATIC_TABLE_METADATA,
             RAW_STATIC_MAIN_COMPAT,
             MODULE_LIFECYCLE,
             BUILDER_ROOT,
@@ -613,7 +613,7 @@ def main() -> int:
     for retired in ("main_static:", "build_static_main_box_with_port_v1(callables"):
         if retired in program_root_lowering:
             raise AssertionError(f"retired selected Main projection returned: {retired}")
-    declaration_facts = production_code(ROOT / "src/mir/builder/program_declaration_facts.rs")
+    declaration_facts, static_table_metadata = production_code(ROOT / "src/mir/builder/program_declaration_facts.rs"), production_code(PROGRAM_STATIC_TABLE_METADATA)
     work_plan = production_code(ROOT / "src/mir/builder/program_root_work_plan.rs")
     if (ROOT / "src/mir/builder/raw_expression_dispatch/legacy_facade.rs").exists(): raise AssertionError("retired raw expression facade returned")
     if any(fragment in production_code(ROOT / "src/mir/builder/raw_expression_dispatch/input_view.rs") for fragment in ("RawLegacyExpressionInputV1", "RawExpressionInputViewV1")): raise AssertionError("retired raw expression input view returned")
@@ -623,10 +623,12 @@ def main() -> int:
         raise AssertionError("normal Program declaration facts owner drift")
     if program_root_lowering.count("PreparedNormalProgramDeclarationFactsV1::collect(snapshot)") != 1:
         raise AssertionError("normal Program declaration facts caller drift")
-    if program_root_lowering.index("PreparedNormalProgramDeclarationFactsV1::collect(snapshot)") > program_root_lowering.index("collect_static_table_specs_from_ast"):
-        raise AssertionError("Program declaration facts must precede static-table planning")
+    if not all(fragment in static_table_metadata for fragment in ("struct PreparedNormalProgramStaticTableMetadataV1", "fn prepare", "fn commit", "collect_static_table_specs_from_ast", "static_data_plans_from_specs")) or any(fragment in static_table_metadata for fragment in ("MirBuilder", "retry", "fallback", "NyashParser")): raise AssertionError("normal static-table metadata owner drift")
+    if any(fragment in program_root_lowering for fragment in ("collect_static_table_specs_from_ast", "static_data_plans_from_specs", "module.metadata.static_table_contract_specs", "module.metadata.static_data_plans")): raise AssertionError("selected Program direct static-table metadata authority returned")
+    static_prepare = "PreparedNormalProgramStaticTableMetadataV1::prepare(snapshot, module)?.commit()"
+    if program_root_lowering.count(static_prepare) != 1 or program_root_lowering.index("PreparedNormalProgramDeclarationFactsV1::collect(snapshot)") > program_root_lowering.index(static_prepare): raise AssertionError("Program declaration facts/static-table handoff drift")
     if not all(fragment in work_plan for fragment in ("struct PreparedProgramRootWorkPlanV1", "fn prepare", "fn classify_statement", "ProgramRootTerminalScheduleV1")) or "lower_program_statements_with_callable_port_v1" in program_root_lowering: raise AssertionError("Program-root work partition drift")
-    if program_root_lowering.count("PreparedProgramRootWorkPlanV1::prepare(statements, is_app_mode)") != 1 or program_root_lowering.index("collect_static_table_specs_from_ast") > program_root_lowering.index("PreparedProgramRootWorkPlanV1::prepare(statements, is_app_mode)"): raise AssertionError("Program-root work preparation order drift")
+    if program_root_lowering.count("PreparedProgramRootWorkPlanV1::prepare(statements, is_app_mode)") != 1 or program_root_lowering.index(static_prepare) > program_root_lowering.index("PreparedProgramRootWorkPlanV1::prepare(statements, is_app_mode)"): raise AssertionError("Program-root work preparation order drift")
     if any(fragment in work_plan for fragment in ("ModuleDraftCollectorV1", "collect_static_table_specs_from_ast", "PreparedNormalProgramDeclarationFactsV1", "retry", "fallback", "NyashParser")): raise AssertionError("Program-root work plan gained outer authority")
     for retired in ("has_main_static", "root_is_app_mode.unwrap_or_else"):
         if retired in program_root_lowering:

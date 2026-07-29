@@ -393,6 +393,7 @@ mod phi_type_publication;
 mod port_aware_function_draft_impl;
 mod program_declaration_facts; // Normal Program source-only declaration facts
 mod program_root_work_plan; // Normal Program source-only work partition
+mod program_static_table_metadata; // Normal Program paired static-table metadata
 mod type_hint_providers; // Phase 29bq+: Type hint provision (call results, method signatures) // Phase 25.1q: Unified PHI merge helper // prepare/lower_root/finalize split
                          // legacy large-match remains inline for now (planned extraction)
 pub(in crate::mir) mod emission; // emission::*（Const/Compare/Branch の薄い発行箱）
