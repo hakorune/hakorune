@@ -3,11 +3,9 @@ use super::calls::CanonicalFunctionSessionErrorV1;
 use super::main_expansion::{OwnedVerifiedMainRootLoweringV1, VerifiedMainExpansionV1};
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
-use super::{declaration_order::sorted_method_entries, MirInstruction, ValueId};
+use super::{MirInstruction, ValueId};
 use crate::ast::ASTNode;
-use crate::mir::slot_registry::{get_or_assign_type_id, reserve_method_slot};
 use serde_json;
-use std::collections::HashSet;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CallableMainCompatibilityLoweringErrorV1 {
@@ -249,63 +247,6 @@ impl super::MirBuilder {
         // Restore static box context
         self.comp_ctx.current_static_box = saved_static;
         out
-    }
-
-    /// Build box declaration: box Name { fields... methods... }
-    pub(super) fn build_box_declaration(
-        &mut self,
-        name: String,
-        methods: std::collections::HashMap<String, ASTNode>,
-        fields: Vec<String>,
-        weak_fields: Vec<String>,
-    ) -> Result<(), String> {
-        // Create a type registration constant (marker)
-        crate::mir::builder::emission::constant::emit_string(self, format!("__box_type_{}", name))?;
-
-        // Emit field metadata markers
-        for field in fields {
-            let _field_id = crate::mir::builder::emission::constant::emit_string(
-                self,
-                format!("__field_{}_{}", name, field),
-            )?;
-        }
-
-        // Record weak fields for this box
-        if !weak_fields.is_empty() {
-            let set: HashSet<String> = weak_fields.into_iter().collect();
-            self.comp_ctx.weak_fields_by_box.insert(name.clone(), set);
-        }
-
-        // Reserve method slots for user-defined instance methods (deterministic, starts at 4)
-        let mut instance_methods: Vec<String> = Vec::new();
-        for (mname, mast) in sorted_method_entries(&methods) {
-            if let ASTNode::FunctionDeclaration { is_static, .. } = mast {
-                if !*is_static {
-                    instance_methods.push(mname.to_string());
-                }
-            }
-        }
-        if !instance_methods.is_empty() {
-            let tyid = get_or_assign_type_id(&name);
-            for (i, m) in instance_methods.iter().enumerate() {
-                let slot = 4u16.saturating_add(i as u16);
-                reserve_method_slot(tyid, m, slot);
-            }
-        }
-
-        // Emit markers for declared methods (kept as metadata hints)
-        for (method_name, method_ast) in sorted_method_entries(&methods) {
-            if let ASTNode::FunctionDeclaration { .. } = method_ast {
-                let _method_id = crate::mir::builder::emission::constant::emit_string(
-                    self,
-                    format!("__method_{}_{}", name, method_name),
-                )?;
-                self.comp_ctx
-                    .register_property_getter_method(name.clone(), method_name);
-            }
-        }
-
-        Ok(())
     }
 }
 

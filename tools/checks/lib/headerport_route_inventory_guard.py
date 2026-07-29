@@ -601,16 +601,16 @@ def verify_nonmain_static_method_batch(
     card: str,
 ) -> None:
     batch = (root / "src/mir/builder/nonmain_static_box_method_batch.rs").read_text()
-    constructors = (root / "src/mir/builder/instance_box_constructor_batch.rs").read_text()
-    instance_methods = (root / "src/mir/builder/instance_box_method_batch.rs").read_text()
-    instance_lifecycle = (root / "src/mir/builder/instance_box_declaration_lifecycle.rs").read_text()
+    constructors = (root / "src/mir/builder/instance_box_constructor_batch.rs").read_text(); instance_methods = (root / "src/mir/builder/instance_box_method_batch.rs").read_text()
+    instance_lifecycle = (root / "src/mir/builder/instance_box_declaration_lifecycle.rs").read_text(); instance_metadata = (root / "src/mir/builder/instance_box_declaration_metadata.rs").read_text()
     order = (root / "src/mir/builder/declaration_order.rs").read_text()
     program = (root / "src/mir/builder/program_root_lowering.rs").read_text()
     raw = (root / "src/mir/builder/raw_expression_dispatch/mod.rs").read_text()
-    if any(len(text.splitlines()) >= 800 for text in (batch, constructors, instance_methods, instance_lifecycle, program, raw)):
+    if any(len(text.splitlines()) >= 800 for text in (batch, constructors, instance_methods, instance_lifecycle, instance_metadata, program, raw)):
         raise AssertionError("Box member-batch sources reached 800 lines")
     require(builder_mod, "mod nonmain_static_box_method_batch;", "method-batch module")
     require(builder_mod, "mod instance_box_declaration_lifecycle;", "instance lifecycle module")
+    require(builder_mod, "mod instance_box_declaration_metadata;", "instance metadata module")
     for fragment in ("PreparedNonMainStaticBoxMethodBatchV1", "entries.sort_by(", "ASTNode::FunctionDeclaration", 'format!("{}.{}/{}"', "port.lower_static_box_method("):
         require(batch, fragment, "static method-batch authority")
     for fragment in ("sorted_method_entries", "compilation_context", "root_is_app_mode", "register_user_box", "emit_void", "fallback", "retry"):
@@ -627,10 +627,10 @@ def verify_nonmain_static_method_batch(
     forbid(order, "sorted_constructor_entries", "retired constructor order helper")
     for fragment in ("PreparedInstanceBoxMethodBatchV1", "lower_root_with_port_v1", "lower_raw_with_port_v1"):
         require(instance_methods, fragment, "instance method batch")
-    for fragment in ("register_user_box_declared_fields(", "build_box_declaration(", "PreparedInstanceBoxConstructorBatchV1::prepare(", "PreparedInstanceBoxMethodBatchV1::prepare("):
+    for fragment in ("register_user_box_declared_fields(", "PreparedInstanceBoxDeclarationMetadataV1", "PreparedInstanceBoxConstructorBatchV1::prepare(", "PreparedInstanceBoxMethodBatchV1::prepare("):
         forbid(program, fragment, "Program caller-local instance lifecycle")
         forbid(raw, fragment, "raw caller-local instance lifecycle")
-    for fragment in ("PreparedInstanceBoxDeclarationLifecycleV1", "lower_common_prefix_v1", "register_user_box_declared_fields(", "build_box_declaration(", "PreparedInstanceBoxConstructorBatchV1::prepare(", "PreparedInstanceBoxMethodBatchV1::prepare(", "lower_root_with_port_v1", "lower_raw_with_port_v1"):
+    for fragment in ("PreparedInstanceBoxDeclarationLifecycleV1", "lower_common_prefix_v1", "register_user_box_declared_fields(", "PreparedInstanceBoxDeclarationMetadataV1::prepare(", "metadata.lower_with_builder_v1(builder)?", "PreparedInstanceBoxConstructorBatchV1::prepare(", "PreparedInstanceBoxMethodBatchV1::prepare(", "lower_root_with_port_v1", "lower_raw_with_port_v1"):
         require(instance_lifecycle, fragment, "instance declaration lifecycle")
     if (program + raw).count("PreparedInstanceBoxDeclarationLifecycleV1::prepare(") != 2:
         raise AssertionError("instance declaration lifecycle must have exactly two issuers")
@@ -640,13 +640,17 @@ def verify_nonmain_static_method_batch(
         raise AssertionError("raw must select the lookup-free lifecycle terminal once")
     if instance_lifecycle.count("lower_common_prefix_v1(builder, port)?") != 2:
         raise AssertionError("both lifecycle terminals must consume the common prefix")
-    for fragment in ("register_user_box_declared_fields(", "build_box_declaration(", "PreparedInstanceBoxConstructorBatchV1::prepare(", "PreparedInstanceBoxMethodBatchV1::prepare("):
+    for fragment in ("register_user_box_declared_fields(", "PreparedInstanceBoxDeclarationMetadataV1::prepare(", "PreparedInstanceBoxConstructorBatchV1::prepare(", "PreparedInstanceBoxMethodBatchV1::prepare("):
         if instance_lifecycle.count(fragment) != 1:
             raise AssertionError(f"instance declaration common prefix drift: {fragment}")
-    effect_order = ("register_user_box_declared_fields(", "build_box_declaration(", "self.constructors.lower_with_port_v1(builder, port)?", "Ok(self.instance_methods)")
+    effect_order = ("register_user_box_declared_fields(", "self.metadata.lower_with_builder_v1(builder)?", "self.constructors.lower_with_port_v1(builder, port)?", "Ok(self.instance_methods)")
     if [instance_lifecycle.index(item) for item in effect_order] != sorted(instance_lifecycle.index(item) for item in effect_order):
         raise AssertionError("instance declaration lifecycle effect order drift")
     forbid(instance_lifecycle, "callable_declaration_catalog", "root-only catalog authority")
+    for fragment in ("build_box_declaration(", "methods.clone()", "fields.to_vec()", "weak_fields.to_vec()"):
+        forbid(instance_lifecycle, fragment, "retired lower-side instance metadata authority")
+    for fragment in ("PreparedInstanceBoxDeclarationMetadataV1", "sorted_method_entries", "get_or_assign_type_id", "reserve_method_slot", "register_property_getter_method"):
+        require(instance_metadata, fragment, "instance metadata projection")
     for fragment in ("fallback", "retry", "emit_void"):
         forbid(instance_lifecycle, fragment, "instance declaration lifecycle outer authority")
     for row in ("NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0", "INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0", "INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0", "INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0"):

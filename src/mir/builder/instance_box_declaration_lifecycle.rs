@@ -8,6 +8,7 @@ use std::collections::HashMap;
 use crate::ast::{ASTNode, FieldDecl};
 
 use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
+use super::instance_box_declaration_metadata::PreparedInstanceBoxDeclarationMetadataV1;
 use super::instance_box_method_batch::PreparedInstanceBoxMethodBatchV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::recursive_child_lowering::RawBoxMethodChildPortV1;
@@ -15,11 +16,11 @@ use super::MirBuilder;
 
 pub(super) struct PreparedInstanceBoxDeclarationLifecycleV1<'source> {
     name: &'source str,
-    methods: &'source HashMap<String, ASTNode>,
     fields: &'source [String],
     field_decls: &'source [FieldDecl],
     init_fields: &'source [String],
     weak_fields: &'source [String],
+    metadata: PreparedInstanceBoxDeclarationMetadataV1,
     constructors: PreparedInstanceBoxConstructorBatchV1,
     instance_methods: PreparedInstanceBoxMethodBatchV1,
 }
@@ -37,11 +38,16 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
     ) -> Self {
         Self {
             name,
-            methods,
             fields,
             field_decls,
             init_fields,
             weak_fields,
+            metadata: PreparedInstanceBoxDeclarationMetadataV1::prepare(
+                name,
+                methods,
+                fields,
+                weak_fields,
+            ),
             constructors: PreparedInstanceBoxConstructorBatchV1::prepare(name, constructors),
             instance_methods: PreparedInstanceBoxMethodBatchV1::prepare(name, methods),
         }
@@ -86,12 +92,7 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
             self.init_fields,
             self.weak_fields,
         );
-        builder.build_box_declaration(
-            self.name.to_owned(),
-            self.methods.clone(),
-            self.fields.to_vec(),
-            self.weak_fields.to_vec(),
-        )?;
+        self.metadata.lower_with_builder_v1(builder)?;
         self.constructors.lower_with_port_v1(builder, port)?;
         Ok(self.instance_methods)
     }
