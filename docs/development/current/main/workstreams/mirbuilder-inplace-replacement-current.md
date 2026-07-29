@@ -112,34 +112,38 @@ Mode:    design-only D0
 `RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0`
 
 ```text
-Observation closeout:
-  NoSafeI0. The sole raw Lambda edge owns a nondeterministic HashSet capture
-  walk, incomplete declaration traversal, unconditional ambient me capture,
-  and body metadata mutation before NewClosure emission. Extraction alone is
-  forbidden.
+Authority:
+  A standalone FunctionSemanticResolverSession forest is not a raw capture
+  authority: the raw edge lacks parent owner, BindingRef, definition site, and
+  lexical-scope provenance. Legacy free-var walking is likewise not reusable.
 
-Design matrix:
-  Decide one exact contract for nested-Lambda forwarding or rejection;
-  Function/Box declaration boundaries; Local batch/initializer, BlockExpr,
-  Nowait, LoopRange, TryCatch, Match, ContextScope, Outbox, and assignment
-  scope/rebind rules; direct Me versus Variable("me"); unresolved-demand
-  timing; source-order unique demand order; and reserve -> emit -> commit body
-  metadata publication. Every unsupported surface must reject before Builder
-  effect, not silently disappear.
+Change:
+  Seal one owner-neutral lexical observation contract from resolver scope
+  rules: relative declaration/read/rebind/direct-Me/nested-boundary records in
+  deterministic first-demand order. It owns no AST, BindingRef, source
+  identity, ValueId, Builder, module, or publication. A later materializer may
+  bind it once to an explicit legacy name-to-ValueId environment.
 
-Future implementation:
-  Only an atomic T2 I0/R0 may create the chosen owner. It must move raw Lambda
-  params/body once, materialize exact demands once, and delete both dispatcher
-  clone edge and build_lambda_expression in that same commit.
+Contract:
+  Fix parameter/local initializer sequencing, scope boundaries, direct-Me
+  versus Variable("me"), read versus rebind, first-demand dedup/order, and
+  source-only rejection. Before I0, decide exactly: unavailable external name;
+  direct-Me environment availability; nested Lambda/Function/Box boundary;
+  reserve -> emit -> infallible commit closure-body publication. No nested
+  forwarding or closure-runtime claim is implied.
 
-Shelf:
-  Program-root single-pass partition and raw static-Main compatibility retirement
-  require their own D0. No active sunset is closable. JoinModule stays for
-  repository-final conformance before View/Ownership feature work.
+Next:
+  Only if all four decisions close, open one atomic T2
+  `RAW-LAMBDA-LEXICAL-OBSERVATION0-I0-R0`: switch the raw dispatcher Lambda
+  edge once and delete the old inline walker/ambient-me/pre-emit publication
+  authority. Otherwise remain at this D0; no observer-only I0 is valid.
 
 Stop:
-  Do not infer a nested-Lambda forwarding rule, preserve silent omissions, add
-  fallback/retry, or open I0/R0 before this matrix is explicit.
+  Do not fabricate BindingRef/source identity from variable_map, make the raw
+  Lambda a standalone resolver root, preserve silent omissions, add fallback/
+  retry, or treat this as a whole-function acceptance queue. Program-root and
+  static-Main D0 shelves stay independent; JoinModule disposition is final
+  conformance, then View/Ownership and later features may resume.
 ```
 
 Fixed phase order:
@@ -1435,7 +1439,7 @@ R80 MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0 closed
 R81 RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0 closed: raw dispatcher lifecycle deleted at da95eee7f7
 R82 MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 closed: no bounded executable edge; Lambda D0 selected
 R83 RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 closed: NoSafeI0; lexical boundary matrix selected
-R84 RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 current
+R84 RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 current: seal owner-neutral observation and four I0 gates
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

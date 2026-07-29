@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 closed as NoSafeI0: the raw Lambda walker has unspecified lexical boundaries and non-atomic body metadata publication, so extraction would fossilize unsafe authority. RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 is the sole current design stop. Program-root single-pass partition and raw static-Main retirement remain separate D0 shelves. Grammar, result, View, Ownership, and JoinModule remain unchanged."
+status = "RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 is the sole current design stop: raw Lambda cannot consume a standalone resolved owner forest because it lacks parent source identity and BindingRef provenance; the legacy walker cannot be extracted. R84 must seal its owner-neutral lexical observation contract and four I0 gates before one atomic Lambda replacement may open. Program-root single-pass partition and raw static-Main retirement remain separate D0 shelves. Grammar, result, View, Ownership, and JoinModule remain unchanged."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0"
 current_execution_row = ""
-current_execution_summary = "Decide the exact lexical-boundary matrix for a future raw Lambda capture owner: nested-Lambda forwarding or rejection, declaration boundaries, scope/binder sequencing, free-rebind policy, direct-Me/unresolved timing, deterministic demand order, and reserve->emit->commit closure metadata. Do not open I0/R0 yet."
+current_execution_summary = "Seal the raw Lambda lexical-boundary matrix: owner-neutral relative lexical observation plus exact unresolved-capture, direct-Me, nested-owner, and reserve->emit->commit body-publication contracts. Do not open I0/R0 until all four are explicit."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0 is selected as one atomic T1 replacement. The raw dispatcher will hand one already-classified non-Main static Box to PreparedRawNonMainStaticBoxLifecycleV1; its app-mode branch, batch preparation, user-box registration, transaction, and Void completion authority will be deleted."""
+latest_card_summary = """RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 is the sole design stop. It must select one owner-neutral lexical observation contract and resolve unavailable capture, direct-Me, nested-owner, and reserve->emit->commit body-publication policy before a single atomic raw Lambda I0/R0 may open."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0"
+current_blocker_token = "RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
