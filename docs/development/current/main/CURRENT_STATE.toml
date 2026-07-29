@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The next live MirBuilder replacement prepares one static-data or dynamic Index-read route before child effects."
+status = "Raw Index read now selects one opaque static-data or dynamic route before effects; the next live edge requires a fresh read-only census."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RAW-INDEX-READ-ROUTE-ONCE0-I0-R0"
-current_execution_summary = "Seal one static-data or dynamic Index-read route, then delete dispatcher clones, repeated Variable observation, and the caller-zero Index-read facade."
+current_design_stop = "MIRBUILDER-POST-INDEX-READ-LIVE-EDGE-CENSUS0-D0"
+current_execution_row = ""
+current_execution_summary = "Index-read route-once is closed: one opaque prepared product replaces dispatcher clones, repeated Variable observation, and caller-zero read facades. Census only; no code row is selected."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """The fresh census selected RAW-FROM-CALL-ROUTE-ONCE0-I0-R0. The production ASTNode::FromCall arm selects enum-variant or ordinary From exactly once before Builder effects. Enum diagnostics, argument order, VariantMake, and ordinary From behavior remain exact; optional probing and alternate no-port entries are deleted atomically. Lambda remains parked because its capture SSOTs disagree."""
+latest_card_summary = """RAW-INDEX-READ-ROUTE-ONCE0-I0-R0 is closed. The production ASTNode::Index arm selects static-data or dynamic read exactly once before effects; static type validation remains pre-descent, dynamic metadata/FastMem/class observation remains post-child, and read clones, repeated Variable observation, and caller-zero facades are deleted. Assignment/place, Lambda, View, Ownership, and all feature additions remain parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-INDEX-READ-ROUTE-ONCE0-I0-R0"
+current_blocker_token = "MIRBUILDER-POST-INDEX-READ-LIVE-EDGE-CENSUS0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -16,6 +16,7 @@ pub(in crate::mir::builder) use input_view::{
 use super::builder_build::PreparedRawNewExpressionV1;
 use super::calls::{MethodCallDescentPortV1, PreparedRawFromCallV1, RawLegacyMethodCallInputV1};
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
+use super::indexing::PreparedRawIndexReadV1;
 use super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::ops::{
     drive_ordinary_binary_expression_v1, drive_short_circuit_expression_v1,
@@ -181,7 +182,8 @@ impl super::MirBuilder {
             }
 
             ASTNode::Index { target, index, .. } => {
-                self.build_index_expression_with_port_v1(port, *target.clone(), *index.clone())
+                let prepared = PreparedRawIndexReadV1::prepare(self, *target, *index)?;
+                self.lower_prepared_raw_index_read_with_port_v1(port, prepared)
             }
 
             node @ ASTNode::FunctionCall { .. } => {

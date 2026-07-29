@@ -54,8 +54,18 @@ FIELDS="$ROOT_DIR/src/mir/builder/fields.rs"
 PROPERTY_TESTS="$ROOT_DIR/src/tests/mir_unified_members_property_read.rs"
 RECORD_HELPER="$ROOT_DIR/src/mir/builder/record_helper_args.rs"
 RECORD_HELPER_TESTS="$ROOT_DIR/src/mir/builder/record_helper_args_tests.rs"
+INDEXING="$ROOT_DIR/src/mir/builder/indexing.rs"
 METHOD_CALL_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_route0.py"
 RECORD_HELPER_GUARD="$ROOT_DIR/tools/checks/impl/k2_wide_allocator_record_construction_read_guard.sh"
+
+guard_exact_counts() {
+  while IFS='|' read -r file pattern expected label; do
+    count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+    if [[ "$count" != "$expected" ]]; then
+      guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
+    fi
+  done
+}
 
 guard_require_command "$TAG" awk
 guard_require_command "$TAG" find
@@ -111,6 +121,7 @@ guard_require_files \
   "$PROPERTY_TESTS" \
   "$RECORD_HELPER" \
   "$RECORD_HELPER_TESTS" \
+  "$INDEXING" \
   "$METHOD_CALL_GUARD" \
   "$RECORD_HELPER_GUARD"
 
@@ -153,12 +164,7 @@ if rg -n -F '.cf_loop(' "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null ||
   guard_fail "$TAG" "retired generic cf_loop authority returned"
 fi
 
-while IFS='|' read -r file pattern expected label; do
-  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
-  if [[ "$count" != "$expected" ]]; then
-    guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
-  fi
-done <<EOF
+guard_exact_counts <<EOF
 $BUILDER_BUILD|struct\\s+PreparedRawNewExpressionV1\\b|1|prepared raw New route
 $BUILDER_BUILD|fn\\s+lower_prepared_raw_new_expression_with_port_v1\\s*<Port>|1|prepared raw New lowering owner
 $BUILDER_BUILD|is_record_constructor_class\\(&class\\)|1|single raw New record classifier
@@ -180,12 +186,7 @@ if rg -n -F 'RawLegacyChildLoweringPortV1' "$BUILDER_BUILD" >/dev/null; then
   guard_fail "$TAG" "builder_build restored a caller-selected legacy New port"
 fi
 
-while IFS='|' read -r file pattern expected label; do
-  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
-  if [[ "$count" != "$expected" ]]; then
-    guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
-  fi
-done <<EOF
+guard_exact_counts <<EOF
 $CALLS_BUILD|struct\\s+PreparedRawFromCallV1\\b|1|opaque prepared raw From route
 $CALLS_BUILD|enum\\s+PreparedRawFromCallRouteV1\\b|1|private raw From route vocabulary
 $CALLS_BUILD|fn\\s+lower_prepared_raw_from_call_with_port_v1\\s*<Port>|1|prepared raw From lowering owner
@@ -207,22 +208,30 @@ do
   fi
 done
 
-while IFS='|' read -r file pattern expected label; do
-  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
-  if [[ "$count" != "$expected" ]]; then
-    guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
-  fi
-done <<EOF
+guard_exact_counts <<EOF
 $ENUM_MATCH|struct\\s+PreparedRawScopeBoxV1\\b|1|opaque prepared raw ScopeBox route
 $ENUM_MATCH|enum\\s+PreparedRawScopeBoxRouteV1\\b|1|private raw ScopeBox route vocabulary
 $ENUM_MATCH|fn\\s+lower_prepared_raw_scopebox_with_port_v1\\s*<Port>|1|prepared raw ScopeBox lowering owner
 $STATEMENT_SURFACE|PreparedRawScopeBoxV1::prepare\\s*\\(|1|sole raw ScopeBox route issuer
 $STATEMENT_SURFACE|lower_prepared_raw_scopebox_with_port_v1\\s*\\(|1|sole prepared raw ScopeBox caller
+$INDEXING|struct\\s+PreparedRawIndexReadV1\\b|1|opaque prepared raw Index-read route
+$INDEXING|enum\\s+PreparedRawIndexReadRouteV1\\b|1|private raw Index-read route vocabulary
+$INDEXING|fn\\s+lower_prepared_raw_index_read_with_port_v1\\s*<Port>|1|prepared raw Index-read lowering owner
+$RAW_DISPATCH|PreparedRawIndexReadV1::prepare\\s*\\(|1|sole raw Index-read route issuer
+$RAW_DISPATCH|lower_prepared_raw_index_read_with_port_v1\\s*\\(|1|sole prepared raw Index-read caller
 EOF
 if rg -n -P 'fn\s+try_build_guard_let_scopebox(?:_with_port_v1)?\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired Option-based ScopeBox route returned"
 fi
+for retired_index_read_edge in \
+  'fn build_index_expression(' \
+  'fn build_index_expression_with_port_v1'
+do
+  if rg -n -F "$retired_index_read_edge" "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+    guard_fail "$TAG" "retired Index-read edge returned: $retired_index_read_edge"
+  fi
+done
 
 stageb_asset_count="$(awk -F '\t' '
   $1 == "asset" &&
@@ -635,12 +644,7 @@ if rg -n -w 'retry|fallback' "$BINARY_DESCENT" "$SHORT_CIRCUIT_DESCENT" >/dev/nu
   guard_fail "$TAG" "Binary owner gained retry or route fallback"
 fi
 
-while IFS='|' read -r file pattern expected label; do
-  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
-  if [[ "$count" != "$expected" ]]; then
-    guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
-  fi
-done <<EOF
+guard_exact_counts <<EOF
 $METHOD_CALL_DESCENT|\\benum\\s+CatalogHelperChildV1\\b|1|catalog helper child vocabulary
 $METHOD_CALL_DESCENT|\\[method-call-descent/catalog-helper-child-unsupported\\]|1|fail-closed custom-port default
 $RECORD_HELPER|CatalogHelperChildV1::Expression\\(\\*expr\\.clone\\(\\)\\)|1|catalog helper expression terminal
@@ -665,12 +669,7 @@ if rg -n -w 'retry|fallback|reselection' \
   guard_fail "$TAG" "record-helper descent gained retry, fallback, or reselection"
 fi
 
-while IFS='|' read -r file pattern expected label; do
-  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
-  if [[ "$count" != "$expected" ]]; then
-    guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
-  fi
-done <<EOF
+guard_exact_counts <<EOF
 $RAW_DISPATCH|self\\.build_field_access_with_port_v1\\s*\\(|1|sole raw/default FieldAccess selector
 $FIELDS|try_lower_property_read_with_port_v1\\s*\\(port, object_value, &field\\)|1|port-aware property caller
 $PROPERTY_READS|struct\\s+PropertyGetterCompletionV1\\b|1|exact zero-argument property adapter

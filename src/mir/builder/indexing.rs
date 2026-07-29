@@ -11,6 +11,67 @@ mod static_load_type;
 
 use static_load_type::PreparedStaticU16LoadTypeV1;
 
+/// One source-only Index-read route selected before child lowering or Builder
+/// effects. The route vocabulary stays private so callers can only consume the
+/// complete preparation through the Index owner.
+pub(in crate::mir::builder) struct PreparedRawIndexReadV1 {
+    route: PreparedRawIndexReadRouteV1,
+}
+
+enum PreparedRawIndexReadRouteV1 {
+    Static {
+        plan: crate::mir::function::StaticDataPlan,
+        result_type: PreparedStaticU16LoadTypeV1,
+        index: ASTNode,
+    },
+    Dynamic {
+        target: ASTNode,
+        index: ASTNode,
+        target_label: Option<String>,
+    },
+}
+
+impl PreparedRawIndexReadV1 {
+    pub(in crate::mir::builder) fn prepare(
+        builder: &super::MirBuilder,
+        target: ASTNode,
+        index: ASTNode,
+    ) -> Result<Self, String> {
+        let (static_plan, target_label) = match &target {
+            ASTNode::Variable { name, .. } => {
+                let static_plan = builder.current_module.as_ref().and_then(|module| {
+                    crate::mir::static_data_plan::find_static_data_plan(
+                        &module.metadata.static_data_plans,
+                        name,
+                    )
+                    .cloned()
+                });
+                let target_label = static_plan.is_none().then(|| name.clone());
+                (static_plan, target_label)
+            }
+            _ => (None, None),
+        };
+
+        let route = match static_plan {
+            Some(plan) => {
+                let result_type = PreparedStaticU16LoadTypeV1::prepare(&plan, None)
+                    .map_err(|error| error.to_string())?;
+                PreparedRawIndexReadRouteV1::Static {
+                    plan,
+                    result_type,
+                    index,
+                }
+            }
+            None => PreparedRawIndexReadRouteV1::Dynamic {
+                target,
+                index,
+                target_label,
+            },
+        };
+        Ok(Self { route })
+    }
+}
+
 impl super::MirBuilder {
     pub(super) fn infer_index_target_class(&self, target_val: ValueId) -> Option<String> {
         if let Some(cls) = self
@@ -186,42 +247,22 @@ impl super::MirBuilder {
         }
     }
 
-    pub(super) fn build_index_expression(
-        &mut self,
-        target: ASTNode,
-        index: ASTNode,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_index_expression_with_port_v1(&mut port, target, index)
-    }
-
-    /// Lower an index read while retaining the raw child's descent port.
-    ///
-    /// Index routing and access-site publication remain owned by this module;
-    /// only target and index expression descent are delegated to the caller.
-    pub(super) fn build_index_expression_with_port_v1<Port>(
+    /// Consume one already selected Index-read route. Static-data validation
+    /// has completed before this terminal opens either child descent.
+    pub(in crate::mir::builder) fn lower_prepared_raw_index_read_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
-        target: ASTNode,
-        index: ASTNode,
+        prepared: PreparedRawIndexReadV1,
     ) -> Result<ValueId, String>
     where
         Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
     {
-        if let ASTNode::Variable { name, .. } = &target {
-            if let Some(plan) = self
-                .current_module
-                .as_ref()
-                .and_then(|module| {
-                    crate::mir::static_data_plan::find_static_data_plan(
-                        &module.metadata.static_data_plans,
-                        name,
-                    )
-                })
-                .cloned()
-            {
-                let prepared = PreparedStaticU16LoadTypeV1::prepare(&plan, None)
-                    .map_err(|error| error.to_string())?;
+        match prepared.route {
+            PreparedRawIndexReadRouteV1::Static {
+                plan,
+                result_type: prepared,
+                index,
+            } => {
                 let index_val = drive_legacy_expression_v1(self, port, index)?;
                 let dst = self.next_value_id();
                 self.emit_instruction(MirInstruction::StaticDataLoad {
@@ -234,17 +275,25 @@ impl super::MirBuilder {
                     index: index_val,
                 })?;
                 prepared.commit(dst, &mut self.function_state.type_ctx);
-                return Ok(dst);
+                Ok(dst)
+            }
+            PreparedRawIndexReadRouteV1::Dynamic {
+                target,
+                index,
+                target_label,
+            } => {
+                let target_val = drive_legacy_expression_v1(self, port, target)?;
+                let index_val = drive_legacy_expression_v1(self, port, index)?;
+                self.build_index_access_from_values(
+                    None,
+                    target_val,
+                    index_val,
+                    target_label,
+                    "load",
+                    None,
+                )
             }
         }
-
-        let target_label = match &target {
-            ASTNode::Variable { name, .. } => Some(name.clone()),
-            _ => None,
-        };
-        let target_val = drive_legacy_expression_v1(self, port, target)?;
-        let index_val = drive_legacy_expression_v1(self, port, index)?;
-        self.build_index_access_from_values(None, target_val, index_val, target_label, "load", None)
     }
 
     pub(super) fn build_index_assignment(
@@ -291,7 +340,9 @@ mod tests {
     use super::super::MirBuilder;
     use super::MirType;
     use crate::ast::{ASTNode, LiteralValue, Span};
-    use crate::mir::builder::recursive_child_lowering::RecursiveChildLoweringPortV1;
+    use crate::mir::builder::recursive_child_lowering::{
+        RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    };
     use crate::mir::function::StaticDataPlan;
     use crate::mir::{MirInstruction, MirModule, ValueId};
 
@@ -367,6 +418,28 @@ mod tests {
             .any(|instruction| matches!(instruction, MirInstruction::StaticDataLoad { .. }))
     }
 
+    fn lower_index_read_with_port<Port>(
+        builder: &mut MirBuilder,
+        port: &mut Port,
+        target: ASTNode,
+        index: ASTNode,
+    ) -> Result<ValueId, String>
+    where
+        Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
+    {
+        let prepared = super::PreparedRawIndexReadV1::prepare(builder, target, index)?;
+        builder.lower_prepared_raw_index_read_with_port_v1(port, prepared)
+    }
+
+    fn lower_index_read(
+        builder: &mut MirBuilder,
+        target: ASTNode,
+        index: ASTNode,
+    ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        lower_index_read_with_port(builder, &mut port, target, index)
+    }
+
     struct RecordingIndexPortV1 {
         events: Vec<&'static str>,
         target_value: ValueId,
@@ -434,8 +507,7 @@ mod tests {
             index_value,
         };
 
-        builder
-            .build_index_expression_with_port_v1(&mut port, var("target"), var("index"))
+        lower_index_read_with_port(&mut builder, &mut port, var("target"), var("index"))
             .expect("generic Index");
 
         assert_eq!(port.events, ["target", "index"]);
@@ -463,8 +535,7 @@ mod tests {
             index_value: builder.alloc_value_for_test(),
         };
 
-        builder
-            .build_index_expression_with_port_v1(&mut port, var("SIZE_CLASS"), var("index"))
+        lower_index_read_with_port(&mut builder, &mut port, var("SIZE_CLASS"), var("index"))
             .expect("static Index");
 
         assert_eq!(port.events, ["index"]);
@@ -526,8 +597,7 @@ mod tests {
         builder.enter_function_for_test("static_u16_load_before_finalization/0".to_string());
         install_static_plan(&mut builder, u16_static_plan());
 
-        let dst = builder
-            .build_index_expression(var("SIZE_CLASS"), int_lit(2))
+        let dst = lower_index_read(&mut builder, var("SIZE_CLASS"), int_lit(2))
             .expect("sealed u16 static load");
 
         assert_eq!(
@@ -576,8 +646,7 @@ mod tests {
             .expect("test function")
             .next_value_id;
 
-        let error = builder
-            .build_index_expression(var("SIZE_CLASS"), int_lit(0))
+        let error = lower_index_read(&mut builder, var("SIZE_CLASS"), int_lit(0))
             .expect_err("unsupported static element must reject");
 
         assert!(
@@ -615,8 +684,7 @@ mod tests {
             .next_value_id;
         builder.function_state.current_block = None;
 
-        let error = builder
-            .build_index_expression(var("SIZE_CLASS"), var("index"))
+        let error = lower_index_read(&mut builder, var("SIZE_CLASS"), var("index"))
             .expect_err("missing block must reject StaticDataLoad emission");
 
         assert_eq!(error, "No current basic block");

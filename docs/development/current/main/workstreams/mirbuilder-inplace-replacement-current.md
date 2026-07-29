@@ -580,17 +580,16 @@ largest touched source/check file          = 799
 
 ## Current execution row
 Closed: `RAW-FROM-CALL-ROUTE-ONCE0-I0-R0`, `RAW-SCOPEBOX-BODY-ROUTE-ONCE0-I0-R0`.
-Current: `RAW-INDEX-READ-ROUTE-ONCE0-I0-R0` — accepted
+Closed: `RAW-INDEX-READ-ROUTE-ONCE0-I0-R0`.
 ```text
 Pack / ceremony: CALL-OBJECT0 / T1, one atomic I0/R0.
 Named caller: raw dispatcher ASTNode::Index arm.
-New owner: opaque PreparedRawIndexReadV1; StaticData or Dynamic.
+New owner: opaque PreparedRawIndexReadV1, one prepared route.
 Atomic delete:
   target/index clones, repeated Variable observation, read facades.
-Keep: static validation-before-index, dynamic target->index,
-  post-child FastMem/class lookup, metadata/type publication order.
-Exclude: assignment/compound/place, Lambda/View/Ownership.
-Guard: consolidate repeated tables; final source/check files <800.
+Evidence: Index/static-data tests, type-publication authority,
+  replacement/pointer guards, cargo check, and reuse are green.
+Next design stop: MIRBUILDER-POST-INDEX-READ-LIVE-EDGE-CENSUS0-D0.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
