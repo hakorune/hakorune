@@ -757,18 +757,20 @@ def main() -> int:
         if text.count(".build_module(")
     }
     if actual_build_module != expected_build_module:
-        raise AssertionError(
-            "direct production build_module caller drift: "
-            f"expected={expected_build_module} actual={actual_build_module}"
-        )
+        raise AssertionError("direct production build_module caller drift: "
+                             f"expected={expected_build_module} actual={actual_build_module}")
     runtime_emit = (ROOT / "src/runtime/mirbuilder_emit.rs").read_text()
     if "json_to_ast" in runtime_emit or "lower_ast_json_to_module" in runtime_emit: raise AssertionError("runtime AST-JSON compatibility must remain retired")
     test_bridge = ROOT / "src/host_providers/mir_builder/lowering.rs"
     require(test_bridge.read_text(), "#[cfg(test)]\nmod ast_json;", "cfg(test) AST-JSON bridge")
-    for relative in caller_manifest.get("direct_build_module_cfg_test", {}):
-        if not (ROOT / relative).is_file():
-            raise AssertionError(f"cfg(test) AST-JSON bridge path missing: {relative}")
-
+    expected_test_build = caller_manifest.get("direct_build_module_repository_tests", {})
+    actual_test_build = {}
+    for root in (ROOT / "src", ROOT / "tests"):
+        for path in root.rglob("*.rs"):
+            count = path.read_text().count(".build_module(")
+            if count: actual_test_build[str(path.relative_to(ROOT))] = count
+    if actual_test_build != expected_test_build: raise AssertionError(
+        f"direct test build_module caller drift: expected={expected_test_build} actual={actual_test_build}")
     old_calls = []
     old_definitions = {
         ROOT / "src/mir/compiler/module_postprocess.rs",

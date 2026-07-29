@@ -1,22 +1,6 @@
 use nyash_rust::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use nyash_rust::mir::MirBuilder;
 
-// Legacy MirBuilder 単体テスト（関数数=1 前提が崩れているためアーカイブ扱い）.
-#[test]
-#[ignore]
-fn test_literal_building() {
-    let mut builder = MirBuilder::new();
-    let ast = ASTNode::Literal {
-        value: LiteralValue::Integer(42),
-        span: Span::unknown(),
-    };
-    let result = builder.build_module(ast);
-    assert!(result.is_ok());
-    let module = result.unwrap();
-    assert_eq!(module.function_names().len(), 1);
-    assert!(module.get_function("main").is_some());
-}
-
 #[test]
 fn test_binary_op_building() {
     let mut builder = MirBuilder::new();

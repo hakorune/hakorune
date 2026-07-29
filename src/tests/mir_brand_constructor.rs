@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::mir::MirBuilder;
+    use crate::mir::MirCompiler;
     use crate::parser::NyashParser;
 
     fn ensure_ring0_initialized() {
@@ -10,8 +10,8 @@ mod tests {
     fn build(source: &str) -> Result<(), String> {
         ensure_ring0_initialized();
         let ast = NyashParser::parse_from_string(source).expect("parse");
-        let mut builder = MirBuilder::new();
-        builder.build_module(ast).map(|_| ())
+        let mut compiler = MirCompiler::with_options(false);
+        compiler.compile(ast).map(|_| ())
     }
 
     #[test]

@@ -579,28 +579,30 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution
-`MIRBUILDER-ROOT-TEST-EVIDENCE0-R0` — T2 breaking series 1/3
+`HOST-PROVIDER-CFGTEST-AST-JSON-COMPAT0-RET0` — T2 breaking series 2/4
 ```text
 Change:
-  Move Program-root verification/Brand evidence to MirCompiler and delete the
-  obsolete ignored Phase6/Phase7 plus ignored bare-Literal tests.
+  Replace version/kind-less host-provider fixtures with exact Program(JSON v0)
+  evidence and delete the cfg(test) generic AST-JSON build_module bridge.
 
 Contract:
-  Public build_module stays until series 3. Raw non-Program and minimal-path
-  evidence stays for series 2. Production, grammar, MIR, and diagnostics do not move.
+  Production host/runtime behavior stays unchanged. Public build_module and
+  the four unrelated Raw test callers remain for later series rows.
 
 Done:
-  Selected direct test callers are zero; remaining callers are exact and all
-  surviving tests/builds are green.
+  lowering/ast_json.rs and its direct caller are zero; Program(JSON v0)
+  success/rejection evidence and host-provider tests are green.
 
 Stop:
-  Do not wrap a Raw test in Program, invent a test facade, or change lowering.
+  Do not add a test facade, route generic AST JSON to normal ingress, or widen
+  the production host contract.
 ```
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
-1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 current
-2 MIRBUILDER-RAW-TEST-EVIDENCE-LOCALIZE0-R0
-3 MIRBUILDER-PUBLIC-ROOT-API0-RET0
+1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)
+2 HOST-PROVIDER-CFGTEST-AST-JSON-COMPAT0-RET0 current
+3 MIRBUILDER-RAW-TEST-EVIDENCE-LOCALIZE0-R0
+4 MIRBUILDER-PUBLIC-ROOT-API0-RET0
 ```
 External consumers are unknown, not zero. Migration is `MirCompiler::compile*`
 for Program; no public arbitrary-root replacement is introduced.
@@ -713,7 +715,7 @@ R29 POST-MACRO-ROOT-CONTRACT0-D0 closed: WholeFileProgram
 R30 STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0 closed
 R31 SELFHOST-MACRO-PREEXPAND-TYPED-PROGRAM-INGRESS0-I0-R0 closed
 R32 VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 closed
-R33 VM fallback closed; R34 VM keep closed; R35 helper DEL0 closed; R36 public contract D0 closed; R37 public Program admission closed; R38 public root D0 closed; R39 root test evidence current
+R33 VM fallback closed; R34 VM keep closed; R35 helper DEL0 closed; R36 public contract D0 closed; R37 public Program admission closed; R38 public root D0 closed; R39 root test evidence closed; R40 host cfgtest AST JSON current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

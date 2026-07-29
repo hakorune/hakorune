@@ -1,8 +1,15 @@
 use nyash_rust::ast::{ASTNode, LiteralValue, Span};
 use nyash_rust::mir::{
-    BasicBlock, BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirBuilder, MirFunction,
-    MirInstruction, MirPrinter, MirType, MirVerifier, VerificationError,
+    BasicBlock, BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirCompiler, MirFunction,
+    MirInstruction, MirModule, MirPrinter, MirType, MirVerifier, VerificationError,
 };
+
+fn compile_program(ast: ASTNode) -> MirModule {
+    MirCompiler::with_options(false)
+        .compile(ast)
+        .expect("compile Program")
+        .module
+}
 
 #[test]
 fn test_valid_function_verification() {
@@ -87,8 +94,7 @@ fn test_if_merge_uses_phi_not_predecessor() {
         span: Span::unknown(),
     };
 
-    let mut builder = MirBuilder::new();
-    let module = builder.build_module(ast).expect("build mir");
+    let module = compile_program(ast);
 
     // Verify: should be OK (no MergeUsesPredecessorValue)
     let mut verifier = MirVerifier::new();
@@ -249,8 +255,7 @@ fn test_loop_phi_normalization() {
         span: Span::unknown(),
     };
 
-    let mut builder = MirBuilder::new();
-    let module = builder.build_module(ast).expect("build mir");
+    let module = compile_program(ast);
 
     // Verify SSA/dominance: should pass
     let mut verifier = MirVerifier::new();
@@ -396,8 +401,7 @@ fn test_loop_nested_if_phi() {
         span: Span::unknown(),
     };
 
-    let mut builder = MirBuilder::new();
-    let module = builder.build_module(ast).expect("build mir");
+    let module = compile_program(ast);
 
     let mut verifier = MirVerifier::new();
     let res = verifier.verify_module(&module);
