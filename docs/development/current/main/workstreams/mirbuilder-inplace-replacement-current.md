@@ -580,13 +580,13 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: RAW-THROW-COMPLETION-ROUTE-PREPARE-ONCE0-I0-R0.
-Caller: raw statement-surface ASTNode::Throw branch.
-Selected owner: PreparedRawThrowV1 plus its consuming completion terminal.
-Deleted: cf_throw*, MirBuilder::cf_throw, raw-terminal edge, lower-side env route decision.
-Preserved: cleanup precedence, child-once order, trace/Throw effects and returned value.
-Non-claims: TryCatch lifecycle, Return semantics, physical Throw compatibility sunset.
-Evidence: route-seal test, raw invocation-port test, cleanup matrix, exact shared guard.
+Closed: RAW-TASK-SCOPE-PREPARED-ADMISSION0-I0-R0.
+Caller: raw statement-surface ASTNode::TaskScope branch.
+Selected owner: PreparedRawTaskScopeV1 plus its consuming same-port lower terminal.
+Deleted: two raw TaskScope terminals, duplicate early-exit admission, source clones.
+Preserved: diagnostic precedence, push/body/pop order, child failure and pop behavior.
+Non-claims: cleanup-on-early-exit, Return/Throw/TryCatch semantics, new co capability.
+Evidence: admission matrix, loop-owned exit proof, source order/failure tests, shared guard.
 Fallback / retry / reselection: 0.
 Current stop: fresh production live-edge census; no next row is preselected.
 ```

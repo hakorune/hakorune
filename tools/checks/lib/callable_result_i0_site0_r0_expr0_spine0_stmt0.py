@@ -43,6 +43,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     stmts_readme_path = "src/mir/builder/stmts/README.md"
     variable_stmt_path = "src/mir/builder/stmts/variable_stmt.rs"
     collection_literals_path = "src/mir/builder/collection_literals.rs"
+    task_scope_path = "src/mir/builder/stmts/task_scope_stmt.rs"
     control_setup_paths = (
         "src/mir/builder/control_flow/plan/parts/wiring_tests.rs",
         "src/mir/builder/control_flow/plan/parts/associated_source/raw_parity_tests.rs",
@@ -64,7 +65,66 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     stmts_readme = _read(root, stmts_readme_path)
     variable_stmt = _read(root, variable_stmt_path)
     collection_literals = _read(root, collection_literals_path)
+    task_scope = _read(root, task_scope_path)
     control_setups = tuple(_read(root, path) for path in control_setup_paths)
+
+    task_scope_production = task_scope.split("#[cfg(test)]", maxsplit=1)[0]
+    _require_count(
+        task_scope_production,
+        "struct PreparedRawTaskScopeV1",
+        1,
+        "TaskScope prepared source owner",
+    )
+    _require_count(
+        task_scope_production,
+        "fn lower_prepared_raw_task_scope_with_port_v1",
+        1,
+        "TaskScope prepared lower terminal",
+    )
+    _require_count(
+        task_scope_production,
+        "first_unsupported_early_exit(&body)",
+        1,
+        "TaskScope sole early-exit admission issuer",
+    )
+    _require_count(
+        task_scope,
+        "fn build_task_scope_statement(",
+        0,
+        "retired caller-zero TaskScope facade",
+    )
+    _require_count(
+        task_scope,
+        "fn build_task_scope_statement_with_port_v1",
+        0,
+        "retired raw TaskScope terminal",
+    )
+    task_scope_lower = task_scope_production.split(
+        "fn lower_prepared_raw_task_scope_with_port_v1", maxsplit=1
+    )[1].split("fn first_unsupported_early_exit", maxsplit=1)[0]
+    for forbidden in ("first_unsupported_early_exit", "source_keyword"):
+        if forbidden in task_scope_lower:
+            _fail(f"TaskScope lower re-observes source admission: {forbidden}")
+
+    task_prepare = "PreparedRawTaskScopeV1::prepare(body, source_keyword)"
+    task_lower = "lower_prepared_raw_task_scope_with_port_v1("
+    _require_count(
+        raw_statement_surface,
+        task_prepare,
+        1,
+        "raw TaskScope prepared admission caller",
+    )
+    _require_count(
+        raw_statement_surface,
+        task_lower,
+        1,
+        "raw TaskScope prepared lower caller",
+    )
+    if raw_statement_surface.index(task_prepare) >= raw_statement_surface.index(task_lower):
+        _fail("TaskScope production order must be prepare -> lower")
+    for forbidden in ("body.clone()", "source_keyword.clone()"):
+        if forbidden in raw_statement_surface:
+            _fail(f"raw statement surface retains TaskScope source clone: {forbidden}")
 
     _require_count(
         local_descent,
@@ -609,6 +669,8 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         stmts_root_path,
         stmts_readme_path,
         variable_stmt_path,
+        task_scope_path,
+        raw_statement_surface_path,
         *control_setup_paths,
         helper_path,
     )

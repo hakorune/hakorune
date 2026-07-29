@@ -19,6 +19,9 @@ use crate::mir::builder::indexing::{
     lower_prepared_raw_index_assignment_with_port_v1, PreparedRawIndexAssignmentV1,
 };
 use crate::mir::builder::recursive_child_lowering::drive_legacy_body_v1;
+use crate::mir::builder::stmts::task_scope_stmt::{
+    lower_prepared_raw_task_scope_with_port_v1, PreparedRawTaskScopeV1,
+};
 use crate::mir::builder::stmts::{
     drive_local_statement_v1, drive_value_return_statement_v1, drive_variable_assignment_v1,
     RawLegacyLocalInputV1, RawLegacyValueReturnInputV1, RawLegacyVariableAssignmentInputV1,
@@ -119,14 +122,12 @@ where
             body,
             source_keyword,
             ..
-        } => Ok(StatementSurfaceDispatch::Lowered(
-            crate::mir::builder::stmts::task_scope_stmt::build_task_scope_statement_with_port_v1(
-                builder,
-                port,
-                body.clone(),
-                source_keyword.clone(),
-            )?,
-        )),
+        } => {
+            let prepared = PreparedRawTaskScopeV1::prepare(body, source_keyword)?;
+            Ok(StatementSurfaceDispatch::Lowered(
+                lower_prepared_raw_task_scope_with_port_v1(builder, port, prepared)?,
+            ))
+        }
         ASTNode::ContextScope {
             source_keyword,
             name,

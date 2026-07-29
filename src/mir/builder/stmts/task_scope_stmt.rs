@@ -12,44 +12,39 @@ use crate::mir::builder::recursive_child_lowering::{
 
 const EARLY_EXIT_TAG: &str = "[freeze:contract][co/early-exit-unsupported]";
 
-pub(in crate::mir::builder) fn build_task_scope_statement(
-    builder: &mut MirBuilder,
+#[derive(Debug)]
+pub(in crate::mir::builder) struct PreparedRawTaskScopeV1 {
     body: Vec<ASTNode>,
-    source_keyword: String,
-) -> Result<ValueId, String> {
-    if let Some(reason) = first_unsupported_early_exit(&body) {
-        return Err(format!(
-            "{} spelling={} reason={} CONC-CO-MIR-001 v0 is normal-completion-only; scope-exit cleanup lowering is owned by CONC-CO-MIR-002",
-            EARLY_EXIT_TAG, source_keyword, reason
-        ));
-    }
-
-    builder.emit_extern_call("env.task_scope", "push", Vec::new(), None)?;
-    let result = builder.cf_block(body)?;
-    builder.emit_extern_call("env.task_scope", "pop", Vec::new(), None)?;
-    Ok(result)
 }
 
-/// Port-aware task scope body driver.  Scope enter/exit stays here; every
+impl PreparedRawTaskScopeV1 {
+    pub(in crate::mir::builder) fn prepare(
+        body: Vec<ASTNode>,
+        source_keyword: String,
+    ) -> Result<Self, String> {
+        if let Some(reason) = first_unsupported_early_exit(&body) {
+            return Err(format!(
+                "{} spelling={} reason={} CONC-CO-MIR-001 v0 is normal-completion-only; scope-exit cleanup lowering is owned by CONC-CO-MIR-002",
+                EARLY_EXIT_TAG, source_keyword, reason
+            ));
+        }
+
+        Ok(Self { body })
+    }
+}
+
+/// Lowers an admitted task-scope body. Scope enter/exit stays here; every
 /// child statement is delegated to the caller's recursive capability.
-pub(in crate::mir::builder) fn build_task_scope_statement_with_port_v1<Port>(
+pub(in crate::mir::builder) fn lower_prepared_raw_task_scope_with_port_v1<Port>(
     builder: &mut MirBuilder,
     child: &mut Port,
-    body: Vec<ASTNode>,
-    source_keyword: String,
+    prepared: PreparedRawTaskScopeV1,
 ) -> Result<ValueId, String>
 where
     Port: RecursiveChildLoweringPortV1<BodyInput = Vec<ASTNode>, StatementInput = ASTNode>,
 {
-    if let Some(reason) = first_unsupported_early_exit(&body) {
-        return Err(format!(
-            "{} spelling={} reason={} CONC-CO-MIR-001 v0 is normal-completion-only; scope-exit cleanup lowering is owned by CONC-CO-MIR-002",
-            EARLY_EXIT_TAG, source_keyword, reason
-        ));
-    }
-
     builder.emit_extern_call("env.task_scope", "push", Vec::new(), None)?;
-    let result = drive_legacy_body_v1(builder, child, body);
+    let result = drive_legacy_body_v1(builder, child, prepared.body);
     builder.emit_extern_call("env.task_scope", "pop", Vec::new(), None)?;
     result
 }
@@ -215,7 +210,10 @@ mod tests {
                     body,
                     source_keyword,
                     ..
-                } => build_task_scope_statement_with_port_v1(builder, self, body, source_keyword),
+                } => {
+                    let prepared = PreparedRawTaskScopeV1::prepare(body, source_keyword)?;
+                    lower_prepared_raw_task_scope_with_port_v1(builder, self, prepared)
+                }
                 other => Err(format!(
                     "task-scope test port received {}",
                     other.node_type()
@@ -272,9 +270,7 @@ mod tests {
         builder.enter_function_for_test("task_scope_owner_order/0".to_owned());
         let mut port = RecordingTaskScopePortV1::default();
 
-        build_task_scope_statement_with_port_v1(
-            &mut builder,
-            &mut port,
+        let prepared = PreparedRawTaskScopeV1::prepare(
             vec![
                 integer(1),
                 task_scope(vec![integer(2), integer(3)]),
@@ -283,6 +279,7 @@ mod tests {
             "co".to_owned(),
         )
         .unwrap();
+        lower_prepared_raw_task_scope_with_port_v1(&mut builder, &mut port, prepared).unwrap();
 
         assert_eq!(port.seen, vec![1, 2, 3, 4]);
         let calls = task_scope_calls(&builder);
@@ -302,13 +299,13 @@ mod tests {
             ..Default::default()
         };
 
-        let error = build_task_scope_statement_with_port_v1(
-            &mut builder,
-            &mut port,
+        let prepared = PreparedRawTaskScopeV1::prepare(
             vec![integer(1), integer(2), integer(3)],
             "co".to_owned(),
         )
-        .unwrap_err();
+        .unwrap();
+        let error = lower_prepared_raw_task_scope_with_port_v1(&mut builder, &mut port, prepared)
+            .unwrap_err();
 
         assert_eq!(error, "task-scope child 2 failed");
         assert_eq!(port.seen, vec![1, 2]);
@@ -316,5 +313,60 @@ mod tests {
         assert_eq!(calls.len(), 2, "failed scope must still push and pop once");
         assert!(calls[0].contains("push"));
         assert!(calls[1].contains("pop"));
+    }
+
+    fn break_node() -> ASTNode {
+        ASTNode::Break {
+            span: Span::unknown(),
+        }
+    }
+
+    fn continue_node() -> ASTNode {
+        ASTNode::Continue {
+            span: Span::unknown(),
+        }
+    }
+
+    #[test]
+    fn task_scope_prepare_rejects_each_non_local_early_exit_before_effects() {
+        let cases = [
+            (
+                ASTNode::Return {
+                    value: Some(Box::new(integer(1))),
+                    span: Span::unknown(),
+                },
+                "return",
+            ),
+            (
+                ASTNode::Throw {
+                    expression: Box::new(integer(1)),
+                    span: Span::unknown(),
+                },
+                "throw",
+            ),
+            (break_node(), "break"),
+            (continue_node(), "continue"),
+        ];
+
+        for (node, reason) in cases {
+            let error = PreparedRawTaskScopeV1::prepare(vec![node], "co".to_owned()).unwrap_err();
+            assert!(error.contains("[freeze:contract][co/early-exit-unsupported]"));
+            assert!(error.contains("spelling=co"));
+            assert!(error.contains(&format!("reason={reason}")));
+        }
+    }
+
+    #[test]
+    fn task_scope_prepare_allows_loop_owned_break_and_continue() {
+        let loop_node = ASTNode::Loop {
+            condition: Box::new(ASTNode::Literal {
+                value: LiteralValue::Bool(true),
+                span: Span::unknown(),
+            }),
+            body: vec![continue_node(), break_node()],
+            span: Span::unknown(),
+        };
+
+        PreparedRawTaskScopeV1::prepare(vec![loop_node], "co".to_owned()).unwrap();
     }
 }

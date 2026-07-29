@@ -1,11 +1,11 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Raw Throw now seals cleanup admission and its completion route before child descent; the old raw terminal and caller-zero facades are deleted, and the next MirBuilder responsibility awaits a fresh production live-edge census."
+status = "Raw TaskScope now seals early-exit admission before Builder effects; lowering consumes only the admitted body, the two raw terminals and duplicate admission are deleted, and the next MirBuilder responsibility awaits a fresh production live-edge census."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-THROW-PREPARED-ROUTE-LIVE-EDGE-CENSUS0-D0"
+current_design_stop = "MIRBUILDER-POST-TASK-SCOPE-PREPARED-ADMISSION-LIVE-EDGE-CENSUS0-D0"
 current_execution_row = ""
 current_execution_summary = ""
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-POST-THROW-PREPARED-ROUTE-LIVE-EDGE-CENSUS0-D0"
+current_blocker_token = "MIRBUILDER-POST-TASK-SCOPE-PREPARED-ADMISSION-LIVE-EDGE-CENSUS0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
