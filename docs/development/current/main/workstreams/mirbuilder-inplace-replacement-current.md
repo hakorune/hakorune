@@ -578,25 +578,28 @@ new source/test/check/task file            = 0
 largest touched source/check file          = 799
 ```
 
-## Current design stop
-`RAW-NONPROGRAM-ROOT-COMPAT-RET0-D0` — read-only
+## Current execution
+`RAW-NONPROGRAM-ROOT-COMPAT-RET0-R0` / T1 detached-owner retirement
 ```text
-Observed:
-  Public build_module and its three generic root wrappers are zero.
-  raw_nonprogram_root_descent now has production/test execution callers = 0.
-
-Decide:
-  Exact file/type/test/guard retirement boundary for the disconnected owner,
-  preserving any node-responsibility evidence that is still uniquely useful.
-
-Keep:
-  Typed Program lowering, responsibility-local node kernels, MirBuilder,
-  prepare/finalize, and the stable build_module timing label.
-
-Forbid:
-  New compatibility caller, proof-only route expansion, grammar change,
-  Ownership/View activation, or source-level feature work.
+Change:
+  Delete the detached owner, classifier tests, module wiring, live manifest
+  inventory, and route guard; close its sunset in the same commit.
+  Re-express only four unique contracts in async, grouped/compound assignment,
+  and TaskScope owner-local tests.
+Contract:
+  Execution callers remain zero; no replacement root facade is introduced.
+  Keep Program lowering, node kernels, child ports, the global raw driver,
+  prepare/finalize, and the build_module timing label.
+  Grammar, result, publication, fallback, retry, Ownership, and View delta = 0.
+Done:
+  Detached owner/types/files/residual registry/root-specific raw edge = 0.
+  Four owner-local contracts and shared MirBuilder guards are green.
+Stop:
+  Any non-test caller appears; proof needs a replacement root classifier;
+  node semantics change; or global raw driver/build_expression removal is needed.
 ```
+After closeout, run a fresh read-only census of the five live
+`MirBuilder::build_expression` facade calls before selecting another cell.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)
@@ -611,7 +614,7 @@ for Program; no public arbitrary-root replacement is introduced.
 Compatibility sunset:
 ```text
 sunset_id: RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
-state: retirement-selected; execution callers = 0
+state: retirement-row-selected; execution callers = 0
 residual_kind_count: 36
 retire when: owner definition, registered residual surface, and root-specific
   drive_raw_legacy_expression_v1 production edge are all zero
