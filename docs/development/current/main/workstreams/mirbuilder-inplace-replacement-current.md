@@ -87,33 +87,36 @@ Closed:  MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0
 Closed:  RECORD-HELPER-BODY-INVOCATION0-I0-R0
 Closed:  MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0
-Current: MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0
-Mode:    read-only fresh live-edge census
+Closed:  MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0
+Current: RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0
+Mode:    one atomic T0 I0/R0
 ```
 
 ## Current execution brief
 
-`MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0` /
-parent R67 / read-only
+`RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0` / parent R68 / T0 /
+`DESCENT-SPINE0`
 
 ```text
 Change:
-  Inventory the remaining live MirBuilder production edges after the
-  instance-method normalization retirement. Select exactly one bounded
-  production replacement or detached Delete asset.
+  build_expression_impl_with_port_v1 already owns its ASTNode. Move Call
+  callee/arguments, QMark operand, Await operand, RecordLiteral name/fields,
+  and RecordUpdate base/updates directly into their existing port-aware owners.
 
 Contract:
-  Read-only only. Rank candidates by authority reduction and smallest safe
-  same-commit old-edge deletion. Do not reopen the parked Raw/Verified Main
-  batch without resolving its provenance and failure-contract mismatch.
+  Preserve the exact selected port, child order, partial candidate effects,
+  diagnostics, RootLower rejection, and owner APIs. Add no wrapper or product.
+  Lambda, raw Main, static non-Main, and owner-internal snapshots are untouched.
 
 Done:
-  One named caller, one replacement owner or deletion, one exact old edge, and
-  fallback/retry=0 are fixed in the next four-block execution brief.
+  The eight immediate `.clone()` expressions are zero at the sole live raw
+  matcher. Existing Call/QMark/Await/Record child-continuity, parity,
+  failure/reuse, lane guard, and release build are green. No new file.
 
 Stop:
-  No production edit, no new accepted grammar, no View/Ownership activation,
-  and no task queue beyond the single selected next row.
+  Return to design if any downstream owner needs a borrowed or duplicate
+  payload, evaluation/failure timing moves, a facade/route changes, or
+  fallback/retry/View/Ownership/new grammar appears.
 ```
 
 ## Latest closeout
@@ -1300,7 +1303,8 @@ R64 MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 closed: record-helper
 R65 RECORD-HELPER-BODY-INVOCATION0-I0-R0 closed
 R66 MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0 closed: instance normalization selected
 R67 RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0 closed
-R68 MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0 current
+R68 MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0 closed
+R69 RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
