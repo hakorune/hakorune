@@ -579,9 +579,9 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution row
-`RAW-LOOP-JOINIR-ENTRY-FACADE0-I0-R0` — accepted
+`RAW-LOOP-JOINIR-ENTRY-FACADE0-I0-R0` — closed
 ```text
-Pack / ceremony: CONTROL0 / T1, one atomic I0/R0.
+Closeout: CONTROL0 / T1, one atomic I0/R0; old production edges = 0.
 Named callers:
   RawLegacyChildLoweringPortV1::lower_loop
   RawInvocationChildPortV1::lower_loop(NoChildFunctionEntry)
@@ -599,7 +599,7 @@ Evidence:
   raw Loop quarantine/parity tests, planner reject-detail tests, existing
   JoinIR gates, cargo check, and shared replacement/pointer guards.
 ```
-New route-once and caller-zero facade cleanup remain parked for fresh census.
+New route-once and caller-zero cleanup remain candidates for fresh live census.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)

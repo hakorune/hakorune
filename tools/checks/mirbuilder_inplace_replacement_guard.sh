@@ -16,6 +16,9 @@ COMPILER="$ROOT_DIR/src/mir/compiler/mod.rs"
 MODULE_SESSION="$ROOT_DIR/src/mir/builder/module_invocation_session.rs"
 NORMAL_PIPELINE="$ROOT_DIR/src/mir/compiler/normal_default_pipeline.rs"
 NORMAL_ROOT_LIFECYCLE="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle.rs"
+RAW_CHILD_PORT="$ROOT_DIR/src/mir/builder/recursive_child_lowering.rs"
+LOOP_ROUTING="$ROOT_DIR/src/mir/builder/control_flow/joinir/routing.rs"
+CONTROL_FLOW_ROOT="$ROOT_DIR/src/mir/builder/control_flow/mod.rs"
 STATEMENT_SURFACE="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/statement_surface.rs"
 LOCAL_DESCENT="$ROOT_DIR/src/mir/builder/stmts/local_statement_descent.rs"
 LOCATED_LOCAL="$ROOT_DIR/src/mir/builder/located_legacy_lowering.rs"
@@ -69,6 +72,9 @@ guard_require_files \
   "$MODULE_SESSION" \
   "$NORMAL_PIPELINE" \
   "$NORMAL_ROOT_LIFECYCLE" \
+  "$RAW_CHILD_PORT" \
+  "$LOOP_ROUTING" \
+  "$CONTROL_FLOW_ROOT" \
   "$STATEMENT_SURFACE" \
   "$LOCAL_DESCENT" \
   "$LOCATED_LOCAL" \
@@ -129,6 +135,16 @@ do
 done
 if [[ "$(rg -F -c '"production_build_module_edges": 0' "$CALLER_MANIFEST")" != "2" ]]; then
   guard_fail "$TAG" "arbitrary-AST production sunsets must both be retired"
+fi
+
+if [[ "$(rg -F -c 'fn lower_loop_or_freeze_v1(' "$LOOP_ROUTING")" != "1" ]] ||
+   [[ "$(rg -F -c 'lower_loop_or_freeze_v1(' "$RAW_CHILD_PORT")" != "2" ]]; then
+  guard_fail "$TAG" "raw Loop callers must share one JoinIR route/freeze owner"
+fi
+if rg -n -F '.cf_loop(' "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null ||
+   rg -n -F 'fn cf_loop(' "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null ||
+   rg -n -F 'planner_reject_detail' "$CONTROL_FLOW_ROOT" >/dev/null; then
+  guard_fail "$TAG" "retired generic cf_loop authority returned"
 fi
 
 stageb_asset_count="$(awk -F '\t' '

@@ -39,7 +39,6 @@
 
 use super::ValueId;
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::verify::diagnostics::planner_reject_detail;
 
 // Phase 1: Debug utilities
 pub(in crate::mir::builder) mod debug;
@@ -139,54 +138,6 @@ impl super::MirBuilder {
                 ),
             },
         )
-    }
-
-    /// Control-flow: loop
-    ///
-    /// # Phase 49: JoinIR Frontend Mainline Integration
-    ///
-    /// This is the unified entry point for all loop lowering. All loops are processed
-    /// via JoinIR Frontend (Phase 187-2: LoopBuilder removed).
-    /// Specific functions are enabled via dev flags (Phase 49):
-    ///
-    /// - Dev フラグ（既存）:
-    ///   - `HAKO_JOINIR_PRINT_TOKENS_MAIN=1`: JsonTokenizer.print_tokens/0
-    ///   - `HAKO_JOINIR_ARRAY_FILTER_MAIN=1`: ArrayExtBox.filter/2
-    ///
-    /// Note: Arity does NOT include implicit `me` receiver.
-    pub(super) fn cf_loop(
-        &mut self,
-        condition: ASTNode,
-        body: Vec<ASTNode>,
-    ) -> Result<ValueId, String> {
-        planner_reject_detail::clear_last_plan_reject_detail();
-
-        // Phase 49/80: Try JoinIR Frontend route for mainline targets
-        if let Some(result) = self.try_cf_loop_joinir(&condition, &body)? {
-            return Ok(result);
-        }
-
-        if crate::config::env::builder_loopform_debug() {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug("[cf_loop] CALLED from somewhere");
-            ring0.log.debug("[cf_loop] Current stack (simulated): check build_statement vs build_expression_impl");
-        }
-
-        // Phase 186: LoopBuilder Hard Freeze - Legacy path disabled
-        // Phase 187-2: LoopBuilder module removed - all loops must use JoinIR
-        use crate::mir::join_ir::lowering::error_tags;
-        let reject_detail = planner_reject_detail::take_last_plan_reject_detail();
-        let detail_suffix = reject_detail
-            .map(|detail| format!("\nDetail: [joinir/reject_detail] {}", detail))
-            .unwrap_or_default();
-        return Err(error_tags::freeze(&format!(
-            "Loop lowering failed: JoinIR does not support this route shape, and LoopBuilder has been removed.\n\
-             Function: {}\n\
-             Hint: This loop route shape is not supported. All loops must use JoinIR lowering.{}",
-            self.function_state.current_function.as_ref().map(|f| f.signature.name.as_str()).unwrap_or("<unknown>")
-            ,
-            detail_suffix
-        )));
     }
 
     /// Phase 49: Try JoinIR Frontend for mainline integration

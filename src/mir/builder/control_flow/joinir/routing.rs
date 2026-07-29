@@ -264,6 +264,46 @@ fn is_nested_loop_minimal_lowerable(
     true
 }
 
+/// Route one raw Loop through the sole JoinIR entry and preserve the existing
+/// hard-freeze terminal when no route accepts it.
+pub(in crate::mir::builder) fn lower_loop_or_freeze_v1(
+    builder: &mut MirBuilder,
+    condition: ASTNode,
+    body: Vec<ASTNode>,
+) -> Result<ValueId, String> {
+    planner_reject_detail::clear_last_plan_reject_detail();
+
+    if let Some(result) = builder.try_cf_loop_joinir(&condition, &body)? {
+        return Ok(result);
+    }
+
+    if crate::config::env::builder_loopform_debug() {
+        let ring0 = crate::runtime::get_global_ring0();
+        ring0.log.debug("[cf_loop] CALLED from somewhere");
+        ring0.log.debug(
+            "[cf_loop] Current stack (simulated): check build_statement vs build_expression_impl",
+        );
+    }
+
+    use crate::mir::join_ir::lowering::error_tags;
+    let reject_detail = planner_reject_detail::take_last_plan_reject_detail();
+    let detail_suffix = reject_detail
+        .map(|detail| format!("\nDetail: [joinir/reject_detail] {}", detail))
+        .unwrap_or_default();
+    Err(error_tags::freeze(&format!(
+        "Loop lowering failed: JoinIR does not support this route shape, and LoopBuilder has been removed.\n\
+         Function: {}\n\
+         Hint: This loop route shape is not supported. All loops must use JoinIR lowering.{}",
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .map(|f| f.signature.name.as_str())
+            .unwrap_or("<unknown>"),
+        detail_suffix
+    )))
+}
+
 impl MirBuilder {
     /// Phase 49: Try JoinIR Frontend for mainline integration
     ///

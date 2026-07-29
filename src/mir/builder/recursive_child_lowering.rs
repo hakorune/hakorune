@@ -120,8 +120,8 @@ pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
 /// One raw Loop child-entry boundary.
 ///
 /// This boundary owns only the decision whether a raw invocation may delegate
-/// to the existing `cf_loop`. It does not pass the invocation port into JoinIR,
-/// recipe composition, normalization, or plan lowering.
+/// to the existing JoinIR route owner. It does not pass the invocation port
+/// into recipe composition, normalization, or plan lowering.
 pub(in crate::mir::builder) trait RawLoopChildEntryPortV1 {
     fn lower_loop(
         &mut self,
@@ -496,7 +496,7 @@ impl RawLoopChildEntryPortV1 for RawLegacyChildLoweringPortV1 {
         condition: ASTNode,
         body: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
-        builder.cf_loop(condition, body)
+        super::control_flow::joinir::routing::lower_loop_or_freeze_v1(builder, condition, body)
     }
 }
 
@@ -622,7 +622,9 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
     ) -> Result<ValueId, String> {
         match classify_raw_loop_child_entry_v1(&condition, &body) {
             RawLoopChildEntryDispositionV1::NoChildFunctionEntry => {
-                builder.cf_loop(condition, body)
+                super::control_flow::joinir::routing::lower_loop_or_freeze_v1(
+                    builder, condition, body,
+                )
             }
             RawLoopChildEntryDispositionV1::ReachableBoxDeclaration => Err(
                 super::control_flow::lower::Freeze::contract(
