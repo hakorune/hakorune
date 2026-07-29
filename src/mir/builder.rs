@@ -373,6 +373,7 @@ mod joinir_inline_boundary_injector; // Phase 189: JoinInlineBoundary Copy instr
 mod loop_api_impl; // CLEAN-D: LoopBuilderApi wiring kept inside builder layer
 mod module_compat_policy; // CUT0-S0-COMPAT0 ingress policy snapshot
 mod module_finalization_declaration_metadata; // Shared finalizer declaration-metadata handoff
+mod module_finalization_function_metadata; // Shared finalizer function-metadata handoff
 #[cfg(test)]
 mod module_compat_policy_p0; // CUT0-S0-COMPAT0 typed failure fixtures
 #[cfg(test)]

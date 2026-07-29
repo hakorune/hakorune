@@ -29,49 +29,45 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: MODULE-FINALIZATION-DECLARATION-METADATA0-I0-R0
-Result:        shared finalization commits all four declaration metadata lanes
-               through one prepared owner before existing refreshes
-Latest design: finalization function-metadata owner
-Executable:    `MODULE-FINALIZATION-FUNCTION-METADATA0-I0-R0`
+Latest landed: MODULE-FINALIZATION-FUNCTION-METADATA0-I0-R0
+Result:        shared finalization snapshots function metadata through one
+               prepared owner before existing return/PHI inference
+Latest design: fresh live-edge census
+Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS8` is a design stop
 History:       Git history and the short landed tail below
 ```
 
-## Current execution
+## Current design stop
 
-`MODULE-FINALIZATION-FUNCTION-METADATA0-I0-R0` — T0 shared-finalizer extraction
+`MIRBUILDER-LIVE-EDGE-CENSUS8` — select one remaining authority edge
 
 ```text
-Change:
-  finalize_module delegates its value-type snapshot and current origin-caller
-  merge to one infallible prepared owner and deletes the inline projection.
+Scope:
+  take a fresh production and explicit-compatibility census after function
+  metadata closeout. Select at most one named replacement or one bounded D0.
 
-Contract:
-  preserve type hints -> function metadata -> return/PHI inference. Current
-  origin-caller rows win; the owner has no draft, refresh, source, result,
-  publication, or JoinModule policy.
+Must preserve:
+  one execution, no fallback/retry, explicit non-growing compatibility sunsets,
+  and a same-commit old-edge deletion for every implementation row.
 
-Done:
-  value types and origin-caller merge retain normal general-module parity;
-  focused metadata tests and the shared lane guard are green.
-
-Stop:
-  return to D0 if preparation becomes fallible, merge precedence or timing
-  moves, disconnected draft facts are needed, or refresh/PHI semantics enter scope.
+Do not select automatically:
+  raw/static-Main, no-header Call, selected-invocation Loop/CorePlan, detached
+  assets, JoinModule, Ownership, View, or new language features.
 ```
 
-## Latest selection
+## Latest closeout
 
 ```text
-MIRBUILDER-LIVE-EDGE-CENSUS7
+MODULE-FINALIZATION-FUNCTION-METADATA0-I0-R0
 
-selected live edge                         = shared finalizer function metadata
-safe direct I0/R0                          = yes (T0)
-value-type/origin-caller inline projection = 1
-Program root / normal pipeline             = no safe live I0
-raw static-Main/no-header Call/Loop         = separate D0 only
-JoinModule                                  = R3 after R2 closure
-next                                        = finalization function metadata I0/R0
+prepared function-metadata owner                      = exactly one
+selected inline type/origin-caller projection          = 0
+type hints -> owner commit -> return/PHI inference     = preserved
+unit / normal general parity / candidate reuse / guard = green
+fallback / retry / grammar / result / publication delta = 0
+new source/test/check file                             = 1 / 0 / 0
+largest touched source/check file                      < 800
+next                                                   = fresh live-edge census
 ```
 
 ## Previous closeout
@@ -265,9 +261,10 @@ largest touched source/check file                       < 800
 
 ```text
 R1 Now
-  MODULE-FINALIZATION-FUNCTION-METADATA0-I0-R0
-  The shared finalizer has one selected live value-type/origin-caller projection.
-  T0 moves it into an infallible owner and deletes the inline authority.
+  MIRBUILDER-LIVE-EDGE-CENSUS8
+  Freshly inventory live normal/default and explicit compatibility edges. It
+  may select one named replacement or one bounded D0; it cannot pre-authorize
+  a future implementation.
 
 R2 Live responsibility replacement
   Census (no code) outputs exactly one of: one I0/R0 candidate, one bounded

@@ -198,14 +198,13 @@ impl super::MirBuilder {
             &module,
         );
 
-        // Phase 131-9: Update function metadata with corrected types
-        // MUST happen after PHI type correction above AND BinOp re-propagation
-        function.metadata.value_types = self.function_state.type_ctx.value_types.clone();
-        let mut origin_callers = function.metadata.value_origin_callers.clone();
-        for (k, v) in self.value_origin_caller_rows().iter() {
-            origin_callers.insert(*k, v.clone());
-        }
-        function.metadata.value_origin_callers = origin_callers;
+        super::module_finalization_function_metadata::
+            PreparedModuleFinalizationFunctionMetadataV1::prepare(
+                &function,
+                &self.function_state.type_ctx.value_types,
+                self.value_origin_caller_rows(),
+            )
+            .commit_into(&mut function);
 
         // ===== Step 3: PHI Type Inference (delegation to phi_type_inference) =====
         // Phase 29bq+: PHI type inference delegated to phi_type_inference module
