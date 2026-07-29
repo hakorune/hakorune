@@ -19,6 +19,7 @@ MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
 BUILDER_ROOT = ROOT / "src/mir/builder.rs"
 NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
 RAW_EXPRESSION_DISPATCH = ROOT / "src/mir/builder/raw_expression_dispatch/mod.rs"
+BUILDER_BUILD = ROOT / "src/mir/builder/builder_build.rs"
 RAW_UNARY_OWNER = ROOT / "src/mir/builder/ops/unary.rs"
 OPS_MOD = ROOT / "src/mir/builder/ops/mod.rs"
 SOURCES = (
@@ -148,6 +149,7 @@ def main() -> int:
             BUILDER_ROOT,
             NORMAL_TESTS,
             RAW_EXPRESSION_DISPATCH,
+            BUILDER_BUILD,
             RAW_UNARY_OWNER,
             OPS_MOD,
             *SOURCES,
@@ -168,9 +170,48 @@ def main() -> int:
     builder_root = production_code(BUILDER_ROOT)
     normal_tests = texts[NORMAL_TESTS]
     raw_expression_dispatch = code_only(texts[RAW_EXPRESSION_DISPATCH])
+    builder_build = production_code(BUILDER_BUILD)
     raw_unary_owner = code_only(texts[RAW_UNARY_OWNER])
     ops_mod = code_only(texts[OPS_MOD])
     current_workstream = texts[CURRENT_WORKSTREAM]
+    for fragment in (
+        "struct PreparedRawNewExpressionV1",
+        "enum PreparedRawNewExpressionRouteV1",
+        "PreparedRawNewExpressionRouteV1::Core13Pure",
+        "PreparedRawNewExpressionRouteV1::IntegerLiteral",
+        "PreparedRawNewExpressionRouteV1::Ordinary",
+    ):
+        require(builder_build, fragment, f"prepared raw New route {fragment}")
+    for fragment in (
+        "PreparedRawNewExpressionV1::prepare(",
+        "self.lower_prepared_raw_new_expression_with_port_v1(port, prepared)",
+    ):
+        if raw_expression_dispatch.count(fragment) != 1:
+            raise AssertionError(f"raw New production handoff drift: {fragment}")
+    new_prepare = text_between(builder_build, "fn prepare(", "impl MirBuilder")
+    new_lower = builder_build.split(
+        "fn lower_prepared_raw_new_expression_with_port_v1", 1
+    )[1]
+    if new_prepare.count("crate::config::env::mir_core13_pure()") != 1:
+        raise AssertionError("raw New mode route must be selected exactly once")
+    for retired in (
+        "crate::config::env::mir_core13_pure()",
+        '("IntegerBox",',
+        "fn into_parts",
+    ):
+        if retired in new_lower:
+            raise AssertionError(f"lower-side raw New redecision returned: {retired}")
+    for forbidden in (
+        "next_value_id(",
+        "emit_instruction(",
+        "drive_legacy_expression_v1(",
+        "retry(",
+        "fallback(",
+        ".clone()",
+        "NyashParser",
+    ):
+        if forbidden in new_prepare:
+            raise AssertionError(f"raw New prepare gained effect/retry edge: {forbidden}")
     for fragment in (
         "struct PreparedRawUnaryV1",
         "enum PreparedRawUnaryRouteV1",

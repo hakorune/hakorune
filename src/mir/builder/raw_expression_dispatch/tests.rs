@@ -4,6 +4,7 @@ use crate::mir::{MirBuilder, MirInstruction};
 use super::input_view::{
     RawLegacyBodyInputV1, RawLegacyExpressionInputV1, RawLegacyStatementInputV1,
 };
+use crate::mir::builder::builder_build::PreparedRawNewExpressionV1;
 use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 use crate::mir::builder::stmts::block_stmt::{
     build_block, build_block_input_view_with_port_v1, build_statement,
@@ -36,6 +37,42 @@ fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
         .values()
         .flat_map(|block| block.instructions.iter().cloned())
         .collect()
+}
+
+#[test]
+fn prepared_integer_new_consumes_one_const_route() {
+    crate::test_support::with_env_var("NYASH_MIR_CORE13_PURE", "off", || {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("prepared_integer_new/0".to_owned());
+        let prepared = PreparedRawNewExpressionV1::prepare(
+            &builder,
+            "IntegerBox".to_owned(),
+            vec![integer(9)],
+            Vec::new(),
+        )
+        .unwrap();
+        let mut port = RawLegacyChildLoweringPortV1;
+        let dst = builder
+            .lower_prepared_raw_new_expression_with_port_v1(&mut port, prepared)
+            .unwrap();
+        let instructions = instructions(&builder);
+        assert_eq!(
+            instructions
+                .iter()
+                .filter(|instruction| matches!(
+                    instruction,
+                    MirInstruction::Const {
+                        dst: actual,
+                        value: crate::mir::ConstValue::Integer(9),
+                    } if *actual == dst
+                ))
+                .count(),
+            1
+        );
+        assert!(!instructions
+            .iter()
+            .any(|instruction| matches!(instruction, MirInstruction::NewBox { .. })));
+    });
 }
 
 #[test]

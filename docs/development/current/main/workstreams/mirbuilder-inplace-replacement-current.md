@@ -580,23 +580,18 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: RAW-COMPOUND-ASSIGNMENT-TARGET-ROUTE-ONCE0-I0-R0, DESCENT-SPINE0/T1.
-
+Closed: RAW-NEW-CREATION-ROUTE-ONCE0-I0-R0, CALL-OBJECT0/T1.
 Owner:
-  PreparedRawCompoundAssignmentV1 selects Local/Field/Index/Unsupported
-  source-only, then the sole caller consumes the route once.
+  prepared New rejects records, then selects Core13Pure / IntegerLiteral /
+  Ordinary once; Lower consumes that route once.
 Deleted:
-  bare-AST target evaluator, port facade, and caller-zero facade.
+  Lower mode probe, IntegerBox AST reclassification, unclassified handoff.
 Preserved:
-  target/read/RHS/binary/write order, record/index diagnostics, failure reuse.
+  effects, birth/header timing, field initializers, diagnostics, grammar.
 Evidence:
-  focused Local/Field/Index/raw-port tests, assignment/in-place/current guards,
-  release vm-reference build and VM test green. The historical C199 proof app
-  is absent on current HEAD and is not an implementation regression.
+  focused route/consume/record/raw-port tests, cargo check, shared guard green.
 Current stop:
-  MIRBUILDER-POST-COMPOUND-ASSIGNMENT-LIVE-EDGE-CENSUS0-D0.
-Next:
-  read-only production census; no executable row is preselected.
+  MIRBUILDER-POST-NEW-CREATION-LIVE-EDGE-CENSUS0-D0; no row preselected.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:

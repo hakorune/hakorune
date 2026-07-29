@@ -14,9 +14,15 @@ use crate::mir::slot_registry::resolve_slot_by_type_name;
 
 pub(in crate::mir::builder) struct PreparedRawNewExpressionV1 {
     class: String,
-    arguments: Vec<ASTNode>,
+    route: PreparedRawNewExpressionRouteV1,
     field_initializers: Vec<(String, ASTNode)>,
     _seal: PreparedRawNewExpressionSealV1,
+}
+
+enum PreparedRawNewExpressionRouteV1 {
+    Core13Pure { arguments: Vec<ASTNode> },
+    IntegerLiteral { value: i64 },
+    Ordinary { arguments: Vec<ASTNode> },
 }
 
 struct PreparedRawNewExpressionSealV1;
@@ -40,16 +46,27 @@ impl PreparedRawNewExpressionV1 {
                 class
             ));
         }
+        let route = if crate::config::env::mir_core13_pure() {
+            PreparedRawNewExpressionRouteV1::Core13Pure { arguments }
+        } else if let [ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            ..
+        }] = arguments.as_slice()
+        {
+            if class == "IntegerBox" {
+                PreparedRawNewExpressionRouteV1::IntegerLiteral { value: *value }
+            } else {
+                PreparedRawNewExpressionRouteV1::Ordinary { arguments }
+            }
+        } else {
+            PreparedRawNewExpressionRouteV1::Ordinary { arguments }
+        };
         Ok(Self {
             class,
-            arguments,
+            route,
             field_initializers,
             _seal: PreparedRawNewExpressionSealV1,
         })
-    }
-
-    fn into_parts(self) -> (String, Vec<ASTNode>, Vec<(String, ASTNode)>) {
-        (self.class, self.arguments, self.field_initializers)
     }
 }
 
@@ -318,114 +335,118 @@ impl MirBuilder {
     where
         Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
     {
-        let (class, arguments, field_initializers) = prepared.into_parts();
+        let PreparedRawNewExpressionV1 {
+            class,
+            route,
+            field_initializers,
+            _seal: _,
+        } = prepared;
         // Phase 9.78a: Unified Box creation using NewBox instruction
         // Core-13 pure mode: emit ExternCall(env.box.new) with type name const only
-        let dst = if crate::config::env::mir_core13_pure() {
-            // Emit Const String for type name（ConstantEmissionBox）
-            let ty_id = crate::mir::builder::emission::constant::emit_string(self, class.clone())?;
-            // Evaluate arguments (pass through to env.box.new shim)
-            let mut arg_vals: Vec<ValueId> = Vec::with_capacity(arguments.len());
-            for a in arguments {
-                arg_vals.push(drive_legacy_expression_v1(self, port, a)?);
+        let dst = match route {
+            PreparedRawNewExpressionRouteV1::Core13Pure { arguments } => {
+                // Emit Const String for type name（ConstantEmissionBox）
+                let ty_id =
+                    crate::mir::builder::emission::constant::emit_string(self, class.clone())?;
+                // Evaluate arguments (pass through to env.box.new shim)
+                let mut arg_vals: Vec<ValueId> = Vec::with_capacity(arguments.len());
+                for a in arguments {
+                    arg_vals.push(drive_legacy_expression_v1(self, port, a)?);
+                }
+                // Build arg list: [type, a1, a2, ...]
+                let mut args: Vec<ValueId> = Vec::with_capacity(1 + arg_vals.len());
+                args.push(ty_id);
+                args.extend(arg_vals);
+                // Call env.box.new
+                // 📦 Hotfix 3: Use next_value_id() to respect function parameter reservation
+                let dst = self.next_value_id();
+                self.emit_extern_call_with_effects(
+                    "env.box",
+                    "new",
+                    args,
+                    Some(dst),
+                    EffectMask::PURE,
+                )?;
+                // 型注釈（最小）
+                self.function_state
+                    .type_ctx
+                    .value_types
+                    .insert(dst, super::MirType::Box(class.clone()));
+                dst
             }
-            // Build arg list: [type, a1, a2, ...]
-            let mut args: Vec<ValueId> = Vec::with_capacity(1 + arg_vals.len());
-            args.push(ty_id);
-            args.extend(arg_vals);
-            // Call env.box.new
-            // 📦 Hotfix 3: Use next_value_id() to respect function parameter reservation
-            let dst = self.next_value_id();
-            self.emit_extern_call_with_effects(
-                "env.box",
-                "new",
-                args,
-                Some(dst),
-                EffectMask::PURE,
-            )?;
-            // 型注釈（最小）
-            self.function_state
-                .type_ctx
-                .value_types
-                .insert(dst, super::MirType::Box(class.clone()));
-            dst
-        } else if let (
-            "IntegerBox",
-            [ASTNode::Literal {
-                value: LiteralValue::Integer(n),
-                ..
-            }],
-        ) = (class.as_str(), arguments.as_slice())
-        {
-            // Optimization: Primitive wrappers → emit Const directly when possible
-            let dst = self.next_value_id();
-            self.emit_instruction(MirInstruction::Const {
-                dst,
-                value: ConstValue::Integer(*n),
-            })?;
-            self.function_state
-                .type_ctx
-                .value_types
-                .insert(dst, super::MirType::Integer);
-            dst
-        } else {
-            let mut arg_values = Vec::new();
-            for arg in arguments {
-                arg_values.push(drive_legacy_expression_v1(self, port, arg)?);
+            PreparedRawNewExpressionRouteV1::IntegerLiteral { value } => {
+                // Optimization: Primitive wrappers → emit Const directly when possible
+                let dst = self.next_value_id();
+                self.emit_instruction(MirInstruction::Const {
+                    dst,
+                    value: ConstValue::Integer(value),
+                })?;
+                self.function_state
+                    .type_ctx
+                    .value_types
+                    .insert(dst, super::MirType::Integer);
+                dst
             }
+            PreparedRawNewExpressionRouteV1::Ordinary { arguments } => {
+                let mut arg_values = Vec::new();
+                for arg in arguments {
+                    arg_values.push(drive_legacy_expression_v1(self, port, arg)?);
+                }
 
-            let dst = self.next_value_id();
-            self.emit_instruction(MirInstruction::NewBox {
-                dst,
-                box_type: class.clone(),
-                args: arg_values.clone(),
-            })?;
-            self.function_state
-                .type_ctx
-                .value_types
-                .insert(dst, super::MirType::Box(class.clone()));
-            self.function_state
-                .type_ctx
-                .value_origin_newbox
-                .insert(dst, class.clone());
+                let dst = self.next_value_id();
+                self.emit_instruction(MirInstruction::NewBox {
+                    dst,
+                    box_type: class.clone(),
+                    args: arg_values.clone(),
+                })?;
+                self.function_state
+                    .type_ctx
+                    .value_types
+                    .insert(dst, super::MirType::Box(class.clone()));
+                self.function_state
+                    .type_ctx
+                    .value_origin_newbox
+                    .insert(dst, class.clone());
 
-            // Prefer a lowered global `<Class>.birth/Arity`; retain the
-            // builtin/plugin compatibility policy otherwise.
-            if class != "StringBox" {
-                let arity = arg_values.len();
-                let lowered =
+                // Prefer a lowered global `<Class>.birth/Arity`; retain the
+                // builtin/plugin compatibility policy otherwise.
+                if class != "StringBox" {
+                    let arity = arg_values.len();
+                    let lowered =
                     crate::mir::builder::calls::function_lowering::generate_method_function_name(
                         &class, "birth", arity,
                     );
-                let use_lowered = port.with_function_headers(|headers| match headers {
-                    Some(view) => view.contains_symbol(&lowered),
-                    None => self
-                        .current_module
-                        .as_ref()
-                        .is_some_and(|module| module.functions.contains_key(&lowered)),
-                });
-                if use_lowered {
-                    let mut argv: Vec<ValueId> = Vec::with_capacity(1 + arity);
-                    argv.push(dst);
-                    argv.extend(arg_values.iter().copied());
-                    self.emit_legacy_call(None, CallTarget::Global(lowered), argv)?;
-                } else {
-                    let is_user_box = self.comp_ctx.user_defined_boxes.contains_key(&class);
-                    let allow_builtin_birth = crate::config::env::builder_birth_inject_builtins();
-                    if !is_user_box && allow_builtin_birth {
-                        let birt_mid = resolve_slot_by_type_name(&class, "birth");
-                        self.emit_box_or_plugin_call(
-                            None,
-                            dst,
-                            "birth".to_string(),
-                            birt_mid,
-                            arg_values,
-                            EffectMask::READ.add(Effect::ReadHeap),
-                        )?;
+                    let use_lowered = port.with_function_headers(|headers| match headers {
+                        Some(view) => view.contains_symbol(&lowered),
+                        None => self
+                            .current_module
+                            .as_ref()
+                            .is_some_and(|module| module.functions.contains_key(&lowered)),
+                    });
+                    if use_lowered {
+                        let mut argv: Vec<ValueId> = Vec::with_capacity(1 + arity);
+                        argv.push(dst);
+                        argv.extend(arg_values.iter().copied());
+                        self.emit_legacy_call(None, CallTarget::Global(lowered), argv)?;
+                    } else {
+                        let is_user_box = self.comp_ctx.user_defined_boxes.contains_key(&class);
+                        let allow_builtin_birth =
+                            crate::config::env::builder_birth_inject_builtins();
+                        if !is_user_box && allow_builtin_birth {
+                            let birt_mid = resolve_slot_by_type_name(&class, "birth");
+                            self.emit_box_or_plugin_call(
+                                None,
+                                dst,
+                                "birth".to_string(),
+                                birt_mid,
+                                arg_values,
+                                EffectMask::READ.add(Effect::ReadHeap),
+                            )?;
+                        }
                     }
                 }
+                dst
             }
-            dst
         };
 
         self.build_box_field_initializers_with_port_v1(port, dst, &class, field_initializers)?;
@@ -466,6 +487,21 @@ mod tests {
         builder
     }
 
+    fn integer(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        }
+    }
+
+    fn route_name(prepared: &PreparedRawNewExpressionV1) -> &'static str {
+        match &prepared.route {
+            PreparedRawNewExpressionRouteV1::Core13Pure { .. } => "core13-pure",
+            PreparedRawNewExpressionRouteV1::IntegerLiteral { .. } => "integer-literal",
+            PreparedRawNewExpressionRouteV1::Ordinary { .. } => "ordinary",
+        }
+    }
+
     #[test]
     fn raw_new_route_preserves_record_error_precedence_before_effects() {
         let builder = record_builder();
@@ -498,6 +534,41 @@ mod tests {
             without_fields.starts_with("[record-construction/escape]"),
             "{without_fields}"
         );
+        assert!(builder.current_module.is_none());
+        assert!(builder.function_state.current_function.is_none());
+    }
+
+    #[test]
+    fn raw_new_creation_route_preserves_mode_and_integer_priority() {
+        let builder = MirBuilder::new();
+        crate::test_support::with_env_var("NYASH_MIR_CORE13_PURE", "off", || {
+            let integer_route = PreparedRawNewExpressionV1::prepare(
+                &builder,
+                "IntegerBox".to_owned(),
+                vec![integer(7)],
+                Vec::new(),
+            )
+            .unwrap();
+            let ordinary = PreparedRawNewExpressionV1::prepare(
+                &builder,
+                "Page".to_owned(),
+                vec![integer(7)],
+                Vec::new(),
+            )
+            .unwrap();
+            assert_eq!(route_name(&integer_route), "integer-literal");
+            assert_eq!(route_name(&ordinary), "ordinary");
+        });
+        crate::test_support::with_env_var("NYASH_MIR_CORE13_PURE", "1", || {
+            let core13 = PreparedRawNewExpressionV1::prepare(
+                &builder,
+                "IntegerBox".to_owned(),
+                vec![integer(7)],
+                Vec::new(),
+            )
+            .unwrap();
+            assert_eq!(route_name(&core13), "core13-pure");
+        });
         assert!(builder.current_module.is_none());
         assert!(builder.function_state.current_function.is_none());
     }
