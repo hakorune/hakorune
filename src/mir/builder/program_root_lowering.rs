@@ -9,8 +9,8 @@ use crate::ast::ASTNode;
 use hakorune_mir_builder::BoxCompilationContext;
 
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
-use super::declaration_order::sorted_method_entries;
 use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
+use super::instance_box_method_batch::PreparedInstanceBoxMethodBatchV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::module_draft_collector::ModuleDraftCollectorV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
@@ -20,7 +20,7 @@ use super::normal_default_root_catalog_lifecycle::{
     NormalDefaultRootCatalogLifecycleErrorV1, PreparedNormalDefaultProgramRootV1,
 };
 use super::recursive_child_lowering::RawInvocationChildPortV1;
-use super::{declaration_indexer, MirBuilder, SameModuleCallableNamespaceV1, ValueId};
+use super::{declaration_indexer, MirBuilder, ValueId};
 
 pub(super) struct ProgramDeferredStaticBoxLifecycleV1 {
     methods: PreparedNonMainStaticBoxMethodBatchV1,
@@ -173,56 +173,8 @@ impl MirBuilder {
                     )?;
                     PreparedInstanceBoxConstructorBatchV1::prepare(name, constructors)
                         .lower_with_port_v1(self, callables)?;
-                    for (method_name, method_ast) in sorted_method_entries(methods) {
-                        if let N::FunctionDeclaration {
-                            params,
-                            param_decls,
-                            return_type_name,
-                            body,
-                            is_static,
-                            uses,
-                            attrs,
-                            ..
-                        } = method_ast
-                        {
-                            if !*is_static {
-                                let canonical_key = self
-                                    .comp_ctx
-                                    .callable_declaration_catalog()
-                                    .map_err(|error| error.to_string())?
-                                    .declaration_for(
-                                        SameModuleCallableNamespaceV1::InstanceBoxMethod,
-                                        name,
-                                        method_name,
-                                        params.len(),
-                                    )
-                                    .ok_or_else(|| {
-                                        format!(
-                                            "[freeze:contract][mir/instance-capture/catalog] \
-                                             missing exact declaration for {name}.{method_name}/{}",
-                                            params.len()
-                                        )
-                                    })?
-                                    .key()
-                                    .clone();
-                                let function_name =
-                                    format!("{}.{}/{}", name, method_name, params.len());
-                                callables.lower_root_instance_method(
-                                    self,
-                                    canonical_key,
-                                    name.clone(),
-                                    method_name.to_owned(),
-                                    function_name,
-                                    params.clone(),
-                                    param_decls.clone(),
-                                    return_type_name.clone(),
-                                    body.clone(),
-                                    uses.clone(),
-                                    attrs.clone(),
-                                )?;
-                            }
-                        }
-                    }
+                    PreparedInstanceBoxMethodBatchV1::prepare(name, methods)
+                        .lower_root_with_port_v1(self, callables)?;
                 }
             } else if let N::FunctionDeclaration {
                 name,

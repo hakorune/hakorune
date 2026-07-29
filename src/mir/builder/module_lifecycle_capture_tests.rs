@@ -1,6 +1,9 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl};
-use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
+use crate::mir::builder::callable_declaration_catalog::{
+    SameModuleCallableNamespaceV1, VerifiedSameModuleCallableDeclarationCatalogV1,
+};
 use crate::mir::builder::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
+use crate::mir::builder::instance_box_method_batch::PreparedInstanceBoxMethodBatchV1;
 use crate::mir::builder::main_expansion::VerifiedRawRootExpansionV1;
 use crate::mir::builder::module_compat_policy::CallableMainCompatibilityPolicyV1;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
@@ -15,6 +18,7 @@ use crate::parser::NyashParser;
 #[derive(Default)]
 struct RecordingOrdinaryPortV1 {
     methods: Vec<(String, String, usize)>,
+    instance_keys: Vec<(SameModuleCallableNamespaceV1, String)>,
     static_methods: Vec<String>,
     static_context_active: Vec<bool>,
     instance_methods: Vec<String>,
@@ -135,7 +139,7 @@ impl RootCallableCapturePortV1 for RecordingOrdinaryPortV1 {
     fn lower_root_instance_method(
         &mut self,
         builder: &mut MirBuilder,
-        _canonical_key: super::CanonicalSameModuleCallableKeyV1,
+        canonical_key: super::CanonicalSameModuleCallableKeyV1,
         owner: String,
         method: String,
         function_name: String,
@@ -146,6 +150,10 @@ impl RootCallableCapturePortV1 for RecordingOrdinaryPortV1 {
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
+        self.instance_keys.push((
+            canonical_key.namespace(),
+            canonical_key.mir_symbol_projection(),
+        ));
         self.methods.push((owner.clone(), method, params.len()));
         self.lower_instance_box_method(
             builder,
@@ -186,6 +194,18 @@ fn parsed_instance_box(source: &str) -> (String, std::collections::HashMap<Strin
         panic!("fixture must contain one instance Box");
     };
     (name, constructors)
+}
+
+fn parsed_instance_methods(source: &str) -> (String, std::collections::HashMap<String, ASTNode>) {
+    let ASTNode::Program { mut statements, .. } =
+        NyashParser::parse_from_string(source).expect("instance method source")
+    else {
+        panic!("parser must return Program");
+    };
+    let ASTNode::BoxDeclaration { name, methods, .. } = statements.remove(0) else {
+        panic!("fixture must contain one instance Box");
+    };
+    (name, methods)
 }
 
 #[test]
@@ -243,6 +263,110 @@ fn shared_root_kernel_lends_each_instance_method_to_one_stack_port() {
 
     assert_eq!(port.methods, vec![("Worker".into(), "run".into(), 1)]);
     assert!(module.functions.contains_key("Worker.run/1"));
+}
+
+#[test]
+fn instance_method_batch_preserves_route_specific_admission_and_order() {
+    let source = "box Page { omega(value) { return value } alpha() { return 1 } }";
+    let root = NyashParser::parse_from_string(source).expect("catalog source");
+    let catalog =
+        VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&root).expect("catalog");
+    let (owner, mut methods) = parsed_instance_methods(source);
+    let (_, mut static_methods) = parsed_static_box("static box Static { helper() { return 0 } }");
+    methods.insert(
+        "static_helper".to_owned(),
+        static_methods.remove("helper").expect("static helper"),
+    );
+    let ASTNode::Program { mut statements, .. } =
+        NyashParser::parse_from_string("42").expect("non-function method fixture")
+    else {
+        panic!("parser must return Program");
+    };
+    methods.insert("ignored".to_owned(), statements.remove(0));
+
+    let mut raw_builder = MirBuilder::new();
+    let mut raw_port = RecordingOrdinaryPortV1 {
+        record_only_instance: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+    PreparedInstanceBoxMethodBatchV1::prepare(&owner, &methods)
+        .lower_raw_with_port_v1(&mut raw_builder, &mut raw_port)
+        .expect("raw method batch needs no catalog");
+
+    let mut root_builder = MirBuilder::new();
+    root_builder.prepare_module().expect("root module shell");
+    root_builder
+        .comp_ctx
+        .install_callable_declaration_catalog(catalog)
+        .expect("catalog install");
+    let mut root_port = RecordingOrdinaryPortV1 {
+        record_only_instance: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+    PreparedInstanceBoxMethodBatchV1::prepare(&owner, &methods)
+        .lower_root_with_port_v1(&mut root_builder, &mut root_port)
+        .expect("root method batch uses exact catalog");
+
+    let expected = vec!["Page.alpha/0", "Page.omega/1"];
+    assert_eq!(raw_port.instance_methods, expected);
+    assert_eq!(root_port.instance_methods, expected);
+    assert_eq!(
+        root_port.methods,
+        vec![
+            ("Page".into(), "alpha".into(), 0),
+            ("Page".into(), "omega".into(), 1),
+        ]
+    );
+    assert_eq!(
+        root_port.instance_keys,
+        expected
+            .into_iter()
+            .map(|symbol| (
+                SameModuleCallableNamespaceV1::InstanceBoxMethod,
+                symbol.into()
+            ))
+            .collect::<Vec<_>>()
+    );
+}
+
+#[test]
+fn instance_method_batch_preserves_prefix_on_route_failure() {
+    let source = "box Page { gamma() { return 3 } beta() { return 2 } alpha() { return 1 } }";
+    let (owner, methods) = parsed_instance_methods(source);
+    let prefix_root = NyashParser::parse_from_string("box Page { alpha() { return 1 } }")
+        .expect("prefix catalog source");
+    let prefix_catalog =
+        VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&prefix_root).expect("catalog");
+    let mut root_builder = MirBuilder::new();
+    root_builder.prepare_module().expect("root module shell");
+    root_builder
+        .comp_ctx
+        .install_callable_declaration_catalog(prefix_catalog)
+        .expect("catalog install");
+    let mut root_port = RecordingOrdinaryPortV1 {
+        record_only_instance: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+    let error = PreparedInstanceBoxMethodBatchV1::prepare(&owner, &methods)
+        .lower_root_with_port_v1(&mut root_builder, &mut root_port)
+        .expect_err("missing beta catalog row must stop the batch");
+    assert!(error.contains("missing exact declaration for Page.beta/0"));
+    assert_eq!(root_port.instance_methods, vec!["Page.alpha/0"]);
+
+    let mut raw_builder = MirBuilder::new();
+    let mut raw_port = RecordingOrdinaryPortV1 {
+        fail_instance_method: Some("Page.beta/0".to_owned()),
+        record_only_instance: true,
+        ..RecordingOrdinaryPortV1::default()
+    };
+    let error = PreparedInstanceBoxMethodBatchV1::prepare(&owner, &methods)
+        .lower_raw_with_port_v1(&mut raw_builder, &mut raw_port)
+        .expect_err("raw beta failure must stop the batch");
+    assert_eq!(error, "selected instance method failure: Page.beta/0");
+    assert_eq!(
+        raw_port.instance_methods,
+        vec!["Page.alpha/0", "Page.beta/0"]
+    );
 }
 
 #[test]

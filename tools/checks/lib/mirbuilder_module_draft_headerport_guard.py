@@ -65,9 +65,7 @@ P0_ACCESS_ADAPTER_FRAGMENTS = {
     "src/mir/builder/rewrite/special.rs": "try_special_equals_to_dst_with_lookup",
     "src/mir/builder/calls/unified_emitter.rs": "emit_unified_call_with_lookup",
 }
-# I0-SHELL-P0 owns the complete production reader census.  The source anchor
-# is checked against Rust and the future owner phrase is checked against the
-# consultation card, so a hand-entered row cannot survive source drift.
+# I0-SHELL-P0 owns the source-anchored production reader census.
 P0_READER_CENSUS_ROWS = {
     "src/mir/builder/calls/annotation.rs": (
         "header",
@@ -201,6 +199,7 @@ def main() -> int:
     reentrant_tests = read(REENTRANT_TESTS)
     raw_dispatch = read(RAW_DISPATCH)
     constructor_batch = read(INSTANCE_CONSTRUCTOR_BATCH)
+    method_batch = read(ROOT / "src/mir/builder/instance_box_method_batch.rs")
     raw_port = read(RAW_PORT)
     raw_loop_entry = read(RAW_LOOP_ENTRY)
     consultation = read(SOURCE_CENSUS_DOC)
@@ -619,7 +618,6 @@ def main() -> int:
     for fragment in (
         "port.lower_static_main_box",
         "port.lower_static_box_method",
-        "port.lower_instance_box_method",
     ):
         require(raw_dispatch, fragment, "LEGACYTERM0 I0 dispatcher terminal")
     forbid(
@@ -629,6 +627,8 @@ def main() -> int:
     )
     require(constructor_batch, "PreparedInstanceBoxConstructorBatchV1", "constructor batch")
     require(constructor_batch, "port.lower_instance_box_method(", "constructor terminal")
+    require(method_batch, "PreparedInstanceBoxMethodBatchV1", "instance method batch")
+    forbid(raw_dispatch, "port.lower_instance_box_method(", "caller-local instance dispatch")
     forbid(raw_dispatch, "for (ctor_key, ctor_ast)", "caller-local constructor traversal")
     forbid(
         raw_dispatch,
@@ -671,10 +671,10 @@ def main() -> int:
         "LEGACYTERM0 static raw dispatch",
     )
     require_count(
-        raw_dispatch,
+        method_batch,
         "port.lower_instance_box_method(",
         1,
-        "LEGACYTERM0 instance raw dispatch",
+        "LEGACYTERM0 instance method-batch terminal",
     )
     require_count(
         raw_dispatch,

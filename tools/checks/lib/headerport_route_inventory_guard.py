@@ -602,10 +602,11 @@ def verify_nonmain_static_method_batch(
 ) -> None:
     batch = (root / "src/mir/builder/nonmain_static_box_method_batch.rs").read_text()
     constructors = (root / "src/mir/builder/instance_box_constructor_batch.rs").read_text()
+    instance_methods = (root / "src/mir/builder/instance_box_method_batch.rs").read_text()
     order = (root / "src/mir/builder/declaration_order.rs").read_text()
     program = (root / "src/mir/builder/program_root_lowering.rs").read_text()
     raw = (root / "src/mir/builder/raw_expression_dispatch/mod.rs").read_text()
-    if any(len(text.splitlines()) >= 800 for text in (batch, constructors, program, raw)):
+    if any(len(text.splitlines()) >= 800 for text in (batch, constructors, instance_methods, program, raw)):
         raise AssertionError("Box member-batch sources reached 800 lines")
     require(builder_mod, "mod nonmain_static_box_method_batch;", "method-batch module")
     for fragment in (
@@ -642,8 +643,16 @@ def verify_nonmain_static_method_batch(
     forbid(order, "sorted_constructor_entries", "retired constructor order helper")
     if (program + raw).count("PreparedInstanceBoxConstructorBatchV1::prepare(") != 2:
         raise AssertionError("constructor batch must have exactly two production issuers")
+    require(instance_methods, "PreparedInstanceBoxMethodBatchV1", "instance method batch")
+    require(instance_methods, "lower_root_with_port_v1", "root instance method terminal")
+    require(instance_methods, "lower_raw_with_port_v1", "raw instance method terminal")
+    forbid(program, "sorted_method_entries", "Program caller-local instance sorting")
+    forbid(raw, "sorted_method_entries", "raw caller-local instance sorting")
+    if (program + raw).count("PreparedInstanceBoxMethodBatchV1::prepare(") != 2:
+        raise AssertionError("instance method batch must have exactly two production issuers")
     require(card, "NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0", "active method-batch row")
     require(card, "INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0", "constructor-batch row")
+    require(card, "INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0", "instance method-batch row")
 
 
 def verify_route_inventory_extension(
