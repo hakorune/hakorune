@@ -177,7 +177,7 @@ impl super::MirBuilder {
     /// **Delegates to**: `block_stmt::build_statement`
     ///
     /// Handles statement-level If, While, LoopRange, and delegates other
-    /// expressions to build_expression.
+    /// expressions to the raw statement dispatcher.
     pub(super) fn build_statement(&mut self, node: ASTNode) -> Result<ValueId, String> {
         super::recursive_child_lowering::drive_raw_legacy_statement_v1(self, node)
     }

@@ -8,7 +8,7 @@
 //! - Support both function call and method call patterns
 //! - Lower general print expressions through the expression builder
 //!
-//! Called by: `build_expression()` in expressions.rs (Print pattern)
+//! Called by the raw expression dispatcher for the Print pattern.
 
 use super::super::{CallTarget, MirBuilder, MirInstruction, ValueId};
 use crate::ast::{ASTNode, CallExpr};

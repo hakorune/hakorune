@@ -622,6 +622,10 @@ if rg -n -P '\.build_expression\s*\(' \
   "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired MirBuilder build_expression caller returned"
 fi
+if rg -n -P '\bfn\s+build_expression\s*\(' \
+  "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null; then
+  guard_fail "$TAG" "retired MirBuilder build_expression facade returned"
+fi
 
 for file in \
   "$LOWERING" \

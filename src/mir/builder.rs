@@ -455,8 +455,8 @@ pub struct MirBuilder {
     /// reservations/body/record scratch live in `function_state.compilation`.
     pub(super) comp_ctx: compilation_context::CompilationContext,
 
-    /// Recursion depth counter for debugging stack overflow
-    /// Tracks the depth of build_expression calls to detect infinite loops
+    /// Recursion depth counter for debugging stack overflow.
+    /// Tracks raw recursive expression descent to detect infinite loops.
     pub(super) recursion_depth: usize,
 
     /// Root lowering mode: how to treat top-level Program

@@ -127,11 +127,11 @@ where
 ///
 /// # Phase 212.5: If statement support
 /// - Statement-level If (side effects only) is explicitly handled
-/// - Expression-level If (value used) goes through build_expression
+/// - Expression-level If (value used) goes through the raw expression dispatcher
 ///
 /// # Note
 /// - While/LoopRange will be delegated to Loop lowering in the future
-/// - Currently delegates to build_expression like other specialized builders
+/// - Other shapes delegate through the raw statement/expression descent ports
 pub(in crate::mir::builder) fn build_statement(
     builder: &mut MirBuilder,
     node: ASTNode,

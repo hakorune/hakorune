@@ -14,11 +14,6 @@ use crate::mir::numeric_substrate::{
 use crate::mir::slot_registry::resolve_slot_by_type_name;
 
 impl MirBuilder {
-    /// Build an expression and return its value ID
-    pub(in crate::mir) fn build_expression(&mut self, ast: ASTNode) -> Result<ValueId, String> {
-        super::recursive_child_lowering::drive_raw_legacy_expression_v1(self, ast)
-    }
-
     /// Build a literal value
     pub(in crate::mir::builder) fn build_literal(
         &mut self,
