@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="mirbuilder-inplace-replacement-guard"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
-
 MANIFEST="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-inplace-replacement-v1.tsv"
 CALLER_MANIFEST="$ROOT_DIR/tools/checks/manifests/raw_public_cutover_caller_manifest_v1.json"
 STRUCTURAL_RATCHET="$ROOT_DIR/docs/development/current/main/design/fixtures/mirbuilder-structural-ratchet.tsv"
@@ -55,9 +53,9 @@ PROPERTY_TESTS="$ROOT_DIR/src/tests/mir_unified_members_property_read.rs"
 RECORD_HELPER="$ROOT_DIR/src/mir/builder/record_helper_args.rs"
 RECORD_HELPER_TESTS="$ROOT_DIR/src/mir/builder/record_helper_args_tests.rs"
 INDEXING="$ROOT_DIR/src/mir/builder/indexing.rs"
+PRINT_STMT="$ROOT_DIR/src/mir/builder/stmts/print_stmt.rs"
 METHOD_CALL_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_route0.py"
 RECORD_HELPER_GUARD="$ROOT_DIR/tools/checks/impl/k2_wide_allocator_record_construction_read_guard.sh"
-
 guard_exact_counts() {
   while IFS='|' read -r file pattern expected label; do
     count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
@@ -66,12 +64,9 @@ guard_exact_counts() {
     fi
   done
 }
-
-guard_require_command "$TAG" awk
-guard_require_command "$TAG" find
-guard_require_command "$TAG" rg
-guard_require_command "$TAG" wc
-guard_require_command "$TAG" xargs
+for command in awk find rg wc xargs; do
+  guard_require_command "$TAG" "$command"
+done
 guard_require_files \
   "$TAG" \
   "$MANIFEST" \
@@ -122,15 +117,14 @@ guard_require_files \
   "$RECORD_HELPER" \
   "$RECORD_HELPER_TESTS" \
   "$INDEXING" \
+  "$PRINT_STMT" \
   "$METHOD_CALL_GUARD" \
   "$RECORD_HELPER_GUARD"
-
 expected_header=$'record_kind\tid\tpack\tproduction_caller\tnew_owner\tdelete_target\tparity_gate\tdisposition\tstate'
 actual_header="$(head -n1 "$MANIFEST")"
 if [[ "$actual_header" != "$expected_header" ]]; then
   guard_fail "$TAG" "manifest header drift"
 fi
-
 if ! awk -F '\t' '
   NR == 1 { next }
   NF != 9 { exit 1 }
@@ -141,7 +135,6 @@ if ! awk -F '\t' '
 ' "$MANIFEST"; then
   guard_fail "$TAG" "manifest row contract failed"
 fi
-
 for sunset in \
   MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001 \
   RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001
@@ -153,7 +146,6 @@ done
 if [[ "$(rg -F -c '"production_build_module_edges": 0' "$CALLER_MANIFEST")" != "2" ]]; then
   guard_fail "$TAG" "arbitrary-AST production sunsets must both be retired"
 fi
-
 if [[ "$(rg -F -c 'fn lower_loop_or_freeze_v1(' "$LOOP_ROUTING")" != "1" ]] ||
    [[ "$(rg -F -c 'lower_loop_or_freeze_v1(' "$RAW_CHILD_PORT")" != "2" ]]; then
   guard_fail "$TAG" "raw Loop callers must share one JoinIR route/freeze owner"
@@ -681,6 +673,11 @@ fi
 guard_exact_counts <<EOF
 $RAW_DISPATCH|PreparedRawFieldReadV1::prepare\\s*\\(|1|sole raw/default FieldAccess route issuer
 $RAW_DISPATCH|lower_prepared_raw_field_read_with_port_v1\\s*\\(|1|sole prepared FieldAccess caller
+$PRINT_STMT|struct\\s+PreparedRawPrintV1\\b|1|opaque prepared raw Print route
+$PRINT_STMT|enum\\s+PreparedRawPrintRouteV1\\b|1|private raw Print route vocabulary
+$PRINT_STMT|fn\\s+lower_prepared_raw_print_with_port_v1\\s*<Port>|1|prepared raw Print lowering owner
+$STATEMENT_SURFACE|PreparedRawPrintV1::prepare\\s*\\(|1|sole raw Print route issuer
+$STATEMENT_SURFACE|lower_prepared_raw_print_with_port_v1\\s*\\(|1|sole prepared raw Print caller
 $FIELDS|try_lower_property_read_with_port_v1\\s*\\(port, object_value, &field\\)|1|port-aware property caller
 $PROPERTY_READS|struct\\s+PropertyGetterCompletionV1\\b|1|exact zero-argument property adapter
 $PROPERTY_READS|fn\\s+try_lower_property_read_with_port_v1\\s*<Port>|1|port-aware property owner
@@ -703,6 +700,10 @@ do
     guard_fail "$TAG" "retired property facade returned: $retired_pattern"
   fi
 done
+if rg -n -P '\bbuild_print_statement(?:_with_port_v1)?\s*\(|\bCallExpr\b|\.clone\s*\(' \
+  "$PRINT_STMT" >/dev/null; then
+  guard_fail "$TAG" "retired raw Print facade, wrapper, or AST clone returned"
+fi
 
 for forbidden in \
   RawLegacyMethodCallInputV1 \

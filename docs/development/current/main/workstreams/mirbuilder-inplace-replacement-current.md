@@ -587,15 +587,15 @@ Evidence: exact 5-route partition; record constructor/literal/update,
   property, FastMem, failure/reuse, cargo check, and guards are green.
 Deleted: dispatcher clones, Option record probe, and read facades.
 Kept: post-child property/FastMem facts and all write/place paths.
-Current: RAW-PRINT-SOURCE-ROUTE-ONCE0-I0-R0, DESCENT-SPINE0/T1.
-Named caller: statement_surface.rs sole ASTNode::Print arm.
-New owner: opaque PreparedRawPrintV1; Function/Method TypeOp or General.
-Atomic delete: CallExpr clone probe, duplicate FunctionCall observation,
+Closed: RAW-PRINT-SOURCE-ROUTE-ONCE0-I0-R0.
+Owner: opaque PreparedRawPrintV1 selects Function/Method TypeOp or General once.
+Deleted: CallExpr clone probe, duplicate FunctionCall observation,
   operand/object clones, and both caller-zero Print facades.
-Keep: exact legacy debug trace via receipt; TypeOp always extern log;
-  General still uses build_print_from_value and unified policy.
-Forbid: source re-observation, route retry, debug/result/effect delta,
-  new test/check file, or any touched source/check file >= 800.
+Preserved: legacy trace order, one selected child port, TypeOp then extern log,
+  General unified-print policy, failure behavior, and compiler reuse.
+Evidence: focused route/emission and invocation-port tests, cargo check,
+  shared guard, diff check; touched source/check files remain below 800.
+Current stop: MIRBUILDER-POST-PRINT-LIVE-EDGE-CENSUS0-D0.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:

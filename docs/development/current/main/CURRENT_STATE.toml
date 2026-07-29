@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The next live MirBuilder replacement seals one Print TypeOp or General source route before child effects."
+status = "The Print source-route-once replacement is closed; select the next live MirBuilder edge from a fresh read-only census."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RAW-PRINT-SOURCE-ROUTE-ONCE0-I0-R0"
-current_execution_summary = "Classify Print once into Function/Method TypeOp or General, replay legacy debug trace from a receipt, and delete duplicate source probes, clones, and caller-zero facades."
+current_design_stop = "MIRBUILDER-POST-PRINT-LIVE-EDGE-CENSUS0-D0"
+current_execution_row = ""
+current_execution_summary = "RAW-PRINT-SOURCE-ROUTE-ONCE0-I0-R0 is closed: one prepared Function/Method TypeOp-or-General route replaces duplicate Print source probes, clones, and caller-zero facades while preserving legacy trace, child-port, emission, and unified-print policy."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

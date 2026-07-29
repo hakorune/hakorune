@@ -58,13 +58,17 @@ where
             "[freeze:contract][mir_builder/context_scope_lowering_missing] spelling={} name={} context propagation is owned by CONC-CONTEXT-002",
             source_keyword, name
         )),
-        ASTNode::Print { expression, .. } => Ok(StatementSurfaceDispatch::Lowered(
-            crate::mir::builder::stmts::print_stmt::build_print_statement_with_port_v1(
+        ASTNode::Print { expression, .. } => {
+            let prepared =
+                crate::mir::builder::stmts::print_stmt::PreparedRawPrintV1::prepare(*expression);
+            Ok(StatementSurfaceDispatch::Lowered(
+                crate::mir::builder::stmts::print_stmt::lower_prepared_raw_print_with_port_v1(
                 builder,
                 port,
-                *expression,
-            )?,
-        )),
+                    prepared,
+                )?,
+            ))
+        }
         ASTNode::If {
             condition,
             then_body,
