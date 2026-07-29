@@ -142,10 +142,6 @@ pub fn builder_trycatch_debug() -> bool {
     env_bool("NYASH_DEBUG_TRYCATCH")
 }
 
-pub fn builder_disable_throw() -> bool {
-    env_bool("NYASH_BUILDER_DISABLE_THROW")
-}
-
 pub fn builder_boxcall_type_debug() -> bool {
     env_bool("NYASH_BOXCALL_TYPE_DEBUG")
 }

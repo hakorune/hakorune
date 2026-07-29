@@ -29,11 +29,12 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0
-Result:        physical prepared TryCatch is the sole route; disable residue
-               and its sunset are deleted
-Current stop:  MIRBUILDER-LIVE-EDGE-CENSUS0
-Executable:    none; select only from fresh named-edge evidence
+Latest landed: RAW-THROW-DEBUG-TRACE-COMPAT-RETIRE0-I0-R0
+Result:        physical Throw is the sole completion; debug-trace compatibility
+               residue and its sunset are deleted
+Latest census: fresh live-edge census is current; Program declaration facts
+               remains a later T2 design shelf
+Executable:    none — census before selection
 History:       Git history and the short landed tail below
 ```
 
@@ -42,37 +43,30 @@ History:       Git history and the short landed tail below
 `MIRBUILDER-LIVE-EDGE-CENSUS0`
 
 ```text
-Change:
-  Recount live production selectors, active compatibility sunsets, detached
-  execution-capable assets, and touched-file capacity.
+Read-only census only. Choose at most one row after recording:
+  named live production edge or detached Delete asset,
+  the exact old authority deleted in the same commit,
+  its non-growing compatibility surface and retirement condition when present,
+  and the focused evidence required for parity and reuse.
 
-Contract:
-  Select at most one named caller with one bounded replacement or deletion and
-  remove its old authority atomically. Fallback/retry and whole-function
-  acceptance variants remain forbidden.
-
-Done:
-  Either one executable I0/R0 brief names caller/new owner/old deletion, or the
-  census records NoSafeSlice without creating a proof-only route.
-
-Stop:
-  Do not preselect Throw, Program-root, HeaderPort, Recipe, or DraftSeal work
-  from history. Do not create a new per-row guard or compatibility route.
+Do not preselect Program declaration facts, DraftSeal/collector, JoinModule,
+Ownership, View, or a missing language feature. If the next candidate requires
+new source/failure authority or grammar, stop at its D0 boundary.
 ```
 
 ## Latest closeout
 
 ```text
-RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0
+RAW-THROW-DEBUG-TRACE-COMPAT-RETIRE0-I0-R0
 
-statement_surface TryCatch -> prepare/lower           = exactly once
-NYASH_BUILDER_DISABLE_TRYCATCH definition/read/docs    = 0
-disabled owner/fixture/route shell/guard residue       = 0
-physical TryCatch default behavior                      = preserved
-TryCatch unit / normal parity / failure-reuse / imports = green
-fallback / retry / Throw delta                          = 0
+statement_surface Throw -> prepare/lower                = exactly once
+NYASH_BUILDER_DISABLE_THROW definition/read/docs         = 0
+debug completion/enum/field/fixture/guard residue        = 0
+physical Throw completion                                = sole
+Throw unit / normal parity / failure-reuse / imports      = green
+fallback / retry / grammar delta                          = 0
 new source/test/check file                              = 0
-largest touched source/check file                       = 773
+largest touched source/check file                       < 800
 ```
 
 ## Task order
@@ -1287,10 +1281,10 @@ RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-SUNSET-001
   retired by: RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0
 
 RAW-THROW-DEBUG-TRACE-COMPAT-SUNSET-001
-  state: active
-  owner: PreparedRawThrowV1 completion route
-  surface: NYASH_BUILDER_DISABLE_THROW=1 -> env.debug.trace
-  retire_when: diagnostic consumers are zero and Throw always uses physical completion
+  state: closed
+  owner: deleted
+  definition/read/docs/fixture/route shell = 0
+  retired by: RAW-THROW-DEBUG-TRACE-COMPAT-RETIRE0-I0-R0
 
 MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001
   state: closed
@@ -1412,6 +1406,8 @@ R85 RAW-LAMBDA-LEXICAL-CAPTURE-LIFECYCLE0-I0-R0 closed: old authority deleted
 R86 post-Lambda census closed: its NoSafeSlice verdict was corrected by the
     later multi-owner task census
 R87 RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0 closed: disable route and
+    sunset retired; fresh live-edge census is current
+R88 RAW-THROW-DEBUG-TRACE-COMPAT-RETIRE0-I0-R0 closed: debug-trace route and
     sunset retired; fresh live-edge census is current
 
 after every bounded retirement:

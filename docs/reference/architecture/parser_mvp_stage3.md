@@ -30,7 +30,7 @@ Current Status (Phase 15.3 – 2025-09-16)
 - Documentation for JSON v0 (Stage-3 nodes) is updated; remaining native unwind work is tracked in CURRENT_TASK.md.
 
 Runtime snapshot
-- MIR Builder already lowers `ASTNode::Throw` into `MirInstruction::Throw` (unless disabled via `NYASH_BUILDER_DISABLE_THROW`) and has a provisional physical TryCatch path that emits `Catch`/`Jump` scaffolding.
+- MIR Builder lowers `ASTNode::Throw` into `MirInstruction::Throw` and has a provisional physical TryCatch path that emits `Catch`/`Jump` scaffolding.
 - Rust VM (`interpreter::ControlFlow::Throw`) supports catch/cleanup semantics and rethrows unhandled exceptions.
 - Bridge degradation prevents these MIR paths from activating unless `NYASH_BRIDGE_THROW_ENABLE=1`;既定では Const0 を出し、フラグONで実際に `Throw` を生成する。
 
