@@ -777,7 +777,7 @@ fn instance_constructor_batch_stops_after_first_failure() {
 }
 
 #[test]
-fn deferred_static_box_lifecycle_keeps_dirty_candidate_and_stops_after_failure() {
+fn deferred_static_box_lifecycle_restores_context_and_stops_after_failure() {
     let (name, methods) = parsed_static_box(
         "static box Broken { gamma() { return 3 } beta() { return 2 } alpha() { return 1 } }",
     );
@@ -795,5 +795,5 @@ fn deferred_static_box_lifecycle_keeps_dirty_candidate_and_stops_after_failure()
     assert_eq!(error, "selected static method failure: Broken.beta/0");
     assert_eq!(port.static_methods, vec!["Broken.alpha/0", "Broken.beta/0"]);
     assert_eq!(port.static_context_active, vec![true, true]);
-    assert!(builder.comp_ctx.compilation_context.is_some());
+    assert!(builder.comp_ctx.compilation_context.is_none());
 }

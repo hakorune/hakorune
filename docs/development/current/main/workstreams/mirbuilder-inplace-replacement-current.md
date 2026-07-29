@@ -29,43 +29,50 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: NORMAL-PROGRAM-STATIC-TABLE-PLAN0-I0-R0
-Result:        selected normal Program static-table specs and plans are
-               prepared and published together into candidate metadata
-Latest design: Program deferred-static context restoration
-Executable:    `NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-I0-R0`
+Latest landed: NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-I0-R0
+Result:        deferred non-Main static-Box lowering restores its exact prior
+               compilation context on every exit
+Latest design: fresh live-edge census
+Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS6` is a design stop
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-I0-R0` — T2 scoped context ownership
+`MIRBUILDER-LIVE-EDGE-CENSUS6` — select one remaining authority edge
 
 ```text
-Change:
-  `ProgramDeferredStaticBoxLifecycleV1` opens one private closure-scoped
-  context session, lowers the existing method batch once, and restores the
-  exact prior `Option<BoxCompilationContext>` on success, error, or unwind.
-  Delete its direct `Some(new)` / `None` assignments atomically.
+Scope:
+  take a fresh production and explicit-compatibility census after the scoped
+  context closeout. Select at most one named replacement or one bounded D0.
 
-Contract:
-  only `compilation_context` moves. Keep batch order, port/callable capture,
-  original error text, candidate discard, and all function-session state
-  contracts unchanged. Raw static's four-state success-only owner is not
-  reusable here.
+Must preserve:
+  one execution, no fallback/retry, explicit non-growing compatibility sunsets,
+  and a same-commit old-edge deletion for every implementation row.
 
-Done:
-  prior None/Some restore on success and error; later method is not demanded
-  after failure; normal candidate failure then fresh corrected compile works;
-  existing shared guard and focused tests are green.
-
-Stop:
-  return to D0 if this needs FunctionState/slot/type rollback, unsafe state,
-  source or route reselection, diagnostic change, a second lowering pass, or
-  raw/static-Main sharing.
+Do not select automatically:
+  raw/static-Main, no-header Call, selected-invocation Loop/CorePlan, detached
+  assets, JoinModule, Ownership, View, or new language features.
 ```
 
 ## Latest closeout
+
+```text
+NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-I0-R0
+
+selected direct context open/clear                                 = 0
+private scoped context owner                                       = exactly one
+prior None/Some restored on success, error, and unwind             = green
+method order, primary error, callable capture                      = preserved
+non-Main static candidate failure -> fresh corrected reuse         = green
+shared guard / focused tests / cargo check                         = green
+fallback / retry / grammar / collector / finalization delta        = 0
+new source/test/check file                                         = 0 / 0 / 0
+largest touched source/check file                                  < 800
+next                                                               = fresh live-edge census
+```
+
+## Previous closeout
 
 ```text
 MIRBUILDER-LIVE-EDGE-CENSUS5
@@ -239,9 +246,10 @@ largest touched source/check file                       < 800
 
 ```text
 R1 Now
-  NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-D0
-  This non-replacement T2 design decides one scoped restore owner for the
-  selected non-Main static-Box live edge. Only its same-scope I0/R0 may follow.
+  MIRBUILDER-LIVE-EDGE-CENSUS6
+  Freshly inventory live normal/default and explicit compatibility edges. It
+  may select one named replacement or one bounded D0; it cannot pre-authorize
+  a future implementation.
 
 R2 Live responsibility replacement
   Census (no code) outputs exactly one of: one I0/R0 candidate, one bounded

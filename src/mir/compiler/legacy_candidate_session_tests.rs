@@ -308,6 +308,50 @@ fn late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
 }
 
 #[test]
+fn nonmain_static_box_failure_discards_candidate_and_reuses_live_compiler() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let failing = NyashParser::parse_from_string(
+        "static box Helpers { value() { return missing } } static box Main { main() { return 0 } }",
+    )
+    .expect("failing static Box source");
+    let succeeding = NyashParser::parse_from_string(
+        "static box Helpers { value() { return 1 } } static box Main { main() { return 0 } }",
+    )
+    .expect("corrected static Box source");
+    let mut compiler = MirCompiler::with_options(false);
+    compiler
+        .builder
+        .set_source_file_hint("static-live-before.hako");
+    compiler.builder.next_value_id();
+    let before = (source_file(&compiler), core_cursor(&compiler));
+
+    let error = compiler
+        .compile_normal(normal_request(
+            failing,
+            Some("static-failure.hako"),
+            HashMap::new(),
+        ))
+        .expect_err("failing deferred static Box must reject its candidate");
+
+    assert!(error.contains("Undefined variable: missing"), "{error}");
+    assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
+    assert!(compiler.builder.current_module.is_none());
+
+    let result = compiler
+        .compile_normal(normal_request(
+            succeeding,
+            Some("static-reused.hako"),
+            HashMap::new(),
+        ))
+        .expect("corrected deferred static Box after candidate discard");
+    assert!(result.module.functions.contains_key("main"));
+    assert_eq!(
+        source_file(&compiler).as_deref(),
+        Some("static-reused.hako")
+    );
+}
+
+#[test]
 fn explicit_imports_commit_only_with_the_finished_normal_candidate() {
     let mut compiler = MirCompiler::with_options(false);
     compiler

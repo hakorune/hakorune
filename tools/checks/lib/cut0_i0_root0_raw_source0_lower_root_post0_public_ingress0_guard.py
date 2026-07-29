@@ -693,14 +693,13 @@ def main() -> int:
     require(program_root_lowering, f"struct {deferred_owner}", "deferred static Box owner")
     if program_root_lowering.count(f"{deferred_owner}::new(name, methods)") != 1:
         raise AssertionError("deferred static Box production handoff drift")
+    deferred_scope = text_between(program_root_lowering, "struct ProgramDeferredStaticCompilationContextScopeV1", f"pub(super) struct {deferred_owner}")
+    deferred_lifecycle = text_between(program_root_lowering, f"impl {deferred_owner}", "impl MirBuilder")
+    if deferred_scope.count("fn open") != 1 or deferred_scope.count("fn run") != 1 or deferred_scope.count("fn restore") != 1 or deferred_scope.count("impl Drop") != 1 or any(retired in deferred_lifecycle for retired in ("compilation_context = Some(", "compilation_context = None", "retry", "fallback")): raise AssertionError("deferred static Box context scope drift")
     if any(token in program_root_lowering for token in ("collector.into_draft_functions()", ".try_add_functions_atomic(")):
         raise AssertionError("selected Program collector direct drain returned")
     if program_root_lowering.count(".prepare_normal_legacy_drain(target)") != 1:
         raise AssertionError("selected Program normal collector drain caller drift")
-    mirbuilder_impl = program_root_lowering.split("impl MirBuilder", maxsplit=1)[1]
-    for retired in ("self.comp_ctx.compilation_context = Some(", "self.comp_ctx.compilation_context = None"):
-        if retired in mirbuilder_impl:
-            raise AssertionError(f"Program root retains deferred static Box lifecycle: {retired}")
     if "ast: ASTNode" in text_between(
         normal_pipeline,
         "pub struct NormalCompileRequestV1",

@@ -23,6 +23,48 @@ use super::program_static_table_metadata::PreparedNormalProgramStaticTableMetada
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::{MirBuilder, ValueId};
 
+/// Scoped candidate context for one deferred non-Main static Box.
+///
+/// Unlike the raw compatibility transaction, this owns only the temporary
+/// compilation context. The normal candidate keeps all other failed-lowering
+/// effects until its outer invocation session discards them.
+struct ProgramDeferredStaticCompilationContextScopeV1<'builder> {
+    builder: &'builder mut MirBuilder,
+    prior: Option<BoxCompilationContext>,
+    restored: bool,
+}
+
+impl<'builder> ProgramDeferredStaticCompilationContextScopeV1<'builder> {
+    fn open(builder: &'builder mut MirBuilder) -> Self {
+        let prior = builder.comp_ctx.compilation_context.take();
+        builder.comp_ctx.compilation_context = Some(BoxCompilationContext::new());
+        Self {
+            builder,
+            prior,
+            restored: false,
+        }
+    }
+
+    fn run<Result>(mut self, lower: impl FnOnce(&mut MirBuilder) -> Result) -> Result {
+        let result = lower(self.builder);
+        self.restore();
+        result
+    }
+
+    fn restore(&mut self) {
+        if !self.restored {
+            self.builder.comp_ctx.compilation_context = self.prior.take();
+            self.restored = true;
+        }
+    }
+}
+
+impl Drop for ProgramDeferredStaticCompilationContextScopeV1<'_> {
+    fn drop(&mut self) {
+        self.restore();
+    }
+}
+
 pub(super) struct ProgramDeferredStaticBoxLifecycleV1 {
     methods: PreparedNonMainStaticBoxMethodBatchV1,
 }
@@ -43,10 +85,8 @@ impl ProgramDeferredStaticBoxLifecycleV1 {
         Port: RootCallableCapturePortV1,
     {
         builder.trace_compile(format!("lower static box {}", self.methods.owner()));
-        builder.comp_ctx.compilation_context = Some(BoxCompilationContext::new());
-        self.methods.lower_with_port_v1(builder, callables)?;
-        builder.comp_ctx.compilation_context = None;
-        Ok(())
+        ProgramDeferredStaticCompilationContextScopeV1::open(builder)
+            .run(|builder| self.methods.lower_with_port_v1(builder, callables))
     }
 }
 
@@ -158,5 +198,82 @@ impl MirBuilder {
                 .map_err(|error| error.to_string()),
             _ => Err("[freeze:contract][mir/program-root-work-plan/terminal-drift]".to_owned()),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
+    use crate::mir::{MirModule, MirType};
+
+    fn seeded_builder() -> MirBuilder {
+        let mut builder = MirBuilder::new();
+        builder.current_module = Some(MirModule::new("deferred-static/0".to_owned()));
+        builder
+            .function_state
+            .type_ctx
+            .set_type(ValueId(41), MirType::Integer);
+        builder.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
+        let mut prior = BoxCompilationContext::new();
+        prior.variable_map.insert("outer".to_owned(), ValueId(42));
+        builder.comp_ctx.compilation_context = Some(prior);
+        builder
+    }
+
+    fn assert_outer_state(builder: &MirBuilder) {
+        assert_eq!(
+            builder
+                .current_module
+                .as_ref()
+                .map(|module| module.name.as_str()),
+            Some("deferred-static/0")
+        );
+        assert_eq!(
+            builder.function_state.type_ctx.get_type(ValueId(41)),
+            Some(&MirType::Integer)
+        );
+        assert!(builder.comp_ctx.current_slot_registry.is_some());
+        assert_eq!(
+            builder
+                .comp_ctx
+                .compilation_context
+                .as_ref()
+                .and_then(|context| context.variable_map.get("outer")),
+            Some(&ValueId(42))
+        );
+    }
+
+    #[test]
+    fn deferred_static_context_scope_restores_prior_context_after_success() {
+        let mut builder = seeded_builder();
+        ProgramDeferredStaticCompilationContextScopeV1::open(&mut builder).run(|builder| {
+            assert!(builder
+                .comp_ctx
+                .compilation_context
+                .as_ref()
+                .is_some_and(BoxCompilationContext::is_empty));
+        });
+        assert_outer_state(&builder);
+    }
+
+    #[test]
+    fn deferred_static_context_scope_restores_prior_context_after_error() {
+        let mut builder = seeded_builder();
+        let error = ProgramDeferredStaticCompilationContextScopeV1::open(&mut builder)
+            .run(|_| Err::<(), _>("selected static method failure".to_owned()));
+        assert_eq!(error, Err("selected static method failure".to_owned()));
+        assert_outer_state(&builder);
+    }
+
+    #[test]
+    fn deferred_static_context_scope_restores_prior_context_after_unwind() {
+        let mut builder = seeded_builder();
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            ProgramDeferredStaticCompilationContextScopeV1::open(&mut builder)
+                .run(|_| panic!("injected deferred-static panic"));
+        }));
+        assert!(result.is_err());
+        assert_outer_state(&builder);
     }
 }
