@@ -39,8 +39,8 @@ use super::recursive_child_lowering::{
     RawLegacyChildLoweringPortV1,
 };
 use super::{
-    BasicBlockId, CanonicalSameModuleCallableKeyV1, EffectMask, FunctionSignature, MirInstruction,
-    MirModule, MirType, ValueId,
+    CanonicalSameModuleCallableKeyV1, EffectMask, FunctionSignature, MirInstruction, MirModule,
+    MirType, ValueId,
 };
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::config;
@@ -313,29 +313,6 @@ impl super::MirBuilder {
         }
 
         module.add_function(function);
-
-        // Dev stub: provide condition_fn when missing to satisfy predicate calls in JSON lexers
-        // Returns integer 1 (truthy) and accepts one argument (unused).
-        //
-        // NOTE:
-        // - MirFunction::new() はシグネチャの params に応じて
-        //   [ValueId(0)..ValueId(param_count-1)] を事前に予約する。
-        // - ここでは追加の next_value_id()/params.push() は行わず、
-        //   予約済みのパラメータ集合をそのまま使う。
-        if module.functions.get("condition_fn").is_none() {
-            let sig = FunctionSignature {
-                name: "condition_fn".to_string(),
-                params: vec![MirType::Integer], // accept one i64-like arg
-                return_type: MirType::Integer,
-                effects: EffectMask::PURE,
-            };
-            let entry = BasicBlockId::new(0);
-            let mut f = self.new_function_with_metadata(sig, entry);
-            // body: const 1; return it（FunctionEmissionBox を使用）
-            let one = crate::mir::function_emission::emit_const_integer(&mut f, entry, 1);
-            crate::mir::function_emission::emit_return_value(&mut f, entry, one);
-            module.add_function(f);
-        }
 
         // main 関数スコープの Region スタックをポップするよ。
         crate::mir::region::observer::pop_function_region(self);

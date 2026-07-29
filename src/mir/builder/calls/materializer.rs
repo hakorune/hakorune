@@ -45,30 +45,7 @@ impl CallMaterializerBox {
         args: &[ValueId],
         authority: GlobalPresenceAuthorityV1<'_>,
     ) -> Result<Option<()>, String> {
-        // 0) Dev-only safety: treat condition_fn as always-true predicate when missing
-        if name == "condition_fn" {
-            let dstv = dst.unwrap_or_else(|| builder.next_value_id());
-            // Emit integer constant via ConstantEmissionBox
-            let one = crate::mir::builder::emission::constant::emit_integer(builder, 1)?;
-            if dst.is_none() {
-                // If a destination was not provided, copy into the allocated dstv
-                builder.emit_instruction(MirInstruction::Copy {
-                    dst: dstv,
-                    src: one,
-                })?;
-                crate::mir::builder::metadata::propagate::propagate(builder, one, dstv);
-            } else {
-                // If caller provided dst, ensure the computed value lands there
-                builder.emit_instruction(MirInstruction::Copy {
-                    dst: dstv,
-                    src: one,
-                })?;
-                crate::mir::builder::metadata::propagate::propagate(builder, one, dstv);
-            }
-            return Ok(Some(()));
-        }
-
-        // 1) Direct module function resolver: call by name if present
+        // Direct module function resolver: call by name if present.
         let direct_presence = match authority {
             GlobalPresenceAuthorityV1::InvocationHeader(headers) => headers.contains_symbol(name),
             GlobalPresenceAuthorityV1::LegacyCompatibility { present } => present,

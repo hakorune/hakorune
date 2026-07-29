@@ -45,8 +45,7 @@ compatibility edges (T2 decision, one atomic implementation)
 ```text
 Change:
   delete finalization-time missing-`condition_fn/1` injection and the Call
-  materializer's same-name `const 1` early return. Retire their DerivedShadow
-  artifact closure in the same commit.
+  materializer's same-name `const 1` early return.
 
 Contract:
   named production caller: `MirBuilder::finalize_module` and its shared Call
@@ -55,9 +54,10 @@ Contract:
   and every Raw/reference route separate and unchanged.
 
 Done:
-  both old edges and their active derived shadow/guard closure are zero; a real
-  declared `condition_fn` is no longer intercepted; missing global behavior,
-  normal parity, and candidate reuse are green.
+  both old production edges are zero; a real declared `condition_fn` is no
+  longer intercepted; missing global behavior, normal parity, and candidate
+  reuse are green. The caller-zero DerivedShadow evidence is explicitly held
+  for R3 asset disposition, not treated as a live owner.
 
 Stop:
   return to design if any production corpus needs implicit global behavior, the

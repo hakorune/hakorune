@@ -231,7 +231,7 @@ fn mirbuilder_minimal_literal_integer_path_smoke() {
         .expect("minimal literal path should create main");
 
     assert_eq!(main.signature.return_type, MirType::Integer);
-    assert!(module.get_function("condition_fn").is_some());
+    assert!(module.get_function("condition_fn").is_none());
     assert!(main.blocks.values().any(|block| {
         block.instructions.iter().any(|instruction| {
             matches!(
