@@ -761,8 +761,8 @@ def main() -> int:
                              f"expected={expected_build_module} actual={actual_build_module}")
     runtime_emit = (ROOT / "src/runtime/mirbuilder_emit.rs").read_text()
     if "json_to_ast" in runtime_emit or "lower_ast_json_to_module" in runtime_emit: raise AssertionError("runtime AST-JSON compatibility must remain retired")
-    test_bridge = ROOT / "src/host_providers/mir_builder/lowering.rs"
-    require(test_bridge.read_text(), "#[cfg(test)]\nmod ast_json;", "cfg(test) AST-JSON bridge")
+    test_bridge = ROOT / "src/host_providers/mir_builder/lowering/ast_json.rs"
+    if test_bridge.exists(): raise AssertionError("cfg(test) AST-JSON compatibility returned")
     expected_test_build = caller_manifest.get("direct_build_module_repository_tests", {})
     actual_test_build = {}
     for root in (ROOT / "src", ROOT / "tests"):

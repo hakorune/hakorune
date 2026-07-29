@@ -118,7 +118,6 @@
   },
   "direct_build_module_production": {},
   "direct_build_module_repository_tests": {
-    "src/host_providers/mir_builder/lowering/ast_json.rs": 1,
     "src/mir/builder/literal_postemit_retirement_tests.rs": 1,
     "tests/mir_builder_unit.rs": 2,
     "tests/mirbuilder_minimal_execution_path_smoke.rs": 1

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Public MirBuilder root API retirement series is active; five direct test callers remain."
+status = "Public MirBuilder root API retirement series is active; four direct test callers remain."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = ""
-current_execution_row = "HOST-PROVIDER-CFGTEST-AST-JSON-COMPAT0-RET0"
-current_execution_summary = "Retire the test-only generic AST-JSON bridge after preserving exact Program(JSON v0) host-provider evidence; reduce direct build_module test callers from five to four."
+current_execution_row = "MIRBUILDER-RAW-TEST-EVIDENCE-LOCALIZE0-R0"
+current_execution_summary = "Localize or retire the four remaining arbitrary-root test callers without adding a test-only build_module facade."
 current_execution_design = "docs/development/current/main/design/mir-root-facade-contract-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """The public MirBuilder root API breaking series has moved Program tests to MirCompiler and deleted obsolete ignored Phase6/Phase7 evidence, reducing direct callers from fifteen to five. Next retire the one test-only AST-JSON compatibility caller."""
+latest_card_summary = """The test-only host AST-JSON compatibility bridge is retired; exact Program(JSON v0) evidence remains green and direct build_module callers are four. Next localize the remaining Raw test evidence without a replacement facade."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "HOST-PROVIDER-CFGTEST-AST-JSON-COMPAT0-RET0"
+current_blocker_token = "MIRBUILDER-RAW-TEST-EVIDENCE-LOCALIZE0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

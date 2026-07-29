@@ -579,29 +579,29 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution
-`HOST-PROVIDER-CFGTEST-AST-JSON-COMPAT0-RET0` — T2 breaking series 2/4
+`MIRBUILDER-RAW-TEST-EVIDENCE-LOCALIZE0-R0` — T2 breaking series 3/4
 ```text
 Change:
-  Replace version/kind-less host-provider fixtures with exact Program(JSON v0)
-  evidence and delete the cfg(test) generic AST-JSON build_module bridge.
+  Localize or retire the four remaining arbitrary-root test callers at their
+  exact responsibility owners.
 
 Contract:
-  Production host/runtime behavior stays unchanged. Public build_module and
-  the four unrelated Raw test callers remain for later series rows.
+  Do not synthesize Program wrappers or add cfg(test)/public generic root
+  facades. Preserve only non-duplicate responsibility evidence.
 
 Done:
-  lowering/ast_json.rs and its direct caller are zero; Program(JSON v0)
-  success/rejection evidence and host-provider tests are green.
+  Direct repository test callers become zero; focused owner evidence and the
+  minimal lifecycle smoke contract remain green.
 
 Stop:
-  Do not add a test facade, route generic AST JSON to normal ingress, or widen
-  the production host contract.
+  If a Raw assertion has no bounded owner seam, stop and split the series row
+  rather than recreating build_module under another name.
 ```
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)
-2 HOST-PROVIDER-CFGTEST-AST-JSON-COMPAT0-RET0 current
-3 MIRBUILDER-RAW-TEST-EVIDENCE-LOCALIZE0-R0
+2 HOST-PROVIDER-CFGTEST-AST-JSON-COMPAT0-RET0 closed (5 -> 4)
+3 MIRBUILDER-RAW-TEST-EVIDENCE-LOCALIZE0-R0 current
 4 MIRBUILDER-PUBLIC-ROOT-API0-RET0
 ```
 External consumers are unknown, not zero. Migration is `MirCompiler::compile*`

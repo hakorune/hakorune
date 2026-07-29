@@ -1,7 +1,4 @@
 #[cfg(test)]
-mod ast_json;
-
-#[cfg(test)]
 use crate::mir::MirModule;
 #[cfg(test)]
 use crate::runner;
@@ -27,12 +24,8 @@ pub(super) fn program_json_to_mir_json_with_imports(
     imports: BTreeMap<String, String>,
 ) -> Result<String, String> {
     let _env_guard = Phase0MirJsonEnvGuard::new();
-    let parsed = parse_input_json(program_json)?;
-    let module = if parsed.get("version").is_some() && parsed.get("kind").is_some() {
-        lower_program_json_to_module_with_imports(program_json, imports)?
-    } else {
-        ast_json::lower_ast_json_to_module(&parsed)?
-    };
+    parse_input_json(program_json)?;
+    let module = lower_program_json_to_module_with_imports(program_json, imports)?;
     super::module_to_mir_json(&module)
 }
 
@@ -43,15 +36,10 @@ fn program_json_to_mir_json_impl(program_json: &str) -> Result<String, String> {
     // Therefore we force unified-call OFF for both compilation and emission here.
     let _env_guard = Phase0MirJsonEnvGuard::new();
 
-    let parsed = parse_input_json(program_json)?;
-
-    let module = if parsed.get("version").is_some() && parsed.get("kind").is_some() {
-        match runner::json_v0_bridge::parse_json_v0_to_module(program_json) {
-            Ok(module) => module,
-            Err(error) => return Err(super::failfast_error(error)),
-        }
-    } else {
-        ast_json::lower_ast_json_to_module(&parsed)?
+    parse_input_json(program_json)?;
+    let module = match runner::json_v0_bridge::parse_json_v0_to_module(program_json) {
+        Ok(module) => module,
+        Err(error) => return Err(super::failfast_error(error)),
     };
 
     super::module_to_mir_json(&module)
