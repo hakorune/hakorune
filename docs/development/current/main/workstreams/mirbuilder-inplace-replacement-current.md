@@ -79,8 +79,9 @@ Closed:  MIRBUILDER-POST-INSTANCE-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0
 Closed:  INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0
 Closed:  MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
 Closed:  CALL-BOX-KIND-POLICY-SSOT0-I0-R0
-Current: MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0
-Mode:    read-only production edge census
+Closed:  MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0
+Current: CALL-NAME-CLASSIFICATION-SSOT0-I0-R0
+Mode:    one atomic T1 I0/R0
 ```
 
 R1 closeout:
@@ -827,21 +828,44 @@ quick gate                                           = unrelated pre-existing
   docs/reference/language/EBNF.md naming-token failure
 ```
 
-## Current design stop
+## Current execution brief
 
-`MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0`.
+`CALL-NAME-CLASSIFICATION-SSOT0-I0-R0` / T1 / `CALL-OBJECT0`.
 
-```text
-Read only:
-  recount the production graph after the call policy cutover
-  select at most one behavior-neutral responsibility with a named caller
-  require same-commit deletion of its competing old edge
+### Change
 
-Do not:
-  infer the next row from raw Main or record-helper reserves
-  add caller-zero proof routes, accepted-family variants, or compatibility growth
-  start View, Ownership, parser, backend, or feature work
-```
+- Add one neutral call-name classification product with two current facts:
+  Raw unified admission and Callee `BuiltinGlobal` / `Extern` / `Ordinary`.
+- `calls/build`, `calls/resolver`, and `calls/method_resolution` each classify
+  once and consume only the needed fact.
+- Delete both predicates in `call_resolution`, both predicates in
+  `method_resolution`, and all six old production predicate calls atomically.
+  No alias or forwarding facade remains.
+
+### Contract
+
+- Preserve the exact cross-surface matrix: `isType/asType`, `gc_*`, trig,
+  `nyash.*`, `env.*`, `system.*`, common builtins, and ordinary names retain
+  their current distinct dispositions.
+- `resolve_call_target` keeps builtin -> current static method -> local value
+  -> extern -> unresolved priority.
+- Unified enablement, call routes, effects, diagnostics, MIR, result, grammar,
+  compatibility, fallback, retry, View, and Ownership do not change.
+
+### Done
+
+- One decision owner, three production consumers, four old definitions zero,
+  and six old predicate edges zero.
+- A table-driven boundary matrix plus existing resolver/Raw call evidence and
+  the shared CallTarget guard are green.
+- No new test/check/task file; every source/check file remains below 800.
+
+### Stop
+
+- Stop if the two existing name sets must be collapsed, resolution priority
+  changes, a consumer classifies twice, or an old wrapper remains.
+- Stop on any new env input, route/result/diagnostic delta, fallback/retry,
+  compatibility owner, or edit to the near-limit unified emitter.
 
 ## Latest call policy closeout
 
@@ -1221,7 +1245,8 @@ R56 MIRBUILDER-POST-INSTANCE-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0 closed
 R57 INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0 closed
 R58 MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 closed
 R59 CALL-BOX-KIND-POLICY-SSOT0-I0-R0 closed
-R60 MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0 current
+R60 MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0 closed
+R61 CALL-NAME-CLASSIFICATION-SSOT0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
