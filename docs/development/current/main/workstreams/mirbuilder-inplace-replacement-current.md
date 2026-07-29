@@ -580,11 +580,11 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: RAW-DIRECT-EXPLICIT-EXTERN-PREFLIGHT-ONCE0-I0-R0, CALL-OBJECT0/T1.
-Owner: one deferred PreparedRawExplicitExternCallV1 target/argument receipt.
-Deleted: raw extern terminal and lower-side target/partition decisions.
-Preserved: trace timing, StringBox targets, child/emission order, diagnostics.
-Evidence: focused route/reuse tests plus shared, lane, and pointer guards green.
+Closed: RAW-DIRECT-BRAND-CONSTRUCTOR-ARITY-PREFLIGHT-ONCE0-I0-R0.
+Owner: one deferred PreparedRawBrandConstructorV1 child or arity rejection.
+Deleted: raw Brand terminal and lower-side arity/sole-child partition.
+Preserved: route priority, trace timing, child/result order, diagnostics.
+Evidence: focused preflight/Brand/port tests, cargo check, shared/lane guards.
 Current stop: fresh production live-edge census; no next row is preselected.
 ```
 Lambda capture authority and all feature additions remain parked.

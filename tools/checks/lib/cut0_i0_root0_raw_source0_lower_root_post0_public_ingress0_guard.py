@@ -257,6 +257,26 @@ def main() -> int:
         "explicit extern target/child evidence",
     )
     for fragment in (
+        "enum PreparedRawBrandConstructorV1",
+        "PreparedRawBrandConstructorV1::ArityMismatch",
+        "PreparedRawBrandConstructorV1::Ready",
+        "fn lower_prepared_raw_brand_constructor_with_port_v1",
+    ):
+        require(function_call_preflight, fragment, f"Brand preflight {fragment}")
+    if function_call_preflight.count("PreparedRawBrandConstructorV1::prepare(") != 1:
+        raise AssertionError("Brand arity/source receipt issuer count drift")
+    for retired in (
+        "build_brand_constructor_call_with_port_v1",
+        "PreparedRawFunctionPreflightRouteV1::Brand { arguments }",
+    ):
+        if retired in call_build or retired in function_call_preflight:
+            raise AssertionError(f"Brand lower-side authority returned: {retired}")
+    require(
+        function_call_preflight_tests,
+        "rejecting_routes_precede_children_and_typeop_uses_one_child",
+        "Brand arity rejection precedes child evidence",
+    )
+    for fragment in (
         "struct PreparedFastMemIntrinsicV1",
         "PreparedFastMemIntrinsicRouteV1::Selected",
         "PreparedFastMemIntrinsicRouteV1::Forbidden",

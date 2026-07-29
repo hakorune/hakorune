@@ -250,27 +250,6 @@ impl MirBuilder {
         Ok(result_id)
     }
 
-    pub(in crate::mir::builder) fn build_brand_constructor_call_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        name: String,
-        args: Vec<ASTNode>,
-    ) -> Result<ValueId, String>
-    where
-        Port: RawAstChildLoweringPortV1,
-    {
-        if args.len() != 1 {
-            return Err(format!(
-                "[brand/constructor-arity] {} expects exactly one value, got {}",
-                name,
-                args.len()
-            ));
-        }
-        let mut args = args.into_iter();
-        let value = args.next().expect("len checked");
-        drive_legacy_expression_v1(self, port, value)
-    }
-
     // ========================================
     // Private helper methods (small functions)
     // ========================================

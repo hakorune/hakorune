@@ -19,9 +19,7 @@ pub(in crate::mir::builder) struct PreparedRawFunctionPreflightV1 {
 enum PreparedRawFunctionPreflightRouteV1 {
     WeakReject,
     ExplicitExtern(PreparedRawExplicitExternCallV1),
-    Brand {
-        arguments: Vec<ASTNode>,
-    },
+    Brand(PreparedRawBrandConstructorV1),
     TypeOp {
         operand: ASTNode,
         raw_type_name: String,
@@ -54,6 +52,27 @@ enum PreparedRawExplicitExternCallV1 {
         return_type: MirType,
         arguments: Vec<ASTNode>,
     },
+}
+
+enum PreparedRawBrandConstructorV1 {
+    ArityMismatch { actual: usize },
+    Ready { argument: ASTNode },
+}
+
+impl PreparedRawBrandConstructorV1 {
+    fn prepare(arguments: Vec<ASTNode>) -> Self {
+        if arguments.len() != 1 {
+            return Self::ArityMismatch {
+                actual: arguments.len(),
+            };
+        }
+        Self::Ready {
+            argument: arguments
+                .into_iter()
+                .next()
+                .expect("exact-one Brand constructor retains one argument"),
+        }
+    }
 }
 
 impl PreparedRawExplicitExternCallV1 {
@@ -89,7 +108,9 @@ impl PreparedRawFunctionPreflightV1 {
                 PreparedRawExplicitExternCallV1::prepare(arguments),
             )
         } else if builder.comp_ctx.is_brand_declared(&name) {
-            PreparedRawFunctionPreflightRouteV1::Brand { arguments }
+            PreparedRawFunctionPreflightRouteV1::Brand(PreparedRawBrandConstructorV1::prepare(
+                arguments,
+            ))
         } else if let Some((raw_type_name, op)) = prepare_typeop_route(&name, arguments.as_slice())
         {
             let mut arguments = arguments.into_iter();
@@ -183,8 +204,8 @@ where
         PreparedRawFunctionPreflightRouteV1::ExplicitExtern(explicit) => {
             lower_prepared_raw_explicit_extern_call_with_port_v1(builder, port, explicit)
         }
-        PreparedRawFunctionPreflightRouteV1::Brand { arguments } => {
-            builder.build_brand_constructor_call_with_port_v1(port, prepared.name, arguments)
+        PreparedRawFunctionPreflightRouteV1::Brand(brand) => {
+            lower_prepared_raw_brand_constructor_with_port_v1(builder, port, prepared.name, brand)
         }
         PreparedRawFunctionPreflightRouteV1::TypeOp {
             operand,
@@ -216,6 +237,27 @@ where
                 completion,
             ),
     }
+}
+
+fn lower_prepared_raw_brand_constructor_with_port_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    name: String,
+    prepared: PreparedRawBrandConstructorV1,
+) -> Result<ValueId, String>
+where
+    Port: RawAstChildLoweringPortV1,
+{
+    let argument = match prepared {
+        PreparedRawBrandConstructorV1::ArityMismatch { actual } => {
+            return Err(format!(
+                "[brand/constructor-arity] {} expects exactly one value, got {}",
+                name, actual
+            ));
+        }
+        PreparedRawBrandConstructorV1::Ready { argument } => argument,
+    };
+    drive_legacy_expression_v1(builder, port, argument)
 }
 
 fn lower_prepared_raw_explicit_extern_call_with_port_v1<Port>(
@@ -410,7 +452,7 @@ mod tests {
             PreparedRawFunctionPreflightV1::prepare(&builder, "sin".to_string(), vec![integer(1)]);
         assert!(matches!(
             brand.route,
-            PreparedRawFunctionPreflightRouteV1::Brand { .. }
+            PreparedRawFunctionPreflightRouteV1::Brand(_)
         ));
 
         for (name, arguments) in [
@@ -428,7 +470,7 @@ mod tests {
                 PreparedRawFunctionPreflightV1::prepare(&builder, name.to_string(), arguments);
             assert!(matches!(
                 collision.route,
-                PreparedRawFunctionPreflightRouteV1::Brand { .. }
+                PreparedRawFunctionPreflightRouteV1::Brand(_)
             ));
         }
 
@@ -525,6 +567,7 @@ mod tests {
 
         for (name, arguments) in [
             ("externcall", vec![integer(1)]),
+            ("Meter", Vec::new()),
             ("Meter", vec![integer(1), integer(2)]),
         ] {
             let prepared =
