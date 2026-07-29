@@ -1,14 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MirBuilder build_expression callers and facade definition are both zero; raw expression descent is the sole live entry."
+status = "The next live MirBuilder replacement is Local special-initializer port continuity: two production edges currently discard the caller port."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-FACADE-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = "Read-only census the next live competing MirBuilder authority; do not activate View/Ownership or add language behavior."
-current_execution_design = "docs/development/current/main/design/mir-root-facade-contract-ssot.md"
+current_design_stop = ""
+current_execution_row = "RAW-LOCAL-SPECIAL-INITIALIZER-PORT-CONTINUITY0-I0-R0"
+current_execution_summary = "Preserve the caller port through typed-array and record-constructor Local initializers, deleting two fresh RawLegacy port edges atomically."
+current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """Public build_module and build_expression facades plus all repository callers are zero. Raw typed lifecycle/descent owners remain; a fresh production-edge census must select the next behavior-neutral MirBuilder cleanup before View/Ownership activation."""
+latest_card_summary = """The post-facade census selected one production-reachable Local responsibility. Typed-array and record-constructor initializers must retain the caller port; two fresh RawLegacy port edges are deleted in one T1 I0/R0. Located compatibility wrappers remain, while View/Ownership and grammar changes stay parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-POST-FACADE-LIVE-EDGE-CENSUS0-D0"
+current_blocker_token = "RAW-LOCAL-SPECIAL-INITIALIZER-PORT-CONTINUITY0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
