@@ -26,6 +26,7 @@ enum NormalCompileAdmissionV1 {
     PreparedSourceWithImports(NormalPreparedSourceCallerV1),
     MinimalMirJsonNoImports,
     ProgramJsonV0ImportBundleNoBuilderImports,
+    ReplProgramNoBuilderImports,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -203,6 +204,17 @@ impl NormalCompileRequestV1 {
         )
     }
 
+    pub(crate) fn for_repl_program(
+        ast: ASTNode,
+    ) -> Result<Self, RejectedNormalProgramCompileRequestV1> {
+        Self::new(
+            ast,
+            Some("<repl>"),
+            HashMap::new(),
+            NormalCompileAdmissionV1::ReplProgramNoBuilderImports,
+        )
+    }
+
     fn into_parts(
         self,
     ) -> (
@@ -313,6 +325,7 @@ mod tests {
             NormalCompileRequestV1::for_wasm_source(program(), Some("wasm.hako"), imports).is_ok()
         );
         assert!(NormalCompileRequestV1::for_program_json_v0_import_bundle(program()).is_ok());
+        assert!(NormalCompileRequestV1::for_repl_program(program()).is_ok());
 
         for rejected in [
             NormalCompileRequestV1::for_mir_mode(non_program(), Some("mir.hako"), HashMap::new()),
@@ -328,6 +341,7 @@ mod tests {
                 HashMap::new(),
             ),
             NormalCompileRequestV1::for_program_json_v0_import_bundle(non_program()),
+            NormalCompileRequestV1::for_repl_program(non_program()),
         ] {
             let rejected = rejected.expect_err("non-Program root must reject at request admission");
             assert_eq!(
@@ -349,6 +363,20 @@ mod tests {
         assert_eq!(
             admission,
             NormalCompileAdmissionV1::ProgramJsonV0ImportBundleNoBuilderImports
+        );
+    }
+
+    #[test]
+    fn repl_program_fixes_source_and_empty_builder_imports() {
+        let request = NormalCompileRequestV1::for_repl_program(program())
+            .expect("REPL must use typed Program admission");
+        let (_, source, imports, admission, _) = request.into_parts();
+
+        assert_eq!(source.source_file(), Some("<repl>"));
+        assert!(imports.is_empty());
+        assert_eq!(
+            admission,
+            NormalCompileAdmissionV1::ReplProgramNoBuilderImports
         );
     }
 }

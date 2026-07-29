@@ -69,9 +69,10 @@ Closed:  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0
 Closed:  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0
 Closed:  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0
 Closed:  REPL-TYPED-PROGRAM-INGRESS0-D0
-Current: REPL-TYPED-PROGRAM-INGRESS0-I0-R0
+Closed:  REPL-TYPED-PROGRAM-INGRESS0-I0-R0
+Current: POST-MACRO-PROGRAM-ADMISSION0-D0
 Pack:    ROOT-LIFECYCLE0
-Ceremony: T1, one atomic I0/R0
+Ceremony: T2, read-only policy audit
 ```
 
 R1 closeout:
@@ -555,49 +556,62 @@ new source/test/check file                   = 0
 largest touched source/check file            = 799
 ```
 
-## Current implementation brief
+## REPL closeout
 
 `REPL-TYPED-PROGRAM-INGRESS0-I0-R0`
 
 ```text
-Named edge:
-  ReplRunnerBox::eval_line
-  -> compile_legacy(ReplCompatibility, <repl>)
+production caller moved                  = 1
+typed Program constructor/caller         = 1 / 1
+REPL compile_legacy edge                 = 0
+ReplCompatibility Rust symbols           = 0
+source hint / Builder imports             = <repl> / empty
+repl/quiet/plugin/ContinueLive config     = parity green
+MIR/verification/failure/reuse            = parity green
+vm-reference build and REPL execution     = green
+VM/session/rewrite/auto-display delta     = 0
+fallback / retry / reselection            = 0
+direct production build_module edges      = 2, unchanged
+new source/test/check/task file            = 0
+largest touched source/check file          = 799
+```
 
-Source authority:
-  eval_line parse success produces static Main Program
-  parser-owned pruning/lowering and the Program rewrite arm preserve Program
-  ReplAstRewriter outside this production chain is not claimed Program-only
+## Current design stop
 
-Change:
-  one dedicated typed Program request
-  exact <repl> source hint and empty Builder imports
-  preserve repl_mode=true, quiet mode, plugin signatures,
-  ContinueLive, optimize=true, Legacy finish/result, diagnostics,
-  success-only commit, VM/session, rewrite, and auto-display
+`POST-MACRO-PROGRAM-ADMISSION0-D0`
 
-Atomic delete:
-  REPL compile_legacy edge
-  LegacyModuleOriginV1::ReplCompatibility
-  LegacyModuleLoweringInputV1::repl_compatibility
-  RawSourceOriginV1::ReplCompatibility and raw-binding arm
+```text
+Mode:
+  T2 read-only policy audit; production Rust edit = 0
 
-Keep:
-  BareAst and global legacy candidate/build_module compatibility
-  runtime AST-JSON and direct ProgramV0 bridge
+Named shared boundary:
+  production maybe_expand_and_dump
+  -> post-macro AST root
+  -> compile* legacy-compatible ingress
 
-Evidence:
-  parse/rewrite Program retention
-  full MIR/metadata/verification/error and config parity
-  late failure/live Builder reuse
-  vm-reference production build
-  live caller manifest and repository-zero old-symbol census
+Candidate:
+  one source-only PostMacroRootV1 partition:
+    Program -> existing typed Program lifecycle
+    ExplicitCompatibility -> existing arbitrary-root lifecycle
+  classification exactly once; no clone, reparse, Builder access, retry, or
+  fallback
 
-Stop:
-  Program or config parity fails; imports are nonempty; fallback/retry or a
-  second compile is required; REPL grammar/VM/session/backend/View/Ownership
-  changes; historical resolved-ingress inventory needs a partial rebaseline;
-  a new file/guard is required; or any source/check file reaches 800 lines
+Program stop:
+  parser success does not prove the post-macro root because public MacroBox may
+  return an arbitrary ASTNode; MIR interpreter and Stage1 share this blocker
+
+First future atomic caller:
+  prefer Stage1 direct after the shared contract closes; delete its broad
+  unconditional source-hint edge in the same I0/R0 commit
+
+Compatibility discipline:
+  any new explicit compatibility owner names its retirement row at creation;
+  caller-zero S0 and compatibility growth without an old-edge deletion are 0
+
+Non-claims:
+  MIR interpreter, VM keep/fallback, VM-Hako reference, selfhost, bench, public
+  arbitrary-AST APIs, global legacy candidate/build_module, and runtime
+  AST-JSON remain unchanged during D0
 ```
 
 Compatibility sunset:
@@ -626,8 +640,8 @@ MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001
   state: active
   measured build_module edge: src/mir/compiler/legacy_candidate_session.rs = 1
   owner: MirCompiler legacy candidate family
-  retire when: public/internal VM, Stage1, selfhost, REPL, Program JSON, and
-    reference callers have typed replacements and its build_module edge is 0
+  retire when: public/internal VM, Stage1, selfhost, bench, and reference
+    callers have typed replacements and its build_module edge is 0
   target/evidence: later named replacement rows plus production caller census
 
 RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001
@@ -685,7 +699,8 @@ R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
 R6  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0 closed
 R7  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0 closed
 R8  REPL-TYPED-PROGRAM-INGRESS0-D0 closed
-R9  REPL-TYPED-PROGRAM-INGRESS0-I0-R0 current
+R9  REPL-TYPED-PROGRAM-INGRESS0-I0-R0 closed
+R10 POST-MACRO-PROGRAM-ADMISSION0-D0 current
 
 after every bounded retirement:
   run a fresh live-edge census

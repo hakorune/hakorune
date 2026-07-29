@@ -184,6 +184,61 @@ fn program_v0_import_bundle_request(ast: ASTNode) -> NormalCompileRequestV1 {
 }
 
 #[test]
+fn repl_program_matches_legacy_config_and_failure_reuse() {
+    let configure = |compiler: &mut MirCompiler| {
+        compiler.set_repl_mode(true);
+        compiler.set_quiet_internal_logs(true);
+        compiler
+            .builder
+            .comp_ctx
+            .plugin_method_sigs
+            .insert(("PluginBox".into(), "value/0".into()), MirType::Integer);
+        compiler
+            .builder
+            .comp_ctx
+            .using_import_boxes
+            .insert("Ambient".into(), "MustNotLeak".into());
+    };
+    let success = program(literal(7));
+    let mut legacy = MirCompiler::new();
+    configure(&mut legacy);
+    let expected = legacy
+        .compile_with_source(success.clone(), Some("<repl>"))
+        .expect("legacy REPL oracle");
+    let mut typed = MirCompiler::new();
+    configure(&mut typed);
+    let before = (
+        typed.builder.repl_mode,
+        typed.builder.comp_ctx.quiet_internal_logs,
+        typed.builder.comp_ctx.plugin_method_sigs.clone(),
+    );
+    let error = typed
+        .compile_normal(
+            NormalCompileRequestV1::for_repl_program(program(variable("missing"))).unwrap(),
+        )
+        .expect_err("typed REPL failure");
+    assert!(error.contains("Undefined variable: missing"), "{error}");
+    assert_eq!(
+        (
+            typed.builder.repl_mode,
+            typed.builder.comp_ctx.quiet_internal_logs,
+            typed.builder.comp_ctx.plugin_method_sigs.clone(),
+        ),
+        before
+    );
+    let actual = typed
+        .compile_normal(NormalCompileRequestV1::for_repl_program(success).unwrap())
+        .expect("typed REPL reuse");
+    assert_eq!(
+        MirPrinter::new().print_module(&actual.module),
+        MirPrinter::new().print_module(&expected.module)
+    );
+    assert_eq!(actual.verification_result, expected.verification_result);
+    assert!(typed.builder.comp_ctx.using_import_boxes.is_empty());
+    assert_eq!(source_file(&typed).as_deref(), Some("<repl>"));
+}
+
+#[test]
 fn late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
     let root = NyashParser::parse_from_string(
         r#"

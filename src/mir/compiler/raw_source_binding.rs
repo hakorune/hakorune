@@ -185,7 +185,6 @@ impl SourceBoundRawPackageV1 {
         let (ast, origin) = input.into_parts();
         let source_origin = match origin {
             LegacyModuleOriginV1::BareAst => RawSourceOriginV1::BareAst,
-            LegacyModuleOriginV1::ReplCompatibility => RawSourceOriginV1::ReplCompatibility,
         };
         let source = match OwnedRawSourceV1::bind_with_owner(ast, source_origin) {
             Ok(source) => source,

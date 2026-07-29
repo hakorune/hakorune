@@ -109,7 +109,7 @@ impl ReplRunnerBox {
     #[cfg(feature = "vm-reference")]
     fn eval_line(&self, line: &str) -> Result<String, String> {
         use crate::backend::mir_interpreter::MirInterpreter;
-        use crate::mir::{LegacyModuleLoweringInputV1, MirCompiler};
+        use crate::mir::{MirCompiler, NormalCompileRequestV1};
         use crate::parser::NyashParser;
 
         // REPL mode では内部デバッグログを自動抑制
@@ -139,11 +139,10 @@ impl ReplRunnerBox {
         compiler.set_quiet_internal_logs(self.quiet_internal_logs);
 
         // Phase 288.1: Use rewritten AST for compilation
+        let request = NormalCompileRequestV1::for_repl_program(rewritten_ast)
+            .map_err(|rejected| format!("Compile error: {}", rejected.error()))?;
         let mir_result = compiler
-            .compile_legacy(
-                LegacyModuleLoweringInputV1::repl_compatibility(rewritten_ast),
-                Some("<repl>"),
-            )
+            .compile_normal(request)
             .map_err(|e| format!("Compile error: {}", e))?;
 
         // Phase 288.1: Set REPL session in VM (Rc clone, not inner session clone)
@@ -201,5 +200,18 @@ impl ReplRunnerBox {
             VMValue::Void => String::new(),
             _ => format!("{:?}", value),
         }
+    }
+}
+
+#[cfg(all(test, feature = "vm-reference"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn typed_program_ingress_executes_repl_expression() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let runner = ReplRunnerBox::new(CliConfig::default());
+
+        assert_eq!(runner.eval_line("1 + 2").unwrap(), "3");
     }
 }

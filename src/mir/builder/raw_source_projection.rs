@@ -12,7 +12,6 @@ use super::main_expansion::{VerifiedMainExpansionV1, VerifiedRawRootExpansionV1}
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum RawSourceOriginV1 {
     BareAst,
-    ReplCompatibility,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

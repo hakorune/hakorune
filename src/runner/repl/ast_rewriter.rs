@@ -566,3 +566,29 @@ impl ReplAstRewriter {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::parser::NyashParser;
+
+    #[test]
+    fn production_wrapper_rewrite_preserves_program_main_root() {
+        let ast = NyashParser::parse_from_string("static box Main { main() { value } }")
+            .expect("REPL production wrapper must parse");
+        let rewritten = ReplAstRewriter::rewrite(ast);
+
+        let ASTNode::Program { statements, .. } = rewritten else {
+            panic!("REPL production rewrite must preserve Program");
+        };
+        assert!(statements.iter().any(|statement| matches!(
+            statement,
+            ASTNode::BoxDeclaration {
+                name,
+                is_static: true,
+                methods,
+                ..
+            } if name == "Main" && methods.contains_key("main")
+        )));
+    }
+}

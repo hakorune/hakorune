@@ -100,7 +100,6 @@ impl<'a> ResolvedModuleLoweringInputV1<'a> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LegacyModuleOriginV1 {
     BareAst,
-    ReplCompatibility,
 }
 
 /// Legacy input owns syntax only and structurally cannot carry a sealed forest.
@@ -115,13 +114,6 @@ impl LegacyModuleLoweringInputV1 {
         Self {
             ast,
             origin: LegacyModuleOriginV1::BareAst,
-        }
-    }
-
-    pub fn repl_compatibility(ast: ASTNode) -> Self {
-        Self {
-            ast,
-            origin: LegacyModuleOriginV1::ReplCompatibility,
         }
     }
 
@@ -317,20 +309,9 @@ mod tests {
 
     #[test]
     fn explicit_legacy_origins_do_not_carry_a_forest() {
-        for (input, expected) in [
-            (
-                LegacyModuleLoweringInputV1::bare_ast(function()),
-                LegacyModuleOriginV1::BareAst,
-            ),
-            (
-                LegacyModuleLoweringInputV1::repl_compatibility(function()),
-                LegacyModuleOriginV1::ReplCompatibility,
-            ),
-        ] {
-            let (ast, origin) = input.into_parts();
-            assert_eq!(origin, expected);
-            assert!(matches!(ast, ASTNode::FunctionDeclaration { .. }));
-        }
+        let (ast, origin) = LegacyModuleLoweringInputV1::bare_ast(function()).into_parts();
+        assert_eq!(origin, LegacyModuleOriginV1::BareAst);
+        assert!(matches!(ast, ASTNode::FunctionDeclaration { .. }));
     }
 
     #[test]

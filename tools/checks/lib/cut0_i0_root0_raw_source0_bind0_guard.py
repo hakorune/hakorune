@@ -16,6 +16,8 @@ MODULE = ROOT / "src/mir/compiler/raw_source_binding.rs"
 TEST = ROOT / "src/mir/compiler/raw_source_binding_p0.rs"
 LOWERING_INPUT = ROOT / "src/mir/compiler/lowering_input.rs"
 PROGRAM_V0_LOADER = ROOT / "src/runner/json_artifact/program_json_v0_loader.rs"
+RAW_SOURCE_PROJECTION = ROOT / "src/mir/builder/raw_source_projection.rs"
+REPL_RUNNER = ROOT / "src/runner/repl/repl_runner.rs"
 ISSUER = ROOT / "src/mir/compiler/source_bound_package.rs"
 SESSION = ROOT / "src/mir/builder/module_invocation_session.rs"
 
@@ -58,6 +60,10 @@ def main() -> int:
     for fragment in ("ProgramV0Compatibility", "program_v0_compatibility", "ProgramV0OutsideRawSource0"):
         if fragment in retired:
             raise AssertionError(f"retired Program-v0 Raw compatibility residue: {fragment}")
+    repl_retired = retired + RAW_SOURCE_PROJECTION.read_text() + REPL_RUNNER.read_text()
+    for fragment in ("ReplCompatibility", "repl_compatibility"):
+        if fragment in repl_retired:
+            raise AssertionError(f"retired REPL Raw compatibility residue: {fragment}")
 
     for forbidden in (
         "ModuleDraftCollectorV1",
