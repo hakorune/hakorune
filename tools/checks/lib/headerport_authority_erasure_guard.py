@@ -58,6 +58,16 @@ def verify_authority_erasure(root: Path) -> None:
         "try_global_additional_resolvers_with_authority",
         "authority-owned materializer entry",
     )
+    _forbid(
+        source["materializer"],
+        "fn try_global_additional_resolvers(",
+        "retired global-presence facade",
+    )
+    _forbid(
+        source["materializer"],
+        "current_module.functions.contains_key",
+        "retired direct module-presence observation",
+    )
     _require(
         source["materializer"],
         "annotate_call_result_from_func_name_with_lookup",

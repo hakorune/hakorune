@@ -7,7 +7,7 @@
  * - 状態最小: MirBuilderを引数として受け取る（所有しない）
  *
  * 責務:
- * - try_global_additional_resolvers: 未解決Global callの追加解決
+ * - try_global_additional_resolvers_with_authority: 未解決Global callの追加解決
  * - materialize_receiver_in_callee: Receiverの実体化（pinning）
  * - Call発行前の準備処理全般
  */
@@ -37,33 +37,6 @@ pub(in crate::mir::builder) enum GlobalPresenceAuthorityV1<'a> {
 }
 
 impl CallMaterializerBox {
-    /// Try additional resolvers for unresolved global functions.
-    ///
-    /// 追加解決の優先順位:
-    /// 1. Dev-only safety: condition_fn → always-true predicate
-    /// 2. Direct module function: module内の関数を直接呼び出し
-    /// 3. Unique static-method: name+arity → Box.name/Arity へ変換
-    pub fn try_global_additional_resolvers(
-        builder: &mut MirBuilder,
-        dst: Option<ValueId>,
-        name: &str,
-        args: &[ValueId],
-    ) -> Result<Option<()>, String> {
-        let direct_module_function = builder
-            .current_module
-            .as_ref()
-            .is_some_and(|module| module.functions.contains_key(name));
-        Self::try_global_additional_resolvers_with_authority(
-            builder,
-            dst,
-            name,
-            args,
-            GlobalPresenceAuthorityV1::LegacyCompatibility {
-                present: direct_module_function,
-            },
-        )
-    }
-
     /// Resolve direct global presence with one exclusive authority mode.
     pub(in crate::mir::builder) fn try_global_additional_resolvers_with_authority(
         builder: &mut MirBuilder,

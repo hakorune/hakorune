@@ -29,9 +29,9 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: RAW-LEGACY-EXPRESSION-FACADE-RETIRE0-I0-R0
-Result:        the caller-zero raw expression facade and its expression-only
-               input-view boundary are gone; one port-aware matcher remains
+Latest landed: CALL-GLOBAL-PRESENCE-LEGACY-FACADE-RETIRE0-RET0
+Result:        the caller-zero Call global-presence facade is gone; the
+               authority-aware resolver is the sole entry
 Latest design: MIRBUILDER-LIVE-EDGE-CENSUS0
 Executable:    read-only census; no implementation row selected
 History:       Git history and the short landed tail below
@@ -43,7 +43,7 @@ History:       Git history and the short landed tail below
 
 ```text
 Change:
-  Re-read live production edges after the raw-expression facade retirement. Select at
+  Re-read live production edges after the Call global-presence facade retirement. Select at
   most one named edge or detached Delete asset only when its old authority can be deleted
   in the same commit.
 
@@ -53,6 +53,20 @@ Do not select:
 ```
 
 ## Latest closeout
+
+```text
+CALL-GLOBAL-PRESENCE-LEGACY-FACADE-RETIRE0-RET0
+
+Call global-presence facade/direct module observation = 0
+authority-aware resolver live emitter                 = exactly one
+LegacyCompatibility no-header authority               = retained
+header authority / lane guards                         = green
+grammar / result / dialect / fallback delta           = 0
+new source/test/check file                            = 0 / 0 / 0
+next                                                  = fresh live-edge census
+```
+
+## Previous closeout
 
 ```text
 RAW-LEGACY-EXPRESSION-FACADE-RETIRE0-I0-R0
@@ -1473,6 +1487,8 @@ R94 PROGRAM-ROOT-WORK-PARTITION0-I0-R0 closed: one source-only work plan replace
     fresh live-edge census is current
 R95 RAW-LEGACY-EXPRESSION-FACADE-RETIRE0-I0-R0 closed: caller-zero raw expression
     facade and expression input view are deleted; fresh live-edge census is current
+R96 CALL-GLOBAL-PRESENCE-LEGACY-FACADE-RETIRE0-RET0 closed: caller-zero direct
+    module-presence facade is deleted; authority-aware resolver is sole entry
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

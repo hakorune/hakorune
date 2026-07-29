@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LEGACY-EXPRESSION-FACADE-RETIRE0-I0-R0 is closed: the caller-zero raw expression facade and its expression-only input view are deleted, leaving the sole port-aware matcher. Fresh live-edge census is next; final conformance must settle JoinModule before Ownership, View, and later features."
+status = "CALL-GLOBAL-PRESENCE-LEGACY-FACADE-RETIRE0-RET0 is closed: the caller-zero Call global-presence facade and its direct module-map observation are deleted, leaving the authority-aware entry as sole resolver path. Fresh live-edge census is next; final conformance must settle JoinModule before Ownership, View, and later features."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
