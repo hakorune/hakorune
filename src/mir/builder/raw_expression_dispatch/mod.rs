@@ -1,11 +1,9 @@
 //! Raw AST expression dispatcher.
 //!
-//! RAWPORT0 keeps exactly one AST match tree here. The legacy facade still
-//! owns production behavior; later M0 commits parameterize this dispatcher
-//! with the invocation child port rather than adding a second matcher.
+//! RAWPORT0 keeps exactly one AST match tree here. Every remaining caller
+//! supplies its child port directly; do not add a second matcher or facade.
 mod block_expr;
 mod input_view;
-mod legacy_facade;
 mod nonmain_static_box_lifecycle;
 mod statement_surface;
 mod static_box_state;

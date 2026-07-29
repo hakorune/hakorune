@@ -4,9 +4,7 @@ use crate::mir::{MirBuilder, MirInstruction, MirType, ValueId};
 use crate::parser::NyashParser;
 use hakorune_mir_builder::BoxCompilationContext;
 
-use super::input_view::{
-    RawLegacyBodyInputV1, RawLegacyExpressionInputV1, RawLegacyStatementInputV1,
-};
+use super::input_view::{RawLegacyBodyInputV1, RawLegacyStatementInputV1};
 use crate::mir::builder::builder_build::PreparedRawNewExpressionV1;
 use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 use crate::mir::builder::stmts::block_stmt::{
@@ -148,28 +146,6 @@ fn prepared_integer_new_consumes_one_const_route() {
 }
 
 #[test]
-fn legacy_input_view_and_legacy_facade_share_one_matcher_behavior() {
-    let expression = add(integer(1), add(integer(2), integer(3)));
-
-    let mut facade = MirBuilder::new();
-    facade.enter_function_for_test("raw_input_view/0".to_string());
-    let facade_value = facade.build_expression_impl(expression.clone()).unwrap();
-
-    let mut view = MirBuilder::new();
-    view.enter_function_for_test("raw_input_view/0".to_string());
-    let mut port = RawLegacyChildLoweringPortV1;
-    let view_value = view
-        .build_expression_input_view_with_port_v1(
-            &mut port,
-            RawLegacyExpressionInputV1::new(expression),
-        )
-        .unwrap();
-
-    assert_eq!(view_value, facade_value);
-    assert_eq!(instructions(&view), instructions(&facade));
-}
-
-#[test]
 fn legacy_body_and_statement_facades_preserve_input_view_parity() {
     let body = vec![integer(1), add(integer(2), integer(3))];
 
@@ -215,10 +191,12 @@ fn legacy_body_and_statement_facades_preserve_input_view_parity() {
 #[test]
 fn raw_nonmain_static_box_success_restores_four_state_caller() {
     let mut builder = seeded_static_box_caller();
+    let mut port = RawLegacyChildLoweringPortV1;
     let result = builder
-        .build_expression_impl(parsed_box(
-            "static box Helpers { alpha() { return 1 } beta() { return 2 } }",
-        ))
+        .build_expression_impl_with_port_v1(
+            &mut port,
+            parsed_box("static box Helpers { alpha() { return 1 } beta() { return 2 } }"),
+        )
         .unwrap();
 
     assert_static_box_caller_restored(&builder);
@@ -234,8 +212,9 @@ fn raw_nonmain_static_box_success_restores_four_state_caller() {
 #[test]
 fn raw_nonmain_static_box_failure_keeps_inner_state_and_primary_error() {
     let mut builder = seeded_static_box_caller();
+    let mut port = RawLegacyChildLoweringPortV1;
     let error = builder
-        .build_expression_impl(parsed_box(
+        .build_expression_impl_with_port_v1(&mut port, parsed_box(
             "static box Broken { alpha() { return 1 } beta() { return missing } gamma() { return 3 } }",
         ))
         .unwrap_err();
@@ -285,7 +264,10 @@ fn raw_lambda_dispatches_once_with_source_ordered_captures() {
         body: vec![add(variable("first"), variable("second"))],
         span: Span::unknown(),
     };
-    let dst = builder.build_expression_impl(lambda).unwrap();
+    let mut port = RawLegacyChildLoweringPortV1;
+    let dst = builder
+        .build_expression_impl_with_port_v1(&mut port, lambda)
+        .unwrap();
 
     let closure = instructions(&builder)
         .into_iter()

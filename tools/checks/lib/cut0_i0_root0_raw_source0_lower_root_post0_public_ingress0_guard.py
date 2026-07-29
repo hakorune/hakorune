@@ -612,6 +612,8 @@ def main() -> int:
             raise AssertionError(f"retired selected Main projection returned: {retired}")
     declaration_facts = production_code(ROOT / "src/mir/builder/program_declaration_facts.rs")
     work_plan = production_code(ROOT / "src/mir/builder/program_root_work_plan.rs")
+    if (ROOT / "src/mir/builder/raw_expression_dispatch/legacy_facade.rs").exists(): raise AssertionError("retired raw expression facade returned")
+    if any(fragment in production_code(ROOT / "src/mir/builder/raw_expression_dispatch/input_view.rs") for fragment in ("RawLegacyExpressionInputV1", "RawExpressionInputViewV1")): raise AssertionError("retired raw expression input view returned")
     if "declaration_indexer" in production_code(BUILDER_ROOT) or "declaration_indexer" in program_root_lowering:
         raise AssertionError("raw declaration indexer returned")
     if not all(fragment in declaration_facts for fragment in ("struct PreparedNormalProgramDeclarationFactsV1", "fn collect", "fn install_into", "collect_static_scalar_updates")):
@@ -787,13 +789,10 @@ def main() -> int:
     for retired in ("match label", "LiteralValue::", "emission::constant::", "emit_typed_integer_literal"):
         if retired in match_owner:
             raise AssertionError(f"duplicate Match label literal authority remains: {retired}")
-
     print(
         "[cut0-i0-root0-raw-source0-lower-root-post0-public-ingress0-guard] ok "
         "landed=1 closeout=1 raw_non_test=0 old_raw_non_test=0 json=0 below_800=1"
     )
     return 0
-
-
 if __name__ == "__main__":
     raise SystemExit(main())

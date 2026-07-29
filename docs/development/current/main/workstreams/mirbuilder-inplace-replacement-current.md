@@ -29,9 +29,9 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: PROGRAM-ROOT-WORK-PARTITION0-I0-R0
-Result:        selected Program root work is one source-only, source-ordered
-               plan; the old mixed coordinator is gone
+Latest landed: RAW-LEGACY-EXPRESSION-FACADE-RETIRE0-I0-R0
+Result:        the caller-zero raw expression facade and its expression-only
+               input-view boundary are gone; one port-aware matcher remains
 Latest design: MIRBUILDER-LIVE-EDGE-CENSUS0
 Executable:    read-only census; no implementation row selected
 History:       Git history and the short landed tail below
@@ -43,7 +43,7 @@ History:       Git history and the short landed tail below
 
 ```text
 Change:
-  Re-read live production edges after the Program-root work-plan replacement. Select at
+  Re-read live production edges after the raw-expression facade retirement. Select at
   most one named edge or detached Delete asset only when its old authority can be deleted
   in the same commit.
 
@@ -53,6 +53,20 @@ Do not select:
 ```
 
 ## Latest closeout
+
+```text
+RAW-LEGACY-EXPRESSION-FACADE-RETIRE0-I0-R0
+
+raw expression facade/module/input-view boundary       = 0
+sole port-aware raw matcher                             = retained
+raw static-Box / Lambda direct-matcher evidence        = green
+raw dispatcher unit suite / shared lane guard          = green
+grammar / result / route / fallback delta              = 0
+new source/test/check file                             = 0 / 0 / 0
+next                                                   = fresh live-edge census
+```
+
+## Previous closeout
 
 ```text
 PROGRAM-ROOT-WORK-PARTITION0-I0-R0
@@ -1457,6 +1471,8 @@ R93 PROGRAM-ROOT-WORK-PARTITION0-D0 closed: one total source-only partition of t
 R94 PROGRAM-ROOT-WORK-PARTITION0-I0-R0 closed: one source-only work plan replaces the
     mixed coordinator while preserving source order, runtime retention, and terminals;
     fresh live-edge census is current
+R95 RAW-LEGACY-EXPRESSION-FACADE-RETIRE0-I0-R0 closed: caller-zero raw expression
+    facade and expression input view are deleted; fresh live-edge census is current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
