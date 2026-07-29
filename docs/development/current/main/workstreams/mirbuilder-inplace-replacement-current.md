@@ -94,47 +94,56 @@ Closed:  VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0
 Closed:  MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0
 Closed:  VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0
 Closed:  MIRBUILDER-POST-VERIFIED-MAIN-ROOT-HANDOFF-LIVE-EDGE-CENSUS0-D0
-Current: RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0
-Mode:    one atomic T1 I0/R0
+Closed:  RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0
+Current: MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0
+Mode:    read-only census; no implementation
 ```
 
 ## Current execution brief
 
-`RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0` / parent R74 / T1 /
-`MODULE-LIFECYCLE0`
+`MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0` / parent
+R75 / read-only design stop
 
 ```text
-Caller:
-  RawLegacyChildLoweringPortV1::lower_static_main_box
-  -> MirBuilder::build_static_main_box_with_port_v1
+Read:
+  Perform a fresh live production-edge census after raw static-Main
+  compatibility stopped retaining/reclassifying raw AST in Lower.
 
-Change:
-  Consume the explicit raw static-Main map exactly once into
-  PreparedRawStaticMainBoxCompatibilityV1. It owns sorted non-main helper
-  function parts and the raw Main disposition {Missing, NotFunction,
-  Function(parts)}; it lowers helpers before applying the disposition.
+Select only if:
+  one named caller has a competing authority; one bounded owner can replace it;
+  the same commit can delete the exact old edge; any compatibility owner has a
+  named sunset row and retirement condition; fallback/retry remains zero.
 
-Delete in the same commit:
-  Lower-side sorted helper AST loop and FunctionDeclaration rematch;
-  methods.get("main"); and lower_static_main_root_with_port_v1 raw AST
-  matcher. No raw AST is retained or reclassified after preparation.
-
-Preserve:
-  explicit compatibility reachability only; helper source order and first
-  failure; helper-before-root diagnostic order; existing missing/non-function
-  Main text; selected verified Main route; grammar/result/commit behavior.
-
-Sunset:
-  RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001 retires when
-  RAW-STATIC-MAIN-COMPAT-TYPED-SOURCE0-I0-R0 replaces the raw map input, or
-  the raw static-Main compatibility caller reaches zero.
-
-Forbid:
-  raw/verified Main merge; fallback/retry; a new caller family; source
-  clone/reparse; View/Ownership/new grammar; a facade-only error cleanup.
+Do not select:
+  new accepted-program variants, caller-zero proof routes, grammar work,
+  View/Ownership activation, or a compatibility wrapper without a deletion
+  target.
 ```
 
 ## Latest closeout
+
+```text
+RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0
+
+implementation commit                       = 67b5fb8467
+raw helper sort/filter and AST rematch       = 0
+raw methods.get("main")                     = 0
+raw static-Main root AST matcher             = 0
+prepared compatibility source partition      = exactly 1
+helper/root order and first failure          = preserved
+missing/non-function Main diagnostic         = preserved
+selected verified Main / grammar/result delta = 0
+focused raw compatibility / Main parity      = green
+normal parity / failure / reuse              = green
+release build / pointer / lane guards        = green
+fallback / retry / View / Ownership          = 0
+new source file                              = 1
+new test/check file                          = 0
+largest touched source/check file            = 799
+sunset                                       = RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001
+```
+
+## Previous closeout
 
 ```text
 VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0
@@ -1379,7 +1388,8 @@ R71 VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0 closed
 R72 MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0 closed
 R73 VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0 closed
 R74 MIRBUILDER-POST-VERIFIED-MAIN-ROOT-HANDOFF-LIVE-EDGE-CENSUS0-D0 closed: raw static-Main compatibility batch selected
-R75 RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0 current
+R75 RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0 closed
+R76 MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
