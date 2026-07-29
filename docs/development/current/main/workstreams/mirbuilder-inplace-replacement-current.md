@@ -578,7 +578,7 @@ new source/test/check/task file            = 0
 largest touched source/check file          = 799
 ```
 
-## Current execution row
+## Latest TryCatch closeout
 ```text
 Decision: Candidate A
 Row: RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-I0-R0
@@ -662,7 +662,48 @@ hard stop:
   any touched source/check file >= 800
 ```
 
-After closeout, run a fresh live-edge census and do not preselect the next cell.
+Closeout evidence:
+
+```text
+prepared production caller                    = exactly 1
+old cf_try_catch terminals/facades             = 0
+manual seven-field snapshot/restore authority  = 0
+catch-body clone                               = 0
+success exact restore                          = green
+try/catch/finally failure-state parity         = green
+disabled prepare route                         = green
+candidate isolation / fresh reuse              = green
+fallback / retry / reselection                 = 0
+release build                                  = green
+quick gate                                     = unrelated pre-existing
+  docs/reference/language/EBNF.md naming-token failure
+largest touched source/check file              = 774
+```
+
+## Current design stop
+
+```text
+MIRBUILDER-POST-TRYCATCH-LIVE-EDGE-CENSUS0-D0
+```
+
+The fresh census found two materially different candidates:
+
+```text
+MatchExpr:
+  live source clones at dispatcher/owner = 4
+  existing port-aware owner              = yes
+  likely ceremony                        = T1
+
+non-Main static Box:
+  manual compilation-state authority     = present
+  broader method/context lifecycle        = involved
+  ceremony                               = design decision required
+```
+
+The D0 must compare production-authority reduction, failure precedence, and
+same-commit deletion scope. It may select at most one row. No implementation,
+View/Ownership, grammar, feature, fallback, or compatibility growth is
+authorized at this stop.
 
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
@@ -700,6 +741,13 @@ NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001
 Compatibility sunsets:
 
 ```text
+RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-SUNSET-001
+  state: active
+  owner: PreparedDisabledRawTryCatchV1
+  surface: NYASH_BUILDER_DISABLE_TRYCATCH=1 -> try body only
+  retire_when: environment definition/read/documented consumers and fixture
+    are zero, and enabled physical TryCatch is the sole route
+
 RAW-THROW-DEBUG-TRACE-COMPAT-SUNSET-001
   state: active
   owner: PreparedRawThrowV1 completion route
@@ -788,7 +836,12 @@ R29 POST-MACRO-ROOT-CONTRACT0-D0 closed: WholeFileProgram
 R30 STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0 closed
 R31 SELFHOST-MACRO-PREEXPAND-TYPED-PROGRAM-INGRESS0-I0-R0 closed
 R32 VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 closed
-R33 VM fallback closed; R34 VM keep closed; R35 helper DEL0 closed; R36 public contract D0 closed; R37 public Program admission closed; R38 public root D0 closed; R39 root test evidence closed; R40 host cfgtest AST JSON current
+R33 VM fallback closed; R34 VM keep closed; R35 helper DEL0 closed
+R36 public contract D0 closed; R37 public Program admission closed
+R38 public root D0 closed; R39 root test evidence closed
+R40 host cfgtest AST JSON closed
+R41 RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-I0-R0 closed
+R42 MIRBUILDER-POST-TRYCATCH-LIVE-EDGE-CENSUS0-D0 current design stop
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

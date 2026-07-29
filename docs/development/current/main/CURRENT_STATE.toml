@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "TryCatch T2 design is accepted: one prepared entry route and one narrow success-only seven-field state transaction replace the live raw terminal and manual state authority in one atomic I0/R0 commit."
+status = "RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-I0-R0 is closed. The next stop is a read-only comparison of the strongest remaining live Match owned-input and static-Box state-authority edges; no implementation is selected yet."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-I0-R0"
-current_execution_summary = "Prepare the disabled/enabled TryCatch route once before Builder effects; consume owned bodies through one port; move the exact seven defer/cleanup fields into a narrow success-only transaction; preserve every current failure state and primary error; delete the old raw terminal, manual snapshot/restore, catch clone, lower-side route read, and caller-zero facades. Register the disabled route sunset at creation. No fallback, retry, grammar, Return/Throw/QMark, Ownership/View, or feature delta."
+current_design_stop = "MIRBUILDER-POST-TRYCATCH-LIVE-EDGE-CENSUS0-D0"
+current_execution_row = ""
+current_execution_summary = ""
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-D0 accepts Candidate A. The next executable row is one T2 atomic I0/R0: entry-time disabled/enabled route preparation plus a narrow move-only transaction over exactly seven defer/cleanup fields. Success restores the caller state; every typed failure preserves the current non-restoring behavior and primary String error. The old raw terminal, lower-side route read, manual snapshot/restore, catch-body clone, and caller-zero facades must disappear together. The disabled route is explicit compatibility with a creation-time sunset. CFG/ID/type/binding rollback, fallback/retry, grammar, Return/Throw/QMark, Ownership/View, and new features remain out of scope."""
+latest_card_summary = """RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-I0-R0 is closed: one prepared route and one exact seven-field success-only transaction now own the production TryCatch edge; the old raw terminal, lower-side route read, manual snapshot/restore, catch clone, and caller-zero facades are zero. Failure state and primary diagnostics remain unchanged, candidate isolation/reuse is green, and the disabled diagnostic route has an active creation-time sunset. The next authority is MIRBUILDER-POST-TRYCATCH-LIVE-EDGE-CENSUS0-D0. It must compare the Match owned-input clone authority with static-Box manual state authority and select at most one named production edge with a same-commit old-edge deletion. No code row is selected yet."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-I0-R0"
+current_blocker_token = "MIRBUILDER-POST-TRYCATCH-LIVE-EDGE-CENSUS0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

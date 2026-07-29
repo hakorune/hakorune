@@ -718,32 +718,38 @@ fn test_try_catch_compilation() {
     }
     let mut compiler = MirCompiler::new();
 
-    let try_catch_ast = ASTNode::TryCatch {
-        try_body: vec![ASTNode::Print {
-            expression: Box::new(ASTNode::Literal {
-                value: LiteralValue::String("Try block".to_string()),
-                span: crate::ast::Span::unknown(),
-            }),
-            span: crate::ast::Span::unknown(),
-        }],
-        catch_clauses: vec![crate::ast::CatchClause {
-            exception_type: Some("Exception".to_string()),
-            variable_name: Some("e".to_string()),
-            body: vec![ASTNode::Print {
+    let try_catch_ast = ASTNode::Program {
+        statements: vec![ASTNode::TryCatch {
+            try_body: vec![ASTNode::Print {
                 expression: Box::new(ASTNode::Literal {
-                    value: LiteralValue::String("Catch block".to_string()),
+                    value: LiteralValue::String("Try block".to_string()),
                     span: crate::ast::Span::unknown(),
                 }),
                 span: crate::ast::Span::unknown(),
             }],
+            catch_clauses: vec![crate::ast::CatchClause {
+                exception_type: Some("Exception".to_string()),
+                variable_name: Some("e".to_string()),
+                body: vec![ASTNode::Print {
+                    expression: Box::new(ASTNode::Literal {
+                        value: LiteralValue::String("Catch block".to_string()),
+                        span: crate::ast::Span::unknown(),
+                    }),
+                    span: crate::ast::Span::unknown(),
+                }],
+                span: crate::ast::Span::unknown(),
+            }],
+            finally_body: None,
             span: crate::ast::Span::unknown(),
         }],
-        finally_body: None,
         span: crate::ast::Span::unknown(),
     };
 
     let result = compiler.compile(try_catch_ast);
-    assert!(result.is_ok(), "TryCatch compilation should succeed");
+    assert!(
+        result.is_ok(),
+        "TryCatch compilation should succeed: {result:?}"
+    );
 
     let compile_result = result.unwrap();
     let mir_dump = compiler.dump_mir(&compile_result.module);

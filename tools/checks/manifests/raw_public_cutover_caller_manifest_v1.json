@@ -118,6 +118,13 @@
       "residual_surface": 0,
       "root_raw_edges": 0,
       "retire_row": "RAW-NONPROGRAM-ROOT-COMPAT-RET0-R0"
+    },
+    "RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-SUNSET-001": {
+      "state": "active",
+      "owner": "PreparedDisabledRawTryCatchV1",
+      "surface": "NYASH_BUILDER_DISABLE_TRYCATCH=1 -> try-body-only lowering",
+      "production_route_reads": 1,
+      "retire_when": "environment definition/read/documented consumers and disabled-route fixture are zero, and enabled physical TryCatch is the sole route"
     }
   },
   "old_raw_non_test_callers": 0

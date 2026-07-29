@@ -9,7 +9,8 @@ use crate::mir::builder::compound_assignment::{
     lower_prepared_raw_compound_assignment_with_port_v1, PreparedRawCompoundAssignmentV1,
 };
 use crate::mir::builder::control_flow::exception::{
-    lower_prepared_raw_throw_with_port_v1, PreparedRawThrowV1,
+    lower_prepared_raw_throw_with_port_v1, lower_prepared_raw_try_catch_with_port_v1,
+    PreparedRawThrowV1, PreparedRawTryCatchV1,
 };
 use crate::mir::builder::exprs_enum_match::PreparedRawScopeBoxV1;
 use crate::mir::builder::fields::{
@@ -186,15 +187,13 @@ where
             catch_clauses,
             finally_body,
             ..
-        } => Ok(StatementSurfaceDispatch::Lowered(
-            crate::mir::builder::control_flow::exception::cf_try_catch_with_port_v1(
-                builder,
-                port,
-                try_body,
-                catch_clauses,
-                finally_body,
-            )?,
-        )),
+        } => {
+            let prepared =
+                PreparedRawTryCatchV1::prepare(try_body, catch_clauses, finally_body);
+            Ok(StatementSurfaceDispatch::Lowered(
+                lower_prepared_raw_try_catch_with_port_v1(builder, port, prepared)?,
+            ))
+        }
         ASTNode::Throw { expression, .. } => {
             let prepared = PreparedRawThrowV1::prepare(&builder.function_state, *expression)?;
             Ok(StatementSurfaceDispatch::Lowered(

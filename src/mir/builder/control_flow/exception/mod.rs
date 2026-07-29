@@ -31,8 +31,11 @@
 
 mod throw;
 mod try_catch;
+mod try_catch_state;
 
 pub(in crate::mir::builder) use throw::{
     lower_prepared_raw_throw_with_port_v1, PreparedRawThrowV1,
 };
-pub(in crate::mir::builder) use try_catch::{cf_try_catch, cf_try_catch_with_port_v1};
+pub(in crate::mir::builder) use try_catch::{
+    lower_prepared_raw_try_catch_with_port_v1, PreparedRawTryCatchV1,
+};

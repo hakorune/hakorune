@@ -44,6 +44,12 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     variable_stmt_path = "src/mir/builder/stmts/variable_stmt.rs"
     collection_literals_path = "src/mir/builder/collection_literals.rs"
     task_scope_path = "src/mir/builder/stmts/task_scope_stmt.rs"
+    try_catch_path = "src/mir/builder/control_flow/exception/try_catch.rs"
+    try_catch_state_path = (
+        "src/mir/builder/control_flow/exception/try_catch_state.rs"
+    )
+    exception_root_path = "src/mir/builder/control_flow/exception/mod.rs"
+    control_flow_root_path = "src/mir/builder/control_flow/mod.rs"
     control_setup_paths = (
         "src/mir/builder/control_flow/plan/parts/wiring_tests.rs",
         "src/mir/builder/control_flow/plan/parts/associated_source/raw_parity_tests.rs",
@@ -66,6 +72,10 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     variable_stmt = _read(root, variable_stmt_path)
     collection_literals = _read(root, collection_literals_path)
     task_scope = _read(root, task_scope_path)
+    try_catch = _read(root, try_catch_path)
+    try_catch_state = _read(root, try_catch_state_path)
+    exception_root = _read(root, exception_root_path)
+    control_flow_root = _read(root, control_flow_root_path)
     control_setups = tuple(_read(root, path) for path in control_setup_paths)
 
     task_scope_production = task_scope.split("#[cfg(test)]", maxsplit=1)[0]
@@ -125,6 +135,76 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     for forbidden in ("body.clone()", "source_keyword.clone()"):
         if forbidden in raw_statement_surface:
             _fail(f"raw statement surface retains TaskScope source clone: {forbidden}")
+
+    try_catch_production = try_catch.split("#[cfg(test)]", maxsplit=1)[0]
+    try_catch_state_production = try_catch_state.split("#[cfg(test)]", maxsplit=1)[0]
+    for text, needle, expected, label in (
+        (try_catch_production, "struct PreparedRawTryCatchV1", 1, "TryCatch prepared owner"),
+        (
+            try_catch_production,
+            "fn lower_prepared_raw_try_catch_with_port_v1",
+            1,
+            "TryCatch prepared terminal",
+        ),
+        (
+            try_catch_state_production,
+            "struct ActiveRawTryCatchFunctionStateV1",
+            1,
+            "TryCatch narrow state owner",
+        ),
+        (
+            try_catch_production,
+            "builder_disable_trycatch()",
+            1,
+            "TryCatch entry-only disable route read",
+        ),
+        (try_catch_production, "catch_clause.body.clone()", 0, "TryCatch catch-body clone"),
+    ):
+        _require_count(text, needle, expected, label)
+    try_prepare = "PreparedRawTryCatchV1::prepare("
+    try_lower = "lower_prepared_raw_try_catch_with_port_v1("
+    _require_count(raw_statement_surface, try_prepare, 1, "TryCatch prepare caller")
+    _require_count(raw_statement_surface, try_lower, 1, "TryCatch lower caller")
+    if raw_statement_surface.index(try_prepare) >= raw_statement_surface.index(try_lower):
+        _fail("TryCatch production order must be prepare -> lower")
+    old_try_catch_surface = "\n".join(
+        (try_catch, exception_root, control_flow_root, raw_statement_surface)
+    )
+    for retired in (
+        "fn cf_try_catch(",
+        "fn cf_try_catch_with_port_v1",
+        "exception::cf_try_catch(",
+    ):
+        if retired in old_try_catch_surface:
+            _fail(f"retired TryCatch facade remains: {retired}")
+    if "FunctionOwnedStateTransactionV1" in try_catch_state_production:
+        _fail("TryCatch must not reuse the broad function-state transaction")
+    exact_try_state = {
+        "return_defer_active",
+        "return_defer_slot",
+        "return_defer_target",
+        "return_deferred_emitted",
+        "in_cleanup_block",
+        "cleanup_allow_return",
+        "cleanup_allow_throw",
+    }
+    observed_try_state = set(
+        re.findall(r"\bstate\.([a-z_]+)", try_catch_state_production)
+    )
+    if observed_try_state != exact_try_state:
+        _fail(
+            "TryCatch state transaction field drift: "
+            f"expected={sorted(exact_try_state)} actual={sorted(observed_try_state)}"
+        )
+    for terminal in (
+        "ActiveRawTryCatchFunctionStateV1::begin(",
+        ".complete_success(",
+        ".reject(",
+    ):
+        _require_count(try_catch_production, terminal, 1, f"TryCatch terminal {terminal}")
+    for forbidden in ("fallback", "retry", "or_else(", "NyashParser", "body.clone()"):
+        if forbidden in try_catch_production:
+            _fail(f"TryCatch production contains forbidden surface: {forbidden}")
 
     _require_count(
         local_descent,
@@ -670,6 +750,10 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         stmts_readme_path,
         variable_stmt_path,
         task_scope_path,
+        try_catch_path,
+        try_catch_state_path,
+        exception_root_path,
+        control_flow_root_path,
         raw_statement_surface_path,
         *control_setup_paths,
         helper_path,

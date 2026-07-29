@@ -139,32 +139,4 @@ impl super::MirBuilder {
             },
         )
     }
-
-    /// Phase 49: Try JoinIR Frontend for mainline integration
-    ///
-    /// Returns `Ok(Some(value))` if the loop is successfully lowered via JoinIR,
-    /// `Ok(None)` if no JoinIR route matched (unsupported loop structure).
-    /// Phase 187-2: Legacy LoopBuilder removed - all loops must use JoinIR.
-    ///
-    /// # Phase 49-4: Multi-target support
-    ///
-    /// Targets are enabled via separate dev flags:
-    /// - `HAKO_JOINIR_PRINT_TOKENS_MAIN=1`: JsonTokenizer.print_tokens/0
-    /// - `HAKO_JOINIR_ARRAY_FILTER_MAIN=1`: ArrayExtBox.filter/2
-    ///
-    /// Note: Arity in function names does NOT include implicit `me` receiver.
-    /// - Instance method `print_tokens()` → `/0` (no explicit params)
-    /// - Static method `filter(arr, pred)` → `/2` (two params)
-
-    /// Control-flow: try/catch/finally
-    ///
-    /// Delegates to exception::cf_try_catch for implementation.
-    pub(super) fn cf_try_catch(
-        &mut self,
-        try_body: Vec<ASTNode>,
-        catch_clauses: Vec<crate::ast::CatchClause>,
-        finally_body: Option<Vec<ASTNode>>,
-    ) -> Result<ValueId, String> {
-        exception::cf_try_catch(self, try_body, catch_clauses, finally_body)
-    }
 }

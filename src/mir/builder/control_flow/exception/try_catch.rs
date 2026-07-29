@@ -3,44 +3,85 @@
 //! This module implements the control flow for try/catch/finally blocks,
 //! including proper handling of deferred returns and cleanup blocks.
 
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, CatchClause};
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_body_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    drive_legacy_body_v1, RawAstChildLoweringPortV1,
 };
 use crate::mir::builder::{MirInstruction, ValueId};
 
-/// Control-flow: try/catch/finally
-///
-/// Implements exception handling with:
-/// - Try block execution
-/// - Catch clause handling
-/// - Finally cleanup block
-/// - Deferred return state management
-pub(in crate::mir::builder) fn cf_try_catch(
-    builder: &mut super::super::super::MirBuilder,
-    try_body: Vec<ASTNode>,
-    catch_clauses: Vec<crate::ast::CatchClause>,
-    finally_body: Option<Vec<ASTNode>>,
-) -> Result<ValueId, String> {
-    let mut port = RawLegacyChildLoweringPortV1;
-    cf_try_catch_with_port_v1(builder, &mut port, try_body, catch_clauses, finally_body)
+use super::try_catch_state::ActiveRawTryCatchFunctionStateV1;
+
+pub(in crate::mir::builder) struct PreparedRawTryCatchV1 {
+    route: PreparedRawTryCatchRouteV1,
 }
 
-/// Lower try/catch/finally while retaining the caller's raw child port.
-pub(in crate::mir::builder) fn cf_try_catch_with_port_v1<Port>(
+enum PreparedRawTryCatchRouteV1 {
+    DisabledCompatibility(PreparedDisabledRawTryCatchV1),
+    Enabled(PreparedEnabledRawTryCatchV1),
+}
+
+struct PreparedDisabledRawTryCatchV1 {
+    try_body: Vec<ASTNode>,
+}
+
+struct PreparedEnabledRawTryCatchV1 {
+    try_body: Vec<ASTNode>,
+    catch_clauses: Vec<CatchClause>,
+    finally_body: Option<Vec<ASTNode>>,
+}
+
+impl PreparedRawTryCatchV1 {
+    pub(in crate::mir::builder) fn prepare(
+        try_body: Vec<ASTNode>,
+        catch_clauses: Vec<CatchClause>,
+        finally_body: Option<Vec<ASTNode>>,
+    ) -> Self {
+        let route = if crate::config::env::builder_disable_trycatch() {
+            PreparedRawTryCatchRouteV1::DisabledCompatibility(PreparedDisabledRawTryCatchV1 {
+                try_body,
+            })
+        } else {
+            PreparedRawTryCatchRouteV1::Enabled(PreparedEnabledRawTryCatchV1 {
+                try_body,
+                catch_clauses,
+                finally_body,
+            })
+        };
+        Self { route }
+    }
+}
+
+pub(in crate::mir::builder) fn lower_prepared_raw_try_catch_with_port_v1<Port>(
     builder: &mut super::super::super::MirBuilder,
     port: &mut Port,
-    try_body: Vec<ASTNode>,
-    catch_clauses: Vec<crate::ast::CatchClause>,
-    finally_body: Option<Vec<ASTNode>>,
+    prepared: PreparedRawTryCatchV1,
 ) -> Result<ValueId, String>
 where
     Port: RawAstChildLoweringPortV1,
 {
-    if crate::config::env::builder_disable_trycatch() {
-        return drive_legacy_body_v1(builder, port, try_body);
+    match prepared.route {
+        PreparedRawTryCatchRouteV1::DisabledCompatibility(prepared) => {
+            drive_legacy_body_v1(builder, port, prepared.try_body)
+        }
+        PreparedRawTryCatchRouteV1::Enabled(prepared) => {
+            lower_enabled_raw_try_catch_with_port_v1(builder, port, prepared)
+        }
     }
+}
 
+fn lower_enabled_raw_try_catch_with_port_v1<Port>(
+    builder: &mut super::super::super::MirBuilder,
+    port: &mut Port,
+    prepared: PreparedEnabledRawTryCatchV1,
+) -> Result<ValueId, String>
+where
+    Port: RawAstChildLoweringPortV1,
+{
+    let PreparedEnabledRawTryCatchV1 {
+        try_body,
+        catch_clauses,
+        finally_body,
+    } = prepared;
     let try_block = builder.next_block_id();
     let catch_block = builder.next_block_id();
     let finally_block = if finally_body.is_some() {
@@ -49,97 +90,272 @@ where
         None
     };
     let exit_block = builder.next_block_id();
-
-    // Snapshot deferred-return state
-    let saved_defer_active = builder.function_state.return_defer_active;
-    let saved_defer_slot = builder.function_state.return_defer_slot;
-    let saved_defer_target = builder.function_state.return_defer_target;
-    let saved_deferred_flag = builder.function_state.return_deferred_emitted;
-    let saved_in_cleanup = builder.function_state.in_cleanup_block;
-    let saved_allow_ret = builder.function_state.cleanup_allow_return;
-    let saved_allow_throw = builder.function_state.cleanup_allow_throw;
-
     let ret_slot = builder.next_value_id();
-    builder.function_state.return_defer_active = true;
-    builder.function_state.return_defer_slot = Some(ret_slot);
-    builder.function_state.return_deferred_emitted = false;
-    builder.function_state.return_defer_target = Some(finally_block.unwrap_or(exit_block));
+    let transaction = ActiveRawTryCatchFunctionStateV1::begin(
+        &mut builder.function_state,
+        ret_slot,
+        finally_block.unwrap_or(exit_block),
+    );
+    let mut catch_clauses = catch_clauses.into_iter();
+    let first_catch = catch_clauses.next();
 
-    if let Some(catch_clause) = catch_clauses.first() {
+    let result = (|| -> Result<ValueId, String> {
+        if let Some(catch_clause) = first_catch.as_ref() {
+            if crate::config::env::builder_trycatch_debug() {
+                let ring0 = crate::runtime::get_global_ring0();
+                ring0.log.debug(&format!(
+                    "[BUILDER] Emitting catch handler for {:?}",
+                    catch_clause.exception_type
+                ));
+            }
+            let exception_value = builder.next_value_id();
+            builder.emit_instruction(MirInstruction::Catch {
+                exception_type: catch_clause.exception_type.clone(),
+                exception_value,
+                handler_bb: catch_block,
+            })?;
+        }
+
+        crate::mir::builder::emission::branch::emit_jump(builder, try_block)?;
+        builder.start_new_block(try_block)?;
+        let _try_result = drive_legacy_body_v1(builder, port, try_body)?;
+        if !builder.is_current_block_terminated() {
+            let next_target = finally_block.unwrap_or(exit_block);
+            crate::mir::builder::emission::branch::emit_jump(builder, next_target)?;
+        }
+
+        builder.start_new_block(catch_block)?;
         if crate::config::env::builder_trycatch_debug() {
             let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[BUILDER] Emitting catch handler for {:?}",
-                catch_clause.exception_type
-            ));
+            ring0
+                .log
+                .debug(&format!("[BUILDER] Enter catch block {:?}", catch_block));
         }
-        let exception_value = builder.next_value_id();
-        builder.emit_instruction(MirInstruction::Catch {
-            exception_type: catch_clause.exception_type.clone(),
-            exception_value,
-            handler_bb: catch_block,
-        })?;
-    }
-
-    // Enter try block
-    crate::mir::builder::emission::branch::emit_jump(builder, try_block)?;
-    builder.start_new_block(try_block)?;
-    let _try_result = drive_legacy_body_v1(builder, port, try_body)?;
-    if !builder.is_current_block_terminated() {
-        let next_target = finally_block.unwrap_or(exit_block);
-        crate::mir::builder::emission::branch::emit_jump(builder, next_target)?;
-    }
-
-    // Catch block
-    builder.start_new_block(catch_block)?;
-    if crate::config::env::builder_trycatch_debug() {
-        let ring0 = crate::runtime::get_global_ring0();
-        ring0
-            .log
-            .debug(&format!("[BUILDER] Enter catch block {:?}", catch_block));
-    }
-    if let Some(catch_clause) = catch_clauses.first() {
-        drive_legacy_body_v1(builder, port, catch_clause.body.clone())?;
-    }
-    if !builder.is_current_block_terminated() {
-        let next_target = finally_block.unwrap_or(exit_block);
-        crate::mir::builder::emission::branch::emit_jump(builder, next_target)?;
-    }
-
-    // Finally
-    let mut cleanup_terminated = false;
-    if let (Some(finally_block_id), Some(finally_statements)) = (finally_block, finally_body) {
-        builder.start_new_block(finally_block_id)?;
-        builder.function_state.in_cleanup_block = true;
-        builder.function_state.cleanup_allow_return = crate::config::env::cleanup_allow_return();
-        builder.function_state.cleanup_allow_throw = crate::config::env::cleanup_allow_throw();
-        builder.function_state.return_defer_active = false; // do not defer inside cleanup
-
-        drive_legacy_body_v1(builder, port, finally_statements)?;
-        cleanup_terminated = builder.is_current_block_terminated();
-        if !cleanup_terminated {
-            crate::mir::builder::emission::branch::emit_jump(builder, exit_block)?;
+        if let Some(catch_clause) = first_catch {
+            drive_legacy_body_v1(builder, port, catch_clause.body)?;
         }
-        builder.function_state.in_cleanup_block = false;
+        if !builder.is_current_block_terminated() {
+            let next_target = finally_block.unwrap_or(exit_block);
+            crate::mir::builder::emission::branch::emit_jump(builder, next_target)?;
+        }
+
+        let mut cleanup_terminated = false;
+        if let (Some(finally_block_id), Some(finally_statements)) = (finally_block, finally_body) {
+            builder.start_new_block(finally_block_id)?;
+            transaction.enter_cleanup(
+                &mut builder.function_state,
+                crate::config::env::cleanup_allow_return(),
+                crate::config::env::cleanup_allow_throw(),
+            );
+            drive_legacy_body_v1(builder, port, finally_statements)?;
+            cleanup_terminated = builder.is_current_block_terminated();
+            if !cleanup_terminated {
+                crate::mir::builder::emission::branch::emit_jump(builder, exit_block)?;
+            }
+            transaction.leave_cleanup(&mut builder.function_state);
+        }
+
+        builder.start_new_block(exit_block)?;
+        if builder.function_state.return_deferred_emitted && !cleanup_terminated {
+            builder.emit_instruction(MirInstruction::Return {
+                value: Some(ret_slot),
+            })?;
+        }
+        crate::mir::builder::emission::constant::emit_void(builder)
+    })();
+
+    match result {
+        Ok(value) => Ok(transaction
+            .complete_success(&mut builder.function_state, value)
+            .into_value()),
+        Err(error) => {
+            let rejected = transaction.reject(error);
+            let error = rejected.error().to_string();
+            rejected.discard();
+            Err(error)
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::{LiteralValue, Span};
+    use crate::mir::builder::recursive_child_lowering::RecursiveChildLoweringPortV1;
+    use crate::mir::{MirBuilder, ValueId};
+
+    struct RecordingBodyPortV1 {
+        demands: Vec<i64>,
+        fail_on: Option<i64>,
     }
 
-    // Exit block
-    builder.start_new_block(exit_block)?;
-    if builder.function_state.return_deferred_emitted && !cleanup_terminated {
-        builder.emit_instruction(MirInstruction::Return {
-            value: Some(ret_slot),
-        })?;
+    impl RecordingBodyPortV1 {
+        fn new(fail_on: Option<i64>) -> Self {
+            Self {
+                demands: Vec::new(),
+                fail_on,
+            }
+        }
     }
-    let result = crate::mir::builder::emission::constant::emit_void(builder)?;
 
-    // Restore context
-    builder.function_state.return_defer_active = saved_defer_active;
-    builder.function_state.return_defer_slot = saved_defer_slot;
-    builder.function_state.return_defer_target = saved_defer_target;
-    builder.function_state.return_deferred_emitted = saved_deferred_flag;
-    builder.function_state.in_cleanup_block = saved_in_cleanup;
-    builder.function_state.cleanup_allow_return = saved_allow_ret;
-    builder.function_state.cleanup_allow_throw = saved_allow_throw;
+    impl RecursiveChildLoweringPortV1 for RecordingBodyPortV1 {
+        type BodyInput = Vec<ASTNode>;
+        type StatementInput = ASTNode;
+        type ExpressionInput = ASTNode;
 
-    Ok(result)
+        fn lower_body(
+            &mut self,
+            builder: &mut MirBuilder,
+            input: Self::BodyInput,
+        ) -> Result<ValueId, String> {
+            let Some(ASTNode::Literal {
+                value: LiteralValue::Integer(tag),
+                ..
+            }) = input.first()
+            else {
+                return Err("[try-catch/test-invalid-body]".to_string());
+            };
+            self.demands.push(*tag);
+            if self.fail_on == Some(*tag) {
+                return Err(format!("fail-{tag}"));
+            }
+            Ok(builder.next_value_id())
+        }
+
+        fn lower_statement(
+            &mut self,
+            _builder: &mut MirBuilder,
+            _input: Self::StatementInput,
+        ) -> Result<ValueId, String> {
+            unreachable!("TryCatch test port lowers bodies only")
+        }
+
+        fn lower_expression(
+            &mut self,
+            _builder: &mut MirBuilder,
+            _input: Self::ExpressionInput,
+        ) -> Result<ValueId, String> {
+            unreachable!("TryCatch test port lowers bodies only")
+        }
+    }
+
+    fn body(tag: i64) -> Vec<ASTNode> {
+        vec![ASTNode::Literal {
+            value: LiteralValue::Integer(tag),
+            span: Span::unknown(),
+        }]
+    }
+
+    fn catch(tag: i64) -> CatchClause {
+        CatchClause {
+            exception_type: Some("Exception".to_string()),
+            variable_name: None,
+            body: body(tag),
+            span: Span::unknown(),
+        }
+    }
+
+    fn enabled(
+        try_tag: i64,
+        catch_tags: &[i64],
+        finally_tag: Option<i64>,
+    ) -> PreparedRawTryCatchV1 {
+        PreparedRawTryCatchV1 {
+            route: PreparedRawTryCatchRouteV1::Enabled(PreparedEnabledRawTryCatchV1 {
+                try_body: body(try_tag),
+                catch_clauses: catch_tags.iter().copied().map(catch).collect(),
+                finally_body: finally_tag.map(body),
+            }),
+        }
+    }
+
+    fn builder() -> MirBuilder {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("try_catch_test/0".to_string());
+        builder
+    }
+
+    #[test]
+    fn enabled_route_uses_first_catch_and_finally_once_in_order() {
+        let mut builder = builder();
+        let mut port = RecordingBodyPortV1::new(None);
+        lower_prepared_raw_try_catch_with_port_v1(
+            &mut builder,
+            &mut port,
+            enabled(1, &[2, 99], Some(3)),
+        )
+        .unwrap();
+        assert_eq!(port.demands, vec![1, 2, 3]);
+    }
+
+    #[test]
+    fn disabled_route_lowers_try_only_without_touching_transient_state() {
+        crate::test_support::with_env_vars(
+            &[("NYASH_BUILDER_DISABLE_TRYCATCH", Some("1"))],
+            || {
+                let mut builder = builder();
+                builder.function_state.return_defer_active = true;
+                builder.function_state.return_defer_slot = Some(ValueId(41));
+                builder.function_state.return_deferred_emitted = true;
+                builder.function_state.in_cleanup_block = true;
+                let before = (
+                    builder.function_state.return_defer_active,
+                    builder.function_state.return_defer_slot,
+                    builder.function_state.return_deferred_emitted,
+                    builder.function_state.in_cleanup_block,
+                );
+                let prepared =
+                    PreparedRawTryCatchV1::prepare(body(1), vec![catch(2)], Some(body(3)));
+                let mut port = RecordingBodyPortV1::new(None);
+                lower_prepared_raw_try_catch_with_port_v1(&mut builder, &mut port, prepared)
+                    .unwrap();
+                assert_eq!(port.demands, vec![1]);
+                assert_eq!(
+                    (
+                        builder.function_state.return_defer_active,
+                        builder.function_state.return_defer_slot,
+                        builder.function_state.return_deferred_emitted,
+                        builder.function_state.in_cleanup_block,
+                    ),
+                    before
+                );
+            },
+        );
+    }
+
+    #[test]
+    fn try_and_catch_failures_stop_later_bodies_and_keep_inner_defer_state() {
+        for (fail_on, expected_demands) in [(1, vec![1]), (2, vec![1, 2])] {
+            let mut builder = builder();
+            let mut port = RecordingBodyPortV1::new(Some(fail_on));
+            let error = lower_prepared_raw_try_catch_with_port_v1(
+                &mut builder,
+                &mut port,
+                enabled(1, &[2], Some(3)),
+            )
+            .unwrap_err();
+            assert_eq!(error, format!("fail-{fail_on}"));
+            assert_eq!(port.demands, expected_demands);
+            assert!(builder.function_state.return_defer_active);
+            assert!(builder.function_state.return_defer_slot.is_some());
+            assert!(builder.function_state.return_defer_target.is_some());
+            assert!(!builder.function_state.in_cleanup_block);
+        }
+    }
+
+    #[test]
+    fn finally_failure_keeps_cleanup_state_and_primary_error() {
+        let mut builder = builder();
+        let mut port = RecordingBodyPortV1::new(Some(3));
+        let error = lower_prepared_raw_try_catch_with_port_v1(
+            &mut builder,
+            &mut port,
+            enabled(1, &[2], Some(3)),
+        )
+        .unwrap_err();
+        assert_eq!(error, "fail-3");
+        assert_eq!(port.demands, vec![1, 2, 3]);
+        assert!(builder.function_state.in_cleanup_block);
+        assert!(!builder.function_state.return_defer_active);
+    }
 }
