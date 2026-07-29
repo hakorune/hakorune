@@ -33,7 +33,30 @@ impl std::error::Error for MainExpansionErrorV1 {}
 pub(in crate::mir::builder) struct VerifiedMainRootBodyV1<'src> {
     box_name: &'src str,
     source: &'src ASTNode,
+    parts: VerifiedMainRootPartsV1<'src>,
     _seal: MainRootBodySealV1,
+}
+
+#[derive(Debug)]
+struct VerifiedMainRootPartsV1<'src> {
+    params: &'src [String],
+    param_decls: &'src [ParamDecl],
+    return_type_name: Option<&'src str>,
+    body: &'src [ASTNode],
+    uses: &'src [String],
+    attrs: &'src DeclarationAttrs,
+}
+
+#[derive(Debug)]
+pub(in crate::mir::builder) struct OwnedVerifiedMainRootLoweringV1 {
+    box_name: String,
+    callable_main_symbol: Option<String>,
+    params: Vec<String>,
+    param_decls: Vec<ParamDecl>,
+    return_type_name: Option<String>,
+    body: Vec<ASTNode>,
+    uses: Vec<String>,
+    attrs: DeclarationAttrs,
 }
 
 #[derive(Debug)]
@@ -46,6 +69,32 @@ impl VerifiedMainRootBodyV1<'_> {
 
     pub(in crate::mir::builder) fn source(&self) -> &ASTNode {
         self.source
+    }
+}
+
+impl OwnedVerifiedMainRootLoweringV1 {
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        String,
+        Option<String>,
+        Vec<String>,
+        Vec<ParamDecl>,
+        Option<String>,
+        Vec<ASTNode>,
+        Vec<String>,
+        DeclarationAttrs,
+    ) {
+        (
+            self.box_name,
+            self.callable_main_symbol,
+            self.params,
+            self.param_decls,
+            self.return_type_name,
+            self.body,
+            self.uses,
+            self.attrs,
+        )
     }
 }
 
@@ -319,6 +368,14 @@ impl<'src> VerifiedMainExpansionV1<'src> {
             root: VerifiedMainRootBodyV1 {
                 box_name,
                 source: main_source,
+                parts: VerifiedMainRootPartsV1 {
+                    params,
+                    param_decls,
+                    return_type_name: return_type_name.as_deref(),
+                    body,
+                    uses,
+                    attrs,
+                },
                 _seal: MainRootBodySealV1,
             },
             static_children: static_children.into_boxed_slice(),
@@ -339,6 +396,24 @@ impl<'src> VerifiedMainExpansionV1<'src> {
         &self,
     ) -> Option<&VerifiedMainStaticChildV1<'src>> {
         self.callable_main_compat.as_ref()
+    }
+
+    pub(in crate::mir::builder) fn to_owned_root_lowering(
+        &self,
+    ) -> OwnedVerifiedMainRootLoweringV1 {
+        OwnedVerifiedMainRootLoweringV1 {
+            box_name: self.root.box_name.to_owned(),
+            callable_main_symbol: self
+                .callable_main_compat
+                .as_ref()
+                .map(|child| child.symbol.to_string()),
+            params: self.root.parts.params.to_vec(),
+            param_decls: self.root.parts.param_decls.to_vec(),
+            return_type_name: self.root.parts.return_type_name.map(str::to_owned),
+            body: self.root.parts.body.to_vec(),
+            uses: self.root.parts.uses.to_vec(),
+            attrs: self.root.parts.attrs.clone(),
+        }
     }
 }
 
@@ -417,6 +492,16 @@ mod tests {
             zeta.to_owned_lowering().into_parts();
         assert_eq!(symbol, "Main.zeta/2");
         assert_eq!(params, vec!["p0".to_owned(), "p1".to_owned()]);
+        assert!(param_decls.is_empty());
+        assert!(result.is_none());
+        assert!(body.is_empty());
+        assert!(uses.is_empty());
+        assert_eq!(attrs, DeclarationAttrs::default());
+        let (box_name, callable_symbol, params, param_decls, result, body, uses, attrs) =
+            expansion.to_owned_root_lowering().into_parts();
+        assert_eq!(box_name, "Main");
+        assert_eq!(callable_symbol.as_deref(), Some("Main.main/1"));
+        assert_eq!(params, vec!["p0".to_owned()]);
         assert!(param_decls.is_empty());
         assert!(result.is_none());
         assert!(body.is_empty());

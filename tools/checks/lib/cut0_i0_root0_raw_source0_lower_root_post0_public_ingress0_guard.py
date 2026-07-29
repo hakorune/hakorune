@@ -616,8 +616,8 @@ def main() -> int:
     require(program_root_lowering, "VerifiedRawRootExpansionV1::App(main)", "verified Main route")
     require(decls, "build_verified_static_main_box_with_port_v1", "verified Main terminal")
     verified_main = text_between(decls, "fn build_verified_static_main_box_with_port_v1", "fn lower_static_main_root_with_port_v1")
-    require(verified_main, "child.to_owned_lowering().into_parts()", "verified Main typed child handoff")
-    if "ASTNode::FunctionDeclaration" in verified_main or "main-expansion/static-child-source" in verified_main: raise AssertionError("verified Main lower-side AST reclassification returned")
+    if not all(fragment in verified_main for fragment in ("child.to_owned_lowering().into_parts()", "main.to_owned_root_lowering()")): raise AssertionError("verified Main typed lowering handoff drift")
+    if "ASTNode::FunctionDeclaration" in verified_main or "main.root().source()" in verified_main or "main-expansion/static-child-source" in verified_main: raise AssertionError("verified Main lower-side AST reclassification returned")
     for retired in ("main_static:", "build_static_main_box_with_port_v1(callables"):
         if retired in program_root_lowering:
             raise AssertionError(f"retired selected Main projection returned: {retired}")
