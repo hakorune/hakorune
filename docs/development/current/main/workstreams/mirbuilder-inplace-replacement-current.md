@@ -101,32 +101,36 @@ Closed:  MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0
 Closed:  INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0
 Closed:  MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0
-Current: MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
-Mode:    read-only D0
+Closed:  MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
+Current: RAW-LAMBDA-CAPTURE-OBSERVATION0-D0
+Mode:    design-only D0
 ```
 
 ## Current execution brief
 
-`MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0`
+`RAW-LAMBDA-CAPTURE-OBSERVATION0-D0`
 
 ```text
-Read only:
-  Recount production-authority edges after da95eee7f7. Select no work unless
-  one live named edge has one bounded replacement owner and a same-commit old
-  authority deletion.
+Live edge:
+  raw AST Lambda -> build_lambda_expression(params.clone(), body.clone()) in
+  build_expression_impl_with_port_v1.
 
-Preserve:
-  Program deferred-static timing, raw static-Box lifecycle behavior, active
-  compatibility sunsets, grammar, result/publication policy, View, Ownership,
-  and JoinModule disposition.
+Design:
+  Define one capture-observation owner before any implementation. It must make
+  lexical declarations/shadowing, nested Lambda/function traversal, capture
+  order, me handling, source/body ownership, candidate failure, and publication
+  boundaries explicit. The implementation row must delete the raw dispatcher
+  clone/facade edge atomically; no accepted-program variants are allowed.
 
 Shelf:
-  Lambda capture observation and Program-root statement single-pass partition
-  need their own D0; do not treat either as preselected implementation work.
+  Program-root single-pass partition and raw static-Main compatibility retirement
+  require their own D0. No active sunset is closable. JoinModule stays for
+  repository-final conformance before View/Ownership feature work.
 
 Stop:
-  Do not widen a compatibility owner, introduce fallback/retry, or convert a
-  census into implementation without a named live old edge.
+  Do not turn the current incomplete capture walker into a new authority by
+  extraction alone, add fallback/retry, or open I0/R0 without exact ordering and
+  failure rules.
 ```
 
 Fixed phase order:
@@ -1420,7 +1424,8 @@ R78 MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0 closed: i
 R79 INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0 closed
 R80 MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0 closed: raw non-Main static-Box lifecycle handoff selected
 R81 RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0 closed: raw dispatcher lifecycle deleted at da95eee7f7
-R82 MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 current
+R82 MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 closed: no bounded executable edge; Lambda D0 selected
+R83 RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
