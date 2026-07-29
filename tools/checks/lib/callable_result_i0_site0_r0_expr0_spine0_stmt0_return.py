@@ -346,27 +346,51 @@ def check_ret0_s0(root: Path) -> str:
         ("NYASH_CLEANUP_ALLOW_THROW=1", 1, "exact Throw diagnostic"),
     ):
         _require_count(admission_production, needle, expected, label)
+    throw_production = throw.split("#[cfg(test)]", 1)[0]
     _require_count(
-        throw,
-        "ensure_cleanup_exit_allowed_v1(&builder.function_state, CleanupExitKindV1::Throw)?;",
+        throw_production,
+        "ensure_cleanup_exit_allowed_v1(state, CleanupExitKindV1::Throw)?;",
         1,
         "Throw cleanup admission",
     )
+    for needle, expected, label in (
+        ("struct PreparedRawThrowV1", 1, "prepared Throw owner"),
+        ("fn lower_prepared_raw_throw_with_port_v1", 1, "prepared Throw terminal"),
+        ("RawThrowCompletionRouteV1::DebugTraceCompatibility", 2, "debug route seal/use"),
+        ("RawThrowCompletionRouteV1::Throw", 2, "physical route seal/use"),
+    ):
+        _require_count(throw_production, needle, expected, label)
     _require_order(
-        throw,
+        throw_production,
         (
-            "ensure_cleanup_exit_allowed_v1(&builder.function_state, CleanupExitKindV1::Throw)?;",
+            "ensure_cleanup_exit_allowed_v1(state, CleanupExitKindV1::Throw)?;",
             "builder_disable_throw()",
-            "drive_legacy_expression_v1(builder, port, expression)?",
+            "drive_legacy_expression_v1(builder, port, prepared.expression)?",
         ),
         "Throw admission/env/child",
     )
+    _require_order(
+        surface,
+        (
+            "PreparedRawThrowV1::prepare(&builder.function_state, *expression)?",
+            "lower_prepared_raw_throw_with_port_v1(builder, port, prepared)?",
+        ),
+        "Throw prepare/lower",
+    )
+    throw_lower = throw_production[
+        throw_production.index("fn lower_prepared_raw_throw_with_port_v1") :
+    ]
+    for retired in ("builder_disable_throw", "ensure_cleanup_exit_allowed_v1"):
+        if retired in throw_lower:
+            _fail(f"prepared Throw lower retained route redecision: {retired}")
     for retired in (
         "function_state.in_cleanup_block",
         "function_state.cleanup_allow_throw",
         "NYASH_CLEANUP_ALLOW_THROW=1",
+        "fn cf_throw(",
+        "fn cf_throw_with_port_v1",
     ):
-        if retired in throw:
+        if retired in throw_production:
             _fail(f"Throw retained duplicate cleanup admission: {retired}")
     for source, label in (
         (raw_tests, "raw Return tests"),

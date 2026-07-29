@@ -8,6 +8,9 @@ use crate::ast::{ASTNode, AssignStmt, ReturnStmt};
 use crate::mir::builder::compound_assignment::{
     lower_prepared_raw_compound_assignment_with_port_v1, PreparedRawCompoundAssignmentV1,
 };
+use crate::mir::builder::control_flow::exception::{
+    lower_prepared_raw_throw_with_port_v1, PreparedRawThrowV1,
+};
 use crate::mir::builder::exprs_enum_match::PreparedRawScopeBoxV1;
 use crate::mir::builder::fields::{
     lower_prepared_raw_field_assignment_with_port_v1, PreparedRawFieldAssignmentV1,
@@ -191,13 +194,12 @@ where
                 finally_body,
             )?,
         )),
-        ASTNode::Throw { expression, .. } => Ok(StatementSurfaceDispatch::Lowered(
-            crate::mir::builder::control_flow::exception::cf_throw_with_port_v1(
-                builder,
-                port,
-                *expression,
-            )?,
-        )),
+        ASTNode::Throw { expression, .. } => {
+            let prepared = PreparedRawThrowV1::prepare(&builder.function_state, *expression)?;
+            Ok(StatementSurfaceDispatch::Lowered(
+                lower_prepared_raw_throw_with_port_v1(builder, port, prepared)?,
+            ))
+        }
         node @ ASTNode::Assignment { .. } => {
             let statement = AssignStmt::try_from(node).expect("ASTNode::Assignment must convert");
             let prepared = PreparedRawOrdinaryAssignmentV1::prepare(builder, statement)?;

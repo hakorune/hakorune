@@ -580,13 +580,13 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: MATCH-LABEL-LITERAL-EMISSION-SSOT0-I0-R0.
-Caller: build_peek_expression_with_port_v1 Match arm dispatch.
-Selected owner: MirBuilder::build_literal.
-Deleted: duplicate seven-way LiteralValue mapping and all direct label emitter calls.
-Preserved: label order, block/ID order, comparison/branch/arm/PHI behavior, literal facts.
-Non-claims: Match control flow, child descent, result policy, grammar.
-Evidence: all-seven-label fixture, canonical literal tests, exact shared guard.
+Closed: RAW-THROW-COMPLETION-ROUTE-PREPARE-ONCE0-I0-R0.
+Caller: raw statement-surface ASTNode::Throw branch.
+Selected owner: PreparedRawThrowV1 plus its consuming completion terminal.
+Deleted: cf_throw*, MirBuilder::cf_throw, raw-terminal edge, lower-side env route decision.
+Preserved: cleanup precedence, child-once order, trace/Throw effects and returned value.
+Non-claims: TryCatch lifecycle, Return semantics, physical Throw compatibility sunset.
+Evidence: route-seal test, raw invocation-port test, cleanup matrix, exact shared guard.
 Fallback / retry / reselection: 0.
 Current stop: fresh production live-edge census; no next row is preselected.
 ```
@@ -626,6 +626,12 @@ NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001
 Compatibility sunsets:
 
 ```text
+RAW-THROW-DEBUG-TRACE-COMPAT-SUNSET-001
+  state: active
+  owner: PreparedRawThrowV1 completion route
+  surface: NYASH_BUILDER_DISABLE_THROW=1 -> env.debug.trace
+  retire_when: diagnostic consumers are zero and Throw always uses physical completion
+
 MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001
   state: closed
   production build_module edge: 0

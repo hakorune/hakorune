@@ -167,11 +167,4 @@ impl super::MirBuilder {
     ) -> Result<ValueId, String> {
         exception::cf_try_catch(self, try_body, catch_clauses, finally_body)
     }
-
-    /// Control-flow: throw
-    ///
-    /// Delegates to exception::cf_throw for implementation.
-    pub(super) fn cf_throw(&mut self, expression: ASTNode) -> Result<ValueId, String> {
-        exception::cf_throw(self, expression)
-    }
 }
