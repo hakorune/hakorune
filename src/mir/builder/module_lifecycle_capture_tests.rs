@@ -10,12 +10,12 @@ use crate::mir::builder::module_compat_policy::CallableMainCompatibilityPolicyV1
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
 use crate::mir::builder::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use crate::mir::builder::program_root_lowering::ProgramDeferredStaticBoxLifecycleV1;
+use crate::mir::builder::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
 use crate::mir::builder::recursive_child_lowering::{
     RawBoxMethodChildPortV1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 use crate::mir::{ConstValue, MirBuilder, MirInstruction, MirType, ValueId};
 use crate::parser::NyashParser;
-
 #[derive(Default)]
 struct RecordingOrdinaryPortV1 {
     methods: Vec<(String, String, usize)>,
@@ -619,8 +619,8 @@ fn verified_and_compatibility_main_share_required_callable_order() {
         record_only_static: true,
         ..RecordingOrdinaryPortV1::default()
     };
-    compatibility_builder
-        .build_static_main_box_with_port_v1(&mut compatibility_port, box_name, methods)
+    PreparedRawStaticMainBoxCompatibilityV1::prepare(box_name, methods)
+        .lower_with_port_v1(&mut compatibility_builder, &mut compatibility_port)
         .expect("explicit compatibility Main lowering");
 
     let expected = vec!["Main.alpha/0", "Main.zeta/1", "Main.main/0"];
@@ -672,8 +672,8 @@ fn verified_main_helper_failure_stops_later_helpers_and_body() {
         record_only_static: true,
         ..RecordingOrdinaryPortV1::default()
     };
-    let error = compatibility_builder
-        .build_static_main_box_with_port_v1(&mut compatibility_port, box_name, methods)
+    let error = PreparedRawStaticMainBoxCompatibilityV1::prepare(box_name, methods)
+        .lower_with_port_v1(&mut compatibility_builder, &mut compatibility_port)
         .expect_err("first raw compatibility helper must fail");
     assert_eq!(
         error.to_string(),

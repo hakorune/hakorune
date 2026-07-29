@@ -21,6 +21,7 @@ use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
 use super::raw_loop_child_entry::{
     classify_raw_loop_child_entry_v1, RawLoopChildEntryDispositionV1,
 };
+use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
 
 const MAX_RAW_EXPRESSION_RECURSION_DEPTH: usize = 200;
 
@@ -424,7 +425,9 @@ impl RawBoxMethodChildPortV1 for RawLegacyChildLoweringPortV1 {
         box_name: String,
         methods: std::collections::HashMap<String, ASTNode>,
     ) -> Result<ValueId, String> {
-        builder.build_static_main_box(box_name, methods)
+        PreparedRawStaticMainBoxCompatibilityV1::prepare(box_name, methods)
+            .lower_with_port_v1(builder, self)
+            .map_err(|error| error.to_string())
     }
 
     fn lower_static_box_method(

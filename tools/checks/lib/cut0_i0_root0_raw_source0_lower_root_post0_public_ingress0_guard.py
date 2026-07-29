@@ -613,8 +613,10 @@ def main() -> int:
     verified_main = text_between(decls, "fn build_verified_static_main_box_with_port_v1", "fn lower_verified_static_main_root_with_port_v1")
     if not all(fragment in verified_main for fragment in ("child.to_owned_lowering().into_parts()", "main.to_owned_root_lowering()")): raise AssertionError("verified Main typed lowering handoff drift")
     if "ASTNode::FunctionDeclaration" in verified_main or "main.root().source()" in verified_main or "main-expansion/static-child-source" in verified_main: raise AssertionError("verified Main lower-side AST reclassification returned")
-    raw_static_main = text_between(decls, "fn build_static_main_box_with_port_v1", "fn build_verified_static_main_box_with_port_v1")
-    if "PreparedRawStaticMainBoxCompatibilityV1::prepare(box_name, methods)" not in raw_static_main or any(fragment in raw_static_main for fragment in ("sorted_method_entries", "methods.get(\"main\")", "ASTNode::FunctionDeclaration")): raise AssertionError("raw static-Main compatibility lower-side classification returned")
+    if any(f"fn {name}" in decls for name in ("build_static_main_box", "build_static_main_box_typed", "build_static_main_box_with_port_v1")): raise AssertionError("raw static-Main facade returned")
+    raw_static_main = production_code(ROOT / "src/mir/builder/recursive_child_lowering.rs")
+    if "PreparedRawStaticMainBoxCompatibilityV1::prepare(box_name, methods)" not in raw_static_main or ".lower_with_port_v1(builder, self)" not in raw_static_main: raise AssertionError("raw static-Main direct prepared handoff drift")
+    if caller_manifest["compatibility_sunsets"]["RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001"]["production_facade_edges"] != 0: raise AssertionError("raw static-Main facade sunset drift")
     if not all(fragment in raw_static_main_compat for fragment in ("struct PreparedRawStaticMainBoxCompatibilityV1", "enum RawStaticMainRootDispositionV1", "sorted_method_entries(&methods)", "lower_static_main_function_parts_with_port_v1")): raise AssertionError("raw static-Main compatibility batch contract drift")
     for retired in ("main_static:", "build_static_main_box_with_port_v1(callables"):
         if retired in program_root_lowering:

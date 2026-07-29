@@ -119,6 +119,12 @@
       "root_raw_edges": 0,
       "retire_row": "RAW-NONPROGRAM-ROOT-COMPAT-RET0-R0"
     },
+    "RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001": {
+      "state": "active",
+      "owner": "PreparedRawStaticMainBoxCompatibilityV1",
+      "production_facade_edges": 0,
+      "retire_when": "raw static-Main production reachability is zero or its remaining prepared compatibility owner is retired by a named replacement row"
+    },
     "RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-SUNSET-001": {
       "state": "active",
       "owner": "PreparedDisabledRawTryCatchV1",

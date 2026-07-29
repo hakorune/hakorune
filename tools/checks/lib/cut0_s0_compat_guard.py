@@ -26,6 +26,8 @@ def main() -> int:
         "module_compat_policy_p0.rs",
         "module_compat_raw_ledger_p0.rs",
         "decls.rs",
+        "raw_static_main_compat_batch.rs",
+        "recursive_child_lowering.rs",
         "calls/function_session.rs",
         "calls/lowering.rs",
         "builder_build.rs",
@@ -49,7 +51,18 @@ def main() -> int:
         "VerifiedRawRootExpansionV1::from_program",
         "preflight selector",
     )
-    require(files["decls.rs"], "build_static_main_box_typed", "typed root entry")
+    require(
+        files["raw_static_main_compat_batch.rs"],
+        "PreparedRawStaticMainBoxCompatibilityV1",
+        "prepared raw static-Main owner",
+    )
+    require(
+        files["recursive_child_lowering.rs"],
+        "PreparedRawStaticMainBoxCompatibilityV1::prepare(box_name, methods)",
+        "direct prepared raw static-Main handoff",
+    )
+    if "build_static_main_box_typed" in files["decls.rs"]:
+        raise AssertionError("retired typed static-Main facade returned")
     require(files["module_compat_policy_p0.rs"], "not_a_missing_receipt", "typed failure fixture")
     require(files["module_compat_raw_ledger_p0.rs"], "callable_main_compatibility", "dedicated receipt request")
     require(files["module_compat_raw_ledger_p0.rs"], ".complete(reservation", "receipt completion")

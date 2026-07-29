@@ -3,8 +3,6 @@ use super::calls::CanonicalFunctionSessionErrorV1;
 use super::main_expansion::{OwnedVerifiedMainRootLoweringV1, VerifiedMainExpansionV1};
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
-use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
-use super::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 use super::{declaration_order::sorted_method_entries, MirInstruction, ValueId};
 use crate::ast::ASTNode;
 use crate::mir::slot_registry::{get_or_assign_type_id, reserve_method_slot};
@@ -49,39 +47,6 @@ impl From<ModuleLoweringPortChildErrorV1> for CallableMainCompatibilityLoweringE
 }
 
 impl super::MirBuilder {
-    /// Build static box (e.g., Main) - extracts main() method body and converts to Program
-    /// Also lowers other static methods into standalone MIR functions: BoxName.method/N
-    pub(super) fn build_static_main_box(
-        &mut self,
-        box_name: String,
-        methods: std::collections::HashMap<String, ASTNode>,
-    ) -> Result<ValueId, String> {
-        self.build_static_main_box_typed(box_name, methods)
-            .map_err(|error| error.to_string())
-    }
-
-    pub(in crate::mir::builder) fn build_static_main_box_typed(
-        &mut self,
-        box_name: String,
-        methods: std::collections::HashMap<String, ASTNode>,
-    ) -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_static_main_box_with_port_v1(&mut port, box_name, methods)
-    }
-
-    pub(in crate::mir::builder) fn build_static_main_box_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        box_name: String,
-        methods: std::collections::HashMap<String, ASTNode>,
-    ) -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1>
-    where
-        Port: RootCallableCapturePortV1,
-    {
-        PreparedRawStaticMainBoxCompatibilityV1::prepare(box_name, methods)
-            .lower_with_port_v1(self, port)
-    }
-
     pub(in crate::mir::builder) fn build_verified_static_main_box_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
