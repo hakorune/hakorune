@@ -11,8 +11,7 @@
       "src/runner/keep/vm_fallback.rs": 1
     },
     "import_callers": {
-      "src/runner/keep/vm.rs": 1,
-      "src/runner/reference/vm_hako/compile_bridge.rs": 1
+      "src/runner/keep/vm.rs": 1
     }
   },
   "normal_default_callers": {
@@ -22,7 +21,8 @@
     "src/runner/json_artifact/program_json_v0_loader.rs": 1,
     "src/runner/repl/repl_runner.rs": 1,
     "src/runner/stage1_bridge/direct_route/compile.rs": 1,
-    "src/runner/selfhost.rs": 1
+    "src/runner/selfhost.rs": 1,
+    "src/runner/reference/vm_hako/compile_bridge.rs": 1
   },
   "normal_default_construction_sites": {
     "src/runner/modes/mir.rs": 2,
@@ -31,7 +31,8 @@
     "src/runner/json_artifact/program_json_v0_loader.rs": 1,
     "src/runner/repl/repl_runner.rs": 1,
     "src/runner/stage1_bridge/direct_route/compile.rs": 1,
-    "src/runner/selfhost.rs": 1
+    "src/runner/selfhost.rs": 1,
+    "src/runner/reference/vm_hako/compile_bridge.rs": 1
   },
   "normal_default_legacy_reachability": {
     "src/runner/modes/mir.rs": 0,
@@ -39,7 +40,8 @@
     "src/runner/product/wasm.rs": 0,
     "src/runner/json_artifact/program_json_v0_loader.rs": 0,
     "src/runner/repl/repl_runner.rs": 0,
-    "src/runner/selfhost.rs": 0
+    "src/runner/selfhost.rs": 0,
+    "src/runner/reference/vm_hako/compile_bridge.rs": 0
   },
   "normal_default_root_catalog_lifecycle": {
     "definition_file": "src/mir/builder/normal_default_root_catalog_lifecycle.rs",

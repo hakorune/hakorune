@@ -1,5 +1,8 @@
 use super::{temp_seed, VmHakoErr, VM_HAKO_PHASE};
-use crate::mir::{MirCompiler, MirModule};
+use crate::mir::{
+    MirCompileResult, MirCompiler, MirModule, NormalCompileRequestV1,
+    RejectedPostMacroWholeFileProgramV1, VerifiedPostMacroWholeFileProgramV1,
+};
 use crate::runner::NyashRunner;
 use std::collections::HashMap;
 
@@ -23,18 +26,9 @@ pub(super) fn compile_source_to_mir_json_v0(
         }
     };
     let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
-
-    let mut compiler = MirCompiler::with_options(!runner.config.no_optimize);
     let compile_result =
-        match crate::runner::modes::common_util::source_hint::compile_with_source_hint_and_imports(
-            &mut compiler,
-            ast,
-            Some(filename),
-            using_imports,
-        ) {
-            Ok(result) => result,
-            Err(e) => return Err(("compile-error", e.to_string())),
-        };
+        compile_post_macro_program(ast, filename, using_imports, !runner.config.no_optimize)
+            .map_err(|error| ("compile-error", error))?;
     crate::runner::modes::common_util::verifier_gate::enforce_vm_verify_gate_or_exit(
         &compile_result.module,
         "vm-hako",
@@ -44,6 +38,25 @@ pub(super) fn compile_source_to_mir_json_v0(
         "vm-hako",
     );
     emit_mir_json_v0_string(&compile_result.module).map_err(|e| ("emit-error", e))
+}
+
+fn compile_post_macro_program(
+    ast: crate::ast::ASTNode,
+    filename: &str,
+    imports: HashMap<String, String>,
+    optimize: bool,
+) -> Result<MirCompileResult, String> {
+    let program = VerifiedPostMacroWholeFileProgramV1::seal(ast).map_err(
+        |rejected: RejectedPostMacroWholeFileProgramV1| {
+            let message = rejected.error().to_string();
+            rejected.discard();
+            message
+        },
+    )?;
+    let mut compiler = MirCompiler::with_options(optimize);
+    compiler.compile_normal(NormalCompileRequestV1::for_vm_hako_post_macro(
+        program, filename, imports,
+    ))
 }
 
 fn prepare_vm_hako_source_and_imports(
@@ -127,5 +140,27 @@ impl Drop for ScopedEnvVar {
         } else {
             std::env::remove_var(self.key);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::compile_post_macro_program;
+    use crate::ast::{ASTNode, LiteralValue, Span};
+    use std::collections::HashMap;
+
+    #[test]
+    fn nonprogram_macro_output_rejects_before_vm_hako_compiler_admission() {
+        let error = compile_post_macro_program(
+            ASTNode::Literal {
+                value: LiteralValue::Integer(3),
+                span: Span::unknown(),
+            },
+            "vm-hako.hako",
+            HashMap::new(),
+            true,
+        )
+        .expect_err("whole-file non-Program output must reject");
+        assert!(error.starts_with("[macro/whole-file-root] expected Program"));
     }
 }

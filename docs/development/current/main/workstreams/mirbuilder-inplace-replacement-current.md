@@ -579,24 +579,24 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution
-`VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0`
+`VM-FALLBACK-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0`
 Parent: `POST-MACRO-ROOT-CONTRACT0-D0` / T0
 ```text
 Change:
-  Consume the shared post-macro Program seal in the VM-Hako reference bridge
-  and delete its imports-bearing source-hint Legacy edge.
+  Consume the shared post-macro Program seal after the VM fallback user-factory
+  observation and delete its no-import source-hint Legacy edge.
 
 Contract:
-  Filename, exact using-import snapshot, optimize flag, verifier/safety gates,
-  MIR JSON emission, and VmHakoErr envelopes stay unchanged.
+  Filename, empty imports, optimize flag, user-factory observation, plugin
+  guard, VM execution, diagnostics, and process-exit behavior stay unchanged.
 
 Done:
-  Program/import parity and typed non-Program failure are green; the VM-Hako
+  Program parity and typed non-Program failure are green; the fallback
   source-hint edge is zero; shared pointer/replacement guards are green.
 
 Stop:
-  Import/source drift, clone/reparse, changed verifier/result behavior,
-  MacroBox narrowing, fallback, or compilation after Program-seal failure.
+  Factory/source drift, clone/reparse, changed VM/process behavior, MacroBox
+  narrowing, route retry, or compilation after Program-seal failure.
 ```
 Post-macro retirement order after each fresh census:
 ```text
@@ -718,7 +718,8 @@ R28 RUNTIME-MIRBUILDER-AST-JSON-COMPAT-RETIRE0-I0-R0 closed
 R29 POST-MACRO-ROOT-CONTRACT0-D0 closed: WholeFileProgram
 R30 STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0 closed
 R31 SELFHOST-MACRO-PREEXPAND-TYPED-PROGRAM-INGRESS0-I0-R0 closed
-R32 VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 current
+R32 VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 closed
+R33 VM-FALLBACK-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Stage1 and selfhost post-macro Legacy edges are retired. VM-Hako typed Program ingress is active."
+status = "Stage1, selfhost, and VM-Hako post-macro Legacy edges are retired. VM fallback typed Program ingress is active."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = ""
-current_execution_row = "VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0"
-current_execution_summary = "Reuse the shared whole-file Program seal in the VM-Hako reference bridge and atomically delete its imports-bearing source-hint Legacy edge. Preserve filename, exact imports, optimize flag, verifier/safety gates, MIR JSON emission, and error envelopes."
+current_execution_row = "VM-FALLBACK-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0"
+current_execution_summary = "Reuse the shared whole-file Program seal after VM fallback user-factory observation and atomically delete its no-import source-hint Legacy edge. Preserve filename, empty imports, optimize flag, factory/plugin behavior, VM execution, diagnostics, and process exit."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """Selfhost macro-preexpand now consumes the shared Program seal and has no generic MirCompiler::compile(ast) production edge. VM-Hako imports-bearing ingress is next."""
+latest_card_summary = """VM-Hako now preserves exact source/import transport through typed Program ingress and has no imports-bearing source-hint Legacy edge. VM fallback is next."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0"
+current_blocker_token = "VM-FALLBACK-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
