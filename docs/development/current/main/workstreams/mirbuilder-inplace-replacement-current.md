@@ -774,18 +774,55 @@ shared spine guard                            = binary-only green
 largest touched source/check file             = 781
 ```
 
-## Current design stop
+## Current selected row
 
 ```text
-MIRBUILDER-POST-STATIC-BOX-LIVE-EDGE-CENSUS0-D0
+PROGRAM-ROOT-DEFERRED-STATIC-BOX-LIFECYCLE0-I0-R0
+Pack: FUNCTION-LIFECYCLE0
+Ceremony: T1, one atomic I0/R0 commit
 ```
 
-Run a fresh read-only census. Match owned-input is a known candidate, not an
-automatic selection. The next row still requires a named production caller,
-one selected owner, same-commit old-edge deletion, and zero fallback/retry.
-No implementation is authorized at this stop.
+Change:
 
-Lambda capture authority and all feature additions remain parked.
+```text
+named caller:
+  App-mode Program root -> deferred non-Main static Box loop
+new owner:
+  ProgramDeferredStaticBoxLifecycleV1
+delete:
+  inline BoxCompilationContext Some/None writes
+  inline sorted FunctionDeclaration method loop and dispatch
+```
+
+Contract:
+
+```text
+consume one deferred Box source; install one fresh context; lower methods in
+the existing sorted order through the same callable port; clear only after
+complete success. Method-N failure keeps the dirty candidate context, skips
+later methods, and preserves the primary String error. Outer candidate discard
+remains the sole isolation owner.
+```
+
+Done:
+
+```text
+direct Program-root context and method-lifecycle authority = 0
+new consuming owner production calls                       = exactly 1
+success/failure ordering and general Program parity        = green
+fallback / retry / reselection                             = 0
+```
+
+Stop:
+
+```text
+failure-path restore, reuse of the raw four-state transaction, Main/instance/
+raw-static integration, method grammar/symbol/order changes, publication
+changes, new per-row guard/test file, or any source/check file >= 800
+```
+
+Match owned-input retirement remains a later fresh-census candidate. Lambda
+capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)
@@ -923,7 +960,8 @@ R40 host cfgtest AST JSON closed
 R41 RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-I0-R0 closed
 R42 MIRBUILDER-POST-TRYCATCH-LIVE-EDGE-CENSUS0-D0 closed: static Box selected
 R43 RAW-NONMAIN-STATIC-BOX-COMPILATION-STATE-TRANSACTION0-I0-R0 closed
-R44 MIRBUILDER-POST-STATIC-BOX-LIVE-EDGE-CENSUS0-D0 current design stop
+R44 MIRBUILDER-POST-STATIC-BOX-LIVE-EDGE-CENSUS0-D0 closed: deferred Program static Box selected
+R45 PROGRAM-ROOT-DEFERRED-STATIC-BOX-LIFECYCLE0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
