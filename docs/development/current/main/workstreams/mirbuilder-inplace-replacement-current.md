@@ -29,39 +29,45 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: MODULE-FINALIZATION-FUNCTION-METADATA0-I0-R0
-Result:        shared finalization snapshots function metadata through one
-               prepared owner before existing return/PHI inference
-Latest design: `FINALIZE0-CONDITIONFN-RET0-D0` accepted RetireBoth
-Executable:    `FINALIZE0-CONDITIONFN-RET0-I0-R0`
+Latest landed: FINALIZE0-CONDITIONFN-RET0-I0-R0
+Result:        finalization and Call materialization no longer carry the
+               synthetic `condition_fn` compatibility semantics
+Latest design: fresh R2 live-edge census
+Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS9` is a design stop
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`FINALIZE0-CONDITIONFN-RET0-I0-R0` — retire the two shared synthetic-condition
-compatibility edges (T2 decision, one atomic implementation)
+`MIRBUILDER-LIVE-EDGE-CENSUS9` — close the remaining R2 live-edge frontier
 
 ```text
 Change:
-  delete finalization-time missing-`condition_fn/1` injection and the Call
-  materializer's same-name `const 1` early return.
+  inventory the post-retirement production and explicit-compatibility edges.
+  Select at most one real I0/R0 candidate, one bounded D0, or R2 closure.
 
 Contract:
-  named production caller: `MirBuilder::finalize_module` and its shared Call
-  materializer. Real declarations resolve through the existing header/global
-  authority; missing globals fail normally. Keep `RawRequiredConditionDraftV1`
-  and every Raw/reference route separate and unchanged.
+  no wrapper extraction, fallback/retry, detached route construction, or
+  automatic JoinModule/Ownership/View selection.
 
 Done:
-  both old production edges are zero; a real declared `condition_fn` is no
-  longer intercepted; missing global behavior, normal parity, and candidate
-  reuse are green. The caller-zero DerivedShadow evidence is explicitly held
-  for R3 asset disposition, not treated as a live owner.
+  record the exact next bounded step. If R2 has no live edge, open only the
+  prescribed JoinModule disposition D0 next.
 
 Stop:
-  return to design if any production corpus needs implicit global behavior, the
-  Raw typed draft must be touched, or a second route/session/fallback is needed.
+  return to design when a candidate has no named production authority and old
+  edge, or requires a route/session/result-policy change.
+```
+
+## Latest closeout
+
+```text
+FINALIZE0-CONDITIONFN-RET0-I0-R0 / ba8c111974
+  finalizer missing-symbol injection             = 0
+  Call materializer name-special const-1 path    = 0
+  minimal lifecycle / normal parity / reuse      = green
+  RawRequiredConditionDraftV1                    = unchanged
+  next                                           = R2 live-edge census
 ```
 
 ## Census8 closeout
