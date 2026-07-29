@@ -41,13 +41,11 @@ _RUST_IGNORED = re.compile(r"(?P<raw>r(?P<hash>#*)\".*?\"(?P=hash))|(?P<string>(
                            r"|(?P<block>/\*.*?\*/)|(?P<line>//[^\n]*)", re.S)
 _CFG_TEST_MODULE = re.compile(r"#\[cfg\(test\)\]\s*(?:#\[path\s*=\s*\"[^\"]+\"\]\s*)?mod\s+\w+")
 
-
 def code_only(text: str) -> str:
     return _RUST_IGNORED.sub(
         lambda match: "".join("\n" if char == "\n" else " " for char in match.group()),
         text,
     )
-
 
 def strip_cfg_test_modules(text: str) -> str:
     cursor = 0
@@ -76,7 +74,6 @@ def strip_cfg_test_modules(text: str) -> str:
                     break
         else:
             raise AssertionError("unterminated cfg(test) module")
-
 
 def production_paths() -> list[Path]:
     declared_test_modules: set[str] = set()
@@ -618,6 +615,9 @@ def main() -> int:
     require(program_root_lowering, "expansion.is_app_mode()", "verified root route consumer")
     require(program_root_lowering, "VerifiedRawRootExpansionV1::App(main)", "verified Main route")
     require(decls, "build_verified_static_main_box_with_port_v1", "verified Main terminal")
+    verified_main = text_between(decls, "fn build_verified_static_main_box_with_port_v1", "fn lower_static_main_root_with_port_v1")
+    require(verified_main, "child.to_owned_lowering().into_parts()", "verified Main typed child handoff")
+    if "ASTNode::FunctionDeclaration" in verified_main or "main-expansion/static-child-source" in verified_main: raise AssertionError("verified Main lower-side AST reclassification returned")
     for retired in ("main_static:", "build_static_main_box_with_port_v1(callables"):
         if retired in program_root_lowering:
             raise AssertionError(f"retired selected Main projection returned: {retired}")

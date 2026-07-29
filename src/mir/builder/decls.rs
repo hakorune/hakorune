@@ -119,29 +119,17 @@ impl super::MirBuilder {
         Port: RootCallableCapturePortV1,
     {
         for child in main.static_children() {
-            let ASTNode::FunctionDeclaration {
+            let (symbol, params, param_decls, return_type_name, body, uses, attrs) =
+                child.to_owned_lowering().into_parts();
+            port.lower_static_box_method(
+                self,
+                symbol,
                 params,
                 param_decls,
                 return_type_name,
                 body,
                 uses,
                 attrs,
-                ..
-            } = child.source()
-            else {
-                return Err(CallableMainCompatibilityLoweringErrorV1::Lowering(
-                    "[freeze:contract][main-expansion/static-child-source]".to_owned(),
-                ));
-            };
-            port.lower_static_box_method(
-                self,
-                child.symbol().to_owned(),
-                params.clone(),
-                param_decls.clone(),
-                return_type_name.clone(),
-                body.clone(),
-                uses.clone(),
-                attrs.clone(),
             )?;
         }
         self.lower_static_main_root_with_port_v1(

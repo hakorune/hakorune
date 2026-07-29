@@ -5,7 +5,7 @@
 //! product owns only source references and deterministic symbols.  It has no
 //! Builder, collector, ValueId, metadata, header cache, or publication route.
 
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
 use super::declaration_order::sorted_method_entries;
 
@@ -54,9 +54,31 @@ impl VerifiedMainRootBodyV1<'_> {
 pub(in crate::mir::builder) struct VerifiedMainStaticChildV1<'src> {
     method_name: &'src str,
     source: &'src ASTNode,
+    parts: VerifiedMainStaticChildPartsV1<'src>,
     symbol: Box<str>,
     arity: usize,
     _seal: MainStaticChildSealV1,
+}
+
+#[derive(Debug)]
+struct VerifiedMainStaticChildPartsV1<'src> {
+    params: &'src [String],
+    param_decls: &'src [ParamDecl],
+    return_type_name: Option<&'src str>,
+    body: &'src [ASTNode],
+    uses: &'src [String],
+    attrs: &'src DeclarationAttrs,
+}
+
+#[derive(Debug)]
+pub(in crate::mir::builder) struct OwnedVerifiedMainStaticChildLoweringV1 {
+    symbol: String,
+    params: Vec<String>,
+    param_decls: Vec<ParamDecl>,
+    return_type_name: Option<String>,
+    body: Vec<ASTNode>,
+    uses: Vec<String>,
+    attrs: DeclarationAttrs,
 }
 
 #[derive(Debug)]
@@ -77,6 +99,44 @@ impl VerifiedMainStaticChildV1<'_> {
 
     pub(in crate::mir::builder) fn arity(&self) -> usize {
         self.arity
+    }
+
+    pub(in crate::mir::builder) fn to_owned_lowering(
+        &self,
+    ) -> OwnedVerifiedMainStaticChildLoweringV1 {
+        OwnedVerifiedMainStaticChildLoweringV1 {
+            symbol: self.symbol.to_string(),
+            params: self.parts.params.to_vec(),
+            param_decls: self.parts.param_decls.to_vec(),
+            return_type_name: self.parts.return_type_name.map(str::to_owned),
+            body: self.parts.body.to_vec(),
+            uses: self.parts.uses.to_vec(),
+            attrs: self.parts.attrs.clone(),
+        }
+    }
+}
+
+impl OwnedVerifiedMainStaticChildLoweringV1 {
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        String,
+        Vec<String>,
+        Vec<ParamDecl>,
+        Option<String>,
+        Vec<ASTNode>,
+        Vec<String>,
+        DeclarationAttrs,
+    ) {
+        (
+            self.symbol,
+            self.params,
+            self.param_decls,
+            self.return_type_name,
+            self.body,
+            self.uses,
+            self.attrs,
+        )
     }
 }
 
@@ -174,6 +234,11 @@ impl<'src> VerifiedMainExpansionV1<'src> {
         };
         let ASTNode::FunctionDeclaration {
             params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
             is_static: main_is_static,
             ..
         } = main_source
@@ -192,7 +257,14 @@ impl<'src> VerifiedMainExpansionV1<'src> {
                 continue;
             }
             let ASTNode::FunctionDeclaration {
-                params, is_static, ..
+                params,
+                param_decls,
+                return_type_name,
+                body,
+                uses,
+                attrs,
+                is_static,
+                ..
             } = child_source
             else {
                 return Err(MainExpansionErrorV1::StaticChildMustBeFunction {
@@ -207,6 +279,14 @@ impl<'src> VerifiedMainExpansionV1<'src> {
             static_children.push(VerifiedMainStaticChildV1 {
                 method_name,
                 source: child_source,
+                parts: VerifiedMainStaticChildPartsV1 {
+                    params,
+                    param_decls,
+                    return_type_name: return_type_name.as_deref(),
+                    body,
+                    uses,
+                    attrs,
+                },
                 symbol: crate::mir::naming::encode_static_method(
                     box_name,
                     method_name,
@@ -221,6 +301,14 @@ impl<'src> VerifiedMainExpansionV1<'src> {
         let callable_main_compat = Some(VerifiedMainStaticChildV1 {
             method_name: "main",
             source: main_source,
+            parts: VerifiedMainStaticChildPartsV1 {
+                params,
+                param_decls,
+                return_type_name: return_type_name.as_deref(),
+                body,
+                uses,
+                attrs,
+            },
             symbol: crate::mir::naming::encode_static_method(box_name, "main", params.len())
                 .into_boxed_str(),
             arity: params.len(),
@@ -324,6 +412,16 @@ mod tests {
                 .collect::<Vec<_>>(),
             vec!["Main.alpha/0", "Main.zeta/2"]
         );
+        let zeta = &expansion.static_children()[1];
+        let (symbol, params, param_decls, result, body, uses, attrs) =
+            zeta.to_owned_lowering().into_parts();
+        assert_eq!(symbol, "Main.zeta/2");
+        assert_eq!(params, vec!["p0".to_owned(), "p1".to_owned()]);
+        assert!(param_decls.is_empty());
+        assert!(result.is_none());
+        assert!(body.is_empty());
+        assert!(uses.is_empty());
+        assert_eq!(attrs, DeclarationAttrs::default());
         let compat = expansion.callable_main_compat().unwrap();
         assert_eq!(compat.symbol(), "Main.main/1");
         assert_eq!(expansion.root().source(), compat.source());
