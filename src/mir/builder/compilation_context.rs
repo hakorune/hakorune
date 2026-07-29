@@ -367,6 +367,21 @@ impl CompilationContext {
         true
     }
 
+    pub(in crate::mir::builder) fn install_static_scalar_method_fact_update(
+        &mut self,
+        method_symbol: String,
+        fact: Option<StaticScalarMethodFact>,
+    ) {
+        match fact {
+            Some(fact) => {
+                self.static_scalar_method_facts.insert(method_symbol, fact);
+            }
+            None => {
+                self.static_scalar_method_facts.remove(&method_symbol);
+            }
+        }
+    }
+
     pub fn static_scalar_method_fact(&self, func_name: &str) -> Option<&StaticScalarMethodFact> {
         self.static_scalar_method_facts.get(func_name)
     }

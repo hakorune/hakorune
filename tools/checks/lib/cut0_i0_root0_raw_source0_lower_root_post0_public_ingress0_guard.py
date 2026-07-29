@@ -92,8 +92,6 @@ def production_paths() -> list[Path]:
     )
 def production_code(path: Path) -> str:
     return strip_cfg_test_modules(code_only(path.read_text()))
-
-
 def count_by_manifest(rows: dict[str, int], token: str) -> None:
     if not rows:
         raise AssertionError(f"caller manifest has no rows for {token!r}")
@@ -106,8 +104,6 @@ def count_by_manifest(rows: dict[str, int], token: str) -> None:
             raise AssertionError(
                 f"caller drift in {relative}: token={token!r} expected={expected} actual={count}"
             )
-
-
 def require(text: str, fragment: str, label: str) -> None:
     if fragment not in text:
         raise AssertionError(f"missing {label}: {fragment!r}")
@@ -115,8 +111,6 @@ def text_between(text: str, start: str, end: str) -> str:
     start_index = text.index(start)
     end_index = text.index(end, start_index)
     return text[start_index:end_index]
-
-
 def main() -> int:
     task = TASK.read_text()
     repair_task = REPAIR_TASK.read_text()
@@ -132,7 +126,6 @@ def main() -> int:
         "RAW-PUBLICATION-SUNSET-001",
     ):
         require(task, fragment, f"task contract {fragment}")
-
     texts = {
         path: path.read_text()
         for path in (
@@ -621,10 +614,17 @@ def main() -> int:
     for retired in ("main_static:", "build_static_main_box_with_port_v1(callables"):
         if retired in program_root_lowering:
             raise AssertionError(f"retired selected Main projection returned: {retired}")
+    declaration_facts = production_code(ROOT / "src/mir/builder/program_declaration_facts.rs")
+    if "declaration_indexer" in production_code(BUILDER_ROOT) or "declaration_indexer" in program_root_lowering:
+        raise AssertionError("raw declaration indexer returned")
+    if not all(fragment in declaration_facts for fragment in ("struct PreparedNormalProgramDeclarationFactsV1", "fn collect", "fn install_into", "collect_static_scalar_updates")):
+        raise AssertionError("normal Program declaration facts owner drift")
+    if program_root_lowering.count("PreparedNormalProgramDeclarationFactsV1::collect(snapshot)") != 1:
+        raise AssertionError("normal Program declaration facts caller drift")
+    if program_root_lowering.index("PreparedNormalProgramDeclarationFactsV1::collect(snapshot)") > program_root_lowering.index("collect_static_table_specs_from_ast"):
+        raise AssertionError("Program declaration facts must precede static-table planning")
     for retired in ("has_main_static", "root_is_app_mode.unwrap_or_else"):
-        if retired in program_root_lowering or retired in production_code(
-            ROOT / "src/mir/builder/declaration_indexer.rs"
-        ):
+        if retired in program_root_lowering:
             raise AssertionError(f"retired root route classifier returned: {retired}")
     for forbidden in (
         "build_module(",

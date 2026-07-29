@@ -18,8 +18,9 @@ use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV
 use super::normal_default_root_catalog_lifecycle::{
     NormalDefaultRootCatalogLifecycleErrorV1, PreparedNormalDefaultProgramRootV1,
 };
+use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::recursive_child_lowering::RawInvocationChildPortV1;
-use super::{declaration_indexer, MirBuilder, ValueId};
+use super::{MirBuilder, ValueId};
 
 pub(super) struct ProgramDeferredStaticBoxLifecycleV1 {
     methods: PreparedNonMainStaticBoxMethodBatchV1,
@@ -110,7 +111,7 @@ impl MirBuilder {
     where
         Port: RootCallableCapturePortV1,
     {
-        declaration_indexer::index_declarations(self, snapshot);
+        PreparedNormalProgramDeclarationFactsV1::collect(snapshot).install_into(&mut self.comp_ctx);
         if let Some(module) = self.current_module.as_mut() {
             let specs = crate::mir::static_data_plan::collect_static_table_specs_from_ast(
                 &module.name,

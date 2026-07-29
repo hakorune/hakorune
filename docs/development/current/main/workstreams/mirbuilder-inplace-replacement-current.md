@@ -29,45 +29,52 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: RAW-THROW-DEBUG-TRACE-COMPAT-RETIRE0-I0-R0
-Result:        physical Throw is the sole completion; debug-trace compatibility
-               residue and its sunset are deleted
-Latest design: Program declaration facts T2 accepted; one total source-only
-               product replaces the sole raw indexer without moving static table
-Executable:    NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0
+Latest landed: NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0
+Result:        selected Program declaration indexing is one source-only,
+               source-ordered product; the old indexer edge and file are gone
+Current stop:  MIRBUILDER-LIVE-EDGE-CENSUS0
+Executable:    none — census only
 History:       Git history and the short landed tail below
 ```
 
 ## Current stop
 
-`NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0` — T2, atomic implementation
+`MIRBUILDER-LIVE-EDGE-CENSUS0` — fresh read-only production census
 
 ```text
-Change:
-  Replace `declaration_indexer::index_declarations` with one total, source-only,
-  source-ordered facts product plus its consuming installer; delete the old file
-  and module wiring in the same commit.
+Scope:
+  Inventory live production edges and explicit compatibility surfaces after the
+  declaration-facts replacement. This is not an implementation row.
 
-Contract:
-  Facts cover Brand, Enum/prelude overlay, record/default, Box/field/weak
-  normalization, and exact static-scalar updates. Preserve `catalog -> facts ->
-  static-table -> body`; static-table, later instance lifecycle, DraftSeal, and
-  collector remain separate. Existing record-default expression copies are allowed;
-  whole Program cloning, reparse, new source rejection, fallback, and retry are 0.
-
-Done:
-  One caller uses the installer; old indexer definition/caller/module wiring are
-  zero. Local source-only facts tests, candidate failure/reuse and general parity
-  are green. Replace—not grow—the existing shared guard assertion; all files stay
-  below 800 lines.
+Selection rule:
+  Choose at most one named production edge or detached delete asset. It must name
+  its current owner, replacement owner, same-commit deletion, and any compatibility
+  sunset/retirement condition. Do not schedule a proof-only route or a new language
+  semantic slice.
 
 Stop:
-  Stop for partial four-lane reuse, source/lower reclassification, changed
-  catalog/facts/static-table/body precedence, static-table or instance lifecycle
-  absorption, partial installation, or a need for a new per-row guard.
+  If no bounded edge satisfies those conditions, record NoSafeI0 and return to
+  design; do not grow a compatibility owner or infer a default cutover.
 ```
 
 ## Latest closeout
+
+```text
+NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0
+
+source-only source-ordered facts product             = exactly one
+selected `declaration_indexer` file/module/caller    = 0
+catalog -> facts -> static-table -> body              = preserved
+Brand / Enum / record defaults / Box-field-weak       = preserved
+static-scalar updates retain source-order removal     = preserved
+normal general parity / candidate reuse / imports     = green
+fallback / retry / grammar / result delta             = 0
+new source/test/check file                            = 1 / 0 / 0
+largest touched source/check file                     < 800
+next                                                  = fresh live-edge census
+```
+
+## Previous closeout
 
 ```text
 RAW-THROW-DEBUG-TRACE-COMPAT-RETIRE0-I0-R0
@@ -1427,6 +1434,8 @@ R89 MIRBUILDER-LIVE-EDGE-CENSUS0 closed: no safe immediate I0/R0; Program
     family-disposition work
 R90 NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-D0 closed: total source-ordered
     facts product accepted; atomic indexer replacement is next
+R91 NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0 closed: source-only facts
+    product replaces the selected raw indexer edge; fresh live-edge census is current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

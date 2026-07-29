@@ -367,7 +367,6 @@ mod raw_lambda_lexical_observation; // source-only raw Lambda lexical observer
 mod weak_field_write;
 // Phase 29bq+: sealing 層中立化
 use control_flow::edgecfg::api::FragEmitSession;
-mod declaration_indexer; // Phase 29bq+: Declaration indexing (user boxes, static methods)
 mod declaration_order; // Deterministic box-member traversal owner
 pub mod joinir_id_remapper; // Phase 189: JoinIR ID remapping (ValueId/BlockId translation) - Public for tests
 mod joinir_inline_boundary_injector; // Phase 189: JoinInlineBoundary Copy instruction injector
@@ -392,6 +391,7 @@ mod phi_type_inference; // Phase 29bq+: PHI type inference (multi-phase fallback
 mod phi_type_publication;
 #[allow(dead_code)]
 mod port_aware_function_draft_impl;
+mod program_declaration_facts; // Normal Program source-only declaration facts
 mod type_hint_providers; // Phase 29bq+: Type hint provision (call results, method signatures) // Phase 25.1q: Unified PHI merge helper // prepare/lower_root/finalize split
                          // legacy large-match remains inline for now (planned extraction)
 pub(in crate::mir) mod emission; // emission::*（Const/Compare/Branch の薄い発行箱）

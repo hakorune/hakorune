@@ -19,7 +19,7 @@
 //!
 //! **Shared Patterns**:
 //! This module shares variable binding and registration patterns with:
-//! - `declaration_indexer.rs` - Variable binding in function signatures
+//! - Program declaration facts - module declaration inventory before lowering
 //! - Consider consolidating variable registration logic in future refactoring
 
 use crate::ast::ASTNode;

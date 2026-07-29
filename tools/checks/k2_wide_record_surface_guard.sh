@@ -14,7 +14,7 @@ TOKEN_KINDS="src/tokenizer/kinds.rs"
 TOKEN_IDENT="src/tokenizer/lex_ident.rs"
 PARSER="src/parser/declarations/box_def/mod.rs"
 PARSER_TEST="src/tests/parser_record_surface.rs"
-DECL_INDEXER="src/mir/builder/declaration_indexer.rs"
+PROGRAM_DECLARATION_FACTS="src/mir/builder/program_declaration_facts.rs"
 FACTORY="src/runner/modes/common_util/user_box_factory.rs"
 INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/k2_wide_record_surface_guard.sh"
@@ -31,7 +31,7 @@ guard_require_files \
   "$TOKEN_IDENT" \
   "$PARSER" \
   "$PARSER_TEST" \
-  "$DECL_INDEXER" \
+  "$PROGRAM_DECLARATION_FACTS" \
   "$FACTORY" \
   "$INDEX" \
   "$SELF_SCRIPT"
@@ -47,7 +47,7 @@ guard_expect_in_file "$TAG" 'RECORD' "$TOKEN_KINDS" "tokenizer must define RECOR
 guard_expect_in_file "$TAG" '"record" => TokenType::RECORD' "$TOKEN_IDENT" "tokenizer must recognize record keyword"
 guard_expect_in_file "$TAG" 'parse_record_declaration' "$PARSER" "parser must expose record declaration parser"
 guard_expect_in_file "$TAG" 'is_record: true' "$PARSER" "record AST must be marked distinct from ordinary box"
-guard_expect_in_file "$TAG" 'if \*is_record' "$DECL_INDEXER" "MIR declaration indexer must not treat record as ordinary box"
+guard_expect_in_file "$TAG" 'if \*is_record' "$PROGRAM_DECLARATION_FACTS" "Program declaration facts must not treat record as ordinary box"
 guard_expect_in_file "$TAG" 'if \*is_record' "$FACTORY" "runtime factory must not treat record as ordinary box"
 guard_expect_in_file "$TAG" 'c202_record_declaration_parses_typed_fields' "$PARSER_TEST" "parser test must cover accepted records"
 guard_expect_in_file "$TAG" 'c202_record_rejects_weak_untyped_and_method_bodies' "$PARSER_TEST" "parser test must cover rejected records"

@@ -43,9 +43,9 @@ def require_order(text: str, anchors: list[str], label: str) -> None:
 
 
 def build(root: Path) -> dict[str, object]:
-    index_path = "src/mir/builder/declaration_indexer.rs"
+    facts_path = "src/mir/builder/program_declaration_facts.rs"
     catalog_path = "src/mir/builder/callable_declaration_catalog/catalog.rs"
-    lifecycle_path = "src/mir/builder/module_lifecycle.rs"
+    lifecycle_path = "src/mir/builder/program_root_lowering.rs"
     static_call_path = "src/mir/builder/method_call_handlers.rs"
     emitter_path = "src/mir/builder/calls/unified_emitter.rs"
     annotation_path = "src/mir/builder/calls/annotation.rs"
@@ -60,7 +60,7 @@ def build(root: Path) -> dict[str, object]:
     caller_path = "lang/src/compiler/parser/parser_box.hako"
     callee_path = "lang/src/compiler/parser/scan/parser_string_utils_box.hako"
 
-    index = read(root, index_path)
+    facts = read(root, facts_path)
     catalog = read(root, catalog_path)
     lifecycle = read(root, lifecycle_path)
     static_call = read(root, static_call_path)
@@ -80,13 +80,13 @@ def build(root: Path) -> dict[str, object]:
     require_order(
         lifecycle,
         [
-            "VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&snapshot)",
-            "install_callable_declaration_catalog(callable_catalog)",
-            "declaration_indexer::index_declarations(self, &snapshot)",
+            "VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(source.source_ast())",
+            "install_callable_declaration_catalog(catalog)",
+            "PreparedNormalProgramDeclarationFactsV1::collect(snapshot)",
             "deferred_static_boxes.push((name.clone(), methods.clone()))",
             "for (name, methods) in deferred_static_boxes",
         ],
-        "catalog seal/install before declaration index and static lowering",
+        "catalog seal/install before Program declaration facts and static lowering",
     )
     require_order(
         static_call,
@@ -222,14 +222,14 @@ def build(root: Path) -> dict[str, object]:
             "callable_declaration_return_spelling_count": callable_declaration_return_spelling_count,
             "catalog_seal_root_calls": count(
                 lifecycle,
-                "VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&snapshot)",
+                "VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(source.source_ast())",
             ),
             "catalog_install_calls": count(
-                lifecycle, "install_callable_declaration_catalog(callable_catalog)"
+                lifecycle, "install_callable_declaration_catalog(catalog)"
             ),
             "old_store_occurrences": old_store_occurrences,
             "static_registration_count": count(
-                index, "builder.comp_ctx.register_lowered_method_ast("
+                facts, "builder.comp_ctx.register_lowered_method_ast("
             ),
             "source_order_static_lowering_count": count(
                 lifecycle, "for (name, methods) in deferred_static_boxes"

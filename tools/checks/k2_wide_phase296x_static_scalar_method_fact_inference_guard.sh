@@ -17,11 +17,11 @@ TOOL="tools/allocator/static_scalar_method_fact_inference.py"
 SELF_SCRIPT="tools/checks/k2_wide_phase296x_static_scalar_method_fact_inference_guard.sh"
 RUST_FACTS="src/mir/builder/static_scalar_facts.rs"
 RUST_COMP_CTX="src/mir/builder/compilation_context.rs"
-RUST_INDEXER="src/mir/builder/declaration_indexer.rs"
+RUST_DECLARATION_FACTS="src/mir/builder/program_declaration_facts.rs"
 
 echo "[$TAG] checking static scalar method fact inference"
 
-guard_require_files "$TAG" "$CARD_136" "$CARD_137" "$TASKBOARD" "$CURRENT_STATE" "$INDEX" "$SOURCE" "$SELECTION_TOOL" "$TOOL" "$SELF_SCRIPT" "$RUST_FACTS" "$RUST_COMP_CTX" "$RUST_INDEXER"
+guard_require_files "$TAG" "$CARD_136" "$CARD_137" "$TASKBOARD" "$CURRENT_STATE" "$INDEX" "$SOURCE" "$SELECTION_TOOL" "$TOOL" "$SELF_SCRIPT" "$RUST_FACTS" "$RUST_COMP_CTX" "$RUST_DECLARATION_FACTS"
 guard_require_exec_files "$TAG" "$SELECTION_TOOL" "$TOOL" "$SELF_SCRIPT"
 
 guard_expect_fixed_in_file "$TAG" 'Status: Landed' "$CARD_136" "row136 card must be landed"
@@ -36,7 +36,7 @@ guard_expect_fixed_in_file "$TAG" '| 136 | `STATIC-SCALAR-METHOD-FACT-INFERENCE-
 guard_expect_fixed_in_file "$TAG" '| 137 | `STATIC-SCALAR-CALL-LOWERING-SELECTION-296X-001` | Current |' "$TASKBOARD" "taskboard row137 must be current"
 guard_expect_fixed_in_file "$TAG" 'infer_static_scalar_method_fact' "$RUST_FACTS" "Rust fact verifier must exist"
 guard_expect_fixed_in_file "$TAG" 'static_scalar_method_facts' "$RUST_COMP_CTX" "compilation context must store facts"
-guard_expect_fixed_in_file "$TAG" 'register_static_scalar_method_fact_if_verified' "$RUST_INDEXER" "declaration indexer must register verified selected facts"
+guard_expect_fixed_in_file "$TAG" 'collect_static_scalar_updates' "$RUST_DECLARATION_FACTS" "Program declaration facts must collect verified selected facts"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" "check index must list this guard"
 guard_expect_fixed_in_file "$TAG" "$TOOL" "$INDEX" "check index must list this tool"
 

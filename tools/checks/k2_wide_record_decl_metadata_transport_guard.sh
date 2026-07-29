@@ -12,7 +12,7 @@ RECORD_SSOT="docs/development/current/main/design/record-and-packed-array-loweri
 MIR_TYPES="src/mir/function/types.rs"
 MIR_FUNCTION="src/mir/function.rs"
 COMP_CTX="src/mir/builder/compilation_context.rs"
-DECL_INDEXER="src/mir/builder/declaration_indexer.rs"
+PROGRAM_DECLARATION_FACTS="src/mir/builder/program_declaration_facts.rs"
 MODULE_LIFECYCLE="src/mir/builder/module_lifecycle.rs"
 PROGRAM_JSON_AUTHORITY="src/stage1/program_json_v0/authority.rs"
 PROGRAM_JSON_TESTS="src/stage1/program_json_v0/tests/basics_and_enums.rs"
@@ -35,7 +35,7 @@ guard_require_files \
   "$MIR_TYPES" \
   "$MIR_FUNCTION" \
   "$COMP_CTX" \
-  "$DECL_INDEXER" \
+  "$PROGRAM_DECLARATION_FACTS" \
   "$MODULE_LIFECYCLE" \
   "$PROGRAM_JSON_AUTHORITY" \
   "$PROGRAM_JSON_TESTS" \
@@ -57,7 +57,7 @@ guard_expect_in_file "$TAG" 'pub struct RecordDecl' "$MIR_TYPES" "MIR metadata m
 guard_expect_in_file "$TAG" 'pub record_decls: BTreeMap<String, RecordDecl>' "$MIR_TYPES" "MIR metadata must carry record_decls"
 guard_expect_in_file "$TAG" 'RecordDecl' "$MIR_FUNCTION" "MIR function module must re-export RecordDecl"
 guard_expect_in_file "$TAG" 'register_record_decl' "$COMP_CTX" "compilation context must register record declarations separately"
-guard_expect_in_file "$TAG" 'register_record_decl' "$DECL_INDEXER" "declaration indexer must route records to record metadata"
+guard_expect_in_file "$TAG" 'register_record_decl' "$PROGRAM_DECLARATION_FACTS" "Program declaration facts must route records to record metadata"
 guard_expect_in_file "$TAG" 'record_decls' "$MODULE_LIFECYCLE" "module lifecycle must copy record metadata"
 guard_expect_in_file "$TAG" 'collect_record_decls' "$PROGRAM_JSON_AUTHORITY" "Program JSON authority must collect record declarations"
 guard_expect_in_file "$TAG" '"record_decls"' "$PROGRAM_JSON_AUTHORITY" "Program JSON authority must emit record_decls"

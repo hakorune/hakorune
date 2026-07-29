@@ -155,8 +155,8 @@ def verify_cutover_owner(root: Path) -> dict[str, int]:
     require(
         program_root.index("VerifiedSameModuleCallableDeclarationCatalogV1::seal_root")
         < program_root.index("install_callable_declaration_catalog(catalog)")
-        < program_root.index("declaration_indexer::index_declarations"),
-        "catalog seal/install must precede declaration indexing",
+        < program_root.index("PreparedNormalProgramDeclarationFactsV1::collect(snapshot)"),
+        "catalog seal/install must precede Program declaration facts",
     )
     return {"decision_owners": 1, "production_consumers": consumers}
 
