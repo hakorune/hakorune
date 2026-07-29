@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """PUBLIC-INGRESS0-S0 guard for the explicit NarrowV1 Raw entry."""
 from __future__ import annotations
-
 import json
 import re
 from pathlib import Path
@@ -412,6 +411,7 @@ def main() -> int:
         raise AssertionError("Stage1 typed Program caller drift")
     if stage1.count("ExistingStage1DirectPostMacroCompatibilityV1::compile(") != post_macro.get("nonprogram_compatibility_calls"):
         raise AssertionError("Stage1 post-macro compatibility caller drift")
+    require(stage1, post_macro.get("typed_rejection_anchor", ""), "Stage1 typed rejection")
     for key in ("sunset_id", "retire_row"):
         require(current_workstream, post_macro.get(key, ""), f"Stage1 compatibility {key}")
     require(

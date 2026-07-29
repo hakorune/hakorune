@@ -209,7 +209,7 @@ pub use normal_default_pipeline::{
     RejectedNormalProgramCompileRequestV1,
 };
 pub(crate) use normal_default_pipeline::{
-    PreparedPostMacroNormalNonProgramV1, PreparedPostMacroNormalRootV1,
+    RejectedPostMacroWholeFileProgramV1, VerifiedPostMacroWholeFileProgramV1,
 };
 use raw_source_binding::{
     RawCallableMainSelectionV1, RawIngressRequestV1, RejectedRawSourceBindingV1,

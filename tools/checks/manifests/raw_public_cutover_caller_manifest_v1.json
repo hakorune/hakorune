@@ -8,8 +8,7 @@
   },
   "normal_source_hint": {
     "no_import_callers": {
-      "src/runner/keep/vm_fallback.rs": 1,
-      "src/runner/stage1_bridge/direct_route/compile.rs": 1
+      "src/runner/keep/vm_fallback.rs": 1
     },
     "import_callers": {
       "src/runner/keep/vm.rs": 1,
@@ -62,15 +61,17 @@
   },
   "post_macro_program_admission": {
     "partition_file": "src/mir/compiler/normal_default_pipeline.rs",
-    "partition_definition_anchor": "pub(crate) enum PreparedPostMacroNormalRootV1",
+    "partition_definition_anchor": "pub(crate) struct VerifiedPostMacroWholeFileProgramV1",
     "first_caller_file": "src/runner/stage1_bridge/direct_route/compile.rs",
-    "caller_anchor": "PreparedPostMacroNormalRootV1::classify(ast)",
+    "caller_anchor": "VerifiedPostMacroWholeFileProgramV1::seal(ast)",
     "partition_callers": 1,
     "typed_program_calls": 1,
     "nonprogram_compatibility_owner": "ExistingStage1DirectPostMacroCompatibilityV1",
-    "nonprogram_compatibility_calls": 1,
+    "nonprogram_compatibility_calls": 0,
+    "typed_rejection_anchor": "reject_non_program_macro_output",
+    "typed_rejection_calls": 1,
     "sunset_id": "STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-SUNSET-001",
-    "retire_row": "STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-RETIRE0-R0"
+    "retire_row": "STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0"
   },
   "raw_nonprogram_root_descent": {
     "definition_file": "src/mir/builder/raw_nonprogram_root_descent.rs",
@@ -124,10 +125,10 @@
       "retire_when": "AST-JSON production callers are zero or a sealed Program-only contract replaces this arbitrary-AST build_module edge"
     },
     "STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-SUNSET-001": {
-      "state": "active",
+      "state": "closed",
       "owner": "src/runner/stage1_bridge/direct_route/compile.rs",
-      "production_legacy_edges": 1,
-      "retire_row": "STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-RETIRE0-R0",
+      "production_legacy_edges": 0,
+      "retire_row": "STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0",
       "retire_when": "Stage1 direct post-macro NonProgram production reachability is zero"
     }
   },

@@ -72,26 +72,39 @@ pub enum NormalProgramCompileRequestErrorV1 {
 }
 
 #[derive(Debug)]
-pub(crate) enum PreparedPostMacroNormalRootV1 {
-    Program(PreparedPostMacroNormalProgramV1),
-    NonProgram(PreparedPostMacroNormalNonProgramV1),
-}
-
-#[derive(Debug)]
-pub(crate) struct PreparedPostMacroNormalProgramV1 {
+pub(crate) struct VerifiedPostMacroWholeFileProgramV1 {
     program: PreparedNormalDefaultProgramRootV1,
 }
 
-#[derive(Debug)]
-pub(crate) struct PreparedPostMacroNormalNonProgramV1 {
-    ast: ASTNode,
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum PostMacroWholeFileProgramErrorV1 {
+    ExpectedProgram,
 }
 
-impl PreparedPostMacroNormalRootV1 {
-    pub(crate) fn classify(ast: ASTNode) -> Self {
-        match prepare_normal_program_root(ast) {
-            Ok(program) => Self::Program(PreparedPostMacroNormalProgramV1 { program }),
-            Err(ast) => Self::NonProgram(PreparedPostMacroNormalNonProgramV1 { ast }),
+#[derive(Debug)]
+pub(crate) struct RejectedPostMacroWholeFileProgramV1 {
+    _output: ASTNode,
+    error: PostMacroWholeFileProgramErrorV1,
+}
+
+impl VerifiedPostMacroWholeFileProgramV1 {
+    pub(crate) fn seal(output: ASTNode) -> Result<Self, RejectedPostMacroWholeFileProgramV1> {
+        match prepare_normal_program_root(output) {
+            Ok(program) => Ok(Self { program }),
+            Err(output) => Err(RejectedPostMacroWholeFileProgramV1 {
+                _output: output,
+                error: PostMacroWholeFileProgramErrorV1::ExpectedProgram,
+            }),
+        }
+    }
+}
+
+impl std::fmt::Display for PostMacroWholeFileProgramErrorV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::ExpectedProgram => formatter.write_str(
+                "[macro/whole-file-root] expected Program output from whole-file macro expansion",
+            ),
         }
     }
 }
@@ -102,9 +115,13 @@ fn prepare_normal_program_root(
     PreparedNormalDefaultProgramRootV1::seal(ast)
 }
 
-impl PreparedPostMacroNormalNonProgramV1 {
-    pub(crate) fn into_ast(self) -> ASTNode {
-        self.ast
+impl RejectedPostMacroWholeFileProgramV1 {
+    pub(crate) fn error(&self) -> PostMacroWholeFileProgramErrorV1 {
+        self.error
+    }
+
+    pub(crate) fn discard(self) {
+        drop(self);
     }
 }
 
@@ -269,7 +286,7 @@ impl NormalCompileRequestV1 {
     }
 
     pub(crate) fn for_stage1_direct_post_macro(
-        program: PreparedPostMacroNormalProgramV1,
+        program: VerifiedPostMacroWholeFileProgramV1,
         source_file: Option<&str>,
     ) -> Self {
         Self::from_prepared(
@@ -446,11 +463,9 @@ mod tests {
     }
 
     #[test]
-    fn post_macro_partition_seals_program_once_and_retains_non_program() {
-        let program = match PreparedPostMacroNormalRootV1::classify(program()) {
-            PreparedPostMacroNormalRootV1::Program(program) => program,
-            PreparedPostMacroNormalRootV1::NonProgram(_) => panic!("Program must classify once"),
-        };
+    fn post_macro_whole_file_seal_accepts_program_and_rejects_non_program() {
+        let program =
+            VerifiedPostMacroWholeFileProgramV1::seal(program()).expect("Program must seal once");
         let request =
             NormalCompileRequestV1::for_stage1_direct_post_macro(program, Some("stage1.hako"));
         let (_, source, imports, admission, _) = request.into_parts();
@@ -461,10 +476,12 @@ mod tests {
             NormalCompileAdmissionV1::Stage1DirectPostMacroProgramNoImports
         );
 
-        let retained = match PreparedPostMacroNormalRootV1::classify(non_program()) {
-            PreparedPostMacroNormalRootV1::Program(_) => panic!("Literal must remain residual"),
-            PreparedPostMacroNormalRootV1::NonProgram(retained) => retained,
-        };
-        assert!(matches!(retained.into_ast(), ASTNode::Literal { .. }));
+        let rejected = VerifiedPostMacroWholeFileProgramV1::seal(non_program())
+            .expect_err("Literal must fail the whole-file Program contract");
+        assert_eq!(
+            rejected.error(),
+            PostMacroWholeFileProgramErrorV1::ExpectedProgram
+        );
+        rejected.discard();
     }
 }

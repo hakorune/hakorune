@@ -6,24 +6,14 @@ use crate::cli::CliGroups;
 use crate::config::env::stage1;
 use crate::mir::{
     MirCompileResult, MirCompiler, MirModule, MirPrinter, NormalCompileRequestV1,
-    PreparedPostMacroNormalNonProgramV1, PreparedPostMacroNormalRootV1,
+    RejectedPostMacroWholeFileProgramV1, VerifiedPostMacroWholeFileProgramV1,
 };
 use crate::runner::NyashRunner;
 
-struct ExistingStage1DirectPostMacroCompatibilityV1;
-
-impl ExistingStage1DirectPostMacroCompatibilityV1 {
-    fn compile(
-        compiler: &mut MirCompiler,
-        source: PreparedPostMacroNormalNonProgramV1,
-        filename: &str,
-    ) -> Result<MirCompileResult, String> {
-        crate::runner::modes::common_util::source_hint::compile_with_source_hint(
-            compiler,
-            source.into_ast(),
-            Some(filename),
-        )
-    }
+fn reject_non_program_macro_output(rejected: RejectedPostMacroWholeFileProgramV1) -> String {
+    let message = rejected.error().to_string();
+    rejected.discard();
+    message
 }
 
 pub(super) fn compile_and_maybe_dump(
@@ -62,20 +52,13 @@ fn compile_post_macro_root(
     source: &str,
     optimize: bool,
 ) -> Result<MirCompileResult, String> {
-    let root = PreparedPostMacroNormalRootV1::classify(ast);
+    let program =
+        VerifiedPostMacroWholeFileProgramV1::seal(ast).map_err(reject_non_program_macro_output)?;
     let mut compiler = MirCompiler::with_options(optimize);
-    match root {
-        PreparedPostMacroNormalRootV1::Program(program) => compiler.compile_normal(
-            NormalCompileRequestV1::for_stage1_direct_post_macro(program, Some(source)),
-        ),
-        PreparedPostMacroNormalRootV1::NonProgram(non_program) => {
-            ExistingStage1DirectPostMacroCompatibilityV1::compile(
-                &mut compiler,
-                non_program,
-                source,
-            )
-        }
-    }
+    compiler.compile_normal(NormalCompileRequestV1::for_stage1_direct_post_macro(
+        program,
+        Some(source),
+    ))
 }
 
 fn dump_mir_if_requested(groups: &CliGroups, module: &MirModule) {
@@ -96,7 +79,6 @@ fn dump_mir_if_requested(groups: &CliGroups, module: &MirModule) {
 mod tests {
     use super::compile_post_macro_root;
     use crate::ast::{ASTNode, LiteralValue, Span};
-    use crate::mir::PreparedPostMacroNormalRootV1;
     use crate::mir::{MirCompiler, MirPrinter};
     use crate::parser::NyashParser;
 
@@ -131,26 +113,16 @@ mod tests {
     }
 
     #[test]
-    fn non_program_route_preserves_stage1_compatibility() {
+    fn non_program_macro_output_fails_before_stage1_compiler_admission() {
         let ast = ASTNode::Literal {
             value: LiteralValue::Integer(3),
             span: Span::unknown(),
         };
-        assert!(matches!(
-            PreparedPostMacroNormalRootV1::classify(ast.clone()),
-            PreparedPostMacroNormalRootV1::NonProgram(_)
-        ));
-        let mut legacy = MirCompiler::with_options(true);
-        let expected = legacy
-            .compile_with_source(ast.clone(), Some("stage1-residual.hako"))
-            .expect("legacy oracle");
-        let actual = compile_post_macro_root(ast, "stage1-residual.hako", true)
-            .expect("explicit residual route");
-
+        let error = compile_post_macro_root(ast, "stage1-residual.hako", true)
+            .expect_err("whole-file non-Program output must reject");
         assert_eq!(
-            MirPrinter::new().print_module(&actual.module),
-            MirPrinter::new().print_module(&expected.module)
+            error,
+            "[macro/whole-file-root] expected Program output from whole-file macro expansion"
         );
-        assert_eq!(actual.verification_result, expected.verification_result);
     }
 }

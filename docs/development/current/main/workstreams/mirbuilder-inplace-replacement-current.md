@@ -579,30 +579,25 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution
-
-`STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0`
-Parent: `POST-MACRO-ROOT-CONTRACT0-D0` / T2
-
+`SELFHOST-MACRO-PREEXPAND-TYPED-PROGRAM-INGRESS0-I0-R0`
+Parent: `POST-MACRO-ROOT-CONTRACT0-D0` / T0
 ```text
 Change:
-  Seal the final Stage1 whole-file macro output as Program before compiler
-  admission. Delete ExistingStage1DirectPostMacroCompatibilityV1, its
-  NonProgram carrier/match arm, and the Stage1 source-hint Legacy edge.
+  Consume the shared post-macro Program seal in the explicit selfhost
+  pre-expand route and delete its MirCompiler::compile(ast) Legacy edge.
 
 Contract:
-  Generic MacroBox and AST JSON remain node-generic. Whole-file compilation is
-  Program -> macro/normalization -> Program or typed failure. Macro order,
-  Stage1 source/optimize/result behavior, and Program MIR stay unchanged.
+  The opt-in gate, macro order, anonymous source, empty imports, optimize=true,
+  execution, logging, and boolean terminal stay unchanged.
 
 Done:
-  Program parity is green; non-Program macro output fails before MirCompiler;
-  the Stage1 sunset closes; the shared pointer/replacement guards are green.
+  Program execution parity and typed non-Program failure are green; the generic
+  selfhost compile edge is zero; shared pointer/replacement guards are green.
 
 Stop:
-  Program wrapping, AST clone/reparse, MacroBox trait narrowing, caller-local
-  compatibility, compiler/Legacy retry, or changed macro pass order.
+  New fallback, source/import widening, clone/reparse, changed gate behavior,
+  MacroBox narrowing, or compilation after Program-seal failure.
 ```
-
 Post-macro retirement order after each fresh census:
 ```text
 Stage1 current -> selfhost preexpand -> VM-Hako -> VM fallback -> VM keep
@@ -622,10 +617,9 @@ retire when: owner definition, registered residual surface, and root-specific
   drive_raw_legacy_expression_v1 production edge are all zero
 
 sunset_id: STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-SUNSET-001
-state: active
-owner: ExistingStage1DirectPostMacroCompatibilityV1
-retire row: STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-RETIRE0-R0
-retire when: Stage1 direct post-macro NonProgram production reachability is zero
+state: closed
+owner and NonProgram Legacy edge: 0
+retired by: STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0
 ```
 
 Closed sunset:
@@ -722,7 +716,8 @@ R26 RAW-NONPROGRAM-SAFE-THROW-ROOT-DESCENT0-D0 closed: NoProductionConstructor
 R27 RAW-NONPROGRAM-ROOT-INGRESS-POLICY0-D0 closed: IndependentSunsets
 R28 RUNTIME-MIRBUILDER-AST-JSON-COMPAT-RETIRE0-I0-R0 closed
 R29 POST-MACRO-ROOT-CONTRACT0-D0 closed: WholeFileProgram
-R30 STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0 current
+R30 STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0 closed
+R31 SELFHOST-MACRO-PREEXPAND-TYPED-PROGRAM-INGRESS0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
