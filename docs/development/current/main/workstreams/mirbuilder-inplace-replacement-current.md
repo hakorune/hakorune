@@ -72,9 +72,9 @@ Closed:  REPL-TYPED-PROGRAM-INGRESS0-D0
 Closed:  REPL-TYPED-PROGRAM-INGRESS0-I0-R0
 Closed:  POST-MACRO-PROGRAM-ADMISSION0-D0
 Closed:  STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0
-Current: MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0
-Pack:    ROOT-LIFECYCLE0
-Ceremony: T1, read-only design audit
+Current: NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0
+Pack:    FUNCTION-LIFECYCLE0
+Ceremony: T0, one atomic production replacement
 ```
 
 R1 closeout:
@@ -799,16 +799,41 @@ The owner preserves the existing success-only lifecycle: method failure leaves
 the dirty candidate context, skips later methods, and retains the primary
 String. Outer candidate discard remains the sole isolation owner.
 
-## Current design stop
+## Current execution brief
+
+`NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0` / parent
+`MIRBUILDER-POST-DEFERRED-STATIC-BOX-LIVE-EDGE-CENSUS0-D0` / T0 /
+`FUNCTION-LIFECYCLE0`.
 
 ```text
-MIRBUILDER-POST-DEFERRED-STATIC-BOX-LIVE-EDGE-CENSUS0-D0
+Change:
+  prepare one source-only PreparedNonMainStaticBoxMethodBatchV1 and consume it
+  through the existing RawBoxMethodChildPortV1. In the same commit delete both
+  Program-root and raw-static copies of sorting, FunctionDeclaration
+  projection, Box.method/arity construction, clone bundle, and direct method
+  port dispatch.
+
+Contract:
+  preserve exact sorted order, non-Function skip, ordinary method named main,
+  exact symbol/arity, and stop-on-method-N failure. Program trace/context
+  timing and raw App routing/registration/four-state transaction/Void remain
+  their current outer owners. Main, instance, constructor, publication,
+  grammar, View, and Ownership do not move.
+
+Done:
+  the two named production callers use one batch owner; both caller-local
+  method-policy copies are zero. Existing lifecycle/state tests plus one
+  focused batch fixture and the shared header-port inventory guard are green.
+
+Stop:
+  return to design if the batch must own context/state transactions,
+  registration, publication, Main/instance filtering, diagnostics, a second
+  port, fallback, retry, or route reselection.
 ```
 
-Run a fresh read-only census. Match owned-input remains a known candidate, not
-an automatic selection. Every next row still requires a named production
-caller, same-commit old-authority deletion, and zero fallback/retry. Lambda
-capture authority and all feature additions remain parked.
+Match owned-input remains hygiene, not replacement credit. Lambda capture is a
+later T2 design candidate because its two collectors do not yet have proven
+semantic parity. Feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)
@@ -948,7 +973,8 @@ R42 MIRBUILDER-POST-TRYCATCH-LIVE-EDGE-CENSUS0-D0 closed: static Box selected
 R43 RAW-NONMAIN-STATIC-BOX-COMPILATION-STATE-TRANSACTION0-I0-R0 closed
 R44 MIRBUILDER-POST-STATIC-BOX-LIVE-EDGE-CENSUS0-D0 closed: deferred Program static Box selected
 R45 PROGRAM-ROOT-DEFERRED-STATIC-BOX-LIFECYCLE0-I0-R0 closed
-R46 MIRBUILDER-POST-DEFERRED-STATIC-BOX-LIVE-EDGE-CENSUS0-D0 current design stop
+R46 MIRBUILDER-POST-DEFERRED-STATIC-BOX-LIVE-EDGE-CENSUS0-D0 closed: method-batch SSOT selected
+R47 NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
