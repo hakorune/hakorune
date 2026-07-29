@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Variable CompoundAssignment composition is closed. Safe root Return selection is the sole design stop."
+status = "Safe root Return design is accepted. Its atomic I0/R0 is the sole executable row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-D0"
-current_execution_row = ""
-current_execution_summary = "Read-only T1 selection: decide the exact root-only Return closure over None or Some(PortNeutralExprTreeV1), reusing the existing void/value Return owners without changing cleanup, defer, Match-return, ABI, result, or publication policy. The proposed I0/R0 deletes the safe Return SeparateDesignStop edge and moves residual 38 to 37. Return must not enter the expression-tree or BlockExpr/TaskScope prelude predicates; unsafe value Return remains compatibility and selected failure never retries."
+current_design_stop = ""
+current_execution_row = "RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-I0-R0"
+current_execution_summary = "T1 atomic production cutover: select root-only Return(None | Some(PortNeutralExprTreeV1)), reuse the existing void/value Return owners unchanged, delete the safe Return SeparateDesignStop edge, and move residual 38 to 37. Preserve cleanup, defer, Match-return, ABI, result, and publication policy. Do not admit Return into the expression-tree or BlockExpr/TaskScope prelude predicates; unsafe value Return remains compatibility and selected failure never retries."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"

@@ -593,16 +593,16 @@ new source/test/check file           = 0
 largest touched source/check file    = 798
 ```
 
-## Current design stop
+## Current execution
 
-`RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-D0` / T1 read-only
+`RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-I0-R0` / T1 atomic
 
 ```text
-Candidate:
+Selected:
   Return(None | Some(PortNeutralExprTreeV1)), non-Program root only
 Production caller:
   shared root kernel, including live runtime AST-JSON compatibility ingress
-Proposed atomic delete:
+Atomic delete:
   safe Return -> SeparateDesignStop -> raw compatibility = 0
 Preserve:
   unsafe Return compatibility; cleanup/defer/Match/ABI/result policy
@@ -718,7 +718,8 @@ R18 RAW-NONPROGRAM-VARIABLE-ASSIGNMENT-COMPOSITIONAL-DESCENT0-D0 closed
 R19 RAW-NONPROGRAM-VARIABLE-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R20 RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-D0 closed
 R21 RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0 closed
-R22 RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-D0 current
+R22 RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-D0 closed: Accept
+R23 RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
@@ -736,8 +737,8 @@ Source-level Ownership/View and other new language semantics do not enter the
 MirBuilder replacement train. Analysis-only views used to observe existing
 control flow are not source-language View activation.
 
-R21 reuses exact read-RHS-binary-write order and removes its safe compatibility
-edge. R22 selects the next root-only Return responsibility without body widening.
+R23 selects root-only safe Return and removes its compatibility edge without
+body widening.
 ## Closed tail
 
 ```text
