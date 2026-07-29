@@ -83,34 +83,43 @@ Closed:  MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0
 Closed:  CALL-NAME-CLASSIFICATION-SSOT0-I0-R0
 Closed:  MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0
-Current: MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0
-Mode:    read-only production edge census
+Closed:  MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0
+Current: RECORD-HELPER-BODY-INVOCATION0-I0-R0
+Mode:    one atomic T1 I0/R0
 ```
 
-## Latest closeout
+## Current execution brief
 
-`RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0` / `370c1eed07` / T0 /
-`CONTROL0` closed.
+`RECORD-HELPER-BODY-INVOCATION0-I0-R0` / parent R64 / T1 /
+`FUNCTION-LIFECYCLE0`
 
 ```text
-result:
-  MatchExpr moves scrutinee, complete arms, and else expression from the sole
-  raw dispatcher; the existing port-aware owner consumes arms with into_iter.
-  Three dispatcher clones and one arm-loop clone are zero.
+Change:
+  After each existing caller completes argument descent, move the helper name,
+  optional receiver, completed bindings, and owned body into one private
+  non-Clone PreparedRecordHelperBodyInvocationV1. Its sole lowering terminal
+  owns binding installation, source-order scan to first Return, and exact
+  variable-map restoration. Delete both old helper-body functions and calls.
 
-evidence:
-  exact Match port/Return/literal tests, general Program parity, late failure
-  isolation/compiler reuse, shared MirBuilder lane guard, and release build
-  are green. Broad `cargo test --release -q match` passed 198 selected tests
-  but remains globally red on an unrelated stale Stage1 embedded snapshot.
-  quick remains red only on the known EBNF `--syntax-3` naming-token failure.
+Contract:
+  Keep argument evaluation and setter trace outside the owner. Preserve me
+  installation before parameters, parameter overwrite, first-Return/suffix
+  behavior, Void and missing-return diagnostics, and exact map restoration on
+  success and every body failure. MIR/type/slot/binding/CFG prefix effects are
+  not rolled back. Route/grammar/fallback/View/Ownership do not move.
 
-structure:
-  no new source/test/check file; touched source/check = 354 / 134 / 798 lines.
-  route/grammar/result/publication/fallback/View/Ownership delta = 0.
+Done:
+  The two live execute terminals call the consuming owner exactly once; the
+  freely recombinable raw-parts entry and both old body helpers are zero.
+  Existing record-helper tests cover success, body failure, missing Return,
+  restoration/reuse, and caller parity. Extend an existing shared guard only;
+  no new source/test/check file and every touched source/check remains <800.
 
-next:
-  fresh read-only live-edge census; no candidate is preselected.
+Stop:
+  Return to design if argument descent or trace must move inside, restoration
+  widens beyond variable_map, a generic scope/transaction API is needed,
+  diagnostics or accepted body shape change, either old helper remains, or
+  retry/fallback/new compatibility appears.
 ```
 
 R1 closeout:
@@ -1274,7 +1283,8 @@ R60 MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0 closed
 R61 CALL-NAME-CLASSIFICATION-SSOT0-I0-R0 closed
 R62 MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0 closed: Match owned-input selected
 R63 RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0 closed
-R64 MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 current
+R64 MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 closed: record-helper body selected
+R65 RECORD-HELPER-BODY-INVOCATION0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
