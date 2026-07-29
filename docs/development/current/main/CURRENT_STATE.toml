@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Raw ScopeBox now selects one opaque guard-let or ordinary route before effects; the next live edge requires a fresh read-only census."
+status = "The next live MirBuilder replacement prepares one static-data or dynamic Index-read route before child effects."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-SCOPEBOX-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = "ScopeBox route-once is closed: one opaque prepared product replaces the body clone, Option-based try route, and caller-zero facade. Census only; no code row is selected."
+current_design_stop = ""
+current_execution_row = "RAW-INDEX-READ-ROUTE-ONCE0-I0-R0"
+current_execution_summary = "Seal one static-data or dynamic Index-read route, then delete dispatcher clones, repeated Variable observation, and the caller-zero Index-read facade."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-POST-SCOPEBOX-LIVE-EDGE-CENSUS0-D0"
+current_blocker_token = "RAW-INDEX-READ-ROUTE-ONCE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
