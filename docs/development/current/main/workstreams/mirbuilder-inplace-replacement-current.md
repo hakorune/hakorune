@@ -85,42 +85,41 @@ Closed:  MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0
 Closed:  MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0
 Closed:  RECORD-HELPER-BODY-INVOCATION0-I0-R0
-Current: MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0
-Mode:    read-only production edge census
+Closed:  MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0
+Current: RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0
+Mode:    one atomic T0 I0/R0
 ```
 
-## Latest closeout
+## Current execution brief
 
-`RECORD-HELPER-BODY-INVOCATION0-I0-R0` / `291e2bc316` / T1 /
-`FUNCTION-LIFECYCLE0` closed.
+`RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0` / parent R66 / T0 /
+`FUNCTION-LIFECYCLE0`
 
 ```text
-result:
-  Both live helper-inline callers keep argument evaluation and setter trace
-  outside, then move their prepared helper, receiver, and completed bindings
-  into one non-Clone PreparedRecordHelperBodyInvocationV1. It consumes the body
-  once, preserves me-before-parameter overwrite and first-Return behavior, and
-  restores the exact outer variable map on success and every body failure.
+Change:
+  In RawInvocationChildPortV1::lower_instance_box_method, retain the existing
+  params and param_decls normalization before method observation and legacy
+  admission. Rename the sole private capture terminal to
+  capture_normalized_instance_box_method_pending_v1 and make it consume those
+  already-normalized vectors without classifying them again.
 
-delete:
-  inline_record_helper_body = 0
-  lower_record_helper_body_until_return = 0
-  helper Return/statement AST clones = 0
+Contract:
+  Preserve normalization before observation, expected-arity computation,
+  admission, body snapshot, session open, child descent, header finalization,
+  and collector commit. Static method capture is unchanged. Constructor names
+  birth/init/pack retain exact receiver-row normalization and diagnostics.
 
-evidence:
-  focused success/failure/missing-Return/scope tests, general normal parity,
-  late failure isolation/compiler reuse, the method-call shared guard, the
-  MirBuilder lane guard, and release build are green. quick remains red only
-  on the known unrelated EBNF `--syntax-3` naming-token failure. The stale
-  route0 helper guard also still names a previously deleted preloop file and
-  is not evidence for this cell.
+Done:
+  The raw invocation instance-method path contains exactly one params and one
+  param-decls normalization call. The old broad capture symbol and its inner
+  duplicate pair are zero. Existing constructor/session/parity tests stay
+  green; add only a compact idempotence fixture and update existing guards
+  without adding files. Every touched source/check remains <800.
 
-structure:
-  no new source/test/check file; touched source/check = 651 / 334 / 457 / 798
-  lines. Route/grammar/result/fallback/View/Ownership delta = 0.
-
-next:
-  fresh read-only live-edge census; no candidate is preselected.
+Stop:
+  Return to design if the first normalization must move, normalization rules or
+  expected arity change, a forwarding wrapper remains, static capture changes,
+  failure timing moves, or retry/fallback/View/Ownership appears.
 ```
 
 R1 closeout:
@@ -1286,7 +1285,8 @@ R62 MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0 closed: Match 
 R63 RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0 closed
 R64 MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 closed: record-helper body selected
 R65 RECORD-HELPER-BODY-INVOCATION0-I0-R0 closed
-R66 MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0 current
+R66 MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0 closed: instance normalization selected
+R67 RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
