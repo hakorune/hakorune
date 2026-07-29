@@ -36,17 +36,19 @@ require_file docs/development/current/main/phases/phase-293x/293x-992-BOX-INIT-0
 require_file docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md
 require_file docs/reference/language/lifecycle.md
 require_file docs/reference/language/EBNF.md
+require_file crates/hakorune_frontend_ast/src/ast_node.rs
+require_file crates/hakorune_frontend_parser/src/parser/expr_cursor/primary.rs
 require_file src/parser/expr/primary.rs
-require_file src/parser/expr_cursor.rs
 require_file src/mir/builder/builder_build.rs
 require_file src/mir/builder/fields.rs
 require_file src/tests/parser_box_new_field_initializer_surface.rs
 require_file src/tests/mir_box_new_field_initializer.rs
 
-require_grep "field_initializers" src/ast/mod.rs
+require_grep "field_initializers" crates/hakorune_frontend_ast/src/ast_node.rs
 require_grep "parse_box_field_initializers" src/parser/expr/primary.rs
-require_grep "parse_box_field_initializers" src/parser/expr_cursor.rs
-require_grep "build_new_expression_with_field_initializers" src/mir/builder/builder_build.rs
+require_grep "parse_box_field_initializers" crates/hakorune_frontend_parser/src/parser/expr_cursor/primary.rs
+require_grep "PreparedRawNewExpressionV1" src/mir/builder/builder_build.rs
+require_grep "lower_prepared_raw_new_expression_with_port_v1" src/mir/builder/builder_build.rs
 require_grep "build_box_field_initializers" src/mir/builder/fields.rs
 require_grep "\\[box-init/duplicate-field\\]" src/mir/builder/fields.rs
 require_grep "\\[box-init/unknown-field\\]" src/mir/builder/fields.rs

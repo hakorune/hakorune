@@ -25,6 +25,7 @@ LOCATED_LOCAL="$ROOT_DIR/src/mir/builder/located_legacy_lowering.rs"
 VARIABLE_STMT="$ROOT_DIR/src/mir/builder/stmts/variable_stmt.rs"
 LOCAL_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0.py"
 RAW_DISPATCH="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/mod.rs"
+BUILDER_BUILD="$ROOT_DIR/src/mir/builder/builder_build.rs"
 ASSIGNMENT_DESCENT="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_descent.rs"
 LOCATED_ASSIGNMENT="$ROOT_DIR/src/mir/builder/located_legacy_assignment.rs"
 ASSIGNMENT_TESTS="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_descent_tests.rs"
@@ -81,6 +82,7 @@ guard_require_files \
   "$VARIABLE_STMT" \
   "$LOCAL_GUARD" \
   "$RAW_DISPATCH" \
+  "$BUILDER_BUILD" \
   "$ASSIGNMENT_DESCENT" \
   "$LOCATED_ASSIGNMENT" \
   "$ASSIGNMENT_TESTS" \
@@ -145,6 +147,33 @@ if rg -n -F '.cf_loop(' "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null ||
    rg -n -F 'fn cf_loop(' "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null ||
    rg -n -F 'planner_reject_detail' "$CONTROL_FLOW_ROOT" >/dev/null; then
   guard_fail "$TAG" "retired generic cf_loop authority returned"
+fi
+
+while IFS='|' read -r file pattern expected label; do
+  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+  if [[ "$count" != "$expected" ]]; then
+    guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
+  fi
+done <<EOF
+$BUILDER_BUILD|struct\\s+PreparedRawNewExpressionV1\\b|1|prepared raw New route
+$BUILDER_BUILD|fn\\s+lower_prepared_raw_new_expression_with_port_v1\\s*<Port>|1|prepared raw New lowering owner
+$BUILDER_BUILD|is_record_constructor_class\\(&class\\)|1|single raw New record classifier
+$RAW_DISPATCH|PreparedRawNewExpressionV1::prepare\\s*\\(|1|sole raw New route issuer
+$RAW_DISPATCH|lower_prepared_raw_new_expression_with_port_v1\\s*\\(|1|sole prepared raw New caller
+EOF
+
+for retired_new_edge in \
+  'fn build_new_expression(' \
+  'fn build_new_expression_with_port_v1' \
+  'fn build_new_expression_with_field_initializers(' \
+  'fn build_new_expression_with_field_initializers_with_port_v1'
+do
+  if rg -n -F "$retired_new_edge" "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+    guard_fail "$TAG" "retired raw New edge returned: $retired_new_edge"
+  fi
+done
+if rg -n -F 'RawLegacyChildLoweringPortV1' "$BUILDER_BUILD" >/dev/null; then
+  guard_fail "$TAG" "builder_build restored a caller-selected legacy New port"
 fi
 
 stageb_asset_count="$(awk -F '\t' '

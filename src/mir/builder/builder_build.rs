@@ -4,7 +4,6 @@ use super::{ConstValue, Effect, EffectMask, MirBuilder, MirInstruction, ValueId}
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
-    RawLegacyChildLoweringPortV1,
 };
 use crate::mir::exact_numeric_value_facts::ExactNumericConstFact;
 use crate::mir::numeric_substrate::{
@@ -12,6 +11,47 @@ use crate::mir::numeric_substrate::{
     ExactNumericConversionError, NumericTarget,
 };
 use crate::mir::slot_registry::resolve_slot_by_type_name;
+
+pub(in crate::mir::builder) struct PreparedRawNewExpressionV1 {
+    class: String,
+    arguments: Vec<ASTNode>,
+    field_initializers: Vec<(String, ASTNode)>,
+    _seal: PreparedRawNewExpressionSealV1,
+}
+
+struct PreparedRawNewExpressionSealV1;
+
+impl PreparedRawNewExpressionV1 {
+    pub(in crate::mir::builder) fn prepare(
+        builder: &MirBuilder,
+        class: String,
+        arguments: Vec<ASTNode>,
+        field_initializers: Vec<(String, ASTNode)>,
+    ) -> Result<Self, String> {
+        if builder.is_record_constructor_class(&class) {
+            if !field_initializers.is_empty() {
+                return Err(format!(
+                    "[box-init/record-reject] record={} does not support new-box field initializers",
+                    class
+                ));
+            }
+            return Err(format!(
+                "[record-construction/escape] record={} supported_use=local-field-read",
+                class
+            ));
+        }
+        Ok(Self {
+            class,
+            arguments,
+            field_initializers,
+            _seal: PreparedRawNewExpressionSealV1,
+        })
+    }
+
+    fn into_parts(self) -> (String, Vec<ASTNode>, Vec<(String, ASTNode)>) {
+        (self.class, self.arguments, self.field_initializers)
+    }
+}
 
 impl MirBuilder {
     /// Build a literal value
@@ -269,35 +309,19 @@ impl MirBuilder {
         Ok(value_id)
     }
 
-    /// Build new expression: new ClassName(arguments)
-    pub(super) fn build_new_expression(
-        &mut self,
-        class: String,
-        arguments: Vec<ASTNode>,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_new_expression_with_port_v1(&mut port, class, arguments)
-    }
-
-    /// Lower a `new` expression while retaining the caller's raw child port.
-    pub(in crate::mir::builder) fn build_new_expression_with_port_v1<Port>(
+    /// Lower one prepared ordinary `new` route with the caller's child port.
+    pub(in crate::mir::builder) fn lower_prepared_raw_new_expression_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
-        class: String,
-        arguments: Vec<ASTNode>,
+        prepared: PreparedRawNewExpressionV1,
     ) -> Result<ValueId, String>
     where
         Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
     {
-        if self.is_record_constructor_class(&class) {
-            return Err(format!(
-                "[record-construction/escape] record={} supported_use=local-field-read",
-                class
-            ));
-        }
+        let (class, arguments, field_initializers) = prepared.into_parts();
         // Phase 9.78a: Unified Box creation using NewBox instruction
         // Core-13 pure mode: emit ExternCall(env.box.new) with type name const only
-        if crate::config::env::mir_core13_pure() {
+        let dst = if crate::config::env::mir_core13_pure() {
             // Emit Const String for type name（ConstantEmissionBox）
             let ty_id = crate::mir::builder::emission::constant::emit_string(self, class.clone())?;
             // Evaluate arguments (pass through to env.box.new shim)
@@ -324,143 +348,86 @@ impl MirBuilder {
                 .type_ctx
                 .value_types
                 .insert(dst, super::MirType::Box(class.clone()));
-            return Ok(dst);
-        }
-
-        // Optimization: Primitive wrappers → emit Const directly when possible
-        if class == "IntegerBox" && arguments.len() == 1 {
-            if let ASTNode::Literal {
+            dst
+        } else if let (
+            "IntegerBox",
+            [ASTNode::Literal {
                 value: LiteralValue::Integer(n),
                 ..
-            } = arguments[0].clone()
-            {
-                // 📦 Hotfix 3: Use next_value_id() to respect function parameter reservation
-                let dst = self.next_value_id();
-                self.emit_instruction(MirInstruction::Const {
-                    dst,
-                    value: ConstValue::Integer(n),
-                })?;
-                self.function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, super::MirType::Integer);
-                return Ok(dst);
+            }],
+        ) = (class.as_str(), arguments.as_slice())
+        {
+            // Optimization: Primitive wrappers → emit Const directly when possible
+            let dst = self.next_value_id();
+            self.emit_instruction(MirInstruction::Const {
+                dst,
+                value: ConstValue::Integer(*n),
+            })?;
+            self.function_state
+                .type_ctx
+                .value_types
+                .insert(dst, super::MirType::Integer);
+            dst
+        } else {
+            let mut arg_values = Vec::new();
+            for arg in arguments {
+                arg_values.push(drive_legacy_expression_v1(self, port, arg)?);
             }
-        }
 
-        // First, evaluate all arguments to get their ValueIds
-        let mut arg_values = Vec::new();
-        for arg in arguments {
-            let arg_value = drive_legacy_expression_v1(self, port, arg)?;
-            arg_values.push(arg_value);
-        }
+            let dst = self.next_value_id();
+            self.emit_instruction(MirInstruction::NewBox {
+                dst,
+                box_type: class.clone(),
+                args: arg_values.clone(),
+            })?;
+            self.function_state
+                .type_ctx
+                .value_types
+                .insert(dst, super::MirType::Box(class.clone()));
+            self.function_state
+                .type_ctx
+                .value_origin_newbox
+                .insert(dst, class.clone());
 
-        // Generate the destination ValueId
-        // 📦 Hotfix 3: Use next_value_id() to respect function parameter reservation
-        let dst = self.next_value_id();
-
-        // Emit NewBox instruction for all Box types
-        // VM will handle optimization for basic types internally
-        self.emit_instruction(MirInstruction::NewBox {
-            dst,
-            box_type: class.clone(),
-            args: arg_values.clone(),
-        })?;
-        // Phase 15.5: Unified box type handling
-        // All boxes (including former core boxes) are treated uniformly as Box types
-        self.function_state
-            .type_ctx
-            .value_types
-            .insert(dst, super::MirType::Box(class.clone()));
-
-        // Record origin for optimization: dst was created by NewBox of class
-        self.function_state
-            .type_ctx
-            .value_origin_newbox
-            .insert(dst, class.clone());
-
-        // birth 呼び出し（Builder 正規化）
-        // 優先: 低下済みグローバル関数 `<Class>.birth/Arity`（Arity は me を含まない）
-        // 代替: 既存互換として BoxCall("birth")（プラグイン/ビルトインの初期化に対応）
-        if class != "StringBox" {
-            let arity = arg_values.len();
-            let lowered =
-                crate::mir::builder::calls::function_lowering::generate_method_function_name(
-                    &class, "birth", arity,
-                );
-            let use_lowered = port.with_function_headers(|headers| match headers {
-                Some(view) => view.contains_symbol(&lowered),
-                None => self
-                    .current_module
-                    .as_ref()
-                    .is_some_and(|module| module.functions.contains_key(&lowered)),
-            });
-            if use_lowered {
-                // Call Global("Class.birth/Arity") with argv = [me, args...]
-                let mut argv: Vec<ValueId> = Vec::with_capacity(1 + arity);
-                argv.push(dst);
-                argv.extend(arg_values.iter().copied());
-                self.emit_legacy_call(None, CallTarget::Global(lowered), argv)?;
-            } else {
-                // Constructor dispatch policy:
-                // - For user-defined boxes (no explicit constructor), do NOT emit BoxCall("birth").
-                //   VM will treat plain NewBox as constructed; dev verify warns if needed.
-                // - For builtins/plugins, keep BoxCall("birth") for compatibility with built-in/plugin initialization.
-                let is_user_box = self.comp_ctx.user_defined_boxes.contains_key(&class); // Phase 285LLVM-1.1: HashMap
-                                                                                         // Dev safety: allow disabling birth() injection for builtins to avoid
-                                                                                         // unified-call method dispatch issues while migrating. Off by default unless explicitly enabled.
-                let allow_builtin_birth = crate::config::env::builder_birth_inject_builtins();
-                if !is_user_box && allow_builtin_birth {
-                    let birt_mid = resolve_slot_by_type_name(&class, "birth");
-                    self.emit_box_or_plugin_call(
-                        None,
-                        dst,
-                        "birth".to_string(),
-                        birt_mid,
-                        arg_values,
-                        EffectMask::READ.add(Effect::ReadHeap),
-                    )?;
+            // Prefer a lowered global `<Class>.birth/Arity`; retain the
+            // builtin/plugin compatibility policy otherwise.
+            if class != "StringBox" {
+                let arity = arg_values.len();
+                let lowered =
+                    crate::mir::builder::calls::function_lowering::generate_method_function_name(
+                        &class, "birth", arity,
+                    );
+                let use_lowered = port.with_function_headers(|headers| match headers {
+                    Some(view) => view.contains_symbol(&lowered),
+                    None => self
+                        .current_module
+                        .as_ref()
+                        .is_some_and(|module| module.functions.contains_key(&lowered)),
+                });
+                if use_lowered {
+                    let mut argv: Vec<ValueId> = Vec::with_capacity(1 + arity);
+                    argv.push(dst);
+                    argv.extend(arg_values.iter().copied());
+                    self.emit_legacy_call(None, CallTarget::Global(lowered), argv)?;
+                } else {
+                    let is_user_box = self.comp_ctx.user_defined_boxes.contains_key(&class);
+                    let allow_builtin_birth = crate::config::env::builder_birth_inject_builtins();
+                    if !is_user_box && allow_builtin_birth {
+                        let birt_mid = resolve_slot_by_type_name(&class, "birth");
+                        self.emit_box_or_plugin_call(
+                            None,
+                            dst,
+                            "birth".to_string(),
+                            birt_mid,
+                            arg_values,
+                            EffectMask::READ.add(Effect::ReadHeap),
+                        )?;
+                    }
                 }
             }
-        }
+            dst
+        };
 
-        Ok(dst)
-    }
-
-    pub(super) fn build_new_expression_with_field_initializers(
-        &mut self,
-        class: String,
-        arguments: Vec<ASTNode>,
-        field_initializers: Vec<(String, ASTNode)>,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_new_expression_with_field_initializers_with_port_v1(
-            &mut port,
-            class,
-            arguments,
-            field_initializers,
-        )
-    }
-
-    /// Lower `new` plus field initializers while retaining one raw child port.
-    pub(in crate::mir::builder) fn build_new_expression_with_field_initializers_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        class: String,
-        arguments: Vec<ASTNode>,
-        field_initializers: Vec<(String, ASTNode)>,
-    ) -> Result<ValueId, String>
-    where
-        Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
-    {
-        if !field_initializers.is_empty() && self.is_record_constructor_class(&class) {
-            return Err(format!(
-                "[box-init/record-reject] record={} does not support new-box field initializers",
-                class
-            ));
-        }
-
-        let dst = self.build_new_expression_with_port_v1(port, class.clone(), arguments)?;
         self.build_box_field_initializers_with_port_v1(port, dst, &class, field_initializers)?;
         Ok(dst)
     }
@@ -476,6 +443,63 @@ impl MirBuilder {
             }
         }
         false
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::{FieldDecl, Span};
+
+    fn record_builder() -> MirBuilder {
+        let mut builder = MirBuilder::new();
+        builder.comp_ctx.register_record_decl(
+            "Pair".to_owned(),
+            Vec::new(),
+            &[FieldDecl {
+                name: "value".to_owned(),
+                declared_type_name: None,
+                is_weak: false,
+                default_value: None,
+            }],
+        );
+        builder
+    }
+
+    #[test]
+    fn raw_new_route_preserves_record_error_precedence_before_effects() {
+        let builder = record_builder();
+        let literal = ASTNode::Literal {
+            value: LiteralValue::Integer(1),
+            span: Span::unknown(),
+        };
+        let with_fields = PreparedRawNewExpressionV1::prepare(
+            &builder,
+            "Pair".to_owned(),
+            Vec::new(),
+            vec![("value".to_owned(), literal)],
+        )
+        .err()
+        .expect("record field initializer must reject");
+        let without_fields = PreparedRawNewExpressionV1::prepare(
+            &builder,
+            "Pair".to_owned(),
+            Vec::new(),
+            Vec::new(),
+        )
+        .err()
+        .expect("raw record construction must reject");
+
+        assert!(
+            with_fields.starts_with("[box-init/record-reject]"),
+            "{with_fields}"
+        );
+        assert!(
+            without_fields.starts_with("[record-construction/escape]"),
+            "{without_fields}"
+        );
+        assert!(builder.current_module.is_none());
+        assert!(builder.function_state.current_function.is_none());
     }
 }
 

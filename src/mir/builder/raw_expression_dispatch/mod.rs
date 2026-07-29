@@ -13,6 +13,7 @@ pub(in crate::mir::builder) use input_view::{
     RawBodyInputViewV1, RawLegacyBodyInputV1, RawLegacyStatementInputV1, RawStatementInputViewV1,
 };
 
+use super::builder_build::PreparedRawNewExpressionV1;
 use super::calls::{MethodCallDescentPortV1, RawLegacyMethodCallInputV1};
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
 use super::me_call_header_observation::MethodCallLoweringPortV1;
@@ -401,12 +402,15 @@ impl super::MirBuilder {
                 arguments,
                 field_initializers,
                 ..
-            } => self.build_new_expression_with_field_initializers_with_port_v1(
-                port,
-                class.clone(),
-                arguments.clone(),
-                field_initializers.clone(),
-            ),
+            } => {
+                let prepared = PreparedRawNewExpressionV1::prepare(
+                    self,
+                    class,
+                    arguments,
+                    field_initializers,
+                )?;
+                self.lower_prepared_raw_new_expression_with_port_v1(port, prepared)
+            }
 
             ASTNode::ArrayLiteral { elements, .. } => {
                 self.build_array_literal_with_port_v1(port, elements)

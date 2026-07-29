@@ -24,6 +24,16 @@ fn int(value: i64) -> ASTNode {
     }
 }
 
+fn new_expr(class: &str, arguments: Vec<ASTNode>) -> ASTNode {
+    ASTNode::New {
+        class: class.to_owned(),
+        arguments,
+        type_arguments: Vec::new(),
+        field_initializers: Vec::new(),
+        span: Span::unknown(),
+    }
+}
+
 fn string(value: &str) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::String(value.to_string()),
@@ -301,9 +311,12 @@ fn headerport_birth_presence_matches_legacy_newbox_branch() {
     legacy.current_module = Some(MirModule::new("legacy-birth-module".to_owned()));
     legacy.current_module.as_mut().unwrap().add_function(birth);
     let mut legacy_port = RawLegacyChildLoweringPortV1;
-    let legacy_value = legacy
-        .build_new_expression_with_port_v1(&mut legacy_port, "Prefix".to_owned(), vec![int(7)])
-        .unwrap();
+    let legacy_value = drive_legacy_expression_v1(
+        &mut legacy,
+        &mut legacy_port,
+        new_expr("Prefix", vec![int(7)]),
+    )
+    .unwrap();
 
     let mut port_builder = MirBuilder::new();
     port_builder.enter_function_for_test("headerport_birth/0".to_owned());
@@ -312,7 +325,7 @@ fn headerport_birth_presence_matches_legacy_newbox_branch() {
             ModuleLoweringInvocationV1::with_collector(&mut port_builder, birth_collector());
         let value = invocation.with_module_port(|builder, module_port| {
             let mut port = RawInvocationChildPortV1::new(module_port);
-            builder.build_new_expression_with_port_v1(&mut port, "Prefix".to_owned(), vec![int(7)])
+            drive_legacy_expression_v1(builder, &mut port, new_expr("Prefix", vec![int(7)]))
         });
         drop(invocation);
         value.unwrap()
