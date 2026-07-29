@@ -1,5 +1,8 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-use crate::mir::{MirBuilder, MirInstruction};
+use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
+use crate::mir::{MirBuilder, MirInstruction, MirType, ValueId};
+use crate::parser::NyashParser;
+use hakorune_mir_builder::BoxCompilationContext;
 
 use super::input_view::{
     RawLegacyBodyInputV1, RawLegacyExpressionInputV1, RawLegacyStatementInputV1,
@@ -37,6 +40,68 @@ fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
         .values()
         .flat_map(|block| block.instructions.iter().cloned())
         .collect()
+}
+
+fn parsed_box(source: &str) -> ASTNode {
+    let ASTNode::Program { mut statements, .. } =
+        NyashParser::parse_from_string(source).expect("static Box fixture must parse")
+    else {
+        panic!("parser must return Program");
+    };
+    assert_eq!(statements.len(), 1);
+    statements.remove(0)
+}
+
+fn seeded_static_box_caller() -> MirBuilder {
+    let mut builder = MirBuilder::new();
+    builder.prepare_module().expect("module shell");
+    builder.enter_function_for_test("static_box_parent/0".to_string());
+    builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .insert("caller".to_string(), ValueId(41));
+    builder
+        .function_state
+        .type_ctx
+        .set_type(ValueId(42), MirType::Integer);
+    let mut slots = FunctionSlotRegistry::new();
+    slots.ensure_slot("caller", Some(MirType::Integer));
+    builder.comp_ctx.current_slot_registry = Some(slots);
+    let mut box_context = BoxCompilationContext::new();
+    box_context
+        .variable_map
+        .insert("caller".to_string(), ValueId(43));
+    builder.comp_ctx.compilation_context = Some(box_context);
+    builder
+}
+
+fn assert_static_box_caller_restored(builder: &MirBuilder) {
+    assert_eq!(
+        builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .get("caller"),
+        Some(&ValueId(41))
+    );
+    assert_eq!(
+        builder.function_state.type_ctx.get_type(ValueId(42)),
+        Some(&MirType::Integer)
+    );
+    assert!(builder
+        .comp_ctx
+        .current_slot_registry
+        .as_ref()
+        .is_some_and(|slots| slots.get_slot("caller").is_some()));
+    assert_eq!(
+        builder
+            .comp_ctx
+            .compilation_context
+            .as_ref()
+            .and_then(|context| context.variable_map.get("caller")),
+        Some(&ValueId(43))
+    );
 }
 
 #[test]
@@ -138,4 +203,51 @@ fn legacy_body_and_statement_facades_preserve_input_view_parity() {
         instructions(&statement_view),
         instructions(&statement_facade)
     );
+}
+
+#[test]
+fn raw_nonmain_static_box_success_restores_four_state_caller() {
+    let mut builder = seeded_static_box_caller();
+    let result = builder
+        .build_expression_impl(parsed_box(
+            "static box Helpers { alpha() { return 1 } beta() { return 2 } }",
+        ))
+        .unwrap();
+
+    assert_static_box_caller_restored(&builder);
+    assert_eq!(
+        builder.function_state.type_ctx.get_type(result),
+        Some(&MirType::Void)
+    );
+    let module = builder.current_module.as_ref().expect("module shell");
+    assert!(module.functions.contains_key("Helpers.alpha/0"));
+    assert!(module.functions.contains_key("Helpers.beta/0"));
+}
+
+#[test]
+fn raw_nonmain_static_box_failure_keeps_inner_state_and_primary_error() {
+    let mut builder = seeded_static_box_caller();
+    let error = builder
+        .build_expression_impl(parsed_box(
+            "static box Broken { alpha() { return 1 } beta() { return missing } gamma() { return 3 } }",
+        ))
+        .unwrap_err();
+
+    assert!(error.contains("Undefined variable: missing"), "{error}");
+    assert!(!builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .contains_key("caller"));
+    assert_eq!(builder.function_state.type_ctx.get_type(ValueId(42)), None);
+    assert!(builder.comp_ctx.current_slot_registry.is_none());
+    assert!(builder
+        .comp_ctx
+        .compilation_context
+        .as_ref()
+        .is_some_and(BoxCompilationContext::is_empty));
+    assert!(builder.comp_ctx.user_defined_boxes.contains_key("Broken"));
+    let module = builder.current_module.as_ref().expect("module shell");
+    assert!(module.functions.contains_key("Broken.alpha/0"));
+    assert!(!module.functions.contains_key("Broken.gamma/0"));
 }

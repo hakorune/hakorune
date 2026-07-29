@@ -680,7 +680,7 @@ quick gate                                     = unrelated pre-existing
 largest touched source/check file              = 774
 ```
 
-## Current execution row
+## Latest static Box closeout
 
 ```text
 Decision: non-Main static Box state authority
@@ -752,6 +752,38 @@ hard stop:
 
 Match owned-input clone retirement remains a fresh-census candidate; it is not
 bundled with this state-authority replacement.
+
+Closeout evidence:
+
+```text
+named production branch                      = exactly 1
+four-state begin / complete / reject          = exactly 1
+dispatcher saved_* / direct context authority = 0
+success exact restore before Void             = green
+method-N failure / later-method stop          = green
+failure non-restore / primary String parity   = green
+static + instance invocation collection       = green
+general-module MIR/result parity              = green
+outer candidate discard / compiler reuse      = green
+fallback / retry / reselection                = 0
+release build                                 = green
+quick gate                                    = unrelated pre-existing
+  docs/reference/language/EBNF.md naming-token failure
+shared spine guard                            = binary-only green
+  full mode has pre-existing selected_static_sites drift
+largest touched source/check file             = 781
+```
+
+## Current design stop
+
+```text
+MIRBUILDER-POST-STATIC-BOX-LIVE-EDGE-CENSUS0-D0
+```
+
+Run a fresh read-only census. Match owned-input is a known candidate, not an
+automatic selection. The next row still requires a named production caller,
+one selected owner, same-commit old-edge deletion, and zero fallback/retry.
+No implementation is authorized at this stop.
 
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
@@ -890,7 +922,8 @@ R38 public root D0 closed; R39 root test evidence closed
 R40 host cfgtest AST JSON closed
 R41 RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-I0-R0 closed
 R42 MIRBUILDER-POST-TRYCATCH-LIVE-EDGE-CENSUS0-D0 closed: static Box selected
-R43 RAW-NONMAIN-STATIC-BOX-COMPILATION-STATE-TRANSACTION0-I0-R0 current
+R43 RAW-NONMAIN-STATIC-BOX-COMPILATION-STATE-TRANSACTION0-I0-R0 closed
+R44 MIRBUILDER-POST-STATIC-BOX-LIVE-EDGE-CENSUS0-D0 current design stop
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

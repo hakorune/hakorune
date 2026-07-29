@@ -7,6 +7,7 @@ mod block_expr;
 mod input_view;
 mod legacy_facade;
 mod statement_surface;
+mod static_box_state;
 #[cfg(test)]
 mod tests;
 
@@ -15,6 +16,7 @@ pub(in crate::mir::builder) use input_view::{
 };
 
 use self::block_expr::{lower_prepared_raw_block_expr_with_port_v1, PreparedRawBlockExprV1};
+use self::static_box_state::ActiveRawStaticBoxCompilationStateV1;
 use super::builder_build::PreparedRawNewExpressionV1;
 use super::calls::{
     lower_prepared_raw_function_preflight_with_port_v1, MethodCallDescentPortV1,
@@ -41,7 +43,6 @@ use super::stmts::{
 };
 use super::ValueId;
 use crate::ast::{ASTNode, BinaryExpr, MethodCallExpr};
-use hakorune_mir_builder::BoxCompilationContext;
 
 /// Capability set consumed by the one raw AST expression match tree.
 ///
@@ -259,48 +260,50 @@ impl super::MirBuilder {
                         // See lifecycle.rs for context creation and context swap.
                         // Phase 285LLVM-1.1: Register static box (no fields)
                         self.comp_ctx.register_user_box(name.clone());
-                        // Use BoxCompilationContext even in script/test mode to isolate metadata per static box.
-                        let saved_var_map =
-                            std::mem::take(&mut self.function_state.variable_ctx.variable_map);
-                        let saved_type_ctx = self.function_state.type_ctx.take_snapshot();
-                        let saved_slot_registry = self.comp_ctx.current_slot_registry.take();
-                        let saved_comp_ctx = self.comp_ctx.compilation_context.take();
-                        self.comp_ctx.compilation_context = Some(BoxCompilationContext::new());
-                        for (method_name, method_ast) in sorted_method_entries(&methods) {
-                            if let ASTNode::FunctionDeclaration {
-                                params,
-                                param_decls,
-                                return_type_name,
-                                body,
-                                uses,
-                                attrs,
-                                ..
-                            } = method_ast
-                            {
-                                let func_name = format!(
-                                    "{}.{}{}",
-                                    name,
-                                    method_name,
-                                    format!("/{}", params.len())
-                                );
-                                port.lower_static_box_method(
-                                    self,
-                                    func_name,
-                                    params.clone(),
-                                    param_decls.clone(),
-                                    return_type_name.clone(),
-                                    body.clone(),
-                                    uses.clone(),
-                                    attrs.clone(),
-                                )?;
+                        // Use one outer transaction even in script/test mode to
+                        // isolate metadata across the complete static Box.
+                        let transaction = ActiveRawStaticBoxCompilationStateV1::begin(self);
+                        let method_result = (|| -> Result<(), String> {
+                            for (method_name, method_ast) in sorted_method_entries(&methods) {
+                                if let ASTNode::FunctionDeclaration {
+                                    params,
+                                    param_decls,
+                                    return_type_name,
+                                    body,
+                                    uses,
+                                    attrs,
+                                    ..
+                                } = method_ast
+                                {
+                                    let func_name = format!(
+                                        "{}.{}{}",
+                                        name,
+                                        method_name,
+                                        format!("/{}", params.len())
+                                    );
+                                    port.lower_static_box_method(
+                                        self,
+                                        func_name,
+                                        params.clone(),
+                                        param_decls.clone(),
+                                        return_type_name.clone(),
+                                        body.clone(),
+                                        uses.clone(),
+                                        attrs.clone(),
+                                    )?;
+                                }
+                            }
+                            Ok(())
+                        })();
+                        match method_result {
+                            Ok(()) => transaction.complete_success(self),
+                            Err(error) => {
+                                let rejected = transaction.reject(error);
+                                let error = rejected.error().to_string();
+                                rejected.discard();
+                                return Err(error);
                             }
                         }
-                        self.comp_ctx.compilation_context = saved_comp_ctx;
-                        self.function_state.variable_ctx.variable_map = saved_var_map;
-                        self.function_state
-                            .type_ctx
-                            .restore_snapshot(saved_type_ctx);
-                        self.comp_ctx.current_slot_registry = saved_slot_registry;
                         // Return void for declaration context
                         Ok(crate::mir::builder::emission::constant::emit_void(self)?)
                     }
