@@ -580,17 +580,12 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: RAW-FASTMEM-INTRINSIC-PREFLIGHT-ONCE0-I0-R0, CALL-OBJECT0/T1.
-Owner:
-  direct and reserved-method routes share one deferred intrinsic/arity receipt.
-Deleted:
-  raw-name terminals, duplicate lookup/arity authority, zero-arity recheck.
-Preserved:
-  trace/depth/error timing, source facts, child order, diagnostics, MemOps.
-Evidence:
-  FastMem 95 tests, focused preflight tests, and shared/lane guards green.
-Current stop:
-  MIRBUILDER-POST-FASTMEM-PREFLIGHT-LIVE-EDGE-CENSUS0-D0; no row preselected.
+Closed: RAW-DIRECT-EXPLICIT-EXTERN-PREFLIGHT-ONCE0-I0-R0, CALL-OBJECT0/T1.
+Owner: one deferred PreparedRawExplicitExternCallV1 target/argument receipt.
+Deleted: raw extern terminal and lower-side target/partition decisions.
+Preserved: trace timing, StringBox targets, child/emission order, diagnostics.
+Evidence: focused route/reuse tests plus shared, lane, and pointer guards green.
+Current stop: fresh production live-edge census; no next row is preselected.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:

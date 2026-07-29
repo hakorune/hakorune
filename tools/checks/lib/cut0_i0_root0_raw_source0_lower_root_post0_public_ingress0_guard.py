@@ -182,6 +182,7 @@ def main() -> int:
     raw_expression_dispatch = code_only(texts[RAW_EXPRESSION_DISPATCH])
     builder_build = production_code(BUILDER_BUILD)
     function_call_preflight = production_code(FUNCTION_CALL_PREFLIGHT)
+    function_call_preflight_tests = texts[FUNCTION_CALL_PREFLIGHT]
     reserved_method_route = production_code(RESERVED_METHOD_ROUTE)
     reserved_method_tests = texts[RESERVED_METHOD_TESTS]
     fastmem_calls = production_code(FASTMEM_CALLS)
@@ -226,6 +227,35 @@ def main() -> int:
     ):
         if forbidden in str_prepare:
             raise AssertionError(f"direct str prepare gained effect/retry edge: {forbidden}")
+    for fragment in (
+        "enum PreparedRawExplicitExternCallV1",
+        "PreparedRawExplicitExternCallV1::MissingTarget",
+        "PreparedRawExplicitExternCallV1::TargetMustBeString",
+        "PreparedRawExplicitExternCallV1::Ready",
+        "fn lower_prepared_raw_explicit_extern_call_with_port_v1",
+    ):
+        require(function_call_preflight, fragment, f"explicit extern preflight {fragment}")
+    for fragment in (
+        "super::special_handlers::extract_string_literal(target)",
+        "super::extern_calls::explicit_extern_return_type(&extern_name)",
+        "super::extern_calls::split_explicit_extern_name(&extern_name)",
+        "arguments.into_iter().skip(1).collect()",
+    ):
+        if function_call_preflight.count(fragment) != 1:
+            raise AssertionError(f"explicit extern prepare count drift: {fragment}")
+    for retired in (
+        "build_explicit_extern_call_with_port_v1",
+        "args.is_empty()",
+        "extract_string_literal(&args[0])",
+        "&args[1..]",
+    ):
+        if retired in call_build:
+            raise AssertionError(f"explicit extern lower-side authority returned: {retired}")
+    require(
+        function_call_preflight_tests,
+        "explicit_extern_preflight_defers_rejection_and_preserves_stringbox_target",
+        "explicit extern target/child evidence",
+    )
     for fragment in (
         "struct PreparedFastMemIntrinsicV1",
         "PreparedFastMemIntrinsicRouteV1::Selected",

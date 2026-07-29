@@ -6,7 +6,7 @@
 use super::super::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
 };
-use super::super::{MirBuilder, MirInstruction, ValueId};
+use super::super::{EffectMask, MirBuilder, MirInstruction, MirType, ValueId};
 use crate::ast::ASTNode;
 use crate::mir::instruction::FastMemRegionId;
 use crate::mir::TypeOpKind;
@@ -18,9 +18,7 @@ pub(in crate::mir::builder) struct PreparedRawFunctionPreflightV1 {
 
 enum PreparedRawFunctionPreflightRouteV1 {
     WeakReject,
-    ExplicitExtern {
-        arguments: Vec<ASTNode>,
-    },
+    ExplicitExtern(PreparedRawExplicitExternCallV1),
     Brand {
         arguments: Vec<ASTNode>,
     },
@@ -47,6 +45,37 @@ pub(super) enum PreparedRawOrdinaryFunctionCompletionV1 {
     Resolved { arguments: Vec<ASTNode> },
 }
 
+enum PreparedRawExplicitExternCallV1 {
+    MissingTarget,
+    TargetMustBeString,
+    Ready {
+        iface_name: String,
+        method_name: String,
+        return_type: MirType,
+        arguments: Vec<ASTNode>,
+    },
+}
+
+impl PreparedRawExplicitExternCallV1 {
+    fn prepare(arguments: Vec<ASTNode>) -> Self {
+        let Some(target) = arguments.first() else {
+            return Self::MissingTarget;
+        };
+        let Some(extern_name) = super::special_handlers::extract_string_literal(target) else {
+            return Self::TargetMustBeString;
+        };
+        let return_type = super::extern_calls::explicit_extern_return_type(&extern_name);
+        let (iface_name, method_name) =
+            super::extern_calls::split_explicit_extern_name(&extern_name);
+        Self::Ready {
+            iface_name,
+            method_name,
+            return_type,
+            arguments: arguments.into_iter().skip(1).collect(),
+        }
+    }
+}
+
 impl PreparedRawFunctionPreflightV1 {
     pub(in crate::mir::builder) fn prepare(
         builder: &MirBuilder,
@@ -56,7 +85,9 @@ impl PreparedRawFunctionPreflightV1 {
         let route = if name == "weak" {
             PreparedRawFunctionPreflightRouteV1::WeakReject
         } else if name == "externcall" {
-            PreparedRawFunctionPreflightRouteV1::ExplicitExtern { arguments }
+            PreparedRawFunctionPreflightRouteV1::ExplicitExtern(
+                PreparedRawExplicitExternCallV1::prepare(arguments),
+            )
         } else if builder.comp_ctx.is_brand_declared(&name) {
             PreparedRawFunctionPreflightRouteV1::Brand { arguments }
         } else if let Some((raw_type_name, op)) = prepare_typeop_route(&name, arguments.as_slice())
@@ -149,8 +180,8 @@ where
                     .to_string(),
             )
         }
-        PreparedRawFunctionPreflightRouteV1::ExplicitExtern { arguments } => {
-            builder.build_explicit_extern_call_with_port_v1(port, arguments)
+        PreparedRawFunctionPreflightRouteV1::ExplicitExtern(explicit) => {
+            lower_prepared_raw_explicit_extern_call_with_port_v1(builder, port, explicit)
         }
         PreparedRawFunctionPreflightRouteV1::Brand { arguments } => {
             builder.build_brand_constructor_call_with_port_v1(port, prepared.name, arguments)
@@ -187,6 +218,49 @@ where
     }
 }
 
+fn lower_prepared_raw_explicit_extern_call_with_port_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    prepared: PreparedRawExplicitExternCallV1,
+) -> Result<ValueId, String>
+where
+    Port: RawAstChildLoweringPortV1,
+{
+    let (iface_name, method_name, return_type, arguments) = match prepared {
+        PreparedRawExplicitExternCallV1::MissingTarget => {
+            return Err(
+                "externcall requires a target string literal: externcall \"name\"(...)".to_string(),
+            )
+        }
+        PreparedRawExplicitExternCallV1::TargetMustBeString => {
+            return Err(
+                "externcall target must be a string literal: externcall \"name\"(...)".to_string(),
+            )
+        }
+        PreparedRawExplicitExternCallV1::Ready {
+            iface_name,
+            method_name,
+            return_type,
+            arguments,
+        } => (iface_name, method_name, return_type, arguments),
+    };
+    let arg_values = super::drive_call_arguments_v1(builder, port, arguments.as_slice())?;
+    let dst = builder.next_value_id();
+    builder.emit_extern_call_with_effects(
+        &iface_name,
+        &method_name,
+        arg_values,
+        Some(dst),
+        EffectMask::IO,
+    )?;
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(dst, return_type);
+    Ok(dst)
+}
+
 fn replay_function_call_trace(builder: &MirBuilder, name: &str) {
     if !crate::config::env::cli_verbose() {
         return;
@@ -209,8 +283,9 @@ fn replay_function_call_trace(builder: &MirBuilder, name: &str) {
 #[cfg(test)]
 mod tests {
     use super::{
-        lower_prepared_raw_function_preflight_with_port_v1, PreparedRawFunctionPreflightRouteV1,
-        PreparedRawFunctionPreflightV1, PreparedRawOrdinaryFunctionCompletionV1,
+        lower_prepared_raw_function_preflight_with_port_v1, PreparedRawExplicitExternCallV1,
+        PreparedRawFunctionPreflightRouteV1, PreparedRawFunctionPreflightV1,
+        PreparedRawOrdinaryFunctionCompletionV1,
     };
     use crate::ast::{ASTNode, LiteralValue, Span};
     use crate::mir::builder::recursive_child_lowering::{
@@ -218,7 +293,7 @@ mod tests {
     };
     use crate::mir::builder::MirBuilder;
     use crate::mir::instruction::FastMemRegionId;
-    use crate::mir::{MirInstruction, TypeOpKind, ValueId};
+    use crate::mir::{MirInstruction, MirType, TypeOpKind, ValueId};
 
     #[derive(Default)]
     struct RecordingPortV1 {
@@ -328,7 +403,7 @@ mod tests {
         );
         assert!(matches!(
             explicit.route,
-            PreparedRawFunctionPreflightRouteV1::ExplicitExtern { .. }
+            PreparedRawFunctionPreflightRouteV1::ExplicitExtern(_)
         ));
 
         let brand =
@@ -527,6 +602,70 @@ mod tests {
         .unwrap_err();
         assert!(error.contains("[fastmem/arity] call=mem.addr expected=1 actual=2"));
         assert_eq!(port.expression_count, 4);
+    }
+
+    #[test]
+    fn explicit_extern_preflight_defers_rejection_and_preserves_stringbox_target() {
+        assert!(matches!(
+            PreparedRawExplicitExternCallV1::prepare(Vec::new()),
+            PreparedRawExplicitExternCallV1::MissingTarget
+        ));
+        assert!(matches!(
+            PreparedRawExplicitExternCallV1::prepare(vec![integer(1)]),
+            PreparedRawExplicitExternCallV1::TargetMustBeString
+        ));
+
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("direct_extern_preflight/0".to_string());
+        let mut port = RecordingPortV1::default();
+        for arguments in [Vec::new(), vec![integer(1), integer(2)]] {
+            let prepared = PreparedRawFunctionPreflightV1::prepare(
+                &builder,
+                "externcall".to_string(),
+                arguments,
+            );
+            assert!(lower_prepared_raw_function_preflight_with_port_v1(
+                &mut builder,
+                &mut port,
+                prepared,
+            )
+            .is_err());
+            assert_eq!(port.expression_count, 0);
+        }
+
+        let target = new_box(
+            "StringBox",
+            vec![literal(LiteralValue::String("hako_mem_alloc".to_string()))],
+        );
+        let prepared = PreparedRawFunctionPreflightV1::prepare(
+            &builder,
+            "externcall".to_string(),
+            vec![target, integer(7)],
+        );
+        let value =
+            lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, prepared)
+                .unwrap();
+        assert_eq!(port.expression_count, 1);
+        assert_eq!(
+            builder.function_state.type_ctx.value_types.get(&value),
+            Some(&MirType::Integer)
+        );
+        assert!(builder
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .any(|instruction| matches!(
+                instruction,
+                MirInstruction::Call {
+                    dst: Some(dst),
+                    callee: Some(crate::mir::Callee::Extern(_)),
+                    ..
+                } if *dst == value
+            )));
     }
 
     #[test]

@@ -359,43 +359,6 @@ impl MirBuilder {
         )?;
         Ok(dst)
     }
-
-    pub(in crate::mir::builder) fn build_explicit_extern_call_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        args: Vec<ASTNode>,
-    ) -> Result<ValueId, String>
-    where
-        Port: RawAstChildLoweringPortV1,
-    {
-        if args.is_empty() {
-            return Err(
-                "externcall requires a target string literal: externcall \"name\"(...)".to_string(),
-            );
-        }
-
-        let extern_name = Self::extract_string_literal(&args[0]).ok_or_else(|| {
-            "externcall target must be a string literal: externcall \"name\"(...)".to_string()
-        })?;
-        let arg_values = drive_call_arguments_v1(self, port, &args[1..])?;
-        let return_type = super::extern_calls::explicit_extern_return_type(&extern_name);
-        let (iface_name, method_name) =
-            super::extern_calls::split_explicit_extern_name(&extern_name);
-
-        let dst = self.next_value_id();
-        self.emit_extern_call_with_effects(
-            &iface_name,
-            &method_name,
-            arg_values,
-            Some(dst),
-            EffectMask::IO,
-        )?;
-        self.function_state
-            .type_ctx
-            .value_types
-            .insert(dst, return_type);
-        Ok(dst)
-    }
 }
 
 #[cfg(test)]
