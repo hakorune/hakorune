@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 closed: no bounded executable replacement edge remains. Active sunsets are not closable. RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 is the sole current design stop for the live raw Lambda dispatcher edge; Program-root single-pass partition and raw static-Main retirement remain separate D0 shelves. Grammar, result, View, Ownership, and JoinModule remain unchanged."
+status = "RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 closed as NoSafeI0: the raw Lambda walker has unspecified lexical boundaries and non-atomic body metadata publication, so extraction would fossilize unsafe authority. RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 is the sole current design stop. Program-root single-pass partition and raw static-Main retirement remain separate D0 shelves. Grammar, result, View, Ownership, and JoinModule remain unchanged."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-LAMBDA-CAPTURE-OBSERVATION0-D0"
+current_design_stop = "RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0"
 current_execution_row = ""
-current_execution_summary = "Design the raw Lambda capture-observation boundary before implementation. Fix lexical declaration/shadowing, nested Lambda/function behavior, capture ordering, me handling, failure/publication boundaries, and exact old-edge deletion; do not open an I0/R0 yet."
+current_execution_summary = "Decide the exact lexical-boundary matrix for a future raw Lambda capture owner: nested-Lambda forwarding or rejection, declaration boundaries, scope/binder sequencing, free-rebind policy, direct-Me/unresolved timing, deterministic demand order, and reserve->emit->commit closure metadata. Do not open I0/R0 yet."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, raw static-Main compatibility lower-side source classification, three raw static-Main facade layers, raw static-Main fresh-port reselection, the shared instance-Box lower-side metadata authority, and the raw non-Main static-Box inline lifecycle authority are deleted. RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 is current. Active compatibility sunsets remain unchanged. Legacy JoinModule disposition belongs to repository-wide final conformance; View/Ownership and other unimplemented features remain parked until final pipeline completion. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, raw static-Main compatibility lower-side source classification, three raw static-Main facade layers, raw static-Main fresh-port reselection, the shared instance-Box lower-side metadata authority, and the raw non-Main static-Box inline lifecycle authority are deleted. RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 is current. Active compatibility sunsets remain unchanged. Legacy JoinModule disposition belongs to repository-wide final conformance; View/Ownership and other unimplemented features remain parked until final pipeline completion. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the

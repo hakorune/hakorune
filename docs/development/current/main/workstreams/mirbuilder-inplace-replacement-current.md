@@ -102,25 +102,35 @@ Closed:  INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0
 Closed:  MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0
 Closed:  MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
-Current: RAW-LAMBDA-CAPTURE-OBSERVATION0-D0
+Closed:  RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 (NoSafeI0)
+Current: RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0
 Mode:    design-only D0
 ```
 
 ## Current execution brief
 
-`RAW-LAMBDA-CAPTURE-OBSERVATION0-D0`
+`RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0`
 
 ```text
-Live edge:
-  raw AST Lambda -> build_lambda_expression(params.clone(), body.clone()) in
-  build_expression_impl_with_port_v1.
+Observation closeout:
+  NoSafeI0. The sole raw Lambda edge owns a nondeterministic HashSet capture
+  walk, incomplete declaration traversal, unconditional ambient me capture,
+  and body metadata mutation before NewClosure emission. Extraction alone is
+  forbidden.
 
-Design:
-  Define one capture-observation owner before any implementation. It must make
-  lexical declarations/shadowing, nested Lambda/function traversal, capture
-  order, me handling, source/body ownership, candidate failure, and publication
-  boundaries explicit. The implementation row must delete the raw dispatcher
-  clone/facade edge atomically; no accepted-program variants are allowed.
+Design matrix:
+  Decide one exact contract for nested-Lambda forwarding or rejection;
+  Function/Box declaration boundaries; Local batch/initializer, BlockExpr,
+  Nowait, LoopRange, TryCatch, Match, ContextScope, Outbox, and assignment
+  scope/rebind rules; direct Me versus Variable("me"); unresolved-demand
+  timing; source-order unique demand order; and reserve -> emit -> commit body
+  metadata publication. Every unsupported surface must reject before Builder
+  effect, not silently disappear.
+
+Future implementation:
+  Only an atomic T2 I0/R0 may create the chosen owner. It must move raw Lambda
+  params/body once, materialize exact demands once, and delete both dispatcher
+  clone edge and build_lambda_expression in that same commit.
 
 Shelf:
   Program-root single-pass partition and raw static-Main compatibility retirement
@@ -128,9 +138,8 @@ Shelf:
   repository-final conformance before View/Ownership feature work.
 
 Stop:
-  Do not turn the current incomplete capture walker into a new authority by
-  extraction alone, add fallback/retry, or open I0/R0 without exact ordering and
-  failure rules.
+  Do not infer a nested-Lambda forwarding rule, preserve silent omissions, add
+  fallback/retry, or open I0/R0 before this matrix is explicit.
 ```
 
 Fixed phase order:
@@ -1425,7 +1434,8 @@ R79 INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0 closed
 R80 MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0 closed: raw non-Main static-Box lifecycle handoff selected
 R81 RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0 closed: raw dispatcher lifecycle deleted at da95eee7f7
 R82 MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 closed: no bounded executable edge; Lambda D0 selected
-R83 RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 current
+R83 RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 closed: NoSafeI0; lexical boundary matrix selected
+R84 RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
