@@ -578,25 +578,25 @@ new source/test/check/task file            = 0
 largest touched source/check file          = 799
 ```
 
-## Current design stop
-`MIRCOMPILER-PUBLIC-ARBITRARY-AST-CONTRACT0-D0`
-Parent: `POST-MACRO-ROOT-CONTRACT0-D0` / D0
+## Current execution
+`MIRCOMPILER-PUBLIC-PROGRAM-ADMISSION0-I0-R0`
+Design: `investigations/mircompiler-public-program-admission0-design-2026-07-29.md`
 ```text
-Question:
-  Retire, narrow, or explicitly preserve the public arbitrary-AST MirCompiler
-  contract now that its internal production callers are zero.
+Change:
+  Keep public compile names/signatures, admit Program through existing typed
+  normal ingress, and delete the compiler Legacy candidate/build_module edge.
 
-Must inventory:
-  Public API compatibility, all test-oracle callers, strict-JSON fixture use,
-  and the exact legacy_candidate_session/build_module atomic delete set.
+Contract:
+  Source/import/config/result behavior stays exact. Non-Program fails before
+  Builder. Generic MacroBox, AST JSON, and Raw carrier contracts stay unchanged.
 
-Non-authority:
-  AST-JSON host lowering remains a separate generic-node contract. No language,
-  backend, Ownership/View, or normal production behavior changes are selected.
+Done:
+  Program/integration parity and rejection/reuse are green; compile_legacy,
+  Legacy selector/candidate, and compiler production build_module edge are zero.
 
 Stop:
-  Do not edit code until one public contract, migration plan, failure surface,
-  and same-cell old-edge deletion are accepted.
+  Synthetic Program wrapping, retry, new arbitrary compatibility API, carrier
+  deletion, global build_module deletion, or language/Ownership/View change.
 ```
 Post-macro retirement order after each fresh census:
 ```text
@@ -719,7 +719,7 @@ R29 POST-MACRO-ROOT-CONTRACT0-D0 closed: WholeFileProgram
 R30 STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0 closed
 R31 SELFHOST-MACRO-PREEXPAND-TYPED-PROGRAM-INGRESS0-I0-R0 closed
 R32 VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 closed
-R33 VM fallback closed; R34 VM keep closed; R35 source-hint helper DEL0 closed; R36 MIRCOMPILER-PUBLIC-ARBITRARY-AST-CONTRACT0-D0 current
+R33 VM fallback closed; R34 VM keep closed; R35 helper DEL0 closed; R36 public contract D0 closed; R37 MIRCOMPILER-PUBLIC-PROGRAM-ADMISSION0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
