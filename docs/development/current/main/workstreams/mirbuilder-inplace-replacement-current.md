@@ -67,9 +67,10 @@ Closed:  NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0
 Closed:  NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0
 Closed:  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0
 Closed:  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0
-Current: PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0
+Closed:  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0
+Current: REPL-TYPED-PROGRAM-INGRESS0-D0
 Pack:    ROOT-LIFECYCLE0
-Ceremony: T1, one atomic I0/R0
+Ceremony: T1, read-only design audit
 ```
 
 R1 closeout:
@@ -243,7 +244,7 @@ largest touched source/check file           = 769
 largest relevant source/check file          = 774, unchanged
 ```
 
-## Latest closeout
+## Program-v0 closeout
 
 ```text
 RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0
@@ -534,35 +535,54 @@ Hard stop:
   JoinIR/runtime Stage-B would be touched
 ```
 
-## Current implementation brief
+## Latest closeout
 
 `PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0`
-— parent D0 closed as Accept; T1, one atomic commit.
 
 ```text
-Change:
-  program_json_v0_loader import-bundle compiler
-  -> existing typed Program request/lifecycle
-  delete ProgramV0Compatibility origin, constructor, raw-binding tombstone,
-  and this caller's compile_legacy edge in the same commit
+production caller moved                    = 1
+typed Program admission/lifecycle          = 1
+ProgramV0Compatibility origin/constructor  = 0
+Program-v0 raw-binding tombstone            = 0
+loader compile_legacy edge                  = 0
+direct ProgramV0-to-MIR JSON bridge delta   = 0
+source hint / Builder imports               = exact / empty
+module, metadata, verification, diagnostics = parity green
+failure / compiler reuse                    = green
+fallback / retry / reselection              = 0
+new source/test/check file                   = 0
+largest touched source/check file            = 799
+```
 
-Contract:
-  post-merge/post-macro root must be Program before token/session issuance
-  preserve optimize=true, source hint <json_v0/imports>, empty Builder imports,
-  Legacy finish schedule, diagnostics/result, and success-only external commit
-  direct ProgramV0-to-MIR bridge and BareAst/REPL compatibility do not move
+## Current design stop
 
-Done:
-  focused Program admission, module/verification parity, typed failure/reuse,
-  and exact config transport evidence are green
-  existing ingress inventory, shared guard, and caller census record the old
-  origin/edge as zero; fallback/retry = 0
+`REPL-TYPED-PROGRAM-INGRESS0-D0`
 
-Stop:
-  macro-expanded non-Program is supported today, JSON aliases must become
-  Builder imports, diagnostic/finish/commit behavior differs, a second
-  token/session or retry is needed, or direct JSON bridge/View/Ownership/
-  backend work would enter the row
+```text
+Mode:
+  T1 read-only audit; production Rust edit = 0
+
+Named edge:
+  ReplRunnerBox::eval_line
+  -> compile_legacy(ReplCompatibility, <repl>)
+
+Source authority:
+  REPL wraps each line in static Main Program
+  ReplAstRewriter must preserve Program exactly
+
+Candidate:
+  one dedicated typed Program request
+  exact <repl> source hint and empty Builder imports
+  preserve repl_mode=true, quiet mode, plugin signatures,
+  ContinueLive, Legacy finish, diagnostics, and success-only commit
+
+Required future atomic delete:
+  REPL compile_legacy edge
+  ReplCompatibility origin/constructor/raw-binding authority
+
+Non-claims:
+  REPL session/VM/rewrite/grammar, View/Ownership, backend, and result policy
+  do not change; reject the cutover if Program or config parity is incomplete
 ```
 
 Compatibility sunset:
@@ -648,7 +668,8 @@ R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
 R6  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0 closed
-R7  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0 current
+R7  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0 closed
+R8  REPL-TYPED-PROGRAM-INGRESS0-D0 current
 
 after every bounded retirement:
   run a fresh live-edge census

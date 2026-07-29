@@ -9,7 +9,6 @@ use super::lowering_input::{LegacyModuleLoweringInputV1, LegacyModuleOriginV1};
 use super::raw_runtime_inputs::{RawRuntimeInputCaptureErrorV1, RawRuntimeInputSnapshotV1};
 use super::source_bound_package::{InvocationIdentityIssuerV1, SourceBindingErrorV1};
 use super::source_entry_selection::SelectedSourceEntryContinuationV1;
-use crate::ast::ASTNode;
 use crate::mir::builder::{
     BuilderInvocationConfigV1, OwnedRawSourceV1, RawCallableMainCompatibilityDispositionV1,
     RawSourceOriginV1, RawSourceProjectionErrorV1,
@@ -51,7 +50,6 @@ impl RawIngressRequestV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum RawSourceBindingErrorV1 {
-    ProgramV0OutsideRawSource0,
     Projection(RawSourceProjectionErrorV1),
     CallableMainRequiredForScript,
     Identity(SourceBindingErrorV1),
@@ -188,15 +186,6 @@ impl SourceBoundRawPackageV1 {
         let source_origin = match origin {
             LegacyModuleOriginV1::BareAst => RawSourceOriginV1::BareAst,
             LegacyModuleOriginV1::ReplCompatibility => RawSourceOriginV1::ReplCompatibility,
-            LegacyModuleOriginV1::ProgramV0Compatibility => {
-                return Err(RejectedRawSourceBindingV1::without_source(
-                    ast,
-                    origin,
-                    config,
-                    module_name,
-                    RawSourceBindingErrorV1::ProgramV0OutsideRawSource0,
-                ));
-            }
         };
         let source = match OwnedRawSourceV1::bind_with_owner(ast, source_origin) {
             Ok(source) => source,

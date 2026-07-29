@@ -25,6 +25,7 @@ enum NormalPreparedSourceCallerV1 {
 enum NormalCompileAdmissionV1 {
     PreparedSourceWithImports(NormalPreparedSourceCallerV1),
     MinimalMirJsonNoImports,
+    ProgramJsonV0ImportBundleNoBuilderImports,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -191,6 +192,17 @@ impl NormalCompileRequestV1 {
         )
     }
 
+    pub(crate) fn for_program_json_v0_import_bundle(
+        ast: ASTNode,
+    ) -> Result<Self, RejectedNormalProgramCompileRequestV1> {
+        Self::new(
+            ast,
+            Some("<json_v0/imports>"),
+            HashMap::new(),
+            NormalCompileAdmissionV1::ProgramJsonV0ImportBundleNoBuilderImports,
+        )
+    }
+
     fn into_parts(
         self,
     ) -> (
@@ -282,7 +294,7 @@ mod tests {
     }
 
     #[test]
-    fn all_normal_source_constructors_share_one_program_admission() {
+    fn all_typed_program_constructors_share_one_program_admission() {
         let imports = HashMap::from([("Alias".to_owned(), "Target".to_owned())]);
         assert!(
             NormalCompileRequestV1::for_mir_mode(program(), Some("mir.hako"), imports.clone(),)
@@ -300,6 +312,7 @@ mod tests {
         assert!(
             NormalCompileRequestV1::for_wasm_source(program(), Some("wasm.hako"), imports).is_ok()
         );
+        assert!(NormalCompileRequestV1::for_program_json_v0_import_bundle(program()).is_ok());
 
         for rejected in [
             NormalCompileRequestV1::for_mir_mode(non_program(), Some("mir.hako"), HashMap::new()),
@@ -314,6 +327,7 @@ mod tests {
                 Some("wasm.hako"),
                 HashMap::new(),
             ),
+            NormalCompileRequestV1::for_program_json_v0_import_bundle(non_program()),
         ] {
             let rejected = rejected.expect_err("non-Program root must reject at request admission");
             assert_eq!(
@@ -322,5 +336,19 @@ mod tests {
             );
             rejected.discard();
         }
+    }
+
+    #[test]
+    fn program_json_v0_import_bundle_fixes_source_and_empty_builder_imports() {
+        let request = NormalCompileRequestV1::for_program_json_v0_import_bundle(program())
+            .expect("Program-v0 import bundle must use typed Program admission");
+        let (_, source, imports, admission, _) = request.into_parts();
+
+        assert_eq!(source.source_file(), Some("<json_v0/imports>"));
+        assert!(imports.is_empty());
+        assert_eq!(
+            admission,
+            NormalCompileAdmissionV1::ProgramJsonV0ImportBundleNoBuilderImports
+        );
     }
 }

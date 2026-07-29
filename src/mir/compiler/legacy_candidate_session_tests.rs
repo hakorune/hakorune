@@ -178,6 +178,11 @@ fn normal_request(
         .expect("test normal request must own Program")
 }
 
+fn program_v0_import_bundle_request(ast: ASTNode) -> NormalCompileRequestV1 {
+    NormalCompileRequestV1::for_program_json_v0_import_bundle(ast)
+        .expect("test Program-v0 import bundle must own Program")
+}
+
 #[test]
 fn late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
     let root = NyashParser::parse_from_string(
@@ -346,6 +351,109 @@ static box Main {
         contract_count(&candidate.module),
         contract_count(&legacy.module)
     );
+
+    let optimized_legacy_ast = NyashParser::parse_from_string(source).expect("legacy source");
+    let program_v0_ast = NyashParser::parse_from_string(source).expect("Program-v0 source");
+    let mut optimized_legacy_compiler = MirCompiler::with_options(true);
+    let optimized_legacy = optimized_legacy_compiler
+        .compile_with_source(optimized_legacy_ast, Some("<json_v0/imports>"))
+        .expect("optimized legacy compatibility module");
+    let mut program_v0_compiler = MirCompiler::with_options(true);
+    let program_v0 = program_v0_compiler
+        .compile_normal(program_v0_import_bundle_request(program_v0_ast))
+        .expect("typed Program-v0 import bundle");
+
+    assert_eq!(
+        MirPrinter::new().print_module(&program_v0.module),
+        MirPrinter::new().print_module(&optimized_legacy.module)
+    );
+    assert_eq!(
+        program_v0.module.metadata.user_box_field_decls,
+        optimized_legacy.module.metadata.user_box_field_decls
+    );
+    assert_eq!(
+        format!("{:?}", program_v0.verification_result),
+        format!("{:?}", optimized_legacy.verification_result)
+    );
+    assert!(program_v0_compiler
+        .builder
+        .comp_ctx
+        .using_import_boxes
+        .is_empty());
+    assert_eq!(
+        source_file(&program_v0_compiler).as_deref(),
+        Some("<json_v0/imports>")
+    );
+}
+
+#[test]
+fn program_v0_typed_failure_keeps_live_builder_reusable_without_retry() {
+    let root =
+        NyashParser::parse_from_string("print(missing)").expect("Program-v0 late-failure source");
+    let mut compiler = MirCompiler::with_options(true);
+    compiler
+        .builder
+        .comp_ctx
+        .using_import_boxes
+        .insert("Old".into(), "Live".into());
+    compiler.builder.set_source_file_hint("live-before.hako");
+    compiler.builder.next_value_id();
+    let before = (
+        compiler.builder.comp_ctx.using_import_boxes.clone(),
+        source_file(&compiler),
+        core_cursor(&compiler),
+    );
+
+    let error = compiler
+        .compile_normal(program_v0_import_bundle_request(root))
+        .expect_err("undefined variable must reject typed Program-v0 candidate");
+    assert!(error.contains("Undefined variable: missing"), "{error}");
+    assert_eq!(
+        (
+            compiler.builder.comp_ctx.using_import_boxes.clone(),
+            source_file(&compiler),
+            core_cursor(&compiler),
+        ),
+        before
+    );
+    assert!(compiler.builder.current_module.is_none());
+
+    let result = compiler
+        .compile_normal(program_v0_import_bundle_request(program(literal(7))))
+        .expect("fresh typed Program-v0 candidate after failure");
+    assert!(result.module.functions.contains_key("main"));
+    assert!(compiler.builder.comp_ctx.using_import_boxes.is_empty());
+    assert_eq!(source_file(&compiler).as_deref(), Some("<json_v0/imports>"));
+}
+
+#[test]
+fn program_v0_typed_errors_match_legacy_program_stages_exactly() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    for source in [
+        r#"
+            static box Main { main() {} }
+            static box Main { main() {} }
+        "#,
+        r#"
+            box Page {}
+            box Page {}
+            static box Main { main() {} }
+        "#,
+        "print(missing)",
+    ] {
+        let legacy_ast = NyashParser::parse_from_string(source).expect("legacy Program source");
+        let typed_ast = NyashParser::parse_from_string(source).expect("typed Program source");
+        let mut legacy_compiler = MirCompiler::with_options(true);
+        let legacy_error = legacy_compiler
+            .compile_with_source(legacy_ast, Some("<json_v0/imports>"))
+            .expect_err("legacy Program stage must reject");
+        let mut typed_compiler = MirCompiler::with_options(true);
+        let typed_error = typed_compiler
+            .compile_normal(program_v0_import_bundle_request(typed_ast))
+            .expect_err("typed Program stage must reject");
+
+        assert_eq!(typed_error, legacy_error);
+    }
 }
 
 #[test]

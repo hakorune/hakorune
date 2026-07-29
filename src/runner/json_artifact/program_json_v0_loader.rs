@@ -1,4 +1,4 @@
-use crate::mir::{LegacyModuleLoweringInputV1, MirCompiler};
+use crate::mir::{MirCompiler, NormalCompileRequestV1};
 use crate::runner::NyashRunner;
 use std::collections::BTreeSet;
 
@@ -283,15 +283,7 @@ fn compile_program_json_v0_imports_bundle(
             .parse_source(&merged.merged_content)
             .map_err(|error| format!("[freeze:contract][json_v0/imports] parse: {error}"))?;
         let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
-
-        let mut compiler = MirCompiler::with_options(true);
-        let compile = compiler
-            .compile_legacy(
-                LegacyModuleLoweringInputV1::program_v0_compatibility(ast),
-                Some("<json_v0/imports>"),
-            )
-            .map_err(|error| format!("[freeze:contract][json_v0/imports] compile: {error}"))?;
-        Ok(compile.module)
+        compile_program_json_v0_imports_ast(ast)
     })();
 
     if trace_enabled {
@@ -310,9 +302,31 @@ fn compile_program_json_v0_imports_bundle(
     result
 }
 
+fn program_json_v0_compile_error(error: impl std::fmt::Display) -> String {
+    format!("[freeze:contract][json_v0/imports] compile: {error}")
+}
+
+fn compile_program_json_v0_imports_ast(
+    ast: crate::ast::ASTNode,
+) -> Result<crate::mir::MirModule, String> {
+    let mut compiler = MirCompiler::with_options(true);
+    let request =
+        NormalCompileRequestV1::for_program_json_v0_import_bundle(ast).map_err(|rejected| {
+            let error = program_json_v0_compile_error(rejected.error());
+            rejected.discard();
+            error
+        })?;
+    compiler
+        .compile_normal(request)
+        .map(|compile| compile.module)
+        .map_err(program_json_v0_compile_error)
+}
+
 #[cfg(test)]
 mod tests {
-    use super::extract_program_json_v0_used_import_targets;
+    use super::{compile_program_json_v0_imports_ast, extract_program_json_v0_used_import_targets};
+    use crate::ast::{ASTNode, LiteralValue, Span};
+    use crate::parser::NyashParser;
 
     #[test]
     fn extract_program_json_v0_used_import_targets_keeps_only_call_alias_references() {
@@ -326,6 +340,30 @@ mod tests {
         let targets =
             extract_program_json_v0_used_import_targets(json).expect("import targets should parse");
         assert_eq!(targets, vec!["alpha.hako".to_string()]);
+    }
+
+    #[test]
+    fn typed_program_v0_import_compile_rejects_non_program_without_fallback() {
+        let error = compile_program_json_v0_imports_ast(ASTNode::Literal {
+            value: LiteralValue::Integer(1),
+            span: Span::unknown(),
+        })
+        .expect_err("non-Program import root must reject at typed admission");
+
+        assert_eq!(
+            error,
+            "[freeze:contract][json_v0/imports] compile: \
+[mir/normal-program-admission] selected normal/default source must produce Program"
+        );
+    }
+
+    #[test]
+    fn typed_program_v0_import_compile_uses_published_program_pipeline() {
+        let ast = NyashParser::parse_from_string("print(1)").expect("Program source");
+        let module =
+            compile_program_json_v0_imports_ast(ast).expect("typed Program import compile");
+
+        assert!(module.functions.contains_key("main"));
     }
 
     #[test]

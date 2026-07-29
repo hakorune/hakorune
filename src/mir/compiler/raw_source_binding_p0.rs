@@ -200,24 +200,6 @@ fn raw_bind_rejects_malformed_runtime_before_issuing_a_token() {
 }
 
 #[test]
-fn raw_bind_rejects_program_v0_before_token_issuance() {
-    let mut compiler = MirCompiler::new();
-    let rejected = compiler
-        .bind_raw_source(
-            LegacyModuleLoweringInputV1::program_v0_compatibility(script()),
-            None,
-            "program-v0",
-            RawCallableMainSelectionV1::Omitted,
-        )
-        .unwrap_err();
-    assert!(matches!(
-        rejected.error(),
-        RawSourceBindingErrorV1::ProgramV0OutsideRawSource0
-    ));
-    assert!(rejected.has_unpublished_source_owner());
-}
-
-#[test]
 fn raw_bind_rejects_required_callable_main_for_script() {
     let mut compiler = MirCompiler::new();
     let rejected = compiler

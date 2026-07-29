@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import pathlib
+import re
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
@@ -13,6 +14,8 @@ CARD = ROOT / (
 )
 MODULE = ROOT / "src/mir/compiler/raw_source_binding.rs"
 TEST = ROOT / "src/mir/compiler/raw_source_binding_p0.rs"
+LOWERING_INPUT = ROOT / "src/mir/compiler/lowering_input.rs"
+PROGRAM_V0_LOADER = ROOT / "src/runner/json_artifact/program_json_v0_loader.rs"
 ISSUER = ROOT / "src/mir/compiler/source_bound_package.rs"
 SESSION = ROOT / "src/mir/builder/module_invocation_session.rs"
 
@@ -42,17 +45,19 @@ def main() -> int:
         "RawSourceContinuationV1",
         "RawCallableMainSelectionV1",
         "issue_raw",
-        "ProgramV0OutsideRawSource0",
         "snapshot_for_raw",
     ):
         require(module + issuer + session, fragment, f"BIND0 product {fragment}")
     for fragment in (
         "raw_bind_mints_one_compiler_owned_raw_token_after_projection",
         "raw_bind_selected_callable_main_requires_app_source",
-        "raw_bind_rejects_program_v0_before_token_issuance",
         "raw_bind_rejects_required_callable_main_for_script",
     ):
         require(test, fragment, f"BIND0 fixture {fragment}")
+    retired = module + test + LOWERING_INPUT.read_text() + PROGRAM_V0_LOADER.read_text()
+    for fragment in ("ProgramV0Compatibility", "program_v0_compatibility", "ProgramV0OutsideRawSource0"):
+        if fragment in retired:
+            raise AssertionError(f"retired Program-v0 Raw compatibility residue: {fragment}")
 
     for forbidden in (
         "ModuleDraftCollectorV1",
@@ -72,7 +77,10 @@ def main() -> int:
     for path in ROOT.glob("src/**/*.rs"):
         if path == MODULE or "tests" in path.parts or path.name.endswith("_p0.rs"):
             continue
-        if "bind_raw_source(" in path.read_text():
+        production = re.split(
+            r"(?m)^#\[cfg\(test\)\]\s*\nmod\s+\w+\s*\{", path.read_text(), maxsplit=1
+        )[0]
+        if "bind_raw_source(" in production:
             bind_consumers.append(path.relative_to(ROOT))
     if bind_consumers != [pathlib.Path("src/mir/compiler/mod.rs")]:
         raise AssertionError(f"unexpected Raw binding consumers: {bind_consumers}")

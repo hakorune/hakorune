@@ -100,7 +100,6 @@ impl<'a> ResolvedModuleLoweringInputV1<'a> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LegacyModuleOriginV1 {
     BareAst,
-    ProgramV0Compatibility,
     ReplCompatibility,
 }
 
@@ -116,13 +115,6 @@ impl LegacyModuleLoweringInputV1 {
         Self {
             ast,
             origin: LegacyModuleOriginV1::BareAst,
-        }
-    }
-
-    pub fn program_v0_compatibility(ast: ASTNode) -> Self {
-        Self {
-            ast,
-            origin: LegacyModuleOriginV1::ProgramV0Compatibility,
         }
     }
 
@@ -329,10 +321,6 @@ mod tests {
             (
                 LegacyModuleLoweringInputV1::bare_ast(function()),
                 LegacyModuleOriginV1::BareAst,
-            ),
-            (
-                LegacyModuleLoweringInputV1::program_v0_compatibility(function()),
-                LegacyModuleOriginV1::ProgramV0Compatibility,
             ),
             (
                 LegacyModuleLoweringInputV1::repl_compatibility(function()),

@@ -21,17 +21,20 @@
   "normal_default_callers": {
     "src/runner/modes/mir.rs": 2,
     "src/runner/product/llvm/mir_compiler.rs": 1,
-    "src/runner/product/wasm.rs": 1
+    "src/runner/product/wasm.rs": 1,
+    "src/runner/json_artifact/program_json_v0_loader.rs": 1
   },
   "normal_default_construction_sites": {
     "src/runner/modes/mir.rs": 2,
     "src/runner/product/llvm/mir_compiler.rs": 1,
-    "src/runner/product/wasm.rs": 1
+    "src/runner/product/wasm.rs": 1,
+    "src/runner/json_artifact/program_json_v0_loader.rs": 1
   },
   "normal_default_legacy_reachability": {
     "src/runner/modes/mir.rs": 0,
     "src/runner/product/llvm/mir_compiler.rs": 0,
-    "src/runner/product/wasm.rs": 0
+    "src/runner/product/wasm.rs": 0,
+    "src/runner/json_artifact/program_json_v0_loader.rs": 0
   },
   "normal_default_root_catalog_lifecycle": {
     "definition_file": "src/mir/builder/normal_default_root_catalog_lifecycle.rs",

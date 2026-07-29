@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 """PUBLIC-INGRESS0-S0 guard for the explicit NarrowV1 Raw entry."""
-
 from __future__ import annotations
 
 import json
 import re
 from pathlib import Path
-
 ROOT = Path(__file__).resolve().parents[3]
 TASK = ROOT / (
     "docs/development/current/main/investigations/"
@@ -281,6 +279,7 @@ def main() -> int:
                 "compile_with_source_hint_and_imports(",
                 ".compile_with_source(",
                 ".compile_with_source_and_imports(",
+                ".compile_legacy(",
                 "compile_legacy_request(",
                 "compile_legacy_candidate(",
             )
@@ -745,6 +744,8 @@ def main() -> int:
         "late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable",
         "explicit_imports_commit_only_with_the_finished_normal_candidate",
         "normal_pipeline_matches_legacy_compatibility_for_general_module",
+        "program_v0_typed_failure_keeps_live_builder_reusable_without_retry",
+        "program_v0_typed_errors_match_legacy_program_stages_exactly",
         "normal_program_admission_rejects_legacy_compatible_non_program_roots",
         "rejected_nonprogram_admission_leaves_live_builder_unchanged_and_reusable",
         "local_root_remains_explicit_legacy_compatibility_only",
