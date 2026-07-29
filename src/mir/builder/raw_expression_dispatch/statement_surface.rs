@@ -5,6 +5,7 @@
 //! call terminal.
 
 use crate::ast::{ASTNode, AssignStmt, ReturnStmt};
+use crate::mir::builder::exprs_enum_match::PreparedRawScopeBoxV1;
 use crate::mir::builder::recursive_child_lowering::drive_legacy_body_v1;
 use crate::mir::builder::stmts::{
     drive_local_statement_v1, drive_value_return_statement_v1, drive_variable_assignment_v1,
@@ -31,15 +32,12 @@ where
         ASTNode::Program { statements, .. } => Ok(StatementSurfaceDispatch::Lowered(
             drive_legacy_body_v1(builder, port, statements)?,
         )),
-        ASTNode::ScopeBox { body, .. } => {
-            if let Some(value) = builder.try_build_guard_let_scopebox_with_port_v1(port, body.clone())? {
-                Ok(StatementSurfaceDispatch::Lowered(value))
-            } else {
-                Ok(StatementSurfaceDispatch::Lowered(drive_legacy_body_v1(
-                    builder, port, body,
-                )?))
-            }
-        }
+        ASTNode::ScopeBox { body, .. } => Ok(StatementSurfaceDispatch::Lowered(
+            builder.lower_prepared_raw_scopebox_with_port_v1(
+                port,
+                PreparedRawScopeBoxV1::prepare(body),
+            )?,
+        )),
         ASTNode::TaskScope {
             body,
             source_keyword,

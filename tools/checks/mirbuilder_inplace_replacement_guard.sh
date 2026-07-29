@@ -207,6 +207,23 @@ do
   fi
 done
 
+while IFS='|' read -r file pattern expected label; do
+  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+  if [[ "$count" != "$expected" ]]; then
+    guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
+  fi
+done <<EOF
+$ENUM_MATCH|struct\\s+PreparedRawScopeBoxV1\\b|1|opaque prepared raw ScopeBox route
+$ENUM_MATCH|enum\\s+PreparedRawScopeBoxRouteV1\\b|1|private raw ScopeBox route vocabulary
+$ENUM_MATCH|fn\\s+lower_prepared_raw_scopebox_with_port_v1\\s*<Port>|1|prepared raw ScopeBox lowering owner
+$STATEMENT_SURFACE|PreparedRawScopeBoxV1::prepare\\s*\\(|1|sole raw ScopeBox route issuer
+$STATEMENT_SURFACE|lower_prepared_raw_scopebox_with_port_v1\\s*\\(|1|sole prepared raw ScopeBox caller
+EOF
+if rg -n -P 'fn\s+try_build_guard_let_scopebox(?:_with_port_v1)?\s*\(' \
+  "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+  guard_fail "$TAG" "retired Option-based ScopeBox route returned"
+fi
+
 stageb_asset_count="$(awk -F '\t' '
   $1 == "asset" &&
   $2 == "PRELOOP-STAGEB-SPECIAL-ACTIVATION" &&

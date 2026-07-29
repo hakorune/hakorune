@@ -580,17 +580,16 @@ largest touched source/check file          = 799
 
 ## Current execution row
 Closed: `RAW-FROM-CALL-ROUTE-ONCE0-I0-R0`.
-Current: `RAW-SCOPEBOX-BODY-ROUTE-ONCE0-I0-R0` — accepted
+Closed: `RAW-SCOPEBOX-BODY-ROUTE-ONCE0-I0-R0`.
 ```text
 Pack / ceremony: DESCENT-SPINE0 / T1, one atomic I0/R0.
 Named caller: statement surface ASTNode::ScopeBox arm.
-New owner: opaque PreparedRawScopeBoxV1.
-Routes: prepared guard-let body or ordinary body.
+New owner: opaque PreparedRawScopeBoxV1, one prepared route.
 Atomic delete:
   body clone, Option-based try route, guard-let no-port facade.
-Keep: same-port/source-order descent and success-only temp cleanup.
-Exclude: shared-body rewrite, scope semantics, Lambda/View/Ownership.
-Forbid: failure cleanup, ordinary retry, fallback, grammar/result delta.
+Evidence: disjoint/ordinary/success/failure tests, guard-let integration,
+  cargo check, shared replacement guard, and pointer guard are green.
+Next design stop: MIRBUILDER-POST-SCOPEBOX-LIVE-EDGE-CENSUS0-D0.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
