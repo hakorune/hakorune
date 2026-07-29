@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 is closed. PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0 is the sole design stop."
+status = "PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0 is closed. PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0 is the sole executable row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0"
-current_execution_row = ""
-current_execution_summary = "Read-only D0: decide whether the Program JSON v0 import-bundle production caller can consume the existing typed Program admission and session-owned root/catalog lifecycle with exact imports/source/diagnostic/result parity. The future atomic row must delete LegacyModuleOriginV1::ProgramV0Compatibility and its compile_legacy edge without fallback. If exact Program/parity closure fails, select one bounded raw non-Program compositional edge instead. No Rust edit, View/Ownership feature, grammar widening, or compatibility laundering is authorized during D0."
+current_design_stop = ""
+current_execution_row = "PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0"
+current_execution_summary = "T1 atomic I0/R0: move only the Program JSON v0 import-bundle production caller onto the existing typed Program admission and session-owned root/catalog lifecycle. Preserve merged-source parse/macro order, optimize=true, source hint <json_v0/imports>, empty Builder imports, Legacy finish schedule, diagnostics, and success-only commit. In the same commit delete ProgramV0Compatibility, its constructor/raw-binding tombstone, and the loader compile_legacy edge. Direct ProgramV0-to-MIR JSON bridge, REPL/BareAst compatibility, grammar, View/Ownership, backend, fallback, and retry remain out of scope."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """The eight-pack conformance census remains repository-wide Residual. PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 physically deletes the complete caller-zero Stage-B activation/carrier/function-session/physical-publication closure while preserving source-neutral receipts and all live generic owners. PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0 is now the sole read-only design stop: audit one real Program-v0 production caller for exact reuse of typed Program admission and root/catalog lifecycle, with same-row deletion of its legacy origin/compile edge and zero fallback. If that exact closure is unavailable, return to one bounded raw non-Program compositional edge. MirBuilder cleanup remains ahead of source-level Ownership/View or other unimplemented features. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """The eight-pack conformance census remains repository-wide Residual. PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 physically deleted the complete caller-zero Stage-B activation/carrier/function-session/physical-publication closure while preserving source-neutral receipts and all live generic owners. PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0 accepts one bounded T1 cutover: the Program-v0 import-bundle compiler joins the existing typed Program lifecycle, while its legacy origin, raw-binding tombstone, and compile_legacy edge disappear atomically. Direct ProgramV0-to-MIR JSON lowering remains a distinct authority. MirBuilder cleanup remains ahead of source-level Ownership/View or other unimplemented features. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 is closed by physical deletion and zero census. PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0 now audits one real compatibility caller for a typed Program cutover; no implementation is authorized before the D0 parity decision."""
+latest_card_summary = """PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0 is closed as Accept. The sole executable row moves the Program-v0 import-bundle caller to the existing typed Program lifecycle and atomically deletes its legacy origin/compile edge with zero fallback."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0"
+current_blocker_token = "PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -64,9 +64,12 @@ Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0
 Closed:  RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0
 Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0
 Closed:  NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0
-Current: NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0
+Closed:  NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0
+Closed:  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0
+Closed:  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0
+Current: PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0
 Pack:    ROOT-LIFECYCLE0
-Ceremony: T2, one atomic I0/R0
+Ceremony: T1, one atomic I0/R0
 ```
 
 R1 closeout:
@@ -531,35 +534,35 @@ Hard stop:
   JoinIR/runtime Stage-B would be touched
 ```
 
-## Current design stop
+## Current implementation brief
 
-`PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0` — read-only caller/parity audit.
+`PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0`
+— parent D0 closed as Accept; T1, one atomic commit.
 
 ```text
-caller:
+Change:
   program_json_v0_loader import-bundle compiler
+  -> existing typed Program request/lifecycle
+  delete ProgramV0Compatibility origin, constructor, raw-binding tombstone,
+  and this caller's compile_legacy edge in the same commit
 
-candidate:
-  ProgramV0Compatibility -> existing typed Program admission
-  -> existing session-owned root/catalog lifecycle
+Contract:
+  post-merge/post-macro root must be Program before token/session issuance
+  preserve optimize=true, source hint <json_v0/imports>, empty Builder imports,
+  Legacy finish schedule, diagnostics/result, and success-only external commit
+  direct ProgramV0-to-MIR bridge and BareAst/REPL compatibility do not move
 
-required future atomic delete:
-  LegacyModuleOriginV1::ProgramV0Compatibility
-  Program-v0 compile_legacy caller edge
+Done:
+  focused Program admission, module/verification parity, typed failure/reuse,
+  and exact config transport evidence are green
+  existing ingress inventory, shared guard, and caller census record the old
+  origin/edge as zero; fallback/retry = 0
 
-accept only if:
-  merged root is exactly Program
-  imports/source/diagnostic/finish/commit parity is exact
-  token/session/Builder open once
-  fallback / retry = 0
-
-reject:
-  generic raw-lifecycle rename that preserves arbitrary-AST authority
-  any grammar, View, Ownership, result, or backend widening
-
-fallback decision if NoSafeSlice:
-  choose one bounded raw non-Program compositional production edge
-  from the fresh census; do not widen Program-v0 scope
+Stop:
+  macro-expanded non-Program is supported today, JSON aliases must become
+  Builder imports, diagnostic/finish/commit behavior differs, a second
+  token/session or retry is needed, or direct JSON bridge/View/Ownership/
+  backend work would enter the row
 ```
 
 Compatibility sunset:
@@ -644,7 +647,8 @@ R2ai NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0 closed
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
-R6  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0 current
+R6  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0 closed
+R7  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0 current
 
 after every bounded retirement:
   run a fresh live-edge census
