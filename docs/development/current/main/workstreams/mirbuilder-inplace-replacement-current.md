@@ -579,26 +579,26 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution row
-`RAW-NEW-ROUTE-ONCE0-I0-R0` — closed
+`RAW-FROM-CALL-ROUTE-ONCE0-I0-R0` — accepted
 ```text
-Closeout: CALL-OBJECT0 / T1, one atomic I0/R0; old production edges = 0.
-Named caller: raw expression dispatcher ASTNode::New arm.
+Pack / ceremony: CALL-OBJECT0 / T1, one atomic I0/R0.
+Named caller: raw expression dispatcher ASTNode::FromCall arm.
 New owner:
-  PreparedRawNewExpressionV1 -> lower_prepared_raw_new_expression_with_port_v1
+  PreparedRawFromCallV1 -> prepared enum-variant or ordinary From lower
 Atomic delete:
-  nested raw New entry, duplicate record classifier, and two caller-zero
-  no-port New facades.
+  optional enum-constructor probe, arguments clone, build_from_expression,
+  and caller-zero try_build_enum_variant_constructor.
 Keep:
-  record+fields vs record-empty error precedence, argument/source order,
-  Core13, IntegerBox, NewBox/type/origin, birth/header, and field-init policy.
+  enum payload/arity/nullish diagnostic precedence, argument source order,
+  VariantMake/type facts, and ordinary From call/effect policy.
 Forbid:
-  post-prepare route redecision, child-port replacement, fallback/retry,
-  grammar/result/publication, record admission, View, or Ownership changes.
+  post-prepare enum lookup, fallback/retry, enum-match/unified-call changes,
+  grammar/result/publication, Lambda, View, or Ownership changes.
 Evidence:
-  exact record diagnostic/effect precedence, 19 raw-port tests, header/birth
-  parity, field-init/record guards, cargo check, and shared pointer guards.
+  raw From child-port parity, Result VariantMake fixtures, enum rejection
+  precedence, cargo check, shared replacement guard, and pointer guard.
 ```
-Fresh production live-edge census is required; Lambda and features stay parked.
+Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)

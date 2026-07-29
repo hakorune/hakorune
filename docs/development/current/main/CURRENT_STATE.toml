@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The raw New production route classifies record/non-record once before effects; nested New entry and caller-zero facades are zero."
+status = "The next live MirBuilder replacement selects enum-variant or ordinary FromCall exactly once before effects."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-NEW-ROUTE-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = "Read-only census the next production-reachable competing MirBuilder authority after raw New route ownership consolidation."
+current_design_stop = ""
+current_execution_row = "RAW-FROM-CALL-ROUTE-ONCE0-I0-R0"
+current_execution_summary = "Prepare one enum-variant or ordinary FromCall route before effects, then delete the optional probe, argument clone, and caller-zero facades."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-NEW-ROUTE-ONCE0-I0-R0 is closed. The production ASTNode::New arm issues one prepared ordinary-New route before Builder effects; record+fields and record-without-fields retain their exact diagnostics. Duplicate record classification, nested raw New entry, caller-zero New facades, and fresh legacy New ports are zero. Fresh live-edge census is required."""
+latest_card_summary = """The fresh census selected RAW-FROM-CALL-ROUTE-ONCE0-I0-R0. The production ASTNode::FromCall arm selects enum-variant or ordinary From exactly once before Builder effects. Enum diagnostics, argument order, VariantMake, and ordinary From behavior remain exact; optional probing and alternate no-port entries are deleted atomically. Lambda remains parked because its capture SSOTs disagree."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-POST-NEW-ROUTE-LIVE-EDGE-CENSUS0-D0"
+current_blocker_token = "RAW-FROM-CALL-ROUTE-ONCE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
