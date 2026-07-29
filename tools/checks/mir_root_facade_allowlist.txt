@@ -24,7 +24,6 @@ EdgeArgs
 Effect
 EffectMask
 FunctionSignature
-LegacyModuleLoweringInputV1
 MirBuilder
 MirCompileResult
 MirCompiler
@@ -38,6 +37,8 @@ MirPrinter
 MirType
 MirVerifier
 NormalCompileRequestV1
+NormalProgramCompileRequestErrorV1
+RejectedNormalProgramCompileRequestV1
 LocalSlotId
 ResolvedCallableModuleLoweringInputV1
 ResolvedModuleLoweringInputV1

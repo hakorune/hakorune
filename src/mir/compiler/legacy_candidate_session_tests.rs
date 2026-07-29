@@ -512,7 +512,7 @@ fn program_v0_typed_errors_match_legacy_program_stages_exactly() {
 }
 
 #[test]
-fn normal_program_admission_rejects_legacy_compatible_non_program_roots() {
+fn public_program_admission_rejects_non_program_roots() {
     let roots = [
         literal(17),
         unary(
@@ -585,21 +585,13 @@ fn normal_program_admission_rejects_legacy_compatible_non_program_roots() {
     ];
 
     for root in roots {
-        let mut legacy_compiler = MirCompiler::with_options(false);
-        legacy_compiler
-            .compile_with_source(root.clone(), Some("non-program-parity.hako"))
-            .expect("legacy non-Program root");
-        let rejected = NormalCompileRequestV1::for_mir_mode(
-            root,
-            Some("non-program-parity.hako"),
-            HashMap::new(),
-        )
-        .expect_err("selected normal admission must reject non-Program root");
+        let error = MirCompiler::with_options(false)
+            .compile_with_source(root, Some("non-program-admission.hako"))
+            .expect_err("public whole-file admission must reject non-Program root");
         assert_eq!(
-            rejected.error(),
-            crate::mir::NormalProgramCompileRequestErrorV1::ExpectedProgramRoot
+            error,
+            "[mir/normal-program-admission] selected normal/default source must produce Program"
         );
-        rejected.discard();
     }
 }
 
@@ -670,20 +662,16 @@ fn rejected_nonprogram_admission_leaves_live_builder_unchanged_and_reusable() {
         let mut compiler = MirCompiler::with_options(false);
         compiler.builder.set_source_file_hint("live-before.hako");
         let before = (source_file(&compiler), core_cursor(&compiler));
-        let rejected = NormalCompileRequestV1::for_mir_mode(
-            root,
-            Some("failed-nonprogram.hako"),
-            HashMap::new(),
-        )
-        .expect_err("selected normal admission must reject before compilation");
-        rejected.discard();
+        let error = compiler
+            .compile_with_source(root, Some("failed-nonprogram.hako"))
+            .expect_err("public whole-file admission must reject before compilation");
+        assert_eq!(
+            error,
+            "[mir/normal-program-admission] selected normal/default source must produce Program"
+        );
         assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
         let result = compiler
-            .compile_normal(normal_request(
-                program(literal(23)),
-                Some("reused-nonprogram.hako"),
-                HashMap::new(),
-            ))
+            .compile_with_source(program(literal(23)), Some("reused-nonprogram.hako"))
             .expect("fresh selected root after failure");
         assert!(result.module.functions.contains_key("main"));
         assert_eq!(
@@ -694,100 +682,39 @@ fn rejected_nonprogram_admission_leaves_live_builder_unchanged_and_reusable() {
 }
 
 #[test]
-fn local_root_remains_explicit_legacy_compatibility_only() {
-    let root = local("x", Some(block_expr(literal(38))));
-    let mut legacy_compiler = MirCompiler::with_options(false);
-    let legacy_error = legacy_compiler
-        .compile_with_source(root.clone(), Some("local-root-failure.hako"))
-        .expect_err("legacy Local root must reject outside lexical scope");
-
-    let mut compiler = MirCompiler::with_options(false);
-    compiler.builder.set_source_file_hint("live-before.hako");
-    let before = (source_file(&compiler), core_cursor(&compiler));
-    let rejected =
-        NormalCompileRequestV1::for_mir_mode(root, Some("local-root-failure.hako"), HashMap::new())
-            .expect_err("selected normal admission must reject Local root");
-    assert!(legacy_error.contains("local declaration outside lexical scope"));
-    rejected.discard();
-    assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
-
-    let result = compiler
-        .compile_normal(normal_request(
+fn responsibility_local_nonprogram_roots_share_public_admission_and_reuse() {
+    for (root, reuse) in [
+        (
+            local("x", Some(block_expr(literal(38)))),
             program(literal(39)),
-            Some("local-root-reuse.hako"),
-            HashMap::new(),
-        ))
-        .expect("fresh selected root after Local rejection");
-    assert!(result.module.functions.contains_key("main"));
-    assert_eq!(
-        source_file(&compiler).as_deref(),
-        Some("local-root-reuse.hako")
-    );
-}
-
-#[test]
-fn grouped_assignment_root_remains_explicit_legacy_compatibility_only() {
-    let root = grouped_assignment("missing", literal(31));
-    let mut legacy_compiler = MirCompiler::with_options(false);
-    let legacy_error = legacy_compiler
-        .compile_with_source(root.clone(), Some("grouped-assignment-failure.hako"))
-        .expect_err("legacy grouped assignment must reject an undeclared lhs");
-
-    let mut compiler = MirCompiler::with_options(false);
-    compiler.builder.set_source_file_hint("live-before.hako");
-    let before = (source_file(&compiler), core_cursor(&compiler));
-    let rejected = NormalCompileRequestV1::for_mir_mode(
-        root,
-        Some("grouped-assignment-failure.hako"),
-        HashMap::new(),
-    )
-    .expect_err("selected normal admission must reject GroupedAssignment root");
-    assert!(legacy_error.contains("Undefined variable: missing"));
-    rejected.discard();
-    assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
-
-    let result = compiler
-        .compile_normal(normal_request(
+        ),
+        (
+            grouped_assignment("missing", literal(31)),
             program(literal(32)),
-            Some("grouped-assignment-reuse.hako"),
-            HashMap::new(),
-        ))
-        .expect("fresh selected root after grouped assignment failure");
-    assert!(result.module.functions.contains_key("main"));
-    assert_eq!(
-        source_file(&compiler).as_deref(),
-        Some("grouped-assignment-reuse.hako")
-    );
-}
-
-#[test]
-fn index_root_remains_explicit_legacy_compatibility_only() {
-    let root = indexed(literal(35), literal(0));
-    let mut legacy_compiler = MirCompiler::with_options(false);
-    let legacy_error = legacy_compiler
-        .compile_with_source(root.clone(), Some("index-failure.hako"))
-        .expect_err("legacy Index must reject an unsupported target");
-
-    let mut compiler = MirCompiler::with_options(false);
-    compiler.builder.set_source_file_hint("live-before.hako");
-    let before = (source_file(&compiler), core_cursor(&compiler));
-    let rejected =
-        NormalCompileRequestV1::for_mir_mode(root, Some("index-failure.hako"), HashMap::new())
-            .expect_err("selected normal admission must reject Index root");
-    assert!(
-        legacy_error.contains("index operator is only supported for Array/Map"),
-        "{legacy_error}"
-    );
-    rejected.discard();
-    assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
-
-    let result = compiler
-        .compile_normal(normal_request(
+        ),
+        (
+            indexed(literal(35), literal(0)),
             program(indexed(array(vec![literal(36)]), literal(0))),
-            Some("index-reuse.hako"),
-            HashMap::new(),
-        ))
-        .expect("fresh selected Index after failure");
-    assert!(result.module.functions.contains_key("main"));
-    assert_eq!(source_file(&compiler).as_deref(), Some("index-reuse.hako"));
+        ),
+    ] {
+        let mut compiler = MirCompiler::with_options(false);
+        compiler.builder.set_source_file_hint("live-before.hako");
+        let before = (source_file(&compiler), core_cursor(&compiler));
+        let error = compiler
+            .compile_with_source(root, Some("nonprogram-root-failure.hako"))
+            .expect_err("public whole-file admission must reject non-Program root");
+        assert_eq!(
+            error,
+            "[mir/normal-program-admission] selected normal/default source must produce Program"
+        );
+        assert_eq!((source_file(&compiler), core_cursor(&compiler)), before);
+        let result = compiler
+            .compile_with_source(reuse, Some("nonprogram-root-reuse.hako"))
+            .expect("fresh Program must compile after admission rejection");
+        assert!(result.module.functions.contains_key("main"));
+        assert_eq!(
+            source_file(&compiler).as_deref(),
+            Some("nonprogram-root-reuse.hako")
+        );
+    }
 }

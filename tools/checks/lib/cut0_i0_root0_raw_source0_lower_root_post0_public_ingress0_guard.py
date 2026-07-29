@@ -284,11 +284,7 @@ def main() -> int:
     caller_anchor = lifecycle.get("caller_anchor", "")
     if normal_pipeline.count(caller_anchor) != lifecycle.get("callers"):
         raise AssertionError("normal root/catalog lifecycle caller drift")
-    require(
-        current_workstream,
-        lifecycle.get("sunset_id", ""),
-        "normal compatibility sunset",
-    )
+    require(current_workstream, lifecycle.get("sunset_id", ""), "normal compatibility sunset")
     if lifecycle.get("sunset_state") != "closed":
         raise AssertionError("normal compatibility sunset must close with lifecycle cutover")
     for fragment in (
@@ -320,13 +316,17 @@ def main() -> int:
     ):
         if forbidden in code_only(normal_pipeline):
             raise AssertionError(f"normal pipeline leaks forbidden route: {forbidden}")
-    for forbidden in (
-        "ExistingGeneralModuleCompatibilityV1",
-        ".build_module(",
-        ".builder_mut()",
-    ):
+    for forbidden in ("ExistingGeneralModuleCompatibilityV1", ".build_module(",
+                      ".builder_mut()"):
         if forbidden in code_only(normal_pipeline):
             raise AssertionError(f"retired normal compatibility edge returned: {forbidden}")
+    compiler = code_only((ROOT / "src/mir/compiler/mod.rs").read_text())
+    for forbidden in ("compile_legacy_candidate", "compile_legacy_request", "MirLoweringRequestV1",
+                      ".build_module("):
+        if forbidden in compiler:
+            raise AssertionError(f"retired public compiler edge returned: {forbidden}")
+    for fragment in ("fn compile_public_program", "NormalCompileRequestV1::for_mir_mode", "self.compile_normal(request)"):
+        require(compiler, fragment, f"public Program admission {fragment}")
     for fragment in (
         "CompletedNormalDefaultRootCatalogLifecycleV1",
         "RejectedNormalDefaultRootCatalogLifecycleV1",
@@ -744,11 +744,9 @@ def main() -> int:
         "normal_pipeline_matches_legacy_compatibility_for_general_module",
         "program_v0_typed_failure_keeps_live_builder_reusable_without_retry", "repl_program_matches_legacy_config_and_failure_reuse",
         "program_v0_typed_errors_match_legacy_program_stages_exactly",
-        "normal_program_admission_rejects_legacy_compatible_non_program_roots",
+        "public_program_admission_rejects_non_program_roots",
         "rejected_nonprogram_admission_leaves_live_builder_unchanged_and_reusable",
-        "local_root_remains_explicit_legacy_compatibility_only",
-        "grouped_assignment_root_remains_explicit_legacy_compatibility_only",
-        "index_root_remains_explicit_legacy_compatibility_only",
+        "responsibility_local_nonprogram_roots_share_public_admission_and_reuse",
     ):
         require(normal_tests, fixture, f"normal pipeline fixture {fixture}")
     count_by_manifest(caller_manifest.get("normal_compile_adapters", {}), ".compile(")

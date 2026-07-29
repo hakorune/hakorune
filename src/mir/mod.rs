@@ -229,10 +229,10 @@ pub(crate) mod weak_field_backend_capability; // extracted error types // Optimi
 pub use basic_block::{BasicBlock, EdgeArgs};
 pub use builder::MirBuilder;
 pub use compiler::{
-    CanonicalLoweringErrorV1, LegacyModuleLoweringInputV1, MirCompileResult, MirCompiler,
-    NormalCompileRequestV1, NormalProgramCompileRequestErrorV1,
-    RejectedNormalProgramCompileRequestV1, ResolvedCallableModuleLoweringInputV1,
-    ResolvedModuleLoweringInputV1, VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1,
+    CanonicalLoweringErrorV1, MirCompileResult, MirCompiler, NormalCompileRequestV1,
+    NormalProgramCompileRequestErrorV1, RejectedNormalProgramCompileRequestV1,
+    ResolvedCallableModuleLoweringInputV1, ResolvedModuleLoweringInputV1,
+    VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1,
 };
 pub(crate) use compiler::{
     RejectedPostMacroWholeFileProgramV1, VerifiedPostMacroWholeFileProgramV1,

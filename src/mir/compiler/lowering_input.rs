@@ -104,13 +104,13 @@ pub(crate) enum LegacyModuleOriginV1 {
 
 /// Legacy input owns syntax only and structurally cannot carry a sealed forest.
 #[derive(Debug)]
-pub struct LegacyModuleLoweringInputV1 {
+pub(in crate::mir) struct LegacyModuleLoweringInputV1 {
     ast: ASTNode,
     origin: LegacyModuleOriginV1,
 }
 
 impl LegacyModuleLoweringInputV1 {
-    pub fn bare_ast(ast: ASTNode) -> Self {
+    pub(in crate::mir) fn bare_ast(ast: ASTNode) -> Self {
         Self {
             ast,
             origin: LegacyModuleOriginV1::BareAst,
@@ -242,40 +242,6 @@ impl fmt::Display for CanonicalLoweringErrorV1 {
 }
 
 impl std::error::Error for CanonicalLoweringErrorV1 {}
-
-pub(super) enum MirLoweringRequestV1<'a> {
-    Resolved(ResolvedModuleLoweringInputV1<'a>),
-    Legacy {
-        input: LegacyModuleLoweringInputV1,
-        imports: std::collections::HashMap<String, String>,
-    },
-}
-
-pub(super) enum MirLoweringRequestErrorV1 {
-    Canonical(CanonicalLoweringErrorV1),
-    Legacy(String),
-}
-
-impl MirLoweringRequestErrorV1 {
-    pub(super) fn into_canonical(self) -> CanonicalLoweringErrorV1 {
-        match self {
-            Self::Canonical(error) => error,
-            Self::Legacy(_) => CanonicalLoweringErrorV1::RequestRouteInvariant {
-                expected: "canonical_error",
-                actual: "legacy_error",
-            },
-        }
-    }
-
-    pub(super) fn into_legacy(self) -> String {
-        match self {
-            Self::Legacy(error) => error,
-            Self::Canonical(error) => format!(
-                "[freeze:contract][canonical_lowering/request_route_invariant] expected=legacy_error actual=canonical_error detail={error}"
-            ),
-        }
-    }
-}
 
 #[cfg(test)]
 pub(super) fn verified_source_unit_for_test(root: ASTNode) -> VerifiedResolvedSourceUnitV1 {

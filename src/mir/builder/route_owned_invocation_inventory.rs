@@ -190,8 +190,8 @@ fn route_policy(
     match family {
         InvocationRootFamilyV1::Raw => (
             ExactInvocationSourceSymbolsV2 {
-                ingress: "MirCompiler::compile_legacy_request",
-                lowering_root: "MirBuilder::build_module",
+                ingress: "MirCompiler::compile_raw_published_v1",
+                lowering_root: "RawRootBodyInvocationV1::prepare_root_batch",
             },
             ModuleInvocationPolicyV1::policy_for_family(family),
         ),
@@ -303,11 +303,11 @@ mod tests {
         let raw = RouteOwnedInvocationInventoryV2::derive(InvocationRootFamilyV1::Raw).unwrap();
         assert_eq!(
             raw.policy().source_symbols().ingress(),
-            "MirCompiler::compile_legacy_request"
+            "MirCompiler::compile_raw_published_v1"
         );
         assert_eq!(
             raw.policy().source_symbols().lowering_root(),
-            "MirBuilder::build_module"
+            "RawRootBodyInvocationV1::prepare_root_batch"
         );
 
         let recursive =

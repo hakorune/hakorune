@@ -12,7 +12,6 @@ LOWERING="$ROOT_DIR/src/mir/builder/calls/lowering.rs"
 PORT_OWNER="$ROOT_DIR/src/mir/builder/port_aware_function_draft_impl.rs"
 MODULE_LIFECYCLE="$ROOT_DIR/src/mir/builder/module_lifecycle.rs"
 COMPILER="$ROOT_DIR/src/mir/compiler/mod.rs"
-LEGACY_CANDIDATE="$ROOT_DIR/src/mir/compiler/legacy_candidate_session.rs"
 MODULE_SESSION="$ROOT_DIR/src/mir/builder/module_invocation_session.rs"
 NORMAL_PIPELINE="$ROOT_DIR/src/mir/compiler/normal_default_pipeline.rs"
 NORMAL_ROOT_LIFECYCLE="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle.rs"
@@ -63,7 +62,6 @@ guard_require_files \
   "$PORT_OWNER" \
   "$MODULE_LIFECYCLE" \
   "$COMPILER" \
-  "$LEGACY_CANDIDATE" \
   "$MODULE_SESSION" \
   "$NORMAL_PIPELINE" \
   "$NORMAL_ROOT_LIFECYCLE" \
@@ -125,8 +123,8 @@ do
     guard_fail "$TAG" "compatibility sunset must have one first-class record: $sunset"
   fi
 done
-if [[ "$(rg -F -c '"production_build_module_edges": 1' "$CALLER_MANIFEST")" != "1" || "$(rg -F -c '"production_build_module_edges": 0' "$CALLER_MANIFEST")" != "1" ]]; then
-  guard_fail "$TAG" "arbitrary-AST production sunsets must retain one live and one retired edge"
+if [[ "$(rg -F -c '"production_build_module_edges": 0' "$CALLER_MANIFEST")" != "2" ]]; then
+  guard_fail "$TAG" "arbitrary-AST production sunsets must both be retired"
 fi
 
 stageb_asset_count="$(awk -F '\t' '
@@ -365,6 +363,9 @@ done
 
 for retired_edge in \
   compile_with_source_internal \
+  compile_legacy_candidate \
+  compile_legacy_request \
+  'enum MirLoweringRequestV1' \
   'self.builder.build_module'
 do
   if rg -n -F "$retired_edge" "$COMPILER" >/dev/null; then
@@ -372,18 +373,15 @@ do
   fi
 done
 
-while IFS=$'\t' read -r file symbol expected; do
-  count="$(rg -o -F "$symbol" "$file" | wc -l | tr -d '[:space:]')"
-  if [[ "$count" != "$expected" ]]; then
-    guard_fail "$TAG" "candidate compiler edge drift: $symbol count=$count expected=$expected"
+for required_edge in \
+  'fn compile_public_program' \
+  'NormalCompileRequestV1::for_mir_mode' \
+  'self.compile_normal(request)'
+do
+  if [[ "$(rg -F -c "$required_edge" "$COMPILER")" != "1" ]]; then
+    guard_fail "$TAG" "public Program compiler edge drift: $required_edge"
   fi
-done <<EOF
-$COMPILER	compile_legacy_candidate	1
-$LEGACY_CANDIDATE	.build_module(ast)	1
-$LEGACY_CANDIDATE	.finish_built_module	1
-$LEGACY_CANDIDATE	.prepare_external_commit()	1
-$LEGACY_CANDIDATE	.commit(&mut self.builder)	1
-EOF
+done
 
 while IFS=$'\t' read -r file pattern expected label; do
   count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
@@ -619,7 +617,6 @@ for file in \
   "$PORT_OWNER" \
   "$MODULE_LIFECYCLE" \
   "$COMPILER" \
-  "$LEGACY_CANDIDATE" \
   "$MODULE_SESSION" \
   "$NORMAL_PIPELINE" \
   "$NORMAL_ROOT_LIFECYCLE" \

@@ -578,25 +578,23 @@ new source/test/check/task file            = 0
 largest touched source/check file          = 799
 ```
 
-## Current execution
-`MIRCOMPILER-PUBLIC-PROGRAM-ADMISSION0-I0-R0`
-Design: `investigations/mircompiler-public-program-admission0-design-2026-07-29.md`
+## Current design stop
+`MIRBUILDER-PUBLIC-ROOT-API0-D0`
 ```text
-Change:
-  Keep public compile names/signatures, admit Program through existing typed
-  normal ingress, and delete the compiler Legacy candidate/build_module edge.
+Closed:
+  MIRCOMPILER-PUBLIC-PROGRAM-ADMISSION0-I0-R0
+  Public compile names/signatures now seal Program into typed normal ingress.
+  Legacy selector/candidate and compiler production build_module edge are zero.
+  Focused gates are green; Wasm's 17 full-suite failures reproduce unchanged
+  on baseline HEAD as the existing undefined-label backend failure.
 
-Contract:
-  Source/import/config/result behavior stays exact. Non-Program fails before
-  Builder. Generic MacroBox, AST JSON, and Raw carrier contracts stay unchanged.
+Select:
+  Census the remaining public MirBuilder::build_module callers and contract.
+  Decide narrow/delete/internalize without changing grammar or test authority.
 
-Done:
-  Program/integration parity and rejection/reuse are green; compile_legacy,
-  Legacy selector/candidate, and compiler production build_module edge are zero.
-
-Stop:
-  Synthetic Program wrapping, retry, new arbitrary compatibility API, carrier
-  deletion, global build_module deletion, or language/Ownership/View change.
+Do not:
+  Edit production before D0, delete cfg(test) or external API evidence by
+  assumption, add fallback, or open language/Ownership/View work.
 ```
 Post-macro retirement order after each fresh census:
 ```text
@@ -635,12 +633,9 @@ Compatibility sunsets:
 
 ```text
 MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001
-  state: active
-  measured build_module edge: src/mir/compiler/legacy_candidate_session.rs = 1
-  owner: MirCompiler legacy candidate family
-  retire when: public/internal VM, Stage1, selfhost, bench, and reference
-    callers have typed replacements and its build_module edge is 0
-  target/evidence: later named replacement rows plus production caller census
+  state: closed
+  production build_module edge: 0
+  retired by: MIRCOMPILER-PUBLIC-PROGRAM-ADMISSION0-I0-R0
 
 RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001
   state: closed
@@ -719,7 +714,7 @@ R29 POST-MACRO-ROOT-CONTRACT0-D0 closed: WholeFileProgram
 R30 STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0 closed
 R31 SELFHOST-MACRO-PREEXPAND-TYPED-PROGRAM-INGRESS0-I0-R0 closed
 R32 VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 closed
-R33 VM fallback closed; R34 VM keep closed; R35 helper DEL0 closed; R36 public contract D0 closed; R37 MIRCOMPILER-PUBLIC-PROGRAM-ADMISSION0-I0-R0 current
+R33 VM fallback closed; R34 VM keep closed; R35 helper DEL0 closed; R36 public contract D0 closed; R37 public Program admission closed; R38 MIRBUILDER-PUBLIC-ROOT-API0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

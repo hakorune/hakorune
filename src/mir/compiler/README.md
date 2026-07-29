@@ -5,13 +5,14 @@ module, entry-block, or FunctionRegion state.
 
 ## Typed ingress contract
 
-- `LegacyModuleLoweringInputV1` owns a bare AST plus an explicit legacy origin.
+- `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
+  owns syntax only and is not a public `MirCompiler` admission authority.
 - `ResolvedModuleLoweringInputV1` can only borrow an opaque
   `VerifiedResolvedSourceUnitV1`.
 - The verified unit is canonical syntax plus its sealed semantic owner forest;
   it is not a rewritten or resolved AST.
-- A private request enum is matched once in `MirCompiler` and never reaches
-  recursive Lower.
+- Public `compile*` methods seal a whole-file `Program` once and enter the
+  typed normal lifecycle. Non-Program input fails before Builder effects.
 - Canonical failure never retries through the legacy route.
 - Production ingress is explicit by owner family. `resolve_function` owns the
   call-disabled body-only family. `VerifiedResolvedCallableProgramV1` owns all

@@ -116,17 +116,16 @@
   "normal_compile_adapters": {
     "src/runner/selfhost.rs": 0
   },
-  "direct_build_module_production": {
-    "src/mir/compiler/legacy_candidate_session.rs": 1
-  },
+  "direct_build_module_production": {},
   "direct_build_module_cfg_test": {
     "src/host_providers/mir_builder/lowering/ast_json.rs": 1
   },
   "compatibility_sunsets": {
     "MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001": {
-      "state": "active",
-      "owner": "src/mir/compiler/legacy_candidate_session.rs",
-      "production_build_module_edges": 1,
+      "state": "closed",
+      "owner": "MirCompiler public compile facade",
+      "production_build_module_edges": 0,
+      "retire_row": "MIRCOMPILER-PUBLIC-PROGRAM-ADMISSION0-I0-R0",
       "retire_when": "all MirCompiler legacy candidate caller families have explicit typed replacements and this arbitrary-AST build_module edge is zero"
     },
     "RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001": {

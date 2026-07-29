@@ -124,12 +124,20 @@ write operation enums and IDs plus `LocalSlotId` as core MIR model vocabulary.
 orchestration facade entries. Carrier summaries and refreshed bundle types stay
 owned by `mir::semantic_refresh` and are not re-exported from the MIR root.
 
-B0-L2a adds only the compiler facade inputs
-`LegacyModuleLoweringInputV1`, `ResolvedModuleLoweringInputV1`, the opaque
+B0-L2a added the compiler facade inputs
+`ResolvedModuleLoweringInputV1`, the opaque
 `VerifiedResolvedSourceUnitV1`, and `CanonicalLoweringErrorV1`. Their internal
-legacy provenance and sealed semantic-owner vocabulary are not root exports.
+Raw provenance and sealed semantic-owner vocabulary are not root exports.
 The resolved bundle has no production constructor in B0-L2a, so this facade
 change activates neither semantic resolution nor canonical Lower.
+
+`MIRCOMPILER-PUBLIC-PROGRAM-ADMISSION0-I0-R0` removes
+`LegacyModuleLoweringInputV1` from the public facade. Public `MirCompiler`
+compile methods now accept whole-file `Program` only and enter the typed normal
+lifecycle. `NormalProgramCompileRequestErrorV1` and its opaque rejected owner
+are the public pre-Builder failure transport. The Raw syntax carrier remains
+crate-internal to its explicit NarrowV1 lifecycle and cannot select the public
+compiler route.
 
 P0c-B1 adds the compiler-facade pair
 `VerifiedResolvedCallableProgramV1` and

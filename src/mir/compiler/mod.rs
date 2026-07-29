@@ -30,7 +30,6 @@ pub(in crate::mir) mod capability;
 #[allow(dead_code)]
 pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;
-mod legacy_candidate_session;
 #[allow(dead_code)]
 pub(in crate::mir) mod located;
 mod lowering_input;
@@ -198,11 +197,10 @@ mod source_view_tests;
 
 use crate::mir::builder::BuilderInvocationConfigV1;
 use capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
+pub(in crate::mir) use lowering_input::LegacyModuleLoweringInputV1;
 pub use lowering_input::{
-    CanonicalLoweringErrorV1, LegacyModuleLoweringInputV1, ResolvedModuleLoweringInputV1,
-    VerifiedResolvedSourceUnitV1,
+    CanonicalLoweringErrorV1, ResolvedModuleLoweringInputV1, VerifiedResolvedSourceUnitV1,
 };
-use lowering_input::{MirLoweringRequestErrorV1, MirLoweringRequestV1};
 use module_session::CanonicalModuleLoweringSessionV1;
 pub use normal_default_pipeline::{
     NormalCompileRequestV1, NormalProgramCompileRequestErrorV1,
@@ -436,7 +434,7 @@ impl MirCompiler {
         ast: crate::ast::ASTNode,
         source_file: Option<&str>,
     ) -> Result<MirCompileResult, String> {
-        self.compile_legacy(LegacyModuleLoweringInputV1::bare_ast(ast), source_file)
+        self.compile_public_program(ast, source_file, std::collections::HashMap::new())
     }
 
     /// Compile AST to MIR with an explicit imported static-box alias table.
@@ -446,11 +444,23 @@ impl MirCompiler {
         source_file: Option<&str>,
         imports: std::collections::HashMap<String, String>,
     ) -> Result<MirCompileResult, String> {
-        self.compile_legacy_request(
-            LegacyModuleLoweringInputV1::bare_ast(ast),
-            source_file,
-            imports,
-        )
+        self.compile_public_program(ast, source_file, imports)
+    }
+
+    fn compile_public_program(
+        &mut self,
+        ast: crate::ast::ASTNode,
+        source_file: Option<&str>,
+        imports: std::collections::HashMap<String, String>,
+    ) -> Result<MirCompileResult, String> {
+        let request = NormalCompileRequestV1::for_mir_mode(ast, source_file, imports).map_err(
+            |rejected| {
+                let message = rejected.error().to_string();
+                rejected.discard();
+                message
+            },
+        )?;
+        self.compile_normal(request)
     }
 
     /// Compile syntax that carries a verified canonical source-unit seal.
@@ -463,8 +473,7 @@ impl MirCompiler {
         input: ResolvedModuleLoweringInputV1<'_>,
         source_file: Option<&str>,
     ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
-        self.compile_request(MirLoweringRequestV1::Resolved(input), source_file)
-            .map_err(MirLoweringRequestErrorV1::into_canonical)
+        self.compile_resolved_first_family(input, source_file)
     }
 
     /// Compile one exact P0c-F acyclic callable Program.
@@ -536,43 +545,6 @@ impl MirCompiler {
         )?;
         module_session.commit(&mut self.builder);
         Ok(result)
-    }
-
-    /// Compile an explicitly non-canonical AST input.
-    pub fn compile_legacy(
-        &mut self,
-        input: LegacyModuleLoweringInputV1,
-        source_file: Option<&str>,
-    ) -> Result<MirCompileResult, String> {
-        self.compile_legacy_request(input, source_file, std::collections::HashMap::new())
-    }
-
-    fn compile_legacy_request(
-        &mut self,
-        input: LegacyModuleLoweringInputV1,
-        source_file: Option<&str>,
-        imports: std::collections::HashMap<String, String>,
-    ) -> Result<MirCompileResult, String> {
-        self.compile_request(MirLoweringRequestV1::Legacy { input, imports }, source_file)
-            .map_err(MirLoweringRequestErrorV1::into_legacy)
-    }
-
-    /// The sole route-selection site. The request enum ends at this boundary.
-    fn compile_request(
-        &mut self,
-        request: MirLoweringRequestV1<'_>,
-        source_file: Option<&str>,
-    ) -> Result<MirCompileResult, MirLoweringRequestErrorV1> {
-        match request {
-            MirLoweringRequestV1::Resolved(input) => self
-                .compile_resolved_first_family(input, source_file)
-                .map_err(MirLoweringRequestErrorV1::Canonical),
-            MirLoweringRequestV1::Legacy { input, imports } => {
-                let (ast, _legacy_origin) = input.into_parts();
-                self.compile_legacy_candidate(ast, source_file, imports)
-                    .map_err(MirLoweringRequestErrorV1::Legacy)
-            }
-        }
     }
 
     fn compile_resolved_first_family(
