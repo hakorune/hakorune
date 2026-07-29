@@ -12,10 +12,7 @@ pub mod control_flow;
 pub mod phi_helpers;
 
 // 外部公開API
-pub use control_flow::{
-    capture_actual_predecessor_and_jump, collect_phi_incoming_if_reachable,
-    execute_statement_with_termination_check, is_current_block_terminated,
-};
+pub use control_flow::is_current_block_terminated;
 
 // PHI挿入ヘルパー（MirBuilderのextension methodsとして実装）
 // 使用例: self.insert_phi(vec![(block1, val1), (block2, val2)])?

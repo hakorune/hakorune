@@ -5,7 +5,7 @@
  * フェーズS（即効止血）からフェーズL（根本解決）まで共通利用
  */
 
-use super::super::{BasicBlockId, MirBuilder};
+use super::super::MirBuilder;
 
 /// **外部関数**: 現在のブロックが終端済みかチェック
 ///
@@ -19,77 +19,4 @@ use super::super::{BasicBlockId, MirBuilder};
 /// ```
 pub fn is_current_block_terminated(builder: &MirBuilder) -> Result<bool, String> {
     builder.checked_current_block_terminated()
-}
-
-/// **外部関数**: 実到達ブロックを捕捉してJump発行
-///
-/// 最強モード指摘の「実到達predecessor捕捉」を汎用化
-/// break/continue後の到達不能ブロックは除外
-///
-/// # 戻り値
-/// - `Some(predecessor_id)`: Jump発行済み、PHI incomingに使用可能
-/// - `None`: 既に終端済み、PHI incomingから除外すべき
-///
-/// # 使用例
-/// ```rust
-/// if let Some(pred_id) = capture_actual_predecessor_and_jump(builder, merge_bb)? {
-///     phi_incomings.push((pred_id, value));
-/// }
-/// ```
-pub fn capture_actual_predecessor_and_jump(
-    builder: &mut MirBuilder,
-    target_block: BasicBlockId,
-) -> Result<Option<BasicBlockId>, String> {
-    builder.capture_current_predecessor_and_jump(target_block)
-}
-
-/// **外部関数**: 条件付きPHI incoming収集
-///
-/// 到達可能な場合のみincomingをリストに追加
-/// フェーズM、フェーズLでの型安全性向上にも対応
-///
-/// # 使用例
-/// ```rust
-/// let mut incomings = Vec::new();
-/// collect_phi_incoming_if_reachable(&mut incomings, then_pred, then_value);
-/// collect_phi_incoming_if_reachable(&mut incomings, else_pred, else_value);
-/// ```
-pub fn collect_phi_incoming_if_reachable(
-    incomings: &mut Vec<(BasicBlockId, super::super::ValueId)>,
-    predecessor: Option<BasicBlockId>,
-    value: super::super::ValueId,
-) {
-    if let Some(pred_id) = predecessor {
-        incomings.push((pred_id, value));
-    }
-    // None（到達不能）の場合は何もしない
-}
-
-/// **外部関数**: 終端チェック付きステートメント実行
-///
-/// build_statement後の終端チェックを自動化
-/// フェーズSでの「終端ガード徹底」を支援
-///
-/// # 戻り値
-/// - `Ok(true)`: 正常実行、継続可能
-/// - `Ok(false)`: 終端済み、ループ脱出すべき
-/// - `Err(_)`: エラー
-pub fn execute_statement_with_termination_check(
-    builder: &mut MirBuilder,
-    statement: crate::ast::ASTNode,
-) -> Result<bool, String> {
-    let _result = builder.build_expression(statement)?;
-
-    // 終端チェック（統一処理）
-    let terminated = is_current_block_terminated(builder)?;
-    Ok(!terminated)
-}
-
-#[cfg(test)]
-mod tests {
-
-    // ユニットテスト（将来追加）
-    // - 終端検出の正確性
-    // - 実到達ブロック捕捉の正確性
-    // - PHI incoming除外の正確性
 }

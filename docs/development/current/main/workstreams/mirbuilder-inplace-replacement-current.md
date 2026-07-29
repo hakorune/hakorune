@@ -714,7 +714,8 @@ R13 MIR-INTERPRETER-DETACHED-ASSET-RETIRE0-RET0 closed
 R14 BENCH-DETACHED-ASSET-RETIRE0-RET0 closed
 R15 INTERPRETER-LEGACY-FEATURE-CLOSURE0-D0 closed: Retire
 R16 INTERPRETER-LEGACY-FEATURE-RETIRE0-RET0 closed
-R17 MIR-CONTROL-FLOW-DETACHED-HELPERS0-RET0 current
+R17 MIR-CONTROL-FLOW-DETACHED-HELPERS0-RET0 closed
+R18 RAW-NONPROGRAM-VARIABLE-ASSIGNMENT-COMPOSITIONAL-DESCENT0-D0 current
 
 after every bounded retirement:
   run a fresh live-edge census
@@ -733,9 +734,9 @@ Source-level Ownership/View and other new language semantics do not enter the
 MirBuilder replacement train. Analysis-only views used to observe existing
 control flow are not source-language View activation.
 
-Current row `MIR-CONTROL-FLOW-DETACHED-HELPERS0-RET0` deletes three caller-zero
-`mir::utils` helpers and re-exports, including one direct raw `build_expression`
-edge. Keep live block termination authority; add no replacement or fallback.
+Current stop `RAW-NONPROGRAM-VARIABLE-ASSIGNMENT-COMPOSITIONAL-DESCENT0-D0`
+audits exact Variable-target / port-neutral-RHS assignment descent through the
+existing selected port, with same-commit compatibility removal and no retry.
 
 ## Closed tail
 
