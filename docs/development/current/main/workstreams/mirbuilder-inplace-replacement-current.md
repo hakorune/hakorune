@@ -81,8 +81,38 @@ Closed:  MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
 Closed:  CALL-BOX-KIND-POLICY-SSOT0-I0-R0
 Closed:  MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0
 Closed:  CALL-NAME-CLASSIFICATION-SSOT0-I0-R0
-Current: MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0
-Mode:    read-only production edge census
+Closed:  MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0
+Current: RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0
+Mode:    one atomic T0 I0/R0
+```
+
+## Current execution brief
+
+`RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0` / parent R62 / T0 /
+`CONTROL0`
+
+```text
+Change:
+  Move the live MatchExpr scrutinee, complete arm vector, and else expression
+  directly from the raw dispatcher into build_peek_expression_with_port_v1.
+  Consume the owned arm vector once with into_iter. Delete the three dispatcher
+  clones and the arm-loop clone in the same commit.
+
+Contract:
+  Preserve eager scrutinee/arm/else order, block and ValueId allocation order,
+  compare/branch/PHI topology and input order, first child error, candidate
+  discard/reuse, selected child port, and all diagnostics. Grammar, route,
+  publication, fallback/retry, View, and Ownership do not move.
+
+Done:
+  The four live Match AST clone edges are zero. Existing Match/Return and
+  normal-vs-legacy parity evidence is green, and one existing shared MirBuilder
+  guard fixes the consuming-input law. No new source/test/check file.
+
+Stop:
+  Return to design if moving the owned inputs changes CFG/PHI or ValueId order,
+  else timing, failure state, the selected port, or requires a new facade,
+  product, compatibility owner, route, grammar rule, or retry.
 ```
 
 R1 closeout:
@@ -1244,7 +1274,8 @@ R58 MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 closed
 R59 CALL-BOX-KIND-POLICY-SSOT0-I0-R0 closed
 R60 MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0 closed
 R61 CALL-NAME-CLASSIFICATION-SSOT0-I0-R0 closed
-R62 MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0 current
+R62 MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0 closed: Match owned-input selected
+R63 RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

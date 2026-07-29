@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "CALL-NAME-CLASSIFICATION-SSOT0-I0-R0 is closed. One neutral total-match policy now emits independent Raw unified-admission and Callee-class facts for three production responsibility boundaries. Four old predicate definitions and six old predicate edges are deleted; exact cross-surface behavior and builtin -> static -> local -> extern priority are green. Four stale stable guard entrypoints are transported to the shared owner guard, Hako classifier parity remains green, and no compatibility/fallback/route/grammar/result/View/Ownership delta was introduced. The only current stop is a fresh read-only live-edge census."
-date = "2026-07-29"
+status = "The post-call-name fresh live-edge census selected RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0. The live MatchExpr dispatcher must move its already-owned scrutinee, arms, and else expression directly into the existing port-aware owner, and that owner must consume arms once in source order. The same atomic T0 commit deletes four redundant AST clone edges without changing Match grammar, CFG/PHI construction, diagnostics, route, publication, fallback, View, or Ownership."
+date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = ""
+current_design_stop = ""
+current_execution_row = "RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0"
+current_execution_summary = "Consume the live MatchExpr scrutinee, arms, and else expression exactly once; delete the dispatcher clones and the arm iterator clone while preserving exact Match CFG/PHI/error behavior."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, and cfg(test) short-circuit facade edges are deleted. Raw expression descent is now the sole live expression entry, with Return/If oracle independence and exact Local setup evidence preserved. The accepted facade-retirement series is closed. A fresh read-only live-edge census must select the next behavior-neutral MirBuilder responsibility; View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, and cfg(test) short-circuit facade edges are deleted. Raw expression descent is now the sole live expression entry, with Return/If oracle independence and exact Local setup evidence preserved. The next atomic T0 row removes the live MatchExpr dispatcher/input clone edges and makes the existing port-aware Match owner the single consuming source owner. View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """CALL-NAME-CLASSIFICATION-SSOT0-I0-R0 is closed. One total-match policy owns both independent call-name facts; three production boundaries consume only their projection, four old definitions and six old edges are zero, and resolution priority plus parity/reuse evidence are green. Stable proof entrypoints were transported to the shared owner guard. The next authority is a fresh read-only live-edge census."""
+latest_card_summary = """RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0 is selected as one atomic T0 production cleanup. Move the already-owned Match scrutinee, arms, and else expression into the existing port-aware owner and consume arms with into_iter; delete four redundant clone edges while preserving exact Match CFG, PHI, diagnostics, failure isolation, and route behavior."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0"
+current_blocker_token = "RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
