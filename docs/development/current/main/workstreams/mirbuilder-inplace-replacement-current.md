@@ -109,13 +109,13 @@ Read:
   Perform a fresh live production-edge census after raw static-Main
   compatibility stopped retaining/reclassifying raw AST in Lower.
 
-  Before selecting any non-JoinModule replacement, record the JoinModule
-  live-route census.  The broad `JoinModule` file count is not a progress
-  metric: separate the normalizer execution bridge from env-gated
-  VM/reference routes and lower-only/test artifacts.  If the normalizer
-  route proves to be a current production authority, select a separate
-  `JOINMODULE-NORMALIZATION-BRIDGE-BOUNDARY0-D0` instead of silently
-  bypassing it.  Do not revive legacy JoinModule as a second final planner.
+  Do not select legacy `JoinModule` work in this R2/R3 census.  Its broad
+  file count is not a current edge metric, and legacy JoinModule must not be
+  revived as a second final planner.  At repository-wide final-pipeline
+  completion, record one explicit disposition: retire the remaining
+  carrier/boundary surfaces, or retain each named surface with its scope,
+  caller census, and prohibition on final-pipeline authority.  Completion
+  cannot be declared without that decision.
 
 Select only if:
   one named caller has a competing authority; one bounded owner can replace it;
@@ -613,6 +613,13 @@ Eight-pack verdict:
 | `FUNCTION-LIFECYCLE0` | Residual | selected-normal is complete; raw legacy direct function publication remains |
 | `MODULE-LIFECYCLE0` | Residual | selected-normal is complete; two production arbitrary-AST `build_module` surfaces remain |
 | `COMPILER-RESIDUE0` | Residual | MirCompiler/runtime arbitrary-AST compatibility remains; Stage-B activation is zero |
+
+Repository-wide final-pipeline completion additionally requires a **legacy
+JoinModule disposition decision**.  The decision is not a blind `JoinModule`
+file-count target: it must classify remaining carrier/boundary use, state
+whether each surface is retired or intentionally retained, and prove that no
+retained surface is a final planner, acceptance truth, or normal/default
+pipeline route.
 
 ## Closed execution
 
