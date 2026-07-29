@@ -84,42 +84,43 @@ Closed:  CALL-NAME-CLASSIFICATION-SSOT0-I0-R0
 Closed:  MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0
 Closed:  MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0
-Current: RECORD-HELPER-BODY-INVOCATION0-I0-R0
-Mode:    one atomic T1 I0/R0
+Closed:  RECORD-HELPER-BODY-INVOCATION0-I0-R0
+Current: MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0
+Mode:    read-only production edge census
 ```
 
-## Current execution brief
+## Latest closeout
 
-`RECORD-HELPER-BODY-INVOCATION0-I0-R0` / parent R64 / T1 /
-`FUNCTION-LIFECYCLE0`
+`RECORD-HELPER-BODY-INVOCATION0-I0-R0` / `291e2bc316` / T1 /
+`FUNCTION-LIFECYCLE0` closed.
 
 ```text
-Change:
-  After each existing caller completes argument descent, move the helper name,
-  optional receiver, completed bindings, and owned body into one private
-  non-Clone PreparedRecordHelperBodyInvocationV1. Its sole lowering terminal
-  owns binding installation, source-order scan to first Return, and exact
-  variable-map restoration. Delete both old helper-body functions and calls.
+result:
+  Both live helper-inline callers keep argument evaluation and setter trace
+  outside, then move their prepared helper, receiver, and completed bindings
+  into one non-Clone PreparedRecordHelperBodyInvocationV1. It consumes the body
+  once, preserves me-before-parameter overwrite and first-Return behavior, and
+  restores the exact outer variable map on success and every body failure.
 
-Contract:
-  Keep argument evaluation and setter trace outside the owner. Preserve me
-  installation before parameters, parameter overwrite, first-Return/suffix
-  behavior, Void and missing-return diagnostics, and exact map restoration on
-  success and every body failure. MIR/type/slot/binding/CFG prefix effects are
-  not rolled back. Route/grammar/fallback/View/Ownership do not move.
+delete:
+  inline_record_helper_body = 0
+  lower_record_helper_body_until_return = 0
+  helper Return/statement AST clones = 0
 
-Done:
-  The two live execute terminals call the consuming owner exactly once; the
-  freely recombinable raw-parts entry and both old body helpers are zero.
-  Existing record-helper tests cover success, body failure, missing Return,
-  restoration/reuse, and caller parity. Extend an existing shared guard only;
-  no new source/test/check file and every touched source/check remains <800.
+evidence:
+  focused success/failure/missing-Return/scope tests, general normal parity,
+  late failure isolation/compiler reuse, the method-call shared guard, the
+  MirBuilder lane guard, and release build are green. quick remains red only
+  on the known unrelated EBNF `--syntax-3` naming-token failure. The stale
+  route0 helper guard also still names a previously deleted preloop file and
+  is not evidence for this cell.
 
-Stop:
-  Return to design if argument descent or trace must move inside, restoration
-  widens beyond variable_map, a generic scope/transaction API is needed,
-  diagnostics or accepted body shape change, either old helper remains, or
-  retry/fallback/new compatibility appears.
+structure:
+  no new source/test/check file; touched source/check = 651 / 334 / 457 / 798
+  lines. Route/grammar/result/fallback/View/Ownership delta = 0.
+
+next:
+  fresh read-only live-edge census; no candidate is preselected.
 ```
 
 R1 closeout:
@@ -1284,7 +1285,8 @@ R61 CALL-NAME-CLASSIFICATION-SSOT0-I0-R0 closed
 R62 MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0 closed: Match owned-input selected
 R63 RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0 closed
 R64 MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 closed: record-helper body selected
-R65 RECORD-HELPER-BODY-INVOCATION0-I0-R0 current
+R65 RECORD-HELPER-BODY-INVOCATION0-I0-R0 closed
+R66 MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

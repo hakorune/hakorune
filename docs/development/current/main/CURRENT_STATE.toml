@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The post-Match fresh live-edge census selected RECORD-HELPER-BODY-INVOCATION0-I0-R0. Two live MethodCall helper-inline terminals already finish all argument descent before entering one common body boundary. The selected T1 row introduces one private consuming body-invocation owner for binding installation, first-Return descent, and exact variable-map restoration, and atomically deletes the two old raw-parts helper terminals. Argument order/timing, diagnostics, prefix effects, grammar, route, fallback, View, and Ownership must not change."
+status = "RECORD-HELPER-BODY-INVOCATION0-I0-R0 is closed at 291e2bc316. Two live MethodCall helper-inline callers now move their already-completed receiver/bindings/body into one private consuming owner after argument descent. That owner installs bindings, consumes statements through the first Return, and restores the exact outer variable map; the two old raw-parts body helpers and their AST clones are deleted. Focused scope/failure tests, normal parity/reuse, shared guards, and release build are green. The only current stop is a fresh read-only live-edge census."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RECORD-HELPER-BODY-INVOCATION0-I0-R0"
-current_execution_summary = "After existing argument descent, consume one prepared record-helper body invocation that owns receiver/bindings/body, first-Return lowering, and exact variable-map restoration; delete both old helper-body terminals."
+current_design_stop = "MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0"
+current_execution_row = ""
+current_execution_summary = ""
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, and the live MatchExpr input clone edges are deleted. The next T1 row replaces two live record-helper raw-parts body terminals with one private consuming body-invocation owner after argument descent. View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, and the two record-helper raw-parts body terminals are deleted. Record-helper scope/lowering is now one consuming owner after argument descent. A fresh read-only census must select the next production responsibility. View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RECORD-HELPER-BODY-INVOCATION0-I0-R0 is selected as one atomic T1 replacement. Existing record-helper and same-module-setter callers keep argument descent outside, then move receiver, completed bindings, and owned body into one consuming invocation owner. The same commit deletes inline_record_helper_body and lower_record_helper_body_until_return while preserving exact scope/restoration and failure behavior."""
+latest_card_summary = """RECORD-HELPER-BODY-INVOCATION0-I0-R0 is closed at 291e2bc316. Existing argument descent and setter trace remain outside; one private non-Clone owner consumes receiver, completed bindings, and body, restores the exact variable map on all outcomes, and stops at the first Return. Both old helper-body terminals and body AST clones are zero. The next authority is a fresh read-only live-edge census."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RECORD-HELPER-BODY-INVOCATION0-I0-R0"
+current_blocker_token = "MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
