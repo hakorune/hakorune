@@ -647,7 +647,7 @@ def main() -> int:
     )
     for fragment in (
         "capture_static_box_method_pending_v1",
-        "capture_instance_box_method_pending_v1",
+        "capture_normalized_instance_box_method_pending_v1",
         "PortAwarePreparedDraftBodyV1",
         "finalize_function_draft_with_headers",
     ):

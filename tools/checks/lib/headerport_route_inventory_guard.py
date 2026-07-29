@@ -534,7 +534,7 @@ def verify_borrow_raw_p0(
     )[1].split("impl RawFunctionHeaderLookupPortV1", 1)[0]
     for fragment in (
         "capture_static_box_method_pending_v1(",
-        "capture_instance_box_method_pending_v1(",
+        "capture_normalized_instance_box_method_pending_v1(",
         ".commit_legacy_pending(pending, admission)",
         "LegacyChildDraftAdmissionV1::legacy_symbol",
     ):

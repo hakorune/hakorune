@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, LiteralValue, Span};
+use crate::ast::{ASTNode, LiteralValue, ParamDecl, Span};
 use crate::mir::{MirBuilder, MirInstruction, ValueId};
 
 use super::recursive_child_lowering::{
@@ -196,4 +196,37 @@ fn typeop_receiver_uses_nested_raw_depth_guard_without_publishing_on_failure() {
     let error = drive_raw_legacy_expression_v1(&mut builder, typeop(integer(9))).unwrap_err();
     assert!(error.contains("Recursion depth exceeded: 201"));
     assert_eq!(instructions(&builder), before);
+}
+
+#[test]
+fn instance_parameter_normalization_is_idempotent_before_capture() {
+    for function_name in ["Page.run/1", "Page.birth/1", "Page.init/1", "Page.pack/1"] {
+        let params = vec!["me".to_string(), "value".to_string()];
+        let once = crate::mir::builder::calls::lowering::normalize_instance_method_params(
+            function_name,
+            params,
+        );
+        let twice = crate::mir::builder::calls::lowering::normalize_instance_method_params(
+            function_name,
+            once.clone(),
+        );
+        assert_eq!(once, twice, "{function_name}");
+
+        let declarations = ["me", "value"]
+            .into_iter()
+            .map(|name| ParamDecl {
+                name: name.to_string(),
+                declared_type_name: Some("i64".to_string()),
+            })
+            .collect();
+        let once = crate::mir::builder::calls::lowering::normalize_instance_method_param_decls(
+            function_name,
+            declarations,
+        );
+        let twice = crate::mir::builder::calls::lowering::normalize_instance_method_param_decls(
+            function_name,
+            once.clone(),
+        );
+        assert_eq!(once, twice, "{function_name}");
+    }
 }

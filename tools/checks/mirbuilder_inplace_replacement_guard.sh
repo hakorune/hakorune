@@ -586,8 +586,7 @@ ordinary_binary_external_count="$(
         '$1 != owner && $1 != tests { count += 1 } END { print count + 0 }'
 )"
 if [[ "$ordinary_binary_external_count" != "2" ]]; then
-  guard_fail "$TAG" \
-    "ordinary Binary external sites must be one raw/default plus one detached: count=$ordinary_binary_external_count"
+  guard_fail "$TAG" "ordinary Binary external sites must be one raw/default plus one detached: count=$ordinary_binary_external_count"
 fi
 short_circuit_external_count="$(
   rg -n -P '\bdrive_short_circuit_expression_v1\s*\(' \
@@ -598,8 +597,7 @@ short_circuit_external_count="$(
         '$1 != owner && $1 != tests { count += 1 } END { print count + 0 }'
 )"
 if [[ "$short_circuit_external_count" != "2" ]]; then
-  guard_fail "$TAG" \
-    "short-circuit external sites must be one raw/default plus one detached: count=$short_circuit_external_count"
+  guard_fail "$TAG" "short-circuit external sites must be one raw/default plus one detached: count=$short_circuit_external_count"
 fi
 for retired_pattern in \
   '\b(?:fn\s+)?build_binary_op\s*\(' \
@@ -614,6 +612,8 @@ if rg -n -w 'retry|fallback' "$BINARY_DESCENT" "$SHORT_CIRCUIT_DESCENT" >/dev/nu
   guard_fail "$TAG" "Binary owner gained retry or route fallback"
 fi
 guard_exact_counts <<EOF
+$RAW_CHILD_PORT|normalize_instance_method_params\\(|1|single instance params normalization
+$RAW_CHILD_PORT|normalize_instance_method_param_decls\\(|1|single instance param-decls normalization
 $METHOD_CALL_DESCENT|\\benum\\s+CatalogHelperChildV1\\b|1|catalog helper child vocabulary
 $METHOD_CALL_DESCENT|\\[method-call-descent/catalog-helper-child-unsupported\\]|1|fail-closed custom-port default
 $RECORD_HELPER|CatalogHelperChildV1::Expression\\(\\*expression\\)|1|owned catalog helper expression terminal

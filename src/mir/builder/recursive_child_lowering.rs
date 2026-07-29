@@ -313,7 +313,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     }
 
     /// Instance counterpart of the port-aware capture seam.
-    pub(in crate::mir::builder) fn capture_instance_box_method_pending_v1<'builder>(
+    pub(in crate::mir::builder) fn capture_normalized_instance_box_method_pending_v1<'builder>(
         &mut self,
         builder: &'builder mut MirBuilder,
         function_name: String,
@@ -325,12 +325,6 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<LegacyFunctionPendingSessionV1<'builder>, ModuleLoweringPortChildErrorV1> {
-        let params =
-            super::calls::lowering::normalize_instance_method_params(&function_name, params);
-        let param_decls = super::calls::lowering::normalize_instance_method_param_decls(
-            &function_name,
-            param_decls,
-        );
         let body_snapshot = body.clone();
         let session_name = function_name.clone();
         let pending = {
@@ -570,7 +564,7 @@ impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
         let admission =
             LegacyChildDraftAdmissionV1::legacy_symbol(function_name.clone(), expected_arity);
         let pending = self
-            .capture_instance_box_method_pending_v1(
+            .capture_normalized_instance_box_method_pending_v1(
                 builder,
                 function_name,
                 box_name,
