@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Field read source-route-once is closed; the next live MirBuilder production edge must be selected by a fresh census."
+status = "The next live MirBuilder replacement seals one Print TypeOp or General source route before child effects."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-FIELD-READ-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = "FieldAccess now owns one prepared record-backed or Dynamic route; select the next live production edge without adding language features."
+current_design_stop = ""
+current_execution_row = "RAW-PRINT-SOURCE-ROUTE-ONCE0-I0-R0"
+current_execution_summary = "Classify Print once into Function/Method TypeOp or General, replay legacy debug trace from a receipt, and delete duplicate source probes, clones, and caller-zero facades."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-FIELD-READ-SOURCE-ROUTE-ONCE0-I0-R0 is closed. The sole production FieldAccess arm now issues one opaque ExistingRecord, RecordConstructor, RecordLiteral, RecordUpdate, or Dynamic route before effects; record construction/update and property/FastMem timing remain unchanged, while the Option record probe, dispatcher clones, and caller-zero read facades are gone. The next step is a fresh live-edge census. Print remains a T1 candidate; compound Index and indirect Call require T2 D0. View, Ownership, and feature additions remain parked."""
+latest_card_summary = """The post-Field census selected RAW-PRINT-SOURCE-ROUTE-ONCE0-I0-R0. The sole production Print arm will issue one opaque Function TypeOp, Method TypeOp, or General route before effects, preserve the exact legacy debug sequence through a bounded trace receipt, and atomically delete the CallExpr clone probe, duplicate raw FunctionCall observation, TypeOp child clones, and caller-zero Print facades. Assignment remains a later T1 candidate; direct FunctionCall, compound Index, and indirect Call require T2 D0. View, Ownership, and feature additions remain parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-POST-FIELD-READ-LIVE-EDGE-CENSUS0-D0"
+current_blocker_token = "RAW-PRINT-SOURCE-ROUTE-ONCE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

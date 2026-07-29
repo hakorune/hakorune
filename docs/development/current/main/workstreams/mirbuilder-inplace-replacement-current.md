@@ -581,17 +581,21 @@ largest touched source/check file          = 799
 ## Current execution row
 Closed: `RAW-FROM-CALL-ROUTE-ONCE0-I0-R0`, `RAW-SCOPEBOX-BODY-ROUTE-ONCE0-I0-R0`.
 ```text
-Closed: RAW-ENUM-MATCH-ROUTE-ONCE0-I0-R0, CONTROL0/T1.
-Evidence: one opaque projection/bool route, one scrutinee descent,
-  exact guard-let MIR, parser coverage, cargo check, and guard green.
-Deleted: dispatcher clones, Option probe, duplicate arm observation,
-  raw-input and caller-zero facades.
-Closed: RAW-FIELD-READ-SOURCE-ROUTE-ONCE0-I0-R0, CALL-OBJECT0/T1.
+Closed: RAW-ENUM-MATCH-ROUTE-ONCE0-I0-R0 and
+  RAW-FIELD-READ-SOURCE-ROUTE-ONCE0-I0-R0.
 Evidence: exact 5-route partition; record constructor/literal/update,
   property, FastMem, failure/reuse, cargo check, and guards are green.
 Deleted: dispatcher clones, Option record probe, and read facades.
 Kept: post-child property/FastMem facts and all write/place paths.
-Next: MIRBUILDER-POST-FIELD-READ-LIVE-EDGE-CENSUS0-D0.
+Current: RAW-PRINT-SOURCE-ROUTE-ONCE0-I0-R0, DESCENT-SPINE0/T1.
+Named caller: statement_surface.rs sole ASTNode::Print arm.
+New owner: opaque PreparedRawPrintV1; Function/Method TypeOp or General.
+Atomic delete: CallExpr clone probe, duplicate FunctionCall observation,
+  operand/object clones, and both caller-zero Print facades.
+Keep: exact legacy debug trace via receipt; TypeOp always extern log;
+  General still uses build_print_from_value and unified policy.
+Forbid: source re-observation, route retry, debug/result/effect delta,
+  new test/check file, or any touched source/check file >= 800.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
