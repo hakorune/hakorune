@@ -29,44 +29,47 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0
-Result:        selected Program declaration indexing is one source-only,
-               source-ordered product; the old indexer edge and file are gone
-Latest design: PROGRAM-ROOT-WORK-PARTITION0-D0 accepted
-Executable:    PROGRAM-ROOT-WORK-PARTITION0-I0-R0
+Latest landed: PROGRAM-ROOT-WORK-PARTITION0-I0-R0
+Result:        selected Program root work is one source-only, source-ordered
+               plan; the old mixed coordinator is gone
+Latest design: MIRBUILDER-LIVE-EDGE-CENSUS0
+Executable:    read-only census; no implementation row selected
 History:       Git history and the short landed tail below
 ```
 
 ## Current stop
 
-`PROGRAM-ROOT-WORK-PARTITION0-I0-R0` — T2, one atomic implementation
+`MIRBUILDER-LIVE-EDGE-CENSUS0` — read-only selection
 
 ```text
 Change:
-  The selected live caller replaces `lower_program_statements_with_callable_port_v1`
-  with one consuming `PreparedProgramRootWorkPlanV1`; delete the full lower-side AST
-  scan, runtime Function filter, deferred-static vector, and direct top-level function
-  port projection in the same commit.
+  Re-read live production edges after the Program-root work-plan replacement. Select at
+  most one named edge or detached Delete asset only when its old authority can be deleted
+  in the same commit.
 
-Contract:
-  The plan consumes the once-cloned statement vector and source-only partitions it into
-  immediate instance/top-level-function work, App-only deferred non-Main static work,
-  all non-Function runtime statements, and an already-verified Script/App terminal
-  schedule. Existing facts, static-table, instance/static/Main lifecycle, collector,
-  DraftSeal, result policy, and RootLower failure authority do not move.
-
-Done:
-  Preserve `facts -> static-table -> immediate -> deferred -> terminal`, source order,
-  runtime Box retention, candidate discard/atomic collector behavior, and one root clone.
-  Add module-local partition/order evidence; retain normal parity, reuse, and imports gates.
-
-Stop:
-  Return to design for AST reclassification during execution, a second root clone or
-  source reread, new rejection/terminal ownership, changed Script/App behavior, partial
-  replacement, retry/fallback, or a need for a new per-row guard.
+Do not select:
+  new source acceptance families, whole-function variants, a production fallback/retry,
+  a second route, or Ownership/View/later language features.
 ```
 
 ## Latest closeout
+
+```text
+PROGRAM-ROOT-WORK-PARTITION0-I0-R0
+
+source-only source-ordered work plan                  = exactly one
+selected mixed Program statement coordinator           = 0
+facts -> static-table -> immediate -> deferred -> terminal = preserved
+runtime non-Function/Box retention                     = preserved
+Script/App terminal and collector failure authority    = unchanged
+normal general parity / candidate reuse / imports      = green
+fallback / retry / grammar / result delta              = 0
+new source/test/check file                             = 1 / 0 / 0
+largest touched source/check file                      < 800
+next                                                   = fresh live-edge census
+```
+
+## Previous closeout
 
 ```text
 NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0
@@ -102,7 +105,7 @@ largest touched source/check file                       < 800
 
 ```text
 Now
-  1 PROGRAM-ROOT-WORK-PARTITION0-I0-R0
+  1 MIRBUILDER-LIVE-EDGE-CENSUS0 (read-only)
 
 Then, repeat
   2 fresh live-edge census
@@ -1451,6 +1454,9 @@ R92 MIRBUILDER-LIVE-EDGE-CENSUS0 closed: raw non-Program is NoSafeI0, immediate
     sole selected T2 design stop; JoinModule remains final-C0 disposition work
 R93 PROGRAM-ROOT-WORK-PARTITION0-D0 closed: one total source-only partition of the
     mixed Program-root coordinator is accepted; atomic I0/R0 is next
+R94 PROGRAM-ROOT-WORK-PARTITION0-I0-R0 closed: one source-only work plan replaces the
+    mixed coordinator while preserving source order, runtime retention, and terminals;
+    fresh live-edge census is current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

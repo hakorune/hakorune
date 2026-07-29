@@ -605,10 +605,11 @@ def verify_nonmain_static_method_batch(
     instance_lifecycle = (root / "src/mir/builder/instance_box_declaration_lifecycle.rs").read_text(); instance_metadata = (root / "src/mir/builder/instance_box_declaration_metadata.rs").read_text()
     order = (root / "src/mir/builder/declaration_order.rs").read_text()
     program = (root / "src/mir/builder/program_root_lowering.rs").read_text()
+    work_plan = (root / "src/mir/builder/program_root_work_plan.rs").read_text()
     raw = (root / "src/mir/builder/raw_expression_dispatch/mod.rs").read_text(); raw_static_lifecycle = (root / "src/mir/builder/raw_expression_dispatch/nonmain_static_box_lifecycle.rs").read_text()
-    if any(len(text.splitlines()) >= 800 for text in (batch, constructors, instance_methods, instance_lifecycle, instance_metadata, program, raw, raw_static_lifecycle)):
+    if any(len(text.splitlines()) >= 800 for text in (batch, constructors, instance_methods, instance_lifecycle, instance_metadata, program, work_plan, raw, raw_static_lifecycle)):
         raise AssertionError("Box member-batch sources reached 800 lines")
-    require(builder_mod, "mod nonmain_static_box_method_batch;", "method-batch module")
+    require(builder_mod, "mod nonmain_static_box_method_batch;", "method-batch module"); require(builder_mod, "mod program_root_work_plan;", "Program-root work-plan module")
     require(builder_mod, "mod instance_box_declaration_lifecycle;", "instance lifecycle module")
     require(builder_mod, "mod instance_box_declaration_metadata;", "instance metadata module")
     require(raw, "mod nonmain_static_box_lifecycle;", "raw static lifecycle module")
@@ -636,9 +637,9 @@ def verify_nonmain_static_method_batch(
         forbid(raw, fragment, "raw caller-local instance lifecycle")
     for fragment in ("PreparedInstanceBoxDeclarationLifecycleV1", "lower_common_prefix_v1", "register_user_box_declared_fields(", "PreparedInstanceBoxDeclarationMetadataV1::prepare(", "metadata.lower_with_builder_v1(builder)?", "PreparedInstanceBoxConstructorBatchV1::prepare(", "PreparedInstanceBoxMethodBatchV1::prepare(", "lower_root_with_port_v1", "lower_raw_with_port_v1"):
         require(instance_lifecycle, fragment, "instance declaration lifecycle")
-    if (program + raw).count("PreparedInstanceBoxDeclarationLifecycleV1::prepare(") != 2:
+    if (work_plan + raw).count("PreparedInstanceBoxDeclarationLifecycleV1::prepare(") != 2:
         raise AssertionError("instance declaration lifecycle must have exactly two issuers")
-    if program.count(".lower_root_with_port_v1(self, callables)?") != 1:
+    if work_plan.count(".lower_root_with_port_v1(builder, callables)") != 1:
         raise AssertionError("Program must select the root lifecycle terminal once")
     if raw.count(".lower_raw_with_port_v1(self, port)?") != 1:
         raise AssertionError("raw must select the lookup-free lifecycle terminal once")

@@ -9,7 +9,6 @@ use crate::ast::ASTNode;
 use hakorune_mir_builder::BoxCompilationContext;
 
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
-use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::module_draft_collector::ModuleDraftCollectorV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
@@ -19,6 +18,7 @@ use super::normal_default_root_catalog_lifecycle::{
     NormalDefaultRootCatalogLifecycleErrorV1, PreparedNormalDefaultProgramRootV1,
 };
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
+use super::program_root_work_plan::{PreparedProgramRootWorkPlanV1, ProgramRootTerminalScheduleV1};
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::{MirBuilder, ValueId};
 
@@ -124,89 +124,40 @@ impl MirBuilder {
 
         let is_app_mode = expansion.is_app_mode();
         self.root_is_app_mode = Some(is_app_mode);
-        self.lower_program_statements_with_callable_port_v1(statements, expansion, callables)
+        let work = PreparedProgramRootWorkPlanV1::prepare(statements, is_app_mode);
+        self.lower_program_root_work_plan_with_callable_port_v1(work, expansion, callables)
     }
 
-    fn lower_program_statements_with_callable_port_v1<Port>(
+    fn lower_program_root_work_plan_with_callable_port_v1<Port>(
         &mut self,
-        statements: Vec<ASTNode>,
+        work: PreparedProgramRootWorkPlanV1,
         expansion: &VerifiedRawRootExpansionV1<'_>,
         callables: &mut Port,
     ) -> Result<ValueId, String>
     where
         Port: RootCallableCapturePortV1,
     {
-        use crate::ast::ASTNode as N;
-
-        let is_app_mode = expansion.is_app_mode();
-        let mut deferred_static_boxes: Vec<(String, HashMap<String, ASTNode>)> = Vec::new();
-        for statement in &statements {
-            if let N::BoxDeclaration {
-                name,
-                methods,
-                is_static,
-                fields,
-                field_decls,
-                constructors,
-                init_fields,
-                weak_fields,
-                ..
-            } = statement
-            {
-                if *is_static {
-                    if name != "Main" && is_app_mode {
-                        deferred_static_boxes.push((name.clone(), methods.clone()));
-                    }
-                } else {
-                    PreparedInstanceBoxDeclarationLifecycleV1::prepare(
-                        name,
-                        methods,
-                        fields,
-                        field_decls,
-                        constructors,
-                        init_fields,
-                        weak_fields,
-                    )
-                    .lower_root_with_port_v1(self, callables)?;
-                }
-            } else if let N::FunctionDeclaration {
-                name,
-                params,
-                param_decls,
-                return_type_name,
-                body,
-                uses,
-                attrs,
-                ..
-            } = statement
-            {
-                callables.lower_static_box_method(
-                    self,
-                    format!("{}/{}", name, params.len()),
-                    params.clone(),
-                    param_decls.clone(),
-                    return_type_name.clone(),
-                    body.clone(),
-                    uses.clone(),
-                    attrs.clone(),
-                )?;
-            }
+        let work = work.into_parts();
+        for immediate in work.immediate {
+            immediate.lower_with_port_v1(self, callables)?;
         }
-
-        let runtime_statements: Vec<N> = statements
-            .into_iter()
-            .filter(|statement| !matches!(statement, N::FunctionDeclaration { .. }))
-            .collect();
-        for (name, methods) in deferred_static_boxes {
+        for deferred in work.deferred_static {
+            let (name, methods) = deferred.into_parts();
             ProgramDeferredStaticBoxLifecycleV1::new(name, methods)
                 .lower_with_port_v1(self, callables)?;
         }
 
-        match expansion {
-            VerifiedRawRootExpansionV1::Script => callables.lower_body(self, runtime_statements),
-            VerifiedRawRootExpansionV1::App(main) => self
+        match (work.terminal, expansion) {
+            (ProgramRootTerminalScheduleV1::ScriptRuntime, VerifiedRawRootExpansionV1::Script) => {
+                callables.lower_body(self, work.runtime_statements)
+            }
+            (
+                ProgramRootTerminalScheduleV1::VerifiedAppMain,
+                VerifiedRawRootExpansionV1::App(main),
+            ) => self
                 .build_verified_static_main_box_with_port_v1(callables, main)
                 .map_err(|error| error.to_string()),
+            _ => Err("[freeze:contract][mir/program-root-work-plan/terminal-drift]".to_owned()),
         }
     }
 }

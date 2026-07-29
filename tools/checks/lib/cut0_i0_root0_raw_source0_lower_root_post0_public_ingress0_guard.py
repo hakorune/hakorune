@@ -156,7 +156,6 @@ def main() -> int:
     for path, text in texts.items():
         if path.suffix in {".rs", ".py", ".sh"} and len(text.splitlines()) >= 800:
             raise AssertionError(f"ingress file must remain below 800 lines: {path}")
-
     ingress = texts[SOURCES[0]]
     tests = texts[SOURCES[1]]
     adapter = texts[SOURCES[2]]
@@ -435,7 +434,6 @@ def main() -> int:
     require(tests, "raw_public_ingress_reuses_one_compiler_for_two_successes", "reuse fixture")
     require(tests, "raw_public_ingress_failure_is_discarded_before_reuse", "failure/reuse fixture")
     require(adapter, "into_compatibility", "adapter handoff")
-
     if ingress.count("pub fn compile_raw_with_source") != 1:
         raise AssertionError("explicit Raw ingress producer must be exactly one")
     for forbidden in (
@@ -452,7 +450,6 @@ def main() -> int:
             raise AssertionError(f"Raw ingress leaks forbidden route: {forbidden}")
     if "runtime/mirbuilder_emit" in ingress or "Program(JSON" in ingress:
         raise AssertionError("Raw ingress must not alter JSON/runtime bridges")
-
     if caller_manifest.get("schema_version") != 1:
         raise AssertionError("caller manifest schema drift")
     raw_public = caller_manifest.get("raw_public", {})
@@ -468,7 +465,6 @@ def main() -> int:
     ]
     if len(raw_calls) != raw_public.get("non_test_callers"):
         raise AssertionError(f"Raw public non-test caller drift: {raw_calls}")
-
     normal = caller_manifest.get("normal_source_hint", {})
     count_by_manifest(normal.get("no_import_callers", {}), "compile_with_source_hint(")
     count_by_manifest(
@@ -615,6 +611,7 @@ def main() -> int:
         if retired in program_root_lowering:
             raise AssertionError(f"retired selected Main projection returned: {retired}")
     declaration_facts = production_code(ROOT / "src/mir/builder/program_declaration_facts.rs")
+    work_plan = production_code(ROOT / "src/mir/builder/program_root_work_plan.rs")
     if "declaration_indexer" in production_code(BUILDER_ROOT) or "declaration_indexer" in program_root_lowering:
         raise AssertionError("raw declaration indexer returned")
     if not all(fragment in declaration_facts for fragment in ("struct PreparedNormalProgramDeclarationFactsV1", "fn collect", "fn install_into", "collect_static_scalar_updates")):
@@ -623,6 +620,9 @@ def main() -> int:
         raise AssertionError("normal Program declaration facts caller drift")
     if program_root_lowering.index("PreparedNormalProgramDeclarationFactsV1::collect(snapshot)") > program_root_lowering.index("collect_static_table_specs_from_ast"):
         raise AssertionError("Program declaration facts must precede static-table planning")
+    if not all(fragment in work_plan for fragment in ("struct PreparedProgramRootWorkPlanV1", "fn prepare", "fn classify_statement", "ProgramRootTerminalScheduleV1")) or "lower_program_statements_with_callable_port_v1" in program_root_lowering: raise AssertionError("Program-root work partition drift")
+    if program_root_lowering.count("PreparedProgramRootWorkPlanV1::prepare(statements, is_app_mode)") != 1 or program_root_lowering.index("collect_static_table_specs_from_ast") > program_root_lowering.index("PreparedProgramRootWorkPlanV1::prepare(statements, is_app_mode)"): raise AssertionError("Program-root work preparation order drift")
+    if any(fragment in work_plan for fragment in ("ModuleDraftCollectorV1", "collect_static_table_specs_from_ast", "PreparedNormalProgramDeclarationFactsV1", "retry", "fallback", "NyashParser")): raise AssertionError("Program-root work plan gained outer authority")
     for retired in ("has_main_static", "root_is_app_mode.unwrap_or_else"):
         if retired in program_root_lowering:
             raise AssertionError(f"retired root route classifier returned: {retired}")
