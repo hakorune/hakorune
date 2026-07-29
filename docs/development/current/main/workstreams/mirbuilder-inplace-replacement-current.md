@@ -32,26 +32,35 @@ Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Latest landed: RAW-THROW-DEBUG-TRACE-COMPAT-RETIRE0-I0-R0
 Result:        physical Throw is the sole completion; debug-trace compatibility
                residue and its sunset are deleted
-Latest census: fresh live-edge census is current; Program declaration facts
-               remains a later T2 design shelf
-Executable:    none — census before selection
+Latest census: no safe immediate I0/R0; Program declaration facts selected
+               for T2 design before its live raw indexer can be replaced
+Executable:    none — design stop
 History:       Git history and the short landed tail below
 ```
 
 ## Current stop
 
-`MIRBUILDER-LIVE-EDGE-CENSUS0`
+`NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-D0` — T2 design stop
 
 ```text
-Read-only census only. Choose at most one row after recording:
-  named live production edge or detached Delete asset,
-  the exact old authority deleted in the same commit,
-  its non-growing compatibility surface and retirement condition when present,
-  and the focused evidence required for parity and reuse.
+Change:
+  Design one complete source-only declaration-facts owner for the sole live
+  `lower_program_root_with_callable_port_v1 -> declaration_indexer` edge.
 
-Do not preselect Program declaration facts, DraftSeal/collector, JoinModule,
-Ownership, View, or a missing language feature. If the next candidate requires
-new source/failure authority or grammar, stop at its D0 boundary.
+Contract:
+  Cover Brand, Enum, record/default, non-static/static Box, fields, and narrow
+  static-scalar facts; preserve catalog -> facts -> static-table -> body order.
+  Do not reuse the disconnected four-lane facts shell as truth or move weak
+  metadata, instance lifecycle, DraftSeal, collector, or static-table ownership.
+
+Done:
+  Name the input/product/rejection and installer boundary, source/default
+  retention, ordering/failure proof, test/guard placement under the 800-line
+  limit, and the same-commit old indexer deletion required for I0/R0.
+
+Stop:
+  No implementation, parser/read/identity, source clone/reparse, fallback, or
+  partial-lane cutover. Return to census if this is not one complete authority.
 ```
 
 ## Latest closeout
@@ -100,7 +109,7 @@ convergence. This list is evidence input, not execution order. Whole-function
 accepted variants remain frozen.
 
 JoinModule remains out of the current replacement commit, but not out of the
-completion definition. Its current 34,212-line inventory has no normal/default
+completion definition. Its current 34,827-line inventory has no normal/default
 consumer and still serves explicit dev/strict, VM-reference, and LLVM
 experiment families. Before Complete, final conformance must:
 
@@ -1409,6 +1418,9 @@ R87 RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0 closed: disable route and
     sunset retired; fresh live-edge census is current
 R88 RAW-THROW-DEBUG-TRACE-COMPAT-RETIRE0-I0-R0 closed: debug-trace route and
     sunset retired; fresh live-edge census is current
+R89 MIRBUILDER-LIVE-EDGE-CENSUS0 closed: no safe immediate I0/R0; Program
+    declaration facts selected for T2 D0, while JoinModule remains final-C0
+    family-disposition work
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
