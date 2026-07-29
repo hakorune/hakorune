@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Post-Throw census found no safe immediate production I0/R0. NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-D0 is selected: design one complete source-only declaration-facts owner before replacing the sole live raw indexer edge. Final conformance must settle JoinModule before Ownership, View, and later features."
+status = "NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-D0 is closed: one total source-only declaration-facts product will replace the sole live raw indexer edge in an atomic I0/R0. It preserves catalog -> facts -> static-table -> body order; final conformance must settle JoinModule before Ownership, View, and later features."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-D0"
-current_execution_row = ""
-current_execution_summary = "T2 design stop only: define a complete source-only Program declaration-facts owner for the sole live declaration_indexer edge. Preserve Brand, Enum, record defaults, Box/field registration, static-scalar facts, ordering, and failure precedence. No implementation or partial four-lane reuse before D0 closes."
+current_design_stop = ""
+current_execution_row = "NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0"
+current_execution_summary = "Replace declaration_indexer with one total source-only, source-ordered declaration-facts product and consuming installer. Preserve Brand, Enum/prelude overlay, record defaults, Box/field/weak normalization, static-scalar updates, and catalog -> facts -> static-table -> body precedence; delete the old indexer/file/wiring atomically."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, raw static-Main compatibility lower-side source classification, three raw static-Main facade layers, raw static-Main fresh-port reselection, the shared instance-Box lower-side metadata authority, the raw non-Main static-Box inline lifecycle authority, the old raw Lambda HashSet/ambient-me/pre-emit-metadata authority, the NYASH_BUILDER_DISABLE_TRYCATCH try-body-only compatibility route, and the NYASH_BUILDER_DISABLE_THROW debug-trace compatibility route are deleted. Post-Throw census selects Program declaration facts for a T2 design stop; it is the sole live raw indexer edge, but its complete source/failure authority is not yet defined. Stale proof surfaces, pipeline convergence, and function DraftSeal/collector convergence remain census shelves. Legacy JoinModule disposition and final parity are mandatory before repository-wide final-pipeline completion. Ownership, View, and later features remain parked until then. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, raw static-Main compatibility lower-side source classification, three raw static-Main facade layers, raw static-Main fresh-port reselection, the shared instance-Box lower-side metadata authority, the raw non-Main static-Box inline lifecycle authority, the old raw Lambda HashSet/ambient-me/pre-emit-metadata authority, the NYASH_BUILDER_DISABLE_TRYCATCH try-body-only compatibility route, and the NYASH_BUILDER_DISABLE_THROW debug-trace compatibility route are deleted. The current execution replaces the sole live Program declaration indexer with a complete source-only facts product; static-table, instance lifecycle, DraftSeal, and collector remain separate owners. Stale proof surfaces, pipeline convergence, and function DraftSeal/collector convergence remain census shelves. Legacy JoinModule disposition and final parity are mandatory before repository-wide final-pipeline completion. Ownership, View, and later features remain parked until then. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """Post-Throw live-edge census selects NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-D0. The sole live indexer mutates Brand, Enum, record/default, Box/field, and static-scalar facts; its replacement needs one complete source-only authority and preserved install/failure order. No immediate production I0/R0 or JoinModule deletion is selected. Final conformance must settle compatibility/detached assets, JoinModule disposition, and corpus/backend parity before Ownership, View, or missing features start."""
+latest_card_summary = """NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-D0 is closed. The next atomic I0/R0 replaces the sole raw indexer with one total source-only source-ordered facts product; its installer preserves catalog -> facts -> static-table -> body and existing RootLower failure/reuse behavior. The disconnected four-lane shell remains non-authoritative. Final conformance must settle compatibility/detached assets, JoinModule disposition, and corpus/backend parity before Ownership, View, or missing features start."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-D0"
+current_blocker_token = "NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

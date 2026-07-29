@@ -32,35 +32,39 @@ Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Latest landed: RAW-THROW-DEBUG-TRACE-COMPAT-RETIRE0-I0-R0
 Result:        physical Throw is the sole completion; debug-trace compatibility
                residue and its sunset are deleted
-Latest census: no safe immediate I0/R0; Program declaration facts selected
-               for T2 design before its live raw indexer can be replaced
-Executable:    none — design stop
+Latest design: Program declaration facts T2 accepted; one total source-only
+               product replaces the sole raw indexer without moving static table
+Executable:    NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0
 History:       Git history and the short landed tail below
 ```
 
 ## Current stop
 
-`NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-D0` — T2 design stop
+`NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-I0-R0` — T2, atomic implementation
 
 ```text
 Change:
-  Design one complete source-only declaration-facts owner for the sole live
-  `lower_program_root_with_callable_port_v1 -> declaration_indexer` edge.
+  Replace `declaration_indexer::index_declarations` with one total, source-only,
+  source-ordered facts product plus its consuming installer; delete the old file
+  and module wiring in the same commit.
 
 Contract:
-  Cover Brand, Enum, record/default, non-static/static Box, fields, and narrow
-  static-scalar facts; preserve catalog -> facts -> static-table -> body order.
-  Do not reuse the disconnected four-lane facts shell as truth or move weak
-  metadata, instance lifecycle, DraftSeal, collector, or static-table ownership.
+  Facts cover Brand, Enum/prelude overlay, record/default, Box/field/weak
+  normalization, and exact static-scalar updates. Preserve `catalog -> facts ->
+  static-table -> body`; static-table, later instance lifecycle, DraftSeal, and
+  collector remain separate. Existing record-default expression copies are allowed;
+  whole Program cloning, reparse, new source rejection, fallback, and retry are 0.
 
 Done:
-  Name the input/product/rejection and installer boundary, source/default
-  retention, ordering/failure proof, test/guard placement under the 800-line
-  limit, and the same-commit old indexer deletion required for I0/R0.
+  One caller uses the installer; old indexer definition/caller/module wiring are
+  zero. Local source-only facts tests, candidate failure/reuse and general parity
+  are green. Replace—not grow—the existing shared guard assertion; all files stay
+  below 800 lines.
 
 Stop:
-  No implementation, parser/read/identity, source clone/reparse, fallback, or
-  partial-lane cutover. Return to census if this is not one complete authority.
+  Stop for partial four-lane reuse, source/lower reclassification, changed
+  catalog/facts/static-table/body precedence, static-table or instance lifecycle
+  absorption, partial installation, or a need for a new per-row guard.
 ```
 
 ## Latest closeout
@@ -1421,6 +1425,8 @@ R88 RAW-THROW-DEBUG-TRACE-COMPAT-RETIRE0-I0-R0 closed: debug-trace route and
 R89 MIRBUILDER-LIVE-EDGE-CENSUS0 closed: no safe immediate I0/R0; Program
     declaration facts selected for T2 D0, while JoinModule remains final-C0
     family-disposition work
+R90 NORMAL-DEFAULT-PROGRAM-DECLARATION-FACTS0-D0 closed: total source-ordered
+    facts product accepted; atomic indexer replacement is next
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
