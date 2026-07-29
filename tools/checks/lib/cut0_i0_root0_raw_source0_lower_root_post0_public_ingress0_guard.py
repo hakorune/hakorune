@@ -618,8 +618,7 @@ def main() -> int:
         require(raw_nonprogram_root_descent, fragment, "recursive BlockExpr prelude partition")
     if raw_nonprogram_root_descent.count("node @ ASTNode::BlockExpr { .. }") != 2:
         raise AssertionError("BlockExpr root must have one safe and one compatibility arm")
-    expected_block_prelude = ["expr_tree", "print", "nowait", "annotation_free_local",
-                              "variable_assignment", "variable_compound_assignment", "plain_scope_box", "task_scope"]
+    expected_block_prelude = ["expr_tree", "print", "nowait", "annotation_free_local", "variable_assignment", "variable_compound_assignment", "plain_scope_box", "task_scope"]
     if root_descent.get("selected_block_prelude_responsibilities") != expected_block_prelude:
         raise AssertionError("selected BlockExpr prelude responsibility ratchet drift")
     if root_descent.get("safe_nonempty_block_compatibility_edge") != 0:
@@ -764,6 +763,8 @@ def main() -> int:
             "direct production build_module caller drift: "
             f"expected={expected_build_module} actual={actual_build_module}"
         )
+    runtime_emit = (ROOT / "src/runtime/mirbuilder_emit.rs").read_text()
+    if "json_to_ast" in runtime_emit or "lower_ast_json_to_module" in runtime_emit: raise AssertionError("runtime AST-JSON compatibility must remain retired")
     test_bridge = ROOT / "src/host_providers/mir_builder/lowering.rs"
     require(test_bridge.read_text(), "#[cfg(test)]\nmod ast_json;", "cfg(test) AST-JSON bridge")
     for relative in caller_manifest.get("direct_build_module_cfg_test", {}):

@@ -593,19 +593,17 @@ new source/test/check file           = 0
 largest touched source/check file    = 798
 ```
 
-## Current execution: `RUNTIME-MIRBUILDER-AST-JSON-COMPAT-RETIRE0-I0-R0`
+## Current design stop: `POST-MACRO-ROOT-CONTRACT0-D0`
 
 ```text
-Selected:
-  env.mirbuilder.emit accepts Program(JSON v0), production AST-JSON producer = 0
-Atomic delete:
-  AST decoder branch + runtime direct build_module edge + AST-only tests
-Preserve:
-  thin caller errors, imports, metadata refresh, MIR JSON normalization
-Next design:
-  POST-MACRO-ROOT-CONTRACT0-D0 before Stage1/VM/selfhost caller cutovers
+Audit:
+  Stage1, VM keep/fallback, VM-Hako, selfhost post-macro root contracts
+Decision:
+  Program-preserving whole-file macros or one explicit arbitrary-root authority
+Required:
+  NyChildMacroBox policy, caller-specific transport parity, atomic caller order
 Forbid:
-  replacement decoder, Program-v0 drift, fallback/retry, merged ingress authority
+  caller-local compatibility growth, Program->Legacy retry, API narrowing here
 ```
 
 Compatibility sunset:
@@ -645,12 +643,10 @@ MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001
   target/evidence: later named replacement rows plus production caller census
 
 RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001
-  state: active
-  measured build_module edge: src/runtime/mirbuilder_emit.rs = 1
-  owner: env.mirbuilder.emit AST-JSON compatibility
-  retire when: AST-JSON producers/callers are 0, or a Program-only contract is
-    sealed and its arbitrary-root build_module edge is 0
-  target/evidence: later runtime ingress row plus production caller census
+  state: closed
+  measured build_module edge: src/runtime/mirbuilder_emit.rs = 0
+  env.mirbuilder.emit contract: Program(JSON v0) only
+  AST JSON rejection: before Builder, no retry
 ```
 
 ## Queue
@@ -718,7 +714,8 @@ R24 RAW-NONPROGRAM-PLAIN-SCOPEBOX-COMPOSITIONAL-DESCENT0-D0 closed: Accept
 R25 RAW-NONPROGRAM-PLAIN-SCOPEBOX-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R26 RAW-NONPROGRAM-SAFE-THROW-ROOT-DESCENT0-D0 closed: NoProductionConstructor
 R27 RAW-NONPROGRAM-ROOT-INGRESS-POLICY0-D0 closed: IndependentSunsets
-R28 RUNTIME-MIRBUILDER-AST-JSON-COMPAT-RETIRE0-I0-R0 current
+R28 RUNTIME-MIRBUILDER-AST-JSON-COMPAT-RETIRE0-I0-R0 closed
+R29 POST-MACRO-ROOT-CONTRACT0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

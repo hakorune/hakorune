@@ -125,8 +125,8 @@ do
     guard_fail "$TAG" "compatibility sunset must have one first-class record: $sunset"
   fi
 done
-if [[ "$(rg -F -c '"production_build_module_edges": 1' "$CALLER_MANIFEST")" != "2" ]]; then
-  guard_fail "$TAG" "arbitrary-AST production sunsets must retain two measured edges"
+if [[ "$(rg -F -c '"production_build_module_edges": 1' "$CALLER_MANIFEST")" != "1" || "$(rg -F -c '"production_build_module_edges": 0' "$CALLER_MANIFEST")" != "1" ]]; then
+  guard_fail "$TAG" "arbitrary-AST production sunsets must retain one live and one retired edge"
 fi
 
 stageb_asset_count="$(awk -F '\t' '
