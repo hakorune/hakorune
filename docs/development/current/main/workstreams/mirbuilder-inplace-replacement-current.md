@@ -580,14 +580,23 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: RAW-UNARY-SOURCE-ROUTE-ONCE0-I0-R0, DESCENT-SPINE0/T1.
-Owner: PreparedRawUnaryV1 selects Weak or ordinary once before effects.
-Deleted: dispatcher Unary policy/string mapping, port facade, caller-zero facade.
-Preserved: literal fold, operand/completion order, facts, diagnostics, reuse.
-Evidence: focused tests, shared guards, cargo check, vm-reference smokes green.
-Current stop: MIRBUILDER-POST-UNARY-LIVE-EDGE-CENSUS0-D0.
-Next: fresh read-only census; no executable row is preselected.
-Parked: View/Ownership, features, FastMem, MethodCall, QMark.
+Closed: RAW-COMPOUND-ASSIGNMENT-TARGET-ROUTE-ONCE0-I0-R0, DESCENT-SPINE0/T1.
+
+Owner:
+  PreparedRawCompoundAssignmentV1 selects Local/Field/Index/Unsupported
+  source-only, then the sole caller consumes the route once.
+Deleted:
+  bare-AST target evaluator, port facade, and caller-zero facade.
+Preserved:
+  target/read/RHS/binary/write order, record/index diagnostics, failure reuse.
+Evidence:
+  focused Local/Field/Index/raw-port tests, assignment/in-place/current guards,
+  release vm-reference build and VM test green. The historical C199 proof app
+  is absent on current HEAD and is not an implementation regression.
+Current stop:
+  MIRBUILDER-POST-COMPOUND-ASSIGNMENT-LIVE-EDGE-CENSUS0-D0.
+Next:
+  read-only production census; no executable row is preselected.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:

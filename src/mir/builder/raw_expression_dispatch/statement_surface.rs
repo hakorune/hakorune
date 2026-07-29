@@ -5,6 +5,9 @@
 //! call terminal.
 
 use crate::ast::{ASTNode, AssignStmt, ReturnStmt};
+use crate::mir::builder::compound_assignment::{
+    lower_prepared_raw_compound_assignment_with_port_v1, PreparedRawCompoundAssignmentV1,
+};
 use crate::mir::builder::exprs_enum_match::PreparedRawScopeBoxV1;
 use crate::mir::builder::recursive_child_lowering::drive_legacy_body_v1;
 use crate::mir::builder::stmts::{
@@ -211,14 +214,13 @@ where
             operator,
             value,
             ..
-        } => Ok(StatementSurfaceDispatch::Lowered(
-            builder.build_compound_assignment_statement_with_port_v1(
-                port,
-                *target,
-                operator,
-                *value,
-            )?,
-        )),
+        } => {
+            let prepared =
+                PreparedRawCompoundAssignmentV1::prepare(*target, operator, *value);
+            Ok(StatementSurfaceDispatch::Lowered(
+                lower_prepared_raw_compound_assignment_with_port_v1(builder, port, prepared)?,
+            ))
+        }
         node @ ASTNode::Return { .. } => {
             let statement = ReturnStmt::try_from(node).expect("ASTNode::Return must convert");
             Ok(StatementSurfaceDispatch::Lowered(

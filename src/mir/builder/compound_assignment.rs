@@ -3,8 +3,30 @@
 use super::ValueId;
 use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1,
 };
+
+pub(in crate::mir::builder) struct PreparedRawCompoundAssignmentV1 {
+    route: PreparedRawCompoundAssignmentRouteV1,
+    operator: BinaryOperator,
+    rhs: ASTNode,
+}
+
+enum PreparedRawCompoundAssignmentRouteV1 {
+    Local {
+        name: String,
+    },
+    Field {
+        object: ASTNode,
+        field: String,
+    },
+    Index {
+        target: ASTNode,
+        index: ASTNode,
+        target_label: Option<String>,
+    },
+    Unsupported,
+}
 
 enum EvaluatedPlace {
     Local(String),
@@ -19,69 +41,82 @@ enum EvaluatedPlace {
     },
 }
 
-impl super::MirBuilder {
-    pub(super) fn build_compound_assignment_statement(
-        &mut self,
+impl PreparedRawCompoundAssignmentV1 {
+    pub(in crate::mir::builder) fn prepare(
         target: ASTNode,
         operator: BinaryOperator,
         rhs: ASTNode,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_compound_assignment_statement_with_port_v1(&mut port, target, operator, rhs)
-    }
-
-    /// Lower a compound assignment while retaining the raw child-descent port.
-    pub(in crate::mir::builder) fn build_compound_assignment_statement_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        target: ASTNode,
-        operator: BinaryOperator,
-        rhs: ASTNode,
-    ) -> Result<ValueId, String>
-    where
-        Port: RawAstChildLoweringPortV1,
-    {
-        let place = self.evaluate_compound_place_with_port_v1(port, target)?;
-        let old = self.read_compound_place(&place)?;
-        let rhs_value = drive_legacy_expression_v1(self, port, rhs)?;
-        let new_value = self.build_binary_op_from_values(operator, old, rhs_value)?;
-        self.write_compound_place(place, new_value)
-    }
-
-    fn evaluate_compound_place_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        target: ASTNode,
-    ) -> Result<EvaluatedPlace, String>
-    where
-        Port: RawAstChildLoweringPortV1,
-    {
-        match target {
-            ASTNode::Variable { name, .. } => Ok(EvaluatedPlace::Local(name)),
+    ) -> Self {
+        let route = match target {
+            ASTNode::Variable { name, .. } => PreparedRawCompoundAssignmentRouteV1::Local { name },
             ASTNode::FieldAccess { object, field, .. } => {
-                self.fail_if_record_field_assignment_target(&object, &field)?;
-                let object_value = drive_legacy_expression_v1(self, port, *object)?;
-                let base = self.local_field_base(object_value);
-                Ok(EvaluatedPlace::Field { base, field })
+                PreparedRawCompoundAssignmentRouteV1::Field {
+                    object: *object,
+                    field,
+                }
             }
             ASTNode::Index { target, index, .. } => {
                 let target_label = match target.as_ref() {
                     ASTNode::Variable { name, .. } => Some(name.clone()),
                     _ => None,
                 };
-                let base = drive_legacy_expression_v1(self, port, *target)?;
-                self.preflight_compound_index_place(base)?;
-                let index = drive_legacy_expression_v1(self, port, *index)?;
-                Ok(EvaluatedPlace::Index {
-                    base,
-                    index,
+                PreparedRawCompoundAssignmentRouteV1::Index {
+                    target: *target,
+                    index: *index,
                     target_label,
-                })
+                }
             }
-            _ => Err("Complex compound assignment targets not yet supported".to_string()),
+            _ => PreparedRawCompoundAssignmentRouteV1::Unsupported,
+        };
+        Self {
+            route,
+            operator,
+            rhs,
         }
     }
+}
 
+pub(in crate::mir::builder) fn lower_prepared_raw_compound_assignment_with_port_v1<Port>(
+    builder: &mut super::MirBuilder,
+    port: &mut Port,
+    prepared: PreparedRawCompoundAssignmentV1,
+) -> Result<ValueId, String>
+where
+    Port: RawAstChildLoweringPortV1,
+{
+    let place = match prepared.route {
+        PreparedRawCompoundAssignmentRouteV1::Local { name } => EvaluatedPlace::Local(name),
+        PreparedRawCompoundAssignmentRouteV1::Field { object, field } => {
+            builder.fail_if_record_field_assignment_target(&object, &field)?;
+            let object_value = drive_legacy_expression_v1(builder, port, object)?;
+            let base = builder.local_field_base(object_value);
+            EvaluatedPlace::Field { base, field }
+        }
+        PreparedRawCompoundAssignmentRouteV1::Index {
+            target,
+            index,
+            target_label,
+        } => {
+            let base = drive_legacy_expression_v1(builder, port, target)?;
+            builder.preflight_compound_index_place(base)?;
+            let index = drive_legacy_expression_v1(builder, port, index)?;
+            EvaluatedPlace::Index {
+                base,
+                index,
+                target_label,
+            }
+        }
+        PreparedRawCompoundAssignmentRouteV1::Unsupported => {
+            return Err("Complex compound assignment targets not yet supported".to_string());
+        }
+    };
+    let old = builder.read_compound_place(&place)?;
+    let rhs_value = drive_legacy_expression_v1(builder, port, prepared.rhs)?;
+    let new_value = builder.build_binary_op_from_values(prepared.operator, old, rhs_value)?;
+    builder.write_compound_place(place, new_value)
+}
+
+impl super::MirBuilder {
     fn preflight_compound_index_place(&self, base: ValueId) -> Result<(), String> {
         if self.current_fastmem_region().is_some() {
             return Ok(());
@@ -149,6 +184,7 @@ impl super::MirBuilder {
 mod tests {
     use super::*;
     use crate::ast::{LiteralValue, Span};
+    use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
     use crate::mir::{BindingId, MirBuilder, MirInstruction};
 
     fn integer(value: i64) -> ASTNode {
@@ -195,18 +231,73 @@ mod tests {
             .collect()
     }
 
+    fn lower(
+        builder: &mut MirBuilder,
+        target: ASTNode,
+        operator: BinaryOperator,
+        rhs: ASTNode,
+    ) -> Result<ValueId, String> {
+        let prepared = PreparedRawCompoundAssignmentV1::prepare(target, operator, rhs);
+        let mut port = RawLegacyChildLoweringPortV1;
+        lower_prepared_raw_compound_assignment_with_port_v1(builder, &mut port, prepared)
+    }
+
+    fn route(prepared: PreparedRawCompoundAssignmentV1) -> &'static str {
+        match prepared.route {
+            PreparedRawCompoundAssignmentRouteV1::Local { .. } => "local",
+            PreparedRawCompoundAssignmentRouteV1::Field { .. } => "field",
+            PreparedRawCompoundAssignmentRouteV1::Index { .. } => "index",
+            PreparedRawCompoundAssignmentRouteV1::Unsupported => "unsupported",
+        }
+    }
+
+    #[test]
+    fn source_target_partition_is_total_and_disjoint() {
+        let field = ASTNode::FieldAccess {
+            object: Box::new(variable("object")),
+            field: "value".to_owned(),
+            span: Span::unknown(),
+        };
+        let index = ASTNode::Index {
+            target: Box::new(variable("items")),
+            index: Box::new(integer(0)),
+            span: Span::unknown(),
+        };
+        let routes = [
+            route(PreparedRawCompoundAssignmentV1::prepare(
+                variable("x"),
+                BinaryOperator::Add,
+                integer(1),
+            )),
+            route(PreparedRawCompoundAssignmentV1::prepare(
+                field,
+                BinaryOperator::Add,
+                integer(1),
+            )),
+            route(PreparedRawCompoundAssignmentV1::prepare(
+                index,
+                BinaryOperator::Add,
+                integer(1),
+            )),
+            route(PreparedRawCompoundAssignmentV1::prepare(
+                integer(0),
+                BinaryOperator::Add,
+                integer(1),
+            )),
+        ];
+        assert_eq!(routes, ["local", "field", "index", "unsupported"]);
+    }
+
     #[test]
     fn local_compound_assignment_preflights_and_reuses_after_rhs_failure() {
         let mut missing_target = builder("compound_assignment_missing_target/0");
-        let mut port = RawLegacyChildLoweringPortV1;
-        let error = missing_target
-            .build_compound_assignment_statement_with_port_v1(
-                &mut port,
-                variable("missing"),
-                BinaryOperator::Add,
-                integer(99),
-            )
-            .unwrap_err();
+        let error = lower(
+            &mut missing_target,
+            variable("missing"),
+            BinaryOperator::Add,
+            integer(99),
+        )
+        .unwrap_err();
         assert!(error.contains("Undefined variable: missing"));
         assert!(instructions(&missing_target).is_empty());
 
@@ -215,15 +306,13 @@ mod tests {
         declare(&mut builder, "x", old);
         let before_rhs = instructions(&builder);
 
-        let mut port = RawLegacyChildLoweringPortV1;
-        let error = builder
-            .build_compound_assignment_statement_with_port_v1(
-                &mut port,
-                variable("x"),
-                BinaryOperator::Add,
-                variable("missing_rhs"),
-            )
-            .unwrap_err();
+        let error = lower(
+            &mut builder,
+            variable("x"),
+            BinaryOperator::Add,
+            variable("missing_rhs"),
+        )
+        .unwrap_err();
         assert!(error.contains("Undefined variable: missing_rhs"));
         assert_eq!(instructions(&builder), before_rhs);
         assert_eq!(
@@ -231,15 +320,7 @@ mod tests {
             Some(&old)
         );
 
-        let mut port = RawLegacyChildLoweringPortV1;
-        let value = builder
-            .build_compound_assignment_statement_with_port_v1(
-                &mut port,
-                variable("x"),
-                BinaryOperator::Add,
-                integer(4),
-            )
-            .unwrap();
+        let value = lower(&mut builder, variable("x"), BinaryOperator::Add, integer(4)).unwrap();
         assert_eq!(
             builder.function_state.variable_ctx.variable_map.get("x"),
             Some(&value)

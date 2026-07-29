@@ -237,12 +237,25 @@ def check_asn0_s0(root: Path) -> str:
     ):
         if retired in selector:
             _fail(f"retired ordinary Assignment selector edge returned: {retired}")
-    _require_count(
-        selector,
+    for needle, expected, label in (
+        (
+            "PreparedRawCompoundAssignmentV1::prepare(*target, operator, *value)",
+            1,
+            "sole CompoundAssignment route issuer",
+        ),
+        (
+            "lower_prepared_raw_compound_assignment_with_port_v1(builder, port, prepared)?",
+            1,
+            "sole CompoundAssignment route consumer",
+        ),
+    ):
+        _require_count(selector, needle, expected, label)
+    for retired in (
         "build_compound_assignment_statement_with_port_v1(",
-        1,
-        "unchanged compound selector",
-    )
+        "build_compound_assignment_statement(",
+    ):
+        if retired in selector:
+            _fail(f"retired CompoundAssignment selector edge returned: {retired}")
     grouped_branch = re.search(
         r"ASTNode::GroupedAssignmentExpr \{ lhs, rhs, \.\. \} => \{(?P<body>.*?)\n\s*\}",
         grouped,
@@ -331,11 +344,36 @@ def check_asn0_s0(root: Path) -> str:
         7,
         "Local seed helper definition plus six uses",
     )
+    compound_production, compound_test = compound_tests.split("#[cfg(test)]", 1)
+    for needle, expected, label in (
+        ("struct PreparedRawCompoundAssignmentV1", 1, "prepared Compound owner"),
+        ("enum PreparedRawCompoundAssignmentRouteV1", 1, "prepared Compound route"),
+        (
+            "fn lower_prepared_raw_compound_assignment_with_port_v1<Port>",
+            1,
+            "prepared Compound terminal",
+        ),
+        ("PreparedRawCompoundAssignmentRouteV1::", 8, "four prepare/consume routes"),
+        ("drive_legacy_expression_v1(builder, port, target)?", 1, "Index target descent"),
+        ("drive_legacy_expression_v1(builder, port, index)?", 1, "Index child descent"),
+        ("drive_legacy_expression_v1(builder, port, prepared.rhs)?", 1, "RHS descent"),
+    ):
+        _require_count(compound_production, needle, expected, label)
+    for retired in (
+        "RawLegacyChildLoweringPortV1",
+        "build_compound_assignment_statement_with_port_v1",
+        "build_compound_assignment_statement(",
+        "evaluate_compound_place_with_port_v1",
+        "fallback(",
+        "retry(",
+    ):
+        if retired in compound_production:
+            _fail(f"retired CompoundAssignment authority returned: {retired}")
     _require_count(
-        compound_tests.split("#[cfg(test)]", 1)[1],
-        ".build_compound_assignment_statement_with_port_v1(",
-        3,
-        "compound Assignment selected-owner tests",
+        compound_test,
+        "lower_prepared_raw_compound_assignment_with_port_v1(builder, &mut port, prepared)",
+        1,
+        "compound Assignment selected-owner test helper",
     )
     for test_source, label in (
         (raw_tests, "raw Assignment tests"),
@@ -474,6 +512,7 @@ def check_asn0_s0(root: Path) -> str:
         tests_path,
         raw_tests_path,
         parity_tests_path,
+        compound_tests_path,
         stmts_root_path,
         selector_path,
         grouped_path,
