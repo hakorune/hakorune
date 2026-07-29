@@ -109,6 +109,14 @@ Read:
   Perform a fresh live production-edge census after raw static-Main
   compatibility stopped retaining/reclassifying raw AST in Lower.
 
+  Before selecting any non-JoinModule replacement, record the JoinModule
+  live-route census.  The broad `JoinModule` file count is not a progress
+  metric: separate the normalizer execution bridge from env-gated
+  VM/reference routes and lower-only/test artifacts.  If the normalizer
+  route proves to be a current production authority, select a separate
+  `JOINMODULE-NORMALIZATION-BRIDGE-BOUNDARY0-D0` instead of silently
+  bypassing it.  Do not revive legacy JoinModule as a second final planner.
+
 Select only if:
   one named caller has a competing authority; one bounded owner can replace it;
   the same commit can delete the exact old edge; any compatibility owner has a
