@@ -5,6 +5,9 @@
  * ChatGPT5 Pro design for preventing runtime string-based resolution
  */
 
+use crate::mir::policies::callee_box_kind::{
+    classify_callee_box_kind_v1, CalleeBoxKindPolicyContextV1,
+};
 use crate::mir::{Callee, ValueId};
 use std::collections::BTreeMap; // Phase 25.1: 決定性確保
 
@@ -39,7 +42,10 @@ pub fn resolve_call_target(
                 method: name.to_string(),
                 receiver: None, // Static method call
                 certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
-                box_kind: super::call_unified::classify_box_kind(box_name),
+                box_kind: classify_callee_box_kind_v1(
+                    CalleeBoxKindPolicyContextV1::GeneralEmission,
+                    box_name,
+                ),
             });
         }
     }

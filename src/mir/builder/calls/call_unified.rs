@@ -19,41 +19,6 @@ pub fn is_unified_call_enabled() -> bool {
     }
 }
 
-/// Classify box type to prevent static/runtime mixing
-/// Prevents Stage-B/Stage-1 compiler boxes from being confused with runtime data boxes
-pub fn classify_box_kind(box_name: &str) -> crate::mir::definitions::call_unified::CalleeBoxKind {
-    use crate::mir::definitions::call_unified::CalleeBoxKind;
-
-    // Static compiler boxes (Stage-B, Stage-1, parsers, resolvers)
-    // These should ONLY appear in static method lowering, never in runtime method dispatch
-    match box_name {
-        // Stage-B compiler boxes
-        "StageBArgsBox" | "StageBBodyExtractorBox" | "StageBDriverBox" |
-        // Stage-1 using/namespace resolver boxes
-        "Stage1UsingResolverBox" | "BundleResolver" |
-        // Parser boxes
-        "ParserBox" | "ParserStmtBox" | "ParserExprBox" | "ParserControlBox" |
-        "ParserLiteralBox" | "ParserTokenBox" |
-        // Scanner/builder boxes
-        "FuncScannerBox" | "MirBuilderBox" |
-        // Selfhost builder helper boxes
-        "JsonFragBox" | "JsonCursorBox" | "JsonScanBox" |
-        "PatternUtilBox" | "MethodAliasPolicy" |
-        "StringHelpers" | "StringOps" | "StringScanBox" | "StringifyOperator" |
-        "AddOperator" | "CompareOperator"
-        => CalleeBoxKind::StaticCompiler,
-
-        // Runtime data boxes (built-in types that handle actual runtime values)
-        "MapBox" | "ArrayBox" | "StringBox" | "IntegerBox" | "BoolBox" |
-        "FloatBox" | "NullBox" | "VoidBox" | "UnknownBox" |
-        "FileBox" | "ConsoleBox" | "PathBox"
-        => CalleeBoxKind::RuntimeData,
-
-        // Everything else is user-defined
-        _ => CalleeBoxKind::UserDefined,
-    }
-}
-
 /// Convert CallTarget to Callee
 /// Main translation layer between builder and MIR representations
 /// Convert CallTarget to Callee with type resolution

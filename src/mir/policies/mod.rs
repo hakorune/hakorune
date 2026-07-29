@@ -10,6 +10,7 @@ pub enum PolicyDecision<T> {
 }
 
 pub mod balanced_depth_scan;
+pub(crate) mod callee_box_kind;
 pub mod cond_profile;
 pub mod generic_loop_overlap_policy;
 pub mod generic_loop_v1_shape;

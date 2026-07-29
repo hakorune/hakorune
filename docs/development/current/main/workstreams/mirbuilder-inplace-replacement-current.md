@@ -78,8 +78,9 @@ Closed:  INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0
 Closed:  MIRBUILDER-POST-INSTANCE-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0
 Closed:  INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0
 Closed:  MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
-Current: CALL-BOX-KIND-POLICY-SSOT0-I0-R0
-Mode:    one atomic T1 I0/R0
+Closed:  CALL-BOX-KIND-POLICY-SSOT0-I0-R0
+Current: MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0
+Mode:    read-only production edge census
 ```
 
 R1 closeout:
@@ -826,47 +827,44 @@ quick gate                                           = unrelated pre-existing
   docs/reference/language/EBNF.md naming-token failure
 ```
 
-## Current execution brief
+## Current design stop
 
-`CALL-BOX-KIND-POLICY-SSOT0-I0-R0` / T1 / `CALL-OBJECT0`.
+`MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0`.
 
-### Change
+```text
+Read only:
+  recount the production graph after the call policy cutover
+  select at most one behavior-neutral responsibility with a named caller
+  require same-commit deletion of its competing old edge
 
-- Move all six live `CalleeBoxKind` decisions to one total policy under
-  `src/mir/policies/`.
-- Callers select `GeneralEmission` or `ResolverExtendedCompiler` exactly once.
-- Delete `call_unified::classify_box_kind`,
-  `CalleeResolverBox::classify_box_kind`, the resolver-local match, and every
-  old classifier call in the same commit. No forwarding facade remains.
+Do not:
+  infer the next row from raw Main or record-helper reserves
+  add caller-zero proof routes, accepted-family variants, or compatibility growth
+  start View, Ownership, parser, backend, or feature work
+```
 
-### Contract
+## Latest call policy closeout
 
-- Preserve every current classification, including `RuntimeDataBox` and
-  `UnknownBox`; do not “fix” names while moving authority.
-- `BreakFinderBox`, `PhiInjectorBox`, and `LoopSSA` remain
-  `StaticCompiler` only in resolver-extended context and `UserDefined` in
-  general emission.
-- This analyzer exception is compatibility surface
-  `CALL-BOX-KIND-ANALYZER-COMPAT-SUNSET-001`: growth is forbidden; retire it
-  when analyzer production routes disappear or one-profile parity is proven.
-- Route, effect, emission, receiver certainty, MIR, result, View, Ownership,
-  grammar, fallback, retry, and reselection do not change.
+```text
+CALL-BOX-KIND-POLICY-SSOT0-I0-R0
+Pack: CALL-OBJECT0
+Ceremony: T1
 
-### Done
-
-- One decision owner, six named production consumers, and zero old classifier
-  definitions/calls.
-- A table-driven policy test seals both contexts and the exact analyzer/common
-  matrix; existing call-target evidence and shared guard remain green.
-- No new test/check/task file, and every source/check file remains below 800.
-
-### Stop
-
-- Stop if a caller needs two classifications, dynamic registry/env/catalog
-  input, a fourth analyzer exception, an old wrapper, or any route/diagnostic
-  behavior change.
-- Stop if the resolver context is implemented as “try extended, then general”
-  or any fallback/retry path.
+decision owner                              = 1
+production consumers                       = 6
+resolver-extended / general contexts        = 2 / 4
+old classifier definitions and calls        = 0
+analyzer compatibility growth               = forbidden
+policy/resolver/call-route/parity/reuse      = green
+fallback / retry / reselection               = 0
+route/MIR/result/View/Ownership delta         = 0
+new source file                              = 1, 114 lines
+new test/check file                          = 0
+largest source/check file                    = 799
+release build                                = green
+quick gate                                   = unrelated pre-existing
+  docs/reference/language/EBNF.md naming-token failure
+```
 
 ## Latest closeout
 
@@ -1097,6 +1095,14 @@ NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001
 Compatibility sunsets:
 
 ```text
+CALL-BOX-KIND-ANALYZER-COMPAT-SUNSET-001
+  state: active
+  owner: CalleeBoxKindPolicyContextV1::ResolverExtendedCompiler
+  surface: BreakFinderBox / PhiInjectorBox / LoopSSA
+  growth: forbidden
+  retire_when: analyzer production routes are zero, or one-profile
+    classification parity is proven and all callers migrate atomically
+
 RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-SUNSET-001
   state: active
   owner: PreparedDisabledRawTryCatchV1
@@ -1214,7 +1220,8 @@ R55 INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0 closed
 R56 MIRBUILDER-POST-INSTANCE-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0 closed
 R57 INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0 closed
 R58 MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 closed
-R59 CALL-BOX-KIND-POLICY-SSOT0-I0-R0 current
+R59 CALL-BOX-KIND-POLICY-SSOT0-I0-R0 closed
+R60 MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

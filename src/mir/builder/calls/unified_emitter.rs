@@ -18,6 +18,9 @@ use super::CallTarget;
 use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::builder::{Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
 use crate::mir::definitions::call_unified::Callee;
+use crate::mir::policies::callee_box_kind::{
+    classify_callee_box_kind_v1, CalleeBoxKindPolicyContextV1,
+};
 
 /// 統一Call発行専用箱
 ///
@@ -438,7 +441,10 @@ impl UnifiedCallEmitterBox {
                     if arity_matches {
                         let box_name = &id.box_name;
                         let method = &id.method;
-                        let box_kind = resolver.classify_box_kind(box_name);
+                        let box_kind = classify_callee_box_kind_v1(
+                            CalleeBoxKindPolicyContextV1::ResolverExtendedCompiler,
+                            box_name,
+                        );
 
                         if box_kind
                             == crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData

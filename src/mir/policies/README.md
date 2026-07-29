@@ -20,6 +20,7 @@ router-style consumers.
 - return/early-exit policies
 - condition profile and overlap policy
 - balanced depth scan policy
+- callee Box-kind classification shared by resolver and emission contexts
 - source `MethodCall` reserved-route classification shared by Builder and
   disconnected source-call proofs
 

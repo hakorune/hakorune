@@ -15,7 +15,10 @@
 use super::method_resolution;
 use crate::mir::builder::type_registry::TypeRegistry;
 use crate::mir::builder::CallTarget;
-use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+use crate::mir::definitions::call_unified::TypeCertainty;
+use crate::mir::policies::callee_box_kind::{
+    classify_callee_box_kind_v1, CalleeBoxKindPolicyContextV1,
+};
 use crate::mir::{Callee, MirType, ValueId};
 use std::collections::BTreeMap;
 
@@ -112,7 +115,10 @@ impl<'a> CalleeResolverBox<'a> {
                 };
 
                 // Classify box kind to prevent static/runtime mixing
-                let box_kind = self.classify_box_kind(&inferred_box_type);
+                let box_kind = classify_callee_box_kind_v1(
+                    CalleeBoxKindPolicyContextV1::ResolverExtendedCompiler,
+                    &inferred_box_type,
+                );
 
                 if trace_enabled {
                     let ring0 = crate::runtime::get_global_ring0();
@@ -149,21 +155,6 @@ impl<'a> CalleeResolverBox<'a> {
                 captures,
                 me_capture,
             }),
-        }
-    }
-
-    /// Box種別の分類
-    ///
-    /// 箱理論の「箱にする」原則:
-    /// - 静的コンパイラBox群を明示的に列挙（1箇所に集約）
-    /// - ランタイムDataBox群を明示的に列挙
-    /// - ユーザー定義Boxをデフォルト扱い
-    pub fn classify_box_kind(&self, box_name: &str) -> CalleeBoxKind {
-        // LoopSSA / Exit PHI analyzers are still resolver-local keep until the
-        // broader classifier table is collapsed into one SSOT.
-        match box_name {
-            "BreakFinderBox" | "PhiInjectorBox" | "LoopSSA" => CalleeBoxKind::StaticCompiler,
-            _ => super::call_unified::classify_box_kind(box_name),
         }
     }
 
@@ -282,74 +273,30 @@ impl<'a> CalleeResolverBox<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::definitions::call_unified::CalleeBoxKind;
 
     #[test]
-    fn test_classify_static_compiler_boxes() {
+    fn resolve_method_uses_extended_analyzer_box_kind_context() {
         let value_origin = BTreeMap::new();
         let value_types = BTreeMap::new();
         let resolver = CalleeResolverBox::new(&value_origin, &value_types, None);
 
-        // Stage-B boxes
-        assert_eq!(
-            resolver.classify_box_kind("StageBArgsBox"),
-            CalleeBoxKind::StaticCompiler
-        );
-        assert_eq!(
-            resolver.classify_box_kind("StageBDriverBox"),
-            CalleeBoxKind::StaticCompiler
-        );
-
-        // Stage-1 boxes
-        assert_eq!(
-            resolver.classify_box_kind("Stage1UsingResolverBox"),
-            CalleeBoxKind::StaticCompiler
-        );
-
-        // Parser boxes
-        assert_eq!(
-            resolver.classify_box_kind("ParserBox"),
-            CalleeBoxKind::StaticCompiler
-        );
-    }
-
-    #[test]
-    fn test_classify_runtime_data_boxes() {
-        let value_origin = BTreeMap::new();
-        let value_types = BTreeMap::new();
-        let resolver = CalleeResolverBox::new(&value_origin, &value_types, None);
-
-        assert_eq!(
-            resolver.classify_box_kind("MapBox"),
-            CalleeBoxKind::RuntimeData
-        );
-        assert_eq!(
-            resolver.classify_box_kind("ArrayBox"),
-            CalleeBoxKind::RuntimeData
-        );
-        assert_eq!(
-            resolver.classify_box_kind("StringBox"),
-            CalleeBoxKind::RuntimeData
-        );
-        assert_eq!(
-            resolver.classify_box_kind("UnknownBox"),
-            CalleeBoxKind::RuntimeData
-        );
-    }
-
-    #[test]
-    fn test_classify_user_defined_boxes() {
-        let value_origin = BTreeMap::new();
-        let value_types = BTreeMap::new();
-        let resolver = CalleeResolverBox::new(&value_origin, &value_types, None);
-
-        assert_eq!(
-            resolver.classify_box_kind("MyCustomBox"),
-            CalleeBoxKind::UserDefined
-        );
-        assert_eq!(
-            resolver.classify_box_kind("PersonBox"),
-            CalleeBoxKind::UserDefined
-        );
+        for box_name in ["BreakFinderBox", "PhiInjectorBox", "LoopSSA"] {
+            let callee = resolver
+                .resolve(CallTarget::Method {
+                    box_type: Some(box_name.to_string()),
+                    method: "analyze".to_string(),
+                    receiver: ValueId(1),
+                })
+                .unwrap();
+            assert!(matches!(
+                callee,
+                Callee::Method {
+                    box_kind: CalleeBoxKind::StaticCompiler,
+                    ..
+                }
+            ));
+        }
     }
 
     #[test]

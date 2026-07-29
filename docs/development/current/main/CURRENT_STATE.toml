@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Fresh post-instance-Box census selected CALL-BOX-KIND-POLICY-SSOT0-I0-R0. One neutral MIR policy will replace the duplicated general and resolver-local CalleeBoxKind classifiers at all six named production decision sites. Current route behavior is preserved by one caller-selected context; the resolver-only analyzer trio is a bounded compatibility surface with growth forbidden and an explicit retirement condition. The same atomic commit deletes both old classifier definitions and every old call path. View, Ownership, parser, backend, and feature work remain parked."
+status = "CALL-BOX-KIND-POLICY-SSOT0-I0-R0 is closed. One neutral MIR policy now owns CalleeBoxKind classification for all six production decision sites; callers select one context exactly once. Both old classifier definitions, the resolver-local match, and every old call path are deleted. The exact analyzer trio remains a bounded no-growth compatibility surface with a written retirement condition. Policy/resolver/call-route/parity/reuse evidence and release build are green; quick gate retains only the unrelated EBNF naming-token failure. The only current stop is a fresh read-only live-edge census."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "CALL-BOX-KIND-POLICY-SSOT0-I0-R0"
-current_execution_summary = "T1 CALL-OBJECT0: move all six live CalleeBoxKind decisions to one neutral total policy, preserve the resolver-only analyzer disposition through one bounded context, and atomically delete both old classifier owners with no retry, route, MIR, result, View, or Ownership delta."
+current_design_stop = "MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0"
+current_execution_row = ""
+current_execution_summary = ""
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """Fresh live-edge census selected CALL-BOX-KIND-POLICY-SSOT0-I0-R0. The next atomic T1 cell moves six production CalleeBoxKind decisions behind one neutral MIR policy and deletes the duplicated general and resolver-local classifiers. The exact resolver-only analyzer exception remains a bounded, no-growth compatibility context with a written retirement condition; execution fallback/retry and route/MIR/result changes remain zero."""
+latest_card_summary = """CALL-BOX-KIND-POLICY-SSOT0-I0-R0 is closed. CalleeBoxKind decision truth is now one neutral policy with six production consumers; both old classifiers and all old call paths are zero. Exact cross-context behavior is sealed, the analyzer compatibility surface is bounded and no-growth, and fallback/retry plus route/MIR/result/View/Ownership deltas remain zero. The next authority is a fresh live-edge census."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "CALL-BOX-KIND-POLICY-SSOT0-I0-R0"
+current_blocker_token = "MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

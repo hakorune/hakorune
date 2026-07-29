@@ -8,6 +8,10 @@
 //! - Type inference: plugin_method_sigs -> CoreMethodId -> Unknown
 //! - LocalSSA: Ensures receiver and args have in-block definitions
 
+use crate::mir::policies::callee_box_kind::{
+    classify_callee_box_kind_v1, CalleeBoxKindPolicyContextV1,
+};
+
 fn boxcall_callee_surface(
     box_type: Option<&str>,
 ) -> (String, crate::mir::definitions::call_unified::TypeCertainty) {
@@ -139,7 +143,10 @@ impl super::super::MirBuilder {
             args.len(),
         );
         if bx_name == "ArrayBox" {
-            let box_kind = crate::mir::builder::calls::call_unified::classify_box_kind(&bx_name);
+            let box_kind = classify_callee_box_kind_v1(
+                CalleeBoxKindPolicyContextV1::GeneralEmission,
+                &bx_name,
+            );
             let observed_callee = crate::mir::Callee::Method {
                 box_name: bx_name.clone(),
                 method: method.clone(),
@@ -157,7 +164,10 @@ impl super::super::MirBuilder {
             }
         }
         let mut map_write_replay = if bx_name == "MapBox" {
-            let box_kind = crate::mir::builder::calls::call_unified::classify_box_kind(&bx_name);
+            let box_kind = classify_callee_box_kind_v1(
+                CalleeBoxKindPolicyContextV1::GeneralEmission,
+                &bx_name,
+            );
             let observed_callee = crate::mir::Callee::Method {
                 box_name: bx_name.clone(),
                 method: method.clone(),
@@ -214,8 +224,10 @@ impl super::super::MirBuilder {
         // Unknown receivers are emitted through the RuntimeDataBox compatibility
         // facade with Union certainty. This is not a recovered receiver type.
         let (box_name_for_call, certainty) = boxcall_callee_surface(box_type.as_deref());
-        let box_kind =
-            crate::mir::builder::calls::call_unified::classify_box_kind(&box_name_for_call);
+        let box_kind = classify_callee_box_kind_v1(
+            CalleeBoxKindPolicyContextV1::GeneralEmission,
+            &box_name_for_call,
+        );
         self.emit_instruction(super::super::MirInstruction::Call {
             dst,
             func: super::super::ValueId::INVALID,
