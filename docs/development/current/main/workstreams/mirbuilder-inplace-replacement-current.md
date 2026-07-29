@@ -32,31 +32,46 @@ Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Latest landed: FINALIZE0-CONDITIONFN-RET0-I0-R0
 Result:        finalization and Call materialization no longer carry the
                synthetic `condition_fn` compatibility semantics
-Latest design: fresh R2 live-edge census
-Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS9` is a design stop
+Latest design: `JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0`
+Executable:    none — repository asset disposition design stop
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`MIRBUILDER-LIVE-EDGE-CENSUS9` — close the remaining R2 live-edge frontier
+`JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0` — classify non-mainline
+JoinModule and detached evidence assets
 
 ```text
 Change:
-  inventory the post-retirement production and explicit-compatibility edges.
-  Select at most one real I0/R0 candidate, one bounded D0, or R2 closure.
+  produce one consumer/carrier inventory over JoinModule families and detached
+  DerivedShadow assets, including `condition_fn` injection evidence.
 
 Contract:
-  no wrapper extraction, fallback/retry, detached route construction, or
-  automatic JoinModule/Ownership/View selection.
+  each family is retain, reown, or retire with an exact consumer, activation
+  gate, owner, and evidence. CorePlan stays separate; no normal/default planner
+  resurrection, name-only deletion, fallback, or source feature activation.
 
 Done:
-  record the exact next bounded step. If R2 has no live edge, open only the
-  prescribed JoinModule disposition D0 next.
+  every family has a disposition and any action is a later named row. R4 can
+  verify this ledger rather than making its first disposition decision.
 
 Stop:
-  return to design when a candidate has no named production authority and old
-  edge, or requires a route/session/result-policy change.
+  return to design if a family lacks a consumer/carrying boundary, if retaining
+  it would make it a planner/acceptance truth, or if a deletion crosses another
+  family without a named replacement.
+```
+
+## Census9 closeout
+
+```text
+MIRBUILDER-LIVE-EDGE-CENSUS9
+  Program/root/lifecycle                  = NoSafeLiveI0
+  finalization/call                       = NoSafeLiveI0
+  raw/reference compatibility             = NoSafeLiveI0
+  no-header Call                          = separate caller-zero D0 only
+  R2                                      = closed
+  next                                    = JoinModule/reference-asset disposition
 ```
 
 ## Latest closeout

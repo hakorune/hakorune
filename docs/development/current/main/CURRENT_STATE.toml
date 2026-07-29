@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINALIZE0-CONDITIONFN-RET0-I0-R0 is closed: the shared finalizer no longer injects condition_fn and the Call materializer no longer intercepts that name; Raw root-batch ownership is unchanged. MIRBUILDER-LIVE-EDGE-CENSUS9 must now close R2 before JoinModule disposition."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS9 is closed: Program, finalization/call, and compatibility lanes have no safe live I0/R0. R2 is closed. JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0 is current; it must classify JoinModule and the stale caller-zero condition_fn DerivedShadow before final conformance."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
+current_design_stop = "JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0"
 current_execution_row = ""
-current_execution_summary = "Fresh live-edge census only: record one real I0/R0 candidate, one bounded D0, or R2 closure/no safe live edge. Do not pre-authorize JoinModule, Ownership, View, or features."
+current_execution_summary = "Design only: classify every JoinModule and detached reference/DerivedShadow family as retain, reown, or retire with exact consumers and evidence. Do not reactivate JoinModule as a normal/default planner or implement Ownership, View, or features."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
