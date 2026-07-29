@@ -96,44 +96,34 @@ Closed:  VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0
 Closed:  MIRBUILDER-POST-VERIFIED-MAIN-ROOT-HANDOFF-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0
 Closed:  MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0
-Current: RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0
-Mode:    one atomic T1 I0/R0
+Closed:  RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0
+Current: MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0
+Mode:    read-only census; no implementation
 ```
 
 ## Current execution brief
 
-`RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0` / T1 / parent
-`MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0`
+`MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0` / parent
+R77 / read-only design stop
 
 ```text
-Change:
-  RawLegacyChildLoweringPortV1::lower_static_main_box
-  -> PreparedRawStaticMainBoxCompatibilityV1::prepare(...)
-  -> lower_with_port_v1(builder, self)
-  Delete build_static_main_box, build_static_main_box_typed, and
-  build_static_main_box_with_port_v1 in the same commit.
+Read:
+  Perform a fresh live production-edge census after raw static-Main facade
+  retirement.  Candidate shelf entries do not select work.
 
-Contract:
-  Keep one existing prepared compatibility owner, helper/root order, first
-  failure, missing/non-function Main diagnostics, and raw child port semantics.
-  Grammar, result, publication, View, Ownership, and JoinModule do not move.
-  RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001 remains active with a smaller surface.
+Select only if:
+  one named caller has a competing authority; one bounded owner can replace it;
+  the same commit can delete the exact old edge; any compatibility owner has a
+  named sunset and retirement condition; fallback/retry remains zero.
 
-Done:
-  Three facade definitions/callers and fresh raw-port construction are zero;
-  focused raw/verified Main ordering, general-module parity, late failure/reuse,
-  reusable lane guard, pointer guard, and release build are green.  The caller
-  manifest records the remaining prepared compatibility owner and sunset.
-
-Stop:
-  Return to design if direct handoff needs a second compatibility route,
-  different error mapping/order, new failure authority, fallback/retry, or a
-  source/check file at 800 lines.
+Do not select:
+  new accepted-program variants, caller-zero proof routes, grammar work,
+  View/Ownership activation, legacy JoinModule work, or a compatibility wrapper
+  without a deletion target.
 ```
 
-Following task: `MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0`
-only.  Instance-Box metadata projection and Lambda capture observation remain
-candidate shelf entries until that fresh census selects one production edge.
+Instance-Box metadata projection and Lambda capture observation remain candidate
+shelf entries until this fresh census selects one production edge.
 
 Fixed phase order:
 
@@ -151,24 +141,20 @@ R2/R3 live-authority cleanup
 ## Latest closeout
 
 ```text
-RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0
+RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0
 
-implementation commit                       = 67b5fb8467
-raw helper sort/filter and AST rematch       = 0
-raw methods.get("main")                     = 0
-raw static-Main root AST matcher             = 0
-prepared compatibility source partition      = exactly 1
-helper/root order and first failure          = preserved
-missing/non-function Main diagnostic         = preserved
-selected verified Main / grammar/result delta = 0
-focused raw compatibility / Main parity      = green
+implementation commit                        = b23b654aa7
+RawLegacyChildLoweringPort direct prepared handoff = exactly 1
+build_static_main_box facades                = 3 -> 0
+fresh RawLegacyChildLoweringPort construction = 1 -> 0
+helper/root order and error mapping          = preserved
+focused raw/verified Main ordering           = green
 normal parity / failure / reuse              = green
 release build / pointer / lane guards        = green
 fallback / retry / View / Ownership          = 0
-new source file                              = 1
-new test/check file                          = 0
+new source/test/check file                   = 0
 largest touched source/check file            = 799
-sunset                                       = RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001
+sunset manifest                              = active / facade edges 0
 ```
 
 ## Previous closeout
@@ -1425,7 +1411,8 @@ R73 VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0 closed
 R74 MIRBUILDER-POST-VERIFIED-MAIN-ROOT-HANDOFF-LIVE-EDGE-CENSUS0-D0 closed: raw static-Main compatibility batch selected
 R75 RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0 closed
 R76 MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0 closed: raw static-Main facade retirement selected
-R77 RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0 current
+R77 RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0 closed
+R78 MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
