@@ -579,29 +579,27 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution row
-`RAW-LOCAL-SPECIAL-INITIALIZER-PORT-CONTINUITY0-I0-R0` — closed
+`RAW-LOOP-JOINIR-ENTRY-FACADE0-I0-R0` — accepted
 ```text
-Closeout: DESCENT-SPINE0 / T1, one atomic I0/R0; old production edges = 0.
-Named caller: drive_local_statement_v1 through the blanket raw Local port.
-New route:
-  typed array -> bounded build_typed_array_literal_with_port_v1
-  record      -> existing build_record_constructor_value_with_port_v1
+Pack / ceremony: CONTROL0 / T1, one atomic I0/R0.
+Named callers:
+  RawLegacyChildLoweringPortV1::lower_loop
+  RawInvocationChildPortV1::lower_loop(NoChildFunctionEntry)
+New owner:
+  control_flow::joinir::routing::lower_loop_or_freeze_v1
 Atomic delete:
-  two Local special-initializer edges that construct a fresh
-  RawLegacyChildLoweringPortV1 instead of retaining the caller port.
+  MirBuilder::cf_loop definition and both live .cf_loop calls.
 Keep:
-  typed-array claim-before-append and contract ID, record field order and
-  fingerprint, located compatibility wrappers, raw/parity oracle independence.
+  child-entry classification before routing, reachable-Box fail-fast,
+  reject-detail clear/take order, JoinIR route and exact Freeze diagnostic.
 Forbid:
-  located-lane widening, AST clone, second port, fallback/retry, grammar,
-  result/publication, View, or Ownership changes.
+  fake Loop port plumbing, route/recipe/env changes, fallback/retry,
+  grammar/result/publication, View, or Ownership changes.
 Evidence:
-  existing Local raw special-owner tests, exact pre-I0 snapshot parity,
-  failure/reuse tests, and the shared Local descent guard.
+  raw Loop quarantine/parity tests, planner reject-detail tests, existing
+  JoinIR gates, cargo check, and shared replacement/pointer guards.
 ```
-The caller-zero raw-expression legacy facade and dead leaf wrappers remain a
-cleanup backlog. A fresh census must again prefer a live production authority;
-View/Ownership and new grammar remain parked.
+New route-once and caller-zero facade cleanup remain parked for fresh census.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Local typed-array and record-constructor initializers now retain the caller port; both production fresh-RawLegacy edges are zero."
+status = "The next live MirBuilder replacement moves the Loop JoinIR route/freeze terminal out of the generic cf_loop facade."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-POST-LOCAL-PORT-CONTINUITY-LIVE-EDGE-CENSUS0-D0"
-current_execution_row = ""
-current_execution_summary = "Read-only census the next production-reachable competing MirBuilder authority; do not select caller-zero cleanup ahead of a live edge."
+current_design_stop = ""
+current_execution_row = "RAW-LOOP-JOINIR-ENTRY-FACADE0-I0-R0"
+current_execution_summary = "Route both live raw Loop callers directly to one JoinIR routing/freeze owner and delete MirBuilder::cf_loop atomically."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-LOCAL-SPECIAL-INITIALIZER-PORT-CONTINUITY0-I0-R0 is closed. Typed-array and record-constructor Local initializers retain one caller port, while the two production fresh-RawLegacy edges are zero. Located compatibility wrappers remain. A fresh live-edge census is required before another row; View/Ownership and grammar changes stay parked."""
+latest_card_summary = """The fresh census selected RAW-LOOP-JOINIR-ENTRY-FACADE0-I0-R0. Two live RawLoopChildEntryPort callers move from generic MirBuilder::cf_loop to one JoinIR routing/freeze SSOT; the old method and both calls are deleted atomically. Raw Loop child classification, diagnostics, grammar, View, and Ownership remain unchanged."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-POST-LOCAL-PORT-CONTINUITY-LIVE-EDGE-CENSUS0-D0"
+current_blocker_token = "RAW-LOOP-JOINIR-ENTRY-FACADE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
