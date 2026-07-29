@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The post-verified-Main-child-handoff live-edge census selected VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0. VerifiedMainExpansionV1 already proves Main.main is a static FunctionDeclaration before Builder effects, but the selected terminal passes root().source() into a shared raw helper that re-matches the AST and retains impossible selected late missing/not-function errors. The selected T1 row issues one verified root-body lowering payload and atomically deletes that selected lower-side reclassification. Raw Main compatibility, callable-main identity, grammar, result, View, and Ownership remain unchanged."
+status = "VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0 closed at c0929f8171. The selected verified Main root terminal now consumes one typed payload from VerifiedMainExpansionV1; its root().source() handoff, Lower-side FunctionDeclaration rematch, and impossible selected late missing/not-function errors are deleted. The current stop is MIRBUILDER-POST-VERIFIED-MAIN-ROOT-HANDOFF-LIVE-EDGE-CENSUS0-D0: a read-only census before selecting one next named production edge. Raw Main compatibility, callable-main identity, grammar, result, View, and Ownership remain unchanged."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0"
-current_execution_summary = "Project already-verified Main root function parts and callable-main symbol through one typed payload; delete the selected root().source() handoff, Lower-side FunctionDeclaration rematch, and impossible selected missing/not-function rejection."
+current_design_stop = "MIRBUILDER-POST-VERIFIED-MAIN-ROOT-HANDOFF-LIVE-EDGE-CENSUS0-D0"
+current_execution_row = ""
+current_execution_summary = "Read-only census only: identify one live competing production authority after the verified Main root typed-handoff retirement. Do not open implementation until the census names its caller, new owner, same-commit old-edge deletion, compatibility sunset condition, and zero-fallback proof."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, and selected Main helper lower-side AST reclassification are deleted. The next T1 row removes selected Main root lower-side AST reclassification behind the existing verified expansion. View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, and selected Main helper/root lower-side AST reclassification are deleted. A fresh read-only live-edge census is current; it must select one exact next production replacement or stop. View/Ownership and other unimplemented features remain parked. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0"
+current_blocker_token = "MIRBUILDER-POST-VERIFIED-MAIN-ROOT-HANDOFF-LIVE-EDGE-CENSUS0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

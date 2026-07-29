@@ -92,39 +92,52 @@ Closed:  RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0
 Closed:  MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0
 Closed:  VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0
 Closed:  MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0
-Current: VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0
-Mode:    one atomic T1 I0/R0
+Closed:  VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0
+Current: MIRBUILDER-POST-VERIFIED-MAIN-ROOT-HANDOFF-LIVE-EDGE-CENSUS0-D0
+Mode:    read-only census; no implementation
 ```
 
 ## Current execution brief
 
-`VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0` / parent R72 / T1 /
-`MODULE-LIFECYCLE0`
+`MIRBUILDER-POST-VERIFIED-MAIN-ROOT-HANDOFF-LIVE-EDGE-CENSUS0-D0` / parent
+R73 / read-only design stop
 
 ```text
-Change:
-  Extend VerifiedMainRootBodyV1 with exact borrowed function parts and issue a
-  bounded owned root lowering payload. The selected Main terminal consumes it
-  without passing root().source() into a raw AST classifier.
+Read:
+  Perform a fresh live production-edge census after the selected verified Main
+  root typed handoff. Do not modify production code during this row.
 
-Contract:
-  Preserve expansion as pre-Builder issuer; helper/root order; callable-main
-  policy and distinct identity; argument materialization; static and variable
-  map restoration; first body failure; and the raw Main compatibility route.
+Select only if:
+  one named caller has a competing authority; one bounded owner can replace it;
+  the same commit can delete the exact old edge; any compatibility owner has a
+  named sunset row and retirement condition; fallback/retry remains zero.
 
-Done:
-  The selected verified path has no root().source() lowering handoff, no
-  FunctionDeclaration rematch, and no selected late missing/not-function
-  error. Existing Main root/compatibility, parity, failure/reuse, and guards
-  remain green without new files.
-
-Stop:
-  Return to design if raw Main is routed through the verified payload, root and
-  callable-main identity merge, source is cloned/reparsed, failure order/text
-  changes, or fallback/retry/View/Ownership/new grammar appears.
+Do not select:
+  new accepted-program variants, caller-zero proof routes, grammar work,
+  View/Ownership activation, or a compatibility wrapper without a deletion
+  target.
 ```
 
 ## Latest closeout
+
+```text
+VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0
+
+implementation commit                       = c0929f8171
+selected root().source() lowering handoff    = 0
+selected lower-side FunctionDeclaration rematch = 0
+selected late missing/not-function errors    = 0
+typed verified root payload handoff          = exactly 1
+raw Main / callable-main / root behavior delta = 0
+Main expansion/order/failure tests           = green
+general module parity / failure / reuse      = green
+release build / pointer / lane guards        = green
+fallback / retry / View / Ownership          = 0
+new source/test/check file                   = 0
+largest touched source/check file            = 799
+```
+
+## Previous closeout
 
 ```text
 VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0
@@ -1348,7 +1361,8 @@ R69 RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0 closed
 R70 MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 closed
 R71 VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0 closed
 R72 MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0 closed
-R73 VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0 current
+R73 VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0 closed
+R74 MIRBUILDER-POST-VERIFIED-MAIN-ROOT-HANDOFF-LIVE-EDGE-CENSUS0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
