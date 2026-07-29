@@ -144,3 +144,111 @@ impl super::MirBuilder {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::{LiteralValue, Span};
+    use crate::mir::{BindingId, MirBuilder, MirInstruction};
+
+    fn integer(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        }
+    }
+
+    fn variable(name: &str) -> ASTNode {
+        ASTNode::Variable {
+            name: name.to_owned(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn compound_assignment(target: &str, rhs: ASTNode) -> ASTNode {
+        ASTNode::CompoundAssignment {
+            target: Box::new(variable(target)),
+            operator: BinaryOperator::Add,
+            value: Box::new(rhs),
+            span: Span::unknown(),
+        }
+    }
+
+    fn builder(name: &str) -> MirBuilder {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test(name.to_owned());
+        builder
+    }
+
+    fn declare(builder: &mut MirBuilder, name: &str, value: ValueId) {
+        builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .insert(name.to_owned(), value);
+        builder
+            .function_state
+            .binding_ctx
+            .insert(name.to_owned(), BindingId::new(0));
+    }
+
+    fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("compound-assignment raw function")
+            .blocks
+            .values()
+            .flat_map(|block| block.instructions.iter().cloned())
+            .collect()
+    }
+
+    #[test]
+    fn local_compound_assignment_preflights_and_reuses_after_rhs_failure() {
+        let mut missing_target = builder("compound_assignment_missing_target/0");
+        let error = missing_target
+            .build_expression(compound_assignment("missing", integer(99)))
+            .unwrap_err();
+        assert!(error.contains("Undefined variable: missing"));
+        assert!(instructions(&missing_target).is_empty());
+
+        let mut builder = builder("compound_assignment_failure_reuse/0");
+        let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 9).unwrap();
+        declare(&mut builder, "x", old);
+        let before_rhs = instructions(&builder);
+
+        let error = builder
+            .build_expression(compound_assignment("x", variable("missing_rhs")))
+            .unwrap_err();
+        assert!(error.contains("Undefined variable: missing_rhs"));
+        assert_eq!(instructions(&builder), before_rhs);
+        assert_eq!(
+            builder.function_state.variable_ctx.variable_map.get("x"),
+            Some(&old)
+        );
+
+        let value = builder
+            .build_expression(compound_assignment("x", integer(4)))
+            .unwrap();
+        assert_eq!(
+            builder.function_state.variable_ctx.variable_map.get("x"),
+            Some(&value)
+        );
+        assert_ne!(value, old);
+        assert_eq!(
+            instructions(&builder)
+                .iter()
+                .filter(|row| matches!(row, MirInstruction::BinOp { .. }))
+                .count(),
+            1
+        );
+        assert_eq!(
+            instructions(&builder)
+                .iter()
+                .filter(|row| matches!(row, MirInstruction::ReleaseStrong { .. }))
+                .count(),
+            1
+        );
+    }
+}

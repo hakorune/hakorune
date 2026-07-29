@@ -59,7 +59,6 @@ mod function_state_transaction;
 mod located_legacy_lowering;
 #[allow(dead_code)]
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
-mod raw_nonprogram_root_descent; // Shared root port-neutral partition
 mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
 #[cfg(test)]
 mod raw_required_condition_draft_p0; // ROOTBATCH0-S0b exact factory contract

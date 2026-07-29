@@ -164,3 +164,157 @@ fn first_unsupported_early_exit_in_block(
         .iter()
         .find_map(|stmt| first_unsupported_early_exit_in_node(stmt, loop_depth))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::{LiteralValue, Span};
+    use crate::mir::builder::recursive_child_lowering::RecursiveChildLoweringPortV1;
+    use crate::mir::MirInstruction;
+
+    #[derive(Default)]
+    struct RecordingTaskScopePortV1 {
+        seen: Vec<i64>,
+        fail_at: Option<i64>,
+    }
+
+    impl RecursiveChildLoweringPortV1 for RecordingTaskScopePortV1 {
+        type BodyInput = Vec<ASTNode>;
+        type StatementInput = ASTNode;
+        type ExpressionInput = ASTNode;
+
+        fn lower_body(
+            &mut self,
+            builder: &mut MirBuilder,
+            input: Self::BodyInput,
+        ) -> Result<ValueId, String> {
+            let mut last = None;
+            for statement in input {
+                last = Some(self.lower_statement(builder, statement)?);
+            }
+            last.ok_or_else(|| "task-scope test body must be non-empty".to_owned())
+        }
+
+        fn lower_statement(
+            &mut self,
+            builder: &mut MirBuilder,
+            input: Self::StatementInput,
+        ) -> Result<ValueId, String> {
+            match input {
+                ASTNode::Literal {
+                    value: LiteralValue::Integer(value),
+                    ..
+                } => {
+                    self.seen.push(value);
+                    if self.fail_at == Some(value) {
+                        return Err(format!("task-scope child {value} failed"));
+                    }
+                    crate::mir::builder::emission::constant::emit_integer(builder, value)
+                }
+                ASTNode::TaskScope {
+                    body,
+                    source_keyword,
+                    ..
+                } => build_task_scope_statement_with_port_v1(builder, self, body, source_keyword),
+                other => Err(format!(
+                    "task-scope test port received {}",
+                    other.node_type()
+                )),
+            }
+        }
+
+        fn lower_expression(
+            &mut self,
+            builder: &mut MirBuilder,
+            input: Self::ExpressionInput,
+        ) -> Result<ValueId, String> {
+            self.lower_statement(builder, input)
+        }
+    }
+
+    fn integer(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        }
+    }
+
+    fn task_scope(body: Vec<ASTNode>) -> ASTNode {
+        ASTNode::TaskScope {
+            body,
+            source_keyword: "co".to_owned(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn task_scope_calls(builder: &MirBuilder) -> Vec<String> {
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("current test function")
+            .blocks
+            .values()
+            .flat_map(|block| block.instructions.iter())
+            .filter_map(|instruction| match instruction {
+                MirInstruction::Call { .. } => {
+                    let rendered = format!("{instruction:?}");
+                    rendered.contains("env.task_scope").then_some(rendered)
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn task_scope_drives_children_in_source_order_through_supplied_port() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("task_scope_owner_order/0".to_owned());
+        let mut port = RecordingTaskScopePortV1::default();
+
+        build_task_scope_statement_with_port_v1(
+            &mut builder,
+            &mut port,
+            vec![
+                integer(1),
+                task_scope(vec![integer(2), integer(3)]),
+                integer(4),
+            ],
+            "co".to_owned(),
+        )
+        .unwrap();
+
+        assert_eq!(port.seen, vec![1, 2, 3, 4]);
+        let calls = task_scope_calls(&builder);
+        assert_eq!(calls.len(), 4, "outer and nested scopes each push and pop");
+        assert!(calls[0].contains("push"));
+        assert!(calls[1].contains("push"));
+        assert!(calls[2].contains("pop"));
+        assert!(calls[3].contains("pop"));
+    }
+
+    #[test]
+    fn task_scope_child_failure_still_emits_pop_once_and_stops_later_children() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("task_scope_owner_failure/0".to_owned());
+        let mut port = RecordingTaskScopePortV1 {
+            fail_at: Some(2),
+            ..Default::default()
+        };
+
+        let error = build_task_scope_statement_with_port_v1(
+            &mut builder,
+            &mut port,
+            vec![integer(1), integer(2), integer(3)],
+            "co".to_owned(),
+        )
+        .unwrap_err();
+
+        assert_eq!(error, "task-scope child 2 failed");
+        assert_eq!(port.seen, vec![1, 2]);
+        let calls = task_scope_calls(&builder);
+        assert_eq!(calls.len(), 2, "failed scope must still push and pop once");
+        assert!(calls[0].contains("push"));
+        assert!(calls[1].contains("pop"));
+    }
+}

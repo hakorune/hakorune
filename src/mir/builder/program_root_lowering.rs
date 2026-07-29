@@ -1,8 +1,7 @@
 //! Shared Program-only root/catalog lowering.
 //!
 //! Selected normal/default reaches this owner through its sealed Program
-//! product. Arbitrary-AST compatibility reaches it only after the shared raw
-//! root partition has selected the Program branch.
+//! product. No arbitrary-AST root facade participates in this lifecycle.
 
 use std::collections::HashMap;
 

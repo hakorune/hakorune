@@ -84,35 +84,6 @@
     "sunset_id": "STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-SUNSET-001",
     "retire_row": "STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0"
   },
-  "raw_nonprogram_root_descent": {
-    "definition_file": "src/mir/builder/raw_nonprogram_root_descent.rs",
-    "definition_anchor": "pub(super) enum PreparedRawRootPartitionV1",
-    "caller_file": "src/mir/builder/module_lifecycle.rs",
-    "caller_anchor": "lower_raw_nonprogram_root_with_port_v1",
-    "callers": 0,
-    "selected_driver_anchor": "drive_legacy_expression_v1(builder, selected_port, root.into_node())",
-    "selected_driver_calls": 1,
-    "compatibility_driver_anchor": "drive_raw_legacy_expression_v1(builder, node)",
-    "compatibility_driver_calls": 1,
-    "retired_anchor": "self.build_expression(other)",
-    "retired_calls": 0,
-    "sunset_id": "RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001",
-    "sunset_state": "retirement-selected",
-    "residual_kind_count": 36,
-    "selected_block_prelude_responsibilities": [
-      "expr_tree",
-      "print",
-      "nowait",
-      "annotation_free_local",
-      "variable_assignment",
-      "variable_compound_assignment",
-      "plain_scope_box",
-      "task_scope"
-    ],
-    "safe_nonempty_block_compatibility_edge": 0,
-    "safe_task_scope_compatibility_edge": 0,
-    "retire_when": "root compatibility owner, registered residual surface, and root-specific raw legacy driver edge are zero"
-  },
   "normal_compile_adapters": {
     "src/runner/selfhost.rs": 0
   },
@@ -138,6 +109,15 @@
       "production_legacy_edges": 0,
       "retire_row": "STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0",
       "retire_when": "Stage1 direct post-macro NonProgram production reachability is zero"
+    },
+    "RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001": {
+      "state": "closed",
+      "owner": "deleted",
+      "owner_definitions": 0,
+      "execution_callers": 0,
+      "residual_surface": 0,
+      "root_raw_edges": 0,
+      "retire_row": "RAW-NONPROGRAM-ROOT-COMPAT-RET0-R0"
     }
   },
   "old_raw_non_test_callers": 0

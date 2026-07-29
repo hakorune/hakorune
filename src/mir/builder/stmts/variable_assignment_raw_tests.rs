@@ -201,3 +201,43 @@ fn grouped_assignment_selects_owned_descent_through_production_ingress() {
         1
     );
 }
+
+#[test]
+fn grouped_assignment_preflights_target_preserves_binding_and_reuses_freshly() {
+    let mut missing_target = builder("asn0_i0_grouped_missing_target/0");
+    let error = missing_target
+        .build_expression(grouped_assignment("missing", integer(99)))
+        .unwrap_err();
+    assert!(error.contains("Undefined variable: missing"));
+    assert!(instructions(&missing_target).is_empty());
+
+    let mut builder = builder("asn0_i0_grouped_failure_reuse/0");
+    let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 5).unwrap();
+    declare(&mut builder, "x", old, 0);
+    let before_rhs = instructions(&builder);
+
+    let error = builder
+        .build_expression(grouped_assignment("x", variable("missing_rhs")))
+        .unwrap_err();
+    assert!(error.contains("Undefined variable: missing_rhs"));
+    assert_eq!(instructions(&builder), before_rhs);
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map.get("x"),
+        Some(&old)
+    );
+
+    let value = builder
+        .build_expression(grouped_assignment("x", integer(100)))
+        .unwrap();
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map.get("x"),
+        Some(&value)
+    );
+    assert_eq!(
+        instructions(&builder)
+            .iter()
+            .filter(|row| matches!(row, MirInstruction::ReleaseStrong { .. }))
+            .count(),
+        1
+    );
+}

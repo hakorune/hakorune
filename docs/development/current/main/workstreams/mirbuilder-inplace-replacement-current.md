@@ -578,28 +578,21 @@ new source/test/check/task file            = 0
 largest touched source/check file          = 799
 ```
 
-## Current execution
-`RAW-NONPROGRAM-ROOT-COMPAT-RET0-R0` / T1 detached-owner retirement
+## Current design stop
+`MIRBUILDER-BUILD-EXPRESSION-FACADE0-D0` — read-only
 ```text
-Change:
-  Delete the detached owner, classifier tests, module wiring, live manifest
-  inventory, and route guard; close its sunset in the same commit.
-  Re-express only four unique contracts in async, grouped/compound assignment,
-  and TaskScope owner-local tests.
-Contract:
-  Execution callers remain zero; no replacement root facade is introduced.
-  Keep Program lowering, node kernels, child ports, the global raw driver,
-  prepare/finalize, and the build_module timing label.
-  Grammar, result, publication, fallback, retry, Ownership, and View delta = 0.
-Done:
-  Detached owner/types/files/residual registry/root-specific raw edge = 0.
-  Four owner-local contracts and shared MirBuilder guards are green.
-Stop:
-  Any non-test caller appears; proof needs a replacement root classifier;
-  node semantics change; or global raw driver/build_expression removal is needed.
+Observed:
+  Detached raw root owner/files/residual registry/root-specific raw edge = 0.
+  MirBuilder::build_expression has five non-test calls:
+  if_form.rs = 3; ops/logical_shortcircuit.rs = 2.
+Decide:
+  Exact child-port replacement or retained facade boundary for those five calls.
+Keep:
+  Current If/short-circuit semantics, node kernels, raw driver, and diagnostics.
+Forbid:
+  Code edits, mixed build_statement/build_block cleanup, grammar change,
+  fallback/retry, or Ownership/View activation before this census closes.
 ```
-After closeout, run a fresh read-only census of the five live
-`MirBuilder::build_expression` facade calls before selecting another cell.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)
@@ -614,10 +607,9 @@ for Program; no public arbitrary-root replacement is introduced.
 Compatibility sunset:
 ```text
 sunset_id: RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
-state: retirement-row-selected; execution callers = 0
-residual_kind_count: 36
-retire when: owner definition, registered residual surface, and root-specific
-  drive_raw_legacy_expression_v1 production edge are all zero
+state: closed
+owner / residual surface / root-specific raw edge / execution callers: 0
+retired by: RAW-NONPROGRAM-ROOT-COMPAT-RET0-R0
 
 sunset_id: STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-SUNSET-001
 state: closed

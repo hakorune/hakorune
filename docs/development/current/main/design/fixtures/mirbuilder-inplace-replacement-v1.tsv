@@ -24,6 +24,7 @@ cell	RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0	DESCENT-SPINE0	raw
 cell	RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0	DESCENT-SPINE0	raw_nonprogram_root_descent.rs:safe-BlockExpr-prelude	raw_expression_dispatch/mod.rs:selected-BlockExpr-prelude	safe-BlockExpr-prelude-to-raw-compatibility	cargo-test:raw-nonprogram-root+normal-parity	-	closed
 cell	RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0	CONTROL0	raw_nonprogram_root_descent.rs:safe-TaskScope	task_scope_stmt.rs:build_task_scope_statement_with_port_v1	safe-TaskScope-to-raw-compatibility	cargo-test:raw-nonprogram-root+normal-parity	-	closed
 cell	NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0	COMPILER-RESIDUE0	four-selected-normal-source-sites	normal_default_pipeline.rs:PreparedNormalDefaultProgramRootV1+program_root_lowering.rs	selected-normal-bare-AST+nonProgram+generic-root-admission	cargo-test:normal-program-admission+root-catalog+reuse	-	closed
+cell	RAW-NONPROGRAM-ROOT-COMPAT-RET0-R0	DESCENT-SPINE0	disconnected-raw-root-owner	owner-local-node-tests	raw_nonprogram_root_descent.rs+tests+residual-registry	cargo-test:owner-local-node-contracts+shared-ingress	-	closed
 asset	PORT-AWARE-CALLABLE-DRAFT	DESCENT-SPINE0	-	port_aware_function_draft_impl.rs	-	-	IntegrateNow	closed
 asset	GENERIC-DRAFT-COLLECTOR	FUNCTION-LIFECYCLE0	-	module_draft_collector.rs	-	-	IntegrateNow	closed
 asset	CANDIDATE-SESSION	MODULE-LIFECYCLE0	-	module_invocation_session.rs	-	-	IntegrateNow	closed

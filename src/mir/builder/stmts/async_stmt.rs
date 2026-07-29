@@ -131,3 +131,49 @@ where
     builder.emit_instruction(MirInstruction::Safepoint)?;
     Ok(result_id)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::{LiteralValue, Span};
+    use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
+    use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
+
+    #[test]
+    fn nowait_publishes_future_binding_and_slot_after_child_success() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("nowait_owner_receipt/0".to_owned());
+        builder.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
+        let mut port = RawLegacyChildLoweringPortV1;
+
+        let future = build_nowait_statement_with_port_v1(
+            &mut builder,
+            &mut port,
+            "pending".to_owned(),
+            ASTNode::Literal {
+                value: LiteralValue::Integer(17),
+                span: Span::unknown(),
+            },
+        )
+        .unwrap();
+
+        assert_eq!(
+            builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .get("pending"),
+            Some(&future)
+        );
+        assert!(matches!(
+            builder.function_state.type_ctx.value_types.get(&future),
+            Some(MirType::Future(inner)) if **inner == MirType::Integer
+        ));
+        assert!(builder
+            .comp_ctx
+            .current_slot_registry
+            .as_ref()
+            .and_then(|registry| registry.get_slot("pending"))
+            .is_some());
+    }
+}

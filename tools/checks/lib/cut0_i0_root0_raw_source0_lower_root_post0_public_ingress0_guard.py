@@ -16,9 +16,7 @@ NORMAL_PIPELINE = ROOT / "src/mir/compiler/normal_default_pipeline.rs"
 NORMAL_ROOT_LIFECYCLE = ROOT / "src/mir/builder/normal_default_root_catalog_lifecycle.rs"
 PROGRAM_ROOT_LOWERING = ROOT / "src/mir/builder/program_root_lowering.rs"
 MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
-RAW_NONPROGRAM_ROOT_DESCENT = ROOT / "src/mir/builder/raw_nonprogram_root_descent.rs"
-RAW_NONPROGRAM_ROOT_DESCENT_TESTS = ROOT / "src/mir/builder/raw_nonprogram_root_descent_tests.rs"
-RAW_NONPROGRAM_ROOT_DESCENT_PARITY_TESTS = ROOT / "src/mir/builder/raw_nonprogram_root_descent_tests/parity.rs"
+BUILDER_ROOT = ROOT / "src/mir/builder.rs"
 NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
 SOURCES = (
     ROOT / "src/mir/compiler/raw_public_ingress.rs",
@@ -111,10 +109,6 @@ def require(text: str, fragment: str, label: str) -> None:
         raise AssertionError(f"missing {label}: {fragment!r}")
 
 
-def ast_kinds(text: str) -> set[str]:
-    return set(re.findall(r"ASTNode::([A-Za-z0-9_]+)", text))
-
-
 def text_between(text: str, start: str, end: str) -> str:
     start_index = text.index(start)
     end_index = text.index(end, start_index)
@@ -148,9 +142,7 @@ def main() -> int:
             NORMAL_ROOT_LIFECYCLE,
             PROGRAM_ROOT_LOWERING,
             MODULE_LIFECYCLE,
-            RAW_NONPROGRAM_ROOT_DESCENT,
-            RAW_NONPROGRAM_ROOT_DESCENT_TESTS,
-            RAW_NONPROGRAM_ROOT_DESCENT_PARITY_TESTS,
+            BUILDER_ROOT,
             NORMAL_TESTS,
             *SOURCES,
         )
@@ -167,11 +159,7 @@ def main() -> int:
     normal_root_lifecycle = texts[NORMAL_ROOT_LIFECYCLE]
     program_root_lowering = production_code(PROGRAM_ROOT_LOWERING)
     module_lifecycle = production_code(MODULE_LIFECYCLE)
-    raw_nonprogram_root_descent = production_code(RAW_NONPROGRAM_ROOT_DESCENT)
-    raw_nonprogram_root_descent_tests = texts[RAW_NONPROGRAM_ROOT_DESCENT_TESTS]
-    raw_nonprogram_root_descent_parity_tests = texts[
-        RAW_NONPROGRAM_ROOT_DESCENT_PARITY_TESTS
-    ]
+    builder_root = production_code(BUILDER_ROOT)
     normal_tests = texts[NORMAL_TESTS]
     current_workstream = texts[CURRENT_WORKSTREAM]
     for fragment in (
@@ -434,310 +422,34 @@ def main() -> int:
         "pub enum NormalProgramCompileRequestErrorV1",
     ):
         raise AssertionError("normal request regained bare AST authority")
-    root_descent = caller_manifest.get("raw_nonprogram_root_descent", {})
-    if (
-        ROOT / root_descent.get("definition_file", "")
-        != RAW_NONPROGRAM_ROOT_DESCENT
-        or ROOT / root_descent.get("caller_file", "") != MODULE_LIFECYCLE
-    ):
-        raise AssertionError("raw non-Program root descent path drift")
-    require(
-        raw_nonprogram_root_descent,
-        root_descent.get("definition_anchor", ""),
-        "raw root partition owner",
+    if "raw_nonprogram_root_descent" in caller_manifest:
+        raise AssertionError("retired raw root inventory returned")
+    raw_sunset = caller_manifest.get("compatibility_sunsets", {}).get(
+        "RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001", {}
     )
-    caller_anchor = root_descent.get("caller_anchor", "")
-    if module_lifecycle.count(caller_anchor) != root_descent.get("callers"):
-        raise AssertionError("raw non-Program root descent caller drift")
-    retired_anchor = root_descent.get("retired_anchor", "")
-    if module_lifecycle.count(retired_anchor) != root_descent.get("retired_calls"):
-        raise AssertionError("broad non-Program build_expression edge returned")
-    for anchor_key, count_key in (
-        ("selected_driver_anchor", "selected_driver_calls"),
-        ("compatibility_driver_anchor", "compatibility_driver_calls"),
+    if raw_sunset.get("state") != "closed":
+        raise AssertionError("raw non-Program root sunset must remain closed")
+    for key in ("owner_definitions", "execution_callers", "residual_surface", "root_raw_edges"):
+        if raw_sunset.get(key) != 0:
+            raise AssertionError(f"raw root retirement count drift: {key}")
+    for retired_path in (
+        ROOT / "src/mir/builder/raw_nonprogram_root_descent.rs",
+        ROOT / "src/mir/builder/raw_nonprogram_root_descent_tests.rs",
+        ROOT / "src/mir/builder/raw_nonprogram_root_descent_tests/parity.rs",
     ):
-        anchor = root_descent.get(anchor_key, "")
-        if raw_nonprogram_root_descent.count(anchor) != root_descent.get(count_key):
-            raise AssertionError(f"raw root driver drift: {anchor_key}")
-    require(
-        current_workstream,
-        root_descent.get("sunset_id", ""),
-        "raw root compatibility sunset",
-    )
-    if root_descent.get("sunset_state") != "retirement-selected":
-        raise AssertionError("disconnected raw root compatibility must remain selected for retirement")
-    if root_descent.get("residual_kind_count") != 36:
-        raise AssertionError("raw root compatibility residual count drift")
-    ast_node_kinds = ast_kinds(
-        (
-            ROOT
-            / "crates/hakorune_frontend_ast/src/utils/node_type.rs"
-        ).read_text()
-    )
-    classified_kinds = ast_kinds(raw_nonprogram_root_descent)
-    if len(ast_node_kinds) != 57 or classified_kinds != ast_node_kinds:
-        raise AssertionError(
-            "raw root partition must exhaust all 57 AST kinds: "
-            f"missing={sorted(ast_node_kinds - classified_kinds)} "
-            f"extra={sorted(classified_kinds - ast_node_kinds)}"
-        )
-    selected_arms = re.findall(
-        r"node\s*@\s*(.*?)=>\s*\{\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root|variable_assignment_root|variable_compound_assignment_root|return_root|plain_scope_box_root|task_scope_root)\(node\)\s*\}"
-        r"|node\s*@\s*(.*?)=>\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root|variable_assignment_root|variable_compound_assignment_root|return_root|plain_scope_box_root|task_scope_root)\(node\)",
-        raw_nonprogram_root_descent,
-        re.S,
-    )
-    selected_kinds = set()
-    for braced, direct in selected_arms:
-        selected_kinds.update(ast_kinds(braced or direct))
-    expected_selected = {
-        "Literal", "Variable", "Me", "UnaryOp", "BinaryOp", "AwaitExpression",
-        "CheckExpr", "ArrayLiteral", "MapLiteral", "GroupedAssignmentExpr", "Index",
-        "BlockExpr", "Print", "Nowait", "Local", "Assignment", "CompoundAssignment", "Return", "ScopeBox", "TaskScope",
-    }
-    if selected_kinds != expected_selected:
-        raise AssertionError(
-            "selected raw-root kind ratchet drift: "
-            f"expected={sorted(expected_selected)} actual={sorted(selected_kinds)}"
-        )
-    explicit_kinds = ast_kinds(
-        text_between(
-            raw_nonprogram_root_descent,
-            "node @ (ASTNode::BoxDeclaration",
-            "RawNonProgramRootCompatibilityClassV1::ExplicitRoot",
-        )
-    )
-    if explicit_kinds != {"BoxDeclaration", "Loop"}:
-        raise AssertionError(f"explicit root compatibility drift: {sorted(explicit_kinds)}")
-    separate_kinds = ast_kinds(
-        text_between(
-            raw_nonprogram_root_descent,
-            "node @ (ASTNode::If",
-            "RawNonProgramRootCompatibilityClassV1::SeparateDesignStop",
-        )
-    )
-    expected_separate = {
-        "If", "QMarkPropagate", "MatchExpr",
-        "EnumMatchExpr", "RecordLiteral",
-        "RecordUpdate", "Lambda", "TryCatch", "Throw",
-        "MethodCall", "FieldAccess", "New",
-        "FromCall", "FunctionCall", "Call",
-    }
-    if separate_kinds != expected_separate:
-        raise AssertionError(
-            "separate-design root compatibility drift: "
-            f"expected={sorted(expected_separate)} actual={sorted(separate_kinds)}"
-        )
-    outside_kinds = ast_kinds(
-        text_between(
-            raw_nonprogram_root_descent,
-            "node @ (ASTNode::LoopRange",
-            "RawNonProgramRootCompatibilityClassV1::OutsideNormalFileIngress",
-        )
-    )
-    expected_outside = ast_node_kinds - expected_selected - explicit_kinds - expected_separate - {
-        "Program"
-    }
-    if len(expected_outside) != 19 or outside_kinds != expected_outside:
-        raise AssertionError(
-            "outside-normal root compatibility drift: "
-            f"expected={sorted(expected_outside)} actual={sorted(outside_kinds)}"
-        )
-    actual_residual_kind_count = len(explicit_kinds | separate_kinds | outside_kinds)
-    if actual_residual_kind_count != root_descent.get("residual_kind_count"):
-        raise AssertionError(
-            "raw root residual ratchet drift: "
-            f"manifest={root_descent.get('residual_kind_count')} "
-            f"actual={actual_residual_kind_count}"
-        )
-    for fragment in (
-        "node @ ASTNode::AwaitExpression { .. } if is_port_neutral_expr_tree(&node)",
-        "ASTNode::AwaitExpression { expression, .. } => is_port_neutral_expr_tree(expression)",
-    ):
-        require(raw_nonprogram_root_descent, fragment, "recursive Await partition")
-    if raw_nonprogram_root_descent.count("node @ ASTNode::AwaitExpression { .. }") != 2:
-        raise AssertionError("Await root must have one safe and one compatibility arm")
-    for fragment in (
-        "node @ ASTNode::CheckExpr { .. } if is_port_neutral_expr_tree(&node)",
-        ".all(|item| is_port_neutral_expr_tree(&item.expression))",
-    ):
-        require(raw_nonprogram_root_descent, fragment, "recursive Check partition")
-    if raw_nonprogram_root_descent.count("node @ ASTNode::CheckExpr { .. }") != 2:
-        raise AssertionError("Check root must have one safe and one compatibility arm")
-    for fragment in (
-        "node @ ASTNode::ArrayLiteral { .. } if is_port_neutral_expr_tree(&node)",
-        "ASTNode::ArrayLiteral { elements, .. }",
-        "elements.iter().all(is_port_neutral_expr_tree)",
-    ):
-        require(raw_nonprogram_root_descent, fragment, "recursive Array partition")
-    if raw_nonprogram_root_descent.count("node @ ASTNode::ArrayLiteral { .. }") != 2:
-        raise AssertionError("Array root must have one safe and one compatibility arm")
-    for fragment in (
-        "node @ ASTNode::MapLiteral { .. } if is_port_neutral_expr_tree(&node)",
-        "ASTNode::MapLiteral { entries, .. }",
-        ".all(|(_, value)| is_port_neutral_expr_tree(value))",
-    ):
-        require(raw_nonprogram_root_descent, fragment, "recursive Map partition")
-    if raw_nonprogram_root_descent.count("node @ ASTNode::MapLiteral { .. }") != 2:
-        raise AssertionError("Map root must have one safe and one compatibility arm")
-    for fragment in (
-        "node @ ASTNode::GroupedAssignmentExpr { .. }",
-        "if is_port_neutral_expr_tree(&node)",
-        "ASTNode::GroupedAssignmentExpr { rhs, .. }",
-        "is_port_neutral_expr_tree(rhs)",
-    ):
-        require(raw_nonprogram_root_descent, fragment, "recursive Grouped Assignment partition")
-    if (
-        raw_nonprogram_root_descent.count(
-            "node @ ASTNode::GroupedAssignmentExpr { .. }"
-        )
-        != 2
-    ):
-        raise AssertionError(
-            "Grouped Assignment root must have one safe and one compatibility arm"
-        )
-    for fragment in (
-        "node @ ASTNode::Index { .. } if is_port_neutral_expr_tree(&node)",
-        "ASTNode::Index { target, index, .. }",
-        "is_port_neutral_expr_tree(target) && is_port_neutral_expr_tree(index)",
-    ):
-        require(raw_nonprogram_root_descent, fragment, "recursive Index partition")
-    if raw_nonprogram_root_descent.count("node @ ASTNode::Index { .. }") != 2:
-        raise AssertionError("Index root must have one safe and one compatibility arm")
-    for fragment in (
-        "node @ ASTNode::BlockExpr { .. } if is_port_neutral_expr_tree(&node)",
-        "ASTNode::BlockExpr {",
-        ".all(is_port_neutral_block_prelude_stmt)",
-        "is_port_neutral_expr_tree(tail_expr)",
-        "fn is_port_neutral_block_prelude_stmt(node: &ASTNode) -> bool",
-        "is_port_neutral_print_root(node)",
-        "is_port_neutral_nowait_root(node)",
-        "is_port_neutral_local_root(node)",
-        "is_port_neutral_plain_scope_box_root(node)", "is_port_neutral_task_scope_root(node)",
-    ):
-        require(raw_nonprogram_root_descent, fragment, "recursive BlockExpr prelude partition")
-    if raw_nonprogram_root_descent.count("node @ ASTNode::BlockExpr { .. }") != 2:
-        raise AssertionError("BlockExpr root must have one safe and one compatibility arm")
-    expected_block_prelude = ["expr_tree", "print", "nowait", "annotation_free_local", "variable_assignment", "variable_compound_assignment", "plain_scope_box", "task_scope"]
-    if root_descent.get("selected_block_prelude_responsibilities") != expected_block_prelude:
-        raise AssertionError("selected BlockExpr prelude responsibility ratchet drift")
-    if root_descent.get("safe_nonempty_block_compatibility_edge") != 0:
-        raise AssertionError("safe non-empty BlockExpr compatibility edge must remain zero")
-    for fragment in (
-        "node @ ASTNode::Print { .. } if is_port_neutral_print_root(&node)",
-        "SelectedRawNonProgramRootV1", "fn is_port_neutral_return_root",
-        "PortNeutralPrintRootV1",
-        "SelectedRawNonProgramRootV1::PrintRoot",
-        "root.into_node()",
-    ):
-        require(raw_nonprogram_root_descent, fragment, "selected Print root partition")
-    if raw_nonprogram_root_descent.count("node @ ASTNode::Print { .. }") != 2:
-        raise AssertionError("Print root must have one safe and one compatibility arm")
-    for fragment in (
-        "node @ ASTNode::Nowait { .. } if is_port_neutral_nowait_root(&node)",
-        "PortNeutralNowaitRootV1",
-        "SelectedRawNonProgramRootV1::NowaitRoot",
-    ):
-        require(raw_nonprogram_root_descent, fragment, "selected Nowait root partition")
-    if raw_nonprogram_root_descent.count("node @ ASTNode::Nowait { .. }") != 2:
-        raise AssertionError("Nowait root must have one safe and one compatibility arm")
-    for fragment in (
-        "node @ ASTNode::Local { .. } if is_port_neutral_local_root(&node)",
-        "declared_type_names.iter().all(Option::is_none)",
-        ".is_none_or(is_port_neutral_expr_tree)",
-        "PortNeutralLocalRootV1",
-        "SelectedRawNonProgramRootV1::LocalRoot",
-    ):
-        require(raw_nonprogram_root_descent, fragment, "annotation-free Local partition")
-    if raw_nonprogram_root_descent.count("node @ ASTNode::Local { .. }") != 2:
-        raise AssertionError("Local root must have one safe and one compatibility arm")
-    for kind, predicate in (("Assignment", "is_port_neutral_variable_assignment_root"), ("CompoundAssignment", "is_port_neutral_variable_compound_assignment_root")):
-        for fragment in (f"node @ ASTNode::{kind} {{ .. }}", f"{predicate}(&node)",
-                         f"fn {predicate}(node: &ASTNode) -> bool"):
-            require(raw_nonprogram_root_descent, fragment, f"variable {kind} partition")
-        if raw_nonprogram_root_descent.count(f"node @ ASTNode::{kind} {{ .. }}") != 2:
-            raise AssertionError(f"{kind} root must have safe and compatibility arms")
-    for fragment in (
-        "node @ ASTNode::TaskScope { .. } if is_port_neutral_task_scope_root(&node)",
-        "fn is_port_neutral_task_scope_root(node: &ASTNode) -> bool",
-        "body.iter().all(is_port_neutral_block_prelude_stmt)",
-        "PortNeutralTaskScopeRootV1",
-        "SelectedRawNonProgramRootV1::TaskScopeRoot",
-    ):
-        require(raw_nonprogram_root_descent, fragment, "recursive TaskScope partition")
-    if raw_nonprogram_root_descent.count("node @ ASTNode::TaskScope { .. }") != 2:
-        raise AssertionError("TaskScope root must have one safe and one compatibility arm")
-    if root_descent.get("safe_task_scope_compatibility_edge") != 0:
-        raise AssertionError("safe TaskScope compatibility edge must remain zero")
-    for fragment in (
+        if retired_path.exists():
+            raise AssertionError(f"retired raw root file returned: {retired_path}")
+    for retired_symbol in (
+        "PreparedRawRootPartitionV1",
         "PreparedRawNonProgramRootV1",
-        "SelectedRawNonProgramRootV1",
         "PortNeutralExprTreeV1",
         "ExistingRawNonProgramRootCompatibilityV1",
-        "RawNonProgramRootCompatibilityClassV1::ExplicitRoot",
-        "RawNonProgramRootCompatibilityClassV1::SeparateDesignStop",
-        "RawNonProgramRootCompatibilityClassV1::OutsideNormalFileIngress",
+        "lower_raw_nonprogram_root_with_port_v1",
     ):
-        require(raw_nonprogram_root_descent, fragment, f"raw root partition {fragment}")
-    for forbidden in (
-        "build_expression(",
-        ".clone()",
-        "NyashParser",
-        "parse_",
-        "retry(",
-        "fallback(",
-        "or_else(",
-        "unreachable!(",
-        "panic!(",
-    ):
-        if forbidden in raw_nonprogram_root_descent:
-            raise AssertionError(f"raw root partition gained forbidden surface: {forbidden}")
-    if re.search(r"\b_\s*=>", raw_nonprogram_root_descent):
-        raise AssertionError("raw root partition must not use a wildcard AST arm")
-    require(
-        texts[RAW_NONPROGRAM_ROOT_DESCENT],
-        '#[path = "raw_nonprogram_root_descent_tests.rs"]\nmod tests;',
-        "path-bound raw root test seam",
-    )
-    if "fn port_neutral_partition_is_recursive_and_disjoint" in texts[
-        RAW_NONPROGRAM_ROOT_DESCENT
-    ]:
-        raise AssertionError("raw root partition tests must remain outside production source")
-    require(
-        raw_nonprogram_root_descent_tests,
-        '#[path = "raw_nonprogram_root_descent_tests/parity.rs"]\nmod parity;',
-        "private raw root parity test child",
-    )
-    for fixture in (
-        "port_neutral_partition_is_recursive_and_disjoint",
-        "program_box_and_loop_keep_their_existing_root_owners",
-    ):
-        require(
-            raw_nonprogram_root_descent_tests,
-            fixture,
-            f"raw root partition fixture {fixture}",
-        )
-        if fixture in raw_nonprogram_root_descent_parity_tests:
-            raise AssertionError(f"raw root partition fixture moved into parity child: {fixture}")
-    for fixture in (
-        "selected_print_root_matches_the_raw_legacy_port_exactly",
-        "selected_nowait_root_matches_raw_legacy_effects_exactly",
-        "selected_grouped_assignment_matches_raw_legacy_effects_exactly",
-        "selected_grouped_assignment_preflights_and_reuses_without_retry",
-        "selected_index_matches_raw_legacy_effects_exactly", "selected_safe_return_root_matches_raw_legacy_without_retry", "selected_plain_scope_box_composes_without_retry",
-        "selected_safe_block_prelude_matches_raw_legacy_effects_exactly",
-        "selected_block_prelude_local_keeps_existing_scope_failure",
-        "selected_task_scope_matches_raw_legacy_effects_exactly",
-        "selected_task_scope_child_failure_keeps_pop_order_without_retry",
-        "selected_empty_block_expr_matches_raw_legacy_effects_exactly",
-    ):
-        if fixture in raw_nonprogram_root_descent_tests:
-            raise AssertionError(f"raw root parity fixture remains in parent hub: {fixture}")
-        require(
-            raw_nonprogram_root_descent_parity_tests,
-            fixture,
-            f"raw root parity fixture {fixture}",
-        )
+        if any(retired_symbol in text for text in production.values()):
+            raise AssertionError(f"retired raw root symbol returned: {retired_symbol}")
+    if "mod raw_nonprogram_root_descent;" in builder_root:
+        raise AssertionError("retired raw root module wiring returned")
     for fixture in (
         "late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable",
         "explicit_imports_commit_only_with_the_finished_normal_candidate",
