@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Safe root Throw is rejected for no concrete production constructor. Root ingress policy is the sole design stop."
+status = "Root ingress policy is closed with independent authorities. Runtime AST-JSON compatibility retirement is the sole executable row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-NONPROGRAM-ROOT-INGRESS-POLICY0-D0"
-current_execution_row = ""
-current_execution_summary = "Read-only caller-level census: inventory MirCompiler arbitrary-AST compatibility, runtime AST-JSON compatibility, and Stage1 post-macro NonProgram compatibility; select caller retirement, Program-only typed admission, or an exact bounded residual contract. Do not migrate the 19 OutsideNormalFileIngress kinds one by one, add a second route, narrow a live contract without parity evidence, activate Context/View/Throw, or retry."
+current_design_stop = ""
+current_execution_row = "RUNTIME-MIRBUILDER-AST-JSON-COMPAT-RETIRE0-I0-R0"
+current_execution_summary = "T2 atomic compatibility retirement: fix env.mirbuilder.emit to its production Program(JSON v0) contract, reject non-envelope/AST JSON before Builder effects, and delete lower_ast_json_to_module plus the runtime MirBuilder::build_module edge and AST-only tests. Preserve both thin callers' local error mapping, imports, metadata refresh, MIR JSON normalization, and Program v0 behavior; fallback/retry and a replacement AST decoder are zero. Next design is POST-MACRO-ROOT-CONTRACT0-D0."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-NONPROGRAM-VARIABLE-COMPOUND-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0"
+current_blocker_token = "RUNTIME-MIRBUILDER-AST-JSON-COMPAT-RETIRE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

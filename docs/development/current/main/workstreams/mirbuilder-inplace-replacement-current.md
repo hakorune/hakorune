@@ -593,17 +593,19 @@ new source/test/check file           = 0
 largest touched source/check file    = 798
 ```
 
-## Current design stop: `RAW-NONPROGRAM-ROOT-INGRESS-POLICY0-D0`
+## Current execution: `RUNTIME-MIRBUILDER-AST-JSON-COMPAT-RETIRE0-I0-R0`
 
 ```text
-Audit:
-  MirCompiler arbitrary AST; runtime AST-JSON; Stage1 post-macro NonProgram
-Decision:
-  caller retirement, Program-only admission, or exact bounded residual contract
-Rejected precursor:
-  safe bare Throw has no concrete current production constructor
+Selected:
+  env.mirbuilder.emit accepts Program(JSON v0), production AST-JSON producer = 0
+Atomic delete:
+  AST decoder branch + runtime direct build_module edge + AST-only tests
+Preserve:
+  thin caller errors, imports, metadata refresh, MIR JSON normalization
+Next design:
+  POST-MACRO-ROOT-CONTRACT0-D0 before Stage1/VM/selfhost caller cutovers
 Forbid:
-  per-kind outside migration, contract narrowing without parity, second route, retry
+  replacement decoder, Program-v0 drift, fallback/retry, merged ingress authority
 ```
 
 Compatibility sunset:
@@ -715,7 +717,8 @@ R23 RAW-NONPROGRAM-SAFE-RETURN-ROOT-DESCENT0-I0-R0 closed
 R24 RAW-NONPROGRAM-PLAIN-SCOPEBOX-COMPOSITIONAL-DESCENT0-D0 closed: Accept
 R25 RAW-NONPROGRAM-PLAIN-SCOPEBOX-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R26 RAW-NONPROGRAM-SAFE-THROW-ROOT-DESCENT0-D0 closed: NoProductionConstructor
-R27 RAW-NONPROGRAM-ROOT-INGRESS-POLICY0-D0 current
+R27 RAW-NONPROGRAM-ROOT-INGRESS-POLICY0-D0 closed: IndependentSunsets
+R28 RUNTIME-MIRBUILDER-AST-JSON-COMPAT-RETIRE0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
