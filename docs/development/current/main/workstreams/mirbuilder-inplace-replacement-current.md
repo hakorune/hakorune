@@ -77,8 +77,9 @@ Closed:  MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0
 Closed:  INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0
 Closed:  MIRBUILDER-POST-INSTANCE-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0
 Closed:  INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0
-Current: MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
-Mode:    read-only production edge census
+Closed:  MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
+Current: CALL-BOX-KIND-POLICY-SSOT0-I0-R0
+Mode:    one atomic T1 I0/R0
 ```
 
 R1 closeout:
@@ -825,21 +826,47 @@ quick gate                                           = unrelated pre-existing
   docs/reference/language/EBNF.md naming-token failure
 ```
 
-## Current design stop
+## Current execution brief
 
-`MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0`.
+`CALL-BOX-KIND-POLICY-SSOT0-I0-R0` / T1 / `CALL-OBJECT0`.
 
-```text
-Read only:
-  enumerate current production MirBuilder edges after lifecycle closeout
-  select at most one behavior-neutral responsibility with a named caller
-  require same-commit deletion of its competing old edge
+### Change
 
-Do not:
-  infer the next row from raw Main, Call policy, or record-helper reserves
-  add production-caller-zero proof routes or accepted-family variants
-  start View, Ownership, parser, backend, or feature work
-```
+- Move all six live `CalleeBoxKind` decisions to one total policy under
+  `src/mir/policies/`.
+- Callers select `GeneralEmission` or `ResolverExtendedCompiler` exactly once.
+- Delete `call_unified::classify_box_kind`,
+  `CalleeResolverBox::classify_box_kind`, the resolver-local match, and every
+  old classifier call in the same commit. No forwarding facade remains.
+
+### Contract
+
+- Preserve every current classification, including `RuntimeDataBox` and
+  `UnknownBox`; do not “fix” names while moving authority.
+- `BreakFinderBox`, `PhiInjectorBox`, and `LoopSSA` remain
+  `StaticCompiler` only in resolver-extended context and `UserDefined` in
+  general emission.
+- This analyzer exception is compatibility surface
+  `CALL-BOX-KIND-ANALYZER-COMPAT-SUNSET-001`: growth is forbidden; retire it
+  when analyzer production routes disappear or one-profile parity is proven.
+- Route, effect, emission, receiver certainty, MIR, result, View, Ownership,
+  grammar, fallback, retry, and reselection do not change.
+
+### Done
+
+- One decision owner, six named production consumers, and zero old classifier
+  definitions/calls.
+- A table-driven policy test seals both contexts and the exact analyzer/common
+  matrix; existing call-target evidence and shared guard remain green.
+- No new test/check/task file, and every source/check file remains below 800.
+
+### Stop
+
+- Stop if a caller needs two classifications, dynamic registry/env/catalog
+  input, a fourth analyzer exception, an old wrapper, or any route/diagnostic
+  behavior change.
+- Stop if the resolver context is implemented as “try extended, then general”
+  or any fallback/retry path.
 
 ## Latest closeout
 
@@ -1186,7 +1213,8 @@ R54 MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0 closed
 R55 INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0 closed
 R56 MIRBUILDER-POST-INSTANCE-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0 closed
 R57 INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0 closed
-R58 MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 current
+R58 MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 closed
+R59 CALL-BOX-KIND-POLICY-SSOT0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
