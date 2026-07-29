@@ -32,24 +32,32 @@ Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Latest landed: CALL-GLOBAL-PRESENCE-LEGACY-FACADE-RETIRE0-RET0
 Result:        the caller-zero Call global-presence facade is gone; the
                authority-aware resolver is the sole entry
-Latest design: MIRBUILDER-LIVE-EDGE-CENSUS0
-Executable:    read-only census; no implementation row selected
+Latest design: NORMAL-PROGRAM-COLLECTOR-DRAIN0-D0 selected
+Executable:    design stop; no implementation row selected
 History:       Git history and the short landed tail below
 ```
 
 ## Current stop
 
-`MIRBUILDER-LIVE-EDGE-CENSUS0` — read-only selection
+`NORMAL-PROGRAM-COLLECTOR-DRAIN0-D0` — T2 design stop
 
 ```text
 Change:
-  Re-read live production edges after the Call global-presence facade retirement. Select at
-  most one named edge or detached Delete asset only when its old authority can be deleted
-  in the same commit.
+  Design the normal-specific correspondence/preflight owner required to replace the live
+  `collector.into_draft_functions() -> current_module.try_add_functions_atomic(...)` edge.
 
-Do not select:
-  new source acceptance families, whole-function variants, a production fallback/retry,
-  a second route, or Ownership/View/later language features.
+Contract:
+  Preserve final collector key order, symbol/arity correspondence, `LegacyReplaceWholePair`,
+  RootLower failure/candidate discard, and one atomic module insertion. Raw/canonical drain,
+  a second collector, AST reread, retry, fallback, and policy conversion are non-authorities.
+
+Done:
+  Select one normal drain product, retained failure owner, exact old-edge deletion, and focused
+  normal drain/collision/reuse evidence for an immediately following S0/I0-R0.
+
+Stop:
+  Do not implement if complete normal draft correspondence requires Raw brands/manifests, a
+  source reparse, changed legacy replacement semantics, or partial publication.
 ```
 
 ## Latest closeout
@@ -133,7 +141,7 @@ largest touched source/check file                       < 800
 
 ```text
 Now
-  1 MIRBUILDER-LIVE-EDGE-CENSUS0 (read-only)
+  1 NORMAL-PROGRAM-COLLECTOR-DRAIN0-D0
 
 Then, repeat
   2 fresh live-edge census
@@ -1489,6 +1497,8 @@ R95 RAW-LEGACY-EXPRESSION-FACADE-RETIRE0-I0-R0 closed: caller-zero raw expressio
     facade and expression input view are deleted; fresh live-edge census is current
 R96 CALL-GLOBAL-PRESENCE-LEGACY-FACADE-RETIRE0-RET0 closed: caller-zero direct
     module-presence facade is deleted; authority-aware resolver is sole entry
+R97 MIRBUILDER-LIVE-EDGE-CENSUS0 closed: no safe live T0 replacement remains;
+    normal collector drain selected as the sole T2 design stop
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "CALL-GLOBAL-PRESENCE-LEGACY-FACADE-RETIRE0-RET0 is closed: the caller-zero Call global-presence facade and its direct module-map observation are deleted, leaving the authority-aware entry as sole resolver path. Fresh live-edge census is next; final conformance must settle JoinModule before Ownership, View, and later features."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS0 is closed: no live T0 replacement is safe; NORMAL-PROGRAM-COLLECTOR-DRAIN0-D0 is selected to define the normal-specific collector correspondence before any direct drain replacement. Final conformance must settle JoinModule before Ownership, View, and later features."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS0"
+current_design_stop = "NORMAL-PROGRAM-COLLECTOR-DRAIN0-D0"
 current_execution_row = ""
-current_execution_summary = "Read-only fresh census: select at most one remaining live production edge or detached Delete asset with a same-commit old-authority deletion. Do not select a new feature or whole-program acceptance family."
+current_execution_summary = "Design-only: define the normal collector's exact legacy draft correspondence and preflight/commit boundary before replacing collector.into_draft_functions() -> current_module.try_add_functions_atomic(). Do not use Raw/canonical drain types as a facade."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, raw static-Main compatibility lower-side source classification, three raw static-Main facade layers, raw static-Main fresh-port reselection, the shared instance-Box lower-side metadata authority, the raw non-Main static-Box inline lifecycle authority, the old raw Lambda HashSet/ambient-me/pre-emit-metadata authority, the NYASH_BUILDER_DISABLE_TRYCATCH try-body-only compatibility route, and the NYASH_BUILDER_DISABLE_THROW debug-trace compatibility route are deleted. The selected live Program declaration indexer and mixed Program-root statement coordinator are now replaced by complete source-only products; catalog -> facts -> static-table -> work-plan -> body order is preserved, while static-table, instance lifecycle, DraftSeal, and collector remain separate owners. Fresh census selected only the caller-zero raw-expression facade retirement; collector drain, Loop/JoinIR, raw static-Main, and broad Call compatibility require independent D0 boundaries. Legacy JoinModule disposition and final parity are mandatory before repository-wide final-pipeline completion. Ownership, View, and later features remain parked until then. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, raw static-Main compatibility lower-side source classification, three raw static-Main facade layers, raw static-Main fresh-port reselection, the shared instance-Box lower-side metadata authority, the raw non-Main static-Box inline lifecycle authority, the old raw Lambda HashSet/ambient-me/pre-emit-metadata authority, the NYASH_BUILDER_DISABLE_TRYCATCH try-body-only compatibility route, the NYASH_BUILDER_DISABLE_THROW debug-trace compatibility route, the caller-zero raw-expression facade, and the caller-zero Call global-presence facade are deleted. The selected live Program declaration indexer and mixed Program-root statement coordinator are now replaced by complete source-only products; catalog -> facts -> static-table -> work-plan -> body order is preserved, while static-table, instance lifecycle, DraftSeal, and collector remain separate owners. Fresh census found no safe live T0 replacement: normal collector drain is the selected T2 D0, while Loop/JoinIR, raw static-Main, and broad Call compatibility remain separate boundaries. Legacy JoinModule disposition and final parity are mandatory before repository-wide final-pipeline completion. Ownership, View, and later features remain parked until then. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS0"
+current_blocker_token = "NORMAL-PROGRAM-COLLECTOR-DRAIN0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
