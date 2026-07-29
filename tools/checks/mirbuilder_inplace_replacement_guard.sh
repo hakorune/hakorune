@@ -29,6 +29,7 @@ ASSIGNMENT_PARITY_TESTS="$ROOT_DIR/src/mir/builder/stmts/variable_assignment_par
 ASSIGNMENT_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_assignment.py"
 RETURN_DESCENT="$ROOT_DIR/src/mir/builder/stmts/return_statement_descent.rs"
 RETURN_TESTS="$ROOT_DIR/src/mir/builder/stmts/return_statement_descent_tests.rs"
+RETURN_PARITY_TESTS="$ROOT_DIR/src/mir/builder/stmts/return_statement_parity_tests.rs"
 RETURN_OWNER="$ROOT_DIR/src/mir/builder/stmts/return_stmt.rs"
 LOCATED_RETURN="$ROOT_DIR/src/mir/builder/located_legacy_return.rs"
 RETURN_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_return.py"
@@ -465,7 +466,8 @@ return_external_count="$(
     | awk -F ':' \
         -v owner="$RETURN_DESCENT" \
         -v tests="$RETURN_TESTS" \
-        '$1 != owner && $1 != tests { count += 1 } END { print count + 0 }'
+        -v parity="$RETURN_PARITY_TESTS" \
+        '$1 != owner && $1 != tests && $1 != parity { count += 1 } END { print count + 0 }'
 )"
 if [[ "$return_external_count" != "2" ]]; then
   guard_fail "$TAG" \
@@ -614,6 +616,11 @@ done
 if rg -n -w 'retry|fallback|reselection' \
   "$PROPERTY_READS" "$FIELDS" "$METHOD_CALL_HANDLERS" >/dev/null; then
   guard_fail "$TAG" "property descent gained retry, fallback, or reselection"
+fi
+
+if rg -n -P '\.build_expression\s*\(' \
+  "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null; then
+  guard_fail "$TAG" "retired MirBuilder build_expression caller returned"
 fi
 
 for file in \

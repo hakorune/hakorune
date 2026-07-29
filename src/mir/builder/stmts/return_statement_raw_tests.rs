@@ -1,4 +1,5 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
+use crate::mir::builder::recursive_child_lowering::drive_raw_legacy_expression_v1;
 use crate::mir::{ConstValue, MirBuilder, MirInstruction};
 
 fn integer(value: i64) -> ASTNode {
@@ -105,9 +106,8 @@ fn return_count(builder: &MirBuilder) -> usize {
 fn raw_value_return_selects_owned_descent_for_actual_method_call() {
     let mut builder = builder("ret0_i0_method_call/0");
 
-    let result = builder
-        .build_expression(value_return(type_check(integer(8))))
-        .unwrap();
+    let result =
+        drive_raw_legacy_expression_v1(&mut builder, value_return(type_check(integer(8)))).unwrap();
 
     assert!(instructions(&builder)
         .iter()
@@ -123,7 +123,7 @@ fn raw_value_return_selects_owned_descent_for_actual_method_call() {
 fn raw_void_return_selects_void_source_partition() {
     let mut builder = builder("ret0_i0_void/0");
 
-    let result = builder.build_expression(void_return()).unwrap();
+    let result = drive_raw_legacy_expression_v1(&mut builder, void_return()).unwrap();
 
     assert!(instructions(&builder).iter().any(|row| matches!(
         row,
@@ -142,9 +142,8 @@ fn raw_void_return_selects_void_source_partition() {
 fn raw_match_return_keeps_existing_selection_owner_without_second_completion() {
     let mut builder = builder("ret0_i0_match/0");
 
-    let result = builder
-        .build_expression(value_return(accepted_match()))
-        .unwrap();
+    let result =
+        drive_raw_legacy_expression_v1(&mut builder, value_return(accepted_match())).unwrap();
     let rows = instructions(&builder);
 
     assert!(rows.iter().any(|row| matches!(
@@ -170,7 +169,7 @@ fn raw_configured_defer_keeps_exact_copy_jump_completion() {
     builder.function_state.return_defer_slot = Some(slot);
     builder.function_state.return_defer_target = Some(target);
 
-    let result = builder.build_expression(value_return(integer(7))).unwrap();
+    let result = drive_raw_legacy_expression_v1(&mut builder, value_return(integer(7))).unwrap();
     let rows = instructions(&builder);
 
     assert!(builder.function_state.return_deferred_emitted);
@@ -202,33 +201,31 @@ fn raw_cleanup_and_child_failures_leave_no_terminator_then_reuse() {
     cleanup.function_state.in_cleanup_block = true;
     cleanup.function_state.cleanup_allow_return = false;
 
-    let error = cleanup
-        .build_expression(value_return(type_check(integer(8))))
+    let error = drive_raw_legacy_expression_v1(&mut cleanup, value_return(type_check(integer(8))))
         .unwrap_err();
     assert!(error.contains("return is not allowed inside cleanup block"));
     assert!(instructions(&cleanup).is_empty());
     assert!(current_terminator(&cleanup).is_none());
     assert_eq!(cleanup.recursion_depth, 0);
 
-    let error = cleanup.build_expression(void_return()).unwrap_err();
+    let error = drive_raw_legacy_expression_v1(&mut cleanup, void_return()).unwrap_err();
     assert!(error.contains("return is not allowed inside cleanup block"));
     assert!(instructions(&cleanup).is_empty());
     assert!(current_terminator(&cleanup).is_none());
     assert_eq!(cleanup.recursion_depth, 0);
 
     cleanup.function_state.in_cleanup_block = false;
-    cleanup.build_expression(value_return(integer(1))).unwrap();
+    drive_raw_legacy_expression_v1(&mut cleanup, value_return(integer(1))).unwrap();
     assert_eq!(return_count(&cleanup), 1);
 
     let mut child = builder("ret0_i0_child_failure/0");
-    let error = child
-        .build_expression(value_return(variable("missing")))
-        .unwrap_err();
+    let error =
+        drive_raw_legacy_expression_v1(&mut child, value_return(variable("missing"))).unwrap_err();
     assert!(error.contains("Undefined variable: missing"));
     assert!(current_terminator(&child).is_none());
     assert_eq!(child.recursion_depth, 0);
 
-    let result = child.build_expression(value_return(integer(2))).unwrap();
+    let result = drive_raw_legacy_expression_v1(&mut child, value_return(integer(2))).unwrap();
     assert!(matches!(
         current_terminator(&child),
         Some(MirInstruction::Return { value: Some(value) }) if value == result

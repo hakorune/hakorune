@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
 use crate::ast::{ASTNode, LiteralValue, Span};
+use crate::mir::builder::recursive_child_lowering::drive_raw_legacy_expression_v1;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::function::{
     FastMemBranchConditionProofKind, FastMemRegionMetadata, FastMemRegionOrigin,
@@ -515,13 +516,11 @@ fn expression_if_remains_cf_if_value_route_without_statement_void() {
     let mut builder = builder("expression_if_value_route/0");
     let _scope = LexicalScopeGuard::new(&mut builder);
 
-    let output = builder
-        .build_expression(statement_if(
-            bool_lit(true),
-            vec![int_lit(1)],
-            Some(vec![int_lit(2)]),
-        ))
-        .unwrap();
+    let output = drive_raw_legacy_expression_v1(
+        &mut builder,
+        statement_if(bool_lit(true), vec![int_lit(1)], Some(vec![int_lit(2)])),
+    )
+    .unwrap();
 
     let merge_bb = builder.function_state.current_block.unwrap();
     let function = builder.function_state.current_function.as_ref().unwrap();

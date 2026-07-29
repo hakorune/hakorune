@@ -42,6 +42,12 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     stmts_readme_path = "src/mir/builder/stmts/README.md"
     variable_stmt_path = "src/mir/builder/stmts/variable_stmt.rs"
+    control_setup_paths = (
+        "src/mir/builder/control_flow/plan/parts/wiring_tests.rs",
+        "src/mir/builder/control_flow/plan/parts/associated_source/raw_parity_tests.rs",
+        "src/mir/builder/control_flow/plan/parts/if_general.rs",
+        "src/mir/builder/control_flow/plan/parts/stmt/tests.rs",
+    )
     helper_path = (
         "tools/checks/lib/"
         "callable_result_i0_site0_r0_expr0_spine0_stmt0.py"
@@ -56,6 +62,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     stmts_root = _read(root, stmts_root_path)
     stmts_readme = _read(root, stmts_readme_path)
     variable_stmt = _read(root, variable_stmt_path)
+    control_setups = tuple(_read(root, path) for path in control_setup_paths)
 
     _require_count(
         local_descent,
@@ -253,6 +260,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         (root / variable_stmt_path).resolve(),
         (root / "src/mir/builder/stmts/variable_assignment_parity_tests.rs").resolve(),
     }
+    local_ignored.update((root / path).resolve() for path in control_setup_paths)
     for path in (root / "src").rglob("*.rs"):
         if path.resolve() in local_ignored:
             continue
@@ -479,6 +487,31 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     ):
         if ".build_expression(" in test_source:
             _fail(f"{label} retained retired test facade")
+    for source, path, helper_calls in zip(
+        control_setups,
+        control_setup_paths,
+        (3, 3, 2, 2),
+    ):
+        _require_count(
+            source,
+            "drive_local_statement_v1(builder, &mut port, &input)",
+            1,
+            f"{path} exact Local setup owner",
+        )
+        _require_count(
+            source,
+            "RawLegacyLocalInputV1::new(",
+            1,
+            f"{path} exact Local setup input",
+        )
+        _require_count(
+            source,
+            "seed_local(",
+            helper_calls,
+            f"{path} Local setup helper definition and calls",
+        )
+        if ".build_expression(" in source:
+            _fail(f"{path} retained retired Local setup facade")
     for fixture in (
         "ordinary_exact_numeric_and_null_locals_have_exact_pre_i0_snapshot_parity",
         "typed_array_local_has_exact_pre_i0_snapshot_parity",
@@ -567,6 +600,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         stmts_root_path,
         stmts_readme_path,
         variable_stmt_path,
+        *control_setup_paths,
         helper_path,
     )
     oversized = [

@@ -274,7 +274,7 @@ def check_ret0_s0(root: Path) -> str:
         "ASTNode::Return { value, .. }",
         "ensure_return_allowed(builder)?;",
         "try_apply_match_return_optimization(builder, value.as_deref(), true)?",
-        "builder.build_expression(*expr)?",
+        "drive_raw_legacy_expression_v1(builder, *expr)?",
         "emit_void(builder)?",
         "emit_return_from_value(builder, return_value)",
     ):
@@ -286,6 +286,47 @@ def check_ret0_s0(root: Path) -> str:
         excluded={parity_tests_path},
     ):
         _fail("historical Return reference gained a production caller")
+    selected = parity_tests[
+        parity_tests.index("fn lower_selected(") :
+        parity_tests.index("fn lower_pre_i0_return_reference(")
+    ]
+    _require_count(
+        selected,
+        "drive_value_return_statement_v1(builder, &mut port, &input)",
+        1,
+        "selected value Return owner",
+    )
+    _require_count(
+        selected,
+        "build_void_return_statement(builder)",
+        1,
+        "selected void Return owner",
+    )
+    _require_count(
+        reference,
+        "drive_raw_legacy_expression_v1(builder, *expr)?",
+        1,
+        "historical Return raw child oracle",
+    )
+    _require_count(
+        raw_tests,
+        "drive_raw_legacy_expression_v1(",
+        9,
+        "raw Return oracle calls",
+    )
+    for forbidden in (
+        "drive_value_return_statement_v1(",
+        "RawLegacyValueReturnInputV1",
+        "RawLegacyChildLoweringPortV1",
+    ):
+        if forbidden in reference:
+            _fail(f"historical Return reference reused selected owner: {forbidden}")
+    for source, label in (
+        (raw_tests, "raw Return tests"),
+        (parity_tests, "Return parity tests"),
+    ):
+        if ".build_expression(" in source:
+            _fail(f"{label} retained retired test facade")
 
     for fixture in (
         "cleanup_precedes_match_child_and_return_effects",

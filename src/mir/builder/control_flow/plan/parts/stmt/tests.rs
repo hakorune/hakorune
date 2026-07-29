@@ -1,5 +1,7 @@
 use super::*;
 use crate::ast::{ASTNode, LiteralValue, Span};
+use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
+use crate::mir::builder::stmts::{drive_local_statement_v1, RawLegacyLocalInputV1};
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use std::collections::BTreeMap;
 
@@ -14,6 +16,16 @@ fn lit_int(value: i64) -> ASTNode {
     }
 }
 
+fn seed_local(builder: &mut MirBuilder, name: &str, value: i64) -> Result<ValueId, String> {
+    let input = RawLegacyLocalInputV1::new(
+        vec![name.to_string()],
+        vec![Some(Box::new(lit_int(value)))],
+        Vec::new(),
+    );
+    let mut port = RawLegacyChildLoweringPortV1;
+    drive_local_statement_v1(builder, &mut port, &input)
+}
+
 fn var(name: &str) -> ASTNode {
     ASTNode::Variable {
         name: name.to_string(),
@@ -26,14 +38,7 @@ fn return_prelude_scopebox_keeps_locals_scoped_and_outer_assignments_visible() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("return_prelude_scopebox_scope".to_string());
     let _scope = LexicalScopeGuard::new(&mut builder);
-    builder
-        .build_expression(ASTNode::Local {
-            variables: vec!["outer".to_string()],
-            initial_values: vec![Some(Box::new(lit_int(0)))],
-            declared_type_names: Vec::new(),
-            span: span(),
-        })
-        .expect("declare outer");
+    seed_local(&mut builder, "outer", 0).expect("declare outer");
 
     let mut bindings: BTreeMap<String, crate::mir::ValueId> =
         builder.function_state.variable_ctx.variable_map.clone();

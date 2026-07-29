@@ -178,7 +178,7 @@ def check_if0_s0(root: Path) -> str:
     )
 
     driver_at = driver.index("fn drive_if_statement_v1<Port>")
-    driver_end = driver.index("fn drive_raw_if_statement_v1", driver_at)
+    driver_end = driver.index("fn drive_raw_if_statement_with_port_v1", driver_at)
     driver_body = driver[driver_at:driver_end]
     syntax_at = driver_body.index("port.if_syntax(input)?")
     condition_input_at = driver_body.index("port.if_condition_expression_input(input)?")
@@ -268,9 +268,9 @@ def check_if0_s0(root: Path) -> str:
 
     _require_count(
         if_form,
-        "lower_if_form_with_condition_value_and_branch_lowerer(",
+        "fn lower_if_form_with_condition_value_and_branch_lowerer<LowerBranch>",
         1,
-        "one legacy raw wrapper consumer",
+        "one callback-based IfForm owner",
     )
     _require_count(
         phi,
@@ -400,13 +400,22 @@ def check_if0_s0(root: Path) -> str:
         "metadata_ctx.current_span()",
         "Span::unknown()",
         "FastMemBranchConditionProofKind::SourceAssumeOwnerEq",
-        ".build_expression(statement_if(",
+        "drive_raw_legacy_expression_v1(",
+        "statement_if(",
     ):
         if evidence not in raw_tests:
             _fail(f"missing IF0-I0 fixture evidence: {evidence}")
     for forbidden in ("drive_if_statement_v1(", "drive_raw_if_statement_v1("):
         if forbidden in raw_tests:
             _fail(f"IF0-I0 fixture bypasses production facade: {forbidden}")
+    _require_count(
+        raw_tests,
+        "drive_raw_legacy_expression_v1(",
+        1,
+        "raw expression-If oracle call",
+    )
+    if ".build_expression(" in raw_tests:
+        _fail("IF0-I0 fixture retained retired test facade")
 
     _require_count(
         parity_tests,
@@ -533,7 +542,9 @@ def check_if0_s0(root: Path) -> str:
     raw_driver_callers = 0
     ignored = {(root / driver_path).resolve(), (root / tests_path).resolve()}
     generic_call = re.compile(r"\bdrive_if_statement_v1(?:\s*::\s*<[^>]*>)?\s*\(")
-    raw_call = re.compile(r"\bdrive_raw_if_statement_v1(?:\s*::\s*<[^>]*>)?\s*\(")
+    raw_call = re.compile(
+        r"\bdrive_raw_if_statement_with_port_v1(?:\s*::\s*<[^>]*>)?\s*\("
+    )
     for path in (root / "src").rglob("*.rs"):
         if path.resolve() in ignored:
             continue

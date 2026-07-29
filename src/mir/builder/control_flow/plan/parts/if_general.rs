@@ -271,6 +271,8 @@ mod tests {
     use super::{try_lower_general_if, try_lower_general_if_recipe_authority};
     use crate::ast::{ASTNode, LiteralValue, Span};
     use crate::mir::builder::control_flow::plan::LoweredRecipe;
+    use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
+    use crate::mir::builder::stmts::{drive_local_statement_v1, RawLegacyLocalInputV1};
     use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
     use crate::mir::builder::MirBuilder;
     use std::collections::BTreeMap;
@@ -291,6 +293,20 @@ mod tests {
             value: LiteralValue::Integer(value),
             span: span(),
         }
+    }
+
+    fn seed_local(
+        builder: &mut MirBuilder,
+        name: &str,
+        value: i64,
+    ) -> Result<crate::mir::ValueId, String> {
+        let input = RawLegacyLocalInputV1::new(
+            vec![name.to_string()],
+            vec![Some(Box::new(lit_int(value)))],
+            Vec::new(),
+        );
+        let mut port = RawLegacyChildLoweringPortV1;
+        drive_local_statement_v1(builder, &mut port, &input)
     }
 
     fn var(name: &str) -> ASTNode {
@@ -360,14 +376,7 @@ mod tests {
             let mut builder = MirBuilder::new();
             builder.enter_function_for_test("if_general_recipe_authority_release".to_string());
             let _scope = LexicalScopeGuard::new(&mut builder);
-            builder
-                .build_expression(ASTNode::Local {
-                    variables: vec!["x".to_string()],
-                    initial_values: vec![Some(Box::new(lit_int(0)))],
-                    declared_type_names: Vec::new(),
-                    span: span(),
-                })
-                .expect("declare x");
+            seed_local(&mut builder, "x", 0).expect("declare x");
 
             let then_body = vec![assign("x", lit_int(1))];
             let mut default_bindings = builder.function_state.variable_ctx.variable_map.clone();

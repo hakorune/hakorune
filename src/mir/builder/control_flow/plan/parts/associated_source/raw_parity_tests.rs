@@ -13,6 +13,8 @@ use crate::mir::builder::control_flow::plan::recipe_tree::{
 };
 use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::control_flow::recipes::{refs::StmtRef, RecipeBody};
+use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
+use crate::mir::builder::stmts::{drive_local_statement_v1, RawLegacyLocalInputV1};
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{MirType, ValueId};
@@ -47,6 +49,16 @@ fn literal_int(value: i64) -> ASTNode {
         value: LiteralValue::Integer(value),
         span: Span::unknown(),
     }
+}
+
+fn seed_local(builder: &mut MirBuilder, name: &str, value: i64) -> Result<ValueId, String> {
+    let input = RawLegacyLocalInputV1::new(
+        vec![name.to_string()],
+        vec![Some(Box::new(literal_int(value)))],
+        Vec::new(),
+    );
+    let mut port = RawLegacyChildLoweringPortV1;
+    drive_local_statement_v1(builder, &mut port, &input)
 }
 
 fn literal_bool(value: bool) -> ASTNode {
@@ -306,14 +318,7 @@ fn raw_no_exit_join_facade_matches_associated_block_driver() {
 
     let mut facade_builder = fresh_builder("raw_no_exit_join_facade/0");
     let _facade_scope = LexicalScopeGuard::new(&mut facade_builder);
-    facade_builder
-        .build_expression(ASTNode::Local {
-            variables: vec!["value".to_string()],
-            initial_values: vec![Some(Box::new(literal_int(0)))],
-            declared_type_names: Vec::new(),
-            span: Span::unknown(),
-        })
-        .expect("seed facade binding");
+    seed_local(&mut facade_builder, "value", 0).expect("seed facade binding");
     let mut facade_bindings = facade_builder
         .function_state
         .variable_ctx
@@ -332,14 +337,7 @@ fn raw_no_exit_join_facade_matches_associated_block_driver() {
 
     let mut driver_builder = fresh_builder("raw_no_exit_join_facade/0");
     let _driver_scope = LexicalScopeGuard::new(&mut driver_builder);
-    driver_builder
-        .build_expression(ASTNode::Local {
-            variables: vec!["value".to_string()],
-            initial_values: vec![Some(Box::new(literal_int(0)))],
-            declared_type_names: Vec::new(),
-            span: Span::unknown(),
-        })
-        .expect("seed driver binding");
+    seed_local(&mut driver_builder, "value", 0).expect("seed driver binding");
     let mut driver_bindings = driver_builder
         .function_state
         .variable_ctx

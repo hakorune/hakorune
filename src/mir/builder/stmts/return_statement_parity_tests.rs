@@ -1,12 +1,17 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-use crate::mir::builder::recursive_child_lowering::with_legacy_expression_recursion_guard_v1;
+use crate::mir::builder::recursive_child_lowering::{
+    drive_raw_legacy_expression_v1, with_legacy_expression_recursion_guard_v1,
+    RawLegacyChildLoweringPortV1,
+};
 use crate::mir::exact_numeric_value_facts::{ExactNumericConstFact, ExactNumericValueFact};
 use crate::mir::value_kind::MirValueKind;
 use crate::mir::{BasicBlockId, BindingId, MirBuilder, MirInstruction, MirType, ValueId};
 
 use super::return_stmt::{
-    emit_return_from_value, ensure_return_allowed, try_apply_match_return_optimization,
+    build_void_return_statement, emit_return_from_value, ensure_return_allowed,
+    try_apply_match_return_optimization,
 };
+use super::{drive_value_return_statement_v1, RawLegacyValueReturnInputV1};
 
 #[derive(Debug, PartialEq)]
 struct ScopeFrameSnapshotV1 {
@@ -123,7 +128,22 @@ fn builder(name: &str) -> MirBuilder {
 }
 
 fn lower_selected(builder: &mut MirBuilder, expression: ASTNode) -> Result<ValueId, String> {
-    builder.build_expression(expression)
+    let span = expression.span();
+    let node_kind = std::mem::discriminant(&expression);
+    let ASTNode::Return { value, .. } = expression else {
+        return Err("RET0-I0 selected owner requires Return".to_string());
+    };
+    with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {
+        builder.metadata_ctx.set_current_span(span);
+        match value {
+            Some(value) => {
+                let input = RawLegacyValueReturnInputV1::new(*value);
+                let mut port = RawLegacyChildLoweringPortV1;
+                drive_value_return_statement_v1(builder, &mut port, &input)
+            }
+            None => build_void_return_statement(builder),
+        }
+    })
 }
 
 fn lower_pre_i0_return_reference(
@@ -146,7 +166,7 @@ fn lower_pre_i0_return_reference(
         }
 
         let return_value = if let Some(expr) = value {
-            builder.build_expression(*expr)?
+            drive_raw_legacy_expression_v1(builder, *expr)?
         } else {
             crate::mir::builder::emission::constant::emit_void(builder)?
         };
