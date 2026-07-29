@@ -579,24 +579,24 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution
-`SELFHOST-MACRO-PREEXPAND-TYPED-PROGRAM-INGRESS0-I0-R0`
+`VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0`
 Parent: `POST-MACRO-ROOT-CONTRACT0-D0` / T0
 ```text
 Change:
-  Consume the shared post-macro Program seal in the explicit selfhost
-  pre-expand route and delete its MirCompiler::compile(ast) Legacy edge.
+  Consume the shared post-macro Program seal in the VM-Hako reference bridge
+  and delete its imports-bearing source-hint Legacy edge.
 
 Contract:
-  The opt-in gate, macro order, anonymous source, empty imports, optimize=true,
-  execution, logging, and boolean terminal stay unchanged.
+  Filename, exact using-import snapshot, optimize flag, verifier/safety gates,
+  MIR JSON emission, and VmHakoErr envelopes stay unchanged.
 
 Done:
-  Program execution parity and typed non-Program failure are green; the generic
-  selfhost compile edge is zero; shared pointer/replacement guards are green.
+  Program/import parity and typed non-Program failure are green; the VM-Hako
+  source-hint edge is zero; shared pointer/replacement guards are green.
 
 Stop:
-  New fallback, source/import widening, clone/reparse, changed gate behavior,
-  MacroBox narrowing, or compilation after Program-seal failure.
+  Import/source drift, clone/reparse, changed verifier/result behavior,
+  MacroBox narrowing, fallback, or compilation after Program-seal failure.
 ```
 Post-macro retirement order after each fresh census:
 ```text
@@ -717,7 +717,8 @@ R27 RAW-NONPROGRAM-ROOT-INGRESS-POLICY0-D0 closed: IndependentSunsets
 R28 RUNTIME-MIRBUILDER-AST-JSON-COMPAT-RETIRE0-I0-R0 closed
 R29 POST-MACRO-ROOT-CONTRACT0-D0 closed: WholeFileProgram
 R30 STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0 closed
-R31 SELFHOST-MACRO-PREEXPAND-TYPED-PROGRAM-INGRESS0-I0-R0 current
+R31 SELFHOST-MACRO-PREEXPAND-TYPED-PROGRAM-INGRESS0-I0-R0 closed
+R32 VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

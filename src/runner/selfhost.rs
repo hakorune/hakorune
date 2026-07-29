@@ -7,7 +7,10 @@
  */
 
 use super::*;
-use nyash_rust::mir::MirCompiler;
+use crate::mir::{
+    MirCompileResult, MirCompiler, NormalCompileRequestV1, RejectedPostMacroWholeFileProgramV1,
+    VerifiedPostMacroWholeFileProgramV1,
+};
 
 // ============================================================================
 // Selfhost pipeline helpers
@@ -37,6 +40,20 @@ fn execute_with_oob_check(runner: &NyashRunner, module: &crate::mir::MirModule) 
     crate::runner::child_env::pre_run_reset_oob_if_strict();
     runner.execute_mir_module(module);
     check_oob_strict_exit();
+}
+
+fn compile_selfhost_preexpanded_root(ast: crate::ast::ASTNode) -> Result<MirCompileResult, String> {
+    let program = VerifiedPostMacroWholeFileProgramV1::seal(ast).map_err(
+        |rejected: RejectedPostMacroWholeFileProgramV1| {
+            let message = rejected.error().to_string();
+            rejected.discard();
+            message
+        },
+    )?;
+    let mut compiler = MirCompiler::with_options(true);
+    compiler.compile_normal(NormalCompileRequestV1::for_selfhost_macro_preexpand(
+        program,
+    ))
 }
 
 fn accept_stage_a_mir_module(
@@ -113,8 +130,7 @@ impl NyashRunner {
                     Ok(ast0) => {
                         let ast = crate::r#macro::maybe_expand_and_dump(&ast0, false);
                         // Compile to MIR and execute on the unified runtime path.
-                        let mut mir_compiler = MirCompiler::with_options(true);
-                        match mir_compiler.compile(ast) {
+                        match compile_selfhost_preexpanded_root(ast) {
                             Ok(result) => {
                                 execute_with_oob_check(self, &result.module);
                                 return true;
@@ -263,5 +279,36 @@ impl NyashRunner {
 
         // Default path: always fall back to existing Rust runner.
         return false;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::compile_selfhost_preexpanded_root;
+    use crate::ast::{ASTNode, LiteralValue, Span};
+    use crate::mir::{MirCompiler, MirPrinter};
+    use crate::parser::NyashParser;
+
+    #[test]
+    fn selfhost_preexpanded_program_matches_legacy_and_nonprogram_rejects() {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        let ast = NyashParser::parse_from_string("static box Main { main() { return 7 } }")
+            .expect("fixture must parse");
+        let expected = MirCompiler::with_options(true)
+            .compile(ast.clone())
+            .expect("legacy oracle");
+        let actual = compile_selfhost_preexpanded_root(ast).expect("typed Program route");
+        assert_eq!(
+            MirPrinter::new().print_module(&actual.module),
+            MirPrinter::new().print_module(&expected.module)
+        );
+        assert_eq!(actual.verification_result, expected.verification_result);
+
+        let error = compile_selfhost_preexpanded_root(ASTNode::Literal {
+            value: LiteralValue::Integer(3),
+            span: Span::unknown(),
+        })
+        .expect_err("whole-file non-Program output must reject");
+        assert!(error.starts_with("[macro/whole-file-root] expected Program"));
     }
 }

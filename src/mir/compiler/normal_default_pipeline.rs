@@ -28,6 +28,7 @@ enum NormalCompileAdmissionV1 {
     ProgramJsonV0ImportBundleNoBuilderImports,
     ReplProgramNoBuilderImports,
     Stage1DirectPostMacroProgramNoImports,
+    SelfhostMacroPreexpandProgramNoImports,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -297,6 +298,17 @@ impl NormalCompileRequestV1 {
         )
     }
 
+    pub(crate) fn for_selfhost_macro_preexpand(
+        program: VerifiedPostMacroWholeFileProgramV1,
+    ) -> Self {
+        Self::from_prepared(
+            program.program,
+            None,
+            HashMap::new(),
+            NormalCompileAdmissionV1::SelfhostMacroPreexpandProgramNoImports,
+        )
+    }
+
     fn into_parts(
         self,
     ) -> (
@@ -483,5 +495,20 @@ mod tests {
             PostMacroWholeFileProgramErrorV1::ExpectedProgram
         );
         rejected.discard();
+    }
+
+    #[test]
+    fn selfhost_macro_preexpand_fixes_anonymous_source_and_empty_imports() {
+        let program =
+            VerifiedPostMacroWholeFileProgramV1::seal(program()).expect("Program must seal once");
+        let request = NormalCompileRequestV1::for_selfhost_macro_preexpand(program);
+        let (_, source, imports, admission, _) = request.into_parts();
+
+        assert_eq!(source.source_file(), None);
+        assert!(imports.is_empty());
+        assert_eq!(
+            admission,
+            NormalCompileAdmissionV1::SelfhostMacroPreexpandProgramNoImports
+        );
     }
 }
