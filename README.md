@@ -331,11 +331,7 @@ Phase‑15 (Self‑Hosting): legacy routes are feature-gated or historical notes
 - `--backend raw-vm-reference` is a supported opt-in Raw reference/conformance lane; build with `--features vm-reference`.
 - The Raw VM-reference lane is default-off, source/VM focused, and does not change the default `mir` route.
 - PyVM route is historical/direct-only and delegates to `tools/historical/pyvm/pyvm_runner.py`.
-- To enable legacy Rust VM/Interpreter, build with:
-  ```bash
-  cargo build --release --features vm-legacy,interpreter-legacy
-  ```
-  Then `--backend vm`/`--backend interpreter` use the legacy paths.
+- The retired AST interpreter is not a supported backend. Use the MIR routes above.
 - `--benchmark` requires the legacy VM. Build with `--features vm-legacy` before running benchmarks.
 
 ### 1. **Native Binary (LLVM AOT, ny-llvmc crate backend, product main)**
@@ -398,15 +394,7 @@ cargo build --release --features cranelift-jit
 - Maximum performance
 - Easy distribution
 
-### 5. **Legacy Interpreter** (feature-gated / non-default)
-```bash
-cargo build --release --features interpreter-legacy
-target/release/hakorune --backend interpreter program.hako
-```
-- Legacy debug/development route
-- Excluded from default builds
-
-### 6. **WebAssembly (Browser)** — Status: Experimental / monitor-only
+### 5. **WebAssembly (Browser)** — Status: Experimental / monitor-only
 The WASM/browser path is experimental and not part of the product mainline or default CI. It remains a separate local/demo lane with its own smoke and promotion gates.
 
 - Source: `projects/nyash-wasm/` (experimental / local-only)

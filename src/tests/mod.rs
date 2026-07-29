@@ -9,7 +9,6 @@ pub mod exec_parity;
 // Legacy PHI-off flow shape tests (pre-JoinIR). Disable by default.
 #[cfg(feature = "legacy-tests")]
 pub mod flow;
-pub mod functionbox_call_tests;
 pub mod host_reverse_slot;
 // Legacy PHI-off if/merge shape tests (pre-JoinIR). Disable by default.
 #[cfg(feature = "legacy-tests")]
@@ -34,7 +33,6 @@ pub mod phase61_if_in_loop_dryrun; // Phase 61-2: If-in-loop JoinIR dry-run test
 pub mod phase67_generic_type_resolver; // Phase 67: P3-C GenericTypeResolver tests
 pub mod plugin_hygiene;
 pub mod policy_mutdeny;
-pub mod refcell_assignment_test;
 // Stage1 CLI SSA smoke (pre-JoinIR expectations). Disable by default.
 #[cfg(feature = "legacy-tests")]
 pub mod stage1_cli_entry_ssa_smoke;

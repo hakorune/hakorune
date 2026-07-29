@@ -27,16 +27,6 @@ pub enum RuntimeError {
     TypeError { message: String },
 }
 
-/// Shared state for interpreter context (legacy compatibility)
-#[derive(Debug, Default, Clone)]
-pub struct SharedState;
-
-impl SharedState {
-    pub fn new() -> Self {
-        Self
-    }
-}
-
 /// Unified interface for all Box creation
 pub trait BoxFactory: Send + Sync {
     /// Create a new Box instance with given arguments
@@ -76,10 +66,6 @@ pub trait BoxFactory: Send + Sync {
 
 pub mod builtin;
 pub mod plugin;
-/// Re-export submodules
-#[cfg(feature = "interpreter-legacy")]
-pub mod user_defined;
-
 // Phase 15.5: Separated builtin implementations for easy deletion
 pub mod builtin_impls;
 

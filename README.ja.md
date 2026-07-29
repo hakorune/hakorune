@@ -225,10 +225,7 @@ Phase‑15（自己ホスト期）: レガシー経路は feature-gated また�
 - `--backend llvm` は product の native object/EXE lane です。
 - `--backend vm-hako` は explicit reference/conformance lane です。
 - PyVM 経路は historical/direct-only で、`tools/historical/pyvm/pyvm_runner.py` に委譲します。
-- レガシー AST インタープリタを有効化するには（通常は不要）:
-  ```bash
-  cargo build --release --features interpreter-legacy
-  ```
+- 廃止済みの AST インタープリタは backend として提供しません。上記の MIR 経路を使ってください。
 - `--benchmark` はレガシー VM（`vm-legacy`）が必要です。実行前に `cargo build --release --features vm-legacy` を行ってください。
 
 ### 1. **ネイティブバイナリ（LLVM AOT, ny‑llvmc クレート backend, product main）**
@@ -292,15 +289,7 @@ cargo build --release --features cranelift-jit
 - 最高性能
 - 簡単配布
 
-### 5. **レガシーインタープリタ** （feature-gated / 非デフォルト）
-```bash
-cargo build --release --features interpreter-legacy
-$NYASH_BIN --backend interpreter program.hako
-```
-- レガシーの debug/development 経路
-- デフォルトビルドからは外れている
-
-### 6. **WebAssembly（ブラウザ）** — 現状: Experimental / monitor-only
+### 5. **WebAssembly（ブラウザ）** — 現状: Experimental / monitor-only
 WASM/ブラウザ経路は experimental で、product mainline や default CI の対象ではありません。local/demo 用の独立 lane として、別の smoke / promotion gate を持っています。
 
 - ソース: `projects/nyash-wasm/`（experimental / local-only）

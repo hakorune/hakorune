@@ -53,8 +53,6 @@ rc-insertion-minimal = []
 llvm-harness = []
 llvm-inkwell-legacy = ["dep:inkwell"]
 llvm = ["llvm-harness"]
-# Legacy AST interpreter (off by default). Gates NyashInterpreter usage in runner/tests.
-interpreter-legacy = []
 # Cranelift JIT cfg guard (ARCHIVED): keep feature empty to silence check-cfg warnings.
 cranelift-jit = []
 # (removed) Optional modular MIR builder feature

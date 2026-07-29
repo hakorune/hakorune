@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "INTERPRETER-LEGACY-FEATURE-CLOSURE0-D0 selected atomic stale-feature retirement. INTERPRETER-LEGACY-FEATURE-RETIRE0-RET0 is the sole executable row."
+status = "INTERPRETER-LEGACY-FEATURE-RETIRE0-RET0 is closed. MIR-CONTROL-FLOW-DETACHED-HELPERS0-RET0 is the sole executable row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = ""
-current_execution_row = "INTERPRETER-LEGACY-FEATURE-RETIRE0-RET0"
-current_execution_summary = "T2 atomic stale-closure retirement: delete the caller-zero, build-broken interpreter-legacy Cargo feature; detached AST runner common module and sole parse-fuel helper; stale P2PBox/UserDefinedBoxFactory feature exports and sources; AST-interpreter-only active tests; and current README build claims. Replacement credit and production behavior delta are zero. Preserve backend::mir_interpreter, parser P2P syntax, BID/name vocabulary, archived historical evidence, CLI/backend behavior, and all MirBuilder semantics. Do not restore crate::interpreter, SharedState.box_declarations, a replacement P2P feature, fallback, or unrelated CliConfig defaults."
+current_execution_row = "MIR-CONTROL-FLOW-DETACHED-HELPERS0-RET0"
+current_execution_summary = "T1 delete-only retirement: remove the caller-zero mir::utils helpers capture_actual_predecessor_and_jump, collect_phi_incoming_if_reachable, and execute_statement_with_termination_check plus their re-exports. This physically removes one stale direct builder.build_expression(statement) edge. Preserve live is_current_block_terminated and its block_driver production caller. Add no replacement owner, grammar, fallback, guard, or feature work; replacement credit is zero."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """Independent reachability audits classified interpreter-legacy as a caller-zero stale closure, not a repairable production feature. INTERPRETER-LEGACY-FEATURE-RETIRE0-RET0 atomically removes it without restoring AST-interpreter or P2P semantics."""
+latest_card_summary = """The stale interpreter feature closure is retired with default checks green and no behavior replacement. Fresh census selected three caller-zero MIR control-flow helpers for deletion, including one remaining direct raw build_expression edge."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "INTERPRETER-LEGACY-FEATURE-RETIRE0-RET0"
+current_blocker_token = "MIR-CONTROL-FLOW-DETACHED-HELPERS0-RET0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

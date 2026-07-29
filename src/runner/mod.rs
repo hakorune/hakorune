@@ -93,19 +93,6 @@ impl NyashRunner {
         )
     }
 
-    #[cfg(feature = "interpreter-legacy")]
-    pub(crate) fn parse_source_with_fuel(
-        &self,
-        source: impl Into<String>,
-        fuel: Option<usize>,
-    ) -> Result<crate::ast::ASTNode, crate::parser::ParseError> {
-        crate::parser::NyashParser::parse_from_string_with_fuel_and_build_config(
-            source,
-            fuel,
-            self.parser_build_config(),
-        )
-    }
-
     /// Run Nyash based on the configuration
     pub fn run(&self) {
         // New behavior-preserving delegator
