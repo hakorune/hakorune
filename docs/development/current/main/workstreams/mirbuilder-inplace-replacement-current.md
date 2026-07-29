@@ -76,7 +76,7 @@ Closed:  NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0
 Closed:  MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0
 Current: INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0
 Pack:    FUNCTION-LIFECYCLE0
-Ceremony: T0, one atomic production SSOT replacement
+Ceremony: T1, one atomic production SSOT replacement
 ```
 
 R1 closeout:
@@ -826,7 +826,7 @@ quick gate                                           = unrelated pre-existing
 ## Current execution brief
 
 `INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0` / parent
-`MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0` / T0 /
+`MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0` / T1 /
 `FUNCTION-LIFECYCLE0`.
 
 ```text

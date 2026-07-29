@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The post-verified-Main live-edge census selected INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0. Program-root and raw instance-Box branches still duplicate the same lexical sorting, non-static FunctionDeclaration projection, symbol construction, field cloning, and method dispatch. The next T0 cell introduces one source batch with distinct durable root/raw terminals and atomically deletes both caller-local production loops without changing catalog admission, constructor order, failure behavior, or grammar."
+status = "The post-verified-Main live-edge census selected INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0. Program-root and raw instance-Box branches still duplicate the same lexical sorting, non-static FunctionDeclaration projection, symbol construction, field cloning, and method dispatch. The next T1 cell introduces one source batch with distinct durable root/raw terminals and atomically deletes both caller-local production loops without changing catalog admission, constructor order, failure behavior, or grammar."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = ""
 current_execution_row = "INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0"
-current_execution_summary = "T0 FUNCTION-LIFECYCLE0: prepare every lexically sorted non-static instance FunctionDeclaration once into a sealed owner/method/symbol/body row batch. The Program-root terminal keeps exact callable-catalog lookup before lower_root_instance_method; the raw terminal keeps direct lower_instance_box_method with no new lookup. Delete both caller-local loops in the same commit. Field registration, build_box_declaration, constructor-before-method order, first-error stop, candidate isolation, result/publication, fallback/retry, View, and Ownership do not move."
+current_execution_summary = "T1 FUNCTION-LIFECYCLE0: prepare every lexically sorted non-static instance FunctionDeclaration once into a sealed owner/method/symbol/body row batch. The Program-root terminal keeps exact callable-catalog lookup before lower_root_instance_method; the raw terminal keeps direct lower_instance_box_method with no new lookup. Delete both caller-local loops in the same commit. Field registration, build_box_declaration, constructor-before-method order, first-error stop, candidate isolation, result/publication, fallback/retry, View, and Ownership do not move."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
