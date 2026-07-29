@@ -77,47 +77,6 @@ impl<'a> PhiBuilderOps for ToplevelOps<'a> {
 }
 
 impl MirBuilder {
-    /// Lower an if/else using a structured IfForm (header→then/else→merge).
-    /// PHI-off: edge-copy only on predecessors; PHI-on: Phi at merge.
-    pub(super) fn lower_if_form(
-        &mut self,
-        condition: ASTNode,
-        then_branch: ASTNode,
-        else_branch: Option<ASTNode>,
-    ) -> Result<ValueId, String> {
-        let condition_val = self.build_expression(condition)?;
-        self.lower_if_form_with_condition_value(condition_val, None, then_branch, else_branch)
-    }
-
-    pub(super) fn lower_if_form_with_condition_value(
-        &mut self,
-        condition_val: ValueId,
-        condition_debug: Option<ASTNode>,
-        then_branch: ASTNode,
-        else_branch: Option<ASTNode>,
-    ) -> Result<ValueId, String> {
-        let has_explicit_else = else_branch.is_some();
-        let mut then_branch = Some(then_branch);
-        let mut else_branch = else_branch;
-        self.lower_if_form_with_condition_value_and_branch_lowerer(
-            condition_val,
-            condition_debug,
-            has_explicit_else,
-            move |builder, branch| match branch {
-                IfBranchKindV1::Then => builder.build_expression(
-                    then_branch
-                        .take()
-                        .ok_or_else(|| "[if-form/raw-then-demanded-twice]".to_string())?,
-                ),
-                IfBranchKindV1::Else => builder.build_expression(
-                    else_branch
-                        .take()
-                        .ok_or_else(|| "[if-form/raw-else-demanded-without-input]".to_string())?,
-                ),
-            },
-        )
-    }
-
     pub(super) fn lower_if_form_with_condition_value_and_branch_lowerer<LowerBranch>(
         &mut self,
         condition_val: ValueId,

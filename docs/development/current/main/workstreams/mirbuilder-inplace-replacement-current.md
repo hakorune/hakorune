@@ -578,21 +578,23 @@ new source/test/check/task file            = 0
 largest touched source/check file          = 799
 ```
 
-## Current design stop
-`MIRBUILDER-BUILD-EXPRESSION-FACADE0-D0` — read-only
+## Current execution
+`MIRBUILDER-SHORT-CIRCUIT-BUILD-EXPRESSION-FACADE0-I0-R0` / T1
 ```text
-Observed:
-  Detached raw root owner/files/residual registry/root-specific raw edge = 0.
-  MirBuilder::build_expression has five non-test calls:
-  if_form.rs = 3; ops/logical_shortcircuit.rs = 2.
-Decide:
-  Exact child-port replacement or retained facade boundary for those five calls.
-Keep:
-  Current If/short-circuit semantics, node kernels, raw driver, and diagnostics.
-Forbid:
-  Code edits, mixed build_statement/build_block cleanup, grammar change,
-  fallback/retry, or Ownership/View activation before this census closes.
+Change:
+  Replace the two cfg(test) pre-I0 short-circuit oracle facade calls with
+  drive_raw_legacy_expression_v1; each child receives a fresh raw port.
+Contract:
+  LHS/RHS timing, deferred RHS, CFG/PHI, recursion guard, result, and diagnostic
+  behavior do not move. Invocation port and production route stay unchanged.
+Done:
+  logical_shortcircuit.rs build_expression calls 2 -> 0; focused parity,
+  raw, descent, and shared MirBuilder gates are green.
+Stop:
+  A shared stateful port, invocation port, CFG/PHI edit, or If cleanup is needed.
 ```
+Facade retirement series: dead If shells closed here; then test evidence
+responsibility migration; finally delete build_expression definition.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)

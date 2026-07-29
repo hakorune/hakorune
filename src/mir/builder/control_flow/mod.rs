@@ -100,25 +100,6 @@ impl super::MirBuilder {
         self.build_block(statements)
     }
 
-    /// Control-flow: if
-    ///
-    /// # Phase 124: JoinIR-Only (hako_check専用化完了)
-    ///
-    /// If statements are now always routed through the canonical lowering path
-    /// (lower_if_form), which internally uses JoinIR-based PHI generation.
-    ///
-    /// Phase 123 の環境変数による分岐は削除済み。
-    pub(super) fn cf_if(
-        &mut self,
-        condition: ASTNode,
-        then_branch: ASTNode,
-        else_branch: Option<ASTNode>,
-    ) -> Result<ValueId, String> {
-        // Phase 124: JoinIR-only path (環境変数分岐削除)
-        // lower_if_form は JoinIR ベースの PHI 生成を使用
-        self.lower_if_form(condition, then_branch, else_branch)
-    }
-
     /// Lower an If while retaining the caller's raw child-descent port.
     pub(in crate::mir::builder) fn cf_if_with_port_v1<Port>(
         &mut self,

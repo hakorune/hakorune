@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Detached Raw non-Program compatibility is retired; build_expression live edges are the next read-only cleanup census."
+status = "Detached Raw root and dead If facades are retired; short-circuit test evidence is the next build_expression cleanup row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-BUILD-EXPRESSION-FACADE0-D0"
-current_execution_row = ""
-current_execution_summary = "Read-only census the five non-test MirBuilder::build_expression calls in If and short-circuit lowering before selecting any further facade retirement."
+current_design_stop = ""
+current_execution_row = "MIRBUILDER-SHORT-CIRCUIT-BUILD-EXPRESSION-FACADE0-I0-R0"
+current_execution_summary = "Replace two cfg(test) short-circuit oracle calls with the exact raw driver, preserving fresh-port and deferred-RHS behavior."
 current_execution_design = "docs/development/current/main/design/mir-root-facade-contract-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -15,7 +15,7 @@ raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, its dead generic root wrappers, and the disconnected raw non-Program compatibility owner are deleted. MIRBUILDER-BUILD-EXPRESSION-FACADE0-D0 is the sole read-only stop for five live If/short-circuit facade calls. MirBuilder cleanup remains ahead of source-level Ownership/View or other unimplemented features. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, its dead generic root wrappers, disconnected raw root owner, and caller-zero If facades are deleted. MIRBUILDER-SHORT-CIRCUIT-BUILD-EXPRESSION-FACADE0-I0-R0 removes two cfg(test) oracle calls before responsibility-local migration of the remaining build_expression evidence. MirBuilder cleanup remains ahead of source-level Ownership/View or other unimplemented features. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the

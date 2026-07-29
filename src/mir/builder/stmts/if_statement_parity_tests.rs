@@ -6,6 +6,10 @@
 //! shared semantic owners.
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+use crate::mir::builder::if_form::IfBranchKindV1;
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1,
+};
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::exact_numeric_value_facts::{ExactNumericConstFact, ExactNumericValueFact};
 use crate::mir::function::{
@@ -199,8 +203,9 @@ fn lower_pre_i0_statement_if_reference(
     then_body: Vec<ASTNode>,
     else_body: Option<Vec<ASTNode>>,
 ) -> Result<(), String> {
+    let mut port = RawLegacyChildLoweringPortV1;
     if let Some(region) = builder.current_fastmem_region() {
-        let condition_value = builder.build_expression(condition.clone())?;
+        let condition_value = drive_legacy_expression_v1(builder, &mut port, condition.clone())?;
         crate::mir::builder::fastmem::branch::ensure_fastmem_owner_eq_condition(
             builder,
             region,
@@ -214,16 +219,30 @@ fn lower_pre_i0_statement_if_reference(
         )?;
         debug_assert_eq!(builder.current_fastmem_region(), Some(region));
 
-        builder.lower_if_form_with_condition_value(
+        let has_explicit_else = else_body.is_some();
+        let mut then_branch = Some(legacy_branch_program(then_body));
+        let mut else_branch = else_body.map(legacy_branch_program);
+        builder.lower_if_form_with_condition_value_and_branch_lowerer(
             condition_value,
             Some(condition),
-            legacy_branch_program(then_body),
-            else_body.map(legacy_branch_program),
+            has_explicit_else,
+            move |builder, branch| {
+                let branch = match branch {
+                    IfBranchKindV1::Then => then_branch
+                        .take()
+                        .ok_or_else(|| "[if-form/raw-then-demanded-twice]".to_string())?,
+                    IfBranchKindV1::Else => else_branch
+                        .take()
+                        .ok_or_else(|| "[if-form/raw-else-demanded-without-input]".to_string())?,
+                };
+                drive_legacy_expression_v1(builder, &mut port, branch)
+            },
         )?;
         return Ok(());
     }
 
-    builder.cf_if(
+    builder.cf_if_with_port_v1(
+        &mut port,
         condition,
         legacy_branch_program(then_body),
         else_body.map(legacy_branch_program),

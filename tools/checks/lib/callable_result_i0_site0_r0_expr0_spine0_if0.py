@@ -52,8 +52,9 @@ def check_if0_s0(root: Path) -> str:
     parity_tests_path = "src/mir/builder/stmts/if_statement_parity_tests.rs"
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     block_stmt_path = "src/mir/builder/stmts/block_stmt.rs"
-    exprs_path = "src/mir/builder/exprs.rs"
+    exprs_path = "src/mir/builder/raw_expression_dispatch/statement_surface.rs"
     located_if_path = "src/mir/builder/resolved_lowering/located_if.rs"
+    control_flow_path = "src/mir/builder/control_flow/mod.rs"
     readme_path = "src/mir/builder/stmts/README.md"
     if_form_path = "src/mir/builder/if_form.rs"
     phi_path = "src/mir/builder/phi.rs"
@@ -70,6 +71,7 @@ def check_if0_s0(root: Path) -> str:
     block_stmt = _read(root, block_stmt_path)
     exprs = _read(root, exprs_path)
     located_if = _read(root, located_if_path)
+    control_flow = _read(root, control_flow_path)
     readme = _read(root, readme_path)
     if_form = _read(root, if_form_path)
     phi = _read(root, phi_path)
@@ -145,7 +147,7 @@ def check_if0_s0(root: Path) -> str:
     )
     _require_count(
         driver,
-        "struct RawLegacyIfStatementPortV1;",
+        "struct RawStatementIfPortV1<'port, Port>",
         1,
         "one production raw If port",
     )
@@ -164,7 +166,7 @@ def check_if0_s0(root: Path) -> str:
     _require_count(driver, "Span::unknown()", 1, "one unknown branch Program span")
     _require_count(
         driver,
-        "let mut port = RawLegacyIfStatementPortV1;",
+        "let mut port = RawStatementIfPortV1::new(child);",
         1,
         "raw wrapper selects production If port once",
     )
@@ -230,6 +232,26 @@ def check_if0_s0(root: Path) -> str:
         1,
         "one callback-based IfForm core",
     )
+    _require_count(if_form, "fn lower_if_form(", 0, "retired raw IfForm facade")
+    _require_count(
+        if_form,
+        "fn lower_if_form_with_condition_value(",
+        0,
+        "retired condition-value IfForm facade",
+    )
+    _require_count(if_form, "build_expression(", 0, "retired IfForm raw facade edges")
+    _require_count(
+        control_flow,
+        "pub(super) fn cf_if(",
+        0,
+        "retired raw control-flow If facade",
+    )
+    _require_count(
+        control_flow,
+        "pub(in crate::mir::builder) fn cf_if_with_port_v1<Port>(",
+        1,
+        "selected-port If owner",
+    )
     core_at = if_form.index("fn lower_if_form_with_condition_value_and_branch_lowerer")
     core = if_form[core_at:]
     _require_count(core, "lower_branch(self, IfBranchKindV1::Then)?", 1, "then demand")
@@ -290,30 +312,19 @@ def check_if0_s0(root: Path) -> str:
         "IF0-P0 parity module remains test-only",
     )
 
-    raw_facade = _function_slice(stmts_root, "pub(super) fn build_if_statement(")
-    _require_count(
-        raw_facade,
-        "if_statement_descent::drive_raw_if_statement_v1(",
-        1,
-        "statement If raw selector",
+    statement_dispatch = _function_slice(
+        block_stmt,
+        "pub(in crate::mir::builder) fn build_statement_with_port_v1<Port>(",
     )
-    for forbidden in (
-        "cf_if(",
-        "current_fastmem_region(",
-        "prepare_if_statement_condition_value_v1(",
-        "ASTNode::Program",
-        "build_expression(",
-        "retry",
-        "fallback",
-    ):
-        if forbidden in raw_facade:
-            _fail(f"statement If facade retains retired policy: {forbidden}")
-
-    statement_dispatch = _function_slice(block_stmt, "pub(in crate::mir::builder) fn build_statement(")
     if_at = statement_dispatch.index("ASTNode::If {")
     next_arm_at = statement_dispatch.index("ASTNode::StaticConstTable", if_at)
     if_arm = statement_dispatch[if_at:next_arm_at]
-    _require_count(if_arm, "builder.build_if_statement(", 1, "one statement If selector")
+    _require_count(
+        if_arm,
+        "if_statement_descent::drive_raw_if_statement_with_port_v1(",
+        1,
+        "one statement If selector",
+    )
     _require_count(
         if_arm,
         "if_statement_descent::complete_if_statement_v1(builder, lowering)",
@@ -323,9 +334,14 @@ def check_if0_s0(root: Path) -> str:
     _require_count(if_arm, "emit_void(builder)?", 0, "no duplicated facade Void")
 
     expression_dispatch = _function_slice(
-        exprs, "fn try_build_statement_surface_expression("
+        exprs, "pub(super) fn try_build_with_port_v1<Port>("
     )
-    _require_count(expression_dispatch, "self.cf_if(", 1, "expression If selector")
+    _require_count(
+        expression_dispatch,
+        "builder.cf_if_with_port_v1(",
+        1,
+        "expression If selected-port owner",
+    )
     if "drive_raw_if_statement_v1" in expression_dispatch:
         _fail("expression-position If selects statement raw driver")
     if "drive_raw_if_statement_v1" in located_if:
@@ -440,12 +456,18 @@ def check_if0_s0(root: Path) -> str:
         if forbidden in reference + surface_reference:
             _fail(f"IF0-P0 reference reuses selected authority: {forbidden}")
     for evidence, expected, label in (
-        ("builder.cf_if(", 1, "retired ordinary cf_if route"),
         (
-            "builder.lower_if_form_with_condition_value(",
+            "builder.cf_if_with_port_v1(",
             1,
-            "retired FastMem IfForm route",
+            "explicit raw-port ordinary If reference",
         ),
+        (
+            "builder.lower_if_form_with_condition_value_and_branch_lowerer(",
+            1,
+            "shared FastMem IfForm core",
+        ),
+        ("RawLegacyChildLoweringPortV1", 1, "one explicit raw child port"),
+        ("drive_legacy_expression_v1(", 2, "condition and branch raw demands"),
         (
             "ensure_fastmem_owner_eq_condition(",
             1,
@@ -546,6 +568,7 @@ def check_if0_s0(root: Path) -> str:
         block_stmt_path,
         exprs_path,
         located_if_path,
+        control_flow_path,
         readme_path,
         if_form_path,
         phi_path,
