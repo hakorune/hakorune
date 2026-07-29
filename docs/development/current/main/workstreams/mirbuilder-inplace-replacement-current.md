@@ -55,12 +55,14 @@ Contract:
 Done:
   select retire, an existing typed owner, or one bounded compatibility owner;
   record whether a same-scope I0/R0 exists. `condition_fn` does not become a
-  normal/default planner or a fallback route.
+  normal/default planner or a fallback route. Classify its derived artifact and
+  execution guard with the same disposition.
 
 Stop:
   return to design if retirement changes JSON-lexer semantics, requires a
   second session/route, or cannot remove both synthetic insertion and direct
-  name special-casing under one authority.
+  name special-casing under one authority; do the same if the derived artifact
+  is still a required executable contract rather than a reference shadow.
 ```
 
 ## Census8 closeout
