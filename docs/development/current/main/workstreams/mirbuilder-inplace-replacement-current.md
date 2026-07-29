@@ -32,27 +32,33 @@ Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Latest landed: NORMAL-PROGRAM-COLLECTOR-DRAIN0-I0-R0
 Result:        selected normal root drains final collector rows through one prepared
                legacy terminal; direct extraction/module insertion is zero
-Latest design: fresh live-edge census required
-Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS1` is a design stop
+Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS1` selected the QMark facade delete
+Executable:    RAW-QMARK-LEGACY-FACADE-RETIRE0-RET0
 History:       Git history and the short landed tail below
 ```
 
 ## Current execution
 
-`MIRBUILDER-LIVE-EDGE-CENSUS1` — read-only design stop
+`RAW-QMARK-LEGACY-FACADE-RETIRE0-RET0` — T0 caller-zero deletion
 
 ```text
-Select:
-  at most one named live production authority whose replacement can delete its
-  exact old edge in the same commit; otherwise record the bounded D0 required.
+Delete:
+  `MirBuilder::build_qmark_propagate_expression`, its ambient
+  `RawLegacyChildLoweringPortV1` construction, and its import.
 
-Do not:
-  add a production-zero route, expand compatibility, resurrect a whole-function
-  acceptance variant, or start Ownership/View/features before final conformance.
+Keep:
+  raw dispatcher -> `build_qmark_propagate_expression_with_port_v1(port, ...)`
+  exactly once; the port-aware QMark/control owner and every diagnostic/MIR rule
+  stay unchanged.
 
-Require:
-  one execution, no retry/fallback, explicit compatibility sunset when one remains,
-  and a fresh caller/owner census before naming an implementation row.
+Acceptance:
+  non-definition direct facade callers = 0; with-port dispatcher call = 1;
+  existing raw-port QMark coverage remains green; fallback/retry/grammar/result
+  delta = 0; no new source/test/check file; all source/check files < 800.
+
+Stop:
+  return to D0 if a live non-test direct caller appears or deletion requires a
+  legacy re-entry, control-semantics change, or a new compatibility route.
 ```
 
 ## Latest closeout
@@ -152,12 +158,13 @@ largest touched source/check file                       < 800
 
 ```text
 Now
-  1 MIRBUILDER-LIVE-EDGE-CENSUS1
+  1 RAW-QMARK-LEGACY-FACADE-RETIRE0-RET0
 
 Then, repeat
-  2 select at most one named production edge or detached Delete asset
-  3 switch it and delete its old authority in the same commit
-  4 return to step 1
+  2 fresh live-edge census
+  3 select at most one named production edge or detached Delete asset
+  4 switch it and delete its old authority in the same commit
+  5 return to step 2
 
 When live cleanup reaches closure
   6 MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0
@@ -172,10 +179,10 @@ Only after Complete
   9 later unimplemented features, one decision at a time
 ```
 
-The observed shelves for the next census are Throw debug compatibility, stale
-HeaderPort proof surfaces, Program-root source/work classification, pipeline
-authority, raw AST/Recipe composition, and function DraftSeal/collector
-convergence. This list is evidence input, not execution order. Whole-function
+The observed shelves for the next census are the Program static-data source/
+metadata mix, header-sensitive Call compatibility, raw/static-Main compatibility,
+pipeline authority, raw AST/Recipe composition, and function-state/control
+residuals. This list is evidence input, not execution order. Whole-function
 accepted variants remain frozen.
 
 JoinModule remains out of the current replacement commit, but not out of the
