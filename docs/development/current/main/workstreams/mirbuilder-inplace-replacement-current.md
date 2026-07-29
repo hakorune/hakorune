@@ -90,36 +90,52 @@ Closed:  RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0
 Closed:  MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0
 Closed:  RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0
 Closed:  MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0
-Current: VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0
-Mode:    one atomic T1 I0/R0
+Closed:  VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0
+Current: MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0
+Mode:    read-only fresh live-edge census
 ```
 
 ## Current execution brief
 
-`VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0` / parent R70 / T1 /
-`MODULE-LIFECYCLE0`
+`MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0` /
+parent R71 / read-only
 
 ```text
 Change:
-  Extend VerifiedMainStaticChildV1 with borrowed, already-verified function
-  parts and one bounded owned lowering projection. The selected Main terminal
-  consumes that projection and dispatches the helper exactly once.
+  Inventory remaining live MirBuilder production edges after the selected Main
+  helper handoff. Select exactly one bounded production replacement or
+  detached Delete asset.
 
 Contract:
-  Keep VerifiedMainExpansionV1 as the sole issuer before Builder effects.
-  Preserve helper lexical order, symbol/arity, port failure order, root and
-  callable-main distinct identities, source projection, and raw Main behavior.
+  Read-only only. Rank candidates by authority reduction and smallest safe
+  same-commit old-edge deletion. Do not merge raw and verified Main admission
+  or add compatibility, fallback, grammar, View, or Ownership authority.
 
 Done:
-  build_verified_static_main_box_with_port_v1 contains no FunctionDeclaration
-  match, no bare-AST helper payload extraction, and no
-  main-expansion/static-child-source rejection. Existing expansion, helper
-  failure/order, selected-normal parity/reuse, and lane guards are green.
+  One named caller, one replacement owner or deletion, one exact old edge, and
+  fallback/retry=0 are fixed in the next four-block execution brief.
 
 Stop:
-  Return to design if raw Main is rerouted, source is cloned/reparsed, verified
-  symbol/arity is rederived, failure order/text changes, Main identities merge,
-  or fallback/retry/View/Ownership/new grammar appears.
+  No production edit, new grammar, View/Ownership activation, compatibility
+  growth, or task queue beyond the single selected next row.
+```
+
+## Latest closeout
+
+```text
+VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0
+
+implementation commit                       = 67085bec4f
+selected helper lower-side AST rematch       = 0
+late static-child-source rejection           = 0
+typed verified child payload handoff         = exactly 1
+raw Main / root / callable-main identity delta = 0
+expansion / helper order / failure tests     = green
+general module parity / failure / reuse      = green
+release build / current pointer / guards     = green
+fallback / retry / View / Ownership          = 0
+new source/test/check file                   = 0
+largest touched source/check file            = 799
 ```
 
 ## Latest closeout
@@ -1326,7 +1342,8 @@ R67 RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0 closed
 R68 MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0 closed
 R69 RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0 closed
 R70 MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 closed
-R71 VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0 current
+R71 VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0 closed
+R72 MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0 current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
