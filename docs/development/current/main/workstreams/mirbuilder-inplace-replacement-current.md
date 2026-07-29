@@ -33,37 +33,36 @@ Latest landed: NORMAL-PROGRAM-STATIC-TABLE-PLAN0-I0-R0
 Result:        selected normal Program static-table specs and plans are
                prepared and published together into candidate metadata
 Latest design: Program deferred-static context restoration
-Executable:    none — `NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-D0` is a design stop
+Executable:    `NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-D0` — T2 scoped context ownership
+`NORMAL-PROGRAM-DEFERRED-STATIC-CONTEXT0-I0-R0` — T2 scoped context ownership
 
 ```text
-Caller:
-  `MirBuilder::lower_program_root_work_plan_with_callable_port_v1`
-  -> `ProgramDeferredStaticBoxLifecycleV1::lower_with_port_v1`.
+Change:
+  `ProgramDeferredStaticBoxLifecycleV1` opens one private closure-scoped
+  context session, lowers the existing method batch once, and restores the
+  exact prior `Option<BoxCompilationContext>` on success, error, or unwind.
+  Delete its direct `Some(new)` / `None` assignments atomically.
 
-Old live edge:
-  direct `compilation_context = Some(new)` -> lower -> `= None`. A lowering
-  error exits before the clear, so the ownership/restore contract is implicit.
+Contract:
+  only `compilation_context` moves. Keep batch order, port/callable capture,
+  original error text, candidate discard, and all function-session state
+  contracts unchanged. Raw static's four-state success-only owner is not
+  reusable here.
 
-Required decision:
-  choose one scoped context session that restores the prior candidate context
-  after both success and error, without changing static-Box lowering, callable
-  capture, diagnostics, or outer Builder ownership. I0/R0 is authorized only
-  if the two direct assignments can be deleted in the same change.
+Done:
+  prior None/Some restore on success and error; later method is not demanded
+  after failure; normal candidate failure then fresh corrected compile works;
+  existing shared guard and focused tests are green.
 
-Evidence needed before I0/R0:
-  non-Main static-Box success, failure, fresh candidate reuse, prior-context
-  restoration, and no `current_module`/slot/type-context drift.
-
-Forbid:
-  raw/static-Main, no-header Call, Loop/CorePlan, source grammar, collector,
-  finalization, fallback/retry, JoinModule activation, Ownership, View, and
-  feature work.
+Stop:
+  return to D0 if this needs FunctionState/slot/type rollback, unsafe state,
+  source or route reselection, diagnostic change, a second lowering pass, or
+  raw/static-Main sharing.
 ```
 
 ## Latest closeout
