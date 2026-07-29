@@ -712,7 +712,8 @@ R11 STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0 closed
 R12 MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0 closed: NoProductionCaller
 R13 MIR-INTERPRETER-DETACHED-ASSET-RETIRE0-RET0 closed
 R14 BENCH-DETACHED-ASSET-RETIRE0-RET0 closed
-R15 INTERPRETER-LEGACY-FEATURE-CLOSURE0-D0 current
+R15 INTERPRETER-LEGACY-FEATURE-CLOSURE0-D0 closed: Retire
+R16 INTERPRETER-LEGACY-FEATURE-RETIRE0-RET0 current
 
 after every bounded retirement:
   run a fresh live-edge census
@@ -730,6 +731,11 @@ reconsidered only when the selected live edge names an exact consumer.
 Source-level Ownership/View and other new language semantics do not enter the
 MirBuilder replacement train. Analysis-only views used to observe existing
 control flow are not source-language View activation.
+
+Current row `INTERPRETER-LEGACY-FEATURE-RETIRE0-RET0` is a T2 atomic
+caller-zero Cargo/cfg/test/docs retirement. Preserve backend VM, parser/BID
+names, archives, CLI/MirBuilder behavior; forbid restoration or fallback.
+Gate metadata/source refs zero plus default checks; replacement credit 0.
 
 ## Closed tail
 

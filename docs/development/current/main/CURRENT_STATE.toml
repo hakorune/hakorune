@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "BENCH-DETACHED-ASSET-RETIRE0-RET0 is closed. INTERPRETER-LEGACY-FEATURE-CLOSURE0-D0 is the sole design stop."
+status = "INTERPRETER-LEGACY-FEATURE-CLOSURE0-D0 selected atomic stale-feature retirement. INTERPRETER-LEGACY-FEATURE-RETIRE0-RET0 is the sole executable row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "INTERPRETER-LEGACY-FEATURE-CLOSURE0-D0"
-current_execution_row = ""
-current_execution_summary = "T1 read-only closure audit: inventory Cargo feature interpreter-legacy, its live module declarations and CLI/API callers, src/runner/modes/common.rs, P2P execution, SharedState assumptions, tests, docs, and guards. Decide retire, repair, or split from current evidence; the feature build currently fails at missing crate::interpreter and removed SharedState.box_declarations. Do not edit production Rust during D0, restore archived interpreter/benchmark behavior, add fallback, or mix backend/MirBuilder semantics. Preserve default/all current production behavior."
+current_design_stop = ""
+current_execution_row = "INTERPRETER-LEGACY-FEATURE-RETIRE0-RET0"
+current_execution_summary = "T2 atomic stale-closure retirement: delete the caller-zero, build-broken interpreter-legacy Cargo feature; detached AST runner common module and sole parse-fuel helper; stale P2PBox/UserDefinedBoxFactory feature exports and sources; AST-interpreter-only active tests; and current README build claims. Replacement credit and production behavior delta are zero. Preserve backend::mir_interpreter, parser P2P syntax, BID/name vocabulary, archived historical evidence, CLI/backend behavior, and all MirBuilder semantics. Do not restore crate::interpreter, SharedState.box_declarations, a replacement P2P feature, fallback, or unrelated CliConfig defaults."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """Detached MIR-interpreter and bench runner assets are retired. INTERPRETER-LEGACY-FEATURE-CLOSURE0-D0 now audits the failing feature closure before any repair or retirement."""
+latest_card_summary = """Independent reachability audits classified interpreter-legacy as a caller-zero stale closure, not a repairable production feature. INTERPRETER-LEGACY-FEATURE-RETIRE0-RET0 atomically removes it without restoring AST-interpreter or P2P semantics."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "INTERPRETER-LEGACY-FEATURE-CLOSURE0-D0"
+current_blocker_token = "INTERPRETER-LEGACY-FEATURE-RETIRE0-RET0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
