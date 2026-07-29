@@ -126,11 +126,11 @@
       "retire_when": "raw static-Main production reachability is zero or its remaining prepared compatibility owner is retired by a named replacement row"
     },
     "RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-SUNSET-001": {
-      "state": "active",
-      "owner": "PreparedDisabledRawTryCatchV1",
-      "surface": "NYASH_BUILDER_DISABLE_TRYCATCH=1 -> try-body-only lowering",
-      "production_route_reads": 1,
-      "retire_when": "environment definition/read/documented consumers and disabled-route fixture are zero, and enabled physical TryCatch is the sole route"
+      "state": "closed",
+      "owner": "deleted",
+      "production_route_reads": 0,
+      "disabled_route_fixture": 0,
+      "retire_row": "RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0"
     }
   },
   "old_raw_non_test_callers": 0

@@ -62,7 +62,7 @@
     },
     {
       "control_flow_evidence_id": "control.catchability.docs/reference/architecture/parser_mvp_stage3.md:33:catch_block",
-      "evidence": "- MIR Builder already lowers `ASTNode::Throw` into `MirInstruction::Throw` (unless disabled via `NYASH_BUILDER_DISABLE_THROW`) and has a provisional `build_try_catch_statement` that emits `Catch`/`Jump` scaffolding with env flags controlling fallback.",
+      "evidence": "- MIR Builder already lowers `ASTNode::Throw` into `MirInstruction::Throw` (unless disabled via `NYASH_BUILDER_DISABLE_THROW`) and has a provisional physical TryCatch path that emits `Catch`/`Jump` scaffolding.",
       "evidence_kind": "catch_block",
       "family": "catchability",
       "line": 33,
@@ -2162,7 +2162,7 @@
     },
     {
       "control_flow_evidence_id": "control.fault_and_throw.docs/reference/architecture/parser_mvp_stage3.md:33:throw_instruction",
-      "evidence": "- MIR Builder already lowers `ASTNode::Throw` into `MirInstruction::Throw` (unless disabled via `NYASH_BUILDER_DISABLE_THROW`) and has a provisional `build_try_catch_statement` that emits `Catch`/`Jump` scaffolding with env flags controlling fallback.",
+      "evidence": "- MIR Builder already lowers `ASTNode::Throw` into `MirInstruction::Throw` (unless disabled via `NYASH_BUILDER_DISABLE_THROW`) and has a provisional physical TryCatch path that emits `Catch`/`Jump` scaffolding.",
       "evidence_kind": "throw_instruction",
       "family": "fault_and_throw",
       "line": 33,

@@ -152,12 +152,6 @@ def check_lcl0_s0(root: Path, located: str) -> str:
             1,
             "TryCatch narrow state owner",
         ),
-        (
-            try_catch_production,
-            "builder_disable_trycatch()",
-            1,
-            "TryCatch entry-only disable route read",
-        ),
         (try_catch_production, "catch_clause.body.clone()", 0, "TryCatch catch-body clone"),
     ):
         _require_count(text, needle, expected, label)
@@ -174,6 +168,11 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         "fn cf_try_catch(",
         "fn cf_try_catch_with_port_v1",
         "exception::cf_try_catch(",
+        "builder_disable_trycatch",
+        "PreparedRawTryCatchRouteV1",
+        "PreparedDisabledRawTryCatchV1",
+        "PreparedEnabledRawTryCatchV1",
+        "DisabledCompatibility",
     ):
         if retired in old_try_catch_surface:
             _fail(f"retired TryCatch facade remains: {retired}")

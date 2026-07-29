@@ -138,10 +138,6 @@ pub fn builder_script_args_json() -> Option<String> {
     env_string("NYASH_SCRIPT_ARGS_JSON").or_else(|| env_string("HAKO_SCRIPT_ARGS_JSON"))
 }
 
-pub fn builder_disable_trycatch() -> bool {
-    env_bool("NYASH_BUILDER_DISABLE_TRYCATCH")
-}
-
 pub fn builder_trycatch_debug() -> bool {
     env_bool("NYASH_DEBUG_TRYCATCH")
 }

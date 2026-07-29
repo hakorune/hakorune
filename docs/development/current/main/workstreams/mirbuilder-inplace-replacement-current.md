@@ -29,60 +29,62 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Latest landed: MIRBUILDER raw Lambda lifecycle (`7690abc332`)
-Latest audit:  post-Lambda multi-owner task census
-Correction:    the prior NoSafeSlice verdict missed two live env-selected
-               compatibility routes
-Executable:    RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0
-Census input:  Throw debug compatibility is observed but not preselected
+Latest landed: RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0
+Result:        physical prepared TryCatch is the sole route; disable residue
+               and its sunset are deleted
+Current stop:  MIRBUILDER-LIVE-EDGE-CENSUS0
+Executable:    none; select only from fresh named-edge evidence
 History:       Git history and the short landed tail below
 ```
 
-## Current execution
+## Current stop
 
-`RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0`
-
-Parent: `MIRBUILDER-LIVE-PRODUCTION-RESET0-D0` · Pack:
-`CONTROL0` · Ceremony: T1, one atomic I0/R0 commit.
+`MIRBUILDER-LIVE-EDGE-CENSUS0`
 
 ```text
 Change:
-  Switch the exact flag-selected subset:
-    before: statement_surface TryCatch + flag=1 -> disabled try-body-only owner
-    after:  the same caller -> existing physical prepared TryCatch owner
-  Flatten the now-one-variant prepared route. In the same commit delete the
-  flag getter/read/docs, route enum/wrappers, disabled fixture, stale guard
-  expectations, derived inventory residue, and close its sunset.
+  Recount live production selectors, active compatibility sunsets, detached
+  execution-capable assets, and touched-file capacity.
 
 Contract:
-  The named production selector remains statement_surface -> TryCatch prepare
-  exactly once. Default/unset physical-route order, function-state transaction,
-  errors, grammar, result, and publication behavior do not move. The explicit
-  flag-selected behavior is intentionally retired. No fallback or retry.
+  Select at most one named caller with one bounded replacement or deletion and
+  remove its old authority atomically. Fallback/retry and whole-function
+  acceptance variants remain forbidden.
 
 Done:
-  Repository consumers outside definition/read/docs/fixture/guard are zero.
-  All five residue classes and the one-variant route shell are zero; physical
-  TryCatch focused tests, normal parity/reuse, shared lane guard, and current
-  pointer guard are green; the sunset manifest records exact zeroes and closed.
+  Either one executable I0/R0 brief names caller/new owner/old deletion, or the
+  census records NoSafeSlice without creating a proof-only route.
 
 Stop:
-  Stop if another repository consumer is found, enabled-route parity fails, or
-  removal requires default TryCatch semantic changes. Do not include Throw,
-  broad cleanup, a new per-row guard, or a new compatibility route.
+  Do not preselect Throw, Program-root, HeaderPort, Recipe, or DraftSeal work
+  from history. Do not create a new per-row guard or compatibility route.
+```
+
+## Latest closeout
+
+```text
+RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0
+
+statement_surface TryCatch -> prepare/lower           = exactly once
+NYASH_BUILDER_DISABLE_TRYCATCH definition/read/docs    = 0
+disabled owner/fixture/route shell/guard residue       = 0
+physical TryCatch default behavior                      = preserved
+TryCatch unit / normal parity / failure-reuse / imports = green
+fallback / retry / Throw delta                          = 0
+new source/test/check file                              = 0
+largest touched source/check file                       = 773
 ```
 
 ## Task order
 
 ```text
 Now
-  1 RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0
+  1 fresh live-edge census
 
 Then, repeat
-  2 fresh live-edge census
-  3 select at most one named production edge or detached Delete asset
-  4 switch it and delete its old authority in the same commit
-  5 return to step 2
+  2 select at most one named production edge or detached Delete asset
+  3 switch it and delete its old authority in the same commit
+  4 return to step 1
 
 When live cleanup reaches closure
   6 MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0
@@ -97,11 +99,11 @@ Only after Complete
   9 later unimplemented features, one decision at a time
 ```
 
-Only item 1 is executable. The observed shelves for the next census are Throw
-debug compatibility, stale HeaderPort proof surfaces, Program-root source/work
-classification, pipeline authority, raw AST/Recipe composition, and function
-DraftSeal/collector convergence. This list is evidence input, not execution
-order. Whole-function accepted variants remain frozen.
+The observed shelves for the next census are Throw debug compatibility, stale
+HeaderPort proof surfaces, Program-root source/work classification, pipeline
+authority, raw AST/Recipe composition, and function DraftSeal/collector
+convergence. This list is evidence input, not execution order. Whole-function
+accepted variants remain frozen.
 
 JoinModule remains out of the current replacement commit, but not out of the
 completion definition. Its current 34,212-line inventory has no normal/default
@@ -120,7 +122,7 @@ while this disposition remains undecided. A compatibility owner may exist only
 with one sunset ID, an exact non-growing surface, and a written retirement
 condition.
 
-## Latest closeout
+## Previous closeout
 
 ```text
 RAW-LAMBDA-LEXICAL-CAPTURE-LIFECYCLE0-I0-R0
@@ -740,7 +742,7 @@ new source/test/check/task file            = 0
 largest touched source/check file          = 799
 ```
 
-## Latest TryCatch closeout
+## Historical TryCatch transaction closeout
 ```text
 Decision: Candidate A
 Row: RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-I0-R0
@@ -1279,11 +1281,10 @@ CALL-BOX-KIND-ANALYZER-COMPAT-SUNSET-001
     classification parity is proven and all callers migrate atomically
 
 RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-SUNSET-001
-  state: active
-  owner: PreparedDisabledRawTryCatchV1
-  surface: NYASH_BUILDER_DISABLE_TRYCATCH=1 -> try body only
-  retire_when: environment definition/read/documented consumers and fixture
-    are zero, and enabled physical TryCatch is the sole route
+  state: closed
+  owner: deleted
+  definition/read/docs/fixture/route shell = 0
+  retired by: RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0
 
 RAW-THROW-DEBUG-TRACE-COMPAT-SUNSET-001
   state: active
@@ -1410,7 +1411,8 @@ R84 RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 closed
 R85 RAW-LAMBDA-LEXICAL-CAPTURE-LIFECYCLE0-I0-R0 closed: old authority deleted
 R86 post-Lambda census closed: its NoSafeSlice verdict was corrected by the
     later multi-owner task census
-R87 RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0 selected
+R87 RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0 closed: disable route and
+    sunset retired; fresh live-edge census is current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

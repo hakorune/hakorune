@@ -12,19 +12,6 @@ use crate::mir::builder::{MirInstruction, ValueId};
 use super::try_catch_state::ActiveRawTryCatchFunctionStateV1;
 
 pub(in crate::mir::builder) struct PreparedRawTryCatchV1 {
-    route: PreparedRawTryCatchRouteV1,
-}
-
-enum PreparedRawTryCatchRouteV1 {
-    DisabledCompatibility(PreparedDisabledRawTryCatchV1),
-    Enabled(PreparedEnabledRawTryCatchV1),
-}
-
-struct PreparedDisabledRawTryCatchV1 {
-    try_body: Vec<ASTNode>,
-}
-
-struct PreparedEnabledRawTryCatchV1 {
     try_body: Vec<ASTNode>,
     catch_clauses: Vec<CatchClause>,
     finally_body: Option<Vec<ASTNode>>,
@@ -36,18 +23,11 @@ impl PreparedRawTryCatchV1 {
         catch_clauses: Vec<CatchClause>,
         finally_body: Option<Vec<ASTNode>>,
     ) -> Self {
-        let route = if crate::config::env::builder_disable_trycatch() {
-            PreparedRawTryCatchRouteV1::DisabledCompatibility(PreparedDisabledRawTryCatchV1 {
-                try_body,
-            })
-        } else {
-            PreparedRawTryCatchRouteV1::Enabled(PreparedEnabledRawTryCatchV1 {
-                try_body,
-                catch_clauses,
-                finally_body,
-            })
-        };
-        Self { route }
+        Self {
+            try_body,
+            catch_clauses,
+            finally_body,
+        }
     }
 }
 
@@ -59,25 +39,7 @@ pub(in crate::mir::builder) fn lower_prepared_raw_try_catch_with_port_v1<Port>(
 where
     Port: RawAstChildLoweringPortV1,
 {
-    match prepared.route {
-        PreparedRawTryCatchRouteV1::DisabledCompatibility(prepared) => {
-            drive_legacy_body_v1(builder, port, prepared.try_body)
-        }
-        PreparedRawTryCatchRouteV1::Enabled(prepared) => {
-            lower_enabled_raw_try_catch_with_port_v1(builder, port, prepared)
-        }
-    }
-}
-
-fn lower_enabled_raw_try_catch_with_port_v1<Port>(
-    builder: &mut super::super::super::MirBuilder,
-    port: &mut Port,
-    prepared: PreparedEnabledRawTryCatchV1,
-) -> Result<ValueId, String>
-where
-    Port: RawAstChildLoweringPortV1,
-{
-    let PreparedEnabledRawTryCatchV1 {
+    let PreparedRawTryCatchV1 {
         try_body,
         catch_clauses,
         finally_body,
@@ -182,7 +144,7 @@ mod tests {
     use super::*;
     use crate::ast::{LiteralValue, Span};
     use crate::mir::builder::recursive_child_lowering::RecursiveChildLoweringPortV1;
-    use crate::mir::{MirBuilder, ValueId};
+    use crate::mir::MirBuilder;
 
     struct RecordingBodyPortV1 {
         demands: Vec<i64>,
@@ -255,18 +217,16 @@ mod tests {
         }
     }
 
-    fn enabled(
+    fn prepared(
         try_tag: i64,
         catch_tags: &[i64],
         finally_tag: Option<i64>,
     ) -> PreparedRawTryCatchV1 {
-        PreparedRawTryCatchV1 {
-            route: PreparedRawTryCatchRouteV1::Enabled(PreparedEnabledRawTryCatchV1 {
-                try_body: body(try_tag),
-                catch_clauses: catch_tags.iter().copied().map(catch).collect(),
-                finally_body: finally_tag.map(body),
-            }),
-        }
+        PreparedRawTryCatchV1::prepare(
+            body(try_tag),
+            catch_tags.iter().copied().map(catch).collect(),
+            finally_tag.map(body),
+        )
     }
 
     fn builder() -> MirBuilder {
@@ -282,45 +242,10 @@ mod tests {
         lower_prepared_raw_try_catch_with_port_v1(
             &mut builder,
             &mut port,
-            enabled(1, &[2, 99], Some(3)),
+            prepared(1, &[2, 99], Some(3)),
         )
         .unwrap();
         assert_eq!(port.demands, vec![1, 2, 3]);
-    }
-
-    #[test]
-    fn disabled_route_lowers_try_only_without_touching_transient_state() {
-        crate::test_support::with_env_vars(
-            &[("NYASH_BUILDER_DISABLE_TRYCATCH", Some("1"))],
-            || {
-                let mut builder = builder();
-                builder.function_state.return_defer_active = true;
-                builder.function_state.return_defer_slot = Some(ValueId(41));
-                builder.function_state.return_deferred_emitted = true;
-                builder.function_state.in_cleanup_block = true;
-                let before = (
-                    builder.function_state.return_defer_active,
-                    builder.function_state.return_defer_slot,
-                    builder.function_state.return_deferred_emitted,
-                    builder.function_state.in_cleanup_block,
-                );
-                let prepared =
-                    PreparedRawTryCatchV1::prepare(body(1), vec![catch(2)], Some(body(3)));
-                let mut port = RecordingBodyPortV1::new(None);
-                lower_prepared_raw_try_catch_with_port_v1(&mut builder, &mut port, prepared)
-                    .unwrap();
-                assert_eq!(port.demands, vec![1]);
-                assert_eq!(
-                    (
-                        builder.function_state.return_defer_active,
-                        builder.function_state.return_defer_slot,
-                        builder.function_state.return_deferred_emitted,
-                        builder.function_state.in_cleanup_block,
-                    ),
-                    before
-                );
-            },
-        );
     }
 
     #[test]
@@ -331,7 +256,7 @@ mod tests {
             let error = lower_prepared_raw_try_catch_with_port_v1(
                 &mut builder,
                 &mut port,
-                enabled(1, &[2], Some(3)),
+                prepared(1, &[2], Some(3)),
             )
             .unwrap_err();
             assert_eq!(error, format!("fail-{fail_on}"));
@@ -350,7 +275,7 @@ mod tests {
         let error = lower_prepared_raw_try_catch_with_port_v1(
             &mut builder,
             &mut port,
-            enabled(1, &[2], Some(3)),
+            prepared(1, &[2], Some(3)),
         )
         .unwrap_err();
         assert_eq!(error, "fail-3");
