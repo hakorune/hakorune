@@ -32,37 +32,36 @@ Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Latest landed: MODULE-FINALIZATION-FUNCTION-METADATA0-I0-R0
 Result:        shared finalization snapshots function metadata through one
                prepared owner before existing return/PHI inference
-Latest design: `FINALIZE0-CONDITIONFN-RET0-D0`
-Executable:    none — bounded finalization design stop
+Latest design: `FINALIZE0-CONDITIONFN-RET0-D0` accepted RetireBoth
+Executable:    `FINALIZE0-CONDITIONFN-RET0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`FINALIZE0-CONDITIONFN-RET0-D0` — classify the remaining synthetic condition
-compatibility authority
+`FINALIZE0-CONDITIONFN-RET0-I0-R0` — retire the two shared synthetic-condition
+compatibility edges (T2 decision, one atomic implementation)
 
 ```text
 Change:
-  decide one disposition for the finalization-time `condition_fn/1` insertion
-  and the Call materializer's same-name special case; do not add a wrapper.
+  delete finalization-time missing-`condition_fn/1` injection and the Call
+  materializer's same-name `const 1` early return. Retire their DerivedShadow
+  artifact closure in the same commit.
 
 Contract:
-  preserve normal/default's single pipeline and existing result behavior. The
-  decision must distinguish raw/reference compatibility from normal reachability
-  and name one owner, one exact surface, and one retirement condition.
+  named production caller: `MirBuilder::finalize_module` and its shared Call
+  materializer. Real declarations resolve through the existing header/global
+  authority; missing globals fail normally. Keep `RawRequiredConditionDraftV1`
+  and every Raw/reference route separate and unchanged.
 
 Done:
-  select retire, an existing typed owner, or one bounded compatibility owner;
-  record whether a same-scope I0/R0 exists. `condition_fn` does not become a
-  normal/default planner or a fallback route. Classify its derived artifact and
-  execution guard with the same disposition.
+  both old edges and their active derived shadow/guard closure are zero; a real
+  declared `condition_fn` is no longer intercepted; missing global behavior,
+  normal parity, and candidate reuse are green.
 
 Stop:
-  return to design if retirement changes JSON-lexer semantics, requires a
-  second session/route, or cannot remove both synthetic insertion and direct
-  name special-casing under one authority; do the same if the derived artifact
-  is still a required executable contract rather than a reference shadow.
+  return to design if any production corpus needs implicit global behavior, the
+  Raw typed draft must be touched, or a second route/session/fallback is needed.
 ```
 
 ## Census8 closeout

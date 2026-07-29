@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS8 is closed: no facade-only publication or raw/program I0 is admissible; the one selected boundary is FINALIZE0-CONDITIONFN-RET0-D0. JoinModule disposition remains mandatory before final conformance, Ownership, View, and later features."
+status = "FINALIZE0-CONDITIONFN-RET0-D0 is closed: RetireBoth removes the shared finalizer's missing-condition_fn injection and the Call materializer name special case, while retaining the separately owned Raw root-batch draft. FINALIZE0-CONDITIONFN-RET0-I0-R0 is current."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "FINALIZE0-CONDITIONFN-RET0-D0"
-current_execution_row = ""
-current_execution_summary = "Design only: decide the lifecycle disposition of the always-inserted condition_fn/1 compatibility stub and its name-special Call materializer. No implementation is authorized until one owner, exact reachability, and a retirement condition are selected."
+current_design_stop = ""
+current_execution_row = "FINALIZE0-CONDITIONFN-RET0-I0-R0"
+current_execution_summary = "One atomic live retirement: delete finalization-time condition_fn injection and the Call materializer name-special const-1 path; retire their derived shadow closure. RawRequiredConditionDraftV1 and Raw/reference routes remain separately owned."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
