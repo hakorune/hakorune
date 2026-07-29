@@ -12,7 +12,7 @@
     "source_selfhost_claim": 0
   },
   "input_profile": {
-    "ast": "ASTNode::Literal(Integer(0))"
+    "composition": "prepare_module -> build_literal(Integer(0)) -> finalize_module"
   },
   "kind": "MinimalMirBuilderExecutionPathSmokeResultV1",
   "observed": {
@@ -21,6 +21,6 @@
     "main_function": "present",
     "main_return_type": "MirType::Integer",
     "main_return_value": "literal_integer_const_dst",
-    "rust_integration_test": "tests/mirbuilder_minimal_execution_path_smoke.rs::mirbuilder_minimal_literal_integer_path_smoke"
+    "owner_local_rust_test": "src/mir/builder/module_lifecycle_capture_tests.rs::mirbuilder_minimal_literal_integer_path_smoke"
   }
 }

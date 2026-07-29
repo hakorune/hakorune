@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Public MirBuilder root API retirement series is active; one direct test caller remains."
+status = "Public MirBuilder root API retirement series is at final API deletion; direct callers are zero."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = ""
-current_execution_row = "MIRBUILDER-MINIMAL-LIFECYCLE-SMOKE0-R0"
-current_execution_summary = "Move the final minimal lifecycle smoke from public build_module to one owner-local prepare/literal/finalize composition and refresh its live artifact contract."
+current_execution_row = "MIRBUILDER-PUBLIC-ROOT-API0-RET0"
+current_execution_summary = "Delete public build_module and the now-dead generic root wrappers after caller count reached zero; keep typed Program and responsibility-local kernels."
 current_execution_design = "docs/development/current/main/design/mir-root-facade-contract-ssot.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """Duplicate Binary/If arbitrary-root tests are retired and String literal finalization evidence is owner-local. One artifact-backed minimal lifecycle smoke is the final direct build_module caller."""
+latest_card_summary = """All repository build_module callers are retired. The minimal lifecycle smoke now observes one owner-local prepare/literal/finalize composition; final public root API deletion is selected."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-MINIMAL-LIFECYCLE-SMOKE0-R0"
+current_blocker_token = "MIRBUILDER-PUBLIC-ROOT-API0-RET0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

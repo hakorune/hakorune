@@ -1,11 +1,12 @@
-use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
+use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl};
 use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
 use crate::mir::builder::recursive_child_lowering::{
     RawBoxMethodChildPortV1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 use crate::mir::{
-    BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirType, ValueId,
+    BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirBuilder, MirFunction,
+    MirInstruction, MirType, ValueId,
 };
 use crate::parser::NyashParser;
 
@@ -131,6 +132,36 @@ impl RootCallableCapturePortV1 for RecordingOrdinaryPortV1 {
             attrs,
         )
     }
+}
+
+#[test]
+fn mirbuilder_minimal_literal_integer_path_smoke() {
+    let mut builder = MirBuilder::new();
+    builder.prepare_module().expect("module shell");
+    let literal = builder
+        .build_literal(LiteralValue::Integer(0))
+        .expect("literal integer");
+    let module = builder.finalize_module(literal).expect("final module");
+    let main = module
+        .get_function("main")
+        .expect("minimal literal path should create main");
+
+    assert_eq!(main.signature.return_type, MirType::Integer);
+    assert!(module.get_function("condition_fn").is_some());
+    assert!(main.blocks.values().any(|block| {
+        block.instructions.iter().any(|instruction| {
+            matches!(
+                instruction,
+                MirInstruction::Const {
+                    dst,
+                    value: ConstValue::Integer(0),
+                } if *dst == literal
+            )
+        }) && matches!(
+            &block.terminator,
+            Some(MirInstruction::Return { value: Some(value) }) if *value == literal
+        )
+    }));
 }
 
 #[test]

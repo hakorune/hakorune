@@ -579,31 +579,31 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution
-`MIRBUILDER-MINIMAL-LIFECYCLE-SMOKE0-R0` — T2 breaking series 4/5
+`MIRBUILDER-PUBLIC-ROOT-API0-RET0` — T2 breaking series 5/5
 ```text
 Change:
-  Move the artifact-backed minimal Literal(Integer(0)) smoke to one fixed
-  prepare_module -> build_literal -> finalize_module owner-local composition.
+  Delete public build_module and the dead generic root wrappers after all
+  repository callers reached zero.
 
 Contract:
-  Preserve main/Integer/Const(0)/same-dst Return/condition_fn evidence and
-  refresh its live rust-lifecycle fixture; generic root/API claims become zero.
+  Keep MirBuilder itself, typed Program lowering, responsibility-local node
+  kernels, prepare/finalize, and the stable build_module timing label.
 
 Done:
-  Direct repository test callers become zero and the exact owner-local smoke
-  plus dependent current artifact checks are green.
+  Definition/callers/generic wrappers are zero; live guards/current source
+  artifacts describe the typed lifecycle and release build is green.
 
 Stop:
-  Do not synthesize Program, add a reusable helper/facade, or leave current
-  fixtures naming build_module as their live authority.
+  Do not add a private/cfg(test)/deprecated replacement facade, rename the
+  timing label, or close the separate Raw non-Program compatibility sunset.
 ```
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)
 2 HOST-PROVIDER-CFGTEST-AST-JSON-COMPAT0-RET0 closed (5 -> 4)
 3 MIRBUILDER-RAW-OWNER-TEST-EVIDENCE0-R0 closed (4 -> 1)
-4 MIRBUILDER-MINIMAL-LIFECYCLE-SMOKE0-R0 current
-5 MIRBUILDER-PUBLIC-ROOT-API0-RET0
+4 MIRBUILDER-MINIMAL-LIFECYCLE-SMOKE0-R0 closed (1 -> 0)
+5 MIRBUILDER-PUBLIC-ROOT-API0-RET0 current
 ```
 External consumers are unknown, not zero. Migration is `MirCompiler::compile*`
 for Program; no public arbitrary-root replacement is introduced.

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Record the focused minimal MirBuilder execution-path smoke result.
+"""Record the focused minimal MirBuilder lifecycle-composition smoke result.
 
 This is a smoke-result contract, not semantic authority. It checks that the
-focused Rust integration test observes the current live build_module path for
-AST Literal(Integer(0)) and projects that observation for the frontier analyzer.
+owner-local Rust test composes prepare, Integer literal emission, and finalize
+without reopening a generic root facade.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle"
 RESULT_PATH = FIXTURES / "mirbuilder-minimal-execution-path-smoke-result-v0.json"
-SMOKE_TEST = ROOT / "tests/mirbuilder_minimal_execution_path_smoke.rs"
+SMOKE_TEST = ROOT / "src/mir/builder/module_lifecycle_capture_tests.rs"
 
 
 class SmokeError(RuntimeError):
@@ -36,8 +36,9 @@ def verify_test_source() -> None:
     text = SMOKE_TEST.read_text()
     required_markers = [
         "fn mirbuilder_minimal_literal_integer_path_smoke()",
-        "ASTNode::Literal",
         "LiteralValue::Integer(0)",
+        "builder.prepare_module()",
+        "builder.finalize_module(literal)",
         "get_function(\"main\")",
         "MirType::Integer",
         "get_function(\"condition_fn\")",
@@ -54,11 +55,11 @@ def build_result() -> dict[str, Any]:
     return {
         "kind": "MinimalMirBuilderExecutionPathSmokeResultV1",
         "input_profile": {
-            "ast": "ASTNode::Literal(Integer(0))",
+            "composition": "prepare_module -> build_literal(Integer(0)) -> finalize_module",
         },
         "observed": {
-            "rust_integration_test": (
-                "tests/mirbuilder_minimal_execution_path_smoke.rs::"
+            "owner_local_rust_test": (
+                "src/mir/builder/module_lifecycle_capture_tests.rs::"
                 "mirbuilder_minimal_literal_integer_path_smoke"
             ),
             "main_function": "present",
@@ -95,7 +96,7 @@ def run(check: bool) -> None:
         RESULT_PATH.write_text(result_text)
 
     print("output_contract=rust-lifecycle-mirbuilder-minimal-execution-path-smoke-v0")
-    print("input=ASTNode::Literal(Integer(0))")
+    print("input=prepare_module->build_literal(Integer(0))->finalize_module")
     print("minimal_execution_path_smoke=green")
     print("condition_fn_injection=source_required")
     print("full_mirbuilder_new_claim=0")

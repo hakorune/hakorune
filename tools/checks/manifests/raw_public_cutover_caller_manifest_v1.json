@@ -117,9 +117,7 @@
     "src/runner/selfhost.rs": 0
   },
   "direct_build_module_production": {},
-  "direct_build_module_repository_tests": {
-    "tests/mirbuilder_minimal_execution_path_smoke.rs": 1
-  },
+  "direct_build_module_repository_tests": {},
   "compatibility_sunsets": {
     "MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001": {
       "state": "closed",
