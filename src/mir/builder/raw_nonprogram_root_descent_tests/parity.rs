@@ -216,6 +216,59 @@ fn selected_grouped_assignment_preflights_and_reuses_without_retry() {
 }
 
 #[test]
+fn selected_variable_assignment_composes_without_retry() {
+    let roots = [
+        assignment(variable("x"), integer(101)),
+        block_expr(vec![assignment(variable("x"), integer(102))], variable("x")),
+        task_scope("co", vec![assignment(variable("x"), awaited(integer(103)))]),
+    ];
+    for root in roots {
+        let mut legacy = MirBuilder::new();
+        legacy.enter_function_for_test("variable_assignment_parity/0".to_owned());
+        let old = crate::mir::builder::emission::constant::emit_integer(&mut legacy, 7).unwrap();
+        seed_binding(&mut legacy, "x", old);
+        let legacy_value = drive_raw_legacy_expression_v1(&mut legacy, root.clone()).unwrap();
+
+        let mut selected = MirBuilder::new();
+        selected.enter_function_for_test("variable_assignment_parity/0".to_owned());
+        let old = crate::mir::builder::emission::constant::emit_integer(&mut selected, 7).unwrap();
+        seed_binding(&mut selected, "x", old);
+        let selected_value = drive_selected(&mut selected, root).unwrap();
+
+        assert_eq!(selected_value, legacy_value);
+        assert_eq!(
+            spanned_instructions(&selected),
+            spanned_instructions(&legacy)
+        );
+        assert_eq!(
+            selected.function_state.variable_ctx.variable_map,
+            legacy.function_state.variable_ctx.variable_map
+        );
+    }
+
+    let mut selected = MirBuilder::new();
+    selected.enter_function_for_test("variable_assignment_failure/0".to_owned());
+    let error = drive_selected(
+        &mut selected,
+        assignment(variable("missing"), variable("rhs")),
+    )
+    .unwrap_err();
+    assert!(error.contains("Undefined variable: missing"));
+    assert!(spanned_instructions(&selected).is_empty());
+
+    let old = crate::mir::builder::emission::constant::emit_integer(&mut selected, 9).unwrap();
+    seed_binding(&mut selected, "x", old);
+    let error =
+        drive_selected(&mut selected, assignment(variable("x"), variable("rhs"))).unwrap_err();
+    assert!(error.contains("Undefined variable: rhs"));
+    assert_eq!(
+        selected.function_state.variable_ctx.variable_map.get("x"),
+        Some(&old)
+    );
+    drive_selected(&mut selected, assignment(variable("x"), integer(104))).unwrap();
+}
+
+#[test]
 fn selected_index_matches_raw_legacy_effects_exactly() {
     let roots = [
         indexed(array(vec![integer(26), integer(27)]), integer(1)),

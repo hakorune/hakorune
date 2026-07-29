@@ -466,7 +466,7 @@ def main() -> int:
     )
     if root_descent.get("sunset_state") != "active":
         raise AssertionError("raw root compatibility sunset must remain active")
-    if root_descent.get("residual_kind_count") != 40:
+    if root_descent.get("residual_kind_count") != 39:
         raise AssertionError("raw root compatibility residual count drift")
     ast_node_kinds = ast_kinds(
         (
@@ -482,8 +482,8 @@ def main() -> int:
             f"extra={sorted(classified_kinds - ast_node_kinds)}"
         )
     selected_arms = re.findall(
-        r"node\s*@\s*(.*?)=>\s*\{\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root|task_scope_root)\(node\)\s*\}"
-        r"|node\s*@\s*(.*?)=>\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root|task_scope_root)\(node\)",
+        r"node\s*@\s*(.*?)=>\s*\{\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root|variable_assignment_root|task_scope_root)\(node\)\s*\}"
+        r"|node\s*@\s*(.*?)=>\s*Self::selected_(?:expr_tree|print_root|nowait_root|local_root|variable_assignment_root|task_scope_root)\(node\)",
         raw_nonprogram_root_descent,
         re.S,
     )
@@ -493,7 +493,7 @@ def main() -> int:
     expected_selected = {
         "Literal", "Variable", "Me", "UnaryOp", "BinaryOp", "AwaitExpression",
         "CheckExpr", "ArrayLiteral", "MapLiteral", "GroupedAssignmentExpr", "Index",
-        "BlockExpr", "Print", "Nowait", "Local", "TaskScope",
+        "BlockExpr", "Print", "Nowait", "Local", "Assignment", "TaskScope",
     }
     if selected_kinds != expected_selected:
         raise AssertionError(
@@ -512,12 +512,12 @@ def main() -> int:
     separate_kinds = ast_kinds(
         text_between(
             raw_nonprogram_root_descent,
-            "node @ (ASTNode::Assignment",
+            "node @ (ASTNode::CompoundAssignment",
             "RawNonProgramRootCompatibilityClassV1::SeparateDesignStop",
         )
     )
     expected_separate = {
-        "Assignment", "CompoundAssignment", "If", "Return",
+        "CompoundAssignment", "If", "Return",
         "QMarkPropagate", "MatchExpr",
         "EnumMatchExpr", "RecordLiteral",
         "RecordUpdate", "Lambda", "TryCatch", "Throw",
@@ -619,13 +619,8 @@ def main() -> int:
         require(raw_nonprogram_root_descent, fragment, "recursive BlockExpr prelude partition")
     if raw_nonprogram_root_descent.count("node @ ASTNode::BlockExpr { .. }") != 2:
         raise AssertionError("BlockExpr root must have one safe and one compatibility arm")
-    expected_block_prelude = [
-        "expr_tree",
-        "print",
-        "nowait",
-        "annotation_free_local",
-        "task_scope",
-    ]
+    expected_block_prelude = ["expr_tree", "print", "nowait", "annotation_free_local",
+                              "variable_assignment", "task_scope"]
     if root_descent.get("selected_block_prelude_responsibilities") != expected_block_prelude:
         raise AssertionError("selected BlockExpr prelude responsibility ratchet drift")
     if root_descent.get("safe_nonempty_block_compatibility_edge") != 0:
@@ -658,6 +653,12 @@ def main() -> int:
         require(raw_nonprogram_root_descent, fragment, "annotation-free Local partition")
     if raw_nonprogram_root_descent.count("node @ ASTNode::Local { .. }") != 2:
         raise AssertionError("Local root must have one safe and one compatibility arm")
+    for fragment in ("node @ ASTNode::Assignment { .. }",
+                     "is_port_neutral_variable_assignment_root(&node)",
+                     "fn is_port_neutral_variable_assignment_root(node: &ASTNode) -> bool"):
+        require(raw_nonprogram_root_descent, fragment, "variable Assignment partition")
+    if raw_nonprogram_root_descent.count("node @ ASTNode::Assignment { .. }") != 2:
+        raise AssertionError("Assignment root must have one safe and one compatibility arm")
     for fragment in (
         "node @ ASTNode::TaskScope { .. } if is_port_neutral_task_scope_root(&node)",
         "fn is_port_neutral_task_scope_root(node: &ASTNode) -> bool",

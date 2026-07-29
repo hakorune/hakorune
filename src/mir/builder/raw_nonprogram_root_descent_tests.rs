@@ -92,6 +92,14 @@ fn grouped_assignment(variable_name: &str, rhs: ASTNode) -> ASTNode {
     }
 }
 
+fn assignment(target: ASTNode, value: ASTNode) -> ASTNode {
+    ASTNode::Assignment {
+        target: Box::new(target),
+        value: Box::new(value),
+        span: Span::unknown(),
+    }
+}
+
 fn indexed(target: ASTNode, index: ASTNode) -> ASTNode {
     ASTNode::Index {
         target: Box::new(target),
@@ -176,6 +184,15 @@ fn assert_selected_task_scope(node: ASTNode) {
         PreparedRawRootPartitionV1::classify(node),
         PreparedRawRootPartitionV1::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
             SelectedRawNonProgramRootV1::TaskScopeRoot(_)
+        ))
+    ));
+}
+
+fn assert_selected_assignment(node: ASTNode) {
+    assert!(matches!(
+        PreparedRawRootPartitionV1::classify(node),
+        PreparedRawRootPartitionV1::NonProgram(PreparedRawNonProgramRootV1::SelectedPortParity(
+            SelectedRawNonProgramRootV1::VariableAssignmentRoot(_)
         ))
     ));
 }
@@ -288,12 +305,14 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
         vec![Some(block_expr(Vec::new(), array(vec![integer(29)])))],
         vec![None],
     ));
+    assert_selected_assignment(assignment(variable("x"), awaited(integer(36))));
     assert_selected_task_scope(task_scope("co", Vec::new()));
     assert_selected_task_scope(task_scope(
         "task_scope",
         vec![
             printed(integer(37)),
             nowait("pending", integer(38)),
+            assignment(variable("x"), checked(vec![integer(38)])),
             task_scope("co", vec![checked(vec![integer(39)])]),
         ],
     ));
@@ -469,14 +488,31 @@ fn port_neutral_partition_is_recursive_and_disjoint() {
         ),
         RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
     );
+    assert_selected(block_expr(
+        vec![assignment(variable("x"), integer(33))],
+        integer(34),
+    ));
     assert_compatibility(
-        block_expr(
-            vec![ASTNode::Assignment {
-                target: Box::new(variable("x")),
-                value: Box::new(integer(33)),
+        assignment(
+            ASTNode::FieldAccess {
+                object: Box::new(variable("page")),
+                field: "value".to_owned(),
                 span: Span::unknown(),
-            }],
-            integer(34),
+            },
+            integer(33),
+        ),
+        RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
+    );
+    assert_compatibility(
+        assignment(
+            variable("x"),
+            ASTNode::New {
+                class: "Page".to_owned(),
+                arguments: Vec::new(),
+                field_initializers: Vec::new(),
+                type_arguments: Vec::new(),
+                span: Span::unknown(),
+            },
         ),
         RawNonProgramRootCompatibilityClassV1::SeparateDesignStop,
     );
