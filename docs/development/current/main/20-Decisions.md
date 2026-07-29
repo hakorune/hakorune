@@ -14,7 +14,7 @@ Private Canonical Path: `docs/private/development/current/main/20-Decisions.md`
 - `stage0 / stage1 / stage2-mainline / stage2+` は execution-lanes-and-axis-separation-ssot.md の build/distribution vocabulary として読む。
 - `K0 / K1 / K2` は kernel-replacement-axis-ssot.md の replacement reading として読む。
 - except for OS/kernel/substrate boundaries and explicit compat/bootstrap keeps, implementation should move to `.hako` rather than grow new Rust meaning owners.
-- selfhost mirbuilder migration 中は Rust builder に新しい source-aware lowering / shape intelligence を増やさず、canonical MIR / MIR-to-MIR / backend optimization を継続しながら `.hako` builder authority を先に進める。
+- selfhost mirbuilder migration 中は Rust builder に新しい source-aware lowering / shape intelligence を増やさず、canonical MIR / MIR-to-MIR / backend optimization を継続しながら `.hako` builder authority を先に進める。ただし `CURRENT_STATE.toml` が明示的に選択した MirBuilder in-place replacement の既存production authority整理は、この一般則の限定例外としてそちらを優先する。
 - backend lane vocabulary (`llvmlite`, `ny-llvmc`, `native`) は stage2-aot-fast-lane-crossing-inventory.md と llvm-harness.md を正本にする。
 - current active lane / blocker / latest-card pointer は `CURRENT_STATE.toml` を正本にする。`CURRENT_TASK.md` と thin mirrors は必要時だけそこへ誘導する。
 - Language v1 semantic coherence now precedes selfhost migration. The public

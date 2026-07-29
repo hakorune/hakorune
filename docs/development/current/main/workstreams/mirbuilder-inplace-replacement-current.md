@@ -25,117 +25,44 @@ Resolve -> Observe -> Facts -> Recipe -> Verify
 第二MirBuilder、production consumer 0のroute拡張、Legacy fallbackは作らない。
 cell数、pack数、LOCは観測値であり、完成条件ではない。
 
-## Current execution
+## Current state
 
 ```text
-Parent:  MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
-Closed:  NORMAL-DEFAULT-PUBLISHED-PIPELINE0-I0-R0
-Closed:  NORMAL-DEFAULT-ROOT-CATALOG-PREFLIGHT0-D0
-Closed:  NORMAL-DEFAULT-ROOT-CATALOG-LIFECYCLE0-I0-R0
-Closed:  NORMAL-DEFAULT-NONPROGRAM-ROOT-DESCENT0-D0
-Closed:  RAW-NONPROGRAM-PORT-NEUTRAL-EXPR-DESCENT0-I0-R0
-Closed:  RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR0-D0
-Closed:  RAW-NONPROGRAM-AWAIT-COMPOSITIONAL-DESCENT0-I0-R0
-Closed:  RAW-NONPROGRAM-NEXT-COMPOSITIONAL-EXPR1-D0
-Closed:  RAW-NONPROGRAM-CHECK-COMPOSITIONAL-DESCENT0-I0-R0
-Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY0-D0
-Closed:  RAW-NONPROGRAM-PRINT-ROOT-DESCENT0-I0-R0
-Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY1-D0
-Closed:  RAW-NONPROGRAM-NOWAIT-ROOT-DESCENT0-I0-R0
-Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY2-D0
-Closed:  RAW-NONPROGRAM-ARRAY-COMPOSITIONAL-DESCENT0-I0-R0
-Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY3-D0
-Closed:  RAW-NONPROGRAM-MAP-COMPOSITIONAL-DESCENT0-I0-R0
-Closed:  RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-D0
-Closed:  RAW-NONPROGRAM-ROOT-PARTITION-TEST-SEAM0-R0
-Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY4-D0
-Closed:  RAW-NONPROGRAM-GROUPED-ASSIGNMENT-COMPOSITIONAL-DESCENT0-I0-R0
-Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY5-D0
-Closed:  RAW-NONPROGRAM-INDEX-COMPOSITIONAL-DESCENT0-I0-R0
-Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY6-D0
-Closed:  RAW-NONPROGRAM-EMPTY-BLOCK-EXPR-COMPOSITIONAL-DESCENT0-I0-R0
-Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY7-D0
-Closed:  RAW-NONPROGRAM-ANNOTATION-FREE-LOCAL-ROOT-DESCENT0-I0-R0
-Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY8-D0
-Closed:  RAW-NONPROGRAM-ROOT-PARITY-TEST-SEAM1-R0
-Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY9-D0
-Closed:  RAW-NONPROGRAM-BLOCK-EXPR-COMPOSITIONAL-PRELUDE0-I0-R0
-Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY10-D0
-Closed:  RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0
-Closed:  RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0
-Closed:  NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0
-Closed:  NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0
-Closed:  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0
-Closed:  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-D0
-Closed:  PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0
-Closed:  REPL-TYPED-PROGRAM-INGRESS0-D0
-Closed:  REPL-TYPED-PROGRAM-INGRESS0-I0-R0
-Closed:  POST-MACRO-PROGRAM-ADMISSION0-D0
-Closed:  STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0
-Closed:  NORMAL-DEFAULT-VERIFIED-MAIN-LOWERING-HANDOFF0-I0-R0
-Closed:  MIRBUILDER-POST-VERIFIED-MAIN-HANDOFF-LIVE-EDGE-CENSUS0-D0
-Closed:  INSTANCE-BOX-METHOD-BATCH-SSOT0-I0-R0
-Closed:  MIRBUILDER-POST-INSTANCE-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0
-Closed:  INSTANCE-BOX-DECLARATION-LIFECYCLE-SSOT0-I0-R0
-Closed:  MIRBUILDER-POST-INSTANCE-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
-Closed:  CALL-BOX-KIND-POLICY-SSOT0-I0-R0
-Closed:  MIRBUILDER-POST-CALL-BOX-KIND-POLICY-LIVE-EDGE-CENSUS0-D0
-Closed:  CALL-NAME-CLASSIFICATION-SSOT0-I0-R0
-Closed:  MIRBUILDER-POST-CALL-NAME-CLASSIFICATION-LIVE-EDGE-CENSUS0-D0
-Closed:  RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0
-Closed:  MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0
-Closed:  RECORD-HELPER-BODY-INVOCATION0-I0-R0
-Closed:  MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0
-Closed:  RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0
-Closed:  MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0
-Closed:  RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0
-Closed:  MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0
-Closed:  VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0
-Closed:  MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0
-Closed:  VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0
-Closed:  MIRBUILDER-POST-VERIFIED-MAIN-ROOT-HANDOFF-LIVE-EDGE-CENSUS0-D0
-Closed:  RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0
-Closed:  MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0
-Closed:  RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0
-Closed:  MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0
-Closed:  INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0
-Closed:  MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0
-Closed:  RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0
-Closed:  MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
-Closed:  RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 (NoSafeI0)
-Closed:  RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0
-Closed:  RAW-LAMBDA-LEXICAL-CAPTURE-LIFECYCLE0-I0-R0
-Current: MIRBUILDER-POST-RAW-LAMBDA-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
-Mode:    read-only selection
+Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
+Latest landed: MIRBUILDER raw Lambda lifecycle (`7690abc332`)
+Latest census: MIRBUILDER-POST-RAW-LAMBDA-LIFECYCLE-LIVE-EDGE-CENSUS0-D0
+Verdict:       NoSafeSlice; no executable row is selected
+Resume only:   fresh evidence for one named production caller, bounded owner,
+               and same-commit deletion of its old edge
+History:       Git history and the short landed tail below
 ```
 
-## Current execution brief
+## Current stop
 
 `MIRBUILDER-POST-RAW-LAMBDA-LIFECYCLE-LIVE-EDGE-CENSUS0-D0`
 
 ```text
 Change:
-  Read the remaining production edges after the Lambda retirement and select
-  at most one next replacement.
+  R86 found no bounded production replacement after the Lambda retirement.
 
 Contract:
-  A candidate needs one named production caller, one bounded owner, and one
-  old edge deleted in the same commit. No complete-program variants, fallback,
-  retry, or compatibility expansion may be selected.
+  Program-root traversal remains a separate multi-authority shelf. Raw
+  static-Main and legacy facades have no named production caller. No I0/R0 may
+  be opened without fresh live-edge evidence.
 
 Done:
-  Record the live-edge census and either select one bounded D0 or state that no
-  safe slice exists. Do not pre-name the following implementation row.
+  No implementation row is preselected. Program-root, raw static-Main,
+  JoinModule, View, and Ownership remain shelves rather than queue entries.
 
 Stop:
-  Do not reopen raw Lambda, Program-root, static-Main, JoinModule, View, or
-  Ownership work without a fresh selected edge.
+  Do not turn caller-zero facades, complete-program variants, or a broad
+  cleanup into replacement work. Fallback/retry remains forbidden.
 ```
 
 Fixed phase order:
 
 ```text
-R2/R3 live-authority cleanup
+remaining live-authority cleanup
 -> MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0
    (including explicit legacy JoinModule disposition)
 -> OWNERSHIP-SPARSE-RESUME-D0
@@ -649,7 +576,10 @@ JoinModule disposition decision**.  The decision is not a blind `JoinModule`
 file-count target: it must classify remaining carrier/boundary use, state
 whether each surface is retired or intentionally retained, and prove that no
 retained surface is a final planner, acceptance truth, or normal/default
-pipeline route.
+pipeline route. It must keep the CorePlan carrier/boundary ledger separate
+from JoinModule execution, observation, JSON/format, runner, and explicit-env
+bridge ledgers; each family needs a retire or named non-JoinModule replacement
+decision before repository-wide completion is claimed.
 
 ## Closed execution
 
@@ -1425,26 +1355,12 @@ R63 RAW-MATCH-OWNED-INPUT-SINGLE-USE0-I0-R0 closed
 R64 MIRBUILDER-POST-MATCH-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 closed: record-helper body selected
 R65 RECORD-HELPER-BODY-INVOCATION0-I0-R0 closed
 R66 MIRBUILDER-POST-RECORD-HELPER-BODY-LIVE-EDGE-CENSUS0-D0 closed: instance normalization selected
-R67 RAW-INSTANCE-METHOD-PARAM-NORMALIZATION-ONCE0-I0-R0 closed
-R68 MIRBUILDER-POST-INSTANCE-PARAM-NORMALIZATION-LIVE-EDGE-CENSUS0-D0 closed
-R69 RAW-PORT-AWARE-COMPOUND-EXPR-OWNED-INPUT0-I0-R0 closed
-R70 MIRBUILDER-POST-COMPOUND-EXPR-OWNED-INPUT-LIVE-EDGE-CENSUS0-D0 closed
-R71 VERIFIED-MAIN-STATIC-CHILD-LOWERING-HANDOFF0-I0-R0 closed
-R72 MIRBUILDER-POST-VERIFIED-MAIN-CHILD-HANDOFF-LIVE-EDGE-CENSUS0-D0 closed
-R73 VERIFIED-MAIN-ROOT-BODY-LOWERING-HANDOFF0-I0-R0 closed
-R74 MIRBUILDER-POST-VERIFIED-MAIN-ROOT-HANDOFF-LIVE-EDGE-CENSUS0-D0 closed: raw static-Main compatibility batch selected
-R75 RAW-STATIC-MAIN-COMPAT-BATCH0-I0-R0 closed
-R76 MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-BATCH-LIVE-EDGE-CENSUS0-D0 closed: raw static-Main facade retirement selected
-R77 RAW-STATIC-MAIN-COMPAT-FACADE-RETIRE0-I0-R0 closed
-R78 MIRBUILDER-POST-RAW-STATIC-MAIN-COMPAT-FACADE-LIVE-EDGE-CENSUS0-D0 closed: instance-Box metadata projection selected
-R79 INSTANCE-BOX-DECLARATION-METADATA-PROJECTION0-I0-R0 closed
-R80 MIRBUILDER-POST-INSTANCE-BOX-METADATA-PROJECTION-LIVE-EDGE-CENSUS0-D0 closed: raw non-Main static-Box lifecycle handoff selected
-R81 RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0 closed: raw dispatcher lifecycle deleted at da95eee7f7
-R82 MIRBUILDER-POST-RAW-NONMAIN-STATIC-BOX-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 closed: no bounded executable edge; Lambda D0 selected
-R83 RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 closed: NoSafeI0; lexical boundary matrix selected
-R84 RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 closed: owner-neutral observer and four I0 gates selected
-R85 RAW-LAMBDA-LEXICAL-CAPTURE-LIFECYCLE0-I0-R0 closed: raw Lambda lifecycle selected once; old authority deleted
-R86 MIRBUILDER-POST-RAW-LAMBDA-LIFECYCLE-LIVE-EDGE-CENSUS0-D0 current
+R81 RAW-NONMAIN-STATIC-BOX-LIFECYCLE-HANDOFF0-I0-R0 closed: raw dispatcher lifecycle deleted
+R82 post-raw-static-Box census closed: no bounded edge; Lambda design selected
+R83 RAW-LAMBDA-CAPTURE-OBSERVATION0-D0 closed: NoSafeI0
+R84 RAW-LAMBDA-LEXICAL-BOUNDARY-MATRIX0-D0 closed
+R85 RAW-LAMBDA-LEXICAL-CAPTURE-LIFECYCLE0-I0-R0 closed: old authority deleted
+R86 post-Lambda census closed: NoSafeSlice; no executable row selected
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
