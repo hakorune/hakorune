@@ -20,6 +20,8 @@ BUILDER_ROOT = ROOT / "src/mir/builder.rs"
 NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
 RAW_EXPRESSION_DISPATCH = ROOT / "src/mir/builder/raw_expression_dispatch/mod.rs"
 BUILDER_BUILD = ROOT / "src/mir/builder/builder_build.rs"
+FUNCTION_CALL_PREFLIGHT = ROOT / "src/mir/builder/calls/function_call_preflight_route.rs"
+CALL_BUILD = ROOT / "src/mir/builder/calls/build.rs"
 RAW_UNARY_OWNER = ROOT / "src/mir/builder/ops/unary.rs"
 OPS_MOD = ROOT / "src/mir/builder/ops/mod.rs"
 SOURCES = (
@@ -150,6 +152,8 @@ def main() -> int:
             NORMAL_TESTS,
             RAW_EXPRESSION_DISPATCH,
             BUILDER_BUILD,
+            FUNCTION_CALL_PREFLIGHT,
+            CALL_BUILD,
             RAW_UNARY_OWNER,
             OPS_MOD,
             *SOURCES,
@@ -171,9 +175,48 @@ def main() -> int:
     normal_tests = texts[NORMAL_TESTS]
     raw_expression_dispatch = code_only(texts[RAW_EXPRESSION_DISPATCH])
     builder_build = production_code(BUILDER_BUILD)
+    function_call_preflight = production_code(FUNCTION_CALL_PREFLIGHT)
+    call_build = production_code(CALL_BUILD)
     raw_unary_owner = code_only(texts[RAW_UNARY_OWNER])
     ops_mod = code_only(texts[OPS_MOD])
     current_workstream = texts[CURRENT_WORKSTREAM]
+    for fragment in (
+        "enum PreparedRawOrdinaryFunctionCompletionV1",
+        "StrNormalization",
+        "Resolved",
+        "fn prepare_ordinary_function_completion_v1",
+    ):
+        require(function_call_preflight, fragment, f"direct str route {fragment}")
+    if function_call_preflight.count(
+        "lower_prepared_raw_ordinary_function_completion_with_port_v1("
+    ) != 1:
+        raise AssertionError("direct str prepared consumer count drift")
+    for retired in (
+        "lower_ordinary_function_call_with_port_v1",
+        'if name == "str" && arg_values.len() == 1',
+    ):
+        if retired in call_build:
+            raise AssertionError(f"post-child direct str authority returned: {retired}")
+    if call_build.count(
+        "fn lower_prepared_raw_ordinary_function_completion_with_port_v1"
+    ) != 1:
+        raise AssertionError("direct str completion owner count drift")
+    str_prepare = text_between(
+        function_call_preflight,
+        "fn prepare_ordinary_function_completion_v1",
+        "fn prepare_typeop_route",
+    )
+    for forbidden in (
+        "MirBuilder",
+        "drive_legacy_expression_v1",
+        "next_value_id",
+        "emit_",
+        "fallback",
+        "retry",
+        ".clone()",
+    ):
+        if forbidden in str_prepare:
+            raise AssertionError(f"direct str prepare gained effect/retry edge: {forbidden}")
     for fragment in (
         "struct PreparedRawNewExpressionV1",
         "enum PreparedRawNewExpressionRouteV1",

@@ -580,18 +580,17 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: RAW-NEW-CREATION-ROUTE-ONCE0-I0-R0, CALL-OBJECT0/T1.
+Closed: RAW-DIRECT-STR-COMPLETION-ROUTE-ONCE0-I0-R0, CALL-OBJECT0/T1.
 Owner:
-  prepared New rejects records, then selects Core13Pure / IntegerLiteral /
-  Ordinary once; Lower consumes that route once.
+  after existing priority, Ordinary selects str/1 or resolved completion once.
 Deleted:
-  Lower mode probe, IntegerBox AST reclassification, unclassified handoff.
+  post-child str name/arity decision and old raw ordinary terminal.
 Preserved:
-  effects, birth/header timing, field initializers, diagnostics, grammar.
+  child/trace order, wrong arity, header/unified timing, diagnostics.
 Evidence:
-  focused route/consume/record/raw-port tests, cargo check, shared guard green.
+  priority/order/failure/reuse/raw-port tests and shared guards green.
 Current stop:
-  MIRBUILDER-POST-NEW-CREATION-LIVE-EDGE-CENSUS0-D0; no row preselected.
+  MIRBUILDER-POST-DIRECT-STR-LIVE-EDGE-CENSUS0-D0; no row preselected.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:

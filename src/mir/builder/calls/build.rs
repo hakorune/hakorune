@@ -27,6 +27,7 @@ use super::CallTarget;
 use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::BareStaticRecoveryNoRecoveryReasonV1;
 use crate::mir::builder::calls::drive_call_arguments_v1;
+use crate::mir::builder::calls::function_call_preflight_route::PreparedRawOrdinaryFunctionCompletionV1;
 use crate::mir::builder::exprs_enum_match::{
     prepare_raw_enum_variant_header_v1, PreparedRawEnumVariantHeaderV1,
 };
@@ -79,36 +80,37 @@ impl PreparedRawFromCallV1 {
 
 impl MirBuilder {
     /// Complete the ordinary direct-call route after pre-effect selection.
-    pub(in crate::mir::builder) fn lower_ordinary_function_call_with_port_v1<Port>(
+    pub(super) fn lower_prepared_raw_ordinary_function_completion_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
         name: String,
-        args: Vec<ASTNode>,
+        completion: PreparedRawOrdinaryFunctionCompletionV1,
     ) -> Result<ValueId, String>
     where
         Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
     {
-        // 1. Build argument values
-        let arg_values = drive_call_arguments_v1(self, port, args.as_slice())?;
-
-        // 2. Special-case: global str(x) → x.str() normalization
-        if name == "str" && arg_values.len() == 1 {
-            return self.build_str_normalization(arg_values[0]);
-        }
-
-        // 3. Keep the completed invocation header authoritative through
-        // resolver, emitter, and annotation. The legacy port returns None.
-        port.with_function_headers(|lookup| {
-            let use_unified = super::call_unified::is_unified_call_enabled()
-                && (super::super::call_resolution::is_builtin_function(&name)
-                    || super::super::call_resolution::is_extern_function(&name));
-
-            if !use_unified {
-                self.build_resolved_function_call(name, arg_values, lookup)
-            } else {
-                self.build_unified_function_call(name, arg_values, lookup)
+        match completion {
+            PreparedRawOrdinaryFunctionCompletionV1::StrNormalization { argument } => {
+                let value = drive_legacy_expression_v1(self, port, argument)?;
+                self.build_str_normalization(value)
             }
-        })
+            PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments } => {
+                let arg_values = drive_call_arguments_v1(self, port, arguments.as_slice())?;
+                // Keep the completed invocation header authoritative through
+                // resolver, emitter, and annotation. The legacy port returns None.
+                port.with_function_headers(|lookup| {
+                    let use_unified = super::call_unified::is_unified_call_enabled()
+                        && (super::super::call_resolution::is_builtin_function(&name)
+                            || super::super::call_resolution::is_extern_function(&name));
+
+                    if !use_unified {
+                        self.build_resolved_function_call(name, arg_values, lookup)
+                    } else {
+                        self.build_unified_function_call(name, arg_values, lookup)
+                    }
+                })
+            }
+        }
     }
 
     // Build method call: object.method(arguments)

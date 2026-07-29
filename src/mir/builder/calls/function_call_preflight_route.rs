@@ -37,8 +37,13 @@ enum PreparedRawFunctionPreflightRouteV1 {
         arguments: Vec<ASTNode>,
     },
     Ordinary {
-        arguments: Vec<ASTNode>,
+        completion: PreparedRawOrdinaryFunctionCompletionV1,
     },
+}
+
+pub(super) enum PreparedRawOrdinaryFunctionCompletionV1 {
+    StrNormalization { argument: ASTNode },
+    Resolved { arguments: Vec<ASTNode> },
 }
 
 impl PreparedRawFunctionPreflightV1 {
@@ -70,12 +75,32 @@ impl PreparedRawFunctionPreflightV1 {
             if name.starts_with("mem.") {
                 PreparedRawFunctionPreflightRouteV1::FastMem { region, arguments }
             } else {
-                PreparedRawFunctionPreflightRouteV1::Ordinary { arguments }
+                PreparedRawFunctionPreflightRouteV1::Ordinary {
+                    completion: prepare_ordinary_function_completion_v1(&name, arguments),
+                }
             }
         } else {
-            PreparedRawFunctionPreflightRouteV1::Ordinary { arguments }
+            PreparedRawFunctionPreflightRouteV1::Ordinary {
+                completion: prepare_ordinary_function_completion_v1(&name, arguments),
+            }
         };
         Self { name, route }
+    }
+}
+
+fn prepare_ordinary_function_completion_v1(
+    name: &str,
+    arguments: Vec<ASTNode>,
+) -> PreparedRawOrdinaryFunctionCompletionV1 {
+    if name == "str" && arguments.len() == 1 {
+        PreparedRawOrdinaryFunctionCompletionV1::StrNormalization {
+            argument: arguments
+                .into_iter()
+                .next()
+                .expect("exact str/1 route must retain one argument"),
+        }
+    } else {
+        PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments }
     }
 }
 
@@ -143,9 +168,12 @@ where
                 port,
             )
         }
-        PreparedRawFunctionPreflightRouteV1::Ordinary { arguments } => {
-            builder.lower_ordinary_function_call_with_port_v1(port, prepared.name, arguments)
-        }
+        PreparedRawFunctionPreflightRouteV1::Ordinary { completion } => builder
+            .lower_prepared_raw_ordinary_function_completion_with_port_v1(
+                port,
+                prepared.name,
+                completion,
+            ),
     }
 }
 
@@ -172,7 +200,7 @@ fn replay_function_call_trace(builder: &MirBuilder, name: &str) {
 mod tests {
     use super::{
         lower_prepared_raw_function_preflight_with_port_v1, PreparedRawFunctionPreflightRouteV1,
-        PreparedRawFunctionPreflightV1,
+        PreparedRawFunctionPreflightV1, PreparedRawOrdinaryFunctionCompletionV1,
     };
     use crate::ast::{ASTNode, LiteralValue, Span};
     use crate::mir::builder::recursive_child_lowering::{
@@ -186,6 +214,7 @@ mod tests {
     struct RecordingPortV1 {
         expression_count: usize,
         events: Vec<&'static str>,
+        fail_expression: bool,
     }
 
     impl RecursiveChildLoweringPortV1 for RecordingPortV1 {
@@ -216,6 +245,9 @@ mod tests {
         ) -> Result<ValueId, String> {
             self.expression_count += 1;
             self.events.push("child");
+            if self.fail_expression {
+                return Err("direct str child failed".to_owned());
+            }
             crate::mir::builder::emission::constant::emit_integer(builder, 7)
         }
     }
@@ -267,6 +299,9 @@ mod tests {
         builder
             .comp_ctx
             .register_brand_decl("mem.addr".to_string(), "Integer".to_string());
+        builder
+            .comp_ctx
+            .register_brand_decl("str".to_string(), "Integer".to_string());
         builder.push_fastmem_region(FastMemRegionId::new(6));
 
         let weak =
@@ -302,6 +337,7 @@ mod tests {
                 ],
             ),
             ("mem.addr", vec![integer(1)]),
+            ("str", vec![integer(1)]),
         ] {
             let collision =
                 PreparedRawFunctionPreflightV1::prepare(&builder, name.to_string(), arguments);
@@ -372,6 +408,25 @@ mod tests {
             ordinary.route,
             PreparedRawFunctionPreflightRouteV1::Ordinary { .. }
         ));
+
+        let str_one =
+            PreparedRawFunctionPreflightV1::prepare(&builder, "str".to_string(), vec![integer(1)]);
+        assert!(matches!(
+            str_one.route,
+            PreparedRawFunctionPreflightRouteV1::Ordinary {
+                completion: PreparedRawOrdinaryFunctionCompletionV1::StrNormalization { .. }
+            }
+        ));
+        for arguments in [Vec::new(), vec![integer(1), integer(2)]] {
+            let wrong_arity =
+                PreparedRawFunctionPreflightV1::prepare(&builder, "str".to_string(), arguments);
+            assert!(matches!(
+                wrong_arity.route,
+                PreparedRawFunctionPreflightRouteV1::Ordinary {
+                    completion: PreparedRawOrdinaryFunctionCompletionV1::Resolved { .. }
+                }
+            ));
+        }
     }
 
     #[test]
@@ -496,5 +551,32 @@ mod tests {
         let _ =
             lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, ordinary);
         assert_eq!(port.events, vec!["child", "header"]);
+    }
+
+    #[test]
+    fn direct_str_child_failure_does_not_retry_or_observe_headers_and_reuses_builder() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("direct_str_failure_reuse/0".to_owned());
+        let mut port = RecordingPortV1 {
+            fail_expression: true,
+            ..Default::default()
+        };
+
+        let failing =
+            PreparedRawFunctionPreflightV1::prepare(&builder, "str".to_owned(), vec![integer(1)]);
+        let error =
+            lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, failing)
+                .unwrap_err();
+        assert_eq!(error, "direct str child failed");
+        assert_eq!(port.events, vec!["child"]);
+
+        port.fail_expression = false;
+        port.events.clear();
+        let succeeding =
+            PreparedRawFunctionPreflightV1::prepare(&builder, "str".to_owned(), vec![integer(2)]);
+        lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, succeeding)
+            .unwrap();
+        assert_eq!(port.events, vec!["child"]);
+        assert_eq!(port.expression_count, 2);
     }
 }
