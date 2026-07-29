@@ -344,29 +344,9 @@ impl super::MirBuilder {
         // main 関数スコープの SlotRegistry を解放するよ。
         self.comp_ctx.current_slot_registry = None;
 
-        // Phase 285LLVM-1.1: Copy user box declarations to module metadata for LLVM harness
-        module.metadata.user_box_decls = self.comp_ctx.user_defined_boxes.clone();
-        module.metadata.user_box_field_decls = self
-            .comp_ctx
-            .user_box_field_decls
-            .clone()
-            .into_iter()
-            .map(|(name, decls)| {
-                (
-                    name,
-                    decls
-                        .into_iter()
-                        .map(|decl| crate::mir::UserBoxFieldDecl {
-                            name: decl.name,
-                            declared_type_name: decl.declared_type_name,
-                            is_weak: decl.is_weak,
-                        })
-                        .collect(),
-                )
-            })
-            .collect();
-        module.metadata.record_decls = self.comp_ctx.record_decls.clone().into_iter().collect();
-        module.metadata.enum_decls = self.comp_ctx.enum_decls_for_module_metadata();
+        super::module_finalization_declaration_metadata::
+            PreparedModuleFinalizationDeclarationMetadataV1::prepare(&self.comp_ctx)
+            .commit_into(&mut module);
         crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);
         crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);
         crate::mir::direct_state_plan::refresh_module_direct_state_plans(&mut module);
