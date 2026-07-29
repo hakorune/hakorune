@@ -16,6 +16,7 @@ pub(in crate::mir::builder) use input_view::{
 use super::builder_build::PreparedRawNewExpressionV1;
 use super::calls::{MethodCallDescentPortV1, PreparedRawFromCallV1, RawLegacyMethodCallInputV1};
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
+use super::exprs_enum_match::PreparedRawEnumMatchV1;
 use super::indexing::PreparedRawIndexReadV1;
 use super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::ops::{
@@ -221,13 +222,11 @@ impl super::MirBuilder {
                 arms,
                 else_expr,
                 ..
-            } => self.build_enum_match_expression_with_port_v1(
-                port,
-                enum_name.clone(),
-                *scrutinee.clone(),
-                arms.clone(),
-                else_expr.clone(),
-            ),
+            } => {
+                let prepared =
+                    PreparedRawEnumMatchV1::prepare(self, enum_name, *scrutinee, arms, else_expr)?;
+                self.lower_prepared_raw_enum_match_with_port_v1(port, prepared)
+            }
 
             ASTNode::Lambda { params, body, .. } => {
                 self.build_lambda_expression(params.clone(), body.clone())

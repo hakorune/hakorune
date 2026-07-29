@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The next live MirBuilder replacement prepares one payload-projection or bool-select EnumMatch route before child effects."
+status = "EnumMatch route-once is closed; the next live MirBuilder production edge must be selected by a fresh census."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "RAW-ENUM-MATCH-ROUTE-ONCE0-I0-R0"
-current_execution_summary = "Seal one payload-projection or bool-select EnumMatch route, then delete dispatcher clones, Option probing, double arm observation, and caller-zero raw-input facades."
+current_design_stop = "MIRBUILDER-POST-ENUM-MATCH-LIVE-EDGE-CENSUS0-D0"
+current_execution_row = ""
+current_execution_summary = "EnumMatch now seals one projection or bool-select route before child effects; select the next live production edge without adding language features."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """The fresh census selected RAW-ENUM-MATCH-ROUTE-ONCE0-I0-R0. The production ASTNode::EnumMatchExpr arm will seal payload-projection or bool-select exactly once before Builder effects, preserve all validation/diagnostic/emission order, and atomically delete dispatcher clones, Option probing, duplicate arm observation, and caller-zero facades. Compound Index and indirect Call require later D0; Lambda, View, Ownership, and all feature additions remain parked."""
+latest_card_summary = """RAW-ENUM-MATCH-ROUTE-ONCE0-I0-R0 is closed. ASTNode::EnumMatchExpr now seals exactly one payload-projection or bool-select route before child effects, lowers the scrutinee once, and has no projection-to-bool retry or retired raw-input facade. The next step is a fresh live-edge census; compound Index and indirect Call still require separate D0, while Lambda, View, Ownership, and feature additions remain parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-ENUM-MATCH-ROUTE-ONCE0-I0-R0"
+current_blocker_token = "MIRBUILDER-POST-ENUM-MATCH-LIVE-EDGE-CENSUS0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

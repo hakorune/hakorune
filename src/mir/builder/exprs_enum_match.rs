@@ -2,7 +2,7 @@ use crate::ast::{ASTNode, EnumMatchArm, LiteralValue};
 use crate::mir::builder::calls::drive_call_arguments_v1;
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_body_v1, drive_legacy_expression_v1, drive_legacy_statement_v1,
-    RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    RawAstChildLoweringPortV1,
 };
 use crate::mir::{CompareOp, MirInstruction, MirType, ValueId};
 
@@ -13,6 +13,29 @@ pub(in crate::mir::builder) struct PreparedRawEnumVariantHeaderV1 {
 }
 
 struct PreparedRawEnumVariantHeaderSealV1;
+
+pub(in crate::mir::builder) struct PreparedRawEnumMatchV1 {
+    enum_name: String,
+    scrutinee: ASTNode,
+    route: PreparedRawEnumMatchRouteV1,
+}
+
+enum PreparedRawEnumMatchRouteV1 {
+    PayloadProjection {
+        variant_name: String,
+        tag: u32,
+        declared_payload_type_name: Option<String>,
+    },
+    BoolSelect {
+        specs: Box<[(u32, bool)]>,
+    },
+}
+
+struct ObservedRawEnumMatchArmV1 {
+    variant_name: String,
+    binding_present: bool,
+    bool_value: Option<bool>,
+}
 
 pub(in crate::mir::builder) struct PreparedRawScopeBoxV1 {
     route: PreparedRawScopeBoxRouteV1,
@@ -35,6 +58,74 @@ impl PreparedRawScopeBoxV1 {
             None => PreparedRawScopeBoxRouteV1::Ordinary { body },
         };
         Self { route }
+    }
+}
+
+impl PreparedRawEnumMatchV1 {
+    pub(in crate::mir::builder) fn prepare(
+        builder: &super::MirBuilder,
+        enum_name: String,
+        scrutinee: ASTNode,
+        arms: Vec<EnumMatchArm>,
+        else_expr: Option<Box<ASTNode>>,
+    ) -> Result<Self, String> {
+        if else_expr.is_some() {
+            return Err(format!(
+                "[freeze:contract][mir_builder/enum_match] `{}` else-arm lowering is outside direct-MIR guard-let MVP",
+                enum_name
+            ));
+        }
+
+        let mut projection_shape = true;
+        let mut projection_index = None;
+        let mut observed = Vec::with_capacity(arms.len());
+        for arm in arms {
+            let target_projection = matches!(
+                (&arm.binding_name, &arm.body),
+                (Some(binding), ASTNode::Variable { name, .. }) if binding == name
+            );
+            let ignored_null = arm.binding_name.is_none() && null_literal_body(&arm.body);
+            if target_projection {
+                if projection_index.replace(observed.len()).is_some() {
+                    projection_shape = false;
+                }
+            } else if !ignored_null {
+                projection_shape = false;
+            }
+            observed.push(ObservedRawEnumMatchArmV1 {
+                variant_name: arm.variant_name,
+                binding_present: arm.binding_name.is_some(),
+                bool_value: bool_literal_body(&arm.body),
+            });
+        }
+
+        let route = if projection_shape {
+            if let Some(target_index) = projection_index {
+                builder.require_exhaustive_known_arm_names(&enum_name, &observed)?;
+                let target = &observed[target_index];
+                let resolved = builder.resolve_known_variant(&enum_name, &target.variant_name)?;
+                if !resolved.decl.has_payload() || resolved.decl.requires_compat_payload_box() {
+                    return Err(format!(
+                        "[freeze:contract][mir_builder/enum_match] {}::{} payload projection requires a single scalar payload",
+                        enum_name, target.variant_name
+                    ));
+                }
+                PreparedRawEnumMatchRouteV1::PayloadProjection {
+                    variant_name: target.variant_name.clone(),
+                    tag: resolved.tag,
+                    declared_payload_type_name: resolved.decl.payload_type_name.clone(),
+                }
+            } else {
+                builder.prepare_raw_enum_match_bool_select_v1(&enum_name, &observed)?
+            }
+        } else {
+            builder.prepare_raw_enum_match_bool_select_v1(&enum_name, &observed)?
+        };
+        Ok(Self {
+            enum_name,
+            scrutinee,
+            route,
+        })
     }
 }
 
@@ -105,44 +196,98 @@ impl super::MirBuilder {
         Ok(last_value.unwrap_or_else(|| self.next_value_id()))
     }
 
-    pub(super) fn build_enum_match_expression(
-        &mut self,
-        enum_name: String,
-        scrutinee: ASTNode,
-        arms: Vec<EnumMatchArm>,
-        else_expr: Option<Box<ASTNode>>,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_enum_match_expression_with_port_v1(
-            &mut port, enum_name, scrutinee, arms, else_expr,
-        )
-    }
-
-    pub(in crate::mir::builder) fn build_enum_match_expression_with_port_v1<Port>(
+    pub(in crate::mir::builder) fn lower_prepared_raw_enum_match_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
-        enum_name: String,
-        scrutinee: ASTNode,
-        arms: Vec<EnumMatchArm>,
-        else_expr: Option<Box<ASTNode>>,
+        prepared: PreparedRawEnumMatchV1,
     ) -> Result<ValueId, String>
     where
         Port: RawAstChildLoweringPortV1,
     {
-        if else_expr.is_some() {
-            return Err(format!(
-                "[freeze:contract][mir_builder/enum_match] `{}` else-arm lowering is outside direct-MIR guard-let MVP",
-                enum_name
-            ));
-        }
+        let PreparedRawEnumMatchV1 {
+            enum_name,
+            scrutinee,
+            route,
+        } = prepared;
+        let scrutinee_value = drive_legacy_expression_v1(self, port, scrutinee)?;
+        match route {
+            PreparedRawEnumMatchRouteV1::PayloadProjection {
+                variant_name,
+                tag,
+                declared_payload_type_name,
+            } => {
+                let payload_type =
+                    payload_mir_type(declared_payload_type_name.as_deref()).or_else(|| {
+                        self.function_state
+                            .type_ctx
+                            .value_types
+                            .get(&scrutinee_value)
+                            .and_then(|ty| concrete_enum_payload_type(&enum_name, ty))
+                    });
+                let dst = self.next_value_id();
+                self.emit_instruction(MirInstruction::VariantProject {
+                    dst,
+                    value: scrutinee_value,
+                    enum_name,
+                    variant: variant_name,
+                    tag,
+                    payload_type: payload_type.clone(),
+                })?;
+                self.function_state
+                    .type_ctx
+                    .value_types
+                    .insert(dst, payload_type.unwrap_or(MirType::Unknown));
+                Ok(dst)
+            }
+            PreparedRawEnumMatchRouteV1::BoolSelect { specs } => {
+                let tag_value = self.next_value_id();
+                self.emit_instruction(MirInstruction::VariantTag {
+                    dst: tag_value,
+                    value: scrutinee_value,
+                    enum_name,
+                })?;
+                self.function_state
+                    .type_ctx
+                    .value_types
+                    .insert(tag_value, MirType::Integer);
 
-        if let Some(projected) = self.try_build_guard_let_payload_projection_with_port_v1(
-            port, &enum_name, &scrutinee, &arms,
-        )? {
-            return Ok(projected);
+                let mut specs = specs.into_vec().into_iter().rev();
+                let (_, default_value) = specs
+                    .next()
+                    .expect("non-empty checked before reverse lowering");
+                let mut result =
+                    crate::mir::builder::emission::constant::emit_bool(self, default_value)?;
+                for (tag, arm_value) in specs {
+                    let tag_const = crate::mir::builder::emission::constant::emit_integer(
+                        self,
+                        i64::from(tag),
+                    )?;
+                    let cond = self.next_value_id();
+                    crate::mir::builder::emission::compare::emit_to(
+                        self,
+                        cond,
+                        CompareOp::Eq,
+                        tag_value,
+                        tag_const,
+                    )?;
+                    let then_val =
+                        crate::mir::builder::emission::constant::emit_bool(self, arm_value)?;
+                    let dst = self.next_value_id();
+                    self.emit_instruction(MirInstruction::Select {
+                        dst,
+                        cond,
+                        then_val,
+                        else_val: result,
+                    })?;
+                    self.function_state
+                        .type_ctx
+                        .value_types
+                        .insert(dst, MirType::Bool);
+                    result = dst;
+                }
+                Ok(result)
+            }
         }
-
-        self.build_guard_let_variant_bool_select_with_port_v1(port, enum_name, scrutinee, arms)
     }
 
     /// Lower one prepared enum constructor while retaining the raw child port.
@@ -219,134 +364,38 @@ impl super::MirBuilder {
         Ok(dst)
     }
 
-    fn build_guard_let_variant_bool_select_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        enum_name: String,
-        scrutinee: ASTNode,
-        arms: Vec<EnumMatchArm>,
-    ) -> Result<ValueId, String>
-    where
-        Port: RawAstChildLoweringPortV1,
-    {
+    fn prepare_raw_enum_match_bool_select_v1(
+        &self,
+        enum_name: &str,
+        arms: &[ObservedRawEnumMatchArmV1],
+    ) -> Result<PreparedRawEnumMatchRouteV1, String> {
         if arms.is_empty() {
             return Err(format!(
                 "[freeze:contract][mir_builder/enum_match] `{}` has no arms",
                 enum_name
             ));
         }
-        self.require_exhaustive_known_arms(&enum_name, &arms)?;
+        self.require_exhaustive_known_arm_names(enum_name, arms)?;
         let mut specs = Vec::with_capacity(arms.len());
         for arm in arms {
-            if arm.binding_name.is_some() {
+            if arm.binding_present {
                 return Err(format!(
                     "[freeze:contract][mir_builder/enum_match] `{}` bool-select guard shape must not bind payloads",
                     enum_name
                 ));
             }
-            let Some(value) = bool_literal_body(&arm.body) else {
+            let Some(value) = arm.bool_value else {
                 return Err(format!(
                     "[freeze:contract][mir_builder/enum_match] `{}` only guard-let boolean variant tests are accepted",
                     enum_name
                 ));
             };
-            let resolved = self.resolve_known_variant(&enum_name, &arm.variant_name)?;
+            let resolved = self.resolve_known_variant(enum_name, &arm.variant_name)?;
             specs.push((resolved.tag, value));
         }
-
-        let scrutinee_value = drive_legacy_expression_v1(self, port, scrutinee)?;
-        let tag_value = self.next_value_id();
-        self.emit_instruction(MirInstruction::VariantTag {
-            dst: tag_value,
-            value: scrutinee_value,
-            enum_name,
-        })?;
-        self.function_state
-            .type_ctx
-            .value_types
-            .insert(tag_value, MirType::Integer);
-
-        let mut specs = specs.into_iter().rev();
-        let (_, default_value) = specs
-            .next()
-            .expect("non-empty checked before reverse lowering");
-        let mut result = crate::mir::builder::emission::constant::emit_bool(self, default_value)?;
-
-        for (tag, arm_value) in specs {
-            let tag_const =
-                crate::mir::builder::emission::constant::emit_integer(self, i64::from(tag))?;
-            let cond = self.next_value_id();
-            crate::mir::builder::emission::compare::emit_to(
-                self,
-                cond,
-                CompareOp::Eq,
-                tag_value,
-                tag_const,
-            )?;
-            let then_val = crate::mir::builder::emission::constant::emit_bool(self, arm_value)?;
-            let dst = self.next_value_id();
-            self.emit_instruction(MirInstruction::Select {
-                dst,
-                cond,
-                then_val,
-                else_val: result,
-            })?;
-            self.function_state
-                .type_ctx
-                .value_types
-                .insert(dst, MirType::Bool);
-            result = dst;
-        }
-
-        Ok(result)
-    }
-
-    fn try_build_guard_let_payload_projection_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        enum_name: &str,
-        scrutinee: &ASTNode,
-        arms: &[EnumMatchArm],
-    ) -> Result<Option<ValueId>, String>
-    where
-        Port: RawAstChildLoweringPortV1,
-    {
-        let Some(target_arm) = single_projection_arm(arms) else {
-            return Ok(None);
-        };
-        self.require_exhaustive_known_arms(enum_name, arms)?;
-        let resolved = self.resolve_known_variant(enum_name, &target_arm.variant_name)?;
-        if !resolved.decl.has_payload() || resolved.decl.requires_compat_payload_box() {
-            return Err(format!(
-                "[freeze:contract][mir_builder/enum_match] {}::{} payload projection requires a single scalar payload",
-                enum_name, target_arm.variant_name
-            ));
-        }
-        let tag = resolved.tag;
-        let variant_name = target_arm.variant_name.clone();
-        let declared_payload_type_name = resolved.decl.payload_type_name.clone();
-        let scrutinee_value = drive_legacy_expression_v1(self, port, scrutinee.clone())?;
-        let payload_type = payload_mir_type(declared_payload_type_name.as_deref()).or_else(|| {
-            self.function_state
-                .type_ctx
-                .value_types
-                .get(&scrutinee_value)
-                .and_then(|ty| concrete_enum_payload_type(enum_name, ty))
-        });
-        let dst = self.next_value_id();
-        self.emit_instruction(MirInstruction::VariantProject {
-            dst,
-            value: scrutinee_value,
-            enum_name: enum_name.to_string(),
-            variant: variant_name,
-            tag,
-            payload_type: payload_type.clone(),
-        })?;
-        self.function_state
-            .type_ctx
-            .value_types
-            .insert(dst, payload_type.unwrap_or(MirType::Unknown));
-        Ok(Some(dst))
+        Ok(PreparedRawEnumMatchRouteV1::BoolSelect {
+            specs: specs.into_boxed_slice(),
+        })
     }
 
     fn resolve_known_variant(
@@ -364,10 +413,10 @@ impl super::MirBuilder {
             })
     }
 
-    fn require_exhaustive_known_arms(
+    fn require_exhaustive_known_arm_names(
         &self,
         enum_name: &str,
-        arms: &[EnumMatchArm],
+        arms: &[ObservedRawEnumMatchArmV1],
     ) -> Result<(), String> {
         let Some(decl) = self.comp_ctx.enum_decls.get(enum_name) else {
             return Err(format!(
@@ -481,22 +530,6 @@ fn null_literal_body(node: &ASTNode) -> bool {
             ..
         }
     )
-}
-
-fn single_projection_arm(arms: &[EnumMatchArm]) -> Option<&EnumMatchArm> {
-    let mut target = None;
-    for arm in arms {
-        match (&arm.binding_name, &arm.body) {
-            (Some(binding), ASTNode::Variable { name, .. }) if binding == name => {
-                if target.replace(arm).is_some() {
-                    return None;
-                }
-            }
-            (None, body) if null_literal_body(body) => {}
-            _ => return None,
-        }
-    }
-    target
 }
 
 fn payload_mir_type(raw: Option<&str>) -> Option<MirType> {
