@@ -580,17 +580,18 @@ largest touched source/check file          = 799
 
 ## Current execution row
 ```text
-Closed: RAW-BLOCKEXPR-PREPARED-DESCENT0-I0-R0 (T1, one atomic commit).
-Caller: raw expression dispatcher ASTNode::BlockExpr arm.
-Owner: PreparedRawBlockExprV1 in focused raw-expression-dispatch child module.
-Delete: inline exit scan, diagnostic ownership, direct prelude loop, direct tail descent.
+Design stop: RAW-TRYCATCH-FUNCTION-STATE-TRANSACTION0-D0 (T2).
+Caller: statement surface ASTNode::TryCatch -> cf_try_catch_with_port_v1.
+Reason: no bounded T1 remains; TryCatch mixes route selection, block allocation,
+deferred-return state, cleanup admission, three body descents and manual restore.
 
-Preserved: all-prelude admission before effects, exact diagnostic, source order,
-same child port, tail once, failure precedence, accepted surface and result.
-Evidence: BlockExpr 27/27; focused prepared owner 6/6; shared/replacement/pointer
-guards; cargo check; exact old-edge census; max touched source/check 735 lines.
-Fallback / retry / compatibility owner / grammar delta: 0.
-Current stop: fresh production live-edge census; no following row is selected.
+Must decide: exact captured state; success/every-failure restoration; primary
+versus restoration error precedence; body ownership; disable-route compatibility
+owner and sunset; one atomic old-terminal/manual-state delete set.
+Forbid: AST carrier wrapper, implicit failure-behavior improvement, old facade,
+fallback/retry, Return/Throw/QMark changes, new feature or Ownership/View work.
+
+No production/test/check edit is authorized during D0.
 ```
 Lambda capture authority and all feature additions remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
