@@ -1,6 +1,7 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl};
 use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use crate::mir::builder::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
+use crate::mir::builder::main_expansion::VerifiedRawRootExpansionV1;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
 use crate::mir::builder::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use crate::mir::builder::program_root_lowering::ProgramDeferredStaticBoxLifecycleV1;
@@ -229,9 +230,11 @@ fn shared_root_kernel_lends_each_instance_method_to_one_stack_port() {
     let ASTNode::Program { statements, .. } = root.clone() else {
         panic!("capture seam must parse a Program");
     };
+    let expansion =
+        VerifiedRawRootExpansionV1::from_program(&root).expect("verified Script expansion");
     let mut port = RecordingOrdinaryPortV1::default();
     let result = builder
-        .lower_program_root_with_callable_port_v1(statements, &root, &mut port)
+        .lower_program_root_with_callable_port_v1(statements, &root, &expansion, &mut port)
         .expect("shared root kernel");
     let module = builder.finalize_module(result).expect("module");
 

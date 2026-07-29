@@ -3,7 +3,6 @@
 //! Purpose: Collect non-callable declaration facts before lowering
 //!
 //! Responsibilities:
-//! - Detect static box Main with main() method (app vs script mode)
 //! - Index user-defined boxes before AST lowering
 //! - Record narrow verified static scalar facts
 //!
@@ -12,35 +11,6 @@
 use super::declaration_order::sorted_method_entries;
 use super::MirBuilder;
 use crate::ast::ASTNode;
-
-/// Detect if AST contains static box Main with main() method
-///
-/// Used to determine:
-/// - true  => App mode (Main.main is entry)
-/// - false => Script/Test mode (top-level Program runs sequentially)
-pub(super) fn has_main_static(ast: &ASTNode) -> bool {
-    use crate::ast::ASTNode as N;
-    if let N::Program { statements, .. } = ast {
-        for st in statements {
-            if let N::BoxDeclaration {
-                name,
-                methods,
-                is_static,
-                ..
-            } = st
-            {
-                if *is_static && name == "Main" {
-                    if let Some(m) = methods.get("main") {
-                        if let N::FunctionDeclaration { .. } = m {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    false
-}
 
 /// Unified declaration indexing (Phase A): collect symbols before lowering
 ///

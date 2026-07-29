@@ -586,14 +586,14 @@ def main() -> int:
         "FinalizeModule",
         "VerifiedRawRootExpansionV1::from_program",
         "prepare_module()",
-        "lower_normal_default_program_root_catalog_v1(&source)",
+        "lower_normal_default_program_root_catalog_v1(&source, &expansion)",
         "finalize_module",
     ):
         require(normal_root_lifecycle, fragment, f"normal lifecycle contract {fragment}")
     lifecycle_anchors = (
         "VerifiedRawRootExpansionV1::from_program",
         "prepare_module()",
-        "lower_normal_default_program_root_catalog_v1(&source)",
+        "lower_normal_default_program_root_catalog_v1(&source, &expansion)",
         "finalize_module",
     )
     kernel_anchors = (
@@ -611,6 +611,14 @@ def main() -> int:
         raise AssertionError("normal Program kernel root clone drift")
     if normal_root_lifecycle.count("self.ast.clone()") != 1:
         raise AssertionError("normal Program source root clone implementation drift")
+    if normal_root_lifecycle.count("let expansion = VerifiedRawRootExpansionV1::from_program") != 1:
+        raise AssertionError("verified root expansion handoff issuer drift")
+    require(program_root_lowering, "expansion.is_app_mode()", "verified root route consumer")
+    for retired in ("has_main_static", "root_is_app_mode.unwrap_or_else"):
+        if retired in program_root_lowering or retired in production_code(
+            ROOT / "src/mir/builder/declaration_indexer.rs"
+        ):
+            raise AssertionError(f"retired root route classifier returned: {retired}")
     for forbidden in (
         "build_module(",
         "compile_legacy",
@@ -632,7 +640,7 @@ def main() -> int:
     issuer = admission.get("request_issuer_anchor", "")
     if normal_pipeline.count(issuer) != admission.get("request_issuer_calls"):
         raise AssertionError("normal Program admission issuer drift")
-    selected_call = "lower_normal_default_program_root_catalog_v1(&source)"
+    selected_call = "lower_normal_default_program_root_catalog_v1(&source, &expansion)"
     if normal_root_lifecycle.count(selected_call) != admission.get("selected_lifecycle_calls"):
         raise AssertionError("selected Program lifecycle caller drift")
     if normal_root_lifecycle.count("PreparedRawRootPartitionV1") != admission.get(

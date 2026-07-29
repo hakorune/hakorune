@@ -11,6 +11,7 @@ use hakorune_mir_builder::BoxCompilationContext;
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::declaration_order::sorted_method_entries;
 use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
+use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::module_draft_collector::ModuleDraftCollectorV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortV1;
@@ -52,6 +53,7 @@ impl MirBuilder {
     pub(in crate::mir::builder) fn lower_normal_default_program_root_catalog_v1(
         &mut self,
         source: &PreparedNormalDefaultProgramRootV1,
+        expansion: &VerifiedRawRootExpansionV1<'_>,
     ) -> Result<ValueId, NormalDefaultRootCatalogLifecycleErrorV1> {
         let lowering_statements = source.clone_lowering_statements();
         let catalog =
@@ -66,20 +68,27 @@ impl MirBuilder {
             .map_err(|error| {
                 NormalDefaultRootCatalogLifecycleErrorV1::CatalogInstall(error.to_string().into())
             })?;
-        self.lower_program_root_after_catalog_install_v1(lowering_statements, source.source_ast())
-            .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into()))
+        self.lower_program_root_after_catalog_install_v1(
+            lowering_statements,
+            source.source_ast(),
+            expansion,
+        )
+        .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into()))
     }
 
     fn lower_program_root_after_catalog_install_v1(
         &mut self,
         statements: Vec<ASTNode>,
         snapshot: &ASTNode,
+        expansion: &VerifiedRawRootExpansionV1<'_>,
     ) -> Result<ValueId, String> {
         let mut collector = ModuleDraftCollectorV1::default();
         let result = {
             let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
             let mut port = RawInvocationChildPortV1::new(&mut module_port);
-            self.lower_program_root_with_callable_port_v1(statements, snapshot, &mut port)
+            self.lower_program_root_with_callable_port_v1(
+                statements, snapshot, expansion, &mut port,
+            )
         }?;
         let drafts = collector.into_draft_functions();
         self.current_module
@@ -96,6 +105,7 @@ impl MirBuilder {
         &mut self,
         statements: Vec<ASTNode>,
         snapshot: &ASTNode,
+        expansion: &VerifiedRawRootExpansionV1<'_>,
         callables: &mut Port,
     ) -> Result<ValueId, String>
     where
@@ -112,9 +122,7 @@ impl MirBuilder {
             module.metadata.static_data_plans = plans;
         }
 
-        let is_app_mode = self
-            .root_is_app_mode
-            .unwrap_or_else(|| declaration_indexer::has_main_static(snapshot));
+        let is_app_mode = expansion.is_app_mode();
         self.root_is_app_mode = Some(is_app_mode);
         self.lower_program_statements_with_callable_port_v1(statements, is_app_mode, callables)
     }

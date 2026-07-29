@@ -134,16 +134,18 @@ impl ModuleBuilderInvocationSessionV1 {
         let result = {
             let builder = self.builder_mut();
             (|| {
-                VerifiedRawRootExpansionV1::from_program(source.source_ast()).map_err(|error| {
-                    NormalDefaultRootCatalogLifecycleErrorV1::RootExpansion(
-                        format!("[mir/main-expansion/preflight] {error:?}").into(),
-                    )
-                })?;
+                let expansion = VerifiedRawRootExpansionV1::from_program(source.source_ast())
+                    .map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::RootExpansion(
+                            format!("[mir/main-expansion/preflight] {error:?}").into(),
+                        )
+                    })?;
                 builder.prepare_module().map_err(|error| {
                     NormalDefaultRootCatalogLifecycleErrorV1::PrepareModule(error.into())
                 })?;
 
-                let result_value = builder.lower_normal_default_program_root_catalog_v1(&source)?;
+                let result_value =
+                    builder.lower_normal_default_program_root_catalog_v1(&source, &expansion)?;
                 builder.finalize_module(result_value).map_err(|error| {
                     NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into())
                 })
@@ -176,6 +178,24 @@ mod tests {
         let current = MirBuilder::new();
         let config = BuilderInvocationConfigV1::snapshot_for_raw(&current, None);
         ModuleBuilderInvocationSessionV1::open(&current, config)
+    }
+
+    #[test]
+    fn verified_expansion_disposition_reaches_script_and_app_root_lowering() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        for (source, expected_app_mode) in [
+            ("42", false),
+            ("static box Main { main() { return 0 } }", true),
+        ] {
+            let source = NyashParser::parse_from_string(source).expect("route source");
+            let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
+            let completed = session()
+                .complete_normal_default_program_root_catalog_lifecycle(source)
+                .expect("verified route must lower");
+            let (session, _) = completed.into_parts();
+
+            assert_eq!(session.builder().root_is_app_mode, Some(expected_app_mode));
+        }
     }
 
     #[test]

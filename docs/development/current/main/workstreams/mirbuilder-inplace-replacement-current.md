@@ -72,9 +72,9 @@ Closed:  REPL-TYPED-PROGRAM-INGRESS0-D0
 Closed:  REPL-TYPED-PROGRAM-INGRESS0-I0-R0
 Closed:  POST-MACRO-PROGRAM-ADMISSION0-D0
 Closed:  STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0
-Current: NORMAL-DEFAULT-ROOT-EXPANSION-ROUTE-HANDOFF0-I0-R0
-Pack:    MODULE-LIFECYCLE0
-Ceremony: T1, one atomic production replacement
+Current: MIRBUILDER-POST-ROOT-EXPANSION-HANDOFF-LIVE-EDGE-CENSUS0-D0
+Pack:    read-only live-edge census
+Ceremony: design stop; production edit 0
 ```
 
 R1 closeout:
@@ -821,51 +821,54 @@ quick gate                                           = unrelated pre-existing
   docs/reference/language/EBNF.md naming-token failure
 ```
 
-## Current execution brief
+## Current design stop
 
-`NORMAL-DEFAULT-ROOT-EXPANSION-ROUTE-HANDOFF0-I0-R0` / parent
-`MIRBUILDER-POST-CONSTRUCTOR-BATCH-LIVE-EDGE-CENSUS0-D0` / T1 /
-`MODULE-LIFECYCLE0`.
+`MIRBUILDER-POST-ROOT-EXPANSION-HANDOFF-LIVE-EDGE-CENSUS0-D0`
 
 ```text
-Named production chain:
-  NormalDefaultPublishedPipelineV1
-  -> complete_normal_default_program_root_catalog_lifecycle
-  -> lower_normal_default_program_root_catalog_v1
-  -> lower_program_root_with_callable_port_v1
+Read-only:
+  enumerate remaining live competing MirBuilder authorities after the verified
+  root-route handoff. Select at most one named production edge whose old
+  authority can be deleted in the same bounded replacement commit.
 
-Change:
-  bind the existing VerifiedRawRootExpansionV1 once before prepare_module,
-  borrow-thread it through the selected normal Program lifecycle, and derive
-  root_is_app_mode only from its Script/App variant before statement effects.
+Do not:
+  infer the next row from the previous candidate ranking, widen grammar,
+  activate View/Ownership, or create a caller-zero route.
+```
 
-Atomic delete:
+## Latest closeout
+
+`NORMAL-DEFAULT-ROOT-EXPANSION-ROUTE-HANDOFF0-I0-R0` / T1 /
+`MODULE-LIFECYCLE0` is closed.
+
+```text
+authority:
+  VerifiedRawRootExpansionV1 is issued once before prepare_module and borrowed
+  through the selected normal Program kernel; is_app_mode is consumed once.
+
+deleted:
   declaration_indexer::has_main_static definition and sole caller
   root_is_app_mode.unwrap_or_else ambient fallback
-  second AST App/Script classification
-  immediate discard of the verified expansion receipt
+  second source AST Script/App classification
 
-Preserve:
-  invalid/duplicate Main fails at RootExpansion before prepare_module
-  CatalogSeal/CatalogInstall/RootLower/Finalize order and diagnostics
-  one root_is_app_mode publication for existing raw nested-static observation
+preserved:
+  invalid/duplicate Main RootExpansion precedence
+  CatalogSeal/CatalogInstall/RootLower/Finalize ordering
+  root_is_app_mode publication for the existing raw observer
   Main/helper/body, catalog/index/static-data, collector/publication behavior
-  explicit compatibility routes, fallback/retry/reselection = 0
+  explicit compatibility, fallback/retry/reselection = 0
 
-Evidence:
-  Script and App route disposition from the receipt
-  invalid Main precedence
-  general Program MIR/result parity
-  late failure leaves live Builder unchanged and reusable
-  shared guard: from_program issuer=1, handoff consumer=1,
-    has_main_static/unwrap fallback=0
-
-Stop:
-  no AST clone/reparse/source reread/self-referential storage
-  no Main/helper grammar or diagnostic change
-  do not remove root_is_app_mode before its raw observer migrates
-  no raw_source_projection/Stage-B activation, new failure owner, or new guard
-  every source/check file remains below 800 lines
+evidence:
+  Script/App disposition handoff fixture             = green
+  invalid Main precedence                            = green
+  general Program MIR/result parity                  = green
+  late failure candidate isolation/compiler reuse    = green
+  shared root guard / binary-only lane guard          = green
+  release build                                      = green
+  quick gate                                         = unrelated pre-existing
+    docs/reference/language/EBNF.md naming-token failure
+  new source/test/check file                         = 0
+  largest touched source/check file                  = 792
 ```
 
 ## Latest closeout
@@ -1055,7 +1058,8 @@ R47 NONMAIN-STATIC-BOX-METHOD-BATCH-SSOT0-I0-R0 closed
 R48 MIRBUILDER-POST-STATIC-METHOD-BATCH-LIVE-EDGE-CENSUS0-D0 closed: constructor batch selected
 R49 INSTANCE-BOX-CONSTRUCTOR-BATCH-SSOT0-I0-R0 closed
 R50 MIRBUILDER-POST-CONSTRUCTOR-BATCH-LIVE-EDGE-CENSUS0-D0 closed: root expansion handoff selected
-R51 NORMAL-DEFAULT-ROOT-EXPANSION-ROUTE-HANDOFF0-I0-R0 current
+R51 NORMAL-DEFAULT-ROOT-EXPANSION-ROUTE-HANDOFF0-I0-R0 closed
+R52 MIRBUILDER-POST-ROOT-EXPANSION-HANDOFF-LIVE-EDGE-CENSUS0-D0 current design stop
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset

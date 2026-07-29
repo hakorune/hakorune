@@ -129,6 +129,13 @@ impl<'src> VerifiedRawRootExpansionV1<'src> {
             _ => Err(MainExpansionErrorV1::DuplicateMainBox),
         }
     }
+
+    /// The verified expansion is the only selected normal Script/App route
+    /// authority. Program lowering consumes this disposition without
+    /// inspecting the source again.
+    pub(in crate::mir::builder) const fn is_app_mode(&self) -> bool {
+        matches!(self, Self::App(_))
+    }
 }
 
 impl<'src> VerifiedMainExpansionV1<'src> {
