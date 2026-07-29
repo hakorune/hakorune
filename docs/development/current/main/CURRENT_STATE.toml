@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MODULE-FINALIZATION-FUNCTION-METADATA0-I0-R0 is closed: shared finalization snapshots value types and merges current origin-caller rows through one prepared owner before return/PHI inference. MIRBUILDER-LIVE-EDGE-CENSUS8 is the next stop; final conformance must settle JoinModule before Ownership, View, and later features."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS8 is closed: no facade-only publication or raw/program I0 is admissible; the one selected boundary is FINALIZE0-CONDITIONFN-RET0-D0. JoinModule disposition remains mandatory before final conformance, Ownership, View, and later features."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
+current_design_stop = "FINALIZE0-CONDITIONFN-RET0-D0"
 current_execution_row = ""
-current_execution_summary = "Fresh live-edge census only: select at most one real production authority reduction or one bounded D0. Do not pre-authorize raw/static-Main, no-header Call, Loop/CorePlan, detached assets, JoinModule, Ownership, View, or features."
+current_execution_summary = "Design only: decide the lifecycle disposition of the always-inserted condition_fn/1 compatibility stub and its name-special Call materializer. No implementation is authorized until one owner, exact reachability, and a retirement condition are selected."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

@@ -32,27 +32,46 @@ Parent:        MIRBUILDER-LIVE-PRODUCTION-RESET0-D0
 Latest landed: MODULE-FINALIZATION-FUNCTION-METADATA0-I0-R0
 Result:        shared finalization snapshots function metadata through one
                prepared owner before existing return/PHI inference
-Latest design: fresh live-edge census
-Executable:    none — `MIRBUILDER-LIVE-EDGE-CENSUS8` is a design stop
+Latest design: `FINALIZE0-CONDITIONFN-RET0-D0`
+Executable:    none — bounded finalization design stop
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`MIRBUILDER-LIVE-EDGE-CENSUS8` — select one remaining authority edge
+`FINALIZE0-CONDITIONFN-RET0-D0` — classify the remaining synthetic condition
+compatibility authority
 
 ```text
-Scope:
-  take a fresh production and explicit-compatibility census after function
-  metadata closeout. Select at most one named replacement or one bounded D0.
+Change:
+  decide one disposition for the finalization-time `condition_fn/1` insertion
+  and the Call materializer's same-name special case; do not add a wrapper.
 
-Must preserve:
-  one execution, no fallback/retry, explicit non-growing compatibility sunsets,
-  and a same-commit old-edge deletion for every implementation row.
+Contract:
+  preserve normal/default's single pipeline and existing result behavior. The
+  decision must distinguish raw/reference compatibility from normal reachability
+  and name one owner, one exact surface, and one retirement condition.
 
-Do not select automatically:
-  raw/static-Main, no-header Call, selected-invocation Loop/CorePlan, detached
-  assets, JoinModule, Ownership, View, or new language features.
+Done:
+  select retire, an existing typed owner, or one bounded compatibility owner;
+  record whether a same-scope I0/R0 exists. `condition_fn` does not become a
+  normal/default planner or a fallback route.
+
+Stop:
+  return to design if retirement changes JSON-lexer semantics, requires a
+  second session/route, or cannot remove both synthetic insertion and direct
+  name special-casing under one authority.
+```
+
+## Census8 closeout
+
+```text
+MIRBUILDER-LIVE-EDGE-CENSUS8
+  publication/pipeline                   = NoSafeLiveI0 (sole commit terminal)
+  Program root / raw compatibility        = NoSafeLiveI0
+  finalization metadata projections       = already replaced
+  selected bounded design                 = FINALIZE0-CONDITIONFN-RET0-D0
+  JoinModule                              = remains R3-only; not reactivated
 ```
 
 ## Latest closeout
