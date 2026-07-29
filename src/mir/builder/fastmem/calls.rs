@@ -76,22 +76,64 @@ impl FastMemIntrinsicSpec {
     }
 }
 
-pub(in crate::mir::builder) fn lower_fastmem_function_call_with_port_v1<Port>(
+pub(in crate::mir::builder) struct PreparedFastMemIntrinsicV1 {
+    route: PreparedFastMemIntrinsicRouteV1,
+}
+
+enum PreparedFastMemIntrinsicRouteV1 {
+    Selected(FastMemIntrinsicSpec),
+    Forbidden(Box<str>),
+    ArityMismatch {
+        call: &'static str,
+        expected: usize,
+        actual: usize,
+    },
+}
+
+impl PreparedFastMemIntrinsicV1 {
+    pub(in crate::mir::builder) fn prepare(name: &str, actual: usize) -> Self {
+        let route = match lookup_fastmem_intrinsic(name) {
+            None => PreparedFastMemIntrinsicRouteV1::Forbidden(name.into()),
+            Some(spec) if actual != spec.arity.expected() => {
+                PreparedFastMemIntrinsicRouteV1::ArityMismatch {
+                    call: spec.call_name,
+                    expected: spec.arity.expected(),
+                    actual,
+                }
+            }
+            Some(spec) => PreparedFastMemIntrinsicRouteV1::Selected(spec),
+        };
+        Self { route }
+    }
+
+    fn into_spec(self) -> Result<FastMemIntrinsicSpec, String> {
+        match self.route {
+            PreparedFastMemIntrinsicRouteV1::Selected(spec) => Ok(spec),
+            PreparedFastMemIntrinsicRouteV1::Forbidden(call) => Err(format!(
+                "[freeze:contract][fastmem/forbidden_call] call={call}"
+            )),
+            PreparedFastMemIntrinsicRouteV1::ArityMismatch {
+                call,
+                expected,
+                actual,
+            } => Err(format!(
+                "[freeze:contract][fastmem/arity] call={call} expected={expected} actual={actual}"
+            )),
+        }
+    }
+}
+
+pub(in crate::mir::builder) fn lower_prepared_fastmem_function_call_with_port_v1<Port>(
     builder: &mut MirBuilder,
     region: FastMemRegionId,
-    name: String,
+    intrinsic: PreparedFastMemIntrinsicV1,
     arguments: Vec<ASTNode>,
     port: &mut Port,
 ) -> Result<ValueId, String>
 where
     Port: RawAstChildLoweringPortV1,
 {
-    let Some(spec) = lookup_fastmem_intrinsic(&name) else {
-        return Err(format!(
-            "[freeze:contract][fastmem/forbidden_call] call={}",
-            name
-        ));
-    };
+    let spec = intrinsic.into_spec()?;
     lower_fastmem_intrinsic_with(builder, region, spec, &arguments, |builder, index| {
         drive_legacy_expression_v1(builder, port, arguments[index].clone())
     })
@@ -107,24 +149,12 @@ fn lower_fastmem_intrinsic_with<Lower>(
 where
     Lower: FnMut(&mut MirBuilder, usize) -> Result<ValueId, String>,
 {
-    let call = spec.call_name;
-    let expected = spec.arity.expected();
-    if arguments.len() != expected {
-        return Err(format!(
-            "[freeze:contract][fastmem/arity] call={} expected={} actual={}",
-            call,
-            expected,
-            arguments.len()
-        ));
-    }
-
     match spec.intrinsic {
         FastMemIntrinsic::Addr => {
             let arg = lower_argument(builder, 0)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::AddrOf, vec![arg])
         }
         FastMemIntrinsic::CurrentAllocOwnerId => {
-            ensure_no_fastmem_args(call, &arguments)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::CurrentAllocOwnerId, Vec::new())
         }
         FastMemIntrinsic::OwnerEq => {
@@ -246,10 +276,10 @@ where
     }
 }
 
-pub(in crate::mir::builder) fn lower_fastmem_method_call_with_port<Port>(
+pub(in crate::mir::builder) fn lower_prepared_fastmem_method_call_with_port_v1<Port>(
     builder: &mut MirBuilder,
     region: FastMemRegionId,
-    method: &str,
+    intrinsic: PreparedFastMemIntrinsicV1,
     arguments: &[ASTNode],
     port: &mut Port,
     input: &Port::MethodCallInput,
@@ -257,12 +287,7 @@ pub(in crate::mir::builder) fn lower_fastmem_method_call_with_port<Port>(
 where
     Port: crate::mir::builder::calls::MethodCallDescentPortV1,
 {
-    let name = format!("mem.{method}");
-    let Some(spec) = lookup_fastmem_intrinsic(&name) else {
-        return Err(format!(
-            "[freeze:contract][fastmem/forbidden_call] call={name}"
-        ));
-    };
+    let spec = intrinsic.into_spec()?;
     lower_fastmem_intrinsic_with(builder, region, spec, arguments, |builder, index| {
         crate::mir::builder::calls::lower_method_call_argument_v1(builder, port, input, index)
     })
@@ -281,18 +306,6 @@ where
         values.push(lower_argument(builder, index)?);
     }
     Ok(values)
-}
-
-fn ensure_no_fastmem_args(call: &str, arguments: &[ASTNode]) -> Result<(), String> {
-    if arguments.is_empty() {
-        Ok(())
-    } else {
-        Err(format!(
-            "[freeze:contract][fastmem/arity] call={} expected=0 actual={}",
-            call,
-            arguments.len()
-        ))
-    }
 }
 
 fn lookup_fastmem_intrinsic(name: &str) -> Option<FastMemIntrinsicSpec> {
@@ -457,4 +470,56 @@ fn fastmem_const_integer_value(builder: &MirBuilder, value_id: ValueId) -> Optio
                 _ => None,
             })
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        FastMemIntrinsicArity, PreparedFastMemIntrinsicRouteV1, PreparedFastMemIntrinsicV1,
+    };
+
+    #[test]
+    fn intrinsic_preflight_seals_vocabulary_arity_and_rejections_once() {
+        for (name, expected) in [
+            ("mem.addr", 1),
+            ("mem.currentAllocOwnerId", 0),
+            ("mem.ownerEq", 2),
+            ("mem.localFreePush", 2),
+            ("mem.freeHeadPush", 2),
+            ("mem.atomicRemoteHeadPush", 2),
+            ("mem.atomicRemoteHeadDrain", 1),
+            ("mem.drainRemoteListToLocal", 2),
+            ("mem.localFreePop", 1),
+            ("mem.freeHeadPop", 1),
+            ("mem.assumeSameOwner", 2),
+            ("mem.assumeRemoteOwner", 1),
+            ("mem.assumeLocalFreeBlockNext", 1),
+            ("mem.assumeFreeHeadBlockNext", 1),
+            ("mem.assumeRemoteFreeBlockNext", 1),
+            ("mem.assumeLocalFreeNonEmpty", 1),
+            ("mem.assumeFreeHeadNonEmpty", 1),
+            ("mem.assumeTableLength", 2),
+            ("mem.assumeIndexInRange", 2),
+        ] {
+            let prepared = PreparedFastMemIntrinsicV1::prepare(name, expected);
+            let PreparedFastMemIntrinsicRouteV1::Selected(spec) = prepared.route else {
+                panic!("{name}/{expected} must select");
+            };
+            assert_eq!(spec.arity.expected(), expected);
+        }
+
+        assert!(matches!(
+            PreparedFastMemIntrinsicV1::prepare("mem.unknown", 0).route,
+            PreparedFastMemIntrinsicRouteV1::Forbidden(_)
+        ));
+        assert!(matches!(
+            PreparedFastMemIntrinsicV1::prepare("mem.addr", 2).route,
+            PreparedFastMemIntrinsicRouteV1::ArityMismatch {
+                call: "mem.addr",
+                expected: 1,
+                actual: 2,
+            }
+        ));
+        assert_eq!(FastMemIntrinsicArity::Zero.expected(), 0);
+    }
 }

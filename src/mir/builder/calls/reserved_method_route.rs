@@ -23,6 +23,7 @@ enum PreparedReservedMethodCallV1 {
     Ordinary,
     FastMem {
         region: crate::mir::instruction::FastMemRegionId,
+        intrinsic: crate::mir::builder::fastmem::calls::PreparedFastMemIntrinsicV1,
     },
     MirDebug {
         method: crate::mir::policies::source_method_reserved_route::MirDebugMethodV1,
@@ -51,7 +52,13 @@ fn prepare_reserved_method_call_v1(
             let region = region.ok_or_else(|| {
                 "[freeze:contract][source-method-route/fastmem-context-missing]".to_string()
             })?;
-            Ok(PreparedReservedMethodCallV1::FastMem { region })
+            let name = format!("mem.{method}");
+            let intrinsic =
+                crate::mir::builder::fastmem::calls::PreparedFastMemIntrinsicV1::prepare(
+                    &name,
+                    arguments.len(),
+                );
+            Ok(PreparedReservedMethodCallV1::FastMem { region, intrinsic })
         }
         SourceMethodReservedRouteDecisionV1::MirDebug { method, label } => {
             Ok(PreparedReservedMethodCallV1::MirDebug { method, label })
@@ -82,15 +89,16 @@ where
     )?;
     match prepared {
         PreparedReservedMethodCallV1::Ordinary => Ok(ReservedMethodCallOutcomeV1::Ordinary),
-        PreparedReservedMethodCallV1::FastMem { region } => {
-            let value = crate::mir::builder::fastmem::calls::lower_fastmem_method_call_with_port(
-                builder,
-                region,
-                syntax.method(),
-                syntax.arguments(),
-                port,
-                input,
-            )?;
+        PreparedReservedMethodCallV1::FastMem { region, intrinsic } => {
+            let value =
+                crate::mir::builder::fastmem::calls::lower_prepared_fastmem_method_call_with_port_v1(
+                    builder,
+                    region,
+                    intrinsic,
+                    syntax.arguments(),
+                    port,
+                    input,
+                )?;
             Ok(ReservedMethodCallOutcomeV1::Emitted(value))
         }
         PreparedReservedMethodCallV1::MirDebug { method, label } => {

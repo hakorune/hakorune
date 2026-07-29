@@ -243,6 +243,27 @@ fn selected_fastmem_arity_failure_precedes_argument_effects() {
 }
 
 #[test]
+fn selected_fastmem_forbidden_failure_precedes_argument_effects() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("fastmem_method_forbidden/0".into());
+    let body = vec![ASTNode::FastMemRegion {
+        contract: "PageMapV0".into(),
+        body: vec![method("mem", "unknown", vec![integer(1)])],
+        span: Span::unknown(),
+    }];
+    let error =
+        crate::mir::builder::stmts::block_stmt::build_block(&mut builder, body).unwrap_err();
+    assert!(error.contains("[freeze:contract][fastmem/forbidden_call] call=mem.unknown"));
+    assert!(!instructions(&builder).any(|instruction| matches!(
+        instruction,
+        MirInstruction::Const {
+            value: crate::mir::ConstValue::Integer(1),
+            ..
+        }
+    )));
+}
+
+#[test]
 fn selected_fastmem_table_id_preflight_precedes_argument_effects() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("fastmem_method_table_id/0".into());

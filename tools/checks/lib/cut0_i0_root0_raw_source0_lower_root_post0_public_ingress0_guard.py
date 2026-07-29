@@ -21,6 +21,9 @@ NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
 RAW_EXPRESSION_DISPATCH = ROOT / "src/mir/builder/raw_expression_dispatch/mod.rs"
 BUILDER_BUILD = ROOT / "src/mir/builder/builder_build.rs"
 FUNCTION_CALL_PREFLIGHT = ROOT / "src/mir/builder/calls/function_call_preflight_route.rs"
+RESERVED_METHOD_ROUTE = ROOT / "src/mir/builder/calls/reserved_method_route.rs"
+RESERVED_METHOD_TESTS = ROOT / "src/mir/builder/calls/reserved_method_route_tests.rs"
+FASTMEM_CALLS = ROOT / "src/mir/builder/fastmem/calls.rs"
 CALL_BUILD = ROOT / "src/mir/builder/calls/build.rs"
 RAW_UNARY_OWNER = ROOT / "src/mir/builder/ops/unary.rs"
 OPS_MOD = ROOT / "src/mir/builder/ops/mod.rs"
@@ -153,6 +156,9 @@ def main() -> int:
             RAW_EXPRESSION_DISPATCH,
             BUILDER_BUILD,
             FUNCTION_CALL_PREFLIGHT,
+            RESERVED_METHOD_ROUTE,
+            RESERVED_METHOD_TESTS,
+            FASTMEM_CALLS,
             CALL_BUILD,
             RAW_UNARY_OWNER,
             OPS_MOD,
@@ -176,6 +182,9 @@ def main() -> int:
     raw_expression_dispatch = code_only(texts[RAW_EXPRESSION_DISPATCH])
     builder_build = production_code(BUILDER_BUILD)
     function_call_preflight = production_code(FUNCTION_CALL_PREFLIGHT)
+    reserved_method_route = production_code(RESERVED_METHOD_ROUTE)
+    reserved_method_tests = texts[RESERVED_METHOD_TESTS]
+    fastmem_calls = production_code(FASTMEM_CALLS)
     call_build = production_code(CALL_BUILD)
     raw_unary_owner = code_only(texts[RAW_UNARY_OWNER])
     ops_mod = code_only(texts[OPS_MOD])
@@ -217,6 +226,38 @@ def main() -> int:
     ):
         if forbidden in str_prepare:
             raise AssertionError(f"direct str prepare gained effect/retry edge: {forbidden}")
+    for fragment in (
+        "struct PreparedFastMemIntrinsicV1",
+        "PreparedFastMemIntrinsicRouteV1::Selected",
+        "PreparedFastMemIntrinsicRouteV1::Forbidden",
+        "PreparedFastMemIntrinsicRouteV1::ArityMismatch",
+    ):
+        require(fastmem_calls, fragment, f"FastMem prepared receipt {fragment}")
+    if fastmem_calls.count("let route = match lookup_fastmem_intrinsic(name)") != 1:
+        raise AssertionError("FastMem vocabulary lookup issuer count drift")
+    for retired in (
+        "if arguments.len() != expected",
+        "ensure_no_fastmem_args",
+        "lower_fastmem_function_call_with_port_v1",
+        "lower_fastmem_method_call_with_port",
+    ):
+        if retired in fastmem_calls:
+            raise AssertionError(f"FastMem lower-side authority returned: {retired}")
+    if function_call_preflight.count("PreparedFastMemIntrinsicV1::prepare(") != 1:
+        raise AssertionError("direct FastMem receipt issuer count drift")
+    if reserved_method_route.count("PreparedFastMemIntrinsicV1::prepare(") != 1:
+        raise AssertionError("method FastMem receipt issuer count drift")
+    for fragment in (
+        "fn lower_prepared_fastmem_function_call_with_port_v1",
+        "fn lower_prepared_fastmem_method_call_with_port_v1",
+    ):
+        if fastmem_calls.count(fragment) != 1:
+            raise AssertionError(f"FastMem prepared terminal definition drift: {fragment}")
+    require(
+        reserved_method_tests,
+        "selected_fastmem_forbidden_failure_precedes_argument_effects",
+        "FastMem forbidden pre-child evidence",
+    )
     for fragment in (
         "struct PreparedRawNewExpressionV1",
         "enum PreparedRawNewExpressionRouteV1",

@@ -35,6 +35,7 @@ enum PreparedRawFunctionPreflightRouteV1 {
     FastMem {
         region: FastMemRegionId,
         arguments: Vec<ASTNode>,
+        intrinsic: crate::mir::builder::fastmem::calls::PreparedFastMemIntrinsicV1,
     },
     Ordinary {
         completion: PreparedRawOrdinaryFunctionCompletionV1,
@@ -73,7 +74,16 @@ impl PreparedRawFunctionPreflightV1 {
             PreparedRawFunctionPreflightRouteV1::Math { arguments }
         } else if let Some(region) = builder.current_fastmem_region() {
             if name.starts_with("mem.") {
-                PreparedRawFunctionPreflightRouteV1::FastMem { region, arguments }
+                let intrinsic =
+                    crate::mir::builder::fastmem::calls::PreparedFastMemIntrinsicV1::prepare(
+                        &name,
+                        arguments.len(),
+                    );
+                PreparedRawFunctionPreflightRouteV1::FastMem {
+                    region,
+                    arguments,
+                    intrinsic,
+                }
             } else {
                 PreparedRawFunctionPreflightRouteV1::Ordinary {
                     completion: prepare_ordinary_function_completion_v1(&name, arguments),
@@ -159,13 +169,13 @@ where
         PreparedRawFunctionPreflightRouteV1::Math { arguments } => {
             builder.lower_math_function_with_port_v1(port, prepared.name, arguments)
         }
-        PreparedRawFunctionPreflightRouteV1::FastMem { region, arguments } => {
-            crate::mir::builder::fastmem::calls::lower_fastmem_function_call_with_port_v1(
-                builder,
-                region,
-                prepared.name,
-                arguments,
-                port,
+        PreparedRawFunctionPreflightRouteV1::FastMem {
+            region,
+            arguments,
+            intrinsic,
+        } => {
+            crate::mir::builder::fastmem::calls::lower_prepared_fastmem_function_call_with_port_v1(
+                builder, region, intrinsic, arguments, port,
             )
         }
         PreparedRawFunctionPreflightRouteV1::Ordinary { completion } => builder
@@ -502,6 +512,20 @@ mod tests {
         )
         .unwrap_err();
         assert!(error.contains("[fastmem/forbidden_call]"));
+        assert_eq!(port.expression_count, 4);
+
+        let wrong_arity = PreparedRawFunctionPreflightV1::prepare(
+            &builder,
+            "mem.addr".to_string(),
+            vec![integer(1), integer(2)],
+        );
+        let error = lower_prepared_raw_function_preflight_with_port_v1(
+            &mut builder,
+            &mut port,
+            wrong_arity,
+        )
+        .unwrap_err();
+        assert!(error.contains("[fastmem/arity] call=mem.addr expected=1 actual=2"));
         assert_eq!(port.expression_count, 4);
     }
 
