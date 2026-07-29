@@ -142,7 +142,7 @@ where
         _index: usize,
         elements: &[ASTNode],
     ) -> Result<(ValueId, String), String> {
-        builder.build_typed_array_literal(elements.to_vec())
+        builder.build_typed_array_literal_with_port_v1(self, elements.to_vec())
     }
 
     fn lower_record_constructor_initializer(
@@ -153,7 +153,11 @@ where
         class: &str,
         arguments: &[ASTNode],
     ) -> Result<ValueId, String> {
-        builder.build_record_constructor_value(class.to_string(), arguments.to_vec())
+        builder.build_record_constructor_value_with_port_v1(
+            self,
+            class.to_string(),
+            arguments.to_vec(),
+        )
     }
 }
 

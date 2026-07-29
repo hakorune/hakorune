@@ -7,6 +7,7 @@ use crate::mir::{MirBuilder, MirInstruction, ValueId};
 use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::local_statement_descent::{
     drive_local_statement_v1, LocalStatementDescentPortV1, LocalStatementSyntaxViewV1,
+    RawLegacyLocalInputV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -141,6 +142,49 @@ impl LocalStatementDescentPortV1 for RecordingLocalPortV1 {
             return Err("record".to_string());
         }
         builder.build_record_constructor_value(class.to_string(), arguments.to_vec())
+    }
+}
+
+#[derive(Default)]
+struct RecordingRawAstPortV1 {
+    integer_children: Vec<i64>,
+}
+
+impl RecursiveChildLoweringPortV1 for RecordingRawAstPortV1 {
+    type BodyInput = Vec<ASTNode>;
+    type StatementInput = ASTNode;
+    type ExpressionInput = ASTNode;
+
+    fn lower_body(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _input: Self::BodyInput,
+    ) -> Result<ValueId, String> {
+        Err("unexpected body descent".to_string())
+    }
+
+    fn lower_statement(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _input: Self::StatementInput,
+    ) -> Result<ValueId, String> {
+        Err("unexpected statement descent".to_string())
+    }
+
+    fn lower_expression(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::ExpressionInput,
+    ) -> Result<ValueId, String> {
+        let ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            ..
+        } = input
+        else {
+            return Err("unexpected non-integer child".to_string());
+        };
+        self.integer_children.push(value);
+        crate::mir::builder::emission::constant::emit_integer(builder, value)
     }
 }
 
@@ -406,4 +450,44 @@ fn record_special_hook_precedes_constructor_effects() {
     assert_eq!(port.events(), vec![EventV1::Syntax, EventV1::Record(0)]);
     assert_eq!(instruction_count(&builder), 0);
     assert!(!builder.function_state.binding_ctx.contains("pair"));
+}
+
+#[test]
+fn raw_special_initializers_retain_one_caller_port_for_every_child() {
+    let mut builder = builder("lcl0_special_port_continuity/0");
+    builder.comp_ctx.register_record_decl(
+        "Pair".to_string(),
+        Vec::new(),
+        &[FieldDecl {
+            name: "value".to_string(),
+            declared_type_name: None,
+            is_weak: false,
+            default_value: None,
+        }],
+    );
+    let _scope = LexicalScopeGuard::new(&mut builder);
+    let input = RawLegacyLocalInputV1::new(
+        vec!["xs".to_string(), "pair".to_string()],
+        vec![
+            Some(Box::new(ASTNode::ArrayLiteral {
+                elements: vec![integer(1), integer(2)],
+                span: Span::unknown(),
+            })),
+            Some(Box::new(ASTNode::New {
+                class: "Pair".to_string(),
+                arguments: vec![integer(7)],
+                type_arguments: Vec::new(),
+                field_initializers: Vec::new(),
+                span: Span::unknown(),
+            })),
+        ],
+        vec![Some("Array<u8>".to_string()), None],
+    );
+    let mut port = RecordingRawAstPortV1::default();
+
+    drive_local_statement_v1(&mut builder, &mut port, &input).unwrap();
+
+    assert_eq!(port.integer_children, vec![1, 2, 7]);
+    assert!(builder.function_state.binding_ctx.contains("xs"));
+    assert!(builder.function_state.binding_ctx.contains("pair"));
 }

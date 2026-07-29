@@ -36,8 +36,21 @@ impl super::MirBuilder {
         elements: Vec<ASTNode>,
     ) -> Result<(ValueId, String), String> {
         let mut port = RawLegacyChildLoweringPortV1;
+        self.build_typed_array_literal_with_port_v1(&mut port, elements)
+    }
+
+    /// Lower a typed Local array initializer without replacing the caller's
+    /// recursive child port.
+    pub(in crate::mir::builder) fn build_typed_array_literal_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        elements: Vec<ASTNode>,
+    ) -> Result<(ValueId, String), String>
+    where
+        Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
+    {
         let (value, contract_id) = self.build_array_literal_with_contract_and_port_v1(
-            &mut port,
+            port,
             elements,
             Some("local-literal"),
         )?;

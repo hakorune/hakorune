@@ -42,6 +42,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     stmts_readme_path = "src/mir/builder/stmts/README.md"
     variable_stmt_path = "src/mir/builder/stmts/variable_stmt.rs"
+    collection_literals_path = "src/mir/builder/collection_literals.rs"
     control_setup_paths = (
         "src/mir/builder/control_flow/plan/parts/wiring_tests.rs",
         "src/mir/builder/control_flow/plan/parts/associated_source/raw_parity_tests.rs",
@@ -62,6 +63,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     stmts_root = _read(root, stmts_root_path)
     stmts_readme = _read(root, stmts_readme_path)
     variable_stmt = _read(root, variable_stmt_path)
+    collection_literals = _read(root, collection_literals_path)
     control_setups = tuple(_read(root, path) for path in control_setup_paths)
 
     _require_count(
@@ -299,17 +301,23 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     )
     if re.search(r"\bfn\s+drive_raw_local_statement_v1\s*\(", local_descent):
         _fail("LCL0 retired raw Local facade returned")
-    _require_count(
-        local_descent,
+    for owner_call, label in (
+        ("builder.build_typed_array_literal_with_port_v1(self, elements.to_vec())", "typed array"),
+        ("builder.build_record_constructor_value_with_port_v1(", "record constructor"),
+    ):
+        _require_count(local_descent, owner_call, 1, f"caller-port {label} owner")
+    for retired in (
         "builder.build_typed_array_literal(elements.to_vec())",
-        1,
-        "existing typed-array owner reuse",
-    )
-    _require_count(
-        local_descent,
         "builder.build_record_constructor_value(class.to_string(), arguments.to_vec())",
+        "RawLegacyChildLoweringPortV1",
+    ):
+        if retired in local_descent:
+            _fail(f"LCL0 raw special initializer retained old port edge: {retired}")
+    _require_count(
+        collection_literals,
+        "fn build_typed_array_literal_with_port_v1<Port>",
         1,
-        "existing record-constructor owner reuse",
+        "typed-array caller-port owner",
     )
 
     if re.search(r"\bdrive_raw_local_statement_v1\s*\(", production_rust_source):
@@ -390,6 +398,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         "initializer_input_and_child_failures_publish_no_binding_or_later_initializer",
         "typed_array_special_hook_precedes_direct_builder_effects_and_preclaim_reaches_local",
         "record_special_hook_precedes_constructor_effects",
+        "raw_special_initializers_retain_one_caller_port_for_every_child",
     ):
         if fixture not in local_descent_tests:
             _fail(f"missing LCL0-S0 fixture: {fixture}")

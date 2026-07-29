@@ -579,9 +579,9 @@ largest touched source/check file          = 799
 ```
 
 ## Current execution row
-`RAW-LOCAL-SPECIAL-INITIALIZER-PORT-CONTINUITY0-I0-R0` — accepted
+`RAW-LOCAL-SPECIAL-INITIALIZER-PORT-CONTINUITY0-I0-R0` — closed
 ```text
-Pack / ceremony: DESCENT-SPINE0 / T1, one atomic I0/R0.
+Closeout: DESCENT-SPINE0 / T1, one atomic I0/R0; old production edges = 0.
 Named caller: drive_local_statement_v1 through the blanket raw Local port.
 New route:
   typed array -> bounded build_typed_array_literal_with_port_v1
@@ -600,8 +600,8 @@ Evidence:
   failure/reuse tests, and the shared Local descent guard.
 ```
 The caller-zero raw-expression legacy facade and dead leaf wrappers remain a
-cleanup backlog. Live production authority wins priority; run a fresh census
-after this row instead of selecting the next cleanup in advance.
+cleanup backlog. A fresh census must again prefer a live production authority;
+View/Ownership and new grammar remain parked.
 Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
 1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 closed (direct callers 15 -> 5)

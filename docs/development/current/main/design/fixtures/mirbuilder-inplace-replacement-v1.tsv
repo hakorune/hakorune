@@ -33,7 +33,7 @@ cell	MIRBUILDER-CALL-OBJECT-TEST-EVIDENCE0-R0	CALL-OBJECT0	cfgtest-call-object-f
 cell	MIRBUILDER-BINDING-STMT-TEST-EVIDENCE0-R0	DESCENT-SPINE0	cfgtest-local+assignment+compound-facades	raw-driver+exact-selected-owners	binding-statement-test:build_expression-calls	cargo-test:local+assignment+compound	-	closed
 cell	MIRBUILDER-EXIT-CONTROL-PLAN-TEST-EVIDENCE0-R0	CONTROL0	cfgtest-return+if+control-plan-facades	raw-driver+typed-return+exact-local-setup	exit-control-plan-test:build_expression-calls	cargo-test:return+if+control-plan	-	closed
 cell	MIRBUILDER-BUILD-EXPRESSION-FACADE0-RET0	DESCENT-SPINE0	caller-zero-build_expression-facade	drive_raw_legacy_expression_v1	builder_build.rs:build_expression-definition	cargo-check+inplace-guard	-	closed
-cell	RAW-LOCAL-SPECIAL-INITIALIZER-PORT-CONTINUITY0-I0-R0	DESCENT-SPINE0	stmts/local_statement_descent.rs:blanket-raw-Local-port	typed-array-with-port+record-constructor-with-port	Local-special-initializer:fresh-RawLegacy-port-edges	cargo-test:Local-raw+snapshot-parity+reuse	-	accepted
+cell	RAW-LOCAL-SPECIAL-INITIALIZER-PORT-CONTINUITY0-I0-R0	DESCENT-SPINE0	stmts/local_statement_descent.rs:blanket-raw-Local-port	typed-array-with-port+record-constructor-with-port	Local-special-initializer:fresh-RawLegacy-port-edges	cargo-test:Local-raw+snapshot-parity+reuse	-	closed
 asset	PORT-AWARE-CALLABLE-DRAFT	DESCENT-SPINE0	-	port_aware_function_draft_impl.rs	-	-	IntegrateNow	closed
 asset	GENERIC-DRAFT-COLLECTOR	FUNCTION-LIFECYCLE0	-	module_draft_collector.rs	-	-	IntegrateNow	closed
 asset	CANDIDATE-SESSION	MODULE-LIFECYCLE0	-	module_invocation_session.rs	-	-	IntegrateNow	closed
