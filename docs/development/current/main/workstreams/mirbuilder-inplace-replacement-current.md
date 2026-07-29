@@ -593,23 +593,23 @@ new source/test/check file           = 0
 largest touched source/check file    = 798
 ```
 
-## Current design stop
+## Current execution
 
-`MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0`
+`MIR-INTERPRETER-DETACHED-ASSET-RETIRE0-RET0` / T1 / replacement credit 0
 
 ```text
-Audit:
-  reuse the existing post-macro partition after runtime Box collection
-  prove exact filename/imports/optimizer/Legacy result transport and preserve
-  escape-pass/interpreter/exit behavior
+Change:
+  delete uncompiled runner/modes/mir_interpreter.rs and its false caller rows
 
-Candidate:
-  Program -> dedicated typed MIR-interpreter request
-  NonProgram -> one caller-local compatibility owner with a named sunset
+Contract:
+  modes/mod.rs declaration, path/include seam, and external caller remain zero;
+  live backend/mir_interpreter and product/keep/reference behavior do not move
+
+Done:
+  source path/symbol and stale inventory rows are zero; existing shared guards green
 
 Stop:
-  runtime scan needs AST consumption/clone, typed failure retries compatibility,
-  imports/config/result parity fails, or backend/View/Ownership changes
+  any real module/caller edge appears, or deletion requires a replacement route
 ```
 
 Compatibility sunset:
@@ -706,7 +706,8 @@ R8  REPL-TYPED-PROGRAM-INGRESS0-D0 closed
 R9  REPL-TYPED-PROGRAM-INGRESS0-I0-R0 closed
 R10 POST-MACRO-PROGRAM-ADMISSION0-D0 closed
 R11 STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0 closed
-R12 MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0 current
+R12 MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0 closed: NoProductionCaller
+R13 MIR-INTERPRETER-DETACHED-ASSET-RETIRE0-RET0 current
 
 after every bounded retirement:
   run a fresh live-edge census

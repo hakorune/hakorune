@@ -1,20 +1,20 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0 is closed. MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0 is the sole design stop."
+status = "MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0 closed as NoProductionCaller. MIR-INTERPRETER-DETACHED-ASSET-RETIRE0-RET0 is the sole execution row."
 date = "2026-07-29"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0"
-current_execution_row = ""
-current_execution_summary = "T1 read-only audit: inspect NyashRunner::execute_mir_interpreter_mode after prepared imports, complete macro expansion, and runtime Box-declaration collection. Reuse the existing post-macro Program/NonProgram partition exactly once; prove that Program can transport exact filename/imports/optimizer/Legacy result while NonProgram remains one caller-local residual with a named sunset. Preserve runtime setup order, optional escape pass, interpreter execution/exit projection, and diagnostics. Do not edit production Rust during D0. No clone, reparse, second partition, shared compatibility executor, typed failure retry, fallback, backend/View/Ownership change, or new file."
+current_design_stop = ""
+current_execution_row = "MIR-INTERPRETER-DETACHED-ASSET-RETIRE0-RET0"
+current_execution_summary = "T1 detached-asset retirement with replacement credit 0: delete uncompiled src/runner/modes/mir_interpreter.rs and remove its false caller rows from the raw caller manifest, HMI inventory/report, and entry-result guard. Prove modes/mod.rs has no declaration, execute_mir_interpreter_mode has zero callers, and no path/include seam exists. Do not add a typed request, production owner, semantic fixture, module declaration, compatibility owner, or replacement route. Preserve the live src/backend/mir_interpreter authority and all product/keep/reference execution behavior."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
 script_result_tail0_s0_status = "closed"
 
 active_lane = "MirBuilder in-place replacement"
-active_lane_status = """The eight-pack conformance census remains repository-wide Residual. PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 physically deleted the complete caller-zero Stage-B activation/carrier/function-session/physical-publication closure while preserving source-neutral receipts and all live generic owners. PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0 moved the import-bundle production caller onto the existing typed Program lifecycle and atomically deleted its ProgramV0Compatibility origin, raw-binding tombstone, and compile_legacy edge. REPL-TYPED-PROGRAM-INGRESS0-I0-R0 likewise moved eval_line and physically deleted ReplCompatibility from lowering input and raw source authority while preserving VM/session behavior. POST-MACRO-PROGRAM-ADMISSION0-D0 accepted one shared source-only Program/NonProgram partition with caller-local residual execution. STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0 is closed: Program uses typed ingress and only explicit NonProgram compatibility remains under its sunset. MIR interpreter is the next read-only design stop. Direct ProgramV0-to-MIR JSON lowering remains distinct. MirBuilder cleanup remains ahead of source-level Ownership/View or other unimplemented features. All historical detail below in this compatibility field is non-authoritative and must not select work.
+active_lane_status = """The eight-pack conformance census remains repository-wide Residual. PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 physically deleted the complete caller-zero Stage-B activation/carrier/function-session/physical-publication closure while preserving source-neutral receipts and all live generic owners. PROGRAM-JSON-V0-TYPED-PROGRAM-INGRESS0-I0-R0 moved the import-bundle production caller onto the existing typed Program lifecycle and atomically deleted its ProgramV0Compatibility origin, raw-binding tombstone, and compile_legacy edge. REPL-TYPED-PROGRAM-INGRESS0-I0-R0 likewise moved eval_line and physically deleted ReplCompatibility from lowering input and raw source authority while preserving VM/session behavior. POST-MACRO-PROGRAM-ADMISSION0-D0 accepted one shared source-only Program/NonProgram partition with caller-local residual execution. STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0 is closed: Program uses typed ingress and only explicit NonProgram compatibility remains under its sunset. MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0 corrected a manifest false-positive: the runner source is uncompiled and has no production caller, so it is selected for detached retirement rather than route construction. Direct ProgramV0-to-MIR JSON lowering remains distinct. MirBuilder cleanup remains ahead of source-level Ownership/View or other unimplemented features. All historical detail below in this compatibility field is non-authoritative and must not select work.
 LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is closed.
 LANGUAGE-TRYLESS-POSTFIX-CATCH-prime-r1 fixes the language target: source try
 and throw are rejected in both language profiles; postfix catch is the
@@ -440,7 +440,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """STAGE1-DIRECT-POST-MACRO-PROGRAM-INGRESS0-I0-R0 is closed with Program legacy reachability zero and one sunset-bound NonProgram residual. MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0 is the sole read-only design stop."""
+latest_card_summary = """MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0 closed as NoProductionCaller. The sole row retires the detached runner source and corrects its false caller inventories without adding a route."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -643,7 +643,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIR-INTERPRETER-POST-MACRO-PROGRAM-INGRESS0-D0"
+current_blocker_token = "MIR-INTERPRETER-DETACHED-ASSET-RETIRE0-RET0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
