@@ -578,33 +578,32 @@ new source/test/check/task file            = 0
 largest touched source/check file          = 799
 ```
 
-## Current design stop
-`MIRBUILDER-PUBLIC-ROOT-API0-D0`
+## Current execution
+`MIRBUILDER-ROOT-TEST-EVIDENCE0-R0` — T2 breaking series 1/3
 ```text
-Closed:
-  MIRCOMPILER-PUBLIC-PROGRAM-ADMISSION0-I0-R0
-  Public compile names/signatures now seal Program into typed normal ingress.
-  Legacy selector/candidate and compiler production build_module edge are zero.
-  Focused gates are green; Wasm's 17 full-suite failures reproduce unchanged
-  on baseline HEAD as the existing undefined-label backend failure.
+Change:
+  Move Program-root verification/Brand evidence to MirCompiler and delete the
+  obsolete ignored Phase6/Phase7 plus ignored bare-Literal tests.
 
-Select:
-  Census the remaining public MirBuilder::build_module callers and contract.
-  Decide narrow/delete/internalize without changing grammar or test authority.
+Contract:
+  Public build_module stays until series 3. Raw non-Program and minimal-path
+  evidence stays for series 2. Production, grammar, MIR, and diagnostics do not move.
 
-Do not:
-  Edit production before D0, delete cfg(test) or external API evidence by
-  assumption, add fallback, or open language/Ownership/View work.
+Done:
+  Selected direct test callers are zero; remaining callers are exact and all
+  surviving tests/builds are green.
+
+Stop:
+  Do not wrap a Raw test in Program, invent a test facade, or change lowering.
 ```
-Post-macro retirement order after each fresh census:
+Breaking series selected by `MIRBUILDER-PUBLIC-ROOT-API0-D0`:
 ```text
-Stage1 current -> selfhost preexpand -> VM-Hako -> VM fallback -> VM keep
--> caller-zero source-hint helpers -> wasm benchmark
--> public arbitrary-AST contract D0 -> final Legacy/build_module retirement
+1 MIRBUILDER-ROOT-TEST-EVIDENCE0-R0 current
+2 MIRBUILDER-RAW-TEST-EVIDENCE-LOCALIZE0-R0
+3 MIRBUILDER-PUBLIC-ROOT-API0-RET0
 ```
-The first seven caller rows reuse one whole-file Program seal. The public
-`MacroBox::expand`, `--macro-expand-child`, AST JSON v0, and dump/roundtrip
-tooling keep arbitrary-node authority and never gain MIR compilation authority.
+External consumers are unknown, not zero. Migration is `MirCompiler::compile*`
+for Program; no public arbitrary-root replacement is introduced.
 
 Compatibility sunset:
 ```text
@@ -714,7 +713,7 @@ R29 POST-MACRO-ROOT-CONTRACT0-D0 closed: WholeFileProgram
 R30 STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0 closed
 R31 SELFHOST-MACRO-PREEXPAND-TYPED-PROGRAM-INGRESS0-I0-R0 closed
 R32 VM-HAKO-POST-MACRO-TYPED-PROGRAM-INGRESS0-I0-R0 closed
-R33 VM fallback closed; R34 VM keep closed; R35 helper DEL0 closed; R36 public contract D0 closed; R37 public Program admission closed; R38 MIRBUILDER-PUBLIC-ROOT-API0-D0 current
+R33 VM fallback closed; R34 VM keep closed; R35 helper DEL0 closed; R36 public contract D0 closed; R37 public Program admission closed; R38 public root D0 closed; R39 root test evidence current
 
 after every bounded retirement:
   fresh-census then select one named production edge or detached Delete asset
