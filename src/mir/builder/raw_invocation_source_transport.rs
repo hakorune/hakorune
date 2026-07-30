@@ -44,17 +44,33 @@ pub(in crate::mir::builder) struct LocatedRawNodeV1<T> {
     node: T,
     root: RawInvocationRootLineageV1,
     site: SourceNodeSiteV1,
+    body_kind: SourceBodyKindV1,
 }
 
 impl<T> LocatedRawNodeV1<T> {
-    fn new(node: T, root: RawInvocationRootLineageV1, site: SourceNodeSiteV1) -> Self {
-        Self { node, root, site }
+    fn new(
+        node: T,
+        root: RawInvocationRootLineageV1,
+        site: SourceNodeSiteV1,
+        body_kind: SourceBodyKindV1,
+    ) -> Self {
+        Self {
+            node,
+            root,
+            site,
+            body_kind,
+        }
     }
 
     pub(in crate::mir::builder) fn into_parts(
         self,
-    ) -> (T, RawInvocationRootLineageV1, SourceNodeSiteV1) {
-        (self.node, self.root, self.site)
+    ) -> (
+        T,
+        RawInvocationRootLineageV1,
+        SourceNodeSiteV1,
+        SourceBodyKindV1,
+    ) {
+        (self.node, self.root, self.site, self.body_kind)
     }
 }
 
@@ -73,6 +89,7 @@ impl<T> RawInvocationSourceTransportV1<T> {
             node,
             root,
             SourcePathV1::function_body().node(),
+            SourceBodyKindV1::Function,
         ))
     }
 
@@ -81,6 +98,7 @@ impl<T> RawInvocationSourceTransportV1<T> {
             node,
             RawInvocationRootLineageV1::ScriptRoot,
             SourcePathV1::program_body().node(),
+            SourceBodyKindV1::Program,
         ))
     }
 
@@ -92,13 +110,17 @@ impl<T> RawInvocationSourceTransportV1<T> {
         self,
     ) -> (
         T,
-        Option<(RawInvocationRootLineageV1, SourceNodeSiteV1)>,
+        Option<(
+            RawInvocationRootLineageV1,
+            SourceNodeSiteV1,
+            SourceBodyKindV1,
+        )>,
         Option<RawUnlocatedPortalV1>,
     ) {
         match self {
             Self::Located(located) => {
-                let (node, root, site) = located.into_parts();
-                (node, Some((root, site)), None)
+                let (node, root, site, body_kind) = located.into_parts();
+                (node, Some((root, site, body_kind)), None)
             }
             Self::UnlocatedCompatibility { node, reason } => (node, None, Some(reason)),
         }
@@ -121,18 +143,11 @@ impl RawInvocationSourceContextV1 {
     ) -> (T, Self) {
         let (node, located, reason) = transport.into_parts();
         let context = match (located, reason) {
-            (Some((root, site)), None) => {
-                let body_kind = if site.segments() == [SourcePathSegmentV1::ProgramBodyRoot] {
-                    SourceBodyKindV1::Program
-                } else {
-                    SourceBodyKindV1::Function
-                };
-                Self::Located {
-                    root,
-                    site,
-                    body_kind: Some(body_kind),
-                }
-            }
+            (Some((root, site, body_kind)), None) => Self::Located {
+                root,
+                site,
+                body_kind: Some(body_kind),
+            },
             (None, Some(reason)) => Self::UnlocatedCompatibility(reason),
             _ => unreachable!("[freeze:contract][raw-invocation/source-transport-state]"),
         };
@@ -172,6 +187,7 @@ impl RawInvocationSourceContextV1 {
                     statement,
                     root.clone(),
                     child,
+                    kind,
                 ))
             }
             Self::UnlocatedCompatibility(reason) => {
@@ -594,6 +610,37 @@ where
 #[cfg(test)]
 mod lambda_source_tests {
     use super::*;
+
+    #[test]
+    fn root_transport_carries_explicit_body_profile() {
+        let (_, script) = RawInvocationSourceContextV1::from_transport(
+            RawInvocationSourceTransportV1::script_root(Vec::<ASTNode>::new()),
+        );
+        let RawInvocationSourceContextV1::Located {
+            site, body_kind, ..
+        } = script
+        else {
+            panic!("script root must be located");
+        };
+        assert_eq!(site.segments(), &[SourcePathSegmentV1::ProgramBodyRoot]);
+        assert_eq!(body_kind, Some(SourceBodyKindV1::Program));
+
+        let (_, function) =
+            RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
+                Vec::<ASTNode>::new(),
+                RawInvocationRootLineageV1::Main(RawSourceLocatorV1::for_test(
+                    0,
+                    "Main",
+                    "main",
+                    "Main.main/0",
+                    0,
+                )),
+            ));
+        let RawInvocationSourceContextV1::Located { body_kind, .. } = function else {
+            panic!("function root must be located");
+        };
+        assert_eq!(body_kind, Some(SourceBodyKindV1::Function));
+    }
 
     #[test]
     fn lambda_statement_keeps_exact_parent_source_site() {
