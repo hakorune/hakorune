@@ -115,8 +115,8 @@ Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corrected
 Latest landed: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — `507851393c`
-Current execution: none (design stop: `RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0`)
-Next design stop: `RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0`
+Current execution: `RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0`
+Next design stop: none; reopen only if the bounded transport row hits a hard stop
 History:       Git history and the short landed tail below
 ```
 
@@ -272,10 +272,12 @@ Stop preserved:
   no fallback/retry, and no new per-row guard.
 ```
 
-## Current design consultation
+## Current design consultation and selected execution
 
-`RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0` is the active stop. The compact
-question packet is:
+`RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0` is closed Accept-corrected. The
+external answer confirms the one-pre-RootLower admission principle, but the
+worker review rejects the proposed monolithic semantic-owner I0 as NoSafeSlice.
+The compact question packet remains the consultation record:
 
 ```text
 docs/development/current/main/investigations/
@@ -285,21 +287,50 @@ docs/development/current/main/investigations/
 It explicitly keeps Hakorune source `try`/`throw` rejected, treats postfix
 `catch`/`cleanup` as the canonical target, and treats `ASTNode::TryCatch` as an
 internal compatibility carrier. No semantic-owner implementation is authorized
-until the packet returns a bounded row with one source authority, one terminal,
-preserved diagnostics, and no fallback/retry.
+by this closeout; the first executable row is the narrower transport cutover below.
+
+## RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0 — T1 execution brief
+
+Change:
+  At `MirBuilder::lower_program_root_after_catalog_install_v1`, replace the
+  generic Script-root transport's path-derived body-kind inference with an
+  explicit Program-root profile. Keep `ProgramBodyRoot` and original Program
+  ordinals; delete only the selected `site == ProgramBodyRoot` kind inference.
+
+Contract:
+  One existing selected production caller, one source profile, and one
+  `RawInvocationSourceContextV1` handoff. No `FunctionOwnerIdV1`, resolver,
+  forest, projection, semantic admission terminal, Lambda publication,
+  RecoverableFailure, or catch/cleanup language change. Hakorune has no source
+  `try`/`throw`; postfix `catch`/`cleanup` and `ASTNode::TryCatch` remain the
+  existing compatibility boundary.
+
+Done:
+  Existing raw source-transport tests prove Script roots carry
+  `SourceBodyKindV1::Program` explicitly, non-Script roots retain their current
+  contracts, and Program ordinal/source-site parity is unchanged. Run the
+  existing focused transport tests, `cargo check --lib`, the current pointer
+  guard, and the shared cut0 guard. Keep touched source/check files below 800
+  lines; add no new guard/test file.
+
+Stop:
+  Return to `RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0` if the row needs a
+  semantic resolver, a new owner/forest/projection, a second source traversal,
+  a new catch/cleanup meaning, a raw retry/fallback, or any Program-to-Function
+  coercion. Do not widen this row to catalog movement or Script semantic
+  admission.
 
 Corrected forward queue:
 
 ```text
-1. RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0 (current design stop)
-2. RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0
-3. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0
-4. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-S0
-5. RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-I0-R0
+1. RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0 (current execution)
+2. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0
+3. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-S0 (design gate before execution)
+4. RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-I0-R0 (only if bounded closure is proven)
 
 Rule:
   S0 may be at most one behavior-neutral commit and must be followed immediately
-  by row 6. Complete sources co-seal Program + Script owner + forest +
+  by its paired I0/R0. Complete sources co-seal Program + Script owner + forest +
   projection. ExistingRootLowerAuthority carries none of those and runs the
   already-selected RootLower once. No route retries another route.
 ```
