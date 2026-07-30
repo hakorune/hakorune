@@ -32,10 +32,10 @@ Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0
 Result:        selected Script direct Box raw compatibility is retired
 Latest landed:  `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-I0-R0`
-Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS22-D0` — closed
+Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS23-D0` — closed
 Latest design:  `NORMAL-SCRIPT-NONBOX-STATEMENT-DISPOSITION0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-PRINT-DIRECT-OWNER0-I0-R0`
-Next census:    `MIRBUILDER-LIVE-EDGE-CENSUS23-D0`
+Next design:    `NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -653,6 +653,48 @@ Next:
 ```
 
 ## Latest census
+
+`MIRBUILDER-LIVE-EDGE-CENSUS23-D0` — read-only, closed: expression facade selected for D0
+
+```text
+Remaining selected compatibility:
+  54 exact kinds
+  = PortAwareExpression 7
+  + StatementControl 17
+  + DeclarationIngress 9
+  + CallObjectHeader 21
+
+Observed seven-kind edge:
+  Literal / Variable / Me / Unary / Binary / Await / Check
+  -> NormalScriptRuntimeStatementAdmissionV1::RawCompatibility
+  -> drive_legacy_statement_v1
+  -> RawInvocationChildPortV1::lower_statement
+  -> build_statement_with_port_v1
+  -> drive_legacy_expression_v1
+
+Finding:
+  build_statement_with_port_v1 has no kind-specific policy for these roots. It
+  writes the root span once, then the raw expression dispatcher writes the same
+  span and lowers through the same RawInvocation port. Descendant MethodCall,
+  New, Field, Call, or control-sensitive shapes therefore do not need a new
+  allowlist: they retain the exact selected port they already receive.
+
+Selected design stop:
+  NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-D0
+
+Required D0:
+  decide one direct drive_legacy_expression_v1 handoff for all seven roots;
+  preserve block order/suffix/termination and every existing expression owner;
+  delete only the seven-kind statement-facade edge in the later atomic I0/R0.
+
+Not selected:
+  Nowait has Future/type/binding/slot publication ordering; Local/Assignment,
+  control/exit, declaration/ingress, and call/object/header remain separate.
+
+R4 census:
+  retain-fenced=2, active compatibility=2, closed=4, unregistered=8.
+  LegacyChildDraftAdmissionV1 remains 37 occurrences / 8 source files.
+```
 
 `MIRBUILDER-LIVE-EDGE-CENSUS22-D0` — read-only, closed: non-Box Script residual registered
 
