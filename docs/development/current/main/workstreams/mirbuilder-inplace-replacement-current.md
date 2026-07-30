@@ -109,9 +109,38 @@ Latest landed: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-PORTAL-RETIRE0-I0-R0-RET0`
 Latest landed: `RAW-LAMBDA-CHILD-OWNER-SOURCE-ADMISSION0-I0-R0`
 Latest design: `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0` — closed, NoSafeSlice
 Latest design: `RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0` — closed, NoSafeSlice
+Latest design: `RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-D0` — accepted, T1
+Next execution: `RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-I0-R0`
 Current design stop: `RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0`
 History:       Git history and the short landed tail below
 ```
+
+## Current execution brief
+
+`RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-I0-R0` · T1 · one atomic I0/R0
+
+**Change:** Carry the original Program ordinal from the once-enumerated
+selected Script work-plan row through runtime filtering, then install one
+`ProgramBody(original_ordinal)` source context at the shared block-port
+boundary. Delete every selected-Script source-site derivation from the compact
+runtime index in the same commit. Keep the compact index only for sequencing
+and suffix bookkeeping; raw/reference work is unchanged.
+
+**Contract:** Source transport only. `PreparedNormalDefaultProgramRootV1` stays
+the sole AST owner and the existing root-level clone count, grammar,
+diagnostics, candidate isolation, and one-execution policy stay unchanged.
+This row does not issue `FunctionOwnerIdV1`, forest, projection, resolver, or
+Lambda publication, and does not create a second source identity.
+
+**Done:** Original Program ordinals survive mixed immediate/runtime filtering
+and suffix consumption; selected Script sites are exact `ProgramBody(n)` rather
+than `Body(compact_index)`; existing Script MIR/diagnostic/reuse parity and the
+current pointer/fast guard are green.
+
+**Stop:** Stop and return to `RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0` if ordinal
+alignment cannot be preserved through suffix consumption, if the shared block
+driver/JoinIR semantics or raw/reference route must change, or if a clone,
+reparse, resolver/forest/owner issuance, fallback, or retry is required.
 
 ## Current design stop
 

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0 is closed as NoSafeSlice. None of ScriptRoot, Main, Cataloged, TopLevel, or InstanceConstructor receives a co-owned FunctionOwnerIdV1 + VerifiedSemanticOwnerForestV1 + VerifiedSourceProjectionV1 on the selected production graph. ScriptRoot is the first missing producer: it owns Program/script source but has no exact semantic function-root authority, and current function projection cannot be fabricated from Program. The next design stop is RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0. Lambda I0/R0, the generic carrier, CallObject, NestedBoxAdmission, Ownership, and View remain parked."
+status = "RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0 is closed as NoSafeSlice. None of ScriptRoot, Main, Cataloged, TopLevel, or InstanceConstructor receives a co-owned FunctionOwnerIdV1 + VerifiedSemanticOwnerForestV1 + VerifiedSourceProjectionV1 on the selected production graph. ScriptRoot is the first missing producer: it owns Program/script source but has no exact semantic function-root authority, and current function projection cannot be fabricated from Program. A narrow T1 source-spine repair is selected first; semantic Script owner design remains the next D0. Lambda I0/R0, the generic carrier, CallObject, NestedBoxAdmission, Ownership, and View remain parked."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0"
-current_execution_row = "none"
-current_execution_summary = "T2 design only: define whether the Program-owned selected Script body can issue exactly one lexical root owner, one semantic owner forest including nested Lambdas, and one exact Program/script source projection before Builder effects. Do not wrap Script in a synthetic FunctionDeclaration, clone/reparse Program, issue owners per physical demand, add a second source/owner registry, change Lambda publication, or mix the other four raw root variants. Close Accept only with one named production producer and exact failure/parity contract; otherwise NoSafeSlice."
+current_execution_row = "RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-I0-R0"
+current_execution_summary = "T1 source-only repair: retain each selected Script runtime statement's original Program ordinal through runtime filtering and install ProgramBody(original_ordinal) exactly once at the shared block-port boundary. Delete compact runtime-index-derived Script source sites in the same commit. No FunctionOwnerIdV1, semantic forest, projection, resolver, grammar, diagnostic, Lambda publication, or source-identity change is included."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
