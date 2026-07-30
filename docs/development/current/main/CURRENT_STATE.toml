@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS35-D0 is closed. The unregistered PHI observer family is a debug-only global collector with three observation hooks and only dedicated tests as consumers; it does not affect PHI allocation, MIR, routing, verification, or diagnostics. JOINMODULE-PHI-OBSERVER-RETIRE0-RET0 is the sole executable row and will delete the observer module, hooks, dedicated test module, exports, README surface, and regenerated native-owner inventory row in one T1 detached deletion."
+status = "JOINMODULE-PHI-OBSERVER-RETIRE0-RET0 is closed. The debug-only global PHI observer, its three hooks, dedicated tests, exports, README surface, and generated native-owner inventory row are deleted with PHI allocation, MIR, routing, verification, diagnostics, and runtime behavior unchanged. MIRBUILDER-LIVE-EDGE-CENSUS36-D0 is the sole read-only design stop; it may register and select at most one RET0, REOWN, or RETAIN-FENCED disposition from the remaining live/reference families."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "JOINMODULE-PHI-OBSERVER-RETIRE0-RET0"
-current_execution_summary = "Perform one atomic T1 detached RET0. Delete src/mir/join_ir/verify_phi_reserved.rs, its join_ir module export, the three cfg(debug_assertions) observe_phi_dst hooks in loop_header_phi_builder.rs, src/mir/builder/phi_observation_tests.rs and its builder module registration, and the README observation row. Regenerate mirbuilder-native-owner-candidate-inventory-v0.json with its existing generator. Preserve PHI allocation/order/types, JoinIR lowering, verification, diagnostics, runtime behavior, and every non-observer test. New source/test/check files, fallback, retry, grammar/route changes, and replacement credit are zero."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS36-D0"
+current_execution_row = "none"
+current_execution_summary = "Read-only Census36. Re-inventory the remaining R4 registry families and live MirBuilder/JoinModule edges after PHI observer retirement. Update the sole R4 fence/residual registry before selecting at most one bounded RET0, REOWN, or RETAIN-FENCED disposition. Do not edit production code, create a second fence ledger, add a compatibility route, or advance Ownership/View."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """MIRBUILDER-LIVE-EDGE-CENSUS35-D0 is closed. The old PHI reserved-region observer is a debug-only global/test asset: three hooks write observations only, and no production decision reads them. JOINMODULE-PHI-OBSERVER-RETIRE0-RET0 is the sole executable T1 detached deletion, including its module/test wiring, README row, and regenerated native-owner inventory. Active compatibility remains zero; R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """JOINMODULE-PHI-OBSERVER-RETIRE0-RET0 is closed. The complete debug-only observer/test/hook/wiring/docs surface is zero, and the generated native-owner inventory is current. The broad merge filter still has four pre-existing Ring0Context initialization failures reproduced at the pre-change HEAD; focused PHI info/remap tests, cargo check, inventory check, and pointer guard are green. MIRBUILDER-LIVE-EDGE-CENSUS36-D0 is the sole read-only stop. Active compatibility and active retirement are both zero; R4 final conformance still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINMODULE-PHI-OBSERVER-RETIRE0-RET0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS36-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -317,8 +317,6 @@ mod route_owned_invocation_inventory; // HEADERPORT0 WIRING-I0-ROUTEINV-S0 polic
 pub(in crate::mir) use located_legacy_lowering::{
     LocatedLegacyLoweringErrorV1, LocatedLegacyLoweringSessionV1,
 };
-#[cfg(test)]
-mod phi_observation_tests;
 mod recursive_child_lowering;
 #[cfg(test)]
 mod recursive_child_lowering_rawport_tests;

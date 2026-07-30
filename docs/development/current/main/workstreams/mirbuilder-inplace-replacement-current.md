@@ -64,7 +64,8 @@ Latest landed: `RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0`
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS34-D0` — closed
 Latest design: `RAW-STATIC-MAIN-COMPAT-BATCH-DISPOSITION0-D0` — RETAIN-FENCED
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS35-D0` — closed
-Next row:      `JOINMODULE-PHI-OBSERVER-RETIRE0-RET0`
+Latest landed: `JOINMODULE-PHI-OBSERVER-RETIRE0-RET0`
+Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS36-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -91,14 +92,14 @@ activation and sunset contract.
 | unregistered | `R4-UNREGISTERED-LLVM-EXPERIMENT-001` — LLVM experiment | feature/env-gated JoinModule mutation route | not normal/default; exact activation/owner not yet registered | undecided; named D0 required before C0 | RET0, REOWN, or RETAIN-FENCED with owner, activation, retire_when |
 | unregistered | `R4-UNREGISTERED-FRONTEND-METADATA-001` — frontend metadata | `frontend::func_meta` / `JoinFuncMetaMap` consumers | activation/owner not yet registered | undecided; named D0 required before C0 | RET0, REOWN, or RETAIN-FENCED with owner, activation, retire_when |
 | unregistered | `R4-UNREGISTERED-CARRIER-BOUNDARY-001` — carrier boundaries | `JumpArgsLayout` and `JoinInlineBoundary` families | live/fenced consumer mapping not yet registered | undecided; named D0 required before C0 | CorePlan/MIR rehome D0, RET0, or RETAIN-FENCED |
-| active retirement | `JOINMODULE-PHI-OBSERVER-SUNSET-001` (promotes `R4-UNREGISTERED-PHI-OBSERVER-001`) | `verify_phi_reserved` global collector/report, three debug observation hooks, dedicated builder/module tests, exports, README and generated owner-inventory row | hooks compile only with debug assertions; observation is enabled/read only by dedicated tests; production decision consumer = 0 | RET0 | `JOINMODULE-PHI-OBSERVER-RETIRE0-RET0`: delete the complete observer/test/wiring/docs surface and regenerate the existing native-owner inventory |
+| closed | `JOINMODULE-PHI-OBSERVER-SUNSET-001` (promotes `R4-UNREGISTERED-PHI-OBSERVER-001`) | former `verify_phi_reserved` global collector/report, three debug observation hooks, dedicated builder/module tests, exports, README and generated owner-inventory row | production decision consumer = 0 before deletion; complete asset now absent | RET0 | retired by `JOINMODULE-PHI-OBSERVER-RETIRE0-RET0`: complete observer/test/hook/wiring/docs surface = 0 and existing native-owner inventory regenerated |
 | unregistered | `R4-UNREGISTERED-AST-FRONTEND-001` — legacy AST frontend | `AstToJoinIrLowerer` plus its fixture/dev-flag closure | production caller = 0; test/reference closure remains | undecided; named D0 required before C0 | `JOINMODULE-AST-FRONTEND-LEGACY-DISPOSITION0-D0` |
 | unregistered | `R4-UNREGISTERED-TEST-HANDLER-001` — cfg(test) bridge handler lane | legacy bridge handlers and owned unit contracts | production caller = 0; test contract remains | undecided; named D0 required before C0 | `JOINMODULE-TEST-HANDLER-LANE-DISPOSITION0-D0` |
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> nested static method and shared instance constructor/method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | RETAIN-FENCED: no exact source occurrence reaches the raw port | fresh `RAW-LOCATED-BODY-TRANSPORT0-D0` may select REOWN only when one function-relative located transport deletes a named production edge; otherwise forced disposition at `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` |
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | undecided; named D0 required before C0 | delete or RETAIN-FENCED reference scope with exact owner, activation, retire_when |
 
 The registry has four registered R3 fences, zero active compatibility residuals,
-one active retirement, eight closed residuals, and six unregistered R3 family
+zero active retirements, nine closed residuals, and six unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
@@ -127,6 +128,47 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`JOINMODULE-PHI-OBSERVER-RETIRE0-RET0` — T1 detached RET0, closed
+
+```text
+Deleted:
+  src/mir/join_ir/verify_phi_reserved.rs;
+  three cfg(debug_assertions) observe_phi_dst hooks;
+  src/mir/builder/phi_observation_tests.rs;
+  join_ir/builder module wiring and JoinIR README observation row.
+
+Regenerated:
+  mirbuilder-native-owner-candidate-inventory-v0.json with the existing
+  tools/rust_lifecycle generator.  Its pre-existing stale baseline was refreshed
+  separately in 5bfb44e4c6; this RET0 records only the exact observer removal.
+
+Preserved:
+  next_value_id allocation; carrier/invariant PHI order and types;
+  JoinIR lowering/verifier; routing, diagnostics, runtime/backend behavior.
+
+Evidence:
+  observer/hook/test symbols = 0;
+  cargo check --lib = green;
+  loop_header_phi_info 3/3 and phi_block_remapper 2/2 = green;
+  native-owner inventory --check and current-state pointer guard = green.
+  The broader merge filter has four Ring0Context-not-initialized failures;
+  the same representative failure reproduces at pre-change HEAD 5bfb44e4c6,
+  so it is not caused by this deletion.
+
+Measured:
+  source/test/README surface = 384 deleted lines;
+  generated inventory delta = 5 additions / 13 deletions;
+  new source/test/check files = 0; replacement credit = 0.
+
+R4:
+  JOINMODULE-PHI-OBSERVER-SUNSET-001 = closed.
+  retain-fenced=4, active compatibility=0, active retirement=0,
+  closed=9, unregistered=6.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS36-D0.
+```
 
 `MIRBUILDER-LIVE-EDGE-CENSUS35-D0` — read-only census, closed
 

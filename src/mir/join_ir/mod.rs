@@ -32,10 +32,6 @@ pub mod lowering;
 // Phase 34-1: Frontend (AST→JoinIR) — skeleton only
 pub mod frontend;
 
-// Phase 72: PHI reserved region verifier
-#[cfg(debug_assertions)]
-pub mod verify_phi_reserved;
-
 // Re-export lowering functions for backward compatibility
 pub use lowering::{lower_funcscanner_trim_to_joinir, lower_skip_ws_to_joinir};
 

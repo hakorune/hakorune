@@ -9830,7 +9830,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_structured",
-      "line": 523,
+      "line": 519,
       "path": "src/mir/join_ir/mod.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -9838,16 +9838,8 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_normalized",
-      "line": 527,
+      "line": 523,
       "path": "src/mir/join_ir/mod.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_all_reserved",
-      "line": 117,
-      "path": "src/mir/join_ir/verify_phi_reserved.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -16682,7 +16674,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "get_function_by_name",
-      "line": 537,
+      "line": 533,
       "path": "src/mir/join_ir/mod.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -18767,10 +18759,10 @@
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 897,
+        "candidate": 896,
         "rejected": 642
       },
-      "surface_count": 1540
+      "surface_count": 1539
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

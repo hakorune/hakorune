@@ -107,10 +107,6 @@ impl LoopHeaderPhiBuilder {
         // Allocate PHI for loop variable
         let loop_var_phi_dst = builder.next_value_id();
 
-        // Phase 72: Observe PHI dst allocation
-        #[cfg(debug_assertions)]
-        crate::mir::join_ir::verify_phi_reserved::observe_phi_dst(loop_var_phi_dst);
-
         // Phase 131-11-H: Set PHI type from entry incoming (init value) only
         // Ignore backedge to avoid circular dependency in type inference
         if let Some(init_type) = builder
@@ -167,10 +163,6 @@ impl LoopHeaderPhiBuilder {
 
             let phi_dst = builder.next_value_id();
 
-            // Phase 72: Observe PHI dst allocation
-            #[cfg(debug_assertions)]
-            crate::mir::join_ir::verify_phi_reserved::observe_phi_dst(phi_dst);
-
             // Phase 131-11-H: Set PHI type from entry incoming (init value) only
             // Ignore backedge to avoid circular dependency in type inference
             if let Some(init_type) = builder
@@ -224,10 +216,6 @@ impl LoopHeaderPhiBuilder {
         // Loop invariants need header PHI (same value from all edges) but NOT exit PHI
         for (name, host_id) in loop_invariants {
             let invariant_phi_dst = builder.next_value_id();
-
-            // Phase 72: Observe PHI dst allocation
-            #[cfg(debug_assertions)]
-            crate::mir::join_ir::verify_phi_reserved::observe_phi_dst(invariant_phi_dst);
 
             // Phase 131-11-H: Set PHI type from entry incoming (init value) only
             if let Some(init_type) = builder
