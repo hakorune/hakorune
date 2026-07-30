@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS31-D0 is closed. Raw static-Main compatibility has NoSafeSlice: selected-normal reachability is zero, while heterogeneous RawLegacy ingress remains unclassified and deletion could change helper-before-root ordering, LegacyEnvironment arguments, diagnostics, and publication. The LegacyChild census found the higher-priority live selected-normal old edge: nested Box raw body descent issues legacy child admissions for ordinary static and instance methods from recursive_child_lowering.rs. NESTED-BOX-RAW-BODY-DISPOSITION0-D0 is the sole read-only design stop."
+status = "NESTED-BOX-RAW-BODY-DISPOSITION0-D0 is closed with NoSafeI0. Selected normal reaches exactly two legacy-symbol issuers for nested static methods and the shared nested instance method/constructor terminal. Existing lowering has only physical symbol/arity; it lacks a durable nested source occurrence/path, and the root callable catalog does not cover nested bodies. A wrapper around LegacyChildDraftAdmissionV1 would be false REOWN. NESTED-BOX-SOURCE-OCCURRENCE0-D0 is the sole design stop: define one enclosing-callable-relative source path and typed StaticMethod / InstanceConstructor / InstanceMethod rows before any production replacement."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "NESTED-BOX-RAW-BODY-DISPOSITION0-D0"
+current_design_stop = "NESTED-BOX-SOURCE-OCCURRENCE0-D0"
 current_execution_row = "none"
-current_execution_summary = "Read-only D0: trace selected normal RawInvocationChildPortV1 nested BoxDeclaration descent to the exact ordinary static/instance LegacyChildDraftAdmissionV1 issuers. Freeze source identity, constructor/header/collector ownership, nested Main rejection, method order, failure/publication parity, and the exact old edges. Select a bounded REOWN only if one source-derived admission can replace each legacy issuer with same-commit deletion and no retry; otherwise record NoSafeSlice or an explicit R4 disposition. Do not edit production during D0."
+current_execution_summary = "Design one source-only nested Box occurrence authority from enclosing callable identity plus exact recursive AST site/path. It must project ordered typed rows for StaticMethod, InstanceConstructor, and InstanceMethod, retain current physical symbol/arity and LegacyReplaceWholePair parity without making those the source identity, preserve nested Main/sync rejection and constructor-before-method depth-first timing, and transport no AST into the final admission. Select a bounded one-commit S0 followed immediately by the same-cell I0/R0 only if the path issuer is exact without clone/reparse or lower-side route redecision."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NESTED-BOX-RAW-BODY-DISPOSITION0-D0"
+current_blocker_token = "NESTED-BOX-SOURCE-OCCURRENCE0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

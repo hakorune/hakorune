@@ -57,7 +57,8 @@ Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS30-D0` — closed
 Latest design:  `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS31-D0` — closed, NoSafeSlice
-Next stop:     `NESTED-BOX-RAW-BODY-DISPOSITION0-D0`
+Latest design:  `NESTED-BOX-RAW-BODY-DISPOSITION0-D0` — closed, NoSafeI0
+Next stop:     `NESTED-BOX-SOURCE-OCCURRENCE0-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -84,11 +85,11 @@ activation and sunset contract.
 | unregistered | `R4-UNREGISTERED-PHI-OBSERVER-001` — phi observer | `verify_phi_reserved` family | activation/owner not yet registered | undecided; named D0 required before C0 | RET0, REOWN, or RETAIN-FENCED with owner, activation, retire_when |
 | unregistered | `R4-UNREGISTERED-AST-FRONTEND-001` — legacy AST frontend | `AstToJoinIrLowerer` plus its fixture/dev-flag closure | production caller = 0; test/reference closure remains | undecided; named D0 required before C0 | `JOINMODULE-AST-FRONTEND-LEGACY-DISPOSITION0-D0` |
 | unregistered | `R4-UNREGISTERED-TEST-HANDLER-001` — cfg(test) bridge handler lane | legacy bridge handlers and owned unit contracts | production caller = 0; test contract remains | undecided; named D0 required before C0 | `JOINMODULE-TEST-HANDLER-LANE-DISPOSITION0-D0` |
-| unregistered | `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001` — selected nested Box raw body descent | recursive `RawInvocationChildPortV1` -> raw `BoxDeclaration` dispatcher -> legacy static/instance child terminals | selected normal function body can reach it; Program/root admission is not its owner | undecided; named D0 required before C0 | `NESTED-BOX-RAW-BODY-DISPOSITION0-D0` |
+| active compatibility | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> nested static method and shared instance constructor/method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | REOWN after exact nested source occurrence authority | `NESTED-BOX-SOURCE-OCCURRENCE0-D0` then one atomic nested-admission I0/R0 deletes both legacy-symbol issuers; otherwise explicit RETAIN-FENCED before C0 |
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | undecided; named D0 required before C0 | delete or RETAIN-FENCED reference scope with exact owner, activation, retire_when |
 
-The registry has two registered R3 fences, one active selected Program/root
-compatibility residual, five closed residuals, and eight unregistered R3 family
+The registry has two registered R3 fences, two active compatibility residuals,
+five closed residuals, and seven unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
@@ -115,6 +116,47 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`NESTED-BOX-RAW-BODY-DISPOSITION0-D0` — T2 design, closed
+
+```text
+Decision:
+  NoSafeI0; exact prerequisite source authority selected.
+
+Live selected-normal edge:
+  active callable body
+  -> RawInvocationChildPortV1
+  -> nested non-Main static / instance Box
+  -> two LegacyChildDraftAdmissionV1::legacy_symbol issuers.
+
+Covered roles:
+  NestedStaticMethod
+  NestedInstanceConstructor
+  NestedInstanceMethod.
+
+Missing capability:
+  enclosing callable identity + exact recursive source site/path + nested Box
+  occurrence. Root callable catalog excludes nested body declarations, while
+  physical symbol/arity alone cannot identify the source occurrence.
+
+Preserve:
+  nested Main pre-effect rejection; sync rejection; static method sort; instance
+  metadata -> constructors -> methods order; receiver physical arity; depth-first
+  child-before-parent collection; LegacyReplaceWholePair parity; candidate-only
+  publication and failure discard.
+
+Reject:
+  type-renaming LegacyChildDraftAdmissionV1; root catalog widening; AST pre-scan,
+  clone, or reparse; constructor/method authority collapse; retry/fallback.
+
+R4:
+  R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001 is promoted to
+  NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001.
+  active compatibility=2, retain-fenced=2, closed=5, unregistered=7.
+
+Next:
+  NESTED-BOX-SOURCE-OCCURRENCE0-D0.
+```
 
 `MIRBUILDER-LIVE-EDGE-CENSUS31-D0` — read-only census, closed
 
