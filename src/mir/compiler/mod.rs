@@ -380,15 +380,6 @@ impl MirCompiler {
         SourceBoundRawPackageV1::bind(&mut self.invocation_identity, request)
     }
 
-    /// RAW-SOURCE0-LOWER0-S0 disconnected package-to-draft owner handoff.
-    /// Public ingress and production execution remain intentionally absent.
-    pub(in crate::mir) fn begin_raw_draft(
-        &self,
-        package: SourceBoundRawPackageV1,
-    ) -> crate::mir::builder::RawDraftInvocationV1 {
-        crate::mir::builder::RawDraftInvocationV1::open(package, &self.builder)
-    }
-
     /// OWNER0's compiler-owned physical bridge.  The package is consumed only
     /// after one real session, shell, and collector have opened from its token.
     pub(in crate::mir) fn begin_canonical_invocation<'a>(

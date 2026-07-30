@@ -282,11 +282,6 @@ mod raw_expansion_receipt_ledger; // ROUTEINV-P0b-RAWLEDGER-S0 disconnected owne
 pub(in crate::mir) use raw_expansion_receipt_ledger::{
     RawCallableMainCompatibilityDispositionV1, SealedRawExpansionReceiptLedgerV1,
 };
-#[allow(dead_code)]
-mod raw_draft_invocation; // RAW-SOURCE0-LOWER0-S0 disconnected child-draft owner
-pub(in crate::mir) use raw_draft_invocation::{RawDraftInvocationV1, RejectedRawDraftInvocationV1};
-#[cfg(test)]
-mod raw_draft_invocation_p0; // RAW-SOURCE0-LOWER0-S0 fixtures
 #[cfg(test)]
 mod raw_expansion_receipt_ledger_p0; // ROUTEINV-P0b-RAWLEDGER-P0 proof matrix
 #[cfg(test)]
