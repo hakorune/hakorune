@@ -104,6 +104,38 @@ If a user-scoped Codex goal explicitly says to stop at design consultation, the
 goal should be considered complete at this stop point after the brief is ready
 and the worktree is clean.
 
+### Premise-reset circuit breaker
+
+Three consecutive `NoSafeSlice` / `NoStandaloneRow` outcomes for the same
+responsibility are not permission to run a fourth edge census. They mean the
+closed question may be valid under a wrong premise.
+
+Stop the selector and write one premise audit inside the existing active card:
+
+```text
+semantic unit definition
+exact body/window membership
+all authoritative classifier/partition arms
+transferred and opaque subtrees
+what the types structurally require (not what their names suggest)
+one counterexample fixture
+```
+
+Read the complete producer/classifier match before drawing the boundary.
+Historical docs, type names, and a partial `rg` result are not substitutes.
+Before resuming the same scope, obtain one independent open-question review
+when another worker/reviewer is available.
+
+Resume only when the definition maps to every classifier arm, the
+counterexample is fixed, and a named production consumer plus old edge are
+known.
+
+Repository-wide census must be resource-bounded. Prefer static search; do not
+reuse benchmark, allocator, or proof harnesses for syntax inventory. External
+process scans default to serial and may use at most two workers. Run one item,
+then a small sample, then print the target count before a full scan. Stop
+immediately if child processes exceed four or aggregate RSS exceeds 8 GiB.
+
 ## Ceremony Tier Selection
 
 Before opening a new design consultation, classify the route/stage cell using

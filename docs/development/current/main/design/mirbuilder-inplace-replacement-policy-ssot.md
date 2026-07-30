@@ -205,6 +205,33 @@ disposition selectorである。production replacementの「D0の次は同scope
 I0/R0」規律をR3へ拡張しない。代わりに、選択時にexact surface、consumer、
 owner、sunset、retire_whenを固定し、closeout後はfresh censusへ戻る。
 
+### Premise-reset breaker
+
+同じproduction責務について`NoSafeSlice` / `NoStandaloneRow`が3回続いたら、
+fresh census規律を一時停止する。4回目の候補edge探索、候補名の差し替え、
+docs-only consultationは禁止する。
+
+既存rolling card内で、次を一度だけ監査する。
+
+```text
+semantic unitの定義
+body / runtime windowのexact membership
+authoritative classifier / partitionの全arm
+別ownerへtransferされるsubtree
+型が構造的に要求する条件（型名からの推測ではない）
+誤った前提を壊す最小counterexample
+```
+
+たとえばScript bodyを決めるときは、Program work-planの全disposition armを
+読む前に「全Program item」または「宣言を除くruntime列」と仮定しては
+ならない。再開には、全armとの対応、counterexample fixture、named
+production consumer、same-commit old-edge deletionが必要である。
+
+repo-wide inventoryはstatic searchを優先し、benchmark／allocator／proof
+harnessをcensus runnerとして流用しない。外部process scanは既定serial、
+最大2並列とし、1件→small sample→対象件数表示のdry-runを先に行う。
+子processが4超またはaggregate RSSが8GiB超なら即停止する。
+
 replacementの実装単位は次で固定する。
 
 ```text

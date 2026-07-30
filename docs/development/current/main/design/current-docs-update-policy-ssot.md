@@ -398,6 +398,11 @@ Zero-result machine-search loop breaker:
 - diagnostic candidate names such as the narrowest-looking component are not
   selection authority unless a rerun proves exactly one root.
 
+The stronger repeated-negative rule lives in
+`agent-current-entry-contract-ssot.md`: three same-responsibility
+`NoSafeSlice` / `NoStandaloneRow` outcomes force one premise audit, not another
+consultation document or census. Keep that audit in the existing rolling card.
+
 If the active blocker is the explicit design-stop frontier, treat that as a
 pause point for goal-driven execution: do not invent a fresh executable owner
 from historical mirrors, and do not use docs-only follow-ups to keep the same
