@@ -75,6 +75,17 @@ def main() -> int:
     brand0 = (ROOT / "src/mir/builder/module_invocation_brand0.rs").read_text()
     if "LegacyChildDraftAdmissionV1::legacy_symbol(work." in brand0:
         raise AssertionError("raw-root brand0 still issues a direct legacy child admission")
+    legacy_term = (
+        ROOT / "src/mir/builder/module_lowering_invocation_legacy_term.rs"
+    ).read_text()
+    for retired in (
+        "fn complete_legacy_child_branded",
+        "fn commit_legacy_pending_branded",
+    ):
+        if retired in legacy_term:
+            raise AssertionError(f"retired branded legacy terminal remains: {retired}")
+    if legacy_term.count("fn commit_legacy_symbol_pending_branded") != 1:
+        raise AssertionError("source-keyed branded collector terminal drift")
     for forbidden in ("NyashParser", "parse_", "fallback", "retry"):
         if forbidden in admission:
             raise AssertionError(f"forbidden source admission widening: {forbidden}")

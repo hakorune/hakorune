@@ -42,35 +42,6 @@ impl ModuleLoweringPortV1<'_> {
         })
     }
 
-    pub(in crate::mir::builder) fn complete_legacy_child_branded(
-        &mut self,
-        builder: &mut MirBuilder,
-        body_snapshot: Vec<ASTNode>,
-        admission: LegacyChildDraftAdmissionV1,
-        lower: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
-    ) -> Result<InvocationBranded<CollectedDraftAdmissionReceiptV1>, ModuleLoweringPortChildErrorV1>
-    {
-        let (key, symbol, arity) = admission.collector_parts();
-        let pending = builder
-            .capture_legacy_function_pending_session_v1(&symbol, body_snapshot, lower)
-            .map_err(ModuleLoweringPortChildErrorV1::Session)?;
-        pending.complete_before_restore(|draft| {
-            let prepared = self
-                .prepare_draft_admission(
-                    key,
-                    symbol,
-                    arity,
-                    DraftPublicationPolicyV1::LegacyReplaceWholePair,
-                )
-                .map_err(ModuleLoweringPortChildErrorV1::Admission)?;
-            prepared
-                .seal(draft)
-                .map_err(ModuleLoweringPortChildErrorV1::Admission)?
-                .collect_branded()
-                .map_err(ModuleLoweringPortChildErrorV1::ReceiptBrand)
-        })
-    }
-
     #[allow(dead_code)]
     pub(in crate::mir::builder) fn commit_legacy_pending(
         &mut self,
@@ -104,15 +75,6 @@ impl ModuleLoweringPortV1<'_> {
                 .collect();
             Ok(())
         })
-    }
-
-    pub(in crate::mir::builder) fn commit_legacy_pending_branded(
-        &mut self,
-        pending: LegacyFunctionPendingSessionV1<'_>,
-        admission: LegacyChildDraftAdmissionV1,
-    ) -> Result<InvocationBranded<CollectedDraftAdmissionReceiptV1>, ModuleLoweringPortChildErrorV1>
-    {
-        self.commit_legacy_symbol_pending_branded(pending, admission.collector_parts())
     }
 
     pub(in crate::mir::builder) fn commit_legacy_symbol_pending_branded(

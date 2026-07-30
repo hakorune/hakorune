@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS33-D0 is closed. LegacyChildDraftAdmissionV1 has 32 occurrences in 6 src/mir files, but only two live issuers remain and both belong to the existing nested-Box RETAIN-FENCED family without exact source transport. The direct branded legacy-child adapters complete_legacy_child_branded and commit_legacy_pending_branded now have zero callers after the static-child REOWN. RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0 is the sole executable row."
+status = "RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0 is closed. The caller-zero complete_legacy_child_branded and commit_legacy_pending_branded adapters are deleted while all live unbranded, source-keyed branded, resolved, and nested-Box terminals remain. LegacyChildDraftAdmissionV1 is now 30 occurrences in 6 src/mir files. MIRBUILDER-LIVE-EDGE-CENSUS34-D0 is the sole next design stop."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0"
-current_execution_summary = "Delete exactly two caller-zero LegacyChildDraftAdmissionV1-to-InvocationBranded adapters: ModuleLoweringPortV1::complete_legacy_child_branded and commit_legacy_pending_branded. Preserve complete_legacy_child, commit_legacy_pending, commit_legacy_symbol_pending, commit_legacy_symbol_pending_branded, the two live nested-Box issuers, all resolved/canonical terminals, behavior, grammar, route, and publication policy. Extend the existing children guard; add no source/test/check file; keep every source/check file below 800. This is a detached T1 RET0 with replacement credit 0."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS34-D0"
+current_execution_row = "none"
+current_execution_summary = "Run one read-only post-branded-terminal live-edge census. Recount remaining LegacyChildDraftAdmissionV1 support, caller-zero terminal/facade assets, the one active raw static-Main compatibility row, and the seven unregistered R4 families. Select at most one bounded RET0, REOWN, or RETAIN-FENCED disposition with a named owner, activation, release condition, and exact same-commit delete or fence contract. Do not edit production code before selection."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """MIRBUILDER-LIVE-EDGE-CENSUS33-D0 is closed. The 32 LegacyChildDraftAdmissionV1 occurrences crosswalk to two live nested-Box issuers, retained neutral terminals/vocabulary, and cfg(test) evidence. Exact source transport is absent for the live nested sites, so that family remains RETAIN-FENCED. Two old branded adapters are definition-only after the prior REOWN; RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0 is the sole executable T1 deletion. Raw static Main remains the one active compatibility row; R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0 is closed. Two definition-only LegacyChildDraftAdmissionV1-to-branded-receipt adapters are deleted; unbranded, source-keyed branded, resolved, and nested-live terminals are unchanged. LegacyChildDraftAdmissionV1 is now 30 occurrences in 6 src/mir files. MIRBUILDER-LIVE-EDGE-CENSUS34-D0 is the sole next design stop. Raw static Main remains the one active compatibility row; R4 final conformance still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS34-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
