@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0 is closed. The caller-zero RawDraftInvocationV1 owner, its cfg(test) fixture, compiler/export surface, dedicated guard, and checks-index row are deleted: 628 lines removed with production behavior unchanged. LegacyChildDraftAdmissionV1 is now 35 occurrences / 7 files. RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-D0 is the sole design stop: the explicit raw-root static-child production issuer already receives exact RawSourceLocatorV1 and may support one source-keyed admission REOWN while preserving LegacySymbol and LegacyReplaceWholePair physical parity."
+status = "RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-D0 is accepted. The explicit raw-root helper/callable-Main terminal already receives one source-verified RawSourceLocatorV1 per physical demand. RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0 will move that locator plus a typed StaticHelper or CallableMain role into one admission, derive unchanged LegacySymbol/symbol/arity only at the shared collector boundary, and delete the direct module_invocation_brand0 legacy-symbol issuer. No second locator, duplicated physical fields, catalog widening, fallback, or behavior change is authorized."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-D0"
-current_execution_row = "none"
-current_execution_summary = "Design one bounded REOWN for the live explicit raw-root static-child issuer in InvocationPhysicalStateV1::complete_raw_static_child. Reuse the existing exact RawSourceLocatorV1 carried by RawRootStaticChildWorkV1 as source authority; do not widen the root catalog or create a second locator. Separate source occurrence from unchanged LegacySymbol/arity/LegacyReplaceWholePair physical publication, cover both helper and callable-Main uses of the terminal, and name the same-commit deletion of the direct LegacyChildDraftAdmissionV1::legacy_symbol issuer. Production edits remain parked during D0."
+current_design_stop = "none"
+current_execution_row = "RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0"
+current_execution_summary = "Implement one atomic T2 REOWN. Add RawRootStaticChildDraftAdmissionV1 owning the existing RawSourceLocatorV1 plus typed StaticHelper{schedule_ordinal} or CallableMain role, without duplicated symbol/arity fields. Issue it through consuming helper/callable-Main work transitions before ledger/Builder effects. Replace the sole branded legacy static-child terminal with the typed admission terminal; consume it once into unchanged LegacySymbol/symbol/arity and LegacyReplaceWholePair. Delete the direct module_invocation_brand0 LegacyChildDraftAdmissionV1 issuer/import in the same commit. Preserve ordering, ledger failure ownership, duplicate parity, candidate discard, and all files below 800."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0 is closed: 628 lines of caller-zero owner/test/guard surface are deleted and LegacyChildDraftAdmissionV1 is 35/7. RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-D0 is the sole design stop for one live explicit raw-root issuer that already carries exact RawSourceLocatorV1. Raw static Main and nested Box remain RETAIN-FENCED; R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-D0 is accepted. One existing source-verified RawSourceLocatorV1 plus a typed helper/callable-Main demand role will replace the direct explicit raw-root LegacyChildDraftAdmissionV1 issuer while preserving LegacySymbol and LegacyReplaceWholePair. RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0 is the sole executable row. Raw static Main and nested Box remain RETAIN-FENCED; R4 final conformance still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-D0"
+current_blocker_token = "RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

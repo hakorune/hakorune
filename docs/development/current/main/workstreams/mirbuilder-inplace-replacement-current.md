@@ -57,8 +57,8 @@ Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS30-D0` — closed
 Latest design:  `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS31-D0` — closed, NoSafeSlice
-Latest row:    `RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0` — closed
-Next stop:     `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-D0`
+Latest design: `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-D0` — accepted
+Next row:      `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -80,6 +80,7 @@ activation and sunset contract.
 | retain-fenced | `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | two direct normalized-shadow executions and strict/dev StepTree observer | explicit dev/debug; default normal = 0 | RETAIN-FENCED | fresh named normalized-shadow release D0: verified Recipe/CorePlan loop owner, strict/dev parity, independent observer disposition |
 | retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | `join_ir_vm_bridge_dispatch` Exec and LowerOnly targets | explicit VM keep / vm-reference with `NYASH_JOINIR_VM_BRIDGE=1`; default MIR and vm-fallback = 0 | RETAIN-FENCED | fresh named VM-bridge release D0: dispatcher caller = 0 or one explicit-lane execution owner replaces the lane |
 | closed | `RAW-DRAFT-DISCONNECTED-PROOF-SUNSET-001` | `RawDraftInvocationV1`, its two cfg(test) callers, compiler `begin_raw_draft`, and dedicated guard | production caller = 0; disconnected proof owner only | RET0 | retired by `RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0`: complete owner/test/compiler/guard surface = 0 |
+| active compatibility | `RAW-ROOT-STATIC-CHILD-DRAFT-COMPAT-SUNSET-001` | `InvocationPhysicalStateV1::complete_raw_static_child` direct `LegacyChildDraftAdmissionV1` issuer shared by static helpers and callable Main | explicit raw public / VM-reference route; default normal = 0; exact `RawSourceLocatorV1` already reaches every demand | REOWN | `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`: consume one locator+role admission and delete the direct legacy-symbol issuer |
 | unregistered | `R4-UNREGISTERED-LLVM-EXPERIMENT-001` — LLVM experiment | feature/env-gated JoinModule mutation route | not normal/default; exact activation/owner not yet registered | undecided; named D0 required before C0 | RET0, REOWN, or RETAIN-FENCED with owner, activation, retire_when |
 | unregistered | `R4-UNREGISTERED-FRONTEND-METADATA-001` — frontend metadata | `frontend::func_meta` / `JoinFuncMetaMap` consumers | activation/owner not yet registered | undecided; named D0 required before C0 | RET0, REOWN, or RETAIN-FENCED with owner, activation, retire_when |
 | unregistered | `R4-UNREGISTERED-CARRIER-BOUNDARY-001` — carrier boundaries | `JumpArgsLayout` and `JoinInlineBoundary` families | live/fenced consumer mapping not yet registered | undecided; named D0 required before C0 | CorePlan/MIR rehome D0, RET0, or RETAIN-FENCED |
@@ -89,7 +90,7 @@ activation and sunset contract.
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> nested static method and shared instance constructor/method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | RETAIN-FENCED: no exact source occurrence reaches the raw port | fresh `RAW-LOCATED-BODY-TRANSPORT0-D0` may select REOWN only when one function-relative located transport deletes a named production edge; otherwise forced disposition at `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` |
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | undecided; named D0 required before C0 | delete or RETAIN-FENCED reference scope with exact owner, activation, retire_when |
 
-The registry has three registered R3 fences, one active compatibility residual,
+The registry has three registered R3 fences, two active compatibility residuals,
 six closed residuals, and seven unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
@@ -119,6 +120,60 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-D0` — T2 design, accepted
+
+```text
+Named production caller:
+  explicit raw-root helper schedule and callable-Main compatibility
+  -> RawRootPhysicalStateV1
+  -> InvocationPhysicalStateV1::complete_raw_static_child.
+
+Existing source authority:
+  RawSourceLocatorV1 = top-level statement + Box name + method name, with
+  source-verified symbol and arity projections. OwnedRawSourceV1 directly
+  indexes the Program and co-seals the declaration into
+  RawRootStaticChildWorkV1 before ledger or Builder effects.
+
+New owner:
+  RawRootStaticChildDraftAdmissionV1 owns the existing locator by value plus
+  exactly one demand role:
+    StaticHelper { schedule_ordinal }
+    CallableMain
+  It creates no second locator, source identity, catalog row, or duplicated
+  physical symbol/arity fields.
+
+Terminal:
+  helper and callable-Main typed consuming constructors issue the role;
+  the shared physical terminal captures the unchanged body once, then consumes
+  the admission into LegacySymbol(symbol), symbol, and arity exactly once.
+  ModuleLoweringPortV1 applies unchanged LegacyReplaceWholePair.
+
+Preserve:
+  lexical helper schedule; helpers before callable Main; request -> reserve ->
+  child -> ledger complete; prefix/abort evidence; candidate-only publication;
+  last-completed whole-pair replacement; fresh compiler reuse.
+
+Atomic delete:
+  module_invocation_brand0.rs direct
+  LegacyChildDraftAdmissionV1::legacy_symbol(work.symbol(), work.arity())
+  and its now-unused import; legacy-admission version of the sole branded
+  static-child terminal.
+
+Non-claims:
+  Main.main has separately materialized equal locators for root and callable
+  demands; repository-wide unique locator issuance is not claimed.
+  Raw static-Main and nested Box compatibility are separate fences.
+
+Structure:
+  new raw_root_static_child_admission.rs owns only source admission/projection;
+  recursive_child_lowering.rs replaces, rather than stacks on, its sole branded
+  legacy terminal and remains below 800; no new test/check file; existing
+  children guard is extended.
+
+Next:
+  RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0, one atomic T2 commit.
+```
 
 `RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0` — T1 detached deletion, closed
 
