@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0 is closed with Candidate C: source-owned materialization facts use a shared policy/target vocabulary but normal and raw/reference retain separate receipts, while all runner selection adapters stay unchanged. ENTRY-MATERIALIZATION-RECEIPT0-S0 starts a required same-cell S0 -> selected-normal I0/R0 series; it cannot become a disconnected proof route. R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """ENTRY-MATERIALIZATION-RECEIPT0-S0 and ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0 are closed: selected normal snapshots and consumes its source receipt without changing raw/reference or runner authority. MIRBUILDER-LIVE-EDGE-CENSUS15-D0 is the only active row; it must select one bounded next action or NoSafeLiveI0. R4 final conformance still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "ENTRY-MATERIALIZATION-RECEIPT0-S0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS15-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
