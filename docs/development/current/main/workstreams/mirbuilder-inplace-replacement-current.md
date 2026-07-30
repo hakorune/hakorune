@@ -116,8 +116,8 @@ Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corrected
 Latest landed: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — `507851393c`
 Latest landed: `RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0` — `19d68ca708`
-Current execution: none (design stop: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0`)
-Next design stop: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0`
+Current execution: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0`
+Next design stop: none; reopen only if the bounded catalog handoff hits a hard stop
 History:       Git history and the short landed tail below
 ```
 
@@ -343,16 +343,47 @@ Evidence:
   are green. No new test/check file was added.
 
 Next:
-  `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0` is the sole design stop.
+`NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0` is closed Accept/T1 after
+worker review. The bounded execution brief is below.
+
+## NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0 — T1 execution brief
+
+Change:
+  Move the existing `VerifiedSameModuleCallableDeclarationCatalogV1::seal_root`
+  call and `CatalogSeal` error mapping from
+  `MirBuilder::lower_normal_default_program_root_catalog_v1` into
+  `ModuleBuilderInvocationSessionV1::complete_normal_default_program_root_catalog_lifecycle`,
+  after `PrepareModule` and before `CatalogInstall`. Delete the selected old
+  Builder-side method/call; keep the existing root-lowering kernel.
+
+Contract:
+  One source-only catalog seal and one install remain. Duplicate-owner,
+  method-shape, and parameter-cardinality diagnostics retain their current
+  stage/text/order. No source identity, resolver, semantic owner,
+  forest/projection, catch/cleanup meaning, or publication policy changes.
+  Hakorune source `try`/`throw` remain rejected; postfix `catch`/`cleanup` and
+  `ASTNode::TryCatch` remain compatibility evidence only.
+
+Done:
+  Lifecycle tests prove CatalogSeal still follows PrepareModule and precedes
+  CatalogInstall/RootLower, while success and fresh-request reuse remain green.
+  Run focused lifecycle/catalog tests, `cargo check --lib`, pointer guard, and
+  the shared cut0 guard. Keep all touched source/check files below 800 lines;
+  add no new test/check file.
+
+Stop:
+  Return to `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0` if the move needs
+  semantic resolver/owner work, changes clone or diagnostic precedence, adds a
+  second seal/install, widens grammar, touches postfix catch/cleanup semantics,
+  or introduces fallback/retry.
 ```
 
 Corrected forward queue:
 
 ```text
-1. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0 (current design stop)
-2. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0 (only after D0)
-3. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-S0 (design gate before execution)
-4. RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-I0-R0 (only if bounded closure is proven)
+1. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0 (current execution)
+2. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-S0 (design gate before execution)
+3. RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-I0-R0 (only if bounded closure is proven)
 
 Rule:
   S0 may be at most one behavior-neutral commit and must be followed immediately
