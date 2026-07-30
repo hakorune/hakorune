@@ -6,8 +6,8 @@ date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0"
-current_execution_row = "RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0"
-current_execution_summary = "T1 BoxShape row: replace classify_normal_script_runtime_statement_v1 -> classify_normal_script_nonbox_statement_v1 with one exhaustive selected-Script Program-item admission product at program_root_work_plan::classify_statement. Preserve grammar, diagnostics, execution order, Program ordinals, raw/reference behavior, and postfix catch/cleanup compatibility carrier behavior. Resolver, owner ID, forest/projection, semantic terminal, new guard, fallback, and retry remain zero."
+current_execution_row = "none (design stop: RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0)"
+current_execution_summary = "RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0 landed as 507851393c. One exhaustive source-only NormalScriptProgramItemAdmissionV1 now owns the selected Script Program-item disposition; the former runtime -> non-Box classifier chain and old non-Box module are gone. Grammar, diagnostics, order, ordinals, raw/reference behavior, and Hakorune's postfix catch/cleanup carrier behavior are unchanged. Resolver, owner ID, forest/projection, semantic terminal, new guard, fallback, and retry remain zero."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0 is closed Accept-corrected. The monolithic semantic-owner I0 is rejected; RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0 is the selected T1 row that replaces two live Program-item classifiers with one source-only authority. Source try/throw remain rejected and internal TryCatch remains compatibility transport, not language authority."""
+latest_card_summary = """RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0 is landed at 507851393c. The selected Script Program-item disposition now has one source-only admission SSOT; the former runtime -> non-Box classifier chain is retired. Hakorune source try/throw remain rejected; postfix catch/cleanup is canonical and ASTNode::TryCatch remains compatibility transport. The next stop is RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0; semantic owner, forest/projection, and RecoverableFailure activation remain parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical

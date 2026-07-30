@@ -1,6 +1,6 @@
 ---
 Status: Active workstream
-Date: 2026-07-30
+Date: 2026-07-31
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -114,7 +114,8 @@ Latest landed: `RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-I0-R0` — `066e33319d`
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corrected
-Current execution: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0`
+Latest landed: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — `507851393c`
+Current execution: none (design stop: `RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0`)
 Next design stop: `RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0`
 History:       Git history and the short landed tail below
 ```
@@ -236,45 +237,49 @@ Stop:
   fallback, retry, or new per-row guard.
 ```
 
-## Current execution brief
+## Latest execution closeout
 
 `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — T1 atomic BoxShape row
 
 ```text
+Landed:
+  507851393c refactor(mir): unify Script program-item admission
+
 Change:
-  program_root_work_plan::classify_statement consumes each selected Script
-  Program item once and receives one exhaustive source-only admission product.
-  Replace the current runtime classifier -> non-Box classifier chain with one
-  Program-item policy. No recursive semantic traversal is opened.
+  program_root_work_plan::classify_statement now consumes one exhaustive
+  NormalScriptProgramItemAdmissionV1 for each selected Script Program item.
+  Box and non-Box disposition are issued from the renamed
+  normal_script_program_item_admission module; the former runtime -> non-Box
+  classifier chain and old non-Box module are retired.
 
 Contract:
   Grammar, diagnostics, execution order, result/publication policy, original
-  Program ordinal, raw/reference behavior, and postfix catch/cleanup carrier
-  behavior are unchanged. Builder access, resolver, owner ID, forest, and
-  projection effects are zero.
+  Program ordinal, raw/reference behavior, and Hakorune's postfix catch/cleanup
+  compatibility carrier behavior are unchanged. Builder access, resolver,
+  owner ID, forest, projection, semantic terminal, fallback, and retry remain
+  zero.
 
-Done:
-  classify_normal_script_runtime_statement_v1 selected callers = 0;
-  classify_normal_script_nonbox_statement_v1 definition/callers = 0;
-  old non-Box module = 0; new production classifier caller = 1.
-  program_root_work_plan.rs and normal_script_runtime_work.rs shrink below 800;
-  existing tests/guard/manifest are updated without a new test/check file.
+Evidence:
+  cargo check --lib: green
+  focused admission/runtime/work-plan tests: green (2 + 7 + 8)
+  cut0 shared guard: green
+  touched source/check files: below 800 lines
+  new source/test/check files: zero
 
-Stop:
-  Any runtime-disposition change, nested child traversal, unused semantic
-  receipt, source try/throw activation, internal TryCatch carrier promotion,
-  new per-row guard, or source/check file reaching 800 lines.
+Stop preserved:
+  No source try/throw activation, no promotion of ASTNode::TryCatch into
+  language authority, no nested semantic traversal, no new resolver/owner,
+  no fallback/retry, and no new per-row guard.
 ```
 
 Corrected forward queue:
 
 ```text
-1. RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0
+1. RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0 (current design stop)
 2. RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0
 3. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0
-4. RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0
-5. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-S0
-6. RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-I0-R0
+4. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-S0
+5. RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-I0-R0
 
 Rule:
   S0 may be at most one behavior-neutral commit and must be followed immediately
