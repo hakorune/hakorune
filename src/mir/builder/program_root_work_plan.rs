@@ -8,9 +8,16 @@ use std::collections::HashMap;
 
 use crate::ast::{ASTNode, DeclarationAttrs, FieldDecl, ParamDecl};
 
+use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
 use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
-use super::normal_script_runtime_work::PreparedNormalScriptRuntimeWorkV1;
+use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceBatchV1;
+#[cfg(test)]
+use super::normal_script_runtime_work::NormalScriptRuntimeStatementAdmissionV1;
+use super::normal_script_runtime_work::{
+    classify_normal_script_runtime_statement_v1, NormalScriptRuntimeStatementKindV1,
+    PreparedNormalScriptRuntimeInputV1, PreparedNormalScriptRuntimeWorkV1,
+};
 use super::normal_top_level_function_admission::{
     NormalTopLevelFunctionDraftAdmissionV1, NormalTopLevelFunctionSourceKeyV1,
 };
@@ -54,7 +61,8 @@ pub(super) struct PreparedProgramRootInstanceBoxWorkV1 {
     methods: HashMap<String, ASTNode>,
     fields: Vec<String>,
     field_decls: Vec<FieldDecl>,
-    constructors: HashMap<String, ASTNode>,
+    constructors: PreparedInstanceBoxConstructorBatchV1,
+    normal_constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
     init_fields: Vec<String>,
     weak_fields: Vec<String>,
 }
@@ -103,14 +111,42 @@ pub(super) enum PreparedProgramRootRuntimeWorkV1 {
     SelectedNormal(PreparedNormalScriptRuntimeWorkV1),
 }
 
+#[derive(Debug)]
+struct PreparedProgramRootRuntimeStatementV1 {
+    statement: ASTNode,
+    normal_script_kind: Option<NormalScriptRuntimeStatementKindV1>,
+    constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
+    constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
+}
+
 impl PreparedProgramRootRuntimeWorkV1 {
-    fn prepare(statements: Vec<ASTNode>, admission: ProgramRootWorkPlanAdmissionV1) -> Self {
+    fn prepare(
+        statements: Vec<PreparedProgramRootRuntimeStatementV1>,
+        admission: ProgramRootWorkPlanAdmissionV1,
+    ) -> Self {
         match admission {
-            ProgramRootWorkPlanAdmissionV1::RawCompatibility => {
-                Self::RawCompatibility(statements.into_boxed_slice())
-            }
+            ProgramRootWorkPlanAdmissionV1::RawCompatibility => Self::RawCompatibility(
+                statements
+                    .into_iter()
+                    .map(|statement| statement.statement)
+                    .collect(),
+            ),
             ProgramRootWorkPlanAdmissionV1::SelectedNormal => {
-                Self::SelectedNormal(PreparedNormalScriptRuntimeWorkV1::prepare(statements))
+                Self::SelectedNormal(PreparedNormalScriptRuntimeWorkV1::prepare(
+                    statements
+                        .into_iter()
+                        .map(|statement| {
+                            PreparedNormalScriptRuntimeInputV1::preclassified(
+                                statement.statement,
+                                statement
+                                    .normal_script_kind
+                                    .expect("selected Script runtime classifier"),
+                                statement.constructor_sources,
+                                statement.constructor_batch,
+                            )
+                        })
+                        .collect(),
+                ))
             }
         }
     }
@@ -141,14 +177,14 @@ impl PreparedProgramDeferredStaticBoxWorkV1 {
 enum ProgramRootStatementDispositionV1 {
     ImmediateAndRuntime {
         work: PreparedProgramRootImmediateWorkV1,
-        runtime_statement: ASTNode,
+        runtime: PreparedProgramRootRuntimeStatementV1,
     },
     ImmediateOnly(PreparedProgramRootImmediateWorkV1),
     DeferredAndRuntime {
         work: PreparedProgramDeferredStaticBoxWorkV1,
-        runtime_statement: ASTNode,
+        runtime: PreparedProgramRootRuntimeStatementV1,
     },
-    RuntimeOnly(ASTNode),
+    RuntimeOnly(PreparedProgramRootRuntimeStatementV1),
 }
 
 impl PreparedProgramRootWorkPlanV1 {
@@ -163,21 +199,15 @@ impl PreparedProgramRootWorkPlanV1 {
 
         for (statement_index, statement) in statements.into_iter().enumerate() {
             match classify_statement(statement, is_app_mode, statement_index, work_plan_admission) {
-                ProgramRootStatementDispositionV1::ImmediateAndRuntime {
-                    work,
-                    runtime_statement,
-                } => {
+                ProgramRootStatementDispositionV1::ImmediateAndRuntime { work, runtime } => {
                     immediate.push(work);
-                    runtime_statements.push(runtime_statement);
+                    runtime_statements.push(runtime);
                 }
                 ProgramRootStatementDispositionV1::ImmediateOnly(work) => {
                     immediate.push(work);
                 }
-                ProgramRootStatementDispositionV1::DeferredAndRuntime {
-                    work,
-                    runtime_statement,
-                } => {
-                    runtime_statements.push(runtime_statement);
+                ProgramRootStatementDispositionV1::DeferredAndRuntime { work, runtime } => {
+                    runtime_statements.push(runtime);
                     deferred_static.push(work);
                 }
                 ProgramRootStatementDispositionV1::RuntimeOnly(statement) => {
@@ -237,16 +267,20 @@ impl PreparedProgramRootInstanceBoxWorkV1 {
     where
         Port: RootCallableCapturePortV1,
     {
-        PreparedInstanceBoxDeclarationLifecycleV1::prepare(
-            &self.name,
-            &self.methods,
-            &self.fields,
-            &self.field_decls,
-            &self.constructors,
-            &self.init_fields,
-            &self.weak_fields,
-        )
-        .lower_root_with_port_v1(builder, callables)
+        let lifecycle =
+            PreparedInstanceBoxDeclarationLifecycleV1::prepare_with_constructor_batch_v1(
+                &self.name,
+                &self.methods,
+                &self.fields,
+                &self.field_decls,
+                &self.init_fields,
+                &self.weak_fields,
+                self.constructors,
+            );
+        match self.normal_constructor_sources {
+            Some(sources) => lifecycle.lower_normal_root_with_port_v1(builder, callables, &sources),
+            None => lifecycle.lower_root_with_port_v1(builder, callables),
+        }
     }
 }
 
@@ -345,6 +379,12 @@ fn classify_statement(
     statement_index: usize,
     work_plan_admission: ProgramRootWorkPlanAdmissionV1,
 ) -> ProgramRootStatementDispositionV1 {
+    let normal_script_kind =
+        if work_plan_admission == ProgramRootWorkPlanAdmissionV1::RawCompatibility {
+            None
+        } else {
+            Some(classify_normal_script_runtime_statement_v1(&statement))
+        };
     match &statement {
         ASTNode::BoxDeclaration {
             name,
@@ -356,20 +396,53 @@ fn classify_statement(
             weak_fields,
             is_static,
             ..
-        } if !is_static => ProgramRootStatementDispositionV1::ImmediateAndRuntime {
-            work: PreparedProgramRootImmediateWorkV1::InstanceBox(
-                PreparedProgramRootInstanceBoxWorkV1 {
-                    name: name.clone(),
-                    methods: methods.clone(),
-                    fields: fields.clone(),
-                    field_decls: field_decls.clone(),
-                    constructors: constructors.clone(),
-                    init_fields: init_fields.clone(),
-                    weak_fields: weak_fields.clone(),
+        } if !is_static => {
+            let constructors = PreparedInstanceBoxConstructorBatchV1::prepare(name, constructors);
+            let normal_constructor_sources = match work_plan_admission {
+                ProgramRootWorkPlanAdmissionV1::RawCompatibility => None,
+                ProgramRootWorkPlanAdmissionV1::SelectedNormal => {
+                    Some(constructors.normal_sources(statement_index))
+                }
+            };
+            let runtime_constructor_batch = if is_app_mode {
+                None
+            } else {
+                Some(constructors.clone())
+            };
+            let selected_runtime_prefix = !is_app_mode
+                && matches!(
+                    normal_script_kind,
+                    Some(NormalScriptRuntimeStatementKindV1::InstancePrefixCompatibility)
+                );
+            ProgramRootStatementDispositionV1::ImmediateAndRuntime {
+                work: PreparedProgramRootImmediateWorkV1::InstanceBox(
+                    PreparedProgramRootInstanceBoxWorkV1 {
+                        name: name.clone(),
+                        methods: methods.clone(),
+                        fields: fields.clone(),
+                        field_decls: field_decls.clone(),
+                        constructors,
+                        normal_constructor_sources: normal_constructor_sources.clone(),
+                        init_fields: init_fields.clone(),
+                        weak_fields: weak_fields.clone(),
+                    },
+                ),
+                runtime: PreparedProgramRootRuntimeStatementV1 {
+                    statement,
+                    normal_script_kind,
+                    constructor_sources: if selected_runtime_prefix {
+                        normal_constructor_sources
+                    } else {
+                        None
+                    },
+                    constructor_batch: if selected_runtime_prefix {
+                        runtime_constructor_batch
+                    } else {
+                        None
+                    },
                 },
-            ),
-            runtime_statement: statement,
-        },
+            }
+        }
         ASTNode::BoxDeclaration {
             name,
             methods,
@@ -381,7 +454,12 @@ fn classify_statement(
                     name: name.clone(),
                     methods: methods.clone(),
                 },
-                runtime_statement: statement,
+                runtime: PreparedProgramRootRuntimeStatementV1 {
+                    statement,
+                    normal_script_kind,
+                    constructor_sources: None,
+                    constructor_batch: None,
+                },
             }
         }
         ASTNode::FunctionDeclaration {
@@ -423,7 +501,14 @@ fn classify_statement(
                 PreparedProgramRootImmediateWorkV1::TopLevelFunction(work),
             )
         }
-        _ => ProgramRootStatementDispositionV1::RuntimeOnly(statement),
+        _ => {
+            ProgramRootStatementDispositionV1::RuntimeOnly(PreparedProgramRootRuntimeStatementV1 {
+                statement,
+                normal_script_kind,
+                constructor_sources: None,
+                constructor_batch: None,
+            })
+        }
     }
 }
 
@@ -483,6 +568,15 @@ mod tests {
             attrs: DeclarationAttrs::default(),
             span: Span::unknown(),
         }
+    }
+
+    fn instance_box_with_birth(name: &str) -> ASTNode {
+        let mut declaration = box_declaration(name, false);
+        let ASTNode::BoxDeclaration { constructors, .. } = &mut declaration else {
+            unreachable!()
+        };
+        constructors.insert("birth/0".to_owned(), function("birth"));
+        declaration
     }
 
     #[test]
@@ -554,6 +648,93 @@ mod tests {
             parts.runtime.statement_at(0),
             ASTNode::BoxDeclaration { name, .. } if name == "Helpers"
         ));
+    }
+
+    #[test]
+    fn selected_script_transports_one_constructor_source_to_its_second_demand() {
+        let plan = PreparedProgramRootWorkPlanV1::prepare(
+            vec![instance_box_with_birth("Page")],
+            false,
+            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
+        );
+        let parts = plan.into_parts();
+        let PreparedProgramRootImmediateWorkV1::InstanceBox(immediate) = &parts.immediate[0] else {
+            panic!("expected immediate instance Box")
+        };
+        let immediate_sources = immediate
+            .normal_constructor_sources
+            .as_ref()
+            .expect("selected immediate source");
+        assert_eq!(immediate_sources.sources()[0].statement_index(), 0);
+        assert_eq!(
+            immediate_sources.sources()[0].parser_constructor_key(),
+            "birth/0"
+        );
+
+        let PreparedProgramRootRuntimeWorkV1::SelectedNormal(runtime) = &parts.runtime else {
+            panic!("expected selected Script runtime work")
+        };
+        let (runtime_sources, _) = runtime
+            .constructor_admission_at(0)
+            .expect("selected Script second demand source");
+        assert_eq!(runtime_sources.sources(), immediate_sources.sources());
+    }
+
+    #[test]
+    fn selected_nonplain_script_keeps_constructor_source_out_of_raw_runtime() {
+        let mut nonplain = instance_box_with_birth("SyncPage");
+        let ASTNode::BoxDeclaration { is_sync, .. } = &mut nonplain else {
+            unreachable!()
+        };
+        *is_sync = true;
+        let plan = PreparedProgramRootWorkPlanV1::prepare(
+            vec![nonplain],
+            false,
+            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
+        );
+        let parts = plan.into_parts();
+        let PreparedProgramRootImmediateWorkV1::InstanceBox(immediate) = &parts.immediate[0] else {
+            panic!("expected immediate instance Box")
+        };
+        assert!(immediate.normal_constructor_sources.is_some());
+
+        let PreparedProgramRootRuntimeWorkV1::SelectedNormal(runtime) = &parts.runtime else {
+            panic!("expected selected Script runtime work")
+        };
+        assert!(matches!(
+            runtime.admission_at(0),
+            NormalScriptRuntimeStatementAdmissionV1::RawCompatibility
+        ));
+        assert!(runtime.constructor_admission_at(0).is_none());
+    }
+
+    #[test]
+    fn selected_constructor_sources_keep_parser_key_order_and_skip_nonfunctions() {
+        let mut declaration = box_declaration("Page", false);
+        let ASTNode::BoxDeclaration { constructors, .. } = &mut declaration else {
+            unreachable!()
+        };
+        constructors.insert("init/0".to_owned(), function("init"));
+        constructors.insert("birth/1".to_owned(), function("birth"));
+        constructors.insert("not-a-function".to_owned(), literal(0));
+        let plan = PreparedProgramRootWorkPlanV1::prepare(
+            vec![declaration],
+            true,
+            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
+        );
+        let parts = plan.into_parts();
+        let PreparedProgramRootImmediateWorkV1::InstanceBox(immediate) = &parts.immediate[0] else {
+            panic!("expected immediate instance Box")
+        };
+        let keys = immediate
+            .normal_constructor_sources
+            .as_ref()
+            .expect("selected source batch")
+            .sources()
+            .iter()
+            .map(|source| source.parser_constructor_key())
+            .collect::<Vec<_>>();
+        assert_eq!(keys, ["birth/1", "init/0"]);
     }
 
     #[test]

@@ -243,6 +243,7 @@ fn late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
     let root = NyashParser::parse_from_string(
         r#"
             function staged() { return 1 }
+            box Page { birth() { return 6 } }
             print(missing)
         "#,
     )
@@ -390,6 +391,7 @@ function selected_top_level() { return 2 }
 
 box Page {
   capacity: usize = 0
+  birth() { return 6 }
   answer() { return 7 }
 }
 

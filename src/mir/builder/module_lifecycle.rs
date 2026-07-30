@@ -53,9 +53,9 @@ use super::type_hint_providers;
 
 /// Root-only extension of the existing raw child-lowering capability.
 ///
-/// Catalog-addressable Box methods use a source-keyed extension.  Top-level
-/// functions and constructors deliberately remain on the raw child port until
-/// their independent source identities are selected for replacement.
+/// Catalog-addressable Box methods, top-level functions, and selected instance
+/// constructors use source-keyed extensions. Raw/reference ports retain the
+/// raw child terminal and must never consume those normal-only receipts.
 pub(in crate::mir::builder) trait RootCallableCapturePortV1:
     RawBoxMethodChildPortV1 + RawAstChildLoweringPortV1
 {
@@ -74,6 +74,23 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
         _attrs: DeclarationAttrs,
     ) -> Result<(), String> {
         Err("[freeze:contract][mir/top-level-function-admission/raw-port]".to_owned())
+    }
+
+    /// Selected normal instance constructors carry a parser-map-keyed source
+    /// occurrence. Raw/reference ports must never consume that receipt.
+    #[allow(clippy::too_many_arguments)]
+    fn lower_normal_instance_constructor(
+        &mut self,
+        _builder: &mut super::MirBuilder,
+        _source_key: &super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1,
+        _params: Vec<String>,
+        _param_decls: Vec<ParamDecl>,
+        _return_type_name: Option<String>,
+        _body: Vec<ASTNode>,
+        _uses: Vec<String>,
+        _attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        Err("[freeze:contract][mir/instance-constructor-admission/raw-port]".to_owned())
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -176,6 +193,30 @@ impl RootCallableCapturePortV1 for RawInvocationChildPortV1<'_, '_> {
         self.lower_normal_top_level_function_v1(
             builder,
             admission,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
+        .map_err(|error| error.to_string())
+    }
+
+    fn lower_normal_instance_constructor(
+        &mut self,
+        builder: &mut super::MirBuilder,
+        source_key: &super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        self.lower_normal_instance_constructor_v1(
+            builder,
+            source_key,
             params,
             param_decls,
             return_type_name,

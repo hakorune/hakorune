@@ -29,10 +29,10 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
-Latest landed: NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0
-Result:        selected Program top-level functions carry source-order identity
-Latest design: `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-D0` — selected by Census20
-Executable:    none; stop at constructor identity D0
+Latest landed: NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0
+Result:        selected Program constructors carry source-keyed identity
+Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS21-D0` — fresh live-edge inventory required
+Executable:    none; stop at Census21
 History:       Git history and the short landed tail below
 ```
 
@@ -46,7 +46,7 @@ activation and sunset contract.
 | State | ID / family | Exact surface | Activation / normal-default | Release row / condition |
 | --- | --- | --- | --- | --- |
 | active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | named raw static-Main replacement, or reachability = 0 |
-| active compatibility | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program instance constructors and selected Script plain-instance prefix constructors only | selected normal Program/root or Script `InstancePrefixCompatibility`; non-plain Script Boxes excluded | constructor source-identity replacement, or exact selected reachability = 0 |
+| closed | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program immediate instance constructors, plus selected Script plain-instance runtime-prefix constructors | every selected Program instance Box has one immediate demand; plain Script adds its second `InstancePrefixCompatibility` demand; non-plain Script's later raw runtime lifecycle is the separate row below | retired by `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0`: one source occurrence -> unchanged physical LegacySymbol admission per existing demand |
 | closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
 | closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
 | active compatibility | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-COMPAT-SUNSET-002` | selected Script direct `BoxDeclaration` that fails `is_plain_box` | selected normal Script -> `RawCompatibility` -> raw statement driver exactly once; raw/reference remains separate | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-D0`: each shape obtains an exact owner or parity-equivalent pre-descent rejection, then selected raw statement edge = 0 |
@@ -61,12 +61,13 @@ activation and sunset contract.
 | unregistered | selected nested Box raw body descent | recursive `RawInvocationChildPortV1` -> raw `BoxDeclaration` dispatcher -> legacy static/instance child terminals | selected normal function body can reach it; Program/root admission is not its owner | `NESTED-BOX-RAW-BODY-DISPOSITION0-D0` or forced R4 disposition |
 | unregistered | JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | forced R4 delete-or-explicit-fenced-reference disposition |
 
-The registry has two registered R3 fences, three active selected Program/root
-compatibility residuals, two closed residuals, and eight unregistered R3 family
+The registry has two registered R3 fences, two active selected Program/root
+compatibility residuals, three closed residuals, and eight unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
-`LegacyChildDraftAdmissionV1` occurrence count is a separate census metric;
-only the three active compatibility rows above are registered selected
+`LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
+(`37` occurrences in `8` `src/mir` files at Census20 closeout);
+only the two active compatibility rows above are registered selected
 Program/root admission dispositions.  Nested raw body descent is deliberately
 unregistered rather than silently counted as one of them.
 
@@ -652,15 +653,17 @@ NoSafeLiveI0:
 Candidate:
   `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-D0` (T2).
   The one selected-normal residual is the instance-constructor path:
-    selected Program immediate instance Box
+    selected Program immediate instance Box (including Script non-plain)
     + selected Script plain-instance prefix
     -> constructor batch -> raw instance child terminal -> LegacyChild.
   Existing ordinary instance methods are cataloged already and remain excluded.
 
 Registry correction:
-  `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` covers both selected
-  Program constructors and selected Script plain-instance-prefix constructors;
-  it excludes the separately fenced non-plain Script surface.
+  `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` covers selected
+  Program immediate constructors for every instance Box and the second
+  selected Script plain-instance-prefix demand.  Script non-plain Boxes also
+  have that immediate demand; only their later full raw runtime lifecycle is
+  owned by the separately fenced non-plain Script surface.
   Selected function-body nested `BoxDeclaration` can independently reach the
   raw recursive child terminal, so it is registered as an unregistered R4
   family.  It is not folded into the Program/root constructor row.
@@ -671,6 +674,31 @@ Constructor D0 must decide:
   demand law; physical receiver arity; and unchanged LegacySymbol +
   LegacyReplaceWholePair parity.  It must not widen the Box-method catalog,
   issue receipts for raw/reference, change collector policy, or add retry.
+```
+
+## Current closeout
+
+`NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0` — T2 atomic selected-normal cutover, closed
+
+```text
+Change:
+  Program work-plan issues `{statement index, Box name, parser init|pack|birth/arity}`
+  once per parser-normalized constructor row. Every selected Program instance
+  Box consumes one source-keyed admission; selected Script plain-prefix gets
+  a second physical admission from the same transported source occurrence.
+
+Delete:
+  selected constructor direct `LegacyChildDraftAdmissionV1` construction = 0.
+  Raw/reference and non-plain Script raw-runtime edges do not consume a
+  selected receipt and remain outside this closed row.
+
+Evidence:
+  parser-key order/non-Function skip, Script two-demand source transport,
+  non-plain receipt exclusion, App and Script normal/legacy MIR parity,
+  late-failure fresh reuse, shared guard, pointer guard, and lib check = green.
+
+Next:
+  `MIRBUILDER-LIVE-EDGE-CENSUS21-D0`; do not preselect another I0.
 ```
 
 ## Latest closeout

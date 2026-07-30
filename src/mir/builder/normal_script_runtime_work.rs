@@ -1,4 +1,5 @@
-//! Selected-normal Script runtime descent with cataloged Box-method admission.
+//! Selected-normal Script runtime descent with cataloged Box-method and
+//! constructor admission.
 //!
 //! The Program work plan classifies direct runtime Box statements once.  This
 //! adapter retains the original statement slice for the shared block driver,
@@ -8,12 +9,12 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::emission::constant::emit_void;
+use crate::mir::builder::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
 use crate::mir::builder::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
+use crate::mir::builder::normal_instance_constructor_admission::NormalInstanceConstructorSourceBatchV1;
 use crate::mir::builder::raw_expression_dispatch::PreparedRawNonMainStaticBoxLifecycleV1;
-use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_statement_v1, RecursiveChildLoweringPortV1,
-};
+use crate::mir::builder::recursive_child_lowering::drive_legacy_statement_v1;
 use crate::mir::builder::stmts::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
 use crate::mir::{MirBuilder, ValueId};
 
@@ -23,19 +24,75 @@ pub(super) struct PreparedNormalScriptRuntimeWorkV1 {
     admissions: Box<[NormalScriptRuntimeStatementAdmissionV1]>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum NormalScriptRuntimeStatementAdmissionV1 {
+#[derive(Debug)]
+pub(super) struct PreparedNormalScriptRuntimeInputV1 {
+    statement: ASTNode,
+    kind: NormalScriptRuntimeStatementKindV1,
+    constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
+    constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
+}
+
+impl PreparedNormalScriptRuntimeInputV1 {
+    pub(super) fn preclassified(
+        statement: ASTNode,
+        kind: NormalScriptRuntimeStatementKindV1,
+        constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
+        constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
+    ) -> Self {
+        let (constructor_sources, constructor_batch) = match kind {
+            NormalScriptRuntimeStatementKindV1::InstancePrefixCompatibility => {
+                (constructor_sources, constructor_batch)
+            }
+            _ => {
+                debug_assert!(constructor_sources.is_none());
+                debug_assert!(constructor_batch.is_none());
+                (None, None)
+            }
+        };
+        Self {
+            statement,
+            kind,
+            constructor_sources,
+            constructor_batch,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub(super) enum NormalScriptRuntimeStatementAdmissionV1 {
     RawCompatibility,
     CatalogedNonMainStaticBox,
-    InstancePrefixCompatibility,
+    InstancePrefixCompatibility {
+        constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
+        constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
+    },
 }
 
 impl PreparedNormalScriptRuntimeWorkV1 {
-    pub(super) fn prepare(statements: Vec<ASTNode>) -> Self {
-        let admissions = statements.iter().map(classify_runtime_statement).collect();
+    pub(super) fn prepare(inputs: Vec<PreparedNormalScriptRuntimeInputV1>) -> Self {
+        let mut statements = Vec::with_capacity(inputs.len());
+        let mut admissions = Vec::with_capacity(inputs.len());
+        for input in inputs {
+            let admission = match input.kind {
+                NormalScriptRuntimeStatementKindV1::RawCompatibility => {
+                    NormalScriptRuntimeStatementAdmissionV1::RawCompatibility
+                }
+                NormalScriptRuntimeStatementKindV1::CatalogedNonMainStaticBox => {
+                    NormalScriptRuntimeStatementAdmissionV1::CatalogedNonMainStaticBox
+                }
+                NormalScriptRuntimeStatementKindV1::InstancePrefixCompatibility => {
+                    NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility {
+                        constructor_sources: input.constructor_sources,
+                        constructor_batch: input.constructor_batch,
+                    }
+                }
+            };
+            statements.push(input.statement);
+            admissions.push(admission);
+        }
         Self {
             statements: statements.into_boxed_slice(),
-            admissions,
+            admissions: admissions.into_boxed_slice(),
         }
     }
 
@@ -60,13 +117,30 @@ impl PreparedNormalScriptRuntimeWorkV1 {
     }
 
     #[cfg(test)]
-    fn admission_at(&self, index: usize) -> NormalScriptRuntimeStatementAdmissionV1 {
-        self.admissions[index]
+    pub(super) fn admission_at(&self, index: usize) -> &NormalScriptRuntimeStatementAdmissionV1 {
+        &self.admissions[index]
     }
 
     #[cfg(test)]
     pub(super) fn statement_at(&self, index: usize) -> &ASTNode {
         &self.statements[index]
+    }
+
+    #[cfg(test)]
+    pub(super) fn constructor_admission_at(
+        &self,
+        index: usize,
+    ) -> Option<(
+        &NormalInstanceConstructorSourceBatchV1,
+        &PreparedInstanceBoxConstructorBatchV1,
+    )> {
+        match &self.admissions[index] {
+            NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility {
+                constructor_sources: Some(sources),
+                constructor_batch: Some(batch),
+            } => Some((sources, batch)),
+            _ => None,
+        }
     }
 }
 
@@ -98,16 +172,23 @@ where
         index: usize,
     ) -> Result<ValueId, String> {
         let statement = &self.work.statements[index];
-        match self.work.admissions[index] {
+        match &self.work.admissions[index] {
             NormalScriptRuntimeStatementAdmissionV1::RawCompatibility => {
                 drive_legacy_statement_v1(builder, self.port, statement.clone())
             }
             NormalScriptRuntimeStatementAdmissionV1::CatalogedNonMainStaticBox => {
                 lower_cataloged_nonmain_static_box_v1(builder, self.port, statement)
             }
-            NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility => {
-                lower_instance_runtime_prefix_v1(builder, self.port, statement)
-            }
+            NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility {
+                constructor_sources,
+                constructor_batch,
+            } => lower_instance_runtime_prefix_v1(
+                builder,
+                self.port,
+                statement,
+                constructor_sources.as_ref(),
+                constructor_batch.as_ref(),
+            ),
         }
     }
 }
@@ -137,6 +218,8 @@ fn lower_instance_runtime_prefix_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
     statement: &ASTNode,
+    constructor_sources: Option<&NormalInstanceConstructorSourceBatchV1>,
+    constructor_batch: Option<&PreparedInstanceBoxConstructorBatchV1>,
 ) -> Result<ValueId, String>
 where
     Port: RootCallableCapturePortV1,
@@ -146,7 +229,7 @@ where
         methods,
         fields,
         field_decls,
-        constructors,
+        constructors: _,
         init_fields,
         weak_fields,
         is_static: false,
@@ -155,34 +238,49 @@ where
     else {
         return Err("[freeze:contract][mir/script-runtime/instance-source-drift]".to_owned());
     };
-    PreparedInstanceBoxDeclarationLifecycleV1::prepare(
+    let constructor_sources = constructor_sources.ok_or_else(|| {
+        "[freeze:contract][mir/script-runtime/instance-constructor-source]".to_owned()
+    })?;
+    let constructor_batch = constructor_batch.ok_or_else(|| {
+        "[freeze:contract][mir/script-runtime/instance-constructor-batch]".to_owned()
+    })?;
+    PreparedInstanceBoxDeclarationLifecycleV1::prepare_with_constructor_batch_v1(
         name,
         methods,
         fields,
         field_decls,
-        constructors,
         init_fields,
         weak_fields,
+        constructor_batch.clone(),
     )
-    .lower_runtime_prefix_with_port_v1(builder, port)?;
+    .lower_normal_runtime_prefix_with_port_v1(builder, port, constructor_sources)?;
     emit_void(builder)
 }
 
-fn classify_runtime_statement(statement: &ASTNode) -> NormalScriptRuntimeStatementAdmissionV1 {
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum NormalScriptRuntimeStatementKindV1 {
+    RawCompatibility,
+    CatalogedNonMainStaticBox,
+    InstancePrefixCompatibility,
+}
+
+pub(super) fn classify_normal_script_runtime_statement_v1(
+    statement: &ASTNode,
+) -> NormalScriptRuntimeStatementKindV1 {
     match statement {
         ASTNode::BoxDeclaration {
             name,
             is_static: true,
             ..
         } if name != "Main" && is_plain_box(statement) => {
-            NormalScriptRuntimeStatementAdmissionV1::CatalogedNonMainStaticBox
+            NormalScriptRuntimeStatementKindV1::CatalogedNonMainStaticBox
         }
         ASTNode::BoxDeclaration {
             is_static: false, ..
         } if is_plain_box(statement) => {
-            NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility
+            NormalScriptRuntimeStatementKindV1::InstancePrefixCompatibility
         }
-        _ => NormalScriptRuntimeStatementAdmissionV1::RawCompatibility,
+        _ => NormalScriptRuntimeStatementKindV1::RawCompatibility,
     }
 }
 
@@ -258,29 +356,49 @@ mod tests {
         *is_sync = true;
 
         let work = PreparedNormalScriptRuntimeWorkV1::prepare(vec![
-            plain_box("Helpers", true),
-            plain_box("Page", false),
-            plain_box("Main", true),
-            sync_box,
+            PreparedNormalScriptRuntimeInputV1::preclassified(
+                plain_box("Helpers", true),
+                classify_normal_script_runtime_statement_v1(&plain_box("Helpers", true)),
+                None,
+                None,
+            ),
+            PreparedNormalScriptRuntimeInputV1::preclassified(
+                plain_box("Page", false),
+                classify_normal_script_runtime_statement_v1(&plain_box("Page", false)),
+                None,
+                None,
+            ),
+            PreparedNormalScriptRuntimeInputV1::preclassified(
+                plain_box("Main", true),
+                classify_normal_script_runtime_statement_v1(&plain_box("Main", true)),
+                None,
+                None,
+            ),
+            PreparedNormalScriptRuntimeInputV1::preclassified(
+                sync_box.clone(),
+                classify_normal_script_runtime_statement_v1(&sync_box),
+                None,
+                None,
+            ),
         ]);
 
         assert_eq!(work.len(), 4);
-        assert_eq!(
+        assert!(matches!(
             work.admission_at(0),
             NormalScriptRuntimeStatementAdmissionV1::CatalogedNonMainStaticBox
-        );
-        assert_eq!(
+        ));
+        assert!(matches!(
             work.admission_at(1),
-            NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility
-        );
-        assert_eq!(
+            NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility { .. }
+        ));
+        assert!(matches!(
             work.admission_at(2),
             NormalScriptRuntimeStatementAdmissionV1::RawCompatibility
-        );
-        assert_eq!(
+        ));
+        assert!(matches!(
             work.admission_at(3),
             NormalScriptRuntimeStatementAdmissionV1::RawCompatibility
-        );
+        ));
     }
 
     #[test]
@@ -289,6 +407,7 @@ mod tests {
         let source = r#"
 box Page {
   capacity: usize = 0
+  birth() { return 6 }
   answer() { return 7 }
 }
 static box Helpers { value() { return 8 } }
@@ -325,6 +444,15 @@ print(1)
                 .function_names()
                 .iter()
                 .filter(|name| name.as_str() == "Page.answer/0")
+                .count(),
+            1
+        );
+        assert_eq!(
+            normal
+                .module
+                .function_names()
+                .iter()
+                .filter(|name| name.as_str() == "Page.birth/0")
                 .count(),
             1
         );

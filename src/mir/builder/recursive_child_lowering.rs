@@ -26,7 +26,7 @@ use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1
 
 const MAX_RAW_EXPRESSION_RECURSION_DEPTH: usize = 200;
 
-fn normalize_instance_box_method_input_v1(
+pub(in crate::mir::builder) fn normalize_instance_box_method_input_v1(
     function_name: &str,
     params: Vec<String>,
     param_decls: Vec<ParamDecl>,
@@ -301,6 +301,15 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         self.module_port
             .commit_normal_top_level_function_pending(pending, admission)
+    }
+
+    pub(in crate::mir::builder) fn commit_normal_instance_constructor_pending_v1(
+        &mut self,
+        pending: LegacyFunctionPendingSessionV1<'_>,
+        admission: super::normal_instance_constructor_admission::NormalInstanceConstructorDraftAdmissionV1,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        self.module_port
+            .commit_normal_instance_constructor_pending(pending, admission)
     }
 
     pub(in crate::mir::builder) fn complete_static_box_method_branded(

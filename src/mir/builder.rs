@@ -49,6 +49,7 @@ mod exprs_check; // CheckExpr lowering
 mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sugar
 mod entry_materialization; // source-only callable Main materialization facts
 mod normal_runtime_inputs; // selected normal ingress runtime snapshot
+mod normal_instance_constructor_admission;
 mod fact_session;
 #[cfg(test)]
 mod fact_session_p0_tests;

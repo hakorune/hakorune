@@ -1,7 +1,7 @@
 //! One declaration lifecycle shared by Program-root and raw instance Boxes.
 //!
-//! The effectful prefix is deliberately single-owner.  Root and raw lowering
-//! diverge only after fields, metadata, and every constructor have completed.
+//! The effectful prefix is deliberately single-owner. Root and raw lowering
+//! share fields and metadata, then select their constructor/method terminals.
 
 use std::collections::HashMap;
 
@@ -11,6 +11,7 @@ use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1
 use super::instance_box_declaration_metadata::PreparedInstanceBoxDeclarationMetadataV1;
 use super::instance_box_method_batch::PreparedInstanceBoxMethodBatchV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
+use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceBatchV1;
 use super::recursive_child_lowering::RawBoxMethodChildPortV1;
 use super::MirBuilder;
 
@@ -36,6 +37,27 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
         init_fields: &'source [String],
         weak_fields: &'source [String],
     ) -> Self {
+        Self::prepare_with_constructor_batch_v1(
+            name,
+            methods,
+            fields,
+            field_decls,
+            init_fields,
+            weak_fields,
+            PreparedInstanceBoxConstructorBatchV1::prepare(name, constructors),
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn prepare_with_constructor_batch_v1(
+        name: &'source str,
+        methods: &'source HashMap<String, ASTNode>,
+        fields: &'source [String],
+        field_decls: &'source [FieldDecl],
+        init_fields: &'source [String],
+        weak_fields: &'source [String],
+        constructors: PreparedInstanceBoxConstructorBatchV1,
+    ) -> Self {
         Self {
             name,
             fields,
@@ -48,7 +70,7 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
                 fields,
                 weak_fields,
             ),
-            constructors: PreparedInstanceBoxConstructorBatchV1::prepare(name, constructors),
+            constructors,
             instance_methods: PreparedInstanceBoxMethodBatchV1::prepare(name, methods),
         }
     }
@@ -61,7 +83,22 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
     where
         Port: RootCallableCapturePortV1,
     {
-        let methods = self.lower_common_prefix_v1(builder, port)?;
+        let (constructors, methods) = self.lower_declaration_prefix_v1(builder)?;
+        constructors.lower_with_port_v1(builder, port)?;
+        methods.lower_root_with_port_v1(builder, port)
+    }
+
+    pub(super) fn lower_normal_root_with_port_v1<Port>(
+        self,
+        builder: &mut MirBuilder,
+        port: &mut Port,
+        constructor_sources: &NormalInstanceConstructorSourceBatchV1,
+    ) -> Result<(), String>
+    where
+        Port: RootCallableCapturePortV1,
+    {
+        let (constructors, methods) = self.lower_declaration_prefix_v1(builder)?;
+        constructors.lower_normal_with_port_v1(builder, port, constructor_sources)?;
         methods.lower_root_with_port_v1(builder, port)
     }
 
@@ -73,7 +110,8 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
     where
         Port: RawBoxMethodChildPortV1,
     {
-        let methods = self.lower_common_prefix_v1(builder, port)?;
+        let (constructors, methods) = self.lower_declaration_prefix_v1(builder)?;
+        constructors.lower_with_port_v1(builder, port)?;
         methods.lower_raw_with_port_v1(builder, port)
     }
 
@@ -87,27 +125,52 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
     where
         Port: RawBoxMethodChildPortV1,
     {
-        let _ordinary_methods = self.lower_common_prefix_v1(builder, port)?;
+        let (constructors, _) = self.lower_declaration_prefix_v1(builder)?;
+        constructors.lower_with_port_v1(builder, port)?;
         Ok(())
     }
 
-    fn lower_common_prefix_v1<Port>(
+    pub(in crate::mir::builder) fn lower_normal_runtime_prefix_with_port_v1<Port>(
         self,
         builder: &mut MirBuilder,
         port: &mut Port,
-    ) -> Result<PreparedInstanceBoxMethodBatchV1, String>
+        constructor_sources: &NormalInstanceConstructorSourceBatchV1,
+    ) -> Result<(), String>
     where
-        Port: RawBoxMethodChildPortV1,
+        Port: RootCallableCapturePortV1,
     {
+        let (constructors, _) = self.lower_declaration_prefix_v1(builder)?;
+        constructors.lower_normal_with_port_v1(builder, port, constructor_sources)
+    }
+
+    fn lower_declaration_prefix_v1(
+        self,
+        builder: &mut MirBuilder,
+    ) -> Result<
+        (
+            PreparedInstanceBoxConstructorBatchV1,
+            PreparedInstanceBoxMethodBatchV1,
+        ),
+        String,
+    > {
+        let Self {
+            name,
+            fields,
+            field_decls,
+            init_fields,
+            weak_fields,
+            metadata,
+            constructors,
+            instance_methods,
+        } = self;
         builder.comp_ctx.register_user_box_declared_fields(
-            self.name.to_owned(),
-            self.fields,
-            self.field_decls,
-            self.init_fields,
-            self.weak_fields,
+            name.to_owned(),
+            fields,
+            field_decls,
+            init_fields,
+            weak_fields,
         );
-        self.metadata.lower_with_builder_v1(builder)?;
-        self.constructors.lower_with_port_v1(builder, port)?;
-        Ok(self.instance_methods)
+        metadata.lower_with_builder_v1(builder)?;
+        Ok((constructors, instance_methods))
     }
 }
