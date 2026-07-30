@@ -33,7 +33,8 @@ Latest landed: NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0
 Result:        selected Script direct Box raw compatibility is retired
 Latest landed:  `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS22-D0` — closed
-Next design:    `NORMAL-SCRIPT-NONBOX-STATEMENT-DISPOSITION0-D0`
+Latest design:  `NORMAL-SCRIPT-NONBOX-STATEMENT-DISPOSITION0-D0` — closed
+Next execution: `NORMAL-SCRIPT-PRINT-DIRECT-OWNER0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -68,10 +69,10 @@ compatibility residuals, four closed residuals, and eight unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
-(`37` occurrences in `8` `src/mir` files at Census20 closeout);
-only the one selected Script and one raw-static-Main compatibility row above are
-registered selected Program/root admission dispositions. Nested raw body descent is deliberately
-unregistered rather than silently counted as one of them.
+(`37` occurrences in `8` `src/mir` files at Census20 closeout). The
+selected-Script and raw-static-Main compatibility rows above are the two
+registered Program/root admission dispositions. Nested raw body descent is
+deliberately unregistered rather than silently counted as one of them.
 
 Every census updates this table before selecting the next row. Every unregistered
 family has an immutable audit key, but is not a fence or sunset until a D0
@@ -679,6 +680,55 @@ R4 census:
 ```
 
 ## Current design decision
+
+`NORMAL-SCRIPT-NONBOX-STATEMENT-DISPOSITION0-D0` — T1 partition, closed
+
+```text
+Observed edge:
+  selected normal Script
+  -> NormalScriptRuntimeBlockPortV1::RawCompatibility
+  -> drive_legacy_statement_v1
+  -> RawInvocationChildPortV1::lower_statement
+
+Correction:
+  This is not a RawLegacy-port fallback. The selected RawInvocation child port
+  already crosses the facade unchanged. The debt is the broad statement
+  dispatcher and its catch-all admission.
+
+Total direct non-Box inventory:
+  55 AST kinds exactly; direct BoxDeclaration is already owned by the preceding
+  I0, and top-level FunctionDeclaration is consumed by immediate work.
+
+Selected first slice:
+  Print, with its complete current expression surface. Existing
+  PreparedRawPrintV1 source observation, TypeOp/general route, child descent,
+  diagnostics, and output emission remain the sole semantics.
+
+Residual partition:
+  port-aware expression family                    = 7
+  statement/control/state family excluding Print = 17
+  declaration/ingress family                     = 9
+  call/object/header-sensitive family             = 21
+  total residual                                  = 54
+
+Why no operand allowlist:
+  Both old and new Print routes use the same selected invocation port. A
+  Literal-only or port-neutral-only Print slice would narrow the replacement
+  for testing convenience without protecting a real authority boundary.
+
+Next:
+  NORMAL-SCRIPT-PRINT-DIRECT-OWNER0-I0-R0
+  -> classify the 55-kind partition once
+  -> direct Print to PreparedRawPrintV1 and its existing lower terminal
+  -> delete Print -> RawCompatibility -> drive_legacy_statement_v1
+  -> keep all 54 residual kinds at one compatibility terminal
+
+Forbid:
+  grammar/result/publication changes; Print TypeOp re-observation; a second
+  child port; raw/reference widening; selected failure -> compatibility retry;
+  block-driver/suffix bypass; AST clone/reparse; new failure/source identity;
+  or selecting another residual kind in the same I0.
+```
 
 `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-I0-R0` — T1, closed
 
