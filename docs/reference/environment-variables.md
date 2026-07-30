@@ -515,7 +515,8 @@ LoopBuilder は物理削除済みで、JoinIR を OFF にするモードは存�
   `NYASH_JOINIR_VM_BRIDGE=1` を設定したときだけ試行する。
   `NYASH_JOINIR_EXPERIMENT` はこのactivation条件ではない。
 - Exec route は出力してexitすることがある。dev/trace時の成功は観測後に通常VMへ
-  続行する。LowerOnly と非strict Exec failure は通常VMへ続行する。
+  続行する。非strict Exec failure は通常VMへ続行する。旧Stage1/StageB
+  LowerOnly observation routeは退役済み。
 
 ### DevOnly（開発/計測専用）
 

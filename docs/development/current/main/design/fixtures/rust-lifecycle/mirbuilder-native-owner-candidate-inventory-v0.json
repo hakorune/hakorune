@@ -9798,7 +9798,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_joinir_if_toplevel_target",
-      "line": 147,
+      "line": 142,
       "path": "src/mir/join_ir/lowering/mod.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -9854,7 +9854,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_if_toplevel_prefix_target",
-      "line": 188,
+      "line": 126,
       "path": "src/mir/join_ir_vm_bridge_dispatch/targets.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -16435,6 +16435,16 @@
       "status": "rejected"
     },
     {
+      "candidate_kind": "boolean_classifier",
+      "function": "is_loop_lowering_target",
+      "line": 21,
+      "path": "src/mir/join_ir/lowering/loop_target_policy.rs",
+      "reject_reasons": [
+        "depends_on_lowering"
+      ],
+      "status": "rejected"
+    },
+    {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "lower_case_a_for_stage1_resolver",
       "line": 42,
@@ -16516,7 +16526,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_loop_mainline_target",
-      "line": 102,
+      "line": 97,
       "path": "src/mir/join_ir/lowering/mod.rs",
       "reject_reasons": [
         "depends_on_lowering"
@@ -16526,7 +16536,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_if_mainline_target",
-      "line": 109,
+      "line": 104,
       "path": "src/mir/join_ir/lowering/mod.rs",
       "reject_reasons": [
         "depends_on_lowering"
@@ -16647,43 +16657,9 @@
       "status": "rejected"
     },
     {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "try_run_stage1_usingresolver",
-      "line": 63,
-      "path": "src/mir/join_ir_vm_bridge_dispatch/lower_only_routes.rs",
-      "reject_reasons": [
-        "depends_on_lowering",
-        "depends_on_resolution",
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "try_run_stageb_body",
-      "line": 77,
-      "path": "src/mir/join_ir_vm_bridge_dispatch/lower_only_routes.rs",
-      "reject_reasons": [
-        "depends_on_lowering",
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "try_run_stageb_funcscanner",
-      "line": 91,
-      "path": "src/mir/join_ir_vm_bridge_dispatch/lower_only_routes.rs",
-      "reject_reasons": [
-        "depends_on_lowering",
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
       "candidate_kind": "boolean_classifier",
       "function": "is_if_lowered_function",
-      "line": 164,
+      "line": 102,
       "path": "src/mir/join_ir_vm_bridge_dispatch/targets.rs",
       "reject_reasons": [
         "depends_on_lowering"
@@ -16693,10 +16669,21 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_if_lowering_prefix_target",
-      "line": 175,
+      "line": 113,
       "path": "src/mir/join_ir_vm_bridge_dispatch/targets.rs",
       "reject_reasons": [
         "depends_on_lowering"
+      ],
+      "status": "rejected"
+    },
+    {
+      "candidate_kind": "label_or_vocabulary_surface",
+      "function": "lower_only_observation_names_are_not_vm_targets",
+      "line": 155,
+      "path": "src/mir/join_ir_vm_bridge_dispatch/targets.rs",
+      "reject_reasons": [
+        "depends_on_lowering",
+        "depends_on_resolution"
       ],
       "status": "rejected"
     },
@@ -18653,10 +18640,10 @@
         "depends_on_collection": 69,
         "depends_on_context": 29,
         "depends_on_emission": 44,
-        "depends_on_lowering": 89,
+        "depends_on_lowering": 88,
         "depends_on_metadata": 74,
         "depends_on_resolution": 78,
-        "depends_on_route_selection": 116,
+        "depends_on_route_selection": 113,
         "may_mutate_state": 105,
         "phi_or_localssa_surface": 94,
         "takes_mut_self": 12
@@ -18664,9 +18651,9 @@
       "by_status": {
         "already_adopted_name_match": 1,
         "candidate": 893,
-        "rejected": 635
+        "rejected": 634
       },
-      "surface_count": 1529
+      "surface_count": 1528
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

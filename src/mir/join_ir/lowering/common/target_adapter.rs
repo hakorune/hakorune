@@ -16,7 +16,7 @@ use super::cfg_shape::construct_simple_while_loopform;
 ///
 /// Returns `Some(JoinModule)` only when generic Case-A is enabled and the
 /// route-specific lowering succeeds. All fallback behavior remains in the
-/// caller so Exec/LowerOnly semantics stay route-owned.
+/// caller so VM execution semantics stay route-owned.
 pub fn try_generic_case_a_route<F>(
     tag: &str,
     target_func: &MirFunction,

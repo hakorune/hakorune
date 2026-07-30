@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-06-13
+Date: 2026-07-30
 Scope: JoinIR target-specific lowerer thinning after compiler pipeline thinning.
 Related:
   - docs/development/current/main/design/compiler-pipeline-thinning-ssot.md
@@ -22,12 +22,11 @@ separating seams, not by deleting route-specific code or merging behavior.
 thin target lowerers by:
   naming shared seams
   keeping route truth in active route owners
-  keeping observation routes observation-only
   reducing duplicate dispatch/logging scaffolds
 
 do not thin by:
-  removing Stage1/StageB LowerOnly rows
-  merging Exec and LowerOnly behavior
+  deleting target-specific lowerer evidence
+  moving loop-target classification into VM dispatch
   moving accepted source-shape decisions into target lowerers
   making dry-run/observation surfaces mutate MIR
 ```
@@ -66,8 +65,8 @@ common/type_hint.rs:
 common/case_a.rs:
   minimal Case-A shape guard
 
-join_ir_vm_bridge_dispatch/lower_only_routes.rs:
-  LowerOnly structural-observation route helper
+loop_target_policy.rs:
+  neutral five-name Loop/If/strict classification
 ```
 
 ## Ownership Rules
@@ -78,10 +77,13 @@ Route truth stays with active route owners:
 
 ```text
 Loop target registration:
-  JOINIR_TARGETS
+  lowering/loop_target_policy.rs
 
 If target registration:
   JOINIR_IF_TARGETS and prefix policy helpers
+
+VM execution registration:
+  JOINIR_VM_EXEC_TARGETS
 
 Condition expression lowering:
   if_lowering_router / condition_lowerer / ExprLowerer
@@ -93,20 +95,19 @@ Case-A lowering:
 Target-specific files may orchestrate their route, but they must not become a
 second policy source for accepted shapes.
 
-### LowerOnly
+### Retired LowerOnly Observation
 
-`LowerOnly` rows are live observation rows:
+The former Stage1/StageB `LowerOnly` VM rows were observation-only:
 
 ```text
-LowerOnly:
-  may run structural lowering observation
-  must return to normal VM Route A
-  must not handle output / exit
-  must not be interpreted as execution failure under strict mode
+explicit VM bridge
+-> target-specific lowering observation
+-> unconditional ordinary VM continuation
 ```
 
-Do not delete Stage1/StageB LowerOnly rows while they are needed for structural
-lowering probes.
+`JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0` retires that dispatch
+surface. The three target-specific lowerers and direct evidence remain active,
+but VM dispatch no longer owns or invokes them as observations.
 
 ### Dry-Run / Observation
 
@@ -151,19 +152,20 @@ do not add new mixed helper logic to common.rs
 
 ### JOINIR-TARGET-THIN-002: LowerOnly Observation Helper
 
-Landed:
+Retired:
 
 ```text
-lower_only_routes.rs:
-  Stage1/StageB routes share one observation helper
-  all LowerOnly routes return false to normal VM Route A
+JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0:
+  five-name classification -> neutral loop_target_policy
+  lower_only_routes.rs -> deleted
+  VM target table -> two Exec rows only
 ```
 
-Next actions:
+Preserved:
 
 ```text
 keep Exec success/output handling in exec_routes.rs
-keep LowerOnly observation in lower_only_routes.rs
+keep Stage1/StageB lowerers and direct tests
 ```
 
 ### JOINIR-TARGET-THIN-003: Target Lowerer Route Inventory
@@ -171,8 +173,8 @@ keep LowerOnly observation in lower_only_routes.rs
 Status: landed as read-only inventory.
 
 Before moving code between target lowerers, keep the route inventory explicit.
-The inventory follows `JOINIR_TARGETS`; it is documentation-only and must not
-change accepted shapes.
+The inventory follows the neutral five-name loop-target policy; VM execution
+registration is the separate two-row `JOINIR_VM_EXEC_TARGETS`.
 
 #### `Main.skip/1`
 
@@ -221,7 +223,7 @@ non-claim:
 #### `Stage1UsingResolverBox.resolve_for_source/5`
 
 ```text
-bridge_kind: LowerOnly
+bridge_kind: none (target-specific lowering evidence only)
 lowerer_entry: lower_stage1_usingresolver_to_joinir
 route_shape:
   dispatch through dispatch_lowering
@@ -232,13 +234,13 @@ route_shape:
 fallback:
   MIR/generic failure -> handwritten builder
 execution:
-  LowerOnly bridge always returns to normal VM Route A
+  no VM observation route
 ```
 
 #### `StageBBodyExtractorBox.build_body_src/2`
 
 ```text
-bridge_kind: LowerOnly
+bridge_kind: none (target-specific lowering evidence only)
 lowerer_entry: lower_stageb_body_to_joinir
 route_shape:
   dispatch through dispatch_lowering
@@ -249,13 +251,13 @@ route_shape:
 fallback:
   MIR/generic failure -> handwritten builder
 execution:
-  LowerOnly bridge always returns to normal VM Route A
+  no VM observation route
 ```
 
 #### `StageBFuncScannerBox.scan_all_boxes/1`
 
 ```text
-bridge_kind: LowerOnly
+bridge_kind: none (target-specific lowering evidence only)
 lowerer_entry: lower_stageb_funcscanner_to_joinir
 route_shape:
   dispatch through dispatch_lowering
@@ -266,7 +268,7 @@ route_shape:
 fallback:
   MIR/generic failure -> handwritten builder
 execution:
-  LowerOnly bridge always returns to normal VM Route A
+  no VM observation route
 ```
 
 Shared repetition visible after this inventory:
@@ -280,7 +282,7 @@ fall back to route-local handwritten builder
 ```
 
 This repeated shape is only a candidate seam. It does not justify merging route
-truth or changing `Exec` / `LowerOnly` behavior.
+truth or reviving the retired VM observation surface.
 
 Acceptance:
 
@@ -325,7 +327,7 @@ common/target_adapter.rs:
     entry_is_preheader / has_break policy
     route-specific LoopToJoinLowerer entrypoint
     handwritten fallback
-    Exec / LowerOnly behavior
+    VM execution policy
 ```
 
 Current users:

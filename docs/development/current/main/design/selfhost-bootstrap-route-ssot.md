@@ -305,8 +305,9 @@ selfhost 復帰の議論で混線しやすい点を、ここで固定する。
    - JoinIR VM bridge は `vm-reference` build の explicit `--backend vm` で
      `NYASH_JOINIR_VM_BRIDGE=1` のときのみ試行する。`NYASH_JOINIR_EXPERIMENT`
      はactivation条件ではない。
-   - Exec route は出力・exitし得る。dev/trace成功、LowerOnly、非strict Exec
-     failure の通常VM継続は explicit compatibility behavior として扱う。
+   - Exec route は出力・exitし得る。dev/trace成功と非strict Exec failureの
+     通常VM継続は explicit compatibility behavior として扱う。旧LowerOnly
+     observation routeは退役済みで、Stage1/StageB lowererは直接証拠として残す。
 
 ## Bootstrap Stages (SSOT)
 

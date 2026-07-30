@@ -7,7 +7,7 @@
 - `string_whitespace.rs` — shared string whitespace predicate instruction
   sequence for trim-style lowerers. It does not own route acceptance policy.
 - `target_adapter.rs` — generic Case-A probe orchestration for target-local
-  lowerers. It does not own route policy or Exec/LowerOnly behavior.
+  lowerers. It does not own route policy or VM execution behavior.
   Do not add target-specific guard options here; keep those in route modules.
 - `type_hint.rs` — IfSelect / IfMerge type hint extraction from MIR constants.
 - `case_a/` — Generic Case-A lowering helpers. route vocabulary and guards live with the active lowerer.

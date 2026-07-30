@@ -41,6 +41,7 @@ pub mod loop_body_local_init; // Phase 186: Body-local init expression lowering
 pub(crate) mod loop_form_intake; // Internal loop form intake
 pub(crate) mod loop_route_validator; // Phase 33-23: Loop structure validation
 pub mod loop_scope_shape;
+pub(crate) mod loop_target_policy;
 pub mod loop_to_join;
 pub mod loop_update_analyzer; // Phase 197: Update expression analyzer for carrier semantics
 pub(crate) mod loop_view_builder; // Phase 33-23: Loop lowering dispatch
@@ -73,8 +74,7 @@ pub use if_lowering_router::try_lower_if_to_joinir;
 /// これらの関数は Phase 32/33 で LoopToJoinLowerer によって処理されます。
 /// If lowering (Select/IfMerge) の対象から除外することで、Loop/If の責務を明確に分離します。
 ///
-/// Phase 82 SSOT: JOINIR_TARGETS テーブルから Loop lowering 対象を参照
-/// （テーブルは vm_bridge_dispatch/targets.rs で一元管理）
+/// Classification SSOT: `loop_target_policy`.
 ///
 /// ## 対象関数（5本）
 /// - Main.skip/1: 空白スキップループ
@@ -86,12 +86,7 @@ pub use if_lowering_router::try_lower_if_to_joinir;
 /// ## 将来の拡張
 /// NYASH_JOINIR_LOWER_GENERIC=1 で汎用 Case-A ループにも拡張可能
 pub(crate) fn is_loop_lowered_function(name: &str) -> bool {
-    // Phase 82 SSOT: vm_bridge_dispatch テーブルから Loop 関数を抽出
-    // Phase 33-9.1: If lowering の除外対象は、JOINIR_TARGETS に登録されたすべての関数
-    // （Exec/LowerOnly 問わず、ループ専任関数として Loop lowering で処理）
-    crate::mir::join_ir_vm_bridge_dispatch::JOINIR_TARGETS
-        .iter()
-        .any(|t| t.func_name == name)
+    loop_target_policy::is_loop_lowering_target(name)
 }
 
 // ============================================================================

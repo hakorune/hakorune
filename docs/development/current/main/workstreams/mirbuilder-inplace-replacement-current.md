@@ -74,7 +74,8 @@ Latest landed: `JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0`
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS39-D0` — closed
 Latest landed: `JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0`
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS40-D0` — closed
-Next row:      `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`
+Latest landed: `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`
+Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS41-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -105,11 +106,11 @@ activation and sunset contract.
 | closed | `JOINMODULE-AST-FRONTEND-LEGACY-SUNSET-001` (promotes `R4-UNREGISTERED-AST-FRONTEND-001`) | former `AstToJoinIrLowerer`, its exclusive helper/tests, six Program-JSON fixtures, three exclusive dev flags, two lowerer-to-bridge E2E tests, and current frontend contract residue | production caller = 0 before deletion; complete frontend closure now absent | RET0 | retired by `JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0`; direct VM conversion/tests, JoinModule core/lowering, normalized-shadow, native Phase40 analysis, and `JOINIR_TEST_DEBUG` remain |
 | closed | `JOINMODULE-TEST-HANDLER-LANE-SUNSET-001` (promotes `R4-UNREGISTERED-TEST-HANDLER-001`) | former cfg(test)-only `block_finalizer`, `handlers/**`, `merge_variable_handler`, and `terminator_builder` legacy VM-bridge handler lane | production conversion remains solely in `joinir_block_converter/**`; deleted lane and registrations = 0 | RET0 | retired by `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`: 14 files / 3743 lines, four cfg(test) module declarations, obsolete README section, stale PHI seam row, and generated inventory rows deleted |
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> `lower_static_box_method` / `lower_instance_box_method`, the two live nested-method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | RETAIN-FENCED: no exact source occurrence reaches the raw port | fresh `RAW-LOCATED-BODY-TRANSPORT0-D0` may select REOWN only when one function-relative located transport deletes a named production edge; otherwise forced disposition at `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` |
-| active retirement | `JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001` | three explicit-VM `LowerOnly` target rows, dispatcher observation branch, and `lower_only_routes`; five target names are also consumed by Loop/If/strict classification | explicit `NYASH_JOINIR_VM_BRIDGE=1`; observation always returns to ordinary VM execution; default normal = 0 | REOWN five-name classification into neutral lowering policy, then RET0 LowerOnly VM observation | `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`: keep two Exec routes and all five lowerer evidence suites; delete LowerOnly route/vocabulary without alias |
+| closed | `JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001` | former three explicit-VM `LowerOnly` target rows, dispatcher observation branch, and `lower_only_routes`; five target names were also consumed by Loop/If/strict classification | observation route and vocabulary = 0; neutral five-name policy and two VM Exec rows remain | REOWN+RET0 | retired by `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`: all five lowerers/direct evidence remain; no old target-table alias |
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/dispatch remainder after LowerOnly selection | live JoinModule core/lowering, normalized-shadow execution, and two VM Exec routes outside registered rows; there is no independent JSON/format subsystem | normalized-dev and explicit VM Exec have live consumers; default normal = 0 | broad RET0 rejected; exact final retained/deleted closure remains an R4 decision after selected LowerOnly retirement | fresh census after `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`; no broad disposition may be inferred from the selected sub-surface |
 
 The registry has four registered R4 fences, zero active compatibility residuals,
-one active retirement, thirteen closed residuals, and two unregistered R4 family
+zero active retirements, fourteen closed residuals, and two unregistered R4 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
@@ -138,6 +139,45 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0` — T2 atomic REOWN+RET0, closed
+
+```text
+Reowned:
+  exact five-name Loop/If/strict classification into
+  join_ir/lowering/loop_target_policy.rs.
+
+Retired:
+  JoinIrBridgeKind and LowerOnly vocabulary; three LowerOnly target rows;
+  observe_lower_only_target; lower_only_routes.rs and its three VM observers;
+  old JOINIR_TARGETS dual-policy table.
+
+Preserved:
+  two explicit VM Exec routes; all five target-specific lowerers and direct
+  evidence; If target/prefix policy; JoinModule model/converter;
+  normalized-shadow; ordinary VM continuation outside handled Exec success.
+
+Evidence:
+  cargo check --lib and cargo check --tests --features vm-reference = green;
+  neutral policy 2/2, exact VM target tests, five-name lowering policy,
+  direct VM converter 5/5, Stage1 resolver lowering 2 green / 2 manual ignored,
+  StageB body and FuncScanner 3 green / 1 manual ignored each;
+  old code symbols and route file = 0; generated inventories and docs guard
+  are current.
+
+Measured:
+  one new 50-line source owner; new test/check files = 0;
+  largest touched source/check file = 193 lines;
+  grammar/result/backend/default-normal delta = 0; fallback/retry = 0.
+
+R4:
+  JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001 = closed.
+  retain-fenced=4, active compatibility=0, active retirement=0,
+  closed=14, unregistered=2.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS41-D0, read-only design stop.
+```
 
 `MIRBUILDER-LIVE-EDGE-CENSUS40-D0` — read-only census, closed
 

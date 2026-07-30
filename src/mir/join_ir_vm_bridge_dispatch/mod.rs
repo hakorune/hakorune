@@ -2,28 +2,21 @@
 //!
 //! VM runner から JoinIR 詳細を隠蔽し、関数名ベースのルーティングを一箇所に集約する。
 //!
-//! ## Phase 32 L-4: Descriptor テーブル導入
-//!
-//! 関数名→役割のマッピングを `JOINIR_TARGETS` テーブルで管理し、
-//! 「どの関数が Exec（実行可能）か LowerOnly（検証のみ）か」を明示する。
-//! VM bridge 実行そのものは常に明示 env でだけ有効化する。
+//! VM execution targets are a two-row table. The neutral five-name Loop
+//! classification lives in `join_ir::lowering::loop_target_policy`.
 //!
 //! 将来は LoopScopeShape / ExitAnalysis ベースの構造判定に差し替え予定。
 
 mod env_flags;
 mod exec_routes;
-mod lower_only_routes;
 mod targets;
 
 use env_flags::JoinIrEnvFlags;
 use exec_routes::{try_run_skip_ws, try_run_trim};
-use lower_only_routes::{
-    try_run_stage1_usingresolver, try_run_stageb_body, try_run_stageb_funcscanner,
-};
 use targets::find_joinir_target;
 pub use targets::{
     is_if_lowered_function, is_if_lowering_prefix_target, is_if_toplevel_prefix_target,
-    JoinIrBridgeKind, JoinIrTargetDesc, JOINIR_IF_TARGETS, JOINIR_TARGETS,
+    JoinIrTargetDesc, JOINIR_IF_TARGETS,
 };
 
 use crate::mir::MirModule;
@@ -40,10 +33,7 @@ use crate::runtime::get_global_ring0;
 ///   while dev/trace success remains an observation before ordinary VM runs.
 /// - `false`: the explicit compatibility lane continues through ordinary VM.
 ///
-/// # Phase 32 L-4: テーブル駆動ルーティング
-///
-/// `JOINIR_TARGETS` テーブルから対象関数を探し、関数名ごとの route に分岐する。
-/// `JoinIrBridgeKind` は route の実行範囲を表す metadata として保持する。
+/// The VM execution table contains only the two routes that may execute.
 pub fn try_run_joinir_vm_bridge(module: &MirModule, quiet_pipe: bool) -> bool {
     let flags = JoinIrEnvFlags::from_env();
     let strict = bridge_exec_strict_enabled();
@@ -65,13 +55,6 @@ pub fn try_run_joinir_vm_bridge(module: &MirModule, quiet_pipe: bool) -> bool {
         return false;
     }
 
-    if matches!(target.kind, JoinIrBridgeKind::LowerOnly) {
-        observe_lower_only_target(target.func_name, module, quiet_pipe);
-        return false;
-    }
-
-    // Phase 32 L-4: テーブル駆動ディスパッチ
-    // 関数名でルーティング（将来は lowering テーブルベースに差し替え予定）
     let handled = match target.func_name {
         "Main.skip/1" => try_run_skip_ws(module, quiet_pipe),
         "FuncScannerBox.trim/1" => try_run_trim(module, quiet_pipe),
@@ -96,28 +79,13 @@ pub fn try_run_joinir_vm_bridge(module: &MirModule, quiet_pipe: bool) -> bool {
 /// Exec bridge failures use the established JoinIR strict aliases locally.
 ///
 /// This intentionally does not alter the historical NYASH-only helper used by
-/// other JoinIR families. LowerOnly routes return before this predicate.
+/// other JoinIR families.
 fn bridge_exec_strict_enabled() -> bool {
     crate::config::env::joinir_dev::strict_enabled()
 }
 
 fn bridge_exec_failure_requires_exit(strict: bool, func_name: &str) -> bool {
     strict || crate::mir::join_ir::lowering::should_panic_on_joinir_failure(func_name, true)
-}
-
-fn observe_lower_only_target(func_name: &str, module: &MirModule, quiet_pipe: bool) {
-    match func_name {
-        "Stage1UsingResolverBox.resolve_for_source/5" => {
-            let _ = try_run_stage1_usingresolver(module, quiet_pipe);
-        }
-        "StageBBodyExtractorBox.build_body_src/2" => {
-            let _ = try_run_stageb_body(module, quiet_pipe);
-        }
-        "StageBFuncScannerBox.scan_all_boxes/1" => {
-            let _ = try_run_stageb_funcscanner(module, quiet_pipe);
-        }
-        _ => {}
-    }
 }
 
 #[cfg(test)]
