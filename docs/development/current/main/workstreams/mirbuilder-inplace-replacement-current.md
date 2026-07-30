@@ -47,7 +47,9 @@ Latest landed:  `NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS27-D0` — closed
 Latest design:  `NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-I0-R0`
-Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS28-D0`
+Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS28-D0` — closed
+Latest design:  `NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-D0` — closed
+Next execution: `NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -96,6 +98,77 @@ unregistered family may not become active on a generic prose promise. No second
 fence ledger is permitted.
 
 ## Disposition closeout
+
+`NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-D0` — T1 design, closed
+
+```text
+Decision:
+  Candidate A — one direct selected Script statement-If admission.
+
+Named caller:
+  NormalScriptRuntimeBlockPortV1::lower_statement.
+
+Selected existing owner:
+  drive_raw_if_statement_with_port_v1
+  -> existing IfForm
+  -> complete_if_statement_v1.
+
+Atomic delete:
+  selected Script If
+  -> StatementControlCompatibility
+  -> RawCompatibility
+  -> drive_legacy_statement_v1
+  = 0.
+
+Contract:
+  exact If source; statement span aligned once; condition then branch and
+  optional else branch demanded through the same RawInvocation port; existing
+  unknown-span Program branch shells and Void completion preserved.
+
+Evidence:
+  no-else / else / nested-body full MIR parity; condition, then, and else
+  failure ordering; branch termination and suffix stop; candidate discard and
+  compiler reuse.
+
+Exclude:
+  FastMemRegion region lifecycle; LoopRange/Break/Continue loop-exit authority;
+  Import/BuildGate/declaration ingress; new CFG or completion semantics.
+
+Structure:
+  normal_script_runtime_work.rs and the shared guard begin at 799 lines.
+  The atomic row must include only meaning-neutral local compaction sufficient
+  to keep both files below 800; no new source/check file.
+
+Next:
+  NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-I0-R0.
+```
+
+`MIRBUILDER-LIVE-EDGE-CENSUS28-D0` — read-only census, closed
+
+```text
+Exact residual:
+  StatementControl = If / LoopRange / Break / Continue / FastMemRegion.
+  DeclarationIngress = Import / BuildGate / Enum / Brand / TypeAlias / Global.
+
+Bounded owners:
+  If -> existing raw statement-If descent and completion.
+  FastMemRegion -> existing region owner, but it requires an independent
+  register/push/body/pop and metadata parity row.
+
+No direct equivalent:
+  LoopRange / Break / Continue currently terminate in raw unsupported or
+  loop-frame-specific authority.
+  All six ingress kinds currently terminate in raw unsupported; Enum/Brand
+  declaration facts do not make runtime completion Void. Direct no-op would
+  change behavior.
+
+Selection:
+  If alone, T1. No multi-kind bulk cutover.
+
+R4 registry:
+  retain-fenced=2, active compatibility=2, closed=4, unregistered=8.
+  LegacyChildDraftAdmissionV1 = 37 occurrences / 8 src/mir files, separately.
+```
 
 `NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-I0-R0` — T1 atomic
 replacement, closed
