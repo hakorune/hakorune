@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0 is closed: selected normal Script runtime ordinary non-Main static/instance Box methods now use exact cataloged admission; instance runtime prefixes preserve constructors but do not re-admit ordinary methods; raw/reference remains on a neutral statement carrier. The selected Script direct raw-admission sunset is closed. MIRBUILDER-LIVE-EDGE-CENSUS19-D0 is the active read-only selection stop. The R4 registry records two active Program/root compatibility residuals, two registered R3 fences, one closed residual, and seven unregistered R3 families that block R4 Complete. Ownership, View, and feature work stay parked until R4 final conformance."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS19-D0 is closed NoSafeLiveI0: selected normal top-level FunctionDeclaration and instance constructor LegacyChild admissions lack source identities, while raw static-Main stays explicit raw compatibility. The census corrected the R4 registry: the Script I0 closed only plain direct Box ordinary-method admission; non-plain Script Box raw compatibility is active as NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-COMPAT-SUNSET-002. NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-D0 is the active T2 design stop. The R4 registry records three active Program/root compatibility residuals, two registered R3 fences, one closed residual, and seven unregistered R3 families that block R4 Complete. Ownership, View, and feature work stay parked until R4 final conformance."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS19-D0"
-current_execution_row = "MIRBUILDER-LIVE-EDGE-CENSUS19-D0"
-current_execution_summary = "Read-only fresh live-edge census after Script runtime residual retirement. Inventory selected normal, explicit compatibility/raw-reference, and R4 registry surfaces; select at most one production old-edge deletion, one R3 disposition, or NoSafe. No code/route/grammar/result/candidate/collector/publication change."
+current_design_stop = "NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-D0"
+current_execution_row = "NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-D0"
+current_execution_summary = "T2 source-identity design stop for selected normal Program-root top-level FunctionDeclaration only. Decide one source key, physical symbol/arity, header/result, collector handoff, same-commit old-edge deletion, and failure boundary. Constructors, non-plain Script Boxes, static Main, raw/reference, Box-method namespaces, collector policy, runner/result/publication, fallback, and retry stay excluded."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """ENTRY-MATERIALIZATION-RECEIPT0-S0, ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0, Census15, NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0, NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0, Census16, NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0, NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0, Census17, NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0, Census18, and the Script-runtime Box admission D0 are closed. The current T2 I0/R0 replaces only selected Script runtime raw callable admission with cataloged static/instance admission. Constructors/top-level remain uncatalogued, raw/reference and registered R3 fences stay separate. R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """ENTRY-MATERIALIZATION-RECEIPT0-S0, ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0, Census15, NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0, NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0, Census16, NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0, NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0, Census17, NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0, Census18, Script-runtime Box admission D0, and its T2 I0/R0 are closed. Census19 is NoSafeLiveI0 and records non-plain Script Box compatibility separately. The current T2 D0 selects top-level FunctionDeclaration callable identity only; constructors remain separate. R4 final conformance still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS19-D0"
+current_blocker_token = "NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -31,8 +31,8 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0
 Result:        selected Script runtime ordinary Box methods are cataloged
-Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS19-D0` — active
-Executable:    `MIRBUILDER-LIVE-EDGE-CENSUS19-D0`
+Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS19-D0` — closed: NoSafeLiveI0
+Executable:    `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -47,7 +47,8 @@ activation and sunset contract.
 | --- | --- | --- | --- | --- |
 | active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | named raw static-Main replacement, or reachability = 0 |
 | active compatibility | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | instance constructors and top-level functions | selected Program child compatibility; catalog identity absent | each source-identity replacement is selected; constructor and top-level remain separate |
-| closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's ordinary non-Main static and instance Box method raw admission | selected normal Script only; constructors, static Main, nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
+| closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
+| active compatibility | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-COMPAT-SUNSET-002` | selected Script direct `BoxDeclaration` that fails `is_plain_box` | selected normal Script -> `RawCompatibility` -> raw statement driver exactly once; raw/reference remains separate | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-D0`: each shape obtains an exact owner or parity-equivalent pre-descent rejection, then selected raw statement edge = 0 |
 | retain-fenced | `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | two direct normalized-shadow executions and strict/dev StepTree observer | explicit dev/debug; default normal = 0 | verified Recipe/CorePlan loop owner, strict/dev parity, and independent observer disposition |
 | retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | `join_ir_vm_bridge_dispatch` Exec and LowerOnly targets | explicit VM keep / vm-reference with `NYASH_JOINIR_VM_BRIDGE=1`; default MIR and vm-fallback = 0 | dispatcher caller = 0, or one explicit-lane execution owner replaces the entire lane |
 | unregistered | LLVM experiment | feature/env-gated JoinModule mutation route | not normal/default; exact activation/owner not yet registered | R3 disposition D0 or forced R4 disposition |
@@ -58,7 +59,7 @@ activation and sunset contract.
 | unregistered | cfg(test) bridge handler lane | legacy bridge handlers and owned unit contracts | production caller = 0; test contract remains | `JOINMODULE-TEST-HANDLER-LANE-DISPOSITION0-D0` |
 | unregistered | JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | forced R4 delete-or-explicit-fenced-reference disposition |
 
-The registry has two registered R3 fences, two active selected Program/root
+The registry has two registered R3 fences, three active selected Program/root
 compatibility residuals, one closed residual, and seven unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
@@ -552,24 +553,52 @@ Next:
   `MIRBUILDER-LIVE-EDGE-CENSUS19-D0`.
 ```
 
-## Current execution
+## Latest closeout
 
-`MIRBUILDER-LIVE-EDGE-CENSUS19-D0` — read-only fresh live-edge census
+`MIRBUILDER-LIVE-EDGE-CENSUS19-D0` — read-only, closed: NoSafeLiveI0
 
 ```text
-Change:
-  Inventory selected normal, explicit compatibility/raw-reference, and R4
-  registry surfaces after the Script runtime residual retirement.  Choose at
-  most one real production old-edge deletion, one R3 disposition, or NoSafe.
+Result:
+  The remaining selected-normal LegacyChild admissions are top-level
+  FunctionDeclaration and instance constructors.  The existing callable
+  catalog owns only static/instance Box methods, so neither edge can move as a
+  T1/I0 replacement.  Raw static-Main remains explicit raw compatibility.
 
-Contract:
-  No production code, route, grammar, result, candidate, collector, or
-  publication change.  Any fence/residual creation, expansion, or
-  reclassification updates the R4 registry in the same result.
+Registry correction:
+  Script I0 retired only plain direct Box ordinary-method admission.  Non-plain
+  Script Boxes still select raw compatibility and are registered as
+  `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-COMPAT-SUNSET-002`; no surface is hidden
+  by the closed plain-Box sunset.
+
+Next:
+  `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-D0`.
+```
+
+## Current execution
+
+`NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-D0` — T2 source-identity design stop
+
+```text
+Scope:
+  selected normal Program-root top-level `FunctionDeclaration` only.  Its live
+  edge is `PreparedProgramRootTopLevelFunctionWorkV1::lower_with_port_v1` ->
+  raw static method admission -> `LegacyChildDraftAdmissionV1`.
+
+Decision required:
+  choose one source identity/key, physical symbol/arity relation, header/result
+  contract, and exact collector handoff for top-level functions.  The later I0
+  may delete only that selected old edge and must retain normal-vs-legacy
+  parity plus candidate failure/reuse.
+
+Exclude:
+  instance constructors, Script non-plain Boxes, static Main, raw/reference,
+  existing Box-method namespaces, collector policy, runner/result/publication,
+  fallback, and retry.
 
 Stop:
-  Do not select a caller-zero proof asset, whole-program acceptance variant,
-  unregistered compatibility expansion, or fallback/retry route as an I0/R0.
+  no implementation until a D0 names the new owner, same-commit old-edge
+  deletion, source/physical collision policy, and failure boundary.  Do not
+  widen the existing Box-method catalog by convenience.
 ```
 
 ## Latest closeout
