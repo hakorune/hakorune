@@ -77,7 +77,8 @@ Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS40-D0` — closed
 Latest landed: `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS41-D0` — closed
 Latest landed: `MIR-CFG-JUMP-ARGS-LAYOUT-REHOME0-I0-R0`
-Next stop:     `JOINMODULE-BRIDGE-DEAD-API-RETIRE0-D0`
+Latest landed: `JOINMODULE-BRIDGE-DEAD-API-RETIRE0-RET0`
+Next stop:     `MIRBUILDER-JOINMODULE-CLEANUP-BATCH-CENSUS42-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -104,7 +105,7 @@ activation and sunset contract.
 | closed | `LLVM-JOINMODULE-EXPERIMENT-ROUTE-SUNSET-001` (promotes `R4-UNREGISTERED-LLVM-EXPERIMENT-001`) | former LLVM runner `JoinIrExperimentBox`: `Main.skip/1` MIR -> JoinModule -> MIR replacement plus original-MIR return on lowering/bridge failure | activation and complete LLVM-only owner/hook/env surface = 0 | RET0 | retired by `LLVM-JOINMODULE-EXPERIMENT-ROUTE-RETIRE0-RET0`; shared JoinModule lowering, VM bridge, normalized-shadow fence, and shared experiment flag remain |
 | closed | `JOINIR-FRONTEND-FUNC-META-SUNSET-001` (promotes `R4-UNREGISTERED-FRONTEND-METADATA-001`) | former `frontend::func_meta`, public `JoinFuncMeta`/`JoinFuncMetaMap`, bridge metadata observation and `*_with_meta` APIs | metadata types, non-empty issuers, observation, and old APIs = 0 | RET0 metadata authority; conversion REOWNED into crate-bounded `module_converter` and boundary-aware bridge | retired by `JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0`; converter output, aliases, normalized boundary, AST analysis, and VM bridge preserved |
 | closed | `MIR-CFG-JUMP-ARGS-LAYOUT-SUNSET-001` | former `JumpArgsLayout` definition/re-export under `join_ir::lowering::inline_boundary`, formerly consumed by native BasicBlock/EdgeArgs, EdgeCFG, verifier, optimizer, JSON, bridge, and tests | neutral MIR infrastructure remains live under `mir::edge_args`; JoinModule ownership/path = 0 | REOWN | retired by `MIR-CFG-JUMP-ARGS-LAYOUT-REHOME0-I0-R0`: one neutral EdgeArgs/layout owner, all-consumer path replacement, no alias |
-| unregistered | `R4-UNREGISTERED-CARRIER-BOUNDARY-001` — remaining carrier boundaries | normalized-shadow-specific `JoinInlineBoundary` / `LoopExitBinding`; dead bridge conversion-boundary parameter | boundary is constructed/merged only by explicit normalized-shadow dev execution; conversion threading is ignored before that real merge | normalized boundary remains subordinate to `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0`; ignored bridge argument is a later bounded RET0 | fresh bridge dead-API census after neutral layout REOWN; no new fence or alias |
+| closed | `R4-UNREGISTERED-CARRIER-BOUNDARY-001` — carrier-boundary audit | normalized-shadow-specific `JoinInlineBoundary` / `LoopExitBinding`; former ignored bridge conversion-boundary parameter | live boundary remains constructed/merged only by explicit normalized-shadow dev execution; conversion threading = 0 | dead conversion facade/parameter RET0; real boundary covered by `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | `JOINMODULE-BRIDGE-DEAD-API-RETIRE0-RET0`: caller-zero converter pair and ignored threading = 0; normalized merge keeps `Some(&boundary)` |
 | closed | `JOINMODULE-PHI-OBSERVER-SUNSET-001` (promotes `R4-UNREGISTERED-PHI-OBSERVER-001`) | former `verify_phi_reserved` global collector/report, three debug observation hooks, dedicated builder/module tests, exports, README and generated owner-inventory row | production decision consumer = 0 before deletion; complete asset now absent | RET0 | retired by `JOINMODULE-PHI-OBSERVER-RETIRE0-RET0`: complete observer/test/hook/wiring/docs surface = 0 and existing native-owner inventory regenerated |
 | closed | `JOINMODULE-AST-FRONTEND-LEGACY-SUNSET-001` (promotes `R4-UNREGISTERED-AST-FRONTEND-001`) | former `AstToJoinIrLowerer`, its exclusive helper/tests, six Program-JSON fixtures, three exclusive dev flags, two lowerer-to-bridge E2E tests, and current frontend contract residue | production caller = 0 before deletion; complete frontend closure now absent | RET0 | retired by `JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0`; direct VM conversion/tests, JoinModule core/lowering, normalized-shadow, native Phase40 analysis, and `JOINIR_TEST_DEBUG` remain |
 | closed | `JOINMODULE-TEST-HANDLER-LANE-SUNSET-001` (promotes `R4-UNREGISTERED-TEST-HANDLER-001`) | former cfg(test)-only `block_finalizer`, `handlers/**`, `merge_variable_handler`, and `terminator_builder` legacy VM-bridge handler lane | production conversion remains solely in `joinir_block_converter/**`; deleted lane and registrations = 0 | RET0 | retired by `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`: 14 files / 3743 lines, four cfg(test) module declarations, obsolete README section, stale PHI seam row, and generated inventory rows deleted |
@@ -113,7 +114,7 @@ activation and sunset contract.
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/dispatch remainder after LowerOnly selection | live JoinModule core/lowering, normalized-shadow execution, and two VM Exec routes outside registered rows; there is no independent JSON/format subsystem | normalized-dev and explicit VM Exec have live consumers; default normal = 0 | broad RET0 rejected; exact final retained/deleted closure remains an R4 decision after selected LowerOnly retirement | fresh census after `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`; no broad disposition may be inferred from the selected sub-surface |
 
 The registry has four registered R4 fences, zero active compatibility residuals,
-zero active retirements, zero active rehomes, fifteen closed residuals, and two
+zero active retirements, zero active rehomes, sixteen closed residuals, and one
 unregistered R4 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
@@ -143,6 +144,39 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`JOINMODULE-BRIDGE-DEAD-API-RETIRE0-RET0` — T1 atomic RET0, closed
+
+```text
+Retired:
+  caller-zero JoinIrFunctionConverter::convert_joinir_to_mir and
+  convert_function; bridge_joinir_to_mir_with_boundary; ignored boundary
+  parameters in bridge/module conversion; dead cfg(test) imports.
+
+Preserved:
+  one unconditional crate-private bridge_joinir_to_mir entry;
+  convert_function_with_func_names, aliases, type propagation, VM Exec routes,
+  JoinModule lowering; normalized execution still constructs JoinInlineBoundary
+  and passes Some(&boundary) to the real merge owner.
+
+Evidence:
+  cargo check --lib and cargo check --tests --features vm-reference = green;
+  join_ir_vm_bridge 19/19 and normalized_shadow 90/90 green;
+  old facade/dead converter/ignored parameter symbols = 0.
+
+Structure:
+  new source/test/check files = 0; largest touched source = 295 lines;
+  grammar/result/runtime/default-normal delta = 0; fallback/retry = 0.
+
+R4:
+  carrier-boundary unregistered audit is closed: dead conversion threading = 0,
+  real normalized boundary is already owned by its registered dev fence.
+  retain-fenced=4, active compatibility=0, active retirement=0,
+  active rehome=0, closed=16, unregistered=1.
+
+Next:
+  MIRBUILDER-JOINMODULE-CLEANUP-BATCH-CENSUS42-D0, one batch-boundary census.
+```
 
 `MIR-CFG-JUMP-ARGS-LAYOUT-REHOME0-I0-R0` — T1 atomic REOWN, closed
 

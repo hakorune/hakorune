@@ -50,9 +50,7 @@ mod runner;
 mod tests;
 
 // Phase 190: Use modularized converters
-#[cfg(any(test, feature = "vm-reference"))]
 pub(crate) use bridge::bridge_joinir_to_mir;
-pub(crate) use bridge::bridge_joinir_to_mir_with_boundary;
 pub(crate) use convert::convert_mir_like_inst; // helper for sub-modules
 pub(crate) use joinir_function_converter::JoinIrFunctionConverter;
 pub use runner::run_joinir_via_vm;

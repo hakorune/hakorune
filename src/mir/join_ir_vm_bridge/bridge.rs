@@ -38,17 +38,14 @@ fn ensure_joinir_function_aliases(mir_module: &mut MirModule, join_module: &Join
 }
 
 /// Structured JoinIR → MIR（既存経路）の明示エントリ。
-fn lower_joinir_structured_to_mir(
-    module: &JoinModule,
-    boundary: Option<&crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary>,
-) -> Result<MirModule, JoinIrVmBridgeError> {
+fn lower_joinir_structured_to_mir(module: &JoinModule) -> Result<MirModule, JoinIrVmBridgeError> {
     if !module.is_structured() {
         return Err(JoinIrVmBridgeError::new(
             "[joinir/bridge] expected Structured JoinIR module",
         ));
     }
 
-    convert_join_module_to_mir(module, boundary)
+    convert_join_module_to_mir(module)
 }
 
 /// JoinIR → MIR の単一入口。
@@ -56,18 +53,9 @@ fn lower_joinir_structured_to_mir(
 /// Phase R1/R4: runtime bridge is Structured-only; the removed dev-only
 /// normalized helper route no longer exists in this module.
 ///
-/// Phase 256 P1.5: boundary parameter for ValueId remapping
-pub(crate) fn bridge_joinir_to_mir_with_boundary(
-    module: &JoinModule,
-    boundary: Option<&crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary>,
-) -> Result<MirModule, JoinIrVmBridgeError> {
-    let mut mir = lower_joinir_structured_to_mir(module, boundary)?;
+/// JoinIR → MIR conversion entry.
+pub(crate) fn bridge_joinir_to_mir(module: &JoinModule) -> Result<MirModule, JoinIrVmBridgeError> {
+    let mut mir = lower_joinir_structured_to_mir(module)?;
     ensure_joinir_function_aliases(&mut mir, module);
     Ok(mir)
-}
-
-/// JoinIR → MIR（メタなし）呼び出しのユーティリティ。
-#[cfg(any(test, feature = "vm-reference"))]
-pub(crate) fn bridge_joinir_to_mir(module: &JoinModule) -> Result<MirModule, JoinIrVmBridgeError> {
-    bridge_joinir_to_mir_with_boundary(module, None)
 }

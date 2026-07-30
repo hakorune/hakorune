@@ -8,10 +8,7 @@ use std::collections::BTreeMap;
 /// Convert every function in one Structured JoinModule into a MIR module.
 pub(super) fn convert_join_module_to_mir(
     module: &JoinModule,
-    boundary: Option<&crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary>,
 ) -> Result<MirModule, JoinIrVmBridgeError> {
-    // Phase 256 P1.5: boundary is now passed through, reserved for future ValueId remap logic
-    let _boundary = boundary; // Suppress unused warning for now
     debug_log!("[joinir/bridge] convert_join_module_to_mir");
 
     let mut mir_module = MirModule::new("joinir_bridge_with_meta".to_string());
