@@ -29,9 +29,9 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
-Latest landed: JOINMODULE-DIRECT-RUNNER-RETIRE0-RET0
-Result:        direct vm-reference runner and test-only callers are deleted
-Latest design: `JOINMODULE-VM-BRIDGE-FENCE0-D0`
+Latest landed: JOINMODULE-VM-BRIDGE-FENCE0-DOC0
+Result:        explicit bridge gate/output contract matches source behavior
+Latest design: `JOINMODULE-VM-BRIDGE-STRICT-POLICY0-D0`
 Executable:    none — design stop
 History:       Git history and the short landed tail below
 ```
@@ -123,15 +123,15 @@ StageB reference consumers are handled only by the next reference-sunset D0.
 
 ## Current design stop
 
-`JOINMODULE-VM-BRIDGE-FENCE0-D0` — opt-in bridge boundary
+`JOINMODULE-VM-BRIDGE-STRICT-POLICY0-D0` — bridge route-policy boundary
 
 ```text
-Census the actual activation gate, bridge success route, and non-strict
-fallback to ordinary VM execution. Reconcile code and documentation, then
-choose one bounded fence or disposition.
+Decide whether the VM bridge adopts the documented HAKO+NYASH strict authority
+or retains its NYASH-only strict scope. Also decide the explicit meaning of
+Exec dev/trace continuation and the unresolved LowerOnly target-table row.
 
-Stop: any normal/default route change, bridge deletion, LLVM experiment change,
-or shared-carrier reown stays outside this D0.
+Stop: bridge deletion, normal/default route change, LLVM experiment change, or
+shared-carrier reown stays outside this D0.
 ```
 
 ## Latest closeout
@@ -155,6 +155,25 @@ JOINMODULE-DIRECT-RUNNER-RETIRE0-RET0
   failure-outcome inventories / default + vm-reference builds / guards  = green
   next                                                                   = VM bridge fence D0
 ```
+
+## Latest closeout
+
+```text
+JOINMODULE-VM-BRIDGE-FENCE0-D0 / DOC0
+  route                           = explicit vm-reference --backend vm only
+  default mir / vm-fallback       = 0 reachability
+  activation                       = NYASH_JOINIR_VM_BRIDGE=1 only
+  Exec / LowerOnly / nonstrict VM continuation = retained-fenced
+  stale gate and stdout contract   = corrected without behavior change
+  sunset                           = VM-BRIDGE-COMPAT-SUNSET-001
+  next                             = strict policy D0
+```
+
+`VM-BRIDGE-COMPAT-SUNSET-001` owns only
+`join_ir_vm_bridge_dispatch` from the explicit VM keep route. It retires when
+that dispatcher caller reaches zero or a separately selected one-execution
+owner replaces the entire explicit lane; it does not authorize normal/default
+fallback, VM bridge growth, or LLVM changes.
 
 ## Previous closeout
 
@@ -449,7 +468,7 @@ R3 Legacy JoinModule/reference disposition
   1. `JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0` — closed;
   2. `JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0` — RETAIN-FENCED;
   3. `JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0` — direct runner RET0 closed;
-     VM bridge fence D0 is current.
+     VM bridge is RETAIN-FENCED and strict-policy D0 is current.
   These are ordering boundaries, not pre-authorized implementations. No
   name-only tree deletion, normal/default route resurrection, or unresolved
   family is allowed.

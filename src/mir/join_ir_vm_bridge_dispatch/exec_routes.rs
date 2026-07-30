@@ -10,7 +10,7 @@ use std::process;
 /// Main.skip/1 用 JoinIR ブリッジ（Exec: JoinIR→VM 実行まで対応）
 ///
 /// Note: PHI canary として使用しているため、default_enabled=false。
-/// env フラグ（NYASH_JOINIR_EXPERIMENT=1 & NYASH_JOINIR_VM_BRIDGE=1）が必須。
+/// The explicit bridge gate is `NYASH_JOINIR_VM_BRIDGE=1`.
 pub(crate) fn try_run_skip_ws(module: &MirModule, quiet_pipe: bool) -> bool {
     let log_enabled = !quiet_pipe && (env::joinir_vm_bridge_debug() || env::cli_verbose_enabled());
     if log_enabled {
@@ -91,7 +91,7 @@ pub(crate) fn try_run_skip_ws(module: &MirModule, quiet_pipe: bool) -> bool {
 
 /// FuncScannerBox.trim/1 用 JoinIR ブリッジ（Exec: JoinIR→VM 実行まで対応）
 ///
-/// A/B 実証済み。ただし VM bridge 実行は env フラグが必要。
+/// A/B 実証済み。ただし VM bridge 実行は explicit bridge gate が必要。
 pub(crate) fn try_run_trim(module: &MirModule, quiet_pipe: bool) -> bool {
     let log_enabled = !quiet_pipe && (env::joinir_vm_bridge_debug() || env::cli_verbose_enabled());
     if log_enabled {

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINMODULE-DIRECT-RUNNER-RETIRE0-RET0 is closed: the caller-zero, vm-reference-only direct JoinIR runner and its test-only callers are deleted. JOINMODULE-VM-BRIDGE-FENCE0-D0 is the next design stop; it must reconcile the actual opt-in VM bridge gate and fallback behavior before any disposition. LLVM experiment behavior remains a separate later fence. JumpArgsLayout remains a separate caller-zero core-carrier rehome. Final conformance must resolve every fence before Ownership, View, or feature work opens."
+status = "JOINMODULE-VM-BRIDGE-FENCE0-D0 is closed as RETAIN-FENCED: the bridge is reachable only from explicit vm-reference `--backend vm`, but it has Exec/LowerOnly behavior and non-strict ordinary-VM continuation. JOINMODULE-VM-BRIDGE-FENCE0-DOC0 corrects the gate and output contract without changing routing. JOINMODULE-VM-BRIDGE-STRICT-POLICY0-D0 is next: it must decide strict-alias and residual route policy. LLVM experiment behavior remains a separate later fence. JumpArgsLayout remains a separate caller-zero core-carrier rehome. Final conformance must resolve every fence before Ownership, View, or feature work opens."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "JOINMODULE-VM-BRIDGE-FENCE0-D0"
+current_design_stop = "JOINMODULE-VM-BRIDGE-STRICT-POLICY0-D0"
 current_execution_row = ""
-current_execution_summary = "Design-only stop: census the actual JoinIR VM bridge activation gate, its success route, and its non-strict fallback to ordinary VM execution. Reconcile code and documentation, then select one bounded fence or disposition. No bridge deletion, normal/default route change, LLVM experiment change, JumpArgsLayout move, Ownership, View, or feature work is authorized before the D0 decision."
+current_execution_summary = "Design-only stop: decide the scoped JoinIR VM bridge strict authority, Exec success/continuation contract, and the unresolved LowerOnly target-table boundary. Preserve the existing fence while deciding whether the documented HAKO strict alias applies or the bridge remains NYASH-only. No bridge deletion, normal/default route change, LLVM experiment change, JumpArgsLayout move, Ownership, View, or feature work is authorized before the D0 decision."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """JOINMODULE-DIRECT-RUNNER-RETIRE0-RET0 is closed: the vm-reference-only direct JoinIR runner, its test-only callers, and derived inventory evidence are deleted. Default and explicit VM bridge routes are unchanged. JOINMODULE-VM-BRIDGE-FENCE0-D0 is now the only design stop and must reconcile the bridge's actual activation gate and non-strict fallback before selecting any implementation. JumpArgsLayout remains a separate caller-zero Core/MIR carrier task. Final conformance must explicitly dispose every retained fence before Ownership, View, and later features can open."""
+latest_card_summary = """JOINMODULE-VM-BRIDGE-FENCE0-D0 is closed as RETAIN-FENCED. The bridge is limited to explicit vm-reference `--backend vm`; default mir and vm-fallback have zero reachability. Its one gate is NYASH_JOINIR_VM_BRIDGE, while Exec, LowerOnly, and non-strict ordinary-VM continuation keep deletion unsafe. DOC0 corrects only stale gate/output documentation and comments. JOINMODULE-VM-BRIDGE-STRICT-POLICY0-D0 is now the only design stop. JumpArgsLayout remains a separate caller-zero Core/MIR carrier task. Final conformance must explicitly dispose every retained fence before Ownership, View, and later features can open."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINMODULE-VM-BRIDGE-FENCE0-D0"
+current_blocker_token = "JOINMODULE-VM-BRIDGE-STRICT-POLICY0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

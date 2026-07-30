@@ -126,8 +126,8 @@ pub(crate) fn run_vm_compiled_module(
 
         if run_joinir_bridge {
             // Phase 30 F-4.4: JoinIR VM Bridge experimental path (consolidated dispatch)
-            // Activated when NYASH_JOINIR_EXPERIMENT=1 AND NYASH_JOINIR_VM_BRIDGE=1
-            // Routing logic is centralized in join_ir_vm_bridge_dispatch module
+            // Activation is owned by the dispatch module's explicit bridge gate.
+            // Routing and any compatibility continuation stay centralized there.
             crate::mir::join_ir_vm_bridge_dispatch::try_run_joinir_vm_bridge(
                 &module_vm, quiet_pipe,
             );

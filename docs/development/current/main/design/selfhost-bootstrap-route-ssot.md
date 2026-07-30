@@ -302,8 +302,11 @@ selfhost 復帰の議論で混線しやすい点を、ここで固定する。
 
 5) **Runner/VM execution**
    - JSON v0 を Rust VM で実行し、期待出力を満たす
-   - JoinIR VM bridge は `NYASH_JOINIR_EXPERIMENT=1` かつ `NYASH_JOINIR_VM_BRIDGE=1` のときのみ有効
-   - VM bridge は stdout を汚さない（ログは stderr のみ）
+   - JoinIR VM bridge は `vm-reference` build の explicit `--backend vm` で
+     `NYASH_JOINIR_VM_BRIDGE=1` のときのみ試行する。`NYASH_JOINIR_EXPERIMENT`
+     はactivation条件ではない。
+   - Exec route は出力・exitし得る。dev/trace成功、LowerOnly、非strict Exec
+     failure の通常VM継続は explicit compatibility behavior として扱う。
 
 ## Bootstrap Stages (SSOT)
 

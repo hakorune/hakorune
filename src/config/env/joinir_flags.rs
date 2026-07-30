@@ -35,9 +35,11 @@ fn warn_joinir_core_off_ignored() {
     });
 }
 
-/// JoinIR VM bridge mode. When enabled with NYASH_JOINIR_EXPERIMENT=1,
-/// specific functions can be executed via JoinIR → VM bridge instead of direct MIR → VM.
-/// Set NYASH_JOINIR_VM_BRIDGE=1 to enable.
+/// Explicit VM compatibility bridge mode.
+///
+/// In a `vm-reference` build, the explicit VM keep route may attempt the
+/// selected JoinIR → VM bridge when `NYASH_JOINIR_VM_BRIDGE=1` is set.
+/// `NYASH_JOINIR_EXPERIMENT` is not an activation predicate for this route.
 pub fn joinir_vm_bridge_enabled() -> bool {
     joinir_core_enabled() && env_bool("NYASH_JOINIR_VM_BRIDGE")
 }

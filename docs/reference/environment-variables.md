@@ -504,16 +504,19 @@ LoopBuilder は物理削除済みで、JoinIR を OFF にするモードは存�
 
 | 変数 | デフォルト | 説明 |
 | --- | --- | --- |
-| `NYASH_JOINIR_EXPERIMENT` | OFF | JoinIR 実験メイントグル（Core 判定に含まれる） |
+| `NYASH_JOINIR_EXPERIMENT` | OFF | JoinIR 実験メイントグル（VM bridge のactivation条件ではない） |
 | `HAKO_JOINIR_IF_SELECT` | OFF | IfSelect/IfMerge JoinIR 経路。エイリアス `NYASH_JOINIR_IF_SELECT` は Deprecated。 |
 | `HAKO_JOINIR_IF_IN_LOOP_ENABLE` | OFF | if-in-loop JoinIR 本線切替（Core 候補）。 |
-| `NYASH_JOINIR_VM_BRIDGE` | OFF | VM bridge Route B。Core 判定に含まれる。 |
+| `NYASH_JOINIR_VM_BRIDGE` | OFF | `vm-reference` build の explicit `--backend vm` compatibility bridge を有効化。 |
 | `NYASH_JOINIR_LLVM_EXPERIMENT` | OFF | LLVM 経路 JoinIR 実験（ハーネス専用）。Core 判定に含まれる。 |
 | ~~`NYASH_HAKO_CHECK_JOINIR`~~ | 削除済み | **Phase 124 で削除**: hako_check は JoinIR 専用化。環境変数不要。 |
 
 補足:
-- VM bridge Route B は `NYASH_JOINIR_EXPERIMENT=1` と併用が前提。
-- VM bridge 経路は stdout を汚さない（ログは stderr のみ）。
+- VM bridge Route B は `vm-reference` build の explicit `--backend vm` で
+  `NYASH_JOINIR_VM_BRIDGE=1` を設定したときだけ試行する。
+  `NYASH_JOINIR_EXPERIMENT` はこのactivation条件ではない。
+- Exec route は出力してexitすることがある。dev/trace時の成功は観測後に通常VMへ
+  続行する。LowerOnly と非strict Exec failure は通常VMへ続行する。
 
 ### DevOnly（開発/計測専用）
 
@@ -562,8 +565,8 @@ JoinIR の **strict / planner_required / debug は別トグル**。`--dev`（ま
 # JoinIR は常に ON。syntax-3（推奨）
 env NYASH_FEATURES=stage3 ./target/release/hakorune program.hako
 
-# VM bridge Route B（開発用）
-env NYASH_FEATURES=stage3 NYASH_JOINIR_EXPERIMENT=1 NYASH_JOINIR_VM_BRIDGE=1 ./target/release/hakorune program.hako
+# VM bridge Route B（explicit VM compatibility）
+env NYASH_FEATURES=stage3 NYASH_JOINIR_VM_BRIDGE=1 ./target/release/hakorune --backend vm program.hako
 
 # LLVM ハーネス JoinIR 実験（explicit keep lane）
 env NYASH_FEATURES=stage3 NYASH_LLVM_USE_HARNESS=1 \
