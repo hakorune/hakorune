@@ -28,11 +28,11 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 ## Current state
 
 ```text
-Parent:        JOINMODULE-RETURN-COLLECTOR-TEST-ASSET-RET0
+Parent:        MIRBUILDER-LIVE-EDGE-CENSUS14-D0
 Latest landed: JOINMODULE-RETURN-COLLECTOR-TEST-ASSET-RET0
-Result:        cfg(test)-only return-collector asset and stale inventory retired
-Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS14-D0`
-Executable:    none — fresh census design stop
+Result:        NoSafeLiveI0 and NoSafeDetachedR3 after fresh reachability census
+Latest design: `RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0`
+Executable:    none — policy design stop
 History:       Git history and the short landed tail below
 ```
 
@@ -156,17 +156,45 @@ Next:
   `MIRBUILDER-LIVE-EDGE-CENSUS14-D0`.
 ```
 
-## Current design stop
+## Census14 disposition
 
-`MIRBUILDER-LIVE-EDGE-CENSUS14-D0` — fresh live/R3 census
+`MIRBUILDER-LIVE-EDGE-CENSUS14-D0` — closed
 
 ```text
-Recount from current reachability only. Select one real I0/R0, one registered
-R3 RET0/REOWN/RETAIN-FENCED disposition, or NoSafeLiveI0.
+Selected normal/default remains one Program-only candidate-session -> collector
+-> finalization route; no raw legacy port, build_module edge, fallback, or safe
+competing live owner is reachable. Therefore NoSafeLiveI0.
 
-RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0 is only a leading candidate: its
-session policy snapshot can create callable Main.main/N, so no implementation
-is authorized until Census14 selects a bounded policy decision.
+R3 has no second detached asset: inline_boundary_builder has Boundary-carrier
+test consumers; the other inspected JoinIR surfaces have live/fenced consumers.
+Therefore NoSafeDetachedR3.
+
+The only selected next boundary is raw/static Main compatibility. Its module
+ingress snapshot can materialize Main.main/N and alter runner entry selection;
+it is a policy D0, not an atomic cleanup.
+```
+
+## Current design stop
+
+`RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0` — T2 policy boundary
+
+```text
+Decide the disposition of the one module-ingress snapshot
+`NYASH_BUILD_STATIC_MAIN_ENTRY -> CallableMainCompatibilityPolicyV1`.
+
+Source authority:
+  snapshot once in prepare_module; conditional Main.main/N materialization via
+  the existing collector port; runner entry selection observes that symbol.
+
+Must not move:
+  ordinary Main wrapper lowering, session isolation, collector semantics,
+  current entry/failure behavior, explicit raw-child compatibility, or VM/LLVM
+  fences.
+
+Hard stop:
+  no env re-read, second route, retry/fallback, source reclassification,
+  Ownership/View/feature work, or implementation before one policy owner,
+  sunset/disposition, and exact old authority are selected.
 
 R4 final conformance must decide the retained JoinIR/reference scope explicitly
 (delete versus fenced reference asset). Only after R4 Complete: refresh
