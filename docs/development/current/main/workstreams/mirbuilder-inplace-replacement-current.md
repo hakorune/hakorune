@@ -34,7 +34,8 @@ Result:        selected Script direct Box raw compatibility is retired
 Latest landed:  `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS22-D0` — closed
 Latest design:  `NORMAL-SCRIPT-NONBOX-STATEMENT-DISPOSITION0-D0` — closed
-Next execution: `NORMAL-SCRIPT-PRINT-DIRECT-OWNER0-I0-R0`
+Latest landed:  `NORMAL-SCRIPT-PRINT-DIRECT-OWNER0-I0-R0`
+Next census:    `MIRBUILDER-LIVE-EDGE-CENSUS23-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -48,7 +49,7 @@ activation and sunset contract.
 | State | Ledger key / family | Exact surface | Activation / normal-default | Release row / condition |
 | --- | --- | --- | --- | --- |
 | active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | fresh named raw-static-Main disposition, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` proves reachability = 0 |
-| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for direct non-Box Script statements | selected normal Script only; raw/reference and nested body descent remain separate | `NORMAL-SCRIPT-NONBOX-STATEMENT-DISPOSITION0-D0`: source-only total partition and a same-commit selected old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
+| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for 54 direct non-Box/non-Print Script kinds in four registered disposition families | selected normal Script only; Print is retired; raw/reference and nested body descent remain separate | fresh named selected-Script statement-owner D0 with a same-commit old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
 | closed | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program immediate instance constructors, plus selected Script plain-instance runtime-prefix constructors | every selected Program instance Box has one immediate demand; plain Script adds its second `InstancePrefixCompatibility` demand; non-plain Script's later raw runtime lifecycle is the separate row below | retired by `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0`: one source occurrence -> unchanged physical LegacySymbol admission per existing demand |
 | closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
 | closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
@@ -728,6 +729,45 @@ Forbid:
   child port; raw/reference widening; selected failure -> compatibility retry;
   block-driver/suffix bypass; AST clone/reparse; new failure/source identity;
   or selecting another residual kind in the same I0.
+```
+
+## Current closeout
+
+`NORMAL-SCRIPT-PRINT-DIRECT-OWNER0-I0-R0` — T1 atomic cutover, closed
+
+```text
+Change:
+  One exhaustive source-only disposition owner partitions all 57 AST kinds:
+  direct Box and top-level Function remain owned elsewhere, Print is selected,
+  and the other 54 direct non-Box kinds remain in four compatibility families.
+
+Direct owner:
+  Print -> PreparedRawPrintV1
+        -> lower_prepared_raw_print_with_port_v1
+        -> the same RawInvocation child port
+
+Delete:
+  selected Script Print
+  -> RawCompatibility
+  -> drive_legacy_statement_v1
+  = 0
+
+Parity:
+  General and TypeOp Print routes keep current source observation, expression
+  descent, diagnostics, MIR, verification, block order, and failure/reuse.
+  No operand allowlist, grammar change, new port, retry, or fallback exists.
+
+Structure:
+  the new source file owns only the total disposition; production/test/check
+  files are 798 / 201 / 799 lines at closeout and all remain below 800.
+
+Registry:
+  NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003 remains active but is
+  narrowed from 55 to 54 exact kinds. No new fence or compatibility terminal
+  was created.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS23-D0; do not preselect another AST responsibility.
 ```
 
 `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-I0-R0` — T1, closed

@@ -1,11 +1,10 @@
-//! Selected-normal Script runtime descent with cataloged Box-method and
-//! constructor admission.
-//!
-//! The Program work plan classifies direct runtime Box statements once.  This
-//! adapter retains the original statement slice for the shared block driver,
-//! while routing direct Script Box terminals through existing selected ports.
-//! Raw/reference and nested descent do not use this owner.
+//! Selected-normal Script runtime descent.
+//! The Program work plan classifies direct statements once; this adapter keeps
+//! block order while routing selected terminals through existing owners.
 
+use super::normal_script_nonbox_statement_disposition::{
+    classify_normal_script_nonbox_statement_v1, NormalScriptNonBoxStatementDispositionV1,
+};
 use crate::ast::ASTNode;
 use crate::mir::builder::emission::constant::emit_void;
 use crate::mir::builder::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
@@ -17,6 +16,9 @@ use crate::mir::builder::raw_expression_dispatch::{
 };
 use crate::mir::builder::recursive_child_lowering::drive_legacy_statement_v1;
 use crate::mir::builder::stmts::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
+use crate::mir::builder::stmts::print_stmt::{
+    lower_prepared_raw_print_with_port_v1, PreparedRawPrintV1,
+};
 use crate::mir::{MirBuilder, ValueId};
 
 #[derive(Debug)]
@@ -62,6 +64,7 @@ impl PreparedNormalScriptRuntimeInputV1 {
 
 #[derive(Debug)]
 pub(super) enum NormalScriptRuntimeStatementAdmissionV1 {
+    DirectPrint,
     RawCompatibility,
     CatalogedNonMainStaticBox,
     StaticMainCompatibility,
@@ -82,6 +85,9 @@ impl PreparedNormalScriptRuntimeWorkV1 {
         let mut admissions = Vec::with_capacity(inputs.len());
         for input in inputs {
             let admission = match input.kind {
+                NormalScriptRuntimeStatementKindV1::DirectPrint => {
+                    NormalScriptRuntimeStatementAdmissionV1::DirectPrint
+                }
                 NormalScriptRuntimeStatementKindV1::RawCompatibility => {
                     NormalScriptRuntimeStatementAdmissionV1::RawCompatibility
                 }
@@ -197,6 +203,9 @@ where
     ) -> Result<ValueId, String> {
         let statement = &self.work.statements[index];
         match &self.work.admissions[index] {
+            NormalScriptRuntimeStatementAdmissionV1::DirectPrint => {
+                lower_direct_print_v1(builder, self.port, statement)
+            }
             NormalScriptRuntimeStatementAdmissionV1::RawCompatibility => {
                 drive_legacy_statement_v1(builder, self.port, statement.clone())
             }
@@ -231,6 +240,24 @@ where
             ),
         }
     }
+}
+
+fn lower_direct_print_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    statement: &ASTNode,
+) -> Result<ValueId, String>
+where
+    Port: RootCallableCapturePortV1,
+{
+    let ASTNode::Print { expression, .. } = statement else {
+        return Err("[freeze:contract][mir/script-runtime/print-source-drift]".to_owned());
+    };
+    lower_prepared_raw_print_with_port_v1(
+        builder,
+        port,
+        PreparedRawPrintV1::prepare((**expression).clone()),
+    )
 }
 
 fn lower_cataloged_nonmain_static_box_v1<Port>(
@@ -379,6 +406,7 @@ where
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum NormalScriptRuntimeStatementKindV1 {
+    DirectPrint,
     RawCompatibility,
     CatalogedNonMainStaticBox,
     StaticMainCompatibility,
@@ -412,7 +440,21 @@ pub(super) fn classify_normal_script_runtime_statement_v1(
         ASTNode::BoxDeclaration {
             is_static: false, ..
         } => NormalScriptRuntimeStatementKindV1::NonPlainInstanceFullLifecycle,
-        _ => NormalScriptRuntimeStatementKindV1::RawCompatibility,
+        _ => match classify_normal_script_nonbox_statement_v1(statement) {
+            NormalScriptNonBoxStatementDispositionV1::DirectPrint => {
+                NormalScriptRuntimeStatementKindV1::DirectPrint
+            }
+            NormalScriptNonBoxStatementDispositionV1::PortAwareExpressionCompatibility
+            | NormalScriptNonBoxStatementDispositionV1::StatementControlCompatibility
+            | NormalScriptNonBoxStatementDispositionV1::DeclarationIngressCompatibility
+            | NormalScriptNonBoxStatementDispositionV1::CallObjectHeaderCompatibility
+            | NormalScriptNonBoxStatementDispositionV1::TopLevelFunctionImmediateOnly => {
+                NormalScriptRuntimeStatementKindV1::RawCompatibility
+            }
+            NormalScriptNonBoxStatementDispositionV1::DirectBoxOwnedElsewhere => {
+                unreachable!("direct Box statements are classified before non-Box disposition")
+            }
+        },
     }
 }
 

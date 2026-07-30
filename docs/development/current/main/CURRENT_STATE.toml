@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-SCRIPT-NONBOX-STATEMENT-DISPOSITION0-D0 is closed: the selected Script non-Box catch-all contains exactly 55 AST kinds, and the remaining debt is a broad statement-dispatch facade over the already-selected RawInvocation child port, not a Legacy-port fallback. The first bounded T1 is direct Print ownership: every direct Print keeps its existing PreparedRawPrintV1 semantics and exact selected port while bypassing RawCompatibility -> drive_legacy_statement_v1. The other 54 kinds remain one explicit compatibility terminal, partitioned as expression, statement/control, declaration/ingress, and call/object/header families. The R4 registry remains sole (retain-fenced=2, active compatibility=2, unregistered=8, closed=4); LegacyChildDraftAdmissionV1=37 occurrences/8 source files is separate. R4 still blocks Ownership, View, and feature work."
+status = "NORMAL-SCRIPT-PRINT-DIRECT-OWNER0-I0-R0 is closed: selected Script now classifies all direct non-Box statements source-only and routes every Print directly through the existing PreparedRawPrintV1 owner with the same RawInvocation child port. Print -> RawCompatibility -> drive_legacy_statement_v1 is zero; TypeOp/general semantics, block order, diagnostics, result/publication, raw/reference, and retry/fallback remain unchanged. The sole Script non-Box compatibility terminal now owns 54 exact residual kinds in four registered families. The R4 registry remains sole (retain-fenced=2, active compatibility=2, unregistered=8, closed=4); LegacyChildDraftAdmissionV1=37 occurrences/8 source files is separate. The unique stop is MIRBUILDER-LIVE-EDGE-CENSUS23-D0. R4 still blocks Ownership, View, and feature work."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "NORMAL-SCRIPT-PRINT-DIRECT-OWNER0-I0-R0"
-current_execution_summary = "T1 atomic I0/R0: source-classify all direct selected-Script non-Box statements exactly once; route every Print, with its complete current expression surface, directly through PreparedRawPrintV1 -> lower_prepared_raw_print_with_port_v1 using the same RawInvocation child port; delete Print -> RawCompatibility -> drive_legacy_statement_v1 in the same commit. Keep the other 54 kinds behind one explicit compatibility terminal. Preserve statement order, block suffix/termination, diagnostics, MIR/result/publication, raw/reference, and retry/fallback=0."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS23-D0"
+current_execution_row = "none"
+current_execution_summary = "Read-only fresh census after direct selected-Script Print retirement. Recount the remaining 54-kind non-Box statement compatibility surface and all R4 registry rows, then select at most one real production responsibility with a named old-edge deletion. Do not automatically choose the next AST kind, widen raw/reference, add a compatibility terminal, or reopen Ownership/View/features."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

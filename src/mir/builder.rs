@@ -404,6 +404,7 @@ mod phi_type_publication;
 mod port_aware_function_draft_impl;
 mod program_declaration_facts; // Normal Program source-only declaration facts
 mod program_root_work_plan; // Normal Program source-only work partition
+mod normal_script_nonbox_statement_disposition; // Selected Script non-Box source partition
 mod normal_script_runtime_work; // Selected Script runtime Box callable admission
 mod normal_top_level_function_admission; // Selected top-level callable source/physical admission
 mod program_static_table_metadata; // Normal Program paired static-table metadata
