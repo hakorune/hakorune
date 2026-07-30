@@ -116,8 +116,8 @@ Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corrected
 Latest landed: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — `507851393c`
 Latest landed: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0` — `ffda60241b`
-Current execution: none; design stop `RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0`
-Next design stop: `RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0` — bounded Script semantic source profile
+Current execution: none; design stop `RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0`
+Next design stop: `RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0` — first bounded Script semantic consumer
 History:       Git history and the short landed tail below
 ```
 
@@ -400,44 +400,48 @@ Evidence:
   source/check line limits are green. No new test/check file was added.
 
 Next:
-  `RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0` is now the only design stop. First
-  close the Script source-kind/profile boundary and typed admission/opaque
-  terminal contract; do not implement a monolithic semantic owner until the
-  bounded closure, diagnostic precedence, and Hakorune postfix catch/cleanup
-  semantics are fixed.
+  `RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0` is closed as NoStandaloneRow. The
+  source/profile spine already has no safe independent consumer. The sole next
+  design stop is `RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0`, which must close a
+  bounded Script/Lambda semantic consumer before any implementation.
 ```
 
 Corrected forward queue:
 
 ```text
 1. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0 (closed at ffda60241b)
-2. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0 (current design stop)
-3. RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-I0-R0 (only after a bounded closure is proven)
+2. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0 (closed NoStandaloneRow)
+3. RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0 (current design stop)
+4. RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-I0-R0 (conditional on D0 closure)
 
 Rule:
-  Do not open an execution row while the source-profile/admission boundary is
+  Do not open an execution row while the bounded Script/Lambda consumer is
   unresolved. Once selected, one row must name the production caller, the
   source/semantic owner, the exact old edge removed, and the terminal/failure
   authority. No route retries another route. S0 is allowed only when it is the
   first half of an immediately paired behavior-neutral refactor series.
 ```
 
-## RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0 — design gate
+## RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0 — closed, NoStandaloneRow
 
 ```text
 Decision:
-  open design stop; no semantic-owner implementation yet.
+  NoStandaloneRow. The source/profile transport is already present, but a
+  source-profile-only implementation would be proof-only: no production
+  consumer yet co-owns a Script forest/projection or removes an old edge.
 
-Question:
-  define one Script source/profile boundary that can distinguish a complete
-  semantic source from an existing RootLower diagnostic/compatibility terminal,
-  without synthetic FunctionDeclaration, partial forest, second resolver pass,
-  or semantic-failure retry.
+Evidence:
+  ProgramBodyRoot, explicit Program body-kind transport, original Program
+  ordinals, unified Script program-item admission, and CatalogSeal-before-
+  CatalogInstall are already landed. Adding another passive profile carrier
+  would create a disconnected authority and violate the production-caller
+  rule.
 
-Must settle:
-  Script source kind and ProgramBodyRoot identity; context-sensitive child
-  demand; typed opaque boundaries; one traversal coverage; catalog/seal stage;
-  diagnostic precedence; and the exact production edge to delete.
+Must settle in the next design gate:
+  the smallest Script semantic admission that has a real consumer; the
+  Complete-versus-ExistingRootLower terminal; exact nested Lambda lineage;
+  typed child/opaque demand; one traversal coverage; and the exact selected
+  raw Lambda edge removed in the same I0/R0.
 
 Hakorune syntax correction:
   source `try` and `throw` are rejected. The supported protected-region form is
@@ -446,8 +450,72 @@ Hakorune syntax correction:
   source `try` grammar or invent first-catch semantics.
 
 Hard stop:
-  if the bounded profile cannot preserve current demand/order in one traversal,
-  keep the Script semantic owner parked and return to D0. No S0/I0/R0 opens.
+  no standalone source-profile row, no synthetic Function, no partial forest,
+  no second resolver, no source try/throw activation, and no fallback/retry.
+
+## RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0 — current design stop
+
+```text
+Decision:
+  open design gate; conditional I0/R0 only after the bounded closure below
+  is proven. The external Script-admission proposal is accepted only in its
+  two-terminal principle, not as a monolithic 57-kind implementation.
+
+Production caller:
+  ModuleBuilderInvocationSessionV1::
+    complete_normal_default_program_root_catalog_lifecycle
+
+Candidate semantic terminal:
+  SemanticEligible
+    = owned Program + Script root owner + one forest + one projection
+      + exact Script admission coverage
+  ExistingRootLowerAuthority
+    = owned Program + typed deferral; forest/projection absent; existing
+      RootLower runs exactly once
+
+First eligible closure:
+  Program sequence
+  top-level Function/Box declaration boundary transfer
+  Literal / Variable / Me policy
+  Unary / Binary
+  Local / Assignment / Print / Return
+  exact nested Lambda source site, parent owner, parent scope, and child lookup
+
+Whole-Program defer for this row:
+  postfix catch/cleanup carrier, QMark, Match/EnumMatch, BlockExpr
+  non-local exits, Call/Object, This-family, and unproven context/control
+  surfaces. Hakorune source try/throw remain rejected. ASTNode::TryCatch is
+  internal/legacy carrier evidence only; do not invent first-catch semantics
+  or catch-binder activation.
+
+Required single traversal:
+  one Script admission traversal emits lexical facts, Lambda topology,
+  child-demand/opaque coverage, and the terminal choice. No raw Lambda
+  observer pass may be run for an eligible Lambda.
+
+Conditional executable row:
+  RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-I0-R0
+
+Same-commit old edges to delete if D0 closes:
+  eligible Script Lambda -> PreparedRawLambdaLexicalCaptureLifecycleV1
+  eligible Script Lambda -> RawLambdaLexicalObservationV1::observe
+  eligible Lambda -> RawUnlocatedPortalV1::ControlBody
+  raw Lambda dispatch dropping parent Script source context
+
+Done criteria for opening I0/R0:
+  exact child lookup via forest.child_at; one Script root owner; atomic
+  forest/projection pairing; ClosureBodyId reserve/commit exactly once;
+  eligible and deferred RootLower each exactly once; eligible failure never
+  downgrades to ExistingRootLowerAuthority; no partial forest; no new
+  per-row guard; existing cut0/R4 gates green; touched source/check files
+  remain below 800 lines.
+
+Hard stops:
+  full 57-kind resolver, postfix catch/cleanup semantics, synthetic
+  FunctionDeclaration, FunctionSyntaxView Program branch, raw+semantic Lambda
+  double observation, Complete-to-Deferred fallback, Lambda ABI/publication
+  changes, or any selected old Lambda edge left in place.
+```
 ```
 
 Historical located-transport queue (closed/parked context):
