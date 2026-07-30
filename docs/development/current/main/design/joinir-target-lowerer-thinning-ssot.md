@@ -207,21 +207,18 @@ execution:
   VM bridge may execute and produce output
 ```
 
-#### `FuncScannerBox.append_defs/2`
+#### Generic append-defs ArrayAccumulation asset
 
 ```text
-bridge_kind: LowerOnly
-lowerer_entry: LoopToJoinLowerer::lower_case_a_for_append_defs
+bridge_target: none
 route_shape:
-  no dedicated top-level route module
-  generic Case-A target published through JOINIR_TARGETS
-  lowered by generic_case_a/append_defs.rs
-  selected when LoopToJoinLowerer sees ArrayAccumulation
-fallback:
-  no bridge exec route
+  generic_case_a/append_defs.rs remains a structural ArrayAccumulation asset
+  selected only by the shape route, never by a FuncScanner source-name facade
 execution:
-  structural lowering only
-  normal VM Route A owns execution
+  no VM bridge observation or execution claim
+disposition:
+  GENERIC-CASE-A-APPEND-DEFS-DISPOSITION0-D0 decides rehome or retirement
+  from fresh source/MIR evidence
 ```
 
 #### `Stage1UsingResolverBox.resolve_for_source/5`

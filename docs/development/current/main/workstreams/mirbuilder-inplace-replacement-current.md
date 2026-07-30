@@ -29,10 +29,10 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
-Latest landed: JOINMODULE-VM-BRIDGE-STRICT-ALIAS0-I0-R0
-Result:        explicit bridge Exec failure shares HAKO+NYASH strict authority
-Latest design: `JOINMODULE-LOWERONLY-TARGET-ALIGNMENT0-D0` — RET0 selected
-Executable:    `JOINMODULE-LOWERONLY-STALE-DESCRIPTOR-RET0`
+Latest landed: JOINMODULE-LOWERONLY-STALE-DESCRIPTOR-RET0
+Result:        stale bridge/Loop exclusion/Case-A name facade deleted
+Latest design: `GENERIC-CASE-A-APPEND-DEFS-DISPOSITION0-D0`
+Executable:    none — design stop
 History:       Git history and the short landed tail below
 ```
 
@@ -121,33 +121,37 @@ and the observer contract is independently disposed. The explicit VM/Stage1/
 StageB reference consumers are handled only by the next reference-sunset D0.
 ```
 
-## Current execution
+## Current design stop
 
-`JOINMODULE-LOWERONLY-STALE-DESCRIPTOR-RET0` — T0 detached retirement
+`GENERIC-CASE-A-APPEND-DEFS-DISPOSITION0-D0` — generic asset boundary
 
 ```text
-Change:
-  Delete the stale `FuncScannerBox.append_defs/2` LowerOnly target, its Loop/If
-  exclusion entry, and the caller-zero name-specialized Case-A facade.
+Source authority:
+  `FuncScannerHelpersBox._append_defs/2` is current source; the retained generic
+  ArrayAccumulation lowerer has a distinct three-input recipe.
 
-Contract:
-  Current source is `FuncScannerHelpersBox._append_defs/2`; it is not re-targeted.
-  Retain generic ArrayAccumulation lowering, its ValueId range, and shape route.
+Non-authority:
+  The deleted `FuncScannerBox.append_defs/2` name cannot justify re-targeting.
 
-Done:
-  The stale key has no bridge or Case-A name path; the generic route remains
-  independent of that name path. Run the existing JoinIR target/lowering test entry.
+Decision:
+  Select retain-fenced, retire, or evidence-backed rehome only after a real
+  source/MIR route is available; current direct emission freezes before one.
 
-Stop:
-  Any observer/re-target for the current helper, generic recipe/range/shape-route
-  deletion, bridge/strict/normal-route change, or new compatibility surface.
+Non-claims:
+  no bridge target/observer, normal/default, strict, LLVM, carrier, Ownership,
+  View, or feature change.
 ```
 
-The decisive D0 evidence is that the old name has no source declaration or
-LowerOnly observer, while a re-target would change the three-input generic
-recipe into the current helper's two-input contract without a compilable MIR
-artifact. That is a later `GENERIC-CASE-A-APPEND-DEFS-DISPOSITION0-D0`, not this
-retirement.
+## Latest closeout
+
+```text
+JOINMODULE-LOWERONLY-STALE-DESCRIPTOR-RET0
+  stale bridge target / Loop exclusion / Case-A name facade = 0
+  generic ArrayAccumulation lowerer / range / shape route   = retained
+  target, Case-A, Loop predicate tests + lib checks          = green
+  normal/default, bridge behavior, strict, LLVM delta        = 0
+  next                                                       = generic asset D0
+```
 
 ## Latest closeout
 

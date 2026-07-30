@@ -38,21 +38,6 @@ impl LoopToJoinLowerer {
         )
     }
 
-    /// Case-A 汎用 lowerer の「FuncScannerBox.append_defs/2 用」薄いラッパー。
-    pub fn lower_case_a_for_append_defs(
-        &self,
-        func: &MirFunction,
-        loop_form: &LoopForm,
-    ) -> Option<JoinModule> {
-        self.lower(
-            func,
-            loop_form,
-            Some(case_a_minimal_target_name(
-                CaseAMinimalTargetKind::AppendDefs,
-            )),
-        )
-    }
-
     /// Case-A 汎用 lowerer の「lower-resolver compatibility route 用」薄いラッパー。
     pub fn lower_case_a_for_stage1_resolver(
         &self,

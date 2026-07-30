@@ -80,10 +80,9 @@ pub use if_lowering_router::try_lower_if_to_joinir;
 /// Phase 82 SSOT: JOINIR_TARGETS テーブルから Loop lowering 対象を参照
 /// （テーブルは vm_bridge_dispatch/targets.rs で一元管理）
 ///
-/// ## 対象関数（6本）
+/// ## 対象関数（5本）
 /// - Main.skip/1: 空白スキップループ
 /// - FuncScannerBox.trim/1: 前後空白削除ループ
-/// - FuncScannerBox.append_defs/2: 配列結合ループ
 /// - Stage1UsingResolverBox.resolve_for_source/5: lower-resolver compatibility using解析ループ
 /// - StageBBodyExtractorBox.build_body_src/2: mode-B compatibility本体抽出ループ
 /// - StageBFuncScannerBox.scan_all_boxes/1: mode-B compatibility Box走査ループ
@@ -172,10 +171,9 @@ mod tests {
     /// Phase 33-9.1: is_loop_lowered_function() の動作確認
     #[test]
     fn test_is_loop_lowered_function() {
-        // Loop 専任関数（6本）は true を返す
+        // Loop 専任関数（5本）は true を返す
         assert!(is_loop_lowered_function("Main.skip/1"));
         assert!(is_loop_lowered_function("FuncScannerBox.trim/1"));
-        assert!(is_loop_lowered_function("FuncScannerBox.append_defs/2"));
         assert!(is_loop_lowered_function(
             "Stage1UsingResolverBox.resolve_for_source/5"
         ));
@@ -195,6 +193,7 @@ mod tests {
         assert!(!is_loop_lowered_function(
             "Stage1JsonScannerBox.value_start_after_key_pos/2"
         ));
+        assert!(!is_loop_lowered_function("FuncScannerBox.append_defs/2"));
 
         // 一般的な関数も false を返す
         assert!(!is_loop_lowered_function("SomeBox.some_method/3"));

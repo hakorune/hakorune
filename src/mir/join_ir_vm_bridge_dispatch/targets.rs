@@ -44,7 +44,6 @@ pub struct JoinIrTargetDesc {
 /// |-----|------|----------------|------|
 /// | Main.skip/1 | Exec | No | PHI canary のため env 必須 |
 /// | FuncScannerBox.trim/1 | Exec | No | A/B 実証済み。ただし VM bridge は env 必須 |
-/// | FuncScannerBox.append_defs/2 | LowerOnly | No | Case-A loop lowering target。bridge exec route なし |
 /// | Stage1UsingResolverBox.resolve_for_source/5 | LowerOnly | No | lowering/構造検証のみ。実行は VM Route A |
 /// | StageBBodyExtractorBox.build_body_src/2 | LowerOnly | No | lowering/構造検証のみ。実行は VM Route A |
 /// | StageBFuncScannerBox.scan_all_boxes/1 | LowerOnly | No | lowering/構造検証のみ。実行は VM Route A |
@@ -64,11 +63,6 @@ pub const JOINIR_TARGETS: &[JoinIrTargetDesc] = &[
         func_name: "FuncScannerBox.trim/1",
         kind: JoinIrBridgeKind::Exec,
         default_enabled: false, // VM bridge は env 必須
-    },
-    JoinIrTargetDesc {
-        func_name: "FuncScannerBox.append_defs/2",
-        kind: JoinIrBridgeKind::LowerOnly,
-        default_enabled: false,
     },
     // Stage-1/Stage-B infrastructure: lowering/structure verification only.
     JoinIrTargetDesc {
@@ -204,7 +198,6 @@ mod tests {
     #[test]
     fn loop_bridge_non_exec_rows_are_marked_lower_only() {
         for func_name in [
-            "FuncScannerBox.append_defs/2",
             "Stage1UsingResolverBox.resolve_for_source/5",
             "StageBBodyExtractorBox.build_body_src/2",
             "StageBFuncScannerBox.scan_all_boxes/1",
@@ -216,5 +209,12 @@ mod tests {
             assert_eq!(target.kind, JoinIrBridgeKind::LowerOnly);
             assert!(!target.default_enabled);
         }
+    }
+
+    #[test]
+    fn stale_funcscanner_append_defs_is_not_a_bridge_target() {
+        assert!(JOINIR_TARGETS
+            .iter()
+            .all(|target| target.func_name != "FuncScannerBox.append_defs/2"));
     }
 }

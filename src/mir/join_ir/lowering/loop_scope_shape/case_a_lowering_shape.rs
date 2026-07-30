@@ -35,7 +35,7 @@ pub enum CaseALoweringShape {
 
     /// Array accumulation loop: linear iteration with collection mutation
     ///
-    /// Examples: FuncScannerBox.append_defs/2
+    /// Example: an append-defs-like array accumulation loop
     ///
     /// Shape:
     /// - Loop body: access arr[i], mutate collection (push/add)

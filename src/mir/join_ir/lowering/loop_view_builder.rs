@@ -250,14 +250,6 @@ impl LoopViewBuilder {
                 }
                 generic_case_a::lower_case_a_trim_with_scope(scope)
             }
-            CaseAMinimalTargetKind::AppendDefs => {
-                if self.debug {
-                    get_global_ring0()
-                        .log
-                        .debug("[LoopViewBuilder] [fallback] dispatching to append_defs lowerer");
-                }
-                generic_case_a::lower_case_a_append_defs_with_scope(scope)
-            }
             CaseAMinimalTargetKind::Stage1UsingResolver => {
                 if self.debug {
                     get_global_ring0().log.debug(

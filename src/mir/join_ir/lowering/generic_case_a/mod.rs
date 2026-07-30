@@ -7,7 +7,7 @@
 //! This module provides Case A lowering for four minimal SSA loop route shapes:
 //! - **skip_ws**: Whitespace skipping loop (Main.skip/1)
 //! - **trim**: String trimming loop (FuncScannerBox.trim/1)
-//! - **append_defs**: Array concatenation loop (FuncScannerBox.append_defs/2)
+//! - **append_defs**: generic array concatenation loop
 //! - **stage1_using_resolver**: lower-resolver compatibility loop (Stage1UsingResolverBox.resolve_for_source/5)
 //!
 //! ## Architecture

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINMODULE-LOWERONLY-TARGET-ALIGNMENT0-D0 is closed: FuncScannerBox.append_defs/2 is a stale LowerOnly/Case-A name descriptor, not current source or a real observer target. JOINMODULE-LOWERONLY-STALE-DESCRIPTOR-RET0 retires only that name-specialized residue; the generic ArrayAccumulation lowerer remains a separate disposition. LLVM experiment behavior remains a separate later fence. JumpArgsLayout remains a separate caller-zero core-carrier rehome. Final conformance must resolve every fence before Ownership, View, or feature work opens."
+status = "JOINMODULE-LOWERONLY-STALE-DESCRIPTOR-RET0 is closed: the stale FuncScannerBox.append_defs/2 bridge/Loop exclusion/Case-A name facade is deleted, while generic ArrayAccumulation lowering remains structurally independent. GENERIC-CASE-A-APPEND-DEFS-DISPOSITION0-D0 is next; it must decide rehome or retirement from source/MIR evidence, not the deleted name. LLVM experiment behavior remains a separate later fence. JumpArgsLayout remains a separate caller-zero core-carrier rehome. Final conformance must resolve every fence before Ownership, View, or feature work opens."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "JOINMODULE-LOWERONLY-STALE-DESCRIPTOR-RET0"
-current_execution_summary = "T0 detached-retirement row: remove the stale FuncScannerBox.append_defs/2 LowerOnly descriptor and its name-specialized Case-A facade from the shared target/Loop exclusion path. Retain generic ArrayAccumulation lowering, its ValueId range, and shape route; do not re-target current FuncScannerHelpersBox._append_defs/2 without a separately selected source/MIR observer disposition. No bridge, normal/default, strict, LLVM, JumpArgsLayout, Ownership, View, or feature change is authorized."
+current_design_stop = "GENERIC-CASE-A-APPEND-DEFS-DISPOSITION0-D0"
+current_execution_row = ""
+current_execution_summary = "Design-only stop: decide the independent generic ArrayAccumulation append-defs asset from current source/MIR evidence. The source helper FuncScannerHelpersBox._append_defs/2 and the generic recipe's three-input contract are not interchangeable; current direct MIR emission freezes before a comparable artifact. Select one disposition: retain-fenced pending evidence, retire generic asset, or rehome only after a real source/MIR route is proven. No bridge target re-addition, normal/default, strict, LLVM, JumpArgsLayout, Ownership, View, or feature work is authorized before the decision."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

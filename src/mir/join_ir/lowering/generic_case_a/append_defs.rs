@@ -4,7 +4,8 @@
 //!
 //! ## Responsibility
 //!
-//! Lowers FuncScannerBox.append_defs/2 array concatenation loop to JoinIR.
+//! Lowers a generic ArrayAccumulation append-defs loop to JoinIR.
+//! This structural lowerer is not a VM bridge target registration.
 //!
 //! ## Shape Structure
 //!

@@ -13,7 +13,6 @@ use super::structural::LoopStructuralAnalysis;
 pub(crate) enum CaseAMinimalTargetKind {
     SkipWhitespace,
     Trim,
-    AppendDefs,
     Stage1UsingResolver,
 }
 
@@ -31,10 +30,6 @@ const CASE_A_MINIMAL_TARGETS: &[CaseAMinimalTargetDesc] = &[
     CaseAMinimalTargetDesc {
         func_name: "FuncScannerBox.trim/1",
         kind: CaseAMinimalTargetKind::Trim,
-    },
-    CaseAMinimalTargetDesc {
-        func_name: "FuncScannerBox.append_defs/2",
-        kind: CaseAMinimalTargetKind::AppendDefs,
     },
     CaseAMinimalTargetDesc {
         func_name: "Stage1UsingResolverBox.resolve_for_source/5",
@@ -64,7 +59,6 @@ pub(crate) fn case_a_minimal_target_name(kind: CaseAMinimalTargetKind) -> &'stat
 ///
 /// - `Main.skip/1`: minimal_ssa_skip_ws.hako
 /// - `FuncScannerBox.trim/1`: funcscanner_trim_min.hako
-/// - `FuncScannerBox.append_defs/2`: funcscanner_append_defs_min.hako
 /// - `Stage1UsingResolverBox.resolve_for_source/5`: stage1_using_resolver minimal
 ///
 /// # Phase 48-5: 構造ベース判定への移行
@@ -120,10 +114,6 @@ mod tests {
             ("Main.skip/1", CaseAMinimalTargetKind::SkipWhitespace),
             ("FuncScannerBox.trim/1", CaseAMinimalTargetKind::Trim),
             (
-                "FuncScannerBox.append_defs/2",
-                CaseAMinimalTargetKind::AppendDefs,
-            ),
-            (
                 "Stage1UsingResolverBox.resolve_for_source/5",
                 CaseAMinimalTargetKind::Stage1UsingResolver,
             ),
@@ -139,6 +129,7 @@ mod tests {
     #[test]
     fn case_a_minimal_target_table_rejects_non_subset_loop_targets() {
         for name in [
+            "FuncScannerBox.append_defs/2",
             "StageBBodyExtractorBox.build_body_src/2",
             "StageBFuncScannerBox.scan_all_boxes/1",
             "IfSelectTest.simple_return/0",
