@@ -3,6 +3,7 @@
 use super::normal_script_direct_statement_owner::{
     lower_direct_fastmem_region_v1, lower_direct_if_statement_v1,
     lower_direct_port_aware_expression_v1, lower_direct_print_v1,
+    lower_direct_selected_unsupported_statement_v1,
     lower_direct_static_const_runtime_completion_v1,
 };
 use super::normal_script_nonbox_statement_disposition::{
@@ -66,6 +67,7 @@ pub(super) enum NormalScriptRuntimeStatementAdmissionV1 {
     DirectFastMemRegion,
     DirectPortAwareExpression,
     DirectStaticConstRuntimeCompletion,
+    DirectSelectedUnsupportedStatement,
     RawCompatibility,
     CatalogedNonMainStaticBox,
     StaticMainCompatibility,
@@ -94,6 +96,9 @@ impl PreparedNormalScriptRuntimeWorkV1 {
                 Kind::DirectStaticConstRuntimeCompletion => {
                     Admission::DirectStaticConstRuntimeCompletion
                 }
+                Kind::DirectSelectedUnsupportedStatement => {
+                    Admission::DirectSelectedUnsupportedStatement
+                }
                 Kind::RawCompatibility => Admission::RawCompatibility,
                 Kind::CatalogedNonMainStaticBox => Admission::CatalogedNonMainStaticBox,
                 Kind::StaticMainCompatibility => Admission::StaticMainCompatibility,
@@ -118,11 +123,9 @@ impl PreparedNormalScriptRuntimeWorkV1 {
     pub(super) fn len(&self) -> usize {
         self.statements.len()
     }
-
     pub(super) fn into_raw_statements(self) -> Vec<ASTNode> {
         self.statements.into_vec()
     }
-
     pub(super) fn lower_with_port_v1<Port>(
         &self,
         builder: &mut MirBuilder,
@@ -134,17 +137,14 @@ impl PreparedNormalScriptRuntimeWorkV1 {
         let mut block_port = NormalScriptRuntimeBlockPortV1 { work: self, port };
         drive_legacy_block_v1(builder, &mut block_port)
     }
-
     #[cfg(test)]
     pub(super) fn admission_at(&self, index: usize) -> &NormalScriptRuntimeStatementAdmissionV1 {
         &self.admissions[index]
     }
-
     #[cfg(test)]
     pub(super) fn statement_at(&self, index: usize) -> &ASTNode {
         &self.statements[index]
     }
-
     #[cfg(test)]
     pub(super) fn constructor_admission_at(
         &self,
@@ -184,11 +184,9 @@ where
     fn len(&self) -> usize {
         self.work.statements.len()
     }
-
     fn suffix_route_input(&self, index: usize) -> Result<Option<Self::SuffixInput<'_>>, String> {
         Ok(Some(&self.work.statements[index..]))
     }
-
     fn lower_statement(
         &mut self,
         builder: &mut MirBuilder,
@@ -210,6 +208,9 @@ where
             }
             NormalScriptRuntimeStatementAdmissionV1::DirectStaticConstRuntimeCompletion => {
                 lower_direct_static_const_runtime_completion_v1(builder, statement)
+            }
+            NormalScriptRuntimeStatementAdmissionV1::DirectSelectedUnsupportedStatement => {
+                lower_direct_selected_unsupported_statement_v1(builder, statement)
             }
             NormalScriptRuntimeStatementAdmissionV1::RawCompatibility => {
                 drive_legacy_statement_v1(builder, self.port, statement.clone())
@@ -398,6 +399,7 @@ pub(super) enum NormalScriptRuntimeStatementKindV1 {
     DirectFastMemRegion,
     DirectPortAwareExpression,
     DirectStaticConstRuntimeCompletion,
+    DirectSelectedUnsupportedStatement,
     RawCompatibility,
     CatalogedNonMainStaticBox,
     StaticMainCompatibility,
@@ -447,9 +449,10 @@ pub(super) fn classify_normal_script_runtime_statement_v1(
             NormalScriptNonBoxStatementDispositionV1::DirectStaticConstRuntimeCompletion => {
                 NormalScriptRuntimeStatementKindV1::DirectStaticConstRuntimeCompletion
             }
-            NormalScriptNonBoxStatementDispositionV1::StatementControlCompatibility
-            | NormalScriptNonBoxStatementDispositionV1::DeclarationIngressCompatibility
-            | NormalScriptNonBoxStatementDispositionV1::TopLevelFunctionImmediateOnly => {
+            NormalScriptNonBoxStatementDispositionV1::DirectSelectedUnsupportedStatement => {
+                NormalScriptRuntimeStatementKindV1::DirectSelectedUnsupportedStatement
+            }
+            NormalScriptNonBoxStatementDispositionV1::TopLevelFunctionImmediateOnly => {
                 NormalScriptRuntimeStatementKindV1::RawCompatibility
             }
             NormalScriptNonBoxStatementDispositionV1::DirectBoxOwnedElsewhere => {
@@ -710,7 +713,6 @@ print(1)
                 .expect("normal Script request"),
             )
             .expect("normal generic static Script module");
-
         assert_eq!(
             MirPrinter::new().print_module(&normal.module),
             MirPrinter::new().print_module(&legacy.module)
@@ -747,7 +749,6 @@ print(1)
             normal_error.contains("sync_box_lowering_missing"),
             "{normal_error}"
         );
-
         normal_compiler
             .compile_normal(
                 NormalCompileRequestV1::for_mir_mode(
@@ -771,7 +772,6 @@ print(1)
             NyashParser::parse_from_string("static box Helpers { value() { return 1 } } print(1)")
                 .expect("corrected Script source");
         let mut compiler = MirCompiler::with_options(false);
-
         let error = compiler
             .compile_normal(
                 NormalCompileRequestV1::for_mir_mode(
@@ -783,7 +783,6 @@ print(1)
             )
             .expect_err("missing Script static method value must reject the candidate");
         assert!(error.contains("Undefined variable: missing"), "{error}");
-
         let result = compiler
             .compile_normal(
                 NormalCompileRequestV1::for_mir_mode(

@@ -13,8 +13,7 @@ pub(super) enum NormalScriptNonBoxStatementDispositionV1 {
     DirectFastMemRegion,
     DirectPortAwareExpression,
     DirectStaticConstRuntimeCompletion,
-    StatementControlCompatibility,
-    DeclarationIngressCompatibility,
+    DirectSelectedUnsupportedStatement,
     DirectBoxOwnedElsewhere,
     TopLevelFunctionImmediateOnly,
 }
@@ -23,9 +22,8 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
     statement: &ASTNode,
 ) -> NormalScriptNonBoxStatementDispositionV1 {
     use NormalScriptNonBoxStatementDispositionV1::{
-        DeclarationIngressCompatibility, DirectBoxOwnedElsewhere, DirectFastMemRegion,
-        DirectIfStatement, DirectPortAwareExpression, DirectPrint,
-        DirectStaticConstRuntimeCompletion, StatementControlCompatibility,
+        DirectBoxOwnedElsewhere, DirectFastMemRegion, DirectIfStatement, DirectPortAwareExpression,
+        DirectPrint, DirectSelectedUnsupportedStatement, DirectStaticConstRuntimeCompletion,
         TopLevelFunctionImmediateOnly,
     };
 
@@ -80,16 +78,15 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
 
         ASTNode::FastMemRegion { .. } => DirectFastMemRegion,
 
-        ASTNode::LoopRange { .. } | ASTNode::Break { .. } | ASTNode::Continue { .. } => {
-            StatementControlCompatibility
-        }
-
-        ASTNode::ImportStatement { .. }
+        ASTNode::LoopRange { .. }
+        | ASTNode::Break { .. }
+        | ASTNode::Continue { .. }
+        | ASTNode::ImportStatement { .. }
         | ASTNode::BuildGate { .. }
         | ASTNode::EnumDeclaration { .. }
         | ASTNode::BrandDeclaration { .. }
         | ASTNode::TypeAliasDeclaration { .. }
-        | ASTNode::GlobalVar { .. } => DeclarationIngressCompatibility,
+        | ASTNode::GlobalVar { .. } => DirectSelectedUnsupportedStatement,
 
         ASTNode::StaticConstTable { .. } => DirectStaticConstRuntimeCompletion,
 
@@ -105,8 +102,8 @@ mod tests {
     use super::{
         classify_normal_script_nonbox_statement_v1,
         NormalScriptNonBoxStatementDispositionV1::{
-            DeclarationIngressCompatibility, DirectFastMemRegion, DirectIfStatement,
-            DirectPortAwareExpression, DirectPrint, DirectStaticConstRuntimeCompletion,
+            DirectFastMemRegion, DirectIfStatement, DirectPortAwareExpression, DirectPrint,
+            DirectSelectedUnsupportedStatement, DirectStaticConstRuntimeCompletion,
         },
     };
     use crate::ast::{ASTNode, LiteralValue, Span};
@@ -172,7 +169,7 @@ mod tests {
         );
         assert_eq!(
             classify_normal_script_nonbox_statement_v1(&ingress),
-            DeclarationIngressCompatibility
+            DirectSelectedUnsupportedStatement
         );
         assert_eq!(
             classify_normal_script_nonbox_statement_v1(&call),

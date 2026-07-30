@@ -14,6 +14,10 @@ pub(in crate::mir::builder) use input_view::{
     RawBodyInputViewV1, RawLegacyBodyInputV1, RawLegacyStatementInputV1, RawStatementInputViewV1,
 };
 
+pub(in crate::mir::builder) fn unsupported_raw_ast_node_error_v1(ast: &ASTNode) -> String {
+    format!("Unsupported AST node type: {:?}", ast)
+}
+
 use self::block_expr::{lower_prepared_raw_block_expr_with_port_v1, PreparedRawBlockExprV1};
 pub(in crate::mir::builder) use self::nonmain_static_box_lifecycle::PreparedRawNonMainStaticBoxLifecycleV1;
 use super::builder_build::PreparedRawNewExpressionV1;
@@ -317,7 +321,7 @@ impl super::MirBuilder {
                 lower_prepared_raw_block_expr_with_port_v1(self, port, prepared)
             }
 
-            _ => Err(format!("Unsupported AST node type: {:?}", ast)),
+            _ => Err(unsupported_raw_ast_node_error_v1(&ast)),
         }
     }
 }

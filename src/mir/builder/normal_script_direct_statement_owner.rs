@@ -8,7 +8,10 @@ use crate::ast::ASTNode;
 use crate::mir::builder::emission::constant::emit_void;
 use crate::mir::builder::fastmem::build_fastmem_region_with_port_v1;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
-use crate::mir::builder::recursive_child_lowering::drive_legacy_expression_v1;
+use crate::mir::builder::raw_expression_dispatch::unsupported_raw_ast_node_error_v1;
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, with_legacy_expression_recursion_guard_v1,
+};
 use crate::mir::builder::stmts::if_statement_descent::{
     complete_if_statement_v1, drive_raw_if_statement_with_port_v1,
 };
@@ -94,6 +97,33 @@ where
     build_fastmem_region_with_port_v1(builder, port, contract, body, span)
 }
 
+pub(super) fn lower_direct_selected_unsupported_statement_v1(
+    builder: &mut MirBuilder,
+    statement: &ASTNode,
+) -> Result<ValueId, String> {
+    if !matches!(
+        statement,
+        ASTNode::LoopRange { .. }
+            | ASTNode::Break { .. }
+            | ASTNode::Continue { .. }
+            | ASTNode::ImportStatement { .. }
+            | ASTNode::BuildGate { .. }
+            | ASTNode::EnumDeclaration { .. }
+            | ASTNode::BrandDeclaration { .. }
+            | ASTNode::TypeAliasDeclaration { .. }
+            | ASTNode::GlobalVar { .. }
+    ) {
+        return Err(
+            "[freeze:contract][mir/script-runtime/unsupported-statement-source-drift]".to_owned(),
+        );
+    }
+    builder.metadata_ctx.set_current_span(statement.span());
+    let node_kind = std::mem::discriminant(statement);
+    with_legacy_expression_recursion_guard_v1(builder, node_kind, |_| {
+        Err(unsupported_raw_ast_node_error_v1(statement))
+    })
+}
+
 pub(super) fn lower_direct_static_const_runtime_completion_v1(
     builder: &mut MirBuilder,
     statement: &ASTNode,
@@ -109,7 +139,10 @@ pub(super) fn lower_direct_static_const_runtime_completion_v1(
 mod tests {
     use std::collections::HashMap;
 
-    use crate::ast::{ASTNode, BinaryOperator, CheckItem, LiteralValue, Span, UnaryOperator};
+    use crate::ast::{
+        ASTNode, BinaryOperator, BuildPredicate, CheckItem, DeclarationAttrs, LiteralValue, Span,
+        UnaryOperator,
+    };
     use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
 
     fn integer(value: i64, line: usize) -> ASTNode {
@@ -117,6 +150,54 @@ mod tests {
             value: LiteralValue::Integer(value),
             span: Span::new(line, line + 1, line, 1),
         }
+    }
+
+    fn selected_unsupported_statements() -> Vec<ASTNode> {
+        let span = Span::unknown();
+        vec![
+            ASTNode::LoopRange {
+                var_name: "i".to_owned(),
+                start: Box::new(integer(0, 1)),
+                end: Box::new(integer(1, 2)),
+                body: Vec::new(),
+                span,
+            },
+            ASTNode::Break { span },
+            ASTNode::Continue { span },
+            ASTNode::ImportStatement {
+                path: "fixture.hako".to_owned(),
+                alias: None,
+                span,
+            },
+            ASTNode::BuildGate {
+                predicate: BuildPredicate::BuildFlag("fixture".to_owned()),
+                then_items: Vec::new(),
+                else_items: None,
+                span,
+            },
+            ASTNode::EnumDeclaration {
+                name: "Choice".to_owned(),
+                variants: Vec::new(),
+                type_parameters: Vec::new(),
+                attrs: DeclarationAttrs::default(),
+                span,
+            },
+            ASTNode::BrandDeclaration {
+                name: "PageId".to_owned(),
+                underlying_type_name: "i64".to_owned(),
+                span,
+            },
+            ASTNode::TypeAliasDeclaration {
+                name: "Count".to_owned(),
+                target_type_name: "i64".to_owned(),
+                span,
+            },
+            ASTNode::GlobalVar {
+                name: "g".to_owned(),
+                value: Box::new(integer(1, 3)),
+                span,
+            },
+        ]
     }
 
     fn compare_normal_and_legacy(root: ASTNode, name: &str) {
@@ -319,6 +400,50 @@ mod tests {
         ] {
             compare_normal_and_legacy(root, name);
         }
+    }
+
+    #[test]
+    fn selected_unsupported_statements_keep_exact_legacy_rejection_and_reuse() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        for (index, statement) in selected_unsupported_statements().into_iter().enumerate() {
+            compare_normal_and_legacy(statement, &format!("unsupported-script-{index}.hako"));
+        }
+
+        let failing = ASTNode::Program {
+            statements: vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        };
+        let mut compiler = MirCompiler::with_options(false);
+        let error = compiler
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    failing,
+                    Some("unsupported-script-reuse.hako"),
+                    HashMap::new(),
+                )
+                .expect("unsupported normal request"),
+            )
+            .expect_err("selected unsupported statement must reject");
+        assert!(
+            error.contains("Unsupported AST node type: Break"),
+            "{error}"
+        );
+
+        compiler
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    ASTNode::Program {
+                        statements: vec![integer(1, 1)],
+                        span: Span::unknown(),
+                    },
+                    Some("unsupported-script-corrected.hako"),
+                    HashMap::new(),
+                )
+                .expect("fresh normal request"),
+            )
+            .expect("fresh candidate after direct unsupported rejection");
     }
 
     #[test]

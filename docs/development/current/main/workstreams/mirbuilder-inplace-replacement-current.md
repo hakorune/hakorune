@@ -55,7 +55,8 @@ Latest design:  `NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS30-D0` — closed
 Latest design:  `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-D0` — closed
-Next row:      `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0`
+Latest landed:  `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0`
+Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS31-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -69,7 +70,7 @@ activation and sunset contract.
 | State | Ledger key / family | Exact surface | Activation / normal-default | Release row / condition |
 | --- | --- | --- | --- | --- |
 | active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | fresh named raw-static-Main disposition, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` proves reachability = 0 |
-| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for exactly 9 selected Script kinds: LoopRange, Break, Continue, ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, GlobalVar | selected normal Script only; Print, If, FastMemRegion, all 28 expression roots, Return, StaticConstTable runtime completion, and all 13 StatementSurfaceFallthrough0 roots are retired; raw/reference and nested body descent remain separate | fresh named selected-Script statement-owner D0 with a same-commit old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
+| closed | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | selected Script non-Box runtime compatibility, ending with the exact 9 unsupported kinds LoopRange, Break, Continue, ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, GlobalVar | selected normal Script only; raw/reference and nested body descent remain separate | retired by `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0`: exact 9 -> direct shared guarded diagnostic; selected Script `RawCompatibility` execution = 0 |
 | closed | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program immediate instance constructors, plus selected Script plain-instance runtime-prefix constructors | every selected Program instance Box has one immediate demand; plain Script adds its second `InstancePrefixCompatibility` demand; non-plain Script's later raw runtime lifecycle is the separate row below | retired by `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0`: one source occurrence -> unchanged physical LegacySymbol admission per existing demand |
 | closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
 | closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
@@ -85,8 +86,8 @@ activation and sunset contract.
 | unregistered | `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001` — selected nested Box raw body descent | recursive `RawInvocationChildPortV1` -> raw `BoxDeclaration` dispatcher -> legacy static/instance child terminals | selected normal function body can reach it; Program/root admission is not its owner | `NESTED-BOX-RAW-BODY-DISPOSITION0-D0`, else forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` -> delete or RETAIN-FENCED reference scope; record exact partition, owner, activation, retire_when here |
 
-The registry has two registered R3 fences, two active selected Program/root
-compatibility residuals, four closed residuals, and eight unregistered R3 family
+The registry has two registered R3 fences, one active selected Program/root
+compatibility residual, five closed residuals, and eight unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
@@ -113,6 +114,44 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0` — T1 atomic
+replacement, closed
+
+```text
+Production:
+  exact 9 selected Script unsupported kinds
+  -> DirectSelectedUnsupportedStatement
+  -> current span
+  -> existing raw expression recursion guard
+  -> shared unsupported raw-AST diagnostic.
+
+Atomic delete:
+  exact 9
+  -> StatementControlCompatibility / DeclarationIngressCompatibility
+  -> RawCompatibility
+  -> drive_legacy_statement_v1
+  = 0.
+
+Parity:
+  all 9 normal errors equal legacy errors; declaration-fact preparation order,
+  recursion-depth precedence, candidate discard, and fresh compiler reuse are
+  unchanged. Successful MIR effect, port demand, retry, fallback, and grammar
+  delta are zero.
+
+R4:
+  selected Script compatibility residual = 0.
+  NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003 = closed.
+  active compatibility=1, retain-fenced=2, closed=5, unregistered=8.
+
+Evidence:
+  focused non-Box disposition, direct-owner, and runtime-work tests;
+  shared public-ingress guard; cargo check --lib; all touched source/check
+  files below 800 lines.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS31-D0.
+```
 
 `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-D0` — T1 design,
 closed
