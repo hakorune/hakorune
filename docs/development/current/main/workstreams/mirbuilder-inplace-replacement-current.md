@@ -32,7 +32,8 @@ Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0
 Result:        selected Script direct Box raw compatibility is retired
 Latest landed:  `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-I0-R0`
-Next design:    `MIRBUILDER-LIVE-EDGE-CENSUS22-D0` — fresh selected/R4 census
+Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS22-D0` — closed
+Next design:    `NORMAL-SCRIPT-NONBOX-STATEMENT-DISPOSITION0-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -46,6 +47,7 @@ activation and sunset contract.
 | State | Ledger key / family | Exact surface | Activation / normal-default | Release row / condition |
 | --- | --- | --- | --- | --- |
 | active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | fresh named raw-static-Main disposition, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` proves reachability = 0 |
+| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for direct non-Box Script statements | selected normal Script only; raw/reference and nested body descent remain separate | `NORMAL-SCRIPT-NONBOX-STATEMENT-DISPOSITION0-D0`: source-only total partition and a same-commit selected old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
 | closed | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program immediate instance constructors, plus selected Script plain-instance runtime-prefix constructors | every selected Program instance Box has one immediate demand; plain Script adds its second `InstancePrefixCompatibility` demand; non-plain Script's later raw runtime lifecycle is the separate row below | retired by `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0`: one source occurrence -> unchanged physical LegacySymbol admission per existing demand |
 | closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
 | closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
@@ -61,14 +63,14 @@ activation and sunset contract.
 | unregistered | `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001` — selected nested Box raw body descent | recursive `RawInvocationChildPortV1` -> raw `BoxDeclaration` dispatcher -> legacy static/instance child terminals | selected normal function body can reach it; Program/root admission is not its owner | `NESTED-BOX-RAW-BODY-DISPOSITION0-D0`, else forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` -> delete or RETAIN-FENCED reference scope; record exact partition, owner, activation, retire_when here |
 
-The registry has two registered R3 fences, one active selected Program/root
-compatibility residual, four closed residuals, and eight unregistered R3 family
+The registry has two registered R3 fences, two active selected Program/root
+compatibility residuals, four closed residuals, and eight unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
 (`37` occurrences in `8` `src/mir` files at Census20 closeout);
-only the one active compatibility row above is a registered selected
-Program/root admission dispositions.  Nested raw body descent is deliberately
+only the one selected Script and one raw-static-Main compatibility row above are
+registered selected Program/root admission dispositions. Nested raw body descent is deliberately
 unregistered rather than silently counted as one of them.
 
 Every census updates this table before selecting the next row. Every unregistered
@@ -649,6 +651,32 @@ Next:
 ```
 
 ## Latest census
+
+`MIRBUILDER-LIVE-EDGE-CENSUS22-D0` — read-only, closed: non-Box Script residual registered
+
+```text
+Selected production edge:
+  selected normal Program -> Script runtime work
+  -> NormalScriptRuntimeBlockPortV1::lower_statement
+  -> RawCompatibility -> drive_legacy_statement_v1
+
+Decision:
+  Direct BoxDeclaration is retired by the preceding I0, but every direct
+  non-Box Script statement still reaches this broad compatibility edge. Record
+  `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` in the sole R4 registry
+  before selecting its disposition. It is a live selected residual, not an
+  unregistered R4 family and not a `LegacyChildDraftAdmissionV1` occurrence.
+
+Next:
+  `NORMAL-SCRIPT-NONBOX-STATEMENT-DISPOSITION0-D0`. It must inventory the
+  exact non-Box kind families, identify port-neutral/statement/control/call
+  boundaries, and select at most one source-only partition with a named old-edge
+  delete. Do not open an I0 from the catch-all branch.
+
+R4 census:
+  retain-fenced=2, active compatibility=2, closed=4, unregistered=8.
+  `LegacyChildDraftAdmissionV1` remains 37 occurrences / 8 source files.
+```
 
 ## Current design decision
 
