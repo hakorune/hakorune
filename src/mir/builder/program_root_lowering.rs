@@ -20,8 +20,8 @@ use super::normal_default_root_catalog_lifecycle::{
 };
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_work_plan::{
-    PreparedProgramRootRuntimeWorkV1, PreparedProgramRootWorkPlanV1, ProgramRootRuntimeAdmissionV1,
-    ProgramRootTerminalScheduleV1,
+    PreparedProgramRootRuntimeWorkV1, PreparedProgramRootWorkPlanV1, ProgramRootTerminalScheduleV1,
+    ProgramRootWorkPlanAdmissionV1,
 };
 use super::program_static_table_metadata::PreparedNormalProgramStaticTableMetadataV1;
 use super::recursive_child_lowering::RawInvocationChildPortV1;
@@ -159,7 +159,7 @@ impl MirBuilder {
                 expansion,
                 materialization,
                 runtime_inputs,
-                ProgramRootRuntimeAdmissionV1::SelectedNormal,
+                ProgramRootWorkPlanAdmissionV1::SelectedNormal,
                 &mut port,
             )
         }?;
@@ -203,7 +203,7 @@ impl MirBuilder {
             expansion,
             &materialization,
             &super::NormalRuntimeInputSnapshotV1::empty(),
-            ProgramRootRuntimeAdmissionV1::RawCompatibility,
+            ProgramRootWorkPlanAdmissionV1::RawCompatibility,
             callables,
         )
     }
@@ -215,7 +215,7 @@ impl MirBuilder {
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
-        runtime_admission: ProgramRootRuntimeAdmissionV1,
+        work_plan_admission: ProgramRootWorkPlanAdmissionV1,
         callables: &mut Port,
     ) -> Result<ValueId, String>
     where
@@ -229,13 +229,13 @@ impl MirBuilder {
         let is_app_mode = expansion.is_app_mode();
         self.root_is_app_mode = Some(is_app_mode);
         let work =
-            PreparedProgramRootWorkPlanV1::prepare(statements, is_app_mode, runtime_admission);
+            PreparedProgramRootWorkPlanV1::prepare(statements, is_app_mode, work_plan_admission);
         self.lower_program_root_work_plan_with_callable_port_v1(
             work,
             expansion,
             materialization,
             runtime_inputs,
-            runtime_admission,
+            work_plan_admission,
             callables,
         )
     }
@@ -246,7 +246,7 @@ impl MirBuilder {
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
-        runtime_admission: ProgramRootRuntimeAdmissionV1,
+        work_plan_admission: ProgramRootWorkPlanAdmissionV1,
         callables: &mut Port,
     ) -> Result<ValueId, String>
     where
@@ -264,13 +264,13 @@ impl MirBuilder {
 
         match (work.terminal, expansion) {
             (ProgramRootTerminalScheduleV1::ScriptRuntime, VerifiedRawRootExpansionV1::Script) => {
-                match (runtime_admission, work.runtime) {
+                match (work_plan_admission, work.runtime) {
                     (
-                        ProgramRootRuntimeAdmissionV1::RawCompatibility,
+                        ProgramRootWorkPlanAdmissionV1::RawCompatibility,
                         PreparedProgramRootRuntimeWorkV1::RawCompatibility(statements),
                     ) => callables.lower_body(self, statements.into_vec()),
                     (
-                        ProgramRootRuntimeAdmissionV1::SelectedNormal,
+                        ProgramRootWorkPlanAdmissionV1::SelectedNormal,
                         PreparedProgramRootRuntimeWorkV1::SelectedNormal(work),
                     ) => work.lower_with_port_v1(self, callables),
                     _ => Err(

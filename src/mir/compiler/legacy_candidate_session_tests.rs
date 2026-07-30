@@ -385,6 +385,9 @@ fn explicit_imports_commit_only_with_the_finished_normal_candidate() {
 fn normal_pipeline_matches_legacy_compatibility_for_general_module() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     let source = r#"
+function selected_top_level() { return 1 }
+function selected_top_level() { return 2 }
+
 box Page {
   capacity: usize = 0
   answer() { return 7 }
@@ -434,6 +437,10 @@ static box Main {
         legacy.module.function_names()
     );
     assert!(candidate.module.functions.contains_key("Utility.answer/0"));
+    assert!(candidate
+        .module
+        .functions
+        .contains_key("selected_top_level/0"));
     let contract_count = |module: &crate::mir::MirModule| {
         module
             .functions

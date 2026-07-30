@@ -294,6 +294,15 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         Ok(pending)
     }
 
+    pub(in crate::mir::builder) fn commit_normal_top_level_function_pending_v1(
+        &mut self,
+        pending: LegacyFunctionPendingSessionV1<'_>,
+        admission: super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        self.module_port
+            .commit_normal_top_level_function_pending(pending, admission)
+    }
+
     pub(in crate::mir::builder) fn complete_static_box_method_branded(
         &mut self,
         builder: &mut MirBuilder,

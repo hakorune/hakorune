@@ -35,6 +35,7 @@
 //! 4. **Return strategy order固定**: Direct → hint → P3-D → P4 → P3-C
 //!
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
+use super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1;
 use super::recursive_child_lowering::{
     RawAstChildLoweringPortV1, RawBoxMethodChildPortV1, RawInvocationChildPortV1,
     RawLegacyChildLoweringPortV1,
@@ -58,6 +59,23 @@ use super::type_hint_providers;
 pub(in crate::mir::builder) trait RootCallableCapturePortV1:
     RawBoxMethodChildPortV1 + RawAstChildLoweringPortV1
 {
+    /// Selected normal top-level functions carry a source-order occurrence
+    /// receipt.  Raw/reference ports must never consume that receipt.
+    #[allow(clippy::too_many_arguments)]
+    fn lower_normal_top_level_function(
+        &mut self,
+        _builder: &mut super::MirBuilder,
+        _admission: NormalTopLevelFunctionDraftAdmissionV1,
+        _params: Vec<String>,
+        _param_decls: Vec<ParamDecl>,
+        _return_type_name: Option<String>,
+        _body: Vec<ASTNode>,
+        _uses: Vec<String>,
+        _attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        Err("[freeze:contract][mir/top-level-function-admission/raw-port]".to_owned())
+    }
+
     #[allow(clippy::too_many_arguments)]
     fn lower_cataloged_static_box_method(
         &mut self,
@@ -144,6 +162,30 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
 }
 
 impl RootCallableCapturePortV1 for RawInvocationChildPortV1<'_, '_> {
+    fn lower_normal_top_level_function(
+        &mut self,
+        builder: &mut super::MirBuilder,
+        admission: NormalTopLevelFunctionDraftAdmissionV1,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        self.lower_normal_top_level_function_v1(
+            builder,
+            admission,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
+        .map_err(|error| error.to_string())
+    }
+
     fn lower_cataloged_static_box_method(
         &mut self,
         builder: &mut super::MirBuilder,

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-D0 is closed: Candidate A selects one source-order top-level occurrence receipt plus separately sealed legacy-physical admission, without widening the Box-method catalog. NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0 must atomically replace only selected normal top-level FunctionDeclaration raw LegacyChild admission; preserve LegacySymbol + LegacyReplaceWholePair source-order last-wins, raw/reference, constructors, Script non-plain Boxes, static Main, body/header/result/candidate owners, and no fallback/retry. Census19 corrected the R4 registry with NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-COMPAT-SUNSET-002. R4 still blocks Ownership, View, and feature work."
+status = "NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0 is closed: selected Program top-level FunctionDeclaration now carries one source-order occurrence receipt and a separately sealed legacy physical name/arity admission, preserving LegacySymbol + LegacyReplaceWholePair last-wins. The selected raw LegacyChild edge is zero; raw/reference, constructors, Script non-plain Boxes, static Main, Box-method catalog, body/header/result/candidate owners, and fallback/retry remain unchanged. The R4 registry closes NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003 and narrows NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001 to constructors only. Census20 D0 is the sole next selection; R4 still blocks Ownership, View, and feature work."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0"
-current_execution_summary = "T2 atomic selected-normal cutover for Program-root top-level FunctionDeclaration. Issue one source-order occurrence receipt plus separate name/arity physical admission; preserve LegacySymbol + LegacyReplaceWholePair last-wins and existing capture/header/body/result/candidate owners; delete only selected raw LegacyChild admission. Raw/reference, constructors, non-plain Script Boxes, static Main, Box-method catalog, collector policy, runner/result/publication, fallback, and retry remain unchanged."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS20-D0"
+current_execution_row = "none"
+current_execution_summary = "NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0 closed its selected-normal Program top-level FunctionDeclaration source/physical admission cutover. Run a fresh Census20 D0 before selecting any additional residual; constructors, raw/reference, non-plain Script Boxes, static Main, Box-method catalog, collector policy, runner/result/publication, fallback, and retry remain unchanged."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """ENTRY-MATERIALIZATION-RECEIPT0-S0, ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0, Census15, NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0, NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0, Census16, NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0, NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0, Census17, NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0, Census18, Script-runtime Box admission D0, and its T2 I0/R0 are closed. Census19 is NoSafeLiveI0 and registers non-plain Script Box compatibility separately. Top-level FunctionDeclaration identity D0 accepts a source-order occurrence receipt with separate legacy physical admission; its I0/R0 is current. Constructors remain separate. R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """ENTRY-MATERIALIZATION-RECEIPT0-S0, ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0, Census15, NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0, NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0, Census16, NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0, NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0, Census17, NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0, Census18, Script-runtime Box admission D0/I0, Census19, and top-level FunctionDeclaration identity I0 are closed. Top-level selected normal now uses source-order identity with unchanged legacy physical collector last-wins; raw/reference remain separate. The R4 registry closes the top-level sunset and narrows the remaining combined row to constructors. Census20 D0 is current; R4 final conformance still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS20-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

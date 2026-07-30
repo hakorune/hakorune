@@ -29,10 +29,10 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
-Latest landed: NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0
-Result:        selected Script runtime ordinary Box methods are cataloged
-Latest design: `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-D0` — closed: Candidate A
-Executable:    `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`
+Latest landed: NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0
+Result:        selected Program top-level functions carry source-order identity
+Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS20-D0` — required fresh selection
+Executable:    none; stop at Census20 D0
 History:       Git history and the short landed tail below
 ```
 
@@ -46,7 +46,8 @@ activation and sunset contract.
 | State | ID / family | Exact surface | Activation / normal-default | Release row / condition |
 | --- | --- | --- | --- | --- |
 | active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | named raw static-Main replacement, or reachability = 0 |
-| active compatibility | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | instance constructors and top-level functions | selected Program child compatibility; catalog identity absent | each source-identity replacement is selected; constructor and top-level remain separate |
+| active compatibility | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | instance constructors only | selected Program child compatibility; constructor source identity absent | Census20 selects one constructor source-identity replacement or proves selected reachability = 0 |
+| closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
 | closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
 | active compatibility | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-COMPAT-SUNSET-002` | selected Script direct `BoxDeclaration` that fails `is_plain_box` | selected normal Script -> `RawCompatibility` -> raw statement driver exactly once; raw/reference remains separate | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-D0`: each shape obtains an exact owner or parity-equivalent pre-descent rejection, then selected raw statement edge = 0 |
 | retain-fenced | `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | two direct normalized-shadow executions and strict/dev StepTree observer | explicit dev/debug; default normal = 0 | verified Recipe/CorePlan loop owner, strict/dev parity, and independent observer disposition |
@@ -60,7 +61,7 @@ activation and sunset contract.
 | unregistered | JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | forced R4 delete-or-explicit-fenced-reference disposition |
 
 The registry has two registered R3 fences, three active selected Program/root
-compatibility residuals, one closed residual, and seven unregistered R3 family
+compatibility residuals, two closed residuals, and seven unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric;
@@ -608,27 +609,32 @@ I0 contract:
 
 ## Current execution
 
-`NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0` — T2 atomic selected-normal cutover
+`NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0` — T2 atomic selected-normal cutover, closed
 
 ```text
 Change:
-  create the source-order top-level occurrence receipt and its physical
-  admission in the existing Program work partition; selected normal invokes a
-  dedicated capture port, while raw/reference keeps the existing raw work item.
+  selected Program top-level functions now issue one source-order occurrence
+  receipt and separate legacy physical admission in the existing work plan;
+  the selected capture port consumes it while raw/reference retains the raw
+  work item.
 
 Delete:
   selected normal top-level FunctionDeclaration -> raw static method
   `LegacyChildDraftAdmissionV1` = 0.
 
 Evidence:
-  normal-vs-legacy MIR/function-set parity; duplicate `name/arity` last-wins
-  parity; exact source-order/physical receipt relation; late body failure then
-  fresh reuse; raw/reference receipt = 0; shared guard and file-size gates.
+  normal-vs-legacy general-module MIR/function-set parity, including duplicate
+  `name/arity` last-wins; source-order/physical receipt tests; late body
+  failure then fresh reuse; raw/reference receipt = 0; shared guard; and all
+  touched source/check files below 800 lines.
 
-Stop:
-  return to D0 if Box-method catalog widening, a collector-policy change,
-  collision rejection, a second source pass, generic raw-port authority,
-  constructor activation, or fallback/retry is required.
+Registry:
+  `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` is closed.  The older
+  combined `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` is narrowed
+  to constructors only, so no active row silently retains top-level scope.
+
+Next:
+  `MIRBUILDER-LIVE-EDGE-CENSUS20-D0`; do not preselect another replacement.
 ```
 
 ## Latest closeout

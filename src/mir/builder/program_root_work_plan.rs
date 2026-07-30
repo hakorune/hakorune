@@ -11,6 +11,9 @@ use crate::ast::{ASTNode, DeclarationAttrs, FieldDecl, ParamDecl};
 use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_script_runtime_work::PreparedNormalScriptRuntimeWorkV1;
+use super::normal_top_level_function_admission::{
+    NormalTopLevelFunctionDraftAdmissionV1, NormalTopLevelFunctionSourceKeyV1,
+};
 use super::MirBuilder;
 
 #[derive(Debug)]
@@ -57,7 +60,16 @@ pub(super) struct PreparedProgramRootInstanceBoxWorkV1 {
 }
 
 #[derive(Debug)]
-pub(super) struct PreparedProgramRootTopLevelFunctionWorkV1 {
+pub(super) enum PreparedProgramRootTopLevelFunctionWorkV1 {
+    RawCompatibility(PreparedProgramRootTopLevelFunctionPartsV1),
+    SelectedNormal {
+        admission: NormalTopLevelFunctionDraftAdmissionV1,
+        parts: PreparedProgramRootTopLevelFunctionPartsV1,
+    },
+}
+
+#[derive(Debug)]
+pub(super) struct PreparedProgramRootTopLevelFunctionPartsV1 {
     name: String,
     params: Vec<String>,
     param_decls: Vec<ParamDecl>,
@@ -80,7 +92,7 @@ pub(super) struct PreparedProgramDeferredStaticBoxWorkV1 {
 /// must be known before the work plan is prepared so raw/reference callers
 /// never construct the selected-normal receipt.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum ProgramRootRuntimeAdmissionV1 {
+pub(super) enum ProgramRootWorkPlanAdmissionV1 {
     RawCompatibility,
     SelectedNormal,
 }
@@ -92,12 +104,12 @@ pub(super) enum PreparedProgramRootRuntimeWorkV1 {
 }
 
 impl PreparedProgramRootRuntimeWorkV1 {
-    fn prepare(statements: Vec<ASTNode>, admission: ProgramRootRuntimeAdmissionV1) -> Self {
+    fn prepare(statements: Vec<ASTNode>, admission: ProgramRootWorkPlanAdmissionV1) -> Self {
         match admission {
-            ProgramRootRuntimeAdmissionV1::RawCompatibility => {
+            ProgramRootWorkPlanAdmissionV1::RawCompatibility => {
                 Self::RawCompatibility(statements.into_boxed_slice())
             }
-            ProgramRootRuntimeAdmissionV1::SelectedNormal => {
+            ProgramRootWorkPlanAdmissionV1::SelectedNormal => {
                 Self::SelectedNormal(PreparedNormalScriptRuntimeWorkV1::prepare(statements))
             }
         }
@@ -143,14 +155,14 @@ impl PreparedProgramRootWorkPlanV1 {
     pub(super) fn prepare(
         statements: Vec<ASTNode>,
         is_app_mode: bool,
-        runtime_admission: ProgramRootRuntimeAdmissionV1,
+        work_plan_admission: ProgramRootWorkPlanAdmissionV1,
     ) -> Self {
         let mut immediate = Vec::new();
         let mut deferred_static = Vec::new();
         let mut runtime_statements = Vec::new();
 
-        for statement in statements {
-            match classify_statement(statement, is_app_mode) {
+        for (statement_index, statement) in statements.into_iter().enumerate() {
+            match classify_statement(statement, is_app_mode, statement_index, work_plan_admission) {
                 ProgramRootStatementDispositionV1::ImmediateAndRuntime {
                     work,
                     runtime_statement,
@@ -179,7 +191,7 @@ impl PreparedProgramRootWorkPlanV1 {
             deferred_static: deferred_static.into_boxed_slice(),
             runtime: PreparedProgramRootRuntimeWorkV1::prepare(
                 runtime_statements,
-                runtime_admission,
+                work_plan_admission,
             ),
             terminal: if is_app_mode {
                 ProgramRootTerminalScheduleV1::VerifiedAppMain
@@ -247,6 +259,52 @@ impl PreparedProgramRootTopLevelFunctionWorkV1 {
     where
         Port: RootCallableCapturePortV1,
     {
+        match self {
+            Self::RawCompatibility(parts) => parts.lower_raw_with_port_v1(builder, callables),
+            Self::SelectedNormal { admission, parts } => {
+                parts.lower_normal_with_port_v1(builder, callables, admission)
+            }
+        }
+    }
+
+    #[cfg(test)]
+    fn name(&self) -> &str {
+        match self {
+            Self::RawCompatibility(parts) | Self::SelectedNormal { parts, .. } => &parts.name,
+        }
+    }
+}
+
+impl PreparedProgramRootTopLevelFunctionPartsV1 {
+    #[allow(clippy::too_many_arguments)]
+    fn from_source(
+        name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Self {
+        Self {
+            name,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        }
+    }
+
+    fn lower_raw_with_port_v1<Port>(
+        self,
+        builder: &mut MirBuilder,
+        callables: &mut Port,
+    ) -> Result<(), String>
+    where
+        Port: RootCallableCapturePortV1,
+    {
         callables.lower_static_box_method(
             builder,
             format!("{}/{}", self.name, self.params.len()),
@@ -258,9 +316,35 @@ impl PreparedProgramRootTopLevelFunctionWorkV1 {
             self.attrs,
         )
     }
+
+    fn lower_normal_with_port_v1<Port>(
+        self,
+        builder: &mut MirBuilder,
+        callables: &mut Port,
+        admission: NormalTopLevelFunctionDraftAdmissionV1,
+    ) -> Result<(), String>
+    where
+        Port: RootCallableCapturePortV1,
+    {
+        callables.lower_normal_top_level_function(
+            builder,
+            admission,
+            self.params,
+            self.param_decls,
+            self.return_type_name,
+            self.body,
+            self.uses,
+            self.attrs,
+        )
+    }
 }
 
-fn classify_statement(statement: ASTNode, is_app_mode: bool) -> ProgramRootStatementDispositionV1 {
+fn classify_statement(
+    statement: ASTNode,
+    is_app_mode: bool,
+    statement_index: usize,
+    work_plan_admission: ProgramRootWorkPlanAdmissionV1,
+) -> ProgramRootStatementDispositionV1 {
     match &statement {
         ASTNode::BoxDeclaration {
             name,
@@ -309,19 +393,36 @@ fn classify_statement(statement: ASTNode, is_app_mode: bool) -> ProgramRootState
             uses,
             attrs,
             ..
-        } => ProgramRootStatementDispositionV1::ImmediateOnly(
-            PreparedProgramRootImmediateWorkV1::TopLevelFunction(
-                PreparedProgramRootTopLevelFunctionWorkV1 {
-                    name: name.clone(),
-                    params: params.clone(),
-                    param_decls: param_decls.clone(),
-                    return_type_name: return_type_name.clone(),
-                    body: body.clone(),
-                    uses: uses.clone(),
-                    attrs: attrs.clone(),
-                },
-            ),
-        ),
+        } => {
+            let parts = PreparedProgramRootTopLevelFunctionPartsV1::from_source(
+                name.clone(),
+                params.clone(),
+                param_decls.clone(),
+                return_type_name.clone(),
+                body.clone(),
+                uses.clone(),
+                attrs.clone(),
+            );
+            let work = match work_plan_admission {
+                ProgramRootWorkPlanAdmissionV1::RawCompatibility => {
+                    PreparedProgramRootTopLevelFunctionWorkV1::RawCompatibility(parts)
+                }
+                ProgramRootWorkPlanAdmissionV1::SelectedNormal => {
+                    let source_key = NormalTopLevelFunctionSourceKeyV1::new(
+                        statement_index,
+                        name.clone(),
+                        params.len(),
+                    );
+                    PreparedProgramRootTopLevelFunctionWorkV1::SelectedNormal {
+                        admission: NormalTopLevelFunctionDraftAdmissionV1::seal(source_key),
+                        parts,
+                    }
+                }
+            };
+            ProgramRootStatementDispositionV1::ImmediateOnly(
+                PreparedProgramRootImmediateWorkV1::TopLevelFunction(work),
+            )
+        }
         _ => ProgramRootStatementDispositionV1::RuntimeOnly(statement),
     }
 }
@@ -395,7 +496,7 @@ mod tests {
                 box_declaration("Main", true),
             ],
             true,
-            ProgramRootRuntimeAdmissionV1::SelectedNormal,
+            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
         );
         let parts = plan.into_parts();
 
@@ -410,7 +511,7 @@ mod tests {
         ));
         assert!(matches!(
             &parts.immediate[1],
-            PreparedProgramRootImmediateWorkV1::TopLevelFunction(work) if work.name == "helper"
+            PreparedProgramRootImmediateWorkV1::TopLevelFunction(work) if work.name() == "helper"
         ));
         assert_eq!(parts.deferred_static.len(), 1);
         assert_eq!(parts.deferred_static[0].name, "Helpers");
@@ -441,7 +542,7 @@ mod tests {
         let plan = PreparedProgramRootWorkPlanV1::prepare(
             vec![box_declaration("Helpers", true), function("helper")],
             false,
-            ProgramRootRuntimeAdmissionV1::SelectedNormal,
+            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
         );
         let parts = plan.into_parts();
 
@@ -460,13 +561,56 @@ mod tests {
         let plan = PreparedProgramRootWorkPlanV1::prepare(
             vec![box_declaration("Helpers", true), literal(7)],
             false,
-            ProgramRootRuntimeAdmissionV1::RawCompatibility,
+            ProgramRootWorkPlanAdmissionV1::RawCompatibility,
         );
         let parts = plan.into_parts();
 
         assert!(matches!(
             parts.runtime,
             PreparedProgramRootRuntimeWorkV1::RawCompatibility(_)
+        ));
+    }
+
+    #[test]
+    fn selected_top_level_functions_keep_distinct_source_occurrences() {
+        let plan = PreparedProgramRootWorkPlanV1::prepare(
+            vec![function("same"), function("same")],
+            false,
+            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
+        );
+        let parts = plan.into_parts();
+        let admissions = parts
+            .immediate
+            .iter()
+            .map(|work| match work {
+                PreparedProgramRootImmediateWorkV1::TopLevelFunction(
+                    PreparedProgramRootTopLevelFunctionWorkV1::SelectedNormal { admission, .. },
+                ) => admission,
+                other => panic!("expected selected top-level work, got {other:?}"),
+            })
+            .collect::<Vec<_>>();
+
+        assert_eq!(admissions.len(), 2);
+        assert_eq!(admissions[0].source_key().statement_index(), 0);
+        assert_eq!(admissions[1].source_key().statement_index(), 1);
+        assert_eq!(admissions[0].physical_symbol(), "same/0");
+        assert_eq!(admissions[1].physical_symbol(), "same/0");
+    }
+
+    #[test]
+    fn raw_top_level_functions_do_not_issue_selected_receipts() {
+        let plan = PreparedProgramRootWorkPlanV1::prepare(
+            vec![function("same")],
+            false,
+            ProgramRootWorkPlanAdmissionV1::RawCompatibility,
+        );
+        let parts = plan.into_parts();
+
+        assert!(matches!(
+            &parts.immediate[0],
+            PreparedProgramRootImmediateWorkV1::TopLevelFunction(
+                PreparedProgramRootTopLevelFunctionWorkV1::RawCompatibility(_)
+            )
         ));
     }
 }
