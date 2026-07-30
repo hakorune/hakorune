@@ -111,9 +111,19 @@ where
     Port: RawExpressionDispatchPortV1,
 {
     match ast {
-        ASTNode::Program { statements, .. } => Ok(StatementSurfaceDispatch::Lowered(
-            drive_legacy_body_v1(builder, port, statements)?,
-        )),
+        node @ ASTNode::Program { .. } => {
+            let source = port.prepare_body_child_source_v1(
+                &node,
+                crate::mir::resolved_semantics::BodyChildRoleV1::ProgramBody,
+            )?;
+            let ASTNode::Program { statements, .. } = node else {
+                unreachable!()
+            };
+            let mut scoped = RawStructuredChildScopePortV1::for_body(port, source);
+            let result = drive_legacy_body_v1(builder, &mut scoped, statements)?;
+            scoped.complete_exact_demands_v1()?;
+            Ok(StatementSurfaceDispatch::Lowered(result))
+        }
         node @ ASTNode::ScopeBox { .. } => {
             let source = port.prepare_body_child_source_v1(
                 &node,

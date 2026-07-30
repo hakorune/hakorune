@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LOCATED-TRYCATCH-SOURCE-HANDOFF0-I0-R0 is closed. TryCatch now retains exact try, first-catch, and cleanup body receipts through the unchanged completion owner; the first-catch two-segment path and successful receipt exhaustion are structurally sealed. The old TryCatch -> ControlBody edge is deleted, reducing ControlBody to Program and Lambda. The next stop decides the final disposition of those two distinct missing-authority residuals before this cleanup batch advances; Ownership/View remains parked."
+status = "RAW-LOCATED-PROGRAM-BODY-SOURCE-HANDOFF0-I0-R0 is closed. Nested Program now retains a collision-free ProgramBody root/item path through the unchanged lexical block owner, and its exact receipt is exhausted on success. The old Program -> ControlBody edge is deleted. ControlBody is now Lambda only; that residual is explicitly retain-fenced until parent definition site, child function owner, and ClosureBodyId publication are co-sealed. The residual-control batch is closed and the next stop designs the ScalarBinding portal removal; Ownership/View remains parked."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-LOCATED-CONTROLBODY-RESIDUAL-DISPOSITION0-D0"
+current_design_stop = "RAW-LOCATED-SCALAR-BINDING-PORTALS0-D0"
 current_execution_row = "none"
-current_execution_summary = "Decide whether Program or Lambda has a bounded exact located-source replacement, or close this residual-control batch with both explicitly retained behind their distinct missing-authority conditions. No implementation is selected."
+current_execution_summary = "Design one bounded exact-source replacement for the ScalarBinding portal without changing binding, assignment, print, return, grouped-assignment, or Local semantics. Lambda remains an explicit retained ControlBody fence. No implementation is selected."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

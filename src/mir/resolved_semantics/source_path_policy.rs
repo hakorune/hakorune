@@ -280,6 +280,7 @@ impl<'source> ResolvedBodyChildV1<'source> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum BodyChildRoleV1 {
     FunctionBody,
+    ProgramBody,
     LambdaBody,
     ScopeBody,
     TaskScopeBody,
@@ -305,6 +306,9 @@ impl BodyChildRoleV1 {
         let (kind, statements) = match (self, parent) {
             (Self::FunctionBody, ASTNode::FunctionDeclaration { body, .. }) => {
                 (SourceBodyKindV1::Function, Some(body.as_slice()))
+            }
+            (Self::ProgramBody, ASTNode::Program { statements, .. }) => {
+                (SourceBodyKindV1::Program, Some(statements.as_slice()))
             }
             (Self::LambdaBody, ASTNode::Lambda { body, .. }) => {
                 (SourceBodyKindV1::Lambda, Some(body.as_slice()))
@@ -350,6 +354,7 @@ impl BodyChildRoleV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum SourceBodyKindV1 {
     Function,
+    Program,
     Lambda,
     Scope,
     TaskScope,
@@ -371,6 +376,7 @@ impl SourceBodyKindV1 {
     pub(crate) fn owned_item_index(self, segment: &SourcePathSegmentV1) -> Option<u32> {
         match (self, segment) {
             (Self::Function, SourcePathSegmentV1::Body(index))
+            | (Self::Program, SourcePathSegmentV1::ProgramBody(index))
             | (Self::Lambda, SourcePathSegmentV1::LambdaBody(index))
             | (Self::Scope, SourcePathSegmentV1::ScopeBody(index))
             | (Self::TaskScope, SourcePathSegmentV1::TaskScopeBody(index))
@@ -389,6 +395,7 @@ impl SourceBodyKindV1 {
     pub(crate) fn root_segment(self) -> Option<SourcePathSegmentV1> {
         match self {
             Self::Function | Self::Lambda => None,
+            Self::Program => Some(SourcePathSegmentV1::ProgramBodyRoot),
             Self::Scope => Some(SourcePathSegmentV1::ScopeBodyRoot),
             Self::TaskScope => Some(SourcePathSegmentV1::TaskScopeBodyRoot),
             Self::FastMem => Some(SourcePathSegmentV1::FastMemBodyRoot),
@@ -426,6 +433,7 @@ impl SourceBodyKindV1 {
             // Function-body statements use `Body(index)` directly. The
             // `FunctionBody` receipt is a terminal body site, not a prefix.
             SourcePathSegmentV1::FunctionBody => None,
+            SourcePathSegmentV1::ProgramBodyRoot => Some(Self::Program),
             SourcePathSegmentV1::LambdaBodyRoot => Some(Self::Lambda),
             SourcePathSegmentV1::ScopeBodyRoot => Some(Self::Scope),
             SourcePathSegmentV1::TaskScopeBodyRoot => Some(Self::TaskScope),
@@ -444,6 +452,7 @@ impl SourceBodyKindV1 {
     pub(crate) fn item_segment(self, index: u32) -> SourcePathSegmentV1 {
         match self {
             Self::Function => SourcePathSegmentV1::Body(index),
+            Self::Program => SourcePathSegmentV1::ProgramBody(index),
             Self::Lambda => SourcePathSegmentV1::LambdaBody(index),
             Self::Scope => SourcePathSegmentV1::ScopeBody(index),
             Self::TaskScope => SourcePathSegmentV1::TaskScopeBody(index),

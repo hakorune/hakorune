@@ -94,6 +94,12 @@ fn project_segment<'source>(
         (ASTNode::FunctionDeclaration { body, .. }, SourcePathSegmentV1::Body(index)) => {
             ProjectedSourceNodeV1::Node(body.get(*index as usize)?)
         }
+        (ASTNode::Program { statements, .. }, SourcePathSegmentV1::ProgramBodyRoot) => {
+            ProjectedSourceNodeV1::Body(statements)
+        }
+        (ASTNode::Program { statements, .. }, SourcePathSegmentV1::ProgramBody(index)) => {
+            ProjectedSourceNodeV1::Node(statements.get(*index as usize)?)
+        }
         (ASTNode::Lambda { body, .. }, SourcePathSegmentV1::LambdaBodyRoot) => {
             ProjectedSourceNodeV1::Body(body)
         }

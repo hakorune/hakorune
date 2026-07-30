@@ -31,6 +31,8 @@ impl FunctionOriginV1 {
 pub enum SourcePathSegmentV1 {
     FunctionBody,
     Body(u32),
+    ProgramBodyRoot,
+    ProgramBody(u32),
     ScopeBodyRoot,
     ScopeBody(u32),
     TaskScopeBodyRoot,

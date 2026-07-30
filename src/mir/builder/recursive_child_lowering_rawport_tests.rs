@@ -17,7 +17,8 @@ use super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceTransportV1, RawSourceTransportPortV1,
 };
 use super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawInvocationChildPortV1, RawLegacyChildLoweringPortV1,
+    drive_legacy_body_v1, drive_legacy_expression_v1, RawInvocationChildPortV1,
+    RawLegacyChildLoweringPortV1,
 };
 
 fn int(value: i64) -> ASTNode {
@@ -747,5 +748,34 @@ fn raw_invocation_port_preserves_throw_child() {
         .unwrap();
         assert!(builder.is_current_block_terminated());
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
+    });
+}
+
+#[test]
+fn raw_invocation_port_descends_nested_program_body_once() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_port_program/0".to_owned());
+    with_port!(builder, port, {
+        port.with_source_transport_v1(
+            RawInvocationSourceTransportV1::root((), RawInvocationRootLineageV1::ScriptRoot),
+            |port, ()| {
+                drive_legacy_body_v1(
+                    builder,
+                    port,
+                    vec![ASTNode::Program {
+                        statements: vec![add(int(1), int(2)), add(int(3), int(4))],
+                        span: Span::unknown(),
+                    }],
+                )
+            },
+        )
+        .unwrap();
+        assert_eq!(
+            instructions(builder)
+                .iter()
+                .filter(|row| matches!(row, MirInstruction::BinOp { .. }))
+                .count(),
+            2
+        );
     });
 }

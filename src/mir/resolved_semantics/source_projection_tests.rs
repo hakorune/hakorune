@@ -55,6 +55,8 @@ fn projector_admits_segment_kind(segment: &SourcePathSegmentV1) -> bool {
     match segment {
         SourcePathSegmentV1::FunctionBody
         | SourcePathSegmentV1::Body(_)
+        | SourcePathSegmentV1::ProgramBodyRoot
+        | SourcePathSegmentV1::ProgramBody(_)
         | SourcePathSegmentV1::ScopeBodyRoot
         | SourcePathSegmentV1::ScopeBody(_)
         | SourcePathSegmentV1::TaskScopeBodyRoot
@@ -576,6 +578,38 @@ fn rejects_malformed_paths_without_partial_publication() {
         project_source_node_v1(&variable("root"), &site(Vec::new())),
         Some(ProjectedSourceNodeV1::Node(ASTNode::Variable { name, .. })) if name == "root"
     ));
+}
+
+#[test]
+fn projects_nested_program_body_without_scope_aliasing() {
+    let root = function(vec![ASTNode::Program {
+        statements: vec![literal(71), literal(72)],
+        span: Span::unknown(),
+    }]);
+    assert_body_len(
+        &root,
+        vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::ProgramBodyRoot,
+        ],
+        2,
+    );
+    assert_literal(
+        &root,
+        vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::ProgramBody(1),
+        ],
+        72,
+    );
+    assert!(project_source_node_v1(
+        &root,
+        &site(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::ScopeBodyRoot,
+        ]),
+    )
+    .is_none());
 }
 
 #[test]

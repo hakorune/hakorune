@@ -91,26 +91,27 @@ Latest landed: `RAW-LOCATED-DIAGNOSTIC-CONTROL-TERMINALS0-I0-R0`
 Latest landed: `RAW-LOCATED-BRANCHING-EXPR-CHILDREN0-I0-R0`
 Latest landed: `RAW-LOCATED-LOOP-CHILD-ENTRY0-I0-R0`
 Latest landed: `RAW-LOCATED-TRYCATCH-SOURCE-HANDOFF0-I0-R0`
-Current design stop: `RAW-LOCATED-CONTROLBODY-RESIDUAL-DISPOSITION0-D0`
+Latest landed: `RAW-LOCATED-PROGRAM-BODY-SOURCE-HANDOFF0-I0-R0`
+Current design stop: `RAW-LOCATED-SCALAR-BINDING-PORTALS0-D0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`RAW-LOCATED-CONTROLBODY-RESIDUAL-DISPOSITION0-D0`
+`RAW-LOCATED-SCALAR-BINDING-PORTALS0-D0`
 
 ```text
 Question:
-  does either remaining ControlBody member have a bounded exact located-source
-  replacement, or should the residual-control batch close with both retained?
+  can the ScalarBinding portal be replaced by exact existing child roles and
+  source receipts without changing any binding or completion semantics?
 
 Landed baseline:
-  TryCatch retains exact try, first-catch, and cleanup receipts through the
-  unchanged completion owner. ControlBody is now exact two: Program, Lambda.
+  Program now owns a distinct exact body path. ControlBody is Lambda only and
+  is retained behind RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001.
 
 Stop:
-  no implementation before D0; no fabricated nested-Program path, no Lambda
-  lineage inference, route retry, AST clone/reparse, or compatibility rename.
+  no implementation before D0; no binding-policy widening, route retry, AST
+  clone/reparse, Lambda widening, or compatibility rename.
 ```
 
 Corrected queue:
@@ -154,7 +155,8 @@ activation and sunset contract.
 | closed | `JOINMODULE-TEST-HANDLER-LANE-SUNSET-001` (promotes `R4-UNREGISTERED-TEST-HANDLER-001`) | former cfg(test)-only `block_finalizer`, `handlers/**`, `merge_variable_handler`, and `terminator_builder` legacy VM-bridge handler lane | production conversion remains solely in `joinir_block_converter/**`; deleted lane and registrations = 0 | RET0 | retired by `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`: 14 files / 3743 lines, four cfg(test) module declarations, obsolete README section, stale PHI seam row, and generated inventory rows deleted |
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> `lower_static_box_method` / `lower_instance_box_method`, the two live nested-method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | R4 BLOCKER: source occurrences exist, but neither live issuer receives a function-relative located-source receipt | `RAW-LOCATED-BODY-TRANSPORT0-D0` must select one located transport whose I0/R0 deletes both named production issuers before R4 Complete |
 | closed | `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-SUNSET-001` | former caller-zero `ModuleLoweringPortV1::complete_legacy_child`, two disconnected proof modules, and three inline facade tests | production caller = 0 before deletion; live nested issuers already use capture + `commit_legacy_pending` | RET0 | retired by `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0`; live commit terminals, 2 nested issuers, reentrant proof, collector tests, and live callable-Main physical owner retained |
-| active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected `RawInvocationChildPortV1` only: four fixed portals remain — `ControlBody` with exact residual Program and Lambda; plus `ScalarBinding`, `CallObject`, `NestedBoxAdmission` | one selected state and one execution per node; RawLegacy/raw-reference remain separate; root/body/direct-Box, five existing-role structured controls, diagnostic-only LoopRange/ContextScope, Match/Enum exact child transport, located Loop child-entry, and exact TryCatch body handoff are closed | no variant/reason reassignment; Program requires a nested-Program path decision and Lambda requires durable closure/source lineage | close only after residual-control disposition removes or explicitly rehomes ControlBody, scalar/call rows remove their variants, and final nested row deletes `NestedBoxAdmission` with both selected nested legacy-symbol issuers |
+| active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected `RawInvocationChildPortV1` only: four fixed portals remain — `ControlBody` with exact residual Lambda; plus `ScalarBinding`, `CallObject`, `NestedBoxAdmission` | one selected state and one execution per node; RawLegacy/raw-reference remain separate; root/body/direct-Box, structured/residual controls, Match/Enum, Loop, TryCatch, and nested Program exact transport are closed | no variant/reason reassignment; Lambda is governed by the linked source-lineage fence below | close only after the Lambda fence reowns ControlBody, scalar/call rows remove their variants, and final nested row deletes `NestedBoxAdmission` with both selected nested legacy-symbol issuers |
+| retain-fenced | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` | selected nested Lambda definition still crosses `ControlBody` into the existing raw capture/publication lifecycle without consuming its parent located-source context | selected normal function/script body only; raw/reference routes remain separate | RETAIN-FENCED: body-path vocabulary exists, but no durable authority co-seals parent definition site, child `FunctionOwnerIdV1`, Lambda body root, and `ClosureBodyId` publication | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE0-D0`: one consuming capture/publication handoff must delete Lambda -> ControlBody without AST clone/reparse, owner inference, or a second closure registry |
 | active compatibility | `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001` | `PreparedLocatedRawLoopChildEntryV1` retains exact Loop parent/condition/body-root receipts, then delegates once to the existing raw JoinIR route | selected invocation only; RawLegacy/reference unchanged; no located JoinIR-plan completion claim | retire when the current Loop route/verified plan consumes the same located product and the source-erasing terminal is zero | no additional route, retry, AST clone/reparse, or receipt reconstruction may be introduced |
 | closed | `JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001` | former three explicit-VM `LowerOnly` target rows, dispatcher observation branch, and `lower_only_routes`; five target names were also consumed by Loop/If/strict classification | observation route and vocabulary = 0; neutral five-name policy and two VM Exec rows remain | REOWN+RET0 | retired by `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`: all five lowerers/direct evidence remain; no old target-table alias |
 | closed | `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-SUNSET-001` | former caller-zero Stage1UsingResolver, StageB body, and StageB FuncScanner target lowerers; exclusive builders, dispatchers, Case-A entrypoints, ValueId ranges, tests, and fixtures | production and retained explicit-VM callers = 0 before deletion | RET0 | retired by `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`; neutral five-name policy, skip/trim VM routes, If vocabulary, native Stage1 verifier, and selfhost mode-B lane retained |
@@ -162,11 +164,11 @@ activation and sunset contract.
 | closed | `JOINIR-IF-SELECT-ALTERNATE-LANE-SUNSET-001` | former default-reachable MIR -> JoinInst Select/IfMerge observer, opt-in alternative PHI emission, strict failure policy, and VM dev dry scan | route/classifier/alternate-PHI authority and If-specific env/test surfaces = 0 | RET0; native If/PHI is sole production owner and shared JoinInst vocabulary remains | retired by `JOINIR-IF-SELECT-ALTERNATE-LANE-RETIRE0-RET0` |
 | retain-fenced | `JOINMODULE-SHARED-REFERENCE-SUBSTRATE-SUNSET-001` (promotes `R4-UNREGISTERED-JOINMODULE-REMAINDER-001`) | shared JoinModule model, converter, skip/trim lowering, and dispatch substrate required by normalized-shadow and the two VM Exec routes | no independent normal/default activation; execution is reachable only through `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` or `VM-BRIDGE-COMPAT-SUNSET-001` | RETAIN-FENCED shared dependency; broad RET0 is invalid while either consumer fence is live | retire when both consumer fences are closed/reowned and a fresh caller census proves model/converter/lowering/dispatch production callers = 0 |
 
-The registry has five registered R4 fences, one active compatibility
-residuals, zero active retirements, zero active rehomes, twenty closed
+The registry has six retain-fenced families, two active compatibility
+rows, zero active retirements, zero active rehomes, twenty closed
 residuals, and zero unregistered R4 families.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
-(`30` occurrences in `6` `src/mir` files at the latest exact census). The
+(`16` occurrences in `4` `src/mir` files at the latest exact census). The
 selected-Script residual is closed; raw static Main is an explicit retained
 fence above. Nested raw body descent was
 promoted from its immutable unregistered audit key to
