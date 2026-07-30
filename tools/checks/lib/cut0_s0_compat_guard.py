@@ -24,7 +24,6 @@ def main() -> int:
         "main_expansion.rs",
         "module_compat_policy.rs",
         "module_compat_policy_p0.rs",
-        "module_compat_raw_ledger_p0.rs",
         "decls.rs",
         "raw_static_main_compat_batch.rs",
         "recursive_child_lowering.rs",
@@ -64,19 +63,20 @@ def main() -> int:
     if "build_static_main_box_typed" in files["decls.rs"]:
         raise AssertionError("retired typed static-Main facade returned")
     require(files["module_compat_policy_p0.rs"], "not_a_missing_receipt", "typed failure fixture")
-    require(files["module_compat_raw_ledger_p0.rs"], "callable_main_compatibility", "dedicated receipt request")
-    require(files["module_compat_raw_ledger_p0.rs"], ".complete(reservation", "receipt completion")
-    require(files["module_compat_raw_ledger_p0.rs"], ".abort(reservation", "failure abort")
-    require(files["module_compat_raw_ledger_p0.rs"], "RawExpansionAbortReasonV1::Panic", "panic abort proof")
-    if "build_static_main_box_typed" in files["module_compat_raw_ledger_p0.rs"]:
-        raise AssertionError("disconnected receipt adapter must not call root lowering")
-    if "finalize_drained_module_once" in files["module_compat_raw_ledger_p0.rs"]:
-        raise AssertionError("selected child failure must not reach post-drain finalizer")
-    require(
-        (SRC.parent / "builder.rs").read_text(),
-        "mod module_compat_raw_ledger_p0;",
-        "receipt bridge registration",
-    )
+    if (SRC / "module_compat_raw_ledger_p0.rs").exists():
+        raise AssertionError("retired disconnected receipt bridge returned")
+    if "mod module_compat_raw_ledger_p0;" in (SRC.parent / "builder.rs").read_text():
+        raise AssertionError("retired receipt bridge registration returned")
+    callable_main = (SRC / "raw_root_physical/callable_main_terminal.rs").read_text()
+    for fragment in (
+        "fn complete_callable_main(",
+        "RawExpansionDraftRequestV1::callable_main_compatibility",
+        "ledger.abort(reservation",
+    ):
+        require(callable_main, fragment, "live callable-Main receipt owner")
+    for fragment in ("retry", "fallback"):
+        if fragment in callable_main:
+            raise AssertionError(f"live callable-Main owner must not contain {fragment}")
 
     policy_readers = [
         name for name, text in files.items() if "builder_build_static_main_entry()" in text

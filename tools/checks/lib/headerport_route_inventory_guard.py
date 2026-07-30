@@ -516,15 +516,12 @@ def verify_borrow_raw_p0(
 ) -> None:
     port_path = root / "src/mir/builder/recursive_child_lowering.rs"
     proof_path = root / "src/mir/builder/module_lowering_invocation_reentrant_tests.rs"
-    legacy_proof_path = root / "src/mir/builder/module_lowering_invocation_legacyterm_tests.rs"
     port = port_path.read_text()
     proof = proof_path.read_text()
-    legacy_proof = legacy_proof_path.read_text()
 
     for path, source in (
         (port_path, port),
         (proof_path, proof),
-        (legacy_proof_path, legacy_proof),
     ):
         if len(source.splitlines()) >= 800:
             raise AssertionError(f"BORROW-P0-RAW source/proof reached 800 lines: {path}")
@@ -566,14 +563,6 @@ def verify_borrow_raw_p0(
         'collect_seed(&mut invocation, "after/0")',
     ):
         require(proof, fragment, "BORROW-P0-RAW recursive/failure proof")
-    for fragment in (
-        "legacy_child_primary_and_during_cleanup_restore_without_collection",
-        "legacy_child_success_cleanup_failure_restores_without_collection",
-        "legacy_child_unwind_restores_without_collection",
-        "CanonicalFunctionSessionErrorV1::DuringCleanup",
-    ):
-        require(legacy_proof, fragment, "BORROW-P0-RAW terminal failure baseline")
-
     constructors = []
     excluded = {port_path, proof_path}
     for path in (root / "src/mir").rglob("*.rs"):
@@ -756,7 +745,6 @@ def verify_route_inventory_extension(
             source_path,
             tests_path,
             p0_path,
-            root / "src/mir/builder/module_compat_raw_ledger_p0.rs",
             root / "src/mir/builder.rs",
         ):
             continue

@@ -267,8 +267,6 @@ mod module_lowering_invocation_candidate_p0; // HEADERPORT0 CANDIDATE0-P0 route 
 #[allow(dead_code)]
 mod module_lowering_invocation_legacy_term;
 #[cfg(test)]
-mod module_lowering_invocation_legacyterm_tests;
-#[cfg(test)]
 mod module_lowering_invocation_reentrant_tests;
 #[allow(dead_code)]
 mod module_lowering_invocation_state; // HEADERPORT0 I0-STATE0-S0 disconnected seam
@@ -380,8 +378,6 @@ mod module_finalization_declaration_metadata; // Shared finalizer declaration-me
 mod module_finalization_function_metadata; // Shared finalizer function-metadata handoff
 #[cfg(test)]
 mod module_compat_policy_p0; // CUT0-S0-COMPAT0 typed failure fixtures
-#[cfg(test)]
-mod module_compat_raw_ledger_p0; // CUT0-S0-COMPAT0 receipt bridge fixtures
 #[cfg(test)]
 mod module_invocation_cut0_p0; // CUT0-P0 disconnected all-route adapter
 mod module_lifecycle; // Phase 29bq+: Module lifecycle orchestrator (prepare → lower → finalize)

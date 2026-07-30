@@ -32,7 +32,7 @@ BORROW_ROOT_P0D = ROOT / "src/mir/builder/module_lowering_borrow_root_p0d.rs"
 INVOCATION_STATE = ROOT / "src/mir/builder/module_lowering_invocation_state.rs"
 ACCESS_PORT = ROOT / "src/mir/builder/module_lowering_access_port.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
-LEGACYTERM_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_legacyterm_tests.rs"
+LEGACY_TERM = ROOT / "src/mir/builder/module_lowering_invocation_legacy_term.rs"
 RAWPORT_TESTS = ROOT / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
 REENTRANT_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_reentrant_tests.rs"
 RAW_DISPATCH = ROOT / "src/mir/builder/raw_expression_dispatch/mod.rs"
@@ -194,7 +194,7 @@ def main() -> int:
     method_index = read(METHOD_INDEX)
     compilation = read(COMPILATION)
     pending_terminal = read(PENDING_TERMINAL)
-    legacyterm_tests = read(LEGACYTERM_TESTS)
+    legacy_term = read(LEGACY_TERM)
     rawport_tests = read(RAWPORT_TESTS)
     reentrant_tests = read(REENTRANT_TESTS)
     raw_dispatch = read(RAW_DISPATCH)
@@ -445,7 +445,6 @@ def main() -> int:
         "with_headers",
         "prepare_draft_admission",
         "complete_resolved_child",
-        "complete_legacy_child",
         "commit_resolved_pending",
         "commit_legacy_pending",
         "capture_resolved_pending",
@@ -594,20 +593,18 @@ def main() -> int:
             f"RAWPORT0 S0 production caller {relative}",
         )
 
-    for fragment in (
-        "legacy_child_primary_and_during_cleanup_restore_without_collection",
-        "legacy_child_success_cleanup_failure_restores_without_collection",
-        "legacy_child_unwind_restores_without_collection",
-        "legacy_child_port_receives_exact_static_and_instance_box_bodies",
-        "NyashParser::parse_from_string",
-        "complete_legacy_child",
-    ):
-        require(legacyterm_tests, fragment, "LEGACYTERM0 P0 proof")
     forbid(
-        legacyterm_tests,
-        "drive_legacy_expression_v1",
-        "LEGACYTERM0 P0 duplicate raw dispatcher",
+        module_port_impl,
+        "complete_legacy_child(",
+        "retired LEGACYTERM0 closure-owning facade",
     )
+    forbid(
+        legacy_term,
+        "fn complete_legacy_child(",
+        "retired LEGACYTERM0 sibling facade",
+    )
+    for fragment in ("fn commit_legacy_pending(", "fn commit_legacy_symbol_pending("):
+        require(legacy_term, fragment, "live LEGACYTERM0 commit terminal")
 
     for fragment in (
         "raw_invocation_port_collects_static_and_instance_box_methods",
@@ -652,11 +649,10 @@ def main() -> int:
         "finalize_function_draft_with_headers",
     ):
         require(raw_port, fragment, "HEADERPORT0 P0 port-aware child capture")
-    require_count(
+    forbid(
         invocation,
         "pub(in crate::mir::builder) fn complete_legacy_child(",
-        1,
-        "LEGACYTERM0 collector terminal owner",
+        "retired LEGACYTERM0 collector terminal",
     )
     require_count(
         raw_dispatch,

@@ -437,9 +437,7 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        LegacyChildDraftAdmissionV1, ModuleLoweringInvocationV1, ResolvedChildDraftAdmissionV1,
-    };
+    use super::{ModuleLoweringInvocationV1, ResolvedChildDraftAdmissionV1};
     use crate::ast::{ASTNode, DeclarationAttrs, Span};
     use crate::mir::builder::module_draft_collector::{
         DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
@@ -694,80 +692,4 @@ mod tests {
         });
     }
 
-    #[test]
-    fn legacy_child_terminal_collects_with_legacy_symbol_identity() {
-        let mut builder = MirBuilder::new();
-        let mut invocation = ModuleLoweringInvocationV1::open(&mut builder);
-
-        invocation
-            .with_module_port(|builder, port| {
-                port.complete_legacy_child(
-                    builder,
-                    Vec::new(),
-                    LegacyChildDraftAdmissionV1::legacy_symbol("Legacy.f/0".into(), 0),
-                    |_| Ok(draft("Legacy.f/0", 0)),
-                )
-            })
-            .unwrap();
-
-        invocation.with_header_port(|_builder, headers| {
-            assert_eq!(headers.symbol_count(), 1);
-            assert_eq!(
-                headers.signature("Legacy.f/0").unwrap().return_type,
-                MirType::Integer
-            );
-        });
-    }
-
-    #[test]
-    fn legacy_child_terminal_replaces_the_whole_collected_pair() {
-        let mut builder = MirBuilder::new();
-        let mut invocation = ModuleLoweringInvocationV1::open(&mut builder);
-
-        for return_type in [MirType::Integer, MirType::String] {
-            invocation
-                .with_module_port(|builder, port| {
-                    port.complete_legacy_child(
-                        builder,
-                        Vec::new(),
-                        LegacyChildDraftAdmissionV1::legacy_symbol("Legacy.f/0".into(), 0),
-                        |_| {
-                            let mut next = draft("Legacy.f/0", 0);
-                            next.signature.return_type = return_type;
-                            Ok(next)
-                        },
-                    )
-                })
-                .unwrap();
-        }
-
-        invocation.with_header_port(|_builder, headers| {
-            assert_eq!(headers.symbol_count(), 1);
-            assert_eq!(
-                headers.signature("Legacy.f/0").unwrap().return_type,
-                MirType::String
-            );
-        });
-    }
-
-    #[test]
-    fn legacy_child_admission_failure_restores_without_collection() {
-        let mut builder = MirBuilder::new();
-        let mut invocation = ModuleLoweringInvocationV1::open(&mut builder);
-
-        let error = invocation.with_module_port(|builder, port| {
-            port.complete_legacy_child(
-                builder,
-                Vec::new(),
-                LegacyChildDraftAdmissionV1::legacy_symbol("Legacy.f/0".into(), 0),
-                |_| Ok(draft("wrong/0", 0)),
-            )
-        });
-        assert!(error.is_err());
-
-        invocation.with_header_port(|_builder, headers| {
-            assert_eq!(headers.symbol_count(), 0);
-            assert!(headers.signature("Legacy.f/0").is_none());
-        });
-    }
 }

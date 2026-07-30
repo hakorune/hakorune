@@ -80,7 +80,8 @@ Latest landed: `MIR-CFG-JUMP-ARGS-LAYOUT-REHOME0-I0-R0`
 Latest landed: `JOINMODULE-BRIDGE-DEAD-API-RETIRE0-RET0`
 Latest census: `MIRBUILDER-JOINMODULE-CLEANUP-BATCH-CENSUS42-D0` — closed
 Latest landed: `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`
-Next execution: `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0`
+Latest landed: `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0`
+Next execution: `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0`
 History:       Git history and the short landed tail below
 ```
 
@@ -112,12 +113,13 @@ activation and sunset contract.
 | closed | `JOINMODULE-AST-FRONTEND-LEGACY-SUNSET-001` (promotes `R4-UNREGISTERED-AST-FRONTEND-001`) | former `AstToJoinIrLowerer`, its exclusive helper/tests, six Program-JSON fixtures, three exclusive dev flags, two lowerer-to-bridge E2E tests, and current frontend contract residue | production caller = 0 before deletion; complete frontend closure now absent | RET0 | retired by `JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0`; direct VM conversion/tests, JoinModule core/lowering, normalized-shadow, native Phase40 analysis, and `JOINIR_TEST_DEBUG` remain |
 | closed | `JOINMODULE-TEST-HANDLER-LANE-SUNSET-001` (promotes `R4-UNREGISTERED-TEST-HANDLER-001`) | former cfg(test)-only `block_finalizer`, `handlers/**`, `merge_variable_handler`, and `terminator_builder` legacy VM-bridge handler lane | production conversion remains solely in `joinir_block_converter/**`; deleted lane and registrations = 0 | RET0 | retired by `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`: 14 files / 3743 lines, four cfg(test) module declarations, obsolete README section, stale PHI seam row, and generated inventory rows deleted |
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> `lower_static_box_method` / `lower_instance_box_method`, the two live nested-method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | RETAIN-FENCED: no exact source occurrence reaches the raw port | fresh `RAW-LOCATED-BODY-TRANSPORT0-D0` may select REOWN only when one function-relative located transport deletes a named production edge; otherwise forced disposition at `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` |
+| closed | `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-SUNSET-001` | former caller-zero `ModuleLoweringPortV1::complete_legacy_child`, two disconnected proof modules, and three inline facade tests | production caller = 0 before deletion; live nested issuers already use capture + `commit_legacy_pending` | RET0 | retired by `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0`; live commit terminals, 2 nested issuers, reentrant proof, collector tests, and live callable-Main physical owner retained |
 | closed | `JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001` | former three explicit-VM `LowerOnly` target rows, dispatcher observation branch, and `lower_only_routes`; five target names were also consumed by Loop/If/strict classification | observation route and vocabulary = 0; neutral five-name policy and two VM Exec rows remain | REOWN+RET0 | retired by `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`: all five lowerers/direct evidence remain; no old target-table alias |
 | closed | `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-SUNSET-001` | former caller-zero Stage1UsingResolver, StageB body, and StageB FuncScanner target lowerers; exclusive builders, dispatchers, Case-A entrypoints, ValueId ranges, tests, and fixtures | production and retained explicit-VM callers = 0 before deletion | RET0 | retired by `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`; neutral five-name policy, skip/trim VM routes, If vocabulary, native Stage1 verifier, and selfhost mode-B lane retained |
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — remaining JoinModule model/lowering/dispatch core | live JoinModule core, skip/trim lowering, normalized-shadow execution, and two VM Exec routes outside registered rows; former LowerOnly-only target lowerers = 0 | normalized-dev and explicit VM Exec have live consumers; default normal = 0 | broad RET0 rejected; exact final retained/deleted closure remains an R4 decision | final R4 conformance after bounded caller-zero residues; no broad disposition may be inferred from a retired sub-surface |
 
 The registry has four registered R4 fences, zero active compatibility residuals,
-zero active retirements, zero active rehomes, seventeen closed residuals, and one
+zero active retirements, zero active rehomes, eighteen closed residuals, and one
 unregistered R4 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
@@ -138,16 +140,41 @@ unregistered family may not become active on a generic prose promise. No second
 fence ledger is permitted.
 
 `MIRBUILDER-R4-LEGACY-CHILD-ADMISSION-DISPOSITION0-D0` is closed. The exact
-30 occurrences in 6 `src/mir` files comprise 8 production-core occurrences and
+30 occurrences in 6 `src/mir` files comprised 8 production-core occurrences and
 22 cfg(test) proof occurrences. The only two live issuers are the static and
 instance nested-method issuers in `recursive_child_lowering.rs`; both flow
 through `commit_legacy_pending` as `LegacyReplaceWholePair` and are owned by
 `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001`. The caller-zero
-`complete_legacy_child` facade/proof cluster is the bounded RET0 selected next.
-No live site is unregistered. A newly introduced fence remains invalid unless
+`complete_legacy_child` facade/proof cluster is retired. The remaining exact
+count is 16 occurrences in 4 files: 7 production-core and 9 reentrant live-path
+proof occurrences. No live site is unregistered. A newly introduced fence remains invalid unless
 its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0` — T1 atomic RET0, closed
+
+```text
+Retired:
+  caller-zero complete_legacy_child closure facade; disconnected legacy-terminal
+  and callable-Main receipt bridge proof modules; three inline facade tests.
+
+Preserved:
+  commit_legacy_pending and commit_legacy_symbol_pending; two live nested-method
+  issuers; reentrant capture/commit proofs; collector/ledger tests; live
+  callable-Main physical terminal.
+
+Evidence:
+  LegacyChildDraftAdmissionV1 30/6 -> 16/4; complete_legacy_child definition and
+  Rust callers = 0; cargo check and focused structural guards green.
+
+R4:
+  retain-fenced=4, active compatibility=0, active retirement=0,
+  active rehome=0, closed=18, unregistered=1.
+
+Next:
+  MIRBUILDER-R4-FINAL-CONFORMANCE0-C0.
+```
 
 `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0` — T1 atomic RET0, closed
 

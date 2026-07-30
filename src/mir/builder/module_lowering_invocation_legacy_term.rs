@@ -3,9 +3,6 @@
 //! Keeping these terminals in a sibling keeps the shared port vocabulary below
 //! the source-file size cap while preserving one collector admission owner.
 
-use crate::ast::ASTNode;
-use crate::mir::{MirBuilder, MirFunction};
-
 use super::calls::{LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1};
 use super::module_draft_collector::CollectedDraftAdmissionReceiptV1;
 use super::module_draft_collector::DraftPublicationPolicyV1;
@@ -15,33 +12,6 @@ use super::module_lowering_invocation::{
 };
 
 impl ModuleLoweringPortV1<'_> {
-    pub(in crate::mir::builder) fn complete_legacy_child(
-        &mut self,
-        builder: &mut MirBuilder,
-        body_snapshot: Vec<ASTNode>,
-        admission: LegacyChildDraftAdmissionV1,
-        lower: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
-    ) -> Result<CollectedDraftAdmissionReceiptV1, ModuleLoweringPortChildErrorV1> {
-        let (key, symbol, arity) = admission.collector_parts();
-        let pending = builder
-            .capture_legacy_function_pending_session_v1(&symbol, body_snapshot, lower)
-            .map_err(ModuleLoweringPortChildErrorV1::Session)?;
-        pending.complete_before_restore(|draft| {
-            let prepared = self
-                .prepare_draft_admission(
-                    key,
-                    symbol,
-                    arity,
-                    DraftPublicationPolicyV1::LegacyReplaceWholePair,
-                )
-                .map_err(ModuleLoweringPortChildErrorV1::Admission)?;
-            Ok(prepared
-                .seal(draft)
-                .map_err(ModuleLoweringPortChildErrorV1::Admission)?
-                .collect())
-        })
-    }
-
     #[allow(dead_code)]
     pub(in crate::mir::builder) fn commit_legacy_pending(
         &mut self,
