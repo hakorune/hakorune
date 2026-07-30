@@ -30,9 +30,9 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 ```text
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0
-Result:        selected Program constructors carry source-keyed identity
-Latest design: `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-D0` — direct Script non-plain Box disposition
-Executable:    none; stop at D0; do not open an I0 before its total partition is selected
+Result:        selected Script direct Box raw compatibility is retired
+Latest landed:  `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-I0-R0`
+Next design:    `MIRBUILDER-LIVE-EDGE-CENSUS22-D0` — fresh selected/R4 census
 History:       Git history and the short landed tail below
 ```
 
@@ -43,38 +43,41 @@ This is the sole current list for R4 disposition.  A prose `fenced` or
 or unregistered row below to be closed, rehomed, or retained with its complete
 activation and sunset contract.
 
-| State | ID / family | Exact surface | Activation / normal-default | Release row / condition |
+| State | Ledger key / family | Exact surface | Activation / normal-default | Release row / condition |
 | --- | --- | --- | --- | --- |
 | active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | fresh named raw-static-Main disposition, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` proves reachability = 0 |
 | closed | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program immediate instance constructors, plus selected Script plain-instance runtime-prefix constructors | every selected Program instance Box has one immediate demand; plain Script adds its second `InstancePrefixCompatibility` demand; non-plain Script's later raw runtime lifecycle is the separate row below | retired by `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0`: one source occurrence -> unchanged physical LegacySymbol admission per existing demand |
 | closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
 | closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
-| active compatibility | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-COMPAT-SUNSET-002` | `NormalScriptRuntimeBlockPortV1::lower_statement` direct `BoxDeclaration` that fails `is_plain_box` -> `drive_legacy_statement_v1` | selected normal Script -> `RawCompatibility` exactly once; raw/reference and non-Box Script statements remain separate | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-D0`: exact owner or parity-equivalent pre-descent rejection for every non-plain Box shape, then this selected raw statement edge = 0 |
+| closed | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-COMPAT-SUNSET-002` | selected Script direct non-plain `BoxDeclaration` raw statement admission | selected normal Script only; raw/reference and non-Box Script statements remain separate | retired by `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-I0-R0`: static/instance selected lifecycles and exact sync rejection preserve legacy parity; direct Box -> raw statement driver = 0 |
 | retain-fenced | `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | two direct normalized-shadow executions and strict/dev StepTree observer | explicit dev/debug; default normal = 0 | fresh named normalized-shadow release D0, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0`: verified Recipe/CorePlan loop owner, strict/dev parity, independent observer disposition |
 | retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | `join_ir_vm_bridge_dispatch` Exec and LowerOnly targets | explicit VM keep / vm-reference with `NYASH_JOINIR_VM_BRIDGE=1`; default MIR and vm-fallback = 0 | fresh named VM-bridge release D0, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0`: dispatcher caller = 0 or one explicit-lane execution owner replaces the lane |
-| unregistered | LLVM experiment | feature/env-gated JoinModule mutation route | not normal/default; exact activation/owner not yet registered | R3 disposition D0 or forced R4 disposition |
-| unregistered | frontend metadata | `frontend::func_meta` / `JoinFuncMetaMap` consumers | activation/owner not yet registered | R3 disposition D0 or forced R4 disposition |
-| unregistered | carrier boundaries | `JumpArgsLayout` and `JoinInlineBoundary` families | live/fenced consumer mapping not yet registered | named CorePlan/MIR rehome or forced R4 disposition |
-| unregistered | phi observer | `verify_phi_reserved` family | activation/owner not yet registered | R3 disposition D0 or forced R4 disposition |
-| unregistered | legacy AST frontend | `AstToJoinIrLowerer` plus its fixture/dev-flag closure | production caller = 0; test/reference closure remains | `JOINMODULE-AST-FRONTEND-LEGACY-DISPOSITION0-D0` |
-| unregistered | cfg(test) bridge handler lane | legacy bridge handlers and owned unit contracts | production caller = 0; test contract remains | `JOINMODULE-TEST-HANDLER-LANE-DISPOSITION0-D0` |
-| unregistered | selected nested Box raw body descent | recursive `RawInvocationChildPortV1` -> raw `BoxDeclaration` dispatcher -> legacy static/instance child terminals | selected normal function body can reach it; Program/root admission is not its owner | `NESTED-BOX-RAW-BODY-DISPOSITION0-D0` or forced R4 disposition |
-| unregistered | JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | forced R4 delete-or-explicit-fenced-reference disposition |
+| unregistered | `R4-UNREGISTERED-LLVM-EXPERIMENT-001` — LLVM experiment | feature/env-gated JoinModule mutation route | not normal/default; exact activation/owner not yet registered | `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` -> RET0, REOWN, or RETAIN-FENCED; record owner, activation, retire_when here |
+| unregistered | `R4-UNREGISTERED-FRONTEND-METADATA-001` — frontend metadata | `frontend::func_meta` / `JoinFuncMetaMap` consumers | activation/owner not yet registered | `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` -> RET0, REOWN, or RETAIN-FENCED; record owner, activation, retire_when here |
+| unregistered | `R4-UNREGISTERED-CARRIER-BOUNDARY-001` — carrier boundaries | `JumpArgsLayout` and `JoinInlineBoundary` families | live/fenced consumer mapping not yet registered | named CorePlan/MIR rehome D0, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` -> RET0, REOWN, or RETAIN-FENCED |
+| unregistered | `R4-UNREGISTERED-PHI-OBSERVER-001` — phi observer | `verify_phi_reserved` family | activation/owner not yet registered | `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` -> RET0, REOWN, or RETAIN-FENCED; record owner, activation, retire_when here |
+| unregistered | `R4-UNREGISTERED-AST-FRONTEND-001` — legacy AST frontend | `AstToJoinIrLowerer` plus its fixture/dev-flag closure | production caller = 0; test/reference closure remains | `JOINMODULE-AST-FRONTEND-LEGACY-DISPOSITION0-D0`, else forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
+| unregistered | `R4-UNREGISTERED-TEST-HANDLER-001` — cfg(test) bridge handler lane | legacy bridge handlers and owned unit contracts | production caller = 0; test contract remains | `JOINMODULE-TEST-HANDLER-LANE-DISPOSITION0-D0`, else forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
+| unregistered | `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001` — selected nested Box raw body descent | recursive `RawInvocationChildPortV1` -> raw `BoxDeclaration` dispatcher -> legacy static/instance child terminals | selected normal function body can reach it; Program/root admission is not its owner | `NESTED-BOX-RAW-BODY-DISPOSITION0-D0`, else forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
+| unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` -> delete or RETAIN-FENCED reference scope; record exact partition, owner, activation, retire_when here |
 
-The registry has two registered R3 fences, two active selected Program/root
-compatibility residuals, three closed residuals, and eight unregistered R3 family
+The registry has two registered R3 fences, one active selected Program/root
+compatibility residual, four closed residuals, and eight unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
 (`37` occurrences in `8` `src/mir` files at Census20 closeout);
-only the two active compatibility rows above are registered selected
+only the one active compatibility row above is a registered selected
 Program/root admission dispositions.  Nested raw body descent is deliberately
 unregistered rather than silently counted as one of them.
 
-Every census updates this table before selecting the next row.  A future fence
-uses its stable ID here, names its exact owner/edge, and reserves either its
-own release D0 or the forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` decision;
-no second fence ledger is permitted.
+Every census updates this table before selecting the next row. Every unregistered
+family has an immutable audit key, but is not a fence or sunset until a D0
+records its exact owner/edge, activation, and retire condition. A future active
+fence must then receive its stable sunset ID and either its own named release D0
+or the forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` decision here; an
+unregistered family may not become active on a generic prose promise. No second
+fence ledger is permitted.
 
 ## Disposition closeout
 
@@ -647,6 +650,41 @@ Next:
 
 ## Latest census
 
+## Current design decision
+
+`NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-I0-R0` — T1, closed
+
+```text
+Change:
+  Replace the selected Script runtime's direct BoxDeclaration
+  RawCompatibility -> drive_legacy_statement_v1 branch with one total direct-Box
+  partition.  The I0/R0 delete is only the direct-Box use of that broad raw
+  branch; non-Box Script statements retain their current raw compatibility.
+
+Contract:
+  non-sync/non-Main static Box -> existing selected non-Main static lifecycle;
+  non-sync instance Box -> existing full selected instance lifecycle, retaining
+  its second Script demand through the already-issued constructor source batch
+  and cataloged method admissions; sync Box -> the current fail-fast diagnostic
+  at the same runtime statement point; static Main -> its separately fenced
+  invocation-port compatibility terminal. No new Box semantics, identity, collector
+  key/policy, source read/clone, result/publication policy, or fallback/retry.
+
+Evidence:
+  every direct Script Box is selected exactly once by the new source-only
+  partition; no direct Box reaches drive_legacy_statement_v1. Normal/legacy
+  parity covers generic instance callable output, Script's repeated instance
+  demand, sync diagnostic/order, and failure-then-fresh-reuse.
+
+Registry:
+  `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-COMPAT-SUNSET-002` is closed. The raw
+  statement compatibility now owns non-Box Script statements only; raw/reference
+  and nested Box descent remain outside this row.
+
+Next:
+  `MIRBUILDER-LIVE-EDGE-CENSUS22-D0`; do not preselect another I0.
+```
+
 `MIRBUILDER-LIVE-EDGE-CENSUS21-D0` — read-only, closed: non-plain Script Box D0 selected
 
 ```text
@@ -669,8 +707,8 @@ Not selected:
   therefore needs NESTED-BOX-RAW-BODY-DISPOSITION0-D0 first.
 
 R4 census:
-  registry remains retain-fenced=2, active compatibility=2, unregistered=8,
-  closed=3.  LegacyChildDraftAdmissionV1 remains a separate 37-occurrence / 8
+  registry before I0 was retain-fenced=2, active compatibility=2, unregistered=8,
+  closed=3. LegacyChildDraftAdmissionV1 remains a separate 37-occurrence / 8
   source-file observation, not an owner-disposition count.  The sole registry
   now names exact active owner anchors and a named-or-forced-R4 release path.
 ```

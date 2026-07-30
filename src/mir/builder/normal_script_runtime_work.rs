@@ -3,9 +3,8 @@
 //!
 //! The Program work plan classifies direct runtime Box statements once.  This
 //! adapter retains the original statement slice for the shared block driver,
-//! while routing only the selected plain Box terminals through the existing
-//! cataloged root-callable port.  Raw/reference and nested descent do not use
-//! this owner.
+//! while routing direct Script Box terminals through existing selected ports.
+//! Raw/reference and nested descent do not use this owner.
 
 use crate::ast::ASTNode;
 use crate::mir::builder::emission::constant::emit_void;
@@ -13,7 +12,9 @@ use crate::mir::builder::instance_box_constructor_batch::PreparedInstanceBoxCons
 use crate::mir::builder::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
 use crate::mir::builder::normal_instance_constructor_admission::NormalInstanceConstructorSourceBatchV1;
-use crate::mir::builder::raw_expression_dispatch::PreparedRawNonMainStaticBoxLifecycleV1;
+use crate::mir::builder::raw_expression_dispatch::{
+    reject_sync_box_lowering_v1, PreparedRawNonMainStaticBoxLifecycleV1,
+};
 use crate::mir::builder::recursive_child_lowering::drive_legacy_statement_v1;
 use crate::mir::builder::stmts::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
 use crate::mir::{MirBuilder, ValueId};
@@ -40,7 +41,8 @@ impl PreparedNormalScriptRuntimeInputV1 {
         constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
     ) -> Self {
         let (constructor_sources, constructor_batch) = match kind {
-            NormalScriptRuntimeStatementKindV1::InstancePrefixCompatibility => {
+            NormalScriptRuntimeStatementKindV1::InstancePrefixCompatibility
+            | NormalScriptRuntimeStatementKindV1::NonPlainInstanceFullLifecycle => {
                 (constructor_sources, constructor_batch)
             }
             _ => {
@@ -62,7 +64,13 @@ impl PreparedNormalScriptRuntimeInputV1 {
 pub(super) enum NormalScriptRuntimeStatementAdmissionV1 {
     RawCompatibility,
     CatalogedNonMainStaticBox,
+    StaticMainCompatibility,
+    SyncBoxRejection,
     InstancePrefixCompatibility {
+        constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
+        constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
+    },
+    NonPlainInstanceFullLifecycle {
         constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
         constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
     },
@@ -80,8 +88,20 @@ impl PreparedNormalScriptRuntimeWorkV1 {
                 NormalScriptRuntimeStatementKindV1::CatalogedNonMainStaticBox => {
                     NormalScriptRuntimeStatementAdmissionV1::CatalogedNonMainStaticBox
                 }
+                NormalScriptRuntimeStatementKindV1::StaticMainCompatibility => {
+                    NormalScriptRuntimeStatementAdmissionV1::StaticMainCompatibility
+                }
+                NormalScriptRuntimeStatementKindV1::SyncBoxRejection => {
+                    NormalScriptRuntimeStatementAdmissionV1::SyncBoxRejection
+                }
                 NormalScriptRuntimeStatementKindV1::InstancePrefixCompatibility => {
                     NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility {
+                        constructor_sources: input.constructor_sources,
+                        constructor_batch: input.constructor_batch,
+                    }
+                }
+                NormalScriptRuntimeStatementKindV1::NonPlainInstanceFullLifecycle => {
+                    NormalScriptRuntimeStatementAdmissionV1::NonPlainInstanceFullLifecycle {
                         constructor_sources: input.constructor_sources,
                         constructor_batch: input.constructor_batch,
                     }
@@ -138,6 +158,10 @@ impl PreparedNormalScriptRuntimeWorkV1 {
             NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility {
                 constructor_sources: Some(sources),
                 constructor_batch: Some(batch),
+            }
+            | NormalScriptRuntimeStatementAdmissionV1::NonPlainInstanceFullLifecycle {
+                constructor_sources: Some(sources),
+                constructor_batch: Some(batch),
             } => Some((sources, batch)),
             _ => None,
         }
@@ -179,10 +203,26 @@ where
             NormalScriptRuntimeStatementAdmissionV1::CatalogedNonMainStaticBox => {
                 lower_cataloged_nonmain_static_box_v1(builder, self.port, statement)
             }
+            NormalScriptRuntimeStatementAdmissionV1::StaticMainCompatibility => {
+                lower_static_main_compatibility_v1(builder, self.port, statement)
+            }
+            NormalScriptRuntimeStatementAdmissionV1::SyncBoxRejection => {
+                reject_sync_box_at_runtime_v1(statement)
+            }
             NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility {
                 constructor_sources,
                 constructor_batch,
             } => lower_instance_runtime_prefix_v1(
+                builder,
+                self.port,
+                statement,
+                constructor_sources.as_ref(),
+                constructor_batch.as_ref(),
+            ),
+            NormalScriptRuntimeStatementAdmissionV1::NonPlainInstanceFullLifecycle {
+                constructor_sources,
+                constructor_batch,
+            } => lower_nonplain_instance_runtime_lifecycle_v1(
                 builder,
                 self.port,
                 statement,
@@ -212,6 +252,41 @@ where
     };
     PreparedRawNonMainStaticBoxLifecycleV1::prepare(name.clone(), methods.clone())
         .lower_normal_with_port_v1(builder, port)
+}
+
+fn lower_static_main_compatibility_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    statement: &ASTNode,
+) -> Result<ValueId, String>
+where
+    Port: RootCallableCapturePortV1,
+{
+    let ASTNode::BoxDeclaration {
+        name,
+        methods,
+        is_static: true,
+        ..
+    } = statement
+    else {
+        return Err("[freeze:contract][mir/script-runtime/main-source-drift]".to_owned());
+    };
+    if name != "Main" {
+        return Err("[freeze:contract][mir/script-runtime/main-name-drift]".to_owned());
+    }
+    port.lower_static_main_box(builder, name.clone(), methods.clone())
+}
+
+fn reject_sync_box_at_runtime_v1(statement: &ASTNode) -> Result<ValueId, String> {
+    let ASTNode::BoxDeclaration {
+        name,
+        is_sync: true,
+        ..
+    } = statement
+    else {
+        return Err("[freeze:contract][mir/script-runtime/sync-source-drift]".to_owned());
+    };
+    Err(reject_sync_box_lowering_v1(name))
 }
 
 fn lower_instance_runtime_prefix_v1<Port>(
@@ -257,29 +332,86 @@ where
     emit_void(builder)
 }
 
+fn lower_nonplain_instance_runtime_lifecycle_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    statement: &ASTNode,
+    constructor_sources: Option<&NormalInstanceConstructorSourceBatchV1>,
+    constructor_batch: Option<&PreparedInstanceBoxConstructorBatchV1>,
+) -> Result<ValueId, String>
+where
+    Port: RootCallableCapturePortV1,
+{
+    let ASTNode::BoxDeclaration {
+        name,
+        methods,
+        fields,
+        field_decls,
+        constructors: _,
+        init_fields,
+        weak_fields,
+        is_static: false,
+        ..
+    } = statement
+    else {
+        return Err(
+            "[freeze:contract][mir/script-runtime/nonplain-instance-source-drift]".to_owned(),
+        );
+    };
+    let constructor_sources = constructor_sources.ok_or_else(|| {
+        "[freeze:contract][mir/script-runtime/nonplain-instance-constructor-source]".to_owned()
+    })?;
+    let constructor_batch = constructor_batch.ok_or_else(|| {
+        "[freeze:contract][mir/script-runtime/nonplain-instance-constructor-batch]".to_owned()
+    })?;
+    PreparedInstanceBoxDeclarationLifecycleV1::prepare_with_constructor_batch_v1(
+        name,
+        methods,
+        fields,
+        field_decls,
+        init_fields,
+        weak_fields,
+        constructor_batch.clone(),
+    )
+    .lower_normal_root_with_port_v1(builder, port, constructor_sources)?;
+    emit_void(builder)
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum NormalScriptRuntimeStatementKindV1 {
     RawCompatibility,
     CatalogedNonMainStaticBox,
+    StaticMainCompatibility,
+    SyncBoxRejection,
     InstancePrefixCompatibility,
+    NonPlainInstanceFullLifecycle,
 }
 
 pub(super) fn classify_normal_script_runtime_statement_v1(
     statement: &ASTNode,
 ) -> NormalScriptRuntimeStatementKindV1 {
     match statement {
+        ASTNode::BoxDeclaration { is_sync: true, .. } => {
+            NormalScriptRuntimeStatementKindV1::SyncBoxRejection
+        }
         ASTNode::BoxDeclaration {
             name,
             is_static: true,
             ..
-        } if name != "Main" && is_plain_box(statement) => {
-            NormalScriptRuntimeStatementKindV1::CatalogedNonMainStaticBox
-        }
+        } if name == "Main" => NormalScriptRuntimeStatementKindV1::StaticMainCompatibility,
+        ASTNode::BoxDeclaration {
+            name,
+            is_static: true,
+            ..
+        } if name != "Main" => NormalScriptRuntimeStatementKindV1::CatalogedNonMainStaticBox,
         ASTNode::BoxDeclaration {
             is_static: false, ..
         } if is_plain_box(statement) => {
             NormalScriptRuntimeStatementKindV1::InstancePrefixCompatibility
         }
+        ASTNode::BoxDeclaration {
+            is_static: false, ..
+        } => NormalScriptRuntimeStatementKindV1::NonPlainInstanceFullLifecycle,
         _ => NormalScriptRuntimeStatementKindV1::RawCompatibility,
     }
 }
@@ -354,6 +486,11 @@ mod tests {
             unreachable!()
         };
         *is_sync = true;
+        let mut record_box = plain_box("RecordPage", false);
+        let ASTNode::BoxDeclaration { is_record, .. } = &mut record_box else {
+            unreachable!()
+        };
+        *is_record = true;
 
         let work = PreparedNormalScriptRuntimeWorkV1::prepare(vec![
             PreparedNormalScriptRuntimeInputV1::preclassified(
@@ -380,9 +517,15 @@ mod tests {
                 None,
                 None,
             ),
+            PreparedNormalScriptRuntimeInputV1::preclassified(
+                record_box.clone(),
+                classify_normal_script_runtime_statement_v1(&record_box),
+                None,
+                None,
+            ),
         ]);
 
-        assert_eq!(work.len(), 4);
+        assert_eq!(work.len(), 5);
         assert!(matches!(
             work.admission_at(0),
             NormalScriptRuntimeStatementAdmissionV1::CatalogedNonMainStaticBox
@@ -393,11 +536,15 @@ mod tests {
         ));
         assert!(matches!(
             work.admission_at(2),
-            NormalScriptRuntimeStatementAdmissionV1::RawCompatibility
+            NormalScriptRuntimeStatementAdmissionV1::StaticMainCompatibility
         ));
         assert!(matches!(
             work.admission_at(3),
-            NormalScriptRuntimeStatementAdmissionV1::RawCompatibility
+            NormalScriptRuntimeStatementAdmissionV1::SyncBoxRejection
+        ));
+        assert!(matches!(
+            work.admission_at(4),
+            NormalScriptRuntimeStatementAdmissionV1::NonPlainInstanceFullLifecycle { .. }
         ));
     }
 
@@ -465,6 +612,109 @@ print(1)
                 .count(),
             1
         );
+    }
+
+    #[test]
+    fn selected_generic_script_box_keeps_full_legacy_callable_parity() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let source = "box Page<T> { birth() { return 6 } answer() { return 7 } } print(1)";
+        let legacy_ast = NyashParser::parse_from_string(source).expect("legacy Script source");
+        let normal_ast = NyashParser::parse_from_string(source).expect("normal Script source");
+        let mut legacy_compiler = MirCompiler::with_options(false);
+        let legacy = legacy_compiler
+            .compile_with_source(legacy_ast, Some("nonplain-script-box-parity.hako"))
+            .expect("legacy nonplain Script module");
+        let mut normal_compiler = MirCompiler::with_options(false);
+        let normal = normal_compiler
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    normal_ast,
+                    Some("nonplain-script-box-parity.hako"),
+                    HashMap::new(),
+                )
+                .expect("normal Script request"),
+            )
+            .expect("normal nonplain Script module");
+
+        assert_eq!(
+            MirPrinter::new().print_module(&normal.module),
+            MirPrinter::new().print_module(&legacy.module)
+        );
+        assert_eq!(
+            normal.module.function_names(),
+            legacy.module.function_names()
+        );
+    }
+
+    #[test]
+    fn selected_generic_static_script_box_keeps_legacy_callable_parity() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let source = "static box Helpers<T> { value() { return 8 } } print(1)";
+        let legacy_ast = NyashParser::parse_from_string(source).expect("legacy Script source");
+        let normal_ast = NyashParser::parse_from_string(source).expect("normal Script source");
+        let mut legacy_compiler = MirCompiler::with_options(false);
+        let legacy = legacy_compiler
+            .compile_with_source(legacy_ast, Some("generic-static-script-box.hako"))
+            .expect("legacy generic static Script module");
+        let mut normal_compiler = MirCompiler::with_options(false);
+        let normal = normal_compiler
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    normal_ast,
+                    Some("generic-static-script-box.hako"),
+                    HashMap::new(),
+                )
+                .expect("normal Script request"),
+            )
+            .expect("normal generic static Script module");
+
+        assert_eq!(
+            MirPrinter::new().print_module(&normal.module),
+            MirPrinter::new().print_module(&legacy.module)
+        );
+        assert_eq!(
+            normal.module.function_names(),
+            legacy.module.function_names()
+        );
+    }
+
+    #[test]
+    fn selected_sync_script_box_keeps_the_runtime_rejection_and_reuses_compiler() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let source = "sync box Sync { } print(1)";
+        let legacy_ast = NyashParser::parse_from_string(source).expect("legacy sync Script source");
+        let normal_ast = NyashParser::parse_from_string(source).expect("normal sync Script source");
+        let mut legacy_compiler = MirCompiler::with_options(false);
+        let legacy_error = legacy_compiler
+            .compile_with_source(legacy_ast, Some("sync-script-box.hako"))
+            .expect_err("legacy sync Script must reject");
+        let mut normal_compiler = MirCompiler::with_options(false);
+        let normal_error = normal_compiler
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    normal_ast,
+                    Some("sync-script-box.hako"),
+                    HashMap::new(),
+                )
+                .expect("normal sync Script request"),
+            )
+            .expect_err("normal sync Script must reject");
+        assert_eq!(normal_error, legacy_error);
+        assert!(
+            normal_error.contains("sync_box_lowering_missing"),
+            "{normal_error}"
+        );
+
+        normal_compiler
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    NyashParser::parse_from_string("print(1)").expect("fresh Script source"),
+                    Some("sync-script-reuse.hako"),
+                    HashMap::new(),
+                )
+                .expect("fresh Script request"),
+            )
+            .expect("fresh Script candidate after sync rejection");
     }
 
     #[test]

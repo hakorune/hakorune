@@ -43,6 +43,13 @@ use super::stmts::{
 use super::ValueId;
 use crate::ast::{ASTNode, BinaryExpr, MethodCallExpr};
 
+pub(in crate::mir::builder) fn reject_sync_box_lowering_v1(name: &str) -> String {
+    format!(
+        "[freeze:contract][mir_builder/sync_box_lowering_missing] box={name} \
+         sync box serialized runtime behavior is owned by CONC-SYNCBOX-003"
+    )
+}
+
 /// Capability set consumed by the one raw AST expression match tree.
 ///
 /// M0 progressively moves every recursive raw surface into this port. The
@@ -230,10 +237,7 @@ impl super::MirBuilder {
                 ..
             } => {
                 if is_sync {
-                    return Err(format!(
-                        "[freeze:contract][mir_builder/sync_box_lowering_missing] box={} sync box serialized runtime behavior is owned by CONC-SYNCBOX-003",
-                        name
-                    ));
+                    return Err(reject_sync_box_lowering_v1(&name));
                 }
                 if is_static && name == "Main" {
                     // Main is a root-only entry.  The invocation port rejects

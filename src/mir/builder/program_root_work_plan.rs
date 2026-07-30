@@ -409,10 +409,13 @@ fn classify_statement(
             } else {
                 Some(constructors.clone())
             };
-            let selected_runtime_prefix = !is_app_mode
+            let selected_runtime_instance_demand = !is_app_mode
                 && matches!(
                     normal_script_kind,
-                    Some(NormalScriptRuntimeStatementKindV1::InstancePrefixCompatibility)
+                    Some(
+                        NormalScriptRuntimeStatementKindV1::InstancePrefixCompatibility
+                            | NormalScriptRuntimeStatementKindV1::NonPlainInstanceFullLifecycle
+                    )
                 );
             ProgramRootStatementDispositionV1::ImmediateAndRuntime {
                 work: PreparedProgramRootImmediateWorkV1::InstanceBox(
@@ -430,12 +433,12 @@ fn classify_statement(
                 runtime: PreparedProgramRootRuntimeStatementV1 {
                     statement,
                     normal_script_kind,
-                    constructor_sources: if selected_runtime_prefix {
+                    constructor_sources: if selected_runtime_instance_demand {
                         normal_constructor_sources
                     } else {
                         None
                     },
-                    constructor_batch: if selected_runtime_prefix {
+                    constructor_batch: if selected_runtime_instance_demand {
                         runtime_constructor_batch
                     } else {
                         None
@@ -681,12 +684,12 @@ mod tests {
     }
 
     #[test]
-    fn selected_nonplain_script_keeps_constructor_source_out_of_raw_runtime() {
-        let mut nonplain = instance_box_with_birth("SyncPage");
-        let ASTNode::BoxDeclaration { is_sync, .. } = &mut nonplain else {
+    fn selected_nonplain_script_retains_constructor_source_for_full_runtime_lifecycle() {
+        let mut nonplain = instance_box_with_birth("RecordPage");
+        let ASTNode::BoxDeclaration { is_record, .. } = &mut nonplain else {
             unreachable!()
         };
-        *is_sync = true;
+        *is_record = true;
         let plan = PreparedProgramRootWorkPlanV1::prepare(
             vec![nonplain],
             false,
@@ -703,9 +706,9 @@ mod tests {
         };
         assert!(matches!(
             runtime.admission_at(0),
-            NormalScriptRuntimeStatementAdmissionV1::RawCompatibility
+            NormalScriptRuntimeStatementAdmissionV1::NonPlainInstanceFullLifecycle { .. }
         ));
-        assert!(runtime.constructor_admission_at(0).is_none());
+        assert!(runtime.constructor_admission_at(0).is_some());
     }
 
     #[test]
@@ -770,7 +773,6 @@ mod tests {
                 other => panic!("expected selected top-level work, got {other:?}"),
             })
             .collect::<Vec<_>>();
-
         assert_eq!(admissions.len(), 2);
         assert_eq!(admissions[0].source_key().statement_index(), 0);
         assert_eq!(admissions[1].source_key().statement_index(), 1);
@@ -786,7 +788,6 @@ mod tests {
             ProgramRootWorkPlanAdmissionV1::RawCompatibility,
         );
         let parts = plan.into_parts();
-
         assert!(matches!(
             &parts.immediate[0],
             PreparedProgramRootImmediateWorkV1::TopLevelFunction(
