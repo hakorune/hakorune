@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LOCATED-BODY-TRANSPORT0-D0 accepts one production traversal-owned function-relative located carrier. The bounded T2 refactor series must preserve exact source roles through the live raw recursion spine and atomically delete the two selected-normal nested-method legacy-symbol issuers. Ownership/View remains parked."
+status = "RAW-RECURSIVE-LOCATED-PORT-MIGRATION0-D0 accepts one shrinking dual-state transport with sunset RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001. The five-commit maximum T2 series starts by deleting selected bare body/item/direct-Box edges, removes portal variants monotonically, and ends by deleting the final NestedBoxAdmission compatibility state plus both nested legacy-symbol issuers. Ownership/View remains parked."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "RAW-LOCATED-BODY-TRANSPORT0-L0-I0-R0"
-current_execution_summary = "Carry one owned function-relative source lineage through the selected raw body/statement/expression traversal, seal distinct nested StaticMethod/InstanceConstructor/InstanceMethod source roles, and delete both selected-normal LegacyChildDraftAdmissionV1::legacy_symbol issuers. This is one T2 Refactor Series of exactly two buildable commits; grammar/result/publication, physical symbol/arity, source order, child-before-parent collection, LegacyReplaceWholePair, and fallback/retry remain unchanged."
+current_execution_row = "RAW-LOCATED-BODY-SPINE0-I0-R0"
+current_execution_summary = "Introduce the sole shrinking dual-state transport on the live RawInvocation route, issue every selected root receipt, and replace selected bare function-body, Body(index), and direct nested-Box inputs. RawLegacy remains raw. UnlocatedCompatibility is selected once per unmigrated portal, never retried, may not grow after this commit, and is retired by RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001 within four following commits."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-LOCATED-BODY-TRANSPORT0-D0 accepts a production traversal-owned located carrier over the existing SourcePath/child-role policy. RAW-LOCATED-BODY-TRANSPORT0-L0-I0-R0 is the sole two-commit execution series and must delete both selected-normal nested-method legacy-symbol issuers without changing collector, symbol, arity, order, result, or fallback policy. R5 Ownership/View remains parked."""
+latest_card_summary = """RAW-RECURSIVE-LOCATED-PORT-MIGRATION0-D0 accepts one production-only shrinking dual-state transport with a fixed five-commit maximum and sunset RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001. RAW-LOCATED-BODY-SPINE0-I0-R0 is the first execution row and must remove selected bare body/item/direct-Box edges immediately; no caller-zero scaffold or retry is allowed. R5 Ownership/View remains parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-LOCATED-BODY-TRANSPORT0-L0-I0-R0"
+current_blocker_token = "RAW-LOCATED-BODY-SPINE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

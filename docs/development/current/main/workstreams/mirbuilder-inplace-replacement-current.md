@@ -83,37 +83,45 @@ Latest landed: `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`
 Latest landed: `JOINIR-CALLER-ZERO-EXPR-SCOPE-LOWERING-ISLAND-RETIRE0-RET0`
 Latest landed: `JOINIR-IF-SELECT-ALTERNATE-LANE-RETIRE0-RET0`
 Latest conformance: `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` — Incomplete
-Latest design: `RAW-LOCATED-BODY-TRANSPORT0-D0` — Candidate B-prime accepted
-Current execution: `RAW-LOCATED-BODY-TRANSPORT0-L0-I0-R0`
+Latest design: `RAW-RECURSIVE-LOCATED-PORT-MIGRATION0-D0` — shrinking carrier accepted
+Current execution: `RAW-LOCATED-BODY-SPINE0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current execution brief
 
-`RAW-LOCATED-BODY-TRANSPORT0-L0-I0-R0` — T2 Refactor Series, exactly two commits
+`RAW-LOCATED-BODY-SPINE0-I0-R0` — T2, batch 1 of at most 5
 
 ```text
 Change:
-  carry one owned function-relative source lineage through the live selected
-  raw body/statement/expression traversal; seal distinct nested StaticMethod,
-  InstanceConstructor, and InstanceMethod roles; delete the two selected
-  LegacyChildDraftAdmissionV1::legacy_symbol issuers.
+  put one Located/UnlocatedCompatibility carrier on the live RawInvocation
+  route; issue selected root receipts; replace bare function-body, Body(index),
+  and direct nested-Box inputs in the same commit.
 
 Contract:
-  reuse SourcePath/SourceNodeSite and existing child-role policy as the only
-  navigation SSOT. Preserve physical symbol/arity, source order, nested
-  Main/sync rejection, child-before-parent collection, LegacyReplaceWholePair,
-  candidate-only publication, and zero fallback/retry.
+  RawLegacy stays raw. Compatibility has a finite reason enum, executes once,
+  never retries/reselects, and may not gain a variant after this row. SourcePath
+  and existing child roles remain the only navigation policy.
 
 Done:
-  selected unlocated child input = 0; selected nested legacy-symbol issuer
-  2 -> 0; deep control/expression/Box location fixtures and failure/reuse are
-  green; NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001 is closed.
+  selected capture body -> bare Vec, block item -> bare AST, direct body Box ->
+  unlocated lifecycle, and missing-root compatibility are all zero; build,
+  direct nested-role evidence, parity, and reuse are green.
 
 Stop:
-  no pre-scan, AST clone/reparse, catalog widening, second resolver/identity
-  issuer, symbol/name/Span source identity, constructor-as-method collapse,
-  selected unlocated retry, collector-policy change, or third series commit.
+  no clone/reparse/pre-scan, dynamic reason, located-to-unlocated retry, role
+  duplication, zero old-edge reduction, new variant after batch 1, or sixth
+  series commit.
+```
+
+Series queue:
+
+```text
+1  RAW-LOCATED-BODY-SPINE0-I0-R0
+2  RAW-LOCATED-CONTROL-BODY-PORTALS0-I0-R0
+3  RAW-LOCATED-SCALAR-BINDING-PORTALS0-I0-R0
+4  RAW-LOCATED-CALL-OBJECT-PORTALS0-I0-R0
+5  RAW-LOCATED-NESTED-ADMISSION0-I0-R0
 ```
 
 ## R4 fence / residual registry
@@ -145,13 +153,14 @@ activation and sunset contract.
 | closed | `JOINMODULE-TEST-HANDLER-LANE-SUNSET-001` (promotes `R4-UNREGISTERED-TEST-HANDLER-001`) | former cfg(test)-only `block_finalizer`, `handlers/**`, `merge_variable_handler`, and `terminator_builder` legacy VM-bridge handler lane | production conversion remains solely in `joinir_block_converter/**`; deleted lane and registrations = 0 | RET0 | retired by `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`: 14 files / 3743 lines, four cfg(test) module declarations, obsolete README section, stale PHI seam row, and generated inventory rows deleted |
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> `lower_static_box_method` / `lower_instance_box_method`, the two live nested-method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | R4 BLOCKER: source occurrences exist, but neither live issuer receives a function-relative located-source receipt | `RAW-LOCATED-BODY-TRANSPORT0-D0` must select one located transport whose I0/R0 deletes both named production issuers before R4 Complete |
 | closed | `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-SUNSET-001` | former caller-zero `ModuleLoweringPortV1::complete_legacy_child`, two disconnected proof modules, and three inline facade tests | production caller = 0 before deletion; live nested issuers already use capture + `commit_legacy_pending` | RET0 | retired by `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0`; live commit terminals, 2 nested issuers, reentrant proof, collector tests, and live callable-Main physical owner retained |
+| active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected `RawInvocationChildPortV1` only: one finite `UnlocatedCompatibility` state for exact recursive portals not yet carrying a parent-relative source site | created by `RAW-LOCATED-BODY-SPINE0-I0-R0`; each node selects one state and executes once; RawLegacy/raw-reference remain separate and unchanged | shrink monotonically across the five-row located-port series; no variant may be added after batch 1 | batch 4 leaves exactly `NestedBoxAdmission`; batch 5 deletes that final state with both selected nested legacy-symbol issuers and closes this sunset |
 | closed | `JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001` | former three explicit-VM `LowerOnly` target rows, dispatcher observation branch, and `lower_only_routes`; five target names were also consumed by Loop/If/strict classification | observation route and vocabulary = 0; neutral five-name policy and two VM Exec rows remain | REOWN+RET0 | retired by `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`: all five lowerers/direct evidence remain; no old target-table alias |
 | closed | `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-SUNSET-001` | former caller-zero Stage1UsingResolver, StageB body, and StageB FuncScanner target lowerers; exclusive builders, dispatchers, Case-A entrypoints, ValueId ranges, tests, and fixtures | production and retained explicit-VM callers = 0 before deletion | RET0 | retired by `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`; neutral five-name policy, skip/trim VM routes, If vocabulary, native Stage1 verifier, and selfhost mode-B lane retained |
 | closed | `JOINIR-CALLER-ZERO-EXPR-SCOPE-LOWERING-ISLAND-SUNSET-001` | former condition/expr/local/method/scope/user-policy lowering island, its exclusive tests, and obsolete lifecycle guards | repository production and retained reference callers = 0 before deletion | RET0 | retired by `JOINIR-CALLER-ZERO-EXPR-SCOPE-LOWERING-ISLAND-RETIRE0-RET0`; 22 source files / 4,368 lines deleted; live `ConditionBinding` remains |
 | closed | `JOINIR-IF-SELECT-ALTERNATE-LANE-SUNSET-001` | former default-reachable MIR -> JoinInst Select/IfMerge observer, opt-in alternative PHI emission, strict failure policy, and VM dev dry scan | route/classifier/alternate-PHI authority and If-specific env/test surfaces = 0 | RET0; native If/PHI is sole production owner and shared JoinInst vocabulary remains | retired by `JOINIR-IF-SELECT-ALTERNATE-LANE-RETIRE0-RET0` |
 | retain-fenced | `JOINMODULE-SHARED-REFERENCE-SUBSTRATE-SUNSET-001` (promotes `R4-UNREGISTERED-JOINMODULE-REMAINDER-001`) | shared JoinModule model, converter, skip/trim lowering, and dispatch substrate required by normalized-shadow and the two VM Exec routes | no independent normal/default activation; execution is reachable only through `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` or `VM-BRIDGE-COMPAT-SUNSET-001` | RETAIN-FENCED shared dependency; broad RET0 is invalid while either consumer fence is live | retire when both consumer fences are closed/reowned and a fresh caller census proves model/converter/lowering/dispatch production callers = 0 |
 
-The registry has five registered R4 fences, zero active compatibility
+The registry has five registered R4 fences, one active compatibility
 residuals, zero active retirements, zero active rehomes, twenty closed
 residuals, and zero unregistered R4 families.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
