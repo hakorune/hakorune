@@ -332,15 +332,23 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
             RawInvocationRootLineageV1::ScriptRoot,
         ));
 
+    let (_, void_return) = RawInvocationSourceContextV1::from_transport(root.body_statement(
+        ASTNode::Return {
+            value: None,
+            span: Span::unknown(),
+        },
+        0,
+    ));
+    assert_eq!(
+        void_return.site().expect("located void Return").segments(),
+        &[SourcePathSegmentV1::Body(0)]
+    );
+
     let residuals = [
         ASTNode::CompoundAssignment {
             target: Box::new(integer(0)),
             operator: crate::ast::BinaryOperator::Add,
             value: Box::new(integer(5)),
-            span: Span::unknown(),
-        },
-        ASTNode::Return {
-            value: None,
             span: Span::unknown(),
         },
         ASTNode::Return {
@@ -361,7 +369,7 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
     ];
     for (statement_index, statement) in residuals.into_iter().enumerate() {
         let (_, child) = RawInvocationSourceContextV1::from_transport(
-            root.body_statement(statement, statement_index),
+            root.body_statement(statement, statement_index + 1),
         );
         assert_eq!(
             child,

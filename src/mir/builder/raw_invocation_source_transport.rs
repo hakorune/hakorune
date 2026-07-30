@@ -138,7 +138,7 @@ impl RawInvocationSourceContextV1 {
             } => {
                 if !matches!(&statement, ASTNode::BoxDeclaration { .. })
                     && !is_located_control_or_diagnostic_terminal(&statement)
-                    && !is_located_scalar_single_value_statement(&statement)
+                    && !is_located_scalar_statement(&statement)
                 {
                     let reason = reason_for_non_box_statement(&statement);
                     return RawInvocationSourceTransportV1::unlocated(statement, reason);
@@ -255,7 +255,7 @@ impl RawInvocationSourceContextV1 {
             "[freeze:contract][raw-invocation/missing-parent-body-kind]".to_owned()
         })?;
         if !is_located_control_or_diagnostic_terminal(statement)
-            && !is_located_scalar_single_value_statement(statement)
+            && !is_located_scalar_statement(statement)
         {
             return Err(format!(
                 "[freeze:contract][raw-invocation/statement-source-role] kind={}",
@@ -346,7 +346,7 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
     }
 }
 
-fn is_located_scalar_single_value_statement(statement: &ASTNode) -> bool {
+fn is_located_scalar_statement(statement: &ASTNode) -> bool {
     matches!(
         statement,
         ASTNode::Assignment { target, .. }
@@ -370,7 +370,7 @@ fn is_located_scalar_single_value_statement(statement: &ASTNode) -> bool {
             value: Some(value),
             ..
         } if !matches!(value.as_ref(), ASTNode::MatchExpr { .. })
-    )
+    ) || matches!(statement, ASTNode::Return { value: None, .. })
 }
 
 fn is_located_control_or_diagnostic_terminal(statement: &ASTNode) -> bool {
