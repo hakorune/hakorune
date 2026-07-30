@@ -1,33 +1,51 @@
-//! Source-only disposition for direct non-Box statements in selected Script.
+//! Source-only admission for one selected-Script Program item.
 //!
-//! This owner does not lower AST, inspect Builder state, or choose a child
-//! port. It keeps the broad Script compatibility terminal finite while one
-//! statement responsibility at a time moves to its existing production owner.
+//! This policy does not lower AST, inspect Builder state, resolve names, or
+//! issue semantic owners. It is the single source of the existing root/runtime
+//! disposition; later semantic admission may consume it without reclassifying.
 
 use crate::ast::ASTNode;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum NormalScriptNonBoxStatementDispositionV1 {
+pub(super) enum NormalScriptProgramItemAdmissionV1 {
     DirectPrint,
     DirectIfStatement,
     DirectFastMemRegion,
     DirectPortAwareExpression,
     DirectStaticConstRuntimeCompletion,
     DirectSelectedUnsupportedStatement,
-    DirectBoxOwnedElsewhere,
-    TopLevelFunctionImmediateOnly,
+    RawCompatibility,
+    CatalogedNonMainStaticBox,
+    StaticMainCompatibility,
+    SyncBoxRejection,
+    InstancePrefixCompatibility,
+    NonPlainInstanceFullLifecycle,
 }
 
-pub(super) fn classify_normal_script_nonbox_statement_v1(
+pub(super) fn classify_normal_script_program_item_v1(
     statement: &ASTNode,
-) -> NormalScriptNonBoxStatementDispositionV1 {
-    use NormalScriptNonBoxStatementDispositionV1::{
-        DirectBoxOwnedElsewhere, DirectFastMemRegion, DirectIfStatement, DirectPortAwareExpression,
-        DirectPrint, DirectSelectedUnsupportedStatement, DirectStaticConstRuntimeCompletion,
-        TopLevelFunctionImmediateOnly,
-    };
+) -> NormalScriptProgramItemAdmissionV1 {
+    use NormalScriptProgramItemAdmissionV1::*;
 
     match statement {
+        ASTNode::BoxDeclaration { is_sync: true, .. } => SyncBoxRejection,
+        ASTNode::BoxDeclaration {
+            name,
+            is_static: true,
+            ..
+        } if name == "Main" => StaticMainCompatibility,
+        ASTNode::BoxDeclaration {
+            name,
+            is_static: true,
+            ..
+        } if name != "Main" => CatalogedNonMainStaticBox,
+        ASTNode::BoxDeclaration {
+            is_static: false, ..
+        } if is_plain_box(statement) => InstancePrefixCompatibility,
+        ASTNode::BoxDeclaration {
+            is_static: false, ..
+        } => NonPlainInstanceFullLifecycle,
+
         ASTNode::Print { .. } => DirectPrint,
 
         ASTNode::Literal { .. }
@@ -90,9 +108,39 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
 
         ASTNode::StaticConstTable { .. } => DirectStaticConstRuntimeCompletion,
 
-        ASTNode::BoxDeclaration { .. } => DirectBoxOwnedElsewhere,
-        ASTNode::FunctionDeclaration { .. } => TopLevelFunctionImmediateOnly,
+        ASTNode::BoxDeclaration { .. } => {
+            unreachable!("all Box declarations are admitted before this arm")
+        }
+        ASTNode::FunctionDeclaration { .. } => RawCompatibility,
     }
+}
+
+fn is_plain_box(statement: &ASTNode) -> bool {
+    let ASTNode::BoxDeclaration {
+        delegates,
+        invariants,
+        transitions,
+        is_interface,
+        is_record,
+        extends,
+        implements,
+        type_parameters,
+        is_sync,
+        ..
+    } = statement
+    else {
+        return false;
+    };
+
+    delegates.is_empty()
+        && invariants.is_empty()
+        && transitions.is_empty()
+        && !is_interface
+        && !is_record
+        && extends.is_empty()
+        && implements.is_empty()
+        && type_parameters.is_empty()
+        && !is_sync
 }
 
 #[cfg(test)]
@@ -100,8 +148,8 @@ mod tests {
     use std::collections::HashMap;
 
     use super::{
-        classify_normal_script_nonbox_statement_v1,
-        NormalScriptNonBoxStatementDispositionV1::{
+        classify_normal_script_program_item_v1,
+        NormalScriptProgramItemAdmissionV1::{
             DirectFastMemRegion, DirectIfStatement, DirectPortAwareExpression, DirectPrint,
             DirectSelectedUnsupportedStatement, DirectStaticConstRuntimeCompletion,
         },
@@ -155,36 +203,33 @@ mod tests {
             span: Span::unknown(),
         };
 
+        assert_eq!(classify_normal_script_program_item_v1(&print), DirectPrint);
         assert_eq!(
-            classify_normal_script_nonbox_statement_v1(&print),
-            DirectPrint
-        );
-        assert_eq!(
-            classify_normal_script_nonbox_statement_v1(&expression),
+            classify_normal_script_program_item_v1(&expression),
             DirectPortAwareExpression
         );
         assert_eq!(
-            classify_normal_script_nonbox_statement_v1(&control),
+            classify_normal_script_program_item_v1(&control),
             DirectIfStatement
         );
         assert_eq!(
-            classify_normal_script_nonbox_statement_v1(&ingress),
+            classify_normal_script_program_item_v1(&ingress),
             DirectSelectedUnsupportedStatement
         );
         assert_eq!(
-            classify_normal_script_nonbox_statement_v1(&call),
+            classify_normal_script_program_item_v1(&call),
             DirectPortAwareExpression
         );
         assert_eq!(
-            classify_normal_script_nonbox_statement_v1(&return_statement),
+            classify_normal_script_program_item_v1(&return_statement),
             DirectPortAwareExpression
         );
         assert_eq!(
-            classify_normal_script_nonbox_statement_v1(&static_table),
+            classify_normal_script_program_item_v1(&static_table),
             DirectStaticConstRuntimeCompletion
         );
         assert_eq!(
-            classify_normal_script_nonbox_statement_v1(&fastmem),
+            classify_normal_script_program_item_v1(&fastmem),
             DirectFastMemRegion
         );
     }

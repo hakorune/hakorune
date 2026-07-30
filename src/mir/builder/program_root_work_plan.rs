@@ -1,22 +1,22 @@
-use std::collections::HashMap;
-
 use crate::ast::{ASTNode, DeclarationAttrs, FieldDecl, ParamDecl};
+use std::collections::HashMap;
 
 use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
 use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceBatchV1;
+use super::normal_script_program_item_admission::{
+    classify_normal_script_program_item_v1, NormalScriptProgramItemAdmissionV1,
+};
 #[cfg(test)]
 use super::normal_script_runtime_work::NormalScriptRuntimeStatementAdmissionV1;
 use super::normal_script_runtime_work::{
-    classify_normal_script_runtime_statement_v1, NormalScriptRuntimeStatementKindV1,
     PreparedNormalScriptRuntimeInputV1, PreparedNormalScriptRuntimeWorkV1,
 };
 use super::normal_top_level_function_admission::{
     NormalTopLevelFunctionDraftAdmissionV1, NormalTopLevelFunctionSourceKeyV1,
 };
 use super::MirBuilder;
-
 #[derive(Debug)]
 pub(super) struct PreparedProgramRootWorkPlanV1 {
     immediate: Box<[PreparedProgramRootImmediateWorkV1]>,
@@ -109,7 +109,7 @@ pub(super) enum PreparedProgramRootRuntimeWorkV1 {
 struct PreparedProgramRootRuntimeStatementV1 {
     source_statement_index: usize,
     statement: ASTNode,
-    normal_script_kind: Option<NormalScriptRuntimeStatementKindV1>,
+    normal_script_kind: Option<NormalScriptProgramItemAdmissionV1>,
     constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
     constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
 }
@@ -379,7 +379,7 @@ fn classify_statement(
         if work_plan_admission == ProgramRootWorkPlanAdmissionV1::RawCompatibility {
             None
         } else {
-            Some(classify_normal_script_runtime_statement_v1(&statement))
+            Some(classify_normal_script_program_item_v1(&statement))
         };
     match &statement {
         ASTNode::BoxDeclaration {
@@ -409,8 +409,8 @@ fn classify_statement(
                 && matches!(
                     normal_script_kind,
                     Some(
-                        NormalScriptRuntimeStatementKindV1::InstancePrefixCompatibility
-                            | NormalScriptRuntimeStatementKindV1::NonPlainInstanceFullLifecycle
+                        NormalScriptProgramItemAdmissionV1::InstancePrefixCompatibility
+                            | NormalScriptProgramItemAdmissionV1::NonPlainInstanceFullLifecycle
                     )
                 );
             ProgramRootStatementDispositionV1::ImmediateAndRuntime {

@@ -1,8 +1,8 @@
 //! Selected-normal Script runtime descent: one Program classification, ordered existing terminals.
 
-use super::normal_script_nonbox_statement_disposition::{
-    classify_normal_script_nonbox_statement_v1, NormalScriptNonBoxStatementDispositionV1,
-};
+#[cfg(test)]
+use super::normal_script_program_item_admission::classify_normal_script_program_item_v1;
+use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 use super::normal_script_runtime_block_port::NormalScriptRuntimeBlockPortV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::emission::constant::emit_void;
@@ -25,7 +25,7 @@ pub(super) struct PreparedNormalScriptRuntimeWorkV1 {
 pub(super) struct PreparedNormalScriptRuntimeInputV1 {
     source_statement_index: usize,
     statement: ASTNode,
-    kind: NormalScriptRuntimeStatementKindV1,
+    kind: NormalScriptProgramItemAdmissionV1,
     constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
     constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
 }
@@ -33,13 +33,13 @@ impl PreparedNormalScriptRuntimeInputV1 {
     pub(super) fn preclassified_at(
         source_statement_index: usize,
         statement: ASTNode,
-        kind: NormalScriptRuntimeStatementKindV1,
+        kind: NormalScriptProgramItemAdmissionV1,
         constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
         constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
     ) -> Self {
         let (constructor_sources, constructor_batch) = match kind {
-            NormalScriptRuntimeStatementKindV1::InstancePrefixCompatibility
-            | NormalScriptRuntimeStatementKindV1::NonPlainInstanceFullLifecycle => {
+            NormalScriptProgramItemAdmissionV1::InstancePrefixCompatibility
+            | NormalScriptProgramItemAdmissionV1::NonPlainInstanceFullLifecycle => {
                 (constructor_sources, constructor_batch)
             }
             _ => {
@@ -85,8 +85,8 @@ pub(super) enum NormalScriptRuntimeStatementAdmissionV1 {
 }
 impl PreparedNormalScriptRuntimeWorkV1 {
     pub(super) fn prepare(inputs: Vec<PreparedNormalScriptRuntimeInputV1>) -> Self {
+        use NormalScriptProgramItemAdmissionV1 as Kind;
         use NormalScriptRuntimeStatementAdmissionV1 as Admission;
-        use NormalScriptRuntimeStatementKindV1 as Kind;
         let mut statements = Vec::with_capacity(inputs.len());
         let mut admissions = Vec::with_capacity(inputs.len());
         for input in inputs {
@@ -322,103 +322,6 @@ where
     emit_void(builder)
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum NormalScriptRuntimeStatementKindV1 {
-    DirectPrint,
-    DirectIfStatement,
-    DirectFastMemRegion,
-    DirectPortAwareExpression,
-    DirectStaticConstRuntimeCompletion,
-    DirectSelectedUnsupportedStatement,
-    RawCompatibility,
-    CatalogedNonMainStaticBox,
-    StaticMainCompatibility,
-    SyncBoxRejection,
-    InstancePrefixCompatibility,
-    NonPlainInstanceFullLifecycle,
-}
-
-pub(super) fn classify_normal_script_runtime_statement_v1(
-    statement: &ASTNode,
-) -> NormalScriptRuntimeStatementKindV1 {
-    match statement {
-        ASTNode::BoxDeclaration { is_sync: true, .. } => {
-            NormalScriptRuntimeStatementKindV1::SyncBoxRejection
-        }
-        ASTNode::BoxDeclaration {
-            name,
-            is_static: true,
-            ..
-        } if name == "Main" => NormalScriptRuntimeStatementKindV1::StaticMainCompatibility,
-        ASTNode::BoxDeclaration {
-            name,
-            is_static: true,
-            ..
-        } if name != "Main" => NormalScriptRuntimeStatementKindV1::CatalogedNonMainStaticBox,
-        ASTNode::BoxDeclaration {
-            is_static: false, ..
-        } if is_plain_box(statement) => {
-            NormalScriptRuntimeStatementKindV1::InstancePrefixCompatibility
-        }
-        ASTNode::BoxDeclaration {
-            is_static: false, ..
-        } => NormalScriptRuntimeStatementKindV1::NonPlainInstanceFullLifecycle,
-        _ => match classify_normal_script_nonbox_statement_v1(statement) {
-            NormalScriptNonBoxStatementDispositionV1::DirectPrint => {
-                NormalScriptRuntimeStatementKindV1::DirectPrint
-            }
-            NormalScriptNonBoxStatementDispositionV1::DirectIfStatement => {
-                NormalScriptRuntimeStatementKindV1::DirectIfStatement
-            }
-            NormalScriptNonBoxStatementDispositionV1::DirectFastMemRegion => {
-                NormalScriptRuntimeStatementKindV1::DirectFastMemRegion
-            }
-            NormalScriptNonBoxStatementDispositionV1::DirectPortAwareExpression => {
-                NormalScriptRuntimeStatementKindV1::DirectPortAwareExpression
-            }
-            NormalScriptNonBoxStatementDispositionV1::DirectStaticConstRuntimeCompletion => {
-                NormalScriptRuntimeStatementKindV1::DirectStaticConstRuntimeCompletion
-            }
-            NormalScriptNonBoxStatementDispositionV1::DirectSelectedUnsupportedStatement => {
-                NormalScriptRuntimeStatementKindV1::DirectSelectedUnsupportedStatement
-            }
-            NormalScriptNonBoxStatementDispositionV1::TopLevelFunctionImmediateOnly => {
-                NormalScriptRuntimeStatementKindV1::RawCompatibility
-            }
-            NormalScriptNonBoxStatementDispositionV1::DirectBoxOwnedElsewhere => {
-                unreachable!("direct Box statements are classified before non-Box disposition")
-            }
-        },
-    }
-}
-
-fn is_plain_box(statement: &ASTNode) -> bool {
-    let ASTNode::BoxDeclaration {
-        delegates,
-        invariants,
-        transitions,
-        is_interface,
-        is_record,
-        extends,
-        implements,
-        type_parameters,
-        is_sync,
-        ..
-    } = statement
-    else {
-        return false;
-    };
-    delegates.is_empty()
-        && invariants.is_empty()
-        && transitions.is_empty()
-        && !is_interface
-        && !is_record
-        && extends.is_empty()
-        && implements.is_empty()
-        && type_parameters.is_empty()
-        && !is_sync
-}
-
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
@@ -536,35 +439,35 @@ mod tests {
             PreparedNormalScriptRuntimeInputV1::preclassified_at(
                 0,
                 plain_box("Helpers", true),
-                classify_normal_script_runtime_statement_v1(&plain_box("Helpers", true)),
+                classify_normal_script_program_item_v1(&plain_box("Helpers", true)),
                 None,
                 None,
             ),
             PreparedNormalScriptRuntimeInputV1::preclassified_at(
                 0,
                 plain_box("Page", false),
-                classify_normal_script_runtime_statement_v1(&plain_box("Page", false)),
+                classify_normal_script_program_item_v1(&plain_box("Page", false)),
                 None,
                 None,
             ),
             PreparedNormalScriptRuntimeInputV1::preclassified_at(
                 0,
                 plain_box("Main", true),
-                classify_normal_script_runtime_statement_v1(&plain_box("Main", true)),
+                classify_normal_script_program_item_v1(&plain_box("Main", true)),
                 None,
                 None,
             ),
             PreparedNormalScriptRuntimeInputV1::preclassified_at(
                 0,
                 sync_box.clone(),
-                classify_normal_script_runtime_statement_v1(&sync_box),
+                classify_normal_script_program_item_v1(&sync_box),
                 None,
                 None,
             ),
             PreparedNormalScriptRuntimeInputV1::preclassified_at(
                 0,
                 record_box.clone(),
-                classify_normal_script_runtime_statement_v1(&record_box),
+                classify_normal_script_program_item_v1(&record_box),
                 None,
                 None,
             ),

@@ -1,6 +1,6 @@
 //! Selected-normal Script statement terminals that already have typed owners.
 //!
-//! Source classification stays in `normal_script_nonbox_statement_disposition`.
+//! Source classification stays in `normal_script_program_item_admission`.
 //! This sibling only hands a preselected statement to its existing production
 //! owner through the caller's current invocation port.
 
