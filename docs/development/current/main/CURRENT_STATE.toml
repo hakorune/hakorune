@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-D0 is accepted. The explicit raw-root helper/callable-Main terminal already receives one source-verified RawSourceLocatorV1 per physical demand. RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0 will move that locator plus a typed StaticHelper or CallableMain role into one admission, derive unchanged LegacySymbol/symbol/arity only at the shared collector boundary, and delete the direct module_invocation_brand0 legacy-symbol issuer. No second locator, duplicated physical fields, catalog widening, fallback, or behavior change is authorized."
+status = "RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0 is closed. Explicit raw-root static helpers and callable Main now consume one source-verified RawSourceLocatorV1 plus a typed demand role before ledger or Builder effects, and project unchanged LegacySymbol/symbol/arity only at the collector boundary. The direct module_invocation_brand0 LegacyChildDraftAdmissionV1 issuer and the old branded static-child terminal are deleted. MIRBUILDER-LIVE-EDGE-CENSUS33-D0 is the sole next design stop."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0"
-current_execution_summary = "Implement one atomic T2 REOWN. Add RawRootStaticChildDraftAdmissionV1 owning the existing RawSourceLocatorV1 plus typed StaticHelper{schedule_ordinal} or CallableMain role, without duplicated symbol/arity fields. Issue it through consuming helper/callable-Main work transitions before ledger/Builder effects. Replace the sole branded legacy static-child terminal with the typed admission terminal; consume it once into unchanged LegacySymbol/symbol/arity and LegacyReplaceWholePair. Delete the direct module_invocation_brand0 LegacyChildDraftAdmissionV1 issuer/import in the same commit. Preserve ordering, ledger failure ownership, duplicate parity, candidate discard, and all files below 800."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS33-D0"
+current_execution_row = "none"
+current_execution_summary = "Run one read-only post-static-child live-edge census. Recount every remaining LegacyChildDraftAdmissionV1 issuer and map each exact live edge to the sole R4 fence/residual registry. Select at most one bounded RET0, REOWN, or RETAIN-FENCED disposition with a named owner, activation, release condition, and same-commit old-edge deletion. Do not edit production code before the census selects a row."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-D0 is accepted. One existing source-verified RawSourceLocatorV1 plus a typed helper/callable-Main demand role will replace the direct explicit raw-root LegacyChildDraftAdmissionV1 issuer while preserving LegacySymbol and LegacyReplaceWholePair. RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0 is the sole executable row. Raw static Main and nested Box remain RETAIN-FENCED; R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0 is closed. One existing source-verified locator plus a typed helper/callable-Main demand role now reaches the collector boundary exactly once; the direct explicit raw-root legacy admission issuer is deleted while LegacySymbol and LegacyReplaceWholePair remain unchanged. LegacyChildDraftAdmissionV1 is now 32 occurrences in 6 src/mir files. MIRBUILDER-LIVE-EDGE-CENSUS33-D0 is the sole next design stop. Raw static Main and nested Box remain fenced; R4 final conformance still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS33-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

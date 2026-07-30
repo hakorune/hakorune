@@ -34,6 +34,17 @@ pub(in crate::mir) struct RawRootStaticChildWorkV1 {
     attrs: DeclarationAttrs,
 }
 
+#[derive(Debug)]
+pub(in crate::mir::builder) struct RawRootStaticChildLoweringPartsV1 {
+    pub(super) function_name: String,
+    pub(super) params: Vec<String>,
+    pub(super) param_decls: Vec<ParamDecl>,
+    pub(super) return_type_name: Option<String>,
+    pub(super) body: Vec<ASTNode>,
+    pub(super) uses: Vec<String>,
+    pub(super) attrs: DeclarationAttrs,
+}
+
 impl RawRootStaticChildWorkV1 {
     pub(in crate::mir) fn ordinal(&self) -> usize {
         self.ordinal
@@ -48,25 +59,32 @@ impl RawRootStaticChildWorkV1 {
         self.locator.arity()
     }
 
-    pub(in crate::mir) fn into_lowering_parts(
+    pub(in crate::mir::builder) fn into_source_parts(
         self,
-    ) -> (
-        String,
-        Vec<String>,
-        Vec<ParamDecl>,
-        Option<String>,
-        Vec<ASTNode>,
-        Vec<String>,
-        DeclarationAttrs,
-    ) {
+    ) -> (usize, RawSourceLocatorV1, RawRootStaticChildLoweringPartsV1) {
+        let Self {
+            ordinal,
+            locator,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        } = self;
+        let function_name = locator.symbol().to_owned();
         (
-            self.locator.symbol().to_owned(),
-            self.params,
-            self.param_decls,
-            self.return_type_name,
-            self.body,
-            self.uses,
-            self.attrs,
+            ordinal,
+            locator,
+            RawRootStaticChildLoweringPartsV1 {
+                function_name,
+                params,
+                param_decls,
+                return_type_name,
+                body,
+                uses,
+                attrs,
+            },
         )
     }
 
@@ -94,7 +112,7 @@ impl RawCallableMainWorkV1 {
         self.inner.arity()
     }
 
-    pub(in crate::mir::builder) fn into_static(self) -> RawRootStaticChildWorkV1 {
+    pub(in crate::mir::builder) fn into_inner(self) -> RawRootStaticChildWorkV1 {
         self.inner
     }
 }

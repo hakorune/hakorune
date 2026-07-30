@@ -10,7 +10,7 @@ use super::super::raw_expansion_receipt_ledger::{
     RawExpansionAbortReasonV1, RawExpansionDraftRequestV1, RawExpansionDraftRoleV1,
     RawExpansionReceiptLedgerErrorV1,
 };
-use super::super::RawRootStaticChildWorkV1;
+use super::super::PreparedRawRootStaticChildDraftV1;
 use super::{RawRootLedgerStateV1, RawRootPhysicalStateV1};
 
 #[derive(Debug)]
@@ -26,7 +26,7 @@ impl RawRootPhysicalStateV1 {
     pub(in crate::mir) fn complete_static_child(
         &mut self,
         builder: &mut MirBuilder,
-        work: RawRootStaticChildWorkV1,
+        work: PreparedRawRootStaticChildDraftV1,
     ) -> Result<InvocationBranded<CollectedDraftAdmissionReceiptV1>, RawRootPhysicalChildErrorV1>
     {
         let request = match RawExpansionDraftRequestV1::legacy_discovered(

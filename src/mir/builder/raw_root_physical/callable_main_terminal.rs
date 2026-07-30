@@ -67,6 +67,7 @@ impl RawRootPhysicalStateV1 {
         builder: &mut MirBuilder,
         work: RawCallableMainWorkV1,
     ) -> Result<CompletedRawCallableMainPhysicalV1, RejectedRawCallableMainPhysicalV1> {
+        let work = work.into_callable_main_draft();
         let request = match RawExpansionDraftRequestV1::callable_main_compatibility(
             work.symbol().to_owned(),
             work.arity(),
@@ -101,10 +102,7 @@ impl RawRootPhysicalStateV1 {
                 ))
             }
         };
-        let receipt = match self
-            .physical
-            .complete_raw_static_child(builder, work.into_static())
-        {
+        let receipt = match self.physical.complete_raw_static_child(builder, work) {
             Ok(receipt) => receipt,
             Err(error) => {
                 let aborted = match std::mem::replace(

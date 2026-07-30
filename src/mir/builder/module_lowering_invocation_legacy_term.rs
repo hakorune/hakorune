@@ -112,7 +112,19 @@ impl ModuleLoweringPortV1<'_> {
         admission: LegacyChildDraftAdmissionV1,
     ) -> Result<InvocationBranded<CollectedDraftAdmissionReceiptV1>, ModuleLoweringPortChildErrorV1>
     {
-        let (key, symbol, arity) = admission.collector_parts();
+        self.commit_legacy_symbol_pending_branded(pending, admission.collector_parts())
+    }
+
+    pub(in crate::mir::builder) fn commit_legacy_symbol_pending_branded(
+        &mut self,
+        pending: LegacyFunctionPendingSessionV1<'_>,
+        (key, symbol, arity): (
+            super::module_draft_collector::FunctionDraftKeyV1,
+            String,
+            usize,
+        ),
+    ) -> Result<InvocationBranded<CollectedDraftAdmissionReceiptV1>, ModuleLoweringPortChildErrorV1>
+    {
         pending.complete_before_restore(|draft| {
             let prepared = self
                 .prepare_draft_admission(

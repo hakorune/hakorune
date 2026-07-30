@@ -17,9 +17,7 @@ use super::module_invocation_owner_chain::{BrandedCollectorV1, BrandedShellV1, I
 use super::module_invocation_session::{
     BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
 };
-use super::module_lowering_invocation::{
-    LegacyChildDraftAdmissionV1, ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1,
-};
+use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
 use super::module_lowering_shell::{
     AcyclicCapabilityAbsenceWitnessV1, RecursiveCapabilityInstallReceiptV1,
 };
@@ -248,26 +246,12 @@ impl InvocationPhysicalStateV1 {
     pub(in crate::mir::builder) fn complete_raw_static_child(
         &mut self,
         builder: &mut MirBuilder,
-        work: super::RawRootStaticChildWorkV1,
+        work: super::PreparedRawRootStaticChildDraftV1,
     ) -> Result<InvocationBranded<CollectedDraftAdmissionReceiptV1>, ModuleLoweringPortChildErrorV1>
     {
-        let admission =
-            LegacyChildDraftAdmissionV1::legacy_symbol(work.symbol().to_owned(), work.arity());
-        let (function_name, params, param_decls, return_type_name, body, uses, attrs) =
-            work.into_lowering_parts();
         let mut port = ModuleLoweringPortV1::from_collector(self.collector.payload_mut());
         let mut child = RawInvocationChildPortV1::new(&mut port);
-        child.complete_static_box_method_branded(
-            builder,
-            admission,
-            function_name,
-            params,
-            param_decls,
-            return_type_name,
-            body,
-            uses,
-            attrs,
-        )
+        child.complete_raw_root_static_child_branded(builder, work)
     }
 
     pub(in crate::mir) fn into_parts(

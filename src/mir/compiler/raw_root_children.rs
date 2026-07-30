@@ -12,10 +12,9 @@ use super::raw_root_eligibility::{
 };
 use super::raw_root_environment_manifest::RawRootPhysicalManifestV1;
 use super::raw_root_plan0::RawRootPlanV1;
-use crate::mir::builder::MirBuilder;
 use crate::mir::builder::{
     CollectedDraftAdmissionReceiptV1, InvocationBranded, RawRootPhysicalChildErrorV1,
-    RawRootStaticChildWorkErrorV1, RawRootStaticChildWorkV1, RawSourceLocatorV1,
+    RawRootStaticChildWorkErrorV1, RawSourceLocatorV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -288,6 +287,7 @@ impl RawChildrenPendingInvocationV1 {
                     })
                 }
             };
+            let work = work.into_static_helper_draft();
             let symbol = work.symbol().to_owned().into_boxed_str();
             let builder = self.core.session.builder_mut();
             let result = self.core.physical.complete_static_child(builder, work);

@@ -115,6 +115,8 @@ mod raw_root_child_work; // RAW-SOURCE0-LOWER0-ROOT0-CHILDREN0 source-bound help
 pub(in crate::mir) use raw_root_child_work::{
     RawCallableMainWorkV1, RawRootStaticChildWorkErrorV1, RawRootStaticChildWorkV1,
 };
+mod raw_root_static_child_admission;
+pub(in crate::mir) use raw_root_static_child_admission::PreparedRawRootStaticChildDraftV1;
 pub(in crate::mir) use raw_source_projection::{
     OwnedRawRootProjectionV1, OwnedRawSourceV1, RawRootProjectionPartsV1, RawSourceLocatorV1,
     RawSourceOriginV1, RawSourceProjectionErrorV1,
