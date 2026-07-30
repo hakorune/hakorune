@@ -40,7 +40,8 @@ Latest design:  `NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS25-D0` — closed
 Latest design:  `NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-D0` — closed
-Next execution: `NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-I0-R0`
+Latest landed:  `NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-I0-R0`
+Next stop:      `MIRBUILDER-LIVE-EDGE-CENSUS26-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -54,7 +55,7 @@ activation and sunset contract.
 | State | Ledger key / family | Exact surface | Activation / normal-default | Release row / condition |
 | --- | --- | --- | --- | --- |
 | active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | fresh named raw-static-Main disposition, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` proves reachability = 0 |
-| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for 26 direct selected Script kinds in the `StatementControl` and `DeclarationIngress` residual families | selected normal Script only; Print and all 28 expression roots are retired; raw/reference and nested body descent remain separate | fresh named selected-Script statement-owner D0 with a same-commit old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
+| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for 25 direct selected Script kinds in the `StatementControl` and `DeclarationIngress` residual families | selected normal Script only; Print, all 28 expression roots, and Return are retired; raw/reference and nested body descent remain separate | fresh named selected-Script statement-owner D0 with a same-commit old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
 | closed | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program immediate instance constructors, plus selected Script plain-instance runtime-prefix constructors | every selected Program instance Box has one immediate demand; plain Script adds its second `InstancePrefixCompatibility` demand; non-plain Script's later raw runtime lifecycle is the separate row below | retired by `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0`: one source occurrence -> unchanged physical LegacySymbol admission per existing demand |
 | closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
 | closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
@@ -89,6 +90,46 @@ unregistered family may not become active on a generic prose promise. No second
 fence ledger is permitted.
 
 ## Disposition closeout
+
+`NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-I0-R0` — T1 atomic replacement, closed
+
+```text
+Named production caller:
+  NormalScriptRuntimeBlockPortV1::lower_statement.
+
+Change:
+  ASTNode::Return is classified as DirectPortAwareExpression and reaches the
+  existing raw expression statement-surface Return owner through the same
+  RawInvocation port.
+
+Atomic delete:
+  selected Script Return
+  -> StatementControlCompatibility
+  -> RawCompatibility
+  -> drive_legacy_statement_v1
+  = 0.
+
+Preserved:
+  root span; return; Void completion; arbitrary value-child descent; cleanup;
+  Match-return; defer; emitted Return; block termination and suffix stop;
+  diagnostics; candidate discard; fresh compiler reuse.
+
+Evidence:
+  direct root parity covers void and FunctionCall-bearing value Return;
+  a Return followed by an undefined-variable Print proves suffix suppression;
+  failing value lookup followed by fresh success proves reuse; existing raw
+  Return descent suites, shared guard, cargo check, and pointer guard are green.
+
+Result:
+  residual 26 -> 25; StatementControl 17 -> 16; DeclarationIngress remains 9;
+  new owner/product/route/grammar/result/fallback/retry = 0.
+
+Structure:
+  direct owner 323 lines; disposition 210; runtime work 789; shared guard 799.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS26-D0.
+```
 
 `NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-D0` — T1 design, closed
 

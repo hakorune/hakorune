@@ -170,7 +170,10 @@ mod tests {
             span: Span::new(106, 114, 106, 1),
         };
         let qmark = ASTNode::QMarkPropagate {
-            expression: Box::new(integer(1, 115)),
+            expression: Box::new(ASTNode::Variable {
+                name: "missing_qmark".to_owned(),
+                span: Span::new(115, 116, 115, 2),
+            }),
             span: Span::new(115, 117, 115, 1),
         };
         let match_expression = ASTNode::MatchExpr {
@@ -189,6 +192,14 @@ mod tests {
             tail_expr: Box::new(integer(2, 126)),
             span: Span::new(125, 127, 125, 1),
         };
+        let void_return = ASTNode::Return {
+            value: None,
+            span: Span::new(128, 129, 128, 1),
+        };
+        let value_return = ASTNode::Return {
+            value: Some(Box::new(function_call.clone())),
+            span: Span::new(130, 131, 130, 1),
+        };
 
         for (root, name) in [
             (literal, "direct-literal.hako"),
@@ -206,6 +217,8 @@ mod tests {
             (match_expression, "direct-match.hako"),
             (lambda, "direct-lambda.hako"),
             (block_expression, "direct-block-expression.hako"),
+            (void_return, "direct-void-return.hako"),
+            (value_return, "direct-value-return.hako"),
         ] {
             compare_normal_and_legacy(root, name);
         }
@@ -246,5 +259,65 @@ mod tests {
                 .expect("fresh request"),
             )
             .expect("fresh candidate after direct expression rejection");
+    }
+
+    #[test]
+    fn direct_return_stops_the_suffix_and_failure_keeps_compiler_reusable() {
+        let request = |statements, name| {
+            NormalCompileRequestV1::for_mir_mode(
+                ASTNode::Program {
+                    statements,
+                    span: Span::unknown(),
+                },
+                Some(name),
+                HashMap::new(),
+            )
+            .expect("normal request")
+        };
+        let mut compiler = MirCompiler::with_options(false);
+        let suffix = ASTNode::Print {
+            expression: Box::new(ASTNode::Variable {
+                name: "must_not_be_lowered".to_owned(),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+
+        compiler
+            .compile_normal(request(
+                vec![
+                    ASTNode::Return {
+                        value: Some(Box::new(integer(7, 140))),
+                        span: Span::new(139, 141, 139, 1),
+                    },
+                    suffix,
+                ],
+                "direct-return-suffix.hako",
+            ))
+            .expect("Return must stop Script suffix descent");
+
+        let error = compiler
+            .compile_normal(request(
+                vec![ASTNode::Return {
+                    value: Some(Box::new(ASTNode::Variable {
+                        name: "missing".to_owned(),
+                        span: Span::unknown(),
+                    })),
+                    span: Span::unknown(),
+                }],
+                "direct-return-failure.hako",
+            ))
+            .expect_err("missing Return value must fail");
+        assert!(error.contains("Undefined variable: missing"), "{error}");
+
+        compiler
+            .compile_normal(request(
+                vec![ASTNode::Return {
+                    value: Some(Box::new(integer(9, 150))),
+                    span: Span::unknown(),
+                }],
+                "direct-return-reuse.hako",
+            ))
+            .expect("fresh request must reuse compiler after Return failure");
     }
 }

@@ -54,14 +54,14 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
         | ASTNode::ThisField { .. }
         | ASTNode::MeField { .. }
         | ASTNode::FunctionCall { .. }
-        | ASTNode::Call { .. } => DirectPortAwareExpression,
+        | ASTNode::Call { .. }
+        | ASTNode::Return { .. } => DirectPortAwareExpression,
 
         ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
         | ASTNode::If { .. }
         | ASTNode::Loop { .. }
         | ASTNode::LoopRange { .. }
-        | ASTNode::Return { .. }
         | ASTNode::Break { .. }
         | ASTNode::Continue { .. }
         | ASTNode::Nowait { .. }
@@ -117,8 +117,16 @@ mod tests {
             span: Span::unknown(),
         };
         let expression = integer(2);
-        let control = ASTNode::Return {
-            value: Some(Box::new(integer(3))),
+        let control = ASTNode::Assignment {
+            target: Box::new(ASTNode::Variable {
+                name: "x".to_owned(),
+                span: Span::unknown(),
+            }),
+            value: Box::new(integer(3)),
+            span: Span::unknown(),
+        };
+        let return_statement = ASTNode::Return {
+            value: Some(Box::new(integer(4))),
             span: Span::unknown(),
         };
         let ingress = ASTNode::Program {
@@ -149,6 +157,10 @@ mod tests {
         );
         assert_eq!(
             classify_normal_script_nonbox_statement_v1(&call),
+            DirectPortAwareExpression
+        );
+        assert_eq!(
+            classify_normal_script_nonbox_statement_v1(&return_statement),
             DirectPortAwareExpression
         );
     }
