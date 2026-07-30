@@ -31,8 +31,8 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0
 Result:        selected normal runtime inputs snapshot at ingress
-Latest design: `NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0` — closed
-Executable:    `MIRBUILDER-LIVE-EDGE-CENSUS16-D0`
+Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS16-D0` — closed
+Executable:    `NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -330,26 +330,44 @@ Next:
   `MIRBUILDER-LIVE-EDGE-CENSUS16-D0`.
 ```
 
+## Latest closeout
+
+`MIRBUILDER-LIVE-EDGE-CENSUS16-D0` — closed
+
+```text
+Result:
+  Selected normal has no safe immediate I0/R0.  Its real remaining edge is all
+  Program callable children through LegacyChildDraftAdmissionV1; raw receipts,
+  runtime inputs, runners, and explicit reference lanes remain fenced.  The
+  JoinModule generic Case-A, VM bridge, LowerOnly, and LLVM surfaces also have
+  live consumers, so Census16 records them RETAIN-FENCED rather than inventing
+  an R3 retirement.
+
+Next:
+  `NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0`.
+```
+
 ## Current execution
 
-`MIRBUILDER-LIVE-EDGE-CENSUS16-D0` — fresh live-edge selection
+`NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0` — T2 function-lifecycle boundary
 
 ```text
 Change:
-  Inventory the remaining selected-normal, compatibility, and fenced reference
-  edges after the normal runtime-input cutover.
+  Decide one selected-normal contract for callable identity, body-session
+  capture, and collector admission across Main helpers, non-Main static methods,
+  and instance methods.
 
 Contract:
-  Select at most one evidenced next boundary; raw/reference, runner policies,
-  R3 fences, R4 disposition, Ownership/View, and features remain independent.
+  The current legacy chain is live; an already-resolved canonical admission is
+  not a substitute until source identity, duplicate policy, and collector parity
+  are co-sealed.  Grammar and all non-normal routes do not move.
 
 Done:
-  One bounded D0, live I0/R0, detached R3 disposition, or NoSafeLiveI0 is
-  recorded with its named caller and sunset condition.
+  Select one executable replacement or retain the edge with explicit evidence.
 
 Stop:
-  Do not create a route, infer a handoff, or pre-authorize the next cell from
-  historical inventory alone.
+  No whole-function variants, inferred canonical owner, raw/reference or runner
+  coupling, retry/fallback, Ownership/View, or feature work.
 ```
 
 ## Latest closeout
@@ -819,31 +837,34 @@ census or D0 has selected it.
    Named caller: NormalDefaultPublishedPipelineV1::compile.  One atomic
    normal-only receipt cutover deletes the two selected lower-side ambient reads.
 
-6. MIRBUILDER-LIVE-EDGE-CENSUS16-D0                     (active)
+6. MIRBUILDER-LIVE-EDGE-CENSUS16-D0                     (closed)
    Re-inventory the remaining selected-normal, compatibility, and fenced
    reference edges before selecting another live replacement or retirement.
 
-7. Entry-materialization residuals                      (census-selected only)
+7. NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0     (active)
+   T2 design for the live callable child identity/body-session/collector chain.
+
+8. Entry-materialization residuals                      (census-selected only)
    A raw/reference receipt handoff and each runner-adapter receipt are separate
    responsibility decisions.  They must preserve their route-specific policies:
    no global selector, no `NYASH_ENTRY` reinterpretation, and no provenance
    collapse.  Their shared completion goal is the removal of the old snapshot /
    compilation-context / lower-side materialization authority, not a new route.
 
-8. R3 reference-asset disposition                       (interleaved only by census)
+9. R3 reference-asset disposition                       (interleaved only by census)
    Each cycle is fresh consumer census -> one RET0, REOWN, or RETAIN-FENCED
    decision -> fresh census.  These rows earn no replacement credit.  The VM
    bridge, normalized shadow, LLVM experiment, and any live carrier remain
    named fences until their own evidence changes.
 
-9. R4 final conformance
+10. R4 final conformance
    Decide every live edge, compatibility sunset, and retained reference asset.
    The 34K-line JoinModule scope is decided here as either deletion or an
    explicit fenced reference asset; LOC is not a completion metric.  Complete
    requires normal/default reachability=0, acceptance truth=0, and final
    planner=0 for every retained reference family.
 
-10. R5 features, strictly after R4 Complete
+11. R5 features, strictly after R4 Complete
    Refresh Ownership readiness -> implement Ownership -> View D0 and I0 -> one
    later unimplemented feature semantic slice at a time.
 ```
