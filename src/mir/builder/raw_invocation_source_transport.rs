@@ -364,13 +364,7 @@ fn is_located_scalar_statement(statement: &ASTNode) -> bool {
     ) || matches!(
         statement,
         ASTNode::GroupedAssignmentExpr { .. } | ASTNode::Print { .. }
-    ) || matches!(
-        statement,
-        ASTNode::Return {
-            value: Some(value),
-            ..
-        } if !matches!(value.as_ref(), ASTNode::MatchExpr { .. })
-    ) || matches!(statement, ASTNode::Return { value: None, .. })
+    ) || matches!(statement, ASTNode::Return { .. })
         || matches!(
             statement,
             ASTNode::Local { .. } if is_nonhook_local_statement_v1(statement)

@@ -115,17 +115,18 @@ impl ReturnStatementDescentPortV1 for RecordingReturnPortV1 {
             MatchResultV1::Fail => Err("match-probe".to_string()),
         }
     }
+}
 
-    fn return_value_expression_input(
-        &self,
-        _input: &Self::ReturnInput,
-    ) -> Result<Self::ExpressionInput, String> {
-        self.events.borrow_mut().push(EventV1::ValueInput);
-        if self.fail_input {
-            return Err("value-input".to_string());
-        }
-        Ok(())
+fn lower_recorded_value_after_probe_v1(
+    builder: &mut MirBuilder,
+    port: &mut RecordingReturnPortV1,
+    _input: ReturnInputV1,
+) -> Result<ValueId, String> {
+    port.events.borrow_mut().push(EventV1::ValueInput);
+    if port.fail_input {
+        return Err("value-input".to_string());
     }
+    super::super::recursive_child_lowering::drive_legacy_expression_v1(builder, port, ())
 }
 
 fn integer(value: i64) -> ASTNode {
@@ -191,7 +192,13 @@ fn cleanup_precedes_match_child_and_return_effects() {
     let input = ReturnInputV1 { value: integer(1) };
     let mut port = RecordingReturnPortV1::accepting();
 
-    let error = drive_value_return_statement_v1(&mut builder, &mut port, &input).unwrap_err();
+    let error = drive_value_return_statement_v1(
+        &mut builder,
+        &mut port,
+        input,
+        lower_recorded_value_after_probe_v1,
+    )
+    .unwrap_err();
 
     assert!(error.contains("return is not allowed inside cleanup block"));
     assert!(port.events().is_empty());
@@ -204,7 +211,13 @@ fn ordinary_value_probes_then_descends_once_and_completes_once() {
     let input = ReturnInputV1 { value: integer(1) };
     let mut port = RecordingReturnPortV1::accepting();
 
-    let result = drive_value_return_statement_v1(&mut builder, &mut port, &input).unwrap();
+    let result = drive_value_return_statement_v1(
+        &mut builder,
+        &mut port,
+        input,
+        lower_recorded_value_after_probe_v1,
+    )
+    .unwrap();
 
     assert_eq!(
         port.events(),
@@ -228,7 +241,13 @@ fn selected_match_bypasses_value_demand_and_ordinary_completion() {
     let mut port = RecordingReturnPortV1::accepting();
     port.match_result = MatchResultV1::Select;
 
-    let selected = drive_value_return_statement_v1(&mut builder, &mut port, &input).unwrap();
+    let selected = drive_value_return_statement_v1(
+        &mut builder,
+        &mut port,
+        input,
+        lower_recorded_value_after_probe_v1,
+    )
+    .unwrap();
 
     assert_eq!(port.events(), vec![EventV1::Syntax, EventV1::MatchProbe]);
     assert_eq!(return_count(&builder), 0);
@@ -256,7 +275,13 @@ fn syntax_match_input_and_child_failures_emit_no_return_completion() {
         port.fail_input = stage == "input";
         port.fail_lower = stage == "child";
 
-        drive_value_return_statement_v1(&mut builder, &mut port, &input).unwrap_err();
+        drive_value_return_statement_v1(
+            &mut builder,
+            &mut port,
+            input,
+            lower_recorded_value_after_probe_v1,
+        )
+        .unwrap_err();
 
         assert_eq!(return_count(&builder), 0, "stage={stage}");
         assert!(current_terminator(&builder).is_none(), "stage={stage}");
@@ -274,8 +299,13 @@ fn syntax_match_input_and_child_failures_emit_no_return_completion() {
 
     let mut fresh = builder("ret0_failure_reuse/0");
     let input = ReturnInputV1 { value: integer(1) };
-    drive_value_return_statement_v1(&mut fresh, &mut RecordingReturnPortV1::accepting(), &input)
-        .unwrap();
+    drive_value_return_statement_v1(
+        &mut fresh,
+        &mut RecordingReturnPortV1::accepting(),
+        input,
+        lower_recorded_value_after_probe_v1,
+    )
+    .unwrap();
     assert_eq!(return_count(&fresh), 1);
 }
 
@@ -290,7 +320,13 @@ fn configured_defer_reuses_copy_and_jump_completion_without_direct_return() {
     let input = ReturnInputV1 { value: integer(1) };
     let mut port = RecordingReturnPortV1::accepting();
 
-    let result = drive_value_return_statement_v1(&mut builder, &mut port, &input).unwrap();
+    let result = drive_value_return_statement_v1(
+        &mut builder,
+        &mut port,
+        input,
+        lower_recorded_value_after_probe_v1,
+    )
+    .unwrap();
     let rows = instructions(&builder);
 
     assert!(builder.function_state.return_deferred_emitted);

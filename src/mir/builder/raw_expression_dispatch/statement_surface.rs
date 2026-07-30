@@ -4,7 +4,7 @@
 //! It does not create another expression matcher, source navigation path, or
 //! call terminal.
 
-use crate::ast::{ASTNode, AssignStmt, ReturnStmt};
+use crate::ast::{ASTNode, AssignStmt};
 use crate::mir::builder::compound_assignment::{
     lower_prepared_raw_compound_assignment_with_port_v1, PreparedRawCompoundAssignmentV1,
 };
@@ -26,7 +26,8 @@ use crate::mir::builder::stmts::task_scope_stmt::{
 };
 use crate::mir::builder::stmts::{
     drive_local_statement_v1, drive_value_return_statement_v1, drive_variable_assignment_v1,
-    RawLegacyLocalInputV1, RawLegacyValueReturnInputV1, RawLegacyVariableAssignmentInputV1,
+    lower_raw_value_return_after_probe_v1, RawLegacyLocalInputV1, RawLegacyValueReturnInputV1,
+    RawLegacyVariableAssignmentInputV1,
 };
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 use crate::mir::{MirBuilder, ValueId};
@@ -564,21 +565,8 @@ where
             Ok(StatementSurfaceDispatch::Lowered(value))
         }
         node @ ASTNode::Return { .. } => {
-            let value_source = match &node {
-                ASTNode::Return {
-                    value: Some(value),
-                    ..
-                } if !matches!(value.as_ref(), ASTNode::MatchExpr { .. }) => {
-                    Some(port.prepare_expression_child_source_v1(
-                        &node,
-                        ExprChildRoleV1::ReturnValue,
-                    )?)
-                }
-                _ => None,
-            };
-            let statement = ReturnStmt::try_from(node).expect("ASTNode::Return must convert");
             Ok(StatementSurfaceDispatch::Lowered(
-                build_return_with_port_v1(builder, port, statement, value_source)?,
+                build_return_with_port_v1(builder, port, node)?,
             ))
         }
         node @ ASTNode::Local { .. } => {
@@ -664,29 +652,28 @@ where
 fn build_return_with_port_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
-    statement: ReturnStmt,
-    value_source: Option<crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1>,
+    statement: ASTNode,
 ) -> Result<ValueId, String>
 where
     Port: RawExpressionDispatchPortV1,
 {
-    match statement.value {
-        Some(value) => {
-            let input = RawLegacyValueReturnInputV1::new(*value);
-            match value_source {
-                Some(source) => {
-                    let mut scoped =
-                        RawStructuredChildScopePortV1::new(port, vec![source], Vec::new());
-                    let result = drive_value_return_statement_v1(builder, &mut scoped, &input)?;
-                    scoped.complete_exact_demands_v1()?;
-                    Ok(result)
-                }
-                None => drive_value_return_statement_v1(builder, port, &input),
-            }
+    match &statement {
+        ASTNode::Return { value: Some(_), .. } => {
+            let input = RawLegacyValueReturnInputV1::new(statement);
+            drive_value_return_statement_v1(builder, port, input, |builder, port, input| {
+                let source = port.prepare_expression_child_source_v1(
+                    input.statement(),
+                    ExprChildRoleV1::ReturnValue,
+                )?;
+                let mut scoped = RawStructuredChildScopePortV1::new(port, vec![source], Vec::new());
+                let value = lower_raw_value_return_after_probe_v1(builder, &mut scoped, input)?;
+                scoped.complete_exact_demands_v1()?;
+                Ok(value)
+            })
         }
-        None => {
-            debug_assert!(value_source.is_none());
+        ASTNode::Return { value: None, .. } => {
             crate::mir::builder::stmts::return_stmt::build_void_return_statement(builder)
         }
+        _ => Err("[freeze:contract][return-descent/requires-return]".to_owned()),
     }
 }

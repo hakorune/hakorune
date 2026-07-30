@@ -111,7 +111,8 @@ pub(in crate::mir::builder) use local_statement_descent::{
 pub(super) mod print_stmt;
 pub(in crate::mir::builder) mod return_statement_descent;
 pub(in crate::mir::builder) use return_statement_descent::{
-    drive_value_return_statement_v1, RawLegacyValueReturnInputV1, ReturnStatementDescentPortV1,
+    drive_value_return_statement_v1, lower_raw_value_return_after_probe_v1,
+    RawLegacyValueReturnInputV1, ReturnStatementDescentPortV1,
 };
 pub(super) mod return_stmt;
 pub(super) mod task_scope_stmt;

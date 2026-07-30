@@ -17,12 +17,29 @@ use super::super::recursive_child_lowering::{
 use super::return_stmt::{emit_return_from_value, try_apply_match_return_optimization};
 
 pub(in crate::mir::builder) struct RawLegacyValueReturnInputV1 {
-    value: ASTNode,
+    statement: ASTNode,
 }
 
 impl RawLegacyValueReturnInputV1 {
-    pub(in crate::mir::builder) const fn new(value: ASTNode) -> Self {
-        Self { value }
+    pub(in crate::mir::builder) const fn new(statement: ASTNode) -> Self {
+        Self { statement }
+    }
+
+    fn value(&self) -> Result<&ASTNode, String> {
+        match &self.statement {
+            ASTNode::Return {
+                value: Some(value), ..
+            } => Ok(value),
+            _ => Err("[freeze:contract][return-descent/value-input-requires-return]".to_owned()),
+        }
+    }
+
+    pub(in crate::mir::builder) fn into_statement(self) -> ASTNode {
+        self.statement
+    }
+
+    pub(in crate::mir::builder) const fn statement(&self) -> &ASTNode {
+        &self.statement
     }
 }
 
@@ -56,11 +73,6 @@ pub(in crate::mir::builder) trait ReturnStatementDescentPortV1:
         input: &Self::ReturnInput,
         value: &ASTNode,
     ) -> Result<Option<ValueId>, String>;
-
-    fn return_value_expression_input(
-        &self,
-        input: &Self::ReturnInput,
-    ) -> Result<Self::ExpressionInput, String>;
 }
 
 impl<Port> ReturnStatementDescentPortV1 for Port
@@ -73,7 +85,7 @@ where
         &self,
         input: &'input Self::ReturnInput,
     ) -> Result<ReturnStatementSyntaxViewV1<'input>, String> {
-        Ok(ReturnStatementSyntaxViewV1::new(&input.value))
+        Ok(ReturnStatementSyntaxViewV1::new(input.value()?))
     }
 
     fn try_match_return_optimization(
@@ -84,30 +96,44 @@ where
     ) -> Result<Option<ValueId>, String> {
         try_apply_match_return_optimization(builder, Some(value), true)
     }
-
-    fn return_value_expression_input(
-        &self,
-        input: &Self::ReturnInput,
-    ) -> Result<Self::ExpressionInput, String> {
-        Ok(input.value.clone())
-    }
 }
 
-pub(in crate::mir::builder) fn drive_value_return_statement_v1<Port>(
+pub(in crate::mir::builder) fn drive_value_return_statement_v1<Port, LowerValue>(
     builder: &mut MirBuilder,
     port: &mut Port,
-    input: &Port::ReturnInput,
+    input: Port::ReturnInput,
+    lower_value: LowerValue,
 ) -> Result<ValueId, String>
 where
     Port: ReturnStatementDescentPortV1,
+    LowerValue: FnOnce(&mut MirBuilder, &mut Port, Port::ReturnInput) -> Result<ValueId, String>,
 {
     ensure_cleanup_exit_allowed_v1(&builder.function_state, CleanupExitKindV1::Return)?;
-    let value = port.return_value_syntax(input)?.value();
-    if let Some(result) = port.try_match_return_optimization(builder, input, value)? {
+    let match_result = {
+        let value = port.return_value_syntax(&input)?.value();
+        port.try_match_return_optimization(builder, &input, value)?
+    };
+    if let Some(result) = match_result {
         return Ok(result);
     }
 
-    let expression_input = port.return_value_expression_input(input)?;
-    let return_value = drive_legacy_expression_v1(builder, port, expression_input)?;
+    let return_value = lower_value(builder, port, input)?;
     emit_return_from_value(builder, return_value)
+}
+
+pub(in crate::mir::builder) fn lower_raw_value_return_after_probe_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    input: RawLegacyValueReturnInputV1,
+) -> Result<ValueId, String>
+where
+    Port: RawAstChildLoweringPortV1,
+{
+    let ASTNode::Return {
+        value: Some(value), ..
+    } = input.into_statement()
+    else {
+        return Err("[freeze:contract][return-descent/value-input-requires-return]".to_owned());
+    };
+    drive_legacy_expression_v1(builder, port, *value)
 }

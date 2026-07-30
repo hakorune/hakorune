@@ -102,13 +102,15 @@ Latest landed: `RAW-LOCATED-ORDINARY-INDEX-COMPOUND-ASSIGNMENT-SOURCE-HANDOFF0-I
 Latest landed: `RAW-LOCATED-NONMATCH-VALUE-RETURN-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-VOID-RETURN-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-NONHOOK-LOCAL-SOURCE-HANDOFF0-I0-R0`
-Current design stop: `RAW-LOCATED-SCALAR-BINDING-REMAINDER9-D0`
+Latest design: `RAW-LOCATED-SCALAR-BINDING-REMAINDER9-D0` — closed
+Latest landed: `RAW-LOCATED-MATCH-RETURN-SOURCE-HANDOFF0-I0-R0`
+Current design stop: `RAW-LOCATED-SCALAR-BINDING-REMAINDER10-D0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`RAW-LOCATED-SCALAR-BINDING-REMAINDER9-D0`
+`RAW-LOCATED-SCALAR-BINDING-REMAINDER10-D0`
 
 ```text
 Landed baseline:
@@ -136,14 +138,23 @@ Landed baseline:
   unchanged. Root New and typed ArrayLiteral special hooks retain their direct
   residual path.
 
+Landed baseline:
+  the Return owner retains the intact Return carrier through cleanup and one
+  Match probe, invokes one FnOnce continuation only on decline, derives
+  ReturnValue only inside that continuation, and completes once. Selected Match
+  consumes zero child receipts. Every Return shape and every ordinary Local
+  initializer descent are now located.
+
 Question:
-  which one of Match-valued Return, root-New Local, or typed-ArrayLiteral Local
-  can next remove a real ScalarBinding edge without weakening conditional
-  Match-return demand or duplicating Builder-dependent special-hook authority?
+  how can root-New and typed-ArrayLiteral Local hooks consume exact nested
+  sources without duplicating Builder-dependent record selection, typed-array
+  preclaim ordering, or treating the initializer-root receipt as the first
+  constructor argument/array element?
 
 Stop:
-  no nested target path invention, Match-return bypass weakening, Local hook
-  duplication, route retry, AST clone/reparse, or compatibility rename.
+  no source-only record-name guess, second hook classifier, initializer-root
+  receipt misrouting, vector normalization, AST clone/reparse, route retry, or
+  compatibility rename.
 ```
 
 Corrected queue:

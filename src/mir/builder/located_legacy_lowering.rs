@@ -229,7 +229,7 @@ impl<'plan> LocatedLegacyLoweringSessionV1<'plan> {
 
         let input = match return_adapter::select_exact_value_return_v1(input) {
             Ok(selected) => {
-                return return_adapter::lower_selected_value_return_v1(self, builder, &selected);
+                return return_adapter::lower_selected_value_return_v1(self, builder, selected);
             }
             Err(input) => input,
         };

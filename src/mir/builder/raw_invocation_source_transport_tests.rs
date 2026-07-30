@@ -370,34 +370,44 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
         &[SourcePathSegmentV1::Body(0)]
     );
 
-    let residuals = [
+    let (_, child) = RawInvocationSourceContextV1::from_transport(root.body_statement(
         ASTNode::CompoundAssignment {
             target: Box::new(integer(0)),
             operator: crate::ast::BinaryOperator::Add,
             value: Box::new(integer(5)),
             span: Span::unknown(),
         },
-        ASTNode::Return {
-            value: Some(Box::new(ASTNode::MatchExpr {
-                scrutinee: Box::new(integer(6)),
-                arms: Vec::new(),
-                else_expr: Box::new(integer(7)),
-                span: Span::unknown(),
-            })),
+        1,
+    ));
+    assert_eq!(
+        child,
+        RawInvocationSourceContextV1::UnlocatedCompatibility(RawUnlocatedPortalV1::ScalarBinding)
+    );
+
+    let match_return = ASTNode::Return {
+        value: Some(Box::new(ASTNode::MatchExpr {
+            scrutinee: Box::new(integer(6)),
+            arms: Vec::new(),
+            else_expr: Box::new(integer(7)),
             span: Span::unknown(),
-        },
-    ];
-    for (statement_index, statement) in residuals.into_iter().enumerate() {
-        let (_, child) = RawInvocationSourceContextV1::from_transport(
-            root.body_statement(statement, statement_index + 1),
-        );
-        assert_eq!(
-            child,
-            RawInvocationSourceContextV1::UnlocatedCompatibility(
-                RawUnlocatedPortalV1::ScalarBinding
-            )
-        );
-    }
+        })),
+        span: Span::unknown(),
+    };
+    let (_, located) =
+        RawInvocationSourceContextV1::from_transport(root.body_statement(match_return.clone(), 2));
+    assert_eq!(
+        located.site().expect("located Match Return").segments(),
+        &[SourcePathSegmentV1::Body(2)]
+    );
+    assert_eq!(
+        located
+            .child_expression(&match_return, ExprChildRoleV1::ReturnValue)
+            .unwrap()
+            .site()
+            .unwrap()
+            .segments(),
+        &[SourcePathSegmentV1::Body(2), SourcePathSegmentV1::Value]
+    );
 }
 
 #[test]

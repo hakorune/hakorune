@@ -10,7 +10,10 @@ use crate::mir::{BasicBlockId, BindingId, MirBuilder, MirInstruction, MirType, V
 use super::return_stmt::{
     build_void_return_statement, emit_return_from_value, try_apply_match_return_optimization,
 };
-use super::{drive_value_return_statement_v1, RawLegacyValueReturnInputV1};
+use super::{
+    drive_value_return_statement_v1, lower_raw_value_return_after_probe_v1,
+    RawLegacyValueReturnInputV1,
+};
 
 #[derive(Debug, PartialEq)]
 struct ScopeFrameSnapshotV1 {
@@ -136,9 +139,17 @@ fn lower_selected(builder: &mut MirBuilder, expression: ASTNode) -> Result<Value
         builder.metadata_ctx.set_current_span(span);
         match value {
             Some(value) => {
-                let input = RawLegacyValueReturnInputV1::new(*value);
+                let input = RawLegacyValueReturnInputV1::new(ASTNode::Return {
+                    value: Some(value),
+                    span,
+                });
                 let mut port = RawLegacyChildLoweringPortV1;
-                drive_value_return_statement_v1(builder, &mut port, &input)
+                drive_value_return_statement_v1(
+                    builder,
+                    &mut port,
+                    input,
+                    lower_raw_value_return_after_probe_v1,
+                )
             }
             None => build_void_return_statement(builder),
         }
