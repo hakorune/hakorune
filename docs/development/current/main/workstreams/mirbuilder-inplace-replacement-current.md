@@ -249,8 +249,9 @@ Done:
   are source-sealed before Builder effects.
 
 Stop:
-  The immediately following I0/R0 must cut selected normal to the receipt and
-  delete its old snapshot/lower-side edge; otherwise return to this D0.
+  `ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0` must immediately cut
+  selected normal to the receipt and delete its old snapshot/lower-side edge;
+  otherwise return to this D0.
 ```
 
 R4 final conformance must decide the retained JoinIR/reference scope explicitly
@@ -695,88 +696,83 @@ new source/test/check file                              = 0
 largest touched source/check file                       < 800
 ```
 
-## Task order
+## Forward task order
+
+This is a dependency order, not a pre-authorized construction queue.  A row
+opens only when its predecessor's evidence is green and the required fresh
+census or D0 has selected it.
 
 ```text
-R1 Now
-  MIRBUILDER-LIVE-EDGE-CENSUS8
-  Freshly inventory live normal/default and explicit compatibility edges. It
-  may select one named replacement or one bounded D0; it cannot pre-authorize
-  a future implementation.
+1. ENTRY-MATERIALIZATION-RECEIPT0-S0                    (active)
+   Source-only normal/raw request, target, and receipt vocabulary.  No Builder,
+   collector, ledger, runner, or old-edge effect.
 
-R2 Live responsibility replacement
-  Census (no code) outputs exactly one of: one I0/R0 candidate, one bounded
-  D0, or R2 closure/no safe live edge. An I0/R0 has a named non-test caller, a
-  new owner, same-atomic-series old-edge deletion, and one parity/failure/reuse
-  gate; fallback/retry is zero. A D0 may precede only its same-scope I0/R0.
+2. ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0      (locked successor)
+   Named caller: NormalDefaultPublishedPipelineV1.
+   Consume the normal source receipt through the existing one-session lifecycle
+   and delete the selected lower-side environment snapshot/materialization edge.
+   Raw/reference and every runner selector retain their current authority.
 
-  A compatibility owner is one bounded residual branch inside the selected
-  pipeline, never another route. Its creation or retention records sunset ID,
-  exact non-growing surface, retirement owner, retire condition, and target
-  row/evidence. Expansion returns to D0. RET0 removes only a registered
-  caller-zero sunset asset and earns no replacement credit; at most three
-  consecutive RET0 rows may occur since the last live I0/R0.
+3. MIRBUILDER-LIVE-EDGE-CENSUS15-D0                     (mandatory next)
+   Re-inventory selected normal, raw/reference, and runner materialization
+   consumers.  It may select exactly one bounded D0, one live I0/R0, or
+   NoSafeLiveI0; it may not assume a raw handoff or runner cutover in advance.
 
-  Raw/static-Main, no-header Call, and selected invocation Loop/CorePlan remain
-  separate D0 boundaries. Loop work uses the active Recipe/CorePlan route;
-  legacy JoinModule is never reactivated as a normal/default planner.
+4. Entry-materialization residuals                      (census-selected only)
+   A raw/reference receipt handoff and each runner-adapter receipt are separate
+   responsibility decisions.  They must preserve their route-specific policies:
+   no global selector, no `NYASH_ENTRY` reinterpretation, and no provenance
+   collapse.  Their shared completion goal is the removal of the old snapshot /
+   compilation-context / lower-side materialization authority, not a new route.
 
-R3 Legacy JoinModule/reference disposition
-  `JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0` and the subsequent carrier,
-  runner, stale-name, and unreachable-generic-asset closures are closed.
-  `JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0` selected and closed JSONIR v0 as
-  one caller-zero retirement. The fresh census selects and executes the separate
-  JoinIR verifier closure next; VM bridge, normalized shadow, and LLVM remain
-  their registered fences.
+5. R3 reference-asset disposition                       (interleaved only by census)
+   Each cycle is fresh consumer census -> one RET0, REOWN, or RETAIN-FENCED
+   decision -> fresh census.  These rows earn no replacement credit.  The VM
+   bridge, normalized shadow, LLVM experiment, and any live carrier remain
+   named fences until their own evidence changes.
 
-  Each remaining R3 cycle is exactly:
-  1. fresh consumer census;
-  2. one RET0, REOWN, or RETAIN-FENCED disposition;
-  3. fresh census.
-  These are non-replacement disposition selectors: they earn no replacement
-  credit and cannot revive normal/default JoinModule planning. No name-only or
-  LOC-based tree deletion is allowed.
+6. R4 final conformance
+   Decide every live edge, compatibility sunset, and retained reference asset.
+   The 34K-line JoinModule scope is decided here as either deletion or an
+   explicit fenced reference asset; LOC is not a completion metric.  Complete
+   requires normal/default reachability=0, acceptance truth=0, and final
+   planner=0 for every retained reference family.
 
-R4 Final conformance
-  MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0 decides Complete only when the
-  live-edge ledger, compatibility/detached-asset disposition, JoinModule
-  disposition (including every named R3 closure or fence), and
-  accepted-corpus/backend parity are all green.
-
-  R4 must explicitly decide whether the retained JoinIR/reference scope in the
-  final consumer manifest is deleted or remains a fenced reference asset;
-  final-pipeline completion cannot silently inherit that decision. Every
-  retained family proves default reachability=0, acceptance truth=0, final
-  planner=0, explicit activation, owner, and sunset. `JumpArgsLayout` is a
-  Core/MIR carrier: it needs its separate rehome disposition, not a fence.
-
-R5 Features, strictly after Complete
-  refresh Ownership readiness -> implement Ownership -> View D0 and
-  implementation -> one later unimplemented feature at a time.
+7. R5 features, strictly after R4 Complete
+   Refresh Ownership readiness -> implement Ownership -> View D0 and I0 -> one
+   later unimplemented feature semantic slice at a time.
 ```
 
-The observed shelves are Program static-table metadata, header-sensitive Call,
-raw/static-Main, selected invocation Loop/CorePlan, pipeline authority, raw
-AST/Recipe composition, and function-state/control residuals. They are census
-input, not a pre-authorized order. Whole-function accepted variants remain frozen.
-
-JoinModule remains out of R2 replacement commits, but not out of the completion
-definition. Its remaining scope is tracked by the R3 consumer manifest, not a
-LOC denominator. It has no default normal/default execution consumer and serves
-explicit dev-normalization, VM-reference, and LLVM experiment families.
-R3 must classify it before Complete:
+## Task-selection rules
 
 ```text
-fresh consumer/carrier census
-each family = retain / reown / retire
-normal/default planner-route resurrection = 0
-unresolved disposition = 0
+Live I0/R0:
+  named non-test production caller + new owner + same-series old-edge deletion
+  + parity/failure/reuse evidence.  fallback/retry = 0.
+
+Prerequisite S0:
+  allowed only as the immediate, explicitly named predecessor of its I0/R0.
+  A second proof-only row cannot be stacked onto it.
+
+Compatibility owner:
+  one bounded residual branch inside the selected pipeline, never a second
+  route.  Creation or retention records sunset ID, exact non-growing surface,
+  retirement owner, retire condition, and target row/evidence.  Any expansion
+  returns to D0.
+
+RET0:
+  removes only a registered caller-zero asset, earns no replacement credit, and
+  cannot revive JoinModule as a normal/default planner.
+
+Frozen until R5:
+  whole-function acceptance variants, Ownership, View, and feature work.
 ```
 
-Do not delete the tree by name, and do not claim final-pipeline completion
-while this disposition remains undecided. A compatibility owner may exist only
-with one sunset ID, an exact non-growing surface, and a written retirement
-condition.
+The observed shelves—header-sensitive Call, selected-invocation Loop/CorePlan,
+raw/static-Main, function-state/control residuals, and raw AST/Recipe
+composition—are census input, not an implementation queue.  JoinModule remains
+outside R2 replacement commits but inside R4 completion: do not delete it by
+name or silently inherit its final disposition.
 
 ## Previous closeout
 
