@@ -18,11 +18,8 @@ pub mod canonical_names; // Phase 256 P1.7: SSOT for JoinIR function names (k_ex
 pub mod carrier_info; // Phase 196: Carrier metadata for loop lowering
 pub(crate) mod common; // Internal lowering utilities
 pub mod condition_env; // Phase 171-fix: Condition expression environment
-pub(crate) mod condition_lowerer; // Phase 171-fix: Core condition lowering logic
-pub mod debug_output_box; // Phase 85: Centralized debug output management
 pub mod error_tags; // Phase 86: Centralized error message formatting
 pub(crate) mod exit_args_resolver; // Internal exit argument resolution
-pub mod expr_lowerer; // Phase 231: Unified expression lowering with scope management
 pub mod funcscanner_trim;
 pub(crate) mod generic_case_a; // Phase 192: Modularized Case A lowering
 pub mod if_dry_runner; // Phase 33-10.0
@@ -35,8 +32,6 @@ pub mod inline_boundary; // Phase 188-Impl-3: JoinIR→Host boundary
 #[cfg(test)]
 pub mod inline_boundary_builder; // Test-only builder pattern for JoinInlineBoundary
 pub mod join_value_space; // Phase 201: Unified JoinIR ValueId allocation
-pub mod loop_body_local_env; // Phase 184: Body-local variable environment
-pub mod loop_body_local_init; // Phase 186: Body-local init expression lowering
 pub(crate) mod loop_form_intake; // Internal loop form intake
 pub(crate) mod loop_route_validator; // Phase 33-23: Loop structure validation
 pub mod loop_scope_shape;
@@ -44,12 +39,9 @@ pub(crate) mod loop_target_policy;
 pub mod loop_to_join;
 pub mod loop_update_analyzer; // Phase 197: Update expression analyzer for carrier semantics
 pub(crate) mod loop_view_builder; // Phase 33-23: Loop lowering dispatch
-pub mod method_call_lowerer; // Phase 224-B: MethodCall lowering (metadata-driven)
-pub mod scope_manager; // Phase 231: Unified variable scope management // Phase 195: loop_continue_only minimal lowerer support
 pub mod simple_while_minimal; // Phase 188-Impl-1: loop_simple_while minimal lowerer
 pub mod skip_ws;
 pub mod type_inference; // Phase 65-2-A
-pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for static box method whitelists) // Phase 47-A: Generic step scheduler for loop_break/if_phi_join // Phase 73: BindingId-based scope PoC (dev-only)
 pub(crate) mod value_id_ranges; // Internal ValueId range management
 
 // Re-export public lowering functions

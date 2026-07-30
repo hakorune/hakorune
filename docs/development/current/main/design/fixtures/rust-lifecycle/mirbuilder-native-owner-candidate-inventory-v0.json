@@ -9587,14 +9587,6 @@
       "status": "candidate"
     },
     {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_enabled",
-      "line": 143,
-      "path": "src/mir/join_ir/lowering/debug_output_box.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "test_freeze_tag",
       "line": 146,
@@ -9644,39 +9636,6 @@
     },
     {
       "candidate_kind": "boolean_classifier",
-      "function": "is_supported_condition",
-      "line": 3,
-      "path": "src/mir/join_ir/lowering/expr_lowerer/ast_support.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_supported_binary_op",
-      "line": 26,
-      "path": "src/mir/join_ir/lowering/expr_lowerer/ast_support.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_supported_condition",
-      "line": 152,
-      "path": "src/mir/join_ir/lowering/expr_lowerer/lowerer.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "display_formatter",
-      "display_target": "ExprLoweringError",
-      "function": "Display::fmt",
-      "line": 30,
-      "path": "src/mir/join_ir/lowering/expr_lowerer/types.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
       "function": "is_carrier",
       "line": 112,
       "path": "src/mir/join_ir/lowering/if_phi_context.rs",
@@ -9696,14 +9655,6 @@
       "function": "is_side_effect_free",
       "line": 227,
       "path": "src/mir/join_ir/lowering/if_select.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_empty",
-      "line": 113,
-      "path": "src/mir/join_ir/lowering/loop_body_local_env.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -9788,26 +9739,10 @@
       "status": "candidate"
     },
     {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "format_expected_arities",
-      "line": 46,
-      "path": "src/mir/join_ir/lowering/method_call_lowerer.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
       "candidate_kind": "boolean_classifier",
       "function": "is_joinir_if_toplevel_target",
-      "line": 135,
+      "line": 127,
       "path": "src/mir/join_ir/lowering/mod.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_stringutils_character_classification_in_condition",
-      "line": 6,
-      "path": "src/mir/join_ir/lowering/user_method_policy/tests.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -16302,16 +16237,6 @@
       "status": "rejected"
     },
     {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_supported_method_call",
-      "line": 34,
-      "path": "src/mir/join_ir/lowering/expr_lowerer/ast_support.rs",
-      "reject_reasons": [
-        "depends_on_lowering"
-      ],
-      "status": "rejected"
-    },
-    {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "with_loop_var_name",
       "line": 166,
@@ -16330,16 +16255,6 @@
       "reject_reasons": [
         "carrier_surface",
         "takes_mut_self"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "names",
-      "line": 125,
-      "path": "src/mir/join_ir/lowering/loop_body_local_env.rs",
-      "reject_reasons": [
-        "depends_on_collection"
       ],
       "status": "rejected"
     },
@@ -16450,7 +16365,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_loop_lowered_function",
-      "line": 81,
+      "line": 73,
       "path": "src/mir/join_ir/lowering/mod.rs",
       "reject_reasons": [
         "depends_on_lowering"
@@ -16460,7 +16375,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_loop_mainline_target",
-      "line": 90,
+      "line": 82,
       "path": "src/mir/join_ir/lowering/mod.rs",
       "reject_reasons": [
         "depends_on_lowering"
@@ -16470,7 +16385,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_if_mainline_target",
-      "line": 97,
+      "line": 89,
       "path": "src/mir/join_ir/lowering/mod.rs",
       "reject_reasons": [
         "depends_on_lowering"
@@ -18489,10 +18404,10 @@
         "backend_surface": 11,
         "carrier_surface": 258,
         "depends_on_builder": 38,
-        "depends_on_collection": 68,
+        "depends_on_collection": 67,
         "depends_on_context": 25,
         "depends_on_emission": 43,
-        "depends_on_lowering": 79,
+        "depends_on_lowering": 78,
         "depends_on_metadata": 74,
         "depends_on_resolution": 71,
         "depends_on_route_selection": 112,
@@ -18502,10 +18417,10 @@
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 893,
-        "rejected": 622
+        "candidate": 885,
+        "rejected": 620
       },
-      "surface_count": 1516
+      "surface_count": 1506
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

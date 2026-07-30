@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "The LegacyChild cleanup is closed. RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0 removed the caller-zero complete_legacy_child closure facade, two disconnected proof modules, and three inline facade tests. LegacyChildDraftAdmissionV1 is now 16 occurrences in 4 files: 7 production-core occurrences mapped to the registered nested-body fence and 9 live-path reentrant proof occurrences. No unregistered LegacyChild site remains."
+status = "The caller-zero JoinIR expression/scope lowering island is retired: 22 Rust files / 4,368 lines, seven obsolete lifecycle guards, one stale test command, and generated owner/failure inventories were removed or refreshed. Live ConditionBinding, skip/trim, normalized shadow, VM bridge, JoinInst vocabulary, and native If remain."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "MIRBUILDER-R4-FINAL-CONFORMANCE0-C0"
-current_execution_summary = "Final R4 conformance batch: prove unregistered=0 by exact disposition of the remaining JoinModule core, verify all four retained fences have activation/normal-default/release contracts, run final parity/guards, and decide the parked 34K JoinModule research IR disposition without reviving it. Stop for D0 only if an independent activation or new fence appears."
+current_execution_row = "JOINIR-IF-SELECT-ALTERNATE-LANE-RETIRE0-RET0"
+current_execution_summary = "R4 audit found one independent default-reachable MIR-to-JoinInst If observer/alternate-PHI lane. Retire its router, dry runner, by-name target policy, If-specific environment surface, and caller-zero PhiSpec/IfInLoopPhi closure atomically; preserve native If/PHI and the JoinInst vocabulary consumed by the two registered reference fences."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

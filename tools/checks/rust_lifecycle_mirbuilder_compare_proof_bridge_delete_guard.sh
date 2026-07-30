@@ -84,7 +84,6 @@ PY
 
 cargo check -q --lib
 cargo test -q --lib lower_value_ast_accepts_compare_value_and_emits_compare
-cargo test -q --lib test_expr_lowerer_literal_less_var_generates_compare
 
 cat <<'REPORT'
 output_contract=rust-lifecycle-mirbuilder-compare-proof-bridge-delete
