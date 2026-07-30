@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-I0-R0 is closed. Selected Script FastMemRegion now has one DirectFastMemRegion admission that exact-destructures source, aligns statement span, and delegates through the same RawInvocation port to the existing build_fastmem_region_with_port_v1 owner. The old FastMemRegion -> StatementControlCompatibility -> RawCompatibility -> drive_legacy_statement_v1 edge is zero. Existing register/push/body/pop, metadata, typed-error cleanup, and candidate isolation are unchanged. The selected Script compatibility residual is exactly 9 kinds: LoopRange, Break, Continue, ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, GlobalVar."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS30-D0 is closed and NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-D0 selects one bounded T1 retirement. The exact remaining 9 selected Script kinds all reach the same raw expression recursion guard and final Unsupported AST node diagnostic with no successful MIR effect. The implementation must reown only this selected-Script runtime surface to one DirectSelectedUnsupportedStatement terminal, reuse the existing recursion guard and one shared diagnostic factory, preserve declaration-fact preparation order, and delete the selected RawCompatibility execution edge. Nested loop/body and raw/reference behavior remain non-claims."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS30-D0"
-current_execution_row = "none"
-current_execution_summary = "Read-only Census30 must inspect the exact remaining 9 selected Script compatibility kinds and the sole R4 registry. LoopRange/Break/Continue have no safe direct owner without loop/exit/CFG authority; ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, and GlobalVar have no known equivalent direct runtime owner. Select one named live old edge only if fresh evidence proves a bounded responsibility cutover; otherwise record NoSafeSlice and advance toward R4 disposition."
+current_design_stop = "NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-D0"
+current_execution_row = "NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0"
+current_execution_summary = "T1 atomic replacement: classify exactly LoopRange, Break, Continue, ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, and GlobalVar as DirectSelectedUnsupportedStatement at selected Script runtime. Align current span, reuse with_legacy_expression_recursion_guard_v1 and a shared unsupported raw-AST diagnostic factory, and delete their RawCompatibility -> drive_legacy_statement_v1 edge. Do not emit Void, install declaration facts in the terminal, activate LoopRange/exit semantics, touch a child port, or change raw/nested/reference routes."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS30-D0"
+current_blocker_token = "NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -53,7 +53,9 @@ Latest landed:  `NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS29-D0` — closed
 Latest design:  `NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-I0-R0`
-Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS30-D0`
+Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS30-D0` — closed
+Latest design:  `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-D0` — closed
+Next row:      `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -101,7 +103,77 @@ or the forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` decision here; an
 unregistered family may not become active on a generic prose promise. No second
 fence ledger is permitted.
 
+Before R4 final conformance, one mandatory
+`MIRBUILDER-R4-LEGACY-CHILD-ADMISSION-DISPOSITION0-D0` census must map every
+live `LegacyChildDraftAdmissionV1` site to exactly one registry family and one
+final disposition: `RET0`, `REOWN`, or `RETAIN-FENCED`.  Each retained site must
+name its owner, activation, sunset ID, and release row/condition in this sole
+registry.  The occurrence count alone is not a disposition, and R4 Complete is
+forbidden while any site lacks this crosswalk.  A newly introduced fence is
+invalid unless its release row/condition is recorded here in the same commit.
+
 ## Disposition closeout
+
+`NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-D0` — T1 design,
+closed
+
+```text
+Decision:
+  one exact selected-Script unsupported-statement diagnostic terminal.
+
+Named caller:
+  NormalScriptRuntimeBlockPortV1::lower_statement.
+
+Selected surface:
+  LoopRange, Break, Continue, ImportStatement, BuildGate, EnumDeclaration,
+  BrandDeclaration, TypeAliasDeclaration, GlobalVar.
+
+Current outcome:
+  each kind passes the raw expression recursion guard and reaches the same
+  final Unsupported AST node diagnostic; successful MIR effect = 0.
+
+Selected owner:
+  DirectSelectedUnsupportedStatement
+  -> align current statement span
+  -> existing with_legacy_expression_recursion_guard_v1
+  -> one shared unsupported raw-AST diagnostic factory.
+
+Atomic delete:
+  exact 9 selected Script kinds
+  -> StatementControlCompatibility / DeclarationIngressCompatibility
+  -> RawCompatibility
+  -> drive_legacy_statement_v1
+  = 0.
+
+Preserve:
+  Program declaration-fact preparation before runtime; recursion-depth error
+  precedence; exact Debug-format diagnostic; candidate discard and compiler
+  reuse. Raw/reference and nested loop/body routes are non-claims.
+
+Forbid:
+  emit_void; declaration installation in the terminal; LoopRange/exit semantic
+  activation; AST rewrite; port demand; retry/fallback; wildcard source set.
+```
+
+`MIRBUILDER-LIVE-EDGE-CENSUS30-D0` — read-only census, closed
+
+```text
+Finding:
+  no remaining kind has a successful direct runtime owner, but all exact nine
+  selected Script roots share one effect-free final raw rejection.
+
+Decision:
+  behavior-neutral diagnostic REOWN is the next live T1. It closes the
+  selected Script RawCompatibility execution surface without claiming nested
+  LoopRange/Break/Continue semantics or accepting declaration ingress.
+
+R4:
+  NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003 can close in the same I0/R0
+  when selected Script RawCompatibility execution reaches zero.
+
+Next:
+  NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0.
+```
 
 `NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-I0-R0` — T1 atomic replacement,
 closed
