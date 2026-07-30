@@ -83,6 +83,17 @@ impl<'port, Port> RawStructuredChildScopePortV1<'port, Port> {
             "[freeze:contract][raw-structured/body-demand-overflow]".to_owned()
         })
     }
+
+    pub(in crate::mir::builder) fn complete_exact_demands_v1(self) -> Result<(), String> {
+        if !self.expressions.is_empty() || !self.bodies.is_empty() {
+            return Err(format!(
+                "[freeze:contract][raw-structured/unconsumed-demands] expressions={} bodies={}",
+                self.expressions.len(),
+                self.bodies.len()
+            ));
+        }
+        Ok(())
+    }
 }
 
 impl<Port> RecursiveChildLoweringPortV1 for RawStructuredChildScopePortV1<'_, Port>
@@ -150,5 +161,30 @@ where
                 })
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{PreparedRawChildSourceV1, RawStructuredChildScopePortV1};
+
+    #[test]
+    fn exact_demand_terminal_rejects_unconsumed_receipts() {
+        let mut child = ();
+        assert!(RawStructuredChildScopePortV1::new(&mut child, Vec::new(), Vec::new())
+            .complete_exact_demands_v1()
+            .is_ok());
+
+        let error = RawStructuredChildScopePortV1::new(
+            &mut child,
+            Vec::new(),
+            vec![PreparedRawChildSourceV1::Preserve],
+        )
+        .complete_exact_demands_v1()
+        .unwrap_err();
+        assert_eq!(
+            error,
+            "[freeze:contract][raw-structured/unconsumed-demands] expressions=0 bodies=1"
+        );
     }
 }

@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, BinaryOperator, CheckItem, FieldDecl, LiteralValue, Span};
+use crate::ast::{ASTNode, BinaryOperator, CatchClause, CheckItem, FieldDecl, LiteralValue, Span};
 use crate::mir::{
     BasicBlockId, BindingId, Effect, EffectMask, FunctionSignature, MirBuilder, MirFunction,
     MirInstruction, MirModule, MirType,
@@ -638,14 +638,36 @@ fn raw_invocation_port_preserves_try_body_children() {
     with_port!(builder, port, {
         let try_node = ASTNode::TryCatch {
             try_body: vec![add(int(1), int(2))],
-            catch_clauses: Vec::new(),
-            finally_body: None,
+            catch_clauses: vec![
+                CatchClause {
+                    exception_type: Some("Error".into()),
+                    variable_name: None,
+                    body: vec![add(int(3), int(4))],
+                    span: Span::unknown(),
+                },
+                CatchClause {
+                    exception_type: Some("Ignored".into()),
+                    variable_name: None,
+                    body: vec![add(int(99), int(100))],
+                    span: Span::unknown(),
+                },
+            ],
+            finally_body: Some(vec![add(int(5), int(6))]),
             span: Span::unknown(),
         };
-        drive_legacy_expression_v1(builder, &mut port, try_node).unwrap();
-        assert!(instructions(builder)
-            .iter()
-            .any(|row| matches!(row, MirInstruction::BinOp { .. })));
+        port.with_source_transport_v1(
+            RawInvocationSourceTransportV1::root(try_node, RawInvocationRootLineageV1::ScriptRoot),
+            |port, try_node| drive_legacy_expression_v1(builder, port, try_node),
+        )
+        .unwrap();
+        assert_eq!(
+            instructions(builder)
+                .iter()
+                .filter(|row| matches!(row, MirInstruction::BinOp { .. }))
+                .count(),
+            3,
+            "try, first catch, and cleanup must each descend once"
+        );
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });
 }

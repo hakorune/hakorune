@@ -3,9 +3,9 @@
 //! This module owns only the closed `SourcePathSegmentV1` traversal. It does
 //! not own function identity, semantic resolution, call routing, or lowering.
 
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, CatchClause};
 
-use super::{SourceNodeSiteV1, SourcePathSegmentV1};
+use super::{SourceBodyKindV1, SourceNodeSiteV1, SourcePathSegmentV1};
 
 #[derive(Debug, Clone, Copy)]
 pub(in crate::mir) enum ProjectedSourceNodeV1<'source> {
@@ -18,11 +18,7 @@ pub(in crate::mir) fn project_source_node_v1<'source>(
     root: &'source ASTNode,
     site: &SourceNodeSiteV1,
 ) -> Option<ProjectedSourceNodeV1<'source>> {
-    let mut projected = ProjectedSourceNodeV1::Node(root);
-    for segment in site.segments() {
-        projected = project_segment(projected, segment)?;
-    }
-    Some(projected)
+    project_segments(ProjectedSourceNodeV1::Node(root), site.segments())
 }
 
 /// Projects a function-relative site from a catalog-owned callable body.
@@ -39,9 +35,46 @@ pub(in crate::mir) fn project_source_body_node_v1<'source>(
     let SourcePathSegmentV1::Body(index) = first else {
         return None;
     };
-    let mut projected = ProjectedSourceNodeV1::Node(body.get(*index as usize)?);
-    for segment in remaining {
+    project_segments(
+        ProjectedSourceNodeV1::Node(body.get(*index as usize)?),
+        remaining,
+    )
+}
+
+fn project_segments<'source>(
+    mut projected: ProjectedSourceNodeV1<'source>,
+    segments: &[SourcePathSegmentV1],
+) -> Option<ProjectedSourceNodeV1<'source>> {
+    let mut body_kind = None;
+    let mut catch_clause: Option<&CatchClause> = None;
+    for segment in segments {
+        if let Some(clause) = catch_clause.take() {
+            if !matches!(segment, SourcePathSegmentV1::CatchBodyRoot) {
+                return None;
+            }
+            projected = ProjectedSourceNodeV1::Body(clause.body.as_slice());
+            body_kind = Some(SourceBodyKindV1::FirstCatch);
+            continue;
+        }
+        if let ProjectedSourceNodeV1::Body(body) = projected {
+            let index = body_kind.take()?.owned_item_index(segment)?;
+            projected = ProjectedSourceNodeV1::Node(body.get(index as usize)?);
+            continue;
+        }
+        if let (
+            ProjectedSourceNodeV1::Node(ASTNode::TryCatch { catch_clauses, .. }),
+            SourcePathSegmentV1::CatchClause(index),
+        ) = (projected, segment)
+        {
+            catch_clause = Some(catch_clauses.get(*index as usize)?);
+            continue;
+        }
         projected = project_segment(projected, segment)?;
+        body_kind = SourceBodyKindV1::from_root_segment(segment)
+            .filter(|_| matches!(projected, ProjectedSourceNodeV1::Body(_)));
+    }
+    if catch_clause.is_some() {
+        return None;
     }
     Some(projected)
 }
@@ -127,6 +160,18 @@ fn project_segment<'source>(
         }
         (ASTNode::Loop { body, .. }, SourcePathSegmentV1::LoopBody(index)) => {
             ProjectedSourceNodeV1::Node(body.get(*index as usize)?)
+        }
+        (ASTNode::TryCatch { try_body, .. }, SourcePathSegmentV1::TryBodyRoot) => {
+            ProjectedSourceNodeV1::Body(try_body)
+        }
+        (ASTNode::TryCatch { try_body, .. }, SourcePathSegmentV1::TryBody(index)) => {
+            ProjectedSourceNodeV1::Node(try_body.get(*index as usize)?)
+        }
+        (ASTNode::TryCatch { finally_body, .. }, SourcePathSegmentV1::CleanupBodyRoot) => {
+            ProjectedSourceNodeV1::Body(finally_body.as_deref()?)
+        }
+        (ASTNode::TryCatch { finally_body, .. }, SourcePathSegmentV1::CleanupBody(index)) => {
+            ProjectedSourceNodeV1::Node(finally_body.as_deref()?.get(*index as usize)?)
         }
         (ASTNode::MatchExpr { scrutinee, .. }, SourcePathSegmentV1::MatchScrutinee) => {
             ProjectedSourceNodeV1::Node(scrutinee)

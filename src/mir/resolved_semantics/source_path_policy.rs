@@ -6,7 +6,7 @@
 
 use crate::ast::ASTNode;
 
-use super::SourcePathSegmentV1;
+use super::{SourcePathSegmentV1, SourcePathV1};
 
 pub(crate) fn is_statement_expression_surface_v1(node: &ASTNode) -> bool {
     matches!(
@@ -288,6 +288,9 @@ pub(crate) enum BodyChildRoleV1 {
     IfElse,
     LoopBody,
     BlockExprPrelude,
+    TryBody,
+    FirstCatchBody,
+    CleanupBody,
 }
 
 impl BodyChildRoleV1 {
@@ -328,6 +331,16 @@ impl BodyChildRoleV1 {
                 SourceBodyKindV1::BlockExprPrelude,
                 Some(prelude_stmts.as_slice()),
             ),
+            (Self::TryBody, ASTNode::TryCatch { try_body, .. }) => {
+                (SourceBodyKindV1::Try, Some(try_body.as_slice()))
+            }
+            (Self::FirstCatchBody, ASTNode::TryCatch { catch_clauses, .. }) => (
+                SourceBodyKindV1::FirstCatch,
+                catch_clauses.first().map(|clause| clause.body.as_slice()),
+            ),
+            (Self::CleanupBody, ASTNode::TryCatch { finally_body, .. }) => {
+                (SourceBodyKindV1::Cleanup, finally_body.as_deref())
+            }
             _ => return None,
         };
         Some(ResolvedBodyChildV1 { kind, statements })
@@ -345,6 +358,9 @@ pub(crate) enum SourceBodyKindV1 {
     IfElse,
     Loop,
     BlockExprPrelude,
+    Try,
+    FirstCatch,
+    Cleanup,
 }
 
 impl SourceBodyKindV1 {
@@ -362,9 +378,10 @@ impl SourceBodyKindV1 {
             | (Self::IfThen, SourcePathSegmentV1::IfThen(index))
             | (Self::IfElse, SourcePathSegmentV1::IfElse(index))
             | (Self::Loop, SourcePathSegmentV1::LoopBody(index))
-            | (Self::BlockExprPrelude, SourcePathSegmentV1::BlockExprPrelude(index)) => {
-                Some(*index)
-            }
+            | (Self::BlockExprPrelude, SourcePathSegmentV1::BlockExprPrelude(index))
+            | (Self::Try, SourcePathSegmentV1::TryBody(index))
+            | (Self::FirstCatch, SourcePathSegmentV1::CatchBody(index))
+            | (Self::Cleanup, SourcePathSegmentV1::CleanupBody(index)) => Some(*index),
             _ => None,
         }
     }
@@ -379,6 +396,48 @@ impl SourceBodyKindV1 {
             Self::IfElse => Some(SourcePathSegmentV1::IfElseBody),
             Self::Loop => Some(SourcePathSegmentV1::LoopBodyRoot),
             Self::BlockExprPrelude => Some(SourcePathSegmentV1::BlockExprPreludeRoot),
+            Self::Try => Some(SourcePathSegmentV1::TryBodyRoot),
+            Self::FirstCatch => None,
+            Self::Cleanup => Some(SourcePathSegmentV1::CleanupBodyRoot),
+        }
+    }
+
+    /// Appends the exact body-root vocabulary for one child role.
+    ///
+    /// Most bodies own one root segment. The first catch body is structurally
+    /// nested below `CatchClause(0)`, so callers must use this method rather
+    /// than reconstructing that two-segment path.
+    pub(crate) fn append_root_path(self, mut path: SourcePathV1) -> SourcePathV1 {
+        match self {
+            Self::Function | Self::Lambda => path,
+            Self::FirstCatch => {
+                path = path.child(SourcePathSegmentV1::CatchClause(0));
+                path.child(SourcePathSegmentV1::CatchBodyRoot)
+            }
+            _ => path.child(
+                self.root_segment()
+                    .expect("non-root body kind must own a root path"),
+            ),
+        }
+    }
+
+    pub(crate) fn from_root_segment(segment: &SourcePathSegmentV1) -> Option<Self> {
+        match segment {
+            // Function-body statements use `Body(index)` directly. The
+            // `FunctionBody` receipt is a terminal body site, not a prefix.
+            SourcePathSegmentV1::FunctionBody => None,
+            SourcePathSegmentV1::LambdaBodyRoot => Some(Self::Lambda),
+            SourcePathSegmentV1::ScopeBodyRoot => Some(Self::Scope),
+            SourcePathSegmentV1::TaskScopeBodyRoot => Some(Self::TaskScope),
+            SourcePathSegmentV1::FastMemBodyRoot => Some(Self::FastMem),
+            SourcePathSegmentV1::IfThenBody => Some(Self::IfThen),
+            SourcePathSegmentV1::IfElseBody => Some(Self::IfElse),
+            SourcePathSegmentV1::LoopBodyRoot => Some(Self::Loop),
+            SourcePathSegmentV1::BlockExprPreludeRoot => Some(Self::BlockExprPrelude),
+            SourcePathSegmentV1::TryBodyRoot => Some(Self::Try),
+            SourcePathSegmentV1::CatchBodyRoot => Some(Self::FirstCatch),
+            SourcePathSegmentV1::CleanupBodyRoot => Some(Self::Cleanup),
+            _ => None,
         }
     }
 
@@ -393,6 +452,9 @@ impl SourceBodyKindV1 {
             Self::IfElse => SourcePathSegmentV1::IfElse(index),
             Self::Loop => SourcePathSegmentV1::LoopBody(index),
             Self::BlockExprPrelude => SourcePathSegmentV1::BlockExprPrelude(index),
+            Self::Try => SourcePathSegmentV1::TryBody(index),
+            Self::FirstCatch => SourcePathSegmentV1::CatchBody(index),
+            Self::Cleanup => SourcePathSegmentV1::CleanupBody(index),
         }
     }
 }
@@ -423,6 +485,15 @@ mod tests {
             (
                 SourceBodyKindV1::BlockExprPrelude,
                 SourcePathSegmentV1::BlockExprPrelude(7),
+            ),
+            (SourceBodyKindV1::Try, SourcePathSegmentV1::TryBody(7)),
+            (
+                SourceBodyKindV1::FirstCatch,
+                SourcePathSegmentV1::CatchBody(7),
+            ),
+            (
+                SourceBodyKindV1::Cleanup,
+                SourcePathSegmentV1::CleanupBody(7),
             ),
         ];
 

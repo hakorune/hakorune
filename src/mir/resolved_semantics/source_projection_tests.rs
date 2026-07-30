@@ -1,5 +1,6 @@
 use crate::ast::{
-    ASTNode, BinaryOperator, CheckItem, DeclarationAttrs, LiteralValue, Span, UnaryOperator,
+    ASTNode, BinaryOperator, CatchClause, CheckItem, DeclarationAttrs, LiteralValue, Span,
+    UnaryOperator,
 };
 
 use super::{
@@ -91,18 +92,18 @@ fn projector_admits_segment_kind(segment: &SourcePathSegmentV1) -> bool {
         | SourcePathSegmentV1::MatchScrutinee
         | SourcePathSegmentV1::MatchArm(_)
         | SourcePathSegmentV1::MatchElse
-        | SourcePathSegmentV1::EnumMatchScrutinee => true,
-        SourcePathSegmentV1::Binding(_)
-        | SourcePathSegmentV1::QMarkOperand
-        | SourcePathSegmentV1::EnumMatchArm(_)
-        | SourcePathSegmentV1::EnumMatchElse
+        | SourcePathSegmentV1::EnumMatchScrutinee
         | SourcePathSegmentV1::TryBodyRoot
         | SourcePathSegmentV1::TryBody(_)
         | SourcePathSegmentV1::CatchClause(_)
         | SourcePathSegmentV1::CatchBodyRoot
         | SourcePathSegmentV1::CatchBody(_)
         | SourcePathSegmentV1::CleanupBodyRoot
-        | SourcePathSegmentV1::CleanupBody(_) => false,
+        | SourcePathSegmentV1::CleanupBody(_) => true,
+        SourcePathSegmentV1::Binding(_)
+        | SourcePathSegmentV1::QMarkOperand
+        | SourcePathSegmentV1::EnumMatchArm(_)
+        | SourcePathSegmentV1::EnumMatchElse => false,
     }
 }
 
@@ -628,18 +629,62 @@ fn keeps_the_parked_segment_vocabulary_explicitly_rejected() {
         SourcePathSegmentV1::QMarkOperand,
         SourcePathSegmentV1::EnumMatchArm(0),
         SourcePathSegmentV1::EnumMatchElse,
-        SourcePathSegmentV1::TryBodyRoot,
-        SourcePathSegmentV1::TryBody(0),
-        SourcePathSegmentV1::CatchClause(0),
-        SourcePathSegmentV1::CatchBodyRoot,
-        SourcePathSegmentV1::CatchBody(0),
-        SourcePathSegmentV1::CleanupBodyRoot,
-        SourcePathSegmentV1::CleanupBody(0),
     ];
     let root = variable("root");
     for segment in parked {
         assert!(!projector_admits_segment_kind(&segment));
         assert!(project_source_node_v1(&root, &site(vec![segment])).is_none());
+    }
+}
+
+#[test]
+fn projects_try_first_catch_and_cleanup_body_paths() {
+    let root = function(vec![ASTNode::TryCatch {
+        try_body: vec![literal(71)],
+        catch_clauses: vec![
+            CatchClause {
+                exception_type: Some("Error".into()),
+                variable_name: None,
+                body: vec![literal(72)],
+                span: Span::unknown(),
+            },
+            CatchClause {
+                exception_type: Some("Ignored".into()),
+                variable_name: None,
+                body: vec![literal(99)],
+                span: Span::unknown(),
+            },
+        ],
+        finally_body: Some(vec![literal(73)]),
+        span: Span::unknown(),
+    }]);
+    for (tail, expected) in [
+        (
+            vec![
+                SourcePathSegmentV1::TryBodyRoot,
+                SourcePathSegmentV1::TryBody(0),
+            ],
+            71,
+        ),
+        (
+            vec![
+                SourcePathSegmentV1::CatchClause(0),
+                SourcePathSegmentV1::CatchBodyRoot,
+                SourcePathSegmentV1::CatchBody(0),
+            ],
+            72,
+        ),
+        (
+            vec![
+                SourcePathSegmentV1::CleanupBodyRoot,
+                SourcePathSegmentV1::CleanupBody(0),
+            ],
+            73,
+        ),
+    ] {
+        let mut path = vec![SourcePathSegmentV1::Body(0)];
+        path.extend(tail);
+        assert_literal(&root, path, expected);
     }
 }
 

@@ -233,10 +233,7 @@ impl RawInvocationSourceContextV1 {
             ));
         }
         let kind = resolved.kind();
-        let mut path = SourcePathV1::from_node(site);
-        if let Some(segment) = kind.root_segment() {
-            path = path.child(segment);
-        }
+        let path = kind.append_root_path(SourcePathV1::from_node(site));
         Ok(Self::Located {
             root: root.clone(),
             site: path.node(),
@@ -294,9 +291,9 @@ impl RawInvocationSourceContextV1 {
 
 fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
     match statement {
-        ASTNode::Program { .. }
-        | ASTNode::Lambda { .. }
-        | ASTNode::TryCatch { .. } => RawUnlocatedPortalV1::ControlBody,
+        ASTNode::Program { .. } | ASTNode::Lambda { .. } => {
+            RawUnlocatedPortalV1::ControlBody
+        }
 
         ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
@@ -353,7 +350,8 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
         | ASTNode::LoopRange { .. }
         | ASTNode::ContextScope { .. }
         | ASTNode::MatchExpr { .. }
-        | ASTNode::EnumMatchExpr { .. } => {
+        | ASTNode::EnumMatchExpr { .. }
+        | ASTNode::TryCatch { .. } => {
             unreachable!("[freeze:contract][raw-invocation/direct-box-classifier]")
         }
     }
@@ -372,6 +370,7 @@ fn is_located_control_or_diagnostic_terminal(statement: &ASTNode) -> bool {
             | ASTNode::ContextScope { .. }
             | ASTNode::MatchExpr { .. }
             | ASTNode::EnumMatchExpr { .. }
+            | ASTNode::TryCatch { .. }
     )
 }
 

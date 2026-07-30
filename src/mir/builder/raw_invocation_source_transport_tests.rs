@@ -198,6 +198,54 @@ fn if_roles_issue_exact_condition_and_branch_roots() {
 }
 
 #[test]
+fn try_roles_issue_exact_try_first_catch_and_cleanup_roots() {
+    let statement = ASTNode::TryCatch {
+        try_body: vec![integer(1)],
+        catch_clauses: vec![crate::ast::CatchClause {
+            exception_type: Some("Error".into()),
+            variable_name: None,
+            body: vec![integer(2)],
+            span: Span::unknown(),
+        }],
+        finally_body: Some(vec![integer(3)]),
+        span: Span::unknown(),
+    };
+    let parent = RawInvocationSourceContextV1::Located {
+        root: RawInvocationRootLineageV1::ScriptRoot,
+        site: SourcePathV1::root_body(6).node(),
+        body_kind: None,
+    };
+
+    for (role, expected) in [
+        (
+            BodyChildRoleV1::TryBody,
+            vec![
+                SourcePathSegmentV1::Body(6),
+                SourcePathSegmentV1::TryBodyRoot,
+            ],
+        ),
+        (
+            BodyChildRoleV1::FirstCatchBody,
+            vec![
+                SourcePathSegmentV1::Body(6),
+                SourcePathSegmentV1::CatchClause(0),
+                SourcePathSegmentV1::CatchBodyRoot,
+            ],
+        ),
+        (
+            BodyChildRoleV1::CleanupBody,
+            vec![
+                SourcePathSegmentV1::Body(6),
+                SourcePathSegmentV1::CleanupBodyRoot,
+            ],
+        ),
+    ] {
+        let child = parent.child_body(&statement, role).expect("TryCatch role");
+        assert_eq!(child.site().unwrap().segments(), expected);
+    }
+}
+
+#[test]
 fn script_direct_if_and_fastmem_start_from_exact_statement_index() {
     let (_, root) =
         RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
