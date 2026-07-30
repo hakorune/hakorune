@@ -31,8 +31,8 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0
 Result:        selected normal callable Main materialization is cataloged
-Latest design: `NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0` — closed
-Executable:    `MIRBUILDER-LIVE-EDGE-CENSUS18-D0`
+Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS18-D0` — closed
+Executable:    `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -450,22 +450,46 @@ Next:
   `MIRBUILDER-LIVE-EDGE-CENSUS18-D0`.
 ```
 
+## Latest closeout
+
+`MIRBUILDER-LIVE-EDGE-CENSUS18-D0` — read-only, closed: NoSafeLiveI0
+
+```text
+Result:
+  Script Program runtime re-enters raw Box descent, while constructors and
+  top-level functions still have no callable source identity.  Thus no normal
+  edge can move without a new source/port decision.  Collector/drain and all
+  explicit VM/LLVM/raw fences remain retained.
+
+R3:
+  Legacy AST->JoinModule frontend and the cfg(test) legacy handler lane are
+  disposition D0 candidates only.  Neither retires until its owned test and
+  reference contract is independently resolved.  R4 still decides delete vs
+  explicit fenced-reference disposition for the complete old-IR scope.
+
+Next:
+  `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-D0`.
+```
+
 ## Current execution
 
-`MIRBUILDER-LIVE-EDGE-CENSUS18-D0` — fresh live-edge selection
+`NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-D0` — T2 source/port boundary
 
 ```text
 Change:
-  Re-inventory selected-normal residual child admission, collector/drain,
-  explicit raw/reference, runner, and R3 assets after callable Main cutover.
+  Decide one selected-normal-only admission for Script runtime Box declaration
+  descent.  It must carry exact source provenance to cataloged static/instance
+  methods while keeping constructor and raw/reference branches explicit.
 
-Done:
-  Record one bounded next D0, live I0/R0, detached R3 disposition, or
-  NoSafeLiveI0 with an exact production caller and compatibility deletion rule.
+Contract:
+  Preserve Program immediate/runtime order, one body descent, source identity,
+  existing collector mapping, runner selection, and candidate failure/reuse.
+  The generic raw port may not gain normal authority.
 
 Stop:
-  Do not infer constructor, top-level function, Script-runtime Box, collector,
-  raw/reference, runner, Ownership/View, or feature work from old inventory.
+  Return to design if one receipt must claim constructors or top-level functions,
+  raw/reference needs a route change, a Box is classified twice, collector
+  key/policy changes, a second session appears, or fallback/retry is required.
 ```
 
 ## Latest closeout
