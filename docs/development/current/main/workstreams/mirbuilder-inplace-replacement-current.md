@@ -83,8 +83,37 @@ Latest landed: `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`
 Latest landed: `JOINIR-CALLER-ZERO-EXPR-SCOPE-LOWERING-ISLAND-RETIRE0-RET0`
 Latest landed: `JOINIR-IF-SELECT-ALTERNATE-LANE-RETIRE0-RET0`
 Latest conformance: `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` — Incomplete
-Next design: `RAW-LOCATED-BODY-TRANSPORT0-D0`
+Latest design: `RAW-LOCATED-BODY-TRANSPORT0-D0` — Candidate B-prime accepted
+Current execution: `RAW-LOCATED-BODY-TRANSPORT0-L0-I0-R0`
 History:       Git history and the short landed tail below
+```
+
+## Current execution brief
+
+`RAW-LOCATED-BODY-TRANSPORT0-L0-I0-R0` — T2 Refactor Series, exactly two commits
+
+```text
+Change:
+  carry one owned function-relative source lineage through the live selected
+  raw body/statement/expression traversal; seal distinct nested StaticMethod,
+  InstanceConstructor, and InstanceMethod roles; delete the two selected
+  LegacyChildDraftAdmissionV1::legacy_symbol issuers.
+
+Contract:
+  reuse SourcePath/SourceNodeSite and existing child-role policy as the only
+  navigation SSOT. Preserve physical symbol/arity, source order, nested
+  Main/sync rejection, child-before-parent collection, LegacyReplaceWholePair,
+  candidate-only publication, and zero fallback/retry.
+
+Done:
+  selected unlocated child input = 0; selected nested legacy-symbol issuer
+  2 -> 0; deep control/expression/Box location fixtures and failure/reuse are
+  green; NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001 is closed.
+
+Stop:
+  no pre-scan, AST clone/reparse, catalog widening, second resolver/identity
+  issuer, symbol/name/Span source identity, constructor-as-method collapse,
+  selected unlocated retry, collector-policy change, or third series commit.
 ```
 
 ## R4 fence / residual registry
