@@ -93,10 +93,12 @@ five closed residuals, and seven unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
-(`37` occurrences in `8` `src/mir` files at Census20 closeout). The
-selected-Script and raw-static-Main compatibility rows above are the two
-registered Program/root admission dispositions. Nested raw body descent is
-deliberately unregistered rather than silently counted as one of them.
+(`37` occurrences in `8` `src/mir` files at the latest exact census). The
+selected-Script residual is closed; raw static Main and nested raw body descent
+are the two active compatibility rows above. Nested raw body descent was
+promoted from its immutable unregistered audit key to
+`NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001`; it is no longer an unregistered
+family and is not counted as an additional fence.
 
 Every census updates this table before selecting the next row. Every unregistered
 family has an immutable audit key, but is not a fence or sunset until a D0
