@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS24-D0 and NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-D0 are closed. Candidate A selects the complete 21-kind CallObjectHeader expression family for the existing DirectPortAwareExpression terminal. Every kind currently passes through build_statement_with_port_v1 without statement policy, then reaches the same raw expression dispatcher and RawInvocation port; direct routing removes only the duplicate root-span write and broad statement facade. Arbitrary descendants keep current header, collector, allocation, control, nested lifecycle, diagnostics, and failure behavior. Return and StaticConstTable are valid later candidates but are not mixed into this row. The atomic T1 I0/R0 will narrow the selected Script compatibility residual from 47 to 26 kinds with no new owner, grammar, terminal, retry, or fallback."
+status = "NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-I0-R0 is closed. All 21 CallObjectHeader expression kinds now use the existing DirectPortAwareExpression terminal and the same RawInvocation port; their selected Script RawCompatibility -> drive_legacy_statement_v1 edge and retired disposition category are deleted. Full MIR/verification or exact diagnostic parity, nested call/object behavior, failure/reuse, shared guard, and cargo check are green. The selected Script compatibility residual is 26 exact kinds in the two remaining StatementControl and DeclarationIngress families. Fresh live-edge census is required before selecting Return, StaticConstTable, or another responsibility."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-I0-R0"
-current_execution_summary = "T1 atomic I0/R0: map all 21 CallObjectHeaderCompatibility AST kinds to the existing DirectPortAwareExpression terminal and delete their selected Script RawCompatibility -> drive_legacy_statement_v1 edge. Keep the same RawInvocation port, arbitrary descendants, root/child spans, headers, collector, allocation/type/birth effects, control/nested lifecycle, diagnostics, MIR/result/publication, and failure/reuse. Remove the retired category, leave the other 26 kinds at one compatibility terminal, and keep every source/check file below 800."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS25-D0"
+current_execution_row = "none"
+current_execution_summary = "Read-only Census25: recount the remaining selected-normal, explicit compatibility, fenced, and unregistered R4 edges after the 21-kind direct-expression cutover. Update the sole R4 fence/residual registry, then select at most one named production responsibility with a same-commit old-edge deletion. Do not preselect Return or StaticConstTable, add a new compatibility route, or implement Ownership/View/features."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

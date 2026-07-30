@@ -12,7 +12,6 @@ pub(super) enum NormalScriptNonBoxStatementDispositionV1 {
     DirectPortAwareExpression,
     StatementControlCompatibility,
     DeclarationIngressCompatibility,
-    CallObjectHeaderCompatibility,
     DirectBoxOwnedElsewhere,
     TopLevelFunctionImmediateOnly,
 }
@@ -21,9 +20,8 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
     statement: &ASTNode,
 ) -> NormalScriptNonBoxStatementDispositionV1 {
     use NormalScriptNonBoxStatementDispositionV1::{
-        CallObjectHeaderCompatibility, DeclarationIngressCompatibility, DirectBoxOwnedElsewhere,
-        DirectPortAwareExpression, DirectPrint, StatementControlCompatibility,
-        TopLevelFunctionImmediateOnly,
+        DeclarationIngressCompatibility, DirectBoxOwnedElsewhere, DirectPortAwareExpression,
+        DirectPrint, StatementControlCompatibility, TopLevelFunctionImmediateOnly,
     };
 
     match statement {
@@ -35,7 +33,28 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
         | ASTNode::UnaryOp { .. }
         | ASTNode::BinaryOp { .. }
         | ASTNode::AwaitExpression { .. }
-        | ASTNode::CheckExpr { .. } => DirectPortAwareExpression,
+        | ASTNode::CheckExpr { .. }
+        | ASTNode::QMarkPropagate { .. }
+        | ASTNode::MatchExpr { .. }
+        | ASTNode::EnumMatchExpr { .. }
+        | ASTNode::ArrayLiteral { .. }
+        | ASTNode::MapLiteral { .. }
+        | ASTNode::RecordLiteral { .. }
+        | ASTNode::RecordUpdate { .. }
+        | ASTNode::Lambda { .. }
+        | ASTNode::BlockExpr { .. }
+        | ASTNode::Arrow { .. }
+        | ASTNode::GroupedAssignmentExpr { .. }
+        | ASTNode::MethodCall { .. }
+        | ASTNode::FieldAccess { .. }
+        | ASTNode::Index { .. }
+        | ASTNode::New { .. }
+        | ASTNode::This { .. }
+        | ASTNode::FromCall { .. }
+        | ASTNode::ThisField { .. }
+        | ASTNode::MeField { .. }
+        | ASTNode::FunctionCall { .. }
+        | ASTNode::Call { .. } => DirectPortAwareExpression,
 
         ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
@@ -65,28 +84,6 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
         | ASTNode::GlobalVar { .. }
         | ASTNode::StaticConstTable { .. } => DeclarationIngressCompatibility,
 
-        ASTNode::QMarkPropagate { .. }
-        | ASTNode::MatchExpr { .. }
-        | ASTNode::EnumMatchExpr { .. }
-        | ASTNode::ArrayLiteral { .. }
-        | ASTNode::MapLiteral { .. }
-        | ASTNode::RecordLiteral { .. }
-        | ASTNode::RecordUpdate { .. }
-        | ASTNode::Lambda { .. }
-        | ASTNode::BlockExpr { .. }
-        | ASTNode::Arrow { .. }
-        | ASTNode::GroupedAssignmentExpr { .. }
-        | ASTNode::MethodCall { .. }
-        | ASTNode::FieldAccess { .. }
-        | ASTNode::Index { .. }
-        | ASTNode::New { .. }
-        | ASTNode::This { .. }
-        | ASTNode::FromCall { .. }
-        | ASTNode::ThisField { .. }
-        | ASTNode::MeField { .. }
-        | ASTNode::FunctionCall { .. }
-        | ASTNode::Call { .. } => CallObjectHeaderCompatibility,
-
         ASTNode::BoxDeclaration { .. } => DirectBoxOwnedElsewhere,
         ASTNode::FunctionDeclaration { .. } => TopLevelFunctionImmediateOnly,
     }
@@ -99,8 +96,8 @@ mod tests {
     use super::{
         classify_normal_script_nonbox_statement_v1,
         NormalScriptNonBoxStatementDispositionV1::{
-            CallObjectHeaderCompatibility, DeclarationIngressCompatibility,
-            DirectPortAwareExpression, DirectPrint, StatementControlCompatibility,
+            DeclarationIngressCompatibility, DirectPortAwareExpression, DirectPrint,
+            StatementControlCompatibility,
         },
     };
     use crate::ast::{ASTNode, LiteralValue, Span};
@@ -152,7 +149,7 @@ mod tests {
         );
         assert_eq!(
             classify_normal_script_nonbox_statement_v1(&call),
-            CallObjectHeaderCompatibility
+            DirectPortAwareExpression
         );
     }
 

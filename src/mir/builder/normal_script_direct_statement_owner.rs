@@ -138,6 +138,57 @@ mod tests {
             }),
             span: Span::new(69, 81, 69, 1),
         };
+        let function_call = ASTNode::FunctionCall {
+            name: "isType".to_owned(),
+            arguments: vec![
+                integer(42, 82),
+                ASTNode::Literal {
+                    value: LiteralValue::String("Integer".to_owned()),
+                    span: Span::new(83, 90, 83, 4),
+                },
+            ],
+            span: Span::new(81, 91, 81, 1),
+        };
+        let method_call = ASTNode::MethodCall {
+            object: Box::new(ASTNode::Literal {
+                value: LiteralValue::String("abc".to_owned()),
+                span: Span::new(92, 95, 92, 1),
+            }),
+            method: "length".to_owned(),
+            arguments: Vec::new(),
+            span: Span::new(92, 102, 92, 1),
+        };
+        let allocation = ASTNode::ArrayLiteral {
+            elements: vec![integer(1, 103), integer(2, 104)],
+            span: Span::new(103, 105, 103, 1),
+        };
+        let construction = ASTNode::New {
+            class: "Page".to_owned(),
+            arguments: Vec::new(),
+            field_initializers: Vec::new(),
+            type_arguments: Vec::new(),
+            span: Span::new(106, 114, 106, 1),
+        };
+        let qmark = ASTNode::QMarkPropagate {
+            expression: Box::new(integer(1, 115)),
+            span: Span::new(115, 117, 115, 1),
+        };
+        let match_expression = ASTNode::MatchExpr {
+            scrutinee: Box::new(integer(1, 118)),
+            arms: vec![(LiteralValue::Integer(1), integer(2, 119))],
+            else_expr: Box::new(integer(3, 120)),
+            span: Span::new(118, 121, 118, 1),
+        };
+        let lambda = ASTNode::Lambda {
+            params: Vec::new(),
+            body: vec![integer(1, 122)],
+            span: Span::new(122, 124, 122, 1),
+        };
+        let block_expression = ASTNode::BlockExpr {
+            prelude_stmts: vec![integer(1, 125)],
+            tail_expr: Box::new(integer(2, 126)),
+            span: Span::new(125, 127, 125, 1),
+        };
 
         for (root, name) in [
             (literal, "direct-literal.hako"),
@@ -147,6 +198,14 @@ mod tests {
             (await_expression, "direct-await.hako"),
             (check, "direct-check.hako"),
             (nested_call, "direct-nested-call.hako"),
+            (function_call, "direct-function-call.hako"),
+            (method_call, "direct-method-call.hako"),
+            (allocation, "direct-array.hako"),
+            (construction, "direct-new.hako"),
+            (qmark, "direct-qmark.hako"),
+            (match_expression, "direct-match.hako"),
+            (lambda, "direct-lambda.hako"),
+            (block_expression, "direct-block-expression.hako"),
         ] {
             compare_normal_and_legacy(root, name);
         }

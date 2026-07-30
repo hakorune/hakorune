@@ -1,6 +1,6 @@
 ---
 Status: Active workstream
-Date: 2026-07-29
+Date: 2026-07-30
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -37,7 +37,8 @@ Latest landed:  `NORMAL-SCRIPT-PRINT-DIRECT-OWNER0-I0-R0`
 Latest design:  `NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-I0-R0`
 Latest design:  `NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-D0` — closed
-Next execution: `NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-I0-R0`
+Latest landed:  `NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-I0-R0`
+Next stop:      `MIRBUILDER-LIVE-EDGE-CENSUS25-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -51,7 +52,7 @@ activation and sunset contract.
 | State | Ledger key / family | Exact surface | Activation / normal-default | Release row / condition |
 | --- | --- | --- | --- | --- |
 | active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | fresh named raw-static-Main disposition, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` proves reachability = 0 |
-| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for 47 direct selected Script kinds in three registered residual families | selected normal Script only; Print and seven direct expression roots are retired; raw/reference and nested body descent remain separate | fresh named selected-Script statement-owner D0 with a same-commit old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
+| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for 26 direct selected Script kinds in the `StatementControl` and `DeclarationIngress` residual families | selected normal Script only; Print and all 28 expression roots are retired; raw/reference and nested body descent remain separate | fresh named selected-Script statement-owner D0 with a same-commit old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
 | closed | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program immediate instance constructors, plus selected Script plain-instance runtime-prefix constructors | every selected Program instance Box has one immediate demand; plain Script adds its second `InstancePrefixCompatibility` demand; non-plain Script's later raw runtime lifecycle is the separate row below | retired by `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0`: one source occurrence -> unchanged physical LegacySymbol admission per existing demand |
 | closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
 | closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
@@ -86,6 +87,46 @@ unregistered family may not become active on a generic prose promise. No second
 fence ledger is permitted.
 
 ## Disposition closeout
+
+`NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-I0-R0` — T1 atomic
+replacement, closed
+
+```text
+Named production caller:
+  NormalScriptRuntimeBlockPortV1::lower_statement
+
+Selected responsibility:
+  QMarkPropagate / MatchExpr / EnumMatchExpr / ArrayLiteral / MapLiteral /
+  RecordLiteral / RecordUpdate / Lambda / BlockExpr / Arrow /
+  GroupedAssignmentExpr / MethodCall / FieldAccess / Index / New / This /
+  FromCall / ThisField / MeField / FunctionCall / Call.
+
+New path:
+  DirectPortAwareExpression
+  -> existing normal_script_direct_statement_owner
+  -> drive_legacy_expression_v1 with the same RawInvocation port.
+
+Atomic delete:
+  CallObjectHeaderCompatibility = 0;
+  the 21 roots -> RawCompatibility -> drive_legacy_statement_v1 = 0.
+
+Parity:
+  representative call/object/allocation/control/nested-function roots compare
+  full MirPrinter + verification on success and exact diagnostics on failure;
+  existing root-span, nested FunctionCall, late-failure, and compiler-reuse
+  evidence remains green.
+
+Result:
+  selected Script compatibility residual 47 -> 26 exact kinds;
+  compatibility terminal count remains one; new owner/route/grammar/result/
+  publication/fallback/retry = 0.
+
+Structure:
+  direct owner 250 lines; disposition 198; runtime work 789; shared guard 799.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS25-D0.
+```
 
 `JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0` — T2 disposition, closed
 

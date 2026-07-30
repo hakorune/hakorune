@@ -439,7 +439,6 @@ pub(super) fn classify_normal_script_runtime_statement_v1(
             }
             NormalScriptNonBoxStatementDispositionV1::StatementControlCompatibility
             | NormalScriptNonBoxStatementDispositionV1::DeclarationIngressCompatibility
-            | NormalScriptNonBoxStatementDispositionV1::CallObjectHeaderCompatibility
             | NormalScriptNonBoxStatementDispositionV1::TopLevelFunctionImmediateOnly => {
                 NormalScriptRuntimeStatementKindV1::RawCompatibility
             }
