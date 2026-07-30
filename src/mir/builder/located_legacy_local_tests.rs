@@ -301,7 +301,7 @@ fn located_local_special_hooks_require_exact_inactive_initializer_subtrees() {
 }
 
 #[test]
-fn active_row_below_typed_array_hook_rejects_before_builder_effects_and_poisons_session() {
+fn typed_array_hook_consumes_exact_element_source() {
     const SOURCE: &str = r#"
         box ParserBox {
             parse(text, pos) {
@@ -329,25 +329,21 @@ fn active_row_below_typed_array_hook_rejects_before_builder_effects_and_poisons_
     let mut builder = builder_for(SOURCE, "located_local_array_reject/0");
     let _scope = LexicalScopeGuard::new(&mut builder);
 
-    let error = session
-        .lower_statement(&mut builder, statement)
-        .unwrap_err();
-    assert!(matches!(
-        error,
-        LocatedLegacyLoweringErrorV1::Lowering(ref text)
-            if text.contains("RowsUnderPrefix")
-    ));
-    assert!(instructions(&builder).is_empty());
-    assert!(!builder.function_state.binding_ctx.contains("bytes"));
+    session.lower_statement(&mut builder, statement).unwrap();
+    session.finish().unwrap();
+    let rows = instructions(&builder);
+    assert!(rows
+        .iter()
+        .any(|instruction| matches!(instruction, MirInstruction::Call { .. })));
+    assert!(rows
+        .iter()
+        .any(|instruction| matches!(instruction, MirInstruction::ArrayElementWrite { .. })));
+    assert!(builder.function_state.binding_ctx.contains("bytes"));
     assert_eq!(builder.recursion_depth, 0);
-    assert!(matches!(
-        session.finish(),
-        Err(LocatedLegacyLoweringErrorV1::Poisoned)
-    ));
 }
 
 #[test]
-fn active_row_below_record_hook_rejects_before_constructor_effects() {
+fn record_hook_consumes_exact_argument_source() {
     const SOURCE: &str = r#"
         record Pair { value: i64 }
         box ParserBox {
@@ -386,16 +382,16 @@ fn active_row_below_record_hook_rejects_before_constructor_effects() {
     );
     let _scope = LexicalScopeGuard::new(&mut builder);
 
-    let error = session
-        .lower_statement(&mut builder, statement)
-        .unwrap_err();
-    assert!(matches!(
-        error,
-        LocatedLegacyLoweringErrorV1::Lowering(ref text)
-            if text.contains("RowsUnderPrefix")
-    ));
-    assert!(instructions(&builder).is_empty());
-    assert!(!builder.function_state.binding_ctx.contains("pair"));
+    session.lower_statement(&mut builder, statement).unwrap();
+    session.finish().unwrap();
+    let rows = instructions(&builder);
+    assert!(rows
+        .iter()
+        .any(|instruction| matches!(instruction, MirInstruction::Call { .. })));
+    assert!(rows
+        .iter()
+        .any(|instruction| matches!(instruction, MirInstruction::RecordValuePublish { .. })));
+    assert!(builder.function_state.binding_ctx.contains("pair"));
     assert_eq!(builder.recursion_depth, 0);
 }
 

@@ -52,13 +52,14 @@ fn literal_int(value: i64) -> ASTNode {
 }
 
 fn seed_local(builder: &mut MirBuilder, name: &str, value: i64) -> Result<ValueId, String> {
-    let input = RawLegacyLocalInputV1::new(
-        vec![name.to_string()],
-        vec![Some(Box::new(literal_int(value)))],
-        Vec::new(),
-    );
+    let input = RawLegacyLocalInputV1::new(ASTNode::Local {
+        variables: vec![name.to_string()],
+        initial_values: vec![Some(Box::new(literal_int(value)))],
+        declared_type_names: Vec::new(),
+        span: Span::unknown(),
+    });
     let mut port = RawLegacyChildLoweringPortV1;
-    drive_local_statement_v1(builder, &mut port, &input)
+    drive_local_statement_v1(builder, &mut port, input)
 }
 
 fn literal_bool(value: bool) -> ASTNode {

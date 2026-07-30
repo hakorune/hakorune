@@ -7,6 +7,8 @@
 //! complete typed body domain to contain no activation rows. The session is
 //! not stored in `MirBuilder` and has no production constructor caller.
 
+use std::collections::VecDeque;
+
 #[cfg(test)]
 #[path = "located_legacy_assignment_tests.rs"]
 mod assignment_tests;
@@ -58,8 +60,9 @@ use super::ops::{
     ShortCircuitSyntaxViewV1,
 };
 use super::recursive_child_lowering::{
-    drive_raw_legacy_body_v1, drive_raw_legacy_expression_v1, drive_raw_legacy_statement_v1,
-    with_legacy_expression_recursion_guard_v1, RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, drive_raw_legacy_body_v1, drive_raw_legacy_expression_v1,
+    drive_raw_legacy_statement_v1, with_legacy_expression_recursion_guard_v1,
+    RecursiveChildLoweringPortV1,
 };
 use super::stmts::{
     drive_local_statement_v1, LocalStatementDescentPortV1, LocalStatementSyntaxViewV1,
@@ -213,7 +216,7 @@ impl<'plan> LocatedLegacyLoweringSessionV1<'plan> {
             return with_legacy_expression_recursion_guard_v1(
                 builder,
                 guarded_node_kind,
-                |builder| drive_local_statement_v1(builder, self, &input),
+                |builder| drive_local_statement_v1(builder, self, input),
             )
             .map_err(LocatedLegacyLoweringErrorV1::Lowering);
         }
@@ -248,18 +251,6 @@ impl<'plan> LocatedLegacyLoweringSessionV1<'plan> {
         delegate_inactive_statement(builder, input, proof)
     }
 
-    fn prove_local_initializer_inactive(
-        &self,
-        input: &LegacyStmtInputV1<'plan>,
-        index: usize,
-    ) -> Result<(), String> {
-        let expression = self.local_initializer_expression_input(input, index)?;
-        self.ledger
-            .prove_expr_inactive(&expression)
-            .map(|_| ())
-            .map_err(|error| format!("[located-lowering/ledger] {error:?}"))
-    }
-
     fn require_active(&self) -> Result<(), LocatedLegacyLoweringErrorV1> {
         if self.state == LocatedLegacyLoweringStateV1::Active {
             Ok(())
@@ -276,6 +267,74 @@ impl<'plan> LocatedLegacyLoweringSessionV1<'plan> {
             self.state = LocatedLegacyLoweringStateV1::Failed;
         }
         result
+    }
+}
+
+struct LocatedLocalHookChildPortV1<'session, 'plan> {
+    session: &'session mut LocatedLegacyLoweringSessionV1<'plan>,
+    children: VecDeque<LegacyExprInputV1<'plan>>,
+}
+
+impl<'session, 'plan> LocatedLocalHookChildPortV1<'session, 'plan> {
+    fn new(
+        session: &'session mut LocatedLegacyLoweringSessionV1<'plan>,
+        children: Vec<LegacyExprInputV1<'plan>>,
+    ) -> Self {
+        Self {
+            session,
+            children: children.into(),
+        }
+    }
+
+    fn complete_exact_demands_v1(self) -> Result<(), String> {
+        if self.children.is_empty() {
+            Ok(())
+        } else {
+            Err(format!(
+                "[freeze:contract][located-local/unconsumed-hook-children] count={}",
+                self.children.len()
+            ))
+        }
+    }
+}
+
+impl RecursiveChildLoweringPortV1 for LocatedLocalHookChildPortV1<'_, '_> {
+    type BodyInput = Vec<ASTNode>;
+    type StatementInput = ASTNode;
+    type ExpressionInput = ASTNode;
+
+    fn lower_body(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _input: Self::BodyInput,
+    ) -> Result<ValueId, String> {
+        Err("[freeze:contract][located-local/unexpected-hook-body]".to_owned())
+    }
+
+    fn lower_statement(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _input: Self::StatementInput,
+    ) -> Result<ValueId, String> {
+        Err("[freeze:contract][located-local/unexpected-hook-statement]".to_owned())
+    }
+
+    fn lower_expression(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::ExpressionInput,
+    ) -> Result<ValueId, String> {
+        let child = self.children.pop_front().ok_or_else(|| {
+            "[freeze:contract][located-local/hook-child-demand-overflow]".to_owned()
+        })?;
+        if child.node() != &input {
+            return Err(format!(
+                "[freeze:contract][located-local/hook-child-source-drift] expected={} actual={}",
+                child.node().node_type(),
+                input.node_type()
+            ));
+        }
+        drive_legacy_expression_v1(builder, self.session, child)
     }
 }
 
@@ -301,40 +360,92 @@ impl<'plan> LocalStatementDescentPortV1 for LocatedLegacyLoweringSessionV1<'plan
         }
     }
 
-    fn local_initializer_expression_input(
-        &self,
-        input: &Self::LocalInput,
+    fn lower_ordinary_initializer(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: &mut Self::LocalInput,
         index: usize,
-    ) -> Result<Self::ExpressionInput, String> {
+    ) -> Result<ValueId, String> {
+        let index = u32::try_from(index).map_err(|_| {
+            format!("[located-lowering/local-initializer-index-overflow] index={index}")
+        })?;
+        let expression = self
+            .source
+            .child_expr_from_stmt(input, ExprChildRoleV1::LocalInitializer(index))
+            .map_err(|error| format!("[located-lowering/location] {error:?}"))?;
+        drive_legacy_expression_v1(builder, self, expression)
+    }
+
+    fn lower_typed_array_literal_initializer(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: &mut Self::LocalInput,
+        index: usize,
+    ) -> Result<(ValueId, String), String> {
+        let initializer = self.local_initializer_source(input, index)?;
+        let ASTNode::ArrayLiteral { elements, .. } = initializer.node() else {
+            return Err("[freeze:contract][located-local/typed-array-shape-drift]".to_owned());
+        };
+        let children = (0..elements.len())
+            .map(|index| {
+                let index = u32::try_from(index).map_err(|_| {
+                    "[freeze:contract][located-local/array-element-index-overflow]".to_owned()
+                })?;
+                self.source
+                    .child_expr(&initializer, ExprChildRoleV1::ArrayElement(index))
+                    .map_err(|error| format!("[located-lowering/location] {error:?}"))
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let mut port = LocatedLocalHookChildPortV1::new(self, children);
+        let value = builder.build_typed_array_literal_with_port_v1(&mut port, elements.to_vec())?;
+        port.complete_exact_demands_v1()?;
+        Ok(value)
+    }
+
+    fn lower_record_constructor_initializer(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: &mut Self::LocalInput,
+        index: usize,
+        class: &str,
+    ) -> Result<ValueId, String> {
+        let initializer = self.local_initializer_source(input, index)?;
+        let ASTNode::New { arguments, .. } = initializer.node() else {
+            return Err("[freeze:contract][located-local/record-shape-drift]".to_owned());
+        };
+        let children = (0..arguments.len())
+            .map(|index| {
+                let index = u32::try_from(index).map_err(|_| {
+                    "[freeze:contract][located-local/call-argument-index-overflow]".to_owned()
+                })?;
+                self.source
+                    .child_expr(&initializer, ExprChildRoleV1::CallArgument(index))
+                    .map_err(|error| format!("[located-lowering/location] {error:?}"))
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let mut port = LocatedLocalHookChildPortV1::new(self, children);
+        let value = builder.build_record_constructor_value_with_port_v1(
+            &mut port,
+            class.to_string(),
+            arguments.to_vec(),
+        )?;
+        port.complete_exact_demands_v1()?;
+        Ok(value)
+    }
+}
+
+impl<'plan> LocatedLegacyLoweringSessionV1<'plan> {
+    fn local_initializer_source(
+        &self,
+        input: &LegacyStmtInputV1<'plan>,
+        index: usize,
+    ) -> Result<LegacyExprInputV1<'plan>, String> {
         let index = u32::try_from(index).map_err(|_| {
             format!("[located-lowering/local-initializer-index-overflow] index={index}")
         })?;
         self.source
             .child_expr_from_stmt(input, ExprChildRoleV1::LocalInitializer(index))
             .map_err(|error| format!("[located-lowering/location] {error:?}"))
-    }
-
-    fn lower_typed_array_literal_initializer(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: &Self::LocalInput,
-        index: usize,
-        elements: &[ASTNode],
-    ) -> Result<(ValueId, String), String> {
-        self.prove_local_initializer_inactive(input, index)?;
-        builder.build_typed_array_literal(elements.to_vec())
-    }
-
-    fn lower_record_constructor_initializer(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: &Self::LocalInput,
-        index: usize,
-        class: &str,
-        arguments: &[ASTNode],
-    ) -> Result<ValueId, String> {
-        self.prove_local_initializer_inactive(input, index)?;
-        builder.build_record_constructor_value(class.to_string(), arguments.to_vec())
     }
 }
 

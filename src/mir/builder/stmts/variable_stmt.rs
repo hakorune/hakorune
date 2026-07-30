@@ -380,18 +380,12 @@ mod local_contract_tests {
     }
 
     fn lower_local(builder: &mut MirBuilder, node: ASTNode) -> Result<ValueId, String> {
-        let ASTNode::Local {
-            variables,
-            initial_values,
-            declared_type_names,
-            ..
-        } = node
-        else {
+        if !matches!(&node, ASTNode::Local { .. }) {
             return Err("local contract fixture requires Local".to_string());
-        };
-        let input = RawLegacyLocalInputV1::new(variables, initial_values, declared_type_names);
+        }
+        let input = RawLegacyLocalInputV1::new(node);
         let mut port = RawLegacyChildLoweringPortV1;
-        drive_local_statement_v1(builder, &mut port, &input)
+        drive_local_statement_v1(builder, &mut port, input)
     }
 
     #[test]

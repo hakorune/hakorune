@@ -570,61 +570,8 @@ where
             ))
         }
         node @ ASTNode::Local { .. } => {
-            let initializer_sources =
-                if crate::mir::builder::raw_invocation_source_transport::
-                    is_nonhook_local_statement_v1(&node)
-                {
-                    Some(match &node {
-                        ASTNode::Local {
-                            variables,
-                            initial_values,
-                            ..
-                        } => {
-                            let mut sources = Vec::new();
-                            for index in 0..variables.len() {
-                                if initial_values
-                                    .get(index)
-                                    .and_then(Option::as_deref)
-                                    .is_some()
-                                {
-                                    let index = u32::try_from(index).map_err(|_| {
-                                        "[freeze:contract][raw-local/initializer-index-overflow]"
-                                            .to_owned()
-                                    })?;
-                                    sources.push(port.prepare_expression_child_source_v1(
-                                        &node,
-                                        ExprChildRoleV1::LocalInitializer(index),
-                                    )?);
-                                }
-                            }
-                            sources
-                        }
-                        _ => unreachable!("matched Local"),
-                    })
-                } else {
-                    None
-                };
-            let ASTNode::Local {
-                variables,
-                initial_values,
-                declared_type_names,
-                ..
-            } = node
-            else {
-                unreachable!("matched Local")
-            };
-            let input =
-                RawLegacyLocalInputV1::new(variables, initial_values, declared_type_names);
-            let value = match initializer_sources {
-                Some(sources) => {
-                    let mut scoped =
-                        RawStructuredChildScopePortV1::new(port, sources, Vec::new());
-                    let value = drive_local_statement_v1(builder, &mut scoped, &input)?;
-                    scoped.complete_exact_demands_v1()?;
-                    value
-                }
-                None => drive_local_statement_v1(builder, port, &input)?,
-            };
+            let input = RawLegacyLocalInputV1::new(node);
+            let value = drive_local_statement_v1(builder, port, input)?;
             Ok(StatementSurfaceDispatch::Lowered(value))
         }
         ASTNode::Outbox { variables, .. } => Ok(StatementSurfaceDispatch::Lowered(

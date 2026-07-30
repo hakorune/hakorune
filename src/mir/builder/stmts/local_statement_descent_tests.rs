@@ -19,6 +19,7 @@ enum EventV1 {
     Record(usize),
 }
 
+#[derive(Clone)]
 struct LocalInputV1 {
     variables: Vec<String>,
     initial_values: Vec<Option<Box<ASTNode>>>,
@@ -103,44 +104,55 @@ impl LocalStatementDescentPortV1 for RecordingLocalPortV1 {
         ))
     }
 
-    fn local_initializer_expression_input(
-        &self,
-        _input: &Self::LocalInput,
+    fn lower_ordinary_initializer(
+        &mut self,
+        builder: &mut MirBuilder,
+        _input: &mut Self::LocalInput,
         index: usize,
-    ) -> Result<Self::ExpressionInput, String> {
+    ) -> Result<ValueId, String> {
         self.events.borrow_mut().push(EventV1::Input(index));
         if self.fail_input == Some(index) {
             return Err(format!("input-{index}"));
         }
-        Ok(index)
+        self.lower_expression(builder, index)
     }
 
     fn lower_typed_array_literal_initializer(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::LocalInput,
+        input: &mut Self::LocalInput,
         index: usize,
-        elements: &[ASTNode],
     ) -> Result<(ValueId, String), String> {
         self.events.borrow_mut().push(EventV1::TypedArray(index));
         if self.fail_typed_array {
             return Err("typed-array".to_string());
         }
+        let ASTNode::ArrayLiteral { elements, .. } = input.initial_values[index]
+            .as_deref()
+            .expect("typed array initializer")
+        else {
+            unreachable!("typed array hook selection")
+        };
         builder.build_typed_array_literal(elements.to_vec())
     }
 
     fn lower_record_constructor_initializer(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::LocalInput,
+        input: &mut Self::LocalInput,
         index: usize,
         class: &str,
-        arguments: &[ASTNode],
     ) -> Result<ValueId, String> {
         self.events.borrow_mut().push(EventV1::Record(index));
         if self.fail_record {
             return Err("record".to_string());
         }
+        let ASTNode::New { arguments, .. } = input.initial_values[index]
+            .as_deref()
+            .expect("record initializer")
+        else {
+            unreachable!("record hook selection")
+        };
         builder.build_record_constructor_value(class.to_string(), arguments.to_vec())
     }
 }
@@ -239,7 +251,7 @@ fn ordinary_initializers_preflight_then_descend_in_index_order_and_complete_once
     );
     let mut port = RecordingLocalPortV1::accepting();
 
-    drive_local_statement_v1(&mut builder, &mut port, &input).unwrap();
+    drive_local_statement_v1(&mut builder, &mut port, input).unwrap();
 
     assert_eq!(
         port.events(),
@@ -266,7 +278,7 @@ fn later_exact_numeric_missing_initializer_rejects_before_first_child_effect() {
     );
     let mut port = RecordingLocalPortV1::accepting();
 
-    let error = drive_local_statement_v1(&mut builder, &mut port, &input).unwrap_err();
+    let error = drive_local_statement_v1(&mut builder, &mut port, input).unwrap_err();
 
     assert!(error.contains("local_contract_uninitialized_forbidden"));
     assert_eq!(port.events(), vec![EventV1::Syntax]);
@@ -294,7 +306,7 @@ fn later_typed_array_declaration_rejects_before_first_child_effect() {
         );
         let mut port = RecordingLocalPortV1::accepting();
 
-        let error = drive_local_statement_v1(&mut builder, &mut port, &input).unwrap_err();
+        let error = drive_local_statement_v1(&mut builder, &mut port, input).unwrap_err();
 
         assert!(error.contains(expected_error), "{error}");
         assert_eq!(port.events(), vec![EventV1::Syntax]);
@@ -310,7 +322,7 @@ fn untyped_missing_initializer_uses_null_without_child_demand() {
     let input = local_input(&["x"], vec![None], vec![None]);
     let mut port = RecordingLocalPortV1::accepting();
 
-    drive_local_statement_v1(&mut builder, &mut port, &input).unwrap();
+    drive_local_statement_v1(&mut builder, &mut port, input).unwrap();
 
     assert_eq!(port.events(), vec![EventV1::Syntax]);
     assert!(builder.function_state.binding_ctx.contains("x"));
@@ -333,7 +345,7 @@ fn syntax_failure_precedes_preflight_or_initializer_effects() {
     let mut port = RecordingLocalPortV1::accepting();
     port.fail_syntax = true;
 
-    let error = drive_local_statement_v1(&mut builder, &mut port, &input).unwrap_err();
+    let error = drive_local_statement_v1(&mut builder, &mut port, input).unwrap_err();
 
     assert_eq!(error, "syntax");
     assert_eq!(port.events(), vec![EventV1::Syntax]);
@@ -366,7 +378,7 @@ fn initializer_input_and_child_failures_publish_no_binding_or_later_initializer(
             port.fail_lower = Some(1);
         }
 
-        let error = drive_local_statement_v1(&mut builder, &mut port, &input).unwrap_err();
+        let error = drive_local_statement_v1(&mut builder, &mut port, input).unwrap_err();
 
         assert!(error.contains(if fail_input { "input-1" } else { "lower-1" }));
         assert!(!port.events().contains(&EventV1::Input(2)));
@@ -392,7 +404,7 @@ fn typed_array_special_hook_precedes_direct_builder_effects_and_preclaim_reaches
     let _rejected_scope = LexicalScopeGuard::new(&mut rejected_builder);
     let mut rejected_port = RecordingLocalPortV1::accepting();
     rejected_port.fail_typed_array = true;
-    drive_local_statement_v1(&mut rejected_builder, &mut rejected_port, &input).unwrap_err();
+    drive_local_statement_v1(&mut rejected_builder, &mut rejected_port, input.clone()).unwrap_err();
     assert_eq!(
         rejected_port.events(),
         vec![EventV1::Syntax, EventV1::TypedArray(0)]
@@ -403,7 +415,7 @@ fn typed_array_special_hook_precedes_direct_builder_effects_and_preclaim_reaches
     let mut accepted_builder = builder("lcl0_array_accept/0");
     let _accepted_scope = LexicalScopeGuard::new(&mut accepted_builder);
     let mut accepted_port = RecordingLocalPortV1::accepting();
-    drive_local_statement_v1(&mut accepted_builder, &mut accepted_port, &input).unwrap();
+    drive_local_statement_v1(&mut accepted_builder, &mut accepted_port, input).unwrap();
     assert!(accepted_builder.function_state.binding_ctx.contains("xs"));
     assert!(accepted_builder
         .function_state
@@ -444,7 +456,7 @@ fn record_special_hook_precedes_constructor_effects() {
     let mut port = RecordingLocalPortV1::accepting();
     port.fail_record = true;
 
-    let error = drive_local_statement_v1(&mut builder, &mut port, &input).unwrap_err();
+    let error = drive_local_statement_v1(&mut builder, &mut port, input).unwrap_err();
 
     assert!(error.contains("record"));
     assert_eq!(port.events(), vec![EventV1::Syntax, EventV1::Record(0)]);
@@ -466,9 +478,9 @@ fn raw_special_initializers_retain_one_caller_port_for_every_child() {
         }],
     );
     let _scope = LexicalScopeGuard::new(&mut builder);
-    let input = RawLegacyLocalInputV1::new(
-        vec!["xs".to_string(), "pair".to_string()],
-        vec![
+    let input = RawLegacyLocalInputV1::new(ASTNode::Local {
+        variables: vec!["xs".to_string(), "pair".to_string()],
+        initial_values: vec![
             Some(Box::new(ASTNode::ArrayLiteral {
                 elements: vec![integer(1), integer(2)],
                 span: Span::unknown(),
@@ -481,11 +493,12 @@ fn raw_special_initializers_retain_one_caller_port_for_every_child() {
                 span: Span::unknown(),
             })),
         ],
-        vec![Some("Array<u8>".to_string()), None],
-    );
+        declared_type_names: vec![Some("Array<u8>".to_string()), None],
+        span: Span::unknown(),
+    });
     let mut port = RecordingRawAstPortV1::default();
 
-    drive_local_statement_v1(&mut builder, &mut port, &input).unwrap();
+    drive_local_statement_v1(&mut builder, &mut port, input).unwrap();
 
     assert_eq!(port.integer_children, vec![1, 2, 7]);
     assert!(builder.function_state.binding_ctx.contains("xs"));

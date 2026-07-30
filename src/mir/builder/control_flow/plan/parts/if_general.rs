@@ -300,13 +300,14 @@ mod tests {
         name: &str,
         value: i64,
     ) -> Result<crate::mir::ValueId, String> {
-        let input = RawLegacyLocalInputV1::new(
-            vec![name.to_string()],
-            vec![Some(Box::new(lit_int(value)))],
-            Vec::new(),
-        );
+        let input = RawLegacyLocalInputV1::new(ASTNode::Local {
+            variables: vec![name.to_string()],
+            initial_values: vec![Some(Box::new(lit_int(value)))],
+            declared_type_names: Vec::new(),
+            span: span(),
+        });
         let mut port = RawLegacyChildLoweringPortV1;
-        drive_local_statement_v1(builder, &mut port, &input)
+        drive_local_statement_v1(builder, &mut port, input)
     }
 
     fn var(name: &str) -> ASTNode {

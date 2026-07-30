@@ -26,10 +26,12 @@ dispatcher has selected a statement family.
 5. publish bindings once through the existing from-values completion owner
    after every initializer succeeds.
 
-The specialized hooks are not permission to bypass located coverage. A future
-located port must first prove the exact `LocalInitializer(index)` subtree
-inactive before invoking either hook. Active array elements or record
-arguments require their own associated-input row and fail closed in LCL0.
+The specialized hooks do not bypass located coverage. The intact Local remains
+with the shared driver until its existing typed-array or Builder-dependent
+record selection. The selected hook then uses the exact
+`LocalInitializer(index)` only as a parent context and consumes its
+`ArrayElement(index)` or `CallArgument(index)` children in source order. The
+initializer root itself is never queued as an element or argument.
 
 This boundary must not reconstruct source sites, own a caller ledger, infer
 types, reimplement typed-array or record semantics, publish a binding before
@@ -50,10 +52,11 @@ reference must not call the selected driver or either descent port.
 LCL0-L0 adds one disconnected located Local selector. Ordinary initializers
 are requested only through the existing `LocalInitializer(index)` source role,
 so expression descent retains the exact site and ledger order. Typed-array and
-record hooks require exact inactive-subtree proof before specialized effects;
-an active element or constructor argument fails closed. The adapter does not
-catch `RowsUnderPrefix` to probe a route, reconstruct a site, or publish a
-production located root caller.
+record hooks derive exact element/argument inputs below that initializer and
+lower each through the same located session; active nested calls are claimed
+instead of forcing whole-initializer inactivity. The adapter does not catch
+`RowsUnderPrefix` to probe a route, reconstruct a site, or publish a production
+located root caller.
 
 The canonical source grammar currently admits at most one initialized binding
 per `Local`, so its reachable located role is `LocalInitializer(0)`. The shared

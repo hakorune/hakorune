@@ -285,8 +285,7 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
 
         ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
-        | ASTNode::Return { .. }
-        | ASTNode::Local { .. } => RawUnlocatedPortalV1::ScalarBinding,
+        | ASTNode::Return { .. } => RawUnlocatedPortalV1::ScalarBinding,
 
         ASTNode::Break { .. }
         | ASTNode::Continue { .. }
@@ -328,6 +327,7 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
 
         ASTNode::Program { .. }
         | ASTNode::BoxDeclaration { .. }
+        | ASTNode::Local { .. }
         | ASTNode::Print { .. }
         | ASTNode::GroupedAssignmentExpr { .. }
         | ASTNode::If { .. }
@@ -364,42 +364,7 @@ fn is_located_scalar_statement(statement: &ASTNode) -> bool {
     ) || matches!(
         statement,
         ASTNode::GroupedAssignmentExpr { .. } | ASTNode::Print { .. }
-    ) || matches!(statement, ASTNode::Return { .. })
-        || matches!(
-            statement,
-            ASTNode::Local { .. } if is_nonhook_local_statement_v1(statement)
-        )
-}
-
-pub(in crate::mir::builder) fn is_nonhook_local_statement_v1(statement: &ASTNode) -> bool {
-    let ASTNode::Local {
-        variables,
-        initial_values,
-        declared_type_names,
-        ..
-    } = statement
-    else {
-        return false;
-    };
-
-    (0..variables.len()).all(|index| {
-        let Some(initializer) = initial_values.get(index).and_then(Option::as_deref) else {
-            return true;
-        };
-        if u32::try_from(index).is_err() || matches!(initializer, ASTNode::New { .. }) {
-            return false;
-        }
-        if !matches!(initializer, ASTNode::ArrayLiteral { .. }) {
-            return true;
-        }
-        !matches!(
-            declared_type_names
-                .get(index)
-                .and_then(Option::as_deref)
-                .map(crate::typed_array_contract_spec::parse_annotation),
-            Some(Ok(Some(_)))
-        )
-    })
+    ) || matches!(statement, ASTNode::Return { .. } | ASTNode::Local { .. })
 }
 
 fn is_located_control_or_diagnostic_terminal(statement: &ASTNode) -> bool {

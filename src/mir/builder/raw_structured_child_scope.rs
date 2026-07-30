@@ -9,6 +9,8 @@ use std::collections::VecDeque;
 use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
+use crate::mir::resolved_semantics::ExprChildRoleV1;
+
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 
@@ -16,6 +18,19 @@ use super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 pub(in crate::mir::builder) enum PreparedRawChildSourceV1 {
     Preserve,
     Exact(RawInvocationSourceContextV1),
+}
+
+impl PreparedRawChildSourceV1 {
+    pub(in crate::mir::builder) fn expression_child(
+        &self,
+        parent: &ASTNode,
+        role: ExprChildRoleV1,
+    ) -> Result<Self, String> {
+        match self {
+            Self::Preserve => Ok(Self::Preserve),
+            Self::Exact(context) => Ok(Self::Exact(context.child_expression(parent, role)?)),
+        }
+    }
 }
 
 pub(in crate::mir::builder) struct RawStructuredChildScopePortV1<'port, Port> {
@@ -79,9 +94,9 @@ impl<'port, Port> RawStructuredChildScopePortV1<'port, Port> {
     }
 
     fn next_body(&mut self) -> Result<PreparedRawChildSourceV1, String> {
-        self.bodies.pop_front().ok_or_else(|| {
-            "[freeze:contract][raw-structured/body-demand-overflow]".to_owned()
-        })
+        self.bodies
+            .pop_front()
+            .ok_or_else(|| "[freeze:contract][raw-structured/body-demand-overflow]".to_owned())
     }
 
     pub(in crate::mir::builder) fn complete_exact_demands_v1(self) -> Result<(), String> {
@@ -114,9 +129,8 @@ where
         input: Self::BodyInput,
     ) -> Result<ValueId, String> {
         let source = self.next_body()?;
-        self.child.with_prepared_child_source_v1(source, |child| {
-            child.lower_body(builder, input)
-        })
+        self.child
+            .with_prepared_child_source_v1(source, |child| child.lower_body(builder, input))
     }
 
     fn lower_statement(
@@ -130,10 +144,10 @@ where
         let transport = body.structured_body_statement(input, *index)?;
         *index += 1;
         let (input, context) = RawInvocationSourceContextV1::from_transport(transport);
-        self.child.with_prepared_child_source_v1(
-            PreparedRawChildSourceV1::Exact(context),
-            |child| child.lower_statement(builder, input),
-        )
+        self.child
+            .with_prepared_child_source_v1(PreparedRawChildSourceV1::Exact(context), |child| {
+                child.lower_statement(builder, input)
+            })
     }
 
     fn lower_expression(
@@ -145,10 +159,9 @@ where
             ASTNode::Program { statements, span } => {
                 let source = self.next_body()?;
                 match source {
-                    PreparedRawChildSourceV1::Preserve => self.child.lower_expression(
-                        builder,
-                        ASTNode::Program { statements, span },
-                    ),
+                    PreparedRawChildSourceV1::Preserve => self
+                        .child
+                        .lower_expression(builder, ASTNode::Program { statements, span }),
                     source => self.child.with_prepared_child_source_v1(source, |child| {
                         child.lower_body(builder, statements)
                     }),
@@ -171,9 +184,11 @@ mod tests {
     #[test]
     fn exact_demand_terminal_rejects_unconsumed_receipts() {
         let mut child = ();
-        assert!(RawStructuredChildScopePortV1::new(&mut child, Vec::new(), Vec::new())
-            .complete_exact_demands_v1()
-            .is_ok());
+        assert!(
+            RawStructuredChildScopePortV1::new(&mut child, Vec::new(), Vec::new())
+                .complete_exact_demands_v1()
+                .is_ok()
+        );
 
         let error = RawStructuredChildScopePortV1::new(
             &mut child,

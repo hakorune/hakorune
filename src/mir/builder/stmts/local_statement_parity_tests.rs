@@ -140,20 +140,14 @@ fn builder(name: &str, with_record: bool) -> MirBuilder {
 fn lower_selected(builder: &mut MirBuilder, expression: ASTNode) -> Result<ValueId, String> {
     let span = expression.span();
     let node_kind = std::mem::discriminant(&expression);
-    let ASTNode::Local {
-        variables,
-        initial_values,
-        declared_type_names,
-        ..
-    } = expression
-    else {
+    if !matches!(&expression, ASTNode::Local { .. }) {
         return Err("LCL0-I0 selected owner requires Local".to_string());
-    };
+    }
     with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {
         builder.metadata_ctx.set_current_span(span);
-        let input = RawLegacyLocalInputV1::new(variables, initial_values, declared_type_names);
+        let input = RawLegacyLocalInputV1::new(expression);
         let mut port = RawLegacyChildLoweringPortV1;
-        drive_local_statement_v1(builder, &mut port, &input)
+        drive_local_statement_v1(builder, &mut port, input)
     })
 }
 

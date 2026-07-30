@@ -411,7 +411,7 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
 }
 
 #[test]
-fn nonhook_local_initializers_keep_exact_active_index_paths() {
+fn local_initializers_keep_exact_active_index_paths() {
     let statement = local(
         &["x", "missing", "z"],
         vec![
@@ -449,7 +449,7 @@ fn nonhook_local_initializers_keep_exact_active_index_paths() {
 }
 
 #[test]
-fn nonhook_local_selection_ignores_missing_and_surplus_vector_entries() {
+fn local_selection_ignores_missing_and_surplus_vector_entries() {
     let selected = [
         local(
             &["x", "missing"],
@@ -490,11 +490,17 @@ fn nonhook_local_selection_ignores_missing_and_surplus_vector_entries() {
 }
 
 #[test]
-fn local_special_initializer_hooks_remain_scalar_binding_compatibility() {
+fn local_special_initializer_hooks_keep_exact_nested_sources() {
     let hooks = [
         local(
             &["value"],
-            vec![Some(Box::new(new_value("Page")))],
+            vec![Some(Box::new(ASTNode::New {
+                class: "Page".to_owned(),
+                arguments: vec![integer(7)],
+                type_arguments: Vec::new(),
+                field_initializers: Vec::new(),
+                span: Span::unknown(),
+            }))],
             vec![None],
         ),
         local(
@@ -513,13 +519,34 @@ fn local_special_initializer_hooks_remain_scalar_binding_compatibility() {
         ));
 
     for (index, statement) in hooks.into_iter().enumerate() {
-        let (_, child) =
-            RawInvocationSourceContextV1::from_transport(root.body_statement(statement, index));
+        let (_, child) = RawInvocationSourceContextV1::from_transport(
+            root.body_statement(statement.clone(), index),
+        );
         assert_eq!(
-            child,
-            RawInvocationSourceContextV1::UnlocatedCompatibility(
-                RawUnlocatedPortalV1::ScalarBinding
-            )
+            child.site().expect("located special Local").segments(),
+            &[SourcePathSegmentV1::Body(index as u32)]
+        );
+        let initializer = child
+            .child_expression(&statement, ExprChildRoleV1::LocalInitializer(0))
+            .unwrap();
+        let role = if index == 0 {
+            ExprChildRoleV1::CallArgument(0)
+        } else {
+            ExprChildRoleV1::ArrayElement(0)
+        };
+        let ASTNode::Local { initial_values, .. } = &statement else {
+            unreachable!("fixture is Local")
+        };
+        let initializer_node = initial_values[0].as_deref().expect("special initializer");
+        assert_eq!(
+            initializer
+                .child_expression(initializer_node, role)
+                .unwrap()
+                .site()
+                .unwrap()
+                .segments()
+                .len(),
+            3
         );
     }
 }

@@ -7,6 +7,8 @@
 //! inactive-subtree proof before using those direct legacy routes.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::raw_structured_child_scope::RawStructuredChildScopePortV1;
+use crate::mir::resolved_semantics::ExprChildRoleV1;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
@@ -18,22 +20,16 @@ use super::variable_stmt::{
 };
 
 pub(in crate::mir::builder) struct RawLegacyLocalInputV1 {
-    variables: Vec<String>,
-    initial_values: Vec<Option<Box<ASTNode>>>,
-    declared_type_names: Vec<Option<String>>,
+    statement: ASTNode,
 }
 
 impl RawLegacyLocalInputV1 {
-    pub(in crate::mir::builder) const fn new(
-        variables: Vec<String>,
-        initial_values: Vec<Option<Box<ASTNode>>>,
-        declared_type_names: Vec<Option<String>>,
-    ) -> Self {
-        Self {
-            variables,
-            initial_values,
-            declared_type_names,
-        }
+    pub(in crate::mir::builder) const fn new(statement: ASTNode) -> Self {
+        Self { statement }
+    }
+
+    pub(in crate::mir::builder) const fn statement(&self) -> &ASTNode {
+        &self.statement
     }
 }
 
@@ -79,27 +75,26 @@ pub(in crate::mir::builder) trait LocalStatementDescentPortV1:
         input: &'input Self::LocalInput,
     ) -> Result<LocalStatementSyntaxViewV1<'input>, String>;
 
-    fn local_initializer_expression_input(
-        &self,
-        input: &Self::LocalInput,
+    fn lower_ordinary_initializer(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: &mut Self::LocalInput,
         index: usize,
-    ) -> Result<Self::ExpressionInput, String>;
+    ) -> Result<ValueId, String>;
 
     fn lower_typed_array_literal_initializer(
         &mut self,
         builder: &mut MirBuilder,
-        input: &Self::LocalInput,
+        input: &mut Self::LocalInput,
         index: usize,
-        elements: &[ASTNode],
     ) -> Result<(ValueId, String), String>;
 
     fn lower_record_constructor_initializer(
         &mut self,
         builder: &mut MirBuilder,
-        input: &Self::LocalInput,
+        input: &mut Self::LocalInput,
         index: usize,
         class: &str,
-        arguments: &[ASTNode],
     ) -> Result<ValueId, String>;
 }
 
@@ -113,64 +108,157 @@ where
         &self,
         input: &'input Self::LocalInput,
     ) -> Result<LocalStatementSyntaxViewV1<'input>, String> {
+        let ASTNode::Local {
+            variables,
+            initial_values,
+            declared_type_names,
+            ..
+        } = input.statement()
+        else {
+            return Err("[freeze:contract][local-descent/raw-input-requires-local]".to_owned());
+        };
         Ok(LocalStatementSyntaxViewV1::new(
-            &input.variables,
-            &input.initial_values,
-            &input.declared_type_names,
+            variables,
+            initial_values,
+            declared_type_names,
         ))
     }
 
-    fn local_initializer_expression_input(
-        &self,
-        input: &Self::LocalInput,
+    fn lower_ordinary_initializer(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: &mut Self::LocalInput,
         index: usize,
-    ) -> Result<Self::ExpressionInput, String> {
-        input
-            .initial_values
-            .get(index)
-            .and_then(|value| value.as_deref())
-            .cloned()
-            .ok_or_else(|| {
-                format!("[local-statement-descent/raw-initializer-missing] index={index}")
-            })
+    ) -> Result<ValueId, String> {
+        let index = local_initializer_index(index)?;
+        let source = self.prepare_expression_child_source_v1(
+            input.statement(),
+            ExprChildRoleV1::LocalInitializer(index),
+        )?;
+        let initializer = take_initializer(input, index as usize)?;
+        let mut scoped = RawStructuredChildScopePortV1::new(self, vec![source], Vec::new());
+        let value = drive_legacy_expression_v1(builder, &mut scoped, initializer)?;
+        scoped.complete_exact_demands_v1()?;
+        Ok(value)
     }
 
     fn lower_typed_array_literal_initializer(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::LocalInput,
-        _index: usize,
-        elements: &[ASTNode],
+        input: &mut Self::LocalInput,
+        index: usize,
     ) -> Result<(ValueId, String), String> {
-        builder.build_typed_array_literal_with_port_v1(self, elements.to_vec())
+        let initializer = initializer_at(input.statement(), index)?;
+        let ASTNode::ArrayLiteral { elements, .. } = initializer else {
+            return Err("[freeze:contract][raw-local/typed-array-shape-drift]".to_owned());
+        };
+        let initializer_source = self.prepare_expression_child_source_v1(
+            input.statement(),
+            ExprChildRoleV1::LocalInitializer(local_initializer_index(index)?),
+        )?;
+        let sources = prepare_nested_expression_sources(
+            &initializer_source,
+            initializer,
+            elements.len(),
+            ExprChildRoleV1::ArrayElement,
+        )?;
+        let ASTNode::ArrayLiteral { elements, .. } = take_initializer(input, index)? else {
+            unreachable!("typed-array shape checked before taking initializer")
+        };
+        let mut scoped = RawStructuredChildScopePortV1::new(self, sources, Vec::new());
+        let value = builder.build_typed_array_literal_with_port_v1(&mut scoped, elements)?;
+        scoped.complete_exact_demands_v1()?;
+        Ok(value)
     }
 
     fn lower_record_constructor_initializer(
         &mut self,
         builder: &mut MirBuilder,
-        _input: &Self::LocalInput,
-        _index: usize,
+        input: &mut Self::LocalInput,
+        index: usize,
         class: &str,
-        arguments: &[ASTNode],
     ) -> Result<ValueId, String> {
-        builder.build_record_constructor_value_with_port_v1(
-            self,
+        let initializer = initializer_at(input.statement(), index)?;
+        let ASTNode::New { arguments, .. } = initializer else {
+            return Err("[freeze:contract][raw-local/record-shape-drift]".to_owned());
+        };
+        let initializer_source = self.prepare_expression_child_source_v1(
+            input.statement(),
+            ExprChildRoleV1::LocalInitializer(local_initializer_index(index)?),
+        )?;
+        let sources = prepare_nested_expression_sources(
+            &initializer_source,
+            initializer,
+            arguments.len(),
+            ExprChildRoleV1::CallArgument,
+        )?;
+        let ASTNode::New { arguments, .. } = take_initializer(input, index)? else {
+            unreachable!("record shape checked before taking initializer")
+        };
+        let mut scoped = RawStructuredChildScopePortV1::new(self, sources, Vec::new());
+        let value = builder.build_record_constructor_value_with_port_v1(
+            &mut scoped,
             class.to_string(),
-            arguments.to_vec(),
-        )
+            arguments,
+        )?;
+        scoped.complete_exact_demands_v1()?;
+        Ok(value)
     }
+}
+
+fn take_initializer(input: &mut RawLegacyLocalInputV1, index: usize) -> Result<ASTNode, String> {
+    let ASTNode::Local { initial_values, .. } = &mut input.statement else {
+        return Err("[freeze:contract][local-descent/input-requires-local]".to_owned());
+    };
+    initial_values
+        .get_mut(index)
+        .and_then(Option::take)
+        .map(|value| *value)
+        .ok_or_else(|| format!("[local-statement-descent/raw-initializer-missing] index={index}"))
+}
+
+fn initializer_at(statement: &ASTNode, index: usize) -> Result<&ASTNode, String> {
+    let ASTNode::Local { initial_values, .. } = statement else {
+        return Err("[freeze:contract][local-descent/input-requires-local]".to_owned());
+    };
+    initial_values
+        .get(index)
+        .and_then(Option::as_deref)
+        .ok_or_else(|| format!("[local-statement-descent/raw-initializer-missing] index={index}"))
+}
+
+fn local_initializer_index(index: usize) -> Result<u32, String> {
+    u32::try_from(index)
+        .map_err(|_| "[freeze:contract][raw-local/initializer-index-overflow]".to_owned())
+}
+
+fn prepare_nested_expression_sources(
+    initializer_source: &crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
+    initializer: &ASTNode,
+    len: usize,
+    role: impl Fn(u32) -> ExprChildRoleV1,
+) -> Result<Vec<crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1>, String>
+{
+    (0..len)
+        .map(|index| {
+            let index = u32::try_from(index).map_err(|_| {
+                "[freeze:contract][raw-local/nested-child-index-overflow]".to_owned()
+            })?;
+            initializer_source.expression_child(initializer, role(index))
+        })
+        .collect()
 }
 
 pub(in crate::mir::builder) fn drive_local_statement_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
-    input: &Port::LocalInput,
+    mut input: Port::LocalInput,
 ) -> Result<ValueId, String>
 where
     Port: LocalStatementDescentPortV1,
 {
     let (variables, initial_values, declared_type_names) = {
-        let syntax = port.local_syntax(input)?;
+        let syntax = port.local_syntax(&input)?;
         preflight_exact_numeric_local_initializers(
             syntax.variables(),
             syntax.initial_values(),
@@ -198,19 +286,17 @@ where
         let value = match initializer {
             Some(ASTNode::ArrayLiteral { elements, .. }) if typed_spec.is_some() => {
                 let (value, contract_id) =
-                    port.lower_typed_array_literal_initializer(builder, input, index, elements)?;
+                    port.lower_typed_array_literal_initializer(builder, &mut input, index)?;
                 preclaimed = Some((contract_id, typed_spec.expect("guarded typed spec")));
                 value
             }
             Some(ASTNode::New {
                 class, arguments, ..
             }) if builder.is_record_constructor_class(class) => {
-                port.lower_record_constructor_initializer(builder, input, index, class, arguments)?
+                let class = class.clone();
+                port.lower_record_constructor_initializer(builder, &mut input, index, &class)?
             }
-            Some(_) => {
-                let expression_input = port.local_initializer_expression_input(input, index)?;
-                drive_legacy_expression_v1(builder, port, expression_input)?
-            }
+            Some(_) => port.lower_ordinary_initializer(builder, &mut input, index)?,
             None => crate::mir::builder::emission::constant::emit_null(builder)?,
         };
         evaluated_values.push(value);

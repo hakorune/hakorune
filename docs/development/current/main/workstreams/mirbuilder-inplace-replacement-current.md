@@ -102,59 +102,43 @@ Latest landed: `RAW-LOCATED-ORDINARY-INDEX-COMPOUND-ASSIGNMENT-SOURCE-HANDOFF0-I
 Latest landed: `RAW-LOCATED-NONMATCH-VALUE-RETURN-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-VOID-RETURN-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-NONHOOK-LOCAL-SOURCE-HANDOFF0-I0-R0`
-Latest design: `RAW-LOCATED-SCALAR-BINDING-REMAINDER9-D0` — closed
-Latest landed: `RAW-LOCATED-MATCH-RETURN-SOURCE-HANDOFF0-I0-R0`
-Current design stop: `RAW-LOCATED-SCALAR-BINDING-REMAINDER10-D0`
+Latest design: `RAW-LOCATED-SCALAR-BINDING-REMAINDER10-D0` — closed
+Latest landed: `RAW-LOCATED-SPECIAL-LOCAL-HOOK-SOURCE-HANDOFF0-I0-R0`
+Current design stop: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-RESIDUE0-D0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`RAW-LOCATED-SCALAR-BINDING-REMAINDER10-D0`
+`RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-RESIDUE0-D0`
 
 ```text
-Landed baseline:
-  variable-target Assignment, GroupedAssignmentExpr, and CompoundAssignment
-  own exact statement/RHS paths. Every Print now owns one exact route-specific
-  demand and DirectPrint installs its exact statement source. Ordinary field
-  Assignment derives Target/Receiver and Value from one intact statement,
-  while ordinary index Assignment derives Target/IndexTarget/IndexSubscript
-  and Value. Ordinary field CompoundAssignment now derives
-  CompoundAssignmentTarget/Receiver and CompoundAssignmentValue from one
-  intact statement, consumes both once, and preserves record check -> receiver
-  -> field read -> RHS -> binary -> field write. These rows no longer enter
-  ScalarBinding. Ordinary index CompoundAssignment now derives
-  CompoundAssignmentTarget/IndexTarget/IndexSubscript and
-  CompoundAssignmentValue from one intact statement, consumes base/index/RHS
-  once, and preserves base -> index preflight -> subscript -> read -> RHS ->
-  binary -> store. All ordinary evaluated-place writes are now located.
-  Non-Match value Return derives one ReturnValue source from the intact
-  statement and consumes it once through the unchanged Return owner; cleanup,
-  defer, completion, and Match-return bypass are unchanged. Void Return now
-  retains its exact statement source and continues through the unchanged
-  zero-child Return owner. Nonhook Local now derives LocalInitializer receipts
-  for aligned active initializers in variable-index order and consumes them
-  exactly once; missing, None, surplus, and invalid-annotation behavior is
-  unchanged. Root New and typed ArrayLiteral special hooks retain their direct
-  residual path.
+Landed:
+  every Local statement is located. RawLegacyLocalInputV1 retains the intact
+  Local; the shared driver remains the sole typed-array and Builder-dependent
+  record selector. Ordinary and non-record New initializers descend under exact
+  LocalInitializer receipts. Typed arrays derive exact ArrayElement receipts;
+  record constructors derive exact CallArgument receipts. The initializer-root
+  receipt is used only as their parent context. Whole-Local preflight,
+  typed-array preclaim, variable-index evaluation, and publication order are
+  unchanged. is_nonhook_local_statement_v1 and the special-Local ScalarBinding
+  edge are zero. Focused tests=34 green; cargo check green; production Rust
+  +329/-210 (net +119); max touched source/test=790.
 
-Landed baseline:
-  the Return owner retains the intact Return carrier through cleanup and one
-  Match probe, invokes one FnOnce continuation only on decline, derives
-  ReturnValue only inside that continuation, and completes once. Selected Match
-  consumes zero child receipts. Every Return shape and every ordinary Local
-  initializer descent are now located.
+Remaining exact ScalarBinding surface:
+  unsupported Assignment target
+  unsupported CompoundAssignment target
+  dead Return reason arm
 
 Question:
-  how can root-New and typed-ArrayLiteral Local hooks consume exact nested
-  sources without duplicating Builder-dependent record selection, typed-array
-  preclaim ordering, or treating the initializer-root receipt as the first
-  constructor argument/array element?
+  can both unsupported target shapes be reowned by one located pre-effect
+  diagnostic terminal while preserving exact current diagnostics and zero RHS
+  effects, then delete the dead Return arm?
 
 Stop:
-  no source-only record-name guess, second hook classifier, initializer-root
-  receipt misrouting, vector normalization, AST clone/reparse, route retry, or
-  compatibility rename.
+  no RHS receipt/descent, target-family widening, reason reassignment, fallback,
+  compatibility rename, AST clone/reparse, or ScalarBinding RET0 before a fresh
+  caller-zero census.
 ```
 
 Corrected queue:
