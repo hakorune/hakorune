@@ -28,11 +28,11 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 ## Current state
 
 ```text
-Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
+Parent:        MIRBUILDER-LIVE-EDGE-CENSUS12-D0
 Latest landed: JOINMODULE-OWNERSHIP-ANALYSIS-RETIRE0-RET0
 Result:        caller-zero JoinIR ownership-analysis asset retired without semantic rehome
-Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS12-D0`
-Executable:    none — fresh census design stop
+Latest design: `JOINMODULE-PHI-RETURN-STRATEGY-REOWN0-D0` — closed
+Executable:    `JOINMODULE-PHI-RETURN-STRATEGY-REOWN0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -66,35 +66,23 @@ DERIVEDSHADOW:
 
 ## Current design decision
 
-`JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0` — T2 CorePlan/MIR boundary design, closed
+`JOINMODULE-PHI-RETURN-STRATEGY-REOWN0-D0` — T2, closed
 
 ```text
-Decision: Candidate A — KnownReturnDefinitionHint P3-D reown
+Decision: Candidate A — Builder-finalization return-type strategy rehome.
 
-Named production caller:
-  NormalDefaultPublishedPipelineV1
-  -> finalize_module
-  -> phi_type_inference::infer_return_type_from_phi
+The sole live consumer is finalize_module.  The existing strategy moves as one
+Builder sibling; JoinIR's TypeHintPolicy and GenericTypeResolver are deleted
+with their exports, not re-exported.  This corrects the stale P3-D-only card:
+the actual policy is one ordered finalization owner.
 
-New owner:
-  private P3-D return-hint observation in phi_type_inference
+Observed order (must not move):
+  Direct value type -> primary name hint -> P3-D known definition
+  -> P4 PhiTypeResolver -> P3-C uniform-PHI fallback.
 
-Atomic old-edge deletion:
-  obsolete P3-D helper import/call/module/file = 0
-
-Policy SSOT:
-  existing builder type annotation helpers; no new type policy
-
-Parity:
-  P3-D remains between TypeHintPolicy/direct lookup and P4/P3-C.
-  grammar, result, route, publication, fallback, and retry deltas = 0.
-
-Rejected/deferred:
-  JumpArgsLayout is a genuine Core/MIR EdgeArgs carrier, but it has no direct
-  normal/default switch and spans 40 Rust files. Reown it only in a later
-  caller-zero Core/MIR type-owner row; do not use a JoinIR re-export alias.
-  JoinInlineBoundary and LoopScopeShape remain normalized-shadow/JoinModule
-  bridge semantics, not current CorePlan ownership.
+No route, grammar, result, publication, fallback/retry, Ownership/View, or
+feature delta.  VM/LLVM, normalized-shadow, Loop/CorePlan, JumpArgsLayout,
+JoinInlineBoundary, and all remaining R3 fences stay separate.
 ```
 
 ## Closed design decision
@@ -121,14 +109,26 @@ and the observer contract is independently disposed. The explicit VM/Stage1/
 StageB reference consumers are handled only by the next reference-sunset D0.
 ```
 
-## Current design stop
+## Current execution
 
-`MIRBUILDER-LIVE-EDGE-CENSUS12-D0` — fresh live/R3 census
+`JOINMODULE-PHI-RETURN-STRATEGY-REOWN0-I0-R0` — T2, one atomic commit
 
 ```text
-Recount remaining live normal/default competing edges and R3 assets after the
-ownership-analysis retirement. Select one real I0/R0, RET0/REOWN/RETAIN-FENCED
-disposition, or NoSafeLiveI0 from current reachability only.
+Change:
+  finalize_module uses one Builder return_type_strategy sibling; delete
+  phi_type_inference and the two JoinIR type-helper modules/exports atomically.
+
+Contract:
+  Preserve Direct -> hint -> P3-D -> P4 -> P3-C, first-match behavior, scan
+  order, debug/release unresolved behavior, and normal candidate parity.
+
+Done:
+  Old imports/files/exports are zero; focused return-strategy and normal
+  lifecycle parity pass through the reusable lane guard.
+
+Stop:
+  Any extra consumer, JoinIR-specific input, order/result drift, or need for
+  an adapter/re-export returns this cell to D0.
 ```
 
 ## Latest closeout
