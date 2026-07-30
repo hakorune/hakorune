@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LOCATED-STRUCTURED-CONTROL-BODIES0-I0-R0 is closed. If, TaskScope, FastMemRegion, ScopeBox, and BlockExpr now carry exact existing-role source paths through the selected production port; selected Script installs the exact Body(index) before owned descent. ControlBody is reduced from 13 kinds to the exact residual 8: Program, Loop, LoopRange, ContextScope, MatchExpr, EnumMatchExpr, Lambda, and TryCatch. RAW-LOCATED-RESIDUAL-CONTROL-PARTITION2-D0 is the current design stop. Ownership/View remains parked."
+status = "RAW-LOCATED-DIAGNOSTIC-CONTROL-TERMINALS0-I0-R0 is closed. LoopRange and ContextScope now retain the exact parent site while preserving their existing immediate diagnostics and zero child semantics. ControlBody is reduced to the exact six residual kinds: Program, Loop, MatchExpr, EnumMatchExpr, Lambda, and TryCatch. The selected next T2 row activates only existing Match/Enum recursive child demands; TryCatch and the other residual authorities remain separate. Ownership/View remains parked."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-LOCATED-RESIDUAL-CONTROL-PARTITION2-D0"
-current_execution_row = "none"
-current_execution_summary = "Design only: partition the exact eight residual ControlBody kinds by their real missing authority. Do not implement, add roles, or reassign reasons until the D0 selects a bounded production edge."
+current_design_stop = "none"
+current_execution_row = "RAW-LOCATED-BRANCHING-EXPR-CHILDREN0-I0-R0"
+current_execution_summary = "Activate exact existing source-path segments for Match scrutinee/arms/else and EnumMatch scrutinee, transport them through the selected port, and delete only MatchExpr/EnumMatchExpr ControlBody edges. Enum arm/else and all TryCatch segments remain parked; completion/CFG/enum semantics do not move."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-LOCATED-RESIDUAL-CONTROL-PARTITION2-D0"
+current_blocker_token = "RAW-LOCATED-BRANCHING-EXPR-CHILDREN0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
