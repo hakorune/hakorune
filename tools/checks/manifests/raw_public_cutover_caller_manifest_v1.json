@@ -68,7 +68,8 @@
     "selected_program_kernel_calls": 0,
     "selected_generic_partition_calls": 0,
     "mircompiler_compat_sunset": "MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001",
-    "runtime_ast_json_compat_sunset": "RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001"
+    "runtime_ast_json_compat_sunset": "RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001",
+    "script_existing_root_lower_sunset": "SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001"
   },
   "post_macro_program_admission": {
     "partition_file": "src/mir/compiler/normal_default_pipeline.rs",
@@ -131,6 +132,13 @@
       "production_route_reads": 0,
       "disabled_route_fixture": 0,
       "retire_row": "RAW-TRYCATCH-DISABLE-ROUTE-COMPAT-RETIRE0-I0-R0"
+    },
+    "SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001": {
+      "state": "active",
+      "owner": "selected Script ExistingRootLower terminal",
+      "complete_baseline": 0,
+      "deferred_baseline": "all selected Script requests",
+      "retire_when": "every selected Script demand is Complete or explicitly retained by R4, and the compatibility caller is zero"
     }
   },
   "old_raw_non_test_callers": 0

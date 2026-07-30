@@ -14,19 +14,17 @@ use super::module_invocation_identity::ModuleInvocationBrandV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortV1;
 use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
-use super::normal_default_root_catalog_lifecycle::{
-    PreparedNormalDefaultProgramRootV1,
-};
+use super::normal_default_root_catalog_lifecycle::PreparedNormalDefaultProgramRootV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_work_plan::{
     PreparedProgramRootRuntimeWorkV1, PreparedProgramRootWorkPlanV1, ProgramRootTerminalScheduleV1,
     ProgramRootWorkPlanAdmissionV1,
 };
 use super::program_static_table_metadata::PreparedNormalProgramStaticTableMetadataV1;
-use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::raw_invocation_source_transport::{
     RawInvocationSourceTransportV1, RawSourceTransportPortV1,
 };
+use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::{MirBuilder, NormalEntryMaterializationSourceReceiptV1, ValueId};
 
 /// Scoped candidate context for one deferred non-Main static Box.
@@ -112,7 +110,7 @@ impl ProgramDeferredStaticBoxLifecycleV1 {
 impl MirBuilder {
     pub(in crate::mir::builder) fn lower_normal_default_program_root_after_catalog_install_v1(
         &mut self,
-        lowering_statements: Vec<ASTNode>,
+        work: PreparedProgramRootWorkPlanV1,
         source: &PreparedNormalDefaultProgramRootV1,
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
@@ -120,7 +118,7 @@ impl MirBuilder {
         brand: ModuleInvocationBrandV1,
     ) -> Result<ValueId, String> {
         self.lower_program_root_after_catalog_install_v1(
-            lowering_statements,
+            work,
             source.source_ast(),
             expansion,
             materialization,
@@ -131,7 +129,7 @@ impl MirBuilder {
 
     fn lower_program_root_after_catalog_install_v1(
         &mut self,
-        statements: Vec<ASTNode>,
+        work: PreparedProgramRootWorkPlanV1,
         snapshot: &ASTNode,
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
@@ -145,13 +143,12 @@ impl MirBuilder {
             port.with_source_transport_v1(
                 RawInvocationSourceTransportV1::script_root(()),
                 |port, ()| {
-                    self.lower_program_root_with_materialization_with_callable_port_v1(
-                        statements,
+                    self.lower_prepared_program_root_with_callable_port_v1(
+                        work,
                         snapshot,
                         expansion,
                         materialization,
                         runtime_inputs,
-                        ProgramRootWorkPlanAdmissionV1::SelectedNormal,
                         port,
                     )
                 },
@@ -215,15 +212,12 @@ impl MirBuilder {
     where
         Port: RootCallableCapturePortV1,
     {
-        PreparedNormalProgramDeclarationFactsV1::collect(snapshot).install_into(&mut self.comp_ctx);
-        if let Some(module) = self.current_module.as_mut() {
-            PreparedNormalProgramStaticTableMetadataV1::prepare(snapshot, module)?.commit();
-        }
-
-        let is_app_mode = expansion.is_app_mode();
-        self.root_is_app_mode = Some(is_app_mode);
-        let work =
-            PreparedProgramRootWorkPlanV1::prepare(statements, is_app_mode, work_plan_admission);
+        self.prepare_program_root_lowering_state_v1(snapshot, expansion.is_app_mode())?;
+        let work = PreparedProgramRootWorkPlanV1::prepare(
+            statements,
+            expansion.is_app_mode(),
+            work_plan_admission,
+        );
         self.lower_program_root_work_plan_with_callable_port_v1(
             work,
             expansion,
@@ -232,6 +226,43 @@ impl MirBuilder {
             work_plan_admission,
             callables,
         )
+    }
+
+    fn lower_prepared_program_root_with_callable_port_v1<Port>(
+        &mut self,
+        work: PreparedProgramRootWorkPlanV1,
+        snapshot: &ASTNode,
+        expansion: &VerifiedRawRootExpansionV1<'_>,
+        materialization: &NormalEntryMaterializationSourceReceiptV1,
+        runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
+        callables: &mut Port,
+    ) -> Result<ValueId, String>
+    where
+        Port: RootCallableCapturePortV1,
+    {
+        self.prepare_program_root_lowering_state_v1(snapshot, expansion.is_app_mode())?;
+        self.lower_program_root_work_plan_with_callable_port_v1(
+            work,
+            expansion,
+            materialization,
+            runtime_inputs,
+            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
+            callables,
+        )
+    }
+
+    fn prepare_program_root_lowering_state_v1(
+        &mut self,
+        snapshot: &ASTNode,
+        is_app_mode: bool,
+    ) -> Result<(), String> {
+        PreparedNormalProgramDeclarationFactsV1::collect(snapshot).install_into(&mut self.comp_ctx);
+        if let Some(module) = self.current_module.as_mut() {
+            PreparedNormalProgramStaticTableMetadataV1::prepare(snapshot, module)?.commit();
+        }
+
+        self.root_is_app_mode = Some(is_app_mode);
+        Ok(())
     }
 
     fn lower_program_root_work_plan_with_callable_port_v1<Port>(

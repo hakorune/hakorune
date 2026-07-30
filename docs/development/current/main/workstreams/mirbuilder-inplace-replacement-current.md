@@ -116,8 +116,9 @@ Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corrected
 Latest landed: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — `507851393c`
 Latest landed: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0` — `ffda60241b`
-Latest landed: `SEMANTIC-OWNER-SOURCE-KIND0-S0` — current commit
-Current execution: `RAW-SCRIPT-RUNTIME-DEMAND-ADMISSION0-I0-R0`
+Latest landed: `SEMANTIC-OWNER-SOURCE-KIND0-S0` — `9b94cc69c4`
+Latest landed: `RAW-SCRIPT-RUNTIME-DEMAND-ADMISSION0-I0-R0` — current commit
+Current execution: `RAW-SCRIPT-SEMANTIC-SOURCE0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -3058,8 +3059,8 @@ Execution series:
 
 Compatibility ratchet:
   sunset_id = SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001
-  baseline  = measured and committed by the first admission I0/R0, not by an
-              unbounded parallel census
+  baseline  = Complete 0 by construction at the first admission I0/R0;
+              ExistingRootLower owns every selected Script request
   metric    = Complete request count over one fixed fixture corpus plus one
               deterministic real-.hako corpus
   law       = Complete count never decreases; Deferred reason vocabulary never
@@ -3085,6 +3086,29 @@ After Accept:
   Local rows by exact declaration site; read selected Variable/Lambda captures
   only from that ledger; remove the selected raw Lambda observer/name
   materialization edge in the same I0/R0.
+```
+
+## RAW-SCRIPT-RUNTIME-DEMAND-ADMISSION0-I0-R0 — closed
+
+```text
+Change:
+  The selected normal lifecycle prepares the one Program work plan after
+  CatalogSeal and before CatalogInstall. The prepared original-ordinal demand
+  sequence is passed into Program lowering by value. Raw/reference callers
+  retain their existing lower-side preparation.
+
+Delete:
+  selected Program RootLower -> prepare/classify Program work plan = 0.
+
+Ratchet:
+  SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001 is active.
+  Complete baseline = 0; Deferred baseline = all selected Script requests.
+  RAW-SCRIPT-SEMANTIC-SOURCE0-I0-R0 must make the first monotonic increase and
+  fix one real repository .hako path without a broad parallel census.
+
+Preserve:
+  Catalog/diagnostic order, Program clone count, runtime order, MIR/result,
+  candidate isolation, raw/reference routes, and fallback/retry = 0.
 ```
 
 ## RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 — closed, Accept(A-prime)

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0 is closed Accept-corrected. A Script semantic body is an original-Program-ordinal demand window, not the whole Program and not a synthetic FunctionDeclaration. SEMANTIC-OWNER-SOURCE-KIND0-S0 closes in the current commit. The next commit must enter the named selected-Script lifecycle and begin the Complete/Deferred compatibility ratchet."
+status = "SEMANTIC-OWNER-SOURCE-KIND0-S0 is closed at 9b94cc69c4. RAW-SCRIPT-RUNTIME-DEMAND-ADMISSION0-I0-R0 closes in the current commit: the selected lifecycle now seals the one Program work plan after CatalogSeal and before CatalogInstall, while raw/reference retain their existing lower-side preparation. SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001 is active with Complete baseline 0. The next row must land the first bounded Complete Script source and one named real-.hako milestone."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none (RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0 closed Accept-corrected)"
-current_execution_row = "RAW-SCRIPT-RUNTIME-DEMAND-ADMISSION0-I0-R0"
-current_execution_summary = "Hoist and consume the one existing Program work plan in the selected lifecycle, classify each original-ordinal runtime demand exactly once, and register SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001 with a monotonic Complete-eligibility ratchet. SEMANTIC-OWNER-SOURCE-KIND0-S0 is the only caller-zero prerequisite commit. No whole-repository/allocator benchmark is authorized."
+current_execution_row = "RAW-SCRIPT-SEMANTIC-SOURCE0-I0-R0"
+current_execution_summary = "Co-seal the first lexical-only Script Complete product from the already-prepared original-ordinal work plan, keep every noneligible request on the one ExistingRootLower terminal, and delete the bare Script-root authority for the Complete closure. Fix one deterministic repository .hako path as the first Complete milestone. Complete count may only increase and Deferred reasons may not grow. Nested Lambda forwarding, control, call/object, Box runtime demand, and postfix catch/cleanup remain later named rows. No broad parallel corpus/allocator benchmark."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-RUNTIME-DEMAND-ADMISSION0-I0-R0"
+current_blocker_token = "RAW-SCRIPT-SEMANTIC-SOURCE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

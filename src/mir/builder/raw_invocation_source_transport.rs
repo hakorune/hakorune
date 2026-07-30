@@ -285,7 +285,8 @@ impl RawInvocationSourceContextV1 {
         let kind = body_kind.ok_or_else(|| {
             "[freeze:contract][raw-invocation/missing-parent-body-kind]".to_owned()
         })?;
-        if !is_located_control_or_diagnostic_terminal(statement)
+        if kind != SourceBodyKindV1::Program
+            && !is_located_control_or_diagnostic_terminal(statement)
             && !is_located_scalar_statement(statement)
             && !is_located_lambda_statement(statement)
         {
