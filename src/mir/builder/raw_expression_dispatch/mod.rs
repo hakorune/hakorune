@@ -312,13 +312,26 @@ impl super::MirBuilder {
                 self.build_record_update_value_with_port_v1(port, *base, updates)
             }
 
-            ASTNode::BlockExpr {
-                prelude_stmts,
-                tail_expr,
-                ..
-            } => {
+            node @ ASTNode::BlockExpr { .. } => {
+                use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
+                let prelude = port.prepare_body_child_source_v1(
+                    &node,
+                    BodyChildRoleV1::BlockExprPrelude,
+                )?;
+                let tail =
+                    port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::BlockExprTail)?;
+                let ASTNode::BlockExpr {
+                    prelude_stmts,
+                    tail_expr,
+                    ..
+                } = node
+                else {
+                    unreachable!()
+                };
                 let prepared = PreparedRawBlockExprV1::prepare(prelude_stmts, *tail_expr)?;
-                lower_prepared_raw_block_expr_with_port_v1(self, port, prepared)
+                let mut scoped = super::raw_structured_child_scope::
+                    RawStructuredChildScopePortV1::for_block_expression(port, prelude, tail);
+                lower_prepared_raw_block_expr_with_port_v1(self, &mut scoped, prepared)
             }
 
             _ => Err(unsupported_raw_ast_node_error_v1(&ast)),

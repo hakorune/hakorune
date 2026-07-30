@@ -1,10 +1,10 @@
 //! Behavior-neutral recursive child-lowering port.
-//!
 //! This module owns the typed body, statement, and expression entry boundary.
 //! It owns no source navigation, callable-result plan, location, ledger,
 //! MethodCall route, or result-publication policy.
 
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
+use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::{MirBuilder, ValueId};
 
 use super::calls::LegacyFunctionPendingSessionV1;
@@ -26,6 +26,7 @@ use super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1,
     RawInvocationSourceTransportV1, RawSourceTransportPortV1, RawUnlocatedPortalV1,
 };
+use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 pub(in crate::mir::builder) use super::raw_expression_recursion_guard::
     with_legacy_expression_recursion_guard_v1;
 use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
@@ -63,14 +64,34 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         builder: &mut MirBuilder,
         input: Self::ExpressionInput,
     ) -> Result<ValueId, String>;
-}
 
-/// Raw AST specialization shared by the legacy facade and the
-/// invocation-aware carrier.
-///
-/// Located/source-branded ports intentionally do not implement this marker.
-/// It permits raw syntax adapters to have one blanket implementation without
-/// fabricating a second AST representation or copying any source policy.
+    fn prepare_expression_child_source_v1(
+        &self,
+        _parent: &ASTNode,
+        _role: ExprChildRoleV1,
+    ) -> Result<PreparedRawChildSourceV1, String> {
+        Ok(PreparedRawChildSourceV1::Preserve)
+    }
+    fn prepare_body_child_source_v1(
+        &self,
+        _parent: &ASTNode,
+        _role: BodyChildRoleV1,
+    ) -> Result<PreparedRawChildSourceV1, String> {
+        Ok(PreparedRawChildSourceV1::Preserve)
+    }
+    fn prepare_body_statement_source_v1(
+        &self, _statement: &ASTNode, _index: usize,
+    ) -> Result<PreparedRawChildSourceV1, String> {
+        Ok(PreparedRawChildSourceV1::Preserve)
+    }
+    fn with_prepared_child_source_v1<R>(
+        &mut self,
+        _source: PreparedRawChildSourceV1,
+        execute: impl FnOnce(&mut Self) -> R,
+    ) -> R {
+        execute(self)
+    }
+}
 pub(in crate::mir::builder) trait RawAstChildLoweringPortV1:
     RecursiveChildLoweringPortV1<
     BodyInput = Vec<ASTNode>,
@@ -79,28 +100,13 @@ pub(in crate::mir::builder) trait RawAstChildLoweringPortV1:
 >
 {
 }
-
-/// Optional completed-header capability for raw terminals.  The legacy raw
-/// port returns no view; the invocation port supplies a short collector loan.
 pub(in crate::mir::builder) trait RawFunctionHeaderLookupPortV1 {
     fn with_function_headers<R>(
         &mut self,
         observe: impl for<'headers> FnOnce(Option<&'headers dyn FunctionSignatureLookupV1>) -> R,
     ) -> R;
 }
-
-/// One raw Box method-child terminal capability.
-///
-/// The raw dispatcher keeps one AST match tree and delegates only the child
-/// function terminal here.  Legacy callers retain their existing publication
-/// route; invocation callers use the collector-backed legacy terminal.
 pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
-    /// Lower the special `Main` static box entry.
-    ///
-    /// `Main` is a root-only surface for invocation sessions.  Keeping this
-    /// decision on the same port makes the invocation implementation reject
-    /// it before any root-main mutation can occur, while the legacy adapter
-    /// retains the existing inline-main behavior.
     fn lower_static_main_box(
         &mut self,
         builder: &mut MirBuilder,

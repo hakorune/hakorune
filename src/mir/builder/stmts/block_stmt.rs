@@ -186,30 +186,81 @@ where
     builder.metadata_ctx.set_current_span(node.span());
     match node {
         // Phase 212.5: Statement としての If 処理
-        ASTNode::If {
-            condition,
-            then_body,
-            else_body,
-            ..
-        } => {
-            // Statement としての If - 既存 If lowering を呼ぶ
-            let lowering = super::if_statement_descent::drive_raw_if_statement_with_port_v1(
-                builder, child, *condition, then_body, else_body,
-            );
-            super::if_statement_descent::complete_if_statement_v1(builder, lowering)
-        }
+        node @ ASTNode::If { .. } => build_if_statement_with_port_v1(builder, child, node),
         ASTNode::StaticConstTable { .. } => {
             // Metadata-only declaration; execution observes no runtime statement.
             Ok(crate::mir::builder::emission::constant::emit_void(builder)?)
         }
-        ASTNode::FastMemRegion {
-            contract,
-            body,
-            span,
-        } => super::super::fastmem::build_fastmem_region_with_port_v1(
-            builder, child, contract, body, span,
-        ),
+        node @ ASTNode::FastMemRegion { .. } => {
+            use crate::mir::resolved_semantics::BodyChildRoleV1;
+            let source =
+                child.prepare_body_child_source_v1(&node, BodyChildRoleV1::FastMemBody)?;
+            let ASTNode::FastMemRegion {
+                contract,
+                body,
+                span,
+            } = node
+            else {
+                unreachable!()
+            };
+            let mut scoped = crate::mir::builder::raw_structured_child_scope::
+                RawStructuredChildScopePortV1::for_body(child, source);
+            super::super::fastmem::build_fastmem_region_with_port_v1(
+                builder,
+                &mut scoped,
+                contract,
+                body,
+                span,
+            )
+        }
         // 将来ここに While / LoopRange / Match / Using など statement 専用分岐を追加する。
         other => drive_legacy_expression_v1(builder, child, other),
     }
+}
+
+pub(in crate::mir::builder) fn build_if_statement_with_port_v1<Port>(
+    builder: &mut MirBuilder,
+    child: &mut Port,
+    node: ASTNode,
+) -> Result<ValueId, String>
+where
+    Port: RecursiveChildLoweringPortV1<
+        BodyInput = Vec<ASTNode>,
+        StatementInput = ASTNode,
+        ExpressionInput = ASTNode,
+    >,
+{
+    use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
+    let condition =
+        child.prepare_expression_child_source_v1(&node, ExprChildRoleV1::IfCondition)?;
+    let then_body = child.prepare_body_child_source_v1(&node, BodyChildRoleV1::IfThen)?;
+    let else_body = match &node {
+        ASTNode::If {
+            else_body: Some(_), ..
+        } => Some(child.prepare_body_child_source_v1(&node, BodyChildRoleV1::IfElse)?),
+        _ => None,
+    };
+    let ASTNode::If {
+        condition: condition_node,
+        then_body: then_nodes,
+        else_body: else_nodes,
+        ..
+    } = node
+    else {
+        return Err("[freeze:contract][raw-structured/expected-if]".to_owned());
+    };
+    let mut scoped =
+        crate::mir::builder::raw_structured_child_scope::RawStructuredChildScopePortV1::new(
+            child,
+            vec![condition],
+            [Some(then_body), else_body].into_iter().flatten().collect(),
+        );
+    let lowering = super::if_statement_descent::drive_raw_if_statement_with_port_v1(
+        builder,
+        &mut scoped,
+        *condition_node,
+        then_nodes,
+        else_nodes,
+    );
+    super::if_statement_descent::complete_if_statement_v1(builder, lowering)
 }

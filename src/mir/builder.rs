@@ -318,6 +318,7 @@ pub(in crate::mir) use located_legacy_lowering::{
 mod recursive_child_lowering;
 mod raw_invocation_source_transport;
 mod raw_expression_recursion_guard;
+mod raw_structured_child_scope;
 #[cfg(test)]
 mod recursive_child_lowering_rawport_tests;
 #[cfg(test)]
@@ -400,6 +401,7 @@ mod program_root_work_plan; // Normal Program source-only work partition
 mod normal_script_direct_statement_owner; // Selected Script direct statement terminals
 mod normal_script_nonbox_statement_disposition; // Selected Script non-Box source partition
 mod normal_script_runtime_work; // Selected Script runtime Box callable admission
+mod normal_script_runtime_block_port;
 mod normal_top_level_function_admission; // Selected top-level callable source/physical admission
 mod program_static_table_metadata; // Normal Program paired static-table metadata
 mod type_hint_providers; // Phase 29bq+: Type hint provision (call results, method signatures) // Phase 25.1q: Unified PHI merge helper // prepare/lower_root/finalize split

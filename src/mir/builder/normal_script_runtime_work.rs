@@ -1,11 +1,6 @@
 //! Selected-normal Script runtime descent: one Program classification, ordered existing terminals.
 
-use super::normal_script_direct_statement_owner::{
-    lower_direct_fastmem_region_v1, lower_direct_if_statement_v1,
-    lower_direct_port_aware_expression_v1, lower_direct_print_v1,
-    lower_direct_selected_unsupported_statement_v1,
-    lower_direct_static_const_runtime_completion_v1,
-};
+use super::normal_script_runtime_block_port::NormalScriptRuntimeBlockPortV1;
 use super::normal_script_nonbox_statement_disposition::{
     classify_normal_script_nonbox_statement_v1, NormalScriptNonBoxStatementDispositionV1,
 };
@@ -18,8 +13,7 @@ use crate::mir::builder::normal_instance_constructor_admission::NormalInstanceCo
 use crate::mir::builder::raw_expression_dispatch::{
     reject_sync_box_lowering_v1, PreparedRawNonMainStaticBoxLifecycleV1,
 };
-use crate::mir::builder::recursive_child_lowering::drive_legacy_statement_v1;
-use crate::mir::builder::stmts::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
+use crate::mir::builder::stmts::block_driver::drive_legacy_block_v1;
 use crate::mir::{MirBuilder, ValueId};
 
 #[derive(Debug)]
@@ -127,14 +121,15 @@ impl PreparedNormalScriptRuntimeWorkV1 {
         self.statements.into_vec()
     }
     pub(super) fn lower_with_port_v1<Port>(
-        &self,
+        self,
         builder: &mut MirBuilder,
         port: &mut Port,
     ) -> Result<ValueId, String>
     where
         Port: RootCallableCapturePortV1,
     {
-        let mut block_port = NormalScriptRuntimeBlockPortV1 { work: self, port };
+        let mut block_port =
+            NormalScriptRuntimeBlockPortV1::new(self.statements, self.admissions, port);
         drive_legacy_block_v1(builder, &mut block_port)
     }
     #[cfg(test)]
@@ -167,88 +162,7 @@ impl PreparedNormalScriptRuntimeWorkV1 {
     }
 }
 
-struct NormalScriptRuntimeBlockPortV1<'work, 'port, Port> {
-    work: &'work PreparedNormalScriptRuntimeWorkV1,
-    port: &'port mut Port,
-}
-
-impl<Port> LegacyBlockDescentPortV1 for NormalScriptRuntimeBlockPortV1<'_, '_, Port>
-where
-    Port: RootCallableCapturePortV1,
-{
-    type SuffixInput<'a>
-        = &'a [ASTNode]
-    where
-        Self: 'a;
-
-    fn len(&self) -> usize {
-        self.work.statements.len()
-    }
-    fn suffix_route_input(&self, index: usize) -> Result<Option<Self::SuffixInput<'_>>, String> {
-        Ok(Some(&self.work.statements[index..]))
-    }
-    fn lower_statement(
-        &mut self,
-        builder: &mut MirBuilder,
-        index: usize,
-    ) -> Result<ValueId, String> {
-        let statement = &self.work.statements[index];
-        match &self.work.admissions[index] {
-            NormalScriptRuntimeStatementAdmissionV1::DirectPrint => {
-                lower_direct_print_v1(builder, self.port, statement)
-            }
-            NormalScriptRuntimeStatementAdmissionV1::DirectIfStatement => {
-                lower_direct_if_statement_v1(builder, self.port, statement)
-            }
-            NormalScriptRuntimeStatementAdmissionV1::DirectFastMemRegion => {
-                lower_direct_fastmem_region_v1(builder, self.port, statement.clone())
-            }
-            NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression => {
-                lower_direct_port_aware_expression_v1(builder, self.port, statement)
-            }
-            NormalScriptRuntimeStatementAdmissionV1::DirectStaticConstRuntimeCompletion => {
-                lower_direct_static_const_runtime_completion_v1(builder, statement)
-            }
-            NormalScriptRuntimeStatementAdmissionV1::DirectSelectedUnsupportedStatement => {
-                lower_direct_selected_unsupported_statement_v1(builder, statement)
-            }
-            NormalScriptRuntimeStatementAdmissionV1::RawCompatibility => {
-                drive_legacy_statement_v1(builder, self.port, statement.clone())
-            }
-            NormalScriptRuntimeStatementAdmissionV1::CatalogedNonMainStaticBox => {
-                lower_cataloged_nonmain_static_box_v1(builder, self.port, statement)
-            }
-            NormalScriptRuntimeStatementAdmissionV1::StaticMainCompatibility => {
-                lower_static_main_compatibility_v1(builder, self.port, statement)
-            }
-            NormalScriptRuntimeStatementAdmissionV1::SyncBoxRejection => {
-                reject_sync_box_at_runtime_v1(statement)
-            }
-            NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility {
-                constructor_sources,
-                constructor_batch,
-            } => lower_instance_runtime_prefix_v1(
-                builder,
-                self.port,
-                statement,
-                constructor_sources.as_ref(),
-                constructor_batch.as_ref(),
-            ),
-            NormalScriptRuntimeStatementAdmissionV1::NonPlainInstanceFullLifecycle {
-                constructor_sources,
-                constructor_batch,
-            } => lower_nonplain_instance_runtime_lifecycle_v1(
-                builder,
-                self.port,
-                statement,
-                constructor_sources.as_ref(),
-                constructor_batch.as_ref(),
-            ),
-        }
-    }
-}
-
-fn lower_cataloged_nonmain_static_box_v1<Port>(
+pub(super) fn lower_cataloged_nonmain_static_box_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
     statement: &ASTNode,
@@ -269,7 +183,7 @@ where
         .lower_normal_with_port_v1(builder, port)
 }
 
-fn lower_static_main_compatibility_v1<Port>(
+pub(super) fn lower_static_main_compatibility_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
     statement: &ASTNode,
@@ -292,7 +206,7 @@ where
     port.lower_static_main_box(builder, name.clone(), methods.clone())
 }
 
-fn reject_sync_box_at_runtime_v1(statement: &ASTNode) -> Result<ValueId, String> {
+pub(super) fn reject_sync_box_at_runtime_v1(statement: &ASTNode) -> Result<ValueId, String> {
     let ASTNode::BoxDeclaration {
         name,
         is_sync: true,
@@ -304,7 +218,7 @@ fn reject_sync_box_at_runtime_v1(statement: &ASTNode) -> Result<ValueId, String>
     Err(reject_sync_box_lowering_v1(name))
 }
 
-fn lower_instance_runtime_prefix_v1<Port>(
+pub(super) fn lower_instance_runtime_prefix_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
     statement: &ASTNode,
@@ -347,7 +261,7 @@ where
     emit_void(builder)
 }
 
-fn lower_nonplain_instance_runtime_lifecycle_v1<Port>(
+pub(super) fn lower_nonplain_instance_runtime_lifecycle_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
     statement: &ASTNode,
@@ -494,7 +408,7 @@ mod tests {
     use std::collections::HashMap;
 
     use super::*;
-    use crate::ast::{DeclarationAttrs, Span};
+    use crate::ast::{DeclarationAttrs, LiteralValue, Span};
     use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
     use crate::parser::NyashParser;
 
@@ -523,6 +437,70 @@ mod tests {
             attrs: DeclarationAttrs::default(),
             span: Span::unknown(),
         }
+    }
+
+    fn integer(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        }
+    }
+
+    #[test]
+    fn selected_script_executes_three_located_direct_expression_bodies() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let statements = vec![
+            ASTNode::BlockExpr {
+                prelude_stmts: vec![ASTNode::If {
+                    condition: Box::new(integer(1)),
+                    then_body: vec![integer(2)],
+                    else_body: Some(vec![integer(3)]),
+                    span: Span::unknown(),
+                }],
+                tail_expr: Box::new(integer(4)),
+                span: Span::unknown(),
+            },
+            ASTNode::TaskScope {
+                body: vec![ASTNode::FastMemRegion {
+                    contract: "PageMapV0".to_owned(),
+                    body: vec![integer(5)],
+                    span: Span::unknown(),
+                }],
+                source_keyword: "co".to_owned(),
+                span: Span::unknown(),
+            },
+            ASTNode::ScopeBox {
+                body: vec![ASTNode::BlockExpr {
+                    prelude_stmts: vec![integer(6)],
+                    tail_expr: Box::new(integer(7)),
+                    span: Span::unknown(),
+                }],
+                span: Span::unknown(),
+            },
+        ];
+        let program = ASTNode::Program {
+            statements,
+            span: Span::unknown(),
+        };
+        let mut legacy = MirCompiler::with_options(false);
+        let legacy = legacy
+            .compile_with_source(program.clone(), Some("structured-script.hako"))
+            .expect("legacy structured Script");
+        let mut normal = MirCompiler::with_options(false);
+        let normal = normal
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    program,
+                    Some("structured-script.hako"),
+                    HashMap::new(),
+                )
+                .expect("normal request"),
+            )
+            .expect("selected normal structured Script");
+        assert_eq!(
+            MirPrinter::new().print_module(&normal.module),
+            MirPrinter::new().print_module(&legacy.module)
+        );
     }
 
     #[test]

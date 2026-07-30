@@ -1,0 +1,154 @@
+//! Short-lived exact source scopes for selected structured raw children.
+//!
+//! This adapter owns no AST policy. Callers prepare every child receipt from
+//! the intact parent AST through the neutral role vocabulary before moving
+//! syntax into an existing lowering owner.
+
+use std::collections::VecDeque;
+
+use crate::ast::ASTNode;
+use crate::mir::{MirBuilder, ValueId};
+
+use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
+use super::recursive_child_lowering::RecursiveChildLoweringPortV1;
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) enum PreparedRawChildSourceV1 {
+    Preserve,
+    Exact(RawInvocationSourceContextV1),
+}
+
+pub(in crate::mir::builder) struct RawStructuredChildScopePortV1<'port, Port> {
+    child: &'port mut Port,
+    expressions: VecDeque<PreparedRawChildSourceV1>,
+    bodies: VecDeque<PreparedRawChildSourceV1>,
+    statement_body: Option<(RawInvocationSourceContextV1, usize)>,
+}
+
+impl<'port, Port> RawStructuredChildScopePortV1<'port, Port> {
+    pub(in crate::mir::builder) fn new(
+        child: &'port mut Port,
+        expressions: Vec<PreparedRawChildSourceV1>,
+        bodies: Vec<PreparedRawChildSourceV1>,
+    ) -> Self {
+        Self {
+            child,
+            expressions: expressions.into(),
+            bodies: bodies.into(),
+            statement_body: None,
+        }
+    }
+
+    pub(in crate::mir::builder) fn for_block_expression(
+        child: &'port mut Port,
+        prelude: PreparedRawChildSourceV1,
+        tail: PreparedRawChildSourceV1,
+    ) -> Self {
+        let statement_body = match prelude {
+            PreparedRawChildSourceV1::Preserve => None,
+            PreparedRawChildSourceV1::Exact(context) => Some((context, 0)),
+        };
+        Self {
+            child,
+            expressions: [tail].into(),
+            bodies: VecDeque::new(),
+            statement_body,
+        }
+    }
+
+    pub(in crate::mir::builder) fn for_body(
+        child: &'port mut Port,
+        body: PreparedRawChildSourceV1,
+    ) -> Self {
+        let statement_body = match &body {
+            PreparedRawChildSourceV1::Preserve => None,
+            PreparedRawChildSourceV1::Exact(context) => Some((context.clone(), 0)),
+        };
+        Self {
+            child,
+            expressions: VecDeque::new(),
+            bodies: [body].into(),
+            statement_body,
+        }
+    }
+
+    fn next_expression(&mut self) -> Result<PreparedRawChildSourceV1, String> {
+        self.expressions.pop_front().ok_or_else(|| {
+            "[freeze:contract][raw-structured/expression-demand-overflow]".to_owned()
+        })
+    }
+
+    fn next_body(&mut self) -> Result<PreparedRawChildSourceV1, String> {
+        self.bodies.pop_front().ok_or_else(|| {
+            "[freeze:contract][raw-structured/body-demand-overflow]".to_owned()
+        })
+    }
+}
+
+impl<Port> RecursiveChildLoweringPortV1 for RawStructuredChildScopePortV1<'_, Port>
+where
+    Port: RecursiveChildLoweringPortV1<
+        BodyInput = Vec<ASTNode>,
+        StatementInput = ASTNode,
+        ExpressionInput = ASTNode,
+    >,
+{
+    type BodyInput = Vec<ASTNode>;
+    type StatementInput = ASTNode;
+    type ExpressionInput = ASTNode;
+
+    fn lower_body(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::BodyInput,
+    ) -> Result<ValueId, String> {
+        let source = self.next_body()?;
+        self.child.with_prepared_child_source_v1(source, |child| {
+            child.lower_body(builder, input)
+        })
+    }
+
+    fn lower_statement(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::StatementInput,
+    ) -> Result<ValueId, String> {
+        let Some((body, index)) = self.statement_body.as_mut() else {
+            return self.child.lower_statement(builder, input);
+        };
+        let transport = body.structured_body_statement(input, *index)?;
+        *index += 1;
+        let (input, context) = RawInvocationSourceContextV1::from_transport(transport);
+        self.child.with_prepared_child_source_v1(
+            PreparedRawChildSourceV1::Exact(context),
+            |child| child.lower_statement(builder, input),
+        )
+    }
+
+    fn lower_expression(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::ExpressionInput,
+    ) -> Result<ValueId, String> {
+        match input {
+            ASTNode::Program { statements, span } => {
+                let source = self.next_body()?;
+                match source {
+                    PreparedRawChildSourceV1::Preserve => self.child.lower_expression(
+                        builder,
+                        ASTNode::Program { statements, span },
+                    ),
+                    source => self.child.with_prepared_child_source_v1(source, |child| {
+                        child.lower_body(builder, statements)
+                    }),
+                }
+            }
+            input => {
+                let source = self.next_expression()?;
+                self.child.with_prepared_child_source_v1(source, |child| {
+                    child.lower_expression(builder, input)
+                })
+            }
+        }
+    }
+}

@@ -113,20 +113,41 @@ where
         ASTNode::Program { statements, .. } => Ok(StatementSurfaceDispatch::Lowered(
             drive_legacy_body_v1(builder, port, statements)?,
         )),
-        ASTNode::ScopeBox { body, .. } => Ok(StatementSurfaceDispatch::Lowered(
-            builder.lower_prepared_raw_scopebox_with_port_v1(
-                port,
-                PreparedRawScopeBoxV1::prepare(body),
-            )?,
-        )),
-        ASTNode::TaskScope {
-            body,
-            source_keyword,
-            ..
-        } => {
-            let prepared = PreparedRawTaskScopeV1::prepare(body, source_keyword)?;
+        node @ ASTNode::ScopeBox { .. } => {
+            let source = port.prepare_body_child_source_v1(
+                &node,
+                crate::mir::resolved_semantics::BodyChildRoleV1::ScopeBody,
+            )?;
+            let ASTNode::ScopeBox { body, .. } = node else {
+                unreachable!()
+            };
+            let mut scoped = crate::mir::builder::raw_structured_child_scope::
+                RawStructuredChildScopePortV1::for_body(port, source);
             Ok(StatementSurfaceDispatch::Lowered(
-                lower_prepared_raw_task_scope_with_port_v1(builder, port, prepared)?,
+                builder.lower_prepared_raw_scopebox_with_port_v1(
+                    &mut scoped,
+                    PreparedRawScopeBoxV1::prepare(body),
+                )?,
+            ))
+        }
+        node @ ASTNode::TaskScope { .. } => {
+            let source = port.prepare_body_child_source_v1(
+                &node,
+                crate::mir::resolved_semantics::BodyChildRoleV1::TaskScopeBody,
+            )?;
+            let ASTNode::TaskScope {
+                body,
+                source_keyword,
+                ..
+            } = node
+            else {
+                unreachable!()
+            };
+            let prepared = PreparedRawTaskScopeV1::prepare(body, source_keyword)?;
+            let mut scoped = crate::mir::builder::raw_structured_child_scope::
+                RawStructuredChildScopePortV1::for_body(port, source);
+            Ok(StatementSurfaceDispatch::Lowered(
+                lower_prepared_raw_task_scope_with_port_v1(builder, &mut scoped, prepared)?,
             ))
         }
         ASTNode::ContextScope {
@@ -148,13 +169,30 @@ where
                 )?,
             ))
         }
-        ASTNode::If {
-            condition,
-            then_body,
-            else_body,
-            ..
-        } => {
+        node @ ASTNode::If { .. } => {
             use crate::ast::Span;
+            use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
+            let condition =
+                port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::IfCondition)?;
+            let then_source =
+                port.prepare_body_child_source_v1(&node, BodyChildRoleV1::IfThen)?;
+            let else_source = match &node {
+                ASTNode::If {
+                    else_body: Some(_), ..
+                } => Some(
+                    port.prepare_body_child_source_v1(&node, BodyChildRoleV1::IfElse)?,
+                ),
+                _ => None,
+            };
+            let ASTNode::If {
+                condition: condition_node,
+                then_body,
+                else_body,
+                ..
+            } = node
+            else {
+                unreachable!()
+            };
             let then_node = ASTNode::Program {
                 statements: then_body,
                 span: Span::unknown(),
@@ -163,9 +201,18 @@ where
                 statements: body,
                 span: Span::unknown(),
             });
+            let mut scoped =
+                crate::mir::builder::raw_structured_child_scope::RawStructuredChildScopePortV1::new(
+                    port,
+                    vec![condition],
+                    [Some(then_source), else_source]
+                        .into_iter()
+                        .flatten()
+                        .collect(),
+                );
             Ok(StatementSurfaceDispatch::Lowered(builder.cf_if_with_port_v1(
-                port,
-                *condition,
+                &mut scoped,
+                *condition_node,
                 then_node,
                 else_node,
             )?))

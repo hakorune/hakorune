@@ -84,28 +84,28 @@ Latest landed: `JOINIR-CALLER-ZERO-EXPR-SCOPE-LOWERING-ISLAND-RETIRE0-RET0`
 Latest landed: `JOINIR-IF-SELECT-ALTERNATE-LANE-RETIRE0-RET0`
 Latest conformance: `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` — Incomplete
 Latest design: `RAW-RECURSIVE-LOCATED-PORT-MIGRATION0-D0` — shrinking carrier accepted
-Latest landed: `RAW-LOCATED-BODY-SPINE0-I0-R0`
+Latest landed: `RAW-LOCATED-STRUCTURED-CONTROL-BODIES0-I0-R0`
 Latest design: `RAW-LOCATED-CONTROL-BODY-PARTITION1-D0` — one-row deletion rejected
-Current execution: `RAW-LOCATED-STRUCTURED-CONTROL-BODIES0-I0-R0`
+Current design stop: `RAW-LOCATED-RESIDUAL-CONTROL-PARTITION2-D0`
 History:       Git history and the short landed tail below
 ```
 
-## Current execution brief
+## Current design brief
 
-`RAW-LOCATED-STRUCTURED-CONTROL-BODIES0-I0-R0`
+`RAW-LOCATED-RESIDUAL-CONTROL-PARTITION2-D0`
 
 ```text
 Change:
-  reuse existing If/TaskScope/FastMem/Scope/BlockExpr roles to transport exact
-  children. Remove only those five from ControlBody classification.
+  read-only partition of the exact residual eight ControlBody kinds by their
+  missing source-path, selected-loop, closure-root, or fail-fast authority.
 
 Done:
-  ControlBody classified kinds 13 -> 8. Program, Loop, LoopRange, ContextScope,
-  MatchExpr, EnumMatchExpr, Lambda, and TryCatch remain explicit.
+  select one bounded production replacement or record NoSafeSlice. The five
+  existing-role controls are already closed and must not be reopened.
 
 Stop:
-  no new role/path vocabulary, synthetic Program navigation, Loop port
-  threading, Match/Try claim, clone/reparse, reason reassignment, or fallback.
+  no code edit, role addition, reason reassignment, compatibility forwarding,
+  clone/reparse, fallback, or retry during D0.
 ```
 
 Corrected queue:
@@ -149,7 +149,7 @@ activation and sunset contract.
 | closed | `JOINMODULE-TEST-HANDLER-LANE-SUNSET-001` (promotes `R4-UNREGISTERED-TEST-HANDLER-001`) | former cfg(test)-only `block_finalizer`, `handlers/**`, `merge_variable_handler`, and `terminator_builder` legacy VM-bridge handler lane | production conversion remains solely in `joinir_block_converter/**`; deleted lane and registrations = 0 | RET0 | retired by `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`: 14 files / 3743 lines, four cfg(test) module declarations, obsolete README section, stale PHI seam row, and generated inventory rows deleted |
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> `lower_static_box_method` / `lower_instance_box_method`, the two live nested-method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | R4 BLOCKER: source occurrences exist, but neither live issuer receives a function-relative located-source receipt | `RAW-LOCATED-BODY-TRANSPORT0-D0` must select one located transport whose I0/R0 deletes both named production issuers before R4 Complete |
 | closed | `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-SUNSET-001` | former caller-zero `ModuleLoweringPortV1::complete_legacy_child`, two disconnected proof modules, and three inline facade tests | production caller = 0 before deletion; live nested issuers already use capture + `commit_legacy_pending` | RET0 | retired by `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0`; live commit terminals, 2 nested issuers, reentrant proof, collector tests, and live callable-Main physical owner retained |
-| active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected `RawInvocationChildPortV1` only: four fixed portals remain after batch 1 — `ControlBody`, `ScalarBinding`, `CallObject`, `NestedBoxAdmission` | one selected state and one execution per node; RawLegacy/raw-reference remain separate; batch 1 root/body/direct-Box transport is closed | no variant/reason reassignment; structured-control row reduces ControlBody kinds 13 -> 8; fresh residual D0 must name every later deletion | close only after residual-control rows remove the ControlBody variant, scalar/call rows remove their variants, and final nested row deletes `NestedBoxAdmission` with both selected nested legacy-symbol issuers |
+| active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected `RawInvocationChildPortV1` only: four fixed portals remain — `ControlBody` with exact residual Program, Loop, LoopRange, ContextScope, MatchExpr, EnumMatchExpr, Lambda, TryCatch; plus `ScalarBinding`, `CallObject`, `NestedBoxAdmission` | one selected state and one execution per node; RawLegacy/raw-reference remain separate; root/body/direct-Box and five existing-role structured controls are closed | no variant/reason reassignment; fresh residual D0 must name every later deletion | close only after residual-control rows remove the ControlBody variant, scalar/call rows remove their variants, and final nested row deletes `NestedBoxAdmission` with both selected nested legacy-symbol issuers |
 | closed | `JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001` | former three explicit-VM `LowerOnly` target rows, dispatcher observation branch, and `lower_only_routes`; five target names were also consumed by Loop/If/strict classification | observation route and vocabulary = 0; neutral five-name policy and two VM Exec rows remain | REOWN+RET0 | retired by `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`: all five lowerers/direct evidence remain; no old target-table alias |
 | closed | `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-SUNSET-001` | former caller-zero Stage1UsingResolver, StageB body, and StageB FuncScanner target lowerers; exclusive builders, dispatchers, Case-A entrypoints, ValueId ranges, tests, and fixtures | production and retained explicit-VM callers = 0 before deletion | RET0 | retired by `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`; neutral five-name policy, skip/trim VM routes, If vocabulary, native Stage1 verifier, and selfhost mode-B lane retained |
 | closed | `JOINIR-CALLER-ZERO-EXPR-SCOPE-LOWERING-ISLAND-SUNSET-001` | former condition/expr/local/method/scope/user-policy lowering island, its exclusive tests, and obsolete lifecycle guards | repository production and retained reference callers = 0 before deletion | RET0 | retired by `JOINIR-CALLER-ZERO-EXPR-SCOPE-LOWERING-ISLAND-RETIRE0-RET0`; 22 source files / 4,368 lines deleted; live `ConditionBinding` remains |

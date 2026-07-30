@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LOCATED-CONTROL-BODY-PARTITION1-D0 rejects the false one-row ControlBody deletion. The selected safe row moves exactly five structured controls using existing neutral roles and reduces 13 classified kinds to 8. Program, Loop, LoopRange, ContextScope, MatchExpr, EnumMatchExpr, Lambda, and TryCatch remain explicit until a fresh residual-control D0 separates their missing path, closure-root, selected-loop, and fail-fast terminal authorities. Ownership/View remains parked."
+status = "RAW-LOCATED-STRUCTURED-CONTROL-BODIES0-I0-R0 is closed. If, TaskScope, FastMemRegion, ScopeBox, and BlockExpr now carry exact existing-role source paths through the selected production port; selected Script installs the exact Body(index) before owned descent. ControlBody is reduced from 13 kinds to the exact residual 8: Program, Loop, LoopRange, ContextScope, MatchExpr, EnumMatchExpr, Lambda, and TryCatch. RAW-LOCATED-RESIDUAL-CONTROL-PARTITION2-D0 is the current design stop. Ownership/View remains parked."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "RAW-LOCATED-STRUCTURED-CONTROL-BODIES0-I0-R0"
-current_execution_summary = "Remove exactly five ControlBody classifier edges: If, TaskScope, FastMemRegion, ScopeBox, and BlockExpr use only existing ExprChildRoleV1/BodyChildRoleV1 policy and short-lived child source scopes. The other eight kinds remain ControlBody. No role vocabulary, closure-root claim, Loop threading, synthetic Program navigation, fallback, clone, or reason reassignment."
+current_design_stop = "RAW-LOCATED-RESIDUAL-CONTROL-PARTITION2-D0"
+current_execution_row = "none"
+current_execution_summary = "Design only: partition the exact eight residual ControlBody kinds by their real missing authority. Do not implement, add roles, or reassign reasons until the D0 selects a bounded production edge."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-LOCATED-STRUCTURED-CONTROL-BODIES0-I0-R0"
+current_blocker_token = "RAW-LOCATED-RESIDUAL-CONTROL-PARTITION2-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

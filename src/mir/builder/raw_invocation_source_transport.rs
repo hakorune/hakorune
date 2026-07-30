@@ -10,7 +10,10 @@ use crate::mir::builder::stmts::block_driver::{
     drive_legacy_block_v1, LegacyBlockDescentPortV1,
 };
 use crate::mir::builder::MirBuilder;
-use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1};
+use crate::mir::resolved_semantics::{
+    BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1, SourceBodyKindV1,
+    SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1,
+};
 use crate::mir::ValueId;
 
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1;
@@ -19,6 +22,7 @@ use super::recursive_child_lowering::{
     lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
     RecursiveChildLoweringPortV1,
 };
+use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::{CanonicalSameModuleCallableKeyV1, RawSourceLocatorV1};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -107,6 +111,7 @@ pub(in crate::mir::builder) enum RawInvocationSourceContextV1 {
     Located {
         root: RawInvocationRootLineageV1,
         site: SourceNodeSiteV1,
+        body_kind: Option<SourceBodyKindV1>,
     },
     UnlocatedCompatibility(RawUnlocatedPortalV1),
 }
@@ -117,7 +122,11 @@ impl RawInvocationSourceContextV1 {
     ) -> (T, Self) {
         let (node, located, reason) = transport.into_parts();
         let context = match (located, reason) {
-            (Some((root, site)), None) => Self::Located { root, site },
+            (Some((root, site)), None) => Self::Located {
+                root,
+                site,
+                body_kind: Some(SourceBodyKindV1::Function),
+            },
             (None, Some(reason)) => Self::UnlocatedCompatibility(reason),
             _ => unreachable!("[freeze:contract][raw-invocation/source-transport-state]"),
         };
@@ -130,19 +139,29 @@ impl RawInvocationSourceContextV1 {
         index: usize,
     ) -> RawInvocationSourceTransportV1<ASTNode> {
         match self {
-            Self::Located { root, site } => {
-                if !matches!(&statement, ASTNode::BoxDeclaration { .. }) {
+            Self::Located {
+                root,
+                site,
+                body_kind,
+            } => {
+                if !matches!(&statement, ASTNode::BoxDeclaration { .. })
+                    && !is_located_structured_control(&statement)
+                {
                     let reason = reason_for_non_box_statement(&statement);
                     return RawInvocationSourceTransportV1::unlocated(
                         statement,
                         reason,
                     );
                 }
-                let child = if site.segments() == [SourcePathSegmentV1::FunctionBody] {
+                let kind =
+                    body_kind.expect("located body transport must retain its body kind");
+                let child = if kind == SourceBodyKindV1::Function
+                    && site.segments() == [SourcePathSegmentV1::FunctionBody]
+                {
                     SourcePathV1::root_body(index).node()
                 } else {
                     SourcePathV1::from_node(site)
-                        .child(SourcePathSegmentV1::Body(index as u32))
+                        .child(kind.item_segment(index as u32))
                         .node()
                 };
                 RawInvocationSourceTransportV1::Located(LocatedRawNodeV1::new(
@@ -163,23 +182,126 @@ impl RawInvocationSourceContextV1 {
             Self::UnlocatedCompatibility(_) => None,
         }
     }
+
+    pub(in crate::mir::builder) fn child_expression(
+        &self,
+        parent: &ASTNode,
+        role: ExprChildRoleV1,
+    ) -> Result<Self, String> {
+        let Self::Located { root, site, .. } = self else {
+            return Ok(self.clone());
+        };
+        let resolved = role.resolve(parent).ok_or_else(|| {
+            format!(
+                "[freeze:contract][raw-invocation/expr-child-role] parent={} role={role:?}",
+                parent.node_type()
+            )
+        })?;
+        if !matches!(resolved.syntax(), ExprChildSyntaxV1::Node(_)) {
+            return Err(format!(
+                "[freeze:contract][raw-invocation/expr-child-missing] parent={} role={role:?}",
+                parent.node_type()
+            ));
+        }
+        Ok(Self::Located {
+            root: root.clone(),
+            site: SourcePathV1::from_node(site)
+                .child(resolved.segment())
+                .node(),
+            body_kind: None,
+        })
+    }
+
+    pub(in crate::mir::builder) fn child_body(
+        &self,
+        parent: &ASTNode,
+        role: BodyChildRoleV1,
+    ) -> Result<Self, String> {
+        let Self::Located { root, site, .. } = self else {
+            return Ok(self.clone());
+        };
+        let resolved = role.resolve(parent).ok_or_else(|| {
+            format!(
+                "[freeze:contract][raw-invocation/body-child-role] parent={} role={role:?}",
+                parent.node_type()
+            )
+        })?;
+        if resolved.statements().is_none() {
+            return Err(format!(
+                "[freeze:contract][raw-invocation/body-child-missing] parent={} role={role:?}",
+                parent.node_type()
+            ));
+        }
+        let kind = resolved.kind();
+        let mut path = SourcePathV1::from_node(site);
+        if let Some(segment) = kind.root_segment() {
+            path = path.child(segment);
+        }
+        Ok(Self::Located {
+            root: root.clone(),
+            site: path.node(),
+            body_kind: Some(kind),
+        })
+    }
+
+    pub(in crate::mir::builder) fn structured_body_statement(
+        &self,
+        statement: ASTNode,
+        index: usize,
+    ) -> Result<RawInvocationSourceTransportV1<ASTNode>, String> {
+        Ok(self.body_statement(statement, index))
+    }
+
+    pub(in crate::mir::builder) fn child_statement(
+        &self,
+        statement: &ASTNode,
+        index: usize,
+    ) -> Result<Self, String> {
+        let Self::Located {
+            root,
+            site,
+            body_kind,
+        } = self
+        else {
+            return Ok(self.clone());
+        };
+        let kind =
+            body_kind.ok_or_else(|| {
+                "[freeze:contract][raw-invocation/missing-parent-body-kind]".to_owned()
+            })?;
+        if !is_located_structured_control(statement) {
+            return Err(format!(
+                "[freeze:contract][raw-invocation/statement-source-role] kind={}",
+                statement.node_type()
+            ));
+        }
+        let child = if kind == SourceBodyKindV1::Function
+            && site.segments() == [SourcePathSegmentV1::FunctionBody]
+        {
+            SourcePathV1::root_body(index).node()
+        } else {
+            SourcePathV1::from_node(site)
+                .child(kind.item_segment(index as u32))
+                .node()
+        };
+        Ok(Self::Located {
+            root: root.clone(),
+            site: child,
+            body_kind: None,
+        })
+    }
 }
 
 fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
     match statement {
         ASTNode::Program { .. }
-        | ASTNode::If { .. }
         | ASTNode::Loop { .. }
         | ASTNode::LoopRange { .. }
-        | ASTNode::TaskScope { .. }
         | ASTNode::ContextScope { .. }
-        | ASTNode::FastMemRegion { .. }
         | ASTNode::MatchExpr { .. }
         | ASTNode::EnumMatchExpr { .. }
         | ASTNode::Lambda { .. }
-        | ASTNode::BlockExpr { .. }
-        | ASTNode::TryCatch { .. }
-        | ASTNode::ScopeBox { .. } => RawUnlocatedPortalV1::ControlBody,
+        | ASTNode::TryCatch { .. } => RawUnlocatedPortalV1::ControlBody,
 
         ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
@@ -226,10 +348,26 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
         | ASTNode::FunctionCall { .. }
         | ASTNode::Call { .. } => RawUnlocatedPortalV1::CallObject,
 
-        ASTNode::BoxDeclaration { .. } => {
+        ASTNode::BoxDeclaration { .. }
+        | ASTNode::If { .. }
+        | ASTNode::TaskScope { .. }
+        | ASTNode::FastMemRegion { .. }
+        | ASTNode::BlockExpr { .. }
+        | ASTNode::ScopeBox { .. } => {
             unreachable!("[freeze:contract][raw-invocation/direct-box-classifier]")
         }
     }
+}
+
+fn is_located_structured_control(statement: &ASTNode) -> bool {
+    matches!(
+        statement,
+        ASTNode::If { .. }
+            | ASTNode::TaskScope { .. }
+            | ASTNode::FastMemRegion { .. }
+            | ASTNode::ScopeBox { .. }
+            | ASTNode::BlockExpr { .. }
+    )
 }
 
 /// Temporal source scope used only by the selected invocation port.
@@ -307,6 +445,66 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         }
         lower_raw_expression_with_recursion_guard_v1(builder, self, input)
     }
+
+    fn prepare_expression_child_source_v1(
+        &self,
+        parent: &ASTNode,
+        role: ExprChildRoleV1,
+    ) -> Result<PreparedRawChildSourceV1, String> {
+        let context = self
+            .current_source_context_v1()
+            .ok_or_else(|| {
+                "[freeze:contract][raw-invocation/missing-parent-expression-receipt]"
+                    .to_owned()
+            })?
+            .child_expression(parent, role)?;
+        Ok(PreparedRawChildSourceV1::Exact(context))
+    }
+
+    fn prepare_body_child_source_v1(
+        &self,
+        parent: &ASTNode,
+        role: BodyChildRoleV1,
+    ) -> Result<PreparedRawChildSourceV1, String> {
+        let context = self
+            .current_source_context_v1()
+            .ok_or_else(|| {
+                "[freeze:contract][raw-invocation/missing-parent-body-receipt]".to_owned()
+            })?
+            .child_body(parent, role)?;
+        Ok(PreparedRawChildSourceV1::Exact(context))
+    }
+
+    fn prepare_body_statement_source_v1(
+        &self,
+        statement: &ASTNode,
+        index: usize,
+    ) -> Result<PreparedRawChildSourceV1, String> {
+        let context = self
+            .current_source_context_v1()
+            .ok_or_else(|| {
+                "[freeze:contract][raw-invocation/missing-parent-statement-receipt]"
+                    .to_owned()
+            })?
+            .child_statement(statement, index)?;
+        Ok(PreparedRawChildSourceV1::Exact(context))
+    }
+
+    fn with_prepared_child_source_v1<R>(
+        &mut self,
+        source: PreparedRawChildSourceV1,
+        execute: impl FnOnce(&mut Self) -> R,
+    ) -> R {
+        match source {
+            PreparedRawChildSourceV1::Preserve => execute(self),
+            PreparedRawChildSourceV1::Exact(source) => {
+                let parent = self.active_source.replace(source);
+                let result = execute(self);
+                self.active_source = parent;
+                result
+            }
+        }
+    }
 }
 
 pub(in crate::mir::builder) fn drive_located_invocation_body_v1<Port>(
@@ -374,6 +572,14 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ast::{LiteralValue, Span};
+
+    fn integer(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        }
+    }
 
     #[test]
     fn located_root_derives_exact_body_item_without_reissuing_lineage() {
@@ -444,6 +650,137 @@ mod tests {
             RawInvocationSourceContextV1::UnlocatedCompatibility(
                 RawUnlocatedPortalV1::NestedBoxAdmission
             )
+        );
+    }
+
+    #[test]
+    fn five_structured_controls_leave_control_body_with_exact_parent_sites() {
+        let controls = [
+            ASTNode::If {
+                condition: Box::new(integer(1)),
+                then_body: vec![integer(2)],
+                else_body: Some(vec![integer(3)]),
+                span: Span::unknown(),
+            },
+            ASTNode::TaskScope {
+                body: vec![integer(1)],
+                source_keyword: "co".to_owned(),
+                span: Span::unknown(),
+            },
+            ASTNode::FastMemRegion {
+                contract: "PageMapV0".to_owned(),
+                body: vec![integer(1)],
+                span: Span::unknown(),
+            },
+            ASTNode::ScopeBox {
+                body: vec![integer(1)],
+                span: Span::unknown(),
+            },
+            ASTNode::BlockExpr {
+                prelude_stmts: vec![integer(1)],
+                tail_expr: Box::new(integer(2)),
+                span: Span::unknown(),
+            },
+        ];
+        let (_, root) = RawInvocationSourceContextV1::from_transport(
+            RawInvocationSourceTransportV1::root(
+                Vec::<ASTNode>::new(),
+                RawInvocationRootLineageV1::ScriptRoot,
+            ),
+        );
+
+        for (index, control) in controls.into_iter().enumerate() {
+            let (_, child) = RawInvocationSourceContextV1::from_transport(
+                root.body_statement(control, index),
+            );
+            assert!(matches!(child, RawInvocationSourceContextV1::Located { .. }));
+            assert_eq!(
+                child.site().expect("structured control site").segments(),
+                &[SourcePathSegmentV1::Body(index as u32)]
+            );
+        }
+    }
+
+    #[test]
+    fn if_roles_issue_exact_condition_and_branch_roots() {
+        let statement = ASTNode::If {
+            condition: Box::new(integer(1)),
+            then_body: vec![integer(2)],
+            else_body: Some(vec![integer(3)]),
+            span: Span::unknown(),
+        };
+        let parent = RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::ScriptRoot,
+            site: SourcePathV1::root_body(4).node(),
+            body_kind: None,
+        };
+
+        let condition = parent
+            .child_expression(&statement, ExprChildRoleV1::IfCondition)
+            .expect("condition role");
+        let then_body = parent
+            .child_body(&statement, BodyChildRoleV1::IfThen)
+            .expect("then role");
+        let else_body = parent
+            .child_body(&statement, BodyChildRoleV1::IfElse)
+            .expect("else role");
+
+        assert_eq!(
+            condition.site().unwrap().segments(),
+            &[SourcePathSegmentV1::Body(4), SourcePathSegmentV1::IfCondition]
+        );
+        assert_eq!(
+            then_body.site().unwrap().segments(),
+            &[SourcePathSegmentV1::Body(4), SourcePathSegmentV1::IfThenBody]
+        );
+        assert_eq!(
+            else_body.site().unwrap().segments(),
+            &[SourcePathSegmentV1::Body(4), SourcePathSegmentV1::IfElseBody]
+        );
+    }
+
+    #[test]
+    fn script_direct_if_and_fastmem_start_from_exact_statement_index() {
+        let (_, root) = RawInvocationSourceContextV1::from_transport(
+            RawInvocationSourceTransportV1::root(
+                Vec::<ASTNode>::new(),
+                RawInvocationRootLineageV1::ScriptRoot,
+            ),
+        );
+        let if_node = ASTNode::If {
+            condition: Box::new(integer(1)),
+            then_body: vec![integer(2)],
+            else_body: None,
+            span: Span::unknown(),
+        };
+        let if_parent = root.child_statement(&if_node, 5).expect("If statement");
+        let condition = if_parent
+            .child_expression(&if_node, ExprChildRoleV1::IfCondition)
+            .expect("If condition");
+        let then_body = if_parent
+            .child_body(&if_node, BodyChildRoleV1::IfThen)
+            .expect("If body");
+        assert_eq!(
+            condition.site().unwrap().segments(),
+            &[SourcePathSegmentV1::Body(5), SourcePathSegmentV1::IfCondition]
+        );
+        assert_eq!(
+            then_body.site().unwrap().segments(),
+            &[SourcePathSegmentV1::Body(5), SourcePathSegmentV1::IfThenBody]
+        );
+
+        let fastmem = ASTNode::FastMemRegion {
+            contract: "PageMapV0".to_owned(),
+            body: vec![integer(3)],
+            span: Span::unknown(),
+        };
+        let fastmem_parent = root.child_statement(&fastmem, 7).expect("FastMem statement");
+        let body = fastmem_parent
+            .child_body(&fastmem, BodyChildRoleV1::FastMemBody)
+            .expect("FastMem body");
+        assert_eq!(
+            body.site().unwrap().segments(),
+            &[SourcePathSegmentV1::Body(7), SourcePathSegmentV1::FastMemBodyRoot]
         );
     }
 }
