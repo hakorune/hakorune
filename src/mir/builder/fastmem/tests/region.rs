@@ -1,4 +1,5 @@
 use super::*;
+use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 use crate::mir::instruction::MemOpKind;
 use crate::mir::MirInstruction;
 
@@ -60,6 +61,44 @@ fn fastmem_source_lowers_to_region_metadata_and_memops() {
             crate::mir::BinaryOp::Shr,
             crate::mir::BinaryOp::BitAnd,
         ]
+    );
+}
+
+#[test]
+fn port_aware_fastmem_body_error_restores_the_outer_region() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("fastmem_error_cleanup/0".to_string());
+    let outer = builder
+        .register_fastmem_region("OuterV0".to_owned(), span(), 0)
+        .expect("outer region");
+    builder.push_fastmem_region(outer);
+    let mut port = RawLegacyChildLoweringPortV1;
+
+    let error = build_fastmem_region_with_port_v1(
+        &mut builder,
+        &mut port,
+        "InnerV0".to_owned(),
+        vec![var("missing_fastmem_child")],
+        span(),
+    )
+    .expect_err("missing FastMem child must reject");
+
+    assert!(
+        error.contains("Undefined variable: missing_fastmem_child"),
+        "{error}"
+    );
+    assert_eq!(builder.current_fastmem_region(), Some(outer));
+    assert_eq!(
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("function")
+            .metadata
+            .fastmem_regions
+            .len(),
+        2,
+        "typed failure retains candidate-local metadata until candidate discard"
     );
 }
 

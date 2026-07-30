@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS29-D0 is closed and NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-D0 selects the sole safe T1 edge. The implementation must exact-destructure selected Script FastMemRegion, align its statement span, and delegate once through the same RawInvocation port to the existing build_fastmem_region_with_port_v1 owner. The same atomic commit deletes FastMemRegion -> StatementControlCompatibility -> RawCompatibility -> drive_legacy_statement_v1. Existing register/push/body/pop, metadata, typed-error cleanup, and candidate isolation remain unchanged; panic unwind cleanup and candidate-local metadata rollback are non-claims."
+status = "NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-I0-R0 is closed. Selected Script FastMemRegion now has one DirectFastMemRegion admission that exact-destructures source, aligns statement span, and delegates through the same RawInvocation port to the existing build_fastmem_region_with_port_v1 owner. The old FastMemRegion -> StatementControlCompatibility -> RawCompatibility -> drive_legacy_statement_v1 edge is zero. Existing register/push/body/pop, metadata, typed-error cleanup, and candidate isolation are unchanged. The selected Script compatibility residual is exactly 9 kinds: LoopRange, Break, Continue, ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, GlobalVar."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-D0"
-current_execution_row = "NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-I0-R0"
-current_execution_summary = "T1 atomic replacement: add one DirectFastMemRegion admission at NormalScriptRuntimeBlockPortV1::lower_statement, exact-destructure source, align statement span, and call existing build_fastmem_region_with_port_v1 through the same RawInvocation port. Delete the selected Script FastMemRegion RawCompatibility edge in the same commit. Do not edit fastmem lifecycle semantics, add a fresh port, retry, fallback, RAII unwind claims, or a new source/failure/compatibility owner."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS30-D0"
+current_execution_row = "none"
+current_execution_summary = "Read-only Census30 must inspect the exact remaining 9 selected Script compatibility kinds and the sole R4 registry. LoopRange/Break/Continue have no safe direct owner without loop/exit/CFG authority; ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, and GlobalVar have no known equivalent direct runtime owner. Select one named live old edge only if fresh evidence proves a bounded responsibility cutover; otherwise record NoSafeSlice and advance toward R4 disposition."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-I0-R0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS30-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

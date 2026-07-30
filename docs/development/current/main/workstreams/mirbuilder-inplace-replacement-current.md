@@ -52,7 +52,8 @@ Latest design:  `NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS29-D0` — closed
 Latest design:  `NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-D0` — closed
-Next row:      `NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-I0-R0`
+Latest landed:  `NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-I0-R0`
+Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS30-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -66,7 +67,7 @@ activation and sunset contract.
 | State | Ledger key / family | Exact surface | Activation / normal-default | Release row / condition |
 | --- | --- | --- | --- | --- |
 | active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | fresh named raw-static-Main disposition, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` proves reachability = 0 |
-| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for exactly 10 selected Script kinds: LoopRange, Break, Continue, FastMemRegion, ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, GlobalVar | selected normal Script only; Print, If, all 28 expression roots, Return, StaticConstTable runtime completion, and all 13 StatementSurfaceFallthrough0 roots are retired; raw/reference and nested body descent remain separate | fresh named selected-Script statement-owner D0 with a same-commit old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
+| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for exactly 9 selected Script kinds: LoopRange, Break, Continue, ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, GlobalVar | selected normal Script only; Print, If, FastMemRegion, all 28 expression roots, Return, StaticConstTable runtime completion, and all 13 StatementSurfaceFallthrough0 roots are retired; raw/reference and nested body descent remain separate | fresh named selected-Script statement-owner D0 with a same-commit old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
 | closed | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program immediate instance constructors, plus selected Script plain-instance runtime-prefix constructors | every selected Program instance Box has one immediate demand; plain Script adds its second `InstancePrefixCompatibility` demand; non-plain Script's later raw runtime lifecycle is the separate row below | retired by `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0`: one source occurrence -> unchanged physical LegacySymbol admission per existing demand |
 | closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
 | closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
@@ -101,6 +102,53 @@ unregistered family may not become active on a generic prose promise. No second
 fence ledger is permitted.
 
 ## Disposition closeout
+
+`NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-I0-R0` — T1 atomic replacement,
+closed
+
+```text
+Named production caller:
+  NormalScriptRuntimeBlockPortV1::lower_statement.
+
+Selected path:
+  FastMemRegion
+  -> DirectFastMemRegion
+  -> lower_direct_fastmem_region_v1
+  -> existing build_fastmem_region_with_port_v1.
+
+Atomic delete:
+  selected Script FastMemRegion
+  -> StatementControlCompatibility
+  -> RawCompatibility
+  -> drive_legacy_statement_v1
+  = 0.
+
+Preserved:
+  exact source span; contract/body/span transport; same RawInvocation port;
+  register -> push -> source-order body -> pop; candidate-local region metadata;
+  typed body error and outer-region restoration.
+
+Failure:
+  typed child failure pops the inner region, rejects and discards the candidate,
+  and the same compiler accepts a fresh FastMem request. Panic unwind cleanup
+  and candidate-internal metadata rollback remain non-claims.
+
+Evidence:
+  disposition tests; full normal/legacy MIR and verification parity; FastMem
+  metadata/MemOp tests; typed cleanup test; direct-owner 6/6; runtime mapping;
+  shared guard; cargo check --lib; diff check.
+
+Residual:
+  10 -> 9 exactly.
+
+Structure:
+  runtime work = 799; direct owner = 649; disposition = 237;
+  FastMem region tests = 179; shared guard = 799.
+  New source/test/check files = 0.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS30-D0.
+```
 
 `NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-D0` — T1 design, closed
 

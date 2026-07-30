@@ -10,6 +10,7 @@ use crate::ast::ASTNode;
 pub(super) enum NormalScriptNonBoxStatementDispositionV1 {
     DirectPrint,
     DirectIfStatement,
+    DirectFastMemRegion,
     DirectPortAwareExpression,
     DirectStaticConstRuntimeCompletion,
     StatementControlCompatibility,
@@ -22,9 +23,10 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
     statement: &ASTNode,
 ) -> NormalScriptNonBoxStatementDispositionV1 {
     use NormalScriptNonBoxStatementDispositionV1::{
-        DeclarationIngressCompatibility, DirectBoxOwnedElsewhere, DirectIfStatement,
-        DirectPortAwareExpression, DirectPrint, DirectStaticConstRuntimeCompletion,
-        StatementControlCompatibility, TopLevelFunctionImmediateOnly,
+        DeclarationIngressCompatibility, DirectBoxOwnedElsewhere, DirectFastMemRegion,
+        DirectIfStatement, DirectPortAwareExpression, DirectPrint,
+        DirectStaticConstRuntimeCompletion, StatementControlCompatibility,
+        TopLevelFunctionImmediateOnly,
     };
 
     match statement {
@@ -76,10 +78,11 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
 
         ASTNode::If { .. } => DirectIfStatement,
 
-        ASTNode::LoopRange { .. }
-        | ASTNode::Break { .. }
-        | ASTNode::Continue { .. }
-        | ASTNode::FastMemRegion { .. } => StatementControlCompatibility,
+        ASTNode::FastMemRegion { .. } => DirectFastMemRegion,
+
+        ASTNode::LoopRange { .. } | ASTNode::Break { .. } | ASTNode::Continue { .. } => {
+            StatementControlCompatibility
+        }
 
         ASTNode::ImportStatement { .. }
         | ASTNode::BuildGate { .. }
@@ -102,8 +105,8 @@ mod tests {
     use super::{
         classify_normal_script_nonbox_statement_v1,
         NormalScriptNonBoxStatementDispositionV1::{
-            DeclarationIngressCompatibility, DirectIfStatement, DirectPortAwareExpression,
-            DirectPrint, DirectStaticConstRuntimeCompletion,
+            DeclarationIngressCompatibility, DirectFastMemRegion, DirectIfStatement,
+            DirectPortAwareExpression, DirectPrint, DirectStaticConstRuntimeCompletion,
         },
     };
     use crate::ast::{ASTNode, LiteralValue, Span};
@@ -149,6 +152,11 @@ mod tests {
             arguments: Vec::new(),
             span: Span::unknown(),
         };
+        let fastmem = ASTNode::FastMemRegion {
+            contract: "PageMapV0".to_owned(),
+            body: vec![integer(6)],
+            span: Span::unknown(),
+        };
 
         assert_eq!(
             classify_normal_script_nonbox_statement_v1(&print),
@@ -177,6 +185,10 @@ mod tests {
         assert_eq!(
             classify_normal_script_nonbox_statement_v1(&static_table),
             DirectStaticConstRuntimeCompletion
+        );
+        assert_eq!(
+            classify_normal_script_nonbox_statement_v1(&fastmem),
+            DirectFastMemRegion
         );
     }
 

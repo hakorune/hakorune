@@ -1,7 +1,8 @@
 //! Selected-normal Script runtime descent: one Program classification, ordered existing terminals.
 
 use super::normal_script_direct_statement_owner::{
-    lower_direct_if_statement_v1, lower_direct_port_aware_expression_v1, lower_direct_print_v1,
+    lower_direct_fastmem_region_v1, lower_direct_if_statement_v1,
+    lower_direct_port_aware_expression_v1, lower_direct_print_v1,
     lower_direct_static_const_runtime_completion_v1,
 };
 use super::normal_script_nonbox_statement_disposition::{
@@ -25,7 +26,6 @@ pub(super) struct PreparedNormalScriptRuntimeWorkV1 {
     statements: Box<[ASTNode]>,
     admissions: Box<[NormalScriptRuntimeStatementAdmissionV1]>,
 }
-
 #[derive(Debug)]
 pub(super) struct PreparedNormalScriptRuntimeInputV1 {
     statement: ASTNode,
@@ -33,7 +33,6 @@ pub(super) struct PreparedNormalScriptRuntimeInputV1 {
     constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
     constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
 }
-
 impl PreparedNormalScriptRuntimeInputV1 {
     pub(super) fn preclassified(
         statement: ASTNode,
@@ -60,11 +59,11 @@ impl PreparedNormalScriptRuntimeInputV1 {
         }
     }
 }
-
 #[derive(Debug)]
 pub(super) enum NormalScriptRuntimeStatementAdmissionV1 {
     DirectPrint,
     DirectIfStatement,
+    DirectFastMemRegion,
     DirectPortAwareExpression,
     DirectStaticConstRuntimeCompletion,
     RawCompatibility,
@@ -80,7 +79,6 @@ pub(super) enum NormalScriptRuntimeStatementAdmissionV1 {
         constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
     },
 }
-
 impl PreparedNormalScriptRuntimeWorkV1 {
     pub(super) fn prepare(inputs: Vec<PreparedNormalScriptRuntimeInputV1>) -> Self {
         use NormalScriptRuntimeStatementAdmissionV1 as Admission;
@@ -91,6 +89,7 @@ impl PreparedNormalScriptRuntimeWorkV1 {
             let admission = match input.kind {
                 Kind::DirectPrint => Admission::DirectPrint,
                 Kind::DirectIfStatement => Admission::DirectIfStatement,
+                Kind::DirectFastMemRegion => Admission::DirectFastMemRegion,
                 Kind::DirectPortAwareExpression => Admission::DirectPortAwareExpression,
                 Kind::DirectStaticConstRuntimeCompletion => {
                     Admission::DirectStaticConstRuntimeCompletion
@@ -116,7 +115,6 @@ impl PreparedNormalScriptRuntimeWorkV1 {
             admissions: admissions.into_boxed_slice(),
         }
     }
-
     pub(super) fn len(&self) -> usize {
         self.statements.len()
     }
@@ -203,6 +201,9 @@ where
             }
             NormalScriptRuntimeStatementAdmissionV1::DirectIfStatement => {
                 lower_direct_if_statement_v1(builder, self.port, statement)
+            }
+            NormalScriptRuntimeStatementAdmissionV1::DirectFastMemRegion => {
+                lower_direct_fastmem_region_v1(builder, self.port, statement.clone())
             }
             NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression => {
                 lower_direct_port_aware_expression_v1(builder, self.port, statement)
@@ -394,6 +395,7 @@ where
 pub(super) enum NormalScriptRuntimeStatementKindV1 {
     DirectPrint,
     DirectIfStatement,
+    DirectFastMemRegion,
     DirectPortAwareExpression,
     DirectStaticConstRuntimeCompletion,
     RawCompatibility,
@@ -435,6 +437,9 @@ pub(super) fn classify_normal_script_runtime_statement_v1(
             }
             NormalScriptNonBoxStatementDispositionV1::DirectIfStatement => {
                 NormalScriptRuntimeStatementKindV1::DirectIfStatement
+            }
+            NormalScriptNonBoxStatementDispositionV1::DirectFastMemRegion => {
+                NormalScriptRuntimeStatementKindV1::DirectFastMemRegion
             }
             NormalScriptNonBoxStatementDispositionV1::DirectPortAwareExpression => {
                 NormalScriptRuntimeStatementKindV1::DirectPortAwareExpression

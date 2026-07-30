@@ -6,6 +6,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::emission::constant::emit_void;
+use crate::mir::builder::fastmem::build_fastmem_region_with_port_v1;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
 use crate::mir::builder::recursive_child_lowering::drive_legacy_expression_v1;
 use crate::mir::builder::stmts::if_statement_descent::{
@@ -71,6 +72,26 @@ where
         else_body.clone(),
     );
     complete_if_statement_v1(builder, lowering)
+}
+
+pub(super) fn lower_direct_fastmem_region_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    statement: ASTNode,
+) -> Result<ValueId, String>
+where
+    Port: RootCallableCapturePortV1,
+{
+    builder.metadata_ctx.set_current_span(statement.span());
+    let ASTNode::FastMemRegion {
+        contract,
+        body,
+        span,
+    } = statement
+    else {
+        return Err("[freeze:contract][mir/script-runtime/fastmem-source-drift]".to_owned());
+    };
+    build_fastmem_region_with_port_v1(builder, port, contract, body, span)
 }
 
 pub(super) fn lower_direct_static_const_runtime_completion_v1(
@@ -267,6 +288,11 @@ mod tests {
             else_body: Some(vec![integer(2, 167)]),
             span: Span::new(165, 168, 165, 1),
         };
+        let fastmem = ASTNode::FastMemRegion {
+            contract: "PageMapV0".to_owned(),
+            body: vec![integer(1, 170)],
+            span: Span::new(169, 171, 169, 1),
+        };
 
         for (root, name) in [
             (literal, "direct-literal.hako"),
@@ -289,6 +315,7 @@ mod tests {
             (static_table, "direct-static-table.hako"),
             (if_without_else, "direct-if-no-else.hako"),
             (if_with_else, "direct-if-else.hako"),
+            (fastmem, "direct-fastmem.hako"),
         ] {
             compare_normal_and_legacy(root, name);
         }
@@ -581,5 +608,42 @@ mod tests {
                 "direct-if-reuse.hako",
             ))
             .expect("fresh If candidate after child failures");
+    }
+
+    #[test]
+    fn direct_fastmem_body_failure_discards_candidate_and_reuses_compiler() {
+        let request = |body, name| {
+            NormalCompileRequestV1::for_mir_mode(
+                ASTNode::Program {
+                    statements: vec![ASTNode::FastMemRegion {
+                        contract: "PageMapV0".to_owned(),
+                        body,
+                        span: Span::new(230, 240, 230, 1),
+                    }],
+                    span: Span::unknown(),
+                },
+                Some(name),
+                HashMap::new(),
+            )
+            .expect("normal FastMem request")
+        };
+        let mut compiler = MirCompiler::with_options(false);
+        let error = compiler
+            .compile_normal(request(
+                vec![ASTNode::Variable {
+                    name: "missing_fastmem".to_owned(),
+                    span: Span::unknown(),
+                }],
+                "direct-fastmem-failure.hako",
+            ))
+            .expect_err("missing FastMem child must reject");
+        assert!(
+            error.contains("Undefined variable: missing_fastmem"),
+            "{error}"
+        );
+
+        compiler
+            .compile_normal(request(vec![integer(9, 250)], "direct-fastmem-reuse.hako"))
+            .expect("fresh FastMem candidate after child failure");
     }
 }
