@@ -61,7 +61,9 @@ Latest design: `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-D0` — closed
 Latest landed: `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS33-D0` — closed
 Latest landed: `RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0`
-Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS34-D0`
+Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS34-D0` — closed
+Latest design: `RAW-STATIC-MAIN-COMPAT-BATCH-DISPOSITION0-D0` — RETAIN-FENCED
+Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS35-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -74,7 +76,7 @@ activation and sunset contract.
 
 | State | Ledger key / family | Exact surface | Activation / normal-default | Target disposition | Release row / condition |
 | --- | --- | --- | --- | --- | --- |
-| active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | undecided by `RAW-STATIC-MAIN-COMPAT-BATCH-DISPOSITION0-D0` | RET0 on exact production reachability zero; otherwise route-owned REOWN or explicit RETAIN-FENCED |
+| retain-fenced | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch: sorted helpers followed by root Main with legacy entry policy | raw dispatcher static `Main` -> `RawLegacyChildLoweringPortV1`; selected normal verified App Main = 0 | RETAIN-FENCED: live arbitrary-AST raw route, no exact Program/source locator, helper-first and `LegacyEnvironment` coupling | fresh named release D0 only when one raw located-source + entry-materialization contract can atomically delete dispatcher -> static-Main, RawLegacy -> prepared batch, prepared helper -> raw static method, and prepared root -> legacy Main policy edges |
 | closed | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | selected Script non-Box runtime compatibility, ending with the exact 9 unsupported kinds LoopRange, Break, Continue, ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, GlobalVar | selected normal Script only; raw/reference and nested body descent remain separate | REOWN | retired by `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0`: exact 9 -> direct shared guarded diagnostic; selected Script `RawCompatibility` execution = 0 |
 | closed | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program immediate instance constructors, plus selected Script plain-instance runtime-prefix constructors | every selected Program instance Box has one immediate demand; plain Script adds its second `InstancePrefixCompatibility` demand; non-plain Script's later raw runtime lifecycle is the separate row below | REOWN | retired by `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0`: one source occurrence -> unchanged physical LegacySymbol admission per existing demand |
 | closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | REOWN | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
@@ -94,14 +96,14 @@ activation and sunset contract.
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> nested static method and shared instance constructor/method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | RETAIN-FENCED: no exact source occurrence reaches the raw port | fresh `RAW-LOCATED-BODY-TRANSPORT0-D0` may select REOWN only when one function-relative located transport deletes a named production edge; otherwise forced disposition at `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` |
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | undecided; named D0 required before C0 | delete or RETAIN-FENCED reference scope with exact owner, activation, retire_when |
 
-The registry has three registered R3 fences, one active compatibility residual,
+The registry has four registered R3 fences, zero active compatibility residuals,
 eight closed residuals, and seven unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
 (`30` occurrences in `6` `src/mir` files at the latest exact census). The
-selected-Script residual is closed; raw static Main is the one active
-compatibility row above. Nested raw body descent was
+selected-Script residual is closed; raw static Main is an explicit retained
+fence above. Nested raw body descent was
 promoted from its immutable unregistered audit key to
 `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` and is now retain-fenced; it is no
 longer an unregistered family.
@@ -124,6 +126,42 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`MIRBUILDER-LIVE-EDGE-CENSUS34-D0` /
+`RAW-STATIC-MAIN-COMPAT-BATCH-DISPOSITION0-D0` — read-only disposition, closed
+
+```text
+Decision:
+  RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001 = RETAIN-FENCED.
+
+Owner:
+  PreparedRawStaticMainBoxCompatibilityV1.
+
+Activation:
+  raw expression dispatcher static Main
+  -> RawLegacyChildLoweringPortV1::lower_static_main_box.
+  selected normal verified App Main reachability = 0.
+
+Why no RET0 / REOWN:
+  drive_raw_legacy_* remains live; the batch owns cloned box_name+methods
+  rather than an exact Program/source locator; helper-first lowering and root
+  diagnostics are coupled to LegacyEnvironment entry materialization.
+
+Release:
+  one exact raw located-source + entry-materialization contract must delete in
+  one named row:
+    dispatcher -> static-Main terminal
+    RawLegacy port -> prepared compatibility batch
+    prepared helpers -> raw static-method terminal
+    prepared root -> legacy-policy Main terminal.
+
+R4:
+  retain-fenced=4, active compatibility=0, closed=8, unregistered=7.
+  code / behavior / grammar / route delta=0.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS35-D0.
+```
 
 `RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0` — T1 detached RET0, closed
 
