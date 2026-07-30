@@ -29,10 +29,10 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
-Latest landed: JOINMODULE-VERIFY-REFERENCE-RET0
-Result:        caller-zero JoinIR reference verifier surface retired
-Latest design: `NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-D0` — Candidate C-prime accepted
-Executable:    `NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-I0-R0`
+Latest landed: NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-I0-R0
+Result:        selected normal collector drain is session-branded and old closure is deleted
+Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS11-D0`
+Executable:    none — fresh census design stop
 History:       Git history and the short landed tail below
 ```
 
@@ -121,31 +121,15 @@ and the observer contract is independently disposed. The explicit VM/Stage1/
 StageB reference consumers are handled only by the next reference-sunset D0.
 ```
 
-## Current execution
+## Current design stop
 
-`NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-I0-R0` — T2, Candidate C-prime
+`MIRBUILDER-LIVE-EDGE-CENSUS11-D0` — fresh live/R3 census
 
 ```text
-Change:
-  Replace the selected normal prepare_normal_legacy_drain -> commit edge with
-  one normal-specific, session-branded lifecycle; delete the old normal-drain
-  closure atomically.
-
-Contract:
-  Preserve LegacySymbol/LegacyReplaceWholePair admission and current candidate
-  module semantics. Transport the already-issued session brand once; seal
-  collector/receipt/target correspondence before collision preflight, then
-  perform one ordered non-fallible batch commit.
-
-Done:
-  General-Program MIR/function-set/order/metadata parity, collision no-mutate,
-  RootLower failure disposal, and same-compiler fresh reuse are green through
-  the existing lane guard.
-
-Stop:
-  Any raw/canonical adapter, key/policy conversion, empty replacement module,
-  second publication, source reread, fallback/retry, or post-commit fallible
-  work returns this row to D0.
+Recount exact live normal/default competing edges and eligible detached R3
+assets after the collector lifecycle cutover. Select one real I0/R0, one
+RET0/REOWN/RETAIN-FENCED disposition, or NoSafeLiveI0 from that evidence.
+Do not preselect join_ir/ownership merely because the RET0 horizon reset.
 ```
 
 ## Latest design decision
@@ -157,6 +141,16 @@ Candidate C-prime: reuse normal drain semantics in a normal-owned lifecycle,
 and bind it to the existing candidate-session brand. Raw and canonical drains
 remain incompatible family/receipt owners, not adapters. The brand is session
 correspondence only; it does not reclassify normal work as a raw route.
+```
+
+## Latest closeout
+
+```text
+NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-I0-R0
+  selected normal collector: existing session brand -> one normal receipt -> ordered commit
+  old normal_legacy_drain module and selected caller                                  = 0
+  general Program function-set/MIR/metadata parity; collision/reuse; lib/vm-ref/gates = green
+  next                                                                                = fresh census D0
 ```
 
 ## Latest closeout

@@ -131,6 +131,7 @@ impl ModuleBuilderInvocationSessionV1 {
         CompletedNormalDefaultRootCatalogLifecycleV1,
         RejectedNormalDefaultRootCatalogLifecycleV1,
     > {
+        let brand = self.brand();
         let result = {
             let builder = self.builder_mut();
             (|| {
@@ -144,8 +145,8 @@ impl ModuleBuilderInvocationSessionV1 {
                     NormalDefaultRootCatalogLifecycleErrorV1::PrepareModule(error.into())
                 })?;
 
-                let result_value =
-                    builder.lower_normal_default_program_root_catalog_v1(&source, &expansion)?;
+                let result_value = builder
+                    .lower_normal_default_program_root_catalog_v1(&source, &expansion, brand)?;
                 builder.finalize_module(result_value).map_err(|error| {
                     NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into())
                 })

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """PUBLIC-INGRESS0-S0 guard for the explicit NarrowV1 Raw entry."""
 from __future__ import annotations
-import json
-import re
+import json, re
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 TASK = ROOT / ("docs/development/current/main/investigations/"
@@ -13,10 +12,9 @@ CALLER_MANIFEST = ROOT / "tools/checks/manifests/raw_public_cutover_caller_manif
 CURRENT_WORKSTREAM = ROOT / ("docs/development/current/main/workstreams/"
                              "mirbuilder-inplace-replacement-current.md")
 NORMAL_PIPELINE = ROOT / "src/mir/compiler/normal_default_pipeline.rs"
-NORMAL_ROOT_LIFECYCLE = ROOT / "src/mir/builder/normal_default_root_catalog_lifecycle.rs"
+NORMAL_ROOT_LIFECYCLE = ROOT / "src/mir/builder/normal_default_root_catalog_lifecycle.rs"; NORMAL_COLLECTOR_DRAIN = ROOT / "src/mir/builder/module_draft_collector/normal_collector_drain_lifecycle.rs"
 PROGRAM_ROOT_LOWERING, PROGRAM_STATIC_TABLE_METADATA, MODULE_FINALIZATION_DECLARATION_METADATA, MODULE_FINALIZATION_FUNCTION_METADATA = ROOT / "src/mir/builder/program_root_lowering.rs", ROOT / "src/mir/builder/program_static_table_metadata.rs", ROOT / "src/mir/builder/module_finalization_declaration_metadata.rs", ROOT / "src/mir/builder/module_finalization_function_metadata.rs"
-DECLS = ROOT / "src/mir/builder/decls.rs"
-RAW_STATIC_MAIN_COMPAT = ROOT / "src/mir/builder/raw_static_main_compat_batch.rs"
+DECLS = ROOT / "src/mir/builder/decls.rs"; RAW_STATIC_MAIN_COMPAT = ROOT / "src/mir/builder/raw_static_main_compat_batch.rs"
 MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
 BUILDER_ROOT = ROOT / "src/mir/builder.rs"
 NORMAL_TESTS = ROOT / "src/mir/compiler/legacy_candidate_session_tests.rs"
@@ -134,7 +132,7 @@ def main() -> int:
             CALLER_MANIFEST,
             CURRENT_WORKSTREAM,
             NORMAL_PIPELINE,
-            NORMAL_ROOT_LIFECYCLE,
+            NORMAL_ROOT_LIFECYCLE, NORMAL_COLLECTOR_DRAIN,
             PROGRAM_ROOT_LOWERING, PROGRAM_STATIC_TABLE_METADATA, MODULE_FINALIZATION_DECLARATION_METADATA, MODULE_FINALIZATION_FUNCTION_METADATA,
             RAW_STATIC_MAIN_COMPAT,
             MODULE_LIFECYCLE,
@@ -161,7 +159,7 @@ def main() -> int:
     adapter = texts[SOURCES[2]]
     compile_kernel = texts[SOURCES[3]]
     normal_pipeline = texts[NORMAL_PIPELINE]
-    normal_root_lifecycle = texts[NORMAL_ROOT_LIFECYCLE]
+    normal_root_lifecycle = texts[NORMAL_ROOT_LIFECYCLE]; normal_collector_drain = texts[NORMAL_COLLECTOR_DRAIN]
     program_root_lowering = production_code(PROGRAM_ROOT_LOWERING)
     decls = production_code(DECLS)
     raw_static_main_compat = production_code(RAW_STATIC_MAIN_COMPAT)
@@ -654,7 +652,7 @@ def main() -> int:
     issuer = admission.get("request_issuer_anchor", "")
     if normal_pipeline.count(issuer) != admission.get("request_issuer_calls"):
         raise AssertionError("normal Program admission issuer drift")
-    selected_call = "lower_normal_default_program_root_catalog_v1(&source, &expansion)"
+    selected_call = "lower_normal_default_program_root_catalog_v1(&source, &expansion, brand)"
     if normal_root_lifecycle.count(selected_call) != admission.get("selected_lifecycle_calls"):
         raise AssertionError("selected Program lifecycle caller drift")
     if normal_root_lifecycle.count("PreparedRawRootPartitionV1") != admission.get(
@@ -698,8 +696,10 @@ def main() -> int:
     if deferred_scope.count("fn open") != 1 or deferred_scope.count("fn run") != 1 or deferred_scope.count("fn restore") != 1 or deferred_scope.count("impl Drop") != 1 or any(retired in deferred_lifecycle for retired in ("compilation_context = Some(", "compilation_context = None", "retry", "fallback")): raise AssertionError("deferred static Box context scope drift")
     if any(token in program_root_lowering for token in ("collector.into_draft_functions()", ".try_add_functions_atomic(")):
         raise AssertionError("selected Program collector direct drain returned")
-    if program_root_lowering.count(".prepare_normal_legacy_drain(target)") != 1:
+    if program_root_lowering.count(".prepare_normal_legacy_drain(target)") or program_root_lowering.count(".prepare_normal_collector_drain(target, brand)") != 1 or (ROOT / "src/mir/builder/module_draft_collector/normal_legacy_drain.rs").exists():
         raise AssertionError("selected Program normal collector drain caller drift")
+    if not all(fragment in normal_collector_drain for fragment in ("PreparedNormalCollectorDrainLifecycleV1", "RejectedNormalCollectorDrainLifecycleV1", "SealedNormalCollectorDrainReceiptV1", "BrandMismatch", "LegacyReplaceWholePair")) or any(fragment in normal_collector_drain for fragment in ("prepare_raw_drain", "prepare_canonical_drain", "retry", "fallback")):
+        raise AssertionError("normal collector lifecycle authority drift")
     if "ast: ASTNode" in text_between(
         normal_pipeline,
         "pub struct NormalCompileRequestV1",

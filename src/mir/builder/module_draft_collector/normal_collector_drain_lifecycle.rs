@@ -1,11 +1,12 @@
-//! Normal Program drain preflight over the collector's final legacy rows.
+//! Normal candidate collector drain and final module-publication lifecycle.
 //!
-//! This owner neither reads source nor lowers a draft. It validates the final
-//! collector state once, reserves one exact candidate module, and leaves only
-//! an infallible physical insertion for the following integration row.
+//! This owner preserves the selected normal LegacySymbol admission semantics,
+//! while binding the collector to the already-issued candidate-session brand.
+//! It neither reads source nor opens another module/publication route.
 
 use std::collections::BTreeSet;
 
+use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::function::FunctionPublicationErrorV1;
 use crate::mir::MirModule;
 
@@ -13,7 +14,8 @@ use super::receipt::CollectedDraftReplacementDispositionV1;
 use super::{DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder) enum NormalLegacyCollectorDrainErrorV1 {
+pub(in crate::mir::builder) enum NormalCollectorDrainLifecycleErrorV1 {
+    BrandMismatch,
     FinalAdmissionDrift { key: FunctionDraftKeyV1 },
     NonLegacyKey { key: FunctionDraftKeyV1 },
     NonLegacyPolicy { key: FunctionDraftKeyV1 },
@@ -21,7 +23,7 @@ pub(in crate::mir::builder) enum NormalLegacyCollectorDrainErrorV1 {
     Publication(FunctionPublicationErrorV1),
 }
 
-impl std::fmt::Display for NormalLegacyCollectorDrainErrorV1 {
+impl std::fmt::Display for NormalCollectorDrainLifecycleErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Publication(error) => error.fmt(formatter),
@@ -33,54 +35,58 @@ impl std::fmt::Display for NormalLegacyCollectorDrainErrorV1 {
     }
 }
 
-impl std::error::Error for NormalLegacyCollectorDrainErrorV1 {}
+impl std::error::Error for NormalCollectorDrainLifecycleErrorV1 {}
 
+/// Failure retains every unpublished draft; the outer normal lifecycle owns
+/// the candidate session and source disposal.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct RejectedNormalLegacyCollectorDrainV1 {
+pub(in crate::mir::builder) struct RejectedNormalCollectorDrainLifecycleV1 {
     collector: ModuleDraftCollectorV1,
-    error: NormalLegacyCollectorDrainErrorV1,
+    error: NormalCollectorDrainLifecycleErrorV1,
 }
 
-impl RejectedNormalLegacyCollectorDrainV1 {
-    pub(in crate::mir::builder) fn error(&self) -> &NormalLegacyCollectorDrainErrorV1 {
+impl RejectedNormalCollectorDrainLifecycleV1 {
+    pub(in crate::mir::builder) fn error(&self) -> &NormalCollectorDrainLifecycleErrorV1 {
         &self.error
     }
 
     pub(in crate::mir::builder) fn discard(self) {}
 
     #[cfg(test)]
-    fn into_parts(self) -> (ModuleDraftCollectorV1, NormalLegacyCollectorDrainErrorV1) {
+    fn into_parts(self) -> (ModuleDraftCollectorV1, NormalCollectorDrainLifecycleErrorV1) {
         (self.collector, self.error)
     }
 }
 
 #[derive(Debug)]
-struct NormalLegacyCollectorFinalInventoryV1 {
+struct SealedNormalCollectorDrainReceiptV1 {
+    brand: ModuleInvocationBrandV1,
     ordered_keys: Box<[FunctionDraftKeyV1]>,
 }
 
+/// The target module is borrowed only after all correspondence and collision
+/// checks complete. `commit` therefore has no fallible operation.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct PreparedNormalLegacyCollectorDrainV1<'module> {
+pub(in crate::mir::builder) struct PreparedNormalCollectorDrainLifecycleV1<'module> {
     collector: ModuleDraftCollectorV1,
-    inventory: NormalLegacyCollectorFinalInventoryV1,
+    receipt: SealedNormalCollectorDrainReceiptV1,
     target: &'module mut MirModule,
-    _seal: PreparedNormalLegacyCollectorDrainSealV1,
+    _seal: PreparedNormalCollectorDrainLifecycleSealV1,
 }
 
 #[derive(Debug)]
-struct PreparedNormalLegacyCollectorDrainSealV1;
+struct PreparedNormalCollectorDrainLifecycleSealV1;
 
-impl PreparedNormalLegacyCollectorDrainV1<'_> {
-    /// Preparation has reserved the only mutable module loan and checked every
-    /// final collector row, so no fallible work remains during insertion.
+impl PreparedNormalCollectorDrainLifecycleV1<'_> {
     pub(in crate::mir::builder) fn commit(self) {
         let Self {
             mut collector,
-            inventory,
+            receipt,
             target,
             _seal: _,
         } = self;
-        for key in inventory.ordered_keys.into_vec() {
+        debug_assert_eq!(collector.receipt_brand(), Some(receipt.brand));
+        for key in receipt.ordered_keys.into_vec() {
             let entry = collector
                 .drafts
                 .remove(&key)
@@ -91,31 +97,38 @@ impl PreparedNormalLegacyCollectorDrainV1<'_> {
 }
 
 impl ModuleDraftCollectorV1 {
-    /// Consume exactly the final normal legacy rows after source-free
-    /// correspondence and candidate-module collision checks.
-    pub(in crate::mir::builder) fn prepare_normal_legacy_drain<'module>(
+    /// Consume exactly one normal candidate's final legacy rows after source-
+    /// free correspondence, session-brand, and module-collision preflight.
+    pub(in crate::mir::builder) fn prepare_normal_collector_drain<'module>(
         self,
         target: &'module mut MirModule,
-    ) -> Result<PreparedNormalLegacyCollectorDrainV1<'module>, RejectedNormalLegacyCollectorDrainV1>
-    {
-        let inventory = match NormalLegacyCollectorFinalInventoryV1::seal(&self, target) {
-            Ok(inventory) => inventory,
+        brand: ModuleInvocationBrandV1,
+    ) -> Result<
+        PreparedNormalCollectorDrainLifecycleV1<'module>,
+        RejectedNormalCollectorDrainLifecycleV1,
+    > {
+        let receipt = match SealedNormalCollectorDrainReceiptV1::seal(&self, target, brand) {
+            Ok(receipt) => receipt,
             Err(error) => return Err(reject(self, error)),
         };
-        Ok(PreparedNormalLegacyCollectorDrainV1 {
+        Ok(PreparedNormalCollectorDrainLifecycleV1 {
             collector: self,
-            inventory,
+            receipt,
             target,
-            _seal: PreparedNormalLegacyCollectorDrainSealV1,
+            _seal: PreparedNormalCollectorDrainLifecycleSealV1,
         })
     }
 }
 
-impl NormalLegacyCollectorFinalInventoryV1 {
+impl SealedNormalCollectorDrainReceiptV1 {
     fn seal(
         collector: &ModuleDraftCollectorV1,
         target: &MirModule,
-    ) -> Result<Self, NormalLegacyCollectorDrainErrorV1> {
+        brand: ModuleInvocationBrandV1,
+    ) -> Result<Self, NormalCollectorDrainLifecycleErrorV1> {
+        if collector.receipt_brand() != Some(brand) {
+            return Err(NormalCollectorDrainLifecycleErrorV1::BrandMismatch);
+        }
         if collector.drafts.len() != collector.key_by_symbol.len() {
             let symbol = collector
                 .key_by_symbol
@@ -123,7 +136,7 @@ impl NormalLegacyCollectorFinalInventoryV1 {
                 .next()
                 .cloned()
                 .unwrap_or_default();
-            return Err(NormalLegacyCollectorDrainErrorV1::SymbolIndexDrift { symbol });
+            return Err(NormalCollectorDrainLifecycleErrorV1::SymbolIndexDrift { symbol });
         }
 
         let mut symbols = BTreeSet::new();
@@ -134,16 +147,18 @@ impl NormalLegacyCollectorFinalInventoryV1 {
                 || admission.symbol.as_ref() != entry.draft.signature.name
                 || admission.arity != entry.draft.signature.params.len()
             {
-                return Err(NormalLegacyCollectorDrainErrorV1::FinalAdmissionDrift {
+                return Err(NormalCollectorDrainLifecycleErrorV1::FinalAdmissionDrift {
                     key: key.clone(),
                 });
             }
             if !matches!(key, FunctionDraftKeyV1::LegacySymbol(symbol) if symbol == admission.symbol.as_ref())
             {
-                return Err(NormalLegacyCollectorDrainErrorV1::NonLegacyKey { key: key.clone() });
+                return Err(NormalCollectorDrainLifecycleErrorV1::NonLegacyKey {
+                    key: key.clone(),
+                });
             }
             if admission.policy != DraftPublicationPolicyV1::LegacyReplaceWholePair {
-                return Err(NormalLegacyCollectorDrainErrorV1::NonLegacyPolicy {
+                return Err(NormalCollectorDrainLifecycleErrorV1::NonLegacyPolicy {
                     key: key.clone(),
                 });
             }
@@ -152,14 +167,14 @@ impl NormalLegacyCollectorFinalInventoryV1 {
                 CollectedDraftReplacementDispositionV1::Inserted
                     | CollectedDraftReplacementDispositionV1::ReplacedWholePair { .. }
             ) {
-                return Err(NormalLegacyCollectorDrainErrorV1::FinalAdmissionDrift {
+                return Err(NormalCollectorDrainLifecycleErrorV1::FinalAdmissionDrift {
                     key: key.clone(),
                 });
             }
             if collector.key_by_symbol.get(admission.symbol.as_ref()) != Some(key)
                 || !symbols.insert(admission.symbol.as_ref())
             {
-                return Err(NormalLegacyCollectorDrainErrorV1::SymbolIndexDrift {
+                return Err(NormalCollectorDrainLifecycleErrorV1::SymbolIndexDrift {
                     symbol: admission.symbol.to_string(),
                 });
             }
@@ -168,8 +183,9 @@ impl NormalLegacyCollectorFinalInventoryV1 {
 
         target
             .preflight_add_function_symbols(symbols.into_iter())
-            .map_err(NormalLegacyCollectorDrainErrorV1::Publication)?;
+            .map_err(NormalCollectorDrainLifecycleErrorV1::Publication)?;
         Ok(Self {
+            brand,
             ordered_keys: ordered_keys.into_boxed_slice(),
         })
     }
@@ -177,9 +193,9 @@ impl NormalLegacyCollectorFinalInventoryV1 {
 
 fn reject(
     collector: ModuleDraftCollectorV1,
-    error: NormalLegacyCollectorDrainErrorV1,
-) -> RejectedNormalLegacyCollectorDrainV1 {
-    RejectedNormalLegacyCollectorDrainV1 { collector, error }
+    error: NormalCollectorDrainLifecycleErrorV1,
+) -> RejectedNormalCollectorDrainLifecycleV1 {
+    RejectedNormalCollectorDrainLifecycleV1 { collector, error }
 }
 
 #[cfg(test)]
@@ -187,6 +203,10 @@ mod tests {
     use super::*;
     use crate::mir::builder::module_draft_collector::CompletedDraftSignatureViewV1;
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
+
+    fn brand() -> ModuleInvocationBrandV1 {
+        ModuleInvocationBrandV1::test_with_ordinal(701)
+    }
 
     fn draft(symbol: &str) -> MirFunction {
         MirFunction::new(
@@ -216,13 +236,13 @@ mod tests {
 
     #[test]
     fn prepared_normal_drain_preserves_final_legacy_key_order_until_commit() {
-        let mut collector = ModuleDraftCollectorV1::default();
+        let mut collector = ModuleDraftCollectorV1::with_brand(brand());
         collect(&mut collector, "Zeta.run/0");
         collect(&mut collector, "Alpha.run/0");
         let mut target = MirModule::new("normal".to_owned());
 
         collector
-            .prepare_normal_legacy_drain(&mut target)
+            .prepare_normal_collector_drain(&mut target, brand())
             .unwrap()
             .commit();
 
@@ -231,11 +251,11 @@ mod tests {
 
     #[test]
     fn empty_normal_collector_prepares_and_commits_without_publication() {
-        let collector = ModuleDraftCollectorV1::default();
+        let collector = ModuleDraftCollectorV1::with_brand(brand());
         let mut target = MirModule::new("normal".to_owned());
 
         collector
-            .prepare_normal_legacy_drain(&mut target)
+            .prepare_normal_collector_drain(&mut target, brand())
             .unwrap()
             .commit();
 
@@ -244,17 +264,17 @@ mod tests {
 
     #[test]
     fn normal_drain_rejection_retains_collector_and_leaves_target_unchanged() {
-        let mut collector = ModuleDraftCollectorV1::default();
+        let mut collector = ModuleDraftCollectorV1::with_brand(brand());
         collect(&mut collector, "same/0");
         let mut target = MirModule::new("normal".to_owned());
         target.add_function(draft("same/0"));
 
         let rejected = collector
-            .prepare_normal_legacy_drain(&mut target)
+            .prepare_normal_collector_drain(&mut target, brand())
             .unwrap_err();
         assert!(matches!(
             rejected.error(),
-            NormalLegacyCollectorDrainErrorV1::Publication(_)
+            NormalCollectorDrainLifecycleErrorV1::Publication(_)
         ));
         let (collector, _) = rejected.into_parts();
         assert_eq!(collector.symbol_count(), 1);
@@ -262,8 +282,29 @@ mod tests {
     }
 
     #[test]
+    fn normal_drain_rejects_foreign_or_missing_session_brand_without_consuming_rows() {
+        let mut collector = ModuleDraftCollectorV1::with_brand(brand());
+        collect(&mut collector, "same/0");
+        let mut target = MirModule::new("normal".to_owned());
+
+        let rejected = collector
+            .prepare_normal_collector_drain(
+                &mut target,
+                ModuleInvocationBrandV1::test_with_ordinal(702),
+            )
+            .unwrap_err();
+        assert!(matches!(
+            rejected.error(),
+            NormalCollectorDrainLifecycleErrorV1::BrandMismatch
+        ));
+        let (collector, _) = rejected.into_parts();
+        assert_eq!(collector.symbol_count(), 1);
+        assert!(target.function_names().is_empty());
+    }
+
+    #[test]
     fn normal_drain_rejects_nonlegacy_final_rows_without_consuming_them() {
-        let mut collector = ModuleDraftCollectorV1::default();
+        let mut collector = ModuleDraftCollectorV1::with_brand(brand());
         collector
             .prepare_admission(
                 FunctionDraftKeyV1::Main,
@@ -278,11 +319,11 @@ mod tests {
         let mut target = MirModule::new("normal".to_owned());
 
         let rejected = collector
-            .prepare_normal_legacy_drain(&mut target)
+            .prepare_normal_collector_drain(&mut target, brand())
             .unwrap_err();
         assert!(matches!(
             rejected.error(),
-            NormalLegacyCollectorDrainErrorV1::NonLegacyKey { .. }
+            NormalCollectorDrainLifecycleErrorV1::NonLegacyKey { .. }
         ));
         let (collector, _) = rejected.into_parts();
         assert_eq!(collector.symbol_count(), 1);

@@ -15,7 +15,7 @@ mod callable_batch;
 mod collected_product;
 mod drain;
 mod final_row;
-mod normal_legacy_drain;
+mod normal_collector_drain_lifecycle;
 mod raw_drain;
 mod receipt;
 mod root_batch;

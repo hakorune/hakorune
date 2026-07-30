@@ -389,6 +389,10 @@ box Page {
   capacity: usize = 0
 }
 
+static box Utility {
+  answer() { return 7 }
+}
+
 static box Main {
   main(x) {
     local p = new Page()
@@ -424,6 +428,11 @@ static box Main {
         format!("{:?}", candidate.verification_result),
         format!("{:?}", legacy.verification_result)
     );
+    assert_eq!(
+        candidate.module.function_names(),
+        legacy.module.function_names()
+    );
+    assert!(candidate.module.functions.contains_key("Utility.answer/0"));
     let contract_count = |module: &crate::mir::MirModule| {
         module
             .functions

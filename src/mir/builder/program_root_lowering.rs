@@ -11,6 +11,7 @@ use hakorune_mir_builder::BoxCompilationContext;
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::module_draft_collector::ModuleDraftCollectorV1;
+use super::module_invocation_identity::ModuleInvocationBrandV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortV1;
 use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
@@ -95,6 +96,7 @@ impl MirBuilder {
         &mut self,
         source: &PreparedNormalDefaultProgramRootV1,
         expansion: &VerifiedRawRootExpansionV1<'_>,
+        brand: ModuleInvocationBrandV1,
     ) -> Result<ValueId, NormalDefaultRootCatalogLifecycleErrorV1> {
         let lowering_statements = source.clone_lowering_statements();
         let catalog =
@@ -113,6 +115,7 @@ impl MirBuilder {
             lowering_statements,
             source.source_ast(),
             expansion,
+            brand,
         )
         .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into()))
     }
@@ -122,8 +125,9 @@ impl MirBuilder {
         statements: Vec<ASTNode>,
         snapshot: &ASTNode,
         expansion: &VerifiedRawRootExpansionV1<'_>,
+        brand: ModuleInvocationBrandV1,
     ) -> Result<ValueId, String> {
-        let mut collector = ModuleDraftCollectorV1::default();
+        let mut collector = ModuleDraftCollectorV1::with_brand(brand);
         let result = {
             let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
             let mut port = RawInvocationChildPortV1::new(&mut module_port);
@@ -136,7 +140,7 @@ impl MirBuilder {
             .as_mut()
             .ok_or_else(|| "[freeze:contract][mir/callable-collector/module-missing]".to_owned())?;
         let prepared = collector
-            .prepare_normal_legacy_drain(target)
+            .prepare_normal_collector_drain(target, brand)
             .map_err(|rejected| {
                 let error = rejected.error().to_string();
                 rejected.discard();

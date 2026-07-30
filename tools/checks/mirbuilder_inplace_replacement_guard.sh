@@ -434,9 +434,9 @@ while read -r symbol expected; do
     guard_fail "$TAG" "ordinary collector production edge drift: $symbol count=$count expected=$expected"
   fi
 done <<'EOF'
-ModuleDraftCollectorV1::default() 1
+ModuleDraftCollectorV1::with_brand(brand) 1
 RawInvocationChildPortV1::new 1
-.try_add_functions_atomic 1
+.prepare_normal_collector_drain 1
 EOF
 for retired_edge in \
   lower_static_method_as_function \
