@@ -44,7 +44,9 @@ Latest landed:  `NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS26-D0` — closed
 Latest design:  `NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-I0-R0`
-Next stop:      `MIRBUILDER-LIVE-EDGE-CENSUS27-D0`
+Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS27-D0` — closed
+Latest design:  `NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-D0` — closed
+Next execution: `NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -93,6 +95,75 @@ unregistered family may not become active on a generic prose promise. No second
 fence ledger is permitted.
 
 ## Disposition closeout
+
+`NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-D0` — T1 design, closed
+
+```text
+Decision:
+  Candidate A — delete one shared statement-to-expression adapter for the
+  complete StatementSurfaceFallthrough0 set.
+
+Exact set:
+  Assignment / CompoundAssignment / Loop / Nowait / TaskScope / ContextScope /
+  TryCatch / Throw / Local / ScopeBox / Outbox / Program / UsingStatement.
+
+Structural proof:
+  RawInvocationChildPortV1::lower_statement
+  -> build_statement_with_port_v1
+  -> none of {If, StaticConstTable, FastMemRegion}
+  -> drive_legacy_expression_v1 with the same port
+  -> raw expression statement_surface exact owner.
+
+New path:
+  DirectPortAwareExpression
+  -> drive_legacy_expression_v1 with the same RawInvocation port
+  -> the same raw expression statement_surface exact owner.
+
+This is one adapter responsibility:
+  inner Assignment/place, Loop/CFG, async, scope/body, exception, binding,
+  ContextScope diagnostic, Program body, and Using Void owners are not grouped,
+  copied, or changed. They remain the terminal authorities in both paths.
+
+Atomic delete:
+  the 13 selected roots -> RawCompatibility -> drive_legacy_statement_v1 = 0.
+  Residual 24 -> 11.
+
+Exact residual:
+  StatementControl = If / LoopRange / Break / Continue / FastMemRegion.
+  DeclarationIngress = Import / BuildGate / Enum / Brand / TypeAlias / Global.
+
+Forbid:
+  If/FastMem special-arm bypass; a blanket AST match; a second dispatcher or
+  port; terminal-specific semantic edits; source allowlists; fallback/retry;
+  raw/reference widening; new source/check file; any file reaching 800.
+
+Evidence:
+  exhaustive classifier set; old dispatcher three-special-arm guard; parity
+  matrix across all 13 terminal families; ContextScope exact diagnostic;
+  child/terminal failure and fresh reuse; body/suffix/termination/source-order;
+  same-port nested call/Box/Loop behavior.
+
+Next:
+  NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-I0-R0.
+```
+
+`MIRBUILDER-LIVE-EDGE-CENSUS27-D0` — read-only census, closed
+
+```text
+Selected Script residual:
+  StatementControlCompatibility = 16
+  DeclarationIngressCompatibility = 8
+  total = 24.
+
+R4 registry:
+  retain-fenced=2, active compatibility=2, closed=4, unregistered=8.
+  LegacyChildDraftAdmissionV1 = 37 occurrences / 8 src/mir files, separately.
+
+Selection:
+  the exact 13-kind StatementSurfaceFallthrough0 structural set. Single-kind
+  Using or Nowait rows are rejected as unnecessarily fine-grained because the
+  outer adapter relation is identical and terminal owners remain independent.
+```
 
 `NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-I0-R0` — T1 atomic
 replacement, closed
