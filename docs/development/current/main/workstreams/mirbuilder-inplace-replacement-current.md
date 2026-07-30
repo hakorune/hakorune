@@ -57,8 +57,8 @@ Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS30-D0` — closed
 Latest design:  `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS31-D0` — closed, NoSafeSlice
-Latest design:  `NESTED-BOX-RAW-BODY-DISPOSITION0-D0` — closed, NoSafeI0
-Next stop:     `NESTED-BOX-SOURCE-OCCURRENCE0-D0`
+Latest design:  `NESTED-BOX-SOURCE-OCCURRENCE0-D0` — closed, NoSafeSourceTransport
+Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS32-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -85,20 +85,20 @@ activation and sunset contract.
 | unregistered | `R4-UNREGISTERED-PHI-OBSERVER-001` — phi observer | `verify_phi_reserved` family | activation/owner not yet registered | undecided; named D0 required before C0 | RET0, REOWN, or RETAIN-FENCED with owner, activation, retire_when |
 | unregistered | `R4-UNREGISTERED-AST-FRONTEND-001` — legacy AST frontend | `AstToJoinIrLowerer` plus its fixture/dev-flag closure | production caller = 0; test/reference closure remains | undecided; named D0 required before C0 | `JOINMODULE-AST-FRONTEND-LEGACY-DISPOSITION0-D0` |
 | unregistered | `R4-UNREGISTERED-TEST-HANDLER-001` — cfg(test) bridge handler lane | legacy bridge handlers and owned unit contracts | production caller = 0; test contract remains | undecided; named D0 required before C0 | `JOINMODULE-TEST-HANDLER-LANE-DISPOSITION0-D0` |
-| active compatibility | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> nested static method and shared instance constructor/method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | REOWN after exact nested source occurrence authority | `NESTED-BOX-SOURCE-OCCURRENCE0-D0` then one atomic nested-admission I0/R0 deletes both legacy-symbol issuers; otherwise explicit RETAIN-FENCED before C0 |
+| retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> nested static method and shared instance constructor/method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | RETAIN-FENCED: no exact source occurrence reaches the raw port | fresh `RAW-LOCATED-BODY-TRANSPORT0-D0` may select REOWN only when one function-relative located transport deletes a named production edge; otherwise forced disposition at `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` |
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | undecided; named D0 required before C0 | delete or RETAIN-FENCED reference scope with exact owner, activation, retire_when |
 
-The registry has two registered R3 fences, two active compatibility residuals,
+The registry has three registered R3 fences, one active compatibility residual,
 five closed residuals, and seven unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
 (`37` occurrences in `8` `src/mir` files at the latest exact census). The
-selected-Script residual is closed; raw static Main and nested raw body descent
-are the two active compatibility rows above. Nested raw body descent was
+selected-Script residual is closed; raw static Main is the one active
+compatibility row above. Nested raw body descent was
 promoted from its immutable unregistered audit key to
-`NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001`; it is no longer an unregistered
-family and is not counted as an additional fence.
+`NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` and is now retain-fenced; it is no
+longer an unregistered family.
 
 Every census updates this table before selecting the next row. Every unregistered
 family has an immutable audit key, but is not a fence or sunset until a D0
@@ -118,6 +118,47 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`NESTED-BOX-SOURCE-OCCURRENCE0-D0` — T2 design, closed
+
+```text
+Decision:
+  NoSafeSourceTransport; RETAIN-FENCED.
+
+Reusable vocabulary:
+  SourceNodeSiteV1 / SourcePathSegmentV1 can describe one function-relative
+  structural path. They do not by themselves issue an occurrence.
+
+Missing production seam:
+  RawInvocationChildPortV1 retains only ModuleLoweringPortV1. Raw body,
+  statement, expression, If/Loop/scope/Lambda, and Box terminals consume bare
+  ASTNode values without enclosing source owner, body index, or child role.
+  A nested-only wrapper therefore cannot prove one exact source occurrence.
+
+Rejected:
+  symbol/arity as source identity; Span identity; name matching; AST pre-scan
+  event queue; clone/reparse; root catalog widening; a renamed
+  LegacyChildDraftAdmissionV1; constructor-as-method role collapse.
+
+Required future product:
+  one function-root-relative located raw transport, issued at the existing
+  recursive traversal and preserved through every child portal. Only after a
+  fresh RAW-LOCATED-BODY-TRANSPORT0-D0 names a bounded production edge and its
+  same-series deletion may nested StaticMethod / InstanceConstructor /
+  InstanceMethod occurrences co-seal the unchanged physical symbol, arity,
+  LegacyReplaceWholePair, depth-first order, and candidate-only publication.
+
+Execution:
+  S0 = 0; I0/R0 = 0. Building a caller-zero location substrate now would repeat
+  the proof-only route failure.
+
+R4:
+  NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001 becomes RETAIN-FENCED.
+  active compatibility=1, retain-fenced=3, closed=5, unregistered=7.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS32-D0.
+```
 
 `NESTED-BOX-RAW-BODY-DISPOSITION0-D0` — T2 design, closed
 
