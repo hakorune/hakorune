@@ -196,17 +196,16 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
             RawInvocationSourceContextV1::Located { .. }
         ));
         assert_eq!(
-            body_child.site().expect("located scalar statement").segments(),
+            body_child
+                .site()
+                .expect("located scalar statement")
+                .segments(),
             &[SourcePathSegmentV1::Body(index as u32)]
         );
         let role = match &statement {
             ASTNode::Assignment { .. } => ExprChildRoleV1::AssignmentValue,
-            ASTNode::GroupedAssignmentExpr { .. } => {
-                ExprChildRoleV1::GroupedAssignmentValue
-            }
-            ASTNode::CompoundAssignment { .. } => {
-                ExprChildRoleV1::CompoundAssignmentValue
-            }
+            ASTNode::GroupedAssignmentExpr { .. } => ExprChildRoleV1::GroupedAssignmentValue,
+            ASTNode::CompoundAssignment { .. } => ExprChildRoleV1::CompoundAssignmentValue,
             _ => unreachable!("scalar single-value fixture"),
         };
         let value = body_child
@@ -224,7 +223,10 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
             .child_statement(&statement, index)
             .expect("direct scalar statement");
         assert_eq!(
-            direct_child.site().expect("located direct statement").segments(),
+            direct_child
+                .site()
+                .expect("located direct statement")
+                .segments(),
             &[SourcePathSegmentV1::Body(index as u32)]
         );
     }
@@ -271,10 +273,6 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
             value: Box::new(integer(4)),
             span: Span::unknown(),
         },
-        ASTNode::Print {
-            expression: Box::new(integer(5)),
-            span: Span::unknown(),
-        },
         ASTNode::Return {
             value: Some(Box::new(integer(6))),
             span: Span::unknown(),
@@ -297,6 +295,32 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
             )
         );
     }
+}
+
+#[test]
+fn print_statement_and_value_are_exactly_located() {
+    let statement = ASTNode::Print {
+        expression: Box::new(integer(5)),
+        span: Span::unknown(),
+    };
+    let root = RawInvocationSourceContextV1::Located {
+        root: RawInvocationRootLineageV1::ScriptRoot,
+        site: SourcePathV1::function_body().node(),
+        body_kind: Some(SourceBodyKindV1::Function),
+    };
+    let (_, child) =
+        RawInvocationSourceContextV1::from_transport(root.body_statement(statement.clone(), 4));
+    assert_eq!(
+        child.site().unwrap().segments(),
+        &[SourcePathSegmentV1::Body(4)]
+    );
+    let value = child
+        .child_expression(&statement, ExprChildRoleV1::PrintValue)
+        .unwrap();
+    assert_eq!(
+        value.site().unwrap().segments(),
+        &[SourcePathSegmentV1::Body(4), SourcePathSegmentV1::Value]
+    );
 }
 
 #[test]

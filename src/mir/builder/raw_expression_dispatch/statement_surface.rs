@@ -45,8 +45,7 @@ struct PreparedRawOrdinaryAssignmentV1 {
 enum PreparedRawOrdinaryAssignmentRouteV1 {
     Variable {
         input: RawLegacyVariableAssignmentInputV1,
-        value_source:
-            crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
+        value_source: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
     },
     Field {
         prepared: PreparedRawFieldAssignmentV1,
@@ -61,8 +60,9 @@ impl PreparedRawOrdinaryAssignmentV1 {
     fn prepare(
         builder: &MirBuilder,
         statement: AssignStmt,
-        value_source:
-            Option<crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1>,
+        value_source: Option<
+            crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
+        >,
     ) -> Result<Self, String> {
         let AssignStmt { target, value, .. } = statement;
         let value = *value;
@@ -187,14 +187,12 @@ where
             "[freeze:contract][mir_builder/context_scope_lowering_missing] spelling={} name={} context propagation is owned by CONC-CONTEXT-002",
             source_keyword, name
         )),
-        ASTNode::Print { expression, .. } => {
-            let prepared =
-                crate::mir::builder::stmts::print_stmt::PreparedRawPrintV1::prepare(*expression);
+        node @ ASTNode::Print { .. } => {
             Ok(StatementSurfaceDispatch::Lowered(
-                crate::mir::builder::stmts::print_stmt::lower_prepared_raw_print_with_port_v1(
+                crate::mir::builder::stmts::print_stmt::lower_raw_print_statement_with_port_v1(
                 builder,
                 port,
-                    prepared,
+                    node,
                 )?,
             ))
         }

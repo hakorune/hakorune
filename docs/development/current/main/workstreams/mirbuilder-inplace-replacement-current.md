@@ -94,27 +94,29 @@ Latest landed: `RAW-LOCATED-TRYCATCH-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-PROGRAM-BODY-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-SCALAR-VARIABLE-WRITES0-I0-R0`
 Latest landed: `RAW-LOCATED-SCALAR-LOCAL-COMPOUND-WRITE0-I0-R0`
-Current execution: `RAW-LOCATED-PRINT-SOURCE-HANDOFF0-I0-R0`
+Latest landed: `RAW-LOCATED-PRINT-SOURCE-HANDOFF0-I0-R0`
+Current design stop: `RAW-LOCATED-SCALAR-BINDING-REMAINDER2-D0`
 History:       Git history and the short landed tail below
 ```
 
-## Current execution
+## Current design stop
 
-`RAW-LOCATED-PRINT-SOURCE-HANDOFF0-I0-R0`
+`RAW-LOCATED-SCALAR-BINDING-REMAINDER2-D0`
 
 ```text
 Landed baseline:
   variable-target Assignment, GroupedAssignmentExpr, and CompoundAssignment
-  now own exact statement/RHS paths. Field/index places remain residual.
+  own exact statement/RHS paths. Every Print now owns one exact route-specific
+  demand and DirectPrint installs its exact statement source.
 
-Selected:
-  one central prepared Print terminal consumes exactly one route-specific
-  source demand: PrintValue for general, PrintValue/CallArgument(0) for the
-  function TypeOp wrapper, or PrintValue/Receiver for the method TypeOp.
+Question:
+  which one of field/index Assignment, field/index CompoundAssignment, Return,
+  or Local can next remove a real ScalarBinding edge without mixing hidden
+  place, Match-return, typed-array, or record-constructor authority?
 
-Forbid:
-  type-literal lowering, route re-observation/retry, emission-order change,
-  unlocated DirectPrint, Return/Local widening, or compatibility rename.
+Stop:
+  no nested target path invention, Match-return bypass weakening, Local hook
+  duplication, route retry, AST clone/reparse, or compatibility rename.
 ```
 
 Corrected queue:

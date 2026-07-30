@@ -6,23 +6,21 @@
 //! it is an execute-once compatibility state, never a retry route.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::stmts::block_driver::{
-    drive_legacy_block_v1, LegacyBlockDescentPortV1,
-};
+use crate::mir::builder::stmts::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{
-    BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1, SourceBodyKindV1,
-    SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1,
+    BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1, SourceBodyKindV1, SourceNodeSiteV1,
+    SourcePathSegmentV1, SourcePathV1,
 };
 use crate::mir::ValueId;
 
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1;
 use super::normal_top_level_function_admission::NormalTopLevelFunctionSourceKeyV1;
+use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
     lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
     RecursiveChildLoweringPortV1,
 };
-use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::{CanonicalSameModuleCallableKeyV1, RawSourceLocatorV1};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -71,10 +69,7 @@ pub(in crate::mir::builder) enum RawInvocationSourceTransportV1<T> {
 }
 
 impl<T> RawInvocationSourceTransportV1<T> {
-    pub(in crate::mir::builder) fn root(
-        node: T,
-        root: RawInvocationRootLineageV1,
-    ) -> Self {
+    pub(in crate::mir::builder) fn root(node: T, root: RawInvocationRootLineageV1) -> Self {
         Self::Located(LocatedRawNodeV1::new(
             node,
             root,
@@ -82,10 +77,7 @@ impl<T> RawInvocationSourceTransportV1<T> {
         ))
     }
 
-    pub(in crate::mir::builder) fn unlocated(
-        node: T,
-        reason: RawUnlocatedPortalV1,
-    ) -> Self {
+    pub(in crate::mir::builder) fn unlocated(node: T, reason: RawUnlocatedPortalV1) -> Self {
         Self::UnlocatedCompatibility { node, reason }
     }
 
@@ -149,13 +141,9 @@ impl RawInvocationSourceContextV1 {
                     && !is_located_scalar_single_value_statement(&statement)
                 {
                     let reason = reason_for_non_box_statement(&statement);
-                    return RawInvocationSourceTransportV1::unlocated(
-                        statement,
-                        reason,
-                    );
+                    return RawInvocationSourceTransportV1::unlocated(statement, reason);
                 }
-                let kind =
-                    body_kind.expect("located body transport must retain its body kind");
+                let kind = body_kind.expect("located body transport must retain its body kind");
                 let child = if kind == SourceBodyKindV1::Function
                     && site.segments() == [SourcePathSegmentV1::FunctionBody]
                 {
@@ -263,10 +251,9 @@ impl RawInvocationSourceContextV1 {
         else {
             return Ok(self.clone());
         };
-        let kind =
-            body_kind.ok_or_else(|| {
-                "[freeze:contract][raw-invocation/missing-parent-body-kind]".to_owned()
-            })?;
+        let kind = body_kind.ok_or_else(|| {
+            "[freeze:contract][raw-invocation/missing-parent-body-kind]".to_owned()
+        })?;
         if !is_located_control_or_diagnostic_terminal(statement)
             && !is_located_scalar_single_value_statement(statement)
         {
@@ -298,7 +285,6 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
 
         ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
-        | ASTNode::Print { .. }
         | ASTNode::Return { .. }
         | ASTNode::Local { .. } => RawUnlocatedPortalV1::ScalarBinding,
 
@@ -342,6 +328,7 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
 
         ASTNode::Program { .. }
         | ASTNode::BoxDeclaration { .. }
+        | ASTNode::Print { .. }
         | ASTNode::GroupedAssignmentExpr { .. }
         | ASTNode::If { .. }
         | ASTNode::Loop { .. }
@@ -368,7 +355,10 @@ fn is_located_scalar_single_value_statement(statement: &ASTNode) -> bool {
         statement,
         ASTNode::CompoundAssignment { target, .. }
             if matches!(target.as_ref(), ASTNode::Variable { .. })
-    ) || matches!(statement, ASTNode::GroupedAssignmentExpr { .. })
+    ) || matches!(
+        statement,
+        ASTNode::GroupedAssignmentExpr { .. } | ASTNode::Print { .. }
+    )
 }
 
 fn is_located_control_or_diagnostic_terminal(statement: &ASTNode) -> bool {
@@ -433,9 +423,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     ) -> Result<ValueId, String> {
         match self.current_source_context_v1() {
             Some(context) => drive_located_invocation_body_v1(builder, self, input, context),
-            None => {
-                Err("[freeze:contract][raw-invocation/missing-root-body-receipt]".to_owned())
-            }
+            None => Err("[freeze:contract][raw-invocation/missing-root-body-receipt]".to_owned()),
         }
     }
 
@@ -473,8 +461,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         let context = self
             .current_source_context_v1()
             .ok_or_else(|| {
-                "[freeze:contract][raw-invocation/missing-parent-expression-receipt]"
-                    .to_owned()
+                "[freeze:contract][raw-invocation/missing-parent-expression-receipt]".to_owned()
             })?
             .child_expression(parent, role)?;
         Ok(PreparedRawChildSourceV1::Exact(context))
@@ -502,8 +489,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         let context = self
             .current_source_context_v1()
             .ok_or_else(|| {
-                "[freeze:contract][raw-invocation/missing-parent-statement-receipt]"
-                    .to_owned()
+                "[freeze:contract][raw-invocation/missing-parent-statement-receipt]".to_owned()
             })?
             .child_statement(statement, index)?;
         Ok(PreparedRawChildSourceV1::Exact(context))
@@ -582,7 +568,8 @@ where
             .next()
             .expect("block driver index stays within the owned source iterator");
         let transport = self.source.body_statement(statement, index);
-        self.child.with_source_transport_v1(transport, |child, statement| {
+        self.child
+            .with_source_transport_v1(transport, |child, statement| {
                 super::stmts::block_stmt::build_statement_with_port_v1(builder, child, statement)
             })
     }

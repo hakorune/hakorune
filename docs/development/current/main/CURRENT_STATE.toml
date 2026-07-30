@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LOCATED-SCALAR-LOCAL-COMPOUND-WRITE0-I0-R0 is closed. Variable-target CompoundAssignment now retains its exact statement and RHS source path, preserves the existing local-read -> RHS -> binary -> local-write order, and exhausts one prepared RHS receipt on success. Its old ScalarBinding edge is deleted. Field/index Assignment and CompoundAssignment, Print, Return, and Local remain explicit residuals. The accepted next T1 removes Print by preserving one route-specific demand: PrintValue, PrintValue/CallArgument(0), or PrintValue/Receiver. Ownership/View remains parked."
+status = "RAW-LOCATED-PRINT-SOURCE-HANDOFF0-I0-R0 is closed. Every Print now keeps one route receipt and consumes exactly one located source demand: PrintValue for general/malformed forms, PrintValue/CallArgument(0) for the exact function TypeOp wrapper, or PrintValue/Receiver for the exact method TypeOp. The type-name literal remains syntax-only, DirectPrint installs its statement receipt, and the old Print -> ScalarBinding edge is deleted. Field/index Assignment and CompoundAssignment, Return, and Local remain explicit ScalarBinding residuals; Ownership/View remains parked."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "RAW-LOCATED-PRINT-SOURCE-HANDOFF0-I0-R0"
-current_execution_summary = "Move every Print out of ScalarBinding through one central prepared Print terminal. General Print consumes PrintValue; exact function TypeOp consumes PrintValue/CallArgument(0); exact method TypeOp consumes PrintValue/Receiver. The type-name literal is syntax-only. Preserve emission order and require one exact demand with no retry."
+current_design_stop = "RAW-LOCATED-SCALAR-BINDING-REMAINDER2-D0"
+current_execution_row = "none"
+current_execution_summary = "Select the next bounded exact-source replacement among residual field/index Assignment, field/index CompoundAssignment, Return, and Local. Return still has a Match-return CorePlan terminal that may bypass ReturnValue descent; place routes require nested target paths; Local retains typed-array/record hooks. No implementation is selected."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-LOCATED-SCALAR-LOCAL-COMPOUND-WRITE0-I0-R0 is closed: variable-target CompoundAssignment consumes one exact RHS receipt through the unchanged local place owner, and its ScalarBinding edge is deleted. RAW-LOCATED-PRINT-SOURCE-HANDOFF0-I0-R0 is selected next with one route-specific demand and no TypeOp/emission delta. Field/index places, Return, and Local remain separate; R5 Ownership/View remains parked."""
+latest_card_summary = """RAW-LOCATED-PRINT-SOURCE-HANDOFF0-I0-R0 is closed: every Print consumes one exact route-specific source demand through the shared prepared Print terminal, DirectPrint installs statement source, and Print no longer enters ScalarBinding. Field/index places, Return, and Local remain explicit residuals. RAW-LOCATED-SCALAR-BINDING-REMAINDER2-D0 is the next design stop; R5 Ownership/View remains parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-LOCATED-PRINT-SOURCE-HANDOFF0-I0-R0"
+current_blocker_token = "RAW-LOCATED-SCALAR-BINDING-REMAINDER2-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

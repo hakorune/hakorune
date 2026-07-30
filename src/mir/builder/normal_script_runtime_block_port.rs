@@ -42,7 +42,10 @@ impl<Port> LegacyBlockDescentPortV1 for NormalScriptRuntimeBlockPortV1<'_, Port>
 where
     Port: RootCallableCapturePortV1,
 {
-    type SuffixInput<'a> = &'a [ASTNode] where Self: 'a;
+    type SuffixInput<'a>
+        = &'a [ASTNode]
+    where
+        Self: 'a;
 
     fn len(&self) -> usize {
         self.statements.len()
@@ -65,21 +68,35 @@ where
         builder: &mut MirBuilder,
         index: usize,
     ) -> Result<ValueId, String> {
-        let statement = self.statements.next()
+        let statement = self
+            .statements
+            .next()
             .expect("script runtime block index stays within owned statements");
-        let admission = self.admissions.next()
+        let admission = self
+            .admissions
+            .next()
             .expect("script runtime admission stays aligned with statements");
         match admission {
-            NormalScriptRuntimeStatementAdmissionV1::DirectPrint =>
-                lower_direct_print_v1(builder, self.port, &statement),
+            NormalScriptRuntimeStatementAdmissionV1::DirectPrint => {
+                let source = self
+                    .port
+                    .prepare_body_statement_source_v1(&statement, index)?;
+                self.port.with_prepared_child_source_v1(source, |port| {
+                    lower_direct_print_v1(builder, port, statement)
+                })
+            }
             NormalScriptRuntimeStatementAdmissionV1::DirectIfStatement => {
-                let source = self.port.prepare_body_statement_source_v1(&statement, index)?;
+                let source = self
+                    .port
+                    .prepare_body_statement_source_v1(&statement, index)?;
                 self.port.with_prepared_child_source_v1(source, |port| {
                     lower_direct_if_statement_v1(builder, port, statement)
                 })
             }
             NormalScriptRuntimeStatementAdmissionV1::DirectFastMemRegion => {
-                let source = self.port.prepare_body_statement_source_v1(&statement, index)?;
+                let source = self
+                    .port
+                    .prepare_body_statement_source_v1(&statement, index)?;
                 self.port.with_prepared_child_source_v1(source, |port| {
                     lower_direct_fastmem_region_v1(builder, port, statement)
                 })
@@ -91,8 +108,9 @@ where
                         | ASTNode::TaskScope { .. }
                         | ASTNode::ScopeBox { .. }
                 ) {
-                    let source =
-                        self.port.prepare_body_statement_source_v1(&statement, index)?;
+                    let source = self
+                        .port
+                        .prepare_body_statement_source_v1(&statement, index)?;
                     self.port.with_prepared_child_source_v1(source, |port| {
                         lower_direct_port_aware_expression_v1(builder, port, statement)
                     })
@@ -100,18 +118,24 @@ where
                     lower_direct_port_aware_expression_v1(builder, self.port, statement)
                 }
             }
-            NormalScriptRuntimeStatementAdmissionV1::DirectStaticConstRuntimeCompletion =>
-                lower_direct_static_const_runtime_completion_v1(builder, &statement),
-            NormalScriptRuntimeStatementAdmissionV1::DirectSelectedUnsupportedStatement =>
-                lower_direct_selected_unsupported_statement_v1(builder, &statement),
-            NormalScriptRuntimeStatementAdmissionV1::RawCompatibility =>
-                drive_legacy_statement_v1(builder, self.port, statement),
-            NormalScriptRuntimeStatementAdmissionV1::CatalogedNonMainStaticBox =>
-                lower_cataloged_nonmain_static_box_v1(builder, self.port, &statement),
-            NormalScriptRuntimeStatementAdmissionV1::StaticMainCompatibility =>
-                lower_static_main_compatibility_v1(builder, self.port, &statement),
-            NormalScriptRuntimeStatementAdmissionV1::SyncBoxRejection =>
-                reject_sync_box_at_runtime_v1(&statement),
+            NormalScriptRuntimeStatementAdmissionV1::DirectStaticConstRuntimeCompletion => {
+                lower_direct_static_const_runtime_completion_v1(builder, &statement)
+            }
+            NormalScriptRuntimeStatementAdmissionV1::DirectSelectedUnsupportedStatement => {
+                lower_direct_selected_unsupported_statement_v1(builder, &statement)
+            }
+            NormalScriptRuntimeStatementAdmissionV1::RawCompatibility => {
+                drive_legacy_statement_v1(builder, self.port, statement)
+            }
+            NormalScriptRuntimeStatementAdmissionV1::CatalogedNonMainStaticBox => {
+                lower_cataloged_nonmain_static_box_v1(builder, self.port, &statement)
+            }
+            NormalScriptRuntimeStatementAdmissionV1::StaticMainCompatibility => {
+                lower_static_main_compatibility_v1(builder, self.port, &statement)
+            }
+            NormalScriptRuntimeStatementAdmissionV1::SyncBoxRejection => {
+                reject_sync_box_at_runtime_v1(&statement)
+            }
             NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility {
                 constructor_sources,
                 constructor_batch,

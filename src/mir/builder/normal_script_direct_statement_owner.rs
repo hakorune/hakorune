@@ -16,27 +16,21 @@ use crate::mir::builder::recursive_child_lowering::{
 use crate::mir::builder::stmts::if_statement_descent::{
     complete_if_statement_v1, drive_raw_if_statement_with_port_v1,
 };
-use crate::mir::builder::stmts::print_stmt::{
-    lower_prepared_raw_print_with_port_v1, PreparedRawPrintV1,
-};
+use crate::mir::builder::stmts::print_stmt::lower_raw_print_statement_with_port_v1;
 use crate::mir::{MirBuilder, ValueId};
 
 pub(super) fn lower_direct_print_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
-    statement: &ASTNode,
+    statement: ASTNode,
 ) -> Result<ValueId, String>
 where
     Port: RootCallableCapturePortV1,
 {
-    let ASTNode::Print { expression, .. } = statement else {
+    if !matches!(&statement, ASTNode::Print { .. }) {
         return Err("[freeze:contract][mir/script-runtime/print-source-drift]".to_owned());
-    };
-    lower_prepared_raw_print_with_port_v1(
-        builder,
-        port,
-        PreparedRawPrintV1::prepare((**expression).clone()),
-    )
+    }
+    lower_raw_print_statement_with_port_v1(builder, port, statement)
 }
 
 pub(super) fn lower_direct_port_aware_expression_v1<Port>(
@@ -62,9 +56,14 @@ where
     builder.metadata_ctx.set_current_span(statement.span());
     let condition_source =
         port.prepare_expression_child_source_v1(&statement, ExprChildRoleV1::IfCondition)?;
-    let then_source =
-        port.prepare_body_child_source_v1(&statement, BodyChildRoleV1::IfThen)?;
-    let else_source = if matches!(&statement, ASTNode::If { else_body: Some(_), .. }) {
+    let then_source = port.prepare_body_child_source_v1(&statement, BodyChildRoleV1::IfThen)?;
+    let else_source = if matches!(
+        &statement,
+        ASTNode::If {
+            else_body: Some(_),
+            ..
+        }
+    ) {
         Some(port.prepare_body_child_source_v1(&statement, BodyChildRoleV1::IfElse)?)
     } else {
         None
@@ -86,13 +85,8 @@ where
             .flatten()
             .collect(),
     );
-    let lowering = drive_raw_if_statement_with_port_v1(
-        builder,
-        &mut scoped,
-        *condition,
-        then_body,
-        else_body,
-    );
+    let lowering =
+        drive_raw_if_statement_with_port_v1(builder, &mut scoped, *condition, then_body, else_body);
     complete_if_statement_v1(builder, lowering)
 }
 
