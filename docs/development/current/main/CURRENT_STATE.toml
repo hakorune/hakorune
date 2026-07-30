@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0 is closed. JoinFuncMeta/JoinFuncMetaMap, metadata observation, public *_with_meta APIs, and metadata-only Phase40 evidence are deleted. JoinModule conversion is crate-bounded in module_converter; normalized-shadow passes only its boundary; AST frontend analysis and VM bridge remain. MIRBUILDER-LIVE-EDGE-CENSUS39-D0 is the only read-only design stop."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS39-D0 is closed. The sole R4 registry now selects JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0: AstToJoinIrLowerer has zero production callers after frontend metadata retirement, while VM conversion, JoinModule core/lowering, normalized-shadow, and the shared test-debug flag remain. Carrier/boundary and VM LowerOnly policy stay separate future decisions."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS39-D0"
-current_execution_row = "none"
-current_execution_summary = "Read-only Census39. Re-inventory the three unregistered R4 families, four retained fences, carrier/boundary split, AST frontend evidence closure, and live normalized-dev/VM JoinModule remainder after frontend metadata retirement. Update the sole R4 registry before selecting at most one disposition. Do not edit production code, create a second fence ledger, or advance Ownership/View."
+current_design_stop = "none"
+current_execution_row = "JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0"
+current_execution_summary = "T2 atomic RET0. Delete the caller-zero AstToJoinIrLowerer frontend, its exclusive helpers/tests/Program-JSON fixtures/dev flags, and the two lowerer-to-bridge E2E tests. Preserve direct VM converter tests, native Phase40 analysis tests, JoinModule model/lowering, VM bridge, normalized-shadow, and JOINIR_TEST_DEBUG. No replacement route, fallback, compatibility alias, or feature work."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0 is closed. Fourteen cfg(test)-only legacy VM-bridge handler files and 3743 lines are zero; joinir_block_converter production conversion, bridge integration, MIR, runtime, grammar, and routes are unchanged. Existing generated native-owner and control-flow inventories plus the canonical SSA seam inventory are synchronized. Cargo check, production converter 1/1, bridge integration 7/7, SSA contract, inventory checks, absence census, and pointer guard are green. The broad PHI inventory has a pre-existing LocalSSA anchor failure reproduced at pre-change HEAD. MIRBUILDER-LIVE-EDGE-CENSUS37-D0 is next; R4 still precedes Ownership, View, and later features."""
+latest_card_summary = """MIRBUILDER-LIVE-EDGE-CENSUS39-D0 is closed. The sole R4 registry selects JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0 as one T2 atomic caller-zero retirement. AstToJoinIrLowerer and its exclusive evidence closure are deleted together; VM conversion, JoinModule core/lowering, normalized-shadow, and native analysis remain. JumpArgsLayout neutral rehome and VM LowerOnly policy separation remain later census-selected rows. R4 still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS37-D0"
+current_blocker_token = "JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

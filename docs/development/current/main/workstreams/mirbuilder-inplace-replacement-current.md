@@ -71,7 +71,8 @@ Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS37-D0` — closed
 Latest landed: `LLVM-JOINMODULE-EXPERIMENT-ROUTE-RETIRE0-RET0`
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS38-D0` — closed
 Latest landed: `JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0`
-Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS39-D0`
+Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS39-D0` — closed
+Next row:      `JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0`
 History:       Git history and the short landed tail below
 ```
 
@@ -97,15 +98,15 @@ activation and sunset contract.
 | closed | `RAW-ROOT-LEGACY-BRANDED-TERMINAL-SUNSET-001` | former caller-zero `complete_legacy_child_branded` and `commit_legacy_pending_branded` adapters from `LegacyChildDraftAdmissionV1` to branded collector receipt | activation = 0 after `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`; definitions only | RET0 | retired by `RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0`; unbranded, symbol-keyed, resolved, and nested-live terminals retained |
 | closed | `LLVM-JOINMODULE-EXPERIMENT-ROUTE-SUNSET-001` (promotes `R4-UNREGISTERED-LLVM-EXPERIMENT-001`) | former LLVM runner `JoinIrExperimentBox`: `Main.skip/1` MIR -> JoinModule -> MIR replacement plus original-MIR return on lowering/bridge failure | activation and complete LLVM-only owner/hook/env surface = 0 | RET0 | retired by `LLVM-JOINMODULE-EXPERIMENT-ROUTE-RETIRE0-RET0`; shared JoinModule lowering, VM bridge, normalized-shadow fence, and shared experiment flag remain |
 | closed | `JOINIR-FRONTEND-FUNC-META-SUNSET-001` (promotes `R4-UNREGISTERED-FRONTEND-METADATA-001`) | former `frontend::func_meta`, public `JoinFuncMeta`/`JoinFuncMetaMap`, bridge metadata observation and `*_with_meta` APIs | metadata types, non-empty issuers, observation, and old APIs = 0 | RET0 metadata authority; conversion REOWNED into crate-bounded `module_converter` and boundary-aware bridge | retired by `JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0`; converter output, aliases, normalized boundary, AST analysis, and VM bridge preserved |
-| unregistered | `R4-UNREGISTERED-CARRIER-BOUNDARY-001` — carrier boundaries | `JumpArgsLayout` and `JoinInlineBoundary` families | live/fenced consumer mapping not yet registered | undecided; named D0 required before C0 | CorePlan/MIR rehome D0, RET0, or RETAIN-FENCED |
+| unregistered | `R4-UNREGISTERED-CARRIER-BOUNDARY-001` — carrier boundaries | neutral CFG `JumpArgsLayout`; normalized-shadow-specific `JoinInlineBoundary` / `LoopExitBinding`; dead bridge boundary parameter is a third subordinate residue | `JumpArgsLayout` is consumed by `BasicBlock`, EdgeCFG, verifier, optimizer, JSON and bridge; `JoinInlineBoundary` is constructed/merged only by explicit normalized-shadow dev execution | split confirmed; future census may select neutral REOWN for `JumpArgsLayout`; boundary remains subordinate to `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0`, not a new fence | `MIR-CFG-JUMP-ARGS-LAYOUT-REHOME0-I0-R0` or later dead-parameter RET0, each only after fresh selection |
 | closed | `JOINMODULE-PHI-OBSERVER-SUNSET-001` (promotes `R4-UNREGISTERED-PHI-OBSERVER-001`) | former `verify_phi_reserved` global collector/report, three debug observation hooks, dedicated builder/module tests, exports, README and generated owner-inventory row | production decision consumer = 0 before deletion; complete asset now absent | RET0 | retired by `JOINMODULE-PHI-OBSERVER-RETIRE0-RET0`: complete observer/test/hook/wiring/docs surface = 0 and existing native-owner inventory regenerated |
-| unregistered | `R4-UNREGISTERED-AST-FRONTEND-001` — legacy AST frontend | `AstToJoinIrLowerer` plus its fixture/dev-flag closure | production caller = 0; test/reference closure remains | undecided; named D0 required before C0 | `JOINMODULE-AST-FRONTEND-LEGACY-DISPOSITION0-D0` |
+| active retirement | `JOINMODULE-AST-FRONTEND-LEGACY-SUNSET-001` (promotes `R4-UNREGISTERED-AST-FRONTEND-001`) | `AstToJoinIrLowerer`, its exclusive helper/tests, six Program-JSON fixtures, three exclusive dev flags, two lowerer-to-bridge E2E tests, and current frontend contract residue | production caller = 0; VM conversion and direct converter tests are independent; default normal = 0 | RET0 complete caller-zero experimental frontend closure | `JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0`: delete the exact closure without replacement, preserving JoinModule core/lowering, VM bridge, normalized-shadow, native Phase40 analysis, and `JOINIR_TEST_DEBUG` |
 | closed | `JOINMODULE-TEST-HANDLER-LANE-SUNSET-001` (promotes `R4-UNREGISTERED-TEST-HANDLER-001`) | former cfg(test)-only `block_finalizer`, `handlers/**`, `merge_variable_handler`, and `terminator_builder` legacy VM-bridge handler lane | production conversion remains solely in `joinir_block_converter/**`; deleted lane and registrations = 0 | RET0 | retired by `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`: 14 files / 3743 lines, four cfg(test) module declarations, obsolete README section, stale PHI seam row, and generated inventory rows deleted |
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> nested static method and shared instance constructor/method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | RETAIN-FENCED: no exact source occurrence reaches the raw port | fresh `RAW-LOCATED-BODY-TRANSPORT0-D0` may select REOWN only when one function-relative located transport deletes a named production edge; otherwise forced disposition at `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` |
-| unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | normalized-dev Builder execution and explicit VM route have live consumers; LLVM experiment consumer is retired; exact model/lowering/JSON/format partition remains unregistered | undecided; named D0 required before C0 | partition live normalized-dev/VM owners from caller-zero reference scope, then delete or RETAIN-FENCED with exact owner, activation, retire_when |
+| unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/dispatch remainder | live JoinModule core, normalized-shadow execution, VM Exec and LowerOnly dispatch outside rows above; there is no independent JSON/format subsystem | normalized-dev and explicit VM have live consumers; `JOINIR_TARGETS` also owns five-name Loop/If/strict classification, so LowerOnly rows cannot be deleted directly | broad RET0 rejected; later T2 must REOWN loop-target policy before retiring LowerOnly observation | `JOINMODULE-VM-LOWERONLY-OBSERVATION-DISPOSITION0-D0`: preserve five-name classification, keep two VM Exec targets, then remove three LowerOnly routes without deleting their lowerer evidence in the same row |
 
 The registry has four registered R4 fences, zero active compatibility residuals,
-zero active retirements, twelve closed residuals, and three unregistered R4 family
+one active retirement, twelve closed residuals, and two unregistered R4 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
@@ -134,6 +135,34 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`MIRBUILDER-LIVE-EDGE-CENSUS39-D0` — read-only census, closed
+
+```text
+Registry:
+  retain-fenced=4, active compatibility=0, active retirement=1,
+  closed=12, unregistered=2.
+
+Three-family result:
+  carrier/boundary = split confirmed. JumpArgsLayout is neutral CFG REOWN
+    material; JoinInlineBoundary remains under the existing normalized-shadow
+    fence; neither is selected in this census.
+  AST frontend = production caller 0 after metadata retirement; complete
+    AstToJoinIrLowerer evidence closure is bounded and selected for RET0.
+  JoinModule remainder = live core/normalized-shadow/VM surface. Broad RET0 is
+    rejected; LowerOnly retirement first requires neutral five-target policy
+    REOWN and remains a later T2 D0.
+
+Selected:
+  JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0, T2 atomic RET0.
+
+Preserve:
+  direct VM module conversion and five converter tests; native Phase40
+  analysis; JoinModule model/lowering; normalized-shadow; JOINIR_TEST_DEBUG.
+
+Next:
+  execute the selected RET0, then return to a fresh live-edge census.
+```
 
 `MIRBUILDER-LIVE-EDGE-CENSUS38-D0` — read-only census, closed
 
