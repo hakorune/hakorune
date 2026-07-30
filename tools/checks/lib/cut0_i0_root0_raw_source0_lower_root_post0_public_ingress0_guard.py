@@ -570,28 +570,26 @@ def main() -> int:
         "FinalizeModule",
         "VerifiedRawRootExpansionV1::from_program",
         "prepare_normal_default_module(runtime_inputs.entry_safepoint_enabled())",
-        "lower_normal_default_program_root_catalog_v1(",
+        "lower_normal_default_program_root_after_catalog_install_v1(",
         "finalize_module",
     ):
         require(normal_root_lifecycle, fragment, f"normal lifecycle contract {fragment}")
     lifecycle_anchors = (
         "VerifiedRawRootExpansionV1::from_program",
         "prepare_normal_default_module(runtime_inputs.entry_safepoint_enabled())",
-        "lower_normal_default_program_root_catalog_v1(",
-        "finalize_module",
-    )
-    kernel_anchors = (
         "source.clone_lowering_statements()",
         "VerifiedSameModuleCallableDeclarationCatalogV1::seal_root",
         "install_callable_declaration_catalog",
-        "lower_program_root_after_catalog_install_v1",
+        "lower_normal_default_program_root_after_catalog_install_v1(",
+        "finalize_module",
     )
+    kernel_anchors = ("lower_normal_default_program_root_after_catalog_install_v1", "lower_program_root_after_catalog_install_v1")
     ordered_contracts = ((normal_root_lifecycle, lifecycle_anchors), (program_root_lowering, kernel_anchors))
     for text, anchors in ordered_contracts:
         positions = [text.index(anchor) for anchor in anchors]
         if positions != sorted(positions):
             raise AssertionError("normal root/catalog lifecycle ordering drift")
-    if program_root_lowering.count("source.clone_lowering_statements()") != 1:
+    if normal_root_lifecycle.count("source.clone_lowering_statements()") != 1:
         raise AssertionError("normal Program kernel root clone drift")
     if normal_root_lifecycle.count("self.ast.clone()") != 1:
         raise AssertionError("normal Program source root clone implementation drift")
@@ -653,7 +651,7 @@ def main() -> int:
     issuer = admission.get("request_issuer_anchor", "")
     if normal_pipeline.count(issuer) != admission.get("request_issuer_calls"):
         raise AssertionError("normal Program admission issuer drift")
-    selected_call = "lower_normal_default_program_root_catalog_v1("
+    selected_call = "lower_normal_default_program_root_after_catalog_install_v1("
     if normal_root_lifecycle.count(selected_call) != admission.get("selected_lifecycle_calls"):
         raise AssertionError("selected Program lifecycle caller drift")
     if normal_root_lifecycle.count("PreparedRawRootPartitionV1") != admission.get(
@@ -682,7 +680,7 @@ def main() -> int:
     require(stage1, post_macro.get("typed_rejection_anchor", ""), "Stage1 typed rejection")
     for key in ("sunset_id", "retire_row"):
         require(current_workstream, post_macro.get(key, ""), f"Stage1 compatibility {key}")
-    require(program_root_lowering, "lower_normal_default_program_root_catalog_v1", "selected Program-only root kernel")
+    require(program_root_lowering, "lower_normal_default_program_root_after_catalog_install_v1", "selected Program-only root kernel")
     require(program_root_lowering, "lower_program_root_with_callable_port_v1", "shared generic Program kernel")
     if program_root_lowering.count("self.lower_program_root_with_callable_port_v1(") != admission.get(
         "selected_program_kernel_calls"

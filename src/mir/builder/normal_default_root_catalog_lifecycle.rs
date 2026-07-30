@@ -5,6 +5,7 @@
 
 use crate::ast::ASTNode;
 
+use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::{
     CallableMainMaterializationPolicyV1, MirModule, ModuleBuilderInvocationSessionV1,
@@ -156,13 +157,35 @@ impl ModuleBuilderInvocationSessionV1 {
                         NormalDefaultRootCatalogLifecycleErrorV1::PrepareModule(error.into())
                     })?;
 
-                let result_value = builder.lower_normal_default_program_root_catalog_v1(
-                    &source,
-                    &expansion,
-                    &receipt,
-                    &runtime_inputs,
-                    brand,
-                )?;
+                let lowering_statements = source.clone_lowering_statements();
+                let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(
+                    source.source_ast(),
+                )
+                .map_err(|error| {
+                    NormalDefaultRootCatalogLifecycleErrorV1::CatalogSeal(
+                        format!("[mir/callable-catalog/seal] {error:?}").into(),
+                    )
+                })?;
+                builder
+                    .comp_ctx
+                    .install_callable_declaration_catalog(catalog)
+                    .map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::CatalogInstall(
+                            error.to_string().into(),
+                        )
+                    })?;
+                let result_value = builder
+                    .lower_normal_default_program_root_after_catalog_install_v1(
+                        lowering_statements,
+                        &source,
+                        &expansion,
+                        &receipt,
+                        &runtime_inputs,
+                        brand,
+                    )
+                    .map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into())
+                    })?;
                 builder.finalize_module(result_value).map_err(|error| {
                     NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into())
                 })

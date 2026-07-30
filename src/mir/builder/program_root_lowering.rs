@@ -8,7 +8,6 @@ use std::collections::HashMap;
 use crate::ast::ASTNode;
 use hakorune_mir_builder::BoxCompilationContext;
 
-use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::module_draft_collector::ModuleDraftCollectorV1;
 use super::module_invocation_identity::ModuleInvocationBrandV1;
@@ -16,7 +15,7 @@ use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortV1;
 use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use super::normal_default_root_catalog_lifecycle::{
-    NormalDefaultRootCatalogLifecycleErrorV1, PreparedNormalDefaultProgramRootV1,
+    PreparedNormalDefaultProgramRootV1,
 };
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_work_plan::{
@@ -111,27 +110,15 @@ impl ProgramDeferredStaticBoxLifecycleV1 {
 }
 
 impl MirBuilder {
-    pub(in crate::mir::builder) fn lower_normal_default_program_root_catalog_v1(
+    pub(in crate::mir::builder) fn lower_normal_default_program_root_after_catalog_install_v1(
         &mut self,
+        lowering_statements: Vec<ASTNode>,
         source: &PreparedNormalDefaultProgramRootV1,
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         brand: ModuleInvocationBrandV1,
-    ) -> Result<ValueId, NormalDefaultRootCatalogLifecycleErrorV1> {
-        let lowering_statements = source.clone_lowering_statements();
-        let catalog =
-            VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(source.source_ast())
-                .map_err(|error| {
-                    NormalDefaultRootCatalogLifecycleErrorV1::CatalogSeal(
-                        format!("[mir/callable-catalog/seal] {error:?}").into(),
-                    )
-                })?;
-        self.comp_ctx
-            .install_callable_declaration_catalog(catalog)
-            .map_err(|error| {
-                NormalDefaultRootCatalogLifecycleErrorV1::CatalogInstall(error.to_string().into())
-            })?;
+    ) -> Result<ValueId, String> {
         self.lower_program_root_after_catalog_install_v1(
             lowering_statements,
             source.source_ast(),
@@ -140,7 +127,6 @@ impl MirBuilder {
             runtime_inputs,
             brand,
         )
-        .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into()))
     }
 
     fn lower_program_root_after_catalog_install_v1(
