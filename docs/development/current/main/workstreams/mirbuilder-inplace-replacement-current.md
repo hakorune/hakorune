@@ -106,13 +106,14 @@ Latest design: `RAW-LOCATED-SCALAR-BINDING-REMAINDER10-D0` — closed
 Latest landed: `RAW-LOCATED-SPECIAL-LOCAL-HOOK-SOURCE-HANDOFF0-I0-R0`
 Latest design: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-RESIDUE0-D0` — closed
 Latest landed: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-PORTAL-RETIRE0-I0-R0-RET0`
-Current design stop: `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE0-D0`
+Latest landed: `RAW-LAMBDA-CHILD-OWNER-SOURCE-ADMISSION0-I0-R0`
+Current design stop: `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE0-D0`
+`RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0`
 
 ```text
 Landed:
@@ -133,19 +134,22 @@ Latest landed:
   and ScalarBinding owner/issuer definitions are zero in src/mir and checks.
 
 Decision:
-  Candidate A — narrow Lambda/ControlBody source-location handoff
-  Ceremony T1; no new capture or publication semantics
+  Candidate A — consume the retained Lambda source site in the existing
+  capture/publication lifecycle. Ceremony T2 prerequisite design.
 
 Named old edge:
   RawInvocationSourceContextV1::body_statement(ASTNode::Lambda)
   -> RawUnlocatedPortalV1::ControlBody
 
-Selected slice:
-  admit Lambda as Located using the existing SourceBodyKindV1::Lambda path
-  and LambdaBody(index) child segments. Reuse the existing
-  RawLambdaLexicalObservationV1 and PreparedRawLambdaLexicalCaptureLifecycleV1
-  unchanged. The Lambda body remains a later source-handoff responsibility;
-  this row must not invent LambdaBodyRoot or a second closure registry.
+Completed prerequisite:
+  Lambda is now admitted as Located using the existing parent body site and
+  SourcePath topology; the capture/publication lifecycle has not changed.
+
+Next slice:
+  co-seal the retained parent site with the existing Lambda body/closure
+  publication relation in one owner handoff. Reuse
+  RawLambdaLexicalObservationV1 and PreparedRawLambdaLexicalCaptureLifecycleV1;
+  do not invent LambdaBodyRoot or a second closure registry.
 
 Keep residual:
   CallObject broad expression family and NestedBoxAdmission stay unlocated.
@@ -156,11 +160,11 @@ Forbid:
   fallback/retry, AST clone/reparse, or new failure owner.
 
 Acceptance:
-  exact Lambda source site is retained through the selected invocation route;
-  existing lexical/capture tests and diagnostics remain parity-identical;
-  ControlBody production issuer count decreases without changing the existing
-  capture/publication lifecycle. If the existing SourcePath topology cannot
-  represent the handoff, stop and return to D0.
+  the existing lifecycle consumes the exact parent source site and co-seals
+  the Lambda body/ClosureBodyId relation; lexical/capture diagnostics and
+  publication remain parity-identical. If this needs a new owner identity,
+  second registry, AST clone/reparse, or capture policy change, stop and return
+  to D0.
 ```
 
 Corrected queue:
@@ -170,7 +174,6 @@ Corrected queue:
 2  RAW-LOCATED-STRUCTURED-CONTROL-BODIES0-I0-R0
 3  RAW-LOCATED-RESIDUAL-CONTROL-PARTITION2-D0
 4+ exact residual-control rows selected by D0
-then RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE0-I0-R0
 then RAW-LOCATED-CALL-OBJECT-PORTALS0-D0
 then RAW-LOCATED-NESTED-ADMISSION0-I0-R0
 ```

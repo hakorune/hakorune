@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-PORTAL-RETIRE0-I0-R0 is closed. Every Assignment and CompoundAssignment is located, unsupported targets retain their exact pre-effect diagnostics, and ScalarBinding has no owner/issuer in src/mir or tools/checks. Ownership/View remains parked."
+status = "RAW-LAMBDA-CHILD-OWNER-SOURCE-ADMISSION0-I0-R0 is closed. Lambda body items now retain an exact located parent site through the selected invocation transport; the existing capture/publication lifecycle is unchanged. The remaining Lambda source-lineage handoff, CallObject, and NestedBoxAdmission residuals remain explicit. Ownership/View remains parked."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE0-D0"
+current_design_stop = "RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0"
 current_execution_row = "none"
-current_execution_summary = "Choose the narrow T1 source-location handoff for Lambda/ControlBody. Reuse the existing RawLambdaLexicalObservationV1 and PreparedRawLambdaLexicalCaptureLifecycleV1 without changing capture, receiver, NewClosure, or ClosureBodyId publication semantics. CallObject and NestedBoxAdmission remain separate residual portals."
+current_execution_summary = "Select the next Lambda source-lineage handoff: the existing capture/publication lifecycle must consume the retained parent source site and co-seal the Lambda body/closure publication relation. Do not change capture semantics or mix CallObject/NestedBoxAdmission."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-PORTAL-RETIRE0-I0-R0 is closed: every Assignment and CompoundAssignment is located, existing unsupported-target diagnostics retain exact text/order and zero RHS effects, and ScalarBinding owner/issuer definitions are zero in src/mir and tools/checks. The next design stop is the narrow Lambda/ControlBody source-lineage handoff; R5 Ownership/View remains parked."""
+latest_card_summary = """RAW-LAMBDA-CHILD-OWNER-SOURCE-ADMISSION0-I0-R0 is closed: Lambda body items retain an exact located parent site through selected raw invocation transport, with capture/receiver/NewClosure/ClosureBodyId semantics unchanged. The next design stop is the remaining Lambda source-lineage co-seal; CallObject and NestedBoxAdmission stay separate, and R5 Ownership/View remains parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE0-D0-DESIGN-STOP"
+current_blocker_token = "RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

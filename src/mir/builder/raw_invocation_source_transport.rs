@@ -138,6 +138,7 @@ impl RawInvocationSourceContextV1 {
                 if !matches!(&statement, ASTNode::BoxDeclaration { .. })
                     && !is_located_control_or_diagnostic_terminal(&statement)
                     && !is_located_scalar_statement(&statement)
+                    && !is_located_lambda_statement(&statement)
                 {
                     let reason = reason_for_non_box_statement(&statement);
                     return RawInvocationSourceTransportV1::unlocated(statement, reason);
@@ -255,6 +256,7 @@ impl RawInvocationSourceContextV1 {
         })?;
         if !is_located_control_or_diagnostic_terminal(statement)
             && !is_located_scalar_statement(statement)
+            && !is_located_lambda_statement(statement)
         {
             return Err(format!(
                 "[freeze:contract][raw-invocation/statement-source-role] kind={}",
@@ -354,6 +356,10 @@ fn is_located_scalar_statement(statement: &ASTNode) -> bool {
             | ASTNode::Return { .. }
             | ASTNode::Local { .. }
     )
+}
+
+fn is_located_lambda_statement(statement: &ASTNode) -> bool {
+    matches!(statement, ASTNode::Lambda { .. })
 }
 
 fn is_located_control_or_diagnostic_terminal(statement: &ASTNode) -> bool {
@@ -567,6 +573,31 @@ where
             .with_source_transport_v1(transport, |child, statement| {
                 super::stmts::block_stmt::build_statement_with_port_v1(builder, child, statement)
             })
+    }
+}
+
+#[cfg(test)]
+mod lambda_source_tests {
+    use super::*;
+
+    #[test]
+    fn lambda_statement_keeps_exact_parent_source_site() {
+        let (_, root) =
+            RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
+                Vec::<ASTNode>::new(),
+                RawInvocationRootLineageV1::ScriptRoot,
+            ));
+        let lambda = ASTNode::Lambda {
+            params: Vec::new(),
+            body: Vec::new(),
+            span: crate::ast::Span::unknown(),
+        };
+        let (_, child) =
+            RawInvocationSourceContextV1::from_transport(root.body_statement(lambda, 2));
+        assert_eq!(
+            child.site().unwrap().segments(),
+            &[SourcePathSegmentV1::Body(2)]
+        );
     }
 }
 
