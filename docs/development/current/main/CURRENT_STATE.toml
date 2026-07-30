@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LOCATED-SPECIAL-LOCAL-HOOK-SOURCE-HANDOFF0-I0-R0 is closed. Every Local is located. One intact Local carrier reaches the existing sole typed-array/Builder-dependent record selector; ordinary initializers consume exact LocalInitializer receipts, while selected typed-array/record hooks derive exact ArrayElement/CallArgument receipts without consuming the initializer root as a child. ScalarBinding now retains only unsupported Assignment/CompoundAssignment target diagnostics plus a dead Return reason arm; Ownership/View remains parked."
+status = "RAW-LOCATED-SPECIAL-LOCAL-HOOK-SOURCE-HANDOFF0-I0-R0 is closed. Every Local is located. One intact Local carrier reaches the existing sole typed-array/Builder-dependent record selector; ordinary initializers consume exact LocalInitializer receipts, while selected typed-array/record hooks derive exact ArrayElement/CallArgument receipts without consuming the initializer root as a child. The remaining ScalarBinding diagnostic surface is now in the atomic retirement row; Ownership/View remains parked."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-RESIDUE0-D0"
-current_execution_row = "none"
-current_execution_summary = "Select one located pre-effect diagnostic owner for unsupported Assignment and CompoundAssignment targets, preserve their current diagnostic text/order and zero RHS effects, and delete the dead Return reason branch. After that row, a fresh census may authorize atomic ScalarBinding portal RET0; no reason reassignment or compatibility rename."
+current_design_stop = "none"
+current_execution_row = "RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-PORTAL-RETIRE0-I0-R0-RET0"
+current_execution_summary = "T1 atomic I0/R0+RET0: classify every Assignment and CompoundAssignment as located. Their existing Unsupported routes remain the sole pre-effect diagnostic owners and prepare zero RHS receipts, preserving exact error text/order. Delete the dead Return reason arm, ScalarBinding enum variant, issuer branch, and old compatibility expectations in the same commit after exact zero census; no new diagnostic owner, reason alias, or compatibility rename."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-LOCATED-SPECIAL-LOCAL-HOOK-SOURCE-HANDOFF0-I0-R0 is closed: every Local is located, the intact Local carrier preserves one existing hook selection, ordinary initializers consume exact roots, and typed-array/record hooks consume exact nested element/argument receipts. ScalarBinding now retains only unsupported Assignment/CompoundAssignment target diagnostics and a dead Return reason arm; RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-RESIDUE0-D0 is the next design stop; R5 Ownership/View remains parked."""
+latest_card_summary = """RAW-LOCATED-SPECIAL-LOCAL-HOOK-SOURCE-HANDOFF0-I0-R0 is closed: every Local is located, the intact Local carrier preserves one existing hook selection, ordinary initializers consume exact roots, and typed-array/record hooks consume exact nested element/argument receipts. The ScalarBinding diagnostic residue is executing as one atomic located Assignment/CompoundAssignment retirement with exact error/order preservation; R5 Ownership/View remains parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-RESIDUE0-D0-DESIGN-STOP"
+current_blocker_token = "RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-PORTAL-RETIRE0-I0-R0-RET0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

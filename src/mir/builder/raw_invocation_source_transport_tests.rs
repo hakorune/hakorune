@@ -351,7 +351,7 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
 }
 
 #[test]
-fn residual_scalar_statements_remain_scalar_binding_compatibility() {
+fn scalar_statements_are_located_including_unsupported_targets() {
     let (_, root) =
         RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
             Vec::<ASTNode>::new(),
@@ -380,8 +380,11 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
         1,
     ));
     assert_eq!(
-        child,
-        RawInvocationSourceContextV1::UnlocatedCompatibility(RawUnlocatedPortalV1::ScalarBinding)
+        child
+            .site()
+            .expect("located unsupported CompoundAssignment")
+            .segments(),
+        &[SourcePathSegmentV1::Body(1)]
     );
 
     let match_return = ASTNode::Return {

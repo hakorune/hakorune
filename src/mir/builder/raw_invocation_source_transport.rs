@@ -35,7 +35,6 @@ pub(in crate::mir::builder) enum RawInvocationRootLineageV1 {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RawUnlocatedPortalV1 {
     ControlBody,
-    ScalarBinding,
     CallObject,
     NestedBoxAdmission,
 }
@@ -283,10 +282,6 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
     match statement {
         ASTNode::Lambda { .. } => RawUnlocatedPortalV1::ControlBody,
 
-        ASTNode::Assignment { .. }
-        | ASTNode::CompoundAssignment { .. }
-        | ASTNode::Return { .. } => RawUnlocatedPortalV1::ScalarBinding,
-
         ASTNode::Break { .. }
         | ASTNode::Continue { .. }
         | ASTNode::UsingStatement { .. }
@@ -327,6 +322,9 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
 
         ASTNode::Program { .. }
         | ASTNode::BoxDeclaration { .. }
+        | ASTNode::Assignment { .. }
+        | ASTNode::CompoundAssignment { .. }
+        | ASTNode::Return { .. }
         | ASTNode::Local { .. }
         | ASTNode::Print { .. }
         | ASTNode::GroupedAssignmentExpr { .. }
@@ -349,22 +347,13 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
 fn is_located_scalar_statement(statement: &ASTNode) -> bool {
     matches!(
         statement,
-        ASTNode::Assignment { target, .. }
-            if matches!(
-                target.as_ref(),
-                ASTNode::Variable { .. } | ASTNode::FieldAccess { .. } | ASTNode::Index { .. }
-            )
-    ) || matches!(
-        statement,
-        ASTNode::CompoundAssignment { target, .. }
-            if matches!(
-                target.as_ref(),
-                ASTNode::Variable { .. } | ASTNode::FieldAccess { .. } | ASTNode::Index { .. }
-            )
-    ) || matches!(
-        statement,
-        ASTNode::GroupedAssignmentExpr { .. } | ASTNode::Print { .. }
-    ) || matches!(statement, ASTNode::Return { .. } | ASTNode::Local { .. })
+        ASTNode::Assignment { .. }
+            | ASTNode::CompoundAssignment { .. }
+            | ASTNode::GroupedAssignmentExpr { .. }
+            | ASTNode::Print { .. }
+            | ASTNode::Return { .. }
+            | ASTNode::Local { .. }
+    )
 }
 
 fn is_located_control_or_diagnostic_terminal(statement: &ASTNode) -> bool {

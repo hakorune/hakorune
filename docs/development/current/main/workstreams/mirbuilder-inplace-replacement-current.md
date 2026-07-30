@@ -104,13 +104,14 @@ Latest landed: `RAW-LOCATED-VOID-RETURN-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-NONHOOK-LOCAL-SOURCE-HANDOFF0-I0-R0`
 Latest design: `RAW-LOCATED-SCALAR-BINDING-REMAINDER10-D0` — closed
 Latest landed: `RAW-LOCATED-SPECIAL-LOCAL-HOOK-SOURCE-HANDOFF0-I0-R0`
-Current design stop: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-RESIDUE0-D0`
+Latest design: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-RESIDUE0-D0` — closed
+Current execution: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-PORTAL-RETIRE0-I0-R0-RET0`
 History:       Git history and the short landed tail below
 ```
 
-## Current design stop
+## Current execution
 
-`RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-RESIDUE0-D0`
+`RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-PORTAL-RETIRE0-I0-R0-RET0`
 
 ```text
 Landed:
@@ -121,24 +122,37 @@ Landed:
   record constructors derive exact CallArgument receipts. The initializer-root
   receipt is used only as their parent context. Whole-Local preflight,
   typed-array preclaim, variable-index evaluation, and publication order are
-  unchanged. is_nonhook_local_statement_v1 and the special-Local ScalarBinding
+  unchanged. is_nonhook_local_statement_v1 and the special-Local compatibility
   edge are zero. Focused tests=34 green; cargo check green; production Rust
   +329/-210 (net +119); max touched source/test=790.
 
-Remaining exact ScalarBinding surface:
-  unsupported Assignment target
-  unsupported CompoundAssignment target
-  dead Return reason arm
+Decision:
+  reuse the two existing Unsupported route terminals; no new diagnostic owner
 
-Question:
-  can both unsupported target shapes be reowned by one located pre-effect
-  diagnostic terminal while preserving exact current diagnostics and zero RHS
-  effects, then delete the dead Return arm?
+Atomic change:
+  all Assignment/CompoundAssignment statements become located
+  unsupported routes prepare zero child receipts and emit their existing text
+  dead Return reason arm = 0
+  RawUnlocatedPortalV1::ScalarBinding = 0
+  issuer/test/docs compatibility surface = 0
 
-Stop:
-  no RHS receipt/descent, target-family widening, reason reassignment, fallback,
-  compatibility rename, AST clone/reparse, or ScalarBinding RET0 before a fresh
-  caller-zero census.
+Evidence:
+  unsupported Assignment and CompoundAssignment already select their prepared
+  Unsupported routes before any target/RHS descent or Builder effect. The
+  located statement transport changes only their source context.
+
+Forbid:
+  RHS source preparation/descent for unsupported routes
+  target-family widening
+  shared new error vocabulary
+  reason alias/reassignment or compatibility rename
+  retry/fallback, AST clone/reparse
+
+Closeout:
+  exact ScalarBinding owner/issuer census in src/mir and tools/checks = 0;
+  historical closeout wording may remain in this card. Then a fresh
+  three-portal census selects CallObject or another live residual. ScalarBinding
+  is not retained as a tombstone.
 ```
 
 Corrected queue:
@@ -148,7 +162,6 @@ Corrected queue:
 2  RAW-LOCATED-STRUCTURED-CONTROL-BODIES0-I0-R0
 3  RAW-LOCATED-RESIDUAL-CONTROL-PARTITION2-D0
 4+ exact residual-control rows selected by D0
-then exact ScalarBinding residual rows selected by D0
 then RAW-LOCATED-CALL-OBJECT-PORTALS0-I0-R0
 then RAW-LOCATED-NESTED-ADMISSION0-I0-R0
 ```
@@ -182,7 +195,7 @@ activation and sunset contract.
 | closed | `JOINMODULE-TEST-HANDLER-LANE-SUNSET-001` (promotes `R4-UNREGISTERED-TEST-HANDLER-001`) | former cfg(test)-only `block_finalizer`, `handlers/**`, `merge_variable_handler`, and `terminator_builder` legacy VM-bridge handler lane | production conversion remains solely in `joinir_block_converter/**`; deleted lane and registrations = 0 | RET0 | retired by `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`: 14 files / 3743 lines, four cfg(test) module declarations, obsolete README section, stale PHI seam row, and generated inventory rows deleted |
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> `lower_static_box_method` / `lower_instance_box_method`, the two live nested-method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | R4 BLOCKER: source occurrences exist, but neither live issuer receives a function-relative located-source receipt | `RAW-LOCATED-BODY-TRANSPORT0-D0` must select one located transport whose I0/R0 deletes both named production issuers before R4 Complete |
 | closed | `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-SUNSET-001` | former caller-zero `ModuleLoweringPortV1::complete_legacy_child`, two disconnected proof modules, and three inline facade tests | production caller = 0 before deletion; live nested issuers already use capture + `commit_legacy_pending` | RET0 | retired by `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0`; live commit terminals, 2 nested issuers, reentrant proof, collector tests, and live callable-Main physical owner retained |
-| active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected `RawInvocationChildPortV1` only: four fixed portals remain — `ControlBody` with exact residual Lambda; plus `ScalarBinding`, `CallObject`, `NestedBoxAdmission` | one selected state and one execution per node; RawLegacy/raw-reference remain separate; root/body/direct-Box, structured/residual controls, Match/Enum, Loop, TryCatch, and nested Program exact transport are closed | no variant/reason reassignment; Lambda is governed by the linked source-lineage fence below | close only after the Lambda fence reowns ControlBody, scalar/call rows remove their variants, and final nested row deletes `NestedBoxAdmission` with both selected nested legacy-symbol issuers |
+| active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected `RawInvocationChildPortV1` only: three fixed portals remain — `ControlBody` with exact residual Lambda, `CallObject`, and `NestedBoxAdmission` | one selected state and one execution per node; RawLegacy/raw-reference remain separate; root/body/direct-Box, structured/residual controls, Match/Enum, Loop, TryCatch, and nested Program exact transport are closed | no variant/reason reassignment; Lambda is governed by the linked source-lineage fence below | close only after the Lambda fence reowns ControlBody, the CallObject row removes its portal, and final nested row deletes `NestedBoxAdmission` with both selected nested legacy-symbol issuers |
 | retain-fenced | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` | selected nested Lambda definition still crosses `ControlBody` into the existing raw capture/publication lifecycle without consuming its parent located-source context | selected normal function/script body only; raw/reference routes remain separate | RETAIN-FENCED: body-path vocabulary exists, but no durable authority co-seals parent definition site, child `FunctionOwnerIdV1`, Lambda body root, and `ClosureBodyId` publication | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE0-D0`: one consuming capture/publication handoff must delete Lambda -> ControlBody without AST clone/reparse, owner inference, or a second closure registry |
 | active compatibility | `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001` | `PreparedLocatedRawLoopChildEntryV1` retains exact Loop parent/condition/body-root receipts, then delegates once to the existing raw JoinIR route | selected invocation only; RawLegacy/reference unchanged; no located JoinIR-plan completion claim | retire when the current Loop route/verified plan consumes the same located product and the source-erasing terminal is zero | no additional route, retry, AST clone/reparse, or receipt reconstruction may be introduced |
 | closed | `JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001` | former three explicit-VM `LowerOnly` target rows, dispatcher observation branch, and `lower_only_routes`; five target names were also consumed by Loop/If/strict classification | observation route and vocabulary = 0; neutral five-name policy and two VM Exec rows remain | REOWN+RET0 | retired by `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`: all five lowerers/direct evidence remain; no old target-table alias |

@@ -289,6 +289,30 @@ mod tests {
     }
 
     #[test]
+    fn unsupported_target_rejects_before_rhs_effects() {
+        let mut builder = builder("compound_assignment_unsupported_target/0");
+
+        let error = lower(
+            &mut builder,
+            integer(0),
+            BinaryOperator::Add,
+            ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left: Box::new(integer(40)),
+                right: Box::new(integer(2)),
+                span: Span::unknown(),
+            },
+        )
+        .unwrap_err();
+
+        assert_eq!(
+            error,
+            "Complex compound assignment targets not yet supported"
+        );
+        assert!(instructions(&builder).is_empty());
+    }
+
+    #[test]
     fn local_compound_assignment_preflights_and_reuses_after_rhs_failure() {
         let mut missing_target = builder("compound_assignment_missing_target/0");
         let error = lower(
