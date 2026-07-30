@@ -1,9 +1,9 @@
 //! One consuming production lifecycle for raw Lambda capture and publication.
 
+use super::raw_lambda_closure_emission::PreparedRawLambdaClosureEmissionV1;
 use super::raw_lambda_lexical_observation::RawLambdaLexicalObservationV1;
-use super::{MirBuilder, MirInstruction, MirType, ValueId};
+use super::{MirBuilder, ValueId};
 use crate::ast::ASTNode;
-use crate::mir::function::ClosureBodyId;
 use std::collections::BTreeMap;
 
 pub(super) struct PreparedRawLambdaLexicalCaptureLifecycleV1 {
@@ -27,50 +27,9 @@ impl PreparedRawLambdaLexicalCaptureLifecycleV1 {
         let environment = RawLambdaCaptureEnvironmentV1::snapshot(builder);
         let captures = environment.materialize_captures(&self.observation, builder)?;
         let receiver = environment.materialize_receiver(&self.observation, builder)?;
-        let publication = PreparedClosureBodyPublicationV1::prepare(builder, self.body);
-
-        match publication {
-            PreparedClosureBodyPublicationV1::Inline { body } => {
-                let dst = builder.next_value_id();
-                builder.emit_instruction(MirInstruction::NewClosure {
-                    dst,
-                    params: self.params,
-                    body_id: None,
-                    body,
-                    captures,
-                    me: receiver,
-                })?;
-                install_function_box_type(builder, dst);
-                Ok(dst)
-            }
-            PreparedClosureBodyPublicationV1::External { expected_id, body } => {
-                let dst = builder.next_value_id();
-                builder.emit_instruction(MirInstruction::NewClosure {
-                    dst,
-                    params: self.params,
-                    body_id: Some(expected_id),
-                    body: Vec::new(),
-                    captures,
-                    me: receiver,
-                })?;
-                builder
-                    .current_module
-                    .as_mut()
-                    .expect("[freeze:contract][mir_builder/raw_lambda_missing_reserved_module]")
-                    .commit_reserved_closure_body(expected_id, body);
-                install_function_box_type(builder, dst);
-                Ok(dst)
-            }
-        }
+        PreparedRawLambdaClosureEmissionV1::prepare(self.params, self.body, captures, receiver)
+            .lower_with_builder_v1(builder)
     }
-}
-
-fn install_function_box_type(builder: &mut MirBuilder, value: ValueId) {
-    builder
-        .function_state
-        .type_ctx
-        .value_types
-        .insert(value, MirType::Box("FunctionBox".into()));
 }
 
 /// Explicit compatibility boundary between source observation and the legacy
@@ -135,31 +94,6 @@ impl RawLambdaCaptureEnvironmentV1 {
                 )
             })
             .map(Some)
-    }
-}
-
-enum PreparedClosureBodyPublicationV1 {
-    Inline {
-        body: Vec<ASTNode>,
-    },
-    External {
-        expected_id: ClosureBodyId,
-        body: Vec<ASTNode>,
-    },
-}
-
-impl PreparedClosureBodyPublicationV1 {
-    fn prepare(builder: &MirBuilder, body: Vec<ASTNode>) -> Self {
-        if body.is_empty() {
-            return Self::Inline { body };
-        }
-        let Some(module) = builder.current_module.as_ref() else {
-            return Self::Inline { body };
-        };
-        Self::External {
-            expected_id: module.reserve_next_closure_body_id(),
-            body,
-        }
     }
 }
 

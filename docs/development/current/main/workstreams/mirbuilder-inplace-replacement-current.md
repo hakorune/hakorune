@@ -116,8 +116,9 @@ Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corrected
 Latest landed: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — `507851393c`
 Latest landed: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0` — `ffda60241b`
-Current execution: `RAW-SCRIPT-PROGRAM-ROOT-OWNER-LAMBDA-HANDOFF0-I0-R0`
-Next design stop: none; `RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0` is closed Accept-corrected
+Current execution: `RAW-LAMBDA-CLOSURE-EMISSION-TERMINAL0-S0`
+Paired next: `RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-I0-R0`
+Next design stop: none; `RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0` is closed Accept(A-prime)
 History:       Git history and the short landed tail below
 ```
 
@@ -414,7 +415,10 @@ Corrected forward queue:
 3. RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0 (closed NoSafeSlice: parent Script role missing)
 4. RAW-SCRIPT-ROOT-ROLE0-D0 (closed Accept(B): Program-specific semantic root)
 5. RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0 (closed Accept-corrected: Program-specific root)
-6. RAW-SCRIPT-PROGRAM-ROOT-OWNER-LAMBDA-HANDOFF0-I0-R0 (next executable row)
+6. RAW-SCRIPT-PROGRAM-ROOT-OWNER-LAMBDA-HANDOFF0-I0-R0 (closed NoSafeSlice: no exact BindingRef-to-ValueId authority)
+7. RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 (closed Accept(A-prime))
+8. RAW-LAMBDA-CLOSURE-EMISSION-TERMINAL0-S0 (current, behavior-neutral)
+9. RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-I0-R0 (must immediately follow)
 
 Rule:
   Do not open an execution row while the Script semantic role is unresolved.
@@ -2998,6 +3002,46 @@ I0 contract:
   -> raw static method -> `LegacyChildDraftAdmissionV1` with one dedicated
   selected top-level capture port.  Constructors, Script non-plain Boxes,
   static Main, and raw/reference retain their registered routes.
+```
+
+## RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 — closed, Accept(A-prime)
+
+```text
+Finding:
+  The Program-specific Script root is the correct semantic unit, but the raw
+  Script route has no exact BindingRefV1 -> ValueId authority. Its variable_map
+  is name-based, while canonical identity/SSA owners are function/CFG products
+  and cannot be partially activated for Lambda alone.
+
+Decision:
+  Use one invocation-local Script materialization ledger. Eligible Local
+  completion publishes one exact semantic BindingRef-to-ValueId row; selected
+  Variable reads and Lambda captures consume only that ledger. A semantic
+  capture plan owns exact child owner/definition site/parent scope and capture
+  rows in first-demand order. `forest.upvars()` ordering is not an ABI.
+
+Receiver:
+  Script root receiver is absent. Direct `Me` stays deferred and never enters
+  the named-capture lane.
+
+Refactor series:
+  1. RAW-LAMBDA-CLOSURE-EMISSION-TERMINAL0-S0 extracts the existing
+     NewClosure/body-id reserve -> emit -> commit terminal without behavior
+     change.
+  2. RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-I0-R0 connects the ledger and
+     semantic capture plan, then removes the eligible Script Lambda raw
+     observer/ControlBody edge in the same commit.
+
+Forbid:
+  name-to-Value pairing as semantic authority; copying legacy BindingId into
+  BindingRefV1; a second reaching-value map for selected Script reads; capture
+  ordering from owner IDs/BTreeSet; whole canonical CFG/SSA activation;
+  fallback/retry; ABI or ClosureBodyId publication-order changes.
+
+Hakorune syntax:
+  source try/throw remain rejected. Protected syntax is postfix catch/cleanup;
+  ASTNode::TryCatch is only an internal/legacy carrier and this row adds no
+  first-catch or catch-binder semantics.
 ```
 
 ## Current execution
