@@ -205,6 +205,9 @@ Stop:
 
 `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0`
 
+Consultation:
+`docs/development/current/main/investigations/raw-script-root-semantic-admission0-question-2026-07-31.md`
+
 ```text
 Change:
   Design-only contract for the context-sensitive Script admission matrix and
