@@ -108,51 +108,49 @@ Latest design: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-RESIDUE0-D0` — closed
 Latest landed: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-PORTAL-RETIRE0-I0-R0-RET0`
 Latest landed: `RAW-LAMBDA-CHILD-OWNER-SOURCE-ADMISSION0-I0-R0`
 Latest design: `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0` — closed, NoSafeSlice
-Current design stop: `RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0`
+Latest design: `RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0` — closed, NoSafeSlice
+Current design stop: `RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0`
+`RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0`
 
 ```text
 Decision:
-  Candidate C now, Candidate A later. Keep the Lambda lineage fence until the
-  live selected-normal invocation can borrow one existing semantic owner
-  forest and projection. Raw source-site-only Candidate B is rejected.
+  generic carrier = NoSafeSlice. ScriptRoot is the first missing producer, so
+  select one bounded Program-owned Script semantic-owner design before the
+  generic carrier or Lambda lineage can reopen.
 
 Named production boundary:
-  selected-normal function draft capture -> RawInvocationChildPortV1 currently
-  carries RawInvocationRootLineageV1 + SourceNodeSiteV1, but no parent
-  FunctionOwnerIdV1, ScopeId, VerifiedSemanticOwnerForestV1, or projection.
+  PreparedNormalDefaultProgramRootV1 -> VerifiedRawRootExpansionV1::Script ->
+  RawInvocationRootLineageV1::ScriptRoot carries Program/source paths only.
+  It has no root FunctionOwnerIdV1, owner forest, or exact Script projection.
 
 Change:
-  design one source-authority carrier that pairs an existing callable source
-  owner, forest, projection, and exact raw root lineage once, then loans that
-  sealed view through RawInvocationChildPortV1. No implementation is selected
-  until every live selected-normal root producer has an exact mapping.
+  design one Program-owned source unit that resolves the selected Script body
+  exactly once before Builder effects and co-owns its root owner, nested-owner
+  forest, and exact Program/script projection. No implementation is selected.
 
 Contract:
-  reuse an already co-owned VerifiedSemanticOwnerForestV1 and
-  VerifiedSourceProjectionV1 from their existing source owner;
-  FunctionSourceViewV1 may only borrow that pair after exact root binding. Do
-  not resolve at Lambda encounter, infer an owner from a symbol/locator/site,
-  or accept a forest and raw root supplied independently. Lambda capture and
-  closure publication behavior remain unchanged in this prerequisite.
+  preserve the complete existing selected Script grammar, diagnostics, source
+  order, candidate isolation, and one-execution policy. The semantic product
+  must be issued from the owned Program, not from a synthetic function, name,
+  locator, body clone, or later physical demand. Forest inventory of nested
+  Lambda topology does not activate or widen nested Lambda lowering; existing
+  raw nested-owner rejection remains owned by its later row.
 
 Done:
-  one complete producer/consumer graph is named for Script, Main, cataloged,
-  top-level, and instance-constructor roots; or the row closes NoSafeSlice with
-  the first missing producer. Only after this D0 closes may the Lambda row use
-  parent site -> forest.child_at -> child owner -> body root -> existing
-  ClosureBodyId publication.
+  name one production producer, one source/forest/projection product, exact
+  pre-Builder failure behavior, and parity corpus; or close NoSafeSlice at the
+  first unsupported Script surface. This D0 alone does not release Lambda.
 
 Stop:
-  new FunctionOwnerId/ScopeId issuer; a second resolver pass; mapping by name,
-  symbol, RawSourceLocator, or site alone; independently paired forest/root;
-  AST clone/reparse; self-referential owner; second closure registry; Lambda
-  capture/publication change; CallObject or NestedBoxAdmission mixing.
+  Program clone/reparse; synthetic FunctionDeclaration; producer-local or
+  per-demand owner issuance; second source/owner registry; independently paired
+  forest/root; grammar or diagnostic narrowing; Lambda publication change;
+  Main, Cataloged, TopLevel, InstanceConstructor, CallObject, or NestedBox mix.
 ```
 
 Corrected queue:
@@ -196,7 +194,7 @@ activation and sunset contract.
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> `lower_static_box_method` / `lower_instance_box_method`, the two live nested-method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | R4 BLOCKER: source occurrences exist, but neither live issuer receives a function-relative located-source receipt | `RAW-LOCATED-BODY-TRANSPORT0-D0` must select one located transport whose I0/R0 deletes both named production issuers before R4 Complete |
 | closed | `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-SUNSET-001` | former caller-zero `ModuleLoweringPortV1::complete_legacy_child`, two disconnected proof modules, and three inline facade tests | production caller = 0 before deletion; live nested issuers already use capture + `commit_legacy_pending` | RET0 | retired by `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0`; live commit terminals, 2 nested issuers, reentrant proof, collector tests, and live callable-Main physical owner retained |
 | active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected `RawInvocationChildPortV1` only: three fixed portals remain — `ControlBody` with exact residual Lambda, `CallObject`, and `NestedBoxAdmission` | one selected state and one execution per node; RawLegacy/raw-reference remain separate; root/body/direct-Box, structured/residual controls, Match/Enum, Loop, TryCatch, and nested Program exact transport are closed | no variant/reason reassignment; Lambda is governed by the linked source-lineage fence below | close only after the Lambda fence reowns ControlBody, the CallObject row removes its portal, and final nested row deletes `NestedBoxAdmission` with both selected nested legacy-symbol issuers |
-| retain-fenced | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` | selected nested Lambda definition still crosses the located child transport into the existing raw capture/publication lifecycle without consuming its parent located-source context | selected normal function/script body only; raw/reference routes remain separate | RETAIN-FENCED: body-path vocabulary exists, but no durable authority co-seals parent definition site, child `FunctionOwnerIdV1`, Lambda body root, and `ClosureBodyId` publication; Lambda D0 closed NoSafeSlice | carrier D0 alone does not release this fence. Retire only when one selected production Lambda transition consumes the exact carrier, co-seals parent root/site -> `OwnedExprSiteV1`, `forest.child_at` -> exact child owner, exact parent owner/scope, projected Lambda definition/body root, and one post-`NewClosure` `ClosureBodyId` commit, then deletes the source-erasing Lambda transition plus Lambda/ControlBody residual issuer in the same I0/R0 |
+| retain-fenced | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` | selected nested Lambda definition still crosses the located child transport into the existing raw capture/publication lifecycle without consuming its parent located-source context | selected normal function/script body only; raw/reference routes remain separate | RETAIN-FENCED: Lambda and generic-carrier D0s closed NoSafeSlice; ScriptRoot is the first missing semantic-owner producer | ScriptRoot and later exact root producers are prerequisites only. Retire only when `OwnedExprSiteV1(parent_owner, exact_site)` maps through `forest.child_at` to the exact child, its exact parent edge/scope and projected `LambdaBodyRoot` are co-sealed, one reserved `ClosureBodyId` is carried by `NewClosure` and committed exactly once after emission, and the raw Lambda dispatch source-context drop plus remaining Lambda -> ControlBody classifier edge are deleted in the same I0/R0 |
 | active compatibility | `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001` | `PreparedLocatedRawLoopChildEntryV1` retains exact Loop parent/condition/body-root receipts, then delegates once to the existing raw JoinIR route | selected invocation only; RawLegacy/reference unchanged; no located JoinIR-plan completion claim | retire when the current Loop route/verified plan consumes the same located product and the source-erasing terminal is zero | no additional route, retry, AST clone/reparse, or receipt reconstruction may be introduced |
 | closed | `JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001` | former three explicit-VM `LowerOnly` target rows, dispatcher observation branch, and `lower_only_routes`; five target names were also consumed by Loop/If/strict classification | observation route and vocabulary = 0; neutral five-name policy and two VM Exec rows remain | REOWN+RET0 | retired by `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`: all five lowerers/direct evidence remain; no old target-table alias |
 | closed | `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-SUNSET-001` | former caller-zero Stage1UsingResolver, StageB body, and StageB FuncScanner target lowerers; exclusive builders, dispatchers, Case-A entrypoints, ValueId ranges, tests, and fixtures | production and retained explicit-VM callers = 0 before deletion | RET0 | retired by `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`; neutral five-name policy, skip/trim VM routes, If vocabulary, native Stage1 verifier, and selfhost mode-B lane retained |

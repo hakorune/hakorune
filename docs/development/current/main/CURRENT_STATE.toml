@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0 is closed as NoSafeSlice. The selected raw production path retains an exact Lambda parent site but carries no VerifiedSemanticOwnerForestV1, parent FunctionOwnerIdV1, ScopeId, or projection. Lambda-specific I0/R0 remains fenced. The next design stop is RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0: determine whether one existing source owner can loan its sealed forest/projection into the live raw invocation without a new identity issuer, resolver pass, AST clone, or second registry. CallObject, NestedBoxAdmission, Ownership, and View remain parked."
+status = "RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0 is closed as NoSafeSlice. None of ScriptRoot, Main, Cataloged, TopLevel, or InstanceConstructor receives a co-owned FunctionOwnerIdV1 + VerifiedSemanticOwnerForestV1 + VerifiedSourceProjectionV1 on the selected production graph. ScriptRoot is the first missing producer: it owns Program/script source but has no exact semantic function-root authority, and current function projection cannot be fabricated from Program. The next design stop is RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0. Lambda I0/R0, the generic carrier, CallObject, NestedBoxAdmission, Ownership, and View remain parked."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0"
+current_design_stop = "RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0"
 current_execution_row = "none"
-current_execution_summary = "T2 design only: census every selected-normal raw root producer and decide whether an existing forest/projection owner can be paired once with its exact RawInvocationRootLineageV1 and loaned through RawInvocationChildPortV1. No implementation row until one complete producer covers the selected surface. Forbid FunctionOwnerId/ScopeId reissuance or inference, a second resolver pass, independently supplied forest/root pairs, AST clone/reparse, Lambda publication changes, and CallObject/NestedBox mixing."
+current_execution_summary = "T2 design only: define whether the Program-owned selected Script body can issue exactly one lexical root owner, one semantic owner forest including nested Lambdas, and one exact Program/script source projection before Builder effects. Do not wrap Script in a synthetic FunctionDeclaration, clone/reparse Program, issue owners per physical demand, add a second source/owner registry, change Lambda publication, or mix the other four raw root variants. Close Accept only with one named production producer and exact failure/parity contract; otherwise NoSafeSlice."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0-DESIGN-STOP"
+current_blocker_token = "RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
