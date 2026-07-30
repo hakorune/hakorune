@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-ROOT-ROLE0-D0 is closed Accept(B): Script is a Program-specific semantic root. The direct Program-root/Lambda handoff was stopped before code because no exact BindingRef-to-ValueId authority exists in the raw Script route. RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 is closed Accept(A-prime): one invocation-local materialization ledger and one semantic first-demand capture plan. The paired execution begins with RAW-LAMBDA-CLOSURE-EMISSION-TERMINAL0-S0, followed immediately by RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-I0-R0. Hakorune source try/throw remain rejected; postfix catch/cleanup and ASTNode::TryCatch remain outside this row."
+status = "RAW-LAMBDA-CLOSURE-EMISSION-TERMINAL0-S0 is closed at e508f27224. Worker audit found two missing prerequisites before the Script Lambda bridge: selected direct expressions dropped exact Program statement context, and no production Program-specific Script semantic producer exists. RAW-SCRIPT-DIRECT-EXPR-EXACT-PROGRAM-SOURCE0-I0-R0 removes the live source-context drop. The sole next design stop is RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0; ledger or Lambda handoff implementation remains forbidden until it closes."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none (RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 closed Accept(A-prime))"
-current_execution_row = "RAW-LAMBDA-CLOSURE-EMISSION-TERMINAL0-S0"
-current_execution_summary = "Two-commit Refactor Series Mode. S0 extracts the existing NewClosure/ClosureBodyId emission transaction behind one source-neutral terminal with zero behavior delta. The immediately paired I0/R0 adds one Script invocation-local BindingRef-to-ValueId materialization ledger, publishes eligible Local results by exact semantic declaration site, reads selected Variable and Lambda captures only from that ledger, and consumes a first-demand-ordered semantic capture plan. Script receiver is absent and Me remains deferred. The I0/R0 removes the eligible Script Lambda raw observer/ControlBody edge without fallback or ABI change."
+current_design_stop = "RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0"
+current_execution_row = "none (RAW-SCRIPT-DIRECT-EXPR-EXACT-PROGRAM-SOURCE0-I0-R0 closed by current commit)"
+current_execution_summary = "The source repair installs ProgramBody(original ordinal) for every selected DirectPortAwareExpression before raw descent, removing the Local/Variable/Lambda source-context drop while preserving one execution and existing lowering. Next, one Program-specific semantic producer must atomically own Program + Script root profile + forest + Program projection + first-demand capture plans and have the selected lifecycle as its named consumer. Existing Function public views stay Function/Lambda-only. No caller-zero producer, synthetic FunctionDeclaration, name-derived BindingRef, partial forest, fallback, or retry."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -442,7 +442,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-SCRIPT-ROOT-ROLE0-D0 selected a Program-specific Script root. A direct Lambda handoff is NoSafeSlice because raw Script lowering has no exact BindingRef-to-ValueId authority. RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 closes Accept(A-prime): one invocation-local materialization ledger plus one first-demand-ordered semantic capture plan. The two-commit series starts at RAW-LAMBDA-CLOSURE-EMISSION-TERMINAL0-S0 and must immediately finish with RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-I0-R0. Hakorune source try/throw remain rejected."""
+latest_card_summary = """RAW-LAMBDA-CLOSURE-EMISSION-TERMINAL0-S0 is closed at e508f27224. RAW-SCRIPT-DIRECT-EXPR-EXACT-PROGRAM-SOURCE0-I0-R0 removes the selected DirectPortAwareExpression source-context drop. The sole design stop is RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0: create no ledger or Lambda bridge until a production Program-specific Script semantic product can co-seal root profile, forest, Program projection, and first-demand capture plans."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-LAMBDA-CLOSURE-EMISSION-TERMINAL0-S0"
+current_blocker_token = "RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

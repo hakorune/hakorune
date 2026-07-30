@@ -104,21 +104,12 @@ where
                 })
             }
             NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression => {
-                if matches!(
-                    &statement,
-                    ASTNode::BlockExpr { .. }
-                        | ASTNode::TaskScope { .. }
-                        | ASTNode::ScopeBox { .. }
-                ) {
-                    let source = self
-                        .port
-                        .prepare_body_statement_source_v1(&statement, source_statement_index)?;
-                    self.port.with_prepared_child_source_v1(source, |port| {
-                        lower_direct_port_aware_expression_v1(builder, port, statement)
-                    })
-                } else {
-                    lower_direct_port_aware_expression_v1(builder, self.port, statement)
-                }
+                let source = self
+                    .port
+                    .prepare_body_statement_source_v1(&statement, source_statement_index)?;
+                self.port.with_prepared_child_source_v1(source, |port| {
+                    lower_direct_port_aware_expression_v1(builder, port, statement)
+                })
             }
             NormalScriptRuntimeStatementAdmissionV1::DirectStaticConstRuntimeCompletion => {
                 lower_direct_static_const_runtime_completion_v1(builder, &statement)

@@ -116,9 +116,8 @@ Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corrected
 Latest landed: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — `507851393c`
 Latest landed: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0` — `ffda60241b`
-Current execution: `RAW-LAMBDA-CLOSURE-EMISSION-TERMINAL0-S0`
-Paired next: `RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-I0-R0`
-Next design stop: none; `RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0` is closed Accept(A-prime)
+Current execution: none; `RAW-SCRIPT-DIRECT-EXPR-EXACT-PROGRAM-SOURCE0-I0-R0` closes in the current commit
+Next design stop: `RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -417,8 +416,10 @@ Corrected forward queue:
 5. RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0 (closed Accept-corrected: Program-specific root)
 6. RAW-SCRIPT-PROGRAM-ROOT-OWNER-LAMBDA-HANDOFF0-I0-R0 (closed NoSafeSlice: no exact BindingRef-to-ValueId authority)
 7. RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 (closed Accept(A-prime))
-8. RAW-LAMBDA-CLOSURE-EMISSION-TERMINAL0-S0 (current, behavior-neutral)
-9. RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-I0-R0 (must immediately follow)
+8. RAW-LAMBDA-CLOSURE-EMISSION-TERMINAL0-S0 (closed at e508f27224)
+9. RAW-SCRIPT-DIRECT-EXPR-EXACT-PROGRAM-SOURCE0-I0-R0 (current source repair)
+10. RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0 (next design stop)
+11. RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-I0-R0 (blocked on producer D0)
 
 Rule:
   Do not open an execution row while the Script semantic role is unresolved.
@@ -3002,6 +3003,55 @@ I0 contract:
   -> raw static method -> `LegacyChildDraftAdmissionV1` with one dedicated
   selected top-level capture port.  Constructors, Script non-plain Boxes,
   static Main, and raw/reference retain their registered routes.
+```
+
+## RAW-SCRIPT-DIRECT-EXPR-EXACT-PROGRAM-SOURCE0-I0-R0 — closed
+
+```text
+Change:
+  Every selected DirectPortAwareExpression now installs the already-sealed
+  ProgramBody(original ordinal) statement source before one raw descent.
+  Local, Variable, Lambda, and the previously located structured roots use the
+  same source rule.
+
+Delete:
+  selected DirectPortAwareExpression -> descent with active ProgramBodyRoot
+  instead of its exact statement site = 0.
+
+Preserve:
+  Program classification, runtime order, MIR/result policy, candidate
+  isolation, raw/reference routes, Lambda ABI, and fallback/retry = 0.
+```
+
+## RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0 — active design stop
+
+```text
+Finding:
+  No production product currently owns Program + Script root semantic owner +
+  forest + Program projection. FunctionSyntaxViewV1,
+  VerifiedResolvedSourceUnitV1, forest products, normalized identity, and the
+  public projection seal remain Function/Lambda-rooted. Therefore a ledger
+  cannot obtain exact BindingRefV1 rows at the current HEAD.
+
+Required decision:
+  Define one private neutral semantic-owner syntax core and a distinct Script
+  view/root profile without adding a Program branch to the public Function
+  view. The selected lifecycle after CatalogSeal and before CatalogInstall is
+  the named producer/consumer edge. The atomic Script product must co-seal the
+  owned Program, Script root profile, one forest, one Program projection,
+  exact admission coverage, and first-demand-ordered Lambda capture plans.
+
+Forbid:
+  caller-zero producer; synthetic FunctionDeclaration; Program widening of
+  Function public products; partial forest/projection; source/name-derived
+  BindingRefV1; capture order from forest.upvars(); second resolver/observer;
+  semantic failure downgrade; fallback/retry.
+
+After Accept:
+  connect one invocation-local BindingRefV1-to-ValueId ledger; publish eligible
+  Local rows by exact declaration site; read selected Variable/Lambda captures
+  only from that ledger; remove the selected raw Lambda observer/name
+  materialization edge in the same I0/R0.
 ```
 
 ## RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 — closed, Accept(A-prime)
