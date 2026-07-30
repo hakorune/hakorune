@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINMODULE-PHI-RETURN-STRATEGY-REOWN0-I0-R0 is closed: finalize_module now uses one Builder-owned return-type strategy, while phi_type_inference and the two obsolete JoinIR type-helper modules/exports are deleted. MIRBUILDER-LIVE-EDGE-CENSUS13-D0 is the sole next design stop; VM bridge, LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, JumpArgsLayout, and broader old-IR final disposition remain separate fences. Ownership, View, and feature work stay parked until final conformance resolves every fence."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS13-D0 is closed: selected normal/default has no safe remaining live I0 because the four residuals are raw/static-Main compatibility, header-sensitive Call result policy, Loop/CorePlan, and If/JoinIR control fences. One cfg(test)-only JoinIR return-collector asset is selected for the single permitted detached RET0 after the preceding live I0. VM bridge, LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, JumpArgsLayout, and the broader old-IR final disposition remain separate fences. Ownership, View, and feature work stay parked until final conformance resolves every fence."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS13-D0"
-current_execution_row = ""
-current_execution_summary = "Fresh census only: recount remaining live normal/default competing authorities and R3 assets after the return-type strategy rehome. Select exactly one bounded I0/R0, RET0/REOWN/RETAIN-FENCED disposition, or NoSafeLiveI0. Do not reopen a fence, add a route, acceptance shape, fallback/retry, Ownership/View, or feature during the census."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS13-D0 (closed: NoSafeLiveI0)"
+current_execution_row = "JOINMODULE-RETURN-COLLECTOR-TEST-ASSET-RET0"
+current_execution_summary = "T1 detached retirement: delete only the cfg(test)-only JoinIR return_collector asset, its lowering module declaration, and five stale current control-flow inventory rows. Contract: no runtime consumer, normal/default, VM bridge, LLVM, return semantics, or route changes. Stop and return to fresh census if any non-test consumer or manifest closure is found; after closeout, MIRBUILDER-LIVE-EDGE-CENSUS14-D0 is mandatory before any further selection."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """JOINMODULE-PHI-RETURN-STRATEGY-REOWN0-I0-R0 is closed: one Builder-owned return-type strategy now preserves Direct -> primary hint -> P3-D -> P4 -> P3-C while the prior phi_type_inference and both JoinIR type-helper modules/exports are zero. Focused strategy tests, general normal parity, lib/vm-reference checks, lifecycle evidence, and the reusable lane/pointer guards are green; route, grammar, result, publication, fallback/retry, Ownership/View, and feature deltas are zero. MIRBUILDER-LIVE-EDGE-CENSUS13-D0 is next."""
+latest_card_summary = """MIRBUILDER-LIVE-EDGE-CENSUS13-D0 is closed: selected normal/default is a single session/collector route and has NoSafeLiveI0. The four remaining live boundaries are raw/static-Main compatibility, header-sensitive Call result policy, Loop/CorePlan, and If/JoinIR control. JOINMODULE-RETURN-COLLECTOR-TEST-ASSET-RET0 is the one permitted detached R3 retirement; VM bridge/LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, and CFG carriers remain separately fenced. After RET0, a fresh Census14 must select again. Ownership/View and feature work remain parked until R4 final conformance."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS13-D0"
+current_blocker_token = "JOINMODULE-RETURN-COLLECTOR-TEST-ASSET-RET0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
