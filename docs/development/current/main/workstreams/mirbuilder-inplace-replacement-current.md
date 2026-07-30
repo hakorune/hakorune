@@ -107,70 +107,52 @@ Latest landed: `RAW-LOCATED-SPECIAL-LOCAL-HOOK-SOURCE-HANDOFF0-I0-R0`
 Latest design: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-RESIDUE0-D0` — closed
 Latest landed: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-PORTAL-RETIRE0-I0-R0-RET0`
 Latest landed: `RAW-LAMBDA-CHILD-OWNER-SOURCE-ADMISSION0-I0-R0`
-Current design stop: `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0`
+Latest design: `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0` — closed, NoSafeSlice
+Current design stop: `RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0`
+`RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0`
 
 ```text
-Landed:
-  every Local statement is located. RawLegacyLocalInputV1 retains the intact
-  Local; the shared driver remains the sole typed-array and Builder-dependent
-  record selector. Ordinary and non-record New initializers descend under exact
-  LocalInitializer receipts. Typed arrays derive exact ArrayElement receipts;
-  record constructors derive exact CallArgument receipts. The initializer-root
-  receipt is used only as their parent context. Whole-Local preflight,
-  typed-array preclaim, variable-index evaluation, and publication order are
-  unchanged. is_nonhook_local_statement_v1 and the special-Local compatibility
-  edge are zero. Focused tests=34 green; cargo check green; production Rust
-  +329/-210 (net +119); max touched source/test=790.
-
-Latest landed:
-  all Assignment and CompoundAssignment statements are located, their
-  unsupported target routes retain exact diagnostics and zero RHS effects,
-  and ScalarBinding owner/issuer definitions are zero in src/mir and checks.
-
 Decision:
-  Candidate A — consume the retained Lambda source site in the existing
-  capture/publication lifecycle. Ceremony T2 prerequisite design.
+  Candidate C now, Candidate A later. Keep the Lambda lineage fence until the
+  live selected-normal invocation can borrow one existing semantic owner
+  forest and projection. Raw source-site-only Candidate B is rejected.
 
-Named old edge:
-  RawInvocationSourceContextV1::body_statement(ASTNode::Lambda)
-  -> RawUnlocatedPortalV1::ControlBody
+Named production boundary:
+  selected-normal function draft capture -> RawInvocationChildPortV1 currently
+  carries RawInvocationRootLineageV1 + SourceNodeSiteV1, but no parent
+  FunctionOwnerIdV1, ScopeId, VerifiedSemanticOwnerForestV1, or projection.
 
-Completed prerequisite:
-  Lambda is now admitted as Located using the existing parent body site and
-  SourcePath topology; the capture/publication lifecycle has not changed.
+Change:
+  design one source-authority carrier that pairs an existing callable source
+  owner, forest, projection, and exact raw root lineage once, then loans that
+  sealed view through RawInvocationChildPortV1. No implementation is selected
+  until every live selected-normal root producer has an exact mapping.
 
-Next slice:
-  NoSafeSlice at the current boundary. The existing raw lifecycle drops the
-  located source context and has no owner that can co-seal the parent site,
-  child FunctionOwnerId, Lambda body root, and ClosureBodyId publication.
-  Reopen only through a T2 owner/bridge design; do not invent a transport-only
-  handoff, LambdaBodyRoot-only receipt, or a second closure registry.
+Contract:
+  reuse an already co-owned VerifiedSemanticOwnerForestV1 and
+  VerifiedSourceProjectionV1 from their existing source owner;
+  FunctionSourceViewV1 may only borrow that pair after exact root binding. Do
+  not resolve at Lambda encounter, infer an owner from a symbol/locator/site,
+  or accept a forest and raw root supplied independently. Lambda capture and
+  closure publication behavior remain unchanged in this prerequisite.
 
-Residual edge:
-  the located Lambda still crosses
-  RawInvocationChildPortV1::lower_expression -> raw Lambda dispatch ->
-  PreparedRawLambdaLexicalCaptureLifecycleV1::lower_with_builder_v1 without
-  consuming the retained parent source context.
+Done:
+  one complete producer/consumer graph is named for Script, Main, cataloged,
+  top-level, and instance-constructor roots; or the row closes NoSafeSlice with
+  the first missing producer. Only after this D0 closes may the Lambda row use
+  parent site -> forest.child_at -> child owner -> body root -> existing
+  ClosureBodyId publication.
 
-Keep residual:
-  CallObject broad expression family and NestedBoxAdmission stay unlocated.
-
-Forbid:
-  capture/receiver policy changes, NewClosure or ClosureBodyId changes,
-  variable_map ownership changes, Call/MethodCall/New/FieldAccess widening,
-  fallback/retry, AST clone/reparse, or new failure owner.
-
-Acceptance:
-  No implementation is authorized until a T2 design supplies one existing or
-  newly-owned co-seal boundary for the parent source site, child owner, body
-  root, and ClosureBodyId publication. Any need for owner inference, a second
-  registry, AST clone/reparse, or capture-policy change remains a hard stop.
+Stop:
+  new FunctionOwnerId/ScopeId issuer; a second resolver pass; mapping by name,
+  symbol, RawSourceLocator, or site alone; independently paired forest/root;
+  AST clone/reparse; self-referential owner; second closure registry; Lambda
+  capture/publication change; CallObject or NestedBoxAdmission mixing.
 ```
 
 Corrected queue:
@@ -214,7 +196,7 @@ activation and sunset contract.
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> `lower_static_box_method` / `lower_instance_box_method`, the two live nested-method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | R4 BLOCKER: source occurrences exist, but neither live issuer receives a function-relative located-source receipt | `RAW-LOCATED-BODY-TRANSPORT0-D0` must select one located transport whose I0/R0 deletes both named production issuers before R4 Complete |
 | closed | `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-SUNSET-001` | former caller-zero `ModuleLoweringPortV1::complete_legacy_child`, two disconnected proof modules, and three inline facade tests | production caller = 0 before deletion; live nested issuers already use capture + `commit_legacy_pending` | RET0 | retired by `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0`; live commit terminals, 2 nested issuers, reentrant proof, collector tests, and live callable-Main physical owner retained |
 | active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected `RawInvocationChildPortV1` only: three fixed portals remain — `ControlBody` with exact residual Lambda, `CallObject`, and `NestedBoxAdmission` | one selected state and one execution per node; RawLegacy/raw-reference remain separate; root/body/direct-Box, structured/residual controls, Match/Enum, Loop, TryCatch, and nested Program exact transport are closed | no variant/reason reassignment; Lambda is governed by the linked source-lineage fence below | close only after the Lambda fence reowns ControlBody, the CallObject row removes its portal, and final nested row deletes `NestedBoxAdmission` with both selected nested legacy-symbol issuers |
-| retain-fenced | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` | selected nested Lambda definition still crosses the located child transport into the existing raw capture/publication lifecycle without consuming its parent located-source context | selected normal function/script body only; raw/reference routes remain separate | RETAIN-FENCED: body-path vocabulary exists, but no durable authority co-seals parent definition site, child `FunctionOwnerIdV1`, Lambda body root, and `ClosureBodyId` publication; current D0 = NoSafeSlice | reopen only through `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0` with a T2 owner/bridge design; no transport-only handoff, owner inference, AST clone/reparse, or second closure registry |
+| retain-fenced | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` | selected nested Lambda definition still crosses the located child transport into the existing raw capture/publication lifecycle without consuming its parent located-source context | selected normal function/script body only; raw/reference routes remain separate | RETAIN-FENCED: body-path vocabulary exists, but no durable authority co-seals parent definition site, child `FunctionOwnerIdV1`, Lambda body root, and `ClosureBodyId` publication; Lambda D0 closed NoSafeSlice | carrier D0 alone does not release this fence. Retire only when one selected production Lambda transition consumes the exact carrier, co-seals parent root/site -> `OwnedExprSiteV1`, `forest.child_at` -> exact child owner, exact parent owner/scope, projected Lambda definition/body root, and one post-`NewClosure` `ClosureBodyId` commit, then deletes the source-erasing Lambda transition plus Lambda/ControlBody residual issuer in the same I0/R0 |
 | active compatibility | `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001` | `PreparedLocatedRawLoopChildEntryV1` retains exact Loop parent/condition/body-root receipts, then delegates once to the existing raw JoinIR route | selected invocation only; RawLegacy/reference unchanged; no located JoinIR-plan completion claim | retire when the current Loop route/verified plan consumes the same located product and the source-erasing terminal is zero | no additional route, retry, AST clone/reparse, or receipt reconstruction may be introduced |
 | closed | `JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001` | former three explicit-VM `LowerOnly` target rows, dispatcher observation branch, and `lower_only_routes`; five target names were also consumed by Loop/If/strict classification | observation route and vocabulary = 0; neutral five-name policy and two VM Exec rows remain | REOWN+RET0 | retired by `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`: all five lowerers/direct evidence remain; no old target-table alias |
 | closed | `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-SUNSET-001` | former caller-zero Stage1UsingResolver, StageB body, and StageB FuncScanner target lowerers; exclusive builders, dispatchers, Case-A entrypoints, ValueId ranges, tests, and fixtures | production and retained explicit-VM callers = 0 before deletion | RET0 | retired by `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`; neutral five-name policy, skip/trim VM routes, If vocabulary, native Stage1 verifier, and selfhost mode-B lane retained |
