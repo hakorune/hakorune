@@ -91,6 +91,7 @@ static box Main {
 #[test]
 fn unsupported_compound_index_rejects_before_store_lowering() {
     crate::tests::helpers::env::with_env_var("NYASH_SYNTAX_SUGAR_LEVEL", "basic", || {
+        let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
         let ast = NyashParser::parse_from_string(
             r#"
 static box Main {

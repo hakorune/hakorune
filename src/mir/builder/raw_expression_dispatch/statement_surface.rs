@@ -141,6 +141,19 @@ enum PreparedRawOrdinaryAssignmentSourcesV1 {
     },
 }
 
+fn with_write_target_source_v1<Port, Output>(
+    port: &mut Port,
+    statement: &ASTNode,
+    target_role: ExprChildRoleV1,
+    project: impl FnOnce(&mut Port) -> Result<Output, String>,
+) -> Result<Output, String>
+where
+    Port: RawExpressionDispatchPortV1,
+{
+    let target_source = port.prepare_expression_child_source_v1(statement, target_role)?;
+    port.with_prepared_child_source_v1(target_source, project)
+}
+
 fn prepare_field_write_child_sources_v1<Port>(
     port: &mut Port,
     statement: &ASTNode,
@@ -157,12 +170,39 @@ fn prepare_field_write_child_sources_v1<Port>(
 where
     Port: RawExpressionDispatchPortV1,
 {
-    let target_source = port.prepare_expression_child_source_v1(statement, target_role)?;
-    let receiver = port.with_prepared_child_source_v1(target_source, |port| {
+    let receiver = with_write_target_source_v1(port, statement, target_role, |port| {
         port.prepare_expression_child_source_v1(target, ExprChildRoleV1::Receiver)
     })?;
     let value = port.prepare_expression_child_source_v1(statement, value_role)?;
     Ok((receiver, value))
+}
+
+fn prepare_index_write_child_sources_v1<Port>(
+    port: &mut Port,
+    statement: &ASTNode,
+    target: &ASTNode,
+    target_role: ExprChildRoleV1,
+    value_role: ExprChildRoleV1,
+) -> Result<
+    (
+        crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
+        crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
+        crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
+    ),
+    String,
+>
+where
+    Port: RawExpressionDispatchPortV1,
+{
+    let (index_target, index_subscript) =
+        with_write_target_source_v1(port, statement, target_role, |port| {
+            Ok::<_, String>((
+                port.prepare_expression_child_source_v1(target, ExprChildRoleV1::IndexTarget)?,
+                port.prepare_expression_child_source_v1(target, ExprChildRoleV1::IndexSubscript)?,
+            ))
+        })?;
+    let value = port.prepare_expression_child_source_v1(statement, value_role)?;
+    Ok((index_target, index_subscript, value))
 }
 
 fn lower_prepared_raw_ordinary_assignment_with_port_v1<Port>(
@@ -435,30 +475,18 @@ where
                 ASTNode::Assignment { target, .. }
                     if matches!(target.as_ref(), ASTNode::Index { .. }) =>
                 {
-                    let target_source = port.prepare_expression_child_source_v1(
-                        &node,
-                        ExprChildRoleV1::AssignmentTarget,
-                    )?;
-                    let (index_target, index_subscript) =
-                        port.with_prepared_child_source_v1(target_source, |port| {
-                            Ok::<_, String>((
-                                port.prepare_expression_child_source_v1(
-                                    target,
-                                    ExprChildRoleV1::IndexTarget,
-                                )?,
-                                port.prepare_expression_child_source_v1(
-                                    target,
-                                    ExprChildRoleV1::IndexSubscript,
-                                )?,
-                            ))
-                        })?;
+                    let (index_target, index_subscript, value) =
+                        prepare_index_write_child_sources_v1(
+                            port,
+                            &node,
+                            target,
+                            ExprChildRoleV1::AssignmentTarget,
+                            ExprChildRoleV1::AssignmentValue,
+                        )?;
                     Some(PreparedRawOrdinaryAssignmentSourcesV1::Index {
                         target: index_target,
                         index: index_subscript,
-                        value: port.prepare_expression_child_source_v1(
-                            &node,
-                            ExprChildRoleV1::AssignmentValue,
-                        )?,
+                        value,
                     })
                 }
                 _ => None,
@@ -490,6 +518,19 @@ where
                         ExprChildRoleV1::CompoundAssignmentValue,
                     )?;
                     Some(vec![receiver, value])
+                }
+                ASTNode::CompoundAssignment { target, .. }
+                    if matches!(target.as_ref(), ASTNode::Index { .. }) =>
+                {
+                    let (index_target, index_subscript, value) =
+                        prepare_index_write_child_sources_v1(
+                            port,
+                            &node,
+                            target,
+                            ExprChildRoleV1::CompoundAssignmentTarget,
+                            ExprChildRoleV1::CompoundAssignmentValue,
+                        )?;
+                    Some(vec![index_target, index_subscript, value])
                 }
                 _ => None,
             };

@@ -98,13 +98,14 @@ Latest landed: `RAW-LOCATED-PRINT-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-ORDINARY-FIELD-ASSIGNMENT-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-ORDINARY-INDEX-ASSIGNMENT-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-ORDINARY-FIELD-COMPOUND-ASSIGNMENT-SOURCE-HANDOFF0-I0-R0`
-Current design stop: `RAW-LOCATED-SCALAR-BINDING-REMAINDER5-D0`
+Latest landed: `RAW-LOCATED-ORDINARY-INDEX-COMPOUND-ASSIGNMENT-SOURCE-HANDOFF0-I0-R0`
+Current design stop: `RAW-LOCATED-SCALAR-BINDING-REMAINDER6-D0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`RAW-LOCATED-SCALAR-BINDING-REMAINDER5-D0`
+`RAW-LOCATED-SCALAR-BINDING-REMAINDER6-D0`
 
 ```text
 Landed baseline:
@@ -117,12 +118,16 @@ Landed baseline:
   CompoundAssignmentTarget/Receiver and CompoundAssignmentValue from one
   intact statement, consumes both once, and preserves record check -> receiver
   -> field read -> RHS -> binary -> field write. These rows no longer enter
-  ScalarBinding.
+  ScalarBinding. Ordinary index CompoundAssignment now derives
+  CompoundAssignmentTarget/IndexTarget/IndexSubscript and
+  CompoundAssignmentValue from one intact statement, consumes base/index/RHS
+  once, and preserves base -> index preflight -> subscript -> read -> RHS ->
+  binary -> store. All ordinary evaluated-place writes are now located.
 
 Question:
-  which one of index CompoundAssignment, Return, or Local can next remove a
-  real ScalarBinding edge without mixing index evaluated-place preflight,
-  Match-return, typed-array, or record-constructor authority?
+  which one of Return or Local can next remove a real ScalarBinding edge
+  without mixing Match-return bypass, typed-array, or record-constructor
+  authority?
 
 Stop:
   no nested target path invention, Match-return bypass weakening, Local hook

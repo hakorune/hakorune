@@ -198,6 +198,16 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
             value: Box::new(integer(4)),
             span: Span::unknown(),
         },
+        ASTNode::CompoundAssignment {
+            target: Box::new(ASTNode::Index {
+                target: Box::new(variable("items")),
+                index: Box::new(integer(0)),
+                span: Span::unknown(),
+            }),
+            operator: crate::ast::BinaryOperator::Add,
+            value: Box::new(integer(4)),
+            span: Span::unknown(),
+        },
         field_assignment,
         assignment(
             ASTNode::Index {
@@ -318,16 +328,6 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
         ));
 
     let residuals = [
-        ASTNode::CompoundAssignment {
-            target: Box::new(ASTNode::Index {
-                target: Box::new(variable("items")),
-                index: Box::new(integer(0)),
-                span: Span::unknown(),
-            }),
-            operator: crate::ast::BinaryOperator::Add,
-            value: Box::new(integer(4)),
-            span: Span::unknown(),
-        },
         ASTNode::CompoundAssignment {
             target: Box::new(integer(0)),
             operator: crate::ast::BinaryOperator::Add,
