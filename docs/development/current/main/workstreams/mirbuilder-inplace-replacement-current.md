@@ -31,8 +31,8 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
 Latest landed: JOINMODULE-VM-BRIDGE-STRICT-ALIAS0-I0-R0
 Result:        explicit bridge Exec failure shares HAKO+NYASH strict authority
-Latest design: `JOINMODULE-LOWERONLY-TARGET-ALIGNMENT0-D0`
-Executable:    none — design stop
+Latest design: `JOINMODULE-LOWERONLY-TARGET-ALIGNMENT0-D0` — RET0 selected
+Executable:    `JOINMODULE-LOWERONLY-STALE-DESCRIPTOR-RET0`
 History:       Git history and the short landed tail below
 ```
 
@@ -121,18 +121,33 @@ and the observer contract is independently disposed. The explicit VM/Stage1/
 StageB reference consumers are handled only by the next reference-sunset D0.
 ```
 
-## Current design stop
+## Current execution
 
-`JOINMODULE-LOWERONLY-TARGET-ALIGNMENT0-D0` — descriptor/observer boundary
+`JOINMODULE-LOWERONLY-STALE-DESCRIPTOR-RET0` — T0 detached retirement
 
 ```text
-Reconcile stale `FuncScannerBox.append_defs/2` with the current source function
-and complete LowerOnly observer table. Select retirement of the stale row or a
-new exact target with one real observer owner.
+Change:
+  Delete the stale `FuncScannerBox.append_defs/2` LowerOnly target, its Loop/If
+  exclusion entry, and the caller-zero name-specialized Case-A facade.
 
-Stop: bridge deletion, normal/default route change, strict-policy change, LLVM
-experiment change, or shared-carrier reown stays outside this D0.
+Contract:
+  Current source is `FuncScannerHelpersBox._append_defs/2`; it is not re-targeted.
+  Retain generic ArrayAccumulation lowering, its ValueId range, and shape route.
+
+Done:
+  The stale key has no bridge or Case-A name path; the generic route remains
+  independent of that name path. Run the existing JoinIR target/lowering test entry.
+
+Stop:
+  Any observer/re-target for the current helper, generic recipe/range/shape-route
+  deletion, bridge/strict/normal-route change, or new compatibility surface.
 ```
+
+The decisive D0 evidence is that the old name has no source declaration or
+LowerOnly observer, while a re-target would change the three-input generic
+recipe into the current helper's two-input contract without a compilable MIR
+artifact. That is a later `GENERIC-CASE-A-APPEND-DEFS-DISPOSITION0-D0`, not this
+retirement.
 
 ## Latest closeout
 
@@ -480,7 +495,10 @@ R3 Legacy JoinModule/reference disposition
   1. `JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0` — closed;
   2. `JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0` — RETAIN-FENCED;
   3. `JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0` — direct runner RET0 closed;
-     VM bridge is RETAIN-FENCED and LowerOnly target-alignment D0 is current.
+     VM bridge is RETAIN-FENCED; `JOINMODULE-LOWERONLY-STALE-DESCRIPTOR-RET0`
+     removes the stale append_defs name path, then
+     `GENERIC-CASE-A-APPEND-DEFS-DISPOSITION0-D0` decides the independent
+     generic ArrayAccumulation asset from fresh source/MIR evidence.
   These are ordering boundaries, not pre-authorized implementations. No
   name-only tree deletion, normal/default route resurrection, or unresolved
   family is allowed.
@@ -491,7 +509,7 @@ R4 Final conformance
   disposition (including every named R3 closure or fence), and
   accepted-corpus/backend parity are all green.
 
-  R4 must explicitly decide whether the retained 33,993-LOC
+  R4 must explicitly decide whether the retained 34,212-LOC
   JoinIR/reference tree is deleted or remains a fenced reference asset;
   final-pipeline completion cannot silently inherit that decision. Every
   retained family proves default reachability=0, acceptance truth=0, final
