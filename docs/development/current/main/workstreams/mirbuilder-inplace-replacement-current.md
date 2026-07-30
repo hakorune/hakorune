@@ -32,7 +32,7 @@ Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
 Latest landed: JOINMODULE-JSONIR-V0-REFERENCE-RET0
 Result:        caller-zero JSONIR v0 serializer/snapshot surface retired
 Latest design: `JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS1-D0`
-Executable:    none — design stop
+Executable:    `JOINMODULE-VERIFY-REFERENCE-RET0`
 History:       Git history and the short landed tail below
 ```
 
@@ -121,27 +121,40 @@ and the observer contract is independently disposed. The explicit VM/Stage1/
 StageB reference consumers are handled only by the next reference-sunset D0.
 ```
 
-## Current design stop
+## Current execution
 
-`JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS1-D0` — R3 reference frontier
+`JOINMODULE-VERIFY-REFERENCE-RET0` — T1 R3 caller-zero retirement
 
 ```text
-Scope:
-  recount only remaining JoinModule/reference execution, observation, JSON/format,
-  and explicit-env bridge consumers after JSONIR v0 retirement.
+Change:
+  delete the repository-caller-zero join_ir::verify module, its exports, tests,
+  and stale reference-only records.
 
-Decision:
-  select at most one exact RET0, REOWN, or RETAIN-FENCED disposition with
-  consumers, owner, non-growing surface, sunset, and retire_when.
+Contract:
+  `JOINMODULE-VERIFY-REFERENCE-SUNSET-001` covers only verify_progress_for_skip_ws,
+  verify_select_minimal, and their module/test closure; verify_phi_reserved stays.
 
-Non-claims:
-  no LOC-based deletion, normal/default route, strict or LLVM change, carrier
-  rehome, Ownership, View, or feature work.
+Done:
+  verifier symbols and registered closure are repository-zero; focused JoinIR
+  tests and the existing lane guard are green.
+
+Stop:
+  any non-test consumer or required live verification contract returns to D0.
 ```
 
-`JOINMODULE-JSONIR-V0-REFERENCE-RET0` is closed: JSONIR v0 and its duplicate
-manifest evidence are gone; shared Stage-B bridge tests moved to their existing
-owners. VM bridge, LowerOnly, normalized shadow, and LLVM remain fenced.
+`JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS1-D0` is closed. It leaves VM bridge,
+LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, and
+ownership fenced or separate, and selects only the caller-zero verifier closure.
+
+## Latest closeout
+
+```text
+JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS1-D0
+  selected next caller-zero surface                              = join_ir::verify
+  VM bridge / LowerOnly / normalized shadow / LLVM               = existing fences
+  verify_phi_reserved / frontend metadata / ownership / carriers = separate
+  next                                                           = verifier RET0
+```
 
 ## Latest closeout
 
@@ -519,8 +532,9 @@ R3 Legacy JoinModule/reference disposition
   `JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0` and the subsequent carrier,
   runner, stale-name, and unreachable-generic-asset closures are closed.
   `JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0` selected and closed JSONIR v0 as
-  one caller-zero retirement. VM bridge, normalized shadow, and LLVM remain
-  their registered fences; `JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS1-D0` is next.
+  one caller-zero retirement. The fresh census selects and executes the separate
+  JoinIR verifier closure next; VM bridge, normalized shadow, and LLVM remain
+  their registered fences.
 
   Each remaining R3 cycle is exactly:
   1. fresh consumer census;
