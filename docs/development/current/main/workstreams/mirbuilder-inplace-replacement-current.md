@@ -110,38 +110,37 @@ Latest landed: `RAW-LAMBDA-CHILD-OWNER-SOURCE-ADMISSION0-I0-R0`
 Latest design: `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0` — closed, NoSafeSlice
 Latest design: `RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-D0` — accepted, T1
-Next execution: `RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-I0-R0`
+Latest landed: `RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-I0-R0` — `066e33319d`
 Current design stop: `RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0`
 History:       Git history and the short landed tail below
 ```
 
-## Current execution brief
+## Latest closeout
 
-`RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-I0-R0` · T1 · one atomic I0/R0
+`RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-I0-R0` — T1 atomic source-spine repair
 
-**Change:** Start the selected Script root at `ProgramBodyRoot`, carry the
-original Program ordinal from the once-enumerated runtime row through filtering,
-and install `ProgramBody(original_ordinal)` at the existing source-preparation
-sites. Delete every selected-Script source-site derivation from the compact
-runtime index in the same commit. Keep the compact index only for sequencing
-and suffix bookkeeping; raw/reference work is unchanged.
+```text
+Change:
+  selected Script root now starts at ProgramBodyRoot; each runtime row retains
+  its original Program ordinal through filtering, and existing source-preparation
+  sites receive ProgramBody(original_ordinal). Compact runtime index remains
+  sequencing/suffix bookkeeping only.
 
-**Contract:** Source transport only. `PreparedNormalDefaultProgramRootV1` stays
-the sole AST owner and the existing root-level clone count, grammar,
-diagnostics, candidate isolation, and one-execution policy stay unchanged.
-This row does not issue `FunctionOwnerIdV1`, forest, projection, resolver, or
-Lambda publication, and does not create a second source identity.
+Contract:
+  PreparedNormalDefaultProgramRootV1 remains the sole AST owner. Root clone
+  count, grammar, diagnostics, candidate isolation, and one-execution policy
+  are unchanged. No FunctionOwnerIdV1, forest, projection, resolver, Lambda
+  publication, or second source identity is introduced.
 
-**Done:** Original Program ordinals survive mixed immediate/runtime filtering
-and suffix consumption; selected Script root/source-preparation sites use
-`ProgramBodyRoot`/`ProgramBody(n)` rather than `FunctionBody`/`Body(compact_index)`;
-existing Script MIR/diagnostic/reuse parity and the current pointer/fast guard
-are green.
+Evidence:
+  Focused Program-root, runtime-work, source-transport, general-module parity,
+  cargo check, pointer guard, and active cut0 guard are green. Touched source
+  and check files remain below 800 lines.
 
-**Stop:** Stop and return to `RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0` if ordinal
-alignment cannot be preserved through suffix consumption, if the shared block
-driver/JoinIR semantics or raw/reference route must change, or if a clone,
-reparse, resolver/forest/owner issuance, fallback, or retry is required.
+Next:
+  RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0 remains the sole design stop. This closeout
+  does not activate Script semantic ownership or Lambda lineage.
+```
 
 ## Current design stop
 
