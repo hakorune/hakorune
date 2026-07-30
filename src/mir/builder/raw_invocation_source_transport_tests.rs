@@ -165,6 +165,32 @@ fn variable(name: &str) -> ASTNode {
     }
 }
 
+fn new_value(class: &str) -> ASTNode {
+    ASTNode::New {
+        class: class.to_owned(),
+        arguments: Vec::new(),
+        type_arguments: Vec::new(),
+        field_initializers: Vec::new(),
+        span: Span::unknown(),
+    }
+}
+
+fn local(
+    variables: &[&str],
+    initial_values: Vec<Option<Box<ASTNode>>>,
+    declared_type_names: Vec<Option<&str>>,
+) -> ASTNode {
+    ASTNode::Local {
+        variables: variables.iter().map(|name| (*name).to_owned()).collect(),
+        initial_values,
+        declared_type_names: declared_type_names
+            .into_iter()
+            .map(|name| name.map(str::to_owned))
+            .collect(),
+        span: Span::unknown(),
+    }
+}
+
 #[test]
 fn scalar_single_value_statements_keep_exact_parent_sites() {
     let field_assignment = assignment(
@@ -360,17 +386,125 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
             })),
             span: Span::unknown(),
         },
-        ASTNode::Local {
-            variables: vec!["x".to_owned()],
-            initial_values: vec![Some(Box::new(integer(8)))],
-            declared_type_names: vec![None],
-            span: Span::unknown(),
-        },
     ];
     for (statement_index, statement) in residuals.into_iter().enumerate() {
         let (_, child) = RawInvocationSourceContextV1::from_transport(
             root.body_statement(statement, statement_index + 1),
         );
+        assert_eq!(
+            child,
+            RawInvocationSourceContextV1::UnlocatedCompatibility(
+                RawUnlocatedPortalV1::ScalarBinding
+            )
+        );
+    }
+}
+
+#[test]
+fn nonhook_local_initializers_keep_exact_active_index_paths() {
+    let statement = local(
+        &["x", "missing", "z"],
+        vec![
+            Some(Box::new(integer(1))),
+            None,
+            Some(Box::new(integer(3))),
+            Some(Box::new(new_value("Surplus"))),
+        ],
+        vec![None, None, None, Some("Array<u8>")],
+    );
+    let (_, root) =
+        RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
+            Vec::<ASTNode>::new(),
+            RawInvocationRootLineageV1::ScriptRoot,
+        ));
+    let (_, child) =
+        RawInvocationSourceContextV1::from_transport(root.body_statement(statement.clone(), 4));
+
+    assert_eq!(
+        child.site().expect("located Local").segments(),
+        &[SourcePathSegmentV1::Body(4)]
+    );
+    for index in [0, 2] {
+        let initializer = child
+            .child_expression(&statement, ExprChildRoleV1::LocalInitializer(index))
+            .expect("active initializer source");
+        assert_eq!(
+            initializer.site().unwrap().segments(),
+            &[
+                SourcePathSegmentV1::Body(4),
+                SourcePathSegmentV1::Initializer(index),
+            ]
+        );
+    }
+}
+
+#[test]
+fn nonhook_local_selection_ignores_missing_and_surplus_vector_entries() {
+    let selected = [
+        local(
+            &["x", "missing"],
+            vec![Some(Box::new(integer(1)))],
+            vec![None],
+        ),
+        local(
+            &["x"],
+            vec![
+                Some(Box::new(integer(1))),
+                Some(Box::new(new_value("Surplus"))),
+            ],
+            vec![None, Some("Array<u8>")],
+        ),
+        local(
+            &["xs"],
+            vec![Some(Box::new(ASTNode::ArrayLiteral {
+                elements: Vec::new(),
+                span: Span::unknown(),
+            }))],
+            vec![Some("Array<not-valid")],
+        ),
+    ];
+    let (_, root) =
+        RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
+            Vec::<ASTNode>::new(),
+            RawInvocationRootLineageV1::ScriptRoot,
+        ));
+
+    for (index, statement) in selected.into_iter().enumerate() {
+        let (_, child) =
+            RawInvocationSourceContextV1::from_transport(root.body_statement(statement, index));
+        assert!(matches!(
+            child,
+            RawInvocationSourceContextV1::Located { .. }
+        ));
+    }
+}
+
+#[test]
+fn local_special_initializer_hooks_remain_scalar_binding_compatibility() {
+    let hooks = [
+        local(
+            &["value"],
+            vec![Some(Box::new(new_value("Page")))],
+            vec![None],
+        ),
+        local(
+            &["values"],
+            vec![Some(Box::new(ASTNode::ArrayLiteral {
+                elements: vec![integer(1)],
+                span: Span::unknown(),
+            }))],
+            vec![Some("Array<u8>")],
+        ),
+    ];
+    let (_, root) =
+        RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
+            Vec::<ASTNode>::new(),
+            RawInvocationRootLineageV1::ScriptRoot,
+        ));
+
+    for (index, statement) in hooks.into_iter().enumerate() {
+        let (_, child) =
+            RawInvocationSourceContextV1::from_transport(root.body_statement(statement, index));
         assert_eq!(
             child,
             RawInvocationSourceContextV1::UnlocatedCompatibility(

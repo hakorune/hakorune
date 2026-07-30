@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LOCATED-VOID-RETURN-SOURCE-HANDOFF0-I0-R0 is closed. Void Return now retains its exact body statement source while continuing to use the existing zero-child Return owner. Cleanup, defer, completion, and diagnostics are unchanged. Match-valued Return and Local remain explicit ScalarBinding residuals; Ownership/View remains parked."
+status = "RAW-LOCATED-NONHOOK-LOCAL-SOURCE-HANDOFF0-I0-R0 is closed. Local statements whose active initializers use the ordinary descent owner now derive exact LocalInitializer receipts in variable-index order and consume them once through the existing Local owner. Missing, None, surplus, and invalid-annotation behavior is unchanged. Match-valued Return plus root-New and typed-ArrayLiteral hook Locals remain explicit ScalarBinding residuals; Ownership/View remains parked."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-LOCATED-SCALAR-BINDING-REMAINDER8-D0"
+current_design_stop = "RAW-LOCATED-SCALAR-BINDING-REMAINDER9-D0"
 current_execution_row = "none"
-current_execution_summary = "Select the next bounded exact-source replacement between Match-valued Return and Local. Both non-Match value Return and zero-child void Return are located; Match-return has conditional zero/one ReturnValue demand, while Local retains typed-array/record hooks. No implementation is selected."
+current_execution_summary = "Select the next bounded exact-source replacement among Match-valued Return and the two special Local hooks. Ordinary Local descent is located with exact active-initializer demands; Match-return has conditional zero/one ReturnValue demand, root New needs Builder-dependent record selection, and typed ArrayLiteral uses a direct hook. No implementation is selected."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-LOCATED-VOID-RETURN-SOURCE-HANDOFF0-I0-R0 is closed: void Return retains its exact statement source and uses the unchanged zero-child Return owner, so its ScalarBinding edge is deleted without changing cleanup, defer, completion, or diagnostics. Match-valued Return and Local remain residuals. RAW-LOCATED-SCALAR-BINDING-REMAINDER8-D0 is the next design stop; R5 Ownership/View remains parked."""
+latest_card_summary = """RAW-LOCATED-NONHOOK-LOCAL-SOURCE-HANDOFF0-I0-R0 is closed: ordinary Local initializer descent consumes exact LocalInitializer receipts in active variable-index order, while missing/None/surplus and preflight behavior remain unchanged. Match-valued Return plus root-New and typed-ArrayLiteral hook Locals remain residuals. RAW-LOCATED-SCALAR-BINDING-REMAINDER9-D0 is the next design stop; R5 Ownership/View remains parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-LOCATED-SCALAR-BINDING-REMAINDER8-D0-DESIGN-STOP"
+current_blocker_token = "RAW-LOCATED-SCALAR-BINDING-REMAINDER9-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

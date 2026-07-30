@@ -101,13 +101,14 @@ Latest landed: `RAW-LOCATED-ORDINARY-FIELD-COMPOUND-ASSIGNMENT-SOURCE-HANDOFF0-I
 Latest landed: `RAW-LOCATED-ORDINARY-INDEX-COMPOUND-ASSIGNMENT-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-NONMATCH-VALUE-RETURN-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-VOID-RETURN-SOURCE-HANDOFF0-I0-R0`
-Current design stop: `RAW-LOCATED-SCALAR-BINDING-REMAINDER8-D0`
+Latest landed: `RAW-LOCATED-NONHOOK-LOCAL-SOURCE-HANDOFF0-I0-R0`
+Current design stop: `RAW-LOCATED-SCALAR-BINDING-REMAINDER9-D0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`RAW-LOCATED-SCALAR-BINDING-REMAINDER8-D0`
+`RAW-LOCATED-SCALAR-BINDING-REMAINDER9-D0`
 
 ```text
 Landed baseline:
@@ -129,12 +130,16 @@ Landed baseline:
   statement and consumes it once through the unchanged Return owner; cleanup,
   defer, completion, and Match-return bypass are unchanged. Void Return now
   retains its exact statement source and continues through the unchanged
-  zero-child Return owner.
+  zero-child Return owner. Nonhook Local now derives LocalInitializer receipts
+  for aligned active initializers in variable-index order and consumes them
+  exactly once; missing, None, surplus, and invalid-annotation behavior is
+  unchanged. Root New and typed ArrayLiteral special hooks retain their direct
+  residual path.
 
 Question:
-  which one of Match-valued Return or Local can next remove a real
-  ScalarBinding edge without weakening the conditional Match-return bypass or
-  mixing typed-array/record-constructor authority?
+  which one of Match-valued Return, root-New Local, or typed-ArrayLiteral Local
+  can next remove a real ScalarBinding edge without weakening conditional
+  Match-return demand or duplicating Builder-dependent special-hook authority?
 
 Stop:
   no nested target path invention, Match-return bypass weakening, Local hook
