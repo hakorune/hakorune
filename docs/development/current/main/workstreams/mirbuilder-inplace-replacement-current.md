@@ -41,7 +41,9 @@ Latest landed:  `NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS25-D0` — closed
 Latest design:  `NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-I0-R0`
-Next stop:      `MIRBUILDER-LIVE-EDGE-CENSUS26-D0`
+Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS26-D0` — closed
+Latest design:  `NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-D0` — closed
+Next execution: `NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -90,6 +92,69 @@ unregistered family may not become active on a generic prose promise. No second
 fence ledger is permitted.
 
 ## Disposition closeout
+
+`NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-D0` — T1 design, closed
+
+```text
+Decision:
+  Candidate A — direct selected-Script runtime completion for StaticConstTable.
+
+Existing authority:
+  PreparedNormalProgramDeclarationFactsV1 and
+  PreparedNormalProgramStaticTableMetadataV1 complete source-order metadata
+  preparation and atomic commit exactly once before Program work-plan/runtime.
+
+Old runtime path:
+  StaticConstTable
+  -> DeclarationIngressCompatibility
+  -> RawCompatibility
+  -> drive_legacy_statement_v1
+  -> statement span
+  -> emit_void.
+
+New runtime path:
+  DirectStaticConstRuntimeCompletion
+  -> existing normal_script_direct_statement_owner sibling
+  -> exact StaticConstTable check
+  -> statement span
+  -> existing emit_void.
+
+Atomic delete:
+  selected Script StaticConstTable -> drive_legacy_statement_v1 = 0.
+  Residual 25 -> 24; DeclarationIngress 9 -> 8; StatementControl stays 16.
+
+Forbid:
+  metadata read/rebuild/revalidation/recommit in runtime; DirectPortAwareExpression
+  misuse; child port; AST clone; Enum/Brand/Using or another ingress kind;
+  result/grammar/publication change; retry/fallback; new source/check file.
+
+Evidence:
+  exact disposition partition; metadata prepare/commit precedes runtime; table
+  span owns one Void completion; multiple tables preserve metadata/runtime
+  source order and scalar tail; invalid metadata fails before runtime and fresh
+  request reuses compiler; shared guard and all files below 800.
+
+Next:
+  NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-I0-R0.
+```
+
+`MIRBUILDER-LIVE-EDGE-CENSUS26-D0` — read-only census, closed
+
+```text
+Selected Script residual:
+  StatementControlCompatibility = 16
+  DeclarationIngressCompatibility = 9
+  total = 25
+
+R4 registry:
+  retain-fenced=2, active compatibility=2, closed=4, unregistered=8.
+  LegacyChildDraftAdmissionV1 = 37 occurrences / 8 src/mir files, separately.
+
+Decision:
+  StaticConstTable is the only next zero-child metadata/runtime-completion
+  responsibility. Remaining control and ingress kinds retain distinct CFG,
+  binding, scope, exception, import, or declaration authorities.
+```
 
 `NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-I0-R0` — T1 atomic replacement, closed
 
