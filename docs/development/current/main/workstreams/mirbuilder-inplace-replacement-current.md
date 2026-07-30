@@ -31,8 +31,8 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
 Latest landed: JOINMODULE-VERIFY-REFERENCE-RET0
 Result:        caller-zero JoinIR reference verifier surface retired
-Latest design: `NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-D0`
-Executable:    none — design stop
+Latest design: `NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-D0` — Candidate C-prime accepted
+Executable:    `NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -121,22 +121,42 @@ and the observer contract is independently disposed. The explicit VM/Stage1/
 StageB reference consumers are handled only by the next reference-sunset D0.
 ```
 
-## Current design stop
+## Current execution
 
-`NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-D0` — T2 normal drain design
+`NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-I0-R0` — T2, Candidate C-prime
 
 ```text
-Purpose:
-  define the normal-owned successor for the remaining prepared legacy
-  collector-drain and its exact batch-publication lifecycle.
+Change:
+  Replace the selected normal prepare_normal_legacy_drain -> commit edge with
+  one normal-specific, session-branded lifecycle; delete the old normal-drain
+  closure atomically.
 
-Required decision:
-  source/brand/receipt/failure owner; atomic old-edge deletion; exact normal
-  function-set/order/metadata, collision, failure, and reuse evidence.
+Contract:
+  Preserve LegacySymbol/LegacyReplaceWholePair admission and current candidate
+  module semantics. Transport the already-issued session brand once; seal
+  collector/receipt/target correspondence before collision preflight, then
+  perform one ordered non-fallible batch commit.
 
-Non-authority:
-  no raw/canonical drain adaptation, detached JoinIR RET0, route widening,
-  fallback/retry, Ownership/View, or feature work during D0.
+Done:
+  General-Program MIR/function-set/order/metadata parity, collision no-mutate,
+  RootLower failure disposal, and same-compiler fresh reuse are green through
+  the existing lane guard.
+
+Stop:
+  Any raw/canonical adapter, key/policy conversion, empty replacement module,
+  second publication, source reread, fallback/retry, or post-commit fallible
+  work returns this row to D0.
+```
+
+## Latest design decision
+
+`NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-D0` — closed
+
+```text
+Candidate C-prime: reuse normal drain semantics in a normal-owned lifecycle,
+and bind it to the existing candidate-session brand. Raw and canonical drains
+remain incompatible family/receipt owners, not adapters. The brand is session
+correspondence only; it does not reclassify normal work as a raw route.
 ```
 
 ## Latest closeout
