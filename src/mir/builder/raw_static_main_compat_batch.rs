@@ -161,6 +161,8 @@ impl PreparedRawStaticMainBoxCompatibilityV1 {
                     port,
                     &box_name,
                     None,
+                    None,
+                    true,
                     params,
                     param_decls,
                     return_type_name,

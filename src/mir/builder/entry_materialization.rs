@@ -16,6 +16,14 @@ pub(in crate::mir) enum CallableMainMaterializationPolicyV1 {
 }
 
 impl CallableMainMaterializationPolicyV1 {
+    pub(in crate::mir) fn snapshot_from_normal_ingress() -> Self {
+        if crate::config::env::builder_build_static_main_entry() {
+            Self::Required
+        } else {
+            Self::Omitted
+        }
+    }
+
     pub(in crate::mir) const fn is_required(self) -> bool {
         matches!(self, Self::Required)
     }

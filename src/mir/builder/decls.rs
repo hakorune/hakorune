@@ -3,7 +3,10 @@ use super::calls::CanonicalFunctionSessionErrorV1;
 use super::main_expansion::{OwnedVerifiedMainRootLoweringV1, VerifiedMainExpansionV1};
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
-use super::{MirInstruction, ValueId};
+use super::{
+    CallableMainMaterializationTargetV1, MirInstruction, NormalEntryMaterializationSourceReceiptV1,
+    ValueId,
+};
 use crate::ast::ASTNode;
 use serde_json;
 
@@ -49,6 +52,7 @@ impl super::MirBuilder {
         &mut self,
         port: &mut Port,
         main: &VerifiedMainExpansionV1<'_>,
+        materialization: &NormalEntryMaterializationSourceReceiptV1,
     ) -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1>
     where
         Port: RootCallableCapturePortV1,
@@ -67,13 +71,22 @@ impl super::MirBuilder {
                 attrs,
             )?;
         }
-        self.lower_verified_static_main_root_with_port_v1(port, main.to_owned_root_lowering())
+        self.lower_verified_static_main_root_with_port_v1(
+            port,
+            main.to_owned_root_lowering(),
+            materialization
+                .policy()
+                .is_required()
+                .then(|| materialization.target())
+                .flatten(),
+        )
     }
 
     fn lower_verified_static_main_root_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
         root: OwnedVerifiedMainRootLoweringV1,
+        materialization: Option<&CallableMainMaterializationTargetV1>,
     ) -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1>
     where
         Port: RootCallableCapturePortV1,
@@ -84,6 +97,8 @@ impl super::MirBuilder {
             port,
             &box_name,
             callable_symbol.as_deref(),
+            materialization,
+            false,
             params,
             param_decls,
             return_type_name,
@@ -98,6 +113,8 @@ impl super::MirBuilder {
         port: &mut Port,
         box_name: &str,
         verified_callable_symbol: Option<&str>,
+        materialization: Option<&CallableMainMaterializationTargetV1>,
+        use_legacy_materialization_policy: bool,
         params: Vec<String>,
         param_decls: Vec<crate::ast::ParamDecl>,
         return_type_name: Option<String>,
@@ -115,15 +132,18 @@ impl super::MirBuilder {
             // Optional: materialize a callable function entry "BoxName.main/N" for harness/PyVM.
             // This static entryは通常の VM 実行では使用されず、過去の Hotfix 4 絡みの loop/control-flow
             // バグの温床になっていたため、Phase 25.1m では明示トグルが立っている場合だけ生成する。
-            if self
-                .comp_ctx
-                .callable_main_compatibility_policy
-                .is_required()
+            if materialization.is_some()
+                || (use_legacy_materialization_policy
+                    && self
+                        .comp_ctx
+                        .callable_main_compatibility_policy
+                        .is_required())
             {
                 let trace = crate::mir::builder::control_flow::joinir::trace::trace();
                 // NamingBox SSOT: Use encode_static_method for main/arity entry
-                let func_name = verified_callable_symbol
-                    .map(str::to_owned)
+                let func_name = materialization
+                    .map(|target| target.symbol().to_owned())
+                    .or_else(|| verified_callable_symbol.map(str::to_owned))
                     .unwrap_or_else(|| {
                         crate::mir::naming::encode_static_method(box_name, "main", params.len())
                     });

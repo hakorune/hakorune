@@ -92,9 +92,23 @@ impl RootCallableCapturePortV1 for RawLegacyChildLoweringPortV1 {}
 
 impl super::MirBuilder {
     pub(super) fn prepare_module(&mut self) -> Result<(), String> {
+        self.prepare_module_with_callable_main_policy(
+            super::module_compat_policy::CallableMainCompatibilityPolicyV1::snapshot_from_legacy_ingress(),
+        )
+    }
+
+    pub(super) fn prepare_normal_default_module(&mut self) -> Result<(), String> {
+        self.prepare_module_with_callable_main_policy(
+            super::module_compat_policy::CallableMainCompatibilityPolicyV1::Omitted,
+        )
+    }
+
+    fn prepare_module_with_callable_main_policy(
+        &mut self,
+        callable_main_policy: super::module_compat_policy::CallableMainCompatibilityPolicyV1,
+    ) -> Result<(), String> {
         self.comp_ctx.clear_callable_declaration_catalog();
-        self.comp_ctx.callable_main_compatibility_policy =
-            super::module_compat_policy::CallableMainCompatibilityPolicyV1::snapshot_from_legacy_ingress();
+        self.comp_ctx.callable_main_compatibility_policy = callable_main_policy;
         // A new module is a new legacy compatibility snapshot. Clearing the
         // candidate cache also resets its freshness witness so same-size module
         // replacement cannot reuse the previous module's tail candidates.

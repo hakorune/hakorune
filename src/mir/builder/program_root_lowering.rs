@@ -22,7 +22,7 @@ use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_work_plan::{PreparedProgramRootWorkPlanV1, ProgramRootTerminalScheduleV1};
 use super::program_static_table_metadata::PreparedNormalProgramStaticTableMetadataV1;
 use super::recursive_child_lowering::RawInvocationChildPortV1;
-use super::{MirBuilder, ValueId};
+use super::{MirBuilder, NormalEntryMaterializationSourceReceiptV1, ValueId};
 
 /// Scoped candidate context for one deferred non-Main static Box.
 ///
@@ -96,6 +96,7 @@ impl MirBuilder {
         &mut self,
         source: &PreparedNormalDefaultProgramRootV1,
         expansion: &VerifiedRawRootExpansionV1<'_>,
+        materialization: &NormalEntryMaterializationSourceReceiptV1,
         brand: ModuleInvocationBrandV1,
     ) -> Result<ValueId, NormalDefaultRootCatalogLifecycleErrorV1> {
         let lowering_statements = source.clone_lowering_statements();
@@ -115,6 +116,7 @@ impl MirBuilder {
             lowering_statements,
             source.source_ast(),
             expansion,
+            materialization,
             brand,
         )
         .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into()))
@@ -125,14 +127,19 @@ impl MirBuilder {
         statements: Vec<ASTNode>,
         snapshot: &ASTNode,
         expansion: &VerifiedRawRootExpansionV1<'_>,
+        materialization: &NormalEntryMaterializationSourceReceiptV1,
         brand: ModuleInvocationBrandV1,
     ) -> Result<ValueId, String> {
         let mut collector = ModuleDraftCollectorV1::with_brand(brand);
         let result = {
             let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
             let mut port = RawInvocationChildPortV1::new(&mut module_port);
-            self.lower_program_root_with_callable_port_v1(
-                statements, snapshot, expansion, &mut port,
+            self.lower_program_root_with_materialization_with_callable_port_v1(
+                statements,
+                snapshot,
+                expansion,
+                materialization,
+                &mut port,
             )
         }?;
         let target = self
@@ -160,6 +167,30 @@ impl MirBuilder {
     where
         Port: RootCallableCapturePortV1,
     {
+        let materialization = NormalEntryMaterializationSourceReceiptV1::seal(
+            expansion,
+            super::CallableMainMaterializationPolicyV1::Omitted,
+        );
+        self.lower_program_root_with_materialization_with_callable_port_v1(
+            statements,
+            snapshot,
+            expansion,
+            &materialization,
+            callables,
+        )
+    }
+
+    fn lower_program_root_with_materialization_with_callable_port_v1<Port>(
+        &mut self,
+        statements: Vec<ASTNode>,
+        snapshot: &ASTNode,
+        expansion: &VerifiedRawRootExpansionV1<'_>,
+        materialization: &NormalEntryMaterializationSourceReceiptV1,
+        callables: &mut Port,
+    ) -> Result<ValueId, String>
+    where
+        Port: RootCallableCapturePortV1,
+    {
         PreparedNormalProgramDeclarationFactsV1::collect(snapshot).install_into(&mut self.comp_ctx);
         if let Some(module) = self.current_module.as_mut() {
             PreparedNormalProgramStaticTableMetadataV1::prepare(snapshot, module)?.commit();
@@ -168,13 +199,19 @@ impl MirBuilder {
         let is_app_mode = expansion.is_app_mode();
         self.root_is_app_mode = Some(is_app_mode);
         let work = PreparedProgramRootWorkPlanV1::prepare(statements, is_app_mode);
-        self.lower_program_root_work_plan_with_callable_port_v1(work, expansion, callables)
+        self.lower_program_root_work_plan_with_callable_port_v1(
+            work,
+            expansion,
+            materialization,
+            callables,
+        )
     }
 
     fn lower_program_root_work_plan_with_callable_port_v1<Port>(
         &mut self,
         work: PreparedProgramRootWorkPlanV1,
         expansion: &VerifiedRawRootExpansionV1<'_>,
+        materialization: &NormalEntryMaterializationSourceReceiptV1,
         callables: &mut Port,
     ) -> Result<ValueId, String>
     where
@@ -198,7 +235,7 @@ impl MirBuilder {
                 ProgramRootTerminalScheduleV1::VerifiedAppMain,
                 VerifiedRawRootExpansionV1::App(main),
             ) => self
-                .build_verified_static_main_box_with_port_v1(callables, main)
+                .build_verified_static_main_box_with_port_v1(callables, main, materialization)
                 .map_err(|error| error.to_string()),
             _ => Err("[freeze:contract][mir/program-root-work-plan/terminal-drift]".to_owned()),
         }

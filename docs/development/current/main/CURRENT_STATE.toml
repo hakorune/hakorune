@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "ENTRY-MATERIALIZATION-RECEIPT0-S0 is closed: one source-only policy/target vocabulary and separate normal/raw source receipts preserve Script/App, Required/Omitted, and Main.main/N facts without Builder, collector, ledger, or runner effects. ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0 is the required same-cell successor; it must not broaden into raw/reference or runner work. VM bridge, LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, JumpArgsLayout, and the broader old-IR final disposition remain separate fences. Ownership, View, and feature work stay parked until final conformance resolves every fence."
+status = "ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0 is closed: selected normal snapshots materialization policy once at ingress, seals and threads its source receipt through the existing candidate lifecycle, and no longer executes the lower-side ambient snapshot or legacy policy read. Raw/reference and runner selectors are unchanged. MIRBUILDER-LIVE-EDGE-CENSUS15-D0 is now mandatory before another implementation. VM bridge, LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, JumpArgsLayout, and the broader old-IR final disposition remain separate fences. Ownership, View, and feature work stay parked until final conformance resolves every fence."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0 (closed: Candidate C)"
-current_execution_row = "ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0"
-current_execution_summary = "T2 atomic selected-normal cutover: NormalDefaultPublishedPipelineV1 snapshots the policy once at ingress, threads the sealed normal source receipt through its existing one-session lifecycle, and deletes the selected lower-side environment snapshot/materialization decision. Preserve Script+Required=Omitted, Main.main/0 preference versus Main.main/N explicit invocation, result/publication/reuse parity, and every raw/reference and runner authority. Stop for global policy-field deletion, raw/reference receipt consumption, runner selector change, AST/config duplication, env reread, second route/collector, retry/fallback, Ownership/View, or feature delta."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS15-D0"
+current_execution_row = "MIRBUILDER-LIVE-EDGE-CENSUS15-D0"
+current_execution_summary = "Read-only mandatory census after the selected-normal entry-materialization cutover. Re-inventory selected normal, raw/reference, and runner materialization consumers; select exactly one bounded D0, one live I0/R0, or NoSafeLiveI0. Do not pre-authorize raw receipt activation, runner selector changes, a global policy-field deletion, retry/fallback, Ownership/View, or features."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

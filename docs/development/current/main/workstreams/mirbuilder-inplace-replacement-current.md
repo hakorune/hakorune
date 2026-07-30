@@ -29,10 +29,10 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
-Latest landed: ENTRY-MATERIALIZATION-RECEIPT0-S0
+Latest landed: ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0
 Result:        source-owned entry-materialization contract selected
 Latest design: `RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0` — closed
-Executable:    `ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0`
+Executable:    `MIRBUILDER-LIVE-EDGE-CENSUS15-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -252,9 +252,9 @@ Next:
   `ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0`.
 ```
 
-## Current execution
+## Latest closeout
 
-`ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0` — T2 atomic selected-normal cutover
+`ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0` — T2 atomic selected-normal cutover, closed
 
 ```text
 Named caller:
@@ -273,10 +273,26 @@ Evidence:
   Required/Omitted x Script/App x Main.main/0/nonzero; exact symbol/arity;
   helper -> callable -> root order; failure leaves the live Builder reusable.
 
-Hard stop:
+Kept:
   global compatibility-field deletion, raw/reference consumption, runner-policy
   changes, a second route/collector, AST/config duplication, reread/retry,
   Ownership/View, or feature work.
+```
+
+## Current execution
+
+`MIRBUILDER-LIVE-EDGE-CENSUS15-D0` — read-only post-cutover census
+
+```text
+Inventory:
+  selected normal, raw/reference, and runner materialization consumers.
+
+Output:
+  exactly one bounded D0, one live I0/R0, or NoSafeLiveI0.
+
+No claim:
+  raw receipt activation, a global compatibility-field deletion, runner
+  selector unification, retry/fallback, Ownership/View, or feature work.
 ```
 
 ## Latest closeout
@@ -727,13 +743,13 @@ census or D0 has selected it.
    Source-only normal/raw request, target, and receipt vocabulary.  No Builder,
    collector, ledger, runner, or old-edge effect.
 
-2. ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0      (active)
+2. ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0      (closed)
    Named caller: NormalDefaultPublishedPipelineV1.
    Consume the normal source receipt through the existing one-session lifecycle
    and delete the selected lower-side environment snapshot/materialization edge.
    Raw/reference and every runner selector retain their current authority.
 
-3. MIRBUILDER-LIVE-EDGE-CENSUS15-D0                     (mandatory next)
+3. MIRBUILDER-LIVE-EDGE-CENSUS15-D0                     (active)
    Re-inventory selected normal, raw/reference, and runner materialization
    consumers.  It may select exactly one bounded D0, one live I0/R0, or
    NoSafeLiveI0; it may not assume a raw handoff or runner cutover in advance.

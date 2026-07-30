@@ -6,7 +6,10 @@
 use crate::ast::ASTNode;
 
 use super::main_expansion::VerifiedRawRootExpansionV1;
-use super::{MirModule, ModuleBuilderInvocationSessionV1};
+use super::{
+    CallableMainMaterializationPolicyV1, MirModule, ModuleBuilderInvocationSessionV1,
+    NormalEntryMaterializationSourceReceiptV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum NormalDefaultRootCatalogLifecycleStageV1 {
@@ -127,6 +130,7 @@ impl ModuleBuilderInvocationSessionV1 {
     pub(in crate::mir) fn complete_normal_default_program_root_catalog_lifecycle(
         mut self,
         source: PreparedNormalDefaultProgramRootV1,
+        materialization_policy: CallableMainMaterializationPolicyV1,
     ) -> Result<
         CompletedNormalDefaultRootCatalogLifecycleV1,
         RejectedNormalDefaultRootCatalogLifecycleV1,
@@ -141,12 +145,17 @@ impl ModuleBuilderInvocationSessionV1 {
                             format!("[mir/main-expansion/preflight] {error:?}").into(),
                         )
                     })?;
-                builder.prepare_module().map_err(|error| {
+                let receipt = NormalEntryMaterializationSourceReceiptV1::seal(
+                    &expansion,
+                    materialization_policy,
+                );
+                builder.prepare_normal_default_module().map_err(|error| {
                     NormalDefaultRootCatalogLifecycleErrorV1::PrepareModule(error.into())
                 })?;
 
-                let result_value = builder
-                    .lower_normal_default_program_root_catalog_v1(&source, &expansion, brand)?;
+                let result_value = builder.lower_normal_default_program_root_catalog_v1(
+                    &source, &expansion, &receipt, brand,
+                )?;
                 builder.finalize_module(result_value).map_err(|error| {
                     NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into())
                 })
@@ -170,8 +179,9 @@ impl ModuleBuilderInvocationSessionV1 {
 #[cfg(test)]
 mod tests {
     use crate::mir::builder::{
-        BuilderInvocationConfigV1, MirBuilder, ModuleBuilderInvocationSessionV1,
-        NormalDefaultRootCatalogLifecycleStageV1, PreparedNormalDefaultProgramRootV1,
+        BuilderInvocationConfigV1, CallableMainMaterializationPolicyV1, MirBuilder,
+        ModuleBuilderInvocationSessionV1, NormalDefaultRootCatalogLifecycleStageV1,
+        PreparedNormalDefaultProgramRootV1,
     };
     use crate::parser::NyashParser;
 
@@ -191,7 +201,10 @@ mod tests {
             let source = NyashParser::parse_from_string(source).expect("route source");
             let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
             let completed = session()
-                .complete_normal_default_program_root_catalog_lifecycle(source)
+                .complete_normal_default_program_root_catalog_lifecycle(
+                    source,
+                    CallableMainMaterializationPolicyV1::Omitted,
+                )
                 .expect("verified route must lower");
             let (session, _) = completed.into_parts();
 
@@ -210,7 +223,10 @@ mod tests {
         .expect("duplicate Main source");
         let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
         let rejected = session()
-            .complete_normal_default_program_root_catalog_lifecycle(source)
+            .complete_normal_default_program_root_catalog_lifecycle(
+                source,
+                CallableMainMaterializationPolicyV1::Omitted,
+            )
             .expect_err("duplicate Main must reject before prepare");
 
         assert_eq!(
@@ -235,7 +251,10 @@ mod tests {
         .expect("duplicate Box source");
         let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
         let rejected = session()
-            .complete_normal_default_program_root_catalog_lifecycle(source)
+            .complete_normal_default_program_root_catalog_lifecycle(
+                source,
+                CallableMainMaterializationPolicyV1::Omitted,
+            )
             .expect_err("duplicate Box owner must reject during catalog seal");
 
         assert_eq!(

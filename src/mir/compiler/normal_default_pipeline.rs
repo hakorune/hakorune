@@ -9,7 +9,8 @@ use std::{collections::HashMap, time::Instant};
 
 use crate::ast::ASTNode;
 use crate::mir::builder::{
-    BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1, PreparedNormalDefaultProgramRootV1,
+    BuilderInvocationConfigV1, CallableMainMaterializationPolicyV1,
+    ModuleBuilderInvocationSessionV1, PreparedNormalDefaultProgramRootV1,
 };
 
 use super::{MirCompileResult, MirCompiler, MirFinishScheduleV1};
@@ -381,6 +382,7 @@ impl NormalDefaultPublishedPipelineV1 {
             .invocation_identity
             .issue_raw()
             .map_err(|error| error.to_string())?;
+        let materialization = CallableMainMaterializationPolicyV1::snapshot_from_normal_ingress();
         let config = BuilderInvocationConfigV1::snapshot_for_raw_with_imports(
             &compiler.builder,
             source.source_file(),
@@ -391,7 +393,7 @@ impl NormalDefaultPublishedPipelineV1 {
 
         let stage_start = Instant::now();
         let completed = session
-            .complete_normal_default_program_root_catalog_lifecycle(program)
+            .complete_normal_default_program_root_catalog_lifecycle(program, materialization)
             .map_err(|rejected| {
                 let message = rejected.error().to_string();
                 rejected.discard();
@@ -425,6 +427,7 @@ impl MirCompiler {
 mod tests {
     use super::*;
     use crate::ast::{LiteralValue, Span};
+    use crate::parser::NyashParser;
 
     fn program() -> ASTNode {
         ASTNode::Program {
@@ -438,6 +441,38 @@ mod tests {
             value: LiteralValue::Integer(1),
             span: Span::unknown(),
         }
+    }
+
+    #[test]
+    fn normal_ingress_materializes_required_callable_main_without_changing_script() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        crate::test_support::with_env_var("NYASH_BUILD_STATIC_MAIN_ENTRY", "1", || {
+            let app = NyashParser::parse_from_string(
+                "static box Main { helper() { return 1 } main(p0) { return p0 } }",
+            )
+            .expect("App source");
+            let script = program();
+            let mut compiler = MirCompiler::with_options(false);
+
+            let app_result = compiler
+                .compile_normal(
+                    NormalCompileRequestV1::for_mir_mode(app, None, HashMap::new())
+                        .expect("App request"),
+                )
+                .expect("App compile");
+            assert!(app_result.module.functions.contains_key("Main.helper/0"));
+            assert!(app_result.module.functions.contains_key("Main.main/1"));
+            assert!(app_result.module.functions.contains_key("main"));
+
+            let script_result = compiler
+                .compile_normal(
+                    NormalCompileRequestV1::for_mir_mode(script, None, HashMap::new())
+                        .expect("Script request"),
+                )
+                .expect("Script compile");
+            assert!(script_result.module.functions.contains_key("main"));
+            assert!(!script_result.module.functions.contains_key("Main.main/0"));
+        });
     }
 
     #[test]
@@ -577,8 +612,7 @@ mod tests {
     fn vm_fallback_post_macro_preserves_named_source_and_empty_imports() {
         let program =
             VerifiedPostMacroWholeFileProgramV1::seal(program()).expect("Program must seal once");
-        let request =
-            NormalCompileRequestV1::for_vm_fallback_post_macro(program, "fallback.hako");
+        let request = NormalCompileRequestV1::for_vm_fallback_post_macro(program, "fallback.hako");
         let (_, source, imports, admission, _) = request.into_parts();
 
         assert_eq!(source.source_file(), Some("fallback.hako"));
