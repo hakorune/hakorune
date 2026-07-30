@@ -31,8 +31,8 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0
 Result:        selected Script runtime ordinary Box methods are cataloged
-Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS19-D0` — closed: NoSafeLiveI0
-Executable:    `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-D0`
+Latest design: `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-D0` — closed: Candidate A
+Executable:    `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -574,31 +574,61 @@ Next:
   `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-D0`.
 ```
 
-## Current execution
+## Latest design decision
 
-`NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-D0` — T2 source-identity design stop
+`NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-D0` — T2, closed: Candidate A
 
 ```text
-Scope:
-  selected normal Program-root top-level `FunctionDeclaration` only.  Its live
-  edge is `PreparedProgramRootTopLevelFunctionWorkV1::lower_with_port_v1` ->
-  raw static method admission -> `LegacyChildDraftAdmissionV1`.
+Decision:
+  one selected-normal Program-work-plan receipt per top-level
+  `FunctionDeclaration`, carrying a source-order occurrence key
+  `{ statement_index, declared_name, declared_arity }` and a separately sealed
+  physical `{ symbol = name/arity, arity }` admission.
 
-Decision required:
-  choose one source identity/key, physical symbol/arity relation, header/result
-  contract, and exact collector handoff for top-level functions.  The later I0
-  may delete only that selected old edge and must retain normal-vs-legacy
-  parity plus candidate failure/reuse.
+Collector:
+  source occurrence identity is distinct from physical collector identity.
+  Preserve `LegacySymbol + LegacyReplaceWholePair`, including legacy
+  source-order last-wins when two occurrences project to one `name/arity`.
+  Body capture, header lookup, parent restoration, result policy, and candidate
+  rejection remain existing owners.
 
-Exclude:
-  instance constructors, Script non-plain Boxes, static Main, raw/reference,
-  existing Box-method namespaces, collector policy, runner/result/publication,
-  fallback, and retry.
+Reject:
+  widening `VerifiedSameModuleCallableDeclarationCatalogV1` or its Box-method
+  namespace; synthetic Box owners; caller-zero normal_source_plan reuse;
+  CanonicalRejectDuplicate; a detached S0; raw/reference receipt issuance;
+  source reread/reparse/second root scan; fallback or retry.
+
+I0 contract:
+  selected normal only replaces
+  `PreparedProgramRootTopLevelFunctionWorkV1::lower_with_port_v1`
+  -> raw static method -> `LegacyChildDraftAdmissionV1` with one dedicated
+  selected top-level capture port.  Constructors, Script non-plain Boxes,
+  static Main, and raw/reference retain their registered routes.
+```
+
+## Current execution
+
+`NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0` — T2 atomic selected-normal cutover
+
+```text
+Change:
+  create the source-order top-level occurrence receipt and its physical
+  admission in the existing Program work partition; selected normal invokes a
+  dedicated capture port, while raw/reference keeps the existing raw work item.
+
+Delete:
+  selected normal top-level FunctionDeclaration -> raw static method
+  `LegacyChildDraftAdmissionV1` = 0.
+
+Evidence:
+  normal-vs-legacy MIR/function-set parity; duplicate `name/arity` last-wins
+  parity; exact source-order/physical receipt relation; late body failure then
+  fresh reuse; raw/reference receipt = 0; shared guard and file-size gates.
 
 Stop:
-  no implementation until a D0 names the new owner, same-commit old-edge
-  deletion, source/physical collision policy, and failure boundary.  Do not
-  widen the existing Box-method catalog by convenience.
+  return to D0 if Box-method catalog widening, a collector-policy change,
+  collision rejection, a second source pass, generic raw-port authority,
+  constructor activation, or fallback/retry is required.
 ```
 
 ## Latest closeout
