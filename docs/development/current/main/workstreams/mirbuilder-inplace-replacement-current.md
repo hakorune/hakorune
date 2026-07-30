@@ -31,8 +31,8 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0
 Result:        selected Program constructors carry source-keyed identity
-Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS21-D0` — fresh live-edge inventory required
-Executable:    none; stop at Census21
+Latest design: `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-D0` — direct Script non-plain Box disposition
+Executable:    none; stop at D0; do not open an I0 before its total partition is selected
 History:       Git history and the short landed tail below
 ```
 
@@ -45,13 +45,13 @@ activation and sunset contract.
 
 | State | ID / family | Exact surface | Activation / normal-default | Release row / condition |
 | --- | --- | --- | --- | --- |
-| active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | named raw static-Main replacement, or reachability = 0 |
+| active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | fresh named raw-static-Main disposition, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` proves reachability = 0 |
 | closed | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program immediate instance constructors, plus selected Script plain-instance runtime-prefix constructors | every selected Program instance Box has one immediate demand; plain Script adds its second `InstancePrefixCompatibility` demand; non-plain Script's later raw runtime lifecycle is the separate row below | retired by `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0`: one source occurrence -> unchanged physical LegacySymbol admission per existing demand |
 | closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
 | closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
-| active compatibility | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-COMPAT-SUNSET-002` | selected Script direct `BoxDeclaration` that fails `is_plain_box` | selected normal Script -> `RawCompatibility` -> raw statement driver exactly once; raw/reference remains separate | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-D0`: each shape obtains an exact owner or parity-equivalent pre-descent rejection, then selected raw statement edge = 0 |
-| retain-fenced | `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | two direct normalized-shadow executions and strict/dev StepTree observer | explicit dev/debug; default normal = 0 | verified Recipe/CorePlan loop owner, strict/dev parity, and independent observer disposition |
-| retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | `join_ir_vm_bridge_dispatch` Exec and LowerOnly targets | explicit VM keep / vm-reference with `NYASH_JOINIR_VM_BRIDGE=1`; default MIR and vm-fallback = 0 | dispatcher caller = 0, or one explicit-lane execution owner replaces the entire lane |
+| active compatibility | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-COMPAT-SUNSET-002` | `NormalScriptRuntimeBlockPortV1::lower_statement` direct `BoxDeclaration` that fails `is_plain_box` -> `drive_legacy_statement_v1` | selected normal Script -> `RawCompatibility` exactly once; raw/reference and non-Box Script statements remain separate | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-D0`: exact owner or parity-equivalent pre-descent rejection for every non-plain Box shape, then this selected raw statement edge = 0 |
+| retain-fenced | `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | two direct normalized-shadow executions and strict/dev StepTree observer | explicit dev/debug; default normal = 0 | fresh named normalized-shadow release D0, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0`: verified Recipe/CorePlan loop owner, strict/dev parity, independent observer disposition |
+| retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | `join_ir_vm_bridge_dispatch` Exec and LowerOnly targets | explicit VM keep / vm-reference with `NYASH_JOINIR_VM_BRIDGE=1`; default MIR and vm-fallback = 0 | fresh named VM-bridge release D0, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0`: dispatcher caller = 0 or one explicit-lane execution owner replaces the lane |
 | unregistered | LLVM experiment | feature/env-gated JoinModule mutation route | not normal/default; exact activation/owner not yet registered | R3 disposition D0 or forced R4 disposition |
 | unregistered | frontend metadata | `frontend::func_meta` / `JoinFuncMetaMap` consumers | activation/owner not yet registered | R3 disposition D0 or forced R4 disposition |
 | unregistered | carrier boundaries | `JumpArgsLayout` and `JoinInlineBoundary` families | live/fenced consumer mapping not yet registered | named CorePlan/MIR rehome or forced R4 disposition |
@@ -70,6 +70,11 @@ already registered.
 only the two active compatibility rows above are registered selected
 Program/root admission dispositions.  Nested raw body descent is deliberately
 unregistered rather than silently counted as one of them.
+
+Every census updates this table before selecting the next row.  A future fence
+uses its stable ID here, names its exact owner/edge, and reserves either its
+own release D0 or the forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` decision;
+no second fence ledger is permitted.
 
 ## Disposition closeout
 
@@ -641,6 +646,34 @@ Next:
 ```
 
 ## Latest census
+
+`MIRBUILDER-LIVE-EDGE-CENSUS21-D0` — read-only, closed: non-plain Script Box D0 selected
+
+```text
+Selected production edge:
+  selected normal Program -> Script runtime work
+  -> NormalScriptRuntimeBlockPortV1::lower_statement
+  -> RawCompatibility -> drive_legacy_statement_v1
+
+Decision:
+  `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-D0`.
+  `RawCompatibility` is a catch-all for non-Box Script statements too, so no
+  direct I0 is safe.  D0 must decide one total, source-only partition for only
+  direct non-plain BoxDeclaration shapes, with one exact new owner or a
+  parity-equivalent pre-descent rejection per shape.  It must leave non-Box
+  statements, raw/reference, Script order, and fallback/retry unchanged.
+
+Not selected:
+  nested Box raw body descent remains the separately unregistered R4 family:
+  it crosses Main/static/instance/constructor/header/collector lifecycle and
+  therefore needs NESTED-BOX-RAW-BODY-DISPOSITION0-D0 first.
+
+R4 census:
+  registry remains retain-fenced=2, active compatibility=2, unregistered=8,
+  closed=3.  LegacyChildDraftAdmissionV1 remains a separate 37-occurrence / 8
+  source-file observation, not an owner-disposition count.  The sole registry
+  now names exact active owner anchors and a named-or-forced-R4 release path.
+```
 
 `MIRBUILDER-LIVE-EDGE-CENSUS20-D0` — read-only, closed: constructor D0 selected
 
