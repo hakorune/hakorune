@@ -115,9 +115,9 @@ Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corrected
 Latest landed: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — `507851393c`
-Latest landed: `RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0` — `19d68ca708`
-Current execution: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0`
-Next design stop: none; reopen only if the bounded catalog handoff hits a hard stop
+Latest landed: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0` — `ffda60241b`
+Current execution: none; design stop `RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0`
+Next design stop: `RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0` — bounded Script semantic source profile
 History:       Git history and the short landed tail below
 ```
 
@@ -378,18 +378,76 @@ Stop:
   or introduces fallback/retry.
 ```
 
+## NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0 — T1 closeout
+
+```text
+Change:
+  CatalogSeal and CatalogInstall now run in the selected normal root lifecycle
+  after PrepareModule and before RootLower. The old Builder-side catalog method
+  and selected call edge were deleted; the post-install Program root kernel
+  remains the lowering owner.
+
+Contract:
+  One source-only seal, one install, and one RootLower remain. Catalog error
+  stage/text/order, source retention, candidate isolation, publication,
+  grammar, semantic resolver, and postfix catch/cleanup behavior are unchanged.
+  Hakorune source try/throw remain rejected; ASTNode::TryCatch remains an
+  internal/legacy carrier and is not a source-syntax admission.
+
+Evidence:
+  Lifecycle tests 3/3 and callable-catalog tests 16/16 passed. `cargo check
+  --lib`, pointer guard, shared cut0 guard, `git diff --check`, and all touched
+  source/check line limits are green. No new test/check file was added.
+
+Next:
+  `RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0` is now the only design stop. First
+  close the Script source-kind/profile boundary and typed admission/opaque
+  terminal contract; do not implement a monolithic semantic owner until the
+  bounded closure, diagnostic precedence, and Hakorune postfix catch/cleanup
+  semantics are fixed.
+```
+
 Corrected forward queue:
 
 ```text
-1. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0 (current execution)
-2. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-S0 (design gate before execution)
-3. RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-I0-R0 (only if bounded closure is proven)
+1. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0 (closed at ffda60241b)
+2. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0 (current design stop)
+3. RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-I0-R0 (only after a bounded closure is proven)
 
 Rule:
-  S0 may be at most one behavior-neutral commit and must be followed immediately
-  by its paired I0/R0. Complete sources co-seal Program + Script owner + forest +
-  projection. ExistingRootLowerAuthority carries none of those and runs the
-  already-selected RootLower once. No route retries another route.
+  Do not open an execution row while the source-profile/admission boundary is
+  unresolved. Once selected, one row must name the production caller, the
+  source/semantic owner, the exact old edge removed, and the terminal/failure
+  authority. No route retries another route. S0 is allowed only when it is the
+  first half of an immediately paired behavior-neutral refactor series.
+```
+
+## RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0 — design gate
+
+```text
+Decision:
+  open design stop; no semantic-owner implementation yet.
+
+Question:
+  define one Script source/profile boundary that can distinguish a complete
+  semantic source from an existing RootLower diagnostic/compatibility terminal,
+  without synthetic FunctionDeclaration, partial forest, second resolver pass,
+  or semantic-failure retry.
+
+Must settle:
+  Script source kind and ProgramBodyRoot identity; context-sensitive child
+  demand; typed opaque boundaries; one traversal coverage; catalog/seal stage;
+  diagnostic precedence; and the exact production edge to delete.
+
+Hakorune syntax correction:
+  source `try` and `throw` are rejected. The supported protected-region form is
+  a body/expression/member followed by postfix `catch` (and optional cleanup).
+  `ASTNode::TryCatch` is an internal/legacy carrier only; do not treat it as a
+  source `try` grammar or invent first-catch semantics.
+
+Hard stop:
+  if the bounded profile cannot preserve current demand/order in one traversal,
+  keep the Script semantic owner parked and return to D0. No S0/I0/R0 opens.
 ```
 
 Historical located-transport queue (closed/parked context):

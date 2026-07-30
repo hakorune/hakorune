@@ -1,4 +1,4 @@
-//! Shared Program-only root/catalog lowering.
+//! Shared Program-only root lowering after catalog installation.
 //!
 //! Selected normal/default reaches this owner through its sealed Program
 //! product. No arbitrary-AST root facade participates in this lifecycle.
