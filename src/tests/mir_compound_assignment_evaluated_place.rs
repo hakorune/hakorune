@@ -25,7 +25,7 @@ static box Main {
     x += 2
 
     local counter = new Counter { value: 3 }
-    counter.value += x
+    counter.value += x + 4
 
     local values = [5]
     values[0] += counter.value
@@ -46,6 +46,11 @@ static box Main {
         .find("array.write #1 set")
         .expect("canonical index store");
     let compound_field_set = printed.rfind("field.set").expect("field store");
+    let field_compound_window = &printed[first_field_get..compound_field_set];
+    let field_compound_adds = field_compound_window
+        .match_indices(" Add ")
+        .map(|(offset, _)| offset)
+        .collect::<Vec<_>>();
 
     assert!(
         printed.matches(" Add ").count() >= 3,
@@ -54,6 +59,14 @@ static box Main {
     assert!(
         first_field_get < compound_field_set,
         "field reads before its store"
+    );
+    assert!(
+        field_compound_adds.len() >= 2,
+        "field compound evaluates a nontrivial RHS before its compound binary"
+    );
+    assert!(
+        field_compound_adds[0] < field_compound_adds[1],
+        "RHS binary precedes compound binary"
     );
     assert!(
         array_get < rhs_field_get,

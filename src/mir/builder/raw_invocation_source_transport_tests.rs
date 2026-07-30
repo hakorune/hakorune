@@ -188,6 +188,16 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
             value: Box::new(integer(3)),
             span: Span::unknown(),
         },
+        ASTNode::CompoundAssignment {
+            target: Box::new(ASTNode::FieldAccess {
+                object: Box::new(variable("page")),
+                field: "value".to_owned(),
+                span: Span::unknown(),
+            }),
+            operator: crate::ast::BinaryOperator::Add,
+            value: Box::new(integer(4)),
+            span: Span::unknown(),
+        },
         field_assignment,
         assignment(
             ASTNode::Index {
@@ -235,9 +245,18 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
                 SourcePathSegmentV1::Value
             ]
         );
-        if let ASTNode::Assignment { target, .. } = &statement {
+        if let ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. } =
+            &statement
+        {
             let target_source = body_child
-                .child_expression(&statement, ExprChildRoleV1::AssignmentTarget)
+                .child_expression(
+                    &statement,
+                    if matches!(statement, ASTNode::Assignment { .. }) {
+                        ExprChildRoleV1::AssignmentTarget
+                    } else {
+                        ExprChildRoleV1::CompoundAssignmentTarget
+                    },
+                )
                 .expect("assignment target source");
             if matches!(target.as_ref(), ASTNode::FieldAccess { .. }) {
                 let receiver_source = target_source
@@ -300,16 +319,6 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
 
     let residuals = [
         ASTNode::CompoundAssignment {
-            target: Box::new(ASTNode::FieldAccess {
-                object: Box::new(variable("page")),
-                field: "value".to_owned(),
-                span: Span::unknown(),
-            }),
-            operator: crate::ast::BinaryOperator::Add,
-            value: Box::new(integer(3)),
-            span: Span::unknown(),
-        },
-        ASTNode::CompoundAssignment {
             target: Box::new(ASTNode::Index {
                 target: Box::new(variable("items")),
                 index: Box::new(integer(0)),
@@ -317,6 +326,12 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
             }),
             operator: crate::ast::BinaryOperator::Add,
             value: Box::new(integer(4)),
+            span: Span::unknown(),
+        },
+        ASTNode::CompoundAssignment {
+            target: Box::new(integer(0)),
+            operator: crate::ast::BinaryOperator::Add,
+            value: Box::new(integer(5)),
             span: Span::unknown(),
         },
         ASTNode::Return {

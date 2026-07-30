@@ -141,6 +141,30 @@ enum PreparedRawOrdinaryAssignmentSourcesV1 {
     },
 }
 
+fn prepare_field_write_child_sources_v1<Port>(
+    port: &mut Port,
+    statement: &ASTNode,
+    target: &ASTNode,
+    target_role: ExprChildRoleV1,
+    value_role: ExprChildRoleV1,
+) -> Result<
+    (
+        crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
+        crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
+    ),
+    String,
+>
+where
+    Port: RawExpressionDispatchPortV1,
+{
+    let target_source = port.prepare_expression_child_source_v1(statement, target_role)?;
+    let receiver = port.with_prepared_child_source_v1(target_source, |port| {
+        port.prepare_expression_child_source_v1(target, ExprChildRoleV1::Receiver)
+    })?;
+    let value = port.prepare_expression_child_source_v1(statement, value_role)?;
+    Ok((receiver, value))
+}
+
 fn lower_prepared_raw_ordinary_assignment_with_port_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
@@ -399,23 +423,14 @@ where
                 ASTNode::Assignment { target, .. }
                     if matches!(target.as_ref(), ASTNode::FieldAccess { .. }) =>
                 {
-                    let target_source = port.prepare_expression_child_source_v1(
+                    let (receiver, value) = prepare_field_write_child_sources_v1(
+                        port,
                         &node,
+                        target,
                         ExprChildRoleV1::AssignmentTarget,
+                        ExprChildRoleV1::AssignmentValue,
                     )?;
-                    let receiver = port.with_prepared_child_source_v1(target_source, |port| {
-                        port.prepare_expression_child_source_v1(
-                            target,
-                            ExprChildRoleV1::Receiver,
-                        )
-                    })?;
-                    Some(PreparedRawOrdinaryAssignmentSourcesV1::Field {
-                        receiver,
-                        value: port.prepare_expression_child_source_v1(
-                            &node,
-                            ExprChildRoleV1::AssignmentValue,
-                        )?,
-                    })
+                    Some(PreparedRawOrdinaryAssignmentSourcesV1::Field { receiver, value })
                 }
                 ASTNode::Assignment { target, .. }
                     if matches!(target.as_ref(), ASTNode::Index { .. }) =>
@@ -455,14 +470,26 @@ where
             ))
         }
         node @ ASTNode::CompoundAssignment { .. } => {
-            let value_source = match &node {
+            let child_sources = match &node {
                 ASTNode::CompoundAssignment { target, .. }
                     if matches!(target.as_ref(), ASTNode::Variable { .. }) =>
                 {
-                    Some(port.prepare_expression_child_source_v1(
+                    Some(vec![port.prepare_expression_child_source_v1(
                         &node,
                         ExprChildRoleV1::CompoundAssignmentValue,
-                    )?)
+                    )?])
+                }
+                ASTNode::CompoundAssignment { target, .. }
+                    if matches!(target.as_ref(), ASTNode::FieldAccess { .. }) =>
+                {
+                    let (receiver, value) = prepare_field_write_child_sources_v1(
+                        port,
+                        &node,
+                        target,
+                        ExprChildRoleV1::CompoundAssignmentTarget,
+                        ExprChildRoleV1::CompoundAssignmentValue,
+                    )?;
+                    Some(vec![receiver, value])
                 }
                 _ => None,
             };
@@ -477,10 +504,10 @@ where
             };
             let prepared =
                 PreparedRawCompoundAssignmentV1::prepare(*target, operator, *value);
-            let value = match value_source {
-                Some(source) => {
+            let value = match child_sources {
+                Some(sources) => {
                     let mut scoped =
-                        RawStructuredChildScopePortV1::new(port, vec![source], Vec::new());
+                        RawStructuredChildScopePortV1::new(port, sources, Vec::new());
                     let value = lower_prepared_raw_compound_assignment_with_port_v1(
                         builder,
                         &mut scoped,

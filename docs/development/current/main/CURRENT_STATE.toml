@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LOCATED-ORDINARY-INDEX-ASSIGNMENT-SOURCE-HANDOFF0-I0-R0 is closed. Ordinary index-target Assignment now derives IndexTarget and IndexSubscript from the prepared AssignmentTarget receipt, pairs them with AssignmentValue, and consumes target/index/RHS once through the existing index-assignment owner. The old ordinary index Assignment -> ScalarBinding edge is deleted. Field/index CompoundAssignment, Return, and Local remain explicit ScalarBinding residuals; Ownership/View remains parked."
+status = "RAW-LOCATED-ORDINARY-FIELD-COMPOUND-ASSIGNMENT-SOURCE-HANDOFF0-I0-R0 is closed. Ordinary field-target CompoundAssignment now derives Receiver from the prepared CompoundAssignmentTarget receipt, pairs it with CompoundAssignmentValue, and consumes receiver/RHS once through the existing evaluated-place owner. Record check -> receiver -> field read -> RHS -> binary -> field write order is unchanged. Index CompoundAssignment, Return, and Local remain explicit ScalarBinding residuals; Ownership/View remains parked."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-LOCATED-SCALAR-BINDING-REMAINDER4-D0"
+current_design_stop = "RAW-LOCATED-SCALAR-BINDING-REMAINDER5-D0"
 current_execution_row = "none"
-current_execution_summary = "Select the next bounded exact-source replacement among residual field/index CompoundAssignment, Return, and Local. Ordinary field/index Assignment source paths are closed; Compound must preserve evaluated-place read/write ordering, Match-return can bypass ReturnValue descent, and Local retains typed-array/record hooks. No implementation is selected."
+current_execution_summary = "Select the next bounded exact-source replacement among residual index CompoundAssignment, Return, and Local. Ordinary field CompoundAssignment is closed with evaluated-place order preserved; index Compound must preserve base-before-index preflight, Match-return can bypass ReturnValue descent, and Local retains typed-array/record hooks. No implementation is selected."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
