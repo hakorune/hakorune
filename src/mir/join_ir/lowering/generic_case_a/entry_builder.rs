@@ -1,6 +1,6 @@
 //! Phase 192: Generic Case A - Entry Function Builder
 //!
-//! 責務: 4つのループパターン共通のEntry関数 name → ValueId map 構築処理
+//! 責務: 3つのループパターン共通のEntry関数 name → ValueId map 構築処理
 //! - ValueId/BTreeMap の初期化ボイラープレート統一化
 
 use crate::mir::ValueId;
@@ -8,7 +8,7 @@ use std::collections::BTreeMap;
 
 /// Entry関数構築用の統一ビルダー
 ///
-/// 4つのループパターン（skip_ws, trim, append_defs, stage1）で
+/// 3つのループパターン（skip_ws, trim, stage1）で
 /// 共通する name → ValueId map のボイラープレート処理を集約
 #[derive(Clone, Debug)]
 pub struct EntryFunctionBuilder {

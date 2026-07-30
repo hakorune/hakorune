@@ -29,9 +29,9 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
-Latest landed: JOINMODULE-LOWERONLY-STALE-DESCRIPTOR-RET0
-Result:        stale bridge/Loop exclusion/Case-A name facade deleted
-Latest design: `GENERIC-CASE-A-APPEND-DEFS-DISPOSITION0-D0`
+Latest landed: GENERIC-CASE-A-APPEND-DEFS-RET0
+Result:        unreachable generic append-defs asset and ValueId range deleted
+Latest design: `JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0`
 Executable:    none — design stop
 History:       Git history and the short landed tail below
 ```
@@ -123,23 +123,31 @@ StageB reference consumers are handled only by the next reference-sunset D0.
 
 ## Current design stop
 
-`GENERIC-CASE-A-APPEND-DEFS-DISPOSITION0-D0` — generic asset boundary
+`JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0` — R3 reference frontier
 
 ```text
-Source authority:
-  `FuncScannerHelpersBox._append_defs/2` is current source; the retained generic
-  ArrayAccumulation lowerer has a distinct three-input recipe.
-
-Non-authority:
-  The deleted `FuncScannerBox.append_defs/2` name cannot justify re-targeting.
+Scope:
+  Recount only remaining JoinModule/reference execution, observation, JSON/format,
+  and explicit-env bridge consumers after the two append-defs retirements.
 
 Decision:
-  Select retain-fenced, retire, or evidence-backed rehome only after a real
-  source/MIR route is available; current direct emission freezes before one.
+  Select at most one exact retire/reown/retain-fenced disposition with an owner,
+  non-growing surface, and sunset evidence.
 
 Non-claims:
-  no bridge target/observer, normal/default, strict, LLVM, carrier, Ownership,
-  View, or feature change.
+  no deletion by LOC, normal/default route, strict or LLVM change, carrier
+  rehome, Ownership, View, or feature work.
+```
+
+## Latest closeout
+
+```text
+GENERIC-CASE-A-APPEND-DEFS-RET0
+  generic append lowerer / selector vocabulary / ValueId range = 0
+  current two-input helper / non-append generic Case-A routes    = retained
+  selector and ValueId tests + lib/vm-reference checks           = green
+  bridge, normal/default, strict, LLVM delta                     = 0
+  next                                                           = R3 reference census D0
 ```
 
 ## Latest closeout
@@ -499,10 +507,9 @@ R3 Legacy JoinModule/reference disposition
   1. `JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0` — closed;
   2. `JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0` — RETAIN-FENCED;
   3. `JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0` — direct runner RET0 closed;
-     VM bridge is RETAIN-FENCED; `JOINMODULE-LOWERONLY-STALE-DESCRIPTOR-RET0`
-     removes the stale append_defs name path, then
-     `GENERIC-CASE-A-APPEND-DEFS-DISPOSITION0-D0` decides the independent
-     generic ArrayAccumulation asset from fresh source/MIR evidence.
+     VM bridge is RETAIN-FENCED; the stale append_defs name path and unreachable
+     generic ArrayAccumulation asset are retired. A fresh R3 reference census
+     selects the next exact disposition.
   These are ordering boundaries, not pre-authorized implementations. No
   name-only tree deletion, normal/default route resurrection, or unresolved
   family is allowed.

@@ -169,7 +169,6 @@ impl LoopViewBuilder {
     /// # Shape種別
     ///
     /// - **StringExamination**: skip_ws lowerer
-    /// - **ArrayAccumulation**: append_defs lowerer
     /// - **IterationWithAccumulation**: lower-resolver lowerer
     /// - **Generic/NotCaseA**: 名前ベースフォールバック
     fn dispatch_by_shape(
@@ -186,14 +185,6 @@ impl LoopViewBuilder {
                         .debug("[LoopViewBuilder] Shape: StringExamination → skip_ws lowerer");
                 }
                 generic_case_a::lower_case_a_skip_ws_with_scope(scope)
-            }
-            CaseALoweringShape::ArrayAccumulation => {
-                if self.debug {
-                    get_global_ring0()
-                        .log
-                        .debug("[LoopViewBuilder] Shape: ArrayAccumulation → append_defs lowerer");
-                }
-                generic_case_a::lower_case_a_append_defs_with_scope(scope)
             }
             CaseALoweringShape::IterationWithAccumulation => {
                 if self.debug {

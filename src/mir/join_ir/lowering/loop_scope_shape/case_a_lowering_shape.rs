@@ -33,23 +33,6 @@ pub enum CaseALoweringShape {
     // Structural vocabulary hold: kept until recognized Case-A routing is reintroduced.
     StringExamination,
 
-    /// Array accumulation loop: linear iteration with collection mutation
-    ///
-    /// Example: an append-defs-like array accumulation loop
-    ///
-    /// Shape:
-    /// - Loop body: access arr[i], mutate collection (push/add)
-    /// - Condition: i < array.length()
-    /// - Increment: i = i + 1
-    /// - Exit: void or collection mutation
-    /// - Carriers: 1 (progress variable i)
-    /// - Pinned: 1-2 (array/collection, optional length)
-    ///
-    /// Signature: (CollectionBox, ...) -> Void or CollectionBox
-    #[allow(dead_code)]
-    // Structural vocabulary hold: kept until recognized Case-A routing is reintroduced.
-    ArrayAccumulation,
-
     /// Iteration with accumulation: linear iteration + value accumulation
     ///
     /// Examples: Stage1UsingResolverBox.resolve_for_source/5
@@ -136,7 +119,6 @@ impl CaseALoweringShape {
     pub fn name(&self) -> &'static str {
         match self {
             CaseALoweringShape::StringExamination => "StringExamination",
-            CaseALoweringShape::ArrayAccumulation => "ArrayAccumulation",
             CaseALoweringShape::IterationWithAccumulation => "IterationWithAccumulation",
             CaseALoweringShape::Generic => "Generic",
             CaseALoweringShape::NotCaseA => "NotCaseA",
@@ -153,10 +135,6 @@ mod tests {
         assert_eq!(
             CaseALoweringShape::StringExamination.name(),
             "StringExamination"
-        );
-        assert_eq!(
-            CaseALoweringShape::ArrayAccumulation.name(),
-            "ArrayAccumulation"
         );
         assert_eq!(
             CaseALoweringShape::IterationWithAccumulation.name(),
@@ -176,6 +154,27 @@ mod tests {
         assert_eq!(
             CaseALoweringShape::detect_from_features(&features, 2, true),
             CaseALoweringShape::Generic
+        );
+    }
+
+    #[test]
+    fn case_a_detector_rejects_missing_progress_and_continue() {
+        assert_eq!(
+            CaseALoweringShape::detect_from_features(
+                &crate::mir::loop_route_detection::LoopFeatures::default(),
+                0,
+                false,
+            ),
+            CaseALoweringShape::NotCaseA
+        );
+
+        let features = crate::mir::loop_route_detection::LoopFeatures {
+            has_continue: true,
+            ..Default::default()
+        };
+        assert_eq!(
+            CaseALoweringShape::detect_from_features(&features, 1, true),
+            CaseALoweringShape::NotCaseA
         );
     }
 }

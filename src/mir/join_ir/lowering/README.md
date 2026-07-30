@@ -38,7 +38,7 @@ Read first:
   `if_lowering_router` / `condition_lowerer` 側に置く。
 - target-specific loop lowerer の整理順と route inventory は
   `docs/development/current/main/design/joinir-target-lowerer-thinning-ssot.md`
-  を正本にする。`Exec` / `LowerOnly` / `append_defs` の違いを潰して
+  を正本にする。`Exec` と `LowerOnly` の違いを潰して
   1つの generic lowerer にしない。
 - ConditionEnv は「条件で参照する JoinIR ValueId だけ」を持つ。body-local を直接入れず、必要なら昇格＋ScopeManager に解決を任せる。
 - Fail-Fast 原則: Unsupported/NotFound は明示エラーにして、by-name ヒューリスティックや静かなフォールバックは禁止。

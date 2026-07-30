@@ -15,6 +15,6 @@ LoopScopeShape を箱化し、JoinIR lowering からの質問をここに集約�
 Structural vocabulary hold:
 - `LoopScopeShape.body` は builder-owned shape slot。現行 release route が未読でも、
   LoopForm intake と将来の shape-aware lowerer が同じ vocabulary を共有するため保持する。
-- `CaseALoweringShape::{StringExamination,ArrayAccumulation,IterationWithAccumulation}`
+- `CaseALoweringShape::{StringExamination,IterationWithAccumulation}`
   は認識済み shape 名として保持する。現行 release route は `Generic` に寄せていても、
   docs/fixtures/debug naming から先に消さない。

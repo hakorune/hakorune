@@ -4,10 +4,9 @@
 //!
 //! ## Overview
 //!
-//! This module provides Case A lowering for four minimal SSA loop route shapes:
+//! This module provides Case A lowering for three minimal SSA loop route shapes:
 //! - **skip_ws**: Whitespace skipping loop (Main.skip/1)
 //! - **trim**: String trimming loop (FuncScannerBox.trim/1)
-//! - **append_defs**: generic array concatenation loop
 //! - **stage1_using_resolver**: lower-resolver compatibility loop (Stage1UsingResolverBox.resolve_for_source/5)
 //!
 //! ## Architecture
@@ -18,7 +17,6 @@
 //!
 //! - `skip_ws` - Skip whitespace loop lowering (~220 lines)
 //! - `trim` - String trim loop lowering (~500 lines, largest)
-//! - `append_defs` - Array append loop lowering (~170 lines)
 //! - `stage1_using_resolver` - lower-resolver loop lowering (~180 lines)
 //!
 //! ### Helper Modules (Shared Utilities)
@@ -61,19 +59,8 @@
 //!
 //! ## Module Organization (Phase 192)
 //!
-//! **Before modularization**:
-//! - generic_case_a.rs: 1,056 lines monolith (all 4 patterns + helpers)
-//!
-//! **After modularization** (Phase 192 complete):
-//! - mod.rs: 93 lines (coordinator, **91% reduction**)
-//! - skip_ws.rs: 258 lines (whitespace skipping)
-//! - trim.rs: 537 lines (string trimming, largest module)
-//! - append_defs.rs: 202 lines (array concatenation)
-//! - stage1_using_resolver.rs: 228 lines (namespace resolution)
-//! - entry_builder.rs: 165 lines (helper, shared initialization)
-//!
-//! **Total**: 1,634 lines modularized (7 focused modules)
-//! **Average module size**: 233 lines (vs. 1,056-line monolith)
+//! The current focused modules are listed above. Historical file-size totals are
+//! intentionally not a routing or retention contract.
 //!
 //! ## See Also
 //!
@@ -82,7 +69,6 @@
 //! - `loop_to_join` - Main loop lowering coordinator
 
 // Route-specific lowering modules
-pub mod append_defs;
 pub mod skip_ws;
 pub mod stage1_using_resolver;
 pub mod trim;
@@ -91,7 +77,6 @@ pub mod trim;
 pub mod entry_builder;
 
 // Re-export public lowering functions
-pub(crate) use append_defs::lower_case_a_append_defs_with_scope;
 pub(crate) use skip_ws::lower_case_a_skip_ws_with_scope;
 pub(crate) use stage1_using_resolver::lower_case_a_stage1_usingresolver_with_scope;
 pub(crate) use trim::lower_case_a_trim_with_scope;

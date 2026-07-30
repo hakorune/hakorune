@@ -210,15 +210,12 @@ execution:
 #### Generic append-defs ArrayAccumulation asset
 
 ```text
-bridge_target: none
-route_shape:
-  generic_case_a/append_defs.rs remains a structural ArrayAccumulation asset
-  selected only by the shape route, never by a FuncScanner source-name facade
-execution:
-  no VM bridge observation or execution claim
-disposition:
-  GENERIC-CASE-A-APPEND-DEFS-DISPOSITION0-D0 decides rehome or retirement
-  from fresh source/MIR evidence
+status: retired by GENERIC-CASE-A-APPEND-DEFS-RET0
+reason:
+  no shape issuer or source/MIR path selected its three-input synthetic recipe
+non-claim:
+  FuncScannerHelpersBox._append_defs/2 remains a normal-MIR source helper;
+  future rehome requires a separately selected source-aware owner
 ```
 
 #### `Stage1UsingResolverBox.resolve_for_source/5`
@@ -291,7 +288,7 @@ Acceptance:
 inventory_only=1
 behavior_changed=0
 accepted_shape_added=0
-append_defs_loweronly_without_exec_route=1
+append_defs_loweronly_without_exec_route=0
 ```
 
 ### JOINIR-TARGET-THIN-004: Shared Target Adapter

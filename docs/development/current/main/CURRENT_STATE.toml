@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINMODULE-LOWERONLY-STALE-DESCRIPTOR-RET0 is closed: the stale FuncScannerBox.append_defs/2 bridge/Loop exclusion/Case-A name facade is deleted, while generic ArrayAccumulation lowering remains structurally independent. GENERIC-CASE-A-APPEND-DEFS-DISPOSITION0-D0 is next; it must decide rehome or retirement from source/MIR evidence, not the deleted name. LLVM experiment behavior remains a separate later fence. JumpArgsLayout remains a separate caller-zero core-carrier rehome. Final conformance must resolve every fence before Ownership, View, or feature work opens."
+status = "GENERIC-CASE-A-APPEND-DEFS-RET0 is closed: the unreachable generic ArrayAccumulation append-defs asset, selector vocabulary, and ValueId range are deleted; the current two-input helper remains normal-MIR only. JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0 is next. LLVM experiment behavior remains a separate later fence. JumpArgsLayout remains a separate caller-zero core-carrier rehome. Final conformance must resolve every fence before Ownership, View, or feature work opens."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "GENERIC-CASE-A-APPEND-DEFS-DISPOSITION0-D0"
+current_design_stop = "JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0"
 current_execution_row = ""
-current_execution_summary = "Design-only stop: decide the independent generic ArrayAccumulation append-defs asset from current source/MIR evidence. The source helper FuncScannerHelpersBox._append_defs/2 and the generic recipe's three-input contract are not interchangeable; current direct MIR emission freezes before a comparable artifact. Select one disposition: retain-fenced pending evidence, retire generic asset, or rehome only after a real source/MIR route is proven. No bridge target re-addition, normal/default, strict, LLVM, JumpArgsLayout, Ownership, View, or feature work is authorized before the decision."
+current_execution_summary = "Design-only stop: fresh R3 census of remaining JoinModule/reference execution, observation, JSON/format, and explicit-env bridge consumers after the append-defs retirements. Select at most one exact non-growing disposition with a named owner and sunset; do not infer deletion from LOC or reopen normal/default planning. No normal/default, strict, LLVM, JumpArgsLayout, Ownership, View, or feature work is authorized before the census decision."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

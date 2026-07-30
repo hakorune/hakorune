@@ -10,7 +10,6 @@
 //! | skip_ws                 | 3000-4999  | 3000+  | 4000+  | Skip whitespace |
 //! | funcscanner_trim        | 5000-6999  | 5000+  | 6000+  | Trim whitespace |
 //! | stage1_using_resolver   | 7000-8999  | 7000+  | 8000+  | lower-resolver compatibility pass |
-//! | funcscanner_append_defs | 9000-10999 | 9000+  | 10000+ | FuncScanner append defs |
 //! | stageb_body_extract     | 11000-12999| 11000+ | 12000+ | mode-B compatibility body extractor |
 //! | stageb_funcscanner      | 13000-14999| 13000+ | 14000+ | mode-B compatibility FuncScanner |
 //!
@@ -43,9 +42,6 @@ pub mod base {
 
     /// stage1_using_resolver: lower-resolver compatibility entries loop (7000-8999)
     pub const STAGE1_USING_RESOLVER: u32 = 7000;
-
-    /// funcscanner_append_defs: FuncScanner append defs loop (9000-10999)
-    pub const FUNCSCANNER_APPEND_DEFS: u32 = 9000;
 
     /// stageb_body_extract: mode-B compatibility body extractor loop (11000-12999)
     pub const STAGEB_BODY_EXTRACT: u32 = 11000;
@@ -113,24 +109,6 @@ pub mod stage1_using_resolver {
     #[inline]
     pub const fn loop_step(offset: u32) -> ValueId {
         id(base::STAGE1_USING_RESOLVER, 1000 + offset)
-    }
-}
-
-/// ValueId helpers for funcscanner_append_defs lowering module
-pub mod funcscanner_append_defs {
-    use super::{base, id};
-    use crate::mir::ValueId;
-
-    /// Entry function ValueIds (9000-9999)
-    #[inline]
-    pub const fn entry(offset: u32) -> ValueId {
-        id(base::FUNCSCANNER_APPEND_DEFS, offset)
-    }
-
-    /// Loop function ValueIds (10000-10999)
-    #[inline]
-    pub const fn loop_step(offset: u32) -> ValueId {
-        id(base::FUNCSCANNER_APPEND_DEFS, 1000 + offset)
     }
 }
 
@@ -203,7 +181,6 @@ mod tests {
         test_value_id_range!(skip_ws, 3000, 4000);
         test_value_id_range!(funcscanner_trim, 5000, 6000);
         test_value_id_range!(stage1_using_resolver, 7000, 8000);
-        test_value_id_range!(funcscanner_append_defs, 9000, 10000);
         test_value_id_range!(stageb_body_extract, 11000, 12000);
         test_value_id_range!(stageb_funcscanner, 13000, 14000);
 
@@ -213,7 +190,6 @@ mod tests {
             (3000, 4999),   // skip_ws
             (5000, 6999),   // funcscanner_trim
             (7000, 8999),   // stage1_using_resolver
-            (9000, 10999),  // funcscanner_append_defs
             (11000, 12999), // stageb_body_extract
             (13000, 14999), // stageb_funcscanner
         ];
