@@ -97,6 +97,7 @@ impl MirBuilder {
         source: &PreparedNormalDefaultProgramRootV1,
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
+        runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         brand: ModuleInvocationBrandV1,
     ) -> Result<ValueId, NormalDefaultRootCatalogLifecycleErrorV1> {
         let lowering_statements = source.clone_lowering_statements();
@@ -117,6 +118,7 @@ impl MirBuilder {
             source.source_ast(),
             expansion,
             materialization,
+            runtime_inputs,
             brand,
         )
         .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into()))
@@ -128,6 +130,7 @@ impl MirBuilder {
         snapshot: &ASTNode,
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
+        runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         brand: ModuleInvocationBrandV1,
     ) -> Result<ValueId, String> {
         let mut collector = ModuleDraftCollectorV1::with_brand(brand);
@@ -139,6 +142,7 @@ impl MirBuilder {
                 snapshot,
                 expansion,
                 materialization,
+                runtime_inputs,
                 &mut port,
             )
         }?;
@@ -167,15 +171,21 @@ impl MirBuilder {
     where
         Port: RootCallableCapturePortV1,
     {
-        let materialization = NormalEntryMaterializationSourceReceiptV1::seal(
-            expansion,
-            super::CallableMainMaterializationPolicyV1::Omitted,
-        );
+        let policy = match self.comp_ctx.callable_main_compatibility_policy {
+            super::module_compat_policy::CallableMainCompatibilityPolicyV1::Omitted => {
+                super::CallableMainMaterializationPolicyV1::Omitted
+            }
+            super::module_compat_policy::CallableMainCompatibilityPolicyV1::Required => {
+                super::CallableMainMaterializationPolicyV1::Required
+            }
+        };
+        let materialization = NormalEntryMaterializationSourceReceiptV1::seal(expansion, policy);
         self.lower_program_root_with_materialization_with_callable_port_v1(
             statements,
             snapshot,
             expansion,
             &materialization,
+            &super::NormalRuntimeInputSnapshotV1::empty(),
             callables,
         )
     }
@@ -186,6 +196,7 @@ impl MirBuilder {
         snapshot: &ASTNode,
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
+        runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         callables: &mut Port,
     ) -> Result<ValueId, String>
     where
@@ -203,6 +214,7 @@ impl MirBuilder {
             work,
             expansion,
             materialization,
+            runtime_inputs,
             callables,
         )
     }
@@ -212,6 +224,7 @@ impl MirBuilder {
         work: PreparedProgramRootWorkPlanV1,
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
+        runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         callables: &mut Port,
     ) -> Result<ValueId, String>
     where
@@ -235,7 +248,12 @@ impl MirBuilder {
                 ProgramRootTerminalScheduleV1::VerifiedAppMain,
                 VerifiedRawRootExpansionV1::App(main),
             ) => self
-                .build_verified_static_main_box_with_port_v1(callables, main, materialization)
+                .build_verified_static_main_box_with_port_v1(
+                    callables,
+                    main,
+                    materialization,
+                    runtime_inputs,
+                )
                 .map_err(|error| error.to_string()),
             _ => Err("[freeze:contract][mir/program-root-work-plan/terminal-drift]".to_owned()),
         }

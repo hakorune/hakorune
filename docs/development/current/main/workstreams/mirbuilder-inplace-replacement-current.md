@@ -29,10 +29,10 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
-Latest landed: ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0
-Result:        source-owned entry-materialization contract selected
+Latest landed: NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0
+Result:        selected normal runtime inputs snapshot at ingress
 Latest design: `NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0` — closed
-Executable:    `NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0`
+Executable:    `MIRBUILDER-LIVE-EDGE-CENSUS16-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -311,29 +311,45 @@ snapshot remains separate because it rejects malformed input and carries distinc
 provenance.
 ```
 
-## Current execution
+## Latest closeout
 
-`NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0` — T2 atomic selected-normal cutover
+`NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0` — T2 atomic selected-normal cutover, closed
 
 ```text
 Change:
-  Capture one normal-only runtime receipt at NormalDefaultPublishedPipelineV1
-  ingress, pass it through the existing session lifecycle, and delete the
-  selected lower-side safepoint and Main-wrapper script-argument env reads.
+  NormalDefaultPublishedPipelineV1 captures NormalRuntimeInputSnapshotV1 once;
+  the existing candidate lifecycle consumes it for entry safepoint and Main
+  wrapper arguments.  Selected lower-side reads = 0.
+
+Result:
+  NYASH/HAKO precedence, permissive malformed values, App/Script behavior,
+  request-versus-compile timing, failure/reuse, raw static-Main compatibility,
+  normal/vm-reference checks, and the reusable ingress guard are green.
+
+Next:
+  `MIRBUILDER-LIVE-EDGE-CENSUS16-D0`.
+```
+
+## Current execution
+
+`MIRBUILDER-LIVE-EDGE-CENSUS16-D0` — fresh live-edge selection
+
+```text
+Change:
+  Inventory the remaining selected-normal, compatibility, and fenced reference
+  edges after the normal runtime-input cutover.
 
 Contract:
-  Normal remains permissive and snapshots at compile ingress; Raw/reference,
-  runner selection, callable materialization, result/publication, and legacy
-  raw env reads do not move.
+  Select at most one evidenced next boundary; raw/reference, runner policies,
+  R3 fences, R4 disposition, Ownership/View, and features remain independent.
 
 Done:
-  Safepoint spelling, NYASH/HAKO precedence, malformed/empty argument parity,
-  App/Script wrapper behavior, snapshot timing, and failure/reuse are green.
+  One bounded D0, live I0/R0, detached R3 disposition, or NoSafeLiveI0 is
+  recorded with its named caller and sunset condition.
 
 Stop:
-  Any strict normal rejection, trim/precedence change, raw receipt reuse,
-  lower-side normal env fallback, runner change, retry/fallback, or second
-  candidate returns this row to design.
+  Do not create a route, infer a handoff, or pre-authorize the next cell from
+  historical inventory alone.
 ```
 
 ## Latest closeout
@@ -799,11 +815,11 @@ census or D0 has selected it.
    Candidate N selects one infallible normal-only ingress receipt.  It preserves
    normal's permissive malformed-value behavior; raw/reference remains separate.
 
-5. NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0                 (active)
+5. NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0                 (closed)
    Named caller: NormalDefaultPublishedPipelineV1::compile.  One atomic
    normal-only receipt cutover deletes the two selected lower-side ambient reads.
 
-6. MIRBUILDER-LIVE-EDGE-CENSUS16-D0                     (required after 5)
+6. MIRBUILDER-LIVE-EDGE-CENSUS16-D0                     (active)
    Re-inventory the remaining selected-normal, compatibility, and fenced
    reference edges before selecting another live replacement or retirement.
 

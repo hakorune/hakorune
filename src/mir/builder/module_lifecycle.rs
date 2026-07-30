@@ -94,18 +94,24 @@ impl super::MirBuilder {
     pub(super) fn prepare_module(&mut self) -> Result<(), String> {
         self.prepare_module_with_callable_main_policy(
             super::module_compat_policy::CallableMainCompatibilityPolicyV1::snapshot_from_legacy_ingress(),
+            crate::config::env::builder_safepoint_entry(),
         )
     }
 
-    pub(super) fn prepare_normal_default_module(&mut self) -> Result<(), String> {
+    pub(super) fn prepare_normal_default_module(
+        &mut self,
+        entry_safepoint: bool,
+    ) -> Result<(), String> {
         self.prepare_module_with_callable_main_policy(
             super::module_compat_policy::CallableMainCompatibilityPolicyV1::Omitted,
+            entry_safepoint,
         )
     }
 
     fn prepare_module_with_callable_main_policy(
         &mut self,
         callable_main_policy: super::module_compat_policy::CallableMainCompatibilityPolicyV1,
+        entry_safepoint: bool,
     ) -> Result<(), String> {
         self.comp_ctx.clear_callable_declaration_catalog();
         self.comp_ctx.callable_main_compatibility_policy = callable_main_policy;
@@ -146,7 +152,7 @@ impl super::MirBuilder {
         // Hint: scope enter at function entry (id=0 for main)
         self.hint_scope_enter(0);
 
-        if crate::config::env::builder_safepoint_entry() {
+        if entry_safepoint {
             self.emit_instruction(MirInstruction::Safepoint)?;
         }
 

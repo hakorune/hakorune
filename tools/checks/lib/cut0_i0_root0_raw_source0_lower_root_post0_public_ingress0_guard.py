@@ -569,15 +569,15 @@ def main() -> int:
         "RootLower",
         "FinalizeModule",
         "VerifiedRawRootExpansionV1::from_program",
-        "prepare_module()",
-        "lower_normal_default_program_root_catalog_v1(&source, &expansion)",
+        "prepare_normal_default_module(runtime_inputs.entry_safepoint_enabled())",
+        "lower_normal_default_program_root_catalog_v1(",
         "finalize_module",
     ):
         require(normal_root_lifecycle, fragment, f"normal lifecycle contract {fragment}")
     lifecycle_anchors = (
         "VerifiedRawRootExpansionV1::from_program",
-        "prepare_module()",
-        "lower_normal_default_program_root_catalog_v1(&source, &expansion)",
+        "prepare_normal_default_module(runtime_inputs.entry_safepoint_enabled())",
+        "lower_normal_default_program_root_catalog_v1(",
         "finalize_module",
     )
     kernel_anchors = (
@@ -653,7 +653,7 @@ def main() -> int:
     issuer = admission.get("request_issuer_anchor", "")
     if normal_pipeline.count(issuer) != admission.get("request_issuer_calls"):
         raise AssertionError("normal Program admission issuer drift")
-    selected_call = "lower_normal_default_program_root_catalog_v1(&source, &expansion, brand)"
+    selected_call = "lower_normal_default_program_root_catalog_v1("
     if normal_root_lifecycle.count(selected_call) != admission.get("selected_lifecycle_calls"):
         raise AssertionError("selected Program lifecycle caller drift")
     if normal_root_lifecycle.count("PreparedRawRootPartitionV1") != admission.get(

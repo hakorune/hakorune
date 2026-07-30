@@ -8,7 +8,7 @@ use crate::ast::ASTNode;
 use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::{
     CallableMainMaterializationPolicyV1, MirModule, ModuleBuilderInvocationSessionV1,
-    NormalEntryMaterializationSourceReceiptV1,
+    NormalEntryMaterializationSourceReceiptV1, NormalRuntimeInputSnapshotV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -131,6 +131,7 @@ impl ModuleBuilderInvocationSessionV1 {
         mut self,
         source: PreparedNormalDefaultProgramRootV1,
         materialization_policy: CallableMainMaterializationPolicyV1,
+        runtime_inputs: NormalRuntimeInputSnapshotV1,
     ) -> Result<
         CompletedNormalDefaultRootCatalogLifecycleV1,
         RejectedNormalDefaultRootCatalogLifecycleV1,
@@ -149,12 +150,18 @@ impl ModuleBuilderInvocationSessionV1 {
                     &expansion,
                     materialization_policy,
                 );
-                builder.prepare_normal_default_module().map_err(|error| {
-                    NormalDefaultRootCatalogLifecycleErrorV1::PrepareModule(error.into())
-                })?;
+                builder
+                    .prepare_normal_default_module(runtime_inputs.entry_safepoint_enabled())
+                    .map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::PrepareModule(error.into())
+                    })?;
 
                 let result_value = builder.lower_normal_default_program_root_catalog_v1(
-                    &source, &expansion, &receipt, brand,
+                    &source,
+                    &expansion,
+                    &receipt,
+                    &runtime_inputs,
+                    brand,
                 )?;
                 builder.finalize_module(result_value).map_err(|error| {
                     NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into())
@@ -181,7 +188,7 @@ mod tests {
     use crate::mir::builder::{
         BuilderInvocationConfigV1, CallableMainMaterializationPolicyV1, MirBuilder,
         ModuleBuilderInvocationSessionV1, NormalDefaultRootCatalogLifecycleStageV1,
-        PreparedNormalDefaultProgramRootV1,
+        NormalRuntimeInputSnapshotV1, PreparedNormalDefaultProgramRootV1,
     };
     use crate::parser::NyashParser;
 
@@ -204,6 +211,7 @@ mod tests {
                 .complete_normal_default_program_root_catalog_lifecycle(
                     source,
                     CallableMainMaterializationPolicyV1::Omitted,
+                    NormalRuntimeInputSnapshotV1::empty(),
                 )
                 .expect("verified route must lower");
             let (session, _) = completed.into_parts();
@@ -226,6 +234,7 @@ mod tests {
             .complete_normal_default_program_root_catalog_lifecycle(
                 source,
                 CallableMainMaterializationPolicyV1::Omitted,
+                NormalRuntimeInputSnapshotV1::empty(),
             )
             .expect_err("duplicate Main must reject before prepare");
 
@@ -254,6 +263,7 @@ mod tests {
             .complete_normal_default_program_root_catalog_lifecycle(
                 source,
                 CallableMainMaterializationPolicyV1::Omitted,
+                NormalRuntimeInputSnapshotV1::empty(),
             )
             .expect_err("duplicate Box owner must reject during catalog seal");
 

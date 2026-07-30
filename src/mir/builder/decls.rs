@@ -5,7 +5,7 @@ use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 use super::{
     CallableMainMaterializationTargetV1, MirInstruction, NormalEntryMaterializationSourceReceiptV1,
-    ValueId,
+    NormalRuntimeInputSnapshotV1, ValueId,
 };
 use crate::ast::ASTNode;
 use serde_json;
@@ -47,12 +47,20 @@ impl From<ModuleLoweringPortChildErrorV1> for CallableMainCompatibilityLoweringE
     }
 }
 
+/// The normal route owns one ingress snapshot; explicit raw compatibility
+/// intentionally retains its existing lower-side environment contract.
+pub(super) enum StaticMainScriptArgsSourceV1<'snapshot> {
+    NormalSnapshot(&'snapshot [String]),
+    LegacyEnvironment,
+}
+
 impl super::MirBuilder {
     pub(in crate::mir::builder) fn build_verified_static_main_box_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
         main: &VerifiedMainExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
+        runtime_inputs: &NormalRuntimeInputSnapshotV1,
     ) -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1>
     where
         Port: RootCallableCapturePortV1,
@@ -79,6 +87,7 @@ impl super::MirBuilder {
                 .is_required()
                 .then(|| materialization.target())
                 .flatten(),
+            StaticMainScriptArgsSourceV1::NormalSnapshot(runtime_inputs.script_args()),
         )
     }
 
@@ -87,6 +96,7 @@ impl super::MirBuilder {
         port: &mut Port,
         root: OwnedVerifiedMainRootLoweringV1,
         materialization: Option<&CallableMainMaterializationTargetV1>,
+        script_args: StaticMainScriptArgsSourceV1<'_>,
     ) -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1>
     where
         Port: RootCallableCapturePortV1,
@@ -99,6 +109,7 @@ impl super::MirBuilder {
             callable_symbol.as_deref(),
             materialization,
             false,
+            script_args,
             params,
             param_decls,
             return_type_name,
@@ -115,6 +126,7 @@ impl super::MirBuilder {
         verified_callable_symbol: Option<&str>,
         materialization: Option<&CallableMainMaterializationTargetV1>,
         use_legacy_materialization_policy: bool,
+        script_args_source: StaticMainScriptArgsSourceV1<'_>,
         params: Vec<String>,
         param_decls: Vec<crate::ast::ParamDecl>,
         return_type_name: Option<String>,
@@ -187,7 +199,14 @@ impl super::MirBuilder {
             // Initialize local variables for Main.main() parameters
             // Note: These are local variables in the wrapper main() function, NOT parameters
             let saved_var_map = std::mem::take(&mut self.function_state.variable_ctx.variable_map);
-            let script_args = collect_script_args_from_env();
+            let script_args = match script_args_source {
+                StaticMainScriptArgsSourceV1::NormalSnapshot(args) => {
+                    std::borrow::Cow::Borrowed(args)
+                }
+                StaticMainScriptArgsSourceV1::LegacyEnvironment => {
+                    std::borrow::Cow::Owned(collect_script_args_from_env().unwrap_or_default())
+                }
+            };
             for p in params.iter() {
                 // Allocate a value ID using the current function's value generator
                 // This creates a local variable, not a parameter
@@ -208,24 +227,20 @@ impl super::MirBuilder {
                         .value_types
                         .insert(pid, super::MirType::Box("ArrayBox".to_string()));
                     self.emit_constructor_birth_marker(pid, "ArrayBox")?;
-                    if let Some(args) = script_args.as_ref() {
-                        for arg in args {
-                            let val = crate::mir::builder::emission::constant::emit_string(
-                                self,
-                                arg.clone(),
-                            )?;
-                            self.emit_instruction(
-                                crate::mir::ssot::method_call::runtime_method_call(
-                                    None,
-                                    pid,
-                                    "ArrayBox",
-                                    "push",
-                                    vec![val],
-                                    super::EffectMask::MUT,
-                                    crate::mir::definitions::call_unified::TypeCertainty::Known,
-                                ),
-                            )?;
-                        }
+                    for arg in script_args.iter() {
+                        let val = crate::mir::builder::emission::constant::emit_string(
+                            self,
+                            arg.clone(),
+                        )?;
+                        self.emit_instruction(crate::mir::ssot::method_call::runtime_method_call(
+                            None,
+                            pid,
+                            "ArrayBox",
+                            "push",
+                            vec![val],
+                            super::EffectMask::MUT,
+                            crate::mir::definitions::call_unified::TypeCertainty::Known,
+                        ))?;
                     }
                 } else {
                     let v = crate::mir::builder::emission::constant::emit_void(self)?;

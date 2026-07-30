@@ -10,7 +10,8 @@ use std::{collections::HashMap, time::Instant};
 use crate::ast::ASTNode;
 use crate::mir::builder::{
     BuilderInvocationConfigV1, CallableMainMaterializationPolicyV1,
-    ModuleBuilderInvocationSessionV1, PreparedNormalDefaultProgramRootV1,
+    ModuleBuilderInvocationSessionV1, NormalRuntimeInputSnapshotV1,
+    PreparedNormalDefaultProgramRootV1,
 };
 
 use super::{MirCompileResult, MirCompiler, MirFinishScheduleV1};
@@ -378,6 +379,7 @@ impl NormalDefaultPublishedPipelineV1 {
         request: NormalCompileRequestV1,
     ) -> Result<MirCompileResult, String> {
         let (program, source, imports, _admission, result_contract) = request.into_parts();
+        let runtime_inputs = NormalRuntimeInputSnapshotV1::capture_from_normal_ingress();
         let token = compiler
             .invocation_identity
             .issue_raw()
@@ -393,7 +395,11 @@ impl NormalDefaultPublishedPipelineV1 {
 
         let stage_start = Instant::now();
         let completed = session
-            .complete_normal_default_program_root_catalog_lifecycle(program, materialization)
+            .complete_normal_default_program_root_catalog_lifecycle(
+                program,
+                materialization,
+                runtime_inputs,
+            )
             .map_err(|rejected| {
                 let message = rejected.error().to_string();
                 rejected.discard();
@@ -427,6 +433,7 @@ impl MirCompiler {
 mod tests {
     use super::*;
     use crate::ast::{LiteralValue, Span};
+    use crate::mir::MirPrinter;
     use crate::parser::NyashParser;
 
     fn program() -> ASTNode {
@@ -473,6 +480,84 @@ mod tests {
             assert!(script_result.module.functions.contains_key("main"));
             assert!(!script_result.module.functions.contains_key("Main.main/0"));
         });
+    }
+
+    #[test]
+    fn normal_ingress_snapshots_runtime_inputs_permissively_at_compile_time() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let source = "static box Main { main(args) { return 0 } }";
+        let request = crate::test_support::with_env_vars(
+            &[
+                ("NYASH_SCRIPT_ARGS_JSON", Some(r#"["request-time"]"#)),
+                ("HAKO_SCRIPT_ARGS_JSON", None),
+                ("NYASH_BUILDER_SAFEPOINT_ENTRY", Some("0")),
+            ],
+            || {
+                let ast = NyashParser::parse_from_string(source).expect("App source");
+                NormalCompileRequestV1::for_mir_mode(ast, None, HashMap::new())
+                    .expect("App request")
+            },
+        );
+        let selected = crate::test_support::with_env_vars(
+            &[
+                ("NYASH_SCRIPT_ARGS_JSON", Some(r#"["ingress-time"]"#)),
+                ("HAKO_SCRIPT_ARGS_JSON", Some(r#"["must-not-win"]"#)),
+                ("NYASH_BUILDER_SAFEPOINT_ENTRY", Some("On")),
+            ],
+            || {
+                MirCompiler::with_options(false)
+                    .compile_normal(request)
+                    .expect("normal compile must snapshot at compile ingress")
+            },
+        );
+        let selected_dump = MirPrinter::new().print_module(&selected.module);
+        assert!(selected_dump.contains("safepoint"), "{selected_dump}");
+        assert!(selected_dump.contains("ingress-time"), "{selected_dump}");
+        assert!(!selected_dump.contains("request-time"), "{selected_dump}");
+        assert!(!selected_dump.contains("must-not-win"), "{selected_dump}");
+
+        let malformed = crate::test_support::with_env_vars(
+            &[
+                ("NYASH_SCRIPT_ARGS_JSON", Some("{malformed}")),
+                ("HAKO_SCRIPT_ARGS_JSON", Some(r#"["must-stay-masked"]"#)),
+                ("NYASH_BUILDER_SAFEPOINT_ENTRY", Some(" maybe ")),
+            ],
+            || {
+                let ast = NyashParser::parse_from_string(source).expect("App source");
+                MirCompiler::with_options(false)
+                    .compile_normal(
+                        NormalCompileRequestV1::for_mir_mode(ast, None, HashMap::new())
+                            .expect("App request"),
+                    )
+                    .expect("malformed normal inputs remain permissive")
+            },
+        );
+        let malformed_dump = MirPrinter::new().print_module(&malformed.module);
+        assert!(!malformed_dump.contains("safepoint"), "{malformed_dump}");
+        assert!(
+            !malformed_dump.contains("must-stay-masked"),
+            "{malformed_dump}"
+        );
+
+        let hako_fallback = crate::test_support::with_env_vars(
+            &[
+                ("NYASH_SCRIPT_ARGS_JSON", None),
+                ("HAKO_SCRIPT_ARGS_JSON", Some(r#"["hako-fallback"]"#)),
+                ("NYASH_BUILDER_SAFEPOINT_ENTRY", Some("off")),
+            ],
+            || {
+                let ast = NyashParser::parse_from_string(source).expect("App source");
+                MirCompiler::with_options(false)
+                    .compile_normal(
+                        NormalCompileRequestV1::for_mir_mode(ast, None, HashMap::new())
+                            .expect("App request"),
+                    )
+                    .expect("HAKO fallback must remain normal-compatible")
+            },
+        );
+        let hako_dump = MirPrinter::new().print_module(&hako_fallback.module);
+        assert!(hako_dump.contains("hako-fallback"), "{hako_dump}");
+        assert!(!hako_dump.contains("safepoint"), "{hako_dump}");
     }
 
     #[test]

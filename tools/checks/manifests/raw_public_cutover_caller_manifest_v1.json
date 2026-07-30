@@ -53,7 +53,7 @@
     "definition_file": "src/mir/builder/normal_default_root_catalog_lifecycle.rs",
     "definition_anchor": "pub(in crate::mir) struct CompletedNormalDefaultRootCatalogLifecycleV1",
     "caller_file": "src/mir/compiler/normal_default_pipeline.rs",
-    "caller_anchor": ".complete_normal_default_program_root_catalog_lifecycle(program)",
+    "caller_anchor": "complete_normal_default_program_root_catalog_lifecycle(",
     "callers": 1,
     "sunset_id": "NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001",
     "sunset_state": "closed"
@@ -65,7 +65,7 @@
     "request_issuer_calls": 1,
     "program_kernel_file": "src/mir/builder/program_root_lowering.rs",
     "selected_lifecycle_calls": 1,
-    "selected_program_kernel_calls": 1,
+    "selected_program_kernel_calls": 0,
     "selected_generic_partition_calls": 0,
     "mircompiler_compat_sunset": "MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001",
     "runtime_ast_json_compat_sunset": "RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001"

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0 is closed: selected normal needs one infallible, normal-only ingress receipt for safepoint and script arguments. NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0 is the sole next T2 atomic cutover; it must remove both selected lower-side environment reads without changing permissive normal malformed-environment behavior. Raw/reference, runner selection, VM bridge, LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, JumpArgsLayout, and the broader old-IR final disposition remain separate fences. Ownership, View, and feature work stay parked until final conformance resolves every fence."
+status = "NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0 is closed: selected normal captures one infallible, permissive runtime-input receipt at compile ingress and no longer rereads safepoint or script-argument environment values while lowering. MIRBUILDER-LIVE-EDGE-CENSUS16-D0 is the sole next selection boundary. Raw/reference, runner selection, VM bridge, LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, JumpArgsLayout, and the broader old-IR final disposition remain separate fences. Ownership, View, and feature work stay parked until final conformance resolves every fence."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0"
-current_execution_row = "NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0"
-current_execution_summary = "T2 atomic selected-normal cutover: capture one infallible normal-only runtime-input receipt at compile ingress, thread it through the existing candidate lifecycle, and delete the selected lower-side safepoint and script-argument environment reads. Preserve normal's permissive malformed-value behavior, leave raw/reference and runner selection fenced, and add no retry/fallback or Ownership/View/features."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS16-D0"
+current_execution_row = "MIRBUILDER-LIVE-EDGE-CENSUS16-D0"
+current_execution_summary = "Re-inventory the remaining selected-normal, compatibility, and fenced reference edges after normal runtime-input ingress capture. Select at most one bounded D0, live I0/R0, detached R3 disposition, or NoSafeLiveI0; do not infer a raw receipt handoff, runner cutover, Ownership/View, or feature row."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """ENTRY-MATERIALIZATION-RECEIPT0-S0, ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0, Census15, and NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0 are closed. The selected next row is NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0: one normal-only permissive ingress receipt replaces the two selected lower-side environment reads; raw/reference and runner policies remain fenced. R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """ENTRY-MATERIALIZATION-RECEIPT0-S0, ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0, Census15, NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0, and NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0 are closed. Selected normal now captures permissive safepoint/script arguments once at compile ingress and has zero lower-side env reads for them; raw/reference and runner policies remain fenced. Census16 is next. R4 final conformance still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS16-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

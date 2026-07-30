@@ -48,6 +48,7 @@ mod exprs_call;
 mod exprs_check; // CheckExpr lowering
 mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sugar
 mod entry_materialization; // source-only callable Main materialization facts
+mod normal_runtime_inputs; // selected normal ingress runtime snapshot
 mod fact_session;
 #[cfg(test)]
 mod fact_session_p0_tests;
@@ -121,6 +122,7 @@ pub(in crate::mir) use entry_materialization::{
     CallableMainMaterializationPolicyV1, CallableMainMaterializationTargetV1,
     NormalEntryMaterializationSourceReceiptV1, RawEntryMaterializationSourceReceiptV1,
 };
+pub(in crate::mir) use normal_runtime_inputs::NormalRuntimeInputSnapshotV1;
 #[allow(dead_code)]
 mod main_pending_draft; // HEADERPORT0-I0-MAINPENDING0-S0 disconnected handoff
 #[cfg(test)]
