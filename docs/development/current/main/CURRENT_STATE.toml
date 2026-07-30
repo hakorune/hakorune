@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS27-D0 and NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-D0 are closed. The selected Script residual is exactly 24 kinds: 16 StatementControl and 8 DeclarationIngress. Candidate A selects the complete 13-kind StatementSurfaceFallthrough0 set: Assignment, CompoundAssignment, Loop, Nowait, TaskScope, ContextScope, TryCatch, Throw, Local, ScopeBox, Outbox, Program, and UsingStatement. For each, build_statement_with_port_v1 has no special arm and forwards through drive_legacy_expression_v1 with the same port to an existing raw-expression statement-surface owner. Direct routing deletes only the duplicate statement adapter/span write; every inner CFG/binding/scope/exception/async/body/ingress owner remains unchanged."
+status = "NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-I0-R0 is closed. The exact 13-kind StatementSurfaceFallthrough0 set now reaches the existing raw-expression statement-surface owner through DirectPortAwareExpression with the same RawInvocation port. The selected Script compatibility residual is exactly 11 kinds: StatementControl = If, LoopRange, Break, Continue, FastMemRegion; DeclarationIngress = ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, GlobalVar. The duplicate selected Script drive_legacy_statement_v1 -> build_statement_with_port_v1 fallthrough adapter is gone for all 13 migrated kinds; grammar, inner semantic owners, result policy, raw/reference routes, fallback, and retry are unchanged."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-I0-R0"
-current_execution_summary = "T1 atomic I0/R0: map the exact 13 StatementSurfaceFallthrough0 roots to existing DirectPortAwareExpression and delete their selected Script RawCompatibility -> drive_legacy_statement_v1 -> build_statement_with_port_v1 adapter edge. Preserve the same RawInvocation port and existing raw-expression statement-surface owners exactly. Exclude If, StaticConstTable, FastMemRegion, LoopRange, Break, Continue, Import, BuildGate, Enum, Brand, TypeAlias, and Global. Residual 24 -> 11; no new dispatcher/owner/grammar/result/fallback/retry, and every source/check file <800."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS28-D0"
+current_execution_row = "none"
+current_execution_summary = "Read-only Census28 must inspect the exact remaining 11 selected Script compatibility kinds and the sole R4 registry before choosing another production edge. It must not infer a bulk cutover from the completed 13-kind adapter law. Any next row still requires a named production caller, selected existing/new owner, same-commit old-edge deletion, zero fallback/retry, and all source/check files below 800 lines."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """ENTRY-MATERIALIZATION-RECEIPT0-S0, ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0, Census15, NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0, NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0, Census16, NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0, NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0, Census17, NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0, Census18, Script-runtime Box admission D0/I0, Census19, top-level FunctionDeclaration identity I0, Census20, and constructor identity D0/I0 are closed. Constructor I0 replaces all selected Program-immediate instance constructor admissions and the additional selected Script plain-prefix demand; non-plain Script runtime remains separately fenced. Census21 must choose the next live authority from fresh evidence. R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-I0-R0 is closed. Thirteen selected Script roots now bypass the duplicate statement adapter and reach their unchanged statement-surface terminals through the same RawInvocation expression port. The compatibility residual is exactly 11 kinds. MIRBUILDER-LIVE-EDGE-CENSUS28-D0 is the sole read-only design stop. R4 final conformance still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-I0-R0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS28-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

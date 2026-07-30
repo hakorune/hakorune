@@ -56,29 +56,30 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
         | ASTNode::ThisField { .. }
         | ASTNode::MeField { .. }
         | ASTNode::FunctionCall { .. }
-        | ASTNode::Call { .. }
-        | ASTNode::Return { .. } => DirectPortAwareExpression,
+        | ASTNode::Call { .. } => DirectPortAwareExpression,
 
         ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
-        | ASTNode::If { .. }
         | ASTNode::Loop { .. }
-        | ASTNode::LoopRange { .. }
-        | ASTNode::Break { .. }
-        | ASTNode::Continue { .. }
         | ASTNode::Nowait { .. }
         | ASTNode::TaskScope { .. }
         | ASTNode::ContextScope { .. }
-        | ASTNode::FastMemRegion { .. }
         | ASTNode::TryCatch { .. }
         | ASTNode::Throw { .. }
         | ASTNode::Local { .. }
         | ASTNode::ScopeBox { .. }
-        | ASTNode::Outbox { .. } => StatementControlCompatibility,
-
-        ASTNode::Program { .. }
+        | ASTNode::Outbox { .. }
+        | ASTNode::Program { .. }
         | ASTNode::UsingStatement { .. }
-        | ASTNode::ImportStatement { .. }
+        | ASTNode::Return { .. } => DirectPortAwareExpression,
+
+        ASTNode::If { .. }
+        | ASTNode::LoopRange { .. }
+        | ASTNode::Break { .. }
+        | ASTNode::Continue { .. }
+        | ASTNode::FastMemRegion { .. } => StatementControlCompatibility,
+
+        ASTNode::ImportStatement { .. }
         | ASTNode::BuildGate { .. }
         | ASTNode::EnumDeclaration { .. }
         | ASTNode::BrandDeclaration { .. }
@@ -120,12 +121,10 @@ mod tests {
             span: Span::unknown(),
         };
         let expression = integer(2);
-        let control = ASTNode::Assignment {
-            target: Box::new(ASTNode::Variable {
-                name: "x".to_owned(),
-                span: Span::unknown(),
-            }),
-            value: Box::new(integer(3)),
+        let control = ASTNode::If {
+            condition: Box::new(integer(1)),
+            then_body: Vec::new(),
+            else_body: None,
             span: Span::unknown(),
         };
         let return_statement = ASTNode::Return {
@@ -138,8 +137,9 @@ mod tests {
             values: vec![1, 2],
             span: Span::unknown(),
         };
-        let ingress = ASTNode::Program {
-            statements: Vec::new(),
+        let ingress = ASTNode::GlobalVar {
+            name: "g".to_owned(),
+            value: Box::new(integer(5)),
             span: Span::unknown(),
         };
         let call = ASTNode::FunctionCall {

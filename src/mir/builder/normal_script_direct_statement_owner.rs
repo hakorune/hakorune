@@ -281,6 +281,131 @@ mod tests {
     }
 
     #[test]
+    fn statement_surface_fallthrough_roots_keep_exact_legacy_outcomes() {
+        let variable = |name: &str, line| ASTNode::Variable {
+            name: name.to_owned(),
+            span: Span::new(line, line + 1, line, 1),
+        };
+        let boolean = |value, line| ASTNode::Literal {
+            value: LiteralValue::Bool(value),
+            span: Span::new(line, line + 1, line, 1),
+        };
+
+        let roots = [
+            (
+                ASTNode::Assignment {
+                    target: Box::new(variable("missing_assignment", 170)),
+                    value: Box::new(integer(1, 171)),
+                    span: Span::new(170, 172, 170, 1),
+                },
+                "direct-assignment.hako",
+            ),
+            (
+                ASTNode::CompoundAssignment {
+                    target: Box::new(variable("missing_compound", 173)),
+                    operator: BinaryOperator::Add,
+                    value: Box::new(integer(1, 174)),
+                    span: Span::new(173, 175, 173, 1),
+                },
+                "direct-compound-assignment.hako",
+            ),
+            (
+                ASTNode::Loop {
+                    condition: Box::new(boolean(false, 176)),
+                    body: Vec::new(),
+                    span: Span::new(176, 177, 176, 1),
+                },
+                "direct-loop.hako",
+            ),
+            (
+                ASTNode::Nowait {
+                    variable: "pending".to_owned(),
+                    expression: Box::new(integer(1, 178)),
+                    span: Span::new(178, 179, 178, 1),
+                },
+                "direct-nowait.hako",
+            ),
+            (
+                ASTNode::TaskScope {
+                    body: vec![integer(1, 180)],
+                    source_keyword: "co".to_owned(),
+                    span: Span::new(180, 181, 180, 1),
+                },
+                "direct-task-scope.hako",
+            ),
+            (
+                ASTNode::ContextScope {
+                    name: "ctx".to_owned(),
+                    declared_type_name: None,
+                    value: Box::new(integer(1, 182)),
+                    body: Vec::new(),
+                    source_keyword: "context".to_owned(),
+                    span: Span::new(182, 183, 182, 1),
+                },
+                "direct-context-scope.hako",
+            ),
+            (
+                ASTNode::TryCatch {
+                    try_body: vec![integer(1, 184)],
+                    catch_clauses: Vec::new(),
+                    finally_body: None,
+                    span: Span::new(184, 185, 184, 1),
+                },
+                "direct-try-catch.hako",
+            ),
+            (
+                ASTNode::Throw {
+                    expression: Box::new(integer(1, 186)),
+                    span: Span::new(186, 187, 186, 1),
+                },
+                "direct-throw.hako",
+            ),
+            (
+                ASTNode::Local {
+                    variables: vec!["local_value".to_owned()],
+                    initial_values: vec![Some(Box::new(integer(1, 188)))],
+                    declared_type_names: vec![None],
+                    span: Span::new(188, 189, 188, 1),
+                },
+                "direct-local.hako",
+            ),
+            (
+                ASTNode::ScopeBox {
+                    body: vec![integer(1, 190)],
+                    span: Span::new(190, 191, 190, 1),
+                },
+                "direct-scope-box.hako",
+            ),
+            (
+                ASTNode::Outbox {
+                    variables: vec!["out".to_owned()],
+                    initial_values: vec![None],
+                    span: Span::new(192, 193, 192, 1),
+                },
+                "direct-outbox.hako",
+            ),
+            (
+                ASTNode::Program {
+                    statements: vec![integer(1, 194)],
+                    span: Span::new(194, 195, 194, 1),
+                },
+                "direct-nested-program.hako",
+            ),
+            (
+                ASTNode::UsingStatement {
+                    namespace_name: "std.math".to_owned(),
+                    span: Span::new(196, 197, 196, 1),
+                },
+                "direct-using.hako",
+            ),
+        ];
+
+        for (root, name) in roots {
+            compare_normal_and_legacy(root, name);
+        }
+    }
+
+    #[test]
     fn direct_return_stops_the_suffix_and_failure_keeps_compiler_reusable() {
         let request = |statements, name| {
             NormalCompileRequestV1::for_mir_mode(
