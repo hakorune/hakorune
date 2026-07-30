@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS14-D0 is closed: selected normal/default has NoSafeLiveI0 and R3 has NoSafeDetachedR3 after the return-collector retirement. RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0 is the sole next design stop because the session snapshot of NYASH_BUILD_STATIC_MAIN_ENTRY controls callable Main.main/N materialization and runner entry selection. VM bridge, LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, JumpArgsLayout, and the broader old-IR final disposition remain separate fences. Ownership, View, and feature work stay parked until final conformance resolves every fence."
+status = "RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0 is closed as RETAIN-FENCED: the one ingress snapshot of NYASH_BUILD_STATIC_MAIN_ENTRY is already the sole reader/consumer chain, and Main.main/N materialization changes selected-normal runner entry behavior. RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0 is the sole next design stop; it must establish an explicit entry receipt before any policy rehome/delete. VM bridge, LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, JumpArgsLayout, and the broader old-IR final disposition remain separate fences. Ownership, View, and feature work stay parked until final conformance resolves every fence."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0"
+current_design_stop = "RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0"
 current_execution_row = ""
-current_execution_summary = "T2 policy design only: decide the bounded disposition of the session-snapshotted NYASH_BUILD_STATIC_MAIN_ENTRY compatibility that can materialize Main.main/N and change runner entry selection. Preserve one snapshot per module and current failure/entry behavior; do not implement, create a route, retry/fallback, or touch Ownership/View/features until the design selects an exact owner and old authority."
+current_execution_summary = "T2 design only: decide the source owner and runner-consumable receipt for entry materialization, covering Main.main/0 versus Main.main/N, normal/default and raw/reference separation, and env-snapshot sunset. Do not implement or move the current policy before the contract selects exact owners/deletions; no env reread, second route/collector, retry/fallback, Ownership/View, or feature work."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """MIRBUILDER-LIVE-EDGE-CENSUS14-D0 is closed: selected normal/default has NoSafeLiveI0, and R3 has NoSafeDetachedR3. The sole next design stop is RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0: NYASH_BUILD_STATIC_MAIN_ENTRY is snapshotted at module ingress, can materialize callable Main.main/N, and changes runner entry selection, so it requires a T2 policy decision rather than a cleanup I0. R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0 is closed as RETAIN-FENCED: the existing module snapshot is the sole env reader and its callable Main.main/N materialization changes selected-normal entry behavior, so merely extracting its decls conditional would not retire an authority. RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0 is next to decide an explicit materialization receipt before any rehome/delete. R4 final conformance still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0"
+current_blocker_token = "RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

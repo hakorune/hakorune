@@ -28,10 +28,10 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 ## Current state
 
 ```text
-Parent:        MIRBUILDER-LIVE-EDGE-CENSUS14-D0
+Parent:        RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0
 Latest landed: JOINMODULE-RETURN-COLLECTOR-TEST-ASSET-RET0
-Result:        NoSafeLiveI0 and NoSafeDetachedR3 after fresh reachability census
-Latest design: `RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0`
+Result:        raw/static Main compatibility retained behind one entry-materialization fence
+Latest design: `RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0`
 Executable:    none — policy design stop
 History:       Git history and the short landed tail below
 ```
@@ -176,25 +176,42 @@ it is a policy D0, not an atomic cleanup.
 
 ## Current design stop
 
-`RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0` — T2 policy boundary
+`RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0` — T2, closed as RETAIN-FENCED
 
 ```text
-Decide the disposition of the one module-ingress snapshot
-`NYASH_BUILD_STATIC_MAIN_ENTRY -> CallableMainCompatibilityPolicyV1`.
+`prepare_module` snapshots `NYASH_BUILD_STATIC_MAIN_ENTRY` once into the sole
+`CallableMainCompatibilityPolicyV1`; body lowering never rereads it. Required
+materializes `Main.main/N` through the existing port, while Omitted does not.
 
-Source authority:
-  snapshot once in prepare_module; conditional Main.main/N materialization via
-  the existing collector port; runner entry selection observes that symbol.
+This is not caller-zero or a decls-only cleanup: selected normal reaches it,
+`Main.main/0` changes normal runner entry selection, and `N > 0` retains
+explicit-entry semantics. The raw ledger is a separate reference witness, not
+the selected normal receipt.
 
-Must not move:
-  ordinary Main wrapper lowering, session isolation, collector semantics,
-  current entry/failure behavior, explicit raw-child compatibility, or VM/LLVM
-  fences.
+Do not rehome yet. Moving only the conditional would preserve every authority
+and make a wrapper, not an in-place replacement.
 
-Hard stop:
-  no env re-read, second route, retry/fallback, source reclassification,
-  Ownership/View/feature work, or implementation before one policy owner,
-  sunset/disposition, and exact old authority are selected.
+Sunset requires one explicit entry-materialization request/result contract
+consumed by normal, raw/reference, and runner entry selection; only then may a
+later row retire the snapshot adapter, compilation-context policy field, direct
+lower-side read, and raw ledger/physical disposition together.
+```
+
+## Current design stop
+
+`RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0` — T2 policy boundary
+
+```text
+Decide one source-owned, runner-consumable entry-materialization receipt:
+Main.main/0 versus Main.main/N, normal/default versus raw/reference authority,
+and the existing env snapshot's final sunset.
+
+Must preserve current Required/Omitted behavior, helper -> optional callable ->
+wrapper order, session isolation, collector atomicity, failures/reuse, and all
+runner-specific selection policies until one exact contract replaces them.
+
+Hard stop: no AST/source cloning, env reread, second route/collector, implicit
+entry-name inference, retry/fallback, Ownership/View, or feature activation.
 
 R4 final conformance must decide the retained JoinIR/reference scope explicitly
 (delete versus fenced reference asset). Only after R4 Complete: refresh
