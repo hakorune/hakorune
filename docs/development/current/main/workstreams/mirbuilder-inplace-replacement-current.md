@@ -272,6 +272,22 @@ Stop preserved:
   no fallback/retry, and no new per-row guard.
 ```
 
+## Current design consultation
+
+`RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0` is the active stop. The compact
+question packet is:
+
+```text
+docs/development/current/main/investigations/
+  raw-script-semantic-complete-closure0-question-2026-07-31.md
+```
+
+It explicitly keeps Hakorune source `try`/`throw` rejected, treats postfix
+`catch`/`cleanup` as the canonical target, and treats `ASTNode::TryCatch` as an
+internal compatibility carrier. No semantic-owner implementation is authorized
+until the packet returns a bounded row with one source authority, one terminal,
+preserved diagnostics, and no fallback/retry.
+
 Corrected forward queue:
 
 ```text
