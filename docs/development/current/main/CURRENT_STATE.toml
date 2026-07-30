@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0 and RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0 are closed as NoSafeSlice. None of ScriptRoot, Main, Cataloged, TopLevel, or InstanceConstructor receives a co-owned FunctionOwnerIdV1 + VerifiedSemanticOwnerForestV1 + VerifiedSourceProjectionV1 on the selected production graph. ScriptRoot is the first missing producer: it owns Program/script source but has no exact semantic function-root authority, and current function projection cannot be fabricated from Program. The source-spine repair is landed; Script semantic admission/source-kind design is the next D0. Lambda I0/R0, the generic carrier, CallObject, NestedBoxAdmission, Ownership, and View remain parked."
+status = "RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0, RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0, and RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0 are closed as NoSafeSlice. None of ScriptRoot, Main, Cataloged, TopLevel, or InstanceConstructor receives a co-owned FunctionOwnerIdV1 + VerifiedSemanticOwnerForestV1 + VerifiedSourceProjectionV1 on the selected production graph. ScriptRoot is the first missing producer: it owns Program/script source but has no exact semantic function-root authority, and current function projection cannot be fabricated from Program. The source-spine repair is landed; the next design stop is the context-sensitive Script admission and opaque-boundary contract. Lambda I0/R0, the generic carrier, CallObject, NestedBoxAdmission, Ownership, and View remain parked."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0"
+current_design_stop = "RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0"
 current_execution_row = "none"
-current_execution_summary = "RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0 closed as NoSafeSlice: Function/Lambda-only resolver, root verifier, and source projection cannot accept Program without a coordinated Script source-kind/admission design. Next design stop is RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0. The landed source spine remains the only implementation change; no semantic owner, grammar, diagnostic, Lambda, or fallback route was added."
+current_execution_summary = "RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0 closed as NoSafeSlice: the selected Script route spans 57 AST variants, while the existing Function/Lambda resolver covers only a subset and has no typed opaque boundary. A kind-only matrix cannot preserve context-sensitive dispositions or diagnostic precedence. Next design stop is RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0; no semantic owner, grammar, diagnostic, Lambda, production caller, or fallback route is open."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0 is closed as NoSafeSlice: the existing semantic machinery is Function/Lambda-rooted and cannot be widened to Program without a Script source-kind/admission and diagnostic-precedence design. The next design stop is RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0; no implementation row is open."""
+latest_card_summary = """RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0 is closed as NoSafeSlice: the selected Script route spans 57 AST variants, the resolver is Function/Lambda-rooted, and no typed opaque boundary preserves complete forest/projection coverage and diagnostic precedence. The next design stop is RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0; no implementation row is open."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0-DESIGN-STOP"
+current_blocker_token = "RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

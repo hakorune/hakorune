@@ -112,7 +112,8 @@ Latest design: `RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0` — closed, NoSafeSli
 Latest design: `RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-D0` — closed, T1
 Latest landed: `RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-I0-R0` — `066e33319d`
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0` — closed, NoSafeSlice
-Current design stop: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0`
+Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
+Current design stop: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -171,31 +172,61 @@ Stop:
   fallback, and retry remain forbidden.
 ```
 
+## Latest design closeout
+
+`RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
+
+```text
+Decision:
+  NoSafeSlice. No direct I0/R0 is opened from the current Script surface.
+
+Evidence:
+  The selected Script route spans 57 AST variants, while the existing
+  Function/Lambda resolver vocabulary covers only a subset. A kind-only matrix
+  is insufficient: Break/Continue and similar nodes change disposition by
+  enclosing root/body context. The missing typed OpaqueBoundary contract means
+  skipping unsupported nodes would make forest/projection coverage partial;
+  resolving them now would narrow grammar or move diagnostics earlier.
+
+Done:
+  Worker audits agree on the next prerequisite: a context-sensitive Script
+  admission matrix, typed opaque/source boundary, one-traversal contract,
+  Lambda inventory-only boundary, and duplicate/unresolved/unsupported
+  diagnostic precedence. The landed ProgramBodyRoot/original-ordinal source
+  spine remains valid and unchanged.
+
+Stop:
+  Do not add a semantic owner, production caller, resolver pass, new guard,
+  synthetic FunctionDeclaration, partial forest, second traversal, fallback,
+  or retry from this closeout.
+```
+
 ## Current design stop
 
-`RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0`
+`RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0`
 
 ```text
 Change:
-  Design-only matrix for a Program-rooted Script semantic owner: explicit
-  source-kind/profile, one resolver traversal, accepted/opaque boundaries,
-  and diagnostic precedence. No code or I0 is opened.
+  Design-only contract for the context-sensitive Script admission matrix and
+  typed opaque boundary. No implementation row is open.
 
 Contract:
-  Owned Program remains the source authority. The eventual product must
-  co-seal Script root owner, one nested-owner forest, and one Program
-  projection after CatalogSeal and before CatalogInstall. Function/Lambda
-  products stay unchanged; Lambda remains inventory-only.
+  Keep Program as the sole source authority. The eventual Script product must
+  be one co-sealed source-kind/root-owner/forest/projection product issued after
+  CatalogSeal and before CatalogInstall. Function and Lambda products remain
+  unchanged; Lambda remains inventory-only.
 
 Done:
-  Assign every currently admitted Script surface to one semantic disposition,
-  prove source-site and failure precedence, and define the exact next I0/R0;
-  otherwise retain NoSafeSlice at the first unsupported surface.
+  Define the 57-kind matrix by root/body context, distinguish semantic resolve
+  from opaque diagnostic/runtime/callable boundaries, preserve existing failure
+  precedence, and identify the first exact I0/R0 only if one resolver traversal
+  can provide complete facts. Otherwise close this D0 as NoSafeSlice.
 
 Stop:
-  Any grammar/diagnostic narrowing, synthetic function, partial forest,
-  second traversal/registry, AST clone/reparse, Lambda activation, or fallback
-  returns the lane to NoSafeSlice.
+  Any grammar or diagnostic narrowing, synthetic function, partial forest,
+  untyped opacity, second traversal/registry, AST clone/reparse, Lambda
+  activation, fallback, retry, or a production caller without same-commit old
+  edge deletion.
 ```
 
 Corrected queue:
