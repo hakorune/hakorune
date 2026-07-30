@@ -36,8 +36,9 @@ use crate::runtime::get_global_ring0;
 /// - `quiet_pipe`: 出力を抑制するかどうか
 ///
 /// # Returns
-/// - `true`: JoinIR 経路で実行完了（process::exit 呼び出し済み）
-/// - `false`: JoinIR 経路は使わない（通常 VM にフォールバック）
+/// - `true`: an Exec bridge route handled its attempt; release success exits,
+///   while dev/trace success remains an observation before ordinary VM runs.
+/// - `false`: the explicit compatibility lane continues through ordinary VM.
 ///
 /// # Phase 32 L-4: テーブル駆動ルーティング
 ///
@@ -45,7 +46,7 @@ use crate::runtime::get_global_ring0;
 /// `JoinIrBridgeKind` は route の実行範囲を表す metadata として保持する。
 pub fn try_run_joinir_vm_bridge(module: &MirModule, quiet_pipe: bool) -> bool {
     let flags = JoinIrEnvFlags::from_env();
-    let strict = crate::config::env::joinir_strict_enabled();
+    let strict = bridge_exec_strict_enabled();
 
     // Phase 32 L-4: テーブルから対象関数を探す
     let Some(target) = find_joinir_target(module) else {
@@ -79,9 +80,7 @@ pub fn try_run_joinir_vm_bridge(module: &MirModule, quiet_pipe: bool) -> bool {
 
     if !handled {
         // Phase 80/81: Strict mode では本線対象関数の失敗でパニック
-        let should_panic =
-            crate::mir::join_ir::lowering::should_panic_on_joinir_failure(target.func_name, true);
-        if strict || should_panic {
+        if bridge_exec_failure_requires_exit(strict, target.func_name) {
             get_global_ring0().log.error(&format!(
                 "[joinir/bridge] ERROR: target={} lowering/exec failed (strict, no fallback)",
                 target.func_name
@@ -92,6 +91,18 @@ pub fn try_run_joinir_vm_bridge(module: &MirModule, quiet_pipe: bool) -> bool {
         }
     }
     true
+}
+
+/// Exec bridge failures use the established JoinIR strict aliases locally.
+///
+/// This intentionally does not alter the historical NYASH-only helper used by
+/// other JoinIR families. LowerOnly routes return before this predicate.
+fn bridge_exec_strict_enabled() -> bool {
+    crate::config::env::joinir_dev::strict_enabled()
+}
+
+fn bridge_exec_failure_requires_exit(strict: bool, func_name: &str) -> bool {
+    strict || crate::mir::join_ir::lowering::should_panic_on_joinir_failure(func_name, true)
 }
 
 fn observe_lower_only_target(func_name: &str, module: &MirModule, quiet_pipe: bool) {
@@ -106,5 +117,39 @@ fn observe_lower_only_target(func_name: &str, module: &MirModule, quiet_pipe: bo
             let _ = try_run_stageb_funcscanner(module, quiet_pipe);
         }
         _ => {}
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{bridge_exec_failure_requires_exit, bridge_exec_strict_enabled};
+
+    #[test]
+    fn bridge_exec_strict_accepts_both_established_aliases() {
+        crate::test_support::with_env_vars(
+            &[
+                ("HAKO_JOINIR_STRICT", Some("1")),
+                ("NYASH_JOINIR_STRICT", None),
+            ],
+            || assert!(bridge_exec_strict_enabled()),
+        );
+        crate::test_support::with_env_vars(
+            &[
+                ("HAKO_JOINIR_STRICT", None),
+                ("NYASH_JOINIR_STRICT", Some("1")),
+            ],
+            || assert!(bridge_exec_strict_enabled()),
+        );
+    }
+
+    #[test]
+    fn bridge_exec_failure_requires_strict_or_existing_target_policy() {
+        crate::test_support::with_env_vars(
+            &[("HAKO_JOINIR_STRICT", None), ("NYASH_JOINIR_STRICT", None)],
+            || {
+                assert!(!bridge_exec_failure_requires_exit(false, "Main.skip/1"));
+                assert!(bridge_exec_failure_requires_exit(true, "Main.skip/1"));
+            },
+        );
     }
 }

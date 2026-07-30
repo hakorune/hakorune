@@ -29,9 +29,9 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
-Latest landed: JOINMODULE-VM-BRIDGE-FENCE0-DOC0
-Result:        explicit bridge gate/output contract matches source behavior
-Latest design: `JOINMODULE-VM-BRIDGE-STRICT-POLICY0-D0`
+Latest landed: JOINMODULE-VM-BRIDGE-STRICT-ALIAS0-I0-R0
+Result:        explicit bridge Exec failure shares HAKO+NYASH strict authority
+Latest design: `JOINMODULE-LOWERONLY-TARGET-ALIGNMENT0-D0`
 Executable:    none — design stop
 History:       Git history and the short landed tail below
 ```
@@ -123,15 +123,15 @@ StageB reference consumers are handled only by the next reference-sunset D0.
 
 ## Current design stop
 
-`JOINMODULE-VM-BRIDGE-STRICT-POLICY0-D0` — bridge route-policy boundary
+`JOINMODULE-LOWERONLY-TARGET-ALIGNMENT0-D0` — descriptor/observer boundary
 
 ```text
-Decide whether the VM bridge adopts the documented HAKO+NYASH strict authority
-or retains its NYASH-only strict scope. Also decide the explicit meaning of
-Exec dev/trace continuation and the unresolved LowerOnly target-table row.
+Reconcile stale `FuncScannerBox.append_defs/2` with the current source function
+and complete LowerOnly observer table. Select retirement of the stale row or a
+new exact target with one real observer owner.
 
-Stop: bridge deletion, normal/default route change, LLVM experiment change, or
-shared-carrier reown stays outside this D0.
+Stop: bridge deletion, normal/default route change, strict-policy change, LLVM
+experiment change, or shared-carrier reown stays outside this D0.
 ```
 
 ## Latest closeout
@@ -174,6 +174,18 @@ JOINMODULE-VM-BRIDGE-FENCE0-D0 / DOC0
 that dispatcher caller reaches zero or a separately selected one-execution
 owner replaces the entire explicit lane; it does not authorize normal/default
 fallback, VM bridge growth, or LLVM changes.
+
+## Latest closeout
+
+```text
+JOINMODULE-VM-BRIDGE-STRICT-POLICY0-D0 / STRICT-ALIAS0-I0-R0
+  strict authority                 = HAKO_JOINIR_STRICT || NYASH_JOINIR_STRICT
+  changed surface                  = explicit VM bridge Exec failure only
+  global JoinIR strict helper      = unchanged
+  LowerOnly / dev-trace success    = unchanged and retained-fenced
+  dual-alias policy tests          = green
+  next                             = LowerOnly target alignment D0
+```
 
 ## Previous closeout
 
@@ -468,7 +480,7 @@ R3 Legacy JoinModule/reference disposition
   1. `JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0` — closed;
   2. `JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0` — RETAIN-FENCED;
   3. `JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0` — direct runner RET0 closed;
-     VM bridge is RETAIN-FENCED and strict-policy D0 is current.
+     VM bridge is RETAIN-FENCED and LowerOnly target-alignment D0 is current.
   These are ordering boundaries, not pre-authorized implementations. No
   name-only tree deletion, normal/default route resurrection, or unresolved
   family is allowed.

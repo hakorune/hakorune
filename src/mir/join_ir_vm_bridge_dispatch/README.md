@@ -20,6 +20,8 @@ Routing rule:
 - `Exec` targets may handle process output/exit through JoinIR VM bridge.
 - `LowerOnly` targets may run structural lowering observation, but must always
   return to normal VM Route A, including strict mode.
+- Exec failure is fail-fast for either established JoinIR strict alias;
+  non-strict continuation remains the bounded explicit-VM compatibility path.
 
 ## P5 Crate Split Prep
 

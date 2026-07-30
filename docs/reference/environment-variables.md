@@ -547,7 +547,7 @@ JoinIR の **strict / planner_required / debug は別トグル**。`--dev`（ま
 | --- | --- | --- |
 | release（既定） | 本番挙動 | 何も設定しない |
 | dev（CLI） | 開発用の安全既定 | `--dev` または `NYASH_DEV=1` |
-| joinir‑strict | fail‑fast / contract検証 | `HAKO_JOINIR_STRICT=1` |
+| joinir‑strict | fail‑fast / contract検証 | `HAKO_JOINIR_STRICT=1`（互換alias: `NYASH_JOINIR_STRICT=1`） |
 | planner‑required | legacy fallback 禁止（ゲート用） | `HAKO_JOINIR_PLANNER_REQUIRED=1` |
 | debug | JoinIR トレース | `HAKO_JOINIR_DEBUG=1..3` |
 
