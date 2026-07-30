@@ -364,6 +364,12 @@ fn is_located_scalar_single_value_statement(statement: &ASTNode) -> bool {
     ) || matches!(
         statement,
         ASTNode::GroupedAssignmentExpr { .. } | ASTNode::Print { .. }
+    ) || matches!(
+        statement,
+        ASTNode::Return {
+            value: Some(value),
+            ..
+        } if !matches!(value.as_ref(), ASTNode::MatchExpr { .. })
     )
 }
 

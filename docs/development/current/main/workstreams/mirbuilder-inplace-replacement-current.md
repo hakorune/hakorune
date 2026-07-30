@@ -99,13 +99,14 @@ Latest landed: `RAW-LOCATED-ORDINARY-FIELD-ASSIGNMENT-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-ORDINARY-INDEX-ASSIGNMENT-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-ORDINARY-FIELD-COMPOUND-ASSIGNMENT-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-ORDINARY-INDEX-COMPOUND-ASSIGNMENT-SOURCE-HANDOFF0-I0-R0`
-Current design stop: `RAW-LOCATED-SCALAR-BINDING-REMAINDER6-D0`
+Latest landed: `RAW-LOCATED-NONMATCH-VALUE-RETURN-SOURCE-HANDOFF0-I0-R0`
+Current design stop: `RAW-LOCATED-SCALAR-BINDING-REMAINDER7-D0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`RAW-LOCATED-SCALAR-BINDING-REMAINDER6-D0`
+`RAW-LOCATED-SCALAR-BINDING-REMAINDER7-D0`
 
 ```text
 Landed baseline:
@@ -123,11 +124,14 @@ Landed baseline:
   CompoundAssignmentValue from one intact statement, consumes base/index/RHS
   once, and preserves base -> index preflight -> subscript -> read -> RHS ->
   binary -> store. All ordinary evaluated-place writes are now located.
+  Non-Match value Return derives one ReturnValue source from the intact
+  statement and consumes it once through the unchanged Return owner; cleanup,
+  defer, completion, and Match-return bypass are unchanged.
 
 Question:
-  which one of Return or Local can next remove a real ScalarBinding edge
-  without mixing Match-return bypass, typed-array, or record-constructor
-  authority?
+  which one of void Return, Match-valued Return, or Local can next remove a
+  real ScalarBinding edge without weakening Match-return bypass or mixing
+  typed-array/record-constructor authority?
 
 Stop:
   no nested target path invention, Match-return bypass weakening, Local hook

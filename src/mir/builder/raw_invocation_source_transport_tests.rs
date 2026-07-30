@@ -217,6 +217,10 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
             },
             integer(4),
         ),
+        ASTNode::Return {
+            value: Some(Box::new(integer(8))),
+            span: Span::unknown(),
+        },
     ];
     let (_, root) =
         RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
@@ -243,6 +247,7 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
             ASTNode::Assignment { .. } => ExprChildRoleV1::AssignmentValue,
             ASTNode::GroupedAssignmentExpr { .. } => ExprChildRoleV1::GroupedAssignmentValue,
             ASTNode::CompoundAssignment { .. } => ExprChildRoleV1::CompoundAssignmentValue,
+            ASTNode::Return { .. } => ExprChildRoleV1::ReturnValue,
             _ => unreachable!("scalar single-value fixture"),
         };
         let value = body_child
@@ -335,12 +340,21 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
             span: Span::unknown(),
         },
         ASTNode::Return {
-            value: Some(Box::new(integer(6))),
+            value: None,
+            span: Span::unknown(),
+        },
+        ASTNode::Return {
+            value: Some(Box::new(ASTNode::MatchExpr {
+                scrutinee: Box::new(integer(6)),
+                arms: Vec::new(),
+                else_expr: Box::new(integer(7)),
+                span: Span::unknown(),
+            })),
             span: Span::unknown(),
         },
         ASTNode::Local {
             variables: vec!["x".to_owned()],
-            initial_values: vec![Some(Box::new(integer(7)))],
+            initial_values: vec![Some(Box::new(integer(8)))],
             declared_type_names: vec![None],
             span: Span::unknown(),
         },

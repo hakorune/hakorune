@@ -564,9 +564,21 @@ where
             Ok(StatementSurfaceDispatch::Lowered(value))
         }
         node @ ASTNode::Return { .. } => {
+            let value_source = match &node {
+                ASTNode::Return {
+                    value: Some(value),
+                    ..
+                } if !matches!(value.as_ref(), ASTNode::MatchExpr { .. }) => {
+                    Some(port.prepare_expression_child_source_v1(
+                        &node,
+                        ExprChildRoleV1::ReturnValue,
+                    )?)
+                }
+                _ => None,
+            };
             let statement = ReturnStmt::try_from(node).expect("ASTNode::Return must convert");
             Ok(StatementSurfaceDispatch::Lowered(
-                build_return_with_port_v1(builder, port, statement)?,
+                build_return_with_port_v1(builder, port, statement, value_source)?,
             ))
         }
         ASTNode::Local {
@@ -605,6 +617,7 @@ fn build_return_with_port_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
     statement: ReturnStmt,
+    value_source: Option<crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1>,
 ) -> Result<ValueId, String>
 where
     Port: RawExpressionDispatchPortV1,
@@ -612,8 +625,20 @@ where
     match statement.value {
         Some(value) => {
             let input = RawLegacyValueReturnInputV1::new(*value);
-            drive_value_return_statement_v1(builder, port, &input)
+            match value_source {
+                Some(source) => {
+                    let mut scoped =
+                        RawStructuredChildScopePortV1::new(port, vec![source], Vec::new());
+                    let result = drive_value_return_statement_v1(builder, &mut scoped, &input)?;
+                    scoped.complete_exact_demands_v1()?;
+                    Ok(result)
+                }
+                None => drive_value_return_statement_v1(builder, port, &input),
+            }
         }
-        None => crate::mir::builder::stmts::return_stmt::build_void_return_statement(builder),
+        None => {
+            debug_assert!(value_source.is_none());
+            crate::mir::builder::stmts::return_stmt::build_void_return_statement(builder)
+        }
     }
 }
