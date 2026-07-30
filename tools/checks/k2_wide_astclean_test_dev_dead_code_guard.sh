@@ -4,7 +4,6 @@ set -euo pipefail
 targets=(
   src/tests/identical_exec_instance.rs
   src/tests/helpers/joinir_env.rs
-  src/tests/helpers/joinir_frontend.rs
   src/tests/phase40_array_ext_filter_test.rs
   src/benchmarks/mod.rs
   src/runner/demos.rs

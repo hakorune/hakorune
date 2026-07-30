@@ -1,30 +1,11 @@
-#[cfg(test)]
-use crate::mir::join_ir::JoinModule;
 use crate::mir::join_ir::{BinOpKind, CompareOp, ConstValue, MirLikeInst};
 use crate::mir::ssot::extern_call::extern_call as build_extern_call;
-#[cfg(test)]
-use crate::mir::MirModule;
 use crate::mir::{
     BinaryOp, CompareOp as MirCompareOp, ConstValue as MirConstValue, Effect, EffectMask,
     MirInstruction,
 };
 
 use super::JoinIrVmBridgeError;
-
-// Phase 190: Use modular converters from parent module
-#[cfg(test)]
-use super::joinir_function_converter::JoinIrFunctionConverter;
-
-/// Phase 190: JoinIR → MIR 変換器（統合エントリーポイント）
-///
-/// Phase 32 L-2.2 Step-3: テストから呼び出し可能に `pub(crate)` 化
-#[cfg(test)]
-pub(crate) fn convert_joinir_to_mir(
-    join_module: &JoinModule,
-) -> Result<MirModule, JoinIrVmBridgeError> {
-    // Phase 190: Delegate to FunctionConverter
-    JoinIrFunctionConverter::convert_joinir_to_mir(join_module)
-}
 
 /// MirLikeInst → MirInstruction 変換
 /// Phase 190: 共有ユーティリティとして pub(crate) に変更

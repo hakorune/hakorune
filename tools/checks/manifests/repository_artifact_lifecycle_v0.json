@@ -1,22 +1,22 @@
 {
   "counts": {
-    "checks": 3602,
+    "checks": 3597,
     "design_direct": 855,
-    "docs": 12643,
+    "docs": 12640,
     "docs_development_archive": 2791,
-    "docs_development_current": 8429,
+    "docs_development_current": 8426,
     "main_direct": 168,
     "phase_296x_archive": 2315,
     "phase_296x_direct": 1039,
     "private": 0,
-    "src": 3904,
-    "tools": 7221
+    "src": 3818,
+    "tools": 7214
   },
   "design_registry": {
     "authority_registry_decided": true,
     "c1_review": {
       "basis": "explicit README section evidence",
-      "row_count": 115,
+      "row_count": 114,
       "rows": [
         {
           "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
@@ -261,11 +261,6 @@
         {
           "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09",
           "path": "joinir-extension-dual-route-contract-ssot.md",
-          "role": "authority"
-        },
-        {
-          "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
-          "path": "joinir-frontend-legacy-fixture-key-retirement-ssot.md",
           "role": "authority"
         },
         {
@@ -844,23 +839,23 @@
       "role_assignment": "none",
       "singleton_family_count": 35
     },
-    "direct_files": 855,
-    "markdown_files": 834,
+    "direct_files": 854,
+    "markdown_files": 833,
     "non_markdown_files": 21,
     "owned_sidecar_count": 119,
-    "registered_count": 659,
+    "registered_count": 658,
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 14,
       "docs/development/current/main/CURRENT_STATE.toml": 3,
       "docs/development/current/main/DOCS_LAYOUT.md": 57,
-      "docs/development/current/main/design/README.md": 126
+      "docs/development/current/main/design/README.md": 125
     },
-    "seed_union_count": 167,
+    "seed_union_count": 166,
     "status_counts": {
       "active_like": 128,
       "closed": 12,
-      "other_or_missing": 694
+      "other_or_missing": 693
     },
     "unregistered": [
       "allocator-hook-activation-proof-v0.toml",
@@ -949,7 +944,7 @@
   "document_reachability": {
     "ambiguous_basename_count": 15,
     "archived_in_place_count": 1394,
-    "document_count": 8429,
+    "document_count": 8426,
     "nested_archive_first_batch": {
       "archive_target_collision_count": 0,
       "cluster_count": 1369,
@@ -1163,10 +1158,17 @@
     },
     "partial_phase_unreachable": {
       "archive_target_collision_count": 0,
-      "cluster_count": 0,
-      "clusters": [],
-      "file_count": 0,
-      "phase_count": 0,
+      "cluster_count": 1,
+      "clusters": [
+        {
+          "documents": [
+            "docs/development/current/main/phases/phase-293x/293x-309-ASTCLEAN-016-MIR-BUILDER-CALL-RESOLUTION-DUPLICATE-HELPER-PRUNE.md"
+          ],
+          "file_count": 1
+        }
+      ],
+      "file_count": 1,
+      "phase_count": 1,
       "reachable_incoming_edge_count": 0
     },
     "phase_cluster_count": 0,
@@ -1580,9 +1582,9 @@
       },
       {
         "phase": "phase-293x",
-        "reachable_files": 878,
+        "reachable_files": 877,
         "total_files": 878,
-        "unreachable_files": 0,
+        "unreachable_files": 1,
         "whole_phase_unreachable": false
       },
       {
@@ -1922,18 +1924,18 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 5239,
-    "root_count": 3810,
+    "reachable_count": 5237,
+    "root_count": 3809,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1039,
       "current_pointer": 4,
-      "design_authority": 263,
+      "design_authority": 262,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3185
+      "reference_src_tools": 3182
     },
-    "unreachable_count": 3190,
-    "unreachable_pending_count": 1796,
+    "unreachable_count": 3189,
+    "unreachable_pending_count": 1795,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0
@@ -3583,7 +3585,7 @@
         "current_pointer": false,
         "direct_files": 876,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 759,
+        "external_reference_count": 758,
         "phase": "phase-293x",
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-293x/README.md",
@@ -3613,7 +3615,7 @@
         "current_pointer": false,
         "direct_files": 1039,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 1384,
+        "external_reference_count": 1381,
         "phase": "phase-296x",
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-296x/STATUS.md",

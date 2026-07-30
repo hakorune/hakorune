@@ -10,7 +10,7 @@ This subtree is docs-first only for now. Do not package it as
 
 Current blockers:
 
-- lowering still couples AST/ProgramJSON, runtime/env, and MIR surfaces
+- lowering still couples runtime/env and MIR surfaces
 - `json.rs` / JoinIR serialization is part of the same review lane
 - `join_ir_vm_bridge/` is not stable enough for a crate split
 
@@ -21,7 +21,7 @@ surface stays in the docs-first review lane.
 ## Read First
 
 1. [`lowering/README.md`](./lowering/README.md)
-2. `frontend/` and `lowering/` submodules for the concrete emission flow
+2. `lowering/` submodules for the concrete emission flow
 
 ## Boundaries
 
@@ -84,8 +84,7 @@ Prep rule:
 
 - do not split `join_ir/` away from `join_ir_vm_bridge/` until the lowering
   surface is stable
-- this subtree is docs-first only until the AST/ProgramJSON + runtime/env + MIR
-  coupling is reduced
+- this subtree is docs-first only until the runtime/env + MIR coupling is reduced
 - prefer extracting pure sub-boxes first, then clean intra-tree boundaries, and
   only then revisit whole-subtree packaging
 
@@ -102,7 +101,6 @@ Target-specific lowerer cleanup order is owned by:
 Observation / support surfaces:
 
 - `json.rs`
-- `frontend/func_meta.rs`
 - `lowering/if_dry_runner.rs`
   - dev-only observation scanner invoked from the VM runner when JoinIR dev and
     IfSelect observation flags are enabled
@@ -126,6 +124,9 @@ Active lowering / bridge surfaces:
 
 Retired:
 
+- caller-zero `frontend/` Program-JSON lowerer
+  - retired by `JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0`
+  - VM module conversion and native JoinModule lowering remain independent
 - `lowering/condition_pattern.rs`
   - retired by 291x-748 after usage inventory showed no production caller
   - condition vocabulary now belongs to active route facts, `condition_lowerer`,

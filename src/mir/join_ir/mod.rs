@@ -29,9 +29,6 @@ use crate::mir::MirType;
 // Phase 27.9: Lowering submodule
 pub mod lowering;
 
-// Phase 34-1: Frontend (AST→JoinIR) — skeleton only
-pub mod frontend;
-
 // Re-export lowering functions for backward compatibility
 pub use lowering::{lower_funcscanner_trim_to_joinir, lower_skip_ws_to_joinir};
 

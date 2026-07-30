@@ -82,11 +82,6 @@ pub fn if_in_loop_trace_enabled() -> bool {
     env_bool("HAKO_JOINIR_IF_IN_LOOP_TRACE")
 }
 
-/// HAKO_JOINIR_NESTED_IF=1 - Enable nested if lowering
-pub fn nested_if_enabled() -> bool {
-    env_bool("HAKO_JOINIR_NESTED_IF")
-}
-
 /// HAKO_JOINIR_PRINT_TOKENS_MAIN=1 - Print tokens for main
 pub fn print_tokens_main_enabled() -> bool {
     env_bool("HAKO_JOINIR_PRINT_TOKENS_MAIN")
@@ -95,16 +90,6 @@ pub fn print_tokens_main_enabled() -> bool {
 /// HAKO_JOINIR_ARRAY_FILTER_MAIN=1 - Array filter main mode
 pub fn array_filter_main_enabled() -> bool {
     env_bool("HAKO_JOINIR_ARRAY_FILTER_MAIN")
-}
-
-/// HAKO_JOINIR_READ_QUOTED=1 - Read quoted mode
-pub fn read_quoted_enabled() -> bool {
-    env_bool("HAKO_JOINIR_READ_QUOTED")
-}
-
-/// HAKO_JOINIR_READ_QUOTED_IFMERGE=1 - Read quoted with if-merge
-pub fn read_quoted_ifmerge_enabled() -> bool {
-    env_bool("HAKO_JOINIR_READ_QUOTED_IFMERGE")
 }
 
 /// JOINIR_TEST_DEBUG=1 (or NYASH_JOINIR_TEST_DEBUG=1) - Verbose logging for normalized dev tests

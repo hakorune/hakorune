@@ -9531,22 +9531,6 @@
       "status": "candidate"
     },
     {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_var_with_name",
-      "line": 79,
-      "path": "src/mir/join_ir/frontend/ast_lowerer/loop_routes/step_calculator.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_extract_linear_increment_wrong_var_name",
-      "line": 138,
-      "path": "src/mir/join_ir/frontend/ast_lowerer/loop_routes/step_calculator.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "test_canonical_names_are_not_empty",
       "line": 110,
@@ -9830,7 +9814,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_structured",
-      "line": 519,
+      "line": 516,
       "path": "src/mir/join_ir/mod.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -9838,7 +9822,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_normalized",
-      "line": 523,
+      "line": 520,
       "path": "src/mir/join_ir/mod.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -9854,7 +9838,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "join_func_name",
-      "line": 84,
+      "line": 81,
       "path": "src/mir/join_ir_vm_bridge/mod.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -16279,38 +16263,6 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
-      "function": "lower_loop_by_function_name",
-      "line": 88,
-      "path": "src/mir/join_ir/frontend/ast_lowerer/loop_frontend_binding.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "depends_on_lowering",
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_detect_loop_route_by_name",
-      "line": 130,
-      "path": "src/mir/join_ir/frontend/ast_lowerer/loop_frontend_binding.rs",
-      "reject_reasons": [
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_enabled",
-      "line": 22,
-      "path": "src/mir/join_ir/frontend/ast_lowerer/route.rs",
-      "reject_reasons": [
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
       "function": "test_resolve_promoted_condition_binding_identity_denies_original_name_mismatch",
       "line": 373,
       "path": "src/mir/join_ir/lowering/carrier_info/carrier_info_impl.rs",
@@ -16666,7 +16618,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "get_function_by_name",
-      "line": 533,
+      "line": 530,
       "path": "src/mir/join_ir/mod.rs",
       "reject_reasons": [
         "carrier_surface"
@@ -18696,25 +18648,25 @@
     "source_scan": {
       "by_reject_reason": {
         "backend_surface": 11,
-        "carrier_surface": 271,
+        "carrier_surface": 270,
         "depends_on_builder": 39,
         "depends_on_collection": 69,
         "depends_on_context": 29,
         "depends_on_emission": 44,
-        "depends_on_lowering": 90,
+        "depends_on_lowering": 89,
         "depends_on_metadata": 74,
         "depends_on_resolution": 78,
-        "depends_on_route_selection": 119,
+        "depends_on_route_selection": 116,
         "may_mutate_state": 105,
         "phi_or_localssa_surface": 94,
         "takes_mut_self": 12
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 895,
-        "rejected": 638
+        "candidate": 893,
+        "rejected": 635
       },
-      "surface_count": 1534
+      "surface_count": 1529
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

@@ -735,17 +735,6 @@ superseded_by = ""
 retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
-path = "joinir-frontend-legacy-fixture-key-retirement-ssot.md"
-role = "authority"
-owner = "INDEX.md"
-precedence_parent = "INDEX.md"
-classification_basis = "README:Diagnostics / Contracts（入口）"
-sidecars = []
-supersedes = []
-superseded_by = ""
-retire_when = "owner-family review explicitly replaces this authority"
-
-[[documents]]
 path = "joinir-target-lowerer-thinning-ssot.md"
 role = "authority"
 owner = "INDEX.md"

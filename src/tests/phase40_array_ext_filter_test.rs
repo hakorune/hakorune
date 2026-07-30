@@ -1,59 +1,12 @@
-//! Phase 40-3 Integration Test: array_ext.filter A/B Test
+//! Phase 40 native assigned-variable analysis tests.
 //!
 //! ## Purpose
-//! array_ext.filterのif-in-loop PHI生成について、
-//! Route A (legacy AST→MIR) と Route B (JoinIR Frontend) のanalysisを比較検証。
-//!
-//! ## Routes
-//! - Route A: 旧AST→MIR + collect_assigned_vars経路 (HAKO_JOINIR_ARRAY_FILTER=0)
-//! - Route B: JoinIR Frontend analysis (HAKO_JOINIR_ARRAY_FILTER=1)
-//!
-//! ## Success Criteria
-//! - 実行結果が完全一致（[2, 4, 6]）
-//! - 5回連続PASS
+//! Keep the native `phi_core` assigned-variable observation independent from
+//! the retired caller-zero Program-JSON JoinIR frontend.
 
 #![allow(dead_code)] // ASTCLEAN-008: phase fixture keeps helper paths available under selective test filters.
 
-use crate::mir::join_ir::frontend::AstToJoinIrLowerer;
-use std::collections::HashSet;
-
-/// Test 1: JoinIR frontend analysis helper works
-///
-/// ## Verification Points
-/// 1. extract_if_in_loop_modified_vars() がif-in-loop修正変数を検出
-#[test]
-fn phase40_joinir_meta_helpers_work() {
-    use serde_json::json;
-
-    // Simple loop with if-in-loop modification
-    let loop_body = json!([
-        {"type": "Local", "name": "i", "expr": {}},  // Loop counter (not in if)
-        {"type": "If", "cond": {}, "then": [
-            {"type": "Local", "name": "out", "expr": {}}  // Loop-carried, in if
-        ], "else": null}
-    ]);
-
-    let mut loop_vars = HashSet::new();
-    loop_vars.insert("i".to_string());
-    loop_vars.insert("out".to_string());
-
-    let mut lowerer = AstToJoinIrLowerer::new();
-    let result = lowerer.extract_if_in_loop_modified_vars(&loop_body, &loop_vars);
-
-    // Verify: out is detected, i is not
-    assert!(!result.contains("i"), "Loop counter should NOT be included");
-    assert!(
-        result.contains("out"),
-        "If-in-loop modified var should be included"
-    );
-    assert_eq!(result.len(), 1, "Exactly 1 if-in-loop variable");
-}
-
-// ========================================
-// Phase 40-3.5: A/B Test (Route Switching)
-// ========================================
-
-/// Test 4: JoinIR経由の代入変数収集（Local宣言）
+/// JoinIR経由の代入変数収集（Local宣言）
 ///
 /// ## Verification Points
 /// 1. collect_assigned_vars_via_joinir が Local 宣言を正しく検出
@@ -93,7 +46,7 @@ fn phase40_joinir_detects_local_declarations() {
     assert_eq!(vars.len(), 2, "Should have exactly 2 variables");
 }
 
-/// Test 5: JoinIR経由のネストif内Local検出
+/// JoinIR経由のネストif内Local検出
 ///
 /// ## Verification Points
 /// 1. Nested if内のLocal宣言も正しく検出

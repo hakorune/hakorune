@@ -555,8 +555,6 @@ JoinIR の **strict / planner_required / debug は別トグル**。`--dev`（ま
 | 変数 | 状態 | 説明 |
 | --- | --- | --- |
 | `NYASH_JOINIR_CORE` | Deprecated | JoinIR 本線の ON/OFF トグルだったが、LoopBuilder 削除後は無効化不可。設定しても警告のみにして無視する。 |
-| `HAKO_JOINIR_NESTED_IF` | Deprecated候補 | Route B nested if。 |
-| `HAKO_JOINIR_READ_QUOTED` / `_IFMERGE` | Deprecated候補 | read_quoted JoinIR 実験。 |
 
 ### 使用例
 
