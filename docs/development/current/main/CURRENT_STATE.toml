@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS28-D0 and NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-D0 are closed. Of the exact 11 selected Script compatibility kinds, If and FastMemRegion have bounded existing statement owners; LoopRange, Break, Continue and all six DeclarationIngress kinds have no responsibility-equivalent direct runtime owner. Candidate A selects If alone: exact source + statement span -> existing drive_raw_if_statement_with_port_v1 -> complete_if_statement_v1, with the same RawInvocation port and existing Program branch shells. FastMem remains a separate region-lifecycle row."
+status = "NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-I0-R0 is closed. Selected Script If now has one DirectIfStatement admission that exact-destructures source, aligns statement span, and delegates through the same RawInvocation port to the existing drive_raw_if_statement_with_port_v1 and complete_if_statement_v1 owners. The old If -> StatementControlCompatibility -> RawCompatibility -> drive_legacy_statement_v1 edge is zero. The selected Script compatibility residual is exactly 10 kinds: LoopRange, Break, Continue, FastMemRegion, ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, GlobalVar."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-I0-R0"
-current_execution_summary = "T1 atomic I0/R0: add one DirectIfStatement admission at NormalScriptRuntimeBlockPortV1::lower_statement, exact-destructure the selected If source, align its statement span once, and delegate only to existing drive_raw_if_statement_with_port_v1 plus complete_if_statement_v1 through the same RawInvocation port. Delete selected Script If -> StatementControlCompatibility -> RawCompatibility -> drive_legacy_statement_v1. Preserve condition/then/else demand order, unknown-span Program branch shells, CFG/PHI/JoinIR/completion/failure semantics, and keep every source/check file below 800."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS29-D0"
+current_execution_row = "none"
+current_execution_summary = "Read-only Census29 must inspect the exact remaining 10 selected Script compatibility kinds and the sole R4 registry. FastMemRegion is a known bounded candidate but must be revalidated as an independent register/push/body/pop and metadata responsibility; LoopRange/Break/Continue and all six ingress kinds remain NoSafeSlice absent a new exact owner. No implementation is authorized before the census selects one named old edge."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """Census28 and NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-D0 are closed. If is the sole selected next T1 cutover: one direct admission delegates to the existing raw statement-If owner through the same RawInvocation port and deletes its compatibility edge. FastMem remains separate; LoopRange/Break/Continue and six ingress kinds have no equivalent direct owner. R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-I0-R0 is closed. DirectIfStatement now delegates to the unchanged statement-If descent/completion owners through the same RawInvocation port; the selected compatibility residual is exactly 10 kinds. MIRBUILDER-LIVE-EDGE-CENSUS29-D0 is the sole read-only stop. R4 final conformance still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-I0-R0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS29-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

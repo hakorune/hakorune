@@ -1,7 +1,7 @@
 //! Selected-normal Script runtime descent: one Program classification, ordered existing terminals.
 
 use super::normal_script_direct_statement_owner::{
-    lower_direct_port_aware_expression_v1, lower_direct_print_v1,
+    lower_direct_if_statement_v1, lower_direct_port_aware_expression_v1, lower_direct_print_v1,
     lower_direct_static_const_runtime_completion_v1,
 };
 use super::normal_script_nonbox_statement_disposition::{
@@ -64,6 +64,7 @@ impl PreparedNormalScriptRuntimeInputV1 {
 #[derive(Debug)]
 pub(super) enum NormalScriptRuntimeStatementAdmissionV1 {
     DirectPrint,
+    DirectIfStatement,
     DirectPortAwareExpression,
     DirectStaticConstRuntimeCompletion,
     RawCompatibility,
@@ -82,43 +83,30 @@ pub(super) enum NormalScriptRuntimeStatementAdmissionV1 {
 
 impl PreparedNormalScriptRuntimeWorkV1 {
     pub(super) fn prepare(inputs: Vec<PreparedNormalScriptRuntimeInputV1>) -> Self {
+        use NormalScriptRuntimeStatementAdmissionV1 as Admission;
+        use NormalScriptRuntimeStatementKindV1 as Kind;
         let mut statements = Vec::with_capacity(inputs.len());
         let mut admissions = Vec::with_capacity(inputs.len());
         for input in inputs {
             let admission = match input.kind {
-                NormalScriptRuntimeStatementKindV1::DirectPrint => {
-                    NormalScriptRuntimeStatementAdmissionV1::DirectPrint
+                Kind::DirectPrint => Admission::DirectPrint,
+                Kind::DirectIfStatement => Admission::DirectIfStatement,
+                Kind::DirectPortAwareExpression => Admission::DirectPortAwareExpression,
+                Kind::DirectStaticConstRuntimeCompletion => {
+                    Admission::DirectStaticConstRuntimeCompletion
                 }
-                NormalScriptRuntimeStatementKindV1::DirectPortAwareExpression => {
-                    NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression
-                }
-                NormalScriptRuntimeStatementKindV1::DirectStaticConstRuntimeCompletion => {
-                    NormalScriptRuntimeStatementAdmissionV1::DirectStaticConstRuntimeCompletion
-                }
-                NormalScriptRuntimeStatementKindV1::RawCompatibility => {
-                    NormalScriptRuntimeStatementAdmissionV1::RawCompatibility
-                }
-                NormalScriptRuntimeStatementKindV1::CatalogedNonMainStaticBox => {
-                    NormalScriptRuntimeStatementAdmissionV1::CatalogedNonMainStaticBox
-                }
-                NormalScriptRuntimeStatementKindV1::StaticMainCompatibility => {
-                    NormalScriptRuntimeStatementAdmissionV1::StaticMainCompatibility
-                }
-                NormalScriptRuntimeStatementKindV1::SyncBoxRejection => {
-                    NormalScriptRuntimeStatementAdmissionV1::SyncBoxRejection
-                }
-                NormalScriptRuntimeStatementKindV1::InstancePrefixCompatibility => {
-                    NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility {
-                        constructor_sources: input.constructor_sources,
-                        constructor_batch: input.constructor_batch,
-                    }
-                }
-                NormalScriptRuntimeStatementKindV1::NonPlainInstanceFullLifecycle => {
-                    NormalScriptRuntimeStatementAdmissionV1::NonPlainInstanceFullLifecycle {
-                        constructor_sources: input.constructor_sources,
-                        constructor_batch: input.constructor_batch,
-                    }
-                }
+                Kind::RawCompatibility => Admission::RawCompatibility,
+                Kind::CatalogedNonMainStaticBox => Admission::CatalogedNonMainStaticBox,
+                Kind::StaticMainCompatibility => Admission::StaticMainCompatibility,
+                Kind::SyncBoxRejection => Admission::SyncBoxRejection,
+                Kind::InstancePrefixCompatibility => Admission::InstancePrefixCompatibility {
+                    constructor_sources: input.constructor_sources,
+                    constructor_batch: input.constructor_batch,
+                },
+                Kind::NonPlainInstanceFullLifecycle => Admission::NonPlainInstanceFullLifecycle {
+                    constructor_sources: input.constructor_sources,
+                    constructor_batch: input.constructor_batch,
+                },
             };
             statements.push(input.statement);
             admissions.push(admission);
@@ -212,6 +200,9 @@ where
         match &self.work.admissions[index] {
             NormalScriptRuntimeStatementAdmissionV1::DirectPrint => {
                 lower_direct_print_v1(builder, self.port, statement)
+            }
+            NormalScriptRuntimeStatementAdmissionV1::DirectIfStatement => {
+                lower_direct_if_statement_v1(builder, self.port, statement)
             }
             NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression => {
                 lower_direct_port_aware_expression_v1(builder, self.port, statement)
@@ -402,6 +393,7 @@ where
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum NormalScriptRuntimeStatementKindV1 {
     DirectPrint,
+    DirectIfStatement,
     DirectPortAwareExpression,
     DirectStaticConstRuntimeCompletion,
     RawCompatibility,
@@ -440,6 +432,9 @@ pub(super) fn classify_normal_script_runtime_statement_v1(
         _ => match classify_normal_script_nonbox_statement_v1(statement) {
             NormalScriptNonBoxStatementDispositionV1::DirectPrint => {
                 NormalScriptRuntimeStatementKindV1::DirectPrint
+            }
+            NormalScriptNonBoxStatementDispositionV1::DirectIfStatement => {
+                NormalScriptRuntimeStatementKindV1::DirectIfStatement
             }
             NormalScriptNonBoxStatementDispositionV1::DirectPortAwareExpression => {
                 NormalScriptRuntimeStatementKindV1::DirectPortAwareExpression

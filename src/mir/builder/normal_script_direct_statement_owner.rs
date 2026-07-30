@@ -8,6 +8,9 @@ use crate::ast::ASTNode;
 use crate::mir::builder::emission::constant::emit_void;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
 use crate::mir::builder::recursive_child_lowering::drive_legacy_expression_v1;
+use crate::mir::builder::stmts::if_statement_descent::{
+    complete_if_statement_v1, drive_raw_if_statement_with_port_v1,
+};
 use crate::mir::builder::stmts::print_stmt::{
     lower_prepared_raw_print_with_port_v1, PreparedRawPrintV1,
 };
@@ -40,6 +43,34 @@ where
     Port: RootCallableCapturePortV1,
 {
     drive_legacy_expression_v1(builder, port, statement.clone())
+}
+
+pub(super) fn lower_direct_if_statement_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    statement: &ASTNode,
+) -> Result<ValueId, String>
+where
+    Port: RootCallableCapturePortV1,
+{
+    let ASTNode::If {
+        condition,
+        then_body,
+        else_body,
+        ..
+    } = statement
+    else {
+        return Err("[freeze:contract][mir/script-runtime/if-source-drift]".to_owned());
+    };
+    builder.metadata_ctx.set_current_span(statement.span());
+    let lowering = drive_raw_if_statement_with_port_v1(
+        builder,
+        port,
+        (**condition).clone(),
+        then_body.clone(),
+        else_body.clone(),
+    );
+    complete_if_statement_v1(builder, lowering)
 }
 
 pub(super) fn lower_direct_static_const_runtime_completion_v1(
@@ -218,6 +249,24 @@ mod tests {
             values: vec![1, 2],
             span: Span::new(160, 161, 160, 1),
         };
+        let if_without_else = ASTNode::If {
+            condition: Box::new(ASTNode::Literal {
+                value: LiteralValue::Bool(true),
+                span: Span::new(162, 163, 162, 3),
+            }),
+            then_body: vec![integer(1, 163)],
+            else_body: None,
+            span: Span::new(162, 164, 162, 1),
+        };
+        let if_with_else = ASTNode::If {
+            condition: Box::new(ASTNode::Literal {
+                value: LiteralValue::Bool(false),
+                span: Span::new(165, 166, 165, 3),
+            }),
+            then_body: vec![integer(1, 166)],
+            else_body: Some(vec![integer(2, 167)]),
+            span: Span::new(165, 168, 165, 1),
+        };
 
         for (root, name) in [
             (literal, "direct-literal.hako"),
@@ -238,6 +287,8 @@ mod tests {
             (void_return, "direct-void-return.hako"),
             (value_return, "direct-value-return.hako"),
             (static_table, "direct-static-table.hako"),
+            (if_without_else, "direct-if-no-else.hako"),
+            (if_with_else, "direct-if-else.hako"),
         ] {
             compare_normal_and_legacy(root, name);
         }
@@ -463,5 +514,72 @@ mod tests {
                 "direct-return-reuse.hako",
             ))
             .expect("fresh request must reuse compiler after Return failure");
+    }
+
+    #[test]
+    fn direct_if_branch_failure_discards_candidate_and_reuses_compiler() {
+        let request = |condition, then_body, else_body, name| {
+            NormalCompileRequestV1::for_mir_mode(
+                ASTNode::Program {
+                    statements: vec![ASTNode::If {
+                        condition: Box::new(condition),
+                        then_body,
+                        else_body,
+                        span: Span::unknown(),
+                    }],
+                    span: Span::unknown(),
+                },
+                Some(name),
+                HashMap::new(),
+            )
+            .expect("normal If request")
+        };
+        let missing = |name: &str| ASTNode::Variable {
+            name: name.to_owned(),
+            span: Span::unknown(),
+        };
+        let boolean = |value| ASTNode::Literal {
+            value: LiteralValue::Bool(value),
+            span: Span::unknown(),
+        };
+        let mut compiler = MirCompiler::with_options(false);
+
+        for (condition, then_body, else_body, expected, name) in [
+            (
+                missing("missing_condition"),
+                Vec::new(),
+                None,
+                "missing_condition",
+                "direct-if-condition-failure.hako",
+            ),
+            (
+                boolean(true),
+                vec![missing("missing_then")],
+                Some(vec![missing("must_not_demand_else")]),
+                "missing_then",
+                "direct-if-then-failure.hako",
+            ),
+            (
+                boolean(false),
+                vec![integer(1, 210)],
+                Some(vec![missing("missing_else")]),
+                "missing_else",
+                "direct-if-else-failure.hako",
+            ),
+        ] {
+            let error = compiler
+                .compile_normal(request(condition, then_body, else_body, name))
+                .expect_err("selected If child failure must reject");
+            assert!(error.contains(expected), "{name}: {error}");
+        }
+
+        compiler
+            .compile_normal(request(
+                boolean(true),
+                vec![integer(7, 220)],
+                Some(vec![integer(8, 221)]),
+                "direct-if-reuse.hako",
+            ))
+            .expect("fresh If candidate after child failures");
     }
 }

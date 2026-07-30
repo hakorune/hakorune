@@ -9,6 +9,7 @@ use crate::ast::ASTNode;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum NormalScriptNonBoxStatementDispositionV1 {
     DirectPrint,
+    DirectIfStatement,
     DirectPortAwareExpression,
     DirectStaticConstRuntimeCompletion,
     StatementControlCompatibility,
@@ -21,9 +22,9 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
     statement: &ASTNode,
 ) -> NormalScriptNonBoxStatementDispositionV1 {
     use NormalScriptNonBoxStatementDispositionV1::{
-        DeclarationIngressCompatibility, DirectBoxOwnedElsewhere, DirectPortAwareExpression,
-        DirectPrint, DirectStaticConstRuntimeCompletion, StatementControlCompatibility,
-        TopLevelFunctionImmediateOnly,
+        DeclarationIngressCompatibility, DirectBoxOwnedElsewhere, DirectIfStatement,
+        DirectPortAwareExpression, DirectPrint, DirectStaticConstRuntimeCompletion,
+        StatementControlCompatibility, TopLevelFunctionImmediateOnly,
     };
 
     match statement {
@@ -73,8 +74,9 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
         | ASTNode::UsingStatement { .. }
         | ASTNode::Return { .. } => DirectPortAwareExpression,
 
-        ASTNode::If { .. }
-        | ASTNode::LoopRange { .. }
+        ASTNode::If { .. } => DirectIfStatement,
+
+        ASTNode::LoopRange { .. }
         | ASTNode::Break { .. }
         | ASTNode::Continue { .. }
         | ASTNode::FastMemRegion { .. } => StatementControlCompatibility,
@@ -100,8 +102,8 @@ mod tests {
     use super::{
         classify_normal_script_nonbox_statement_v1,
         NormalScriptNonBoxStatementDispositionV1::{
-            DeclarationIngressCompatibility, DirectPortAwareExpression, DirectPrint,
-            DirectStaticConstRuntimeCompletion, StatementControlCompatibility,
+            DeclarationIngressCompatibility, DirectIfStatement, DirectPortAwareExpression,
+            DirectPrint, DirectStaticConstRuntimeCompletion,
         },
     };
     use crate::ast::{ASTNode, LiteralValue, Span};
@@ -158,7 +160,7 @@ mod tests {
         );
         assert_eq!(
             classify_normal_script_nonbox_statement_v1(&control),
-            StatementControlCompatibility
+            DirectIfStatement
         );
         assert_eq!(
             classify_normal_script_nonbox_statement_v1(&ingress),

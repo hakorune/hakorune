@@ -49,7 +49,8 @@ Latest design:  `NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS28-D0` — closed
 Latest design:  `NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-D0` — closed
-Next execution: `NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-I0-R0`
+Latest landed:  `NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-I0-R0`
+Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS29-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -63,7 +64,7 @@ activation and sunset contract.
 | State | Ledger key / family | Exact surface | Activation / normal-default | Release row / condition |
 | --- | --- | --- | --- | --- |
 | active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | fresh named raw-static-Main disposition, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` proves reachability = 0 |
-| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for exactly 11 selected Script kinds: If, LoopRange, Break, Continue, FastMemRegion, ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, GlobalVar | selected normal Script only; Print, all 28 expression roots, Return, StaticConstTable runtime completion, and all 13 StatementSurfaceFallthrough0 roots are retired; raw/reference and nested body descent remain separate | fresh named selected-Script statement-owner D0 with a same-commit old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
+| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for exactly 10 selected Script kinds: LoopRange, Break, Continue, FastMemRegion, ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, GlobalVar | selected normal Script only; Print, If, all 28 expression roots, Return, StaticConstTable runtime completion, and all 13 StatementSurfaceFallthrough0 roots are retired; raw/reference and nested body descent remain separate | fresh named selected-Script statement-owner D0 with a same-commit old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
 | closed | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program immediate instance constructors, plus selected Script plain-instance runtime-prefix constructors | every selected Program instance Box has one immediate demand; plain Script adds its second `InstancePrefixCompatibility` demand; non-plain Script's later raw runtime lifecycle is the separate row below | retired by `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0`: one source occurrence -> unchanged physical LegacySymbol admission per existing demand |
 | closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
 | closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
@@ -98,6 +99,52 @@ unregistered family may not become active on a generic prose promise. No second
 fence ledger is permitted.
 
 ## Disposition closeout
+
+`NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-I0-R0` — T1 atomic replacement,
+closed
+
+```text
+Named production caller:
+  NormalScriptRuntimeBlockPortV1::lower_statement.
+
+Selected path:
+  If
+  -> DirectIfStatement
+  -> lower_direct_if_statement_v1
+  -> drive_raw_if_statement_with_port_v1
+  -> existing IfForm
+  -> complete_if_statement_v1.
+
+Atomic delete:
+  selected Script If
+  -> StatementControlCompatibility
+  -> RawCompatibility
+  -> drive_legacy_statement_v1
+  = 0.
+
+Preserved:
+  exact statement span; same RawInvocation port; condition then optional-else
+  demand order; unknown-span Program branch shells; CFG/PHI/JoinIR behavior;
+  success-only Void completion; branch termination and suffix stop.
+
+Failure:
+  condition/then/else failures reject the candidate without another route;
+  live Builder remains unpublished and the same compiler accepts a fresh If.
+
+Evidence:
+  direct-owner 5/5; disposition 2/2; If-descent 7/7; runtime-work 6/6;
+  If-parity focused tests; shared guard; cargo check --lib; diff check.
+
+Residual:
+  11 -> 10 exactly.
+
+Structure:
+  runtime work = 794; direct owner = 585; disposition = 225;
+  shared guard = 799. New source/test/check files = 0.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS29-D0.
+```
 
 `NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-D0` — T1 design, closed
 
