@@ -31,8 +31,8 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
 Latest landed: JOINMODULE-METHOD-RETURN-HINT-REOWN0-I0-R0
 Result:        P3-D KnownReturnDefinitionHint is privately reowned by normal
-               finalization; its obsolete JoinIR helper/module edge is deleted
-Latest design: `JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0`
+               finalization; normalized shadow is fenced rather than retired
+Latest design: `JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0`
 Executable:    none — design stop
 History:       Git history and the short landed tail below
 ```
@@ -98,25 +98,55 @@ Rejected/deferred:
   bridge semantics, not current CorePlan ownership.
 ```
 
-## Current design stop
+## Closed design decision
 
-`JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0` — bounded disposition design
+`JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0` — RETAIN-FENCED
 
 ```text
-Freshly census normalized-shadow JoinModule consumers and choose exactly one
-bounded retire-or-fence disposition. It may not pre-authorize implementation.
+Default normal compilation has normalized-shadow execution = 0, but explicit
+JoinIR dev/debug reaches two direct execution sites and a body observer:
 
-Preserve the now-closed P3-D reown, TypeHintPolicy, GenericTypeResolver, P4,
-raw condition drafts, normal/default routes, Ownership, View, and features.
-JumpArgsLayout remains a separate caller-zero carrier boundary.
+  1. cf_loop_joinir_impl -> try_normalized_shadow
+  2. drive_legacy_block_v1 -> NormalizedShadowSuffixRouterBox
+  3. strict/dev StepTree observer (diagnostic only)
 
-Hard stop:
-  any normal/default JoinModule consumer, unresolved direct runner/VM bridge
-  ownership, compatibility expansion, fallback/retry, or a source/check file
-  reaching 800 lines.
+Fence: JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0
+  - selected normal authority = 0
+  - compatibility expansion = 0
+  - new fallback/retry approval = 0
+  - JoinInlineBoundary and JumpArgsLayout ownership move = 0
+
+Sunset: remove both direct execution edges only after one verified
+Recipe/CorePlan owner covers their loop shapes, strict/dev parity is green,
+and the observer contract is independently disposed. The explicit VM/Stage1/
+StageB reference consumers are handled only by the next reference-sunset D0.
+```
+
+## Current design stop
+
+`JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0` — bounded reference disposition
+
+```text
+Inventory the direct JoinIR runner, opt-in VM bridge, and LLVM experiment.
+Select exactly one retired or retained-fence surface; do not merge their
+semantics into the normalized-shadow fence or normal/default route.
+
+Stop: any default caller, shared carrier reown, or reference fallback whose
+removal requires a behavioral replacement returns this work to D0.
 ```
 
 ## Latest closeout
+
+```text
+JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0
+  default normal normalized-shadow execution                         = 0
+  explicit dev/debug direct execution + observer                     = retained-fenced
+  normal authority / grammar / result / publication delta            = 0
+  new fallback/retry approval                                         = 0
+  next                                                               = explicit-reference D0
+```
+
+## Previous closeout
 
 ```text
 JOINMODULE-METHOD-RETURN-HINT-REOWN0-I0-R0
@@ -406,9 +436,9 @@ R3 Legacy JoinModule/reference disposition
   `JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0` is closed. Execute only the
   current condition_fn DerivedShadow RET0 closure. Then reconsider, one at a
   time and with a fresh consumer census:
-  1. `JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0`;
-  2. `JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0`;
-  3. `JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0`.
+  1. `JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0` — closed;
+  2. `JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0` — RETAIN-FENCED;
+  3. `JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0` — current.
   These are ordering boundaries, not pre-authorized implementations. No
   name-only tree deletion, normal/default route resurrection, or unresolved
   family is allowed.
@@ -418,6 +448,13 @@ R4 Final conformance
   live-edge ledger, compatibility/detached-asset disposition, JoinModule
   disposition (including every named R3 closure or fence), and
   accepted-corpus/backend parity are all green.
+
+  R4 must explicitly decide whether the retained 33,993-LOC
+  JoinIR/reference tree is deleted or remains a fenced reference asset;
+  final-pipeline completion cannot silently inherit that decision. Every
+  retained family proves default reachability=0, acceptance truth=0, final
+  planner=0, explicit activation, owner, and sunset. `JumpArgsLayout` is a
+  Core/MIR carrier: it needs its separate rehome disposition, not a fence.
 
 R5 Features, strictly after Complete
   refresh Ownership readiness -> implement Ownership -> View D0 and

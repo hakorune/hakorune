@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINMODULE-METHOD-RETURN-HINT-REOWN0-I0-R0 is closed: selected normal finalization now owns its P3-D KnownReturnDefinitionHint observation, and the obsolete JoinIR helper/module edge is deleted. The next boundary is JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0; it must census and decide one bounded retirement or fence before code opens. JumpArgsLayout remains a separate caller-zero core-carrier rehome. Final conformance must verify every named disposition before Ownership, View, or feature work opens."
+status = "JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0 is closed as RETAIN-FENCED: normalized-shadow execution is default-off but live under explicit JoinIR dev/debug, so it is neither a normal authority nor a safe RET0. Its direct execution, diagnostic observer, and JoinInlineBoundary carrier have one named sunset. JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0 is the next design stop. JumpArgsLayout remains a separate caller-zero core-carrier rehome. Final conformance must resolve every fence before Ownership, View, or feature work opens."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0"
+current_design_stop = "JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0"
 current_execution_row = ""
-current_execution_summary = "Design-only stop: census normalized-shadow JoinModule consumers and select exactly one bounded retire-or-fence disposition. No implementation, normal/default route, JumpArgsLayout move, Ownership, View, or feature work is authorized before the D0 decision."
+current_execution_summary = "Design-only stop: census the direct JoinIR runner, explicit VM bridge, and LLVM experiment consumers; select one bounded retirement or retained-fence disposition. No implementation, normal/default route, JumpArgsLayout move, Ownership, View, or feature work is authorized before the D0 decision."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """JOINMODULE-METHOD-RETURN-HINT-REOWN0-I0-R0 is closed. P3-D KnownReturnDefinitionHint now lives privately in phi_type_inference; its former JoinIR helper, import, module edge, and file are deleted while resolver order and existing type-annotation policy remain unchanged. JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0 is now the only design stop: it must select one bounded normalized-shadow retirement or fence from a fresh consumer census. JumpArgsLayout remains a separate caller-zero Core/MIR carrier task. Final conformance, then Ownership, View, and later features remain parked as stated in the workstream."""
+latest_card_summary = """JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0 is closed as RETAIN-FENCED. Default normal compilation does not execute normalized shadow, but explicit JoinIR dev/debug reaches its two direct execution sites and its body observer; deletion is therefore unsafe. The named fence has one sunset condition and does not grant normal authority or fallback approval. JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0 is now the only design stop. JumpArgsLayout remains a separate caller-zero Core/MIR carrier task. Final conformance must explicitly dispose every retained fence before Ownership, View, and later features can open."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0"
+current_blocker_token = "JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
