@@ -28,11 +28,11 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 ## Current state
 
 ```text
-Parent:        RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0
+Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: JOINMODULE-RETURN-COLLECTOR-TEST-ASSET-RET0
-Result:        raw/static Main compatibility retained behind one entry-materialization fence
-Latest design: `RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0`
-Executable:    none — policy design stop
+Result:        source-owned entry-materialization contract selected
+Latest design: `RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0` — closed
+Executable:    `ENTRY-MATERIALIZATION-RECEIPT0-S0` -> same-cell I0/R0
 History:       Git history and the short landed tail below
 ```
 
@@ -202,22 +202,61 @@ lower-side read, and raw ledger/physical disposition together.
 `RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0` — T2 policy boundary
 
 ```text
-Decide one source-owned, runner-consumable entry-materialization receipt:
-Main.main/0 versus Main.main/N, normal/default versus raw/reference authority,
-and the existing env snapshot's final sunset.
+Decision: Candidate C — source-owned materialization facts; route-specific
+normal/raw receipts; runner-specific selection stays with its existing adapter.
 
-Must preserve current Required/Omitted behavior, helper -> optional callable ->
-wrapper order, session isolation, collector atomicity, failures/reuse, and all
-runner-specific selection policies until one exact contract replaces them.
+Shared vocabulary:
+  `CallableMainMaterializationPolicyV1` plus an exact issued target
+  (symbol/arity only). It owns no AST, source identity, brand, collector, or
+  runner choice.
 
-Hard stop: no AST/source cloning, env reread, second route/collector, implicit
-entry-name inference, retry/fallback, Ownership/View, or feature activation.
+Route receipts:
+  normal: ingress snapshot -> Program expansion source receipt -> collector
+  completion; raw/reference: existing explicit selection -> raw source receipt
+  -> raw physical/ledger completion. Do not combine their brands, drains, or
+  runner routes.
+
+Runner boundary:
+  receipt proves what functions materialized; it does not choose execution.
+  Preserve each current selector, including `NYASH_ENTRY`, MIR/PyVM/mock
+  `Main.main/0` preference, native LLVM `Main.main/1`, and raw exact `main/0`.
+
+Compatibility:
+  normal Script + Required remains Omitted; raw Script + Required remains its
+  existing source rejection. `Main.main/0` is a preference candidate; `N > 0`
+  remains explicit invocation, not default entry.
+
+Hard stop: no global runner selector, entry-name inference, AST/config clone,
+env reread, second route/collector, public result/JSON change, retry/fallback,
+Ownership/View, or feature activation.
+```
+
+## Current execution
+
+`ENTRY-MATERIALIZATION-RECEIPT0-S0` — T2 prerequisite, same-cell I0/R0 next
+
+```text
+Change:
+  Add only the source-owned request/target vocabulary and separate normal/raw
+  source receipts; old authority: none in S0.
+
+Contract:
+  Builder, collector, publication, raw ledger, and runners do not consume the
+  new receipts yet. No receipt stores AST/config/brand or selects an entry.
+
+Done:
+  Required/Omitted, Script/App, `/0`/nonzero arity, and normal/raw separation
+  are source-sealed before Builder effects.
+
+Stop:
+  The immediately following I0/R0 must cut selected normal to the receipt and
+  delete its old snapshot/lower-side edge; otherwise return to this D0.
+```
 
 R4 final conformance must decide the retained JoinIR/reference scope explicitly
 (delete versus fenced reference asset). Only after R4 Complete: refresh
 Ownership readiness, implement Ownership, then open View and later missing
 features one semantic slice at a time.
-```
 
 ## Latest closeout
 
