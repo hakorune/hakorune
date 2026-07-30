@@ -76,6 +76,14 @@ impl<T> RawInvocationSourceTransportV1<T> {
         ))
     }
 
+    pub(in crate::mir::builder) fn script_root(node: T) -> Self {
+        Self::Located(LocatedRawNodeV1::new(
+            node,
+            RawInvocationRootLineageV1::ScriptRoot,
+            SourcePathV1::program_body().node(),
+        ))
+    }
+
     pub(in crate::mir::builder) fn unlocated(node: T, reason: RawUnlocatedPortalV1) -> Self {
         Self::UnlocatedCompatibility { node, reason }
     }
@@ -113,11 +121,18 @@ impl RawInvocationSourceContextV1 {
     ) -> (T, Self) {
         let (node, located, reason) = transport.into_parts();
         let context = match (located, reason) {
-            (Some((root, site)), None) => Self::Located {
-                root,
-                site,
-                body_kind: Some(SourceBodyKindV1::Function),
-            },
+            (Some((root, site)), None) => {
+                let body_kind = if site.segments() == [SourcePathSegmentV1::ProgramBodyRoot] {
+                    SourceBodyKindV1::Program
+                } else {
+                    SourceBodyKindV1::Function
+                };
+                Self::Located {
+                    root,
+                    site,
+                    body_kind: Some(body_kind),
+                }
+            }
             (None, Some(reason)) => Self::UnlocatedCompatibility(reason),
             _ => unreachable!("[freeze:contract][raw-invocation/source-transport-state]"),
         };
@@ -582,11 +597,9 @@ mod lambda_source_tests {
 
     #[test]
     fn lambda_statement_keeps_exact_parent_source_site() {
-        let (_, root) =
-            RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
-                Vec::<ASTNode>::new(),
-                RawInvocationRootLineageV1::ScriptRoot,
-            ));
+        let (_, root) = RawInvocationSourceContextV1::from_transport(
+            RawInvocationSourceTransportV1::script_root(Vec::<ASTNode>::new()),
+        );
         let lambda = ASTNode::Lambda {
             params: Vec::new(),
             body: Vec::new(),
@@ -596,7 +609,10 @@ mod lambda_source_tests {
             RawInvocationSourceContextV1::from_transport(root.body_statement(lambda, 2));
         assert_eq!(
             child.site().unwrap().segments(),
-            &[SourcePathSegmentV1::Body(2)]
+            &[
+                SourcePathSegmentV1::ProgramBodyRoot,
+                SourcePathSegmentV1::ProgramBody(2),
+            ]
         );
     }
 }

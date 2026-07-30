@@ -1,9 +1,9 @@
 //! Selected-normal Script runtime descent: one Program classification, ordered existing terminals.
 
-use super::normal_script_runtime_block_port::NormalScriptRuntimeBlockPortV1;
 use super::normal_script_nonbox_statement_disposition::{
     classify_normal_script_nonbox_statement_v1, NormalScriptNonBoxStatementDispositionV1,
 };
+use super::normal_script_runtime_block_port::NormalScriptRuntimeBlockPortV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::emission::constant::emit_void;
 use crate::mir::builder::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
@@ -19,17 +19,19 @@ use crate::mir::{MirBuilder, ValueId};
 #[derive(Debug)]
 pub(super) struct PreparedNormalScriptRuntimeWorkV1 {
     statements: Box<[ASTNode]>,
-    admissions: Box<[NormalScriptRuntimeStatementAdmissionV1]>,
+    admissions: Box<[LocatedNormalScriptRuntimeAdmissionV1]>,
 }
 #[derive(Debug)]
 pub(super) struct PreparedNormalScriptRuntimeInputV1 {
+    source_statement_index: usize,
     statement: ASTNode,
     kind: NormalScriptRuntimeStatementKindV1,
     constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
     constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
 }
 impl PreparedNormalScriptRuntimeInputV1 {
-    pub(super) fn preclassified(
+    pub(super) fn preclassified_at(
+        source_statement_index: usize,
         statement: ASTNode,
         kind: NormalScriptRuntimeStatementKindV1,
         constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
@@ -47,12 +49,18 @@ impl PreparedNormalScriptRuntimeInputV1 {
             }
         };
         Self {
+            source_statement_index,
             statement,
             kind,
             constructor_sources,
             constructor_batch,
         }
     }
+}
+#[derive(Debug)]
+pub(super) struct LocatedNormalScriptRuntimeAdmissionV1 {
+    pub(super) source_statement_index: usize,
+    pub(super) admission: NormalScriptRuntimeStatementAdmissionV1,
 }
 #[derive(Debug)]
 pub(super) enum NormalScriptRuntimeStatementAdmissionV1 {
@@ -82,6 +90,7 @@ impl PreparedNormalScriptRuntimeWorkV1 {
         let mut statements = Vec::with_capacity(inputs.len());
         let mut admissions = Vec::with_capacity(inputs.len());
         for input in inputs {
+            let source_statement_index = input.source_statement_index;
             let admission = match input.kind {
                 Kind::DirectPrint => Admission::DirectPrint,
                 Kind::DirectIfStatement => Admission::DirectIfStatement,
@@ -107,7 +116,10 @@ impl PreparedNormalScriptRuntimeWorkV1 {
                 },
             };
             statements.push(input.statement);
-            admissions.push(admission);
+            admissions.push(LocatedNormalScriptRuntimeAdmissionV1 {
+                source_statement_index,
+                admission,
+            });
         }
         Self {
             statements: statements.into_boxed_slice(),
@@ -134,7 +146,11 @@ impl PreparedNormalScriptRuntimeWorkV1 {
     }
     #[cfg(test)]
     pub(super) fn admission_at(&self, index: usize) -> &NormalScriptRuntimeStatementAdmissionV1 {
-        &self.admissions[index]
+        &self.admissions[index].admission
+    }
+    #[cfg(test)]
+    pub(super) fn source_statement_index_at(&self, index: usize) -> usize {
+        self.admissions[index].source_statement_index
     }
     #[cfg(test)]
     pub(super) fn statement_at(&self, index: usize) -> &ASTNode {
@@ -148,7 +164,7 @@ impl PreparedNormalScriptRuntimeWorkV1 {
         &NormalInstanceConstructorSourceBatchV1,
         &PreparedInstanceBoxConstructorBatchV1,
     )> {
-        match &self.admissions[index] {
+        match &self.admissions[index].admission {
             NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility {
                 constructor_sources: Some(sources),
                 constructor_batch: Some(batch),
@@ -517,31 +533,36 @@ mod tests {
         *is_record = true;
 
         let work = PreparedNormalScriptRuntimeWorkV1::prepare(vec![
-            PreparedNormalScriptRuntimeInputV1::preclassified(
+            PreparedNormalScriptRuntimeInputV1::preclassified_at(
+                0,
                 plain_box("Helpers", true),
                 classify_normal_script_runtime_statement_v1(&plain_box("Helpers", true)),
                 None,
                 None,
             ),
-            PreparedNormalScriptRuntimeInputV1::preclassified(
+            PreparedNormalScriptRuntimeInputV1::preclassified_at(
+                0,
                 plain_box("Page", false),
                 classify_normal_script_runtime_statement_v1(&plain_box("Page", false)),
                 None,
                 None,
             ),
-            PreparedNormalScriptRuntimeInputV1::preclassified(
+            PreparedNormalScriptRuntimeInputV1::preclassified_at(
+                0,
                 plain_box("Main", true),
                 classify_normal_script_runtime_statement_v1(&plain_box("Main", true)),
                 None,
                 None,
             ),
-            PreparedNormalScriptRuntimeInputV1::preclassified(
+            PreparedNormalScriptRuntimeInputV1::preclassified_at(
+                0,
                 sync_box.clone(),
                 classify_normal_script_runtime_statement_v1(&sync_box),
                 None,
                 None,
             ),
-            PreparedNormalScriptRuntimeInputV1::preclassified(
+            PreparedNormalScriptRuntimeInputV1::preclassified_at(
+                0,
                 record_box.clone(),
                 classify_normal_script_runtime_statement_v1(&record_box),
                 None,

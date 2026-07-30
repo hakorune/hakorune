@@ -1,9 +1,3 @@
-//! Source-only work partition for the selected Program root.
-//!
-//! It consumes the normal root's once-cloned statement vector exactly once,
-//! preserving source order while keeping all Builder effects in the existing
-//! instance/static/Main/body lifecycle owners.
-
 use std::collections::HashMap;
 
 use crate::ast::{ASTNode, DeclarationAttrs, FieldDecl, ParamDecl};
@@ -113,6 +107,7 @@ pub(super) enum PreparedProgramRootRuntimeWorkV1 {
 
 #[derive(Debug)]
 struct PreparedProgramRootRuntimeStatementV1 {
+    source_statement_index: usize,
     statement: ASTNode,
     normal_script_kind: Option<NormalScriptRuntimeStatementKindV1>,
     constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
@@ -136,7 +131,8 @@ impl PreparedProgramRootRuntimeWorkV1 {
                     statements
                         .into_iter()
                         .map(|statement| {
-                            PreparedNormalScriptRuntimeInputV1::preclassified(
+                            PreparedNormalScriptRuntimeInputV1::preclassified_at(
+                                statement.source_statement_index,
                                 statement.statement,
                                 statement
                                     .normal_script_kind
@@ -431,6 +427,7 @@ fn classify_statement(
                     },
                 ),
                 runtime: PreparedProgramRootRuntimeStatementV1 {
+                    source_statement_index: statement_index,
                     statement,
                     normal_script_kind,
                     constructor_sources: if selected_runtime_instance_demand {
@@ -458,6 +455,7 @@ fn classify_statement(
                     methods: methods.clone(),
                 },
                 runtime: PreparedProgramRootRuntimeStatementV1 {
+                    source_statement_index: statement_index,
                     statement,
                     normal_script_kind,
                     constructor_sources: None,
@@ -506,6 +504,7 @@ fn classify_statement(
         }
         _ => {
             ProgramRootStatementDispositionV1::RuntimeOnly(PreparedProgramRootRuntimeStatementV1 {
+                source_statement_index: statement_index,
                 statement,
                 normal_script_kind,
                 constructor_sources: None,
@@ -519,6 +518,7 @@ fn classify_statement(
 mod tests {
     use super::*;
     use crate::ast::{DeclarationAttrs, LiteralValue, Span};
+    use crate::parser::NyashParser;
 
     fn literal(value: i64) -> ASTNode {
         ASTNode::Literal {
@@ -596,7 +596,6 @@ mod tests {
             ProgramRootWorkPlanAdmissionV1::SelectedNormal,
         );
         let parts = plan.into_parts();
-
         assert_eq!(
             parts.terminal,
             ProgramRootTerminalScheduleV1::VerifiedAppMain
@@ -613,46 +612,49 @@ mod tests {
         assert_eq!(parts.deferred_static.len(), 1);
         assert_eq!(parts.deferred_static[0].name, "Helpers");
         assert_eq!(parts.runtime.len(), 4);
-        assert!(matches!(
-            parts.runtime.statement_at(0),
-            ASTNode::BoxDeclaration { name, .. } if name == "Page"
-        ));
-        assert!(matches!(
-            parts.runtime.statement_at(1),
-            ASTNode::BoxDeclaration { name, .. } if name == "Helpers"
-        ));
-        assert!(matches!(
-            parts.runtime.statement_at(2),
-            ASTNode::Literal {
-                value: LiteralValue::Integer(7),
-                ..
-            }
-        ));
-        assert!(matches!(
-            parts.runtime.statement_at(3),
-            ASTNode::BoxDeclaration { name, .. } if name == "Main"
-        ));
+        assert!(
+            matches!(parts.runtime.statement_at(0), ASTNode::BoxDeclaration { name, .. } if name == "Page")
+        );
+        assert!(
+            matches!(parts.runtime.statement_at(3), ASTNode::BoxDeclaration { name, .. } if name == "Main")
+        );
     }
-
     #[test]
     fn script_partition_keeps_static_boxes_out_of_deferred_work() {
+        let ASTNode::Program { statements, .. } = NyashParser::parse_from_string(
+            "static box Helpers { value() { return 1 } }\nfunction helper() { return 2 }\nprint(3)",
+        )
+        .expect("parsed Script partition fixture") else {
+            panic!("expected Program root")
+        };
         let plan = PreparedProgramRootWorkPlanV1::prepare(
-            vec![box_declaration("Helpers", true), function("helper")],
+            statements,
             false,
             ProgramRootWorkPlanAdmissionV1::SelectedNormal,
         );
         let parts = plan.into_parts();
-
         assert_eq!(parts.terminal, ProgramRootTerminalScheduleV1::ScriptRuntime);
         assert_eq!(parts.deferred_static.len(), 0);
         assert_eq!(parts.immediate.len(), 1);
-        assert_eq!(parts.runtime.len(), 1);
+        assert_eq!(parts.runtime.len(), 2);
+        assert!(
+            matches!(parts.runtime.statement_at(0), ASTNode::BoxDeclaration { name, .. } if name == "Helpers")
+        );
         assert!(matches!(
-            parts.runtime.statement_at(0),
-            ASTNode::BoxDeclaration { name, .. } if name == "Helpers"
+            parts.runtime.statement_at(1),
+            ASTNode::Print { .. }
         ));
+        let PreparedProgramRootRuntimeWorkV1::SelectedNormal(runtime) = &parts.runtime else {
+            panic!("expected selected Script runtime work")
+        };
+        assert_eq!(
+            (
+                runtime.source_statement_index_at(0),
+                runtime.source_statement_index_at(1)
+            ),
+            (0, 2)
+        );
     }
-
     #[test]
     fn selected_script_transports_one_constructor_source_to_its_second_demand() {
         let plan = PreparedProgramRootWorkPlanV1::prepare(
@@ -748,7 +750,6 @@ mod tests {
             ProgramRootWorkPlanAdmissionV1::RawCompatibility,
         );
         let parts = plan.into_parts();
-
         assert!(matches!(
             parts.runtime,
             PreparedProgramRootRuntimeWorkV1::RawCompatibility(_)

@@ -107,6 +107,10 @@ impl SourcePathV1 {
         Self(vec![SourcePathSegmentV1::FunctionBody])
     }
 
+    pub(crate) fn program_body() -> Self {
+        Self(vec![SourcePathSegmentV1::ProgramBodyRoot])
+    }
+
     pub(crate) fn lambda_body() -> Self {
         Self(vec![SourcePathSegmentV1::LambdaBodyRoot])
     }

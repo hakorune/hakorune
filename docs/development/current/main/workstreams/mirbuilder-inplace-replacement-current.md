@@ -119,10 +119,10 @@ History:       Git history and the short landed tail below
 
 `RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-I0-R0` · T1 · one atomic I0/R0
 
-**Change:** Carry the original Program ordinal from the once-enumerated
-selected Script work-plan row through runtime filtering, then install one
-`ProgramBody(original_ordinal)` source context at the shared block-port
-boundary. Delete every selected-Script source-site derivation from the compact
+**Change:** Start the selected Script root at `ProgramBodyRoot`, carry the
+original Program ordinal from the once-enumerated runtime row through filtering,
+and install `ProgramBody(original_ordinal)` at the existing source-preparation
+sites. Delete every selected-Script source-site derivation from the compact
 runtime index in the same commit. Keep the compact index only for sequencing
 and suffix bookkeeping; raw/reference work is unchanged.
 
@@ -133,9 +133,10 @@ This row does not issue `FunctionOwnerIdV1`, forest, projection, resolver, or
 Lambda publication, and does not create a second source identity.
 
 **Done:** Original Program ordinals survive mixed immediate/runtime filtering
-and suffix consumption; selected Script sites are exact `ProgramBody(n)` rather
-than `Body(compact_index)`; existing Script MIR/diagnostic/reuse parity and the
-current pointer/fast guard are green.
+and suffix consumption; selected Script root/source-preparation sites use
+`ProgramBodyRoot`/`ProgramBody(n)` rather than `FunctionBody`/`Body(compact_index)`;
+existing Script MIR/diagnostic/reuse parity and the current pointer/fast guard
+are green.
 
 **Stop:** Stop and return to `RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0` if ordinal
 alignment cannot be preserved through suffix consumption, if the shared block

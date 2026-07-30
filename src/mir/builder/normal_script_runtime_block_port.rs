@@ -10,7 +10,8 @@ use super::normal_script_direct_statement_owner::{
 use super::normal_script_runtime_work::{
     lower_cataloged_nonmain_static_box_v1, lower_instance_runtime_prefix_v1,
     lower_nonplain_instance_runtime_lifecycle_v1, lower_static_main_compatibility_v1,
-    reject_sync_box_at_runtime_v1, NormalScriptRuntimeStatementAdmissionV1,
+    reject_sync_box_at_runtime_v1, LocatedNormalScriptRuntimeAdmissionV1,
+    NormalScriptRuntimeStatementAdmissionV1,
 };
 use super::recursive_child_lowering::drive_legacy_statement_v1;
 use super::stmts::block_driver::LegacyBlockDescentPortV1;
@@ -20,14 +21,14 @@ use crate::mir::ValueId;
 
 pub(super) struct NormalScriptRuntimeBlockPortV1<'port, Port> {
     statements: std::vec::IntoIter<ASTNode>,
-    admissions: std::vec::IntoIter<NormalScriptRuntimeStatementAdmissionV1>,
+    admissions: std::vec::IntoIter<LocatedNormalScriptRuntimeAdmissionV1>,
     port: &'port mut Port,
 }
 
 impl<'port, Port> NormalScriptRuntimeBlockPortV1<'port, Port> {
     pub(super) fn new(
         statements: Box<[ASTNode]>,
-        admissions: Box<[NormalScriptRuntimeStatementAdmissionV1]>,
+        admissions: Box<[LocatedNormalScriptRuntimeAdmissionV1]>,
         port: &'port mut Port,
     ) -> Self {
         Self {
@@ -66,7 +67,7 @@ where
     fn lower_statement(
         &mut self,
         builder: &mut MirBuilder,
-        index: usize,
+        _index: usize,
     ) -> Result<ValueId, String> {
         let statement = self
             .statements
@@ -76,11 +77,12 @@ where
             .admissions
             .next()
             .expect("script runtime admission stays aligned with statements");
-        match admission {
+        let source_statement_index = admission.source_statement_index;
+        match admission.admission {
             NormalScriptRuntimeStatementAdmissionV1::DirectPrint => {
                 let source = self
                     .port
-                    .prepare_body_statement_source_v1(&statement, index)?;
+                    .prepare_body_statement_source_v1(&statement, source_statement_index)?;
                 self.port.with_prepared_child_source_v1(source, |port| {
                     lower_direct_print_v1(builder, port, statement)
                 })
@@ -88,7 +90,7 @@ where
             NormalScriptRuntimeStatementAdmissionV1::DirectIfStatement => {
                 let source = self
                     .port
-                    .prepare_body_statement_source_v1(&statement, index)?;
+                    .prepare_body_statement_source_v1(&statement, source_statement_index)?;
                 self.port.with_prepared_child_source_v1(source, |port| {
                     lower_direct_if_statement_v1(builder, port, statement)
                 })
@@ -96,7 +98,7 @@ where
             NormalScriptRuntimeStatementAdmissionV1::DirectFastMemRegion => {
                 let source = self
                     .port
-                    .prepare_body_statement_source_v1(&statement, index)?;
+                    .prepare_body_statement_source_v1(&statement, source_statement_index)?;
                 self.port.with_prepared_child_source_v1(source, |port| {
                     lower_direct_fastmem_region_v1(builder, port, statement)
                 })
@@ -110,7 +112,7 @@ where
                 ) {
                     let source = self
                         .port
-                        .prepare_body_statement_source_v1(&statement, index)?;
+                        .prepare_body_statement_source_v1(&statement, source_statement_index)?;
                     self.port.with_prepared_child_source_v1(source, |port| {
                         lower_direct_port_aware_expression_v1(builder, port, statement)
                     })
