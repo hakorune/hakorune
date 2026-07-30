@@ -69,6 +69,10 @@ pub(crate) enum ExprChildRoleV1 {
     BinaryRight,
     IfCondition,
     LoopCondition,
+    MatchScrutinee,
+    MatchArm(u32),
+    MatchElse,
+    EnumMatchScrutinee,
     BlockExprTail,
     Receiver,
     IndexTarget,
@@ -145,6 +149,24 @@ impl ExprChildRoleV1 {
             (Self::LoopCondition, ASTNode::Loop { condition, .. }) => (
                 SourcePathSegmentV1::LoopCondition,
                 ExprChildSyntaxV1::Node(condition),
+            ),
+            (Self::MatchScrutinee, ASTNode::MatchExpr { scrutinee, .. }) => (
+                SourcePathSegmentV1::MatchScrutinee,
+                ExprChildSyntaxV1::Node(scrutinee),
+            ),
+            (Self::MatchArm(index), ASTNode::MatchExpr { arms, .. }) => (
+                SourcePathSegmentV1::MatchArm(index),
+                arms.get(index as usize)
+                    .map(|arm| ExprChildSyntaxV1::Node(&arm.1))
+                    .unwrap_or(ExprChildSyntaxV1::Missing),
+            ),
+            (Self::MatchElse, ASTNode::MatchExpr { else_expr, .. }) => (
+                SourcePathSegmentV1::MatchElse,
+                ExprChildSyntaxV1::Node(else_expr),
+            ),
+            (Self::EnumMatchScrutinee, ASTNode::EnumMatchExpr { scrutinee, .. }) => (
+                SourcePathSegmentV1::EnumMatchScrutinee,
+                ExprChildSyntaxV1::Node(scrutinee),
             ),
             (Self::BlockExprTail, ASTNode::BlockExpr { tail_expr, .. }) => (
                 SourcePathSegmentV1::BlockExprTail,

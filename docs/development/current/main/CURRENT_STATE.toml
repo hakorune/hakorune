@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LOCATED-DIAGNOSTIC-CONTROL-TERMINALS0-I0-R0 is closed. LoopRange and ContextScope now retain the exact parent site while preserving their existing immediate diagnostics and zero child semantics. ControlBody is reduced to the exact six residual kinds: Program, Loop, MatchExpr, EnumMatchExpr, Lambda, and TryCatch. The selected next T2 row activates only existing Match/Enum recursive child demands; TryCatch and the other residual authorities remain separate. Ownership/View remains parked."
+status = "RAW-LOCATED-BRANCHING-EXPR-CHILDREN0-I0-R0 is closed. MatchExpr now transports exact scrutinee, every arm, and else source receipts; EnumMatchExpr transports only its exact scrutinee receipt. Existing completion, CFG, and enum-route semantics are unchanged. ControlBody is reduced to the exact four residual kinds Program, Loop, Lambda, and TryCatch. The next stop designs the live Loop child-entry boundary; Program, Lambda, and TryCatch remain separate. Ownership/View remains parked."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "RAW-LOCATED-BRANCHING-EXPR-CHILDREN0-I0-R0"
-current_execution_summary = "Activate exact existing source-path segments for Match scrutinee/arms/else and EnumMatch scrutinee, transport them through the selected port, and delete only MatchExpr/EnumMatchExpr ControlBody edges. Enum arm/else and all TryCatch segments remain parked; completion/CFG/enum semantics do not move."
+current_design_stop = "RAW-LOCATED-LOOP-CHILD-ENTRY0-D0"
+current_execution_row = "none"
+current_execution_summary = "Design whether the live Loop JoinIR child-entry can consume the existing located parent receipt without a second route choice or duplicated loop classification. No code implementation is selected. Program, Lambda, and TryCatch remain separate design authorities."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

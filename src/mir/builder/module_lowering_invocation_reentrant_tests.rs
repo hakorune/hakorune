@@ -3,19 +3,24 @@
 //! These fixtures exercise the disconnected capture-only and commit-only
 //! seams.  They do not activate raw production lowering.
 
-use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
+use crate::ast::{
+    ASTNode, BinaryOperator, DeclarationAttrs, EnumMatchArm, LiteralValue, ParamDecl, Span,
+};
 use crate::mir::builder::calls::CanonicalFunctionSessionErrorV1;
 use crate::mir::builder::module_lowering_invocation::{
     LegacyChildDraftAdmissionV1, ModuleLoweringInvocationV1, ModuleLoweringPortChildErrorV1,
 };
 use crate::mir::builder::recursive_child_lowering::{
-    RawBoxMethodChildPortV1, RawInvocationChildPortV1,
+    drive_legacy_expression_v1, RawBoxMethodChildPortV1, RawInvocationChildPortV1,
+    RawLegacyChildLoweringPortV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceTransportV1, RawSourceTransportPortV1,
 };
 use crate::mir::builder::RawSourceLocatorV1;
-use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirType};
+use crate::mir::{
+    BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirInstruction, MirType,
+};
 use std::collections::HashMap;
 use std::panic::{catch_unwind, AssertUnwindSafe};
 
@@ -564,4 +569,102 @@ fn port_aware_capture_failure_restores_parent_without_collection() {
             "reentrant_parent/0"
         );
     });
+}
+
+#[test]
+fn located_enum_match_lowers_only_the_exact_scrutinee_and_keeps_result_shape() {
+    let mut builder = MirBuilder::new();
+    let mut invocation = seeded(&mut builder);
+    let enum_match = || ASTNode::EnumMatchExpr {
+        enum_name: "Option".to_owned(),
+        scrutinee: Box::new(ASTNode::BinaryOp {
+            operator: BinaryOperator::Add,
+            left: Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span: Span::unknown(),
+            }),
+            right: Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(2),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        }),
+        arms: vec![
+            EnumMatchArm {
+                variant_name: "Some".to_owned(),
+                binding_name: None,
+                body: ASTNode::Literal {
+                    value: LiteralValue::Bool(true),
+                    span: Span::unknown(),
+                },
+            },
+            EnumMatchArm {
+                variant_name: "None".to_owned(),
+                binding_name: None,
+                body: ASTNode::Literal {
+                    value: LiteralValue::Bool(false),
+                    span: Span::unknown(),
+                },
+            },
+        ],
+        else_expr: None,
+        span: Span::unknown(),
+    };
+
+    let result = invocation
+        .with_module_port(|builder, module_port| {
+            let mut port = RawInvocationChildPortV1::new(module_port);
+            port.with_source_transport_v1(
+                RawInvocationSourceTransportV1::root(
+                    enum_match(),
+                    RawInvocationRootLineageV1::ScriptRoot,
+                ),
+                |port, enum_match| {
+                    drive_legacy_expression_v1(builder, port, enum_match)
+                },
+            )
+        })
+        .expect("located EnumMatch");
+
+    let selected_instructions = invocation.with_header_port(|builder, _headers| {
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("current function")
+            .blocks[&BasicBlockId::new(0)]
+            .instructions
+            .clone()
+    });
+    assert!(selected_instructions
+        .iter()
+        .any(|row| matches!(row, MirInstruction::BinOp { .. })));
+    assert!(selected_instructions
+        .iter()
+        .any(|row| matches!(row, MirInstruction::VariantTag { .. })));
+    assert!(selected_instructions
+        .iter()
+        .any(|row| matches!(row, MirInstruction::Select { dst, .. } if *dst == result)));
+
+    // The selected scope carries exactly one receipt. Success therefore also
+    // proves that Enum arm/else syntax was observed only by the unchanged
+    // completion owner and never requested as a recursive child.
+    let mut legacy_builder = MirBuilder::new();
+    legacy_builder.enter_function_for_test("reentrant_parent/0".to_owned());
+    let legacy_result = drive_legacy_expression_v1(
+        &mut legacy_builder,
+        &mut RawLegacyChildLoweringPortV1,
+        enum_match(),
+    )
+    .expect("legacy EnumMatch oracle");
+    let legacy_instructions = legacy_builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("legacy current function")
+        .blocks[&BasicBlockId::new(0)]
+        .instructions
+        .clone();
+    assert_eq!(result, legacy_result);
+    assert_eq!(selected_instructions, legacy_instructions);
 }

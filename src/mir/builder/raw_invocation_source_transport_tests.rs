@@ -246,3 +246,65 @@ fn script_direct_if_and_fastmem_start_from_exact_statement_index() {
         ]
     );
 }
+
+#[test]
+fn match_and_enum_roles_issue_only_the_selected_exact_children() {
+    let parent = RawInvocationSourceContextV1::Located {
+        root: RawInvocationRootLineageV1::ScriptRoot,
+        site: SourcePathV1::root_body(8).node(),
+        body_kind: None,
+    };
+    let match_node = ASTNode::MatchExpr {
+        scrutinee: Box::new(integer(1)),
+        arms: vec![
+            (LiteralValue::Integer(1), integer(2)),
+            (LiteralValue::Integer(2), integer(3)),
+        ],
+        else_expr: Box::new(integer(4)),
+        span: Span::unknown(),
+    };
+    for (role, segment) in [
+        (
+            ExprChildRoleV1::MatchScrutinee,
+            SourcePathSegmentV1::MatchScrutinee,
+        ),
+        (
+            ExprChildRoleV1::MatchArm(0),
+            SourcePathSegmentV1::MatchArm(0),
+        ),
+        (
+            ExprChildRoleV1::MatchArm(1),
+            SourcePathSegmentV1::MatchArm(1),
+        ),
+        (ExprChildRoleV1::MatchElse, SourcePathSegmentV1::MatchElse),
+    ] {
+        let child = parent
+            .child_expression(&match_node, role)
+            .expect("exact Match child");
+        assert_eq!(
+            child.site().unwrap().segments(),
+            &[SourcePathSegmentV1::Body(8), segment]
+        );
+    }
+    assert!(parent
+        .child_expression(&match_node, ExprChildRoleV1::MatchArm(2))
+        .is_err());
+
+    let enum_match = ASTNode::EnumMatchExpr {
+        enum_name: "Result".into(),
+        scrutinee: Box::new(integer(5)),
+        arms: Vec::new(),
+        else_expr: None,
+        span: Span::unknown(),
+    };
+    let child = parent
+        .child_expression(&enum_match, ExprChildRoleV1::EnumMatchScrutinee)
+        .expect("exact EnumMatch scrutinee");
+    assert_eq!(
+        child.site().unwrap().segments(),
+        &[
+            SourcePathSegmentV1::Body(8),
+            SourcePathSegmentV1::EnumMatchScrutinee,
+        ]
+    );
+}

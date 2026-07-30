@@ -87,13 +87,13 @@ fn projector_admits_segment_kind(segment: &SourcePathSegmentV1) -> bool {
         | SourcePathSegmentV1::LambdaBody(_)
         | SourcePathSegmentV1::BlockExprPreludeRoot
         | SourcePathSegmentV1::BlockExprPrelude(_)
-        | SourcePathSegmentV1::BlockExprTail => true,
-        SourcePathSegmentV1::Binding(_)
-        | SourcePathSegmentV1::QMarkOperand
+        | SourcePathSegmentV1::BlockExprTail
         | SourcePathSegmentV1::MatchScrutinee
         | SourcePathSegmentV1::MatchArm(_)
         | SourcePathSegmentV1::MatchElse
-        | SourcePathSegmentV1::EnumMatchScrutinee
+        | SourcePathSegmentV1::EnumMatchScrutinee => true,
+        SourcePathSegmentV1::Binding(_)
+        | SourcePathSegmentV1::QMarkOperand
         | SourcePathSegmentV1::EnumMatchArm(_)
         | SourcePathSegmentV1::EnumMatchElse
         | SourcePathSegmentV1::TryBodyRoot
@@ -578,14 +578,54 @@ fn rejects_malformed_paths_without_partial_publication() {
 }
 
 #[test]
+fn projects_match_children_and_enum_scrutinee_without_widening_enum_arms() {
+    let root = function(vec![
+        ASTNode::MatchExpr {
+            scrutinee: Box::new(literal(61)),
+            arms: vec![
+                (LiteralValue::Integer(1), literal(62)),
+                (LiteralValue::Integer(2), literal(63)),
+            ],
+            else_expr: Box::new(literal(64)),
+            span: Span::unknown(),
+        },
+        ASTNode::EnumMatchExpr {
+            enum_name: "Result".into(),
+            scrutinee: Box::new(literal(65)),
+            arms: Vec::new(),
+            else_expr: None,
+            span: Span::unknown(),
+        },
+    ]);
+
+    for (body_index, role, expected) in [
+        (0, SourcePathSegmentV1::MatchScrutinee, 61),
+        (0, SourcePathSegmentV1::MatchArm(0), 62),
+        (0, SourcePathSegmentV1::MatchArm(1), 63),
+        (0, SourcePathSegmentV1::MatchElse, 64),
+        (1, SourcePathSegmentV1::EnumMatchScrutinee, 65),
+    ] {
+        assert_literal(
+            &root,
+            vec![SourcePathSegmentV1::Body(body_index), role],
+            expected,
+        );
+    }
+    assert!(project_source_node_v1(
+        &root,
+        &site(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::MatchArm(2),
+        ]),
+    )
+    .is_none());
+}
+
+#[test]
 fn keeps_the_parked_segment_vocabulary_explicitly_rejected() {
     let parked = [
         SourcePathSegmentV1::Binding(0),
         SourcePathSegmentV1::QMarkOperand,
-        SourcePathSegmentV1::MatchScrutinee,
-        SourcePathSegmentV1::MatchArm(0),
-        SourcePathSegmentV1::MatchElse,
-        SourcePathSegmentV1::EnumMatchScrutinee,
         SourcePathSegmentV1::EnumMatchArm(0),
         SourcePathSegmentV1::EnumMatchElse,
         SourcePathSegmentV1::TryBodyRoot,

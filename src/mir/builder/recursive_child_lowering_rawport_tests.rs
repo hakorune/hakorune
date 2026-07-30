@@ -13,6 +13,9 @@ use super::module_draft_collector::{
     DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
 };
 use super::module_lowering_invocation::ModuleLoweringInvocationV1;
+use super::raw_invocation_source_transport::{
+    RawInvocationRootLineageV1, RawInvocationSourceTransportV1, RawSourceTransportPortV1,
+};
 use super::recursive_child_lowering::{
     drive_legacy_expression_v1, RawInvocationChildPortV1, RawLegacyChildLoweringPortV1,
 };
@@ -727,7 +730,15 @@ fn raw_invocation_port_preserves_match_children() {
             else_expr: Box::new(add(int(6), int(7))),
             span: Span::unknown(),
         };
-        let output = drive_legacy_expression_v1(builder, &mut port, match_node).unwrap();
+        let output = port
+            .with_source_transport_v1(
+                RawInvocationSourceTransportV1::root(
+                    match_node,
+                    RawInvocationRootLineageV1::ScriptRoot,
+                ),
+                |port, match_node| drive_legacy_expression_v1(builder, port, match_node),
+            )
+            .unwrap();
         assert!(instructions(builder).iter().any(|row| matches!(
             row,
             MirInstruction::Phi { dst, .. } if *dst == output

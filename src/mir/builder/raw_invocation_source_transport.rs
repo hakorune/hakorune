@@ -296,8 +296,6 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
     match statement {
         ASTNode::Program { .. }
         | ASTNode::Loop { .. }
-        | ASTNode::MatchExpr { .. }
-        | ASTNode::EnumMatchExpr { .. }
         | ASTNode::Lambda { .. }
         | ASTNode::TryCatch { .. } => RawUnlocatedPortalV1::ControlBody,
 
@@ -353,7 +351,9 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
         | ASTNode::BlockExpr { .. }
         | ASTNode::ScopeBox { .. }
         | ASTNode::LoopRange { .. }
-        | ASTNode::ContextScope { .. } => {
+        | ASTNode::ContextScope { .. }
+        | ASTNode::MatchExpr { .. }
+        | ASTNode::EnumMatchExpr { .. } => {
             unreachable!("[freeze:contract][raw-invocation/direct-box-classifier]")
         }
     }
@@ -369,6 +369,8 @@ fn is_located_control_or_diagnostic_terminal(statement: &ASTNode) -> bool {
             | ASTNode::BlockExpr { .. }
             | ASTNode::LoopRange { .. }
             | ASTNode::ContextScope { .. }
+            | ASTNode::MatchExpr { .. }
+            | ASTNode::EnumMatchExpr { .. }
     )
 }
 

@@ -202,23 +202,81 @@ impl super::MirBuilder {
                 self.build_qmark_propagate_expression_with_port_v1(port, *expression)
             }
 
-            ASTNode::MatchExpr {
-                scrutinee,
-                arms,
-                else_expr,
-                ..
-            } => self.build_peek_expression_with_port_v1(port, *scrutinee, arms, *else_expr),
+            node @ ASTNode::MatchExpr { .. } => {
+                use crate::mir::resolved_semantics::ExprChildRoleV1;
 
-            ASTNode::EnumMatchExpr {
-                enum_name,
-                scrutinee,
-                arms,
-                else_expr,
-                ..
-            } => {
+                let arm_count = match &node {
+                    ASTNode::MatchExpr { arms, .. } => arms.len(),
+                    _ => unreachable!(),
+                };
+                let mut sources = Vec::with_capacity(arm_count + 2);
+                sources.push(
+                    port.prepare_expression_child_source_v1(
+                        &node,
+                        ExprChildRoleV1::MatchScrutinee,
+                    )?,
+                );
+                for index in 0..arm_count {
+                    sources.push(port.prepare_expression_child_source_v1(
+                        &node,
+                        ExprChildRoleV1::MatchArm(index as u32),
+                    )?);
+                }
+                sources.push(
+                    port.prepare_expression_child_source_v1(
+                        &node,
+                        ExprChildRoleV1::MatchElse,
+                    )?,
+                );
+                let ASTNode::MatchExpr {
+                    scrutinee,
+                    arms,
+                    else_expr,
+                    ..
+                } = node
+                else {
+                    unreachable!()
+                };
+                let mut scoped =
+                    super::raw_structured_child_scope::RawStructuredChildScopePortV1::new(
+                        port,
+                        sources,
+                        Vec::new(),
+                    );
+                self.build_peek_expression_with_port_v1(
+                    &mut scoped,
+                    *scrutinee,
+                    arms,
+                    *else_expr,
+                )
+            }
+
+            node @ ASTNode::EnumMatchExpr { .. } => {
+                use crate::mir::resolved_semantics::ExprChildRoleV1;
+
+                let source = port.prepare_expression_child_source_v1(
+                    &node,
+                    ExprChildRoleV1::EnumMatchScrutinee,
+                )?;
+                let ASTNode::EnumMatchExpr {
+                    enum_name,
+                    scrutinee,
+                    arms,
+                    else_expr,
+                    ..
+                } = node
+                else {
+                    unreachable!()
+                };
                 let prepared =
                     PreparedRawEnumMatchV1::prepare(self, enum_name, *scrutinee, arms, else_expr)?;
-                self.lower_prepared_raw_enum_match_with_port_v1(port, prepared)
+                let mut scoped =
+                    super::raw_structured_child_scope::RawStructuredChildScopePortV1::new(
+                        port,
+                        vec![source],
+                        Vec::new(),
+                    );
+                self.lower_prepared_raw_enum_match_with_port_v1(&mut scoped, prepared)
             }
 
             ASTNode::Lambda { params, body, .. } => {

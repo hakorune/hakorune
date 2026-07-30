@@ -128,6 +128,18 @@ fn project_segment<'source>(
         (ASTNode::Loop { body, .. }, SourcePathSegmentV1::LoopBody(index)) => {
             ProjectedSourceNodeV1::Node(body.get(*index as usize)?)
         }
+        (ASTNode::MatchExpr { scrutinee, .. }, SourcePathSegmentV1::MatchScrutinee) => {
+            ProjectedSourceNodeV1::Node(scrutinee)
+        }
+        (ASTNode::MatchExpr { arms, .. }, SourcePathSegmentV1::MatchArm(index)) => {
+            ProjectedSourceNodeV1::Node(&arms.get(*index as usize)?.1)
+        }
+        (ASTNode::MatchExpr { else_expr, .. }, SourcePathSegmentV1::MatchElse) => {
+            ProjectedSourceNodeV1::Node(else_expr)
+        }
+        (ASTNode::EnumMatchExpr { scrutinee, .. }, SourcePathSegmentV1::EnumMatchScrutinee) => {
+            ProjectedSourceNodeV1::Node(scrutinee)
+        }
         (ASTNode::BlockExpr { prelude_stmts, .. }, SourcePathSegmentV1::BlockExprPreludeRoot) => {
             ProjectedSourceNodeV1::Body(prelude_stmts)
         }
