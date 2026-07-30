@@ -83,11 +83,24 @@ impl ProgramDeferredStaticBoxLifecycleV1 {
         callables: &mut Port,
     ) -> Result<(), String>
     where
-        Port: RootCallableCapturePortV1,
+        Port: super::recursive_child_lowering::RawBoxMethodChildPortV1,
     {
         builder.trace_compile(format!("lower static box {}", self.methods.owner()));
         ProgramDeferredStaticCompilationContextScopeV1::open(builder)
             .run(|builder| self.methods.lower_with_port_v1(builder, callables))
+    }
+
+    pub(super) fn lower_normal_with_port_v1<Port>(
+        self,
+        builder: &mut MirBuilder,
+        callables: &mut Port,
+    ) -> Result<(), String>
+    where
+        Port: RootCallableCapturePortV1,
+    {
+        builder.trace_compile(format!("lower static box {}", self.methods.owner()));
+        ProgramDeferredStaticCompilationContextScopeV1::open(builder)
+            .run(|builder| self.methods.lower_root_with_port_v1(builder, callables))
     }
 }
 
@@ -237,7 +250,7 @@ impl MirBuilder {
         for deferred in work.deferred_static {
             let (name, methods) = deferred.into_parts();
             ProgramDeferredStaticBoxLifecycleV1::new(name, methods)
-                .lower_with_port_v1(self, callables)?;
+                .lower_normal_with_port_v1(self, callables)?;
         }
 
         match (work.terminal, expansion) {

@@ -29,10 +29,10 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
-Latest landed: NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0
-Result:        selected normal runtime inputs snapshot at ingress
-Latest design: `NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0` — closed
-Executable:    `NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0`
+Latest landed: NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0
+Result:        source-keyed cataloged Box-method admission in selected normal
+Latest design: `NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0` — closed
+Executable:    `MIRBUILDER-LIVE-EDGE-CENSUS17-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -378,33 +378,50 @@ Fence:
   hidden behind the cataloged-method product.
 ```
 
-## Current execution
+## Latest closeout
 
-`NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0` — atomic selected-normal cutover
+`NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0` — T2 atomic selected-normal cutover, closed
 
 ```text
 Change:
-  Carry the catalog key through static/instance Program work and the selected
-  child port.  Seal a normal cataloged-Box-method admission receipt containing
-  that source witness plus the exact physical symbol and arity; use it for the
-  unchanged body capture and collector admission.
+  Main helpers, non-Main static methods, and ordinary instance methods carry
+  their existing CanonicalSameModuleCallableKeyV1 through the root port into
+  NormalCatalogedBoxMethodDraftAdmissionV1.  The receipt derives the physical
+  symbol and arity, including exactly one instance receiver.
 
 Delete:
-  The selected static/instance Box-method construction of
-  LegacyChildDraftAdmissionV1 = 0.  Its collector mapping remains one explicit
-  compatibility boundary, with a future deletion only when normal drain owns a
-  verified replacement key/policy.
+  Those selected child paths construct LegacyChildDraftAdmissionV1 = 0.  The
+  receipt maps once to the unchanged LegacySymbol + LegacyReplaceWholePair
+  collector boundary; collector-key replacement remains a later named cell.
 
 Evidence:
-  Static and instance source-key/symbol/arity parity, receiver +1 physical
-  arity, one body snapshot, parent restoration on every error, duplicate/repeat
-  replacement parity, normal drain parity, candidate reuse, and unchanged
-  constructor/top-level compatibility.
+  source/physical receipt tests, general-module normal-vs-legacy MIR parity
+  including static and instance methods, candidate failure/reuse, raw legacy
+  terminal tests, lib/vm-reference checks, and current guards are green.
+
+Residual:
+  constructors, top-level functions, and optional callable Main remain on the
+  explicit normal compatibility edge.  `NORMAL-UNCATALOGUED-PROGRAM-CHILD-
+  COMPAT-SUNSET-001` remains active until each has an exact source owner.
+```
+
+## Current execution
+
+`MIRBUILDER-LIVE-EDGE-CENSUS17-D0` — fresh live-edge selection
+
+```text
+Change:
+  Re-inventory selected-normal, explicit normal compatibility, raw/reference,
+  runner, and R3 assets after cataloged Box-method admission cutover.
+
+Done:
+  Record exactly one bounded next D0, live I0/R0, detached R3 disposition, or
+  NoSafeLiveI0 with its named caller and compatibility deletion condition.
 
 Stop:
-  No FunctionOwnerIdV1 issuance, no canonical duplicate policy, no catalog
-  widening for constructors/top-level functions, no grammar/route change, and
-  no retry/fallback, raw/reference, runner, Ownership/View, or feature work.
+  Do not pre-authorize constructors, top-level functions, optional callable
+  Main, collector key/policy, raw/reference, runner, Ownership/View, or feature
+  work from historical inventory alone.
 ```
 
 ## Latest closeout
@@ -882,30 +899,34 @@ census or D0 has selected it.
    Selected catalog-addressable Box-method replacement; uncatalogued children
    are explicit compatibility, not omitted coverage.
 
-8. NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0   (active)
+8. NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0   (closed)
    One atomic selected-normal static/instance Box-method source-witness cutover.
 
-9. Entry-materialization residuals                      (census-selected only)
+9. MIRBUILDER-LIVE-EDGE-CENSUS17-D0                     (active)
+   Fresh selection after cataloged Box-method admission; no successor is
+   presumed before live consumer evidence.
+
+10. Entry-materialization residuals                     (census-selected only)
    A raw/reference receipt handoff and each runner-adapter receipt are separate
    responsibility decisions.  They must preserve their route-specific policies:
    no global selector, no `NYASH_ENTRY` reinterpretation, and no provenance
    collapse.  Their shared completion goal is the removal of the old snapshot /
    compilation-context / lower-side materialization authority, not a new route.
 
-10. R3 reference-asset disposition                      (interleaved only by census)
+11. R3 reference-asset disposition                      (interleaved only by census)
    Each cycle is fresh consumer census -> one RET0, REOWN, or RETAIN-FENCED
    decision -> fresh census.  These rows earn no replacement credit.  The VM
    bridge, normalized shadow, LLVM experiment, and any live carrier remain
    named fences until their own evidence changes.
 
-11. R4 final conformance
+12. R4 final conformance
    Decide every live edge, compatibility sunset, and retained reference asset.
    The 34K-line JoinModule scope is decided here as either deletion or an
    explicit fenced reference asset; LOC is not a completion metric.  Complete
    requires normal/default reachability=0, acceptance truth=0, and final
    planner=0 for every retained reference family.
 
-12. R5 features, strictly after R4 Complete
+13. R5 features, strictly after R4 Complete
    Refresh Ownership readiness -> implement Ownership -> View D0 and I0 -> one
    later unimplemented feature semantic slice at a time.
 ```

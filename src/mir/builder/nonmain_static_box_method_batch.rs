@@ -8,8 +8,10 @@ use std::collections::HashMap;
 
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
+use super::module_lifecycle::RootCallableCapturePortV1;
+use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::recursive_child_lowering::RawBoxMethodChildPortV1;
-use super::MirBuilder;
+use super::{MirBuilder, SameModuleCallableNamespaceV1};
 
 pub(super) struct PreparedNonMainStaticBoxMethodBatchV1 {
     owner: String,
@@ -17,6 +19,7 @@ pub(super) struct PreparedNonMainStaticBoxMethodBatchV1 {
 }
 
 struct PreparedNonMainStaticBoxMethodV1 {
+    method_name: String,
     function_name: String,
     params: Vec<String>,
     param_decls: Vec<ParamDecl>,
@@ -47,6 +50,7 @@ impl PreparedNonMainStaticBoxMethodBatchV1 {
                 };
                 let function_name = format!("{}.{}/{}", owner, method_name, params.len());
                 Some(PreparedNonMainStaticBoxMethodV1 {
+                    method_name,
                     function_name,
                     params,
                     param_decls,
@@ -76,6 +80,52 @@ impl PreparedNonMainStaticBoxMethodBatchV1 {
             port.lower_static_box_method(
                 builder,
                 method.function_name,
+                method.params,
+                method.param_decls,
+                method.return_type_name,
+                method.body,
+                method.uses,
+                method.attrs,
+            )?;
+        }
+        Ok(())
+    }
+
+    pub(super) fn lower_root_with_port_v1<Port>(
+        self,
+        builder: &mut MirBuilder,
+        port: &mut Port,
+    ) -> Result<(), String>
+    where
+        Port: RootCallableCapturePortV1,
+    {
+        for method in self.methods {
+            let canonical_key = builder
+                .comp_ctx
+                .callable_declaration_catalog()
+                .map_err(|error| error.to_string())?
+                .declaration_for(
+                    SameModuleCallableNamespaceV1::StaticBoxMethod,
+                    &self.owner,
+                    &method.method_name,
+                    method.params.len(),
+                )
+                .ok_or_else(|| {
+                    format!(
+                        "[freeze:contract][mir/static-capture/catalog] \\
+                         missing exact declaration for {}.{}/{}",
+                        self.owner,
+                        method.method_name,
+                        method.params.len()
+                    )
+                })?
+                .key()
+                .clone();
+            let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(canonical_key)
+                .map_err(|error| error.to_string())?;
+            port.lower_cataloged_static_box_method(
+                builder,
+                admission,
                 method.params,
                 method.param_decls,
                 method.return_type_name,

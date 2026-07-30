@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS16-D0 and NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0 are closed. The selected next edge is catalog-addressable Box methods: NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0 will replace their LegacyChildDraftAdmissionV1 construction with one source-key-to-physical-draft receipt while preserving the current collector key/policy. Instance constructors and top-level functions remain explicit normal compatibility until their source identities have separate owners; raw/reference, runner selection, VM bridge, LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, JumpArgsLayout, and old-IR disposition remain separate fences. Ownership, View, and feature work stay parked until R4 final conformance."
+status = "NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0 is closed: selected normal catalog-addressable static/instance Box methods now carry CanonicalSameModuleCallableKeyV1 into one source-key-to-physical-draft receipt and no longer construct LegacyChildDraftAdmissionV1. Their body snapshot, parent restoration, LegacySymbol collector key, and LegacyReplaceWholePair policy remain exact. Instance constructors, top-level functions, and optional callable Main remain explicit normal compatibility until their source identities have separate owners. MIRBUILDER-LIVE-EDGE-CENSUS17-D0 is the sole next selection boundary; raw/reference, runner selection, VM bridge, LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, JumpArgsLayout, and old-IR disposition remain separate fences. Ownership, View, and feature work stay parked until R4 final conformance."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0"
-current_execution_row = "NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0"
-current_execution_summary = "One atomic selected-normal callable cutover: catalog-addressable static/instance Box methods carry their existing canonical source key through the Program work/child port, seal one source-key-to-symbol-and-physical-arity receipt, capture one unchanged body session, and admit with the unchanged LegacySymbol/LegacyReplaceWholePair collector boundary. Delete the selected Box-method LegacyChildDraftAdmissionV1 construction in the same commit; constructors/top-level functions remain named compatibility residuals. No canonical FunctionOwnerId fabrication, grammar change, raw/reference or runner change, retry/fallback, Ownership/View, or feature work."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS17-D0"
+current_execution_row = "MIRBUILDER-LIVE-EDGE-CENSUS17-D0"
+current_execution_summary = "Fresh live-edge census after cataloged Box-method draft-admission cutover. Select at most one evidenced next normal I0/R0, bounded T2 D0, detached R3 RET0/REOWN/RETAIN-FENCED disposition, or NoSafeLiveI0. Do not infer a constructor/top-level/callable-Main handoff, alter raw/reference or runner routes, broaden collector policy, add retry/fallback, or touch Ownership/View/features."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """ENTRY-MATERIALIZATION-RECEIPT0-S0, ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0, Census15, NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0, NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0, Census16, and NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0 are closed. Next is one atomic catalog-addressable Box-method draft-admission cutover; constructors/top-level functions remain explicit normal compatibility residuals, while raw/reference and runner policies remain fenced. R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """ENTRY-MATERIALIZATION-RECEIPT0-S0, ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0, Census15, NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0, NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0, Census16, NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0, and NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0 are closed. Selected normal cataloged Box methods have a source-keyed admission receipt; constructors, top-level functions, and optional callable Main remain explicit normal compatibility residuals. Census17 is next; raw/reference and runner policies remain fenced. R4 final conformance still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS17-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

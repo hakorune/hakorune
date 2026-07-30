@@ -34,6 +34,7 @@
 //! 3. **Type hints BEFORE PHI inference**: Ensures value_types populated
 //! 4. **Return strategy order固定**: Direct → hint → P3-D → P4 → P3-C
 //!
+use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::recursive_child_lowering::{
     RawAstChildLoweringPortV1, RawBoxMethodChildPortV1, RawInvocationChildPortV1,
     RawLegacyChildLoweringPortV1,
@@ -51,12 +52,67 @@ use super::type_hint_providers;
 
 /// Root-only extension of the existing raw child-lowering capability.
 ///
-/// Static/free callables, constructors, and root-body descent already have
-/// exact owners on the raw port. Only source-order instance methods need this
-/// extra seam because the parked Stage-B adapter observes their canonical key.
+/// Catalog-addressable Box methods use a source-keyed extension.  Top-level
+/// functions and constructors deliberately remain on the raw child port until
+/// their independent source identities are selected for replacement.
 pub(in crate::mir::builder) trait RootCallableCapturePortV1:
     RawBoxMethodChildPortV1 + RawAstChildLoweringPortV1
 {
+    #[allow(clippy::too_many_arguments)]
+    fn lower_cataloged_static_box_method(
+        &mut self,
+        builder: &mut super::MirBuilder,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        self.lower_static_box_method(
+            builder,
+            admission.physical_symbol().to_owned(),
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn lower_cataloged_instance_box_method(
+        &mut self,
+        builder: &mut super::MirBuilder,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        let function_name = admission.physical_symbol().to_owned();
+        let owner = admission.source_key().owner().to_owned();
+        let method = admission.source_key().name().to_owned();
+        let canonical_key = admission.source_key().clone();
+        self.lower_root_instance_method(
+            builder,
+            canonical_key,
+            owner,
+            method,
+            function_name,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
+    }
+
     #[allow(clippy::too_many_arguments)]
     fn lower_root_instance_method(
         &mut self,
@@ -87,7 +143,55 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
     }
 }
 
-impl RootCallableCapturePortV1 for RawInvocationChildPortV1<'_, '_> {}
+impl RootCallableCapturePortV1 for RawInvocationChildPortV1<'_, '_> {
+    fn lower_cataloged_static_box_method(
+        &mut self,
+        builder: &mut super::MirBuilder,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        self.lower_normal_cataloged_static_box_method_v1(
+            builder,
+            admission,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
+        .map_err(|error| error.to_string())
+    }
+
+    fn lower_cataloged_instance_box_method(
+        &mut self,
+        builder: &mut super::MirBuilder,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        self.lower_normal_cataloged_instance_box_method_v1(
+            builder,
+            admission,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
+        .map_err(|error| error.to_string())
+    }
+}
 impl RootCallableCapturePortV1 for RawLegacyChildLoweringPortV1 {}
 
 impl super::MirBuilder {

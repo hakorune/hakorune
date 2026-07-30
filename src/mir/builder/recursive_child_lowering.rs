@@ -16,6 +16,7 @@ use super::module_lowering_invocation::{
     LegacyChildDraftAdmissionV1, LoweringHeaderPortV1, ModuleLoweringPortChildErrorV1,
     ModuleLoweringPortV1,
 };
+use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::port_aware_function_draft_impl::PortAwarePreparedDraftBodyV1;
 use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
 use super::raw_loop_child_entry::{
@@ -24,6 +25,17 @@ use super::raw_loop_child_entry::{
 use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
 
 const MAX_RAW_EXPRESSION_RECURSION_DEPTH: usize = 200;
+
+fn normalize_instance_box_method_input_v1(
+    function_name: &str,
+    params: Vec<String>,
+    param_decls: Vec<ParamDecl>,
+) -> (Vec<String>, Vec<ParamDecl>) {
+    (
+        super::calls::lowering::normalize_instance_method_params(function_name, params),
+        super::calls::lowering::normalize_instance_method_param_decls(function_name, param_decls),
+    )
+}
 
 pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
     type BodyInput;
@@ -356,6 +368,66 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         };
         Ok(pending)
     }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(in crate::mir::builder) fn lower_normal_cataloged_static_box_method_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        let function_name = admission.physical_symbol().to_owned();
+        builder.observe_legacy_method_lowering_v1(&function_name, &body, None);
+        let pending = self.capture_static_box_method_pending_v1(
+            builder,
+            function_name,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )?;
+        self.module_port
+            .commit_normal_cataloged_box_method_pending(pending, admission)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(in crate::mir::builder) fn lower_normal_cataloged_instance_box_method_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        let function_name = admission.physical_symbol().to_owned();
+        let box_name = admission.source_key().owner().to_owned();
+        let (params, param_decls) =
+            normalize_instance_box_method_input_v1(&function_name, params, param_decls);
+        builder.observe_legacy_method_lowering_v1(&function_name, &body, Some(&box_name));
+        let pending = self.capture_normalized_instance_box_method_pending_v1(
+            builder,
+            function_name,
+            box_name,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )?;
+        self.module_port
+            .commit_normal_cataloged_box_method_pending(pending, admission)
+    }
 }
 
 impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
@@ -556,12 +628,8 @@ impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
-        let params =
-            super::calls::lowering::normalize_instance_method_params(&function_name, params);
-        let param_decls = super::calls::lowering::normalize_instance_method_param_decls(
-            &function_name,
-            param_decls,
-        );
+        let (params, param_decls) =
+            normalize_instance_box_method_input_v1(&function_name, params, param_decls);
         builder.observe_legacy_method_lowering_v1(&function_name, &body, Some(&box_name));
         let expected_arity = params.len() + 1;
         let admission =

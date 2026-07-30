@@ -10,6 +10,7 @@ use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
 use super::declaration_order::sorted_method_entries;
 use super::module_lifecycle::RootCallableCapturePortV1;
+use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::recursive_child_lowering::RawBoxMethodChildPortV1;
 use super::{MirBuilder, SameModuleCallableNamespaceV1};
 
@@ -122,12 +123,11 @@ impl PreparedInstanceBoxMethodBatchV1 {
                 })?
                 .key()
                 .clone();
-            port.lower_root_instance_method(
+            let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(canonical_key)
+                .map_err(|error| error.to_string())?;
+            port.lower_cataloged_instance_box_method(
                 builder,
-                canonical_key,
-                self.owner.clone(),
-                method.method_name,
-                method.function_name,
+                admission,
                 method.params,
                 method.param_decls,
                 method.return_type_name,

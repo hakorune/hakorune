@@ -387,6 +387,7 @@ fn normal_pipeline_matches_legacy_compatibility_for_general_module() {
     let source = r#"
 box Page {
   capacity: usize = 0
+  answer() { return 7 }
 }
 
 static box Utility {
