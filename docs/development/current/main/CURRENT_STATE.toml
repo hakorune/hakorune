@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-I0-R0 is closed. All 21 CallObjectHeader expression kinds now use the existing DirectPortAwareExpression terminal and the same RawInvocation port; their selected Script RawCompatibility -> drive_legacy_statement_v1 edge and retired disposition category are deleted. Full MIR/verification or exact diagnostic parity, nested call/object behavior, failure/reuse, shared guard, and cargo check are green. The selected Script compatibility residual is 26 exact kinds in the two remaining StatementControl and DeclarationIngress families. Fresh live-edge census is required before selecting Return, StaticConstTable, or another responsibility."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS25-D0 and NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-D0 are closed. The selected Script compatibility residual is exactly 26 kinds: 17 StatementControl and 9 DeclarationIngress; the retired CallObjectHeader category has no live occurrence. Candidate A selects all ASTNode::Return shapes for the existing DirectPortAwareExpression terminal. The same RawInvocation port reaches the existing raw expression Return branch, preserving span, cleanup, Match-return, defer, arbitrary value-child header/collector behavior, termination, diagnostics, and reuse. StaticConstTable remains a separate metadata-before-runtime responsibility."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS25-D0"
-current_execution_row = "none"
-current_execution_summary = "Read-only Census25: recount the remaining selected-normal, explicit compatibility, fenced, and unregistered R4 edges after the 21-kind direct-expression cutover. Update the sole R4 fence/residual registry, then select at most one named production responsibility with a same-commit old-edge deletion. Do not preselect Return or StaticConstTable, add a new compatibility route, or implement Ownership/View/features."
+current_design_stop = "none"
+current_execution_row = "NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-I0-R0"
+current_execution_summary = "T1 atomic I0/R0: classify every ASTNode::Return as DirectPortAwareExpression and delete its selected Script StatementControlCompatibility -> RawCompatibility -> drive_legacy_statement_v1 edge. Reuse the same drive_legacy_expression_v1 terminal and existing statement-surface Return owner; preserve root span, void/value completion, cleanup, Match-return, defer, arbitrary child expressions, termination/suffix stop, diagnostics, and failure/reuse. Residual 26 -> 25; no new owner, route, grammar, fallback, retry, or source/check file >=800."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

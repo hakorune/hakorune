@@ -38,7 +38,9 @@ Latest design:  `NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-D0` — close
 Latest landed:  `NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-I0-R0`
 Latest design:  `NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-I0-R0`
-Next stop:      `MIRBUILDER-LIVE-EDGE-CENSUS25-D0`
+Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS25-D0` — closed
+Latest design:  `NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-D0` — closed
+Next execution: `NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -87,6 +89,75 @@ unregistered family may not become active on a generic prose promise. No second
 fence ledger is permitted.
 
 ## Disposition closeout
+
+`NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-D0` — T1 design, closed
+
+```text
+Decision:
+  Candidate A — route every ASTNode::Return through the existing
+  DirectPortAwareExpression terminal.
+
+Old selected path:
+  Return
+  -> StatementControlCompatibility
+  -> RawCompatibility
+  -> drive_legacy_statement_v1
+  -> build_statement_with_port_v1
+  -> raw expression statement-surface Return owner.
+
+New selected path:
+  Return
+  -> DirectPortAwareExpression
+  -> drive_legacy_expression_v1 with the same RawInvocation port
+  -> the same raw expression statement-surface Return owner.
+
+Preserved owners:
+  return; uses build_void_return_statement;
+  return value uses drive_value_return_statement_v1, including cleanup
+  preflight, Match-return probe, one arbitrary value-child descent, defer, and
+  emit_return_from_value. Block termination and suffix stopping remain in the
+  unchanged block driver.
+
+Atomic delete:
+  selected Script Return -> drive_legacy_statement_v1 = 0.
+  Residual 26 -> 25; StatementControl 17 -> 16; DeclarationIngress stays 9.
+
+Forbid:
+  a Return operand allowlist; a second port; custom Return semantics; new
+  owner/product/route/failure; fallback/retry; StaticConstTable or another
+  statement responsibility in this row.
+
+Evidence:
+  void/value/arbitrary-child full MIR and verification parity; exact diagnostic
+  parity; Return span; Match-return and termination/suffix behavior; late
+  failure then fresh compiler reuse; shared guard and all files below 800.
+
+Next:
+  NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-I0-R0.
+```
+
+`MIRBUILDER-LIVE-EDGE-CENSUS25-D0` — read-only census, closed
+
+```text
+Selected Script residual:
+  StatementControlCompatibility = 17 exact kinds
+  DeclarationIngressCompatibility = 9 exact kinds
+  total = 26
+
+Retired category:
+  CallObjectHeaderCompatibility live source occurrence = 0.
+
+R4 registry:
+  retain-fenced=2, active compatibility=2, closed=4, unregistered=8.
+  LegacyChildDraftAdmissionV1 remains 37 occurrences / 8 src/mir files and is
+  an independent observation metric, not a fence count.
+
+Safe independent candidates:
+  Return and StaticConstTable. Return is selected because it reaches an
+  existing exact owner through the already selected expression terminal;
+  StaticConstTable retains a separate metadata-before-runtime completion
+  contract.
+```
 
 `NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-I0-R0` — T1 atomic
 replacement, closed
