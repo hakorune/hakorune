@@ -67,7 +67,8 @@ Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS35-D0` — closed
 Latest landed: `JOINMODULE-PHI-OBSERVER-RETIRE0-RET0`
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS36-D0` — closed
 Latest landed: `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`
-Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS37-D0`
+Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS37-D0` — closed
+Next row:      `LLVM-JOINMODULE-EXPERIMENT-ROUTE-RETIRE0-RET0`
 History:       Git history and the short landed tail below
 ```
 
@@ -91,7 +92,7 @@ activation and sunset contract.
 | closed | `RAW-DRAFT-DISCONNECTED-PROOF-SUNSET-001` | `RawDraftInvocationV1`, its two cfg(test) callers, compiler `begin_raw_draft`, and dedicated guard | production caller = 0; disconnected proof owner only | RET0 | retired by `RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0`: complete owner/test/compiler/guard surface = 0 |
 | closed | `RAW-ROOT-STATIC-CHILD-DRAFT-COMPAT-SUNSET-001` | former `InvocationPhysicalStateV1::complete_raw_static_child` direct `LegacyChildDraftAdmissionV1` issuer shared by static helpers and callable Main | explicit raw public / VM-reference route; default normal = 0 | REOWN | retired by `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`: one existing locator+role admission now reaches the unchanged collector projection; direct legacy-symbol issuer = 0 |
 | closed | `RAW-ROOT-LEGACY-BRANDED-TERMINAL-SUNSET-001` | former caller-zero `complete_legacy_child_branded` and `commit_legacy_pending_branded` adapters from `LegacyChildDraftAdmissionV1` to branded collector receipt | activation = 0 after `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`; definitions only | RET0 | retired by `RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0`; unbranded, symbol-keyed, resolved, and nested-live terminals retained |
-| unregistered | `R4-UNREGISTERED-LLVM-EXPERIMENT-001` — LLVM experiment | feature/env-gated JoinModule mutation route | not normal/default; exact activation/owner not yet registered | undecided; named D0 required before C0 | RET0, REOWN, or RETAIN-FENCED with owner, activation, retire_when |
+| active-retirement | `LLVM-JOINMODULE-EXPERIMENT-ROUTE-SUNSET-001` (promotes `R4-UNREGISTERED-LLVM-EXPERIMENT-001`) | LLVM runner `JoinIrExperimentBox`: `Main.skip/1` MIR -> JoinModule -> MIR replacement plus original-MIR return on lowering/bridge failure | `llvm-harness` + `vm-reference`; `NYASH_JOINIR_EXPERIMENT=1`, `NYASH_JOINIR_LLVM_EXPERIMENT=1`, `NYASH_LLVM_USE_HARNESS=1`; normal/default MIR = 0 | RET0: competing module-mutation authority and silent fallback are forbidden by final pipeline | `LLVM-JOINMODULE-EXPERIMENT-ROUTE-RETIRE0-RET0`: delete LLVM-only owner/hook/plan/report/env/tooling surface; retain shared JoinModule lowering, VM bridge, normalized-shadow fence, and shared experiment flag |
 | unregistered | `R4-UNREGISTERED-FRONTEND-METADATA-001` — frontend metadata | `frontend::func_meta` / `JoinFuncMetaMap` consumers | activation/owner not yet registered | undecided; named D0 required before C0 | RET0, REOWN, or RETAIN-FENCED with owner, activation, retire_when |
 | unregistered | `R4-UNREGISTERED-CARRIER-BOUNDARY-001` — carrier boundaries | `JumpArgsLayout` and `JoinInlineBoundary` families | live/fenced consumer mapping not yet registered | undecided; named D0 required before C0 | CorePlan/MIR rehome D0, RET0, or RETAIN-FENCED |
 | closed | `JOINMODULE-PHI-OBSERVER-SUNSET-001` (promotes `R4-UNREGISTERED-PHI-OBSERVER-001`) | former `verify_phi_reserved` global collector/report, three debug observation hooks, dedicated builder/module tests, exports, README and generated owner-inventory row | production decision consumer = 0 before deletion; complete asset now absent | RET0 | retired by `JOINMODULE-PHI-OBSERVER-RETIRE0-RET0`: complete observer/test/hook/wiring/docs surface = 0 and existing native-owner inventory regenerated |
@@ -101,7 +102,7 @@ activation and sunset contract.
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | normalized-dev Builder execution, explicit VM route, and LLVM experiment have live consumers; exact model/lowering/JSON/format partition unregistered | undecided; named D0 required before C0 | partition live normalized-dev/VM/LLVM owners from caller-zero reference scope, then delete or RETAIN-FENCED with exact owner, activation, retire_when |
 
 The registry has four registered R4 fences, zero active compatibility residuals,
-zero active retirements, ten closed residuals, and five unregistered R4 family
+one active retirement, ten closed residuals, and four unregistered R4 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
@@ -130,6 +131,56 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`MIRBUILDER-LIVE-EDGE-CENSUS37-D0` — read-only census, closed
+
+```text
+Registry:
+  retain-fenced=4, active compatibility=0, active retirement=1,
+  closed=10, unregistered=4.
+
+LegacyChildDraftAdmissionV1:
+  30 occurrences / 6 src/mir files.  The two live issuers both map to
+  NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001; all other occurrences are
+  support/test-only.  No unregistered live admission site remains.
+
+Selected:
+  LLVM-JOINMODULE-EXPERIMENT-ROUTE-RETIRE0-RET0, T2 atomic RET0.
+  The LLVM-only opt-in Main.skip/1 mutation is a live competing production
+  authority and silently returns the original MIR on lowering/bridge failure.
+
+Preserve:
+  shared JoinModule model/lowering; VM bridge; normalized-shadow dev fence;
+  NYASH_JOINIR_EXPERIMENT and its shared accessor.
+
+Next:
+  execute the selected RET0, then return to a fresh live-edge census.
+```
+
+`LLVM-JOINMODULE-EXPERIMENT-ROUTE-RETIRE0-RET0` — T2 atomic RET0, selected
+
+```text
+Change:
+  Delete JoinIrExperimentBox, its LLVM runner hook, pipeline-plan/report
+  fields, LLVM-only environment switch/accessors, and current tooling/docs
+  observations.  Old authority: LLVM Main.skip/1 JoinModule mutation plus
+  original-MIR fallback.
+
+Contract:
+  Preserve LLVM compilation/execution order outside the removed hook, shared
+  JoinModule lowering/model, VM bridge, normalized-shadow dev route, and the
+  shared NYASH_JOINIR_EXPERIMENT flag.  Add no replacement route or fence.
+
+Done:
+  LLVM experiment symbols/current env references and fallback owner are zero;
+  LLVM pipeline inventory/runtime report, llvm-harness+vm-reference build,
+  shared bridge tests, and current-state pointer guard are green.
+
+Stop:
+  Return to design if shared lowering/bridge assets must change, an alias or
+  forwarding facade must remain, fallback moves elsewhere, or another
+  JoinModule mutation route is introduced.
+```
 
 `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0` — T1 detached RET0, closed
 
