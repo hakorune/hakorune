@@ -89,27 +89,27 @@ Latest design: `RAW-LOCATED-CONTROL-BODY-PARTITION1-D0` — one-row deletion rej
 Latest design: `RAW-LOCATED-RESIDUAL-CONTROL-PARTITION2-D0` — exact residual split
 Latest landed: `RAW-LOCATED-DIAGNOSTIC-CONTROL-TERMINALS0-I0-R0`
 Latest landed: `RAW-LOCATED-BRANCHING-EXPR-CHILDREN0-I0-R0`
-Current design stop: `RAW-LOCATED-LOOP-CHILD-ENTRY0-D0`
+Latest landed: `RAW-LOCATED-LOOP-CHILD-ENTRY0-I0-R0`
+Current design stop: `RAW-LOCATED-TRYCATCH-SOURCE-HANDOFF0-D0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`RAW-LOCATED-LOOP-CHILD-ENTRY0-D0`
+`RAW-LOCATED-TRYCATCH-SOURCE-HANDOFF0-D0`
 
 ```text
 Question:
-  can the live Loop JoinIR child-entry consume the existing located parent
-  receipt without a second route choice or duplicated loop classification?
+  can TryCatch retain exact try/catch/finally source receipts through the
+  existing completion owner without changing cleanup or failure semantics?
 
 Landed baseline:
-  MatchExpr transports exact scrutinee/arm/else receipts; EnumMatchExpr
-  transports only its exact scrutinee receipt. ControlBody is now exact four:
-  Program, Loop, Lambda, TryCatch.
+  Loop retains exact parent/condition/body-root receipts through one child-entry
+  terminal; ControlBody is now exact three: Program, Lambda, TryCatch.
 
 Stop:
-  no implementation before D0; no Program/Lambda/TryCatch widening, new Loop
-  grammar, route retry, AST clone/reparse, or duplicate classifier.
+  no implementation before D0; no Program/Lambda widening, TryCatch grammar or
+  cleanup change, route retry, AST clone/reparse, or duplicate classifier.
 ```
 
 Corrected queue:
@@ -153,7 +153,8 @@ activation and sunset contract.
 | closed | `JOINMODULE-TEST-HANDLER-LANE-SUNSET-001` (promotes `R4-UNREGISTERED-TEST-HANDLER-001`) | former cfg(test)-only `block_finalizer`, `handlers/**`, `merge_variable_handler`, and `terminator_builder` legacy VM-bridge handler lane | production conversion remains solely in `joinir_block_converter/**`; deleted lane and registrations = 0 | RET0 | retired by `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`: 14 files / 3743 lines, four cfg(test) module declarations, obsolete README section, stale PHI seam row, and generated inventory rows deleted |
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> `lower_static_box_method` / `lower_instance_box_method`, the two live nested-method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | R4 BLOCKER: source occurrences exist, but neither live issuer receives a function-relative located-source receipt | `RAW-LOCATED-BODY-TRANSPORT0-D0` must select one located transport whose I0/R0 deletes both named production issuers before R4 Complete |
 | closed | `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-SUNSET-001` | former caller-zero `ModuleLoweringPortV1::complete_legacy_child`, two disconnected proof modules, and three inline facade tests | production caller = 0 before deletion; live nested issuers already use capture + `commit_legacy_pending` | RET0 | retired by `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0`; live commit terminals, 2 nested issuers, reentrant proof, collector tests, and live callable-Main physical owner retained |
-| active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected `RawInvocationChildPortV1` only: four fixed portals remain — `ControlBody` with exact residual Program, Loop, Lambda, TryCatch; plus `ScalarBinding`, `CallObject`, `NestedBoxAdmission` | one selected state and one execution per node; RawLegacy/raw-reference remain separate; root/body/direct-Box, five existing-role structured controls, diagnostic-only LoopRange/ContextScope, and Match/Enum exact child transport are closed | no variant/reason reassignment; Loop is the next design stop, while Program/Lambda/TryCatch retain distinct future authorities | close only after residual-control rows remove the ControlBody variant, scalar/call rows remove their variants, and final nested row deletes `NestedBoxAdmission` with both selected nested legacy-symbol issuers |
+| active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected `RawInvocationChildPortV1` only: four fixed portals remain — `ControlBody` with exact residual Program, Lambda, TryCatch; plus `ScalarBinding`, `CallObject`, `NestedBoxAdmission` | one selected state and one execution per node; RawLegacy/raw-reference remain separate; root/body/direct-Box, five existing-role structured controls, diagnostic-only LoopRange/ContextScope, Match/Enum exact child transport, and located Loop child-entry are closed | no variant/reason reassignment; TryCatch is the next design stop, while Program/Lambda retain distinct missing-authority stops | close only after residual-control rows remove the ControlBody variant, scalar/call rows remove their variants, and final nested row deletes `NestedBoxAdmission` with both selected nested legacy-symbol issuers |
+| active compatibility | `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001` | `PreparedLocatedRawLoopChildEntryV1` retains exact Loop parent/condition/body-root receipts, then delegates once to the existing raw JoinIR route | selected invocation only; RawLegacy/reference unchanged; no located JoinIR-plan completion claim | retire when the current Loop route/verified plan consumes the same located product and the source-erasing terminal is zero | no additional route, retry, AST clone/reparse, or receipt reconstruction may be introduced |
 | closed | `JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001` | former three explicit-VM `LowerOnly` target rows, dispatcher observation branch, and `lower_only_routes`; five target names were also consumed by Loop/If/strict classification | observation route and vocabulary = 0; neutral five-name policy and two VM Exec rows remain | REOWN+RET0 | retired by `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`: all five lowerers/direct evidence remain; no old target-table alias |
 | closed | `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-SUNSET-001` | former caller-zero Stage1UsingResolver, StageB body, and StageB FuncScanner target lowerers; exclusive builders, dispatchers, Case-A entrypoints, ValueId ranges, tests, and fixtures | production and retained explicit-VM callers = 0 before deletion | RET0 | retired by `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`; neutral five-name policy, skip/trim VM routes, If vocabulary, native Stage1 verifier, and selfhost mode-B lane retained |
 | closed | `JOINIR-CALLER-ZERO-EXPR-SCOPE-LOWERING-ISLAND-SUNSET-001` | former condition/expr/local/method/scope/user-policy lowering island, its exclusive tests, and obsolete lifecycle guards | repository production and retained reference callers = 0 before deletion | RET0 | retired by `JOINIR-CALLER-ZERO-EXPR-SCOPE-LOWERING-ISLAND-RETIRE0-RET0`; 22 source files / 4,368 lines deleted; live `ConditionBinding` remains |

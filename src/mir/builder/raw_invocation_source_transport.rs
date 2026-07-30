@@ -295,7 +295,6 @@ impl RawInvocationSourceContextV1 {
 fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
     match statement {
         ASTNode::Program { .. }
-        | ASTNode::Loop { .. }
         | ASTNode::Lambda { .. }
         | ASTNode::TryCatch { .. } => RawUnlocatedPortalV1::ControlBody,
 
@@ -346,6 +345,7 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
 
         ASTNode::BoxDeclaration { .. }
         | ASTNode::If { .. }
+        | ASTNode::Loop { .. }
         | ASTNode::TaskScope { .. }
         | ASTNode::FastMemRegion { .. }
         | ASTNode::BlockExpr { .. }
@@ -363,6 +363,7 @@ fn is_located_control_or_diagnostic_terminal(statement: &ASTNode) -> bool {
     matches!(
         statement,
         ASTNode::If { .. }
+            | ASTNode::Loop { .. }
             | ASTNode::TaskScope { .. }
             | ASTNode::FastMemRegion { .. }
             | ASTNode::ScopeBox { .. }

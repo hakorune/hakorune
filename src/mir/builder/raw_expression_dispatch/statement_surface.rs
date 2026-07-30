@@ -217,16 +217,14 @@ where
                 else_node,
             )?))
         }
-        ASTNode::Loop {
-            condition, body, ..
-        } => {
+        loop_node @ ASTNode::Loop { .. } => {
             if crate::config::env::builder_loopform_debug() {
                 crate::runtime::get_global_ring0()
                     .log
                     .debug("[exprs.rs] statement surface Loop route matched");
             }
             Ok(StatementSurfaceDispatch::Lowered(
-                port.lower_loop(builder, *condition, body)?,
+                port.lower_loop(builder, loop_node)?,
             ))
         }
         ASTNode::TryCatch {

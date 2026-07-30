@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LOCATED-BRANCHING-EXPR-CHILDREN0-I0-R0 is closed. MatchExpr now transports exact scrutinee, every arm, and else source receipts; EnumMatchExpr transports only its exact scrutinee receipt. Existing completion, CFG, and enum-route semantics are unchanged. ControlBody is reduced to the exact four residual kinds Program, Loop, Lambda, and TryCatch. The next stop designs the live Loop child-entry boundary; Program, Lambda, and TryCatch remain separate. Ownership/View remains parked."
+status = "RAW-LOCATED-LOOP-CHILD-ENTRY0-I0-R0 is closed. The selected invocation Loop now retains its exact parent, condition, and body-root receipts through one child-entry terminal; reachable-Box classification and the existing JoinIR route each execute at most once. The old Loop -> ControlBody source-erasure edge is deleted, reducing ControlBody to Program, Lambda, and TryCatch. Located JoinIR planning remains explicitly incomplete behind a bounded sunset. The next stop designs TryCatch source handoff; Ownership/View remains parked."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-LOCATED-LOOP-CHILD-ENTRY0-D0"
+current_design_stop = "RAW-LOCATED-TRYCATCH-SOURCE-HANDOFF0-D0"
 current_execution_row = "none"
-current_execution_summary = "Design whether the live Loop JoinIR child-entry can consume the existing located parent receipt without a second route choice or duplicated loop classification. No code implementation is selected. Program, Lambda, and TryCatch remain separate design authorities."
+current_execution_summary = "Design an exact TryCatch parent/try/catch/finally source handoff without changing its current completion, cleanup, or failure semantics. No implementation is selected. Program and Lambda retain separate missing-authority stops."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

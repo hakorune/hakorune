@@ -19,13 +19,11 @@ use super::module_lowering_invocation::{
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::port_aware_function_draft_impl::PortAwarePreparedDraftBodyV1;
 use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
-use super::raw_loop_child_entry::{
-    classify_raw_loop_child_entry_v1, RawLoopChildEntryDispositionV1,
-};
 use super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1,
     RawInvocationSourceTransportV1, RawSourceTransportPortV1, RawUnlocatedPortalV1,
 };
+use super::raw_loop_child_entry::PreparedLocatedRawLoopChildEntryV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 pub(in crate::mir::builder) use super::raw_expression_recursion_guard::
     with_legacy_expression_recursion_guard_v1;
@@ -149,8 +147,7 @@ pub(in crate::mir::builder) trait RawLoopChildEntryPortV1 {
     fn lower_loop(
         &mut self,
         builder: &mut MirBuilder,
-        condition: ASTNode,
-        body: Vec<ASTNode>,
+        loop_node: ASTNode,
     ) -> Result<ValueId, String>;
 }
 
@@ -579,10 +576,17 @@ impl RawLoopChildEntryPortV1 for RawLegacyChildLoweringPortV1 {
     fn lower_loop(
         &mut self,
         builder: &mut MirBuilder,
-        condition: ASTNode,
-        body: Vec<ASTNode>,
+        loop_node: ASTNode,
     ) -> Result<ValueId, String> {
-        super::control_flow::joinir::routing::lower_loop_or_freeze_v1(builder, condition, body)
+        let ASTNode::Loop {
+            condition, body, ..
+        } = loop_node
+        else {
+            return Err(
+                "[freeze:contract][raw-loop-child-entry/expected-loop]".to_owned(),
+            );
+        };
+        super::control_flow::joinir::routing::lower_loop_or_freeze_v1(builder, *condition, body)
     }
 }
 
@@ -737,22 +741,13 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
     fn lower_loop(
         &mut self,
         builder: &mut MirBuilder,
-        condition: ASTNode,
-        body: Vec<ASTNode>,
+        loop_node: ASTNode,
     ) -> Result<ValueId, String> {
-        match classify_raw_loop_child_entry_v1(&condition, &body) {
-            RawLoopChildEntryDispositionV1::NoChildFunctionEntry => {
-                super::control_flow::joinir::routing::lower_loop_or_freeze_v1(
-                    builder, condition, body,
-                )
-            }
-            RawLoopChildEntryDispositionV1::ReachableBoxDeclaration => Err(
-                super::control_flow::lower::Freeze::contract(
-                    "raw_loop_child_entry: reachable BoxDeclaration requires a pure-plan/function-session bridge",
-                )
-                .to_string(),
-            ),
-        }
+        let source = self.active_source.as_ref().ok_or_else(|| {
+            "[freeze:contract][raw-loop-child-entry/missing-located-source]".to_owned()
+        })?;
+        PreparedLocatedRawLoopChildEntryV1::prepare(source, loop_node)?
+            .lower_with_existing_route_v1(builder)
     }
 }
 

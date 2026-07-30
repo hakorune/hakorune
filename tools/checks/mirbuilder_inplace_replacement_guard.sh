@@ -68,9 +68,7 @@ guard_exact_counts() {
     fi
   done
 }
-for command in awk find rg sed wc xargs; do
-  guard_require_command "$TAG" "$command"
-done
+for command in awk find rg sed wc xargs; do guard_require_command "$TAG" "$command"; done
 guard_require_files \
   "$TAG" \
   "$MANIFEST" \
@@ -155,7 +153,8 @@ if [[ "$(rg -F -c '"production_build_module_edges": 0' "$CALLER_MANIFEST")" != "
   guard_fail "$TAG" "arbitrary-AST production sunsets must both be retired"
 fi
 if [[ "$(rg -F -c 'fn lower_loop_or_freeze_v1(' "$LOOP_ROUTING")" != "1" ]] ||
-   [[ "$(rg -F -c 'lower_loop_or_freeze_v1(' "$RAW_CHILD_PORT")" != "2" ]]; then
+   [[ "$(rg -F -c 'lower_loop_or_freeze_v1(' "$RAW_CHILD_PORT")" != "1" ]] ||
+   [[ "$(rg -F -c 'lower_loop_or_freeze_v1(' "$ROOT_DIR/src/mir/builder/raw_loop_child_entry.rs")" != "1" ]]; then
   guard_fail "$TAG" "raw Loop callers must share one JoinIR route/freeze owner"
 fi
 if rg -n -F '.cf_loop(' "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null ||

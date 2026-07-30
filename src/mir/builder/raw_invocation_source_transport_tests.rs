@@ -90,6 +90,11 @@ fn located_controls_and_diagnostic_terminals_keep_exact_parent_sites() {
             else_body: Some(vec![integer(3)]),
             span: Span::unknown(),
         },
+        ASTNode::Loop {
+            condition: Box::new(integer(1)),
+            body: vec![integer(2)],
+            span: Span::unknown(),
+        },
         ASTNode::TaskScope {
             body: vec![integer(1)],
             source_keyword: "co".to_owned(),

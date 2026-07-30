@@ -15,7 +15,8 @@ use crate::mir::builder::recursive_child_lowering::{
     RawLegacyChildLoweringPortV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::{
-    RawInvocationRootLineageV1, RawInvocationSourceTransportV1, RawSourceTransportPortV1,
+    RawInvocationRootLineageV1, RawInvocationSourceContextV1,
+    RawInvocationSourceTransportV1, RawSourceTransportPortV1,
 };
 use crate::mir::builder::RawSourceLocatorV1;
 use crate::mir::{
@@ -130,6 +131,35 @@ fn outer_source() -> RawInvocationSourceTransportV1<()> {
             0,
         )),
     )
+}
+
+fn lower_located_loop(
+    builder: &mut MirBuilder,
+    port: &mut RawInvocationChildPortV1<'_, '_>,
+    node: ASTNode,
+) -> Result<crate::mir::ValueId, String> {
+    let (_, root) = RawInvocationSourceContextV1::from_transport(
+        RawInvocationSourceTransportV1::root((), RawInvocationRootLineageV1::ScriptRoot),
+    );
+    let transport = root.body_statement(node, 0);
+    port.with_source_transport_v1(transport, |port, node| {
+        drive_legacy_expression_v1(builder, port, node)
+    })
+}
+
+fn sorted_instruction_debug(builder: &MirBuilder) -> Vec<String> {
+    let mut rows = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("current function")
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .map(|row| format!("{row:?}"))
+        .collect::<Vec<_>>();
+    rows.sort();
+    rows
 }
 
 fn nested_box_with_constructor(name: &str) -> ASTNode {
@@ -667,4 +697,63 @@ fn located_enum_match_lowers_only_the_exact_scrutinee_and_keeps_result_shape() {
         .clone();
     assert_eq!(result, legacy_result);
     assert_eq!(selected_instructions, legacy_instructions);
+}
+
+#[test]
+fn located_loop_rejects_reachable_box_before_joinir_or_collection() {
+    let mut builder = MirBuilder::new();
+    let mut invocation = seeded(&mut builder);
+    let before = invocation.with_header_port(|builder, _| sorted_instruction_debug(builder));
+    let error = invocation
+        .with_module_port(|builder, module_port| {
+            let node = ASTNode::Loop {
+                condition: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Bool(true),
+                    span: Span::unknown(),
+                }),
+                body: vec![nested_box("Nested", true)],
+                span: Span::unknown(),
+            };
+            lower_located_loop(
+                builder,
+                &mut RawInvocationChildPortV1::new(module_port),
+                node,
+            )
+        })
+        .unwrap_err();
+    assert!(error.contains("[plan/freeze:contract] raw_loop_child_entry"));
+    invocation.with_header_port(|builder, headers| {
+        assert_eq!(headers.symbol_count(), 0);
+        assert_eq!(sorted_instruction_debug(builder), before);
+    });
+}
+
+#[test]
+fn located_loop_preserves_legacy_route_result_and_instructions() {
+    let node = ASTNode::Loop {
+        condition: Box::new(ASTNode::Literal {
+            value: LiteralValue::Bool(true),
+            span: Span::unknown(),
+        }),
+        body: vec![ASTNode::Break { span: Span::unknown() }],
+        span: Span::unknown(),
+    };
+    let mut legacy = MirBuilder::new();
+    legacy.enter_function_for_test("reentrant_parent/0".to_owned());
+    let legacy_result =
+        drive_legacy_expression_v1(&mut legacy, &mut RawLegacyChildLoweringPortV1, node.clone());
+
+    let mut selected = MirBuilder::new();
+    let mut invocation = seeded(&mut selected);
+    let selected_result = invocation.with_module_port(|builder, module_port| {
+        lower_located_loop(
+            builder,
+            &mut RawInvocationChildPortV1::new(module_port),
+            node,
+        )
+    });
+    let selected_rows =
+        invocation.with_header_port(|builder, _| sorted_instruction_debug(builder));
+    assert_eq!(selected_result, legacy_result);
+    assert_eq!(selected_rows, sorted_instruction_debug(&legacy));
 }
