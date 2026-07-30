@@ -116,8 +116,8 @@ Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corrected
 Latest landed: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — `507851393c`
 Latest landed: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0` — `ffda60241b`
-Current execution: none; design stop `RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0`
-Next design stop: `RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0` — first bounded Script semantic consumer
+Current execution: none; design stop `RAW-SCRIPT-ROOT-ROLE0-D0`
+Next design stop: `RAW-SCRIPT-ROOT-ROLE0-D0` — decide the semantic unit of top-level Script
 History:       Git history and the short landed tail below
 ```
 
@@ -411,15 +411,16 @@ Corrected forward queue:
 ```text
 1. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0 (closed at ffda60241b)
 2. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0 (closed NoStandaloneRow)
-3. RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0 (current design stop)
-4. RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-I0-R0 (conditional on D0 closure)
+3. RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0 (closed NoSafeSlice: parent Script role missing)
+4. RAW-SCRIPT-ROOT-ROLE0-D0 (current design stop; owner decision)
+5. RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-I0-R0 (conditional on role + lineage closure)
 
 Rule:
-  Do not open an execution row while the bounded Script/Lambda consumer is
-  unresolved. Once selected, one row must name the production caller, the
-  source/semantic owner, the exact old edge removed, and the terminal/failure
-  authority. No route retries another route. S0 is allowed only when it is the
-  first half of an immediately paired behavior-neutral refactor series.
+  Do not open an execution row while the Script semantic role is unresolved.
+  Once selected, one row must name the production caller, the source/semantic
+  owner, the exact old edge removed, and the terminal/failure authority. No
+  route retries another route. S0 is allowed only when it is the first half of
+  an immediately paired behavior-neutral refactor series.
 ```
 
 ## RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0 — closed, NoStandaloneRow
@@ -453,17 +454,20 @@ Hard stop:
   no standalone source-profile row, no synthetic Function, no partial forest,
   no second resolver, no source try/throw activation, and no fallback/retry.
 
-## RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0 — current design stop
+## RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0 — closed, NoSafeSlice
 
 ```text
 Decision:
-  open design gate; conditional I0/R0 only after the bounded closure below
-  is proven. The external Script-admission proposal is accepted only in its
-  two-terminal principle, not as a monolithic 57-kind implementation.
+  NoSafeSlice. The two-terminal principle is valid, but the first proposed
+  Lambda consumer still lacks a valid parent Script semantic owner.
 
-Production caller:
-  ModuleBuilderInvocationSessionV1::
-    complete_normal_default_program_root_catalog_lifecycle
+Evidence:
+  FunctionSemanticResolverSessionV1 issues FunctionOwnerIdV1 before traversal;
+  VerifiedSemanticOwnerForestV1 and its normalized graph have no Script
+  source-kind; VerifiedSourceProjectionV1's verified root contract is
+  FunctionDeclaration-oriented; and the physical Lambda branch still enters
+  PreparedRawLambdaLexicalCaptureLifecycleV1, whose observation is based on
+  raw variable_map/ValueId and has no parent Script BindingRef/provenance.
 
 Candidate semantic terminal:
   SemanticEligible
@@ -473,13 +477,12 @@ Candidate semantic terminal:
     = owned Program + typed deferral; forest/projection absent; existing
       RootLower runs exactly once
 
-First eligible closure:
-  Program sequence
-  top-level Function/Box declaration boundary transfer
-  Literal / Variable / Me policy
-  Unary / Binary
-  Local / Assignment / Print / Return
-  exact nested Lambda source site, parent owner, parent scope, and child lookup
+Required before a Lambda consumer:
+  decide what a top-level Script is in the final pipeline, then define its
+  source-kind/root contract, owner/forest/projection identity, admission
+  terminal, and exact parent-to-Lambda lineage. A Lambda-only cutover would
+  fabricate a Function root, produce a partial forest, or rerun raw
+  compatibility.
 
 Whole-Program defer for this row:
   postfix catch/cleanup carrier, QMark, Match/EnumMatch, BlockExpr
@@ -493,28 +496,61 @@ Required single traversal:
   child-demand/opaque coverage, and the terminal choice. No raw Lambda
   observer pass may be run for an eligible Lambda.
 
-Conditional executable row:
-  RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-I0-R0
+Next design stop:
+  RAW-SCRIPT-ROOT-ROLE0-D0
 
-Same-commit old edges to delete if D0 closes:
-  eligible Script Lambda -> PreparedRawLambdaLexicalCaptureLifecycleV1
-  eligible Script Lambda -> RawLambdaLexicalObservationV1::observe
-  eligible Lambda -> RawUnlocatedPortalV1::ControlBody
+No executable row opens from this closeout. The following Lambda edges remain
+explicitly fenced until the Script role and lineage are decided:
+  PreparedRawLambdaLexicalCaptureLifecycleV1
+  RawLambdaLexicalObservationV1::observe
+  RawUnlocatedPortalV1::ControlBody
   raw Lambda dispatch dropping parent Script source context
 
-Done criteria for opening I0/R0:
-  exact child lookup via forest.child_at; one Script root owner; atomic
-  forest/projection pairing; ClosureBodyId reserve/commit exactly once;
-  eligible and deferred RootLower each exactly once; eligible failure never
-  downgrades to ExistingRootLowerAuthority; no partial forest; no new
-  per-row guard; existing cut0/R4 gates green; touched source/check files
-  remain below 800 lines.
+Done criteria for the next role D0:
+  choose one semantic unit for Script; state whether it is an implicit main,
+  a Program-specific root, or an explicit R4-retained compatibility surface;
+  define source identity, owner/forest/projection authority, diagnostics,
+  and the first production edge that can be removed. No implementation row is
+  valid until this choice is recorded.
 
 Hard stops:
-  full 57-kind resolver, postfix catch/cleanup semantics, synthetic
-  FunctionDeclaration, FunctionSyntaxView Program branch, raw+semantic Lambda
-  double observation, Complete-to-Deferred fallback, Lambda ABI/publication
-  changes, or any selected old Lambda edge left in place.
+  synthetic FunctionDeclaration, FunctionSyntaxView Program branch, raw and
+  semantic Lambda double observation, Complete-to-Deferred fallback, Lambda
+  ABI/publication changes, or any selected old Lambda edge left in place.
+
+## RAW-SCRIPT-ROOT-ROLE0-D0 — current design stop
+
+```text
+Question:
+  What is top-level Script in the final pipeline?
+
+A. Implicit-main:
+  Program -> one canonical main-like semantic owner. Requires an explicit
+  language/identity decision and a non-synthetic source contract.
+
+B. Program-specific root:
+  Script is not a function; introduce a first-class Program-root semantic
+  owner and adapt forest/projection/lowering around that source kind.
+
+C. Explicit R4 retention:
+  keep selected Script on raw compatibility, register the fence and sunset,
+  and do not claim Script semantic-owner parity in final-pipeline completion.
+
+Current evidence:
+  the existing semantic owner machinery is Function/Lambda-rooted, while the
+  production Script route is Program-rooted. ProgramBodyRoot, original
+  ordinals, program-item admission, and CatalogSeal are transport/admission
+  pieces, not a Script semantic owner.
+
+Decision required before implementation:
+  select A/B/C and define the source identity, owner/forest/projection
+  authority, diagnostic contract, and R4 completion claim. Do not start a
+  Lambda consumer or a new Script profile carrier before this decision.
+
+Hakorune syntax:
+  source try/throw remain rejected. Canonical protected syntax is postfix
+  catch/cleanup; ASTNode::TryCatch is an internal/legacy carrier only.
+```
 ```
 ```
 

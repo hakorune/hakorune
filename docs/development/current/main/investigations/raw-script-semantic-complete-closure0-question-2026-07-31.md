@@ -19,6 +19,28 @@ owned Program
 
 この相談ではコード実装を始めません。
 
+## Blocking owner decision
+
+Lambda consumerを3回の設計停止で切れなかった原因は、Lambdaではなく親の
+top-level Scriptがfinal pipelineで何を意味するか未決定なことです。次のどれを
+採用するかを先に決めてください。
+
+```text
+A. Scriptは暗黙のmain-like semantic ownerである
+   Program -> 1 ownerへ正規化する。source identityとmain相当の診断契約が必要。
+
+B. Scriptは関数ではない
+   Program専用のsemantic root ownerを追加し、forest/projection/loweringに
+   Script source-kindを持たせる。
+
+C. ScriptはR4までraw compatibilityとして明示保持する
+   semantic-owner parityを最終完成条件に含めず、fenceとsunsetだけを登録する。
+```
+
+現時点ではA/B/Cの選択なしに、Lambda consumer、forest/projection、または
+Function viewのProgram対応を実装してはいけません。これは実装者が推測して
+埋める種類の差ではなく、言語／pipeline意味論の所有者判断です。
+
 ## 現在の事実
 
 ```text

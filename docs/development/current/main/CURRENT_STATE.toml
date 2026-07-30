@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0 is closed at ffda60241b. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0 is closed as NoStandaloneRow: the existing ProgramBodyRoot/profile spine has no independent consumer. The next stop is RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0, which must design the first bounded Script semantic admission and remove one selected Lambda observation edge before implementation. Hakorune source try/throw remain rejected; canonical syntax is postfix catch/cleanup after a protected scope/expression/member body, and ASTNode::TryCatch is an internal/legacy carrier only."
+status = "NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0 is closed at ffda60241b. RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0 is closed as NoSafeSlice: a Lambda consumer cannot be cut without first defining the semantic role of the parent Script root. The next stop is RAW-SCRIPT-ROOT-ROLE0-D0, an owner decision between implicit-main, Program-specific semantic root, or explicit R4 compatibility retention. Hakorune source try/throw remain rejected; canonical syntax is postfix catch/cleanup after a protected scope/expression/member body, and ASTNode::TryCatch is an internal/legacy carrier only."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0 — design the first bounded Script semantic admission and exact Lambda consumer handoff"
-current_execution_row = "none (design stop: RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0)"
-current_execution_summary = "RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0 is closed as NoStandaloneRow: ProgramBodyRoot, Program source-kind transport, original ordinals, unified Script program-item admission, and CatalogSeal seam already exist but have no safe standalone consumer. The next design must close one lexical Script/Lambda closure and its typed Complete-versus-ExistingRootLower terminal before an I0/R0. No source try/throw, postfix catch/cleanup meaning, partial forest, second resolver, fallback, or retry is authorized."
+current_design_stop = "RAW-SCRIPT-ROOT-ROLE0-D0 — decide the semantic unit of top-level Script before any Script owner/Lambda consumer implementation"
+current_execution_row = "none (design stop: RAW-SCRIPT-ROOT-ROLE0-D0)"
+current_execution_summary = "RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0 is closed as NoSafeSlice. Current semantic machinery is Function/Lambda-rooted: FunctionSemanticResolverSession issues FunctionOwnerIdV1 before traversal, VerifiedSemanticOwnerForestV1 has no Script source-kind, VerifiedSourceProjectionV1's verified root contract is FunctionDeclaration-oriented, and the physical Lambda path still uses raw variable_map/ValueId observation. The next design must choose the Script role before any owner, forest, projection, or Lambda edge cutover. No source try/throw, postfix catch/cleanup meaning, partial forest, second resolver, fallback, or retry is authorized."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -442,7 +442,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0 is closed at ffda60241b. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0 is closed as NoStandaloneRow because its source/profile facts already landed without a safe independent consumer. The sole next design stop is RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0: close a bounded Script semantic admission for Program sequence, lexical core, and exact nested Lambda lineage, then conditionally cut the selected raw Lambda observation edge. Hakorune source try/throw remain rejected; postfix catch/cleanup and ASTNode::TryCatch remain compatibility/deferred boundaries."""
+latest_card_summary = """NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0 is closed at ffda60241b. RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0 is closed as NoSafeSlice because the parent Script semantic unit is not defined; Lambda-only cutover would fabricate a root or retain the raw observer. The sole next design stop is RAW-SCRIPT-ROOT-ROLE0-D0: decide implicit-main, Program-specific root, or explicit R4 compatibility retention before implementation. Hakorune source try/throw remain rejected; postfix catch/cleanup and ASTNode::TryCatch remain compatibility/deferred boundaries."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0-DESIGN-STOP"
+current_blocker_token = "RAW-SCRIPT-ROOT-ROLE0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
