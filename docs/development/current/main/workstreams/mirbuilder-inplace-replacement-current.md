@@ -31,8 +31,8 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0
 Result:        source-owned entry-materialization contract selected
-Latest design: `RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0` — closed
-Executable:    `NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0`
+Latest design: `NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0` — closed
+Executable:    `NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -295,23 +295,45 @@ Selected D0:
   `NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0`.
 ```
 
-## Current execution
+## Current design decision
 
-`NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0` — T2 selected-normal runtime input policy
+`NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0` — T2, closed
 
 ```text
-Observed lower-side reads:
-  prepare-module safepoint environment; Main wrapper script arguments.
+Decision:
+  Candidate N — infallible normal-only ingress receipt.
 
-Boundary:
-  normal currently differs from raw RuntimeInputSnapshot for malformed script
-  arguments and safepoint parsing. Decide normal-only snapshot timing, receipt,
-  failure/disposition, and exact parity before implementation.
+Normal preserves its current permissive contract: only untrimmed case-insensitive
+1/true/on enables the entry safepoint; absent, empty, malformed, wrong-typed,
+or empty script-argument JSON means no pushed arguments and no diagnostic.
+NYASH takes precedence over HAKO even when its value is malformed.  Raw's strict
+snapshot remains separate because it rejects malformed input and carries distinct
+provenance.
+```
 
-Must not:
-  reuse raw receipt as a semantic shortcut; change runner selection; activate
-  raw Required; change malformed-env behavior without a decision; add fallback,
-  Ownership/View, or features.
+## Current execution
+
+`NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0` — T2 atomic selected-normal cutover
+
+```text
+Change:
+  Capture one normal-only runtime receipt at NormalDefaultPublishedPipelineV1
+  ingress, pass it through the existing session lifecycle, and delete the
+  selected lower-side safepoint and Main-wrapper script-argument env reads.
+
+Contract:
+  Normal remains permissive and snapshots at compile ingress; Raw/reference,
+  runner selection, callable materialization, result/publication, and legacy
+  raw env reads do not move.
+
+Done:
+  Safepoint spelling, NYASH/HAKO precedence, malformed/empty argument parity,
+  App/Script wrapper behavior, snapshot timing, and failure/reuse are green.
+
+Stop:
+  Any strict normal rejection, trim/precedence change, raw receipt reuse,
+  lower-side normal env fallback, runner change, retry/fallback, or second
+  candidate returns this row to design.
 ```
 
 ## Latest closeout
@@ -773,31 +795,39 @@ census or D0 has selected it.
    consumers.  It may select exactly one bounded D0, one live I0/R0, or
    NoSafeLiveI0; it may not assume a raw handoff or runner cutover in advance.
 
-4. NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0                    (active)
-   T2 decision for selected-normal safepoint and script-argument snapshots;
-   raw/reference remains separate.
+4. NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0                    (closed)
+   Candidate N selects one infallible normal-only ingress receipt.  It preserves
+   normal's permissive malformed-value behavior; raw/reference remains separate.
 
-5. Entry-materialization residuals                      (census-selected only)
+5. NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0                 (active)
+   Named caller: NormalDefaultPublishedPipelineV1::compile.  One atomic
+   normal-only receipt cutover deletes the two selected lower-side ambient reads.
+
+6. MIRBUILDER-LIVE-EDGE-CENSUS16-D0                     (required after 5)
+   Re-inventory the remaining selected-normal, compatibility, and fenced
+   reference edges before selecting another live replacement or retirement.
+
+7. Entry-materialization residuals                      (census-selected only)
    A raw/reference receipt handoff and each runner-adapter receipt are separate
    responsibility decisions.  They must preserve their route-specific policies:
    no global selector, no `NYASH_ENTRY` reinterpretation, and no provenance
    collapse.  Their shared completion goal is the removal of the old snapshot /
    compilation-context / lower-side materialization authority, not a new route.
 
-6. R3 reference-asset disposition                       (interleaved only by census)
+8. R3 reference-asset disposition                       (interleaved only by census)
    Each cycle is fresh consumer census -> one RET0, REOWN, or RETAIN-FENCED
    decision -> fresh census.  These rows earn no replacement credit.  The VM
    bridge, normalized shadow, LLVM experiment, and any live carrier remain
    named fences until their own evidence changes.
 
-7. R4 final conformance
+9. R4 final conformance
    Decide every live edge, compatibility sunset, and retained reference asset.
    The 34K-line JoinModule scope is decided here as either deletion or an
    explicit fenced reference asset; LOC is not a completion metric.  Complete
    requires normal/default reachability=0, acceptance truth=0, and final
    planner=0 for every retained reference family.
 
-8. R5 features, strictly after R4 Complete
+10. R5 features, strictly after R4 Complete
    Refresh Ownership readiness -> implement Ownership -> View D0 and I0 -> one
    later unimplemented feature semantic slice at a time.
 ```
