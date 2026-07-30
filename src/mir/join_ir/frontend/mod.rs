@@ -26,8 +26,7 @@
 //! let mut lowerer = AstToJoinIrLowerer::new();
 //! let join_module = lowerer.lower_program_json(&program_json);
 //!
-//! // JoinIR Runner で実行
-//! let result = run_joinir_function(vm, &join_module, entry, &args)?;
+//! // Structure/semantic verification uses the explicit JoinIR-to-MIR bridge.
 //! ```
 //!
 //! ## 関連ドキュメント

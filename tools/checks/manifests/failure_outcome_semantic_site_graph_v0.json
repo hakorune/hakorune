@@ -34,41 +34,41 @@
     },
     {
       "evidence": "RESULT-001. They use qualified constructors such as `Option::None` and",
-      "evidence_id": "docs/reference/language/EBNF.md:277:Option::None",
+      "evidence_id": "docs/reference/language/EBNF.md:292:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 277,
+      "line": 292,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Option::None"
     },
     {
       "evidence": "local r: Result<Handle, AllocError> = Result::Err(AllocError::ZeroSize)",
-      "evidence_id": "docs/reference/language/EBNF.md:697:Result::Err",
+      "evidence_id": "docs/reference/language/EBNF.md:712:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 697,
+      "line": 712,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Result::Err"
     },
     {
       "evidence": "Option::None",
-      "evidence_id": "docs/reference/language/EBNF.md:730:Option::None",
+      "evidence_id": "docs/reference/language/EBNF.md:745:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 730,
+      "line": 745,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Option::None"
     },
     {
       "evidence": "Result::Err(reason)",
-      "evidence_id": "docs/reference/language/EBNF.md:732:Result::Err",
+      "evidence_id": "docs/reference/language/EBNF.md:747:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 732,
+      "line": 747,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Result::Err"
     },
     {
       "evidence": "postfix_catch      := primary_expr 'catch' ( '(' ( IDENT IDENT | IDENT )? ')' )? block",
-      "evidence_id": "docs/reference/language/EBNF.md:838:postfix_catch",
+      "evidence_id": "docs/reference/language/EBNF.md:854:postfix_catch",
       "evidence_kind": "catch_profile_surface",
-      "line": 838,
+      "line": 854,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "postfix_catch"
     },
@@ -89,135 +89,127 @@
       "token": "Result::Err"
     },
     {
-      "evidence": "`Fault` is not catchable in Canonical v1. `Result::Err` and `Option::None`",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:115:Option::None",
+      "evidence": "Option::None -> Unit",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:100:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 115,
+      "line": 100,
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "token": "Option::None"
     },
     {
-      "evidence": "`Fault` is not catchable in Canonical v1. `Result::Err` and `Option::None`",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:115:Result::Err",
+      "evidence": "Unit -> Option::None",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:101:Option::None",
+      "evidence_kind": "option_constructor",
+      "line": 101,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Option::None"
+    },
+    {
+      "evidence": "backend zero/null/missing payload -> Option::None",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:103:Option::None",
+      "evidence_kind": "option_constructor",
+      "line": 103,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Option::None"
+    },
+    {
+      "evidence": "foreign nullable success + native null -> Option::None",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:109:Option::None",
+      "evidence_kind": "option_constructor",
+      "line": 109,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Option::None"
+    },
+    {
+      "evidence": "foreign error status + declared result mapping -> Result::Err",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:110:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 115,
+      "line": 110,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Result::Err"
+    },
+    {
+      "evidence": "`RecoverableFailure`, never `Fault`; `Result::Err` and `Option::None` remain",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:128:Option::None",
+      "evidence_kind": "option_constructor",
+      "line": 128,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Option::None"
+    },
+    {
+      "evidence": "`RecoverableFailure`, never `Fault`; `Result::Err` and `Option::None` remain",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:128:Result::Err",
+      "evidence_kind": "result_constructor",
+      "line": 128,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Result::Err"
+    },
+    {
+      "evidence": "not be inferred as Fault or `Result::Err`.",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:137:Result::Err",
+      "evidence_kind": "result_constructor",
+      "line": 137,
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "token": "Result::Err"
     },
     {
       "evidence": "dead/freed target  -> Option::None",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:140:Option::None",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:159:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 140,
+      "line": 159,
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "token": "Option::None"
     },
     {
       "evidence": "empty weak slot    -> Option::None",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:141:Option::None",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:160:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 141,
+      "line": 160,
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "token": "Option::None"
     },
     {
+      "evidence": "pending `RecoverableFailure` Outcome, and no implicit `Result::Err` lift. The",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:172:Result::Err",
+      "evidence_kind": "result_constructor",
+      "line": 172,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Result::Err"
+    },
+    {
       "evidence": "Option::None:",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:17:Option::None",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:21:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 17,
+      "line": 21,
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "token": "Option::None"
     },
     {
       "evidence": "Result::Err(E):",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:26:Result::Err",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:30:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 26,
+      "line": 30,
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "token": "Result::Err"
     },
     {
       "evidence": "The canonical source spelling for `Unit` is `void`. `Option::None` and",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:34:Option::None",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:41:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 34,
+      "line": 41,
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "token": "Option::None"
     },
     {
       "evidence": "`Result::Err` are distinct enum values; neither is an alias for `void`, `null`,",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:35:Result::Err",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:42:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 35,
+      "line": 42,
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "token": "Result::Err"
     },
     {
       "evidence": "| successful no-result | `Unit` / `void` | `Option::None`, `Result::Err`, `Fault` |",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:68:Option::None",
-      "evidence_kind": "option_constructor",
-      "line": 68,
-      "source_path": "docs/reference/language/failure-outcome-relations.md",
-      "token": "Option::None"
-    },
-    {
-      "evidence": "| successful no-result | `Unit` / `void` | `Option::None`, `Result::Err`, `Fault` |",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:68:Result::Err",
-      "evidence_kind": "result_constructor",
-      "line": 68,
-      "source_path": "docs/reference/language/failure-outcome-relations.md",
-      "token": "Result::Err"
-    },
-    {
-      "evidence": "| optional absence | `Option::None` | `Unit`, `Result::Err`, `Fault` |",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:69:Option::None",
-      "evidence_kind": "option_constructor",
-      "line": 69,
-      "source_path": "docs/reference/language/failure-outcome-relations.md",
-      "token": "Option::None"
-    },
-    {
-      "evidence": "| optional absence | `Option::None` | `Unit`, `Result::Err`, `Fault` |",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:69:Result::Err",
-      "evidence_kind": "result_constructor",
-      "line": 69,
-      "source_path": "docs/reference/language/failure-outcome-relations.md",
-      "token": "Result::Err"
-    },
-    {
-      "evidence": "| optional presence | `Option::Some(T)` | `Unit`, `Option::None` |",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:70:Option::None",
-      "evidence_kind": "option_constructor",
-      "line": 70,
-      "source_path": "docs/reference/language/failure-outcome-relations.md",
-      "token": "Option::None"
-    },
-    {
-      "evidence": "| recoverable failure | `Result::Err(E)` | `Option::None`, `Fault`, `Unit` |",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:71:Option::None",
-      "evidence_kind": "option_constructor",
-      "line": 71,
-      "source_path": "docs/reference/language/failure-outcome-relations.md",
-      "token": "Option::None"
-    },
-    {
-      "evidence": "| recoverable failure | `Result::Err(E)` | `Option::None`, `Fault`, `Unit` |",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:71:Result::Err",
-      "evidence_kind": "result_constructor",
-      "line": 71,
-      "source_path": "docs/reference/language/failure-outcome-relations.md",
-      "token": "Result::Err"
-    },
-    {
-      "evidence": "| successful value result | `Result::Ok(T)` | `Unit`, `Result::Err` |",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:72:Result::Err",
-      "evidence_kind": "result_constructor",
-      "line": 72,
-      "source_path": "docs/reference/language/failure-outcome-relations.md",
-      "token": "Result::Err"
-    },
-    {
-      "evidence": "| foreign null observation | `ForeignNull` | `Unit`, `Option::None`, `CompatNull` |",
       "evidence_id": "docs/reference/language/failure-outcome-relations.md:75:Option::None",
       "evidence_kind": "option_constructor",
       "line": 75,
@@ -225,7 +217,15 @@
       "token": "Option::None"
     },
     {
-      "evidence": "| compatibility null | `CompatNull` | canonical `Unit`, `Option::None` |",
+      "evidence": "| successful no-result | `Unit` / `void` | `Option::None`, `Result::Err`, `Fault` |",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:75:Result::Err",
+      "evidence_kind": "result_constructor",
+      "line": 75,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Result::Err"
+    },
+    {
+      "evidence": "| optional absence | `Option::None` | `Unit`, `Result::Err`, `Fault` |",
       "evidence_id": "docs/reference/language/failure-outcome-relations.md:76:Option::None",
       "evidence_kind": "option_constructor",
       "line": 76,
@@ -233,79 +233,119 @@
       "token": "Option::None"
     },
     {
-      "evidence": "Fault -> Result::Err",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:84:Result::Err",
+      "evidence": "| optional absence | `Option::None` | `Unit`, `Result::Err`, `Fault` |",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:76:Result::Err",
       "evidence_kind": "result_constructor",
+      "line": 76,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Result::Err"
+    },
+    {
+      "evidence": "| optional presence | `Option::Some(T)` | `Unit`, `Option::None` |",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:77:Option::None",
+      "evidence_kind": "option_constructor",
+      "line": 77,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Option::None"
+    },
+    {
+      "evidence": "| value-level error result | `Result::Err(E)` | `Option::None`, `RecoverableFailure`, `Fault`, `Unit` |",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:78:Option::None",
+      "evidence_kind": "option_constructor",
+      "line": 78,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Option::None"
+    },
+    {
+      "evidence": "| value-level error result | `Result::Err(E)` | `Option::None`, `RecoverableFailure`, `Fault`, `Unit` |",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:78:Result::Err",
+      "evidence_kind": "result_constructor",
+      "line": 78,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Result::Err"
+    },
+    {
+      "evidence": "| catchable control failure | `RecoverableFailure(reason)` target Outcome | `Result::Err`, `CompatFailure`, `Fault`, every ordinary value |",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:79:Result::Err",
+      "evidence_kind": "result_constructor",
+      "line": 79,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Result::Err"
+    },
+    {
+      "evidence": "| successful value result | `Result::Ok(T)` | `Unit`, `Result::Err` |",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:80:Result::Err",
+      "evidence_kind": "result_constructor",
+      "line": 80,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Result::Err"
+    },
+    {
+      "evidence": "| foreign null observation | `ForeignNull` | `Unit`, `Option::None`, `CompatNull` |",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:83:Option::None",
+      "evidence_kind": "option_constructor",
+      "line": 83,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Option::None"
+    },
+    {
+      "evidence": "| compatibility null | `CompatNull` | canonical `Unit`, `Option::None` |",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:84:Option::None",
+      "evidence_kind": "option_constructor",
       "line": 84,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Option::None"
+    },
+    {
+      "evidence": "Fault -> Result::Err",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:92:Result::Err",
+      "evidence_kind": "result_constructor",
+      "line": 92,
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "token": "Result::Err"
     },
     {
       "evidence": "Fault -> Option::None",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:85:Option::None",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:93:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 85,
+      "line": 93,
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "token": "Option::None"
     },
     {
       "evidence": "Result::Err -> Fault",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:87:Result::Err",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:95:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 87,
+      "line": 95,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Result::Err"
+    },
+    {
+      "evidence": "Result::Err -> RecoverableFailure",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:96:Result::Err",
+      "evidence_kind": "result_constructor",
+      "line": 96,
+      "source_path": "docs/reference/language/failure-outcome-relations.md",
+      "token": "Result::Err"
+    },
+    {
+      "evidence": "RecoverableFailure -> Result::Err",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:97:Result::Err",
+      "evidence_kind": "result_constructor",
+      "line": 97,
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "token": "Result::Err"
     },
     {
       "evidence": "Result::Err -> Option::None",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:88:Option::None",
+      "evidence_id": "docs/reference/language/failure-outcome-relations.md:99:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 88,
+      "line": 99,
       "source_path": "docs/reference/language/failure-outcome-relations.md",
       "token": "Option::None"
     },
     {
       "evidence": "Result::Err -> Option::None",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:88:Result::Err",
-      "evidence_kind": "result_constructor",
-      "line": 88,
-      "source_path": "docs/reference/language/failure-outcome-relations.md",
-      "token": "Result::Err"
-    },
-    {
-      "evidence": "Option::None -> Unit",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:89:Option::None",
-      "evidence_kind": "option_constructor",
-      "line": 89,
-      "source_path": "docs/reference/language/failure-outcome-relations.md",
-      "token": "Option::None"
-    },
-    {
-      "evidence": "Unit -> Option::None",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:90:Option::None",
-      "evidence_kind": "option_constructor",
-      "line": 90,
-      "source_path": "docs/reference/language/failure-outcome-relations.md",
-      "token": "Option::None"
-    },
-    {
-      "evidence": "backend zero/null/missing payload -> Option::None",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:92:Option::None",
-      "evidence_kind": "option_constructor",
-      "line": 92,
-      "source_path": "docs/reference/language/failure-outcome-relations.md",
-      "token": "Option::None"
-    },
-    {
-      "evidence": "foreign nullable success + native null -> Option::None",
-      "evidence_id": "docs/reference/language/failure-outcome-relations.md:98:Option::None",
-      "evidence_kind": "option_constructor",
-      "line": 98,
-      "source_path": "docs/reference/language/failure-outcome-relations.md",
-      "token": "Option::None"
-    },
-    {
-      "evidence": "foreign error status + declared result mapping -> Result::Err",
       "evidence_id": "docs/reference/language/failure-outcome-relations.md:99:Result::Err",
       "evidence_kind": "result_constructor",
       "line": 99,
@@ -314,65 +354,65 @@
     },
     {
       "evidence": "- Weak-to-strong conversion (may fail): `weak_to_strong()`.",
-      "evidence_id": "docs/reference/language/lifecycle.md:204:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:205:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 204,
+      "line": 205,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "- `weakRef.weak_to_strong()` returns the target box if it is usable, otherwise `null` (none).",
-      "evidence_id": "docs/reference/language/lifecycle.md:399:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:401:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 399,
+      "line": 401,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "local x = w.weak_to_strong()",
-      "evidence_id": "docs/reference/language/lifecycle.md:418:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:420:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 418,
+      "line": 420,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "- They require a runtime liveness mechanism (e.g., an `Rc/Weak`-style control block) so that \u201cweak_to_strong\u201d can succeed/fail safely.",
-      "evidence_id": "docs/reference/language/lifecycle.md:497:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:499:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 497,
+      "line": 499,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "| WeakRef (`weak <expr>`, `weak_to_strong()`) | \u2705 | \u2705 LLVM harness (Phase 285LLVM-1.4) | \u274c unsupported |",
-      "evidence_id": "docs/reference/language/lifecycle.md:551:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:553:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 551,
+      "line": 553,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "- **WeakRef** (Phase 285A0+): VM backend fully supports `weak <expr>` and `weak_to_strong()`. LLVM harness also supports this surface as of Phase 285LLVM-1.4.",
-      "evidence_id": "docs/reference/language/lifecycle.md:564:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:566:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 564,
+      "line": 566,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "WeakRef behavior (weak_to_strong must fail safely):",
-      "evidence_id": "docs/reference/language/lifecycle.md:576:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:578:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 576,
+      "line": 578,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "local y = w.weak_to_strong()",
-      "evidence_id": "docs/reference/language/lifecycle.md:584:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:586:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 584,
+      "line": 586,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
@@ -474,49 +514,73 @@
     },
     {
       "evidence": "- `local opt: Option<T> = Option::Some(v)` / `Option::None`",
-      "evidence_id": "docs/reference/language/quick-reference.md:108:Option::None",
+      "evidence_id": "docs/reference/language/quick-reference.md:130:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 108,
+      "line": 130,
       "source_path": "docs/reference/language/quick-reference.md",
       "token": "Option::None"
     },
     {
       "evidence": "- `local res: Result<T,E> = Result::Ok(v)` / `Result::Err(e)`",
-      "evidence_id": "docs/reference/language/quick-reference.md:109:Result::Err",
+      "evidence_id": "docs/reference/language/quick-reference.md:131:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 109,
+      "line": 131,
       "source_path": "docs/reference/language/quick-reference.md",
       "token": "Result::Err"
     },
     {
+      "evidence": "silently become Unit, `Result::Err`, or Fault",
+      "evidence_id": "docs/reference/language/scope-exit-semantics.md:87:Result::Err",
+      "evidence_kind": "result_constructor",
+      "line": 87,
+      "source_path": "docs/reference/language/scope-exit-semantics.md",
+      "token": "Result::Err"
+    },
+    {
+      "evidence": "protected region. It is not `Result::Err`, `CompatFailure`, or a legacy MIR",
+      "evidence_id": "docs/reference/language/semantic-kernel.md:34:Result::Err",
+      "evidence_kind": "result_constructor",
+      "line": 34,
+      "source_path": "docs/reference/language/semantic-kernel.md",
+      "token": "Result::Err"
+    },
+    {
+      "evidence": "it must not reinterpret `Result::Err` or a legacy exception carrier.",
+      "evidence_id": "docs/reference/language/semantic-kernel.md:46:Result::Err",
+      "evidence_kind": "result_constructor",
+      "line": 46,
+      "source_path": "docs/reference/language/semantic-kernel.md",
+      "token": "Result::Err"
+    },
+    {
       "evidence": "- `WeakRef.weak_to_strong()` returns `null` on failure (i.e., `void` / none).",
-      "evidence_id": "docs/reference/language/types.md:297:weak_to_strong",
+      "evidence_id": "docs/reference/language/types.md:303:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 297,
+      "line": 303,
       "source_path": "docs/reference/language/types.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "- constructors use `Type::Variant`, for example `Option::None` and",
-      "evidence_id": "docs/reference/language/types.md:321:Option::None",
+      "evidence_id": "docs/reference/language/types.md:327:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 321,
+      "line": 327,
       "source_path": "docs/reference/language/types.md",
       "token": "Option::None"
     },
     {
       "evidence": "- `Option::None` is not `null`.",
-      "evidence_id": "docs/reference/language/types.md:326:Option::None",
+      "evidence_id": "docs/reference/language/types.md:332:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 326,
+      "line": 332,
       "source_path": "docs/reference/language/types.md",
       "token": "Option::None"
     },
     {
       "evidence": "- `Void` is treated as equal to `BoxRef(VoidBox)` and `BoxRef(MissingBox)` for backward compatibility.",
-      "evidence_id": "docs/reference/language/types.md:420:MissingBox",
+      "evidence_id": "docs/reference/language/types.md:426:MissingBox",
       "evidence_kind": "null_like_box",
-      "line": 420,
+      "line": 426,
       "source_path": "docs/reference/language/types.md",
       "token": "MissingBox"
     },
@@ -2010,9 +2074,9 @@
     },
     {
       "evidence": "pub use missing_box::MissingBox;",
-      "evidence_id": "src/boxes/mod.rs:169:MissingBox",
+      "evidence_id": "src/boxes/mod.rs:167:MissingBox",
       "evidence_kind": "null_like_box",
-      "line": 169,
+      "line": 167,
       "source_path": "src/boxes/mod.rs",
       "token": "MissingBox"
     },
@@ -2226,25 +2290,25 @@
     },
     {
       "evidence": "method: \"weak_to_strong\".to_string(),",
-      "evidence_id": "src/mir/builder/calls/member_route_descent_tests.rs:506:weak_to_strong",
+      "evidence_id": "src/mir/builder/calls/member_route_descent_tests.rs:460:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 506,
+      "line": 460,
       "source_path": "src/mir/builder/calls/member_route_descent_tests.rs",
       "token": "weak_to_strong"
     },
     {
       "evidence": "\"WeakRef uses weak_to_strong(), not upgrade()\"",
-      "evidence_id": "src/mir/builder/calls/member_route_descent_tests.rs:532:weak_to_strong",
+      "evidence_id": "src/mir/builder/calls/member_route_descent_tests.rs:486:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 532,
+      "line": 486,
       "source_path": "src/mir/builder/calls/member_route_descent_tests.rs",
       "token": "weak_to_strong"
     },
     {
       "evidence": "value: ConstValue::Void,",
-      "evidence_id": "src/mir/builder/calls/method_call_terminal_tests.rs:282:ConstValue::Void",
+      "evidence_id": "src/mir/builder/calls/method_call_terminal_tests.rs:375:ConstValue::Void",
       "evidence_kind": "mir_constant_carrier",
-      "line": 282,
+      "line": 375,
       "source_path": "src/mir/builder/calls/method_call_terminal_tests.rs",
       "token": "ConstValue::Void"
     },
@@ -2402,35 +2466,59 @@
     },
     {
       "evidence": "// Phase 285A0.1: WeakRef.weak_to_strong() \u2192 WeakRef(Load)",
-      "evidence_id": "src/mir/builder/method_call_handlers.rs:328:weak_to_strong",
+      "evidence_id": "src/mir/builder/method_call_handlers.rs:547:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 328,
+      "line": 547,
       "source_path": "src/mir/builder/method_call_handlers.rs",
       "token": "weak_to_strong"
     },
     {
       "evidence": "// SSOT: docs/reference/language/lifecycle.md:179 - weak_to_strong() returns Box | null",
-      "evidence_id": "src/mir/builder/method_call_handlers.rs:329:weak_to_strong",
+      "evidence_id": "src/mir/builder/method_call_handlers.rs:548:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 329,
+      "line": 548,
       "source_path": "src/mir/builder/method_call_handlers.rs",
       "token": "weak_to_strong"
     },
     {
       "evidence": "if method == \"weak_to_strong\" && arguments.is_empty() {",
-      "evidence_id": "src/mir/builder/method_call_handlers.rs:330:weak_to_strong",
+      "evidence_id": "src/mir/builder/method_call_handlers.rs:549:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 330,
+      "line": 549,
       "source_path": "src/mir/builder/method_call_handlers.rs",
       "token": "weak_to_strong"
     },
     {
-      "evidence": "return Err(\"WeakRef uses weak_to_strong(), not upgrade()\".to_string());",
-      "evidence_id": "src/mir/builder/method_call_handlers.rs:336:weak_to_strong",
+      "evidence": "Err(\"WeakRef uses weak_to_strong(), not upgrade()\".to_string())",
+      "evidence_id": "src/mir/builder/method_call_handlers.rs:605:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 336,
+      "line": 605,
       "source_path": "src/mir/builder/method_call_handlers.rs",
       "token": "weak_to_strong"
+    },
+    {
+      "evidence": "value: ConstValue::Void,",
+      "evidence_id": "src/mir/builder/raw_root_body_exit.rs:275:ConstValue::Void",
+      "evidence_kind": "mir_constant_carrier",
+      "line": 275,
+      "source_path": "src/mir/builder/raw_root_body_exit.rs",
+      "token": "ConstValue::Void"
+    },
+    {
+      "evidence": "value: ConstValue::Void",
+      "evidence_id": "src/mir/builder/raw_root_body_exit.rs:580:ConstValue::Void",
+      "evidence_kind": "mir_constant_carrier",
+      "line": 580,
+      "source_path": "src/mir/builder/raw_root_body_exit.rs",
+      "token": "ConstValue::Void"
+    },
+    {
+      "evidence": "value: ConstValue::Void,",
+      "evidence_id": "src/mir/builder/resolved_lowering/draft_seal.rs:302:ConstValue::Void",
+      "evidence_kind": "mir_constant_carrier",
+      "line": 302,
+      "source_path": "src/mir/builder/resolved_lowering/draft_seal.rs",
+      "token": "ConstValue::Void"
     },
     {
       "evidence": "value: ConstValue::Null,",
@@ -2482,6 +2570,22 @@
     },
     {
       "evidence": "value: ConstValue::Void,",
+      "evidence_id": "src/mir/builder/script_physical_exit/exit.rs:261:ConstValue::Void",
+      "evidence_kind": "mir_constant_carrier",
+      "line": 261,
+      "source_path": "src/mir/builder/script_physical_exit/exit.rs",
+      "token": "ConstValue::Void"
+    },
+    {
+      "evidence": "value: ConstValue::Void,",
+      "evidence_id": "src/mir/builder/script_physical_exit/tests.rs:281:ConstValue::Void",
+      "evidence_kind": "mir_constant_carrier",
+      "line": 281,
+      "source_path": "src/mir/builder/script_physical_exit/tests.rs",
+      "token": "ConstValue::Void"
+    },
+    {
+      "evidence": "value: ConstValue::Void,",
       "evidence_id": "src/mir/builder/stmts/block_driver_tests.rs:112:ConstValue::Void",
       "evidence_kind": "mir_constant_carrier",
       "line": 112,
@@ -2490,35 +2594,27 @@
     },
     {
       "evidence": "value: ConstValue::Void,",
-      "evidence_id": "src/mir/builder/stmts/if_statement_raw_tests.rs:111:ConstValue::Void",
+      "evidence_id": "src/mir/builder/stmts/if_statement_raw_tests.rs:112:ConstValue::Void",
       "evidence_kind": "mir_constant_carrier",
-      "line": 111,
+      "line": 112,
       "source_path": "src/mir/builder/stmts/if_statement_raw_tests.rs",
       "token": "ConstValue::Void"
     },
     {
       "evidence": "value: ConstValue::Void,",
-      "evidence_id": "src/mir/builder/stmts/if_statement_raw_tests.rs:207:ConstValue::Void",
+      "evidence_id": "src/mir/builder/stmts/if_statement_raw_tests.rs:208:ConstValue::Void",
       "evidence_kind": "mir_constant_carrier",
-      "line": 207,
+      "line": 208,
       "source_path": "src/mir/builder/stmts/if_statement_raw_tests.rs",
       "token": "ConstValue::Void"
     },
     {
       "evidence": "value: ConstValue::Null,",
-      "evidence_id": "src/mir/builder/stmts/local_statement_raw_tests.rs:256:ConstValue::Null",
+      "evidence_id": "src/mir/builder/stmts/local_statement_raw_tests.rs:267:ConstValue::Null",
       "evidence_kind": "mir_constant_carrier",
-      "line": 256,
+      "line": 267,
       "source_path": "src/mir/builder/stmts/local_statement_raw_tests.rs",
       "token": "ConstValue::Null"
-    },
-    {
-      "evidence": "value: ConstValue::Void,",
-      "evidence_id": "src/mir/builder/stmts/return_statement_descent_tests.rs:418:ConstValue::Void",
-      "evidence_kind": "mir_constant_carrier",
-      "line": 418,
-      "source_path": "src/mir/builder/stmts/return_statement_descent_tests.rs",
-      "token": "ConstValue::Void"
     },
     {
       "evidence": "value: ConstValue::Void,",
@@ -2527,6 +2623,62 @@
       "line": 132,
       "source_path": "src/mir/builder/stmts/return_statement_raw_tests.rs",
       "token": "ConstValue::Void"
+    },
+    {
+      "evidence": ".ok_or(NormalInstanceMethodSourceLoanErrorV1::MissingBoxSite)?;",
+      "evidence_id": "src/mir/compiler/normal_source_plan/module_source.rs:146:MissingBox",
+      "evidence_kind": "null_like_box",
+      "line": 146,
+      "source_path": "src/mir/compiler/normal_source_plan/module_source.rs",
+      "token": "MissingBox"
+    },
+    {
+      "evidence": "MissingBoxSite,",
+      "evidence_id": "src/mir/compiler/normal_source_plan/module_source.rs:71:MissingBox",
+      "evidence_kind": "null_like_box",
+      "line": 71,
+      "source_path": "src/mir/compiler/normal_source_plan/module_source.rs",
+      "token": "MissingBox"
+    },
+    {
+      "evidence": "ConstValue::Null => ConstSnapshotV1::Null,",
+      "evidence_id": "src/mir/compiler/raw_public_cutover_parity_snapshot.rs:351:ConstValue::Null",
+      "evidence_kind": "mir_constant_carrier",
+      "line": 351,
+      "source_path": "src/mir/compiler/raw_public_cutover_parity_snapshot.rs",
+      "token": "ConstValue::Null"
+    },
+    {
+      "evidence": "ConstValue::Void => ConstSnapshotV1::Void,",
+      "evidence_id": "src/mir/compiler/raw_public_cutover_parity_snapshot.rs:352:ConstValue::Void",
+      "evidence_kind": "mir_constant_carrier",
+      "line": 352,
+      "source_path": "src/mir/compiler/raw_public_cutover_parity_snapshot.rs",
+      "token": "ConstValue::Void"
+    },
+    {
+      "evidence": "if requires_void && !matches!(value, VMValue::Void) {",
+      "evidence_id": "src/mir/compiler/source_entry_vm_invocation.rs:126:VMValue::Void",
+      "evidence_kind": "runtime_value_carrier",
+      "line": 126,
+      "source_path": "src/mir/compiler/source_entry_vm_invocation.rs",
+      "token": "VMValue::Void"
+    },
+    {
+      "evidence": "| VMValue::Void",
+      "evidence_id": "src/mir/compiler/source_entry_vm_invocation.rs:161:VMValue::Void",
+      "evidence_kind": "runtime_value_carrier",
+      "line": 161,
+      "source_path": "src/mir/compiler/source_entry_vm_invocation.rs",
+      "token": "VMValue::Void"
+    },
+    {
+      "evidence": "VMValue::Void => \"Void\",",
+      "evidence_id": "src/mir/compiler/source_entry_vm_invocation.rs:174:VMValue::Void",
+      "evidence_kind": "runtime_value_carrier",
+      "line": 174,
+      "source_path": "src/mir/compiler/source_entry_vm_invocation.rs",
+      "token": "VMValue::Void"
     },
     {
       "evidence": "AstLit::Void => ConstValue::Null, // JoinIR uses Null instead of Void",
@@ -3810,59 +3962,51 @@
     },
     {
       "evidence": "/// - JoinValue::Unit   \u2194 VMValue::Void",
-      "evidence_id": "src/mir/join_ir_ops.rs:280:VMValue::Void",
+      "evidence_id": "src/mir/join_ir_ops.rs:279:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 280,
+      "line": 279,
       "source_path": "src/mir/join_ir_ops.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "JoinValue::Unit => crate::backend::VMValue::Void,",
-      "evidence_id": "src/mir/join_ir_ops.rs:300:VMValue::Void",
+      "evidence_id": "src/mir/join_ir_ops.rs:299:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 300,
+      "line": 299,
       "source_path": "src/mir/join_ir_ops.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "JoinValue::Unit => crate::backend::VMValue::Void,",
-      "evidence_id": "src/mir/join_ir_ops.rs:313:VMValue::Void",
+      "evidence_id": "src/mir/join_ir_ops.rs:312:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 313,
+      "line": 312,
       "source_path": "src/mir/join_ir_ops.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "crate::backend::VMValue::Void => Ok(JoinValue::Unit),",
-      "evidence_id": "src/mir/join_ir_ops.rs:335:VMValue::Void",
+      "evidence_id": "src/mir/join_ir_ops.rs:334:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 335,
+      "line": 334,
       "source_path": "src/mir/join_ir_ops.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "assert!(matches!(vm_val, crate::backend::VMValue::Void));",
-      "evidence_id": "src/mir/join_ir_ops.rs:382:VMValue::Void",
+      "evidence_id": "src/mir/join_ir_ops.rs:381:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 382,
+      "line": 381,
       "source_path": "src/mir/join_ir_ops.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "let vm_void = crate::backend::VMValue::Void;",
-      "evidence_id": "src/mir/join_ir_ops.rs:403:VMValue::Void",
+      "evidence_id": "src/mir/join_ir_ops.rs:402:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 403,
+      "line": 402,
       "source_path": "src/mir/join_ir_ops.rs",
       "token": "VMValue::Void"
-    },
-    {
-      "evidence": "ConstValue::Null => JoinValue::Unit,",
-      "evidence_id": "src/mir/join_ir_runner/exec.rs:238:ConstValue::Null",
-      "evidence_kind": "mir_constant_carrier",
-      "line": 238,
-      "source_path": "src/mir/join_ir_runner/exec.rs",
-      "token": "ConstValue::Null"
     },
     {
       "evidence": "ConstValue::Null => MirConstValue::Null,",
@@ -4674,17 +4818,17 @@
     },
     {
       "evidence": "VMValue::Void => String::new(), // Void \u306f\u8868\u793a\u3057\u306a\u3044",
-      "evidence_id": "src/runner/repl/repl_runner.rs:164:VMValue::Void",
+      "evidence_id": "src/runner/repl/repl_runner.rs:163:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 164,
+      "line": 163,
       "source_path": "src/runner/repl/repl_runner.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "VMValue::Void => String::new(),",
-      "evidence_id": "src/runner/repl/repl_runner.rs:201:VMValue::Void",
+      "evidence_id": "src/runner/repl/repl_runner.rs:200:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 201,
+      "line": 200,
       "source_path": "src/runner/repl/repl_runner.rs",
       "token": "VMValue::Void"
     },
@@ -5017,8 +5161,8 @@
       "backend_policy": "",
       "current_carrier": "VMValue::Void",
       "evidence_refs": [
-        "src/runner/repl/repl_runner.rs:164:VMValue::Void",
-        "src/runner/repl/repl_runner.rs:201:VMValue::Void",
+        "src/runner/repl/repl_runner.rs:163:VMValue::Void",
+        "src/runner/repl/repl_runner.rs:200:VMValue::Void",
         "src/runtime/host_api/host_box_ops.rs:40:VMValue::Void",
         "src/semantics/vm_impl.rs:39:VMValue::Void"
       ],
@@ -5072,7 +5216,7 @@
         "src/boxes/missing_box.rs:50:MissingBox",
         "src/boxes/missing_box.rs:63:MissingBox",
         "src/boxes/missing_box.rs:67:MissingBox",
-        "src/boxes/mod.rs:169:MissingBox",
+        "src/boxes/mod.rs:167:MissingBox",
         "src/config/env/mir_flags.rs:107:MissingBox",
         "src/runtime/core_box_ids/box_id.rs:47:MissingBox",
         "src/runtime/core_box_ids/box_id.rs:85:MissingBox"
@@ -5268,12 +5412,15 @@
       "backend_policy": "",
       "current_carrier": "VMValue::Void",
       "evidence_refs": [
-        "src/mir/join_ir_ops.rs:280:VMValue::Void",
-        "src/mir/join_ir_ops.rs:300:VMValue::Void",
-        "src/mir/join_ir_ops.rs:313:VMValue::Void",
-        "src/mir/join_ir_ops.rs:335:VMValue::Void",
-        "src/mir/join_ir_ops.rs:382:VMValue::Void",
-        "src/mir/join_ir_ops.rs:403:VMValue::Void"
+        "src/mir/compiler/source_entry_vm_invocation.rs:126:VMValue::Void",
+        "src/mir/compiler/source_entry_vm_invocation.rs:161:VMValue::Void",
+        "src/mir/compiler/source_entry_vm_invocation.rs:174:VMValue::Void",
+        "src/mir/join_ir_ops.rs:279:VMValue::Void",
+        "src/mir/join_ir_ops.rs:299:VMValue::Void",
+        "src/mir/join_ir_ops.rs:312:VMValue::Void",
+        "src/mir/join_ir_ops.rs:334:VMValue::Void",
+        "src/mir/join_ir_ops.rs:381:VMValue::Void",
+        "src/mir/join_ir_ops.rs:402:VMValue::Void"
       ],
       "layer": "mir",
       "migration_action": "",
@@ -5290,6 +5437,26 @@
     },
     {
       "backend_policy": "",
+      "current_carrier": "BoxRef(MissingBox)",
+      "evidence_refs": [
+        "src/mir/compiler/normal_source_plan/module_source.rs:146:MissingBox",
+        "src/mir/compiler/normal_source_plan/module_source.rs:71:MissingBox"
+      ],
+      "layer": "mir",
+      "migration_action": "",
+      "operation": "missing_box",
+      "outcome_branch": "missing_box_observation",
+      "owner": "",
+      "owner_domain": "compatibility",
+      "profile": "implementation",
+      "review_status": "pending",
+      "semantic_class": "",
+      "site_id": "mir.compatibility.missing_box.missing_box_observation",
+      "site_kind": "internal_sentinel",
+      "target_carrier": ""
+    },
+    {
+      "backend_policy": "",
       "current_carrier": "ConstValue::Null",
       "evidence_refs": [
         "src/mir/builder/control_flow/plan/composer/branchn_return.rs:104:ConstValue::Null",
@@ -5299,6 +5466,7 @@
         "src/mir/builder/emission/constant.rs:49:ConstValue::Null",
         "src/mir/builder/emission/constant_type.rs:71:ConstValue::Null",
         "src/mir/builder/emission/constant_type.rs:90:ConstValue::Null",
+        "src/mir/compiler/raw_public_cutover_parity_snapshot.rs:351:ConstValue::Null",
         "src/mir/control_tree/normalized_shadow/anf/execute_box.rs:289:ConstValue::Null",
         "src/mir/control_tree/normalized_shadow/anf/execute_box.rs:290:ConstValue::Null",
         "src/mir/global_call_route_plan.rs:559:ConstValue::Null",
@@ -5317,7 +5485,6 @@
         "src/mir/join_ir/frontend/ast_lowerer/expr.rs:307:ConstValue::Null",
         "src/mir/join_ir/json.rs:324:ConstValue::Null",
         "src/mir/join_ir/lowering/common/type_hint.rs:20:ConstValue::Null",
-        "src/mir/join_ir_runner/exec.rs:238:ConstValue::Null",
         "src/mir/join_ir_vm_bridge/convert.rs:40:ConstValue::Null",
         "src/mir/passes/inline_soft_leaf/tests.rs:228:ConstValue::Null",
         "src/mir/passes/inline_soft_leaf/tests.rs:254:ConstValue::Null",
@@ -5364,6 +5531,13 @@
         "src/mir/builder/emission/constant_type.rs:71:ConstValue::Void",
         "src/mir/builder/emission/constant_type.rs:90:ConstValue::Null",
         "src/mir/builder/emission/constant_type.rs:91:ConstValue::Void",
+        "src/mir/builder/raw_root_body_exit.rs:275:ConstValue::Void",
+        "src/mir/builder/raw_root_body_exit.rs:580:ConstValue::Void",
+        "src/mir/builder/resolved_lowering/draft_seal.rs:302:ConstValue::Void",
+        "src/mir/builder/script_physical_exit/exit.rs:261:ConstValue::Void",
+        "src/mir/builder/script_physical_exit/tests.rs:281:ConstValue::Void",
+        "src/mir/compiler/raw_public_cutover_parity_snapshot.rs:351:ConstValue::Null",
+        "src/mir/compiler/raw_public_cutover_parity_snapshot.rs:352:ConstValue::Void",
         "src/mir/control_tree/normalized_shadow/anf/execute_box.rs:289:ConstValue::Null",
         "src/mir/control_tree/normalized_shadow/anf/execute_box.rs:290:ConstValue::Null",
         "src/mir/function_emission.rs:50:ConstValue::Void",
@@ -5397,7 +5571,6 @@
         "src/mir/join_ir/json.rs:324:ConstValue::Null",
         "src/mir/join_ir/lowering/common/type_hint.rs:19:ConstValue::Void",
         "src/mir/join_ir/lowering/common/type_hint.rs:20:ConstValue::Null",
-        "src/mir/join_ir_runner/exec.rs:238:ConstValue::Null",
         "src/mir/join_ir_vm_bridge/convert.rs:40:ConstValue::Null",
         "src/mir/join_ir_vm_bridge/joinir_block_converter/utils.rs:87:ConstValue::Void",
         "src/mir/passes/inline_soft_leaf/tests.rs:228:ConstValue::Null",
@@ -5445,6 +5618,12 @@
         "src/mir/builder/emission/constant_type.rs:115:ConstValue::Void",
         "src/mir/builder/emission/constant_type.rs:71:ConstValue::Void",
         "src/mir/builder/emission/constant_type.rs:91:ConstValue::Void",
+        "src/mir/builder/raw_root_body_exit.rs:275:ConstValue::Void",
+        "src/mir/builder/raw_root_body_exit.rs:580:ConstValue::Void",
+        "src/mir/builder/resolved_lowering/draft_seal.rs:302:ConstValue::Void",
+        "src/mir/builder/script_physical_exit/exit.rs:261:ConstValue::Void",
+        "src/mir/builder/script_physical_exit/tests.rs:281:ConstValue::Void",
+        "src/mir/compiler/raw_public_cutover_parity_snapshot.rs:352:ConstValue::Void",
         "src/mir/function_emission.rs:50:ConstValue::Void",
         "src/mir/global_call_route_plan.rs:559:ConstValue::Void",
         "src/mir/global_call_route_plan/box_type_inspector_describe_body.rs:209:ConstValue::Void",
@@ -5582,7 +5761,7 @@
       "backend_policy": "",
       "current_carrier": "weak_to_strong",
       "evidence_refs": [
-        "src/mir/builder/method_call_handlers.rs:329:weak_to_strong"
+        "src/mir/builder/method_call_handlers.rs:548:weak_to_strong"
       ],
       "layer": "mir",
       "migration_action": "",
@@ -5601,9 +5780,9 @@
       "backend_policy": "",
       "current_carrier": "weak_to_strong",
       "evidence_refs": [
-        "src/mir/builder/method_call_handlers.rs:328:weak_to_strong",
-        "src/mir/builder/method_call_handlers.rs:330:weak_to_strong",
-        "src/mir/builder/method_call_handlers.rs:336:weak_to_strong"
+        "src/mir/builder/method_call_handlers.rs:547:weak_to_strong",
+        "src/mir/builder/method_call_handlers.rs:549:weak_to_strong",
+        "src/mir/builder/method_call_handlers.rs:605:weak_to_strong"
       ],
       "layer": "mir",
       "migration_action": "",
@@ -5688,7 +5867,7 @@
       "current_carrier": "postfix_catch",
       "evidence_refs": [
         "docs/reference/constraints.md:46:postfix_catch",
-        "docs/reference/language/EBNF.md:838:postfix_catch"
+        "docs/reference/language/EBNF.md:854:postfix_catch"
       ],
       "layer": "reference",
       "migration_action": "",
@@ -5707,7 +5886,7 @@
       "backend_policy": "",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence_refs": [
-        "docs/reference/language/types.md:420:MissingBox"
+        "docs/reference/language/types.md:426:MissingBox"
       ],
       "layer": "reference",
       "migration_action": "",
@@ -5726,25 +5905,25 @@
       "backend_policy": "reference_only",
       "current_carrier": "Option::None",
       "evidence_refs": [
-        "docs/reference/language/EBNF.md:277:Option::None",
-        "docs/reference/language/EBNF.md:730:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:115:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:140:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:141:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:17:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:34:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:68:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:69:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:70:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:71:Option::None",
+        "docs/reference/language/EBNF.md:292:Option::None",
+        "docs/reference/language/EBNF.md:745:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:100:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:101:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:103:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:109:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:128:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:159:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:160:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:21:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:41:Option::None",
         "docs/reference/language/failure-outcome-relations.md:75:Option::None",
         "docs/reference/language/failure-outcome-relations.md:76:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:85:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:88:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:89:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:90:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:92:Option::None",
-        "docs/reference/language/failure-outcome-relations.md:98:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:77:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:78:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:83:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:84:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:93:Option::None",
+        "docs/reference/language/failure-outcome-relations.md:99:Option::None",
         "docs/reference/language/option.md:102:Option::None",
         "docs/reference/language/option.md:109:Option::None",
         "docs/reference/language/option.md:113:Option::None",
@@ -5752,9 +5931,9 @@
         "docs/reference/language/option.md:163:Option::None",
         "docs/reference/language/option.md:62:Option::None",
         "docs/reference/language/option.md:99:Option::None",
-        "docs/reference/language/quick-reference.md:108:Option::None",
-        "docs/reference/language/types.md:321:Option::None",
-        "docs/reference/language/types.md:326:Option::None"
+        "docs/reference/language/quick-reference.md:130:Option::None",
+        "docs/reference/language/types.md:327:Option::None",
+        "docs/reference/language/types.md:332:Option::None"
       ],
       "layer": "reference",
       "migration_action": "relation_only",
@@ -5773,27 +5952,35 @@
       "backend_policy": "reference_only",
       "current_carrier": "Result::Err",
       "evidence_refs": [
-        "docs/reference/language/EBNF.md:697:Result::Err",
-        "docs/reference/language/EBNF.md:732:Result::Err",
+        "docs/reference/language/EBNF.md:712:Result::Err",
+        "docs/reference/language/EBNF.md:747:Result::Err",
         "docs/reference/language/LANGUAGE_REFERENCE_2025.md:392:Result::Err",
         "docs/reference/language/LANGUAGE_REFERENCE_2025.md:928:Result::Err",
-        "docs/reference/language/failure-outcome-relations.md:115:Result::Err",
-        "docs/reference/language/failure-outcome-relations.md:26:Result::Err",
-        "docs/reference/language/failure-outcome-relations.md:35:Result::Err",
-        "docs/reference/language/failure-outcome-relations.md:68:Result::Err",
-        "docs/reference/language/failure-outcome-relations.md:69:Result::Err",
-        "docs/reference/language/failure-outcome-relations.md:71:Result::Err",
-        "docs/reference/language/failure-outcome-relations.md:72:Result::Err",
-        "docs/reference/language/failure-outcome-relations.md:84:Result::Err",
-        "docs/reference/language/failure-outcome-relations.md:87:Result::Err",
-        "docs/reference/language/failure-outcome-relations.md:88:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:110:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:128:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:137:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:172:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:30:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:42:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:75:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:76:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:78:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:79:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:80:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:92:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:95:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:96:Result::Err",
+        "docs/reference/language/failure-outcome-relations.md:97:Result::Err",
         "docs/reference/language/failure-outcome-relations.md:99:Result::Err",
         "docs/reference/language/option.md:102:Result::Err",
         "docs/reference/language/option.md:108:Result::Err",
         "docs/reference/language/option.md:64:Result::Err",
         "docs/reference/language/option.md:89:Result::Err",
         "docs/reference/language/option.md:99:Result::Err",
-        "docs/reference/language/quick-reference.md:109:Result::Err"
+        "docs/reference/language/quick-reference.md:131:Result::Err",
+        "docs/reference/language/scope-exit-semantics.md:87:Result::Err",
+        "docs/reference/language/semantic-kernel.md:34:Result::Err",
+        "docs/reference/language/semantic-kernel.md:46:Result::Err"
       ],
       "layer": "reference",
       "migration_action": "relation_only",
@@ -5813,11 +6000,11 @@
       "current_carrier": "weak_to_strong",
       "evidence_refs": [
         "docs/reference/boxes-system/memory-finalization.md:134:weak_to_strong",
-        "docs/reference/language/lifecycle.md:204:weak_to_strong",
-        "docs/reference/language/lifecycle.md:399:weak_to_strong",
-        "docs/reference/language/lifecycle.md:497:weak_to_strong",
-        "docs/reference/language/lifecycle.md:576:weak_to_strong",
-        "docs/reference/language/types.md:297:weak_to_strong"
+        "docs/reference/language/lifecycle.md:205:weak_to_strong",
+        "docs/reference/language/lifecycle.md:401:weak_to_strong",
+        "docs/reference/language/lifecycle.md:499:weak_to_strong",
+        "docs/reference/language/lifecycle.md:578:weak_to_strong",
+        "docs/reference/language/types.md:303:weak_to_strong"
       ],
       "layer": "reference",
       "migration_action": "",
@@ -5837,10 +6024,10 @@
       "current_carrier": "weak_to_strong",
       "evidence_refs": [
         "docs/reference/boxes-system/everything-is-box.md:123:weak_to_strong",
-        "docs/reference/language/lifecycle.md:418:weak_to_strong",
-        "docs/reference/language/lifecycle.md:551:weak_to_strong",
-        "docs/reference/language/lifecycle.md:564:weak_to_strong",
-        "docs/reference/language/lifecycle.md:584:weak_to_strong",
+        "docs/reference/language/lifecycle.md:420:weak_to_strong",
+        "docs/reference/language/lifecycle.md:553:weak_to_strong",
+        "docs/reference/language/lifecycle.md:566:weak_to_strong",
+        "docs/reference/language/lifecycle.md:586:weak_to_strong",
         "docs/reference/testing-quality/golden-dump-testing.md:99:weak_to_strong"
       ],
       "layer": "reference",
@@ -6423,7 +6610,7 @@
       "current_carrier": "ConstValue::Null",
       "evidence_refs": [
         "src/mir/builder/resolved_lowering/null_tests.rs:153:ConstValue::Null",
-        "src/mir/builder/stmts/local_statement_raw_tests.rs:256:ConstValue::Null",
+        "src/mir/builder/stmts/local_statement_raw_tests.rs:267:ConstValue::Null",
         "src/mir/global_call_route_plan/tests/jsonfrag_normalizer.rs:47:ConstValue::Null",
         "src/mir/global_call_route_plan/tests/pattern_util_local_value_probe.rs:71:ConstValue::Null",
         "src/mir/user_box_method_route_plan/tests/object_handles.rs:116:ConstValue::Null",
@@ -6450,16 +6637,15 @@
       "backend_policy": "",
       "current_carrier": "mixed",
       "evidence_refs": [
-        "src/mir/builder/calls/method_call_terminal_tests.rs:282:ConstValue::Void",
+        "src/mir/builder/calls/method_call_terminal_tests.rs:375:ConstValue::Void",
         "src/mir/builder/located_legacy_if_tests.rs:289:ConstValue::Void",
         "src/mir/builder/located_legacy_if_tests.rs:37:ConstValue::Void",
         "src/mir/builder/resolved_lowering/null_tests.rs:153:ConstValue::Null",
         "src/mir/builder/resolved_lowering/void_tests.rs:163:ConstValue::Void",
         "src/mir/builder/stmts/block_driver_tests.rs:112:ConstValue::Void",
-        "src/mir/builder/stmts/if_statement_raw_tests.rs:111:ConstValue::Void",
-        "src/mir/builder/stmts/if_statement_raw_tests.rs:207:ConstValue::Void",
-        "src/mir/builder/stmts/local_statement_raw_tests.rs:256:ConstValue::Null",
-        "src/mir/builder/stmts/return_statement_descent_tests.rs:418:ConstValue::Void",
+        "src/mir/builder/stmts/if_statement_raw_tests.rs:112:ConstValue::Void",
+        "src/mir/builder/stmts/if_statement_raw_tests.rs:208:ConstValue::Void",
+        "src/mir/builder/stmts/local_statement_raw_tests.rs:267:ConstValue::Null",
         "src/mir/builder/stmts/return_statement_raw_tests.rs:132:ConstValue::Void",
         "src/mir/global_call_route_plan/tests/blockers.rs:123:ConstValue::Void",
         "src/mir/global_call_route_plan/tests/blockers.rs:43:ConstValue::Void",
@@ -6572,14 +6758,13 @@
       "backend_policy": "",
       "current_carrier": "ConstValue::Void",
       "evidence_refs": [
-        "src/mir/builder/calls/method_call_terminal_tests.rs:282:ConstValue::Void",
+        "src/mir/builder/calls/method_call_terminal_tests.rs:375:ConstValue::Void",
         "src/mir/builder/located_legacy_if_tests.rs:289:ConstValue::Void",
         "src/mir/builder/located_legacy_if_tests.rs:37:ConstValue::Void",
         "src/mir/builder/resolved_lowering/void_tests.rs:163:ConstValue::Void",
         "src/mir/builder/stmts/block_driver_tests.rs:112:ConstValue::Void",
-        "src/mir/builder/stmts/if_statement_raw_tests.rs:111:ConstValue::Void",
-        "src/mir/builder/stmts/if_statement_raw_tests.rs:207:ConstValue::Void",
-        "src/mir/builder/stmts/return_statement_descent_tests.rs:418:ConstValue::Void",
+        "src/mir/builder/stmts/if_statement_raw_tests.rs:112:ConstValue::Void",
+        "src/mir/builder/stmts/if_statement_raw_tests.rs:208:ConstValue::Void",
         "src/mir/builder/stmts/return_statement_raw_tests.rs:132:ConstValue::Void",
         "src/mir/global_call_route_plan/tests/blockers.rs:123:ConstValue::Void",
         "src/mir/global_call_route_plan/tests/blockers.rs:43:ConstValue::Void",
@@ -6839,8 +7024,8 @@
       "backend_policy": "",
       "current_carrier": "weak_to_strong",
       "evidence_refs": [
-        "src/mir/builder/calls/member_route_descent_tests.rs:506:weak_to_strong",
-        "src/mir/builder/calls/member_route_descent_tests.rs:532:weak_to_strong"
+        "src/mir/builder/calls/member_route_descent_tests.rs:460:weak_to_strong",
+        "src/mir/builder/calls/member_route_descent_tests.rs:486:weak_to_strong"
       ],
       "layer": "test",
       "migration_action": "",

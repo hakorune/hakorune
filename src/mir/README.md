@@ -22,7 +22,6 @@ navigation order must stay narrow and explicit.
 - `definitions/`: MIR definition data and shared type/shape declarations.
 - `instruction/`, `instruction_kinds/`: instruction model and kind definitions.
 - `join_ir/`: normalized JoinIR lowering and ownership helpers. Docs-first only for now.
-- `join_ir_runner/`: JoinIR execution entry helpers.
 - `join_ir_vm_bridge/`: JoinIR -> VM bridge implementation.
 - `join_ir_vm_bridge_dispatch/`: bridge routing policy and dispatch tables.
 - `loop_canonicalizer/`: loop normalization and route detection.

@@ -146,7 +146,6 @@ pub mod control_tree; // Phase 110: Structure-only SSOT (StepTree)
 pub mod function_emission; // FunctionEmissionBox（MirFunction直編集の発行ヘルパ）
 pub mod join_ir; // Phase 26-H: 関数正規化IR（JoinIR）
 pub mod join_ir_ops; // Phase 27.8: JoinIR 命令意味箱（ops box）
-pub mod join_ir_runner; // Phase 27.2: JoinIR 実行器（実験用）
 pub mod join_ir_vm_bridge; // Phase 27-shortterm S-4: JoinIR → Rust VM ブリッジ
 pub mod join_ir_vm_bridge_dispatch; // Phase 30 F-4.4: JoinIR VM ブリッジ dispatch helper
 pub mod local_fastpath_fact; // LocalFastPathFact aggregation owner

@@ -5,8 +5,7 @@
 //! - `eval_binop()`: 二項演算の評価 (Add, Sub, Mul, Div, Or, And)
 //! - `eval_compare()`: 比較演算の評価 (Lt, Le, Gt, Ge, Eq, Ne)
 //!
-//! Phase 27.8 以前は join_ir_runner.rs に直接記述されていたが、
-//! 再利用性とテスタビリティ向上のため ops box として分離。
+//! Phase 27.8 の研究用 executor から切り出し、再利用可能な ops box として維持。
 
 use crate::mir::join_ir::{BinOpKind, CompareOp};
 

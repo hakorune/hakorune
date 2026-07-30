@@ -29,10 +29,9 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
-Latest landed: JOINMODULE-METHOD-RETURN-HINT-REOWN0-I0-R0
-Result:        P3-D KnownReturnDefinitionHint is privately reowned by normal
-               finalization; normalized shadow is fenced rather than retired
-Latest design: `JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0`
+Latest landed: JOINMODULE-DIRECT-RUNNER-RETIRE0-RET0
+Result:        direct vm-reference runner and test-only callers are deleted
+Latest design: `JOINMODULE-VM-BRIDGE-FENCE0-D0`
 Executable:    none — design stop
 History:       Git history and the short landed tail below
 ```
@@ -124,15 +123,15 @@ StageB reference consumers are handled only by the next reference-sunset D0.
 
 ## Current design stop
 
-`JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0` — bounded reference disposition
+`JOINMODULE-VM-BRIDGE-FENCE0-D0` — opt-in bridge boundary
 
 ```text
-Inventory the direct JoinIR runner, opt-in VM bridge, and LLVM experiment.
-Select exactly one retired or retained-fence surface; do not merge their
-semantics into the normalized-shadow fence or normal/default route.
+Census the actual activation gate, bridge success route, and non-strict
+fallback to ordinary VM execution. Reconcile code and documentation, then
+choose one bounded fence or disposition.
 
-Stop: any default caller, shared carrier reown, or reference fallback whose
-removal requires a behavioral replacement returns this work to D0.
+Stop: any normal/default route change, bridge deletion, LLVM experiment change,
+or shared-carrier reown stays outside this D0.
 ```
 
 ## Latest closeout
@@ -144,6 +143,17 @@ JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0
   normal authority / grammar / result / publication delta            = 0
   new fallback/retry approval                                         = 0
   next                                                               = explicit-reference D0
+```
+
+## Latest closeout
+
+```text
+JOINMODULE-DIRECT-RUNNER-RETIRE0-RET0
+  direct JoinIR runner / test-only callers / module export            = 0
+  HMI caller inventory                                                   = 10 -> 8
+  normal/default / VM bridge / LLVM experiment behavior                 = unchanged
+  failure-outcome inventories / default + vm-reference builds / guards  = green
+  next                                                                   = VM bridge fence D0
 ```
 
 ## Previous closeout
@@ -438,7 +448,8 @@ R3 Legacy JoinModule/reference disposition
   time and with a fresh consumer census:
   1. `JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0` — closed;
   2. `JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0` — RETAIN-FENCED;
-  3. `JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0` — current.
+  3. `JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0` — direct runner RET0 closed;
+     VM bridge fence D0 is current.
   These are ordering boundaries, not pre-authorized implementations. No
   name-only tree deletion, normal/default route resurrection, or unresolved
   family is allowed.
@@ -467,10 +478,10 @@ AST/Recipe composition, and function-state/control residuals. They are census
 input, not a pre-authorized order. Whole-function accepted variants remain frozen.
 
 JoinModule remains out of R2 replacement commits, but not out of the completion
-definition. Its 34,212-line inventory has no default normal/default execution
-consumer; it serves explicit dev-normalization, VM-reference, and LLVM
-experiment families. The count is join_ir + join_ir_vm_bridge + join_ir_runner
-and intentionally excludes bridge dispatch.
+definition. The remaining `join_ir + join_ir_vm_bridge` Rust inventory is
+33,101 lines, has no default normal/default execution consumer, and serves
+explicit dev-normalization, VM-reference, and LLVM experiment families.
+Bridge dispatch remains excluded from this count.
 R3 must classify it before Complete:
 
 ```text
