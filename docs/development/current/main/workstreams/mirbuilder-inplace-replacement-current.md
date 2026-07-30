@@ -109,9 +109,10 @@ Latest landed: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-PORTAL-RETIRE0-I0-R0-RET0`
 Latest landed: `RAW-LAMBDA-CHILD-OWNER-SOURCE-ADMISSION0-I0-R0`
 Latest design: `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0` — closed, NoSafeSlice
 Latest design: `RAW-INVOCATION-SEMANTIC-OWNER-CARRIER0-D0` — closed, NoSafeSlice
-Latest design: `RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-D0` — accepted, T1
+Latest design: `RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-D0` — closed, T1
 Latest landed: `RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-I0-R0` — `066e33319d`
-Current design stop: `RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0`
+Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0` — closed, NoSafeSlice
+Current design stop: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -138,48 +139,63 @@ Evidence:
   and check files remain below 800 lines.
 
 Next:
-  RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0 remains the sole design stop. This closeout
+  RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0 is the sole design stop. This closeout
   does not activate Script semantic ownership or Lambda lineage.
+```
+
+## Latest design closeout
+
+`RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0` — closed, NoSafeSlice
+
+```text
+Decision:
+  Program-owned VerifiedScriptSemanticSourceV1 is the eventual target, but no
+  safe I0/R0 exists until Script source-kind, semantic admission, and failure
+  precedence are designed as one boundary.
+
+Evidence:
+  FunctionSyntaxViewV1, owner_resolver, function-root verification, and
+  VerifiedSourceProjectionV1 are Function/Lambda-rooted. Selected Script also
+  admits surfaces that the semantic shadow vocabulary marks ExplicitUnsupported;
+  direct connection would narrow grammar or move diagnostics earlier.
+
+Done:
+  The source-spine row is landed. This D0 issues no semantic owner and opens no
+  implementation row. Existing Script grammar, diagnostics, Lambda publication,
+  candidate isolation, and one-execution policy remain unchanged.
+
+Stop:
+  Program clone/reparse, synthetic FunctionDeclaration, generic Function view
+  widening, partial forest/projection pairing, a second resolver/registry,
+  unsupported-node opacity, grammar/diagnostic narrowing, Lambda activation,
+  fallback, and retry remain forbidden.
 ```
 
 ## Current design stop
 
-`RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0`
+`RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0`
 
 ```text
-Decision:
-  generic carrier = NoSafeSlice. ScriptRoot is the first missing producer, so
-  select one bounded Program-owned Script semantic-owner design before the
-  generic carrier or Lambda lineage can reopen.
-
-Named production boundary:
-  PreparedNormalDefaultProgramRootV1 -> VerifiedRawRootExpansionV1::Script ->
-  RawInvocationRootLineageV1::ScriptRoot carries Program/source paths only.
-  It has no root FunctionOwnerIdV1, owner forest, or exact Script projection.
-
 Change:
-  design one Program-owned source unit that resolves the selected Script body
-  exactly once before Builder effects and co-owns its root owner, nested-owner
-  forest, and exact Program/script projection. No implementation is selected.
+  Design-only matrix for a Program-rooted Script semantic owner: explicit
+  source-kind/profile, one resolver traversal, accepted/opaque boundaries,
+  and diagnostic precedence. No code or I0 is opened.
 
 Contract:
-  preserve the complete existing selected Script grammar, diagnostics, source
-  order, candidate isolation, and one-execution policy. The semantic product
-  must be issued from the owned Program, not from a synthetic function, name,
-  locator, body clone, or later physical demand. Forest inventory of nested
-  Lambda topology does not activate or widen nested Lambda lowering; existing
-  raw nested-owner rejection remains owned by its later row.
+  Owned Program remains the source authority. The eventual product must
+  co-seal Script root owner, one nested-owner forest, and one Program
+  projection after CatalogSeal and before CatalogInstall. Function/Lambda
+  products stay unchanged; Lambda remains inventory-only.
 
 Done:
-  name one production producer, one source/forest/projection product, exact
-  pre-Builder failure behavior, and parity corpus; or close NoSafeSlice at the
-  first unsupported Script surface. This D0 alone does not release Lambda.
+  Assign every currently admitted Script surface to one semantic disposition,
+  prove source-site and failure precedence, and define the exact next I0/R0;
+  otherwise retain NoSafeSlice at the first unsupported surface.
 
 Stop:
-  Program clone/reparse; synthetic FunctionDeclaration; producer-local or
-  per-demand owner issuance; second source/owner registry; independently paired
-  forest/root; grammar or diagnostic narrowing; Lambda publication change;
-  Main, Cataloged, TopLevel, InstanceConstructor, CallObject, or NestedBox mix.
+  Any grammar/diagnostic narrowing, synthetic function, partial forest,
+  second traversal/registry, AST clone/reparse, Lambda activation, or fallback
+  returns the lane to NoSafeSlice.
 ```
 
 Corrected queue:
