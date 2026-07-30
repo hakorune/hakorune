@@ -93,29 +93,28 @@ Latest landed: `RAW-LOCATED-LOOP-CHILD-ENTRY0-I0-R0`
 Latest landed: `RAW-LOCATED-TRYCATCH-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-PROGRAM-BODY-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-SCALAR-VARIABLE-WRITES0-I0-R0`
-Current design stop: `RAW-LOCATED-SCALAR-BINDING-REMAINDER1-D0`
+Latest landed: `RAW-LOCATED-SCALAR-LOCAL-COMPOUND-WRITE0-I0-R0`
+Current execution: `RAW-LOCATED-PRINT-SOURCE-HANDOFF0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
-## Current design stop
+## Current execution
 
-`RAW-LOCATED-SCALAR-BINDING-REMAINDER1-D0`
+`RAW-LOCATED-PRINT-SOURCE-HANDOFF0-I0-R0`
 
 ```text
-Question:
-  which one remaining ScalarBinding responsibility can next consume exact
-  source receipts without changing place, print, Return, or Local semantics?
-
 Landed baseline:
-  variable-target Assignment and GroupedAssignmentExpr now own exact statement
-  and RHS paths and exhaust one prepared RHS demand through the unchanged
-  variable-assignment owner. Field/index Assignment, CompoundAssignment,
-  Print, Return, and Local remain explicit ScalarBinding residuals.
+  variable-target Assignment, GroupedAssignmentExpr, and CompoundAssignment
+  now own exact statement/RHS paths. Field/index places remain residual.
 
-Stop:
-  Return cannot join an ordinary one-demand row while Match-return CorePlan may
-  complete before ReturnValue descent. No place-order widening, route retry,
-  AST clone/reparse, Lambda widening, or compatibility rename.
+Selected:
+  one central prepared Print terminal consumes exactly one route-specific
+  source demand: PrintValue for general, PrintValue/CallArgument(0) for the
+  function TypeOp wrapper, or PrintValue/Receiver for the method TypeOp.
+
+Forbid:
+  type-literal lowering, route re-observation/retry, emission-order change,
+  unlocated DirectPrint, Return/Local widening, or compatibility rename.
 ```
 
 Corrected queue:

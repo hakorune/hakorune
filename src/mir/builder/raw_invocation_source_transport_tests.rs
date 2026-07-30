@@ -174,6 +174,12 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
             rhs: Box::new(integer(2)),
             span: Span::unknown(),
         },
+        ASTNode::CompoundAssignment {
+            target: Box::new(variable("x")),
+            operator: crate::ast::BinaryOperator::Add,
+            value: Box::new(integer(3)),
+            span: Span::unknown(),
+        },
     ];
     let (_, root) =
         RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
@@ -197,6 +203,9 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
             ASTNode::Assignment { .. } => ExprChildRoleV1::AssignmentValue,
             ASTNode::GroupedAssignmentExpr { .. } => {
                 ExprChildRoleV1::GroupedAssignmentValue
+            }
+            ASTNode::CompoundAssignment { .. } => {
+                ExprChildRoleV1::CompoundAssignmentValue
             }
             _ => unreachable!("scalar single-value fixture"),
         };
@@ -243,22 +252,36 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
         assignment(field, integer(1)),
         assignment(index, integer(2)),
         ASTNode::CompoundAssignment {
-            target: Box::new(variable("x")),
+            target: Box::new(ASTNode::FieldAccess {
+                object: Box::new(variable("page")),
+                field: "value".to_owned(),
+                span: Span::unknown(),
+            }),
             operator: crate::ast::BinaryOperator::Add,
             value: Box::new(integer(3)),
             span: Span::unknown(),
         },
+        ASTNode::CompoundAssignment {
+            target: Box::new(ASTNode::Index {
+                target: Box::new(variable("items")),
+                index: Box::new(integer(0)),
+                span: Span::unknown(),
+            }),
+            operator: crate::ast::BinaryOperator::Add,
+            value: Box::new(integer(4)),
+            span: Span::unknown(),
+        },
         ASTNode::Print {
-            expression: Box::new(integer(4)),
+            expression: Box::new(integer(5)),
             span: Span::unknown(),
         },
         ASTNode::Return {
-            value: Some(Box::new(integer(5))),
+            value: Some(Box::new(integer(6))),
             span: Span::unknown(),
         },
         ASTNode::Local {
             variables: vec!["x".to_owned()],
-            initial_values: vec![Some(Box::new(integer(6)))],
+            initial_values: vec![Some(Box::new(integer(7)))],
             declared_type_names: vec![None],
             span: Span::unknown(),
         },

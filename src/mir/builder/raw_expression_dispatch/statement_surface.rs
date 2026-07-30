@@ -328,17 +328,46 @@ where
                 lower_prepared_raw_ordinary_assignment_with_port_v1(builder, port, prepared)?,
             ))
         }
-        ASTNode::CompoundAssignment {
-            target,
-            operator,
-            value,
-            ..
-        } => {
+        node @ ASTNode::CompoundAssignment { .. } => {
+            let value_source = match &node {
+                ASTNode::CompoundAssignment { target, .. }
+                    if matches!(target.as_ref(), ASTNode::Variable { .. }) =>
+                {
+                    Some(port.prepare_expression_child_source_v1(
+                        &node,
+                        ExprChildRoleV1::CompoundAssignmentValue,
+                    )?)
+                }
+                _ => None,
+            };
+            let ASTNode::CompoundAssignment {
+                target,
+                operator,
+                value,
+                ..
+            } = node
+            else {
+                unreachable!("matched CompoundAssignment")
+            };
             let prepared =
                 PreparedRawCompoundAssignmentV1::prepare(*target, operator, *value);
-            Ok(StatementSurfaceDispatch::Lowered(
-                lower_prepared_raw_compound_assignment_with_port_v1(builder, port, prepared)?,
-            ))
+            let value = match value_source {
+                Some(source) => {
+                    let mut scoped =
+                        RawStructuredChildScopePortV1::new(port, vec![source], Vec::new());
+                    let value = lower_prepared_raw_compound_assignment_with_port_v1(
+                        builder,
+                        &mut scoped,
+                        prepared,
+                    )?;
+                    scoped.complete_exact_demands_v1()?;
+                    value
+                }
+                None => lower_prepared_raw_compound_assignment_with_port_v1(
+                    builder, port, prepared,
+                )?,
+            };
+            Ok(StatementSurfaceDispatch::Lowered(value))
         }
         node @ ASTNode::Return { .. } => {
             let statement = ReturnStmt::try_from(node).expect("ASTNode::Return must convert");

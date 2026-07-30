@@ -364,6 +364,10 @@ fn is_located_scalar_single_value_statement(statement: &ASTNode) -> bool {
         statement,
         ASTNode::Assignment { target, .. }
             if matches!(target.as_ref(), ASTNode::Variable { .. })
+    ) || matches!(
+        statement,
+        ASTNode::CompoundAssignment { target, .. }
+            if matches!(target.as_ref(), ASTNode::Variable { .. })
     ) || matches!(statement, ASTNode::GroupedAssignmentExpr { .. })
 }
 
@@ -579,8 +583,8 @@ where
             .expect("block driver index stays within the owned source iterator");
         let transport = self.source.body_statement(statement, index);
         self.child.with_source_transport_v1(transport, |child, statement| {
-            super::stmts::block_stmt::build_statement_with_port_v1(builder, child, statement)
-        })
+                super::stmts::block_stmt::build_statement_with_port_v1(builder, child, statement)
+            })
     }
 }
 

@@ -15,7 +15,6 @@ use super::module_draft_collector::{
 use super::module_lowering_invocation::ModuleLoweringInvocationV1;
 use super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceTransportV1, RawSourceTransportPortV1,
-    RawUnlocatedPortalV1,
 };
 use super::recursive_child_lowering::{
     drive_legacy_body_v1, drive_legacy_expression_v1, RawInvocationChildPortV1,
@@ -562,9 +561,9 @@ fn raw_invocation_port_preserves_assignment_and_compound_children() {
             span: Span::unknown(),
         };
         port.with_source_transport_v1(
-            RawInvocationSourceTransportV1::unlocated(
+            RawInvocationSourceTransportV1::root(
                 compound,
-                RawUnlocatedPortalV1::ScalarBinding,
+                RawInvocationRootLineageV1::ScriptRoot,
             ),
             |port, compound| drive_legacy_expression_v1(builder, port, compound),
         )
