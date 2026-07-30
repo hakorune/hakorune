@@ -4,7 +4,6 @@ use crate::mir::{
     MirInstruction, MirModule, MirType,
 };
 use crate::parser::NyashParser;
-
 use super::me_call_header_observation::{
     prepare_me_lowered_call_v1, MeCallHeaderObservationPortV1, MeCallHeaderSourceV1,
     PreparedMeReceiverV1,
@@ -20,14 +19,18 @@ use super::recursive_child_lowering::{
     drive_legacy_body_v1, drive_legacy_expression_v1, RawInvocationChildPortV1,
     RawLegacyChildLoweringPortV1,
 };
-
 fn int(value: i64) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::Integer(value),
         span: Span::unknown(),
     }
 }
-
+fn variable(name: &str) -> ASTNode {
+    ASTNode::Variable {
+        name: name.to_owned(),
+        span: Span::unknown(),
+    }
+}
 fn new_expr(class: &str, arguments: Vec<ASTNode>) -> ASTNode {
     ASTNode::New {
         class: class.to_owned(),
@@ -37,21 +40,18 @@ fn new_expr(class: &str, arguments: Vec<ASTNode>) -> ASTNode {
         span: Span::unknown(),
     }
 }
-
 fn string(value: &str) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::String(value.to_string()),
         span: Span::unknown(),
     }
 }
-
 fn boolean(value: bool) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::Bool(value),
         span: Span::unknown(),
     }
 }
-
 fn add(left: ASTNode, right: ASTNode) -> ASTNode {
     ASTNode::BinaryOp {
         operator: BinaryOperator::Add,
@@ -60,7 +60,6 @@ fn add(left: ASTNode, right: ASTNode) -> ASTNode {
         span: Span::unknown(),
     }
 }
-
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     builder
         .function_state
@@ -72,11 +71,9 @@ fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
         .flat_map(|block| block.instructions.iter().cloned())
         .collect()
 }
-
 fn collector() -> ModuleDraftCollectorV1 {
     collector_with_return_type(MirType::Void)
 }
-
 fn collector_with_return_type(return_type: MirType) -> ModuleDraftCollectorV1 {
     let mut collector = ModuleDraftCollectorV1::default();
     let function = MirFunction::new(
@@ -527,47 +524,51 @@ fn raw_invocation_port_preserves_assignment_and_compound_children() {
     builder.function_state.binding_ctx.insert("x".into(), BindingId::new(0));
     with_port!(builder, port, {
         let ordinary = ASTNode::Assignment {
-            target: Box::new(ASTNode::Variable { name: "x".into(), span: Span::unknown() }),
+            target: Box::new(variable("x")),
             value: Box::new(add(int(1), int(2))),
             span: Span::unknown(),
         };
         port.with_source_transport_v1(
-            RawInvocationSourceTransportV1::root(
-                ordinary,
-                RawInvocationRootLineageV1::ScriptRoot,
-            ),
+            RawInvocationSourceTransportV1::root(ordinary, RawInvocationRootLineageV1::ScriptRoot),
             |port, ordinary| drive_legacy_expression_v1(builder, port, ordinary),
-        ).unwrap();
+        )
+        .unwrap();
         let grouped = ASTNode::GroupedAssignmentExpr {
             lhs: "x".to_string(),
             rhs: Box::new(add(int(2), int(3))),
             span: Span::unknown(),
         };
         port.with_source_transport_v1(
-            RawInvocationSourceTransportV1::root(
-                grouped,
-                RawInvocationRootLineageV1::ScriptRoot,
-            ),
+            RawInvocationSourceTransportV1::root(grouped, RawInvocationRootLineageV1::ScriptRoot),
             |port, grouped| drive_legacy_expression_v1(builder, port, grouped),
         )
         .unwrap();
         let compound = ASTNode::CompoundAssignment {
-            target: Box::new(ASTNode::Variable {
-                name: "x".to_string(),
-                span: Span::unknown(),
-            }),
+            target: Box::new(variable("x")),
             operator: BinaryOperator::Add,
             value: Box::new(add(int(4), int(5))),
             span: Span::unknown(),
         };
         port.with_source_transport_v1(
-            RawInvocationSourceTransportV1::root(
-                compound,
-                RawInvocationRootLineageV1::ScriptRoot,
-            ),
+            RawInvocationSourceTransportV1::root(compound, RawInvocationRootLineageV1::ScriptRoot),
             |port, compound| drive_legacy_expression_v1(builder, port, compound),
         )
         .unwrap();
+        let field_assignment = ASTNode::Assignment {
+            target: Box::new(field(variable("x"), "slot")),
+            value: Box::new(add(int(6), int(7))),
+            span: Span::unknown(),
+        };
+        port.with_source_transport_v1(
+            RawInvocationSourceTransportV1::root(
+                field_assignment,
+                RawInvocationRootLineageV1::ScriptRoot,
+            ),
+            |port, assignment| drive_legacy_expression_v1(builder, port, assignment),
+        )
+        .unwrap();
+        let rows = instructions(builder);
+        assert!(rows.iter().any(|row| matches!(row, MirInstruction::FieldSet { .. })));
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });
 }

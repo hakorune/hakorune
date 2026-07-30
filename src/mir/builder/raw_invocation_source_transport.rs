@@ -350,7 +350,10 @@ fn is_located_scalar_single_value_statement(statement: &ASTNode) -> bool {
     matches!(
         statement,
         ASTNode::Assignment { target, .. }
-            if matches!(target.as_ref(), ASTNode::Variable { .. })
+            if matches!(
+                target.as_ref(),
+                ASTNode::Variable { .. } | ASTNode::FieldAccess { .. }
+            )
     ) || matches!(
         statement,
         ASTNode::CompoundAssignment { target, .. }

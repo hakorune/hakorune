@@ -167,6 +167,14 @@ fn variable(name: &str) -> ASTNode {
 
 #[test]
 fn scalar_single_value_statements_keep_exact_parent_sites() {
+    let field_assignment = assignment(
+        ASTNode::FieldAccess {
+            object: Box::new(variable("page")),
+            field: "value".to_owned(),
+            span: Span::unknown(),
+        },
+        integer(4),
+    );
     let statements = [
         assignment(variable("x"), integer(1)),
         ASTNode::GroupedAssignmentExpr {
@@ -180,6 +188,7 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
             value: Box::new(integer(3)),
             span: Span::unknown(),
         },
+        field_assignment,
     ];
     let (_, root) =
         RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
@@ -218,6 +227,24 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
                 SourcePathSegmentV1::Value
             ]
         );
+        if let ASTNode::Assignment { target, .. } = &statement {
+            if matches!(target.as_ref(), ASTNode::FieldAccess { .. }) {
+                let target_source = body_child
+                    .child_expression(&statement, ExprChildRoleV1::AssignmentTarget)
+                    .expect("field target source");
+                let receiver_source = target_source
+                    .child_expression(target, ExprChildRoleV1::Receiver)
+                    .expect("field receiver source");
+                assert_eq!(
+                    receiver_source.site().unwrap().segments(),
+                    &[
+                        SourcePathSegmentV1::Body(index as u32),
+                        SourcePathSegmentV1::Target,
+                        SourcePathSegmentV1::Receiver,
+                    ]
+                );
+            }
+        }
 
         let direct_child = root
             .child_statement(&statement, index)
@@ -234,11 +261,6 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
 
 #[test]
 fn residual_scalar_statements_remain_scalar_binding_compatibility() {
-    let field = ASTNode::FieldAccess {
-        object: Box::new(variable("page")),
-        field: "value".to_owned(),
-        span: Span::unknown(),
-    };
     let index = ASTNode::Index {
         target: Box::new(variable("items")),
         index: Box::new(integer(0)),
@@ -251,7 +273,6 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
         ));
 
     let residuals = [
-        assignment(field, integer(1)),
         assignment(index, integer(2)),
         ASTNode::CompoundAssignment {
             target: Box::new(ASTNode::FieldAccess {
