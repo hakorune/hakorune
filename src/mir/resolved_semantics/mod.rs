@@ -25,6 +25,7 @@ mod normalized;
 mod normalized_callable_catalog;
 mod owner_forest;
 mod owner_resolver;
+mod owner_source_kind;
 mod product;
 mod records;
 mod resolver;
@@ -88,6 +89,7 @@ pub use owner_forest::{
     VerifiedSemanticOwnerForestV1,
 };
 pub(crate) use owner_resolver::ResolveOwnerForestErrorV1;
+pub use owner_source_kind::SemanticOwnerSourceKindV1;
 pub use product::VerifiedResolvedFunctionV1;
 pub(crate) use product::{ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1};
 pub use records::{

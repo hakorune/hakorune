@@ -100,6 +100,7 @@ pub struct NormalizedExitV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NormalizedResolvedFunctionGraphV1 {
     function_origin: FunctionOriginV1,
+    source_kind: super::SemanticOwnerSourceKindV1,
     bindings: Box<[NormalizedBindingRecordV1]>,
     scopes: Box<[NormalizedScopeRecordV1]>,
     regions: Box<[NormalizedRegionRecordV1]>,
@@ -112,6 +113,10 @@ pub struct NormalizedResolvedFunctionGraphV1 {
 impl NormalizedResolvedFunctionGraphV1 {
     pub const fn function_origin(&self) -> FunctionOriginV1 {
         self.function_origin
+    }
+
+    pub const fn source_kind(&self) -> super::SemanticOwnerSourceKindV1 {
+        self.source_kind
     }
 
     pub fn bindings(&self) -> &[NormalizedBindingRecordV1] {
@@ -223,6 +228,7 @@ pub(super) fn build_normalized_graph(
 
     NormalizedResolvedFunctionGraphV1 {
         function_origin: data.function_origin,
+        source_kind: data.source_kind,
         bindings: bindings.into_boxed_slice(),
         scopes: scopes.into_boxed_slice(),
         regions: regions.into_boxed_slice(),

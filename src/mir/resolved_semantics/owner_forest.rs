@@ -48,6 +48,7 @@ impl OwnerParentEdgeV1 {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct NormalizedOwnerKeyV1 {
     root: FunctionOriginV1,
+    root_source_kind: super::SemanticOwnerSourceKindV1,
     definition_chain: Box<[SourceExprSiteV1]>,
 }
 
@@ -559,9 +560,10 @@ fn build_normalized_forest(
     upvars: &[UpvarRefV1],
 ) -> Result<NormalizedSemanticOwnerForestGraphV1, SemanticOwnerForestVerificationErrorV1> {
     let root_origin = owners[&root].function_origin();
+    let root_source_kind = owners[&root].source_kind();
     let mut keys = BTreeMap::new();
     for owner in owners.keys().copied() {
-        normalized_owner_key(owner, root_origin, parents, &mut keys);
+        normalized_owner_key(owner, root_origin, root_source_kind, parents, &mut keys);
     }
     let mut unique = BTreeSet::new();
     if keys.values().any(|key| !unique.insert(key.clone())) {
@@ -620,6 +622,7 @@ fn build_normalized_forest(
 fn normalized_owner_key(
     owner: FunctionOwnerIdV1,
     root: FunctionOriginV1,
+    root_source_kind: super::SemanticOwnerSourceKindV1,
     parents: &BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>,
     cache: &mut BTreeMap<FunctionOwnerIdV1, NormalizedOwnerKeyV1>,
 ) -> NormalizedOwnerKeyV1 {
@@ -627,9 +630,10 @@ fn normalized_owner_key(
         return key.clone();
     }
     let definition_chain = if let Some(edge) = parents.get(&owner) {
-        let mut chain = normalized_owner_key(edge.parent_owner, root, parents, cache)
-            .definition_chain
-            .into_vec();
+        let mut chain =
+            normalized_owner_key(edge.parent_owner, root, root_source_kind, parents, cache)
+                .definition_chain
+                .into_vec();
         chain.push(edge.definition_site.site().clone());
         chain
     } else {
@@ -637,6 +641,7 @@ fn normalized_owner_key(
     };
     let key = NormalizedOwnerKeyV1 {
         root,
+        root_source_kind,
         definition_chain: definition_chain.into_boxed_slice(),
     };
     cache.insert(owner, key.clone());

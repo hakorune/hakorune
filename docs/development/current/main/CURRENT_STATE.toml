@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LAMBDA-CLOSURE-EMISSION-TERMINAL0-S0 is closed at e508f27224. Worker audit found two missing prerequisites before the Script Lambda bridge: selected direct expressions dropped exact Program statement context, and no production Program-specific Script semantic producer exists. RAW-SCRIPT-DIRECT-EXPR-EXACT-PROGRAM-SOURCE0-I0-R0 removes the live source-context drop. The sole next design stop is RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0; ledger or Lambda handoff implementation remains forbidden until it closes."
+status = "RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0 is closed Accept-corrected. A Script semantic body is an original-Program-ordinal demand window, not the whole Program and not a synthetic FunctionDeclaration. SEMANTIC-OWNER-SOURCE-KIND0-S0 closes in the current commit. The next commit must enter the named selected-Script lifecycle and begin the Complete/Deferred compatibility ratchet."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0"
-current_execution_row = "none (RAW-SCRIPT-DIRECT-EXPR-EXACT-PROGRAM-SOURCE0-I0-R0 closed by current commit)"
-current_execution_summary = "The source repair installs ProgramBody(original ordinal) for every selected DirectPortAwareExpression before raw descent, removing the Local/Variable/Lambda source-context drop while preserving one execution and existing lowering. Next, one Program-specific semantic producer must atomically own Program + Script root profile + forest + Program projection + first-demand capture plans and have the selected lifecycle as its named consumer. Existing Function public views stay Function/Lambda-only. No caller-zero producer, synthetic FunctionDeclaration, name-derived BindingRef, partial forest, fallback, or retry."
+current_design_stop = "none (RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0 closed Accept-corrected)"
+current_execution_row = "RAW-SCRIPT-RUNTIME-DEMAND-ADMISSION0-I0-R0"
+current_execution_summary = "Hoist and consume the one existing Program work plan in the selected lifecycle, classify each original-ordinal runtime demand exactly once, and register SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001 with a monotonic Complete-eligibility ratchet. SEMANTIC-OWNER-SOURCE-KIND0-S0 is the only caller-zero prerequisite commit. No whole-repository/allocator benchmark is authorized."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0"
+current_blocker_token = "RAW-SCRIPT-RUNTIME-DEMAND-ADMISSION0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

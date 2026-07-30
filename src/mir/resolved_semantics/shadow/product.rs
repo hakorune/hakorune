@@ -200,6 +200,7 @@ pub(crate) enum ShadowResolveErrorV0 {
 #[derive(Debug, Clone)]
 pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) function_origin: FunctionOriginV1,
+    pub(crate) source_kind: super::super::SemanticOwnerSourceKindV1,
     pub(crate) function_scope: ShadowScopeIdV0,
     pub(crate) function_region: ShadowRegionIdV0,
     pub(crate) bindings: BTreeMap<ShadowBindingOrdinalV0, ShadowBindingRecordV0>,

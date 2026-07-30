@@ -25,6 +25,7 @@ use super::verifier::{verify_resolved_function, ResolvedFunctionVerificationErro
 pub(crate) struct ResolvedFunctionDataV1 {
     pub(crate) owner: FunctionOwnerIdV1,
     pub(crate) function_origin: FunctionOriginV1,
+    pub(crate) source_kind: super::SemanticOwnerSourceKindV1,
     pub(crate) function_scope: ScopeId,
     pub(crate) function_region: RegionId,
     pub(crate) bindings: BTreeMap<BindingId, ResolvedBindingRecordV1>,
@@ -103,6 +104,10 @@ impl VerifiedResolvedFunctionV1 {
 
     pub const fn function_origin(&self) -> FunctionOriginV1 {
         self.data.function_origin
+    }
+
+    pub const fn source_kind(&self) -> super::SemanticOwnerSourceKindV1 {
+        self.data.source_kind
     }
 
     pub const fn function_scope(&self) -> ScopeId {

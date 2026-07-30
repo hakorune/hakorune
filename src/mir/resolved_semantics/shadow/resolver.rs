@@ -113,6 +113,7 @@ fn resolve_shadow_view<'ast>(
     ancestor_names: BTreeSet<Box<str>>,
     method_call_observation_mode: ShadowMethodCallObservationModeV0,
 ) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
+    let source_kind = view.source_kind();
     traverse_shadow_view(
         view,
         lambda_mode,
@@ -120,7 +121,7 @@ fn resolve_shadow_view<'ast>(
         BTreeSet::new(),
         method_call_observation_mode,
     )
-    .map(|resolver| resolver.finish_owner(function_origin))
+    .map(|resolver| resolver.finish_owner(function_origin, source_kind))
 }
 
 /// Reuses the one shadow lexical traversal for exact qualified receivers.
@@ -277,10 +278,15 @@ impl<'ast> ShadowResolverV0<'ast> {
         }
     }
 
-    fn finish_owner(self, function_origin: FunctionOriginV1) -> ShadowResolvedOwnerV0<'ast> {
+    fn finish_owner(
+        self,
+        function_origin: FunctionOriginV1,
+        source_kind: super::super::SemanticOwnerSourceKindV1,
+    ) -> ShadowResolvedOwnerV0<'ast> {
         ShadowResolvedOwnerV0 {
             function: ShadowResolvedFunctionV0 {
                 function_origin,
+                source_kind,
                 function_scope: self.function_scope,
                 function_region: self.function_region,
                 bindings: self.bindings,

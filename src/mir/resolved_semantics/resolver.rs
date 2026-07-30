@@ -371,6 +371,7 @@ fn canonicalize_draft(
     let data = ResolvedFunctionDataV1 {
         owner,
         function_origin: draft.function_origin,
+        source_kind: draft.source_kind,
         function_scope: scope_ids[&draft.function_scope],
         function_region: region_ids[&draft.function_region],
         bindings,

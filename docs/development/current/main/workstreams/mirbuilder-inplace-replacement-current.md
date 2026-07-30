@@ -116,8 +116,8 @@ Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corrected
 Latest landed: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — `507851393c`
 Latest landed: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0` — `ffda60241b`
-Current execution: none; `RAW-SCRIPT-DIRECT-EXPR-EXACT-PROGRAM-SOURCE0-I0-R0` closes in the current commit
-Next design stop: `RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0`
+Latest landed: `SEMANTIC-OWNER-SOURCE-KIND0-S0` — current commit
+Current execution: `RAW-SCRIPT-RUNTIME-DEMAND-ADMISSION0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -3023,29 +3023,62 @@ Preserve:
   isolation, raw/reference routes, Lambda ABI, and fallback/retry = 0.
 ```
 
-## RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0 — active design stop
+## RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0 — closed, Accept-corrected
 
 ```text
-Finding:
-  No production product currently owns Program + Script root semantic owner +
-  forest + Program projection. FunctionSyntaxViewV1,
-  VerifiedResolvedSourceUnitV1, forest products, normalized identity, and the
-  public projection seal remain Function/Lambda-rooted. Therefore a ledger
-  cannot obtain exact BindingRefV1 rows at the current HEAD.
+Decision:
+  A Script semantic body is the ordered, original-Program-ordinal demand
+  window sealed from the existing Program work plan. It is not the whole
+  Program, a compressed runtime vector, or a synthetic function. Callable Box
+  and Function subtrees are transferred/opaque boundaries where the work plan
+  assigns another owner.
 
-Required decision:
-  Define one private neutral semantic-owner syntax core and a distinct Script
-  view/root profile without adding a Program branch to the public Function
-  view. The selected lifecycle after CatalogSeal and before CatalogInstall is
-  the named producer/consumer edge. The atomic Script product must co-seal the
-  owned Program, Script root profile, one forest, one Program projection,
-  exact admission coverage, and first-demand-ordered Lambda capture plans.
+Architecture:
+  Keep FunctionSyntaxViewV1 public behavior Function/Lambda-only. Add a private
+  neutral syntax core and sibling Script view. Brand verified and normalized
+  owner identity with DeclaredFunction/Script/Lambda. Complete co-owns Program,
+  Script root profile, forest, Program projection, coverage, and ordered
+  capture receipts. Deferred owns no partial forest/projection and executes
+  ExistingRootLower exactly once; it is a pre-lowering terminal choice, never
+  retry/fallback.
+
+Execution series:
+  1. SEMANTIC-OWNER-SOURCE-KIND0-S0
+     behavior-neutral source-kind identity; the only caller-zero prerequisite.
+  2. RAW-SCRIPT-RUNTIME-DEMAND-ADMISSION0-I0-R0
+     selected lifecycle consumes the one existing work plan and seals every
+     original-ordinal runtime demand as Resolve / TransferredOpaque / Deferred.
+  3. RAW-SCRIPT-SEMANTIC-SOURCE0-I0-R0
+     first bounded Complete closure co-seals Script forest/projection and
+     deletes the bare Script-root authority for that closure.
+  4. RAW-SCRIPT-BINDING-MATERIALIZATION0-I0-R0
+     exact BindingRef ledger and first-demand capture receipts replace eligible
+     name-based Variable/Lambda materialization. Nested-Lambda forwarding stays
+     deferred until its own production replacement row.
+
+Compatibility ratchet:
+  sunset_id = SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001
+  baseline  = measured and committed by the first admission I0/R0, not by an
+              unbounded parallel census
+  metric    = Complete request count over one fixed fixture corpus plus one
+              deterministic real-.hako corpus
+  law       = Complete count never decreases; Deferred reason vocabulary never
+              grows without a new D0; each expansion row deletes one named
+              Deferred reason in the same commit
+  first_real_milestone = first repository .hako file in the lexical-only
+                         Complete closure, fixed by path in the admission row
+  later_milestones = control composition; call/object demand; Box runtime
+                     demand; postfix catch/cleanup; nested-Lambda forwarding
+  retire_when = every selected normal/default Script demand is Complete or has
+                an explicitly retained R4 terminal, and the compatibility
+                caller is zero
 
 Forbid:
   caller-zero producer; synthetic FunctionDeclaration; Program widening of
   Function public products; partial forest/projection; source/name-derived
   BindingRefV1; capture order from forest.upvars(); second resolver/observer;
-  semantic failure downgrade; fallback/retry.
+  semantic failure downgrade; Complete-to-Deferred downgrade; fallback/retry;
+  unbounded parallel corpus/allocator benchmark.
 
 After Accept:
   connect one invocation-local BindingRefV1-to-ValueId ledger; publish eligible

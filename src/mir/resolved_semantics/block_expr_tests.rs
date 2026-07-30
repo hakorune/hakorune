@@ -136,6 +136,7 @@ fn blockexpr_data(owner: FunctionOwnerIdV1) -> ResolvedFunctionDataV1 {
     ResolvedFunctionDataV1 {
         owner,
         function_origin,
+        source_kind: super::SemanticOwnerSourceKindV1::DeclaredFunction,
         function_scope,
         function_region,
         bindings: BTreeMap::new(),

@@ -33,6 +33,7 @@ fn data(body_segment: SourcePathSegmentV1) -> ResolvedFunctionDataV1 {
     ResolvedFunctionDataV1 {
         owner,
         function_origin,
+        source_kind: super::SemanticOwnerSourceKindV1::DeclaredFunction,
         function_scope,
         function_region,
         bindings: BTreeMap::new(),

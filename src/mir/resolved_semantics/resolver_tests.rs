@@ -2,8 +2,8 @@ use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 
 use super::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, RegionKindV1,
-    ResolvedControlTransferV1, ResolvedExitOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1,
-    SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
+    ResolvedControlTransferV1, ResolvedExitOriginV1, ResolvedExitSiteV1, SemanticOwnerSourceKindV1,
+    SourceBindingSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
 };
 
 fn fixture() -> ASTNode {
@@ -46,6 +46,14 @@ fn canonical_resolver_seals_receiver_parameter_and_local() {
     let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
     let product = session.resolve(view).unwrap();
 
+    assert_eq!(
+        product.source_kind(),
+        SemanticOwnerSourceKindV1::DeclaredFunction
+    );
+    assert_eq!(
+        product.normalized_graph().source_kind(),
+        SemanticOwnerSourceKindV1::DeclaredFunction
+    );
     assert_eq!(product.binding_count(), 3);
     let local = product.declaration_binding(&local_site()).unwrap();
     assert_eq!(product.binding(local).unwrap().diagnostic_name(), "x");

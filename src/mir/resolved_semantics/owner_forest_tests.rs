@@ -202,6 +202,14 @@ fn resolver_seals_one_noncapturing_lambda_as_a_child_owner() {
     ));
 
     assert_eq!(forest.owner_count(), 2);
+    assert_eq!(
+        forest.owner(root).unwrap().source_kind(),
+        super::SemanticOwnerSourceKindV1::DeclaredFunction
+    );
+    assert_eq!(
+        child_product.source_kind(),
+        super::SemanticOwnerSourceKindV1::Lambda
+    );
     assert_eq!(forest.parent(child).unwrap().parent_owner(), root);
     assert_eq!(
         child_product.variable_ref(&use_site),
