@@ -32,7 +32,7 @@ Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0
 Result:        source-owned entry-materialization contract selected
 Latest design: `RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0` — closed
-Executable:    `MIRBUILDER-LIVE-EDGE-CENSUS15-D0`
+Executable:    `NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -279,20 +279,39 @@ Kept:
   Ownership/View, or feature work.
 ```
 
-## Current execution
+## Latest closeout
 
-`MIRBUILDER-LIVE-EDGE-CENSUS15-D0` — read-only post-cutover census
+`MIRBUILDER-LIVE-EDGE-CENSUS15-D0` — read-only, closed
 
 ```text
 Inventory:
   selected normal, raw/reference, and runner materialization consumers.
 
-Output:
-  exactly one bounded D0, one live I0/R0, or NoSafeLiveI0.
+Result:
+  selected normal has no safe immediate I0/R0; raw/reference receipt has
+  production consumer=0; runner selectors remain independent fences.
 
-No claim:
-  raw receipt activation, a global compatibility-field deletion, runner
-  selector unification, retry/fallback, Ownership/View, or feature work.
+Selected D0:
+  `NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0`.
+```
+
+## Current execution
+
+`NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0` — T2 selected-normal runtime input policy
+
+```text
+Observed lower-side reads:
+  prepare-module safepoint environment; Main wrapper script arguments.
+
+Boundary:
+  normal currently differs from raw RuntimeInputSnapshot for malformed script
+  arguments and safepoint parsing. Decide normal-only snapshot timing, receipt,
+  failure/disposition, and exact parity before implementation.
+
+Must not:
+  reuse raw receipt as a semantic shortcut; change runner selection; activate
+  raw Required; change malformed-env behavior without a decision; add fallback,
+  Ownership/View, or features.
 ```
 
 ## Latest closeout
@@ -749,32 +768,36 @@ census or D0 has selected it.
    and delete the selected lower-side environment snapshot/materialization edge.
    Raw/reference and every runner selector retain their current authority.
 
-3. MIRBUILDER-LIVE-EDGE-CENSUS15-D0                     (active)
+3. MIRBUILDER-LIVE-EDGE-CENSUS15-D0                     (closed)
    Re-inventory selected normal, raw/reference, and runner materialization
    consumers.  It may select exactly one bounded D0, one live I0/R0, or
    NoSafeLiveI0; it may not assume a raw handoff or runner cutover in advance.
 
-4. Entry-materialization residuals                      (census-selected only)
+4. NORMAL-RUNTIME-INPUT-SNAPSHOT0-D0                    (active)
+   T2 decision for selected-normal safepoint and script-argument snapshots;
+   raw/reference remains separate.
+
+5. Entry-materialization residuals                      (census-selected only)
    A raw/reference receipt handoff and each runner-adapter receipt are separate
    responsibility decisions.  They must preserve their route-specific policies:
    no global selector, no `NYASH_ENTRY` reinterpretation, and no provenance
    collapse.  Their shared completion goal is the removal of the old snapshot /
    compilation-context / lower-side materialization authority, not a new route.
 
-5. R3 reference-asset disposition                       (interleaved only by census)
+6. R3 reference-asset disposition                       (interleaved only by census)
    Each cycle is fresh consumer census -> one RET0, REOWN, or RETAIN-FENCED
    decision -> fresh census.  These rows earn no replacement credit.  The VM
    bridge, normalized shadow, LLVM experiment, and any live carrier remain
    named fences until their own evidence changes.
 
-6. R4 final conformance
+7. R4 final conformance
    Decide every live edge, compatibility sunset, and retained reference asset.
    The 34K-line JoinModule scope is decided here as either deletion or an
    explicit fenced reference asset; LOC is not a completion metric.  Complete
    requires normal/default reachability=0, acceptance truth=0, and final
    planner=0 for every retained reference family.
 
-7. R5 features, strictly after R4 Complete
+8. R5 features, strictly after R4 Complete
    Refresh Ownership readiness -> implement Ownership -> View D0 and I0 -> one
    later unimplemented feature semantic slice at a time.
 ```
