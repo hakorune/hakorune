@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS41-D0 is closed. It selected the neutral JumpArgsLayout REOWN before bridge dead-API cleanup: native BasicBlock/EdgeCFG/verifier/optimizer/JSON must stop importing a CFG carrier from the legacy JoinModule namespace before R4 decides the remaining JoinModule closure. The ignored bridge boundary argument remains the next independent RET0 candidate."
+status = "MIR-CFG-JUMP-ARGS-LAYOUT-REHOME0-I0-R0 is closed. EdgeArgs and JumpArgsLayout now have one neutral mir::edge_args owner; every native CFG/verifier/optimizer/JSON/bridge consumer uses it and the old JoinModule inline_boundary definition/re-export/alias is zero. The next bounded stop is the already-censused bridge dead API: remove only caller-zero conversion wrappers and the ignored conversion-boundary parameter while preserving the real normalized merge boundary."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "MIR-CFG-JUMP-ARGS-LAYOUT-REHOME0-I0-R0"
-current_execution_summary = "T1 atomic neutral REOWN. Move EdgeArgs and JumpArgsLayout into one crate-neutral MIR edge_args owner; keep only EdgeArgs on the MIR root facade; update every live consumer to mir::edge_args::JumpArgsLayout; delete the old inline_boundary definition/re-export with no alias. Preserve JoinInlineBoundary/LoopExitBinding, CFG/runtime/serialization behavior, and all normalized-shadow/VM bridge semantics."
+current_design_stop = "JOINMODULE-BRIDGE-DEAD-API-RETIRE0-D0"
+current_execution_row = "none"
+current_execution_summary = "Read-only bounded dead-API confirmation. Verify the caller-zero cfg(test) converter pair and ignored conversion-boundary parameter can be deleted without touching the real JoinInlineBoundary merge, normalized-shadow fence, VM Exec routes, or JoinModule lowering. Select one atomic RET0 only if the exact delete closure and evidence remain disjoint."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIR-CFG-JUMP-ARGS-LAYOUT-REHOME0-I0-R0"
+current_blocker_token = "JOINMODULE-BRIDGE-DEAD-API-RETIRE0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -117,12 +117,12 @@ pub fn emit_conditional_edgecfg(
         condition_val,
         then_frag,
         crate::mir::EdgeArgs {
-            layout: crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout::CarriersOnly,
+            layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly,
             values: vec![],
         },
         else_frag,
         crate::mir::EdgeArgs {
-            layout: crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout::CarriersOnly,
+            layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly,
             values: vec![],
         },
         join_frag,

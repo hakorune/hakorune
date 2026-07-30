@@ -25,7 +25,8 @@
 //! ```
 
 use super::condition_env::ConditionBinding;
-use super::inline_boundary::{JoinInlineBoundary, JumpArgsLayout, LoopExitBinding};
+use super::inline_boundary::{JoinInlineBoundary, LoopExitBinding};
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::ValueId;
 
 /// Role of a parameter in JoinIR lowering (Phase 200-A)

@@ -11,13 +11,13 @@ use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawLegacyChildLoweringPortV1,
 };
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::exact_numeric_value_facts::{ExactNumericConstFact, ExactNumericValueFact};
 use crate::mir::function::{
     FastMemBranchConditionFact, FastMemBranchConditionProofKind, FastMemRegionMetadata,
     FastMemRegionOrigin,
 };
 use crate::mir::instruction::FastMemRegionId;
-use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::mir::value_kind::MirValueKind;
 use crate::mir::{
     BasicBlockId, BindingId, EffectMask, MirBuilder, MirInstruction, MirType, ValueId,

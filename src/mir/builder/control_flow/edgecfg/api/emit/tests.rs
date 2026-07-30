@@ -1,6 +1,6 @@
 use super::*;
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::function::{FunctionSignature, MirFunction};
-use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::mir::types::MirType;
 use crate::mir::EdgeArgs;
 use crate::mir::{BasicBlock, EffectMask, ValueId};

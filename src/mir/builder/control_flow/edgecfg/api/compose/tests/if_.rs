@@ -2,7 +2,7 @@ use super::super::if_;
 use crate::mir::builder::control_flow::edgecfg::api::edge_stub::EdgeStub;
 use crate::mir::builder::control_flow::edgecfg::api::exit_kind::ExitKind;
 use crate::mir::builder::control_flow::edgecfg::api::frag::Frag;
-use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::value_id::ValueId;
 use crate::mir::{BasicBlockId, EdgeArgs};
 use std::collections::BTreeMap;

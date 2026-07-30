@@ -1,4 +1,4 @@
-use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::ValueId;
 
 /// Join block params (same layout as EdgeArgs).

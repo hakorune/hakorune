@@ -6,8 +6,8 @@ mod tests {
         BlockParams, ExitKind, Frag, FragEmitSession,
     };
     use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
+    use crate::mir::edge_args::JumpArgsLayout;
     use crate::mir::function::{FunctionSignature, MirFunction};
-    use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
     use crate::mir::types::MirType;
     use crate::mir::{BasicBlock, EffectMask, MirInstruction, ValueId};
     use crate::mir::{BasicBlockId, EdgeArgs};

@@ -46,6 +46,7 @@ pub(crate) mod canonical_recursive_callable_module_backend_capability;
 pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
 mod compiler;
+pub mod edge_args;
 pub(crate) mod raw_finalization_contract;
 pub(crate) mod raw_physical_drain;
 pub(crate) mod raw_root_body_recipe;
@@ -225,7 +226,7 @@ pub(crate) mod weak_field_backend_capability; // extracted error types // Optimi
 // MIR root facade exports. Keep this surface aligned with
 // docs/development/current/main/design/mir-root-facade-contract-ssot.md and
 // tools/checks/mir_root_facade_allowlist.txt.
-pub use basic_block::{BasicBlock, EdgeArgs};
+pub use basic_block::BasicBlock;
 pub use builder::MirBuilder;
 pub use compiler::{
     CanonicalLoweringErrorV1, MirCompileResult, MirCompiler, NormalCompileRequestV1,
@@ -236,6 +237,7 @@ pub use compiler::{
 pub(crate) use compiler::{
     RejectedPostMacroWholeFileProgramV1, VerifiedPostMacroWholeFileProgramV1,
 };
+pub use edge_args::EdgeArgs;
 pub use hakorune_mir_core::{BasicBlockId, BindingId, LocalSlotId};
 
 // Public facade exports: core MIR surfaces and refresh orchestration entry

@@ -1,4 +1,5 @@
 use super::*;
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::ValueId;
 
 fn trim_ready_carrier_info() -> crate::mir::join_ir::lowering::carrier_info::CarrierInfo {

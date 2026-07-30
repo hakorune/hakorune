@@ -14,7 +14,7 @@ use crate::mir::EdgeArgs;
 ///
 /// 通常ケース用の便利関数。ContinueWithPhiArgs 等で値を積む場合は caller が作る。
 pub fn empty_carriers_args() -> EdgeArgs {
-    use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+    use crate::mir::edge_args::JumpArgsLayout;
     EdgeArgs {
         layout: JumpArgsLayout::CarriersOnly,
         values: vec![],

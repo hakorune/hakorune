@@ -1,5 +1,5 @@
 use super::*;
-use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::{
     BasicBlock, BasicBlockId, EdgeArgs, EffectMask, FunctionSignature, MirFunction, MirInstruction,
     MirType, ValueId,

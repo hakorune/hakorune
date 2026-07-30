@@ -1,6 +1,6 @@
 use crate::helpers::*;
 use nyash_rust::ast::Span;
-use nyash_rust::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use nyash_rust::mir::edge_args::JumpArgsLayout;
 use nyash_rust::mir::types::ConstValue;
 use nyash_rust::mir::{BasicBlock, BasicBlockId, EdgeArgs, MirInstruction, ValueId};
 

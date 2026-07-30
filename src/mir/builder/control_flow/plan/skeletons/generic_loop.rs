@@ -12,7 +12,7 @@ use crate::mir::builder::control_flow::plan::normalizer::helpers::{
 use crate::mir::builder::control_flow::plan::step_mode::extract_to_step_bb_explicit_step;
 use crate::mir::builder::control_flow::plan::CoreLoopPlan;
 use crate::mir::builder::MirBuilder;
-use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::EdgeArgs;
 use crate::mir::{MirType, ValueId};
 use std::collections::BTreeMap;

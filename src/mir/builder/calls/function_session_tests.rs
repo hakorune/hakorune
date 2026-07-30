@@ -6,9 +6,9 @@ use crate::mir::builder::compilation_context::RecordLocalFieldValue;
 use crate::mir::builder::control_flow::edgecfg::api::{EdgeStub, ExitKind, Frag};
 use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 use crate::mir::builder::MirBuilder;
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::function::{MirFunction, MirModule};
 use crate::mir::instruction::FastMemRegionId;
-use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
 use crate::mir::region::RegionId;
 use crate::mir::resolved_semantics::{

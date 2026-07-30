@@ -42,8 +42,7 @@ fn test_dce_keeps_edge_args_values() {
         bb0.set_jump_with_edge_args(
             bb1,
             Some(crate::mir::EdgeArgs {
-                layout:
-                    crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout::CarriersOnly,
+                layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly,
                 values: vec![v2],
             }),
         );

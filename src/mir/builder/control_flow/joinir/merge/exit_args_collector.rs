@@ -25,8 +25,9 @@
 //! carrier_inputs.extend(result.carrier_values);
 //! ```
 
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::join_ir::lowering::carrier_info::CarrierRole;
-use crate::mir::join_ir::lowering::inline_boundary::{JumpArgsLayout, LoopExitBinding};
+use crate::mir::join_ir::lowering::inline_boundary::LoopExitBinding;
 use crate::mir::{BasicBlockId, ValueId};
 #[cfg(test)]
 use std::collections::BTreeMap;

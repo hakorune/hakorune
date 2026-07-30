@@ -7,18 +7,11 @@
 use super::spanned_instruction::{SpannedInstRef, SpannedInstruction};
 use super::{EffectMask, MirInstruction, ValueId};
 use crate::ast::Span;
-use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::edge_args::{EdgeArgs, JumpArgsLayout};
 use crate::runtime::get_global_ring0;
 pub use hakorune_mir_core::{BasicBlockId, BasicBlockIdGenerator};
 use std::collections::BTreeSet; // Phase 69-3: HashSet → BTreeSet for determinism
 use std::fmt;
-
-/// Edge arguments for CFG edges (Phase 260 P0)
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct EdgeArgs {
-    pub layout: JumpArgsLayout,
-    pub values: Vec<ValueId>,
-}
 
 /// Outgoing edge from a basic block
 #[derive(Debug, Clone)]

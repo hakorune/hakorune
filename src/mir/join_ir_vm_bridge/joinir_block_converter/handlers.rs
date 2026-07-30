@@ -2,7 +2,7 @@ use super::super::call_generator::{emit_call_pair, emit_call_pair_with_spans};
 use crate::ast::Span;
 use crate::mir::builder::copy_emitter::{self, CopyEmitReason};
 use crate::mir::builder::emission::phi_lifecycle;
-use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::join_ir::{JoinContId, JoinFuncId, MergePair};
 use crate::mir::{BasicBlockId, Callee, EffectMask, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;

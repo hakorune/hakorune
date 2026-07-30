@@ -25,4 +25,4 @@ mod types;
 #[cfg(test)]
 mod tests;
 
-pub use types::{JoinInlineBoundary, JumpArgsLayout, LoopExitBinding};
+pub use types::{JoinInlineBoundary, LoopExitBinding};

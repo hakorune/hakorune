@@ -1,3 +1,4 @@
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::join_ir::lowering::carrier_info::{CarrierInfo, CarrierRole, ExitReconnectMode};
 use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
 use crate::mir::ValueId;
@@ -57,15 +58,6 @@ pub struct LoopExitBinding {
     /// - LoopState: Needs exit PHI (value used after loop)
     /// - ConditionOnly: No exit PHI (only used in loop condition)
     pub role: CarrierRole,
-}
-
-/// Layout policy for JoinIR jump_args (SSOT)
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum JumpArgsLayout {
-    /// jump_args = [carriers...]
-    CarriersOnly,
-    /// jump_args = [expr_result, carriers...]
-    ExprResultPlusCarriers,
 }
 
 /// Boundary information for inlining a JoinIR fragment into a host function

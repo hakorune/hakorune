@@ -1,7 +1,7 @@
 use super::super::build_mir_json_root;
 use super::super::control_edge_args::VerifiedExactNoneControlEdgeArgsV1;
 use super::make_function;
-use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::{BasicBlockId, EdgeArgs, MirInstruction, ValueId};
 
 #[test]

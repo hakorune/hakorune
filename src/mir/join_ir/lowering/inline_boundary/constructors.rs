@@ -1,4 +1,5 @@
-use super::types::{JoinInlineBoundary, JumpArgsLayout, LoopExitBinding};
+use super::types::{JoinInlineBoundary, LoopExitBinding};
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::join_ir::lowering::carrier_info::{CarrierRole, ExitReconnectMode};
 use crate::mir::join_ir::lowering::condition_env::ConditionBinding;
 use crate::mir::ValueId;

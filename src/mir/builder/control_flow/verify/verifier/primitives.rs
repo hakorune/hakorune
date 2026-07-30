@@ -23,7 +23,7 @@
 //! - Phase 29bq+: Cleanliness campaign - verifier.rs modularization (Step 1/7)
 
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
-use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
+use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::EdgeArgs;
 use crate::mir::ValueId;
 
