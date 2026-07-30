@@ -113,7 +113,9 @@ Latest design: `RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-D0` — closed, T1
 Latest landed: `RAW-SCRIPT-ROOT-EXACT-PROGRAM-SOURCE0-I0-R0` — `066e33319d`
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
-Current design stop: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0`
+Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corrected
+Current execution: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0`
+Next design stop: `RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -201,7 +203,7 @@ Stop:
   or retry from this closeout.
 ```
 
-## Current design stop
+## Latest design closeout
 
 `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0`
 
@@ -209,30 +211,79 @@ Consultation:
 `docs/development/current/main/investigations/raw-script-root-semantic-admission0-question-2026-07-31.md`
 
 ```text
-Change:
-  Design-only contract for the context-sensitive Script admission matrix and
-  typed opaque boundary. No implementation row is open.
+Decision:
+  Accept-corrected. One pre-RootLower admission choice is valid, but the
+  proposed 18-file semantic-owner I0 is NoSafeSlice. Split the work by live
+  production authority.
 
 Contract:
-  Keep Program as the sole source authority. The eventual Script product must
-  be one co-sealed source-kind/root-owner/forest/projection product issued after
-  CatalogSeal and before CatalogInstall. Function and Lambda products remain
-  unchanged; Lambda remains inventory-only.
+  owned Program -> one source-only admission -> exactly one pre-lowering
+  authority: SemanticEligible or ExistingRootLowerAuthority -> RootLower once.
+  ExistingRootLowerAuthority owns no forest/projection and is not a fallback.
 
-Done:
-  Define the 57-kind matrix by root/body context, distinguish semantic resolve
-  from opaque diagnostic/runtime/callable boundaries, preserve existing failure
-  precedence, and identify the first exact I0/R0 only if one resolver traversal
-  can provide complete facts. Otherwise close this D0 as NoSafeSlice.
+Language correction:
+  Hakorune has no source try statement and rejects source throw. Canonical
+  target syntax is a protected expression/block/member body followed by one
+  postfix catch and optional cleanup. ASTNode::TryCatch/finally_body are legacy
+  physical carrier names, not language-semantic authority. Multiple-catch,
+  first-catch-only, catch-binder, and cleanup env behavior remain compatibility
+  evidence; RecoverableFailure activation stays in the language lane.
 
 Stop:
-  Any grammar or diagnostic narrowing, synthetic function, partial forest,
-  untyped opacity, second traversal/registry, AST clone/reparse, Lambda
-  activation, fallback, retry, or a production caller without same-commit old
-  edge deletion.
+  Do not mix source-kind, resolver generalization, forest/projection, catalog
+  movement, cleanup policy, and port cutover into one commit. No synthetic
+  Function, partial forest, second resolver, source try/throw permission,
+  fallback, retry, or new per-row guard.
 ```
 
-Corrected queue:
+## Current execution brief
+
+`RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — T1 atomic BoxShape row
+
+```text
+Change:
+  program_root_work_plan::classify_statement consumes each selected Script
+  Program item once and receives one exhaustive source-only admission product.
+  Replace the current runtime classifier -> non-Box classifier chain with one
+  Program-item policy. No recursive semantic traversal is opened.
+
+Contract:
+  Grammar, diagnostics, execution order, result/publication policy, original
+  Program ordinal, raw/reference behavior, and postfix catch/cleanup carrier
+  behavior are unchanged. Builder access, resolver, owner ID, forest, and
+  projection effects are zero.
+
+Done:
+  classify_normal_script_runtime_statement_v1 selected callers = 0;
+  classify_normal_script_nonbox_statement_v1 definition/callers = 0;
+  old non-Box module = 0; new production classifier caller = 1.
+  program_root_work_plan.rs and normal_script_runtime_work.rs shrink below 800;
+  existing tests/guard/manifest are updated without a new test/check file.
+
+Stop:
+  Any runtime-disposition change, nested child traversal, unused semantic
+  receipt, source try/throw activation, internal TryCatch carrier promotion,
+  new per-row guard, or source/check file reaching 800 lines.
+```
+
+Corrected forward queue:
+
+```text
+1. RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0
+2. RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0
+3. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0
+4. RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0
+5. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-S0
+6. RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-I0-R0
+
+Rule:
+  S0 may be at most one behavior-neutral commit and must be followed immediately
+  by row 6. Complete sources co-seal Program + Script owner + forest +
+  projection. ExistingRootLowerAuthority carries none of those and runs the
+  already-selected RootLower once. No route retries another route.
+```
+
+Historical located-transport queue (closed/parked context):
 
 ```text
 1  RAW-LOCATED-BODY-SPINE0-I0-R0
