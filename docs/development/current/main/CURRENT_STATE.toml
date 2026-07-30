@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0 is closed. The exact remaining 9 selected Script unsupported kinds now enter one DirectSelectedUnsupportedStatement terminal, align the current span, reuse the existing raw expression recursion guard, and issue the same shared Unsupported AST node diagnostic. Their selected RawCompatibility -> drive_legacy_statement_v1 edge is zero, NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003 is closed, and the selected Script compatibility residual is zero. Nested loop/body and raw/reference behavior remain unchanged. MIRBUILDER-LIVE-EDGE-CENSUS31-D0 is the sole read-only stop."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS31-D0 is closed. Raw static-Main compatibility has NoSafeSlice: selected-normal reachability is zero, while heterogeneous RawLegacy ingress remains unclassified and deletion could change helper-before-root ordering, LegacyEnvironment arguments, diagnostics, and publication. The LegacyChild census found the higher-priority live selected-normal old edge: nested Box raw body descent issues legacy child admissions for ordinary static and instance methods from recursive_child_lowering.rs. NESTED-BOX-RAW-BODY-DISPOSITION0-D0 is the sole read-only design stop."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS31-D0"
+current_design_stop = "NESTED-BOX-RAW-BODY-DISPOSITION0-D0"
 current_execution_row = "none"
-current_execution_summary = "Read-only Census31 must inspect the sole R4 registry after selected Script compatibility reaches zero. Census the remaining raw static-Main compatibility, the eight unregistered R4 families, and the separate LegacyChildDraftAdmissionV1 37-site metric. Select one named live old edge only if fresh evidence proves a bounded same-commit replacement; otherwise record NoSafeSlice and advance the mandatory R4 disposition sequence. Ownership, View, and later features remain parked."
+current_execution_summary = "Read-only D0: trace selected normal RawInvocationChildPortV1 nested BoxDeclaration descent to the exact ordinary static/instance LegacyChildDraftAdmissionV1 issuers. Freeze source identity, constructor/header/collector ownership, nested Main rejection, method order, failure/publication parity, and the exact old edges. Select a bounded REOWN only if one source-derived admission can replace each legacy issuer with same-commit deletion and no retry; otherwise record NoSafeSlice or an explicit R4 disposition. Do not edit production during D0."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS31-D0"
+current_blocker_token = "NESTED-BOX-RAW-BODY-DISPOSITION0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
