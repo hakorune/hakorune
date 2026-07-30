@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0 is closed Accept-corrected. The one-pre-RootLower admission principle is accepted, but the monolithic semantic-owner I0 remains NoSafeSlice. The next bounded execution is RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0: make the existing Script root transport carry an explicit Program-root profile without activating resolver, owner IDs, forest/projection, or new language semantics. Hakorune source try/throw remain rejected; postfix catch/cleanup is canonical, and ASTNode::TryCatch is legacy/internal carrier evidence only."
+status = "RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0 is closed at 19d68ca708. The existing Script root transport now carries an explicit Program body profile; path-derived root-kind inference is gone without activating resolver, owner IDs, forest/projection, or new language semantics. The next boundary is NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0. Hakorune source try/throw remain rejected; postfix catch/cleanup is canonical, and ASTNode::TryCatch is legacy/internal carrier evidence only."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0 — closed Accept-corrected; monolithic semantic-owner I0 rejected as NoSafeSlice"
-current_execution_row = "RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0"
-current_execution_summary = "RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0 landed as 507851393c. The next row is a behavior-neutral source-profile transport cutover: the selected Script root keeps ProgramBodyRoot and original ordinals while RawInvocationSourceContextV1 receives an explicit Program body profile instead of inferring root kind from a path. Resolver, owner ID, forest/projection, semantic terminal, RecoverableFailure, Lambda activation, catch/cleanup semantics, fallback, and retry remain zero."
+current_design_stop = "NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0"
+current_execution_row = "none (design stop: NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0)"
+current_execution_summary = "RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0 landed as 19d68ca708. LocatedRawNodeV1 now carries SourceBodyKindV1 explicitly: Script roots issue Program, ordinary roots issue Function, and child statement transport preserves the selected body profile. ProgramBodyRoot/original ordinal parity and all existing transport behavior remain unchanged. Resolver, owner ID, forest/projection, semantic terminal, RecoverableFailure, Lambda activation, catch/cleanup semantics, fallback, and retry remain zero."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -442,7 +442,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0 is selected after RAW-SCRIPT-SEMANTIC-COMPLETE-CLOSURE0-D0 closed Accept-corrected. The row removes path-derived Script root-kind inference and makes the existing Program-root profile explicit at the selected production caller. It does not create a Script semantic owner, forest/projection, resolver pass, RecoverableFailure, catch/cleanup semantics, fallback, or retry."""
+latest_card_summary = """RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0 landed at 19d68ca708. The existing Script root transport now carries SourceBodyKindV1::Program explicitly, ordinary roots retain Function, and path-derived root-kind inference is deleted. The next stop is NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0; semantic owner, forest/projection, RecoverableFailure, catch/cleanup semantics, fallback, and retry remain parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0"
+current_blocker_token = "NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

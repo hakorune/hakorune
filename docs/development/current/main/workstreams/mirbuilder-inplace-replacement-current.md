@@ -115,8 +115,9 @@ Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corrected
 Latest landed: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — `507851393c`
-Current execution: `RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0`
-Next design stop: none; reopen only if the bounded transport row hits a hard stop
+Latest landed: `RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0` — `19d68ca708`
+Current execution: none (design stop: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0`)
+Next design stop: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -320,11 +321,36 @@ Stop:
   coercion. Do not widen this row to catalog movement or Script semantic
   admission.
 
+## Latest execution closeout
+
+`RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0` — `19d68ca708`
+
+```text
+Change:
+  LocatedRawNodeV1 now carries SourceBodyKindV1 explicitly. Script roots issue
+  Program, ordinary roots issue Function, and body-statement transport retains
+  the selected profile. The old site-path root-kind inference is deleted.
+
+Contract:
+  ProgramBodyRoot, original Program ordinals, source-site shape, root lowering,
+  and compatibility transport are unchanged. No resolver, owner ID,
+  forest/projection, semantic terminal, Lambda publication, RecoverableFailure,
+  or postfix catch/cleanup meaning was added.
+
+Evidence:
+  Focused raw source-transport tests: 15 passed. `cargo check --lib`, pointer
+  guard, shared cut0 guard, `git diff --check`, and the <800-line source limit
+  are green. No new test/check file was added.
+
+Next:
+  `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0` is the sole design stop.
+```
+
 Corrected forward queue:
 
 ```text
-1. RAW-SCRIPT-ROOT-PROFILE-TRANSPORT0-I0-R0 (current execution)
-2. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0
+1. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-D0 (current design stop)
+2. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0 (only after D0)
 3. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-S0 (design gate before execution)
 4. RAW-SCRIPT-ROOT-SEMANTIC-OWNER0-I0-R0 (only if bounded closure is proven)
 
