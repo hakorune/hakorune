@@ -31,8 +31,8 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: NORMAL-RUNTIME-INPUT-SNAPSHOT0-I0-R0
 Result:        selected normal runtime inputs snapshot at ingress
-Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS16-D0` — closed
-Executable:    `NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0`
+Latest design: `NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0` — closed
+Executable:    `NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -348,31 +348,63 @@ Next:
   `NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0`.
 ```
 
+## Latest design decision
+
+`NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0` — T2, closed
+
+```text
+Inventory:
+  The live child port carries catalog-addressable static/instance Box methods,
+  uncatalogued instance constructors, and uncatalogued top-level functions.
+
+Decision:
+  Candidate C is accepted: first replace catalog-addressable Box methods only.
+  Their existing CanonicalSameModuleCallableKeyV1 becomes a source witness and
+  seals one physical symbol/arity relation; instance physical arity includes
+  exactly one receiver.  The existing one body snapshot, parent restoration,
+  LegacySymbol key, and LegacyReplaceWholePair collector policy remain exact.
+
+Reject:
+  ResolvedChildDraftAdmissionV1 is not a substitute: it requires an
+  invocation-local FunctionOwnerIdV1, a canonical no-body session, and reject-
+  duplicate collector policy.  Do not fabricate that owner or change drain
+  policy in this cell.
+
+Fence:
+  Constructors and top-level functions stay on the existing normal
+  compatibility edge.  Their sunset is
+  `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001`: each must obtain an
+  exact source identity before its branch can move; neither is completion debt
+  hidden behind the cataloged-method product.
+```
+
 ## Current execution
 
-`NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0` — T2 function-lifecycle boundary
+`NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0` — atomic selected-normal cutover
 
 ```text
 Change:
-  First freeze the exact Program-child inventory: catalog-addressable Main
-  helpers/non-Main static/instance methods, plus uncatalogued instance
-  constructors and top-level functions.  Then decide one selected-normal
-  identity, body-session capture, and collector-admission contract, or an
-  explicitly fenced partial replacement.
+  Carry the catalog key through static/instance Program work and the selected
+  child port.  Seal a normal cataloged-Box-method admission receipt containing
+  that source witness plus the exact physical symbol and arity; use it for the
+  unchanged body capture and collector admission.
 
-Contract:
-  The current legacy chain is live.  An already-resolved canonical admission is
-  not a substitute until full source-category coverage, source-to-physical-arity
-  relation, duplicate policy, and collector parity are co-sealed.  Grammar and
-  all non-normal routes do not move.
+Delete:
+  The selected static/instance Box-method construction of
+  LegacyChildDraftAdmissionV1 = 0.  Its collector mapping remains one explicit
+  compatibility boundary, with a future deletion only when normal drain owns a
+  verified replacement key/policy.
 
-Done:
-  Select one executable replacement or retain the edge with explicit evidence.
+Evidence:
+  Static and instance source-key/symbol/arity parity, receiver +1 physical
+  arity, one body snapshot, parent restoration on every error, duplicate/repeat
+  replacement parity, normal drain parity, candidate reuse, and unchanged
+  constructor/top-level compatibility.
 
 Stop:
-  No whole-function variants, inferred canonical owner, silent omission of the
-  uncatalogued families, raw/reference or runner coupling, retry/fallback,
-  Ownership/View, or feature work.
+  No FunctionOwnerIdV1 issuance, no canonical duplicate policy, no catalog
+  widening for constructors/top-level functions, no grammar/route change, and
+  no retry/fallback, raw/reference, runner, Ownership/View, or feature work.
 ```
 
 ## Latest closeout
@@ -846,30 +878,34 @@ census or D0 has selected it.
    Re-inventory the remaining selected-normal, compatibility, and fenced
    reference edges before selecting another live replacement or retirement.
 
-7. NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0     (active)
-   T2 design for the live callable child identity/body-session/collector chain.
+7. NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0     (closed)
+   Selected catalog-addressable Box-method replacement; uncatalogued children
+   are explicit compatibility, not omitted coverage.
 
-8. Entry-materialization residuals                      (census-selected only)
+8. NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0   (active)
+   One atomic selected-normal static/instance Box-method source-witness cutover.
+
+9. Entry-materialization residuals                      (census-selected only)
    A raw/reference receipt handoff and each runner-adapter receipt are separate
    responsibility decisions.  They must preserve their route-specific policies:
    no global selector, no `NYASH_ENTRY` reinterpretation, and no provenance
    collapse.  Their shared completion goal is the removal of the old snapshot /
    compilation-context / lower-side materialization authority, not a new route.
 
-9. R3 reference-asset disposition                       (interleaved only by census)
+10. R3 reference-asset disposition                      (interleaved only by census)
    Each cycle is fresh consumer census -> one RET0, REOWN, or RETAIN-FENCED
    decision -> fresh census.  These rows earn no replacement credit.  The VM
    bridge, normalized shadow, LLVM experiment, and any live carrier remain
    named fences until their own evidence changes.
 
-10. R4 final conformance
+11. R4 final conformance
    Decide every live edge, compatibility sunset, and retained reference asset.
    The 34K-line JoinModule scope is decided here as either deletion or an
    explicit fenced reference asset; LOC is not a completion metric.  Complete
    requires normal/default reachability=0, acceptance truth=0, and final
    planner=0 for every retained reference family.
 
-11. R5 features, strictly after R4 Complete
+12. R5 features, strictly after R4 Complete
    Refresh Ownership readiness -> implement Ownership -> View D0 and I0 -> one
    later unimplemented feature semantic slice at a time.
 ```
