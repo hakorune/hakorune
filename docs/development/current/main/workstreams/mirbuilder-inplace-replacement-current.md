@@ -33,9 +33,9 @@ Latest landed: NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0
 Result:        selected Script direct Box raw compatibility is retired
 Latest landed:  `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS23-D0` — closed
-Latest design:  `NORMAL-SCRIPT-NONBOX-STATEMENT-DISPOSITION0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-PRINT-DIRECT-OWNER0-I0-R0`
-Next design:    `NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-D0`
+Latest design:  `NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-D0` — closed
+Next execution: `NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -723,6 +723,60 @@ R4 census:
 ```
 
 ## Current design decision
+
+`NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-D0` — T1, closed
+
+```text
+Decision:
+  Candidate A — retire the statement facade for all seven direct expression
+  roots as one production responsibility.
+
+Selected roots:
+  Literal / Variable / Me / UnaryOp / BinaryOp / AwaitExpression / CheckExpr.
+  Descendants are unrestricted and keep the exact existing RawInvocation port.
+
+Old path:
+  PortAwareExpressionCompatibility
+  -> RawCompatibility
+  -> drive_legacy_statement_v1
+  -> build_statement_with_port_v1
+  -> drive_legacy_expression_v1
+
+New path:
+  DirectPortAwareExpression
+  -> selected direct-statement sibling
+  -> drive_legacy_expression_v1 with the same port
+
+Parity basis:
+  build_statement_with_port_v1 has no policy for these roots. Its only extra
+  operation is writing the root span immediately before the expression
+  dispatcher writes the identical span. Header, collector, Box, Loop, Call,
+  child failure, and nested expression routes remain on the same port.
+
+Structure:
+  normal_script_runtime_work.rs is already 798 lines. Create one small
+  normal_script_direct_statement_owner sibling, move the existing DirectPrint
+  terminal into it, and add the expression terminal there. The source-only
+  disposition file must not gain Builder/lowering authority.
+
+Atomic delete:
+  the seven roots -> RawCompatibility -> drive_legacy_statement_v1 = 0.
+  Residual kind count becomes 47; compatibility terminal count remains one.
+
+Evidence:
+  exhaustive/disjoint source partition; full MIR/verification parity across
+  all seven roots and nested call/object/control-sensitive descendants; exact
+  root/child span parity; undefined-variable failure then fresh reuse; no new
+  RawLegacy port, build_expression facade, retry, or fallback.
+
+Forbid:
+  operand allowlists; new expression semantics; Nowait or another statement
+  kind in this row; block-driver bypass; raw/reference widening; AST reparse;
+  new failure/source identity; or any source/check file reaching 800 lines.
+
+Next:
+  NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-I0-R0.
+```
 
 `NORMAL-SCRIPT-NONBOX-STATEMENT-DISPOSITION0-D0` — T1 partition, closed
 
