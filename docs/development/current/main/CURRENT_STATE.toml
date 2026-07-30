@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS34-D0 and RAW-STATIC-MAIN-COMPAT-BATCH-DISPOSITION0-D0 are closed. Explicit raw static Main remains reachable only through the RawLegacy AST route, lacks an exact Program/source locator, and couples helper-first lowering to LegacyEnvironment entry materialization; bounded RET0 or REOWN is unsafe. RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001 is now explicit RETAIN-FENCED with a four-edge release condition. Active compatibility rows are zero. MIRBUILDER-LIVE-EDGE-CENSUS35-D0 is the sole next design stop."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS35-D0 is closed. The unregistered PHI observer family is a debug-only global collector with three observation hooks and only dedicated tests as consumers; it does not affect PHI allocation, MIR, routing, verification, or diagnostics. JOINMODULE-PHI-OBSERVER-RETIRE0-RET0 is the sole executable row and will delete the observer module, hooks, dedicated test module, exports, README surface, and regenerated native-owner inventory row in one T1 detached deletion."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS35-D0"
-current_execution_row = "none"
-current_execution_summary = "Run one read-only post-static-Main-disposition census. The registry now has active compatibility=0, retain-fenced=4, closed=8, unregistered=7. Recount caller-zero terminal/facade assets and the seven unregistered R4 families, then select at most one bounded RET0, REOWN, or RETAIN-FENCED disposition. A selected code row must name the exact old edge and same-commit deletion; a retained fence must name owner, activation, release row, and retire_when. Do not edit production code before selection."
+current_design_stop = "none"
+current_execution_row = "JOINMODULE-PHI-OBSERVER-RETIRE0-RET0"
+current_execution_summary = "Perform one atomic T1 detached RET0. Delete src/mir/join_ir/verify_phi_reserved.rs, its join_ir module export, the three cfg(debug_assertions) observe_phi_dst hooks in loop_header_phi_builder.rs, src/mir/builder/phi_observation_tests.rs and its builder module registration, and the README observation row. Regenerate mirbuilder-native-owner-candidate-inventory-v0.json with its existing generator. Preserve PHI allocation/order/types, JoinIR lowering, verification, diagnostics, runtime behavior, and every non-observer test. New source/test/check files, fallback, retry, grammar/route changes, and replacement credit are zero."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-STATIC-MAIN-COMPAT-BATCH-DISPOSITION0-D0 is closed as RETAIN-FENCED. The explicit RawLegacy-only static-Main batch has no exact source locator and couples helper-first behavior to legacy entry materialization, so no bounded RET0/REOWN is safe. Its owner, activation, four exact release edges, and retirement condition are now registered; active compatibility rows are zero. MIRBUILDER-LIVE-EDGE-CENSUS35-D0 is the sole next design stop. R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """MIRBUILDER-LIVE-EDGE-CENSUS35-D0 is closed. The old PHI reserved-region observer is a debug-only global/test asset: three hooks write observations only, and no production decision reads them. JOINMODULE-PHI-OBSERVER-RETIRE0-RET0 is the sole executable T1 detached deletion, including its module/test wiring, README row, and regenerated native-owner inventory. Active compatibility remains zero; R4 final conformance still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS35-D0"
+current_blocker_token = "JOINMODULE-PHI-OBSERVER-RETIRE0-RET0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
