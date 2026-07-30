@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS16-D0 is closed: selected normal has no safe immediate I0/R0, but every Program callable child still reaches LegacyChildDraftAdmissionV1 through the collector-backed invocation port. NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0 is the sole next T2 boundary for callable identity, body-session capture, and collector admission. Raw/reference, runner selection, VM bridge, LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, JumpArgsLayout, and the broader old-IR final disposition remain separate fences. Ownership, View, and feature work stay parked until final conformance resolves every fence."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS16-D0 is closed: selected normal has no safe immediate I0/R0, but its Program root still reaches LegacyChildDraftAdmissionV1 through the collector-backed invocation port for Box methods, instance constructors, and top-level functions. NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0 is the sole next T2 boundary: it must first freeze that inventory before deciding callable identity, body-session capture, and collector admission. Raw/reference, runner selection, VM bridge, LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, JumpArgsLayout, and the broader old-IR final disposition remain separate fences. Ownership, View, and feature work stay parked until final conformance resolves every fence."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0"
 current_execution_row = "NORMAL-CALLABLE-DRAFT-IDENTITY-AND-ADMISSION0-D0"
-current_execution_summary = "T2 selected-normal function-lifecycle boundary: decide one complete callable identity, body-session capture, and collector-admission contract for Main helpers, non-Main static methods, and instance methods before replacing LegacyChildDraftAdmissionV1. Do not add acceptance variants, infer a canonical owner, alter raw/reference or runner routes, add retry/fallback, or touch Ownership/View/features."
+current_execution_summary = "T2 selected-normal function-lifecycle boundary: first freeze the four live Program child categories (Box methods, constructors, top-level functions, and optional callable Main if reached), then decide a complete identity/body-session/collector-admission contract or an explicitly fenced partial replacement before replacing LegacyChildDraftAdmissionV1. Do not add acceptance variants, infer a canonical owner, alter raw/reference or runner routes, add retry/fallback, or touch Ownership/View/features."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

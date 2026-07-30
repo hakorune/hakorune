@@ -336,9 +336,10 @@ Next:
 
 ```text
 Result:
-  Selected normal has no safe immediate I0/R0.  Its real remaining edge is all
-  Program callable children through LegacyChildDraftAdmissionV1; raw receipts,
-  runtime inputs, runners, and explicit reference lanes remain fenced.  The
+  Selected normal has no safe immediate I0/R0.  Its Program root still sends
+  Box methods, instance constructors, and top-level functions through
+  LegacyChildDraftAdmissionV1; raw receipts, runtime inputs, runners, and
+  explicit reference lanes remain fenced.  The
   JoinModule generic Case-A, VM bridge, LowerOnly, and LLVM surfaces also have
   live consumers, so Census16 records them RETAIN-FENCED rather than inventing
   an R3 retirement.
@@ -353,21 +354,25 @@ Next:
 
 ```text
 Change:
-  Decide one selected-normal contract for callable identity, body-session
-  capture, and collector admission across Main helpers, non-Main static methods,
-  and instance methods.
+  First freeze the exact Program-child inventory: catalog-addressable Main
+  helpers/non-Main static/instance methods, plus uncatalogued instance
+  constructors and top-level functions.  Then decide one selected-normal
+  identity, body-session capture, and collector-admission contract, or an
+  explicitly fenced partial replacement.
 
 Contract:
-  The current legacy chain is live; an already-resolved canonical admission is
-  not a substitute until source identity, duplicate policy, and collector parity
-  are co-sealed.  Grammar and all non-normal routes do not move.
+  The current legacy chain is live.  An already-resolved canonical admission is
+  not a substitute until full source-category coverage, source-to-physical-arity
+  relation, duplicate policy, and collector parity are co-sealed.  Grammar and
+  all non-normal routes do not move.
 
 Done:
   Select one executable replacement or retain the edge with explicit evidence.
 
 Stop:
-  No whole-function variants, inferred canonical owner, raw/reference or runner
-  coupling, retry/fallback, Ownership/View, or feature work.
+  No whole-function variants, inferred canonical owner, silent omission of the
+  uncatalogued families, raw/reference or runner coupling, retry/fallback,
+  Ownership/View, or feature work.
 ```
 
 ## Latest closeout
