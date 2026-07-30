@@ -116,8 +116,8 @@ Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corrected
 Latest landed: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — `507851393c`
 Latest landed: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0` — `ffda60241b`
-Current execution: none; design stop `RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0`
-Next design stop: `RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0` — define the Program-specific Script root
+Current execution: `RAW-SCRIPT-PROGRAM-ROOT-OWNER-LAMBDA-HANDOFF0-I0-R0`
+Next design stop: none; `RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0` is closed Accept-corrected
 History:       Git history and the short landed tail below
 ```
 
@@ -413,8 +413,8 @@ Corrected forward queue:
 2. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0 (closed NoStandaloneRow)
 3. RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0 (closed NoSafeSlice: parent Script role missing)
 4. RAW-SCRIPT-ROOT-ROLE0-D0 (closed Accept(B): Program-specific semantic root)
-5. RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0 (current design stop)
-6. RAW-SCRIPT-PROGRAM-ROOT-OWNER-LAMBDA-HANDOFF0-I0-R0 (conditional on root contract closure)
+5. RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0 (closed Accept-corrected: Program-specific root)
+6. RAW-SCRIPT-PROGRAM-ROOT-OWNER-LAMBDA-HANDOFF0-I0-R0 (next executable row)
 
 Rule:
   Do not open an execution row while the Script semantic role is unresolved.
@@ -558,30 +558,62 @@ Hakorune syntax:
   catch/cleanup; ASTNode::TryCatch is an internal/legacy carrier only.
 ```
 
-## RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0 — current design stop
+## RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0 — closed, Accept-corrected
 
 ```text
 Decision:
-  open T2 design gate. Program-specific Script root is selected; the exact
-  product and first consumer are not yet selected.
+  Accept-corrected. Script is a Program-specific semantic root, not an
+  implicit Main/function. The first consumer is the bounded Script/Lambda
+  handoff below; no whole-Program semantic cutover is claimed.
 
-Must define:
-  ScriptRootProfileV1 / source-kind contract; owner ID issuance without
-  synthetic FunctionDeclaration; source-kind-aware forest root and normalized
-  graph; seal_script projection; ScriptLastExpressionOrUnit completion;
-  Complete versus ExistingRootLowerAuthority terminal; CatalogSeal to
-  CatalogInstall placement; one traversal coverage; and the first same-commit
-  old production edge removal.
+Ceremony:
+  T2 design gate closed; implementation is one bounded I0/R0 row.
 
-First conditional execution row:
+Exact first consumer:
   RAW-SCRIPT-PROGRAM-ROOT-OWNER-LAMBDA-HANDOFF0-I0-R0
 
-Likely first eligible closure:
-  Program sequence + top-level Function/Box boundary + Local/Literal/Variable
-  + exact nested Lambda lineage. Assignment/Print/Me/Unary/Binary and all
-  postfix catch/cleanup, QMark/Match/EnumMatch, BlockExpr, Call/Object,
-  This-family, and unproven control/context surfaces remain separate until
-  their own admission is designed.
+Input/product:
+  owned Program + NormalScriptProgramItemAdmissionV1
+  -> one source-kind-aware Script semantic root product
+  -> one exact nested-Lambda lineage receipt
+  -> existing raw Lambda closure/capture publication, once
+
+Root contract:
+  source kind = Script / ProgramEvaluation
+  source root = ProgramBodyRoot
+  statement sites = ProgramBody(original ordinal)
+  receiver = none
+  parameters = none
+  parent edge = none
+  result = ScriptLastExpressionOrUnit
+  explicit Script-root return = deferred/rejected by existing authority
+
+Eligible closure (and no more):
+  Program sequence, top-level Function/Box callable boundary, Local/Literal/
+  Variable facts, and an exact nested Lambda definition site/parent scope.
+  Assignment, Print, Me, Unary, Binary, postfix catch/cleanup, QMark,
+  Match/EnumMatch, BlockExpr exits, Call/Object, This-family, and unproven
+  control/context surfaces remain ExistingRootLowerAuthority. Hakorune source
+  try/throw remain rejected; ASTNode::TryCatch is an internal/legacy carrier.
+
+Semantic terminals:
+  SemanticEligible = owned Program + Script root + one forest + one projection
+    + exact admission coverage. ExistingRootLowerAuthority = owned Program
+    + typed deferral, with forest/projection absent. The terminal is selected
+    once before RootLower. Complete construction failure is a contract error,
+    never a downgrade to the deferred terminal.
+
+Single traversal:
+  one Script admission traversal emits lexical facts, Lambda topology,
+  child-demand/opaque coverage, and terminal choice. No second resolver,
+  raw Lambda observer, or post-failure route is allowed.
+
+Atomic selected old-edge deletion:
+  for SemanticEligible Lambda only, remove
+  PreparedRawLambdaLexicalCaptureLifecycleV1::prepare(params, body),
+  RawLambdaLexicalObservationV1::observe, RawUnlocatedPortalV1::ControlBody,
+  and the raw Lambda dispatch parent-source-context drop in the same I0/R0.
+  Deferred whole-Program and explicit raw/reference routes remain separate.
 
 Hakorune boundary:
   source try/throw = rejected; postfix catch/cleanup is canonical; the
@@ -589,11 +621,36 @@ Hakorune boundary:
   first-catch, catch-binder, or cleanup environment semantics here.
 
 Hard stops:
-  FunctionSyntaxView Program branch, synthetic Main/function, partial forest,
-  second resolver/observer, Complete-to-Deferred downgrade, Lambda ABI or
-  publication change, source grammar widening, fallback, retry, or an I0/R0
-  without a named selected old edge deletion.
+  synthetic Main/function, FunctionSyntaxView Program branch, partial forest,
+  partial projection, second resolver/observer, Complete-to-Deferred downgrade,
+  Lambda ABI/publication change, source grammar widening, AST clone/reparse,
+  semantic rejection followed by raw retry, or an I0/R0 that leaves the
+  selected eligible Lambda edge in place.
 ```
+
+### Script semantic owner inventory (fixed before implementation)
+
+The following inventory is the boundary for the first code row. It is not a
+promise to resolve all Script syntax now; it prevents another proof-only
+consumer from being added.
+
+| Surface | First-row disposition | Semantic owner | Deferred/retained reason |
+|---|---|---|---|
+| Program root / original ordinals | selected | Script root product | none |
+| top-level FunctionDeclaration / BoxDeclaration | transferred boundary | existing callable owner | Script resolver must not enter body |
+| Literal / Variable / Local | selected | Script lexical traversal | exact source sites only |
+| nested Lambda definition | selected | child owner via Script forest | exact parent owner/site/scope required |
+| Assignment / Print / Me / Unary / Binary | deferred | ExistingRootLowerAuthority | no Script semantic closure yet |
+| postfix catch / cleanup | deferred | existing protected-region owner | RecoverableFailure/cleanup remain separate D0s |
+| QMark / Match / EnumMatch | deferred | existing control/expression owner | child-demand parity not closed |
+| BlockExpr non-local exits | deferred | existing BlockExpr preflight | diagnostic precedence must not move |
+| Call / Object / This-family | deferred | existing raw owner | callable/header/receiver authority not closed |
+| source `try` / `throw` | rejected | language diagnostic authority | Hakorune source grammar rejects them |
+| `ASTNode::TryCatch` | retained carrier | internal/legacy normalization | not a source grammar decision |
+
+The inventory is complete for the first row only when every encountered node is
+one of `SemanticEligible`, `TransferredCallableBoundary`, or
+`ExistingRootLowerAuthority`; no partial forest/projection is published.
 ```
 ```
 

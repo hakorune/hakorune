@@ -37,7 +37,8 @@ C. ScriptはR4までraw compatibilityとして明示保持する
    semantic-owner parityを最終完成条件に含めず、fenceとsunsetだけを登録する。
 ```
 
-Decision: B — Program-specific semantic root.
+Decision: B — Program-specific semantic root. Accept-corrected for the first
+bounded consumer below.
 
 Language SSOT `docs/reference/language/function-exit-and-entry-result.md` は
 Scriptを「ordinary callable bodyではないevaluation context」とし、final
@@ -45,13 +46,39 @@ expression/statementに `ScriptLastExpressionOrUnit` を与え、`Main.main/0` �
 ordinary callable semanticsのままと定義している。したがってAは不採用、Cは
 R4の一時停止fenceに限り、final-pipeline完了条件にはできない。
 
-Bを選んでも、現時点ではコード実装へ進まない。Program-specific rootのsource
-kind、owner/forest/projection、result、diagnostic、最初のold-edge deletionを
-次のD0で閉じてからLambda consumerへ進む。
+Bを選んだ結果、次のD0で実装境界まで閉じた。コード実装は全Scriptの一括
+semantic cutoverではなく、Script rootが初めて実際に消費されるLambda handoff
+へ限定する。
 
-現時点ではBのroot契約なしに、Lambda consumer、forest/projection、または
-Function viewのProgram対応を実装してはいけません。これは実装者が推測して
-埋める種類の差ではなく、言語／pipeline意味論の所有者判断です。
+```text
+next executable row:
+  RAW-SCRIPT-PROGRAM-ROOT-OWNER-LAMBDA-HANDOFF0-I0-R0
+
+first eligible closure:
+  Program sequence
+  top-level callable boundary
+  Local / Literal / Variable
+  exact nested Lambda definition site + parent scope
+
+deferred:
+  Assignment / Print / Me / Unary / Binary
+  postfix catch / cleanup
+  QMark / Match / EnumMatch
+  BlockExpr exits
+  Call / Object / This-family / unproven control
+
+selected old edge to delete atomically:
+  raw eligible-Lambda lexical observation / ControlBody handoff
+```
+
+このrowは、Scriptの全57 AST kindを受理する主張ではない。`SemanticEligible`
+と`ExistingRootLowerAuthority`をRootLower開始前に一度だけ選ぶ typed terminal
+を導入し、eligible Lambdaだけを既存forest/projectionへ接続する。
+
+現時点では、Function viewへProgram分岐を足したり、synthetic Functionを作ったり
+してはいけません。Script rootは専用source-kind productとして扱い、既存の
+Function/Lambda公開契約を汚さない。これは実装者が推測して埋める種類の差では
+なく、言語／pipeline意味論の所有者判断として固定する。
 
 ## 現在の事実
 
