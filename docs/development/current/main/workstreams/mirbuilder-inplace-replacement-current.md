@@ -146,10 +146,17 @@ Completed prerequisite:
   SourcePath topology; the capture/publication lifecycle has not changed.
 
 Next slice:
-  co-seal the retained parent site with the existing Lambda body/closure
-  publication relation in one owner handoff. Reuse
-  RawLambdaLexicalObservationV1 and PreparedRawLambdaLexicalCaptureLifecycleV1;
-  do not invent LambdaBodyRoot or a second closure registry.
+  NoSafeSlice at the current boundary. The existing raw lifecycle drops the
+  located source context and has no owner that can co-seal the parent site,
+  child FunctionOwnerId, Lambda body root, and ClosureBodyId publication.
+  Reopen only through a T2 owner/bridge design; do not invent a transport-only
+  handoff, LambdaBodyRoot-only receipt, or a second closure registry.
+
+Residual edge:
+  the located Lambda still crosses
+  RawInvocationChildPortV1::lower_expression -> raw Lambda dispatch ->
+  PreparedRawLambdaLexicalCaptureLifecycleV1::lower_with_builder_v1 without
+  consuming the retained parent source context.
 
 Keep residual:
   CallObject broad expression family and NestedBoxAdmission stay unlocated.
@@ -160,11 +167,10 @@ Forbid:
   fallback/retry, AST clone/reparse, or new failure owner.
 
 Acceptance:
-  the existing lifecycle consumes the exact parent source site and co-seals
-  the Lambda body/ClosureBodyId relation; lexical/capture diagnostics and
-  publication remain parity-identical. If this needs a new owner identity,
-  second registry, AST clone/reparse, or capture policy change, stop and return
-  to D0.
+  No implementation is authorized until a T2 design supplies one existing or
+  newly-owned co-seal boundary for the parent source site, child owner, body
+  root, and ClosureBodyId publication. Any need for owner inference, a second
+  registry, AST clone/reparse, or capture-policy change remains a hard stop.
 ```
 
 Corrected queue:
@@ -208,7 +214,7 @@ activation and sunset contract.
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> `lower_static_box_method` / `lower_instance_box_method`, the two live nested-method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | R4 BLOCKER: source occurrences exist, but neither live issuer receives a function-relative located-source receipt | `RAW-LOCATED-BODY-TRANSPORT0-D0` must select one located transport whose I0/R0 deletes both named production issuers before R4 Complete |
 | closed | `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-SUNSET-001` | former caller-zero `ModuleLoweringPortV1::complete_legacy_child`, two disconnected proof modules, and three inline facade tests | production caller = 0 before deletion; live nested issuers already use capture + `commit_legacy_pending` | RET0 | retired by `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0`; live commit terminals, 2 nested issuers, reentrant proof, collector tests, and live callable-Main physical owner retained |
 | active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected `RawInvocationChildPortV1` only: three fixed portals remain — `ControlBody` with exact residual Lambda, `CallObject`, and `NestedBoxAdmission` | one selected state and one execution per node; RawLegacy/raw-reference remain separate; root/body/direct-Box, structured/residual controls, Match/Enum, Loop, TryCatch, and nested Program exact transport are closed | no variant/reason reassignment; Lambda is governed by the linked source-lineage fence below | close only after the Lambda fence reowns ControlBody, the CallObject row removes its portal, and final nested row deletes `NestedBoxAdmission` with both selected nested legacy-symbol issuers |
-| retain-fenced | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` | selected nested Lambda definition still crosses `ControlBody` into the existing raw capture/publication lifecycle without consuming its parent located-source context | selected normal function/script body only; raw/reference routes remain separate | RETAIN-FENCED: body-path vocabulary exists, but no durable authority co-seals parent definition site, child `FunctionOwnerIdV1`, Lambda body root, and `ClosureBodyId` publication | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE0-D0`: one consuming capture/publication handoff must delete Lambda -> ControlBody without AST clone/reparse, owner inference, or a second closure registry |
+| retain-fenced | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` | selected nested Lambda definition still crosses the located child transport into the existing raw capture/publication lifecycle without consuming its parent located-source context | selected normal function/script body only; raw/reference routes remain separate | RETAIN-FENCED: body-path vocabulary exists, but no durable authority co-seals parent definition site, child `FunctionOwnerIdV1`, Lambda body root, and `ClosureBodyId` publication; current D0 = NoSafeSlice | reopen only through `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0` with a T2 owner/bridge design; no transport-only handoff, owner inference, AST clone/reparse, or second closure registry |
 | active compatibility | `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001` | `PreparedLocatedRawLoopChildEntryV1` retains exact Loop parent/condition/body-root receipts, then delegates once to the existing raw JoinIR route | selected invocation only; RawLegacy/reference unchanged; no located JoinIR-plan completion claim | retire when the current Loop route/verified plan consumes the same located product and the source-erasing terminal is zero | no additional route, retry, AST clone/reparse, or receipt reconstruction may be introduced |
 | closed | `JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001` | former three explicit-VM `LowerOnly` target rows, dispatcher observation branch, and `lower_only_routes`; five target names were also consumed by Loop/If/strict classification | observation route and vocabulary = 0; neutral five-name policy and two VM Exec rows remain | REOWN+RET0 | retired by `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`: all five lowerers/direct evidence remain; no old target-table alias |
 | closed | `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-SUNSET-001` | former caller-zero Stage1UsingResolver, StageB body, and StageB FuncScanner target lowerers; exclusive builders, dispatchers, Case-A entrypoints, ValueId ranges, tests, and fixtures | production and retained explicit-VM callers = 0 before deletion | RET0 | retired by `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`; neutral five-name policy, skip/trim VM routes, If vocabulary, native Stage1 verifier, and selfhost mode-B lane retained |

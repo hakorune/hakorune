@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LAMBDA-CHILD-OWNER-SOURCE-ADMISSION0-I0-R0 is closed. Lambda body items now retain an exact located parent site through the selected invocation transport; the existing capture/publication lifecycle is unchanged. The remaining Lambda source-lineage handoff, CallObject, and NestedBoxAdmission residuals remain explicit. Ownership/View remains parked."
+status = "RAW-LAMBDA-CHILD-OWNER-SOURCE-ADMISSION0-I0-R0 is closed. Lambda body items now retain an exact located parent site through the selected invocation transport; the existing capture/publication lifecycle is unchanged. RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0 is a NoSafeSlice: the remaining lifecycle has no existing owner that co-seals the parent source site, child owner, body-root relation, and ClosureBodyId publication. Do not implement a transport-only handoff; CallObject and NestedBoxAdmission remain explicit residuals. Ownership/View remains parked."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE1-D0"
 current_execution_row = "none"
-current_execution_summary = "Select the next Lambda source-lineage handoff: the existing capture/publication lifecycle must consume the retained parent source site and co-seal the Lambda body/closure publication relation. Do not change capture semantics or mix CallObject/NestedBoxAdmission."
+current_execution_summary = "Design stop: NoSafeSlice. A future Lambda source-lineage row requires a T2 owner/bridge that co-seals the retained parent source site, child FunctionOwnerId, Lambda body root, and ClosureBodyId publication without a second registry or AST clone/reparse. Do not implement a transport-only handoff, change capture semantics, or mix CallObject/NestedBoxAdmission."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
