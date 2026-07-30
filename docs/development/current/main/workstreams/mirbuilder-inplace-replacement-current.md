@@ -36,6 +36,35 @@ Executable:    `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-D0`
 History:       Git history and the short landed tail below
 ```
 
+## R4 fence / residual registry
+
+This is the sole current list for R4 disposition.  A prose `fenced` or
+`separate` label is not a registered fence.  R4 Complete requires every active
+or unregistered row below to be closed, rehomed, or retained with its complete
+activation and sunset contract.
+
+| State | ID / family | Exact surface | Activation / normal-default | Release row / condition |
+| --- | --- | --- | --- | --- |
+| active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | named raw static-Main replacement, or reachability = 0 |
+| active compatibility | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | instance constructors and top-level functions | selected Program child compatibility; catalog identity absent | each source-identity replacement is selected; constructor and top-level remain separate |
+| active compatibility | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's ordinary non-Main static and instance Box method raw admission | selected normal Script only; constructors, static Main, nested/raw-reference Box descent excluded | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: exact catalog row -> `NormalCatalogedBoxMethodDraftAdmissionV1`, direct selected raw method edges = 0 |
+| retain-fenced | `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | two direct normalized-shadow executions and strict/dev StepTree observer | explicit dev/debug; default normal = 0 | verified Recipe/CorePlan loop owner, strict/dev parity, and independent observer disposition |
+| retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | `join_ir_vm_bridge_dispatch` Exec and LowerOnly targets | explicit VM keep / vm-reference with `NYASH_JOINIR_VM_BRIDGE=1`; default MIR and vm-fallback = 0 | dispatcher caller = 0, or one explicit-lane execution owner replaces the entire lane |
+| unregistered | LLVM experiment | feature/env-gated JoinModule mutation route | not normal/default; exact activation/owner not yet registered | R3 disposition D0 or forced R4 disposition |
+| unregistered | frontend metadata | `frontend::func_meta` / `JoinFuncMetaMap` consumers | activation/owner not yet registered | R3 disposition D0 or forced R4 disposition |
+| unregistered | carrier boundaries | `JumpArgsLayout` and `JoinInlineBoundary` families | live/fenced consumer mapping not yet registered | named CorePlan/MIR rehome or forced R4 disposition |
+| unregistered | phi observer | `verify_phi_reserved` family | activation/owner not yet registered | R3 disposition D0 or forced R4 disposition |
+| unregistered | legacy AST frontend | `AstToJoinIrLowerer` plus its fixture/dev-flag closure | production caller = 0; test/reference closure remains | `JOINMODULE-AST-FRONTEND-LEGACY-DISPOSITION0-D0` |
+| unregistered | cfg(test) bridge handler lane | legacy bridge handlers and owned unit contracts | production caller = 0; test contract remains | `JOINMODULE-TEST-HANDLER-LANE-DISPOSITION0-D0` |
+| unregistered | JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | forced R4 delete-or-explicit-fenced-reference disposition |
+
+The registry has two registered R3 fences, three selected Program/root
+compatibility residuals, and seven unregistered R3 family rows.  This is an
+honest registry state, not a claim that eleven fences are already registered.
+`LegacyChildDraftAdmissionV1` occurrence count is a separate census metric;
+only the three compatibility rows above are selected Program/root admission
+dispositions.
+
 ## Disposition closeout
 
 `JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0` — T2 disposition, closed

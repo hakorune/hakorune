@@ -251,6 +251,34 @@ caller countは観測値なので、責務不変の増減はcloseoutでexact map
 最終retirement rowは登録済みsunset ledgerをzeroにする。未登録debtを
 発見したらcloseせず、ledgerを訂正してD0へ戻る。
 
+### R4 fence / residual registry law
+
+R4 final conformanceの判定対象は、active workstream card内の一つの
+`R4 fence / residual registry` にだけ登録する。`fenced`、`separate`、
+`reference` という本文中の総称はregistry rowを代替しない。
+
+active fenceまたはproduction compatibility residualの各rowは、少なくとも
+次を持つ。
+
+```text
+stable ID
+exact owner / asset surface
+normal/default reachability
+explicit activation or selected caller
+retire / reown / retain-fenced disposition
+release row and retire_when
+```
+
+既存のIDを持たないfamilyは`unregistered`としてregistryへ載せるが、
+`RETAIN-FENCED`とは数えない。unregistered rowは、次のR3 disposition D0
+またはR4 final conformanceで上の全fieldを満たすnamed rowへ解決するまで
+R4 Completeを妨げる。
+
+fenceまたはcompatibility residualを作成・拡大・再分類するcommitは、同じ
+commitでregistry rowを追加または更新する。closeoutのcensusはregistered /
+unregistered / closedの件数を報告し、`LegacyChildDraftAdmissionV1` のような
+source occurrence countはowner-disposition数と混同しない観測値として別記する。
+
 T0はatomic I0/R0を原則とする。detached S0を分けた場合は最大一commitで、
 次のforward semantic commitは同じcellのI0/R0だけである。進めなければ
 revert／stashしてD0へ戻る。承認済みRefactor Series Modeだけは2〜5個の
