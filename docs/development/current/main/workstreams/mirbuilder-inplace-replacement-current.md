@@ -73,7 +73,8 @@ Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS38-D0` — closed
 Latest landed: `JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0`
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS39-D0` — closed
 Latest landed: `JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0`
-Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS40-D0`
+Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS40-D0` — closed
+Next row:      `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`
 History:       Git history and the short landed tail below
 ```
 
@@ -104,10 +105,11 @@ activation and sunset contract.
 | closed | `JOINMODULE-AST-FRONTEND-LEGACY-SUNSET-001` (promotes `R4-UNREGISTERED-AST-FRONTEND-001`) | former `AstToJoinIrLowerer`, its exclusive helper/tests, six Program-JSON fixtures, three exclusive dev flags, two lowerer-to-bridge E2E tests, and current frontend contract residue | production caller = 0 before deletion; complete frontend closure now absent | RET0 | retired by `JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0`; direct VM conversion/tests, JoinModule core/lowering, normalized-shadow, native Phase40 analysis, and `JOINIR_TEST_DEBUG` remain |
 | closed | `JOINMODULE-TEST-HANDLER-LANE-SUNSET-001` (promotes `R4-UNREGISTERED-TEST-HANDLER-001`) | former cfg(test)-only `block_finalizer`, `handlers/**`, `merge_variable_handler`, and `terminator_builder` legacy VM-bridge handler lane | production conversion remains solely in `joinir_block_converter/**`; deleted lane and registrations = 0 | RET0 | retired by `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`: 14 files / 3743 lines, four cfg(test) module declarations, obsolete README section, stale PHI seam row, and generated inventory rows deleted |
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> `lower_static_box_method` / `lower_instance_box_method`, the two live nested-method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | RETAIN-FENCED: no exact source occurrence reaches the raw port | fresh `RAW-LOCATED-BODY-TRANSPORT0-D0` may select REOWN only when one function-relative located transport deletes a named production edge; otherwise forced disposition at `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` |
-| unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/dispatch remainder | live JoinModule core, normalized-shadow execution, VM Exec and LowerOnly dispatch outside rows above; there is no independent JSON/format subsystem | normalized-dev and explicit VM have live consumers; `JOINIR_TARGETS` also owns five-name Loop/If/strict classification, so LowerOnly rows cannot be deleted directly | broad RET0 rejected; later T2 must REOWN loop-target policy before retiring LowerOnly observation | `JOINMODULE-VM-LOWERONLY-OBSERVATION-DISPOSITION0-D0`: preserve five-name classification, keep two VM Exec targets, then remove three LowerOnly routes without deleting their lowerer evidence in the same row |
+| active retirement | `JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001` | three explicit-VM `LowerOnly` target rows, dispatcher observation branch, and `lower_only_routes`; five target names are also consumed by Loop/If/strict classification | explicit `NYASH_JOINIR_VM_BRIDGE=1`; observation always returns to ordinary VM execution; default normal = 0 | REOWN five-name classification into neutral lowering policy, then RET0 LowerOnly VM observation | `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`: keep two Exec routes and all five lowerer evidence suites; delete LowerOnly route/vocabulary without alias |
+| unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/dispatch remainder after LowerOnly selection | live JoinModule core/lowering, normalized-shadow execution, and two VM Exec routes outside registered rows; there is no independent JSON/format subsystem | normalized-dev and explicit VM Exec have live consumers; default normal = 0 | broad RET0 rejected; exact final retained/deleted closure remains an R4 decision after selected LowerOnly retirement | fresh census after `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`; no broad disposition may be inferred from the selected sub-surface |
 
 The registry has four registered R4 fences, zero active compatibility residuals,
-zero active retirements, thirteen closed residuals, and two unregistered R4 family
+one active retirement, thirteen closed residuals, and two unregistered R4 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
@@ -136,6 +138,51 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`MIRBUILDER-LIVE-EDGE-CENSUS40-D0` — read-only census, closed
+
+```text
+Registry:
+  retain-fenced=4, active compatibility=0, active retirement=1,
+  closed=13, unregistered=2.
+
+LegacyChildDraftAdmissionV1:
+  30 occurrences / 6 src/mir files. The two live issuers are the registered
+  nested static/instance method edges; every other occurrence is definition,
+  terminal support, or cfg(test). No unregistered live issuer exists.
+
+Candidate result:
+  bridge dead API = bounded later T1 RET0; retire caller-zero converter methods
+    and dead conversion-boundary threading, preserve boundary merge.
+  JumpArgsLayout = bounded later T1 REOWN into neutral EdgeArgs owner; no old
+    JoinIR alias, while JoinInlineBoundary remains fenced.
+  LowerOnly observation = selected T2 atomic REOWN+RET0. It is the only
+    candidate that deletes live explicit-route execution while preserving the
+    five-name production classification.
+
+Selected execution:
+  JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0.
+
+Exact contract:
+  add one neutral loop_target_policy with the existing five names;
+  make is_loop_lowered_function delegate to that policy;
+  reduce VM dispatch to the existing two Exec targets;
+  delete LowerOnly enum/rows/branch/observer routes;
+  preserve all five lowerers and their direct evidence.
+
+Required current updates:
+  joinir-target-lowerer-thinning-ssot, dispatch/lowering READMEs,
+  environment/selfhost route descriptions, sole R4 registry.
+
+Hard stops:
+  five-name classification delta; lowerer/test deletion; VM policy in the
+  neutral owner; old JOINIR_TARGETS alias; Exec behavior delta; normalized-
+  shadow/model/converter edits; fallback or broad JoinModule retirement.
+
+Following order:
+  selected REOWN+RET0 -> fresh census -> bridge dead API/carrier evidence ->
+  mandatory LegacyChild crosswalk -> R4 final conformance -> Ownership/View.
+```
 
 `JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0` — T2 atomic RET0, closed
 

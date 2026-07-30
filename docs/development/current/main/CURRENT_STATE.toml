@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0 is closed. The caller-zero AstToJoinIrLowerer frontend, its exclusive helpers/tests/fixtures/dev flags, and obsolete current contract are deleted; direct VM conversion, JoinModule core/lowering, normalized-shadow, native Phase40 analysis, and JOINIR_TEST_DEBUG remain. The lane returns to read-only MIRBUILDER-LIVE-EDGE-CENSUS40-D0."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS40-D0 is closed. It found no unregistered live LegacyChild admission authority and selected one bounded JoinModule REOWN+RET0: move the five-name loop-target classification out of VM dispatch, retain the two Exec routes, and retire the three LowerOnly observation routes. Bridge dead APIs and JumpArgsLayout rehome remain later independent rows."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS40-D0"
-current_execution_row = "none"
-current_execution_summary = "No implementation authority. Run one read-only live-edge census from the closed AST-frontend RET0 state, reconcile the sole R4 registry, and select at most one bounded RET0 or REOWN row. Do not preselect carrier/boundary or JoinModule remainder work."
+current_design_stop = "none"
+current_execution_row = "JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0"
+current_execution_summary = "T2 atomic REOWN+RET0. Create one neutral five-name loop-target policy used by JoinIR lowering; shrink VM dispatch to the existing two Exec targets; delete LowerOnly vocabulary, three observation routes, and their dispatcher branch. Preserve all five target-specific lowerers and direct tests, Exec behavior, JoinModule model/converter, normalized-shadow, and ordinary VM continuation. No compatibility alias, fallback, or broad JoinModule retirement."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS40-D0-DESIGN-STOP"
+current_blocker_token = "JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
