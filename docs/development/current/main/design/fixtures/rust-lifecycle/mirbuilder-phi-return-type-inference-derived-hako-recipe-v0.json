@@ -6,7 +6,7 @@
       "emits": "PhiReturnTypeInferenceApi.infer(builder_state, fn_state)",
       "hako_operation": "ResolverChainFlags + SetField + ReturnValue",
       "id": "PhiReturnTypeInference::infer",
-      "rust_operation": "phi_type_inference::infer_return_type_from_phi"
+      "rust_operation": "return_type_strategy::infer_return_type_from_phi"
     }
   ],
   "pilot_scope": "PhiReturnTypeInference_minimal_literal_profile",

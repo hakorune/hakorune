@@ -48882,8 +48882,8 @@
       "reason_token": "ReturnedReadBorrowPolicyMissing",
       "receiver": "None",
       "return_type": "&'static str",
-      "source_id": "src/mir/builder/phi_type_inference.rs::classify_phi_resolver_miss_case:L45",
-      "source_path": "src/mir/builder/phi_type_inference.rs",
+      "source_id": "src/mir/builder/return_type_strategy.rs::classify_phi_resolver_miss_case:L45",
+      "source_path": "src/mir/builder/return_type_strategy.rs",
       "symbol": "classify_phi_resolver_miss_case",
       "visibility": "pub(super)"
     },
@@ -48913,8 +48913,8 @@
       "reason_token": "PublicRustSurfaceMissingProjectionPolicy",
       "receiver": "None",
       "return_type": "Option<MirType>",
-      "source_id": "src/mir/builder/phi_type_inference.rs::infer_return_type_from_phi:L78",
-      "source_path": "src/mir/builder/phi_type_inference.rs",
+      "source_id": "src/mir/builder/return_type_strategy.rs::infer_return_type_from_phi:L78",
+      "source_path": "src/mir/builder/return_type_strategy.rs",
       "stable_deny_reason": "OwnerEdgeConfidenceMissing",
       "symbol": "infer_return_type_from_phi",
       "visibility": "pub(super)"

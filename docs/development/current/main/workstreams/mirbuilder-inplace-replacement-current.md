@@ -28,11 +28,11 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 ## Current state
 
 ```text
-Parent:        MIRBUILDER-LIVE-EDGE-CENSUS12-D0
-Latest landed: JOINMODULE-OWNERSHIP-ANALYSIS-RETIRE0-RET0
-Result:        caller-zero JoinIR ownership-analysis asset retired without semantic rehome
-Latest design: `JOINMODULE-PHI-RETURN-STRATEGY-REOWN0-D0` — closed
-Executable:    `JOINMODULE-PHI-RETURN-STRATEGY-REOWN0-I0-R0`
+Parent:        JOINMODULE-PHI-RETURN-STRATEGY-REOWN0-D0
+Latest landed: JOINMODULE-PHI-RETURN-STRATEGY-REOWN0-I0-R0
+Result:        Builder-owned finalization return-type strategy; obsolete JoinIR helper closure deleted
+Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS13-D0`
+Executable:    none — fresh census design stop
 History:       Git history and the short landed tail below
 ```
 
@@ -109,26 +109,24 @@ and the observer contract is independently disposed. The explicit VM/Stage1/
 StageB reference consumers are handled only by the next reference-sunset D0.
 ```
 
-## Current execution
+## Current design stop
 
-`JOINMODULE-PHI-RETURN-STRATEGY-REOWN0-I0-R0` — T2, one atomic commit
+`MIRBUILDER-LIVE-EDGE-CENSUS13-D0` — fresh live/R3 census
 
 ```text
-Change:
-  finalize_module uses one Builder return_type_strategy sibling; delete
-  phi_type_inference and the two JoinIR type-helper modules/exports atomically.
+Recount remaining live normal/default competing edges and R3 assets after the
+return-type strategy rehome. Select one real I0/R0, RET0/REOWN/RETAIN-FENCED
+disposition, or NoSafeLiveI0 from current reachability only.
+```
 
-Contract:
-  Preserve Direct -> hint -> P3-D -> P4 -> P3-C, first-match behavior, scan
-  order, debug/release unresolved behavior, and normal candidate parity.
+## Latest closeout
 
-Done:
-  Old imports/files/exports are zero; focused return-strategy and normal
-  lifecycle parity pass through the reusable lane guard.
-
-Stop:
-  Any extra consumer, JoinIR-specific input, order/result drift, or need for
-  an adapter/re-export returns this cell to D0.
+```text
+JOINMODULE-PHI-RETURN-STRATEGY-REOWN0-I0-R0
+  Builder finalization owns Direct -> primary hint -> P3-D -> P4 -> P3-C
+  phi_type_inference + JoinIR TypeHintPolicy/GenericTypeResolver + exports = 0
+  focused strategy + normal parity + lib/vm-reference + lifecycle/lane/pointer = green
+  next = fresh census13 D0
 ```
 
 ## Latest closeout

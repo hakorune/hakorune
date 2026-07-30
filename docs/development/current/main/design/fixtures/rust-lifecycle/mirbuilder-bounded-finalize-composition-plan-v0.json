@@ -62,7 +62,7 @@
       "byte_offset": 2570
     },
     {
-      "marker": "phi_type_inference::infer_return_type_from_phi",
+      "marker": "return_type_strategy::infer_return_type_from_phi",
       "byte_offset": 2897
     },
     {

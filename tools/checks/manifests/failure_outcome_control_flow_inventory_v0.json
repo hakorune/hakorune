@@ -6457,15 +6457,15 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/builder/phi_type_inference.rs:92:mir_return",
-      "evidence": "if let Some(super::MirInstruction::Return { value: Some(v) }) = &bb.terminator {",
+      "control_flow_evidence_id": "control.return_unit.src/mir/builder/return_type_strategy.rs:48:mir_return",
+      "evidence": "if let Some(MirInstruction::Return { value: Some(value) }) = &bb.terminator {",
       "evidence_kind": "mir_return",
       "family": "return_unit",
-      "line": 92,
+      "line": 48,
       "pending_reason": "ControlFlowOwnerPending",
       "resolution": "Pending",
       "site_ref": null,
-      "source_path": "src/mir/builder/phi_type_inference.rs",
+      "source_path": "src/mir/builder/return_type_strategy.rs",
       "token": "mir_return"
     },
     {

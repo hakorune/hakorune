@@ -1706,8 +1706,8 @@
           "reason_token": "ReturnedReadBorrowPolicyMissing",
           "receiver": "None",
           "return_type": "&'static str",
-          "source_id": "src/mir/builder/phi_type_inference.rs::classify_phi_resolver_miss_case:L45",
-          "source_path": "src/mir/builder/phi_type_inference.rs",
+          "source_id": "src/mir/builder/return_type_strategy.rs::classify_phi_resolver_miss_case:L45",
+          "source_path": "src/mir/builder/return_type_strategy.rs",
           "symbol": "classify_phi_resolver_miss_case"
         }
       ],

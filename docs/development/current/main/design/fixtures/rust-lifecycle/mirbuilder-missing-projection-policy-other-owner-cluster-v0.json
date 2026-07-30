@@ -2452,7 +2452,7 @@
       "shape_signature": "unknown_shape",
       "source_id_count": 1,
       "source_ids": [
-        "src/mir/builder/phi_type_inference.rs::infer_return_type_from_phi:L78"
+        "src/mir/builder/return_type_strategy.rs::infer_return_type_from_phi:L78"
       ],
       "source_module": "src/mir/builder/phi_type_inference",
       "subcluster_id": "other_owner_cluster::phi_surface::src_mir_builder_phi_type_inference::unknown_shape::NoBorrow::KnownOptionCarrier::option::Present::public",

@@ -26,7 +26,6 @@ pub(crate) mod exit_args_resolver; // Internal exit argument resolution
 pub mod expr_lowerer; // Phase 231: Unified expression lowering with scope management
 pub mod funcscanner_trim;
 pub(crate) mod generic_case_a; // Phase 192: Modularized Case A lowering
-pub mod generic_type_resolver; // Phase 66: P3-C ジェネリック型推論箱
 pub mod if_dry_runner; // Phase 33-10.0
 pub(crate) mod if_lowering_router; // Phase 33-12: If-expression routing (re-exported)
 pub mod if_merge; // Phase 33-7
@@ -54,7 +53,6 @@ pub mod skip_ws;
 pub mod stage1_using_resolver;
 pub mod stageb_body;
 pub mod stageb_funcscanner;
-pub mod type_hint_policy; // Phase 65.5: 型ヒントポリシー箱化
 pub mod type_inference; // Phase 65-2-A
 pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for static box method whitelists) // Phase 47-A: Generic step scheduler for loop_break/if_phi_join // Phase 73: BindingId-based scope PoC (dev-only)
 pub(crate) mod value_id_ranges; // Internal ValueId range management

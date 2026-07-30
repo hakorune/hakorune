@@ -24,13 +24,13 @@ assert plan["resolver_chain"] == [
     "SkipConcreteReturnType",
     "TerminatorReturnOnly",
     "DirectValueTypesLookup",
-    "TypeHintPolicyExtract",
+    "PrimaryNameHintExtract",
     "KnownReturnDefinitionHint",
     "PhiTypeResolver",
-    "GenericTypeResolver",
+    "UniformPhiFallback",
     "UnknownFallbackOutsideDebug",
 ]
-assert plan["result_contract"]["entrypoint"] == "phi_type_inference::infer_return_type_from_phi"
+assert plan["result_contract"]["entrypoint"] == "return_type_strategy::infer_return_type_from_phi"
 assert plan["result_contract"]["minimal_path_expected_result"] == "Option<MirType>"
 for key in [
     "phi_input_materialization",

@@ -22,37 +22,37 @@
   "inputs": {
     "facts": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-plan-v0.json",
-      "sha256": "511d949962241bd86e7207dd5d9d8a25fcd00cc2c876943cf6e978adfaa8cf98"
+      "sha256": "25626b3db1680933cf6429581f03464b059571dce66a5a70864343a86fc8840e"
     },
     "oracle": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-derived-hako-oracle-v0.json",
-      "sha256": "6205e31a75ba0b4f2289a898d196b73c704377ec151be7a704e59eadeb56c67b"
+      "sha256": "799075c0c8a97fba245eb1753026b516a915c835443e83bb65efe020f3777f7a"
     },
     "plan": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-plan-v0.json",
-      "sha256": "511d949962241bd86e7207dd5d9d8a25fcd00cc2c876943cf6e978adfaa8cf98"
+      "sha256": "25626b3db1680933cf6429581f03464b059571dce66a5a70864343a86fc8840e"
     },
     "recipe": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-derived-hako-recipe-v0.json",
-      "sha256": "3d379c523666245e11b883e416b34682e35f6adbb6cbf20e16424880f77d1fe3"
+      "sha256": "75ce66e8252a2917cba66086fb9a6cb6caa91fb69819b84b293a6b67f6b14878"
     },
     "verifier": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-derived-hako-verifier-result-v0.json",
-      "sha256": "b3eb2a17d48d565eff304136044d09fa5037550894e9fa46337b08dda2b88772"
+      "sha256": "9f6a2a9dad9c658156302f67000c887162574b30157547af8ba496671e8795bb"
     }
   },
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_phi_return_type_inference.hako",
-    "hako_sha256": "ab7b57f582fc39faba42cd8c9cb75f3b00eeb119f39d6cbe90f2e75959dd7dbc"
+    "hako_sha256": "46c0171570c6edd70e7c0d2550a800b3a69b3cb49359a025d4cab6c81aaf33b5"
   },
   "pilot_scope": "PhiReturnTypeInference_minimal_literal_profile",
   "schema_version": 0,
   "source": {
     "rust_files": [
       {
-        "path": "src/mir/builder/phi_type_inference.rs",
-        "sha256": "2584c6207b8f980555f066919e6184c419ded3e70163947b09a4535dad87e63a"
+        "path": "src/mir/builder/return_type_strategy.rs",
+        "sha256": "ed182745b37632d2253f903f75017e0840ae72a288d977aef2192deb46782df5"
       }
     ]
   },

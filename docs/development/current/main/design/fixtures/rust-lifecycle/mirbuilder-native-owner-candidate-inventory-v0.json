@@ -8910,7 +8910,7 @@
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "classify_phi_resolver_miss_case",
       "line": 45,
-      "path": "src/mir/builder/phi_type_inference.rs",
+      "path": "src/mir/builder/return_type_strategy.rs",
       "reject_reasons": [
         "carrier_surface",
         "depends_on_resolution",

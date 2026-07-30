@@ -85,7 +85,7 @@ def extract_plan() -> dict[str, Any]:
             "type_hint_providers::annotate_missing_result_types_from_calls_and_await",
             "PreparedModuleFinalizationFunctionMetadataV1::prepare",
             ".commit_into(&mut function);",
-            "phi_type_inference::infer_return_type_from_phi",
+            "return_type_strategy::infer_return_type_from_phi",
             "materialize_all_phi_inputs",
             "if crate::config::env::using_is_dev()",
             "module.add_function(function);",

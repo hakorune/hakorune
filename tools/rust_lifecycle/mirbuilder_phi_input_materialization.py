@@ -87,7 +87,7 @@ def extract_plan() -> dict[str, Any]:
     finalize_order = _require_order(
         finalize,
         [
-            "phi_type_inference::infer_return_type_from_phi",
+            "return_type_strategy::infer_return_type_from_phi",
             "phi_input_materializer::materialize_all_phi_inputs",
             '"finalize_module"',
             "if crate::config::env::using_is_dev()",

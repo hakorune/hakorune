@@ -13,7 +13,7 @@
 //! This orchestrator delegates to specialized modules:
 //!
 //! - **type_hint_providers** - Annotates Call/BoxCall/Await result types
-//! - **phi_type_inference** - Multi-phase PHI return type resolution
+//! - **return_type_strategy** - Multi-phase return type resolution
 //!
 //! # Execution Flow
 //!
@@ -23,7 +23,7 @@
 //! finalize_module()
 //!   ├→ TypePropagationPipeline::run()              (Copy → BinOp → PHI)
 //!   ├→ type_hint_providers::annotate_*()           (Call result types)
-//!   ├→ phi_type_inference::infer_return_type()     (P3-A/B/C/D/P4)
+//!   ├→ return_type_strategy::infer_return_type()   (Direct/P3-A/B/C/D/P4)
 //!   └→ Module sealing (metadata, birth verification)
 //! ```
 //!
@@ -32,7 +32,7 @@
 //! 1. **Execution order固定**: typed owner enforces prepare → lower → finalize
 //! 2. **Type propagation BEFORE PHI inference**: TypePropagationPipeline runs first
 //! 3. **Type hints BEFORE PHI inference**: Ensures value_types populated
-//! 4. **PHI resolver order固定**: A → B → P3-D → P4 → P3-C
+//! 4. **Return strategy order固定**: Direct → hint → P3-D → P4 → P3-C
 //!
 use super::recursive_child_lowering::{
     RawAstChildLoweringPortV1, RawBoxMethodChildPortV1, RawInvocationChildPortV1,
@@ -45,8 +45,7 @@ use super::{
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::config;
 
-// Phase 29bq+: PHI type inference extracted to dedicated module
-use super::phi_type_inference;
+use super::return_type_strategy;
 // Phase 29bq+: Type hint provision extracted to dedicated module
 use super::type_hint_providers;
 
@@ -145,7 +144,7 @@ impl super::MirBuilder {
     /// Execution flow:
     /// 1. Type propagation (TypePropagationPipeline)
     /// 2. Type hint provision (delegation to type_hint_providers)
-    /// 3. PHI type inference (delegation to phi_type_inference)
+    /// 3. Return type inference (delegation to return_type_strategy)
     /// 4. Module sealing (metadata, birth verification)
     pub(super) fn finalize_module(&mut self, result_value: ValueId) -> Result<MirModule, String> {
         // Hint: scope leave at function end (id=0 for main)
@@ -206,11 +205,10 @@ impl super::MirBuilder {
             )
             .commit_into(&mut function);
 
-        // ===== Step 3: PHI Type Inference (delegation to phi_type_inference) =====
-        // Phase 29bq+: PHI type inference delegated to phi_type_inference module
+        // ===== Step 3: return type strategy =====
         // Multi-phase resolver chain (P3-A/B/C/D/P4) for return type resolution
         if let Some(inferred_type) =
-            phi_type_inference::infer_return_type_from_phi(self, &mut function)
+            return_type_strategy::infer_return_type_from_phi(self, &mut function)
         {
             function.signature.return_type = inferred_type;
         }

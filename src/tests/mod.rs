@@ -30,7 +30,6 @@ pub mod namingbox_static_method_id; // Phase 21.7++ Phase 1: StaticMethodId stru
 pub mod nyash_abi_basic;
 pub mod parser;
 pub mod phase61_if_in_loop_dryrun; // Phase 61-2: If-in-loop JoinIR dry-run tests
-pub mod phase67_generic_type_resolver; // Phase 67: P3-C GenericTypeResolver tests
 pub mod plugin_hygiene;
 pub mod policy_mutdeny;
 // Stage1 CLI SSA smoke (pre-JoinIR expectations). Disable by default.

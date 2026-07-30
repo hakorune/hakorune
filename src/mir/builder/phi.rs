@@ -2,7 +2,7 @@ use super::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
 use std::collections::{BTreeMap, BTreeSet}; // Phase 25.1: 決定性確保
 
-// Phase 84-5: if_phi.rs deleted, type inference now handled by GenericTypeResolver/PhiTypeResolver
+// Phase 84-5: if_phi.rs deleted; finalization owns return-type strategy.
 
 impl MirBuilder {
     pub(crate) fn define_current_block_phi_final(

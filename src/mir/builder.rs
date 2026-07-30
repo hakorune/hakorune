@@ -388,7 +388,7 @@ mod phi;
 #[allow(dead_code)]
 mod phi_completion; // PHI0-S0: disconnected semantic completion vocabulary
 mod phi_merge;
-mod phi_type_inference; // Phase 29bq+: PHI type inference (multi-phase fallback chain)
+mod return_type_strategy; // finalization-only return-type strategy
 #[allow(dead_code)]
 mod phi_type_publication;
 #[allow(dead_code)]

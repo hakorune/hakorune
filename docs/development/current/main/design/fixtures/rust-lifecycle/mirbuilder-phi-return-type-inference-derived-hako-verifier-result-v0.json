@@ -1,7 +1,7 @@
 {
   "checks": {
     "builder_type_context": "self.type_ctx.value_types",
-    "entrypoint": "phi_type_inference::infer_return_type_from_phi",
+    "entrypoint": "return_type_strategy::infer_return_type_from_phi",
     "excluded_methods": [],
     "full_finalize_module": 0,
     "function_transport": "MirFunctionPreparedMain",
@@ -12,10 +12,10 @@
       "SkipConcreteReturnType",
       "TerminatorReturnOnly",
       "DirectValueTypesLookup",
-      "TypeHintPolicyExtract",
+      "PrimaryNameHintExtract",
       "KnownReturnDefinitionHint",
       "PhiTypeResolver",
-      "GenericTypeResolver",
+      "UniformPhiFallback",
       "UnknownFallbackOutsideDebug"
     ],
     "runtime_fallback": 0,
@@ -47,10 +47,10 @@
       "SkipConcreteReturnType",
       "TerminatorReturnOnly",
       "DirectValueTypesLookup",
-      "TypeHintPolicyExtract",
+      "PrimaryNameHintExtract",
       "KnownReturnDefinitionHint",
       "PhiTypeResolver",
-      "GenericTypeResolver",
+      "UniformPhiFallback",
       "UnknownFallbackOutsideDebug"
     ],
     "result_transport": "OptionMirType"

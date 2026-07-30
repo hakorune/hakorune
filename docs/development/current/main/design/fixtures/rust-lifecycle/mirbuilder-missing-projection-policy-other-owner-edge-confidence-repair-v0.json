@@ -1247,8 +1247,8 @@
       "repair_reason_token": "FileScopedOwnerEdgeDerivedFromSourcePath",
       "repaired_known_owner_edge": "hakorune_mir_builder::phi_type_inference",
       "repaired_owner_edge_confidence": "FileScoped",
-      "source_id": "src/mir/builder/phi_type_inference.rs::infer_return_type_from_phi:L78",
-      "source_path": "src/mir/builder/phi_type_inference.rs",
+      "source_id": "src/mir/builder/return_type_strategy.rs::infer_return_type_from_phi:L78",
+      "source_path": "src/mir/builder/return_type_strategy.rs",
       "symbol": "infer_return_type_from_phi"
     },
     {

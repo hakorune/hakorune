@@ -27,10 +27,10 @@ required = [
     "PhiReturnTypeInferenceApi",
     "infer(builder_state, fn_state): PhiReturnTypeInferenceResultBox",
     "builder_state.direct_value_type_lookup = 1",
-    "builder_state.type_hint_policy_checked = 1",
+    "builder_state.primary_name_hint_checked = 1",
     "builder_state.known_return_definition_hint_checked = 1",
     "builder_state.phi_type_resolver_checked = 1",
-    "builder_state.generic_type_resolver_checked = 1",
+    "builder_state.uniform_phi_fallback_checked = 1",
     "fn_state.signature_return_type_is_integer = 1",
     "fn_state.inferred_return_type_present = 1",
     "result.resolver_steps = 8",
@@ -76,7 +76,7 @@ verifier = json.loads(Path("docs/development/current/main/design/fixtures/rust-l
 checks = verifier.get("checks") or {}
 expected_checks = {
     "phi_return_type_inference_only": 1,
-    "entrypoint": "phi_type_inference::infer_return_type_from_phi",
+    "entrypoint": "return_type_strategy::infer_return_type_from_phi",
     "function_transport": "MirFunctionPreparedMain",
     "builder_type_context": "self.type_ctx.value_types",
     "minimal_path_expected_result": "Option<MirType>",
@@ -91,10 +91,10 @@ if checks.get("resolver_chain") != [
     "SkipConcreteReturnType",
     "TerminatorReturnOnly",
     "DirectValueTypesLookup",
-    "TypeHintPolicyExtract",
+    "PrimaryNameHintExtract",
     "KnownReturnDefinitionHint",
     "PhiTypeResolver",
-    "GenericTypeResolver",
+    "UniformPhiFallback",
     "UnknownFallbackOutsideDebug",
 ]:
     raise SystemExit("PHI return-type resolver chain drift")

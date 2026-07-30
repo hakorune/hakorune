@@ -86,7 +86,7 @@ def extract_plan() -> dict[str, Any]:
             "for (k, v) in self.metadata_ctx.value_origin_callers().iter()",
             "origin_callers.insert(*k, v.clone());",
             "function.metadata.value_origin_callers = origin_callers;",
-            "phi_type_inference::infer_return_type_from_phi",
+            "return_type_strategy::infer_return_type_from_phi",
         ],
         "MirBuilder::finalize_module metadata origin-caller merge",
     )

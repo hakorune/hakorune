@@ -3,7 +3,7 @@
 
 This is a plan-only capability for the prepared-state
 `build_module(AST Literal Integer(0))` frontier. It owns only the delegated
-`phi_type_inference::infer_return_type_from_phi` call and the resolver-chain
+`return_type_strategy::infer_return_type_from_phi` call and the resolver-chain
 shape used to update `function.signature.return_type` when inference succeeds.
 It does not claim PHI input materialization, module insertion, full finalize,
 generated Hako, backend routes, or runtime behavior.
@@ -26,7 +26,7 @@ FIXTURE = (
     / "mirbuilder-phi-return-type-inference-plan-v0.json"
 )
 MODULE_LIFECYCLE = ROOT / "src/mir/builder/module_lifecycle.rs"
-PHI_TYPE_INFERENCE = ROOT / "src/mir/builder/phi_type_inference.rs"
+RETURN_TYPE_STRATEGY = ROOT / "src/mir/builder/return_type_strategy.rs"
 METADATA_ORIGIN_CALLER_MERGE_PLAN = (
     ROOT
     / "docs/development/current/main/design/fixtures/rust-lifecycle/"
@@ -74,13 +74,13 @@ def _require_order(text: str, markers: list[str], label: str) -> list[dict[str, 
 
 def extract_plan() -> dict[str, Any]:
     lifecycle = _read(MODULE_LIFECYCLE)
-    phi_source = _read(PHI_TYPE_INFERENCE)
+    strategy_source = _read(RETURN_TYPE_STRATEGY)
     origin_merge = _read_json(METADATA_ORIGIN_CALLER_MERGE_PLAN)
     finalize = _function_body(
         lifecycle, "pub(super) fn finalize_module(&mut self, result_value: ValueId)"
     )
     infer_body = _function_body(
-        phi_source,
+        strategy_source,
         "pub(super) fn infer_return_type_from_phi",
     )
 
@@ -88,7 +88,7 @@ def extract_plan() -> dict[str, Any]:
         finalize,
         [
             "PreparedModuleFinalizationFunctionMetadataV1::prepare",
-            "phi_type_inference::infer_return_type_from_phi(self, &mut function)",
+            "return_type_strategy::infer_return_type_from_phi(self, &mut function)",
             "function.signature.return_type = inferred_type;",
             "phi_input_materializer::materialize_all_phi_inputs",
         ],
@@ -99,22 +99,23 @@ def extract_plan() -> dict[str, Any]:
         [
             "MirType::Void | MirType::Unknown",
             "bb.terminator",
-            "builder.function_state.type_ctx.value_types.get(v).cloned()",
-            "TypeHintPolicy::is_target(&function.signature.name)",
-            "TypeHintPolicy::extract_phi_type_hint(&function, *v)",
+            ".get(value)",
+            ".cloned()",
+            "primary_hint::is_primary_target(&function.signature.name)",
+            "primary_hint::extract_phi_type_hint(function, *value)",
             "resolve_known_return_definition_type",
-            "PhiTypeResolver::new(&function, &builder.function_state.type_ctx.value_types)",
-            "GenericTypeResolver::resolve_from_phi",
+            "PhiTypeResolver::new(",
+            "uniform_phi::resolve_from_phi",
             "inferred",
         ],
-        "phi_type_inference resolver chain",
+        "return_type_strategy resolver chain",
     )
     require(
         origin_merge.get("non_claims", {}).get("phi_return_type_inference") == 0,
         "MetadataOriginCallerMerge must not claim PHI return-type inference",
     )
     for marker in [
-        "return None; // Already has concrete type",
+        "return None;",
         "inferred = Some(mt);",
         "break;",
         "MirType::Unknown",
@@ -124,10 +125,10 @@ def extract_plan() -> dict[str, Any]:
     return {
         "schema_version": 0,
         "kind": "MirBuilderPhiReturnTypeInferencePlanV1",
-        "subject": "MirBuilder::finalize_module phi_type_inference::infer_return_type_from_phi",
+        "subject": "MirBuilder::finalize_module return_type_strategy::infer_return_type_from_phi",
         "source_authority": {
             "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
-            "provider": "src/mir/builder/phi_type_inference.rs::infer_return_type_from_phi",
+            "provider": "src/mir/builder/return_type_strategy.rs::infer_return_type_from_phi",
             "predecessor_plan": "mirbuilder-metadata-origin-caller-merge-plan-v0.json",
         },
         "execution_profile": {
@@ -143,10 +144,10 @@ def extract_plan() -> dict[str, Any]:
             "SkipConcreteReturnType",
             "TerminatorReturnOnly",
             "DirectValueTypesLookup",
-            "TypeHintPolicyExtract",
+            "PrimaryNameHintExtract",
             "KnownReturnDefinitionHint",
             "PhiTypeResolver",
-            "GenericTypeResolver",
+            "UniformPhiFallback",
             "UnknownFallbackOutsideDebug",
         ],
         "available_capabilities": [
@@ -156,7 +157,7 @@ def extract_plan() -> dict[str, Any]:
             "mutates": [
                 "function.signature.return_type",
             ],
-            "entrypoint": "phi_type_inference::infer_return_type_from_phi",
+            "entrypoint": "return_type_strategy::infer_return_type_from_phi",
             "minimal_path_expected_result": "Option<MirType>",
         },
         "non_claims": {
@@ -190,16 +191,16 @@ def validate_plan(plan: dict[str, Any]) -> None:
             "SkipConcreteReturnType",
             "TerminatorReturnOnly",
             "DirectValueTypesLookup",
-            "TypeHintPolicyExtract",
+            "PrimaryNameHintExtract",
             "KnownReturnDefinitionHint",
             "PhiTypeResolver",
-            "GenericTypeResolver",
+            "UniformPhiFallback",
             "UnknownFallbackOutsideDebug",
         ],
         f"resolver chain drift: {plan['resolver_chain']}",
     )
     result = plan["result_contract"]
-    require(result["entrypoint"] == "phi_type_inference::infer_return_type_from_phi", "entrypoint drift")
+    require(result["entrypoint"] == "return_type_strategy::infer_return_type_from_phi", "entrypoint drift")
     require(result["minimal_path_expected_result"] == "Option<MirType>", "expectation drift")
     for key, value in plan["non_claims"].items():
         require(value == 0, f"non-claim must remain 0: {key}")

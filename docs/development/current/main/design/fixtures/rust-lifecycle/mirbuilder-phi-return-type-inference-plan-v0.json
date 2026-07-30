@@ -1,10 +1,10 @@
 {
   "schema_version": 0,
   "kind": "MirBuilderPhiReturnTypeInferencePlanV1",
-  "subject": "MirBuilder::finalize_module phi_type_inference::infer_return_type_from_phi",
+  "subject": "MirBuilder::finalize_module return_type_strategy::infer_return_type_from_phi",
   "source_authority": {
     "finalize": "src/mir/builder/module_lifecycle.rs::MirBuilder::finalize_module",
-    "provider": "src/mir/builder/phi_type_inference.rs::infer_return_type_from_phi",
+    "provider": "src/mir/builder/return_type_strategy.rs::infer_return_type_from_phi",
     "predecessor_plan": "mirbuilder-metadata-origin-caller-merge-plan-v0.json"
   },
   "execution_profile": {
@@ -19,16 +19,16 @@
         "byte_offset": 2354
       },
       {
-        "marker": "phi_type_inference::infer_return_type_from_phi(self, &mut function)",
-        "byte_offset": 2897
+        "marker": "return_type_strategy::infer_return_type_from_phi(self, &mut function)",
+        "byte_offset": 2782
       },
       {
         "marker": "function.signature.return_type = inferred_type;",
-        "byte_offset": 2987
+        "byte_offset": 2874
       },
       {
         "marker": "phi_input_materializer::materialize_all_phi_inputs",
-        "byte_offset": 3235
+        "byte_offset": 3122
       }
     ],
     "resolver": [
@@ -38,35 +38,39 @@
       },
       {
         "marker": "bb.terminator",
-        "byte_offset": 410
+        "byte_offset": 282
       },
       {
-        "marker": "builder.function_state.type_ctx.value_types.get(v).cloned()",
-        "byte_offset": 456
+        "marker": ".get(value)",
+        "byte_offset": 439
       },
       {
-        "marker": "TypeHintPolicy::is_target(&function.signature.name)",
-        "byte_offset": 749
+        "marker": ".cloned()",
+        "byte_offset": 467
       },
       {
-        "marker": "TypeHintPolicy::extract_phi_type_hint(&function, *v)",
-        "byte_offset": 819
+        "marker": "primary_hint::is_primary_target(&function.signature.name)",
+        "byte_offset": 592
+      },
+      {
+        "marker": "primary_hint::extract_phi_type_hint(function, *value)",
+        "byte_offset": 668
       },
       {
         "marker": "resolve_known_return_definition_type",
-        "byte_offset": 1067
+        "byte_offset": 845
       },
       {
-        "marker": "PhiTypeResolver::new(&function, &builder.function_state.type_ctx.value_types)",
-        "byte_offset": 2045
+        "marker": "PhiTypeResolver::new(",
+        "byte_offset": 1583
       },
       {
-        "marker": "GenericTypeResolver::resolve_from_phi",
-        "byte_offset": 2813
+        "marker": "uniform_phi::resolve_from_phi",
+        "byte_offset": 2391
       },
       {
         "marker": "inferred",
-        "byte_offset": 3190
+        "byte_offset": 2763
       }
     ]
   },
@@ -74,10 +78,10 @@
     "SkipConcreteReturnType",
     "TerminatorReturnOnly",
     "DirectValueTypesLookup",
-    "TypeHintPolicyExtract",
+    "PrimaryNameHintExtract",
     "KnownReturnDefinitionHint",
     "PhiTypeResolver",
-    "GenericTypeResolver",
+    "UniformPhiFallback",
     "UnknownFallbackOutsideDebug"
   ],
   "available_capabilities": [
@@ -87,7 +91,7 @@
     "mutates": [
       "function.signature.return_type"
     ],
-    "entrypoint": "phi_type_inference::infer_return_type_from_phi",
+    "entrypoint": "return_type_strategy::infer_return_type_from_phi",
     "minimal_path_expected_result": "Option<MirType>"
   },
   "non_claims": {

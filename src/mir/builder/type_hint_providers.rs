@@ -10,7 +10,7 @@
 //! Called by: `finalize_module()` in module_lifecycle.rs
 //!
 //! Critical Constraint:
-//! Must execute BEFORE phi_type_inference (type annotation prerequisite)
+//! Must execute BEFORE return_type_strategy (type annotation prerequisite)
 
 use super::function_signature_lookup::FunctionSignatureLookupV1;
 use super::type_context::TypeContext;

@@ -20,7 +20,7 @@ from verified_hako_family_ir import op
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle"
 OUT_DIR = ROOT / "lang/generated/rust_derived/hakorune_mir_builder"
-SOURCE = ROOT / "src/mir/builder/phi_type_inference.rs"
+SOURCE = ROOT / "src/mir/builder/return_type_strategy.rs"
 PLAN = FIXTURES / "mirbuilder-phi-return-type-inference-plan-v0.json"
 ORACLE = FIXTURES / "mirbuilder-phi-return-type-inference-derived-hako-oracle-v0.json"
 RECIPE = FIXTURES / "mirbuilder-phi-return-type-inference-derived-hako-recipe-v0.json"
@@ -30,10 +30,10 @@ RESOLVER_CHAIN = [
     "SkipConcreteReturnType",
     "TerminatorReturnOnly",
     "DirectValueTypesLookup",
-    "TypeHintPolicyExtract",
+    "PrimaryNameHintExtract",
     "KnownReturnDefinitionHint",
     "PhiTypeResolver",
-    "GenericTypeResolver",
+    "UniformPhiFallback",
     "UnknownFallbackOutsideDebug",
 ]
 
@@ -42,7 +42,7 @@ def build_oracle() -> dict[str, object]:
     return {
         "schema_version": 0,
         "kind": "MirBuilderPhiReturnTypeInferenceDerivedHakoOracleV1",
-        "subject": "MirBuilder::finalize_module phi_type_inference::infer_return_type_from_phi",
+        "subject": "MirBuilder::finalize_module return_type_strategy::infer_return_type_from_phi",
         "vectors": [
             {
                 "name": "unknown_return_type_infers_integer_from_phi_resolver_chain",
@@ -87,7 +87,7 @@ def _validate_plan(plan: dict[str, object]) -> None:
     if plan.get("resolver_chain") != RESOLVER_CHAIN:
         raise ValueError(f"PHI return-type inference resolver chain drift: {plan.get('resolver_chain')}")
     result = plan.get("result_contract") or {}
-    if result.get("entrypoint") != "phi_type_inference::infer_return_type_from_phi":
+    if result.get("entrypoint") != "return_type_strategy::infer_return_type_from_phi":
         raise ValueError("PHI return-type inference entrypoint drift")
     if result.get("minimal_path_expected_result") != "Option<MirType>":
         raise ValueError("PHI return-type inference result drift")
@@ -140,7 +140,7 @@ def phi_return_type_inference_spec() -> FamilyArtifactSpec:
     methods = [
         BehaviorMethodSpec(
             id="PhiReturnTypeInference::infer",
-            rust_operation="phi_type_inference::infer_return_type_from_phi",
+            rust_operation="return_type_strategy::infer_return_type_from_phi",
             hako_operation="ResolverChainFlags + SetField + ReturnValue",
             emits="PhiReturnTypeInferenceApi.infer(builder_state, fn_state)",
         )
@@ -162,10 +162,10 @@ def phi_return_type_inference_spec() -> FamilyArtifactSpec:
                 name="PhiReturnBuilderShellBox",
                 fields=[
                     FieldSpec(name="direct_value_type_lookup", field_type="i64", initializer="0"),
-                    FieldSpec(name="type_hint_policy_checked", field_type="i64", initializer="0"),
+                    FieldSpec(name="primary_name_hint_checked", field_type="i64", initializer="0"),
                     FieldSpec(name="known_return_definition_hint_checked", field_type="i64", initializer="0"),
                     FieldSpec(name="phi_type_resolver_checked", field_type="i64", initializer="0"),
-                    FieldSpec(name="generic_type_resolver_checked", field_type="i64", initializer="0"),
+                    FieldSpec(name="uniform_phi_fallback_checked", field_type="i64", initializer="0"),
                 ],
             ),
             BoxSpec(
@@ -199,10 +199,10 @@ def phi_return_type_inference_spec() -> FamilyArtifactSpec:
                         signature="infer(builder_state, fn_state): PhiReturnTypeInferenceResultBox",
                         operations=[
                             op("SetField", target="builder_state", field="direct_value_type_lookup", value=1).to_json(),
-                            op("SetField", target="builder_state", field="type_hint_policy_checked", value=1).to_json(),
+                            op("SetField", target="builder_state", field="primary_name_hint_checked", value=1).to_json(),
                             op("SetField", target="builder_state", field="known_return_definition_hint_checked", value=1).to_json(),
                             op("SetField", target="builder_state", field="phi_type_resolver_checked", value=1).to_json(),
-                            op("SetField", target="builder_state", field="generic_type_resolver_checked", value=1).to_json(),
+                            op("SetField", target="builder_state", field="uniform_phi_fallback_checked", value=1).to_json(),
                             op("SetField", target="fn_state", field="terminator_return_seen", value=1).to_json(),
                             op("SetField", target="fn_state", field="signature_return_type_is_integer", value=1).to_json(),
                             op("SetField", target="fn_state", field="inferred_return_type_present", value=1).to_json(),
@@ -232,10 +232,10 @@ def phi_return_type_inference_spec() -> FamilyArtifactSpec:
             op("AssertEq", left="result.phi_input_materialization", right=0, fail_message="phi_return_type_input_materialization=fail", fail_code=5),
             op("AssertEq", left="result.full_finalize_module", right=0, fail_message="phi_return_type_full_finalize=fail", fail_code=6),
             op("AssertEq", left="builder_state.direct_value_type_lookup", right=1, fail_message="phi_return_type_direct_lookup=fail", fail_code=7),
-            op("AssertEq", left="builder_state.type_hint_policy_checked", right=1, fail_message="phi_return_type_hint_policy=fail", fail_code=8),
+            op("AssertEq", left="builder_state.primary_name_hint_checked", right=1, fail_message="phi_return_type_primary_hint=fail", fail_code=8),
             op("AssertEq", left="builder_state.known_return_definition_hint_checked", right=1, fail_message="phi_return_type_known_return_definition_hint=fail", fail_code=9),
             op("AssertEq", left="builder_state.phi_type_resolver_checked", right=1, fail_message="phi_return_type_phi_resolver=fail", fail_code=10),
-            op("AssertEq", left="builder_state.generic_type_resolver_checked", right=1, fail_message="phi_return_type_generic_resolver=fail", fail_code=11),
+            op("AssertEq", left="builder_state.uniform_phi_fallback_checked", right=1, fail_message="phi_return_type_uniform_phi=fail", fail_code=11),
             op("AssertEq", left="fn_state.terminator_return_seen", right=1, fail_message="phi_return_type_return_seen=fail", fail_code=12),
             op("AssertEq", left="fn_state.signature_return_type_is_integer", right=1, fail_message="phi_return_type_signature=fail", fail_code=13),
             op("AssertEq", left="fn_state.inferred_return_type_present", right=1, fail_message="phi_return_type_present=fail", fail_code=14),
@@ -273,7 +273,7 @@ def phi_return_type_inference_spec() -> FamilyArtifactSpec:
         verifier_checks=contract.verifier_checks(
             {
                 "phi_return_type_inference_only": 1,
-                "entrypoint": "phi_type_inference::infer_return_type_from_phi",
+                "entrypoint": "return_type_strategy::infer_return_type_from_phi",
                 "resolver_chain": RESOLVER_CHAIN,
                 "function_transport": "MirFunctionPreparedMain",
                 "builder_type_context": "self.type_ctx.value_types",

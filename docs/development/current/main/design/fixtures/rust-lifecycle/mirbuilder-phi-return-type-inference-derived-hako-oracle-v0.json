@@ -8,7 +8,7 @@
     "runtime_fallback": 0
   },
   "schema_version": 0,
-  "subject": "MirBuilder::finalize_module phi_type_inference::infer_return_type_from_phi",
+  "subject": "MirBuilder::finalize_module return_type_strategy::infer_return_type_from_phi",
   "vectors": [
     {
       "expect": {
