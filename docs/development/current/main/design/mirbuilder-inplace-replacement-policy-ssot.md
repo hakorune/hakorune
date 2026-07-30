@@ -199,6 +199,12 @@ cellは`after >= 1`かつ`old_after = 0`になるまでclosedではない。
 障害修正、post-cutover parity、docs／asset closeoutはnon-replacementと
 明記し、replacement creditを持たせない。
 
+R3のJoinModule/reference D0は、caller-zero assetまたはfenced reference
+familyについて一つのRET0／REOWN／RETAIN-FENCEDを選ぶnon-replacement
+disposition selectorである。production replacementの「D0の次は同scope
+I0/R0」規律をR3へ拡張しない。代わりに、選択時にexact surface、consumer、
+owner、sunset、retire_whenを固定し、closeout後はfresh censusへ戻る。
+
 replacementの実装単位は次で固定する。
 
 ```text

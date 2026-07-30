@@ -121,23 +121,32 @@ and the observer contract is independently disposed. The explicit VM/Stage1/
 StageB reference consumers are handled only by the next reference-sunset D0.
 ```
 
-## Current design stop
+## Current execution
 
-`JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0` — R3 reference frontier
+`JOINMODULE-JSONIR-V0-REFERENCE-RET0` — T1 R3 caller-zero retirement
 
 ```text
-Scope:
-  Recount only remaining JoinModule/reference execution, observation, JSON/format,
-  and explicit-env bridge consumers after the two append-defs retirements.
+Change:
+  remove the JSONIR v0 serializer/snapshot-only surface and its module export;
+  atomically remove or rehome the one manifest-only Null evidence.
 
-Decision:
-  Select at most one exact retire/reown/retain-fenced disposition with an owner,
-  non-growing surface, and sunset evidence.
+Contract:
+  JSONIR v0 has no repository non-test caller. Keep the shared Stage-B bridge
+  tests; VM bridge, LowerOnly, normalized shadow, and LLVM remain fenced.
 
-Non-claims:
-  no deletion by LOC, normal/default route, strict or LLVM change, carrier
-  rehome, Ownership, View, or feature work.
+Done:
+  serializer, fixtures, snapshot helpers, and selected manifest edge are zero;
+  the existing JoinIR/reference guard and focused library tests are green.
+
+Stop:
+  any external compatibility consumer, required manifest evidence without an
+  existing non-JoinIR replacement, or shared bridge-test dependency returns to D0.
 ```
+
+`JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0` is closed. It classified VM bridge,
+LowerOnly, normalized shadow, and LLVM as existing explicit fences, and selected
+only JSONIR v0 as the next caller-zero surface. It does not authorize LOC-based
+deletion or any normal/default, strict, carrier, Ownership, View, or feature work.
 
 ## Latest closeout
 
@@ -501,18 +510,19 @@ R2 Live responsibility replacement
   legacy JoinModule is never reactivated as a normal/default planner.
 
 R3 Legacy JoinModule/reference disposition
-  `JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0` is closed. Execute only the
-  current condition_fn DerivedShadow RET0 closure. Then reconsider, one at a
-  time and with a fresh consumer census:
-  1. `JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0` — closed;
-  2. `JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0` — RETAIN-FENCED;
-  3. `JOINMODULE-EXPLICIT-REFERENCE-SUNSET0-D0` — direct runner RET0 closed;
-     VM bridge is RETAIN-FENCED; the stale append_defs name path and unreachable
-     generic ArrayAccumulation asset are retired. A fresh R3 reference census
-     selects the next exact disposition.
-  These are ordering boundaries, not pre-authorized implementations. No
-  name-only tree deletion, normal/default route resurrection, or unresolved
-  family is allowed.
+  `JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0` and the subsequent carrier,
+  runner, stale-name, and unreachable-generic-asset closures are closed.
+  `JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0` selects JSONIR v0 as the single
+  next caller-zero retirement. VM bridge, normalized shadow, and LLVM remain
+  their registered fences.
+
+  Each remaining R3 cycle is exactly:
+  1. fresh consumer census;
+  2. one RET0, REOWN, or RETAIN-FENCED disposition;
+  3. fresh census.
+  These are non-replacement disposition selectors: they earn no replacement
+  credit and cannot revive normal/default JoinModule planning. No name-only or
+  LOC-based tree deletion is allowed.
 
 R4 Final conformance
   MIRBUILDER-REPOSITORY-FINAL-CONFORMANCE0-C0 decides Complete only when the
@@ -520,8 +530,8 @@ R4 Final conformance
   disposition (including every named R3 closure or fence), and
   accepted-corpus/backend parity are all green.
 
-  R4 must explicitly decide whether the retained 34,212-LOC
-  JoinIR/reference tree is deleted or remains a fenced reference asset;
+  R4 must explicitly decide whether the retained JoinIR/reference scope in the
+  final consumer manifest is deleted or remains a fenced reference asset;
   final-pipeline completion cannot silently inherit that decision. Every
   retained family proves default reachability=0, acceptance truth=0, final
   planner=0, explicit activation, owner, and sunset. `JumpArgsLayout` is a
@@ -538,10 +548,9 @@ AST/Recipe composition, and function-state/control residuals. They are census
 input, not a pre-authorized order. Whole-function accepted variants remain frozen.
 
 JoinModule remains out of R2 replacement commits, but not out of the completion
-definition. The remaining `join_ir + join_ir_vm_bridge` Rust inventory is
-33,101 lines, has no default normal/default execution consumer, and serves
+definition. Its remaining scope is tracked by the R3 consumer manifest, not a
+LOC denominator. It has no default normal/default execution consumer and serves
 explicit dev-normalization, VM-reference, and LLVM experiment families.
-Bridge dispatch remains excluded from this count.
 R3 must classify it before Complete:
 
 ```text
