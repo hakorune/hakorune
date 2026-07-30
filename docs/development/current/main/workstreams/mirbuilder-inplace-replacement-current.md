@@ -31,8 +31,8 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0
 Result:        source-keyed cataloged Box-method admission in selected normal
-Latest design: `NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0` — closed
-Executable:    `MIRBUILDER-LIVE-EDGE-CENSUS17-D0`
+Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS17-D0` — closed
+Executable:    `NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -400,28 +400,64 @@ Evidence:
   terminal tests, lib/vm-reference checks, and current guards are green.
 
 Residual:
-  constructors, top-level functions, and optional callable Main remain on the
-  explicit normal compatibility edge.  `NORMAL-UNCATALOGUED-PROGRAM-CHILD-
-  COMPAT-SUNSET-001` remains active until each has an exact source owner.
+  constructors, top-level functions, optional callable Main, and Script-runtime
+  Box descent remain on explicit normal compatibility edges pending independent
+  source/port ownership.
+```
+
+## Latest closeout
+
+`MIRBUILDER-LIVE-EDGE-CENSUS17-D0` — read-only, closed
+
+```text
+Result:
+  `NormalEntryMaterializationSourceReceiptV1::App` already carries the exact
+  `Main.main/N` source target and the installed callable catalog supplies its
+  exact static row.  Required callable Main is therefore the one safe selected
+  normal I0/R0.  Collector/drain stays RETAIN-FENCED: it still consumes only
+  LegacySymbol + LegacyReplaceWholePair and has no old selected-normal edge to
+  delete.
+
+Fence:
+  Constructors and top-level functions lack source callable owners.  Script
+  runtime Box descent is shared raw-port work without normal admission facts.
+  Keep them separate; do not fold them into callable Main.  Record
+  `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` for constructors and
+  top-level functions, and `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-
+  SUNSET-001` for Script runtime Box descent.
+
+Next:
+  `NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0`.
 ```
 
 ## Current execution
 
-`MIRBUILDER-LIVE-EDGE-CENSUS17-D0` — fresh live-edge selection
+`NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0` — T1 atomic selected-normal cutover
 
 ```text
 Change:
-  Re-inventory selected-normal, explicit normal compatibility, raw/reference,
-  runner, and R3 assets after cataloged Box-method admission cutover.
+  In the `NormalDefaultPublishedPipelineV1::compile` Required-App materialization
+  branch only, prove the receipt target equals the installed `Main.main/N`
+  catalog row, issue NormalCatalogedBoxMethodDraftAdmissionV1, and use the
+  cataloged static port.  Delete this selected materialization ->
+  LegacyChildDraftAdmissionV1 edge atomically; raw policy materialization keeps
+  its existing legacy port.
+
+Contract:
+  Preserve Main inline/root order, body snapshot, parent restoration,
+  LegacySymbol + LegacyReplaceWholePair collector mapping, runner selection,
+  result/publication policy, and candidate reuse.  No collector key/policy,
+  grammar, raw/reference, retry/fallback, or source clone/reparse change.
 
 Done:
-  Record exactly one bounded next D0, live I0/R0, detached R3 disposition, or
-  NoSafeLiveI0 with its named caller and compatibility deletion condition.
+  Required App callable Main normal-vs-legacy parity and exact target/catalog
+  relation are green; Omitted does not materialize; missing/mismatched catalog
+  fails before child admission; raw Required materialization remains legacy.
 
 Stop:
-  Do not pre-authorize constructors, top-level functions, optional callable
-  Main, collector key/policy, raw/reference, runner, Ownership/View, or feature
-  work from historical inventory alone.
+  Return to design if this needs a new source identity, a collector/drain
+  policy change, runner change, raw-policy change, Script runtime route,
+  constructor/top-level handoff, second session, or fallback/retry.
 ```
 
 ## Latest closeout
