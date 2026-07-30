@@ -69,7 +69,8 @@ Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS36-D0` — closed
 Latest landed: `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS37-D0` — closed
 Latest landed: `LLVM-JOINMODULE-EXPERIMENT-ROUTE-RETIRE0-RET0`
-Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS38-D0`
+Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS38-D0` — closed
+Next row:      `JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0`
 History:       Git history and the short landed tail below
 ```
 
@@ -94,7 +95,7 @@ activation and sunset contract.
 | closed | `RAW-ROOT-STATIC-CHILD-DRAFT-COMPAT-SUNSET-001` | former `InvocationPhysicalStateV1::complete_raw_static_child` direct `LegacyChildDraftAdmissionV1` issuer shared by static helpers and callable Main | explicit raw public / VM-reference route; default normal = 0 | REOWN | retired by `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`: one existing locator+role admission now reaches the unchanged collector projection; direct legacy-symbol issuer = 0 |
 | closed | `RAW-ROOT-LEGACY-BRANDED-TERMINAL-SUNSET-001` | former caller-zero `complete_legacy_child_branded` and `commit_legacy_pending_branded` adapters from `LegacyChildDraftAdmissionV1` to branded collector receipt | activation = 0 after `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`; definitions only | RET0 | retired by `RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0`; unbranded, symbol-keyed, resolved, and nested-live terminals retained |
 | closed | `LLVM-JOINMODULE-EXPERIMENT-ROUTE-SUNSET-001` (promotes `R4-UNREGISTERED-LLVM-EXPERIMENT-001`) | former LLVM runner `JoinIrExperimentBox`: `Main.skip/1` MIR -> JoinModule -> MIR replacement plus original-MIR return on lowering/bridge failure | activation and complete LLVM-only owner/hook/env surface = 0 | RET0 | retired by `LLVM-JOINMODULE-EXPERIMENT-ROUTE-RETIRE0-RET0`; shared JoinModule lowering, VM bridge, normalized-shadow fence, and shared experiment flag remain |
-| unregistered | `R4-UNREGISTERED-FRONTEND-METADATA-001` — frontend metadata | `frontend::func_meta` / `JoinFuncMetaMap` consumers | activation/owner not yet registered | undecided; named D0 required before C0 | RET0, REOWN, or RETAIN-FENCED with owner, activation, retire_when |
+| active-retirement | `JOINIR-FRONTEND-FUNC-META-SUNSET-001` (promotes `R4-UNREGISTERED-FRONTEND-METADATA-001`) | `frontend::func_meta`, public `JoinFuncMeta`/`JoinFuncMetaMap`, bridge metadata observation and `*_with_meta` APIs | production normalized-shadow and VM bridge issue empty maps only; non-empty metadata issuer is Phase40 test-only; default normal = 0 | RET0 metadata authority; REOWN conversion into crate-bounded neutral module converter and boundary-aware bridge | `JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0`: metadata types/observation/API/tests = 0; converter and boundary semantics unchanged; no compatibility alias |
 | unregistered | `R4-UNREGISTERED-CARRIER-BOUNDARY-001` — carrier boundaries | `JumpArgsLayout` and `JoinInlineBoundary` families | live/fenced consumer mapping not yet registered | undecided; named D0 required before C0 | CorePlan/MIR rehome D0, RET0, or RETAIN-FENCED |
 | closed | `JOINMODULE-PHI-OBSERVER-SUNSET-001` (promotes `R4-UNREGISTERED-PHI-OBSERVER-001`) | former `verify_phi_reserved` global collector/report, three debug observation hooks, dedicated builder/module tests, exports, README and generated owner-inventory row | production decision consumer = 0 before deletion; complete asset now absent | RET0 | retired by `JOINMODULE-PHI-OBSERVER-RETIRE0-RET0`: complete observer/test/hook/wiring/docs surface = 0 and existing native-owner inventory regenerated |
 | unregistered | `R4-UNREGISTERED-AST-FRONTEND-001` — legacy AST frontend | `AstToJoinIrLowerer` plus its fixture/dev-flag closure | production caller = 0; test/reference closure remains | undecided; named D0 required before C0 | `JOINMODULE-AST-FRONTEND-LEGACY-DISPOSITION0-D0` |
@@ -103,7 +104,7 @@ activation and sunset contract.
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | normalized-dev Builder execution and explicit VM route have live consumers; LLVM experiment consumer is retired; exact model/lowering/JSON/format partition remains unregistered | undecided; named D0 required before C0 | partition live normalized-dev/VM owners from caller-zero reference scope, then delete or RETAIN-FENCED with exact owner, activation, retire_when |
 
 The registry has four registered R4 fences, zero active compatibility residuals,
-zero active retirements, eleven closed residuals, and four unregistered R4 family
+one active retirement, eleven closed residuals, and three unregistered R4 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
@@ -132,6 +133,53 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`MIRBUILDER-LIVE-EDGE-CENSUS38-D0` — read-only census, closed
+
+```text
+Registry:
+  retain-fenced=4, active compatibility=0, active retirement=1,
+  closed=11, unregistered=3.
+
+Four-family result:
+  frontend metadata = empty-only production observation; RET0 selected.
+  carrier boundary = JumpArgsLayout neutral REOWN plus JoinInlineBoundary
+    subordinate to the existing normalized-shadow fence; later D0.
+  AST frontend = caller-zero but 5560-line semantic evidence closure; later
+    RETAIN-FENCED D0 after evidence crosswalk.
+  JoinModule remainder = live normalized-dev/VM core; broad RET0 rejected.
+
+Selected:
+  JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0, T2 atomic RET0 with bounded
+  converter REOWN.
+
+Next:
+  execute the selected RET0, then return to a fresh live-edge census.
+```
+
+`JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0` — T2 atomic RET0, selected
+
+```text
+Change:
+  Delete JoinFuncMeta/JoinFuncMetaMap, metadata observation, public
+  *_with_meta APIs, and metadata-only Phase40 evidence.  Rehome unchanged
+  JoinModule conversion into crate-bounded neutral converter/boundary APIs.
+
+Contract:
+  Preserve converter output, function aliases, normalized-shadow boundary,
+  AST lowerer analysis, VM bridge, and independent tests.  Add no metadata
+  carrier, compatibility alias, route, or fence.
+
+Done:
+  old metadata types/APIs/non-empty issuers = 0; normalized execution and VM
+  bridge use one metadata-free converter; focused bridge/normalization/Phase40
+  evidence, cargo checks, shared guard, and pointer guard are green.
+
+Stop:
+  Return to design if metadata affects MIR, a non-empty production issuer
+  appears, boundary/converter behavior must change, or an old API alias must
+  remain.
+```
 
 `MIRBUILDER-LIVE-EDGE-CENSUS37-D0` — read-only census, closed
 
