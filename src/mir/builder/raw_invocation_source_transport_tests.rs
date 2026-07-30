@@ -189,6 +189,14 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
             span: Span::unknown(),
         },
         field_assignment,
+        assignment(
+            ASTNode::Index {
+                target: Box::new(variable("items")),
+                index: Box::new(integer(0)),
+                span: Span::unknown(),
+            },
+            integer(4),
+        ),
     ];
     let (_, root) =
         RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
@@ -228,10 +236,10 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
             ]
         );
         if let ASTNode::Assignment { target, .. } = &statement {
+            let target_source = body_child
+                .child_expression(&statement, ExprChildRoleV1::AssignmentTarget)
+                .expect("assignment target source");
             if matches!(target.as_ref(), ASTNode::FieldAccess { .. }) {
-                let target_source = body_child
-                    .child_expression(&statement, ExprChildRoleV1::AssignmentTarget)
-                    .expect("field target source");
                 let receiver_source = target_source
                     .child_expression(target, ExprChildRoleV1::Receiver)
                     .expect("field receiver source");
@@ -241,6 +249,29 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
                         SourcePathSegmentV1::Body(index as u32),
                         SourcePathSegmentV1::Target,
                         SourcePathSegmentV1::Receiver,
+                    ]
+                );
+            } else if matches!(target.as_ref(), ASTNode::Index { .. }) {
+                let index_target = target_source
+                    .child_expression(target, ExprChildRoleV1::IndexTarget)
+                    .expect("index target source");
+                let index_subscript = target_source
+                    .child_expression(target, ExprChildRoleV1::IndexSubscript)
+                    .expect("index subscript source");
+                assert_eq!(
+                    index_target.site().unwrap().segments(),
+                    &[
+                        SourcePathSegmentV1::Body(index as u32),
+                        SourcePathSegmentV1::Target,
+                        SourcePathSegmentV1::Target,
+                    ]
+                );
+                assert_eq!(
+                    index_subscript.site().unwrap().segments(),
+                    &[
+                        SourcePathSegmentV1::Body(index as u32),
+                        SourcePathSegmentV1::Target,
+                        SourcePathSegmentV1::Argument(0),
                     ]
                 );
             }
@@ -261,11 +292,6 @@ fn scalar_single_value_statements_keep_exact_parent_sites() {
 
 #[test]
 fn residual_scalar_statements_remain_scalar_binding_compatibility() {
-    let index = ASTNode::Index {
-        target: Box::new(variable("items")),
-        index: Box::new(integer(0)),
-        span: Span::unknown(),
-    };
     let (_, root) =
         RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
             Vec::<ASTNode>::new(),
@@ -273,7 +299,6 @@ fn residual_scalar_statements_remain_scalar_binding_compatibility() {
         ));
 
     let residuals = [
-        assignment(index, integer(2)),
         ASTNode::CompoundAssignment {
             target: Box::new(ASTNode::FieldAccess {
                 object: Box::new(variable("page")),

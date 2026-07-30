@@ -96,13 +96,14 @@ Latest landed: `RAW-LOCATED-SCALAR-VARIABLE-WRITES0-I0-R0`
 Latest landed: `RAW-LOCATED-SCALAR-LOCAL-COMPOUND-WRITE0-I0-R0`
 Latest landed: `RAW-LOCATED-PRINT-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-ORDINARY-FIELD-ASSIGNMENT-SOURCE-HANDOFF0-I0-R0`
-Current design stop: `RAW-LOCATED-SCALAR-BINDING-REMAINDER3-D0`
+Latest landed: `RAW-LOCATED-ORDINARY-INDEX-ASSIGNMENT-SOURCE-HANDOFF0-I0-R0`
+Current design stop: `RAW-LOCATED-SCALAR-BINDING-REMAINDER4-D0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`RAW-LOCATED-SCALAR-BINDING-REMAINDER3-D0`
+`RAW-LOCATED-SCALAR-BINDING-REMAINDER4-D0`
 
 ```text
 Landed baseline:
@@ -110,11 +111,13 @@ Landed baseline:
   own exact statement/RHS paths. Every Print now owns one exact route-specific
   demand and DirectPrint installs its exact statement source. Ordinary field
   Assignment derives Target/Receiver and Value from one intact statement,
-  consumes both once, and no longer enters ScalarBinding.
+  while ordinary index Assignment derives Target/IndexTarget/IndexSubscript
+  and Value. Both consume their exact demands once and no longer enter
+  ScalarBinding.
 
 Question:
-  which one of index Assignment, field/index CompoundAssignment, Return, or
-  Local can next remove a real ScalarBinding edge without mixing index-place,
+  which one of field/index CompoundAssignment, Return, or Local can next
+  remove a real ScalarBinding edge without mixing evaluated-place,
   Match-return, typed-array, or record-constructor authority?
 
 Stop:

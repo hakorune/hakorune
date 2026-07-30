@@ -54,6 +54,9 @@ enum PreparedRawOrdinaryAssignmentRouteV1 {
     },
     Index {
         prepared: PreparedRawIndexAssignmentV1,
+        target_source: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
+        index_source: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
+        value_source: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
     },
     Unsupported,
 }
@@ -97,9 +100,26 @@ impl PreparedRawOrdinaryAssignmentV1 {
                     value_source,
                 }
             }
-            ASTNode::Index { target, index, .. } => PreparedRawOrdinaryAssignmentRouteV1::Index {
-                prepared: PreparedRawIndexAssignmentV1::prepare(*target, *index, value),
-            },
+            ASTNode::Index { target, index, .. } => {
+                let (target_source, index_source, value_source) = match sources {
+                    Some(PreparedRawOrdinaryAssignmentSourcesV1::Index {
+                        target,
+                        index,
+                        value,
+                    }) => (target, index, value),
+                    _ => {
+                        return Err(
+                            "[freeze:contract][raw-assignment/missing-index-source]".to_owned()
+                        )
+                    }
+                };
+                PreparedRawOrdinaryAssignmentRouteV1::Index {
+                    prepared: PreparedRawIndexAssignmentV1::prepare(*target, *index, value),
+                    target_source,
+                    index_source,
+                    value_source,
+                }
+            }
             _ => PreparedRawOrdinaryAssignmentRouteV1::Unsupported,
         };
         Ok(Self { route })
@@ -112,6 +132,11 @@ enum PreparedRawOrdinaryAssignmentSourcesV1 {
     },
     Field {
         receiver: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
+        value: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
+    },
+    Index {
+        target: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
+        index: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
         value: crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1,
     },
 }
@@ -150,8 +175,21 @@ where
             scoped.complete_exact_demands_v1()?;
             Ok(value)
         }
-        PreparedRawOrdinaryAssignmentRouteV1::Index { prepared } => {
-            lower_prepared_raw_index_assignment_with_port_v1(builder, port, prepared)
+        PreparedRawOrdinaryAssignmentRouteV1::Index {
+            prepared,
+            target_source,
+            index_source,
+            value_source,
+        } => {
+            let mut scoped = RawStructuredChildScopePortV1::new(
+                port,
+                vec![target_source, index_source, value_source],
+                Vec::new(),
+            );
+            let value =
+                lower_prepared_raw_index_assignment_with_port_v1(builder, &mut scoped, prepared)?;
+            scoped.complete_exact_demands_v1()?;
+            Ok(value)
         }
         PreparedRawOrdinaryAssignmentRouteV1::Unsupported => {
             Err("Complex assignment targets not yet supported".to_string())
@@ -373,6 +411,35 @@ where
                     })?;
                     Some(PreparedRawOrdinaryAssignmentSourcesV1::Field {
                         receiver,
+                        value: port.prepare_expression_child_source_v1(
+                            &node,
+                            ExprChildRoleV1::AssignmentValue,
+                        )?,
+                    })
+                }
+                ASTNode::Assignment { target, .. }
+                    if matches!(target.as_ref(), ASTNode::Index { .. }) =>
+                {
+                    let target_source = port.prepare_expression_child_source_v1(
+                        &node,
+                        ExprChildRoleV1::AssignmentTarget,
+                    )?;
+                    let (index_target, index_subscript) =
+                        port.with_prepared_child_source_v1(target_source, |port| {
+                            Ok::<_, String>((
+                                port.prepare_expression_child_source_v1(
+                                    target,
+                                    ExprChildRoleV1::IndexTarget,
+                                )?,
+                                port.prepare_expression_child_source_v1(
+                                    target,
+                                    ExprChildRoleV1::IndexSubscript,
+                                )?,
+                            ))
+                        })?;
+                    Some(PreparedRawOrdinaryAssignmentSourcesV1::Index {
+                        target: index_target,
+                        index: index_subscript,
                         value: port.prepare_expression_child_source_v1(
                             &node,
                             ExprChildRoleV1::AssignmentValue,
