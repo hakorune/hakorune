@@ -29,10 +29,10 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
-Latest landed: NORMAL-CATALOGED-BOX-METHOD-DRAFT-ADMISSION0-I0-R0
-Result:        source-keyed cataloged Box-method admission in selected normal
-Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS17-D0` — closed
-Executable:    `NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0`
+Latest landed: NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0
+Result:        selected normal callable Main materialization is cataloged
+Latest design: `NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0` — closed
+Executable:    `MIRBUILDER-LIVE-EDGE-CENSUS18-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -430,34 +430,42 @@ Next:
   `NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0`.
 ```
 
-## Current execution
+## Latest closeout
 
-`NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0` — T1 atomic selected-normal cutover
+`NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0` — T1 atomic selected-normal cutover, closed
 
 ```text
 Change:
-  In the `NormalDefaultPublishedPipelineV1::compile` Required-App materialization
-  branch only, prove the receipt target equals the installed `Main.main/N`
-  catalog row, issue NormalCatalogedBoxMethodDraftAdmissionV1, and use the
-  cataloged static port.  Delete this selected materialization ->
-  LegacyChildDraftAdmissionV1 edge atomically; raw policy materialization keeps
-  its existing legacy port.
-
-Contract:
-  Preserve Main inline/root order, body snapshot, parent restoration,
-  LegacySymbol + LegacyReplaceWholePair collector mapping, runner selection,
-  result/publication policy, and candidate reuse.  No collector key/policy,
-  grammar, raw/reference, retry/fallback, or source clone/reparse change.
+  Required App callable `Main.main/N` now proves its receipt target against the
+  installed static catalog row, seals NormalCatalogedBoxMethodDraftAdmissionV1,
+  and uses the cataloged static port.  Its selected materialization ->
+  LegacyChildDraftAdmissionV1 edge = 0; raw policy materialization is unchanged.
 
 Done:
-  Required App callable Main normal-vs-legacy parity and exact target/catalog
-  relation are green; Omitted does not materialize; missing/mismatched catalog
-  fails before child admission; raw Required materialization remains legacy.
+  exact target/catalog fixture, missing-row fail-fast, Required/Omitted normal
+  integration, raw static-Main compatibility, candidate/reuse, lib/vm-reference,
+  and reusable lane guards are green; `decls.rs` is 449 lines.
+
+Next:
+  `MIRBUILDER-LIVE-EDGE-CENSUS18-D0`.
+```
+
+## Current execution
+
+`MIRBUILDER-LIVE-EDGE-CENSUS18-D0` — fresh live-edge selection
+
+```text
+Change:
+  Re-inventory selected-normal residual child admission, collector/drain,
+  explicit raw/reference, runner, and R3 assets after callable Main cutover.
+
+Done:
+  Record one bounded next D0, live I0/R0, detached R3 disposition, or
+  NoSafeLiveI0 with an exact production caller and compatibility deletion rule.
 
 Stop:
-  Return to design if this needs a new source identity, a collector/drain
-  policy change, runner change, raw-policy change, Script runtime route,
-  constructor/top-level handoff, second session, or fallback/retry.
+  Do not infer constructor, top-level function, Script-runtime Box, collector,
+  raw/reference, runner, Ownership/View, or feature work from old inventory.
 ```
 
 ## Latest closeout

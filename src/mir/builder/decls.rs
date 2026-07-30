@@ -169,36 +169,38 @@ impl super::MirBuilder {
             // Optional: materialize a callable function entry "BoxName.main/N" for harness/PyVM.
             // This static entryは通常の VM 実行では使用されず、過去の Hotfix 4 絡みの loop/control-flow
             // バグの温床になっていたため、Phase 25.1m では明示トグルが立っている場合だけ生成する。
-            if materialization.is_some()
-                || (use_legacy_materialization_policy
-                    && self
-                        .comp_ctx
-                        .callable_main_compatibility_policy
-                        .is_required())
+            if let Some(target) = materialization {
+                let admission = self.seal_normal_callable_main_materialization_admission_v1(
+                    box_name,
+                    target,
+                    params.len(),
+                )?;
+                trace_callable_main_materialization(self, params.len(), body.len(), true);
+                // Note: Metadata clearing is now handled by BoxCompilationContext (箱理論)
+                // See lifecycle.rs for context swap implementation.
+                port.lower_cataloged_static_box_method(
+                    self,
+                    admission,
+                    params.clone(),
+                    param_decls.clone(),
+                    return_type_name.clone(),
+                    body.clone(),
+                    uses.clone(),
+                    attrs.clone(),
+                )?;
+                trace_callable_main_materialization(self, params.len(), body.len(), false);
+            } else if use_legacy_materialization_policy
+                && self
+                    .comp_ctx
+                    .callable_main_compatibility_policy
+                    .is_required()
             {
-                let trace = crate::mir::builder::control_flow::joinir::trace::trace();
-                // NamingBox SSOT: Use encode_static_method for main/arity entry
-                let func_name = materialization
-                    .map(|target| target.symbol().to_owned())
-                    .or_else(|| verified_callable_symbol.map(str::to_owned))
+                let func_name = verified_callable_symbol
+                    .map(str::to_owned)
                     .unwrap_or_else(|| {
                         crate::mir::naming::encode_static_method(box_name, "main", params.len())
                     });
-                trace.stderr_if(
-                    "[DEBUG] build_static_main_box: Before lower_static_method_as_function",
-                    true,
-                );
-                trace.stderr_if(&format!("[DEBUG]   params.len() = {}", params.len()), true);
-                trace.stderr_if(&format!("[DEBUG]   body.len() = {}", body.len()), true);
-                trace.stderr_if(
-                    &format!(
-                        "[DEBUG]   variable_map = {:?}",
-                        self.function_state.variable_ctx.variable_map
-                    ),
-                    true,
-                );
-                // Note: Metadata clearing is now handled by BoxCompilationContext (箱理論)
-                // See lifecycle.rs for context swap implementation.
+                trace_callable_main_materialization(self, params.len(), body.len(), true);
                 port.lower_static_box_method(
                     self,
                     func_name,
@@ -209,17 +211,7 @@ impl super::MirBuilder {
                     uses.clone(),
                     attrs.clone(),
                 )?;
-                trace.stderr_if(
-                    "[DEBUG] build_static_main_box: After lower_static_method_as_function",
-                    true,
-                );
-                trace.stderr_if(
-                    &format!(
-                        "[DEBUG]   variable_map = {:?}",
-                        self.function_state.variable_ctx.variable_map
-                    ),
-                    true,
-                );
+                trace_callable_main_materialization(self, params.len(), body.len(), false);
             }
             // Initialize local variables for Main.main() parameters
             // Note: These are local variables in the wrapper main() function, NOT parameters
@@ -308,6 +300,56 @@ impl super::MirBuilder {
         self.comp_ctx.current_static_box = saved_static;
         out
     }
+
+    fn seal_normal_callable_main_materialization_admission_v1(
+        &self,
+        box_name: &str,
+        target: &CallableMainMaterializationTargetV1,
+        source_arity: usize,
+    ) -> Result<NormalCatalogedBoxMethodDraftAdmissionV1, CallableMainCompatibilityLoweringErrorV1>
+    {
+        if target.arity() != source_arity {
+            return Err(CallableMainCompatibilityLoweringErrorV1::Lowering(format!(
+                "[freeze:contract][mir/callable-main-materialization] \\
+                     target arity mismatch symbol={} target={} source={source_arity}",
+                target.symbol(),
+                target.arity(),
+            )));
+        }
+        let canonical_key = self
+            .comp_ctx
+            .callable_declaration_catalog()
+            .map_err(|error| error.to_string())?
+            .declaration_for(
+                SameModuleCallableNamespaceV1::StaticBoxMethod,
+                box_name,
+                "main",
+                source_arity,
+            )
+            .ok_or_else(|| {
+                format!(
+                    "[freeze:contract][mir/callable-main-materialization/catalog] \\
+                     missing exact declaration for {box_name}.main/{source_arity}",
+                )
+            })?
+            .key()
+            .clone();
+        let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(canonical_key)
+            .map_err(|error| error.to_string())?;
+        if admission.physical_symbol() != target.symbol()
+            || admission.physical_arity() != target.arity()
+        {
+            return Err(CallableMainCompatibilityLoweringErrorV1::Lowering(format!(
+                "[freeze:contract][mir/callable-main-materialization] \\
+                     target/catalog mismatch target={}/{} catalog={}/{}",
+                target.symbol(),
+                target.arity(),
+                admission.physical_symbol(),
+                admission.physical_arity(),
+            )));
+        }
+        Ok(admission)
+    }
 }
 
 fn collect_script_args_from_env() -> Option<Vec<String>> {
@@ -315,5 +357,93 @@ fn collect_script_args_from_env() -> Option<Vec<String>> {
     match serde_json::from_str::<Vec<String>>(&raw) {
         Ok(list) if !list.is_empty() => Some(list),
         _ => None,
+    }
+}
+
+fn trace_callable_main_materialization(
+    builder: &super::MirBuilder,
+    params_len: usize,
+    body_len: usize,
+    before_lowering: bool,
+) {
+    let trace = crate::mir::builder::control_flow::joinir::trace::trace();
+    let phase = if before_lowering { "Before" } else { "After" };
+    trace.stderr_if(
+        &format!("[DEBUG] build_static_main_box: {phase} lower_static_method_as_function"),
+        true,
+    );
+    if before_lowering {
+        trace.stderr_if(&format!("[DEBUG]   params.len() = {params_len}"), true);
+        trace.stderr_if(&format!("[DEBUG]   body.len() = {body_len}"), true);
+    }
+    trace.stderr_if(
+        &format!(
+            "[DEBUG]   variable_map = {:?}",
+            builder.function_state.variable_ctx.variable_map
+        ),
+        true,
+    );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
+    use crate::mir::builder::main_expansion::VerifiedRawRootExpansionV1;
+    use crate::mir::builder::{CallableMainMaterializationPolicyV1, MirBuilder};
+    use crate::parser::NyashParser;
+
+    fn parse(source: &str) -> ASTNode {
+        NyashParser::parse_from_string(source).expect("fixture source")
+    }
+
+    fn required_target(source: &ASTNode) -> CallableMainMaterializationTargetV1 {
+        let expansion = VerifiedRawRootExpansionV1::from_program(source).expect("App expansion");
+        NormalEntryMaterializationSourceReceiptV1::seal(
+            &expansion,
+            CallableMainMaterializationPolicyV1::Required,
+        )
+        .target()
+        .expect("App target")
+        .clone()
+    }
+
+    #[test]
+    fn normal_callable_main_materialization_seals_the_exact_catalog_target() {
+        let source = parse("static box Main { main(p0) { return p0 } }");
+        let target = required_target(&source);
+        let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&source)
+            .expect("matching catalog");
+        let mut builder = MirBuilder::new();
+        builder
+            .comp_ctx
+            .install_callable_declaration_catalog(catalog)
+            .expect("catalog install");
+
+        let admission = builder
+            .seal_normal_callable_main_materialization_admission_v1("Main", &target, 1)
+            .expect("matching target and catalog");
+        assert_eq!(admission.physical_symbol(), "Main.main/1");
+        assert_eq!(admission.physical_arity(), 1);
+    }
+
+    #[test]
+    fn normal_callable_main_materialization_rejects_a_missing_exact_catalog_row() {
+        let source = parse("static box Main { main(p0) { return p0 } }");
+        let target = required_target(&source);
+        let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&parse(
+            "static box Main { main() { return 0 } }",
+        ))
+        .expect("mismatched catalog");
+        let mut builder = MirBuilder::new();
+        builder
+            .comp_ctx
+            .install_callable_declaration_catalog(catalog)
+            .expect("catalog install");
+
+        let error = builder
+            .seal_normal_callable_main_materialization_admission_v1("Main", &target, 1)
+            .expect_err("mismatched target must reject before child admission");
+        assert!(error.to_string().contains("missing exact declaration"));
     }
 }
