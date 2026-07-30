@@ -6997,42 +6997,6 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/join_ir/lowering/return_collector.rs:109:mir_return",
-      "evidence": "if matches!(stmt, ASTNode::Return { .. }) {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 109,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/join_ir/lowering/return_collector.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/join_ir/lowering/return_collector.rs:148:mir_return",
-      "evidence": "ASTNode::Return {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 148,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/join_ir/lowering/return_collector.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/join_ir/lowering/return_collector.rs:55:mir_return",
-      "evidence": "ASTNode::Return { value, .. } => {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 55,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/join_ir/lowering/return_collector.rs",
-      "token": "mir_return"
-    },
-    {
       "control_flow_evidence_id": "control.return_unit.src/mir/join_ir_vm_bridge/terminator_builder.rs:113:mir_return",
       "evidence": "MirInstruction::Return { value }",
       "evidence_kind": "mir_return",
@@ -7355,30 +7319,6 @@
       "site_ref": null,
       "source_path": "src/mir/control_tree/normalized_shadow/common/return_value_lowerer_box.rs",
       "token": "outcome_normalize"
-    },
-    {
-      "control_flow_evidence_id": "control.top_level_normalization.src/mir/join_ir/lowering/return_collector.rs:10:top_level",
-      "evidence": "//! - Return can be in top-level if's then/else (recursive scan)",
-      "evidence_kind": "top_level",
-      "family": "top_level_normalization",
-      "line": 10,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/join_ir/lowering/return_collector.rs",
-      "token": "top_level"
-    },
-    {
-      "control_flow_evidence_id": "control.top_level_normalization.src/mir/join_ir/lowering/return_collector.rs:28:top_level",
-      "evidence": "/// - Return can be in top-level if's then/else (recursive scan)",
-      "evidence_kind": "top_level",
-      "family": "top_level_normalization",
-      "line": 28,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/join_ir/lowering/return_collector.rs",
-      "token": "top_level"
     },
     {
       "control_flow_evidence_id": "control.top_level_normalization.src/runner/keep/vm.rs:184:top_level",

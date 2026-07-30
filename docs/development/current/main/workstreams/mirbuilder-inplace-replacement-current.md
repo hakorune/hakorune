@@ -28,11 +28,11 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 ## Current state
 
 ```text
-Parent:        MIRBUILDER-LIVE-EDGE-CENSUS13-D0
-Latest landed: JOINMODULE-PHI-RETURN-STRATEGY-REOWN0-I0-R0
-Result:        NoSafeLiveI0; one isolated cfg(test) R3 asset selected for retirement
-Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS13-D0` — closed
-Executable:    `JOINMODULE-RETURN-COLLECTOR-TEST-ASSET-RET0`
+Parent:        JOINMODULE-RETURN-COLLECTOR-TEST-ASSET-RET0
+Latest landed: JOINMODULE-RETURN-COLLECTOR-TEST-ASSET-RET0
+Result:        cfg(test)-only return-collector asset and stale inventory retired
+Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS14-D0`
+Executable:    none — fresh census design stop
 History:       Git history and the short landed tail below
 ```
 
@@ -134,39 +134,39 @@ R3 selection:
   credit. After it closes, Census14 is mandatory before another selection.
 ```
 
-## Current execution
+## Latest closeout
 
 `JOINMODULE-RETURN-COLLECTOR-TEST-ASSET-RET0` — T1 detached R3 retirement
 
 ```text
 Change:
-  Delete `join_ir/lowering/return_collector.rs`, its cfg(test) module
-  declaration, and five stale current control-flow inventory rows.
+  `join_ir/lowering/return_collector.rs`, its cfg(test) module declaration, and
+  five stale current control-flow inventory rows = 0.
 
 Contract:
-  The asset has no external Rust consumer beyond that cfg(test) declaration.
-  Return semantics, normal/default, VM bridge, LLVM, routes, and all fences do
-  not move.
+  The asset had no external Rust consumer beyond that cfg(test) declaration;
+  return semantics, normal/default, VM bridge, LLVM, routes, and fences stayed
+  unchanged.
 
 Done:
-  Source and current inventory references are zero; scoped lib checks and the
-  reusable lane/pointer guards remain green.
+  Source/current-inventory references = 0; lib/vm-reference and reusable
+  lane/pointer guards = green.
 
-Stop:
-  Any non-test consumer or non-local manifest closure returns to fresh census;
-  do not rehome or replace this obsolete test asset.
+Next:
+  `MIRBUILDER-LIVE-EDGE-CENSUS14-D0`.
 ```
 
-## Next-order rule
+## Current design stop
+
+`MIRBUILDER-LIVE-EDGE-CENSUS14-D0` — fresh live/R3 census
 
 ```text
-1. Close the one RET0 above.
-2. Run MIRBUILDER-LIVE-EDGE-CENSUS14-D0.
-3. Select exactly one current live edge, detached asset, or retained fence.
+Recount from current reachability only. Select one real I0/R0, one registered
+R3 RET0/REOWN/RETAIN-FENCED disposition, or NoSafeLiveI0.
 
-RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0 is Census14's leading design
-candidate, not a pre-authorized implementation: its session policy snapshot
-can create callable Main.main/N and therefore needs a bounded policy decision.
+RAW-STATIC-MAIN-CALLABLE-COMPATIBILITY0-D0 is only a leading candidate: its
+session policy snapshot can create callable Main.main/N, so no implementation
+is authorized until Census14 selects a bounded policy decision.
 
 R4 final conformance must decide the retained JoinIR/reference scope explicitly
 (delete versus fenced reference asset). Only after R4 Complete: refresh
