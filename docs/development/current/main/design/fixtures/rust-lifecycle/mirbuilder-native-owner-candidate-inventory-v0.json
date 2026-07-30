@@ -5800,15 +5800,6 @@
       "status": "candidate"
     },
     {
-      "candidate_kind": "display_formatter",
-      "display_target": "JoinIrVerifyError",
-      "function": "Display::fmt",
-      "line": 167,
-      "path": "src/mir/join_ir/verify.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
       "candidate_kind": "boolean_classifier",
       "function": "is_all_reserved",
       "line": 117,

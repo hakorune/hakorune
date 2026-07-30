@@ -8,7 +8,5 @@ mod helpers;
 mod if_merge;
 #[path = "../mir_joinir_if_select_parts/pattern_matching.rs"]
 mod pattern_matching;
-#[path = "../mir_joinir_if_select_parts/select_verification.rs"]
-mod select_verification;
 #[path = "../mir_joinir_if_select_parts/type_hints.rs"]
 mod type_hints;

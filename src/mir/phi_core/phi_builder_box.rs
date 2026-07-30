@@ -403,9 +403,8 @@ impl PhiBuilderBox {
         if_shape: &IfShape,
         ops: &mut O,
     ) -> Result<(ValueId, ValueId), String> {
-        // Phase 35-5: phi_invariants.rs deleted, Fail-Fast check removed
-        // Rationale: JoinIR Verifier (verify_select_minimal) now handles invariant checks
-        // for new JoinIR path. Legacy MIR Builder path continues with conservative fallback.
+        // Phase 35-5: phi_invariants.rs was removed. This legacy path retains
+        // its conservative branch-value fallback.
 
         let pre_val = pre_snapshot.get(var_name).copied();
 
@@ -458,9 +457,7 @@ impl PhiBuilderBox {
                 }
                 Ok((void_val, ev))
             }
-            (None, None) => unreachable!(
-                "If PHI invariant violated (Phase 35-5: check moved to JoinIR Verifier)"
-            ),
+            (None, None) => unreachable!("If PHI invariant violated"),
         }
     }
 

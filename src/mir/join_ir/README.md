@@ -118,7 +118,6 @@ Observation / support surfaces:
 
 - `json.rs`
 - `frontend/func_meta.rs`
-- `verify.rs`
 - `verify_phi_reserved.rs`
 - `lowering/if_dry_runner.rs`
   - dev-only observation scanner invoked from the VM runner when JoinIR dev and

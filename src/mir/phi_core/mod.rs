@@ -41,7 +41,7 @@ pub mod phi_type_resolver;
 pub mod test_utils;
 
 // Phase 35-5: if_body_local_merge 削除（PhiBuilderBoxに吸収済み）
-// Phase 35-5: phi_invariants 削除（JoinIR Verifierに移譲済み）
+// Phase 35-5: phi_invariants 削除（legacy pathはPhiBuilderBoxのconservative fallback）
 
 // Phase 61-7.0: Dead code 削除
 // 削除された facade 関数:
