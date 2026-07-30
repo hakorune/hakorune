@@ -15,20 +15,20 @@
   "observed_source_order": {
     "finalize_module": [
       {
-        "marker": "function.metadata.value_origin_callers = origin_callers;",
-        "byte_offset": 2480
+        "marker": "PreparedModuleFinalizationFunctionMetadataV1::prepare",
+        "byte_offset": 2354
       },
       {
         "marker": "phi_type_inference::infer_return_type_from_phi(self, &mut function)",
-        "byte_offset": 2835
+        "byte_offset": 2897
       },
       {
         "marker": "function.signature.return_type = inferred_type;",
-        "byte_offset": 2925
+        "byte_offset": 2987
       },
       {
         "marker": "phi_input_materializer::materialize_all_phi_inputs",
-        "byte_offset": 3173
+        "byte_offset": 3235
       }
     ],
     "resolver": [
@@ -41,32 +41,32 @@
         "byte_offset": 410
       },
       {
-        "marker": "builder.type_ctx.value_types.get(v).cloned()",
+        "marker": "builder.function_state.type_ctx.value_types.get(v).cloned()",
         "byte_offset": 456
       },
       {
         "marker": "TypeHintPolicy::is_target(&function.signature.name)",
-        "byte_offset": 734
+        "byte_offset": 749
       },
       {
         "marker": "TypeHintPolicy::extract_phi_type_hint(&function, *v)",
-        "byte_offset": 804
+        "byte_offset": 819
       },
       {
-        "marker": "MethodReturnHintBox::resolve_for_return",
-        "byte_offset": 1232
+        "marker": "resolve_known_return_definition_type",
+        "byte_offset": 1067
       },
       {
-        "marker": "PhiTypeResolver::new(&function, &builder.type_ctx.value_types)",
-        "byte_offset": 2174
+        "marker": "PhiTypeResolver::new(&function, &builder.function_state.type_ctx.value_types)",
+        "byte_offset": 2045
       },
       {
         "marker": "GenericTypeResolver::resolve_from_phi",
-        "byte_offset": 2927
+        "byte_offset": 2813
       },
       {
         "marker": "inferred",
-        "byte_offset": 3289
+        "byte_offset": 3190
       }
     ]
   },
@@ -75,7 +75,7 @@
     "TerminatorReturnOnly",
     "DirectValueTypesLookup",
     "TypeHintPolicyExtract",
-    "MethodReturnHintBox",
+    "KnownReturnDefinitionHint",
     "PhiTypeResolver",
     "GenericTypeResolver",
     "UnknownFallbackOutsideDebug"

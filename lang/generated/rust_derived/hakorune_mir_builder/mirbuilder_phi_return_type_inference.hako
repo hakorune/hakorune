@@ -13,14 +13,14 @@ box PhiReturnTypeInferenceKernel {
 box PhiReturnBuilderShellBox {
     direct_value_type_lookup: i64
     type_hint_policy_checked: i64
-    method_return_hint_checked: i64
+    known_return_definition_hint_checked: i64
     phi_type_resolver_checked: i64
     generic_type_resolver_checked: i64
 
     birth() {
         me.direct_value_type_lookup = 0
         me.type_hint_policy_checked = 0
-        me.method_return_hint_checked = 0
+        me.known_return_definition_hint_checked = 0
         me.phi_type_resolver_checked = 0
         me.generic_type_resolver_checked = 0
     }
@@ -68,7 +68,7 @@ static box PhiReturnTypeInferenceApi {
     infer(builder_state, fn_state): PhiReturnTypeInferenceResultBox {
         builder_state.direct_value_type_lookup = 1
         builder_state.type_hint_policy_checked = 1
-        builder_state.method_return_hint_checked = 1
+        builder_state.known_return_definition_hint_checked = 1
         builder_state.phi_type_resolver_checked = 1
         builder_state.generic_type_resolver_checked = 1
         fn_state.terminator_return_seen = 1
@@ -124,8 +124,8 @@ static box Main {
             print("phi_return_type_hint_policy=fail")
             return 8
         }
-        if builder_state.method_return_hint_checked != 1 {
-            print("phi_return_type_method_hint=fail")
+        if builder_state.known_return_definition_hint_checked != 1 {
+            print("phi_return_type_known_return_definition_hint=fail")
             return 9
         }
         if builder_state.phi_type_resolver_checked != 1 {

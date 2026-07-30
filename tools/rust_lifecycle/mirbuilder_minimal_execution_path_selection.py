@@ -467,7 +467,7 @@ def contract_sources() -> list[dict[str, Any]]:
         "TerminatorReturnOnly",
         "DirectValueTypesLookup",
         "TypeHintPolicyExtract",
-        "MethodReturnHintBox",
+        "KnownReturnDefinitionHint",
         "PhiTypeResolver",
         "GenericTypeResolver",
         "UnknownFallbackOutsideDebug",

@@ -25,7 +25,7 @@ assert plan["resolver_chain"] == [
     "TerminatorReturnOnly",
     "DirectValueTypesLookup",
     "TypeHintPolicyExtract",
-    "MethodReturnHintBox",
+    "KnownReturnDefinitionHint",
     "PhiTypeResolver",
     "GenericTypeResolver",
     "UnknownFallbackOutsideDebug",

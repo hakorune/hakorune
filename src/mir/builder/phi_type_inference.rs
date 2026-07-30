@@ -16,14 +16,13 @@
 //! 4. Environment variables (NYASH_P3*_DEBUG) control output only, not logic
 
 use super::MirBuilder;
-use crate::mir::{MirFunction, MirType};
+use crate::mir::{MirFunction, MirInstruction, MirType, TypeOpKind, ValueId};
+use std::collections::BTreeMap;
 
 // Phase 65.5: 型ヒントポリシーを箱化モジュールから使用
 use crate::mir::join_ir::lowering::type_hint_policy::TypeHintPolicy;
 // Phase 67: P3-C ジェネリック型推論箱
 use crate::mir::join_ir::lowering::generic_type_resolver::GenericTypeResolver;
-// Phase 83: P3-D 既知メソッド戻り値型推論箱
-use crate::mir::join_ir::lowering::method_return_hint::MethodReturnHintBox;
 // Phase 84-2: Copy命令型伝播箱（ChatGPT Pro設計）
 // Phase 84-3: PHI + Copy グラフ型推論箱（ChatGPT Pro設計）
 use crate::mir::phi_core::phi_type_resolver::PhiTypeResolver;
@@ -64,7 +63,7 @@ pub(super) fn classify_phi_resolver_miss_case(
 /// # Multi-phase resolver order (SSOT):
 /// - Phase A: TypeHintPolicy extract (P1/P2/P3-A/B targets)
 /// - Phase B: Direct type lookup from value_types
-/// - Phase D: MethodReturnHintBox (P3-D known method return types)
+/// - Phase D: known return-definition hint (P3-D)
 /// - Phase 4: PhiTypeResolver (P4 PHI+Copy graph DFS)
 /// - Phase C: GenericTypeResolver (P3-C generic type inference)
 ///
@@ -101,19 +100,16 @@ pub(super) fn infer_return_type_from_phi(
             } else {
                 None
             };
-            // Phase 83: P3-D known method return type inference (try before P3-C)
-            //
-            // P3-D directly infers "known method return types".
-            // Gets type from BoxCall method name via same mapping as TypeAnnotationBox.
+            // P3-D: known return-definition hint (try before P4/P3-C).
             if hint.is_none() {
-                if let Some(mt) = MethodReturnHintBox::resolve_for_return(
+                if let Some(mt) = resolve_known_return_definition_type(
                     &function,
                     *v,
                     &builder.function_state.type_ctx.value_types,
                 ) {
                     if crate::config::env::builder_p3d_debug() {
                         crate::runtime::get_global_ring0().log.debug(&format!(
-                            "[lifecycle/p3d] {} type inferred via MethodReturnHintBox: {:?}",
+                            "[lifecycle/p3d] {} type inferred via known return definition: {:?}",
                             function.signature.name, mt
                         ));
                     }
@@ -178,4 +174,128 @@ pub(super) fn infer_return_type_from_phi(
         }
     }
     inferred
+}
+
+/// P3-D: derive a return type from the definition of the returned value.
+///
+/// This is deliberately local to the finalization owner: it observes an
+/// already-built MIR function and delegates the actual method-name policy to
+/// the existing builder annotation helpers.
+fn resolve_known_return_definition_type(
+    function: &MirFunction,
+    return_value: ValueId,
+    value_types: &BTreeMap<ValueId, MirType>,
+) -> Option<MirType> {
+    if let Some(ty) = value_types.get(&return_value) {
+        return Some(ty.clone());
+    }
+
+    for (_block_id, block) in function.blocks.iter() {
+        for instruction in block.instructions.iter() {
+            match instruction {
+                MirInstruction::Call {
+                    dst: Some(dst),
+                    callee:
+                        Some(crate::mir::Callee::Method {
+                            receiver: Some(receiver),
+                            method,
+                            ..
+                        }),
+                    ..
+                } if *dst == return_value => {
+                    if let Some(ty) =
+                        resolve_known_instance_method_return_type(value_types.get(receiver), method)
+                    {
+                        return Some(ty);
+                    }
+                }
+                MirInstruction::Call {
+                    dst: Some(dst),
+                    callee: Some(callee),
+                    ..
+                } if *dst == return_value => {
+                    let ty = resolve_known_callee_return_type(callee);
+                    if ty.is_some() {
+                        return ty;
+                    }
+                }
+                MirInstruction::TypeOp { dst, op, ty, .. } if *dst == return_value => {
+                    return Some(resolve_known_typeop_return_type(op, ty));
+                }
+                _ => {}
+            }
+        }
+    }
+
+    None
+}
+
+fn resolve_known_instance_method_return_type(
+    receiver_type: Option<&MirType>,
+    method: &str,
+) -> Option<MirType> {
+    let box_name = match receiver_type {
+        Some(MirType::Box(name)) => Some(name.as_str()),
+        _ => None,
+    };
+    crate::mir::builder::infer_known_method_return_type(box_name, method, None)
+}
+
+fn resolve_known_callee_return_type(callee: &crate::mir::Callee) -> Option<MirType> {
+    match callee {
+        crate::mir::Callee::Method {
+            box_name, method, ..
+        } => crate::mir::builder::infer_known_method_return_type(
+            Some(box_name.as_str()),
+            method,
+            None,
+        ),
+        crate::mir::Callee::Global(name) => crate::mir::builder::infer_known_return_type(name),
+        _ => None,
+    }
+}
+
+fn resolve_known_typeop_return_type(op: &TypeOpKind, ty: &MirType) -> MirType {
+    match op {
+        TypeOpKind::Check => MirType::Bool,
+        TypeOpKind::Cast => ty.clone(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn known_instance_method_return_types_use_existing_annotation_policy() {
+        let cases = [
+            ("StringBox", "length", Some(MirType::Integer)),
+            ("ArrayBox", "push", Some(MirType::Void)),
+            ("IntegerBox", "str", Some(MirType::String)),
+            ("MapBox", "has", Some(MirType::Bool)),
+            ("UnknownBox", "unknown_method", None),
+        ];
+
+        for (box_name, method, expected) in cases {
+            assert_eq!(
+                resolve_known_instance_method_return_type(
+                    Some(&MirType::Box(box_name.into())),
+                    method,
+                ),
+                expected,
+            );
+        }
+    }
+
+    #[test]
+    fn known_return_definition_typeop_policy_is_exact() {
+        assert_eq!(
+            resolve_known_typeop_return_type(&TypeOpKind::Check, &MirType::Integer),
+            MirType::Bool,
+        );
+        assert_eq!(
+            resolve_known_typeop_return_type(&TypeOpKind::Cast, &MirType::String),
+            MirType::String,
+        );
+    }
 }

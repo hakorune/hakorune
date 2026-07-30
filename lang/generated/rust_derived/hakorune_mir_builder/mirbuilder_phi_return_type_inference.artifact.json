@@ -22,7 +22,7 @@
   "inputs": {
     "facts": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-plan-v0.json",
-      "sha256": "5ae77aaf159a540679e2dc7ee64288693c8d5cf2429998d2c19f6fef2a946a07"
+      "sha256": "511d949962241bd86e7207dd5d9d8a25fcd00cc2c876943cf6e978adfaa8cf98"
     },
     "oracle": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-derived-hako-oracle-v0.json",
@@ -30,7 +30,7 @@
     },
     "plan": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-plan-v0.json",
-      "sha256": "5ae77aaf159a540679e2dc7ee64288693c8d5cf2429998d2c19f6fef2a946a07"
+      "sha256": "511d949962241bd86e7207dd5d9d8a25fcd00cc2c876943cf6e978adfaa8cf98"
     },
     "recipe": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-derived-hako-recipe-v0.json",
@@ -38,13 +38,13 @@
     },
     "verifier": {
       "path": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-phi-return-type-inference-derived-hako-verifier-result-v0.json",
-      "sha256": "14575c04feb26929a97710a1a0228c27ea9b5879a103b438409db168f3b261d8"
+      "sha256": "b3eb2a17d48d565eff304136044d09fa5037550894e9fa46337b08dda2b88772"
     }
   },
   "kind": "RustDerivedHakoArtifact",
   "output": {
     "hako_path": "lang/generated/rust_derived/hakorune_mir_builder/mirbuilder_phi_return_type_inference.hako",
-    "hako_sha256": "a25fd3f52fcfb9cac4dbf7ee99c6778acfb01e951d1fd4623e416c1c2b8bb05e"
+    "hako_sha256": "ab7b57f582fc39faba42cd8c9cb75f3b00eeb119f39d6cbe90f2e75959dd7dbc"
   },
   "pilot_scope": "PhiReturnTypeInference_minimal_literal_profile",
   "schema_version": 0,
@@ -52,7 +52,7 @@
     "rust_files": [
       {
         "path": "src/mir/builder/phi_type_inference.rs",
-        "sha256": "0460714de2087a99b22a1ab8d083acd173470180757ed61d17060af5c758f630"
+        "sha256": "2584c6207b8f980555f066919e6184c419ded3e70163947b09a4535dad87e63a"
       }
     ]
   },

@@ -13,7 +13,7 @@
       "TerminatorReturnOnly",
       "DirectValueTypesLookup",
       "TypeHintPolicyExtract",
-      "MethodReturnHintBox",
+      "KnownReturnDefinitionHint",
       "PhiTypeResolver",
       "GenericTypeResolver",
       "UnknownFallbackOutsideDebug"
@@ -48,7 +48,7 @@
       "TerminatorReturnOnly",
       "DirectValueTypesLookup",
       "TypeHintPolicyExtract",
-      "MethodReturnHintBox",
+      "KnownReturnDefinitionHint",
       "PhiTypeResolver",
       "GenericTypeResolver",
       "UnknownFallbackOutsideDebug"

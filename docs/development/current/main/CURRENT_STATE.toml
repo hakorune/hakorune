@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "DERIVED-CONDITIONFN-SHADOW-RETIRE0-RET0 is closed: the caller-zero condition_fn DerivedShadow bundle and its dedicated guards are retired, while bounded-finalize, function-region-stack, and aggregate evidence no longer claim the deleted edge. JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0 is current; final conformance must verify every named disposition before Ownership, View, or feature work opens."
+status = "JOINMODULE-METHOD-RETURN-HINT-REOWN0-I0-R0 is closed: selected normal finalization now owns its P3-D KnownReturnDefinitionHint observation, and the obsolete JoinIR helper/module edge is deleted. The next boundary is JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0; it must census and decide one bounded retirement or fence before code opens. JumpArgsLayout remains a separate caller-zero core-carrier rehome. Final conformance must verify every named disposition before Ownership, View, or feature work opens."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0"
+current_design_stop = "JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0"
 current_execution_row = ""
-current_execution_summary = "Design the reown boundary for the retained JoinModule CorePlan/MIR carriers. The retired condition_fn DerivedShadow bundle is closed; raw root condition drafts, normal/default routing, Ownership, View, and features remain out of scope."
+current_execution_summary = "Design-only stop: census normalized-shadow JoinModule consumers and select exactly one bounded retire-or-fence disposition. No implementation, normal/default route, JumpArgsLayout move, Ownership, View, or feature work is authorized before the D0 decision."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0 is closed. JoinModule has no normal/default execution route: CorePlan carrier/boundary/type-policy utilities need separate reown decisions; normalized shadows and direct runners are retirement candidates; only explicitly gated VM/LLVM experiments remain reference assets. The current RET0 row removes the already-deleted condition_fn injection DerivedShadow bundle and refreshes dependent evidence. Final conformance, then Ownership, View, and later features remain parked as stated in the workstream."""
+latest_card_summary = """JOINMODULE-METHOD-RETURN-HINT-REOWN0-I0-R0 is closed. P3-D KnownReturnDefinitionHint now lives privately in phi_type_inference; its former JoinIR helper, import, module edge, and file are deleted while resolver order and existing type-annotation policy remain unchanged. JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0 is now the only design stop: it must select one bounded normalized-shadow retirement or fence from a fresh consumer census. JumpArgsLayout remains a separate caller-zero Core/MIR carrier task. Final conformance, then Ownership, View, and later features remain parked as stated in the workstream."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0"
+current_blocker_token = "JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

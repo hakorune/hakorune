@@ -29,11 +29,11 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
-Latest landed: DERIVED-CONDITIONFN-SHADOW-RETIRE0-RET0
-Result:        caller-zero `condition_fn` DerivedShadow bundle retired; its
-               stale finalization/region-stack claims are refreshed
-Latest design: `JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0`
-Executable:    none; stop at the design boundary
+Latest landed: JOINMODULE-METHOD-RETURN-HINT-REOWN0-I0-R0
+Result:        P3-D KnownReturnDefinitionHint is privately reowned by normal
+               finalization; its obsolete JoinIR helper/module edge is deleted
+Latest design: `JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0`
+Executable:    none — design stop
 History:       Git history and the short landed tail below
 ```
 
@@ -65,32 +65,70 @@ DERIVEDSHADOW:
   drafts are a separate live owner and are excluded.
 ```
 
-## Current design stop
+## Current design decision
 
-`JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0` — T2 CorePlan/MIR boundary design
+`JOINMODULE-CORE-CARRIER-BOUNDARY-REOWN0-D0` — T2 CorePlan/MIR boundary design, closed
 
 ```text
-Purpose:
-  select one bounded reown seam for the retained JoinModule carrier and
-  boundary facts without reopening JoinModule as a planner or normal/default
-  execution route.
+Decision: Candidate A — KnownReturnDefinitionHint P3-D reown
 
-Contract:
-  normal/default JoinModule execution remains 0. Raw root condition drafts,
-  normalized shadows, direct runners, VM/LLVM fenced references, Ownership,
-  View, and feature work remain out of scope.
+Named production caller:
+  NormalDefaultPublishedPipelineV1
+  -> finalize_module
+  -> phi_type_inference::infer_return_type_from_phi
 
-Required decision:
-  exact CorePlan/MIR carrier owner, authority transfer, selected live consumer
-  census, same-commit old-edge deletion, and a non-growing sunset condition.
+New owner:
+  private P3-D return-hint observation in phi_type_inference
 
-Stop:
-  do not open an I0 until one live consumer and one removable competing
-  authority are named. No compatibility owner may be introduced without its
-  removal row and measurable sunset condition.
+Atomic old-edge deletion:
+  obsolete P3-D helper import/call/module/file = 0
+
+Policy SSOT:
+  existing builder type annotation helpers; no new type policy
+
+Parity:
+  P3-D remains between TypeHintPolicy/direct lookup and P4/P3-C.
+  grammar, result, route, publication, fallback, and retry deltas = 0.
+
+Rejected/deferred:
+  JumpArgsLayout is a genuine Core/MIR EdgeArgs carrier, but it has no direct
+  normal/default switch and spans 40 Rust files. Reown it only in a later
+  caller-zero Core/MIR type-owner row; do not use a JoinIR re-export alias.
+  JoinInlineBoundary and LoopScopeShape remain normalized-shadow/JoinModule
+  bridge semantics, not current CorePlan ownership.
+```
+
+## Current design stop
+
+`JOINMODULE-NORMALIZED-SHADOW-RETIRE0-D0` — bounded disposition design
+
+```text
+Freshly census normalized-shadow JoinModule consumers and choose exactly one
+bounded retire-or-fence disposition. It may not pre-authorize implementation.
+
+Preserve the now-closed P3-D reown, TypeHintPolicy, GenericTypeResolver, P4,
+raw condition drafts, normal/default routes, Ownership, View, and features.
+JumpArgsLayout remains a separate caller-zero carrier boundary.
+
+Hard stop:
+  any normal/default JoinModule consumer, unresolved direct runner/VM bridge
+  ownership, compatibility expansion, fallback/retry, or a source/check file
+  reaching 800 lines.
 ```
 
 ## Latest closeout
+
+```text
+JOINMODULE-METHOD-RETURN-HINT-REOWN0-I0-R0
+  selected P3-D normal finalization observation                    = private owner
+  obsolete JoinIR helper import/call/module/file                   = 0
+  resolver order / type-annotation policy / grammar / publication  = unchanged
+  focused policy tests / normal parity / candidate reuse / guards  = green
+  fallback / retry                                                 = 0
+  next                                                             = normalized-shadow D0
+```
+
+## Previous closeout
 
 ```text
 DERIVED-CONDITIONFN-SHADOW-RETIRE0-RET0
