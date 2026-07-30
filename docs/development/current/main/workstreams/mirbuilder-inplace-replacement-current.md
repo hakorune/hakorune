@@ -50,7 +50,9 @@ Latest landed:  `NORMAL-SCRIPT-STATEMENT-SURFACE-FALLTHROUGH0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS28-D0` — closed
 Latest design:  `NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-I0-R0`
-Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS29-D0`
+Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS29-D0` — closed
+Latest design:  `NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-D0` — closed
+Next row:      `NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -99,6 +101,65 @@ unregistered family may not become active on a generic prose promise. No second
 fence ledger is permitted.
 
 ## Disposition closeout
+
+`NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-D0` — T1 design, closed
+
+```text
+Decision:
+  one direct selected Script FastMemRegion admission.
+
+Named caller:
+  NormalScriptRuntimeBlockPortV1::lower_statement.
+
+Selected existing owner:
+  build_fastmem_region_with_port_v1.
+
+Atomic delete:
+  selected Script FastMemRegion
+  -> StatementControlCompatibility
+  -> RawCompatibility
+  -> drive_legacy_statement_v1
+  = 0.
+
+Contract:
+  exact FastMemRegion source; statement span aligned once; contract, body,
+  source span, and the same RawInvocation port passed once to the existing
+  register -> push -> body -> pop lifecycle owner.
+
+Failure:
+  register fails before push; typed body failure still pops the inner region
+  and candidate isolation prevents metadata or Builder publication. Panic
+  unwind cleanup and rollback inside the discarded candidate are non-claims.
+
+Evidence:
+  full normal/legacy MIR and metadata parity; same-port body order; typed
+  body failure cleanup; candidate discard and fresh compiler reuse.
+
+Exclude:
+  fastmem lifecycle rewrite; metadata duplication; fresh child port; nested
+  body reclassification; retry/fallback; new source/failure/compat owner.
+```
+
+`MIRBUILDER-LIVE-EDGE-CENSUS29-D0` — read-only census, closed
+
+```text
+Selected:
+  FastMemRegion is the sole safe live T1 edge. Its existing port-aware owner
+  already owns register -> push -> same-port body -> pop and metadata.
+
+NoSafeSlice:
+  LoopRange / Break / Continue require loop/exit/CFG authority.
+  ImportStatement / BuildGate / EnumDeclaration / BrandDeclaration /
+  TypeAliasDeclaration / GlobalVar have no equivalent direct runtime owner.
+
+R4 registry:
+  retain-fenced=2, active compatibility=2, closed=4, unregistered=8.
+  LegacyChildDraftAdmissionV1 remains a separate 37-occurrence / 8-file
+  census metric; it is not a fence count.
+
+Next:
+  NORMAL-SCRIPT-FASTMEM-REGION-DESCENT0-I0-R0.
+```
 
 `NORMAL-SCRIPT-IF-STATEMENT-DESCENT0-I0-R0` — T1 atomic replacement,
 closed
