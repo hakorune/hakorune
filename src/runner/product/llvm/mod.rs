@@ -7,7 +7,6 @@ mod error;
 mod exit_reporter;
 mod fallback_executor;
 mod harness_executor;
-mod joinir_experiment;
 mod method_id_injector;
 mod mir_compiler;
 mod pipeline_plan;
@@ -111,13 +110,6 @@ impl NyashRunner {
             0
         };
         pipeline_report.method_id_injector_mutation_count = _injected;
-
-        // Phase 32 L-4.3a: JoinIR LLVM experiment hook
-        let module = if pipeline_plan.joinir_experiment_hook_enabled {
-            joinir_experiment::JoinIrExperimentBox::apply(module)
-        } else {
-            module
-        };
 
         // Dev/Test helper: allow executing via PyVM harness when requested
         match pyvm_executor::PyVmExecutorBox::try_execute(&module) {

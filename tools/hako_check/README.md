@@ -669,8 +669,8 @@ LLVM Pipeline Inventory
   only; it does not compile, execute LLVM, call PyVM, emit objects, or choose a
   backend.
 - Use this before changing LLVM runner structure so `NYASH_REWRITE_FUTURE`,
-  `method_id_injector`, `joinir_experiment`, PyVM, harness, and mock fallback
-  visibility are explicit.
+  `method_id_injector`, PyVM, harness, and mock fallback visibility are
+  explicit.
 - Stable v0 entry:
 
 ```bash
@@ -696,10 +696,6 @@ method_id_injector_stage_present
 method_id_injector_called
 method_id_injector_noop_stub
 method_id_injector_mutation_count
-joinir_experiment_hook_called
-joinir_experiment_feature_gate
-joinir_experiment_env_gate
-joinir_experiment_fallback_policy
 pyvm_executor_stage_present
 pyvm_reachable
 pyvm_gate=SMOKES_USE_PYVM
@@ -731,9 +727,6 @@ summary=ok
     future `CompileOptions` cleanup, not a behavior change.
   - `method_id_injector_mutation_count=0` means the stage remains present in
     the runner, but the pass is currently a retired compatibility no-op.
-  - `joinir_experiment_fallback_policy=original_mir` means the experiment hook
-    can return the original MIR when disabled or when the narrow JoinIR route
-    does not apply.
   - `pyvm_reachable=1` and `pyvm_daily_route=0` means PyVM is withdrawn from
     the daily/product owner path but still reachable by `SMOKES_USE_PYVM=1`
     diagnostic smokes.

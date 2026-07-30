@@ -15,8 +15,6 @@ pub struct LlvmPipelineReport {
     pub mir_future_rewrite_route: &'static str,
     pub method_id_injector_plan_enabled: bool,
     pub method_id_injector_mutation_count: usize,
-    pub joinir_experiment_hook_plan_enabled: bool,
-    pub pipeline_joinir_experiment_enabled: bool,
     pub execution_backend: &'static str,
     pub llvm_fallback_used: bool,
     pub llvm_fallback_reason: &'static str,
@@ -34,8 +32,6 @@ impl LlvmPipelineReport {
             mir_future_rewrite_route: plan.compile_options.future_rewrite_route.report_value(),
             method_id_injector_plan_enabled: plan.method_id_injector_enabled,
             method_id_injector_mutation_count: 0,
-            joinir_experiment_hook_plan_enabled: plan.joinir_experiment_hook_enabled,
-            pipeline_joinir_experiment_enabled: joinir_experiment_enabled_for_llvm(),
             execution_backend: "not_selected",
             llvm_fallback_used: false,
             llvm_fallback_reason: "none",
@@ -100,18 +96,6 @@ fn write_report(path: &str, report: &LlvmPipelineReport) -> std::io::Result<()> 
     .unwrap();
     writeln!(
         out,
-        "pipeline_joinir_experiment_enabled={}",
-        report.pipeline_joinir_experiment_enabled as u8
-    )
-    .unwrap();
-    writeln!(
-        out,
-        "joinir_experiment_hook_plan_enabled={}",
-        report.joinir_experiment_hook_plan_enabled as u8
-    )
-    .unwrap();
-    writeln!(
-        out,
         "method_id_injector_mutation_count={}",
         report.method_id_injector_mutation_count
     )
@@ -138,16 +122,4 @@ fn write_report(path: &str, report: &LlvmPipelineReport) -> std::io::Result<()> 
     writeln!(out, "winner_claim=0").unwrap();
     writeln!(out, "summary=ok").unwrap();
     std::fs::write(path, out)
-}
-
-#[cfg(feature = "llvm-harness")]
-fn joinir_experiment_enabled_for_llvm() -> bool {
-    crate::config::env::joinir_experiment_enabled()
-        && crate::config::env::joinir_llvm_experiment_enabled()
-        && crate::config::env::llvm_use_harness()
-}
-
-#[cfg(not(feature = "llvm-harness"))]
-fn joinir_experiment_enabled_for_llvm() -> bool {
-    false
 }

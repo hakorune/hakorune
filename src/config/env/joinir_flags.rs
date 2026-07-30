@@ -56,14 +56,6 @@ pub fn joinir_vm_bridge_debug() -> bool {
     env_bool("NYASH_JOINIR_VM_BRIDGE_DEBUG")
 }
 
-/// JoinIR LLVM experiment mode. When enabled with NYASH_JOINIR_EXPERIMENT=1,
-/// enables experimental JoinIR→MIR'→LLVM path for specific functions (e.g., Main.skip/1).
-/// This is a dev-only toggle for testing PHI normalization via JoinIR in the LLVM path.
-/// Set NYASH_JOINIR_LLVM_EXPERIMENT=1 to enable.
-pub fn joinir_llvm_experiment_enabled() -> bool {
-    joinir_core_enabled() && env_bool("NYASH_JOINIR_LLVM_EXPERIMENT")
-}
-
 /// Phase 33: JoinIR If Select 実験の有効化
 /// Primary: HAKO_JOINIR_IF_SELECT (Phase 33-8+).
 pub fn joinir_if_select_enabled() -> bool {

@@ -67,11 +67,6 @@ pub fn lower_from_mir_enabled() -> bool {
     env_bool("NYASH_JOINIR_LOWER_FROM_MIR")
 }
 
-/// NYASH_JOINIR_LLVM_EXPERIMENT=1 - LLVM experimental mode
-pub fn llvm_experiment_enabled() -> bool {
-    env_bool("NYASH_JOINIR_LLVM_EXPERIMENT")
-}
-
 /// HAKO_JOINIR_IF_TOPLEVEL=1 - Enable If-select for top-level if statements
 pub fn if_toplevel_enabled() -> bool {
     env_bool("HAKO_JOINIR_IF_TOPLEVEL")

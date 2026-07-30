@@ -9,7 +9,6 @@ use super::compile_options::LlvmCompileOptions;
 pub struct LlvmPipelinePlan {
     pub compile_options: LlvmCompileOptions,
     pub method_id_injector_enabled: bool,
-    pub joinir_experiment_hook_enabled: bool,
 }
 
 impl LlvmPipelinePlan {
@@ -17,7 +16,6 @@ impl LlvmPipelinePlan {
         Self {
             compile_options: LlvmCompileOptions::current_default(),
             method_id_injector_enabled: true,
-            joinir_experiment_hook_enabled: true,
         }
     }
 }

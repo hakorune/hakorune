@@ -508,7 +508,6 @@ LoopBuilder は物理削除済みで、JoinIR を OFF にするモードは存�
 | `HAKO_JOINIR_IF_SELECT` | OFF | IfSelect/IfMerge JoinIR 経路。エイリアス `NYASH_JOINIR_IF_SELECT` は Deprecated。 |
 | `HAKO_JOINIR_IF_IN_LOOP_ENABLE` | OFF | if-in-loop JoinIR 本線切替（Core 候補）。 |
 | `NYASH_JOINIR_VM_BRIDGE` | OFF | `vm-reference` build の explicit `--backend vm` compatibility bridge を有効化。 |
-| `NYASH_JOINIR_LLVM_EXPERIMENT` | OFF | LLVM 経路 JoinIR 実験（ハーネス専用）。Core 判定に含まれる。 |
 | ~~`NYASH_HAKO_CHECK_JOINIR`~~ | 削除済み | **Phase 124 で削除**: hako_check は JoinIR 専用化。環境変数不要。 |
 
 補足:
@@ -567,11 +566,6 @@ env NYASH_FEATURES=stage3 ./target/release/hakorune program.hako
 
 # VM bridge Route B（explicit VM compatibility）
 env NYASH_FEATURES=stage3 NYASH_JOINIR_VM_BRIDGE=1 ./target/release/hakorune --backend vm program.hako
-
-# LLVM ハーネス JoinIR 実験（explicit keep lane）
-env NYASH_FEATURES=stage3 NYASH_LLVM_USE_HARNESS=1 \
-    NYASH_JOINIR_EXPERIMENT=1 NYASH_JOINIR_LLVM_EXPERIMENT=1 \
-    ./target/release/hakorune --backend llvm apps/tests/minimal_ssa_skip_ws.hako
 ```
 
 詳細: [ENV_INVENTORY.md](../private/roadmap2/phases/phase-29-longterm-joinir-full/ENV_INVENTORY.md) / [Phase 72 フラグ整理](../private/roadmap2/phases/phase-72-joinir-dev-flags/README.md)

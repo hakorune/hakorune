@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS37-D0 is closed. It selects the live LLVM JoinModule experiment route for RET0 because the opt-in Main.skip/1 mutation is a competing production authority and silently returns the original MIR on failure. LLVM-JOINMODULE-EXPERIMENT-ROUTE-RETIRE0-RET0 is the only executable row."
+status = "LLVM-JOINMODULE-EXPERIMENT-ROUTE-RETIRE0-RET0 is closed. The LLVM-only JoinModule Main.skip/1 mutation hook, its original-MIR fallback, pipeline plan/report fields, environment switch/accessors, and current tooling/docs surface are deleted. Shared JoinModule lowering/model, VM bridge, normalized-shadow dev fence, and NYASH_JOINIR_EXPERIMENT remain. MIRBUILDER-LIVE-EDGE-CENSUS38-D0 is the only read-only design stop."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "LLVM-JOINMODULE-EXPERIMENT-ROUTE-RETIRE0-RET0"
-current_execution_summary = "T2 atomic RET0. Delete the LLVM runner JoinIrExperimentBox hook, its pipeline-plan/report fields, LLVM-only environment flag/functions, and current tooling/docs evidence. Preserve shared JoinModule lowering/model, VM bridge, normalized-shadow dev fence, and NYASH_JOINIR_EXPERIMENT. Do not replace the route, retain a forwarding facade, or move its silent original-MIR fallback."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS38-D0"
+current_execution_row = "none"
+current_execution_summary = "Read-only Census38. Re-inventory the four unregistered R4 families, four retained fences, exact live normalized-dev/VM JoinModule consumers, and bounded caller-zero assets after LLVM experiment retirement. Update the sole R4 registry before selecting at most one RET0, REOWN, or RETAIN-FENCED disposition. Do not edit production code, create a second fence ledger, or advance Ownership/View."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

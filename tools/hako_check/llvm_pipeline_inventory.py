@@ -33,8 +33,6 @@ def build_inventory(root: Path) -> dict[str, str | int]:
     normalize = read_text(root, "src/mir/optimizer_passes/normalize.rs")
     method_wrapper = read_text(root, "src/runner/product/llvm/method_id_injector.rs")
     method_pass = read_text(root, "src/mir/passes/method_id_inject.rs")
-    joinir = read_text(root, "src/runner/product/llvm/joinir_experiment.rs")
-    joinir_flags = read_text(root, "src/config/env/joinir_flags.rs")
     pyvm = read_text(root, "src/runner/product/llvm/pyvm_executor.rs")
     legacy_pyvm = read_text(root, "src/runner/modes/common_util/legacy/pyvm.rs")
     harness = read_text(root, "src/runner/product/llvm/harness_executor.rs")
@@ -61,21 +59,6 @@ def build_inventory(root: Path) -> dict[str, str | int]:
     method_wrapper_calls_pass = "inject_method_ids(module)" in method_wrapper
     method_pass_noop = "nothing to inject" in method_pass and "0" in method_pass
 
-    joinir_called = "JoinIrExperimentBox::apply" in llvm_mod
-    joinir_feature_gated = '#[cfg(feature = "llvm-harness")]' in joinir
-    joinir_env_gated = (
-        "joinir_experiment_enabled()" in joinir
-        and "joinir_llvm_experiment_enabled()" in joinir
-        and "llvm_use_harness()" in joinir
-        and "NYASH_JOINIR_EXPERIMENT" in joinir_flags
-        and "NYASH_JOINIR_LLVM_EXPERIMENT" in joinir_flags
-    )
-    joinir_original_fallback = (
-        "return module;" in joinir
-        and "Falling back to original MIR" in joinir
-        and "using original MIR" in joinir
-    )
-
     pyvm_stage = "PyVmExecutorBox::try_execute" in llvm_mod
     pyvm_reachable = "SMOKES_USE_PYVM" in pyvm and "run_pyvm_harness_lib" in legacy_pyvm
     pyvm_not_daily = "historical/diagnostic" in pyvm_retreat or "diagnostic" in pyvm_retreat
@@ -100,10 +83,6 @@ def build_inventory(root: Path) -> dict[str, str | int]:
         "method_id_injector_called": method_called,
         "method_id_injector_wrapper_calls_pass": method_wrapper_calls_pass,
         "method_id_injector_noop_stub": method_pass_noop,
-        "joinir_experiment_hook_called": joinir_called,
-        "joinir_experiment_feature_gated": joinir_feature_gated,
-        "joinir_experiment_env_gated": joinir_env_gated,
-        "joinir_experiment_original_mir_fallback": joinir_original_fallback,
         "pyvm_executor_stage_present": pyvm_stage,
         "pyvm_reachable": pyvm_reachable,
         "pyvm_daily_route": not pyvm_not_daily,
@@ -140,15 +119,6 @@ def build_inventory(root: Path) -> dict[str, str | int]:
         "method_id_injector_wrapper_calls_pass": bit(method_wrapper_calls_pass),
         "method_id_injector_noop_stub": bit(method_pass_noop),
         "method_id_injector_mutation_count": 0,
-        "joinir_experiment_hook_called": bit(joinir_called),
-        "joinir_experiment_feature_gate": "llvm-harness",
-        "joinir_experiment_feature_gated": bit(joinir_feature_gated),
-        "joinir_experiment_env_gate": (
-            "NYASH_JOINIR_EXPERIMENT+NYASH_JOINIR_LLVM_EXPERIMENT+NYASH_LLVM_USE_HARNESS"
-        ),
-        "joinir_experiment_env_gated": bit(joinir_env_gated),
-        "joinir_experiment_fallback_policy": "original_mir",
-        "joinir_experiment_original_mir_fallback": bit(joinir_original_fallback),
         "pyvm_executor_stage_present": bit(pyvm_stage),
         "pyvm_reachable": bit(pyvm_reachable),
         "pyvm_gate": "SMOKES_USE_PYVM",

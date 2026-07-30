@@ -97,7 +97,7 @@ tools/checks/env_dead_accessors_report.sh
 | `NYASH_STR_CP` | bool | false | String copy semantics | 低 |
 | `NYASH_BLOCK_CATCH` | bool | false | Block catch support | 低 |
 
-### C. JoinIR系 (17個)
+### C. JoinIR系 (16個)
 
 | 変数名 | 型 | デフォルト | 目的 | 使用頻度 |
 |--------|------|----------|------|----------|
@@ -107,7 +107,6 @@ tools/checks/env_dead_accessors_report.sh
 | `HAKO_JOINIR_DEBUG` | bool | false | JoinIR debug | 高 |
 | `NYASH_JOINIR_DEBUG` | bool | false | (レガシー) Use HAKO_JOINIR_DEBUG | 低 |
 | `HAKO_JOINIR_STRICT` | bool | false | JoinIR strict mode | 中 |
-| `NYASH_JOINIR_LLVM_EXPERIMENT` | bool | false | JoinIR LLVM experiment | 低 |
 | `HAKO_JOINIR_PLANNER_REQUIRED` | bool | false | Planner required mode | 低 |
 | `HAKO_JOINIR_CANON_STRICT` | bool | false | Canon strict mode | 低 |
 | `HAKO_JOINIR_FACTS_ONLY` | bool | false | Facts only mode | 低 |
