@@ -4,10 +4,9 @@
 //!
 //! ## Overview
 //!
-//! This module provides Case A lowering for three minimal SSA loop route shapes:
+//! This module provides Case A lowering for two minimal SSA loop route shapes:
 //! - **skip_ws**: Whitespace skipping loop (Main.skip/1)
 //! - **trim**: String trimming loop (FuncScannerBox.trim/1)
-//! - **stage1_using_resolver**: lower-resolver compatibility loop (Stage1UsingResolverBox.resolve_for_source/5)
 //!
 //! ## Architecture
 //!
@@ -17,7 +16,6 @@
 //!
 //! - `skip_ws` - Skip whitespace loop lowering (~220 lines)
 //! - `trim` - String trim loop lowering (~500 lines, largest)
-//! - `stage1_using_resolver` - lower-resolver loop lowering (~180 lines)
 //!
 //! ### Helper Modules (Shared Utilities)
 //!
@@ -70,7 +68,6 @@
 
 // Route-specific lowering modules
 pub mod skip_ws;
-pub mod stage1_using_resolver;
 pub mod trim;
 
 // Helper modules
@@ -78,7 +75,6 @@ pub mod entry_builder;
 
 // Re-export public lowering functions
 pub(crate) use skip_ws::lower_case_a_skip_ws_with_scope;
-pub(crate) use stage1_using_resolver::lower_case_a_stage1_usingresolver_with_scope;
 pub(crate) use trim::lower_case_a_trim_with_scope;
 
 // Re-export helper utilities

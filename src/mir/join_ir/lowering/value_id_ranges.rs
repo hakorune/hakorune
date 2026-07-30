@@ -9,19 +9,16 @@
 //! |-------------------------|------------|--------|--------|-------|
 //! | skip_ws                 | 3000-4999  | 3000+  | 4000+  | Skip whitespace |
 //! | funcscanner_trim        | 5000-6999  | 5000+  | 6000+  | Trim whitespace |
-//! | stage1_using_resolver   | 7000-8999  | 7000+  | 8000+  | lower-resolver compatibility pass |
-//! | stageb_body_extract     | 11000-12999| 11000+ | 12000+ | mode-B compatibility body extractor |
-//! | stageb_funcscanner      | 13000-14999| 13000+ | 14000+ | mode-B compatibility FuncScanner |
 //!
 //! ## Usage Example
 //!
 //! ```rust,ignore
-//! use crate::mir::join_ir::lowering::value_id_ranges::stage1_using_resolver as vid;
+//! use crate::mir::join_ir::lowering::value_id_ranges::skip_ws as vid;
 //!
-//! let entries_param = vid::entry(0);      // ValueId(7000)
-//! let n_param = vid::entry(1);            // ValueId(7001)
-//! let entries_loop = vid::loop_step(0);   // ValueId(8000)
-//! let n_loop = vid::loop_step(1);         // ValueId(8001)
+//! let s_param = vid::entry(0);             // ValueId(3000)
+//! let n_param = vid::entry(1);             // ValueId(3001)
+//! let s_loop = vid::loop_step(0);          // ValueId(4000)
+//! let n_loop = vid::loop_step(1);          // ValueId(4001)
 //! ```
 //!
 //! ## Future Extensions
@@ -39,15 +36,6 @@ pub mod base {
 
     /// funcscanner_trim: Trim whitespace loop (5000-6999)
     pub const FUNCSCANNER_TRIM: u32 = 5000;
-
-    /// stage1_using_resolver: lower-resolver compatibility entries loop (7000-8999)
-    pub const STAGE1_USING_RESOLVER: u32 = 7000;
-
-    /// stageb_body_extract: mode-B compatibility body extractor loop (11000-12999)
-    pub const STAGEB_BODY_EXTRACT: u32 = 11000;
-
-    /// stageb_funcscanner: mode-B compatibility FuncScanner scan_all_boxes loop (13000-14999)
-    pub const STAGEB_FUNCSCANNER: u32 = 13000;
 }
 
 /// Helper function to create ValueId from base + offset
@@ -94,60 +82,6 @@ pub mod funcscanner_trim {
     }
 }
 
-/// ValueId helpers for stage1_using_resolver lowering module
-pub mod stage1_using_resolver {
-    use super::{base, id};
-    use crate::mir::ValueId;
-
-    /// Entry function ValueIds (7000-7999)
-    #[inline]
-    pub const fn entry(offset: u32) -> ValueId {
-        id(base::STAGE1_USING_RESOLVER, offset)
-    }
-
-    /// Loop function ValueIds (8000-8999)
-    #[inline]
-    pub const fn loop_step(offset: u32) -> ValueId {
-        id(base::STAGE1_USING_RESOLVER, 1000 + offset)
-    }
-}
-
-/// ValueId helpers for mode-B compatibility body extractor lowering module
-pub mod stageb_body_extract {
-    use super::{base, id};
-    use crate::mir::ValueId;
-
-    /// Entry function ValueIds (11000-11999)
-    #[inline]
-    pub const fn entry(offset: u32) -> ValueId {
-        id(base::STAGEB_BODY_EXTRACT, offset)
-    }
-
-    /// Loop function ValueIds (12000-12999)
-    #[inline]
-    pub const fn loop_step(offset: u32) -> ValueId {
-        id(base::STAGEB_BODY_EXTRACT, 1000 + offset)
-    }
-}
-
-/// ValueId helpers for mode-B compatibility FuncScanner lowering module
-pub mod stageb_funcscanner {
-    use super::{base, id};
-    use crate::mir::ValueId;
-
-    /// Entry function ValueIds (13000-13999)
-    #[inline]
-    pub const fn entry(offset: u32) -> ValueId {
-        id(base::STAGEB_FUNCSCANNER, offset)
-    }
-
-    /// Loop function ValueIds (14000-14999)
-    #[inline]
-    pub const fn loop_step(offset: u32) -> ValueId {
-        id(base::STAGEB_FUNCSCANNER, 1000 + offset)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -180,18 +114,12 @@ mod tests {
         // Test each module's range boundaries
         test_value_id_range!(skip_ws, 3000, 4000);
         test_value_id_range!(funcscanner_trim, 5000, 6000);
-        test_value_id_range!(stage1_using_resolver, 7000, 8000);
-        test_value_id_range!(stageb_body_extract, 11000, 12000);
-        test_value_id_range!(stageb_funcscanner, 13000, 14000);
 
         // Automated overlap detection
         // Each range is 2000 units: (base, base+1999)
         let ranges = vec![
-            (3000, 4999),   // skip_ws
-            (5000, 6999),   // funcscanner_trim
-            (7000, 8999),   // stage1_using_resolver
-            (11000, 12999), // stageb_body_extract
-            (13000, 14999), // stageb_funcscanner
+            (3000, 4999), // skip_ws
+            (5000, 6999), // funcscanner_trim
         ];
 
         // Verify no overlaps between consecutive ranges

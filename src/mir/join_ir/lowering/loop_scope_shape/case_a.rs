@@ -13,7 +13,6 @@ use super::structural::LoopStructuralAnalysis;
 pub(crate) enum CaseAMinimalTargetKind {
     SkipWhitespace,
     Trim,
-    Stage1UsingResolver,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -30,10 +29,6 @@ const CASE_A_MINIMAL_TARGETS: &[CaseAMinimalTargetDesc] = &[
     CaseAMinimalTargetDesc {
         func_name: "FuncScannerBox.trim/1",
         kind: CaseAMinimalTargetKind::Trim,
-    },
-    CaseAMinimalTargetDesc {
-        func_name: "Stage1UsingResolverBox.resolve_for_source/5",
-        kind: CaseAMinimalTargetKind::Stage1UsingResolver,
     },
 ];
 
@@ -59,7 +54,6 @@ pub(crate) fn case_a_minimal_target_name(kind: CaseAMinimalTargetKind) -> &'stat
 ///
 /// - `Main.skip/1`: minimal_ssa_skip_ws.hako
 /// - `FuncScannerBox.trim/1`: funcscanner_trim_min.hako
-/// - `Stage1UsingResolverBox.resolve_for_source/5`: stage1_using_resolver minimal
 ///
 /// # Phase 48-5: 構造ベース判定への移行
 ///
@@ -113,10 +107,6 @@ mod tests {
         for (name, kind) in [
             ("Main.skip/1", CaseAMinimalTargetKind::SkipWhitespace),
             ("FuncScannerBox.trim/1", CaseAMinimalTargetKind::Trim),
-            (
-                "Stage1UsingResolverBox.resolve_for_source/5",
-                CaseAMinimalTargetKind::Stage1UsingResolver,
-            ),
         ] {
             let target = find_case_a_minimal_target(name)
                 .expect("Case-A minimal target should stay accepted");
@@ -130,6 +120,7 @@ mod tests {
     fn case_a_minimal_target_table_rejects_non_subset_loop_targets() {
         for name in [
             "FuncScannerBox.append_defs/2",
+            "Stage1UsingResolverBox.resolve_for_source/5",
             "StageBBodyExtractorBox.build_body_src/2",
             "StageBFuncScannerBox.scan_all_boxes/1",
             "IfSelectTest.simple_return/0",

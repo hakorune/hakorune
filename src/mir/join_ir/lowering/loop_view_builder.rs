@@ -169,7 +169,7 @@ impl LoopViewBuilder {
     /// # Shape種別
     ///
     /// - **StringExamination**: skip_ws lowerer
-    /// - **IterationWithAccumulation**: lower-resolver lowerer
+    /// - **IterationWithAccumulation**: 名前ベースdispatch
     /// - **Generic/NotCaseA**: 名前ベースフォールバック
     fn dispatch_by_shape(
         &self,
@@ -189,10 +189,10 @@ impl LoopViewBuilder {
             CaseALoweringShape::IterationWithAccumulation => {
                 if self.debug {
                     get_global_ring0().log.debug(
-                        "[LoopViewBuilder] Shape: IterationWithAccumulation → lower-resolver lowerer",
+                        "[LoopViewBuilder] Shape: IterationWithAccumulation → name-based dispatch",
                     );
                 }
-                generic_case_a::lower_case_a_stage1_usingresolver_with_scope(scope)
+                self.dispatch_by_name(scope, name)
             }
             CaseALoweringShape::Generic | CaseALoweringShape::NotCaseA => {
                 if self.debug {
@@ -240,14 +240,6 @@ impl LoopViewBuilder {
                         .debug("[LoopViewBuilder] [fallback] dispatching to trim lowerer");
                 }
                 generic_case_a::lower_case_a_trim_with_scope(scope)
-            }
-            CaseAMinimalTargetKind::Stage1UsingResolver => {
-                if self.debug {
-                    get_global_ring0().log.debug(
-                        "[LoopViewBuilder] [fallback] dispatching to lower-resolver lowerer",
-                    );
-                }
-                generic_case_a::lower_case_a_stage1_usingresolver_with_scope(scope)
             }
         }
     }

@@ -10,7 +10,6 @@
 //! - `value_id_ranges.rs`: ValueId 範囲管理（Phase 27.13+）
 //! - `skip_ws.rs`: Main.skip/1 の空白スキップ lowering（手書き版＋MIR自動解析版）
 //! - `funcscanner_trim.rs`: FuncScannerBox.trim/1 の trim lowering
-//! - `stage1_using_resolver.rs`: lower-resolver compatibility entries loop lowering（Phase 27.12）
 //! - `if_select.rs`: Phase 33 If/Else → Select lowering
 //! - `if_dry_runner.rs`: Phase 33-10 If lowering dry-run スキャナー（箱化版）
 //! - `if_lowering_router.rs`: Phase 33-12 If-expression routing (Select/IfMerge dispatcher)
@@ -49,9 +48,6 @@ pub mod method_call_lowerer; // Phase 224-B: MethodCall lowering (metadata-drive
 pub mod scope_manager; // Phase 231: Unified variable scope management // Phase 195: loop_continue_only minimal lowerer support
 pub mod simple_while_minimal; // Phase 188-Impl-1: loop_simple_while minimal lowerer
 pub mod skip_ws;
-pub mod stage1_using_resolver;
-pub mod stageb_body;
-pub mod stageb_funcscanner;
 pub mod type_inference; // Phase 65-2-A
 pub mod user_method_policy; // Phase 252: User-defined method policy (SSOT for static box method whitelists) // Phase 47-A: Generic step scheduler for loop_break/if_phi_join // Phase 73: BindingId-based scope PoC (dev-only)
 pub(crate) mod value_id_ranges; // Internal ValueId range management
@@ -63,9 +59,6 @@ pub use inline_boundary_builder::JoinInlineBoundaryBuilder;
 // Phase 31: LoopToJoinLowerer 統一箱
 pub use loop_to_join::LoopToJoinLowerer;
 pub use skip_ws::lower_skip_ws_to_joinir;
-pub use stage1_using_resolver::lower_stage1_usingresolver_to_joinir;
-pub use stageb_body::lower_stageb_body_to_joinir;
-pub use stageb_funcscanner::lower_stageb_funcscanner_to_joinir;
 
 pub use if_lowering_router::try_lower_if_to_joinir;
 

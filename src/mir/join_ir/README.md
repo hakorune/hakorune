@@ -59,9 +59,6 @@ Prefer cleaning this subtree by sub-box, not by moving the whole directory at on
 - `lowering` target-specific lowerers
   - `skip_ws.rs`
   - `funcscanner_trim.rs`
-  - `stage1_using_resolver.rs`
-  - `stageb_body.rs`
-  - `stageb_funcscanner.rs`
 - `lowering/generic_case_a/*`
   - active Case-A loop lowerers, including the append-defs effect-step shape
 - bridge fence
@@ -118,8 +115,7 @@ Active lowering / bridge surfaces:
 - `lowering/generic_case_a/*`
 - `lowering/loop_to_join/*`
 - `lowering/loop_scope_shape/*`
-- target-specific lowerers such as `skip_ws.rs`, `funcscanner_trim.rs`,
-  `stage1_using_resolver.rs`, `stageb_body.rs`, and `stageb_funcscanner.rs`
+- target-specific lowerers such as `skip_ws.rs` and `funcscanner_trim.rs`
 - bridge fence: `join_ir_vm_bridge/` and `join_ir_vm_bridge_dispatch/`
 
 Retired:

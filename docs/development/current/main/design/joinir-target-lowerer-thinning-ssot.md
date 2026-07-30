@@ -41,9 +41,6 @@ Active target-specific lowerers:
 src/mir/join_ir/lowering/skip_ws.rs
 src/mir/join_ir/lowering/funcscanner_trim.rs
 src/mir/join_ir/lowering/funcscanner_trim/dispatch.rs
-src/mir/join_ir/lowering/stage1_using_resolver.rs
-src/mir/join_ir/lowering/stageb_body.rs
-src/mir/join_ir/lowering/stageb_funcscanner.rs
 src/mir/join_ir/lowering/generic_case_a/*
 ```
 
@@ -106,8 +103,10 @@ explicit VM bridge
 ```
 
 `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0` retires that dispatch
-surface. The three target-specific lowerers and direct evidence remain active,
-but VM dispatch no longer owns or invokes them as observations.
+surface. `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0` then
+retires the three caller-zero target lowerers and their exclusive evidence.
+The neutral five-name Loop/If policy remains active; only skip/trim retain VM
+Exec routes.
 
 ### Dry-Run / Observation
 
@@ -223,52 +222,22 @@ non-claim:
 #### `Stage1UsingResolverBox.resolve_for_source/5`
 
 ```text
-bridge_kind: none (target-specific lowering evidence only)
-lowerer_entry: lower_stage1_usingresolver_to_joinir
-route_shape:
-  dispatch through dispatch_lowering
-  MIR path checks entry CFG / Const(0)
-  optional LoopForm construction
-  optional LoopToJoinLowerer::lower_case_a_for_stage1_resolver
-  otherwise shared builder
-fallback:
-  MIR/generic failure -> handwritten builder
-execution:
-  no VM observation route
+status: retired by JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0
+reason: no production or retained explicit-VM caller after LowerOnly observation retirement
 ```
 
 #### `StageBBodyExtractorBox.build_body_src/2`
 
 ```text
-bridge_kind: none (target-specific lowering evidence only)
-lowerer_entry: lower_stageb_body_to_joinir
-route_shape:
-  dispatch through dispatch_lowering
-  MIR path checks entry CFG
-  optional LoopForm construction
-  optional LoopToJoinLowerer::lower_case_a_for_stageb_body
-  otherwise shared builder
-fallback:
-  MIR/generic failure -> handwritten builder
-execution:
-  no VM observation route
+status: retired by JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0
+reason: no production or retained explicit-VM caller after LowerOnly observation retirement
 ```
 
 #### `StageBFuncScannerBox.scan_all_boxes/1`
 
 ```text
-bridge_kind: none (target-specific lowering evidence only)
-lowerer_entry: lower_stageb_funcscanner_to_joinir
-route_shape:
-  dispatch through dispatch_lowering
-  MIR path checks entry CFG
-  optional LoopForm construction
-  optional LoopToJoinLowerer::lower_case_a_for_stageb_funcscanner
-  otherwise shared builder
-fallback:
-  MIR/generic failure -> handwritten builder
-execution:
-  no VM observation route
+status: retired by JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0
+reason: no production or retained explicit-VM caller after LowerOnly observation retirement
 ```
 
 Shared repetition visible after this inventory:
@@ -338,23 +307,6 @@ trim:
   has_break=true
   route entrypoint=lower_case_a_for_trim
   note: string-pattern CFG checks stay route-local before the adapter call
-
-stageb_body:
-  entry_is_preheader=true
-  has_break=true
-  route entrypoint=lower_case_a_for_stageb_body
-
-stageb_funcscanner:
-  entry_is_preheader=true
-  has_break=true
-  route entrypoint=lower_case_a_for_stageb_funcscanner
-```
-
-Not yet moved:
-
-```text
-stage1_using_resolver:
-  has a params_len guard and a not-simple debug branch.
 
 skip_ws:
   has a target-local minimal LoopForm construction path.
@@ -428,17 +380,6 @@ common/string_whitespace.rs:
   used by handwritten trim and generic Case-A trim
   does not own route acceptance or fallback policy
 
-stage1_using_resolver.rs:
-  route facade only
-  owns public lower_stage1_usingresolver_to_joinir entry
-
-stage1_using_resolver/builder.rs:
-  route-local handwritten/shared JoinIR construction
-
-stage1_using_resolver/dispatch.rs:
-  MIR-vs-handwritten dispatch
-  owns stage1-specific params_len guard and diagnostics
-
 skip_ws.rs:
   route facade only
   owns public lower_skip_ws_to_joinir entry
@@ -454,29 +395,14 @@ skip_ws/generic_probe.rs:
   route-local minimal LoopForm canary
   not routed through common/target_adapter.rs
 
-stageb_funcscanner.rs:
-  route facade only
-  owns public lower_stageb_funcscanner_to_joinir entry
-
-stageb_funcscanner/builder.rs:
-  route-local handwritten/shared JoinIR construction
-
-stageb_funcscanner/dispatch.rs:
-  MIR-vs-handwritten dispatch and route-local generic Case-A hook
-
-stageb_body.rs:
-  route facade only
-  owns public lower_stageb_body_to_joinir entry
-
-stageb_body/builder.rs:
-  route-local handwritten/shared JoinIR construction
-
-stageb_body/dispatch.rs:
-  MIR-vs-handwritten dispatch and route-local generic Case-A hook
+Former LowerOnly-only Stage1/mode-B target lowerers:
+  retired atomically with their exclusive builders, dispatchers, fixtures,
+  Case-A entrypoints, and ValueId ranges
 ```
 
-This split is physical packaging only. It does not change route selection,
-generic Case-A policy, or Exec bridge behavior.
+The skip/trim split remains physical packaging. The former LowerOnly-only
+Stage1/mode-B packages are retired assets: their Case-A entrypoints and route
+selection no longer exist, while skip/trim Exec behavior is unchanged.
 
 ## Guard Vocabulary
 

@@ -78,7 +78,9 @@ Latest landed: `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS41-D0` — closed
 Latest landed: `MIR-CFG-JUMP-ARGS-LAYOUT-REHOME0-I0-R0`
 Latest landed: `JOINMODULE-BRIDGE-DEAD-API-RETIRE0-RET0`
-Next stop:     `MIRBUILDER-JOINMODULE-CLEANUP-BATCH-CENSUS42-D0`
+Latest census: `MIRBUILDER-JOINMODULE-CLEANUP-BATCH-CENSUS42-D0` — closed
+Latest landed: `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`
+Next execution: `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0`
 History:       Git history and the short landed tail below
 ```
 
@@ -111,10 +113,11 @@ activation and sunset contract.
 | closed | `JOINMODULE-TEST-HANDLER-LANE-SUNSET-001` (promotes `R4-UNREGISTERED-TEST-HANDLER-001`) | former cfg(test)-only `block_finalizer`, `handlers/**`, `merge_variable_handler`, and `terminator_builder` legacy VM-bridge handler lane | production conversion remains solely in `joinir_block_converter/**`; deleted lane and registrations = 0 | RET0 | retired by `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`: 14 files / 3743 lines, four cfg(test) module declarations, obsolete README section, stale PHI seam row, and generated inventory rows deleted |
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> `lower_static_box_method` / `lower_instance_box_method`, the two live nested-method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | RETAIN-FENCED: no exact source occurrence reaches the raw port | fresh `RAW-LOCATED-BODY-TRANSPORT0-D0` may select REOWN only when one function-relative located transport deletes a named production edge; otherwise forced disposition at `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` |
 | closed | `JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001` | former three explicit-VM `LowerOnly` target rows, dispatcher observation branch, and `lower_only_routes`; five target names were also consumed by Loop/If/strict classification | observation route and vocabulary = 0; neutral five-name policy and two VM Exec rows remain | REOWN+RET0 | retired by `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`: all five lowerers/direct evidence remain; no old target-table alias |
-| unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/dispatch remainder after LowerOnly selection | live JoinModule core/lowering, normalized-shadow execution, and two VM Exec routes outside registered rows; there is no independent JSON/format subsystem | normalized-dev and explicit VM Exec have live consumers; default normal = 0 | broad RET0 rejected; exact final retained/deleted closure remains an R4 decision after selected LowerOnly retirement | fresh census after `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`; no broad disposition may be inferred from the selected sub-surface |
+| closed | `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-SUNSET-001` | former caller-zero Stage1UsingResolver, StageB body, and StageB FuncScanner target lowerers; exclusive builders, dispatchers, Case-A entrypoints, ValueId ranges, tests, and fixtures | production and retained explicit-VM callers = 0 before deletion | RET0 | retired by `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`; neutral five-name policy, skip/trim VM routes, If vocabulary, native Stage1 verifier, and selfhost mode-B lane retained |
+| unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — remaining JoinModule model/lowering/dispatch core | live JoinModule core, skip/trim lowering, normalized-shadow execution, and two VM Exec routes outside registered rows; former LowerOnly-only target lowerers = 0 | normalized-dev and explicit VM Exec have live consumers; default normal = 0 | broad RET0 rejected; exact final retained/deleted closure remains an R4 decision | final R4 conformance after bounded caller-zero residues; no broad disposition may be inferred from a retired sub-surface |
 
 The registry has four registered R4 fences, zero active compatibility residuals,
-zero active retirements, zero active rehomes, sixteen closed residuals, and one
+zero active retirements, zero active rehomes, seventeen closed residuals, and one
 unregistered R4 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
@@ -134,16 +137,41 @@ or the forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` decision here; an
 unregistered family may not become active on a generic prose promise. No second
 fence ledger is permitted.
 
-Before R4 final conformance, one mandatory
-`MIRBUILDER-R4-LEGACY-CHILD-ADMISSION-DISPOSITION0-D0` census must map every
-live `LegacyChildDraftAdmissionV1` site to exactly one registry family and one
-final disposition: `RET0`, `REOWN`, or `RETAIN-FENCED`.  Each retained site must
-name its owner, activation, sunset ID, and release row/condition in this sole
-registry.  The occurrence count alone is not a disposition, and R4 Complete is
-forbidden while any site lacks this crosswalk.  A newly introduced fence is
-invalid unless its release row/condition is recorded here in the same commit.
+`MIRBUILDER-R4-LEGACY-CHILD-ADMISSION-DISPOSITION0-D0` is closed. The exact
+30 occurrences in 6 `src/mir` files comprise 8 production-core occurrences and
+22 cfg(test) proof occurrences. The only two live issuers are the static and
+instance nested-method issuers in `recursive_child_lowering.rs`; both flow
+through `commit_legacy_pending` as `LegacyReplaceWholePair` and are owned by
+`NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001`. The caller-zero
+`complete_legacy_child` facade/proof cluster is the bounded RET0 selected next.
+No live site is unregistered. A newly introduced fence remains invalid unless
+its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0` — T1 atomic RET0, closed
+
+```text
+Retired:
+  three caller-zero Stage1/mode-B target lowerers and their exclusive builders,
+  dispatchers, generic Case-A route, ValueId ranges, tests, and fixtures.
+
+Preserved:
+  skip/trim lowerers and VM Exec routes; neutral five-name Loop/If/strict policy;
+  native Stage1 verifier; selfhost mode-B source lane; normalized-shadow fence.
+
+Evidence:
+  old lowerer/entrypoint/range symbols and deleted paths = 0;
+  cargo check --lib and retained focused suites = green.
+
+R4:
+  census42 and mandatory LegacyChild crosswalk are closed;
+  retain-fenced=4, active compatibility=0, active retirement=0,
+  active rehome=0, closed=17, unregistered=1.
+
+Next:
+  RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0.
+```
 
 `JOINMODULE-BRIDGE-DEAD-API-RETIRE0-RET0` — T1 atomic RET0, closed
 

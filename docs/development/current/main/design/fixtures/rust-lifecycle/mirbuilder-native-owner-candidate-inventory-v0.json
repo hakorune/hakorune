@@ -5404,7 +5404,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_terminator",
-      "line": 141,
+      "line": 134,
       "path": "src/mir/basic_block.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -5412,7 +5412,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_empty",
-      "line": 333,
+      "line": 326,
       "path": "src/mir/basic_block.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -5420,7 +5420,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_terminated",
-      "line": 338,
+      "line": 331,
       "path": "src/mir/basic_block.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -5428,7 +5428,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_sealed",
-      "line": 522,
+      "line": 515,
       "path": "src/mir/basic_block.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -9734,7 +9734,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "case_a_minimal_target_name",
-      "line": 47,
+      "line": 42,
       "path": "src/mir/join_ir/lowering/loop_scope_shape/case_a.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -9742,7 +9742,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_case_a_minimal_target",
-      "line": 68,
+      "line": 62,
       "path": "src/mir/join_ir/lowering/loop_scope_shape/case_a.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -9798,7 +9798,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_joinir_if_toplevel_target",
-      "line": 142,
+      "line": 135,
       "path": "src/mir/join_ir/lowering/mod.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -9838,7 +9838,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "join_func_name",
-      "line": 81,
+      "line": 79,
       "path": "src/mir/join_ir_vm_bridge/mod.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -16313,37 +16313,8 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
-      "function": "lower_case_a_stage1_usingresolver_with_scope",
-      "line": 49,
-      "path": "src/mir/join_ir/lowering/generic_case_a/stage1_using_resolver.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "depends_on_context",
-        "depends_on_lowering",
-        "depends_on_resolution"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "lower_case_a_stage1_usingresolver_core",
-      "line": 60,
-      "path": "src/mir/join_ir/lowering/generic_case_a/stage1_using_resolver.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "depends_on_builder",
-        "depends_on_collection",
-        "depends_on_context",
-        "depends_on_lowering",
-        "depends_on_resolution",
-        "may_mutate_state"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
       "function": "with_loop_var_name",
-      "line": 165,
+      "line": 166,
       "path": "src/mir/join_ir/lowering/inline_boundary_builder.rs",
       "reject_reasons": [
         "carrier_surface",
@@ -16354,7 +16325,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "with_loop_header_func_name",
-      "line": 173,
+      "line": 174,
       "path": "src/mir/join_ir/lowering/inline_boundary_builder.rs",
       "reject_reasons": [
         "carrier_surface",
@@ -16446,42 +16417,6 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
-      "function": "lower_case_a_for_stage1_resolver",
-      "line": 42,
-      "path": "src/mir/join_ir/lowering/loop_to_join/case_a_entrypoints.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "depends_on_lowering",
-        "depends_on_resolution"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "lower_case_a_for_stageb_body",
-      "line": 57,
-      "path": "src/mir/join_ir/lowering/loop_to_join/case_a_entrypoints.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "depends_on_context",
-        "depends_on_lowering"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "lower_case_a_for_stageb_funcscanner",
-      "line": 66,
-      "path": "src/mir/join_ir/lowering/loop_to_join/case_a_entrypoints.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "depends_on_context",
-        "depends_on_lowering"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
       "function": "extract_variable_name",
       "line": 139,
       "path": "src/mir/join_ir/lowering/loop_update_analyzer.rs",
@@ -16508,15 +16443,14 @@
       "reject_reasons": [
         "carrier_surface",
         "depends_on_builder",
-        "depends_on_lowering",
-        "depends_on_resolution"
+        "depends_on_lowering"
       ],
       "status": "rejected"
     },
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_loop_lowered_function",
-      "line": 88,
+      "line": 81,
       "path": "src/mir/join_ir/lowering/mod.rs",
       "reject_reasons": [
         "depends_on_lowering"
@@ -16526,7 +16460,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_loop_mainline_target",
-      "line": 97,
+      "line": 90,
       "path": "src/mir/join_ir/lowering/mod.rs",
       "reject_reasons": [
         "depends_on_lowering"
@@ -16536,92 +16470,10 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_if_mainline_target",
-      "line": 104,
+      "line": 97,
       "path": "src/mir/join_ir/lowering/mod.rs",
       "reject_reasons": [
         "depends_on_lowering"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "lower_stage1_usingresolver_to_joinir",
-      "line": 61,
-      "path": "src/mir/join_ir/lowering/stage1_using_resolver.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "depends_on_lowering",
-        "depends_on_resolution"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "build_stage1_using_resolver_joinir",
-      "line": 19,
-      "path": "src/mir/join_ir/lowering/stage1_using_resolver/builder.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "depends_on_emission",
-        "depends_on_resolution",
-        "may_mutate_state"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "try_stage1_generic_case_a",
-      "line": 85,
-      "path": "src/mir/join_ir/lowering/stage1_using_resolver/dispatch.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "depends_on_lowering",
-        "depends_on_resolution",
-        "depends_on_route_selection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "lower_stageb_body_to_joinir",
-      "line": 12,
-      "path": "src/mir/join_ir/lowering/stageb_body.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "depends_on_lowering"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "build_stageb_body_joinir",
-      "line": 11,
-      "path": "src/mir/join_ir/lowering/stageb_body/builder.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "may_mutate_state"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "lower_stageb_funcscanner_to_joinir",
-      "line": 12,
-      "path": "src/mir/join_ir/lowering/stageb_funcscanner.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "depends_on_lowering"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "build_stageb_funcscanner_joinir",
-      "line": 11,
-      "path": "src/mir/join_ir/lowering/stageb_funcscanner/builder.rs",
-      "reject_reasons": [
-        "carrier_surface",
-        "may_mutate_state"
       ],
       "status": "rejected"
     },
@@ -16648,7 +16500,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "convert_function_with_func_names",
-      "line": 135,
+      "line": 22,
       "path": "src/mir/join_ir_vm_bridge/joinir_function_converter.rs",
       "reject_reasons": [
         "carrier_surface",
@@ -18635,25 +18487,25 @@
     "source_scan": {
       "by_reject_reason": {
         "backend_surface": 11,
-        "carrier_surface": 270,
-        "depends_on_builder": 39,
-        "depends_on_collection": 69,
-        "depends_on_context": 29,
-        "depends_on_emission": 44,
-        "depends_on_lowering": 88,
+        "carrier_surface": 258,
+        "depends_on_builder": 38,
+        "depends_on_collection": 68,
+        "depends_on_context": 25,
+        "depends_on_emission": 43,
+        "depends_on_lowering": 79,
         "depends_on_metadata": 74,
-        "depends_on_resolution": 78,
-        "depends_on_route_selection": 113,
-        "may_mutate_state": 105,
+        "depends_on_resolution": 71,
+        "depends_on_route_selection": 112,
+        "may_mutate_state": 101,
         "phi_or_localssa_surface": 94,
         "takes_mut_self": 12
       },
       "by_status": {
         "already_adopted_name_match": 1,
         "candidate": 893,
-        "rejected": 634
+        "rejected": 622
       },
-      "surface_count": 1528
+      "surface_count": 1516
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"
