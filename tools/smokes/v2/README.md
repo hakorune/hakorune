@@ -60,4 +60,3 @@ Quick tips
 - VM trace: `./tools/smokes/v2/run.sh --trace-vm` sets `NYASH_VM_TRACE=1` and `HAKO_SILENT_TAGS=0`.
 
 Developer Notes
-- **JoinIR If/Select (Phase 33)**: A/B test with `NYASH_FEATURES=stage3 HAKO_JOINIR_IF_SELECT=1 ./target/release/hakorune apps/tests/joinir_if_select_simple.hako`（dev-only、CI対象外。NYASH_JOINIR_CORE は deprecated/無視）

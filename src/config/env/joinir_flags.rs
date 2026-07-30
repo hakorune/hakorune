@@ -56,30 +56,6 @@ pub fn joinir_vm_bridge_debug() -> bool {
     env_bool("NYASH_JOINIR_VM_BRIDGE_DEBUG")
 }
 
-/// Phase 33: JoinIR If Select 実験の有効化
-/// Primary: HAKO_JOINIR_IF_SELECT (Phase 33-8+).
-pub fn joinir_if_select_enabled() -> bool {
-    // Core ON なら既定で有効化（JoinIR 本線化を優先）
-    if joinir_core_enabled() {
-        return true;
-    }
-    // Primary: HAKO_JOINIR_IF_SELECT
-    if let Some(v) = env_flag("HAKO_JOINIR_IF_SELECT") {
-        return v;
-    }
-    false
-}
-
-/// Phase 33-8: JoinIR Stage-1 rollout toggle
-/// Set HAKO_JOINIR_STAGE1=1 to enable JoinIR lowering for Stage-1 functions.
-pub fn joinir_stage1_enabled() -> bool {
-    // Primary: HAKO_JOINIR_STAGE1
-    if let Some(v) = env_flag("HAKO_JOINIR_STAGE1") {
-        return v;
-    }
-    false
-}
-
 /// Phase 33-8: JoinIR debug log level (0-3)
 /// - 0: No logs (default)
 /// - 1: Basic logs (which functions were lowered)
@@ -111,62 +87,6 @@ pub fn joinir_trace_enabled() -> bool {
 /// - Otherwise inherits from joinir_debug_level()>0 (opt-in debug)
 pub fn joinir_dev_enabled() -> bool {
     env_bool("NYASH_JOINIR_DEV") || joinir_debug_level() > 0
-}
-
-/// Phase 61-2: If-in-loop JoinIR dry-run有効化
-///
-/// `HAKO_JOINIR_IF_IN_LOOP_DRYRUN=1` でdry-runモードを有効化
-///
-/// dry-runモード:
-/// - JoinIR経路でPHI仕様を計算
-/// - PhiBuilderBox経路と比較
-/// - 実際のPHI生成はPhiBuilderBoxを使用（安全）
-pub fn joinir_if_in_loop_dryrun_enabled() -> bool {
-    env_bool("HAKO_JOINIR_IF_IN_LOOP_DRYRUN")
-}
-
-/// Phase 61-3: If-in-loop JoinIR本番経路有効化
-///
-/// `HAKO_JOINIR_IF_IN_LOOP_ENABLE=1` でJoinIR本番経路を有効化
-///
-/// 動作:
-/// - ON: JoinIR + IfInLoopPhiEmitter経路（PhiBuilderBox不使用）
-/// - OFF: PhiBuilderBox経路（既存フォールバック）
-///
-/// 前提条件:
-/// - JoinIR IfSelect 基盤（Phase 33）の有効化
-/// - dry-runモードとは独立（HAKO_JOINIR_IF_IN_LOOP_DRYRUN）
-///
-/// デフォルト: OFF（安全第一）
-pub fn joinir_if_in_loop_enable() -> bool {
-    env_bool("HAKO_JOINIR_IF_IN_LOOP_ENABLE")
-}
-
-/// Phase 61-4: ループ外If JoinIR経路有効化
-///
-/// `HAKO_JOINIR_IF_TOPLEVEL=1` でループ外IfのJoinIR経路を有効化
-///
-/// 動作:
-/// - ON: try_lower_if_to_joinir経路（if_form.rsで使用）
-/// - OFF: PhiBuilderBox経路（既存）
-///
-/// 前提条件:
-/// - HAKO_JOINIR_IF_SELECT=1（Phase 33基盤）
-///
-/// デフォルト: OFF（安全第一）
-pub fn joinir_if_toplevel_enabled() -> bool {
-    env_bool("HAKO_JOINIR_IF_TOPLEVEL")
-}
-
-/// Phase 61-4: ループ外If JoinIR dry-run有効化
-///
-/// `HAKO_JOINIR_IF_TOPLEVEL_DRYRUN=1` でdry-runモードを有効化
-///
-/// dry-runモード:
-/// - JoinIR経路を試行しログ出力
-/// - 実際のPHI生成は既存経路を使用（安全）
-pub fn joinir_if_toplevel_dryrun_enabled() -> bool {
-    env_bool("HAKO_JOINIR_IF_TOPLEVEL_DRYRUN")
 }
 
 /// LoopForm normalize flag (NYASH_LOOPFORM_NORMALIZE=1).

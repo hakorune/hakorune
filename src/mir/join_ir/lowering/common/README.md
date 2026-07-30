@@ -9,7 +9,6 @@
 - `target_adapter.rs` — generic Case-A probe orchestration for target-local
   lowerers. It does not own route policy or VM execution behavior.
   Do not add target-specific guard options here; keep those in route modules.
-- `type_hint.rs` — IfSelect / IfMerge type hint extraction from MIR constants.
 - `case_a/` — Generic Case-A lowering helpers. route vocabulary and guards live with the active lowerer.
 - `../common.rs` — stable re-export facade only; do not grow mixed helper logic there.
 - retired: name-based dual-value rewrite helpers were removed in 291x-747.

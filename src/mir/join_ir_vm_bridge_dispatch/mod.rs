@@ -14,10 +14,6 @@ mod targets;
 use env_flags::JoinIrEnvFlags;
 use exec_routes::{try_run_skip_ws, try_run_trim};
 use targets::find_joinir_target;
-pub use targets::{
-    is_if_lowered_function, is_if_lowering_prefix_target, is_if_toplevel_prefix_target,
-    JoinIrTargetDesc, JOINIR_IF_TARGETS,
-};
 
 use crate::mir::MirModule;
 use crate::runtime::get_global_ring0;
@@ -63,7 +59,7 @@ pub fn try_run_joinir_vm_bridge(module: &MirModule, quiet_pipe: bool) -> bool {
 
     if !handled {
         // Phase 80/81: Strict mode では本線対象関数の失敗でパニック
-        if bridge_exec_failure_requires_exit(strict, target.func_name) {
+        if bridge_exec_failure_requires_exit(strict) {
             get_global_ring0().log.error(&format!(
                 "[joinir/bridge] ERROR: target={} lowering/exec failed (strict, no fallback)",
                 target.func_name
@@ -84,8 +80,8 @@ fn bridge_exec_strict_enabled() -> bool {
     crate::config::env::joinir_dev::strict_enabled()
 }
 
-fn bridge_exec_failure_requires_exit(strict: bool, func_name: &str) -> bool {
-    strict || crate::mir::join_ir::lowering::should_panic_on_joinir_failure(func_name, true)
+fn bridge_exec_failure_requires_exit(strict: bool) -> bool {
+    strict
 }
 
 #[cfg(test)]
@@ -111,12 +107,12 @@ mod tests {
     }
 
     #[test]
-    fn bridge_exec_failure_requires_strict_or_existing_target_policy() {
+    fn bridge_exec_failure_requires_strict() {
         crate::test_support::with_env_vars(
             &[("HAKO_JOINIR_STRICT", None), ("NYASH_JOINIR_STRICT", None)],
             || {
-                assert!(!bridge_exec_failure_requires_exit(false, "Main.skip/1"));
-                assert!(bridge_exec_failure_requires_exit(true, "Main.skip/1"));
+                assert!(!bridge_exec_failure_requires_exit(false));
+                assert!(bridge_exec_failure_requires_exit(true));
             },
         );
     }

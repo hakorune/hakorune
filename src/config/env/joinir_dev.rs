@@ -13,11 +13,6 @@ pub fn mainline_debug_enabled() -> bool {
     env_bool("NYASH_JOINIR_MAINLINE_DEBUG")
 }
 
-/// NYASH_JOINIR_IF_MERGE=1 - Enable If-merge experimental mode
-pub fn if_merge_enabled() -> bool {
-    env_bool("NYASH_JOINIR_IF_MERGE")
-}
-
 /// JoinIR debug output switch (compat).
 ///
 /// - Primary: `HAKO_JOINIR_DEBUG=1..3` (recommended)
@@ -65,21 +60,6 @@ pub fn input_mode() -> Option<String> {
 /// NYASH_JOINIR_LOWER_FROM_MIR=1 - Enable lowering from MIR mode
 pub fn lower_from_mir_enabled() -> bool {
     env_bool("NYASH_JOINIR_LOWER_FROM_MIR")
-}
-
-/// HAKO_JOINIR_IF_TOPLEVEL=1 - Enable If-select for top-level if statements
-pub fn if_toplevel_enabled() -> bool {
-    env_bool("HAKO_JOINIR_IF_TOPLEVEL")
-}
-
-/// HAKO_JOINIR_IF_TOPLEVEL_TRACE=1 - Debug trace for top-level if
-pub fn if_toplevel_trace_enabled() -> bool {
-    env_bool("HAKO_JOINIR_IF_TOPLEVEL_TRACE")
-}
-
-/// HAKO_JOINIR_IF_IN_LOOP_TRACE=1 - Debug trace for if in loop
-pub fn if_in_loop_trace_enabled() -> bool {
-    env_bool("HAKO_JOINIR_IF_IN_LOOP_TRACE")
 }
 
 /// HAKO_JOINIR_PRINT_TOKENS_MAIN=1 - Print tokens for main

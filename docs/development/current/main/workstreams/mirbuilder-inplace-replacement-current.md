@@ -81,7 +81,9 @@ Latest landed: `JOINMODULE-BRIDGE-DEAD-API-RETIRE0-RET0`
 Latest census: `MIRBUILDER-JOINMODULE-CLEANUP-BATCH-CENSUS42-D0` — closed
 Latest landed: `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`
 Latest landed: `JOINIR-CALLER-ZERO-EXPR-SCOPE-LOWERING-ISLAND-RETIRE0-RET0`
-Next execution: `JOINIR-IF-SELECT-ALTERNATE-LANE-RETIRE0-RET0`
+Latest landed: `JOINIR-IF-SELECT-ALTERNATE-LANE-RETIRE0-RET0`
+Latest conformance: `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` — Incomplete
+Next design: `RAW-LOCATED-BODY-TRANSPORT0-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -94,14 +96,14 @@ activation and sunset contract.
 
 | State | Ledger key / family | Exact surface | Activation / normal-default | Target disposition | Release row / condition |
 | --- | --- | --- | --- | --- | --- |
-| retain-fenced | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch: sorted helpers followed by root Main with legacy entry policy | raw dispatcher static `Main` -> `RawLegacyChildLoweringPortV1`; selected normal verified App Main = 0 | RETAIN-FENCED: live arbitrary-AST raw route, no exact Program/source locator, helper-first and `LegacyEnvironment` coupling | fresh named release D0 only when one raw located-source + entry-materialization contract can atomically delete dispatcher -> static-Main, RawLegacy -> prepared batch, prepared helper -> raw static method, and prepared root -> legacy Main policy edges |
+| retain-fenced | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch: sorted helpers followed by root Main with legacy entry policy | raw dispatcher static `Main` reaches the batch only through `RawLegacyChildLoweringPortV1`; selected-normal Script uses the distinct `RawInvocationChildPortV1` root-only Main rejection, while verified App Main has its separate typed owner | RETAIN-FENCED: live arbitrary-AST raw route, no exact Program/source locator, helper-first and `LegacyEnvironment` coupling | fresh named release D0 only when one raw located-source + entry-materialization contract can atomically delete dispatcher -> static-Main, RawLegacy -> prepared batch, prepared helper -> raw static method, and prepared root -> legacy Main policy edges |
 | closed | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | selected Script non-Box runtime compatibility, ending with the exact 9 unsupported kinds LoopRange, Break, Continue, ImportStatement, BuildGate, EnumDeclaration, BrandDeclaration, TypeAliasDeclaration, GlobalVar | selected normal Script only; raw/reference and nested body descent remain separate | REOWN | retired by `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0`: exact 9 -> direct shared guarded diagnostic; selected Script `RawCompatibility` execution = 0 |
 | closed | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program immediate instance constructors, plus selected Script plain-instance runtime-prefix constructors | every selected Program instance Box has one immediate demand; plain Script adds its second `InstancePrefixCompatibility` demand; non-plain Script's later raw runtime lifecycle is the separate row below | REOWN | retired by `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0`: one source occurrence -> unchanged physical LegacySymbol admission per existing demand |
 | closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | REOWN | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
 | closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | REOWN | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
 | closed | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-COMPAT-SUNSET-002` | selected Script direct non-plain `BoxDeclaration` raw statement admission | selected normal Script only; raw/reference and non-Box Script statements remain separate | REOWN | retired by `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-I0-R0`: static/instance selected lifecycles and exact sync rejection preserve legacy parity; direct Box -> raw statement driver = 0 |
-| retain-fenced | `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | two direct normalized-shadow executions and strict/dev StepTree observer | explicit dev/debug; default normal = 0 | RETAIN-FENCED | fresh named normalized-shadow release D0: verified Recipe/CorePlan loop owner, strict/dev parity, independent observer disposition |
-| retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | `join_ir_vm_bridge_dispatch` two Exec targets (`Main.skip/1`, `FuncScannerBox.trim/1`) | explicit VM keep / vm-reference with `NYASH_JOINIR_VM_BRIDGE=1`; default MIR and vm-fallback = 0 | RETAIN-FENCED | fresh named VM-bridge release D0: dispatcher caller = 0 or one explicit-lane execution owner replaces the lane |
+| retain-fenced | `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | two dev-gated normalized-shadow mutation executions plus the strict/dev StepTree comparison observer | explicit dev/debug only; non-strict decline continues through the already-selected native route, while strict/dev observation is nonblocking; default normal without the gate = 0 | RETAIN-FENCED | fresh named normalized-shadow release D0: verified Recipe/CorePlan loop owner, both mutation paths, strict/dev parity, and independent observer disposition |
+| retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | `join_ir_vm_bridge_dispatch` two Exec targets (`Main.skip/1`, `FuncScannerBox.trim/1`) | explicit VM keep (`vm-reference`, keep=true, fallback=false) with `NYASH_JOINIR_VM_BRIDGE=1`; default MIR and VM fallback = 0. Release success exits, dev/trace success observes then continues, non-strict failure continues, strict failure exits | RETAIN-FENCED | fresh named VM-bridge release D0: dispatcher caller = 0 or one explicit-lane execution owner replaces all success/failure continuations |
 | closed | `RAW-DRAFT-DISCONNECTED-PROOF-SUNSET-001` | `RawDraftInvocationV1`, its two cfg(test) callers, compiler `begin_raw_draft`, and dedicated guard | production caller = 0; disconnected proof owner only | RET0 | retired by `RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0`: complete owner/test/compiler/guard surface = 0 |
 | closed | `RAW-ROOT-STATIC-CHILD-DRAFT-COMPAT-SUNSET-001` | former `InvocationPhysicalStateV1::complete_raw_static_child` direct `LegacyChildDraftAdmissionV1` issuer shared by static helpers and callable Main | explicit raw public / VM-reference route; default normal = 0 | REOWN | retired by `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`: one existing locator+role admission now reaches the unchanged collector projection; direct legacy-symbol issuer = 0 |
 | closed | `RAW-ROOT-LEGACY-BRANDED-TERMINAL-SUNSET-001` | former caller-zero `complete_legacy_child_branded` and `commit_legacy_pending_branded` adapters from `LegacyChildDraftAdmissionV1` to branded collector receipt | activation = 0 after `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`; definitions only | RET0 | retired by `RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0`; unbranded, symbol-keyed, resolved, and nested-live terminals retained |
@@ -112,19 +114,17 @@ activation and sunset contract.
 | closed | `JOINMODULE-PHI-OBSERVER-SUNSET-001` (promotes `R4-UNREGISTERED-PHI-OBSERVER-001`) | former `verify_phi_reserved` global collector/report, three debug observation hooks, dedicated builder/module tests, exports, README and generated owner-inventory row | production decision consumer = 0 before deletion; complete asset now absent | RET0 | retired by `JOINMODULE-PHI-OBSERVER-RETIRE0-RET0`: complete observer/test/hook/wiring/docs surface = 0 and existing native-owner inventory regenerated |
 | closed | `JOINMODULE-AST-FRONTEND-LEGACY-SUNSET-001` (promotes `R4-UNREGISTERED-AST-FRONTEND-001`) | former `AstToJoinIrLowerer`, its exclusive helper/tests, six Program-JSON fixtures, three exclusive dev flags, two lowerer-to-bridge E2E tests, and current frontend contract residue | production caller = 0 before deletion; complete frontend closure now absent | RET0 | retired by `JOINMODULE-AST-FRONTEND-LEGACY-RETIRE0-RET0`; direct VM conversion/tests, JoinModule core/lowering, normalized-shadow, native Phase40 analysis, and `JOINIR_TEST_DEBUG` remain |
 | closed | `JOINMODULE-TEST-HANDLER-LANE-SUNSET-001` (promotes `R4-UNREGISTERED-TEST-HANDLER-001`) | former cfg(test)-only `block_finalizer`, `handlers/**`, `merge_variable_handler`, and `terminator_builder` legacy VM-bridge handler lane | production conversion remains solely in `joinir_block_converter/**`; deleted lane and registrations = 0 | RET0 | retired by `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`: 14 files / 3743 lines, four cfg(test) module declarations, obsolete README section, stale PHI seam row, and generated inventory rows deleted |
-| retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> `lower_static_box_method` / `lower_instance_box_method`, the two live nested-method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | RETAIN-FENCED: no exact source occurrence reaches the raw port | fresh `RAW-LOCATED-BODY-TRANSPORT0-D0` may select REOWN only when one function-relative located transport deletes a named production edge; otherwise forced disposition at `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` |
+| retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> `lower_static_box_method` / `lower_instance_box_method`, the two live nested-method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | R4 BLOCKER: source occurrences exist, but neither live issuer receives a function-relative located-source receipt | `RAW-LOCATED-BODY-TRANSPORT0-D0` must select one located transport whose I0/R0 deletes both named production issuers before R4 Complete |
 | closed | `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-SUNSET-001` | former caller-zero `ModuleLoweringPortV1::complete_legacy_child`, two disconnected proof modules, and three inline facade tests | production caller = 0 before deletion; live nested issuers already use capture + `commit_legacy_pending` | RET0 | retired by `RAW-LEGACY-COMPLETE-CHILD-TEST-FACADE-RETIRE0-RET0`; live commit terminals, 2 nested issuers, reentrant proof, collector tests, and live callable-Main physical owner retained |
 | closed | `JOINMODULE-VM-LOWERONLY-OBSERVATION-SUNSET-001` | former three explicit-VM `LowerOnly` target rows, dispatcher observation branch, and `lower_only_routes`; five target names were also consumed by Loop/If/strict classification | observation route and vocabulary = 0; neutral five-name policy and two VM Exec rows remain | REOWN+RET0 | retired by `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0`: all five lowerers/direct evidence remain; no old target-table alias |
 | closed | `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-SUNSET-001` | former caller-zero Stage1UsingResolver, StageB body, and StageB FuncScanner target lowerers; exclusive builders, dispatchers, Case-A entrypoints, ValueId ranges, tests, and fixtures | production and retained explicit-VM callers = 0 before deletion | RET0 | retired by `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0`; neutral five-name policy, skip/trim VM routes, If vocabulary, native Stage1 verifier, and selfhost mode-B lane retained |
 | closed | `JOINIR-CALLER-ZERO-EXPR-SCOPE-LOWERING-ISLAND-SUNSET-001` | former condition/expr/local/method/scope/user-policy lowering island, its exclusive tests, and obsolete lifecycle guards | repository production and retained reference callers = 0 before deletion | RET0 | retired by `JOINIR-CALLER-ZERO-EXPR-SCOPE-LOWERING-ISLAND-RETIRE0-RET0`; 22 source files / 4,368 lines deleted; live `ConditionBinding` remains |
-| active-retirement | `JOINIR-IF-SELECT-ALTERNATE-LANE-SUNSET-001` | default-reachable MIR -> JoinInst Select/IfMerge observer plus opt-in alternative PHI emission, strict failure policy, and VM dev dry scan | exact by-name If targets are observed on default compile; opt-in top-level mode mutates PHIs; dev runner rescans MIR | RET0 route/classifier/alternate-PHI authority; retain shared JoinInst vocabulary | `JOINIR-IF-SELECT-ALTERNATE-LANE-RETIRE0-RET0`: native If/PHI becomes the sole production owner; router, dry scan, by-name policy, and If-specific env surface = 0 |
-| unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — remaining JoinModule model/lowering/dispatch core | shared JoinModule model/converter substrate, skip/trim lowering, normalized-shadow execution, and two VM Exec routes; caller-zero expression/scope island = 0; independent If lane is tracked above | normalized-dev and explicit VM Exec have live consumers; shared substrate has no independent normal/default activation | broad RET0 rejected; exact shared dependency must be crosswalked into the two registered reference fences | after If RET0, register one non-duplicated shared-substrate sunset whose lifetime is the union of normalized-shadow and VM-bridge consumers |
+| closed | `JOINIR-IF-SELECT-ALTERNATE-LANE-SUNSET-001` | former default-reachable MIR -> JoinInst Select/IfMerge observer, opt-in alternative PHI emission, strict failure policy, and VM dev dry scan | route/classifier/alternate-PHI authority and If-specific env/test surfaces = 0 | RET0; native If/PHI is sole production owner and shared JoinInst vocabulary remains | retired by `JOINIR-IF-SELECT-ALTERNATE-LANE-RETIRE0-RET0` |
+| retain-fenced | `JOINMODULE-SHARED-REFERENCE-SUBSTRATE-SUNSET-001` (promotes `R4-UNREGISTERED-JOINMODULE-REMAINDER-001`) | shared JoinModule model, converter, skip/trim lowering, and dispatch substrate required by normalized-shadow and the two VM Exec routes | no independent normal/default activation; execution is reachable only through `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` or `VM-BRIDGE-COMPAT-SUNSET-001` | RETAIN-FENCED shared dependency; broad RET0 is invalid while either consumer fence is live | retire when both consumer fences are closed/reowned and a fresh caller census proves model/converter/lowering/dispatch production callers = 0 |
 
-The registry has four registered R4 fences, zero active compatibility residuals,
-one active retirement, zero active rehomes, nineteen closed residuals, and one
-unregistered R4 family
-rows.  This is an honest registry state, not a claim that eleven fences are
-already registered.
+The registry has five registered R4 fences, zero active compatibility
+residuals, zero active retirements, zero active rehomes, twenty closed
+residuals, and zero unregistered R4 families.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
 (`30` occurrences in `6` `src/mir` files at the latest exact census). The
 selected-Script residual is closed; raw static Main is an explicit retained
@@ -153,6 +153,51 @@ proof occurrences. No live site is unregistered. A newly introduced fence remain
 its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` — registry conformance closed; semantic R4 Incomplete
+
+```text
+Registry:
+  retain-fenced=5, active compatibility/retirement/rehome=0,
+  closed=20, unregistered=0.
+
+Pass:
+  raw static-Main, normalized-shadow, VM bridge, and their shared JoinModule
+  substrate have exact activation and sunset contracts.
+
+Blocker:
+  selected-normal nested static/instance method descent still issues two
+  LegacyChildDraftAdmissionV1::legacy_symbol rows without a function-relative
+  located-source receipt. Therefore unverified direct lower, lower-side AST
+  route redecision, and selected old production edge are not zero.
+
+Next:
+  RAW-LOCATED-BODY-TRANSPORT0-D0. After that edge is deleted, final
+  conformance must still decide whether the live explicit raw static-Main
+  compatibility route is inside the accepted production-family completion
+  claim; registration alone is not completion evidence. R5 Ownership/View
+  remains parked.
+```
+
+`JOINIR-IF-SELECT-ALTERNATE-LANE-RETIRE0-RET0` — T1 atomic RET0, closed
+
+```text
+Deleted:
+  MIR-to-JoinInst If router/Select/IfMerge/PhiSpec lane, alternative PHI
+  emitter, VM dry observer, by-name target policy, If-specific env surface,
+  and exclusive tests.
+
+Preserved:
+  native If/PHI; JoinInst Select/IfMerge/NestedIfMerge vocabulary used by the
+  normalized-shadow and VM-reference fences.
+
+Evidence:
+  cargo check --lib and --tests --features vm-reference green; deleted route
+  symbols and If-specific current env surface = 0.
+
+Next:
+  MIRBUILDER-R4-FINAL-CONFORMANCE0-C0.
+```
 
 `JOINIR-CALLER-ZERO-EXPR-SCOPE-LOWERING-ISLAND-RETIRE0-RET0` — T1 atomic RET0, closed
 

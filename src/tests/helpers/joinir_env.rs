@@ -22,11 +22,9 @@ pub fn set_core_on() {
     std::env::set_var("NYASH_JOINIR_CORE", "1");
 }
 
-/// IfSelect/Dev 系のフラグをすべてクリアする。
+/// JoinIR test flagsをすべてクリアする。
 pub fn clear_joinir_flags() {
     std::env::remove_var("NYASH_JOINIR_CORE");
-    std::env::remove_var("HAKO_JOINIR_IF_SELECT");
-    std::env::remove_var("HAKO_JOINIR_IF_SELECT_DRYRUN");
     std::env::remove_var("NYASH_JOINIR_EXPERIMENT");
 }
 
@@ -34,15 +32,4 @@ pub fn clear_joinir_flags() {
 /// 実験モードが有効かどうかを判定する
 pub fn is_experiment_enabled() -> bool {
     crate::config::env::joinir_experiment_enabled()
-}
-
-/// Phase 72-B: HAKO_JOINIR_IF_SELECT SSOT ヘルパー
-/// IfSelect/JoinIR If分岐選択モードをONにする
-pub fn set_if_select_on() {
-    std::env::set_var("HAKO_JOINIR_IF_SELECT", "1");
-}
-
-/// IfSelect/JoinIR If分岐選択モードをOFFにする
-pub fn set_if_select_off() {
-    std::env::remove_var("HAKO_JOINIR_IF_SELECT");
 }

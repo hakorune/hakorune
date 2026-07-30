@@ -57,7 +57,7 @@ common/string_whitespace.rs:
   trim-style whitespace predicate instruction sequence
 
 common/type_hint.rs:
-  IfSelect / IfMerge type hint extraction
+  retained shared type-hint extraction
 
 common/case_a.rs:
   minimal Case-A shape guard
@@ -76,14 +76,11 @@ Route truth stays with active route owners:
 Loop target registration:
   lowering/loop_target_policy.rs
 
-If target registration:
-  JOINIR_IF_TARGETS and prefix policy helpers
-
 VM execution registration:
   JOINIR_VM_EXEC_TARGETS
 
 Condition expression lowering:
-  if_lowering_router / condition_lowerer / ExprLowerer
+  native MirBuilder If/PHI owner
 
 Case-A lowering:
   generic_case_a/*

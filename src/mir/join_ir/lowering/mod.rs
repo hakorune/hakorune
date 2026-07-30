@@ -1,7 +1,7 @@
 //! JoinIR Lowering Functions
 //!
 //! Phase 27.9: Modular separation of MIR → JoinIR lowering implementations.
-//! Phase 33-12: Router-based If/Loop lowering organization.
+//! Loop lowering and the two explicit VM-reference observations live here.
 //!
 //! このモジュールは各種 MIR 関数を JoinIR に変換する lowering 関数を提供します。
 //!
@@ -10,9 +10,6 @@
 //! - `value_id_ranges.rs`: ValueId 範囲管理（Phase 27.13+）
 //! - `skip_ws.rs`: Main.skip/1 の空白スキップ lowering（手書き版＋MIR自動解析版）
 //! - `funcscanner_trim.rs`: FuncScannerBox.trim/1 の trim lowering
-//! - `if_select.rs`: Phase 33 If/Else → Select lowering
-//! - `if_dry_runner.rs`: Phase 33-10 If lowering dry-run スキャナー（箱化版）
-//! - `if_lowering_router.rs`: Phase 33-12 If-expression routing (Select/IfMerge dispatcher)
 
 pub mod canonical_names; // Phase 256 P1.7: SSOT for JoinIR function names (k_exit, loop_step, main)
 pub mod carrier_info; // Phase 196: Carrier metadata for loop lowering
@@ -22,12 +19,6 @@ pub mod error_tags; // Phase 86: Centralized error message formatting
 pub(crate) mod exit_args_resolver; // Internal exit argument resolution
 pub mod funcscanner_trim;
 pub(crate) mod generic_case_a; // Phase 192: Modularized Case A lowering
-pub mod if_dry_runner; // Phase 33-10.0
-pub(crate) mod if_lowering_router; // Phase 33-12: If-expression routing (re-exported)
-pub mod if_merge; // Phase 33-7
-pub mod if_phi_context; // Phase 61-1
-pub mod if_phi_spec; // Phase 61-2
-pub(crate) mod if_select; // Phase 33: Internal If/Select lowering
 pub mod inline_boundary; // Phase 188-Impl-3: JoinIR→Host boundary
 #[cfg(test)]
 pub mod inline_boundary_builder; // Test-only builder pattern for JoinInlineBoundary
@@ -52,8 +43,6 @@ pub use inline_boundary_builder::JoinInlineBoundaryBuilder;
 pub use loop_to_join::LoopToJoinLowerer;
 pub use skip_ws::lower_skip_ws_to_joinir;
 
-pub use if_lowering_router::try_lower_if_to_joinir;
-
 /// Phase 33-9.1: Loop lowering対象関数の判定
 ///
 /// これらの関数は Phase 32/33 で LoopToJoinLowerer によって処理されます。
@@ -72,72 +61,6 @@ pub use if_lowering_router::try_lower_if_to_joinir;
 /// NYASH_JOINIR_LOWER_GENERIC=1 で汎用 Case-A ループにも拡張可能
 pub(crate) fn is_loop_lowered_function(name: &str) -> bool {
     loop_target_policy::is_loop_lowering_target(name)
-}
-
-// ============================================================================
-// Phase 80: JoinIR Mainline Unification - Core ON 時の本線化判定
-// ============================================================================
-
-/// Phase 80: JoinIR 本線化対象（Loop）の判定（JoinIR は常時 ON）
-pub fn is_loop_mainline_target(name: &str) -> bool {
-    is_loop_lowered_function(name)
-}
-
-/// Phase 80/184: JoinIR 本線化対象（If）の判定（JoinIR は常時 ON）
-///
-/// Phase 184: JOINIR_IF_TARGETS テーブルからの参照に変更
-pub fn is_if_mainline_target(name: &str) -> bool {
-    crate::mir::join_ir_vm_bridge_dispatch::is_if_lowered_function(name)
-}
-
-/// Phase 80: JoinIR を本線として試行すべきか判定（Core 常時 ON）
-pub fn should_try_joinir_mainline(func_name: &str, is_loop: bool) -> bool {
-    if is_loop {
-        is_loop_mainline_target(func_name)
-    } else {
-        is_if_mainline_target(func_name)
-    }
-}
-
-/// Phase 80/81: Strict モードで JoinIR lowering 失敗時にパニックすべきか判定
-pub fn should_panic_on_joinir_failure(func_name: &str, is_loop: bool) -> bool {
-    if !crate::config::env::joinir_strict_enabled() {
-        return false;
-    }
-    should_try_joinir_mainline(func_name, is_loop)
-}
-
-/// Phase 61-4/184: ループ外 If の JoinIR 対象関数判定
-///
-/// HAKO_JOINIR_IF_TOPLEVEL=1 有効時に、ループ外 if の JoinIR 経路を試行する関数。
-/// Phase 184: JOINIR_IF_TARGETS テーブルに統一（SSOT化）
-///
-/// ## 対象関数（テーブル管理）
-/// - IfSelectTest.*: テスト専用関数群
-/// - IfMergeTest.*: 複数変数テスト（Phase 33-7）
-/// - IfToplevelTest.*: ループ外 if テスト専用（Phase 61-4）
-/// - JsonShapeToMap._read_value_from_pair/1: Phase 33-4 phase-1 compatibility 実用関数
-/// - Stage1JsonScannerBox.value_start_after_key_pos/2: Phase 33-4 mode-B compatibility 実用関数
-///
-/// ## 使用方法
-/// if_form.rs から呼び出され、関数名がテーブルに含まれる場合のみ
-/// JoinIR 経路を試行する。
-///
-/// Phase 184: テーブル参照に変更（プレフィックス判定は併用）
-pub fn is_joinir_if_toplevel_target(name: &str) -> bool {
-    // Phase 184: JOINIR_IF_TARGETS テーブルから参照（exact match）
-    if crate::mir::join_ir_vm_bridge_dispatch::JOINIR_IF_TARGETS
-        .iter()
-        .any(|t| t.func_name == name)
-    {
-        return true;
-    }
-
-    if crate::mir::join_ir_vm_bridge_dispatch::is_if_toplevel_prefix_target(name) {
-        return true;
-    }
-
-    false
 }
 
 #[cfg(test)]

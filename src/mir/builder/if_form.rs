@@ -1,79 +1,11 @@
 use super::{MirBuilder, ValueId};
 use crate::ast::{ASTNode, LiteralValue};
-use crate::mir::control_form::IfShape;
 use crate::mir::loop_api::LoopBuilderApi; // for current_block()
-use crate::mir::phi_core::phi_builder_box::PhiBuilderOps;
-use crate::mir::BasicBlockId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum IfBranchKindV1 {
     Then,
     Else,
-}
-
-/// Phase 61-4-F: MirBuilder 用 PhiBuilderOps 実装
-///
-/// ループ外 if の JoinIR 経路で emit_toplevel_phis() を呼ぶためのラッパー。
-struct ToplevelOps<'a>(&'a mut MirBuilder);
-
-impl<'a> PhiBuilderOps for ToplevelOps<'a> {
-    fn new_value(&mut self) -> ValueId {
-        self.0.next_value_id()
-    }
-
-    fn emit_phi(
-        &mut self,
-        block: BasicBlockId,
-        dst: ValueId,
-        inputs: Vec<(BasicBlockId, ValueId)>,
-    ) -> Result<(), String> {
-        // SSOT: PHI insertion via phi_lifecycle
-        crate::mir::builder::emission::phi_lifecycle::define_phi_final(
-            self.0,
-            block,
-            dst,
-            inputs,
-            "if_form:insert_merge_phi",
-        )
-    }
-
-    fn update_var(&mut self, name: String, value: ValueId) {
-        self.0
-            .function_state
-            .variable_ctx
-            .variable_map
-            .insert(name, value);
-    }
-
-    fn get_block_predecessors(&self, block: BasicBlockId) -> Vec<BasicBlockId> {
-        if let Some(ref func) = self.0.function_state.current_function {
-            func.blocks
-                .get(&block)
-                .map(|bb| bb.predecessors.iter().copied().collect())
-                .unwrap_or_default()
-        } else {
-            Vec::new()
-        }
-    }
-
-    fn emit_void(&mut self) -> Result<ValueId, String> {
-        crate::mir::builder::emission::constant::emit_void(self.0)
-    }
-
-    fn set_current_block(&mut self, block: BasicBlockId) -> Result<(), String> {
-        // IMPORTANT: do not just assign `current_block`.
-        // We must ensure the block exists and clear per-block caches (LocalSSA/scheduler) just like
-        // the main lowering paths do, otherwise later emission can silently miss instructions.
-        self.0.start_new_block(block)
-    }
-
-    fn block_exists(&self, block: BasicBlockId) -> bool {
-        if let Some(ref func) = self.0.function_state.current_function {
-            func.blocks.contains_key(&block)
-        } else {
-            false
-        }
-    }
 }
 
 impl MirBuilder {
@@ -275,143 +207,26 @@ impl MirBuilder {
         let assigned_else_pre: Option<String> = None;
         let pre_then_var_value: Option<ValueId> = None;
 
-        // Phase 61-4: JoinIR 経路試行（ループ外 If）
-        //
-        // - 実際の有効化判定は config::env 側のポリシー関数に集約する。
-        let joinir_enabled = crate::config::env::joinir_if_select_enabled();
-        let joinir_toplevel = crate::config::env::joinir_if_toplevel_enabled();
-        let joinir_dryrun = crate::config::env::joinir_if_toplevel_dryrun_enabled();
-        let mut joinir_success = false;
-
-        // 関数名ガードチェック
-        let func_name = self
-            .function_state
-            .current_function
-            .as_ref()
-            .map(|f| f.signature.name.as_str())
-            .unwrap_or("");
-        let is_target = crate::mir::join_ir::lowering::is_joinir_if_toplevel_target(func_name);
-
-        // Phase 80: Core ON 時は代表関数で JoinIR を本線として試行
-        let core_mainline =
-            crate::mir::join_ir::lowering::should_try_joinir_mainline(func_name, false);
-        let strict_mode =
-            crate::mir::join_ir::lowering::should_panic_on_joinir_failure(func_name, false);
-
-        // Core ON + 本線対象の場合は環境変数に関わらず試行
-        let should_try_joinir =
-            core_mainline || (joinir_enabled && is_target && (joinir_toplevel || joinir_dryrun));
-
-        if should_try_joinir {
-            if let Some(ref func) = self.function_state.current_function {
-                match crate::mir::join_ir::lowering::try_lower_if_to_joinir(
-                    func,
-                    pre_branch_bb,
-                    false,
-                ) {
-                    Some(join_inst) => {
-                        if joinir_dryrun || joinir_toplevel {
-                            let ring0 = crate::runtime::get_global_ring0();
-                            ring0.log.debug(&format!(
-                                "[Phase 61-4] ✅ Toplevel If lowered via JoinIR ({}): {:?}",
-                                func_name, join_inst
-                            ));
-                        }
-
-                        // PhiSpec 計算
-                        let context =
-                            crate::mir::join_ir::lowering::if_phi_context::IfPhiContext::pure_if();
-                        let phi_spec = crate::mir::join_ir::lowering::if_phi_spec::compute_phi_spec_from_joinir(&context, &join_inst);
-
-                        if joinir_dryrun {
-                            let ring0 = crate::runtime::get_global_ring0();
-                            ring0.log.debug(&format!(
-                                "[Phase 61-4] 🔍 dry-run: JoinIR PhiSpec header={}, exit={}",
-                                phi_spec.header_count(),
-                                phi_spec.exit_count()
-                            ));
-                        }
-
-                        // Phase 61-4-F: 本番経路 - emit_toplevel_phis でPHI生成
-                        if joinir_toplevel {
-                            // IfShape 構築
-                            let if_shape = IfShape {
-                                cond_block: pre_branch_bb,
-                                then_block,
-                                else_block: Some(else_block),
-                                merge_block,
-                            };
-
-                            // PHI 生成
-                            let phi_count = {
-                                let mut ops = ToplevelOps(self);
-                                crate::mir::if_in_loop_phi::IfInLoopPhiEmitter::emit_toplevel_phis(
-                                    &phi_spec,
-                                    &pre_if_var_map,
-                                    &then_var_map_end,
-                                    else_var_map_end_opt.as_ref(),
-                                    &mut ops,
-                                    &if_shape,
-                                )?
-                            };
-
-                            if joinir_dryrun {
-                                let ring0 = crate::runtime::get_global_ring0();
-                                ring0.log.debug(&format!(
-                                    "[Phase 61-4] ✅ Production path: {} PHIs generated via JoinIR",
-                                    phi_count
-                                ));
-                            }
-
-                            joinir_success = true;
-                        }
-                    }
-                    None => {
-                        if joinir_dryrun {
-                            let ring0 = crate::runtime::get_global_ring0();
-                            ring0.log.debug(&format!(
-                                "[Phase 61-4] ⏭️ JoinIR shape not matched for {}, using fallback",
-                                func_name
-                            ));
-                        }
-                        // Phase 80/81: Strict mode では本線対象関数の失敗でパニック
-                        if strict_mode {
-                            panic!(
-                                "[joinir/if] strict mode: shape not matched for {} (if_form.rs)",
-                                func_name
-                            );
-                        }
-                    }
-                }
-            }
-        }
-
-        // Phase 61-4: JoinIR成功時はスキップ、失敗時は既存経路
-        let result_val = if joinir_success {
-            // JoinIR 経路（未実装 - フォールバック）
-            crate::mir::builder::emission::constant::emit_void(self)?
-        } else {
-            self.normalize_if_else_phi(
-                then_block,
-                else_block,
-                if then_reaches_merge {
-                    Some(then_exit_block)
-                } else {
-                    None
-                },
-                if else_reaches_merge {
-                    Some(else_exit_block)
-                } else {
-                    None
-                },
-                then_value_raw,
-                else_value_raw,
-                &pre_if_var_map,
-                &then_var_map_end,
-                &else_var_map_end_opt,
-                pre_then_var_value,
-            )?
-        };
+        let result_val = self.normalize_if_else_phi(
+            then_block,
+            else_block,
+            if then_reaches_merge {
+                Some(then_exit_block)
+            } else {
+                None
+            },
+            if else_reaches_merge {
+                Some(else_exit_block)
+            } else {
+                None
+            },
+            then_value_raw,
+            else_value_raw,
+            &pre_if_var_map,
+            &then_var_map_end,
+            &else_var_map_end_opt,
+            pre_then_var_value,
+        )?;
 
         // Hint: join result variable(s)
         // 1) Primary: if both branches assign to the same variable name, emit a hint for that name
@@ -433,27 +248,25 @@ impl MirBuilder {
         }
 
         // Merge other modified variables (skip the primary assignment if any)
-        if !joinir_success {
-            let skip_name = assigned_then_pre.as_deref();
-            self.merge_modified_vars(
-                then_block,
-                else_block,
-                if then_reaches_merge {
-                    Some(then_exit_block)
-                } else {
-                    None
-                },
-                if else_reaches_merge {
-                    Some(else_exit_block)
-                } else {
-                    None
-                },
-                &pre_if_var_map,
-                &then_var_map_end,
-                &else_var_map_end_opt,
-                skip_name,
-            )?;
-        }
+        let skip_name = assigned_then_pre.as_deref();
+        self.merge_modified_vars(
+            then_block,
+            else_block,
+            if then_reaches_merge {
+                Some(then_exit_block)
+            } else {
+                None
+            },
+            if else_reaches_merge {
+                Some(else_exit_block)
+            } else {
+                None
+            },
+            &pre_if_var_map,
+            &then_var_map_end,
+            &else_var_map_end_opt,
+            skip_name,
+        )?;
 
         self.pop_if_merge();
         // Pop merge debug region

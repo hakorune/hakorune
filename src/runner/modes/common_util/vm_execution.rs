@@ -112,18 +112,6 @@ pub(crate) fn run_vm_compiled_module(
             }
         }
 
-        // Phase 33-10.0: If lowering ドライラン統合（箱化版）
-        // JoinIR dev + IfSelect 有効時に IfLoweringDryRunner を使用
-        if crate::config::env::joinir_dev_enabled()
-            && crate::config::env::joinir_if_select_enabled()
-        {
-            let debug_level = crate::config::env::joinir_debug_level();
-            let runner =
-                crate::mir::join_ir::lowering::if_dry_runner::IfLoweringDryRunner::new(debug_level);
-            let stats = runner.scan_module(&module_vm.functions);
-            runner.print_stats(&stats);
-        }
-
         if run_joinir_bridge {
             // Phase 30 F-4.4: JoinIR VM Bridge experimental path (consolidated dispatch)
             // Activation is owned by the dispatch module's explicit bridge gate.

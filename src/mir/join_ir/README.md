@@ -98,10 +98,6 @@ Target-specific lowerer cleanup order is owned by:
 Observation / support surfaces:
 
 - `json.rs`
-- `lowering/if_dry_runner.rs`
-  - dev-only observation scanner invoked from the VM runner when JoinIR dev and
-    IfSelect observation flags are enabled
-  - it must not mutate MIR or become the If lowering truth
 - `lowering/canonical_names.rs`
 - `lowering/error_tags.rs`
 - `lowering/debug_output_box.rs`

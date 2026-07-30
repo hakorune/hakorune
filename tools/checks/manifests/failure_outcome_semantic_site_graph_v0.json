@@ -3657,22 +3657,6 @@
       "token": "ConstValue::Void"
     },
     {
-      "evidence": "ConstValue::Void => MirType::Void,",
-      "evidence_id": "src/mir/join_ir/lowering/common/type_hint.rs:19:ConstValue::Void",
-      "evidence_kind": "mir_constant_carrier",
-      "line": 19,
-      "source_path": "src/mir/join_ir/lowering/common/type_hint.rs",
-      "token": "ConstValue::Void"
-    },
-    {
-      "evidence": "ConstValue::Null => MirType::Unknown, // Null \u306f Unknown \u3068\u3057\u3066\u6271\u3046",
-      "evidence_id": "src/mir/join_ir/lowering/common/type_hint.rs:20:ConstValue::Null",
-      "evidence_kind": "mir_constant_carrier",
-      "line": 20,
-      "source_path": "src/mir/join_ir/lowering/common/type_hint.rs",
-      "token": "ConstValue::Null"
-    },
-    {
       "evidence": "assert_eq!(env.get(\"i\"), Some(ValueId(0)));",
       "evidence_id": "src/mir/join_ir/lowering/condition_env.rs:110:env.get",
       "evidence_kind": "provider_optional_or_missing",
@@ -5226,7 +5210,6 @@
         "src/mir/global_call_route_plan/same_module_static_helper_contract.rs:261:ConstValue::Null",
         "src/mir/global_call_route_plan/void_side_effect_body.rs:102:ConstValue::Null",
         "src/mir/global_call_route_plan/void_side_effect_body.rs:33:ConstValue::Null",
-        "src/mir/join_ir/lowering/common/type_hint.rs:20:ConstValue::Null",
         "src/mir/join_ir_vm_bridge/convert.rs:21:ConstValue::Null",
         "src/mir/passes/inline_soft_leaf/tests.rs:228:ConstValue::Null",
         "src/mir/passes/inline_soft_leaf/tests.rs:254:ConstValue::Null",
@@ -5309,8 +5292,6 @@
         "src/mir/global_call_route_plan/void_side_effect_body.rs:102:ConstValue::Void",
         "src/mir/global_call_route_plan/void_side_effect_body.rs:33:ConstValue::Null",
         "src/mir/global_call_route_plan/void_side_effect_body.rs:33:ConstValue::Void",
-        "src/mir/join_ir/lowering/common/type_hint.rs:19:ConstValue::Void",
-        "src/mir/join_ir/lowering/common/type_hint.rs:20:ConstValue::Null",
         "src/mir/join_ir_vm_bridge/convert.rs:21:ConstValue::Null",
         "src/mir/join_ir_vm_bridge/joinir_block_converter/utils.rs:87:ConstValue::Void",
         "src/mir/passes/inline_soft_leaf/tests.rs:228:ConstValue::Null",
@@ -5378,7 +5359,6 @@
         "src/mir/global_call_route_plan/same_module_static_helper_contract.rs:260:ConstValue::Void",
         "src/mir/global_call_route_plan/void_side_effect_body.rs:102:ConstValue::Void",
         "src/mir/global_call_route_plan/void_side_effect_body.rs:33:ConstValue::Void",
-        "src/mir/join_ir/lowering/common/type_hint.rs:19:ConstValue::Void",
         "src/mir/join_ir_vm_bridge/joinir_block_converter/utils.rs:87:ConstValue::Void",
         "src/mir/passes/simplify_cfg.rs:246:ConstValue::Void",
         "src/mir/same_module_body_shape.rs:69:ConstValue::Void",

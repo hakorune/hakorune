@@ -505,8 +505,6 @@ LoopBuilder は物理削除済みで、JoinIR を OFF にするモードは存�
 | 変数 | デフォルト | 説明 |
 | --- | --- | --- |
 | `NYASH_JOINIR_EXPERIMENT` | OFF | JoinIR 実験メイントグル（VM bridge のactivation条件ではない） |
-| `HAKO_JOINIR_IF_SELECT` | OFF | IfSelect/IfMerge JoinIR 経路。エイリアス `NYASH_JOINIR_IF_SELECT` は Deprecated。 |
-| `HAKO_JOINIR_IF_IN_LOOP_ENABLE` | OFF | if-in-loop JoinIR 本線切替（Core 候補）。 |
 | `NYASH_JOINIR_VM_BRIDGE` | OFF | `vm-reference` build の explicit `--backend vm` compatibility bridge を有効化。 |
 | ~~`NYASH_HAKO_CHECK_JOINIR`~~ | 削除済み | **Phase 124 で削除**: hako_check は JoinIR 専用化。環境変数不要。 |
 
@@ -528,9 +526,6 @@ LoopBuilder は物理削除済みで、JoinIR を OFF にするモードは存�
 | `NYASH_JOINIR_VM_BRIDGE_DEBUG` | OFF | VM bridge 追加ログ。 |
 | `NYASH_JOINIR_MAINLINE_DEBUG` | OFF | Mainline 追加ログ。 |
 | `HAKO_JOINIR_PLANNER_REQUIRED` | OFF | Planner が None を返したとき legacy fallback を禁止する（single-case gate 用、既定OFF）。 |
-| `HAKO_JOINIR_IF_IN_LOOP_DRYRUN` | OFF | if-in-loop dry-run。 |
-| `HAKO_JOINIR_IF_TOPLEVEL` / `_DRYRUN` | OFF | ループ外 if JoinIR 経路 / dry-run。 |
-| `HAKO_JOINIR_STAGE1` | OFF | Stage‑1 JoinIR 経路。 |
 | `HAKO_JOINIR_PRINT_TOKENS_MAIN` | OFF | print_tokens main A/B。 |
 | `HAKO_JOINIR_ARRAY_FILTER_MAIN` | OFF | array.filter main A/B。 |
 | `NYASH_JOINIR_DEBUG` / `HAKO_JOINIR_DEBUG` | OFF | JoinIR デバッグログ（推奨: `HAKO_JOINIR_DEBUG=1`、`NYASH_*` は legacy）。 |

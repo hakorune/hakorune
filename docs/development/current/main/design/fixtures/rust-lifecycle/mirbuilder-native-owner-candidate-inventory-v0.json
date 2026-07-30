@@ -9636,30 +9636,6 @@
     },
     {
       "candidate_kind": "boolean_classifier",
-      "function": "is_carrier",
-      "line": 112,
-      "path": "src/mir/join_ir/lowering/if_phi_context.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_in_loop",
-      "line": 122,
-      "path": "src/mir/join_ir/lowering/if_phi_context.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_side_effect_free",
-      "line": 227,
-      "path": "src/mir/join_ir/lowering/if_select.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
       "function": "is_supported_case_a",
       "line": 66,
       "path": "src/mir/join_ir/lowering/loop_route_validator.rs",
@@ -9740,14 +9716,6 @@
     },
     {
       "candidate_kind": "boolean_classifier",
-      "function": "is_joinir_if_toplevel_target",
-      "line": 127,
-      "path": "src/mir/join_ir/lowering/mod.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
       "function": "is_structured",
       "line": 516,
       "path": "src/mir/join_ir/mod.rs",
@@ -9783,14 +9751,6 @@
       "function": "is_bridge_enabled",
       "line": 18,
       "path": "src/mir/join_ir_vm_bridge_dispatch/env_flags.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_if_toplevel_prefix_target",
-      "line": 126,
-      "path": "src/mir/join_ir_vm_bridge_dispatch/targets.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -16365,27 +16325,7 @@
     {
       "candidate_kind": "boolean_classifier",
       "function": "is_loop_lowered_function",
-      "line": 73,
-      "path": "src/mir/join_ir/lowering/mod.rs",
-      "reject_reasons": [
-        "depends_on_lowering"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_loop_mainline_target",
-      "line": 82,
-      "path": "src/mir/join_ir/lowering/mod.rs",
-      "reject_reasons": [
-        "depends_on_lowering"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_if_mainline_target",
-      "line": 89,
+      "line": 62,
       "path": "src/mir/join_ir/lowering/mod.rs",
       "reject_reasons": [
         "depends_on_lowering"
@@ -16424,29 +16364,9 @@
       "status": "rejected"
     },
     {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_if_lowered_function",
-      "line": 102,
-      "path": "src/mir/join_ir_vm_bridge_dispatch/targets.rs",
-      "reject_reasons": [
-        "depends_on_lowering"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_if_lowering_prefix_target",
-      "line": 113,
-      "path": "src/mir/join_ir_vm_bridge_dispatch/targets.rs",
-      "reject_reasons": [
-        "depends_on_lowering"
-      ],
-      "status": "rejected"
-    },
-    {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "lower_only_observation_names_are_not_vm_targets",
-      "line": 155,
+      "line": 60,
       "path": "src/mir/join_ir_vm_bridge_dispatch/targets.rs",
       "reject_reasons": [
         "depends_on_lowering",
@@ -18407,7 +18327,7 @@
         "depends_on_collection": 67,
         "depends_on_context": 25,
         "depends_on_emission": 43,
-        "depends_on_lowering": 78,
+        "depends_on_lowering": 74,
         "depends_on_metadata": 74,
         "depends_on_resolution": 71,
         "depends_on_route_selection": 112,
@@ -18417,10 +18337,10 @@
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 885,
-        "rejected": 620
+        "candidate": 880,
+        "rejected": 616
       },
-      "surface_count": 1506
+      "surface_count": 1497
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

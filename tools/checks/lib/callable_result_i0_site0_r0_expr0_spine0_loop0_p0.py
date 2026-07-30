@@ -52,7 +52,6 @@ P0B_F0_TOUCHED_PATHS = (
     "src/mir/builder/control_flow/plan/normalizer/value_join_demo_if2.rs",
     "src/mir/builder/control_flow/plan/parts/wiring_tests.rs",
     "src/tests/mir_direct_route_decode_escapes.rs",
-    "src/tests/mir_joinir_if_select_parts/helpers.rs",
     "src/tests/mir_loopform_complex.rs",
     "src/tests/mir_move_contract.rs",
     "src/tests/mir_stage1_staticcompiler_receiver.rs",
