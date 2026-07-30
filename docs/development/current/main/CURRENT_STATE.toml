@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS2-D0 is closed: legacy join_ir/ownership is the smallest remaining caller-zero reference asset, but the three-RET0 horizon is closed after append-defs, JSONIR v0, and verifier retirement. MIRBUILDER-LIVE-EDGE-CENSUS10-D0 is the sole design stop and must find a real live replacement before any fourth RET0. VM bridge, LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, legacy JoinIR ownership analysis, and JumpArgsLayout remain separate fences, candidates, or rehome work. Final conformance must resolve every fence before Ownership, View, or feature work opens."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS10-D0 is closed: root/finalization has one live normal collector-drain residual, but existing raw and canonical drains have incompatible family, brand, and failure ownership; expression/statement descent has no competing normal route. NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-D0 is the sole T2 design stop. Legacy join_ir/ownership remains the first deferred caller-zero retirement after a live I0/R0 resets the three-RET0 horizon. VM bridge, LowerOnly, normalized shadow, LLVM, verify_phi_reserved, frontend metadata, and JumpArgsLayout remain separate fences or rehome work. Final conformance must resolve every fence before Ownership, View, or feature work opens."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS10-D0"
+current_design_stop = "NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-D0"
 current_execution_row = ""
-current_execution_summary = "Fresh live-edge design census only: inventory current normal/default production callers after the three-RET0 horizon, identify one competing authority whose replacement can switch a named non-test caller and delete its old edge atomically, or record NoSafeLiveI0 with evidence. No detached JoinIR retirement, route widening, fallback/retry, Ownership/View, or feature work is authorized during D0. Legacy join_ir/ownership remains a deferred caller-zero retirement candidate only."
+current_execution_summary = "T2 design only: determine the normal-owned successor for ModuleDraftCollectorV1::prepare_normal_legacy_drain and its legacy-key/replacement admission. Fix source/brand/receipt/failure ownership, exact atomic publication transition, and parity/reuse gates before authorizing I0/R0. Raw/canonical drain adaptation, detached JoinIR retirement, route widening, fallback/retry, Ownership/View, and feature work are out of scope."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS2-D0 is closed: legacy join_ir/ownership has no external Rust consumer and is the smallest remaining R3 retirement candidate, while the AST frontend has a larger test/fixture closure. The three-RET0 horizon is closed after append-defs, JSONIR v0, and verifier retirement, so MIRBUILDER-LIVE-EDGE-CENSUS10-D0 must select a genuine live I0/R0 or record NoSafeLiveI0 before any further RET0. VM bridge Exec/LowerOnly, normalized shadow, LLVM experiment, verify_phi_reserved, frontend metadata, and JumpArgsLayout remain fenced or separate. Final conformance must explicitly dispose every retained fence before Ownership, View, and later features can open."""
+latest_card_summary = """MIRBUILDER-LIVE-EDGE-CENSUS10-D0 is closed: normal root/finalization retains only the collector-drain lifecycle as a real competing live edge; the generic expression/statement port is already selected, while raw/canonical drains cannot be mechanically reused because their family, brand, receipt, and rejection ownership differ. NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-D0 is the sole T2 design stop. Legacy join_ir/ownership remains a deferred caller-zero retirement after the next live I0/R0. VM bridge Exec/LowerOnly, normalized shadow, LLVM experiment, verify_phi_reserved, frontend metadata, and JumpArgsLayout remain fenced or separate. Final conformance must explicitly dispose every retained fence before Ownership, View, and later features can open."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS10-D0"
+current_blocker_token = "NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

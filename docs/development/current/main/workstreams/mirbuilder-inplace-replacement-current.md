@@ -31,7 +31,7 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
 Latest landed: JOINMODULE-VERIFY-REFERENCE-RET0
 Result:        caller-zero JoinIR reference verifier surface retired
-Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS10-D0`
+Latest design: `NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-D0`
 Executable:    none — design stop
 History:       Git history and the short landed tail below
 ```
@@ -123,20 +123,20 @@ StageB reference consumers are handled only by the next reference-sunset D0.
 
 ## Current design stop
 
-`MIRBUILDER-LIVE-EDGE-CENSUS10-D0` — live replacement reset census
+`NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-D0` — T2 normal drain design
 
 ```text
 Purpose:
-  find one current normal/default production responsibility that can switch a
-  named non-test caller and delete its competing old authority atomically.
+  define the normal-owned successor for the remaining prepared legacy
+  collector-drain and its exact batch-publication lifecycle.
 
 Required decision:
-  exact production caller, selected owner, same-commit old-edge deletion,
-  parity/failure/reuse evidence, or an evidence-backed NoSafeLiveI0 result.
+  source/brand/receipt/failure owner; atomic old-edge deletion; exact normal
+  function-set/order/metadata, collision, failure, and reuse evidence.
 
 Non-authority:
-  no detached JoinIR RET0, route widening, fallback/retry, Ownership/View, or
-  feature work during the census.
+  no raw/canonical drain adaptation, detached JoinIR RET0, route widening,
+  fallback/retry, Ownership/View, or feature work during D0.
 ```
 
 ## Latest closeout
@@ -158,6 +158,16 @@ JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS2-D0
   VM bridge / normalized shadow / LLVM / phi observer / carriers    = fenced or separate
   consecutive detached RET0                                          = 3; fourth RET0 prohibited
   next                                                               = live-edge census10 D0
+```
+
+## Prior selection
+
+```text
+MIRBUILDER-LIVE-EDGE-CENSUS10-D0
+  Program/root final collector drain                                = only live residual
+  existing raw/canonical drains                                    = incompatible ownership
+  expression/statement port                                        = already selected; NoSafeLiveI0
+  next                                                              = normal collector-drain lifecycle D0
 ```
 
 ## Prior selection
