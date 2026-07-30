@@ -59,7 +59,8 @@ Latest landed:  `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS31-D0` — closed, NoSafeSlice
 Latest design: `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-D0` — closed
 Latest landed: `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`
-Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS33-D0`
+Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS33-D0` — closed
+Next row:      `RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0`
 History:       Git history and the short landed tail below
 ```
 
@@ -82,6 +83,7 @@ activation and sunset contract.
 | retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | `join_ir_vm_bridge_dispatch` Exec and LowerOnly targets | explicit VM keep / vm-reference with `NYASH_JOINIR_VM_BRIDGE=1`; default MIR and vm-fallback = 0 | RETAIN-FENCED | fresh named VM-bridge release D0: dispatcher caller = 0 or one explicit-lane execution owner replaces the lane |
 | closed | `RAW-DRAFT-DISCONNECTED-PROOF-SUNSET-001` | `RawDraftInvocationV1`, its two cfg(test) callers, compiler `begin_raw_draft`, and dedicated guard | production caller = 0; disconnected proof owner only | RET0 | retired by `RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0`: complete owner/test/compiler/guard surface = 0 |
 | closed | `RAW-ROOT-STATIC-CHILD-DRAFT-COMPAT-SUNSET-001` | former `InvocationPhysicalStateV1::complete_raw_static_child` direct `LegacyChildDraftAdmissionV1` issuer shared by static helpers and callable Main | explicit raw public / VM-reference route; default normal = 0 | REOWN | retired by `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`: one existing locator+role admission now reaches the unchanged collector projection; direct legacy-symbol issuer = 0 |
+| active retirement | `RAW-ROOT-LEGACY-BRANDED-TERMINAL-SUNSET-001` | caller-zero `complete_legacy_child_branded` and `commit_legacy_pending_branded` adapters from `LegacyChildDraftAdmissionV1` to branded collector receipt | activation = 0 after `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`; definitions only | RET0 | `RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0`: delete both adapters; retain unbranded, symbol-keyed, resolved, and nested-live terminals |
 | unregistered | `R4-UNREGISTERED-LLVM-EXPERIMENT-001` — LLVM experiment | feature/env-gated JoinModule mutation route | not normal/default; exact activation/owner not yet registered | undecided; named D0 required before C0 | RET0, REOWN, or RETAIN-FENCED with owner, activation, retire_when |
 | unregistered | `R4-UNREGISTERED-FRONTEND-METADATA-001` — frontend metadata | `frontend::func_meta` / `JoinFuncMetaMap` consumers | activation/owner not yet registered | undecided; named D0 required before C0 | RET0, REOWN, or RETAIN-FENCED with owner, activation, retire_when |
 | unregistered | `R4-UNREGISTERED-CARRIER-BOUNDARY-001` — carrier boundaries | `JumpArgsLayout` and `JoinInlineBoundary` families | live/fenced consumer mapping not yet registered | undecided; named D0 required before C0 | CorePlan/MIR rehome D0, RET0, or RETAIN-FENCED |
@@ -92,7 +94,7 @@ activation and sunset contract.
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | undecided; named D0 required before C0 | delete or RETAIN-FENCED reference scope with exact owner, activation, retire_when |
 
 The registry has three registered R3 fences, one active compatibility residual,
-seven closed residuals, and seven unregistered R3 family
+one active retirement, seven closed residuals, and seven unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
@@ -121,6 +123,41 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`MIRBUILDER-LIVE-EDGE-CENSUS33-D0` — read-only census, closed
+
+```text
+LegacyChildDraftAdmissionV1:
+  32 occurrences / 6 src/mir files.
+
+Crosswalk:
+  production vocabulary                     = 2 occurrences
+  production neutral terminals              = 5 occurrences
+  production live nested issuers             = 3 occurrences
+    (one import + exact static/instance constructors)
+  cfg(test) evidence                         = 22 occurrences
+
+Live source:
+  nested ordinary static method
+  nested instance constructor / method
+  -> NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001, RETAIN-FENCED.
+  Exact function-relative source transport remains absent; no safe REOWN.
+
+Selected detached residue:
+  complete_legacy_child_branded              = definition only
+  commit_legacy_pending_branded              = definition only
+  disposition                                = RET0
+  production / grammar / route delta         = 0
+  replacement credit                         = 0
+
+Excluded:
+  resolved/canonical caller-zero terminals; eight raw port-dropping facades;
+  phi observer; raw static Main; JoinModule families. Each remains a separate
+  responsibility and requires a fresh census or named D0.
+
+Next:
+  RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0.
+```
 
 `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0` — T2 REOWN, closed
 
