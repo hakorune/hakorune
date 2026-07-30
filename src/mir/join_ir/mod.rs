@@ -32,9 +32,6 @@ pub mod lowering;
 // Phase 29 L-5.2: Progress verification
 pub mod verify;
 
-// Phase 30.x: JSON serialization (jsonir v0)
-pub mod json;
-
 // Phase 34-1: Frontend (AST→JoinIR) — skeleton only
 pub mod frontend;
 

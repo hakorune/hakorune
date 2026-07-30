@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0 is closed: VM bridge, LowerOnly, normalized shadow, and LLVM remain their existing explicit fences; repository-local JoinIR JSONIR v0 serialization is the one caller-zero asset selected for retirement. JOINMODULE-JSONIR-V0-REFERENCE-RET0 is next. JumpArgsLayout remains a separate caller-zero core-carrier rehome. Final conformance must resolve every fence before Ownership, View, or feature work opens."
+status = "JOINMODULE-JSONIR-V0-REFERENCE-RET0 is closed: the caller-zero JSONIR v0 serializer, snapshots, export, env helpers, and manifest evidence are deleted, while Stage-B bridge tests remain in their proper owners. JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS1-D0 is next. VM bridge, LowerOnly, normalized shadow, LLVM, and JumpArgsLayout remain separate fences or rehome work. Final conformance must resolve every fence before Ownership, View, or feature work opens."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = ""
-current_execution_row = "JOINMODULE-JSONIR-V0-REFERENCE-RET0"
-current_execution_summary = "T1 non-replacement retirement: delete the repository-caller-zero JoinIR JSONIR v0 serializer, its snapshot-only tests/fixtures, public module export, and now-unused snapshot env helpers. In the same commit, remove or rehome its one failure-outcome manifest evidence to an existing non-JoinIR Null test and retain the Stage-B bridge tests that share the test file. VM bridge, LowerOnly, normalized shadow, LLVM, normal/default, strict, JumpArgsLayout, Ownership, View, and feature work remain unchanged."
+current_design_stop = "JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS1-D0"
+current_execution_row = ""
+current_execution_summary = "Design-only stop: recount the remaining JoinModule/reference execution, observation, JSON/format, and explicit-env bridge families after JSONIR v0 retirement. Select at most one non-growing RET0, REOWN, or RETAIN-FENCED disposition with exact consumers, owner, sunset, and retire_when. No LOC-based deletion, normal/default, strict, LLVM, JumpArgsLayout, Ownership, View, or feature work is authorized before that decision."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0 is closed: explicit VM bridge Exec/LowerOnly, normalized shadow, and LLVM experiment consumers remain separately fenced; no normal/default JoinModule execution exists. The sole selected caller-zero asset is JSONIR v0 serialization. JOINMODULE-JSONIR-V0-REFERENCE-RET0 must retire its serializer/snapshot surface and atomically remove or rehome its manifest-only Null evidence, without touching shared Stage-B bridge tests. JumpArgsLayout remains a separate Core/MIR carrier task. Final conformance must explicitly dispose every retained fence before Ownership, View, and later features can open."""
+latest_card_summary = """JOINMODULE-JSONIR-V0-REFERENCE-RET0 is closed: repository-caller-zero JSONIR v0 serialization, snapshots, public export, snapshot env helpers, and duplicate Null manifest evidence are deleted; Stage-B bridge checks are retained in their Stage-B owners. JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS1-D0 is now the only design stop. Explicit VM bridge Exec/LowerOnly, normalized shadow, LLVM experiment, and JumpArgsLayout remain separate fences or rehome work. Final conformance must explicitly dispose every retained fence before Ownership, View, and later features can open."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINMODULE-JSONIR-V0-REFERENCE-RET0"
+current_blocker_token = "JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS1-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

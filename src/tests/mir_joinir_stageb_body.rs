@@ -11,6 +11,7 @@
 use crate::ast::ASTNode;
 use crate::mir::join_ir::lowering::stageb_body::lower_stageb_body_to_joinir;
 use crate::mir::join_ir::*;
+use crate::mir::join_ir_vm_bridge::bridge_joinir_to_mir;
 use crate::mir::{MirCompiler, ValueId};
 use crate::parser::NyashParser;
 use crate::tests::helpers::joinir_env;
@@ -98,4 +99,40 @@ fn mir_joinir_stageb_body_empty_module_returns_none() {
     let result = lower_stageb_body_to_joinir(&test_module);
     eprintln!("[joinir/stageb_body] empty_module test => {:?}", result);
     assert!(result.is_none());
+}
+
+#[test]
+fn mir_joinir_stageb_body_bridge_preserves_lowered_functions() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    std::env::set_var("NYASH_FEATURES", "stage3");
+
+    let source = std::fs::read_to_string("apps/tests/stageb_body_extract_minimal.hako")
+        .expect("stageb body source should exist");
+    let ast = NyashParser::parse_from_string(&source).expect("stageb body should parse");
+    let mut compiler = MirCompiler::with_options(false);
+    let compiled = compiler
+        .compile(ast)
+        .expect("stageb body should compile to MIR");
+    let join_module =
+        lower_stageb_body_to_joinir(&compiled.module).expect("stageb body should lower to JoinIR");
+
+    assert!(
+        join_module.functions.len() >= 2,
+        "Stage-B body should expose entry and loop-step functions"
+    );
+
+    let mir_module =
+        bridge_joinir_to_mir(&join_module).expect("Stage-B body JoinIR should bridge back to MIR");
+    for join_function in join_module.functions.values() {
+        assert!(
+            mir_module.functions.contains_key(&join_function.name),
+            "bridged MIR is missing {}",
+            join_function.name
+        );
+        assert!(
+            !mir_module.functions[&join_function.name].blocks.is_empty(),
+            "bridged {} must retain a block",
+            join_function.name
+        );
+    }
 }

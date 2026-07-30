@@ -57,16 +57,6 @@ pub fn strict_planner_required_enabled() -> bool {
     strict_enabled() && planner_required_enabled()
 }
 
-/// NYASH_JOINIR_SNAPSHOT_GENERATE=1 - Generate snapshot for testing
-pub fn snapshot_generate_enabled() -> bool {
-    env_bool("NYASH_JOINIR_SNAPSHOT_GENERATE")
-}
-
-/// NYASH_JOINIR_SNAPSHOT_TEST=1 - Test using snapshot
-pub fn snapshot_test_enabled() -> bool {
-    env_bool("NYASH_JOINIR_SNAPSHOT_TEST")
-}
-
 /// NYASH_JOINIR_INPUT=* - Input source or mode
 pub fn input_mode() -> Option<String> {
     std::env::var("NYASH_JOINIR_INPUT").ok()

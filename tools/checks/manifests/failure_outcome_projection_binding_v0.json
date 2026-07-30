@@ -509,8 +509,7 @@
         "src/mir/user_box_method_route_plan/tests/object_handles.rs:116:ConstValue::Null",
         "src/mir/user_box_method_route_plan/tests/object_handles.rs:215:ConstValue::Null",
         "src/mir/user_box_method_route_plan/tests/object_handles.rs:307:ConstValue::Null",
-        "src/runner/mir_json_emit/tests/global_call_routes/pattern_util_local_value_probe.rs:69:ConstValue::Null",
-        "src/tests/joinir_json_min.rs:126:ConstValue::Null"
+        "src/runner/mir_json_emit/tests/global_call_routes/pattern_util_local_value_probe.rs:69:ConstValue::Null"
       ],
       "observed_carrier": "ConstValue::Null",
       "observed_site": "test.constant.constant_bridge.backend_null_projection",

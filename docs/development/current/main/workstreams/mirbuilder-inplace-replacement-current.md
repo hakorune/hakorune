@@ -29,9 +29,9 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
-Latest landed: GENERIC-CASE-A-APPEND-DEFS-RET0
-Result:        unreachable generic append-defs asset and ValueId range deleted
-Latest design: `JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0`
+Latest landed: JOINMODULE-JSONIR-V0-REFERENCE-RET0
+Result:        caller-zero JSONIR v0 serializer/snapshot surface retired
+Latest design: `JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS1-D0`
 Executable:    none — design stop
 History:       Git history and the short landed tail below
 ```
@@ -121,32 +121,38 @@ and the observer contract is independently disposed. The explicit VM/Stage1/
 StageB reference consumers are handled only by the next reference-sunset D0.
 ```
 
-## Current execution
+## Current design stop
 
-`JOINMODULE-JSONIR-V0-REFERENCE-RET0` — T1 R3 caller-zero retirement
+`JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS1-D0` — R3 reference frontier
 
 ```text
-Change:
-  remove the JSONIR v0 serializer/snapshot-only surface and its module export;
-  atomically remove or rehome the one manifest-only Null evidence.
+Scope:
+  recount only remaining JoinModule/reference execution, observation, JSON/format,
+  and explicit-env bridge consumers after JSONIR v0 retirement.
 
-Contract:
-  JSONIR v0 has no repository non-test caller. Keep the shared Stage-B bridge
-  tests; VM bridge, LowerOnly, normalized shadow, and LLVM remain fenced.
+Decision:
+  select at most one exact RET0, REOWN, or RETAIN-FENCED disposition with
+  consumers, owner, non-growing surface, sunset, and retire_when.
 
-Done:
-  serializer, fixtures, snapshot helpers, and selected manifest edge are zero;
-  the existing JoinIR/reference guard and focused library tests are green.
-
-Stop:
-  any external compatibility consumer, required manifest evidence without an
-  existing non-JoinIR replacement, or shared bridge-test dependency returns to D0.
+Non-claims:
+  no LOC-based deletion, normal/default route, strict or LLVM change, carrier
+  rehome, Ownership, View, or feature work.
 ```
 
-`JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0` is closed. It classified VM bridge,
-LowerOnly, normalized shadow, and LLVM as existing explicit fences, and selected
-only JSONIR v0 as the next caller-zero surface. It does not authorize LOC-based
-deletion or any normal/default, strict, carrier, Ownership, View, or feature work.
+`JOINMODULE-JSONIR-V0-REFERENCE-RET0` is closed: JSONIR v0 and its duplicate
+manifest evidence are gone; shared Stage-B bridge tests moved to their existing
+owners. VM bridge, LowerOnly, normalized shadow, and LLVM remain fenced.
+
+## Latest closeout
+
+```text
+JOINMODULE-JSONIR-V0-REFERENCE-RET0
+  serializer / snapshots / export / env helpers / duplicate manifest evidence = 0
+  Stage-B bridge tests                                                        = retained
+  focused Stage-B tests + lib/vm-reference checks + lane guards              = green
+  normal/default, bridge, strict, LLVM delta                                 = 0
+  next                                                                        = fresh R3 census D0
+```
 
 ## Latest closeout
 
@@ -512,9 +518,9 @@ R2 Live responsibility replacement
 R3 Legacy JoinModule/reference disposition
   `JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0` and the subsequent carrier,
   runner, stale-name, and unreachable-generic-asset closures are closed.
-  `JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0` selects JSONIR v0 as the single
-  next caller-zero retirement. VM bridge, normalized shadow, and LLVM remain
-  their registered fences.
+  `JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS0-D0` selected and closed JSONIR v0 as
+  one caller-zero retirement. VM bridge, normalized shadow, and LLVM remain
+  their registered fences; `JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS1-D0` is next.
 
   Each remaining R3 cycle is exactly:
   1. fresh consumer census;

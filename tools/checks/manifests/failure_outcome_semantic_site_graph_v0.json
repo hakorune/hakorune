@@ -5017,14 +5017,6 @@
       "token": "Option::None"
     },
     {
-      "evidence": "value: ConstValue::Null,",
-      "evidence_id": "src/tests/joinir_json_min.rs:126:ConstValue::Null",
-      "evidence_kind": "mir_constant_carrier",
-      "line": 126,
-      "source_path": "src/tests/joinir_json_min.rs",
-      "token": "ConstValue::Null"
-    },
-    {
       "evidence": "return Result::Err(7)",
       "evidence_id": "src/tests/mir_guard_let_enummatch.rs:24:Result::Err",
       "evidence_kind": "result_constructor",
@@ -6616,8 +6608,7 @@
         "src/mir/user_box_method_route_plan/tests/object_handles.rs:116:ConstValue::Null",
         "src/mir/user_box_method_route_plan/tests/object_handles.rs:215:ConstValue::Null",
         "src/mir/user_box_method_route_plan/tests/object_handles.rs:307:ConstValue::Null",
-        "src/runner/mir_json_emit/tests/global_call_routes/pattern_util_local_value_probe.rs:69:ConstValue::Null",
-        "src/tests/joinir_json_min.rs:126:ConstValue::Null"
+        "src/runner/mir_json_emit/tests/global_call_routes/pattern_util_local_value_probe.rs:69:ConstValue::Null"
       ],
       "layer": "test",
       "migration_action": "",
@@ -6738,8 +6729,7 @@
         "src/runner/mir_json_emit/tests/global_call_routes/void_sentinel.rs:341:ConstValue::Void",
         "src/runner/mir_json_emit/tests/global_call_routes/void_sentinel.rs:461:ConstValue::Void",
         "src/runner/mir_json_emit/tests/global_call_routes/void_sentinel.rs:53:ConstValue::Void",
-        "src/runner/mir_json_emit/tests/weak_field_contracts.rs:42:ConstValue::Void",
-        "src/tests/joinir_json_min.rs:126:ConstValue::Null"
+        "src/runner/mir_json_emit/tests/weak_field_contracts.rs:42:ConstValue::Void"
       ],
       "layer": "test",
       "migration_action": "",
