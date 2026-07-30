@@ -1,9 +1,6 @@
-use super::{convert_join_module_to_mir_with_meta, join_func_name, JoinIrVmBridgeError};
-use crate::mir::join_ir::frontend::JoinFuncMetaMap;
+use super::{join_func_name, module_converter::convert_join_module_to_mir, JoinIrVmBridgeError};
 use crate::mir::join_ir::JoinModule;
 use crate::mir::MirModule;
-#[cfg(any(test, feature = "vm-reference"))]
-use std::collections::BTreeMap;
 
 fn ensure_joinir_function_aliases(mir_module: &mut MirModule, join_module: &JoinModule) {
     for (func_id, join_func) in &join_module.functions {
@@ -41,9 +38,8 @@ fn ensure_joinir_function_aliases(mir_module: &mut MirModule, join_module: &Join
 }
 
 /// Structured JoinIR → MIR（既存経路）の明示エントリ。
-pub(crate) fn lower_joinir_structured_to_mir_with_meta(
+fn lower_joinir_structured_to_mir(
     module: &JoinModule,
-    meta: &JoinFuncMetaMap,
     boundary: Option<&crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary>,
 ) -> Result<MirModule, JoinIrVmBridgeError> {
     if !module.is_structured() {
@@ -52,7 +48,7 @@ pub(crate) fn lower_joinir_structured_to_mir_with_meta(
         ));
     }
 
-    convert_join_module_to_mir_with_meta(module, meta, boundary)
+    convert_join_module_to_mir(module, boundary)
 }
 
 /// JoinIR → MIR の単一入口。
@@ -61,12 +57,11 @@ pub(crate) fn lower_joinir_structured_to_mir_with_meta(
 /// normalized helper route no longer exists in this module.
 ///
 /// Phase 256 P1.5: boundary parameter for ValueId remapping
-pub(crate) fn bridge_joinir_to_mir_with_meta(
+pub(crate) fn bridge_joinir_to_mir_with_boundary(
     module: &JoinModule,
-    meta: &JoinFuncMetaMap,
     boundary: Option<&crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary>,
 ) -> Result<MirModule, JoinIrVmBridgeError> {
-    let mut mir = lower_joinir_structured_to_mir_with_meta(module, meta, boundary)?;
+    let mut mir = lower_joinir_structured_to_mir(module, boundary)?;
     ensure_joinir_function_aliases(&mut mir, module);
     Ok(mir)
 }
@@ -74,6 +69,5 @@ pub(crate) fn bridge_joinir_to_mir_with_meta(
 /// JoinIR → MIR（メタなし）呼び出しのユーティリティ。
 #[cfg(any(test, feature = "vm-reference"))]
 pub(crate) fn bridge_joinir_to_mir(module: &JoinModule) -> Result<MirModule, JoinIrVmBridgeError> {
-    let empty_meta: JoinFuncMetaMap = BTreeMap::new();
-    bridge_joinir_to_mir_with_meta(module, &empty_meta, None)
+    bridge_joinir_to_mir_with_boundary(module, None)
 }

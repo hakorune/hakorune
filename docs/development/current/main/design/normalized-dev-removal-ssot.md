@@ -44,7 +44,7 @@ Work:
 
 Accept:
 - `run_joinir_function(...)` は Structured path のみを使う。
-- `bridge_joinir_to_mir_with_meta(...)` は Structured path のみを使う。
+- `bridge_joinir_to_mir_with_boundary(...)` は Structured path のみを使う。
 - `cargo build --release --bin hakorune`
 - `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_fast_gate_vm.sh --only bq`
 

@@ -2,11 +2,11 @@
 //!
 //! ## Purpose
 //! array_ext.filterのif-in-loop PHI生成について、
-//! Route A (legacy AST→MIR) と Route B (JoinIR Frontend) を比較検証。
+//! Route A (legacy AST→MIR) と Route B (JoinIR Frontend) のanalysisを比較検証。
 //!
 //! ## Routes
 //! - Route A: 旧AST→MIR + collect_assigned_vars経路 (HAKO_JOINIR_ARRAY_FILTER=0)
-//! - Route B: JoinIR Frontend + JoinFuncMeta経路 (HAKO_JOINIR_ARRAY_FILTER=1)
+//! - Route B: JoinIR Frontend analysis (HAKO_JOINIR_ARRAY_FILTER=1)
 //!
 //! ## Success Criteria
 //! - 実行結果が完全一致（[2, 4, 6]）
@@ -15,14 +15,12 @@
 #![allow(dead_code)] // ASTCLEAN-008: phase fixture keeps helper paths available under selective test filters.
 
 use crate::mir::join_ir::frontend::AstToJoinIrLowerer;
-use crate::mir::join_ir_vm_bridge::convert_join_module_to_mir_with_meta;
 use std::collections::HashSet;
 
-/// Test 1: JoinFuncMeta helper methods work
+/// Test 1: JoinIR frontend analysis helper works
 ///
 /// ## Verification Points
 /// 1. extract_if_in_loop_modified_vars() がif-in-loop修正変数を検出
-/// 2. convert_join_module_to_mir_with_meta() がエラーなく実行
 #[test]
 fn phase40_joinir_meta_helpers_work() {
     use serde_json::json;
@@ -49,83 +47,6 @@ fn phase40_joinir_meta_helpers_work() {
         "If-in-loop modified var should be included"
     );
     assert_eq!(result.len(), 1, "Exactly 1 if-in-loop variable");
-}
-
-/// Test 2: MIR conversion with empty metadata works
-///
-/// ## Verification Points
-/// 1. convert_join_module_to_mir_with_meta() handles empty metadata
-/// 2. No panic or error
-#[test]
-fn phase40_mir_conversion_with_empty_meta() {
-    use crate::mir::join_ir::frontend::JoinFuncMetaMap;
-    use crate::mir::join_ir::{JoinFuncId, JoinFunction, JoinModule};
-    use crate::mir::ValueId;
-
-    // Create minimal JoinModule
-    let mut module = JoinModule::new();
-    let func_id = JoinFuncId::new(0);
-
-    let mut func = JoinFunction::new(func_id, "test_func".to_string(), vec![]);
-    // Add a simple return instruction
-    func.body.push(crate::mir::join_ir::JoinInst::Ret {
-        value: Some(ValueId(0)),
-    });
-
-    module.functions.insert(func_id, func);
-
-    // Empty metadata
-    let meta = JoinFuncMetaMap::new();
-
-    // Should not panic
-    let result = convert_join_module_to_mir_with_meta(&module, &meta, None);
-    assert!(result.is_ok(), "Empty metadata should not cause errors");
-
-    let mir_module = result.unwrap();
-    assert_eq!(mir_module.functions.len(), 1, "Should have 1 function");
-}
-
-/// Test 3: MIR conversion with if_modified_vars metadata
-///
-/// ## Verification Points
-/// 1. Metadata is properly passed through
-/// 2. No panic even with metadata present
-#[test]
-fn phase40_mir_conversion_with_meta() {
-    use crate::mir::join_ir::frontend::{JoinFuncMeta, JoinFuncMetaMap};
-    use crate::mir::join_ir::{JoinFuncId, JoinFunction, JoinModule};
-    use crate::mir::ValueId;
-
-    // Create minimal JoinModule
-    let mut module = JoinModule::new();
-    let func_id = JoinFuncId::new(0);
-
-    let mut func = JoinFunction::new(func_id, "loop_step".to_string(), vec![]);
-    func.body.push(crate::mir::join_ir::JoinInst::Ret {
-        value: Some(ValueId(0)),
-    });
-
-    module.functions.insert(func_id, func);
-
-    // Metadata with if_modified_vars
-    let mut meta = JoinFuncMetaMap::new();
-    let mut if_modified = HashSet::new();
-    if_modified.insert("out".to_string());
-
-    meta.insert(
-        func_id,
-        JoinFuncMeta {
-            if_modified_vars: Some(if_modified),
-            ..Default::default()
-        },
-    );
-
-    // Should not panic, metadata is logged but not used for PHI generation yet
-    let result = convert_join_module_to_mir_with_meta(&module, &meta, None);
-    assert!(result.is_ok(), "Metadata should not cause errors");
-
-    let mir_module = result.unwrap();
-    assert_eq!(mir_module.functions.len(), 1, "Should have 1 function");
 }
 
 // ========================================
@@ -242,16 +163,7 @@ fn phase40_joinir_nested_if_local() {
 // - [x] loop_builder.rs route switching実装
 // - [x] A/Bテスト（本テストファイル）
 
-// ========================================
-// Phase 40-1 Status (継続)
-// ========================================
-//
-// ✅ Step 1: func_meta.rs 作成完了（Phase 40-1.1）
-// ✅ Step 2: metadata extraction helper tests retained（Phase 40-1.1）
-// ✅ Step 3: convert_join_module_to_mir_with_meta() 実装完了（Phase 40-1.2）
-// ✅ Step 4: metadata observation path retained（Phase 40-1.2）
-// ✅ Step 5: Integration test 作成完了（Phase 40-1.2）
-// ✅ Step 6: collect_assigned_vars削除判定完了（削除不可確認）
+// collect_assigned_vars削除判定完了（削除不可確認）
 //
 // ## collect_assigned_vars削除判定結果
 //

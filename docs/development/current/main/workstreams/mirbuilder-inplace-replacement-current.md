@@ -70,7 +70,8 @@ Latest landed: `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS37-D0` — closed
 Latest landed: `LLVM-JOINMODULE-EXPERIMENT-ROUTE-RETIRE0-RET0`
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS38-D0` — closed
-Next row:      `JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0`
+Latest landed: `JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0`
+Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS39-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -95,7 +96,7 @@ activation and sunset contract.
 | closed | `RAW-ROOT-STATIC-CHILD-DRAFT-COMPAT-SUNSET-001` | former `InvocationPhysicalStateV1::complete_raw_static_child` direct `LegacyChildDraftAdmissionV1` issuer shared by static helpers and callable Main | explicit raw public / VM-reference route; default normal = 0 | REOWN | retired by `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`: one existing locator+role admission now reaches the unchanged collector projection; direct legacy-symbol issuer = 0 |
 | closed | `RAW-ROOT-LEGACY-BRANDED-TERMINAL-SUNSET-001` | former caller-zero `complete_legacy_child_branded` and `commit_legacy_pending_branded` adapters from `LegacyChildDraftAdmissionV1` to branded collector receipt | activation = 0 after `RAW-ROOT-STATIC-CHILD-DRAFT-ADMISSION0-I0-R0`; definitions only | RET0 | retired by `RAW-ROOT-LEGACY-BRANDED-TERMINAL-RESIDUE0-RET0`; unbranded, symbol-keyed, resolved, and nested-live terminals retained |
 | closed | `LLVM-JOINMODULE-EXPERIMENT-ROUTE-SUNSET-001` (promotes `R4-UNREGISTERED-LLVM-EXPERIMENT-001`) | former LLVM runner `JoinIrExperimentBox`: `Main.skip/1` MIR -> JoinModule -> MIR replacement plus original-MIR return on lowering/bridge failure | activation and complete LLVM-only owner/hook/env surface = 0 | RET0 | retired by `LLVM-JOINMODULE-EXPERIMENT-ROUTE-RETIRE0-RET0`; shared JoinModule lowering, VM bridge, normalized-shadow fence, and shared experiment flag remain |
-| active-retirement | `JOINIR-FRONTEND-FUNC-META-SUNSET-001` (promotes `R4-UNREGISTERED-FRONTEND-METADATA-001`) | `frontend::func_meta`, public `JoinFuncMeta`/`JoinFuncMetaMap`, bridge metadata observation and `*_with_meta` APIs | production normalized-shadow and VM bridge issue empty maps only; non-empty metadata issuer is Phase40 test-only; default normal = 0 | RET0 metadata authority; REOWN conversion into crate-bounded neutral module converter and boundary-aware bridge | `JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0`: metadata types/observation/API/tests = 0; converter and boundary semantics unchanged; no compatibility alias |
+| closed | `JOINIR-FRONTEND-FUNC-META-SUNSET-001` (promotes `R4-UNREGISTERED-FRONTEND-METADATA-001`) | former `frontend::func_meta`, public `JoinFuncMeta`/`JoinFuncMetaMap`, bridge metadata observation and `*_with_meta` APIs | metadata types, non-empty issuers, observation, and old APIs = 0 | RET0 metadata authority; conversion REOWNED into crate-bounded `module_converter` and boundary-aware bridge | retired by `JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0`; converter output, aliases, normalized boundary, AST analysis, and VM bridge preserved |
 | unregistered | `R4-UNREGISTERED-CARRIER-BOUNDARY-001` — carrier boundaries | `JumpArgsLayout` and `JoinInlineBoundary` families | live/fenced consumer mapping not yet registered | undecided; named D0 required before C0 | CorePlan/MIR rehome D0, RET0, or RETAIN-FENCED |
 | closed | `JOINMODULE-PHI-OBSERVER-SUNSET-001` (promotes `R4-UNREGISTERED-PHI-OBSERVER-001`) | former `verify_phi_reserved` global collector/report, three debug observation hooks, dedicated builder/module tests, exports, README and generated owner-inventory row | production decision consumer = 0 before deletion; complete asset now absent | RET0 | retired by `JOINMODULE-PHI-OBSERVER-RETIRE0-RET0`: complete observer/test/hook/wiring/docs surface = 0 and existing native-owner inventory regenerated |
 | unregistered | `R4-UNREGISTERED-AST-FRONTEND-001` — legacy AST frontend | `AstToJoinIrLowerer` plus its fixture/dev-flag closure | production caller = 0; test/reference closure remains | undecided; named D0 required before C0 | `JOINMODULE-AST-FRONTEND-LEGACY-DISPOSITION0-D0` |
@@ -104,7 +105,7 @@ activation and sunset contract.
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | normalized-dev Builder execution and explicit VM route have live consumers; LLVM experiment consumer is retired; exact model/lowering/JSON/format partition remains unregistered | undecided; named D0 required before C0 | partition live normalized-dev/VM owners from caller-zero reference scope, then delete or RETAIN-FENCED with exact owner, activation, retire_when |
 
 The registry has four registered R4 fences, zero active compatibility residuals,
-one active retirement, eleven closed residuals, and three unregistered R4 family
+zero active retirements, twelve closed residuals, and three unregistered R4 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
@@ -157,28 +158,36 @@ Next:
   execute the selected RET0, then return to a fresh live-edge census.
 ```
 
-`JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0` — T2 atomic RET0, selected
+`JOINIR-FRONTEND-FUNC-META-RETIRE0-RET0` — T2 atomic RET0, closed
 
 ```text
-Change:
-  Delete JoinFuncMeta/JoinFuncMetaMap, metadata observation, public
-  *_with_meta APIs, and metadata-only Phase40 evidence.  Rehome unchanged
-  JoinModule conversion into crate-bounded neutral converter/boundary APIs.
+Deleted:
+  frontend func_meta module and public types; metadata observation and
+  *_with_meta APIs; two metadata-only Phase40 tests and stale status prose.
 
-Contract:
-  Preserve converter output, function aliases, normalized-shadow boundary,
-  AST lowerer analysis, VM bridge, and independent tests.  Add no metadata
-  carrier, compatibility alias, route, or fence.
+Reowned:
+  unchanged Structured JoinModule conversion into crate-bounded
+  module_converter; boundary-aware bridge no longer accepts an empty metadata
+  map.  Existing function aliasing and normalized-shadow boundary remain.
 
-Done:
-  old metadata types/APIs/non-empty issuers = 0; normalized execution and VM
-  bridge use one metadata-free converter; focused bridge/normalization/Phase40
-  evidence, cargo checks, shared guard, and pointer guard are green.
+Evidence:
+  cargo check --lib and vm-reference hakorune = green;
+  Phase40 analysis 6/6, VM bridge 7/7, Stage-B body/FuncScanner, and
+  normalized-shadow 90/90 = green; old metadata symbols/APIs = 0; focused
+  rustfmt, diff check, and pointer guard = green.
 
-Stop:
-  Return to design if metadata affects MIR, a non-empty production issuer
-  appears, boundary/converter behavior must change, or an old API alias must
-  remain.
+Measured:
+  metadata/tests net deletion = 250 lines before neutral converter move;
+  new source/test/check files = 0 (meta.rs responsibility renamed/reowned);
+  largest touched source/check file = 297 lines; replacement credit = 0.
+
+R4:
+  JOINIR-FRONTEND-FUNC-META-SUNSET-001 = closed.
+  retain-fenced=4, active compatibility=0, active retirement=0,
+  closed=12, unregistered=3.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS39-D0.
 ```
 
 `MIRBUILDER-LIVE-EDGE-CENSUS37-D0` — read-only census, closed

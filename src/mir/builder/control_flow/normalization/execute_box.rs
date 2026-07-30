@@ -171,11 +171,9 @@ impl NormalizationExecuteBox {
         debug: bool,
     ) -> Result<(), String> {
         use crate::mir::builder::control_flow::joinir::merge;
-        use crate::mir::join_ir::frontend::JoinFuncMetaMap;
         use crate::mir::join_ir::lowering::carrier_info::{CarrierRole, ExitReconnectMode};
         use crate::mir::join_ir::lowering::inline_boundary::{JoinInlineBoundary, LoopExitBinding};
-        use crate::mir::join_ir_vm_bridge::bridge_joinir_to_mir_with_meta;
-        use std::collections::BTreeMap;
+        use crate::mir::join_ir_vm_bridge::bridge_joinir_to_mir_with_boundary;
 
         let trace = crate::mir::builder::control_flow::joinir::trace::trace();
 
@@ -278,11 +276,9 @@ impl NormalizationExecuteBox {
         if bridge_module.is_normalized() {
             bridge_module.phase = crate::mir::join_ir::JoinIrPhase::Structured;
         }
-        let empty_meta: JoinFuncMetaMap = BTreeMap::new();
         // Phase 256 P1.5: Pass boundary to bridge for ValueId remapping
-        let mir_module =
-            bridge_joinir_to_mir_with_meta(&bridge_module, &empty_meta, Some(&boundary))
-                .map_err(|e| format!("[normalization/execute] MIR conversion failed: {:?}", e))?;
+        let mir_module = bridge_joinir_to_mir_with_boundary(&bridge_module, Some(&boundary))
+            .map_err(|e| format!("[normalization/execute] MIR conversion failed: {:?}", e))?;
 
         // Merge with boundary
         let _exit_phi_result =

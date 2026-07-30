@@ -35,11 +35,9 @@
 //! - `docs/development/architecture/join-ir.md`
 
 pub mod ast_lowerer;
-pub mod func_meta;
 
 // Re-export for convenience
 pub use ast_lowerer::AstToJoinIrLowerer;
-pub use func_meta::{JoinFuncMeta, JoinFuncMetaMap};
 
 // Phase 34-1: skeleton 完了 ✅
 // Phase 34-2: IfSelectTest.* simple pattern 実装中 ⏳

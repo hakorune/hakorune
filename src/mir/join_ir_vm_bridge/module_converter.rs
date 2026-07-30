@@ -1,33 +1,18 @@
-// Phase 190: Use modularized converter
+//! Structured JoinModule to MIR module conversion.
+
 use super::{JoinIrFunctionConverter, JoinIrVmBridgeError};
-use crate::mir::join_ir::frontend::JoinFuncMetaMap;
 use crate::mir::join_ir::{JoinFuncId, JoinModule};
 use crate::mir::MirModule;
 use std::collections::BTreeMap;
 
-/// Phase 40-1実験用: JoinFuncMetaを使ったMIR変換
-///
-/// JoinFuncMetaを参照できるMIR変換入口。
-///
-/// # Role
-/// The standard `run_joinir_via_vm()` path reaches this through
-/// `bridge_joinir_to_mir()`. Tests may call it directly to verify metadata
-/// handling.
-///
-/// # Architecture
-/// JoinModule → MirModule変換において、JoinFuncMetaを観測する。
-/// 現在はPHI拡張をここでは生成しない。
-///
-/// # Returns
-/// - `Ok(MirModule)`: 変換済みMIRモジュール
-pub fn convert_join_module_to_mir_with_meta(
+/// Convert every function in one Structured JoinModule into a MIR module.
+pub(super) fn convert_join_module_to_mir(
     module: &JoinModule,
-    meta: &JoinFuncMetaMap,
     boundary: Option<&crate::mir::join_ir::lowering::inline_boundary::JoinInlineBoundary>,
 ) -> Result<MirModule, JoinIrVmBridgeError> {
     // Phase 256 P1.5: boundary is now passed through, reserved for future ValueId remap logic
     let _boundary = boundary; // Suppress unused warning for now
-    debug_log!("[Phase 40-1] convert_join_module_to_mir_with_meta");
+    debug_log!("[joinir/bridge] convert_join_module_to_mir");
 
     let mut mir_module = MirModule::new("joinir_bridge_with_meta".to_string());
 
@@ -78,20 +63,6 @@ pub fn convert_join_module_to_mir_with_meta(
                         .as_ref()
                         .map(|t| format!("{:?}", t).chars().take(40).collect::<String>())
                 );
-            }
-        }
-
-        // 3. Phase 40-1: if_modified_vars observation
-        if let Some(m) = meta.get(func_id) {
-            if let Some(if_vars) = &m.if_modified_vars {
-                debug_log!(
-                    "[Phase 40-1] Found if_modified_vars for func {:?}: {:?}",
-                    func_id,
-                    if_vars
-                );
-
-                // Metadata observation only. PHI generation belongs in an active
-                // lowering contract with fixtures, not in this bridge helper.
             }
         }
 

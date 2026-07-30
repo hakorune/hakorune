@@ -43,7 +43,7 @@ mod bridge;
 mod call_generator; // Phase 260 P0.2: Call instruction generation utility
 mod joinir_block_converter;
 mod joinir_function_converter;
-mod meta;
+mod module_converter;
 mod runner;
 
 #[cfg(test)]
@@ -52,12 +52,11 @@ mod tests;
 // Phase 190: Use modularized converters
 #[cfg(any(test, feature = "vm-reference"))]
 pub(crate) use bridge::bridge_joinir_to_mir;
-pub(crate) use bridge::bridge_joinir_to_mir_with_meta;
+pub(crate) use bridge::bridge_joinir_to_mir_with_boundary;
 #[cfg(test)]
 pub(crate) use convert::convert_joinir_to_mir;
 pub(crate) use convert::convert_mir_like_inst; // helper for sub-modules
 pub(crate) use joinir_function_converter::JoinIrFunctionConverter;
-pub use meta::convert_join_module_to_mir_with_meta;
 pub use runner::run_joinir_via_vm;
 
 /// Phase 27-shortterm S-4 エラー型
