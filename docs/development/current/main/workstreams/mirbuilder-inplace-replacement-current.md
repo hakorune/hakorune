@@ -29,10 +29,10 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
-Latest landed: JOINMODULE-RETURN-COLLECTOR-TEST-ASSET-RET0
+Latest landed: ENTRY-MATERIALIZATION-RECEIPT0-S0
 Result:        source-owned entry-materialization contract selected
 Latest design: `RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0` — closed
-Executable:    `ENTRY-MATERIALIZATION-RECEIPT0-S0` -> same-cell I0/R0
+Executable:    `ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -231,33 +231,53 @@ env reread, second route/collector, public result/JSON change, retry/fallback,
 Ownership/View, or feature activation.
 ```
 
-## Current execution
+## Latest closeout
 
-`ENTRY-MATERIALIZATION-RECEIPT0-S0` — T2 prerequisite, same-cell I0/R0 next
+`ENTRY-MATERIALIZATION-RECEIPT0-S0` — T2 prerequisite, closed
 
 ```text
 Change:
-  Add only the source-owned request/target vocabulary and separate normal/raw
-  source receipts; old authority: none in S0.
+  `CallableMainMaterializationPolicyV1`, symbol/arity target vocabulary, and
+  separate normal/raw source receipts are source-only products.
 
 Contract:
-  Builder, collector, publication, raw ledger, and runners do not consume the
-  new receipts yet. No receipt stores AST/config/brand or selects an entry.
+  No receipt stores AST/config/brand or selects a runner entry. Builder,
+  collector, publication, raw ledger, and runners remain unchanged.
 
 Done:
-  Required/Omitted, Script/App, `/0`/nonzero arity, and normal/raw separation
-  are source-sealed before Builder effects.
+  normal Script+Required -> Omitted; raw Script+Required has no receipt and
+  retains the existing binding rejection; App keeps exact `Main.main/N` facts.
 
-Stop:
-  `ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0` must immediately cut
-  selected normal to the receipt and delete its old snapshot/lower-side edge;
-  otherwise return to this D0.
+Next:
+  `ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0`.
 ```
 
-R4 final conformance must decide the retained JoinIR/reference scope explicitly
-(delete versus fenced reference asset). Only after R4 Complete: refresh
-Ownership readiness, implement Ownership, then open View and later missing
-features one semantic slice at a time.
+## Current execution
+
+`ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0` — T2 atomic selected-normal cutover
+
+```text
+Named caller:
+  NormalDefaultPublishedPipelineV1::compile
+
+Change:
+  snapshot the materialization policy once at normal ingress; thread the sealed
+  normal receipt through the existing one-session lifecycle; delete the selected
+  normal lower-side environment snapshot/materialization decision.
+
+Keep:
+  raw/reference source receipts and physical ledger, all runner selectors,
+  result/publication policy, and the existing candidate reuse contract.
+
+Evidence:
+  Required/Omitted x Script/App x Main.main/0/nonzero; exact symbol/arity;
+  helper -> callable -> root order; failure leaves the live Builder reusable.
+
+Hard stop:
+  global compatibility-field deletion, raw/reference consumption, runner-policy
+  changes, a second route/collector, AST/config duplication, reread/retry,
+  Ownership/View, or feature work.
+```
 
 ## Latest closeout
 
@@ -703,11 +723,11 @@ opens only when its predecessor's evidence is green and the required fresh
 census or D0 has selected it.
 
 ```text
-1. ENTRY-MATERIALIZATION-RECEIPT0-S0                    (active)
+1. ENTRY-MATERIALIZATION-RECEIPT0-S0                    (closed)
    Source-only normal/raw request, target, and receipt vocabulary.  No Builder,
    collector, ledger, runner, or old-edge effect.
 
-2. ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0      (locked successor)
+2. ENTRY-MATERIALIZATION-NORMAL-CONSUMPTION0-I0-R0      (active)
    Named caller: NormalDefaultPublishedPipelineV1.
    Consume the normal source receipt through the existing one-session lifecycle
    and delete the selected lower-side environment snapshot/materialization edge.

@@ -47,6 +47,7 @@ mod drained_module_candidate_p0; // HEADERPORT0-I0-DRAIN0-P0 fixtures
 mod exprs_call;
 mod exprs_check; // CheckExpr lowering
 mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sugar
+mod entry_materialization; // source-only callable Main materialization facts
 mod fact_session;
 #[cfg(test)]
 mod fact_session_p0_tests;
@@ -115,6 +116,10 @@ pub(in crate::mir) use raw_root_child_work::{
 pub(in crate::mir) use raw_source_projection::{
     OwnedRawRootProjectionV1, OwnedRawSourceV1, RawRootProjectionPartsV1, RawSourceLocatorV1,
     RawSourceOriginV1, RawSourceProjectionErrorV1,
+};
+pub(in crate::mir) use entry_materialization::{
+    CallableMainMaterializationPolicyV1, CallableMainMaterializationTargetV1,
+    NormalEntryMaterializationSourceReceiptV1, RawEntryMaterializationSourceReceiptV1,
 };
 #[allow(dead_code)]
 mod main_pending_draft; // HEADERPORT0-I0-MAINPENDING0-S0 disconnected handoff
