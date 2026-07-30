@@ -105,13 +105,14 @@ Latest landed: `RAW-LOCATED-NONHOOK-LOCAL-SOURCE-HANDOFF0-I0-R0`
 Latest design: `RAW-LOCATED-SCALAR-BINDING-REMAINDER10-D0` — closed
 Latest landed: `RAW-LOCATED-SPECIAL-LOCAL-HOOK-SOURCE-HANDOFF0-I0-R0`
 Latest design: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-RESIDUE0-D0` — closed
-Current execution: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-PORTAL-RETIRE0-I0-R0-RET0`
+Latest landed: `RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-PORTAL-RETIRE0-I0-R0-RET0`
+Current design stop: `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE0-D0`
 History:       Git history and the short landed tail below
 ```
 
-## Current execution
+## Current design stop
 
-`RAW-LOCATED-SCALAR-BINDING-DIAGNOSTIC-PORTAL-RETIRE0-I0-R0-RET0`
+`RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE0-D0`
 
 ```text
 Landed:
@@ -126,33 +127,40 @@ Landed:
   edge are zero. Focused tests=34 green; cargo check green; production Rust
   +329/-210 (net +119); max touched source/test=790.
 
+Latest landed:
+  all Assignment and CompoundAssignment statements are located, their
+  unsupported target routes retain exact diagnostics and zero RHS effects,
+  and ScalarBinding owner/issuer definitions are zero in src/mir and checks.
+
 Decision:
-  reuse the two existing Unsupported route terminals; no new diagnostic owner
+  Candidate A — narrow Lambda/ControlBody source-location handoff
+  Ceremony T1; no new capture or publication semantics
 
-Atomic change:
-  all Assignment/CompoundAssignment statements become located
-  unsupported routes prepare zero child receipts and emit their existing text
-  dead Return reason arm = 0
-  RawUnlocatedPortalV1::ScalarBinding = 0
-  issuer/test/docs compatibility surface = 0
+Named old edge:
+  RawInvocationSourceContextV1::body_statement(ASTNode::Lambda)
+  -> RawUnlocatedPortalV1::ControlBody
 
-Evidence:
-  unsupported Assignment and CompoundAssignment already select their prepared
-  Unsupported routes before any target/RHS descent or Builder effect. The
-  located statement transport changes only their source context.
+Selected slice:
+  admit Lambda as Located using the existing SourceBodyKindV1::Lambda path
+  and LambdaBody(index) child segments. Reuse the existing
+  RawLambdaLexicalObservationV1 and PreparedRawLambdaLexicalCaptureLifecycleV1
+  unchanged. The Lambda body remains a later source-handoff responsibility;
+  this row must not invent LambdaBodyRoot or a second closure registry.
+
+Keep residual:
+  CallObject broad expression family and NestedBoxAdmission stay unlocated.
 
 Forbid:
-  RHS source preparation/descent for unsupported routes
-  target-family widening
-  shared new error vocabulary
-  reason alias/reassignment or compatibility rename
-  retry/fallback, AST clone/reparse
+  capture/receiver policy changes, NewClosure or ClosureBodyId changes,
+  variable_map ownership changes, Call/MethodCall/New/FieldAccess widening,
+  fallback/retry, AST clone/reparse, or new failure owner.
 
-Closeout:
-  exact ScalarBinding owner/issuer census in src/mir and tools/checks = 0;
-  historical closeout wording may remain in this card. Then a fresh
-  three-portal census selects CallObject or another live residual. ScalarBinding
-  is not retained as a tombstone.
+Acceptance:
+  exact Lambda source site is retained through the selected invocation route;
+  existing lexical/capture tests and diagnostics remain parity-identical;
+  ControlBody production issuer count decreases without changing the existing
+  capture/publication lifecycle. If the existing SourcePath topology cannot
+  represent the handoff, stop and return to D0.
 ```
 
 Corrected queue:
@@ -162,7 +170,8 @@ Corrected queue:
 2  RAW-LOCATED-STRUCTURED-CONTROL-BODIES0-I0-R0
 3  RAW-LOCATED-RESIDUAL-CONTROL-PARTITION2-D0
 4+ exact residual-control rows selected by D0
-then RAW-LOCATED-CALL-OBJECT-PORTALS0-I0-R0
+then RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE0-I0-R0
+then RAW-LOCATED-CALL-OBJECT-PORTALS0-D0
 then RAW-LOCATED-NESTED-ADMISSION0-I0-R0
 ```
 
