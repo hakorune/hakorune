@@ -16,7 +16,9 @@ use crate::mir::MirBuilder;
 /// `statement_index` distinguishes source declarations that project to the
 /// same legacy physical symbol.  It is not a collector key and never changes
 /// legacy replacement behavior.
-#[derive(Debug, PartialEq, Eq)]
+/// Cloning transports the same Program occurrence into the recursive source
+/// carrier; it does not issue another source identity.
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) struct NormalTopLevelFunctionSourceKeyV1 {
     statement_index: usize,
     declared_name: Box<str>,
@@ -142,17 +144,31 @@ impl RawInvocationChildPortV1<'_, '_> {
             ));
         }
         let function_name = admission.physical_symbol().to_owned();
+        let source_root =
+            super::raw_invocation_source_transport::RawInvocationRootLineageV1::TopLevel(
+                admission.source_key().clone(),
+            );
         builder.observe_legacy_method_lowering_v1(&function_name, &body, None);
-        let pending = self.capture_static_box_method_pending_v1(
-            builder,
-            function_name,
-            params,
-            param_decls,
-            return_type_name,
-            body,
-            uses,
-            attrs,
-        )?;
+        let pending = super::raw_invocation_source_transport::RawSourceTransportPortV1::
+            with_source_transport_v1(
+                self,
+                super::raw_invocation_source_transport::RawInvocationSourceTransportV1::root(
+                    (),
+                    source_root,
+                ),
+                |port, ()| {
+                    port.capture_static_box_method_pending_v1(
+                        builder,
+                        function_name,
+                        params,
+                        param_decls,
+                        return_type_name,
+                        body,
+                        uses,
+                        attrs,
+                    )
+                },
+            )?;
         self.commit_normal_top_level_function_pending_v1(pending, admission)
     }
 }

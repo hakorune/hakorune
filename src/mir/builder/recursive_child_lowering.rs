@@ -22,9 +22,13 @@ use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
 use super::raw_loop_child_entry::{
     classify_raw_loop_child_entry_v1, RawLoopChildEntryDispositionV1,
 };
+use super::raw_invocation_source_transport::{
+    RawInvocationRootLineageV1, RawInvocationSourceContextV1,
+    RawInvocationSourceTransportV1, RawSourceTransportPortV1, RawUnlocatedPortalV1,
+};
+pub(in crate::mir::builder) use super::raw_expression_recursion_guard::
+    with_legacy_expression_recursion_guard_v1;
 use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
-
-const MAX_RAW_EXPRESSION_RECURSION_DEPTH: usize = 200;
 
 pub(in crate::mir::builder) fn normalize_instance_box_method_input_v1(
     function_name: &str,
@@ -218,6 +222,7 @@ impl MeCallHeaderObservationPortV1 for RawLegacyChildLoweringPortV1 {
 /// mechanically distinct.
 pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     module_port: &'port mut ModuleLoweringPortV1<'collector>,
+    pub(super) active_source: Option<RawInvocationSourceContextV1>,
     _seal: RawInvocationChildPortSealV1,
 }
 
@@ -230,6 +235,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     ) -> Self {
         Self {
             module_port,
+            active_source: None,
             _seal: RawInvocationChildPortSealV1,
         }
     }
@@ -239,7 +245,11 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     /// No header borrow crosses this boundary: `with_headers` consumes the
     /// observation closure before the next descendant can mutate state.
     pub(in crate::mir::builder) fn reborrow(&mut self) -> RawInvocationChildPortV1<'_, 'collector> {
-        RawInvocationChildPortV1::new(&mut *self.module_port)
+        RawInvocationChildPortV1 {
+            module_port: &mut *self.module_port,
+            active_source: self.active_source.clone(),
+            _seal: RawInvocationChildPortSealV1,
+        }
     }
 
     /// Lend the exact collector-backed header view for one observation only.
@@ -323,15 +333,22 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         ModuleLoweringPortChildErrorV1,
     > {
         let (admission, lowering) = prepared.into_parts();
-        let pending = self.capture_static_box_method_pending_v1(
-            builder,
-            lowering.function_name,
-            lowering.params,
-            lowering.param_decls,
-            lowering.return_type_name,
-            lowering.body,
-            lowering.uses,
-            lowering.attrs,
+        let source_root =
+            RawInvocationRootLineageV1::Main(admission.source_locator().clone());
+        let pending = self.with_source_transport_v1(
+            RawInvocationSourceTransportV1::root((), source_root),
+            |port, ()| {
+                port.capture_static_box_method_pending_v1(
+                    builder,
+                    lowering.function_name,
+                    lowering.params,
+                    lowering.param_decls,
+                    lowering.return_type_name,
+                    lowering.body,
+                    lowering.uses,
+                    lowering.attrs,
+                )
+            },
         )?;
         self.module_port
             .commit_legacy_symbol_pending_branded(pending, admission.into_collector_parts())
@@ -394,16 +411,22 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         attrs: DeclarationAttrs,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         let function_name = admission.physical_symbol().to_owned();
+        let source_root = RawInvocationRootLineageV1::Cataloged(admission.source_key().clone());
         builder.observe_legacy_method_lowering_v1(&function_name, &body, None);
-        let pending = self.capture_static_box_method_pending_v1(
-            builder,
-            function_name,
-            params,
-            param_decls,
-            return_type_name,
-            body,
-            uses,
-            attrs,
+        let pending = self.with_source_transport_v1(
+            RawInvocationSourceTransportV1::root((), source_root),
+            |port, ()| {
+                port.capture_static_box_method_pending_v1(
+                    builder,
+                    function_name,
+                    params,
+                    param_decls,
+                    return_type_name,
+                    body,
+                    uses,
+                    attrs,
+                )
+            },
         )?;
         self.module_port
             .commit_normal_cataloged_box_method_pending(pending, admission)
@@ -422,53 +445,29 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         attrs: DeclarationAttrs,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         let function_name = admission.physical_symbol().to_owned();
+        let source_root = RawInvocationRootLineageV1::Cataloged(admission.source_key().clone());
         let box_name = admission.source_key().owner().to_owned();
         let (params, param_decls) =
             normalize_instance_box_method_input_v1(&function_name, params, param_decls);
         builder.observe_legacy_method_lowering_v1(&function_name, &body, Some(&box_name));
-        let pending = self.capture_normalized_instance_box_method_pending_v1(
-            builder,
-            function_name,
-            box_name,
-            params,
-            param_decls,
-            return_type_name,
-            body,
-            uses,
-            attrs,
+        let pending = self.with_source_transport_v1(
+            RawInvocationSourceTransportV1::root((), source_root),
+            |port, ()| {
+                port.capture_normalized_instance_box_method_pending_v1(
+                    builder,
+                    function_name,
+                    box_name,
+                    params,
+                    param_decls,
+                    return_type_name,
+                    body,
+                    uses,
+                    attrs,
+                )
+            },
         )?;
         self.module_port
             .commit_normal_cataloged_box_method_pending(pending, admission)
-    }
-}
-
-impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
-    type BodyInput = Vec<ASTNode>;
-    type StatementInput = ASTNode;
-    type ExpressionInput = ASTNode;
-
-    fn lower_body(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::BodyInput,
-    ) -> Result<ValueId, String> {
-        super::stmts::block_stmt::build_block_with_port_v1(builder, self, input)
-    }
-
-    fn lower_statement(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::StatementInput,
-    ) -> Result<ValueId, String> {
-        super::stmts::block_stmt::build_statement_with_port_v1(builder, self, input)
-    }
-
-    fn lower_expression(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::ExpressionInput,
-    ) -> Result<ValueId, String> {
-        lower_raw_expression_with_recursion_guard_v1(builder, self, input)
     }
 }
 
@@ -607,20 +606,39 @@ impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
+        if !matches!(
+            self.current_source_context_v1(),
+            Some(RawInvocationSourceContextV1::Located { .. })
+                | Some(RawInvocationSourceContextV1::UnlocatedCompatibility(
+                    RawUnlocatedPortalV1::NestedBoxAdmission
+                ))
+        ) {
+            return Err(
+                "[freeze:contract][raw-invocation/nested-static-box-missing-site]".to_owned(),
+            );
+        }
         builder.observe_legacy_method_lowering_v1(&function_name, &body, None);
         let expected_arity = params.len();
         let admission =
             LegacyChildDraftAdmissionV1::legacy_symbol(function_name.clone(), expected_arity);
         let pending = self
-            .capture_static_box_method_pending_v1(
-                builder,
-                function_name,
-                params,
-                param_decls,
-                return_type_name,
-                body,
-                uses,
-                attrs,
+            .with_source_transport_v1(
+                RawInvocationSourceTransportV1::unlocated(
+                    (),
+                    RawUnlocatedPortalV1::NestedBoxAdmission,
+                ),
+                |port, ()| {
+                    port.capture_static_box_method_pending_v1(
+                        builder,
+                        function_name,
+                        params,
+                        param_decls,
+                        return_type_name,
+                        body,
+                        uses,
+                        attrs,
+                    )
+                },
             )
             .map_err(|error| error.to_string())?;
         self.module_port
@@ -640,6 +658,17 @@ impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
+        if !matches!(
+            self.current_source_context_v1(),
+            Some(RawInvocationSourceContextV1::Located { .. })
+                | Some(RawInvocationSourceContextV1::UnlocatedCompatibility(
+                    RawUnlocatedPortalV1::NestedBoxAdmission
+                ))
+        ) {
+            return Err(
+                "[freeze:contract][raw-invocation/nested-instance-box-missing-site]".to_owned(),
+            );
+        }
         let (params, param_decls) =
             normalize_instance_box_method_input_v1(&function_name, params, param_decls);
         builder.observe_legacy_method_lowering_v1(&function_name, &body, Some(&box_name));
@@ -647,16 +676,24 @@ impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
         let admission =
             LegacyChildDraftAdmissionV1::legacy_symbol(function_name.clone(), expected_arity);
         let pending = self
-            .capture_normalized_instance_box_method_pending_v1(
-                builder,
-                function_name,
-                box_name,
-                params,
-                param_decls,
-                return_type_name,
-                body,
-                uses,
-                attrs,
+            .with_source_transport_v1(
+                RawInvocationSourceTransportV1::unlocated(
+                    (),
+                    RawUnlocatedPortalV1::NestedBoxAdmission,
+                ),
+                |port, ()| {
+                    port.capture_normalized_instance_box_method_pending_v1(
+                        builder,
+                        function_name,
+                        box_name,
+                        params,
+                        param_decls,
+                        return_type_name,
+                        body,
+                        uses,
+                        attrs,
+                    )
+                },
             )
             .map_err(|error| error.to_string())?;
         self.module_port
@@ -713,7 +750,7 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
     }
 }
 
-fn lower_raw_expression_with_recursion_guard_v1<Port>(
+pub(super) fn lower_raw_expression_with_recursion_guard_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
     input: ASTNode,
@@ -722,48 +759,13 @@ where
     Port: RawExpressionDispatchPortV1,
 {
     let node_kind = std::mem::discriminant(&input);
-    with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {
+    super::raw_expression_recursion_guard::with_legacy_expression_recursion_guard_v1(
+        builder,
+        node_kind,
+        move |builder| {
         builder.build_expression_impl_with_port_v1(port, input)
-    })
-}
-
-pub(in crate::mir::builder) fn with_legacy_expression_recursion_guard_v1<F>(
-    builder: &mut MirBuilder,
-    node_kind: std::mem::Discriminant<ASTNode>,
-    lower: F,
-) -> Result<ValueId, String>
-where
-    F: FnOnce(&mut MirBuilder) -> Result<ValueId, String>,
-{
-    builder.recursion_depth += 1;
-    let current_depth = builder.recursion_depth;
-    if current_depth > MAX_RAW_EXPRESSION_RECURSION_DEPTH {
-        let ring0 = crate::runtime::get_global_ring0();
-        ring0
-            .log
-            .error("\n[FATAL] ============================================");
-        ring0.log.error(&format!(
-            "[FATAL] Recursion depth exceeded {} in build_expression",
-            MAX_RAW_EXPRESSION_RECURSION_DEPTH
-        ));
-        ring0
-            .log
-            .error(&format!("[FATAL] Current depth: {current_depth}"));
-        ring0
-            .log
-            .error(&format!("[FATAL] AST node type: {:?}", node_kind));
-        ring0
-            .log
-            .error("[FATAL] ============================================\n");
-        builder.recursion_depth -= 1;
-        return Err(format!(
-            "Recursion depth exceeded: {current_depth} (possible infinite loop)"
-        ));
-    }
-
-    let result = lower(builder);
-    builder.recursion_depth -= 1;
-    result
+        },
+    )
 }
 
 pub(in crate::mir::builder) fn drive_raw_legacy_body_v1(

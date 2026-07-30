@@ -11,6 +11,10 @@ use crate::mir::builder::module_lowering_invocation::{
 use crate::mir::builder::recursive_child_lowering::{
     RawBoxMethodChildPortV1, RawInvocationChildPortV1,
 };
+use crate::mir::builder::raw_invocation_source_transport::{
+    RawInvocationRootLineageV1, RawInvocationSourceTransportV1, RawSourceTransportPortV1,
+};
+use crate::mir::builder::RawSourceLocatorV1;
 use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirType};
 use std::collections::HashMap;
 use std::panic::{catch_unwind, AssertUnwindSafe};
@@ -108,6 +112,19 @@ fn function_return_value(value: i64) -> ASTNode {
         })),
         span: Span::unknown(),
     }
+}
+
+fn outer_source() -> RawInvocationSourceTransportV1<()> {
+    RawInvocationSourceTransportV1::root(
+        (),
+        RawInvocationRootLineageV1::Main(RawSourceLocatorV1::for_test(
+            0,
+            "Main",
+            "run",
+            "Outer.run/0",
+            0,
+        )),
+    )
 }
 
 fn nested_box_with_constructor(name: &str) -> ASTNode {
@@ -253,16 +270,18 @@ fn port_aware_static_body_collects_nested_static_child_before_outer_commit() {
         .with_module_port(|builder, module_port| {
             let pending = {
                 let mut raw_port = RawInvocationChildPortV1::new(module_port);
-                raw_port.capture_static_box_method_pending_v1(
-                    builder,
-                    "Outer.run/0".into(),
-                    Vec::new(),
-                    Vec::new(),
-                    None,
-                    body,
-                    Vec::new(),
-                    DeclarationAttrs::default(),
-                )?
+                raw_port.with_source_transport_v1(outer_source(), |port, ()| {
+                    port.capture_static_box_method_pending_v1(
+                        builder,
+                        "Outer.run/0".into(),
+                        Vec::new(),
+                        Vec::new(),
+                        None,
+                        body,
+                        Vec::new(),
+                        DeclarationAttrs::default(),
+                    )
+                })?
             };
             module_port.commit_legacy_pending(
                 pending,
@@ -288,16 +307,18 @@ fn port_aware_static_body_collects_nested_instance_child_before_outer_commit() {
         .with_module_port(|builder, module_port| {
             let pending = {
                 let mut raw_port = RawInvocationChildPortV1::new(module_port);
-                raw_port.capture_static_box_method_pending_v1(
-                    builder,
-                    "Outer.run/0".into(),
-                    Vec::new(),
-                    Vec::new(),
-                    None,
-                    body,
-                    Vec::new(),
-                    DeclarationAttrs::default(),
-                )?
+                raw_port.with_source_transport_v1(outer_source(), |port, ()| {
+                    port.capture_static_box_method_pending_v1(
+                        builder,
+                        "Outer.run/0".into(),
+                        Vec::new(),
+                        Vec::new(),
+                        None,
+                        body,
+                        Vec::new(),
+                        DeclarationAttrs::default(),
+                    )
+                })?
             };
             module_port.commit_legacy_pending(
                 pending,
@@ -323,16 +344,18 @@ fn port_aware_nested_instance_constructor_uses_the_same_child_terminal() {
         .with_module_port(|builder, module_port| {
             let pending = {
                 let mut raw_port = RawInvocationChildPortV1::new(module_port);
-                raw_port.capture_static_box_method_pending_v1(
-                    builder,
-                    "Outer.run/0".into(),
-                    Vec::new(),
-                    Vec::new(),
-                    None,
-                    body,
-                    Vec::new(),
-                    DeclarationAttrs::default(),
-                )?
+                raw_port.with_source_transport_v1(outer_source(), |port, ()| {
+                    port.capture_static_box_method_pending_v1(
+                        builder,
+                        "Outer.run/0".into(),
+                        Vec::new(),
+                        Vec::new(),
+                        None,
+                        body,
+                        Vec::new(),
+                        DeclarationAttrs::default(),
+                    )
+                })?
             };
             module_port.commit_legacy_pending(
                 pending,
@@ -361,16 +384,18 @@ fn raw_capture_commit_reaches_static_instance_constructor_depth_three() {
         .with_module_port(|builder, module_port| {
             let pending = {
                 let mut raw_port = RawInvocationChildPortV1::new(module_port);
-                raw_port.capture_static_box_method_pending_v1(
-                    builder,
-                    "Outer.run/0".into(),
-                    Vec::new(),
-                    Vec::new(),
-                    None,
-                    body,
-                    Vec::new(),
-                    DeclarationAttrs::default(),
-                )?
+                raw_port.with_source_transport_v1(outer_source(), |port, ()| {
+                    port.capture_static_box_method_pending_v1(
+                        builder,
+                        "Outer.run/0".into(),
+                        Vec::new(),
+                        Vec::new(),
+                        None,
+                        body,
+                        Vec::new(),
+                        DeclarationAttrs::default(),
+                    )
+                })?
             };
             module_port.commit_legacy_pending(
                 pending,

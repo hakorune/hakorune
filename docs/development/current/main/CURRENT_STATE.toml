@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-RECURSIVE-LOCATED-PORT-MIGRATION0-D0 accepts one shrinking dual-state transport with sunset RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001. The five-commit maximum T2 series starts by deleting selected bare body/item/direct-Box edges, removes portal variants monotonically, and ends by deleting the final NestedBoxAdmission compatibility state plus both nested legacy-symbol issuers. Ownership/View remains parked."
+status = "RAW-LOCATED-BODY-SPINE0-I0-R0 is closed: the live RawInvocation route now carries one function-relative source context from every selected root, consumes body rows without AST cloning, preserves direct nested-Box Body(index), and fail-fast rejects missing receipts. Four fixed unlocated portals remain under RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001; Ownership/View remains parked."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "RAW-LOCATED-BODY-SPINE0-I0-R0"
-current_execution_summary = "Introduce the sole shrinking dual-state transport on the live RawInvocation route, issue every selected root receipt, and replace selected bare function-body, Body(index), and direct nested-Box inputs. RawLegacy remains raw. UnlocatedCompatibility is selected once per unmigrated portal, never retried, may not grow after this commit, and is retired by RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001 within four following commits."
+current_execution_row = "RAW-LOCATED-CONTROL-BODY-PORTALS0-I0-R0"
+current_execution_summary = "Shrink the existing RawInvocation source carrier by replacing the ControlBody compatibility portal with exact parent-relative source navigation. Do not add a variant, retry, clone, or change RawLegacy. The same commit must reduce the old ControlBody edge count and preserve selected-normal parity and candidate reuse."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"

@@ -1,0 +1,449 @@
+//! Function-relative source transport for the live raw invocation port.
+//!
+//! The selected invocation route owns one shrinking dual-state carrier.  A
+//! located row keeps the already-issued callable root receipt plus the exact
+//! `SourcePathV1` node.  An unlocated row names one finite migration portal;
+//! it is an execute-once compatibility state, never a retry route.
+
+use crate::ast::ASTNode;
+use crate::mir::builder::stmts::block_driver::{
+    drive_legacy_block_v1, LegacyBlockDescentPortV1,
+};
+use crate::mir::builder::MirBuilder;
+use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1};
+use crate::mir::ValueId;
+
+use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1;
+use super::normal_top_level_function_admission::NormalTopLevelFunctionSourceKeyV1;
+use super::recursive_child_lowering::{
+    lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
+    RecursiveChildLoweringPortV1,
+};
+use super::{CanonicalSameModuleCallableKeyV1, RawSourceLocatorV1};
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) enum RawInvocationRootLineageV1 {
+    ScriptRoot,
+    Main(RawSourceLocatorV1),
+    Cataloged(CanonicalSameModuleCallableKeyV1),
+    TopLevel(NormalTopLevelFunctionSourceKeyV1),
+    InstanceConstructor(NormalInstanceConstructorSourceKeyV1),
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) enum RawUnlocatedPortalV1 {
+    ControlBody,
+    ScalarBinding,
+    CallObject,
+    NestedBoxAdmission,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) struct LocatedRawNodeV1<T> {
+    node: T,
+    root: RawInvocationRootLineageV1,
+    site: SourceNodeSiteV1,
+}
+
+impl<T> LocatedRawNodeV1<T> {
+    fn new(node: T, root: RawInvocationRootLineageV1, site: SourceNodeSiteV1) -> Self {
+        Self { node, root, site }
+    }
+
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (T, RawInvocationRootLineageV1, SourceNodeSiteV1) {
+        (self.node, self.root, self.site)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) enum RawInvocationSourceTransportV1<T> {
+    Located(LocatedRawNodeV1<T>),
+    UnlocatedCompatibility {
+        node: T,
+        reason: RawUnlocatedPortalV1,
+    },
+}
+
+impl<T> RawInvocationSourceTransportV1<T> {
+    pub(in crate::mir::builder) fn root(
+        node: T,
+        root: RawInvocationRootLineageV1,
+    ) -> Self {
+        Self::Located(LocatedRawNodeV1::new(
+            node,
+            root,
+            SourcePathV1::function_body().node(),
+        ))
+    }
+
+    pub(in crate::mir::builder) fn unlocated(
+        node: T,
+        reason: RawUnlocatedPortalV1,
+    ) -> Self {
+        Self::UnlocatedCompatibility { node, reason }
+    }
+
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        T,
+        Option<(RawInvocationRootLineageV1, SourceNodeSiteV1)>,
+        Option<RawUnlocatedPortalV1>,
+    ) {
+        match self {
+            Self::Located(located) => {
+                let (node, root, site) = located.into_parts();
+                (node, Some((root, site)), None)
+            }
+            Self::UnlocatedCompatibility { node, reason } => (node, None, Some(reason)),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) enum RawInvocationSourceContextV1 {
+    Located {
+        root: RawInvocationRootLineageV1,
+        site: SourceNodeSiteV1,
+    },
+    UnlocatedCompatibility(RawUnlocatedPortalV1),
+}
+
+impl RawInvocationSourceContextV1 {
+    pub(in crate::mir::builder) fn from_transport<T>(
+        transport: RawInvocationSourceTransportV1<T>,
+    ) -> (T, Self) {
+        let (node, located, reason) = transport.into_parts();
+        let context = match (located, reason) {
+            (Some((root, site)), None) => Self::Located { root, site },
+            (None, Some(reason)) => Self::UnlocatedCompatibility(reason),
+            _ => unreachable!("[freeze:contract][raw-invocation/source-transport-state]"),
+        };
+        (node, context)
+    }
+
+    pub(in crate::mir::builder) fn body_statement(
+        &self,
+        statement: ASTNode,
+        index: usize,
+    ) -> RawInvocationSourceTransportV1<ASTNode> {
+        match self {
+            Self::Located { root, site } => {
+                if !matches!(&statement, ASTNode::BoxDeclaration { .. }) {
+                    let reason = reason_for_non_box_statement(&statement);
+                    return RawInvocationSourceTransportV1::unlocated(
+                        statement,
+                        reason,
+                    );
+                }
+                let child = if site.segments() == [SourcePathSegmentV1::FunctionBody] {
+                    SourcePathV1::root_body(index).node()
+                } else {
+                    SourcePathV1::from_node(site)
+                        .child(SourcePathSegmentV1::Body(index as u32))
+                        .node()
+                };
+                RawInvocationSourceTransportV1::Located(LocatedRawNodeV1::new(
+                    statement,
+                    root.clone(),
+                    child,
+                ))
+            }
+            Self::UnlocatedCompatibility(reason) => {
+                RawInvocationSourceTransportV1::unlocated(statement, *reason)
+            }
+        }
+    }
+
+    pub(in crate::mir::builder) fn site(&self) -> Option<&SourceNodeSiteV1> {
+        match self {
+            Self::Located { site, .. } => Some(site),
+            Self::UnlocatedCompatibility(_) => None,
+        }
+    }
+}
+
+fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
+    match statement {
+        ASTNode::Program { .. }
+        | ASTNode::If { .. }
+        | ASTNode::Loop { .. }
+        | ASTNode::LoopRange { .. }
+        | ASTNode::TaskScope { .. }
+        | ASTNode::ContextScope { .. }
+        | ASTNode::FastMemRegion { .. }
+        | ASTNode::MatchExpr { .. }
+        | ASTNode::EnumMatchExpr { .. }
+        | ASTNode::Lambda { .. }
+        | ASTNode::BlockExpr { .. }
+        | ASTNode::TryCatch { .. }
+        | ASTNode::ScopeBox { .. } => RawUnlocatedPortalV1::ControlBody,
+
+        ASTNode::Assignment { .. }
+        | ASTNode::CompoundAssignment { .. }
+        | ASTNode::Print { .. }
+        | ASTNode::Return { .. }
+        | ASTNode::GroupedAssignmentExpr { .. }
+        | ASTNode::Local { .. } => RawUnlocatedPortalV1::ScalarBinding,
+
+        ASTNode::Break { .. }
+        | ASTNode::Continue { .. }
+        | ASTNode::UsingStatement { .. }
+        | ASTNode::ImportStatement { .. }
+        | ASTNode::BuildGate { .. }
+        | ASTNode::Nowait { .. }
+        | ASTNode::AwaitExpression { .. }
+        | ASTNode::QMarkPropagate { .. }
+        | ASTNode::ArrayLiteral { .. }
+        | ASTNode::MapLiteral { .. }
+        | ASTNode::RecordLiteral { .. }
+        | ASTNode::RecordUpdate { .. }
+        | ASTNode::Arrow { .. }
+        | ASTNode::Throw { .. }
+        | ASTNode::FunctionDeclaration { .. }
+        | ASTNode::EnumDeclaration { .. }
+        | ASTNode::BrandDeclaration { .. }
+        | ASTNode::TypeAliasDeclaration { .. }
+        | ASTNode::GlobalVar { .. }
+        | ASTNode::StaticConstTable { .. }
+        | ASTNode::Literal { .. }
+        | ASTNode::Variable { .. }
+        | ASTNode::UnaryOp { .. }
+        | ASTNode::BinaryOp { .. }
+        | ASTNode::CheckExpr { .. }
+        | ASTNode::MethodCall { .. }
+        | ASTNode::FieldAccess { .. }
+        | ASTNode::Index { .. }
+        | ASTNode::New { .. }
+        | ASTNode::This { .. }
+        | ASTNode::Me { .. }
+        | ASTNode::FromCall { .. }
+        | ASTNode::ThisField { .. }
+        | ASTNode::MeField { .. }
+        | ASTNode::Outbox { .. }
+        | ASTNode::FunctionCall { .. }
+        | ASTNode::Call { .. } => RawUnlocatedPortalV1::CallObject,
+
+        ASTNode::BoxDeclaration { .. } => {
+            unreachable!("[freeze:contract][raw-invocation/direct-box-classifier]")
+        }
+    }
+}
+
+/// Temporal source scope used only by the selected invocation port.
+///
+/// The callback executes exactly once.  Restoring the parent after it returns
+/// is structural recursion bookkeeping, not a retry or route reselection.
+pub(in crate::mir::builder) trait RawSourceTransportPortV1 {
+    fn with_source_transport_v1<T, R>(
+        &mut self,
+        transport: RawInvocationSourceTransportV1<T>,
+        execute: impl FnOnce(&mut Self, T) -> R,
+    ) -> R;
+
+    fn current_source_context_v1(&self) -> Option<RawInvocationSourceContextV1>;
+}
+
+impl RawSourceTransportPortV1 for RawInvocationChildPortV1<'_, '_> {
+    fn with_source_transport_v1<T, R>(
+        &mut self,
+        transport: RawInvocationSourceTransportV1<T>,
+        execute: impl FnOnce(&mut Self, T) -> R,
+    ) -> R {
+        let (node, source) = RawInvocationSourceContextV1::from_transport(transport);
+        let parent = self.active_source.replace(source);
+        let result = execute(self, node);
+        self.active_source = parent;
+        result
+    }
+
+    fn current_source_context_v1(&self) -> Option<RawInvocationSourceContextV1> {
+        self.active_source.clone()
+    }
+}
+
+impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
+    type BodyInput = Vec<ASTNode>;
+    type StatementInput = ASTNode;
+    type ExpressionInput = ASTNode;
+
+    fn lower_body(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::BodyInput,
+    ) -> Result<ValueId, String> {
+        match self.current_source_context_v1() {
+            Some(context) => drive_located_invocation_body_v1(builder, self, input, context),
+            None => {
+                Err("[freeze:contract][raw-invocation/missing-root-body-receipt]".to_owned())
+            }
+        }
+    }
+
+    fn lower_statement(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::StatementInput,
+    ) -> Result<ValueId, String> {
+        if self.active_source.is_none() {
+            return Err(
+                "[freeze:contract][raw-invocation/missing-statement-source-receipt]".to_owned(),
+            );
+        }
+        super::stmts::block_stmt::build_statement_with_port_v1(builder, self, input)
+    }
+
+    fn lower_expression(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::ExpressionInput,
+    ) -> Result<ValueId, String> {
+        if self.active_source.is_none() {
+            return Err(
+                "[freeze:contract][raw-invocation/missing-expression-source-receipt]".to_owned(),
+            );
+        }
+        lower_raw_expression_with_recursion_guard_v1(builder, self, input)
+    }
+}
+
+pub(in crate::mir::builder) fn drive_located_invocation_body_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    statements: Vec<ASTNode>,
+    context: RawInvocationSourceContextV1,
+) -> Result<ValueId, String>
+where
+    Port: RawSourceTransportPortV1 + super::raw_expression_dispatch::RawExpressionDispatchPortV1,
+{
+    let mut body = LocatedInvocationBlockPortV1 {
+        statements: statements.into_iter(),
+        source: context,
+        child: port,
+    };
+    drive_legacy_block_v1(builder, &mut body)
+}
+
+struct LocatedInvocationBlockPortV1<'port, Port> {
+    statements: std::vec::IntoIter<ASTNode>,
+    source: RawInvocationSourceContextV1,
+    child: &'port mut Port,
+}
+
+impl<Port> LegacyBlockDescentPortV1 for LocatedInvocationBlockPortV1<'_, Port>
+where
+    Port: RawSourceTransportPortV1 + super::raw_expression_dispatch::RawExpressionDispatchPortV1,
+{
+    type SuffixInput<'a>
+        = &'a [ASTNode]
+    where
+        Self: 'a;
+
+    fn len(&self) -> usize {
+        self.statements.len()
+    }
+
+    fn suffix_route_input(&self, _index: usize) -> Result<Option<Self::SuffixInput<'_>>, String> {
+        Ok(Some(self.statements.as_slice()))
+    }
+
+    fn consume_suffix_prefix(&mut self, count: usize) {
+        for _ in 0..count {
+            let _ = self.statements.next();
+        }
+    }
+
+    fn lower_statement(
+        &mut self,
+        builder: &mut MirBuilder,
+        index: usize,
+    ) -> Result<ValueId, String> {
+        let statement = self
+            .statements
+            .next()
+            .expect("block driver index stays within the owned source iterator");
+        let transport = self.source.body_statement(statement, index);
+        self.child.with_source_transport_v1(transport, |child, statement| {
+            super::stmts::block_stmt::build_statement_with_port_v1(builder, child, statement)
+        })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn located_root_derives_exact_body_item_without_reissuing_lineage() {
+        let box_statement = ASTNode::BoxDeclaration {
+            name: "Page".to_owned(),
+            fields: Vec::new(),
+            field_decls: Vec::new(),
+            public_fields: Vec::new(),
+            private_fields: Vec::new(),
+            methods: std::collections::HashMap::new(),
+            constructors: std::collections::HashMap::new(),
+            init_fields: Vec::new(),
+            weak_fields: Vec::new(),
+            delegates: Vec::new(),
+            invariants: Vec::new(),
+            transitions: Vec::new(),
+            is_interface: false,
+            is_record: false,
+            is_static: false,
+            extends: Vec::new(),
+            implements: Vec::new(),
+            type_parameters: Vec::new(),
+            is_sync: false,
+            static_init: None,
+            attrs: crate::ast::DeclarationAttrs::default(),
+            span: crate::ast::Span::unknown(),
+        };
+        let root = RawInvocationRootLineageV1::Main(RawSourceLocatorV1::for_test(
+            0,
+            "Main",
+            "main",
+            "Main.main/0",
+            0,
+        ));
+        let (_, context) = RawInvocationSourceContextV1::from_transport(
+            RawInvocationSourceTransportV1::root(Vec::<ASTNode>::new(), root.clone()),
+        );
+        let (_, child) = RawInvocationSourceContextV1::from_transport(
+            context.body_statement(box_statement, 3),
+        );
+
+        assert!(matches!(
+            child,
+            RawInvocationSourceContextV1::Located {
+                root: RawInvocationRootLineageV1::Main(_),
+                ..
+            }
+        ));
+        assert_eq!(
+            child.site().expect("located child").segments(),
+            &[SourcePathSegmentV1::Body(3)]
+        );
+    }
+
+    #[test]
+    fn compatibility_reason_is_forwarded_once_to_body_item() {
+        let (_, context) = RawInvocationSourceContextV1::from_transport(
+            RawInvocationSourceTransportV1::unlocated(
+                Vec::<ASTNode>::new(),
+                RawUnlocatedPortalV1::NestedBoxAdmission,
+            ),
+        );
+        let (_, child) = RawInvocationSourceContextV1::from_transport(
+            context.body_statement(ASTNode::Break { span: crate::ast::Span::unknown() }, 0),
+        );
+        assert_eq!(
+            child,
+            RawInvocationSourceContextV1::UnlocatedCompatibility(
+                RawUnlocatedPortalV1::NestedBoxAdmission
+            )
+        );
+    }
+}

@@ -25,6 +25,9 @@ use super::program_root_work_plan::{
 };
 use super::program_static_table_metadata::PreparedNormalProgramStaticTableMetadataV1;
 use super::recursive_child_lowering::RawInvocationChildPortV1;
+use super::raw_invocation_source_transport::{
+    RawInvocationRootLineageV1, RawInvocationSourceTransportV1, RawSourceTransportPortV1,
+};
 use super::{MirBuilder, NormalEntryMaterializationSourceReceiptV1, ValueId};
 
 /// Scoped candidate context for one deferred non-Main static Box.
@@ -153,14 +156,19 @@ impl MirBuilder {
         let result = {
             let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
             let mut port = RawInvocationChildPortV1::new(&mut module_port);
-            self.lower_program_root_with_materialization_with_callable_port_v1(
-                statements,
-                snapshot,
-                expansion,
-                materialization,
-                runtime_inputs,
-                ProgramRootWorkPlanAdmissionV1::SelectedNormal,
-                &mut port,
+            port.with_source_transport_v1(
+                RawInvocationSourceTransportV1::root((), RawInvocationRootLineageV1::ScriptRoot),
+                |port, ()| {
+                    self.lower_program_root_with_materialization_with_callable_port_v1(
+                        statements,
+                        snapshot,
+                        expansion,
+                        materialization,
+                        runtime_inputs,
+                        ProgramRootWorkPlanAdmissionV1::SelectedNormal,
+                        port,
+                    )
+                },
             )
         }?;
         let target = self

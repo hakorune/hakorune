@@ -316,6 +316,8 @@ pub(in crate::mir) use located_legacy_lowering::{
     LocatedLegacyLoweringErrorV1, LocatedLegacyLoweringSessionV1,
 };
 mod recursive_child_lowering;
+mod raw_invocation_source_transport;
+mod raw_expression_recursion_guard;
 #[cfg(test)]
 mod recursive_child_lowering_rawport_tests;
 #[cfg(test)]

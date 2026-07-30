@@ -90,6 +90,10 @@ impl PreparedRawRootStaticChildDraftV1 {
 }
 
 impl RawRootStaticChildDraftAdmissionV1 {
+    pub(in crate::mir::builder) fn source_locator(&self) -> &RawSourceLocatorV1 {
+        &self.locator
+    }
+
     pub(in crate::mir::builder) fn into_collector_parts(
         self,
     ) -> (FunctionDraftKeyV1, String, usize) {
