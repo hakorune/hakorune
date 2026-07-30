@@ -733,9 +733,8 @@ while IFS= read -r file; do
   fi
 done < <(find "$MODULE" "$ROOT/src/mir/compiler" "$ROOT/src/mir/builder/calls" "$RESOLVED_LOWER" -type f -name '*.rs' -print; printf '%s\n' "$MIR_MOD" "$LOWER_STATE")
 
-if ! rg -q 'pub\(super\) struct BindingId\(u32\)' \
-  "$ROOT/src/mir/join_ir/ownership/ast_analyzer/core.rs"; then
-  guard_fail "$TAG" "private ownership BindingId inventory drifted; reclassify before migration"
+if [[ -e "$ROOT/src/mir/join_ir/ownership" ]]; then
+  guard_fail "$TAG" "retired JoinIR ownership-analysis asset returned"
 fi
 
 python3 "$ROOT/tools/checks/lib/resolved_lowering_ingress_inventory.py" "$ROOT" "$ROOT/tools/checks/fixtures/resolved_lowering_ingress_inventory_v1.json"

@@ -308,11 +308,10 @@ This module family must not import or call:
 
 - canonical arena files must not own cloned/normalized AST payloads;
   `FunctionSyntaxViewV1` and the construction resolver may only borrow syntax;
-- Planner, Recipe, JoinIR ownership, or Lower modules;
+- Planner, Recipe, JoinIR, or Lower modules;
 - `ValueId` or `BasicBlockId`;
 - `MirBuilder`, `CoreContext`, or any BindingId allocator;
 - the GC/debug `mir::region::RegionId`;
-- the private `join_ir::ownership` BindingId/ScopeId family.
 
 Mutable drafts remain crate-private. Only a verified sealed product may become
 a public consumer input. Unsupported resolution never retries a legacy path.

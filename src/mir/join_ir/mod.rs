@@ -32,9 +32,6 @@ pub mod lowering;
 // Phase 34-1: Frontend (AST→JoinIR) — skeleton only
 pub mod frontend;
 
-// Phase 56: Ownership analysis (reads/writes → owned/relay/capture)
-pub mod ownership;
-
 // Phase 72: PHI reserved region verifier
 #[cfg(debug_assertions)]
 pub mod verify_phi_reserved;

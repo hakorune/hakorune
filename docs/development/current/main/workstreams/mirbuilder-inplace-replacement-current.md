@@ -29,9 +29,9 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
-Latest landed: NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-I0-R0
-Result:        selected normal collector drain is session-branded and old closure is deleted
-Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS11-D0`
+Latest landed: JOINMODULE-OWNERSHIP-ANALYSIS-RETIRE0-RET0
+Result:        caller-zero JoinIR ownership-analysis asset retired without semantic rehome
+Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS12-D0`
 Executable:    none — fresh census design stop
 History:       Git history and the short landed tail below
 ```
@@ -123,16 +123,36 @@ StageB reference consumers are handled only by the next reference-sunset D0.
 
 ## Current design stop
 
-`MIRBUILDER-LIVE-EDGE-CENSUS11-D0` — fresh live/R3 census
+`MIRBUILDER-LIVE-EDGE-CENSUS12-D0` — fresh live/R3 census
 
 ```text
-Recount exact live normal/default competing edges and eligible detached R3
-assets after the collector lifecycle cutover. Select one real I0/R0, one
-RET0/REOWN/RETAIN-FENCED disposition, or NoSafeLiveI0 from that evidence.
-Do not preselect join_ir/ownership merely because the RET0 horizon reset.
+Recount remaining live normal/default competing edges and R3 assets after the
+ownership-analysis retirement. Select one real I0/R0, RET0/REOWN/RETAIN-FENCED
+disposition, or NoSafeLiveI0 from current reachability only.
+```
+
+## Latest closeout
+
+```text
+JOINMODULE-OWNERSHIP-ANALYSIS-RETIRE0-RET0
+  join_ir/ownership tree, module export, stale private-BindingId inventory/docs = 0
+  semantic rehome / normal-default / VM-LLVM bridge / feature delta               = 0
+  scoped build + seam/lane/pointer guards                                          = green
+  next                                                                             = fresh census D0
 ```
 
 ## Latest design decision
+
+`MIRBUILDER-LIVE-EDGE-CENSUS11-D0` — closed
+
+```text
+Normal root, child descent, collector, finalization, and publication have no
+safe remaining live competing edge. The 13-file join_ir/ownership analysis
+asset is caller-zero outside its module export, so RET0 is selected; all other
+JoinIR/bridge/EdgeArgs surfaces remain independently fenced or rehome work.
+```
+
+## Prior design decision
 
 `NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-D0` — closed
 
@@ -150,7 +170,7 @@ NORMAL-COLLECTOR-DRAIN-LIFECYCLE0-I0-R0
   selected normal collector: existing session brand -> one normal receipt -> ordered commit
   old normal_legacy_drain module and selected caller                                  = 0
   general Program function-set/MIR/metadata parity; collision/reuse; lib/vm-ref/gates = green
-  next                                                                                = fresh census D0
+  next                                                                                = census11 D0 (closed)
 ```
 
 ## Latest closeout

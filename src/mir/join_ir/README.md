@@ -13,25 +13,19 @@ Current blockers:
 - lowering still couples AST/ProgramJSON, runtime/env, and MIR surfaces
 - `json.rs` / JoinIR serialization is part of the same review lane
 - `join_ir_vm_bridge/` is not stable enough for a crate split
-- ownership analysis here is still analysis over the same lowering surface
 
-Landed substrate slice:
-
-- `hakorune_mir_joinir` now owns `join_ir/ownership/types.rs`
-- `join_ir/ownership/bridge/*` now groups lowering adapters and validators
-- `join_ir/ownership/analyzer/*` now groups the ProgramJSON analysis core
-- the rest of `src/mir/join_ir/` stays in the docs-first review lane
+The detached ownership-analysis reference asset was retired: it had no
+normal/default, VM-bridge, or LLVM consumer. The remaining `src/mir/join_ir/`
+surface stays in the docs-first review lane.
 
 ## Read First
 
 1. [`lowering/README.md`](./lowering/README.md)
-2. [`ownership/README.md`](./ownership/README.md)
-3. `frontend/` and `lowering/` submodules for the concrete emission flow
+2. `frontend/` and `lowering/` submodules for the concrete emission flow
 
 ## Boundaries
 
 - Do not add new lowering heuristics here when `builder/` already owns the shape decision.
-- Treat ownership analysis as analysis-only; it must not mutate JoinIR structures.
 - Prefer explicit contracts over by-name dispatch or hidden fallback.
 - Keep `join_ir_vm_bridge/` and `join_ir_vm_bridge_dispatch/` in the same review lane
   until the lowering surface is stable.
@@ -39,21 +33,12 @@ Landed substrate slice:
 ## Main Responsibilities
 
 - normalized JoinIR module structure
-- ownership analysis and relay/capture bookkeeping
 - lowering helpers that feed VM/LLVM bridge layers
 
 ## Internal Box Map
 
 Prefer cleaning this subtree by sub-box, not by moving the whole directory at once.
 
-- `hakorune_mir_joinir::ownership_types`
-  - pure ownership substrate already extracted
-- `ownership/analyzer/*`
-  - ProgramJSON ownership analysis core
-- `ownership/ast_analyzer/*`
-  - AST ownership analysis core; still tied to AST inputs
-- `ownership/bridge/*`
-  - analysis-to-lowering and validator glue; keep inside the JoinIR review lane
 - `lowering` substrate helpers
   - `canonical_names.rs`
   - `error_tags.rs`
@@ -128,7 +113,6 @@ Observation / support surfaces:
 - `lowering/debug_output_box.rs`
 - `lowering/value_id_ranges.rs`
 - `lowering/join_value_space.rs`
-- `ownership/*`
 
 Active lowering / bridge surfaces:
 
