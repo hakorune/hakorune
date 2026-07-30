@@ -32,7 +32,8 @@ Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0
 Result:        selected normal callable Main materialization is cataloged
 Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS18-D0` — closed
-Executable:    `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-D0`
+Latest design: `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-D0` — closed
+Executable:    `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -500,25 +501,59 @@ Next:
   `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-D0`.
 ```
 
-## Current execution
+## Latest design decision
 
-`NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-D0` — T2 source/port boundary
+`NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-D0` — T2, closed: Candidate A
 
 ```text
 Change:
-  Decide one selected-normal-only admission for Script runtime Box declaration
-  descent.  It must carry exact source provenance to cataloged static/instance
-  methods while keeping constructor and raw/reference branches explicit.
+  Select one Program work-plan-owned, source-order Script runtime receipt and
+  a narrow selected-normal Box-callable adapter.  It classifies each runtime
+  Box statement exactly once before Builder effects; generic raw ports and the
+  raw expression dispatcher remain non-normal authorities.
 
 Contract:
   Preserve Program immediate/runtime order, one body descent, source identity,
-  existing collector mapping, runner selection, and candidate failure/reuse.
-  The generic raw port may not gain normal authority.
+  collector mapping, runner selection, and candidate failure/reuse.  Ordinary
+  non-Main static and instance methods use their installed exact catalog rows;
+  constructors, top-level functions, static Main, nested/raw-reference Box
+  descent stay with their separately registered compatibility residuals.
 
 Stop:
-  Return to design if one receipt must claim constructors or top-level functions,
-  raw/reference needs a route change, a Box is classified twice, collector
-  key/policy changes, a second session appears, or fallback/retry is required.
+  Return if runtime source order cannot coexist with the existing block driver,
+  an instance method could enter the collector twice, a generic raw port gains
+  normal authority, or a constructor/top-level identity, collector policy,
+  second session, fallback, or retry is required.
+```
+
+## Current execution
+
+`NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0` — T2 atomic selected-normal cutover
+
+```text
+Change:
+  Replace the bare Script runtime statement vector with the selected
+  Program-work-plan receipt and its narrow Box-callable adapter.  Delete the
+  selected Script runtime direct raw admission edges for catalog-addressable
+  ordinary non-Main static and instance methods.
+
+Contract:
+  One source partition and one existing block descent preserve source order,
+  suffix/termination behavior, immediate/deferred work, and the unchanged
+  `LegacySymbol + LegacyReplaceWholePair` collector mapping.  Constructors,
+  top-level functions, static Main, nested/raw-reference Box paths and every
+  generic raw port remain unchanged.
+
+Done:
+  Script static/instance mixed-order normal-vs-legacy parity, exact
+  catalog-admission/collector cardinality, missing-row and body-failure reuse,
+  and raw/reference fence regressions are green.  The Script runtime residual
+  sunset closes only when its selected direct raw method edges are zero.
+
+Stop:
+  Return to D0 if the work-plan must reclassify AST during lowering, the block
+  driver must be replaced, any method is collected twice, a generic raw port or
+  raw/reference route changes, or a fallback/retry is needed.
 ```
 
 ## Latest closeout
