@@ -116,8 +116,8 @@ Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-SURFACE0-D0` — closed, NoSafeSlice
 Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corrected
 Latest landed: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — `507851393c`
 Latest landed: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0` — `ffda60241b`
-Current execution: none; design stop `RAW-SCRIPT-ROOT-ROLE0-D0`
-Next design stop: `RAW-SCRIPT-ROOT-ROLE0-D0` — decide the semantic unit of top-level Script
+Current execution: none; design stop `RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0`
+Next design stop: `RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0` — define the Program-specific Script root
 History:       Git history and the short landed tail below
 ```
 
@@ -412,8 +412,9 @@ Corrected forward queue:
 1. NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0 (closed at ffda60241b)
 2. RAW-SEMANTIC-OWNER-SOURCE-PROFILE0-D0 (closed NoStandaloneRow)
 3. RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-D0 (closed NoSafeSlice: parent Script role missing)
-4. RAW-SCRIPT-ROOT-ROLE0-D0 (current design stop; owner decision)
-5. RAW-SCRIPT-LAMBDA-SEMANTIC-CONSUMER0-I0-R0 (conditional on role + lineage closure)
+4. RAW-SCRIPT-ROOT-ROLE0-D0 (closed Accept(B): Program-specific semantic root)
+5. RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0 (current design stop)
+6. RAW-SCRIPT-PROGRAM-ROOT-OWNER-LAMBDA-HANDOFF0-I0-R0 (conditional on root contract closure)
 
 Rule:
   Do not open an execution row while the Script semantic role is unresolved.
@@ -518,23 +519,23 @@ Hard stops:
   semantic Lambda double observation, Complete-to-Deferred fallback, Lambda
   ABI/publication changes, or any selected old Lambda edge left in place.
 
-## RAW-SCRIPT-ROOT-ROLE0-D0 — current design stop
+## RAW-SCRIPT-ROOT-ROLE0-D0 — closed, Accept(B)
 
 ```text
-Question:
-  What is top-level Script in the final pipeline?
+Decision:
+  B — Program-specific semantic root.
 
-A. Implicit-main:
-  Program -> one canonical main-like semantic owner. Requires an explicit
-  language/identity decision and a non-synthetic source contract.
+A. Implicit-main: rejected.
+  The language SSOT says Main.main is an ordinary callable and Script is an
+  evaluation context with a separate ScriptLastExpressionOrUnit contract.
 
-B. Program-specific root:
-  Script is not a function; introduce a first-class Program-root semantic
+B. Program-specific root: accepted.
+  Script is not a function. Introduce a first-class Program-root semantic
   owner and adapt forest/projection/lowering around that source kind.
 
-C. Explicit R4 retention:
-  keep selected Script on raw compatibility, register the fence and sunset,
-  and do not claim Script semantic-owner parity in final-pipeline completion.
+C. Explicit R4 retention: temporary contingency only.
+  It cannot satisfy final-pipeline completion, which requires selected old
+  production owners and normal/default compatibility reachability to be zero.
 
 Current evidence:
   the existing semantic owner machinery is Function/Lambda-rooted, while the
@@ -542,14 +543,56 @@ Current evidence:
   ordinals, program-item admission, and CatalogSeal are transport/admission
   pieces, not a Script semantic owner.
 
-Decision required before implementation:
-  select A/B/C and define the source identity, owner/forest/projection
-  authority, diagnostic contract, and R4 completion claim. Do not start a
-  Lambda consumer or a new Script profile carrier before this decision.
+Normative contract:
+  owned Program; source-kind Script/ProgramEvaluation; ProgramBodyRoot and
+  original Program ordinals; no receiver, parameters, or parent edge; final
+  source expression -> Value, final statement/empty -> Unit; Script-root
+  explicit return remains rejected until a later Script-control row.
+
+Next design stop:
+  RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0. No owner ID, forest, projection,
+  Lambda consumer, or Script result activation is implemented by this closeout.
 
 Hakorune syntax:
   source try/throw remain rejected. Canonical protected syntax is postfix
   catch/cleanup; ASTNode::TryCatch is an internal/legacy carrier only.
+```
+
+## RAW-SCRIPT-PROGRAM-SEMANTIC-ROOT0-D0 — current design stop
+
+```text
+Decision:
+  open T2 design gate. Program-specific Script root is selected; the exact
+  product and first consumer are not yet selected.
+
+Must define:
+  ScriptRootProfileV1 / source-kind contract; owner ID issuance without
+  synthetic FunctionDeclaration; source-kind-aware forest root and normalized
+  graph; seal_script projection; ScriptLastExpressionOrUnit completion;
+  Complete versus ExistingRootLowerAuthority terminal; CatalogSeal to
+  CatalogInstall placement; one traversal coverage; and the first same-commit
+  old production edge removal.
+
+First conditional execution row:
+  RAW-SCRIPT-PROGRAM-ROOT-OWNER-LAMBDA-HANDOFF0-I0-R0
+
+Likely first eligible closure:
+  Program sequence + top-level Function/Box boundary + Local/Literal/Variable
+  + exact nested Lambda lineage. Assignment/Print/Me/Unary/Binary and all
+  postfix catch/cleanup, QMark/Match/EnumMatch, BlockExpr, Call/Object,
+  This-family, and unproven control/context surfaces remain separate until
+  their own admission is designed.
+
+Hakorune boundary:
+  source try/throw = rejected; postfix catch/cleanup is canonical; the
+  ASTNode::TryCatch carrier is internal/legacy and does not establish
+  first-catch, catch-binder, or cleanup environment semantics here.
+
+Hard stops:
+  FunctionSyntaxView Program branch, synthetic Main/function, partial forest,
+  second resolver/observer, Complete-to-Deferred downgrade, Lambda ABI or
+  publication change, source grammar widening, fallback, retry, or an I0/R0
+  without a named selected old edge deletion.
 ```
 ```
 ```

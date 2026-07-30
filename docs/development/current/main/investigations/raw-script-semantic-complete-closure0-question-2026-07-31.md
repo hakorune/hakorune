@@ -37,7 +37,19 @@ C. ScriptはR4までraw compatibilityとして明示保持する
    semantic-owner parityを最終完成条件に含めず、fenceとsunsetだけを登録する。
 ```
 
-現時点ではA/B/Cの選択なしに、Lambda consumer、forest/projection、または
+Decision: B — Program-specific semantic root.
+
+Language SSOT `docs/reference/language/function-exit-and-entry-result.md` は
+Scriptを「ordinary callable bodyではないevaluation context」とし、final
+expression/statementに `ScriptLastExpressionOrUnit` を与え、`Main.main/0` は
+ordinary callable semanticsのままと定義している。したがってAは不採用、Cは
+R4の一時停止fenceに限り、final-pipeline完了条件にはできない。
+
+Bを選んでも、現時点ではコード実装へ進まない。Program-specific rootのsource
+kind、owner/forest/projection、result、diagnostic、最初のold-edge deletionを
+次のD0で閉じてからLambda consumerへ進む。
+
+現時点ではBのroot契約なしに、Lambda consumer、forest/projection、または
 Function viewのProgram対応を実装してはいけません。これは実装者が推測して
 埋める種類の差ではなく、言語／pipeline意味論の所有者判断です。
 
