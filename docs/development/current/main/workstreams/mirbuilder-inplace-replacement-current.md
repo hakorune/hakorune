@@ -31,7 +31,7 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 Parent:        JOINMODULE-REFERENCE-ASSET-DISPOSITION0-D0
 Latest landed: JOINMODULE-VERIFY-REFERENCE-RET0
 Result:        caller-zero JoinIR reference verifier surface retired
-Latest design: `JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS2-D0`
+Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS10-D0`
 Executable:    none — design stop
 History:       Git history and the short landed tail below
 ```
@@ -123,20 +123,19 @@ StageB reference consumers are handled only by the next reference-sunset D0.
 
 ## Current design stop
 
-`JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS2-D0` — fresh R3 census
+`MIRBUILDER-LIVE-EDGE-CENSUS10-D0` — live replacement reset census
 
 ```text
 Purpose:
-  inventory the post-verifier JoinIR reference / bridge / carrier / observer
-  edges and select at most one next action.
+  find one current normal/default production responsibility that can switch a
+  named non-test caller and delete its competing old authority atomically.
 
 Required decision:
-  exact consumer class; live edge, caller-zero retirement, rehome requirement,
-  or retained fence; same-commit deletion set or a named compatibility sunset;
-  proportional gate set.
+  exact production caller, selected owner, same-commit old-edge deletion,
+  parity/failure/reuse evidence, or an evidence-backed NoSafeLiveI0 result.
 
 Non-authority:
-  no production edit, route widening, fallback/retry, Ownership/View, or
+  no detached JoinIR RET0, route widening, fallback/retry, Ownership/View, or
   feature work during the census.
 ```
 
@@ -148,6 +147,17 @@ JOINMODULE-VERIFY-REFERENCE-RET0
   verify_phi_reserved / VM bridge / LowerOnly / normalized shadow / LLVM             = unchanged
   focused if-select + lib/vm-reference checks + lane guards                           = green
   next                                                                                 = fresh R3 census D0
+```
+
+## Prior selection
+
+```text
+JOINMODULE-REFERENCE-LIVE-EDGE-CENSUS2-D0
+  caller-zero legacy join_ir/ownership analysis                     = retirement candidate
+  AST frontend                                                       = larger test/fixture closure
+  VM bridge / normalized shadow / LLVM / phi observer / carriers    = fenced or separate
+  consecutive detached RET0                                          = 3; fourth RET0 prohibited
+  next                                                               = live-edge census10 D0
 ```
 
 ## Prior selection
