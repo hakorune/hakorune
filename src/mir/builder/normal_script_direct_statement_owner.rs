@@ -5,6 +5,7 @@
 //! owner through the caller's current invocation port.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::emission::constant::emit_void;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
 use crate::mir::builder::recursive_child_lowering::drive_legacy_expression_v1;
 use crate::mir::builder::stmts::print_stmt::{
@@ -39,6 +40,17 @@ where
     Port: RootCallableCapturePortV1,
 {
     drive_legacy_expression_v1(builder, port, statement.clone())
+}
+
+pub(super) fn lower_direct_static_const_runtime_completion_v1(
+    builder: &mut MirBuilder,
+    statement: &ASTNode,
+) -> Result<ValueId, String> {
+    if !matches!(statement, ASTNode::StaticConstTable { .. }) {
+        return Err("[freeze:contract][mir/script-runtime/static-const-source-drift]".to_owned());
+    }
+    builder.metadata_ctx.set_current_span(statement.span());
+    emit_void(builder)
 }
 
 #[cfg(test)]
@@ -200,6 +212,12 @@ mod tests {
             value: Some(Box::new(function_call.clone())),
             span: Span::new(130, 131, 130, 1),
         };
+        let static_table = ASTNode::StaticConstTable {
+            name: "DIRECT_TABLE".to_owned(),
+            element_type: "u16".to_owned(),
+            values: vec![1, 2],
+            span: Span::new(160, 161, 160, 1),
+        };
 
         for (root, name) in [
             (literal, "direct-literal.hako"),
@@ -219,6 +237,7 @@ mod tests {
             (block_expression, "direct-block-expression.hako"),
             (void_return, "direct-void-return.hako"),
             (value_return, "direct-value-return.hako"),
+            (static_table, "direct-static-table.hako"),
         ] {
             compare_normal_and_legacy(root, name);
         }

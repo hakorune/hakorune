@@ -1,9 +1,8 @@
-//! Selected-normal Script runtime descent.
-//! The Program work plan classifies direct statements once; this adapter keeps
-//! block order while routing selected terminals through existing owners.
+//! Selected-normal Script runtime descent: one Program classification, ordered existing terminals.
 
 use super::normal_script_direct_statement_owner::{
     lower_direct_port_aware_expression_v1, lower_direct_print_v1,
+    lower_direct_static_const_runtime_completion_v1,
 };
 use super::normal_script_nonbox_statement_disposition::{
     classify_normal_script_nonbox_statement_v1, NormalScriptNonBoxStatementDispositionV1,
@@ -66,6 +65,7 @@ impl PreparedNormalScriptRuntimeInputV1 {
 pub(super) enum NormalScriptRuntimeStatementAdmissionV1 {
     DirectPrint,
     DirectPortAwareExpression,
+    DirectStaticConstRuntimeCompletion,
     RawCompatibility,
     CatalogedNonMainStaticBox,
     StaticMainCompatibility,
@@ -91,6 +91,9 @@ impl PreparedNormalScriptRuntimeWorkV1 {
                 }
                 NormalScriptRuntimeStatementKindV1::DirectPortAwareExpression => {
                     NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression
+                }
+                NormalScriptRuntimeStatementKindV1::DirectStaticConstRuntimeCompletion => {
+                    NormalScriptRuntimeStatementAdmissionV1::DirectStaticConstRuntimeCompletion
                 }
                 NormalScriptRuntimeStatementKindV1::RawCompatibility => {
                     NormalScriptRuntimeStatementAdmissionV1::RawCompatibility
@@ -212,6 +215,9 @@ where
             }
             NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression => {
                 lower_direct_port_aware_expression_v1(builder, self.port, statement)
+            }
+            NormalScriptRuntimeStatementAdmissionV1::DirectStaticConstRuntimeCompletion => {
+                lower_direct_static_const_runtime_completion_v1(builder, statement)
             }
             NormalScriptRuntimeStatementAdmissionV1::RawCompatibility => {
                 drive_legacy_statement_v1(builder, self.port, statement.clone())
@@ -397,6 +403,7 @@ where
 pub(super) enum NormalScriptRuntimeStatementKindV1 {
     DirectPrint,
     DirectPortAwareExpression,
+    DirectStaticConstRuntimeCompletion,
     RawCompatibility,
     CatalogedNonMainStaticBox,
     StaticMainCompatibility,
@@ -436,6 +443,9 @@ pub(super) fn classify_normal_script_runtime_statement_v1(
             }
             NormalScriptNonBoxStatementDispositionV1::DirectPortAwareExpression => {
                 NormalScriptRuntimeStatementKindV1::DirectPortAwareExpression
+            }
+            NormalScriptNonBoxStatementDispositionV1::DirectStaticConstRuntimeCompletion => {
+                NormalScriptRuntimeStatementKindV1::DirectStaticConstRuntimeCompletion
             }
             NormalScriptNonBoxStatementDispositionV1::StatementControlCompatibility
             | NormalScriptNonBoxStatementDispositionV1::DeclarationIngressCompatibility

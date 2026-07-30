@@ -43,7 +43,8 @@ Latest design:  `NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-RETURN-DIRECT-OWNER0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS26-D0` — closed
 Latest design:  `NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-D0` — closed
-Next execution: `NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-I0-R0`
+Latest landed:  `NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-I0-R0`
+Next stop:      `MIRBUILDER-LIVE-EDGE-CENSUS27-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -57,7 +58,7 @@ activation and sunset contract.
 | State | Ledger key / family | Exact surface | Activation / normal-default | Release row / condition |
 | --- | --- | --- | --- | --- |
 | active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | fresh named raw-static-Main disposition, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` proves reachability = 0 |
-| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for 25 direct selected Script kinds in the `StatementControl` and `DeclarationIngress` residual families | selected normal Script only; Print, all 28 expression roots, and Return are retired; raw/reference and nested body descent remain separate | fresh named selected-Script statement-owner D0 with a same-commit old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
+| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for 24 direct selected Script kinds in the `StatementControl` and `DeclarationIngress` residual families | selected normal Script only; Print, all 28 expression roots, Return, and StaticConstTable runtime completion are retired; raw/reference and nested body descent remain separate | fresh named selected-Script statement-owner D0 with a same-commit old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
 | closed | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program immediate instance constructors, plus selected Script plain-instance runtime-prefix constructors | every selected Program instance Box has one immediate demand; plain Script adds its second `InstancePrefixCompatibility` demand; non-plain Script's later raw runtime lifecycle is the separate row below | retired by `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0`: one source occurrence -> unchanged physical LegacySymbol admission per existing demand |
 | closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
 | closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
@@ -92,6 +93,51 @@ unregistered family may not become active on a generic prose promise. No second
 fence ledger is permitted.
 
 ## Disposition closeout
+
+`NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-I0-R0` — T1 atomic
+replacement, closed
+
+```text
+Named production caller:
+  NormalScriptRuntimeBlockPortV1::lower_statement.
+
+New selected path:
+  StaticConstTable
+  -> DirectStaticConstRuntimeCompletion
+  -> normal_script_direct_statement_owner
+  -> exact source check
+  -> statement span
+  -> emit_void.
+
+Atomic delete:
+  selected Script StaticConstTable
+  -> DeclarationIngressCompatibility
+  -> RawCompatibility
+  -> drive_legacy_statement_v1
+  = 0.
+
+Authority:
+  PreparedNormalProgramStaticTableMetadataV1 remains the sole metadata owner;
+  its prepare/commit still precedes work-plan/runtime exactly once. The direct
+  runtime helper has no metadata read, reconstruction, validation, or commit.
+
+Evidence:
+  disposition and runtime partitions are exhaustive; valid table compilation
+  preserves full module/verification outcome and table span; metadata pair
+  ordering and failed-prepare atomicity tests remain green; shared guard fixes
+  pre-runtime ordering and forbids metadata access in the direct helper.
+
+Result:
+  residual 25 -> 24; DeclarationIngress 9 -> 8; StatementControl remains 16;
+  new source/metadata owner, port, route, grammar, publication, fallback,
+  retry = 0.
+
+Structure:
+  direct owner 342 lines; disposition 223; runtime work 799; shared guard 799.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS27-D0.
+```
 
 `NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-D0` — T1 design, closed
 

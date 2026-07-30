@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS26-D0 and NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-D0 are closed. The remaining selected Script residual is exactly 25 kinds: 16 StatementControl and 9 DeclarationIngress. Candidate A selects StaticConstTable only. Its declaration facts and PreparedNormalProgramStaticTableMetadataV1 transaction already complete once before runtime; the old runtime edge only sets the statement span and emits Void. The atomic T1 replacement adds one bounded direct completion in the existing direct-statement sibling, deletes the selected StaticConstTable RawCompatibility edge, and leaves all metadata, grammar, result, and publication authority unchanged."
+status = "NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-I0-R0 is closed. StaticConstTable now has one explicit selected-Script direct runtime completion: exact source check, statement-span alignment, and existing emit_void. Its DeclarationIngressCompatibility -> RawCompatibility -> drive_legacy_statement_v1 edge is deleted. PreparedNormalProgramStaticTableMetadataV1 remains the sole metadata owner and still commits once before work/runtime; direct completion contains no metadata access. Metadata ordering/atomicity, full compile outcomes, Void completion, guard, cargo check, and file ceilings are green. The selected Script residual is now 24 kinds: 16 StatementControl and 8 DeclarationIngress."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-I0-R0"
-current_execution_summary = "T1 atomic I0/R0: give ASTNode::StaticConstTable an explicit DirectStaticConstRuntimeCompletion disposition/admission and lower it in the existing normal_script_direct_statement_owner by exact source check, current-span set, and existing emit_void only. Delete selected StaticConstTable -> DeclarationIngressCompatibility -> RawCompatibility -> drive_legacy_statement_v1. Do not read, rebuild, validate, or recommit static metadata at runtime; preserve metadata-before-work ordering, Void/last-value/source-order behavior, diagnostics, candidate discard/reuse, and raw/reference routes. Residual 25 -> 24; no new file/port/route/fallback/retry and every source/check file <800."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS27-D0"
+current_execution_row = "none"
+current_execution_summary = "Read-only Census27: recount the 24 selected Script residual kinds and all active/fenced/unregistered R4 rows after StaticConst runtime completion. Select at most one named production responsibility with a same-commit old-edge deletion. Do not group remaining CFG/binding/scope/exception/ingress authorities, add compatibility, or activate Ownership/View/features."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-SCRIPT-STATIC-CONST-RUNTIME-COMPLETION0-I0-R0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS27-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

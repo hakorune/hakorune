@@ -10,6 +10,7 @@ use crate::ast::ASTNode;
 pub(super) enum NormalScriptNonBoxStatementDispositionV1 {
     DirectPrint,
     DirectPortAwareExpression,
+    DirectStaticConstRuntimeCompletion,
     StatementControlCompatibility,
     DeclarationIngressCompatibility,
     DirectBoxOwnedElsewhere,
@@ -21,7 +22,8 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
 ) -> NormalScriptNonBoxStatementDispositionV1 {
     use NormalScriptNonBoxStatementDispositionV1::{
         DeclarationIngressCompatibility, DirectBoxOwnedElsewhere, DirectPortAwareExpression,
-        DirectPrint, StatementControlCompatibility, TopLevelFunctionImmediateOnly,
+        DirectPrint, DirectStaticConstRuntimeCompletion, StatementControlCompatibility,
+        TopLevelFunctionImmediateOnly,
     };
 
     match statement {
@@ -81,8 +83,9 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
         | ASTNode::EnumDeclaration { .. }
         | ASTNode::BrandDeclaration { .. }
         | ASTNode::TypeAliasDeclaration { .. }
-        | ASTNode::GlobalVar { .. }
-        | ASTNode::StaticConstTable { .. } => DeclarationIngressCompatibility,
+        | ASTNode::GlobalVar { .. } => DeclarationIngressCompatibility,
+
+        ASTNode::StaticConstTable { .. } => DirectStaticConstRuntimeCompletion,
 
         ASTNode::BoxDeclaration { .. } => DirectBoxOwnedElsewhere,
         ASTNode::FunctionDeclaration { .. } => TopLevelFunctionImmediateOnly,
@@ -97,7 +100,7 @@ mod tests {
         classify_normal_script_nonbox_statement_v1,
         NormalScriptNonBoxStatementDispositionV1::{
             DeclarationIngressCompatibility, DirectPortAwareExpression, DirectPrint,
-            StatementControlCompatibility,
+            DirectStaticConstRuntimeCompletion, StatementControlCompatibility,
         },
     };
     use crate::ast::{ASTNode, LiteralValue, Span};
@@ -127,6 +130,12 @@ mod tests {
         };
         let return_statement = ASTNode::Return {
             value: Some(Box::new(integer(4))),
+            span: Span::unknown(),
+        };
+        let static_table = ASTNode::StaticConstTable {
+            name: "T".to_owned(),
+            element_type: "u16".to_owned(),
+            values: vec![1, 2],
             span: Span::unknown(),
         };
         let ingress = ASTNode::Program {
@@ -162,6 +171,10 @@ mod tests {
         assert_eq!(
             classify_normal_script_nonbox_statement_v1(&return_statement),
             DirectPortAwareExpression
+        );
+        assert_eq!(
+            classify_normal_script_nonbox_statement_v1(&static_table),
+            DirectStaticConstRuntimeCompletion
         );
     }
 
