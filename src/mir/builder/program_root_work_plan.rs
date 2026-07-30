@@ -10,13 +10,14 @@ use crate::ast::{ASTNode, DeclarationAttrs, FieldDecl, ParamDecl};
 
 use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
+use super::normal_script_runtime_work::PreparedNormalScriptRuntimeWorkV1;
 use super::MirBuilder;
 
 #[derive(Debug)]
 pub(super) struct PreparedProgramRootWorkPlanV1 {
     immediate: Box<[PreparedProgramRootImmediateWorkV1]>,
     deferred_static: Box<[PreparedProgramDeferredStaticBoxWorkV1]>,
-    runtime_statements: Vec<ASTNode>,
+    runtime: PreparedProgramRootRuntimeWorkV1,
     terminal: ProgramRootTerminalScheduleV1,
     _seal: PreparedProgramRootWorkPlanSealV1,
 }
@@ -34,7 +35,7 @@ pub(super) enum ProgramRootTerminalScheduleV1 {
 pub(super) struct PreparedProgramRootWorkPlanPartsV1 {
     pub(super) immediate: Box<[PreparedProgramRootImmediateWorkV1]>,
     pub(super) deferred_static: Box<[PreparedProgramDeferredStaticBoxWorkV1]>,
-    pub(super) runtime_statements: Vec<ASTNode>,
+    pub(super) runtime: PreparedProgramRootRuntimeWorkV1,
     pub(super) terminal: ProgramRootTerminalScheduleV1,
 }
 
@@ -72,6 +73,53 @@ pub(super) struct PreparedProgramDeferredStaticBoxWorkV1 {
     methods: HashMap<String, ASTNode>,
 }
 
+/// Selects whether the Program work plan owns the normal-only Script runtime
+/// admission receipt, or preserves the shared raw/reference statement slice.
+///
+/// This is an invocation route choice, not a statement-family classifier.  It
+/// must be known before the work plan is prepared so raw/reference callers
+/// never construct the selected-normal receipt.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum ProgramRootRuntimeAdmissionV1 {
+    RawCompatibility,
+    SelectedNormal,
+}
+
+#[derive(Debug)]
+pub(super) enum PreparedProgramRootRuntimeWorkV1 {
+    RawCompatibility(Box<[ASTNode]>),
+    SelectedNormal(PreparedNormalScriptRuntimeWorkV1),
+}
+
+impl PreparedProgramRootRuntimeWorkV1 {
+    fn prepare(statements: Vec<ASTNode>, admission: ProgramRootRuntimeAdmissionV1) -> Self {
+        match admission {
+            ProgramRootRuntimeAdmissionV1::RawCompatibility => {
+                Self::RawCompatibility(statements.into_boxed_slice())
+            }
+            ProgramRootRuntimeAdmissionV1::SelectedNormal => {
+                Self::SelectedNormal(PreparedNormalScriptRuntimeWorkV1::prepare(statements))
+            }
+        }
+    }
+
+    #[cfg(test)]
+    fn len(&self) -> usize {
+        match self {
+            Self::RawCompatibility(statements) => statements.len(),
+            Self::SelectedNormal(work) => work.len(),
+        }
+    }
+
+    #[cfg(test)]
+    fn statement_at(&self, index: usize) -> &ASTNode {
+        match self {
+            Self::RawCompatibility(statements) => &statements[index],
+            Self::SelectedNormal(work) => work.statement_at(index),
+        }
+    }
+}
+
 impl PreparedProgramDeferredStaticBoxWorkV1 {
     pub(super) fn into_parts(self) -> (String, HashMap<String, ASTNode>) {
         (self.name, self.methods)
@@ -92,7 +140,11 @@ enum ProgramRootStatementDispositionV1 {
 }
 
 impl PreparedProgramRootWorkPlanV1 {
-    pub(super) fn prepare(statements: Vec<ASTNode>, is_app_mode: bool) -> Self {
+    pub(super) fn prepare(
+        statements: Vec<ASTNode>,
+        is_app_mode: bool,
+        runtime_admission: ProgramRootRuntimeAdmissionV1,
+    ) -> Self {
         let mut immediate = Vec::new();
         let mut deferred_static = Vec::new();
         let mut runtime_statements = Vec::new();
@@ -125,7 +177,10 @@ impl PreparedProgramRootWorkPlanV1 {
         Self {
             immediate: immediate.into_boxed_slice(),
             deferred_static: deferred_static.into_boxed_slice(),
-            runtime_statements,
+            runtime: PreparedProgramRootRuntimeWorkV1::prepare(
+                runtime_statements,
+                runtime_admission,
+            ),
             terminal: if is_app_mode {
                 ProgramRootTerminalScheduleV1::VerifiedAppMain
             } else {
@@ -139,7 +194,7 @@ impl PreparedProgramRootWorkPlanV1 {
         PreparedProgramRootWorkPlanPartsV1 {
             immediate: self.immediate,
             deferred_static: self.deferred_static,
-            runtime_statements: self.runtime_statements,
+            runtime: self.runtime,
             terminal: self.terminal,
         }
     }
@@ -340,6 +395,7 @@ mod tests {
                 box_declaration("Main", true),
             ],
             true,
+            ProgramRootRuntimeAdmissionV1::SelectedNormal,
         );
         let parts = plan.into_parts();
 
@@ -358,24 +414,24 @@ mod tests {
         ));
         assert_eq!(parts.deferred_static.len(), 1);
         assert_eq!(parts.deferred_static[0].name, "Helpers");
-        assert_eq!(parts.runtime_statements.len(), 4);
+        assert_eq!(parts.runtime.len(), 4);
         assert!(matches!(
-            &parts.runtime_statements[0],
+            parts.runtime.statement_at(0),
             ASTNode::BoxDeclaration { name, .. } if name == "Page"
         ));
         assert!(matches!(
-            &parts.runtime_statements[1],
+            parts.runtime.statement_at(1),
             ASTNode::BoxDeclaration { name, .. } if name == "Helpers"
         ));
         assert!(matches!(
-            &parts.runtime_statements[2],
+            parts.runtime.statement_at(2),
             ASTNode::Literal {
                 value: LiteralValue::Integer(7),
                 ..
             }
         ));
         assert!(matches!(
-            &parts.runtime_statements[3],
+            parts.runtime.statement_at(3),
             ASTNode::BoxDeclaration { name, .. } if name == "Main"
         ));
     }
@@ -385,16 +441,32 @@ mod tests {
         let plan = PreparedProgramRootWorkPlanV1::prepare(
             vec![box_declaration("Helpers", true), function("helper")],
             false,
+            ProgramRootRuntimeAdmissionV1::SelectedNormal,
         );
         let parts = plan.into_parts();
 
         assert_eq!(parts.terminal, ProgramRootTerminalScheduleV1::ScriptRuntime);
         assert_eq!(parts.deferred_static.len(), 0);
         assert_eq!(parts.immediate.len(), 1);
-        assert_eq!(parts.runtime_statements.len(), 1);
+        assert_eq!(parts.runtime.len(), 1);
         assert!(matches!(
-            &parts.runtime_statements[0],
+            parts.runtime.statement_at(0),
             ASTNode::BoxDeclaration { name, .. } if name == "Helpers"
+        ));
+    }
+
+    #[test]
+    fn raw_runtime_keeps_the_neutral_statement_carrier() {
+        let plan = PreparedProgramRootWorkPlanV1::prepare(
+            vec![box_declaration("Helpers", true), literal(7)],
+            false,
+            ProgramRootRuntimeAdmissionV1::RawCompatibility,
+        );
+        let parts = plan.into_parts();
+
+        assert!(matches!(
+            parts.runtime,
+            PreparedProgramRootRuntimeWorkV1::RawCompatibility(_)
         ));
     }
 }

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-D0 is closed: Candidate A selects one Program work-plan-owned, source-order Script runtime receipt plus a narrow selected-normal Box-callable adapter. The atomic I0/R0 must delete only selected Script runtime direct raw admission for catalog-addressable ordinary non-Main static and instance methods, without changing generic raw ports, raw/reference routes, constructors, top-level functions, static Main, collector policy, runner selection, or candidate semantics. The active R4 registry records three Program/root compatibility residuals, two registered R3 fences, and unregistered R3 family dispositions that block R4 Complete. Ownership, View, and feature work stay parked until R4 final conformance."
+status = "NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0 is closed: selected normal Script runtime ordinary non-Main static/instance Box methods now use exact cataloged admission; instance runtime prefixes preserve constructors but do not re-admit ordinary methods; raw/reference remains on a neutral statement carrier. The selected Script direct raw-admission sunset is closed. MIRBUILDER-LIVE-EDGE-CENSUS19-D0 is the active read-only selection stop. The R4 registry records two active Program/root compatibility residuals, two registered R3 fences, one closed residual, and seven unregistered R3 families that block R4 Complete. Ownership, View, and feature work stay parked until R4 final conformance."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0"
-current_execution_summary = "T2 atomic selected-normal cutover. Replace bare Script runtime statements with one Program-work-plan receipt and narrow Box-callable adapter; delete direct selected raw admission only for catalog-addressable ordinary non-Main static/instance methods. Preserve one block descent, source order, collector mapping, raw/reference, constructors/top-level/static Main, runner, candidate failure/reuse, and no fallback/retry."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS19-D0"
+current_execution_row = "MIRBUILDER-LIVE-EDGE-CENSUS19-D0"
+current_execution_summary = "Read-only fresh live-edge census after Script runtime residual retirement. Inventory selected normal, explicit compatibility/raw-reference, and R4 registry surfaces; select at most one production old-edge deletion, one R3 disposition, or NoSafe. No code/route/grammar/result/candidate/collector/publication change."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS19-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

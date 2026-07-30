@@ -15,7 +15,7 @@ pub(in crate::mir::builder) use input_view::{
 };
 
 use self::block_expr::{lower_prepared_raw_block_expr_with_port_v1, PreparedRawBlockExprV1};
-use self::nonmain_static_box_lifecycle::PreparedRawNonMainStaticBoxLifecycleV1;
+pub(in crate::mir::builder) use self::nonmain_static_box_lifecycle::PreparedRawNonMainStaticBoxLifecycleV1;
 use super::builder_build::PreparedRawNewExpressionV1;
 use super::calls::{
     lower_prepared_raw_function_preflight_with_port_v1, MethodCallDescentPortV1,

@@ -29,11 +29,10 @@ cell数、pack数、LOCは観測値であり、完成条件ではない。
 
 ```text
 Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
-Latest landed: NORMAL-CALLABLE-MAIN-MATERIALIZATION-ADMISSION0-I0-R0
-Result:        selected normal callable Main materialization is cataloged
-Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS18-D0` — closed
-Latest design: `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-D0` — closed
-Executable:    `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`
+Latest landed: NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0
+Result:        selected Script runtime ordinary Box methods are cataloged
+Latest design: `MIRBUILDER-LIVE-EDGE-CENSUS19-D0` — active
+Executable:    `MIRBUILDER-LIVE-EDGE-CENSUS19-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -48,7 +47,7 @@ activation and sunset contract.
 | --- | --- | --- | --- | --- |
 | active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | named raw static-Main replacement, or reachability = 0 |
 | active compatibility | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | instance constructors and top-level functions | selected Program child compatibility; catalog identity absent | each source-identity replacement is selected; constructor and top-level remain separate |
-| active compatibility | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's ordinary non-Main static and instance Box method raw admission | selected normal Script only; constructors, static Main, nested/raw-reference Box descent excluded | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: exact catalog row -> `NormalCatalogedBoxMethodDraftAdmissionV1`, direct selected raw method edges = 0 |
+| closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's ordinary non-Main static and instance Box method raw admission | selected normal Script only; constructors, static Main, nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
 | retain-fenced | `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | two direct normalized-shadow executions and strict/dev StepTree observer | explicit dev/debug; default normal = 0 | verified Recipe/CorePlan loop owner, strict/dev parity, and independent observer disposition |
 | retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | `join_ir_vm_bridge_dispatch` Exec and LowerOnly targets | explicit VM keep / vm-reference with `NYASH_JOINIR_VM_BRIDGE=1`; default MIR and vm-fallback = 0 | dispatcher caller = 0, or one explicit-lane execution owner replaces the entire lane |
 | unregistered | LLVM experiment | feature/env-gated JoinModule mutation route | not normal/default; exact activation/owner not yet registered | R3 disposition D0 or forced R4 disposition |
@@ -59,9 +58,10 @@ activation and sunset contract.
 | unregistered | cfg(test) bridge handler lane | legacy bridge handlers and owned unit contracts | production caller = 0; test contract remains | `JOINMODULE-TEST-HANDLER-LANE-DISPOSITION0-D0` |
 | unregistered | JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | forced R4 delete-or-explicit-fenced-reference disposition |
 
-The registry has two registered R3 fences, three selected Program/root
-compatibility residuals, and seven unregistered R3 family rows.  This is an
-honest registry state, not a claim that eleven fences are already registered.
+The registry has two registered R3 fences, two active selected Program/root
+compatibility residuals, one closed residual, and seven unregistered R3 family
+rows.  This is an honest registry state, not a claim that eleven fences are
+already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric;
 only the three compatibility rows above are selected Program/root admission
 dispositions.
@@ -526,34 +526,50 @@ Stop:
   second session, fallback, or retry is required.
 ```
 
-## Current execution
+## Latest closeout
 
-`NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0` — T2 atomic selected-normal cutover
+`NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0` — T2 atomic selected-normal cutover, closed
 
 ```text
 Change:
-  Replace the bare Script runtime statement vector with the selected
-  Program-work-plan receipt and its narrow Box-callable adapter.  Delete the
-  selected Script runtime direct raw admission edges for catalog-addressable
-  ordinary non-Main static and instance methods.
+  Selected-normal Script runtime uses one source-order admission receipt.
+  Ordinary non-Main static methods enter the installed cataloged static port;
+  ordinary instance methods retain their runtime declaration prefix but do not
+  re-admit already cataloged methods.  Raw/reference uses a neutral statement
+  carrier and never constructs the normal admission receipt.
 
-Contract:
-  One source partition and one existing block descent preserve source order,
-  suffix/termination behavior, immediate/deferred work, and the unchanged
-  `LegacySymbol + LegacyReplaceWholePair` collector mapping.  Constructors,
-  top-level functions, static Main, nested/raw-reference Box paths and every
-  generic raw port remain unchanged.
+Deleted:
+  selected Script runtime direct raw admission for catalog-addressable ordinary
+  non-Main static/instance methods = 0.
 
 Done:
-  Script static/instance mixed-order normal-vs-legacy parity, exact
-  catalog-admission/collector cardinality, missing-row and body-failure reuse,
-  and raw/reference fence regressions are green.  The Script runtime residual
-  sunset closes only when its selected direct raw method edges are zero.
+  mixed static/instance Script normal-vs-legacy MIR parity, no duplicate
+  callable functions, late method failure/fresh reuse, neutral raw carrier,
+  lib/vm-reference builds, focused lifecycle/port suites, and shared guards
+  are green.  `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` is closed.
+
+Next:
+  `MIRBUILDER-LIVE-EDGE-CENSUS19-D0`.
+```
+
+## Current execution
+
+`MIRBUILDER-LIVE-EDGE-CENSUS19-D0` — read-only fresh live-edge census
+
+```text
+Change:
+  Inventory selected normal, explicit compatibility/raw-reference, and R4
+  registry surfaces after the Script runtime residual retirement.  Choose at
+  most one real production old-edge deletion, one R3 disposition, or NoSafe.
+
+Contract:
+  No production code, route, grammar, result, candidate, collector, or
+  publication change.  Any fence/residual creation, expansion, or
+  reclassification updates the R4 registry in the same result.
 
 Stop:
-  Return to D0 if the work-plan must reclassify AST during lowering, the block
-  driver must be replaced, any method is collected twice, a generic raw port or
-  raw/reference route changes, or a fallback/retry is needed.
+  Do not select a caller-zero proof asset, whole-program acceptance variant,
+  unregistered compatibility expansion, or fallback/retry route as an I0/R0.
 ```
 
 ## Latest closeout
