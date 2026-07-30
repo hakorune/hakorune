@@ -9845,14 +9845,6 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_get_continuation_name_without_map",
-      "line": 506,
-      "path": "src/mir/join_ir_vm_bridge/handlers/jump.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
       "function": "new_with_func_names",
       "line": 47,
       "path": "src/mir/join_ir_vm_bridge/joinir_block_converter/mod.rs",
@@ -9862,7 +9854,7 @@
     {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "join_func_name",
-      "line": 92,
+      "line": 84,
       "path": "src/mir/join_ir_vm_bridge/mod.rs",
       "reject_reasons": [],
       "status": "candidate"
@@ -16683,46 +16675,6 @@
     },
     {
       "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_handle_call_with_func_name_map",
-      "line": 400,
-      "path": "src/mir/join_ir_vm_bridge/handlers/call.rs",
-      "reject_reasons": [
-        "may_mutate_state"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "get_continuation_name",
-      "line": 291,
-      "path": "src/mir/join_ir_vm_bridge/handlers/jump.rs",
-      "reject_reasons": [
-        "carrier_surface"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_get_continuation_name_with_map",
-      "line": 497,
-      "path": "src/mir/join_ir_vm_bridge/handlers/jump.rs",
-      "reject_reasons": [
-        "may_mutate_state"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "test_get_continuation_name_fallback",
-      "line": 512,
-      "path": "src/mir/join_ir_vm_bridge/handlers/jump.rs",
-      "reject_reasons": [
-        "may_mutate_state"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
       "function": "get_continuation_name",
       "line": 391,
       "path": "src/mir/join_ir_vm_bridge/joinir_block_converter/handlers.rs",
@@ -18744,7 +18696,7 @@
     "source_scan": {
       "by_reject_reason": {
         "backend_surface": 11,
-        "carrier_surface": 272,
+        "carrier_surface": 271,
         "depends_on_builder": 39,
         "depends_on_collection": 69,
         "depends_on_context": 29,
@@ -18753,16 +18705,16 @@
         "depends_on_metadata": 74,
         "depends_on_resolution": 78,
         "depends_on_route_selection": 119,
-        "may_mutate_state": 108,
+        "may_mutate_state": 105,
         "phi_or_localssa_surface": 94,
         "takes_mut_self": 12
       },
       "by_status": {
         "already_adopted_name_match": 1,
-        "candidate": 896,
-        "rejected": 642
+        "candidate": 895,
+        "rejected": 638
       },
-      "surface_count": 1539
+      "surface_count": 1534
     }
   },
   "token": "MIRBUILDER-NATIVE-OWNER-CANDIDATE-INVENTORY-001"

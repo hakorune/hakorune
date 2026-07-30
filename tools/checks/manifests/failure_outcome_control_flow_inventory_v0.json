@@ -8737,42 +8737,6 @@
       "token": "mir_return"
     },
     {
-      "control_flow_evidence_id": "control.return_unit.src/mir/join_ir_vm_bridge/terminator_builder.rs:113:mir_return",
-      "evidence": "MirInstruction::Return { value }",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 113,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/join_ir_vm_bridge/terminator_builder.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/join_ir_vm_bridge/terminator_builder.rs:194:mir_return",
-      "evidence": "if let MirInstruction::Return { value } = terminator {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 194,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/join_ir_vm_bridge/terminator_builder.rs",
-      "token": "mir_return"
-    },
-    {
-      "control_flow_evidence_id": "control.return_unit.src/mir/join_ir_vm_bridge/terminator_builder.rs:205:mir_return",
-      "evidence": "if let MirInstruction::Return { value } = terminator {",
-      "evidence_kind": "mir_return",
-      "family": "return_unit",
-      "line": 205,
-      "pending_reason": "ControlFlowOwnerPending",
-      "resolution": "Pending",
-      "site_ref": null,
-      "source_path": "src/mir/join_ir_vm_bridge/terminator_builder.rs",
-      "token": "mir_return"
-    },
-    {
       "control_flow_evidence_id": "control.return_unit.src/mir/passes/string_corridor_sink/tests/concat_and_return_parts/rewrites_concat_slice_consumers_to_corridor_helpers.rs:109:mir_return",
       "evidence": "block.set_terminator(MirInstruction::Return {",
       "evidence_kind": "mir_return",

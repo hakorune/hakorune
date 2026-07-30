@@ -39,20 +39,12 @@ mod logging {
 mod convert;
 // Phase 190: Modular converters
 mod block_allocator; // Phase 260 P0.2: Block ID allocation utility
-#[cfg(test)]
-mod block_finalizer; // Legacy top-level handler lane; prod owner is joinir_block_converter/**
 mod bridge;
 mod call_generator; // Phase 260 P0.2: Call instruction generation utility
-#[cfg(test)]
-mod handlers; // Legacy top-level handler lane; prod owner is joinir_block_converter/**
 mod joinir_block_converter;
 mod joinir_function_converter;
-#[cfg(test)]
-mod merge_variable_handler; // Legacy top-level handler lane; prod owner is joinir_block_converter/**
 mod meta;
 mod runner;
-#[cfg(test)]
-mod terminator_builder; // Legacy top-level handler lane; prod owner is joinir_block_converter/**
 
 #[cfg(test)]
 mod tests;

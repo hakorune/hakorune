@@ -66,7 +66,8 @@ Latest design: `RAW-STATIC-MAIN-COMPAT-BATCH-DISPOSITION0-D0` — RETAIN-FENCED
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS35-D0` — closed
 Latest landed: `JOINMODULE-PHI-OBSERVER-RETIRE0-RET0`
 Latest census: `MIRBUILDER-LIVE-EDGE-CENSUS36-D0` — closed
-Next row:      `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`
+Latest landed: `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`
+Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS37-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -95,12 +96,12 @@ activation and sunset contract.
 | unregistered | `R4-UNREGISTERED-CARRIER-BOUNDARY-001` — carrier boundaries | `JumpArgsLayout` and `JoinInlineBoundary` families | live/fenced consumer mapping not yet registered | undecided; named D0 required before C0 | CorePlan/MIR rehome D0, RET0, or RETAIN-FENCED |
 | closed | `JOINMODULE-PHI-OBSERVER-SUNSET-001` (promotes `R4-UNREGISTERED-PHI-OBSERVER-001`) | former `verify_phi_reserved` global collector/report, three debug observation hooks, dedicated builder/module tests, exports, README and generated owner-inventory row | production decision consumer = 0 before deletion; complete asset now absent | RET0 | retired by `JOINMODULE-PHI-OBSERVER-RETIRE0-RET0`: complete observer/test/hook/wiring/docs surface = 0 and existing native-owner inventory regenerated |
 | unregistered | `R4-UNREGISTERED-AST-FRONTEND-001` — legacy AST frontend | `AstToJoinIrLowerer` plus its fixture/dev-flag closure | production caller = 0; test/reference closure remains | undecided; named D0 required before C0 | `JOINMODULE-AST-FRONTEND-LEGACY-DISPOSITION0-D0` |
-| active retirement | `JOINMODULE-TEST-HANDLER-LANE-SUNSET-001` (promotes `R4-UNREGISTERED-TEST-HANDLER-001`) | cfg(test)-only `block_finalizer`, `handlers/**`, `merge_variable_handler`, and `terminator_builder` legacy VM-bridge handler lane | module declarations are cfg(test); references remain inside the lane; production conversion owner is `joinir_block_converter/**`; normal/default caller = 0 | RET0 | `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`: delete 14 files / 3743 lines, four cfg(test) module declarations, obsolete README lane section, and regenerate existing generated inventories that cite deleted paths |
+| closed | `JOINMODULE-TEST-HANDLER-LANE-SUNSET-001` (promotes `R4-UNREGISTERED-TEST-HANDLER-001`) | former cfg(test)-only `block_finalizer`, `handlers/**`, `merge_variable_handler`, and `terminator_builder` legacy VM-bridge handler lane | production conversion remains solely in `joinir_block_converter/**`; deleted lane and registrations = 0 | RET0 | retired by `JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0`: 14 files / 3743 lines, four cfg(test) module declarations, obsolete README section, stale PHI seam row, and generated inventory rows deleted |
 | retain-fenced | `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` (promotes `R4-UNREGISTERED-NESTED-BOX-RAW-BODY-001`) | recursive `RawInvocationChildPortV1` -> nested static method and shared instance constructor/method `LegacyChildDraftAdmissionV1` issuers | selected normal function body is live; nested Main stays root-only reject; raw/reference are separate | RETAIN-FENCED: no exact source occurrence reaches the raw port | fresh `RAW-LOCATED-BODY-TRANSPORT0-D0` may select REOWN only when one function-relative located transport deletes a named production edge; otherwise forced disposition at `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` |
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | normalized-dev Builder execution, explicit VM route, and LLVM experiment have live consumers; exact model/lowering/JSON/format partition unregistered | undecided; named D0 required before C0 | partition live normalized-dev/VM/LLVM owners from caller-zero reference scope, then delete or RETAIN-FENCED with exact owner, activation, retire_when |
 
 The registry has four registered R4 fences, zero active compatibility residuals,
-one active retirement, nine closed residuals, and five unregistered R4 family
+zero active retirements, ten closed residuals, and five unregistered R4 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
@@ -129,6 +130,52 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0` — T1 detached RET0, closed
+
+```text
+Deleted:
+  join_ir_vm_bridge/block_finalizer.rs;
+  join_ir_vm_bridge/handlers/**;
+  join_ir_vm_bridge/merge_variable_handler.rs;
+  join_ir_vm_bridge/terminator_builder.rs;
+  four cfg(test) module registrations and the obsolete README lane section.
+
+Synchronized:
+  canonical SSA seam inventory removed the retired bridge-PHI row;
+  PHI publication caller inventory removed the retired caller;
+  native-owner and failure-outcome control-flow inventories were regenerated
+  with their existing generators.
+
+Preserved:
+  joinir_block_converter/** as the sole production conversion owner;
+  bridge integration, VM execution, JoinModule model/metadata;
+  MIR, grammar, route, diagnostics, and runtime behavior.
+
+Evidence:
+  cargo check --lib = green;
+  joinir_block_converter 1/1 and bridge integration 7/7 = green;
+  resolved Binding SSA contract = green;
+  native-owner and failure-outcome control-flow inventory checks = green;
+  retired source/module/path references = 0;
+  current-state pointer guard and git diff check = green.
+  The broad PHI type-publication inventory reaches a pre-existing LocalSSA
+  anchor failure; the same failure reproduces at pre-change HEAD 01a4c553c7.
+
+Measured:
+  retired lane = 14 source/test files / 3743 lines;
+  new source/test/check files = 0;
+  largest retained touched source/check file = 645 lines;
+  replacement credit = 0.
+
+R4:
+  JOINMODULE-TEST-HANDLER-LANE-SUNSET-001 = closed.
+  retain-fenced=4, active compatibility=0, active retirement=0,
+  closed=10, unregistered=5.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS37-D0.
+```
 
 `MIRBUILDER-LIVE-EDGE-CENSUS36-D0` — read-only census, closed
 

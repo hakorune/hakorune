@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-LIVE-EDGE-CENSUS36-D0 is closed. The sole R4 registry is consistent, every live LegacyChildDraftAdmissionV1 issuer maps to the nested-Box retained fence, and the six unregistered JoinModule families have exact current dispositions. The cfg(test)-only legacy VM-bridge handler lane is superseded by the live joinir_block_converter owner and is the sole bounded retirement. JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0 is the only executable row."
+status = "JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0 is closed. The cfg(test)-only legacy VM-bridge handler lane, its four module registrations, obsolete README section, stale PHI inventory row, and generated inventory evidence are deleted; joinir_block_converter remains the sole production conversion owner. MIRBUILDER-LIVE-EDGE-CENSUS37-D0 is the only read-only design stop and may select at most one remaining R4 disposition."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0"
-current_execution_summary = "Perform one T1 detached RET0. Delete the four cfg(test) legacy VM-bridge modules block_finalizer, handlers, merge_variable_handler, and terminator_builder (14 files / 3743 lines), their module declarations, and the obsolete README lane section. Preserve joinir_block_converter and every production bridge/VM/JoinModule route. Regenerate only existing generated inventories that cite deleted paths. New source/test/check files, grammar/result/runtime changes, fallback/retry, and replacement credit are zero."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS37-D0"
+current_execution_row = "none"
+current_execution_summary = "Read-only Census37. Re-inventory the five unregistered R4 families, four retained fences, exact LegacyChildDraftAdmissionV1 crosswalk, and bounded caller-zero/live edges after test-handler retirement. Update the sole R4 registry before selecting at most one RET0, REOWN, or RETAIN-FENCED disposition. Do not edit production code, create a second fence ledger, or advance Ownership/View."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """MIRBUILDER-LIVE-EDGE-CENSUS36-D0 is closed. The R4 fence registry has no duplicate or missing live fence; LegacyChildDraftAdmissionV1 is 30 occurrences in 6 files with both live issuers owned by the nested-Box retained fence. Of the six unregistered JoinModule families, the cfg(test)-only legacy VM-bridge handler lane is the one exact bounded RET0: production conversion is already owned by joinir_block_converter. JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0 deletes that 14-file lane without changing production behavior. R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0 is closed. Fourteen cfg(test)-only legacy VM-bridge handler files and 3743 lines are zero; joinir_block_converter production conversion, bridge integration, MIR, runtime, grammar, and routes are unchanged. Existing generated native-owner and control-flow inventories plus the canonical SSA seam inventory are synchronized. Cargo check, production converter 1/1, bridge integration 7/7, SSA contract, inventory checks, absence census, and pointer guard are green. The broad PHI inventory has a pre-existing LocalSSA anchor failure reproduced at pre-change HEAD. MIRBUILDER-LIVE-EDGE-CENSUS37-D0 is next; R4 still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINMODULE-TEST-HANDLER-LANE-RETIRE0-RET0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS37-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
