@@ -58,7 +58,7 @@ Latest design:  `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-UNSUPPORTED-STATEMENT-DIAGNOSTIC0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS31-D0` — closed, NoSafeSlice
 Latest design:  `NESTED-BOX-SOURCE-OCCURRENCE0-D0` — closed, NoSafeSourceTransport
-Next stop:     `MIRBUILDER-LIVE-EDGE-CENSUS32-D0`
+Next row:      `RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0`
 History:       Git history and the short landed tail below
 ```
 
@@ -79,6 +79,7 @@ activation and sunset contract.
 | closed | `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-COMPAT-SUNSET-002` | selected Script direct non-plain `BoxDeclaration` raw statement admission | selected normal Script only; raw/reference and non-Box Script statements remain separate | REOWN | retired by `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-I0-R0`: static/instance selected lifecycles and exact sync rejection preserve legacy parity; direct Box -> raw statement driver = 0 |
 | retain-fenced | `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | two direct normalized-shadow executions and strict/dev StepTree observer | explicit dev/debug; default normal = 0 | RETAIN-FENCED | fresh named normalized-shadow release D0: verified Recipe/CorePlan loop owner, strict/dev parity, independent observer disposition |
 | retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | `join_ir_vm_bridge_dispatch` Exec and LowerOnly targets | explicit VM keep / vm-reference with `NYASH_JOINIR_VM_BRIDGE=1`; default MIR and vm-fallback = 0 | RETAIN-FENCED | fresh named VM-bridge release D0: dispatcher caller = 0 or one explicit-lane execution owner replaces the lane |
+| active detached | `RAW-DRAFT-DISCONNECTED-PROOF-SUNSET-001` | `RawDraftInvocationV1`, its two cfg(test) callers, compiler `begin_raw_draft`, and dedicated guard | production caller = 0; disconnected proof owner only | RET0 | `RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0` deletes the owner, fixture, compiler/export surface, and dedicated guard/index row |
 | unregistered | `R4-UNREGISTERED-LLVM-EXPERIMENT-001` — LLVM experiment | feature/env-gated JoinModule mutation route | not normal/default; exact activation/owner not yet registered | undecided; named D0 required before C0 | RET0, REOWN, or RETAIN-FENCED with owner, activation, retire_when |
 | unregistered | `R4-UNREGISTERED-FRONTEND-METADATA-001` — frontend metadata | `frontend::func_meta` / `JoinFuncMetaMap` consumers | activation/owner not yet registered | undecided; named D0 required before C0 | RET0, REOWN, or RETAIN-FENCED with owner, activation, retire_when |
 | unregistered | `R4-UNREGISTERED-CARRIER-BOUNDARY-001` — carrier boundaries | `JumpArgsLayout` and `JoinInlineBoundary` families | live/fenced consumer mapping not yet registered | undecided; named D0 required before C0 | CorePlan/MIR rehome D0, RET0, or RETAIN-FENCED |
@@ -89,7 +90,7 @@ activation and sunset contract.
 | unregistered | `R4-UNREGISTERED-JOINMODULE-REMAINDER-001` — JoinModule model/lowering/JSON/format remainder | old-IR reference scope outside rows above | explicit VM route or LLVM experiment may require parts; exact partition unregistered | undecided; named D0 required before C0 | delete or RETAIN-FENCED reference scope with exact owner, activation, retire_when |
 
 The registry has three registered R3 fences, one active compatibility residual,
-five closed residuals, and seven unregistered R3 family
+one active detached asset, five closed residuals, and seven unregistered R3 family
 rows.  This is an honest registry state, not a claim that eleven fences are
 already registered.
 `LegacyChildDraftAdmissionV1` occurrence count is a separate census metric
@@ -118,6 +119,46 @@ forbidden while any site lacks this crosswalk.  A newly introduced fence is
 invalid unless its release row/condition is recorded here in the same commit.
 
 ## Disposition closeout
+
+`MIRBUILDER-LIVE-EDGE-CENSUS32-D0` — read-only census, closed
+
+```text
+Decision:
+  select one detached RET0 before the next production REOWN.
+
+Selected asset:
+  RawDraftInvocationV1 / RejectedRawDraftInvocationV1.
+  MirCompiler::begin_raw_draft has exactly two callers, both cfg(test) in the
+  dedicated raw_draft_invocation_p0 fixture. Production caller = 0.
+
+Atomic RET0:
+  delete raw_draft_invocation.rs and raw_draft_invocation_p0.rs;
+  delete builder registration/re-export and MirCompiler::begin_raw_draft;
+  delete its dedicated guard and checks-index row; update stale positive guard
+  assertions. Shared raw source projection and receipt ledgers remain.
+
+Measured reduction:
+  source/test Rust -494 lines before incidental wiring changes;
+  LegacyChildDraftAdmissionV1 37 occurrences / 8 files
+  -> 35 occurrences / 7 files.
+
+Not replacement credit:
+  no named production caller changes. This is a detached RET0 asset deletion.
+
+Raw static Main:
+  RETAIN-FENCED. Its direct RawLegacy owner edge is one, selected-normal
+  reachability is zero, but arbitrary-AST RawLegacy callers prevent a safe
+  reachability-zero claim. Helper-first ordering, delayed Main diagnostic, and
+  LegacyEnvironment semantics also prevent a local REOWN.
+
+Following production candidate:
+  the explicit raw-root static-child issuer already receives an exact
+  RawSourceLocatorV1 and may admit a bounded source-keyed REOWN after a fresh
+  D0. Do not mix it into this detached deletion.
+
+Next:
+  RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0.
+```
 
 `NESTED-BOX-SOURCE-OCCURRENCE0-D0` — T2 design, closed
 

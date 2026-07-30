@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NESTED-BOX-SOURCE-OCCURRENCE0-D0 is closed with NoSafeSourceTransport. SourceNodeSiteV1 can express a function-relative path, but RawInvocationChildPortV1 and every recursive raw child portal carry bare ASTNode values without an enclosing source owner, body index, or child role. A nested-only wrapper would therefore fabricate occurrence identity from symbol/arity, Span, name, or a pre-scan queue. NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001 is RETAIN-FENCED until a fresh located-body D0 can delete a named production edge or R4 final C0 decides its disposition. MIRBUILDER-LIVE-EDGE-CENSUS32-D0 is the sole read-only stop."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS32-D0 is closed. The next row is RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0: delete the caller-zero RawDraftInvocationV1 proof owner, its cfg(test) fixture, compiler/export surface, dedicated guard, and checks-index row. This is detached RET0 with no replacement credit and must preserve shared raw source projection and receipt ledgers. It reduces LegacyChildDraftAdmissionV1 from 37 occurrences / 8 files to 35 / 7. Raw static Main and nested Box remain separately RETAIN-FENCED."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS32-D0"
-current_execution_row = "none"
-current_execution_summary = "Read-only census after the nested Box RETAIN-FENCED decision. Re-inventory remaining selected-normal and explicit compatibility production edges, the sole R4 registry, and exact LegacyChildDraftAdmissionV1 sites. Select at most one bounded edge with a named caller and same-commit old-edge deletion; otherwise record NoSafeSlice and advance directly toward the mandatory R4 disposition crosswalk. Do not implement a caller-zero located-body substrate."
+current_design_stop = "none"
+current_execution_row = "RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0"
+current_execution_summary = "Delete only the disconnected RawDraftInvocationV1 owner and its owned proof surface: raw_draft_invocation.rs, raw_draft_invocation_p0.rs, builder registration/re-export, MirCompiler::begin_raw_draft, its dedicated guard, and the checks-index row. Update stale guards to assert absence. Preserve SourceBoundRawPackageV1, raw root planning, raw expansion receipt ledgers, live RawRootPhysicalStateV1, and every production route. Verify exact caller zero before deletion, cargo check/tests/active shared guards after deletion, and LegacyChildDraftAdmissionV1 census 35 occurrences / 7 files."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """NESTED-BOX-SOURCE-OCCURRENCE0-D0 is closed with NoSafeSourceTransport. Existing function-relative source-path vocabulary is not connected to the bare-AST raw recursive port, so nested Box cannot be honestly REOWNed by a local wrapper. NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001 is RETAIN-FENCED with a named located-body release condition. MIRBUILDER-LIVE-EDGE-CENSUS32-D0 is the sole read-only stop; R4 final conformance still precedes Ownership, View, and later features."""
+latest_card_summary = """MIRBUILDER-LIVE-EDGE-CENSUS32-D0 is closed. RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0 is selected: remove one caller-zero child-draft proof owner and its exact test/guard/compiler surface without changing production. The deletion reduces LegacyChildDraftAdmissionV1 37/8 to 35/7. Raw static Main and nested Box remain RETAIN-FENCED; R4 final conformance still precedes Ownership, View, and later features."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS32-D0"
+current_blocker_token = "RAW-DRAFT-DISCONNECTED-PROOF-RETIRE0-RET0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
