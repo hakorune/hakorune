@@ -1,0 +1,191 @@
+//! Selected-normal Script statement terminals that already have typed owners.
+//!
+//! Source classification stays in `normal_script_nonbox_statement_disposition`.
+//! This sibling only hands a preselected statement to its existing production
+//! owner through the caller's current invocation port.
+
+use crate::ast::ASTNode;
+use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
+use crate::mir::builder::recursive_child_lowering::drive_legacy_expression_v1;
+use crate::mir::builder::stmts::print_stmt::{
+    lower_prepared_raw_print_with_port_v1, PreparedRawPrintV1,
+};
+use crate::mir::{MirBuilder, ValueId};
+
+pub(super) fn lower_direct_print_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    statement: &ASTNode,
+) -> Result<ValueId, String>
+where
+    Port: RootCallableCapturePortV1,
+{
+    let ASTNode::Print { expression, .. } = statement else {
+        return Err("[freeze:contract][mir/script-runtime/print-source-drift]".to_owned());
+    };
+    lower_prepared_raw_print_with_port_v1(
+        builder,
+        port,
+        PreparedRawPrintV1::prepare((**expression).clone()),
+    )
+}
+
+pub(super) fn lower_direct_port_aware_expression_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    statement: &ASTNode,
+) -> Result<ValueId, String>
+where
+    Port: RootCallableCapturePortV1,
+{
+    drive_legacy_expression_v1(builder, port, statement.clone())
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use crate::ast::{ASTNode, BinaryOperator, CheckItem, LiteralValue, Span, UnaryOperator};
+    use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
+
+    fn integer(value: i64, line: usize) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::new(line, line + 1, line, 1),
+        }
+    }
+
+    fn compare_normal_and_legacy(root: ASTNode, name: &str) {
+        let program = ASTNode::Program {
+            statements: vec![root],
+            span: Span::new(0, 100, 1, 1),
+        };
+        let mut legacy_compiler = MirCompiler::with_options(false);
+        let legacy = legacy_compiler.compile_with_source(program.clone(), Some(name));
+        let mut normal_compiler = MirCompiler::with_options(false);
+        let normal = normal_compiler.compile_normal(
+            NormalCompileRequestV1::for_mir_mode(program, Some(name), HashMap::new())
+                .expect("normal request"),
+        );
+
+        match (normal, legacy) {
+            (Ok(normal), Ok(legacy)) => {
+                assert_eq!(
+                    MirPrinter::new().print_module(&normal.module),
+                    MirPrinter::new().print_module(&legacy.module),
+                    "{name}"
+                );
+                assert_eq!(
+                    normal.verification_result, legacy.verification_result,
+                    "{name}"
+                );
+            }
+            (Err(normal), Err(legacy)) => assert_eq!(normal, legacy, "{name}"),
+            (normal, legacy) => panic!(
+                "normal/legacy outcome drift for {name}: normal={}, legacy={}",
+                normal.is_ok(),
+                legacy.is_ok()
+            ),
+        }
+    }
+
+    #[test]
+    fn direct_expression_roots_keep_full_legacy_outcomes_and_spans() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let literal = integer(1, 11);
+        let variable = ASTNode::Variable {
+            name: "missing".to_owned(),
+            span: Span::new(20, 27, 20, 3),
+        };
+        let me = ASTNode::Me {
+            span: Span::new(30, 32, 30, 5),
+        };
+        let binary = ASTNode::BinaryOp {
+            operator: BinaryOperator::Add,
+            left: Box::new(integer(2, 41)),
+            right: Box::new(integer(3, 42)),
+            span: Span::new(40, 43, 40, 1),
+        };
+        let unary = ASTNode::UnaryOp {
+            operator: UnaryOperator::Minus,
+            operand: Box::new(binary),
+            span: Span::new(39, 44, 39, 1),
+        };
+        let await_expression = ASTNode::AwaitExpression {
+            expression: Box::new(integer(4, 51)),
+            span: Span::new(50, 52, 50, 1),
+        };
+        let check = ASTNode::CheckExpr {
+            name: Some("direct".to_owned()),
+            items: vec![CheckItem {
+                label: Some("item".to_owned()),
+                expression: integer(1, 61),
+            }],
+            span: Span::new(60, 62, 60, 1),
+        };
+        let nested_call = ASTNode::UnaryOp {
+            operator: UnaryOperator::Not,
+            operand: Box::new(ASTNode::FunctionCall {
+                name: "isType".to_owned(),
+                arguments: vec![
+                    integer(42, 71),
+                    ASTNode::Literal {
+                        value: LiteralValue::String("Integer".to_owned()),
+                        span: Span::new(72, 79, 72, 4),
+                    },
+                ],
+                span: Span::new(70, 80, 70, 2),
+            }),
+            span: Span::new(69, 81, 69, 1),
+        };
+
+        for (root, name) in [
+            (literal, "direct-literal.hako"),
+            (variable, "direct-variable.hako"),
+            (me, "direct-me.hako"),
+            (unary, "direct-unary-binary.hako"),
+            (await_expression, "direct-await.hako"),
+            (check, "direct-check.hako"),
+            (nested_call, "direct-nested-call.hako"),
+        ] {
+            compare_normal_and_legacy(root, name);
+        }
+    }
+
+    #[test]
+    fn direct_expression_failure_discards_candidate_and_reuses_compiler() {
+        let mut compiler = MirCompiler::with_options(false);
+        let failing = ASTNode::Program {
+            statements: vec![ASTNode::Variable {
+                name: "missing".to_owned(),
+                span: Span::new(10, 17, 10, 2),
+            }],
+            span: Span::unknown(),
+        };
+        let request = NormalCompileRequestV1::for_mir_mode(
+            failing,
+            Some("direct-failure.hako"),
+            HashMap::new(),
+        )
+        .expect("failing request");
+        let error = compiler
+            .compile_normal(request)
+            .expect_err("undefined direct expression must reject");
+        assert!(error.contains("Undefined variable: missing"), "{error}");
+
+        let fresh = ASTNode::Program {
+            statements: vec![integer(7, 20)],
+            span: Span::unknown(),
+        };
+        compiler
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    fresh,
+                    Some("direct-reuse.hako"),
+                    HashMap::new(),
+                )
+                .expect("fresh request"),
+            )
+            .expect("fresh candidate after direct expression rejection");
+    }
+}

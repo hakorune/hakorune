@@ -2,6 +2,9 @@
 //! The Program work plan classifies direct statements once; this adapter keeps
 //! block order while routing selected terminals through existing owners.
 
+use super::normal_script_direct_statement_owner::{
+    lower_direct_port_aware_expression_v1, lower_direct_print_v1,
+};
 use super::normal_script_nonbox_statement_disposition::{
     classify_normal_script_nonbox_statement_v1, NormalScriptNonBoxStatementDispositionV1,
 };
@@ -16,9 +19,6 @@ use crate::mir::builder::raw_expression_dispatch::{
 };
 use crate::mir::builder::recursive_child_lowering::drive_legacy_statement_v1;
 use crate::mir::builder::stmts::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
-use crate::mir::builder::stmts::print_stmt::{
-    lower_prepared_raw_print_with_port_v1, PreparedRawPrintV1,
-};
 use crate::mir::{MirBuilder, ValueId};
 
 #[derive(Debug)]
@@ -65,6 +65,7 @@ impl PreparedNormalScriptRuntimeInputV1 {
 #[derive(Debug)]
 pub(super) enum NormalScriptRuntimeStatementAdmissionV1 {
     DirectPrint,
+    DirectPortAwareExpression,
     RawCompatibility,
     CatalogedNonMainStaticBox,
     StaticMainCompatibility,
@@ -87,6 +88,9 @@ impl PreparedNormalScriptRuntimeWorkV1 {
             let admission = match input.kind {
                 NormalScriptRuntimeStatementKindV1::DirectPrint => {
                     NormalScriptRuntimeStatementAdmissionV1::DirectPrint
+                }
+                NormalScriptRuntimeStatementKindV1::DirectPortAwareExpression => {
+                    NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression
                 }
                 NormalScriptRuntimeStatementKindV1::RawCompatibility => {
                     NormalScriptRuntimeStatementAdmissionV1::RawCompatibility
@@ -206,6 +210,9 @@ where
             NormalScriptRuntimeStatementAdmissionV1::DirectPrint => {
                 lower_direct_print_v1(builder, self.port, statement)
             }
+            NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression => {
+                lower_direct_port_aware_expression_v1(builder, self.port, statement)
+            }
             NormalScriptRuntimeStatementAdmissionV1::RawCompatibility => {
                 drive_legacy_statement_v1(builder, self.port, statement.clone())
             }
@@ -240,24 +247,6 @@ where
             ),
         }
     }
-}
-
-fn lower_direct_print_v1<Port>(
-    builder: &mut MirBuilder,
-    port: &mut Port,
-    statement: &ASTNode,
-) -> Result<ValueId, String>
-where
-    Port: RootCallableCapturePortV1,
-{
-    let ASTNode::Print { expression, .. } = statement else {
-        return Err("[freeze:contract][mir/script-runtime/print-source-drift]".to_owned());
-    };
-    lower_prepared_raw_print_with_port_v1(
-        builder,
-        port,
-        PreparedRawPrintV1::prepare((**expression).clone()),
-    )
 }
 
 fn lower_cataloged_nonmain_static_box_v1<Port>(
@@ -407,6 +396,7 @@ where
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum NormalScriptRuntimeStatementKindV1 {
     DirectPrint,
+    DirectPortAwareExpression,
     RawCompatibility,
     CatalogedNonMainStaticBox,
     StaticMainCompatibility,
@@ -444,8 +434,10 @@ pub(super) fn classify_normal_script_runtime_statement_v1(
             NormalScriptNonBoxStatementDispositionV1::DirectPrint => {
                 NormalScriptRuntimeStatementKindV1::DirectPrint
             }
-            NormalScriptNonBoxStatementDispositionV1::PortAwareExpressionCompatibility
-            | NormalScriptNonBoxStatementDispositionV1::StatementControlCompatibility
+            NormalScriptNonBoxStatementDispositionV1::DirectPortAwareExpression => {
+                NormalScriptRuntimeStatementKindV1::DirectPortAwareExpression
+            }
+            NormalScriptNonBoxStatementDispositionV1::StatementControlCompatibility
             | NormalScriptNonBoxStatementDispositionV1::DeclarationIngressCompatibility
             | NormalScriptNonBoxStatementDispositionV1::CallObjectHeaderCompatibility
             | NormalScriptNonBoxStatementDispositionV1::TopLevelFunctionImmediateOnly => {

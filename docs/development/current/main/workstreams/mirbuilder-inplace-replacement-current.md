@@ -35,7 +35,8 @@ Latest landed:  `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-I0-R0`
 Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS23-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-PRINT-DIRECT-OWNER0-I0-R0`
 Latest design:  `NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-D0` — closed
-Next execution: `NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-I0-R0`
+Latest landed:  `NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-I0-R0`
+Next stop:      `MIRBUILDER-LIVE-EDGE-CENSUS24-D0` — read-only
 History:       Git history and the short landed tail below
 ```
 
@@ -49,7 +50,7 @@ activation and sunset contract.
 | State | Ledger key / family | Exact surface | Activation / normal-default | Release row / condition |
 | --- | --- | --- | --- | --- |
 | active compatibility | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | `PreparedRawStaticMainBoxCompatibilityV1` prepared raw static-Main batch | explicit raw compatibility; selected Script scope = 0 | fresh named raw-static-Main disposition, or `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` proves reachability = 0 |
-| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for 54 direct non-Box/non-Print Script kinds in four registered disposition families | selected normal Script only; Print is retired; raw/reference and nested body descent remain separate | fresh named selected-Script statement-owner D0 with a same-commit old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
+| active compatibility | `NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003` | `NormalScriptRuntimeBlockPortV1::lower_statement` `RawCompatibility` -> `drive_legacy_statement_v1` for 47 direct selected Script kinds in three registered residual families | selected normal Script only; Print and seven direct expression roots are retired; raw/reference and nested body descent remain separate | fresh named selected-Script statement-owner D0 with a same-commit old-edge delete, or forced `MIRBUILDER-R4-FINAL-CONFORMANCE0-C0` disposition |
 | closed | `NORMAL-UNCATALOGUED-PROGRAM-CHILD-COMPAT-SUNSET-001` | selected Program immediate instance constructors, plus selected Script plain-instance runtime-prefix constructors | every selected Program instance Box has one immediate demand; plain Script adds its second `InstancePrefixCompatibility` demand; non-plain Script's later raw runtime lifecycle is the separate row below | retired by `NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0`: one source occurrence -> unchanged physical LegacySymbol admission per existing demand |
 | closed | `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-COMPAT-SUNSET-003` | selected Program top-level `FunctionDeclaration` raw LegacyChild admission | selected normal only; raw/reference remains separate | retired by `NORMAL-TOPLEVEL-FUNCTION-CALLABLE-IDENTITY0-I0-R0`: source-order receipt -> unchanged legacy physical collector admission |
 | closed | `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-COMPAT-SUNSET-001` | selected Script runtime's plain non-Main static/instance Box ordinary-method direct raw admission | selected normal Script only; constructors, static Main, non-plain/nested/raw-reference Box descent excluded | retired by `NORMAL-SCRIPT-RUNTIME-BOX-CALLABLE-ADMISSION0-I0-R0`: selected direct raw method edges = 0 |
@@ -828,6 +829,46 @@ Forbid:
 ```
 
 ## Current closeout
+
+`NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-I0-R0` — T1 atomic cutover, closed
+
+```text
+Change:
+  Move the existing DirectPrint terminal into one small selected
+  direct-statement sibling and add a direct expression handoff for all seven
+  previously classified expression roots.
+
+Direct owner:
+  Literal / Variable / Me / Unary / Binary / Await / Check
+  -> drive_legacy_expression_v1
+  -> the exact same RawInvocation child port and existing expression owners
+
+Delete:
+  seven direct expression roots
+  -> RawCompatibility
+  -> drive_legacy_statement_v1
+  = 0
+
+Parity:
+  Full normal/legacy MIR, verification, diagnostic and distinct-span outcomes
+  are exact across all roots. A nested FunctionCall remains on the same port.
+  Undefined-variable failure discards the candidate and a fresh request reuses
+  the compiler. No operand allowlist, grammar change, retry, or fallback exists.
+
+Structure:
+  normal_script_direct_statement_owner.rs = 191 lines,
+  normal_script_runtime_work.rs = 790,
+  shared guard = 799; every source/check file remains below 800.
+
+Registry:
+  NORMAL-SCRIPT-NONBOX-STATEMENT-COMPAT-SUNSET-003 remains active and narrows
+  from 54 to 47 exact kinds. The expression family leaves the residual; the
+  statement/control, declaration/ingress, and call/object/header families remain
+  at one compatibility terminal. No fence or compatibility terminal was added.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS24-D0; select nothing before the fresh census.
+```
 
 `NORMAL-SCRIPT-PRINT-DIRECT-OWNER0-I0-R0` — T1 atomic cutover, closed
 

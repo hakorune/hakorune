@@ -9,7 +9,7 @@ use crate::ast::ASTNode;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum NormalScriptNonBoxStatementDispositionV1 {
     DirectPrint,
-    PortAwareExpressionCompatibility,
+    DirectPortAwareExpression,
     StatementControlCompatibility,
     DeclarationIngressCompatibility,
     CallObjectHeaderCompatibility,
@@ -22,7 +22,7 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
 ) -> NormalScriptNonBoxStatementDispositionV1 {
     use NormalScriptNonBoxStatementDispositionV1::{
         CallObjectHeaderCompatibility, DeclarationIngressCompatibility, DirectBoxOwnedElsewhere,
-        DirectPrint, PortAwareExpressionCompatibility, StatementControlCompatibility,
+        DirectPortAwareExpression, DirectPrint, StatementControlCompatibility,
         TopLevelFunctionImmediateOnly,
     };
 
@@ -35,7 +35,7 @@ pub(super) fn classify_normal_script_nonbox_statement_v1(
         | ASTNode::UnaryOp { .. }
         | ASTNode::BinaryOp { .. }
         | ASTNode::AwaitExpression { .. }
-        | ASTNode::CheckExpr { .. } => PortAwareExpressionCompatibility,
+        | ASTNode::CheckExpr { .. } => DirectPortAwareExpression,
 
         ASTNode::Assignment { .. }
         | ASTNode::CompoundAssignment { .. }
@@ -99,8 +99,8 @@ mod tests {
     use super::{
         classify_normal_script_nonbox_statement_v1,
         NormalScriptNonBoxStatementDispositionV1::{
-            CallObjectHeaderCompatibility, DeclarationIngressCompatibility, DirectPrint,
-            PortAwareExpressionCompatibility, StatementControlCompatibility,
+            CallObjectHeaderCompatibility, DeclarationIngressCompatibility,
+            DirectPortAwareExpression, DirectPrint, StatementControlCompatibility,
         },
     };
     use crate::ast::{ASTNode, LiteralValue, Span};
@@ -140,7 +140,7 @@ mod tests {
         );
         assert_eq!(
             classify_normal_script_nonbox_statement_v1(&expression),
-            PortAwareExpressionCompatibility
+            DirectPortAwareExpression
         );
         assert_eq!(
             classify_normal_script_nonbox_statement_v1(&control),

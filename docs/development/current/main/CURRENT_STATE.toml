@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-D0 is closed: Candidate A selects all seven direct expression roots (Literal, Variable, Me, Unary, Binary, Await, Check) as one statement-facade retirement family. They keep arbitrary current descendants because both old and new paths use the same RawInvocation child port and raw expression dispatcher; no operand allowlist or grammar claim is introduced. A new small selected direct-statement sibling owns the existing Print terminal plus the expression handoff, keeping normal_script_runtime_work.rs below 800. The exact T1 I0/R0 deletes the seven-kind PortAwareExpressionCompatibility -> RawCompatibility -> drive_legacy_statement_v1 edge. The other 47 kinds remain one compatibility terminal; Nowait and all control/binding/declaration/call/object work remain separate. R4 counts and parked Ownership/View/features are unchanged."
+status = "NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-I0-R0 is closed: one small selected direct-statement sibling now owns Print plus the seven direct expression roots (Literal, Variable, Me, Unary, Binary, Await, Check). Every expression keeps the same RawInvocation child port and arbitrary current descendants; the old statement-facade edge is zero with no grammar, result, retry, or fallback delta. Full normal/legacy MIR, verification, diagnostic/span, nested-call, failure, and fresh-reuse evidence is green. The selected Script compatibility residual is narrowed from 54 to 47 exact kinds, with one terminal unchanged. R4 counts and parked Ownership/View/features are unchanged. The sole next stop is read-only MIRBUILDER-LIVE-EDGE-CENSUS24-D0."
 date = "2026-07-30"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-I0-R0"
-current_execution_summary = "T1 atomic I0/R0: introduce one small normal_script_direct_statement_owner sibling; move the existing DirectPrint terminal there and add direct drive_legacy_expression_v1 for all seven PortAwareExpression roots using the same RawInvocation port. Delete their RawCompatibility -> drive_legacy_statement_v1 edge. Preserve the exhaustive source partition, block order/suffix/termination, span/diagnostics/MIR/result/publication, arbitrary descendant routes, raw/reference, and retry/fallback=0. Keep every source/check file below 800."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS24-D0"
+current_execution_row = "none"
+current_execution_summary = "Read-only Census24: inspect the remaining 47-kind selected Script statement compatibility surface and the sole R4 registry, then select at most one named production edge with a same-commit old-edge deletion. Do not preselect Nowait, control/binding/declaration/call/object work; do not add a compatibility terminal, grammar, Ownership/View, retry, or fallback."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "NORMAL-SCRIPT-NONBOX-STATEMENT-DISPOSITION0-D0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS24-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
