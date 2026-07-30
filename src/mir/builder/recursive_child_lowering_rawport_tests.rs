@@ -15,6 +15,7 @@ use super::module_draft_collector::{
 use super::module_lowering_invocation::ModuleLoweringInvocationV1;
 use super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceTransportV1, RawSourceTransportPortV1,
+    RawUnlocatedPortalV1,
 };
 use super::recursive_child_lowering::{
     drive_legacy_body_v1, drive_legacy_expression_v1, RawInvocationChildPortV1,
@@ -518,28 +519,39 @@ fn raw_invocation_port_preserves_async_qmark_check_collection_and_print_children
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });
 }
-
 #[test]
 fn raw_invocation_port_preserves_assignment_and_compound_children() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("raw_port_assignment/0".to_string());
     let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 1).unwrap();
-    builder
-        .function_state
-        .variable_ctx
-        .variable_map
-        .insert("x".to_string(), old);
-    builder
-        .function_state
-        .binding_ctx
-        .insert("x".to_string(), BindingId::new(0));
+    builder.function_state.variable_ctx.variable_map.insert("x".into(), old);
+    builder.function_state.binding_ctx.insert("x".into(), BindingId::new(0));
     with_port!(builder, port, {
+        let ordinary = ASTNode::Assignment {
+            target: Box::new(ASTNode::Variable { name: "x".into(), span: Span::unknown() }),
+            value: Box::new(add(int(1), int(2))),
+            span: Span::unknown(),
+        };
+        port.with_source_transport_v1(
+            RawInvocationSourceTransportV1::root(
+                ordinary,
+                RawInvocationRootLineageV1::ScriptRoot,
+            ),
+            |port, ordinary| drive_legacy_expression_v1(builder, port, ordinary),
+        ).unwrap();
         let grouped = ASTNode::GroupedAssignmentExpr {
             lhs: "x".to_string(),
             rhs: Box::new(add(int(2), int(3))),
             span: Span::unknown(),
         };
-        drive_legacy_expression_v1(builder, &mut port, grouped).unwrap();
+        port.with_source_transport_v1(
+            RawInvocationSourceTransportV1::root(
+                grouped,
+                RawInvocationRootLineageV1::ScriptRoot,
+            ),
+            |port, grouped| drive_legacy_expression_v1(builder, port, grouped),
+        )
+        .unwrap();
         let compound = ASTNode::CompoundAssignment {
             target: Box::new(ASTNode::Variable {
                 name: "x".to_string(),
@@ -549,11 +561,17 @@ fn raw_invocation_port_preserves_assignment_and_compound_children() {
             value: Box::new(add(int(4), int(5))),
             span: Span::unknown(),
         };
-        drive_legacy_expression_v1(builder, &mut port, compound).unwrap();
+        port.with_source_transport_v1(
+            RawInvocationSourceTransportV1::unlocated(
+                compound,
+                RawUnlocatedPortalV1::ScalarBinding,
+            ),
+            |port, compound| drive_legacy_expression_v1(builder, port, compound),
+        )
+        .unwrap();
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });
 }
-
 #[test]
 fn raw_invocation_port_preserves_call_and_from_children() {
     let mut builder = MirBuilder::new();

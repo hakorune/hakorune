@@ -150,6 +150,132 @@ fn located_controls_and_diagnostic_terminals_keep_exact_parent_sites() {
     }
 }
 
+fn assignment(target: ASTNode, value: ASTNode) -> ASTNode {
+    ASTNode::Assignment {
+        target: Box::new(target),
+        value: Box::new(value),
+        span: Span::unknown(),
+    }
+}
+
+fn variable(name: &str) -> ASTNode {
+    ASTNode::Variable {
+        name: name.to_owned(),
+        span: Span::unknown(),
+    }
+}
+
+#[test]
+fn scalar_single_value_statements_keep_exact_parent_sites() {
+    let statements = [
+        assignment(variable("x"), integer(1)),
+        ASTNode::GroupedAssignmentExpr {
+            lhs: "x".to_owned(),
+            rhs: Box::new(integer(2)),
+            span: Span::unknown(),
+        },
+    ];
+    let (_, root) =
+        RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
+            Vec::<ASTNode>::new(),
+            RawInvocationRootLineageV1::ScriptRoot,
+        ));
+
+    for (index, statement) in statements.into_iter().enumerate() {
+        let (_, body_child) = RawInvocationSourceContextV1::from_transport(
+            root.body_statement(statement.clone(), index),
+        );
+        assert!(matches!(
+            body_child,
+            RawInvocationSourceContextV1::Located { .. }
+        ));
+        assert_eq!(
+            body_child.site().expect("located scalar statement").segments(),
+            &[SourcePathSegmentV1::Body(index as u32)]
+        );
+        let role = match &statement {
+            ASTNode::Assignment { .. } => ExprChildRoleV1::AssignmentValue,
+            ASTNode::GroupedAssignmentExpr { .. } => {
+                ExprChildRoleV1::GroupedAssignmentValue
+            }
+            _ => unreachable!("scalar single-value fixture"),
+        };
+        let value = body_child
+            .child_expression(&statement, role)
+            .expect("exact scalar value source");
+        assert_eq!(
+            value.site().expect("located scalar value").segments(),
+            &[
+                SourcePathSegmentV1::Body(index as u32),
+                SourcePathSegmentV1::Value
+            ]
+        );
+
+        let direct_child = root
+            .child_statement(&statement, index)
+            .expect("direct scalar statement");
+        assert_eq!(
+            direct_child.site().expect("located direct statement").segments(),
+            &[SourcePathSegmentV1::Body(index as u32)]
+        );
+    }
+}
+
+#[test]
+fn residual_scalar_statements_remain_scalar_binding_compatibility() {
+    let field = ASTNode::FieldAccess {
+        object: Box::new(variable("page")),
+        field: "value".to_owned(),
+        span: Span::unknown(),
+    };
+    let index = ASTNode::Index {
+        target: Box::new(variable("items")),
+        index: Box::new(integer(0)),
+        span: Span::unknown(),
+    };
+    let (_, root) =
+        RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
+            Vec::<ASTNode>::new(),
+            RawInvocationRootLineageV1::ScriptRoot,
+        ));
+
+    let residuals = [
+        assignment(field, integer(1)),
+        assignment(index, integer(2)),
+        ASTNode::CompoundAssignment {
+            target: Box::new(variable("x")),
+            operator: crate::ast::BinaryOperator::Add,
+            value: Box::new(integer(3)),
+            span: Span::unknown(),
+        },
+        ASTNode::Print {
+            expression: Box::new(integer(4)),
+            span: Span::unknown(),
+        },
+        ASTNode::Return {
+            value: Some(Box::new(integer(5))),
+            span: Span::unknown(),
+        },
+        ASTNode::Local {
+            variables: vec!["x".to_owned()],
+            initial_values: vec![Some(Box::new(integer(6)))],
+            declared_type_names: vec![None],
+            span: Span::unknown(),
+        },
+    ];
+    for (statement_index, statement) in residuals.into_iter().enumerate() {
+        let (_, child) = RawInvocationSourceContextV1::from_transport(
+            root.body_statement(statement, statement_index),
+        );
+        assert_eq!(
+            child,
+            RawInvocationSourceContextV1::UnlocatedCompatibility(
+                RawUnlocatedPortalV1::ScalarBinding
+            )
+        );
+    }
+}
+
 #[test]
 fn if_roles_issue_exact_condition_and_branch_roots() {
     let statement = ASTNode::If {

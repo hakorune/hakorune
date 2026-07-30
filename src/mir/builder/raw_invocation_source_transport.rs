@@ -146,6 +146,7 @@ impl RawInvocationSourceContextV1 {
             } => {
                 if !matches!(&statement, ASTNode::BoxDeclaration { .. })
                     && !is_located_control_or_diagnostic_terminal(&statement)
+                    && !is_located_scalar_single_value_statement(&statement)
                 {
                     let reason = reason_for_non_box_statement(&statement);
                     return RawInvocationSourceTransportV1::unlocated(
@@ -266,7 +267,9 @@ impl RawInvocationSourceContextV1 {
             body_kind.ok_or_else(|| {
                 "[freeze:contract][raw-invocation/missing-parent-body-kind]".to_owned()
             })?;
-        if !is_located_control_or_diagnostic_terminal(statement) {
+        if !is_located_control_or_diagnostic_terminal(statement)
+            && !is_located_scalar_single_value_statement(statement)
+        {
             return Err(format!(
                 "[freeze:contract][raw-invocation/statement-source-role] kind={}",
                 statement.node_type()
@@ -297,7 +300,6 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
         | ASTNode::CompoundAssignment { .. }
         | ASTNode::Print { .. }
         | ASTNode::Return { .. }
-        | ASTNode::GroupedAssignmentExpr { .. }
         | ASTNode::Local { .. } => RawUnlocatedPortalV1::ScalarBinding,
 
         ASTNode::Break { .. }
@@ -340,6 +342,7 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
 
         ASTNode::Program { .. }
         | ASTNode::BoxDeclaration { .. }
+        | ASTNode::GroupedAssignmentExpr { .. }
         | ASTNode::If { .. }
         | ASTNode::Loop { .. }
         | ASTNode::TaskScope { .. }
@@ -354,6 +357,14 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
             unreachable!("[freeze:contract][raw-invocation/direct-box-classifier]")
         }
     }
+}
+
+fn is_located_scalar_single_value_statement(statement: &ASTNode) -> bool {
+    matches!(
+        statement,
+        ASTNode::Assignment { target, .. }
+            if matches!(target.as_ref(), ASTNode::Variable { .. })
+    ) || matches!(statement, ASTNode::GroupedAssignmentExpr { .. })
 }
 
 fn is_located_control_or_diagnostic_terminal(statement: &ASTNode) -> bool {

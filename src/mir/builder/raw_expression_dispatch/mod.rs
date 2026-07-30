@@ -39,6 +39,7 @@ use super::recursive_child_lowering::{
     RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1, RawLoopChildEntryPortV1,
     RecursiveChildLoweringPortV1,
 };
+use super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::stmts::{
     drive_variable_assignment_v1, LocalStatementDescentPortV1, RawLegacyLocalInputV1,
     RawLegacyValueReturnInputV1, RawLegacyVariableAssignmentInputV1, ReturnStatementDescentPortV1,
@@ -46,6 +47,7 @@ use super::stmts::{
 };
 use super::ValueId;
 use crate::ast::{ASTNode, BinaryExpr, MethodCallExpr};
+use crate::mir::resolved_semantics::ExprChildRoleV1;
 
 pub(in crate::mir::builder) fn reject_sync_box_lowering_v1(name: &str) -> String {
     format!(
@@ -177,9 +179,20 @@ impl super::MirBuilder {
             // Phase 152-A: Grouped assignment expression (x = expr)
             // Stage-3 only. Value/type same as rhs, side effect assigns to lhs.
             // Shares the variable-name Assignment descent owner and returns the SSA ValueId.
-            ASTNode::GroupedAssignmentExpr { lhs, rhs, .. } => {
+            node @ ASTNode::GroupedAssignmentExpr { .. } => {
+                let value_source = port.prepare_expression_child_source_v1(
+                    &node,
+                    ExprChildRoleV1::GroupedAssignmentValue,
+                )?;
+                let ASTNode::GroupedAssignmentExpr { lhs, rhs, .. } = node else {
+                    unreachable!("matched GroupedAssignmentExpr")
+                };
                 let input = RawLegacyVariableAssignmentInputV1::new(lhs, *rhs);
-                drive_variable_assignment_v1(self, port, &input)
+                let mut scoped =
+                    RawStructuredChildScopePortV1::new(port, vec![value_source], Vec::new());
+                let value = drive_variable_assignment_v1(self, &mut scoped, &input)?;
+                scoped.complete_exact_demands_v1()?;
+                Ok(value)
             }
 
             ASTNode::Index { target, index, .. } => {

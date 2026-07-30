@@ -92,26 +92,30 @@ Latest landed: `RAW-LOCATED-BRANCHING-EXPR-CHILDREN0-I0-R0`
 Latest landed: `RAW-LOCATED-LOOP-CHILD-ENTRY0-I0-R0`
 Latest landed: `RAW-LOCATED-TRYCATCH-SOURCE-HANDOFF0-I0-R0`
 Latest landed: `RAW-LOCATED-PROGRAM-BODY-SOURCE-HANDOFF0-I0-R0`
-Current design stop: `RAW-LOCATED-SCALAR-BINDING-PORTALS0-D0`
+Latest landed: `RAW-LOCATED-SCALAR-VARIABLE-WRITES0-I0-R0`
+Current design stop: `RAW-LOCATED-SCALAR-BINDING-REMAINDER1-D0`
 History:       Git history and the short landed tail below
 ```
 
 ## Current design stop
 
-`RAW-LOCATED-SCALAR-BINDING-PORTALS0-D0`
+`RAW-LOCATED-SCALAR-BINDING-REMAINDER1-D0`
 
 ```text
 Question:
-  can the ScalarBinding portal be replaced by exact existing child roles and
-  source receipts without changing any binding or completion semantics?
+  which one remaining ScalarBinding responsibility can next consume exact
+  source receipts without changing place, print, Return, or Local semantics?
 
 Landed baseline:
-  Program now owns a distinct exact body path. ControlBody is Lambda only and
-  is retained behind RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001.
+  variable-target Assignment and GroupedAssignmentExpr now own exact statement
+  and RHS paths and exhaust one prepared RHS demand through the unchanged
+  variable-assignment owner. Field/index Assignment, CompoundAssignment,
+  Print, Return, and Local remain explicit ScalarBinding residuals.
 
 Stop:
-  no implementation before D0; no binding-policy widening, route retry, AST
-  clone/reparse, Lambda widening, or compatibility rename.
+  Return cannot join an ordinary one-demand row while Match-return CorePlan may
+  complete before ReturnValue descent. No place-order widening, route retry,
+  AST clone/reparse, Lambda widening, or compatibility rename.
 ```
 
 Corrected queue:
@@ -121,7 +125,7 @@ Corrected queue:
 2  RAW-LOCATED-STRUCTURED-CONTROL-BODIES0-I0-R0
 3  RAW-LOCATED-RESIDUAL-CONTROL-PARTITION2-D0
 4+ exact residual-control rows selected by D0
-then RAW-LOCATED-SCALAR-BINDING-PORTALS0-I0-R0
+then exact ScalarBinding residual rows selected by D0
 then RAW-LOCATED-CALL-OBJECT-PORTALS0-I0-R0
 then RAW-LOCATED-NESTED-ADMISSION0-I0-R0
 ```

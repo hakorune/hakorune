@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-LOCATED-PROGRAM-BODY-SOURCE-HANDOFF0-I0-R0 is closed. Nested Program now retains a collision-free ProgramBody root/item path through the unchanged lexical block owner, and its exact receipt is exhausted on success. The old Program -> ControlBody edge is deleted. ControlBody is now Lambda only; that residual is explicitly retain-fenced until parent definition site, child function owner, and ClosureBodyId publication are co-sealed. The residual-control batch is closed and the next stop designs the ScalarBinding portal removal; Ownership/View remains parked."
+status = "RAW-LOCATED-SCALAR-VARIABLE-WRITES0-I0-R0 is closed. Variable-target Assignment and GroupedAssignmentExpr now retain exact statement and RHS source paths, consume one prepared RHS receipt through the unchanged variable-assignment owner, and exhaust that demand on success. Their old ScalarBinding edges are deleted. Field/index Assignment, CompoundAssignment, Print, Return, and Local remain explicit ScalarBinding residuals; Return is kept separate because Match-return CorePlan can complete without ordinary ReturnValue descent. The next stop selects one remaining ScalarBinding responsibility; Ownership/View remains parked."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-LOCATED-SCALAR-BINDING-PORTALS0-D0"
+current_design_stop = "RAW-LOCATED-SCALAR-BINDING-REMAINDER1-D0"
 current_execution_row = "none"
-current_execution_summary = "Design one bounded exact-source replacement for the ScalarBinding portal without changing binding, assignment, print, return, grouped-assignment, or Local semantics. Lambda remains an explicit retained ControlBody fence. No implementation is selected."
+current_execution_summary = "Select one bounded exact-source replacement among residual field/index Assignment, CompoundAssignment, Print, Return, and Local. Do not combine Return with ordinary child-demand exhaustion until the Match-return CorePlan terminal consumes or explicitly owns the ReturnValue receipt. No implementation is selected."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -441,7 +441,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-RECURSIVE-LOCATED-PORT-MIGRATION0-D0 accepts one production-only shrinking dual-state transport with a fixed five-commit maximum and sunset RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001. RAW-LOCATED-BODY-SPINE0-I0-R0 is the first execution row and must remove selected bare body/item/direct-Box edges immediately; no caller-zero scaffold or retry is allowed. R5 Ownership/View remains parked."""
+latest_card_summary = """RAW-LOCATED-SCALAR-VARIABLE-WRITES0-I0-R0 is closed: variable-target Assignment and GroupedAssignmentExpr consume one exact RHS source receipt through the unchanged variable-assignment owner, and their ScalarBinding edges are deleted. Field/index Assignment, CompoundAssignment, Print, Return, and Local remain explicit residuals. RAW-LOCATED-SCALAR-BINDING-REMAINDER1-D0 is the next design stop; R5 Ownership/View remains parked."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -644,7 +644,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-LOCATED-BRANCHING-EXPR-CHILDREN0-I0-R0"
+current_blocker_token = "RAW-LOCATED-SCALAR-BINDING-REMAINDER1-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
