@@ -32,11 +32,12 @@ Parent:        RAW-ENTRY-MATERIALIZATION-CONTRACT0-D0
 Latest landed: NORMAL-INSTANCE-CONSTRUCTOR-CALLABLE-IDENTITY0-I0-R0
 Result:        selected Script direct Box raw compatibility is retired
 Latest landed:  `NORMAL-SCRIPT-NONPLAIN-BOX-CALLABLE-DISPOSITION0-I0-R0`
-Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS23-D0` — closed
+Latest census:  `MIRBUILDER-LIVE-EDGE-CENSUS24-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-PRINT-DIRECT-OWNER0-I0-R0`
 Latest design:  `NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-D0` — closed
 Latest landed:  `NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-I0-R0`
-Next stop:      `MIRBUILDER-LIVE-EDGE-CENSUS24-D0` — read-only
+Latest design:  `NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-D0` — closed
+Next execution: `NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-I0-R0`
 History:       Git history and the short landed tail below
 ```
 
@@ -724,6 +725,60 @@ R4 census:
 ```
 
 ## Current design decision
+
+`NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-D0` — T1, closed
+
+```text
+Decision:
+  Candidate A — move the complete 21-kind CallObjectHeader family to the
+  existing DirectPortAwareExpression terminal as one production responsibility.
+
+Selected kinds:
+  QMarkPropagate / MatchExpr / EnumMatchExpr / ArrayLiteral / MapLiteral /
+  RecordLiteral / RecordUpdate / Lambda / BlockExpr / Arrow /
+  GroupedAssignmentExpr / MethodCall / FieldAccess / Index / New / This /
+  FromCall / ThisField / MeField / FunctionCall / Call.
+
+Parity basis:
+  build_statement_with_port_v1 does not intercept any selected kind. It writes
+  the root span and immediately calls drive_legacy_expression_v1; the raw
+  expression dispatcher then writes the identical span and uses the same
+  RawInvocation port. Header loans, collector visibility, allocation/type/birth
+  effects, QMark/Match control, Lambda/BlockExpr lifecycle, arbitrary children,
+  diagnostics, and failure remain owned by the existing expression terminals.
+
+Atomic delete:
+  all 21 selected Script roots
+  -> CallObjectHeaderCompatibility
+  -> RawCompatibility
+  -> drive_legacy_statement_v1
+  = 0.
+
+Structure:
+  reuse normal_script_direct_statement_owner exactly; add no product, owner,
+  route terminal, test/check file, or per-row guard. Delete the retired
+  CallObjectHeaderCompatibility category. Residual count becomes 26.
+
+Evidence:
+  exhaustive source partition; representative full MIR/verification/diagnostic
+  parity across header/collector, allocation, control, nested lifecycle, and
+  currently unsupported members; distinct root/child spans; late failure then
+  fresh compiler reuse; selected statement-facade edge zero.
+
+Not selected:
+  Return is a valid later direct statement responsibility with completion and
+  cleanup pairing. StaticConstTable is a valid later metadata-runtime Void
+  completion. Neither enters this expression-facade row.
+
+Forbid:
+  child allowlists; new header/collector/allocation/control policy; selecting
+  only successful members; raw/reference widening; retry/fallback/reselection;
+  a second port; AST reparse/clone beyond current terminals; or any source/check
+  file reaching 800 lines.
+
+Next:
+  NORMAL-SCRIPT-CALL-OBJECT-DIRECT-EXPRESSION0-I0-R0.
+```
 
 `NORMAL-SCRIPT-PORT-AWARE-EXPRESSION-DIRECT-OWNER0-D0` — T1, closed
 
