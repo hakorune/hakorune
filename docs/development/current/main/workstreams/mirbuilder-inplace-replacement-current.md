@@ -3722,7 +3722,7 @@ Next design:
   `MIRBUILDER-LIVE-EDGE-CENSUS48-D0` — fresh, read-only, narrow census.
   Do not preselect And/Or, control, calls/objects, Box, Weak, or Lambda.
 
-## RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-D0 — accepted
+## RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-I0-R0 — closed at 1f17bc93d1
 
 ```text
 Decision:
@@ -3763,6 +3763,28 @@ Hard stops:
   eager RHS lowering, CFG/PHI/result policy edits, variable-map merge changes,
   new short-circuit owner/failure type, mixed routing, second resolver, retry,
   AST clone/reparse, new guard/test file, or any source/check file reaching 800.
+```
+
+Evidence:
+  `cargo test --lib mir::builder::normal_script` = 34/34 passed, including
+  nested And/Or MIR+verification parity and a missing-RHS failure followed by
+  fresh-request reuse. The existing short-circuit owner test
+  `and_and_or_share_the_existing_short_circuit_completion`, the general-module
+  parity test, `cargo check --lib`, pointer guard, and cut0 guard are green.
+  `normal_script_lexical_binding.rs` is 472 lines,
+  `normal_script_semantic_source.rs` is 564 lines, and the shared guard is 794
+  lines; no new source/test/check file was added.
+
+Atomic deletion:
+  And/Or trees inside the existing lexical closure no longer select Deferred
+  Script `script_root(())`. Unsafe descendants still select one Deferred
+  request, and the existing raw compatibility path remains the sole fallback
+  boundary for those shapes. No eager RHS demand, CFG/PHI edit, or retry was
+  introduced.
+
+Next design:
+  `MIRBUILDER-LIVE-EDGE-CENSUS49-D0` — fresh, read-only, narrow census.
+  Do not preselect control, calls/objects, Box, Weak, or Lambda.
 ```
 ```
 ```
@@ -6264,7 +6286,9 @@ R2aw MIRBUILDER-LIVE-EDGE-CENSUS47-D0 closed
 R2ax RAW-SCRIPT-CHECK-LEXICAL-CLOSURE0-D0 accepted design stop
 R2ay RAW-SCRIPT-CHECK-LEXICAL-CLOSURE0-I0-R0 closed at a78d4e968a
 R2az MIRBUILDER-LIVE-EDGE-CENSUS48-D0 closed
-R2ba RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-D0 current design stop
+R2ba RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-D0 accepted design stop
+R2bb RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-I0-R0 closed at 1f17bc93d1
+R2bc MIRBUILDER-LIVE-EDGE-CENSUS49-D0 current design stop
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
