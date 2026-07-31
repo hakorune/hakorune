@@ -117,8 +117,8 @@ pub(in crate::mir) use shadow::{
     ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
 };
 pub(crate) use shadow::{
-    ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootDemandWindowSealErrorV1,
-    ScriptRootIfControlAdmissionV1, ScriptRootResolvedDemandV1,
+    ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
+    ScriptRootDemandWindowSealErrorV1, ScriptRootIfControlAdmissionV1, ScriptRootResolvedDemandV1,
     ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,

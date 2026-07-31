@@ -7,11 +7,12 @@
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
-    ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootDemandWindowSealErrorV1,
-    ScriptRootIfControlAdmissionV1, ScriptRootResolvedDemandV1, ScriptRootReturnExitAdmissionV1,
-    ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1,
-    ScriptTransparentBoundaryV1, SourcePathSegmentV1, SourcePathV1,
-    VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
+    ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
+    ScriptRootDemandWindowSealErrorV1, ScriptRootIfControlAdmissionV1, ScriptRootResolvedDemandV1,
+    ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
+    ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
+    SourcePathSegmentV1, SourcePathV1, VerifiedScriptRootDemandEntryV1,
+    VerifiedScriptRootDemandWindowV1,
 };
 
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
@@ -140,6 +141,16 @@ impl ScriptRootDemandWindowBuilderV1 {
                         Runtime::RetainedExistingTerminal,
                     )
                 }
+                Admission::DirectPortAwareExpression
+                    if is_variable_target_binding_rebind(statement) =>
+                {
+                    (
+                        Semantic::Resolved(ScriptRootResolvedDemandV1::BindingRebind(
+                            ScriptRootBindingRebindAdmissionV1::new(),
+                        )),
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
                 Admission::DirectPortAwareExpression | Admission::DirectPrint => (
                     Semantic::Resolved(ScriptRootResolvedDemandV1::LexicalCore),
                     Runtime::RetainedExistingTerminal,
@@ -190,6 +201,9 @@ fn validate_boundary(
         ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::ReturnExit(_)) => {
             matches!(statement, ASTNode::Return { .. })
         }
+        ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::BindingRebind(_)) => {
+            is_variable_target_binding_rebind(statement)
+        }
         ScriptRootSemanticDispositionV1::Transparent(
             ScriptTransparentBoundaryV1::UsingDirective,
         ) => {
@@ -221,6 +235,14 @@ fn validate_boundary(
     compatible
         .then_some(())
         .ok_or(ScriptRootDemandWindowBuildErrorV1::StatementBoundaryMismatch)
+}
+
+fn is_variable_target_binding_rebind(statement: &ASTNode) -> bool {
+    matches!(
+        statement,
+        ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. }
+            if matches!(target.as_ref(), ASTNode::Variable { .. })
+    )
 }
 
 #[cfg(test)]
@@ -320,6 +342,85 @@ mod tests {
         assert!(matches!(
             sealed.entry_at(0).expect("Return entry").semantic(),
             ScriptRootSemanticDispositionV1::Deferred(_)
+        ));
+    }
+
+    #[test]
+    fn only_variable_target_assignments_issue_binding_rebind_receipts() {
+        let variable_target = ASTNode::Assignment {
+            target: Box::new(ASTNode::Variable {
+                name: "x".to_owned(),
+                span: Span::unknown(),
+            }),
+            value: Box::new(ASTNode::Literal {
+                value: crate::ast::LiteralValue::Integer(1),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let field_target = ASTNode::Assignment {
+            target: Box::new(ASTNode::FieldAccess {
+                object: Box::new(ASTNode::Variable {
+                    name: "object".to_owned(),
+                    span: Span::unknown(),
+                }),
+                field: "field".to_owned(),
+                span: Span::unknown(),
+            }),
+            value: Box::new(ASTNode::Literal {
+                value: crate::ast::LiteralValue::Integer(1),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let mut selected = ScriptRootDemandWindowBuilderV1::for_program_statement_count(1);
+        selected
+            .record_selected_work_item(
+                0,
+                &variable_target,
+                Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
+                false,
+            )
+            .expect("variable target receipt");
+        assert!(matches!(
+            selected
+                .seal()
+                .expect("sealed variable target")
+                .entry_at(0)
+                .expect("variable target entry")
+                .semantic(),
+            ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::BindingRebind(_))
+        ));
+
+        let mut deferred = ScriptRootDemandWindowBuilderV1::for_program_statement_count(1);
+        deferred
+            .record_selected_work_item(
+                0,
+                &field_target,
+                Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
+                false,
+            )
+            .expect("field target receipt");
+        let deferred = deferred.seal().expect("sealed field target");
+        assert!(!matches!(
+            deferred.entry_at(0).expect("field target entry").semantic(),
+            ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::BindingRebind(_))
+        ));
+        let source = super::super::normal_default_root_catalog_lifecycle::
+            PreparedNormalDefaultProgramRootV1::seal(ASTNode::Program {
+                statements: vec![field_target],
+                span: Span::unknown(),
+            })
+            .expect("field target source");
+        let view =
+            crate::mir::resolved_semantics::ScriptSyntaxViewV1::from_program(source.source_ast())
+                .expect("field target view");
+        assert!(matches!(
+            crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1::new(0)
+                .expect("field target resolver")
+                .resolve_script(view, &deferred)
+                .expect("field target admission"),
+            crate::mir::resolved_semantics::ResolveScriptOutcomeV1::Deferred
         ));
     }
 }

@@ -10,17 +10,19 @@ use crate::mir::ValueId;
 pub(super) struct ScriptSemanticLoweringState {
     variable_values: BTreeMap<BindingRefV1, ValueId>,
     variables: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
+    assignments: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     locals: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     nowaits: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     outboxes: BTreeMap<SourceNodeSiteV1, Box<[BindingRefV1]>>,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
 }
 impl ScriptSemanticLoweringState {
-    pub(super) fn from_facts<Locals, Nowaits, Outboxes, OutboxBindings, Variables>(
+    pub(super) fn from_facts<Locals, Nowaits, Outboxes, OutboxBindings, Variables, Assignments>(
         locals: Locals,
         nowaits: Nowaits,
         outboxes: Outboxes,
         variables: Variables,
+        assignments: Assignments,
     ) -> Self
     where
         Locals: IntoIterator<Item = (SourceNodeSiteV1, BindingRefV1)>,
@@ -28,10 +30,15 @@ impl ScriptSemanticLoweringState {
         Outboxes: IntoIterator<Item = (SourceNodeSiteV1, OutboxBindings)>,
         OutboxBindings: IntoIterator<Item = BindingRefV1>,
         Variables: IntoIterator<Item = (SourceExprSiteV1, BindingRefV1)>,
+        Assignments: IntoIterator<Item = (SourceExprSiteV1, BindingRefV1)>,
     {
         Self {
             variable_values: BTreeMap::new(),
             variables: variables
+                .into_iter()
+                .map(|(site, binding)| (site.node().clone(), binding))
+                .collect(),
+            assignments: assignments
                 .into_iter()
                 .map(|(site, binding)| (site.node().clone(), binding))
                 .collect(),
@@ -47,6 +54,10 @@ impl ScriptSemanticLoweringState {
 
     pub(super) fn variable_binding(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
         self.variables.get(site).copied()
+    }
+
+    pub(super) fn assignment_binding(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
+        self.assignments.get(site).copied()
     }
 
     pub(super) fn local_binding(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
@@ -72,6 +83,16 @@ impl ScriptSemanticLoweringState {
         if self.variable_values.insert(binding, value).is_some() {
             return Err("[freeze:contract][script-lexical/duplicate-value]".to_owned());
         }
+        Ok(())
+    }
+
+    pub(super) fn rebind(&mut self, binding: BindingRefV1, value: ValueId) -> Result<(), String> {
+        let Some(slot) = self.variable_values.get_mut(&binding) else {
+            return Err(
+                "[freeze:contract][script-lexical/rebind-before-materialization]".to_owned(),
+            );
+        };
+        *slot = value;
         Ok(())
     }
 
@@ -102,3 +123,6 @@ impl ScriptSemanticLoweringState {
         Ok(())
     }
 }
+
+#[path = "normal_script_binding_materialization.rs"]
+mod binding_materialization;

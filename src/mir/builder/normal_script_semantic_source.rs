@@ -10,11 +10,11 @@ use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use crate::ast::ASTNode;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, ScriptDiagnosticBoundaryV1, ScriptRootRuntimeDispositionV1,
-    ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, SemanticOwnerForestDraftV1,
-    SemanticOwnerRootProfileV1, SourceBindingSiteV1, SourceNodeSiteV1, SourceStmtSiteV1,
-    VerifiedResolvedScriptV1, VerifiedScriptRootDemandWindowV1, VerifiedSemanticOwnerForestV1,
-    VerifiedSemanticOwnerProductV1,
+    BindingRefV1, ResolvedAssignmentTargetV1, ScriptDiagnosticBoundaryV1,
+    ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1,
+    SemanticOwnerForestDraftV1, SemanticOwnerRootProfileV1, SourceBindingSiteV1, SourceNodeSiteV1,
+    SourceStmtSiteV1, VerifiedResolvedScriptV1, VerifiedScriptRootDemandWindowV1,
+    VerifiedSemanticOwnerForestV1, VerifiedSemanticOwnerProductV1,
 };
 
 use super::normal_default_root_catalog_lifecycle::PreparedNormalDefaultProgramRootV1;
@@ -318,7 +318,17 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 }
                 _ => None,
             });
-        ScriptSemanticLoweringState::from_facts(locals, nowaits, outboxes, variables)
+        let assignments = owner
+            .assignment_targets()
+            .filter_map(|(site, target)| match target {
+                ResolvedAssignmentTargetV1::BindingRebind(binding) => {
+                    Some((site.clone(), *binding))
+                }
+                ResolvedAssignmentTargetV1::UpvarRebind(_)
+                | ResolvedAssignmentTargetV1::FieldWrite { .. }
+                | ResolvedAssignmentTargetV1::IndexWrite { .. } => None,
+            });
+        ScriptSemanticLoweringState::from_facts(locals, nowaits, outboxes, variables, assignments)
     }
 }
 
@@ -332,8 +342,11 @@ fn program_statement_index(site: &SourceStmtSiteV1) -> Result<usize, String> {
 }
 
 #[cfg(test)]
-#[path = "normal_script_semantic_source_tests.rs"]
-mod tests;
+#[path = "normal_script_binding_rebind_tests.rs"]
+mod binding_rebind_tests;
 #[cfg(test)]
 #[path = "normal_script_root_return_tests.rs"]
 mod return_tests;
+#[cfg(test)]
+#[path = "normal_script_semantic_source_tests.rs"]
+mod tests;

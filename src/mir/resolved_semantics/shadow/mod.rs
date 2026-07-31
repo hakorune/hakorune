@@ -35,8 +35,8 @@ pub(super) use resolver::{
     resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0, resolve_script_shadow_view_v0,
 };
 pub(crate) use script_root_window::{
-    ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootDemandWindowSealErrorV1,
-    ScriptRootIfControlAdmissionV1, ScriptRootResolvedDemandV1,
+    ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
+    ScriptRootDemandWindowSealErrorV1, ScriptRootIfControlAdmissionV1, ScriptRootResolvedDemandV1,
     ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,

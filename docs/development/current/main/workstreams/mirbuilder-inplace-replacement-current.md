@@ -265,24 +265,24 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-POST-RETURN-CAPABILITY-CENSUS0-D0
+  RAW-SCRIPT-POST-BINDING-REBIND-CAPABILITY-CENSUS0-D0
 
   Change:
-    Census the remaining Script Deferred production edges once, after final
-    root Return has left the shared compatibility terminal.
+    Census remaining selected Script Deferred edges once after the narrow
+    BindingRebind Mutation family has left compatibility.
 
   Contract:
-    Choose at most one responsibility family with a named live old edge. Do
-    not preselect Control, Call/Object, Allocation, Weak, Lambda, or Box; no
-    second resolver, mixed routing, fallback, or retry.
+    Choose at most one responsibility family with a named live old edge. Keep
+    QMark control/result and Loop JoinIR as separate design stops; no second
+    resolver, fallback, retry, or mixed request routing.
 
   Done:
     Publish one bounded D0 with its exact old-edge deletion, or record
     NoSafeSlice. Keep every source/check file below 800 lines.
 
   Stop:
-    Stop when the remaining candidates need a new control/object/capture
-    authority, an AST-kind side classifier, or widened nested scope admission.
+    Stop when a candidate needs a new control/object/capture authority or a
+    widened nested-scope admission.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -294,6 +294,22 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-ROOT-BINDING-REBIND-ADMISSION0-I0-R0
+  -> only prior-Local Variable-target Assignment/CompoundAssignment receives
+     a typed BindingRebind demand. The shared forest supplies the exact target
+     BindingRef, and the existing raw lower remains the only operational
+     owner; its returned ValueId updates the Script ledger only on success.
+     Field/Index, grouped/nested assignment, and upvar stay Deferred. The
+     selected Variable-target `Deferred -> bare script_root()` edge is zero.
+
+  RAW-SCRIPT-POST-RETURN-CAPABILITY-CENSUS0-D0
+  -> Accepts only the BindingRebind Mutation slice. QMark owns an
+     expression-site conditional Return plus runtime calls and needs a
+     CONTROL/RESULT D0; Loop needs a typed JoinIR route plan and stays
+     Deferred. Assignment is safe only for prior-Local Variable targets:
+     the shared forest already owns exact BindingRebind facts, while the
+     existing raw lower retains operational completion.
+
   RAW-SCRIPT-ROOT-RETURN-EXIT-ADMISSION0-I0-R0
   -> only final-ordinal root `Return` receives a typed exit demand. The shared
      traversal preserves existing ReturnValue/ExplicitReturn facts and the

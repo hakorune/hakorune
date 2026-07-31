@@ -37,6 +37,9 @@ impl<'ast> ShadowResolverV0<'ast> {
                 self.resolve_if(statement, condition, then_body, else_body.as_deref(), path)
             }
             ScriptRootResolvedDemandV1::ReturnExit(_) => self.resolve_return(statement, path),
+            ScriptRootResolvedDemandV1::BindingRebind(_) => {
+                self.resolve_binding_rebind(statement, path)
+            }
         }
     }
 
@@ -212,6 +215,25 @@ impl<'ast> ShadowResolverV0<'ast> {
                 target_function: self.function_region(),
             },
         )
+    }
+
+    fn resolve_binding_rebind(
+        &mut self,
+        statement: &'ast ASTNode,
+        path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let has_variable_target = matches!(
+            statement,
+            ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. }
+                if matches!(target.as_ref(), ASTNode::Variable { .. })
+        );
+        if !has_variable_target {
+            return Err(ShadowResolveErrorV0::UnsupportedStatement {
+                kind: "Script root BindingRebind admission source drift",
+                site: path.stmt(),
+            });
+        }
+        self.resolve_stmt(statement, path)
     }
 
     fn resolve_declaration(

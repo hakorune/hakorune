@@ -25,6 +25,7 @@ pub(crate) enum ScriptRootResolvedDemandV1 {
     LexicalCore,
     IfControl(ScriptRootIfControlAdmissionV1),
     ReturnExit(ScriptRootReturnExitAdmissionV1),
+    BindingRebind(ScriptRootBindingRebindAdmissionV1),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -41,6 +42,16 @@ impl ScriptRootIfControlAdmissionV1 {
 pub(crate) struct ScriptRootReturnExitAdmissionV1(());
 
 impl ScriptRootReturnExitAdmissionV1 {
+    pub(crate) const fn new() -> Self {
+        Self(())
+    }
+}
+
+/// Receipt for a root assignment whose target is an existing Script binding.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct ScriptRootBindingRebindAdmissionV1(());
+
+impl ScriptRootBindingRebindAdmissionV1 {
     pub(crate) const fn new() -> Self {
         Self(())
     }

@@ -22,6 +22,9 @@ impl ShadowTraversalProfileV1 {
                 ASTNode::TaskScope { .. } => true,
                 ASTNode::FastMemRegion { .. } => true,
                 ASTNode::Outbox { .. } => true,
+                ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. } => {
+                    matches!(target.as_ref(), ASTNode::Variable { .. })
+                }
                 ASTNode::Local {
                     variables,
                     initial_values,
