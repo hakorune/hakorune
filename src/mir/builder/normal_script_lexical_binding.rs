@@ -5,7 +5,7 @@
 
 use std::collections::BTreeMap;
 
-use crate::ast::{ASTNode, BinaryOperator};
+use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     BindingRefV1, ExprChildRoleV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
 };
@@ -194,15 +194,7 @@ fn admit_expression_v1(
                 variables,
             )
         }
-        ASTNode::BinaryOp {
-            operator,
-            left,
-            right,
-            ..
-        } => {
-            if matches!(operator, BinaryOperator::And | BinaryOperator::Or) {
-                return Err(ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement);
-            }
+        ASTNode::BinaryOp { left, right, .. } => {
             let Some(left_segment) = ExprChildRoleV1::BinaryLeft.segment_for(expression) else {
                 return Err(ScriptLexicalDeferredReasonV1::LocalShape);
             };
@@ -394,7 +386,7 @@ mod tests {
     }
 
     #[test]
-    fn logical_binary_remains_deferred() {
+    fn logical_binary_is_admitted_recursively() {
         let statements = vec![ASTNode::BinaryOp {
             operator: BinaryOperator::And,
             left: Box::new(ASTNode::Literal {
@@ -407,12 +399,10 @@ mod tests {
             }),
             span: Span::unknown(),
         }];
-        assert_eq!(
+        assert!(matches!(
             admit_runtime_script_lexical_v1(&statements, &[admission()]),
-            ScriptLexicalAdmissionV1::Deferred(
-                ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement
-            )
-        );
+            ScriptLexicalAdmissionV1::Complete(_)
+        ));
     }
 
     #[test]

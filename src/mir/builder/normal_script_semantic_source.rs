@@ -495,4 +495,70 @@ print(ok)
         );
         assert_eq!(normal.verification_result, legacy.verification_result);
     }
+
+    #[test]
+    fn selected_normal_and_or_lexical_closure_matches_legacy() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let source = r#"
+local lhs = true
+local rhs = false
+print(lhs and rhs)
+print(lhs or rhs)
+print((lhs and rhs) or (lhs and rhs))
+"#;
+        let legacy_ast = NyashParser::parse_from_string(source).expect("legacy AndOr source");
+        let normal_ast = NyashParser::parse_from_string(source).expect("normal AndOr source");
+        let mut legacy_compiler = MirCompiler::with_options(false);
+        let legacy = legacy_compiler
+            .compile_with_source(legacy_ast, Some("script-andor-lexical.hako"))
+            .expect("legacy AndOr module");
+        let mut normal_compiler = MirCompiler::with_options(false);
+        let request = NormalCompileRequestV1::for_mir_mode(
+            normal_ast,
+            Some("script-andor-lexical.hako"),
+            std::collections::HashMap::new(),
+        )
+        .expect("normal AndOr request");
+        let normal = normal_compiler
+            .compile_normal(request)
+            .expect("normal AndOr module");
+        assert_eq!(
+            MirPrinter::new().print_module(&normal.module),
+            MirPrinter::new().print_module(&legacy.module)
+        );
+        assert_eq!(normal.verification_result, legacy.verification_result);
+    }
+
+    #[test]
+    fn selected_and_or_failure_discards_candidate_and_reuses_compiler() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let source = r#"
+local lhs = true
+print(lhs and missing)
+"#;
+        let ast = NyashParser::parse_from_string(source).expect("failing AndOr source");
+        let mut compiler = MirCompiler::with_options(false);
+        let error = compiler
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    ast,
+                    Some("script-andor-failure.hako"),
+                    std::collections::HashMap::new(),
+                )
+                .expect("failing AndOr request"),
+            )
+            .expect_err("undefined AndOr RHS must reject");
+        assert!(error.contains("Undefined variable: missing"), "{error}");
+
+        compiler
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    NyashParser::parse_from_string("print(1)").expect("fresh source"),
+                    Some("script-andor-reuse.hako"),
+                    std::collections::HashMap::new(),
+                )
+                .expect("fresh AndOr reuse request"),
+            )
+            .expect("fresh request after AndOr failure");
+    }
 }
