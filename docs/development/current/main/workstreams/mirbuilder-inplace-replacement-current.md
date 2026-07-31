@@ -32,20 +32,20 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  SEMANTIC-SHADOW-ROOT-NEUTRAL-ENTRY0-S0
+  RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-I0-R0
 
 latest structural finding:
-  normal_script_lexical_binding::admit_expression_v1 is becoming a second
-  lexical resolver beside resolved_semantics/shadow/**.
+  FastMem already has one structured-scope traversal and one direct lowering
+  terminal; only lexical-safe whole bodies can join the existing Script core.
 
 accepted series:
   dense Function/Lambda root-neutral core -> sparse selected-Script cutover
 
 latest production closeout:
-  RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0 / 106e5cbe5b
+  RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0 / 5b963969b4
 
 consultation decision:
-  RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0 / Accept-corrected
+  RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-D0 / Accept A-prime (T1)
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -265,10 +265,27 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-D0
-  -> existing FastMem structured-scope shadow traversal + existing FastMem lower
-  -> lexical-safe whole FastMem body may Complete; unsafe body remains Deferred
-  -> no FastMem contract/region/metadata diagnostic may move before RootLower
+  RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-I0-R0 (T1)
+
+  Change:
+    Map only the existing `FastMemRegion + DirectFastMemRegion` receipt to
+    Resolved, and admit FastMem as a structured scope in ScriptLexicalCore.
+    Delete lexical-safe FastMem -> Deferred -> bare script_root reachability.
+
+  Contract:
+    A Complete FastMem body is recursively existing ScriptLexicalCore plus
+    nested FastMem only. Existing FastMem registration, metadata, MemOp
+    emission, port descent, and RootLower diagnostics do not move.
+
+  Done:
+    Safe FastMem is Complete with exact FastMemBody source coverage; unsafe
+    child responsibility and unresolved names remain Deferred and lower once
+    through ExistingRootLower. Raw/reference routes are unchanged.
+
+  Stop:
+    Stop if FastMem validation/metadata moves before RootLower, a Call/Object,
+    If, Weak, or other responsibility must activate, or mixed request routing
+    is needed. Keep all touched source/check files below 800 lines.
 
 ordered after fresh evidence only
   1. top-level bare Me existing-diagnostic boundary (zero child; no receiver fact)

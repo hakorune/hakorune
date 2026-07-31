@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0 is closed. Fresh live-edge census selects RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-D0: activate only FastMem's existing structured-scope responsibility through the shared Script shadow core."
+status = "RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0 is closed. RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-D0 accepts the bounded T1 activation; RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-I0-R0 is the only executable row."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0 closed Accept-corrected"
-current_execution_row = "RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-D0"
-current_execution_summary = "Fresh census: FastMem has one existing production runtime terminal and one existing shared structured-scope shadow traversal, while If/assignment/Loop/Return and Call/Object cross separate CFG, mutation, JoinIR, exit, or allocation authority. D0 must define an all-children ScriptLexicalCore closure, preserve FastMem metadata diagnostics at RootLower, and delete only lexical-safe FastMem reachability to Deferred. Bare Program Me is the next zero-child diagnostic-boundary candidate after this D0/row; no other family is pre-authorized."
+current_design_stop = "RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-D0 closed Accept A-prime"
+current_execution_row = "RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-I0-R0"
+current_execution_summary = "FastMem is a T1 structured-scope activation: only FastMemRegion bodies recursively closed under the existing ScriptLexicalCore may Complete through the shared shadow core. Contract/region/metadata/MemOp authority and all user diagnostics remain in existing RootLower; unsafe FastMem remains Deferred. The atomic row deletes only lexical-safe FastMem reachability to Deferred. Bare Program Me remains the next zero-child diagnostic-boundary candidate after closeout; no other family is pre-authorized."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"
