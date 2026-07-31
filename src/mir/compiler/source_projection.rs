@@ -9,7 +9,7 @@ use crate::mir::resolved_semantics::{
     project_source_node_v1, BindingOriginV1, FunctionOwnerIdV1, ProjectedSourceNodeV1,
     RegionOriginV1, ResolvedExitOriginV1, ResolvedExitSiteV1, ScopeOriginV1,
     SemanticOwnerRootProfileV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
-    VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
+    VerifiedSemanticOwnerForestV1, VerifiedSemanticOwnerProductV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -230,7 +230,7 @@ impl VerifiedSourceProjectionV1 {
         }
 
         let mut definition_chains = BTreeMap::new();
-        for (owner, product) in forest.owners() {
+        for (owner, product) in forest.semantic_owners() {
             let chain = definition_chain(forest, root_owner, owner)?;
             let owner_root = locate_owner_root(syntax_root, owner, &chain)?;
             verify_owner_root(owner, owner == root_owner, root_profile, owner_root)?;
@@ -363,7 +363,7 @@ fn expected_root_name(profile: SemanticOwnerRootProfileV1) -> &'static str {
 fn verify_semantic_sites(
     owner: FunctionOwnerIdV1,
     syntax: &ASTNode,
-    product: &VerifiedResolvedFunctionV1,
+    product: &VerifiedSemanticOwnerProductV1,
 ) -> Result<(), SourceNavigationErrorV1> {
     verify_signature_sites(owner, syntax, product)?;
     for site in product.declaration_sites() {
@@ -429,7 +429,7 @@ fn verify_semantic_sites(
 fn verify_signature_sites(
     owner: FunctionOwnerIdV1,
     syntax: &ASTNode,
-    product: &VerifiedResolvedFunctionV1,
+    product: &VerifiedSemanticOwnerProductV1,
 ) -> Result<(), SourceNavigationErrorV1> {
     let (expected_parameters, expected_receiver) = match syntax {
         ASTNode::FunctionDeclaration {

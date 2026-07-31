@@ -55,6 +55,16 @@ pub(crate) struct VerifiedResolvedOwnerCoreV1 {
     pub(crate) loop_regions: ResolvedLoopRegionIndexV1,
 }
 
+impl VerifiedResolvedOwnerCoreV1 {
+    pub(crate) const fn data(&self) -> &ResolvedFunctionDataV1 {
+        &self.data
+    }
+
+    pub(crate) const fn normalized_graph(&self) -> &NormalizedResolvedFunctionGraphV1 {
+        &self.normalized
+    }
+}
+
 /// Immutable declared-function/Lambda authority. The public wrapper remains
 /// stable while the forest evolves to hold additional root profiles.
 #[derive(Debug)]
@@ -115,6 +125,10 @@ impl ResolvedFunctionDraftV1 {
 }
 
 impl VerifiedResolvedFunctionV1 {
+    pub(crate) const fn core(&self) -> &VerifiedResolvedOwnerCoreV1 {
+        &self.core
+    }
+
     pub const fn owner(&self) -> FunctionOwnerIdV1 {
         self.core.data.owner
     }
@@ -321,5 +335,11 @@ impl VerifiedResolvedFunctionV1 {
             return Err(ResolvedScopeRegionLookupErrorV1::PairContractMismatch);
         }
         Ok(ResolvedScopeRegionPairV1 { scope, region })
+    }
+}
+
+impl VerifiedResolvedScriptV1 {
+    pub(crate) const fn core(&self) -> &VerifiedResolvedOwnerCoreV1 {
+        &self.core
     }
 }

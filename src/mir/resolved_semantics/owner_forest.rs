@@ -115,7 +115,7 @@ pub struct NormalizedSemanticOwnerForestGraphV1 {
 
 #[derive(Debug, Default)]
 pub(crate) struct SemanticOwnerForestDraftV1 {
-    owners: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedFunctionV1>,
+    owners: BTreeMap<FunctionOwnerIdV1, VerifiedSemanticOwnerProductV1>,
     parents: BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>,
 }
 
@@ -164,6 +164,14 @@ impl SemanticOwnerForestDraftV1 {
         owner: FunctionOwnerIdV1,
         product: VerifiedResolvedFunctionV1,
     ) -> Result<(), SemanticOwnerForestVerificationErrorV1> {
+        self.insert_product(owner, VerifiedSemanticOwnerProductV1::Function(product))
+    }
+
+    pub(crate) fn insert_product(
+        &mut self,
+        owner: FunctionOwnerIdV1,
+        product: VerifiedSemanticOwnerProductV1,
+    ) -> Result<(), SemanticOwnerForestVerificationErrorV1> {
         if self.owners.insert(owner, product).is_some() {
             return Err(SemanticOwnerForestVerificationErrorV1::DuplicateOwner(
                 owner,
@@ -191,13 +199,13 @@ impl SemanticOwnerForestDraftV1 {
         if self.owners.is_empty() {
             return Err(SemanticOwnerForestVerificationErrorV1::EmptyForest);
         }
-        let compilation = self
-            .owners
+        let owners = self.owners;
+        let compilation = owners
             .first_key_value()
             .expect("non-empty forest checked above")
             .0
             .compilation_brand();
-        for (owner, product) in &self.owners {
+        for (owner, product) in &owners {
             if *owner != product.owner() {
                 return Err(SemanticOwnerForestVerificationErrorV1::OwnerKeyMismatch(
                     *owner,
@@ -212,7 +220,7 @@ impl SemanticOwnerForestDraftV1 {
 
         let mut child_at = BTreeMap::new();
         for (child, edge) in &self.parents {
-            verify_parent_edge(&self.owners, *child, edge)?;
+            verify_parent_edge(&owners, *child, edge)?;
             if child_at
                 .insert(edge.definition_site.clone(), *child)
                 .is_some()
@@ -224,10 +232,9 @@ impl SemanticOwnerForestDraftV1 {
                 );
             }
         }
-        verify_acyclic(&self.owners, &self.parents)?;
+        verify_acyclic(&owners, &self.parents)?;
 
-        let roots = self
-            .owners
+        let roots = owners
             .keys()
             .filter(|owner| !self.parents.contains_key(owner))
             .copied()
@@ -236,19 +243,9 @@ impl SemanticOwnerForestDraftV1 {
             return Err(SemanticOwnerForestVerificationErrorV1::MultipleRoots);
         }
         let root = roots[0];
-        let (upvar_observations, upvars) = derive_and_verify_upvars(&self.owners, &self.parents)?;
-        let normalized = build_normalized_forest(
-            root,
-            &self.owners,
-            &self.parents,
-            &upvar_observations,
-            &upvars,
-        )?;
-        let owners = self
-            .owners
-            .into_iter()
-            .map(|(owner, product)| (owner, VerifiedSemanticOwnerProductV1::Function(product)))
-            .collect();
+        let (upvar_observations, upvars) = derive_and_verify_upvars(&owners, &self.parents)?;
+        let normalized =
+            build_normalized_forest(root, &owners, &self.parents, &upvar_observations, &upvars)?;
         Ok(VerifiedSemanticOwnerForestV1 {
             owners,
             parents: self.parents,
@@ -262,7 +259,7 @@ impl SemanticOwnerForestDraftV1 {
 }
 
 fn derive_and_verify_upvars(
-    owners: &BTreeMap<FunctionOwnerIdV1, VerifiedResolvedFunctionV1>,
+    owners: &BTreeMap<FunctionOwnerIdV1, VerifiedSemanticOwnerProductV1>,
     parents: &BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>,
 ) -> Result<(Box<[UpvarObservationV1]>, Box<[UpvarRefV1]>), SemanticOwnerForestVerificationErrorV1>
 {
@@ -304,7 +301,7 @@ fn derive_and_verify_upvars(
 fn verify_upvar_relation(
     owner: FunctionOwnerIdV1,
     upvar: UpvarRefV1,
-    owners: &BTreeMap<FunctionOwnerIdV1, VerifiedResolvedFunctionV1>,
+    owners: &BTreeMap<FunctionOwnerIdV1, VerifiedSemanticOwnerProductV1>,
     parents: &BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>,
 ) -> Result<(), SemanticOwnerForestVerificationErrorV1> {
     let source_owner = upvar.source().owner();
@@ -351,7 +348,7 @@ fn verify_nearest_visible_source(
     capturing_owner: FunctionOwnerIdV1,
     upvar: UpvarRefV1,
     diagnostic_name: &str,
-    owners: &BTreeMap<FunctionOwnerIdV1, VerifiedResolvedFunctionV1>,
+    owners: &BTreeMap<FunctionOwnerIdV1, VerifiedSemanticOwnerProductV1>,
     parents: &BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>,
 ) -> Result<(), SemanticOwnerForestVerificationErrorV1> {
     let mut child = capturing_owner;
@@ -377,7 +374,7 @@ fn verify_nearest_visible_source(
 }
 
 fn nearest_visible_binding(
-    owner: &VerifiedResolvedFunctionV1,
+    owner: &VerifiedSemanticOwnerProductV1,
     edge: &OwnerParentEdgeV1,
     diagnostic_name: &str,
 ) -> Option<super::BindingRefV1> {
@@ -407,7 +404,7 @@ fn nearest_visible_binding(
 }
 
 fn binding_visible_at_definition(
-    owner: &VerifiedResolvedFunctionV1,
+    owner: &VerifiedSemanticOwnerProductV1,
     origin: &BindingOriginV1,
     edge: &OwnerParentEdgeV1,
 ) -> bool {
@@ -451,7 +448,7 @@ fn binding_visible_at_definition(
 }
 
 fn scope_is_ancestor(
-    owner: &VerifiedResolvedFunctionV1,
+    owner: &VerifiedSemanticOwnerProductV1,
     ancestor: ScopeId,
     mut descendant: ScopeId,
 ) -> bool {
@@ -502,7 +499,7 @@ fn direct_member_index(origin: &ScopeOriginV1, site: &SourceNodeSiteV1) -> Optio
 }
 
 fn verify_parent_edge(
-    owners: &BTreeMap<FunctionOwnerIdV1, VerifiedResolvedFunctionV1>,
+    owners: &BTreeMap<FunctionOwnerIdV1, VerifiedSemanticOwnerProductV1>,
     child: FunctionOwnerIdV1,
     edge: &OwnerParentEdgeV1,
 ) -> Result<(), SemanticOwnerForestVerificationErrorV1> {
@@ -542,7 +539,7 @@ fn verify_parent_edge(
 }
 
 fn verify_acyclic(
-    owners: &BTreeMap<FunctionOwnerIdV1, VerifiedResolvedFunctionV1>,
+    owners: &BTreeMap<FunctionOwnerIdV1, VerifiedSemanticOwnerProductV1>,
     parents: &BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>,
 ) -> Result<(), SemanticOwnerForestVerificationErrorV1> {
     for owner in owners.keys().copied() {
@@ -560,7 +557,7 @@ fn verify_acyclic(
 
 fn build_normalized_forest(
     root: FunctionOwnerIdV1,
-    owners: &BTreeMap<FunctionOwnerIdV1, VerifiedResolvedFunctionV1>,
+    owners: &BTreeMap<FunctionOwnerIdV1, VerifiedSemanticOwnerProductV1>,
     parents: &BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>,
     observations: &[UpvarObservationV1],
     upvars: &[UpvarRefV1],
@@ -655,7 +652,7 @@ fn normalized_owner_key(
 }
 
 fn normalized_scope(
-    owner: &VerifiedResolvedFunctionV1,
+    owner: &VerifiedSemanticOwnerProductV1,
     edge: &OwnerParentEdgeV1,
 ) -> NormalizedScopeKeyV1 {
     let record: &ResolvedScopeRecordV1 = owner.scope(edge.parent_scope).unwrap();
@@ -682,6 +679,13 @@ impl VerifiedSemanticOwnerForestV1 {
         &self,
     ) -> impl Iterator<Item = (FunctionOwnerIdV1, &VerifiedSemanticOwnerProductV1)> {
         self.owners.iter().map(|(owner, product)| (*owner, product))
+    }
+
+    pub(crate) fn semantic_owner(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Option<&VerifiedSemanticOwnerProductV1> {
+        self.owners.get(&owner)
     }
 
     pub fn parent(&self, child: FunctionOwnerIdV1) -> Option<&OwnerParentEdgeV1> {
