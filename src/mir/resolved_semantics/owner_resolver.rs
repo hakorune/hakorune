@@ -100,7 +100,7 @@ impl FunctionSemanticResolverSessionV1 {
                 .map_err(ResolveOwnerForestErrorV1::Function)?,
         };
         let ancestor_names = ancestor_bindings.keys().cloned().collect::<BTreeSet<_>>();
-        let shadow = resolve_owner_shadow_view_v0(origin, view, ancestor_names)
+        let shadow = resolve_owner_shadow_view_v0(view, ancestor_names)
             .map_err(ResolveFunctionErrorV1::Syntax)
             .map_err(ResolveOwnerForestErrorV1::Function)?;
         let ShadowResolvedOwnerV0 { function, lambdas } = shadow;
@@ -111,11 +111,12 @@ impl FunctionSemanticResolverSessionV1 {
         } = match callable_index {
             Some(index) => self.seal_owner_with_ancestors_and_callable_index(
                 owner,
+                origin,
                 function,
                 ancestor_bindings,
                 index,
             ),
-            None => self.seal_owner_with_ancestors(owner, function, ancestor_bindings),
+            None => self.seal_owner_with_ancestors(owner, origin, function, ancestor_bindings),
         }
         .map_err(ResolveOwnerForestErrorV1::Function)?;
 

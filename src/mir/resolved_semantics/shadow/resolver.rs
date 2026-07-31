@@ -70,21 +70,19 @@ pub(super) struct ShadowResolverV0<'ast> {
 }
 
 pub(super) fn resolve_function_shadow_v0(
-    function_origin: FunctionOriginV1,
+    _function_origin: FunctionOriginV1,
     function: &ASTNode,
 ) -> Result<ShadowResolvedFunctionV0, ShadowResolveErrorV0> {
     let Some(view) = FunctionSyntaxViewV1::from_ast(function) else {
         return Err(ShadowResolveErrorV0::ExpectedFunctionDeclaration);
     };
-    resolve_function_shadow_view_v0(function_origin, view)
+    resolve_function_shadow_view_v0(view)
 }
 
 pub(in crate::mir::resolved_semantics) fn resolve_function_shadow_view_v0(
-    function_origin: FunctionOriginV1,
     view: FunctionSyntaxViewV1<'_>,
 ) -> Result<ShadowResolvedFunctionV0, ShadowResolveErrorV0> {
     resolve_shadow_view(
-        function_origin,
         view,
         ShadowLambdaModeV0::Reject,
         BTreeSet::new(),
@@ -94,12 +92,10 @@ pub(in crate::mir::resolved_semantics) fn resolve_function_shadow_view_v0(
 }
 
 pub(in crate::mir::resolved_semantics) fn resolve_owner_shadow_view_v0<'ast>(
-    function_origin: FunctionOriginV1,
     view: FunctionSyntaxViewV1<'ast>,
     ancestor_names: BTreeSet<Box<str>>,
 ) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
     resolve_shadow_view(
-        function_origin,
         view,
         ShadowLambdaModeV0::Inventory,
         ancestor_names,
@@ -108,7 +104,6 @@ pub(in crate::mir::resolved_semantics) fn resolve_owner_shadow_view_v0<'ast>(
 }
 
 fn resolve_shadow_view<'ast>(
-    function_origin: FunctionOriginV1,
     view: FunctionSyntaxViewV1<'ast>,
     lambda_mode: ShadowLambdaModeV0,
     ancestor_names: BTreeSet<Box<str>>,
@@ -123,7 +118,7 @@ fn resolve_shadow_view<'ast>(
         BTreeSet::new(),
         method_call_observation_mode,
     )
-    .map(|resolver| resolver.finish_owner(function_origin, root_profile))
+    .map(|resolver| resolver.finish_owner(root_profile))
 }
 
 /// Reuses the one shadow lexical traversal for exact qualified receivers.
@@ -270,12 +265,10 @@ impl<'ast> ShadowResolverV0<'ast> {
 
     fn finish_owner(
         self,
-        function_origin: FunctionOriginV1,
         root_profile: super::super::SemanticOwnerRootProfileV1,
     ) -> ShadowResolvedOwnerV0<'ast> {
         ShadowResolvedOwnerV0 {
             function: ShadowResolvedFunctionV0 {
-                function_origin,
                 root_profile,
                 function_scope: self.function_scope,
                 function_region: self.function_region,

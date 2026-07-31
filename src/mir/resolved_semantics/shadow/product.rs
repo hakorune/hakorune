@@ -4,8 +4,7 @@ use std::collections::BTreeMap;
 
 use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 use crate::mir::resolved_semantics::source_site::{
-    FunctionOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
-    SourceStmtSiteV1,
+    ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourceStmtSiteV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -199,7 +198,6 @@ pub(crate) enum ShadowResolveErrorV0 {
 
 #[derive(Debug, Clone)]
 pub(crate) struct ShadowResolvedFunctionV0 {
-    pub(crate) function_origin: FunctionOriginV1,
     pub(crate) root_profile: super::super::SemanticOwnerRootProfileV1,
     pub(crate) function_scope: ShadowScopeIdV0,
     pub(crate) function_region: ShadowRegionIdV0,

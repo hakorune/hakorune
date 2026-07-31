@@ -77,9 +77,9 @@ impl FunctionSemanticResolverSessionV1 {
         view: FunctionSyntaxViewV1<'_>,
     ) -> Result<Arc<VerifiedResolvedFunctionV1>, ResolveFunctionErrorV1> {
         let (origin, owner) = self.issue_owner()?;
-        let draft = resolve_function_shadow_view_v0(origin, view)
+        let draft = resolve_function_shadow_view_v0(view)
             .map_err(ResolveFunctionErrorV1::Syntax)?;
-        self.seal_owner(owner, draft).map(Arc::new)
+        self.seal_owner(owner, origin, draft).map(Arc::new)
     }
 
     pub(super) fn issue_owner(
@@ -100,48 +100,53 @@ impl FunctionSemanticResolverSessionV1 {
     pub(super) fn seal_owner(
         &mut self,
         owner: super::FunctionOwnerIdV1,
+        origin: FunctionOriginV1,
         draft: ShadowResolvedFunctionV0,
     ) -> Result<VerifiedResolvedFunctionV1, ResolveFunctionErrorV1> {
-        self.seal_owner_with_maps(owner, draft)
+        self.seal_owner_with_maps(owner, origin, draft)
             .map(|sealed| sealed.product)
     }
 
     pub(super) fn seal_owner_with_maps(
         &mut self,
         owner: super::FunctionOwnerIdV1,
+        origin: FunctionOriginV1,
         draft: ShadowResolvedFunctionV0,
     ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
-        self.seal_owner_with_ancestors(owner, draft, &BTreeMap::new())
+        self.seal_owner_with_ancestors(owner, origin, draft, &BTreeMap::new())
     }
 
     pub(super) fn seal_owner_with_ancestors(
         &mut self,
         owner: super::FunctionOwnerIdV1,
+        origin: FunctionOriginV1,
         draft: ShadowResolvedFunctionV0,
         ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
     ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
-        let canonical = canonicalize_draft(owner, draft, ancestors, None)?;
+        let canonical = canonicalize_draft(owner, origin, draft, ancestors, None)?;
         self.seal_canonical_owner(canonical)
     }
 
     pub(super) fn seal_owner_with_ancestors_and_callable_index(
         &mut self,
         owner: super::FunctionOwnerIdV1,
+        origin: FunctionOriginV1,
         draft: ShadowResolvedFunctionV0,
         ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
         callable_index: &VerifiedCallableIndexV1,
     ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
-        let canonical = canonicalize_draft(owner, draft, ancestors, Some(callable_index))?;
+        let canonical = canonicalize_draft(owner, origin, draft, ancestors, Some(callable_index))?;
         self.seal_canonical_owner(canonical)
     }
 
     pub(super) fn seal_owner_with_callable_index(
         &mut self,
         owner: super::FunctionOwnerIdV1,
+        origin: FunctionOriginV1,
         draft: ShadowResolvedFunctionV0,
         callable_index: &VerifiedCallableIndexV1,
     ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
-        let canonical = canonicalize_draft(owner, draft, &BTreeMap::new(), Some(callable_index))?;
+        let canonical = canonicalize_draft(owner, origin, draft, &BTreeMap::new(), Some(callable_index))?;
         self.seal_canonical_owner(canonical)
     }
 
@@ -164,6 +169,7 @@ impl FunctionSemanticResolverSessionV1 {
 
 fn canonicalize_draft(
     owner: super::FunctionOwnerIdV1,
+    function_origin: FunctionOriginV1,
     draft: ShadowResolvedFunctionV0,
     ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
     callable_index: Option<&VerifiedCallableIndexV1>,
@@ -209,7 +215,7 @@ fn canonicalize_draft(
         .map(|(id, record)| {
             let scope = scope_ids[id];
             let origin = if *id == draft.function_scope {
-                ScopeOriginV1::Function(draft.function_origin)
+                ScopeOriginV1::Function(function_origin)
             } else {
                 ScopeOriginV1::Source(record.origin.clone().ok_or(
                     ResolveFunctionErrorV1::DraftInvariant(
@@ -240,7 +246,7 @@ fn canonicalize_draft(
         .iter()
         .map(|(id, record)| {
             let origin = if *id == draft.function_region {
-                RegionOriginV1::Function(draft.function_origin)
+                RegionOriginV1::Function(function_origin)
             } else {
                 RegionOriginV1::Source(record.origin.clone().ok_or(
                     ResolveFunctionErrorV1::DraftInvariant(
@@ -370,7 +376,7 @@ fn canonicalize_draft(
 
     let data = ResolvedFunctionDataV1 {
         owner,
-        function_origin: draft.function_origin,
+        function_origin,
         root_profile: draft.root_profile,
         function_scope: scope_ids[&draft.function_scope],
         function_region: region_ids[&draft.function_region],
