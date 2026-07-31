@@ -3613,6 +3613,46 @@ Hard stops:
   owner/variant, or any touched source/check file >=800.
 ```
 
+## RAW-SCRIPT-AWAIT-LEXICAL-CLOSURE0-D0 — accepted
+
+```text
+Decision:
+  Candidate A — Await(E) over the existing Script lexical closure
+
+Ceremony:
+  T2, one atomic I0/R0 commit
+
+Change:
+  Admit Await recursively when E is Literal, prior-root Local-backed
+  Variable, ordinary Unary, ordinary Binary(op != And/Or), Print(E), or
+  another safe Await. Print(Await(E)) composes through the same closure.
+
+Source contract:
+  ProgramBody(original ordinal) -> AwaitOperand recursively, preserving
+  BinaryLeft/Right, UnaryOperand, and PrintValue prefixes. Await ordinals
+  join expression_source_indices; the work plan is not rebuilt.
+
+Lowering:
+  Reuse build_await_expression_with_port_v1 through the same RawInvocation
+  port and ledger. Preserve operand -> Safepoint -> Await -> type propagation
+  -> Safepoint exactly; no Future/ABI/type policy or Nowait activation.
+
+Atomic delete:
+  Safe Await no longer selects Deferred
+  RawInvocationSourceTransportV1::script_root(()). Call/Object/Field/New/
+  Array/Check/Weak/AndOr/Nowait/control/Box/Lambda, raw, and reference
+  routes retain their existing ownership.
+
+Fixtures:
+  await 1, local f = 1; await f, await -(1+2), print(await 1), unsafe
+  operand rejection/reuse, and normal/legacy MIR+verification parity.
+
+Hard stops:
+  safepoint order change, Future/ABI inference, mixed routing, child retry,
+  second resolver, name fallback, new Await owner/variant, work-plan edits,
+  or any touched source/check file >=800.
+```
+
 ## SEMANTIC-OWNER-SCRIPT-PORT0-S3 — closed, NoStandaloneRow
 
 ```text
@@ -6103,7 +6143,8 @@ R2ap RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-I0-R0 closed at c1c7852b76
 R2aq MIRBUILDER-LIVE-EDGE-CENSUS45-D0 closed
 R2ar RAW-SCRIPT-BINARY-LEXICAL-CLOSURE0-D0 accepted design stop
 R2as RAW-SCRIPT-BINARY-LEXICAL-CLOSURE0-I0-R0 closed at b562263854
-R2at MIRBUILDER-LIVE-EDGE-CENSUS46-D0 current narrow design stop
+R2at MIRBUILDER-LIVE-EDGE-CENSUS46-D0 closed
+R2au RAW-SCRIPT-AWAIT-LEXICAL-CLOSURE0-D0 current design stop
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
