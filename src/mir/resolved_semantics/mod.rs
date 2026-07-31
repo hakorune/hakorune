@@ -98,7 +98,7 @@ pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;
 pub use owner_source_kind::SemanticOwnerSourceKindV1;
 pub use product::VerifiedResolvedFunctionV1;
 pub(crate) use product::{
-    ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1, ResolvedScriptLiteralDraftV1,
+    ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1, ResolvedScriptSemanticDraftV1,
     VerifiedResolvedOwnerCoreV1, VerifiedResolvedScriptV1,
 };
 pub use records::{

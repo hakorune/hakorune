@@ -12,13 +12,13 @@ use super::loop_region::ResolvedLoopRegionIndexV1;
 use super::normalized::{build_normalized_graph, NormalizedResolvedFunctionGraphV1};
 use super::owner_root_profile::SemanticOwnerRootProfileV1;
 use super::records::{
-    RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1, ResolvedBindingRecordV1,
-    ResolvedExitRecordV1, ResolvedLexicalRefV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1,
-    ScopeKindV1, ScopeOriginV1,
+    BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
+    ResolvedBindingRecordV1, ResolvedExitRecordV1, ResolvedLexicalRefV1, ResolvedRegionRecordV1,
+    ResolvedScopeRecordV1, ScopeKindV1, ScopeOriginV1,
 };
 use super::source_site::{
     FunctionOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
-    SourcePathSegmentV1, SourcePathV1,
+    SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
 };
 use super::verifier::{verify_resolved_function, ResolvedFunctionVerificationErrorV1};
 
@@ -116,17 +116,16 @@ impl ResolvedFunctionDraftV1 {
     }
 }
 
-/// Construction-local Script producer for the first Complete closure.
+/// Construction-local Script producer for the admitted lexical closure.
 ///
-/// It owns no AST and publishes only the exact zero-fact root/body arena for
-/// an already admitted empty/literal runtime window. Lexical, control, call,
-/// and nested-owner demands must not enter this product.
+/// It owns no AST and publishes only BindingRef/source-site facts. Runtime
+/// values remain in the selected invocation's request-local ledger.
 #[derive(Debug)]
-pub(crate) struct ResolvedScriptLiteralDraftV1 {
+pub(crate) struct ResolvedScriptSemanticDraftV1 {
     data: ResolvedFunctionDataV1,
 }
 
-impl ResolvedScriptLiteralDraftV1 {
+impl ResolvedScriptSemanticDraftV1 {
     pub(crate) fn new(owner: FunctionOwnerIdV1) -> Self {
         let function_origin = FunctionOriginV1::new(0, owner.slot());
         let function_scope = ScopeId::new(owner, 0);
@@ -192,6 +191,55 @@ impl ResolvedScriptLiteralDraftV1 {
                 resolved_exits: BTreeMap::new(),
             },
         }
+    }
+
+    pub(crate) fn declare_local(
+        &mut self,
+        statement: SourceStmtSiteV1,
+        name: impl Into<Box<str>>,
+    ) -> BindingRefV1 {
+        let binding_id = BindingId::new(self.data.bindings.len() as u32);
+        let binding = BindingRefV1::new(self.data.owner, binding_id);
+        let body_scope = ScopeId::new(self.data.owner, 1);
+        let record = ResolvedBindingRecordV1::new(
+            name,
+            super::records::BindingKindV1::Local { ordinal: 0 },
+            body_scope,
+            BindingOriginV1::Source(SourceBindingSiteV1::Local {
+                statement: statement.clone(),
+                ordinal: 0,
+            }),
+        );
+        self.data.bindings.insert(binding_id, record);
+        self.data.declarations.insert(
+            SourceBindingSiteV1::Local {
+                statement: statement.clone(),
+                ordinal: 0,
+            },
+            binding,
+        );
+        let body = self
+            .data
+            .scopes
+            .get(&body_scope)
+            .expect("Script body scope");
+        let mut declarations = body.declarations().to_vec();
+        declarations.push(binding);
+        let replacement = ResolvedScopeRecordV1::new(
+            body.kind(),
+            body.parent(),
+            body.owner_region(),
+            declarations,
+            body.origin().clone(),
+        );
+        self.data.scopes.insert(body_scope, replacement);
+        binding
+    }
+
+    pub(crate) fn record_variable(&mut self, site: SourceExprSiteV1, binding: BindingRefV1) {
+        self.data
+            .variable_uses
+            .insert(site, ResolvedLexicalRefV1::Local(binding));
     }
 
     pub(crate) fn seal(
@@ -446,7 +494,7 @@ mod script_product_tests {
     fn literal_script_draft_seals_a_program_body_root() {
         let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
         let owner = issuer.issue().unwrap();
-        let product = ResolvedScriptLiteralDraftV1::new(owner)
+        let product = ResolvedScriptSemanticDraftV1::new(owner)
             .seal()
             .expect("literal Script root must seal");
 

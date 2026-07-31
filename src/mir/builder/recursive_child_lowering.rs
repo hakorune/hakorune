@@ -2,7 +2,8 @@
 //! This module owns the typed body, statement, and expression entry boundary.
 //! It owns no source navigation, callable-result plan, location, ledger,
 //! MethodCall route, or result-publication policy.
-
+use std::cell::RefCell;
+use std::rc::Rc;
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::{MirBuilder, ValueId};
@@ -23,6 +24,7 @@ use super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1,
     RawInvocationSourceTransportV1, RawSourceTransportPortV1, RawUnlocatedPortalV1,
 };
+use super::normal_script_lexical_binding::ScriptSemanticLoweringState;
 use super::raw_loop_child_entry::PreparedLocatedRawLoopChildEntryV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 pub(in crate::mir::builder) use super::raw_expression_recursion_guard::
@@ -226,6 +228,7 @@ impl MeCallHeaderObservationPortV1 for RawLegacyChildLoweringPortV1 {
 pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     module_port: &'port mut ModuleLoweringPortV1<'collector>,
     pub(super) active_source: Option<RawInvocationSourceContextV1>,
+    pub(super) semantic_ledger: Option<Rc<RefCell<ScriptSemanticLoweringState>>>,
     _seal: RawInvocationChildPortSealV1,
 }
 
@@ -239,6 +242,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         Self {
             module_port,
             active_source: None,
+            semantic_ledger: None,
             _seal: RawInvocationChildPortSealV1,
         }
     }
@@ -251,6 +255,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         RawInvocationChildPortV1 {
             module_port: &mut *self.module_port,
             active_source: self.active_source.clone(),
+            semantic_ledger: self.semantic_ledger.clone(),
             _seal: RawInvocationChildPortSealV1,
         }
     }

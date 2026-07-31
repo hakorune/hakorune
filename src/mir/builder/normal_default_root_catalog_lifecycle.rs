@@ -11,6 +11,7 @@ use super::program_root_work_plan::{
     PreparedProgramRootWorkPlanV1, ProgramRootWorkPlanAdmissionV1,
 };
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
+use super::normal_script_lexical_binding::ScriptLexicalAdmissionV1;
 use super::program_root_lowering::NormalScriptRootLoweringMode;
 use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
 use super::{
@@ -183,7 +184,9 @@ impl ModuleBuilderInvocationSessionV1 {
                     ProgramRootWorkPlanAdmissionV1::SelectedNormal,
                 );
                 let work = work.into_parts();
-                let script_source = if work.runtime.is_literal_only() {
+                let script_source = if let ScriptLexicalAdmissionV1::Complete(admission) =
+                    work.runtime.lexical_admission()
+                {
                     let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().map_err(|error| {
                         NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
                             format!("[mir/script-semantic/owner] {error:?}").into(),
@@ -197,7 +200,7 @@ impl ModuleBuilderInvocationSessionV1 {
                     Some(VerifiedScriptSemanticSourceV1::seal(
                         &source,
                         owner,
-                        work.runtime.literal_source_indices(),
+                        ScriptLexicalAdmissionV1::Complete(admission),
                     ).map_err(|error| {
                         NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(error.into())
                     })?)

@@ -3,6 +3,9 @@
 #[cfg(test)]
 use super::normal_script_program_item_admission::classify_normal_script_program_item_v1;
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
+use super::normal_script_lexical_binding::{
+    admit_runtime_script_lexical_v1, ScriptLexicalAdmissionV1,
+};
 use super::normal_script_runtime_block_port::NormalScriptRuntimeBlockPortV1;
 use super::program_root_work_plan::PreparedProgramRootRuntimeWorkV1;
 use crate::ast::ASTNode;
@@ -158,6 +161,10 @@ impl PreparedNormalScriptRuntimeWorkV1 {
             })
             .collect()
     }
+
+    pub(super) fn lexical_admission(&self) -> ScriptLexicalAdmissionV1 {
+        admit_runtime_script_lexical_v1(&self.statements, &self.admissions)
+    }
     pub(super) fn lower_with_port_v1<Port>(
         self,
         builder: &mut MirBuilder,
@@ -205,6 +212,15 @@ impl PreparedNormalScriptRuntimeWorkV1 {
 }
 
 impl PreparedProgramRootRuntimeWorkV1 {
+    pub(super) fn lexical_admission(&self) -> ScriptLexicalAdmissionV1 {
+        match self {
+            Self::SelectedNormal(work) => work.lexical_admission(),
+            Self::RawCompatibility(_) => ScriptLexicalAdmissionV1::Deferred(
+                super::normal_script_lexical_binding::ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement,
+            ),
+        }
+    }
+
     pub(super) fn is_literal_only(&self) -> bool {
         match self {
             Self::SelectedNormal(work) => work.is_literal_only(),

@@ -5,6 +5,9 @@
 //! `SourcePathV1` node.  An unlocated row names one finite migration portal;
 //! it is an execute-once compatibility state, never a retry route.
 
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use crate::ast::ASTNode;
 use crate::mir::builder::stmts::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
 use crate::mir::builder::MirBuilder;
@@ -22,6 +25,7 @@ use super::recursive_child_lowering::{
     lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
     RecursiveChildLoweringPortV1,
 };
+use super::stmts::{drive_local_statement_v1, RawLegacyLocalInputV1};
 use super::{CanonicalSameModuleCallableKeyV1, RawSourceLocatorV1};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -138,6 +142,30 @@ impl<T> RawInvocationSourceTransportV1<T> {
 }
 
 impl RawInvocationChildPortV1<'_, '_> {
+    fn lower_script_local_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: ASTNode,
+    ) -> Result<Option<ValueId>, String> {
+        let Some(ledger) = self.semantic_ledger.clone() else {
+            return Ok(None);
+        };
+        if !matches!(&input, ASTNode::Local { .. }) {
+            return Ok(None);
+        }
+        let site = self
+            .current_source_context_v1()
+            .and_then(|context| context.site().cloned())
+            .ok_or_else(|| "[freeze:contract][script-lexical/local-site]".to_owned())?;
+        let binding = ledger
+            .borrow()
+            .local_binding(&site)
+            .ok_or_else(|| "[freeze:contract][script-lexical/local-binding]".to_owned())?;
+        let value = drive_local_statement_v1(builder, self, RawLegacyLocalInputV1::new(input))?;
+        ledger.borrow_mut().record(binding, value)?;
+        Ok(Some(value))
+    }
+
     pub(in crate::mir::builder) fn with_script_semantic_source_v1<R>(
         &mut self,
         source: &VerifiedScriptSemanticSourceV1<'_>,
@@ -150,21 +178,23 @@ impl RawInvocationChildPortV1<'_, '_> {
             .projection()
             .owner_root(source.source().source_ast(), *root)
             .is_err()
-            || source
-                .literal_source_indices()
-                .iter()
-                .any(|index| !matches!(
+            || source.runtime_source_indices().iter().any(|index| {
+                !matches!(
                     source.source().source_ast(),
-                    ASTNode::Program { statements, .. }
-                        if matches!(statements.get(*index), Some(ASTNode::Literal { .. }))
-                ))
+                    ASTNode::Program { statements, .. } if statements.get(*index).is_some()
+                )
+            })
         {
             return Err("[freeze:contract][mir/script-semantic/source-proof]".to_owned());
         }
-        Ok(self.with_source_transport_v1(
+        let state = Rc::new(RefCell::new(source.lowering_state()));
+        let parent = std::mem::replace(&mut self.semantic_ledger, Some(state));
+        let result = self.with_source_transport_v1(
             RawInvocationSourceTransportV1::script_semantic_root(()),
             |port, ()| execute(port),
-        ))
+        );
+        self.semantic_ledger = parent;
+        Ok(result)
     }
 }
 
@@ -511,6 +541,9 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
                 "[freeze:contract][raw-invocation/missing-statement-source-receipt]".to_owned(),
             );
         }
+        if let Some(value) = self.lower_script_local_v1(builder, input.clone())? {
+            return Ok(value);
+        }
         super::stmts::block_stmt::build_statement_with_port_v1(builder, self, input)
     }
 
@@ -523,6 +556,23 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
             return Err(
                 "[freeze:contract][raw-invocation/missing-expression-source-receipt]".to_owned(),
             );
+        }
+        if let Some(value) = self.lower_script_local_v1(builder, input.clone())? {
+            return Ok(value);
+        }
+        if let (Some(ledger), ASTNode::Variable { .. }) = (&self.semantic_ledger, &input) {
+            let site = self
+                .current_source_context_v1()
+                .and_then(|context| context.site().cloned())
+                .ok_or_else(|| "[freeze:contract][script-lexical/variable-site]".to_owned())?;
+            let binding = ledger
+                .borrow()
+                .variable_binding(&site)
+                .ok_or_else(|| "[freeze:contract][script-lexical/variable-binding]".to_owned())?;
+            return ledger
+                .borrow()
+                .value(binding)
+                .ok_or_else(|| "[freeze:contract][script-lexical/variable-value]".to_owned());
         }
         lower_raw_expression_with_recursion_guard_v1(builder, self, input)
     }
