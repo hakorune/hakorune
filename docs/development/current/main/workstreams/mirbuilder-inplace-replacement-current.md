@@ -265,11 +265,11 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-POST-BLOCKEXPR-CLOSURE-CAPABILITY-CENSUS1-D0
+  RAW-SCRIPT-POST-WEAK-REFERENCE-CAPABILITY-CENSUS0-D0
 
   Change:
-    Census remaining selected Script Deferred edges once after the
-    CompositionalBlockExpr0 NoSafeSlice.
+    Census remaining selected Script Deferred edges once after Weak Unary has
+    left compatibility.
 
   Contract:
     Choose at most one responsibility family with a named live old edge. Keep
@@ -295,6 +295,17 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-WEAK-REFERENCE-COMPOSITIONAL-DESCENT0-I0-R0
+  -> selected Script Weak Unary now enters the existing unary child-source
+     handoff and existing WeakRef emission owner. WeakRef type publication and
+     pure-mode behavior remain there; an unsupported operand stays Deferred.
+     The selected Weak `Deferred -> bare script_root()` edge is zero.
+
+  RAW-SCRIPT-POST-BLOCKEXPR-CLOSURE-CAPABILITY-CENSUS1-D0
+  -> Accepts Weak Unary only. The existing UnaryOperand receipt and WeakRef
+     emission owner provide a complete source/operation boundary. ScopeBox and
+     Using were already closed; broad BlockExpr remains NoSafeSlice.
+
   RAW-SCRIPT-POST-ARRAY-LITERAL-CAPABILITY-CENSUS0-D0
   -> BlockExpr has exact source receipts and a shared lexical traversal, but
      its proposed outer-Variable closure cannot preserve production parity:

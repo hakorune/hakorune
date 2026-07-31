@@ -353,3 +353,6 @@ mod return_tests;
 #[cfg(test)]
 #[path = "normal_script_semantic_source_tests.rs"]
 mod tests;
+#[cfg(test)]
+#[path = "normal_script_weak_reference_tests.rs"]
+mod weak_reference_tests;

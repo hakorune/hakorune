@@ -4,7 +4,7 @@
 //! profile. A rejected responsibility must be reported before any child is
 //! traversed so RootLower remains the user-diagnostic authority.
 
-use crate::ast::{ASTNode, UnaryOperator};
+use crate::ast::ASTNode;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum ShadowTraversalProfileV1 {
@@ -46,7 +46,7 @@ impl ShadowTraversalProfileV1 {
             Self::FullFunctionV1 => true,
             Self::ScriptLexicalCoreV1 => match expression {
                 ASTNode::Literal { .. } | ASTNode::Variable { .. } => true,
-                ASTNode::UnaryOp { operator, .. } => *operator != UnaryOperator::Weak,
+                ASTNode::UnaryOp { .. } => true,
                 ASTNode::BinaryOp { .. }
                 | ASTNode::AwaitExpression { .. }
                 | ASTNode::CheckExpr { .. }
