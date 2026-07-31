@@ -3827,29 +3827,67 @@ Hard stops:
   activation, or a new source/check file over 800 lines.
 ```
 
-## RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0 — current design stop
+## RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0 — closed, Candidate A-prime
 
 ```text
 Decision:
-  design consultation required; no I0/R0 is authorized yet
+  Candidate A-prime accepted
+
+Selected family:
+  StaticConstTable + DirectStaticConstRuntimeCompletion
 
 Reason:
-  Census49 found no remaining T1 lexical family whose existing lowering owner
-  also supplies the Script semantic source/coverage product. Collector drain
-  and the Deferred sunset/ratchet are already landed and are not reopened.
-
-Required decision:
-  choose exactly one next semantic family and its named production consumer,
-  or explicitly define the final-pipeline contract for retaining Deferred.
+  StaticConst is a zero-child transfer boundary. Its metadata and runtime
+  completion owners already exist, so the Script semantic product needs only
+  exact ProgramBody source coverage. It does not need control, call/object,
+  allocation, capture, Binding, or ABI authority.
 
 Consultation:
   docs/development/current/main/investigations/
     raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md
 
+Worker corrections:
+  locate StaticConst through a dedicated zero-child source predicate;
+  source/admission mismatch is a typed ScriptSemanticSeal invariant rejection;
+  table type/value diagnostics remain RootLower; the existing manifest ratchet
+  must be consumed by the shared guard rather than stored as inert JSON.
+
+Next:
+  RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0
+  docs/development/current/main/investigations/
+    raw-script-static-const-semantic-closure0-i0-r0-execution-task-2026-08-01.md
+```
+
+## RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0 — current executable row
+
+```text
+Ceremony:
+  T2, one atomic I0/R0 commit
+
+Atomic replacement:
+  exact StaticConst/admission pair
+  -> UnsafeRuntimeStatement -> Deferred -> script_root(())
+  becomes
+  -> typed zero-child completion receipt
+  -> VerifiedScriptSemanticSourceV1
+  -> script_semantic_root
+
+Required:
+  one admission traversal; exact original Program ordinal; one RootLower;
+  dedicated located source context; existing metadata/runtime owners;
+  invalid table diagnostics remain RootLower; whole-request Deferred for any
+  unsupported sibling; no Complete-to-Deferred downgrade; fallback/retry 0.
+
+Evidence:
+  exact-pair and mismatch tests; original-ordinal coverage; parser-backed
+  positive source; MIR plus static metadata parity; invalid-table precedence;
+  failure discard/fresh reuse; mixed-request Deferred; consumed identity
+  ratchet. No corpus or benchmark harness is run.
+
 Hard stops:
-  broad Script closure, second resolver/forest, partial forest, synthetic
-  FunctionDeclaration, mixed routing, fallback/retry, semantic diagnostic
-  reordering, or combining Control/Call/Object/Box/Lambda in one row.
+  Control/Call/Object/Allocation/Weak/Lambda/Box; table semantics copied into
+  semantic source; partial request routing; second resolver/forest; new
+  source/test/check file; inert manifest key; any source/check file >= 800.
 ```
 
 ## SEMANTIC-OWNER-SCRIPT-PORT0-S3 — closed, NoStandaloneRow
@@ -6352,7 +6390,8 @@ R2az MIRBUILDER-LIVE-EDGE-CENSUS48-D0 closed
 R2ba RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-D0 accepted design stop
 R2bb RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-I0-R0 closed at 1f17bc93d1
 R2bc MIRBUILDER-LIVE-EDGE-CENSUS49-D0 closed: NoSafeSlice
-R2bd RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0 current design stop
+R2bd RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0 closed: Candidate A-prime
+R2be RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0 current executable row
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed

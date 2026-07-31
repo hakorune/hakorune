@@ -1,15 +1,16 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0, RAW-SCRIPT-LEXICAL-BINDING0-I0-R0, MIRBUILDER-LIVE-EDGE-CENSUS43-D0, RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-I0-R0, MIRBUILDER-LIVE-EDGE-CENSUS44-D0, RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-I0-R0, MIRBUILDER-LIVE-EDGE-CENSUS45-D0, RAW-SCRIPT-BINARY-LEXICAL-CLOSURE0-I0-R0, MIRBUILDER-LIVE-EDGE-CENSUS46-D0, RAW-SCRIPT-AWAIT-LEXICAL-CLOSURE0-I0-R0, MIRBUILDER-LIVE-EDGE-CENSUS47-D0, RAW-SCRIPT-CHECK-LEXICAL-CLOSURE0-I0-R0, MIRBUILDER-LIVE-EDGE-CENSUS48-D0, RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-I0-R0, MIRBUILDER-LIVE-EDGE-CENSUS49-D0 are closed. The current design stop is RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0; remaining control, calls/objects, Box, Weak, and Lambda stay Deferred until a single semantic family is selected."
-date = "2026-07-31"
+status = "RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0 is closed with Candidate A-prime. The current executable row is RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0: move only the exact StaticConstTable / DirectStaticConstRuntimeCompletion zero-child boundary from Deferred to the existing Script Complete route. Control, calls/objects, Box, Weak, and Lambda remain Deferred."
+date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0"
-current_execution_row = "RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0"
-current_execution_summary = "Census49 is closed NoSafeSlice: QMark/Match/Enum/TryCatch/If/Loop cross control/exit/cleanup, Call/Field/New/Array/Map/Record cross object/header/allocation, Weak needs BoxRef/type authority, Lambda needs forest/capture, and Box needs catalog/lifecycle. Collector drain and Deferred sunset/ratchet already exist and are not reopened. This design stop must select exactly one next semantic family and its real consumer before any I0/R0."
+current_design_stop = "none"
+current_execution_row = "RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0"
+current_execution_summary = "Candidate A-prime is accepted. Extend the one existing Script admission traversal with the exact StaticConstTable / DirectStaticConstRuntimeCompletion pair, seal its original ProgramBody ordinal as a zero-child transfer receipt, locate that source in the raw transport, and keep StaticConst type/value diagnostics in RootLower. Source/admission mismatch is a typed ScriptSemanticSeal invariant rejection; Complete never downgrades to Deferred."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
+current_static_const_semantic_closure_task = "docs/development/current/main/investigations/raw-script-static-const-semantic-closure0-i0-r0-execution-task-2026-08-01.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -443,7 +444,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """MIRBUILDER-LIVE-EDGE-CENSUS49-D0 is closed NoSafeSlice. The current design stop is RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0: choose one semantic family with a real production consumer, integrate the existing Deferred sunset/ratchet, and do not preselect a broad closure."""
+latest_card_summary = """RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0 is closed with Candidate A-prime. RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0 is executable: move only the existing zero-child StaticConst runtime-completion boundary to Script Complete, with exact ProgramBody source transport, typed invariant rejection, and a consumed fixture-identity ratchet."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -646,7 +647,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0"
+current_blocker_token = "RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
