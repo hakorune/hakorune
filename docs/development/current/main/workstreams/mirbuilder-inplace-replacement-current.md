@@ -31,51 +31,53 @@ Legacy fallback/retry、完成Program形ごとのvariant列挙は作らない。
 active lane:
   MirBuilder in-place replacement
 
-current design stop:
-  RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0
+current execution:
+  SEMANTIC-SHADOW-ROOT-NEUTRAL-ENTRY0-S0
 
 latest structural finding:
   normal_script_lexical_binding::admit_expression_v1 is becoming a second
   lexical resolver beside resolved_semantics/shadow/**.
 
-next authority:
-  external design consultation only; no further AST-family cutover is selected
+accepted series:
+  dense Function/Lambda root-neutral core -> sparse selected-Script cutover
 
 latest production closeout:
   RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0 / 106e5cbe5b
 
-latest docs boundary:
-  root-neutral shadow traversal consultation / 3aad4871ea
+consultation decision:
+  RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0 / Accept-corrected
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
 diffs and proof transcripts; this card keeps only the live boundary, active
 fences, compact queue, and short landed tail.
 
-## RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0
+## Root-neutral shadow traversal Refactor Series
 
 Consultation:
 `docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md`
 
 ```text
-Change:
-  design one private root-neutral semantic traversal over the Script runtime
-  demand window and original ProgramBody ordinals. The first production
-  cutover must delete admit_expression_v1 and the manual Script Local/Variable
-  fact construction in the same implementation series.
+Decision:
+  Accept-corrected. One private root-neutral traversal becomes the sole
+  Function/Lambda and selected-Script lexical shadow authority. S0 is a live
+  behavior-neutral refactor of existing explicit canonical Function/Lambda
+  consumers; T2 is the selected Script production cutover.
 
 Contract:
-  Function/Lambda public views remain narrow. Function/Lambda and Script share
-  one semantic-owner core, one forest, and one projection authority. A request
-  selects Complete or Deferred before lowering and executes RootLower exactly
-  once. Existing diagnostic order, source identity, candidate isolation, and
-  raw/reference behavior remain unchanged.
+  FunctionSyntaxViewV1 and FunctionSourceViewV1 remain Function/Lambda-only.
+  Dense roots preserve all current controls: lambda inventory/reject, ancestor
+  bindings, qualified-receiver requests, and method-call observation. Sparse
+  Script roots borrow Program by original ordinal, select Complete/Deferred
+  once, issue owner/forest/projection only after Complete, and lower once.
 
-Done:
-  the accepted answer identifies the neutral demand-window input, exact
-  source/transfer coverage, issuer stage, root-profile canonicalization,
-  failure mapping, first atomic production slice, and old edges deleted.
-  Existing Complete fixture identities remain a mechanically anchored subset.
+Series boundary:
+  S0 extracts a Dense ShadowRootTraversalInputV1 and an identity-free shadow
+  draft, while final canonicalization remains (owner, origin, draft). T2 adds
+  SparseScript plus typed Resolved/Transferred/Diagnostic/Transparent demand
+  boundaries. StaticConst and selected unsupported are root-iterator
+  boundaries; their children are never traversed. Responsibility gates run
+  before child descent.
 
 Stop:
   no synthetic FunctionDeclaration; no FunctionSourceViewV1 or
@@ -85,9 +87,74 @@ Stop:
   no new per-row guard; every touched source/check file stays below 800 lines.
 ```
 
-While this stop is open, do not select `UsingStatement` or another isolated
-AST constructor. Using is locally movable but would formalize a generic
-`emit_void` compatibility no-op while the competing resolver remains.
+### SEMANTIC-SHADOW-ROOT-NEUTRAL-ENTRY0-S0
+
+```text
+Change:
+  Replace the FunctionSyntaxViewV1-only traverse_shadow_view entry with a
+  private Dense ShadowRootTraversalInputV1 and traverse_shadow_root_v1. Split
+  origin-free shadow facts from final canonicalization; all existing Function
+  and Lambda routes consume the same dense adapter.
+
+Contract:
+  Existing explicit canonical Function/Lambda production APIs are the real S0
+  consumers. Function/Lambda graph, diagnostics, lambda topology, qualified
+  receiver, and method-call observations are byte/graph equivalent. No Script
+  production consumer or builder demand window is added in S0.
+
+Done:
+  FunctionSyntaxView-only direct traversal entry = 0; Function and Lambda each
+  reach root-neutral traversal once; observer entries retain the same controls;
+  dense resolver/forest/normalized fixtures remain equivalent.
+
+Stop:
+  stop if dense extraction needs a public view change, loses an observer
+  control, changes Function/Lambda canonicalization, or cannot keep every
+  source/check file under 800 lines. Do not add SparseScript in S0.
+```
+
+### RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0
+
+```text
+Change:
+  Seal one sparse Program demand window from the existing work-plan partition;
+  borrow ScriptSyntaxViewV1 by exact ProgramBody(original ordinal); run the
+  same root-neutral core under ScriptLexicalCoreV1; select Complete/Deferred
+  before CatalogInstall; and delete the full manual Script resolver chain.
+
+Contract:
+  Demand-window coverage includes every Program item, including transferred
+  top-level callable and runtime-bearing Box boundaries. Complete retains the
+  existing ten fixture identities; Deferred owns no ID/forest/projection and
+  executes ExistingRootLower once. Shadow source errors only select Deferred;
+  RootLower still owns user diagnostics and first-error order.
+
+Done:
+  semantic_closure_admission -> admit_runtime_script_lexical_v1 ->
+  admit_expression_v1 -> manual facts -> ResolvedScriptSemanticDraftV1 = 0.
+  The replacement uses one core, one forest, one Program projection, no retry,
+  and Complete no longer reaches bare script_root(()).
+
+Stop:
+  no partial request routing, Script-only match tree/visible map, compact-index
+  source recovery, fabricated Script origin, Complete-to-Deferred downgrade,
+  raw/reference change, control/call/Lambda/Box activation, or source/check
+  file >=800.
+```
+
+### Mandatory S0 preparation
+
+```text
+before T2:
+  extract normal_script_semantic_source tests into its existing sibling module
+  (794-line source has no room)
+  move the two hardcoded ratchet checks into a reusable shared-guard helper
+  and make all ten Complete IDs plus Deferred floors map to path + test anchor
+  keep program_root_work_plan.rs unchanged at 799; the sparse window is a
+  sibling product wired through its existing seam
+  retain only BindingRef -> ValueId ledger in normal_script_semantic_lowering_state
+  delete normal_script_lexical_binding.rs in T2
+```
 
 ## Production invariants
 
