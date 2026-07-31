@@ -3473,6 +3473,38 @@ Next:
   intact.
 ```
 
+## SEMANTIC-OWNER-FOREST-DISPATCH0-S1D — closed
+
+```text
+Decision:
+  Behavior-neutral shared-dispatch refactor landed. The forest draft now
+  stores the shared `VerifiedSemanticOwnerProductV1` payload boundary from
+  insertion through verification; internal parent/topology, upvar,
+  normalized-graph, and projection-facing paths use root-neutral product
+  accessors. `insert_product` is available for the future Script producer,
+  while the current production producer remains Function-only.
+
+Compatibility:
+  `forest.owner()` and `forest.owners()` remain Function-only compatibility
+  APIs. Script-facing code must use `semantic_owner()`/`semantic_owners()`.
+  No Script constructor, port, production caller, grammar, or fallback was
+  added by this row.
+
+Evidence:
+  cargo check --lib --quiet = passed
+  cargo test --lib owner_forest --quiet = 13 passed
+  cargo test --lib source_projection --quiet = 13 passed
+  current-state-pointer-guard.sh = passed
+  owner_forest.rs = 718 lines
+  owner_forest_payload.rs = 163 lines
+
+Next:
+  RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0
+  Build the real producer-backed Literal-only Script product and integrate
+  the typed source-view loan in the same selected Complete cutover. Do not
+  add a standalone S3 carrier or touch raw/reference `script_root` edges.
+```
+
 ## RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 — closed, Accept(A-prime)
 
 ```text
