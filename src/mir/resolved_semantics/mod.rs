@@ -64,6 +64,7 @@ pub(crate) use callable_symbol::CanonicalCallableSymbolV1;
 pub(crate) use direct_call::{ResolvedDirectCallTargetV1, ResolvedDirectCallVerificationErrorV1};
 pub(crate) use function_root::{
     ResolvedFunctionLoweringRootsV1, ResolvedFunctionRootVerificationErrorV1,
+    ResolvedOwnerLoweringRootsV1,
 };
 pub(crate) use function_view::FunctionSyntaxViewV1;
 pub(in crate::mir) use function_view::ReceiverPolicyV1;

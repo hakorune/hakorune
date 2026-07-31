@@ -7,15 +7,14 @@
 use super::ids::{RegionId, ScopeId};
 use super::product::{ResolvedFunctionDataV1, ResolvedScopeRegionPairV1};
 use super::records::{RegionKindV1, RegionOriginV1, ScopeKindV1, ScopeOriginV1};
-use super::source_site::SourcePathSegmentV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct ResolvedFunctionLoweringRootsV1 {
+pub(crate) struct ResolvedOwnerLoweringRootsV1 {
     function_pair: ResolvedScopeRegionPairV1,
     body_pair: ResolvedScopeRegionPairV1,
 }
 
-impl ResolvedFunctionLoweringRootsV1 {
+impl ResolvedOwnerLoweringRootsV1 {
     pub(crate) const fn function_pair(self) -> ResolvedScopeRegionPairV1 {
         self.function_pair
     }
@@ -24,6 +23,8 @@ impl ResolvedFunctionLoweringRootsV1 {
         self.body_pair
     }
 }
+
+pub(crate) type ResolvedFunctionLoweringRootsV1 = ResolvedOwnerLoweringRootsV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResolvedFunctionRootVerificationErrorV1 {
@@ -41,7 +42,7 @@ pub(super) fn build_verified_function_lowering_roots_v1(
     let body_regions = data
         .regions
         .iter()
-        .filter(|(_, record)| is_body_region_origin(record.origin()))
+        .filter(|(_, record)| is_body_region_origin(data, record.origin()))
         .collect::<Vec<_>>();
     let [(&body_region, body_region_record)] = body_regions.as_slice() else {
         return Err(
@@ -53,7 +54,7 @@ pub(super) fn build_verified_function_lowering_roots_v1(
     let body_scopes = data
         .scopes
         .iter()
-        .filter(|(_, record)| is_body_scope_origin(record.origin()))
+        .filter(|(_, record)| is_body_scope_origin(data, record.origin()))
         .collect::<Vec<_>>();
     let [(&body_scope, body_scope_record)] = body_scopes.as_slice() else {
         return Err(
@@ -112,23 +113,16 @@ fn verify_function_pair(
     Ok(())
 }
 
-fn is_body_region_origin(origin: &RegionOriginV1) -> bool {
+fn is_body_region_origin(data: &ResolvedFunctionDataV1, origin: &RegionOriginV1) -> bool {
     matches!(
         origin,
-        RegionOriginV1::Source(site) if is_exact_body_root(site.segments())
+        RegionOriginV1::Source(site) if data.root_profile.matches_body_root(site.segments())
     )
 }
 
-fn is_body_scope_origin(origin: &ScopeOriginV1) -> bool {
+fn is_body_scope_origin(data: &ResolvedFunctionDataV1, origin: &ScopeOriginV1) -> bool {
     matches!(
         origin,
-        ScopeOriginV1::Source(site) if is_exact_body_root(site.segments())
-    )
-}
-
-fn is_exact_body_root(segments: &[SourcePathSegmentV1]) -> bool {
-    matches!(
-        segments,
-        [SourcePathSegmentV1::FunctionBody] | [SourcePathSegmentV1::LambdaBodyRoot]
+        ScopeOriginV1::Source(site) if data.root_profile.matches_body_root(site.segments())
     )
 }

@@ -3362,6 +3362,37 @@ Next:
   name as a compatibility alias and add mismatch tests only.
 ```
 
+## SEMANTIC-OWNER-CORE0-S1C — closed
+
+```text
+Decision:
+  Lowering-root verification now consumes `SemanticOwnerRootProfileV1` for
+  exact body-root matching. `ResolvedOwnerLoweringRootsV1` is the neutral
+  carrier, with `ResolvedFunctionLoweringRootsV1` retained as a compatibility
+  alias. FunctionBody, ProgramBodyRoot, and LambdaBodyRoot are no longer a
+  union search; a profile/root mismatch is rejected before publication.
+
+Evidence:
+  cargo check --lib --quiet
+    = passed (pre-existing warnings only)
+  cargo test --lib resolved_semantics:: --quiet
+    = 164 passed
+  function_root.rs             = 128 lines
+  function_root_tests.rs       = 252 lines
+
+Non-effects:
+  Script construction/consumer = 0
+  projection / port / fixture = 0
+  ScopeKind/RegionKind storage = unchanged
+  grammar / result / fallback = unchanged
+
+Next:
+  SEMANTIC-OWNER-PROJECTION0-S2
+  Generalize only the private projection seal to profile-exact Function vs
+  Program roots. Keep FunctionSourceViewV1 Function/Lambda-only and do not
+  connect a Script production consumer yet.
+```
+
 ## RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 — closed, Accept(A-prime)
 
 ```text

@@ -29,12 +29,20 @@ fn data(body_segment: SourcePathSegmentV1) -> ResolvedFunctionDataV1 {
     let body_scope = ScopeId::new(owner, 1);
     let function_region = RegionId::new(owner, 0);
     let body_region = RegionId::new(owner, 1);
-    let body_origin = root_site(body_segment);
+    let body_origin = root_site(body_segment.clone());
     ResolvedFunctionDataV1 {
         owner,
         function_origin,
-        root_profile: super::SemanticOwnerRootProfileV1::DeclaredFunction {
-            receiver_policy: super::ReceiverPolicyV1::Absent,
+        root_profile: match body_segment {
+            SourcePathSegmentV1::FunctionBody => {
+                super::SemanticOwnerRootProfileV1::DeclaredFunction {
+                    receiver_policy: super::ReceiverPolicyV1::Absent,
+                }
+            }
+            SourcePathSegmentV1::LambdaBodyRoot => super::SemanticOwnerRootProfileV1::Lambda,
+            _ => super::SemanticOwnerRootProfileV1::DeclaredFunction {
+                receiver_policy: super::ReceiverPolicyV1::Absent,
+            },
         },
         function_scope,
         function_region,
@@ -147,7 +155,7 @@ fn root_builder_rejects_missing_and_duplicate_body_roots() {
     let mut duplicate = data(SourcePathSegmentV1::FunctionBody);
     let second_scope = ScopeId::new(duplicate.owner, 2);
     let second_region = RegionId::new(duplicate.owner, 2);
-    let second_origin = root_site(SourcePathSegmentV1::LambdaBodyRoot);
+    let second_origin = root_site(SourcePathSegmentV1::FunctionBody);
     duplicate.scopes.insert(
         second_scope,
         ResolvedScopeRecordV1::new(
@@ -170,6 +178,16 @@ fn root_builder_rejects_missing_and_duplicate_body_roots() {
     assert!(matches!(
         build_verified_function_lowering_roots_v1(&duplicate),
         Err(ResolvedFunctionRootVerificationErrorV1::BodyRegionCardinality { actual: 2 })
+    ));
+}
+
+#[test]
+fn root_builder_rejects_profile_and_body_root_mismatch() {
+    let mut mismatched = data(SourcePathSegmentV1::FunctionBody);
+    mismatched.root_profile = super::SemanticOwnerRootProfileV1::Script;
+    assert!(matches!(
+        build_verified_function_lowering_roots_v1(&mismatched),
+        Err(ResolvedFunctionRootVerificationErrorV1::BodyRegionCardinality { actual: 0 })
     ));
 }
 
