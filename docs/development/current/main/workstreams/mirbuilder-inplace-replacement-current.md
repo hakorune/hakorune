@@ -3241,6 +3241,10 @@ Task sequence:
    the existing production caller
    `ModuleBuilderInvocationSessionV1::complete_normal_default_program_root_catalog_lifecycle`.
    This row includes the S3 integration; there is no prior port-only commit.
+   The only semantic admission seam is after CatalogSeal/work-plan prepare
+   and before CatalogInstall. Complete candidates must use the shared forest
+   enum/generic-core accessors; the existing Function-only `forest.owner()`
+   and `forest.owners()` compatibility APIs must not be used for Script.
    Complete closure is exactly empty/literal-only Script runtime items plus
    transferred top-level FunctionDeclaration boundaries. Co-seal Program,
    Script root profile, one shared forest, one Program projection, and exact
@@ -3250,7 +3254,8 @@ Task sequence:
    once. First real fixture is
    `tools/checks/fixtures/raw_vm_reference_conformance/integer_0.hako`, read
    once and passed through a selected NormalCompileRequest; Raw VM CLI success
-   is not evidence.
+   is not evidence. Literal I0 must not add Variable/Local materialization,
+   Lambda capture, ValueId/ABI, control, call/object, or Box runtime demand.
 
 Ratchet and sunset:
   `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` tracks the Deferred owner.
