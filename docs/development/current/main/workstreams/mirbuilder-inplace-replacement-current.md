@@ -3665,6 +3665,48 @@ Atomic deletion:
 Next design:
   `MIRBUILDER-LIVE-EDGE-CENSUS47-D0` — fresh, read-only, narrow census.
   Do not preselect Check, And/Or, control, calls/objects, Box, or Lambda.
+
+## RAW-SCRIPT-CHECK-LEXICAL-CLOSURE0-D0 — accepted
+
+```text
+Decision:
+  Candidate A — recursive CheckExpr closure over the existing Script lexical closure
+
+Ceremony:
+  T1, one atomic I0/R0 commit
+
+Accepted shape:
+  CheckExpr(items*) where every item.expression is Literal, prior-root
+  Local-backed Variable, ordinary Unary, ordinary Binary (And/Or excluded),
+  Print, Await, or another safe CheckExpr.
+
+Source contract:
+  labels and name are preserved but are not admission authority. Each item
+  is observed source-only through existing CheckItem paths in source order;
+  the intact CheckExpr parent produces one prepared receipt per item before
+  the item vector is moved. No AST clone, reconstruction, or work-plan rebuild.
+
+Lowering:
+  Reuse build_check_expression_with_port_v1. Keep eager item evaluation,
+  Const 1/0 emission, child -> Select -> type commit order, and the same
+  selected port. No Bool admission constraint is added.
+
+Atomic deletion:
+  Safe CheckExpr no longer selects Deferred Script `script_root(())`.
+  A CheckExpr with any unsafe child remains one explicit Deferred request;
+  item-level mixed routing and retry are forbidden.
+
+Evidence required:
+  recursive admission fixtures (empty, nested, Unary/Await/Binary wrappers),
+  normal/legacy MIR+verification parity with a lexical Variable under CheckItem,
+  source-order recording, failure/reuse, pointer/cut0 guards, and all touched
+  source/check files below 800 lines.
+
+Hard stops:
+  short-circuiting, Bool type policy, item-level route mixing, new Check owner
+  or failure type, selected retry, AST clone/reparse, new guard/test file, or
+  any touched source/check file reaching 800 lines.
+```
 ```
 
 ## SEMANTIC-OWNER-SCRIPT-PORT0-S3 — closed, NoStandaloneRow
@@ -6160,7 +6202,8 @@ R2as RAW-SCRIPT-BINARY-LEXICAL-CLOSURE0-I0-R0 closed at b562263854
 R2at MIRBUILDER-LIVE-EDGE-CENSUS46-D0 closed
 R2au RAW-SCRIPT-AWAIT-LEXICAL-CLOSURE0-D0 accepted design stop
 R2av RAW-SCRIPT-AWAIT-LEXICAL-CLOSURE0-I0-R0 closed at 074e944fec
-R2aw MIRBUILDER-LIVE-EDGE-CENSUS47-D0 current design stop
+R2aw MIRBUILDER-LIVE-EDGE-CENSUS47-D0 closed
+R2ax RAW-SCRIPT-CHECK-LEXICAL-CLOSURE0-D0 current design stop
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
