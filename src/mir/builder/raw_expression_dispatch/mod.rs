@@ -35,11 +35,11 @@ use super::ops::{
     lower_prepared_raw_unary_with_port_v1, BinaryExpressionDescentPortV1, PreparedRawUnaryV1,
     RawLegacyBinaryInputV1, RawLegacyShortCircuitInputV1, ShortCircuitExpressionDescentPortV1,
 };
+use super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::recursive_child_lowering::{
     RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1, RawLoopChildEntryPortV1,
     RecursiveChildLoweringPortV1,
 };
-use super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::stmts::{
     drive_variable_assignment_v1, LocalStatementDescentPortV1, RawLegacyLocalInputV1,
     RawLegacyValueReturnInputV1, RawLegacyVariableAssignmentInputV1, ReturnStatementDescentPortV1,
@@ -149,11 +149,16 @@ impl super::MirBuilder {
                 self.build_check_expression_with_port_v1(port, items)
             }
 
-            ASTNode::UnaryOp {
-                operator, operand, ..
-            } => {
+            node @ ASTNode::UnaryOp { .. } => {
+                let source =
+                    port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::UnaryOperand)?;
+                let ASTNode::UnaryOp { operator, operand, .. } = node else {
+                    unreachable!("unary match arm retains its AST shape");
+                };
                 let prepared = PreparedRawUnaryV1::prepare(operator, *operand);
-                lower_prepared_raw_unary_with_port_v1(self, port, prepared)
+                port.with_prepared_child_source_v1(source, |port| {
+                    lower_prepared_raw_unary_with_port_v1(self, port, prepared)
+                })
             }
 
             ASTNode::Variable { name, .. } => self.build_variable_access(name.clone()),

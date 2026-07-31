@@ -35,8 +35,11 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         let ASTNode::Program { statements, .. } = source.source_ast() else {
             return Err("[mir/script-semantic/source-root] expected Program".to_owned());
         };
-        let ScriptLexicalAdmissionV1::Complete(ScriptLexicalFactsV1 { locals, variables }) =
-            admission
+        let ScriptLexicalAdmissionV1::Complete(ScriptLexicalFactsV1 {
+            locals,
+            variables,
+            expression_source_indices,
+        }) = admission
         else {
             return Err("[mir/script-semantic/admission] Deferred input cannot seal".to_owned());
         };
@@ -65,42 +68,30 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                     "[mir/script-semantic/variable-binding] missing local binding".to_owned(),
                 );
             };
-            let site = if variable.initializer {
-                SourcePathV1::from_node(
-                    &program_statement_site(variable.source_statement_index)
-                        .node()
-                        .clone(),
-                )
-                .child(SourcePathSegmentV1::Initializer(0))
-                .expr()
-            } else {
-                SourcePathV1::from_node(
-                    &program_statement_site(variable.source_statement_index)
-                        .node()
-                        .clone(),
-                )
-                .expr()
-            };
+            let mut path = SourcePathV1::from_node(
+                &program_statement_site(variable.source_statement_index)
+                    .node()
+                    .clone(),
+            );
+            if variable.initializer {
+                path = path.child(SourcePathSegmentV1::Initializer(0));
+            }
+            for segment in &variable.path {
+                path = path.child(segment.clone());
+            }
+            let site = path.expr();
             draft.record_variable(site, binding);
         }
         let product = draft
             .seal()
             .map_err(|error| format!("[mir/script-semantic/seal] {error:?}"))?;
-        let runtime_source_indices =
-            locals
-                .iter()
-                .map(|local| local.source_statement_index)
-                .chain(
-                    variables
-                        .iter()
-                        .map(|variable| variable.source_statement_index),
-                )
-                .chain((0..statements.len()).filter(|index| {
-                    matches!(statements.get(*index), Some(ASTNode::Literal { .. }))
-                }))
-                .collect::<std::collections::BTreeSet<_>>()
-                .into_iter()
-                .collect::<Box<[_]>>();
+        let runtime_source_indices = locals
+            .iter()
+            .map(|local| local.source_statement_index)
+            .chain(expression_source_indices.into_vec())
+            .collect::<std::collections::BTreeSet<_>>()
+            .into_iter()
+            .collect::<Box<[_]>>();
         let mut draft = SemanticOwnerForestDraftV1::new();
         draft
             .insert_product(owner, VerifiedSemanticOwnerProductV1::Script(product))
@@ -206,13 +197,13 @@ fn program_statement_site(index: usize) -> SourceStmtSiteV1 {
 #[cfg(test)]
 mod tests {
     use super::VerifiedScriptSemanticSourceV1;
-    use crate::ast::{ASTNode, LiteralValue, Span};
+    use crate::ast::{ASTNode, LiteralValue, Span, UnaryOperator};
     use crate::mir::builder::normal_script_lexical_binding::{
         ScriptLexicalAdmissionV1, ScriptLexicalFactsV1,
     };
     use crate::mir::builder::PreparedNormalDefaultProgramRootV1;
     use crate::mir::resolved_semantics::{FunctionOwnerIssuerV1, SemanticOwnerRootProfileV1};
-    use crate::mir::{MirCompiler, NormalCompileRequestV1};
+    use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
     use crate::parser::NyashParser;
 
     fn owner() -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
@@ -232,6 +223,7 @@ mod tests {
             ScriptLexicalAdmissionV1::Complete(ScriptLexicalFactsV1 {
                 locals: Box::new([]),
                 variables: Box::new([]),
+                expression_source_indices: vec![0].into_boxed_slice(),
             }),
         )
         .expect("literal Script product");
@@ -269,6 +261,7 @@ mod tests {
                 ]
                 .into_boxed_slice(),
                 variables: Box::new([]),
+                expression_source_indices: Box::new([]),
             }),
         )
         .expect_err("out-of-range literal coverage must reject");
@@ -302,9 +295,21 @@ mod tests {
                     name: "y".to_owned(),
                     span: Span::unknown(),
                 },
+                ASTNode::UnaryOp {
+                    operator: UnaryOperator::Minus,
+                    operand: Box::new(ASTNode::Variable {
+                        name: "y".to_owned(),
+                        span: Span::unknown(),
+                    }),
+                    span: Span::unknown(),
+                },
             ],
             span: Span::unknown(),
         };
+        let mut legacy_compiler = MirCompiler::with_options(false);
+        let legacy = legacy_compiler
+            .compile_with_source(ast.clone(), Some("lexical-local.hako"))
+            .expect("legacy lexical local/read compiles");
         let request = NormalCompileRequestV1::for_mir_mode(
             ast,
             Some("lexical-local.hako"),
@@ -314,6 +319,11 @@ mod tests {
         let result = MirCompiler::with_options(false)
             .compile_normal(request)
             .expect("lexical local/read should be Complete");
+        assert_eq!(
+            MirPrinter::new().print_module(&result.module),
+            MirPrinter::new().print_module(&legacy.module)
+        );
+        assert_eq!(result.verification_result, legacy.verification_result);
         assert!(result.verification_result.is_ok());
     }
 
