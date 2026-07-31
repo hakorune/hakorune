@@ -246,15 +246,7 @@ impl RawInvocationSourceContextV1 {
                     return RawInvocationSourceTransportV1::unlocated(statement, reason);
                 }
                 let kind = body_kind.expect("located body transport must retain its body kind");
-                let child = if kind == SourceBodyKindV1::Function
-                    && site.segments() == [SourcePathSegmentV1::FunctionBody]
-                {
-                    SourcePathV1::root_body(index).node()
-                } else {
-                    SourcePathV1::from_node(site)
-                        .child(kind.item_segment(index as u32))
-                        .node()
-                };
+                let child = body_item_site(kind, site, index);
                 RawInvocationSourceTransportV1::Located(LocatedRawNodeV1::new(
                     statement,
                     root.clone(),
@@ -368,21 +360,32 @@ impl RawInvocationSourceContextV1 {
                 statement.node_type()
             ));
         }
-        let child = if kind == SourceBodyKindV1::Function
-            && site.segments() == [SourcePathSegmentV1::FunctionBody]
-        {
-            SourcePathV1::root_body(index).node()
-        } else {
-            SourcePathV1::from_node(site)
-                .child(kind.item_segment(index as u32))
-                .node()
-        };
+        let child = body_item_site(kind, site, index);
         Ok(Self::Located {
             root: root.clone(),
             site: child,
             body_kind: None,
         })
     }
+}
+
+fn body_item_site(kind: SourceBodyKindV1, site: &SourceNodeSiteV1, index: usize) -> SourceNodeSiteV1 {
+    if kind == SourceBodyKindV1::Function
+        && site.segments() == [SourcePathSegmentV1::FunctionBody]
+    {
+        return SourcePathV1::root_body(index).node();
+    }
+    if kind == SourceBodyKindV1::FastMem
+        && site.segments().last() == Some(&SourcePathSegmentV1::FastMemBodyRoot)
+    {
+        let mut segments = site.segments().to_vec();
+        let _ = segments.pop();
+        segments.push(SourcePathSegmentV1::FastMemBody(index as u32));
+        return SourceNodeSiteV1::from_segments(segments);
+    }
+    SourcePathV1::from_node(site)
+        .child(kind.item_segment(index as u32))
+        .node()
 }
 
 fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
@@ -672,7 +675,9 @@ struct LocatedInvocationBlockPortV1<'port, Port> {
 
 impl<Port> LegacyBlockDescentPortV1 for LocatedInvocationBlockPortV1<'_, Port>
 where
-    Port: RawSourceTransportPortV1 + super::raw_expression_dispatch::RawExpressionDispatchPortV1,
+    Port: RawSourceTransportPortV1
+        + super::raw_expression_dispatch::RawExpressionDispatchPortV1
+        + RecursiveChildLoweringPortV1<StatementInput = ASTNode>,
 {
     type SuffixInput<'a>
         = &'a [ASTNode]
@@ -705,7 +710,7 @@ where
         let transport = self.source.body_statement(statement, index);
         self.child
             .with_source_transport_v1(transport, |child, statement| {
-                super::stmts::block_stmt::build_statement_with_port_v1(builder, child, statement)
+                child.lower_statement(builder, statement)
             })
     }
 }

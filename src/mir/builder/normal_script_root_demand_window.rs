@@ -88,6 +88,9 @@ impl ScriptRootDemandWindowBuilderV1 {
                 Admission::DirectPortAwareExpression | Admission::DirectPrint => {
                     (Semantic::Resolved, Runtime::RetainedExistingTerminal)
                 }
+                Admission::DirectFastMemRegion => {
+                    (Semantic::Resolved, Runtime::RetainedExistingTerminal)
+                }
                 _ => (
                     Semantic::Deferred(ScriptDeferredBoundaryV1::ExistingRuntimeResponsibility),
                     Runtime::RetainedExistingTerminal,

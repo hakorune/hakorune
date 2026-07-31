@@ -28,6 +28,20 @@ fn assert_selected_parity(source: &str, hint: &str) {
     assert_eq!(normal.verification_result, legacy.verification_result);
 }
 
+fn assert_selected_program_parity(program: ASTNode, hint: &str) {
+    let mut legacy = MirCompiler::with_options(false);
+    let legacy = legacy.compile_with_source(program.clone(), Some(hint)).unwrap();
+    let normal = MirCompiler::with_options(false)
+        .compile_normal(NormalCompileRequestV1::for_mir_mode(
+            program,
+            Some(hint),
+            std::collections::HashMap::new(),
+        ).unwrap())
+        .unwrap();
+    assert_eq!(MirPrinter::new().print_module(&normal.module), MirPrinter::new().print_module(&legacy.module));
+    assert_eq!(normal.verification_result, legacy.verification_result);
+}
+
 fn resolved_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {
     VerifiedScriptRootDemandEntryV1::new(
         SourcePathV1::program_body()
@@ -117,6 +131,47 @@ fn selected_normal_check_lexical_closure_matches_legacy() {
 #[test]
 fn selected_normal_and_or_lexical_closure_matches_legacy() {
     assert_selected_parity("local x = true\nprint(x and x)\nprint(x or x)", "script-andor.hako");
+}
+
+#[test]
+fn lexical_fastmem_scope_matches_legacy() {
+    let local = ASTNode::Local {
+        variables: vec!["x".to_owned()],
+        initial_values: vec![Some(Box::new(ASTNode::Literal {
+            value: LiteralValue::Integer(1), span: Span::unknown(),
+        }))],
+        declared_type_names: vec![None], span: Span::unknown(),
+    };
+    let print = ASTNode::Print {
+        expression: Box::new(ASTNode::Variable { name: "x".to_owned(), span: Span::unknown() }),
+        span: Span::unknown(),
+    };
+    assert_selected_program_parity(ASTNode::Program {
+        statements: vec![ASTNode::FastMemRegion {
+            contract: "PageMapV0".to_owned(), body: vec![local, print], span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    }, "script-fastmem.hako");
+}
+
+#[test]
+fn fastmem_weak_child_remains_deferred_before_name_resolution() {
+    let mut compiler = MirCompiler::with_options(false);
+    let weak_missing = ASTNode::UnaryOp {
+        operator: crate::ast::UnaryOperator::Weak,
+        operand: Box::new(ASTNode::Variable { name: "missing".to_owned(), span: Span::unknown() }),
+        span: Span::unknown(),
+    };
+    let program = ASTNode::Program {
+        statements: vec![ASTNode::FastMemRegion {
+            contract: "PageMapV0".to_owned(), body: vec![weak_missing], span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    };
+    let error = compiler.compile_normal(NormalCompileRequestV1::for_mir_mode(
+        program, Some("script-fastmem-weak.hako"), std::collections::HashMap::new(),
+    ).unwrap()).expect_err("Weak FastMem child must use the existing lower route");
+    assert!(error.contains("Undefined variable: missing"), "{error}");
 }
 
 #[test]

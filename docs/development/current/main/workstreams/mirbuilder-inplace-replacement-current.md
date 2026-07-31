@@ -32,20 +32,20 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-I0-R0
+  RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-D0
 
 latest structural finding:
-  FastMem already has one structured-scope traversal and one direct lowering
-  terminal; only lexical-safe whole bodies can join the existing Script core.
+  lexical-safe FastMem now shares Script shadow facts and the existing
+  statement port; child source receipt and semantic projection agree.
 
 accepted series:
   dense Function/Lambda root-neutral core -> sparse selected-Script cutover
 
 latest production closeout:
-  RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0 / 5b963969b4
+  RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-I0-R0
 
 consultation decision:
-  RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-D0 / Accept A-prime (T1)
+  RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-D0 / closed Accept A-prime (T1)
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -265,27 +265,15 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-I0-R0 (T1)
+  RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-D0
+  -> verify a zero-child existing receiver-absent diagnostic boundary
+  -> no receiver fact, call/object activation, or diagnostic-stage change
 
-  Change:
-    Map only the existing `FastMemRegion + DirectFastMemRegion` receipt to
-    Resolved, and admit FastMem as a structured scope in ScriptLexicalCore.
-    Delete lexical-safe FastMem -> Deferred -> bare script_root reachability.
-
-  Contract:
-    A Complete FastMem body is recursively existing ScriptLexicalCore plus
-    nested FastMem only. Existing FastMem registration, metadata, MemOp
-    emission, port descent, and RootLower diagnostics do not move.
-
-  Done:
-    Safe FastMem is Complete with exact FastMemBody source coverage; unsafe
-    child responsibility and unresolved names remain Deferred and lower once
-    through ExistingRootLower. Raw/reference routes are unchanged.
-
-  Stop:
-    Stop if FastMem validation/metadata moves before RootLower, a Call/Object,
-    If, Weak, or other responsibility must activate, or mixed request routing
-    is needed. Keep all touched source/check files below 800 lines.
+closed
+  RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-I0-R0
+  -> `FastMemRegion + DirectFastMemRegion` is Resolved only through a
+     recursively lexical-safe body; existing FastMem lower remains owner
+  -> focused semantic, direct-owner, transport, pointer, and shared guards green
 
 ordered after fresh evidence only
   1. top-level bare Me existing-diagnostic boundary (zero child; no receiver fact)
