@@ -315,6 +315,9 @@ fn blockexpr_region_contains_only_its_prelude_and_tail_descendants() {
     ];
     for site in contained {
         assert!(source_region_contains_site_v1(
+            super::SemanticOwnerRootProfileV1::DeclaredFunction {
+                receiver_policy: super::ReceiverPolicyV1::Absent,
+            },
             RegionKindV1::BlockExpr,
             &origin,
             &site
@@ -329,6 +332,9 @@ fn blockexpr_region_contains_only_its_prelude_and_tail_descendants() {
         blockexpr_root(),
     ] {
         assert!(!source_region_contains_site_v1(
+            super::SemanticOwnerRootProfileV1::DeclaredFunction {
+                receiver_policy: super::ReceiverPolicyV1::Absent,
+            },
             RegionKindV1::BlockExpr,
             &origin,
             &site

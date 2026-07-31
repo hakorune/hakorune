@@ -265,28 +265,26 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-IF-ROOT-CONTROL-CONTRACT0-D0
+  RAW-SCRIPT-IF-CONTROL-ADMISSION0-D0
 
   Change:
-    Recount the remaining selected Script Deferred production edges after the
-    Close the missing Script-root control-region contract exposed by the
-    post-Outbox census before any lexical-safe If cutover is reconsidered.
+    Design one typed Script-root control admission from the sealed demand
+    window and existing DirectIfStatement runtime receipt before reconsidering
+    lexical-safe If.
 
   Contract:
-    `resolve_if` is not itself Script-root authority: Script root must satisfy
-    the existing If-region verifier without widening nested ScopeBox behavior.
-    No second resolver, special root-only acceptance, mixed routing, fallback,
-    or retry.
+    The gate consumes exact source site and child context, not `ASTNode::If`.
+    Root If may receive a receipt; nested ScopeBox/TaskScope/FastMem If does
+    not. No second resolver, mixed routing, fallback, or retry.
 
   Done:
-    Specify the source/profile/region contract that makes a lexical-safe If
-    I0 possible, or retain If under ExistingRootLower. Keep source/check files
+    Name one owner and atomic old selected `If -> Deferred -> script_root()`
+    deletion, or retain If under ExistingRootLower. Keep source/check files
     below 800 lines.
 
   Stop:
-    Do not implement while Script-root If sealing produces
-    `IfRegion(ControlContractMismatch)` or profile activation widens nested
-    ScopeBox If from Deferred to Complete.
+    Stop if exact root context cannot reach the existing If verifier without
+    widening nested structured scopes or changing diagnostic precedence.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -298,6 +296,12 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  SEMANTIC-SOURCE-CONTAINER-PROFILE0-S0
+  -> Sequence containment now derives direct body membership from
+     `SemanticOwnerRootProfileV1`; ProgramBodyRoot -> ProgramBody(n) is valid
+     only for Script, and Function/Lambda retain their exact roots. This fixes
+     the verifier precondition only; Script If routing remains Deferred.
+
   RAW-SCRIPT-POST-OUTBOX-CAPABILITY-CENSUS0-D0
   -> `RAW-SCRIPT-IF-LEXICAL-STRUCTURED-CONTROL0-I0-R0` is NoSafeSlice:
      root `resolve_if` fails If-region control verification and a simple

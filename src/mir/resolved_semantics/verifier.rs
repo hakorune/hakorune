@@ -18,6 +18,7 @@ use super::loop_region::{
     ResolvedLoopRegionVerificationErrorV1,
 };
 use super::normalized::{NormalizedBindingKeyV1, NormalizedRegionKeyV1, NormalizedScopeKeyV1};
+use super::owner_root_profile::SemanticOwnerRootProfileV1;
 use super::product::ResolvedFunctionDataV1;
 use super::records::{
     BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
@@ -631,13 +632,23 @@ fn is_exact_source_container(
     site: &SourceNodeSiteV1,
 ) -> bool {
     let owner_record = &data.regions[&owner];
-    if !source_region_contains_site_v1(owner_record.kind(), owner_record.origin(), site) {
+    if !source_region_contains_site_v1(
+        data.root_profile,
+        owner_record.kind(),
+        owner_record.origin(),
+        site,
+    ) {
         return false;
     }
     !data.regions.iter().any(|(candidate, record)| {
         *candidate != owner
             && is_region_ancestor(data, owner, *candidate)
-            && source_region_contains_site_v1(record.kind(), record.origin(), site)
+            && source_region_contains_site_v1(
+                data.root_profile,
+                record.kind(),
+                record.origin(),
+                site,
+            )
     })
 }
 
@@ -652,6 +663,7 @@ pub(super) fn exact_source_region_v1(
 }
 
 pub(super) fn source_region_contains_site_v1(
+    root_profile: SemanticOwnerRootProfileV1,
     kind: RegionKindV1,
     origin: &RegionOriginV1,
     site: &SourceNodeSiteV1,
@@ -663,16 +675,7 @@ pub(super) fn source_region_contains_site_v1(
     let site = site.segments();
     match kind {
         RegionKindV1::Function => false,
-        RegionKindV1::Sequence => {
-            sibling_body_member(origin, site, SourcePathSegmentV1::FunctionBody, |segment| {
-                matches!(segment, SourcePathSegmentV1::Body(_))
-            }) || sibling_body_member(
-                origin,
-                site,
-                SourcePathSegmentV1::LambdaBodyRoot,
-                |segment| matches!(segment, SourcePathSegmentV1::LambdaBody(_)),
-            )
-        }
+        RegionKindV1::Sequence => root_profile.contains_sequence_member(origin, site),
         RegionKindV1::LexicalScope => {
             sibling_body_member(
                 origin,

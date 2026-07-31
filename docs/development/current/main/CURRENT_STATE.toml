@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-OUTBOX-SEMANTIC-MATERIALIZATION0-I0-R0 is closed: selected Complete Script requests now seal exact Outbox BindingRef receipts and consume the existing ordered emission receipt once. The old selected Outbox Deferred-to-bare-script-root edge is retired. The post-Outbox census closed If as NoSafeSlice; a root-control design gate is next."
+status = "SEMANTIC-SOURCE-CONTAINER-PROFILE0-S0 is closed: exact Sequence containment now derives its body-member receipt from the sealed owner root profile, so Script ProgramBodyRoot -> ProgramBody(n) is verifier-valid without a function-shaped fallback. Script If remains Deferred; typed root-control admission is next."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-IF-ROOT-CONTROL-CONTRACT0-D0"
-current_execution_row = "RAW-SCRIPT-IF-ROOT-CONTROL-CONTRACT0-D0"
-current_execution_summary = "Census the remaining selected Script Deferred production edges once, then choose one responsibility family with a real shared-traversal activation and same-commit old-edge deletion. Do not preselect an AST kind."
+current_design_stop = "RAW-SCRIPT-IF-CONTROL-ADMISSION0-D0"
+current_execution_row = "RAW-SCRIPT-IF-CONTROL-ADMISSION0-D0"
+current_execution_summary = "Design one typed Script-root control admission from the sealed demand window and existing DirectIfStatement receipt. It must select exact root If child context without AST-kind activation or nested ScopeBox widening."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"

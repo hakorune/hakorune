@@ -41,6 +41,31 @@ impl SemanticOwnerRootProfileV1 {
     pub(crate) fn matches_body_root(self, segments: &[SourcePathSegmentV1]) -> bool {
         matches!(segments, [segment] if *segment == self.body_root())
     }
+
+    /// Returns whether `site` is one direct member of this owner's root body.
+    ///
+    /// A `Sequence` region is rooted at the profile's exact body-root receipt,
+    /// not at a function-shaped fallback.  Keeping the root/member pairing
+    /// here prevents verifier consumers from reconstructing Script membership
+    /// with ad-hoc `ProgramBody` branches.
+    pub(crate) fn contains_sequence_member(
+        self,
+        origin: &[SourcePathSegmentV1],
+        site: &[SourcePathSegmentV1],
+    ) -> bool {
+        let Some((origin_root, prefix)) = origin.split_last() else {
+            return false;
+        };
+        *origin_root == self.body_root()
+            && site.len() > prefix.len()
+            && site.starts_with(prefix)
+            && matches!(
+                (self, &site[prefix.len()]),
+                (Self::DeclaredFunction { .. }, SourcePathSegmentV1::Body(_))
+                    | (Self::Script, SourcePathSegmentV1::ProgramBody(_))
+                    | (Self::Lambda, SourcePathSegmentV1::LambdaBody(_))
+            )
+    }
 }
 
 #[cfg(test)]
@@ -74,5 +99,17 @@ mod tests {
         assert!(!profiles[1].matches_body_root(&roots[0]));
         assert!(!profiles[0].matches_body_root(&roots[1]));
         assert!(!profiles[2].matches_body_root(&roots[1]));
+    }
+
+    #[test]
+    fn sequence_members_are_profile_exact() {
+        assert!(SemanticOwnerRootProfileV1::Script.contains_sequence_member(
+            &[SourcePathSegmentV1::ProgramBodyRoot],
+            &[SourcePathSegmentV1::ProgramBody(3)],
+        ));
+        assert!(!SemanticOwnerRootProfileV1::Script.contains_sequence_member(
+            &[SourcePathSegmentV1::ProgramBodyRoot],
+            &[SourcePathSegmentV1::Body(3)],
+        ));
     }
 }

@@ -693,9 +693,19 @@ fn source_region_containment_uses_closed_root_member_roles() {
 
     for (kind, origin, site) in cases {
         assert!(source_region_contains_site_v1(
+            super::SemanticOwnerRootProfileV1::DeclaredFunction {
+                receiver_policy: super::ReceiverPolicyV1::Absent,
+            },
             kind,
             &RegionOriginV1::Source(node(origin)),
             &node(site),
         ));
     }
+
+    assert!(source_region_contains_site_v1(
+        super::SemanticOwnerRootProfileV1::Script,
+        RegionKindV1::Sequence,
+        &RegionOriginV1::Source(node(vec![SourcePathSegmentV1::ProgramBodyRoot])),
+        &node(vec![SourcePathSegmentV1::ProgramBody(3)]),
+    ));
 }
