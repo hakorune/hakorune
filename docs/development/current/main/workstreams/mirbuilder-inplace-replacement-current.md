@@ -3137,7 +3137,7 @@ Hard stops:
   Complete-to-Deferred downgrade, fallback/retry, or fourth edge census.
 ```
 
-## RAW-SCRIPT-SEMANTIC-OWNER-CORE0-D0 — active design stop
+## RAW-SCRIPT-SEMANTIC-OWNER-CORE0-D0 — closed, Accept(A-prime)
 
 ```text
 consultation_question:
@@ -3150,13 +3150,22 @@ Finding:
   FunctionDeclaration root. Raw Lambda capture is name-based and has no
   BindingRef-to-ValueId consumer.
 
-Task:
-  Choose the root-neutral owner contract before another implementation row.
-  Candidate A-prime is a private generic semantic-owner core with explicit
-  Function/Script/Lambda root profiles and unchanged public Function wrappers.
-  Candidate B is a Script-specific verified product with a private shared
-  resolver core. Synthetic FunctionDeclaration and in-place widening of
-  FunctionSyntaxViewV1 are rejected.
+Decision:
+  Accept Candidate A-prime, corrected by worker review. Use one private
+  root-neutral semantic-owner core with explicit DeclaredFunction/Script/Lambda
+  root profiles, typed Function/Script wrappers, one shared forest, and one
+  shared Program-capable projection authority. A Script-specific outer bundle
+  is allowed, but a second Script forest/projection authority is forbidden.
+  FunctionSyntaxViewV1 and existing public Function APIs remain unchanged.
+
+  A direct Literal production cutover is not yet safe: the current forest,
+  lowering-root verifier, and projection still have Function/Lambda-only
+  contracts. The design is therefore executed as a short BoxShape refactor
+  series; no grammar or Complete closure is added until that series is green.
+
+  The runtime window, not the whole Program, is the Script body. Immediate
+  callable boundaries are transferred to their existing owners; only the
+  exact runtime demand window may become Script-owned semantic input.
 
 Required first Complete closure after selection:
   zero-or-more literal-only Script runtime items plus transferred callable
@@ -3172,10 +3181,78 @@ Fixed evidence:
   NormalCompileRequest. Raw VM conformance is not milestone evidence.
 
 Resume conditions:
-  one selected owner contract; exact root/forest/projection invariants;
-  counterexample fixture for Program-vs-Function identity; named production
-  consumer and same-commit old-edge deletion. No fourth census, partial forest,
+  The following task sequence is now fixed. Each refactor commit is buildable
+  and behavior-neutral; the final I0/R0 is the only commit that changes the
+  selected production edge. No fourth census, partial forest,
   Complete-to-Deferred downgrade, fallback, or retry.
+
+Task sequence:
+
+1. `SEMANTIC-OWNER-ROOT-PROFILE0-S0`
+   Add a private `SemanticOwnerRootProfileV1` with exact contracts:
+   `DeclaredFunction -> FunctionBody`, `Script -> ProgramBodyRoot`, and
+   `Lambda -> LambdaBodyRoot`. Derive source kind from this profile rather
+   than keeping an independent source-kind authority. Add counterexample
+   tests for mismatched root/profile pairs. Keep public Function/Lambda APIs
+   and production behavior unchanged. New module target <=250 lines; do not
+   edit the 799-line Program work-plan file.
+
+2. `SEMANTIC-OWNER-CORE0-S1`
+   Move the private semantic data and lowering roots behind a neutral owner
+   core. Change the forest payload from
+   `BTreeMap<FunctionOwnerIdV1, VerifiedResolvedFunctionV1>` to one shared
+   enum payload (`Function`/`Script`) while preserving the existing Function
+   API. Use profile-exact body roots instead of `[FunctionBody] |
+   [LambdaBodyRoot]` union search. Split files rather than crossing 800
+   lines. No Script production consumer, Lambda capture ledger, ValueId, ABI,
+   or grammar change in this commit.
+
+3. `SEMANTIC-OWNER-PROJECTION0-S2`
+   Generalize the private projection seal to profile-exact roots and add a
+   separate Script source view. FunctionSourceView remains Function/Lambda
+   only; no Program arm is added to it. Program projection must co-seal with
+   the same shared forest and must not store AST references. Keep all existing
+   Function projection behavior unchanged.
+
+4. `SEMANTIC-OWNER-SCRIPT-PORT0-S3`
+   Extract a neutral, bounded API for the already-prepared Script runtime
+   window without editing `program_root_work_plan.rs` (799 lines) or running
+   classification a second time. Add a typed immutable Script source-view loan
+   to the selected raw invocation port, carrying the co-sealed forest/
+   projection product rather than an empty `script_root(())` carrier. The port
+   must actually verify/consume exact `ProgramBody(original ordinal)` sites;
+   merely changing the carrier type is a hard stop. Keep raw/reference ports
+   unchanged and keep this commit behavior-neutral.
+
+5. `RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0`
+   Only after S0/S1/S2 are green, connect the selected normal lifecycle at
+   the existing production caller
+   `ModuleBuilderInvocationSessionV1::complete_normal_default_program_root_catalog_lifecycle`.
+   Complete closure is exactly empty/literal-only Script runtime items plus
+   transferred top-level FunctionDeclaration boundaries. Co-seal Program,
+   Script root profile, one shared forest, one Program projection, and exact
+   coverage; issue no owner for Deferred candidates. Remove only the selected
+   Complete branch's `RawInvocationSourceTransportV1::script_root(())` edge.
+   Deferred and raw/reference routes retain their existing script_root exactly
+   once. First real fixture is
+   `tools/checks/fixtures/raw_vm_reference_conformance/integer_0.hako`, read
+   once and passed through a selected NormalCompileRequest; Raw VM CLI success
+   is not evidence.
+
+Ratchet and sunset:
+  `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` tracks the Deferred owner.
+  The manifest must track fixture identity sets and exact Deferred reasons,
+  not only a Complete percentage. Existing Complete fixtures may never regress
+  to Deferred; a new reason requires a new D0. The first Complete milestone is
+  `integer_0.hako` with LiteralOnlyV1.
+
+Hard stops:
+  synthetic FunctionDeclaration, a second Script forest/projection,
+  FunctionSyntaxView Program widening, body-root union inference, work-plan
+  reconstruction, partial forest, Complete-to-Deferred downgrade,
+  raw Lambda capture order from `forest.upvars()`, editing
+  `program_root_work_plan.rs`, or touching raw/reference `script_root` in the
+  Literal row.
 ```
 
 ## RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 — closed, Accept(A-prime)
