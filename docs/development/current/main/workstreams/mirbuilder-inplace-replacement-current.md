@@ -265,27 +265,31 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-D0
+  RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0
 
   Change:
-    Decide whether immutable record-schema demand facts can be available before
-    ScriptSemanticSeal without moving existing RootLower diagnostics. Only then
-    may a fully explicit RecordLiteral prove default descent is zero.
+    After CatalogSeal, collect Program declaration facts once; loan a private
+    immutable record-schema demand view to ScriptSemanticSeal; then move the
+    same prepared facts into the existing RootLower install. This admits only a
+    fully explicit known non-generic RecordLiteral, proving default descent is
+    zero before any Complete selection.
 
   Contract:
-    Preserve record schema/default/contract/publication ownership. Omitted
-    defaults, invalid schema forms, RecordUpdate, QMark control/result, Loop
-    JoinIR, Lambda capture, and broad BlockExpr remain separate stops; no
-    second resolver, fallback, retry, or mixed request routing.
+    No mutable Builder or `comp_ctx` reads occur in Script semantics. Record
+    schema/default/contract/publication and all user diagnostics remain owned
+    by existing RootLower. Omitted defaults, invalid schema forms, RecordUpdate,
+    QMark control/result, Loop JoinIR, Lambda capture, and broad BlockExpr
+    remain Deferred; no second resolver, fallback, retry, or mixed routing.
 
   Done:
-    Publish one bounded schema-admission decision with a later exact old-edge
-    deletion, or record NoSafeSlice. Keep every source/check file below 800
-    lines; do not grow `program_root_work_plan.rs`.
+    `FullyExplicitRecordLiteralV1 -> Deferred -> bare script_root()` is zero;
+    the exact same source-only declaration facts install once at RootLower;
+    all source/check files remain below 800 lines and
+    `program_root_work_plan.rs` does not grow.
 
   Stop:
-    Stop when schema facts require mutable Builder access or would move record
-    diagnostics into ScriptSemanticSeal.
+    Stop when a schema loan requires a second declaration scan, mutable Builder
+    access, or moves record diagnostics into ScriptSemanticSeal.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -297,6 +301,14 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-D0
+  -> Accepts a source-only seam: `PreparedNormalProgramDeclarationFactsV1`
+     already derives record fields/defaults from Program without Builder access.
+     Collect it once after CatalogSeal, expose only immutable schema demand,
+     and move the same prepared product to RootLower for install. Future
+     Complete closure is known non-generic RecordLiteral with every field
+     explicit; all residual forms retain existing diagnostics.
+
   RAW-SCRIPT-RECORD-LITERAL-COMPOSITIONAL-CONTRACT-DESCENT0-D0
   -> NoSafeSlice. `RecordFieldValue(n)` receipts cover explicit fields, but
      the existing Record owner subsequently lowers omitted declaration defaults

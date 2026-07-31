@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-RECORD-LITERAL-COMPOSITIONAL-CONTRACT-DESCENT0-D0 is closed NoSafeSlice: RecordLiteral defaults are declaration-owned child demands unavailable to ScriptSemanticSeal, so Map-style field receipt handoff would corrupt source authority. Record schema admission is the next prerequisite design gate."
+status = "RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-D0 is closed Accept: existing source-only declaration collection can issue an immutable schema loan before ScriptSemanticSeal, then the same prepared facts install once at RootLower. The executable row admits only fully explicit known non-generic RecordLiteral; defaults and invalid forms remain Deferred."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-D0"
-current_execution_row = "RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-D0"
-current_execution_summary = "Decide whether immutable record-schema demand facts can be available before ScriptSemanticSeal without moving existing RootLower diagnostics. Only a fully explicit, known, non-generic RecordLiteral could later become Complete; omitted defaults, invalid schemas, RecordUpdate, QMark control/result, Loop JoinIR, Lambda capture, and broad BlockExpr remain separate stops."
+current_design_stop = "RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0"
+current_execution_row = "RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0"
+current_execution_summary = "Collect Program declaration facts once after CatalogSeal; loan an immutable record schema view to ScriptSemanticSeal; move the same prepared product into RootLower for its existing one-time install. Admit only fully explicit known non-generic RecordLiteral; omitted defaults, invalid schemas, RecordUpdate, QMark control/result, Loop JoinIR, Lambda capture, and broad BlockExpr remain Deferred."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"
@@ -649,7 +649,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-D0"
+current_blocker_token = "RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
