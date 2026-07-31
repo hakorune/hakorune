@@ -265,27 +265,28 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-POST-OUTBOX-CAPABILITY-CENSUS0-D0
+  RAW-SCRIPT-IF-ROOT-CONTROL-CONTRACT0-D0
 
   Change:
     Recount the remaining selected Script Deferred production edges after the
-    Outbox cutover and select one capability family only when it has a shared
-    traversal activation and one deletable old edge.
+    Close the missing Script-root control-region contract exposed by the
+    post-Outbox census before any lexical-safe If cutover is reconsidered.
 
   Contract:
-    The shared root-neutral traversal remains the sole semantic matcher.
-    ExistingRootLower remains one typed terminal until a selected family moves
-    as a whole; no AST-kind batch, second resolver, mixed routing, fallback,
+    `resolve_if` is not itself Script-root authority: Script root must satisfy
+    the existing If-region verifier without widening nested ScopeBox behavior.
+    No second resolver, special root-only acceptance, mixed routing, fallback,
     or retry.
 
   Done:
-    Record one bounded I0/R0 or one genuine NoSafeSlice in this card. Keep
-    the fixture-identity ratchet monotonic and every source/check file below
-    800 lines.
+    Specify the source/profile/region contract that makes a lexical-safe If
+    I0 possible, or retain If under ExistingRootLower. Keep source/check files
+    below 800 lines.
 
   Stop:
-    Stop for a design decision if no remaining edge can activate without new
-    control, object, allocation, capture, or diagnostic authority.
+    Do not implement while Script-root If sealing produces
+    `IfRegion(ControlContractMismatch)` or profile activation widens nested
+    ScopeBox If from Deferred to Complete.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -297,6 +298,11 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-POST-OUTBOX-CAPABILITY-CENSUS0-D0
+  -> `RAW-SCRIPT-IF-LEXICAL-STRUCTURED-CONTROL0-I0-R0` is NoSafeSlice:
+     root `resolve_if` fails If-region control verification and a simple
+     profile gate widens nested ScopeBox If. No I0 implementation landed.
+
   RAW-SCRIPT-OUTBOX-SEMANTIC-MATERIALIZATION0-I0-R0
   -> Complete Script source seals every exact Outbox BindingRef in source
      order; the raw source port consumes the existing Outbox emission receipt

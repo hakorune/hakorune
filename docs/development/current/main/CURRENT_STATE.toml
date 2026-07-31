@@ -1,12 +1,12 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-OUTBOX-SEMANTIC-MATERIALIZATION0-I0-R0 is closed: selected Complete Script requests now seal exact Outbox BindingRef receipts and consume the existing ordered emission receipt once. The old selected Outbox Deferred-to-bare-script-root edge is retired; a fresh capability census is next."
+status = "RAW-SCRIPT-OUTBOX-SEMANTIC-MATERIALIZATION0-I0-R0 is closed: selected Complete Script requests now seal exact Outbox BindingRef receipts and consume the existing ordered emission receipt once. The old selected Outbox Deferred-to-bare-script-root edge is retired. The post-Outbox census closed If as NoSafeSlice; a root-control design gate is next."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-POST-OUTBOX-CAPABILITY-CENSUS0-D0"
-current_execution_row = "RAW-SCRIPT-POST-OUTBOX-CAPABILITY-CENSUS0-D0"
+current_design_stop = "RAW-SCRIPT-IF-ROOT-CONTROL-CONTRACT0-D0"
+current_execution_row = "RAW-SCRIPT-IF-ROOT-CONTROL-CONTRACT0-D0"
 current_execution_summary = "Census the remaining selected Script Deferred production edges once, then choose one responsibility family with a real shared-traversal activation and same-commit old-edge deletion. Do not preselect an AST kind."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
@@ -649,7 +649,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-POST-OUTBOX-CAPABILITY-CENSUS0-D0"
+current_blocker_token = "RAW-SCRIPT-IF-ROOT-CONTROL-CONTRACT0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
