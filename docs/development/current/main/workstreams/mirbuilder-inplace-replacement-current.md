@@ -3666,7 +3666,7 @@ Next design:
   `MIRBUILDER-LIVE-EDGE-CENSUS47-D0` — fresh, read-only, narrow census.
   Do not preselect Check, And/Or, control, calls/objects, Box, or Lambda.
 
-## RAW-SCRIPT-CHECK-LEXICAL-CLOSURE0-D0 — accepted
+## RAW-SCRIPT-CHECK-LEXICAL-CLOSURE0-I0-R0 — closed at a78d4e968a
 
 ```text
 Decision:
@@ -3706,6 +3706,21 @@ Hard stops:
   short-circuiting, Bool type policy, item-level route mixing, new Check owner
   or failure type, selected retry, AST clone/reparse, new guard/test file, or
   any touched source/check file reaching 800 lines.
+
+Evidence:
+  `normal_script` 34/34, selected Check lexical MIR/verification parity,
+  Check owner order/failure tests, `cargo check --lib`, current-state pointer
+  guard, and cut0 guard are green. The touched Rust files and shared guard
+  remain below 800 lines. Code landed in a78d4e968a.
+
+Atomic deletion:
+  Safe CheckExpr no longer selects the Deferred Script `script_root(())`
+  edge. Unsafe items remain one Deferred request; no item-level retry or
+  mixed routing was added.
+
+Next design:
+  `MIRBUILDER-LIVE-EDGE-CENSUS48-D0` — fresh, read-only, narrow census.
+  Do not preselect And/Or, control, calls/objects, Box, Weak, or Lambda.
 ```
 ```
 
@@ -6203,7 +6218,9 @@ R2at MIRBUILDER-LIVE-EDGE-CENSUS46-D0 closed
 R2au RAW-SCRIPT-AWAIT-LEXICAL-CLOSURE0-D0 accepted design stop
 R2av RAW-SCRIPT-AWAIT-LEXICAL-CLOSURE0-I0-R0 closed at 074e944fec
 R2aw MIRBUILDER-LIVE-EDGE-CENSUS47-D0 closed
-R2ax RAW-SCRIPT-CHECK-LEXICAL-CLOSURE0-D0 current design stop
+R2ax RAW-SCRIPT-CHECK-LEXICAL-CLOSURE0-D0 accepted design stop
+R2ay RAW-SCRIPT-CHECK-LEXICAL-CLOSURE0-I0-R0 closed at a78d4e968a
+R2az MIRBUILDER-LIVE-EDGE-CENSUS48-D0 current design stop
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
