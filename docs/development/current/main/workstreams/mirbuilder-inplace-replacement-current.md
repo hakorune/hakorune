@@ -3858,6 +3858,41 @@ Next:
     raw-script-static-const-semantic-closure0-i0-r0-execution-task-2026-08-01.md
 ```
 
+## RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0 — current design stop
+
+```text
+Census51 result:
+  structural threshold reached; no next AST family selected.
+
+Finding:
+  normal_script_lexical_binding::admit_expression_v1 already owns recursive
+  Local/Variable lexical resolution beside the canonical shadow resolver.
+  Adding If/Call/Lambda would construct a second resolver. Using is locally
+  safe but only a generic emit_void compatibility no-op, not the next final-
+  pipeline authority.
+
+Question:
+  design one private root-neutral traversal over the Script runtime demand
+  window and original Program ordinals, shared with Function/Lambda semantics.
+  The first production cutover must delete admit_expression_v1 plus manual
+  Script Local/Variable facts and retain one forest/projection, one Lower,
+  whole-request Complete/Deferred, and zero fallback.
+
+Consultation:
+  docs/development/current/main/investigations/
+  raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md
+```
+
+## MIRBUILDER-LIVE-EDGE-CENSUS51-D0 — closed
+
+```text
+Three bounded audits and one arbitration compared Using, Control, FastMem,
+Call/Object, Lambda, Box, and the shared resolver boundary. The local Using
+slice was rejected because it would formalize a compatibility no-op while the
+parallel Script resolver continued to grow. The shared traversal design stop
+is the sole next authority.
+```
+
 ## RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0 — closed
 
 ```text
@@ -6459,7 +6494,8 @@ R2bd RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0 closed: Candidate A-prime
 R2be RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0 closed
 R2bf MIRBUILDER-LIVE-EDGE-CENSUS50-D0 closed: selected existing diagnostic family
 R2bg RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0 closed
-R2bh MIRBUILDER-LIVE-EDGE-CENSUS51-D0 current bounded batch census
+R2bh MIRBUILDER-LIVE-EDGE-CENSUS51-D0 closed: shared-resolver threshold
+R2bi RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0 current design consultation
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed

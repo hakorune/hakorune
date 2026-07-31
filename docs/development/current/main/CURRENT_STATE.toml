@@ -1,15 +1,16 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0 is closed. The existing nine-kind DirectSelectedUnsupportedStatement family now reaches Script Complete through an exact ProgramBody diagnostic receipt while retaining the existing RootLower diagnostic. The next stop is the bounded post-zero-demand batch census."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS51-D0 is closed at the structural threshold. Using is locally possible but would only add a no-op family; the current Script lexical admission is already becoming a second resolver. The active design stop is RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "MIRBUILDER-LIVE-EDGE-CENSUS51-D0"
-current_execution_summary = "StaticConst and the selected unsupported diagnostic family close the current zero-demand Script batch. Perform one bounded live-edge census before selecting the next responsibility; do not automatically choose Using, Control, Call/Object, Allocation, Weak, Lambda, Box, or Outbox. Apply the implementation-coupled commit law: ordinary bounded selection, implementation, and closeout stay in one refactor commit."
+current_design_stop = "RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0"
+current_execution_row = "RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0"
+current_execution_summary = "Design one root-neutral shared shadow traversal for Function/Lambda and Script runtime demand windows. The eventual atomic cutover must delete admit_expression_v1 and manual Script Local/Variable fact construction, preserve whole-request Complete/Deferred diagnostic order, and issue one shared forest/projection without fallback. Do not implement Using or another AST family while this stop is open."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
+current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"
 current_static_const_semantic_closure_task = "docs/development/current/main/investigations/raw-script-static-const-semantic-closure0-i0-r0-execution-task-2026-08-01.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -444,7 +445,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0 is closed. One existing nine-kind diagnostic family moved from Deferred to Script Complete with exact ProgramBody coverage and unchanged RootLower diagnostics. MIRBUILDER-LIVE-EDGE-CENSUS51-D0 is the bounded post-batch stop."""
+latest_card_summary = """MIRBUILDER-LIVE-EDGE-CENSUS51-D0 is closed at a shared-resolver threshold. RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0 is the active external design consultation; no further AST-family cutover is selected before it closes."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -647,7 +648,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS51-D0"
+current_blocker_token = "RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
