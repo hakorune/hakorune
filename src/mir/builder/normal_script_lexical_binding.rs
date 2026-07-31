@@ -67,6 +67,7 @@ pub(super) fn admit_runtime_script_lexical_v1(
         if !matches!(
             admission.admission,
             NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression
+                | NormalScriptRuntimeStatementAdmissionV1::DirectPrint
         ) {
             return ScriptLexicalAdmissionV1::Deferred(
                 ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement,
@@ -74,6 +75,20 @@ pub(super) fn admit_runtime_script_lexical_v1(
         }
         let index = admission.source_statement_index;
         match statement {
+            ASTNode::Print { expression, .. } => {
+                let Some(segment) = ExprChildRoleV1::PrintValue.segment_for(statement) else {
+                    return ScriptLexicalAdmissionV1::Deferred(
+                        ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement,
+                    );
+                };
+                let path = [segment];
+                if let Err(reason) =
+                    admit_expression_v1(expression, index, false, &path, &visible, &mut variables)
+                {
+                    return ScriptLexicalAdmissionV1::Deferred(reason);
+                }
+                expression_source_indices.push(index);
+            }
             ASTNode::Literal { .. } | ASTNode::Variable { .. } | ASTNode::UnaryOp { .. } => {
                 if let Err(reason) =
                     admit_expression_v1(statement, index, false, &[], &visible, &mut variables)
@@ -249,6 +264,29 @@ mod tests {
         let result = admit_runtime_script_lexical_v1(&statements, &[admission()]);
         let ScriptLexicalAdmissionV1::Complete(facts) = result else {
             panic!("ordinary unary must be Complete");
+        };
+        assert_eq!(facts.expression_source_indices.as_ref(), &[0]);
+        assert!(facts.variables.is_empty());
+    }
+
+    #[test]
+    fn print_admits_the_existing_expression_closure() {
+        let statements = vec![ASTNode::Print {
+            expression: Box::new(ASTNode::UnaryOp {
+                operator: UnaryOperator::Minus,
+                operand: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(1),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        }];
+        let mut admission = admission();
+        admission.admission = NormalScriptRuntimeStatementAdmissionV1::DirectPrint;
+        let result = admit_runtime_script_lexical_v1(&statements, &[admission]);
+        let ScriptLexicalAdmissionV1::Complete(facts) = result else {
+            panic!("Print over the existing expression closure must be Complete");
         };
         assert_eq!(facts.expression_source_indices.as_ref(), &[0]);
         assert!(facts.variables.is_empty());

@@ -343,4 +343,62 @@ mod tests {
             .expect("local fixture should remain Complete");
         assert!(result.verification_result.is_ok());
     }
+
+    #[test]
+    fn selected_normal_print_lexical_closure_matches_legacy() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let source = r#"
+local x = 1
+print(-x)
+"#;
+        let legacy_ast = NyashParser::parse_from_string(source).expect("legacy Print source");
+        let normal_ast = NyashParser::parse_from_string(source).expect("normal Print source");
+        let mut legacy_compiler = MirCompiler::with_options(false);
+        let legacy = legacy_compiler
+            .compile_with_source(legacy_ast, Some("script-print-lexical.hako"))
+            .expect("legacy Print module");
+        let mut normal_compiler = MirCompiler::with_options(false);
+        let request = NormalCompileRequestV1::for_mir_mode(
+            normal_ast,
+            Some("script-print-lexical.hako"),
+            std::collections::HashMap::new(),
+        )
+        .expect("normal Print request");
+        let normal = normal_compiler
+            .compile_normal(request)
+            .expect("normal Print module");
+        assert_eq!(
+            MirPrinter::new().print_module(&normal.module),
+            MirPrinter::new().print_module(&legacy.module)
+        );
+        assert_eq!(normal.verification_result, legacy.verification_result);
+    }
+
+    #[test]
+    fn real_print_fixture_uses_the_selected_normal_request() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let source =
+            include_str!("../../../tools/checks/fixtures/raw_vm_reference_conformance/print.hako");
+        let legacy_ast = NyashParser::parse_from_string(source).expect("legacy print fixture");
+        let normal_ast = NyashParser::parse_from_string(source).expect("normal print fixture");
+        let mut legacy_compiler = MirCompiler::with_options(false);
+        let legacy = legacy_compiler
+            .compile_with_source(legacy_ast, Some("print.hako"))
+            .expect("legacy print fixture compile");
+        let mut normal_compiler = MirCompiler::with_options(false);
+        let request = NormalCompileRequestV1::for_mir_mode(
+            normal_ast,
+            Some("print.hako"),
+            std::collections::HashMap::new(),
+        )
+        .expect("normal print fixture request");
+        let normal = normal_compiler
+            .compile_normal(request)
+            .expect("normal print fixture compile");
+        assert_eq!(
+            MirPrinter::new().print_module(&normal.module),
+            MirPrinter::new().print_module(&legacy.module)
+        );
+        assert_eq!(normal.verification_result, legacy.verification_result);
+    }
 }
