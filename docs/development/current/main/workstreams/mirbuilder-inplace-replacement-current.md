@@ -265,9 +265,18 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  MIRBUILDER-BATCH-BOUNDARY-LIVE-EDGE-CENSUS0-D0
-  -> inspect the remaining live Script responsibility boundaries
-  -> select one production authority only after fresh evidence
+  RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-D0
+  -> existing FastMem structured-scope shadow traversal + existing FastMem lower
+  -> lexical-safe whole FastMem body may Complete; unsafe body remains Deferred
+  -> no FastMem contract/region/metadata diagnostic may move before RootLower
+
+ordered after fresh evidence only
+  1. top-level bare Me existing-diagnostic boundary (zero child; no receiver fact)
+  2. If / assignment / Loop / Return only as separate Control, Mutation, JoinIR,
+     and Exit design rows
+  3. Call/Object / allocation / Lambda only as separate owner-family design rows
+  4. R4 consumes the live fence registry above; every item must retire, reown,
+     or be explicitly retained before final conformance
 
 R4
   MIRBUILDER-R4-FINAL-CONFORMANCE0-C0 after all active rows above have exact
