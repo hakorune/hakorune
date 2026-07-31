@@ -7,8 +7,9 @@ use std::num::NonZeroU32;
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     project_source_node_v1, BindingOriginV1, FunctionOwnerIdV1, ProjectedSourceNodeV1,
-    RegionOriginV1, ResolvedExitOriginV1, ResolvedExitSiteV1, ScopeOriginV1, SourceBindingSiteV1,
-    SourceExprSiteV1, SourceNodeSiteV1, VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
+    RegionOriginV1, ResolvedExitOriginV1, ResolvedExitSiteV1, ScopeOriginV1,
+    SemanticOwnerRootProfileV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
+    VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -207,10 +208,23 @@ impl VerifiedSourceProjectionV1 {
         forest: &VerifiedSemanticOwnerForestV1,
     ) -> Result<Self, SourceNavigationErrorV1> {
         let root_owner = forest.roots()[0];
-        if !matches!(syntax_root, ASTNode::FunctionDeclaration { .. }) {
+        let profile = forest
+            .owner(root_owner)
+            .ok_or(SourceNavigationErrorV1::UnknownOwner(root_owner))?
+            .root_profile();
+        Self::seal_with_root_profile(syntax_root, forest, profile)
+    }
+
+    pub(super) fn seal_with_root_profile(
+        syntax_root: &ASTNode,
+        forest: &VerifiedSemanticOwnerForestV1,
+        root_profile: SemanticOwnerRootProfileV1,
+    ) -> Result<Self, SourceNavigationErrorV1> {
+        let root_owner = forest.roots()[0];
+        if !root_matches_profile(syntax_root, root_profile) {
             return Err(SourceNavigationErrorV1::InvalidOwnerRoot {
                 owner: root_owner,
-                expected: "FunctionDeclaration",
+                expected: expected_root_name(root_profile),
                 actual: syntax_root.node_type(),
             });
         }
@@ -219,7 +233,7 @@ impl VerifiedSourceProjectionV1 {
         for (owner, product) in forest.owners() {
             let chain = definition_chain(forest, root_owner, owner)?;
             let owner_root = locate_owner_root(syntax_root, owner, &chain)?;
-            verify_owner_root(owner, owner == root_owner, owner_root)?;
+            verify_owner_root(owner, owner == root_owner, root_profile, owner_root)?;
             verify_semantic_sites(owner, owner_root, product)?;
             definition_chains.insert(owner, chain.into_boxed_slice());
         }
@@ -304,10 +318,11 @@ fn locate_owner_root<'a>(
 fn verify_owner_root(
     owner: FunctionOwnerIdV1,
     is_root: bool,
+    root_profile: SemanticOwnerRootProfileV1,
     syntax: &ASTNode,
 ) -> Result<(), SourceNavigationErrorV1> {
     let valid = if is_root {
-        matches!(syntax, ASTNode::FunctionDeclaration { .. })
+        root_matches_profile(syntax, root_profile)
     } else {
         matches!(syntax, ASTNode::Lambda { .. })
     };
@@ -317,12 +332,31 @@ fn verify_owner_root(
         Err(SourceNavigationErrorV1::InvalidOwnerRoot {
             owner,
             expected: if is_root {
-                "FunctionDeclaration"
+                expected_root_name(root_profile)
             } else {
                 "Lambda"
             },
             actual: syntax.node_type(),
         })
+    }
+}
+
+fn root_matches_profile(syntax: &ASTNode, profile: SemanticOwnerRootProfileV1) -> bool {
+    matches!(
+        (profile, syntax),
+        (
+            SemanticOwnerRootProfileV1::DeclaredFunction { .. },
+            ASTNode::FunctionDeclaration { .. }
+        ) | (SemanticOwnerRootProfileV1::Script, ASTNode::Program { .. })
+            | (SemanticOwnerRootProfileV1::Lambda, ASTNode::Lambda { .. })
+    )
+}
+
+fn expected_root_name(profile: SemanticOwnerRootProfileV1) -> &'static str {
+    match profile {
+        SemanticOwnerRootProfileV1::DeclaredFunction { .. } => "FunctionDeclaration",
+        SemanticOwnerRootProfileV1::Script => "Program",
+        SemanticOwnerRootProfileV1::Lambda => "Lambda",
     }
 }
 

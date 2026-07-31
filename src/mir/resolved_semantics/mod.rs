@@ -31,6 +31,7 @@ mod owner_source_kind;
 mod product;
 mod records;
 mod resolver;
+mod script_view;
 mod shadow;
 mod source_path_policy;
 mod source_projection;
@@ -107,6 +108,7 @@ pub use records::{
     ScopeOriginV1, SyntheticBindingKindV1,
 };
 pub(crate) use resolver::{FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1};
+pub(crate) use script_view::ScriptSyntaxViewV1;
 pub(in crate::mir) use shadow::{
     observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
     ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0,

@@ -3393,6 +3393,40 @@ Next:
   connect a Script production consumer yet.
 ```
 
+## SEMANTIC-OWNER-PROJECTION0-S2 — closed
+
+```text
+Decision:
+  The private projection seal now derives the root contract from
+  `SemanticOwnerRootProfileV1`. Function roots still require
+  `FunctionDeclaration`; Script roots are structurally recognized as
+  `Program` without widening `FunctionSyntaxViewV1`. A separate
+  `ScriptSyntaxViewV1` sibling now carries an owned Program borrow and the
+  Script profile, with no builder/work-plan dependency.
+
+Evidence:
+  cargo check --lib --quiet
+    = passed (pre-existing warnings only)
+  cargo test --lib source_projection --quiet
+    = 13 passed
+  cargo test --lib script_view --quiet
+    = 1 passed
+  source_projection.rs        = 528 lines
+  script_view.rs              = 61 lines
+
+Non-effects:
+  Script forest construction  = 0
+  Script port / production    = 0
+  raw/reference behavior      = unchanged
+  grammar / result / fallback = unchanged
+
+Next:
+  SEMANTIC-OWNER-SCRIPT-PORT0-S3
+  Add the real typed immutable Script source-view loan for the prepared
+  runtime window. A carrier-only rename is forbidden; the port must consume
+  exact ProgramBody(original ordinal) sites. Keep raw/reference ports intact.
+```
+
 ## RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 — closed, Accept(A-prime)
 
 ```text
