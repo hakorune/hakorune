@@ -93,7 +93,10 @@ pub(crate) use owner_resolver::ResolveOwnerForestErrorV1;
 pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;
 pub use owner_source_kind::SemanticOwnerSourceKindV1;
 pub use product::VerifiedResolvedFunctionV1;
-pub(crate) use product::{ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1};
+pub(crate) use product::{
+    ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1, VerifiedResolvedOwnerCoreV1,
+    VerifiedResolvedScriptV1,
+};
 pub use records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
     ResolvedBindingRecordV1, ResolvedControlTransferV1, ResolvedExitOriginV1, ResolvedExitRecordV1,

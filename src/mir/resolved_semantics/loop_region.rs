@@ -60,14 +60,15 @@ impl VerifiedResolvedFunctionV1 {
         &self,
         site: &SourceStmtSiteV1,
     ) -> Result<&ResolvedLoopRegionBundleV1, ResolvedLoopRegionLookupErrorV1> {
-        self.loop_regions
+        self.core
+            .loop_regions
             .get(site)
             .ok_or_else(|| ResolvedLoopRegionLookupErrorV1::MissingExactBundle(site.clone()))
     }
 
     /// Returns only the sealed cardinality for future source/flow bijection.
     pub(crate) fn loop_region_bundle_count(&self) -> usize {
-        self.loop_regions.len()
+        self.core.loop_regions.len()
     }
 }
 

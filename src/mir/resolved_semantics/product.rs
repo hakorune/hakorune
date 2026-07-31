@@ -45,14 +45,28 @@ pub(crate) struct ResolvedFunctionDraftV1 {
     pub(crate) data: ResolvedFunctionDataV1,
 }
 
-/// Immutable semantic authority published only after verification.
+/// Root-neutral immutable semantic authority published after verification.
 #[derive(Debug)]
-pub struct VerifiedResolvedFunctionV1 {
+pub(crate) struct VerifiedResolvedOwnerCoreV1 {
     data: ResolvedFunctionDataV1,
     normalized: NormalizedResolvedFunctionGraphV1,
     lowering_roots: ResolvedFunctionLoweringRootsV1,
-    pub(super) if_regions: ResolvedIfRegionIndexV1,
-    pub(super) loop_regions: ResolvedLoopRegionIndexV1,
+    pub(crate) if_regions: ResolvedIfRegionIndexV1,
+    pub(crate) loop_regions: ResolvedLoopRegionIndexV1,
+}
+
+/// Immutable declared-function/Lambda authority. The public wrapper remains
+/// stable while the forest evolves to hold additional root profiles.
+#[derive(Debug)]
+pub struct VerifiedResolvedFunctionV1 {
+    pub(crate) core: VerifiedResolvedOwnerCoreV1,
+}
+
+/// Script wrapper reserved for the shared forest; no Script constructor or
+/// consumer is introduced by this behavior-neutral refactor.
+#[derive(Debug)]
+pub(crate) struct VerifiedResolvedScriptV1 {
+    core: VerifiedResolvedOwnerCoreV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -89,171 +103,178 @@ impl ResolvedFunctionDraftV1 {
         let derived = verify_resolved_function(&self.data)?;
         let normalized = build_normalized_graph(&self.data);
         Ok(VerifiedResolvedFunctionV1 {
-            data: self.data,
-            normalized,
-            lowering_roots: derived.lowering_roots,
-            if_regions: derived.if_regions,
-            loop_regions: derived.loop_regions,
+            core: VerifiedResolvedOwnerCoreV1 {
+                data: self.data,
+                normalized,
+                lowering_roots: derived.lowering_roots,
+                if_regions: derived.if_regions,
+                loop_regions: derived.loop_regions,
+            },
         })
     }
 }
 
 impl VerifiedResolvedFunctionV1 {
     pub const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.data.owner
+        self.core.data.owner
     }
 
     pub const fn function_origin(&self) -> FunctionOriginV1 {
-        self.data.function_origin
+        self.core.data.function_origin
     }
 
     pub const fn source_kind(&self) -> super::SemanticOwnerSourceKindV1 {
-        self.data.root_profile.source_kind()
+        self.core.data.root_profile.source_kind()
     }
 
     pub(crate) const fn root_profile(&self) -> SemanticOwnerRootProfileV1 {
-        self.data.root_profile
+        self.core.data.root_profile
     }
 
     pub const fn function_scope(&self) -> ScopeId {
-        self.data.function_scope
+        self.core.data.function_scope
     }
 
     pub const fn function_region(&self) -> RegionId {
-        self.data.function_region
+        self.core.data.function_region
     }
 
     pub(crate) const fn lowering_roots(&self) -> ResolvedFunctionLoweringRootsV1 {
-        self.lowering_roots
+        self.core.lowering_roots
     }
 
     pub fn binding_ref(&self, id: BindingId) -> Option<BindingRefV1> {
-        self.data
+        self.core
+            .data
             .bindings
             .contains_key(&id)
-            .then(|| BindingRefV1::new(self.data.owner, id))
+            .then(|| BindingRefV1::new(self.core.data.owner, id))
     }
 
     pub fn binding(&self, id: BindingRefV1) -> Option<&ResolvedBindingRecordV1> {
-        (id.owner() == self.data.owner)
-            .then(|| self.data.bindings.get(&id.binding()))
+        (id.owner() == self.core.data.owner)
+            .then(|| self.core.data.bindings.get(&id.binding()))
             .flatten()
     }
 
     pub(crate) fn bindings(
         &self,
     ) -> impl Iterator<Item = (BindingRefV1, &ResolvedBindingRecordV1)> {
-        self.data
+        self.core
+            .data
             .bindings
             .iter()
-            .map(|(binding, record)| (BindingRefV1::new(self.data.owner, *binding), record))
+            .map(|(binding, record)| (BindingRefV1::new(self.core.data.owner, *binding), record))
     }
 
     pub fn scope(&self, id: ScopeId) -> Option<&ResolvedScopeRecordV1> {
-        (id.owner() == self.data.owner)
-            .then(|| self.data.scopes.get(&id))
+        (id.owner() == self.core.data.owner)
+            .then(|| self.core.data.scopes.get(&id))
             .flatten()
     }
 
     pub(crate) fn scopes(&self) -> impl Iterator<Item = (ScopeId, &ResolvedScopeRecordV1)> {
-        self.data
+        self.core
+            .data
             .scopes
             .iter()
             .map(|(scope, record)| (*scope, record))
     }
 
     pub fn region(&self, id: RegionId) -> Option<&ResolvedRegionRecordV1> {
-        (id.owner() == self.data.owner)
-            .then(|| self.data.regions.get(&id))
+        (id.owner() == self.core.data.owner)
+            .then(|| self.core.data.regions.get(&id))
             .flatten()
     }
 
     pub(crate) fn regions(&self) -> impl Iterator<Item = (RegionId, &ResolvedRegionRecordV1)> {
-        self.data
+        self.core
+            .data
             .regions
             .iter()
             .map(|(region, record)| (*region, record))
     }
 
     pub fn declaration_binding(&self, site: &SourceBindingSiteV1) -> Option<BindingRefV1> {
-        self.data.declarations.get(site).copied()
+        self.core.data.declarations.get(site).copied()
     }
 
     pub(crate) fn declaration_sites(&self) -> impl Iterator<Item = &SourceBindingSiteV1> {
-        self.data.declarations.keys()
+        self.core.data.declarations.keys()
     }
 
     pub fn variable_ref(&self, site: &SourceExprSiteV1) -> Option<ResolvedLexicalRefV1> {
-        self.data.variable_uses.get(site).copied()
+        self.core.data.variable_uses.get(site).copied()
     }
 
     pub(crate) fn variable_refs(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &ResolvedLexicalRefV1)> {
-        self.data.variable_uses.iter()
+        self.core.data.variable_uses.iter()
     }
 
     pub fn assignment_target(
         &self,
         site: &SourceExprSiteV1,
     ) -> Option<&ResolvedAssignmentTargetV1> {
-        self.data.assignment_targets.get(site)
+        self.core.data.assignment_targets.get(site)
     }
 
     pub(crate) fn assignment_targets(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &ResolvedAssignmentTargetV1)> {
-        self.data.assignment_targets.iter()
+        self.core.data.assignment_targets.iter()
     }
 
     pub(crate) fn direct_call_target(
         &self,
         site: &SourceExprSiteV1,
     ) -> Option<ResolvedDirectCallTargetV1> {
-        self.data.direct_call_targets.get(site).copied()
+        self.core.data.direct_call_targets.get(site).copied()
     }
 
     pub(crate) fn direct_call_targets(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, ResolvedDirectCallTargetV1)> {
-        self.data
+        self.core
+            .data
             .direct_call_targets
             .iter()
             .map(|(site, target)| (site, *target))
     }
 
     pub fn resolved_exit(&self, site: &ResolvedExitSiteV1) -> Option<&ResolvedExitRecordV1> {
-        self.data.resolved_exits.get(site)
+        self.core.data.resolved_exits.get(site)
     }
 
     pub(crate) fn resolved_exits(
         &self,
     ) -> impl Iterator<Item = (&ResolvedExitSiteV1, &ResolvedExitRecordV1)> {
-        self.data.resolved_exits.iter()
+        self.core.data.resolved_exits.iter()
     }
 
     pub fn binding_count(&self) -> usize {
-        self.data.bindings.len()
+        self.core.data.bindings.len()
     }
 
     pub fn scope_count(&self) -> usize {
-        self.data.scopes.len()
+        self.core.data.scopes.len()
     }
 
     pub fn region_count(&self) -> usize {
-        self.data.regions.len()
+        self.core.data.regions.len()
     }
 
     pub fn normalized_graph(&self) -> &NormalizedResolvedFunctionGraphV1 {
-        &self.normalized
+        &self.core.normalized
     }
 
     pub(crate) fn exact_scope_containing(
         &self,
         site: &super::source_site::SourceNodeSiteV1,
     ) -> Option<ScopeId> {
-        let region = super::verifier::exact_source_region_v1(&self.data, site)?;
-        self.data.regions.get(&region)?.lexical_scope()
+        let region = super::verifier::exact_source_region_v1(&self.core.data, site)?;
+        self.core.data.regions.get(&region)?.lexical_scope()
     }
 
     pub(crate) fn block_expr_scope_region_pair(
@@ -261,12 +282,13 @@ impl VerifiedResolvedFunctionV1 {
         owner: FunctionOwnerIdV1,
         site: &SourceExprSiteV1,
     ) -> Result<ResolvedScopeRegionPairV1, ResolvedScopeRegionLookupErrorV1> {
-        if owner != self.data.owner {
+        if owner != self.core.data.owner {
             return Err(ResolvedScopeRegionLookupErrorV1::ForeignOwner);
         }
         let path = SourcePathV1::from_node(site.node());
         let origin = path.child(SourcePathSegmentV1::BlockExprPreludeRoot).node();
         let matching_regions = self
+            .core
             .data
             .regions
             .iter()

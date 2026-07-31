@@ -76,7 +76,8 @@ impl VerifiedResolvedFunctionV1 {
         &self,
         site: &SourceStmtSiteV1,
     ) -> Result<&ResolvedIfRegionBundleV1, ResolvedIfRegionLookupErrorV1> {
-        self.if_regions
+        self.core
+            .if_regions
             .get(site)
             .ok_or_else(|| ResolvedIfRegionLookupErrorV1::MissingExactBundle(site.clone()))
     }
@@ -86,7 +87,7 @@ impl VerifiedResolvedFunctionV1 {
     /// RegionFlow still has to prove every exact source site by point lookup;
     /// this count does not expose arena or index iteration as another authority.
     pub(crate) fn if_region_bundle_count(&self) -> usize {
-        self.if_regions.len()
+        self.core.if_regions.len()
     }
 }
 

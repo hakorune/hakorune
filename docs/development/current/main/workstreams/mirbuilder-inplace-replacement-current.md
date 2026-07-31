@@ -3300,6 +3300,36 @@ Next:
   production or edit program_root_work_plan.rs.
 ```
 
+## SEMANTIC-OWNER-CORE0-S1A — closed
+
+```text
+Decision:
+  Behavior-neutral product-core refactor landed. The resolved semantic
+  payload is now wrapped by private `VerifiedResolvedOwnerCoreV1`; the
+  existing `VerifiedResolvedFunctionV1` remains the public Function/Lambda
+  wrapper and delegates through that core. A private Script wrapper type is
+  reserved without a constructor or production consumer.
+
+Non-effects:
+  forest payload             = unchanged
+  lowering-root verification = unchanged
+  Script production consumer = 0
+  grammar / result / fallback = unchanged
+
+Evidence:
+  cargo check --lib --quiet
+    = passed (pre-existing warnings only)
+  cargo test --lib resolved_semantics:: --quiet
+    = 163 passed
+  touched source/check files = all <800 lines
+
+Next:
+  SEMANTIC-OWNER-CORE0-S1B
+  Move only the forest payload/dispatch into a bounded sibling module. Keep
+  `forest.owner()` and `forest.owners()` Function-only for API compatibility;
+  do not construct a Script owner or connect a port.
+```
+
 ## RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 — closed, Accept(A-prime)
 
 ```text
