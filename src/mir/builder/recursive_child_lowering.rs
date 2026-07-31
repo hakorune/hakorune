@@ -24,7 +24,7 @@ use super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1,
     RawInvocationSourceTransportV1, RawSourceTransportPortV1, RawUnlocatedPortalV1,
 };
-use super::normal_script_lexical_binding::ScriptSemanticLoweringState;
+use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::raw_loop_child_entry::PreparedLocatedRawLoopChildEntryV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 pub(in crate::mir::builder) use super::raw_expression_recursion_guard::

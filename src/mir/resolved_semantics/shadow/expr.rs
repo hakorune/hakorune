@@ -27,6 +27,12 @@ impl<'ast> ShadowResolverV0<'ast> {
         expr: &'ast ASTNode,
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
+        if !self.allows_expression(expr) {
+            return Err(ShadowResolveErrorV0::UnsupportedExpression {
+                kind: expr.node_type(),
+                site: path.expr(),
+            });
+        }
         match expr {
             ASTNode::Literal { .. } => Ok(()),
             ASTNode::Variable { name, .. } => self.resolve_named_use(name, path),

@@ -1,5 +1,4 @@
 //! Draft/sealed publication boundary for resolved function semantics.
-
 use std::collections::BTreeMap;
 
 use hakorune_mir_core::BindingId;
@@ -111,141 +110,6 @@ impl ResolvedFunctionDraftV1 {
         self,
     ) -> Result<VerifiedResolvedFunctionV1, ResolvedFunctionVerificationErrorV1> {
         Ok(VerifiedResolvedFunctionV1 {
-            core: seal_owner_core(self.data)?,
-        })
-    }
-}
-
-/// Construction-local Script producer for the admitted lexical closure.
-///
-/// It owns no AST and publishes only BindingRef/source-site facts. Runtime
-/// values remain in the selected invocation's request-local ledger.
-#[derive(Debug)]
-pub(crate) struct ResolvedScriptSemanticDraftV1 {
-    data: ResolvedFunctionDataV1,
-}
-
-impl ResolvedScriptSemanticDraftV1 {
-    pub(crate) fn new(owner: FunctionOwnerIdV1) -> Self {
-        let function_origin = FunctionOriginV1::new(0, owner.slot());
-        let function_scope = ScopeId::new(owner, 0);
-        let body_scope = ScopeId::new(owner, 1);
-        let function_region = RegionId::new(owner, 0);
-        let body_region = RegionId::new(owner, 1);
-        let body_origin = SourcePathV1::program_body().node();
-
-        Self {
-            data: ResolvedFunctionDataV1 {
-                owner,
-                function_origin,
-                root_profile: SemanticOwnerRootProfileV1::Script,
-                function_scope,
-                function_region,
-                bindings: BTreeMap::new(),
-                scopes: BTreeMap::from([
-                    (
-                        function_scope,
-                        ResolvedScopeRecordV1::new(
-                            ScopeKindV1::Function,
-                            None,
-                            function_region,
-                            Vec::new(),
-                            ScopeOriginV1::Function(function_origin),
-                        ),
-                    ),
-                    (
-                        body_scope,
-                        ResolvedScopeRecordV1::new(
-                            ScopeKindV1::LexicalBlock,
-                            Some(function_scope),
-                            body_region,
-                            Vec::new(),
-                            ScopeOriginV1::Source(body_origin.clone()),
-                        ),
-                    ),
-                ]),
-                regions: BTreeMap::from([
-                    (
-                        function_region,
-                        ResolvedRegionRecordV1::new(
-                            RegionKindV1::Function,
-                            None,
-                            Some(function_scope),
-                            RegionOriginV1::Function(function_origin),
-                        ),
-                    ),
-                    (
-                        body_region,
-                        ResolvedRegionRecordV1::new(
-                            RegionKindV1::Sequence,
-                            Some(function_region),
-                            Some(body_scope),
-                            RegionOriginV1::Source(body_origin),
-                        ),
-                    ),
-                ]),
-                declarations: BTreeMap::new(),
-                variable_uses: BTreeMap::new(),
-                assignment_targets: BTreeMap::new(),
-                direct_call_targets: BTreeMap::new(),
-                resolved_exits: BTreeMap::new(),
-            },
-        }
-    }
-
-    pub(crate) fn declare_local(
-        &mut self,
-        statement: SourceStmtSiteV1,
-        name: impl Into<Box<str>>,
-    ) -> BindingRefV1 {
-        let binding_id = BindingId::new(self.data.bindings.len() as u32);
-        let binding = BindingRefV1::new(self.data.owner, binding_id);
-        let body_scope = ScopeId::new(self.data.owner, 1);
-        let record = ResolvedBindingRecordV1::new(
-            name,
-            super::records::BindingKindV1::Local { ordinal: 0 },
-            body_scope,
-            BindingOriginV1::Source(SourceBindingSiteV1::Local {
-                statement: statement.clone(),
-                ordinal: 0,
-            }),
-        );
-        self.data.bindings.insert(binding_id, record);
-        self.data.declarations.insert(
-            SourceBindingSiteV1::Local {
-                statement: statement.clone(),
-                ordinal: 0,
-            },
-            binding,
-        );
-        let body = self
-            .data
-            .scopes
-            .get(&body_scope)
-            .expect("Script body scope");
-        let mut declarations = body.declarations().to_vec();
-        declarations.push(binding);
-        let replacement = ResolvedScopeRecordV1::new(
-            body.kind(),
-            body.parent(),
-            body.owner_region(),
-            declarations,
-            body.origin().clone(),
-        );
-        self.data.scopes.insert(body_scope, replacement);
-        binding
-    }
-
-    pub(crate) fn record_variable(&mut self, site: SourceExprSiteV1, binding: BindingRefV1) {
-        self.data
-            .variable_uses
-            .insert(site, ResolvedLexicalRefV1::Local(binding));
-    }
-
-    pub(crate) fn seal(
-        self,
-    ) -> Result<VerifiedResolvedScriptV1, ResolvedFunctionVerificationErrorV1> {
-        Ok(VerifiedResolvedScriptV1 {
             core: seal_owner_core(self.data)?,
         })
     }
@@ -480,29 +344,15 @@ impl VerifiedResolvedFunctionV1 {
 }
 
 impl VerifiedResolvedScriptV1 {
+    pub(crate) fn from_canonical_data(
+        data: ResolvedFunctionDataV1,
+    ) -> Result<Self, ResolvedFunctionVerificationErrorV1> {
+        Ok(Self {
+            core: seal_owner_core(data)?,
+        })
+    }
+
     pub(crate) const fn core(&self) -> &VerifiedResolvedOwnerCoreV1 {
         &self.core
-    }
-}
-
-#[cfg(test)]
-mod script_product_tests {
-    use super::*;
-    use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
-
-    #[test]
-    fn literal_script_draft_seals_a_program_body_root() {
-        let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
-        let owner = issuer.issue().unwrap();
-        let product = ResolvedScriptSemanticDraftV1::new(owner)
-            .seal()
-            .expect("literal Script root must seal");
-
-        assert_eq!(
-            product.core.data.root_profile,
-            SemanticOwnerRootProfileV1::Script
-        );
-        assert_eq!(product.core.lowering_roots.body_pair().scope().slot(), 1);
-        assert_eq!(product.core.lowering_roots.body_pair().region().slot(), 1);
     }
 }

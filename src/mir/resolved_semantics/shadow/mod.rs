@@ -13,7 +13,9 @@ mod path;
 mod product;
 mod resolver;
 mod root_traversal;
+mod script_root_window;
 mod stmt;
+mod traversal_profile;
 mod vocabulary;
 
 pub(super) use ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
@@ -29,7 +31,15 @@ use resolver::resolve_function_shadow_v0;
 pub(in crate::mir) use resolver::{
     observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
 };
-pub(super) use resolver::{resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0};
+pub(super) use resolver::{
+    resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0, resolve_script_shadow_view_v0,
+};
+pub(crate) use script_root_window::{
+    ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootDemandWindowSealErrorV1,
+    ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1,
+    ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1, VerifiedScriptRootDemandEntryV1,
+    VerifiedScriptRootDemandWindowV1,
+};
 
 #[cfg(test)]
 mod assignment_traversal_tests;

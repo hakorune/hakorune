@@ -8,11 +8,13 @@ use crate::mir::resolved_semantics::source_site::{
     FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 use crate::mir::resolved_semantics::FunctionSyntaxViewV1;
+use crate::mir::resolved_semantics::{ScriptSyntaxViewV1, VerifiedScriptRootDemandWindowV1};
 
 use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 use super::owner_boundary::ShadowLambdaSyntaxV0;
 use super::path::ShadowSourcePathV0;
 use super::root_traversal::ShadowRootTraversalInputV1;
+use super::traversal_profile::ShadowTraversalProfileV1;
 use super::product::{
     ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowBindingRecordV0, ShadowControlExitV0,
     ShadowDirectCallUseV0, ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0,
@@ -66,6 +68,7 @@ pub(super) struct ShadowResolverV0<'ast> {
         BTreeMap<SourceExprSiteV1, ShadowQualifiedReceiverDispositionV0>,
     receiver_policy: ReceiverPolicyV1,
     method_call_observation_mode: ShadowMethodCallObservationModeV0,
+    traversal_profile: ShadowTraversalProfileV1,
     method_call_observations: BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>,
 }
 
@@ -101,6 +104,22 @@ pub(in crate::mir::resolved_semantics) fn resolve_owner_shadow_view_v0<'ast>(
         ancestor_names,
         ShadowMethodCallObservationModeV0::Disabled,
     )
+}
+
+pub(in crate::mir::resolved_semantics) fn resolve_script_shadow_view_v0<'ast>(
+    view: ScriptSyntaxViewV1<'ast>,
+    window: &'ast VerifiedScriptRootDemandWindowV1,
+) -> Result<ShadowResolvedFunctionV0, ShadowResolveErrorV0> {
+    let input = ShadowRootTraversalInputV1::sparse_script(view, window);
+    let profile = input.root_profile();
+    traverse_shadow_root_v1(
+        input,
+        ShadowLambdaModeV0::Reject,
+        BTreeSet::new(),
+        BTreeSet::new(),
+        ShadowMethodCallObservationModeV0::Disabled,
+    )
+    .map(|resolver| resolver.finish_owner(profile).function)
 }
 
 fn resolve_shadow_view<'ast>(
@@ -169,6 +188,7 @@ fn traverse_shadow_root_v1<'ast>(
         qualified_receiver_requests,
         receiver_policy,
         method_call_observation_mode,
+        input.traversal_profile(),
     );
     if receiver_policy == ReceiverPolicyV1::DeclaredInstance {
         resolver.declare_binding(
@@ -202,12 +222,21 @@ fn traverse_shadow_root_v1<'ast>(
 }
 
 impl<'ast> ShadowResolverV0<'ast> {
+    pub(super) fn allows_statement(&self, statement: &ASTNode) -> bool {
+        self.traversal_profile.allows_statement(statement)
+    }
+
+    pub(super) fn allows_expression(&self, expression: &ASTNode) -> bool {
+        self.traversal_profile.allows_expression(expression)
+    }
+
     fn new(
         lambda_mode: ShadowLambdaModeV0,
         ancestor_names: BTreeSet<Box<str>>,
         qualified_receiver_requests: BTreeSet<SourceExprSiteV1>,
         receiver_policy: ReceiverPolicyV1,
         method_call_observation_mode: ShadowMethodCallObservationModeV0,
+        traversal_profile: ShadowTraversalProfileV1,
     ) -> Self {
         let function_scope = ShadowScopeIdV0::new(0);
         let function_region = ShadowRegionIdV0::new(0);
@@ -259,6 +288,7 @@ impl<'ast> ShadowResolverV0<'ast> {
             qualified_receiver_dispositions: BTreeMap::new(),
             receiver_policy,
             method_call_observation_mode,
+            traversal_profile,
             method_call_observations: BTreeMap::new(),
         }
     }

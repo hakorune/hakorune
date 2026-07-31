@@ -6,16 +6,15 @@
 //! Program while sealing one shared forest and projection; no raw source
 //! carrier can manufacture the Complete loan.
 
-use super::normal_script_lexical_binding::{
-    ScriptLexicalFactsV1, ScriptSemanticClosureAdmissionV1, ScriptSemanticClosureFactsV1,
-    ScriptSemanticLoweringState,
-};
+use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use crate::ast::ASTNode;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, FunctionOwnerIdV1, ResolvedScriptSemanticDraftV1, SemanticOwnerForestDraftV1,
-    SemanticOwnerRootProfileV1, SourceBindingSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
-    SourcePathV1, SourceStmtSiteV1, VerifiedSemanticOwnerForestV1, VerifiedSemanticOwnerProductV1,
+    BindingRefV1, ScriptDiagnosticBoundaryV1, ScriptRootRuntimeDispositionV1,
+    ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, SemanticOwnerForestDraftV1,
+    SemanticOwnerRootProfileV1, SourceBindingSiteV1, SourceNodeSiteV1, SourceStmtSiteV1,
+    VerifiedResolvedScriptV1, VerifiedScriptRootDemandWindowV1, VerifiedSemanticOwnerForestV1,
+    VerifiedSemanticOwnerProductV1,
 };
 
 use super::normal_default_root_catalog_lifecycle::PreparedNormalDefaultProgramRootV1;
@@ -43,107 +42,51 @@ pub(super) struct VerifiedScriptExistingDiagnosticBoundaryV1 {
 impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     pub(super) fn seal(
         source: &'source PreparedNormalDefaultProgramRootV1,
-        owner: FunctionOwnerIdV1,
-        admission: ScriptSemanticClosureAdmissionV1,
+        product: VerifiedResolvedScriptV1,
+        window: &VerifiedScriptRootDemandWindowV1,
     ) -> Result<Self, String> {
         let ASTNode::Program { statements, .. } = source.source_ast() else {
             return Err("[mir/script-semantic/source-root] expected Program".to_owned());
         };
-        let ScriptSemanticClosureAdmissionV1::Complete(ScriptSemanticClosureFactsV1 {
-            lexical:
-                ScriptLexicalFactsV1 {
-                    locals,
-                    variables,
-                    expression_source_indices,
-                },
-            static_const_completion_source_indices,
-            existing_diagnostic_source_indices,
-        }) = admission
-        else {
-            return Err("[mir/script-semantic/admission] Deferred input cannot seal".to_owned());
-        };
-        let mut draft = ResolvedScriptSemanticDraftV1::new(owner);
-        let mut local_bindings = std::collections::BTreeMap::new();
-        for local in &locals {
-            let site = program_statement_site(local.source_statement_index);
-            if !matches!(
-                statements.get(local.source_statement_index),
-                Some(ASTNode::Local { .. })
-            ) {
-                return Err(format!(
-                    "[mir/script-semantic/local-coverage] source_statement_index={}",
-                    local.source_statement_index
-                ));
-            }
-            let binding = draft.declare_local(site, local.name.clone());
-            local_bindings.insert(local.source_statement_index, binding);
-        }
-        for variable in &variables {
-            let Some(binding) = local_bindings
-                .get(&variable.binding_statement_index)
-                .copied()
-            else {
-                return Err(
-                    "[mir/script-semantic/variable-binding] missing local binding".to_owned(),
-                );
-            };
-            let mut path = SourcePathV1::from_node(
-                &program_statement_site(variable.source_statement_index)
-                    .node()
-                    .clone(),
-            );
-            if variable.initializer {
-                path = path.child(SourcePathSegmentV1::Initializer(0));
-            }
-            for segment in &variable.path {
-                path = path.child(segment.clone());
-            }
-            let site = path.expr();
-            draft.record_variable(site, binding);
-        }
         let mut static_const_completions = Vec::new();
-        for &source_statement_index in &static_const_completion_source_indices {
-            if !matches!(
-                statements.get(source_statement_index),
-                Some(ASTNode::StaticConstTable { .. })
-            ) {
-                return Err(format!(
-                    "[mir/script-semantic/static-const-coverage] source_statement_index={source_statement_index}"
-                ));
-            }
-            static_const_completions.push(VerifiedScriptStaticConstCompletionV1 {
-                site: program_statement_site(source_statement_index),
-            });
-        }
-        let product = draft
-            .seal()
-            .map_err(|error| format!("[mir/script-semantic/seal] {error:?}"))?;
         let mut existing_diagnostic_boundaries = Vec::new();
-        for &source_statement_index in &existing_diagnostic_source_indices {
+        let mut runtime_source_indices = Vec::new();
+        for entry in window.entries() {
+            let source_statement_index = program_statement_index(&entry.site())?;
             let Some(statement) = statements.get(source_statement_index) else {
                 return Err(format!(
-                    "[mir/script-semantic/diagnostic-coverage] source_statement_index={source_statement_index}"
+                    "[mir/script-semantic/window-coverage] source_statement_index={source_statement_index}"
                 ));
             };
-            if !super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(statement) {
-                return Err(format!(
-                    "[mir/script-semantic/diagnostic-coverage] source_statement_index={source_statement_index}"
-                ));
+            match entry.semantic() {
+                ScriptRootSemanticDispositionV1::Transferred(
+                    ScriptTransferredBoundaryV1::ProgramStaticMetadata,
+                ) if matches!(statement, ASTNode::StaticConstTable { .. }) => {
+                    static_const_completions.push(VerifiedScriptStaticConstCompletionV1 {
+                        site: entry.site().clone(),
+                    });
+                }
+                ScriptRootSemanticDispositionV1::Diagnostic(
+                    ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported,
+                ) if super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(statement) => {
+                    existing_diagnostic_boundaries.push(VerifiedScriptExistingDiagnosticBoundaryV1 {
+                        site: entry.site().clone(),
+                    });
+                }
+                ScriptRootSemanticDispositionV1::Resolved
+                | ScriptRootSemanticDispositionV1::Deferred(_)
+                | ScriptRootSemanticDispositionV1::Transparent(_)
+                | ScriptRootSemanticDispositionV1::Transferred(
+                    ScriptTransferredBoundaryV1::TopLevelCallable,
+                ) => {}
+                _ => return Err("[mir/script-semantic/window-boundary] source mismatch".to_owned()),
             }
-            existing_diagnostic_boundaries.push(VerifiedScriptExistingDiagnosticBoundaryV1 {
-                site: program_statement_site(source_statement_index),
-            });
+            if entry.runtime() == ScriptRootRuntimeDispositionV1::RetainedExistingTerminal {
+                runtime_source_indices.push(source_statement_index);
+            }
         }
-        let runtime_source_indices = locals
-            .iter()
-            .map(|local| local.source_statement_index)
-            .chain(expression_source_indices.into_vec())
-            .chain(static_const_completion_source_indices.iter().copied())
-            .chain(existing_diagnostic_source_indices.iter().copied())
-            .collect::<std::collections::BTreeSet<_>>()
-            .into_iter()
-            .collect::<Box<[_]>>();
         let mut draft = SemanticOwnerForestDraftV1::new();
+        let owner = product.core().data().owner;
         draft
             .insert_product(owner, VerifiedSemanticOwnerProductV1::Script(product))
             .map_err(|error| format!("[mir/script-semantic/forest] {error:?}"))?;
@@ -162,7 +105,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             projection,
             static_const_completions: static_const_completions.into_boxed_slice(),
             existing_diagnostic_boundaries: existing_diagnostic_boundaries.into_boxed_slice(),
-            runtime_source_indices,
+            runtime_source_indices: runtime_source_indices.into_boxed_slice(),
         })
     }
 
@@ -253,12 +196,11 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     }
 }
 
-fn program_statement_site(index: usize) -> SourceStmtSiteV1 {
-    SourceStmtSiteV1::from_node(
-        SourcePathV1::program_body()
-            .child(SourcePathSegmentV1::ProgramBody(index as u32))
-            .node(),
-    )
+fn program_statement_index(site: &SourceStmtSiteV1) -> Result<usize, String> {
+    match site.node().segments() {
+        [crate::mir::resolved_semantics::SourcePathSegmentV1::ProgramBodyRoot, crate::mir::resolved_semantics::SourcePathSegmentV1::ProgramBody(index)] => Ok(*index as usize),
+        _ => Err("[mir/script-semantic/window-site] expected ProgramBody ordinal".to_owned()),
+    }
 }
 
 #[cfg(test)]

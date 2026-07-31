@@ -12,6 +12,14 @@ use super::resolver::ShadowResolverV0;
 use super::vocabulary::{classify_shadow_ast_disposition_v0, ShadowAstDispositionV0};
 
 impl<'ast> ShadowResolverV0<'ast> {
+    pub(super) fn resolve_root_statement(
+        &mut self,
+        statement: &'ast ASTNode,
+        path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        self.resolve_stmt(statement, path)
+    }
+
     fn stmt_expr_path(
         statement: &ASTNode,
         path: &ShadowSourcePathV0,
@@ -68,6 +76,12 @@ impl<'ast> ShadowResolverV0<'ast> {
         statement: &'ast ASTNode,
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
+        if !self.allows_statement(statement) {
+            return Err(ShadowResolveErrorV0::UnsupportedStatement {
+                kind: statement.node_type(),
+                site: path.stmt(),
+            });
+        }
         match statement {
             ASTNode::Local {
                 variables,

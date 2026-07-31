@@ -265,13 +265,9 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0
-  -> total sparse Program demand window + ScriptLexicalCoreV1
-  -> atomically delete the manual Script resolver chain
-  -> focused proof / build / shared guards
-
-next
-  -> batch-boundary live-edge census
+  MIRBUILDER-BATCH-BOUNDARY-LIVE-EDGE-CENSUS0-D0
+  -> inspect the remaining live Script responsibility boundaries
+  -> select one production authority only after fresh evidence
 
 R4
   MIRBUILDER-R4-FINAL-CONFORMANCE0-C0 after all active rows above have exact

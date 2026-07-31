@@ -7,7 +7,6 @@ use crate::ast::ASTNode;
 
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
-use super::normal_script_lexical_binding::ScriptSemanticClosureAdmissionV1;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::program_root_lowering::NormalScriptRootLoweringMode;
 use super::program_root_work_plan::{
@@ -17,7 +16,9 @@ use super::{
     CallableMainMaterializationPolicyV1, MirModule, ModuleBuilderInvocationSessionV1,
     NormalEntryMaterializationSourceReceiptV1, NormalRuntimeInputSnapshotV1,
 };
-use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
+use crate::mir::resolved_semantics::{
+    FunctionSemanticResolverSessionV1, ResolveScriptOutcomeV1, ScriptSyntaxViewV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum NormalDefaultRootCatalogLifecycleStageV1 {
@@ -184,40 +185,35 @@ impl ModuleBuilderInvocationSessionV1 {
                     ProgramRootWorkPlanAdmissionV1::SelectedNormal,
                 );
                 let work = work.into_parts();
-                let script_admission =
-                    work.runtime.semantic_closure_admission().map_err(|error| {
-                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                            format!("[mir/script-semantic/admission] {error:?}").into(),
-                        )
-                    })?;
-                let script_source = if let ScriptSemanticClosureAdmissionV1::Complete(admission) =
-                    script_admission
-                {
-                    let mut issuer =
-                        FunctionOwnerIssuerV1::new_for_compilation().map_err(|error| {
+                let script_source = match work.script_semantic_window.as_ref() {
+                    None => None,
+                    Some(window) => {
+                        let view = ScriptSyntaxViewV1::from_program(source.source_ast()).ok_or_else(|| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                "[mir/script-semantic/source-root] expected Program".into(),
+                            )
+                        })?;
+                        let mut resolver = FunctionSemanticResolverSessionV1::new(0).map_err(|error| {
                             NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
                                 format!("[mir/script-semantic/owner] {error:?}").into(),
                             )
                         })?;
-                    let owner = issuer.issue().map_err(|error| {
-                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                            format!("[mir/script-semantic/owner] {error:?}").into(),
-                        )
-                    })?;
-                    Some(
-                        VerifiedScriptSemanticSourceV1::seal(
-                            &source,
-                            owner,
-                            ScriptSemanticClosureAdmissionV1::Complete(admission),
-                        )
-                        .map_err(|error| {
+                        match resolver.resolve_script(view, window).map_err(|error| {
                             NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                error.into(),
+                                format!("[mir/script-semantic/seal] {error:?}").into(),
                             )
-                        })?,
-                    )
-                } else {
-                    None
+                        })? {
+                            ResolveScriptOutcomeV1::Complete(product) => Some(
+                                VerifiedScriptSemanticSourceV1::seal(&source, product, window)
+                                    .map_err(|error| {
+                                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                            error.into(),
+                                        )
+                                    })?,
+                            ),
+                            ResolveScriptOutcomeV1::Deferred => None,
+                        }
+                    }
                 };
                 builder
                     .comp_ctx

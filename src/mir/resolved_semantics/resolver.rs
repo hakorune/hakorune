@@ -8,6 +8,7 @@ use hakorune_mir_core::BindingId;
 use super::callable_index::{CallableLookupErrorV1, VerifiedCallableIndexV1};
 use super::direct_call::ResolvedDirectCallTargetV1;
 use super::function_view::FunctionSyntaxViewV1;
+use super::script_view::ScriptSyntaxViewV1;
 use super::ids::{
     BindingRefV1, FunctionOwnerIssueExhaustedV1, FunctionOwnerIssuerV1, RegionId, ScopeId,
 };
@@ -21,11 +22,19 @@ use super::records::{
 use super::shadow::{
     resolve_function_shadow_view_v0, ShadowAssignmentTargetV0, ShadowBindingKindV0,
     ShadowBindingOrdinalV0, ShadowControlExitV0, ShadowExitOriginV0, ShadowLexicalRefV0,
-    ShadowRegionIdV0, ShadowRegionKindV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0,
+    resolve_script_shadow_view_v0, ShadowRegionIdV0, ShadowRegionKindV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0,
     ShadowScopeIdV0, ShadowScopeKindV0,
 };
 use super::source_site::{FunctionOriginV1, ResolvedExitSiteV1};
-use super::{ResolvedFunctionVerificationErrorV1, VerifiedResolvedFunctionV1};
+use super::{
+    ResolvedFunctionVerificationErrorV1, VerifiedResolvedFunctionV1, VerifiedResolvedScriptV1,
+};
+
+#[derive(Debug)]
+pub(crate) enum ResolveScriptOutcomeV1 {
+    Complete(VerifiedResolvedScriptV1),
+    Deferred,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResolveFunctionErrorV1 {
@@ -82,6 +91,20 @@ impl FunctionSemanticResolverSessionV1 {
         self.seal_owner(owner, origin, draft).map(Arc::new)
     }
 
+    pub(crate) fn resolve_script(
+        &mut self,
+        view: ScriptSyntaxViewV1<'_>,
+        window: &super::VerifiedScriptRootDemandWindowV1,
+    ) -> Result<ResolveScriptOutcomeV1, ResolveFunctionErrorV1> {
+        let draft = match resolve_script_shadow_view_v0(view, window) {
+            Ok(draft) => draft,
+            Err(_) => return Ok(ResolveScriptOutcomeV1::Deferred),
+        };
+        let (origin, owner) = self.issue_owner()?;
+        self.seal_script_owner(owner, origin, draft)
+            .map(ResolveScriptOutcomeV1::Complete)
+    }
+
     pub(super) fn issue_owner(
         &mut self,
     ) -> Result<(FunctionOriginV1, super::FunctionOwnerIdV1), ResolveFunctionErrorV1> {
@@ -95,6 +118,17 @@ impl FunctionSemanticResolverSessionV1 {
             .issue()
             .map_err(ResolveFunctionErrorV1::OwnerIssue)?;
         Ok((origin, owner))
+    }
+
+    pub(crate) fn seal_script_owner(
+        &mut self,
+        owner: super::FunctionOwnerIdV1,
+        origin: FunctionOriginV1,
+        draft: ShadowResolvedFunctionV0,
+    ) -> Result<VerifiedResolvedScriptV1, ResolveFunctionErrorV1> {
+        let canonical = canonicalize_draft(owner, origin, draft, &BTreeMap::new(), None)?;
+        Ok(VerifiedResolvedScriptV1::from_canonical_data(canonical.data)
+            .map_err(ResolveFunctionErrorV1::Verification)?)
     }
 
     pub(super) fn seal_owner(

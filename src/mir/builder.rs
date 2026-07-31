@@ -241,7 +241,7 @@ pub(in crate::mir) use module_invocation_session::{
 mod module_invocation_session_p0; // CUT0-I0-SESSION0 fixtures
 mod normal_default_root_catalog_lifecycle; // Selected normal root/catalog lifecycle
 mod normal_script_semantic_source; // Producer-backed lexical Script source
-mod normal_script_lexical_binding; // Script lexical admission and ValueId ledger
+mod normal_script_semantic_lowering_state; // Script BindingRef -> ValueId ledger
 mod normal_cataloged_box_method_admission; // Selected normal cataloged-child identity
 mod program_root_lowering; // Shared typed/generic Program root owner
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::{
@@ -403,6 +403,7 @@ mod program_declaration_facts; // Normal Program source-only declaration facts
 mod program_root_work_plan; // Normal Program source-only work partition
 mod normal_script_direct_statement_owner; // Selected Script direct statement terminals
 mod normal_script_program_item_admission; // Selected Script Program-item source admission
+mod normal_script_root_demand_window; // Selected Script source-only semantic demand receipt
 mod normal_script_runtime_work; // Selected Script runtime Box callable admission
 mod normal_script_runtime_block_port;
 mod normal_top_level_function_admission; // Selected top-level callable source/physical admission

@@ -98,8 +98,8 @@ pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;
 pub use owner_source_kind::SemanticOwnerSourceKindV1;
 pub use product::VerifiedResolvedFunctionV1;
 pub(crate) use product::{
-    ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1, ResolvedScriptSemanticDraftV1,
-    VerifiedResolvedOwnerCoreV1, VerifiedResolvedScriptV1,
+    ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1, VerifiedResolvedOwnerCoreV1,
+    VerifiedResolvedScriptV1,
 };
 pub use records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
@@ -107,12 +107,20 @@ pub use records::{
     ResolvedLexicalRefV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1, ScopeKindV1,
     ScopeOriginV1, SyntheticBindingKindV1,
 };
-pub(crate) use resolver::{FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1};
+pub(crate) use resolver::{
+    FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1, ResolveScriptOutcomeV1,
+};
 pub(crate) use script_view::ScriptSyntaxViewV1;
 pub(in crate::mir) use shadow::{
     observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
     ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0,
     ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
+};
+pub(crate) use shadow::{
+    ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootDemandWindowSealErrorV1,
+    ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1,
+    ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1, VerifiedScriptRootDemandEntryV1,
+    VerifiedScriptRootDemandWindowV1,
 };
 pub(crate) use source_path_policy::{
     is_statement_expression_surface_v1, BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1,
