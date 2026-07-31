@@ -265,7 +265,7 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-POST-SCOPEBOX-CAPABILITY-CENSUS0-D0
+  RAW-SCRIPT-POST-NOWAIT-CAPABILITY-CENSUS0-D0
 
   Change:
     Census exactly one remaining Deferred Script capability family from its
@@ -285,6 +285,13 @@ current
     or a source-level diagnostic-stage change.
 
 closed
+  RAW-SCRIPT-NOWAIT-LEXICAL-ASYNC-BINDING0-I0-R0
+  -> lexical-safe Nowait now uses the shared traversal; the existing async
+     owner remains the sole FutureNew/type/slot/variable-map authority and the
+     request-local ledger records its exact canonical binding
+  -> Nowait/await selected-legacy parity, unsafe operand Deferred, transport,
+     pointer, and shared cutover guards green
+
   RAW-SCRIPT-SCOPEBOX-LEXICAL-STRUCTURED-SCOPE0-I0-R0
   -> lexical-safe ScopeBox now uses the shared traversal and the existing raw
      ScopeBox owner; `ScopeBodyRoot` remains a region receipt while transport

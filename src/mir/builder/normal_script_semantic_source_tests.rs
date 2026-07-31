@@ -1,6 +1,10 @@
 use super::VerifiedScriptSemanticSourceV1;
 use crate::ast::{ASTNode, LiteralValue, Span};
+use crate::mir::builder::raw_invocation_source_transport::{
+    RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawInvocationSourceTransportV1,
+};
 use crate::mir::builder::PreparedNormalDefaultProgramRootV1;
+use crate::mir::builder::RawSourceLocatorV1;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, ResolveScriptOutcomeV1, ScriptDiagnosticBoundaryV1,
     ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1, ScriptSyntaxViewV1,
@@ -28,7 +32,6 @@ fn assert_selected_parity(source: &str, hint: &str) {
     assert_eq!(MirPrinter::new().print_module(&normal.module), MirPrinter::new().print_module(&legacy.module));
     assert_eq!(normal.verification_result, legacy.verification_result);
 }
-
 fn assert_selected_program_parity(program: ASTNode, hint: &str) {
     let mut legacy = MirCompiler::with_options(false);
     let legacy = legacy.compile_with_source(program.clone(), Some(hint)).unwrap();
@@ -469,6 +472,80 @@ fn scopebox_local_does_not_leak_outside_its_lexical_body() {
         ).expect("normal request"))
         .expect_err("ScopeBox local must defer to the existing diagnostic");
     assert_eq!(normal_error, legacy_error);
+}
+
+#[test]
+fn lexical_nowait_matches_legacy_and_records_future_binding() {
+    assert_selected_parity(
+        "nowait pending = 41 + 1\nawait pending",
+        "script-nowait-lexical.hako",
+    );
+}
+
+#[test]
+fn nowait_with_disabled_operand_stays_deferred() {
+    let program = ASTNode::Program {
+        statements: vec![ASTNode::Nowait {
+            variable: "pending".to_owned(),
+            expression: Box::new(ASTNode::This { span: Span::unknown() }),
+            span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    };
+    let source = PreparedNormalDefaultProgramRootV1::seal(program).expect("Program source");
+    let window = VerifiedScriptRootDemandWindowV1::seal(vec![resolved_entry(0)], 1)
+        .expect("Nowait window");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
+    let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
+    assert!(matches!(
+        resolver.resolve_script(view, &window).expect("Nowait resolve"),
+        ResolveScriptOutcomeV1::Deferred,
+    ));
+}
+
+#[test]
+fn script_transport_keeps_explicit_root_and_program_item_receipts() {
+    let (_, script) = RawInvocationSourceContextV1::from_transport(
+        RawInvocationSourceTransportV1::script_root(Vec::<ASTNode>::new()),
+    );
+    let RawInvocationSourceContextV1::Located { site, body_kind, .. } = script else {
+        panic!("script root must be located");
+    };
+    assert_eq!(site.segments(), &[SourcePathSegmentV1::ProgramBodyRoot]);
+    assert_eq!(body_kind, Some(crate::mir::resolved_semantics::SourceBodyKindV1::Program));
+
+    let (_, function) = RawInvocationSourceContextV1::from_transport(
+        RawInvocationSourceTransportV1::root(
+            Vec::<ASTNode>::new(),
+            RawInvocationRootLineageV1::Main(RawSourceLocatorV1::for_test(
+                0, "Main", "main", "Main.main/0", 0,
+            )),
+        ),
+    );
+    let RawInvocationSourceContextV1::Located { body_kind, .. } = function else {
+        panic!("function root must be located");
+    };
+    assert_eq!(body_kind, Some(crate::mir::resolved_semantics::SourceBodyKindV1::Function));
+
+    let (_, root) = RawInvocationSourceContextV1::from_transport(
+        RawInvocationSourceTransportV1::script_semantic_root(Vec::<ASTNode>::new()),
+    );
+    let (_, child) = RawInvocationSourceContextV1::from_transport(root.body_statement(
+        ASTNode::StaticConstTable {
+            name: "TABLE".to_owned(),
+            element_type: "u16".to_owned(),
+            values: vec![1, 2, 3],
+            span: Span::unknown(),
+        },
+        2,
+    ));
+    assert_eq!(
+        child.site().expect("located Program item").segments(),
+        &[
+            SourcePathSegmentV1::ProgramBodyRoot,
+            SourcePathSegmentV1::ProgramBody(2),
+        ]
+    );
 }
 
 #[test]

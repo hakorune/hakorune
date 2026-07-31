@@ -11,13 +11,13 @@ pub(super) enum ShadowTraversalProfileV1 {
     FullFunctionV1,
     ScriptLexicalCoreV1,
 }
-
 impl ShadowTraversalProfileV1 {
     pub(super) fn allows_statement(self, statement: &ASTNode) -> bool {
         match self {
             Self::FullFunctionV1 => true,
             Self::ScriptLexicalCoreV1 => match statement {
                 ASTNode::Print { .. } => true,
+                ASTNode::Nowait { .. } => true,
                 ASTNode::ScopeBox { .. } => true,
                 ASTNode::FastMemRegion { .. } => true,
                 ASTNode::Local {

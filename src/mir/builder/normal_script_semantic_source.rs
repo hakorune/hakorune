@@ -241,6 +241,15 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             )),
             _ => None,
         });
+        let nowaits = owner.declaration_sites().filter_map(|site| match site {
+            SourceBindingSiteV1::Nowait { statement } => Some((
+                statement.node().clone(),
+                owner
+                    .declaration_binding(site)
+                    .expect("nowait declaration binding"),
+            )),
+            _ => None,
+        });
         let variables = owner
             .variable_refs()
             .filter_map(|(site, reference)| match reference {
@@ -249,7 +258,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 }
                 _ => None,
             });
-        ScriptSemanticLoweringState::from_facts(locals, variables)
+        ScriptSemanticLoweringState::from_facts(locals, nowaits, variables)
     }
 }
 

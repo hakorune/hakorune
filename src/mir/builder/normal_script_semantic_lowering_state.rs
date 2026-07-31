@@ -10,11 +10,12 @@ pub(super) struct ScriptSemanticLoweringState {
     variable_values: BTreeMap<BindingRefV1, ValueId>,
     variables: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     locals: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
+    nowaits: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
 }
-
 impl ScriptSemanticLoweringState {
     pub(super) fn from_facts(
         locals: impl IntoIterator<Item = (SourceNodeSiteV1, BindingRefV1)>,
+        nowaits: impl IntoIterator<Item = (SourceNodeSiteV1, BindingRefV1)>,
         variables: impl IntoIterator<Item = (SourceExprSiteV1, BindingRefV1)>,
     ) -> Self {
         Self {
@@ -24,6 +25,7 @@ impl ScriptSemanticLoweringState {
                 .map(|(site, binding)| (site.node().clone(), binding))
                 .collect(),
             locals: locals.into_iter().collect(),
+            nowaits: nowaits.into_iter().collect(),
         }
     }
 
@@ -33,6 +35,10 @@ impl ScriptSemanticLoweringState {
 
     pub(super) fn local_binding(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
         self.locals.get(site).copied()
+    }
+
+    pub(super) fn nowait_binding(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
+        self.nowaits.get(site).copied()
     }
 
     pub(super) fn value(&self, binding: BindingRefV1) -> Option<ValueId> {

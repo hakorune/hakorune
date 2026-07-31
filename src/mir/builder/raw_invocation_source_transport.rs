@@ -25,6 +25,7 @@ use super::recursive_child_lowering::{
     lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
     RecursiveChildLoweringPortV1,
 };
+use super::stmts::async_stmt::build_nowait_statement_with_port_v1;
 use super::stmts::{drive_local_statement_v1, RawLegacyLocalInputV1};
 use super::{CanonicalSameModuleCallableKeyV1, RawSourceLocatorV1};
 
@@ -146,13 +147,11 @@ impl RawInvocationChildPortV1<'_, '_> {
         &mut self,
         builder: &mut MirBuilder,
         input: ASTNode,
-    ) -> Result<Option<ValueId>, String> {
-        let Some(ledger) = self.semantic_ledger.clone() else {
-            return Ok(None);
-        };
-        if !matches!(&input, ASTNode::Local { .. }) {
-            return Ok(None);
-        }
+    ) -> Result<ValueId, String> {
+        let ledger = self
+            .semantic_ledger
+            .clone()
+            .expect("script local lowering requires semantic ledger");
         let site = self
             .current_source_context_v1()
             .and_then(|context| context.site().cloned())
@@ -163,7 +162,35 @@ impl RawInvocationChildPortV1<'_, '_> {
             .ok_or_else(|| "[freeze:contract][script-lexical/local-binding]".to_owned())?;
         let value = drive_local_statement_v1(builder, self, RawLegacyLocalInputV1::new(input))?;
         ledger.borrow_mut().record(binding, value)?;
-        Ok(Some(value))
+        Ok(value)
+    }
+
+    fn lower_script_nowait_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: ASTNode,
+    ) -> Result<ValueId, String> {
+        let ledger = self
+            .semantic_ledger
+            .clone()
+            .expect("script nowait lowering requires semantic ledger");
+        let site = self
+            .current_source_context_v1()
+            .and_then(|context| context.site().cloned())
+            .ok_or_else(|| "[freeze:contract][script-lexical/nowait-site]".to_owned())?;
+        let binding = ledger
+            .borrow()
+            .nowait_binding(&site)
+            .ok_or_else(|| "[freeze:contract][script-lexical/nowait-binding]".to_owned())?;
+        let ASTNode::Nowait {
+            variable, expression, ..
+        } = input
+        else {
+            unreachable!("script nowait lowering only receives Nowait")
+        };
+        let value = build_nowait_statement_with_port_v1(builder, self, variable, *expression)?;
+        ledger.borrow_mut().record(binding, value)?;
+        Ok(value)
     }
 
     pub(in crate::mir::builder) fn with_script_semantic_source_v1<R>(
@@ -463,6 +490,7 @@ fn is_located_scalar_statement(statement: &ASTNode) -> bool {
             | ASTNode::Print { .. }
             | ASTNode::Return { .. }
             | ASTNode::Local { .. }
+            | ASTNode::Nowait { .. }
     )
 }
 
@@ -555,8 +583,12 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
                 "[freeze:contract][raw-invocation/missing-statement-source-receipt]".to_owned(),
             );
         }
-        if let Some(value) = self.lower_script_local_v1(builder, input.clone())? {
-            return Ok(value);
+        if self.semantic_ledger.is_some() {
+            return match input {
+                local @ ASTNode::Local { .. } => self.lower_script_local_v1(builder, local),
+                nowait @ ASTNode::Nowait { .. } => self.lower_script_nowait_v1(builder, nowait),
+                other => super::stmts::block_stmt::build_statement_with_port_v1(builder, self, other),
+            };
         }
         super::stmts::block_stmt::build_statement_with_port_v1(builder, self, input)
     }
@@ -571,8 +603,11 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
                 "[freeze:contract][raw-invocation/missing-expression-source-receipt]".to_owned(),
             );
         }
-        if let Some(value) = self.lower_script_local_v1(builder, input.clone())? {
-            return Ok(value);
+        if self.semantic_ledger.is_some() && matches!(input, ASTNode::Local { .. }) {
+            return self.lower_script_local_v1(builder, input);
+        }
+        if self.semantic_ledger.is_some() && matches!(input, ASTNode::Nowait { .. }) {
+            return self.lower_script_nowait_v1(builder, input);
         }
         if let (Some(ledger), ASTNode::Variable { .. }) = (&self.semantic_ledger, &input) {
             let site = self
@@ -712,85 +747,6 @@ where
             .with_source_transport_v1(transport, |child, statement| {
                 child.lower_statement(builder, statement)
             })
-    }
-}
-
-#[cfg(test)]
-mod lambda_source_tests {
-    use super::*;
-
-    #[test]
-    fn root_transport_carries_explicit_body_profile() {
-        let (_, script) = RawInvocationSourceContextV1::from_transport(
-            RawInvocationSourceTransportV1::script_root(Vec::<ASTNode>::new()),
-        );
-        let RawInvocationSourceContextV1::Located {
-            site, body_kind, ..
-        } = script
-        else {
-            panic!("script root must be located");
-        };
-        assert_eq!(site.segments(), &[SourcePathSegmentV1::ProgramBodyRoot]);
-        assert_eq!(body_kind, Some(SourceBodyKindV1::Program));
-
-        let (_, function) =
-            RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::root(
-                Vec::<ASTNode>::new(),
-                RawInvocationRootLineageV1::Main(RawSourceLocatorV1::for_test(
-                    0,
-                    "Main",
-                    "main",
-                    "Main.main/0",
-                    0,
-                )),
-            ));
-        let RawInvocationSourceContextV1::Located { body_kind, .. } = function else {
-            panic!("function root must be located");
-        };
-        assert_eq!(body_kind, Some(SourceBodyKindV1::Function));
-    }
-
-    #[test]
-    fn lambda_statement_keeps_exact_parent_source_site() {
-        let (_, root) = RawInvocationSourceContextV1::from_transport(
-            RawInvocationSourceTransportV1::script_root(Vec::<ASTNode>::new()),
-        );
-        let lambda = ASTNode::Lambda {
-            params: Vec::new(),
-            body: Vec::new(),
-            span: crate::ast::Span::unknown(),
-        };
-        let (_, child) =
-            RawInvocationSourceContextV1::from_transport(root.body_statement(lambda, 2));
-        assert_eq!(
-            child.site().unwrap().segments(),
-            &[
-                SourcePathSegmentV1::ProgramBodyRoot,
-                SourcePathSegmentV1::ProgramBody(2),
-            ]
-        );
-    }
-
-    #[test]
-    fn static_const_completion_keeps_exact_program_source_site() {
-        let (_, root) = RawInvocationSourceContextV1::from_transport(
-            RawInvocationSourceTransportV1::script_semantic_root(Vec::<ASTNode>::new()),
-        );
-        let statement = ASTNode::StaticConstTable {
-            name: "TABLE".to_owned(),
-            element_type: "u16".to_owned(),
-            values: vec![1, 2, 3],
-            span: crate::ast::Span::unknown(),
-        };
-        let (_, child) =
-            RawInvocationSourceContextV1::from_transport(root.body_statement(statement, 2));
-        assert_eq!(
-            child.site().unwrap().segments(),
-            &[
-                SourcePathSegmentV1::ProgramBodyRoot,
-                SourcePathSegmentV1::ProgramBody(2),
-            ]
-        );
     }
 }
 

@@ -143,6 +143,7 @@
         "script_print_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn real_print_fixture_uses_the_selected_normal_request"},
         "script_binary_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_normal_binary_lexical_closure_matches_legacy"},
         "script_await_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_normal_await_lexical_closure_matches_legacy"},
+        "script_nowait_lexical_async_binding": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn lexical_nowait_matches_legacy_and_records_future_binding"},
         "script_check_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_normal_check_lexical_closure_matches_legacy"},
         "script_andor_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_normal_and_or_lexical_closure_matches_legacy"},
         "script_static_const_u16_completion": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn script_static_const_u16_completion_matches_legacy_metadata"},
