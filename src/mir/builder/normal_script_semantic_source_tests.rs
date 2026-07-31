@@ -2,8 +2,9 @@ use super::VerifiedScriptSemanticSourceV1;
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::builder::PreparedNormalDefaultProgramRootV1;
 use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, ResolveScriptOutcomeV1, ScriptRootRuntimeDispositionV1,
-    ScriptRootSemanticDispositionV1, ScriptSyntaxViewV1, SourcePathSegmentV1, SourcePathV1,
+    FunctionSemanticResolverSessionV1, ResolveScriptOutcomeV1, ScriptDiagnosticBoundaryV1,
+    ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1, ScriptSyntaxViewV1,
+    SourcePathSegmentV1, SourcePathV1,
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
 };
 use crate::parser::NyashParser;
@@ -52,6 +53,18 @@ fn resolved_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {
     )
 }
 
+fn receiver_absent_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {
+    VerifiedScriptRootDemandEntryV1::new(
+        SourcePathV1::program_body()
+            .child(SourcePathSegmentV1::ProgramBody(index))
+            .stmt(),
+        ScriptRootSemanticDispositionV1::Diagnostic(
+            ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent,
+        ),
+        ScriptRootRuntimeDispositionV1::RetainedExistingTerminal,
+    )
+}
+
 #[test]
 fn literal_program_seals_one_shared_script_owner_and_projection() {
     let ast = NyashParser::parse_from_string("0").expect("literal source");
@@ -75,6 +88,78 @@ fn literal_program_seals_one_shared_script_owner_and_projection() {
         .projection()
         .owner_root(source.source_ast(), product.forest().roots()[0])
         .is_ok());
+}
+
+#[test]
+fn bare_me_seals_script_source_then_uses_existing_rootlower_diagnostic() {
+    let program = ASTNode::Program {
+        statements: vec![ASTNode::Me { span: Span::unknown() }],
+        span: Span::unknown(),
+    };
+    let source = PreparedNormalDefaultProgramRootV1::seal(program.clone()).expect("Program source");
+    let window = VerifiedScriptRootDemandWindowV1::seal(vec![receiver_absent_entry(0)], 1)
+        .expect("bare Me window");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
+    let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
+    let ResolveScriptOutcomeV1::Complete(owner) = resolver
+        .resolve_script(view, &window)
+        .expect("bare Me resolve")
+    else {
+        panic!("bare Me is a zero-child diagnostic boundary");
+    };
+    let product = VerifiedScriptSemanticSourceV1::seal(&source, owner, &window)
+        .expect("bare Me Script source");
+    assert_eq!(product.forest().owner_count(), 1);
+    assert_eq!(product.receiver_absent_sites().count(), 1);
+
+    let mut legacy = MirCompiler::with_options(false);
+    let legacy_error = legacy
+        .compile_with_source(program.clone(), Some("script-bare-me.hako"))
+        .expect_err("legacy bare Me rejects through the existing owner");
+    let mut normal = MirCompiler::with_options(false);
+    let normal_error = normal
+        .compile_normal(NormalCompileRequestV1::for_mir_mode(
+            program,
+            Some("script-bare-me.hako"),
+            std::collections::HashMap::new(),
+        ).expect("normal request"))
+        .expect_err("normal bare Me rejects through the existing owner");
+    assert_eq!(normal_error, legacy_error);
+    normal.compile_normal(NormalCompileRequestV1::for_mir_mode(
+        NyashParser::parse_from_string("0").expect("reuse source"),
+        Some("script-bare-me-reuse.hako"),
+        std::collections::HashMap::new(),
+    ).expect("reuse request")).expect("fresh request succeeds");
+}
+
+#[test]
+fn recursive_or_statement_wrapped_me_stays_deferred() {
+    for program in [
+        ASTNode::Program {
+            statements: vec![ASTNode::UnaryOp {
+                operator: crate::ast::UnaryOperator::Minus,
+                operand: Box::new(ASTNode::Me { span: Span::unknown() }),
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        },
+        ASTNode::Program {
+            statements: vec![ASTNode::Print {
+                expression: Box::new(ASTNode::Me { span: Span::unknown() }),
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        },
+    ] {
+        let error = MirCompiler::with_options(false)
+            .compile_normal(NormalCompileRequestV1::for_mir_mode(
+                program,
+                Some("script-nested-me.hako"),
+                std::collections::HashMap::new(),
+            ).expect("normal request"))
+            .expect_err("nested Me stays Deferred");
+        assert!(error.contains("MeResolverBox"), "{error}");
+    }
 }
 
 #[test]

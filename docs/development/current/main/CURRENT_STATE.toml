@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-I0-R0 is closed: lexical-safe FastMem reaches the shared Script shadow core while unsafe FastMem remains Deferred. The next design stop is the zero-child bare-Me diagnostic boundary."
+status = "RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-I0-R0 is closed: bare Program-root Me now reaches Complete through a typed existing-diagnostic boundary while build_me_expression remains the RootLower owner. The next stop is the sparse Script shared-shadow cutover boundary."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-D0"
-current_execution_row = "RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-D0"
-current_execution_summary = "FastMem closeout preserves metadata/MemOp and RootLower diagnostics while lexical-safe structured bodies Complete. The next bounded candidate is bare top-level Me: classify it as a zero-child existing receiver-absent diagnostic boundary only if the current direct owner and diagnostic order remain unchanged. No control, call/object, allocation, Lambda, or Box family is pre-authorized."
+current_design_stop = "RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-D0"
+current_execution_row = "RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-D0"
+current_execution_summary = "The next decision must close the total sparse Script demand window and verify that the existing root-neutral shadow core can replace the manual Script lexical mini-resolver in one atomic T2 cutover. The required old-edge deletion is admit_runtime_script_lexical_v1 -> admit_expression_v1 -> visible-name map/manual Local-Variable facts/path rebuilding. Control, Call/Object, allocation, Lambda, and Box remain separate capability families."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"

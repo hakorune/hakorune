@@ -32,11 +32,11 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-D0
+  RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-I0-R0
 
 latest structural finding:
-  lexical-safe FastMem now shares Script shadow facts and the existing
-  statement port; child source receipt and semantic projection agree.
+  bare Program-root Me has no child demand; receiver absence is already owned
+  by the existing RootLower terminal and must not become a semantic fact.
 
 accepted series:
   dense Function/Lambda root-neutral core -> sparse selected-Script cutover
@@ -45,7 +45,7 @@ latest production closeout:
   RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-I0-R0
 
 consultation decision:
-  RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-D0 / closed Accept A-prime (T1)
+  RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-D0 / Accept (T2)
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -265,21 +265,49 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-D0
-  -> verify a zero-child existing receiver-absent diagnostic boundary
-  -> no receiver fact, call/object activation, or diagnostic-stage change
+  RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-D0
+
+  Change:
+    Decide whether the total sparse Program demand window can drive the shared
+    root-neutral shadow core and delete the manual Script lexical mini-resolver
+    atomically.
+
+  Contract:
+    Every original Program ordinal has one typed disposition.  The shared core
+    remains the only AST traversal authority; no Control, Call/Object,
+    allocation, Lambda, or Box capability is activated by this decision.
+
+  Done:
+    Name the one production caller, source-only Complete closure, exact old
+    chain to delete, and focused parity/ratchet evidence for a single T2 row.
+
+  Stop:
+    Stop if a second Script matcher, partial forest, compact-index recovery, or
+    public Function view widening is required.  Keep all source/check files
+    below 800 lines.
 
 closed
+  RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-I0-R0
+  -> bare `Me + DirectPortAwareExpression` now uses a typed receiver-absent
+     diagnostic boundary; `build_me_expression` remains the only RootLower
+     diagnostic owner, while recursive/statement-wrapped Me stays Deferred
+  -> focused Script semantic source tests, pointer guard, and shared cutover
+     guard green
+
   RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-I0-R0
   -> `FastMemRegion + DirectFastMemRegion` is Resolved only through a
      recursively lexical-safe body; existing FastMem lower remains owner
   -> focused semantic, direct-owner, transport, pointer, and shared guards green
 
 ordered after fresh evidence only
-  1. top-level bare Me existing-diagnostic boundary (zero child; no receiver fact)
-  2. If / assignment / Loop / Return only as separate Control, Mutation, JoinIR,
-     and Exit design rows
-  3. Call/Object / allocation / Lambda only as separate owner-family design rows
+  1. total typed sparse Script demand window: each Program ordinal is exactly
+     one Resolved / Transferred / Diagnostic / Transparent / Deferred receipt
+  2. sparse Script -> shared root-neutral shadow-core cutover, atomically
+     deleting admit_runtime_script_lexical_v1, admit_expression_v1, the
+     visible-name map, manual Local/Variable facts, and manual path rebuilding
+  3. responsibility capabilities only after that cutover: Control / Mutation /
+     JoinIR / Exit first, then Call/Object / allocation / Lambda / Box as
+     separate owner-family rows
   4. R4 consumes the live fence registry above; every item must retire, reown,
      or be explicitly retained before final conformance
 

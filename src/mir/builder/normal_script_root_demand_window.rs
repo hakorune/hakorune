@@ -85,6 +85,10 @@ impl ScriptRootDemandWindowBuilderV1 {
                     Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported),
                     Runtime::RetainedExistingTerminal,
                 ),
+                Admission::DirectPortAwareExpression if matches!(statement, ASTNode::Me { .. }) => (
+                    Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent),
+                    Runtime::RetainedExistingTerminal,
+                ),
                 Admission::DirectPortAwareExpression | Admission::DirectPrint => {
                     (Semantic::Resolved, Runtime::RetainedExistingTerminal)
                 }
@@ -135,6 +139,9 @@ fn validate_boundary(
         ScriptRootSemanticDispositionV1::Diagnostic(
             ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported,
         ) => super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(statement),
+        ScriptRootSemanticDispositionV1::Diagnostic(
+            ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent,
+        ) => matches!(statement, ASTNode::Me { .. }),
     };
     compatible
         .then_some(())

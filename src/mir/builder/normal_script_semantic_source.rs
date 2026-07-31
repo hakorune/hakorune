@@ -37,6 +37,7 @@ pub(super) struct VerifiedScriptStaticConstCompletionV1 {
 #[derive(Debug)]
 pub(super) struct VerifiedScriptExistingDiagnosticBoundaryV1 {
     site: SourceStmtSiteV1,
+    boundary: ScriptDiagnosticBoundaryV1,
 }
 
 impl<'source> VerifiedScriptSemanticSourceV1<'source> {
@@ -71,6 +72,15 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 ) if super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(statement) => {
                     existing_diagnostic_boundaries.push(VerifiedScriptExistingDiagnosticBoundaryV1 {
                         site: entry.site().clone(),
+                        boundary: ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported,
+                    });
+                }
+                ScriptRootSemanticDispositionV1::Diagnostic(
+                    ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent,
+                ) if matches!(statement, ASTNode::Me { .. }) => {
+                    existing_diagnostic_boundaries.push(VerifiedScriptExistingDiagnosticBoundaryV1 {
+                        site: entry.site().clone(),
+                        boundary: ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent,
                     });
                 }
                 ScriptRootSemanticDispositionV1::Resolved
@@ -136,6 +146,14 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     pub(super) fn existing_diagnostic_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
         self.existing_diagnostic_boundaries
             .iter()
+            .map(|receipt| &receipt.site)
+    }
+
+    #[cfg(test)]
+    pub(super) fn receiver_absent_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
+        self.existing_diagnostic_boundaries
+            .iter()
+            .filter(|receipt| receipt.boundary == ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent)
             .map(|receipt| &receipt.site)
     }
 
