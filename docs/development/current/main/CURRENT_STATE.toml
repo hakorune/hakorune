@@ -1,16 +1,17 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0 is closed. The exact StaticConstTable / DirectStaticConstRuntimeCompletion zero-child boundary now reaches Script Complete with an exact ProgramBody receipt; unrelated families remain wholly Deferred. The current stop is MIRBUILDER-LIVE-EDGE-CENSUS50-D0."
+status = "MIRBUILDER-LIVE-EDGE-CENSUS50-D0 is closed. Three read-only audits selected the existing DirectSelectedUnsupportedStatement nine-kind diagnostic family; Using would require a new no-op family and is not selected. The next row is RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "MIRBUILDER-LIVE-EDGE-CENSUS50-D0"
-current_execution_summary = "StaticConst semantic closure is closed: one admission traversal selects the exact pair, mismatches are ScriptSemanticSeal invariant errors, table semantics remain RootLower, source transport is located, and the fixture-identity ratchet is consumed. Perform one bounded fresh production-edge census before selecting another family; do not automatically choose Control, Call/Object, Allocation, Weak, Lambda, or Box."
+current_execution_row = "RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0"
+current_execution_summary = "Admit the existing DirectSelectedUnsupportedStatement nine-kind zero-demand diagnostic boundary into Script Complete, install exact ProgramBody source before the unchanged RootLower terminal, delete its Deferred/bare-script-root reachability, and compact the shared guard into a consumed fixture-ID ratchet. Using, Control semantics, Call/Object, Allocation, Weak, Lambda, Box, and Outbox remain excluded."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_static_const_semantic_closure_task = "docs/development/current/main/investigations/raw-script-static-const-semantic-closure0-i0-r0-execution-task-2026-08-01.md"
+current_selected_unsupported_semantic_closure_task = "docs/development/current/main/investigations/raw-script-selected-unsupported-semantic-closure0-i0-r0-execution-task-2026-08-01.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -444,7 +445,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0 is closed. StaticConst now uses the existing Script Complete source, exact ProgramBody transport, existing metadata/runtime owners, and a consumed identity ratchet. MIRBUILDER-LIVE-EDGE-CENSUS50-D0 is the current bounded stop."""
+latest_card_summary = """MIRBUILDER-LIVE-EDGE-CENSUS50-D0 is closed. The next executable row is RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0: one existing nine-kind diagnostic family moves from Deferred to Script Complete with exact ProgramBody coverage and unchanged RootLower diagnostics."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -647,7 +648,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS50-D0"
+current_blocker_token = "RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -3858,6 +3858,51 @@ Next:
     raw-script-static-const-semantic-closure0-i0-r0-execution-task-2026-08-01.md
 ```
 
+## RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0 — current
+
+```text
+Decision:
+  Accept the existing DirectSelectedUnsupportedStatement family.
+
+Exact family:
+  LoopRange / Break / Continue / ImportStatement / BuildGate /
+  EnumDeclaration / BrandDeclaration / TypeAliasDeclaration / GlobalVar
+  paired with DirectSelectedUnsupportedStatement.
+
+Replacement:
+  exact family -> UnsafeRuntimeStatement -> Deferred -> script_root(())
+  becomes
+  exact zero-demand diagnostic receipt -> VerifiedScriptSemanticSourceV1
+  -> exact ProgramBody source -> unchanged RootLower diagnostic terminal.
+
+Required:
+  one admission traversal; whole-request Complete or Deferred; exact original
+  ordinal; diagnostic text/stage/order unchanged; source/admission mismatch is
+  ScriptSemanticSeal invariant rejection; fallback/retry 0.
+
+Proof budget:
+  compact the 797-line shared guard into a table-driven fixture-ID consumer;
+  do not add a guard; freeze the near-limit integration/source-transport tests;
+  every source/check file remains below 800 lines.
+
+Excluded:
+  Using; semantic Control; Call/Object; Allocation; Weak; Lambda; Box; Outbox;
+  child traversal; new diagnostic authority; partial request routing.
+
+Task:
+  docs/development/current/main/investigations/
+  raw-script-selected-unsupported-semantic-closure0-i0-r0-execution-task-2026-08-01.md
+```
+
+## MIRBUILDER-LIVE-EDGE-CENSUS50-D0 — closed
+
+```text
+Three bounded read-only audits compared the remaining production families.
+The existing selected-unsupported diagnostic family is the smallest clean
+replacement. Using was rejected for this row because it would require a new
+admission/terminal no-op family. No external consultation remains open.
+```
+
 ## RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0 — closed
 
 ```text
@@ -6405,7 +6450,8 @@ R2bb RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-I0-R0 closed at 1f17bc93d1
 R2bc MIRBUILDER-LIVE-EDGE-CENSUS49-D0 closed: NoSafeSlice
 R2bd RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0 closed: Candidate A-prime
 R2be RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0 closed
-R2bf MIRBUILDER-LIVE-EDGE-CENSUS50-D0 current bounded census
+R2bf MIRBUILDER-LIVE-EDGE-CENSUS50-D0 closed: selected existing diagnostic family
+R2bg RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0 current
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
