@@ -3197,24 +3197,37 @@ Task sequence:
    and production behavior unchanged. New module target <=250 lines; do not
    edit the 799-line Program work-plan file.
 
-2. `SEMANTIC-OWNER-CORE0-S1`
-   Move the private semantic data and lowering roots behind a neutral owner
-   core. Change the forest payload from
-   `BTreeMap<FunctionOwnerIdV1, VerifiedResolvedFunctionV1>` to one shared
-   enum payload (`Function`/`Script`) while preserving the existing Function
-   API. Use profile-exact body roots instead of `[FunctionBody] |
-   [LambdaBodyRoot]` union search. Split files rather than crossing 800
-   lines. No Script production consumer, Lambda capture ledger, ValueId, ABI,
-   or grammar change in this commit.
+2. `SEMANTIC-OWNER-CORE0-S1A`
+   Introduce a private `VerifiedResolvedOwnerCoreV1` around the current
+   data/normalized/lowering/index products and make the existing Function
+   wrapper delegate to it. Add a private profile-checked Script wrapper with
+   no constructor or consumer yet. Preserve the existing Function API and
+   avoid renaming the many direct `ResolvedFunctionDataV1` test fields.
+   Buildable and behavior-neutral; no forest payload or root verifier change.
 
-3. `SEMANTIC-OWNER-PROJECTION0-S2`
+3. `SEMANTIC-OWNER-CORE0-S1B`
+   Move the forest payload to a new bounded payload module with one enum
+   `VerifiedSemanticOwnerProductV1::{Function, Script}`. Preserve
+   `forest.owner()`/`owners()` as the existing Function-only API; add only
+   internal generic accessors for later Script verification. Update forest
+   helper dispatch without duplicating upvar/topology authority. Buildable and
+   behavior-neutral; no Script construction, port, fixture, or grammar.
+
+4. `SEMANTIC-OWNER-CORE0-S1C`
+   Replace the Function/Lambda body-root union search with a profile-exact
+   root witness (`ResolvedOwnerLoweringRootsV1`), retaining a compatibility
+   alias for existing Function consumers. Reject mismatched profile/root pairs
+   in focused tests. Keep ScopeKind/RegionKind execution storage unchanged.
+   Do not add Script production or edit the 799-line Program work-plan file.
+
+5. `SEMANTIC-OWNER-PROJECTION0-S2`
    Generalize the private projection seal to profile-exact roots and add a
    separate Script source view. FunctionSourceView remains Function/Lambda
    only; no Program arm is added to it. Program projection must co-seal with
    the same shared forest and must not store AST references. Keep all existing
    Function projection behavior unchanged.
 
-4. `SEMANTIC-OWNER-SCRIPT-PORT0-S3`
+6. `SEMANTIC-OWNER-SCRIPT-PORT0-S3`
    Extract a neutral, bounded API for the already-prepared Script runtime
    window without editing `program_root_work_plan.rs` (799 lines) or running
    classification a second time. Add a typed immutable Script source-view loan
@@ -3224,7 +3237,7 @@ Task sequence:
    merely changing the carrier type is a hard stop. Keep raw/reference ports
    unchanged and keep this commit behavior-neutral.
 
-5. `RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0`
+7. `RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0`
    Only after S0/S1/S2 are green, connect the selected normal lifecycle at
    the existing production caller
    `ModuleBuilderInvocationSessionV1::complete_normal_default_program_root_catalog_lifecycle`.
