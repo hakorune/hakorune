@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0, RAW-SCRIPT-LEXICAL-BINDING0-I0-R0, and MIRBUILDER-LIVE-EDGE-CENSUS42-D0 are closed. The Script Complete closure now includes exact source-order Variable/Local BindingRef facts with a request-local ValueId ledger; explicit control/call/object/Box/Lambda demand remains Deferred. The next stop is a fresh narrow live-edge census."
+status = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0, RAW-SCRIPT-LEXICAL-BINDING0-I0-R0, and MIRBUILDER-LIVE-EDGE-CENSUS43-D0 are closed. The Script Complete closure now includes exact source-order Variable/Local BindingRef facts with a request-local ValueId ledger. The next selected design is ordinary Unary closure; control/call/object/Box/Lambda and Print remain outside this row."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS43-D0"
-current_execution_row = "MIRBUILDER-LIVE-EDGE-CENSUS43-D0"
-current_execution_summary = "Lexical Script Complete is landed and green. Empty/runtime Literal, prior-root Local-backed Variable, and one untyped Local with a Literal/Variable initializer are co-sealed in the shared Script forest/projection; Complete lowering uses a request-local BindingRef-to-ValueId ledger, while Deferred/raw/reference retain their existing routes. The next action is a narrow read-only census; do not preselect control, call, object, Box, Lambda, or ownership work."
+current_design_stop = "RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-D0"
+current_execution_row = "RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-D0"
+current_execution_summary = "Census43 found exactly one selected-normal old source edge: Deferred Script -> RawInvocationSourceTransportV1::script_root(()); Complete Literal/Variable/Local and raw/reference routes are already separated. Worker review selected one compositional extension: ordinary Unary (Minus/Not/BitNot) over the existing lexical closure. Weak, Print, control, calls/objects, Box, Lambda, and mixed unsafe trees remain Deferred."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS43-D0"
+current_blocker_token = "RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

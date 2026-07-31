@@ -3431,6 +3431,60 @@ Hard stops:
   Literal row.
 ```
 
+## MIRBUILDER-LIVE-EDGE-CENSUS43-D0 — closed
+
+```text
+Finding:
+  The selected-normal graph has exactly one remaining old source edge:
+  `program_root_lowering.rs` Deferred Script ->
+  `RawInvocationSourceTransportV1::script_root(())`. Complete
+  Literal/Variable/Local uses the semantic source loan. Raw/reference
+  `script_root` calls are tests or explicit compatibility, not this edge.
+
+Decision:
+  No safe T1 remains without selecting a semantic family. Worker review
+  compared ordinary Unary with Print and selected ordinary Unary as the
+  smallest recursive expression extension; Print remains a later statement
+  effect row despite its real fixture candidate.
+
+Sunset:
+  `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` remains active. The
+  Deferred edge is removed only when its exact deferred reasons are retired
+  or explicitly retained at final conformance.
+```
+
+## RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-D0 — accepted
+
+```text
+Change:
+  Extend the existing Script Complete admission with one recursive
+  expression constructor: Unary(Minus|Not|BitNot, E), where E is the
+  current Literal or prior-root Local-backed Variable closure. Use the
+  existing port-aware unary owner and exact UnaryOperand source paths.
+  Safe Unary requests stop using the Deferred `script_root(())` edge in the
+  same I0/R0 commit; unsafe Unary, Weak, Print, control, calls/objects, Box,
+  Lambda, and mixed unsafe trees remain Deferred.
+
+Contract:
+  Reuse the existing Script semantic source, shared forest/projection, and
+  request-local BindingRef-to-ValueId ledger. Record nested Variable sites
+  structurally; do not add ValueId/ABI/SSA to the semantic product, create a
+  second resolver/forest, or retry through raw compatibility.
+
+Done:
+  `local x = 1; -x` and a nested Unary source-path fixture are selected
+  normal parity cases; integer_0.hako and existing lexical fixtures remain
+  green. The selected old Deferred edge is zero for safe Unary, the shared
+  replacement guard is green, and every touched source/check file is <800
+  lines.
+
+Stop:
+  Return to design if exact nested source receipts cannot be sealed in one
+  traversal, Weak/operator-box/short-circuit semantics enter the closure,
+  a new materialization owner is needed, or Complete failure would need
+  Deferred/fallback/retry.
+```
+
 ## SEMANTIC-OWNER-SCRIPT-PORT0-S3 — closed, NoStandaloneRow
 
 ```text
@@ -5912,7 +5966,8 @@ R2ag RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0 closed
 R2ah NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0 closed
 R2ai NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0 closed
 R2aj RAW-SCRIPT-LEXICAL-BINDING0-I0-R0 closed at 7bf6c9b996
-R2ak MIRBUILDER-LIVE-EDGE-CENSUS43-D0 current design stop
+R2ak MIRBUILDER-LIVE-EDGE-CENSUS43-D0 closed
+R2al RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-D0 accepted design stop
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
