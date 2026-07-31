@@ -3789,6 +3789,44 @@ Next design:
 ```
 ```
 
+## MIRBUILDER-LIVE-EDGE-CENSUS49-D0 — closed, NoSafeSlice
+
+```text
+Decision:
+  NoSafeSlice
+
+Evidence:
+  The remaining Script lexical candidates all cross an authority that is not
+  part of the current source-only closure. QMark/Match/Enum/TryCatch/If/Loop
+  require control, exit, or cleanup facts. Call/Field/New/Array/Map/Record
+  require header, allocation, object, or metadata facts. Weak requires a
+  BoxRef/type precondition; Lambda requires forest/capture/ClosureBodyId;
+  Box requires catalog/lifecycle ownership. Existing `*_with_port_v1`
+  functions are lowering owners, not semantic admission producers.
+
+  The shared Deferred edge remains
+  `program_root_lowering.rs` -> `RawInvocationSourceTransportV1::script_root(())`.
+  It cannot be deleted without a complete producer for one selected family.
+
+Non-effects:
+  no code change, no new owner, no new resolver, no fallback/retry,
+  no broad source scan, no collector-drain restart. Collector drain is already
+  closed at `67488ff283`, and the existing Deferred sunset/ratchet SSOT is
+  sufficient; neither is reopened as a docs-only substitute.
+
+Next design stop:
+  `RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0`
+  Choose exactly one semantic family with a named production consumer,
+  one traversal/coverage contract, existing-lowering parity, fresh-request
+  reuse evidence, and the existing Deferred sunset/ratchet integration.
+
+Hard stops:
+  whole Script closure, multiple families in one row, synthetic Function,
+  partial forest, second resolver, fallback/retry, semantic diagnostic
+  reordering, ValueId/ABI materialization, Lambda/Control/Call/Box mixed
+  activation, or a new source/check file over 800 lines.
+```
+
 ## SEMANTIC-OWNER-SCRIPT-PORT0-S3 — closed, NoStandaloneRow
 
 ```text
@@ -6288,7 +6326,8 @@ R2ay RAW-SCRIPT-CHECK-LEXICAL-CLOSURE0-I0-R0 closed at a78d4e968a
 R2az MIRBUILDER-LIVE-EDGE-CENSUS48-D0 closed
 R2ba RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-D0 accepted design stop
 R2bb RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-I0-R0 closed at 1f17bc93d1
-R2bc MIRBUILDER-LIVE-EDGE-CENSUS49-D0 current design stop
+R2bc MIRBUILDER-LIVE-EDGE-CENSUS49-D0 closed: NoSafeSlice
+R2bd RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0 current design stop
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
