@@ -3317,7 +3317,7 @@ Next design:
   RAW-SCRIPT-LEXICAL-BINDING0-D0
 ```
 
-## RAW-SCRIPT-LEXICAL-BINDING0-I0-R0 — implementation open after accepted D0
+## RAW-SCRIPT-LEXICAL-BINDING0-I0-R0 — closed at 7bf6c9b996
 
 ```text
 Decision:
@@ -3388,6 +3388,31 @@ Hard stops:
   control/Lambda/call/object/Box runtime demand, program_root_work_plan.rs
   edits, new per-row guard, or any touched source/check file >=800 lines.
 ```
+
+Evidence:
+  `normal_script_lexical_binding.rs` owns the source-only lexical admission
+  and request-local ledger. `ResolvedScriptSemanticDraftV1` publishes exact
+  Local declaration and Variable-use BindingRef facts into the existing shared
+  forest; it does not own ValueId, ABI, SSA, or MIR. Complete lowering
+  intercepts only the selected concrete invocation port, materializes Local
+  through the existing Local owner, and reads Variables through the ledger.
+
+Focused proof:
+  `normal_script` tests are green, including real
+  `raw_vm_reference_conformance/local.hako`, nested `local y = x`, and the
+  existing failure/reuse and parity fixtures. `integer_0.hako` remains green.
+  `current_state_pointer_guard`, the shared cut0 guard, and all touched source
+  files remain below 800 lines.
+
+Atomic deletion:
+  selected Complete Local/Variable lowering no longer uses the raw
+  `build_variable_access`/name-map route. Deferred, raw, and reference Script
+  calls retain `script_root(())`; no fallback or retry was added.
+
+Next design:
+  MIRBUILDER-LIVE-EDGE-CENSUS43-D0 — read-only, narrow census of the
+  remaining selected-normal live edge. Do not preselect the next Script
+  semantic family.
 
 Ratchet and sunset:
   `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` tracks the Deferred owner.
@@ -5886,6 +5911,8 @@ R2af RAW-NONPROGRAM-TASK-SCOPE-COMPOSITIONAL-DESCENT0-I0-R0 closed
 R2ag RAW-NONPROGRAM-NEXT-RESPONSIBILITY11-D0 closed
 R2ah NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-D0 closed
 R2ai NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0 closed
+R2aj RAW-SCRIPT-LEXICAL-BINDING0-I0-R0 closed at 7bf6c9b996
+R2ak MIRBUILDER-LIVE-EDGE-CENSUS43-D0 current design stop
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed

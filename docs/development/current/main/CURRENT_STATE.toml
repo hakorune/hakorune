@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0 and MIRBUILDER-LIVE-EDGE-CENSUS42-D0 are closed. Worker design review accepted RAW-SCRIPT-LEXICAL-BINDING0-I0-R0: extend the Script Complete closure to exact source-order Variable/Local BindingRef facts, while keeping ValueId/materialization in a request-local lowering ledger. Implementation is now open; explicit control/call/object/Box/Lambda demand remains Deferred."
+status = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0, RAW-SCRIPT-LEXICAL-BINDING0-I0-R0, and MIRBUILDER-LIVE-EDGE-CENSUS42-D0 are closed. The Script Complete closure now includes exact source-order Variable/Local BindingRef facts with a request-local ValueId ledger; explicit control/call/object/Box/Lambda demand remains Deferred. The next stop is a fresh narrow live-edge census."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-LEXICAL-BINDING0-I0-R0"
-current_execution_row = "RAW-SCRIPT-LEXICAL-BINDING0-I0-R0"
-current_execution_summary = "The lexical Script D0 is accepted and implementation is open. Complete covers empty/runtime Literal, prior-root Local-backed Variable, and one untyped Local with a Literal/Variable initializer; the semantic product owns exact BindingRef/source-site facts only, and a request-local BindingRef-to-ValueId ledger is the sole lowering materialization bridge. Explicit Return, assignment, control, Lambda, calls/objects, Box runtime demand, and ABI/SSA remain Deferred."
+current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS43-D0"
+current_execution_row = "MIRBUILDER-LIVE-EDGE-CENSUS43-D0"
+current_execution_summary = "Lexical Script Complete is landed and green. Empty/runtime Literal, prior-root Local-backed Variable, and one untyped Local with a Literal/Variable initializer are co-sealed in the shared Script forest/projection; Complete lowering uses a request-local BindingRef-to-ValueId ledger, while Deferred/raw/reference retain their existing routes. The next action is a narrow read-only census; do not preselect control, call, object, Box, Lambda, or ownership work."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -442,7 +442,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-LAMBDA-CLOSURE-EMISSION-TERMINAL0-S0 is closed at e508f27224. RAW-SCRIPT-DIRECT-EXPR-EXACT-PROGRAM-SOURCE0-I0-R0 removes the selected DirectPortAwareExpression source-context drop. The sole design stop is RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0: create no ledger or Lambda bridge until a production Program-specific Script semantic product can co-seal root profile, forest, Program projection, and first-demand capture plans."""
+latest_card_summary = """RAW-SCRIPT-LEXICAL-BINDING0-I0-R0 is closed at 7bf6c9b996. Script Complete now co-seals exact Local/Variable BindingRef facts and uses a request-local BindingRef-to-ValueId ledger; unsafe control/call/object/Box/Lambda demand remains on the intentional Deferred route. The sole current design stop is MIRBUILDER-LIVE-EDGE-CENSUS43-D0, a narrow read-only census before selecting one next production edge."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-LEXICAL-BINDING0-I0-R0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS43-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
