@@ -265,25 +265,28 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-POST-MAP-LITERAL-CAPABILITY-CENSUS0-D0
+  RAW-SCRIPT-RECORD-LITERAL-COMPOSITIONAL-CONTRACT-DESCENT0-D0
 
   Change:
-    Census remaining selected Script Deferred edges once after MapLiteral has
-    left compatibility.
+    Decide whether an explicit-field RecordLiteral can use exact
+    `RecordFieldValue(n)` source receipts and the existing record contract
+    owner without moving schema, default-field, publication, or diagnostic
+    authority.
 
   Contract:
-    Choose at most one responsibility family with a named live old edge. Keep
-    QMark control/result, Loop JoinIR, Record metadata, Lambda
-    capture, and broad BlockExpr as separate design stops; no second resolver,
-    fallback, retry, or mixed request routing.
+    The D0 may select only RecordLiteral. RecordUpdate, default fields,
+    QMark control/result, Loop JoinIR, Lambda capture, and broad BlockExpr
+    remain separate design stops; no second resolver, fallback, retry, or
+    mixed request routing.
 
   Done:
-    Publish one bounded D0 with its exact old-edge deletion, or record
-    NoSafeSlice. Keep every source/check file below 800 lines.
+    Publish one bounded RecordLiteral I0 with its exact old-edge deletion, or
+    record NoSafeSlice. Keep every source/check file below 800 lines.
 
   Stop:
-    Stop when a candidate needs a new control/object/capture authority or a
-    widened nested-scope admission.
+    Stop when default-field descent lacks exact Program source receipts, or
+    when preserving existing RootLower diagnostics requires moving schema,
+    contract, or publication authority into Script semantics.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -295,6 +298,12 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-POST-MAP-LITERAL-CAPABILITY-CENSUS0-D0
+  -> CheckExpr is already Complete: shared profile admission, exact
+     `CheckItem(n)` receipts, the existing eager Select owner, fixture ratchet,
+     and its old Deferred edge are all closed. RecordLiteral is the sole next
+     candidate, requiring a contract/default-field D0 before any I0.
+
   RAW-SCRIPT-MAP-LITERAL-COMPOSITIONAL-MUTATION-DESCENT0-I0-R0
   -> selected Script Map values now receive exact `MapEntryValue(n)` source
      receipts through the structured child port. The existing Map owner remains
