@@ -250,11 +250,17 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 R2bi RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0
-  current external design consultation
+  closed Accept-corrected
+
+current
+  SEMANTIC-SHADOW-ROOT-NEUTRAL-ENTRY0-S0
+  -> dense Function/Lambda consumers use the private root-neutral core
+  -> extract semantic-source tests and anchor the fixture ratchet
 
 next
-  one accepted atomic production cutover selected by D0
-  -> delete manual Script resolver edge(s)
+  RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0
+  -> sparse Program demand window + ScriptLexicalCoreV1
+  -> atomically delete the manual Script resolver chain
   -> focused proof / build / shared guards
   -> batch-boundary live-edge census
 
@@ -273,6 +279,8 @@ after final-pipeline Complete only
 | Commit | Result |
 |---|---|
 | `3aad4871ea` | opened the root-neutral shared-shadow traversal consultation |
+| `583c3dcf5a` | moved dense Function/Lambda consumers through one private root-neutral traversal input |
+| `78771167ef` | separated identity-free shadow facts from final owner/origin canonicalization |
 | `106e5cbe5b` | moved the existing nine-kind selected diagnostic family into Complete semantic coverage without changing diagnostics |
 | `67237924fb` | moved StaticConst zero-child completion into Complete while preserving metadata/runtime owners |
 | `1f17bc93d1` | composed And/Or into the existing recursive Script closure |
