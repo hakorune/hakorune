@@ -265,11 +265,11 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-POST-IF-CAPABILITY-CENSUS0-D0
+  RAW-SCRIPT-POST-RETURN-CAPABILITY-CENSUS0-D0
 
   Change:
-    Census the remaining Script Deferred production edges once, after root If
-    has left the shared compatibility terminal.
+    Census the remaining Script Deferred production edges once, after final
+    root Return has left the shared compatibility terminal.
 
   Contract:
     Choose at most one responsibility family with a named live old edge. Do
@@ -278,7 +278,7 @@ current
 
   Done:
     Publish one bounded D0 with its exact old-edge deletion, or record
-    NoSafeSlice. Keep source/check files below 800 lines.
+    NoSafeSlice. Keep every source/check file below 800 lines.
 
   Stop:
     Stop when the remaining candidates need a new control/object/capture
@@ -294,6 +294,18 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-ROOT-RETURN-EXIT-ADMISSION0-I0-R0
+  -> only final-ordinal root `Return` receives a typed exit demand. The shared
+     traversal preserves existing ReturnValue/ExplicitReturn facts and the
+     existing value/void terminal owns all lowering. Non-final and nested
+     Return stay Deferred, so no suffix reachability owner is introduced; the
+     selected final-Return `Deferred -> bare script_root()` edge is zero.
+
+  RAW-SCRIPT-POST-IF-CAPABILITY-CENSUS0-D0
+  -> CheckExpr and its safe recursive closure are already Complete through
+     the shared lexical traversal and existing source-demand owner; no new
+     receipt or I0 exists. Final-root Return is the next bounded live edge.
+
   RAW-SCRIPT-IF-CONTROL-ADMISSION0-I0-R0
   -> exact `DirectIfStatement + ASTNode::If` work-plan receipts issue one
      typed root-control demand. The shared Script traversal resolves that

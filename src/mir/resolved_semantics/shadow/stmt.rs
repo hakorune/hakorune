@@ -36,6 +36,7 @@ impl<'ast> ShadowResolverV0<'ast> {
                 };
                 self.resolve_if(statement, condition, then_body, else_body.as_deref(), path)
             }
+            ScriptRootResolvedDemandV1::ReturnExit(_) => self.resolve_return(statement, path),
         }
     }
 
@@ -178,27 +179,39 @@ impl<'ast> ShadowResolverV0<'ast> {
             } => self.resolve_loop(statement, condition, body, path),
             ASTNode::Break { .. } => self.resolve_loop_exit(path, false),
             ASTNode::Continue { .. } => self.resolve_loop_exit(path, true),
-            ASTNode::Return { value, .. } => {
-                if let Some(value) = value {
-                    self.resolve_expr(
-                        value,
-                        &Self::stmt_expr_path(statement, path, ExprChildRoleV1::ReturnValue),
-                    )?;
-                }
-                self.record_exit(
-                    path.stmt(),
-                    ShadowExitOriginV0::ExplicitReturn,
-                    ShadowControlExitV0::Return {
-                        target_function: self.function_region(),
-                    },
-                )
-            }
+            ASTNode::Return { .. } => self.resolve_return(statement, path),
             expression if is_closed_expression(expression) => self.resolve_expr(expression, path),
             other => Err(ShadowResolveErrorV0::UnsupportedStatement {
                 kind: other.node_type(),
                 site: path.stmt(),
             }),
         }
+    }
+
+    fn resolve_return(
+        &mut self,
+        statement: &'ast ASTNode,
+        path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let ASTNode::Return { value, .. } = statement else {
+            return Err(ShadowResolveErrorV0::UnsupportedStatement {
+                kind: "Script root Return admission source drift",
+                site: path.stmt(),
+            });
+        };
+        if let Some(value) = value {
+            self.resolve_expr(
+                value,
+                &Self::stmt_expr_path(statement, path, ExprChildRoleV1::ReturnValue),
+            )?;
+        }
+        self.record_exit(
+            path.stmt(),
+            ShadowExitOriginV0::ExplicitReturn,
+            ShadowControlExitV0::Return {
+                target_function: self.function_region(),
+            },
+        )
     }
 
     fn resolve_declaration(

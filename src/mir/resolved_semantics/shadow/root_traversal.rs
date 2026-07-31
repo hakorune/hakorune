@@ -11,7 +11,7 @@ use crate::mir::resolved_semantics::{ScriptSyntaxViewV1, SourcePathSegmentV1};
 
 use super::path::ShadowSourcePathV0;
 use super::script_root_window::{
-    ScriptRootSemanticDispositionV1, VerifiedScriptRootDemandWindowV1,
+    ScriptRootResolvedDemandV1, ScriptRootSemanticDispositionV1, VerifiedScriptRootDemandWindowV1,
 };
 use super::traversal_profile::ShadowTraversalProfileV1;
 
@@ -126,6 +126,16 @@ impl<'ast> ShadowRootTraversalInputV1<'ast> {
                                     },
                                 );
                             };
+                            if matches!(demand, ScriptRootResolvedDemandV1::ReturnExit(_))
+                                && !window.is_final_ordinal(*index as usize)
+                            {
+                                return Err(
+                                    super::product::ShadowResolveErrorV0::UnsupportedStatement {
+                                        kind: "non-final Script root Return receipt",
+                                        site: entry.site().clone(),
+                                    },
+                                );
+                            }
                             resolver.resolve_root_statement(
                                 statement,
                                 &ShadowSourcePathV0::program_body()

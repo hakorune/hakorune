@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-IF-CONTROL-ADMISSION0-I0-R0 is closed: the exact DirectIfStatement + ProgramBody(n) receipt now selects one typed root-control demand, the shared Script shadow traversal resolves only that root If, and Complete lowers through the existing direct-If terminal. The old selected If -> Deferred -> bare script_root edge is absent; nested structured-scope If remains Deferred. Fresh Deferred-family census is next."
+status = "RAW-SCRIPT-ROOT-RETURN-EXIT-ADMISSION0-I0-R0 is closed: a typed root Return receipt is issued only at the final Program ordinal, resolves through the shared Script traversal, and retains the existing value/void Return lower terminal. Non-final and nested Return remain Deferred; fresh Deferred-family census is next."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-POST-IF-CAPABILITY-CENSUS0-D0"
-current_execution_row = "RAW-SCRIPT-POST-IF-CAPABILITY-CENSUS0-D0"
-current_execution_summary = "Run one focused live-edge census of the remaining Script Deferred families. Select at most one responsibility family with a named old production edge, or close NoSafeSlice; do not pre-authorize Control, Call/Object, Allocation, Weak, Lambda, or Box."
+current_design_stop = "RAW-SCRIPT-POST-RETURN-CAPABILITY-CENSUS0-D0"
+current_execution_row = "RAW-SCRIPT-POST-RETURN-CAPABILITY-CENSUS0-D0"
+current_execution_summary = "Run one focused live-edge census of remaining Script Deferred families after final-root Return. Select at most one responsibility family with a named old production edge, or close NoSafeSlice; do not pre-authorize Control, Call/Object, Allocation, Weak, Lambda, or Box."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"
@@ -446,7 +446,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-SCRIPT-IF-CONTROL-ADMISSION0-I0-R0 is closed: an exact DirectIfStatement/ProgramBody receipt selects the shared root-control traversal only at the Script root, preserves nested-scope Deferred boundaries, and removes the selected If Deferred/bare-script-root edge. Fresh Deferred-family census is current."""
+latest_card_summary = """RAW-SCRIPT-ROOT-RETURN-EXIT-ADMISSION0-I0-R0 is closed: only a final Program-item Return receives one typed root-exit receipt, uses the shared Script traversal and existing value/void terminal, and removes its selected Deferred/bare-script-root edge. Fresh Deferred-family census is current."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -649,7 +649,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-POST-IF-CAPABILITY-CENSUS0-D0"
+current_blocker_token = "RAW-SCRIPT-POST-RETURN-CAPABILITY-CENSUS0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

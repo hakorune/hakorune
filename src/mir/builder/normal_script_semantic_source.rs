@@ -334,3 +334,6 @@ fn program_statement_index(site: &SourceStmtSiteV1) -> Result<usize, String> {
 #[cfg(test)]
 #[path = "normal_script_semantic_source_tests.rs"]
 mod tests;
+#[cfg(test)]
+#[path = "normal_script_root_return_tests.rs"]
+mod return_tests;

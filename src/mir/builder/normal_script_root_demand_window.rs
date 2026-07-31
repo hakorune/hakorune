@@ -8,10 +8,10 @@
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootDemandWindowSealErrorV1,
-    ScriptRootIfControlAdmissionV1, ScriptRootResolvedDemandV1, ScriptRootRuntimeDispositionV1,
-    ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
-    SourcePathSegmentV1, SourcePathV1, VerifiedScriptRootDemandEntryV1,
-    VerifiedScriptRootDemandWindowV1,
+    ScriptRootIfControlAdmissionV1, ScriptRootResolvedDemandV1, ScriptRootReturnExitAdmissionV1,
+    ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1,
+    ScriptTransparentBoundaryV1, SourcePathSegmentV1, SourcePathV1,
+    VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
 };
 
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
@@ -124,6 +124,22 @@ impl ScriptRootDemandWindowBuilderV1 {
                         Runtime::RetainedExistingTerminal,
                     )
                 }
+                Admission::DirectPortAwareExpression
+                    if matches!(statement, ASTNode::Return { .. }) =>
+                {
+                    (
+                        if source_statement_index + 1 == self.entries.len() {
+                            Semantic::Resolved(ScriptRootResolvedDemandV1::ReturnExit(
+                                ScriptRootReturnExitAdmissionV1::new(),
+                            ))
+                        } else {
+                            Semantic::Deferred(
+                                ScriptDeferredBoundaryV1::ExistingRuntimeResponsibility,
+                            )
+                        },
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
                 Admission::DirectPortAwareExpression | Admission::DirectPrint => (
                     Semantic::Resolved(ScriptRootResolvedDemandV1::LexicalCore),
                     Runtime::RetainedExistingTerminal,
@@ -170,6 +186,9 @@ fn validate_boundary(
         | ScriptRootSemanticDispositionV1::Deferred(_) => true,
         ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IfControl(_)) => {
             matches!(statement, ASTNode::If { .. })
+        }
+        ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::ReturnExit(_)) => {
+            matches!(statement, ASTNode::Return { .. })
         }
         ScriptRootSemanticDispositionV1::Transparent(
             ScriptTransparentBoundaryV1::UsingDirective,
@@ -267,6 +286,40 @@ mod tests {
         assert!(matches!(
             entry.semantic(),
             ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IfControl(_))
+        ));
+    }
+
+    #[test]
+    fn only_final_root_return_issues_the_exit_receipt() {
+        let return_statement = ASTNode::Return {
+            value: None,
+            span: Span::unknown(),
+        };
+        let literal = ASTNode::Literal {
+            value: crate::ast::LiteralValue::Integer(1),
+            span: Span::unknown(),
+        };
+        let mut window = ScriptRootDemandWindowBuilderV1::for_program_statement_count(2);
+        window
+            .record_selected_work_item(
+                0,
+                &return_statement,
+                Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
+                false,
+            )
+            .expect("non-final Return receipt");
+        window
+            .record_selected_work_item(
+                1,
+                &literal,
+                Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
+                false,
+            )
+            .expect("literal receipt");
+        let sealed = window.seal().expect("sealed window");
+        assert!(matches!(
+            sealed.entry_at(0).expect("Return entry").semantic(),
+            ScriptRootSemanticDispositionV1::Deferred(_)
         ));
     }
 }

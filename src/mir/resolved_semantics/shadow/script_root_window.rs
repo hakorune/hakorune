@@ -24,12 +24,23 @@ pub(crate) enum ScriptRootSemanticDispositionV1 {
 pub(crate) enum ScriptRootResolvedDemandV1 {
     LexicalCore,
     IfControl(ScriptRootIfControlAdmissionV1),
+    ReturnExit(ScriptRootReturnExitAdmissionV1),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct ScriptRootIfControlAdmissionV1(());
 
 impl ScriptRootIfControlAdmissionV1 {
+    pub(crate) const fn new() -> Self {
+        Self(())
+    }
+}
+
+/// Receipt for a terminating root Return at the final Program ordinal.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct ScriptRootReturnExitAdmissionV1(());
+
+impl ScriptRootReturnExitAdmissionV1 {
     pub(crate) const fn new() -> Self {
         Self(())
     }
@@ -140,6 +151,10 @@ impl VerifiedScriptRootDemandWindowV1 {
 
     pub(crate) fn entry_at(&self, ordinal: usize) -> Option<&VerifiedScriptRootDemandEntryV1> {
         self.entries.get(ordinal)
+    }
+
+    pub(crate) fn is_final_ordinal(&self, ordinal: usize) -> bool {
+        ordinal.checked_add(1) == Some(self.entries.len())
     }
 }
 
