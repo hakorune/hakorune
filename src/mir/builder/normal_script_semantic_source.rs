@@ -461,4 +461,38 @@ print(await -(f + 2))
         );
         assert_eq!(normal.verification_result, legacy.verification_result);
     }
+
+    #[test]
+    fn selected_normal_check_lexical_closure_matches_legacy() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let source = r#"
+local observed = 2
+local ok = check "lexical" {
+    "first": observed == 2
+    "second": observed == 99
+}
+print(ok)
+"#;
+        let legacy_ast = NyashParser::parse_from_string(source).expect("legacy Check source");
+        let normal_ast = NyashParser::parse_from_string(source).expect("normal Check source");
+        let mut legacy_compiler = MirCompiler::with_options(false);
+        let legacy = legacy_compiler
+            .compile_with_source(legacy_ast, Some("script-check-lexical.hako"))
+            .expect("legacy Check module");
+        let mut normal_compiler = MirCompiler::with_options(false);
+        let request = NormalCompileRequestV1::for_mir_mode(
+            normal_ast,
+            Some("script-check-lexical.hako"),
+            std::collections::HashMap::new(),
+        )
+        .expect("normal Check request");
+        let normal = normal_compiler
+            .compile_normal(request)
+            .expect("normal Check module");
+        assert_eq!(
+            MirPrinter::new().print_module(&normal.module),
+            MirPrinter::new().print_module(&legacy.module)
+        );
+        assert_eq!(normal.verification_result, legacy.verification_result);
+    }
 }

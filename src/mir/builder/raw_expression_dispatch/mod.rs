@@ -153,8 +153,25 @@ impl super::MirBuilder {
                 result
             }
 
-            ASTNode::CheckExpr { items, .. } => {
-                self.build_check_expression_with_port_v1(port, items)
+            node @ ASTNode::CheckExpr { .. } => {
+                let sources = match &node {
+                    ASTNode::CheckExpr { items, .. } => items
+                        .iter()
+                        .enumerate()
+                        .map(|(index, _)| {
+                            port.prepare_expression_child_source_v1(
+                                &node,
+                                ExprChildRoleV1::CheckItem(index as u32),
+                            )
+                        })
+                        .collect::<Result<Vec<_>, _>>()?,
+                    _ => unreachable!("check match arm retains its AST shape"),
+                };
+                let items = match node {
+                    ASTNode::CheckExpr { items, .. } => items,
+                    _ => unreachable!("check match arm retains its AST shape"),
+                };
+                self.build_check_expression_with_port_v1(port, items, sources)
             }
 
             node @ ASTNode::UnaryOp { .. } => {

@@ -394,7 +394,7 @@ def main() -> int:
             raise AssertionError(f"retired raw Unary dispatcher policy returned: {retired}")
     if "fn build_unary_op(" in ops_mod:
         raise AssertionError("caller-zero MirBuilder Unary facade returned")
-    if "fn build_qmark_propagate_expression(" in qmark or "RawLegacyChildLoweringPortV1" in qmark or raw_expression_dispatch.count("self.build_qmark_propagate_expression_with_port_v1(port, *expression)") != 1 or "fn build_check_expression(" in check or "RawLegacyChildLoweringPortV1" in check or raw_expression_dispatch.count("self.build_check_expression_with_port_v1(port, items)") != 1 or "fn build_indirect_call_expression(" in indirect_call or "RawLegacyChildLoweringPortV1" in indirect_call or raw_expression_dispatch.count("self.build_indirect_call_expression_with_port_v1(port, *callee, arguments)") != 1:
+    if "fn build_qmark_propagate_expression(" in qmark or "RawLegacyChildLoweringPortV1" in qmark or raw_expression_dispatch.count("self.build_qmark_propagate_expression_with_port_v1(port, *expression)") != 1 or "fn build_check_expression(" in check or "RawLegacyChildLoweringPortV1" in check or raw_expression_dispatch.count("self.build_check_expression_with_port_v1(port, items, sources)") != 1 or "fn build_indirect_call_expression(" in indirect_call or "RawLegacyChildLoweringPortV1" in indirect_call or raw_expression_dispatch.count("self.build_indirect_call_expression_with_port_v1(port, *callee, arguments)") != 1:
         raise AssertionError("caller-zero QMark/Check/indirect-Call facade or selected port handoff drift")
     if raw_unary_owner.count("drive_legacy_expression_v1(builder, port, operand)") != 2:
         raise AssertionError("raw Unary Weak/Ordinary operand descent count drift")

@@ -1,4 +1,7 @@
 use crate::ast::{ASTNode, CheckItem};
+use crate::mir::builder::raw_structured_child_scope::{
+    PreparedRawChildSourceV1, RawStructuredChildScopePortV1,
+};
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RecursiveChildLoweringPortV1,
 };
@@ -15,16 +18,25 @@ impl super::MirBuilder {
         &mut self,
         port: &mut Port,
         items: Vec<CheckItem>,
+        sources: Vec<PreparedRawChildSourceV1>,
     ) -> Result<ValueId, String>
     where
-        Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
+        Port: RecursiveChildLoweringPortV1<
+            BodyInput = Vec<ASTNode>,
+            StatementInput = ASTNode,
+            ExpressionInput = ASTNode,
+        >,
     {
+        if sources.len() != items.len() {
+            return Err("[freeze:contract][check/source-count]".to_owned());
+        }
         let one = crate::mir::builder::emission::constant::emit_integer(self, 1)?;
         let zero = crate::mir::builder::emission::constant::emit_integer(self, 0)?;
         let mut ok = one;
+        let mut scoped = RawStructuredChildScopePortV1::new(port, sources, Vec::new());
 
         for item in items {
-            let condition = drive_legacy_expression_v1(self, port, item.expression)?;
+            let condition = drive_legacy_expression_v1(self, &mut scoped, item.expression)?;
             let dst = self.next_value_id();
             let prepared = PreparedCheckSelectIntegerTypeV1::prepare(
                 self.function_state.type_ctx.get_type(dst),
@@ -39,6 +51,7 @@ impl super::MirBuilder {
             prepared.commit(dst, &mut self.function_state.type_ctx);
             ok = dst;
         }
+        scoped.complete_exact_demands_v1()?;
 
         Ok(ok)
     }
@@ -48,6 +61,7 @@ impl super::MirBuilder {
 mod tests {
     use super::super::MirBuilder;
     use super::super::{MirInstruction, MirType, ValueId};
+    use super::PreparedRawChildSourceV1;
     use crate::ast::{ASTNode, CheckItem, LiteralValue, Span};
     use crate::mir::builder::recursive_child_lowering::{
         RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
@@ -141,7 +155,8 @@ mod tests {
         items: Vec<CheckItem>,
     ) -> Result<ValueId, String> {
         let mut port = RawLegacyChildLoweringPortV1;
-        builder.build_check_expression_with_port_v1(&mut port, items)
+        let sources = vec![PreparedRawChildSourceV1::Preserve; items.len()];
+        builder.build_check_expression_with_port_v1(&mut port, items, sources)
     }
 
     #[test]
@@ -231,6 +246,7 @@ mod tests {
             .build_check_expression_with_port_v1(
                 &mut port,
                 vec![integer_item(1), integer_item(2), integer_item(3)],
+                vec![PreparedRawChildSourceV1::Preserve; 3],
             )
             .unwrap();
 
@@ -253,6 +269,7 @@ mod tests {
             .build_check_expression_with_port_v1(
                 &mut port,
                 vec![integer_item(1), integer_item(2), integer_item(3)],
+                vec![PreparedRawChildSourceV1::Preserve; 3],
             )
             .unwrap_err();
 

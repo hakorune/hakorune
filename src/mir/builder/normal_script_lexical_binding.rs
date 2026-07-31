@@ -93,6 +93,7 @@ pub(super) fn admit_runtime_script_lexical_v1(
             | ASTNode::Variable { .. }
             | ASTNode::UnaryOp { .. }
             | ASTNode::BinaryOp { .. }
+            | ASTNode::CheckExpr { .. }
             | ASTNode::AwaitExpression { .. } => {
                 if let Err(reason) =
                     admit_expression_v1(statement, index, false, &[], &visible, &mut variables)
@@ -246,6 +247,26 @@ fn admit_expression_v1(
                 visible,
                 variables,
             )
+        }
+        ASTNode::CheckExpr { items, .. } => {
+            for (item_index, item) in items.iter().enumerate() {
+                let Some(segment) =
+                    ExprChildRoleV1::CheckItem(item_index as u32).segment_for(expression)
+                else {
+                    return Err(ScriptLexicalDeferredReasonV1::LocalShape);
+                };
+                let mut item_path = path.to_vec();
+                item_path.push(segment);
+                admit_expression_v1(
+                    &item.expression,
+                    source_statement_index,
+                    initializer,
+                    &item_path,
+                    visible,
+                    variables,
+                )?;
+            }
+            Ok(())
         }
         _ => Err(ScriptLexicalDeferredReasonV1::LocalShape),
     }
@@ -405,6 +426,36 @@ mod tests {
                 }),
                 span: Span::unknown(),
             }),
+            span: Span::unknown(),
+        }];
+        let result = admit_runtime_script_lexical_v1(&statements, &[admission()]);
+        assert!(matches!(result, ScriptLexicalAdmissionV1::Complete(_)));
+    }
+
+    #[test]
+    fn check_admits_items_through_the_existing_expression_closure() {
+        let statements = vec![ASTNode::CheckExpr {
+            name: None,
+            items: vec![
+                crate::ast::CheckItem {
+                    label: None,
+                    expression: ASTNode::Literal {
+                        value: LiteralValue::Integer(1),
+                        span: Span::unknown(),
+                    },
+                },
+                crate::ast::CheckItem {
+                    label: Some("second".to_owned()),
+                    expression: ASTNode::UnaryOp {
+                        operator: UnaryOperator::Minus,
+                        operand: Box::new(ASTNode::Literal {
+                            value: LiteralValue::Integer(2),
+                            span: Span::unknown(),
+                        }),
+                        span: Span::unknown(),
+                    },
+                },
+            ],
             span: Span::unknown(),
         }];
         let result = admit_runtime_script_lexical_v1(&statements, &[admission()]);
