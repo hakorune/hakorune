@@ -265,17 +265,17 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-POST-ARRAY-LITERAL-CAPABILITY-CENSUS0-D0
+  RAW-SCRIPT-POST-BLOCKEXPR-CLOSURE-CAPABILITY-CENSUS1-D0
 
   Change:
-    Census remaining selected Script Deferred edges once after ArrayLiteral
-    has left compatibility.
+    Census remaining selected Script Deferred edges once after the
+    CompositionalBlockExpr0 NoSafeSlice.
 
   Contract:
     Choose at most one responsibility family with a named live old edge. Keep
-    QMark control/result, Loop JoinIR, Map mutation, and Record metadata as
-    separate design stops; no second resolver, fallback, retry, or mixed
-    request routing.
+    QMark control/result, Loop JoinIR, Map mutation, Record metadata, Lambda
+    capture, and broad BlockExpr as separate design stops; no second resolver,
+    fallback, retry, or mixed request routing.
 
   Done:
     Publish one bounded D0 with its exact old-edge deletion, or record
@@ -295,6 +295,13 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-POST-ARRAY-LITERAL-CAPABILITY-CENSUS0-D0
+  -> BlockExpr has exact source receipts and a shared lexical traversal, but
+     its proposed outer-Variable closure cannot preserve production parity:
+     legacy lowering already rejects the shape at
+     `[freeze:contract][script-lexical/variable-site]`. No partial
+     BlockExpr activation lands; Local/Call/Weak/exit remain Deferred.
+
   RAW-SCRIPT-ARRAY-LITERAL-COMPOSITIONAL-ALLOCATION-DESCENT0-I0-R0
   -> selected Script ArrayLiteral is now a complete compositional allocation
      closure. The raw expression dispatcher creates exact `ArrayElement(n)`
