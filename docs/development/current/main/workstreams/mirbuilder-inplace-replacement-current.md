@@ -265,28 +265,31 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-D0
+  RAW-SCRIPT-POST-LEXICAL-CAPABILITY-CENSUS0-D0
 
   Change:
-    Decide whether the total sparse Program demand window can drive the shared
-    root-neutral shadow core and delete the manual Script lexical mini-resolver
-    atomically.
+    Census only the remaining Deferred Script capability families and select
+    one named production caller plus its old edge for the next row.
 
   Contract:
-    Every original Program ordinal has one typed disposition.  The shared core
-    remains the only AST traversal authority; no Control, Call/Object,
-    allocation, Lambda, or Box capability is activated by this decision.
+    The total sparse window and shared traversal are already live.  Do not
+    reopen their closed cutover or select a family merely by AST kind.
 
   Done:
-    Name the one production caller, source-only Complete closure, exact old
-    chain to delete, and focused parity/ratchet evidence for a single T2 row.
+    Name one live Deferred capability, its exact admission/Lower edge, the
+    existing owner it can reuse, and the focused evidence needed for one row.
 
   Stop:
-    Stop if a second Script matcher, partial forest, compact-index recovery, or
-    public Function view widening is required.  Keep all source/check files
+    Stop if the candidate needs a second matcher, partial forest, compact-index
+    recovery, or public Function view widening.  Keep all source/check files
     below 800 lines.
 
 closed
+  RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0
+  -> already closed by `5b963969b4`: sparse Script input reaches the shared
+     root-neutral shadow traversal and the 695-line manual lexical resolver is
+     deleted; only the BindingRef-to-ValueId lowering ledger remains
+
   RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-I0-R0
   -> bare `Me + DirectPortAwareExpression` now uses a typed receiver-absent
      diagnostic boundary; `build_me_expression` remains the only RootLower
@@ -300,15 +303,12 @@ closed
   -> focused semantic, direct-owner, transport, pointer, and shared guards green
 
 ordered after fresh evidence only
-  1. total typed sparse Script demand window: each Program ordinal is exactly
-     one Resolved / Transferred / Diagnostic / Transparent / Deferred receipt
-  2. sparse Script -> shared root-neutral shadow-core cutover, atomically
-     deleting admit_runtime_script_lexical_v1, admit_expression_v1, the
-     visible-name map, manual Local/Variable facts, and manual path rebuilding
-  3. responsibility capabilities only after that cutover: Control / Mutation /
+  1. fresh Deferred capability census: select one production owner family, not
+     a whole AST bucket
+  2. responsibility capabilities: Control / Mutation /
      JoinIR / Exit first, then Call/Object / allocation / Lambda / Box as
      separate owner-family rows
-  4. R4 consumes the live fence registry above; every item must retire, reown,
+  3. R4 consumes the live fence registry above; every item must retire, reown,
      or be explicitly retained before final conformance
 
 R4
