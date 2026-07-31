@@ -741,6 +741,9 @@ def main() -> int:
         "responsibility_local_nonprogram_roots_share_public_admission_and_reuse",
     ):
         require(normal_tests, fixture, f"normal pipeline fixture {fixture}")
+    require((ROOT / "src/mir/builder/normal_script_semantic_source.rs").read_text(), "fn script_static_const_u16_completion_matches_legacy_metadata", "StaticConst Complete fixture")
+    ratchet = caller_manifest["compatibility_sunsets"]["SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001"]
+    if "script_static_const_u16_completion" not in ratchet.get("complete_fixture_ids", []): raise AssertionError("StaticConst Complete ratchet missing")
     count_by_manifest(caller_manifest.get("normal_compile_adapters", {}), ".compile(")
     expected_build_module = caller_manifest.get("direct_build_module_production", {})
     actual_build_module = {

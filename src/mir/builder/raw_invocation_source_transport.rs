@@ -18,8 +18,8 @@ use crate::mir::resolved_semantics::{
 use crate::mir::ValueId;
 
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1;
-use super::normal_top_level_function_admission::NormalTopLevelFunctionSourceKeyV1;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
+use super::normal_top_level_function_admission::NormalTopLevelFunctionSourceKeyV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
     lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
@@ -239,6 +239,7 @@ impl RawInvocationSourceContextV1 {
                 if !matches!(&statement, ASTNode::BoxDeclaration { .. })
                     && !is_located_control_or_diagnostic_terminal(&statement)
                     && !is_located_scalar_statement(&statement)
+                    && !is_located_zero_child_runtime_completion(&statement)
                     && !is_located_lambda_statement(&statement)
                 {
                     let reason = reason_for_non_box_statement(&statement);
@@ -359,6 +360,7 @@ impl RawInvocationSourceContextV1 {
         if kind != SourceBodyKindV1::Program
             && !is_located_control_or_diagnostic_terminal(statement)
             && !is_located_scalar_statement(statement)
+            && !is_located_zero_child_runtime_completion(statement)
             && !is_located_lambda_statement(statement)
         {
             return Err(format!(
@@ -459,6 +461,10 @@ fn is_located_scalar_statement(statement: &ASTNode) -> bool {
             | ASTNode::Return { .. }
             | ASTNode::Local { .. }
     )
+}
+
+fn is_located_zero_child_runtime_completion(statement: &ASTNode) -> bool {
+    matches!(statement, ASTNode::StaticConstTable { .. })
 }
 
 fn is_located_lambda_statement(statement: &ASTNode) -> bool {
@@ -746,6 +752,28 @@ mod lambda_source_tests {
         };
         let (_, child) =
             RawInvocationSourceContextV1::from_transport(root.body_statement(lambda, 2));
+        assert_eq!(
+            child.site().unwrap().segments(),
+            &[
+                SourcePathSegmentV1::ProgramBodyRoot,
+                SourcePathSegmentV1::ProgramBody(2),
+            ]
+        );
+    }
+
+    #[test]
+    fn static_const_completion_keeps_exact_program_source_site() {
+        let (_, root) = RawInvocationSourceContextV1::from_transport(
+            RawInvocationSourceTransportV1::script_semantic_root(Vec::<ASTNode>::new()),
+        );
+        let statement = ASTNode::StaticConstTable {
+            name: "TABLE".to_owned(),
+            element_type: "u16".to_owned(),
+            values: vec![1, 2, 3],
+            span: crate::ast::Span::unknown(),
+        };
+        let (_, child) =
+            RawInvocationSourceContextV1::from_transport(root.body_statement(statement, 2));
         assert_eq!(
             child.site().unwrap().segments(),
             &[

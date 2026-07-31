@@ -1,11 +1,12 @@
 //! Selected-normal Script runtime descent: one Program classification, ordered existing terminals.
 
+use super::normal_script_lexical_binding::{
+    admit_runtime_script_lexical_v1, ScriptSemanticAdmissionInvariantErrorV1,
+    ScriptSemanticClosureAdmissionV1,
+};
 #[cfg(test)]
 use super::normal_script_program_item_admission::classify_normal_script_program_item_v1;
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
-use super::normal_script_lexical_binding::{
-    admit_runtime_script_lexical_v1, ScriptLexicalAdmissionV1,
-};
 use super::normal_script_runtime_block_port::NormalScriptRuntimeBlockPortV1;
 use super::program_root_work_plan::PreparedProgramRootRuntimeWorkV1;
 use crate::ast::ASTNode;
@@ -138,15 +139,16 @@ impl PreparedNormalScriptRuntimeWorkV1 {
     }
 
     pub(super) fn is_literal_only(&self) -> bool {
-        self.statements.iter().zip(self.admissions.iter()).all(
-            |(statement, admission)| {
+        self.statements
+            .iter()
+            .zip(self.admissions.iter())
+            .all(|(statement, admission)| {
                 matches!(statement, ASTNode::Literal { .. })
                     && matches!(
                         admission.admission,
                         NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression
                     )
-            },
-        )
+            })
     }
 
     pub(super) fn literal_source_indices(&self) -> Box<[usize]> {
@@ -162,7 +164,9 @@ impl PreparedNormalScriptRuntimeWorkV1 {
             .collect()
     }
 
-    pub(super) fn lexical_admission(&self) -> ScriptLexicalAdmissionV1 {
+    pub(super) fn semantic_closure_admission(
+        &self,
+    ) -> Result<ScriptSemanticClosureAdmissionV1, ScriptSemanticAdmissionInvariantErrorV1> {
         admit_runtime_script_lexical_v1(&self.statements, &self.admissions)
     }
     pub(super) fn lower_with_port_v1<Port>(
@@ -212,12 +216,14 @@ impl PreparedNormalScriptRuntimeWorkV1 {
 }
 
 impl PreparedProgramRootRuntimeWorkV1 {
-    pub(super) fn lexical_admission(&self) -> ScriptLexicalAdmissionV1 {
+    pub(super) fn semantic_closure_admission(
+        &self,
+    ) -> Result<ScriptSemanticClosureAdmissionV1, ScriptSemanticAdmissionInvariantErrorV1> {
         match self {
-            Self::SelectedNormal(work) => work.lexical_admission(),
-            Self::RawCompatibility(_) => ScriptLexicalAdmissionV1::Deferred(
+            Self::SelectedNormal(work) => work.semantic_closure_admission(),
+            Self::RawCompatibility(_) => Ok(ScriptSemanticClosureAdmissionV1::Deferred(
                 super::normal_script_lexical_binding::ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement,
-            ),
+            )),
         }
     }
 

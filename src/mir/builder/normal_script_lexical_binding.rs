@@ -3,7 +3,7 @@
 //! This module deliberately stops at BindingRef facts. Runtime ValueIds are
 //! added later, after the existing Local owner has materialized a value.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
@@ -37,9 +37,22 @@ pub(super) struct ScriptLexicalFactsV1 {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(super) enum ScriptLexicalAdmissionV1 {
-    Complete(ScriptLexicalFactsV1),
+pub(super) struct ScriptSemanticClosureFactsV1 {
+    pub(super) lexical: ScriptLexicalFactsV1,
+    pub(super) static_const_completion_source_indices: Box<[usize]>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) enum ScriptSemanticClosureAdmissionV1 {
+    Complete(ScriptSemanticClosureFactsV1),
     Deferred(ScriptLexicalDeferredReasonV1),
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum ScriptSemanticAdmissionInvariantErrorV1 {
+    RuntimeCoverageMismatch,
+    SourceAdmissionMismatch,
+    DuplicateCompletionSite,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -53,39 +66,54 @@ pub(super) enum ScriptLexicalDeferredReasonV1 {
 pub(super) fn admit_runtime_script_lexical_v1(
     statements: &[ASTNode],
     admissions: &[LocatedNormalScriptRuntimeAdmissionV1],
-) -> ScriptLexicalAdmissionV1 {
+) -> Result<ScriptSemanticClosureAdmissionV1, ScriptSemanticAdmissionInvariantErrorV1> {
     if statements.len() != admissions.len() {
-        return ScriptLexicalAdmissionV1::Deferred(
-            ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement,
-        );
+        return Err(ScriptSemanticAdmissionInvariantErrorV1::RuntimeCoverageMismatch);
     }
     let mut locals = Vec::new();
     let mut visible = BTreeMap::<String, usize>::new();
     let mut variables = Vec::new();
     let mut expression_source_indices = Vec::new();
+    let mut runtime_source_indices = BTreeSet::new();
+    let mut static_const_completion_source_indices = BTreeSet::new();
     for (statement, admission) in statements.iter().zip(admissions) {
+        if !runtime_source_indices.insert(admission.source_statement_index) {
+            return Err(ScriptSemanticAdmissionInvariantErrorV1::DuplicateCompletionSite);
+        }
+        if matches!(
+            admission.admission,
+            NormalScriptRuntimeStatementAdmissionV1::DirectStaticConstRuntimeCompletion
+        ) {
+            if !matches!(statement, ASTNode::StaticConstTable { .. }) {
+                return Err(ScriptSemanticAdmissionInvariantErrorV1::SourceAdmissionMismatch);
+            }
+            if !static_const_completion_source_indices.insert(admission.source_statement_index) {
+                return Err(ScriptSemanticAdmissionInvariantErrorV1::DuplicateCompletionSite);
+            }
+            continue;
+        }
         if !matches!(
             admission.admission,
             NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression
                 | NormalScriptRuntimeStatementAdmissionV1::DirectPrint
         ) {
-            return ScriptLexicalAdmissionV1::Deferred(
+            return Ok(ScriptSemanticClosureAdmissionV1::Deferred(
                 ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement,
-            );
+            ));
         }
         let index = admission.source_statement_index;
         match statement {
             ASTNode::Print { expression, .. } => {
                 let Some(segment) = ExprChildRoleV1::PrintValue.segment_for(statement) else {
-                    return ScriptLexicalAdmissionV1::Deferred(
+                    return Ok(ScriptSemanticClosureAdmissionV1::Deferred(
                         ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement,
-                    );
+                    ));
                 };
                 let path = [segment];
                 if let Err(reason) =
                     admit_expression_v1(expression, index, false, &path, &visible, &mut variables)
                 {
-                    return ScriptLexicalAdmissionV1::Deferred(reason);
+                    return Ok(ScriptSemanticClosureAdmissionV1::Deferred(reason));
                 }
                 expression_source_indices.push(index);
             }
@@ -98,7 +126,7 @@ pub(super) fn admit_runtime_script_lexical_v1(
                 if let Err(reason) =
                     admit_expression_v1(statement, index, false, &[], &visible, &mut variables)
                 {
-                    return ScriptLexicalAdmissionV1::Deferred(reason);
+                    return Ok(ScriptSemanticClosureAdmissionV1::Deferred(reason));
                 }
                 expression_source_indices.push(index);
             }
@@ -114,19 +142,19 @@ pub(super) fn admit_runtime_script_lexical_v1(
                         || (declared_type_names.len() == 1 && declared_type_names[0].is_none()))
                     || visible.contains_key(&names[0])
                 {
-                    return ScriptLexicalAdmissionV1::Deferred(
+                    return Ok(ScriptSemanticClosureAdmissionV1::Deferred(
                         ScriptLexicalDeferredReasonV1::LocalShape,
-                    );
+                    ));
                 }
                 let Some(initializer) = initial_values[0].as_deref() else {
-                    return ScriptLexicalAdmissionV1::Deferred(
+                    return Ok(ScriptSemanticClosureAdmissionV1::Deferred(
                         ScriptLexicalDeferredReasonV1::LocalShape,
-                    );
+                    ));
                 };
                 if let Err(reason) =
                     admit_expression_v1(initializer, index, true, &[], &visible, &mut variables)
                 {
-                    return ScriptLexicalAdmissionV1::Deferred(reason);
+                    return Ok(ScriptSemanticClosureAdmissionV1::Deferred(reason));
                 }
                 visible.insert(names[0].clone(), index);
                 locals.push(ScriptLocalFactV1 {
@@ -135,17 +163,24 @@ pub(super) fn admit_runtime_script_lexical_v1(
                 });
             }
             _ => {
-                return ScriptLexicalAdmissionV1::Deferred(
+                return Ok(ScriptSemanticClosureAdmissionV1::Deferred(
                     ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement,
-                )
+                ))
             }
         }
     }
-    ScriptLexicalAdmissionV1::Complete(ScriptLexicalFactsV1 {
-        locals: locals.into_boxed_slice(),
-        variables: variables.into_boxed_slice(),
-        expression_source_indices: expression_source_indices.into_boxed_slice(),
-    })
+    Ok(ScriptSemanticClosureAdmissionV1::Complete(
+        ScriptSemanticClosureFactsV1 {
+            lexical: ScriptLexicalFactsV1 {
+                locals: locals.into_boxed_slice(),
+                variables: variables.into_boxed_slice(),
+                expression_source_indices: expression_source_indices.into_boxed_slice(),
+            },
+            static_const_completion_source_indices: static_const_completion_source_indices
+                .into_iter()
+                .collect(),
+        },
+    ))
 }
 
 fn admit_expression_v1(
@@ -310,8 +345,8 @@ impl ScriptSemanticLoweringState {
 mod tests {
     use super::{
         admit_runtime_script_lexical_v1, LocatedNormalScriptRuntimeAdmissionV1,
-        NormalScriptRuntimeStatementAdmissionV1, ScriptLexicalAdmissionV1,
-        ScriptLexicalDeferredReasonV1,
+        NormalScriptRuntimeStatementAdmissionV1, ScriptLexicalDeferredReasonV1,
+        ScriptSemanticClosureAdmissionV1,
     };
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 
@@ -319,6 +354,15 @@ mod tests {
         LocatedNormalScriptRuntimeAdmissionV1 {
             source_statement_index: 0,
             admission: NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression,
+        }
+    }
+
+    fn static_const(name: &str) -> ASTNode {
+        ASTNode::StaticConstTable {
+            name: name.to_owned(),
+            element_type: "u16".to_owned(),
+            values: vec![1, 2, 3],
+            span: Span::unknown(),
         }
     }
 
@@ -333,11 +377,11 @@ mod tests {
             span: Span::unknown(),
         }];
         let result = admit_runtime_script_lexical_v1(&statements, &[admission()]);
-        let ScriptLexicalAdmissionV1::Complete(facts) = result else {
+        let Ok(ScriptSemanticClosureAdmissionV1::Complete(facts)) = result else {
             panic!("ordinary unary must be Complete");
         };
-        assert_eq!(facts.expression_source_indices.as_ref(), &[0]);
-        assert!(facts.variables.is_empty());
+        assert_eq!(facts.lexical.expression_source_indices.as_ref(), &[0]);
+        assert!(facts.lexical.variables.is_empty());
     }
 
     #[test]
@@ -356,11 +400,11 @@ mod tests {
         let mut admission = admission();
         admission.admission = NormalScriptRuntimeStatementAdmissionV1::DirectPrint;
         let result = admit_runtime_script_lexical_v1(&statements, &[admission]);
-        let ScriptLexicalAdmissionV1::Complete(facts) = result else {
+        let Ok(ScriptSemanticClosureAdmissionV1::Complete(facts)) = result else {
             panic!("Print over the existing expression closure must be Complete");
         };
-        assert_eq!(facts.expression_source_indices.as_ref(), &[0]);
-        assert!(facts.variables.is_empty());
+        assert_eq!(facts.lexical.expression_source_indices.as_ref(), &[0]);
+        assert!(facts.lexical.variables.is_empty());
     }
 
     #[test]
@@ -382,7 +426,10 @@ mod tests {
             span: Span::unknown(),
         }];
         let result = admit_runtime_script_lexical_v1(&statements, &[admission()]);
-        assert!(matches!(result, ScriptLexicalAdmissionV1::Complete(_)));
+        assert!(matches!(
+            result,
+            Ok(ScriptSemanticClosureAdmissionV1::Complete(_))
+        ));
     }
 
     #[test]
@@ -401,7 +448,7 @@ mod tests {
         }];
         assert!(matches!(
             admit_runtime_script_lexical_v1(&statements, &[admission()]),
-            ScriptLexicalAdmissionV1::Complete(_)
+            Ok(ScriptSemanticClosureAdmissionV1::Complete(_))
         ));
     }
 
@@ -419,7 +466,10 @@ mod tests {
             span: Span::unknown(),
         }];
         let result = admit_runtime_script_lexical_v1(&statements, &[admission()]);
-        assert!(matches!(result, ScriptLexicalAdmissionV1::Complete(_)));
+        assert!(matches!(
+            result,
+            Ok(ScriptSemanticClosureAdmissionV1::Complete(_))
+        ));
     }
 
     #[test]
@@ -449,7 +499,10 @@ mod tests {
             span: Span::unknown(),
         }];
         let result = admit_runtime_script_lexical_v1(&statements, &[admission()]);
-        assert!(matches!(result, ScriptLexicalAdmissionV1::Complete(_)));
+        assert!(matches!(
+            result,
+            Ok(ScriptSemanticClosureAdmissionV1::Complete(_))
+        ));
     }
 
     #[test]
@@ -464,9 +517,72 @@ mod tests {
         }];
         assert_eq!(
             admit_runtime_script_lexical_v1(&statements, &[admission()]),
-            ScriptLexicalAdmissionV1::Deferred(
+            Ok(ScriptSemanticClosureAdmissionV1::Deferred(
                 ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement
-            )
+            ))
+        );
+    }
+
+    #[test]
+    fn static_const_exact_pair_is_a_zero_child_complete_boundary() {
+        let statements = vec![static_const("TABLE")];
+        let admissions = [LocatedNormalScriptRuntimeAdmissionV1 {
+            source_statement_index: 2,
+            admission: NormalScriptRuntimeStatementAdmissionV1::DirectStaticConstRuntimeCompletion,
+        }];
+        let result = admit_runtime_script_lexical_v1(&statements, &admissions);
+        let Ok(ScriptSemanticClosureAdmissionV1::Complete(facts)) = result else {
+            panic!("StaticConst exact pair must be Complete");
+        };
+        assert!(facts.lexical.locals.is_empty());
+        assert_eq!(facts.static_const_completion_source_indices.as_ref(), &[2]);
+    }
+
+    #[test]
+    fn static_const_admission_with_non_static_source_is_invariant_rejection() {
+        let statements = vec![ASTNode::Literal {
+            value: LiteralValue::Integer(1),
+            span: Span::unknown(),
+        }];
+        let admissions = [LocatedNormalScriptRuntimeAdmissionV1 {
+            source_statement_index: 0,
+            admission: NormalScriptRuntimeStatementAdmissionV1::DirectStaticConstRuntimeCompletion,
+        }];
+        assert_eq!(
+            admit_runtime_script_lexical_v1(&statements, &admissions),
+            Err(super::ScriptSemanticAdmissionInvariantErrorV1::SourceAdmissionMismatch)
+        );
+    }
+
+    #[test]
+    fn static_const_with_unsupported_sibling_defers_the_whole_request() {
+        let statements = vec![
+            static_const("TABLE"),
+            ASTNode::UnaryOp {
+                operator: UnaryOperator::Weak,
+                operand: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(1),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            },
+        ];
+        let admissions = [
+            LocatedNormalScriptRuntimeAdmissionV1 {
+                source_statement_index: 0,
+                admission:
+                    NormalScriptRuntimeStatementAdmissionV1::DirectStaticConstRuntimeCompletion,
+            },
+            LocatedNormalScriptRuntimeAdmissionV1 {
+                source_statement_index: 1,
+                admission: NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression,
+            },
+        ];
+        assert_eq!(
+            admit_runtime_script_lexical_v1(&statements, &admissions),
+            Ok(ScriptSemanticClosureAdmissionV1::Deferred(
+                ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement
+            ))
         );
     }
 }

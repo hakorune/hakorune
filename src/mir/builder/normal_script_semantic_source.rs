@@ -1,12 +1,14 @@
 //! Producer-backed Script semantic source for the lexical Complete closure.
 //!
 //! This product is intentionally narrow: the selected runtime window must be
-//! empty or literal-only before a Script owner is issued.  It borrows the
-//! already-owned Program while sealing one shared forest and projection; no
-//! raw source carrier can manufacture the Complete loan.
+//! closed by the admitted lexical expressions or an exact zero-child transfer
+//! receipt before a Script owner is issued. It borrows the already-owned
+//! Program while sealing one shared forest and projection; no raw source
+//! carrier can manufacture the Complete loan.
 
 use super::normal_script_lexical_binding::{
-    ScriptLexicalAdmissionV1, ScriptLexicalFactsV1, ScriptSemanticLoweringState,
+    ScriptLexicalFactsV1, ScriptSemanticClosureAdmissionV1, ScriptSemanticClosureFactsV1,
+    ScriptSemanticLoweringState,
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
@@ -23,22 +25,32 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     source: &'source PreparedNormalDefaultProgramRootV1,
     forest: VerifiedSemanticOwnerForestV1,
     projection: VerifiedSourceProjectionV1,
+    static_const_completions: Box<[VerifiedScriptStaticConstCompletionV1]>,
     runtime_source_indices: Box<[usize]>,
+}
+
+#[derive(Debug)]
+pub(super) struct VerifiedScriptStaticConstCompletionV1 {
+    site: SourceStmtSiteV1,
 }
 
 impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     pub(super) fn seal(
         source: &'source PreparedNormalDefaultProgramRootV1,
         owner: FunctionOwnerIdV1,
-        admission: ScriptLexicalAdmissionV1,
+        admission: ScriptSemanticClosureAdmissionV1,
     ) -> Result<Self, String> {
         let ASTNode::Program { statements, .. } = source.source_ast() else {
             return Err("[mir/script-semantic/source-root] expected Program".to_owned());
         };
-        let ScriptLexicalAdmissionV1::Complete(ScriptLexicalFactsV1 {
-            locals,
-            variables,
-            expression_source_indices,
+        let ScriptSemanticClosureAdmissionV1::Complete(ScriptSemanticClosureFactsV1 {
+            lexical:
+                ScriptLexicalFactsV1 {
+                    locals,
+                    variables,
+                    expression_source_indices,
+                },
+            static_const_completion_source_indices,
         }) = admission
         else {
             return Err("[mir/script-semantic/admission] Deferred input cannot seal".to_owned());
@@ -82,6 +94,20 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             let site = path.expr();
             draft.record_variable(site, binding);
         }
+        let mut static_const_completions = Vec::new();
+        for &source_statement_index in &static_const_completion_source_indices {
+            if !matches!(
+                statements.get(source_statement_index),
+                Some(ASTNode::StaticConstTable { .. })
+            ) {
+                return Err(format!(
+                    "[mir/script-semantic/static-const-coverage] source_statement_index={source_statement_index}"
+                ));
+            }
+            static_const_completions.push(VerifiedScriptStaticConstCompletionV1 {
+                site: program_statement_site(source_statement_index),
+            });
+        }
         let product = draft
             .seal()
             .map_err(|error| format!("[mir/script-semantic/seal] {error:?}"))?;
@@ -89,6 +115,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             .iter()
             .map(|local| local.source_statement_index)
             .chain(expression_source_indices.into_vec())
+            .chain(static_const_completion_source_indices.iter().copied())
             .collect::<std::collections::BTreeSet<_>>()
             .into_iter()
             .collect::<Box<[_]>>();
@@ -109,6 +136,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             source,
             forest,
             projection,
+            static_const_completions: static_const_completions.into_boxed_slice(),
             runtime_source_indices,
         })
     }
@@ -127,6 +155,13 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
 
     pub(super) fn runtime_source_indices(&self) -> &[usize] {
         &self.runtime_source_indices
+    }
+
+    #[cfg(test)]
+    pub(super) fn static_const_completion_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
+        self.static_const_completions
+            .iter()
+            .map(|receipt| &receipt.site)
     }
 
     pub(super) fn local_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
@@ -199,10 +234,12 @@ mod tests {
     use super::VerifiedScriptSemanticSourceV1;
     use crate::ast::{ASTNode, LiteralValue, Span, UnaryOperator};
     use crate::mir::builder::normal_script_lexical_binding::{
-        ScriptLexicalAdmissionV1, ScriptLexicalFactsV1,
+        ScriptLexicalFactsV1, ScriptSemanticClosureAdmissionV1, ScriptSemanticClosureFactsV1,
     };
     use crate::mir::builder::PreparedNormalDefaultProgramRootV1;
-    use crate::mir::resolved_semantics::{FunctionOwnerIssuerV1, SemanticOwnerRootProfileV1};
+    use crate::mir::resolved_semantics::{
+        FunctionOwnerIssuerV1, SemanticOwnerRootProfileV1, SourcePathSegmentV1,
+    };
     use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
     use crate::parser::NyashParser;
 
@@ -220,10 +257,13 @@ mod tests {
         let product = VerifiedScriptSemanticSourceV1::seal(
             &source,
             owner(),
-            ScriptLexicalAdmissionV1::Complete(ScriptLexicalFactsV1 {
-                locals: Box::new([]),
-                variables: Box::new([]),
-                expression_source_indices: vec![0].into_boxed_slice(),
+            ScriptSemanticClosureAdmissionV1::Complete(ScriptSemanticClosureFactsV1 {
+                lexical: ScriptLexicalFactsV1 {
+                    locals: Box::new([]),
+                    variables: Box::new([]),
+                    expression_source_indices: vec![0].into_boxed_slice(),
+                },
+                static_const_completion_source_indices: Box::new([]),
             }),
         )
         .expect("literal Script product");
@@ -252,21 +292,60 @@ mod tests {
         let error = VerifiedScriptSemanticSourceV1::seal(
             &source,
             owner(),
-            ScriptLexicalAdmissionV1::Complete(ScriptLexicalFactsV1 {
-                locals: vec![
-                    super::super::normal_script_lexical_binding::ScriptLocalFactV1 {
-                        source_statement_index: 1,
-                        name: "x".to_owned(),
-                    },
-                ]
-                .into_boxed_slice(),
-                variables: Box::new([]),
-                expression_source_indices: Box::new([]),
+            ScriptSemanticClosureAdmissionV1::Complete(ScriptSemanticClosureFactsV1 {
+                lexical: ScriptLexicalFactsV1 {
+                    locals: vec![
+                        super::super::normal_script_lexical_binding::ScriptLocalFactV1 {
+                            source_statement_index: 1,
+                            name: "x".to_owned(),
+                        },
+                    ]
+                    .into_boxed_slice(),
+                    variables: Box::new([]),
+                    expression_source_indices: Box::new([]),
+                },
+                static_const_completion_source_indices: Box::new([]),
             }),
         )
         .expect_err("out-of-range literal coverage must reject");
 
         assert!(error.contains("local-coverage"));
+    }
+
+    #[test]
+    fn static_const_receipt_seals_the_original_program_ordinal() {
+        let ast = ASTNode::Program {
+            statements: vec![ASTNode::StaticConstTable {
+                name: "TABLE".to_owned(),
+                element_type: "u16".to_owned(),
+                values: vec![1, 2],
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        };
+        let source = PreparedNormalDefaultProgramRootV1::seal(ast).expect("Program source");
+        let product = VerifiedScriptSemanticSourceV1::seal(
+            &source,
+            owner(),
+            ScriptSemanticClosureAdmissionV1::Complete(ScriptSemanticClosureFactsV1 {
+                lexical: ScriptLexicalFactsV1 {
+                    locals: Box::new([]),
+                    variables: Box::new([]),
+                    expression_source_indices: Box::new([]),
+                },
+                static_const_completion_source_indices: vec![0].into_boxed_slice(),
+            }),
+        )
+        .expect("StaticConst semantic source");
+        let sites = product.static_const_completion_sites().collect::<Vec<_>>();
+        assert_eq!(sites.len(), 1);
+        assert_eq!(
+            sites[0].node().segments(),
+            &[
+                SourcePathSegmentV1::ProgramBodyRoot,
+                SourcePathSegmentV1::ProgramBody(0),
+            ]
+        );
     }
 
     #[test]
@@ -560,5 +639,82 @@ print(lhs and missing)
                 .expect("fresh AndOr reuse request"),
             )
             .expect("fresh request after AndOr failure");
+    }
+
+    #[test]
+    fn script_static_const_u16_completion_matches_legacy_metadata() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let source = "static const TABLE: u16[] = [1, 2, 3]\nprint(1)";
+        let mut legacy_compiler = MirCompiler::with_options(false);
+        let legacy = legacy_compiler
+            .compile_with_source(
+                NyashParser::parse_from_string(source).expect("legacy StaticConst source"),
+                Some("script-static-const-semantic.hako"),
+            )
+            .expect("legacy StaticConst module");
+        let mut normal_compiler = MirCompiler::with_options(false);
+        let normal = normal_compiler
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    NyashParser::parse_from_string(source).expect("normal StaticConst source"),
+                    Some("script-static-const-semantic.hako"),
+                    std::collections::HashMap::new(),
+                )
+                .expect("normal StaticConst request"),
+            )
+            .expect("normal StaticConst module");
+        assert_eq!(
+            MirPrinter::new().print_module(&normal.module),
+            MirPrinter::new().print_module(&legacy.module)
+        );
+        assert_eq!(normal.verification_result, legacy.verification_result);
+        assert_eq!(
+            normal.module.metadata.static_table_contract_specs,
+            legacy.module.metadata.static_table_contract_specs
+        );
+        assert_eq!(
+            normal.module.metadata.static_data_plans,
+            legacy.module.metadata.static_data_plans
+        );
+    }
+
+    #[test]
+    fn invalid_static_const_stays_root_lower_and_fresh_request_reuses_compiler() {
+        let invalid = ASTNode::Program {
+            statements: vec![ASTNode::StaticConstTable {
+                name: "BAD".to_owned(),
+                element_type: "u8".to_owned(),
+                values: vec![1],
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        };
+        let mut compiler = MirCompiler::with_options(false);
+        let error = compiler
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    invalid,
+                    Some("script-static-const-invalid.hako"),
+                    std::collections::HashMap::new(),
+                )
+                .expect("invalid StaticConst request"),
+            )
+            .expect_err("unsupported StaticConst element must reject");
+        assert!(
+            error.contains("[static-const/unsupported-element]"),
+            "{error}"
+        );
+
+        compiler
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    NyashParser::parse_from_string("static const GOOD: u16[] = [1]\nprint(1)")
+                        .expect("fresh StaticConst source"),
+                    Some("script-static-const-reuse.hako"),
+                    std::collections::HashMap::new(),
+                )
+                .expect("fresh StaticConst request"),
+            )
+            .expect("fresh request after StaticConst failure");
     }
 }

@@ -136,8 +136,21 @@
     "SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001": {
       "state": "active",
       "owner": "selected Script ExistingRootLower terminal",
-      "complete_baseline": 0,
-      "deferred_baseline": "all selected Script requests",
+      "complete_fixture_ids": [
+        "integer_0_real_source",
+        "script_local_lexical_binding",
+        "script_unary_lexical_closure",
+        "script_print_lexical_closure",
+        "script_binary_lexical_closure",
+        "script_await_lexical_closure",
+        "script_check_lexical_closure",
+        "script_andor_lexical_closure",
+        "script_static_const_u16_completion"
+      ],
+      "deferred_fixture_reasons": {
+        "script_weak_unary": "UnsafeRuntimeStatement",
+        "script_undefined_variable": "UndefinedVariable"
+      },
       "retire_when": "every selected Script demand is Complete or explicitly retained by R4, and the compatibility caller is zero"
     }
   },

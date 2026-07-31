@@ -3858,7 +3858,7 @@ Next:
     raw-script-static-const-semantic-closure0-i0-r0-execution-task-2026-08-01.md
 ```
 
-## RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0 — current executable row
+## RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0 — closed
 
 ```text
 Ceremony:
@@ -3888,6 +3888,19 @@ Hard stops:
   Control/Call/Object/Allocation/Weak/Lambda/Box; table semantics copied into
   semantic source; partial request routing; second resolver/forest; new
   source/test/check file; inert manifest key; any source/check file >= 800.
+
+Closeout:
+  the exact StaticConst/admission pair is Complete; the semantic source owns
+  one typed zero-child ProgramBody receipt; the runtime terminal receives the
+  same located source; source/admission mismatch is a hard invariant error;
+  table diagnostics remain RootLower; mixed unsupported requests remain
+  wholly Deferred; the existing identity ratchet is consumed by the shared
+  guard. Focused tests, release build, pointer guard, and shared cut0 guard are
+  green. No corpus or benchmark harness was run.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS50-D0
+  Run one bounded production-edge census. Do not preselect the next family.
 ```
 
 ## SEMANTIC-OWNER-SCRIPT-PORT0-S3 — closed, NoStandaloneRow
@@ -6391,7 +6404,8 @@ R2ba RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-D0 accepted design stop
 R2bb RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-I0-R0 closed at 1f17bc93d1
 R2bc MIRBUILDER-LIVE-EDGE-CENSUS49-D0 closed: NoSafeSlice
 R2bd RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0 closed: Candidate A-prime
-R2be RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0 current executable row
+R2be RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0 closed
+R2bf MIRBUILDER-LIVE-EDGE-CENSUS50-D0 current bounded census
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed

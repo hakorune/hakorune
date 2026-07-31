@@ -7,17 +7,17 @@ use crate::ast::ASTNode;
 
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
+use super::normal_script_lexical_binding::ScriptSemanticClosureAdmissionV1;
+use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
+use super::program_root_lowering::NormalScriptRootLoweringMode;
 use super::program_root_work_plan::{
     PreparedProgramRootWorkPlanV1, ProgramRootWorkPlanAdmissionV1,
 };
-use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
-use super::normal_script_lexical_binding::ScriptLexicalAdmissionV1;
-use super::program_root_lowering::NormalScriptRootLoweringMode;
-use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
 use super::{
     CallableMainMaterializationPolicyV1, MirModule, ModuleBuilderInvocationSessionV1,
     NormalEntryMaterializationSourceReceiptV1, NormalRuntimeInputSnapshotV1,
 };
+use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum NormalDefaultRootCatalogLifecycleStageV1 {
@@ -184,26 +184,38 @@ impl ModuleBuilderInvocationSessionV1 {
                     ProgramRootWorkPlanAdmissionV1::SelectedNormal,
                 );
                 let work = work.into_parts();
-                let script_source = if let ScriptLexicalAdmissionV1::Complete(admission) =
-                    work.runtime.lexical_admission()
-                {
-                    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().map_err(|error| {
+                let script_admission =
+                    work.runtime.semantic_closure_admission().map_err(|error| {
                         NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                            format!("[mir/script-semantic/owner] {error:?}").into(),
+                            format!("[mir/script-semantic/admission] {error:?}").into(),
                         )
                     })?;
+                let script_source = if let ScriptSemanticClosureAdmissionV1::Complete(admission) =
+                    script_admission
+                {
+                    let mut issuer =
+                        FunctionOwnerIssuerV1::new_for_compilation().map_err(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                format!("[mir/script-semantic/owner] {error:?}").into(),
+                            )
+                        })?;
                     let owner = issuer.issue().map_err(|error| {
                         NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
                             format!("[mir/script-semantic/owner] {error:?}").into(),
                         )
                     })?;
-                    Some(VerifiedScriptSemanticSourceV1::seal(
-                        &source,
-                        owner,
-                        ScriptLexicalAdmissionV1::Complete(admission),
-                    ).map_err(|error| {
-                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(error.into())
-                    })?)
+                    Some(
+                        VerifiedScriptSemanticSourceV1::seal(
+                            &source,
+                            owner,
+                            ScriptSemanticClosureAdmissionV1::Complete(admission),
+                        )
+                        .map_err(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                error.into(),
+                            )
+                        })?,
+                    )
                 } else {
                     None
                 };
