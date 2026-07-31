@@ -19,6 +19,7 @@ impl ShadowTraversalProfileV1 {
                 ASTNode::Print { .. } => true,
                 ASTNode::Nowait { .. } => true,
                 ASTNode::ScopeBox { .. } => true,
+                ASTNode::TaskScope { .. } => true,
                 ASTNode::FastMemRegion { .. } => true,
                 ASTNode::Local {
                     variables,

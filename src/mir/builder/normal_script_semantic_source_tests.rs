@@ -465,6 +465,60 @@ fn nested_lexical_scopeboxes_match_legacy() {
 }
 
 #[test]
+fn lexical_task_scope_matches_legacy_with_canonical_body_source() {
+    let local = ASTNode::Local {
+        variables: vec!["x".to_owned()],
+        initial_values: vec![Some(Box::new(ASTNode::Literal {
+            value: LiteralValue::Integer(1), span: Span::unknown(),
+        }))],
+        declared_type_names: vec![None], span: Span::unknown(),
+    };
+    let print = ASTNode::Print {
+        expression: Box::new(ASTNode::Variable { name: "x".to_owned(), span: Span::unknown() }),
+        span: Span::unknown(),
+    };
+    assert_selected_program_parity(ASTNode::Program {
+        statements: vec![ASTNode::TaskScope {
+            body: vec![local, print], source_keyword: "co".to_owned(), span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    }, "script-task-scope-lexical.hako");
+}
+
+#[test]
+fn task_scope_early_exit_stays_deferred_to_existing_preflight() {
+    let program = ASTNode::Program {
+        statements: vec![ASTNode::TaskScope {
+            body: vec![ASTNode::Return {
+                value: Some(Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(1), span: Span::unknown(),
+                })),
+                span: Span::unknown(),
+            }],
+            source_keyword: "co".to_owned(), span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    };
+    let source = PreparedNormalDefaultProgramRootV1::seal(program.clone()).expect("Program source");
+    let window = VerifiedScriptRootDemandWindowV1::seal(vec![resolved_entry(0)], 1)
+        .expect("TaskScope window");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
+    let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
+    assert!(matches!(resolver.resolve_script(view, &window).expect("TaskScope resolve"),
+        ResolveScriptOutcomeV1::Deferred));
+
+    let mut compiler = MirCompiler::with_options(false);
+    let error = compiler.compile_normal(NormalCompileRequestV1::for_mir_mode(
+        program, Some("script-task-scope-return.hako"), std::collections::HashMap::new(),
+    ).expect("normal request")).expect_err("existing task-scope preflight rejects return");
+    assert!(error.contains("co/early-exit-unsupported"), "{error}");
+    compiler.compile_normal(NormalCompileRequestV1::for_mir_mode(
+        NyashParser::parse_from_string("0").expect("reuse source"), Some("task-scope-reuse.hako"),
+        std::collections::HashMap::new(),
+    ).expect("reuse request")).expect("fresh request succeeds");
+}
+
+#[test]
 fn scopebox_with_disabled_control_stays_deferred() {
     let program = ASTNode::Program {
         statements: vec![ASTNode::ScopeBox {

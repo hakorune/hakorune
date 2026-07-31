@@ -404,6 +404,7 @@ fn body_item_site(kind: SourceBodyKindV1, site: &SourceNodeSiteV1, index: usize)
     let body_root = match kind {
         SourceBodyKindV1::FastMem => Some(SourcePathSegmentV1::FastMemBodyRoot),
         SourceBodyKindV1::Scope => Some(SourcePathSegmentV1::ScopeBodyRoot),
+        SourceBodyKindV1::TaskScope => Some(SourcePathSegmentV1::TaskScopeBodyRoot),
         _ => None,
     };
     if site.segments().last() == body_root.as_ref() {

@@ -265,7 +265,7 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-POST-CONTEXT-SCOPE-CAPABILITY-CENSUS0-D0
+  RAW-SCRIPT-POST-TASK-SCOPE-CAPABILITY-CENSUS0-D0
 
   Change:
     Census exactly one remaining Deferred Script capability family from its
@@ -286,19 +286,15 @@ current
     or a source-level diagnostic-stage change.
 
 scheduled design gates after fresh census
-  1. TaskScope preflight boundary
-     -> its existing owner scans the complete body for forbidden early exits
-        before entering/lowering any child; do not activate it as an ordinary
-        structured-scope profile without an exact preflight-order contract.
-  2. Outbox materialization boundary
+  1. Outbox materialization boundary
      -> existing lowering creates one Void local/metadata row per name while
         returning only the final ValueId; first establish a canonical
         BindingRef-to-ValueId handoff before selecting a Complete row.
-  3. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
+  2. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
      Weak, Lambda, and Box
      -> each is a separate capability-family D0 chosen only from a fresh
         named production edge census; no AST-bucket batch is pre-authorized.
-  4. `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001`
+  3. `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001`
      -> fixture-identity Complete set may only grow; R4 must retire, reown,
         or explicitly retain every remaining Deferred family.
 
@@ -310,6 +306,14 @@ closed structural prerequisite
      ValueId ledger, not a second resolver.
 
 closed
+  RAW-SCRIPT-TASK-SCOPE-LEXICAL-PREFLIGHT0-I0-R0
+  -> lexical normal-completion TaskScope reaches Complete through the shared
+     traversal; the existing preflight remains sole early-exit authority and
+     the existing raw owner remains sole push/body/pop completion authority
+  -> `TaskScopeBodyRoot` transport hands leaf nodes sibling `TaskScopeBody(n)`
+     sites; selected/legacy parity, early-exit Deferred/reuse, pointer, and
+     shared cutover guards green
+
   RAW-SCRIPT-CONTEXT-SCOPE-DIAGNOSTIC-BOUNDARY0-I0-R0
   -> `ContextScope + DirectPortAwareExpression` now seals an exact existing
      diagnostic receipt and reaches Complete without observing value or body;
