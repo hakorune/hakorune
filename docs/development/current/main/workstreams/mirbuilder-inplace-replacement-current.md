@@ -3827,6 +3827,31 @@ Hard stops:
   activation, or a new source/check file over 800 lines.
 ```
 
+## RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0 — current design stop
+
+```text
+Decision:
+  design consultation required; no I0/R0 is authorized yet
+
+Reason:
+  Census49 found no remaining T1 lexical family whose existing lowering owner
+  also supplies the Script semantic source/coverage product. Collector drain
+  and the Deferred sunset/ratchet are already landed and are not reopened.
+
+Required decision:
+  choose exactly one next semantic family and its named production consumer,
+  or explicitly define the final-pipeline contract for retaining Deferred.
+
+Consultation:
+  docs/development/current/main/investigations/
+    raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md
+
+Hard stops:
+  broad Script closure, second resolver/forest, partial forest, synthetic
+  FunctionDeclaration, mixed routing, fallback/retry, semantic diagnostic
+  reordering, or combining Control/Call/Object/Box/Lambda in one row.
+```
+
 ## SEMANTIC-OWNER-SCRIPT-PORT0-S3 — closed, NoStandaloneRow
 
 ```text
