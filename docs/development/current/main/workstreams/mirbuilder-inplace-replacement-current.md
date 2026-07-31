@@ -265,25 +265,32 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-THIS-DIAGNOSTIC-BOUNDARY0-D0
+  RAW-SCRIPT-POST-ZERO-DEMAND-CAPABILITY-CENSUS0-D0
 
   Change:
-    Verify a bounded, bare root `This` existing-diagnostic boundary only.
+    Census exactly one remaining Deferred Script capability family from its
+    named production edge; do not preselect the next AST shape.
 
   Contract:
-    No receiver fact or recursive descent may be introduced. `ThisField`,
-    `MeField`, method receivers, and all Control/Call/Object/Lambda/Box
-    families are not candidates in this D0.
+    Select only a family with one source authority, one existing or newly
+    justified completion owner, same-commit old-edge deletion, and an explicit
+    `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` ratchet. No fallback.
 
   Done:
-    Identify the existing RootLower diagnostic owner, the exact old Deferred
-    edge, and a source-only failure/reuse parity fixture for one possible row.
+    Record one bounded D0, or record NoSafeSlice with the exact missing
+    authority. Keep source/check files below 800 lines.
 
   Stop:
-    Stop if the raw `This` behavior has receiver semantics, a child demand, or
-    needs a new diagnostic owner. Keep source/check files <800.
+    Stop if a candidate needs a second resolver, partial forest, mixed routing,
+    or a source-level diagnostic-stage change.
 
 closed
+  RAW-SCRIPT-THIS-DIAGNOSTIC-BOUNDARY0-I0-R0
+  -> bare `This + DirectPortAwareExpression` now seals an exact typed existing
+     unsupported-diagnostic boundary; the raw dispatcher remains RootLower owner
+  -> selected/legacy failure and fresh-reuse parity, pointer guard, and shared
+     cutover guard green; nested or statement-wrapped This remains Deferred
+
   RAW-SCRIPT-USING-TRANSPARENT-RUNTIME-COMPLETION0-I0-R0
   -> top-level Using now seals an exact transparent receipt and retains the
      existing Void terminal, preserving `1; using` selected/legacy parity

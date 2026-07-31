@@ -77,6 +77,18 @@ fn using_directive_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {
     )
 }
 
+fn bare_this_unsupported_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {
+    VerifiedScriptRootDemandEntryV1::new(
+        SourcePathV1::program_body()
+            .child(SourcePathSegmentV1::ProgramBody(index))
+            .stmt(),
+        ScriptRootSemanticDispositionV1::Diagnostic(
+            ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported,
+        ),
+        ScriptRootRuntimeDispositionV1::RetainedExistingTerminal,
+    )
+}
+
 #[test]
 fn literal_program_seals_one_shared_script_owner_and_projection() {
     let ast = NyashParser::parse_from_string("0").expect("literal source");
@@ -175,6 +187,78 @@ fn using_directive_is_complete_and_retains_void_runtime_completion() {
         ],
         span: Span::unknown(),
     }, "script-using.hako");
+}
+
+#[test]
+fn bare_this_seals_script_source_then_uses_existing_unsupported_diagnostic() {
+    let program = ASTNode::Program {
+        statements: vec![ASTNode::This { span: Span::unknown() }],
+        span: Span::unknown(),
+    };
+    let source = PreparedNormalDefaultProgramRootV1::seal(program.clone()).expect("Program source");
+    let window = VerifiedScriptRootDemandWindowV1::seal(vec![bare_this_unsupported_entry(0)], 1)
+        .expect("bare This window");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
+    let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
+    let ResolveScriptOutcomeV1::Complete(owner) = resolver
+        .resolve_script(view, &window)
+        .expect("bare This resolve")
+    else {
+        panic!("bare This is an existing diagnostic boundary");
+    };
+    let product = VerifiedScriptSemanticSourceV1::seal(&source, owner, &window)
+        .expect("bare This Script source");
+    assert_eq!(product.forest().owner_count(), 1);
+    assert_eq!(product.bare_this_unsupported_sites().count(), 1);
+
+    let mut legacy = MirCompiler::with_options(false);
+    let legacy_error = legacy
+        .compile_with_source(program.clone(), Some("script-bare-this.hako"))
+        .expect_err("legacy bare This rejects through the existing terminal");
+    let mut normal = MirCompiler::with_options(false);
+    let normal_error = normal
+        .compile_normal(NormalCompileRequestV1::for_mir_mode(
+            program,
+            Some("script-bare-this.hako"),
+            std::collections::HashMap::new(),
+        ).expect("normal request"))
+        .expect_err("normal bare This rejects through the existing terminal");
+    assert_eq!(normal_error, legacy_error);
+    normal.compile_normal(NormalCompileRequestV1::for_mir_mode(
+        NyashParser::parse_from_string("0").expect("reuse source"),
+        Some("script-bare-this-reuse.hako"),
+        std::collections::HashMap::new(),
+    ).expect("reuse request")).expect("fresh request succeeds");
+}
+
+#[test]
+fn nested_or_statement_wrapped_this_stays_deferred() {
+    for program in [
+        ASTNode::Program {
+            statements: vec![ASTNode::UnaryOp {
+                operator: crate::ast::UnaryOperator::Minus,
+                operand: Box::new(ASTNode::This { span: Span::unknown() }),
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        },
+        ASTNode::Program {
+            statements: vec![ASTNode::Print {
+                expression: Box::new(ASTNode::This { span: Span::unknown() }),
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        },
+    ] {
+        let error = MirCompiler::with_options(false)
+            .compile_normal(NormalCompileRequestV1::for_mir_mode(
+                program,
+                Some("script-nested-this.hako"),
+                std::collections::HashMap::new(),
+            ).expect("normal request"))
+            .expect_err("nested This stays Deferred");
+        assert!(error.contains("Unsupported AST node type"), "{error}");
+    }
 }
 
 #[test]

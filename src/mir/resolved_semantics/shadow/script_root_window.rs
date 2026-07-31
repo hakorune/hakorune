@@ -35,6 +35,7 @@ pub(crate) enum ScriptTransferredBoundaryV1 {
 pub(crate) enum ScriptDiagnosticBoundaryV1 {
     ExistingSelectedUnsupported,
     ExistingReceiverAbsent,
+    ExistingBareThisUnsupported,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

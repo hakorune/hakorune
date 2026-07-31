@@ -97,6 +97,14 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                         boundary: ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent,
                     });
                 }
+                ScriptRootSemanticDispositionV1::Diagnostic(
+                    ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported,
+                ) if matches!(statement, ASTNode::This { .. }) => {
+                    existing_diagnostic_boundaries.push(VerifiedScriptExistingDiagnosticBoundaryV1 {
+                        site: entry.site().clone(),
+                        boundary: ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported,
+                    });
+                }
                 ScriptRootSemanticDispositionV1::Resolved
                 | ScriptRootSemanticDispositionV1::Deferred(_)
                 | ScriptRootSemanticDispositionV1::Transferred(
@@ -173,6 +181,18 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         self.existing_diagnostic_boundaries
             .iter()
             .filter(|receipt| receipt.boundary == ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent)
+            .map(|receipt| &receipt.site)
+    }
+
+    #[cfg(test)]
+    pub(super) fn bare_this_unsupported_sites(
+        &self,
+    ) -> impl Iterator<Item = &SourceStmtSiteV1> {
+        self.existing_diagnostic_boundaries
+            .iter()
+            .filter(|receipt| {
+                receipt.boundary == ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported
+            })
             .map(|receipt| &receipt.site)
     }
 
