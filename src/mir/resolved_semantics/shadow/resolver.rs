@@ -3,7 +3,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::ASTNode;
-use crate::mir::resolved_semantics::function_view::{FunctionBodyOriginV1, ReceiverPolicyV1};
+use crate::mir::resolved_semantics::function_view::ReceiverPolicyV1;
 use crate::mir::resolved_semantics::source_site::{
     FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
@@ -12,6 +12,7 @@ use crate::mir::resolved_semantics::FunctionSyntaxViewV1;
 use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 use super::owner_boundary::ShadowLambdaSyntaxV0;
 use super::path::ShadowSourcePathV0;
+use super::root_traversal::ShadowRootTraversalInputV1;
 use super::product::{
     ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowBindingRecordV0, ShadowControlExitV0,
     ShadowDirectCallUseV0, ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0,
@@ -113,9 +114,10 @@ fn resolve_shadow_view<'ast>(
     ancestor_names: BTreeSet<Box<str>>,
     method_call_observation_mode: ShadowMethodCallObservationModeV0,
 ) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
-    let root_profile = view.root_profile();
-    traverse_shadow_view(
-        view,
+    let input = ShadowRootTraversalInputV1::dense(view);
+    let root_profile = input.root_profile();
+    traverse_shadow_root_v1(
+        input,
         lambda_mode,
         ancestor_names,
         BTreeSet::new(),
@@ -133,8 +135,8 @@ pub(in crate::mir) fn observe_qualified_receiver_shadow_view_v0(
     requested_sites: BTreeSet<SourceExprSiteV1>,
 ) -> Result<BTreeMap<SourceExprSiteV1, ShadowQualifiedReceiverDispositionV0>, ShadowResolveErrorV0>
 {
-    traverse_shadow_view(
-        view,
+    traverse_shadow_root_v1(
+        ShadowRootTraversalInputV1::dense(view),
         ShadowLambdaModeV0::Reject,
         BTreeSet::new(),
         requested_sites,
@@ -147,8 +149,8 @@ pub(in crate::mir) fn observe_qualified_receiver_shadow_view_v0(
 pub(in crate::mir) fn observe_method_calls_shadow_view_v0(
     view: FunctionSyntaxViewV1<'_>,
 ) -> Result<BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>, ShadowResolveErrorV0> {
-    traverse_shadow_view(
-        view,
+    traverse_shadow_root_v1(
+        ShadowRootTraversalInputV1::dense(view),
         ShadowLambdaModeV0::Reject,
         BTreeSet::new(),
         BTreeSet::new(),
@@ -157,16 +159,14 @@ pub(in crate::mir) fn observe_method_calls_shadow_view_v0(
     .finish_method_call_observations()
 }
 
-fn traverse_shadow_view<'ast>(
-    view: FunctionSyntaxViewV1<'ast>,
+fn traverse_shadow_root_v1<'ast>(
+    input: ShadowRootTraversalInputV1<'ast>,
     lambda_mode: ShadowLambdaModeV0,
     ancestor_names: BTreeSet<Box<str>>,
     qualified_receiver_requests: BTreeSet<SourceExprSiteV1>,
     method_call_observation_mode: ShadowMethodCallObservationModeV0,
 ) -> Result<ShadowResolverV0<'ast>, ShadowResolveErrorV0> {
-    let params = view.params();
-    let body = view.body();
-    let receiver_policy = view.receiver_policy();
+    let receiver_policy = input.receiver_policy();
 
     let mut resolver = ShadowResolverV0::new(
         lambda_mode,
@@ -183,7 +183,7 @@ fn traverse_shadow_view<'ast>(
         )?;
         resolver.receiver = resolver.lookup("me");
     }
-    for (index, name) in params.iter().enumerate() {
+    for (index, name) in input.params().iter().enumerate() {
         resolver.declare_binding(
             name,
             ShadowBindingKindV0::Parameter {
@@ -194,23 +194,13 @@ fn traverse_shadow_view<'ast>(
             },
         )?;
     }
-    let body_path = match view.body_origin() {
-        FunctionBodyOriginV1::Function => ShadowSourcePathV0::function_body(),
-        FunctionBodyOriginV1::Lambda => ShadowSourcePathV0::lambda_body(),
-    };
+    let body_path = input.body_path();
     let (body_region, _) = resolver.enter_region_scope(
         ShadowRegionKindV0::Sequence,
         ShadowScopeKindV0::LexicalBlock,
         &body_path,
     );
-    let body_result = match view.body_origin() {
-        FunctionBodyOriginV1::Function => {
-            resolver.resolve_body(body, ShadowSourcePathV0::root_body)
-        }
-        FunctionBodyOriginV1::Lambda => {
-            resolver.resolve_body(body, ShadowSourcePathV0::lambda_body_item)
-        }
-    };
+    let body_result = input.resolve_body(&mut resolver);
     resolver.leave_region_scope(body_region);
     body_result?;
     Ok(resolver)

@@ -12,6 +12,7 @@ mod owner_boundary;
 mod path;
 mod product;
 mod resolver;
+mod root_traversal;
 mod stmt;
 mod vocabulary;
 
