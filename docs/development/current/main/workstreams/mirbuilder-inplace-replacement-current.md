@@ -3317,7 +3317,7 @@ Next design:
   RAW-SCRIPT-LEXICAL-BINDING0-D0
 ```
 
-## RAW-SCRIPT-LEXICAL-BINDING0-D0 — design accepted, implementation not started
+## RAW-SCRIPT-LEXICAL-BINDING0-I0-R0 — implementation open after accepted D0
 
 ```text
 Decision:
@@ -3378,7 +3378,8 @@ Fixture and ratchet:
   D0. Sunset: `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001`.
 
 Ceremony:
-  T2; one atomic I0/R0 commit after this D0. No S0-only producer or carrier.
+  T2; one atomic I0/R0 commit. The D0 decision is closed; no S0-only
+  producer or carrier is permitted.
 
 Hard stops:
   Variable/Local facts without exact BindingRef sites, name-based fallback in

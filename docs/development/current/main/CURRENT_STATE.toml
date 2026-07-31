@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0 and MIRBUILDER-LIVE-EDGE-CENSUS42-D0 are closed. The only selected-normal old edge remaining is the intentional Deferred root compatibility transport. Worker design review selected RAW-SCRIPT-LEXICAL-BINDING0-D0: extend the Script Complete closure to exact source-order Variable/Local BindingRef facts, while keeping ValueId/materialization in a request-local lowering ledger. No code implementation starts before this D0 is fixed."
+status = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0 and MIRBUILDER-LIVE-EDGE-CENSUS42-D0 are closed. Worker design review accepted RAW-SCRIPT-LEXICAL-BINDING0-I0-R0: extend the Script Complete closure to exact source-order Variable/Local BindingRef facts, while keeping ValueId/materialization in a request-local lowering ledger. Implementation is now open; explicit control/call/object/Box/Lambda demand remains Deferred."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-LEXICAL-BINDING0-D0"
-current_execution_row = "RAW-SCRIPT-LEXICAL-BINDING0-D0"
-current_execution_summary = "The literal-only Script Complete closure is landed and the focused fresh census found no accidental selected edge beyond the intentional Deferred root compatibility transport. The next design stop fixes the exact Variable/Local lexical closure: semantic product owns BindingRef/source-site facts only; a request-local BindingRef-to-ValueId ledger is the sole lowering materialization bridge. Explicit Return, assignment, control, Lambda, calls/objects, Box runtime demand, and ABI/SSA remain outside this row. No implementation, fallback, retry, or broad corpus scan until the D0 acceptance and hard stops are fixed."
+current_design_stop = "RAW-SCRIPT-LEXICAL-BINDING0-I0-R0"
+current_execution_row = "RAW-SCRIPT-LEXICAL-BINDING0-I0-R0"
+current_execution_summary = "The lexical Script D0 is accepted and implementation is open. Complete covers empty/runtime Literal, prior-root Local-backed Variable, and one untyped Local with a Literal/Variable initializer; the semantic product owns exact BindingRef/source-site facts only, and a request-local BindingRef-to-ValueId ledger is the sole lowering materialization bridge. Explicit Return, assignment, control, Lambda, calls/objects, Box runtime demand, and ABI/SSA remain Deferred."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS42-D0"
+current_blocker_token = "RAW-SCRIPT-LEXICAL-BINDING0-I0-R0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
