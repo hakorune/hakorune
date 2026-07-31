@@ -3300,6 +3300,94 @@ Next:
   fresh live-edge census; do not preselect the next Script responsibility.
 ```
 
+## MIRBUILDER-LIVE-EDGE-CENSUS42-D0 — closed
+
+```text
+Scope:
+  read-only census limited to the shared Script/root descent after the
+  literal Complete cutover.
+
+Finding:
+  the only selected-normal old edge is the intentional Deferred branch
+  `program_root_lowering.rs` -> `RawInvocationSourceTransportV1::script_root(())`.
+  Raw/reference callers and test-only ScriptRoot transports are not selected
+  production edges. The compatibility sunset remains active.
+
+Next design:
+  RAW-SCRIPT-LEXICAL-BINDING0-D0
+```
+
+## RAW-SCRIPT-LEXICAL-BINDING0-D0 — design accepted, implementation not started
+
+```text
+Decision:
+  Candidate A-prime. Extend the existing Script semantic product and shared
+  forest; do not create a second Script resolver, whole-program variant, or
+  new forest/projection authority.
+
+Selected Complete closure:
+  source-order Script runtime window containing only:
+    - Literal expressions
+    - bare Variable expressions that resolve to a prior Script-root Local
+    - Local with exactly one untyped declaration and one initializer expression
+      whose recursive expression closure is Literal or Variable
+  Empty sequence remains Complete. Transferred top-level callable boundaries
+  remain outside the Script forest. Any unsafe sibling defers the whole
+  request once.
+
+Semantic product owns:
+  exact ProgramBody(original ordinal) sites, Script root profile, shared forest
+  and projection, Local BindingRef/name/declaration site, Variable source site
+  and resolved lexical ref, initializer-to-BindingRef relation, and exact
+  owner/scope/declaration/use coverage.
+
+Semantic product does not own:
+  ValueId, MirType, ABI/slot, BindingId allocation, SSA/PHI, ownership,
+  capture materialization, MIR emission, or publication.
+
+Lowering bridge:
+  the selected Complete source loan creates one request-local
+  `BindingRef -> ValueId` ledger. Local initializer lowering evaluates first,
+  materializes once through the existing Local owner, then records the exact
+  BindingRef mapping only after success. Variable lowering consumes the ledger
+  by resolved BindingRef. Complete must not fall back to name-based
+  `variable_map`/`build_variable_access`; Deferred/raw/reference retain those
+  existing routes.
+
+Production caller:
+  ModuleBuilderInvocationSessionV1::complete_normal_default_program_root_catalog_lifecycle
+  remains the only caller. Admission is selected once after work-plan prepare;
+  Complete/Deferred is chosen before CatalogInstall and RootLower.
+
+Atomic old-edge deletion:
+  selected Complete Local/Variable lowering's name-based/raw Local edges are
+  removed in the same I0/R0 commit. The Deferred `script_root(())` edge remains
+  until every deferred reason in this sunset is retired.
+
+Deferred and precedence:
+  source-level undefined/redeclaration/unsafe-shape cases choose Deferred up
+  front and let ExistingRootLower emit the existing diagnostic once. Only
+  invariant/coverage/forest/projection failures are ScriptSemanticSeal errors;
+  Complete never downgrades to Deferred and no retry is allowed.
+
+Fixture and ratchet:
+  existing `raw_vm_reference_conformance/local.hako` is the first declaration
+  milestone. Add an inline focused `local x = 1; x` read case in the existing
+  normal test module. `integer_0.hako` must remain Complete. Complete fixture
+  identity is monotonic; Deferred reason vocabulary cannot grow without a new
+  D0. Sunset: `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001`.
+
+Ceremony:
+  T2; one atomic I0/R0 commit after this D0. No S0-only producer or carrier.
+
+Hard stops:
+  Variable/Local facts without exact BindingRef sites, name-based fallback in
+  Complete, ValueId/ABI/SSA in the semantic product, partial forest, second
+  resolver pass, mixed selected/Deferred items, explicit Return/assignment/
+  control/Lambda/call/object/Box runtime demand, program_root_work_plan.rs
+  edits, new per-row guard, or any touched source/check file >=800 lines.
+```
+
 Ratchet and sunset:
   `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` tracks the Deferred owner.
   The manifest must track fixture identity sets and exact Deferred reasons,

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0 is closed. Candidate A-prime landed for the bounded empty/literal-only Script Complete closure with one shared forest/projection and a typed source loan. Non-literal selected Script demands remain Deferred under the existing root compatibility owner; no fallback, retry, partial forest, or synthetic FunctionDeclaration is allowed. Next action is a fresh live-edge census; do not preselect the next Script responsibility."
+status = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0 and MIRBUILDER-LIVE-EDGE-CENSUS42-D0 are closed. The only selected-normal old edge remaining is the intentional Deferred root compatibility transport. Worker design review selected RAW-SCRIPT-LEXICAL-BINDING0-D0: extend the Script Complete closure to exact source-order Variable/Local BindingRef facts, while keeping ValueId/materialization in a request-local lowering ledger. No code implementation starts before this D0 is fixed."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0"
-current_execution_row = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0"
-current_execution_summary = "A-prime is landed as a private root-neutral semantic-owner core plus explicit Function/Script/Lambda wrappers, one shared forest, and one shared projection. The Literal-only Script producer is connected after CatalogSeal/work-plan preparation and before CatalogInstall; Complete uses a typed source loan while Deferred/raw/reference retain their existing transport. integer_0.hako and focused product/lifecycle/guard evidence are green. Keep files below 800 lines; no partial forest, Complete-to-Deferred downgrade, fallback, retry, or broad corpus scan. Next is a fresh live-edge census only."
+current_design_stop = "RAW-SCRIPT-LEXICAL-BINDING0-D0"
+current_execution_row = "RAW-SCRIPT-LEXICAL-BINDING0-D0"
+current_execution_summary = "The literal-only Script Complete closure is landed and the focused fresh census found no accidental selected edge beyond the intentional Deferred root compatibility transport. The next design stop fixes the exact Variable/Local lexical closure: semantic product owns BindingRef/source-site facts only; a request-local BindingRef-to-ValueId ledger is the sole lowering materialization bridge. Explicit Return, assignment, control, Lambda, calls/objects, Box runtime demand, and ABI/SSA remain outside this row. No implementation, fallback, retry, or broad corpus scan until the D0 acceptance and hard stops are fixed."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
