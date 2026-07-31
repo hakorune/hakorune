@@ -3613,14 +3613,14 @@ Hard stops:
   owner/variant, or any touched source/check file >=800.
 ```
 
-## RAW-SCRIPT-AWAIT-LEXICAL-CLOSURE0-D0 — accepted
+## RAW-SCRIPT-AWAIT-LEXICAL-CLOSURE0-I0-R0 — closed at 074e944fec
 
 ```text
 Decision:
   Candidate A — Await(E) over the existing Script lexical closure
 
 Ceremony:
-  T2, one atomic I0/R0 commit
+  T1, one atomic I0/R0 commit
 
 Change:
   Admit Await recursively when E is Literal, prior-root Local-backed
@@ -3651,6 +3651,20 @@ Hard stops:
   safepoint order change, Future/ABI inference, mixed routing, child retry,
   second resolver, name fallback, new Await owner/variant, work-plan edits,
   or any touched source/check file >=800.
+
+Evidence:
+  `normal_script` 32/32, selected Await lexical MIR/verification parity,
+  general-module parity, integer_0 fixture parity, `cargo check --lib`,
+  current-state pointer guard, and cut0 guard are green. The three touched
+  Rust files remain below 800 lines. Code landed in 074e944fec.
+
+Atomic deletion:
+  Safe Await no longer selects the Deferred Script `script_root(())` edge;
+  unsafe operands and raw/reference routes retain their existing owners.
+
+Next design:
+  `MIRBUILDER-LIVE-EDGE-CENSUS47-D0` — fresh, read-only, narrow census.
+  Do not preselect Check, And/Or, control, calls/objects, Box, or Lambda.
 ```
 
 ## SEMANTIC-OWNER-SCRIPT-PORT0-S3 — closed, NoStandaloneRow
@@ -6144,7 +6158,9 @@ R2aq MIRBUILDER-LIVE-EDGE-CENSUS45-D0 closed
 R2ar RAW-SCRIPT-BINARY-LEXICAL-CLOSURE0-D0 accepted design stop
 R2as RAW-SCRIPT-BINARY-LEXICAL-CLOSURE0-I0-R0 closed at b562263854
 R2at MIRBUILDER-LIVE-EDGE-CENSUS46-D0 closed
-R2au RAW-SCRIPT-AWAIT-LEXICAL-CLOSURE0-D0 current design stop
+R2au RAW-SCRIPT-AWAIT-LEXICAL-CLOSURE0-D0 accepted design stop
+R2av RAW-SCRIPT-AWAIT-LEXICAL-CLOSURE0-I0-R0 closed at 074e944fec
+R2aw MIRBUILDER-LIVE-EDGE-CENSUS47-D0 current design stop
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
