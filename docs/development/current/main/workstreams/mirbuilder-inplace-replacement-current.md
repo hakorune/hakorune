@@ -54,8 +54,9 @@ fences, compact queue, and short landed tail.
 
 ## Root-neutral shadow traversal Refactor Series
 
-Consultation:
+Consultations:
 `docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md`
+and `docs/development/current/main/investigations/raw-script-demand-window-boundary2-design-consultation-question-2026-08-01.md`
 
 ```text
 Decision:
@@ -121,6 +122,14 @@ Change:
   borrow ScriptSyntaxViewV1 by exact ProgramBody(original ordinal); run the
   same root-neutral core under ScriptLexicalCoreV1; select Complete/Deferred
   before CatalogInstall; and delete the full manual Script resolver chain.
+
+Window contract:
+  Every original ProgramBody ordinal occurs once with a typed semantic and
+  runtime disposition. Resolved entries are the existing lexical closure;
+  StaticConst is a retained-runtime metadata transfer, selected unsupported is
+  a retained diagnostic boundary, and top-level FunctionDeclaration is a
+  no-runtime callable transfer. Using, Box, control, call/object, allocation,
+  Weak, and Lambda select Deferred before child descent in this row.
 
 Contract:
   Demand-window coverage includes every Program item, including transferred
@@ -252,16 +261,16 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 R2bi RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0
   closed Accept-corrected
 
-current
-  SEMANTIC-SHADOW-ROOT-NEUTRAL-ENTRY0-S0
-  -> dense Function/Lambda consumers use the private root-neutral core
-  -> extract semantic-source tests and anchor the fixture ratchet
+R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
+  closed Accept-corrected
 
-next
+current
   RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0
-  -> sparse Program demand window + ScriptLexicalCoreV1
+  -> total sparse Program demand window + ScriptLexicalCoreV1
   -> atomically delete the manual Script resolver chain
   -> focused proof / build / shared guards
+
+next
   -> batch-boundary live-edge census
 
 R4

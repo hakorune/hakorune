@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0 is active. The shared Script shadow/canonical core is viable, but a total Program-item demand window must be designed before the manual selected-Script resolver can be retired without partial semantic coverage."
+status = "RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0 is closed Accept-corrected. The next authorized row is RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0: one total Program-item demand window feeds the shared root-neutral shadow core, then the manual selected-Script resolver is deleted atomically."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0 active"
-current_execution_row = "RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0"
-current_execution_summary = "Design stop: T2 must first seal a total, typed Program-item demand window from the existing work-plan partition. A runtime-only window would omit transferred callable and mixed immediate/runtime boundaries, creating a partial Script semantic owner. No code row is authorized until this D0 names the Complete/Deferred product and atomic old-edge deletion."
+current_design_stop = "RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0 closed Accept-corrected"
+current_execution_row = "RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0"
+current_execution_summary = "T2: seal one total Program-item demand window from the existing work-plan partition. The window retains original ProgramBody ordinals and typed Resolved/Transferred/Diagnostic/Transparent dispositions. Only the existing lexical closure plus typed StaticConst, selected-diagnostic, and top-level-callable boundaries may Complete; every other responsibility selects Deferred before child descent. Complete alone uses the shared root-neutral traversal/canonicalizer/forest/projection; Deferred owns none and runs ExistingRootLower once. Delete the manual selected-Script resolver chain in the same commit."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"

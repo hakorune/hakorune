@@ -1,4 +1,24 @@
-# RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0 — design consultation
+# RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0 — design consultation (closed)
+
+```text
+Decision:
+  Accept-corrected.
+
+Execution:
+  RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0
+
+Resolution:
+  Issue one total Program-item demand window from the existing work-plan
+  partition. Every original ordinal gets a typed Resolved, Transferred,
+  Diagnostic, or Transparent disposition plus its retained-runtime status.
+  Only the existing lexical closure and the already typed StaticConst,
+  selected-diagnostic, and top-level-callable boundaries may select Complete.
+  All other responsibilities select Deferred before child descent. Complete
+  alone reaches the shared root-neutral traversal, canonicalizer, forest, and
+  Program projection; Deferred owns none and lowers once through the existing
+  terminal. The full manual selected-Script resolver chain is deleted in the
+  same commit.
+```
 
 ```text
 Parent:
