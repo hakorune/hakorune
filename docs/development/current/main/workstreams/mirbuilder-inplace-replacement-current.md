@@ -3502,7 +3502,7 @@ Stop:
   Deferred/fallback/retry.
 ```
 
-## RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-D0 — accepted
+## RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-I0-R0 — closed at c1c7852b76
 
 ```text
 Decision:
@@ -3532,6 +3532,22 @@ Atomic delete:
 Fixtures:
   print(1), local x = 1; print(x), and print(-x) with normal/legacy MIR,
   verification, failure/reuse, and real-file parity.
+
+Evidence:
+  `cargo check --lib`, the focused `normal_script` suite (27/27),
+  `print.hako` parity, pointer/cut0 guards, and touched-file line limits
+  are green. DirectPrint remains the only print lower owner; TypeOp and
+  effect/publication policy were not changed.
+
+Atomic deletion:
+  Safe Print no longer selects Deferred
+  `RawInvocationSourceTransportV1::script_root(())`. Raw/reference and
+  unsafe Print routes retain their existing transport and no retry/fallback
+  was added.
+
+Next design:
+  `MIRBUILDER-LIVE-EDGE-CENSUS45-D0` — fresh, read-only, narrow census of
+  the selected-normal graph. Do not preselect the next Script family.
 
 Hard stops:
   Print-specific semantic/failure owner, operand TypeOp/Call/Object/Weak,
@@ -6024,7 +6040,9 @@ R2ak MIRBUILDER-LIVE-EDGE-CENSUS43-D0 closed
 R2al RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-D0 accepted design stop
 R2am RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-I0-R0 closed at 1adb617542
 R2an MIRBUILDER-LIVE-EDGE-CENSUS44-D0 closed
-R2ao RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-D0 current design stop
+R2ao RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-D0 accepted design stop
+R2ap RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-I0-R0 closed at c1c7852b76
+R2aq MIRBUILDER-LIVE-EDGE-CENSUS45-D0 current narrow design stop
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
