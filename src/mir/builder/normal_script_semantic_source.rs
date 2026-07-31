@@ -401,4 +401,34 @@ print(-x)
         );
         assert_eq!(normal.verification_result, legacy.verification_result);
     }
+
+    #[test]
+    fn selected_normal_binary_lexical_closure_matches_legacy() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let source = r#"
+local x = 1
+print((x * 2) + 3)
+"#;
+        let legacy_ast = NyashParser::parse_from_string(source).expect("legacy Binary source");
+        let normal_ast = NyashParser::parse_from_string(source).expect("normal Binary source");
+        let mut legacy_compiler = MirCompiler::with_options(false);
+        let legacy = legacy_compiler
+            .compile_with_source(legacy_ast, Some("script-binary-lexical.hako"))
+            .expect("legacy Binary module");
+        let mut normal_compiler = MirCompiler::with_options(false);
+        let request = NormalCompileRequestV1::for_mir_mode(
+            normal_ast,
+            Some("script-binary-lexical.hako"),
+            std::collections::HashMap::new(),
+        )
+        .expect("normal Binary request");
+        let normal = normal_compiler
+            .compile_normal(request)
+            .expect("normal Binary module");
+        assert_eq!(
+            MirPrinter::new().print_module(&normal.module),
+            MirPrinter::new().print_module(&legacy.module)
+        );
+        assert_eq!(normal.verification_result, legacy.verification_result);
+    }
 }

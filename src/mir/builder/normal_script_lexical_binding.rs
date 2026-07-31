@@ -5,7 +5,7 @@
 
 use std::collections::BTreeMap;
 
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::resolved_semantics::{
     BindingRefV1, ExprChildRoleV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
 };
@@ -89,7 +89,10 @@ pub(super) fn admit_runtime_script_lexical_v1(
                 }
                 expression_source_indices.push(index);
             }
-            ASTNode::Literal { .. } | ASTNode::Variable { .. } | ASTNode::UnaryOp { .. } => {
+            ASTNode::Literal { .. }
+            | ASTNode::Variable { .. }
+            | ASTNode::UnaryOp { .. }
+            | ASTNode::BinaryOp { .. } => {
                 if let Err(reason) =
                     admit_expression_v1(statement, index, false, &[], &visible, &mut variables)
                 {
@@ -189,6 +192,42 @@ fn admit_expression_v1(
                 variables,
             )
         }
+        ASTNode::BinaryOp {
+            operator,
+            left,
+            right,
+            ..
+        } => {
+            if matches!(operator, BinaryOperator::And | BinaryOperator::Or) {
+                return Err(ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement);
+            }
+            let Some(left_segment) = ExprChildRoleV1::BinaryLeft.segment_for(expression) else {
+                return Err(ScriptLexicalDeferredReasonV1::LocalShape);
+            };
+            let Some(right_segment) = ExprChildRoleV1::BinaryRight.segment_for(expression) else {
+                return Err(ScriptLexicalDeferredReasonV1::LocalShape);
+            };
+            let mut left_path = path.to_vec();
+            left_path.push(left_segment);
+            admit_expression_v1(
+                left,
+                source_statement_index,
+                initializer,
+                &left_path,
+                visible,
+                variables,
+            )?;
+            let mut right_path = path.to_vec();
+            right_path.push(right_segment);
+            admit_expression_v1(
+                right,
+                source_statement_index,
+                initializer,
+                &right_path,
+                visible,
+                variables,
+            )
+        }
         _ => Err(ScriptLexicalDeferredReasonV1::LocalShape),
     }
 }
@@ -242,7 +281,7 @@ mod tests {
         NormalScriptRuntimeStatementAdmissionV1, ScriptLexicalAdmissionV1,
         ScriptLexicalDeferredReasonV1,
     };
-    use crate::ast::{ASTNode, LiteralValue, Span, UnaryOperator};
+    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 
     fn admission() -> LocatedNormalScriptRuntimeAdmissionV1 {
         LocatedNormalScriptRuntimeAdmissionV1 {
@@ -290,6 +329,50 @@ mod tests {
         };
         assert_eq!(facts.expression_source_indices.as_ref(), &[0]);
         assert!(facts.variables.is_empty());
+    }
+
+    #[test]
+    fn ordinary_binary_is_admitted_recursively() {
+        let statements = vec![ASTNode::BinaryOp {
+            operator: BinaryOperator::Add,
+            left: Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span: Span::unknown(),
+            }),
+            right: Box::new(ASTNode::UnaryOp {
+                operator: UnaryOperator::Minus,
+                operand: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(2),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        }];
+        let result = admit_runtime_script_lexical_v1(&statements, &[admission()]);
+        assert!(matches!(result, ScriptLexicalAdmissionV1::Complete(_)));
+    }
+
+    #[test]
+    fn logical_binary_remains_deferred() {
+        let statements = vec![ASTNode::BinaryOp {
+            operator: BinaryOperator::And,
+            left: Box::new(ASTNode::Literal {
+                value: LiteralValue::Bool(true),
+                span: Span::unknown(),
+            }),
+            right: Box::new(ASTNode::Literal {
+                value: LiteralValue::Bool(false),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        }];
+        assert_eq!(
+            admit_runtime_script_lexical_v1(&statements, &[admission()]),
+            ScriptLexicalAdmissionV1::Deferred(
+                ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement
+            )
+        );
     }
 
     #[test]

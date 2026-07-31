@@ -128,21 +128,29 @@ impl super::MirBuilder {
             ASTNode::Literal { value, .. } => self.build_literal(value),
 
             node @ ASTNode::BinaryOp { .. } => {
+                let left_source =
+                    port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::BinaryLeft)?;
+                let right_source =
+                    port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::BinaryRight)?;
                 // Use BinaryExpr for clear destructuring (no behavior change)
                 let e = BinaryExpr::try_from(node).expect("ASTNode::BinaryOp must convert");
                 let left = *e.left;
                 let right = *e.right;
-                match e.operator {
+                let mut scoped =
+                    RawStructuredChildScopePortV1::new(port, vec![left_source, right_source], Vec::new());
+                let result = match e.operator {
                     operator @ (crate::ast::BinaryOperator::And
                     | crate::ast::BinaryOperator::Or) => {
                         let input = RawLegacyShortCircuitInputV1::new(left, operator, right);
-                        drive_short_circuit_expression_v1(self, port, &input)
+                        drive_short_circuit_expression_v1(self, &mut scoped, &input)
                     }
                     operator => {
                         let input = RawLegacyBinaryInputV1::new(left, operator, right);
-                        drive_ordinary_binary_expression_v1(self, port, &input)
+                        drive_ordinary_binary_expression_v1(self, &mut scoped, &input)
                     }
-                }
+                };
+                scoped.complete_exact_demands_v1()?;
+                result
             }
 
             ASTNode::CheckExpr { items, .. } => {
