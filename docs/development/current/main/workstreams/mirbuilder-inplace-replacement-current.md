@@ -3451,10 +3451,11 @@ Non-effects:
   grammar / result / fallback = unchanged
 
 Next:
-  SEMANTIC-OWNER-SCRIPT-PORT0-S3
-  Add the real typed immutable Script source-view loan for the prepared
-  runtime window. A carrier-only rename is forbidden; the port must consume
-  exact ProgramBody(original ordinal) sites. Keep raw/reference ports intact.
+  RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0
+  Integrate the typed immutable Script source-view loan only after the
+  producer-backed Complete Script product exists. A carrier-only rename is
+  forbidden; the selected port must consume exact ProgramBody(original
+  ordinal) sites. Keep raw/reference ports intact.
 ```
 
 ## RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 — closed, Accept(A-prime)
