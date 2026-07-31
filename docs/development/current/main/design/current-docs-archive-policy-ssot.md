@@ -190,7 +190,10 @@ target maximum:
 
 ## Line Budget Rule
 
-Non-archive current docs have a soft limit of 2000 lines.
+Non-archive current docs have a 2000-line target. Active rolling workstream
+cards use the tighter policy: target about 800 lines, guarded hard limit 1000.
+Once crossed, only in-place replacement or net-shrinking edits are allowed
+until the card is compacted.
 
 When a current doc crosses that limit, split it before adding more landed
 history:

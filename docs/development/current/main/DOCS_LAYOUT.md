@@ -33,6 +33,13 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - active multi-day work cards
   - keep only the current four-block execution brief, compact queue, parked
     boundary, and a short closed tail
+  - target about 800 lines; 1,000 lines is the guarded hard boundary. An
+    over-budget rolling card may
+    only replace current text or shrink until it is split/compacted under the
+    archive policy
+  - repeated constructors in one accepted semantic family share one decision
+    and one batch closeout; they do not get task/implementation/closeout docs
+    per AST kind
   - inventory / consultation detail is distilled here instead of becoming one
     numbered row or one copied transcript per observation
   - landed implementation detail belongs to git history; do not accumulate a

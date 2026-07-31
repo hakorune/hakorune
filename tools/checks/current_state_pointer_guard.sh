@@ -110,15 +110,13 @@ require_repo_file "$method_anchor" "method_anchor"
 require_repo_file "$taskboard" "taskboard"
 if [[ -n "$latest_workstream_card" ]]; then
   require_repo_file "$latest_workstream_card" "latest_workstream_card"
-  if [[ "$latest_workstream_card" == *task-order* ]]; then
-    task_order_lines="$(wc -l < "$ROOT_DIR/$latest_workstream_card" | tr -d '[:space:]')"
-    if (( task_order_lines > MAX_ACTIVE_DOC_LINES )); then
-      guard_fail "$TAG" "latest_workstream_card exceeds ${MAX_ACTIVE_DOC_LINES} lines: $latest_workstream_card has $task_order_lines"
-    fi
-    task_order_max_line_chars="$(awk '{ if (length($0) > max) max = length($0) } END { print max + 0 }' "$ROOT_DIR/$latest_workstream_card")"
-    if (( task_order_max_line_chars > MAX_TASK_ORDER_LINE_CHARS )); then
-      guard_fail "$TAG" "latest_workstream_card exceeds ${MAX_TASK_ORDER_LINE_CHARS} characters per line: $latest_workstream_card has $task_order_max_line_chars"
-    fi
+  active_doc_lines="$(wc -l < "$ROOT_DIR/$latest_workstream_card" | tr -d '[:space:]')"
+  if (( active_doc_lines > MAX_ACTIVE_DOC_LINES )); then
+    guard_fail "$TAG" "latest_workstream_card exceeds ${MAX_ACTIVE_DOC_LINES} lines: $latest_workstream_card has $active_doc_lines"
+  fi
+  active_doc_max_line_chars="$(awk '{ if (length($0) > max) max = length($0) } END { print max + 0 }' "$ROOT_DIR/$latest_workstream_card")"
+  if (( active_doc_max_line_chars > MAX_TASK_ORDER_LINE_CHARS )); then
+    guard_fail "$TAG" "latest_workstream_card exceeds ${MAX_TASK_ORDER_LINE_CHARS} characters per line: $latest_workstream_card has $active_doc_max_line_chars"
   fi
 fi
 require_repo_file "$latest_card_path" "latest_card_path"

@@ -193,6 +193,62 @@ AST kind. Run a fresh census at a responsibility-batch boundary, not
 automatically after every small constructor. Proof and old-edge deletion remain
 mandatory; only repeated prose ceremony is removed.
 
+### Responsibility-Family Amortization Law
+
+Documentation is amortized over a semantic responsibility family, not emitted
+once per AST constructor. A family is a reusable authority boundary such as a
+compositional expression closure, control, call/object, nested-owner, or
+compatibility-retirement boundary.
+
+```text
+one family decision
+  -> one or more implementation-coupled constructor edits
+  -> one batch-boundary census / compact closeout
+```
+
+Rules:
+
+- adding another constructor to an already accepted family does not create a
+  task document, selection document, or closeout document;
+- record such an edit as one compact table/queue mutation in the implementation
+  commit; git history and the executable proof remain the detailed record;
+- do not reopen D0 for each constructor unless source authority, failure owner,
+  result policy, language semantics, or the family invariant changes;
+- three consecutive same-family constructor rows are a mandatory batching
+  trigger: stop creating per-constructor rows and use one family-level batch;
+- batch selection must still name the production caller and the old authority
+  removed; batching never permits mixed semantic responsibilities or fallback;
+- run a fresh broad census once at the family/batch boundary, not after each
+  constructor.
+
+### Active-Card Budget and No-Growth Law
+
+An active rolling card is a restart surface, not an append-only ledger. Active
+rolling cards have an editorial target of about 800 lines and the existing
+current-state guard enforces a hard 1,000-line limit.
+
+```text
+rolling card <= 1,000 lines:
+  ordinary compact updates allowed
+
+rolling card > 1,000 lines:
+  replacement/compaction edits only
+  net landed-history growth forbidden
+```
+
+An over-budget card may only replace its current four-block brief or current
+pointer in place while shrinking overall. Before the next batch closeout, move or delete superseded
+landed prose using the bounded archive policy and keep only:
+
+- current decision / consultation;
+- current four-block execution brief;
+- compact active queue;
+- active sunset/fence registry;
+- a short closed tail.
+
+Do not evade this law by creating a second `*-current.md`, a per-constructor
+investigation file, or a new ledger that merely copies the rolling card.
+
 A new narrative document is allowed only for a durable cross-workstream
 contract, machine-consumed stable artifact, irreproducible evidence, incident
 audit, genuine independently owned workstream fork, or independently readable
