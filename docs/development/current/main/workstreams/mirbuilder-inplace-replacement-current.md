@@ -3555,7 +3555,7 @@ Hard stops:
   program_root_work_plan.rs edits, or any touched source/check file >=800.
 ```
 
-## RAW-SCRIPT-BINARY-LEXICAL-CLOSURE0-D0 — accepted
+## RAW-SCRIPT-BINARY-LEXICAL-CLOSURE0-I0-R0 — closed at b562263854
 
 ```text
 Decision:
@@ -3590,6 +3590,22 @@ Atomic delete:
 Fixtures:
   1+2, local x = 1; x+2, nested Binary, print(x+1), and And/Or Deferred
   parity/reuse cases.
+
+Evidence:
+  `cargo check --lib`, the focused `normal_script` suite (30/30),
+  general-module parity, integer_0 parity, pointer/cut0 guards, and touched
+  source line limits are green. Existing binary, unary, and print owners
+  remain the only lowering authorities.
+
+Atomic deletion:
+  Safe ordinary Binary no longer selects Deferred
+  `RawInvocationSourceTransportV1::script_root(())`. And/Or, unsafe
+  children, raw/reference, and all residual control/object/Box/Lambda routes
+  retain their existing ownership; no fallback or retry was added.
+
+Next design:
+  `MIRBUILDER-LIVE-EDGE-CENSUS46-D0` — fresh, read-only, narrow census of
+  the selected-normal graph. Do not preselect the next Script family.
 
 Hard stops:
   short-circuit inclusion, mixed routing, type/ABI inference, second
@@ -6085,7 +6101,9 @@ R2an MIRBUILDER-LIVE-EDGE-CENSUS44-D0 closed
 R2ao RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-D0 accepted design stop
 R2ap RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-I0-R0 closed at c1c7852b76
 R2aq MIRBUILDER-LIVE-EDGE-CENSUS45-D0 closed
-R2ar RAW-SCRIPT-BINARY-LEXICAL-CLOSURE0-D0 current design stop
+R2ar RAW-SCRIPT-BINARY-LEXICAL-CLOSURE0-D0 accepted design stop
+R2as RAW-SCRIPT-BINARY-LEXICAL-CLOSURE0-I0-R0 closed at b562263854
+R2at MIRBUILDER-LIVE-EDGE-CENSUS46-D0 current narrow design stop
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
