@@ -3228,19 +3228,19 @@ Task sequence:
    Function projection behavior unchanged.
 
 6. `SEMANTIC-OWNER-SCRIPT-PORT0-S3`
-   Extract a neutral, bounded API for the already-prepared Script runtime
-   window without editing `program_root_work_plan.rs` (799 lines) or running
-   classification a second time. Add a typed immutable Script source-view loan
-   to the selected raw invocation port, carrying the co-sealed forest/
-   projection product rather than an empty `script_root(())` carrier. The port
-   must actually verify/consume exact `ProgramBody(original ordinal)` sites;
-   merely changing the carrier type is a hard stop. Keep raw/reference ports
-   unchanged and keep this commit behavior-neutral.
+   **No standalone row.** A port-only change has no real Script product
+   producer/consumer at the current boundary and would create a carrier-only
+   API. Do not add an empty typed carrier, a ProgramBody-only validator, or an
+   unused source-view loan. Fold this responsibility into the producer-backed
+   Literal I0/R0 below: only a co-sealed Script product may create the typed
+   immutable source-view loan, and the selected port must consume exact
+   `ProgramBody(original ordinal)` sites. Raw/reference ports remain unchanged.
 
 7. `RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0`
-   Only after S0/S1/S2 are green, connect the selected normal lifecycle at
+   After S0/S1/S2 are green, connect the selected normal lifecycle at
    the existing production caller
    `ModuleBuilderInvocationSessionV1::complete_normal_default_program_root_catalog_lifecycle`.
+   This row includes the S3 integration; there is no prior port-only commit.
    Complete closure is exactly empty/literal-only Script runtime items plus
    transferred top-level FunctionDeclaration boundaries. Co-seal Program,
    Script root profile, one shared forest, one Program projection, and exact
@@ -3261,11 +3261,41 @@ Ratchet and sunset:
 
 Hard stops:
   synthetic FunctionDeclaration, a second Script forest/projection,
-  FunctionSyntaxView Program widening, body-root union inference, work-plan
-  reconstruction, partial forest, Complete-to-Deferred downgrade,
+  FunctionSyntaxView Program widening, body-root union inference, a
+  standalone Script port/carrier, work-plan reconstruction, partial forest,
+  Complete-to-Deferred downgrade,
   raw Lambda capture order from `forest.upvars()`, editing
   `program_root_work_plan.rs`, or touching raw/reference `script_root` in the
   Literal row.
+```
+
+## SEMANTIC-OWNER-SCRIPT-PORT0-S3 — closed, NoStandaloneRow
+
+```text
+Finding:
+  The current RawInvocationChildPortV1 carries raw source/path transport only.
+  No co-sealed Script forest/projection product is produced yet, and the
+  forest/projection consumers still expose Function-only compatibility APIs.
+  A standalone typed Script loan would therefore be an unused carrier or a
+  second source authority rather than a production replacement.
+
+Decision:
+  Do not land an S3-only commit. Integrate the typed Script source-view loan
+  inside RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0 after the Complete Script
+  product exists. Delete the selected Complete branch's bare `script_root(())`
+  edge in that same atomic commit; keep Deferred and raw/reference calls.
+
+Non-effects:
+  no standalone port API
+  no ProgramBody validator without a producer
+  no second forest or projection
+  no behavior change
+
+Next:
+  RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0
+  Complete closure remains empty/literal-only runtime items plus transferred
+  top-level FunctionDeclaration boundaries. All other Script demands stay
+  Deferred with the existing compatibility owner and sunset ledger.
 ```
 
 ## SEMANTIC-OWNER-ROOT-PROFILE0-S0 — closed
