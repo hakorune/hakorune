@@ -3140,6 +3140,9 @@ Hard stops:
 ## RAW-SCRIPT-SEMANTIC-OWNER-CORE0-D0 — active design stop
 
 ```text
+consultation_question:
+  docs/development/current/main/investigations/raw-script-semantic-owner-core0-consultation-question-2026-07-31.md
+
 Finding:
   Source-kind branding and work-plan hoisting are only prerequisites. The
   semantic forest still stores VerifiedResolvedFunctionV1, lowering roots
