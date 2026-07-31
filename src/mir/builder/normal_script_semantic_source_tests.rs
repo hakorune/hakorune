@@ -4,7 +4,7 @@ use crate::mir::builder::PreparedNormalDefaultProgramRootV1;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, ResolveScriptOutcomeV1, ScriptDiagnosticBoundaryV1,
     ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1, ScriptSyntaxViewV1,
-    SourcePathSegmentV1, SourcePathV1,
+    ScriptTransparentBoundaryV1, SourcePathSegmentV1, SourcePathV1,
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
 };
 use crate::parser::NyashParser;
@@ -60,6 +60,18 @@ fn receiver_absent_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {
             .stmt(),
         ScriptRootSemanticDispositionV1::Diagnostic(
             ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent,
+        ),
+        ScriptRootRuntimeDispositionV1::RetainedExistingTerminal,
+    )
+}
+
+fn using_directive_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {
+    VerifiedScriptRootDemandEntryV1::new(
+        SourcePathV1::program_body()
+            .child(SourcePathSegmentV1::ProgramBody(index))
+            .stmt(),
+        ScriptRootSemanticDispositionV1::Transparent(
+            ScriptTransparentBoundaryV1::UsingDirective,
         ),
         ScriptRootRuntimeDispositionV1::RetainedExistingTerminal,
     )
@@ -130,6 +142,39 @@ fn bare_me_seals_script_source_then_uses_existing_rootlower_diagnostic() {
         Some("script-bare-me-reuse.hako"),
         std::collections::HashMap::new(),
     ).expect("reuse request")).expect("fresh request succeeds");
+}
+
+#[test]
+fn using_directive_is_complete_and_retains_void_runtime_completion() {
+    let using = ASTNode::UsingStatement {
+        namespace_name: "std.math".to_owned(),
+        span: Span::unknown(),
+    };
+    let source = PreparedNormalDefaultProgramRootV1::seal(ASTNode::Program {
+        statements: vec![using.clone()],
+        span: Span::unknown(),
+    }).expect("Program source");
+    let window = VerifiedScriptRootDemandWindowV1::seal(vec![using_directive_entry(0)], 1)
+        .expect("Using window");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
+    let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
+    let ResolveScriptOutcomeV1::Complete(owner) = resolver
+        .resolve_script(view, &window)
+        .expect("Using resolve")
+    else {
+        panic!("Using is a transparent Script boundary");
+    };
+    let product = VerifiedScriptSemanticSourceV1::seal(&source, owner, &window)
+        .expect("Using Script source");
+    assert_eq!(product.forest().owner_count(), 1);
+    assert_eq!(product.using_directive_sites().count(), 1);
+    assert_selected_program_parity(ASTNode::Program {
+        statements: vec![
+            ASTNode::Literal { value: LiteralValue::Integer(1), span: Span::unknown() },
+            using,
+        ],
+        span: Span::unknown(),
+    }, "script-using.hako");
 }
 
 #[test]

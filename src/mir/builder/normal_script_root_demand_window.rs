@@ -89,6 +89,11 @@ impl ScriptRootDemandWindowBuilderV1 {
                     Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent),
                     Runtime::RetainedExistingTerminal,
                 ),
+                Admission::DirectPortAwareExpression
+                    if matches!(statement, ASTNode::UsingStatement { .. }) => (
+                    Semantic::Transparent(ScriptTransparentBoundaryV1::UsingDirective),
+                    Runtime::RetainedExistingTerminal,
+                ),
                 Admission::DirectPortAwareExpression | Admission::DirectPrint => {
                     (Semantic::Resolved, Runtime::RetainedExistingTerminal)
                 }
@@ -146,4 +151,39 @@ fn validate_boundary(
     compatible
         .then_some(())
         .ok_or(ScriptRootDemandWindowBuildErrorV1::StatementBoundaryMismatch)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::{ASTNode, Span};
+
+    #[test]
+    fn using_is_a_transparent_retained_runtime_boundary() {
+        let using = ASTNode::UsingStatement {
+            namespace_name: "std.math".to_owned(),
+            span: Span::unknown(),
+        };
+        let mut window = ScriptRootDemandWindowBuilderV1::for_program_statement_count(1);
+        window
+            .record_selected_work_item(
+                0,
+                &using,
+                Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
+                false,
+            )
+            .expect("Using receipt");
+        let entry = window.seal().expect("sealed window").entry_at(0).cloned()
+            .expect("Using entry");
+        assert_eq!(
+            entry.semantic(),
+            ScriptRootSemanticDispositionV1::Transparent(
+                ScriptTransparentBoundaryV1::UsingDirective,
+            ),
+        );
+        assert_eq!(
+            entry.runtime(),
+            ScriptRootRuntimeDispositionV1::RetainedExistingTerminal,
+        );
+    }
 }

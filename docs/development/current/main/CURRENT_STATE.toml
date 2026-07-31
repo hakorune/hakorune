@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-I0-R0 is closed: bare Program-root Me now reaches Complete through a typed existing-diagnostic boundary while build_me_expression remains the RootLower owner. The previously named sparse shared-shadow cutover is already closed in 5b963969b4; the next stop is a fresh post-lexical capability census."
+status = "RAW-SCRIPT-USING-TRANSPARENT-RUNTIME-COMPLETION0-I0-R0 is closed: top-level UsingStatement now reaches Complete as a typed transparent boundary while the existing Void runtime terminal remains the result owner. The next stop is the bare-This existing-diagnostic boundary."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-POST-LEXICAL-CAPABILITY-CENSUS0-D0"
-current_execution_row = "RAW-SCRIPT-POST-LEXICAL-CAPABILITY-CENSUS0-D0"
-current_execution_summary = "The sparse Script demand window and shared root-neutral shadow traversal are live; the manual lexical mini-resolver was deleted in 5b963969b4. The next decision is a bounded live-edge census of Deferred responsibility capabilities, selecting only one named production caller and old edge. Control, Call/Object, allocation, Lambda, and Box remain separate families."
+current_design_stop = "RAW-SCRIPT-THIS-DIAGNOSTIC-BOUNDARY0-D0"
+current_execution_row = "RAW-SCRIPT-THIS-DIAGNOSTIC-BOUNDARY0-D0"
+current_execution_summary = "The next decision verifies whether only bare Program-root This can move to a typed existing unsupported diagnostic boundary without receiver facts or recursive descent. ThisField, MeField, MethodCall receiver, control, Call/Object, allocation, Lambda, and Box are excluded."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"

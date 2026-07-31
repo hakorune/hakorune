@@ -108,14 +108,14 @@ impl<'ast> ShadowRootTraversalInputV1<'ast> {
                 for entry in window.entries() {
                     match entry.semantic() {
                         ScriptRootSemanticDispositionV1::Resolved => {}
-                        ScriptRootSemanticDispositionV1::Deferred(_)
-                        | ScriptRootSemanticDispositionV1::Transparent(_) => {
+                        ScriptRootSemanticDispositionV1::Deferred(_) => {
                             return Err(super::product::ShadowResolveErrorV0::UnsupportedStatement {
                                 kind: "deferred Script responsibility",
                                 site: entry.site().clone(),
                             });
                         }
-                        ScriptRootSemanticDispositionV1::Transferred(_)
+                        ScriptRootSemanticDispositionV1::Transparent(_)
+                        | ScriptRootSemanticDispositionV1::Transferred(_)
                         | ScriptRootSemanticDispositionV1::Diagnostic(_) => continue,
                     }
                     let [SourcePathSegmentV1::ProgramBodyRoot, SourcePathSegmentV1::ProgramBody(index)] = entry.site().node().segments() else {

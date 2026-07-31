@@ -25,12 +25,18 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     forest: VerifiedSemanticOwnerForestV1,
     projection: VerifiedSourceProjectionV1,
     static_const_completions: Box<[VerifiedScriptStaticConstCompletionV1]>,
+    using_directives: Box<[VerifiedScriptUsingDirectiveV1]>,
     existing_diagnostic_boundaries: Box<[VerifiedScriptExistingDiagnosticBoundaryV1]>,
     runtime_source_indices: Box<[usize]>,
 }
 
 #[derive(Debug)]
 pub(super) struct VerifiedScriptStaticConstCompletionV1 {
+    site: SourceStmtSiteV1,
+}
+
+#[derive(Debug)]
+pub(super) struct VerifiedScriptUsingDirectiveV1 {
     site: SourceStmtSiteV1,
 }
 
@@ -50,6 +56,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             return Err("[mir/script-semantic/source-root] expected Program".to_owned());
         };
         let mut static_const_completions = Vec::new();
+        let mut using_directives = Vec::new();
         let mut existing_diagnostic_boundaries = Vec::new();
         let mut runtime_source_indices = Vec::new();
         for entry in window.entries() {
@@ -64,6 +71,13 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                     ScriptTransferredBoundaryV1::ProgramStaticMetadata,
                 ) if matches!(statement, ASTNode::StaticConstTable { .. }) => {
                     static_const_completions.push(VerifiedScriptStaticConstCompletionV1 {
+                        site: entry.site().clone(),
+                    });
+                }
+                ScriptRootSemanticDispositionV1::Transparent(
+                    crate::mir::resolved_semantics::ScriptTransparentBoundaryV1::UsingDirective,
+                ) if matches!(statement, ASTNode::UsingStatement { .. }) => {
+                    using_directives.push(VerifiedScriptUsingDirectiveV1 {
                         site: entry.site().clone(),
                     });
                 }
@@ -85,7 +99,6 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 }
                 ScriptRootSemanticDispositionV1::Resolved
                 | ScriptRootSemanticDispositionV1::Deferred(_)
-                | ScriptRootSemanticDispositionV1::Transparent(_)
                 | ScriptRootSemanticDispositionV1::Transferred(
                     ScriptTransferredBoundaryV1::TopLevelCallable,
                 ) => {}
@@ -114,6 +127,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             forest,
             projection,
             static_const_completions: static_const_completions.into_boxed_slice(),
+            using_directives: using_directives.into_boxed_slice(),
             existing_diagnostic_boundaries: existing_diagnostic_boundaries.into_boxed_slice(),
             runtime_source_indices: runtime_source_indices.into_boxed_slice(),
         })
@@ -147,6 +161,11 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         self.existing_diagnostic_boundaries
             .iter()
             .map(|receipt| &receipt.site)
+    }
+
+    #[cfg(test)]
+    pub(super) fn using_directive_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
+        self.using_directives.iter().map(|receipt| &receipt.site)
     }
 
     #[cfg(test)]

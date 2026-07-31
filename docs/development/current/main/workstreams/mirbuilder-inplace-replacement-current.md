@@ -265,26 +265,31 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-POST-LEXICAL-CAPABILITY-CENSUS0-D0
+  RAW-SCRIPT-THIS-DIAGNOSTIC-BOUNDARY0-D0
 
   Change:
-    Census only the remaining Deferred Script capability families and select
-    one named production caller plus its old edge for the next row.
+    Verify a bounded, bare root `This` existing-diagnostic boundary only.
 
   Contract:
-    The total sparse window and shared traversal are already live.  Do not
-    reopen their closed cutover or select a family merely by AST kind.
+    No receiver fact or recursive descent may be introduced. `ThisField`,
+    `MeField`, method receivers, and all Control/Call/Object/Lambda/Box
+    families are not candidates in this D0.
 
   Done:
-    Name one live Deferred capability, its exact admission/Lower edge, the
-    existing owner it can reuse, and the focused evidence needed for one row.
+    Identify the existing RootLower diagnostic owner, the exact old Deferred
+    edge, and a source-only failure/reuse parity fixture for one possible row.
 
   Stop:
-    Stop if the candidate needs a second matcher, partial forest, compact-index
-    recovery, or public Function view widening.  Keep all source/check files
-    below 800 lines.
+    Stop if the raw `This` behavior has receiver semantics, a child demand, or
+    needs a new diagnostic owner. Keep source/check files <800.
 
 closed
+  RAW-SCRIPT-USING-TRANSPARENT-RUNTIME-COMPLETION0-I0-R0
+  -> top-level Using now seals an exact transparent receipt and retains the
+     existing Void terminal, preserving `1; using` selected/legacy parity
+  -> focused demand-window and semantic-source tests, pointer guard, and
+     shared cutover guard green
+
   RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0
   -> already closed by `5b963969b4`: sparse Script input reaches the shared
      root-neutral shadow traversal and the 695-line manual lexical resolver is
