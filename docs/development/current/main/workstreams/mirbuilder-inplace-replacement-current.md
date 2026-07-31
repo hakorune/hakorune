@@ -3453,7 +3453,7 @@ Sunset:
   or explicitly retained at final conformance.
 ```
 
-## RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-D0 — accepted
+## RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-I0-R0 — closed at 1adb617542
 
 ```text
 Change:
@@ -3477,6 +3477,23 @@ Done:
   green. The selected old Deferred edge is zero for safe Unary, the shared
   replacement guard is green, and every touched source/check file is <800
   lines.
+
+Evidence:
+  `cargo check --lib`, the focused `normal_script` suite (24/24), the
+  integer_0 fixture, and general-module parity are green. The selected
+  Unary path uses exact `UnaryOperand` source segments and the shared raw
+  port-aware owner; the shared pointer/cut0 guards are green and touched
+  source files remain below 800 lines.
+
+Atomic deletion:
+  Safe ordinary Unary no longer selects the Deferred
+  `RawInvocationSourceTransportV1::script_root(())` edge. Weak and all
+  residual statement/control/call/object/Box/Lambda shapes retain their
+  existing Deferred/raw/reference ownership; no fallback or retry was added.
+
+Next design:
+  `MIRBUILDER-LIVE-EDGE-CENSUS44-D0` — fresh, read-only, narrow census of
+  the selected-normal graph. Do not preselect the next Script family.
 
 Stop:
   Return to design if exact nested source receipts cannot be sealed in one
@@ -5968,6 +5985,8 @@ R2ai NORMAL-DEFAULT-PROGRAM-ROOT-ADMISSION0-I0-R0 closed
 R2aj RAW-SCRIPT-LEXICAL-BINDING0-I0-R0 closed at 7bf6c9b996
 R2ak MIRBUILDER-LIVE-EDGE-CENSUS43-D0 closed
 R2al RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-D0 accepted design stop
+R2am RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-I0-R0 closed at 1adb617542
+R2an MIRBUILDER-LIVE-EDGE-CENSUS44-D0 current narrow design stop
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
