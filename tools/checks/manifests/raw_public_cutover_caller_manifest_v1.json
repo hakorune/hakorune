@@ -136,21 +136,21 @@
     "SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001": {
       "state": "active",
       "owner": "selected Script ExistingRootLower terminal",
-      "complete_fixture_ids": [
-        "integer_0_real_source",
-        "script_local_lexical_binding",
-        "script_unary_lexical_closure",
-        "script_print_lexical_closure",
-        "script_binary_lexical_closure",
-        "script_await_lexical_closure",
-        "script_check_lexical_closure",
-        "script_andor_lexical_closure",
-        "script_static_const_u16_completion",
-        "script_selected_unsupported_diagnostic_boundary"
-      ],
-      "deferred_fixture_reasons": {
-        "script_weak_unary": "UnsafeRuntimeStatement",
-        "script_undefined_variable": "UndefinedVariable"
+      "complete_fixtures": {
+        "integer_0_real_source": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn literal_program_seals_one_script_owner_and_program_projection"},
+        "script_local_lexical_binding": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_normal_lexical_local_and_read_use_one_ledger"},
+        "script_unary_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_normal_print_lexical_closure_matches_legacy"},
+        "script_print_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn real_print_fixture_uses_the_selected_normal_request"},
+        "script_binary_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_normal_binary_lexical_closure_matches_legacy"},
+        "script_await_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_normal_await_lexical_closure_matches_legacy"},
+        "script_check_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_normal_check_lexical_closure_matches_legacy"},
+        "script_andor_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_normal_and_or_lexical_closure_matches_legacy"},
+        "script_static_const_u16_completion": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn script_static_const_u16_completion_matches_legacy_metadata"},
+        "script_selected_unsupported_diagnostic_boundary": {"path": "src/mir/builder/normal_script_direct_statement_owner.rs", "anchor": "fn selected_unsupported_statements_keep_exact_legacy_rejection_and_reuse"}
+      },
+      "deferred_fixtures": {
+        "script_weak_unary": {"reason": "UnsafeRuntimeStatement", "path": "src/mir/builder/normal_script_lexical_binding.rs", "anchor": "fn weak_unary_remains_deferred"},
+        "script_undefined_variable": {"reason": "UndefinedVariable", "path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_and_or_failure_discards_candidate_and_reuses_compiler"}
       },
       "retire_when": "every selected Script demand is Complete or explicitly retained by R4, and the compatibility caller is zero"
     }

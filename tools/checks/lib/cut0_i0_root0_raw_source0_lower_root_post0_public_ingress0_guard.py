@@ -742,8 +742,10 @@ def main() -> int:
     ):
         require(normal_tests, fixture, f"normal pipeline fixture {fixture}")
     ratchet = caller_manifest["compatibility_sunsets"]["SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001"]
-    for fixture_id, path, anchor in (("script_static_const_u16_completion", ROOT / "src/mir/builder/normal_script_semantic_source.rs", "fn script_static_const_u16_completion_matches_legacy_metadata"), ("script_selected_unsupported_diagnostic_boundary", ROOT / "src/mir/builder/normal_script_direct_statement_owner.rs", "fn selected_unsupported_statements_keep_exact_legacy_rejection_and_reuse")):
-        require(path.read_text(), anchor, f"{fixture_id} Complete fixture"); require(ratchet.get("complete_fixture_ids", []), fixture_id, f"{fixture_id} Complete ratchet")
+    def require_fixture_map(fixtures, expected_reason=None):
+        for fixture_id, receipt in fixtures.items():
+            require((ROOT / receipt["path"]).read_text(), receipt["anchor"], f"{fixture_id} fixture"); assert expected_reason is None or receipt["reason"] == expected_reason[fixture_id], f"{fixture_id} Deferred reason drift"
+    require_fixture_map(ratchet["complete_fixtures"]); require_fixture_map(ratchet["deferred_fixtures"], {"script_weak_unary": "UnsafeRuntimeStatement", "script_undefined_variable": "UndefinedVariable"})
     count_by_manifest(caller_manifest.get("normal_compile_adapters", {}), ".compile(")
     expected_build_module = caller_manifest.get("direct_build_module_production", {})
     actual_build_module = {
