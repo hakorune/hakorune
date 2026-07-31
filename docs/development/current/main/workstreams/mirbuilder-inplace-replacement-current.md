@@ -3255,6 +3255,38 @@ Hard stops:
   Literal row.
 ```
 
+## SEMANTIC-OWNER-ROOT-PROFILE0-S0 — closed
+
+```text
+Decision:
+  Behavior-neutral BoxShape refactor landed. `SemanticOwnerRootProfileV1`
+  now owns the exact source/body-root contract for DeclaredFunction, Script,
+  and Lambda. Existing Function/Lambda views and public source_kind accessors
+  remain behavior-compatible; source kind is derived from the profile rather
+  than stored as a second product authority.
+
+Evidence:
+  cargo test --lib resolved_semantics:: --quiet
+    = 163 passed
+  cargo check --lib --quiet
+    = passed (pre-existing warnings only)
+  New profile module:
+    src/mir/resolved_semantics/owner_root_profile.rs
+    = 78 lines
+
+Non-effects:
+  Script production consumer = 0
+  forest payload change      = 0
+  projection/lowering cutover= 0
+  grammar / result / fallback = unchanged
+
+Next:
+  SEMANTIC-OWNER-CORE0-S1
+  Keep the forest Function API stable while introducing the private generic
+  owner core and profile-exact lowering root witness. Do not add Script
+  production or edit program_root_work_plan.rs.
+```
+
 ## RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 — closed, Accept(A-prime)
 
 ```text

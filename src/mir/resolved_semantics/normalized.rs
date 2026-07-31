@@ -228,7 +228,7 @@ pub(super) fn build_normalized_graph(
 
     NormalizedResolvedFunctionGraphV1 {
         function_origin: data.function_origin,
-        source_kind: data.source_kind,
+        source_kind: data.root_profile.source_kind(),
         bindings: bindings.into_boxed_slice(),
         scopes: scopes.into_boxed_slice(),
         regions: regions.into_boxed_slice(),

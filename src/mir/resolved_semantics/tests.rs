@@ -57,7 +57,9 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
     ResolvedFunctionDataV1 {
         owner,
         function_origin,
-        source_kind: super::SemanticOwnerSourceKindV1::DeclaredFunction,
+        root_profile: super::SemanticOwnerRootProfileV1::DeclaredFunction {
+            receiver_policy: super::ReceiverPolicyV1::Absent,
+        },
         function_scope: scope,
         function_region: region,
         bindings: BTreeMap::from([(

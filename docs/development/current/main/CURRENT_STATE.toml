@@ -5,8 +5,8 @@ status = "RAW-SCRIPT-SEMANTIC-SOURCE0-I0-R0 is closed NoSafeSlice. Candidate A-p
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "SEMANTIC-OWNER-ROOT-PROFILE0-S0"
-current_execution_row = "none (A-prime taskized; Refactor Series not started)"
+current_design_stop = "SEMANTIC-OWNER-CORE0-S1"
+current_execution_row = "SEMANTIC-OWNER-CORE0-S1"
 current_execution_summary = "A-prime is accepted as a private root-neutral semantic-owner core plus explicit Function/Script/Lambda wrappers, one shared forest, and one shared Program projection. Execute four behavior-neutral, buildable refactor commits first: root profile, generic owner core/forest payload, profile-exact projection/source view, and a real typed Script source-view loan that consumes the prepared runtime window. Only after those are green may the Literal-only Complete I0/R0 connect selected normal: empty/literal Script runtime items plus transferred top-level callable boundaries. Lambda, Variable/Local materialization, control, calls/objects, Box runtime demand, and postfix catch/cleanup remain Deferred. Existing Complete set must ratchet monotonically; no partial forest, Complete-to-Deferred downgrade, fallback, retry, or broad corpus scan."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "SEMANTIC-OWNER-ROOT-PROFILE0-S0"
+current_blocker_token = "SEMANTIC-OWNER-CORE0-S1"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

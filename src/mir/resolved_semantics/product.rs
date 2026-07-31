@@ -10,6 +10,7 @@ use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
 use super::if_region::ResolvedIfRegionIndexV1;
 use super::loop_region::ResolvedLoopRegionIndexV1;
 use super::normalized::{build_normalized_graph, NormalizedResolvedFunctionGraphV1};
+use super::owner_root_profile::SemanticOwnerRootProfileV1;
 use super::records::{
     RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1, ResolvedBindingRecordV1,
     ResolvedExitRecordV1, ResolvedLexicalRefV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1,
@@ -25,7 +26,7 @@ use super::verifier::{verify_resolved_function, ResolvedFunctionVerificationErro
 pub(crate) struct ResolvedFunctionDataV1 {
     pub(crate) owner: FunctionOwnerIdV1,
     pub(crate) function_origin: FunctionOriginV1,
-    pub(crate) source_kind: super::SemanticOwnerSourceKindV1,
+    pub(crate) root_profile: SemanticOwnerRootProfileV1,
     pub(crate) function_scope: ScopeId,
     pub(crate) function_region: RegionId,
     pub(crate) bindings: BTreeMap<BindingId, ResolvedBindingRecordV1>,
@@ -107,7 +108,11 @@ impl VerifiedResolvedFunctionV1 {
     }
 
     pub const fn source_kind(&self) -> super::SemanticOwnerSourceKindV1 {
-        self.data.source_kind
+        self.data.root_profile.source_kind()
+    }
+
+    pub(crate) const fn root_profile(&self) -> SemanticOwnerRootProfileV1 {
+        self.data.root_profile
     }
 
     pub const fn function_scope(&self) -> ScopeId {
