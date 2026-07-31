@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-TASK-SCOPE-LEXICAL-PREFLIGHT0-I0-R0 is closed: lexical normal-completion TaskScope now reaches Complete through the shared traversal. The existing whole-body preflight and push/body/pop lower remain sole owners; early exits stay Deferred."
+status = "RAW-SCRIPT-OUTBOX-MATERIALIZATION-HANDOFF0-D0 is active: direct Outbox Complete cutover has NoSafeSlice until its existing multi-binding Void owner returns an ordered canonical BindingRef-to-ValueId receipt. Do not recover values from Builder state or names."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-POST-TASK-SCOPE-CAPABILITY-CENSUS0-D0"
-current_execution_row = "RAW-SCRIPT-POST-TASK-SCOPE-CAPABILITY-CENSUS0-D0"
-current_execution_summary = "Census exactly one remaining Deferred Script capability family after TaskScope. Outbox remains a BindingRef-to-ValueId handoff design gate. Do not preselect an implementation row or broaden a capability family before fresh named production-edge evidence."
+current_design_stop = "RAW-SCRIPT-OUTBOX-MATERIALIZATION-HANDOFF0-D0"
+current_execution_row = "RAW-SCRIPT-OUTBOX-MATERIALIZATION-HANDOFF0-D0"
+current_execution_summary = "Outbox is the next named Deferred edge but has NoSafeSlice for direct Complete activation: its sole Lower owner emits one Void binding per name and returns only the final ValueId. First seal an ordered Outbox BindingRef-to-ValueId receipt; then select one atomic cutover row."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"

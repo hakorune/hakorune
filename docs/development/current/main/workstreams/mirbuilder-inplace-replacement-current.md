@@ -265,31 +265,32 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-POST-TASK-SCOPE-CAPABILITY-CENSUS0-D0
+  RAW-SCRIPT-OUTBOX-MATERIALIZATION-HANDOFF0-D0
 
   Change:
-    Census exactly one remaining Deferred Script capability family from its
-    named production edge. Do not preselect an AST shape or broaden an
-    existing responsibility profile.
+    Design the one missing ordered receipt from the existing Outbox lower:
+    each exact `SourceBindingSiteV1::Outbox` must pair with its emitted
+    `ValueId`. Do not activate Outbox in Complete yet.
 
   Contract:
-    Select only a family with one source authority, one existing or newly
-    justified completion owner, same-commit old-edge deletion, and a monotonic
-    `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` fixture ratchet. No fallback.
+    The existing Outbox owner remains sole Void/local/metadata authority and
+    preserves zero-or-many names plus ignored compatibility initializers. The
+    lowering ledger consumes its ordered receipt only; no Builder-state or
+    name-based value recovery, mixed routing, fallback, or retry.
 
   Done:
-    Record one bounded D0, or record NoSafeSlice with the exact missing
-    authority. Keep source/check files below 800 lines.
+    Choose one receipt-producing owner contract and an atomic I0/R0 deletion:
+    `Outbox -> Deferred -> script_root(()) = 0` for the Complete closure.
+    Keep source/check files below 800 lines.
 
   Stop:
-    Stop if a candidate needs a second resolver, partial forest, mixed routing,
-    or a source-level diagnostic-stage change.
+    Stop if the receipt requires an AST rewalk, variable-map lookup by name,
+    metadata duplication, partial forest, or a diagnostic-stage change.
 
 scheduled design gates after fresh census
-  1. Outbox materialization boundary
-     -> existing lowering creates one Void local/metadata row per name while
-        returning only the final ValueId; first establish a canonical
-        BindingRef-to-ValueId handoff before selecting a Complete row.
+  1. Outbox receipt I0/R0
+     -> only after the current D0 seals the ordered canonical handoff; then
+        activate the existing owner and delete its selected Deferred edge.
   2. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
      Weak, Lambda, and Box
      -> each is a separate capability-family D0 chosen only from a fresh
