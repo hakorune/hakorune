@@ -575,7 +575,11 @@ where
             Ok(StatementSurfaceDispatch::Lowered(value))
         }
         ASTNode::Outbox { variables, .. } => Ok(StatementSurfaceDispatch::Lowered(
-            crate::mir::builder::stmts::variable_stmt::build_outbox_statement(builder, variables.clone())?,
+            crate::mir::builder::stmts::variable_stmt::build_outbox_statement_with_receipt_v1(
+                builder,
+                variables.clone(),
+            )?
+            .result(),
         )),
         ASTNode::Nowait {
             variable,

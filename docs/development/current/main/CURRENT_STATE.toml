@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-OUTBOX-MATERIALIZATION-HANDOFF0-D0 is active: direct Outbox Complete cutover has NoSafeSlice until its existing multi-binding Void owner returns an ordered canonical BindingRef-to-ValueId receipt. Do not recover values from Builder state or names."
+status = "OUTBOX-ORDERED-EMISSION-RECEIPT0-S0 is closed: the existing Outbox owner now returns ordered ordinal-to-local-ValueId evidence while the live raw dispatcher consumes its unchanged final result. The Script semantic consume/cutover remains a separate D0."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-OUTBOX-MATERIALIZATION-HANDOFF0-D0"
-current_execution_row = "RAW-SCRIPT-OUTBOX-MATERIALIZATION-HANDOFF0-D0"
-current_execution_summary = "Outbox is the next named Deferred edge but has NoSafeSlice for direct Complete activation: its sole Lower owner emits one Void binding per name and returns only the final ValueId. First seal an ordered Outbox BindingRef-to-ValueId receipt; then select one atomic cutover row."
+current_design_stop = "RAW-SCRIPT-OUTBOX-SEMANTIC-RECEIPT-CONSUME0-D0"
+current_execution_row = "RAW-SCRIPT-OUTBOX-SEMANTIC-RECEIPT-CONSUME0-D0"
+current_execution_summary = "The live Outbox owner now produces ordered ordinal-to-local-ValueId evidence. Decide the single Script semantic source/ledger consume and atomic Complete cutover without name lookup, AST rewalk, mixed routing, fallback, or retry."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"

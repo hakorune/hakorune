@@ -113,6 +113,29 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_
         )>,
     >,
 ) -> Result<ValueId, String> {
+    build_local_statement_from_values_with_types_and_preclaims_with_receipt(
+        builder,
+        variables,
+        initial_values,
+        declared_type_names,
+        preclaimed_arrays,
+        None,
+    )
+}
+
+fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
+    builder: &mut MirBuilder,
+    variables: Vec<String>,
+    initial_values: Vec<ValueId>,
+    declared_type_names: Vec<Option<String>>,
+    preclaimed_arrays: Vec<
+        Option<(
+            String,
+            crate::typed_array_contract_spec::ArrayElementContractSpec,
+        )>,
+    >,
+    mut receipt_values: Option<&mut Vec<ValueId>>,
+) -> Result<ValueId, String> {
     let mut last_value = None;
     for (index, var_name) in variables.iter().enumerate() {
         let Some(init_val) = initial_values.get(index).copied() else {
@@ -242,9 +265,46 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_
                 .cloned();
             reg.ensure_slot(&var_name, ty);
         }
+        if let Some(values) = receipt_values.as_deref_mut() {
+            values.push(var_id);
+        }
         last_value = Some(var_id);
     }
     Ok(last_value.unwrap_or_else(|| builder.next_value_id()))
+}
+
+/// One canonical Outbox local materialization in source-ordinal order.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) struct OutboxBindingValueV1 {
+    ordinal: u32,
+    value: ValueId,
+}
+
+impl OutboxBindingValueV1 {
+    pub(in crate::mir::builder) const fn ordinal(self) -> u32 {
+        self.ordinal
+    }
+
+    pub(in crate::mir::builder) const fn value(self) -> ValueId {
+        self.value
+    }
+}
+
+/// Completed Outbox materialization, retaining every local ValueId exactly once.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct CompletedOutboxStatementV1 {
+    result: ValueId,
+    bindings: Box<[OutboxBindingValueV1]>,
+}
+
+impl CompletedOutboxStatementV1 {
+    pub(in crate::mir::builder) const fn result(&self) -> ValueId {
+        self.result
+    }
+
+    pub(in crate::mir::builder) fn bindings(&self) -> &[OutboxBindingValueV1] {
+        &self.bindings
+    }
 }
 
 /// Build a narrow outbox declaration statement.
@@ -253,22 +313,38 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_
 /// - materialize the declared names as Void-typed local bindings
 /// - record the outbox binding names in function metadata
 /// - do not introduce a richer ownership checker
-pub(in crate::mir::builder) fn build_outbox_statement(
+pub(in crate::mir::builder) fn build_outbox_statement_with_receipt_v1(
     builder: &mut MirBuilder,
     variables: Vec<String>,
-) -> Result<ValueId, String> {
+) -> Result<CompletedOutboxStatementV1, String> {
     let values = variables
         .iter()
         .map(|_| crate::mir::builder::emission::constant::emit_void(builder))
         .collect::<Result<Vec<_>, _>>()?;
 
-    let result = build_local_statement_from_values(builder, variables.clone(), values)?;
+    let mut binding_values = Vec::with_capacity(variables.len());
+    let result = build_local_statement_from_values_with_types_and_preclaims_with_receipt(
+        builder,
+        variables.clone(),
+        values,
+        Vec::new(),
+        Vec::new(),
+        Some(&mut binding_values),
+    )?;
 
     if let Some(function) = builder.function_state.current_function.as_mut() {
         function.metadata.outbox_bindings.extend(variables);
     }
 
-    Ok(result)
+    let bindings = binding_values
+        .into_iter()
+        .enumerate()
+        .map(|(ordinal, value)| OutboxBindingValueV1 {
+            ordinal: ordinal as u32,
+            value,
+        })
+        .collect();
+    Ok(CompletedOutboxStatementV1 { result, bindings })
 }
 
 /// MeResolverBox - SSOT for "me" resolution
@@ -539,5 +615,36 @@ mod local_contract_tests {
         assert!(local_sources.iter().any(|(boundary, _)| {
             *boundary == crate::mir::function::TypedArrayContractBoundary::LocalReassign
         }));
+    }
+
+    #[test]
+    fn outbox_receipt_keeps_each_published_local_in_source_order() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("outbox_receipt".to_string());
+        let _scope = LexicalScopeGuard::new(&mut builder);
+
+        let receipt = build_outbox_statement_with_receipt_v1(
+            &mut builder,
+            vec!["first".to_string(), "second".to_string()],
+        )
+        .expect("outbox receipt");
+        let bindings = receipt.bindings();
+
+        assert_eq!(bindings.len(), 2);
+        assert_eq!(bindings[0].ordinal(), 0);
+        assert_eq!(bindings[1].ordinal(), 1);
+        assert_eq!(
+            bindings[0].value(),
+            *builder.function_state.variable_ctx.variable_map.get("first").expect("first")
+        );
+        assert_eq!(
+            bindings[1].value(),
+            *builder.function_state.variable_ctx.variable_map.get("second").expect("second")
+        );
+        assert_eq!(receipt.result(), bindings[1].value());
+        assert_eq!(
+            builder.function_state.current_function.as_ref().expect("function").metadata.outbox_bindings,
+            vec!["first", "second"]
+        );
     }
 }

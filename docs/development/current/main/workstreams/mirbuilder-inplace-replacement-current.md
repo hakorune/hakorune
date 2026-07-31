@@ -265,32 +265,30 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-OUTBOX-MATERIALIZATION-HANDOFF0-D0
+  RAW-SCRIPT-OUTBOX-SEMANTIC-RECEIPT-CONSUME0-D0
 
   Change:
-    Design the one missing ordered receipt from the existing Outbox lower:
-    each exact `SourceBindingSiteV1::Outbox` must pair with its emitted
-    `ValueId`. Do not activate Outbox in Complete yet.
+    Select the one source-aware consumer for the existing Outbox ordinal-to-
+    local-ValueId receipt, then switch the selected Complete route atomically.
 
   Contract:
-    The existing Outbox owner remains sole Void/local/metadata authority and
-    preserves zero-or-many names plus ignored compatibility initializers. The
-    lowering ledger consumes its ordered receipt only; no Builder-state or
-    name-based value recovery, mixed routing, fallback, or retry.
+    The Outbox owner remains sole Void/local/metadata authority. Map exact
+    Script Outbox binding sites by source ordinal only after it completes; no
+    Builder-state/name lookup, AST rewalk, mixed routing, fallback, or retry.
 
   Done:
-    Choose one receipt-producing owner contract and an atomic I0/R0 deletion:
-    `Outbox -> Deferred -> script_root(()) = 0` for the Complete closure.
+    Record one bounded I0/R0 or NoSafeSlice with the missing authority, and
+    preserve zero-or-many names plus ignored compatibility initializers.
     Keep source/check files below 800 lines.
 
   Stop:
-    Stop if the receipt requires an AST rewalk, variable-map lookup by name,
-    metadata duplication, partial forest, or a diagnostic-stage change.
+    Stop if consumption requires a second source/metadata authority, partial
+    forest, a diagnostic-stage change, or more than one lowering execution.
 
 scheduled design gates after fresh census
-  1. Outbox receipt I0/R0
-     -> only after the current D0 seals the ordered canonical handoff; then
-        activate the existing owner and delete its selected Deferred edge.
+  1. Outbox Complete I0/R0
+     -> only after the current D0 identifies the receipt's single Script
+        semantic consumer and the selected Deferred edge deletion.
   2. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
      Weak, Lambda, and Box
      -> each is a separate capability-family D0 chosen only from a fresh
@@ -307,6 +305,11 @@ closed structural prerequisite
      ValueId ledger, not a second resolver.
 
 closed
+  OUTBOX-ORDERED-EMISSION-RECEIPT0-S0
+  -> the existing raw Outbox owner now returns every source-ordinal local
+     ValueId in one ordered receipt while its sole production caller consumes
+     the unchanged final statement value; Void/local/metadata order is intact
+
   RAW-SCRIPT-TASK-SCOPE-LEXICAL-PREFLIGHT0-I0-R0
   -> lexical normal-completion TaskScope reaches Complete through the shared
      traversal; the existing preflight remains sole early-exit authority and
