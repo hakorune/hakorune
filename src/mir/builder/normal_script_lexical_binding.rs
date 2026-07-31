@@ -92,7 +92,8 @@ pub(super) fn admit_runtime_script_lexical_v1(
             ASTNode::Literal { .. }
             | ASTNode::Variable { .. }
             | ASTNode::UnaryOp { .. }
-            | ASTNode::BinaryOp { .. } => {
+            | ASTNode::BinaryOp { .. }
+            | ASTNode::AwaitExpression { .. } => {
                 if let Err(reason) =
                     admit_expression_v1(statement, index, false, &[], &visible, &mut variables)
                 {
@@ -224,6 +225,24 @@ fn admit_expression_v1(
                 source_statement_index,
                 initializer,
                 &right_path,
+                visible,
+                variables,
+            )
+        }
+        ASTNode::AwaitExpression {
+            expression: operand,
+            ..
+        } => {
+            let Some(segment) = ExprChildRoleV1::AwaitOperand.segment_for(expression) else {
+                return Err(ScriptLexicalDeferredReasonV1::LocalShape);
+            };
+            let mut child_path = path.to_vec();
+            child_path.push(segment);
+            admit_expression_v1(
+                operand,
+                source_statement_index,
+                initializer,
+                &child_path,
                 visible,
                 variables,
             )
@@ -373,6 +392,23 @@ mod tests {
                 ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement
             )
         );
+    }
+
+    #[test]
+    fn await_admits_the_existing_expression_closure() {
+        let statements = vec![ASTNode::AwaitExpression {
+            expression: Box::new(ASTNode::UnaryOp {
+                operator: UnaryOperator::Minus,
+                operand: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(1),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        }];
+        let result = admit_runtime_script_lexical_v1(&statements, &[admission()]);
+        assert!(matches!(result, ScriptLexicalAdmissionV1::Complete(_)));
     }
 
     #[test]

@@ -379,12 +379,19 @@ impl super::MirBuilder {
                 self.build_map_literal_with_port_v1(port, entries)
             }
 
-            ASTNode::AwaitExpression { expression, .. } => {
-                super::stmts::async_stmt::build_await_expression_with_port_v1(
-                    self,
-                    port,
-                    *expression,
-                )
+            node @ ASTNode::AwaitExpression { .. } => {
+                let source =
+                    port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::AwaitOperand)?;
+                let ASTNode::AwaitExpression { expression, .. } = node else {
+                    unreachable!("await match arm retains its AST shape");
+                };
+                port.with_prepared_child_source_v1(source, |port| {
+                    super::stmts::async_stmt::build_await_expression_with_port_v1(
+                        self,
+                        port,
+                        *expression,
+                    )
+                })
             }
 
             ASTNode::RecordLiteral {

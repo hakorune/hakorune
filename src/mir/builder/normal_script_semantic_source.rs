@@ -431,4 +431,34 @@ print((x * 2) + 3)
         );
         assert_eq!(normal.verification_result, legacy.verification_result);
     }
+
+    #[test]
+    fn selected_normal_await_lexical_closure_matches_legacy() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        let source = r#"
+local f = 1
+print(await -(f + 2))
+"#;
+        let legacy_ast = NyashParser::parse_from_string(source).expect("legacy Await source");
+        let normal_ast = NyashParser::parse_from_string(source).expect("normal Await source");
+        let mut legacy_compiler = MirCompiler::with_options(false);
+        let legacy = legacy_compiler
+            .compile_with_source(legacy_ast, Some("script-await-lexical.hako"))
+            .expect("legacy Await module");
+        let mut normal_compiler = MirCompiler::with_options(false);
+        let request = NormalCompileRequestV1::for_mir_mode(
+            normal_ast,
+            Some("script-await-lexical.hako"),
+            std::collections::HashMap::new(),
+        )
+        .expect("normal Await request");
+        let normal = normal_compiler
+            .compile_normal(request)
+            .expect("normal Await module");
+        assert_eq!(
+            MirPrinter::new().print_module(&normal.module),
+            MirPrinter::new().print_module(&legacy.module)
+        );
+        assert_eq!(normal.verification_result, legacy.verification_result);
+    }
 }
