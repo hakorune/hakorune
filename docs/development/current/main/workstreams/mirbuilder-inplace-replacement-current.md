@@ -3330,6 +3330,38 @@ Next:
   do not construct a Script owner or connect a port.
 ```
 
+## SEMANTIC-OWNER-CORE0-S1B — closed
+
+```text
+Decision:
+  The forest now stores one shared `VerifiedSemanticOwnerProductV1` payload
+  enum (`Function`/`Script`) in a bounded sibling module. The current producer
+  still emits only the Function variant, so behavior and production reachability
+  are unchanged. Existing `forest.owner()` and `forest.owners()` remain
+  Function-only compatibility accessors; `semantic_owners()` is internal for
+  the later Script consumer.
+
+Evidence:
+  cargo check --lib --quiet
+    = passed (pre-existing warnings only)
+  cargo test --lib resolved_semantics:: --quiet
+    = 163 passed
+  owner_forest.rs             = 714 lines
+  owner_forest_payload.rs     = 29 lines
+
+Non-effects:
+  Script owner construction   = 0
+  Script port / fixture       = 0
+  lowering/projection change  = 0
+  grammar / result / fallback = unchanged
+
+Next:
+  SEMANTIC-OWNER-CORE0-S1C
+  Make lowering-root verification consume the exact profile body root instead
+  of scanning the FunctionBody/LambdaBodyRoot union. Keep the existing type
+  name as a compatibility alias and add mismatch tests only.
+```
+
 ## RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 — closed, Accept(A-prime)
 
 ```text

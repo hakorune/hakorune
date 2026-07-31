@@ -5,6 +5,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use super::normalized::{
     NormalizedBindingKeyV1, NormalizedResolvedFunctionGraphV1, NormalizedScopeKeyV1,
 };
+use super::owner_forest_payload::VerifiedSemanticOwnerProductV1;
 use super::records::{BindingOriginV1, ResolvedLexicalRefV1, ResolvedScopeRecordV1, ScopeOriginV1};
 use super::{
     FunctionOriginV1, FunctionOwnerIdV1, OwnedExprSiteV1, ScopeId, SourceBindingSiteV1,
@@ -120,7 +121,7 @@ pub(crate) struct SemanticOwnerForestDraftV1 {
 
 #[derive(Debug)]
 pub struct VerifiedSemanticOwnerForestV1 {
-    owners: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedFunctionV1>,
+    owners: BTreeMap<FunctionOwnerIdV1, VerifiedSemanticOwnerProductV1>,
     parents: BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>,
     root: FunctionOwnerIdV1,
     child_at: BTreeMap<OwnedExprSiteV1, FunctionOwnerIdV1>,
@@ -243,8 +244,13 @@ impl SemanticOwnerForestDraftV1 {
             &upvar_observations,
             &upvars,
         )?;
+        let owners = self
+            .owners
+            .into_iter()
+            .map(|(owner, product)| (owner, VerifiedSemanticOwnerProductV1::Function(product)))
+            .collect();
         Ok(VerifiedSemanticOwnerForestV1 {
-            owners: self.owners,
+            owners,
             parents: self.parents,
             root,
             child_at,
@@ -663,11 +669,19 @@ impl VerifiedSemanticOwnerForestV1 {
     pub(crate) fn owners(
         &self,
     ) -> impl Iterator<Item = (FunctionOwnerIdV1, &VerifiedResolvedFunctionV1)> {
-        self.owners.iter().map(|(owner, product)| (*owner, product))
+        self.owners
+            .iter()
+            .filter_map(|(owner, product)| product.as_function().map(|product| (*owner, product)))
     }
 
     pub fn owner(&self, owner: FunctionOwnerIdV1) -> Option<&VerifiedResolvedFunctionV1> {
-        self.owners.get(&owner)
+        self.owners.get(&owner)?.as_function()
+    }
+
+    pub(crate) fn semantic_owners(
+        &self,
+    ) -> impl Iterator<Item = (FunctionOwnerIdV1, &VerifiedSemanticOwnerProductV1)> {
+        self.owners.iter().map(|(owner, product)| (*owner, product))
     }
 
     pub fn parent(&self, child: FunctionOwnerIdV1) -> Option<&OwnerParentEdgeV1> {

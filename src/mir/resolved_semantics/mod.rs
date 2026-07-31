@@ -24,6 +24,7 @@ mod loop_region;
 mod normalized;
 mod normalized_callable_catalog;
 mod owner_forest;
+mod owner_forest_payload;
 mod owner_resolver;
 mod owner_root_profile;
 mod owner_source_kind;
@@ -89,6 +90,7 @@ pub use owner_forest::{
     SemanticOwnerForestVerificationErrorV1, UpvarAccessKindV1, UpvarObservationV1,
     VerifiedSemanticOwnerForestV1,
 };
+pub(crate) use owner_forest_payload::VerifiedSemanticOwnerProductV1;
 pub(crate) use owner_resolver::ResolveOwnerForestErrorV1;
 pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;
 pub use owner_source_kind::SemanticOwnerSourceKindV1;
