@@ -355,4 +355,8 @@ impl VerifiedResolvedScriptV1 {
     pub(crate) const fn core(&self) -> &VerifiedResolvedOwnerCoreV1 {
         &self.core
     }
+
+    pub(crate) fn declaration_binding(&self, site: &SourceBindingSiteV1) -> Option<BindingRefV1> {
+        self.core.data.declarations.get(site).copied()
+    }
 }

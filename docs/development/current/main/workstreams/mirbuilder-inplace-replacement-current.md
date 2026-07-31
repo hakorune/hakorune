@@ -265,37 +265,44 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-OUTBOX-SEMANTIC-RECEIPT-CONSUME0-D0
+  RAW-SCRIPT-POST-OUTBOX-CAPABILITY-CENSUS0-D0
 
   Change:
-    Select the one source-aware consumer for the existing Outbox ordinal-to-
-    local-ValueId receipt, then switch the selected Complete route atomically.
+    Recount the remaining selected Script Deferred production edges after the
+    Outbox cutover and select one capability family only when it has a shared
+    traversal activation and one deletable old edge.
 
   Contract:
-    The Outbox owner remains sole Void/local/metadata authority. Map exact
-    Script Outbox binding sites by source ordinal only after it completes; no
-    Builder-state/name lookup, AST rewalk, mixed routing, fallback, or retry.
+    The shared root-neutral traversal remains the sole semantic matcher.
+    ExistingRootLower remains one typed terminal until a selected family moves
+    as a whole; no AST-kind batch, second resolver, mixed routing, fallback,
+    or retry.
 
   Done:
-    Record one bounded I0/R0 or NoSafeSlice with the missing authority, and
-    preserve zero-or-many names plus ignored compatibility initializers.
-    Keep source/check files below 800 lines.
+    Record one bounded I0/R0 or one genuine NoSafeSlice in this card. Keep
+    the fixture-identity ratchet monotonic and every source/check file below
+    800 lines.
 
   Stop:
-    Stop if consumption requires a second source/metadata authority, partial
-    forest, a diagnostic-stage change, or more than one lowering execution.
+    Stop for a design decision if no remaining edge can activate without new
+    control, object, allocation, capture, or diagnostic authority.
 
 scheduled design gates after fresh census
-  1. Outbox Complete I0/R0
-     -> only after the current D0 identifies the receipt's single Script
-        semantic consumer and the selected Deferred edge deletion.
-  2. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
+  1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
      Weak, Lambda, and Box
      -> each is a separate capability-family D0 chosen only from a fresh
         named production edge census; no AST-bucket batch is pre-authorized.
-  3. `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001`
+  2. `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001`
      -> fixture-identity Complete set may only grow; R4 must retire, reown,
         or explicitly retain every remaining Deferred family.
+
+closed
+  RAW-SCRIPT-OUTBOX-SEMANTIC-MATERIALIZATION0-I0-R0
+  -> Complete Script source seals every exact Outbox BindingRef in source
+     order; the raw source port consumes the existing Outbox emission receipt
+     once and atomically records it in the request-local lowering ledger.
+     Parser-valid one-or-more-name Outbox and ignored compatibility initializers preserve parity;
+     selected Complete Outbox no longer reaches Deferred/bare script_root().
 
 closed structural prerequisite
   RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0

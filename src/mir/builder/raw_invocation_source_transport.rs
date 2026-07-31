@@ -193,6 +193,33 @@ impl RawInvocationChildPortV1<'_, '_> {
         Ok(value)
     }
 
+    fn lower_script_outbox_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: ASTNode,
+    ) -> Result<ValueId, String> {
+        let ledger = self
+            .semantic_ledger
+            .clone()
+            .expect("script Outbox lowering requires semantic ledger");
+        let site = self
+            .current_source_context_v1()
+            .and_then(|context| context.site().cloned())
+            .ok_or_else(|| "[freeze:contract][script-lexical/outbox-site]".to_owned())?;
+        let ASTNode::Outbox { variables, .. } = input else {
+            unreachable!("script Outbox lowering only receives Outbox")
+        };
+        if ledger.borrow().outbox_binding_count(&site)? != variables.len() {
+            return Err("[freeze:contract][script-lexical/outbox-source-drift]".to_owned());
+        }
+        let receipt = crate::mir::builder::stmts::variable_stmt::
+            build_outbox_statement_with_receipt_v1(builder, variables)?;
+        ledger
+            .borrow_mut()
+            .record_outbox_receipt(&site, receipt.bindings())?;
+        Ok(receipt.result())
+    }
+
     pub(in crate::mir::builder) fn with_script_semantic_source_v1<R>(
         &mut self,
         source: &VerifiedScriptSemanticSourceV1<'_>,
@@ -588,6 +615,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
             return match input {
                 local @ ASTNode::Local { .. } => self.lower_script_local_v1(builder, local),
                 nowait @ ASTNode::Nowait { .. } => self.lower_script_nowait_v1(builder, nowait),
+                outbox @ ASTNode::Outbox { .. } => self.lower_script_outbox_v1(builder, outbox),
                 other => super::stmts::block_stmt::build_statement_with_port_v1(builder, self, other),
             };
         }
@@ -609,6 +637,9 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         }
         if self.semantic_ledger.is_some() && matches!(input, ASTNode::Nowait { .. }) {
             return self.lower_script_nowait_v1(builder, input);
+        }
+        if self.semantic_ledger.is_some() && matches!(input, ASTNode::Outbox { .. }) {
+            return self.lower_script_outbox_v1(builder, input);
         }
         if let (Some(ledger), ASTNode::Variable { .. }) = (&self.semantic_ledger, &input) {
             let site = self

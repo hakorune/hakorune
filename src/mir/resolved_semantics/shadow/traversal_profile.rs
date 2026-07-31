@@ -21,6 +21,7 @@ impl ShadowTraversalProfileV1 {
                 ASTNode::ScopeBox { .. } => true,
                 ASTNode::TaskScope { .. } => true,
                 ASTNode::FastMemRegion { .. } => true,
+                ASTNode::Outbox { .. } => true,
                 ASTNode::Local {
                     variables,
                     initial_values,

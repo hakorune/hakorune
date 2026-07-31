@@ -24,6 +24,7 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     source: &'source PreparedNormalDefaultProgramRootV1,
     forest: VerifiedSemanticOwnerForestV1,
     projection: VerifiedSourceProjectionV1,
+    outbox_materializations: Box<[VerifiedScriptOutboxMaterializationV1]>,
     static_const_completions: Box<[VerifiedScriptStaticConstCompletionV1]>,
     using_directives: Box<[VerifiedScriptUsingDirectiveV1]>,
     existing_diagnostic_boundaries: Box<[VerifiedScriptExistingDiagnosticBoundaryV1]>,
@@ -33,6 +34,12 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
 #[derive(Debug)]
 pub(super) struct VerifiedScriptStaticConstCompletionV1 {
     site: SourceStmtSiteV1,
+}
+
+#[derive(Debug)]
+pub(super) struct VerifiedScriptOutboxMaterializationV1 {
+    site: SourceStmtSiteV1,
+    bindings: Box<[BindingRefV1]>,
 }
 
 #[derive(Debug)]
@@ -56,6 +63,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             return Err("[mir/script-semantic/source-root] expected Program".to_owned());
         };
         let mut static_const_completions = Vec::new();
+        let mut outbox_materializations = Vec::new();
         let mut using_directives = Vec::new();
         let mut existing_diagnostic_boundaries = Vec::new();
         let mut runtime_source_indices = Vec::new();
@@ -67,6 +75,32 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 ));
             };
             match entry.semantic() {
+                ScriptRootSemanticDispositionV1::Resolved
+                    if matches!(statement, ASTNode::Outbox { .. }) =>
+                {
+                    let ASTNode::Outbox { variables, .. } = statement else {
+                        unreachable!("Outbox match stays exact");
+                    };
+                    let bindings = variables
+                        .iter()
+                        .enumerate()
+                        .map(|(ordinal, _)| {
+                            product
+                                .declaration_binding(&SourceBindingSiteV1::Outbox {
+                                    statement: entry.site().clone(),
+                                    ordinal: ordinal as u32,
+                                })
+                                .ok_or_else(|| {
+                                    "[mir/script-semantic/outbox-binding] missing exact binding"
+                                        .to_owned()
+                                })
+                        })
+                        .collect::<Result<Box<[_]>, _>>()?;
+                    outbox_materializations.push(VerifiedScriptOutboxMaterializationV1 {
+                        site: entry.site().clone(),
+                        bindings,
+                    });
+                }
                 ScriptRootSemanticDispositionV1::Transferred(
                     ScriptTransferredBoundaryV1::ProgramStaticMetadata,
                 ) if matches!(statement, ASTNode::StaticConstTable { .. }) => {
@@ -142,6 +176,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             source,
             forest,
             projection,
+            outbox_materializations: outbox_materializations.into_boxed_slice(),
             static_const_completions: static_const_completions.into_boxed_slice(),
             using_directives: using_directives.into_boxed_slice(),
             existing_diagnostic_boundaries: existing_diagnostic_boundaries.into_boxed_slice(),
@@ -163,6 +198,15 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
 
     pub(super) fn runtime_source_indices(&self) -> &[usize] {
         &self.runtime_source_indices
+    }
+
+    #[cfg(test)]
+    pub(super) fn outbox_materializations(
+        &self,
+    ) -> impl Iterator<Item = (&SourceStmtSiteV1, &[BindingRefV1])> {
+        self.outbox_materializations
+            .iter()
+            .map(|receipt| (&receipt.site, receipt.bindings.as_ref()))
     }
 
     #[cfg(test)]
@@ -258,6 +302,9 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             )),
             _ => None,
         });
+        let outboxes = self.outbox_materializations.iter().map(|receipt| {
+            (receipt.site.node().clone(), receipt.bindings.iter().copied())
+        });
         let variables = owner
             .variable_refs()
             .filter_map(|(site, reference)| match reference {
@@ -266,7 +313,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 }
                 _ => None,
             });
-        ScriptSemanticLoweringState::from_facts(locals, nowaits, variables)
+        ScriptSemanticLoweringState::from_facts(locals, nowaits, outboxes, variables)
     }
 }
 

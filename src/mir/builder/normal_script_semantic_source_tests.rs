@@ -369,6 +369,49 @@ fn selected_normal_lexical_local_and_read_use_one_ledger() {
 }
 
 #[test]
+fn outbox_receipt_completes_without_observing_initializers() {
+    let outbox = ASTNode::Outbox {
+        variables: vec!["first".to_owned(), "second".to_owned()],
+        initial_values: vec![
+            Some(Box::new(ASTNode::Variable { name: "missing".to_owned(), span: Span::unknown() })),
+            None,
+        ],
+        span: Span::unknown(),
+    };
+    let program = ASTNode::Program {
+        statements: vec![
+            outbox,
+            ASTNode::Print {
+                expression: Box::new(ASTNode::Variable {
+                    name: "second".to_owned(),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            },
+        ],
+        span: Span::unknown(),
+    };
+    let source = PreparedNormalDefaultProgramRootV1::seal(program.clone()).expect("Program source");
+    let window = VerifiedScriptRootDemandWindowV1::seal(
+        vec![resolved_entry(0), resolved_entry(1)], 2,
+    ).expect("Outbox window");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
+    let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
+    let ResolveScriptOutcomeV1::Complete(owner) = resolver.resolve_script(view, &window)
+        .expect("Outbox resolve") else { panic!("Outbox must Complete"); };
+    let product = VerifiedScriptSemanticSourceV1::seal(&source, owner, &window)
+        .expect("Outbox source product");
+    let receipts = product.outbox_materializations().collect::<Vec<_>>();
+    assert_eq!(receipts.len(), 1);
+    assert_eq!(receipts[0].0.node().segments(), &[
+        SourcePathSegmentV1::ProgramBodyRoot,
+        SourcePathSegmentV1::ProgramBody(0),
+    ]);
+    assert_eq!(receipts[0].1.len(), 2);
+    assert_selected_parity("outbox payload", "script-outbox-semantic.hako");
+}
+
+#[test]
 fn selected_normal_print_lexical_closure_matches_legacy() {
     assert_selected_parity("local x = 1\nprint(-x)", "script-unary.hako");
 }
