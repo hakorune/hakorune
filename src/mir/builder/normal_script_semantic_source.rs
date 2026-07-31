@@ -342,6 +342,9 @@ fn program_statement_index(site: &SourceStmtSiteV1) -> Result<usize, String> {
 }
 
 #[cfg(test)]
+#[path = "normal_script_array_literal_tests.rs"]
+mod array_literal_tests;
+#[cfg(test)]
 #[path = "normal_script_binding_rebind_tests.rs"]
 mod binding_rebind_tests;
 #[cfg(test)]

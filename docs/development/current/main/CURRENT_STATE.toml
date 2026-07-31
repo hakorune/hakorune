@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-ROOT-BINDING-REBIND-ADMISSION0-I0-R0 is closed: prior-Local Variable-target Assignment/CompoundAssignment now use one shared BindingRebind fact and rebind the request-local ValueId ledger only after existing raw lowering succeeds. Field/Index and all other mutation shapes remain Deferred; fresh Deferred-family census is next."
+status = "RAW-SCRIPT-ARRAY-LITERAL-COMPOSITIONAL-ALLOCATION-DESCENT0-I0-R0 is closed: selected Script ArrayLiteral now receives exact ArrayElement source receipts through the existing raw dispatcher and structured child port; the existing array owner retains allocation, type, and publication authority. Map/Record remain Deferred; fresh Deferred-family census is next."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-POST-BINDING-REBIND-CAPABILITY-CENSUS0-D0"
-current_execution_row = "RAW-SCRIPT-POST-BINDING-REBIND-CAPABILITY-CENSUS0-D0"
-current_execution_summary = "Run one focused live-edge census after BindingRebind. Select at most one responsibility family with a named selected Deferred edge, or close NoSafeSlice; QMark control/result and Loop JoinIR remain separate design stops."
+current_design_stop = "RAW-SCRIPT-POST-ARRAY-LITERAL-CAPABILITY-CENSUS0-D0"
+current_execution_row = "RAW-SCRIPT-POST-ARRAY-LITERAL-CAPABILITY-CENSUS0-D0"
+current_execution_summary = "Run one focused live-edge census after ArrayLiteral. Select at most one responsibility family with a named selected Deferred edge, or close NoSafeSlice; QMark control/result, Loop JoinIR, Map mutation, and Record metadata remain separate design stops."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"
@@ -649,7 +649,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-POST-BINDING-REBIND-CAPABILITY-CENSUS0-D0"
+current_blocker_token = "RAW-SCRIPT-POST-ARRAY-LITERAL-CAPABILITY-CENSUS0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -150,7 +150,8 @@
         "script_static_const_u16_completion": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn script_static_const_u16_completion_matches_legacy_metadata"},
         "script_outbox_semantic_materialization": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn outbox_receipt_completes_without_observing_initializers"},
         "script_selected_unsupported_diagnostic_boundary": {"path": "src/mir/builder/normal_script_direct_statement_owner.rs", "anchor": "fn selected_unsupported_statements_keep_exact_legacy_rejection_and_reuse"},
-        "script_context_scope_diagnostic_boundary": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn context_scope_is_complete_without_observing_value_or_body"}
+        "script_context_scope_diagnostic_boundary": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn context_scope_is_complete_without_observing_value_or_body"},
+        "script_array_literal_compositional_allocation": {"path": "src/mir/builder/normal_script_array_literal_tests.rs", "anchor": "fn prior_local_array_elements_use_complete_script_sources_and_match_legacy"}
       },
       "deferred_fixtures": {
         "script_weak_unary": {"reason": "UnsafeRuntimeStatement", "path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn weak_unary_remains_deferred"},

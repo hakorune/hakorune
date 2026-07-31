@@ -49,7 +49,8 @@ impl ShadowTraversalProfileV1 {
                 ASTNode::UnaryOp { operator, .. } => *operator != UnaryOperator::Weak,
                 ASTNode::BinaryOp { .. }
                 | ASTNode::AwaitExpression { .. }
-                | ASTNode::CheckExpr { .. } => true,
+                | ASTNode::CheckExpr { .. }
+                | ASTNode::ArrayLiteral { .. } => true,
                 _ => false,
             },
         }

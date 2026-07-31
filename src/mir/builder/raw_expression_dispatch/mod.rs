@@ -389,8 +389,30 @@ impl super::MirBuilder {
                 self.lower_prepared_raw_new_expression_with_port_v1(port, prepared)
             }
 
-            ASTNode::ArrayLiteral { elements, .. } => {
-                self.build_array_literal_with_port_v1(port, elements)
+            node @ ASTNode::ArrayLiteral { .. } => {
+                let element_count = match &node {
+                    ASTNode::ArrayLiteral { elements, .. } => elements.len(),
+                    _ => unreachable!("array match arm retains its AST shape"),
+                };
+                let sources = (0..element_count)
+                    .map(|index| {
+                        port.prepare_expression_child_source_v1(
+                            &node,
+                            ExprChildRoleV1::ArrayElement(index as u32),
+                        )
+                    })
+                    .collect::<Result<Vec<_>, _>>()?;
+                let ASTNode::ArrayLiteral { elements, .. } = node else {
+                    unreachable!("array match arm retains its AST shape")
+                };
+                let mut scoped = super::raw_structured_child_scope::RawStructuredChildScopePortV1::new(
+                    port,
+                    sources,
+                    Vec::new(),
+                );
+                let value = self.build_array_literal_with_port_v1(&mut scoped, elements)?;
+                scoped.complete_exact_demands_v1()?;
+                Ok(value)
             }
             ASTNode::MapLiteral { entries, .. } => {
                 self.build_map_literal_with_port_v1(port, entries)

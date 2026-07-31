@@ -265,16 +265,17 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-POST-BINDING-REBIND-CAPABILITY-CENSUS0-D0
+  RAW-SCRIPT-POST-ARRAY-LITERAL-CAPABILITY-CENSUS0-D0
 
   Change:
-    Census remaining selected Script Deferred edges once after the narrow
-    BindingRebind Mutation family has left compatibility.
+    Census remaining selected Script Deferred edges once after ArrayLiteral
+    has left compatibility.
 
   Contract:
     Choose at most one responsibility family with a named live old edge. Keep
-    QMark control/result and Loop JoinIR as separate design stops; no second
-    resolver, fallback, retry, or mixed request routing.
+    QMark control/result, Loop JoinIR, Map mutation, and Record metadata as
+    separate design stops; no second resolver, fallback, retry, or mixed
+    request routing.
 
   Done:
     Publish one bounded D0 with its exact old-edge deletion, or record
@@ -294,6 +295,21 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-ARRAY-LITERAL-COMPOSITIONAL-ALLOCATION-DESCENT0-I0-R0
+  -> selected Script ArrayLiteral is now a complete compositional allocation
+     closure. The raw expression dispatcher creates exact `ArrayElement(n)`
+     source receipts and the structured child port consumes each once; the
+     existing array owner remains the only allocation, type, and publication
+     owner. Map and Record remain Deferred. The selected ArrayLiteral
+     `Deferred -> bare script_root()` edge is zero.
+
+  RAW-SCRIPT-POST-BINDING-REBIND-CAPABILITY-CENSUS0-D0
+  -> Accepts ArrayLiteral only. Its semantic traversal already exists; the
+     live missing edge was exact ArrayElement source handoff into the existing
+     raw array owner. Broad BlockExpr is not selected: nested Local changes
+     existing legacy failure behavior. QMark, Loop, Map, Record, Lambda, and
+     Box remain separate families.
+
   RAW-SCRIPT-ROOT-BINDING-REBIND-ADMISSION0-I0-R0
   -> only prior-Local Variable-target Assignment/CompoundAssignment receives
      a typed BindingRebind demand. The shared forest supplies the exact target

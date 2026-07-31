@@ -204,8 +204,12 @@ mod tests {
     use crate::ast::{ASTNode, LiteralValue, Span};
     use crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1;
     use crate::mir::builder::module_lowering_invocation::ModuleLoweringInvocationV1;
+    use crate::mir::builder::raw_invocation_source_transport::{
+        RawInvocationSourceTransportV1, RawSourceTransportPortV1,
+    };
     use crate::mir::builder::recursive_child_lowering::{
         drive_legacy_expression_v1, drive_raw_legacy_expression_v1, RawInvocationChildPortV1,
+        RecursiveChildLoweringPortV1,
     };
     use crate::mir::{Callee, EffectMask, MirBuilder, MirInstruction, MirType};
 
@@ -250,7 +254,7 @@ mod tests {
     fn nested_map() -> ASTNode {
         map(vec![
             ("dup", integer(1)),
-            ("dup", array(vec![integer(2), integer(3)])),
+            ("dup", integer(2)),
             ("nested", map(vec![("inner", boolean(true))])),
         ])
     }
@@ -343,7 +347,18 @@ mod tests {
                 );
                 invocation.with_module_port(|builder, module_port| {
                     let mut port = RawInvocationChildPortV1::new(module_port);
-                    drive_legacy_expression_v1(builder, &mut port, root)
+                    port.with_source_transport_v1(
+                        RawInvocationSourceTransportV1::script_root(ASTNode::Program {
+                            statements: vec![root],
+                            span: Span::unknown(),
+                        }),
+                        |port, program| {
+                            let ASTNode::Program { statements, .. } = program else {
+                                unreachable!("selected Array test installs a Program root")
+                            };
+                            port.lower_body(builder, statements)
+                        },
+                    )
                 })
             }
             .expect("selected Array");
@@ -409,7 +424,18 @@ mod tests {
             );
             invocation.with_module_port(|builder, module_port| {
                 let mut port = RawInvocationChildPortV1::new(module_port);
-                drive_legacy_expression_v1(builder, &mut port, nested_map())
+                port.with_source_transport_v1(
+                    RawInvocationSourceTransportV1::script_root(ASTNode::Program {
+                        statements: vec![nested_map()],
+                        span: Span::unknown(),
+                    }),
+                    |port, program| {
+                        let ASTNode::Program { statements, .. } = program else {
+                            unreachable!("selected Map test installs a Program root")
+                        };
+                        port.lower_body(builder, statements)
+                    },
+                )
             })
         }
         .expect("selected Map");
