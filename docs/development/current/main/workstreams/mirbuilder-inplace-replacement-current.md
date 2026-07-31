@@ -3721,6 +3721,49 @@ Atomic deletion:
 Next design:
   `MIRBUILDER-LIVE-EDGE-CENSUS48-D0` — fresh, read-only, narrow census.
   Do not preselect And/Or, control, calls/objects, Box, Weak, or Lambda.
+
+## RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-D0 — accepted
+
+```text
+Decision:
+  Candidate A — And/Or over the existing short-circuit expression owner
+
+Ceremony:
+  T1, one atomic I0/R0 commit
+
+Accepted shape:
+  BinaryOperator::And or BinaryOperator::Or whose left and right trees are
+  already in the Script lexical closure: Literal, prior-root Local-backed
+  Variable, ordinary Unary, ordinary Binary, Print, Await, or CheckExpr.
+
+Owner boundary:
+  Reuse drive_short_circuit_expression_v1 and the existing logical
+  short-circuit CFG/PHI/result/type/diagnostic owners. Existing
+  RawStructuredChildScopePortV1 consumes left then conditional-right source
+  receipts; no new branch or semantic owner is introduced.
+
+Source/semantic contract:
+  Remove only the source-only lexical admission rejection for And/Or and
+  recurse through BinaryLeft/BinaryRight. Runtime conditional demand remains
+  the existing short-circuit contract; both lexical facts are source paths,
+  not a request to evaluate RHS eagerly.
+
+Atomic deletion:
+  Safe And/Or no longer selects Deferred Script `script_root(())`. Unsafe
+  descendants remain one Deferred request; item-level routing, retry, and
+  fallback are forbidden.
+
+Evidence required:
+  And and Or with literal operands, Local-backed variables on both sides,
+  nested Unary/Await/Check/Binary composition, RHS conditional-failure parity,
+  fresh-request reuse, normal/legacy MIR+verification parity, existing
+  short-circuit owner tests, pointer/cut0 guards, and touched files below 800.
+
+Hard stops:
+  eager RHS lowering, CFG/PHI/result policy edits, variable-map merge changes,
+  new short-circuit owner/failure type, mixed routing, second resolver, retry,
+  AST clone/reparse, new guard/test file, or any source/check file reaching 800.
+```
 ```
 ```
 
@@ -6220,7 +6263,8 @@ R2av RAW-SCRIPT-AWAIT-LEXICAL-CLOSURE0-I0-R0 closed at 074e944fec
 R2aw MIRBUILDER-LIVE-EDGE-CENSUS47-D0 closed
 R2ax RAW-SCRIPT-CHECK-LEXICAL-CLOSURE0-D0 accepted design stop
 R2ay RAW-SCRIPT-CHECK-LEXICAL-CLOSURE0-I0-R0 closed at a78d4e968a
-R2az MIRBUILDER-LIVE-EDGE-CENSUS48-D0 current design stop
+R2az MIRBUILDER-LIVE-EDGE-CENSUS48-D0 closed
+R2ba RAW-SCRIPT-ANDOR-LEXICAL-CLOSURE0-D0 current design stop
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
