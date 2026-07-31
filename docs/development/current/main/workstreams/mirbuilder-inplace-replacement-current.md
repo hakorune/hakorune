@@ -3227,7 +3227,16 @@ Task sequence:
    the same shared forest and must not store AST references. Keep all existing
    Function projection behavior unchanged.
 
-6. `SEMANTIC-OWNER-SCRIPT-PORT0-S3`
+6. `SEMANTIC-OWNER-FOREST-DISPATCH0-S1D`
+   Complete the missing behavior-neutral generic dispatch behind the shared
+   forest enum. Move internal verification, parent/topology, upvar derivation,
+   normalized-graph construction, and projection-facing iteration from the
+   Function-only map to a root-neutral owner-product view. Preserve
+   `forest.owner()`/`forest.owners()` as Function-only compatibility APIs, and
+   do not construct a Script product or connect production. Keep the work-plan
+   file untouched and split helpers into bounded siblings if needed.
+
+7. `SEMANTIC-OWNER-SCRIPT-PORT0-S3`
    **No standalone row.** A port-only change has no real Script product
    producer/consumer at the current boundary and would create a carrier-only
    API. Do not add an empty typed carrier, a ProgramBody-only validator, or an
@@ -3236,8 +3245,8 @@ Task sequence:
    immutable source-view loan, and the selected port must consume exact
    `ProgramBody(original ordinal)` sites. Raw/reference ports remain unchanged.
 
-7. `RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0`
-   After S0/S1/S2 are green, connect the selected normal lifecycle at
+8. `RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0`
+   After S0/S1/S1D/S2 are green, connect the selected normal lifecycle at
    the existing production caller
    `ModuleBuilderInvocationSessionV1::complete_normal_default_program_root_catalog_lifecycle`.
    This row includes the S3 integration; there is no prior port-only commit.
@@ -3456,11 +3465,12 @@ Non-effects:
   grammar / result / fallback = unchanged
 
 Next:
-  RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0
-  Integrate the typed immutable Script source-view loan only after the
-  producer-backed Complete Script product exists. A carrier-only rename is
-  forbidden; the selected port must consume exact ProgramBody(original
-  ordinal) sites. Keep raw/reference ports intact.
+  SEMANTIC-OWNER-FOREST-DISPATCH0-S1D
+  Complete the shared forest's internal root-neutral dispatch before any
+  Script producer or port loan. A carrier-only rename is forbidden; the
+  selected port must consume exact ProgramBody(original ordinal) sites only
+  after a real Script product can be co-sealed. Keep raw/reference ports
+  intact.
 ```
 
 ## RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 — closed, Accept(A-prime)
