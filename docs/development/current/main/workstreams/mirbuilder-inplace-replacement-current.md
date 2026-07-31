@@ -265,28 +265,27 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-RECORD-LITERAL-COMPOSITIONAL-CONTRACT-DESCENT0-D0
+  RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-D0
 
   Change:
-    Decide whether an explicit-field RecordLiteral can use exact
-    `RecordFieldValue(n)` source receipts and the existing record contract
-    owner without moving schema, default-field, publication, or diagnostic
-    authority.
+    Decide whether immutable record-schema demand facts can be available before
+    ScriptSemanticSeal without moving existing RootLower diagnostics. Only then
+    may a fully explicit RecordLiteral prove default descent is zero.
 
   Contract:
-    The D0 may select only RecordLiteral. RecordUpdate, default fields,
-    QMark control/result, Loop JoinIR, Lambda capture, and broad BlockExpr
-    remain separate design stops; no second resolver, fallback, retry, or
-    mixed request routing.
+    Preserve record schema/default/contract/publication ownership. Omitted
+    defaults, invalid schema forms, RecordUpdate, QMark control/result, Loop
+    JoinIR, Lambda capture, and broad BlockExpr remain separate stops; no
+    second resolver, fallback, retry, or mixed request routing.
 
   Done:
-    Publish one bounded RecordLiteral I0 with its exact old-edge deletion, or
-    record NoSafeSlice. Keep every source/check file below 800 lines.
+    Publish one bounded schema-admission decision with a later exact old-edge
+    deletion, or record NoSafeSlice. Keep every source/check file below 800
+    lines; do not grow `program_root_work_plan.rs`.
 
   Stop:
-    Stop when default-field descent lacks exact Program source receipts, or
-    when preserving existing RootLower diagnostics requires moving schema,
-    contract, or publication authority into Script semantics.
+    Stop when schema facts require mutable Builder access or would move record
+    diagnostics into ScriptSemanticSeal.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -298,6 +297,14 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-RECORD-LITERAL-COMPOSITIONAL-CONTRACT-DESCENT0-D0
+  -> NoSafeSlice. `RecordFieldValue(n)` receipts cover explicit fields, but
+     the existing Record owner subsequently lowers omitted declaration defaults
+     through the same port. Schema/default demand is unavailable before
+     ScriptSemanticSeal, so a Map-style cutover would assign false provenance
+     or exhaust receipts. Dynamic Deferred would be fallback. The prerequisite
+     is immutable schema admission; RecordUpdate remains out of scope.
+
   RAW-SCRIPT-POST-MAP-LITERAL-CAPABILITY-CENSUS0-D0
   -> CheckExpr is already Complete: shared profile admission, exact
      `CheckItem(n)` receipts, the existing eager Select owner, fixture ratchet,
