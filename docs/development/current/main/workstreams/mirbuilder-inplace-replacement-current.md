@@ -117,8 +117,9 @@ Latest design: `RAW-SCRIPT-ROOT-SEMANTIC-ADMISSION0-D0` — closed, Accept-corre
 Latest landed: `RAW-SCRIPT-PROGRAM-ITEM-ADMISSION-SSOT0-I0-R0` — `507851393c`
 Latest landed: `NORMAL-DEFAULT-PROGRAM-CATALOG-SEAL-HANDOFF0-I0-R0` — `ffda60241b`
 Latest landed: `SEMANTIC-OWNER-SOURCE-KIND0-S0` — `9b94cc69c4`
-Latest landed: `RAW-SCRIPT-RUNTIME-DEMAND-ADMISSION0-I0-R0` — current commit
-Current execution: `RAW-SCRIPT-SEMANTIC-SOURCE0-I0-R0`
+Latest landed: `RAW-SCRIPT-RUNTIME-DEMAND-ADMISSION0-I0-R0` — `24930b1547`
+Latest design: `RAW-SCRIPT-SEMANTIC-SOURCE0-I0-R0` — closed, NoSafeSlice
+Current design stop: `RAW-SCRIPT-SEMANTIC-OWNER-CORE0-D0`
 History:       Git history and the short landed tail below
 ```
 
@@ -3109,6 +3110,69 @@ Ratchet:
 Preserve:
   Catalog/diagnostic order, Program clone count, runtime order, MIR/result,
   candidate isolation, raw/reference routes, and fallback/retry = 0.
+```
+
+## RAW-SCRIPT-SEMANTIC-SOURCE0-I0-R0 — closed, NoSafeSlice
+
+```text
+Finding:
+  The selected lifecycle now owns the original-ordinal work plan, but no
+  Script Complete consumer exists. FunctionSyntaxViewV1 remains
+  Function/Lambda-only; VerifiedResolvedFunctionV1, lowering-root verification,
+  forest payload, and source projection still require Function/Lambda contracts.
+  SemanticOwnerSourceKindV1 branding alone does not seal a Program root.
+  Raw Lambda capture is still name-based and has no BindingRef-to-ValueId
+  ledger or ordered capture consumer.
+
+Decision:
+  Stop implementation and open RAW-SCRIPT-SEMANTIC-OWNER-CORE0-D0. Compare a
+  private generic semantic-owner core with Function/Script wrappers against a
+  Script-specific product. Keep public Function views unchanged. Fix the first
+  Complete lexical closure and concrete fixture path only after that owner
+  contract is selected.
+
+Hard stops:
+  no partial forest/projection, synthetic FunctionDeclaration, Function-root
+  widening without source-kind contract, forest.upvars() as capture ABI,
+  Complete-to-Deferred downgrade, fallback/retry, or fourth edge census.
+```
+
+## RAW-SCRIPT-SEMANTIC-OWNER-CORE0-D0 — active design stop
+
+```text
+Finding:
+  Source-kind branding and work-plan hoisting are only prerequisites. The
+  semantic forest still stores VerifiedResolvedFunctionV1, lowering roots
+  require Function/Lambda body contracts, and source projection seals a
+  FunctionDeclaration root. Raw Lambda capture is name-based and has no
+  BindingRef-to-ValueId consumer.
+
+Task:
+  Choose the root-neutral owner contract before another implementation row.
+  Candidate A-prime is a private generic semantic-owner core with explicit
+  Function/Script/Lambda root profiles and unchanged public Function wrappers.
+  Candidate B is a Script-specific verified product with a private shared
+  resolver core. Synthetic FunctionDeclaration and in-place widening of
+  FunctionSyntaxViewV1 are rejected.
+
+Required first Complete closure after selection:
+  zero-or-more literal-only Script runtime items plus transferred callable
+  boundaries. Variable/Local may be semantic facts only if no ValueId/ABI or
+  materialization claim is made; otherwise defer them. Me, Lambda, assignment,
+  control, call/object, Box runtime demand, and postfix catch/cleanup remain
+  deferred. Lambda requires an ordered first-demand BindingRef capture receipt;
+  forest.upvars() is never an ABI order.
+
+Fixed evidence:
+  `tools/checks/fixtures/raw_vm_reference_conformance/integer_0.hako` is the
+  first real source milestone, loaded once into AST and passed to a selected
+  NormalCompileRequest. Raw VM conformance is not milestone evidence.
+
+Resume conditions:
+  one selected owner contract; exact root/forest/projection invariants;
+  counterexample fixture for Program-vs-Function identity; named production
+  consumer and same-commit old-edge deletion. No fourth census, partial forest,
+  Complete-to-Deferred downgrade, fallback, or retry.
 ```
 
 ## RAW-SCRIPT-LAMBDA-CAPTURE-BINDING-BRIDGE0-D0 — closed, Accept(A-prime)

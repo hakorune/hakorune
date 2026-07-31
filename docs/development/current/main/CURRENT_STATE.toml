@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "SEMANTIC-OWNER-SOURCE-KIND0-S0 is closed at 9b94cc69c4. RAW-SCRIPT-RUNTIME-DEMAND-ADMISSION0-I0-R0 closes in the current commit: the selected lifecycle now seals the one Program work plan after CatalogSeal and before CatalogInstall, while raw/reference retain their existing lower-side preparation. SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001 is active with Complete baseline 0. The next row must land the first bounded Complete Script source and one named real-.hako milestone."
+status = "RAW-SCRIPT-SEMANTIC-SOURCE0-I0-R0 is closed NoSafeSlice. Worker premise audit found that source-kind branding and work-plan hoisting do not provide a Script Complete consumer: the semantic forest, lowering-root verifier, and source projection still have Function/Lambda root contracts, while raw Lambda capture has no BindingRef ledger. The new design task RAW-SCRIPT-SEMANTIC-OWNER-CORE0-D0 is active; no partial Script product or fallback is allowed."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none (RAW-SCRIPT-PROGRAM-SEMANTIC-PRODUCER0-D0 closed Accept-corrected)"
-current_execution_row = "RAW-SCRIPT-SEMANTIC-SOURCE0-I0-R0"
-current_execution_summary = "Co-seal the first lexical-only Script Complete product from the already-prepared original-ordinal work plan, keep every noneligible request on the one ExistingRootLower terminal, and delete the bare Script-root authority for the Complete closure. Fix one deterministic repository .hako path as the first Complete milestone. Complete count may only increase and Deferred reasons may not grow. Nested Lambda forwarding, control, call/object, Box runtime demand, and postfix catch/cleanup remain later named rows. No broad parallel corpus/allocator benchmark."
+current_design_stop = "RAW-SCRIPT-SEMANTIC-OWNER-CORE0-D0"
+current_execution_row = "none (RAW-SCRIPT-SEMANTIC-SOURCE0-I0-R0 closed NoSafeSlice)"
+current_execution_summary = "Premise audit: Script cannot yet consume VerifiedResolvedFunctionV1 because lowering roots and projection require Function/Lambda source contracts; source_kind branding alone is insufficient. RAW-SCRIPT-SEMANTIC-OWNER-CORE0-D0 must choose a private generic owner core with Function/Script wrappers or a Script-specific product, then fix the first literal-only Complete closure and typed fixture path. Lambda remains Deferred until ordered BindingRef capture is consumed. No fourth census, partial forest, Complete-to-Deferred downgrade, fallback, or broad corpus scan."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-SEMANTIC-SOURCE0-I0-R0"
+current_blocker_token = "RAW-SCRIPT-SEMANTIC-OWNER-CORE0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
