@@ -105,6 +105,14 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                         boundary: ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported,
                     });
                 }
+                ScriptRootSemanticDispositionV1::Diagnostic(
+                    ScriptDiagnosticBoundaryV1::ExistingContextScopeUnsupported,
+                ) if matches!(statement, ASTNode::ContextScope { .. }) => {
+                    existing_diagnostic_boundaries.push(VerifiedScriptExistingDiagnosticBoundaryV1 {
+                        site: entry.site().clone(),
+                        boundary: ScriptDiagnosticBoundaryV1::ExistingContextScopeUnsupported,
+                    });
+                }
                 ScriptRootSemanticDispositionV1::Resolved
                 | ScriptRootSemanticDispositionV1::Deferred(_)
                 | ScriptRootSemanticDispositionV1::Transferred(

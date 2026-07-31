@@ -265,16 +265,17 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-POST-NOWAIT-CAPABILITY-CENSUS0-D0
+  RAW-SCRIPT-POST-CONTEXT-SCOPE-CAPABILITY-CENSUS0-D0
 
   Change:
     Census exactly one remaining Deferred Script capability family from its
-    named production edge; do not preselect the next AST shape.
+    named production edge. Do not preselect an AST shape or broaden an
+    existing responsibility profile.
 
   Contract:
     Select only a family with one source authority, one existing or newly
-    justified completion owner, same-commit old-edge deletion, and an explicit
-    `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` ratchet. No fallback.
+    justified completion owner, same-commit old-edge deletion, and a monotonic
+    `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` fixture ratchet. No fallback.
 
   Done:
     Record one bounded D0, or record NoSafeSlice with the exact missing
@@ -284,7 +285,38 @@ current
     Stop if a candidate needs a second resolver, partial forest, mixed routing,
     or a source-level diagnostic-stage change.
 
+scheduled design gates after fresh census
+  1. TaskScope preflight boundary
+     -> its existing owner scans the complete body for forbidden early exits
+        before entering/lowering any child; do not activate it as an ordinary
+        structured-scope profile without an exact preflight-order contract.
+  2. Outbox materialization boundary
+     -> existing lowering creates one Void local/metadata row per name while
+        returning only the final ValueId; first establish a canonical
+        BindingRef-to-ValueId handoff before selecting a Complete row.
+  3. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
+     Weak, Lambda, and Box
+     -> each is a separate capability-family D0 chosen only from a fresh
+        named production edge census; no AST-bucket batch is pre-authorized.
+  4. `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001`
+     -> fixture-identity Complete set may only grow; R4 must retire, reown,
+        or explicitly retain every remaining Deferred family.
+
+closed structural prerequisite
+  RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0
+  -> the former Script visible-name mini-resolver, manual Local/Variable
+     facts, and manual source-path reconstruction are already deleted.
+     `ScriptSemanticLoweringState` is only the request-local BindingRef to
+     ValueId ledger, not a second resolver.
+
 closed
+  RAW-SCRIPT-CONTEXT-SCOPE-DIAGNOSTIC-BOUNDARY0-I0-R0
+  -> `ContextScope + DirectPortAwareExpression` now seals an exact existing
+     diagnostic receipt and reaches Complete without observing value or body;
+     the raw context-scope dispatcher remains the sole RootLower owner
+  -> nested missing names still lose to the existing context-scope diagnostic;
+     selected/legacy parity, fresh reuse, pointer, and shared cutover guards green
+
   RAW-SCRIPT-NOWAIT-LEXICAL-ASYNC-BINDING0-I0-R0
   -> lexical-safe Nowait now uses the shared traversal; the existing async
      owner remains the sole FutureNew/type/slot/variable-map authority and the
@@ -333,12 +365,14 @@ closed
   -> focused semantic, direct-owner, transport, pointer, and shared guards green
 
 ordered after fresh evidence only
-  1. fresh Deferred capability census: select one production owner family, not
-     a whole AST bucket
-  2. responsibility capabilities: Control / Mutation /
-     JoinIR / Exit first, then Call/Object / allocation / Lambda / Box as
-     separate owner-family rows
-  3. R4 consumes the live fence registry above; every item must retire, reown,
+  1. complete the current ContextScope diagnostic-boundary row
+  2. census exactly one Deferred family; TaskScope and Outbox are named
+     design gates, not preselected implementation work
+  3. activate one responsibility capability per row, with Control / Mutation /
+     JoinIR / Exit before Call/Object, allocation, Weak, Lambda, and Box
+  4. keep Program work-plan ownership below the file-size boundary by extracting
+     a neutral demand-window module only when the selected row needs it
+  5. R4 consumes the live fence registry above; every item must retire, reown,
      or be explicitly retained before final conformance
 
 R4

@@ -45,7 +45,6 @@ fn assert_selected_program_parity(program: ASTNode, hint: &str) {
     assert_eq!(MirPrinter::new().print_module(&normal.module), MirPrinter::new().print_module(&legacy.module));
     assert_eq!(normal.verification_result, legacy.verification_result);
 }
-
 fn resolved_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {
     VerifiedScriptRootDemandEntryV1::new(
         SourcePathV1::program_body()
@@ -87,6 +86,18 @@ fn bare_this_unsupported_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {
             .stmt(),
         ScriptRootSemanticDispositionV1::Diagnostic(
             ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported,
+        ),
+        ScriptRootRuntimeDispositionV1::RetainedExistingTerminal,
+    )
+}
+
+fn context_scope_unsupported_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {
+    VerifiedScriptRootDemandEntryV1::new(
+        SourcePathV1::program_body()
+            .child(SourcePathSegmentV1::ProgramBody(index))
+            .stmt(),
+        ScriptRootSemanticDispositionV1::Diagnostic(
+            ScriptDiagnosticBoundaryV1::ExistingContextScopeUnsupported,
         ),
         ScriptRootRuntimeDispositionV1::RetainedExistingTerminal,
     )
@@ -230,6 +241,43 @@ fn bare_this_seals_script_source_then_uses_existing_unsupported_diagnostic() {
     normal.compile_normal(NormalCompileRequestV1::for_mir_mode(
         NyashParser::parse_from_string("0").expect("reuse source"),
         Some("script-bare-this-reuse.hako"),
+        std::collections::HashMap::new(),
+    ).expect("reuse request")).expect("fresh request succeeds");
+}
+
+#[test]
+fn context_scope_is_complete_without_observing_value_or_body() {
+    let program = ASTNode::Program {
+        statements: vec![ASTNode::ContextScope {
+            name: "ctx".to_owned(), declared_type_name: None,
+            value: Box::new(ASTNode::Variable { name: "missing_value".to_owned(), span: Span::unknown() }),
+            body: vec![ASTNode::Variable { name: "missing_body".to_owned(), span: Span::unknown() }],
+            source_keyword: "context".to_owned(), span: Span::unknown(),
+        }], span: Span::unknown(),
+    };
+    let source = PreparedNormalDefaultProgramRootV1::seal(program.clone()).expect("Program source");
+    let window = VerifiedScriptRootDemandWindowV1::seal(vec![context_scope_unsupported_entry(0)], 1)
+        .expect("ContextScope window");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
+    let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
+    let ResolveScriptOutcomeV1::Complete(owner) = resolver.resolve_script(view, &window)
+        .expect("ContextScope resolve") else { panic!("ContextScope is a zero-child diagnostic boundary") };
+    let product = VerifiedScriptSemanticSourceV1::seal(&source, owner, &window)
+        .expect("ContextScope Script source");
+    assert_eq!(product.forest().owner_count(), 1);
+    assert_eq!(product.existing_diagnostic_sites().count(), 1);
+
+    let mut legacy = MirCompiler::with_options(false);
+    let legacy_error = legacy.compile_with_source(program.clone(), Some("script-context-scope.hako"))
+        .expect_err("legacy ContextScope rejects through its existing terminal");
+    let mut normal = MirCompiler::with_options(false);
+    let normal_error = normal.compile_normal(NormalCompileRequestV1::for_mir_mode(
+        program, Some("script-context-scope.hako"), std::collections::HashMap::new(),
+    ).expect("normal request")).expect_err("normal ContextScope keeps the existing terminal");
+    assert_eq!(normal_error, legacy_error);
+    assert!(normal_error.contains("context_scope_lowering_missing"));
+    normal.compile_normal(NormalCompileRequestV1::for_mir_mode(
+        NyashParser::parse_from_string("0").expect("reuse source"), Some("context-scope-reuse.hako"),
         std::collections::HashMap::new(),
     ).expect("reuse request")).expect("fresh request succeeds");
 }

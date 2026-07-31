@@ -93,6 +93,10 @@ impl ScriptRootDemandWindowBuilderV1 {
                     Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported),
                     Runtime::RetainedExistingTerminal,
                 ),
+                Admission::DirectPortAwareExpression if matches!(statement, ASTNode::ContextScope { .. }) => (
+                    Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingContextScopeUnsupported),
+                    Runtime::RetainedExistingTerminal,
+                ),
                 Admission::DirectPortAwareExpression
                     if matches!(statement, ASTNode::UsingStatement { .. }) => (
                     Semantic::Transparent(ScriptTransparentBoundaryV1::UsingDirective),
@@ -154,6 +158,9 @@ fn validate_boundary(
         ScriptRootSemanticDispositionV1::Diagnostic(
             ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported,
         ) => matches!(statement, ASTNode::This { .. }),
+        ScriptRootSemanticDispositionV1::Diagnostic(
+            ScriptDiagnosticBoundaryV1::ExistingContextScopeUnsupported,
+        ) => matches!(statement, ASTNode::ContextScope { .. }),
     };
     compatible
         .then_some(())

@@ -36,6 +36,7 @@ pub(crate) enum ScriptDiagnosticBoundaryV1 {
     ExistingSelectedUnsupported,
     ExistingReceiverAbsent,
     ExistingBareThisUnsupported,
+    ExistingContextScopeUnsupported,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

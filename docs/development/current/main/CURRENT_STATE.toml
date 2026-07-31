@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-NOWAIT-LEXICAL-ASYNC-BINDING0-I0-R0 is closed: lexical-safe Nowait now reaches Complete through the shared traversal, and its canonical binding receives the existing FutureNew result through the request-local lowering ledger. The next stop is a fresh Deferred capability-family census."
+status = "RAW-SCRIPT-CONTEXT-SCOPE-DIAGNOSTIC-BOUNDARY0-I0-R0 is closed: top-level ContextScope now reaches Complete through a typed zero-child existing-diagnostic boundary. Its raw RootLower terminal remains the sole owner and value/body remain unobserved."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-POST-NOWAIT-CAPABILITY-CENSUS0-D0"
-current_execution_row = "RAW-SCRIPT-POST-NOWAIT-CAPABILITY-CENSUS0-D0"
-current_execution_summary = "The shared Script traversal now covers lexical-safe Nowait with the existing async completion owner and canonical Future binding handoff. Census one remaining Deferred capability family by named production edge, existing completion owner, diagnostic/result parity, and sunset ratchet before choosing an I0 row. TaskScope, Outbox, If/control, Call/Object, allocation, Lambda, Box, unsafe Nowait operands, and disabled ScopeBox bodies are not preselected."
+current_design_stop = "RAW-SCRIPT-POST-CONTEXT-SCOPE-CAPABILITY-CENSUS0-D0"
+current_execution_row = "RAW-SCRIPT-POST-CONTEXT-SCOPE-CAPABILITY-CENSUS0-D0"
+current_execution_summary = "Census exactly one remaining Deferred Script capability family after the ContextScope diagnostic boundary. TaskScope remains a whole-body early-exit-preflight design gate; Outbox remains a BindingRef-to-ValueId handoff design gate. Do not preselect an implementation row or broaden a capability family before fresh production-edge evidence."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"
