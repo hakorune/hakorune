@@ -9,6 +9,7 @@ use super::product::{
     ShadowResolveErrorV0, ShadowScopeKindV0,
 };
 use super::resolver::ShadowResolverV0;
+use super::script_root_window::ScriptRootResolvedDemandV1;
 use super::vocabulary::{classify_shadow_ast_disposition_v0, ShadowAstDispositionV0};
 
 impl<'ast> ShadowResolverV0<'ast> {
@@ -16,8 +17,26 @@ impl<'ast> ShadowResolverV0<'ast> {
         &mut self,
         statement: &'ast ASTNode,
         path: &ShadowSourcePathV0,
+        demand: ScriptRootResolvedDemandV1,
     ) -> Result<(), ShadowResolveErrorV0> {
-        self.resolve_stmt(statement, path)
+        match demand {
+            ScriptRootResolvedDemandV1::LexicalCore => self.resolve_stmt(statement, path),
+            ScriptRootResolvedDemandV1::IfControl(_) => {
+                let ASTNode::If {
+                    condition,
+                    then_body,
+                    else_body,
+                    ..
+                } = statement
+                else {
+                    return Err(ShadowResolveErrorV0::UnsupportedStatement {
+                        kind: "Script root If admission source drift",
+                        site: path.stmt(),
+                    });
+                };
+                self.resolve_if(statement, condition, then_body, else_body.as_deref(), path)
+            }
+        }
     }
 
     fn stmt_expr_path(

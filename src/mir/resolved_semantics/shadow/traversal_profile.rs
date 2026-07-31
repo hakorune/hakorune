@@ -31,8 +31,7 @@ impl ShadowTraversalProfileV1 {
                     variables.len() == 1
                         && initial_values.len() == 1
                         && (declared_type_names.is_empty()
-                            || (declared_type_names.len() == 1
-                                && declared_type_names[0].is_none()))
+                            || (declared_type_names.len() == 1 && declared_type_names[0].is_none()))
                 }
                 _ => self.allows_expression(statement),
             },

@@ -8,11 +8,31 @@ use crate::mir::resolved_semantics::{SourcePathSegmentV1, SourceStmtSiteV1};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum ScriptRootSemanticDispositionV1 {
-    Resolved,
+    Resolved(ScriptRootResolvedDemandV1),
     Deferred(ScriptDeferredBoundaryV1),
     Transparent(ScriptTransparentBoundaryV1),
     Transferred(ScriptTransferredBoundaryV1),
     Diagnostic(ScriptDiagnosticBoundaryV1),
+}
+
+/// Capability issued by the work-plan's one Script-root classification.
+///
+/// The exact ProgramBody site stays owned by the enclosing demand entry.  The
+/// payload only says which shared traversal responsibility that entry may
+/// activate.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum ScriptRootResolvedDemandV1 {
+    LexicalCore,
+    IfControl(ScriptRootIfControlAdmissionV1),
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct ScriptRootIfControlAdmissionV1(());
+
+impl ScriptRootIfControlAdmissionV1 {
+    pub(crate) const fn new() -> Self {
+        Self(())
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

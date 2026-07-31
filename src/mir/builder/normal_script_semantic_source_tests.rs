@@ -50,9 +50,50 @@ fn resolved_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {
         SourcePathV1::program_body()
             .child(SourcePathSegmentV1::ProgramBody(index))
             .stmt(),
-        ScriptRootSemanticDispositionV1::Resolved,
+        ScriptRootSemanticDispositionV1::Resolved(
+            crate::mir::resolved_semantics::ScriptRootResolvedDemandV1::LexicalCore,
+        ),
         ScriptRootRuntimeDispositionV1::RetainedExistingTerminal,
     )
+}
+
+fn root_if_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {
+    VerifiedScriptRootDemandEntryV1::new(
+        SourcePathV1::program_body()
+            .child(SourcePathSegmentV1::ProgramBody(index))
+            .stmt(),
+        ScriptRootSemanticDispositionV1::Resolved(
+            crate::mir::resolved_semantics::ScriptRootResolvedDemandV1::IfControl(
+                crate::mir::resolved_semantics::ScriptRootIfControlAdmissionV1::new(),
+            ),
+        ),
+        ScriptRootRuntimeDispositionV1::RetainedExistingTerminal,
+    )
+}
+
+#[test]
+fn root_if_control_receipt_seals_one_script_owner_and_matches_legacy() {
+    let program = ASTNode::Program {
+        statements: vec![ASTNode::If {
+            condition: Box::new(ASTNode::Literal { value: LiteralValue::Bool(true), span: Span::unknown() }),
+            then_body: vec![ASTNode::Print {
+                expression: Box::new(ASTNode::Literal { value: LiteralValue::Integer(1), span: Span::unknown() }),
+                span: Span::unknown(),
+            }],
+            else_body: Some(vec![ASTNode::Print {
+                expression: Box::new(ASTNode::Literal { value: LiteralValue::Integer(2), span: Span::unknown() }),
+                span: Span::unknown(),
+            }]),
+            span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    };
+    let source = PreparedNormalDefaultProgramRootV1::seal(program.clone()).expect("Program source");
+    let window = VerifiedScriptRootDemandWindowV1::seal(vec![root_if_entry(0)], 1).expect("If window");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
+    let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
+    assert!(matches!(resolver.resolve_script(view, &window).expect("root If resolve"), ResolveScriptOutcomeV1::Complete(_)));
+    assert_selected_program_parity(program, "script-root-if-control.hako");
 }
 
 fn receiver_absent_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {

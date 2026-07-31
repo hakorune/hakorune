@@ -8,7 +8,6 @@ use hakorune_mir_core::BindingId;
 use super::callable_index::{CallableLookupErrorV1, VerifiedCallableIndexV1};
 use super::direct_call::ResolvedDirectCallTargetV1;
 use super::function_view::FunctionSyntaxViewV1;
-use super::script_view::ScriptSyntaxViewV1;
 use super::ids::{
     BindingRefV1, FunctionOwnerIssueExhaustedV1, FunctionOwnerIssuerV1, RegionId, ScopeId,
 };
@@ -19,11 +18,12 @@ use super::records::{
     ResolvedLexicalRefV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1, ScopeKindV1,
     ScopeOriginV1,
 };
+use super::script_view::ScriptSyntaxViewV1;
 use super::shadow::{
-    resolve_function_shadow_view_v0, ShadowAssignmentTargetV0, ShadowBindingKindV0,
-    ShadowBindingOrdinalV0, ShadowControlExitV0, ShadowExitOriginV0, ShadowLexicalRefV0,
-    resolve_script_shadow_view_v0, ShadowRegionIdV0, ShadowRegionKindV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0,
-    ShadowScopeIdV0, ShadowScopeKindV0,
+    resolve_function_shadow_view_v0, resolve_script_shadow_view_v0, ShadowAssignmentTargetV0,
+    ShadowBindingKindV0, ShadowBindingOrdinalV0, ShadowControlExitV0, ShadowExitOriginV0,
+    ShadowLexicalRefV0, ShadowRegionIdV0, ShadowRegionKindV0, ShadowResolveErrorV0,
+    ShadowResolvedFunctionV0, ShadowScopeIdV0, ShadowScopeKindV0,
 };
 use super::source_site::{FunctionOriginV1, ResolvedExitSiteV1};
 use super::{
@@ -86,8 +86,8 @@ impl FunctionSemanticResolverSessionV1 {
         view: FunctionSyntaxViewV1<'_>,
     ) -> Result<Arc<VerifiedResolvedFunctionV1>, ResolveFunctionErrorV1> {
         let (origin, owner) = self.issue_owner()?;
-        let draft = resolve_function_shadow_view_v0(view)
-            .map_err(ResolveFunctionErrorV1::Syntax)?;
+        let draft =
+            resolve_function_shadow_view_v0(view).map_err(ResolveFunctionErrorV1::Syntax)?;
         self.seal_owner(owner, origin, draft).map(Arc::new)
     }
 
@@ -127,8 +127,10 @@ impl FunctionSemanticResolverSessionV1 {
         draft: ShadowResolvedFunctionV0,
     ) -> Result<VerifiedResolvedScriptV1, ResolveFunctionErrorV1> {
         let canonical = canonicalize_draft(owner, origin, draft, &BTreeMap::new(), None)?;
-        Ok(VerifiedResolvedScriptV1::from_canonical_data(canonical.data)
-            .map_err(ResolveFunctionErrorV1::Verification)?)
+        Ok(
+            VerifiedResolvedScriptV1::from_canonical_data(canonical.data)
+                .map_err(ResolveFunctionErrorV1::Verification)?,
+        )
     }
 
     pub(super) fn seal_owner(
@@ -180,7 +182,8 @@ impl FunctionSemanticResolverSessionV1 {
         draft: ShadowResolvedFunctionV0,
         callable_index: &VerifiedCallableIndexV1,
     ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
-        let canonical = canonicalize_draft(owner, origin, draft, &BTreeMap::new(), Some(callable_index))?;
+        let canonical =
+            canonicalize_draft(owner, origin, draft, &BTreeMap::new(), Some(callable_index))?;
         self.seal_canonical_owner(canonical)
     }
 

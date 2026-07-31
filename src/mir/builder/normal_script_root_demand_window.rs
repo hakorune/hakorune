@@ -8,9 +8,10 @@
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootDemandWindowSealErrorV1,
-    ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1,
-    ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1, SourcePathSegmentV1, SourcePathV1,
-    VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
+    ScriptRootIfControlAdmissionV1, ScriptRootResolvedDemandV1, ScriptRootRuntimeDispositionV1,
+    ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
+    SourcePathSegmentV1, SourcePathV1, VerifiedScriptRootDemandEntryV1,
+    VerifiedScriptRootDemandWindowV1,
 };
 
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
@@ -54,9 +55,13 @@ impl ScriptRootDemandWindowBuilderV1 {
             return Err(ScriptRootDemandWindowBuildErrorV1::DuplicateSourceOrdinal);
         }
         let site = SourcePathV1::program_body()
-            .child(SourcePathSegmentV1::ProgramBody(source_statement_index as u32))
+            .child(SourcePathSegmentV1::ProgramBody(
+                source_statement_index as u32,
+            ))
             .stmt();
-        *slot = Some(VerifiedScriptRootDemandEntryV1::new(site, semantic, runtime));
+        *slot = Some(VerifiedScriptRootDemandEntryV1::new(
+            site, semantic, runtime,
+        ));
         Ok(())
     }
 
@@ -85,29 +90,54 @@ impl ScriptRootDemandWindowBuilderV1 {
                     Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported),
                     Runtime::RetainedExistingTerminal,
                 ),
-                Admission::DirectPortAwareExpression if matches!(statement, ASTNode::Me { .. }) => (
-                    Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent),
-                    Runtime::RetainedExistingTerminal,
-                ),
-                Admission::DirectPortAwareExpression if matches!(statement, ASTNode::This { .. }) => (
-                    Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported),
-                    Runtime::RetainedExistingTerminal,
-                ),
-                Admission::DirectPortAwareExpression if matches!(statement, ASTNode::ContextScope { .. }) => (
-                    Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingContextScopeUnsupported),
-                    Runtime::RetainedExistingTerminal,
-                ),
+                Admission::DirectPortAwareExpression if matches!(statement, ASTNode::Me { .. }) => {
+                    (
+                        Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent),
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
                 Admission::DirectPortAwareExpression
-                    if matches!(statement, ASTNode::UsingStatement { .. }) => (
-                    Semantic::Transparent(ScriptTransparentBoundaryV1::UsingDirective),
+                    if matches!(statement, ASTNode::This { .. }) =>
+                {
+                    (
+                        Semantic::Diagnostic(
+                            ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported,
+                        ),
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
+                Admission::DirectPortAwareExpression
+                    if matches!(statement, ASTNode::ContextScope { .. }) =>
+                {
+                    (
+                        Semantic::Diagnostic(
+                            ScriptDiagnosticBoundaryV1::ExistingContextScopeUnsupported,
+                        ),
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
+                Admission::DirectPortAwareExpression
+                    if matches!(statement, ASTNode::UsingStatement { .. }) =>
+                {
+                    (
+                        Semantic::Transparent(ScriptTransparentBoundaryV1::UsingDirective),
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
+                Admission::DirectPortAwareExpression | Admission::DirectPrint => (
+                    Semantic::Resolved(ScriptRootResolvedDemandV1::LexicalCore),
                     Runtime::RetainedExistingTerminal,
                 ),
-                Admission::DirectPortAwareExpression | Admission::DirectPrint => {
-                    (Semantic::Resolved, Runtime::RetainedExistingTerminal)
-                }
-                Admission::DirectFastMemRegion => {
-                    (Semantic::Resolved, Runtime::RetainedExistingTerminal)
-                }
+                Admission::DirectFastMemRegion => (
+                    Semantic::Resolved(ScriptRootResolvedDemandV1::LexicalCore),
+                    Runtime::RetainedExistingTerminal,
+                ),
+                Admission::DirectIfStatement if matches!(statement, ASTNode::If { .. }) => (
+                    Semantic::Resolved(ScriptRootResolvedDemandV1::IfControl(
+                        ScriptRootIfControlAdmissionV1::new(),
+                    )),
+                    Runtime::RetainedExistingTerminal,
+                ),
                 _ => (
                     Semantic::Deferred(ScriptDeferredBoundaryV1::ExistingRuntimeResponsibility),
                     Runtime::RetainedExistingTerminal,
@@ -121,13 +151,11 @@ impl ScriptRootDemandWindowBuilderV1 {
         self,
     ) -> Result<VerifiedScriptRootDemandWindowV1, ScriptRootDemandWindowBuildErrorV1> {
         let statement_count = self.entries.len();
-        let entries = self
-            .entries
-            .into_iter()
-            .collect::<Option<Vec<_>>>()
-            .ok_or(ScriptRootDemandWindowBuildErrorV1::Seal(
+        let entries = self.entries.into_iter().collect::<Option<Vec<_>>>().ok_or(
+            ScriptRootDemandWindowBuildErrorV1::Seal(
                 ScriptRootDemandWindowSealErrorV1::IncompleteCoverage,
-            ))?;
+            ),
+        )?;
         VerifiedScriptRootDemandWindowV1::seal(entries, statement_count)
             .map_err(ScriptRootDemandWindowBuildErrorV1::Seal)
     }
@@ -138,9 +166,14 @@ fn validate_boundary(
     semantic: ScriptRootSemanticDispositionV1,
 ) -> Result<(), ScriptRootDemandWindowBuildErrorV1> {
     let compatible = match semantic {
-        ScriptRootSemanticDispositionV1::Resolved
+        ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::LexicalCore)
         | ScriptRootSemanticDispositionV1::Deferred(_) => true,
-        ScriptRootSemanticDispositionV1::Transparent(ScriptTransparentBoundaryV1::UsingDirective) => {
+        ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IfControl(_)) => {
+            matches!(statement, ASTNode::If { .. })
+        }
+        ScriptRootSemanticDispositionV1::Transparent(
+            ScriptTransparentBoundaryV1::UsingDirective,
+        ) => {
             matches!(statement, ASTNode::UsingStatement { .. })
         }
         ScriptRootSemanticDispositionV1::Transferred(
@@ -151,7 +184,11 @@ fn validate_boundary(
         ) => matches!(statement, ASTNode::FunctionDeclaration { .. }),
         ScriptRootSemanticDispositionV1::Diagnostic(
             ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported,
-        ) => super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(statement),
+        ) => {
+            super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(
+                statement,
+            )
+        }
         ScriptRootSemanticDispositionV1::Diagnostic(
             ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent,
         ) => matches!(statement, ASTNode::Me { .. }),
@@ -187,7 +224,11 @@ mod tests {
                 false,
             )
             .expect("Using receipt");
-        let entry = window.seal().expect("sealed window").entry_at(0).cloned()
+        let entry = window
+            .seal()
+            .expect("sealed window")
+            .entry_at(0)
+            .cloned()
             .expect("Using entry");
         assert_eq!(
             entry.semantic(),
@@ -199,5 +240,33 @@ mod tests {
             entry.runtime(),
             ScriptRootRuntimeDispositionV1::RetainedExistingTerminal,
         );
+    }
+
+    #[test]
+    fn direct_if_issues_one_typed_root_control_receipt() {
+        let if_statement = ASTNode::If {
+            condition: Box::new(ASTNode::Literal {
+                value: crate::ast::LiteralValue::Bool(true),
+                span: Span::unknown(),
+            }),
+            then_body: Vec::new(),
+            else_body: None,
+            span: Span::unknown(),
+        };
+        let mut window = ScriptRootDemandWindowBuilderV1::for_program_statement_count(1);
+        window
+            .record_selected_work_item(
+                0,
+                &if_statement,
+                Some(NormalScriptProgramItemAdmissionV1::DirectIfStatement),
+                false,
+            )
+            .expect("If receipt");
+        let sealed = window.seal().expect("sealed window");
+        let entry = sealed.entry_at(0).expect("If entry");
+        assert!(matches!(
+            entry.semantic(),
+            ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::IfControl(_))
+        ));
     }
 }

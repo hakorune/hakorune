@@ -107,30 +107,44 @@ impl<'ast> ShadowRootTraversalInputV1<'ast> {
             ShadowRootItemsV1::SparseScript { view, window } => {
                 for entry in window.entries() {
                     match entry.semantic() {
-                        ScriptRootSemanticDispositionV1::Resolved => {}
+                        ScriptRootSemanticDispositionV1::Resolved(demand) => {
+                            let [SourcePathSegmentV1::ProgramBodyRoot, SourcePathSegmentV1::ProgramBody(index)] =
+                                entry.site().node().segments()
+                            else {
+                                return Err(
+                                    super::product::ShadowResolveErrorV0::UnsupportedStatement {
+                                        kind: "invalid Script demand site",
+                                        site: entry.site().clone(),
+                                    },
+                                );
+                            };
+                            let Some(statement) = view.body().get(*index as usize) else {
+                                return Err(
+                                    super::product::ShadowResolveErrorV0::UnsupportedStatement {
+                                        kind: "missing Script demand statement",
+                                        site: entry.site().clone(),
+                                    },
+                                );
+                            };
+                            resolver.resolve_root_statement(
+                                statement,
+                                &ShadowSourcePathV0::program_body()
+                                    .child(SourcePathSegmentV1::ProgramBody(*index)),
+                                demand,
+                            )?;
+                        }
                         ScriptRootSemanticDispositionV1::Deferred(_) => {
-                            return Err(super::product::ShadowResolveErrorV0::UnsupportedStatement {
-                                kind: "deferred Script responsibility",
-                                site: entry.site().clone(),
-                            });
+                            return Err(
+                                super::product::ShadowResolveErrorV0::UnsupportedStatement {
+                                    kind: "deferred Script responsibility",
+                                    site: entry.site().clone(),
+                                },
+                            );
                         }
                         ScriptRootSemanticDispositionV1::Transparent(_)
                         | ScriptRootSemanticDispositionV1::Transferred(_)
                         | ScriptRootSemanticDispositionV1::Diagnostic(_) => continue,
                     }
-                    let [SourcePathSegmentV1::ProgramBodyRoot, SourcePathSegmentV1::ProgramBody(index)] = entry.site().node().segments() else {
-                        return Err(super::product::ShadowResolveErrorV0::UnsupportedStatement {
-                            kind: "invalid Script demand site",
-                            site: entry.site().clone(),
-                        });
-                    };
-                    let Some(statement) = view.body().get(*index as usize) else {
-                        return Err(super::product::ShadowResolveErrorV0::UnsupportedStatement {
-                            kind: "missing Script demand statement",
-                            site: entry.site().clone(),
-                        });
-                    };
-                    resolver.resolve_root_statement(statement, &ShadowSourcePathV0::program_body().child(SourcePathSegmentV1::ProgramBody(*index)))?;
                 }
                 Ok(())
             }

@@ -85,6 +85,7 @@ pub use normalized::{
 pub(crate) use normalized_callable_catalog::{
     NormalizedCallableCatalogRowV1, NormalizedCallableCatalogV1,
 };
+pub(crate) use owner_forest::SemanticOwnerForestDraftV1;
 pub use owner_forest::{
     NormalizedOwnerKeyV1, NormalizedOwnerRecordV1, NormalizedSemanticOwnerForestGraphV1,
     NormalizedUpvarEdgeV1, NormalizedUpvarObservationV1, OwnerParentEdgeV1,
@@ -92,7 +93,6 @@ pub use owner_forest::{
     VerifiedSemanticOwnerForestV1,
 };
 pub(crate) use owner_forest_payload::VerifiedSemanticOwnerProductV1;
-pub(crate) use owner_forest::SemanticOwnerForestDraftV1;
 pub(crate) use owner_resolver::ResolveOwnerForestErrorV1;
 pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;
 pub use owner_source_kind::SemanticOwnerSourceKindV1;
@@ -118,9 +118,9 @@ pub(in crate::mir) use shadow::{
 };
 pub(crate) use shadow::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootDemandWindowSealErrorV1,
-    ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1,
-    ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1, VerifiedScriptRootDemandEntryV1,
-    VerifiedScriptRootDemandWindowV1,
+    ScriptRootIfControlAdmissionV1, ScriptRootResolvedDemandV1, ScriptRootRuntimeDispositionV1,
+    ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
+    VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
 };
 pub(crate) use source_path_policy::{
     is_statement_expression_surface_v1, BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1,

@@ -13,8 +13,6 @@ use crate::mir::resolved_semantics::{ScriptSyntaxViewV1, VerifiedScriptRootDeman
 use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 use super::owner_boundary::ShadowLambdaSyntaxV0;
 use super::path::ShadowSourcePathV0;
-use super::root_traversal::ShadowRootTraversalInputV1;
-use super::traversal_profile::ShadowTraversalProfileV1;
 use super::product::{
     ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowBindingRecordV0, ShadowControlExitV0,
     ShadowDirectCallUseV0, ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0,
@@ -23,6 +21,8 @@ use super::product::{
     ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0, ShadowScopeKindV0,
     ShadowScopeRecordV0,
 };
+use super::root_traversal::ShadowRootTraversalInputV1;
+use super::traversal_profile::ShadowTraversalProfileV1;
 
 #[derive(Debug)]
 struct ResolverScopeFrameV0 {

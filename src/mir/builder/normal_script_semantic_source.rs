@@ -75,7 +75,9 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 ));
             };
             match entry.semantic() {
-                ScriptRootSemanticDispositionV1::Resolved
+                ScriptRootSemanticDispositionV1::Resolved(
+                    crate::mir::resolved_semantics::ScriptRootResolvedDemandV1::LexicalCore,
+                )
                     if matches!(statement, ASTNode::Outbox { .. }) =>
                 {
                     let ASTNode::Outbox { variables, .. } = statement else {
@@ -147,7 +149,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                         boundary: ScriptDiagnosticBoundaryV1::ExistingContextScopeUnsupported,
                     });
                 }
-                ScriptRootSemanticDispositionV1::Resolved
+                ScriptRootSemanticDispositionV1::Resolved(_)
                 | ScriptRootSemanticDispositionV1::Deferred(_)
                 | ScriptRootSemanticDispositionV1::Transferred(
                     ScriptTransferredBoundaryV1::TopLevelCallable,
@@ -232,14 +234,14 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     pub(super) fn receiver_absent_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
         self.existing_diagnostic_boundaries
             .iter()
-            .filter(|receipt| receipt.boundary == ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent)
+            .filter(|receipt| {
+                receipt.boundary == ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent
+            })
             .map(|receipt| &receipt.site)
     }
 
     #[cfg(test)]
-    pub(super) fn bare_this_unsupported_sites(
-        &self,
-    ) -> impl Iterator<Item = &SourceStmtSiteV1> {
+    pub(super) fn bare_this_unsupported_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
         self.existing_diagnostic_boundaries
             .iter()
             .filter(|receipt| {
@@ -303,7 +305,10 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             _ => None,
         });
         let outboxes = self.outbox_materializations.iter().map(|receipt| {
-            (receipt.site.node().clone(), receipt.bindings.iter().copied())
+            (
+                receipt.site.node().clone(),
+                receipt.bindings.iter().copied(),
+            )
         });
         let variables = owner
             .variable_refs()
@@ -319,7 +324,9 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
 
 fn program_statement_index(site: &SourceStmtSiteV1) -> Result<usize, String> {
     match site.node().segments() {
-        [crate::mir::resolved_semantics::SourcePathSegmentV1::ProgramBodyRoot, crate::mir::resolved_semantics::SourcePathSegmentV1::ProgramBody(index)] => Ok(*index as usize),
+        [crate::mir::resolved_semantics::SourcePathSegmentV1::ProgramBodyRoot, crate::mir::resolved_semantics::SourcePathSegmentV1::ProgramBody(index)] => {
+            Ok(*index as usize)
+        }
         _ => Err("[mir/script-semantic/window-site] expected ProgramBody ordinal".to_owned()),
     }
 }

@@ -53,18 +53,28 @@ impl SemanticOwnerRootProfileV1 {
         origin: &[SourcePathSegmentV1],
         site: &[SourcePathSegmentV1],
     ) -> bool {
-        let Some((origin_root, prefix)) = origin.split_last() else {
-            return false;
-        };
-        *origin_root == self.body_root()
-            && site.len() > prefix.len()
-            && site.starts_with(prefix)
-            && matches!(
-                (self, &site[prefix.len()]),
-                (Self::DeclaredFunction { .. }, SourcePathSegmentV1::Body(_))
-                    | (Self::Script, SourcePathSegmentV1::ProgramBody(_))
-                    | (Self::Lambda, SourcePathSegmentV1::LambdaBody(_))
-            )
+        match self {
+            Self::DeclaredFunction { .. } => {
+                origin == [SourcePathSegmentV1::FunctionBody]
+                    && matches!(site, [SourcePathSegmentV1::Body(_), ..])
+            }
+            Self::Script => {
+                origin == [SourcePathSegmentV1::ProgramBodyRoot]
+                    && matches!(
+                        site,
+                        [SourcePathSegmentV1::ProgramBody(_), ..]
+                            | [
+                                SourcePathSegmentV1::ProgramBodyRoot,
+                                SourcePathSegmentV1::ProgramBody(_),
+                                ..
+                            ]
+                    )
+            }
+            Self::Lambda => {
+                origin == [SourcePathSegmentV1::LambdaBodyRoot]
+                    && matches!(site, [SourcePathSegmentV1::LambdaBody(_), ..])
+            }
+        }
     }
 }
 
@@ -107,9 +117,22 @@ mod tests {
             &[SourcePathSegmentV1::ProgramBodyRoot],
             &[SourcePathSegmentV1::ProgramBody(3)],
         ));
-        assert!(!SemanticOwnerRootProfileV1::Script.contains_sequence_member(
-            &[SourcePathSegmentV1::ProgramBodyRoot],
+        assert!(
+            !SemanticOwnerRootProfileV1::Script.contains_sequence_member(
+                &[SourcePathSegmentV1::ProgramBodyRoot],
+                &[SourcePathSegmentV1::Body(3)],
+            )
+        );
+        assert!(SemanticOwnerRootProfileV1::DeclaredFunction {
+            receiver_policy: ReceiverPolicyV1::Absent,
+        }
+        .contains_sequence_member(
+            &[SourcePathSegmentV1::FunctionBody],
             &[SourcePathSegmentV1::Body(3)],
+        ));
+        assert!(SemanticOwnerRootProfileV1::Lambda.contains_sequence_member(
+            &[SourcePathSegmentV1::LambdaBodyRoot],
+            &[SourcePathSegmentV1::LambdaBody(3)],
         ));
     }
 }

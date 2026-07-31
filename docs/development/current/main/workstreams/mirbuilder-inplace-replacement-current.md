@@ -265,26 +265,24 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-IF-CONTROL-ADMISSION0-D0
+  RAW-SCRIPT-POST-IF-CAPABILITY-CENSUS0-D0
 
   Change:
-    Design one typed Script-root control admission from the sealed demand
-    window and existing DirectIfStatement runtime receipt before reconsidering
-    lexical-safe If.
+    Census the remaining Script Deferred production edges once, after root If
+    has left the shared compatibility terminal.
 
   Contract:
-    The gate consumes exact source site and child context, not `ASTNode::If`.
-    Root If may receive a receipt; nested ScopeBox/TaskScope/FastMem If does
-    not. No second resolver, mixed routing, fallback, or retry.
+    Choose at most one responsibility family with a named live old edge. Do
+    not preselect Control, Call/Object, Allocation, Weak, Lambda, or Box; no
+    second resolver, mixed routing, fallback, or retry.
 
   Done:
-    Name one owner and atomic old selected `If -> Deferred -> script_root()`
-    deletion, or retain If under ExistingRootLower. Keep source/check files
-    below 800 lines.
+    Publish one bounded D0 with its exact old-edge deletion, or record
+    NoSafeSlice. Keep source/check files below 800 lines.
 
   Stop:
-    Stop if exact root context cannot reach the existing If verifier without
-    widening nested structured scopes or changing diagnostic precedence.
+    Stop when the remaining candidates need a new control/object/capture
+    authority, an AST-kind side classifier, or widened nested scope admission.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -296,6 +294,16 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-IF-CONTROL-ADMISSION0-I0-R0
+  -> exact `DirectIfStatement + ASTNode::If` work-plan receipts issue one
+     typed root-control demand. The shared Script traversal resolves that
+     root If and its existing child source paths; Complete retains the sole
+     direct-If lowering terminal. Nested ScopeBox/TaskScope/FastMem If does
+     not receive the receipt and remains Deferred. The selected old
+     `If -> Deferred -> bare script_root()` edge is zero; retry/fallback is
+     zero. Root-profile sequence containment now preserves the distinct
+     Function/Lambda compact paths and the Script ProgramBody-rooted path.
+
   SEMANTIC-SOURCE-CONTAINER-PROFILE0-S0
   -> Sequence containment now derives direct body membership from
      `SemanticOwnerRootProfileV1`; ProgramBodyRoot -> ProgramBody(n) is valid
