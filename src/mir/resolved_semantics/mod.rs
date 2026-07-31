@@ -69,7 +69,6 @@ pub(crate) use function_root::{
 };
 pub(crate) use function_view::FunctionSyntaxViewV1;
 pub(in crate::mir) use function_view::ReceiverPolicyV1;
-#[cfg(test)]
 pub(crate) use ids::FunctionOwnerIssuerV1;
 pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId, UpvarRefV1};
 pub use if_region::ResolvedIfRegionVerificationErrorV1;
@@ -93,13 +92,14 @@ pub use owner_forest::{
     VerifiedSemanticOwnerForestV1,
 };
 pub(crate) use owner_forest_payload::VerifiedSemanticOwnerProductV1;
+pub(crate) use owner_forest::SemanticOwnerForestDraftV1;
 pub(crate) use owner_resolver::ResolveOwnerForestErrorV1;
 pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;
 pub use owner_source_kind::SemanticOwnerSourceKindV1;
 pub use product::VerifiedResolvedFunctionV1;
 pub(crate) use product::{
-    ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1, VerifiedResolvedOwnerCoreV1,
-    VerifiedResolvedScriptV1,
+    ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1, ResolvedScriptLiteralDraftV1,
+    VerifiedResolvedOwnerCoreV1, VerifiedResolvedScriptV1,
 };
 pub use records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,

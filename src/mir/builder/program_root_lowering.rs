@@ -15,10 +15,11 @@ use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortV1;
 use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use super::normal_default_root_catalog_lifecycle::PreparedNormalDefaultProgramRootV1;
+use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_work_plan::{
-    PreparedProgramRootRuntimeWorkV1, PreparedProgramRootWorkPlanV1, ProgramRootTerminalScheduleV1,
-    ProgramRootWorkPlanAdmissionV1,
+    PreparedProgramRootRuntimeWorkV1, PreparedProgramRootWorkPlanPartsV1,
+    PreparedProgramRootWorkPlanV1, ProgramRootTerminalScheduleV1, ProgramRootWorkPlanAdmissionV1,
 };
 use super::program_static_table_metadata::PreparedNormalProgramStaticTableMetadataV1;
 use super::raw_invocation_source_transport::{
@@ -73,6 +74,11 @@ pub(super) struct ProgramDeferredStaticBoxLifecycleV1 {
     methods: PreparedNonMainStaticBoxMethodBatchV1,
 }
 
+pub(super) enum NormalScriptRootLoweringMode<'source> {
+    Complete(&'source VerifiedScriptSemanticSourceV1<'source>),
+    Deferred,
+}
+
 impl ProgramDeferredStaticBoxLifecycleV1 {
     pub(super) fn new(name: String, methods: HashMap<String, ASTNode>) -> Self {
         Self {
@@ -110,12 +116,13 @@ impl ProgramDeferredStaticBoxLifecycleV1 {
 impl MirBuilder {
     pub(in crate::mir::builder) fn lower_normal_default_program_root_after_catalog_install_v1(
         &mut self,
-        work: PreparedProgramRootWorkPlanV1,
+        work: PreparedProgramRootWorkPlanPartsV1,
         source: &PreparedNormalDefaultProgramRootV1,
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         brand: ModuleInvocationBrandV1,
+        script_mode: NormalScriptRootLoweringMode<'_>,
     ) -> Result<ValueId, String> {
         self.lower_program_root_after_catalog_install_v1(
             work,
@@ -124,35 +131,51 @@ impl MirBuilder {
             materialization,
             runtime_inputs,
             brand,
+            script_mode,
         )
     }
 
     fn lower_program_root_after_catalog_install_v1(
         &mut self,
-        work: PreparedProgramRootWorkPlanV1,
+        work: PreparedProgramRootWorkPlanPartsV1,
         snapshot: &ASTNode,
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         brand: ModuleInvocationBrandV1,
+        script_mode: NormalScriptRootLoweringMode<'_>,
     ) -> Result<ValueId, String> {
         let mut collector = ModuleDraftCollectorV1::with_brand(brand);
         let result = {
             let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
             let mut port = RawInvocationChildPortV1::new(&mut module_port);
-            port.with_source_transport_v1(
-                RawInvocationSourceTransportV1::script_root(()),
-                |port, ()| {
-                    self.lower_prepared_program_root_with_callable_port_v1(
-                        work,
-                        snapshot,
-                        expansion,
-                        materialization,
-                        runtime_inputs,
-                        port,
-                    )
-                },
-            )
+            match script_mode {
+                NormalScriptRootLoweringMode::Complete(source) => {
+                    port.with_script_semantic_source_v1(source, |port| {
+                        self.lower_prepared_program_root_with_callable_port_v1(
+                            work,
+                            snapshot,
+                            expansion,
+                            materialization,
+                            runtime_inputs,
+                            port,
+                        )
+                    })?
+                }
+                NormalScriptRootLoweringMode::Deferred => port.with_source_transport_v1(
+                    RawInvocationSourceTransportV1::script_root(()),
+                    |port, ()| {
+                        self.lower_prepared_program_root_with_callable_port_v1(
+                            work,
+                            snapshot,
+                            expansion,
+                            materialization,
+                            runtime_inputs,
+                            port,
+                        )
+                    },
+                ),
+            }
         }?;
         let target = self
             .current_module
@@ -217,7 +240,8 @@ impl MirBuilder {
             statements,
             expansion.is_app_mode(),
             work_plan_admission,
-        );
+        )
+        .into_parts();
         self.lower_program_root_work_plan_with_callable_port_v1(
             work,
             expansion,
@@ -230,7 +254,7 @@ impl MirBuilder {
 
     fn lower_prepared_program_root_with_callable_port_v1<Port>(
         &mut self,
-        work: PreparedProgramRootWorkPlanV1,
+        work: PreparedProgramRootWorkPlanPartsV1,
         snapshot: &ASTNode,
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
@@ -267,7 +291,7 @@ impl MirBuilder {
 
     fn lower_program_root_work_plan_with_callable_port_v1<Port>(
         &mut self,
-        work: PreparedProgramRootWorkPlanV1,
+        work: PreparedProgramRootWorkPlanPartsV1,
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
@@ -277,7 +301,6 @@ impl MirBuilder {
     where
         Port: RootCallableCapturePortV1,
     {
-        let work = work.into_parts();
         for immediate in work.immediate {
             immediate.lower_with_port_v1(self, callables)?;
         }

@@ -240,6 +240,7 @@ pub(in crate::mir) use module_invocation_session::{
 #[cfg(test)]
 mod module_invocation_session_p0; // CUT0-I0-SESSION0 fixtures
 mod normal_default_root_catalog_lifecycle; // Selected normal root/catalog lifecycle
+mod normal_script_semantic_source; // Producer-backed Literal-only Script source
 mod normal_cataloged_box_method_admission; // Selected normal cataloged-child identity
 mod program_root_lowering; // Shared typed/generic Program root owner
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::{

@@ -178,6 +178,19 @@ fn normal_request(
         .expect("test normal request must own Program")
 }
 
+#[test]
+fn real_integer_zero_fixture_uses_the_selected_normal_request() {
+    let source = include_str!("../../../tools/checks/fixtures/raw_vm_reference_conformance/integer_0.hako");
+    let ast = NyashParser::parse_from_string(source).expect("integer_0 fixture parses");
+    let mut compiler = MirCompiler::with_options(false);
+
+    let result = compiler
+        .compile_normal(normal_request(ast, Some("integer_0.hako"), HashMap::new()))
+        .expect("literal-only Script reaches selected normal lifecycle");
+
+    assert!(result.verification_result.is_ok());
+}
+
 fn program_v0_import_bundle_request(ast: ASTNode) -> NormalCompileRequestV1 {
     NormalCompileRequestV1::for_program_json_v0_import_bundle(ast)
         .expect("test Program-v0 import bundle must own Program")

@@ -215,7 +215,7 @@ impl VerifiedSourceProjectionV1 {
         Self::seal_with_root_profile(syntax_root, forest, profile)
     }
 
-    pub(super) fn seal_with_root_profile(
+    pub(in crate::mir) fn seal_with_root_profile(
         syntax_root: &ASTNode,
         forest: &VerifiedSemanticOwnerForestV1,
         root_profile: SemanticOwnerRootProfileV1,
@@ -247,7 +247,7 @@ impl VerifiedSourceProjectionV1 {
         Ok(Self { definition_chains })
     }
 
-    pub(super) fn owner_root<'a>(
+    pub(in crate::mir) fn owner_root<'a>(
         &self,
         syntax_root: &'a ASTNode,
         owner: FunctionOwnerIdV1,

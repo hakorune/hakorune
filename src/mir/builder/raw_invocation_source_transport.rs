@@ -16,6 +16,7 @@ use crate::mir::ValueId;
 
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1;
 use super::normal_top_level_function_admission::NormalTopLevelFunctionSourceKeyV1;
+use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
     lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
@@ -102,6 +103,15 @@ impl<T> RawInvocationSourceTransportV1<T> {
         ))
     }
 
+    pub(in crate::mir::builder) fn script_semantic_root(node: T) -> Self {
+        Self::Located(LocatedRawNodeV1::new(
+            node,
+            RawInvocationRootLineageV1::ScriptRoot,
+            SourcePathV1::program_body().node(),
+            SourceBodyKindV1::Program,
+        ))
+    }
+
     pub(in crate::mir::builder) fn unlocated(node: T, reason: RawUnlocatedPortalV1) -> Self {
         Self::UnlocatedCompatibility { node, reason }
     }
@@ -124,6 +134,37 @@ impl<T> RawInvocationSourceTransportV1<T> {
             }
             Self::UnlocatedCompatibility { node, reason } => (node, None, Some(reason)),
         }
+    }
+}
+
+impl RawInvocationChildPortV1<'_, '_> {
+    pub(in crate::mir::builder) fn with_script_semantic_source_v1<R>(
+        &mut self,
+        source: &VerifiedScriptSemanticSourceV1<'_>,
+        execute: impl FnOnce(&mut Self) -> R,
+    ) -> Result<R, String> {
+        let [root] = source.forest().roots() else {
+            return Err("[freeze:contract][mir/script-semantic/root-cardinality]".to_owned());
+        };
+        if source
+            .projection()
+            .owner_root(source.source().source_ast(), *root)
+            .is_err()
+            || source
+                .literal_source_indices()
+                .iter()
+                .any(|index| !matches!(
+                    source.source().source_ast(),
+                    ASTNode::Program { statements, .. }
+                        if matches!(statements.get(*index), Some(ASTNode::Literal { .. }))
+                ))
+        {
+            return Err("[freeze:contract][mir/script-semantic/source-proof]".to_owned());
+        }
+        Ok(self.with_source_transport_v1(
+            RawInvocationSourceTransportV1::script_semantic_root(()),
+            |port, ()| execute(port),
+        ))
     }
 }
 

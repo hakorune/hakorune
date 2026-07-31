@@ -4,6 +4,7 @@
 use super::normal_script_program_item_admission::classify_normal_script_program_item_v1;
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 use super::normal_script_runtime_block_port::NormalScriptRuntimeBlockPortV1;
+use super::program_root_work_plan::PreparedProgramRootRuntimeWorkV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::emission::constant::emit_void;
 use crate::mir::builder::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
@@ -132,6 +133,31 @@ impl PreparedNormalScriptRuntimeWorkV1 {
     pub(super) fn into_raw_statements(self) -> Vec<ASTNode> {
         self.statements.into_vec()
     }
+
+    pub(super) fn is_literal_only(&self) -> bool {
+        self.statements.iter().zip(self.admissions.iter()).all(
+            |(statement, admission)| {
+                matches!(statement, ASTNode::Literal { .. })
+                    && matches!(
+                        admission.admission,
+                        NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression
+                    )
+            },
+        )
+    }
+
+    pub(super) fn literal_source_indices(&self) -> Box<[usize]> {
+        self.admissions
+            .iter()
+            .filter_map(|entry| {
+                matches!(
+                    entry.admission,
+                    NormalScriptRuntimeStatementAdmissionV1::DirectPortAwareExpression
+                )
+                .then_some(entry.source_statement_index)
+            })
+            .collect()
+    }
     pub(super) fn lower_with_port_v1<Port>(
         self,
         builder: &mut MirBuilder,
@@ -174,6 +200,22 @@ impl PreparedNormalScriptRuntimeWorkV1 {
                 constructor_batch: Some(batch),
             } => Some((sources, batch)),
             _ => None,
+        }
+    }
+}
+
+impl PreparedProgramRootRuntimeWorkV1 {
+    pub(super) fn is_literal_only(&self) -> bool {
+        match self {
+            Self::SelectedNormal(work) => work.is_literal_only(),
+            Self::RawCompatibility(_) => false,
+        }
+    }
+
+    pub(super) fn literal_source_indices(&self) -> Box<[usize]> {
+        match self {
+            Self::SelectedNormal(work) => work.literal_source_indices(),
+            Self::RawCompatibility(_) => Box::new([]),
         }
     }
 }

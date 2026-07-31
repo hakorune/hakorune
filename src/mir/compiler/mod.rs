@@ -110,7 +110,7 @@ mod source_entry_vm_reference_p0;
 #[cfg(feature = "vm-reference")]
 pub(in crate::mir) mod source_entry_vm_runner_adapter;
 #[allow(dead_code)]
-mod source_projection;
+pub(in crate::mir) mod source_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_view;
 

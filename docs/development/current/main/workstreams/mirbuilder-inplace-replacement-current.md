@@ -3266,6 +3266,40 @@ Task sequence:
    is not evidence. Literal I0 must not add Variable/Local materialization,
    Lambda capture, ValueId/ABI, control, call/object, or Box runtime demand.
 
+## RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0 — closed
+
+```text
+Decision:
+  Candidate A-prime landed for the bounded empty/literal-only Script
+  Complete closure with one shared forest/projection and a typed source loan.
+
+Production seam:
+  CatalogSeal/work-plan prepare -> ScriptSemanticSeal -> CatalogInstall
+  -> one selected root lowering.
+
+Deferred:
+  non-literal selected Script demands keep the existing root compatibility
+  owner; no owner/forest/projection is issued for those requests.
+
+Atomic retirement:
+  Complete no longer calls bare `script_root(())`.
+  Deferred and raw/reference routes retain their existing transport.
+
+Evidence:
+  integer_0.hako selected NormalCompileRequest = green
+  Script product/projection and invalid-ordinal tests = green
+  focused lifecycle/runtime tests = green
+  pointer/CUT0 guards = green
+  all touched source/check files < 800 lines.
+
+Non-effects:
+  grammar, result policy, raw/reference behavior, Lambda/Variable/Local,
+  control, call/object, Box runtime demand, fallback, and retry unchanged.
+
+Next:
+  fresh live-edge census; do not preselect the next Script responsibility.
+```
+
 Ratchet and sunset:
   `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` tracks the Deferred owner.
   The manifest must track fixture identity sets and exact Deferred reasons,

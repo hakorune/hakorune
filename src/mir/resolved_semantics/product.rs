@@ -72,8 +72,8 @@ pub struct VerifiedResolvedFunctionV1 {
     pub(crate) core: VerifiedResolvedOwnerCoreV1,
 }
 
-/// Script wrapper reserved for the shared forest; no Script constructor or
-/// consumer is introduced by this behavior-neutral refactor.
+/// Script wrapper carried by the shared forest for the literal-only producer.
+/// Its public surface stays narrower than the declared-function wrapper.
 #[derive(Debug)]
 pub(crate) struct VerifiedResolvedScriptV1 {
     core: VerifiedResolvedOwnerCoreV1,
@@ -110,18 +110,111 @@ impl ResolvedFunctionDraftV1 {
     pub(crate) fn seal(
         self,
     ) -> Result<VerifiedResolvedFunctionV1, ResolvedFunctionVerificationErrorV1> {
-        let derived = verify_resolved_function(&self.data)?;
-        let normalized = build_normalized_graph(&self.data);
         Ok(VerifiedResolvedFunctionV1 {
-            core: VerifiedResolvedOwnerCoreV1 {
-                data: self.data,
-                normalized,
-                lowering_roots: derived.lowering_roots,
-                if_regions: derived.if_regions,
-                loop_regions: derived.loop_regions,
-            },
+            core: seal_owner_core(self.data)?,
         })
     }
+}
+
+/// Construction-local Script producer for the first Complete closure.
+///
+/// It owns no AST and publishes only the exact zero-fact root/body arena for
+/// an already admitted empty/literal runtime window. Lexical, control, call,
+/// and nested-owner demands must not enter this product.
+#[derive(Debug)]
+pub(crate) struct ResolvedScriptLiteralDraftV1 {
+    data: ResolvedFunctionDataV1,
+}
+
+impl ResolvedScriptLiteralDraftV1 {
+    pub(crate) fn new(owner: FunctionOwnerIdV1) -> Self {
+        let function_origin = FunctionOriginV1::new(0, owner.slot());
+        let function_scope = ScopeId::new(owner, 0);
+        let body_scope = ScopeId::new(owner, 1);
+        let function_region = RegionId::new(owner, 0);
+        let body_region = RegionId::new(owner, 1);
+        let body_origin = SourcePathV1::program_body().node();
+
+        Self {
+            data: ResolvedFunctionDataV1 {
+                owner,
+                function_origin,
+                root_profile: SemanticOwnerRootProfileV1::Script,
+                function_scope,
+                function_region,
+                bindings: BTreeMap::new(),
+                scopes: BTreeMap::from([
+                    (
+                        function_scope,
+                        ResolvedScopeRecordV1::new(
+                            ScopeKindV1::Function,
+                            None,
+                            function_region,
+                            Vec::new(),
+                            ScopeOriginV1::Function(function_origin),
+                        ),
+                    ),
+                    (
+                        body_scope,
+                        ResolvedScopeRecordV1::new(
+                            ScopeKindV1::LexicalBlock,
+                            Some(function_scope),
+                            body_region,
+                            Vec::new(),
+                            ScopeOriginV1::Source(body_origin.clone()),
+                        ),
+                    ),
+                ]),
+                regions: BTreeMap::from([
+                    (
+                        function_region,
+                        ResolvedRegionRecordV1::new(
+                            RegionKindV1::Function,
+                            None,
+                            Some(function_scope),
+                            RegionOriginV1::Function(function_origin),
+                        ),
+                    ),
+                    (
+                        body_region,
+                        ResolvedRegionRecordV1::new(
+                            RegionKindV1::Sequence,
+                            Some(function_region),
+                            Some(body_scope),
+                            RegionOriginV1::Source(body_origin),
+                        ),
+                    ),
+                ]),
+                declarations: BTreeMap::new(),
+                variable_uses: BTreeMap::new(),
+                assignment_targets: BTreeMap::new(),
+                direct_call_targets: BTreeMap::new(),
+                resolved_exits: BTreeMap::new(),
+            },
+        }
+    }
+
+    pub(crate) fn seal(
+        self,
+    ) -> Result<VerifiedResolvedScriptV1, ResolvedFunctionVerificationErrorV1> {
+        Ok(VerifiedResolvedScriptV1 {
+            core: seal_owner_core(self.data)?,
+        })
+    }
+}
+
+fn seal_owner_core(
+    data: ResolvedFunctionDataV1,
+) -> Result<VerifiedResolvedOwnerCoreV1, ResolvedFunctionVerificationErrorV1> {
+    let derived = verify_resolved_function(&data)?;
+    let normalized = build_normalized_graph(&data);
+    Ok(VerifiedResolvedOwnerCoreV1 {
+        data,
+        normalized,
+        lowering_roots: derived.lowering_roots,
+        if_regions: derived.if_regions,
+        loop_regions: derived.loop_regions,
+    })
 }
 
 impl VerifiedResolvedFunctionV1 {
@@ -341,5 +434,27 @@ impl VerifiedResolvedFunctionV1 {
 impl VerifiedResolvedScriptV1 {
     pub(crate) const fn core(&self) -> &VerifiedResolvedOwnerCoreV1 {
         &self.core
+    }
+}
+
+#[cfg(test)]
+mod script_product_tests {
+    use super::*;
+    use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
+
+    #[test]
+    fn literal_script_draft_seals_a_program_body_root() {
+        let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+        let owner = issuer.issue().unwrap();
+        let product = ResolvedScriptLiteralDraftV1::new(owner)
+            .seal()
+            .expect("literal Script root must seal");
+
+        assert_eq!(
+            product.core.data.root_profile,
+            SemanticOwnerRootProfileV1::Script
+        );
+        assert_eq!(product.core.lowering_roots.body_pair().scope().slot(), 1);
+        assert_eq!(product.core.lowering_roots.body_pair().region().slot(), 1);
     }
 }

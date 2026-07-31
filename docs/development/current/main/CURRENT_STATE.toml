@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-SEMANTIC-SOURCE0-I0-R0 is closed NoSafeSlice. Candidate A-prime is accepted after worker and external design review: use one private root-neutral semantic-owner core with explicit Function/Script/Lambda root profiles, one shared forest, and one shared projection authority. Do not connect Literal production yet; first run the bounded behavior-neutral Refactor Series (root profile, owner core/forest, profile-exact projection), then open the Literal-only Complete I0/R0. No partial Script product, synthetic FunctionDeclaration, or fallback is allowed."
+status = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0 is closed. Candidate A-prime landed for the bounded empty/literal-only Script Complete closure with one shared forest/projection and a typed source loan. Non-literal selected Script demands remain Deferred under the existing root compatibility owner; no fallback, retry, partial forest, or synthetic FunctionDeclaration is allowed. Next action is a fresh live-edge census; do not preselect the next Script responsibility."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0"
 current_execution_row = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0"
-current_execution_summary = "A-prime remains accepted as a private root-neutral semantic-owner core plus explicit Function/Script/Lambda wrappers, one shared forest, and one shared projection. S1A/S1B/S1C/S1D and S2 are green; forest draft, verification, upvar, normalized graph, and projection now dispatch through the shared owner-product boundary while Function-only compatibility APIs remain stable. The standalone Script port row remains folded into I0: no carrier-only API. Next, integrate a real producer-backed Literal-only Script product and typed source-view loan at the selected lifecycle seam, deleting only the Complete branch's bare script_root edge. Keep files below 800 lines; no partial forest, Complete-to-Deferred downgrade, fallback, retry, or broad corpus scan."
+current_execution_summary = "A-prime is landed as a private root-neutral semantic-owner core plus explicit Function/Script/Lambda wrappers, one shared forest, and one shared projection. The Literal-only Script producer is connected after CatalogSeal/work-plan preparation and before CatalogInstall; Complete uses a typed source loan while Deferred/raw/reference retain their existing transport. integer_0.hako and focused product/lifecycle/guard evidence are green. Keep files below 800 lines; no partial forest, Complete-to-Deferred downgrade, fallback, retry, or broad corpus scan. Next is a fresh live-edge census only."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0"
+current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS42-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

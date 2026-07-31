@@ -10,6 +10,9 @@ use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::program_root_work_plan::{
     PreparedProgramRootWorkPlanV1, ProgramRootWorkPlanAdmissionV1,
 };
+use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
+use super::program_root_lowering::NormalScriptRootLoweringMode;
+use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
 use super::{
     CallableMainMaterializationPolicyV1, MirModule, ModuleBuilderInvocationSessionV1,
     NormalEntryMaterializationSourceReceiptV1, NormalRuntimeInputSnapshotV1,
@@ -20,6 +23,7 @@ pub(in crate::mir) enum NormalDefaultRootCatalogLifecycleStageV1 {
     RootExpansion,
     PrepareModule,
     CatalogSeal,
+    ScriptSemanticSeal,
     CatalogInstall,
     RootLower,
     FinalizeModule,
@@ -30,6 +34,7 @@ pub(in crate::mir) enum NormalDefaultRootCatalogLifecycleErrorV1 {
     RootExpansion(Box<str>),
     PrepareModule(Box<str>),
     CatalogSeal(Box<str>),
+    ScriptSemanticSeal(Box<str>),
     CatalogInstall(Box<str>),
     RootLower(Box<str>),
     FinalizeModule(Box<str>),
@@ -41,6 +46,9 @@ impl NormalDefaultRootCatalogLifecycleErrorV1 {
             Self::RootExpansion(_) => NormalDefaultRootCatalogLifecycleStageV1::RootExpansion,
             Self::PrepareModule(_) => NormalDefaultRootCatalogLifecycleStageV1::PrepareModule,
             Self::CatalogSeal(_) => NormalDefaultRootCatalogLifecycleStageV1::CatalogSeal,
+            Self::ScriptSemanticSeal(_) => {
+                NormalDefaultRootCatalogLifecycleStageV1::ScriptSemanticSeal
+            }
             Self::CatalogInstall(_) => NormalDefaultRootCatalogLifecycleStageV1::CatalogInstall,
             Self::RootLower(_) => NormalDefaultRootCatalogLifecycleStageV1::RootLower,
             Self::FinalizeModule(_) => NormalDefaultRootCatalogLifecycleStageV1::FinalizeModule,
@@ -52,6 +60,7 @@ impl NormalDefaultRootCatalogLifecycleErrorV1 {
             Self::RootExpansion(message)
             | Self::PrepareModule(message)
             | Self::CatalogSeal(message)
+            | Self::ScriptSemanticSeal(message)
             | Self::CatalogInstall(message)
             | Self::RootLower(message)
             | Self::FinalizeModule(message) => message,
@@ -173,6 +182,28 @@ impl ModuleBuilderInvocationSessionV1 {
                     expansion.is_app_mode(),
                     ProgramRootWorkPlanAdmissionV1::SelectedNormal,
                 );
+                let work = work.into_parts();
+                let script_source = if work.runtime.is_literal_only() {
+                    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                            format!("[mir/script-semantic/owner] {error:?}").into(),
+                        )
+                    })?;
+                    let owner = issuer.issue().map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                            format!("[mir/script-semantic/owner] {error:?}").into(),
+                        )
+                    })?;
+                    Some(VerifiedScriptSemanticSourceV1::seal(
+                        &source,
+                        owner,
+                        work.runtime.literal_source_indices(),
+                    ).map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(error.into())
+                    })?)
+                } else {
+                    None
+                };
                 builder
                     .comp_ctx
                     .install_callable_declaration_catalog(catalog)
@@ -189,6 +220,10 @@ impl ModuleBuilderInvocationSessionV1 {
                         &receipt,
                         &runtime_inputs,
                         brand,
+                        match script_source.as_ref() {
+                            Some(source) => NormalScriptRootLoweringMode::Complete(source),
+                            None => NormalScriptRootLoweringMode::Deferred,
+                        },
                     )
                     .map_err(|error| {
                         NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into())

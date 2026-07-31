@@ -1,8 +1,8 @@
 //! Shared forest payload boundary.
 //!
-//! The current producer still seals Function/Lambda owners only. Keeping the
-//! payload enum here lets the forest accept a future Script wrapper without
-//! creating a second forest authority or changing the existing Function API.
+//! The payload enum lets the shared forest carry Function/Lambda and the
+//! first narrow Script product without creating a second forest authority or
+//! changing the existing Function API.
 
 use super::direct_call::ResolvedDirectCallTargetV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
