@@ -265,7 +265,7 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-POST-ZERO-DEMAND-CAPABILITY-CENSUS0-D0
+  RAW-SCRIPT-POST-SCOPEBOX-CAPABILITY-CENSUS0-D0
 
   Change:
     Census exactly one remaining Deferred Script capability family from its
@@ -285,6 +285,17 @@ current
     or a source-level diagnostic-stage change.
 
 closed
+  RAW-SCRIPT-SCOPEBOX-LEXICAL-STRUCTURED-SCOPE0-I0-R0
+  -> lexical-safe ScopeBox now uses the shared traversal and the existing raw
+     ScopeBox owner; `ScopeBodyRoot` remains a region receipt while transport
+     hands inner nodes the canonical sibling `ScopeBody(n)` leaf site
+  -> ScopeBox/nested ScopeBox selected-legacy parity, lexical non-leak, disabled
+     control Deferred, transport path, pointer, and shared cutover guards green
+
+  RAW-SCRIPT-POST-ZERO-DEMAND-CAPABILITY-CENSUS0-D0
+  -> selected ScopeBox lexical structured scope: shared traversal already owns
+     exact lexical scope paths and raw ScopeBox lowering remains its terminal
+
   RAW-SCRIPT-THIS-DIAGNOSTIC-BOUNDARY0-I0-R0
   -> bare `This + DirectPortAwareExpression` now seals an exact typed existing
      unsupported-diagnostic boundary; the raw dispatcher remains RootLower owner

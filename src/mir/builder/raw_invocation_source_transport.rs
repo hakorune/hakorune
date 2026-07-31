@@ -368,24 +368,24 @@ impl RawInvocationSourceContextV1 {
         })
     }
 }
-
 fn body_item_site(kind: SourceBodyKindV1, site: &SourceNodeSiteV1, index: usize) -> SourceNodeSiteV1 {
     if kind == SourceBodyKindV1::Function
         && site.segments() == [SourcePathSegmentV1::FunctionBody]
     {
         return SourcePathV1::root_body(index).node();
     }
-    if kind == SourceBodyKindV1::FastMem
-        && site.segments().last() == Some(&SourcePathSegmentV1::FastMemBodyRoot)
-    {
+    let body_root = match kind {
+        SourceBodyKindV1::FastMem => Some(SourcePathSegmentV1::FastMemBodyRoot),
+        SourceBodyKindV1::Scope => Some(SourcePathSegmentV1::ScopeBodyRoot),
+        _ => None,
+    };
+    if site.segments().last() == body_root.as_ref() {
         let mut segments = site.segments().to_vec();
         let _ = segments.pop();
-        segments.push(SourcePathSegmentV1::FastMemBody(index as u32));
+        segments.push(kind.item_segment(index as u32));
         return SourceNodeSiteV1::from_segments(segments);
     }
-    SourcePathV1::from_node(site)
-        .child(kind.item_segment(index as u32))
-        .node()
+    SourcePathV1::from_node(site).child(kind.item_segment(index as u32)).node()
 }
 
 fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {

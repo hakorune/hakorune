@@ -18,6 +18,7 @@ impl ShadowTraversalProfileV1 {
             Self::FullFunctionV1 => true,
             Self::ScriptLexicalCoreV1 => match statement {
                 ASTNode::Print { .. } => true,
+                ASTNode::ScopeBox { .. } => true,
                 ASTNode::FastMemRegion { .. } => true,
                 ASTNode::Local {
                     variables,

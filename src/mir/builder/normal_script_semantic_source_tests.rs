@@ -369,6 +369,109 @@ fn lexical_fastmem_scope_matches_legacy() {
 }
 
 #[test]
+fn lexical_scopebox_matches_legacy() {
+    let local = ASTNode::Local {
+        variables: vec!["x".to_owned()],
+        initial_values: vec![Some(Box::new(ASTNode::Literal {
+            value: LiteralValue::Integer(1), span: Span::unknown(),
+        }))],
+        declared_type_names: vec![None], span: Span::unknown(),
+    };
+    let print = ASTNode::Print {
+        expression: Box::new(ASTNode::Variable { name: "x".to_owned(), span: Span::unknown() }),
+        span: Span::unknown(),
+    };
+    assert_selected_program_parity(ASTNode::Program {
+        statements: vec![ASTNode::ScopeBox {
+            body: vec![local, print], span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    }, "script-scopebox.hako");
+}
+
+#[test]
+fn nested_lexical_scopeboxes_match_legacy() {
+    let local = ASTNode::Local {
+        variables: vec!["x".to_owned()],
+        initial_values: vec![Some(Box::new(ASTNode::Literal {
+            value: LiteralValue::Integer(1), span: Span::unknown(),
+        }))],
+        declared_type_names: vec![None], span: Span::unknown(),
+    };
+    let print = ASTNode::Print {
+        expression: Box::new(ASTNode::Variable { name: "x".to_owned(), span: Span::unknown() }),
+        span: Span::unknown(),
+    };
+    assert_selected_program_parity(ASTNode::Program {
+        statements: vec![ASTNode::ScopeBox {
+            body: vec![ASTNode::ScopeBox {
+                body: vec![local, print], span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    }, "script-nested-scopebox.hako");
+}
+
+#[test]
+fn scopebox_with_disabled_control_stays_deferred() {
+    let program = ASTNode::Program {
+        statements: vec![ASTNode::ScopeBox {
+            body: vec![ASTNode::If {
+                condition: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Bool(true), span: Span::unknown(),
+                }),
+                then_body: Vec::new(), else_body: None, span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    };
+    let source = PreparedNormalDefaultProgramRootV1::seal(program).expect("Program source");
+    let window = VerifiedScriptRootDemandWindowV1::seal(vec![resolved_entry(0)], 1)
+        .expect("ScopeBox window");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
+    let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
+    assert!(matches!(
+        resolver.resolve_script(view, &window).expect("ScopeBox resolve"),
+        ResolveScriptOutcomeV1::Deferred,
+    ));
+}
+
+#[test]
+fn scopebox_local_does_not_leak_outside_its_lexical_body() {
+    let program = ASTNode::Program {
+        statements: vec![
+            ASTNode::ScopeBox {
+                body: vec![ASTNode::Local {
+                    variables: vec!["x".to_owned()],
+                    initial_values: vec![Some(Box::new(ASTNode::Literal {
+                        value: LiteralValue::Integer(1), span: Span::unknown(),
+                    }))],
+                    declared_type_names: vec![None], span: Span::unknown(),
+                }],
+                span: Span::unknown(),
+            },
+            ASTNode::Print {
+                expression: Box::new(ASTNode::Variable { name: "x".to_owned(), span: Span::unknown() }),
+                span: Span::unknown(),
+            },
+        ],
+        span: Span::unknown(),
+    };
+    let mut legacy = MirCompiler::with_options(false);
+    let legacy_error = legacy
+        .compile_with_source(program.clone(), Some("script-scopebox-leak.hako"))
+        .expect_err("ScopeBox local cannot leak");
+    let normal_error = MirCompiler::with_options(false)
+        .compile_normal(NormalCompileRequestV1::for_mir_mode(
+            program, Some("script-scopebox-leak.hako"), std::collections::HashMap::new(),
+        ).expect("normal request"))
+        .expect_err("ScopeBox local must defer to the existing diagnostic");
+    assert_eq!(normal_error, legacy_error);
+}
+
+#[test]
 fn fastmem_weak_child_remains_deferred_before_name_resolution() {
     let mut compiler = MirCompiler::with_options(false);
     let weak_missing = ASTNode::UnaryOp {
