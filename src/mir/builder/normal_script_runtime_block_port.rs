@@ -120,7 +120,12 @@ where
                 })
             }
             NormalScriptRuntimeStatementAdmissionV1::DirectSelectedUnsupportedStatement => {
-                lower_direct_selected_unsupported_statement_v1(builder, &statement)
+                let source = self
+                    .port
+                    .prepare_body_statement_source_v1(&statement, source_statement_index)?;
+                self.port.with_prepared_child_source_v1(source, |_port| {
+                    lower_direct_selected_unsupported_statement_v1(builder, &statement)
+                })
             }
             NormalScriptRuntimeStatementAdmissionV1::RawCompatibility => {
                 drive_legacy_statement_v1(builder, self.port, statement)

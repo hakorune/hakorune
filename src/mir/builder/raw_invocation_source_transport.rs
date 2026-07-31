@@ -472,6 +472,11 @@ fn is_located_lambda_statement(statement: &ASTNode) -> bool {
 }
 
 fn is_located_control_or_diagnostic_terminal(statement: &ASTNode) -> bool {
+    if super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(
+        statement,
+    ) {
+        return true;
+    }
     matches!(
         statement,
         ASTNode::Program { .. }

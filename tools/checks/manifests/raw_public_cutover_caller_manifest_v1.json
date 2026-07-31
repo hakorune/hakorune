@@ -145,7 +145,8 @@
         "script_await_lexical_closure",
         "script_check_lexical_closure",
         "script_andor_lexical_closure",
-        "script_static_const_u16_completion"
+        "script_static_const_u16_completion",
+        "script_selected_unsupported_diagnostic_boundary"
       ],
       "deferred_fixture_reasons": {
         "script_weak_unary": "UnsafeRuntimeStatement",

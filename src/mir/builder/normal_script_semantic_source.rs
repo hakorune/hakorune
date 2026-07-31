@@ -26,11 +26,17 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     forest: VerifiedSemanticOwnerForestV1,
     projection: VerifiedSourceProjectionV1,
     static_const_completions: Box<[VerifiedScriptStaticConstCompletionV1]>,
+    existing_diagnostic_boundaries: Box<[VerifiedScriptExistingDiagnosticBoundaryV1]>,
     runtime_source_indices: Box<[usize]>,
 }
 
 #[derive(Debug)]
 pub(super) struct VerifiedScriptStaticConstCompletionV1 {
+    site: SourceStmtSiteV1,
+}
+
+#[derive(Debug)]
+pub(super) struct VerifiedScriptExistingDiagnosticBoundaryV1 {
     site: SourceStmtSiteV1,
 }
 
@@ -51,6 +57,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                     expression_source_indices,
                 },
             static_const_completion_source_indices,
+            existing_diagnostic_source_indices,
         }) = admission
         else {
             return Err("[mir/script-semantic/admission] Deferred input cannot seal".to_owned());
@@ -111,11 +118,28 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         let product = draft
             .seal()
             .map_err(|error| format!("[mir/script-semantic/seal] {error:?}"))?;
+        let mut existing_diagnostic_boundaries = Vec::new();
+        for &source_statement_index in &existing_diagnostic_source_indices {
+            let Some(statement) = statements.get(source_statement_index) else {
+                return Err(format!(
+                    "[mir/script-semantic/diagnostic-coverage] source_statement_index={source_statement_index}"
+                ));
+            };
+            if !super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(statement) {
+                return Err(format!(
+                    "[mir/script-semantic/diagnostic-coverage] source_statement_index={source_statement_index}"
+                ));
+            }
+            existing_diagnostic_boundaries.push(VerifiedScriptExistingDiagnosticBoundaryV1 {
+                site: program_statement_site(source_statement_index),
+            });
+        }
         let runtime_source_indices = locals
             .iter()
             .map(|local| local.source_statement_index)
             .chain(expression_source_indices.into_vec())
             .chain(static_const_completion_source_indices.iter().copied())
+            .chain(existing_diagnostic_source_indices.iter().copied())
             .collect::<std::collections::BTreeSet<_>>()
             .into_iter()
             .collect::<Box<[_]>>();
@@ -137,6 +161,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             forest,
             projection,
             static_const_completions: static_const_completions.into_boxed_slice(),
+            existing_diagnostic_boundaries: existing_diagnostic_boundaries.into_boxed_slice(),
             runtime_source_indices,
         })
     }
@@ -160,6 +185,13 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     #[cfg(test)]
     pub(super) fn static_const_completion_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
         self.static_const_completions
+            .iter()
+            .map(|receipt| &receipt.site)
+    }
+
+    #[cfg(test)]
+    pub(super) fn existing_diagnostic_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
+        self.existing_diagnostic_boundaries
             .iter()
             .map(|receipt| &receipt.site)
     }
@@ -264,6 +296,7 @@ mod tests {
                     expression_source_indices: vec![0].into_boxed_slice(),
                 },
                 static_const_completion_source_indices: Box::new([]),
+                existing_diagnostic_source_indices: Box::new([]),
             }),
         )
         .expect("literal Script product");
@@ -305,6 +338,7 @@ mod tests {
                     expression_source_indices: Box::new([]),
                 },
                 static_const_completion_source_indices: Box::new([]),
+                existing_diagnostic_source_indices: Box::new([]),
             }),
         )
         .expect_err("out-of-range literal coverage must reject");
@@ -334,10 +368,50 @@ mod tests {
                     expression_source_indices: Box::new([]),
                 },
                 static_const_completion_source_indices: vec![0].into_boxed_slice(),
+                existing_diagnostic_source_indices: Box::new([]),
             }),
         )
         .expect("StaticConst semantic source");
         let sites = product.static_const_completion_sites().collect::<Vec<_>>();
+        assert_eq!(sites.len(), 1);
+        assert_eq!(
+            sites[0].node().segments(),
+            &[
+                SourcePathSegmentV1::ProgramBodyRoot,
+                SourcePathSegmentV1::ProgramBody(0),
+            ]
+        );
+    }
+
+    #[test]
+    fn existing_diagnostic_receipt_seals_the_original_program_ordinal() {
+        let ast = ASTNode::Program {
+            statements: vec![ASTNode::GlobalVar {
+                name: "g".to_owned(),
+                value: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(1),
+                    span: Span::unknown(),
+                }),
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        };
+        let source = PreparedNormalDefaultProgramRootV1::seal(ast).expect("Program source");
+        let product = VerifiedScriptSemanticSourceV1::seal(
+            &source,
+            owner(),
+            ScriptSemanticClosureAdmissionV1::Complete(ScriptSemanticClosureFactsV1 {
+                lexical: ScriptLexicalFactsV1 {
+                    locals: Box::new([]),
+                    variables: Box::new([]),
+                    expression_source_indices: Box::new([]),
+                },
+                static_const_completion_source_indices: Box::new([]),
+                existing_diagnostic_source_indices: vec![0].into_boxed_slice(),
+            }),
+        )
+        .expect("diagnostic semantic source");
+        let sites = product.existing_diagnostic_sites().collect::<Vec<_>>();
         assert_eq!(sites.len(), 1);
         assert_eq!(
             sites[0].node().segments(),

@@ -19,6 +19,8 @@ use crate::mir::builder::stmts::if_statement_descent::{
 use crate::mir::builder::stmts::print_stmt::lower_raw_print_statement_with_port_v1;
 use crate::mir::{MirBuilder, ValueId};
 
+use super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1;
+
 pub(super) fn lower_direct_print_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
@@ -119,18 +121,7 @@ pub(super) fn lower_direct_selected_unsupported_statement_v1(
     builder: &mut MirBuilder,
     statement: &ASTNode,
 ) -> Result<ValueId, String> {
-    if !matches!(
-        statement,
-        ASTNode::LoopRange { .. }
-            | ASTNode::Break { .. }
-            | ASTNode::Continue { .. }
-            | ASTNode::ImportStatement { .. }
-            | ASTNode::BuildGate { .. }
-            | ASTNode::EnumDeclaration { .. }
-            | ASTNode::BrandDeclaration { .. }
-            | ASTNode::TypeAliasDeclaration { .. }
-            | ASTNode::GlobalVar { .. }
-    ) {
+    if !is_direct_selected_unsupported_statement_v1(statement) {
         return Err(
             "[freeze:contract][mir/script-runtime/unsupported-statement-source-drift]".to_owned(),
         );

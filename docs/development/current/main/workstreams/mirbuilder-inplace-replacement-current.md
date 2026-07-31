@@ -3858,7 +3858,7 @@ Next:
     raw-script-static-const-semantic-closure0-i0-r0-execution-task-2026-08-01.md
 ```
 
-## RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0 — current
+## RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0 — closed
 
 ```text
 Decision:
@@ -3880,7 +3880,7 @@ Required:
   ordinal; diagnostic text/stage/order unchanged; source/admission mismatch is
   ScriptSemanticSeal invariant rejection; fallback/retry 0.
 
-Proof budget:
+Proof:
   compact the 797-line shared guard into a table-driven fixture-ID consumer;
   do not add a guard; freeze the near-limit integration/source-transport tests;
   every source/check file remains below 800 lines.
@@ -3889,9 +3889,16 @@ Excluded:
   Using; semantic Control; Call/Object; Allocation; Weak; Lambda; Box; Outbox;
   child traversal; new diagnostic authority; partial request routing.
 
-Task:
-  docs/development/current/main/investigations/
-  raw-script-selected-unsupported-semantic-closure0-i0-r0-execution-task-2026-08-01.md
+Closeout:
+  exact nine-kind admission is one Complete zero-demand receipt; the same
+  ProgramBody source reaches the unchanged diagnostic terminal; wrong pairing
+  is a hard semantic-seal invariant; mixed residual requests remain wholly
+  Deferred. Admission 12/12, semantic source 15/15, nine-kind diagnostic
+  parity/reuse, source-order parity, release build, pointer guard, and shared
+  cut0 guard are green. Maximum touched source/check file is 797 lines.
+
+Next:
+  MIRBUILDER-LIVE-EDGE-CENSUS51-D0 at the zero-demand batch boundary.
 ```
 
 ## MIRBUILDER-LIVE-EDGE-CENSUS50-D0 — closed
@@ -6451,7 +6458,8 @@ R2bc MIRBUILDER-LIVE-EDGE-CENSUS49-D0 closed: NoSafeSlice
 R2bd RAW-SCRIPT-SEMANTIC-CLOSURE-BOUNDARY1-D0 closed: Candidate A-prime
 R2be RAW-SCRIPT-STATIC-CONST-SEMANTIC-CLOSURE0-I0-R0 closed
 R2bf MIRBUILDER-LIVE-EDGE-CENSUS50-D0 closed: selected existing diagnostic family
-R2bg RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0 current
+R2bg RAW-SCRIPT-SELECTED-UNSUPPORTED-SEMANTIC-CLOSURE0-I0-R0 closed
+R2bh MIRBUILDER-LIVE-EDGE-CENSUS51-D0 current bounded batch census
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed

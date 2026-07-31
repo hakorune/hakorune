@@ -174,6 +174,25 @@ Rules:
 - git history owns the detailed landed diff. Source, tests, and the reusable
   guard own executable detail. Later rows must not copy it back into docs.
 
+### Implementation-Coupled Commit Law
+
+For a bounded row whose design is already determined by code authority, keep
+selection, implementation, and closeout in one implementation commit.
+
+```text
+default bounded row:
+  select in rolling card -> edit/test -> compact closeout = one refactor commit
+
+separate docs commit only for:
+  external consultation, language-spec Decision, NoSafeSlice/NoStandaloneRow,
+  or a Refactor Series contract that must precede multiple code commits
+```
+
+Do not create `task -> implementation -> closeout` as three commits for each
+AST kind. Run a fresh census at a responsibility-batch boundary, not
+automatically after every small constructor. Proof and old-edge deletion remain
+mandatory; only repeated prose ceremony is removed.
+
 A new narrative document is allowed only for a durable cross-workstream
 contract, machine-consumed stable artifact, irreproducible evidence, incident
 audit, genuine independently owned workstream fork, or independently readable

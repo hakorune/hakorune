@@ -115,6 +115,21 @@ pub(super) fn classify_normal_script_program_item_v1(
     }
 }
 
+pub(super) fn is_direct_selected_unsupported_statement_v1(statement: &ASTNode) -> bool {
+    matches!(
+        statement,
+        ASTNode::LoopRange { .. }
+            | ASTNode::Break { .. }
+            | ASTNode::Continue { .. }
+            | ASTNode::ImportStatement { .. }
+            | ASTNode::BuildGate { .. }
+            | ASTNode::EnumDeclaration { .. }
+            | ASTNode::BrandDeclaration { .. }
+            | ASTNode::TypeAliasDeclaration { .. }
+            | ASTNode::GlobalVar { .. }
+    )
+}
+
 fn is_plain_box(statement: &ASTNode) -> bool {
     let ASTNode::BoxDeclaration {
         delegates,
@@ -232,6 +247,52 @@ mod tests {
             classify_normal_script_program_item_v1(&fastmem),
             DirectFastMemRegion
         );
+    }
+
+    #[test]
+    fn selected_unsupported_boundary_preserves_source_order_diagnostics() {
+        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+        for (index, statements) in [
+            vec![
+                ASTNode::Break {
+                    span: Span::unknown(),
+                },
+                ASTNode::Variable {
+                    name: "missing".to_owned(),
+                    span: Span::unknown(),
+                },
+            ],
+            vec![
+                ASTNode::Variable {
+                    name: "missing".to_owned(),
+                    span: Span::unknown(),
+                },
+                ASTNode::Break {
+                    span: Span::unknown(),
+                },
+            ],
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            let ast = ASTNode::Program {
+                statements,
+                span: Span::unknown(),
+            };
+            let legacy = MirCompiler::with_options(false)
+                .compile_with_source(ast.clone(), Some("unsupported-order.hako"))
+                .expect_err("legacy order fixture must reject");
+            let request = NormalCompileRequestV1::for_mir_mode(
+                ast,
+                Some("unsupported-order.hako"),
+                HashMap::new(),
+            )
+            .expect("normal order request");
+            let normal = MirCompiler::with_options(false)
+                .compile_normal(request)
+                .expect_err("normal order fixture must reject");
+            assert_eq!(normal, legacy, "order fixture {index}");
+        }
     }
 
     #[test]

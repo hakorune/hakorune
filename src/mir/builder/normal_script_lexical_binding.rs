@@ -11,6 +11,7 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::ValueId;
 
+use super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1;
 use super::normal_script_runtime_work::{
     LocatedNormalScriptRuntimeAdmissionV1, NormalScriptRuntimeStatementAdmissionV1,
 };
@@ -40,6 +41,7 @@ pub(super) struct ScriptLexicalFactsV1 {
 pub(super) struct ScriptSemanticClosureFactsV1 {
     pub(super) lexical: ScriptLexicalFactsV1,
     pub(super) static_const_completion_source_indices: Box<[usize]>,
+    pub(super) existing_diagnostic_source_indices: Box<[usize]>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -76,6 +78,7 @@ pub(super) fn admit_runtime_script_lexical_v1(
     let mut expression_source_indices = Vec::new();
     let mut runtime_source_indices = BTreeSet::new();
     let mut static_const_completion_source_indices = BTreeSet::new();
+    let mut existing_diagnostic_source_indices = BTreeSet::new();
     for (statement, admission) in statements.iter().zip(admissions) {
         if !runtime_source_indices.insert(admission.source_statement_index) {
             return Err(ScriptSemanticAdmissionInvariantErrorV1::DuplicateCompletionSite);
@@ -88,6 +91,18 @@ pub(super) fn admit_runtime_script_lexical_v1(
                 return Err(ScriptSemanticAdmissionInvariantErrorV1::SourceAdmissionMismatch);
             }
             if !static_const_completion_source_indices.insert(admission.source_statement_index) {
+                return Err(ScriptSemanticAdmissionInvariantErrorV1::DuplicateCompletionSite);
+            }
+            continue;
+        }
+        if matches!(
+            admission.admission,
+            NormalScriptRuntimeStatementAdmissionV1::DirectSelectedUnsupportedStatement
+        ) {
+            if !is_direct_selected_unsupported_statement_v1(statement) {
+                return Err(ScriptSemanticAdmissionInvariantErrorV1::SourceAdmissionMismatch);
+            }
+            if !existing_diagnostic_source_indices.insert(admission.source_statement_index) {
                 return Err(ScriptSemanticAdmissionInvariantErrorV1::DuplicateCompletionSite);
             }
             continue;
@@ -177,6 +192,9 @@ pub(super) fn admit_runtime_script_lexical_v1(
                 expression_source_indices: expression_source_indices.into_boxed_slice(),
             },
             static_const_completion_source_indices: static_const_completion_source_indices
+                .into_iter()
+                .collect(),
+            existing_diagnostic_source_indices: existing_diagnostic_source_indices
                 .into_iter()
                 .collect(),
         },
@@ -348,7 +366,10 @@ mod tests {
         NormalScriptRuntimeStatementAdmissionV1, ScriptLexicalDeferredReasonV1,
         ScriptSemanticClosureAdmissionV1,
     };
-    use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
+    use crate::ast::{
+        ASTNode, BinaryOperator, BuildPredicate, DeclarationAttrs, LiteralValue, Span,
+        UnaryOperator,
+    };
 
     fn admission() -> LocatedNormalScriptRuntimeAdmissionV1 {
         LocatedNormalScriptRuntimeAdmissionV1 {
@@ -362,6 +383,61 @@ mod tests {
             name: name.to_owned(),
             element_type: "u16".to_owned(),
             values: vec![1, 2, 3],
+            span: Span::unknown(),
+        }
+    }
+
+    fn selected_unsupported_statements() -> Vec<ASTNode> {
+        let span = Span::unknown();
+        vec![
+            ASTNode::LoopRange {
+                var_name: "i".to_owned(),
+                start: Box::new(integer(0)),
+                end: Box::new(integer(1)),
+                body: Vec::new(),
+                span,
+            },
+            ASTNode::Break { span },
+            ASTNode::Continue { span },
+            ASTNode::ImportStatement {
+                path: "fixture.hako".to_owned(),
+                alias: None,
+                span,
+            },
+            ASTNode::BuildGate {
+                predicate: BuildPredicate::BuildFlag("fixture".to_owned()),
+                then_items: Vec::new(),
+                else_items: None,
+                span,
+            },
+            ASTNode::EnumDeclaration {
+                name: "Choice".to_owned(),
+                variants: Vec::new(),
+                type_parameters: Vec::new(),
+                attrs: DeclarationAttrs::default(),
+                span,
+            },
+            ASTNode::BrandDeclaration {
+                name: "PageId".to_owned(),
+                underlying_type_name: "i64".to_owned(),
+                span,
+            },
+            ASTNode::TypeAliasDeclaration {
+                name: "Count".to_owned(),
+                target_type_name: "i64".to_owned(),
+                span,
+            },
+            ASTNode::GlobalVar {
+                name: "g".to_owned(),
+                value: Box::new(integer(1)),
+                span,
+            },
+        ]
+    }
+
+    fn integer(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
             span: Span::unknown(),
         }
     }
@@ -583,6 +659,37 @@ mod tests {
             Ok(ScriptSemanticClosureAdmissionV1::Deferred(
                 ScriptLexicalDeferredReasonV1::UnsafeRuntimeStatement
             ))
+        );
+    }
+
+    #[test]
+    fn selected_unsupported_family_is_one_exact_zero_demand_boundary() {
+        for (index, statement) in selected_unsupported_statements().into_iter().enumerate() {
+            let admission = LocatedNormalScriptRuntimeAdmissionV1 {
+                source_statement_index: index,
+                admission:
+                    NormalScriptRuntimeStatementAdmissionV1::DirectSelectedUnsupportedStatement,
+            };
+            let Ok(ScriptSemanticClosureAdmissionV1::Complete(facts)) =
+                admit_runtime_script_lexical_v1(&[statement], &[admission])
+            else {
+                panic!("selected unsupported pair {index} must be Complete");
+            };
+            assert_eq!(facts.existing_diagnostic_source_indices.as_ref(), &[index]);
+            assert!(facts.lexical.locals.is_empty());
+            assert!(facts.lexical.variables.is_empty());
+        }
+    }
+
+    #[test]
+    fn selected_unsupported_admission_rejects_a_nonfamily_source() {
+        let admission = LocatedNormalScriptRuntimeAdmissionV1 {
+            source_statement_index: 0,
+            admission: NormalScriptRuntimeStatementAdmissionV1::DirectSelectedUnsupportedStatement,
+        };
+        assert_eq!(
+            admit_runtime_script_lexical_v1(&[integer(1)], &[admission]),
+            Err(super::ScriptSemanticAdmissionInvariantErrorV1::SourceAdmissionMismatch)
         );
     }
 }
