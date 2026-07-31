@@ -208,8 +208,7 @@ mod tests {
         RawInvocationSourceTransportV1, RawSourceTransportPortV1,
     };
     use crate::mir::builder::recursive_child_lowering::{
-        drive_legacy_expression_v1, drive_raw_legacy_expression_v1, RawInvocationChildPortV1,
-        RecursiveChildLoweringPortV1,
+        drive_raw_legacy_expression_v1, RawInvocationChildPortV1, RecursiveChildLoweringPortV1,
     };
     use crate::mir::{Callee, EffectMask, MirBuilder, MirInstruction, MirType};
 
@@ -545,7 +544,18 @@ mod tests {
             );
             invocation.with_module_port(|builder, module_port| {
                 let mut port = RawInvocationChildPortV1::new(module_port);
-                drive_legacy_expression_v1(builder, &mut port, root)
+                port.with_source_transport_v1(
+                    RawInvocationSourceTransportV1::script_root(ASTNode::Program {
+                        statements: vec![root],
+                        span: Span::unknown(),
+                    }),
+                    |port, program| {
+                        let ASTNode::Program { statements, .. } = program else {
+                            unreachable!("selected Map failure test installs a Program root")
+                        };
+                        port.lower_body(builder, statements)
+                    },
+                )
             })
         }
         .expect_err("missing Map value must fail");

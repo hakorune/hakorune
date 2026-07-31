@@ -265,15 +265,15 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-POST-WEAK-REFERENCE-CAPABILITY-CENSUS0-D0
+  RAW-SCRIPT-POST-MAP-LITERAL-CAPABILITY-CENSUS0-D0
 
   Change:
-    Census remaining selected Script Deferred edges once after Weak Unary has
+    Census remaining selected Script Deferred edges once after MapLiteral has
     left compatibility.
 
   Contract:
     Choose at most one responsibility family with a named live old edge. Keep
-    QMark control/result, Loop JoinIR, Map mutation, Record metadata, Lambda
+    QMark control/result, Loop JoinIR, Record metadata, Lambda
     capture, and broad BlockExpr as separate design stops; no second resolver,
     fallback, retry, or mixed request routing.
 
@@ -295,6 +295,18 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-MAP-LITERAL-COMPOSITIONAL-MUTATION-DESCENT0-I0-R0
+  -> selected Script Map values now receive exact `MapEntryValue(n)` source
+     receipts through the structured child port. The existing Map owner remains
+     the sole `MapBox` allocation, key emission, `MapBox.set` mutation, and
+     type owner; unsupported values remain Deferred. The selected MapLiteral
+     `Deferred -> bare script_root()` edge is zero.
+
+  RAW-SCRIPT-POST-WEAK-REFERENCE-CAPABILITY-CENSUS0-D0
+  -> Accepts MapLiteral only. Its semantic traversal already exists; exact
+     `MapEntryValue(n)` receipts let the existing Map owner retain the
+     allocation/mutation boundary without activating general MethodCall.
+
   RAW-SCRIPT-WEAK-REFERENCE-COMPOSITIONAL-DESCENT0-I0-R0
   -> selected Script Weak Unary now enters the existing unary child-source
      handoff and existing WeakRef emission owner. WeakRef type publication and
