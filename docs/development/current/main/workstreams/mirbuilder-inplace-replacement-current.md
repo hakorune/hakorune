@@ -3555,6 +3555,48 @@ Hard stops:
   program_root_work_plan.rs edits, or any touched source/check file >=800.
 ```
 
+## RAW-SCRIPT-BINARY-LEXICAL-CLOSURE0-D0 — accepted
+
+```text
+Decision:
+  Candidate A — ordinary Binary lexical closure
+
+Ceremony:
+  T2, one atomic I0/R0 commit
+
+Change:
+  Extend the Script Complete expression closure with Binary(op, E, E) for
+  ordinary operators only. E is the existing Literal, prior-root
+  Local-backed Variable, ordinary Unary, or Print(E) closure. And/Or stay
+  Deferred under the existing short-circuit CFG owner.
+
+Source contract:
+  ProgramBody(original ordinal) -> BinaryLeft/BinaryRight recursively,
+  preserving any PrintValue/UnaryOperand prefixes. Variable facts remain
+  BindingRef/source-site receipts only; Binary ordinals join
+  expression_source_indices and the work plan is not rebuilt.
+
+Lowering:
+  Reuse drive_ordinary_binary_expression_v1 through the same RawInvocation
+  port and ledger. No Binary-specific semantic owner, type/ABI fact, MIR
+  variant, or failure owner.
+
+Atomic delete:
+  Safe ordinary Binary no longer selects Deferred
+  RawInvocationSourceTransportV1::script_root(()). And/Or, unsafe children,
+  calls/objects/fields/new, Weak, control, Box, Lambda, raw, and reference
+  routes retain their existing ownership.
+
+Fixtures:
+  1+2, local x = 1; x+2, nested Binary, print(x+1), and And/Or Deferred
+  parity/reuse cases.
+
+Hard stops:
+  short-circuit inclusion, mixed routing, type/ABI inference, second
+  resolver, name fallback, program_root_work_plan.rs edits, new Binary
+  owner/variant, or any touched source/check file >=800.
+```
+
 ## SEMANTIC-OWNER-SCRIPT-PORT0-S3 — closed, NoStandaloneRow
 
 ```text
@@ -6042,7 +6084,8 @@ R2am RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-I0-R0 closed at 1adb617542
 R2an MIRBUILDER-LIVE-EDGE-CENSUS44-D0 closed
 R2ao RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-D0 accepted design stop
 R2ap RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-I0-R0 closed at c1c7852b76
-R2aq MIRBUILDER-LIVE-EDGE-CENSUS45-D0 current narrow design stop
+R2aq MIRBUILDER-LIVE-EDGE-CENSUS45-D0 closed
+R2ar RAW-SCRIPT-BINARY-LEXICAL-CLOSURE0-D0 current design stop
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
