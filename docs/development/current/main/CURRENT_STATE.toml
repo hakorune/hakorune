@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0, RAW-SCRIPT-LEXICAL-BINDING0-I0-R0, MIRBUILDER-LIVE-EDGE-CENSUS43-D0, and RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-I0-R0 are closed. Script Complete now admits recursive ordinary Unary (Minus/Not/BitNot) over the existing Literal/lexical closure with exact nested source paths; Weak, Print, control, calls/objects, Box, and Lambda remain Deferred. The next stop is a fresh narrow live-edge census; do not preselect another semantic family."
+status = "RAW-SCRIPT-LITERAL-SEMANTIC-OWNER0-I0-R0, RAW-SCRIPT-LEXICAL-BINDING0-I0-R0, MIRBUILDER-LIVE-EDGE-CENSUS43-D0, RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-I0-R0, and MIRBUILDER-LIVE-EDGE-CENSUS44-D0 are closed. Census44 found one selected-normal Deferred script_root(()) edge; worker design selected Print(LexicalExpr) as the next bounded T2 slice. The next task admits Print over the existing Literal/Variable/ordinary-Unary closure; control, calls/objects, Box, Weak, and Lambda remain outside."
 date = "2026-07-31"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "MIRBUILDER-LIVE-EDGE-CENSUS44-D0"
-current_execution_row = "MIRBUILDER-LIVE-EDGE-CENSUS44-D0"
-current_execution_summary = "Ordinary Unary (Minus/Not/BitNot) is landed over the existing Script lexical closure. Exact nested UnaryOperand source paths now drive the existing port-aware unary owner; safe Unary no longer selects the Deferred script_root(()) edge, while Weak, Print, control, calls/objects, Box, Lambda, and mixed unsafe trees remain Deferred. Run one fresh narrow selected-normal live-edge census; do not preselect the next family."
+current_design_stop = "RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-D0"
+current_execution_row = "RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-D0"
+current_execution_summary = "Census44 confirmed one selected-normal old source edge: Deferred Script -> RawInvocationSourceTransportV1::script_root(()). Worker design selected Print(E) as the next bounded compositional slice, where E is the existing Literal/prior-root Local-backed Variable/ordinary-Unary closure. Reuse DirectPrint and the existing ledger/source paths; unsafe Print children, Weak, Binary, control, calls/objects, Box, and Lambda remain Deferred."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -442,7 +442,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-I0-R0 is closed at 1adb617542. Script Complete now admits recursive ordinary Unary (Minus/Not/BitNot) over Literal and prior-root lexical Variable/Local expressions, records exact nested source paths, and uses the existing port-aware unary owner. Weak, Print, control, calls/objects, Box, Lambda, and mixed unsafe trees remain Deferred. The sole current design stop is MIRBUILDER-LIVE-EDGE-CENSUS44-D0, a fresh narrow census before selecting one next production edge."""
+latest_card_summary = """MIRBUILDER-LIVE-EDGE-CENSUS44-D0 is closed: the selected-normal graph has one remaining Deferred Script source edge, and bounded worker design selected Print(LexicalExpr) next. The current design stop is RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-D0. The row reuses DirectPrint, exact PrintValue/UnaryOperand source paths, and the request-local BindingRef-to-ValueId ledger; no Print-specific semantic owner or fallback is allowed."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "MIRBUILDER-LIVE-EDGE-CENSUS44-D0"
+current_blocker_token = "RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

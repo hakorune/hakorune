@@ -3502,6 +3502,43 @@ Stop:
   Deferred/fallback/retry.
 ```
 
+## RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-D0 — accepted
+
+```text
+Decision:
+  Candidate A — Print(E) over the existing Script lexical closure
+
+Ceremony:
+  T2, one atomic I0/R0 commit
+
+Change:
+  Admit DirectPrint in the same Script lexical admission when its operand is
+  the existing Complete expression closure: Literal, prior-root Local-backed
+  Variable, or ordinary Unary(Minus|Not|BitNot) recursively. Reuse
+  lower_direct_print_v1 and the existing BindingRef-to-ValueId ledger.
+
+Source contract:
+  ProgramBody(original ordinal) -> PrintValue -> UnaryOperand...
+  Variable facts are recorded at exact nested SourceExprSite paths. The Print
+  ordinal is included in expression_source_indices; the work plan is not
+  rebuilt or reclassified.
+
+Atomic delete:
+  Safe Print no longer selects Deferred
+  RawInvocationSourceTransportV1::script_root(()). Unsafe Print operands,
+  Weak/Binary/Check/Call/Object/Box/Lambda, raw, and reference routes retain
+  their existing ownership. No fallback or retry.
+
+Fixtures:
+  print(1), local x = 1; print(x), and print(-x) with normal/legacy MIR,
+  verification, failure/reuse, and real-file parity.
+
+Hard stops:
+  Print-specific semantic/failure owner, operand TypeOp/Call/Object/Weak,
+  mixed selected/compatibility items, second traversal, ledger name fallback,
+  program_root_work_plan.rs edits, or any touched source/check file >=800.
+```
+
 ## SEMANTIC-OWNER-SCRIPT-PORT0-S3 — closed, NoStandaloneRow
 
 ```text
@@ -5986,7 +6023,8 @@ R2aj RAW-SCRIPT-LEXICAL-BINDING0-I0-R0 closed at 7bf6c9b996
 R2ak MIRBUILDER-LIVE-EDGE-CENSUS43-D0 closed
 R2al RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-D0 accepted design stop
 R2am RAW-SCRIPT-UNARY-LEXICAL-CLOSURE0-I0-R0 closed at 1adb617542
-R2an MIRBUILDER-LIVE-EDGE-CENSUS44-D0 current narrow design stop
+R2an MIRBUILDER-LIVE-EDGE-CENSUS44-D0 closed
+R2ao RAW-SCRIPT-PRINT-LEXICAL-CLOSURE0-D0 current design stop
 R3  MIRBUILDER-EIGHT-PACK-FINAL-CONFORMANCE0-C0 closed: Residual
 R4  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-D0 closed
 R5  PRELOOP-STAGEB-SPECIAL-ACTIVATION-RETIRE0-RET0 closed
