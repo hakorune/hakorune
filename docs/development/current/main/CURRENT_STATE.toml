@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MIRBUILDER-R4-RESIDUAL-FINAL-CONFORMANCE0-D0 found a profile-residual registry gap; SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-LAMBDA0-S0 is closed and next is SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-CENSUS0-D0."
+status = "SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-CENSUS0-D0 is closed; next is SCRIPT-PROFILE-RESIDUAL-OBSERVATION0-D0."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-CENSUS0-D0"
-current_execution_row = "SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-CENSUS0-D0"
-current_execution_summary = "R4 audit registered the raw/reference Lambda capture-publication residual but found profile-dependent Deferred surfaces outside the root-only registry. Census nested CallObject and ControlBody profiles before any final R4 conformance claim; no route change is authorized."
+current_design_stop = "SCRIPT-PROFILE-RESIDUAL-OBSERVATION0-D0"
+current_execution_row = "SCRIPT-PROFILE-RESIDUAL-OBSERVATION0-D0"
+current_execution_summary = "Nested CallObject, ControlBody, and Lambda-leaf profile gates are reachable but have heterogeneous existing operation owners. Decide one typed same-traversal observation receipt keyed to an existing residual, without AST rescans, generic catch-all classification, or route change."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-CENSUS0-D0"
+current_blocker_token = "SCRIPT-PROFILE-RESIDUAL-OBSERVATION0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

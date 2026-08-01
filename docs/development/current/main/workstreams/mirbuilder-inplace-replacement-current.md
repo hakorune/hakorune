@@ -335,23 +335,29 @@ closed — SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-LAMBDA0-S0
   operation, its ControlBody transport, release condition, and focused raw
   dispatcher fixture. No route or semantic behavior changes.
 
-next design gate — SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-CENSUS0-D0
+closed — SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-CENSUS0-D0
+  Nested CallObject, ControlBody, and Lambda-leaf profile gates are reachable.
+  They cannot share one R4 operation entry: CallObject and control/result keep
+  shape-specific owners, while Lambda leaf composes its capture owner with a
+  child operation. Final R4 conformance remains unclaimed.
+
+next design gate — SCRIPT-PROFILE-RESIDUAL-OBSERVATION0-D0
 
 Change:
-  Census non-root/profile Deferred paths, beginning with nested CallObject and
-  ControlBody, and decide their exact R4 registry boundaries.
+  Decide a same-traversal, typed profile stop receipt keyed to an existing
+  named residual; use it to observe exact non-root Deferred reachability.
 
 Contract:
-  Root-only entries, Lambda's raw/reference entry, and all production routes
-  remain unchanged. This is an inventory boundary, not a source admission row.
+  No AST rescan, generic catch-all classification, route change, or new
+  operation owner. The receipt observes an existing profile gate only.
 
 Done:
-  Every observed profile residual is either an exact named registry entry or
-  proved unreachable; a later final-conformance D0 may then make its claim.
+  The product proves profile, exact stop site, and one existing residual key,
+  or closes NoSafeSlice if those facts cannot be co-sealed.
 
 Stop:
-  Do not add a generic catch-all entry, infer nested shape from root syntax, or
-  claim `unregistered = 0` before the profile census is complete.
+  Do not let a Lambda leaf infer a child operation owner, and do not replace
+  any operation-specific release condition with a shared one.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
