@@ -32,12 +32,12 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY3-D0
+  RAW-SCRIPT-MATCH-CONTROL-MERGE-RECEIPT0-D0
 
 latest structural finding:
-  EnumMatch has only one actual child descent, but has no single pre-seal enum
-  inventory authority: Program enums retain their diagnostic terminal and
-  prelude enums are outside declaration facts. No facts-only Complete seam exists.
+  MatchExpr has one existing finite receipt set (scrutinee, every arm, else),
+  but its owner also owns CFG, branches, jumps, and PHI. The next boundary is
+  CONTROL/MERGE receipt authority, not compositional expression descent.
 
 accepted series:
   dense Function/Lambda root-neutral core -> sparse selected-Script cutover
@@ -267,22 +267,26 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY3-D0
+  RAW-SCRIPT-MATCH-CONTROL-MERGE-RECEIPT0-D0
 
   Change:
-    Run one fresh bounded static live-edge census after the EnumMatch NoSafe
-    closeout.
+    Decide whether selected Script can co-seal one exact MatchExpr child-demand
+    receipt set and loan it to the existing CFG/PHI owner without moving any
+    control, result, or diagnostic authority.
 
   Contract:
-    Select at most one responsibility family with a named production consumer
-    and an atomically removable old authority. No successor is preselected.
+    Existing `build_peek_expression_with_port_v1` remains the sole owner of
+    scrutinee/arm/else evaluation order, blocks, branches, jumps, and PHI.
+    Admission may only prove an exact source-demand set before child descent;
+    no request-internal Complete/Deferred split, fallback, or second matcher.
 
   Done:
-    Record one evidence-backed candidate decision or NoSafeSlice result.
+    Record Accept or NoSafeSlice with the named issuer, consumer, old Deferred
+    edge, and the first hard stop. No I0 is opened until this D0 closes.
 
   Stop:
-    Do not implement during this D0, reopen EnumMatch, or run a broad/parallel
-    scan.
+    Stop if exact arm/else receipt coverage cannot preserve existing CFG/result
+    behavior, or if Match needs Loop/Return/Call/Lambda/JoinIR authority.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -294,6 +298,13 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY3-D0
+  -> Bounded static census selects MatchExpr only for CONTROL/MERGE D0:
+     dispatcher already prepares MatchScrutinee, every MatchArm, and MatchElse
+     for one existing owner. RecordUpdate remains shape/state-dependent;
+     Index remains Builder static-data route-dependent; Call/Object remains
+     header/effect/preflight-dependent. All three stay Deferred; no I0 opens.
+
   RAW-SCRIPT-ENUM-MATCH-SEALED-ROUTE0-D0
   -> NoSafeSlice. Existing lowering descends only EnumMatchScrutinee, but
      Program enum declarations still terminate at the selected unsupported
