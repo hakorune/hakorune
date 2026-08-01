@@ -269,8 +269,9 @@ current
   RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY3-D0
 
   Change:
-    Run a fresh bounded census after the Loop/JoinIR NoSafeSlice; do not select
-    a successor solely because it has an existing lowering terminal.
+    Run a fresh bounded census after the Loop/JoinIR and FieldAccess
+    NoSafeSlice decisions; do not select a successor solely because it has an
+    existing lowering terminal.
 
   Contract:
     A candidate must carry its sealed Script receipt to an existing owner. It
@@ -300,6 +301,14 @@ closed
      and body receipts but deliberately drops them before the sole JoinIR
      planner receives raw AST. A Complete Script Loop would therefore create
      unused semantic/control authority; no I0 is opened.
+
+  RAW-SCRIPT-FIELD-ACCESS-SEMANTIC-ADMISSION0-D0
+  -> NoSafeSlice. The only existing `Receiver` source path is not a
+    receipt-consuming FieldAccess contract: the owner selects existing-record,
+    record-construction, record-literal/update, or dynamic property-call versus
+    FieldGet routes from Builder type/origin state. Broad Script FieldAccess
+    would bypass or discard sealed facts and can shift diagnostics. A future
+    record-only field-read family needs its own source/result receipt boundary.
 
   RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0
   -> one declaration-facts collection lends a positive-only schema view before
