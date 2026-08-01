@@ -363,23 +363,30 @@ closed — NESTED-BOX-FUNCTION-RELATIVE-SOURCE-CONTRACT0-I0-R0
   a located parent seals `NestedBoxMethod` at `FunctionBody`. Both legacy
   admission issuers and the `NestedBoxAdmission` portal are deleted.
 
-current — SCRIPT-ROOT-ADMISSION-WITNESS0-S0
+closed — RAW-SCRIPT-NEXT-NAMED-FAMILY6-D0 (NoSafeSlice)
+  Fresh bounded audit confirms that all remaining Script surfaces are already
+  owned by Loop/JoinIR, all-route Call/Object, deferred/raw/reference Lambda
+  capture-publication, Field/Index operation routes, or Box lifecycle. They
+  remain under their named R4 fences; no renamed Script I0 may reopen them.
+
+current — MIRBUILDER-NEXT-NONSCRIPT-RESPONSIBILITY0-D0
 
 Change:
-  Move Script root admission AST-shape proof into one private witness; keep
-  the demand window as ordinal coverage storage only.
+  Select one non-Script production responsibility or one approved all-route R4
+  rehome. Do not repeat the closed Script-family census.
 
 Contract:
-  Operational admission, shadow traversal, raw lowering, Complete/Deferred
-  eligibility, and diagnostic precedence stay unchanged.
+  A candidate must name its existing production caller, sole authority, and
+  atomic old-edge deletion; Loop/JoinIR and named Script R4 residuals remain
+  out of scope unless their all-route owner is selected as a whole.
 
 Done:
-  Root disposition shape validation has one issuer, while window sealing has
-  zero AST-shape classifier arms; focused selected-Script parity stays green.
+  One executable responsibility or one NoSafeSlice closeout is recorded with
+  no new compatibility owner, retry, or detached proof route.
 
 Stop:
-  Stop if this duplicates operational/raw route classification, reclassifies
-  Program items in semantic sealing, or changes eligibility. Keep every
+  Stop if the candidate needs a partial route receipt, duplicates a Script
+  classifier, or cannot delete a live production edge atomically. Keep every
   source/check file <800.
 
 already closed — do not reopen as WIP
