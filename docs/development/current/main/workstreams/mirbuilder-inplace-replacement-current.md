@@ -32,12 +32,12 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-NEXT-CAPABILITY-FAMILY5-D0
+  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0
 
 latest structural finding:
-  The remaining immediate control candidates have no safe selected I0:
-  ContextScope is closed, TryCatch/Throw are reserved outcome authorities, and
-  Arrow has no named MIR consumer. A fresh bounded census is required.
+  Lambda has one named raw capture/publication owner and one selected Deferred
+  edge, but its name-ordered capture ABI and ClosureBodyId publication cannot
+  yet be derived from forest relations alone.
 
 accepted series:
   dense Function/Lambda root-neutral core -> sparse selected-Script cutover
@@ -267,21 +267,23 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-NEXT-CAPABILITY-FAMILY5-D0
+  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0
 
   Change:
-    Run one fresh bounded static live-edge census after control-family NoSafe.
+    Decide whether Script child-owner lineage plus an ordered BindingRef capture
+    receipt can feed the existing Lambda lifecycle without another observer.
 
   Contract:
-    Choose at most one family with a named production consumer and an atomic
-    old Deferred-edge deletion. No successor is preselected.
+    Existing Lambda owner retains capture ABI materialization, NewClosure/type,
+    inline/external body publication, and exactly-one ClosureBodyId policy.
 
   Done:
-    Record one evidence-backed candidate decision or NoSafeSlice result.
+    Record Accept or NoSafeSlice with capture order, parent scope/site, failure,
+    and publication ownership fixed. No I0 opens until then.
 
   Stop:
-    Do not implement during this D0, reopen reserved control families, or
-    preselect a successor without a named old authority.
+    Stop if capture order needs name reconstruction, forest iteration becomes
+    ABI order, or body publication needs a second owner/retry.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -293,6 +295,11 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-NEXT-CAPABILITY-FAMILY5-D0
+  -> Lambda selected for child-owner lineage D0. Box runtime crosses nested
+     callable/constructor/metadata/runtime owners; other narrow capability
+     families are already closed or belong to Call/Object. No I0 opens.
+
   RAW-SCRIPT-NEXT-CONTROL-FAMILY4-D0
   -> NoSafeSlice. ContextScope is already an exact diagnostic boundary;
      TryCatch and Throw are source-reserved outcome/control families; Arrow
