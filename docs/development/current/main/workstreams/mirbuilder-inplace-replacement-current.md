@@ -369,25 +369,28 @@ closed — RAW-SCRIPT-NEXT-NAMED-FAMILY6-D0 (NoSafeSlice)
   capture-publication, Field/Index operation routes, or Box lifecycle. They
   remain under their named R4 fences; no renamed Script I0 may reopen them.
 
-current — MIRBUILDER-NEXT-NONSCRIPT-RESPONSIBILITY0-D0
+closed — MIRBUILDER-NEXT-NONSCRIPT-RESPONSIBILITY0-D0 (NoSafeSlice)
+  Default normal App already owns verified Main. The remaining raw static-Main,
+  Loop/JoinIR, VM bridge, JoinModule observer, and generic legacy child port
+  are all-route R4 fences, not narrow production replacements.
+
+current — SCRIPT-R4-RATCHET-EVIDENCE-EXTRACTION0-S0
 
 Change:
-  Select one non-Script production responsibility or one approved all-route R4
-  rehome. Do not repeat the closed Script-family census.
+  Extract the manifest-backed Script R4 ratchet checks from the shared guard
+  into one private helper; delete the inline evidence authority.
 
 Contract:
-  A candidate must name its existing production caller, sole authority, and
-  atomic old-edge deletion; Loop/JoinIR and named Script R4 residuals remain
-  out of scope unless their all-route owner is selected as a whole.
+  The caller manifest remains the only data authority. This is not a global R4
+  registry: unrecorded fence evidence must not be invented or duplicated.
 
 Done:
-  One executable responsibility or one NoSafeSlice closeout is recorded with
-  no new compatibility owner, retry, or detached proof route.
+  The shared guard calls the helper once, all check files remain under 800, and
+  the existing Script Complete/Deferred/profile floors remain identical.
 
 Stop:
-  Stop if the candidate needs a partial route receipt, duplicates a Script
-  classifier, or cannot delete a live production edge atomically. Keep every
-  source/check file <800.
+  Stop if a global fence index, a second manifest/table, or new production
+  behavior is required. Keep every source/check file <800.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
