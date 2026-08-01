@@ -266,25 +266,24 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-LOOP-JOINIR-SEMANTIC-ADMISSION0-D0
+  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY3-D0
 
   Change:
-    Decide whether typed selected-Script Loop admission can hand exact source
-    and control facts to the sole existing JoinIR route, deleting one Deferred
-    edge without creating a second loop/control owner.
+    Run a fresh bounded census after the Loop/JoinIR NoSafeSlice; do not select
+    a successor solely because it has an existing lowering terminal.
 
   Contract:
-    Loop scope, Break/Continue targets, JoinIR plan, CFG/PHI, result, and
-    diagnostics each retain one owner. Call/Object, Lambda, Box, broad
-    mutation, and raw/reference routes are out of scope.
+    A candidate must carry its sealed Script receipt to an existing owner. It
+    may not discard the receipt before planning/lowering and call that a
+    semantic handoff.
 
   Done:
-    Name an exact Loop grammar, source/control receipt, production caller, and
-    old Deferred edge for a bounded I0; otherwise close NoSafeSlice once.
+    Name one production caller, old Deferred edge, and consumer of the sealed
+    receipt for a bounded I0; otherwise close NoSafeSlice once.
 
   Stop:
-    Stop if a Script admission must itself plan JoinIR, allocate CFG/PHIs,
-    reinterpret exit targets, or choose a diagnostic after child descent.
+    Do not reopen Loop/JoinIR without a receipt-consuming planner seam, or
+    auto-select Call/Object, Lambda, Box, or broad mutation.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -296,6 +295,12 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-LOOP-JOINIR-SEMANTIC-ADMISSION0-D0
+  -> NoSafeSlice. `PreparedLocatedRawLoopChildEntryV1` seals exact condition
+     and body receipts but deliberately drops them before the sole JoinIR
+     planner receives raw AST. A Complete Script Loop would therefore create
+     unused semantic/control authority; no I0 is opened.
+
   RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0
   -> one declaration-facts collection lends a positive-only schema view before
      the same product installs once in RootLower. Record declarations transfer

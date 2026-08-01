@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0 is closed: one post-CatalogSeal declaration-facts collection loans a positive-only record-schema view to Script semantics, then moves into the existing RootLower install. Fully explicit known non-generic RecordLiteral and its record declaration now reach Complete; defaults and invalid forms remain Deferred. RAW-SCRIPT-LOOP-JOINIR-SEMANTIC-ADMISSION0-D0 is the active design stop."
+status = "RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0 is closed: one post-CatalogSeal declaration-facts collection loans a positive-only record-schema view to Script semantics, then moves into the existing RootLower install. Fully explicit known non-generic RecordLiteral and its record declaration now reach Complete; defaults and invalid forms remain Deferred. RAW-SCRIPT-LOOP-JOINIR-SEMANTIC-ADMISSION0-D0 closes NoSafeSlice because JoinIR discards the exact loop source/control receipts before planning. Fresh family census is the active design stop."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-LOOP-JOINIR-SEMANTIC-ADMISSION0-D0"
-current_execution_row = "RAW-SCRIPT-LOOP-JOINIR-SEMANTIC-ADMISSION0-D0"
-current_execution_summary = "Decide whether a typed Script Loop admission can hand exact source/control facts to the sole JoinIR owner and delete one Deferred -> bare script_root edge. Loop scope, exit target, CFG/PHI, JoinIR plan, result, and diagnostic authority must remain owned once; Call/Object, Lambda, Box, and broad mutation stay out of scope."
+current_design_stop = "RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY3-D0"
+current_execution_row = "RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY3-D0"
+current_execution_summary = "Run a fresh bounded census after the Loop/JoinIR NoSafeSlice. Select no successor automatically: a candidate must carry its sealed Script source/semantic receipt into the existing owner rather than discard it before planning or lowering."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"
@@ -448,7 +448,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0 is closed: one collected declaration-facts product supplies a positive-only record schema view before moving into its existing RootLower install. Fully explicit RecordLiteral and record declaration boundaries are Complete; defaults and invalid forms remain Deferred. Loop/JoinIR semantic admission D0 is current."""
+latest_card_summary = """RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0 is closed: one collected declaration-facts product supplies a positive-only record schema view before moving into its existing RootLower install. Fully explicit RecordLiteral and record declaration boundaries are Complete; defaults and invalid forms remain Deferred. Loop/JoinIR closes NoSafeSlice because its sole planner drops the sealed receipt; fresh census is current."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
