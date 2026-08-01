@@ -266,28 +266,29 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-QMARK-CONTROL-RESULT0-D0
+  RAW-SCRIPT-QMARK-PROPAGATION-RECEIPT0-I0-R0
 
   Change:
-    Decide the bounded QMark expression-exit/control-result authority before
-    any cutover. QMark's existing owner has exact operand descent but also
-    owns RuntimeDataBox calls, CFG, a physical Return, and continuation result.
+    Co-seal a root-QMark propagation receipt with the existing Script semantic
+    source. Admit only root `QMarkPropagate(existing-safe operand)`, prepare
+    one exact QMarkOperand source, and invoke the existing QMark owner once.
 
   Contract:
-    Preserve `operand -> isOk -> branch -> Return(res) -> getValue` exactly.
-    An unsafe QMark must defer before its operand is traversed; user diagnostics
-    remain RootLower-owned. An I0 requires an exact operand role/projection and
-    a typed expression-site propagation/return receipt; no synthetic Return.
+    The Script receipt carries exact QMark/operand sites and
+    `CurrentScriptOwner`, not RegionId, ValueId, or a synthetic Return. Preserve
+    `operand -> isOk -> branch -> Return(res) -> getValue` exactly. Unsafe QMark
+    defers before operand traversal; user diagnostics remain RootLower-owned.
 
   Done:
-    Name the source/control/result product, one production caller, old Deferred
-    edge, and exact receipt-consuming QMark owner for a bounded I0; otherwise
-    close NoSafeSlice once.
+    Root `(await 42)?` reaches Complete, receives one QMarkOperand handoff, and
+    matches legacy MIR/verification/order. Safe root QMark loses only its
+    Deferred -> bare script_root edge; nested QMark and other CONTROL families
+    remain Deferred.
 
   Stop:
-    Do not add generic all-expression exits, alter QMark runtime-call/type/SSA
-    or Return order, fabricate an AST Return, reclassify after lowering, or mix
-    Loop/Match/Try/Lambda/Call work into this gate.
+    Do not extend the shared resolved-exit algebra, fabricate an AST Return,
+    alter QMark runtime-call/type/SSA or Return order, reclassify after lowering,
+    or mix nested QMark, Loop/Match/Try/Lambda/Call work into this row.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -299,6 +300,13 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-QMARK-CONTROL-RESULT0-D0
+  -> Accept-B. Common resolved exits are statement-only and must not be
+     generalized for QMark. Instead, a Script-only co-sealed propagation receipt
+     proves an exact QMark expression targets the current Script owner while the
+     existing QMark owner retains CFG, physical Return, runtime calls, and result
+     policy. Real root `(await 42)?` MIR verification is green.
+
   RAW-SCRIPT-GROUPED-BINDING-REBIND-DESCENT0-D0
   -> NoSafeSlice. GroupedAssignmentExpr has an exact RHS source receipt and
      the shadow can identify its synthetic BindingRebind target, but the legacy
