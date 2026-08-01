@@ -8,22 +8,8 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::utils::is_current_block_terminated;
 use crate::mir::ValueId;
 
-use crate::ast::ASTNode;
-
 pub(in crate::mir::builder) trait LegacyBlockDescentPortV1 {
-    type SuffixInput<'a>: AsRef<[ASTNode]>
-    where
-        Self: 'a;
-
     fn len(&self) -> usize;
-
-    fn suffix_route_input(&self, index: usize) -> Result<Option<Self::SuffixInput<'_>>, String>;
-
-    /// Drop statements already consumed by an optional suffix owner.
-    ///
-    /// Indexed legacy ports keep their storage and use the default no-op.
-    /// The selected located port owns an iterator and advances it here.
-    fn consume_suffix_prefix(&mut self, _count: usize) {}
 
     fn lower_statement(
         &mut self,
@@ -59,41 +45,6 @@ where
 
     let mut index = 0;
     while index < total {
-        if crate::config::env::joinir_dev_enabled() {
-            let consumed = if let Some(remaining) = port.suffix_route_input(index)? {
-                let remaining = remaining.as_ref();
-                let function_name = builder
-                    .function_state
-                    .current_function
-                    .as_ref()
-                    .map(|function| function.signature.name.clone())
-                    .unwrap_or_else(|| "unknown".to_string());
-                let prefix_variables = builder.function_state.variable_ctx.variable_map.clone();
-                crate::mir::builder::control_flow::normalization::NormalizedShadowSuffixRouterBox::try_lower_loop_suffix(
-                    builder,
-                    remaining,
-                    &function_name,
-                    trace.is_enabled(),
-                    Some(&prefix_variables),
-                )?
-            } else {
-                None
-            };
-            if let Some(consumed) = consumed {
-                port.consume_suffix_prefix(consumed);
-                trace.emit_if(
-                    "debug",
-                    "build_block/suffix_router",
-                    &format!(
-                        "Phase 142 P0: Suffix router consumed {} statement(s), continuing to process subsequent statements",
-                        consumed
-                    ),
-                    trace.is_enabled(),
-                );
-                index += consumed;
-            }
-        }
-
         trace.emit_if(
             "debug",
             "build_block",

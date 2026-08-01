@@ -149,16 +149,12 @@ reach into route-specific plan internals. The current boundary SSOT is
     receipt authority; it does not classify source results or publish facts.
 - legacy block descent boundary
   - `src/mir/builder/stmts/block_driver.rs` alone owns scope lifetime, the
-    existing suffix-router call, termination checks, last-value selection, and
-    empty-block Void publication.
-  - `LegacyBlockDescentPortV1` owns only statement count, one fallible optional
-    borrowed suffix-view seam, and exact one-statement lowering. The view is
-    projected to `AsRef<[ASTNode]>` only at the existing router boundary; the
-    driver must not decide suffix policy or require a concrete suffix product.
-  - `block_stmt.rs` owns the sole production raw-slice constructor and the sole
-    selected `Vec<ASTNode>` port. Located callable-result production descent
-    remains disconnected until its later SITE0-R0 row; BLK0 may not import
-    activation plans, caller ledgers, or located carriers.
+    termination checks, last-value selection, and empty-block Void publication.
+  - `LegacyBlockDescentPortV1` owns only statement count and exact
+    one-statement lowering.  It has no suffix-view or optional routing
+    capability; Loop routing belongs to the statement owner.
+  - `block_stmt.rs` owns the selected `Vec<ASTNode>` port.  The driver may not
+    import activation plans, caller ledgers, located carriers, or route policy.
 - member call route selection / emission boundary
   - `src/mir/builder/calls/build.rs`
   - `src/mir/builder/calls/member_route.rs`

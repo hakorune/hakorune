@@ -29,48 +29,33 @@ def main() -> None:
     driver = read(root, "src/mir/builder/stmts/block_driver.rs")
     raw = read(root, "src/mir/builder/stmts/block_stmt.rs")
     tests = read(root, "src/mir/builder/stmts/block_driver_tests.rs")
-    test_reference_path = "src/mir/builder/stmts/block_suffix_parity_reference.rs"
-    test_reference = read(root, test_reference_path)
     readme = read(root, "src/mir/builder/README.md")
 
     require_count(driver, "trait LegacyBlockDescentPortV1", 1, "block port owner")
     require_count(driver, "fn drive_legacy_block_v1", 1, "block driver owner")
     require_count(raw, "struct OwnedLegacyBlockPortV1", 1, "raw port owner")
-    require_count(raw, "impl LegacyBlockDescentPortV1", 1, "raw port implementation")
+    require_count(raw, "impl<Port> LegacyBlockDescentPortV1", 1, "raw port implementation")
     require_count(raw, "drive_legacy_block_v1(builder, &mut port)", 1, "selected driver caller")
-    require_count(driver, "type SuffixInput<'a>: AsRef<[ASTNode]>", 1, "suffix-view owner")
-    require_count(
-        driver,
-        "fn suffix_route_input(&self, index: usize) -> Result<Option<Self::SuffixInput<'_>>, String>;",
-        1,
-        "fallible suffix selector",
-    )
-    require_count(driver, "port.suffix_route_input(index)?", 1, "selector error propagation")
-    require_count(driver, "let remaining = remaining.as_ref();", 1, "router view projection")
-    require_count(raw, "type SuffixInput<'a>", 1, "raw suffix-view implementation")
-    require_count(raw, "= &'a [ASTNode]", 1, "raw borrowed suffix view")
-    require_count(raw, "Ok(Some(&self.statements[index..]))", 1, "raw suffix selector")
-
-    require_count(
-        driver,
-        "NormalizedShadowSuffixRouterBox::try_lower_loop_suffix(",
-        1,
-        "suffix-router owner",
-    )
-    require_count(raw, "NormalizedShadowSuffixRouterBox::try_lower_loop_suffix", 0, "raw suffix policy")
+    for retired in (
+        "SuffixInput",
+        "suffix_route_input",
+        "consume_suffix_prefix",
+        "NormalizedShadowSuffixRouterBox",
+        "try_lower_loop_suffix",
+        "joinir_dev_enabled()",
+    ):
+        require_count(driver + raw, retired, 0, f"retired block suffix capability {retired}")
     require_count(driver, "builder.hint_scope_enter(scope_id)", 1, "scope enter")
     require_count(driver, "LexicalScopeGuard::new(builder)", 1, "lexical scope owner")
     require_count(driver, "is_current_block_terminated(builder)?", 1, "fallible termination")
     require_count(driver, "builder.is_current_block_terminated()", 1, "scope-leave termination")
     require_count(driver, "emit_void(builder)?", 1, "empty-block Void")
     require_count(driver, "builder.hint_scope_leave(scope_id)", 1, "scope leave")
-    require_count(driver, "joinir_dev_enabled()", 1, "existing suffix selector")
 
     combined = driver + raw
     for forbidden in (
         "VerifiedCallableResult",
         "CallerLedger",
-        "LegacyBodyInputV1",
         "ActivationDisposition",
         "value_origin_newbox",
         "retry",
@@ -86,40 +71,18 @@ def main() -> None:
         if (
             relative.endswith("/block_driver.rs")
             or relative.endswith("/block_driver_tests.rs")
-            or relative == test_reference_path
         ):
             continue
         text = path.read_text(encoding="utf-8")
         production_driver_consumers += text.count("drive_legacy_block_v1(")
-        port_implementations += text.count("impl LegacyBlockDescentPortV1")
-    if production_driver_consumers != 1:
+        port_implementations += text.count("LegacyBlockDescentPortV1 for")
+    if production_driver_consumers != 4:
         fail(
             "production driver consumers: "
-            f"expected=1 actual={production_driver_consumers}"
+            f"expected=4 actual={production_driver_consumers}"
         )
-    if port_implementations != 1:
-        fail(f"selected port implementations: expected=1 actual={port_implementations}")
-    require_count(
-        test_reference,
-        "drive_legacy_block_v1(&mut builder, &mut port)",
-        1,
-        "separately counted test-only driver reference",
-    )
-    require_count(
-        test_reference,
-        "impl<'plan> LegacyBlockDescentPortV1 for ClassifiedSuffixReferencePortV1",
-        1,
-        "separately counted test-only port",
-    )
-    require_count(test_reference, "type SuffixInput<'a>", 1, "test-only suffix view")
-    require_count(
-        test_reference,
-        "= &'a VerifiedCallableResultInactiveBodySuffixV1<'plan>",
-        1,
-        "test-only sealed suffix view",
-    )
-    require_count(test_reference, "&self.statements[index..]", 0, "test-only raw slice reconstruction")
-
+    if port_implementations != 4:
+        fail(f"selected port implementations: expected=4 actual={port_implementations}")
     for evidence in (
         "empty_block_emits_one_void_and_restores_lexical_scope",
         "statements_lower_once_in_source_order_and_return_the_last_value",
@@ -133,9 +96,9 @@ def main() -> None:
     for phrase in (
         "legacy block descent boundary",
         "LegacyBlockDescentPortV1",
-        "fallible optional",
-        "sole production raw-slice constructor",
-        "must not decide suffix policy",
+        "no suffix-view or optional routing",
+        "Loop routing belongs to the statement owner",
+        "import activation plans",
     ):
         if phrase not in readme:
             fail(f"missing README boundary: {phrase}")
@@ -144,7 +107,6 @@ def main() -> None:
         "src/mir/builder/README.md",
         "src/mir/builder/stmts/block_driver.rs",
         "src/mir/builder/stmts/block_driver_tests.rs",
-        test_reference_path,
         "src/mir/builder/stmts/block_stmt.rs",
         "src/mir/builder/stmts/mod.rs",
         "tools/checks/lib/callable_result_i0_site0_r0_blk0.py",
@@ -155,7 +117,7 @@ def main() -> None:
 
     print(
         "[callable-result-i0-site0-r0-blk0] ok: "
-        "driver=1 raw_port=1 production_callers=1 result_publishers=0"
+        "driver=1 ports=4 production_callers=4 suffix_capability=0"
     )
 
 

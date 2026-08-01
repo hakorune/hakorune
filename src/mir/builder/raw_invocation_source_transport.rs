@@ -737,23 +737,8 @@ where
         + super::raw_expression_dispatch::RawExpressionDispatchPortV1
         + RecursiveChildLoweringPortV1<StatementInput = ASTNode>,
 {
-    type SuffixInput<'a>
-        = &'a [ASTNode]
-    where
-        Self: 'a;
-
     fn len(&self) -> usize {
         self.statements.len()
-    }
-
-    fn suffix_route_input(&self, _index: usize) -> Result<Option<Self::SuffixInput<'_>>, String> {
-        Ok(Some(self.statements.as_slice()))
-    }
-
-    fn consume_suffix_prefix(&mut self, count: usize) {
-        for _ in 0..count {
-            let _ = self.statements.next();
-        }
     }
 
     fn lower_statement(

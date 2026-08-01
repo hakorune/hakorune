@@ -432,55 +432,54 @@ closed — JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0 (Decision B-prime)
   found no repository production Loop caller for that port. Do not add a new
   raw/reference profile or universal semantic ingress.
 
-closed — JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0-COVERAGE-D0 (NoSafeSlice)
+closed premise sequence — normalized-shadow coverage / grammar / receipt
+  Finite concrete-shape coverage was false: six grammar families include
+  `(Assignment | Local)*; Break`.  The bounded audit found one PlanBox/executor
+  gap, five ordinary-route overlaps, and suffix-to-direct retry.  Exact
+  eligibility still used `variable_map`, dummy `ValueId`s, and operational
+  JoinIR emission, so a passive receipt would merely rename the second physical
+  resolver.  The detailed temporary manifest evidence is retired with the
+  mutation fence; do not rebuild it or a name-set facade.
 
-  The proposed finite concrete-shape table was not a truthful coverage proof.
-  `NormalizationPlanBox` admits six grammar families, including the unbounded
-  `(Assignment | Local)*; Break` family, and it intentionally leaves child
-  expression eligibility to the executor.  Direct and suffix entries share the
-  same PlanBox domain, while suffix failure may retry the same normalized
-  mutation through the direct Loop entry.  Do not infer all-shape parity from a
-  finite fixture list or treat the existing shape-only suffix tests as
-  production evidence.
-
-closed — JOINMODULE-NORMALIZED-SHADOW-GRAMMAR-DOMAIN0-D0
-
-  The shared R4 manifest and guard now name both mutation entries, their retry
-  edge, and all six parameterized PlanBox grammar families.  The table records
-  one PlanBox/executor domain gap for `TailBreak` and five ordinary-route
-  overlaps for the If-exit families.  A table-driven PlanBox test fixes the
-  positive families plus the no-else Break rejection without claiming finite
-  enumeration of the `(Assignment | Local)*` language.
-
-current — JOINMODULE-NORMALIZED-SHADOW-PREFLIGHT-RECEIPT0-S0
+closed — JOINMODULE-NORMALIZED-SHADOW-MUTATION-RETIRE0-I0-R0
 
 Change:
-  Extract one passive, mutation-free normalized-shadow Loop preflight receipt
-  with exact `TailBreak` and `IfExit` variants.  `NormalizationPlanBox` issues
-  it only after the existing executor eligibility checks succeed; both direct
-  and suffix execution consume the same receipt rather than reclassifying AST.
+  Retire the duplicate dev-only normalized-shadow Loop mutation authority
+  instead of migrating it.  Delete the direct and block-suffix entries, suffix
+  port capability, Plan/Execute module, and phase-only `Normalized -> Structured`
+  bridge.  Keep the ordinary recipe-first Loop route and the non-mutating
+  normalized-shadow observer, including its independently tested JoinModule
+  builders.
 
 Contract:
-  BoxShape only: accepted behavior, ordinary recipe order, raw/reference,
-  Script Loop admission, MIR, and diagnostics do not change.  Receipt creation
-  reads AST and immutable analysis only; it may not allocate blocks/ValueIds,
-  read or write `variable_map`, or execute a candidate builder.  No new route,
-  fallback, environment toggle, or per-row guard.  Every touched source/check
-  file remains below 800 lines.
+  T2 deletion only: add no semantic ingress, route, fallback, environment
+  toggle, or replacement adapter.  `joinir_dev` no longer changes Loop
+  mutation ownership; raw/reference and Script admission remain unchanged.
+  Shared JoinIR-to-MIR conversion, `JoinIrPhase`, `JoinInlineBoundary`, and the
+  if-only comparison observer remain because they have independent consumers.
+  Reuse shared guards; every touched source/check file remains below 800 lines.
 
 Done:
-  `NormalizationPlanBox::Some` co-owns exactly one verified preflight receipt;
-  receipt variants cover the same executor domain and exact consumed count.
-  Execute consumes the receipt once and has no shape/eligibility `None` after
-  effects.  Direct and suffix fixtures prove the same receipt identity and
-  existing success/decline behavior.  The old PlanBox-only broad admission and
-  executor-side eligibility reclassification have zero production callers.
+  `try_normalized_shadow`, `try_lower_loop_suffix`, `NormalizationPlanBox`,
+  `NormalizationExecuteBox`, the suffix retry edge, and the phase-only bridge
+  have zero definitions/callers.  Ordinary
+  recipe-first Loop tests remain green with `joinir_dev` OFF and ON.  The
+  non-mutating shadow observer still compiles and its non-Loop evidence remains
+  green.  The R4 fence row and stale suffix proof capability are removed.
 
 Stop:
-  Stop if either normalized builder needs Builder mutation, `ValueId`, carrier
-  name recovery, or operational lowering to decide eligibility; if direct and
-  suffix require different receipts; or if behavior neutrality cannot be kept
-  without preserving a second classifier.
+  Stop if removing either mutation entry changes the default route, requires a
+  new compatibility branch, removes an independently consumed converter or
+  observer, or cannot preserve ordinary Loop diagnostics/results without
+  retrying the retired route.
+
+current — JOINIR-LOOP-MISSING-TRANSIENT-TYPE-OWNER0-D0 (design stop)
+
+  Decide which source/type product must prove GenericLoop transient carrier
+  representation before Builder effects.  Do not restore normalized-shadow,
+  infer from names or `ValueId`, activate Loop, or add fallback.  Accept only
+  one bounded owner plus a focused failure/success fixture; otherwise close as
+  NoSafeSlice and return to the next named family.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully

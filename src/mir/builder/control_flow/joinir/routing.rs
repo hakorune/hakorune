@@ -415,9 +415,7 @@ impl MirBuilder {
 
     /// Phase 49-3: JoinIR Frontend integration implementation
     ///
-    /// Routes loop compilation through either:
-    /// 1. Normalized shadow (Phase 131 P1) - dev-only for loop(true) break-once
-    /// 2. Recipe-first loop router (Phase 194+) - preferred path
+    /// Routes loop compilation through the recipe-first loop router.
     pub(in crate::mir::builder) fn cf_loop_joinir_impl(
         &mut self,
         condition: &ASTNode,
@@ -425,13 +423,6 @@ impl MirBuilder {
         func_name: &str,
         debug: bool,
     ) -> Result<Option<ValueId>, String> {
-        // Phase 131 P1: Try Normalized shadow first (dev-only)
-        if crate::config::env::joinir_dev_enabled() {
-            if let Some(result) = self.try_normalized_shadow(condition, body, func_name, debug)? {
-                return Ok(Some(result));
-            }
-        }
-
         // Phase 137-2/137-4: Dev-only observation via Loop Canonicalizer
         if crate::config::env::joinir_dev_enabled() {
             use crate::ast::Span;
@@ -570,110 +561,5 @@ impl MirBuilder {
             "Loop router found no route (no legacy fallback)",
         );
         Ok(None)
-    }
-
-    /// Phase 131 P1: Try Normalized shadow lowering (dev-only)
-    ///
-    /// Returns:
-    /// - Ok(Some(value_id)): Successfully lowered and merged via Normalized
-    /// - Ok(None): Out of scope (not a Normalized route shape)
-    /// - Err(msg): In scope but failed (Fail-Fast in strict mode)
-    ///
-    /// Phase 134 P0: Unified with NormalizationPlanBox/ExecuteBox
-    fn try_normalized_shadow(
-        &mut self,
-        condition: &ASTNode,
-        body: &[ASTNode],
-        func_name: &str,
-        debug: bool,
-    ) -> Result<Option<ValueId>, String> {
-        use crate::ast::Span;
-        use crate::mir::builder::control_flow::normalization::{
-            NormalizationExecuteBox, NormalizationPlanBox, PlanKind,
-        };
-
-        // Build loop AST for route-shape detection
-        let loop_ast = ASTNode::Loop {
-            condition: Box::new(condition.clone()),
-            body: body.to_vec(),
-            span: Span::unknown(),
-        };
-
-        // Phase 134 P0: Delegate route-shape detection to NormalizationPlanBox (SSOT)
-        // Convert loop to remaining format (single-element array)
-        let remaining = vec![loop_ast];
-
-        let plan =
-            match NormalizationPlanBox::plan_block_suffix(self, &remaining, func_name, debug)? {
-                Some(plan) => plan,
-                None => {
-                    if debug {
-                        trace::trace().routing(
-                            "router/normalized",
-                            func_name,
-                            "NormalizationPlanBox returned None (not a normalized route shape)",
-                        );
-                    }
-                    return Ok(None);
-                }
-            };
-
-        // Only handle loop-only route shapes here
-        // (post-statement route shapes are now handled at statement level)
-        match &plan.kind {
-            PlanKind::LoopOnly => {
-                if debug {
-                    trace::trace().routing(
-                        "router/normalized",
-                        func_name,
-                        "Loop-only route shape detected, proceeding with normalization",
-                    );
-                }
-            }
-        }
-
-        // Phase 134 P0: Delegate execution to NormalizationExecuteBox (SSOT)
-        // Phase 141 P1.5: Pass prefix_variables (using variable_map at this point)
-        // Clone to avoid borrow checker conflict (self is borrowed mutably in execute)
-        let prefix_var_map = self.function_state.variable_ctx.variable_map.clone();
-        match NormalizationExecuteBox::execute(
-            self,
-            &plan,
-            &remaining,
-            func_name,
-            debug,
-            Some(&prefix_var_map),
-        ) {
-            Ok(value_id) => {
-                if debug {
-                    trace::trace().routing(
-                        "router/normalized",
-                        func_name,
-                        "Normalization succeeded",
-                    );
-                }
-                Ok(Some(value_id))
-            }
-            Err(e) => {
-                if crate::config::env::joinir_dev::strict_enabled() {
-                    use crate::mir::join_ir::lowering::error_tags;
-                    return Err(error_tags::freeze_with_hint(
-                        "phase134/routing/normalized",
-                        &e,
-                        "Loop should be supported by Normalized but execution failed. \
-                         Check that condition is Bool(true) and body ends with break.",
-                    ));
-                }
-                if crate::config::env::joinir_dev::debug_enabled() {
-                    let ring0 = crate::runtime::get_global_ring0();
-                    ring0.log.debug(&format!(
-                        "[normalization/fallback] func={} reason=execute_error err={}",
-                        func_name, e
-                    ));
-                }
-                trace::trace().routing("router/normalized/error", func_name, &e);
-                Ok(None) // Non-strict: fallback
-            }
-        }
     }
 }

@@ -262,183 +262,20 @@ def check_suffix0_s0(root: Path) -> str:
 
 
 def check_suffix0_i0(root: Path) -> str:
-    driver_path = "src/mir/builder/stmts/block_driver.rs"
-    raw_path = "src/mir/builder/stmts/block_stmt.rs"
-    reference_path = "src/mir/builder/stmts/block_suffix_parity_reference.rs"
-    tests_path = (
-        "src/mir/callable_result_representation/tests/"
-        "block_suffix_route_parity.rs"
-    )
-    builder_path = "src/mir/builder.rs"
-    stmts_mod_path = "src/mir/builder/stmts/mod.rs"
-    tests_mod_path = "src/mir/callable_result_representation/tests/mod.rs"
-
-    driver = _read(root, driver_path)
-    raw = _read(root, raw_path)
-    reference = _read(root, reference_path)
-    tests = _read(root, tests_path)
-    builder = _read(root, builder_path)
-    stmts_mod = _read(root, stmts_mod_path)
-    tests_mod = _read(root, tests_mod_path)
-
-    _count(
-        reference,
-        "struct ClassifiedSuffixReferencePortV1",
-        1,
-        "test-only classified suffix port",
-    )
-    _count(
-        reference,
-        "impl<'plan> LegacyBlockDescentPortV1 for ClassifiedSuffixReferencePortV1",
-        1,
-        "test-only legacy driver port",
-    )
-    _count(
-        reference,
-        "CallableResultBodySuffixDecisionV1::Inactive(proof) => Some(proof)",
-        1,
-        "verified inactive suffix view",
-    )
-    _count(
-        reference,
-        "CallableResultBodySuffixDecisionV1::Active { .. } => None",
-        1,
-        "active suffix refusal",
-    )
-    _count(
-        reference,
-        "drive_legacy_block_v1(&mut builder, &mut port)",
-        1,
-        "existing driver reference call",
-    )
-    _count(reference, "BlockSuffixParityInputV1::AlwaysNone => None", 1, "negative port")
-    if "NormalizedShadowSuffixRouterBox" in reference:
-        _fail("SUFFIX0-P0 duplicated or directly selected the existing router")
-    for forbidden in (
-        "RowsUnderPrefix",
-        ".claim(",
-        "retry",
-        "fallback",
-        "std::env::set_var",
-        "std::env::remove_var",
+    driver = _read(root, "src/mir/builder/stmts/block_driver.rs")
+    raw = _read(root, "src/mir/builder/stmts/block_stmt.rs")
+    for retired in (
+        "SuffixInput",
+        "suffix_route_input",
+        "consume_suffix_prefix",
+        "NormalizedShadowSuffixRouterBox",
+        "try_lower_loop_suffix",
     ):
-        if forbidden in reference:
-            _fail(f"SUFFIX0-P0 reference owns forbidden policy: {forbidden}")
-
-    for fixture in (
-        "inactive_nonempty_loop_suffix_routes_with_raw_parity",
-        "active_suffix_supplies_no_router_input_and_continues_statement_descent",
-        "always_none_is_explicitly_not_located_route_parity",
-        "suffix_selector_failure_stops_before_router_and_statement_descent",
+        _count(driver + raw, retired, 0, f"retired suffix capability {retired}")
+    for relative in (
+        "src/mir/builder/stmts/block_suffix_parity_reference.rs",
+        "src/mir/callable_result_representation/tests/block_suffix_route_parity.rs",
     ):
-        if fixture not in tests:
-            _fail(f"missing SUFFIX0-P0 fixture: {fixture}")
-    for evidence in (
-        "assert_eq!(selected, raw)",
-        "selected.route_demand_indices, vec![0]",
-        "selected.lowered_indices, vec![1]",
-        "selected.route_demand_indices, vec![0, 1]",
-        "selected.lowered_indices, vec![0, 1]",
-        "always_none.lowered_indices, vec![0, 1]",
-        "assert_ne!(",
-        "always-none routing is not driver-route parity",
-        "first.segments()",
-        "SourcePathSegmentV1::Value",
-        "with_joinir_env_lock",
-        "crate::test_support::with_env_vars",
-        '("NYASH_JOINIR_DEV", Some("1"))',
-        '("HAKO_JOINIR_STRICT", Some("1"))',
-        'message: "suffix-reference/reject"',
-        'assert_eq!(rejected.output, Err("suffix-reference/reject".to_string()))',
-        "rejected.route_demand_indices, vec![0]",
-        "rejected.lowered_indices.is_empty()",
-        "rejected.instruction_count, 0",
-        "rejected.lexical_scope_depth, 0",
-        "assert!(valid.output.is_ok())",
-        "valid.lowered_indices, vec![0]",
-    ):
-        if evidence not in tests:
-            _fail(f"missing SUFFIX0-P0 exact evidence: {evidence}")
-    for forbidden in ("std::env::set_var", "std::env::remove_var"):
-        if forbidden in tests:
-            _fail(f"SUFFIX0-P0 bypassed shared environment restoration: {forbidden}")
-
-    _count(
-        driver,
-        "type SuffixInput<'a>: AsRef<[ASTNode]>",
-        1,
-        "associated suffix-view owner",
-    )
-    _count(
-        driver,
-        "fn suffix_route_input(&self, index: usize) -> Result<Option<Self::SuffixInput<'_>>, String>;",
-        1,
-        "fallible suffix-view selector",
-    )
-    _count(
-        driver,
-        "port.suffix_route_input(index)?",
-        1,
-        "selector failure propagation",
-    )
-    _count(
-        driver,
-        "let remaining = remaining.as_ref();",
-        1,
-        "single router-boundary projection",
-    )
-    _count(raw, "type SuffixInput<'a>", 1, "raw suffix-view implementation")
-    _count(raw, "= &'a [ASTNode]", 1, "raw borrowed slice view")
-    _count(
-        raw,
-        "Ok(Some(&self.statements[index..]))",
-        1,
-        "raw suffix-view construction",
-    )
-    _count(reference, "type SuffixInput<'a>", 1, "classified suffix-view implementation")
-    _count(
-        reference,
-        "= &'a VerifiedCallableResultInactiveBodySuffixV1<'plan>",
-        1,
-        "sealed classified suffix-view type",
-    )
-    _count(reference, "&self.statements[index..]", 0, "test raw suffix reconstruction")
-    _count(reference, "BlockSuffixParityInputV1::RejectAt", 2, "fallible selector fixture")
-    _count(reference, "return Err((*message).to_string());", 1, "selector rejection")
-    _count(driver + raw + reference, "fn suffix_route_input(&self, index: usize) -> Option<&[ASTNode]>", 0, "retired fixed slice seam")
-    for forbidden in (
-        "CallableResultBodySuffixDecisionV1",
-        "VerifiedCallableResultInactiveBodySuffixV1",
-        "LocatedLegacyBodySuffixV1",
-    ):
-        if forbidden in driver:
-            _fail(f"SUFFIX0-P0 connected production driver early: {forbidden}")
-
-    _count(
-        builder,
-        "#[cfg(test)]\npub(crate) use stmts::block_suffix_parity_reference",
-        1,
-        "test-only builder reference export",
-    )
-    _count(
-        stmts_mod,
-        "#[cfg(test)]\npub(crate) mod block_suffix_parity_reference;",
-        1,
-        "test-only reference module",
-    )
-    _count(tests_mod, "mod block_suffix_route_parity;", 1, "P0 parity test module")
-
-    touched = (
-        driver_path,
-        raw_path,
-        reference_path,
-        tests_path,
-        builder_path,
-        stmts_mod_path,
-        tests_mod_path,
-        "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_suffix0.py",
-    )
-    oversized = [path for path in touched if len(_read(root, path).splitlines()) >= 800]
-    if oversized:
-        _fail(f"SUFFIX0-P0 source/check files reached 800 lines: {oversized}")
-    return "suffix_parity_reference=1 associated_suffix_view=1 passive_located_ports=1 production_located_execution_callers=0"
+        if (root / relative).exists():
+            _fail(f"retired suffix proof artifact remains: {relative}")
+    return "suffix_parity_reference=0 associated_suffix_view=0 production_located_execution_callers=0"

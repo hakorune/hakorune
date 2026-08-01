@@ -552,17 +552,8 @@ struct InstanceMethodPrefixPortV1<'body, 'callback> {
 
 #[cfg(test)]
 impl LegacyBlockDescentPortV1 for InstanceMethodPrefixPortV1<'_, '_> {
-    type SuffixInput<'a>
-        = &'a [ASTNode]
-    where
-        Self: 'a;
-
     fn len(&self) -> usize {
         self.prefix_len + 1
-    }
-
-    fn suffix_route_input(&self, index: usize) -> Result<Option<Self::SuffixInput<'_>>, String> {
-        Ok((index < self.prefix_len).then_some(&self.body[index..]))
     }
 
     fn lower_statement(

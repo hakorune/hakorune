@@ -47,25 +47,8 @@ impl<Port> LegacyBlockDescentPortV1 for NormalScriptRuntimeBlockPortV1<'_, Port>
 where
     Port: RootCallableCapturePortV1,
 {
-    type SuffixInput<'a>
-        = &'a [ASTNode]
-    where
-        Self: 'a;
-
     fn len(&self) -> usize {
         self.statements.len()
-    }
-
-    fn suffix_route_input(&self, _index: usize) -> Result<Option<Self::SuffixInput<'_>>, String> {
-        debug_assert_eq!(self.statements.len(), self.admissions.len());
-        Ok(Some(self.statements.as_slice()))
-    }
-
-    fn consume_suffix_prefix(&mut self, count: usize) {
-        for _ in 0..count {
-            let _ = self.statements.next();
-            let _ = self.admissions.next();
-        }
     }
 
     fn lower_statement(

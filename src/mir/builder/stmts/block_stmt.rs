@@ -1,23 +1,20 @@
 //! Block statement execution module
 //!
 //! ## Purpose
-//! Sequential statement execution with JoinIR suffix router integration
+//! Sequential statement execution through one statement-descent port
 //!
 //! ## Responsibilities
 //! - Block/statement execution coordination
-//! - Phase 142 JoinIR suffix router integration (NormalizedShadowSuffixRouterBox)
 //! - Termination checking
 //! - Expression delegation
 //!
 //! ## Architecture
-//! - Phase 142 suffix router is the JoinIR integration point
 //! - Block execution coordinates statement → expression → block recursion
 //! - Termination checking prevents duplicate terminators
 //!
 //! ## Integration Points
 //! - Called by: control_flow::cf_block, expression building code
-//! - Calls: build_statement, build_expression, suffix router
-//! - Critical: Phase 142 JoinIR suffix router integration must be preserved
+//! - Calls: build_statement and build_expression
 
 use super::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
 use crate::ast::ASTNode;
@@ -32,15 +29,6 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::builder::ValueId;
 
 /// Build a block by sequentially processing statements
-///
-/// This is a critical integration point for Phase 142 JoinIR suffix router.
-/// The suffix router can consume multiple statements and return the count,
-/// allowing the loop to skip ahead.
-///
-/// # Phase 142 Integration
-/// - Uses NormalizedShadowSuffixRouterBox for JoinIR route-shape detection
-/// - Suffix router can consume statements and return consumed count
-/// - Loop continues processing subsequent statements after suffix match
 ///
 /// # Termination Checking
 /// - Checks if block was terminated after each statement
@@ -101,17 +89,8 @@ impl<Port> LegacyBlockDescentPortV1 for OwnedLegacyBlockPortV1<'_, Port>
 where
     Port: RecursiveChildLoweringPortV1<StatementInput = ASTNode>,
 {
-    type SuffixInput<'a>
-        = &'a [ASTNode]
-    where
-        Self: 'a;
-
     fn len(&self) -> usize {
         self.statements.len()
-    }
-
-    fn suffix_route_input(&self, index: usize) -> Result<Option<Self::SuffixInput<'_>>, String> {
-        Ok(Some(&self.statements[index..]))
     }
 
     fn lower_statement(
@@ -168,7 +147,7 @@ where
 /// Run the existing statement dispatcher while retaining one raw child port.
 ///
 /// Direct helper branches remain behavior-identical in M0. The expression
-/// fallback and statement-position If reuse `child`, so nested raw descent no
+/// default expression path and statement-position If reuse `child`, so nested raw descent no
 /// longer recreates a legacy port at this dispatcher boundary.
 pub(in crate::mir::builder) fn build_statement_with_port_v1<Port>(
     builder: &mut MirBuilder,

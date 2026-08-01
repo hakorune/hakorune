@@ -131,8 +131,6 @@ pub(super) mod variable_stmt;
 #[cfg(test)]
 mod block_driver_tests;
 #[cfg(test)]
-pub(crate) mod block_suffix_parity_reference;
-#[cfg(test)]
 mod if_statement_descent_tests;
 #[cfg(test)]
 mod if_statement_parity_tests;

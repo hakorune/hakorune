@@ -441,10 +441,6 @@ mod scope_context; // Phase 136 follow-up (Step 3/7): ScopeContext extraction
 mod ssa; // LocalSSA helpers (in-block materialization)
 mod static_scalar_facts; // Narrow verified static-scalar method fact surface
 mod stmts;
-#[cfg(test)]
-pub(crate) use stmts::block_suffix_parity_reference::{
-    run_block_suffix_parity_reference_v1, BlockSuffixParityInputV1, StatementDescentReferenceV1,
-};
 mod type_context; // Phase 136 follow-up: TypeContext extraction
 mod type_facts; // Phase 136 follow-up: Type inference facts box
 pub(crate) mod type_registry;

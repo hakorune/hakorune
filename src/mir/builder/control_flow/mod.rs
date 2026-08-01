@@ -49,9 +49,6 @@ pub(in crate::mir::builder) mod joinir;
 // Phase 5: Exception handling
 pub(in crate::mir::builder) mod exception;
 
-// Phase 134 P0: Normalization entry point consolidation
-pub(in crate::mir::builder) mod normalization;
-
 // Phase 264: EdgeCFG Fragment API (入口SSOT)
 pub(in crate::mir::builder) mod edgecfg;
 
