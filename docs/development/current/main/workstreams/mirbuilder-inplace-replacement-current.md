@@ -266,23 +266,25 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY2-D0
+  RAW-SCRIPT-LOOP-JOINIR-SEMANTIC-ADMISSION0-D0
 
   Change:
-    Run one bounded serial census of named Deferred production edges after the
-    Record schema family closeout; do not preselect an AST bucket.
+    Decide whether typed selected-Script Loop admission can hand exact source
+    and control facts to the sole existing JoinIR route, deleting one Deferred
+    edge without creating a second loop/control owner.
 
   Contract:
-    A candidate must delete one live Deferred authority atomically while
-    preserving diagnostics, result policy, publication, and no fallback/retry.
+    Loop scope, Break/Continue targets, JoinIR plan, CFG/PHI, result, and
+    diagnostics each retain one owner. Call/Object, Lambda, Box, broad
+    mutation, and raw/reference routes are out of scope.
 
   Done:
-    One selected family has a named production caller, old edge, focused proof,
-    and an existing owner chain; otherwise record NoSafeSlice once.
+    Name an exact Loop grammar, source/control receipt, production caller, and
+    old Deferred edge for a bounded I0; otherwise close NoSafeSlice once.
 
   Stop:
-    Do not reopen Record schema or activate Control, Call/Object, allocation,
-    Weak, Lambda, or Box merely because they appear in the census.
+    Stop if a Script admission must itself plan JoinIR, allocate CFG/PHIs,
+    reinterpret exit targets, or choose a diagnostic after child descent.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
