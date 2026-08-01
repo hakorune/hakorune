@@ -346,29 +346,31 @@ closed — SCRIPT-PROFILE-RESIDUAL-OBSERVATION0-D0 (NoSafeSlice)
   survive. A receipt needs a new Deferred lifecycle product; Lambda leaf also
   loses its parent boundary and cannot infer a child operation residual.
 
-rejected candidate — Nested Box function-relative source contract
-  The live static/instance `LegacyChildDraftAdmissionV1` issuers have no
-  projectable method source root: source paths lack Box/method segments and
-  batches discard method identity. A false FunctionBody identity, second
-  lifecycle, or raw/reference rewrite is not a bounded replacement.
+closed — NESTED-BOX-FUNCTION-RELATIVE-SOURCE-CONTRACT0-D0 (Accept A′)
+  The two nested static/instance issuer frames are self-created from a located
+  outer Box context; no other production unlocated constructor exists. One
+  function-relative method source product can retain the batch-owned method
+  key, exact FunctionDeclaration/body, and legacy symbol/physical arity.
+  It does not need a global Box/method source-path projection.
 
-next design gate — MIRBUILDER-R4-RESIDUAL-FINAL-CONFORMANCE0-D0
+current Refactor Series — NESTED-BOX-METHOD-SOURCE-EXTRACTION0-S0
 
 Change:
-  Audit every active R4 fence for exact surface, owner, transport, fixture
-  evidence, and a final retain/rehome/retire decision.
+  Extract both live nested Box method lowerings from the 795-line recursive
+  child file into one private source owner with behavior unchanged.
 
 Contract:
-  Root-only and raw/reference residual entries remain valid but insufficient.
-  No new source product, path vocabulary, planner, or production route moves.
+  Existing located entry, method-body lowering, header observation, legacy
+  collector policy, arity normalization, diagnostics, and raw/reference routes
+  are unchanged. No new source transport is issued in S0.
 
 Done:
-  Every active fence is either mechanically evidenced or named as a concrete
-  missing authority; only then can final conformance be accepted or blocked.
+  Static and instance production callers each consume the extracted owner;
+  the following T2 has one bounded home for its located-source product.
 
 Stop:
-  Do not use a root-only registry to claim full R4 conformance, and do not
-  add generic entries that hide source-path or lifecycle authority gaps.
+  Stop if extraction needs a method AST reconstruction, a second collector,
+  or any production unlocated fallback. Keep every source/check file <800.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
