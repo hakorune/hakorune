@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-GROUPED-BINDING-REBIND-DESCENT0-D0 is closed NoSafe: GroupedAssignmentExpr has an exact RHS receipt, but its legacy raw route also requires a synthetic target source and presently fails before an assignment owner can establish parity. No selected rebind hook is widened. Pure BlockExpr remains Complete; Loop/JoinIR and broad FieldAccess remain NoSafe. Fresh family census is the active design stop."
+status = "RAW-SCRIPT-QMARK-CONTROL-RESULT0-D0 is active: QMark owns a physical Return, CFG, and RuntimeDataBox calls, but the shared semantic model has no expression-exit authority and the existing QMark operand source segment has no role/projection/dispatcher handoff. No QMark I0 is authorized until this CONTROL/RESULT gate closes. GroupedAssignmentExpr, Loop/JoinIR, and broad FieldAccess remain NoSafe."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY5-D0"
-current_execution_row = "RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY5-D0"
-current_execution_summary = "Run a fresh bounded census after the GroupedAssignmentExpr NoSafeSlice decision. Select no successor automatically: a candidate must carry its sealed Script source/semantic receipt into an existing owner and retain existing legacy parity before planning or lowering."
+current_design_stop = "RAW-SCRIPT-QMARK-CONTROL-RESULT0-D0"
+current_execution_row = "RAW-SCRIPT-QMARK-CONTROL-RESULT0-D0"
+current_execution_summary = "Close the QMark expression-exit/control-result authority before any I0. Preserve the existing one operand descent, RuntimeDataBox.isOk -> branch -> physical Return -> RuntimeDataBox.getValue order, and existing RootLower diagnostic authority; do not select an executable cutover until expression-site exit receipt, projection, and control owner are proven."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"

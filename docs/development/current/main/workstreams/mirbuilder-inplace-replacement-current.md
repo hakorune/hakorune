@@ -266,25 +266,28 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY5-D0
+  RAW-SCRIPT-QMARK-CONTROL-RESULT0-D0
 
   Change:
-    Run a fresh bounded census after the GroupedAssignmentExpr NoSafeSlice;
-    do not select a successor solely because it has an existing lowering terminal.
+    Decide the bounded QMark expression-exit/control-result authority before
+    any cutover. QMark's existing owner has exact operand descent but also
+    owns RuntimeDataBox calls, CFG, a physical Return, and continuation result.
 
   Contract:
-    A candidate must carry its sealed Script receipt to an existing owner. It
-    may not discard the receipt before planning/lowering and call that a
-    semantic handoff.
+    Preserve `operand -> isOk -> branch -> Return(res) -> getValue` exactly.
+    An unsafe QMark must defer before its operand is traversed; user diagnostics
+    remain RootLower-owned. An I0 requires an exact operand role/projection and
+    a typed expression-site propagation/return receipt; no synthetic Return.
 
   Done:
-    Name one production caller, old Deferred edge, and consumer of the sealed
-    receipt for a bounded I0; otherwise close NoSafeSlice once.
+    Name the source/control/result product, one production caller, old Deferred
+    edge, and exact receipt-consuming QMark owner for a bounded I0; otherwise
+    close NoSafeSlice once.
 
   Stop:
-    Do not reopen Loop/JoinIR, broad FieldAccess, or GroupedAssignmentExpr
-    without a receipt-consuming owner seam and legacy parity; do not auto-select
-    Call/Object, Lambda, Box, or broad mutation.
+    Do not add generic all-expression exits, alter QMark runtime-call/type/SSA
+    or Return order, fabricate an AST Return, reclassify after lowering, or mix
+    Loop/Match/Try/Lambda/Call work into this gate.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
