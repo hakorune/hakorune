@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-ROOT-NEUTRAL-BINDING-SNAPSHOT0-D0 is closed as NoSafeSlice: raw/reference lacks source lineage and binding identity, while selected Script deliberately lacks Loop semantic authority."
+status = "JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0 is closed with Decision B-prime: explicit raw-vm-reference already owns a typed profile and source-bound root and rejects Loop before physical open; RawLegacyChildLoweringPortV1 is not a compilation profile and has no repository production Loop caller."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0"
-current_execution_row = "JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0"
-current_execution_summary = "Reset the Loop all-route premise: decide whether universal resolved semantic ingress is a final-pipeline prerequisite, or whether atomic Loop caller membership must be redefined before any Loop I0/R0."
+current_design_stop = "JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0-COVERAGE-D0"
+current_execution_row = "JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0-COVERAGE-D0"
+current_execution_summary = "Materialize finite two-entry coverage for every normalized-shadow Loop shape against the ordinary recipe-first route; select atomic fence retirement when complete, or one exact missing-recipe row without fallback."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINIR-LOOP-LOGICAL-INTERFACE0-D0"
+current_blocker_token = "JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0-COVERAGE-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

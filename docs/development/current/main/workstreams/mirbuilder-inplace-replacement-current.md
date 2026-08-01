@@ -417,43 +417,46 @@ closed — JOINIR-LOOP-RECIPE-COREPLAN0-D0 (NoSafeSlice)
   current product can prove all-route logical binding coverage and delete both
   mutation routes atomically.
 
-closed — JOINIR-LOOP-LOGICAL-INTERFACE0-D0 (NoSafeSlice)
+closed premise sequence — JOINIR-LOOP-LOGICAL-INTERFACE0-D0 /
+JOINIR-LOOP-ROOT-NEUTRAL-BINDING-SNAPSHOT0-D0
+  Both stops correctly rejected name/ValueId recovery, but their atomic caller
+  set over-counted a profile-blind helper as raw/reference. The exact located
+  source, missing logical binding product, and shared suffix mutation findings
+  remain valid; the raw/reference premise is superseded below.
 
-  Located Loop source receipts exist only for the selected raw port and are
-  discarded before raw lowering. Script keeps Loop Deferred, resolved
-  Function/Lambda facts have no Loop-lowering consumer, the shared suffix owns
-  only an AST slice plus `String -> ValueId` state, and raw/reference is
-  unlocated. Therefore no one producer can cover the atomic caller set with
-  ordered logical inputs, carriers/exits, continuations, and result disposition.
+closed — JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0 (Decision B-prime)
+  Explicit raw-vm-reference already owns one typed support profile, owned AST,
+  and source-bound root. NarrowV1 rejects Loop while projecting the body recipe,
+  before physical Builder open, so its Loop reachability is zero. The generic
+  `RawLegacyChildLoweringPortV1` is not a compilation profile; static provenance
+  found no repository production Loop caller for that port. Do not add a new
+  raw/reference profile or universal semantic ingress.
 
-closed — JOINIR-LOOP-ROOT-NEUTRAL-BINDING-SNAPSHOT0-D0 (NoSafeSlice)
-
-  No root-neutral producer exists before Builder effects: raw/reference has
-  neither Loop source lineage nor binding identity, while selected Script
-  deliberately defers Loop before semantic descent. Function/Lambda resolved
-  facts stop at scope/region and lexical bindings; the shared suffix has only
-  a physical `String -> ValueId` clone. Covering the atomic caller set would
-  require a new raw semantic ingress or activate Script Loop semantics.
-
-current — JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0
+current — JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0-COVERAGE-D0
 
 Change:
-  Decide whether universal resolved semantic ingress is an explicit final-
-  pipeline prerequisite, or whether the all-route atomic membership assumed by
-  Loop Recipe/CorePlan must be changed before an implementation row can exist.
+  Materialize one finite, table-driven coverage proof for every shape accepted
+  by `NormalizationPlanBox`, at both the direct Loop and block-suffix mutation
+  entries. Map each shape to the ordinary recipe-first route or one exact gap.
 
 Contract:
-  This is a premise reset, not a Loop implementation. Do not introduce a raw
-  semantic ingress, activate Script Loop semantics, construct CorePlan, alter
-  normalized shadow, or change raw/reference behavior.
+  Evidence only: no Loop activation, new profile, semantic ingress, route,
+  fallback, or raw/reference behavior. Keep explicit raw-vm-reference excluded
+  before physical open and the caller-zero raw legacy Loop port outside the
+  production set. Reuse the shared manifest/guard; add no per-row guard, and
+  keep every touched source/check file below 800 lines.
 
 Done:
-  One decision names the final all-route membership and its required semantic
-  authority, or rejects the current Loop replacement premise.
+  Every accepted shape has fixture identity plus direct/suffix entry, recipe,
+  MIR/verification, result, consumed-count, variable publication, and strict
+  failure parity. The evidence selects exactly one next row: atomic retirement
+  of both mutation entries, or one named missing-recipe implementation.
+  `docs_only_closeout = forbidden`.
 
 Stop:
-  Do not open Loop S0/I0 from a selected-only product, a name/ValueId recovery,
-  or an unproven raw/reference exclusion.
+  Stop if accepted arms are not finite, a shape has multiple committable
+  recipes, parity needs String/ValueId recovery, a gap needs fallback, or the
+  shared evidence cannot stay below the file budget.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
