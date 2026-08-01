@@ -10,8 +10,7 @@ use crate::mir::resolved_semantics::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
     ScriptRootDemandWindowSealErrorV1, ScriptRootIfControlAdmissionV1,
     ScriptRootMatchControlAdmissionV1, ScriptRootQMarkPropagationAdmissionV1,
-    ScriptRootResolvedDemandV1,
-    ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
+    ScriptRootResolvedDemandV1, ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
     SourcePathSegmentV1, SourcePathV1, VerifiedScriptRootDemandEntryV1,
     VerifiedScriptRootDemandWindowV1,
@@ -288,9 +287,9 @@ fn is_program_record_declaration(statement: &ASTNode) -> bool {
 fn is_variable_target_binding_rebind(statement: &ASTNode) -> bool {
     matches!(
         statement,
-        ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. }
+        (ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. })
             if matches!(target.as_ref(), ASTNode::Variable { .. })
-    )
+    ) || matches!(statement, ASTNode::GroupedAssignmentExpr { .. })
 }
 
 #[cfg(test)]
@@ -394,7 +393,7 @@ mod tests {
     }
 
     #[test]
-    fn only_variable_target_assignments_issue_binding_rebind_receipts() {
+    fn variable_target_assignment_forms_issue_binding_rebind_receipts() {
         let variable_target = ASTNode::Assignment {
             target: Box::new(ASTNode::Variable {
                 name: "x".to_owned(),
@@ -436,6 +435,33 @@ mod tests {
                 .expect("sealed variable target")
                 .entry_at(0)
                 .expect("variable target entry")
+                .semantic(),
+            ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::BindingRebind(_))
+        ));
+
+        let grouped = ASTNode::GroupedAssignmentExpr {
+            lhs: "x".to_owned(),
+            rhs: Box::new(ASTNode::Literal {
+                value: crate::ast::LiteralValue::Integer(2),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        };
+        let mut grouped_window = ScriptRootDemandWindowBuilderV1::for_program_statement_count(1);
+        grouped_window
+            .record_selected_work_item(
+                0,
+                &grouped,
+                Some(NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression),
+                false,
+            )
+            .expect("grouped assignment receipt");
+        assert!(matches!(
+            grouped_window
+                .seal()
+                .expect("sealed grouped assignment")
+                .entry_at(0)
+                .expect("grouped assignment entry")
                 .semantic(),
             ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::BindingRebind(_))
         ));

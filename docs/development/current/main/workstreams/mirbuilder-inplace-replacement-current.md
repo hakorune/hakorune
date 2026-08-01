@@ -32,7 +32,7 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-NEXT-NAMED-FAMILY1-D0 (fresh design stop)
+  RAW-SCRIPT-NEXT-NAMED-FAMILY2-D0 (fresh design stop)
 
 latest structural finding:
   Function/Lambda production now validates its complete recursive shadow tree
@@ -43,11 +43,11 @@ accepted series:
   Function/Lambda construction tree -> Script Lambda observer retirement
 
 latest production closeout:
-  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
+  RAW-SCRIPT-CALL-PREFLIGHT-CLASSIFIER-SSOT0-D0 (Decision B, R4 retained)
 
 next decision:
   choose one non-Call/Object Deferred responsibility from a fresh live-edge
-  census. FunctionCall is R4-retained and must not receive another selector.
+  census. FunctionCall remains R4-retained and must not receive another selector.
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -215,6 +215,24 @@ next — RAW-SCRIPT-NEXT-NAMED-FAMILY1-D0
   is excluded until its all-route preflight seam or R4 final rehome is selected.
   `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` remains the monotonic
   fixture-identity ratchet through R4.
+
+closed — RAW-SCRIPT-GROUPED-BINDING-REBIND0-I0-R0 (T2)
+  The earlier GroupedAssignment NoSafe premise is stale: Script root
+  BindingRebind receipts and the BindingRef -> ValueId ledger now exist.
+  Accept only `GroupedAssignmentExpr { lhs, rhs }` where `lhs` resolves to a
+  prior Script Local and `rhs` is in the existing Complete lexical closure.
+  `GroupedAssignmentTarget` is a synthetic, non-descended BindingRef receipt;
+  `GroupedAssignmentValue` is the one physical child demand. Route it through
+  the existing `drive_variable_assignment_v1` owner and rebind the ledger only
+  after raw success. Field/index/nested targets and every Call/Object family
+  remain Deferred. Eligible GroupedAssignment ->
+  Deferred -> bare `script_root(())` reachability = 0. No ABI, publication,
+  ValueId owner, fallback, retry, or raw/reference change.
+
+next — RAW-SCRIPT-NEXT-NAMED-FAMILY2-D0
+  Take one narrow non-Call/Object Deferred-family census before selecting a
+  new row. Do not reopen the explicit FunctionCall R4 retention or the closed
+  GroupedAssignment mutation boundary.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully

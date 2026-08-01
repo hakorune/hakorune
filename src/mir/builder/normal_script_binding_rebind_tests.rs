@@ -89,6 +89,34 @@ fn prior_local_variable_compound_assignment_rebinds_the_script_ledger() {
 }
 
 #[test]
+fn prior_local_grouped_assignment_rebinds_the_script_ledger() {
+    assert_selected_parity(
+        "local x = 1\n(x = -(x + 1))\nprint(x)",
+        "script-binding-rebind-grouped.hako",
+    );
+}
+
+#[test]
+fn grouped_assignment_resolves_as_a_complete_script_rebind() {
+    let program = NyashParser::parse_from_string("local x = 1\n(x = 2)\nprint(x)")
+        .expect("grouped binding-rebind source");
+    let source = PreparedNormalDefaultProgramRootV1::seal(program).expect("Program source");
+    let window = VerifiedScriptRootDemandWindowV1::seal(
+        vec![resolved_entry(0), rebind_entry(1), resolved_entry(2)],
+        3,
+    )
+    .expect("grouped binding-rebind demand window");
+    let view = ScriptSyntaxViewV1::from_program(source.source_ast()).expect("Script view");
+    assert!(matches!(
+        FunctionSemanticResolverSessionV1::new(0)
+            .expect("resolver")
+            .resolve_script(view, &window)
+            .expect("grouped binding-rebind resolve"),
+        ResolveScriptOutcomeV1::Complete(_)
+    ));
+}
+
+#[test]
 fn failed_rebind_request_discards_its_ledger_before_fresh_reuse() {
     let mut compiler = MirCompiler::with_options(false);
     let error = compiler
@@ -113,4 +141,32 @@ fn failed_rebind_request_discards_its_ledger_before_fresh_reuse() {
             .expect("fresh request"),
         )
         .expect("fresh request must not reuse a failed ledger");
+}
+
+#[test]
+fn grouped_rebind_rhs_failure_discards_its_ledger_before_fresh_reuse() {
+    let mut compiler = MirCompiler::with_options(false);
+    let error = compiler
+        .compile_normal(
+            NormalCompileRequestV1::for_mir_mode(
+                NyashParser::parse_from_string("local x = 1\n(x = missing)")
+                    .expect("failing grouped source"),
+                Some("script-binding-rebind-grouped-failure.hako"),
+                std::collections::HashMap::new(),
+            )
+            .expect("failing request"),
+        )
+        .expect_err("missing grouped RHS must retain existing RootLower diagnostic");
+    assert!(error.contains("Undefined variable: missing"), "{error}");
+    compiler
+        .compile_normal(
+            NormalCompileRequestV1::for_mir_mode(
+                NyashParser::parse_from_string("local x = 1\n(x = 2)\nprint(x)")
+                    .expect("fresh grouped source"),
+                Some("script-binding-rebind-grouped-reuse.hako"),
+                std::collections::HashMap::new(),
+            )
+            .expect("fresh request"),
+        )
+        .expect("fresh grouped request must not reuse a failed ledger");
 }

@@ -157,6 +157,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             {
                 ExprChildRoleV1::CompoundAssignmentTarget
             }
+            ASTNode::GroupedAssignmentExpr { .. } => ExprChildRoleV1::GroupedAssignmentTarget,
             _ => return Err("[freeze:contract][script-lexical/rebind-source-drift]".to_owned()),
         };
         let ledger = self
@@ -608,11 +609,11 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
             return self.lower_script_outbox_v1(builder, input);
         }
         if self.semantic_ledger.is_some()
-            && matches!(
+            && (matches!(
                 &input,
-                ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. }
+                (ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. })
                     if matches!(target.as_ref(), ASTNode::Variable { .. })
-            )
+            ) || matches!(&input, ASTNode::GroupedAssignmentExpr { .. }))
         {
             return self.lower_script_binding_rebind_v1(builder, input);
         }

@@ -282,9 +282,9 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     ) -> Result<(), ShadowResolveErrorV0> {
         let has_variable_target = matches!(
             statement,
-            ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. }
+            (ASTNode::Assignment { target, .. } | ASTNode::CompoundAssignment { target, .. })
                 if matches!(target.as_ref(), ASTNode::Variable { .. })
-        );
+        ) || matches!(statement, ASTNode::GroupedAssignmentExpr { .. });
         if !has_variable_target {
             return Err(ShadowResolveErrorV0::UnsupportedStatement {
                 kind: "Script root BindingRebind admission source drift",

@@ -52,6 +52,7 @@ impl ShadowTraversalProfileV1 {
                 ASTNode::BinaryOp { .. }
                 | ASTNode::AwaitExpression { .. }
                 | ASTNode::CheckExpr { .. }
+                | ASTNode::GroupedAssignmentExpr { .. }
                 | ASTNode::ArrayLiteral { .. }
                 | ASTNode::MapLiteral { .. }
                 | ASTNode::RecordLiteral { .. } => true,
