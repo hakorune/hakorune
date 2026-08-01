@@ -66,7 +66,9 @@ pub(super) struct ScriptDeferredResidualRegistryBuilderV1 {
 
 impl ScriptDeferredResidualRegistryBuilderV1 {
     pub(super) fn new() -> Self {
-        Self { entries: Vec::new() }
+        Self {
+            entries: Vec::new(),
+        }
     }
 
     pub(super) fn record(
@@ -123,7 +125,15 @@ impl ScriptDeferredResidualRegistryBuilderV1 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{ASTNode, Span};
+    use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+    use std::collections::HashMap;
+
+    fn integer(value: i64) -> ASTNode {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        }
+    }
 
     #[test]
     fn registry_records_only_named_residual_families() {
@@ -141,11 +151,7 @@ mod tests {
             false,
         )
         .expect("call witness");
-        registry.record(
-            3,
-            &call,
-            witness,
-        );
+        registry.record(3, &call, witness);
         let entries = registry.seal();
         assert_eq!(entries.entries().len(), 1);
         assert_eq!(entries.entries()[0].source_statement_index(), 3);
@@ -156,6 +162,162 @@ mod tests {
         assert_eq!(
             entries.entries()[0].admission(),
             NormalScriptProgramItemAdmissionV1::DirectPortAwareExpression
+        );
+    }
+
+    #[test]
+    fn registry_names_every_current_root_only_residual_family() {
+        use NormalScriptProgramItemAdmissionV1 as Admission;
+        use ScriptDeferredResidualKindV1 as Kind;
+
+        let cases = vec![
+            (
+                ASTNode::Call {
+                    callee: Box::new(integer(1)),
+                    arguments: Vec::new(),
+                    span: Span::unknown(),
+                },
+                Admission::DirectPortAwareExpression,
+                Kind::Call,
+            ),
+            (
+                ASTNode::MethodCall {
+                    object: Box::new(integer(1)),
+                    method: "call".to_owned(),
+                    arguments: Vec::new(),
+                    span: Span::unknown(),
+                },
+                Admission::DirectPortAwareExpression,
+                Kind::MethodCall,
+            ),
+            (
+                ASTNode::Loop {
+                    condition: Box::new(integer(1)),
+                    body: Vec::new(),
+                    span: Span::unknown(),
+                },
+                Admission::DirectPortAwareExpression,
+                Kind::Loop,
+            ),
+            (
+                ASTNode::FieldAccess {
+                    object: Box::new(integer(1)),
+                    field: "value".to_owned(),
+                    span: Span::unknown(),
+                },
+                Admission::DirectPortAwareExpression,
+                Kind::FieldAccess,
+            ),
+            (
+                ASTNode::Index {
+                    target: Box::new(integer(1)),
+                    index: Box::new(integer(0)),
+                    span: Span::unknown(),
+                },
+                Admission::DirectPortAwareExpression,
+                Kind::Index,
+            ),
+            (
+                ASTNode::New {
+                    class: "Box".to_owned(),
+                    arguments: Vec::new(),
+                    field_initializers: Vec::new(),
+                    type_arguments: Vec::new(),
+                    span: Span::unknown(),
+                },
+                Admission::DirectPortAwareExpression,
+                Kind::New,
+            ),
+            (
+                ASTNode::RecordUpdate {
+                    base: Box::new(integer(1)),
+                    updates: Vec::new(),
+                    span: Span::unknown(),
+                },
+                Admission::DirectPortAwareExpression,
+                Kind::RecordUpdate,
+            ),
+            (
+                ASTNode::BoxDeclaration {
+                    name: "Box".to_owned(),
+                    fields: Vec::new(),
+                    field_decls: Vec::new(),
+                    public_fields: Vec::new(),
+                    private_fields: Vec::new(),
+                    methods: HashMap::new(),
+                    constructors: HashMap::new(),
+                    init_fields: Vec::new(),
+                    weak_fields: Vec::new(),
+                    delegates: Vec::new(),
+                    invariants: Vec::new(),
+                    transitions: Vec::new(),
+                    is_interface: false,
+                    is_record: false,
+                    extends: Vec::new(),
+                    implements: Vec::new(),
+                    type_parameters: Vec::new(),
+                    is_sync: false,
+                    is_static: false,
+                    static_init: None,
+                    attrs: DeclarationAttrs::default(),
+                    span: Span::unknown(),
+                },
+                Admission::NonPlainInstanceFullLifecycle,
+                Kind::Box(Admission::NonPlainInstanceFullLifecycle),
+            ),
+            (
+                ASTNode::TryCatch {
+                    try_body: Vec::new(),
+                    catch_clauses: Vec::new(),
+                    finally_body: None,
+                    span: Span::unknown(),
+                },
+                Admission::DirectPortAwareExpression,
+                Kind::TryCatch,
+            ),
+            (
+                ASTNode::Throw {
+                    expression: Box::new(integer(1)),
+                    span: Span::unknown(),
+                },
+                Admission::DirectPortAwareExpression,
+                Kind::Throw,
+            ),
+            (
+                ASTNode::Return {
+                    value: None,
+                    span: Span::unknown(),
+                },
+                Admission::DirectPortAwareExpression,
+                Kind::NonfinalReturn,
+            ),
+        ];
+        let mut registry = ScriptDeferredResidualRegistryBuilderV1::new();
+        let statement_count = cases.len() + 1;
+
+        for (index, (statement, admission, _)) in cases.iter().enumerate() {
+            let witness = ScriptRootAdmissionWitnessV1::issue(
+                index,
+                statement_count,
+                statement,
+                Some(*admission),
+                false,
+            )
+            .expect("residual witness");
+            registry.record(index, statement, witness);
+        }
+
+        let entries = registry.seal();
+        assert_eq!(
+            entries
+                .entries()
+                .iter()
+                .map(|entry| entry.kind())
+                .collect::<Vec<_>>(),
+            cases
+                .into_iter()
+                .map(|(_, _, kind)| kind)
+                .collect::<Vec<_>>(),
         );
     }
 }
