@@ -188,9 +188,10 @@ impl ModuleBuilderInvocationSessionV1 {
                     ProgramRootWorkPlanAdmissionV1::SelectedNormal,
                 );
                 let work = work.into_parts();
-                let script_source = match work.script_semantic_window.as_ref() {
+                let script_source = match work.script_root_admission.as_ref() {
                     None => None,
-                    Some(window) => {
+                    Some(admission) => {
+                        let window = admission.window();
                         let view = ScriptSyntaxViewV1::from_program(source.source_ast())
                             .ok_or_else(|| {
                                 NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(

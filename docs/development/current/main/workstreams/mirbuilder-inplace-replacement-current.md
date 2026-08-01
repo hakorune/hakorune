@@ -256,9 +256,24 @@ closed — RAW-SCRIPT-NEXT-NAMED-FAMILY4-D0 (NoSafeSlice)
   `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` remains the single Deferred
   terminal. Do not reopen these surfaces under a renamed I0.
 
-selected — MIRBUILDER-R4-RESIDUAL-RECONCILIATION0-D0
-  Maintain the exact R4/JoinIR residual map and select no Script I0 unless a
-  fresh live-edge census proves one named production authority can be deleted.
+closed — MIRBUILDER-R4-RESIDUAL-RECONCILIATION0-D0
+  The generic Deferred terminal is real, but its R4 manifest named only
+  FunctionCall. Loop, CallObject siblings, Box runtime, and control/result
+  residuals must be mechanically enumerated before `unregistered = 0` can be
+  claimed. No cleanup I0 is available at this seam.
+
+closed — SCRIPT-DEFERRED-RESIDUAL-REGISTRY0-S0
+  The existing root-admission witness co-issues a production-owned, root-only
+  residual sidecar from the already-classified admission and exact AST shape.
+  It is observability/R4 ownership only: semantic disposition, resolver
+  traversal, raw lowering, route selection, and raw/reference are unchanged.
+
+selected — SCRIPT-DEFERRED-RESIDUAL-MANIFEST-RATCHET0-S0
+  Bind the root-only sidecar to the existing R4 manifest and compact guard,
+  replacing the FunctionCall singleton assertion with table-driven checks.
+  Enumerate only unconditional root residuals with stable owner, release
+  condition, and fixture anchor; nested/profile failures and active Lambda
+  capture work stay out of this series.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully

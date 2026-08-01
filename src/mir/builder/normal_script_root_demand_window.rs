@@ -11,11 +11,33 @@ use crate::mir::resolved_semantics::{
 };
 
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
+use super::normal_script_deferred_residual_registry::{
+    PreparedScriptDeferredResidualRegistryV1, ScriptDeferredResidualRegistryBuilderV1,
+};
 use super::normal_script_root_admission_witness::ScriptRootAdmissionWitnessV1;
+
+/// Complete/Deferred root admission evidence prepared from one Program pass.
+#[derive(Debug)]
+pub(super) struct PreparedScriptRootAdmissionV1 {
+    window: VerifiedScriptRootDemandWindowV1,
+    deferred_residuals: PreparedScriptDeferredResidualRegistryV1,
+}
+
+impl PreparedScriptRootAdmissionV1 {
+    pub(super) fn window(&self) -> &VerifiedScriptRootDemandWindowV1 {
+        &self.window
+    }
+
+    #[cfg(test)]
+    pub(super) fn deferred_residuals(&self) -> &PreparedScriptDeferredResidualRegistryV1 {
+        &self.deferred_residuals
+    }
+}
 
 #[derive(Debug)]
 pub(super) struct ScriptRootDemandWindowBuilderV1 {
     entries: Vec<Option<VerifiedScriptRootDemandEntryV1>>,
+    deferred_residuals: ScriptDeferredResidualRegistryBuilderV1,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -30,6 +52,7 @@ impl ScriptRootDemandWindowBuilderV1 {
     pub(super) fn for_program_statement_count(statement_count: usize) -> Self {
         Self {
             entries: (0..statement_count).map(|_| None).collect(),
+            deferred_residuals: ScriptDeferredResidualRegistryBuilderV1::new(),
         }
     }
 
@@ -50,6 +73,8 @@ impl ScriptRootDemandWindowBuilderV1 {
             admission,
             transferred_top_level_callable,
         )?;
+        self.deferred_residuals
+            .record(source_statement_index, statement, witness);
         self.record_witness(source_statement_index, witness)
     }
 
@@ -79,15 +104,19 @@ impl ScriptRootDemandWindowBuilderV1 {
 
     pub(super) fn seal(
         self,
-    ) -> Result<VerifiedScriptRootDemandWindowV1, ScriptRootDemandWindowBuildErrorV1> {
+    ) -> Result<PreparedScriptRootAdmissionV1, ScriptRootDemandWindowBuildErrorV1> {
         let statement_count = self.entries.len();
         let entries = self.entries.into_iter().collect::<Option<Vec<_>>>().ok_or(
             ScriptRootDemandWindowBuildErrorV1::Seal(
                 ScriptRootDemandWindowSealErrorV1::IncompleteCoverage,
             ),
         )?;
-        VerifiedScriptRootDemandWindowV1::seal(entries, statement_count)
-            .map_err(ScriptRootDemandWindowBuildErrorV1::Seal)
+        let window = VerifiedScriptRootDemandWindowV1::seal(entries, statement_count)
+            .map_err(ScriptRootDemandWindowBuildErrorV1::Seal)?;
+        Ok(PreparedScriptRootAdmissionV1 {
+            window,
+            deferred_residuals: self.deferred_residuals.seal(),
+        })
     }
 }
 
@@ -118,6 +147,7 @@ mod tests {
         let entry = window
             .seal()
             .expect("sealed window")
+            .window()
             .entry_at(0)
             .cloned()
             .expect("Using entry");
@@ -168,6 +198,7 @@ mod tests {
             )
             .expect("final-return witness");
         let sealed = window.seal().expect("sealed window");
+        let sealed = sealed.window();
         assert!(matches!(
             sealed.entry_at(0).expect("assignment entry").semantic(),
             ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::BindingRebind(_))

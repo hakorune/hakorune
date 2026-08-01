@@ -20,6 +20,7 @@ use super::normal_script_root_demand_window::ScriptRootDemandWindowBuildErrorV1;
 /// A source-shape-proven disposition, consumable only by ordinal storage.
 #[derive(Clone, Copy, Debug)]
 pub(super) struct ScriptRootAdmissionWitnessV1 {
+    admission: NormalScriptProgramItemAdmissionV1,
     semantic: ScriptRootSemanticDispositionV1,
     runtime: ScriptRootRuntimeDispositionV1,
 }
@@ -36,6 +37,7 @@ impl ScriptRootAdmissionWitnessV1 {
         use ScriptRootRuntimeDispositionV1 as Runtime;
         use ScriptRootSemanticDispositionV1 as Semantic;
 
+        let admission = admission.expect("selected Script work item must retain admission");
         let (semantic, runtime) = if matches!(statement, ASTNode::EnumDeclaration { .. }) {
             (
                 Semantic::Transferred(ScriptTransferredBoundaryV1::ProgramEnumDeclaration),
@@ -52,7 +54,7 @@ impl ScriptRootAdmissionWitnessV1 {
                 Runtime::None,
             )
         } else {
-            match admission.expect("selected Script work item must retain admission") {
+            match admission {
                 Admission::DirectStaticConstRuntimeCompletion => (
                     Semantic::Transferred(ScriptTransferredBoundaryV1::ProgramStaticMetadata),
                     Runtime::RetainedExistingTerminal,
@@ -162,11 +164,12 @@ impl ScriptRootAdmissionWitnessV1 {
             }
         };
 
-        Self::new(statement, semantic, runtime)
+        Self::new(statement, admission, semantic, runtime)
     }
 
     fn new(
         statement: &ASTNode,
+        admission: NormalScriptProgramItemAdmissionV1,
         semantic: ScriptRootSemanticDispositionV1,
         runtime: ScriptRootRuntimeDispositionV1,
     ) -> Result<Self, ScriptRootDemandWindowBuildErrorV1> {
@@ -217,7 +220,11 @@ impl ScriptRootAdmissionWitnessV1 {
             ) => matches!(statement, ASTNode::ContextScope { .. }),
         };
         compatible
-            .then_some(Self { semantic, runtime })
+            .then_some(Self {
+                admission,
+                semantic,
+                runtime,
+            })
             .ok_or(ScriptRootDemandWindowBuildErrorV1::StatementBoundaryMismatch)
     }
 
@@ -228,6 +235,11 @@ impl ScriptRootAdmissionWitnessV1 {
     pub(super) fn runtime(self) -> ScriptRootRuntimeDispositionV1 {
         self.runtime
     }
+
+    pub(super) fn admission(self) -> NormalScriptProgramItemAdmissionV1 {
+        self.admission
+    }
+
 }
 
 fn is_program_record_declaration(statement: &ASTNode) -> bool {
@@ -368,4 +380,5 @@ mod tests {
             ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::BindingRebind(_))
         ));
     }
+
 }

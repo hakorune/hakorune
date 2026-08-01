@@ -6,6 +6,7 @@ use super::normal_script_program_item_admission::{
     classify_normal_script_program_item_v1, NormalScriptProgramItemAdmissionV1,
 };
 use super::normal_script_root_demand_window::ScriptRootDemandWindowBuilderV1;
+use super::normal_script_root_demand_window::PreparedScriptRootAdmissionV1;
 #[cfg(test)]
 use super::normal_script_runtime_work::NormalScriptRuntimeStatementAdmissionV1;
 use super::normal_script_runtime_work::{
@@ -16,7 +17,6 @@ use super::normal_top_level_function_admission::{
 };
 use super::MirBuilder;
 use crate::ast::{ASTNode, DeclarationAttrs, FieldDecl, ParamDecl};
-use crate::mir::resolved_semantics::VerifiedScriptRootDemandWindowV1;
 use std::collections::HashMap;
 #[derive(Debug)]
 pub(super) struct PreparedProgramRootWorkPlanV1 {
@@ -24,7 +24,7 @@ pub(super) struct PreparedProgramRootWorkPlanV1 {
     deferred_static: Box<[PreparedProgramDeferredStaticBoxWorkV1]>,
     runtime: PreparedProgramRootRuntimeWorkV1,
     terminal: ProgramRootTerminalScheduleV1,
-    script_semantic_window: Option<VerifiedScriptRootDemandWindowV1>,
+    script_root_admission: Option<PreparedScriptRootAdmissionV1>,
     _seal: PreparedProgramRootWorkPlanSealV1,
 }
 #[derive(Debug)]
@@ -40,7 +40,7 @@ pub(super) struct PreparedProgramRootWorkPlanPartsV1 {
     pub(super) deferred_static: Box<[PreparedProgramDeferredStaticBoxWorkV1]>,
     pub(super) runtime: PreparedProgramRootRuntimeWorkV1,
     pub(super) terminal: ProgramRootTerminalScheduleV1,
-    pub(super) script_semantic_window: Option<VerifiedScriptRootDemandWindowV1>,
+    pub(super) script_root_admission: Option<PreparedScriptRootAdmissionV1>,
 }
 #[derive(Debug)]
 pub(super) enum PreparedProgramRootImmediateWorkV1 {
@@ -227,7 +227,7 @@ impl PreparedProgramRootWorkPlanV1 {
             } else {
                 ProgramRootTerminalScheduleV1::ScriptRuntime
             },
-            script_semantic_window: script_window
+            script_root_admission: script_window
                 .map(|window| window.seal().expect("selected Script demand window")),
             _seal: PreparedProgramRootWorkPlanSealV1,
         }
@@ -238,7 +238,7 @@ impl PreparedProgramRootWorkPlanV1 {
             deferred_static: self.deferred_static,
             runtime: self.runtime,
             terminal: self.terminal,
-            script_semantic_window: self.script_semantic_window,
+            script_root_admission: self.script_root_admission,
         }
     }
 }
