@@ -16,7 +16,6 @@ use super::me_call_header_observation::{
 use super::module_lowering_invocation::{
     LoweringHeaderPortV1, ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1,
 };
-use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::port_aware_function_draft_impl::PortAwarePreparedDraftBodyV1;
 use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
@@ -133,17 +132,8 @@ pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
         builder: &mut MirBuilder,
         input: super::nested_box_method_source::NestedBoxMethodLoweringInputV1,
     ) -> Result<(), String> {
-        let (
-            _,
-            function_name,
-            kind,
-            params,
-            param_decls,
-            return_type_name,
-            body,
-            uses,
-            attrs,
-        ) = input.into_parts();
+        let (_, function_name, kind, params, param_decls, return_type_name, body, uses, attrs) =
+            input.into_parts();
         match kind {
             super::nested_box_method_source::NestedBoxMethodKindV1::Static => self
                 .lower_static_box_method(
@@ -273,7 +263,7 @@ impl MeCallHeaderObservationPortV1 for RawLegacyChildLoweringPortV1 {
 /// collector-backed production route and the direct compatibility facade
 /// mechanically distinct.
 pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
-    module_port: &'port mut ModuleLoweringPortV1<'collector>,
+    pub(super) module_port: &'port mut ModuleLoweringPortV1<'collector>,
     pub(super) active_source: Option<RawInvocationSourceContextV1>,
     pub(super) semantic_ledger: Option<Rc<RefCell<ScriptSemanticLoweringState>>>,
     _seal: RawInvocationChildPortSealV1,
@@ -467,78 +457,6 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         };
         Ok(pending)
     }
-
-    #[allow(clippy::too_many_arguments)]
-    pub(in crate::mir::builder) fn lower_normal_cataloged_static_box_method_v1(
-        &mut self,
-        builder: &mut MirBuilder,
-        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: DeclarationAttrs,
-    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
-        let function_name = admission.physical_symbol().to_owned();
-        let source_root = RawInvocationRootLineageV1::Cataloged(admission.source_key().clone());
-        builder.observe_legacy_method_lowering_v1(&function_name, &body, None);
-        let pending = self.with_source_transport_v1(
-            RawInvocationSourceTransportV1::root((), source_root),
-            |port, ()| {
-                port.capture_static_box_method_pending_v1(
-                    builder,
-                    function_name,
-                    params,
-                    param_decls,
-                    return_type_name,
-                    body,
-                    uses,
-                    attrs,
-                )
-            },
-        )?;
-        self.module_port
-            .commit_normal_cataloged_box_method_pending(pending, admission)
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    pub(in crate::mir::builder) fn lower_normal_cataloged_instance_box_method_v1(
-        &mut self,
-        builder: &mut MirBuilder,
-        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: DeclarationAttrs,
-    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
-        let function_name = admission.physical_symbol().to_owned();
-        let source_root = RawInvocationRootLineageV1::Cataloged(admission.source_key().clone());
-        let box_name = admission.source_key().owner().to_owned();
-        let (params, param_decls) =
-            normalize_instance_box_method_input_v1(&function_name, params, param_decls);
-        builder.observe_legacy_method_lowering_v1(&function_name, &body, Some(&box_name));
-        let pending = self.with_source_transport_v1(
-            RawInvocationSourceTransportV1::root((), source_root),
-            |port, ()| {
-                port.capture_normalized_instance_box_method_pending_v1(
-                    builder,
-                    function_name,
-                    box_name,
-                    params,
-                    param_decls,
-                    return_type_name,
-                    body,
-                    uses,
-                    attrs,
-                )
-            },
-        )?;
-        self.module_port
-            .commit_normal_cataloged_box_method_pending(pending, admission)
-    }
 }
 
 impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1 {
@@ -677,7 +595,6 @@ impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
     ) -> Result<(), String> {
         super::nested_box_method_source::lower_nested_box_method_v1(self, builder, input)
     }
-
 }
 
 impl RawFunctionHeaderLookupPortV1 for RawInvocationChildPortV1<'_, '_> {

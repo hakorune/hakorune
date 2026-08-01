@@ -39,6 +39,15 @@ pub(super) fn construct_function_owner_tree_v1<'ast>(
     )
 }
 
+pub(super) fn construct_selected_callable_owner_tree_v1<'ast>(
+    view: FunctionSyntaxViewV1<'ast>,
+) -> Result<ShadowOwnerConstructionTreeV1<'ast>, ShadowResolveErrorV0> {
+    let profile = ShadowTraversalProfileV1::SelectedCallableV1;
+    let ShadowResolvedOwnerV0 { function, lambdas } =
+        resolve_owner_shadow_view_with_profile_v0(view, BTreeSet::new(), profile)?;
+    construct_owner_tree_v1(function, lambdas, &BTreeSet::new(), profile)
+}
+
 pub(super) fn construct_script_owner_tree_v1<'ast>(
     view: ScriptSyntaxViewV1<'ast>,
     window: &'ast VerifiedScriptRootDemandWindowV1,
@@ -46,14 +55,13 @@ pub(super) fn construct_script_owner_tree_v1<'ast>(
     enum_variants: &dyn EnumVariantDemandV1,
     enum_matches: &dyn EnumMatchDemandV1,
 ) -> Result<ShadowOwnerConstructionTreeV1<'ast>, ShadowResolveErrorV0> {
-    let ShadowResolvedOwnerV0 { function, lambdas } =
-        resolve_script_owner_shadow_view_v0(
-            view,
-            window,
-            record_schemas,
-            enum_variants,
-            enum_matches,
-        )?;
+    let ShadowResolvedOwnerV0 { function, lambdas } = resolve_script_owner_shadow_view_v0(
+        view,
+        window,
+        record_schemas,
+        enum_variants,
+        enum_matches,
+    )?;
     construct_owner_tree_v1(
         function,
         lambdas,

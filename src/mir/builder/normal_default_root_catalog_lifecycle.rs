@@ -7,9 +7,14 @@ use crate::ast::ASTNode;
 
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
+use super::normal_callable_semantic_source::{
+    NormalCallableSemanticAdmissionV1, VerifiedNormalCallableSemanticSourceV1,
+};
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
-use super::program_root_lowering::NormalScriptRootLoweringMode;
+use super::program_root_lowering::{
+    NormalCallableSemanticSourceMode, NormalScriptRootLoweringMode,
+};
 use super::program_root_work_plan::{
     PreparedProgramRootWorkPlanV1, ProgramRootWorkPlanAdmissionV1,
 };
@@ -26,6 +31,7 @@ pub(in crate::mir) enum NormalDefaultRootCatalogLifecycleStageV1 {
     RootExpansion,
     PrepareModule,
     CatalogSeal,
+    CallableSemanticSeal,
     ScriptSemanticSeal,
     CatalogInstall,
     RootLower,
@@ -37,6 +43,7 @@ pub(in crate::mir) enum NormalDefaultRootCatalogLifecycleErrorV1 {
     RootExpansion(Box<str>),
     PrepareModule(Box<str>),
     CatalogSeal(Box<str>),
+    CallableSemanticSeal(Box<str>),
     ScriptSemanticSeal(Box<str>),
     CatalogInstall(Box<str>),
     RootLower(Box<str>),
@@ -49,6 +56,9 @@ impl NormalDefaultRootCatalogLifecycleErrorV1 {
             Self::RootExpansion(_) => NormalDefaultRootCatalogLifecycleStageV1::RootExpansion,
             Self::PrepareModule(_) => NormalDefaultRootCatalogLifecycleStageV1::PrepareModule,
             Self::CatalogSeal(_) => NormalDefaultRootCatalogLifecycleStageV1::CatalogSeal,
+            Self::CallableSemanticSeal(_) => {
+                NormalDefaultRootCatalogLifecycleStageV1::CallableSemanticSeal
+            }
             Self::ScriptSemanticSeal(_) => {
                 NormalDefaultRootCatalogLifecycleStageV1::ScriptSemanticSeal
             }
@@ -63,6 +73,7 @@ impl NormalDefaultRootCatalogLifecycleErrorV1 {
             Self::RootExpansion(message)
             | Self::PrepareModule(message)
             | Self::CatalogSeal(message)
+            | Self::CallableSemanticSeal(message)
             | Self::ScriptSemanticSeal(message)
             | Self::CatalogInstall(message)
             | Self::RootLower(message)
@@ -182,6 +193,27 @@ impl ModuleBuilderInvocationSessionV1 {
                         })?;
                 let declaration_facts =
                     PreparedNormalProgramDeclarationFactsV1::collect(source.source_ast());
+                let mut resolver = FunctionSemanticResolverSessionV1::new(0).map_err(|error| {
+                    NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                        format!("[mir/callable-semantic/owner] {error:?}").into(),
+                    )
+                })?;
+                let callable_mode = match VerifiedNormalCallableSemanticSourceV1::seal(
+                    source.source_ast(),
+                    catalog.selected_source_inventory(),
+                    expansion.is_app_mode(),
+                    &mut resolver,
+                )
+                .map_err(|error| {
+                    NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(error.into())
+                })? {
+                    NormalCallableSemanticAdmissionV1::Complete(source) => {
+                        NormalCallableSemanticSourceMode::Complete(source)
+                    }
+                    NormalCallableSemanticAdmissionV1::Deferred => {
+                        NormalCallableSemanticSourceMode::Deferred
+                    }
+                };
                 let work = PreparedProgramRootWorkPlanV1::prepare(
                     lowering_statements,
                     expansion.is_app_mode(),
@@ -197,12 +229,6 @@ impl ModuleBuilderInvocationSessionV1 {
                             .ok_or_else(|| {
                                 NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
                                     "[mir/script-semantic/source-root] expected Program".into(),
-                                )
-                            })?;
-                        let mut resolver =
-                            FunctionSemanticResolverSessionV1::new(0).map_err(|error| {
-                                NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                    format!("[mir/script-semantic/owner] {error:?}").into(),
                                 )
                             })?;
                         let outcome =
@@ -255,6 +281,7 @@ impl ModuleBuilderInvocationSessionV1 {
                         &runtime_inputs,
                         brand,
                         declaration_facts,
+                        callable_mode,
                         match script_source.as_ref() {
                             Some(source) => NormalScriptRootLoweringMode::Complete(source),
                             None => NormalScriptRootLoweringMode::Deferred,

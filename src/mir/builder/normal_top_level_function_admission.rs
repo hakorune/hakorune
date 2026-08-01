@@ -104,6 +104,39 @@ impl RawInvocationChildPortV1<'_, '_> {
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        let source_root =
+            super::raw_invocation_source_transport::RawInvocationRootLineageV1::TopLevel(
+                admission.source_key().clone(),
+            );
+        self.lower_normal_top_level_function_with_source_v1(
+            builder,
+            admission,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+            super::raw_invocation_source_transport::RawInvocationSourceTransportV1::root(
+                (),
+                source_root,
+            ),
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(in crate::mir::builder) fn lower_normal_top_level_function_with_source_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        admission: NormalTopLevelFunctionDraftAdmissionV1,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+        source_transport: super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         if params.len() != admission.physical_arity() {
             return Err(ModuleLoweringPortChildErrorV1::Admission(
                 ModuleDraftAdmissionErrorV1::ArityMismatch {
@@ -114,18 +147,11 @@ impl RawInvocationChildPortV1<'_, '_> {
             ));
         }
         let function_name = admission.physical_symbol().to_owned();
-        let source_root =
-            super::raw_invocation_source_transport::RawInvocationRootLineageV1::TopLevel(
-                admission.source_key().clone(),
-            );
         builder.observe_legacy_method_lowering_v1(&function_name, &body, None);
         let pending = super::raw_invocation_source_transport::RawSourceTransportPortV1::
             with_source_transport_v1(
                 self,
-                super::raw_invocation_source_transport::RawInvocationSourceTransportV1::root(
-                    (),
-                    source_root,
-                ),
+                source_transport,
                 |port, ()| {
                     port.capture_static_box_method_pending_v1(
                         builder,

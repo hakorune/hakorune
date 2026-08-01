@@ -25,6 +25,9 @@ mod call_resolution; // ChatGPT5 Pro: Type-safe call resolution utilities
 mod callable_declaration_catalog; // Complete same-module callable declaration authority
 #[cfg(test)]
 mod literal_postemit_retirement_tests;
+mod normal_callable_semantic_loan_port; // Selected-only outer callable loan
+mod normal_callable_semantic_source; // Co-sealed selected callable source authority
+mod normal_cataloged_box_method_lowering;
 pub(crate) use callable_declaration_catalog::{
     CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
     VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
@@ -319,14 +322,14 @@ mod route_owned_invocation_inventory; // HEADERPORT0 WIRING-I0-ROUTEINV-S0 polic
 pub(in crate::mir) use located_legacy_lowering::{
     LocatedLegacyLoweringErrorV1, LocatedLegacyLoweringSessionV1,
 };
-mod enum_variant_source_demand;
 mod enum_match_source_demand;
+mod enum_variant_source_demand;
+mod normal_script_enum_match_demand;
 mod qmark_source_demand;
 mod raw_expression_recursion_guard;
 mod raw_invocation_source_transport;
 mod raw_structured_child_scope;
 mod record_literal_source_demand;
-mod normal_script_enum_match_demand;
 mod recursive_child_lowering;
 #[cfg(test)]
 mod recursive_child_lowering_rawport_tests;
@@ -396,10 +399,10 @@ mod module_invocation_cut0_p0; // CUT0-P0 disconnected all-route adapter
 mod module_lifecycle; // Phase 29bq+: Module lifecycle orchestrator (prepare → lower → finalize)
 #[cfg(test)]
 mod module_lifecycle_capture_tests;
+mod normal_script_deferred_residual_registry; // named selected-Script residual ownership
 mod normal_script_direct_statement_owner; // Selected Script direct statement terminals
 mod normal_script_program_item_admission; // Selected Script Program-item source admission
 mod normal_script_root_admission_witness; // selected Script root shape/disposition proof
-mod normal_script_deferred_residual_registry; // named selected-Script residual ownership
 mod normal_script_root_demand_window; // Selected Script source-only semantic demand receipt
 mod normal_script_runtime_block_port;
 mod normal_script_runtime_work; // Selected Script runtime Box callable admission

@@ -18,6 +18,7 @@ use crate::mir::resolved_semantics::{
 use crate::mir::ValueId;
 
 use super::callable_declaration_catalog::SelectedTopLevelFunctionKeyV1;
+use super::normal_callable_semantic_source::VerifiedNormalCallableSemanticLoanV1;
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
@@ -103,6 +104,18 @@ pub(in crate::mir::builder) enum RawInvocationSourceTransportV1<T> {
 }
 
 impl<T> RawInvocationSourceTransportV1<T> {
+    pub(in crate::mir::builder) fn callable_semantic_root(
+        node: T,
+        loan: &VerifiedNormalCallableSemanticLoanV1<'_>,
+    ) -> Self {
+        Self::Located(LocatedRawNodeV1::new(
+            node,
+            loan.lineage().clone(),
+            SourcePathV1::function_body().node(),
+            SourceBodyKindV1::Function,
+        ))
+    }
+
     pub(in crate::mir::builder) fn root(node: T, root: RawInvocationRootLineageV1) -> Self {
         Self::Located(LocatedRawNodeV1::new(
             node,

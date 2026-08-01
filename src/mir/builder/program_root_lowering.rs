@@ -14,6 +14,8 @@ use super::module_invocation_identity::ModuleInvocationBrandV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortV1;
 use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
+use super::normal_callable_semantic_loan_port::NormalCallableSemanticLoanPortV1;
+use super::normal_callable_semantic_source::VerifiedNormalCallableSemanticSourceV1;
 use super::normal_default_root_catalog_lifecycle::PreparedNormalDefaultProgramRootV1;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
@@ -79,6 +81,11 @@ pub(super) enum NormalScriptRootLoweringMode<'source> {
     Deferred,
 }
 
+pub(super) enum NormalCallableSemanticSourceMode<'source> {
+    Complete(VerifiedNormalCallableSemanticSourceV1<'source>),
+    Deferred,
+}
+
 impl ProgramDeferredStaticBoxLifecycleV1 {
     pub(super) fn new(name: String, methods: HashMap<String, ASTNode>) -> Self {
         Self {
@@ -123,6 +130,7 @@ impl MirBuilder {
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         brand: ModuleInvocationBrandV1,
         declaration_facts: PreparedNormalProgramDeclarationFactsV1,
+        callable_mode: NormalCallableSemanticSourceMode<'_>,
         script_mode: NormalScriptRootLoweringMode<'_>,
     ) -> Result<ValueId, String> {
         self.lower_program_root_after_catalog_install_v1(
@@ -133,6 +141,7 @@ impl MirBuilder {
             runtime_inputs,
             brand,
             declaration_facts,
+            callable_mode,
             script_mode,
         )
     }
@@ -146,6 +155,7 @@ impl MirBuilder {
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         brand: ModuleInvocationBrandV1,
         declaration_facts: PreparedNormalProgramDeclarationFactsV1,
+        callable_mode: NormalCallableSemanticSourceMode<'_>,
         script_mode: NormalScriptRootLoweringMode<'_>,
     ) -> Result<ValueId, String> {
         let mut collector = ModuleDraftCollectorV1::with_brand(brand);
@@ -155,26 +165,28 @@ impl MirBuilder {
             match script_mode {
                 NormalScriptRootLoweringMode::Complete(source) => port
                     .with_script_semantic_source_v1(source, |port| {
-                        self.lower_prepared_program_root_with_callable_port_v1(
+                        self.lower_prepared_program_root_with_callable_mode_v1(
                             work,
                             snapshot,
                             expansion,
                             materialization,
                             runtime_inputs,
                             declaration_facts,
+                            callable_mode,
                             port,
                         )
                     })?,
                 NormalScriptRootLoweringMode::Deferred => port.with_source_transport_v1(
                     RawInvocationSourceTransportV1::script_root(()),
                     |port, ()| {
-                        self.lower_prepared_program_root_with_callable_port_v1(
+                        self.lower_prepared_program_root_with_callable_mode_v1(
                             work,
                             snapshot,
                             expansion,
                             materialization,
                             runtime_inputs,
                             declaration_facts,
+                            callable_mode,
                             port,
                         )
                     },
@@ -194,6 +206,46 @@ impl MirBuilder {
             })?;
         prepared.commit();
         Ok(result)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn lower_prepared_program_root_with_callable_mode_v1(
+        &mut self,
+        work: PreparedProgramRootWorkPlanPartsV1,
+        snapshot: &ASTNode,
+        expansion: &VerifiedRawRootExpansionV1<'_>,
+        materialization: &NormalEntryMaterializationSourceReceiptV1,
+        runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
+        declaration_facts: PreparedNormalProgramDeclarationFactsV1,
+        callable_mode: NormalCallableSemanticSourceMode<'_>,
+        port: &mut RawInvocationChildPortV1<'_, '_>,
+    ) -> Result<ValueId, String> {
+        match callable_mode {
+            NormalCallableSemanticSourceMode::Complete(source) => {
+                let mut loan = NormalCallableSemanticLoanPortV1::new(port, &source);
+                let result = self.lower_prepared_program_root_with_callable_port_v1(
+                    work,
+                    snapshot,
+                    expansion,
+                    materialization,
+                    runtime_inputs,
+                    declaration_facts,
+                    &mut loan,
+                )?;
+                loan.complete()?;
+                Ok(result)
+            }
+            NormalCallableSemanticSourceMode::Deferred => self
+                .lower_prepared_program_root_with_callable_port_v1(
+                    work,
+                    snapshot,
+                    expansion,
+                    materialization,
+                    runtime_inputs,
+                    declaration_facts,
+                    port,
+                ),
+        }
     }
 
     pub(in crate::mir::builder) fn lower_program_root_with_callable_port_v1<Port>(

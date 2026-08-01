@@ -26,7 +26,8 @@ pub(crate) use recovery::{
     BareStaticRecoveryNoRecoveryReasonV1,
 };
 pub(in crate::mir::builder) use selected_source_inventory::{
-    SelectedNormalCallableKeyV1, SelectedNormalCallableSourceSiteV1, SelectedTopLevelFunctionKeyV1,
+    SelectedCallableSemanticBlockerV1, SelectedNormalCallableKeyV1,
+    SelectedNormalCallableSourceSiteV1, SelectedTopLevelFunctionKeyV1,
     VerifiedSelectedNormalCallableSourceInventoryV1,
 };
 

@@ -1,6 +1,6 @@
 ---
 Status: Active workstream
-Date: 2026-08-01
+Date: 2026-08-02
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -39,118 +39,15 @@ current execution:
 diffs and proof transcripts; this card keeps only the live boundary, active
 fences, compact queue, and short landed tail.
 
-## Root-neutral shadow traversal Refactor Series
+## Root-neutral semantic foundation
 
-Consultations:
-`docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md`
-and `docs/development/current/main/investigations/raw-script-demand-window-boundary2-design-consultation-question-2026-08-01.md`
-
-```text
-Decision:
-  Accept-corrected. One private root-neutral traversal becomes the sole
-  Function/Lambda and selected-Script lexical shadow authority. S0 is a live
-  behavior-neutral refactor of existing explicit canonical Function/Lambda
-  consumers; T2 is the selected Script production cutover.
-
-Contract:
-  FunctionSyntaxViewV1 and FunctionSourceViewV1 remain Function/Lambda-only.
-  Dense roots preserve all current controls: lambda inventory/reject, ancestor
-  bindings, qualified-receiver requests, and method-call observation. Sparse
-  Script roots borrow Program by original ordinal, select Complete/Deferred
-  once, issue owner/forest/projection only after Complete, and lower once.
-
-Series boundary:
-  S0 extracts a Dense ShadowRootTraversalInputV1 and an identity-free shadow
-  draft, while final canonicalization remains (owner, origin, draft). T2 adds
-  SparseScript plus typed Resolved/Transferred/Diagnostic/Transparent demand
-  boundaries. StaticConst and selected unsupported are root-iterator
-  boundaries; their children are never traversed. Responsibility gates run
-  before child descent.
-
-Stop:
-  no synthetic FunctionDeclaration; no FunctionSourceViewV1 or
-  FunctionSyntaxViewV1 Program widening; no second resolver/forest/projection;
-  no partial forest; no AST-family enumeration; no Complete-to-Deferred
-  downgrade; no fallback/retry; no Program clone/reparse; no caller-zero owner;
-  no new per-row guard; every touched source/check file stays below 800 lines.
-```
-
-### SEMANTIC-SHADOW-ROOT-NEUTRAL-ENTRY0-S0
-
-```text
-Change:
-  Replace the FunctionSyntaxViewV1-only traverse_shadow_view entry with a
-  private Dense ShadowRootTraversalInputV1 and traverse_shadow_root_v1. Split
-  origin-free shadow facts from final canonicalization; all existing Function
-  and Lambda routes consume the same dense adapter.
-
-Contract:
-  Existing explicit canonical Function/Lambda production APIs are the real S0
-  consumers. Function/Lambda graph, diagnostics, lambda topology, qualified
-  receiver, and method-call observations are byte/graph equivalent. No Script
-  production consumer or builder demand window is added in S0.
-
-Done:
-  FunctionSyntaxView-only direct traversal entry = 0; Function and Lambda each
-  reach root-neutral traversal once; observer entries retain the same controls;
-  dense resolver/forest/normalized fixtures remain equivalent.
-
-Stop:
-  stop if dense extraction needs a public view change, loses an observer
-  control, changes Function/Lambda canonicalization, or cannot keep every
-  source/check file under 800 lines. Do not add SparseScript in S0.
-```
-
-### RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0
-
-```text
-Change:
-  Seal one sparse Program demand window from the existing work-plan partition;
-  borrow ScriptSyntaxViewV1 by exact ProgramBody(original ordinal); run the
-  same root-neutral core under ScriptLexicalCoreV1; select Complete/Deferred
-  before CatalogInstall; and delete the full manual Script resolver chain.
-
-Window contract:
-  Every original ProgramBody ordinal occurs once with a typed semantic and
-  runtime disposition. Resolved entries are the existing lexical closure;
-  StaticConst is a retained-runtime metadata transfer, selected unsupported is
-  a retained diagnostic boundary, and top-level FunctionDeclaration is a
-  no-runtime callable transfer. Using, Box, control, call/object, allocation,
-  Weak, and Lambda select Deferred before child descent in this row.
-
-Contract:
-  Demand-window coverage includes every Program item, including transferred
-  top-level callable and runtime-bearing Box boundaries. Complete retains the
-  existing ten fixture identities; Deferred owns no ID/forest/projection and
-  executes ExistingRootLower once. Shadow source errors only select Deferred;
-  RootLower still owns user diagnostics and first-error order.
-
-Done:
-  semantic_closure_admission -> admit_runtime_script_lexical_v1 ->
-  admit_expression_v1 -> manual facts -> ResolvedScriptSemanticDraftV1 = 0.
-  The replacement uses one core, one forest, one Program projection, no retry,
-  and Complete no longer reaches bare script_root(()).
-
-Stop:
-  no partial request routing, Script-only match tree/visible map, compact-index
-  source recovery, fabricated Script origin, Complete-to-Deferred downgrade,
-  raw/reference change, control/call/Lambda/Box activation, or source/check
-  file >=800.
-```
-
-### Mandatory S0 preparation
-
-```text
-before T2:
-  extract normal_script_semantic_source tests into its existing sibling module
-  (794-line source has no room)
-  move the two hardcoded ratchet checks into a reusable shared-guard helper
-  and make all ten Complete IDs plus Deferred floors map to path + test anchor
-  keep program_root_work_plan.rs unchanged at 799; the sparse window is a
-  sibling product wired through its existing seam
-  retain only BindingRef -> ValueId ledger in normal_script_semantic_lowering_state
-  delete normal_script_lexical_binding.rs in T2
-```
+Closed. One private traversal is the Function/Lambda and selected-Script
+lexical authority. Function/Lambda use dense roots; Script uses the sparse
+`ProgramBody(original ordinal)` window. The former Script visible-name map,
+recursive mini-resolver, manual Local/Variable facts, and path reconstruction
+are deleted. Complete issues one forest/projection only after total coverage;
+Deferred issues neither and preserves RootLower diagnostics once. Git history
+and the shared guard own the detailed proof.
 
 ### Recovered WIP order
 
@@ -481,9 +378,41 @@ closed — CALLABLE-RESULT-BINDING-REPRESENTATION-INGRESS0-D0 (NoSafeSlice)
   acceptable second resolver.
 closed — NORMAL-CALLABLE-SEMANTIC-SOURCE-LOAN0-D0 / SOURCE-INVENTORY0-S0
   Catalog owns exact top-level/three-terminal Box sites; Main stays transferred.
-current — NORMAL-CALLABLE-SEMANTIC-SOURCE-LOAN0-I0-R0
-  Profile defers FunctionCall/raw-only syntax before children; co-seal eligible
-  key/site/forest/projection. Complete bare roots=0; batch Deferred runs once.
+closed — NORMAL-CALLABLE-SEMANTIC-SOURCE-LOAN0-I0-R0
+  One selected lifecycle issuer traverses the complete callable batch before
+  owner issue and co-seals exact catalog key, Program site, forest, and
+  projection. Complete consumes typed loans exactly once at top-level, static,
+  and plain-instance terminals; missing, duplicate, or unconsumed loans reject.
+  FunctionCall defers before children. Script non-plain instance Box makes the
+  whole batch Deferred before resolution; App remains eligible. Callable scope
+  cannot borrow the Script BindingRef-to-ValueId ledger. Raw/reference and user
+  diagnostic order are unchanged; fallback/retry and partial forest are zero.
+current — NORMAL-CALLABLE-LEXICAL-BINDING-MATERIALIZATION0-I0-R0
+Change:
+  Each typed callable loan installs one callable-scoped request-local
+  BindingRef-to-ValueId projection around the existing top-level, static, or
+  plain-instance body Lower. Replace Complete-domain receiver/parameter/Local
+  BindingId allocation and Variable/rebind semantic identity recovery from
+  names; restore the parent Script authority after the child session.
+
+Contract:
+  `VerifiedResolvedFunctionV1` remains identity truth. The new state is only a
+  physical projection and verifies exact Receiver/Parameter/Local declaration,
+  Variable-use, and rebind consumption. Existing `variable_map` may retain
+  runtime/type compatibility data but cannot decide semantic identity.
+  FunctionCall stays Deferred; raw/reference and user diagnostics do not move.
+
+Done:
+  The three Complete terminals seed canonical receiver/parameter bindings,
+  publish Local values, read/rebind by exact source-site BindingRef, and finish
+  exactly once. Missing/duplicate/foreign facts hard-reject without retry or
+  partial draft publication. Focused top-level/static/instance, shadowing,
+  Script-ledger restoration, failure-reuse, and parity fixtures are green.
+
+Stop:
+  No call-result activation, Loop, Ownership, capture ABI, second resolver,
+  AST rescan, durable global binding map, name-derived BindingRef, partial
+  batch, fallback, or source/check file at or above 800 lines.
 already closed — do not reopen as WIP
   QMark, root Match, StaticConst, and explicit Record schema; only a regression
   can reopen their Git-history evidence.

@@ -95,9 +95,20 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
             BTreeMap::<(Box<str>, u32), Vec<CanonicalSameModuleCallableKeyV1>>::new();
         let mut box_owners = BTreeSet::new();
         let mut selected_source_rows = Vec::new();
+        let mut selected_semantic_blockers = Vec::new();
 
         for (statement_index, statement) in statements.iter().enumerate() {
             if collect_selected_program_sources {
+                if matches!(
+                    super::super::normal_script_program_item_admission::classify_normal_script_program_item_v1(statement),
+                    super::super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1::NonPlainInstanceFullLifecycle
+                ) {
+                    selected_semantic_blockers.push(
+                        super::SelectedCallableSemanticBlockerV1::NonPlainInstanceBox {
+                            statement_index,
+                        },
+                    );
+                }
                 if let ASTNode::FunctionDeclaration { name, params, .. } = statement {
                     let key =
                         SelectedTopLevelFunctionKeyV1::new(statement_index, name, params.len());
@@ -233,6 +244,7 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
             static_keys_by_method_and_arity,
             selected_source_inventory: VerifiedSelectedNormalCallableSourceInventoryV1::seal(
                 selected_source_rows,
+                selected_semantic_blockers,
             ),
         })
     }

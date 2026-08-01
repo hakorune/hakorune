@@ -234,7 +234,12 @@ impl VerifiedSourceProjectionV1 {
             let chain = definition_chain(forest, root_owner, owner)?;
             let owner_root = locate_owner_root(syntax_root, owner, &chain)?;
             verify_owner_root(owner, owner == root_owner, root_profile, owner_root)?;
-            verify_semantic_sites(owner, owner_root, product)?;
+            let owner_profile = if owner == root_owner {
+                root_profile
+            } else {
+                SemanticOwnerRootProfileV1::Lambda
+            };
+            verify_semantic_sites(owner, owner_root, owner_profile, product)?;
             definition_chains.insert(owner, chain.into_boxed_slice());
         }
         if definition_chains.len() != forest.owner_count() {
@@ -363,9 +368,10 @@ fn expected_root_name(profile: SemanticOwnerRootProfileV1) -> &'static str {
 fn verify_semantic_sites(
     owner: FunctionOwnerIdV1,
     syntax: &ASTNode,
+    root_profile: SemanticOwnerRootProfileV1,
     product: &VerifiedSemanticOwnerProductV1,
 ) -> Result<(), SourceNavigationErrorV1> {
-    verify_signature_sites(owner, syntax, product)?;
+    verify_signature_sites(owner, syntax, root_profile, product)?;
     for site in product.declaration_sites() {
         verify_declaration_site(owner, syntax, site)?;
     }
@@ -429,14 +435,19 @@ fn verify_semantic_sites(
 fn verify_signature_sites(
     owner: FunctionOwnerIdV1,
     syntax: &ASTNode,
+    root_profile: SemanticOwnerRootProfileV1,
     product: &VerifiedSemanticOwnerProductV1,
 ) -> Result<(), SourceNavigationErrorV1> {
-    let (expected_parameters, expected_receiver) = match syntax {
-        ASTNode::FunctionDeclaration {
-            params, is_static, ..
-        } => (params.len() as u32, !*is_static),
-        ASTNode::Lambda { params, .. } => (params.len() as u32, false),
-        _ => (0, false),
+    let expected_parameters = match syntax {
+        ASTNode::FunctionDeclaration { params, .. } => params.len() as u32,
+        ASTNode::Lambda { params, .. } => params.len() as u32,
+        _ => 0,
+    };
+    let expected_receiver = match root_profile {
+        SemanticOwnerRootProfileV1::DeclaredFunction { receiver_policy } => {
+            receiver_policy == crate::mir::resolved_semantics::ReceiverPolicyV1::DeclaredInstance
+        }
+        SemanticOwnerRootProfileV1::Script | SemanticOwnerRootProfileV1::Lambda => false,
     };
     let actual_parameters = product
         .declaration_sites()

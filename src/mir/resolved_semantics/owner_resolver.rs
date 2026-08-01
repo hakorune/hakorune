@@ -6,7 +6,8 @@ use super::callable_index::VerifiedCallableIndexV1;
 use super::function_view::FunctionSyntaxViewV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, ScopeId};
 use super::owner_construction_tree::{
-    construct_function_owner_tree_v1, construct_script_owner_tree_v1, ShadowOwnerConstructionTreeV1,
+    construct_function_owner_tree_v1, construct_script_owner_tree_v1,
+    construct_selected_callable_owner_tree_v1, ShadowOwnerConstructionTreeV1,
 };
 use super::owner_forest::{
     OwnerParentEdgeV1, SemanticOwnerForestDraftV1, SemanticOwnerForestVerificationErrorV1,
@@ -20,8 +21,8 @@ use super::resolver::{
 use super::script_view::ScriptSyntaxViewV1;
 use super::shadow::{resolve_function_shadow_view_v0, ShadowLambdaSyntaxV0};
 use super::{
-    EnumMatchDemandV1, EnumVariantDemandV1, FunctionOriginV1, OwnedExprSiteV1, RecordSchemaDemandV1,
-    VerifiedScriptRootDemandWindowV1,
+    EnumMatchDemandV1, EnumVariantDemandV1, FunctionOriginV1, OwnedExprSiteV1,
+    RecordSchemaDemandV1, VerifiedScriptRootDemandWindowV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -36,6 +37,12 @@ pub(crate) enum ResolveScriptForestOutcomeV1 {
     Deferred,
 }
 
+#[derive(Debug)]
+pub(crate) enum ResolveSelectedCallableForestsOutcomeV1 {
+    Complete(Box<[VerifiedSemanticOwnerForestV1]>),
+    Deferred,
+}
+
 #[derive(Debug, Clone)]
 struct PendingParentV1 {
     parent_owner: FunctionOwnerIdV1,
@@ -44,6 +51,37 @@ struct PendingParentV1 {
 }
 
 impl FunctionSemanticResolverSessionV1 {
+    /// Traverses the complete batch before issuing any canonical owner.
+    pub(crate) fn resolve_selected_callable_forests(
+        &mut self,
+        roots: &[FunctionSyntaxViewV1<'_>],
+    ) -> Result<ResolveSelectedCallableForestsOutcomeV1, ResolveOwnerForestErrorV1> {
+        let mut trees = Vec::with_capacity(roots.len());
+        let mut deferred = false;
+        for root in roots {
+            match construct_selected_callable_owner_tree_v1(*root) {
+                Ok(tree) => trees.push(tree),
+                Err(error) => deferred |= selected_callable_source_deferral(error)?,
+            }
+        }
+        if deferred {
+            return Ok(ResolveSelectedCallableForestsOutcomeV1::Deferred);
+        }
+        let mut forests = Vec::with_capacity(trees.len());
+        for tree in trees {
+            let mut draft = SemanticOwnerForestDraftV1::new();
+            self.seal_owner_tree(tree, &BTreeMap::new(), None, None, None, &mut draft)?;
+            forests.push(
+                draft
+                    .seal()
+                    .map_err(ResolveOwnerForestErrorV1::Verification)?,
+            );
+        }
+        Ok(ResolveSelectedCallableForestsOutcomeV1::Complete(
+            forests.into_boxed_slice(),
+        ))
+    }
+
     pub(crate) fn resolve_script_forest_with_declaration_views(
         &mut self,
         view: ScriptSyntaxViewV1<'_>,
@@ -58,8 +96,7 @@ impl FunctionSemanticResolverSessionV1 {
             record_schemas,
             enum_variants,
             enum_matches,
-        )
-        {
+        ) {
             Ok(tree) => tree,
             Err(error) if error.is_script_source_deferral() => {
                 return Ok(ResolveScriptForestOutcomeV1::Deferred)
@@ -272,6 +309,38 @@ impl FunctionSemanticResolverSessionV1 {
             )?;
         }
         Ok(())
+    }
+}
+
+fn selected_callable_source_deferral(
+    error: super::shadow::ShadowResolveErrorV0,
+) -> Result<bool, ResolveOwnerForestErrorV1> {
+    if error.is_script_source_deferral() {
+        Ok(true)
+    } else {
+        Err(ResolveOwnerForestErrorV1::Function(
+            ResolveFunctionErrorV1::Syntax(error),
+        ))
+    }
+}
+
+#[cfg(test)]
+mod selected_callable_tests {
+    use super::selected_callable_source_deferral;
+    use crate::mir::resolved_semantics::shadow::ShadowResolveErrorV0;
+    use crate::mir::resolved_semantics::SourcePathV1;
+
+    #[test]
+    fn later_invariant_is_not_hidden_by_an_earlier_source_deferral() {
+        let deferred = ShadowResolveErrorV0::UnsupportedStatement {
+            kind: "test-deferred",
+            site: SourcePathV1::function_body().stmt(),
+        };
+        assert!(selected_callable_source_deferral(deferred).unwrap());
+        let invariant = ShadowResolveErrorV0::DuplicateExitSite {
+            site: SourcePathV1::function_body().stmt(),
+        };
+        assert!(selected_callable_source_deferral(invariant).is_err());
     }
 }
 

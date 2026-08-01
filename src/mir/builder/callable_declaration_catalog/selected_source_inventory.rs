@@ -58,9 +58,15 @@ struct SelectedNormalCallableSourceRowV1 {
     site: SelectedNormalCallableSourceSiteV1,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) enum SelectedCallableSemanticBlockerV1 {
+    NonPlainInstanceBox { statement_index: usize },
+}
+
 #[derive(Debug, Default)]
 pub(crate) struct VerifiedSelectedNormalCallableSourceInventoryV1 {
     rows: Box<[SelectedNormalCallableSourceRowV1]>,
+    blockers: Box<[SelectedCallableSemanticBlockerV1]>,
 }
 
 impl VerifiedSelectedNormalCallableSourceInventoryV1 {
@@ -69,6 +75,7 @@ impl VerifiedSelectedNormalCallableSourceInventoryV1 {
             SelectedNormalCallableKeyV1,
             SelectedNormalCallableSourceSiteV1,
         )>,
+        blockers: Vec<SelectedCallableSemanticBlockerV1>,
     ) -> Self {
         let mut rows = rows
             .into_iter()
@@ -77,6 +84,7 @@ impl VerifiedSelectedNormalCallableSourceInventoryV1 {
         rows.sort_by(|left, right| left.key.cmp(&right.key));
         Self {
             rows: rows.into_boxed_slice(),
+            blockers: blockers.into_boxed_slice(),
         }
     }
 
@@ -106,6 +114,21 @@ impl VerifiedSelectedNormalCallableSourceInventoryV1 {
 
     pub(crate) fn len(&self) -> usize {
         self.rows.len()
+    }
+
+    pub(in crate::mir::builder) fn blockers(&self) -> &[SelectedCallableSemanticBlockerV1] {
+        &self.blockers
+    }
+
+    pub(in crate::mir::builder) fn entries(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            &SelectedNormalCallableKeyV1,
+            &SelectedNormalCallableSourceSiteV1,
+        ),
+    > {
+        self.rows.iter().map(|row| (&row.key, &row.site))
     }
 }
 
@@ -210,7 +233,11 @@ mod tests {
         let inventory = catalog.selected_source_inventory();
 
         assert_eq!(catalog.len(), 3, "lookup catalog still owns Main methods");
-        assert_eq!(inventory.len(), 1, "Main methods are outside three-terminal loan");
+        assert_eq!(
+            inventory.len(),
+            1,
+            "Main methods are outside three-terminal loan"
+        );
         let tools = catalog
             .declaration_for(
                 SameModuleCallableNamespaceV1::StaticBoxMethod,
