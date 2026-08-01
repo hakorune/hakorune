@@ -177,29 +177,44 @@ lifecycle-capability truth. They must not maintain two independent policies.
 Mutable instance-lifecycle state is not registry truth; it belongs to the host
 lifecycle controller described below.
 
-Accepted target ownership graph:
+The production design has exactly three decision authorities:
 
 ```text
-provider image and exported-address observation:
-  PluginLoaderV2 provider boundary
-
-callable identity and immutable lifecycle capability truth:
+what may be called:
   BoxCallableRegistry
 
-descriptor projection:
-  BoxDescriptor / historical TypeAbi* views
-
-selected execution and binding:
+how the selected callable is reached:
   sealed RoutePlan + plan stamp + provider image pin
 
-mutable instance-call legality:
+whether the instance may be called now:
   host lifecycle controller / future ObjectCell authority
+```
 
-external plugin execution ABI:
-  TypeBox ABI v2 and its selected transport
+The rest are inputs, projections, or physical mechanisms, not additional
+decision authorities:
 
-physical ownership and lease drain:
-  runtime object substrate, not the registry or descriptor view
+```text
+PluginLoaderV2:
+  observes and publishes provider image/export facts
+
+BoxDescriptor / historical TypeAbi* views:
+  read-only descriptor projections
+
+TypeBox ABI v2:
+  selected external transport contract
+
+runtime object substrate:
+  physical ownership, lease drain, and reclamation mechanics
+```
+
+The minimal production path is:
+
+```text
+provider export snapshot
+  -> BoxCallableRegistry
+  -> one sealed RoutePlan
+  -> one host lifecycle gate
+  -> one selected invocation
 ```
 
 ### Typed Fast ABI target
@@ -401,7 +416,7 @@ alive. A copied function pointer is not a lifetime proof.
 
 ```text
 sealed executable plan
-  -> provider identity + provider generation
+  -> provider identity
   -> exact ABI/callable contract
   -> PlanStamp checked at plan/cache boundary
   -> provider image pin
@@ -419,9 +434,11 @@ invalidation, and the exact point at which the image may be released. A
 `PlanStamp` is checked at plan/cache boundaries, never on every hot call.
 
 Provider identity must be part of callable and object identity. A bare
-`box_type` or `u32 instance_id` is not globally unique across providers or
-provider generations. Duplicate provider-scoped exports are either rejected
-deterministically or selected by one sealed, explicit policy before execution.
+`box_type` or `u32 instance_id` is not globally unique across providers.
+Duplicate provider-scoped exports are either rejected deterministically or
+selected by one sealed, explicit policy before execution. A provider
+generation becomes necessary only if a later row enables reload; the initial
+process-pinned model must not add an unused generation authority.
 
 ## 10. TypedFast Wire Contract Obligations
 
@@ -485,57 +502,109 @@ The architecture does not need a rewrite. It does require the following
 consolidation before implementation. These tasks are parked inventory, not a
 change to `CURRENT_STATE.toml` or the active MirBuilder lane.
 
-### D0-1: `RING2-LIFECYCLE-BPRIME-ALIGNMENT0-D0`
-
-Decide the exact host lifecycle transaction before changing runtime code.
+Ceremony is intentionally small:
 
 ```text
-select:
+design:
+  one consultation batch + one SSOT commit
+
+implementation:
+  two live Refactor Series, each 2-5 buildable commits
+
+activation:
+  one exact TypedFast BoxCount row
+
+docs:
+  do not split select and closeout into separate commits
+  do not create one file per subdecision
+```
+
+### First task: `RING2-PROVIDER-BOUNDARY-CONTRACT0-D0`
+
+Run one consultation batch and land one SSOT update. Do not create separate
+lifecycle, image-pin, and wire-contract documents or closeout commits.
+
+#### Change
+
+Seal the three contracts required by the three-authority production path:
+
+```text
+lifecycle law:
   registry = immutable birth/fini/destroy capability truth
   host controller = mutable Alive/Finalizing/Dead legality
   provider = selected hook implementation only
-
-seal:
   fini failure and teardown order
   concurrent and reentrant fini
   use-after-fini gate
   clone through selected birth
   outstanding singleton-share shutdown policy
   legacy BID lifecycle compatibility and retirement condition
-```
 
-Done means this document and the B-prime SSOT describe one state machine and
-one failure law. No runtime edit is authorized by the D0 alone.
-
-### D0-2: `RING2-PROVIDER-IMAGE-PIN-IDENTITY0-D0`
-
-Choose the first provider-image lifetime policy and canonical provider-scoped
-identity. The preferred first baseline is process-lifetime pinning with
-same-identity reload rejected. General unload/hot reload is not required.
-
-```text
-seal:
-  provider identity and generation
+link/lifetime law:
+  provider identity
   image pin owner
   duplicate export rejection/selection
   provider init failure before publication
   object identity across provider/type/instance
   PlanStamp and cache invalidation boundary
+  no provider generation until reload is supported
+
+wire law:
+  canonical signature bytes and hash
+  version/capability negotiation
+  status, result, and error representation
+  unwind containment and allocation ownership
+  thread/reentrancy contract
+  versioned birth/fini/destroy entries
 ```
 
-Done means every retained executable address has a lifetime proof and no
-loader map replacement can invalidate a live plan or instance.
+#### Contract
 
-### D0-3: `RING2-TYPEDFAST-WIRE-CONTRACT0-D0`
+```text
+production code delta = 0
+current route delta    = 0
+current lane delta     = 0
+new docs file          = 0
 
-Fix the C ABI obligations from section 10: canonical signature bytes and hash,
-version negotiation, status/error representation, unwind containment,
-allocation ownership, thread/reentrancy law, capability grant, and lifecycle
-entries. It must also decide the versioned treatment of existing plugins that
-have birth/fini but no structural destroy.
+initial dynamic lifetime:
+  process pinned
+  same-identity reload rejected
+  unload / hot reload unsupported
 
-Done means a provider and host can independently build the same compatibility
-descriptor without using Rust layout or mutable loader state.
+decision authorities:
+  BoxCallableRegistry
+  RoutePlan
+  host lifecycle controller
+  exactly these three
+```
+
+#### Done
+
+```text
+this SSOT and the B-prime SSOT have one lifecycle state/failure law
+every retained executable address has an exact image-lifetime proof
+provider/type/instance identity is unambiguous
+provider and host can independently build the same ABI descriptor
+current version/capabilities fields are not misrepresented as negotiation
+legacy birth/fini-only plugins have a named compatibility/retirement rule
+counterexample matrix covers share, clone, failed/reentrant fini,
+  use-after-fini, init failure, duplicate export, reload, buffer/error,
+  shutdown with shares, and destroy exactly once
+```
+
+#### Stop
+
+```text
+B-prime failure law cannot be preserved for plugin fini
+existing BID plugins cannot be versioned without a silent lifecycle fallback
+one provider identity cannot cover loader, registry, plan, and object identity
+the first dynamic route requires unload/hot reload support
+the ABI descriptor requires Rust layout or mutable loader state
+an additional decision authority is required beside the selected three
+```
+
+On Stop, do not open either Refactor Series and do not add a compatibility
+adapter.
 
 ### Refactor Series 1: `RING2-PLUGIN-LIFECYCLE-BPRIME0`
 
@@ -560,6 +629,11 @@ same-series retirement:
 
 Do not add TypedFast in this series.
 
+Done means the existing BID route passes the counterexample matrix, every
+method call crosses one host legality gate, and user `fini` is unreachable
+from structural Drop/destroy. Stop the series if this requires general
+ObjectCell activation, TypedFast, or a second lifecycle state owner.
+
 ### Refactor Series 2: `RING2-CALLABLE-LINK-PLAN0`
 
 Create the provider-scoped immutable callable/link plan with a live existing
@@ -571,10 +645,22 @@ provider exports
   -> immutable provider-scoped BoxCallableRegistry snapshot
   -> sealed RoutePlan + PlanStamp + provider image pin
   -> existing BID execution exactly once
+
+same-series retirement:
+  callable snapshot reconstruction per invocation
+  mutable config/spec reads after plan seal
+  unpinned dynamic function pointers
+  provider identity dropped from callable/object identity
+  per-handle compatibility-fallback policy
 ```
 
 The series retires per-call reconstruction from mutable config/spec state and
 fails deterministically on provider/type/callable collisions.
+
+Done means the existing BID route is the live first consumer, one provider
+snapshot is published, one plan is selected, and the selected operation is
+invoked once. Stop if a caller-zero plan, a second callable registry, or a
+hot-path `PlanStamp` check is required.
 
 ### BoxCount sequence
 
@@ -621,7 +707,8 @@ uses hard-coded method zero as clone birth
 
 stores a dynamic function pointer without an exact provider image pin
 allows same-identity reload while old plans/instances exist
-drops provider identity or generation from callable/object identity
+drops provider identity from callable/object identity
+adds provider generation while reload remains unsupported
 checks PlanStamp on every hot call
 
 calls a version field negotiation without major/minor/capability checks
