@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-INDEX-WRITE-MUTATION-DESCENT0-I0-R0 is closed; next is RAW-SCRIPT-NEXT-NAMED-FAMILY5-D0."
-date = "2026-08-01"
+status = "SCRIPT-SEMANTIC-RATCHET-COVERAGE0-S0 is closed; next is MIRBUILDER-LOOP-JOINIR-SOURCE-ERASING-TERMINAL0-D0."
+date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "none"
-current_execution_row = "RAW-SCRIPT-NEXT-NAMED-FAMILY5-D0"
-current_execution_summary = "Run one fresh live-edge census after the bounded prior-Local Array IndexWrite cutover. Loop/JoinIR, Call/Object, FieldWrite, CompoundAssignment, Lambda, Box runtime, and explicit R4 retained families are not preselected."
+current_design_stop = "MIRBUILDER-LOOP-JOINIR-SOURCE-ERASING-TERMINAL0-D0"
+current_execution_row = "MIRBUILDER-LOOP-JOINIR-SOURCE-ERASING-TERMINAL0-D0"
+current_execution_summary = "Family5 census found no standalone Script old-edge deletion. Decide whether the existing located Loop source-erasing JoinIR terminal can be replaced by one verified plan consumer; Call/Object and its explicit R4 retains remain out of scope."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-NEXT-NAMED-FAMILY5-D0"
+current_blocker_token = "MIRBUILDER-LOOP-JOINIR-SOURCE-ERASING-TERMINAL0-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

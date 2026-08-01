@@ -158,7 +158,18 @@
         "script_root_qmark_propagation": {"path": "src/mir/builder/normal_script_qmark_tests.rs", "anchor": "fn root_qmark_await_seals_the_exact_operand_and_matches_legacy"},
         "script_grouped_binding_rebind": {"path": "src/mir/builder/normal_script_binding_rebind_tests.rs", "anchor": "fn prior_local_grouped_assignment_rebinds_the_script_ledger"},
         "script_enum_declaration_completion": {"path": "src/mir/builder/normal_script_enum_declaration_tests.rs", "anchor": "fn enum_declaration_completes_the_selected_script_with_void"},
-        "script_enum_variant_producer": {"path": "src/mir/builder/normal_script_enum_variant_tests.rs", "anchor": "fn enum_variant_selected_pipeline_matches_legacy"}
+        "script_enum_variant_producer": {"path": "src/mir/builder/normal_script_enum_variant_tests.rs", "anchor": "fn enum_variant_selected_pipeline_matches_legacy"},
+        "script_root_if_control": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn root_if_control_receipt_seals_one_script_owner_and_matches_legacy"},
+        "script_fastmem_scope": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn lexical_fastmem_scope_matches_legacy"},
+        "script_scopebox": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn lexical_scopebox_matches_legacy"},
+        "script_root_match_control": {"path": "src/mir/builder/normal_script_match_tests.rs", "anchor": "fn root_match_seals_all_child_sites_and_matches_legacy"},
+        "script_pure_block_expr": {"path": "src/mir/builder/normal_script_block_expr_tests.rs", "anchor": "fn selected_normal_pure_block_expr_matches_legacy"},
+        "script_fully_explicit_record_literal": {"path": "src/mir/builder/normal_script_record_literal_tests.rs", "anchor": "fn fully_explicit_record_literal_matches_legacy_with_lexical_values"},
+        "script_final_root_return": {"path": "src/mir/builder/normal_script_root_return_tests.rs", "anchor": "fn final_root_return_seals_script_owner_and_matches_existing_lowering"},
+        "script_enum_match_scrutinee": {"path": "src/mir/builder/normal_script_enum_match_tests.rs", "anchor": "fn direct_enum_match_selected_pipeline_matches_legacy"},
+        "script_selected_lambda_child_owner": {"path": "src/mir/builder/raw_lambda_capture_lifecycle.rs", "anchor": "fn selected_script_lambda_capture_matches_legacy_lowering"},
+        "script_binding_rebind": {"path": "src/mir/builder/normal_script_binding_rebind_tests.rs", "anchor": "fn prior_local_variable_assignment_rebinds_the_script_ledger"},
+        "script_compound_binding_rebind": {"path": "src/mir/builder/normal_script_binding_rebind_tests.rs", "anchor": "fn prior_local_variable_compound_assignment_rebinds_the_script_ledger"}
       },
       "deferred_fixtures": {
         "script_weak_unary": {"reason": "UnsafeRuntimeStatement", "path": "src/mir/builder/normal_script_semantic_source_runtime_tests.rs", "anchor": "fn weak_unary_remains_deferred"},

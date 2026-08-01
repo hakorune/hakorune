@@ -292,10 +292,36 @@ closed — RAW-SCRIPT-INDEX-WRITE-MUTATION-DESCENT0-I0-R0 (T2)
   Box runtime remain Deferred. The selected prior-Local Array form no longer
   reaches Deferred-to-bare-`script_root(())`; its fixture identity is ratcheted.
 
-selected — RAW-SCRIPT-NEXT-NAMED-FAMILY5-D0
-  Run a fresh live-edge census. No prior residual is implicitly selected:
-  Loop/JoinIR, Call/Object, FieldWrite, CompoundAssignment, Lambda, Box runtime,
-  and the named R4 retained families require their own exact owner deletion.
+closed — RAW-SCRIPT-NEXT-NAMED-FAMILY5-D0 (NoSafeSlice)
+  Fresh production census found no standalone old-edge deletion after IndexWrite.
+  Every remaining root surface belongs to Loop/JoinIR, a Call/Object operation
+  owner, Lambda capture/publication, Box runtime, or an explicit R4 residual;
+  none is reopened under a renamed small I0.
+
+closed — SCRIPT-SEMANTIC-RATCHET-COVERAGE0-S0
+  The Script Complete identity floor now includes every already-closed
+  root-level family with a focused parity fixture. Behavior, admission,
+  lowering, and Deferred reasons are unchanged; the shared manifest guard
+  rejects any later fixture-identity regression.
+
+next design gate — MIRBUILDER-LOOP-JOINIR-SOURCE-ERASING-TERMINAL0-D0
+
+Change:
+  Decide whether the existing located Loop condition/body receipts can reach
+  one verified JoinIR-plan consumer without source erasure; otherwise record
+  the exact R4 retention/rehome boundary.
+
+Contract:
+  This is a Loop/JoinIR owner decision only. Script admission, Call/Object,
+  Lambda capture/publication, and raw/reference behavior do not move.
+
+Done:
+  Name the sole production caller, the source-erasing edge to delete, or the
+  final retained operation owner and release condition.
+
+Stop:
+  Do not open an I0 if the verified plan cannot consume the located product
+  exactly once, or if the decision needs a second JoinIR planner.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
