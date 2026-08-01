@@ -7,7 +7,7 @@ use super::path::ShadowSourcePathV0;
 use super::product::{ShadowRegionKindV0, ShadowResolveErrorV0, ShadowScopeKindV0};
 use super::resolver::ShadowResolverV0;
 
-impl<'ast> ShadowResolverV0<'ast> {
+impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     pub(super) fn resolve_block_expr(
         &mut self,
         expression: &'ast ASTNode,

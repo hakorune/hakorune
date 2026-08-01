@@ -36,6 +36,7 @@ use super::ops::{
     RawLegacyBinaryInputV1, RawLegacyShortCircuitInputV1, ShortCircuitExpressionDescentPortV1,
 };
 use super::raw_structured_child_scope::RawStructuredChildScopePortV1;
+use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
     RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1, RawLoopChildEntryPortV1,
     RecursiveChildLoweringPortV1,
@@ -77,6 +78,7 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + ReturnStatementDescentPortV1<ReturnInput = RawLegacyValueReturnInputV1>
     + RawBoxMethodChildPortV1
     + RawLoopChildEntryPortV1
+    + RecordLiteralSourceDemandPortV1
 {
 }
 
@@ -96,6 +98,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         > + ReturnStatementDescentPortV1<ReturnInput = RawLegacyValueReturnInputV1>
         + RawBoxMethodChildPortV1
         + RawLoopChildEntryPortV1
+        + RecordLiteralSourceDemandPortV1
 {
 }
 
@@ -455,11 +458,51 @@ impl super::MirBuilder {
                 })
             }
 
-            ASTNode::RecordLiteral {
-                record_type_name,
-                fields,
-                ..
-            } => self.build_record_literal_value_with_port_v1(port, record_type_name, fields),
+            node @ ASTNode::RecordLiteral { .. } => {
+                let receipt = port.record_literal_explicit_field_count_v1(&node)?;
+                let sources = match receipt {
+                    Some(field_count) => {
+                        let ASTNode::RecordLiteral { fields, .. } = &node else {
+                            unreachable!("record receipt query keeps its AST shape");
+                        };
+                        if fields.len() != field_count as usize {
+                            return Err("[freeze:contract][script-record/receipt-cardinality]".to_owned());
+                        }
+                        Some(
+                            (0..field_count)
+                                .map(|index| {
+                                    port.prepare_expression_child_source_v1(
+                                        &node,
+                                        ExprChildRoleV1::RecordFieldValue(index),
+                                    )
+                                })
+                                .collect::<Result<Vec<_>, _>>()?,
+                        )
+                    }
+                    None => None,
+                };
+                let ASTNode::RecordLiteral {
+                    record_type_name,
+                    fields,
+                    ..
+                } = node
+                else {
+                    unreachable!("record receipt query keeps its AST shape");
+                };
+                match sources {
+                    Some(sources) => {
+                    let mut scoped = RawStructuredChildScopePortV1::new(port, sources, Vec::new());
+                    let value = self.build_record_literal_value_with_port_v1(
+                        &mut scoped,
+                        record_type_name,
+                        fields,
+                    )?;
+                    scoped.complete_exact_demands_v1()?;
+                    Ok(value)
+                }
+                    None => self.build_record_literal_value_with_port_v1(port, record_type_name, fields),
+                }
+            }
             ASTNode::RecordUpdate { base, updates, .. } => {
                 self.build_record_update_value_with_port_v1(port, *base, updates)
             }

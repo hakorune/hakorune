@@ -71,6 +71,7 @@ pub(crate) enum ScriptTransparentBoundaryV1 {
 pub(crate) enum ScriptTransferredBoundaryV1 {
     ProgramStaticMetadata,
     TopLevelCallable,
+    ProgramRecordDeclaration,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

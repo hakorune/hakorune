@@ -12,7 +12,7 @@ use super::resolver::ShadowResolverV0;
 use super::script_root_window::ScriptRootResolvedDemandV1;
 use super::vocabulary::{classify_shadow_ast_disposition_v0, ShadowAstDispositionV0};
 
-impl<'ast> ShadowResolverV0<'ast> {
+impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     pub(super) fn resolve_root_statement(
         &mut self,
         statement: &'ast ASTNode,

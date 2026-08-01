@@ -76,7 +76,12 @@ impl ScriptRootDemandWindowBuilderV1 {
         use NormalScriptProgramItemAdmissionV1 as Admission;
         use ScriptRootRuntimeDispositionV1 as Runtime;
         use ScriptRootSemanticDispositionV1 as Semantic;
-        let (semantic, runtime) = if transferred_top_level_callable {
+        let (semantic, runtime) = if is_program_record_declaration(statement) {
+            (
+                Semantic::Transferred(ScriptTransferredBoundaryV1::ProgramRecordDeclaration),
+                Runtime::RetainedExistingTerminal,
+            )
+        } else if transferred_top_level_callable {
             (
                 Semantic::Transferred(ScriptTransferredBoundaryV1::TopLevelCallable),
                 Runtime::None,
@@ -215,6 +220,9 @@ fn validate_boundary(
         ScriptRootSemanticDispositionV1::Transferred(
             ScriptTransferredBoundaryV1::TopLevelCallable,
         ) => matches!(statement, ASTNode::FunctionDeclaration { .. }),
+        ScriptRootSemanticDispositionV1::Transferred(
+            ScriptTransferredBoundaryV1::ProgramRecordDeclaration,
+        ) => is_program_record_declaration(statement),
         ScriptRootSemanticDispositionV1::Diagnostic(
             ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported,
         ) => {
@@ -235,6 +243,18 @@ fn validate_boundary(
     compatible
         .then_some(())
         .ok_or(ScriptRootDemandWindowBuildErrorV1::StatementBoundaryMismatch)
+}
+
+fn is_program_record_declaration(statement: &ASTNode) -> bool {
+    matches!(
+        statement,
+        ASTNode::BoxDeclaration {
+            is_record: true,
+            is_static: false,
+            is_sync: false,
+            ..
+        }
+    )
 }
 
 fn is_variable_target_binding_rebind(statement: &ASTNode) -> bool {

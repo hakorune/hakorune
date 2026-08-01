@@ -26,6 +26,7 @@ use super::shadow::{
     ShadowResolvedFunctionV0, ShadowScopeIdV0, ShadowScopeKindV0,
 };
 use super::source_site::{FunctionOriginV1, ResolvedExitSiteV1};
+use super::RecordSchemaDemandV1;
 use super::{
     ResolvedFunctionVerificationErrorV1, VerifiedResolvedFunctionV1, VerifiedResolvedScriptV1,
 };
@@ -96,7 +97,16 @@ impl FunctionSemanticResolverSessionV1 {
         view: ScriptSyntaxViewV1<'_>,
         window: &super::VerifiedScriptRootDemandWindowV1,
     ) -> Result<ResolveScriptOutcomeV1, ResolveFunctionErrorV1> {
-        let draft = match resolve_script_shadow_view_v0(view, window) {
+        self.resolve_script_with_record_schemas(view, window, &())
+    }
+
+    pub(crate) fn resolve_script_with_record_schemas(
+        &mut self,
+        view: ScriptSyntaxViewV1<'_>,
+        window: &super::VerifiedScriptRootDemandWindowV1,
+        record_schemas: &dyn RecordSchemaDemandV1,
+    ) -> Result<ResolveScriptOutcomeV1, ResolveFunctionErrorV1> {
+        let draft = match resolve_script_shadow_view_v0(view, window, record_schemas) {
             Ok(draft) => draft,
             Err(_) => return Ok(ResolveScriptOutcomeV1::Deferred),
         };
@@ -126,9 +136,10 @@ impl FunctionSemanticResolverSessionV1 {
         origin: FunctionOriginV1,
         draft: ShadowResolvedFunctionV0,
     ) -> Result<VerifiedResolvedScriptV1, ResolveFunctionErrorV1> {
+        let record_literal_demands = draft.record_literal_demands.clone();
         let canonical = canonicalize_draft(owner, origin, draft, &BTreeMap::new(), None)?;
         Ok(
-            VerifiedResolvedScriptV1::from_canonical_data(canonical.data)
+            VerifiedResolvedScriptV1::from_canonical_data(canonical.data, record_literal_demands)
                 .map_err(ResolveFunctionErrorV1::Verification)?,
         )
     }

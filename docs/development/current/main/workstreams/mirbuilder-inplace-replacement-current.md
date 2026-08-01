@@ -32,20 +32,21 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-I0-R0
+  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY2-D0
 
 latest structural finding:
-  bare Program-root Me has no child demand; receiver absence is already owned
-  by the existing RootLower terminal and must not become a semantic fact.
+  one declaration-facts product can lend positive-only record schema admission
+  before moving into the existing RootLower install; no second collector is
+  required.
 
 accepted series:
   dense Function/Lambda root-neutral core -> sparse selected-Script cutover
 
 latest production closeout:
-  RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-I0-R0
+  RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0
 
 consultation decision:
-  RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-D0 / Accept (T2)
+  fresh bounded family census required; no successor preselected
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -265,31 +266,23 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0
+  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY2-D0
 
   Change:
-    After CatalogSeal, collect Program declaration facts once; loan a private
-    immutable record-schema demand view to ScriptSemanticSeal; then move the
-    same prepared facts into the existing RootLower install. This admits only a
-    fully explicit known non-generic RecordLiteral, proving default descent is
-    zero before any Complete selection.
+    Run one bounded serial census of named Deferred production edges after the
+    Record schema family closeout; do not preselect an AST bucket.
 
   Contract:
-    No mutable Builder or `comp_ctx` reads occur in Script semantics. Record
-    schema/default/contract/publication and all user diagnostics remain owned
-    by existing RootLower. Omitted defaults, invalid schema forms, RecordUpdate,
-    QMark control/result, Loop JoinIR, Lambda capture, and broad BlockExpr
-    remain Deferred; no second resolver, fallback, retry, or mixed routing.
+    A candidate must delete one live Deferred authority atomically while
+    preserving diagnostics, result policy, publication, and no fallback/retry.
 
   Done:
-    `FullyExplicitRecordLiteralV1 -> Deferred -> bare script_root()` is zero;
-    the exact same source-only declaration facts install once at RootLower;
-    all source/check files remain below 800 lines and
-    `program_root_work_plan.rs` does not grow.
+    One selected family has a named production caller, old edge, focused proof,
+    and an existing owner chain; otherwise record NoSafeSlice once.
 
   Stop:
-    Stop when a schema loan requires a second declaration scan, mutable Builder
-    access, or moves record diagnostics into ScriptSemanticSeal.
+    Do not reopen Record schema or activate Control, Call/Object, allocation,
+    Weak, Lambda, or Box merely because they appear in the census.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -301,6 +294,13 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0
+  -> one declaration-facts collection lends a positive-only schema view before
+     the same product installs once in RootLower. Record declarations transfer
+     while retaining their existing runtime owner; fully explicit known
+     non-generic literals use sealed exact field receipts. Defaults and invalid
+     forms stay Deferred. Focused record/schema/reuse parity is green.
+
   RAW-SCRIPT-RECORD-RESULT-TYPE0-I0-R0
   -> `publish_record_local_fields` now publishes successful `RecordValuePublish`
      as `Void`, matching the interpreter. The minimal legacy record Program

@@ -10,7 +10,7 @@ use super::product::{
 };
 use super::resolver::ShadowResolverV0;
 
-impl<'ast> ShadowResolverV0<'ast> {
+impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     fn expr_child_path(
         parent: &ASTNode,
         path: &ShadowSourcePathV0,
@@ -87,7 +87,14 @@ impl<'ast> ShadowResolverV0<'ast> {
                 }
                 Ok(())
             }
-            ASTNode::RecordLiteral { fields, .. } => {
+            ASTNode::RecordLiteral {
+                record_type_name,
+                fields,
+                ..
+            } => {
+                if self.is_script_lexical_core() {
+                    self.admit_record_literal(path.expr(), record_type_name, fields)?;
+                }
                 for (index, (_, value)) in fields.iter().enumerate() {
                     self.resolve_expr(
                         value,

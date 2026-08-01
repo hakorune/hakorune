@@ -14,6 +14,7 @@ pub(super) struct ScriptSemanticLoweringState {
     locals: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     nowaits: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     outboxes: BTreeMap<SourceNodeSiteV1, Box<[BindingRefV1]>>,
+    record_literal_demands: BTreeMap<SourceNodeSiteV1, u32>,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
 }
 impl ScriptSemanticLoweringState {
@@ -48,6 +49,7 @@ impl ScriptSemanticLoweringState {
                 .into_iter()
                 .map(|(site, bindings)| (site, bindings.into_iter().collect()))
                 .collect(),
+            record_literal_demands: BTreeMap::new(),
             materialized_outboxes: BTreeSet::new(),
         }
     }
@@ -77,6 +79,28 @@ impl ScriptSemanticLoweringState {
 
     pub(super) fn value(&self, binding: BindingRefV1) -> Option<ValueId> {
         self.variable_values.get(&binding).copied()
+    }
+
+    pub(super) fn install_record_literal_demands<Demands>(
+        &mut self,
+        demands: Demands,
+    ) -> Result<(), String>
+    where
+        Demands: IntoIterator<Item = (SourceNodeSiteV1, u32)>,
+    {
+        for (site, count) in demands {
+            if self.record_literal_demands.insert(site, count).is_some() {
+                return Err("[freeze:contract][script-record/duplicate-demand]".to_owned());
+            }
+        }
+        Ok(())
+    }
+
+    pub(super) fn record_literal_explicit_field_count(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Option<u32> {
+        self.record_literal_demands.get(site).copied()
     }
 
     pub(super) fn record(&mut self, binding: BindingRefV1, value: ValueId) -> Result<(), String> {

@@ -8,6 +8,7 @@ use crate::ast::ASTNode;
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
+use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_lowering::NormalScriptRootLoweringMode;
 use super::program_root_work_plan::{
     PreparedProgramRootWorkPlanV1, ProgramRootWorkPlanAdmissionV1,
@@ -179,6 +180,8 @@ impl ModuleBuilderInvocationSessionV1 {
                                 format!("[mir/callable-catalog/seal] {error:?}").into(),
                             )
                         })?;
+                let declaration_facts =
+                    PreparedNormalProgramDeclarationFactsV1::collect(source.source_ast());
                 let work = PreparedProgramRootWorkPlanV1::prepare(
                     lowering_statements,
                     expansion.is_app_mode(),
@@ -200,7 +203,15 @@ impl ModuleBuilderInvocationSessionV1 {
                                     format!("[mir/script-semantic/owner] {error:?}").into(),
                                 )
                             })?;
-                        match resolver.resolve_script(view, window).map_err(|error| {
+                        let outcome =
+                            declaration_facts.with_record_schema_demand_view(|record_schemas| {
+                                resolver.resolve_script_with_record_schemas(
+                                    view,
+                                    window,
+                                    record_schemas,
+                                )
+                            });
+                        match outcome.map_err(|error| {
                             NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
                                 format!("[mir/script-semantic/seal] {error:?}").into(),
                             )
@@ -233,6 +244,7 @@ impl ModuleBuilderInvocationSessionV1 {
                         &receipt,
                         &runtime_inputs,
                         brand,
+                        declaration_facts,
                         match script_source.as_ref() {
                             Some(source) => NormalScriptRootLoweringMode::Complete(source),
                             None => NormalScriptRootLoweringMode::Deferred,

@@ -29,6 +29,7 @@ mod owner_resolver;
 mod owner_root_profile;
 mod owner_source_kind;
 mod product;
+mod record_schema_demand;
 mod records;
 mod resolver;
 mod script_view;
@@ -100,6 +101,9 @@ pub use product::VerifiedResolvedFunctionV1;
 pub(crate) use product::{
     ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1, VerifiedResolvedOwnerCoreV1,
     VerifiedResolvedScriptV1,
+};
+pub(crate) use record_schema_demand::{
+    FullyExplicitRecordLiteralAdmissionV1, RecordSchemaDemandV1,
 };
 pub use records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,

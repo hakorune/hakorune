@@ -12,6 +12,7 @@ use crate::mir::{MirBuilder, ValueId};
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
+use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -174,6 +175,18 @@ where
                 })
             }
         }
+    }
+}
+
+impl<Port> RecordLiteralSourceDemandPortV1 for RawStructuredChildScopePortV1<'_, Port>
+where
+    Port: RecordLiteralSourceDemandPortV1,
+{
+    fn record_literal_explicit_field_count_v1(
+        &self,
+        literal: &ASTNode,
+    ) -> Result<Option<u32>, String> {
+        self.child.record_literal_explicit_field_count_v1(literal)
     }
 }
 

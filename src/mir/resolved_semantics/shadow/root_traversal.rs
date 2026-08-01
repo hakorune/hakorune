@@ -1,13 +1,15 @@
-//! Private dense-root input for the shared shadow traversal.
+//! Private root input for the shared shadow traversal.
 //!
-//! FunctionSyntaxViewV1 remains the public Function/Lambda seam.  This input
-//! owns only the private traversal shape so Script can later add a sparse
-//! ProgramBody(original ordinal) adapter without widening that public view.
+//! FunctionSyntaxViewV1 remains the public Function/Lambda seam.  Script uses
+//! the sparse ProgramBody(original ordinal) adapter here without widening that
+//! public view.
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::function_view::{FunctionBodyOriginV1, ReceiverPolicyV1};
 use crate::mir::resolved_semantics::{FunctionSyntaxViewV1, SemanticOwnerRootProfileV1};
-use crate::mir::resolved_semantics::{ScriptSyntaxViewV1, SourcePathSegmentV1};
+use crate::mir::resolved_semantics::{
+    RecordSchemaDemandV1, ScriptSyntaxViewV1, SourcePathSegmentV1,
+};
 
 use super::path::ShadowSourcePathV0;
 use super::script_root_window::{
@@ -15,12 +17,13 @@ use super::script_root_window::{
 };
 use super::traversal_profile::ShadowTraversalProfileV1;
 
-pub(super) struct ShadowRootTraversalInputV1<'ast> {
+pub(super) struct ShadowRootTraversalInputV1<'ast, 'schema> {
     params: &'ast [String],
     items: ShadowRootItemsV1<'ast>,
     receiver_policy: ReceiverPolicyV1,
     root_profile: SemanticOwnerRootProfileV1,
     traversal_profile: ShadowTraversalProfileV1,
+    record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
 }
 
 enum ShadowRootItemsV1<'ast> {
@@ -34,7 +37,7 @@ enum ShadowRootItemsV1<'ast> {
     },
 }
 
-impl<'ast> ShadowRootTraversalInputV1<'ast> {
+impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
     pub(super) fn dense(view: FunctionSyntaxViewV1<'ast>) -> Self {
         Self {
             params: view.params(),
@@ -45,12 +48,14 @@ impl<'ast> ShadowRootTraversalInputV1<'ast> {
             receiver_policy: view.receiver_policy(),
             root_profile: view.root_profile(),
             traversal_profile: ShadowTraversalProfileV1::FullFunctionV1,
+            record_schema_demand: None,
         }
     }
 
     pub(super) fn sparse_script(
         view: ScriptSyntaxViewV1<'ast>,
         window: &'ast VerifiedScriptRootDemandWindowV1,
+        record_schema_demand: &'schema dyn RecordSchemaDemandV1,
     ) -> Self {
         Self {
             params: &[],
@@ -58,6 +63,7 @@ impl<'ast> ShadowRootTraversalInputV1<'ast> {
             receiver_policy: ReceiverPolicyV1::Absent,
             root_profile: view.root_profile(),
             traversal_profile: ShadowTraversalProfileV1::ScriptLexicalCoreV1,
+            record_schema_demand: Some(record_schema_demand),
         }
     }
 
@@ -77,6 +83,10 @@ impl<'ast> ShadowRootTraversalInputV1<'ast> {
         self.traversal_profile
     }
 
+    pub(super) const fn record_schema_demand(&self) -> Option<&'schema dyn RecordSchemaDemandV1> {
+        self.record_schema_demand
+    }
+
     pub(super) fn body_path(&self) -> ShadowSourcePathV0 {
         match self.items {
             ShadowRootItemsV1::Dense {
@@ -93,7 +103,7 @@ impl<'ast> ShadowRootTraversalInputV1<'ast> {
 
     pub(super) fn resolve_body(
         &self,
-        resolver: &mut super::resolver::ShadowResolverV0<'ast>,
+        resolver: &mut super::resolver::ShadowResolverV0<'ast, 'schema>,
     ) -> Result<(), super::product::ShadowResolveErrorV0> {
         match self.items {
             ShadowRootItemsV1::Dense {

@@ -4,16 +4,18 @@
 //! observation separate from Builder mutation. Static-table facts, instance
 //! lifecycle, and callable lowering remain outside this module.
 
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 use super::compilation_context::CompilationContext;
 use super::declaration_order::sorted_method_entries;
 use super::static_scalar_facts::{infer_static_scalar_method_fact, StaticScalarMethodFact};
 use crate::ast::{ASTNode, EnumVariantDecl, FieldDecl};
+use crate::mir::resolved_semantics::{FullyExplicitRecordLiteralAdmissionV1, RecordSchemaDemandV1};
 
 #[derive(Debug)]
 pub(super) struct PreparedNormalProgramDeclarationFactsV1 {
     operations: Box<[NormalProgramDeclarationFactOperationV1]>,
+    effective_record_operations: HashMap<Box<str>, usize>,
     _seal: PreparedNormalProgramDeclarationFactsSealV1,
 }
 
@@ -58,11 +60,20 @@ struct StaticScalarFactUpdateV1 {
 impl PreparedNormalProgramDeclarationFactsV1 {
     pub(super) fn collect(root: &ASTNode) -> Self {
         let mut operations = Vec::new();
-        collect_operations(root, &mut operations);
+        let mut effective_record_operations = HashMap::new();
+        collect_operations(root, &mut operations, &mut effective_record_operations);
         Self {
             operations: operations.into_boxed_slice(),
+            effective_record_operations,
             _seal: PreparedNormalProgramDeclarationFactsSealV1,
         }
+    }
+
+    pub(super) fn with_record_schema_demand_view<R>(
+        &self,
+        use_view: impl FnOnce(&dyn RecordSchemaDemandV1) -> R,
+    ) -> R {
+        use_view(&RecordSchemaDemandViewV1 { facts: self })
     }
 
     pub(super) fn install_into(self, context: &mut CompilationContext) {
@@ -115,11 +126,12 @@ impl PreparedNormalProgramDeclarationFactsV1 {
 fn collect_operations(
     node: &ASTNode,
     operations: &mut Vec<NormalProgramDeclarationFactOperationV1>,
+    effective_record_operations: &mut HashMap<Box<str>, usize>,
 ) {
     match node {
         ASTNode::Program { statements, .. } => {
             for statement in statements {
-                collect_operations(statement, operations);
+                collect_operations(statement, operations, effective_record_operations);
             }
         }
         ASTNode::BrandDeclaration {
@@ -157,11 +169,14 @@ fn collect_operations(
                 return;
             }
             if *is_record {
+                let operation_ordinal = operations.len();
                 operations.push(NormalProgramDeclarationFactOperationV1::Record {
                     name: name.clone(),
                     type_parameters: type_parameters.clone(),
                     field_decls: field_decls.clone(),
                 });
+                effective_record_operations
+                    .insert(name.clone().into_boxed_str(), operation_ordinal);
             } else if *is_static {
                 operations.push(NormalProgramDeclarationFactOperationV1::StaticBox {
                     name: name.clone(),
@@ -178,6 +193,51 @@ fn collect_operations(
             }
         }
         _ => {}
+    }
+}
+
+struct RecordSchemaDemandViewV1<'facts> {
+    facts: &'facts PreparedNormalProgramDeclarationFactsV1,
+}
+
+impl RecordSchemaDemandV1 for RecordSchemaDemandViewV1<'_> {
+    fn admit_fully_explicit_literal(
+        &self,
+        record_type_name: &str,
+        fields: &[(String, ASTNode)],
+    ) -> Option<FullyExplicitRecordLiteralAdmissionV1> {
+        let operation_ordinal = self
+            .facts
+            .effective_record_operations
+            .get(record_type_name)?;
+        let NormalProgramDeclarationFactOperationV1::Record {
+            type_parameters,
+            field_decls,
+            ..
+        } = self.facts.operations.get(*operation_ordinal)?
+        else {
+            return None;
+        };
+        if !type_parameters.is_empty()
+            || field_decls.len() != fields.len()
+            || fields.len() > u32::MAX as usize
+        {
+            return None;
+        }
+        let declared = field_decls
+            .iter()
+            .map(|field| field.name.as_str())
+            .collect::<BTreeSet<_>>();
+        let explicit = fields
+            .iter()
+            .map(|(name, _)| name.as_str())
+            .collect::<BTreeSet<_>>();
+        (declared.len() == field_decls.len()
+            && explicit.len() == fields.len()
+            && declared == explicit)
+            .then_some(FullyExplicitRecordLiteralAdmissionV1::new(
+                fields.len() as u32
+            ))
     }
 }
 
@@ -428,5 +488,53 @@ mod tests {
         assert!(context
             .static_scalar_method_fact("HakoAllocObjectLifecycleFacadeReason.answer/0")
             .is_none());
+    }
+
+    #[test]
+    fn record_schema_view_accepts_only_the_effective_fully_explicit_schema() {
+        let root = program(vec![
+            box_declaration(
+                "Pair",
+                false,
+                true,
+                false,
+                Vec::new(),
+                vec![FieldDecl {
+                    name: "first".to_owned(),
+                    declared_type_name: Some("i64".to_owned()),
+                    is_weak: false,
+                    default_value: None,
+                }],
+                Vec::new(),
+                Vec::new(),
+                HashMap::new(),
+            ),
+            box_declaration(
+                "Pair",
+                false,
+                true,
+                false,
+                Vec::new(),
+                vec![FieldDecl {
+                    name: "second".to_owned(),
+                    declared_type_name: Some("i64".to_owned()),
+                    is_weak: false,
+                    default_value: Some(Box::new(literal(9))),
+                }],
+                Vec::new(),
+                Vec::new(),
+                HashMap::new(),
+            ),
+        ]);
+        let facts = PreparedNormalProgramDeclarationFactsV1::collect(&root);
+        facts.with_record_schema_demand_view(|schemas| {
+            assert!(schemas
+                .admit_fully_explicit_literal("Pair", &[("second".to_owned(), literal(2))],)
+                .is_some());
+            assert!(schemas
+                .admit_fully_explicit_literal("Pair", &[("first".to_owned(), literal(1))])
+                .is_none());
+            assert!(schemas.admit_fully_explicit_literal("Pair", &[]).is_none());
+        });
     }
 }

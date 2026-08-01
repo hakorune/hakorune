@@ -1,5 +1,5 @@
 ---
-Status: execution-task
+Status: closed execution task
 Date: 2026-08-01
 Decision: Accept-corrected
 Ceremony: T2
@@ -181,28 +181,17 @@ This fence is coordination only.  It neither changes the selected closure nor
 creates a second collector, resolver, forest, projection, compatibility
 route, or fallback.
 
-## Execution stop — 2026-08-01
+## Closeout — 2026-08-01
 
-`RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0` is not landable from the current
-baseline.  Before the new selected route can be compared, both of these
-minimal legacy Programs panic during module finalization:
+The prerequisite result-type owner closed in `9e195fdb32`: successful
+`RecordValuePublish` is `Void`, matching the interpreter. This row then landed
+one collected declaration-facts product: it lends a positive-only schema view
+to Script semantics and moves into the existing one-time RootLower install.
 
-```text
-record Pair { left: i64, right: i64 }
-print(Pair { left: 1, right: 2 })
-
-record Pair { value: i64 = 9 }
-print(Pair {})
-```
-
-The failure is `return_type_strategy.rs:117`: missing type inference for the
-`RecordValuePublish` result.  It occurs in `compile_with_source` before the
-selected pipeline is invoked, so it is neither a selected-route regression nor
-evidence for a semantic-source cutover.  Repairing it would change the
-record-result/type authority and exceeds this schema-admission row.
-
-Decision: **NoSafeSlice**.  Preserve the current record schema/semantic WIP
-only as a recoverable local stash; do not land a partial route.  A later D0
-must first establish an existing-Lower production fixture with a verified
-record result type (or explicitly repair that result authority), then reopen
-this row with legacy/selected parity as its first gate.
+Record declarations are typed transfer boundaries with their existing runtime
+lifecycle retained. Fully explicit known non-generic literals receive sealed
+`RecordFieldValue` receipts; defaulted and invalid forms stay Deferred and keep
+their existing RootLower diagnostics. Focused record parity, deferred/fresh
+reuse, schema-view, Script semantic-source, and library compilation evidence
+are green. The next action is a fresh family census; no successor is selected
+by this closeout.

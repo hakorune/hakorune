@@ -8,7 +8,9 @@ use crate::mir::resolved_semantics::source_site::{
     FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 use crate::mir::resolved_semantics::FunctionSyntaxViewV1;
-use crate::mir::resolved_semantics::{ScriptSyntaxViewV1, VerifiedScriptRootDemandWindowV1};
+use crate::mir::resolved_semantics::{
+    RecordSchemaDemandV1, ScriptSyntaxViewV1, VerifiedScriptRootDemandWindowV1,
+};
 
 use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 use super::owner_boundary::ShadowLambdaSyntaxV0;
@@ -42,7 +44,7 @@ enum ShadowMethodCallObservationModeV0 {
     All,
 }
 
-pub(super) struct ShadowResolverV0<'ast> {
+pub(super) struct ShadowResolverV0<'ast, 'schema> {
     function_scope: ShadowScopeIdV0,
     function_region: ShadowRegionIdV0,
     next_binding: u32,
@@ -70,6 +72,8 @@ pub(super) struct ShadowResolverV0<'ast> {
     method_call_observation_mode: ShadowMethodCallObservationModeV0,
     traversal_profile: ShadowTraversalProfileV1,
     method_call_observations: BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>,
+    record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
+    record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
 }
 
 pub(super) fn resolve_function_shadow_v0(
@@ -109,8 +113,9 @@ pub(in crate::mir::resolved_semantics) fn resolve_owner_shadow_view_v0<'ast>(
 pub(in crate::mir::resolved_semantics) fn resolve_script_shadow_view_v0<'ast>(
     view: ScriptSyntaxViewV1<'ast>,
     window: &'ast VerifiedScriptRootDemandWindowV1,
+    record_schemas: &dyn RecordSchemaDemandV1,
 ) -> Result<ShadowResolvedFunctionV0, ShadowResolveErrorV0> {
-    let input = ShadowRootTraversalInputV1::sparse_script(view, window);
+    let input = ShadowRootTraversalInputV1::sparse_script(view, window, record_schemas);
     let profile = input.root_profile();
     traverse_shadow_root_v1(
         input,
@@ -173,13 +178,13 @@ pub(in crate::mir) fn observe_method_calls_shadow_view_v0(
     .finish_method_call_observations()
 }
 
-fn traverse_shadow_root_v1<'ast>(
-    input: ShadowRootTraversalInputV1<'ast>,
+fn traverse_shadow_root_v1<'ast, 'schema>(
+    input: ShadowRootTraversalInputV1<'ast, 'schema>,
     lambda_mode: ShadowLambdaModeV0,
     ancestor_names: BTreeSet<Box<str>>,
     qualified_receiver_requests: BTreeSet<SourceExprSiteV1>,
     method_call_observation_mode: ShadowMethodCallObservationModeV0,
-) -> Result<ShadowResolverV0<'ast>, ShadowResolveErrorV0> {
+) -> Result<ShadowResolverV0<'ast, 'schema>, ShadowResolveErrorV0> {
     let receiver_policy = input.receiver_policy();
 
     let mut resolver = ShadowResolverV0::new(
@@ -189,6 +194,7 @@ fn traverse_shadow_root_v1<'ast>(
         receiver_policy,
         method_call_observation_mode,
         input.traversal_profile(),
+        input.record_schema_demand(),
     );
     if receiver_policy == ReceiverPolicyV1::DeclaredInstance {
         resolver.declare_binding(
@@ -221,13 +227,20 @@ fn traverse_shadow_root_v1<'ast>(
     Ok(resolver)
 }
 
-impl<'ast> ShadowResolverV0<'ast> {
+impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     pub(super) fn allows_statement(&self, statement: &ASTNode) -> bool {
         self.traversal_profile.allows_statement(statement)
     }
 
     pub(super) fn allows_expression(&self, expression: &ASTNode) -> bool {
         self.traversal_profile.allows_expression(expression)
+    }
+
+    pub(super) const fn is_script_lexical_core(&self) -> bool {
+        matches!(
+            self.traversal_profile,
+            ShadowTraversalProfileV1::ScriptLexicalCoreV1
+        )
     }
 
     fn new(
@@ -237,6 +250,7 @@ impl<'ast> ShadowResolverV0<'ast> {
         receiver_policy: ReceiverPolicyV1,
         method_call_observation_mode: ShadowMethodCallObservationModeV0,
         traversal_profile: ShadowTraversalProfileV1,
+        record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
     ) -> Self {
         let function_scope = ShadowScopeIdV0::new(0);
         let function_region = ShadowRegionIdV0::new(0);
@@ -290,6 +304,8 @@ impl<'ast> ShadowResolverV0<'ast> {
             method_call_observation_mode,
             traversal_profile,
             method_call_observations: BTreeMap::new(),
+            record_schema_demand,
+            record_literal_demands: BTreeMap::new(),
         }
     }
 
@@ -310,9 +326,35 @@ impl<'ast> ShadowResolverV0<'ast> {
                 assignment_targets: self.assignment_targets,
                 direct_calls: self.direct_calls,
                 resolved_exits: self.resolved_exits,
+                record_literal_demands: self.record_literal_demands,
             },
             lambdas: self.lambdas.into_boxed_slice(),
         }
+    }
+
+    pub(super) fn admit_record_literal(
+        &mut self,
+        site: SourceExprSiteV1,
+        record_type_name: &str,
+        fields: &[(String, ASTNode)],
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let Some(admission) = self
+            .record_schema_demand
+            .and_then(|schemas| schemas.admit_fully_explicit_literal(record_type_name, fields))
+        else {
+            return Err(ShadowResolveErrorV0::UnsupportedExpression {
+                kind: "RecordLiteral",
+                site,
+            });
+        };
+        if self
+            .record_literal_demands
+            .insert(site.clone(), admission.explicit_field_count())
+            .is_some()
+        {
+            return Err(ShadowResolveErrorV0::DuplicateRecordLiteralDemand { site });
+        }
+        Ok(())
     }
 
     fn finish_qualified_receiver_observations(

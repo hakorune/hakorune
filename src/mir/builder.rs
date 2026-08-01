@@ -320,6 +320,7 @@ pub(in crate::mir) use located_legacy_lowering::{
 mod raw_expression_recursion_guard;
 mod raw_invocation_source_transport;
 mod raw_structured_child_scope;
+mod record_literal_source_demand;
 mod recursive_child_lowering;
 #[cfg(test)]
 mod recursive_child_lowering_rawport_tests;

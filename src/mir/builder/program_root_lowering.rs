@@ -122,6 +122,7 @@ impl MirBuilder {
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         brand: ModuleInvocationBrandV1,
+        declaration_facts: PreparedNormalProgramDeclarationFactsV1,
         script_mode: NormalScriptRootLoweringMode<'_>,
     ) -> Result<ValueId, String> {
         self.lower_program_root_after_catalog_install_v1(
@@ -131,6 +132,7 @@ impl MirBuilder {
             materialization,
             runtime_inputs,
             brand,
+            declaration_facts,
             script_mode,
         )
     }
@@ -143,6 +145,7 @@ impl MirBuilder {
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         brand: ModuleInvocationBrandV1,
+        declaration_facts: PreparedNormalProgramDeclarationFactsV1,
         script_mode: NormalScriptRootLoweringMode<'_>,
     ) -> Result<ValueId, String> {
         let mut collector = ModuleDraftCollectorV1::with_brand(brand);
@@ -158,6 +161,7 @@ impl MirBuilder {
                             expansion,
                             materialization,
                             runtime_inputs,
+                            declaration_facts,
                             port,
                         )
                     })?,
@@ -170,6 +174,7 @@ impl MirBuilder {
                             expansion,
                             materialization,
                             runtime_inputs,
+                            declaration_facts,
                             port,
                         )
                     },
@@ -258,12 +263,14 @@ impl MirBuilder {
         expansion: &VerifiedRawRootExpansionV1<'_>,
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
+        declaration_facts: PreparedNormalProgramDeclarationFactsV1,
         callables: &mut Port,
     ) -> Result<ValueId, String>
     where
         Port: RootCallableCapturePortV1,
     {
-        self.prepare_program_root_lowering_state_v1(snapshot, expansion.is_app_mode())?;
+        declaration_facts.install_into(&mut self.comp_ctx);
+        self.prepare_program_root_static_lowering_state_v1(snapshot, expansion.is_app_mode())?;
         self.lower_program_root_work_plan_with_callable_port_v1(
             work,
             expansion,
@@ -280,6 +287,14 @@ impl MirBuilder {
         is_app_mode: bool,
     ) -> Result<(), String> {
         PreparedNormalProgramDeclarationFactsV1::collect(snapshot).install_into(&mut self.comp_ctx);
+        self.prepare_program_root_static_lowering_state_v1(snapshot, is_app_mode)
+    }
+
+    fn prepare_program_root_static_lowering_state_v1(
+        &mut self,
+        snapshot: &ASTNode,
+        is_app_mode: bool,
+    ) -> Result<(), String> {
         if let Some(module) = self.current_module.as_mut() {
             PreparedNormalProgramStaticTableMetadataV1::prepare(snapshot, module)?.commit();
         }

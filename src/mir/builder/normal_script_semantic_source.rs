@@ -12,8 +12,8 @@ use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, ResolvedAssignmentTargetV1, ScriptDiagnosticBoundaryV1,
     ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1,
-    SemanticOwnerForestDraftV1, SemanticOwnerRootProfileV1, SourceBindingSiteV1, SourceNodeSiteV1,
-    SourceStmtSiteV1, VerifiedResolvedScriptV1, VerifiedScriptRootDemandWindowV1,
+    SemanticOwnerForestDraftV1, SemanticOwnerRootProfileV1, SourceBindingSiteV1, SourceExprSiteV1,
+    SourceNodeSiteV1, SourceStmtSiteV1, VerifiedResolvedScriptV1, VerifiedScriptRootDemandWindowV1,
     VerifiedSemanticOwnerForestV1, VerifiedSemanticOwnerProductV1,
 };
 
@@ -28,6 +28,7 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     static_const_completions: Box<[VerifiedScriptStaticConstCompletionV1]>,
     using_directives: Box<[VerifiedScriptUsingDirectiveV1]>,
     existing_diagnostic_boundaries: Box<[VerifiedScriptExistingDiagnosticBoundaryV1]>,
+    record_literal_demands: Box<[VerifiedScriptRecordLiteralDemandV1]>,
     runtime_source_indices: Box<[usize]>,
 }
 
@@ -53,6 +54,12 @@ pub(super) struct VerifiedScriptExistingDiagnosticBoundaryV1 {
     boundary: ScriptDiagnosticBoundaryV1,
 }
 
+#[derive(Debug)]
+pub(super) struct VerifiedScriptRecordLiteralDemandV1 {
+    site: SourceExprSiteV1,
+    explicit_field_count: u32,
+}
+
 impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     pub(super) fn seal(
         source: &'source PreparedNormalDefaultProgramRootV1,
@@ -66,6 +73,33 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         let mut outbox_materializations = Vec::new();
         let mut using_directives = Vec::new();
         let mut existing_diagnostic_boundaries = Vec::new();
+        let record_literal_demands = product
+            .record_literal_demands()
+            .map(|(site, explicit_field_count)| {
+                let projected = crate::mir::resolved_semantics::project_source_node_v1(
+                    source.source_ast(),
+                    site.node(),
+                )
+                .ok_or_else(|| {
+                    "[mir/script-semantic/record-projection] missing exact RecordLiteral".to_owned()
+                })?;
+                let crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
+                    ASTNode::RecordLiteral { fields, .. },
+                ) = projected
+                else {
+                    return Err(
+                        "[mir/script-semantic/record-site] expected RecordLiteral".to_owned()
+                    );
+                };
+                if fields.len() != explicit_field_count as usize {
+                    return Err("[mir/script-semantic/record-cardinality] mismatch".to_owned());
+                }
+                Ok(VerifiedScriptRecordLiteralDemandV1 {
+                    site: site.clone(),
+                    explicit_field_count,
+                })
+            })
+            .collect::<Result<Vec<_>, _>>()?;
         let mut runtime_source_indices = Vec::new();
         for entry in window.entries() {
             let source_statement_index = program_statement_index(&entry.site())?;
@@ -110,6 +144,17 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                         site: entry.site().clone(),
                     });
                 }
+                ScriptRootSemanticDispositionV1::Transferred(
+                    ScriptTransferredBoundaryV1::ProgramRecordDeclaration,
+                ) if matches!(
+                    statement,
+                    ASTNode::BoxDeclaration {
+                        is_record: true,
+                        is_static: false,
+                        is_sync: false,
+                        ..
+                    }
+                ) => {}
                 ScriptRootSemanticDispositionV1::Transparent(
                     crate::mir::resolved_semantics::ScriptTransparentBoundaryV1::UsingDirective,
                 ) if matches!(statement, ASTNode::UsingStatement { .. }) => {
@@ -182,6 +227,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             static_const_completions: static_const_completions.into_boxed_slice(),
             using_directives: using_directives.into_boxed_slice(),
             existing_diagnostic_boundaries: existing_diagnostic_boundaries.into_boxed_slice(),
+            record_literal_demands: record_literal_demands.into_boxed_slice(),
             runtime_source_indices: runtime_source_indices.into_boxed_slice(),
         })
     }
@@ -279,12 +325,12 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         })
     }
 
-    pub(super) fn lowering_state(&self) -> ScriptSemanticLoweringState {
+    pub(super) fn lowering_state(&self) -> Result<ScriptSemanticLoweringState, String> {
         let [root] = self.forest.roots() else {
-            return ScriptSemanticLoweringState::default();
+            return Err("[freeze:contract][script-record/root-cardinality]".to_owned());
         };
         let Some(owner) = self.forest.semantic_owner(*root) else {
-            return ScriptSemanticLoweringState::default();
+            return Err("[freeze:contract][script-record/root-owner]".to_owned());
         };
         let locals = owner.declaration_sites().filter_map(|site| match site {
             SourceBindingSiteV1::Local { statement, .. } => Some((
@@ -328,7 +374,19 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 | ResolvedAssignmentTargetV1::FieldWrite { .. }
                 | ResolvedAssignmentTargetV1::IndexWrite { .. } => None,
             });
-        ScriptSemanticLoweringState::from_facts(locals, nowaits, outboxes, variables, assignments)
+        let mut state = ScriptSemanticLoweringState::from_facts(
+            locals,
+            nowaits,
+            outboxes,
+            variables,
+            assignments,
+        );
+        state.install_record_literal_demands(
+            self.record_literal_demands
+                .iter()
+                .map(|receipt| (receipt.site.node().clone(), receipt.explicit_field_count)),
+        )?;
+        Ok(state)
     }
 }
 
@@ -350,6 +408,9 @@ mod binding_rebind_tests;
 #[cfg(test)]
 #[path = "normal_script_map_literal_tests.rs"]
 mod map_literal_tests;
+#[cfg(test)]
+#[path = "normal_script_record_literal_tests.rs"]
+mod record_literal_tests;
 #[cfg(test)]
 #[path = "normal_script_root_return_tests.rs"]
 mod return_tests;
