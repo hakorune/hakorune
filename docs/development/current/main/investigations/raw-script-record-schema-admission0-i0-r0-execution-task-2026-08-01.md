@@ -135,9 +135,10 @@ Raw/reference routes keep their existing collection/install timing.
 
 ## Worktree coordination fence
 
-This row is intentionally paused until the pre-existing builder WIP is
-owned and isolated.  It must not be folded into the record-schema change,
-reformatted by this row, or staged by this row.
+This row was paused while a pre-existing builder WIP was being identified and
+isolated.  The WIP was verified as Rustfmt-only against `HEAD`, then landed
+separately as `6f1e29679b` (`style(mir): format builder sources`).  It must
+not be folded into the record-schema change.
 
 Read-only inventory on 2026-08-01 found 14 modified builder files.  The
 following overlap directly with this row's lifecycle/source-port seam:
@@ -151,13 +152,13 @@ recursive_child_lowering.rs
 normal_script_semantic_source_tests.rs
 ```
 
-`normal_script_semantic_source_tests.rs` has a material-sized unowned diff;
-the remaining overlap is not assumed to be formatting-only.  This row may
-not make that judgement by diff-stat alone.
+`normal_script_semantic_source_tests.rs` had a material-sized formatting diff;
+the remaining overlap was also formatter-only.  This was proven by comparing
+each working file with the same Rustfmt rendering of its `HEAD` content, not
+by diff-stat alone.
 
-Resume only after the WIP owner has committed, stashed, or otherwise
-explicitly handed off the complete overlapping change set.  Then repeat the
-normal restart check and record the fresh baseline before editing:
+The worktree is now clean and this row may resume.  Repeat the normal restart
+check before editing:
 
 ```text
 git status -sb
