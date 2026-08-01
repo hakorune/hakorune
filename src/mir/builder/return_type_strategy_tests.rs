@@ -3,9 +3,10 @@ use super::{
     uniform_phi,
 };
 use crate::mir::{
-    BasicBlock, BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction,
+    BasicBlock, BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirCompiler, MirFunction,
     MirInstruction, MirType,
 };
+use crate::parser::NyashParser;
 use std::collections::BTreeMap;
 
 #[test]
@@ -112,4 +113,29 @@ fn known_return_definition_typeop_policy_is_exact() {
         resolve_known_typeop_return_type(&crate::mir::TypeOpKind::Cast, &MirType::String),
         MirType::String,
     );
+}
+
+#[test]
+fn record_value_publish_is_a_void_script_result() {
+    let source = r#"
+        record Pair {
+            value: i64
+        }
+
+        Pair { value: 1 }
+    "#;
+    let result = MirCompiler::with_options(false)
+        .compile_with_source(
+            NyashParser::parse_from_string(source).expect("record source parses"),
+            Some("record-value-void.hako"),
+        )
+        .expect("record result must finalize");
+    let main = result.module.functions.get("main").expect("main MIR");
+    assert_eq!(main.signature.return_type, MirType::Void);
+    assert!(main.blocks.values().any(|block| {
+        block
+            .instructions
+            .iter()
+            .any(|instruction| matches!(instruction, MirInstruction::RecordValuePublish { .. }))
+    }));
 }

@@ -12,7 +12,7 @@ use crate::mir::builder::recursive_child_lowering::{
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::function::{RecordDecl, RecordValueBoundaryKind};
-use crate::mir::{MirInstruction, UserBoxFieldDecl, ValueId};
+use crate::mir::{MirInstruction, MirType, UserBoxFieldDecl, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
 impl MirBuilder {
@@ -622,6 +622,10 @@ impl MirBuilder {
             base,
             fields: field_values.iter().map(|field| field.value).collect(),
         })?;
+        self.function_state
+            .type_ctx
+            .value_types
+            .insert(dst, MirType::Void);
         self.function_state
             .compilation
             .register_record_local_value(dst, record_name, field_values);
