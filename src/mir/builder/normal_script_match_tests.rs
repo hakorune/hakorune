@@ -1,10 +1,9 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::builder::PreparedNormalDefaultProgramRootV1;
 use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, ResolveScriptOutcomeV1,
-    ScriptRootMatchControlAdmissionV1, ScriptRootResolvedDemandV1,
-    ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1, ScriptSyntaxViewV1,
-    SourcePathSegmentV1, SourcePathV1, VerifiedScriptRootDemandEntryV1,
+    FunctionSemanticResolverSessionV1, ResolveScriptOutcomeV1, ScriptRootMatchControlAdmissionV1,
+    ScriptRootResolvedDemandV1, ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1,
+    ScriptSyntaxViewV1, SourcePathSegmentV1, SourcePathV1, VerifiedScriptRootDemandEntryV1,
     VerifiedScriptRootDemandWindowV1,
 };
 use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
@@ -16,7 +15,11 @@ fn integer(value: i64) -> ASTNode {
     }
 }
 
-fn root_match(scrutinee: ASTNode, arms: Vec<(LiteralValue, ASTNode)>, else_expr: ASTNode) -> ASTNode {
+fn root_match(
+    scrutinee: ASTNode,
+    arms: Vec<(LiteralValue, ASTNode)>,
+    else_expr: ASTNode,
+) -> ASTNode {
     ASTNode::MatchExpr {
         scrutinee: Box::new(scrutinee),
         arms,
@@ -86,7 +89,10 @@ fn root_match_seals_all_child_sites_and_matches_legacy() {
         )
         .expect("selected Match");
     let printer = MirPrinter::new();
-    assert_eq!(printer.print_module(&normal.module), printer.print_module(&legacy.module));
+    assert_eq!(
+        printer.print_module(&normal.module),
+        printer.print_module(&legacy.module)
+    );
     assert_eq!(normal.verification_result, legacy.verification_result);
 }
 

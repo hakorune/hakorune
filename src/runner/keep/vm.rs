@@ -2,8 +2,8 @@ use super::super::NyashRunner;
 use nyash_rust::{
     ast::ASTNode,
     mir::{
-        MirCompileResult, MirCompiler, NormalCompileRequestV1,
-        RejectedPostMacroWholeFileProgramV1, VerifiedPostMacroWholeFileProgramV1,
+        MirCompileResult, MirCompiler, NormalCompileRequestV1, RejectedPostMacroWholeFileProgramV1,
+        VerifiedPostMacroWholeFileProgramV1,
     },
 };
 use std::{collections::HashMap, fs, process};

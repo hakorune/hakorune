@@ -180,7 +180,8 @@ fn normal_request(
 
 #[test]
 fn real_integer_zero_fixture_uses_the_selected_normal_request() {
-    let source = include_str!("../../../tools/checks/fixtures/raw_vm_reference_conformance/integer_0.hako");
+    let source =
+        include_str!("../../../tools/checks/fixtures/raw_vm_reference_conformance/integer_0.hako");
     let ast = NyashParser::parse_from_string(source).expect("integer_0 fixture parses");
     let mut compiler = MirCompiler::with_options(false);
 
