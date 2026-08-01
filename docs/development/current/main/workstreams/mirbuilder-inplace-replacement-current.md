@@ -32,12 +32,12 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-NEXT-CONTROL-FAMILY4-D0
+  RAW-SCRIPT-NEXT-CAPABILITY-FAMILY5-D0
 
 latest structural finding:
-  Root lexical-core Match now uses the shared Script source and exact child
-  scope; nested Match and all unselected control/call/lambda families remain
-  Deferred pending a fresh bounded census.
+  The remaining immediate control candidates have no safe selected I0:
+  ContextScope is closed, TryCatch/Throw are reserved outcome authorities, and
+  Arrow has no named MIR consumer. A fresh bounded census is required.
 
 accepted series:
   dense Function/Lambda root-neutral core -> sparse selected-Script cutover
@@ -267,10 +267,10 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-NEXT-CONTROL-FAMILY4-D0
+  RAW-SCRIPT-NEXT-CAPABILITY-FAMILY5-D0
 
   Change:
-    Run one fresh bounded static live-edge census after root Match closeout.
+    Run one fresh bounded static live-edge census after control-family NoSafe.
 
   Contract:
     Choose at most one family with a named production consumer and an atomic
@@ -280,7 +280,8 @@ current
     Record one evidence-backed candidate decision or NoSafeSlice result.
 
   Stop:
-    Do not implement during this D0 or reopen Match without a new authority.
+    Do not implement during this D0, reopen reserved control families, or
+    preselect a successor without a named old authority.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -292,6 +293,11 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-NEXT-CONTROL-FAMILY4-D0
+  -> NoSafeSlice. ContextScope is already an exact diagnostic boundary;
+     TryCatch and Throw are source-reserved outcome/control families; Arrow
+     has no named MIR lowering owner. No I0 opens.
+
   RAW-SCRIPT-MATCH-ROOT-CONTROL-RECEIPT0-I0-R0
   -> Root lexical-core Match is Complete with co-sealed Scrutinee/Arm/Else
      coverage; the dispatcher now enforces exact structured-demand consumption.
