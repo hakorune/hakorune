@@ -167,6 +167,36 @@ before T2:
   delete normal_script_lexical_binding.rs in T2
 ```
 
+### Recovered WIP order
+
+```text
+now — SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0
+  Existing Function/Lambda production proves the construction-local recursive
+  shadow tree and ordered BindingRef capture receipt. No Script route changes.
+
+next — RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0
+  The already accepted sparse Script cutover consumes that same core and
+  deletes the manual visible-name/admit_expression Script mini-resolver. It
+  preserves the current Complete fixture set; it does not activate Lambda.
+
+then — RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0
+  Revalidate the narrow Script Lambda cutover against the landed shared core:
+  child lineage, ordered BindingRef receipt, raw-observer deletion, and the
+  one existing closure-publication owner. Open I0 only when its real positive
+  fixture and exact old-edge deletion are demonstrated.
+
+after that — fresh named-family census
+  Select exactly one remaining Deferred responsibility family. Control,
+  Call/Object, allocation, Weak, Lambda, and Box are not a pre-authorized
+  batch. `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` remains the monotonic
+  fixture-identity ratchet through R4.
+
+already closed — do not reopen as WIP
+  QMark propagation, root Match control, StaticConst completion, and fully
+  explicit Record schema admission. Their detailed evidence is Git history;
+  only a regression can reopen their authority.
+```
+
 ## Production invariants
 
 ```text
