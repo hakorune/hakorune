@@ -473,15 +473,15 @@ Stop:
   retrying the retired route.
 
 closed — JOINIR-LOOP-MISSING-TRANSIENT-TYPE-OWNER0-D0 (NoSafeSlice)
-  Existing call-result activation and assignment `BindingRef` truths have no
-  production loan. GenericLoop's String -> `ValueId` -> `type_ctx` recovery is
-  the wrong authority. The five-fixture failure predates this retirement;
-  `loop_continue_only_min.hako` is green and is not this blocker.
-current — CALLABLE-RESULT-BINDING-REPRESENTATION-INGRESS0-D0 (design stop)
-  Decide one live ingress that co-seals exact call-result representation with
-  its resolved assignment `BindingRef` before Builder effects.  A caller-zero
-  receipt, name/`ValueId` recovery, `type_ctx` backfill, Loop activation, and
-  fallback are forbidden.  Reuse the existing five-case call-result matrix.
+  Call-result/`BindingRef` truths have no production loan; String -> `ValueId`
+  -> `type_ctx` is wrong. The five-case failure predates this retirement.
+closed — CALLABLE-RESULT-BINDING-REPRESENTATION-INGRESS0-D0 (NoSafeSlice)
+  Activation has no production issuer; cataloged lowering keeps only key,
+  symbol, arity, and lineage. The disconnected observer/session is not an
+  acceptable second resolver.
+current — NORMAL-CALLABLE-SEMANTIC-SOURCE-LOAN0-D0 (design stop)
+  Decide one live callable key/forest/projection product consumed by Lower,
+  replacing raw-body-only ingress without a second traversal or caller-zero.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
