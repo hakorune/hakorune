@@ -480,10 +480,10 @@ closed — CALLABLE-RESULT-BINDING-REPRESENTATION-INGRESS0-D0 (NoSafeSlice)
   symbol, arity, and lineage. The disconnected observer/session is not an
   acceptable second resolver.
 closed — NORMAL-CALLABLE-SEMANTIC-SOURCE-LOAN0-D0 / SOURCE-INVENTORY0-S0
-  Catalog now owns exact top-level/Box sites; work-plan consumes its key.
+  Catalog owns exact top-level/three-terminal Box sites; Main stays transferred.
 current — NORMAL-CALLABLE-SEMANTIC-SOURCE-LOAN0-I0-R0
-  Co-seal eligible callable key/site/forest/projection and loan selected Lower;
-  Complete bare roots become zero, while whole-request Deferred runs once.
+  Profile defers FunctionCall/raw-only syntax before children; co-seal eligible
+  key/site/forest/projection. Complete bare roots=0; batch Deferred runs once.
 already closed — do not reopen as WIP
   QMark, root Match, StaticConst, and explicit Record schema; only a regression
   can reopen their Git-history evidence.

@@ -203,7 +203,7 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                         SameModuleCallableDeclarationCatalogErrorV1::DuplicateCanonicalKey(key),
                     );
                 }
-                if collect_selected_program_sources {
+                if collect_selected_program_sources && name != "Main" {
                     selected_source_rows.push((
                         SelectedNormalCallableKeyV1::Cataloged(key.clone()),
                         SelectedNormalCallableSourceSiteV1::ProgramBoxMethod {

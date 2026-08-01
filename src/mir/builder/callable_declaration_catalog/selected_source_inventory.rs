@@ -199,6 +199,34 @@ mod tests {
     }
 
     #[test]
+    fn static_main_methods_remain_transferred_to_main_expansion() {
+        let root = NyashParser::parse_from_string(
+            "static box Main { main() { return 0 } helper() { return 1 } }\n\
+             static box Tools { helper() { return 2 } }",
+        )
+        .expect("Main transfer source");
+        let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root)
+            .expect("selected callable catalog");
+        let inventory = catalog.selected_source_inventory();
+
+        assert_eq!(catalog.len(), 3, "lookup catalog still owns Main methods");
+        assert_eq!(inventory.len(), 1, "Main methods are outside three-terminal loan");
+        let tools = catalog
+            .declaration_for(
+                SameModuleCallableNamespaceV1::StaticBoxMethod,
+                "Tools",
+                "helper",
+                0,
+            )
+            .expect("non-Main selected row")
+            .key()
+            .clone();
+        assert!(inventory
+            .site(&SelectedNormalCallableKeyV1::Cataloged(tools))
+            .is_some());
+    }
+
+    #[test]
     fn distinct_top_level_occurrences_share_one_legacy_physical_projection() {
         let first = NormalTopLevelFunctionDraftAdmissionV1::from_catalog_key(
             super::SelectedTopLevelFunctionKeyV1::new(2, "same", 1),

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "NORMAL-SELECTED-CALLABLE-SOURCE-INVENTORY0-S0 is closed: one selected catalog scan owns exact top-level and cataloged Box callable occurrences, and the live work plan consumes the catalog-issued top-level key; independent issuance is zero."
+status = "NORMAL-SELECTED-CALLABLE-SOURCE-INVENTORY0-S0/S0a is closed: one catalog scan owns exact top-level and three-terminal Box callable occurrences; static Main methods remain a typed Main-expansion transfer, and independent top-level issuance is zero."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = ""
 current_execution_row = "NORMAL-CALLABLE-SEMANTIC-SOURCE-LOAN0-I0-R0"
-current_execution_summary = "From the live selected callable inventory, run one root-neutral traversal per eligible callable and co-seal exact key, site, forest, and projection; Complete loans it to the three selected callable terminals and deletes their bare raw-root reachability, while whole-request Deferred preserves existing diagnostics once."
+current_execution_summary = "From the live selected callable inventory, use one callable responsibility profile that defers FunctionCall/raw-only syntax before children, then co-seal exact key, site, forest, and projection; Complete loans the three selected terminals, while whole-request Deferred preserves diagnostics once."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
