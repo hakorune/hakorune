@@ -314,23 +314,33 @@ closed — MIRBUILDER-LOOP-JOINIR-SOURCE-ERASING-TERMINAL0-D0 (R4 retain/rehome)
   all-route located plan from the existing planner/registry, including every
   dynamic child/claim schedule, to replace that terminal once.
 
-next design gate — RAW-SCRIPT-LAMBDA-DEFERRED-CAPTURE-PUBLICATION0-D0
+closed — RAW-SCRIPT-LAMBDA-DEFERRED-CAPTURE-PUBLICATION0-D0 (R4 retain/rehome)
+  Deferred has owner/forest/projection = 0 and raw/reference has no Script
+  lineage, so neither has `forest.child_at` or an ordered BindingRef capture
+  receipt. The live `RawLambdaLexicalObservationV1 -> variable_map snapshot ->
+  PreparedRawLambdaClosureEmissionV1` lifecycle remains the named owner under
+  `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` and the ControlBody portal.
+  Release requires one all-route lineage/capture product (or one final named
+  Lambda operation boundary) that lets the existing emitter delete both the
+  raw observer and generic portal atomically.
+
+next design gate — MIRBUILDER-R4-RESIDUAL-FINAL-CONFORMANCE0-D0
 
 Change:
-  Decide whether Deferred/raw/reference Lambda capture and single
-  ClosureBodyId publication can replace their raw observer edge atomically.
+  Reconcile every active Script compatibility/fence surface into a final
+  rehome candidate or explicit retained operation owner with a release test.
 
 Contract:
-  Selected lexical Lambda child ownership and ordered capture receipts are
-  closed. No Call/Object, Box runtime, or second Lambda resolver is in scope.
+  This is final-residual ownership only; no source grammar, selected Script
+  admission, raw/reference behavior, or new small I0 is activated.
 
 Done:
-  Name the exact raw capture/publication edge to delete, or its R4 retained
-  operation owner and release condition.
+  The R4 list is closed, complete, and mechanically auditable: each residual
+  has one owner, transport, release condition, and conformance evidence.
 
 Stop:
-  Do not open an I0 if forest child lineage, capture order, and one
-  ClosureBodyId publication cannot be consumed by one existing owner.
+  Do not hide an unowned residual behind generic `script_root`, or broaden a
+  retention entry without a named operation owner and final release condition.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
