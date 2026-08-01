@@ -32,7 +32,7 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-CALL-OBJECT-OWNER-BOUNDARY0-D0
+  RAW-SCRIPT-DIRECT-CALL-CATALOG-RECEIPT0-D0
 
 latest structural finding:
   Function/Lambda production now validates its complete recursive shadow tree
@@ -46,7 +46,8 @@ latest production closeout:
   RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
 
 next decision:
-  design one Call/Object owner boundary; no implementation is authorized.
+  determine whether catalog-resolved ordinary FunctionCall can borrow one
+  callable/header receipt without creating a second classifier.
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -189,6 +190,11 @@ closed — RAW-SCRIPT-NEXT-NAMED-FAMILY0-D0 (NoSafeSlice)
   Call/Object needs header/type/origin preflight; Loop drops receipts before
   JoinIR; EnumMatch needs external inventory; GroupedAssignment needs a second
   target demand. No safe I0 exists. Next is Call/Object boundary design only.
+
+closed — RAW-SCRIPT-CALL-OBJECT-OWNER-BOUNDARY0-D0 (NoSafeSlice)
+  FunctionCall, indirect Call, MethodCall, New, Field/Index, and RecordUpdate
+  each combine preflight route authority with operation lowering. No standalone
+  I0 exists. Only catalog-resolved ordinary FunctionCall merits a new D0.
 
 after that — fresh named-family census
   Select exactly one remaining Deferred responsibility family. Control,
