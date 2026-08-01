@@ -17,6 +17,14 @@ ACTIVE_FENCES = frozenset(
         "RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001",
     }
 )
+NORMALIZED_SHADOW_FAMILIES = {
+    "tail_break": "gap",
+    "if_continue_none": "overlap",
+    "if_break_break": "overlap",
+    "if_break_continue": "overlap",
+    "if_continue_break": "overlap",
+    "if_continue_continue": "overlap",
+}
 
 
 def validate_r4_fence_registry(
@@ -52,3 +60,50 @@ def validate_r4_fence_registry(
             raise AssertionError(f"{fence_id} unexpected dependency targets")
         if not set(dependencies) <= set(fences):
             raise AssertionError(f"{fence_id} dependency target drift")
+
+    normalized = fences["JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0"][
+        "normalization_family_coverage"
+    ]
+    if set(normalized["entries"]) != {"direct_loop", "block_suffix"}:
+        raise AssertionError("normalized-shadow mutation entry inventory drift")
+    for entry_id, entry in normalized["entries"].items():
+        require(
+            (root / entry["path"]).read_text(),
+            entry["anchor"],
+            f"normalized-shadow {entry_id} entry",
+        )
+    retry = normalized["retry_edge"]
+    require(
+        (root / retry["path"]).read_text(),
+        retry["anchor"],
+        "normalized-shadow suffix-to-direct retry edge",
+    )
+    fixture = normalized["fixture"]
+    require(
+        (root / fixture["path"]).read_text(),
+        fixture["anchor"],
+        "normalized-shadow grammar-family fixture",
+    )
+    families = normalized["families"]
+    if {family_id: row["status"] for family_id, row in families.items()} != (
+        NORMALIZED_SHADOW_FAMILIES
+    ):
+        raise AssertionError("normalized-shadow grammar family/status drift")
+    route_registry = (
+        root / "src/mir/builder/control_flow/joinir/route_entry/registry/mod.rs"
+    ).read_text()
+    for family_id, row in families.items():
+        if not row["grammar"] or not row["ordinary_candidates"]:
+            raise AssertionError(f"{family_id} normalized-shadow domain incomplete")
+        executor = row["executor"]
+        require(
+            (root / executor["path"]).read_text(),
+            executor["anchor"],
+            f"{family_id} normalized-shadow executor",
+        )
+        for candidate in row["ordinary_candidates"]:
+            require(
+                route_registry,
+                candidate,
+                f"{family_id} ordinary route candidate",
+            )

@@ -228,6 +228,41 @@ mod tests {
         }
     }
 
+    fn make_local(var: &str, value: i64) -> ASTNode {
+        ASTNode::Local {
+            variables: vec![var.to_string()],
+            initial_values: vec![Some(Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(value),
+                span: make_span(),
+            }))],
+            declared_type_names: vec![None],
+            span: make_span(),
+        }
+    }
+
+    fn make_exit_if(then_exit: ASTNode, else_exit: Option<ASTNode>) -> ASTNode {
+        ASTNode::If {
+            condition: Box::new(ASTNode::Variable {
+                name: "condition".to_string(),
+                span: make_span(),
+            }),
+            then_body: vec![then_exit],
+            else_body: else_exit.map(|exit| vec![exit]),
+            span: make_span(),
+        }
+    }
+
+    fn make_loop_body(body: Vec<ASTNode>) -> ASTNode {
+        ASTNode::Loop {
+            condition: Box::new(ASTNode::Literal {
+                value: LiteralValue::Bool(true),
+                span: make_span(),
+            }),
+            body,
+            span: make_span(),
+        }
+    }
+
     fn make_return(var: &str) -> ASTNode {
         ASTNode::Return {
             value: Some(Box::new(ASTNode::Variable {
@@ -294,6 +329,51 @@ mod tests {
         assert_eq!(plan.consumed, 1); // Phase 142: only consume loop
         assert_eq!(plan.kind, PlanKind::LoopOnly);
         assert!(!plan.requires_return);
+    }
+
+    #[test]
+    fn normalization_plan_box_grammar_families_are_explicit() {
+        use crate::mir::builder::MirBuilder;
+
+        let break_stmt = || ASTNode::Break { span: make_span() };
+        let continue_stmt = || ASTNode::Continue { span: make_span() };
+        let accepted = vec![
+            make_loop_body(vec![break_stmt()]),
+            make_loop_body(vec![
+                make_assignment("x", 1),
+                make_local("y", 2),
+                break_stmt(),
+            ]),
+            make_loop_body(vec![make_exit_if(continue_stmt(), None)]),
+            make_loop_body(vec![make_exit_if(break_stmt(), Some(break_stmt()))]),
+            make_loop_body(vec![make_exit_if(break_stmt(), Some(continue_stmt()))]),
+            make_loop_body(vec![make_exit_if(continue_stmt(), Some(break_stmt()))]),
+            make_loop_body(vec![make_exit_if(continue_stmt(), Some(continue_stmt()))]),
+        ];
+        let rejected_early_exit = make_loop_body(vec![make_exit_if(break_stmt(), None)]);
+        let builder = MirBuilder::new();
+
+        for loop_node in accepted {
+            let plan = NormalizationPlanBox::plan_block_suffix(
+                &builder,
+                &[loop_node],
+                "grammar-domain",
+                false,
+            )
+            .expect("grammar admission should not fail")
+            .expect("documented grammar family should be admitted");
+            assert_eq!(plan.kind, PlanKind::LoopOnly);
+            assert_eq!(plan.consumed, 1);
+        }
+
+        assert!(NormalizationPlanBox::plan_block_suffix(
+            &builder,
+            &[rejected_early_exit],
+            "grammar-domain",
+            false,
+        )
+        .expect("early-exit rejection should not fail")
+        .is_none());
     }
 
     #[test]

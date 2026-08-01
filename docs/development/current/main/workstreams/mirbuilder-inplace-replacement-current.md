@@ -443,38 +443,44 @@ closed — JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0-COVERAGE-D0 (NoSafeSlice)
   finite fixture list or treat the existing shape-only suffix tests as
   production evidence.
 
-current — JOINMODULE-NORMALIZED-SHADOW-GRAMMAR-DOMAIN0-D0
+closed — JOINMODULE-NORMALIZED-SHADOW-GRAMMAR-DOMAIN0-D0
+
+  The shared R4 manifest and guard now name both mutation entries, their retry
+  edge, and all six parameterized PlanBox grammar families.  The table records
+  one PlanBox/executor domain gap for `TailBreak` and five ordinary-route
+  overlaps for the If-exit families.  A table-driven PlanBox test fixes the
+  positive families plus the no-else Break rejection without claiming finite
+  enumeration of the `(Assignment | Local)*` language.
+
+current — JOINMODULE-NORMALIZED-SHADOW-PREFLIGHT-RECEIPT0-S0
 
 Change:
-  Materialize one table-driven grammar-domain proof for the six parameterized
-  families admitted by `NormalizationPlanBox`.  For each family, distinguish
-  PlanBox admission, normalized executor preflight, and ordinary recipe-first
-  eligibility at both the direct Loop and block-suffix mutation entries.
+  Extract one passive, mutation-free normalized-shadow Loop preflight receipt
+  with exact `TailBreak` and `IfExit` variants.  `NormalizationPlanBox` issues
+  it only after the existing executor eligibility checks succeed; both direct
+  and suffix execution consume the same receipt rather than reclassifying AST.
 
 Contract:
-  Evidence only: no Loop activation, new profile, semantic ingress, route,
-  fallback, or raw/reference behavior. Keep explicit raw-vm-reference excluded
-  before physical open and the caller-zero raw legacy Loop port outside the
-  production set. Reuse the shared manifest/guard; add no per-row guard, and
-  keep every touched source/check file below 800 lines.  Grammar families are
-  parametric contracts; representative fixtures prove boundaries, not finite
-  enumeration of every AST member.  Do not execute a candidate route merely to
-  learn whether it is eligible.
+  BoxShape only: accepted behavior, ordinary recipe order, raw/reference,
+  Script Loop admission, MIR, and diagnostics do not change.  Receipt creation
+  reads AST and immutable analysis only; it may not allocate blocks/ValueIds,
+  read or write `variable_map`, or execute a candidate builder.  No new route,
+  fallback, environment toggle, or per-row guard.  Every touched source/check
+  file remains below 800 lines.
 
 Done:
-  Every family has an exact grammar, PlanBox anchor, executor-domain predicate,
-  ordinary candidate set, direct/suffix reachability, and positive plus boundary
-  fixture identity.  The table records the suffix-to-direct retry edge and
-  distinguishes `covered`, `overlap`, and `gap` without Builder effects.  The
-  evidence selects exactly one next row: atomic retirement of both mutation
-  entries, one pure route-selection prerequisite, or one named missing-domain
-  implementation.  `docs_only_closeout = forbidden`.
+  `NormalizationPlanBox::Some` co-owns exactly one verified preflight receipt;
+  receipt variants cover the same executor domain and exact consumed count.
+  Execute consumes the receipt once and has no shape/eligibility `None` after
+  effects.  Direct and suffix fixtures prove the same receipt identity and
+  existing success/decline behavior.  The old PlanBox-only broad admission and
+  executor-side eligibility reclassification have zero production callers.
 
 Stop:
-  Stop if an executor or recipe domain can only be discovered by mutating the
-  Builder, a family needs String/ValueId recovery, candidate uniqueness cannot
-  be decided before effects, a gap needs fallback, or the shared evidence cannot
-  stay below the file budget.
+  Stop if either normalized builder needs Builder mutation, `ValueId`, carrier
+  name recovery, or operational lowering to decide eligibility; if direct and
+  suffix require different receipts; or if behavior neutrality cannot be kept
+  without preserving a second classifier.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully

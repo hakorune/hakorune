@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0-COVERAGE-D0 is closed as NoSafeSlice: NormalizationPlanBox admits six grammar families rather than a finite set of concrete shapes, one family is parameterized by (Assignment | Local)*, and PlanBox admission does not prove executor or ordinary-recipe eligibility."
+status = "JOINMODULE-NORMALIZED-SHADOW-GRAMMAR-DOMAIN0-D0 is closed: one shared manifest/guard now fixes six parameterized PlanBox grammar families, both mutation entries, the suffix-to-direct retry edge, one executor-domain gap, and five ordinary-route overlaps."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "JOINMODULE-NORMALIZED-SHADOW-GRAMMAR-DOMAIN0-D0"
-current_execution_row = "JOINMODULE-NORMALIZED-SHADOW-GRAMMAR-DOMAIN0-D0"
-current_execution_summary = "Seal the six parameterized NormalizationPlanBox grammar families and their exact PlanBox, executor-preflight, and ordinary-recipe domains at both mutation entries; select one atomic retirement or one named domain gap without operational probing or fallback."
+current_design_stop = ""
+current_execution_row = "JOINMODULE-NORMALIZED-SHADOW-PREFLIGHT-RECEIPT0-S0"
+current_execution_summary = "Extract one mutation-free normalized-shadow preflight receipt for TailBreak and IfExit families; make PlanBox and Execute consume that receipt so admission cannot decline after Builder effects, without activating Loop or changing ordinary/raw routes."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -645,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "JOINMODULE-NORMALIZED-SHADOW-GRAMMAR-DOMAIN0-D0"
+current_blocker_token = "JOINMODULE-NORMALIZED-SHADOW-PREFLIGHT-RECEIPT0-S0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

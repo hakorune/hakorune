@@ -198,7 +198,35 @@
   },
   "r4_fences": {
     "RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001": {"state": "retain-fenced", "kind": "operation", "exact_surface": "arbitrary-AST raw static-Main helper-first batch", "owners": [{"path": "src/mir/builder/raw_static_main_compat_batch.rs", "anchor": "struct PreparedRawStaticMainBoxCompatibilityV1"}], "evidence": [{"kind": "source-anchor", "path": "src/mir/builder/raw_expression_dispatch/mod.rs", "anchor": "port.lower_static_main_box"}], "release_condition": "one located-source and entry-materialization owner deletes dispatcher, helper, and legacy Main policy"},
-    "JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0": {"state": "retain-fenced", "kind": "dev-mutation", "exact_surface": "normalized-shadow mutations and comparison observer", "owners": [{"path": "src/mir/builder/control_flow/joinir/routing.rs", "anchor": "fn try_normalized_shadow"}, {"path": "src/mir/builder/control_flow/normalization/suffix_router_box.rs", "anchor": "struct NormalizedShadowSuffixRouterBox"}], "evidence": [{"kind": "source-anchor", "path": "src/mir/builder/stmts/block_driver.rs", "anchor": "try_lower_loop_suffix"}], "release_condition": "verified Recipe/CorePlan loop owner replaces both mutations and makes observer disposition explicit"},
+    "JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0": {
+      "state": "retain-fenced",
+      "kind": "dev-mutation",
+      "exact_surface": "normalized-shadow mutations and comparison observer",
+      "owners": [
+        {"path": "src/mir/builder/control_flow/joinir/routing.rs", "anchor": "fn try_normalized_shadow"},
+        {"path": "src/mir/builder/control_flow/normalization/suffix_router_box.rs", "anchor": "struct NormalizedShadowSuffixRouterBox"}
+      ],
+      "evidence": [
+        {"kind": "source-anchor", "path": "src/mir/builder/stmts/block_driver.rs", "anchor": "try_lower_loop_suffix"}
+      ],
+      "normalization_family_coverage": {
+        "entries": {
+          "direct_loop": {"path": "src/mir/builder/control_flow/joinir/routing.rs", "anchor": "fn try_normalized_shadow"},
+          "block_suffix": {"path": "src/mir/builder/control_flow/normalization/suffix_router_box.rs", "anchor": "fn try_lower_loop_suffix"}
+        },
+        "retry_edge": {"path": "src/mir/builder/stmts/block_driver.rs", "anchor": "try_lower_loop_suffix"},
+        "fixture": {"path": "src/mir/builder/control_flow/normalization/plan_box.rs", "anchor": "fn normalization_plan_box_grammar_families_are_explicit"},
+        "families": {
+          "tail_break": {"grammar": "loop(true) { (Assignment | Local)*; Break }", "executor": {"path": "src/mir/control_tree/normalized_shadow/loop_true_break_once.rs", "anchor": "LoopTrueBreakOnceBuilderBox"}, "ordinary_candidates": ["LoopTrueBreakContinue"], "status": "gap"},
+          "if_continue_none": {"grammar": "loop(true) { if C { Continue } }", "executor": {"path": "src/mir/control_tree/normalized_shadow/loop_true_if_break_continue.rs", "anchor": "LoopTrueIfBreakContinueBuilderBox"}, "ordinary_candidates": ["LoopContinueOnly", "LoopTrueBreakContinue"], "status": "overlap"},
+          "if_break_break": {"grammar": "loop(true) { if C { Break } else { Break } }", "executor": {"path": "src/mir/control_tree/normalized_shadow/loop_true_if_break_continue.rs", "anchor": "LoopTrueIfBreakContinueBuilderBox"}, "ordinary_candidates": ["LoopTrueBreakContinue", "LoopCondBreakContinue"], "status": "overlap"},
+          "if_break_continue": {"grammar": "loop(true) { if C { Break } else { Continue } }", "executor": {"path": "src/mir/control_tree/normalized_shadow/loop_true_if_break_continue.rs", "anchor": "LoopTrueIfBreakContinueBuilderBox"}, "ordinary_candidates": ["LoopTrueBreakContinue", "LoopCondBreakContinue"], "status": "overlap"},
+          "if_continue_break": {"grammar": "loop(true) { if C { Continue } else { Break } }", "executor": {"path": "src/mir/control_tree/normalized_shadow/loop_true_if_break_continue.rs", "anchor": "LoopTrueIfBreakContinueBuilderBox"}, "ordinary_candidates": ["LoopTrueBreakContinue", "LoopCondBreakContinue"], "status": "overlap"},
+          "if_continue_continue": {"grammar": "loop(true) { if C { Continue } else { Continue } }", "executor": {"path": "src/mir/control_tree/normalized_shadow/loop_true_if_break_continue.rs", "anchor": "LoopTrueIfBreakContinueBuilderBox"}, "ordinary_candidates": ["LoopContinueOnly", "LoopTrueBreakContinue"], "status": "overlap"}
+        }
+      },
+      "release_condition": "verified Recipe/CorePlan loop owner replaces both mutations and makes observer disposition explicit"
+    },
     "RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001": {"state": "active-compatibility", "kind": "transport", "exact_surface": "selected ControlBody Lambda and CallObject portals", "owners": [{"path": "src/mir/builder/raw_invocation_source_transport.rs", "anchor": "enum RawUnlocatedPortalV1"}], "evidence": [{"kind": "source-anchor", "path": "src/mir/builder/raw_lambda_capture_lifecycle.rs", "anchor": "RawLegacyChildLoweringPortV1"}], "release_condition": "Lambda lineage retires ControlBody; CallObject needs an all-route preflight or final operation boundary"},
     "RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001": {"state": "retain-fenced", "kind": "operation", "exact_surface": "Deferred/raw/reference Lambda capture-publication without semantic child-owner source", "owners": [{"path": "src/mir/builder/raw_lambda_capture_lifecycle.rs", "anchor": "struct PreparedRawLambdaLexicalCaptureLifecycleV1"}], "evidence": [{"kind": "fixture-anchor", "path": "src/mir/builder/raw_expression_dispatch/tests.rs", "anchor": "fn raw_lambda_dispatches_once_with_source_ordered_captures"}], "release_condition": "one all-route lineage/capture product or final Lambda operation boundary deletes the raw observer and portal"},
     "RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001": {"state": "active-compatibility", "kind": "operation", "exact_surface": "located Loop product delegates to the raw JoinIR route", "owners": [{"path": "src/mir/builder/raw_loop_child_entry.rs", "anchor": "struct PreparedLocatedRawLoopChildEntryV1"}], "evidence": [{"kind": "fixture-anchor", "path": "src/mir/builder/module_lowering_invocation_reentrant_tests.rs", "anchor": "fn located_loop_preserves_legacy_route_result_and_instructions"}], "release_condition": "verified Loop plan consumes the same located product and the source-erasing terminal is zero"}
