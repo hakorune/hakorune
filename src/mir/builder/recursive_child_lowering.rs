@@ -24,7 +24,7 @@ use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
 pub(in crate::mir::builder) use super::raw_expression_recursion_guard::with_legacy_expression_recursion_guard_v1;
 use super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawInvocationSourceTransportV1,
-    RawSourceTransportPortV1, RawUnlocatedPortalV1,
+    RawSourceTransportPortV1,
 };
 use super::raw_loop_child_entry::PreparedLocatedRawLoopChildEntryV1;
 use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
@@ -331,6 +331,14 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             .commit_normal_instance_constructor_pending(pending, admission)
     }
 
+    pub(in crate::mir::builder) fn commit_legacy_nested_box_method_pending_v1(
+        &mut self,
+        pending: LegacyFunctionPendingSessionV1<'_>,
+        admission: LegacyChildDraftAdmissionV1,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        self.module_port.commit_legacy_pending(pending, admission)
+    }
+
     pub(in crate::mir::builder) fn complete_raw_root_static_child_branded(
         &mut self,
         builder: &mut MirBuilder,
@@ -619,44 +627,17 @@ impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
-        if !matches!(
-            self.current_source_context_v1(),
-            Some(RawInvocationSourceContextV1::Located { .. })
-                | Some(RawInvocationSourceContextV1::UnlocatedCompatibility(
-                    RawUnlocatedPortalV1::NestedBoxAdmission
-                ))
-        ) {
-            return Err(
-                "[freeze:contract][raw-invocation/nested-static-box-missing-site]".to_owned(),
-            );
-        }
-        builder.observe_legacy_method_lowering_v1(&function_name, &body, None);
-        let expected_arity = params.len();
-        let admission =
-            LegacyChildDraftAdmissionV1::legacy_symbol(function_name.clone(), expected_arity);
-        let pending = self
-            .with_source_transport_v1(
-                RawInvocationSourceTransportV1::unlocated(
-                    (),
-                    RawUnlocatedPortalV1::NestedBoxAdmission,
-                ),
-                |port, ()| {
-                    port.capture_static_box_method_pending_v1(
-                        builder,
-                        function_name,
-                        params,
-                        param_decls,
-                        return_type_name,
-                        body,
-                        uses,
-                        attrs,
-                    )
-                },
-            )
-            .map_err(|error| error.to_string())?;
-        self.module_port
-            .commit_legacy_pending(pending, admission)
-            .map_err(|error| error.to_string())
+        super::nested_box_method_source::lower_static_box_method_v1(
+            self,
+            builder,
+            function_name,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
     }
 
     fn lower_instance_box_method(
@@ -671,47 +652,18 @@ impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
-        if !matches!(
-            self.current_source_context_v1(),
-            Some(RawInvocationSourceContextV1::Located { .. })
-                | Some(RawInvocationSourceContextV1::UnlocatedCompatibility(
-                    RawUnlocatedPortalV1::NestedBoxAdmission
-                ))
-        ) {
-            return Err(
-                "[freeze:contract][raw-invocation/nested-instance-box-missing-site]".to_owned(),
-            );
-        }
-        let (params, param_decls) =
-            normalize_instance_box_method_input_v1(&function_name, params, param_decls);
-        builder.observe_legacy_method_lowering_v1(&function_name, &body, Some(&box_name));
-        let expected_arity = params.len() + 1;
-        let admission =
-            LegacyChildDraftAdmissionV1::legacy_symbol(function_name.clone(), expected_arity);
-        let pending = self
-            .with_source_transport_v1(
-                RawInvocationSourceTransportV1::unlocated(
-                    (),
-                    RawUnlocatedPortalV1::NestedBoxAdmission,
-                ),
-                |port, ()| {
-                    port.capture_normalized_instance_box_method_pending_v1(
-                        builder,
-                        function_name,
-                        box_name,
-                        params,
-                        param_decls,
-                        return_type_name,
-                        body,
-                        uses,
-                        attrs,
-                    )
-                },
-            )
-            .map_err(|error| error.to_string())?;
-        self.module_port
-            .commit_legacy_pending(pending, admission)
-            .map_err(|error| error.to_string())
+        super::nested_box_method_source::lower_instance_box_method_v1(
+            self,
+            builder,
+            function_name,
+            box_name,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
     }
 }
 

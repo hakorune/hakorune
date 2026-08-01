@@ -353,24 +353,32 @@ closed — NESTED-BOX-FUNCTION-RELATIVE-SOURCE-CONTRACT0-D0 (Accept A′)
   key, exact FunctionDeclaration/body, and legacy symbol/physical arity.
   It does not need a global Box/method source-path projection.
 
-current Refactor Series — NESTED-BOX-METHOD-SOURCE-EXTRACTION0-S0
+closed — NESTED-BOX-METHOD-SOURCE-EXTRACTION0-S0
+  Both live nested static/instance method lowerings now delegate to one private,
+  behavior-neutral owner. Existing collector admission, unlocated transport,
+  headers, normalization, diagnostics, and raw/reference behavior are unchanged.
+
+current — NESTED-BOX-FUNCTION-RELATIVE-SOURCE-CONTRACT0-I0-R0
 
 Change:
-  Extract both live nested Box method lowerings from the 795-line recursive
-  child file into one private source owner with behavior unchanged.
+  Replace the two self-created nested-Box unlocated frames with one
+  function-relative located method source product from the parent Box and
+  exact method declaration; delete both legacy issuer edges atomically.
 
 Contract:
-  Existing located entry, method-body lowering, header observation, legacy
-  collector policy, arity normalization, diagnostics, and raw/reference routes
-  are unchanged. No new source transport is issued in S0.
+  Keep existing method-body lowering, header observation, collector policy,
+  arity normalization, diagnostics, and raw/reference behavior. Do not create
+  a global Box/method projection, second collector, or fallback.
 
 Done:
-  Static and instance production callers each consume the extracted owner;
-  the following T2 has one bounded home for its located-source product.
+  Static and instance nested methods use the one located source product;
+  `LegacyChildDraftAdmissionV1` and `NestedBoxAdmission` production issuers
+  are zero, while focused reentrant collector tests stay green.
 
 Stop:
-  Stop if extraction needs a method AST reconstruction, a second collector,
-  or any production unlocated fallback. Keep every source/check file <800.
+  Stop if the product needs AST reconstruction, method-map scanning, a second
+  collector, or any production unlocated fallback. Keep every source/check
+  file <800.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully

@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "SCRIPT-PROFILE-RESIDUAL-OBSERVATION0-D0 is NoSafeSlice; NESTED-BOX-FUNCTION-RELATIVE-SOURCE-CONTRACT0-D0 accepts A′ and starts its S0."
+status = "NESTED-BOX-METHOD-SOURCE-EXTRACTION0-S0 is closed; NESTED-BOX-FUNCTION-RELATIVE-SOURCE-CONTRACT0-I0-R0 is next."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
 current_design_stop = "none"
-current_execution_row = "NESTED-BOX-METHOD-SOURCE-EXTRACTION0-S0"
-current_execution_summary = "Extract the two live nested Box method lowerings into one behavior-neutral private owner. The following T2 will create one function-relative located method source product and delete both LegacyChildDraftAdmissionV1 issuers and unlocated NestedBoxAdmission frames."
+current_execution_row = "NESTED-BOX-FUNCTION-RELATIVE-SOURCE-CONTRACT0-I0-R0"
+current_execution_summary = "Create one function-relative nested Box method source product from the located parent Box and exact method declaration, then delete both LegacyChildDraftAdmissionV1 issuers and unlocated NestedBoxAdmission frames."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
