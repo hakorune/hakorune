@@ -3,6 +3,7 @@
 from __future__ import annotations
 import json, re
 from pathlib import Path
+from r4_fence_registry_evidence import validate_r4_fence_registry
 from script_r4_ratchet_evidence import validate_script_r4_ratchet_evidence
 ROOT = Path(__file__).resolve().parents[3]
 TASK = ROOT / "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress0-s0-execution-task-2026-07-24.md"
@@ -740,6 +741,7 @@ def main() -> int:
     ):
         require(normal_tests, fixture, f"normal pipeline fixture {fixture}")
     validate_script_r4_ratchet_evidence(ROOT, caller_manifest, require)
+    validate_r4_fence_registry(ROOT, caller_manifest, require)
     count_by_manifest(caller_manifest.get("normal_compile_adapters", {}), ".compile(")
     expected_build_module = caller_manifest.get("direct_build_module_production", {})
     actual_build_module = {

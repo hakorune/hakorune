@@ -378,24 +378,28 @@ closed — SCRIPT-R4-RATCHET-EVIDENCE-EXTRACTION0-S0
   The shared guard now delegates Script Complete/Deferred/profile/residual
   floors to one manifest-backed helper; inline evidence authority is deleted.
 
-current — MIRBUILDER-R4-FENCE-REGISTRY-SSOT0-S0
+closed — MIRBUILDER-R4-FENCE-REGISTRY-SSOT0-S0
+  All seven live R4 fences are first-class manifest rows with kind-specific
+  source/fixture/guard evidence and dependency checks. The handwritten table
+  is deleted; no route or runtime behavior changed.
+
+current — MIRBUILDER-R4-FENCE-EVIDENCE-MATURITY0-D0
 
 Change:
-  Make the caller manifest the sole R4 fence data registry and have one guard
-  verify its kind-specific owners, evidence anchors, and dependencies.
+  Select whether any registered R4 fence has enough exact all-route evidence
+  for a named rehome; source-anchor evidence alone cannot open an I0.
 
 Contract:
-  Preserve operation, dev-mutation, runtime-bridge, transport, and dependency
-  distinctions. Source-anchor evidence is not runtime-parity evidence.
+  Keep the manifest as the sole registry and preserve the distinction between
+  operation, dev-mutation, bridge, transport, and dependency fences.
 
 Done:
-  All seven active R4 fences are first-class manifest rows; the workstream is a
-  compact projection only, every check file remains under 800, and routes are
-  unchanged.
+  One all-route rehome candidate or one compact NoSafeSlice decision is named;
+  no current fence is silently promoted from source-anchor to parity evidence.
 
 Stop:
-  Stop if the manifest must copy an operational recipe, lacks an exact source
-  anchor, or requires new runtime behavior. Keep every source/check file <800.
+  Stop if an owner has only partial-route evidence, requires a new compatibility
+  carrier, or cannot retire its selected old edge atomically.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
@@ -423,31 +427,13 @@ pipeline only with a stable sunset ID, exact owned surface, no retry, and a
 named release condition. Each replacement row shrinks that surface; it may not
 grow or silently absorb a new family.
 
-## R4 active fence / residual registry
+## R4 active fence registry
 
-This is the sole live R4 disposition list. Closed residual history is in Git.
-R4 Complete requires every row below to be retired, reowned, or explicitly
-retained by final conformance.
-
-| State | Stable ID | Exact live surface | Release condition |
-|---|---|---|---|
-| retain-fenced | `RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001` | arbitrary-AST raw static-Main helper-first batch through `RawLegacyChildLoweringPortV1` | one located-source and entry-materialization owner atomically deletes dispatcher, helper, and legacy Main-policy edges |
-| retain-fenced | `JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0` | two dev-gated normalized-shadow mutations plus comparison observer | verified Recipe/CorePlan loop owner replaces both mutations and observer disposition is explicit |
-| retain-fenced | `VM-BRIDGE-COMPAT-SUNSET-001` | explicit VM keep skip/trim bridge only | caller zero or one explicit-lane owner replaces every success/failure continuation |
-| active compatibility | `RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001` | selected ControlBody Lambda and CallObject portals | Lambda lineage retires ControlBody; CallObject is R4-retained until an all-route preflight recipe or named final operation boundary exists |
-| retain-fenced | `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` | Deferred/raw/reference nested Lambda still enters raw capture/publication without semantic child-owner source | selected lexical Lambda already uses the sealed child owner and ordered receipt; the remaining Deferred/raw/reference edge retires only when exact `forest.child_at`, parent edge/scope, projected LambdaBodyRoot, and single ClosureBodyId publication replace it atomically |
-| active compatibility | `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001` | located Loop product delegates to existing raw JoinIR route | verified Loop plan consumes the same located product and source-erasing terminal becomes zero |
-| retain-fenced | `JOINMODULE-SHARED-REFERENCE-SUBSTRATE-SUNSET-001` | JoinModule model/converter/lowering shared only by normalized-shadow and VM bridge fences | both consumer fences close and fresh census proves all production callers zero |
-
-Current exact registry count:
-
-```text
-retain-fenced        = 5
-active compatibility = 2
-active retirement    = 0
-active rehome         = 0
-unregistered         = 0
-```
+The sole R4 data authority is
+`tools/checks/manifests/raw_public_cutover_caller_manifest_v1.json::r4_fences`.
+It records stable ID, kind, exact surface, source/fixture/guard evidence,
+release condition, and dependency targets. This workstream intentionally does
+not copy those rows; source-anchor evidence does not claim runtime parity.
 
 `NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` is closed. Test-only
 `LegacyChildDraftAdmissionV1` fixtures remain; nested-method production now
