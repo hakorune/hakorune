@@ -32,7 +32,7 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-DIRECT-CALL-CATALOG-RECEIPT0-D0
+  RAW-SCRIPT-CALL-PREFLIGHT-CLASSIFIER-SSOT0-D0
 
 latest structural finding:
   Function/Lambda production now validates its complete recursive shadow tree
@@ -46,8 +46,8 @@ latest production closeout:
   RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
 
 next decision:
-  determine whether catalog-resolved ordinary FunctionCall can borrow one
-  callable/header receipt without creating a second classifier.
+  decide whether FunctionCall preflight can expose one reusable classified
+  receipt without moving its existing operational authority.
 ```
 
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
@@ -195,6 +195,11 @@ closed — RAW-SCRIPT-CALL-OBJECT-OWNER-BOUNDARY0-D0 (NoSafeSlice)
   FunctionCall, indirect Call, MethodCall, New, Field/Index, and RecordUpdate
   each combine preflight route authority with operation lowering. No standalone
   I0 exists. Only catalog-resolved ordinary FunctionCall merits a new D0.
+
+closed — RAW-SCRIPT-DIRECT-CALL-CATALOG-RECEIPT0-D0 (NoSafeSlice)
+  A callable-index loan cannot exclude weak/extern/Brand/TypeOp/Math/FastMem
+  or replace RootLower header observation without a second classifier.
+  Next asks only whether the existing preflight can publish one SSOT receipt.
 
 after that — fresh named-family census
   Select exactly one remaining Deferred responsibility family. Control,
