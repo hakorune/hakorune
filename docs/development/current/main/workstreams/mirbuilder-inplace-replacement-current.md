@@ -374,23 +374,28 @@ closed — MIRBUILDER-NEXT-NONSCRIPT-RESPONSIBILITY0-D0 (NoSafeSlice)
   Loop/JoinIR, VM bridge, JoinModule observer, and generic legacy child port
   are all-route R4 fences, not narrow production replacements.
 
-current — SCRIPT-R4-RATCHET-EVIDENCE-EXTRACTION0-S0
+closed — SCRIPT-R4-RATCHET-EVIDENCE-EXTRACTION0-S0
+  The shared guard now delegates Script Complete/Deferred/profile/residual
+  floors to one manifest-backed helper; inline evidence authority is deleted.
+
+current — MIRBUILDER-R4-FENCE-REGISTRY-SSOT0-S0
 
 Change:
-  Extract the manifest-backed Script R4 ratchet checks from the shared guard
-  into one private helper; delete the inline evidence authority.
+  Make the caller manifest the sole R4 fence data registry and have one guard
+  verify its kind-specific owners, evidence anchors, and dependencies.
 
 Contract:
-  The caller manifest remains the only data authority. This is not a global R4
-  registry: unrecorded fence evidence must not be invented or duplicated.
+  Preserve operation, dev-mutation, runtime-bridge, transport, and dependency
+  distinctions. Source-anchor evidence is not runtime-parity evidence.
 
 Done:
-  The shared guard calls the helper once, all check files remain under 800, and
-  the existing Script Complete/Deferred/profile floors remain identical.
+  All seven active R4 fences are first-class manifest rows; the workstream is a
+  compact projection only, every check file remains under 800, and routes are
+  unchanged.
 
 Stop:
-  Stop if a global fence index, a second manifest/table, or new production
-  behavior is required. Keep every source/check file <800.
+  Stop if the manifest must copy an operational recipe, lacks an exact source
+  anchor, or requires new runtime behavior. Keep every source/check file <800.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
