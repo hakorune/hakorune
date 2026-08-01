@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-BLOCKEXPR-PURE-DESCENT0-I0-R0 is closed: the existing shared Script shadow now accepts only recursively pure BlockExpr, while the existing raw owner consumes sealed prelude/tail child receipts in source order. Variable and Local forms, plus escaping exits, remain Deferred to existing lowering/preflight. Loop/JoinIR and broad FieldAccess remain NoSafe because their owners discard or bypass sealed Script receipts. Fresh family census is the active design stop."
+status = "RAW-SCRIPT-GROUPED-BINDING-REBIND-DESCENT0-D0 is closed NoSafe: GroupedAssignmentExpr has an exact RHS receipt, but its legacy raw route also requires a synthetic target source and presently fails before an assignment owner can establish parity. No selected rebind hook is widened. Pure BlockExpr remains Complete; Loop/JoinIR and broad FieldAccess remain NoSafe. Fresh family census is the active design stop."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY4-D0"
-current_execution_row = "RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY4-D0"
-current_execution_summary = "Run a fresh bounded census after the pure BlockExpr cutover. Select no successor automatically: a candidate must carry its sealed Script source/semantic receipt into the existing owner rather than discard or bypass it before planning or lowering."
+current_design_stop = "RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY5-D0"
+current_execution_row = "RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY5-D0"
+current_execution_summary = "Run a fresh bounded census after the GroupedAssignmentExpr NoSafeSlice decision. Select no successor automatically: a candidate must carry its sealed Script source/semantic receipt into an existing owner and retain existing legacy parity before planning or lowering."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"

@@ -266,11 +266,11 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY4-D0
+  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY5-D0
 
   Change:
-    Run a fresh bounded census after the pure BlockExpr cutover; do
-    not select a successor solely because it has an existing lowering terminal.
+    Run a fresh bounded census after the GroupedAssignmentExpr NoSafeSlice;
+    do not select a successor solely because it has an existing lowering terminal.
 
   Contract:
     A candidate must carry its sealed Script receipt to an existing owner. It
@@ -282,8 +282,9 @@ current
     receipt for a bounded I0; otherwise close NoSafeSlice once.
 
   Stop:
-    Do not reopen Loop/JoinIR or broad FieldAccess without a receipt-consuming
-    owner seam, or auto-select Call/Object, Lambda, Box, or broad mutation.
+    Do not reopen Loop/JoinIR, broad FieldAccess, or GroupedAssignmentExpr
+    without a receipt-consuming owner seam and legacy parity; do not auto-select
+    Call/Object, Lambda, Box, or broad mutation.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -295,6 +296,14 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-GROUPED-BINDING-REBIND-DESCENT0-D0
+  -> NoSafeSlice. GroupedAssignmentExpr has an exact RHS source receipt and
+     the shadow can identify its synthetic BindingRebind target, but the legacy
+     raw route also requires `GroupedAssignmentTarget` source preparation and
+     currently fails at `raw-invocation/expr-child-missing` before the existing
+     assignment owner can establish parity. Widening the selected ledger hook
+     alone would therefore be a new behavior, not a safe handoff.
+
   RAW-SCRIPT-BLOCKEXPR-PURE-DESCENT0-I0-R0
   -> ScriptLexicalCore now admits pure BlockExpr only through the shared shadow
      traversal. Its existing raw owner receives exact prelude/tail sources,
