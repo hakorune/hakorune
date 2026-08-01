@@ -229,22 +229,6 @@ closed — RAW-SCRIPT-GROUPED-BINDING-REBIND0-I0-R0 (T2)
   Deferred -> bare `script_root(())` reachability = 0. No ABI, publication,
   ValueId owner, fallback, retry, or raw/reference change.
 
-next — RAW-SCRIPT-NEXT-NAMED-FAMILY2-D0
-  Take one narrow non-Call/Object Deferred-family census before selecting a
-  new row. Do not reopen the explicit FunctionCall R4 retention or the closed
-  GroupedAssignment mutation boundary.
-
-closed — RAW-SCRIPT-ENUM-INVENTORY-COMPLETION0-D0 (NoSafeSlice)
-  The prior claim that Program enum inventory has no source producer is stale:
-  `PreparedNormalProgramDeclarationFactsV1` already collects and later installs
-  enum declarations. But it has no immutable enum preflight view, while the
-  existing EnumMatch owner reads mutable compilation context for exhaustive
-  arms, tags, and payload shape. More importantly, EnumDeclaration is still a
-  selected unsupported diagnostic runtime terminal, so a real enum Program
-  cannot become Complete by admitting EnumMatch alone. A future enum family
-  must atomically define declaration completion, a borrowed preflight view, and
-  RootLower diagnostic/result order. No EnumMatch I0 is opened.
-
 closed — RAW-SCRIPT-ENUM-DECLARATION-COMPLETION0-I0-R0 (T2)
   EnumDeclaration is now a typed Program transfer and retains one exact
   zero-child runtime completion: the existing declaration-facts owner remains
@@ -253,11 +237,18 @@ closed — RAW-SCRIPT-ENUM-DECLARATION-COMPLETION0-I0-R0 (T2)
   edge is zero. No constructor, match, registry copy, raw/reference change, or
   preflight policy moved in this row.
 
-next — RAW-SCRIPT-ENUM-INVENTORY-VIEW0-D0
-  Decide one private borrowed enum preflight view over the existing declaration
-  facts and extract/reuse the existing EnumMatch exhaustive/tag/payload policy.
-  It must not duplicate mutable-context classification or move user diagnostics
-  before RootLower. Only a positive direct route may later admit EnumMatch.
+closed — RAW-SCRIPT-ENUM-INVENTORY-VIEW0-D0 (NoStandaloneRow)
+  A borrowed enum view can reuse the declaration-facts inventory without a
+  second scan, but it has no real selected Script consumer: enum values are
+  produced by `Type::Variant(...)` / `FromCall`, which is Deferred. An AST-only
+  EnumMatch fixture would not prove the production route. Do not land a view
+  scaffold or reopen EnumMatch until its value producer is selected.
+
+next — RAW-SCRIPT-ENUM-VARIANT-PRODUCER0-D0
+  Audit the narrow `Type::Variant` / `FromCall` enum-value producer before any
+  EnumMatch work. It must either name one real production consumer and a
+  same-commit old-edge deletion without reopening FunctionCall R4 retention, or
+  close NoSafeSlice and return to a fresh non-Call/Object family census.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
