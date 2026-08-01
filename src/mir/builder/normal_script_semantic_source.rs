@@ -31,6 +31,7 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     existing_diagnostic_boundaries: Box<[VerifiedScriptExistingDiagnosticBoundaryV1]>,
     record_literal_demands: Box<[VerifiedScriptRecordLiteralDemandV1]>,
     qmark_propagations: Box<[VerifiedScriptQMarkPropagationV1]>,
+    match_controls: Box<[VerifiedScriptMatchControlDemandV1]>,
     runtime_source_indices: Box<[usize]>,
 }
 
@@ -75,6 +76,14 @@ pub(super) struct VerifiedScriptQMarkPropagationV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ScriptQMarkPropagationTargetV1 {
     CurrentScriptOwner,
+}
+
+/// Source-only receipt for a root Match expression. Blocks, branches, PHI,
+/// result materialization, and type publication remain with the raw owner.
+#[derive(Debug)]
+pub(super) struct VerifiedScriptMatchControlDemandV1 {
+    site: SourceExprSiteV1,
+    arm_count: u32,
 }
 
 impl<'source> VerifiedScriptSemanticSourceV1<'source> {
@@ -166,6 +175,61 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                     site: site.clone(),
                     operand_site,
                     target: ScriptQMarkPropagationTargetV1::CurrentScriptOwner,
+                })
+            })
+            .collect::<Result<Vec<_>, String>>()?;
+        let match_controls = product
+            .match_control_sites()
+            .map(|site| {
+                let statement_site = SourceStmtSiteV1::from_node(site.node().clone());
+                let source_statement_index = program_statement_index(&statement_site)?;
+                let Some(entry) = window.entry_at(source_statement_index) else {
+                    return Err("[mir/script-semantic/match-window] missing root demand".to_owned());
+                };
+                if entry.site().node() != site.node()
+                    || !matches!(
+                        entry.semantic(),
+                        ScriptRootSemanticDispositionV1::Resolved(
+                            crate::mir::resolved_semantics::ScriptRootResolvedDemandV1::MatchControl(_)
+                        )
+                    )
+                {
+                    return Err("[mir/script-semantic/match-window] source mismatch".to_owned());
+                }
+                let projected = crate::mir::resolved_semantics::project_source_node_v1(
+                    source.source_ast(),
+                    site.node(),
+                )
+                .ok_or_else(|| "[mir/script-semantic/match-projection] missing MatchExpr".to_owned())?;
+                let crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(
+                    ASTNode::MatchExpr {
+                        arms, ..
+                    },
+                ) = projected
+                else {
+                    return Err("[mir/script-semantic/match-site] expected MatchExpr".to_owned());
+                };
+                let arm_count = u32::try_from(arms.len())
+                    .map_err(|_| "[mir/script-semantic/match-arm-count] overflow".to_owned())?;
+                let mut roles = Vec::with_capacity(arms.len() + 2);
+                roles.push(SourcePathSegmentV1::MatchScrutinee);
+                roles.extend((0..arm_count).map(SourcePathSegmentV1::MatchArm));
+                roles.push(SourcePathSegmentV1::MatchElse);
+                for role in roles {
+                    let child_site = SourcePathV1::from_node(site.node()).child(role).expr();
+                    if !matches!(
+                        crate::mir::resolved_semantics::project_source_node_v1(
+                            source.source_ast(),
+                            child_site.node(),
+                        ),
+                        Some(crate::mir::resolved_semantics::ProjectedSourceNodeV1::Node(_))
+                    ) {
+                        return Err("[mir/script-semantic/match-child-site] expected node".to_owned());
+                    }
+                }
+                Ok(VerifiedScriptMatchControlDemandV1 {
+                    site: site.clone(),
+                    arm_count,
                 })
             })
             .collect::<Result<Vec<_>, String>>()?;
@@ -298,6 +362,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             existing_diagnostic_boundaries: existing_diagnostic_boundaries.into_boxed_slice(),
             record_literal_demands: record_literal_demands.into_boxed_slice(),
             qmark_propagations: qmark_propagations.into_boxed_slice(),
+            match_controls: match_controls.into_boxed_slice(),
             runtime_source_indices: runtime_source_indices.into_boxed_slice(),
         })
     }
@@ -331,6 +396,15 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         self.qmark_propagations
             .iter()
             .map(|receipt| (&receipt.site, &receipt.operand_site, &receipt.target))
+    }
+
+    #[cfg(test)]
+    pub(super) fn match_controls(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, u32)> {
+        self.match_controls
+            .iter()
+            .map(|receipt| (&receipt.site, receipt.arm_count))
     }
 
     #[cfg(test)]
@@ -504,6 +578,9 @@ mod map_literal_tests;
 #[cfg(test)]
 #[path = "normal_script_qmark_tests.rs"]
 mod qmark_tests;
+#[cfg(test)]
+#[path = "normal_script_match_tests.rs"]
+mod match_tests;
 #[cfg(test)]
 #[path = "normal_script_record_literal_tests.rs"]
 mod record_literal_tests;

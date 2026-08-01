@@ -24,6 +24,7 @@ pub(crate) enum ScriptRootSemanticDispositionV1 {
 pub(crate) enum ScriptRootResolvedDemandV1 {
     LexicalCore,
     QMarkPropagation(ScriptRootQMarkPropagationAdmissionV1),
+    MatchControl(ScriptRootMatchControlAdmissionV1),
     IfControl(ScriptRootIfControlAdmissionV1),
     ReturnExit(ScriptRootReturnExitAdmissionV1),
     BindingRebind(ScriptRootBindingRebindAdmissionV1),
@@ -35,6 +36,17 @@ pub(crate) enum ScriptRootResolvedDemandV1 {
 pub(crate) struct ScriptRootQMarkPropagationAdmissionV1(());
 
 impl ScriptRootQMarkPropagationAdmissionV1 {
+    pub(crate) const fn new() -> Self {
+        Self(())
+    }
+}
+
+/// Receipt for one root literal-match whose operational control flow remains
+/// owned by the existing Match lowering terminal.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct ScriptRootMatchControlAdmissionV1(());
+
+impl ScriptRootMatchControlAdmissionV1 {
     pub(crate) const fn new() -> Self {
         Self(())
     }

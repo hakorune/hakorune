@@ -32,12 +32,12 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-MATCH-CONTROL-MERGE-RECEIPT0-D0
+  RAW-SCRIPT-NEXT-CONTROL-FAMILY4-D0
 
 latest structural finding:
-  MatchExpr has one existing finite receipt set (scrutinee, every arm, else),
-  but its owner also owns CFG, branches, jumps, and PHI. The next boundary is
-  CONTROL/MERGE receipt authority, not compositional expression descent.
+  Root lexical-core Match now uses the shared Script source and exact child
+  scope; nested Match and all unselected control/call/lambda families remain
+  Deferred pending a fresh bounded census.
 
 accepted series:
   dense Function/Lambda root-neutral core -> sparse selected-Script cutover
@@ -267,26 +267,20 @@ R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
   closed Accept-corrected
 
 current
-  RAW-SCRIPT-MATCH-CONTROL-MERGE-RECEIPT0-D0
+  RAW-SCRIPT-NEXT-CONTROL-FAMILY4-D0
 
   Change:
-    Decide whether selected Script can co-seal one exact MatchExpr child-demand
-    receipt set and loan it to the existing CFG/PHI owner without moving any
-    control, result, or diagnostic authority.
+    Run one fresh bounded static live-edge census after root Match closeout.
 
   Contract:
-    Existing `build_peek_expression_with_port_v1` remains the sole owner of
-    scrutinee/arm/else evaluation order, blocks, branches, jumps, and PHI.
-    Admission may only prove an exact source-demand set before child descent;
-    no request-internal Complete/Deferred split, fallback, or second matcher.
+    Choose at most one family with a named production consumer and an atomic
+    old Deferred-edge deletion. No successor is preselected.
 
   Done:
-    Record Accept or NoSafeSlice with the named issuer, consumer, old Deferred
-    edge, and the first hard stop. No I0 is opened until this D0 closes.
+    Record one evidence-backed candidate decision or NoSafeSlice result.
 
   Stop:
-    Stop if exact arm/else receipt coverage cannot preserve existing CFG/result
-    behavior, or if Match needs Loop/Return/Call/Lambda/JoinIR authority.
+    Do not implement during this D0 or reopen Match without a new authority.
 
 scheduled design gates after fresh census
   1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
@@ -298,6 +292,17 @@ scheduled design gates after fresh census
         or explicitly retain every remaining Deferred family.
 
 closed
+  RAW-SCRIPT-MATCH-ROOT-CONTROL-RECEIPT0-I0-R0
+  -> Root lexical-core Match is Complete with co-sealed Scrutinee/Arm/Else
+     coverage; the dispatcher now enforces exact structured-demand consumption.
+     Existing owner keeps CFG/branch/PHI/result/type authority. Two focused
+     tests cover selected/legacy parity and nested-Match Deferred behavior.
+
+  RAW-SCRIPT-MATCH-CONTROL-MERGE-RECEIPT0-D0
+  -> Accept-corrected. Root Match can seal Scrutinee, all Arm, and Else source
+     coverage while the existing owner exclusively keeps CFG/branch/PHI/result
+     authority. The first I0 is root-only; generic/nested Match is not enabled.
+
   RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY3-D0
   -> Bounded static census selects MatchExpr only for CONTROL/MERGE D0:
      dispatcher already prepares MatchScrutinee, every MatchArm, and MatchElse

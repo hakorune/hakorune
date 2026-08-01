@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY3-D0 is closed: bounded census selects MatchExpr for CONTROL/MERGE receipt design. RecordUpdate, Index, and Call/Object remain Deferred because their demand authority is not yet sealed."
+status = "RAW-SCRIPT-MATCH-ROOT-CONTROL-RECEIPT0-I0-R0 is closed: root lexical-core Match co-seals exact child coverage and consumes its structured scope, while the existing owner retains CFG/branch/PHI/result/type authority. Fresh family census is current."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-MATCH-CONTROL-MERGE-RECEIPT0-D0"
-current_execution_row = "RAW-SCRIPT-MATCH-CONTROL-MERGE-RECEIPT0-D0"
-current_execution_summary = "FAMILY3 census selected MatchExpr for one CONTROL/MERGE design stop: its existing owner has sealed finite child demands but also owns CFG, branches, jumps, and PHI. Decide the receipt/coverage contract before opening any I0; RecordUpdate, Index, and Call/Object remain Deferred because their source authority is not yet single and sealed."
+current_design_stop = "RAW-SCRIPT-NEXT-CONTROL-FAMILY4-D0"
+current_execution_row = "RAW-SCRIPT-NEXT-CONTROL-FAMILY4-D0"
+current_execution_summary = "Run one fresh bounded static live-edge census after root Match closeout. Select at most one responsibility family only when it has a named production consumer and atomically removable selected Deferred authority; do not preselect or implement a successor during this D0."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"
@@ -448,7 +448,7 @@ raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investiga
 
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = """RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY3-D0 is closed: bounded live-edge census selects MatchExpr only for a CONTROL/MERGE receipt design stop. The existing Match owner has exact Scrutinee/Arm/Else demands but retains CFG and PHI authority. RecordUpdate, Index, and Call/Object remain Deferred pending their own source-authority families; no implementation successor is open yet."""
+latest_card_summary = """RAW-SCRIPT-MATCH-ROOT-CONTROL-RECEIPT0-I0-R0 is closed: root lexical-core Match now co-seals exact Scrutinee/Arm/Else coverage, existing structured source scope enforces exact consumption, and existing Match lowering remains the only CFG/branch/PHI/result/type owner. Nested Match stays Deferred; fresh family census is current."""
 preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
@@ -651,7 +651,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-MATCH-CONTROL-MERGE-RECEIPT0-D0"
+current_blocker_token = "RAW-SCRIPT-NEXT-CONTROL-FAMILY4-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

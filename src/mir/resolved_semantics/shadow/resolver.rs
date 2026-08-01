@@ -75,6 +75,7 @@ pub(super) struct ShadowResolverV0<'ast, 'schema> {
     record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
     record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
     qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
+    match_control_sites: BTreeSet<SourceExprSiteV1>,
 }
 
 pub(super) fn resolve_function_shadow_v0(
@@ -308,6 +309,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             record_schema_demand,
             record_literal_demands: BTreeMap::new(),
             qmark_propagation_sites: BTreeSet::new(),
+            match_control_sites: BTreeSet::new(),
         }
     }
 
@@ -330,6 +332,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 resolved_exits: self.resolved_exits,
                 record_literal_demands: self.record_literal_demands,
                 qmark_propagation_sites: self.qmark_propagation_sites,
+                match_control_sites: self.match_control_sites,
             },
             lambdas: self.lambdas.into_boxed_slice(),
         }
@@ -366,6 +369,16 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     ) -> Result<(), ShadowResolveErrorV0> {
         if !self.qmark_propagation_sites.insert(site.clone()) {
             return Err(ShadowResolveErrorV0::DuplicateQMarkPropagation { site });
+        }
+        Ok(())
+    }
+
+    pub(super) fn admit_match_control(
+        &mut self,
+        site: SourceExprSiteV1,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        if !self.match_control_sites.insert(site.clone()) {
+            return Err(ShadowResolveErrorV0::DuplicateMatchControl { site });
         }
         Ok(())
     }

@@ -307,12 +307,14 @@ impl super::MirBuilder {
                         sources,
                         Vec::new(),
                     );
-                self.build_peek_expression_with_port_v1(
+                let value = self.build_peek_expression_with_port_v1(
                     &mut scoped,
                     *scrutinee,
                     arms,
                     *else_expr,
-                )
+                )?;
+                scoped.complete_exact_demands_v1()?;
+                Ok(value)
             }
 
             node @ ASTNode::EnumMatchExpr { .. } => {

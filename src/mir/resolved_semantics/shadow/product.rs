@@ -194,6 +194,9 @@ pub(crate) enum ShadowResolveErrorV0 {
     DuplicateQMarkPropagation {
         site: SourceExprSiteV1,
     },
+    DuplicateMatchControl {
+        site: SourceExprSiteV1,
+    },
     FunctionCallArityOverflow {
         site: SourceExprSiteV1,
     },
@@ -217,6 +220,7 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
     pub(crate) record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
     pub(crate) qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
+    pub(crate) match_control_sites: BTreeSet<SourceExprSiteV1>,
 }
 
 #[derive(Debug)]

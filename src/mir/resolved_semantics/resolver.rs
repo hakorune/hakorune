@@ -138,11 +138,13 @@ impl FunctionSemanticResolverSessionV1 {
     ) -> Result<VerifiedResolvedScriptV1, ResolveFunctionErrorV1> {
         let record_literal_demands = draft.record_literal_demands.clone();
         let qmark_propagation_sites = draft.qmark_propagation_sites.clone();
+        let match_control_sites = draft.match_control_sites.clone();
         let canonical = canonicalize_draft(owner, origin, draft, &BTreeMap::new(), None)?;
         Ok(VerifiedResolvedScriptV1::from_canonical_data(
             canonical.data,
             record_literal_demands,
             qmark_propagation_sites,
+            match_control_sites,
         )
         .map_err(ResolveFunctionErrorV1::Verification)?)
     }

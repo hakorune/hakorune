@@ -37,7 +37,8 @@ pub(super) use resolver::{
 pub(crate) use script_root_window::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
     ScriptRootDemandWindowSealErrorV1, ScriptRootIfControlAdmissionV1,
-    ScriptRootQMarkPropagationAdmissionV1, ScriptRootResolvedDemandV1,
+    ScriptRootMatchControlAdmissionV1, ScriptRootQMarkPropagationAdmissionV1,
+    ScriptRootResolvedDemandV1,
     ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,

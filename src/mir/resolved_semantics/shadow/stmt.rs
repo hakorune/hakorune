@@ -24,6 +24,9 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             ScriptRootResolvedDemandV1::QMarkPropagation(_) => {
                 self.resolve_qmark_propagation(statement, path)
             }
+            ScriptRootResolvedDemandV1::MatchControl(_) => {
+                self.resolve_match_control(statement, path)
+            }
             ScriptRootResolvedDemandV1::IfControl(_) => {
                 let ASTNode::If {
                     condition,
@@ -61,6 +64,40 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         self.resolve_expr(
             expression,
             &Self::stmt_expr_path(statement, path, ExprChildRoleV1::QMarkOperand),
+        )
+    }
+
+    fn resolve_match_control(
+        &mut self,
+        statement: &'ast ASTNode,
+        path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let ASTNode::MatchExpr {
+            scrutinee,
+            arms,
+            else_expr,
+            ..
+        } = statement
+        else {
+            return Err(ShadowResolveErrorV0::UnsupportedStatement {
+                kind: "Script root Match admission source drift",
+                site: path.stmt(),
+            });
+        };
+        self.admit_match_control(path.expr())?;
+        self.resolve_expr(
+            scrutinee,
+            &Self::stmt_expr_path(statement, path, ExprChildRoleV1::MatchScrutinee),
+        )?;
+        for (index, (_, expression)) in arms.iter().enumerate() {
+            self.resolve_expr(
+                expression,
+                &Self::stmt_expr_path(statement, path, ExprChildRoleV1::MatchArm(index as u32)),
+            )?;
+        }
+        self.resolve_expr(
+            else_expr,
+            &Self::stmt_expr_path(statement, path, ExprChildRoleV1::MatchElse),
         )
     }
 
