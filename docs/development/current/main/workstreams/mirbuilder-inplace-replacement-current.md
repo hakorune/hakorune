@@ -249,9 +249,13 @@ closed — SCRIPT-SEMANTIC-COMPLEXITY-CONSOLIDATION0-S0
   issuance, test-family split, current pointer, and full Complete identity floor
   are now compact; admission, lowering, diagnostics, and raw/reference are unchanged.
 
-selected — RAW-SCRIPT-NEXT-NAMED-FAMILY4-D0
-  Fresh live Deferred-family census only. Select an I0 only with one operation
-  authority and an atomic old-edge deletion; do not infer a next family from history.
+closed — ENUM-MATCH-SOURCE-OWNER-FILE-SPLIT0-S0
+  ScopeBox preparation/lowering now has its private sibling; enum-match owner
+  is below the file boundary with raw behavior and diagnostics unchanged.
+
+selected — RAW-SCRIPT-ENUM-MATCH-DIRECT-SCRUTINEE0-I0-R0 (T2)
+  Share direct EnumMatch preflight with a declaration-facts view. The sole
+  Script child demand is the scrutinee; arms remain existing-owner observations.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully

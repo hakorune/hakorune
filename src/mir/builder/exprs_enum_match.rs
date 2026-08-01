@@ -1,11 +1,14 @@
 use crate::ast::{ASTNode, EnumMatchArm, LiteralValue};
 use crate::mir::builder::calls::drive_call_arguments_v1;
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_body_v1, drive_legacy_expression_v1, drive_legacy_statement_v1,
-    RawAstChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1,
 };
 use crate::mir::resolved_semantics::EnumVariantAdmissionV1;
 use crate::mir::{CompareOp, MirInstruction, MirType, ValueId};
+
+pub(in crate::mir::builder) use super::enum_match_scopebox::{
+    PreparedRawScopeBoxRouteV1, PreparedRawScopeBoxV1,
+};
 
 pub(in crate::mir::builder) struct PreparedRawEnumVariantHeaderV1 {
     tag: u32,
@@ -48,30 +51,6 @@ struct ObservedRawEnumMatchArmV1 {
     variant_name: String,
     binding_present: bool,
     bool_value: Option<bool>,
-}
-
-pub(in crate::mir::builder) struct PreparedRawScopeBoxV1 {
-    route: PreparedRawScopeBoxRouteV1,
-}
-
-enum PreparedRawScopeBoxRouteV1 {
-    GuardLet {
-        body: Vec<ASTNode>,
-        temp_name: String,
-    },
-    Ordinary {
-        body: Vec<ASTNode>,
-    },
-}
-
-impl PreparedRawScopeBoxV1 {
-    pub(in crate::mir::builder) fn prepare(body: Vec<ASTNode>) -> Self {
-        let route = match guard_let_scopebox_subject(&body) {
-            Some(temp_name) => PreparedRawScopeBoxRouteV1::GuardLet { body, temp_name },
-            None => PreparedRawScopeBoxRouteV1::Ordinary { body },
-        };
-        Self { route }
-    }
 }
 
 impl PreparedRawEnumMatchV1 {
@@ -185,30 +164,6 @@ pub(in crate::mir::builder) fn prepare_raw_enum_variant_header_v1(
 }
 
 impl super::MirBuilder {
-    pub(in crate::mir::builder) fn lower_prepared_raw_scopebox_with_port_v1<Port>(
-        &mut self,
-        port: &mut Port,
-        prepared: PreparedRawScopeBoxV1,
-    ) -> Result<ValueId, String>
-    where
-        Port: RawAstChildLoweringPortV1,
-    {
-        let (body, temp_name) = match prepared.route {
-            PreparedRawScopeBoxRouteV1::Ordinary { body } => {
-                return drive_legacy_body_v1(self, port, body)
-            }
-            PreparedRawScopeBoxRouteV1::GuardLet { body, temp_name } => (body, temp_name),
-        };
-
-        let mut last_value = None;
-        for stmt in body {
-            last_value = Some(drive_legacy_statement_v1(self, port, stmt)?);
-        }
-        self.function_state.variable_ctx.remove(&temp_name);
-        self.function_state.binding_ctx.remove(&temp_name);
-        Ok(last_value.unwrap_or_else(|| self.next_value_id()))
-    }
-
     pub(in crate::mir::builder) fn lower_prepared_raw_enum_match_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
@@ -466,72 +421,6 @@ fn bool_literal_body(node: &ASTNode) -> Option<bool> {
             ..
         } => Some(*value),
         _ => None,
-    }
-}
-
-fn guard_let_scopebox_subject(body: &[ASTNode]) -> Option<String> {
-    let [subject_local, failure_if, binding_local] = body else {
-        return None;
-    };
-    let temp_name = guard_let_subject_temp_name(subject_local)?;
-    if !guard_let_failure_if_uses_temp(failure_if, &temp_name) {
-        return None;
-    }
-    if !guard_let_binding_local_uses_temp(binding_local, &temp_name) {
-        return None;
-    }
-    Some(temp_name)
-}
-
-fn guard_let_subject_temp_name(node: &ASTNode) -> Option<String> {
-    let ASTNode::Local {
-        variables,
-        initial_values,
-        ..
-    } = node
-    else {
-        return None;
-    };
-    if variables.len() != 1 || initial_values.len() != 1 || initial_values[0].is_none() {
-        return None;
-    }
-    let name = variables[0].as_str();
-    name.starts_with("__ny_guard_let_subject_")
-        .then(|| name.to_string())
-}
-
-fn guard_let_failure_if_uses_temp(node: &ASTNode, temp_name: &str) -> bool {
-    let ASTNode::If { condition, .. } = node else {
-        return false;
-    };
-    enum_match_scrutinee_is_temp(condition, temp_name)
-}
-
-fn guard_let_binding_local_uses_temp(node: &ASTNode, temp_name: &str) -> bool {
-    let ASTNode::Local {
-        variables,
-        initial_values,
-        ..
-    } = node
-    else {
-        return false;
-    };
-    if variables.len() != 1 || initial_values.len() != 1 {
-        return false;
-    }
-    let Some(initial_value) = initial_values[0].as_deref() else {
-        return false;
-    };
-    enum_match_scrutinee_is_temp(initial_value, temp_name)
-}
-
-fn enum_match_scrutinee_is_temp(node: &ASTNode, temp_name: &str) -> bool {
-    match node {
-        ASTNode::EnumMatchExpr { scrutinee, .. } => matches!(
-            scrutinee.as_ref(),
-            ASTNode::Variable { name, .. } if name == temp_name
-        ),
-        _ => false,
     }
 }
 

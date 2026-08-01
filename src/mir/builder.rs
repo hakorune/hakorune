@@ -45,6 +45,7 @@ mod drained_module_candidate; // HEADERPORT0-I0-DRAIN0-S0 disconnected candidate
 #[cfg(test)]
 mod drained_module_candidate_p0; // HEADERPORT0-I0-DRAIN0-P0 fixtures
 mod entry_materialization; // source-only callable Main materialization facts
+mod enum_match_scopebox;
 mod exprs_call;
 mod exprs_check; // CheckExpr lowering
 mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sugar
