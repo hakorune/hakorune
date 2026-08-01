@@ -63,6 +63,11 @@ details. `None` means Deferred, never a ScriptSemanticSeal user diagnostic.
 Existing record lowering remains the only operational owner of schema
 preflight, field contract checks, defaults, and `RecordValuePublish`.
 
+The shared Script traversal must emit a verified RecordLiteral receipt. A
+structurally projectable `RecordFieldValue(i)` path alone is not proof that the
+schema admission succeeded. The sealed Script product carries exact site plus
+field count; Complete with a missing receipt is a hard invariant failure.
+
 ## Atomic deletion and replacement
 
 Delete only these selected reachabilities:
@@ -91,6 +96,9 @@ Raw/reference routes keep their existing collection/install timing.
 - `resolved_semantics`: neutral Script schema-admission trait/vocabulary,
   positive receipt/coverage, and RecordLiteral profile gate before child
   traversal. It must not import Builder types.
+- a new small builder-local record-demand port module: compose the sealed
+  receipt query into raw dispatch without growing `recursive_child_lowering.rs`
+  (currently at the file-size boundary).
 - `raw_expression_dispatch`: use a structured child scope only when the sealed
   positive receipt exists; keep the current direct record route otherwise.
 - selected lifecycle/root lowering: collect/borrow/move handoff, no second
@@ -120,5 +128,7 @@ Raw/reference routes keep their existing collection/install timing.
 - any record diagnostic moved into ScriptSemanticSeal;
 - Complete-to-Deferred fallback or retry;
 - unconditional structured port for every RecordLiteral;
+- treating structural `RecordFieldValue(i)` projection as eligibility proof, or
+  silently using a missing receipt in a Complete Script source;
 - RecordUpdate or constructor `New` activation;
 - a touched source/check file reaching 800 lines.
