@@ -17,7 +17,6 @@ LEGACY = tuple(
         "src/runner/modes/common_util/vm_execution.rs",
         "src/runner/dispatch.rs",
         "src/runner/product/llvm/fallback_executor.rs",
-        "src/mir/join_ir_vm_bridge_dispatch/exec_routes.rs",
     )
 )
 

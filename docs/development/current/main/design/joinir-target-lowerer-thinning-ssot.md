@@ -8,7 +8,6 @@ Related:
   - src/mir/join_ir/README.md
   - src/mir/join_ir/lowering/README.md
   - src/mir/join_ir/lowering/common/README.md
-  - src/mir/join_ir_vm_bridge_dispatch/README.md
 ---
 
 # JoinIR Target Lowerer Thinning SSOT
@@ -421,7 +420,6 @@ Targeted checks for this lane:
 
 ```bash
 cargo test -q mir::join_ir::lowering --lib
-cargo test -q mir::join_ir_vm_bridge_dispatch --lib
 bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```

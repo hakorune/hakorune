@@ -35,25 +35,10 @@ fn warn_joinir_core_off_ignored() {
     });
 }
 
-/// Explicit VM compatibility bridge mode.
-///
-/// In a `vm-reference` build, the explicit VM keep route may attempt the
-/// selected JoinIR → VM bridge when `NYASH_JOINIR_VM_BRIDGE=1` is set.
-/// `NYASH_JOINIR_EXPERIMENT` is not an activation predicate for this route.
-pub fn joinir_vm_bridge_enabled() -> bool {
-    joinir_core_enabled() && env_bool("NYASH_JOINIR_VM_BRIDGE")
-}
-
 /// JoinIR strict mode: when enabled, JoinIR 対象のフォールバックを禁止する。
 /// 既定OFF。NYASH_JOINIR_STRICT=1 のときのみ有効。
 pub fn joinir_strict_enabled() -> bool {
     env_flag("NYASH_JOINIR_STRICT").unwrap_or(false)
-}
-
-/// JoinIR VM bridge debug output. Enables verbose logging of JoinIR→MIR conversion.
-/// Set NYASH_JOINIR_VM_BRIDGE_DEBUG=1 to enable.
-pub fn joinir_vm_bridge_debug() -> bool {
-    env_bool("NYASH_JOINIR_VM_BRIDGE_DEBUG")
 }
 
 /// Phase 33-8: JoinIR debug log level (0-3)

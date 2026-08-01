@@ -1,4 +1,4 @@
-use super::{join_func_name, module_converter::convert_join_module_to_mir, JoinIrVmBridgeError};
+use super::{join_func_name, module_converter::convert_join_module_to_mir, JoinIrToMirError};
 use crate::mir::join_ir::JoinModule;
 use crate::mir::MirModule;
 
@@ -38,24 +38,16 @@ fn ensure_joinir_function_aliases(mir_module: &mut MirModule, join_module: &Join
 }
 
 /// Structured JoinIR → MIR（既存経路）の明示エントリ。
-fn lower_joinir_structured_to_mir(module: &JoinModule) -> Result<MirModule, JoinIrVmBridgeError> {
+pub(crate) fn lower_structured_joinir_to_mir(
+    module: &JoinModule,
+) -> Result<MirModule, JoinIrToMirError> {
     if !module.is_structured() {
-        return Err(JoinIrVmBridgeError::new(
-            "[joinir/bridge] expected Structured JoinIR module",
+        return Err(JoinIrToMirError::new(
+            "[joinir/to-mir] expected Structured JoinIR module",
         ));
     }
 
-    convert_join_module_to_mir(module)
-}
-
-/// JoinIR → MIR の単一入口。
-///
-/// Phase R1/R4: runtime bridge is Structured-only; the removed dev-only
-/// normalized helper route no longer exists in this module.
-///
-/// JoinIR → MIR conversion entry.
-pub(crate) fn bridge_joinir_to_mir(module: &JoinModule) -> Result<MirModule, JoinIrVmBridgeError> {
-    let mut mir = lower_joinir_structured_to_mir(module)?;
+    let mut mir = convert_join_module_to_mir(module)?;
     ensure_joinir_function_aliases(&mut mir, module);
     Ok(mir)
 }

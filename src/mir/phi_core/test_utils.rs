@@ -40,7 +40,7 @@ pub fn collect_assigned_vars_via_joinir(
         }
     }
 
-    if crate::config::env::joinir_vm_bridge_debug() {
+    if crate::config::env::joinir_dev::debug_enabled() {
         crate::runtime::get_global_ring0().log.debug(&format!(
             "[Phase 40-4.1] collect_assigned_vars_via_joinir: {:?}",
             result

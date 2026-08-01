@@ -9734,7 +9734,7 @@
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "new_with_func_names",
       "line": 47,
-      "path": "src/mir/join_ir_vm_bridge/joinir_block_converter/mod.rs",
+      "path": "src/mir/join_ir_to_mir/joinir_block_converter/mod.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -9742,15 +9742,7 @@
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "join_func_name",
       "line": 79,
-      "path": "src/mir/join_ir_vm_bridge/mod.rs",
-      "reject_reasons": [],
-      "status": "candidate"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_bridge_enabled",
-      "line": 18,
-      "path": "src/mir/join_ir_vm_bridge_dispatch/env_flags.rs",
+      "path": "src/mir/join_ir_to_mir/mod.rs",
       "reject_reasons": [],
       "status": "candidate"
     },
@@ -16346,7 +16338,7 @@
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "get_continuation_name",
       "line": 391,
-      "path": "src/mir/join_ir_vm_bridge/joinir_block_converter/handlers.rs",
+      "path": "src/mir/join_ir_to_mir/joinir_block_converter/handlers.rs",
       "reject_reasons": [
         "carrier_surface"
       ],
@@ -16356,21 +16348,10 @@
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "convert_function_with_func_names",
       "line": 22,
-      "path": "src/mir/join_ir_vm_bridge/joinir_function_converter.rs",
+      "path": "src/mir/join_ir_to_mir/joinir_function_converter.rs",
       "reject_reasons": [
         "carrier_surface",
         "depends_on_collection"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "label_or_vocabulary_surface",
-      "function": "lower_only_observation_names_are_not_vm_targets",
-      "line": 60,
-      "path": "src/mir/join_ir_vm_bridge_dispatch/targets.rs",
-      "reject_reasons": [
-        "depends_on_lowering",
-        "depends_on_resolution"
       ],
       "status": "rejected"
     },

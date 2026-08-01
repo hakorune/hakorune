@@ -21,11 +21,6 @@ pub fn debug_enabled() -> bool {
     crate::config::env::joinir_trace_enabled()
 }
 
-/// NYASH_JOINIR_VM_BRIDGE=1 - Enable VM bridge mode
-pub fn vm_bridge_enabled() -> bool {
-    env_bool("NYASH_JOINIR_VM_BRIDGE")
-}
-
 /// HAKO_JOINIR_STRICT=1 or NYASH_JOINIR_STRICT=1 - Strict validation mode
 ///
 /// Phase 138-P2-A: Supports both HAKO_ and NYASH_ prefixes for compatibility

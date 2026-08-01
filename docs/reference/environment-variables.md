@@ -504,17 +504,12 @@ LoopBuilder は物理削除済みで、JoinIR を OFF にするモードは存�
 
 | 変数 | デフォルト | 説明 |
 | --- | --- | --- |
-| `NYASH_JOINIR_EXPERIMENT` | OFF | JoinIR 実験メイントグル（VM bridge のactivation条件ではない） |
-| `NYASH_JOINIR_VM_BRIDGE` | OFF | `vm-reference` build の explicit `--backend vm` compatibility bridge を有効化。 |
+| `NYASH_JOINIR_EXPERIMENT` | OFF | JoinIR 実験メイントグル。 |
 | ~~`NYASH_HAKO_CHECK_JOINIR`~~ | 削除済み | **Phase 124 で削除**: hako_check は JoinIR 専用化。環境変数不要。 |
 
-補足:
-- VM bridge Route B は `vm-reference` build の explicit `--backend vm` で
-  `NYASH_JOINIR_VM_BRIDGE=1` を設定したときだけ試行する。
-  `NYASH_JOINIR_EXPERIMENT` はこのactivation条件ではない。
-- Exec route は出力してexitすることがある。dev/trace時の成功は観測後に通常VMへ
-  続行する。非strict Exec failure は通常VMへ続行する。旧Stage1/StageB
-  LowerOnly observation routeは退役済み。
+補足: JoinIR VM bridge Route B は退役済み。通常VMがMIR実行の唯一ownerであり、
+`NYASH_JOINIR_EXPERIMENT` はVM実行を切り替えない。旧Stage1/StageB LowerOnly
+observation routeも退役済み。
 
 ### DevOnly（開発/計測専用）
 
@@ -523,7 +518,6 @@ LoopBuilder は物理削除済みで、JoinIR を OFF にするモードは存�
 | `NYASH_JOINIR_DEV` | OFF | DevOnly まとめて ON。 |
 | `NYASH_JOINIR_LOWER_FROM_MIR` | OFF | MIR ベース lowering 切替。 |
 | `NYASH_JOINIR_LOWER_GENERIC` | OFF | 関数名フィルタなし generic lowering。 |
-| `NYASH_JOINIR_VM_BRIDGE_DEBUG` | OFF | VM bridge 追加ログ。 |
 | `NYASH_JOINIR_MAINLINE_DEBUG` | OFF | Mainline 追加ログ。 |
 | `HAKO_JOINIR_PLANNER_REQUIRED` | OFF | Planner が None を返したとき legacy fallback を禁止する（single-case gate 用、既定OFF）。 |
 | `HAKO_JOINIR_PRINT_TOKENS_MAIN` | OFF | print_tokens main A/B。 |
@@ -558,8 +552,6 @@ JoinIR の **strict / planner_required / debug は別トグル**。`--dev`（ま
 # JoinIR は常に ON。syntax-3（推奨）
 env NYASH_FEATURES=stage3 ./target/release/hakorune program.hako
 
-# VM bridge Route B（explicit VM compatibility）
-env NYASH_FEATURES=stage3 NYASH_JOINIR_VM_BRIDGE=1 ./target/release/hakorune --backend vm program.hako
 ```
 
 詳細: [ENV_INVENTORY.md](../private/roadmap2/phases/phase-29-longterm-joinir-full/ENV_INVENTORY.md) / [Phase 72 フラグ整理](../private/roadmap2/phases/phase-72-joinir-dev-flags/README.md)

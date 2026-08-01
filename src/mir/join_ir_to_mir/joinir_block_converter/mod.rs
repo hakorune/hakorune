@@ -9,7 +9,7 @@ use crate::mir::join_ir::{JoinFuncId, JoinInst, MirLikeInst};
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 use std::collections::BTreeMap;
 
-use super::{convert_mir_like_inst, JoinIrVmBridgeError};
+use super::{convert_mir_like_inst, JoinIrToMirError};
 
 mod handlers;
 mod tests;
@@ -65,7 +65,7 @@ impl JoinIrBlockConverter {
         &mut self,
         mir_func: &mut MirFunction,
         join_body: &[JoinInst],
-    ) -> Result<(), JoinIrVmBridgeError> {
+    ) -> Result<(), JoinIrToMirError> {
         let mut ctx = HandlerContext {
             mir_func,
             current_block_id: &mut self.current_block_id,

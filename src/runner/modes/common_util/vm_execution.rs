@@ -21,7 +21,6 @@ pub(crate) fn run_vm_compiled_module(
     verification_result: &Result<(), Vec<VerificationError>>,
     mut module_vm: MirModule,
     vm_user_factory: &VmUserFactoryState,
-    run_joinir_bridge: bool,
 ) -> ! {
     // Optional barrier-elision for parity with fallback path
     if crate::config::env::env_bool("NYASH_VM_ESCAPE_ANALYSIS") {
@@ -83,7 +82,7 @@ pub(crate) fn run_vm_compiled_module(
 
     #[cfg(not(feature = "vm-reference"))]
     {
-        let _ = (vm_user_factory, run_joinir_bridge, emit_trace);
+        let _ = (vm_user_factory, emit_trace);
         eprintln!(
             "❌ VM keep/reference execution is not available in this build. Rebuild with --features vm-reference or use an explicit EXE/AOT emit route."
         );
@@ -110,15 +109,6 @@ pub(crate) fn run_vm_compiled_module(
             for k in module_vm.functions.keys() {
                 ring0.log.debug(&format!("  - {}", k));
             }
-        }
-
-        if run_joinir_bridge {
-            // Phase 30 F-4.4: JoinIR VM Bridge experimental path (consolidated dispatch)
-            // Activation is owned by the dispatch module's explicit bridge gate.
-            // Routing and any compatibility continuation stay centralized there.
-            crate::mir::join_ir_vm_bridge_dispatch::try_run_joinir_vm_bridge(
-                &module_vm, quiet_pipe,
-            );
         }
 
         if emit_trace {

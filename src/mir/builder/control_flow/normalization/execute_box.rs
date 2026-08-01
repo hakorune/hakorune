@@ -173,7 +173,7 @@ impl NormalizationExecuteBox {
         use crate::mir::builder::control_flow::joinir::merge;
         use crate::mir::join_ir::lowering::carrier_info::{CarrierRole, ExitReconnectMode};
         use crate::mir::join_ir::lowering::inline_boundary::{JoinInlineBoundary, LoopExitBinding};
-        use crate::mir::join_ir_vm_bridge::bridge_joinir_to_mir;
+        use crate::mir::join_ir_to_mir::lower_structured_joinir_to_mir;
 
         let trace = crate::mir::builder::control_flow::joinir::trace::trace();
 
@@ -276,7 +276,7 @@ impl NormalizationExecuteBox {
         if bridge_module.is_normalized() {
             bridge_module.phase = crate::mir::join_ir::JoinIrPhase::Structured;
         }
-        let mir_module = bridge_joinir_to_mir(&bridge_module)
+        let mir_module = lower_structured_joinir_to_mir(&bridge_module)
             .map_err(|e| format!("[normalization/execute] MIR conversion failed: {:?}", e))?;
 
         // Merge with boundary

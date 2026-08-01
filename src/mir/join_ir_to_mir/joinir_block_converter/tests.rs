@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::mir::join_ir_vm_bridge::joinir_block_converter::JoinIrBlockConverter;
+    use crate::mir::join_ir_to_mir::joinir_block_converter::JoinIrBlockConverter;
     use crate::mir::BasicBlockId;
 
     #[test]

@@ -165,7 +165,7 @@ def main() -> None:
             "src/mir/builder/ssa/binding/mir_adapter.rs": 2,
         },
         "define_phi_final_fn_with_type_hint_and_tag(": {
-            "src/mir/join_ir_vm_bridge/joinir_block_converter/handlers.rs": 1,
+            "src/mir/join_ir_to_mir/joinir_block_converter/handlers.rs": 1,
             "src/mir/builder/emission/phi_lifecycle.rs": 2,
         },
         "define_phi_final_fn(": {

@@ -103,7 +103,6 @@ tools/checks/env_dead_accessors_report.sh
 |--------|------|----------|------|----------|
 | `NYASH_JOINIR_EXPERIMENT` | bool | false | JoinIR experiment | 高 |
 | `HAKO_JOINIR_IF_SELECT` | bool | false | If-select lowering | 高 |
-| `NYASH_JOINIR_VM_BRIDGE` | bool | false | VM bridge for JoinIR | 中 |
 | `HAKO_JOINIR_DEBUG` | bool | false | JoinIR debug | 高 |
 | `NYASH_JOINIR_DEBUG` | bool | false | (レガシー) Use HAKO_JOINIR_DEBUG | 低 |
 | `HAKO_JOINIR_STRICT` | bool | false | JoinIR strict mode | 中 |

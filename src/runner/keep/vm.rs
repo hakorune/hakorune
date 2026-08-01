@@ -307,7 +307,6 @@ impl NyashRunner {
             &compile.verification_result,
             module_vm,
             &vm_user_factory,
-            true,
         );
     }
 }

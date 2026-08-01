@@ -7,16 +7,14 @@ from pathlib import Path
 from typing import Any
 
 
-FENCE_KINDS = frozenset({"operation", "dev-mutation", "runtime-bridge", "transport", "dependency"})
+FENCE_KINDS = frozenset({"operation", "dev-mutation", "transport"})
 ACTIVE_FENCES = frozenset(
     {
         "RAW-STATIC-MAIN-COMPAT-BATCH-SUNSET-001",
         "JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0",
-        "VM-BRIDGE-COMPAT-SUNSET-001",
         "RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001",
         "RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001",
         "RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001",
-        "JOINMODULE-SHARED-REFERENCE-SUBSTRATE-SUNSET-001",
     }
 )
 

@@ -8,7 +8,7 @@ use crate::mir::{BasicBlockId, Callee, EffectMask, MirFunction, MirInstruction, 
 use std::collections::BTreeMap;
 
 use super::super::block_allocator::BlockAllocator;
-use super::super::{join_func_name, JoinIrVmBridgeError};
+use super::super::{join_func_name, JoinIrToMirError};
 use super::utils::{finalize_block, log_dbg};
 
 // Helper macro for logging, assumes `log_dbg` is available
@@ -33,7 +33,7 @@ pub(crate) fn handle_method_call(
     method: &str,
     args: &[ValueId],
     type_hint: &Option<crate::mir::MirType>,
-) -> Result<(), JoinIrVmBridgeError> {
+) -> Result<(), JoinIrToMirError> {
     let mir_inst = MirInstruction::Call {
         dst: Some(*dst),
         func: ValueId::INVALID,
@@ -61,7 +61,7 @@ pub(crate) fn handle_conditional_method_call(
     receiver: &ValueId,
     method: &str,
     args: &[ValueId],
-) -> Result<(), JoinIrVmBridgeError> {
+) -> Result<(), JoinIrToMirError> {
     // Phase 56: ConditionalMethodCall を if/phi に変換
     debug_log!(
         "[joinir_block] Converting ConditionalMethodCall: dst={:?}, cond={:?}",
@@ -133,9 +133,9 @@ pub(crate) fn handle_conditional_method_call(
         vec![(then_block, then_value), (else_block, else_value)],
         None,
         Span::unknown(),
-        "join_ir_vm_bridge:block_converter_conditional_method_call",
+        "join_ir_to_mir:block_converter_conditional_method_call",
     )
-    .map_err(JoinIrVmBridgeError::new)?;
+    .map_err(JoinIrToMirError::new)?;
 
     copy_emitter::emit_copy_in_block(
         ctx.mir_func,
@@ -144,7 +144,7 @@ pub(crate) fn handle_conditional_method_call(
         *receiver,
         CopyEmitReason::JoinIrBridgeJoinirBlockConverterConditionalMethodCall,
     )
-    .map_err(JoinIrVmBridgeError::new)?;
+    .map_err(JoinIrToMirError::new)?;
 
     *ctx.current_block_id = merge_block;
     Ok(())
@@ -155,7 +155,7 @@ pub(crate) fn handle_field_access(
     dst: &ValueId,
     object: &ValueId,
     field: &str,
-) -> Result<(), JoinIrVmBridgeError> {
+) -> Result<(), JoinIrToMirError> {
     let mir_inst = MirInstruction::FieldGet {
         dst: *dst,
         base: *object,
@@ -172,7 +172,7 @@ pub(crate) fn handle_new_box(
     box_name: &str,
     args: &[ValueId],
     type_hint: &Option<crate::mir::MirType>,
-) -> Result<(), JoinIrVmBridgeError> {
+) -> Result<(), JoinIrToMirError> {
     let mir_inst = MirInstruction::NewBox {
         dst: *dst,
         box_type: box_name.to_string(),
@@ -191,10 +191,10 @@ pub(crate) fn handle_call(
     args: &[ValueId],
     dst: &Option<ValueId>,
     k_next: &Option<JoinContId>,
-) -> Result<(), JoinIrVmBridgeError> {
+) -> Result<(), JoinIrToMirError> {
     // Phase 30.x: Call conversion
     if k_next.is_some() {
-        return Err(JoinIrVmBridgeError::new(
+        return Err(JoinIrToMirError::new(
             "Call with k_next is not yet supported".to_string(),
         ));
     }
@@ -217,7 +217,7 @@ pub(crate) fn handle_call(
     const FUNC_NAME_ID_BASE: u32 = 90000;
     let func_name_id = ValueId(FUNC_NAME_ID_BASE + func.0);
     if func_name_id == ValueId(99991) {
-        return Err(JoinIrVmBridgeError::new(
+        return Err(JoinIrToMirError::new(
             "[joinir_block] func_name_id collided with call_result_id (99991)".to_string(),
         ));
     }
@@ -280,7 +280,7 @@ pub(crate) fn handle_jump(
     cont: &JoinContId,
     args: &[ValueId],
     cond: &Option<ValueId>,
-) -> Result<(), JoinIrVmBridgeError> {
+) -> Result<(), JoinIrToMirError> {
     // Phase 256 P1.9: Jump → tail call to continuation function
     // Previously was just `ret args[0]`, now generates `call cont(args...); ret result`
     debug_log!(
@@ -409,7 +409,7 @@ pub(crate) fn handle_select(
     then_val: &ValueId,
     else_val: &ValueId,
     _type_hint: &Option<crate::mir::MirType>,
-) -> Result<(), JoinIrVmBridgeError> {
+) -> Result<(), JoinIrToMirError> {
     // Phase 256 P1.5: Select → MirInstruction::Select (direct instruction, not control flow expansion)
     debug_log!(
         "[joinir_block] Converting Select: dst={:?}, cond={:?}, then_val={:?}, else_val={:?}",
@@ -436,10 +436,10 @@ pub(crate) fn handle_if_merge(
     cond: &ValueId,
     merges: &[MergePair],
     k_next: &Option<JoinContId>,
-) -> Result<(), JoinIrVmBridgeError> {
+) -> Result<(), JoinIrToMirError> {
     // Phase 33-6: IfMerge → if/phi (multiple variables)
     if k_next.is_some() {
-        return Err(JoinIrVmBridgeError::new(
+        return Err(JoinIrToMirError::new(
             "IfMerge: k_next not yet supported".to_string(),
         ));
     }
@@ -475,7 +475,7 @@ pub(crate) fn handle_if_merge(
     ctx.mir_func.blocks.insert(then_block, then_block_obj);
     ctx.mir_func
         .get_block_mut(then_block)
-        .ok_or_else(|| JoinIrVmBridgeError::new(format!("then block {:?} missing", then_block)))?
+        .ok_or_else(|| JoinIrToMirError::new(format!("then block {:?} missing", then_block)))?
         .set_terminator(MirInstruction::Jump {
             target: merge_block,
             edge_args: None,
@@ -486,7 +486,7 @@ pub(crate) fn handle_if_merge(
     ctx.mir_func.blocks.insert(else_block, else_block_obj);
     ctx.mir_func
         .get_block_mut(else_block)
-        .ok_or_else(|| JoinIrVmBridgeError::new(format!("else block {:?} missing", else_block)))?
+        .ok_or_else(|| JoinIrToMirError::new(format!("else block {:?} missing", else_block)))?
         .set_terminator(MirInstruction::Jump {
             target: merge_block,
             edge_args: None,
@@ -504,7 +504,7 @@ pub(crate) fn handle_if_merge(
             vec![(then_block, merge.then_val), (else_block, merge.else_val)],
             Span::unknown(),
         )
-        .map_err(|e| JoinIrVmBridgeError::new(format!("insert_phi failed: {}", e)))?;
+        .map_err(|e| JoinIrToMirError::new(format!("insert_phi failed: {}", e)))?;
     }
 
     *ctx.current_block_id = merge_block;
@@ -514,7 +514,7 @@ pub(crate) fn handle_if_merge(
 pub(crate) fn handle_ret(
     ctx: &mut HandlerContext,
     value: &Option<ValueId>,
-) -> Result<(), JoinIrVmBridgeError> {
+) -> Result<(), JoinIrToMirError> {
     let return_terminator = MirInstruction::Return { value: *value };
     finalize_block(
         ctx.mir_func,
@@ -530,16 +530,16 @@ pub(crate) fn handle_nested_if_merge(
     conds: &[ValueId],
     merges: &[MergePair],
     k_next: &Option<JoinContId>,
-) -> Result<(), JoinIrVmBridgeError> {
+) -> Result<(), JoinIrToMirError> {
     // Phase 41-4: NestedIfMerge → multi-level Branch + PHI
     if k_next.is_some() {
-        return Err(JoinIrVmBridgeError::new(
+        return Err(JoinIrToMirError::new(
             "NestedIfMerge: k_next not yet supported".to_string(),
         ));
     }
 
     if conds.is_empty() {
-        return Err(JoinIrVmBridgeError::new(
+        return Err(JoinIrToMirError::new(
             "NestedIfMerge: conds must not be empty".to_string(),
         ));
     }
@@ -603,7 +603,7 @@ pub(crate) fn handle_nested_if_merge(
     ctx.mir_func.blocks.insert(then_block, then_block_obj);
     ctx.mir_func
         .get_block_mut(then_block)
-        .ok_or_else(|| JoinIrVmBridgeError::new(format!("then block {:?} missing", then_block)))?
+        .ok_or_else(|| JoinIrToMirError::new(format!("then block {:?} missing", then_block)))?
         .set_terminator(MirInstruction::Jump {
             target: merge_block,
             edge_args: None,
@@ -615,7 +615,7 @@ pub(crate) fn handle_nested_if_merge(
     ctx.mir_func
         .get_block_mut(final_else_block)
         .ok_or_else(|| {
-            JoinIrVmBridgeError::new(format!("else block {:?} missing", final_else_block))
+            JoinIrToMirError::new(format!("else block {:?} missing", final_else_block))
         })?
         .set_terminator(MirInstruction::Jump {
             target: merge_block,
@@ -637,7 +637,7 @@ pub(crate) fn handle_nested_if_merge(
             ],
             Span::unknown(),
         )
-        .map_err(|e| JoinIrVmBridgeError::new(format!("insert_phi failed: {}", e)))?;
+        .map_err(|e| JoinIrToMirError::new(format!("insert_phi failed: {}", e)))?;
     }
 
     *ctx.current_block_id = merge_block;

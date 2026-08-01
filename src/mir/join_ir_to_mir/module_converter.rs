@@ -1,6 +1,6 @@
 //! Structured JoinModule to MIR module conversion.
 
-use super::{JoinIrFunctionConverter, JoinIrVmBridgeError};
+use super::{JoinIrFunctionConverter, JoinIrToMirError};
 use crate::mir::join_ir::{JoinFuncId, JoinModule};
 use crate::mir::MirModule;
 use std::collections::BTreeMap;
@@ -8,10 +8,10 @@ use std::collections::BTreeMap;
 /// Convert every function in one Structured JoinModule into a MIR module.
 pub(super) fn convert_join_module_to_mir(
     module: &JoinModule,
-) -> Result<MirModule, JoinIrVmBridgeError> {
-    debug_log!("[joinir/bridge] convert_join_module_to_mir");
+) -> Result<MirModule, JoinIrToMirError> {
+    debug_log!("[joinir/to-mir] convert_join_module_to_mir");
 
-    let mut mir_module = MirModule::new("joinir_bridge_with_meta".to_string());
+    let mut mir_module = MirModule::new("joinir_to_mir_with_meta".to_string());
 
     // Phase 256 P1.8: Build function name map for all functions in the module
     // This ensures Call instructions use actual names ("main", "loop_step", "k_exit")
@@ -43,7 +43,7 @@ pub(super) fn convert_join_module_to_mir(
             mir_func.signature.name,
             mir_func.blocks.len()
         );
-        if crate::config::env::joinir_vm_bridge_debug() {
+        if crate::config::env::joinir_dev::debug_enabled() {
             for (block_id, block) in &mir_func.blocks {
                 let phi_count = block
                     .instructions

@@ -400,25 +400,33 @@ closed — MIRBUILDER-R4-REHOME-ORDER0-D0 (NoSafeSlice)
   entry materialization; Lambda lineage; CallObject preflight; then their
   transport/substrate-derived closeouts.
 
-current — MIRBUILDER-VM-BRIDGE-RETIREMENT-POLICY0-D0
+closed — MIRBUILDER-VM-BRIDGE-RETIREMENT-POLICY0-D0 (Decision)
+  Retire the default-off explicit JoinIR VM bridge; do not migrate it to the
+  `.hako` interpreter. Ordinary VM remains the only MIR execution owner.
+
+closed — MIRBUILDER-VM-BRIDGE-RETIRE0-I0-R0
+  The runner bridge call, target table, bridge-only environment flags, dispatch,
+  execution routes, and A/B tests are deleted. Structured JoinModule-to-MIR
+  conversion is rehomed to `join_ir_to_mir`, its one existing normalized consumer
+  remains, and the VM-bridge plus shared-substrate R4 fences are retired.
+
+current — JOINIR-LOOP-RECIPE-COREPLAN0-D0
 
 Change:
-  Decide whether the default-off explicit JoinIR VM bridge is retired as an
-  obsolete opt-in lane, or each bridge target first receives a canonical
-  all-route VM owner.
+  Design one verified Recipe/CorePlan Loop owner that replaces both
+  normalized-shadow mutations before the located Loop source handoff consumes it.
 
 Contract:
-  Account for target miss, env-off, success, non-strict failure continuation,
-  and strict-failure exit. Do not call ordinary-VM continuation a typed rehome,
-  or replace the bridge with an untyped runner branch.
+  Do not reopen the retired VM bridge, add a VM execution lane, or treat the
+  existing located Loop source receipt as a Loop-plan replacement.
 
 Done:
-  One permitted final disposition names every continuation, the production
-  caller, and the exact later I0 old-edge deletion.
+  The all-route Loop input, producer, consumer, and atomic old-edge deletion are
+  explicit, or the boundary closes as NoSafeSlice.
 
 Stop:
-  Do not edit the runner, bridge dispatch, target table, or JoinModule substrate
-  until the opt-in lane's final semantic status is explicit.
+  Do not implement a Loop I0 until both normalized-shadow mutation routes have
+  one verified Recipe/CorePlan replacement.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully

@@ -62,7 +62,7 @@ use crate::mir::ValueId;
 #[cfg(test)]
 use crate::mir::join_ir::{ConstValue, MirLikeInst};
 #[cfg(test)]
-use crate::mir::join_ir_vm_bridge::join_func_name;
+use crate::mir::join_ir_to_mir::join_func_name;
 #[cfg(test)]
 use std::collections::BTreeMap;
 

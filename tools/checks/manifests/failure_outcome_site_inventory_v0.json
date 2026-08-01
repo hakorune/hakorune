@@ -8484,8 +8484,8 @@
       "profile": "implementation",
       "review_status": "pending",
       "semantic_class": "",
-      "site_id": "src/mir/join_ir_vm_bridge/convert.rs:21:ConstValue::Null",
-      "source_path": "src/mir/join_ir_vm_bridge/convert.rs",
+      "site_id": "src/mir/join_ir_to_mir/convert.rs:21:ConstValue::Null",
+      "source_path": "src/mir/join_ir_to_mir/convert.rs",
       "surface_or_symbol": "ConstValue::Null",
       "target_carrier": ""
     },
@@ -8502,8 +8502,8 @@
       "profile": "implementation",
       "review_status": "pending",
       "semantic_class": "",
-      "site_id": "src/mir/join_ir_vm_bridge/joinir_block_converter/utils.rs:87:ConstValue::Void",
-      "source_path": "src/mir/join_ir_vm_bridge/joinir_block_converter/utils.rs",
+      "site_id": "src/mir/join_ir_to_mir/joinir_block_converter/utils.rs:87:ConstValue::Void",
+      "source_path": "src/mir/join_ir_to_mir/joinir_block_converter/utils.rs",
       "surface_or_symbol": "ConstValue::Void",
       "target_carrier": ""
     },

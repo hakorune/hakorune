@@ -179,8 +179,8 @@ MIR → [VM: MirInterpreter]
 ### 差分が許される場所
 
 - **Method ID injection**: LLVM側のみ
-- **Explicit compatibility**: `NYASH_JOINIR_VM_BRIDGE` is confined to the VM
-  reference lane; LLVM has no JoinModule mutation route.
+- **Execution ownership**: the ordinary VM is the sole MIR execution lane;
+  the retired JoinIR VM bridge has no replacement execution route.
 - **Execution engines**: MirInterpreter vs llvmlite
 
 ### 差分が許されない場所

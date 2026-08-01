@@ -1,8 +1,8 @@
 //! Neutral JoinIR loop-target classification.
 //!
 //! This module owns only the five source-function identities selected for
-//! Loop lowering and for exclusion from If lowering. VM execution policy lives
-//! in `join_ir_vm_bridge_dispatch` and must not be added here.
+//! Loop lowering and for exclusion from If lowering. VM execution policy is
+//! intentionally outside this source-classification authority.
 
 pub(crate) const MAIN_SKIP: &str = "Main.skip/1";
 pub(crate) const FUNCSCANNER_TRIM: &str = "FuncScannerBox.trim/1";

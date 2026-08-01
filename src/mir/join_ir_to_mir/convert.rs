@@ -5,13 +5,13 @@ use crate::mir::{
     MirInstruction,
 };
 
-use super::JoinIrVmBridgeError;
+use super::JoinIrToMirError;
 
 /// MirLikeInst → MirInstruction 変換
 /// Phase 190: 共有ユーティリティとして pub(crate) に変更
 pub(crate) fn convert_mir_like_inst(
     mir_like: &MirLikeInst,
-) -> Result<MirInstruction, JoinIrVmBridgeError> {
+) -> Result<MirInstruction, JoinIrToMirError> {
     match mir_like {
         MirLikeInst::Const { dst, value } => {
             let mir_const = match value {
@@ -68,7 +68,7 @@ pub(crate) fn convert_mir_like_inst(
             // box_name は JoinIR で保持しているが、MIR BoxCall には receiver ValueId のみ
             // 暫定: args[0] を receiver として扱う
             if args.is_empty() {
-                return Err(JoinIrVmBridgeError::new(format!(
+                return Err(JoinIrToMirError::new(format!(
                     "BoxCall requires at least one argument (receiver), got: box_name={}, method={}",
                     box_name, method
                 )));
@@ -117,7 +117,7 @@ pub(crate) fn convert_mir_like_inst(
         // Instead, it should be handled by merge_joinir_mir_blocks which creates
         // proper control flow with branches and PHI nodes
         MirLikeInst::Select { .. } => {
-            Err(JoinIrVmBridgeError::new(
+            Err(JoinIrToMirError::new(
                 "Select instruction should be handled by merge_joinir_mir_blocks, not convert_mir_like_inst".to_string()
             ))
         }

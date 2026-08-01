@@ -10,7 +10,7 @@ use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirTy
 use std::collections::BTreeMap;
 
 use super::joinir_block_converter::JoinIrBlockConverter;
-use super::JoinIrVmBridgeError;
+use super::JoinIrToMirError;
 
 pub(crate) struct JoinIrFunctionConverter;
 
@@ -22,7 +22,7 @@ impl JoinIrFunctionConverter {
     pub(crate) fn convert_function_with_func_names(
         join_func: &JoinFunction,
         func_name_map: BTreeMap<JoinFuncId, String>,
-    ) -> Result<MirFunction, JoinIrVmBridgeError> {
+    ) -> Result<MirFunction, JoinIrToMirError> {
         let entry_block = BasicBlockId(0);
 
         let param_types = join_func
@@ -47,10 +47,10 @@ impl JoinIrFunctionConverter {
 
         // Phase 279 P0: Type propagation for JoinIR → MIR conversion (SSOT)
         Self::propagate_types(&mut mir_func)
-            .map_err(|e| JoinIrVmBridgeError::new(format!("Type propagation failed: {}", e)))?;
+            .map_err(|e| JoinIrToMirError::new(format!("Type propagation failed: {}", e)))?;
 
         debug_log!(
-            "[joinir_vm_bridge] Function '{}' has {} blocks:",
+            "[joinir/to-mir] Function '{}' has {} blocks:",
             mir_func.signature.name,
             mir_func.blocks.len()
         );

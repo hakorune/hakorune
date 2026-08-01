@@ -12,7 +12,7 @@ Current blockers:
 
 - lowering still couples runtime/env and MIR surfaces
 - `json.rs` / JoinIR serialization is part of the same review lane
-- `join_ir_vm_bridge/` is not stable enough for a crate split
+- `join_ir_to_mir/` remains a separate conversion boundary for a crate split
 
 The detached ownership-analysis reference asset was retired: it had no
 normal/default, VM-bridge, or LLVM consumer. The remaining `src/mir/join_ir/`
@@ -27,13 +27,13 @@ surface stays in the docs-first review lane.
 
 - Do not add new lowering heuristics here when `builder/` already owns the shape decision.
 - Prefer explicit contracts over by-name dispatch or hidden fallback.
-- Keep `join_ir_vm_bridge/` and `join_ir_vm_bridge_dispatch/` in the same review lane
-  until the lowering surface is stable.
+- Keep the `join_ir_to_mir/` conversion boundary explicit until the lowering
+  surface is stable.
 
 ## Main Responsibilities
 
 - normalized JoinIR module structure
-- lowering helpers that feed VM/LLVM bridge layers
+- lowering helpers that feed the explicit JoinIR-to-MIR conversion boundary
 
 ## Internal Box Map
 
@@ -61,10 +61,9 @@ Prefer cleaning this subtree by sub-box, not by moving the whole directory at on
   - `funcscanner_trim.rs`
 - `lowering/generic_case_a/*`
   - active Case-A loop lowerers, including the append-defs effect-step shape
-- bridge fence
-  - `join_ir_vm_bridge/`
-  - `join_ir_vm_bridge_dispatch/`
-  - keep these together until the lowering surface stabilizes
+- conversion boundary
+  - `join_ir_to_mir/`
+  - keep it explicit until the lowering surface stabilizes
 
 ## P5 Crate Split Prep
 
@@ -79,7 +78,7 @@ SSOT:
 
 Prep rule:
 
-- do not split `join_ir/` away from `join_ir_vm_bridge/` until the lowering
+- do not split `join_ir/` away from `join_ir_to_mir/` until the lowering
   surface is stable
 - this subtree is docs-first only until the runtime/env + MIR coupling is reduced
 - prefer extracting pure sub-boxes first, then clean intra-tree boundaries, and
@@ -112,7 +111,7 @@ Active lowering / bridge surfaces:
 - `lowering/loop_to_join/*`
 - `lowering/loop_scope_shape/*`
 - target-specific lowerers such as `skip_ws.rs` and `funcscanner_trim.rs`
-- bridge fence: `join_ir_vm_bridge/` and `join_ir_vm_bridge_dispatch/`
+- conversion boundary: `join_ir_to_mir/`
 
 Retired:
 

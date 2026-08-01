@@ -14,7 +14,7 @@ Known blockers:
 - AST/ProgramJSON coupling in the frontend path
 - runtime/env coupling in lowering and verification
 - MIR surface coupling through `crate::mir::*`
-- `join_ir_vm_bridge/` boundary still unstable
+- `join_ir_to_mir/` conversion boundary still requires review
 
 Safe next step:
 
