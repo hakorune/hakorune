@@ -244,12 +244,14 @@ closed — RAW-SCRIPT-ENUM-VARIANT-PRODUCER0-I0-R0 (T2)
   Ordinary/invalid/raw/reference FromCall remains Deferred; selected/legacy
   `VariantMake` parity is fixed by the shared fixture ratchet.
 
-selected — SCRIPT-SEMANTIC-COMPLEXITY-CONSOLIDATION0-S0
-  Behavior-neutral cleanup before another family: design one receipt-pack
-  boundary, separate source Deferral from invariant rejection, centralize
-  demand-window construction/validation, split the >800-line test module,
-  synchronize the pointer card, and anchor every closed Complete family.
-  No semantic admission, lowering route, or compatibility retirement changes.
+closed — SCRIPT-SEMANTIC-COMPLEXITY-CONSOLIDATION0-S0
+  Receipt core/packs, source-vs-invariant Script outcomes, sealed root-demand
+  issuance, test-family split, current pointer, and full Complete identity floor
+  are now compact; admission, lowering, diagnostics, and raw/reference are unchanged.
+
+selected — RAW-SCRIPT-NEXT-NAMED-FAMILY4-D0
+  Fresh live Deferred-family census only. Select an I0 only with one operation
+  authority and an atomic old-edge deletion; do not infer a next family from history.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully

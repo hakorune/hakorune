@@ -22,18 +22,36 @@ use super::normal_default_root_catalog_lifecycle::PreparedNormalDefaultProgramRo
 
 #[derive(Debug)]
 pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
+    core: ScriptSemanticSourceCoreV1<'source>,
+    boundaries: ScriptBoundaryReceiptPackV1,
+    demands: ScriptOperationalDemandReceiptPackV1,
+}
+
+/// The stable shared owner products. Family receipts may not add authority here.
+#[derive(Debug)]
+struct ScriptSemanticSourceCoreV1<'source> {
     source: &'source PreparedNormalDefaultProgramRootV1,
     forest: VerifiedSemanticOwnerForestV1,
     projection: VerifiedSourceProjectionV1,
+    runtime_source_indices: Box<[usize]>,
+}
+
+/// Root boundaries which retain their existing operational terminal.
+#[derive(Debug)]
+struct ScriptBoundaryReceiptPackV1 {
     outbox_materializations: Box<[VerifiedScriptOutboxMaterializationV1]>,
     static_const_completions: Box<[VerifiedScriptStaticConstCompletionV1]>,
     using_directives: Box<[VerifiedScriptUsingDirectiveV1]>,
     existing_diagnostic_boundaries: Box<[VerifiedScriptExistingDiagnosticBoundaryV1]>,
+}
+
+/// Receipts which authorize exact structured lowering descendants.
+#[derive(Debug)]
+struct ScriptOperationalDemandReceiptPackV1 {
     record_literal_demands: Box<[VerifiedScriptRecordLiteralDemandV1]>,
     enum_variant_demands: Box<[VerifiedScriptEnumVariantDemandV1]>,
     qmark_propagations: Box<[VerifiedScriptQMarkPropagationV1]>,
     match_controls: Box<[VerifiedScriptMatchControlDemandV1]>,
-    runtime_source_indices: Box<[usize]>,
 }
 
 #[derive(Debug)]
@@ -429,35 +447,41 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         )
         .map_err(|error| format!("[mir/script-semantic/projection] {error}"))?;
         Ok(Self {
-            source,
-            forest,
-            projection,
-            outbox_materializations: outbox_materializations.into_boxed_slice(),
-            static_const_completions: static_const_completions.into_boxed_slice(),
-            using_directives: using_directives.into_boxed_slice(),
-            existing_diagnostic_boundaries: existing_diagnostic_boundaries.into_boxed_slice(),
-            record_literal_demands: record_literal_demands.into_boxed_slice(),
-            enum_variant_demands: enum_variant_demands.into_boxed_slice(),
-            qmark_propagations: qmark_propagations.into_boxed_slice(),
-            match_controls: match_controls.into_boxed_slice(),
-            runtime_source_indices: runtime_source_indices.into_boxed_slice(),
+            core: ScriptSemanticSourceCoreV1 {
+                source,
+                forest,
+                projection,
+                runtime_source_indices: runtime_source_indices.into_boxed_slice(),
+            },
+            boundaries: ScriptBoundaryReceiptPackV1 {
+                outbox_materializations: outbox_materializations.into_boxed_slice(),
+                static_const_completions: static_const_completions.into_boxed_slice(),
+                using_directives: using_directives.into_boxed_slice(),
+                existing_diagnostic_boundaries: existing_diagnostic_boundaries.into_boxed_slice(),
+            },
+            demands: ScriptOperationalDemandReceiptPackV1 {
+                record_literal_demands: record_literal_demands.into_boxed_slice(),
+                enum_variant_demands: enum_variant_demands.into_boxed_slice(),
+                qmark_propagations: qmark_propagations.into_boxed_slice(),
+                match_controls: match_controls.into_boxed_slice(),
+            },
         })
     }
 
     pub(super) fn source(&self) -> &PreparedNormalDefaultProgramRootV1 {
-        &self.source
+        self.core.source
     }
 
     pub(super) fn forest(&self) -> &VerifiedSemanticOwnerForestV1 {
-        &self.forest
+        &self.core.forest
     }
 
     pub(super) fn projection(&self) -> &VerifiedSourceProjectionV1 {
-        &self.projection
+        &self.core.projection
     }
 
     pub(super) fn runtime_source_indices(&self) -> &[usize] {
-        &self.runtime_source_indices
+        &self.core.runtime_source_indices
     }
 
     #[cfg(test)]
@@ -470,14 +494,16 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             &ScriptQMarkPropagationTargetV1,
         ),
     > {
-        self.qmark_propagations
+        self.demands
+            .qmark_propagations
             .iter()
             .map(|receipt| (&receipt.site, &receipt.operand_site, &receipt.target))
     }
 
     #[cfg(test)]
     pub(super) fn match_controls(&self) -> impl Iterator<Item = (&SourceExprSiteV1, u32)> {
-        self.match_controls
+        self.demands
+            .match_controls
             .iter()
             .map(|receipt| (&receipt.site, receipt.arm_count))
     }
@@ -486,7 +512,8 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     pub(super) fn enum_variant_demands(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &EnumVariantAdmissionV1)> {
-        self.enum_variant_demands
+        self.demands
+            .enum_variant_demands
             .iter()
             .map(|receipt| (&receipt.site, &receipt.admission))
     }
@@ -495,33 +522,40 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     pub(super) fn outbox_materializations(
         &self,
     ) -> impl Iterator<Item = (&SourceStmtSiteV1, &[BindingRefV1])> {
-        self.outbox_materializations
+        self.boundaries
+            .outbox_materializations
             .iter()
             .map(|receipt| (&receipt.site, receipt.bindings.as_ref()))
     }
 
     #[cfg(test)]
     pub(super) fn static_const_completion_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
-        self.static_const_completions
+        self.boundaries
+            .static_const_completions
             .iter()
             .map(|receipt| &receipt.site)
     }
 
     #[cfg(test)]
     pub(super) fn existing_diagnostic_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
-        self.existing_diagnostic_boundaries
+        self.boundaries
+            .existing_diagnostic_boundaries
             .iter()
             .map(|receipt| &receipt.site)
     }
 
     #[cfg(test)]
     pub(super) fn using_directive_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
-        self.using_directives.iter().map(|receipt| &receipt.site)
+        self.boundaries
+            .using_directives
+            .iter()
+            .map(|receipt| &receipt.site)
     }
 
     #[cfg(test)]
     pub(super) fn receiver_absent_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
-        self.existing_diagnostic_boundaries
+        self.boundaries
+            .existing_diagnostic_boundaries
             .iter()
             .filter(|receipt| {
                 receipt.boundary == ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent
@@ -531,7 +565,8 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
 
     #[cfg(test)]
     pub(super) fn bare_this_unsupported_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
-        self.existing_diagnostic_boundaries
+        self.boundaries
+            .existing_diagnostic_boundaries
             .iter()
             .filter(|receipt| {
                 receipt.boundary == ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported
@@ -540,10 +575,10 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     }
 
     pub(super) fn local_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
-        let [root] = self.forest.roots() else {
+        let [root] = self.core.forest.roots() else {
             return None;
         };
-        let owner = self.forest.semantic_owner(*root)?;
+        let owner = self.core.forest.semantic_owner(*root)?;
         owner.declaration_binding(&SourceBindingSiteV1::Local {
             statement: SourceStmtSiteV1::from_node(site.clone()),
             ordinal: 0,
@@ -551,10 +586,10 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     }
 
     pub(super) fn variable_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
-        let [root] = self.forest.roots() else {
+        let [root] = self.core.forest.roots() else {
             return None;
         };
-        let owner = self.forest.semantic_owner(*root)?;
+        let owner = self.core.forest.semantic_owner(*root)?;
         owner.variable_refs().find_map(|(candidate, reference)| {
             if candidate.node() != site {
                 return None;
@@ -569,10 +604,10 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     }
 
     pub(super) fn lowering_state(&self) -> Result<ScriptSemanticLoweringState, String> {
-        let [root] = self.forest.roots() else {
+        let [root] = self.core.forest.roots() else {
             return Err("[freeze:contract][script-record/root-cardinality]".to_owned());
         };
-        let Some(owner) = self.forest.semantic_owner(*root) else {
+        let Some(owner) = self.core.forest.semantic_owner(*root) else {
             return Err("[freeze:contract][script-record/root-owner]".to_owned());
         };
         let locals = owner.declaration_sites().filter_map(|site| match site {
@@ -593,12 +628,16 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             )),
             _ => None,
         });
-        let outboxes = self.outbox_materializations.iter().map(|receipt| {
-            (
-                receipt.site.node().clone(),
-                receipt.bindings.iter().copied(),
-            )
-        });
+        let outboxes = self
+            .boundaries
+            .outbox_materializations
+            .iter()
+            .map(|receipt| {
+                (
+                    receipt.site.node().clone(),
+                    receipt.bindings.iter().copied(),
+                )
+            });
         let variables = owner
             .variable_refs()
             .filter_map(|(site, reference)| match reference {
@@ -618,20 +657,23 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 | ResolvedAssignmentTargetV1::IndexWrite { .. } => None,
             });
         let lambda_captures = self
+            .core
             .forest
             .semantic_owners()
             .filter_map(|(child, _)| {
-                let parent = self.forest.parent(child)?;
+                let parent = self.core.forest.parent(child)?;
                 Some((parent.definition_site().site().node().clone(), child))
             })
             .map(|(site, child)| {
                 let captures = self
+                    .core
                     .forest
                     .ordered_capture_demands(child)
                     .iter()
                     .map(|demand| {
                         let binding = demand.source_binding();
                         let name = self
+                            .core
                             .forest
                             .semantic_owner(binding.owner())
                             .and_then(|owner| owner.binding(binding))
@@ -656,17 +698,20 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         );
         state.install_lambda_captures(lambda_captures)?;
         state.install_record_literal_demands(
-            self.record_literal_demands
+            self.demands
+                .record_literal_demands
                 .iter()
                 .map(|receipt| (receipt.site.node().clone(), receipt.explicit_field_count)),
         )?;
         state.install_enum_variant_demands(
-            self.enum_variant_demands
+            self.demands
+                .enum_variant_demands
                 .iter()
                 .map(|receipt| (receipt.site.node().clone(), receipt.admission.clone())),
         )?;
         state.install_qmark_propagation_receipts(
-            self.qmark_propagations
+            self.demands
+                .qmark_propagations
                 .iter()
                 .map(|receipt| receipt.site.node().clone()),
         )?;
@@ -716,6 +761,9 @@ mod record_literal_tests;
 #[cfg(test)]
 #[path = "normal_script_root_return_tests.rs"]
 mod return_tests;
+#[cfg(test)]
+#[path = "normal_script_semantic_source_runtime_tests.rs"]
+mod runtime_tests;
 #[cfg(test)]
 #[path = "normal_script_semantic_source_tests.rs"]
 mod tests;

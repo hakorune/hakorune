@@ -75,3 +75,8 @@ raw/reference behavior, or compatibility reachability; introduces a second
 classifier, generic receipt map, new family, new guard, or a >=800-line touched
 source/check file. Land one `refactor(mir)` commit with the compact card update;
 do not split select/close docs ceremony.
+
+## Closeout
+
+Closed by the implementation-coupled S0 commit. The next action is a fresh
+named-family D0; no historical family is preselected.

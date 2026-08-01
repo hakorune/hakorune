@@ -143,11 +143,11 @@
         "script_print_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn real_print_fixture_uses_the_selected_normal_request"},
         "script_binary_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_normal_binary_lexical_closure_matches_legacy"},
         "script_await_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_normal_await_lexical_closure_matches_legacy"},
-        "script_nowait_lexical_async_binding": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn lexical_nowait_matches_legacy_and_records_future_binding"},
+        "script_nowait_lexical_async_binding": {"path": "src/mir/builder/normal_script_semantic_source_runtime_tests.rs", "anchor": "fn lexical_nowait_matches_legacy_and_records_future_binding"},
         "script_task_scope_lexical_preflight": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn lexical_task_scope_matches_legacy_with_canonical_body_source"},
         "script_check_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_normal_check_lexical_closure_matches_legacy"},
         "script_andor_lexical_closure": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_normal_and_or_lexical_closure_matches_legacy"},
-        "script_static_const_u16_completion": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn script_static_const_u16_completion_matches_legacy_metadata"},
+        "script_static_const_u16_completion": {"path": "src/mir/builder/normal_script_semantic_source_runtime_tests.rs", "anchor": "fn script_static_const_u16_completion_matches_legacy_metadata"},
         "script_outbox_semantic_materialization": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn outbox_receipt_completes_without_observing_initializers"},
         "script_selected_unsupported_diagnostic_boundary": {"path": "src/mir/builder/normal_script_direct_statement_owner.rs", "anchor": "fn selected_unsupported_statements_keep_exact_legacy_rejection_and_reuse"},
         "script_context_scope_diagnostic_boundary": {"path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn context_scope_is_complete_without_observing_value_or_body"},
@@ -160,8 +160,8 @@
         "script_enum_variant_producer": {"path": "src/mir/builder/normal_script_enum_variant_tests.rs", "anchor": "fn enum_variant_selected_pipeline_matches_legacy"}
       },
       "deferred_fixtures": {
-        "script_weak_unary": {"reason": "UnsafeRuntimeStatement", "path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn weak_unary_remains_deferred"},
-        "script_undefined_variable": {"reason": "UndefinedVariable", "path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn selected_and_or_failure_discards_candidate_and_reuses_compiler"},
+        "script_weak_unary": {"reason": "UnsafeRuntimeStatement", "path": "src/mir/builder/normal_script_semantic_source_runtime_tests.rs", "anchor": "fn weak_unary_remains_deferred"},
+        "script_undefined_variable": {"reason": "UndefinedVariable", "path": "src/mir/builder/normal_script_semantic_source_runtime_tests.rs", "anchor": "fn selected_and_or_failure_discards_candidate_and_reuses_compiler"},
         "script_function_call_preflight": {"reason": "FunctionCallPreflightAuthority", "path": "src/mir/builder/normal_script_semantic_source_call_retention_tests.rs", "anchor": "fn script_function_call_remains_r4_retained"}
       },
       "retire_when": "every selected Script demand is Complete or explicitly retained by R4, and the compatibility caller is zero",

@@ -44,6 +44,7 @@ pub(crate) enum ResolveFunctionErrorV1 {
     OwnerIssue(FunctionOwnerIssueExhaustedV1),
     FunctionOrdinalExhausted,
     Syntax(ShadowResolveErrorV0),
+    ScriptInvariant(ShadowResolveErrorV0),
     DraftInvariant(&'static str),
     Verification(ResolvedFunctionVerificationErrorV1),
     CallableLookup(CallableLookupErrorV1),
@@ -121,7 +122,10 @@ impl FunctionSemanticResolverSessionV1 {
         let draft = match resolve_script_shadow_view_v0(view, window, record_schemas, enum_variants)
         {
             Ok(draft) => draft,
-            Err(_) => return Ok(ResolveScriptOutcomeV1::Deferred),
+            Err(error) if error.is_script_source_deferral() => {
+                return Ok(ResolveScriptOutcomeV1::Deferred)
+            }
+            Err(error) => return Err(ResolveFunctionErrorV1::ScriptInvariant(error)),
         };
         let (origin, owner) = self.issue_owner()?;
         self.seal_script_owner(owner, origin, draft)

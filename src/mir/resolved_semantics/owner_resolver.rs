@@ -54,7 +54,14 @@ impl FunctionSemanticResolverSessionV1 {
         let tree = match construct_script_owner_tree_v1(view, window, record_schemas, enum_variants)
         {
             Ok(tree) => tree,
-            Err(_) => return Ok(ResolveScriptForestOutcomeV1::Deferred),
+            Err(error) if error.is_script_source_deferral() => {
+                return Ok(ResolveScriptForestOutcomeV1::Deferred)
+            }
+            Err(error) => {
+                return Err(ResolveOwnerForestErrorV1::Function(
+                    ResolveFunctionErrorV1::ScriptInvariant(error),
+                ))
+            }
         };
         let (origin, owner) = self
             .issue_owner()

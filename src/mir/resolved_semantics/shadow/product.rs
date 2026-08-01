@@ -225,6 +225,24 @@ pub(crate) enum ShadowResolveErrorV0 {
     },
 }
 
+impl ShadowResolveErrorV0 {
+    /// Script source shapes remain deferred so RootLower retains their user
+    /// diagnostic authority. Receipt/coverage corruption is never a fallback.
+    pub(crate) const fn is_script_source_deferral(&self) -> bool {
+        matches!(
+            self,
+            Self::SameScopeRedeclaration { .. }
+                | Self::UnresolvedName { .. }
+                | Self::ExitOutsideLoop { .. }
+                | Self::UnsupportedStatement { .. }
+                | Self::UnsupportedExpression { .. }
+                | Self::UnsupportedAssignmentTarget { .. }
+                | Self::FunctionCallArityOverflow { .. }
+                | Self::BlockExprNonLocalExit { .. }
+        )
+    }
+}
+
 #[derive(Debug, Clone)]
 pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) root_profile: super::super::SemanticOwnerRootProfileV1,
@@ -244,6 +262,31 @@ pub(crate) struct ShadowResolvedFunctionV0 {
         BTreeMap<SourceExprSiteV1, crate::mir::resolved_semantics::EnumVariantAdmissionV1>,
     pub(crate) qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
     pub(crate) match_control_sites: BTreeSet<SourceExprSiteV1>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::resolved_semantics::{SourcePathSegmentV1, SourcePathV1};
+
+    fn site() -> SourceExprSiteV1 {
+        SourcePathV1::program_body()
+            .child(SourcePathSegmentV1::ProgramBody(0))
+            .expr()
+    }
+
+    #[test]
+    fn script_shadow_errors_keep_source_deferral_distinct_from_receipt_invariants() {
+        assert!(ShadowResolveErrorV0::UnsupportedExpression {
+            kind: "Call",
+            site: site(),
+        }
+        .is_script_source_deferral());
+        assert!(
+            !ShadowResolveErrorV0::DuplicateEnumVariantDemand { site: site() }
+                .is_script_source_deferral()
+        );
+    }
 }
 
 #[derive(Debug)]

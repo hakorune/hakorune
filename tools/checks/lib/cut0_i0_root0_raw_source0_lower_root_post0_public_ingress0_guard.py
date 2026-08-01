@@ -4,13 +4,10 @@ from __future__ import annotations
 import json, re
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
-TASK = ROOT / ("docs/development/current/main/investigations/"
-               "cut0-i0-raw-source0-lower-root-post0-public-ingress0-s0-execution-task-2026-07-24.md")
-REPAIR_TASK = ROOT / ("docs/development/current/main/investigations/"
-                      "cut0-i0-raw-source0-lower-root-post0-public-ingress0-closeout-repair0-s0-execution-task-2026-07-24.md")
+TASK = ROOT / "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress0-s0-execution-task-2026-07-24.md"
+REPAIR_TASK = ROOT / "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress0-closeout-repair0-s0-execution-task-2026-07-24.md"
 CALLER_MANIFEST = ROOT / "tools/checks/manifests/raw_public_cutover_caller_manifest_v1.json"
-CURRENT_WORKSTREAM = ROOT / ("docs/development/current/main/workstreams/"
-                             "mirbuilder-inplace-replacement-current.md")
+CURRENT_WORKSTREAM = ROOT / "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 NORMAL_PIPELINE = ROOT / "src/mir/compiler/normal_default_pipeline.rs"
 NORMAL_ROOT_LIFECYCLE = ROOT / "src/mir/builder/normal_default_root_catalog_lifecycle.rs"; NORMAL_COLLECTOR_DRAIN = ROOT / "src/mir/builder/module_draft_collector/normal_collector_drain_lifecycle.rs"
 PROGRAM_ROOT_LOWERING, PROGRAM_STATIC_TABLE_METADATA, MODULE_FINALIZATION_DECLARATION_METADATA, MODULE_FINALIZATION_FUNCTION_METADATA = ROOT / "src/mir/builder/program_root_lowering.rs", ROOT / "src/mir/builder/program_static_table_metadata.rs", ROOT / "src/mir/builder/module_finalization_declaration_metadata.rs", ROOT / "src/mir/builder/module_finalization_function_metadata.rs"
@@ -742,10 +739,11 @@ def main() -> int:
     ):
         require(normal_tests, fixture, f"normal pipeline fixture {fixture}")
     ratchet = caller_manifest["compatibility_sunsets"]["SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001"]
+    complete_floor = frozenset("integer_0_real_source script_andor_lexical_closure script_array_literal_compositional_allocation script_await_lexical_closure script_binary_lexical_closure script_check_lexical_closure script_context_scope_diagnostic_boundary script_enum_declaration_completion script_enum_variant_producer script_grouped_binding_rebind script_local_lexical_binding script_map_literal_compositional_mutation script_nowait_lexical_async_binding script_outbox_semantic_materialization script_print_lexical_closure script_root_qmark_propagation script_selected_unsupported_diagnostic_boundary script_static_const_u16_completion script_task_scope_lexical_preflight script_unary_lexical_closure script_weak_reference_compositional".split())
     def require_fixture_map(fixtures, expected_reason=None):
         for fixture_id, receipt in fixtures.items():
             require((ROOT / receipt["path"]).read_text(), receipt["anchor"], f"{fixture_id} fixture"); assert expected_reason is None or receipt["reason"] == expected_reason[fixture_id], f"{fixture_id} Deferred reason drift"
-    require_fixture_map(ratchet["complete_fixtures"]); require_fixture_map(ratchet["deferred_fixtures"], {"script_weak_unary": "UnsafeRuntimeStatement", "script_undefined_variable": "UndefinedVariable", "script_function_call_preflight": "FunctionCallPreflightAuthority"}); retained = ratchet["r4_retained_families"]["script_function_call_preflight"]; assert retained == {"semantic_terminal": "Deferred before argument descent", "transport_owner": "RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001::CallObject", "operation_owner": "PreparedRawFunctionPreflightV1", "release_condition": "all-route preflight recipe migration or named final retained operation owner"}, "FunctionCall R4 retention contract drift"
+    assert complete_floor <= ratchet["complete_fixtures"].keys(), "Script Complete fixture ratchet regressed"; require_fixture_map(ratchet["complete_fixtures"]); require_fixture_map(ratchet["deferred_fixtures"], {"script_weak_unary": "UnsafeRuntimeStatement", "script_undefined_variable": "UndefinedVariable", "script_function_call_preflight": "FunctionCallPreflightAuthority"}); retained = ratchet["r4_retained_families"]["script_function_call_preflight"]; assert retained == {"semantic_terminal": "Deferred before argument descent", "transport_owner": "RAW-RECURSIVE-UNLOCATED-TRANSPORT-SUNSET-001::CallObject", "operation_owner": "PreparedRawFunctionPreflightV1", "release_condition": "all-route preflight recipe migration or named final retained operation owner"}, "FunctionCall R4 retention contract drift"
     count_by_manifest(caller_manifest.get("normal_compile_adapters", {}), ".compile(")
     expected_build_module = caller_manifest.get("direct_build_module_production", {})
     actual_build_module = {

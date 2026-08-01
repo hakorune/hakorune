@@ -1,20 +1,14 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-ENUM-VARIANT-PRODUCER0-I0-R0 is closed; SCRIPT-SEMANTIC-COMPLEXITY-CONSOLIDATION0-S0 is the next behavior-neutral design and task boundary."
+status = "SCRIPT-SEMANTIC-COMPLEXITY-CONSOLIDATION0-S0 is closed; a fresh named-family census is required before another Script admission row."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "SCRIPT-SEMANTIC-COMPLEXITY-CONSOLIDATION0-S0"
-current_execution_row = "SCRIPT-SEMANTIC-COMPLEXITY-CONSOLIDATION0-S0"
-current_execution_summary = "Before another Script family, consolidate receipt storage, source-vs-invariant shadow outcomes, demand-window construction/validation, fixture ratchet coverage, current-card pointers, and the 800-line test split without changing semantic admission."
+current_design_stop = "RAW-SCRIPT-NEXT-NAMED-FAMILY4-D0"
+current_execution_row = "RAW-SCRIPT-NEXT-NAMED-FAMILY4-D0"
+current_execution_summary = "Run one fresh live Deferred-family census after semantic consolidation; select no implementation row until one family has a named production authority and atomic old-edge deletion."
 current_execution_design = "docs/development/current/main/investigations/script-semantic-complexity-consolidation0-s0-task-2026-08-01.md"
-current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
-current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"
-current_script_demand_window_consultation = "docs/development/current/main/investigations/raw-script-demand-window-boundary2-design-consultation-question-2026-08-01.md"
-current_static_const_semantic_closure_task = "docs/development/current/main/investigations/raw-script-static-const-semantic-closure0-i0-r0-execution-task-2026-08-01.md"
-current_record_schema_admission_consultation = "docs/development/current/main/investigations/raw-script-record-schema-admission0-consultation-question-2026-08-01.md"
-current_record_schema_admission_task = "docs/development/current/main/investigations/raw-script-record-schema-admission0-i0-r0-execution-task-2026-08-01.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 raw_root_body0_s0_status = "closed"
@@ -651,7 +645,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "SCRIPT-SEMANTIC-COMPLEXITY-CONSOLIDATION0-S0"
+current_blocker_token = "RAW-SCRIPT-NEXT-NAMED-FAMILY4-D0"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
