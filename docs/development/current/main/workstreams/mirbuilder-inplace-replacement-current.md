@@ -417,25 +417,36 @@ closed — JOINIR-LOOP-RECIPE-COREPLAN0-D0 (NoSafeSlice)
   current product can prove all-route logical binding coverage and delete both
   mutation routes atomically.
 
-current — JOINIR-LOOP-LOGICAL-INTERFACE0-D0
+closed — JOINIR-LOOP-LOGICAL-INTERFACE0-D0 (NoSafeSlice)
+
+  Located Loop source receipts exist only for the selected raw port and are
+  discarded before raw lowering. Script keeps Loop Deferred, resolved
+  Function/Lambda facts have no Loop-lowering consumer, the shared suffix owns
+  only an AST slice plus `String -> ValueId` state, and raw/reference is
+  unlocated. Therefore no one producer can cover the atomic caller set with
+  ordered logical inputs, carriers/exits, continuations, and result disposition.
+
+current — JOINIR-LOOP-ROOT-NEUTRAL-BINDING-SNAPSHOT0-D0
 
 Change:
-  Determine whether every atomic-cutover Loop caller can issue one exact,
-  ordered logical input/carrier/exit/continuation interface from located source
-  and binding identity, without Builder, ValueId, variable_map, or name recovery.
+  Determine whether a single root-neutral binding snapshot can be issued before
+  all Loop callers, covering exact source, ordered BindingRef inputs,
+  carrier-to-exit slots, continuation identity, and result disposition.
 
 Contract:
-  Audit selected Script, shared block-driver, and any raw/reference membership.
-  Do not construct CorePlan, activate a route, alter normalized shadow, or
-  change Loop grammar, result semantics, VM behavior, or diagnostics.
+  Audit selected Script, Function/Lambda, shared suffix, and raw/reference
+  membership. Do not activate Loop semantics, construct CorePlan, alter
+  normalized shadow, or change Loop grammar, result semantics, VM behavior,
+  or diagnostics.
 
 Done:
-  Name one unique all-caller producer for the logical interface, or close as
-  NoSafeSlice at the first absent producer.
+  Name a unique producer and ownership boundary for the snapshot, or close as
+  NoSafeSlice at the first caller that would require name/ValueId recovery.
 
 Stop:
-  Do not open S0 or Loop I0 if source binding must be reconstructed from a name
-  or ValueId, requires Builder mutation, or forces unproven raw/reference change.
+  Do not open S0 or Loop I0 if the snapshot needs Builder mutation, changes
+  raw/reference semantics, activates Script Loop resolution, or reconstructs a
+  logical binding from a name or ValueId.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
