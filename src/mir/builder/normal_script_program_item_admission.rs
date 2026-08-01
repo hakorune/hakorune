@@ -13,6 +13,7 @@ pub(super) enum NormalScriptProgramItemAdmissionV1 {
     DirectFastMemRegion,
     DirectPortAwareExpression,
     DirectStaticConstRuntimeCompletion,
+    DirectEnumDeclarationRuntimeCompletion,
     DirectSelectedUnsupportedStatement,
     RawCompatibility,
     CatalogedNonMainStaticBox,
@@ -96,12 +97,13 @@ pub(super) fn classify_normal_script_program_item_v1(
 
         ASTNode::FastMemRegion { .. } => DirectFastMemRegion,
 
+        ASTNode::EnumDeclaration { .. } => DirectEnumDeclarationRuntimeCompletion,
+
         ASTNode::LoopRange { .. }
         | ASTNode::Break { .. }
         | ASTNode::Continue { .. }
         | ASTNode::ImportStatement { .. }
         | ASTNode::BuildGate { .. }
-        | ASTNode::EnumDeclaration { .. }
         | ASTNode::BrandDeclaration { .. }
         | ASTNode::TypeAliasDeclaration { .. }
         | ASTNode::GlobalVar { .. } => DirectSelectedUnsupportedStatement,
@@ -123,7 +125,6 @@ pub(super) fn is_direct_selected_unsupported_statement_v1(statement: &ASTNode) -
             | ASTNode::Continue { .. }
             | ASTNode::ImportStatement { .. }
             | ASTNode::BuildGate { .. }
-            | ASTNode::EnumDeclaration { .. }
             | ASTNode::BrandDeclaration { .. }
             | ASTNode::TypeAliasDeclaration { .. }
             | ASTNode::GlobalVar { .. }

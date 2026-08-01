@@ -245,13 +245,19 @@ closed — RAW-SCRIPT-ENUM-INVENTORY-COMPLETION0-D0 (NoSafeSlice)
   must atomically define declaration completion, a borrowed preflight view, and
   RootLower diagnostic/result order. No EnumMatch I0 is opened.
 
-selected — RAW-SCRIPT-ENUM-INVENTORY-COMPLETION0-D0
-  Decide whether the existing one-pass declaration facts can expose one private
-  immutable enum preflight view and consume the same facts through a typed enum
-  declaration runtime completion. The decision must preserve the existing
-  Result/Void tail and RootLower diagnostic order, and must not add a second
-  collector, enum registry, mutable-builder resolver read, or partial route.
-  Only after this gate may a direct EnumMatch I0 be selected.
+closed — RAW-SCRIPT-ENUM-DECLARATION-COMPLETION0-I0-R0 (T2)
+  EnumDeclaration is now a typed Program transfer and retains one exact
+  zero-child runtime completion: the existing declaration-facts owner remains
+  the sole enum inventory producer/installer, while the completion validates
+  source, sets span, and emits Void. The selected unsupported enum declaration
+  edge is zero. No constructor, match, registry copy, raw/reference change, or
+  preflight policy moved in this row.
+
+next — RAW-SCRIPT-ENUM-INVENTORY-VIEW0-D0
+  Decide one private borrowed enum preflight view over the existing declaration
+  facts and extract/reuse the existing EnumMatch exhaustive/tag/payload policy.
+  It must not duplicate mutable-context classification or move user diagnostics
+  before RootLower. Only a positive direct route may later admit EnumMatch.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully

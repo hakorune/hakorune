@@ -1,5 +1,8 @@
 //! Owned selected-Script block descent and exact statement-source installation.
 
+#[path = "normal_script_enum_declaration_completion.rs"]
+mod enum_declaration_completion;
+
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_script_direct_statement_owner::{
     lower_direct_fastmem_region_v1, lower_direct_if_statement_v1,
@@ -18,6 +21,7 @@ use super::stmts::block_driver::LegacyBlockDescentPortV1;
 use super::MirBuilder;
 use crate::ast::ASTNode;
 use crate::mir::ValueId;
+use enum_declaration_completion::lower_direct_enum_declaration_runtime_completion_v1;
 
 pub(super) struct NormalScriptRuntimeBlockPortV1<'port, Port> {
     statements: std::vec::IntoIter<ASTNode>,
@@ -117,6 +121,14 @@ where
                     .prepare_body_statement_source_v1(&statement, source_statement_index)?;
                 self.port.with_prepared_child_source_v1(source, |_port| {
                     lower_direct_static_const_runtime_completion_v1(builder, &statement)
+                })
+            }
+            NormalScriptRuntimeStatementAdmissionV1::DirectEnumDeclarationRuntimeCompletion => {
+                let source = self
+                    .port
+                    .prepare_body_statement_source_v1(&statement, source_statement_index)?;
+                self.port.with_prepared_child_source_v1(source, |_port| {
+                    lower_direct_enum_declaration_runtime_completion_v1(builder, &statement)
                 })
             }
             NormalScriptRuntimeStatementAdmissionV1::DirectSelectedUnsupportedStatement => {

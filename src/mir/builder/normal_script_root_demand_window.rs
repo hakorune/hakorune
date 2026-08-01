@@ -77,7 +77,12 @@ impl ScriptRootDemandWindowBuilderV1 {
         use NormalScriptProgramItemAdmissionV1 as Admission;
         use ScriptRootRuntimeDispositionV1 as Runtime;
         use ScriptRootSemanticDispositionV1 as Semantic;
-        let (semantic, runtime) = if is_program_record_declaration(statement) {
+        let (semantic, runtime) = if matches!(statement, ASTNode::EnumDeclaration { .. }) {
+            (
+                Semantic::Transferred(ScriptTransferredBoundaryV1::ProgramEnumDeclaration),
+                Runtime::RetainedExistingTerminal,
+            )
+        } else if is_program_record_declaration(statement) {
             (
                 Semantic::Transferred(ScriptTransferredBoundaryV1::ProgramRecordDeclaration),
                 Runtime::RetainedExistingTerminal,
@@ -244,6 +249,9 @@ fn validate_boundary(
         ScriptRootSemanticDispositionV1::Transferred(
             ScriptTransferredBoundaryV1::ProgramStaticMetadata,
         ) => matches!(statement, ASTNode::StaticConstTable { .. }),
+        ScriptRootSemanticDispositionV1::Transferred(
+            ScriptTransferredBoundaryV1::ProgramEnumDeclaration,
+        ) => matches!(statement, ASTNode::EnumDeclaration { .. }),
         ScriptRootSemanticDispositionV1::Transferred(
             ScriptTransferredBoundaryV1::TopLevelCallable,
         ) => matches!(statement, ASTNode::FunctionDeclaration { .. }),

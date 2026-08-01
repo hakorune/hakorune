@@ -303,6 +303,9 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                     });
                 }
                 ScriptRootSemanticDispositionV1::Transferred(
+                    ScriptTransferredBoundaryV1::ProgramEnumDeclaration,
+                ) if matches!(statement, ASTNode::EnumDeclaration { .. }) => {}
+                ScriptRootSemanticDispositionV1::Transferred(
                     ScriptTransferredBoundaryV1::ProgramRecordDeclaration,
                 ) if matches!(
                     statement,
@@ -619,6 +622,12 @@ mod binding_rebind_tests;
 #[path = "normal_script_block_expr_tests.rs"]
 mod block_expr_tests;
 #[cfg(test)]
+#[path = "normal_script_semantic_source_call_retention_tests.rs"]
+mod call_retention_tests;
+#[cfg(test)]
+#[path = "normal_script_enum_declaration_tests.rs"]
+mod enum_declaration_tests;
+#[cfg(test)]
 #[path = "normal_script_map_literal_tests.rs"]
 mod map_literal_tests;
 #[cfg(test)]
@@ -630,9 +639,6 @@ mod qmark_tests;
 #[cfg(test)]
 #[path = "normal_script_record_literal_tests.rs"]
 mod record_literal_tests;
-#[cfg(test)]
-#[path = "normal_script_semantic_source_call_retention_tests.rs"]
-mod call_retention_tests;
 #[cfg(test)]
 #[path = "normal_script_root_return_tests.rs"]
 mod return_tests;

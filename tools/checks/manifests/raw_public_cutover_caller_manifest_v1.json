@@ -155,7 +155,8 @@
         "script_weak_reference_compositional": {"path": "src/mir/builder/normal_script_weak_reference_tests.rs", "anchor": "fn weak_reference_uses_complete_script_source_and_matches_legacy"},
         "script_map_literal_compositional_mutation": {"path": "src/mir/builder/normal_script_map_literal_tests.rs", "anchor": "fn prior_local_map_values_use_complete_script_sources_and_match_legacy"},
         "script_root_qmark_propagation": {"path": "src/mir/builder/normal_script_qmark_tests.rs", "anchor": "fn root_qmark_await_seals_the_exact_operand_and_matches_legacy"},
-        "script_grouped_binding_rebind": {"path": "src/mir/builder/normal_script_binding_rebind_tests.rs", "anchor": "fn prior_local_grouped_assignment_rebinds_the_script_ledger"}
+        "script_grouped_binding_rebind": {"path": "src/mir/builder/normal_script_binding_rebind_tests.rs", "anchor": "fn prior_local_grouped_assignment_rebinds_the_script_ledger"},
+        "script_enum_declaration_completion": {"path": "src/mir/builder/normal_script_enum_declaration_tests.rs", "anchor": "fn enum_declaration_completes_the_selected_script_with_void"}
       },
       "deferred_fixtures": {
         "script_weak_unary": {"reason": "UnsafeRuntimeStatement", "path": "src/mir/builder/normal_script_semantic_source_tests.rs", "anchor": "fn weak_unary_remains_deferred"},

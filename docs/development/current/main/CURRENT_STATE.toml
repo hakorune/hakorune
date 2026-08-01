@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-SCRIPT-ENUM-INVENTORY-COMPLETION0-D0 is active: decide one enum declaration completion plus immutable preflight authority before any EnumMatch I0."
+status = "RAW-SCRIPT-ENUM-DECLARATION-COMPLETION0-I0-R0 is closed: enum declarations now transfer through the existing declaration-facts owner and retain one zero-child Void completion."
 date = "2026-08-01"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "RAW-SCRIPT-ENUM-INVENTORY-COMPLETION0-D0"
-current_execution_row = "RAW-SCRIPT-ENUM-INVENTORY-COMPLETION0-D0"
-current_execution_summary = "EnumMatch cannot enter Complete alone: Program declaration facts produce enum inventory, but EnumDeclaration remains a selected diagnostic and no immutable enum preflight view exists. Decide a single declaration-completion and borrowed-view authority first."
+current_design_stop = "RAW-SCRIPT-ENUM-INVENTORY-VIEW0-D0"
+current_execution_row = "RAW-SCRIPT-ENUM-INVENTORY-VIEW0-D0"
+current_execution_summary = "EnumDeclaration is a typed transfer plus existing Void completion. Before any EnumMatch I0, decide one borrowed immutable enum preflight view that reuses the existing route policy without duplicating mutable-context classification."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_boundary_consultation = "docs/development/current/main/investigations/raw-script-semantic-closure-boundary1-design-consultation-question-2026-08-01.md"
 current_root_neutral_shadow_consultation = "docs/development/current/main/investigations/raw-script-root-neutral-shadow-traversal0-design-consultation-question-2026-08-01.md"
@@ -651,7 +651,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "RAW-SCRIPT-ENUM-INVENTORY-COMPLETION0-DESIGN-STOP"
+current_blocker_token = "RAW-SCRIPT-ENUM-INVENTORY-VIEW0-DESIGN-STOP"
 preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
 raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
 raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"

@@ -70,6 +70,7 @@ pub(super) enum NormalScriptRuntimeStatementAdmissionV1 {
     DirectFastMemRegion,
     DirectPortAwareExpression,
     DirectStaticConstRuntimeCompletion,
+    DirectEnumDeclarationRuntimeCompletion,
     DirectSelectedUnsupportedStatement,
     RawCompatibility,
     CatalogedNonMainStaticBox,
@@ -99,6 +100,9 @@ impl PreparedNormalScriptRuntimeWorkV1 {
                 Kind::DirectPortAwareExpression => Admission::DirectPortAwareExpression,
                 Kind::DirectStaticConstRuntimeCompletion => {
                     Admission::DirectStaticConstRuntimeCompletion
+                }
+                Kind::DirectEnumDeclarationRuntimeCompletion => {
+                    Admission::DirectEnumDeclarationRuntimeCompletion
                 }
                 Kind::DirectSelectedUnsupportedStatement => {
                     Admission::DirectSelectedUnsupportedStatement
