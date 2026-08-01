@@ -32,7 +32,7 @@ active lane:
   MirBuilder in-place replacement
 
 current execution:
-  RAW-SCRIPT-NEXT-NAMED-FAMILY2-D0 (fresh design stop)
+  RAW-SCRIPT-NEXT-NAMED-FAMILY3-D0 (fresh design stop)
 
 latest structural finding:
   Function/Lambda production now validates its complete recursive shadow tree
@@ -233,6 +233,25 @@ next — RAW-SCRIPT-NEXT-NAMED-FAMILY2-D0
   Take one narrow non-Call/Object Deferred-family census before selecting a
   new row. Do not reopen the explicit FunctionCall R4 retention or the closed
   GroupedAssignment mutation boundary.
+
+closed — RAW-SCRIPT-ENUM-INVENTORY-COMPLETION0-D0 (NoSafeSlice)
+  The prior claim that Program enum inventory has no source producer is stale:
+  `PreparedNormalProgramDeclarationFactsV1` already collects and later installs
+  enum declarations. But it has no immutable enum preflight view, while the
+  existing EnumMatch owner reads mutable compilation context for exhaustive
+  arms, tags, and payload shape. More importantly, EnumDeclaration is still a
+  selected unsupported diagnostic runtime terminal, so a real enum Program
+  cannot become Complete by admitting EnumMatch alone. A future enum family
+  must atomically define declaration completion, a borrowed preflight view, and
+  RootLower diagnostic/result order. No EnumMatch I0 is opened.
+
+selected — RAW-SCRIPT-ENUM-INVENTORY-COMPLETION0-D0
+  Decide whether the existing one-pass declaration facts can expose one private
+  immutable enum preflight view and consume the same facts through a typed enum
+  declaration runtime completion. The decision must preserve the existing
+  Result/Void tail and RootLower diagnostic order, and must not add a second
+  collector, enum registry, mutable-builder resolver read, or partial route.
+  Only after this gate may a direct EnumMatch I0 be selected.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
