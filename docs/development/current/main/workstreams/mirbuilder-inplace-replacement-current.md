@@ -426,27 +426,34 @@ closed — JOINIR-LOOP-LOGICAL-INTERFACE0-D0 (NoSafeSlice)
   unlocated. Therefore no one producer can cover the atomic caller set with
   ordered logical inputs, carriers/exits, continuations, and result disposition.
 
-current — JOINIR-LOOP-ROOT-NEUTRAL-BINDING-SNAPSHOT0-D0
+closed — JOINIR-LOOP-ROOT-NEUTRAL-BINDING-SNAPSHOT0-D0 (NoSafeSlice)
+
+  No root-neutral producer exists before Builder effects: raw/reference has
+  neither Loop source lineage nor binding identity, while selected Script
+  deliberately defers Loop before semantic descent. Function/Lambda resolved
+  facts stop at scope/region and lexical bindings; the shared suffix has only
+  a physical `String -> ValueId` clone. Covering the atomic caller set would
+  require a new raw semantic ingress or activate Script Loop semantics.
+
+current — JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0
 
 Change:
-  Determine whether a single root-neutral binding snapshot can be issued before
-  all Loop callers, covering exact source, ordered BindingRef inputs,
-  carrier-to-exit slots, continuation identity, and result disposition.
+  Decide whether universal resolved semantic ingress is an explicit final-
+  pipeline prerequisite, or whether the all-route atomic membership assumed by
+  Loop Recipe/CorePlan must be changed before an implementation row can exist.
 
 Contract:
-  Audit selected Script, Function/Lambda, shared suffix, and raw/reference
-  membership. Do not activate Loop semantics, construct CorePlan, alter
-  normalized shadow, or change Loop grammar, result semantics, VM behavior,
-  or diagnostics.
+  This is a premise reset, not a Loop implementation. Do not introduce a raw
+  semantic ingress, activate Script Loop semantics, construct CorePlan, alter
+  normalized shadow, or change raw/reference behavior.
 
 Done:
-  Name a unique producer and ownership boundary for the snapshot, or close as
-  NoSafeSlice at the first caller that would require name/ValueId recovery.
+  One decision names the final all-route membership and its required semantic
+  authority, or rejects the current Loop replacement premise.
 
 Stop:
-  Do not open S0 or Loop I0 if the snapshot needs Builder mutation, changes
-  raw/reference semantics, activates Script Loop resolution, or reconstructs a
-  logical binding from a name or ValueId.
+  Do not open Loop S0/I0 from a selected-only product, a name/ValueId recovery,
+  or an unproven raw/reference exclusion.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully

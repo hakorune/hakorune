@@ -1,13 +1,13 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JOINIR-LOOP-LOGICAL-INTERFACE0-D0 is closed as NoSafeSlice: no all-caller producer can issue source-identity-backed logical Loop bindings before Builder effects."
+status = "JOINIR-LOOP-ROOT-NEUTRAL-BINDING-SNAPSHOT0-D0 is closed as NoSafeSlice: raw/reference lacks source lineage and binding identity, while selected Script deliberately lacks Loop semantic authority."
 date = "2026-08-02"
 development_branch_ssot = "main"
 development_branch_cutover = "public-main fast-forwarded into main at 3e410872ad; main tracks hakorune/main"
-current_design_stop = "JOINIR-LOOP-ROOT-NEUTRAL-BINDING-SNAPSHOT0-D0"
-current_execution_row = "JOINIR-LOOP-ROOT-NEUTRAL-BINDING-SNAPSHOT0-D0"
-current_execution_summary = "Determine whether one root-neutral, source-identity-backed binding snapshot can cover selected Script, Function/Lambda, shared suffix, and raw/reference Loop callers without activating Loop semantics or reconstructing bindings from names or ValueIds."
+current_design_stop = "JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0"
+current_execution_row = "JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0"
+current_execution_summary = "Reset the Loop all-route premise: decide whether universal resolved semantic ingress is a final-pipeline prerequisite, or whether atomic Loop caller membership must be redefined before any Loop I0/R0."
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
