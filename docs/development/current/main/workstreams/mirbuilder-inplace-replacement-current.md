@@ -432,31 +432,49 @@ closed — JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0 (Decision B-prime)
   found no repository production Loop caller for that port. Do not add a new
   raw/reference profile or universal semantic ingress.
 
-current — JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0-COVERAGE-D0
+closed — JOINMODULE-NORMALIZED-SHADOW-DEV-FENCE0-COVERAGE-D0 (NoSafeSlice)
+
+  The proposed finite concrete-shape table was not a truthful coverage proof.
+  `NormalizationPlanBox` admits six grammar families, including the unbounded
+  `(Assignment | Local)*; Break` family, and it intentionally leaves child
+  expression eligibility to the executor.  Direct and suffix entries share the
+  same PlanBox domain, while suffix failure may retry the same normalized
+  mutation through the direct Loop entry.  Do not infer all-shape parity from a
+  finite fixture list or treat the existing shape-only suffix tests as
+  production evidence.
+
+current — JOINMODULE-NORMALIZED-SHADOW-GRAMMAR-DOMAIN0-D0
 
 Change:
-  Materialize one finite, table-driven coverage proof for every shape accepted
-  by `NormalizationPlanBox`, at both the direct Loop and block-suffix mutation
-  entries. Map each shape to the ordinary recipe-first route or one exact gap.
+  Materialize one table-driven grammar-domain proof for the six parameterized
+  families admitted by `NormalizationPlanBox`.  For each family, distinguish
+  PlanBox admission, normalized executor preflight, and ordinary recipe-first
+  eligibility at both the direct Loop and block-suffix mutation entries.
 
 Contract:
   Evidence only: no Loop activation, new profile, semantic ingress, route,
   fallback, or raw/reference behavior. Keep explicit raw-vm-reference excluded
   before physical open and the caller-zero raw legacy Loop port outside the
   production set. Reuse the shared manifest/guard; add no per-row guard, and
-  keep every touched source/check file below 800 lines.
+  keep every touched source/check file below 800 lines.  Grammar families are
+  parametric contracts; representative fixtures prove boundaries, not finite
+  enumeration of every AST member.  Do not execute a candidate route merely to
+  learn whether it is eligible.
 
 Done:
-  Every accepted shape has fixture identity plus direct/suffix entry, recipe,
-  MIR/verification, result, consumed-count, variable publication, and strict
-  failure parity. The evidence selects exactly one next row: atomic retirement
-  of both mutation entries, or one named missing-recipe implementation.
-  `docs_only_closeout = forbidden`.
+  Every family has an exact grammar, PlanBox anchor, executor-domain predicate,
+  ordinary candidate set, direct/suffix reachability, and positive plus boundary
+  fixture identity.  The table records the suffix-to-direct retry edge and
+  distinguishes `covered`, `overlap`, and `gap` without Builder effects.  The
+  evidence selects exactly one next row: atomic retirement of both mutation
+  entries, one pure route-selection prerequisite, or one named missing-domain
+  implementation.  `docs_only_closeout = forbidden`.
 
 Stop:
-  Stop if accepted arms are not finite, a shape has multiple committable
-  recipes, parity needs String/ValueId recovery, a gap needs fallback, or the
-  shared evidence cannot stay below the file budget.
+  Stop if an executor or recipe domain can only be discovered by mutating the
+  Builder, a family needs String/ValueId recovery, candidate uniqueness cannot
+  be decided before effects, a gap needs fallback, or the shared evidence cannot
+  stay below the file budget.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
