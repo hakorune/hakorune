@@ -383,23 +383,26 @@ closed — MIRBUILDER-R4-FENCE-REGISTRY-SSOT0-S0
   source/fixture/guard evidence and dependency checks. The handwritten table
   is deleted; no route or runtime behavior changed.
 
-current — MIRBUILDER-R4-FENCE-EVIDENCE-MATURITY0-D0
+closed — MIRBUILDER-R4-FENCE-EVIDENCE-MATURITY0-D0 (NoSafeSlice)
+  None of the seven R4 fences has an all-route replacement owner: source and
+  fixture anchors prove presence only, never atomic route replacement parity.
+
+current — MIRBUILDER-FINAL-R4-RETENTION-POLICY0-D0
 
 Change:
-  Select whether any registered R4 fence has enough exact all-route evidence
-  for a named rehome; source-anchor evidence alone cannot open an I0.
+  Decide whether a named R4 retained operation may satisfy final conformance,
+  or whether every active fence must gain an all-route rehome before completion.
 
 Contract:
-  Keep the manifest as the sole registry and preserve the distinction between
-  operation, dev-mutation, bridge, transport, and dependency fences.
+  Do not promote source anchors to route parity or reopen any retained fence
+  under a renamed partial I0.
 
 Done:
-  One all-route rehome candidate or one compact NoSafeSlice decision is named;
-  no current fence is silently promoted from source-anchor to parity evidence.
+  The completion predicate, release authority, and allowed R4 end state are
+  explicit; only then may a concrete all-route rehome or final cleanup proceed.
 
 Stop:
-  Stop if an owner has only partial-route evidence, requires a new compatibility
-  carrier, or cannot retire its selected old edge atomically.
+  Stop implementation until the final R4 retention policy is selected.
 
 already closed — do not reopen as WIP
   QMark propagation, root Match control, StaticConst completion, and fully
